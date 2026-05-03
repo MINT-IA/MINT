@@ -72,3 +72,43 @@
 - It does NOT prove the **backend itself** doesn't persist anything beyond what the mobile sends. The chat panel's claim « no verbatim conversation log » was based on its own grep of the backend; this inventory only certifies the mobile-side surface.
 - It does NOT cover any **future** endpoints. Whoever adds a new `http.post` after this date must re-run the sweep and update this table.
 - It does NOT verify the body-content classifications by inspecting actual production payloads — only by reading the source. If the backend silently logs more fields than the body sends (request headers, IP, etc.), that's a separate concern (server-side logging policy).
+
+---
+
+## Backend-side WRITE-tier whitelist (Phase 52.1 PR 2 + 52.2 audit-corrected)
+
+**Date:** 2026-05-04
+**Method:** read every `name == "<tool>"` branch in `_execute_internal_tool` (`services/backend/app/api/v1/endpoints/coach_chat.py:1197-1900`); for each, classify whether the handler issues `db.add` / `db.commit` / `db.delete` against a PII-bearing model. Re-verified after the **T-52-08 close-out audit (2026-05-03)** caught 3 false negatives in the first pass.
+
+### `_WRITE_TIER_TOOLS` final whitelist (all gated when `persistence_consent=False`)
+
+| Tool name | DB write site | Model | Source line |
+|---|---|---|---|
+| `save_fact` | `db.add(profile)` (mutates `ProfileModel.data`) | ProfileModel | dispatcher branch + `_apply_save_fact_handler` |
+| `save_insight` | `db.add(CoachInsightRecord(...))` | CoachInsightRecord | `coach_chat.py` save_insight branch |
+| `save_provenance` | `db.add(ProvenanceRecord(...))` | ProvenanceRecord | `coach_chat.py:1510` |
+| `save_earmark` | `db.add(EarmarkTag(...))` | EarmarkTag | `coach_chat.py:1531` |
+| `remove_earmark` | `db.delete(tag)` | EarmarkTag | `coach_chat.py:1550` |
+
+### NOT gated — verified non-writers (must NOT be added to the whitelist)
+
+| Tool name | Reason | Verified at |
+|---|---|---|
+| `set_goal` | ack-only string return (no DB call in dispatcher branch) | dispatcher |
+| `mark_step_completed` | ack-only string return | dispatcher |
+| `record_commitment` | « P14 commitment devices — ack-only handlers » comment | `coach_chat.py:1482` |
+| `save_pre_mortem` | same ack-only block | `coach_chat.py:1483-1495` |
+| `save_partner_estimate` | Flutter-bound; never reaches backend dispatcher | mobile gates in PR #438 |
+| `update_partner_estimate` | same | mobile gates in PR #438 |
+| `record_check_in` | same | mobile gates in PR #438 |
+| `get_*` (every reader) | read-only; LSP only fetches | dispatcher branches |
+
+### Audit lesson encoded in test_coach_chat_persistence_gate.py
+
+The first pass (Phase 52.1 PR 2) lumped `save_provenance` / `save_earmark` / `remove_earmark` with the ack-only block based on a comment header that **only applied to the two handlers immediately below it** (`record_commitment` + `save_pre_mortem`). The 3 handlers below those DO write to DB. Lesson: comment-block scope is not transitive — re-verify each branch by reading the body, not the section header.
+
+`test_write_tier_set_is_complete` now hard-asserts the full 5-tool set; adding a new write-tier handler requires extending BOTH `_WRITE_TIER_TOOLS` AND that assertion. This is the safety net against the « shipped a new write-tier handler but forgot to gate it » regression class.
+
+### Process improvement (deferred — opt-in for next phase)
+
+Panel suggested an AST-walk dispatcher test that flags any branch containing `db.add` / `db.commit` / `db.delete` whose tool name is NOT in `_WRITE_TIER_TOOLS`. That would have caught this audit gap automatically. Tracked for v2.next; current safety net is the hard-coded expected set + manual audit on each new tool.

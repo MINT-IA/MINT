@@ -236,6 +236,7 @@ class TestIntelligenceToolHandlers:
                 },
             },
             memory_block=None,
+            persistence_consent=True,
         )
         assert "Provenance notée" in result
         assert "3a" in result
@@ -255,6 +256,7 @@ class TestIntelligenceToolHandlers:
                 },
             },
             memory_block=None,
+            persistence_consent=True,
         )
         assert "Marquage enregistré" in result
         assert "l'argent de mamie" in result
@@ -271,6 +273,7 @@ class TestIntelligenceToolHandlers:
                 },
             },
             memory_block=None,
+            persistence_consent=True,
         )
         assert "Aucun marquage" in result
 
@@ -474,6 +477,7 @@ class TestProvenanceRoundtrip:
             memory_block=None,
             user_id="test-user-intg",
             db=integration_db,
+            persistence_consent=True,
         )
         assert "Provenance notée" in result
 
@@ -503,6 +507,7 @@ class TestProvenanceRoundtrip:
             memory_block=None,
             user_id="test-user-intg",
             db=integration_db,
+            persistence_consent=True,
         )
         assert "Marquage enregistré" in result
 
@@ -530,6 +535,7 @@ class TestProvenanceRoundtrip:
             memory_block=None,
             user_id="test-user-intg",
             db=integration_db,
+            persistence_consent=True,
         )
 
         block = _build_intelligence_memory_block("test-user-intg", integration_db)
@@ -552,6 +558,7 @@ class TestProvenanceRoundtrip:
             memory_block=None,
             user_id="test-user-intg",
             db=integration_db,
+            persistence_consent=True,
         )
         # Verify it exists
         block_before = _build_intelligence_memory_block("test-user-intg", integration_db)
@@ -566,6 +573,7 @@ class TestProvenanceRoundtrip:
             memory_block=None,
             user_id="test-user-intg",
             db=integration_db,
+            persistence_consent=True,
         )
         assert "supprimé" in result
 
@@ -592,6 +600,7 @@ class TestProvenanceRoundtrip:
             memory_block=None,
             user_id="test-user-intg",
             db=integration_db,
+            persistence_consent=True,
         )
         _execute_internal_tool(
             tool_call={
@@ -605,6 +614,7 @@ class TestProvenanceRoundtrip:
             memory_block=None,
             user_id="test-user-intg",
             db=integration_db,
+            persistence_consent=True,
         )
 
         block = _build_intelligence_memory_block("test-user-intg", integration_db)
@@ -630,6 +640,7 @@ class TestProvenanceRoundtrip:
             memory_block=None,
             user_id="test-user-intg",
             db=integration_db,
+            persistence_consent=True,
         )
         _execute_internal_tool(
             tool_call={
@@ -642,6 +653,7 @@ class TestProvenanceRoundtrip:
             memory_block=None,
             user_id="test-user-intg",
             db=integration_db,
+            persistence_consent=True,
         )
 
         block = _build_intelligence_memory_block("test-user-intg", integration_db)

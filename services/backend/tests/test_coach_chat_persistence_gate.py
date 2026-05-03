@@ -25,16 +25,21 @@ from app.api.v1.endpoints.coach_chat import (
 
 
 # Verified WRITE-tier handlers in coach_chat.py — those that ACTUALLY
-# write to DB through the chat dispatcher. The panel's first-pass list
-# included ack-only handlers (save_pre_mortem, save_provenance,
-# save_earmark) and Flutter-bound tools (save_partner_estimate,
-# update_partner_estimate, record_check_in) — re-verified by reading
-# each handler. Only save_fact and save_insight perform a real DB
-# write in this dispatcher; the rest are either logger.info-only or
-# never reach the backend.
+# write to DB through the chat dispatcher. Re-verified after the
+# T-52-08 close-out audit (2026-05-03) caught 3 false negatives in
+# the first version: save_provenance / save_earmark / remove_earmark
+# DO write to DB (db.add(ProvenanceRecord), db.add(EarmarkTag),
+# db.delete(tag)) at coach_chat.py:1510-1558 — they're not ack-only
+# despite the « # P14 commitment devices — ack-only handlers » comment
+# (which only applied to record_commitment + save_pre_mortem).
 WRITE_TIER_FIXTURES = [
     ("save_fact", {"key": "age", "value": 40}),
     ("save_insight", {"summary": "user lives in GE", "topic": "canton"}),
+    ("save_provenance",
+     {"product_type": "3a", "recommended_by": "mon banquier", "institution": "UBS"}),
+    ("save_earmark",
+     {"label": "argent de mamie", "source_description": "héritage", "amount_hint": "~50k"}),
+    ("remove_earmark", {"label": "argent de mamie"}),
 ]
 
 
@@ -84,8 +89,11 @@ def test_write_tier_set_is_complete():
     assertion — the safety net against the « shipped a new write-tier
     handler but forgot to gate it » regression class."""
     expected = {
-        "save_fact",   # writes ProfileModel.data
-        "save_insight",  # writes CoachInsightRecord
+        "save_fact",        # writes ProfileModel.data
+        "save_insight",     # writes CoachInsightRecord
+        "save_provenance",  # writes ProvenanceRecord (db.add @ coach_chat.py:1510)
+        "save_earmark",     # writes EarmarkTag (db.add @ coach_chat.py:1531)
+        "remove_earmark",   # deletes EarmarkTag (db.delete @ coach_chat.py:1550)
     }
     assert _WRITE_TIER_TOOLS == frozenset(expected), (
         f"WRITE-tier whitelist drift detected. Expected: {expected!r} "
@@ -103,12 +111,14 @@ def test_write_tier_set_is_complete():
         # Acknowledgement-only tools — return a confirmation string but
         # never write to DB. Must NOT be in the WRITE-tier whitelist
         # (gating these would block the LLM's ability to acknowledge
-        # the user's intent within the conversation).
+        # the user's intent within the conversation). Verified at
+        # coach_chat.py:1482-1495 (« # P14 commitment devices — ack-only
+        # handlers » applies ONLY to record_commitment + save_pre_mortem;
+        # save_provenance / save_earmark / remove_earmark below them DO
+        # write to DB and are gated — see test_write_tier_set_is_complete).
         "set_goal",
         "mark_step_completed",
         "save_pre_mortem",
-        "save_provenance",
-        "save_earmark",
         "record_commitment",
         # Flutter-bound tools — never reach the backend dispatcher.
         # Mobile-side gates in PR #438 cover the device-side persistence.
