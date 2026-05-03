@@ -126,13 +126,40 @@ exit code: 0</pre>
   <li>HTML evidence report updated — <span class="badge b-pass">PASS</span> (this document)</li>
 </ol>
 
+<h2>Plan 53-02 — execution log (2026-05-04)</h2>
+
+<table>
+<tr><th>Task</th><th>Status</th><th>Evidence</th></tr>
+<tr><td>T-01 — startSequence wiring at intent-detection site</td><td><span class="badge b-pass">done</span></td><td><code>RouteSuggestionCard</code> accepts new <code>intentTag</code> parameter; on tap it calls <code>SequenceChatHandler.startSequence(intentTag)</code> via <code>unawaited(...)</code> before <code>context.push</code>. <code>widget_renderer._buildRouteSuggestion</code> plumbs <code>p['intent']</code> through.</td></tr>
+<tr><td>T-02 — handleRealtimeReturn dispatch in <code>_subscribeToScreenReturns</code></td><td><span class="badge b-pass">done</span></td><td><code>coach_chat_screen._subscribeToScreenReturns</code> calls <code>SequenceChatHandler.handleRealtimeReturn</code> first; if non-null result, dispatches via new <code>_injectSequencePrompt</code> helper (handles <code>AdvanceAction</code> + <code>CompleteAction</code>; other action types fall back to legacy contextLine).</td></tr>
+<tr><td>T-03 — wiring tests (proof of injection)</td><td><span class="badge b-pass">done</span></td><td>3 tests in <code>route_suggestion_card_sequence_test.dart</code>: (a) no intentTag → no SequenceRun; (b) intentTag <code>retirement_choice</code> → SequenceRun with <code>templateId == retirement_prep</code> persisted; (c) unknown intentTag → silent no-op. 3/3 PASS.</td></tr>
+<tr><td>T-04 — walker rerun (replaces 4× 167 076-byte failure)</td><td><span class="badge b-warn">deferred</span></td><td>Walker scripts shipped in PR #443; walker rerun against Sequence wiring runs after PR #447 merges. Captures into <code>evidence/walker-2026-05-XX/</code> when executed.</td></tr>
+<tr><td>T-05 — Phase 53 verification HTML update</td><td><span class="badge b-pass">done</span></td><td>This block.</td></tr>
+</table>
+
+<h3>Wiring trace (post-PR)</h3>
+
+<pre>LLM → route_to_screen tool_use { intent: "retirement_choice", route: "/retraite", ... }
+  ↓
+widget_renderer._buildRouteSuggestion → RouteSuggestionCard(intentTag: "retirement_choice", ...)
+  ↓ user taps "Voir"
+RouteSuggestionCard.onPressed:
+    unawaited(SequenceChatHandler.startSequence("retirement_choice"))  ← persists SequenceRun
+    context.push("/retraite", extra: prefill)
+  ↓ user navigates, completes screen, screen calls ScreenCompletionTracker.complete(...)
+coach_chat_screen._subscribeToScreenReturns ← receives ScreenReturn
+    SequenceChatHandler.handleRealtimeReturn(screenReturn)
+      → SequenceCoordinator.decide(template: retirementPrep, run, ...)
+      → AdvanceAction(nextStep: ..., progressLabel: "Étape 2/N", ...)
+    _injectSequencePrompt(result)
+      → setState: _messages.add(ChatMessage(content: "Étape suivante : ...", richToolCalls: [route_to_screen for next step]))</pre>
+
 <h2>What's next</h2>
 
 <ol>
-  <li>PR-2 lands → Plan 53-01 close-out</li>
-  <li>PR #443 merges → walker --archetype mode available; T-05 walker dry-run runs as Plan 53-02 prep</li>
-  <li>Plan 53-02 PLAN.md drafted → <code>SequenceChatHandler</code> wiring + <code>retirementPrep</code> end-to-end</li>
-  <li>Plan 53-03 PLAN.md drafted → Tab 1 commitments / check-ins surface</li>
+  <li>PR #446 (Plan 53-03 Tab 1 surface) lands</li>
+  <li>PR #447 (Plan 53-02 sequence wiring) lands</li>
+  <li>Walker T-04 rerun against the wired Sequence — capture as <code>evidence/walker-2026-05-XX/</code></li>
   <li>Phase 53 close-out audit (post-merge panel review with the load-bearing question « can a real user complete one multi-screen life-event journey end-to-end starting from chat ? »)</li>
   <li>If audit PASS → next 5-expert panel for Phase 54 target (chat-vivant scenes per Experts 2 + 4 convergence). If BLOCK → Phase 53.x hot-fix per <code>feedback_post_phase_panel_loop.md</code></li>
 </ol>
