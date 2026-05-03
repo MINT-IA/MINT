@@ -75,6 +75,15 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     # Coach surface itself (the chat is the SOURCE of routing; you don't route INTO it)
     "/coach",
     "/coach/chat",
+    # Phase 53-01 — about + onboarding flows are pre-chat or post-chat-irrelevant
+    "/about",
+    "/onboarding/enrichment",
+    "/onboarding/intent",
+    "/onboarding/minimal",
+    "/onboarding/plan",
+    "/onboarding/promise",
+    "/onboarding/quick-start",
+    "/onboarding/smart",
 }
 
 # Routes that belong to the registry but use a dynamic / parametric form

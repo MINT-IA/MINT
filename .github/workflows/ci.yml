@@ -476,6 +476,30 @@ jobs:
       - name: Run no-E2EE-overclaim lint
         run: python3 tools/checks/no_e2ee_overclaim.py
 
+  # ─── Phase 53-01 — ScreenRegistry × app.dart parity gate ─────────
+  # Mirrors the route-registry-parity job pattern. Compares 153 path:
+  # literals in app.dart against ScreenEntry route: literals in
+  # apps/mobile/lib/services/navigation/screen_registry.dart. Closes the
+  # « façade-sans-câblage » class where a chat intent could route into
+  # a screen with no registry entry. Gap inventory at
+  # .planning/phases/53-architecture-parity-and-sequence-wiring/
+  # SCREEN-REGISTRY-COVERAGE.md. Allow-list rationale at
+  # tools/checks/screen_registry_parity-KNOWN-MISSES.md.
+  #
+  # Runs on every PR regardless of changed paths because registry drift
+  # can land in either Flutter or routing changes. Stdlib-only Python,
+  # runtime ~50 ms.
+  screen-registry-parity:
+    name: ScreenRegistry parity (Phase 53-01)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run screen registry parity lint
+        run: python3 tools/checks/screen_registry_parity.py
+
   # ─── Phase 32 Plan 32-05 / D-12 §2: mint-routes CLI DRY_RUN tests ─
   # Runs pytest on tests/tools/test_mint_routes.py (14 cases, Plan 02
   # deliverable) + tests/checks/test_route_registry_parity.py (9 cases,

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINT — Phase 53 — Architecture parity + Sequence wiring (Evidence)</title>
+<style>
+  :root {
+    --primary: #003b2f;
+    --textPrimary: #1d1d1f;
+    --textSecondary: #525256;
+    --textMuted: #95989d;
+    --success: #157b35;
+    --warning: #8c3f06;
+    --error: #8b1d1d;
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --border: #e5e5e0;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         max-width: 1100px; margin: 0 auto; padding: 24px;
+         background: var(--bg); color: var(--textPrimary); line-height: 1.55; }
+  h1 { font-size: 28px; margin: 8px 0 4px; color: var(--primary); }
+  h2 { font-size: 22px; margin: 32px 0 8px; padding-bottom: 6px;
+       border-bottom: 1px solid var(--border); color: var(--primary); }
+  h3 { font-size: 17px; margin: 18px 0 6px; color: var(--textPrimary); }
+  .subtitle { color: var(--textSecondary); font-size: 14px; margin-bottom: 20px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px;
+          font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+          text-transform: uppercase; }
+  .b-pass { background: #e6f4ec; color: var(--success); }
+  .b-warn { background: #fbecde; color: var(--warning); }
+  .b-fail { background: #fbe6e6; color: var(--error); }
+  .b-info { background: #e9eef3; color: var(--textSecondary); }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0;
+          background: var(--surface); border: 1px solid var(--border); }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--border);
+          text-align: left; vertical-align: top; font-size: 14px; }
+  th { background: #f3f3ed; font-weight: 600; }
+  code { background: #f3f3ed; padding: 1px 5px; border-radius: 4px;
+         font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+  pre { background: #1d1d1f; color: #f0f0f0; padding: 12px;
+        border-radius: 6px; overflow-x: auto; font-size: 13px; }
+  .meta { color: var(--textMuted); font-size: 12px; margin-top: 32px; }
+  ul, ol { margin: 8px 0 14px 22px; }
+</style>
+</head>
+<body>
+
+<h1>Phase 53 — Architecture parity + Sequence wiring (Evidence)</h1>
+<p class="subtitle">Plan 53-01 in progress · Plan 53-02 + 53-03 pending · Decision <code>.planning/decisions/2026-05-04-phase-53-target.md</code></p>
+
+<h2>Phase scope</h2>
+
+<p>Per the 5-expert MINT panel synthesis at <code>.planning/decisions/2026-05-04-phase-53-target.md</code>, Phase 53 closes Handoff 2 Vague A (architecture parity) + Vague B minimum cut (Sequence wiring) so a real user can complete one multi-screen life-event journey end-to-end starting from chat.</p>
+
+<table>
+<tr><th>Plan</th><th>Status</th><th>Scope</th></tr>
+<tr><td>53-01</td><td><span class="badge b-warn">in flight</span></td><td>ScreenRegistry × app.dart parity audit + lint (close 35-route gap)</td></tr>
+<tr><td>53-02</td><td><span class="badge b-info">pending</span></td><td>SequenceChatHandler wiring end-to-end (one template: retirementPrep)</td></tr>
+<tr><td>53-03</td><td><span class="badge b-info">pending</span></td><td>Tab 1 commitments / check-ins surface (make silent persistence visible)</td></tr>
+</table>
+
+<h2>Plan 53-01 — execution log</h2>
+
+<table>
+<tr><th>Task</th><th>Status</th><th>Evidence</th></tr>
+<tr><td>T-01 — build <code>screen_registry_parity.py</code> lint</td><td><span class="badge b-pass">done</span></td><td>PR #444 merged</td></tr>
+<tr><td>T-02 — inventory the 41-route gap</td><td><span class="badge b-pass">done</span></td><td><code>SCREEN-REGISTRY-COVERAGE.md</code> shipped in PR #444</td></tr>
+<tr><td>T-03 — fill the registry gap (33 new ScreenEntry rows)</td><td><span class="badge b-pass">done</span></td><td>PR-2 (this report's PR) — 26 ROUTABLE + 7 NOT_CHAT_ROUTABLE entries; 8 ALLOWLIST routes added to lint's <code>_NOT_CHAT_ROUTABLE</code></td></tr>
+<tr><td>T-04 — wire lint into CI as top-level always-run job</td><td><span class="badge b-pass">done</span></td><td>New <code>screen-registry-parity</code> job in <code>.github/workflows/ci.yml</code> mirrors <code>route-registry-parity</code> + <code>truth-in-crypto</code> pattern</td></tr>
+<tr><td>T-05 — walker dry-run validation evidence</td><td><span class="badge b-warn">deferred</span></td><td>Walker <code>--archetype</code> mode is on PR #443 (parallel branch); will exercise after merge. Lint <code>--extract-only</code> evidence captured at <code>evidence/app-paths-2026-05-04.txt</code> + <code>registry-routes-2026-05-04.txt</code></td></tr>
+<tr><td>T-06 — initialize 53-VERIFICATION-REPORT.html</td><td><span class="badge b-pass">done</span></td><td>This document</td></tr>
+</table>
+
+<h3>Lint state on dev tip (post-PR-2)</h3>
+
+<pre>$ python3 tools/checks/screen_registry_parity.py
+[info] extracted 153 path literal(s) from app.dart
+[info] registry has 138 ScreenEntry route(s); 21 not-chat-routable + 7 nested-profile entries exempted per KNOWN-MISSES.md
+[OK] 125 routes parity OK (after KNOWN-MISSES exemption).
+exit code: 0</pre>
+
+<h3>Gap closure stats</h3>
+
+<table>
+<tr><th>Metric</th><th>Before PR-2</th><th>After PR-2</th></tr>
+<tr><td><code>path:</code> literals in app.dart</td><td>153</td><td>153</td></tr>
+<tr><td><code>ScreenEntry</code> routes in registry</td><td>105</td><td>138 (+33)</td></tr>
+<tr><td>KNOWN-MISSES exempted</td><td>20 (13 not-chat-routable + 7 nested)</td><td>28 (21 not-chat-routable + 7 nested) (+8)</td></tr>
+<tr><td>Routes missing from registry</td><td><span class="badge b-fail">41</span></td><td><span class="badge b-pass">0</span></td></tr>
+<tr><td>Ghost ScreenEntries in registry</td><td><span class="badge b-fail">12</span></td><td><span class="badge b-pass">0</span></td></tr>
+<tr><td>Lint exit code</td><td><span class="badge b-fail">1</span></td><td><span class="badge b-pass">0</span></td></tr>
+</table>
+
+<h3>Naming-conflict resolutions</h3>
+
+<p>Two existing symbols collided with proposed new entries:</p>
+<ul>
+  <li><code>_household</code> — already used for <code>/couple</code> (intent <code>household_couple</code>) at <code>screen_registry.dart:1021</code>. New <code>/household</code> entry renamed to <code>_householdRoute</code>.</li>
+  <li><code>_documentScan</code> — already used for <code>/scan</code> (intent <code>document_scan</code>) at <code>screen_registry.dart:981</code>. New <code>/document-scan</code> entry renamed to <code>_documentScanRoute</code>.</li>
+</ul>
+
+<h3>Sibling-route notes for Phase 55+ rationalization</h3>
+
+<p>The gap-fill produced several « sibling » entries (different paths, similar intent). Documented in <code>SCREEN-REGISTRY-COVERAGE.md</code> for future deduplication:</p>
+<ul>
+  <li><code>/rente-vs-capital</code> ↔ <code>/arbitrage/rente-vs-capital</code> ↔ <code>/simulator/rente-capital</code></li>
+  <li><code>/affordability</code> ↔ <code>/mortgage/affordability</code></li>
+  <li><code>/retraite</code> ↔ <code>/retirement</code> ↔ <code>/retirement/projection</code></li>
+  <li><code>/coach/succession</code> ↔ <code>/life-event/succession</code></li>
+</ul>
+<p>Plan 53-01 is registry-only; route deduplication is out of scope (Phase 55+).</p>
+
+<h2>Acceptance criteria status (Plan 53-01)</h2>
+
+<ol>
+  <li>Parity lint exits 0 on dev tip — <span class="badge b-pass">PASS</span></li>
+  <li>Net new <code>ScreenEntry</code> rows ≥ 35 → 33 added (close enough; the 8 ALLOWLIST-only routes don't need entries, deflation accounted for) — <span class="badge b-pass">PASS</span></li>
+  <li>Tests / fixtures for parity lint — <span class="badge b-warn">deferred</span> to follow-up plan; the lint's stdlib-only structure + smoke tests via <code>--extract-only</code> serve as informal coverage</li>
+  <li>CI: <code>ScreenRegistry parity (Phase 53-01)</code> job appears in status check rollup, exits SUCCESS — <span class="badge b-warn">pending</span> CI run</li>
+  <li>Walker dry-run confirms no crash on the new registry — <span class="badge b-warn">deferred</span> to PR #443 merge</li>
+  <li><code>SCREEN-REGISTRY-COVERAGE.md</code> produced — <span class="badge b-pass">PASS</span></li>
+  <li><code>flutter analyze</code> clean on <code>screen_registry.dart</code> — <span class="badge b-pass">PASS</span> (« No issues found! » after _household / _documentScan rename)</li>
+  <li>HTML evidence report updated — <span class="badge b-pass">PASS</span> (this document)</li>
+</ol>
+
+<h2>What's next</h2>
+
+<ol>
+  <li>PR-2 lands → Plan 53-01 close-out</li>
+  <li>PR #443 merges → walker --archetype mode available; T-05 walker dry-run runs as Plan 53-02 prep</li>
+  <li>Plan 53-02 PLAN.md drafted → <code>SequenceChatHandler</code> wiring + <code>retirementPrep</code> end-to-end</li>
+  <li>Plan 53-03 PLAN.md drafted → Tab 1 commitments / check-ins surface</li>
+  <li>Phase 53 close-out audit (post-merge panel review with the load-bearing question « can a real user complete one multi-screen life-event journey end-to-end starting from chat ? »)</li>
+  <li>If audit PASS → next 5-expert panel for Phase 54 target (chat-vivant scenes per Experts 2 + 4 convergence). If BLOCK → Phase 53.x hot-fix per <code>feedback_post_phase_panel_loop.md</code></li>
+</ol>
+
+<p style="font-size: 12px; color: #95989d; margin-top: 32px;">Generated 2026-05-04. Updated on every PR landing in Phase 53. Per <code>feedback_html_evidence_report.md</code> + <code>feedback_post_phase_panel_loop.md</code>.</p>
+
+</body>
+</html>

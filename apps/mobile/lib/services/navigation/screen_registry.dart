@@ -1475,6 +1475,364 @@ class MintScreenRegistry extends ScreenRegistry {
   );
 
   // ════════════════════════════════════════════════════════════════
+  //  PHASE 53-01 — registry parity fill (24 ROUTABLE + 9 NOT_CHAT_ROUTABLE)
+  //
+  //  Closes the 33-route gap detected by tools/checks/screen_registry_parity.py
+  //  on 2026-05-04. Routes are classified per
+  //  .planning/phases/53-architecture-parity-and-sequence-wiring/
+  //  SCREEN-REGISTRY-COVERAGE.md.
+  //
+  //  ROUTABLE rows use `preferFromChat: true` and minimal `requiredFields`
+  //  (`[]` placeholder) where the gating is unclear from a code-read; a
+  //  follow-up plan (Phase 55+) will refine the readiness gates against
+  //  each screen's actual Provider consumers.
+  //
+  //  NOT_CHAT_ROUTABLE rows use `preferFromChat: false` and mirror the
+  //  existing _achievements / _authLogin / _home pattern — the LLM knows
+  //  about them by intent but the RoutePlanner won't surface them from chat.
+  // ════════════════════════════════════════════════════════════════
+
+  // ─── ROUTABLE — advisor / handoff ─────────────────────────────────
+  static const ScreenEntry _advisor = ScreenEntry(
+    route: '/advisor',
+    intentTag: 'advisor_handoff',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: [],
+    optionalFields: ['canton', 'age'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _advisorPlan30Days = ScreenEntry(
+    route: '/advisor/plan-30-days',
+    intentTag: 'advisor_30_day_plan',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: [],
+    optionalFields: ['canton', 'age'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _advisorWizard = ScreenEntry(
+    route: '/advisor/wizard',
+    intentTag: 'advisor_wizard',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: ['canton', 'age', 'salaireBrut'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  // ─── ROUTABLE — arbitrage canvases ────────────────────────────────
+  static const ScreenEntry _arbitrageCalendrierRetraits = ScreenEntry(
+    route: '/arbitrage/calendrier-retraits',
+    intentTag: 'withdrawal_calendar',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['age', 'canton'],
+    optionalFields: ['avoirLpp', 'pillar3aBalance'],
+    fallbackRoute: '/coach/chat?topic=decaissement',
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _arbitrageRachatVsMarche = ScreenEntry(
+    route: '/arbitrage/rachat-vs-marche',
+    intentTag: 'lpp_buyback_vs_market',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['salaireBrut', 'age', 'canton'],
+    optionalFields: ['rachatMaximum', 'avoirLpp'],
+    fallbackRoute: '/coach/chat?topic=rachatLpp',
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _arbitrageRenteVsCapital = ScreenEntry(
+    route: '/arbitrage/rente-vs-capital',
+    intentTag: 'rente_vs_capital_arbitrage',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['age', 'canton'],
+    optionalFields: ['avoirLpp', 'salaireBrut'],
+    fallbackRoute: '/coach/chat?topic=retraite',
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  // ─── ROUTABLE — budget setup ──────────────────────────────────────
+  static const ScreenEntry _budgetSetup = ScreenEntry(
+    route: '/budget/setup',
+    intentTag: 'budget_setup',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: ['salaireBrut', 'canton'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  // ─── ROUTABLE — coach action surfaces ─────────────────────────────
+  static const ScreenEntry _coachDecaissement = ScreenEntry(
+    route: '/coach/decaissement',
+    intentTag: 'decaissement_plan',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['age', 'canton'],
+    optionalFields: ['avoirLpp', 'pillar3aBalance', 'totalSavings'],
+    fallbackRoute: '/coach/chat?topic=decaissement',
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _coachSuccession = ScreenEntry(
+    route: '/coach/succession',
+    intentTag: 'succession_planning',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['age', 'canton'],
+    optionalFields: ['householdType', 'totalSavings'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  // ─── ROUTABLE — disability ────────────────────────────────────────
+  static const ScreenEntry _disabilityGap = ScreenEntry(
+    route: '/disability/gap',
+    intentTag: 'disability_gap_check',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['salaireBrut', 'age', 'canton'],
+    optionalFields: ['employmentStatus'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  // ─── ROUTABLE — document scan entries ─────────────────────────────
+  // NOTE: _documentScan symbol at line 981 is for `/scan` (legacy intent
+  // 'document_scan'); this new entry is for `/document-scan` (Phase 53-01
+  // gap-fill). Different routes, different intent tags — symbol renamed
+  // to avoid duplicate-definition error.
+  static const ScreenEntry _documentScanRoute = ScreenEntry(
+    route: '/document-scan',
+    intentTag: 'document_scan_entry',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  static const ScreenEntry _documentScanAvsGuide = ScreenEntry(
+    route: '/document-scan/avs-guide',
+    intentTag: 'avs_extract_guide',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: ['age', 'canton'],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  // ─── ROUTABLE — household / couple ────────────────────────────────
+  // NOTE: _household symbol at line 1021 is for `/couple` (legacy intent
+  // 'household_couple'); this new entry is for `/household` (Phase 53-01
+  // gap-fill). Different routes, different intent tags — symbol renamed
+  // to avoid duplicate-definition error.
+  static const ScreenEntry _householdRoute = ScreenEntry(
+    route: '/household',
+    intentTag: 'household_overview',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['householdType'],
+    optionalFields: ['canton', 'spouseSalaryGrossAnnual'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _householdAccept = ScreenEntry(
+    route: '/household/accept',
+    intentTag: 'household_accept_invite',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: false,
+  );
+
+  // ─── ROUTABLE — life events ───────────────────────────────────────
+  static const ScreenEntry _lifeEventDivorce = ScreenEntry(
+    route: '/life-event/divorce',
+    intentTag: 'life_event_divorce',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['canton'],
+    optionalFields: ['householdType', 'totalSavings', 'avoirLpp'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _lifeEventSuccession = ScreenEntry(
+    route: '/life-event/succession',
+    intentTag: 'life_event_succession',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['canton'],
+    optionalFields: ['householdType', 'totalSavings'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  // ─── ROUTABLE — LPP deep dives ────────────────────────────────────
+  static const ScreenEntry _lppDeepEpl = ScreenEntry(
+    route: '/lpp-deep/epl',
+    intentTag: 'lpp_deep_epl',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: [],
+    optionalFields: ['avoirLpp', 'salaireBrut'],
+    fallbackRoute: '/coach/chat?topic=epl',
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _lppDeepLibrePassage = ScreenEntry(
+    route: '/lpp-deep/libre-passage',
+    intentTag: 'lpp_deep_libre_passage',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: [],
+    optionalFields: ['avoirLpp'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  // ─── ROUTABLE — mortgage variant ──────────────────────────────────
+  static const ScreenEntry _mortgageAffordability = ScreenEntry(
+    route: '/mortgage/affordability',
+    intentTag: 'mortgage_affordability_v2',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['salaireBrut', 'age', 'canton'],
+    optionalFields: ['totalSavings', 'spouseSalaryGrossAnnual'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  // ─── ROUTABLE — report / aperçu ───────────────────────────────────
+  static const ScreenEntry _report = ScreenEntry(
+    route: '/report',
+    intentTag: 'report_overview',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _reportV2 = ScreenEntry(
+    route: '/report/v2',
+    intentTag: 'report_v2',
+    behavior: ScreenBehavior.captureUtility,
+    requiredFields: [],
+    optionalFields: [],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  // ─── ROUTABLE — retirement variants ───────────────────────────────
+  static const ScreenEntry _retirement = ScreenEntry(
+    route: '/retirement',
+    intentTag: 'retirement_overview',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['age', 'canton'],
+    optionalFields: ['salaireBrut', 'avoirLpp', 'pillar3aBalance'],
+    fallbackRoute: '/coach/chat?topic=retraite',
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _retirementProjection = ScreenEntry(
+    route: '/retirement/projection',
+    intentTag: 'retirement_projection',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['age', 'canton'],
+    optionalFields: ['salaireBrut', 'avoirLpp', 'pillar3aBalance'],
+    fallbackRoute: '/coach/chat?topic=retraite',
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  // ─── ROUTABLE — simulator variants ────────────────────────────────
+  static const ScreenEntry _simulator3a = ScreenEntry(
+    route: '/simulator/3a',
+    intentTag: 'simulator_3a',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['age', 'canton'],
+    optionalFields: ['salaireBrut'],
+    fallbackRoute: '/coach/chat?topic=3a',
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _simulatorDisabilityGap = ScreenEntry(
+    route: '/simulator/disability-gap',
+    intentTag: 'simulator_disability_gap',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['salaireBrut', 'age', 'canton'],
+    optionalFields: ['employmentStatus'],
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  static const ScreenEntry _simulatorRenteCapital = ScreenEntry(
+    route: '/simulator/rente-capital',
+    intentTag: 'simulator_rente_capital',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['age', 'canton'],
+    optionalFields: ['avoirLpp'],
+    fallbackRoute: '/coach/chat?topic=retraite',
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
+  // ─── NOT_CHAT_ROUTABLE — tabs / settings (LLM knows by intent, won't navigate) ─
+  static const ScreenEntry _coachAgir = ScreenEntry(
+    route: '/coach/agir',
+    intentTag: 'coach_action_log',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _coachDashboard = ScreenEntry(
+    route: '/coach/dashboard',
+    intentTag: 'coach_dashboard',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _exploreTab = ScreenEntry(
+    route: '/explore',
+    intentTag: 'explore_tab',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _monArgentTab = ScreenEntry(
+    route: '/mon-argent',
+    intentTag: 'mon_argent_tab',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _toolsTab = ScreenEntry(
+    route: '/tools',
+    intentTag: 'tools_tab',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _settingsConfidentialite = ScreenEntry(
+    route: '/settings/confidentialite',
+    intentTag: 'settings_privacy',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  static const ScreenEntry _settingsLangue = ScreenEntry(
+    route: '/settings/langue',
+    intentTag: 'settings_language',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
+  // ════════════════════════════════════════════════════════════════
   //  MASTER LIST — all surfaces
   // ════════════════════════════════════════════════════════════════
 
@@ -1604,6 +1962,42 @@ class MintScreenRegistry extends ScreenRegistry {
     _prepareTaxForm,
     _prepareAvsLetter,
     _prepareLppTransfer,
+    // ── Phase 53-01 — registry parity fill (24 ROUTABLE + 9 NOT_CHAT_ROUTABLE)
+    // ROUTABLE
+    _advisor,
+    _advisorPlan30Days,
+    _advisorWizard,
+    _arbitrageCalendrierRetraits,
+    _arbitrageRachatVsMarche,
+    _arbitrageRenteVsCapital,
+    _budgetSetup,
+    _coachDecaissement,
+    _coachSuccession,
+    _disabilityGap,
+    _documentScanRoute,
+    _documentScanAvsGuide,
+    _householdRoute,
+    _householdAccept,
+    _lifeEventDivorce,
+    _lifeEventSuccession,
+    _lppDeepEpl,
+    _lppDeepLibrePassage,
+    _mortgageAffordability,
+    _report,
+    _reportV2,
+    _retirement,
+    _retirementProjection,
+    _simulator3a,
+    _simulatorDisabilityGap,
+    _simulatorRenteCapital,
+    // NOT_CHAT_ROUTABLE (LLM knows by intent, RoutePlanner won't surface)
+    _coachAgir,
+    _coachDashboard,
+    _exploreTab,
+    _monArgentTab,
+    _toolsTab,
+    _settingsConfidentialite,
+    _settingsLangue,
   ];
 
   // ════════════════════════════════════════════════════════════════
