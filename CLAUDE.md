@@ -71,6 +71,19 @@ Git : `feature/S{XX}-<slug>` depuis `dev` ; PRs feature→dev squash, dev→stag
 
 `rules.md` · `docs/MINT_IDENTITY.md` · `docs/DESIGN_SYSTEM.md` · `docs/VOICE_SYSTEM.md` · `SOT.md` · `docs/ROADMAP_V2.md` · `.claude/skills/mint-{swiss-compliance,flutter-dev,backend-dev}/SKILL.md`.
 
+## 7. CLAUDE CODE DISCIPLINE (kit external)
+
+> 14 disciplines générales (anti-surface-code + context engineering + tool discoverability) qui s'appliquent à TOUT projet, pas juste MINT. Vivent dans `tooling/claude-code-discipline-kit/` (mirror : github.com/Julienbatt/claude-code-discipline-kit).
+
+- Doc complète locale : `docs/CLAUDE_CODE_DISCIPLINE.md` (MINT-augmented, inclut les 5 rules CRITIQUES ci-dessus comme overrides)
+- Anti-patterns : `tooling/claude-code-discipline-kit/docs/ANTI_PATTERNS.md`
+- Tool discovery (discipline 14) : `tooling/claude-code-discipline-kit/docs/TOOL_DISCOVERY.md`
+- Agent architecture (specialists vs generalists) : `tooling/claude-code-discipline-kit/docs/AGENT_ARCHITECTURE.md`
+- Doctor : `bash tooling/claude-code-discipline-kit/bin/doctor.sh` (diagnose discipline state)
+- Tool census : `bash tooling/claude-code-discipline-kit/bin/tool-census.sh --underused` (surface skills/lints/scripts non utilisés)
+
+**Session start protocol :** invoquer `/claude-code-discipline` (skill manuel, ne collide pas avec `using-superpowers`) → recite les 14 disciplines + détecte tooling installé.
+
 ## 🚨 BOTTOM — 5 RULES CRITIQUES (duplicated intentionally, Liu 2024)
 
 1. **Banned terms (LSFin)** — NEVER « garanti », « optimal », « meilleur ». Use « pourrait », « envisager ».

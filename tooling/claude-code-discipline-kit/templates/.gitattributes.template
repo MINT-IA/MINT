@@ -1,0 +1,15 @@
+# Append these lines to your project's .gitattributes
+# Protects discipline marker blocks from merge conflicts on rebase/merge
+
+# CLAUDE.md project-specific blocks: prefer "ours" on merge to preserve user's content
+CLAUDE.md merge=union
+
+# Lock file: always prefer ours on merge (records local install state)
+.claude-code-discipline.lock merge=ours
+
+# Generated docs from kit: always prefer theirs on merge (kit-managed)
+docs/CLAUDE_CODE_DISCIPLINE.md merge=theirs
+docs/ANTI_PATTERNS.md merge=theirs
+
+# Generated lint: always prefer theirs on merge (kit-managed)
+tools/checks/lint_status_audit.py merge=theirs
