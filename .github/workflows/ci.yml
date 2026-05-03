@@ -216,11 +216,6 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/landing_no_financial_core.py
 
-      # ─── Phase 52.3 / TRUTH-CRYPTO: no false E2EE / zero-knowledge claim ──
-      - name: Truth-in-crypto sweep — no E2EE over-claim (Phase 52.3)
-        working-directory: ${{ github.workspace }}
-        run: python3 tools/checks/no_e2ee_overclaim.py
-
       - name: Run tests
         env:
           TESTING: "1"
@@ -457,6 +452,29 @@ jobs:
           python-version: "3.11"
       - name: Run parity lint
         run: python3 tools/checks/route_registry_parity.py
+
+  # ─── Phase 52.3 / TRUTH-CRYPTO: no false E2EE / zero-knowledge claim ──
+  # Multilingual lint that scans user-facing strings (ARBs, screens,
+  # widgets) and docs for E2EE / « bout en bout » / « Ende-zu-Ende » /
+  # « extremo a extremo » / « end-to-end » / « ponto a ponto » / E2EE /
+  # zero-knowledge claims that contradict the Path A data-residency
+  # decision (`.planning/decisions/2026-05-02-data-residency.md` —
+  # E2EE deferred to v3.0). Allow-list covers v3.0 / decision / ADR
+  # references. Per-line override: `ALLOW-E2EE-CLAIM: <reason>`.
+  #
+  # Runs on every PR regardless of changed paths because user-facing
+  # copy regressions can land in either backend or mobile changes.
+  # Stdlib-only Python, runtime ~50 ms.
+  truth-in-crypto:
+    name: Truth-in-crypto sweep (Phase 52.3)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run no-E2EE-overclaim lint
+        run: python3 tools/checks/no_e2ee_overclaim.py
 
   # ─── Phase 32 Plan 32-05 / D-12 §2: mint-routes CLI DRY_RUN tests ─
   # Runs pytest on tests/tools/test_mint_routes.py (14 cases, Plan 02
