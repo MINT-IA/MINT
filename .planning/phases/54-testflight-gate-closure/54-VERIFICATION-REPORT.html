@@ -49,7 +49,7 @@
 <body>
 
 <h1>Phase 54 — TestFlight Gate Closure (Evidence)</h1>
-<p class="subtitle">Plan 54-02 partial in flight · Plan 54-01 + 54-03 pending · Decision <code>.planning/decisions/2026-05-04-phase-54-target.md</code></p>
+<p class="subtitle">Plan 54-02 fully closed · Plan 54-01 PR-2 + Plan 54-03 pending · Decision <code>.planning/decisions/2026-05-04-phase-54-target.md</code></p>
 
 <h2>Phase scope</h2>
 
@@ -57,7 +57,7 @@
 
 <table>
 <tr><th>Plan</th><th>Status</th><th>Scope</th></tr>
-<tr><td>54-02</td><td><span class="badge b-warn">PR-1 merged · PR-2 pending</span></td><td>intentTag → tappable chip wiring on every coach opener. PR-1 (#450) shipped T-01/T-02/T-04. PR-2 covers T-03 (PrecomputedInsight on chat-open) + T-05 (500ms nav lock).</td></tr>
+<tr><td>54-02</td><td><span class="badge b-pass">all PRs merged</span></td><td>intentTag → tappable chip wiring on every coach opener. PR-1 (#450) shipped T-01/T-02/T-04. PR-2 ships T-03 (PrecomputedInsight on chat-open consume-once) + T-05 (RouteSuggestionNavLock 500ms debounce).</td></tr>
 <tr><td>54-01</td><td><span class="badge b-warn">PR-1 merged · PR-2 pending</span></td><td>Autonomous walker walkthrough across 48 AUDIT_TAP_RENDER rows. PR-1 (#451) shipped catalog + dry-run harness + 12-test smoke. PR-2 covers real tap execution (cliclick + idb + screenshot diff + Sentry breadcrumb match) — requires sim access.</td></tr>
 <tr><td>54-03</td><td><span class="badge b-info">pending</span></td><td>FAIL triage + bump pubspec 2.9.0+1 + push staging → testflight.yml succeeds → sign GATE-01</td></tr>
 </table>
@@ -80,9 +80,9 @@
 <tr><th>Task</th><th>Status</th><th>Evidence</th></tr>
 <tr><td>T-01 — _addCoachOpenerMessage refactored to accept optional intentTag</td><td><span class="badge b-pass">done</span></td><td>PR #450 merged. New parameters (intentTag / routeHint / contextMessage) + emits route_to_screen RagToolCall in richToolCalls when intentTag non-empty</td></tr>
 <tr><td>T-02 — Proactive trigger intentTag plumbed end-to-end</td><td><span class="badge b-pass">done</span></td><td>PR #450 merged. _maybeShowProactiveTrigger now passes trigger.intentTag through. 7/8 ProactiveTrigger types now surface tappable chips</td></tr>
-<tr><td>T-03 — PrecomputedInsight on chat-open surfacing</td><td><span class="badge b-info">deferred</span></td><td>Defers to Plan 54-02 PR-2 (or rolled into Phase 55 if scope creeps); needs careful dedup with proactive trigger + silent opener flows</td></tr>
+<tr><td>T-03 — PrecomputedInsight on chat-open surfacing</td><td><span class="badge b-pass">done</span></td><td>PR-2 (this push). New <code>_maybeSurfaceOpenerOnChatOpen</code> in <code>coach_chat_screen.dart:668</code> reads <code>PrecomputedInsightsService.getCachedInsight</code> on the no-payload + fresh-conversation branch, surfaces the resolved opener as a tappable <code>RouteSuggestionCard</code> via the existing <code>_addCoachOpenerMessage</code> chip path, then clears the cache (consume-once). Falls back to the legacy <code>_maybeShowProactiveTrigger</code> when no insight is cached. Precedence rule « 1 opener chip per chat-open » enforced via the existing <code>_proactiveTriggerShownThisSession</code> flag.</td></tr>
 <tr><td>T-04 — ARB-route Plan 53-02 « Étape suivante » hardcoded copy</td><td><span class="badge b-pass">done</span></td><td>PR #450 merged. New ARB keys coachSequenceNextStepLabel(label) + coachSequenceCompletedMessage in 6 locales; closes the « hardcoded FR » regression flagged by post-Phase-53 Adversarial reviewer</td></tr>
-<tr><td>T-05 — Single navigation lock to dedupe chip tap vs LLM tool dispatch</td><td><span class="badge b-info">deferred</span></td><td>Folds into Plan 54-01 walker work (which also touches the chat surface) OR Plan 54-02 PR-2</td></tr>
+<tr><td>T-05 — Single navigation lock to dedupe chip tap vs LLM tool dispatch</td><td><span class="badge b-pass">done</span></td><td>PR-2 (this push). New <code>RouteSuggestionNavLock</code> static class in <code>route_suggestion_card.dart:38</code> with 500ms <code>tryAcquire</code> window; called BEFORE the SequenceChatHandler.startSequence + context.push branch in the FilledButton.onPressed body. Three rapid taps within 500ms now route exactly once. Process-wide so chip tap + LLM-emitted route_to_screen dispatch dedupe against each other.</td></tr>
 <tr><td>T-06 — Initialize Phase 54 verification HTML</td><td><span class="badge b-pass">done</span></td><td>This document</td></tr>
 </table>
 
@@ -96,14 +96,44 @@
 <tr><td>flutter analyze on touched files</td><td>5 pre-existing warnings</td><td>5 pre-existing (no new issues)</td></tr>
 </table>
 
+<h3>Stats — Plan 54-02 PR-2</h3>
+
+<table>
+<tr><th>Metric</th><th>Before PR-2</th><th>After PR-2</th></tr>
+<tr><td>Chat-open surfaces consuming the precomputed-insight cache</td><td><span class="badge b-fail">0</span> (cache populated but never read)</td><td><span class="badge b-pass">1</span> (CoachChatScreen on fresh conversation, no entryPayload)</td></tr>
+<tr><td>RouteSuggestionCard duplicate-push protection</td><td><span class="badge b-fail">none</span> (rapid taps push N times)</td><td><span class="badge b-pass">500ms global debounce</span> (tryAcquire-then-push)</td></tr>
+<tr><td>New widget / unit tests in PR-2</td><td>—</td><td><span class="badge b-pass">7</span> (3 PrecomputedInsight surfacing scenarios + 3 NavLock unit + 1 NavLock integration)</td></tr>
+<tr><td>flutter analyze on touched files</td><td>5 pre-existing</td><td>5 pre-existing (no new issues)</td></tr>
+<tr><td>Targeted test gate</td><td>—</td><td><span class="badge b-pass">18/18 PASS</span> (route_suggestion_card_test + route_suggestion_card_sequence_test + precomputed_insight_opener_test)</td></tr>
+</table>
+
+<h3>Coverage proof — T-03 surfacing scenarios</h3>
+
+<table>
+<tr><th>Scenario</th><th>Cache state</th><th>Expected behavior</th><th>Test verdict</th></tr>
+<tr><td>Fresh insight (5 min old) + intentTag</td><td>populated, &lt; 1h</td><td>opener bubble + tappable chip + cache cleared</td><td><span class="badge b-pass">PASS</span></td></tr>
+<tr><td>Empty cache</td><td>missing key</td><td>no chip from precomputed-insight path; screen renders</td><td><span class="badge b-pass">PASS</span></td></tr>
+<tr><td>Stale insight (2h old)</td><td>populated, &gt; 1h</td><td>no chip (staleness gate); cache untouched (no consume-once)</td><td><span class="badge b-pass">PASS</span></td></tr>
+</table>
+
+<h3>Coverage proof — T-05 NavLock</h3>
+
+<table>
+<tr><th>Scenario</th><th>Expected</th><th>Test verdict</th></tr>
+<tr><td>First tryAcquire on a clean lock</td><td>true</td><td><span class="badge b-pass">PASS</span></td></tr>
+<tr><td>Second tryAcquire within 500ms (100ms + 499ms)</td><td>false (debounced)</td><td><span class="badge b-pass">PASS</span></td></tr>
+<tr><td>Third tryAcquire at exactly 500ms post-first</td><td>true (window elapsed)</td><td><span class="badge b-pass">PASS</span></td></tr>
+<tr><td>3 rapid taps on same chip → exactly 1 GoRouter push</td><td>1 push counted via redirect interceptor</td><td><span class="badge b-pass">PASS</span></td></tr>
+</table>
+
 <h2>What's next</h2>
 
 <ol>
-  <li>Plan 54-02 PR-2 (or fold into 54-01): T-03 (PrecomputedInsight on chat-open) + T-05 (500ms nav lock) — small follow-up</li>
-  <li>Plan 54-01 EXEC: build <code>walker_audit_tap_render.sh</code> + TSV row catalog + first walker run on dev tip → produces FAIL triage tickets</li>
-  <li>Plan 54-03 EXEC: triage every FAIL → focused per-surface fix PRs → walker re-runs to PASS → bump pubspec to 2.9.0+1 → push staging → testflight.yml triggers → Apple Connect processes build → sign GATE-01</li>
-  <li>Phase 54 close-out audit: « Is MINT shippable to TestFlight today? » — 4-expert post-merge panel per <code>feedback_post_phase_panel_loop.md</code></li>
-  <li>If audit PASS → Phase 55 (Chat Vivant scenes per Expert 1, now provably reachable post-54). If BLOCK → Phase 54.x hot-fix loop</li>
+  <li><span class="badge b-pass">Plan 54-02 fully closed</span> — both PRs merged.</li>
+  <li>Plan 54-01 PR-2 (next in flight): real walker execution. Boot iPhone 17 Pro sim, install dev-tip build, run <code>walker_audit_tap_render.sh --no-dry-run --archetype swiss_native --all</code>, capture screenshot+sha256 diff per row, write <code>AUDIT_TAP_RENDER_RESULTS.md</code>, produce <code>triage/F-XX-*.md</code> tickets per FAIL.</li>
+  <li>Plan 54-03 EXEC: triage every FAIL → focused per-surface fix PRs → walker re-runs to PASS → bump pubspec to 2.9.0+1 → push staging → testflight.yml triggers → Apple Connect processes build → sign GATE-01.</li>
+  <li>Phase 54 close-out audit: « Is MINT shippable to TestFlight today? » — 4-expert post-merge panel per <code>feedback_post_phase_panel_loop.md</code>.</li>
+  <li>If audit PASS → Phase 55 (Chat Vivant scenes per Expert 1, now provably reachable post-54). If BLOCK → Phase 54.x hot-fix loop.</li>
 </ol>
 
 <p style="font-size: 12px; color: #95989d; margin-top: 32px;">Generated 2026-05-04. Updated on every PR landing in Phase 54. Per <code>feedback_html_evidence_report.md</code> + <code>feedback_post_phase_panel_loop.md</code>.</p>
