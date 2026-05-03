@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
+import 'package:mint_mobile/widgets/chat_vivant/mint_inline_insight_card.dart';
 
 /// Data class for a single chat message in the anonymous flow.
 class _ChatMessage {
@@ -364,10 +365,41 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
             // (≥ 2 messages: 1 user + 1 coach) to demonstrate the « chat
             // vivant » value prop while the user is still anonymous.
             // Tap → /auth/login. Hidden once the auth gate locks (the
-            // locked CTA below already drives registration). HARDCODED
-            // FR strings for v1 ship; i18n migration tracked as follow-up.
-            if (!_isAuthGateLocked && _messages.length >= 2)
+            // locked CTA below already drives registration).
+            //
+            // Handoff 2 wire: new MintInlineInsightCard rendered ABOVE
+            // the existing teaser as the editorial overture (Niveau 1
+            // pattern). Per « le chat ne raconte plus, il montre » —
+            // the card frames what's coming with the editorial voice
+            // (Fraunces italic em phrase) before the data block.
+            if (!_isAuthGateLocked && _messages.length >= 2) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: MintInlineInsightCard(
+                  label: 'CE QUE MINT VOIT',
+                  headline: Text.rich(
+                    TextSpan(
+                      style: MintTextStyles.editorialLarge(
+                        color: MintColors.textPrimary,
+                      ).copyWith(height: 1.3),
+                      children: const [
+                        TextSpan(text: 'Tu n\'as pas besoin de tout savoir. '),
+                        TextSpan(
+                          text: 'Voici ce que MINT verrait pour toi.',
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ],
+                    ),
+                  ),
+                  supporting: 'Une projection indicative — entre tes vrais '
+                      'chiffres pour voir ta situation.',
+                  tone: MintInsightTone.craie,
+                  semanticsLabel:
+                      'Aperçu MINT : projection indicative à partir de tes données',
+                ),
+              ),
               _buildVisualDemoTeaser(context),
+            ],
 
             // Locked state — persistent CTA
             if (_isAuthGateLocked) ...[
