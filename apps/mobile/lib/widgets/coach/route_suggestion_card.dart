@@ -21,6 +21,47 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ════════════════════════════════════════════════════════════════
+//  NAV LOCK — Phase 54-02 T-05
+// ════════════════════════════════════════════════════════════════
+
+/// Process-wide debounce that swallows duplicate navigation pushes from
+/// `RouteSuggestionCard` taps within a 500 ms window.
+///
+/// Two regression classes are mitigated:
+///   1. Rapid double-tap on the same chip (Material's button handles a
+///      single press but the user can fire two presses in <50 ms).
+///   2. A chip tap racing with an LLM-emitted `route_to_screen` tool path
+///      that targets the same surface in the same response burst —
+///      e.g. proactive trigger chip and a sequence-handler push that
+///      both want `/retraite`.
+class RouteSuggestionNavLock {
+  RouteSuggestionNavLock._();
+
+  static const Duration window = Duration(milliseconds: 500);
+
+  static DateTime? _lastFiredAt;
+
+  /// Try to acquire the lock. Returns `true` exactly once per [window];
+  /// any subsequent call within [window] returns `false` (the caller
+  /// must skip its `context.push`).
+  static bool tryAcquire({DateTime? now}) {
+    final reference = now ?? DateTime.now();
+    final last = _lastFiredAt;
+    if (last != null && reference.difference(last) < window) {
+      return false;
+    }
+    _lastFiredAt = reference;
+    return true;
+  }
+
+  /// Test-only reset. Production code never resets the lock.
+  @visibleForTesting
+  static void resetForTest() {
+    _lastFiredAt = null;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
 //  ROUTE SUGGESTION CARD
 // ════════════════════════════════════════════════════════════════
 
@@ -101,6 +142,12 @@ class RouteSuggestionCard extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
+                // Phase 54-02 T-05 — single 500 ms debounce across all
+                // RouteSuggestionCard taps + LLM-emitted route_to_screen
+                // dispatch. Drop the duplicate without side-effects so
+                // the SequenceStore write (which is idempotent on
+                // intentTag) doesn't fire twice either.
+                if (!RouteSuggestionNavLock.tryAcquire()) return;
                 // Phase 53-02 — if an intentTag is provided AND it maps to
                 // a SequenceTemplate, start the sequence before pushing.
                 // Fire-and-forget: SequenceStore writes don't block nav,
