@@ -559,6 +559,14 @@ class ProactiveTriggerService {
       benchmarkHint = match?.benchmarkMessage;
     }
 
+    // Phase 54.1 — close the « 7/8 ProactiveTrigger types surface
+    // tappable chips » gap flagged by the post-Phase-54 Coach
+    // Intelligence panel. Tapping the chip opens /coach/chat with the
+    // deadline context already in the opener bubble; this keeps parity
+    // with the other « no dedicated screen » trigger types
+    // (weeklyRecap, lifecyclePhaseChange, goalMilestone, ...).
+    // No dedicated contract-management surface exists in
+    // MintScreenRegistry, so /coach/chat is the canonical safe target.
     return ProactiveTrigger(
       type: ProactiveTriggerType.contractDeadlineApproaching,
       messageKey: 'proactiveContractDeadline',
@@ -567,6 +575,7 @@ class ProactiveTriggerService {
         'days': days.toString(),
         if (benchmarkHint != null) 'benchmark': benchmarkHint,
       },
+      intentTag: '/coach/chat',
       triggeredAt: now,
     );
   }

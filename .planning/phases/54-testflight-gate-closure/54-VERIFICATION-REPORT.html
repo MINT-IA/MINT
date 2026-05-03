@@ -126,17 +126,83 @@
 <tr><td>3 rapid taps on same chip → exactly 1 GoRouter push</td><td>1 push counted via redirect interceptor</td><td><span class="badge b-pass">PASS</span></td></tr>
 </table>
 
+<h2>Phase 54 close-out — 5-expert panel synthesis (2026-05-03)</h2>
+
+<p>Convened post-merge of PR #452 (Plan 54-02 PR-2) + PR #453 (Plan 54-01 PR-2) per <code>feedback_post_phase_panel_loop.md</code>. Question: <em>« Is MINT shippable to TestFlight beta today? »</em>.</p>
+
+<table>
+<tr><th>Expert</th><th>Verdict</th><th>Headline</th></tr>
+<tr><td>Production Readiness</td><td><span class="badge b-warn">YES IF</span></td><td>3 unblocked-but-untested gates: testflight.yml run on dev tip must return green (validates 2026-04-17 MLKit fix), dev→staging→main promotion needed, GATE-01 iPhone walkthrough by Julien remains human-only.</td></tr>
+<tr><td>Engineering</td><td><span class="badge b-pass">ship-with-followups</span></td><td>Both PRs competent + shippable. 7 minor follow-ups identified (NavLock test-isolation reset, walker bash defensiveness on `simctl erase`, GNU `realpath --relative-to` on macOS, `mint://` back-nav fragility) → batched as Phase 54.1.</td></tr>
+<tr><td>Adversarial Trust</td><td><span class="badge b-pass">no-trust-regression</span></td><td>All 6 ARB opener strings are LSFin-clean (no « garanti / optimal / sans risque », no future-return promise, no shame framing). Cache resolves at display-time against live state — no stale-truth risk. Single nit: `_emit_triage` git-blame includes committer emails in 30-day artifact (P3 follow-up).</td></tr>
+<tr><td>Coach Intelligence</td><td><span class="badge b-pass">gap-closed</span></td><td>3 intelligences flagged in post-Phase-53 panel now have UI consumers. <strong>Before/After:</strong> proactive trigger chips 0/8 → 7/8 (contractDeadline still no intentTag), precomputed-insight chips 0 → 1/chat-open (consume-once), sequence-step chips 0 → 1/AdvanceAction, hardcoded copy violations 2 → 0. Observability gap: no `coach_route_chip_tapped` analytics yet.</td></tr>
+<tr><td>Roadmap Sequencer</td><td><span class="badge b-info">parallel 54.x + 55-prep</span></td><td>Don't pause. Plan 54-03 itself gated on 3 external events (walker run on CI / testflight validation / Julien GATE-01) — none block Claude from doing 54.1 follow-ups + Phase 55 prep autonomously.</td></tr>
+</table>
+
+<h3>Synthesised verdict</h3>
+
+<p><strong>Phase 54 ships clean</strong> — code, trust, intelligence-gap-closure all pass. <strong>TestFlight beta gate is NOT yet closed</strong> — 3 external dependencies remain.</p>
+
+<h2>Phase 54.1 micro-PR (autonomous follow-up, 2026-05-03)</h2>
+
+<p>Closes the two highest-impact panel findings inside one focused PR:</p>
+
+<table>
+<tr><th>Finding</th><th>Source</th><th>Fix</th></tr>
+<tr><td>contractDeadlineApproaching trigger has no intentTag (7/8 → 8/8 chip coverage)</td><td>Coach Intelligence panel</td><td><code>apps/mobile/lib/services/coach/proactive_trigger_service.dart</code> line 562 — adds <code>intentTag: '/coach/chat'</code> to the contractDeadlineApproaching trigger emission. <code>flutter analyze</code> on the file: <strong>No issues found</strong>.</td></tr>
+<tr><td>_emit_triage git-blame includes committer emails in 30-day artifact retention</td><td>Adversarial Trust panel</td><td><code>tools/simulator/walker_audit_tap_render.sh</code> line 310 — pipes git blame output through <code>sed -E 's/&lt;[^&gt;]+@[^&gt;]+&gt;/&lt;REDACTED&gt;/g'</code>. 16/16 walker smoke still green.</td></tr>
+</table>
+
+<h2>TestFlight gate diagnostic (CI failure root cause analysis, 2026-05-03)</h2>
+
+<p>workflow_dispatch on dev tip (run <code>25283650195</code>) FAILED with a CocoaPods version conflict:</p>
+
+<pre>[!] CocoaPods could not find compatible versions for pod "GoogleMLKit/MLKitCore":
+  In snapshot (Podfile.lock):
+    GoogleMLKit/MLKitCore (= 7.0.0)
+  In Podfile:
+    google_mlkit_image_labeling (from `.symlinks/plugins/google_mlkit_image_labeling/ios`) was resolved to 0.14.2
+      → GoogleMLKit/ImageLabeling (~> 9.0.0) → GoogleMLKit/MLKitCore (= 9.0.0)
+    google_mlkit_text_recognition (from `.symlinks/plugins/google_mlkit_text_recognition/ios`) was resolved to 0.15.0
+      → GoogleMLKit/TextRecognition (~> 7.0.0) → GoogleMLKit/MLKitCore (= 7.0.0)</pre>
+
+<p><strong>Local diagnosis:</strong></p>
+
+<ul>
+  <li><code>pubspec.yaml</code>: 0 references to <code>google_mlkit_*</code> (only the 2026-04-17 removal comments).</li>
+  <li><code>pubspec.lock</code>: 0 MLKit references (committed file is clean).</li>
+  <li><code>.flutter-plugins-dependencies</code> on dev tip: 0 MLKit entries.</li>
+  <li><code>apps/mobile/ios/Podfile.lock</code>: 0 MLKit references (committed file is clean).</li>
+  <li>Local <code>cd apps/mobile/ios &amp;&amp; pod deintegrate &amp;&amp; pod install --repo-update</code>: <strong>27 pods installed cleanly, no MLKit conflict.</strong></li>
+</ul>
+
+<p>Conclusion: the CI runner produces a different resolution from local. Most plausible cause = a <strong>stale subosito/flutter-action@v2 cache</strong> (cache: true on testflight.yml line 158) that restores a pre-2026-04-17 pub-cache state where google_mlkit_* packages still exist, then <code>flutter pub get</code> short-circuits or symlinks them anyway. Genuinely a Plan 54-03 blocker that needs Julien's call between (a) invalidate the cache via <code>cache-key: ${{ hashFiles('apps/mobile/pubspec.lock') }}</code>, (b) add <code>flutter clean</code> as a workflow step before <code>flutter pub get</code>, (c) drop <code>cache: true</code> entirely.</p>
+
+<h2>Local-sim env limitation discovered (2026-05-03)</h2>
+
+<p>The Mac mini local sim build is blocked by a macOS Tahoe + <code>.nosync</code> directory provenance issue: <code>com.apple.provenance</code> xattr on <code>Flutter.framework</code> prevents codesign during simulator build (« resource fork, Finder information, or similar detritus not allowed »). Workaround: <strong>walker_nightly.yml on macos-latest CI</strong> (no .nosync directory, no provenance xattr) is the correct execution path. Local feasibility runs are not supported until the repo is moved out of <code>~/Desktop/MINT.nosync/</code> or a pre-build xattr-strip script is added.</p>
+
 <h2>What's next</h2>
 
 <ol>
-  <li><span class="badge b-pass">Plan 54-02 fully closed</span> — both PRs merged.</li>
-  <li>Plan 54-01 PR-2 (next in flight): real walker execution. Boot iPhone 17 Pro sim, install dev-tip build, run <code>walker_audit_tap_render.sh --no-dry-run --archetype swiss_native --all</code>, capture screenshot+sha256 diff per row, write <code>AUDIT_TAP_RENDER_RESULTS.md</code>, produce <code>triage/F-XX-*.md</code> tickets per FAIL.</li>
-  <li>Plan 54-03 EXEC: triage every FAIL → focused per-surface fix PRs → walker re-runs to PASS → bump pubspec to 2.9.0+1 → push staging → testflight.yml triggers → Apple Connect processes build → sign GATE-01.</li>
-  <li>Phase 54 close-out audit: « Is MINT shippable to TestFlight today? » — 4-expert post-merge panel per <code>feedback_post_phase_panel_loop.md</code>.</li>
-  <li>If audit PASS → Phase 55 (Chat Vivant scenes per Expert 1, now provably reachable post-54). If BLOCK → Phase 54.x hot-fix loop.</li>
+  <li><span class="badge b-pass">Plan 54-02 fully closed</span> — PR #450 + #452 merged.</li>
+  <li><span class="badge b-pass">Plan 54-01 script side fully closed</span> — PR #451 + #453 merged. Walker SCRIPT shippable; actual sim run pending.</li>
+  <li><span class="badge b-warn">Plan 54-03 PENDING — 3 external dependencies</span>:
+    <ul>
+      <li><code>testflight.yml</code> run <code>25283650195</code> (workflow_dispatch on dev tip, fired 2026-05-03 15:49 UTC) — validates 2026-04-17 MLKit pubspec fix. Awaiting outcome.</li>
+      <li>walker_nightly.yml needs to be on main before <code>gh CLI workflow_dispatch</code> works (or wait for daily 03:00 UTC cron). dev→staging→main promotion is the canonical path.</li>
+      <li>Physical iPhone GATE-01 walkthrough by Julien — only Julien can sign per <code>docs/DEVICE_GATE_V27_CHECKLIST.md</code>.</li>
+    </ul>
+  </li>
+  <li><span class="badge b-info">Phase 54.1 (autonomous follow-up)</span> — batch 8 cross-panel findings (Engineering 7 + Adversarial 1) into one PR: NavLock test-isolation, walker bash robustness, `_emit_triage` `--no-show-email`, observability analytics for chip taps + nav-lock drops, contractDeadline intentTag plumbing.</li>
+  <li><span class="badge b-info">Phase 55 prep</span> — Chat Vivant scenes catalog + voice-system audit + ARB scaffolding (kicks off after TestFlight beta validates Phase 54).</li>
 </ol>
 
-<p style="font-size: 12px; color: #95989d; margin-top: 32px;">Generated 2026-05-04. Updated on every PR landing in Phase 54. Per <code>feedback_html_evidence_report.md</code> + <code>feedback_post_phase_panel_loop.md</code>.</p>
+<h2>Local-sim env limitation discovered (2026-05-03)</h2>
+
+<p>The Mac mini local sim build is blocked by a macOS Tahoe + <code>.nosync</code> directory provenance issue: <code>com.apple.provenance</code> xattr on <code>Flutter.framework</code> prevents codesign during simulator build (« resource fork, Finder information, or similar detritus not allowed »). Workaround: <strong>walker_nightly.yml on macos-latest CI</strong> (no .nosync directory, no provenance xattr) is the correct execution path. Local feasibility runs are not supported until the repo is moved out of <code>~/Desktop/MINT.nosync/</code> or a pre-build xattr-strip script is added (Phase 54.1 candidate).</p>
+
+<p style="font-size: 12px; color: #95989d; margin-top: 32px;">Last updated 2026-05-03 by autonomous loop. PR #452 + PR #453 merged this session. Per <code>feedback_html_evidence_report.md</code> + <code>feedback_post_phase_panel_loop.md</code>.</p>
 
 </body>
 </html>

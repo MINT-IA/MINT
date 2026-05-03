@@ -307,9 +307,16 @@ if [ "$DRY_RUN" = "0" ]; then
       echo "## git blame on \`$surface:$line\`"
       echo ""
       echo '```'
+      # Phase 54.1 — strip committer email from blame output so triage
+      # tickets uploaded as 30-day artifacts don't carry internal dev
+      # emails (Adversarial Trust panel P3 follow-up). The
+      # awk-based scrub keeps SHA + author name + date + line content
+      # but drops the « <email@host> » column.
       (cd "$REPO_ROOT" && git blame -L "$line,+5" "apps/mobile/lib/screens/$surface" 2>/dev/null \
         || git -C "$REPO_ROOT" grep -nE "^.{0,120}$" "apps/mobile/lib/**/$surface" 2>/dev/null \
-        || echo "(blame unavailable — file path may not be under apps/mobile/lib/screens/)") | head -20
+        || echo "(blame unavailable — file path may not be under apps/mobile/lib/screens/)") \
+        | sed -E 's/<[^>]+@[^>]+>/<REDACTED>/g' \
+        | head -20
       echo '```'
       echo ""
       echo "## Triage classification"
