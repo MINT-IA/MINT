@@ -42,6 +42,10 @@ Widget _harness(Widget child, {String pushedRoute = '/test'}) {
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    // Phase 54-02 T-05 — reset the process-wide nav lock so each test
+    // starts with a clean window (otherwise the second card-tap test
+    // in this group would be debounced by the first).
+    RouteSuggestionNavLock.resetForTest();
   });
 
   testWidgets('without intentTag: no sequence started', (tester) async {

@@ -30,6 +30,7 @@ import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
+import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart'
     show ProactiveTrigger, ProactiveTriggerType;
 import 'package:mint_mobile/services/rag_service.dart';
@@ -376,12 +377,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           }
         } else if (!_isResumingConversation) {
           // No entryPayload + authenticated + fresh conversation:
-          // surface a `MintStateProvider.pendingTrigger` if one was
-          // evaluated this calendar day. Single consumer of the
-          // proactive-trigger pipeline that was previously evaluated
-          // upstream but never displayed.
+          // - Phase 54-02 T-03 — first try to surface a precomputed
+          //   insight (Cleo 3.0 pattern: profile-change-time computation
+          //   read instantly at greeting time). If the cache is non-empty
+          //   AND fresh, surface it as a tappable chip and skip the
+          //   proactive trigger fallback (« 1 opener chip per chat-open »
+          //   rule per Plan 54-02 risks section).
+          // - Otherwise fall back to a `MintStateProvider.pendingTrigger`
+          //   if one was evaluated this calendar day.
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            _maybeShowProactiveTrigger();
+            _maybeSurfaceOpenerOnChatOpen();
           });
         }
       } else {
@@ -646,6 +651,63 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           t.params?['label'] ?? '',
         );
     }
+  }
+
+  /// Phase 54-02 T-03 — surface a single coach opener on chat-open.
+  ///
+  /// Precedence (« 1 opener chip per chat-open » per Plan 54-02 risks):
+  ///   1. Precomputed insight (Cleo 3.0 pattern — pre-computed at
+  ///      profile-change time by [PrecomputedInsightsService.computeAndCache]
+  ///      and read instantly here). Cache is consumed once: cleared after
+  ///      surfacing so the next open falls back to the proactive path
+  ///      until the next state recompute.
+  ///   2. Proactive trigger (legacy path — `MintStateProvider.pendingTrigger`).
+  ///
+  /// When neither produces a result, the silent opener stays as the
+  /// only visual anchor.
+  Future<void> _maybeSurfaceOpenerOnChatOpen() async {
+    if (_proactiveTriggerShownThisSession) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      final insight =
+          await PrecomputedInsightsService.getCachedInsight(prefs: prefs);
+      if (!mounted) return;
+      if (insight != null) {
+        final l10n = S.of(context);
+        if (l10n != null) {
+          final resolved = insight.resolve(l10n);
+          if (resolved != null && resolved.message.isNotEmpty) {
+            // Mark the session flag BEFORE the opener message so a
+            // re-entrant didChangeDependencies (provider rebuild)
+            // can't double-surface.
+            _proactiveTriggerShownThisSession = true;
+            _addCoachOpenerMessage(
+              resolved.message,
+              intentTag: insight.intentTag,
+              contextMessage: resolved.message,
+            );
+            // Consume-once: clear the cache so the next open falls
+            // back to the proactive path until the next recompute.
+            unawaited(PrecomputedInsightsService.clear(prefs));
+            AnalyticsService().trackEvent(
+              'coach_precomputed_insight_shown',
+              data: {
+                'type': insight.type.name,
+                'has_intent_tag': insight.intentTag != null,
+              },
+            );
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      // Silent degradation — never block the proactive fallback on a
+      // SharedPreferences failure.
+      debugPrint('[CoachChat] precomputed insight surfacing failed: $e');
+    }
+    if (!mounted) return;
+    _maybeShowProactiveTrigger();
   }
 
   /// If [MintStateProvider] holds a `pendingTrigger`, surface it as the
