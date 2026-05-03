@@ -23180,4 +23180,13 @@ class SPt extends S {
 
   @override
   String get aujourdhuiResumeConversation => 'Retomar a conversa';
+
+  @override
+  String coachSequenceNextStepLabel(String label) {
+    return 'Próximo passo: $label.';
+  }
+
+  @override
+  String get coachSequenceCompletedMessage =>
+      'Concluíste esta sequência guiada.';
 }
