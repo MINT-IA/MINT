@@ -7529,7 +7529,7 @@ class SIt extends S {
 
   @override
   String get authGateSalaryMessage =>
-      'Il tuo stipendio e i tuoi dati finanziari meritano una cassaforte sicura.';
+      'Crea un account per cifrare il tuo stipendio e i tuoi dati finanziari sui nostri server e accedervi dai tuoi dispositivi — puoi mantenere tutto in locale in qualsiasi momento da Privacy.';
 
   @override
   String get authGateCoachTitle => 'Il coach ha bisogno di conoscerti';

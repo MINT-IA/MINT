@@ -7533,7 +7533,7 @@ class SDe extends S {
 
   @override
   String get authGateSalaryMessage =>
-      'Dein Gehalt und deine Finanzdaten verdienen einen sicheren Tresor.';
+      'Erstelle ein Konto, um dein Gehalt und deine Finanzdaten auf unseren Servern zu verschlüsseln und von deinen Geräten abzurufen — du kannst jederzeit alles lokal behalten unter Datenschutz.';
 
   @override
   String get authGateCoachTitle => 'Der Coach muss dich kennenlernen';

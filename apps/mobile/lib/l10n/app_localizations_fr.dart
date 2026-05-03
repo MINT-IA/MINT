@@ -7518,7 +7518,7 @@ class SFr extends S {
 
   @override
   String get authGateSalaryMessage =>
-      'Ton salaire et tes données financières méritent un coffre-fort sécurisé.';
+      'Crée un compte pour chiffrer ton salaire et tes données financières sur nos serveurs et y accéder depuis tes appareils — tu peux à tout moment limiter à ton appareil dans Confidentialité.';
 
   @override
   String get authGateCoachTitle => 'Le coach a besoin de te connaître';

@@ -7471,7 +7471,7 @@ class SEn extends S {
 
   @override
   String get authGateSalaryMessage =>
-      'Your salary and financial data deserve a secure vault.';
+      'Create an account to encrypt your salary and financial data on our servers and access them from your devices — you can keep everything on-device at any time from Privacy.';
 
   @override
   String get authGateCoachTitle => 'The coach needs to know you';

@@ -13359,7 +13359,7 @@ abstract class S {
   /// No description provided for @authGateSalaryMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Ton salaire et tes données financières méritent un coffre-fort sécurisé.'**
+  /// **'Crée un compte pour chiffrer ton salaire et tes données financières sur nos serveurs et y accéder depuis tes appareils — tu peux à tout moment limiter à ton appareil dans Confidentialité.'**
   String get authGateSalaryMessage;
 
   /// No description provided for @authGateCoachTitle.

@@ -3491,7 +3491,7 @@
   "authGateDocScanTitle": "Secure your documents",
   "authGateDocScanMessage": "Your certificates contain sensitive data. Create an account to encrypt them on our servers and access them from your devices — you can keep everything on-device at any time from Privacy.",
   "authGateSalaryTitle": "Protect your financial data",
-  "authGateSalaryMessage": "Your salary and financial data deserve a secure vault.",
+  "authGateSalaryMessage": "Create an account to encrypt your salary and financial data on our servers and access them from your devices — you can keep everything on-device at any time from Privacy.",
   "authGateCoachTitle": "The coach needs to know you",
   "authGateCoachMessage": "To give you personalised answers, the coach needs an account.",
   "authGateGoalTitle": "Track your progress",
