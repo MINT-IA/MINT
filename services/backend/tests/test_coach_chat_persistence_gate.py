@@ -24,15 +24,17 @@ from app.api.v1.endpoints.coach_chat import (
 )
 
 
+# Verified WRITE-tier handlers in coach_chat.py — those that ACTUALLY
+# write to DB through the chat dispatcher. The panel's first-pass list
+# included ack-only handlers (save_pre_mortem, save_provenance,
+# save_earmark) and Flutter-bound tools (save_partner_estimate,
+# update_partner_estimate, record_check_in) — re-verified by reading
+# each handler. Only save_fact and save_insight perform a real DB
+# write in this dispatcher; the rest are either logger.info-only or
+# never reach the backend.
 WRITE_TIER_FIXTURES = [
     ("save_fact", {"key": "age", "value": 40}),
     ("save_insight", {"summary": "user lives in GE", "topic": "canton"}),
-    ("save_pre_mortem", {"decision_type": "buy_house"}),
-    ("save_provenance", {"product_type": "3a", "recommended_by": "coach"}),
-    ("save_earmark", {"label": "vacances 2027"}),
-    ("save_partner_estimate", {"category": "income", "value": 80000}),
-    ("update_partner_estimate", {"category": "income", "value": 85000}),
-    ("record_check_in", {"month": "2026-05", "summary": "ok", "versements": 0}),
 ]
 
 
@@ -71,20 +73,19 @@ def test_persistence_off_marker_contains_actionable_instruction():
 
 
 def test_write_tier_set_is_complete():
-    """Hard-asserts the WRITE-tier whitelist matches the locked panel
-    decision (`.planning/decisions/2026-05-03-chat-under-cloud-sync-off.md`).
-    Adding a new write-tier tool requires explicitly extending this set
-    AND this assertion — that's the safety net against the « shipped a
-    new tool but forgot to gate it » regression class."""
+    """Hard-asserts the WRITE-tier whitelist matches what is verified by
+    direct inspection of `coach_chat.py` (NOT the panel's first pass —
+    several panel-listed tools are ack-only or Flutter-bound, see the
+    inventory at .planning/phases/52.1-cloud-sync-actual-gating/
+    BACKEND-WRITE-SURFACE.md).
+
+    Adding a new tool that performs a real DB write inside the chat
+    dispatcher requires extending BOTH `_WRITE_TIER_TOOLS` AND this
+    assertion — the safety net against the « shipped a new write-tier
+    handler but forgot to gate it » regression class."""
     expected = {
-        "save_fact",
-        "save_insight",
-        "save_pre_mortem",
-        "save_provenance",
-        "save_earmark",
-        "save_partner_estimate",
-        "update_partner_estimate",
-        "record_check_in",
+        "save_fact",   # writes ProfileModel.data
+        "save_insight",  # writes CoachInsightRecord
     }
     assert _WRITE_TIER_TOOLS == frozenset(expected), (
         f"WRITE-tier whitelist drift detected. Expected: {expected!r} "
@@ -95,16 +96,32 @@ def test_write_tier_set_is_complete():
 @pytest.mark.parametrize(
     "tool_name",
     [
+        # Read-tier tools — never affected
         "get_cap_status",
         "get_couple_optimization",
         "get_regulatory_constant",
+        # Acknowledgement-only tools — return a confirmation string but
+        # never write to DB. Must NOT be in the WRITE-tier whitelist
+        # (gating these would block the LLM's ability to acknowledge
+        # the user's intent within the conversation).
         "set_goal",
         "mark_step_completed",
+        "save_pre_mortem",
+        "save_provenance",
+        "save_earmark",
+        "record_commitment",
+        # Flutter-bound tools — never reach the backend dispatcher.
+        # Mobile-side gates in PR #438 cover the device-side persistence.
+        "save_partner_estimate",
+        "update_partner_estimate",
+        "record_check_in",
     ],
 )
 def test_read_tier_tools_not_affected_by_persistence_consent(tool_name):
-    """Read-tier and acknowledgement tools must NOT be in the write-tier
-    whitelist (they're allowed regardless of sync state)."""
+    """Tools that don't perform a DB write through the chat dispatcher
+    must NOT be in the WRITE-tier whitelist (they're allowed regardless
+    of sync state, OR they're handled mobile-side)."""
     assert tool_name not in _WRITE_TIER_TOOLS, (
-        f"Tool {tool_name!r} should not be in WRITE_TIER (not a PII writer)"
+        f"Tool {tool_name!r} should not be in WRITE_TIER "
+        f"(not a backend DB writer)"
     )

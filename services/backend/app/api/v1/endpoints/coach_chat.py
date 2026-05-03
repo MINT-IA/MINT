@@ -1147,24 +1147,38 @@ _REPROMPT_EMPTY_END_TURN = (
 )
 
 
-# Phase 52.1 PR 2 — WRITE-tier tool whitelist. Each of these handlers
-# persists user-identifying data to the backend (ProfileModel.data,
-# CoachInsightRecord, partner estimate rows). When the request carries
-# `persistence_consent=False` (cloud-sync OFF on the mobile toggle),
-# every WRITE-tier call is refused server-side and the LLM receives a
-# stable rejection string so it can phrase its reply appropriately
-# (« Je note ça pour cette session uniquement »). LLM call itself
-# proceeds normally — there is no on-device LLM. See
-# .planning/decisions/2026-05-03-chat-under-cloud-sync-off.md.
+# Phase 52.1 PR 2 — WRITE-tier tool whitelist (verified by direct
+# inspection of each handler in this file, NOT taken on the design
+# panel's word).
+#
+# Only TWO tools in this dispatcher actually write user-identifying
+# data to the backend DB:
+#   - save_fact     → ProfileModel.data (line ~1342)
+#   - save_insight  → CoachInsightRecord (line ~1246)
+#
+# The remaining « save_* » handlers in this dispatcher (save_pre_mortem,
+# save_provenance, save_earmark) are ack-only — they only `logger.info`
+# and return a confirmation string. No DB write happens via the chat
+# dispatcher for them.
+#
+# `save_partner_estimate`, `update_partner_estimate`, and
+# `record_check_in` are NOT handled in this dispatcher at all — they
+# are Flutter-bound tools intercepted by widget_renderer on device
+# (see comment block at line 1546). The mobile gates shipped in PR #438
+# (`coach_profile_provider._syncToBackend`, `claimLocalData`) cover the
+# device-side persistence for those.
+#
+# When the request carries `persistence_consent=False` (cloud-sync OFF
+# on the mobile toggle), each WRITE-tier call is refused server-side
+# and the LLM receives a stable rejection string so it can phrase its
+# reply appropriately. LLM call itself proceeds — there is no
+# on-device LLM. See
+# .planning/decisions/2026-05-03-chat-under-cloud-sync-off.md and the
+# verified surface inventory at
+# .planning/phases/52.1-cloud-sync-actual-gating/BACKEND-WRITE-SURFACE.md.
 _WRITE_TIER_TOOLS: frozenset[str] = frozenset({
     "save_fact",
     "save_insight",
-    "save_pre_mortem",
-    "save_provenance",
-    "save_earmark",
-    "save_partner_estimate",
-    "update_partner_estimate",
-    "record_check_in",
 })
 
 _PERSISTENCE_OFF_MARKER = (
@@ -1823,6 +1837,7 @@ async def _run_agent_loop(
     user_id: Optional[str] = None,
     db: Optional[Session] = None,
     conversation_history: list[dict] | None = None,
+    persistence_consent: bool = False,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -2007,7 +2022,7 @@ async def _run_agent_loop(
                 profile_context,
                 user_id=user_id,
                 db=db,
-                persistence_consent=body.persistence_consent,
+                persistence_consent=persistence_consent,
             )
             # FIX-W12: Truncate tool results to prevent context explosion
             if len(result_text) > 500:
@@ -2491,6 +2506,7 @@ async def coach_chat(
                 user_id=_user.id if _user else None,
                 db=db,
                 conversation_history=safe_history,
+                persistence_consent=body.persistence_consent,
             ),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )

@@ -304,9 +304,14 @@ class TestAgentLoopToolFiltering:
         executed_tools: list = []
         original = _execute_internal_tool
 
-        def _capturing(tool_call, memory_block, profile_context=None, user_id=None, db=None):
+        def _capturing(tool_call, memory_block, profile_context=None,
+                       user_id=None, db=None, persistence_consent=False):
             executed_tools.append(tool_call["name"])
-            return original(tool_call, memory_block, profile_context, user_id=user_id, db=db)
+            return original(
+                tool_call, memory_block, profile_context,
+                user_id=user_id, db=db,
+                persistence_consent=persistence_consent,
+            )
 
         with patch("app.api.v1.endpoints.coach_chat._execute_internal_tool", side_effect=_capturing):
             result = _run(_run_agent_loop(orchestrator=orch, **_BASE_KWARGS))
@@ -490,6 +495,7 @@ class TestExecuteInternalTool:
         result = _execute_internal_tool(
             {"name": "retrieve_memories", "input": {"topic": "retraite"}},
             memory_block=memory,
+            persistence_consent=True,
         )
         assert "63%" in result
 
@@ -498,6 +504,7 @@ class TestExecuteInternalTool:
         result = _execute_internal_tool(
             {"name": "unknown_tool", "input": {}},
             memory_block=None,
+            persistence_consent=True,
         )
         assert "non reconnu" in result
 
@@ -506,6 +513,7 @@ class TestExecuteInternalTool:
         result = _execute_internal_tool(
             {"name": "retrieve_memories", "input": {"topic": "test"}},
             memory_block=None,
+            persistence_consent=True,
         )
         assert "Aucune mémoire" in result
 

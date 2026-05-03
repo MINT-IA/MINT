@@ -230,6 +230,7 @@ def test_save_fact_no_db_redacts_unsafe_keys():
         profile_context=None,
         user_id=None,  # → hors-DB branch
         db=None,
+        persistence_consent=True,  # Phase 52.1 PR 2 — test the « consent given » path
     )
     assert "70377" not in result
     assert "Fait noté (hors DB) : avoirLpp" in result
@@ -257,6 +258,7 @@ def test_save_fact_no_db_echoes_safe_keys():
         profile_context=None,
         user_id=None,
         db=None,
+        persistence_consent=True,  # Phase 52.1 PR 2 — test the « consent given » path
     )
     assert "VS" in result
     assert "Fait noté (hors DB) : canton = VS" in result

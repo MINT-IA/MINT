@@ -212,6 +212,7 @@ class TestSaveInsightMirror:
                 memory_block=None,
                 user_id="u-save-insight",
                 db=db,
+                persistence_consent=True,
             )
             assert "Insight enregistré" in result
 
