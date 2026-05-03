@@ -165,10 +165,32 @@ pytest tests/  (full backend suite)
 <p><strong>Acceptance criteria status update:</strong></p>
 <ul>
   <li>(c) Chat behavior matches Option C — LLM call yes, structured fact writes refused server-side: ✅ PR #439 + PR #441 (5 of 5 verified writers gated)</li>
-  <li>Post-Phase-52.1 audit « does sync OFF actually stop backend writes? »: ✅ demonstrably yes, in code, after PR #441 merges (re-run T-52-08 to confirm CLOSE)</li>
+  <li>Post-Phase-52.1 audit « does sync OFF actually stop backend writes? »: ✅ demonstrably yes, in code, after PR #441 merged</li>
 </ul>
 
-<p style="font-size: 12px; color: #95989d; margin-top: 32px;">Generated 2026-05-03 ~09:20. Updated 2026-05-04 with Phase 52.2 audit close-out (PR #441).</p>
+<h2>T-52-08 close-out audit re-run on dev (2026-05-04, post-merge) — VERDICT: PASS</h2>
+
+<p>Re-run on dev tip after PR #441 merged. Single load-bearing question: « With cloud sync OFF (<code>persistence_consent=False</code>), does the backend now demonstrably refuse EVERY write-tier chat tool, with NO false negatives left? »</p>
+
+<ol>
+  <li><strong>Whitelist + gate:</strong> ✅ <code>_WRITE_TIER_TOOLS</code> = <code>{save_fact, save_insight, save_provenance, save_earmark, remove_earmark}</code> at <code>coach_chat.py:1181-1187</code>. Gate at <code>:1228-1233</code> fires <code>_PERSISTENCE_OFF_MARKER</code> BEFORE any other logic when <code>not persistence_consent and name in _WRITE_TIER_TOOLS</code>.</li>
+  <li><strong>5/5 whitelisted tools verified to write to PII-bearing models:</strong>
+    <ul>
+      <li><code>save_fact</code> → <code>db.add(profile) + db.commit()</code> @ <code>:1441-1442</code></li>
+      <li><code>save_insight</code> → <code>db.add(record) + db.commit()</code> @ <code>:1341-1342</code></li>
+      <li><code>save_provenance</code> → <code>db.add(ProvenanceRecord) + db.commit()</code> @ <code>:1515-1516</code></li>
+      <li><code>save_earmark</code> → <code>db.add(EarmarkTag) + db.commit()</code> @ <code>:1536-1537</code></li>
+      <li><code>remove_earmark</code> → <code>db.delete(tag) + db.commit()</code> @ <code>:1555-1556</code></li>
+    </ul>
+  </li>
+  <li><strong>False-negative sweep:</strong> ✅ ZERO. Every <code>db.add</code> / <code>db.commit</code> / <code>db.delete</code> in <code>_execute_internal_tool</code> belongs to one of the 5 gated tools. <code>retrieve_memories</code> / <code>get_*</code> / <code>set_goal</code> / <code>mark_step_completed</code> / <code>record_commitment</code> / <code>save_pre_mortem</code> contain zero DB writes.</li>
+  <li><strong>Test assertions:</strong> ✅ <code>test_write_tier_set_is_complete</code> hard-asserts the 5-tool set; <code>WRITE_TIER_FIXTURES</code> parametrizes all 5; read-tier list correctly excludes the 3 newly-gated.</li>
+  <li><strong>Behavior proof:</strong> ✅ <code>pytest tests/test_coach_chat_persistence_gate.py tests/test_coach_intelligence.py -v</code> → 57/57 passed.</li>
+</ol>
+
+<p><strong>VERDICT: PASS.</strong> Phase 52.1 + 52.2 close-out complete. Cloud-sync OFF demonstrably stops every PII write through the chat dispatcher.</p>
+
+<p style="font-size: 12px; color: #95989d; margin-top: 32px;">Generated 2026-05-03 ~09:20. Updated 2026-05-04 with Phase 52.2 audit close-out (PR #441 merged) + T-52-08 re-run PASS verdict.</p>
 
 </body>
 </html>
