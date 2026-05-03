@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -436,14 +437,52 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
               bottomRight: Radius.circular(isUser ? 4 : 18),
             ),
           ),
-          child: Text(
-            message.text,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              color: isUser ? MintColors.white : MintColors.textPrimary,
-              height: 1.4,
-            ),
-          ),
+          // QA walkthrough 2026-05-03 caught: `*avant*` rendered as
+          // literal asterisks in MINT bubbles instead of italic. The
+          // CoachMessageBubble (route /coach/chat) already uses
+          // MarkdownBody for em/strong support; AnonymousChatScreen was
+          // missing it. User messages stay as Text (user input doesn't
+          // typically contain markdown + GoogleFonts.inter is the
+          // existing pattern preserved for backward visual compat).
+          child: isUser
+              ? Text(
+                  message.text,
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: MintColors.white,
+                    height: 1.4,
+                  ),
+                )
+              : MarkdownBody(
+                  data: message.text,
+                  shrinkWrap: true,
+                  softLineBreak: true,
+                  selectable: true,
+                  styleSheet: MarkdownStyleSheet(
+                    p: GoogleFonts.inter(
+                      fontSize: 15,
+                      color: MintColors.textPrimary,
+                      height: 1.4,
+                    ),
+                    em: GoogleFonts.inter(
+                      fontSize: 15,
+                      color: MintColors.textPrimary,
+                      height: 1.4,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    strong: GoogleFonts.inter(
+                      fontSize: 15,
+                      color: MintColors.textPrimary,
+                      height: 1.4,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    listBullet: GoogleFonts.inter(
+                      fontSize: 15,
+                      color: MintColors.textPrimary,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
         ),
       ),
     );
