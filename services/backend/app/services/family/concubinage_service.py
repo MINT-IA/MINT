@@ -24,7 +24,7 @@ DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de "
     "ton canton, de ta situation personnelle et du droit cantonal applicable. "
     "Ne constitue pas un conseil fiscal ou juridique (LSFin/LLCA). "
-    "Consulte un ou une specialiste."
+    "Consulte un ou une spécialiste."
 )
 
 # ---------------------------------------------------------------------------
@@ -323,7 +323,7 @@ class ConcubinageService:
             "Verifier les clauses beneficiaires de toutes tes assurances-vie",
             "Envisager un mandat pour cause d'inaptitude (directives anticipees)",
             "Comparer les couts d'un mariage vs la protection actuelle",
-            "Consulter un ou une specialiste pour un bilan juridique complet",
+            "Consulter un ou une spécialiste pour un bilan juridique complet",
         ]
 
         items = priorite_haute + priorite_moyenne + priorite_basse

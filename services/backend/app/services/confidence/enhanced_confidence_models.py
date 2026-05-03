@@ -105,7 +105,7 @@ class ConfidenceResult:
         "Cet outil est educatif et ne constitue pas un conseil financier, "
         "fiscal ou juridique personnalise. Le score de confiance mesure "
         "la qualite des donnees fournies, pas la fiabilite des projections. "
-        "Consulte un-e specialiste pour ta situation personnelle (LSFin art. 3)."
+        "Consulte un-e spécialiste pour ta situation personnelle (LSFin art. 3)."
     )
     sources: List[str] = field(default_factory=lambda: [
         "LPP art. 7 (seuil d'entree: 22'680 CHF)",

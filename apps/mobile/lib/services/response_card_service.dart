@@ -937,7 +937,7 @@ class ResponseCardService {
 
     if (total <= 0) return null;
 
-    // Coussin securite: 3-6 mois de charges
+    // Coussin sécurité: 3-6 mois de charges
     final chargesMensuelles = profile.depenses.totalMensuel > 0
         ? profile.depenses.totalMensuel
         : profile.salaireBrutMensuel * 0.65; // estimation

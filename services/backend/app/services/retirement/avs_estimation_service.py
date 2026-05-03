@@ -37,7 +37,7 @@ from app.constants.social_insurance import (
 DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de ton "
     "historique de cotisations, de ton canton et de ta situation personnelle. "
-    "Ne constitue pas un conseil en prevoyance (LSFin). Consulte un ou une specialiste."
+    "Ne constitue pas un conseil en prevoyance (LSFin). Consulte un ou une spécialiste."
 )
 
 # Derived constants

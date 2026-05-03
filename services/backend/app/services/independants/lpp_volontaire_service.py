@@ -54,7 +54,7 @@ DISCLAIMER = (
     "MINT est un outil educatif. Ce simulateur ne constitue pas un conseil "
     "en prevoyance au sens de la LSFin. Les cotisations et prestations LPP "
     "effectives dependent du reglement de la caisse de pension choisie. "
-    "Consultez un ou une specialiste en prevoyance professionnelle pour "
+    "Consultez un ou une spécialiste en prevoyance professionnelle pour "
     "une analyse personnalisee."
 )
 

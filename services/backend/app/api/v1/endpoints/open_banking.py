@@ -87,7 +87,7 @@ DISCLAIMER = (
     "Informations a titre educatif et indicatif uniquement. "
     "Les donnees presentees proviennent d'un environnement de demonstration (sandbox). "
     "MINT ne fournit pas de conseil financier personnalise. "
-    "Consultez un ou une specialiste pour toute decision financiere."
+    "Consultez un ou une spécialiste pour toute decision financiere."
 )
 
 

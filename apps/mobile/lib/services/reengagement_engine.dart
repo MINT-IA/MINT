@@ -10,7 +10,7 @@
 ///
 /// BANNED:
 /// - "Tu n'as pas utilise MINT depuis X jours"
-/// - "Reviens decouvrir nos nouvelles fonctionnalites!"
+/// - "Reviens découvrir nos nouvelles fonctionnalites!"
 /// - "Tu nous manques!"
 ///
 /// Sources:

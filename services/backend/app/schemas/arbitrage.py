@@ -182,7 +182,7 @@ class AllocationAnnuelleRequest(ArbitrageBaseModel):
     )
     a3a_maxed: Optional[bool] = Field(
         default=None,
-        description="3a deja verse au maximum cette annee (defaut: False)",
+        description="3a déjà verse au maximum cette annee (defaut: False)",
     )
     potentiel_rachat_lpp: Optional[float] = Field(
         default=None, ge=0,

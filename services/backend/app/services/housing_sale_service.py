@@ -32,7 +32,7 @@ DISCLAIMER: str = (
     "Cet outil educatif fournit une estimation indicative et ne constitue "
     "pas un conseil financier, fiscal ou juridique au sens de la LSFin. "
     "Les taux d'imposition sur les gains immobiliers varient selon le canton, "
-    "la commune et la situation personnelle. Consulte un·e specialiste "
+    "la commune et la situation personnelle. Consulte un·e spécialiste "
     "(notaire, fiduciaire) pour ta situation concrete."
 )
 

@@ -31,7 +31,7 @@ DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de "
     "ton canton, de ton employeur et de ta situation personnelle. "
     "Ne constitue pas un conseil fiscal ou juridique (LSFin/LLCA). "
-    "Consulte un ou une specialiste."
+    "Consulte un ou une spécialiste."
 )
 
 # ---------------------------------------------------------------------------
@@ -497,7 +497,7 @@ class NaissanceService:
             "sur la prevoyance (LPP + 3a) — utilise notre simulateur 'career gap'"
         )
         priorite_basse.append(
-            "Consulter un ou une specialiste pour un bilan prevoyance familiale complet"
+            "Consulter un ou une spécialiste pour un bilan prevoyance familiale complet"
         )
 
         items = priorite_haute + priorite_moyenne + priorite_basse

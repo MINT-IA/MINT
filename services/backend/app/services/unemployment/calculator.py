@@ -115,7 +115,7 @@ DISCLAIMER = (
     "MINT est un outil educatif. Ce simulateur ne constitue pas un conseil "
     "en matiere de droit du travail ou d'assurances sociales au sens de la LSFin. "
     "Les montants exacts dependent de ta caisse de chomage et de ton ORP cantonal. "
-    "Consulte un ou une specialiste en droit social pour une analyse personnalisee."
+    "Consulte un ou une spécialiste en droit social pour une analyse personnalisee."
 )
 
 SOURCES = [

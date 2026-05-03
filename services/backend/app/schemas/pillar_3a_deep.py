@@ -67,7 +67,7 @@ class YearlyWithdrawalEntryResponse(BaseModel):
     impot: float = Field(..., description="Impot paye (CHF)")
     netRecu: float = Field(
         ..., alias="netRecu",
-        description="Montant net recu (CHF)"
+        description="Montant net reçu (CHF)"
     )
 
 

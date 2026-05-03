@@ -232,12 +232,12 @@ class ResponseCardWidget extends StatelessWidget {
   // them. Each slot is wrapped in `_S4BodySlot` with a Semantics label
   // `s4-slot-N` so the microtypography test can count them precisely.
   //   (1) label/category   — header row (icon + title + subtitle + deadline)
-  //   (2) current state    — premier eclairage (number + explanation)
+  //   (2) current state    — premier éclairage (number + explanation)
   //   (3) without change   — MTC slot (per D-07) OR silent placeholder
   //   (4) next action      — CTA + optional proof access
   //
   // AESTH-03 Aesop rule: sentence carries rhythm, not the number — the
-  // premier eclairage renders at bodyLarge w500, NOT displayMedium.
+  // premier éclairage renders at bodyLarge w500, NOT displayMedium.
 
   Widget _buildSheet(BuildContext context) {
     return Column(

@@ -212,7 +212,7 @@ class RetirementTaxCalculator {
   /// NOT taxable income. Never double-tax capital.
   static const String renteLppTaxDisclaimer =
       'La rente LPP est imposee comme revenu (LIFD art. 22). '
-      'Consulte un·e specialiste fiscal·e pour une estimation personnalisee.';
+      'Consulte un·e spécialiste fiscal·e pour une estimation personnalisee.';
 
   /// Progressive capital withdrawal tax (LIFD art. 38).
   ///

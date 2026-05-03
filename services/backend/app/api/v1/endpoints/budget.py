@@ -177,22 +177,22 @@ def _build_response(
         )
 
     if income == 0:
-        eclairage = (
+        éclairage = (
             "On ne peut pas tracer ta marge sans revenu connu. "
             "Dis-moi ton salaire net mensuel pour démarrer."
         )
     elif free_margin < 0:
-        eclairage = (
+        éclairage = (
             f"Tu vis à crédit à hauteur de {abs(free_margin):.0f} CHF/mois — "
             "on regarde quelles dépenses sont compressibles ?"
         )
     elif savings_rate >= 0.20:
-        eclairage = (
+        éclairage = (
             f"Taux d'épargne {savings_rate*100:.0f}% — solide. "
             "On peut réfléchir à où placer ce flux (3a max ? rachat LPP ?)."
         )
     else:
-        eclairage = (
+        éclairage = (
             f"Marge libre {free_margin:.0f} CHF/mois pour {income:.0f} de "
             f"revenu. Cible savings rate ≥10% (actuellement "
             f"{savings_rate*100:.0f}%)."
@@ -213,7 +213,7 @@ def _build_response(
         free_margin_monthly=free_margin,
         savings_rate=savings_rate,
         risk_level=risk,
-        premier_eclairage=eclairage,
+        premier_eclairage=éclairage,
         alertes=alertes,
         updated_at=updated_dt,
     )

@@ -21,7 +21,7 @@ DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
     "pas un avis financier ou juridique. Les projections sont basees sur les "
     "donnees fournies et supposent des conditions stables. Consultez un ou "
-    "une specialiste en desendettement pour une analyse personnalisee."
+    "une spécialiste en desendettement pour une analyse personnalisee."
 )
 
 

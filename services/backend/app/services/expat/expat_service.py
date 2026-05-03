@@ -37,7 +37,7 @@ DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de "
     "ta situation personnelle, du canton, du pays de destination et des "
     "conventions de double imposition en vigueur. Ne constitue pas un "
-    "conseil fiscal ou juridique (LSFin/LLCA). Consulte un ou une specialiste."
+    "conseil fiscal ou juridique (LSFin/LLCA). Consulte un ou une spécialiste."
 )
 
 # ---------------------------------------------------------------------------

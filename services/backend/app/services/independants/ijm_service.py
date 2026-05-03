@@ -39,7 +39,7 @@ DISCLAIMER = (
     "MINT est un outil educatif. Ce simulateur ne constitue pas un conseil "
     "en assurance au sens de la LSFin. Les primes IJM varient selon "
     "l'assureur, votre etat de sante et votre activite professionnelle. "
-    "Consultez un ou une specialiste en assurances pour une offre personnalisee."
+    "Consultez un ou une spécialiste en assurances pour une offre personnalisee."
 )
 
 SOURCES = [

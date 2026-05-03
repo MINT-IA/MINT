@@ -185,7 +185,7 @@ class ScenarioNarratorService:
             "optimal": "adapte",
             "meilleur": "favorable",
             "parfait": "adequat",
-            "conseiller": "specialiste",
+            "conseiller": "spécialiste",
             "tu devrais": "tu pourrais",
             "tu dois": "tu peux",
             "il faut que tu": "tu peux envisager de",

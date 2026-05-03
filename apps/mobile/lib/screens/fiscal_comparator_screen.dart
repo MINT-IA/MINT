@@ -95,7 +95,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     _tabController = TabController(length: 3, vsync: this);
     _initFromProfile();
     _recalculate();
-    // Charge les donnees communales (si pas deja chargees)
+    // Charge les donnees communales (si pas déjà chargees)
     if (!CommuneData.isLoaded) {
       CommuneData.load().then((_) {
         if (mounted) setState(() {});

@@ -812,7 +812,7 @@ class TestLPPDeepCompliance:
             EPL_DISCLAIMER,
         ]
         for disclaimer in disclaimers:
-            assert "un ou une specialiste" in disclaimer.lower(), (
+            assert "un ou une spécialiste" in disclaimer.lower(), (
                 f"Disclaimer should use 'un ou une specialiste': {disclaimer}"
             )
 

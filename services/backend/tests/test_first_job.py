@@ -316,7 +316,7 @@ class TestFirstJobCompliance:
         """Disclaimer should be present and reference educatif + LSFin."""
         assert "educatif" in DISCLAIMER.lower()
         assert "LSFin" in DISCLAIMER
-        assert "specialiste" in DISCLAIMER.lower()
+        assert "spécialiste" in DISCLAIMER.lower()
 
     def test_sources_present(self):
         """Sources should cite specific legal references."""

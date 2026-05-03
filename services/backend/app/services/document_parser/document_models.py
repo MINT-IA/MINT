@@ -104,7 +104,7 @@ class ExtractionResult:
     disclaimer: str = (
         "Cet outil est educatif et ne constitue pas un conseil financier, "
         "fiscal ou juridique personnalise. Les valeurs extraites sont indicatives "
-        "et doivent etre verifiees. Consulte un-e specialiste pour ta situation "
+        "et doivent etre verifiees. Consulte un-e spécialiste pour ta situation "
         "personnelle (LSFin art. 3). L'image source n'est jamais stockee."
     )
     sources: List[str] = field(default_factory=lambda: [

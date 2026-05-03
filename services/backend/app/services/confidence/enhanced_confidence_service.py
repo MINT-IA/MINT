@@ -410,9 +410,9 @@ def rank_enrichment_prompts(
     """Classe les actions d'enrichissement par impact decroissant.
 
     Pour chaque action du catalogue, calcule l'impact reel en fonction
-    de ce qui est deja rempli/source dans le profil.
+    de ce qui est déjà rempli/source dans le profil.
 
-    Actions deja completees (champ rempli + source de bonne qualite) sont
+    Actions déjà completees (champ rempli + source de bonne qualite) sont
     exclues ou ont un impact reduit.
 
     Args:

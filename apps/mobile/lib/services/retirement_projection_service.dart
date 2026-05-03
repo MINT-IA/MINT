@@ -265,7 +265,7 @@ class RetirementProjectionService {
           'Ne constitue pas un conseil financier ou en prevoyance. '
           'Les montants sont des estimations qui peuvent varier selon '
           'l\'evolution legale et ta situation personnelle. '
-          'Consulte un·e specialiste pour un plan personnalise. LSFin.',
+          'Consulte un·e spécialiste pour un plan personnalise. LSFin.',
       sources: [
         'LAVS art. 21-29 (rente AVS, anticipation, ajournement)',
         'LPP art. 14 (taux de conversion minimum 6.8%)',

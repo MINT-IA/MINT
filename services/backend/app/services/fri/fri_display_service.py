@@ -30,7 +30,7 @@ DISPLAY_CONFIDENCE_THRESHOLD = 50.0
 DISCLAIMER = (
     "Score de solidite financiere a titre educatif. "
     "Ne constitue pas un conseil financier (LSFin). "
-    "Consulte un·e specialiste pour une analyse personnalisee."
+    "Consulte un·e spécialiste pour une analyse personnalisee."
 )
 
 SOURCES = [

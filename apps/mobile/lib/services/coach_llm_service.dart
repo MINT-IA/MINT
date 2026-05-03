@@ -462,7 +462,7 @@ class CoachLlmService {
     buffer
         .writeln('- Tu NE donnes JAMAIS de conseil financier. Tu es educatif.');
     buffer.writeln(
-        '- Tu dis toujours "consulte un·e specialiste" pour les decisions importantes.');
+        '- Tu dis toujours "consulte un·e spécialiste" pour les decisions importantes.');
     buffer.writeln('- Tu parles en francais, tu tutoies.');
     buffer.writeln(
         '- Tu cites TOUJOURS tes sources legales (LPP art. X, OPP3 art. Y, LIFD art. Z, etc.).');

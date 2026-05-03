@@ -19,7 +19,7 @@ Sources:
 
 Ethical requirements:
     - Educational tone, never prescriptive
-    - Gender-neutral language (un-e specialiste)
+    - Gender-neutral language (un-e spécialiste)
     - No banned terms: garanti, certain, assure, sans risque, optimal, meilleur, parfait
     - Disclaimer on every insert
 """
@@ -35,7 +35,7 @@ from typing import Dict, List, Optional
 DISCLAIMER: str = (
     "Ceci est un outil educatif et ne constitue pas un conseil financier "
     "personnalise au sens de la LSFin. Les informations fournies sont indicatives "
-    "et basees sur la legislation suisse en vigueur. Consulte un-e specialiste "
+    "et basees sur la legislation suisse en vigueur. Consulte un-e spécialiste "
     "pour un conseil adapte a ta situation."
 )
 
@@ -102,7 +102,7 @@ _register(InsertContent(
     learning_goals=[
         "Identifier le type de stress financier predominant (budget, dette, impots, retraite).",
         "Comprendre que la charge mentale financiere peut etre reduite par un seul levier prioritaire.",
-        "Decouvrir les 4 piliers d'action MINT : budget, dette, fiscalite, prevoyance.",
+        "Découvrir les 4 piliers d'action MINT : budget, dette, fiscalite, prevoyance.",
     ],
     disclaimer=DISCLAIMER,
     sources=[
@@ -127,7 +127,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre le seuil d'entree LPP (22'680 CHF/an, LPP art. 7).",
         "Savoir que le statut LPP determine le plafond 3a (petit vs grand).",
-        "Decouvrir que seule l'attestation de prevoyance fait foi pour le statut.",
+        "Découvrir que seule l'attestation de prevoyance fait foi pour le statut.",
     ],
     disclaimer=DISCLAIMER,
     sources=[
@@ -152,7 +152,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre que le 3a est deductible du revenu imposable (LIFD art. 33).",
         "Savoir que l'economie fiscale depend du taux marginal d'imposition (canton).",
-        "Decouvrir que l'eligibilite au 3a requiert un revenu soumis a l'AVS.",
+        "Découvrir que l'eligibilite au 3a requiert un revenu soumis a l'AVS.",
     ],
     disclaimer=DISCLAIMER,
     sources=[
@@ -177,7 +177,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre le calcul de l'economie fiscale (montant verse x taux marginal).",
         "Savoir que l'effort d'epargne net est inferieur au montant verse (versement - economie fiscale).",
-        "Decouvrir l'effet cumule sur 20-30 ans (interets composes + economies fiscales).",
+        "Découvrir l'effet cumule sur 20-30 ans (interets composes + economies fiscales).",
     ],
     disclaimer=DISCLAIMER,
     sources=[
@@ -201,7 +201,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre la difference entre taux fixe (stabilite) et SARON (variabilite).",
         "Savoir que le choix depend de la tolerance au risque et de l'horizon.",
-        "Decouvrir que le renouvellement se negocie 12-18 mois avant l'echeance.",
+        "Découvrir que le renouvellement se negocie 12-18 mois avant l'echeance.",
     ],
     disclaimer=DISCLAIMER,
     sources=[
@@ -226,7 +226,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre le TAEG (taux annuel effectif global) et son impact sur le cout total.",
         "Savoir que le remboursement anticipe est possible sans penalite (LCC art. 17).",
-        "Decouvrir que le credit a la consommation est prioritaire a rembourser avant toute epargne.",
+        "Découvrir que le credit a la consommation est prioritaire a rembourser avant toute epargne.",
     ],
     disclaimer=DISCLAIMER,
     sources=[
@@ -251,7 +251,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre que le leasing est une dette (mensualite fixe sans propriete a terme).",
         "Savoir que le leasing reduit la capacite d'emprunt hypothecaire (charges mensuelles).",
-        "Decouvrir la comparaison financiere pure : leasing vs achat (cout total de detention).",
+        "Découvrir la comparaison financiere pure : leasing vs achat (cout total de detention).",
     ],
     disclaimer=DISCLAIMER,
     sources=[
@@ -266,16 +266,16 @@ _register(InsertContent(
 
 _register(InsertContent(
     question_id="q_emergency_fund",
-    title="Fonds d'urgence : ton filet de securite",
+    title="Fonds d'urgence : ton filet de sécurité",
     premier_eclairage=(
-        "3 a 6 mois de charges fixes : c'est le filet de securite "
+        "3 a 6 mois de charges fixes : c'est le filet de sécurité "
         "recommande. En Suisse, un-e salarie-e sur trois n'a pas "
         "d'epargne de precaution suffisante pour tenir 3 mois."
     ),
     learning_goals=[
         "Comprendre le concept de fonds d'urgence (3-6 mois de charges fixes).",
         "Savoir que les charges fixes representent environ 50% du revenu si non detaillees.",
-        "Decouvrir que le fonds d'urgence est la priorite n-1 avant toute epargne ou investissement.",
+        "Découvrir que le fonds d'urgence est la priorite n-1 avant toute epargne ou investissement.",
     ],
     disclaimer=DISCLAIMER,
     sources=[
@@ -301,7 +301,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre que le mariage implique un regime matrimonial (participation aux acquets par defaut, CC art. 181).",
         "Savoir que le concubinage n'offre aucune protection legale automatique (pas de part reservataire).",
-        "Decouvrir que le divorce entraine un partage du 2e pilier impose par la loi (LPP art. 22).",
+        "Découvrir que le divorce entraine un partage du 2e pilier impose par la loi (LPP art. 22).",
         "Comprendre l'impact fiscal du mariage : imposition commune (LIFD art. 9 al. 1).",
         "Savoir que le partenariat enregistre n'est plus accessible depuis le 1er juillet 2022 (mariage pour tous). Les partenariats existants restent valables avec des effets proches du mariage, mais pas identiques (LPart art. 1).",
     ],
@@ -330,7 +330,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre les 3 regimes : salarie, independant, sans activite lucrative.",
         "Savoir que le salarie beneficie automatiquement de l'AVS (LAVS art. 3), du LPP (LPP art. 2) et de la LAA (LAA art. 1a).",
-        "Decouvrir que l'independant doit tout organiser lui-meme : AVS, LPP volontaire, IJM, assurance accident.",
+        "Découvrir que l'independant doit tout organiser lui-meme : AVS, LPP volontaire, IJM, assurance accident.",
         "Comprendre que le chomage donne droit a l'AC (LACI art. 8) et maintient la couverture LPP pendant 2 ans max.",
         "Savoir que le sans-activite lucrative cotise quand meme a l'AVS (LAVS art. 10).",
     ],
@@ -360,7 +360,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre que la propriete en Suisse implique un apport minimum de 20% (FINMA circ. 2017/7).",
         "Savoir que le proprietaire paie l'impot sur la valeur locative (LIFD art. 21 al. 1 let. b) mais peut deduire les interets hypothecaires.",
-        "Decouvrir le mecanisme de l'EPL : retrait LPP + 3a pour financer l'apport (LPP art. 30c).",
+        "Découvrir le mecanisme de l'EPL : retrait LPP + 3a pour financer l'apport (LPP art. 30c).",
         "Comprendre le calcul de la capacite d'emprunt : charges max 1/3 du revenu brut, au taux theorique de 5%.",
         "Savoir que le locataire conserve sa flexibilite et sa liquidite.",
     ],
@@ -389,7 +389,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre que la Suisse a 3 niveaux d'imposition : federal (fixe), cantonal et communal (variables).",
         "Savoir que le taux effectif d'imposition varie enormement d'un canton a l'autre.",
-        "Decouvrir que les deductions (3a, LPP, frais medicaux, enfants) varient aussi par canton.",
+        "Découvrir que les deductions (3a, LPP, frais medicaux, enfants) varient aussi par canton.",
         "Comprendre que la fortune est imposee annuellement au niveau cantonal (pas federal).",
         "Savoir que les 26 cantons ont leurs propres baremes, allocations familiales et primes LAMal.",
     ],
@@ -417,7 +417,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre que le rachat LPP est deductible a 100% du revenu imposable (LPP art. 79b).",
         "Savoir que le montant maximum de rachat figure sur le certificat de prevoyance.",
-        "Decouvrir la strategie d'echelonnement : repartir les rachats sur 3-5 ans pour la progressivite.",
+        "Découvrir la strategie d'echelonnement : repartir les rachats sur 3-5 ans pour la progressivite.",
         "Comprendre le blocage EPL : apres un rachat, pas de retrait EPL pendant 3 ans (LPP art. 79b al. 3).",
         "Savoir que le rachat augmente aussi ta rente future (ou ton capital de retrait).",
     ],
@@ -445,7 +445,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre que le retrait du 3a est impose comme un revenu (taux progressif, LIFD art. 38).",
         "Savoir que les retraits de la meme annee sont additionnes pour le calcul du taux.",
-        "Decouvrir la strategie d'echelonnement : ouvrir 4-5 comptes et les retirer sur 4-5 annees differentes.",
+        "Découvrir la strategie d'echelonnement : ouvrir 4-5 comptes et les retirer sur 4-5 annees differentes.",
         "Comprendre que les retraits 3a et LPP en capital de la meme annee se cumulent pour l'imposition.",
         "Savoir que l'age de retrait anticipe est 5 ans avant l'age de reference AVS : 60 ans (hommes), 59 ans (femmes nees avant 1964) ou 60 ans (femmes nees des 1964) — OPP3 art. 3 al. 1.",
     ],
@@ -474,7 +474,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre que les gains en capital prives ne sont PAS imposes en Suisse (LIFD art. 16 al. 3).",
         "Savoir que les dividendes et interets sont imposables comme revenu ordinaire (LIFD art. 20).",
-        "Decouvrir que la fortune est imposee chaque annee (impot cantonal sur la fortune).",
+        "Découvrir que la fortune est imposee chaque annee (impot cantonal sur la fortune).",
         "Comprendre le concept de risque vs rendement : les valeurs mobilieres suisses (SPI) ont rendu ~7%/an sur 20 ans.",
         "Savoir que MINT ne donne pas de conseil en investissement (LSFin art. 3).",
     ],
@@ -485,7 +485,7 @@ _register(InsertContent(
         "LSFin art. 3 (conseil en investissement)",
         "FINMA circ. 2018/3 (regles de conduite)",
     ],
-    action_label="Decouvrir les bases de la diversification",
+    action_label="Découvrir les bases de la diversification",
     action_route="/learn/investments-basics",
     phase="Niveau 2",
     safe_mode="Si dette critique detectee : priorite au desendettement avant tout investissement.",
@@ -503,7 +503,7 @@ _register(InsertContent(
     learning_goals=[
         "Comprendre la regle des 20% d'apport : minimum 10% en cash ou 3a, max 10% du 2e pilier (FINMA circ. 2017/7).",
         "Savoir calculer la capacite d'emprunt : charges (5% + 1% + 1%) max 1/3 du revenu brut.",
-        "Decouvrir les 3 sources d'apport : epargne, 3a (retrait integral), LPP (EPL, LPP art. 30c).",
+        "Découvrir les 3 sources d'apport : epargne, 3a (retrait integral), LPP (EPL, LPP art. 30c).",
         "Comprendre la difference entre hypotheque 1er rang (max 65%) et 2e rang (a amortir en 15 ans).",
         "Savoir que l'achat declenche des frais uniques : notaire (~1-3%), droits de mutation, frais bancaires.",
     ],

@@ -184,7 +184,7 @@ def _index_in_rag(doc_id: str, extracted_fields: dict, document_type: str) -> bo
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Premier Eclairage — 4-layer insight engine for documents (DOC-07)
+# Premier Éclairage — 4-layer insight engine for documents (DOC-07)
 # ──────────────────────────────────────────────────────────────────────────────
 
 _DOCUMENT_SOURCES_MAP = {
@@ -200,7 +200,7 @@ _DOCUMENT_SOURCES_MAP = {
 
 _DISCLAIMER_TEXT = (
     "Outil educatif. Ne constitue pas un conseil financier au sens de la LSFin. "
-    "Pour une analyse adaptee a ta situation, consulte un\u00b7e specialiste."
+    "Pour une analyse adaptee a ta situation, consulte un\u00b7e spécialiste."
 )
 
 _PREMIER_ECLAIRAGE_SYSTEM_PROMPT = """\
@@ -259,7 +259,7 @@ def generate_document_insight(
     canton: Optional[str] = None,
     plan_type: Optional[str] = None,
 ) -> PremierEclairageResponse:
-    """Generate a 4-layer premier eclairage from extracted document data.
+    """Generate a 4-layer premier éclairage from extracted document data.
 
     Uses Claude API with the MINT 4-layer insight engine pattern.
     Falls back to a safe summary if the API call fails.
@@ -278,7 +278,7 @@ def generate_document_insight(
     # Check API key availability
     api_key = settings.ANTHROPIC_API_KEY
     if not api_key:
-        logger.warning("No ANTHROPIC_API_KEY for premier eclairage, returning fallback")
+        logger.warning("No ANTHROPIC_API_KEY for premier éclairage, returning fallback")
         return _build_fallback_response(extracted_fields, doc_type_str)
 
     # Build prompt context
@@ -328,7 +328,7 @@ def generate_document_insight(
         )
 
     except Exception as e:
-        logger.warning("Premier eclairage generation failed: %s", e)
+        logger.warning("Premier éclairage generation failed: %s", e)
         return _build_fallback_response(extracted_fields, doc_type_str)
 
 
@@ -344,7 +344,7 @@ async def document_premier_eclairage(
     request: Request,
     _user: User = Depends(require_current_user),
 ):
-    """Generate a 4-layer premier eclairage from extracted document data (DOC-07).
+    """Generate a 4-layer premier éclairage from extracted document data (DOC-07).
 
     Called after document extraction and user confirmation to produce a
     personalized insight using the MINT 4-layer insight engine:

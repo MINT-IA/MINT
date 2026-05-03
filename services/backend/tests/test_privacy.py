@@ -454,7 +454,7 @@ class TestComplianceChecks:
 
     def test_disclaimer_mentions_specialiste(self):
         """Disclaimer should mention 'specialiste' (not 'conseiller')."""
-        assert "specialiste" in DISCLAIMER.lower()
+        assert "spécialiste" in DISCLAIMER.lower()
 
     def test_disclaimer_mentions_nlpd(self):
         """Disclaimer should reference nLPD."""

@@ -208,7 +208,7 @@ class AffordabilityCalculator {
           'Le taux theorique de 5% est utilise pour le calcul de tenue '
           '(pratique ASB), pas le taux reel du marche. '
           'Base legale : directive ASB sur le credit hypothecaire. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'Consultez un ou une spécialiste avant toute decision.',
     );
   }
 }
@@ -509,7 +509,7 @@ class ImputedRentalCalculator {
           'differer significativement de cette estimation. Les deductions '
           'dependent de la situation personnelle. '
           'Base legale : LIFD art. 21 al. 1 let. b, art. 32 (deductions). '
-          'Consultez un ou une specialiste en fiscalite.',
+          'Consultez un ou une spécialiste en fiscalite.',
     );
   }
 }
@@ -661,7 +661,7 @@ class AmortizationCalculator {
           'du rendement 3a et des conditions hypothecaires. '
           'Le nantissement du 3a doit etre accepte par le preteur. '
           'Base legale : OPP3, pratique hypothecaire suisse. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'Consultez un ou une spécialiste avant toute decision.',
     );
   }
 }
@@ -854,7 +854,7 @@ class EplCombinedCalculator {
           'et communale, et de la situation personnelle. '
           'Le retrait LPP est soumis a l\'accord du conjoint (si marie). '
           'Base legale : LPP art. 30c (EPL), OPP3, LIFD art. 38. '
-          'Consultez un ou une specialiste avant toute decision.',
+          'Consultez un ou une spécialiste avant toute decision.',
     );
   }
 

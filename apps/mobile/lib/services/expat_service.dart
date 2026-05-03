@@ -31,7 +31,7 @@ class ExpatService {
       'Estimations simplifiees a but educatif — ne constitue pas '
       'un conseil fiscal ou juridique. Les montants dependent de nombreux '
       'facteurs (deductions, commune, fortune, convention internationale, etc.). '
-      'Consulte un-e specialiste fiscal-e pour une analyse personnalisee.';
+      'Consulte un-e spécialiste fiscal-e pour une analyse personnalisee.';
 
   // ════════════════════════════════════════════════════════════
   //  FRONTALIER — SOURCE TAX (Bareme C) BY CANTON
@@ -419,7 +419,7 @@ class ExpatService {
           'Risque fiscal — l\'imposition peut basculer vers ton pays de residence. '
           'Avec $riskDays jours de home office, tu depasses le seuil de 90 jours. '
           'Ton employeur pourrait devoir cotiser dans ton pays de residence. '
-          'Consulte un-e specialiste en fiscalite internationale.';
+          'Consulte un-e spécialiste en fiscalite internationale.';
     }
 
     return {

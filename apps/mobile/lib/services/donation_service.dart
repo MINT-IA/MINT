@@ -320,7 +320,7 @@ class DonationService {
         'ne constitue pas un conseil juridique, fiscal ou notarial '
         'personnalise au sens de la LSFin. Le droit des donations '
         'et successions comporte de nombreuses subtilites cantonales. '
-        'Consulte un·e specialiste (notaire) pour ta situation.';
+        'Consulte un·e spécialiste (notaire) pour ta situation.';
 
     // ── Sources ──
     const sources = [

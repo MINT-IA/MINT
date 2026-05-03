@@ -145,7 +145,7 @@ class VisionExtractionRequest(BaseModel):
 
 
 class PremierEclairageRequest(BaseModel):
-    """Request for document-specific premier eclairage generation (DOC-07).
+    """Request for document-specific premier éclairage generation (DOC-07).
 
     After document extraction, sends extracted fields to generate a
     personalized 4-layer insight using the MINT insight engine.
@@ -178,7 +178,7 @@ class PremierEclairageRequest(BaseModel):
 
 
 class PremierEclairageResponse(BaseModel):
-    """Response with 4-layer premier eclairage from document data (DOC-07).
+    """Response with 4-layer premier éclairage from document data (DOC-07).
 
     Structure follows the MINT 4-layer insight engine:
     1. Factual extraction (what the document says)

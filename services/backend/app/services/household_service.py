@@ -167,7 +167,7 @@ def invite_partner(db: Session, owner: User, partner_email: str) -> dict:
     if active_count >= MAX_ACTIVE_MEMBERS:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Le menage a deja le nombre maximum de membres",
+            detail="Le menage a déjà le nombre maximum de membres",
         )
 
     # Find the partner user
@@ -196,7 +196,7 @@ def invite_partner(db: Session, owner: User, partner_email: str) -> dict:
     if existing_membership:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Cette personne est deja dans un menage",
+            detail="Cette personne est déjà dans un menage",
         )
 
     # Check cooldown (INV-6)
@@ -311,7 +311,7 @@ def accept_invitation(db: Session, user: User, invitation_code: str) -> dict:
     if active_count >= MAX_ACTIVE_MEMBERS:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Le menage a deja le nombre maximum de membres actifs",
+            detail="Le menage a déjà le nombre maximum de membres actifs",
         )
 
     member.status = "active"
@@ -409,7 +409,7 @@ def transfer_ownership(db: Session, caller: User, new_owner_id: str) -> dict:
     if new_owner_id == caller.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Tu es deja le proprietaire",
+            detail="Tu es déjà le proprietaire",
         )
 
     # Check new owner is active member

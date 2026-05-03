@@ -7,7 +7,7 @@ dans la plupart des cantons pour les membres d'une eglise reconnue
 (catholique, protestante, chretienne-catholique).
 
 Dans certains cantons (TI, VD, NE, GE), l'impot ecclesiastique est
-volontaire ou deja integre dans l'impot cantonal.
+volontaire ou déjà integre dans l'impot cantonal.
 
 Sources:
     - LHID art. 1 (harmonisation fiscale)
@@ -96,7 +96,7 @@ DISCLAIMER = (
     "de la confession et du canton. "
     "Outil educatif — ne constitue pas un conseil fiscal (LSFin). "
     "Consulte ton administration fiscale cantonale ou un ou une "
-    "specialiste fiscal-e."
+    "spécialiste fiscal-e."
 )
 
 SOURCES = [

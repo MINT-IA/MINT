@@ -122,7 +122,7 @@ def build_discovery_system_prompt(
         "- Jamais de langage absolu ou prescriptif. Utilise le conditionnel.",
         "- Reponse courte (3-5 phrases max).",
         "",
-        "Objectif : surprendre la personne avec un eclairage qu'elle ne connaissait pas.",
+        "Objectif : surprendre la personne avec un éclairage qu'elle ne connaissait pas.",
     ])
 
     return "\n".join(prompt_parts)

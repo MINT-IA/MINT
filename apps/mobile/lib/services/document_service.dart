@@ -1196,7 +1196,7 @@ class DocumentService {
       return null;
     }
   }
-  /// Fetch premier eclairage (4-layer insight) for extracted document data.
+  /// Fetch premier éclairage (4-layer insight) for extracted document data.
   /// Returns parsed JSON response or null on failure.
   static Future<Map<String, dynamic>?> fetchPremierEclairage({
     required String documentType,

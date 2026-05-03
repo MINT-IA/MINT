@@ -19,7 +19,7 @@ from typing import List, Optional
 DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
     "pas un avis juridique. Les ressources listees sont des organismes publics "
-    "ou associatifs reconnus. Consultez un ou une specialiste pour un "
+    "ou associatifs reconnus. Consultez un ou une spécialiste pour un "
     "accompagnement personnalise."
 )
 
@@ -364,7 +364,7 @@ _SITUATION_RESOURCES = {
     "surendettement": HelpResource(
         nom="Dettes Conseils Suisse — Programme de desendettement",
         description=(
-            "Accompagnement complet pour elaborer un plan de desendettement. "
+            "Accompagnement complet pour élaborer un plan de desendettement. "
             "Negociation avec les creanciers, plan de paiement echelonne."
         ),
         url="https://www.dettes.ch/desendettement",

@@ -36,7 +36,7 @@ DISCLAIMER = (
     "MINT est un outil educatif. Ce simulateur ne constitue pas un conseil "
     "fiscal ou en prevoyance au sens de la LSFin. Les economies fiscales "
     "dependent de votre situation personnelle et de la legislation cantonale. "
-    "Consultez un ou une specialiste en fiscalite pour une analyse personnalisee."
+    "Consultez un ou une spécialiste en fiscalite pour une analyse personnalisee."
 )
 
 SOURCES = [

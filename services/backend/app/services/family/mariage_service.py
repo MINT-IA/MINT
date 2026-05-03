@@ -28,7 +28,7 @@ DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de "
     "ton canton, de ta situation personnelle et du bareme communal. "
     "Ne constitue pas un conseil fiscal ou juridique (LSFin/LLCA). "
-    "Consulte un ou une specialiste."
+    "Consulte un ou une spécialiste."
 )
 
 # ---------------------------------------------------------------------------
@@ -467,8 +467,8 @@ class MariageService:
             "Commander de nouvelles pieces d'identite (passeport, CI) si changement de nom",
             "Informer ta banque, tes assurances et ton bailleur du changement d'etat civil",
             "Evaluer l'impact fiscal avec notre simulateur — selon vos revenus, "
-            f"le mariage peut creer un bonus ou une penalite fiscale (canton: {canton})",
-            "Consulter un ou une specialiste pour un bilan patrimonial complet avant le mariage",
+            f"le mariage peut créer un bonus ou une penalite fiscale (canton: {canton})",
+            "Consulter un ou une spécialiste pour un bilan patrimonial complet avant le mariage",
         ]
 
         items = priorite_haute + priorite_moyenne + priorite_basse

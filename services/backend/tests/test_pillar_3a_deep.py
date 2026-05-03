@@ -566,7 +566,7 @@ class TestPillar3aDeepCompliance:
     def test_gender_neutral_disclaimers(self):
         """Disclaimers should use gender-neutral language."""
         for disclaimer in [MULTI_DISCLAIMER, RETURN_DISCLAIMER, PROVIDER_DISCLAIMER]:
-            assert "un ou une specialiste" in disclaimer.lower(), (
+            assert "un ou une spécialiste" in disclaimer.lower(), (
                 f"Disclaimer should use gender-neutral language: {disclaimer}"
             )
 

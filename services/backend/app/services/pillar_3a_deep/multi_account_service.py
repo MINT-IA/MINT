@@ -26,7 +26,7 @@ DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
     "pas un conseil en prevoyance au sens de la LSFin. Les economies fiscales "
     "dependent de votre situation personnelle et des baremes en vigueur au "
-    "moment du retrait. Consultez un ou une specialiste en fiscalite."
+    "moment du retrait. Consultez un ou une spécialiste en fiscalite."
 )
 
 _DEFAULT_TAUX_RETRAIT = 0.065

@@ -151,7 +151,7 @@ class ConsentManager:
             ValueError: If scopes are invalid or empty.
         """
         if not scopes:
-            raise ValueError("Au moins un scope est requis pour creer un consentement.")
+            raise ValueError("Au moins un scope est requis pour créer un consentement.")
         invalid = [s for s in scopes if s not in VALID_SCOPES]
         if invalid:
             raise ValueError(

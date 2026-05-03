@@ -573,8 +573,8 @@ def compute_smart_defaults(
         value=round(reserve_target, 0),
         source=(
             f"Estimation: 4 mois de charges (~{_format_chf(monthly_expenses)}/mois). "
-            f"Les specialistes recommandent 3 a 6 mois de depenses en reserve. "
-            f"Charges estimees a 70% du salaire net."
+            f"Les spécialistes recommandent 3 à 6 mois de dépenses en réserve. "
+            f"Charges estimées à 70% du salaire net."
         ),
         confidence=0.40,
     ))

@@ -55,7 +55,7 @@ router = APIRouter()
 
 DISCLAIMER = (
     "Estimations educatives simplifiees. Ne constitue pas un conseil "
-    "fiscal ou juridique (LSFin/LLCA). Consulte un ou une specialiste."
+    "fiscal ou juridique (LSFin/LLCA). Consulte un ou une spécialiste."
 )
 
 

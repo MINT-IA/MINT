@@ -207,7 +207,7 @@ _HANDOFF_PATTERNS = [
     r"rendez[-\s]vous",
     r"rendez[-\s]vous avec un[·\s]e?\s*spécialiste",
     r"spécialiste",
-    r"specialiste",
+    r"spécialiste",
     r"prends le temps",
     r"prenons le temps",
     r"prends une pause",

@@ -47,7 +47,7 @@ router = APIRouter()
 _DISCLAIMER = (
     "Cet outil est educatif et ne constitue pas un conseil financier, "
     "fiscal ou juridique personnalise. Les estimations sont indicatives. "
-    "Consulte un·e specialiste pour ta situation personnelle (LSFin art. 3)."
+    "Consulte un·e spécialiste pour ta situation personnelle (LSFin art. 3)."
 )
 
 _SOURCES = [

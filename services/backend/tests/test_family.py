@@ -682,7 +682,7 @@ class TestChecklistMariage:
         """Checklist should include a disclaimer."""
         result = mariage_service.checklist_mariage()
         assert len(result.disclaimer) > 0
-        assert "specialiste" in result.disclaimer.lower()
+        assert "spécialiste" in result.disclaimer.lower()
 
     def test_checklist_canton_personalisation(self, mariage_service):
         """Canton should appear in the checklist items."""
@@ -794,7 +794,7 @@ class TestChecklistNaissance:
         """Checklist should include a disclaimer."""
         result = naissance_service.checklist_naissance()
         assert len(result.disclaimer) > 0
-        assert "specialiste" in result.disclaimer.lower()
+        assert "spécialiste" in result.disclaimer.lower()
 
     def test_checklist_canton_allocation_in_premier_eclairage(self, naissance_service):
         """Chiffre choc should mention the canton allocation amount."""

@@ -134,7 +134,7 @@ class DivorceSimulator:
             alerts=alerts,
             disclaimer=(
                 "Outil educatif — ne constitue pas un conseil (LSFin). "
-                "Estimation indicative. Consultez un·e specialiste "
+                "Estimation indicative. Consultez un·e spécialiste "
                 "en droit de la famille."
             ),
         )

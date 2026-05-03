@@ -460,7 +460,7 @@ def get_overview_me(
             gaps.append(f"{name}.{f}")
 
     alertes = _compute_alertes(data)
-    eclairage = _premier_eclairage(
+    éclairage = _premier_eclairage(
         sections["identity"], sections["income"],
         sections["prevoyance"], completeness,
     )
@@ -477,5 +477,5 @@ def get_overview_me(
         completeness_index=round(completeness, 2),
         profile_gaps=gaps,
         alertes=alertes,
-        premier_eclairage=eclairage,
+        premier_eclairage=éclairage,
     )

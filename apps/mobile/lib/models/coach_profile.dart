@@ -314,7 +314,7 @@ class PrevoyanceProfile {
   final double? avoirLppObligatoire; // part obligatoire (taux min 6.8%)
   final double? avoirLppSurobligatoire; // part surobligatoire (taux caisse)
   final double? rachatMaximum; // lacune de rachat totale
-  final double? rachatEffectue; // deja rachete (montant CHF cumulé)
+  final double? rachatEffectue; // déjà rachete (montant CHF cumulé)
   /// Historique daté des rachats LPP (ordre chronologique, plus récent en
   /// dernier). swiss-brain Q4 2026-04-18 : le blocage 3 ans (LPP art. 79b
   /// al. 3, confirmé par ATF 142 II 399 + ATF 148 II 189) part de la date

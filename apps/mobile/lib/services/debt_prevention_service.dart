@@ -349,7 +349,7 @@ class RepaymentPlanner {
     double totalInterets = 0;
     double totalPaye = 0;
     int mois = 0;
-    const maxMois = 600; // Securite : 50 ans max
+    const maxMois = 600; // Sécurité : 50 ans max
 
     // Verifier que le budget couvre au moins les mensualites min
     final sumMin = dettes.fold<double>(0, (s, d) => s + d.mensualiteMin);

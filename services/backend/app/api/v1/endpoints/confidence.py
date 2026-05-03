@@ -44,7 +44,7 @@ _DISCLAIMER = (
     "Cet outil est educatif et ne constitue pas un conseil financier, "
     "fiscal ou juridique personnalise. Le score de confiance mesure "
     "la qualite des donnees fournies, pas la fiabilite des projections. "
-    "Consulte un-e specialiste pour ta situation personnelle (LSFin art. 3)."
+    "Consulte un-e spécialiste pour ta situation personnelle (LSFin art. 3)."
 )
 
 _SOURCES = [
@@ -144,7 +144,7 @@ def get_enrichments(request: Request, body: EnrichmentRequest) -> EnrichmentResp
     """Retourne les top actions pour ameliorer la precision du profil.
 
     Classe les actions d'enrichissement par impact decroissant.
-    Les actions deja completees sont exclues ou ont un impact reduit.
+    Les actions déjà completees sont exclues ou ont un impact reduit.
 
     Returns:
         EnrichmentResponse avec prompts, current confidence, disclaimer.

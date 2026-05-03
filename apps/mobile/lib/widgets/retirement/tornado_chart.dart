@@ -29,7 +29,7 @@ class TornadoChart extends StatelessWidget {
   /// Revenu mensuel de base (CHF/mois) — ligne centrale.
   final double baseCase;
 
-  /// Variables de sensibilite, deja triees par swing decroissant.
+  /// Variables de sensibilite, déjà triees par swing decroissant.
   final List<TornadoVariable> variables;
 
   /// Nombre maximum de variables affichees (defaut 10).

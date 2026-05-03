@@ -108,7 +108,7 @@ class WithdrawalSequencingService {
       'Simulation pedagogique de la sequence de retrait en capital. '
       "L'optimisation fiscale depend de la legislation cantonale et "
       'de la situation personnelle. Base legale : LIFD art. 38, OPP3 art. 3. '
-      'Consulte un ou une specialiste avant toute decision. '
+      'Consulte un ou une spécialiste avant toute decision. '
       'Cette simulation ne constitue pas un conseil financier au sens de la LSFin.';
 
   static const List<String> _sources = [
@@ -130,10 +130,10 @@ class WithdrawalSequencingService {
     final currentYear = DateTime.now().year;
     final currentAge = profile.age;
 
-    // Guard: si la personne est deja a l'age de retraite ou au-dela,
+    // Guard: si la personne est déjà a l'age de retraite ou au-dela,
     // aucune optimisation de sequencage n'est possible.
     if (currentAge >= retirementAge) {
-      // Personne deja a l'age de retraite ou au-dela
+      // Personne déjà a l'age de retraite ou au-dela
       return const WithdrawalSequencingResult(
         optimizedSequence: [],
         naiveSequence: [],

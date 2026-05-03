@@ -32,7 +32,7 @@ DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
     "pas un conseil en financement immobilier ni en prevoyance au sens de la "
     "LSFin. L'amortissement indirect implique des risques (le rendement 3a "
-    "peut varier). Consultez un ou une specialiste pour une analyse personnalisee."
+    "peut varier). Consultez un ou une spécialiste pour une analyse personnalisee."
 )
 
 # Alias for backward compatibility

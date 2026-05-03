@@ -46,7 +46,7 @@ DISCLAIMER = (
     "fiscal ou juridique au sens de la LSFin. L'optimisation fiscale via "
     "le split salaire/dividende depend de la pratique cantonale et ne peut "
     "pas etre consideree comme acquise dans tous les cas. Le risque de "
-    "requalification fiscale existe. Consultez un ou une specialiste en "
+    "requalification fiscale existe. Consultez un ou une spécialiste en "
     "fiscalite et droit des societes pour une analyse personnalisee."
 )
 

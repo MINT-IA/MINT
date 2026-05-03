@@ -27,7 +27,7 @@ from app.constants.social_insurance import (
 DISCLAIMER = (
     "MINT est un outil educatif. Ce service ne constitue pas un conseil "
     "en prevoyance au sens de la LSFin. Le retrait EPL a des consequences "
-    "importantes sur vos prestations de prevoyance. Consultez un ou une specialiste "
+    "importantes sur vos prestations de prevoyance. Consultez un ou une spécialiste "
     "avant toute demande de retrait."
 )
 
@@ -291,7 +291,7 @@ class EPLService:
             f"d'environ {reduction_pct:.1f}%. La rente d'invalidite diminue d'environ "
             f"{rente_invalidite_reduction_chf:.0f} CHF/an. Le capital deces est egalement "
             f"reduit proportionnellement (LPP art. 30e). Une assurance complementaire "
-            f"peut compenser cette perte — consultez un ou une specialiste."
+            f"peut compenser cette perte — consultez un ou une spécialiste."
         )
 
         return ImpactPrestations(

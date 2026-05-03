@@ -372,7 +372,7 @@ class TestFiscalCompliance:
 
     def test_disclaimer_mentions_specialiste(self):
         """Disclaimer should recommend consulting a specialist."""
-        assert "specialiste" in DISCLAIMER.lower()
+        assert "spécialiste" in DISCLAIMER.lower()
 
     def test_disclaimer_not_guaranteed(self):
         """Disclaimer should say it's not tax advice."""

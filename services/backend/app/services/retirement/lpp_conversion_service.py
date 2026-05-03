@@ -28,7 +28,7 @@ DISCLAIMER = (
     "Estimations educatives simplifiees. Le taux de conversion reel peut differer "
     "du minimum legal (6.8%) selon ton plan de prevoyance. Les taux d'imposition "
     "sont des approximations cantonales. Ne constitue pas un conseil en prevoyance "
-    "(LSFin). Consulte un ou une specialiste."
+    "(LSFin). Consulte un ou une spécialiste."
 )
 
 # LPP minimum conversion rate (mandatory portion) — from centralized constants

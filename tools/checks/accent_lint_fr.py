@@ -25,6 +25,14 @@ from pathlib import Path
 
 # Each pattern = (word_regex, suggested_correction). Patterns use \b word
 # boundaries and (?i) case-insensitive via re.IGNORECASE at call-site.
+# Slug separators that, when present immediately before/after a match,
+# indicate the match is part of a route path or kebab/snake identifier
+# (e.g. `/onboarding/premier-eclairage`, `var_eclairage_count`). These
+# MUST stay ASCII for routing + identifier correctness — accent
+# substitution would break the URL or the symbol.
+SLUG_SEPARATORS_BEFORE = ("/", "-", "_")
+SLUG_SEPARATORS_AFTER = ("-", "_")
+
 PATTERNS: list[tuple[str, str]] = [
     (r"\bcreer\b", "créer"),
     (r"\bdecouvrir\b", "découvrir"),
@@ -64,6 +72,36 @@ EXCLUDE_SUBSTRINGS = (
     "/tools/checks/",
 )
 
+# Non-FR locale files where French accent patterns are guaranteed false
+# positives (German « Regler » = slider, Spanish « deja » = leaves third
+# person, English « eclairage » as borrowed word, etc.). The FR locale
+# itself is `app_fr.arb` + `app_localizations_fr.dart` which we DO scan.
+EXCLUDE_FILE_SUFFIXES = (
+    "/app_de.arb",
+    "/app_en.arb",
+    "/app_es.arb",
+    "/app_it.arb",
+    "/app_pt.arb",
+    "/app_localizations_de.dart",
+    "/app_localizations_en.dart",
+    "/app_localizations_es.dart",
+    "/app_localizations_it.dart",
+    "/app_localizations_pt.dart",
+)
+
+
+def _is_slug_match(line: str, match: re.Match[str]) -> bool:
+    """True if the matched word is part of a route path or kebab/snake
+    identifier (e.g. `/onboarding/premier-eclairage` or
+    `var_eclairage_count`). These MUST stay ASCII for routing +
+    identifier correctness — accent substitution would break the URL or
+    the symbol.
+    """
+    s, e = match.span()
+    before = line[s - 1 : s] if s > 0 else ""
+    after = line[e : e + 1] if e < len(line) else ""
+    return before in SLUG_SEPARATORS_BEFORE or after in SLUG_SEPARATORS_AFTER
+
 
 def scan_text(text: str) -> list[tuple[int, str, str]]:
     """Scan a raw text buffer for ASCII-flattened French accent patterns.
@@ -71,13 +109,20 @@ def scan_text(text: str) -> list[tuple[int, str, str]]:
     Returns list of (lineno, snippet, pattern->correction) violations. 1-indexed lines.
     Backward-compatible with scan_file — shares the PATTERNS list.
     Added in Phase 30.7 TOOL-04 MCP wrapper. Do NOT duplicate PATTERNS here.
+
+    Slug context guard (Phase 54.x): matches inside URL paths or
+    kebab/snake identifiers (preceded/followed by `/`, `-`, `_`) are
+    skipped — they MUST stay ASCII for routing/identifier correctness.
     """
     out: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
         for pat, correct in PATTERNS:
-            if re.search(pat, line, re.IGNORECASE):
+            for match in re.finditer(pat, line, re.IGNORECASE):
+                if _is_slug_match(line, match):
+                    continue
                 snippet = line.strip()[:140]
                 out.append((lineno, snippet, f"{pat} -> {correct}"))
+                break  # one violation per (line, pattern) is enough
     return out
 
 
@@ -103,6 +148,11 @@ def _collect_paths(scope: list[str]) -> list[Path]:
                 continue
             rel = "/" + p.as_posix() + "/"
             if any(ex in rel for ex in EXCLUDE_SUBSTRINGS):
+                continue
+            # Skip non-FR locale files (German « Regler », Spanish « deja »
+            # etc. trigger false positives against FR accent patterns).
+            posix = p.as_posix()
+            if any(posix.endswith(suf) for suf in EXCLUDE_FILE_SUFFIXES):
                 continue
             paths.append(p)
     return paths

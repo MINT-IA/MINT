@@ -22,7 +22,7 @@ from enum import Enum
 DISCLAIMER = (
     "MINT est un outil educatif. Ce service ne constitue pas un conseil "
     "en prevoyance au sens de la LSFin. Les delais et procedures "
-    "peuvent varier selon les caisses de pension. Consultez un ou une specialiste "
+    "peuvent varier selon les caisses de pension. Consultez un ou une spécialiste "
     "pour une analyse personnalisee de votre situation."
 )
 
@@ -245,7 +245,7 @@ class LibrePassageService:
                     niveau="critique",
                     message=(
                         f"Le delai de 6 mois est depasse ({delai_jours} jours). "
-                        f"Vos avoirs sont peut-etre deja aupres de la Fondation institution "
+                        f"Vos avoirs sont peut-etre déjà aupres de la Fondation institution "
                         f"suppletive. Contactez la Centrale du 2e pilier: {self.CENTRALE_2E_PILIER_URL}"
                     ),
                     source_legale="LFLP art. 4, OLP art. 10",
@@ -289,7 +289,7 @@ class LibrePassageService:
                     description=(
                         f"A {age} ans, vous etes dans la tranche de retraite anticipee "
                         f"(58-65 ans). Vous pouvez retirer votre capital de libre passage. "
-                        f"Evaluez la fiscalite du retrait avec un ou une specialiste."
+                        f"Evaluez la fiscalite du retrait avec un ou une spécialiste."
                     ),
                     source_legale="LPP art. 13 al. 2, OLP art. 16",
                 ))

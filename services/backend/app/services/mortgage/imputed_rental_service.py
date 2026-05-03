@@ -24,7 +24,7 @@ DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
     "pas un conseil fiscal au sens de la LSFin. Les taux de valeur locative "
     "varient selon les cantons et les communes. "
-    "Consultez un ou une specialiste fiscal·e pour une analyse personnalisee."
+    "Consultez un ou une spécialiste fiscal·e pour une analyse personnalisee."
 )
 
 # Simplified cantonal imputed rental rates (% of market value, educational)

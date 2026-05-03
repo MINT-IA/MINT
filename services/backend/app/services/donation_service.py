@@ -37,7 +37,7 @@ DISCLAIMER: str = (
     "Cet outil educatif fournit une estimation indicative et ne constitue "
     "pas un conseil financier, fiscal ou juridique au sens de la LSFin. "
     "Les taux d'imposition sur les donations varient selon le canton, "
-    "le lien de parente et le montant. Consulte un·e specialiste "
+    "le lien de parente et le montant. Consulte un·e spécialiste "
     "(notaire, avocat·e en droit successoral) pour ta situation concrete."
 )
 

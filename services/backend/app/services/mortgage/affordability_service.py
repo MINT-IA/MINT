@@ -32,7 +32,7 @@ DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
     "pas un conseil en financement immobilier au sens de la LSFin. "
     "Les conditions d'octroi varient selon les etablissements. "
-    "Consultez un ou une specialiste hypothecaire pour une analyse personnalisee."
+    "Consultez un ou une spécialiste hypothecaire pour une analyse personnalisee."
 )
 
 # Aliases for backward compatibility within this module
@@ -424,7 +424,7 @@ class AffordabilityService:
         if ratio_charges > 0.30 and capacite_ok:
             alertes.append(
                 f"Attention : le ratio de charges ({ratio_charges * 100:.1f}%) "
-                f"est proche du maximum de 33.3%. Peu de marge de securite."
+                f"est proche du maximum de 33.3%. Peu de marge de sécurité."
             )
 
         return alertes

@@ -139,7 +139,7 @@ DISCLAIMER = (
     "et la composition exacte du patrimoine. "
     "Outil educatif — ne constitue pas un conseil fiscal (LSFin). "
     "Consulte ton administration fiscale cantonale ou un ou une "
-    "specialiste fiscal-e pour un calcul precis."
+    "spécialiste fiscal-e pour un calcul precis."
 )
 
 SOURCES = [

@@ -86,7 +86,7 @@ def _snapshot_to_response(snapshot) -> SnapshotResponse:
 @router.post("", response_model=SnapshotResponse)
 @limiter.limit("30/minute")
 def create_financial_snapshot(request: Request, body: CreateSnapshotRequest, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> SnapshotResponse:
-    """Creer un snapshot financier.
+    """Créer un snapshot financier.
 
     Capture l'etat financier de l'utilisateur a un moment donne,
     declenche par un check-in trimestriel, un evenement de vie,

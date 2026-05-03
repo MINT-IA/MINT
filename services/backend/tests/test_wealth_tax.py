@@ -615,13 +615,13 @@ class TestComplianceChurch:
     def test_church_uses_specialiste_not_conseiller(self, church_service):
         """Disclaimer must use 'specialiste' not 'conseiller'."""
         result = church_service.estimate_church_tax(10_000, "ZH")
-        assert "specialiste" in result.disclaimer.lower()
+        assert "spécialiste" in result.disclaimer.lower()
         assert "conseiller" not in result.disclaimer.lower()
 
     def test_wealth_uses_specialiste_not_conseiller(self, wealth_service):
         """Disclaimer must use 'specialiste' not 'conseiller'."""
         result = wealth_service.estimate_wealth_tax(500_000, "ZH")
-        assert "specialiste" in result.disclaimer.lower()
+        assert "spécialiste" in result.disclaimer.lower()
         assert "conseiller" not in result.disclaimer.lower()
 
 

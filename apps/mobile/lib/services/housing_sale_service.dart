@@ -292,7 +292,7 @@ class HousingSaleService {
         'personnalise au sens de la LSFin. Les taux d\'imposition '
         'sont simplifies et peuvent varier selon la commune et les '
         'deductions applicables. ${!cantonExplicit ? "Le bareme utilise est celui de VD par defaut. " : ""}'
-        'Consulte un·e specialiste pour ta situation personnelle.';
+        'Consulte un·e spécialiste pour ta situation personnelle.';
 
     // ── Sources ──
     const sources = [

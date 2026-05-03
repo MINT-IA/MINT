@@ -18,7 +18,7 @@ Sources:
     - OPP3 art. 7 (plafond 3a)
     - LPP art. 2 (affiliation obligatoire)
     - LAVS art. 153a (coordination EU/AELE)
-    - ALCP Annexe II (libre circulation, coordination securite sociale)
+    - ALCP Annexe II (libre circulation, coordination sécurité sociale)
     - Loi GE quasi-resident (90% revenus de source CH)
 
 Ethical requirements:
@@ -259,7 +259,7 @@ DISCLAIMER = (
     "Cette analyse est indicative et basee sur les regles generales "
     "applicables aux travailleurs frontaliers. Les regles fiscales et de "
     "prevoyance dependent de votre situation individuelle et peuvent "
-    "evoluer. Consultez un·e specialiste en droit international "
+    "evoluer. Consultez un·e spécialiste en droit international "
     "pour une analyse personnalisee."
 )
 
@@ -492,11 +492,11 @@ class FrontalierService:
             regime_avs="Cotisations AVS normales si employe en Suisse.",
             alertes=[
                 f"Le pays '{pays}' n'est pas un pays frontalier reconnu. "
-                f"Verifiez votre situation aupres d'un specialiste."
+                f"Verifiez votre situation aupres d'un spécialiste."
             ],
             recommandations=[{
                 "id": "consulter_specialiste",
-                "titre": "Consulter un specialiste",
+                "titre": "Consulter un spécialiste",
                 "description": (
                     "Votre situation ne correspond pas aux cas frontaliers "
                     "standard. Consultez un fiscaliste specialise en droit "

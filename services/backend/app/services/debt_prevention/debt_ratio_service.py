@@ -21,7 +21,7 @@ DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
     "pas un avis juridique. Les montants du minimum vital sont des estimations "
     "basees sur les directives de la Conference des preposes. Consultez un ou "
-    "une specialiste en desendettement pour une analyse personnalisee."
+    "une spécialiste en desendettement pour une analyse personnalisee."
 )
 
 

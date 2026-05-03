@@ -31,7 +31,7 @@ DISCLAIMER = (
     "Cette analyse est fournie a titre educatif et indicatif. "
     "Les couts estimes sont des fourchettes indicatives basees sur "
     "des moyennes du marche suisse. MINT ne constitue pas un conseil "
-    "en assurance au sens de la LCA. Consultez un ou une specialiste "
+    "en assurance au sens de la LCA. Consultez un ou une spécialiste "
     "en assurances pour une analyse personnalisee."
 )
 

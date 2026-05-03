@@ -139,7 +139,7 @@ class FallbackTemplates:
                 f"{ctx.first_name}, certaines regles de prevoyance "
                 "dependent de ta nationalite et de ton parcours. "
                 "Verifie les conventions bilaterales qui pourraient "
-                "s'appliquer a ta situation aupres d'un specialiste."
+                "s'appliquer a ta situation aupres d'un spécialiste."
             )
 
         return (

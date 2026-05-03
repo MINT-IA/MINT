@@ -30,7 +30,7 @@ DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
     "pas un conseil en prevoyance ni en placement au sens de la LSFin. "
     "Les rendements passes ne prejugent pas des rendements futurs. "
-    "Consultez un ou une specialiste pour une analyse personnalisee."
+    "Consultez un ou une spécialiste pour une analyse personnalisee."
 )
 
 # 3a annual contribution limits (imported from social_insurance)

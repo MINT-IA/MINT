@@ -30,7 +30,7 @@ DISCLAIMER = (
     "Coefficients fiscaux approximatifs bases sur les publications cantonales 2025. "
     "Le taux exact depend de la commune, de la confession et de l'annee fiscale. "
     "Pour une estimation precise, consulte le site de ton administration fiscale "
-    "communale ou un ou une specialiste fiscal-e. "
+    "communale ou un ou une spécialiste fiscal-e. "
     "Outil educatif — ne constitue pas un conseil fiscal (LSFin)."
 )
 

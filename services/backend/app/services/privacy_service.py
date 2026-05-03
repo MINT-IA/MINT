@@ -31,7 +31,7 @@ DISCLAIMER = (
     "Outil educatif de gestion de tes donnees personnelles. "
     "Ne constitue pas un avis juridique. "
     "Tes droits sont regis par la nLPD (RS 235.1) en vigueur depuis le 1er septembre 2023. "
-    "Pour toute question, contacte un ou une specialiste en protection des donnees."
+    "Pour toute question, contacte un ou une spécialiste en protection des donnees."
 )
 
 # Delai de grace par defaut pour la suppression (en jours)
@@ -121,7 +121,7 @@ CONSENT_CATEGORIES: Dict[str, Dict] = {
         "peut_etre_retire": True,
         "impact_retrait": (
             "Tous les documents uploades seront supprimes sous 30 jours. "
-            "Les analyses deja generees restent disponibles."
+            "Les analyses déjà generees restent disponibles."
         ),
     },
     "rag_queries": {

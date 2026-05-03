@@ -38,7 +38,7 @@ DISCLAIMER = (
     "Estimation a titre indicatif. MINT est un outil educatif et ne constitue "
     "pas un conseil en prevoyance au sens de la LSFin. Le retrait EPL (3a et LPP) "
     "a des consequences sur vos prestations et votre prevoyance vieillesse. "
-    "Consultez un ou une specialiste avant toute decision."
+    "Consultez un ou une spécialiste avant toute decision."
 )
 
 

@@ -24,7 +24,7 @@ class EducationTopicContent {
 
   static const String disclaimer =
       'Contenu a visee pedagogique. Ne constitue pas un conseil financier, '
-      'fiscal ou juridique (LSFin). Consulte un\u00b7e specialiste pour ta situation.';
+      'fiscal ou juridique (LSFin). Consulte un\u00b7e spécialiste pour ta situation.';
 }
 
 class QuizQuestion {
@@ -422,7 +422,7 @@ class EducationContentData {
         correctIndex: 1,
         explanation:
             'La date limite est le 30 novembre. Ta nouvelle caisse doit '
-            'avoir recu ta demande avant cette date. Astuce : les primes '
+            'avoir reçu ta demande avant cette date. Astuce : les primes '
             'sont annoncees fin septembre — compare des octobre.',
       ),
       funFact:

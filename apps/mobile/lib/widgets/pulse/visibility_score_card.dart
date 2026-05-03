@@ -161,7 +161,7 @@ class VisibilityScoreCard extends StatelessWidget {
       'liquidite' => Icons.account_balance_wallet_outlined,
       'fiscalite' => Icons.receipt_long_outlined,
       'retraite' => Icons.beach_access_outlined,
-      'securite' => Icons.shield_outlined,
+      'sécurité' => Icons.shield_outlined,
       _ => Icons.info_outline,
     };
   }

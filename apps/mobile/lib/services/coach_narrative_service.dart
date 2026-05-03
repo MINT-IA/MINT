@@ -408,7 +408,7 @@ class CoachNarrativeService {
           );
         } catch (e) {
           debugPrint('CoachNarrative: $e');
-          // Resilience: garde le narratif statique deja genere
+          // Resilience: garde le narratif statique déjà genere
         }
       }
     }

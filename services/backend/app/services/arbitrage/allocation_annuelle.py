@@ -49,7 +49,7 @@ from app.services.arbitrage.arbitrage_models import (
 _DISCLAIMER = (
     "Outil educatif simplifie. Ne constitue pas un conseil financier "
     "personnalise au sens de la LSFin. Les projections reposent sur des "
-    "hypotheses simplifiees. Consulte un\u00b7e specialiste pour une analyse "
+    "hypotheses simplifiees. Consulte un\u00b7e spécialiste pour une analyse "
     "adaptee a ta situation."
 )
 
@@ -300,7 +300,7 @@ def _build_hypotheses(
         f"Rendement LPP (caisse): {rendement_lpp * 100:.2f}%/an",
         f"Rendement marche libre: {rendement_marche * 100:.1f}%/an",
         f"Canton de domicile fiscal: {canton}",
-        f"3a deja verse au maximum: {'oui' if a3a_maxed else 'non'}",
+        f"3a déjà verse au maximum: {'oui' if a3a_maxed else 'non'}",
         f"Potentiel de rachat LPP: {potentiel_rachat_lpp:,.0f} CHF",
         f"Proprietaire: {'oui' if is_property_owner else 'non'}",
     ]

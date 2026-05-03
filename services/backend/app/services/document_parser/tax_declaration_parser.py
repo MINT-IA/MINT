@@ -152,7 +152,7 @@ _MAX_CONFIDENCE_DELTA = 20.0
 _DISCLAIMER = (
     "Cet outil est educatif et ne constitue pas un conseil financier, "
     "fiscal ou juridique personnalise. Les valeurs extraites sont indicatives "
-    "et doivent etre verifiees. Consulte un-e specialiste pour ta situation "
+    "et doivent etre verifiees. Consulte un-e spécialiste pour ta situation "
     "personnelle (LSFin art. 3). L'image source n'est jamais stockee."
 )
 
@@ -403,7 +403,7 @@ def estimate_tax_confidence_delta(
     Le delta depend de:
     - Quels champs ont ete extraits
     - L'impact de chaque champ sur la precision des projections
-    - Quels champs etaient deja renseignes dans le profil actuel
+    - Quels champs etaient déjà renseignes dans le profil actuel
 
     Args:
         extraction: Resultat de l'extraction fiscale.

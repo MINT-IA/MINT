@@ -32,7 +32,7 @@ class SnapshotBaseModel(BaseModel):
 # ===========================================================================
 
 class CreateSnapshotRequest(SnapshotBaseModel):
-    """Requete pour creer un snapshot financier."""
+    """Requete pour créer un snapshot financier."""
 
     user_id: str = Field(
         ..., min_length=1,
@@ -77,7 +77,7 @@ class SnapshotResponse(SnapshotBaseModel):
     fri_l: float = Field(0.0, description="FRI Liquidite (0-100)")
     fri_f: float = Field(0.0, description="FRI Fiscalite (0-100)")
     fri_r: float = Field(0.0, description="FRI Retraite (0-100)")
-    fri_s: float = Field(0.0, description="FRI Securite (0-100)")
+    fri_s: float = Field(0.0, description="FRI Sécurité (0-100)")
 
 
 class SnapshotListResponse(SnapshotBaseModel):

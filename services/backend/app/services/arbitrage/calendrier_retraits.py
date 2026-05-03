@@ -51,7 +51,7 @@ from app.services.arbitrage.arbitrage_models import (
 _DISCLAIMER = (
     "Outil educatif simplifie. Ne constitue pas un conseil financier "
     "personnalise au sens de la LSFin. Les projections reposent sur des "
-    "hypotheses simplifiees. Consulte un\u00b7e specialiste pour une analyse "
+    "hypotheses simplifiees. Consulte un\u00b7e spécialiste pour une analyse "
     "adaptee a ta situation."
 )
 

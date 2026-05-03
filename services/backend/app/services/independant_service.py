@@ -102,7 +102,7 @@ DISCLAIMER = (
     "Cette analyse est indicative et basee sur des taux moyens. "
     "Les cotisations AVS exactes dependent de votre caisse de compensation. "
     "Les primes IJM et LAA varient selon l'assureur et votre activite. "
-    "Consultez votre caisse de compensation et un·e specialiste en assurances "
+    "Consultez votre caisse de compensation et un·e spécialiste en assurances "
     "pour des montants precis."
 )
 

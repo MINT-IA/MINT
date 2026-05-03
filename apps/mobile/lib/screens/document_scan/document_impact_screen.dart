@@ -60,7 +60,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   late int _newConfidence;
   late int _deltaPoints;
 
-  // Premier eclairage state
+  // Premier éclairage state
   Map<String, dynamic>? _premierEclairage;
   bool _premierEclairageLoading = true;
   bool _premierEclairageFailed = false;
@@ -476,7 +476,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     );
   }
 
-  // ── Premier Eclairage (4-layer insight from document) ─────
+  // ── Premier Éclairage (4-layer insight from document) ─────
 
   Widget _buildPremierEclairageSection() {
     return Opacity(

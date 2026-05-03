@@ -115,7 +115,7 @@ DISCLAIMER = (
     "MINT est un outil educatif. Ce simulateur ne constitue pas un conseil "
     "en matiere fiscale ou de prevoyance au sens de la LSFin. Les montants exacts "
     "dependent de ton employeur, de ta caisse de pension et de ta situation personnelle. "
-    "Consulte un ou une specialiste pour une analyse personnalisee."
+    "Consulte un ou une spécialiste pour une analyse personnalisee."
 )
 
 SOURCES = [

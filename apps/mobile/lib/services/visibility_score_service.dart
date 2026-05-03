@@ -13,15 +13,15 @@ import 'package:mint_mobile/services/financial_core/financial_core.dart';
 //  C'est une mesure de CLARTE : "tu vois X% de ta situation."
 //
 //  4 axes avec ponderation contextuelle (Phase 1) :
-//    Liquidite — Budget, epargne, dettes, coussin securite
+//    Liquidite — Budget, epargne, dettes, coussin sécurité
 //    Fiscalite — Canton, 3a, rachats, taux marginal
 //    Retraite  — AVS, LPP, 3a, age retraite
-//    Securite  — Assurances, protection famille, succession
+//    Sécurité  — Assurances, protection famille, succession
 //
 //  Phase 1 : poids dynamiques selon age et archetype.
-//    - 50+ : Retraite 30, Securite 25, Fiscalite 25, Liquidite 20
-//    - Independant : Securite +5, Liquidite +5
-//    - < 35 : Liquidite 30, Fiscalite 25, Retraite 20, Securite 25
+//    - 50+ : Retraite 30, Sécurité 25, Fiscalite 25, Liquidite 20
+//    - Independant : Sécurité +5, Liquidite +5
+//    - < 35 : Liquidite 30, Fiscalite 25, Retraite 20, Sécurité 25
 //
 //  Utilise ConfidenceScorer (financial_core) comme moteur —
 //  ne duplique AUCUNE logique de calcul.
@@ -122,8 +122,8 @@ class VisibilityScoreService {
   /// Les 4 axes sont ponderes differemment selon le profil :
   ///   - 50+ ans → retraite surponderee (35 pts)
   ///   - < 35 ans → liquidite/budget surponderee (30 pts)
-  ///   - independant → securite surponderee (30 pts)
-  ///   - expat → securite + fiscalite surponderees
+  ///   - independant → sécurité surponderee (30 pts)
+  ///   - expat → sécurité + fiscalite surponderees
   static VisibilityScore compute(CoachProfile profile, {S? l}) {
     final (:blocs, :confidence) = ConfidenceScorer.scoreWithBlocs(profile);
 
@@ -137,10 +137,10 @@ class VisibilityScoreService {
         maxScore: weights.fiscalite, l: l);
     final retraite = _computeRetraiteAxis(blocs, profile,
         maxScore: weights.retraite, l: l);
-    final securite = _computeSecuriteAxis(blocs, profile,
-        maxScore: weights.securite, l: l);
+    final sécurité = _computeSecuriteAxis(blocs, profile,
+        maxScore: weights.sécurité, l: l);
 
-    final axes = [liquidite, retraite, fiscalite, securite];
+    final axes = [liquidite, retraite, fiscalite, sécurité];
     final total = axes.fold<double>(0, (sum, a) => sum + a.score);
     final percentage = total.round().clamp(0, 100);
 
@@ -272,12 +272,12 @@ class VisibilityScoreService {
 
     // Archetype-driven adjustments
     if (isIndep) {
-      // Independants : securite cruciale (pas de filet employeur)
+      // Independants : sécurité cruciale (pas de filet employeur)
       wSec += 5;
       wRet -= 5;
     }
     if (isExpat) {
-      // Expat : fiscalite + securite (conventions, FATCA, etc.)
+      // Expat : fiscalite + sécurité (conventions, FATCA, etc.)
       wFisc += 3;
       wSec += 2;
       wLiq -= 3;
@@ -298,7 +298,7 @@ class VisibilityScoreService {
       liquidite: wLiq,
       fiscalite: wFisc,
       retraite: wRet,
-      securite: wSec,
+      sécurité: wSec,
     );
   }
 
@@ -431,7 +431,7 @@ class VisibilityScoreService {
     double maxScore = 25,
     S? l,
   }) {
-    // Securite = menage (15) + archetype (5) + foreign_pension (2) = 22 pts max
+    // Sécurité = menage (15) + archetype (5) + foreign_pension (2) = 22 pts max
     // Normalise sur maxScore (contextual)
     final menage = blocs['compositionMenage']?.score ?? 0;
     final archetype = blocs['archetype']?.score ?? 0;
@@ -448,7 +448,7 @@ class VisibilityScoreService {
             : 'missing';
 
     return VisibilityAxis(
-      id: 'securite',
+      id: 'sécurité',
       label: l?.visibilityAxisLabelSecurite ?? 'Sécurité',
       icon: 'shield',
       score: normalized,
@@ -565,12 +565,12 @@ class _AxisWeights {
   final double liquidite;
   final double fiscalite;
   final double retraite;
-  final double securite;
+  final double sécurité;
 
   const _AxisWeights({
     required this.liquidite,
     required this.fiscalite,
     required this.retraite,
-    required this.securite,
+    required this.sécurité,
   });
 }

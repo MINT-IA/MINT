@@ -561,7 +561,7 @@ class TestIndependantsCompliance:
     def test_all_disclaimers_use_specialiste(self):
         """All disclaimers should use 'specialiste' (not 'conseiller')."""
         for disclaimer in self.ALL_DISCLAIMERS:
-            assert "specialiste" in disclaimer.lower(), (
+            assert "spécialiste" in disclaimer.lower(), (
                 f"Disclaimer missing 'specialiste': {disclaimer[:50]}"
             )
             assert "conseiller" not in disclaimer.lower(), (

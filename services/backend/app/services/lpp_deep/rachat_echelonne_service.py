@@ -22,7 +22,7 @@ from typing import List, Optional
 DISCLAIMER = (
     "MINT est un outil educatif. Ce service ne constitue pas un conseil "
     "en prevoyance au sens de la LSFin. Les economies fiscales estimees dependent "
-    "de votre situation personnelle. Consultez un ou une specialiste en prevoyance "
+    "de votre situation personnelle. Consultez un ou une spécialiste en prevoyance "
     "et fiscalite pour une analyse personnalisee."
 )
 

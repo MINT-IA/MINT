@@ -190,7 +190,7 @@ _CONFIDENCE_BONUS_PER_FIELD: float = 10.0
 
 _DISCLAIMER = (
     "Outil educatif simplifie. Ne constitue pas un conseil financier (LSFin). "
-    "Consulte un\u00b7e specialiste pour une analyse personnalisee."
+    "Consulte un\u00b7e spécialiste pour une analyse personnalisee."
 )
 
 _SOURCES = [

@@ -272,7 +272,7 @@ class TestCompliance:
         r = employee_vd_result
         assert "Outil educatif" in r.disclaimer
         assert "ne constitue pas un conseil" in r.disclaimer
-        assert "specialiste" in r.disclaimer
+        assert "spécialiste" in r.disclaimer
 
     def test_sources_present(self, employee_vd_result):
         """Result must contain required legal sources."""

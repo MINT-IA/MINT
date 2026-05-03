@@ -17,7 +17,7 @@ Sources:
     - LIFD art. 83-86 (impot a la source)
     - LIFD art. 14 (imposition d'apres la depense / forfait fiscal)
     - Accords bilateraux CH-UE sur la libre circulation (ALCP)
-    - Reglement CE 883/2004 (coordination securite sociale)
+    - Reglement CE 883/2004 (coordination sécurité sociale)
     - LAVS art. 1a, 2 (cotisations obligatoires / volontaires)
     - LPP art. 2 (libre passage)
     - OPP2 art. 11 (prestations de libre passage)

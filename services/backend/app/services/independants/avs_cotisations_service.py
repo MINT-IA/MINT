@@ -29,7 +29,7 @@ DISCLAIMER = (
     "MINT est un outil educatif. Ce simulateur ne constitue pas un conseil "
     "en matiere de cotisations sociales au sens de la LSFin. Les cotisations "
     "exactes dependent de votre caisse de compensation. Consultez un ou une "
-    "specialiste pour une analyse personnalisee."
+    "spécialiste pour une analyse personnalisee."
 )
 
 SOURCES = [

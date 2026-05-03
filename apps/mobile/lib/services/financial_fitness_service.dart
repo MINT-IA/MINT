@@ -576,7 +576,7 @@ class FinancialFitnessService {
         if (profile.dettes.hasDette) {
           return 'Priorite : reduire tes dettes de consommation avant d\'optimiser.';
         }
-        return 'Des progres a faire, mais tu es sur la bonne voie. Un pas a la fois.';
+        return 'Des progrès a faire, mais tu es sur la bonne voie. Un pas a la fois.';
       case FitnessLevel.critique:
         return 'Commencons par les fondamentaux : budget, fonds d\'urgence, et reduction des dettes.';
     }

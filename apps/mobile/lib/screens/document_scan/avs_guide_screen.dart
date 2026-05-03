@@ -27,7 +27,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 //
 //  Actions:
 //    - "Ouvrir ahv-iv.ch" (url_launcher)
-//    - "J'ai deja mon extrait -> Scanner"
+//    - "J'ai déjà mon extrait -> Scanner"
 //    - "Utiliser un exemple AVS" (debug / QA)
 //
 //  Reference:

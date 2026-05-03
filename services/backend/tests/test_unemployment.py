@@ -344,7 +344,7 @@ class TestUnemploymentCompliance:
 
     def test_disclaimer_uses_specialiste(self):
         """Disclaimer should use 'specialiste' (not 'conseiller')."""
-        assert "specialiste" in DISCLAIMER.lower()
+        assert "spécialiste" in DISCLAIMER.lower()
         assert "conseiller" not in DISCLAIMER.lower()
 
     def test_sources_contain_legal_refs(self):

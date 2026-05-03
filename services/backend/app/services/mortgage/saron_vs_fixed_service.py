@@ -29,7 +29,7 @@ DISCLAIMER = (
     "pas un conseil en financement immobilier au sens de la LSFin. "
     "Les taux utilises sont des valeurs educatives et ne representent pas "
     "des offres reelles. Les taux futurs sont imprevisibles. "
-    "Consultez un ou une specialiste hypothecaire pour une analyse personnalisee."
+    "Consultez un ou une spécialiste hypothecaire pour une analyse personnalisee."
 )
 
 # Default indicative rates (educational, 2026 estimates)
@@ -212,7 +212,7 @@ class SaronVsFixedService:
                 texte=(
                     f"Meme dans le meilleur scenario SARON, le taux fixe est "
                     f"plus avantageux de {surcharge:,.0f} CHF sur {duree_ans} ans. "
-                    f"Le fixe offre aussi la securite de mensualites constantes."
+                    f"Le fixe offre aussi la sécurité de mensualites constantes."
                 ),
             )
 

@@ -63,7 +63,7 @@ class ReportPersistenceService {
       'mini_onboarding_cohort_metrics_v1';
   static const String _selectedIntentKey = 'selected_onboarding_intent_v1';
 
-  // ── Premier Eclairage persistence keys (D-09) ──
+  // ── Premier Éclairage persistence keys (D-09) ──
   static const String _hasSeenPremierEclairageKey =
       'has_seen_premier_eclairage_v1';
   static const String _premierEclairageSnapshotKey =
@@ -108,7 +108,7 @@ class ReportPersistenceService {
     return variant;
   }
 
-  /// Indique si l'exposition a l'experience onboarding a deja ete trackee.
+  /// Indique si l'exposition a l'experience onboarding a déjà ete trackee.
   static Future<bool> isMiniOnboardingExposureTracked() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_miniOnboardingExposureTrackedKey) ?? false;
@@ -206,10 +206,10 @@ class ReportPersistenceService {
   }
 
   // ═══════════════════════════════════════════════════════════
-  //  PREMIER ECLAIRAGE PERSISTENCE (D-09)
+  //  PREMIER Éclairage PERSISTENCE (D-09)
   // ═══════════════════════════════════════════════════════════
 
-  /// Saves a premier eclairage snapshot to SharedPreferences.
+  /// Saves a premier éclairage snapshot to SharedPreferences.
   ///
   /// [data] MUST contain only display fields:
   ///   value (formatted string), title, subtitle, colorKey, suggestedRoute.
@@ -220,7 +220,7 @@ class ReportPersistenceService {
     await prefs.setString(_premierEclairageSnapshotKey, json.encode(data));
   }
 
-  /// Loads the premier eclairage snapshot. Returns null if not set or on error.
+  /// Loads the premier éclairage snapshot. Returns null if not set or on error.
   static Future<Map<String, dynamic>?> loadPremierEclairageSnapshot() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_premierEclairageSnapshotKey);
@@ -232,13 +232,13 @@ class ReportPersistenceService {
     }
   }
 
-  /// Returns true if the user has already seen their premier eclairage card.
+  /// Returns true if the user has already seen their premier éclairage card.
   static Future<bool> hasSeenPremierEclairage() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_hasSeenPremierEclairageKey) ?? false;
   }
 
-  /// Marks the premier eclairage card as seen (one-shot flag per D-09).
+  /// Marks the premier éclairage card as seen (one-shot flag per D-09).
   static Future<void> markPremierEclairageSeen() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_hasSeenPremierEclairageKey, true);
@@ -471,7 +471,7 @@ class ReportPersistenceService {
     // Charger l'historique existant
     List<Map<String, dynamic>> history = await loadScoreHistory();
 
-    // Remplacer l'entree du mois en cours si elle existe deja
+    // Remplacer l'entree du mois en cours si elle existe déjà
     final existingIndex =
         history.indexWhere((entry) => entry['month'] == monthKey);
     if (existingIndex >= 0) {

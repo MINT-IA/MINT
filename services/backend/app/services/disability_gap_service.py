@@ -148,7 +148,7 @@ class DisabilityGapResult:
 
 DISCLAIMER: str = (
     "Outil educatif — ne constitue pas un conseil en assurance. "
-    "Consulte un\u00b7e specialiste en prevoyance pour un bilan personnalise."
+    "Consulte un\u00b7e spécialiste en prevoyance pour un bilan personnalise."
 )
 
 SOURCES: List[str] = [

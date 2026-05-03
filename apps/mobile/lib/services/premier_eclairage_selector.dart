@@ -226,9 +226,9 @@ class PremierEclairageSelector {
       title: 'Ta reserve de liquidite',
       subtitle: profile.liquidityMonths < 1
           ? 'Moins d\'un mois de reserves. '
-              'Les experts recommandent 3 a 6 mois de depenses en epargne de securite.'
+              'Les experts recommandent 3 a 6 mois de depenses en epargne de sécurité.'
           : '${profile.liquidityMonths.toStringAsFixed(1)} mois de reserves. '
-              'Les experts recommandent 3 a 6 mois de depenses en epargne de securite.',
+              'Les experts recommandent 3 a 6 mois de depenses en epargne de sécurité.',
       iconName: 'warning_amber',
       colorKey: 'error',
     );

@@ -130,7 +130,7 @@ DISCLAIMER = (
     "Estimations basees sur les baremes simplifies 2024-2026. "
     "Les taux effectifs varient selon la commune, la fortune, "
     "et les deductions individuelles. Consulte ton administration "
-    "fiscale cantonale ou un ou une specialiste fiscal·e. "
+    "fiscale cantonale ou un ou une spécialiste fiscal·e. "
     "Ne constitue pas un conseil fiscal (LSFin)."
 )
 

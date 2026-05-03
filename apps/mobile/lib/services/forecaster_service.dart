@@ -324,7 +324,7 @@ class ForecasterService {
       disclaimer: l?.forecasterDisclaimer ??
           'Projections educatives basees sur des hypotheses de rendement. '
           'Ne constitue pas un conseil financier. Les rendements passes ne '
-          'presagent pas des rendements futurs. Consulte un·e specialiste '
+          'presagent pas des rendements futurs. Consulte un·e spécialiste '
           'pour un plan personnalise. LSFin.',
       sources: [
         'LAVS art. 21-29 (rente AVS)',
@@ -481,7 +481,7 @@ class ForecasterService {
   ///
   /// Ce KPI represente l'effort du mois valide (somme des versements),
   /// et non une valeur future composee jusqu'a la retraite.
-  /// La valeur future est deja couverte par la projection complete.
+  /// La valeur future est déjà couverte par la projection complete.
   static double calculateMonthlyDelta({
     required CoachProfile profile,
     required Map<String, double> versements,

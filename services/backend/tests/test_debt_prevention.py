@@ -384,7 +384,7 @@ class TestDebtPreventionCompliance:
     def test_gender_neutral_disclaimers(self):
         """Disclaimers should use gender-neutral language."""
         for disclaimer in [RATIO_DISCLAIMER, REPAYMENT_DISCLAIMER, RESOURCES_DISCLAIMER]:
-            assert "un ou une specialiste" in disclaimer.lower() or "un ou une" in disclaimer.lower(), (
+            assert "un ou une spécialiste" in disclaimer.lower() or "un ou une" in disclaimer.lower(), (
                 f"Disclaimer should use gender-neutral language: {disclaimer}"
             )
 
