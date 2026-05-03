@@ -240,11 +240,18 @@ class TestIntentTags:
         assert "retirement_choice" in ROUTE_TO_SCREEN_INTENT_TAGS
 
     def test_core_life_event_tags_present(self):
+        # Phase 53-04: ROUTE_TO_SCREEN_INTENT_TAGS is now generated from
+        # MintScreenRegistry. The registry uses the current canonical
+        # names (which differ from legacy literals — e.g.
+        # `life_event_unemployment` was renamed to `life_event_job_loss`
+        # before Phase 53-04). Asserting the registry-truthful names
+        # documents the actual contract; if a name changes, regen the
+        # contract artifacts and update this assertion.
         life_event_tags = [
             "life_event_divorce",
             "life_event_birth",
             "life_event_marriage",
-            "life_event_unemployment",
+            "life_event_job_loss",
             "life_event_first_job",
         ]
         for tag in life_event_tags:

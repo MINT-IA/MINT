@@ -7,6 +7,8 @@ library;
 
 import 'dart:convert';
 
+import 'package:mint_mobile/services/coach/_valid_routes_generated.dart';
+
 /// A parsed tool call from coach response text.
 class ParsedToolCall {
   final String toolName;
@@ -61,77 +63,13 @@ class ToolCallParser {
 
   /// Set of routes the coach is allowed to navigate to.
   /// Rejects any route not in this whitelist (security).
-  static const validRoutes = <String>{
-    '/retraite',
-    '/rente-vs-capital',
-    '/rachat-lpp',
-    '/epl',
-    '/decaissement',
-    '/succession',
-    '/libre-passage',
-    '/pilier-3a',
-    '/3a-deep/comparator',
-    '/3a-deep/real-return',
-    '/3a-deep/staggered-withdrawal',
-    '/3a-retroactif',
-    '/fiscal',
-    '/hypotheque',
-    '/mortgage/amortization',
-    '/mortgage/epl-combined',
-    '/mortgage/imputed-rental',
-    '/mortgage/saron-vs-fixed',
-    '/budget',
-    '/check/debt',
-    '/debt/ratio',
-    '/debt/help',
-    '/debt/repayment',
-    '/divorce',
-    '/mariage',
-    '/naissance',
-    '/concubinage',
-    '/life-event/housing-sale',
-    '/life-event/donation',
-    '/life-event/deces-proche',
-    '/life-event/demenagement-cantonal',
-    '/unemployment',
-    '/first-job',
-    '/expatriation',
-    '/simulator/job-comparison',
-    '/segments/independant',
-    '/independants/avs',
-    '/independants/ijm',
-    '/independants/3a',
-    '/independants/dividende-salaire',
-    '/independants/lpp-volontaire',
-    '/invalidite',
-    '/disability/insurance',
-    '/disability/self-employed',
-    '/assurances/lamal',
-    '/assurances/coverage',
-    '/scan',
-    '/documents',
-    '/arbitrage/bilan',
-    '/arbitrage/allocation-annuelle',
-    '/arbitrage/location-vs-propriete',
-    '/simulator/compound',
-    '/simulator/leasing',
-    '/simulator/credit',
-    '/segments/gender-gap',
-    '/segments/frontalier',
-    '/education/hub',
-    '/profile',
-    '/profile/bilan',
-    '/profile/byok',
-    '/rapport',
-    '/couple',
-    '/explore/retraite',
-    '/explore/famille',
-    '/explore/travail',
-    '/explore/logement',
-    '/explore/fiscalite',
-    '/explore/patrimoine',
-    '/explore/sante',
-  };
+  ///
+  /// Phase 53-04: now generated from MintScreenRegistry via
+  /// `tools/contracts/regen_screen_registry_contract.py`. Single
+  /// source of truth lives in `screen_registry.dart`. The CI gate
+  /// `tools/checks/screen_registry_three_way_parity.py` enforces
+  /// the contract — drift fails CI with a clear diagnostic.
+  static const Set<String> validRoutes = kGeneratedValidRoutes;
 
   /// Check if a route is in the whitelist.
   static bool isValidRoute(String route) => validRoutes.contains(route);

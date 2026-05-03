@@ -500,6 +500,27 @@ jobs:
       - name: Run screen registry parity lint
         run: python3 tools/checks/screen_registry_parity.py
 
+  # ─── Phase 53-04 — Three-way intent contract parity gate ─────────
+  # Enforces single-source-of-truth across the chat→screen routing
+  # contract (MintScreenRegistry → screen_registry.json →
+  # _valid_routes_generated.dart → _route_intents_generated.py).
+  # Without this gate, Plan 53-01's parity claim was misleading: 26
+  # ROUTABLE entries were unreachable because the LLM whitelist + mobile
+  # validator weren't updated. Drift fails CI with a clear diagnostic
+  # pointing at which generated file is out of sync; the fix is to run
+  # `python3 tools/contracts/regen_screen_registry_contract.py` and
+  # commit the regenerated files. Stdlib-only, runtime ~50 ms.
+  screen-registry-three-way-parity:
+    name: ScreenRegistry 3-way contract (Phase 53-04)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run three-way contract parity lint
+        run: python3 tools/checks/screen_registry_three_way_parity.py
+
   # ─── Phase 32 Plan 32-05 / D-12 §2: mint-routes CLI DRY_RUN tests ─
   # Runs pytest on tests/tools/test_mint_routes.py (14 cases, Plan 02
   # deliverable) + tests/checks/test_route_registry_parity.py (9 cases,

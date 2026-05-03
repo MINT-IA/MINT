@@ -104,33 +104,20 @@ INTERNAL_TOOL_NAMES: list[str] = [
 # ---------------------------------------------------------------------------
 # Canonical intent tags understood by Flutter RoutePlanner
 # ---------------------------------------------------------------------------
+# Phase 53-04: now generated from MintScreenRegistry via
+# `tools/contracts/regen_screen_registry_contract.py`. Single source of
+# truth lives in `apps/mobile/lib/services/navigation/screen_registry.dart`.
+# The CI gate `tools/checks/screen_registry_three_way_parity.py` enforces
+# the contract — drift fails CI with a clear diagnostic. Updating: edit
+# screen_registry.dart, then run the regen script (commits all 3 artifacts).
 
-ROUTE_TO_SCREEN_INTENT_TAGS: list[str] = [
-    "retirement_choice",
-    "life_event_divorce",
-    "life_event_birth",
-    "life_event_marriage",
-    "life_event_unemployment",
-    "life_event_first_job",
-    "budget_overview",
-    "tax_optimization_3a",
-    "cantonal_comparison",
-    "disability_gap",
-    "housing_purchase",
-    "self_employment",
-    "cross_border",
-    "lpp_buyback",
-    "pillar_3a_overview",
-    "job_comparison",
-    "debt_check",
-    "lamal_franchise",
-    "coverage_check",
-    "gender_gap",
-    "patrimoine_overview",
-    "compound_interest",
-    "leasing_simulation",
-    "expert_consultation",
-]
+from app.services.coach._route_intents_generated import (
+    GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS,
+)
+
+# Sorted list form expected by downstream callers (claude_coach_service
+# system-prompt injection consumes this in deterministic order).
+ROUTE_TO_SCREEN_INTENT_TAGS: list[str] = sorted(GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS)
 
 # ---------------------------------------------------------------------------
 # Tool definitions
