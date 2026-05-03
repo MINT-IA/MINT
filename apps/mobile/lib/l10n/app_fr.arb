@@ -12097,5 +12097,8 @@
   "settingsPrivacyDataLocation": "Tes réponses au questionnaire et ton historique de chat restent sur ton appareil. Quand tu écris au coach IA, ton message transite par nos serveurs pour générer la réponse — avec la sync activée, les faits que tu confirmes (âge, salaire, canton…) sont aussi sauvegardés sur nos serveurs ; sync désactivée, ils ne sont gardés que sur ton appareil.",
   "settingsPrivacyCloudSyncOffServerCaveat": "Désactiver la sync n'efface pas les données déjà sauvegardées sur nos serveurs. Pour les supprimer, va dans Compte › Supprimer mon compte.",
   "profileSyncRowHint": "Gérer dans Réglages › Confidentialité",
-  "settingsPrivacyMigrationToastCta": "Voir"
+  "settingsPrivacyMigrationToastCta": "Voir",
+  "aujourdhuiCommitmentsTitle": "Tes engagements récents",
+  "aujourdhuiCheckInsTitle": "Tes derniers check-ins",
+  "aujourdhuiResumeConversation": "Reprendre la conversation"
 }

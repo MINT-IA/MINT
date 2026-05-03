@@ -11157,5 +11157,8 @@
   "settingsPrivacyDataLocation": "Le tue risposte al questionario e la tua cronologia chat restano sul tuo dispositivo. Quando scrivi al coach IA, il tuo messaggio transita per i nostri server per generare la risposta — con la sincronizzazione attiva, i fatti che confermi (età, stipendio, cantone…) sono anche salvati sui nostri server; con la sincronizzazione disattivata, restano solo sul tuo dispositivo.",
   "settingsPrivacyCloudSyncOffServerCaveat": "Disattivare la sincronizzazione non elimina i dati già salvati sui nostri server. Per rimuoverli, vai su Account › Elimina account.",
   "profileSyncRowHint": "Gestisci in Impostazioni › Privacy",
-  "settingsPrivacyMigrationToastCta": "Vedi"
+  "settingsPrivacyMigrationToastCta": "Vedi",
+  "aujourdhuiCommitmentsTitle": "I tuoi impegni recenti",
+  "aujourdhuiCheckInsTitle": "I tuoi ultimi check-in",
+  "aujourdhuiResumeConversation": "Riprendi la conversazione"
 }

@@ -11157,5 +11157,8 @@
   "settingsPrivacyDataLocation": "Deine Fragebogen-Antworten und dein Chat-Verlauf bleiben auf deinem Gerät. Wenn du dem KI-Coach schreibst, durchläuft deine Nachricht unsere Server, um die Antwort zu generieren — mit aktivierter Synchronisation werden die Fakten, die du bestätigst (Alter, Lohn, Kanton…), auch auf unseren Servern gespeichert; bei deaktivierter Synchronisation bleiben sie nur auf deinem Gerät.",
   "settingsPrivacyCloudSyncOffServerCaveat": "Die Synchronisation zu deaktivieren löscht nicht die Daten, die bereits auf unseren Servern gespeichert sind. Um sie zu entfernen, gehe zu Konto › Konto löschen.",
   "profileSyncRowHint": "Verwalten in Einstellungen › Datenschutz",
-  "settingsPrivacyMigrationToastCta": "Ansehen"
+  "settingsPrivacyMigrationToastCta": "Ansehen",
+  "aujourdhuiCommitmentsTitle": "Deine letzten Verpflichtungen",
+  "aujourdhuiCheckInsTitle": "Deine letzten Check-ins",
+  "aujourdhuiResumeConversation": "Gespräch fortsetzen"
 }

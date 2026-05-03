@@ -23163,4 +23163,13 @@ class SEs extends S {
 
   @override
   String get settingsPrivacyMigrationToastCta => 'Ver';
+
+  @override
+  String get aujourdhuiCommitmentsTitle => 'Tus compromisos recientes';
+
+  @override
+  String get aujourdhuiCheckInsTitle => 'Tus últimos check-ins';
+
+  @override
+  String get aujourdhuiResumeConversation => 'Reanudar la conversación';
 }

@@ -23171,4 +23171,13 @@ class SPt extends S {
 
   @override
   String get settingsPrivacyMigrationToastCta => 'Ver';
+
+  @override
+  String get aujourdhuiCommitmentsTitle => 'Os teus compromissos recentes';
+
+  @override
+  String get aujourdhuiCheckInsTitle => 'Os teus últimos check-ins';
+
+  @override
+  String get aujourdhuiResumeConversation => 'Retomar a conversa';
 }

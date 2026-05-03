@@ -23220,4 +23220,13 @@ class SDe extends S {
 
   @override
   String get settingsPrivacyMigrationToastCta => 'Ansehen';
+
+  @override
+  String get aujourdhuiCommitmentsTitle => 'Deine letzten Verpflichtungen';
+
+  @override
+  String get aujourdhuiCheckInsTitle => 'Deine letzten Check-ins';
+
+  @override
+  String get aujourdhuiResumeConversation => 'Gespräch fortsetzen';
 }

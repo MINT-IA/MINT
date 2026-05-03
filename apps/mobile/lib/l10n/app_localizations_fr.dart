@@ -23165,4 +23165,13 @@ class SFr extends S {
 
   @override
   String get settingsPrivacyMigrationToastCta => 'Voir';
+
+  @override
+  String get aujourdhuiCommitmentsTitle => 'Tes engagements récents';
+
+  @override
+  String get aujourdhuiCheckInsTitle => 'Tes derniers check-ins';
+
+  @override
+  String get aujourdhuiResumeConversation => 'Reprendre la conversation';
 }
