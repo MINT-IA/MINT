@@ -11150,11 +11150,11 @@
   "coachNotificationOpenerFreshStart": "Neuer Monat. Wo fangen wir an?",
   "settingsPrivacyTitle": "Datenschutz",
   "settingsPrivacyCloudSyncTitle": "Cloud-Synchronisation (mehrere Geräte)",
-  "settingsPrivacyCloudSyncSubtitle": "Backup und Zugriff von einem anderen Gerät. Du kannst sie jederzeit deaktivieren.",
+  "settingsPrivacyCloudSyncSubtitle": "Sichert dein Profil und synchronisiert es zwischen deinen Geräten. Wenn deaktiviert, bleibt der KI-Coach verfügbar, aber Fakten werden nur lokal gespeichert.",
   "settingsPrivacyCloudSyncOn": "Aktiviert",
   "settingsPrivacyCloudSyncOff": "Deaktiviert",
   "settingsPrivacyMigrationToast": "Neue Option: Du kannst die Cloud-Synchronisation in Einstellungen › Datenschutz deaktivieren.",
-  "settingsPrivacyDataLocation": "Deine Daten bleiben verschlüsselt auf deinem Gerät gespeichert. Mit aktivierter Synchronisation sind sie auch verschlüsselt auf unseren europäischen Servern (Schweiz/EU) gespeichert — Ende-zu-Ende-Verschlüsselung geplant für v3.0.",
+  "settingsPrivacyDataLocation": "Deine Fragebogen-Antworten und dein Chat-Verlauf bleiben auf deinem Gerät. Wenn du dem KI-Coach schreibst, durchläuft deine Nachricht unsere Server, um die Antwort zu generieren — mit aktivierter Synchronisation werden die Fakten, die du bestätigst (Alter, Lohn, Kanton…), auch auf unseren Servern gespeichert; bei deaktivierter Synchronisation bleiben sie nur auf deinem Gerät.",
   "settingsPrivacyCloudSyncOffServerCaveat": "Die Synchronisation zu deaktivieren löscht nicht die Daten, die bereits auf unseren Servern gespeichert sind. Um sie zu entfernen, gehe zu Konto › Konto löschen.",
   "profileSyncRowHint": "Verwalten in Einstellungen › Datenschutz",
   "settingsPrivacyMigrationToastCta": "Ansehen"

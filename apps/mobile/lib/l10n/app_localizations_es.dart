@@ -23138,7 +23138,7 @@ class SEs extends S {
 
   @override
   String get settingsPrivacyCloudSyncSubtitle =>
-      'Copia de seguridad y acceso desde otro dispositivo. Puedes desactivarla cuando quieras.';
+      'Hace una copia de tu perfil y lo sincroniza entre tus dispositivos. Desactivada, el coach IA sigue disponible pero los hechos se guardan solo localmente.';
 
   @override
   String get settingsPrivacyCloudSyncOn => 'Activada';
@@ -23152,7 +23152,7 @@ class SEs extends S {
 
   @override
   String get settingsPrivacyDataLocation =>
-      'Tus datos quedan cifrados en tu dispositivo. Con la sincronización activada, también están cifrados en nuestros servidores europeos (Suiza/UE) — cifrado de extremo a extremo previsto en la v3.0.';
+      'Tus respuestas del cuestionario y tu historial de chat quedan en tu dispositivo. Cuando escribes al coach IA, tu mensaje pasa por nuestros servidores para generar la respuesta — con la sincronización activada, los hechos que confirmas (edad, salario, cantón…) también se guardan en nuestros servidores; con la sincronización desactivada, se guardan solo en tu dispositivo.';
 
   @override
   String get settingsPrivacyCloudSyncOffServerCaveat =>

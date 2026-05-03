@@ -668,25 +668,35 @@ class AuthProvider extends ChangeNotifier {
         }
       }
 
-      // Push local wizard data to backend via claimLocalData.
-      // Best-effort: failure does not block the auth flow.
-      try {
-        final answers = await ReportPersistenceService.loadAnswers();
-        if (answers.isNotEmpty) {
-          var deviceId = prefs.getString('_mint_device_id');
-          if (deviceId == null) {
-            deviceId = const Uuid().v4();
-            await prefs.setString('_mint_device_id', deviceId);
+      // Phase 52.1 B-2: gate the wizard-data backend push on the
+      // cloud-sync toggle. New accounts default OFF (Phase 52 D-01)
+      // → wizard answers stay on device. If the user later flips
+      // sync ON in Settings › Confidentialité, the next save
+      // naturally pushes via _syncToBackend (also gated by B-1).
+      // Conversation migration above is local→local within the
+      // device's ConversationStore namespace and is unaffected.
+      final cloudSyncEnabled = !(prefs.getBool('auth_local_mode') ?? true);
+      if (cloudSyncEnabled) {
+        // Push local wizard data to backend via claimLocalData.
+        // Best-effort: failure does not block the auth flow.
+        try {
+          final answers = await ReportPersistenceService.loadAnswers();
+          if (answers.isNotEmpty) {
+            var deviceId = prefs.getString('_mint_device_id');
+            if (deviceId == null) {
+              deviceId = const Uuid().v4();
+              await prefs.setString('_mint_device_id', deviceId);
+            }
+            await ApiService.claimLocalData(
+              localDataVersion: 1,
+              deviceId: deviceId,
+              wizardAnswers: answers,
+            );
           }
-          await ApiService.claimLocalData(
-            localDataVersion: 1,
-            deviceId: deviceId,
-            wizardAnswers: answers,
-          );
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          debugPrint('[AuthProvider] claimLocalData sync failed: $e');
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('[AuthProvider] claimLocalData sync failed: $e');
+          }
         }
       }
 

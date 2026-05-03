@@ -40584,7 +40584,7 @@ abstract class S {
   /// No description provided for @settingsPrivacyCloudSyncSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Sauvegarde et accès depuis un autre appareil. Tu peux la désactiver à tout moment.'**
+  /// **'Sauvegarde ton profil et synchronise-le entre tes appareils. Désactivée, le coach IA reste disponible mais les faits ne sont retenus que localement.'**
   String get settingsPrivacyCloudSyncSubtitle;
 
   /// No description provided for @settingsPrivacyCloudSyncOn.
@@ -40608,7 +40608,7 @@ abstract class S {
   /// No description provided for @settingsPrivacyDataLocation.
   ///
   /// In fr, this message translates to:
-  /// **'Tes données restent stockées chiffrées sur ton appareil. Avec la sync activée, elles sont aussi stockées chiffrées sur nos serveurs européens (Suisse/UE) — chiffrement de bout en bout prévu en v3.0.'**
+  /// **'Tes réponses au questionnaire et ton historique de chat restent sur ton appareil. Quand tu écris au coach IA, ton message transite par nos serveurs pour générer la réponse — avec la sync activée, les faits que tu confirmes (âge, salaire, canton…) sont aussi sauvegardés sur nos serveurs ; sync désactivée, ils ne sont gardés que sur ton appareil.'**
   String get settingsPrivacyDataLocation;
 
   /// No description provided for @settingsPrivacyCloudSyncOffServerCaveat.

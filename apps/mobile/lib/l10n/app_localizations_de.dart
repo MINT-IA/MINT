@@ -23195,7 +23195,7 @@ class SDe extends S {
 
   @override
   String get settingsPrivacyCloudSyncSubtitle =>
-      'Backup und Zugriff von einem anderen Gerät. Du kannst sie jederzeit deaktivieren.';
+      'Sichert dein Profil und synchronisiert es zwischen deinen Geräten. Wenn deaktiviert, bleibt der KI-Coach verfügbar, aber Fakten werden nur lokal gespeichert.';
 
   @override
   String get settingsPrivacyCloudSyncOn => 'Aktiviert';
@@ -23209,7 +23209,7 @@ class SDe extends S {
 
   @override
   String get settingsPrivacyDataLocation =>
-      'Deine Daten bleiben verschlüsselt auf deinem Gerät gespeichert. Mit aktivierter Synchronisation sind sie auch verschlüsselt auf unseren europäischen Servern (Schweiz/EU) gespeichert — Ende-zu-Ende-Verschlüsselung geplant für v3.0.';
+      'Deine Fragebogen-Antworten und dein Chat-Verlauf bleiben auf deinem Gerät. Wenn du dem KI-Coach schreibst, durchläuft deine Nachricht unsere Server, um die Antwort zu generieren — mit aktivierter Synchronisation werden die Fakten, die du bestätigst (Alter, Lohn, Kanton…), auch auf unseren Servern gespeichert; bei deaktivierter Synchronisation bleiben sie nur auf deinem Gerät.';
 
   @override
   String get settingsPrivacyCloudSyncOffServerCaveat =>

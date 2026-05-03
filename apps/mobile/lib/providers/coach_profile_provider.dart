@@ -159,8 +159,22 @@ class CoachProfileProvider extends ChangeNotifier {
       // Only sync when authenticated — avoid 401 errors.
       final isLoggedIn = await AuthService.isLoggedIn();
       if (!isLoggedIn) return;
-      final answers = Map<String, dynamic>.from(_lastAnswers);
+      // Phase 52.1 B-1: gate on the cloud-sync toggle. AuthProvider
+      // persists `auth_local_mode` on every `toggleCloudSync` call;
+      // read the SharedPreferences key directly to avoid coupling
+      // this notifier to AuthProvider. `auth_local_mode = true`
+      // means « keep data local » — skip the backend push.
       final prefs = await SharedPreferences.getInstance();
+      final isLocalMode = prefs.getBool('auth_local_mode') ?? true;
+      if (isLocalMode) {
+        MintBreadcrumbs.saveFact(
+          success: true,
+          factKind: 'profile_sync_skipped',
+          errorCode: 'cloud_sync_off',
+        );
+        return;
+      }
+      final answers = Map<String, dynamic>.from(_lastAnswers);
       // Stable device ID — generated once, persisted across sessions.
       var deviceId = prefs.getString('_mint_device_id');
       if (deviceId == null) {
