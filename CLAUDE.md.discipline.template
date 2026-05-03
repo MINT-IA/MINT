@@ -1,0 +1,100 @@
+# CLAUDE.md — {{PROJECT_NAME}} Context
+
+> Auto-loaded by Claude Code at session start. The sections marked `discipline:*` are managed by the [Claude Code Discipline Kit](https://github.com/julienbatt/claude-code-discipline-kit) and are replaced on `bootstrap.sh --apply`. Sections marked `discipline:project-specific` are yours and survive upgrades.
+
+<!-- discipline:kit-version:begin -->
+<!-- Kit version: {{KIT_VERSION}} — installed: {{INSTALL_DATE}} -->
+<!-- discipline:kit-version:end -->
+
+## Session start protocol
+
+1. Invoke `/claude-code-discipline` — loads the 14 disciplines (manual recitation = discipline 11)
+2. Run `bin/tool-census.sh --suggest "$INITIAL_TASK"` — surface 3 relevant underused tools
+3. Decide: use a surfaced tool, or proceed manually (and justify)
+
+<!-- discipline:disciplines-summary:begin -->
+
+## The 14 disciplines (compact)
+
+Full doc: `docs/CLAUDE_CODE_DISCIPLINE.md` (mirrors kit's `docs/DISCIPLINES.md`).
+
+**Engineering (1-7):** plan-mode → iron-law (3-fix) → subagents → TDD-RED-first → verification → design panel → HTML evidence.
+
+**Context (8-13):** < 40% utilization → R/P/I separation → KV-cache stability → recitation → errors-in-context → no few-shot drift.
+
+**Discoverability (14):** tool census + utilization tracking.
+
+<!-- discipline:disciplines-summary:end -->
+
+<!-- discipline:project-specific:begin -->
+
+## {{PROJECT_NAME}} — project-specific rules
+
+> Add your domain-specific rules here. Anything between these markers survives kit upgrades.
+
+### NEVER list
+
+1. NEVER do X — reason
+2. NEVER use Y — reason
+3. NEVER assume Z — reason
+
+### Always list
+
+1. ALWAYS do A — reason
+2. ALWAYS check B before C
+
+### Domain glossary
+
+- Term 1 — definition
+- Term 2 — definition
+
+### Architecture pointers
+
+- Source of truth for X: `path/to/file`
+- Source of truth for Y: `path/to/dir`
+
+### Banned terms / phrases (compliance, brand, voice)
+
+- ❌ "guaranteed" → ✅ "could / may / consider"
+- (add your list)
+
+### Project-specific tooling
+
+- `tools/checks/your_lint.py` — what it does, when it runs (must be in `tools/checks/STATUS.md`)
+- `.claude/skills/your-skill/` — when to invoke
+
+<!-- discipline:project-specific:end -->
+
+<!-- discipline:tooling-detected:begin -->
+
+## Detected tooling (auto-updated by `doctor.sh`)
+
+- Discipline kit: v{{KIT_VERSION}} ✓
+- obra/superpowers: {{SUPERPOWERS_DETECTED}}
+- GSD framework: {{GSD_DETECTED}}
+- gstack: {{GSTACK_DETECTED}}
+- Lefthook: {{LEFTHOOK_DETECTED}}
+
+<!-- discipline:tooling-detected:end -->
+
+<!-- discipline:pre-push-checklist:begin -->
+
+## Pre-push checklist (universal, discipline 5)
+
+Before any push, verify:
+
+1. ☐ `grep -rn '<func>('` for any modified function — all callers updated?
+2. ☐ Any code-gen artifact regenerated (OpenAPI, gen-l10n, prisma generate, etc.) if schemas changed?
+3. ☐ Full test suite green (not just the changed file)?
+4. ☐ Lint suite green (`tools/checks/lint_status_audit.py` exits 0)?
+5. ☐ For UI changes: design panel run with 4 reviewers (UX + a11y + adversarial + wiring)?
+6. ☐ Evidence updated in `.planning/<phase-or-batch>/EVIDENCE.html`?
+
+<!-- discipline:pre-push-checklist:end -->
+
+## Quick links
+
+- Kit docs: `docs/CLAUDE_CODE_DISCIPLINE.md` (mirror of kit's `DISCIPLINES.md`)
+- Anti-patterns: `docs/ANTI_PATTERNS.md`
+- Tool discovery: `docs/TOOL_DISCOVERY.md`
+- Customization guide: `docs/CUSTOMIZATION.md`

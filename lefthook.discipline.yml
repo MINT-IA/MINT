@@ -1,0 +1,61 @@
+# lefthook.discipline.yml — additive overlay from claude-code-discipline-kit
+#
+# This file is NEVER auto-merged into your existing lefthook.yml.
+# To activate, add this line to your lefthook.yml:
+#
+#     extends: lefthook.discipline.yml
+#
+# Or copy the relevant blocks into your existing pre-commit / pre-push sections.
+#
+# All checks here exit 0 if the relevant files are absent (graceful no-op).
+
+pre-commit:
+  parallel: true
+  commands:
+    discipline-lint-status:
+      glob: "tools/checks/*.{py,sh,dart}"
+      run: |
+        if [ -f tools/checks/lint_status_audit.py ]; then
+          python3 tools/checks/lint_status_audit.py
+        else
+          echo "lint_status_audit.py missing; install via discipline-kit bootstrap"
+          exit 0
+        fi
+
+    discipline-marker-integrity:
+      glob: "CLAUDE.md"
+      run: |
+        if grep -q "discipline:project-specific:begin" {staged_files} 2>/dev/null; then
+          if ! grep -q "discipline:project-specific:end" {staged_files} 2>/dev/null; then
+            echo "ERROR: CLAUDE.md has 'discipline:project-specific:begin' but no matching :end marker"
+            exit 1
+          fi
+        fi
+        exit 0
+
+pre-push:
+  parallel: false
+  commands:
+    discipline-tool-census-fresh:
+      run: |
+        if [ -f bin/tool-census.sh ]; then
+          # Warn (don't block) if no census run in last 30 days
+          if [ -f .claude-code-discipline.lock ]; then
+            LAST_CENSUS=$(grep '^last_census:' .claude-code-discipline.lock 2>/dev/null | cut -d' ' -f2)
+            if [ -z "$LAST_CENSUS" ]; then
+              echo "::warning::Tool census never run. Run: bash bin/tool-census.sh --underused"
+            fi
+          fi
+        fi
+        exit 0
+
+    discipline-evidence-fresh:
+      run: |
+        # Warn if no .planning/ evidence updated in this branch (suggests no HTML report)
+        BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+        if [ "$BRANCH" != "main" ] && [ "$BRANCH" != "master" ] && [ "$BRANCH" != "dev" ]; then
+          if ! git diff --name-only main...HEAD 2>/dev/null | grep -q "^.planning/"; then
+            echo "::warning::No .planning/ evidence updated on this branch. Discipline 7: HTML evidence per phase."
+          fi
+        fi
+        exit 0

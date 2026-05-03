@@ -1,0 +1,32 @@
+version: 0.1.0
+installed_at: 2026-05-03T19:49:51Z
+kit_dir: /Users/julienbattaglia/Desktop/MINT.nosync/tooling/claude-code-discipline-kit
+lang: en
+detected:
+  superpowers: yes
+  gsd: yes
+  gstack: no
+  lefthook: yes
+files:
+  - path: docs/ANTI_PATTERNS.md
+    sha256: 157cfee07f999dc548d6e7dcd022354c39e3d79e8d32b9d88c299010f3abb46f
+  - path: docs/TOOL_DISCOVERY.md
+    sha256: 843aeb2657699165611f4d2bd85d14446c38a70a8802627198881a69ed52152b
+  - path: docs/DISCIPLINE_CUSTOMIZATION.md
+    sha256: 6510c2606dbf5b3ef0ce7d8afdd453dd8433031a34e61e253306d0a12c899997
+  - path: .claude/skills/claude-code-discipline/SKILL.md
+    sha256: 583adead1f3b2b1baa4835a3562b87f6f5e5a3c119118595492b715d570bbb96
+  - path: tools/checks/lint_status_audit.py
+    sha256: 772fee2d26ad9f38590f6bcabb0c5832246a067a036aeb3c01d4096ca008baaf
+  - path: bin/tool-census.sh
+    sha256: 553b01e4b0058f7f24e2719e0a6392ba58b740cf32c34e61d5270504166067dc
+  - path: bin/doctor.sh
+    sha256: 1836a1e834f8737d79d8db8bb74130f80ba192db455865f2a490d52560f0a847
+  - path: CLAUDE.md.discipline.template
+    sha256: 6d853939ec9ee21e5ec901d1a2fee24bf989a79ade3bf064a04c20bbb58f84f0
+  - path: lefthook.discipline.yml
+    sha256: 68d9e713de752781efee839c38d52409b6d049eb71745e4dd8a7092d47004fd9
+  - path: .gitattributes
+    sha256: f2fbbab17b51cda274ee8309ae7d06c6cc3ca839f06bf11159302a2daf05f9d6
+  - path: .claude-code-discipline.lock
+    sha256: 7cbc3bf6d34f572f64f66c7c6953484bd55d85654c2c28f8e213d8045deba551
