@@ -7701,7 +7701,7 @@ class SEn extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Encrypted account, synced across your devices. Sync controls are coming to Settings soon.';
+      'Create an encrypted account. Cloud sync is off by default; you can turn it on in Settings › Privacy.';
 
   @override
   String get authWhyCreateAccount => 'Why create an account?';
@@ -23016,4 +23016,32 @@ class SEn extends S {
   @override
   String get coachNotificationOpenerFreshStart =>
       'New month. Where do we start?';
+
+  @override
+  String get settingsPrivacyTitle => 'Privacy';
+
+  @override
+  String get settingsPrivacyCloudSyncTitle => 'Cloud sync (multi-device)';
+
+  @override
+  String get settingsPrivacyCloudSyncSubtitle =>
+      'Backup and access from another device. You can turn it off anytime.';
+
+  @override
+  String get settingsPrivacyCloudSyncOn => 'On';
+
+  @override
+  String get settingsPrivacyCloudSyncOff => 'Off';
+
+  @override
+  String get settingsPrivacyMigrationToast =>
+      'New option: you can turn off cloud sync from Settings › Privacy.';
+
+  @override
+  String get settingsPrivacyDataLocation =>
+      'Your data stays encrypted at rest on your device. With sync on, it\'s also encrypted at rest on our European servers (Switzerland/EU) — end-to-end encryption planned for v3.0.';
+
+  @override
+  String get settingsPrivacyCloudSyncOffServerCaveat =>
+      'Turning sync off doesn\'t delete data already saved to our servers. To remove it, go to Account › Delete my account.';
 }

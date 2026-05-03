@@ -13767,7 +13767,7 @@ abstract class S {
   /// No description provided for @authRegisterSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Compte chiffré, synchronisé entre tes appareils. Tu pourras gérer la synchronisation depuis tes réglages bientôt.'**
+  /// **'Crée un compte chiffré. La synchronisation cloud est désactivée par défaut ; tu peux l\'activer depuis Réglages › Confidentialité.'**
   String get authRegisterSubtitle;
 
   /// No description provided for @authWhyCreateAccount.
@@ -40568,6 +40568,54 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Nouveau mois. On commence par quoi ?'**
   String get coachNotificationOpenerFreshStart;
+
+  /// No description provided for @settingsPrivacyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confidentialité'**
+  String get settingsPrivacyTitle;
+
+  /// No description provided for @settingsPrivacyCloudSyncTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchronisation cloud (multi-appareils)'**
+  String get settingsPrivacyCloudSyncTitle;
+
+  /// No description provided for @settingsPrivacyCloudSyncSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauvegarde et accès depuis un autre appareil. Tu peux la désactiver à tout moment.'**
+  String get settingsPrivacyCloudSyncSubtitle;
+
+  /// No description provided for @settingsPrivacyCloudSyncOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activée'**
+  String get settingsPrivacyCloudSyncOn;
+
+  /// No description provided for @settingsPrivacyCloudSyncOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivée'**
+  String get settingsPrivacyCloudSyncOff;
+
+  /// No description provided for @settingsPrivacyMigrationToast.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle option : tu peux désactiver la synchronisation cloud depuis Réglages › Confidentialité.'**
+  String get settingsPrivacyMigrationToast;
+
+  /// No description provided for @settingsPrivacyDataLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes données restent stockées chiffrées sur ton appareil. Avec la sync activée, elles sont aussi stockées chiffrées sur nos serveurs européens (Suisse/UE) — chiffrement de bout en bout prévu en v3.0.'**
+  String get settingsPrivacyDataLocation;
+
+  /// No description provided for @settingsPrivacyCloudSyncOffServerCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver la sync n\'efface pas les données déjà sauvegardées sur nos serveurs. Pour les supprimer, va dans Compte › Supprimer mon compte.'**
+  String get settingsPrivacyCloudSyncOffServerCaveat;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -7750,7 +7750,7 @@ class SFr extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Compte chiffré, synchronisé entre tes appareils. Tu pourras gérer la synchronisation depuis tes réglages bientôt.';
+      'Crée un compte chiffré. La synchronisation cloud est désactivée par défaut ; tu peux l\'activer depuis Réglages › Confidentialité.';
 
   @override
   String get authWhyCreateAccount => 'Pourquoi créer un compte ?';
@@ -23130,4 +23130,33 @@ class SFr extends S {
   @override
   String get coachNotificationOpenerFreshStart =>
       'Nouveau mois. On commence par quoi ?';
+
+  @override
+  String get settingsPrivacyTitle => 'Confidentialité';
+
+  @override
+  String get settingsPrivacyCloudSyncTitle =>
+      'Synchronisation cloud (multi-appareils)';
+
+  @override
+  String get settingsPrivacyCloudSyncSubtitle =>
+      'Sauvegarde et accès depuis un autre appareil. Tu peux la désactiver à tout moment.';
+
+  @override
+  String get settingsPrivacyCloudSyncOn => 'Activée';
+
+  @override
+  String get settingsPrivacyCloudSyncOff => 'Désactivée';
+
+  @override
+  String get settingsPrivacyMigrationToast =>
+      'Nouvelle option : tu peux désactiver la synchronisation cloud depuis Réglages › Confidentialité.';
+
+  @override
+  String get settingsPrivacyDataLocation =>
+      'Tes données restent stockées chiffrées sur ton appareil. Avec la sync activée, elles sont aussi stockées chiffrées sur nos serveurs européens (Suisse/UE) — chiffrement de bout en bout prévu en v3.0.';
+
+  @override
+  String get settingsPrivacyCloudSyncOffServerCaveat =>
+      'Désactiver la sync n\'efface pas les données déjà sauvegardées sur nos serveurs. Pour les supprimer, va dans Compte › Supprimer mon compte.';
 }

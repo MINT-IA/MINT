@@ -3507,7 +3507,7 @@
   "authGateCreateAccount": "Mein Konto erstellen",
   "authGateLogin": "Ich habe bereits ein Konto",
   "authGatePrivacyNote": "Deine Daten bleiben auf deinem Gerät und sind verschlüsselt.",
-  "authRegisterSubtitle": "Verschlüsseltes Konto, geräteübergreifend synchronisiert. Synchronisationssteuerung folgt bald in den Einstellungen.",
+  "authRegisterSubtitle": "Erstelle ein verschlüsseltes Konto. Cloud-Synchronisation ist standardmässig aus; du kannst sie in Einstellungen › Datenschutz aktivieren.",
   "authWhyCreateAccount": "Warum ein Konto erstellen?",
   "authBenefitProjections": "AHV/BVG-Projektionen auf deine Situation abgestimmt",
   "authBenefitCoach": "Persönlicher Coach mit deinem Vornamen",
@@ -11147,5 +11147,13 @@
   "coachNotificationOpenerMonthlyCheckIn": "Zeit für den Monatsrückblick. Wie war's?",
   "coachNotificationOpenerCommitmentWithLabel": "Du hast mir gesagt, du würdest {commitment}. Erledigt?",
   "coachNotificationOpenerCommitmentGeneric": "Du hattest eine Verpflichtung. Erledigt?",
-  "coachNotificationOpenerFreshStart": "Neuer Monat. Wo fangen wir an?"
+  "coachNotificationOpenerFreshStart": "Neuer Monat. Wo fangen wir an?",
+  "settingsPrivacyTitle": "Datenschutz",
+  "settingsPrivacyCloudSyncTitle": "Cloud-Synchronisation (mehrere Geräte)",
+  "settingsPrivacyCloudSyncSubtitle": "Backup und Zugriff von einem anderen Gerät. Du kannst sie jederzeit deaktivieren.",
+  "settingsPrivacyCloudSyncOn": "Aktiviert",
+  "settingsPrivacyCloudSyncOff": "Deaktiviert",
+  "settingsPrivacyMigrationToast": "Neue Option: Du kannst die Cloud-Synchronisation in Einstellungen › Datenschutz deaktivieren.",
+  "settingsPrivacyDataLocation": "Deine Daten bleiben verschlüsselt auf deinem Gerät gespeichert. Mit aktivierter Synchronisation sind sie auch verschlüsselt auf unseren europäischen Servern (Schweiz/EU) gespeichert — Ende-zu-Ende-Verschlüsselung geplant für v3.0.",
+  "settingsPrivacyCloudSyncOffServerCaveat": "Die Synchronisation zu deaktivieren löscht nicht die Daten, die bereits auf unseren Servern gespeichert sind. Um sie zu entfernen, gehe zu Konto › Konto löschen."
 }

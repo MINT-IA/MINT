@@ -3880,7 +3880,7 @@
   "disabilityAppBarTitle": "Si je ne peux plus travailler",
   "disabilityStatLine1": "1 personne sur 5",
   "disabilityStatLine2": "sera touchée avant 65 ans",
-  "authRegisterSubtitle": "Compte chiffré, synchronisé entre tes appareils. Tu pourras gérer la synchronisation depuis tes réglages bientôt.",
+  "authRegisterSubtitle": "Crée un compte chiffré. La synchronisation cloud est désactivée par défaut ; tu peux l'activer depuis Réglages › Confidentialité.",
   "authWhyCreateAccount": "Pourquoi créer un compte ?",
   "authBenefitProjections": "Projections AVS/LPP alignées à ta situation",
   "authBenefitCoach": "Coach personnalisé avec ton prénom",
@@ -12087,5 +12087,13 @@
     "x-mint-meta": {
       "level": "N3"
     }
-  }
+  },
+  "settingsPrivacyTitle": "Confidentialité",
+  "settingsPrivacyCloudSyncTitle": "Synchronisation cloud (multi-appareils)",
+  "settingsPrivacyCloudSyncSubtitle": "Sauvegarde et accès depuis un autre appareil. Tu peux la désactiver à tout moment.",
+  "settingsPrivacyCloudSyncOn": "Activée",
+  "settingsPrivacyCloudSyncOff": "Désactivée",
+  "settingsPrivacyMigrationToast": "Nouvelle option : tu peux désactiver la synchronisation cloud depuis Réglages › Confidentialité.",
+  "settingsPrivacyDataLocation": "Tes données restent stockées chiffrées sur ton appareil. Avec la sync activée, elles sont aussi stockées chiffrées sur nos serveurs européens (Suisse/UE) — chiffrement de bout en bout prévu en v3.0.",
+  "settingsPrivacyCloudSyncOffServerCaveat": "Désactiver la sync n'efface pas les données déjà sauvegardées sur nos serveurs. Pour les supprimer, va dans Compte › Supprimer mon compte."
 }

@@ -98,6 +98,12 @@ class AuthProvider extends ChangeNotifier {
   bool get requiresEmailVerification => _requiresEmailVerification;
   bool get isLocalMode => _isLocalMode;
 
+  /// Phase 52: cloud-sync state from the user's perspective.
+  /// `true` ⇔ user has explicitly opted into multi-device sync; data
+  /// is mirrored to the backend on each save. `false` (default after
+  /// register) ⇔ data stays on device.
+  bool get isCloudSyncEnabled => !_isLocalMode;
+
   /// Check stored auth on app startup
   Future<void> checkAuth() async {
     _isLoading = true;
@@ -127,9 +133,12 @@ class AuthProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       _requiresEmailVerification =
           prefs.getBool('requires_email_verification') ?? false;
-      // Local-mode default: true on fresh install (local-first per UX copy
-      // "Compte optionnel : tes données restent locales par défaut").
-      // Explicit register/login flips it to false.
+      // Local-mode default: true on fresh install. Phase 52 (D-01):
+      // register / login no longer auto-flip this to false; cloud sync
+      // is opt-in via Settings › Confidentialité (`toggleCloudSync`).
+      // Existing users registered pre-Phase-52 retain whatever value
+      // was persisted — their `auth_local_mode = false` stays, no
+      // surprise switch in their sync state.
       if (!prefs.containsKey('auth_local_mode')) {
         await prefs.setBool('auth_local_mode', true);
       }
@@ -176,9 +185,8 @@ class AuthProvider extends ChangeNotifier {
           refreshToken: response['refresh_token'] as String?,
         );
         _isLoggedIn = true;
-        _isLocalMode = false;
-        await (await SharedPreferences.getInstance())
-            .setBool('auth_local_mode', false);
+        // Phase 52 (D-01): no longer auto-disable local mode on register.
+        // Cloud sync is opt-in via Settings › Confidentialité.
         // FIX-W11-7: Set user prefix for conversation isolation.
         ConversationStore.setCurrentUserId(userId);
       } else {
@@ -244,9 +252,8 @@ class AuthProvider extends ChangeNotifier {
       _email = userEmail;
       _displayName = response['display_name'] as String?;
       _isLoggedIn = true;
-      _isLocalMode = false;
-      await (await SharedPreferences.getInstance())
-          .setBool('auth_local_mode', false);
+      // Phase 52 (D-01): no longer auto-disable local mode on login.
+      // Cloud sync is opt-in via Settings › Confidentialité.
       // FIX-W11-7: Set user prefix for conversation isolation.
       ConversationStore.setCurrentUserId(userId);
       _requiresEmailVerification = false;
@@ -325,9 +332,8 @@ class AuthProvider extends ChangeNotifier {
       _email = userEmail;
       _displayName = displayName;
       _isLoggedIn = true;
-      _isLocalMode = false;
-      await (await SharedPreferences.getInstance())
-          .setBool('auth_local_mode', false);
+      // Phase 52 (D-01): no longer auto-disable local mode on Apple SSO.
+      // Cloud sync is opt-in via Settings › Confidentialité.
       _requiresEmailVerification = false;
       _error = null;
       // FIX-W11-7: Set user prefix for conversation isolation.
@@ -411,9 +417,8 @@ class AuthProvider extends ChangeNotifier {
       }
 
       _isLoggedIn = true;
-      _isLocalMode = false;
-      await (await SharedPreferences.getInstance())
-          .setBool('auth_local_mode', false);
+      // Phase 52 (D-01): no longer auto-disable local mode on magic link.
+      // Cloud sync is opt-in via Settings › Confidentialité.
       _requiresEmailVerification = false;
       _error = null;
       _isLoading = false;
@@ -750,6 +755,17 @@ class AuthProvider extends ChangeNotifier {
     _isLocalMode = true;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('auth_local_mode', true);
+    notifyListeners();
+  }
+
+  /// Phase 52 (D-01, D-03): user-controlled cloud-sync toggle from
+  /// Settings › Confidentialité. `true` enables multi-device sync
+  /// (next save pushes to the backend), `false` keeps data on device.
+  /// Persisted across launches via `auth_local_mode`.
+  Future<void> toggleCloudSync(bool enabled) async {
+    _isLocalMode = !enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('auth_local_mode', _isLocalMode);
     notifyListeners();
   }
 

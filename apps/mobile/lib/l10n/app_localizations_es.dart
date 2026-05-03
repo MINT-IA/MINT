@@ -7749,7 +7749,7 @@ class SEs extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Cuenta cifrada, sincronizada entre tus dispositivos. Los controles de sincronización llegarán pronto a Ajustes.';
+      'Crea una cuenta cifrada. La sincronización en la nube está desactivada por defecto; puedes activarla en Ajustes › Privacidad.';
 
   @override
   String get authWhyCreateAccount => '¿Por qué crear una cuenta?';
@@ -23128,4 +23128,33 @@ class SEs extends S {
   @override
   String get coachNotificationOpenerFreshStart =>
       'Nuevo mes. ¿Por dónde empezamos?';
+
+  @override
+  String get settingsPrivacyTitle => 'Privacidad';
+
+  @override
+  String get settingsPrivacyCloudSyncTitle =>
+      'Sincronización en la nube (multidispositivo)';
+
+  @override
+  String get settingsPrivacyCloudSyncSubtitle =>
+      'Copia de seguridad y acceso desde otro dispositivo. Puedes desactivarla cuando quieras.';
+
+  @override
+  String get settingsPrivacyCloudSyncOn => 'Activada';
+
+  @override
+  String get settingsPrivacyCloudSyncOff => 'Desactivada';
+
+  @override
+  String get settingsPrivacyMigrationToast =>
+      'Nueva opción: puedes desactivar la sincronización en la nube desde Ajustes › Privacidad.';
+
+  @override
+  String get settingsPrivacyDataLocation =>
+      'Tus datos quedan cifrados en tu dispositivo. Con la sincronización activada, también están cifrados en nuestros servidores europeos (Suiza/UE) — cifrado de extremo a extremo previsto en la v3.0.';
+
+  @override
+  String get settingsPrivacyCloudSyncOffServerCaveat =>
+      'Desactivar la sincronización no borra los datos ya guardados en nuestros servidores. Para eliminarlos, ve a Cuenta › Eliminar mi cuenta.';
 }
