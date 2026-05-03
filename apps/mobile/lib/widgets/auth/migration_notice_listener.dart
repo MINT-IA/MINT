@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,6 +53,13 @@ class MigrationNoticeListener extends StatefulWidget {
   /// notice is never repeated on a clean cold start.
   static const String prefsKeyShown = 'auth_phase52_migration_shown';
 
+  /// Phase 52.1 N-3: how long `isLoading` must be stable false before
+  /// the SnackBar is allowed to fire. Prevents the toast from showing
+  /// during the splash → login transition or during a profile refetch.
+  /// Tests can override to `Duration.zero` for instant assertions.
+  @visibleForTesting
+  static Duration stabilityDelay = const Duration(seconds: 3);
+
   /// Process-level dedup. Exposed for tests so each test starts clean.
   @visibleForTesting
   static void resetForTesting() {
@@ -67,28 +76,58 @@ class _MigrationNoticeListenerState extends State<MigrationNoticeListener> {
 
   AuthProvider? _bound;
 
+  /// Phase 52.1 N-3: pending fire timer. Started when `isLoading=false`
+  /// and conditions look promising; cancelled if `isLoading` flips back
+  /// to true (e.g. profile refetch in flight). Only fires the SnackBar
+  /// after the configured `stabilityDelay`.
+  Timer? _stabilityTimer;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final auth = context.read<AuthProvider>();
     if (!identical(_bound, auth)) {
-      _bound?.removeListener(_check);
-      auth.addListener(_check);
+      _bound?.removeListener(_onAuthTick);
+      auth.addListener(_onAuthTick);
       _bound = auth;
-      _check();
+      _onAuthTick();
     }
   }
 
   @override
   void dispose() {
-    _bound?.removeListener(_check);
+    _stabilityTimer?.cancel();
+    _bound?.removeListener(_onAuthTick);
     super.dispose();
   }
 
-  Future<void> _check() async {
+  /// Reactive entry point. Called on every AuthProvider tick.
+  /// Phase 52.1 N-3: defers the actual show by [stabilityDelay] so a
+  /// transient `isLoading=true` (profile refetch, etc.) doesn't fire
+  /// the SnackBar mid-transition. Cancels any pending timer if loading
+  /// flips back true.
+  void _onAuthTick() {
     if (_shownThisProcess) return;
     final auth = _bound;
-    if (auth == null || auth.isLoading || !auth.isLoggedIn) return;
+    if (auth == null) return;
+    if (auth.isLoading || !auth.isLoggedIn) {
+      _stabilityTimer?.cancel();
+      _stabilityTimer = null;
+      return;
+    }
+    if (_stabilityTimer != null && _stabilityTimer!.isActive) return;
+    _stabilityTimer = Timer(MigrationNoticeListener.stabilityDelay, () {
+      if (!mounted) return;
+      // Re-verify state at fire time — auth may have flipped during
+      // the delay window.
+      final a = _bound;
+      if (a == null || a.isLoading || !a.isLoggedIn) return;
+      _attemptShow();
+    });
+  }
+
+  Future<void> _attemptShow() async {
+    if (_shownThisProcess) return;
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('auth_local_mode')) return;
     if (prefs.getBool('auth_local_mode') != false) return;
@@ -96,6 +135,7 @@ class _MigrationNoticeListenerState extends State<MigrationNoticeListener> {
     _shownThisProcess = true;
     await prefs.setBool(MigrationNoticeListener.prefsKeyShown, true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final messenger = widget.getMessenger();
       final navContext = widget.getNavContext();
       if (messenger == null || navContext == null) return;
