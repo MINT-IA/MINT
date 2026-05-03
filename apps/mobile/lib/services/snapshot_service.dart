@@ -11,6 +11,7 @@
 library;
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 
@@ -154,6 +155,16 @@ class SnapshotService {
   /// Fire-and-forget backend sync for a single snapshot.
   static Future<void> _syncToBackend(FinancialSnapshot snapshot) async {
     try {
+      // Phase 52.1: gate on cloud-sync toggle FIRST (before auth
+      // check) so user-intent (« I don't want to sync ») wins over
+      // engineering preconditions. Snapshot body contains age +
+      // gross_income + canton + ratios — PII that must not leave
+      // the device when the user has sync OFF.
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('auth_local_mode') ?? true) {
+        debugPrint('[Snapshot] Cloud sync OFF — skipping backend sync');
+        return;
+      }
       final userId = await AuthService.getUserId();
       if (userId == null) {
         debugPrint('[Snapshot] No auth user — skipping backend sync');

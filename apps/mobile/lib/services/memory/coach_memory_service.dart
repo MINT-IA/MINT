@@ -119,6 +119,18 @@ class CoachMemoryService {
   /// Sync insight to backend for RAG embedding (fire-and-forget).
   static Future<void> _syncToBackend(CoachInsight insight) async {
     try {
+      // Phase 52.1: gate on cloud-sync toggle FIRST (before auth
+      // check) so user-intent wins over engineering preconditions.
+      // AuthProvider persists `auth_local_mode` on every
+      // `toggleCloudSync` call; read directly to avoid coupling
+      // this static service to AuthProvider. Sync OFF → insight
+      // stays local (the on-device SharedPreferences copy at line
+      // 111 is the source of truth).
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('auth_local_mode') ?? true) {
+        debugPrint('[CoachMemory] Cloud sync OFF — skipping insight push');
+        return;
+      }
       final baseUrl = ApiService.baseUrl;
       final token = await AuthService.getToken();
       if (token == null) return;
@@ -150,6 +162,12 @@ class CoachMemoryService {
   /// FIX-068: Notify backend to remove orphaned embedding after local prune.
   static Future<void> _syncRemoveToBackend(String insightId) async {
     try {
+      // Phase 52.1: gate FIRST on cloud-sync toggle. If sync is OFF
+      // the insight was never pushed in the first place (gated at
+      // the same point in `_syncToBackend` above), so the delete is
+      // moot.
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('auth_local_mode') ?? true) return;
       final baseUrl = ApiService.baseUrl;
       final token = await AuthService.getToken();
       if (token == null) return;

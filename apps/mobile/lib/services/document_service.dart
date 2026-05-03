@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/document_event.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
@@ -1092,6 +1093,17 @@ class DocumentService {
     String extractionMethod = 'claude_vision',
   }) async {
     try {
+      // Phase 52.1: gate on cloud-sync toggle FIRST (before auth
+      // check) so user-intent wins over engineering preconditions.
+      // `confirmedFields` contains the user's extracted PII (LPP/AVS/
+      // tax numbers). Sync OFF → confirmation stays local; the
+      // extracted fields are still applied to the local profile by
+      // the calling ExtractionReviewScreen.
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('auth_local_mode') ?? true) {
+        debugPrint('[DocumentService] Cloud sync OFF — skipping scan-confirmation push');
+        return null;
+      }
       final baseUrl = ApiService.baseUrl;
       var token = await AuthService.getToken();
       if (token == null || token.isEmpty) return null;
