@@ -11150,11 +11150,11 @@
   "coachNotificationOpenerFreshStart": "New month. Where do we start?",
   "settingsPrivacyTitle": "Privacy",
   "settingsPrivacyCloudSyncTitle": "Cloud sync (multi-device)",
-  "settingsPrivacyCloudSyncSubtitle": "Backup and access from another device. You can turn it off anytime.",
+  "settingsPrivacyCloudSyncSubtitle": "Backs up your profile and syncs it across your devices. When off, the AI coach is still available but facts are kept only on your device.",
   "settingsPrivacyCloudSyncOn": "On",
   "settingsPrivacyCloudSyncOff": "Off",
   "settingsPrivacyMigrationToast": "New option: you can turn off cloud sync from Settings › Privacy.",
-  "settingsPrivacyDataLocation": "Your data stays encrypted at rest on your device. With sync on, it's also encrypted at rest on our European servers (Switzerland/EU) — end-to-end encryption planned for v3.0.",
+  "settingsPrivacyDataLocation": "Your wizard answers and chat history stay on your device. When you write to the AI coach, your message transits through our servers to generate the reply — with sync on, the facts you confirm (age, salary, canton…) are also saved on our servers; with sync off, they're kept only on your device.",
   "settingsPrivacyCloudSyncOffServerCaveat": "Turning sync off doesn't delete data already saved to our servers. To remove it, go to Account › Delete my account.",
   "profileSyncRowHint": "Manage in Settings › Privacy",
   "settingsPrivacyMigrationToastCta": "View"

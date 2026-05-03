@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Phase 52.1 — Cloud-sync actual gating — Evidence</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+         max-width: 980px; margin: 0 auto; padding: 24px;
+         background: #fafaf7; color: #1d1d1f; line-height: 1.55; }
+  h1 { color: #003b2f; }
+  h2 { color: #003b2f; border-bottom: 1px solid #e5e5e0; padding-bottom: 6px; margin-top: 28px; }
+  h3 { font-size: 16px; margin-top: 18px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px;
+          font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
+  .b-pass { background: rgba(21,123,53,0.12); color: #157b35; }
+  .b-warn { background: rgba(140,63,6,0.12); color: #8c3f06; }
+  .b-block { background: rgba(139,29,29,0.12); color: #8b1d1d; }
+  .b-info { background: rgba(0,59,47,0.10); color: #003b2f; }
+  table { width: 100%; border-collapse: collapse; background: white;
+          border: 1px solid #e5e5e0; margin: 12px 0; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #e5e5e0; font-size: 14px; }
+  th { background: #fafaf7; color: #525256; font-size: 12px; }
+  td code { background: #fafaf7; padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
+  .card { background: white; border: 1px solid #e5e5e0; border-radius: 10px;
+          padding: 14px 16px; margin: 10px 0; }
+  .card.block { border-left: 4px solid #8b1d1d; }
+  .card.warn { border-left: 4px solid #8c3f06; }
+  .card.pass { border-left: 4px solid #157b35; }
+  pre { background: #1d1d1f; color: #f5f5f7; padding: 12px;
+        border-radius: 8px; font-size: 12.5px; overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<h1>Phase 52.1 — Cloud-sync actual gating <span class="badge b-warn">IN FLIGHT</span></h1>
+<p>Goal: make the Phase 52 cloud-sync toggle actually do what its UI promises — gate every backend write on <code>AuthProvider.isCloudSyncEnabled</code>, and replace the false « serveurs européens » residency claim with truthful current-state copy.</p>
+
+<p><strong>Origin</strong>: post-merge audit of Phase 52 (<a href="../../reviews/2026-05-03-phase-52-post-merge.md">.planning/reviews/2026-05-03-phase-52-post-merge.md</a>) returned BLOCK with 4 P0 findings.</p>
+
+<h2>Tasks</h2>
+
+<table>
+<tr><th>Task</th><th>What</th><th>PR</th><th>Status</th></tr>
+<tr><td><strong>T-52.1-01</strong> (B-1)</td><td>Gate <code>_syncToBackend</code> on <code>auth_local_mode</code></td><td>#438</td><td><span class="badge b-pass">code merged-pending-CI</span></td></tr>
+<tr><td><strong>T-52.1-02</strong> (B-2)</td><td>Gate <code>_migrateLocalDataIfNeeded.claimLocalData</code> on <code>auth_local_mode</code></td><td>#438</td><td><span class="badge b-pass">code merged-pending-CI</span></td></tr>
+<tr><td><strong>T-52.1-03</strong> (B-3) — design</td><td>Chat panel: Option C, write-tier tools gated via <code>persistence_consent</code></td><td>—</td><td><span class="badge b-pass">design saved <a href="../../decisions/2026-05-03-chat-under-cloud-sync-off.md">decisions/...</a></span></td></tr>
+<tr><td><strong>T-52.1-03</strong> (B-3) — code</td><td>Mobile body flag + backend handler gating + tests</td><td>PR 2 (queued)</td><td><span class="badge b-info">queued</span></td></tr>
+<tr><td><strong>T-52.1-04</strong> (B-4 + N-1)</td><td>Residency copy fix + N-1 softening + 3-boundary chat disambiguation × 6 locales</td><td>#438</td><td><span class="badge b-pass">code merged-pending-CI</span></td></tr>
+<tr><td><strong>T-52.1-05</strong> (N-3)</td><td>Migration toast re-timing (3s stable foreground OR first user nav)</td><td>PR 3 (queued)</td><td><span class="badge b-info">queued</span></td></tr>
+<tr><td><strong>T-52.1-06</strong> (N-4)</td><td>Verify « Continuer en mode local » CTA still wired post-logout</td><td>PR 3 (queued)</td><td><span class="badge b-info">queued</span></td></tr>
+</table>
+
+<h2>BLOCK findings — current state</h2>
+
+<div class="card pass">
+<h3>B-1 — fixed in PR #438</h3>
+<code>coach_profile_provider.dart:_syncToBackend</code> now reads <code>SharedPreferences.getBool('auth_local_mode')</code> at the top; returns silently when <code>true</code> (sync OFF), emitting a <code>profile_sync_skipped: cloud_sync_off</code> Sentry breadcrumb. The 4 fire-and-forget callsites are unchanged.
+</div>
+
+<div class="card pass">
+<h3>B-2 — fixed in PR #438</h3>
+<code>auth_provider.dart:_migrateLocalDataIfNeeded</code> reads the same prefs key. Local→local conversation migration (<code>ConversationStore.migrateAnonymousToUser</code>) still runs; only the <code>ApiService.claimLocalData(...)</code> push is gated. New accounts default sync OFF (Phase 52 D-01), so wizard answers stay on device. If the user later flips sync ON in Settings, the next save naturally pushes via <code>_syncToBackend</code> (also gated by B-1).
+</div>
+
+<div class="card warn">
+<h3>B-3 — design locked, code queued for PR 2</h3>
+Decision: <strong>Option C, scoped to WRITE-tier tools</strong> (chat panel verdict 2026-05-03). LLM call always allowed (it has to be — no on-device LLM); structured fact persistence (<code>save_fact</code>, <code>save_insight</code>, <code>save_pre_mortem</code>, <code>save_provenance</code>, <code>save_earmark</code>, <code>save_partner_estimate</code>, <code>record_check_in</code>, n5 emission marks) refused server-side when <code>persistence_consent: false</code>.
+
+<strong>Backend has NO verbatim conversation log</strong> — confirmed by panel grep. The leak is structured fact extraction. <code>conversation_store.dart</code> is purely local (SharedPreferences) and is never flushed to backend.
+
+Implementation contract: see <a href="../../decisions/2026-05-03-chat-under-cloud-sync-off.md">.planning/decisions/2026-05-03-chat-under-cloud-sync-off.md</a>.
+</div>
+
+<div class="card pass">
+<h3>B-4 — fixed in PR #438</h3>
+<code>settingsPrivacyDataLocation</code> + <code>settingsPrivacyCloudSyncSubtitle</code> rewritten to disambiguate the 3 boundaries (questionnaire = local, message in-flight = transits servers for LLM, structured facts = gated by toggle). Drops the false « serveurs européens (Suisse/UE) » claim. N-1 softening folded in (no specific « v3.0 » version commitment).
+
+<h4>FR canonical (2026-05-03)</h4>
+<pre>settingsPrivacyDataLocation:
+  Tes réponses au questionnaire et ton historique de chat restent
+  sur ton appareil. Quand tu écris au coach IA, ton message transite
+  par nos serveurs pour générer la réponse — avec la sync activée,
+  les faits que tu confirmes (âge, salaire, canton…) sont aussi
+  sauvegardés sur nos serveurs ; sync désactivée, ils ne sont
+  gardés que sur ton appareil.
+
+settingsPrivacyCloudSyncSubtitle:
+  Sauvegarde ton profil et synchronise-le entre tes appareils.
+  Désactivée, le coach IA reste disponible mais les faits ne sont
+  retenus que localement.</pre>
+5 sibling locales (en/de/es/it/pt) translated with the same disambiguation structure.
+</div>
+
+<h2>Verification (PR #438)</h2>
+
+<pre>flutter analyze lib/providers/auth_provider.dart lib/providers/coach_profile_provider.dart
+→ 2 issues (both pre-existing warnings, unrelated to PR)
+
+flutter gen-l10n
+→ regenerated 2 keys × 6 locales
+
+check_banned_terms() on FR strings
+→ all clean
+
+python3 tools/checks/sentence_subject_arb_lint.py
+→ OK — no banned user-as-subject patterns; all coach/chat/alert keys carry @meta level
+
+python3 tools/checks/no_legal_admission_in_public_docs.py
+→ scanned 434 docs / 0 hits
+
+CI on PR #438: in flight</pre>
+
+<h2>Acceptance criteria (Phase 52.1 close-out)</h2>
+
+<ol>
+  <li>With <code>auth_local_mode = true</code>:
+    <ul>
+      <li>(a) <code>_syncToBackend</code> returns immediately without calling <code>ApiService.claimLocalData</code> ✅ PR #438</li>
+      <li>(b) <code>_migrateLocalDataIfNeeded</code> skips the <code>claimLocalData</code> block entirely ✅ PR #438</li>
+      <li>(c) Chat behavior matches Option C: LLM call yes, structured fact writes refused server-side ⏳ PR 2</li>
+    </ul>
+  </li>
+  <li><code>settingsPrivacyDataLocation</code> no longer claims « serveurs européens (Suisse/UE) ». 6-locale parity preserved. ✅ PR #438</li>
+  <li><code>flutter analyze</code> clean. <code>flutter test</code> green. ✅ on touched files; full-suite TBD on CI</li>
+  <li>New tests T-52.1-01-T and T-52.1-02-T (no-op verification) pass. ⏳ bundled with PR 2 (acceptance test asserts both gates)</li>
+  <li>Lints clean (<code>accent_lint_fr</code>, <code>check_banned_terms</code>, <code>sentence_subject_arb_lint</code>, <code>no_legal_admission</code>). ✅</li>
+  <li>Post-Phase-52.1 audit re-asks « does sync OFF actually stop backend writes? » and the answer is yes, demonstrably, in code. ⏳ after PR 2</li>
+</ol>
+
+<h2>Deferred (out of Phase 52.1 scope)</h2>
+
+<ul>
+  <li>Q3 Swiss-region migration (separate phase)</li>
+  <li>v3.0 E2EE (separate epic)</li>
+  <li>Renaming <code>_isLocalMode</code> → <code>_cloudSyncDisabled</code> (cosmetic; keep <code>isCloudSyncEnabled</code> getter)</li>
+  <li>Anonymous → register « one-tap sync everything » UX pattern (Phase 53+)</li>
+</ul>
+
+<p style="font-size: 12px; color: #95989d; margin-top: 32px;">Generated 2026-05-03 ~09:20. Updated on every PR landing in Phase 52.1.</p>
+
+</body>
+</html>

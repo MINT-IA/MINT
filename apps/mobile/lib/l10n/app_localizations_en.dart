@@ -23025,7 +23025,7 @@ class SEn extends S {
 
   @override
   String get settingsPrivacyCloudSyncSubtitle =>
-      'Backup and access from another device. You can turn it off anytime.';
+      'Backs up your profile and syncs it across your devices. When off, the AI coach is still available but facts are kept only on your device.';
 
   @override
   String get settingsPrivacyCloudSyncOn => 'On';
@@ -23039,7 +23039,7 @@ class SEn extends S {
 
   @override
   String get settingsPrivacyDataLocation =>
-      'Your data stays encrypted at rest on your device. With sync on, it\'s also encrypted at rest on our European servers (Switzerland/EU) — end-to-end encryption planned for v3.0.';
+      'Your wizard answers and chat history stay on your device. When you write to the AI coach, your message transits through our servers to generate the reply — with sync on, the facts you confirm (age, salary, canton…) are also saved on our servers; with sync off, they\'re kept only on your device.';
 
   @override
   String get settingsPrivacyCloudSyncOffServerCaveat =>
