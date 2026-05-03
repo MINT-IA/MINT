@@ -11383,7 +11383,7 @@
   "anonymousChatPhaseSubtitle": "Premier éclairage",
   "@anonymousChatPhaseSubtitle": {
     "description": "Anonymous chat top-bar — subtitle below the MINT brand. Names the current phase the anonymous user is in (Handoff 2 design alignment — replaces the bare back-button-only top bar with a brand + phase indicator).",
-    "x-meta": {"voiceCursorLevel": "ambiance"}
+    "x-mint-meta": {"level": "N1"}
   },
   "anonymousChatLocked": "Je suis toujours là quand tu voudras continuer.",
   "@anonymousChatLocked": {
@@ -12108,7 +12108,11 @@
   "aujourdhuiResumeConversation": "Reprendre la conversation",
   "coachSequenceNextStepLabel": "Étape suivante : {label}.",
   "@coachSequenceNextStepLabel": {
-    "placeholders": {"label": {"type": "String"}}
+    "placeholders": {"label": {"type": "String"}},
+    "x-mint-meta": {"level": "N3"}
   },
-  "coachSequenceCompletedMessage": "Tu as terminé cette séquence guidée."
+  "coachSequenceCompletedMessage": "Tu as terminé cette séquence guidée.",
+  "@coachSequenceCompletedMessage": {
+    "x-mint-meta": {"level": "N3"}
+  }
 }
