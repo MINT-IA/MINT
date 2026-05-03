@@ -11143,5 +11143,9 @@
   "coachAnonymousAuthGateMessage": "Já explorámos algumas pistas juntos. Cria a tua conta para eu me lembrar de tudo.",
   "coachAuthGateChipRegister": "Criar a minha conta",
   "coachAuthGateChipLogin": "Já tenho uma conta",
-  "cantonLabel": "Cantão"
+  "cantonLabel": "Cantão",
+  "coachNotificationOpenerMonthlyCheckIn": "Hora do ponto do mês. Como foi?",
+  "coachNotificationOpenerCommitmentWithLabel": "Tinhas-me dito que ias {commitment}. Feito?",
+  "coachNotificationOpenerCommitmentGeneric": "Tinhas um compromisso. Feito?",
+  "coachNotificationOpenerFreshStart": "Novo mês. Por onde começamos?"
 }

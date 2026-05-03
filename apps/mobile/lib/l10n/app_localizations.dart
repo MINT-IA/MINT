@@ -40544,6 +40544,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Canton'**
   String get cantonLabel;
+
+  /// No description provided for @coachNotificationOpenerMonthlyCheckIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'On fait le point sur le mois ?'**
+  String get coachNotificationOpenerMonthlyCheckIn;
+
+  /// No description provided for @coachNotificationOpenerCommitmentWithLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu m\'avais dit que tu allais {commitment}. C\'est fait ?'**
+  String coachNotificationOpenerCommitmentWithLabel(String commitment);
+
+  /// No description provided for @coachNotificationOpenerCommitmentGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu avais un engagement à tenir. C\'est fait ?'**
+  String get coachNotificationOpenerCommitmentGeneric;
+
+  /// No description provided for @coachNotificationOpenerFreshStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mois. On commence par quoi ?'**
+  String get coachNotificationOpenerFreshStart;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

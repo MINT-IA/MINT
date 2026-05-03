@@ -12033,5 +12033,16 @@
   "coachAnonymousAuthGateMessage": "On a déjà découvert quelques pistes ensemble. Crée ton compte pour que je me souvienne de tout.",
   "coachAuthGateChipRegister": "Créer mon compte",
   "coachAuthGateChipLogin": "J'ai déjà un compte",
-  "cantonLabel": "Canton"
+  "cantonLabel": "Canton",
+  "coachNotificationOpenerMonthlyCheckIn": "On fait le point sur le mois ?",
+  "coachNotificationOpenerCommitmentWithLabel": "Tu m'avais dit que tu allais {commitment}. C'est fait ?",
+  "@coachNotificationOpenerCommitmentWithLabel": {
+    "placeholders": {
+      "commitment": {
+        "type": "String"
+      }
+    }
+  },
+  "coachNotificationOpenerCommitmentGeneric": "Tu avais un engagement à tenir. C'est fait ?",
+  "coachNotificationOpenerFreshStart": "Nouveau mois. On commence par quoi ?"
 }

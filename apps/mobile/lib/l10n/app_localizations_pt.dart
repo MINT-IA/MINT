@@ -23119,4 +23119,21 @@ class SPt extends S {
 
   @override
   String get cantonLabel => 'Cantão';
+
+  @override
+  String get coachNotificationOpenerMonthlyCheckIn =>
+      'Hora do ponto do mês. Como foi?';
+
+  @override
+  String coachNotificationOpenerCommitmentWithLabel(String commitment) {
+    return 'Tinhas-me dito que ias $commitment. Feito?';
+  }
+
+  @override
+  String get coachNotificationOpenerCommitmentGeneric =>
+      'Tinhas um compromisso. Feito?';
+
+  @override
+  String get coachNotificationOpenerFreshStart =>
+      'Novo mês. Por onde começamos?';
 }

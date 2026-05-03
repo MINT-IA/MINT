@@ -23111,4 +23111,21 @@ class SEs extends S {
 
   @override
   String get cantonLabel => 'Cantón';
+
+  @override
+  String get coachNotificationOpenerMonthlyCheckIn =>
+      'Hora del balance mensual. ¿Qué tal?';
+
+  @override
+  String coachNotificationOpenerCommitmentWithLabel(String commitment) {
+    return 'Me dijiste que ibas a $commitment. ¿Hecho?';
+  }
+
+  @override
+  String get coachNotificationOpenerCommitmentGeneric =>
+      'Tenías un compromiso. ¿Hecho?';
+
+  @override
+  String get coachNotificationOpenerFreshStart =>
+      'Nuevo mes. ¿Por dónde empezamos?';
 }

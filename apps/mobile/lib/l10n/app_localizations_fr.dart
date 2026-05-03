@@ -23113,4 +23113,21 @@ class SFr extends S {
 
   @override
   String get cantonLabel => 'Canton';
+
+  @override
+  String get coachNotificationOpenerMonthlyCheckIn =>
+      'On fait le point sur le mois ?';
+
+  @override
+  String coachNotificationOpenerCommitmentWithLabel(String commitment) {
+    return 'Tu m\'avais dit que tu allais $commitment. C\'est fait ?';
+  }
+
+  @override
+  String get coachNotificationOpenerCommitmentGeneric =>
+      'Tu avais un engagement à tenir. C\'est fait ?';
+
+  @override
+  String get coachNotificationOpenerFreshStart =>
+      'Nouveau mois. On commence par quoi ?';
 }

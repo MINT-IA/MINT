@@ -480,17 +480,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// [data] may carry notification-specific fields. For commitmentReminder,
   /// `data['commitment']` (String) is interpolated into the message.
   String? _notificationOpener(String topic, Map<String, dynamic>? data) {
+    final l = S.of(context)!;
     switch (topic) {
       case 'monthlyCheckIn':
-        return 'On fait le point sur le mois\u00a0?';
+        return l.coachNotificationOpenerMonthlyCheckIn;
       case 'commitmentReminder':
         final commitment = data?['commitment']?.toString();
         if (commitment != null && commitment.trim().isNotEmpty) {
-          return 'Tu m\u2019avais dit que tu allais $commitment. C\u2019est fait\u00a0?';
+          return l.coachNotificationOpenerCommitmentWithLabel(commitment);
         }
-        return 'Tu avais un engagement a tenir. C\u2019est fait\u00a0?';
+        return l.coachNotificationOpenerCommitmentGeneric;
       case 'freshStart':
-        return 'Nouveau mois. On commence par quoi\u00a0?';
+        return l.coachNotificationOpenerFreshStart;
       default:
         return null;
     }
