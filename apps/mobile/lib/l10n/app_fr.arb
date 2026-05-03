@@ -11380,6 +11380,11 @@
   "@anonymousChatBack": {
     "description": "Anonymous chat — back button tooltip."
   },
+  "anonymousChatPhaseSubtitle": "Premier éclairage",
+  "@anonymousChatPhaseSubtitle": {
+    "description": "Anonymous chat top-bar — subtitle below the MINT brand. Names the current phase the anonymous user is in (Handoff 2 design alignment — replaces the bare back-button-only top bar with a brand + phase indicator).",
+    "x-meta": {"voiceCursorLevel": "ambiance"}
+  },
   "anonymousChatLocked": "Je suis toujours là quand tu voudras continuer.",
   "@anonymousChatLocked": {
     "description": "Anonymous chat — message shown when input is locked after dismissing auth gate."

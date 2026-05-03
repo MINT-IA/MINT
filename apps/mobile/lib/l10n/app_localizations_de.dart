@@ -22487,6 +22487,9 @@ class SDe extends S {
   String get anonymousChatBack => 'Zurück';
 
   @override
+  String get anonymousChatPhaseSubtitle => 'Erste Klarheit';
+
+  @override
   String get anonymousChatLocked =>
       'Ich bin immer noch da, wenn du weitermachen willst.';
 

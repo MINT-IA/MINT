@@ -10627,6 +10627,11 @@
   "@anonymousChatBack": {
     "description": "Anonymous chat — back button tooltip."
   },
+  "anonymousChatPhaseSubtitle": "Primera claridad",
+  "@anonymousChatPhaseSubtitle": {
+    "description": "Anonymous chat top-bar — phase subtitle below the MINT brand (Handoff 2).",
+    "x-meta": {"voiceCursorLevel": "ambiance"}
+  },
   "anonymousChatLocked": "Sigo aquí cuando quieras continuar.",
   "@anonymousChatLocked": {
     "description": "Anonymous chat — message shown when input is locked after dismissing auth gate."

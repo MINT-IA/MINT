@@ -276,16 +276,64 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top bar — back button only
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back_rounded),
-                  color: MintColors.textPrimary,
-                  onPressed: () => context.go('/'),
-                  tooltip: l.anonymousChatBack,
+            // Top bar — Handoff 2 alignment: MINT brand + phase subtitle
+            // (« Premier éclairage »). Replaces the bare back-button-only
+            // top bar that existed before. Per Handoff 2 design intent:
+            // the user must always know they're in MINT, in which phase,
+            // and how to navigate back. The brand + subtitle pattern
+            // mirrors `coach_app_bar.dart` standalone mode.
+            Container(
+              decoration: BoxDecoration(
+                color: MintColors.craie,
+                border: Border(
+                  bottom: BorderSide(
+                    color: MintColors.lightBorder.withValues(alpha: 0.5),
+                    width: 0.5,
+                  ),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 4, 16, 10),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        size: 18,
+                      ),
+                      color: MintColors.textSecondary,
+                      onPressed: () => context.go('/'),
+                      tooltip: l.anonymousChatBack,
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'MINT',
+                            style: TextStyle(
+                              color: MintColors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.5,
+                              fontSize: 15,
+                              height: 1.1,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            l.anonymousChatPhaseSubtitle,
+                            style: const TextStyle(
+                              color: MintColors.textSecondary,
+                              fontSize: 11.5,
+                              letterSpacing: 0.2,
+                              height: 1.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

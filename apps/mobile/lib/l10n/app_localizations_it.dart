@@ -22493,6 +22493,9 @@ class SIt extends S {
   String get anonymousChatBack => 'Indietro';
 
   @override
+  String get anonymousChatPhaseSubtitle => 'Prima chiarezza';
+
+  @override
   String get anonymousChatLocked => 'Sono ancora qui quando vorrai continuare.';
 
   @override

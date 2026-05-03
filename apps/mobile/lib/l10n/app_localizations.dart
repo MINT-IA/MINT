@@ -39369,6 +39369,12 @@ abstract class S {
   /// **'Retour'**
   String get anonymousChatBack;
 
+  /// Anonymous chat top-bar — subtitle below the MINT brand. Names the current phase the anonymous user is in (Handoff 2 design alignment — replaces the bare back-button-only top bar with a brand + phase indicator).
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier éclairage'**
+  String get anonymousChatPhaseSubtitle;
+
   /// Anonymous chat — message shown when input is locked after dismissing auth gate.
   ///
   /// In fr, this message translates to:

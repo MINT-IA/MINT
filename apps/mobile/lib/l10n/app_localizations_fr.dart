@@ -22434,6 +22434,9 @@ class SFr extends S {
   String get anonymousChatBack => 'Retour';
 
   @override
+  String get anonymousChatPhaseSubtitle => 'Premier éclairage';
+
+  @override
   String get anonymousChatLocked =>
       'Je suis toujours là quand tu voudras continuer.';
 
