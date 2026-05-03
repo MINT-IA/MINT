@@ -7464,7 +7464,7 @@ class SEn extends S {
 
   @override
   String get authGateDocScanMessage =>
-      'Your certificates contain sensitive data. Create an account to protect them with end-to-end encryption.';
+      'Your certificates contain sensitive data. Create an account to encrypt them on our servers and access them from your devices — you can keep everything on-device at any time from Privacy.';
 
   @override
   String get authGateSalaryTitle => 'Protect your financial data';

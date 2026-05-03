@@ -7511,7 +7511,7 @@ class SFr extends S {
 
   @override
   String get authGateDocScanMessage =>
-      'Tes certificats contiennent des données sensibles. Crée un compte pour les protéger avec un chiffrement de bout en bout.';
+      'Tes certificats contiennent des données sensibles. Crée un compte pour les chiffrer sur nos serveurs et les retrouver depuis tes appareils — tu peux à tout moment garder tout en local depuis Confidentialité.';
 
   @override
   String get authGateSalaryTitle => 'Protège tes données financières';

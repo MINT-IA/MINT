@@ -7511,7 +7511,7 @@ class SEs extends S {
 
   @override
   String get authGateDocScanMessage =>
-      'Tus certificados contienen datos sensibles. Crea una cuenta para protegerlos con cifrado de extremo a extremo.';
+      'Tus certificados contienen datos sensibles. Crea una cuenta para cifrarlos en nuestros servidores y acceder a ellos desde tus dispositivos — puedes mantener todo en local en cualquier momento desde Privacidad.';
 
   @override
   String get authGateSalaryTitle => 'Protege tus datos financieros';

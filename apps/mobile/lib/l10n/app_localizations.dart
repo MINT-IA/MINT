@@ -13347,7 +13347,7 @@ abstract class S {
   /// No description provided for @authGateDocScanMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Tes certificats contiennent des données sensibles. Crée un compte pour les protéger avec un chiffrement de bout en bout.'**
+  /// **'Tes certificats contiennent des données sensibles. Crée un compte pour les chiffrer sur nos serveurs et les retrouver depuis tes appareils — tu peux à tout moment garder tout en local depuis Confidentialité.'**
   String get authGateDocScanMessage;
 
   /// No description provided for @authGateSalaryTitle.

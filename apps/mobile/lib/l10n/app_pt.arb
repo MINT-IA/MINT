@@ -3489,7 +3489,7 @@
   "benchmarkBelowRange": "A tua situação está abaixo da faixa típica.",
   "benchmarkTypicalRange": "Faixa típica: {low} – {high}",
   "authGateDocScanTitle": "Protege os teus documentos",
-  "authGateDocScanMessage": "Os teus certificados contêm dados sensíveis. Cria uma conta para os proteger com encriptação ponto a ponto.",
+  "authGateDocScanMessage": "Os teus certificados contêm dados sensíveis. Cria uma conta para os cifrar nos nossos servidores e aceder-lhes a partir dos teus dispositivos — podes manter tudo localmente a qualquer momento em Privacidade.",
   "authGateSalaryTitle": "Protege os teus dados financeiros",
   "authGateSalaryMessage": "O teu salário e os teus dados financeiros merecem um cofre seguro.",
   "authGateCoachTitle": "O coach precisa de te conhecer",
