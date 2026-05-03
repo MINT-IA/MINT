@@ -7761,7 +7761,7 @@ class SIt extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Account cifrato, sincronizzato tra i tuoi dispositivi. I controlli di sincronizzazione arriveranno presto in Impostazioni.';
+      'Crea un account cifrato. La sincronizzazione cloud è disattivata di default; puoi attivarla da Impostazioni › Privacy.';
 
   @override
   String get authWhyCreateAccount => 'Perché creare un account?';
@@ -23189,4 +23189,33 @@ class SIt extends S {
   @override
   String get coachNotificationOpenerFreshStart =>
       'Nuovo mese. Da dove cominciamo?';
+
+  @override
+  String get settingsPrivacyTitle => 'Privacy';
+
+  @override
+  String get settingsPrivacyCloudSyncTitle =>
+      'Sincronizzazione cloud (multidispositivo)';
+
+  @override
+  String get settingsPrivacyCloudSyncSubtitle =>
+      'Backup e accesso da un altro dispositivo. Puoi disattivarla in qualsiasi momento.';
+
+  @override
+  String get settingsPrivacyCloudSyncOn => 'Attiva';
+
+  @override
+  String get settingsPrivacyCloudSyncOff => 'Disattivata';
+
+  @override
+  String get settingsPrivacyMigrationToast =>
+      'Nuova opzione: puoi disattivare la sincronizzazione cloud da Impostazioni › Privacy.';
+
+  @override
+  String get settingsPrivacyDataLocation =>
+      'I tuoi dati restano cifrati sul tuo dispositivo. Con la sincronizzazione attiva, sono anche cifrati sui nostri server europei (Svizzera/UE) — cifratura end-to-end prevista nella v3.0.';
+
+  @override
+  String get settingsPrivacyCloudSyncOffServerCaveat =>
+      'Disattivare la sincronizzazione non elimina i dati già salvati sui nostri server. Per rimuoverli, vai su Account › Elimina account.';
 }

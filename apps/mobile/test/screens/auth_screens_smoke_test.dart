@@ -249,7 +249,7 @@ void main() {
       await tester.pump();
 
       expect(
-        find.textContaining('Compte chiffré'),
+        find.textContaining('compte chiffré'),
         findsOneWidget,
       );
     });

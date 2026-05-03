@@ -7765,7 +7765,7 @@ class SDe extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Verschlüsseltes Konto, geräteübergreifend synchronisiert. Synchronisationssteuerung folgt bald in den Einstellungen.';
+      'Erstelle ein verschlüsseltes Konto. Cloud-Synchronisation ist standardmässig aus; du kannst sie in Einstellungen › Datenschutz aktivieren.';
 
   @override
   String get authWhyCreateAccount => 'Warum ein Konto erstellen?';
@@ -23185,4 +23185,33 @@ class SDe extends S {
   @override
   String get coachNotificationOpenerFreshStart =>
       'Neuer Monat. Wo fangen wir an?';
+
+  @override
+  String get settingsPrivacyTitle => 'Datenschutz';
+
+  @override
+  String get settingsPrivacyCloudSyncTitle =>
+      'Cloud-Synchronisation (mehrere Geräte)';
+
+  @override
+  String get settingsPrivacyCloudSyncSubtitle =>
+      'Backup und Zugriff von einem anderen Gerät. Du kannst sie jederzeit deaktivieren.';
+
+  @override
+  String get settingsPrivacyCloudSyncOn => 'Aktiviert';
+
+  @override
+  String get settingsPrivacyCloudSyncOff => 'Deaktiviert';
+
+  @override
+  String get settingsPrivacyMigrationToast =>
+      'Neue Option: Du kannst die Cloud-Synchronisation in Einstellungen › Datenschutz deaktivieren.';
+
+  @override
+  String get settingsPrivacyDataLocation =>
+      'Deine Daten bleiben verschlüsselt auf deinem Gerät gespeichert. Mit aktivierter Synchronisation sind sie auch verschlüsselt auf unseren europäischen Servern (Schweiz/EU) gespeichert — Ende-zu-Ende-Verschlüsselung geplant für v3.0.';
+
+  @override
+  String get settingsPrivacyCloudSyncOffServerCaveat =>
+      'Die Synchronisation zu deaktivieren löscht nicht die Daten, die bereits auf unseren Servern gespeichert sind. Um sie zu entfernen, gehe zu Konto › Konto löschen.';
 }

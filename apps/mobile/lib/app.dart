@@ -43,6 +43,7 @@ import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
+import 'package:mint_mobile/screens/settings/confidentialite_settings_screen.dart';
 import 'package:mint_mobile/screens/settings/langue_settings_screen.dart';
 import 'package:mint_mobile/screens/about_screen.dart';
 // ask_mint_screen.dart DELETED (deep-audit 2026-04-17) — route /ask-mint redirects to /coach/chat
@@ -1184,6 +1185,11 @@ final _router = GoRouter(
       path: '/settings/langue',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LangueSettingsScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/settings/confidentialite',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ConfidentialiteSettingsScreen(),
     ),
 
     // ── ABOUT (public) ─────────────────────────────────────────

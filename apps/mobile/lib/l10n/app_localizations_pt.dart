@@ -7743,7 +7743,7 @@ class SPt extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Conta cifrada, sincronizada entre os teus dispositivos. Os controlos de sincronização chegarão em breve às Definições.';
+      'Cria uma conta cifrada. A sincronização cloud está desativada por defeito; podes ativá-la em Definições › Privacidade.';
 
   @override
   String get authWhyCreateAccount => 'Porquê criar uma conta?';
@@ -23136,4 +23136,33 @@ class SPt extends S {
   @override
   String get coachNotificationOpenerFreshStart =>
       'Novo mês. Por onde começamos?';
+
+  @override
+  String get settingsPrivacyTitle => 'Privacidade';
+
+  @override
+  String get settingsPrivacyCloudSyncTitle =>
+      'Sincronização cloud (multidispositivo)';
+
+  @override
+  String get settingsPrivacyCloudSyncSubtitle =>
+      'Backup e acesso a partir de outro dispositivo. Podes desativá-la a qualquer momento.';
+
+  @override
+  String get settingsPrivacyCloudSyncOn => 'Ativada';
+
+  @override
+  String get settingsPrivacyCloudSyncOff => 'Desativada';
+
+  @override
+  String get settingsPrivacyMigrationToast =>
+      'Nova opção: podes desativar a sincronização cloud em Definições › Privacidade.';
+
+  @override
+  String get settingsPrivacyDataLocation =>
+      'Os teus dados ficam cifrados no teu dispositivo. Com a sincronização ativa, ficam também cifrados nos nossos servidores europeus (Suíça/UE) — cifragem ponto a ponto prevista na v3.0.';
+
+  @override
+  String get settingsPrivacyCloudSyncOffServerCaveat =>
+      'Desativar a sincronização não apaga os dados já guardados nos nossos servidores. Para os remover, vai a Conta › Eliminar a minha conta.';
 }

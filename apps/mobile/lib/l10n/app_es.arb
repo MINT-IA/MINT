@@ -3507,7 +3507,7 @@
   "authGateCreateAccount": "Crear mi cuenta",
   "authGateLogin": "Ya tengo una cuenta",
   "authGatePrivacyNote": "Tus datos permanecen en tu dispositivo y están cifrados.",
-  "authRegisterSubtitle": "Cuenta cifrada, sincronizada entre tus dispositivos. Los controles de sincronización llegarán pronto a Ajustes.",
+  "authRegisterSubtitle": "Crea una cuenta cifrada. La sincronización en la nube está desactivada por defecto; puedes activarla en Ajustes › Privacidad.",
   "authWhyCreateAccount": "¿Por qué crear una cuenta?",
   "authBenefitProjections": "Proyecciones AVS/LPP adaptadas a tu situación",
   "authBenefitCoach": "Coach personalizado con tu nombre",
@@ -11147,5 +11147,13 @@
   "coachNotificationOpenerMonthlyCheckIn": "Hora del balance mensual. ¿Qué tal?",
   "coachNotificationOpenerCommitmentWithLabel": "Me dijiste que ibas a {commitment}. ¿Hecho?",
   "coachNotificationOpenerCommitmentGeneric": "Tenías un compromiso. ¿Hecho?",
-  "coachNotificationOpenerFreshStart": "Nuevo mes. ¿Por dónde empezamos?"
+  "coachNotificationOpenerFreshStart": "Nuevo mes. ¿Por dónde empezamos?",
+  "settingsPrivacyTitle": "Privacidad",
+  "settingsPrivacyCloudSyncTitle": "Sincronización en la nube (multidispositivo)",
+  "settingsPrivacyCloudSyncSubtitle": "Copia de seguridad y acceso desde otro dispositivo. Puedes desactivarla cuando quieras.",
+  "settingsPrivacyCloudSyncOn": "Activada",
+  "settingsPrivacyCloudSyncOff": "Desactivada",
+  "settingsPrivacyMigrationToast": "Nueva opción: puedes desactivar la sincronización en la nube desde Ajustes › Privacidad.",
+  "settingsPrivacyDataLocation": "Tus datos quedan cifrados en tu dispositivo. Con la sincronización activada, también están cifrados en nuestros servidores europeos (Suiza/UE) — cifrado de extremo a extremo previsto en la v3.0.",
+  "settingsPrivacyCloudSyncOffServerCaveat": "Desactivar la sincronización no borra los datos ya guardados en nuestros servidores. Para eliminarlos, ve a Cuenta › Eliminar mi cuenta."
 }

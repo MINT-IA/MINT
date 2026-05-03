@@ -1007,6 +1007,12 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     owner: RouteOwner.system,
     requiresAuth: true,
   ),
+  '/settings/confidentialite': RouteMeta(
+    path: '/settings/confidentialite',
+    category: RouteCategory.destination,
+    owner: RouteOwner.system,
+    requiresAuth: true,
+  ),
 
   // ── About (public) ─────────────────────────────────────────────
   '/about': RouteMeta(
