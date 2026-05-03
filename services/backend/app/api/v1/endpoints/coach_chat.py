@@ -1147,29 +1147,31 @@ _REPROMPT_EMPTY_END_TURN = (
 )
 
 
-# Phase 52.1 PR 2 — WRITE-tier tool whitelist (verified by direct
-# inspection of each handler in this file, NOT taken on the design
-# panel's word).
+# Phase 52.1 / 52.2 — WRITE-tier tool whitelist. Re-verified by direct
+# inspection of each handler in this file after the T-52-08 close-out
+# audit (2026-05-03) caught 3 false negatives in the first version.
 #
-# Only TWO tools in this dispatcher actually write user-identifying
-# data to the backend DB:
-#   - save_fact     → ProfileModel.data (line ~1342)
-#   - save_insight  → CoachInsightRecord (line ~1246)
+# Tools in this dispatcher that ACTUALLY write user-identifying data
+# to the backend DB:
+#   - save_fact         → ProfileModel.data (line ~1390+)
+#   - save_insight      → CoachInsightRecord (line ~1294+)
+#   - save_provenance   → ProvenanceRecord (line ~1510, db.add+commit)
+#   - save_earmark      → EarmarkTag (line ~1531, db.add+commit)
+#   - remove_earmark    → EarmarkTag (line ~1550, db.delete+commit)
 #
-# The remaining « save_* » handlers in this dispatcher (save_pre_mortem,
-# save_provenance, save_earmark) are ack-only — they only `logger.info`
-# and return a confirmation string. No DB write happens via the chat
-# dispatcher for them.
+# Genuinely ack-only handlers (NOT in the whitelist; they only
+# logger.info and return a confirmation string):
+#   - record_commitment (line ~1480)
+#   - save_pre_mortem   (line ~1488)
 #
-# `save_partner_estimate`, `update_partner_estimate`, and
-# `record_check_in` are NOT handled in this dispatcher at all — they
-# are Flutter-bound tools intercepted by widget_renderer on device
-# (see comment block at line 1546). The mobile gates shipped in PR #438
-# (`coach_profile_provider._syncToBackend`, `claimLocalData`) cover the
-# device-side persistence for those.
+# Flutter-bound tools intercepted by widget_renderer on device — never
+# reach this dispatcher; mobile gates in PR #438 cover device-side
+# persistence:
+#   - save_partner_estimate / update_partner_estimate
+#   - record_check_in
 #
 # When the request carries `persistence_consent=False` (cloud-sync OFF
-# on the mobile toggle), each WRITE-tier call is refused server-side
+# on the mobile toggle), every WRITE-tier call is refused server-side
 # and the LLM receives a stable rejection string so it can phrase its
 # reply appropriately. LLM call itself proceeds — there is no
 # on-device LLM. See
@@ -1179,6 +1181,9 @@ _REPROMPT_EMPTY_END_TURN = (
 _WRITE_TIER_TOOLS: frozenset[str] = frozenset({
     "save_fact",
     "save_insight",
+    "save_provenance",
+    "save_earmark",
+    "remove_earmark",
 })
 
 _PERSISTENCE_OFF_MARKER = (
