@@ -11157,5 +11157,8 @@
   "settingsPrivacyDataLocation": "Your wizard answers and chat history stay on your device. When you write to the AI coach, your message transits through our servers to generate the reply — with sync on, the facts you confirm (age, salary, canton…) are also saved on our servers; with sync off, they're kept only on your device.",
   "settingsPrivacyCloudSyncOffServerCaveat": "Turning sync off doesn't delete data already saved to our servers. To remove it, go to Account › Delete my account.",
   "profileSyncRowHint": "Manage in Settings › Privacy",
-  "settingsPrivacyMigrationToastCta": "View"
+  "settingsPrivacyMigrationToastCta": "View",
+  "aujourdhuiCommitmentsTitle": "Your recent commitments",
+  "aujourdhuiCheckInsTitle": "Your latest check-ins",
+  "aujourdhuiResumeConversation": "Resume conversation"
 }

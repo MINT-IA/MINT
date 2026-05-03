@@ -11157,5 +11157,8 @@
   "settingsPrivacyDataLocation": "Tus respuestas del cuestionario y tu historial de chat quedan en tu dispositivo. Cuando escribes al coach IA, tu mensaje pasa por nuestros servidores para generar la respuesta — con la sincronización activada, los hechos que confirmas (edad, salario, cantón…) también se guardan en nuestros servidores; con la sincronización desactivada, se guardan solo en tu dispositivo.",
   "settingsPrivacyCloudSyncOffServerCaveat": "Desactivar la sincronización no borra los datos ya guardados en nuestros servidores. Para eliminarlos, ve a Cuenta › Eliminar mi cuenta.",
   "profileSyncRowHint": "Gestionar en Ajustes › Privacidad",
-  "settingsPrivacyMigrationToastCta": "Ver"
+  "settingsPrivacyMigrationToastCta": "Ver",
+  "aujourdhuiCommitmentsTitle": "Tus compromisos recientes",
+  "aujourdhuiCheckInsTitle": "Tus últimos check-ins",
+  "aujourdhuiResumeConversation": "Reanudar la conversación"
 }

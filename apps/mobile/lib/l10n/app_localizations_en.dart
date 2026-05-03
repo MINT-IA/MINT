@@ -23050,4 +23050,13 @@ class SEn extends S {
 
   @override
   String get settingsPrivacyMigrationToastCta => 'View';
+
+  @override
+  String get aujourdhuiCommitmentsTitle => 'Your recent commitments';
+
+  @override
+  String get aujourdhuiCheckInsTitle => 'Your latest check-ins';
+
+  @override
+  String get aujourdhuiResumeConversation => 'Resume conversation';
 }

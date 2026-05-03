@@ -23,6 +23,7 @@ import 'package:mint_mobile/theme/colors.dart';
 // above the TensionCards. The provider is kept fresh by the
 // ChangeNotifierProxyProvider wired in `app.dart`.
 import 'package:mint_mobile/widgets/aujourdhui/cap_du_jour_banner.dart';
+import 'package:mint_mobile/widgets/aujourdhui/commitments_and_checkins_card.dart';
 import 'package:mint_mobile/widgets/tension/cleo_loop_indicator.dart';
 import 'package:mint_mobile/widgets/tension/tension_card_widget.dart';
 import 'package:mint_mobile/widgets/timeline/month_header_widget.dart';
@@ -325,6 +326,14 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                   ),
                 ),
               ),
+
+            // ── Phase 53-03 — Mes engagements & check-ins ──────
+            // Surfaces previously-silent persistent tools (commitments,
+            // monthly check-ins) so the user actually sees what the chat
+            // captured. Hides itself when both data sources are empty.
+            const SliverToBoxAdapter(
+              child: CommitmentsAndCheckinsCard(),
+            ),
 
             // ── Bottom padding ─────────────────────────────────
             const SliverToBoxAdapter(

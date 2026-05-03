@@ -23224,4 +23224,13 @@ class SIt extends S {
 
   @override
   String get settingsPrivacyMigrationToastCta => 'Vedi';
+
+  @override
+  String get aujourdhuiCommitmentsTitle => 'I tuoi impegni recenti';
+
+  @override
+  String get aujourdhuiCheckInsTitle => 'I tuoi ultimi check-in';
+
+  @override
+  String get aujourdhuiResumeConversation => 'Riprendi la conversazione';
 }

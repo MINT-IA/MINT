@@ -40628,6 +40628,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Voir'**
   String get settingsPrivacyMigrationToastCta;
+
+  /// No description provided for @aujourdhuiCommitmentsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes engagements récents'**
+  String get aujourdhuiCommitmentsTitle;
+
+  /// No description provided for @aujourdhuiCheckInsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes derniers check-ins'**
+  String get aujourdhuiCheckInsTitle;
+
+  /// No description provided for @aujourdhuiResumeConversation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre la conversation'**
+  String get aujourdhuiResumeConversation;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
