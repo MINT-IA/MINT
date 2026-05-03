@@ -46,6 +46,43 @@ class MintColors {
   static const Color porcelaine = Color(0xFFF7F4EE);
   /// Cream white — coach chat background, subtle warmth.
   static const Color craie = Color(0xFFFCFBF8);
+
+  // ── Handoff 2 source-of-truth tokens (~/Downloads/handoff 2/colors_and_type.css) ──
+  // Added 2026-05-03 to align hero / sheet / disclosure surfaces with the
+  // editorial Handoff 2 spec (porcelaine + ink warm + sauge + forest signal).
+  // NEW tokens — legacy `porcelaine` / `craie` / `primary` / `textPrimary`
+  // remain untouched so the 6000+ existing surfaces keep their AAA contrast
+  // tests green. New Handoff 2 surfaces should use these tokens explicitly.
+
+  /// Hero / disclosure / sheet surface — warm porcelain cream.
+  /// Source: `--mint-porcelaine: #F4F1EC`. Replaces cool `surface #F5F5F7`.
+  static const Color porcelaineHero = Color(0xFFF4F1EC);
+
+  /// Coach / conversation surface — slightly warmer than legacy `craie`.
+  /// Source: `--mint-craie: #F8F5F0`.
+  static const Color craieHandoff = Color(0xFFF8F5F0);
+
+  /// Near-black ink — warm primary text & CTA fills (Handoff 2).
+  /// Source: `--mint-text-primary: #1A1A1A`. Replaces cool `primary #1D1D1F`
+  /// on Handoff 2 hero / sheet / CTA surfaces.
+  static const Color inkPrimary = Color(0xFF1A1A1A);
+
+  /// Warm hairline divider — replaces cool `border #D2D2D7` on Handoff 2 surfaces.
+  /// Source: `--mint-border-subtle: #E8E4DE`.
+  static const Color borderSubtle = Color(0xFFE8E4DE);
+
+  /// Deep forest signal — the strong-emphasis accent (selection chip, success
+  /// confirmation, positive icon tint). Source: `--mint-primary: #2F5F3F`.
+  /// Use sparingly per Handoff 2 grammaire "réservé pour emphase forte".
+  static const Color mintForest = Color(0xFF2F5F3F);
+
+  /// Sauge positive — calmer green for surface tints / outlined chips.
+  /// Source: `--mint-sauge: #B8C9B4`.
+  static const Color sauge = Color(0xFFB8C9B4);
+
+  /// Terracotta — rare CTA highlight, "creuser" / milestone warmth.
+  /// Source: `--mint-terracotta: #B8735A`.
+  static const Color terracotta = Color(0xFFB8735A);
   /// Sage green — success surfaces, cap cards, positive signals.
   static const Color saugeClaire = Color(0xFFD8E4DB);
   /// Air blue — coach bubbles, info surfaces.

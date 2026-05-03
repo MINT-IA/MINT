@@ -23242,4 +23242,38 @@ class SIt extends S {
   @override
   String get coachSequenceCompletedMessage =>
       'Hai completato questa sequenza guidata.';
+
+  @override
+  String get betaDisclosureEyebrow => 'MINT in beta';
+
+  @override
+  String get betaDisclosureHeadlinePrefix => 'Stai testando una versione che';
+
+  @override
+  String get betaDisclosureHeadlineEm => 'impara con te';
+
+  @override
+  String get betaDisclosureHeadlineSuffix => '.';
+
+  @override
+  String get betaDisclosureBulletNoAdvice =>
+      'MINT non è consulenza finanziaria ai sensi della LSerFi — è solo uno strumento educativo.';
+
+  @override
+  String get betaDisclosureBulletNoBank =>
+      'Nessun dato bancario è memorizzato da noi. I tuoi dati restano sul tuo dispositivo salvo consenso esplicito.';
+
+  @override
+  String get betaDisclosureBulletDataLocal =>
+      'I tuoi feedback durante la beta ci aiutano a migliorare MINT. Ti leggiamo.';
+
+  @override
+  String get betaDisclosureCta => 'Capito, andiamo';
+
+  @override
+  String get betaDisclosureLearnMore => 'Scopri di più';
+
+  @override
+  String get betaDisclosureSemanticsLabel =>
+      'Informazioni sulla versione beta di MINT — solo strumento educativo, nessuna consulenza finanziaria, i dati restano sul tuo dispositivo per impostazione predefinita.';
 }

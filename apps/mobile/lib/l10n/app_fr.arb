@@ -12105,5 +12105,46 @@
   "@coachSequenceNextStepLabel": {
     "placeholders": {"label": {"type": "String"}}
   },
-  "coachSequenceCompletedMessage": "Tu as terminé cette séquence guidée."
+  "coachSequenceCompletedMessage": "Tu as terminé cette séquence guidée.",
+  "betaDisclosureEyebrow": "MINT en test",
+  "@betaDisclosureEyebrow": {
+    "description": "Beta disclosure sheet — uppercase eyebrow.",
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlinePrefix": "Tu testes une version qui",
+  "@betaDisclosureHeadlinePrefix": {
+    "description": "Beta disclosure sheet — phrase signature prefix (before italic em)."
+  },
+  "betaDisclosureHeadlineEm": "apprend avec toi",
+  "@betaDisclosureHeadlineEm": {
+    "description": "Beta disclosure sheet — italicised em portion of the headline."
+  },
+  "betaDisclosureHeadlineSuffix": ".",
+  "@betaDisclosureHeadlineSuffix": {
+    "description": "Beta disclosure sheet — punctuation after the em."
+  },
+  "betaDisclosureBulletNoAdvice": "MINT n'est pas un conseil financier au sens de la LSFin — outil éducatif uniquement.",
+  "@betaDisclosureBulletNoAdvice": {
+    "description": "Beta disclosure sheet — first bullet (LSFin disclaimer)."
+  },
+  "betaDisclosureBulletNoBank": "Aucune donnée bancaire stockée chez nous. Les données restent sur ton appareil sauf opt-in explicite.",
+  "@betaDisclosureBulletNoBank": {
+    "description": "Beta disclosure sheet — second bullet (data sovereignty / nLPD)."
+  },
+  "betaDisclosureBulletDataLocal": "Tes retours pendant la bêta nous aident à améliorer MINT. On te lit.",
+  "@betaDisclosureBulletDataLocal": {
+    "description": "Beta disclosure sheet — third bullet (feedback loop)."
+  },
+  "betaDisclosureCta": "Je comprends, on y va",
+  "@betaDisclosureCta": {
+    "description": "Beta disclosure sheet — primary acknowledgement CTA."
+  },
+  "betaDisclosureLearnMore": "En savoir plus",
+  "@betaDisclosureLearnMore": {
+    "description": "Beta disclosure sheet — secondary CTA opening the privacy URL."
+  },
+  "betaDisclosureSemanticsLabel": "Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l'appareil par défaut.",
+  "@betaDisclosureSemanticsLabel": {
+    "description": "Beta disclosure sheet — accessibility container label."
+  }
 }

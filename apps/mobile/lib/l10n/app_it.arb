@@ -11165,5 +11165,42 @@
   "@coachSequenceNextStepLabel": {
     "placeholders": {"label": {"type": "String"}}
   },
-  "coachSequenceCompletedMessage": "Hai completato questa sequenza guidata."
+  "coachSequenceCompletedMessage": "Hai completato questa sequenza guidata.",
+  "betaDisclosureEyebrow": "MINT in beta",
+  "@betaDisclosureEyebrow": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlinePrefix": "Stai testando una versione che",
+  "@betaDisclosureHeadlinePrefix": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlineEm": "impara con te",
+  "@betaDisclosureHeadlineEm": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlineSuffix": ".",
+  "@betaDisclosureHeadlineSuffix": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletNoAdvice": "MINT non è consulenza finanziaria ai sensi della LSerFi — è solo uno strumento educativo.",
+  "@betaDisclosureBulletNoAdvice": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletNoBank": "Nessun dato bancario è memorizzato da noi. I tuoi dati restano sul tuo dispositivo salvo consenso esplicito.",
+  "@betaDisclosureBulletNoBank": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletDataLocal": "I tuoi feedback durante la beta ci aiutano a migliorare MINT. Ti leggiamo.",
+  "@betaDisclosureBulletDataLocal": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureCta": "Capito, andiamo",
+  "@betaDisclosureCta": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureLearnMore": "Scopri di più",
+  "@betaDisclosureLearnMore": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureSemanticsLabel": "Informazioni sulla versione beta di MINT — solo strumento educativo, nessuna consulenza finanziaria, i dati restano sul tuo dispositivo per impostazione predefinita."
 }
