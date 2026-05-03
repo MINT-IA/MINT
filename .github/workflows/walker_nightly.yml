@@ -1,0 +1,127 @@
+# Phase 54-01 — Nightly walker walkthrough
+#
+# Boots iPhone 17 Pro on a macos-latest runner, builds the staging
+# Runner.app with --dart-define=MINT_E2E_ARCHETYPE=swiss_native +
+# MINT_WALKTHROUGH_PHASE=54, then runs
+# tools/simulator/walker_audit_tap_render.sh --no-dry-run --all.
+# Uploads the resulting AUDIT_TAP_RENDER_RESULTS.md + screenshots +
+# triage tickets as workflow artifacts.
+#
+# ADVISORY ONLY — never blocks PR merges. The walker_smoke job
+# (pure-shell smoke harness) IS PR-blocking via ci.yml; this nightly
+# is the integration counterpart.
+#
+# Trigger:
+#   - schedule: 03:00 UTC daily (off-peak; sim availability is best on
+#     the GitHub-hosted macos-latest pool overnight)
+#   - workflow_dispatch (manual; useful when prepping a TestFlight ship)
+#
+# Required Secrets:
+#   SENTRY_DSN_STAGING                (Railway staging DSN)
+#
+# Required Vars: none (the runner uses MINT_WALKER_DEVICE default).
+
+name: Walker Nightly (advisory)
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 03:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      archetype:
+        description: "CONTEXT D-02 archetype slug"
+        required: true
+        default: "swiss_native"
+        type: choice
+        options:
+          - swiss_native
+          - expat_eu
+          - expat_us
+          - cross_border
+          - independent_no_lpp
+          - recent_arrival
+          - near_retirement
+          - young_starter
+
+concurrency:
+  group: walker-nightly-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  walker_smoke:
+    name: Smoke (pure-shell, no sim)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run walker smoke harness
+        run: bash tools/simulator/test_walker_audit_tap_render.sh
+
+  walker_real_run:
+    name: Real run on iPhone 17 Pro sim
+    needs: walker_smoke
+    runs-on: macos-latest
+    timeout-minutes: 60
+    env:
+      ARCHETYPE: ${{ inputs.archetype || 'swiss_native' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install cliclick (synthetic taps)
+        run: brew install cliclick
+
+      - name: Boot iPhone 17 Pro simulator
+        run: |
+          xcrun simctl shutdown all || true
+          xcrun simctl boot "iPhone 17 Pro" || xcrun simctl boot "iPhone 16 Pro"
+          open -a Simulator || true
+          sleep 5
+
+      - name: Pub get
+        working-directory: apps/mobile
+        run: flutter pub get
+
+      - name: Run walker (advisory — exit code 2 is FAILs not job error)
+        env:
+          SENTRY_DSN_STAGING: ${{ secrets.SENTRY_DSN_STAGING }}
+        # exit code 2 means « walker ran end-to-end + emitted FAIL triage »
+        # which is the expected first-run state per Plan 54-01 close-out
+        # criteria. Only an unexpected exit (1 = arg/preflight error,
+        # >2 = boot/build crash) breaks the job.
+        run: |
+          set +e
+          bash tools/simulator/walker_audit_tap_render.sh \
+            --no-dry-run --archetype "$ARCHETYPE" --all
+          rc=$?
+          echo "Walker exit code: $rc"
+          if [ "$rc" = "0" ] || [ "$rc" = "2" ]; then
+            exit 0
+          fi
+          exit "$rc"
+
+      - name: Upload results + screenshots + triage as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walker-results-${{ env.ARCHETYPE }}-${{ github.run_id }}
+          path: |
+            .planning/phases/54-testflight-gate-closure/AUDIT_TAP_RENDER_RESULTS.md
+            .planning/phases/54-testflight-gate-closure/screenshots/
+            .planning/phases/54-testflight-gate-closure/triage/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Summarize verdicts in job log
+        if: always()
+        run: |
+          if [ -f .planning/phases/54-testflight-gate-closure/AUDIT_TAP_RENDER_RESULTS.md ]; then
+            head -20 .planning/phases/54-testflight-gate-closure/AUDIT_TAP_RENDER_RESULTS.md
+          else
+            echo "AUDIT_TAP_RENDER_RESULTS.md was not produced — see logs above."
+          fi

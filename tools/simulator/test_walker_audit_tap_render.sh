@@ -74,8 +74,37 @@ test_unknown_tab_fails() {
 }
 
 test_no_dry_run_without_archetype_fails() {
-  ! bash tools/simulator/walker_audit_tap_render.sh --no-dry-run 2>&1 | grep -q "implemented in Plan 54-01 PR-2"
+  # --no-dry-run requires --archetype <slug>
   ! bash tools/simulator/walker_audit_tap_render.sh --no-dry-run >/dev/null 2>&1
+}
+
+test_no_dry_run_with_unknown_archetype_fails() {
+  # --archetype slug must be one of the 8 canonical CONTEXT D-02 slugs.
+  ! bash tools/simulator/walker_audit_tap_render.sh --no-dry-run \
+      --archetype invalid_slug --all >/dev/null 2>&1
+}
+
+test_no_dry_run_without_filter_fails() {
+  # --no-dry-run without --all/--tab/--row is rejected (avoids accidental
+  # 48-row sim-bound runs).
+  ! bash tools/simulator/walker_audit_tap_render.sh --no-dry-run \
+      --archetype swiss_native >/dev/null 2>&1
+}
+
+test_check_real_run_preflight_succeeds() {
+  # --check-real-run prints the plan and exits 0 without booting the sim.
+  local out
+  out=$(bash tools/simulator/walker_audit_tap_render.sh \
+        --check-real-run --archetype swiss_native --all 2>&1)
+  echo "$out" | grep -q "preflight OK" || return 1
+  echo "$out" | grep -q "swiss_native" || return 1
+  echo "$out" | grep -q "AUDIT_TAP_RENDER_RESULTS.md" || return 1
+}
+
+test_check_real_run_rejects_unknown_archetype() {
+  # The preflight rejects unknown slugs without booting.
+  ! bash tools/simulator/walker_audit_tap_render.sh \
+      --check-real-run --archetype no_such_slug --all >/dev/null 2>&1
 }
 
 test_catalog_regen_idempotent() {
@@ -115,6 +144,10 @@ for fn in \
     test_unknown_row_fails \
     test_unknown_tab_fails \
     test_no_dry_run_without_archetype_fails \
+    test_no_dry_run_with_unknown_archetype_fails \
+    test_no_dry_run_without_filter_fails \
+    test_check_real_run_preflight_succeeds \
+    test_check_real_run_rejects_unknown_archetype \
     test_catalog_regen_idempotent \
     test_catalog_has_48_rows_plus_header \
     test_catalog_has_correct_section_counts \
