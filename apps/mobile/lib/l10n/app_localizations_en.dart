@@ -23044,4 +23044,7 @@ class SEn extends S {
   @override
   String get settingsPrivacyCloudSyncOffServerCaveat =>
       'Turning sync off doesn\'t delete data already saved to our servers. To remove it, go to Account › Delete my account.';
+
+  @override
+  String get profileSyncRowHint => 'Manage in Settings › Privacy';
 }

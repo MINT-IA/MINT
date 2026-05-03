@@ -40616,6 +40616,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Désactiver la sync n\'efface pas les données déjà sauvegardées sur nos serveurs. Pour les supprimer, va dans Compte › Supprimer mon compte.'**
   String get settingsPrivacyCloudSyncOffServerCaveat;
+
+  /// No description provided for @profileSyncRowHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer dans Réglages › Confidentialité'**
+  String get profileSyncRowHint;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

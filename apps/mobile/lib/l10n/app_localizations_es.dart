@@ -23157,4 +23157,7 @@ class SEs extends S {
   @override
   String get settingsPrivacyCloudSyncOffServerCaveat =>
       'Desactivar la sincronización no borra los datos ya guardados en nuestros servidores. Para eliminarlos, ve a Cuenta › Eliminar mi cuenta.';
+
+  @override
+  String get profileSyncRowHint => 'Gestionar en Ajustes › Privacidad';
 }

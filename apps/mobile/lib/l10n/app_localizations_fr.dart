@@ -23159,4 +23159,7 @@ class SFr extends S {
   @override
   String get settingsPrivacyCloudSyncOffServerCaveat =>
       'Désactiver la sync n\'efface pas les données déjà sauvegardées sur nos serveurs. Pour les supprimer, va dans Compte › Supprimer mon compte.';
+
+  @override
+  String get profileSyncRowHint => 'Gérer dans Réglages › Confidentialité';
 }

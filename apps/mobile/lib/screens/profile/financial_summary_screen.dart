@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
@@ -315,6 +318,13 @@ class FinancialSummaryScreen extends StatelessWidget {
             MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(context)),
             const SizedBox(height: 24),
 
+            // ── PHASE 52 SYNC STATUS ROW ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
+              child: _buildSyncStatusRow(context),
+            ),
+            const SizedBox(height: 24),
+
             // ── RESTART DIAGNOSTIC ──
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
@@ -366,6 +376,108 @@ class FinancialSummaryScreen extends StatelessWidget {
       child: Text(
         S.of(context)!.financialSummaryDisclaimer,
         style: MintTextStyles.labelSmall(),
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  SYNC STATUS ROW (Phase 52 T-52-03)
+  // ══════════════════════════════════════════════════════════════
+  //
+  // Compact navigation affordance. Shows the current cloud-sync state
+  // and routes to /settings/confidentialite for management. Always
+  // visible (local-mode users see « Désactivée », which is correct).
+  //
+  // Design panel decisions (2026-05-03):
+  //  - reuse settingsPrivacyCloudSyncTitle/On/Off ARB keys
+  //  - new key: profileSyncRowHint (« Gérer dans Réglages › Confidentialité »)
+  //  - context.push (not go) — preserves back stack to Profile
+  //  - cloud_done_outlined when ON, cloud_outlined when OFF
+  //  - state color matches Settings screen (success / textMuted)
+  //  - ExcludeSemantics on chevron + state Text; Semantics(button:)
+  //    wraps the whole InkWell
+  Widget _buildSyncStatusRow(BuildContext context) {
+    final s = S.of(context)!;
+    final cloudSyncOn = context.watch<AuthProvider>().isCloudSyncEnabled;
+    final stateLabel = cloudSyncOn
+        ? s.settingsPrivacyCloudSyncOn
+        : s.settingsPrivacyCloudSyncOff;
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      padding: EdgeInsets.zero,
+      child: Semantics(
+        button: true,
+        container: true,
+        label: '${s.settingsPrivacyCloudSyncTitle}, $stateLabel',
+        hint: s.profileSyncRowHint,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            context.push('/settings/confidentialite');
+          },
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 56),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.md,
+                vertical: MintSpacing.md,
+              ),
+              child: Row(
+                children: [
+                  ExcludeSemantics(
+                    child: Icon(
+                      cloudSyncOn
+                          ? Icons.cloud_done_outlined
+                          : Icons.cloud_outlined,
+                      size: 24,
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(width: MintSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          s.settingsPrivacyCloudSyncTitle,
+                          style: MintTextStyles.titleMedium(
+                            color: MintColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        ExcludeSemantics(
+                          child: AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 200),
+                            style: MintTextStyles.labelMedium(
+                              color: cloudSyncOn
+                                  ? MintColors.success
+                                  : MintColors.textMuted,
+                            ),
+                            child: Text(stateLabel),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          s.profileSyncRowHint,
+                          style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const ExcludeSemantics(
+                    child: Icon(
+                      Icons.chevron_right,
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

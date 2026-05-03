@@ -11155,5 +11155,6 @@
   "settingsPrivacyCloudSyncOff": "Deaktiviert",
   "settingsPrivacyMigrationToast": "Neue Option: Du kannst die Cloud-Synchronisation in Einstellungen › Datenschutz deaktivieren.",
   "settingsPrivacyDataLocation": "Deine Daten bleiben verschlüsselt auf deinem Gerät gespeichert. Mit aktivierter Synchronisation sind sie auch verschlüsselt auf unseren europäischen Servern (Schweiz/EU) gespeichert — Ende-zu-Ende-Verschlüsselung geplant für v3.0.",
-  "settingsPrivacyCloudSyncOffServerCaveat": "Die Synchronisation zu deaktivieren löscht nicht die Daten, die bereits auf unseren Servern gespeichert sind. Um sie zu entfernen, gehe zu Konto › Konto löschen."
+  "settingsPrivacyCloudSyncOffServerCaveat": "Die Synchronisation zu deaktivieren löscht nicht die Daten, die bereits auf unseren Servern gespeichert sind. Um sie zu entfernen, gehe zu Konto › Konto löschen.",
+  "profileSyncRowHint": "Verwalten in Einstellungen › Datenschutz"
 }

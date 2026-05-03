@@ -23218,4 +23218,7 @@ class SIt extends S {
   @override
   String get settingsPrivacyCloudSyncOffServerCaveat =>
       'Disattivare la sincronizzazione non elimina i dati già salvati sui nostri server. Per rimuoverli, vai su Account › Elimina account.';
+
+  @override
+  String get profileSyncRowHint => 'Gestisci in Impostazioni › Privacy';
 }

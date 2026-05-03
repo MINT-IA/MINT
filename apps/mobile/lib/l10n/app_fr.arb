@@ -12095,5 +12095,6 @@
   "settingsPrivacyCloudSyncOff": "Désactivée",
   "settingsPrivacyMigrationToast": "Nouvelle option : tu peux désactiver la synchronisation cloud depuis Réglages › Confidentialité.",
   "settingsPrivacyDataLocation": "Tes données restent stockées chiffrées sur ton appareil. Avec la sync activée, elles sont aussi stockées chiffrées sur nos serveurs européens (Suisse/UE) — chiffrement de bout en bout prévu en v3.0.",
-  "settingsPrivacyCloudSyncOffServerCaveat": "Désactiver la sync n'efface pas les données déjà sauvegardées sur nos serveurs. Pour les supprimer, va dans Compte › Supprimer mon compte."
+  "settingsPrivacyCloudSyncOffServerCaveat": "Désactiver la sync n'efface pas les données déjà sauvegardées sur nos serveurs. Pour les supprimer, va dans Compte › Supprimer mon compte.",
+  "profileSyncRowHint": "Gérer dans Réglages › Confidentialité"
 }
