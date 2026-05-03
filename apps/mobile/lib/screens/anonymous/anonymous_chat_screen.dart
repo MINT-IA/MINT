@@ -290,7 +290,18 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
               ),
             ),
 
-            // Messages list
+            // Messages list — QA walkthrough 2026-05-03 caught: the
+            // visual demo teaser was rendered as a separate Column child
+            // BELOW the messages list, which made it « stick » to the
+            // bottom and hover independently of the conversation. Per
+            // Handoff 2 chat-vivant intent + QA observation
+            // « With the first response the APERÇU was inline. After
+            // second message the card hovers separately. Major UX
+            // confusion. » → render the teaser INLINE inside the
+            // ListView, immediately after the first coach response
+            // (index 1, since index 0 = first user message). The teaser
+            // now scrolls WITH the messages, anchored to the moment the
+            // user first saw a MINT response.
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
@@ -301,19 +312,24 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
                     // Loading indicator
                     return _buildTypingIndicator();
                   }
-                  return _buildMessageBubble(_messages[index]);
+                  final msg = _messages[index];
+                  final shouldShowTeaserAfter = index == 1
+                      && !_isAuthGateLocked
+                      && _messages.length >= 2;
+                  if (shouldShowTeaserAfter) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildMessageBubble(msg),
+                        const SizedBox(height: 4),
+                        _buildVisualDemoTeaser(context),
+                      ],
+                    );
+                  }
+                  return _buildMessageBubble(msg);
                 },
               ),
             ),
-
-            // Visual demo teaser — shown after the first coach response
-            // (≥ 2 messages: 1 user + 1 coach) to demonstrate the « chat
-            // vivant » value prop while the user is still anonymous.
-            // Tap → /auth/login. Hidden once the auth gate locks (the
-            // locked CTA below already drives registration). HARDCODED
-            // FR strings for v1 ship; i18n migration tracked as follow-up.
-            if (!_isAuthGateLocked && _messages.length >= 2)
-              _buildVisualDemoTeaser(context),
 
             // Locked state — persistent CTA
             if (_isAuthGateLocked) ...[
