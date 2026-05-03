@@ -57,9 +57,21 @@
 
 <table>
 <tr><th>Plan</th><th>Status</th><th>Scope</th></tr>
-<tr><td>54-02</td><td><span class="badge b-warn">in flight (partial)</span></td><td>intentTag → tappable chip wiring on every coach opener (proactive trigger, sequence prompt, precomputed insight). Must ship BEFORE 54-01 per CONTEXT D-02</td></tr>
-<tr><td>54-01</td><td><span class="badge b-info">pending</span></td><td>Autonomous walker walkthrough across 56 AUDIT_TAP_RENDER.md rows</td></tr>
+<tr><td>54-02</td><td><span class="badge b-warn">PR-1 merged · PR-2 pending</span></td><td>intentTag → tappable chip wiring on every coach opener. PR-1 (#450) shipped T-01/T-02/T-04. PR-2 covers T-03 (PrecomputedInsight on chat-open) + T-05 (500ms nav lock).</td></tr>
+<tr><td>54-01</td><td><span class="badge b-warn">PR-1 merged · PR-2 pending</span></td><td>Autonomous walker walkthrough across 48 AUDIT_TAP_RENDER rows. PR-1 (#451) shipped catalog + dry-run harness + 12-test smoke. PR-2 covers real tap execution (cliclick + idb + screenshot diff + Sentry breadcrumb match) — requires sim access.</td></tr>
 <tr><td>54-03</td><td><span class="badge b-info">pending</span></td><td>FAIL triage + bump pubspec 2.9.0+1 + push staging → testflight.yml succeeds → sign GATE-01</td></tr>
+</table>
+
+<h2>Plan 54-01 — execution log (PR-1 merged 2026-05-04)</h2>
+
+<table>
+<tr><th>Task</th><th>Status</th><th>Evidence</th></tr>
+<tr><td>T-01 — Build walker_audit_tap_render.sh + TSV row catalog + smoke harness</td><td><span class="badge b-pass">done</span></td><td>PR #451 merged. <code>tools/simulator/walker_audit_tap_render.sh</code> with full argv parser (--help, --dry-run, --tab, --row, --archetype, --all, --no-dry-run). Real-run mode (--no-dry-run) gated until PR-2.</td></tr>
+<tr><td>T-02 — Catalog generator + 48-row TSV</td><td><span class="badge b-pass">done</span></td><td>PR #451 merged. <code>regen_audit_tap_render_catalog.py</code> parses scaffold + emits stable TSV with 12 columns. <code>audit_tap_render_rows.tsv</code>: Tab1_Aujourdhui (15) + Tab2_Coach (10) + Tab3_Explorer (11) + ProfileDrawer (12) = 48 rows. 5 pre-marked SKIP with rationale (4 LLM-tool fixtures + 1 known stub).</td></tr>
+<tr><td>T-03 — Triage tickets auto-creation</td><td><span class="badge b-info">deferred to PR-2</span></td><td>Requires real run that produces FAILs.</td></tr>
+<tr><td>T-04 — walker_nightly.yml scheduled CI</td><td><span class="badge b-info">deferred to PR-2</span></td><td>Requires real-run path to validate against macos-latest runner.</td></tr>
+<tr><td>T-05 — Walker self-test smoke</td><td><span class="badge b-pass">done</span></td><td>PR #451 merged. <code>test_walker_audit_tap_render.sh</code> 12/12 PASS: CLI contract (help / dry-run / tab filter / row filter / unknown row / unknown tab / no-dry-run preflight) + catalog shape (49 lines / per-section counts / SKIP rationales / regen idempotent).</td></tr>
+<tr><td>T-06 — HTML evidence update</td><td><span class="badge b-pass">done</span></td><td>This block.</td></tr>
 </table>
 
 <h2>Plan 54-02 — execution log (PR-1 merged 2026-05-04)</h2>

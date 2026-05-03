@@ -136,7 +136,67 @@ pytest tests/  (full backend suite)
   <li><strong>Optional process improvement</strong> (deferred) — the AST-walk dispatcher test from the audit panel: flag any branch containing <code>db.add</code>/<code>db.commit</code>/<code>db.delete</code> whose tool name is not in <code>_WRITE_TIER_TOOLS</code>. Would have caught this audit gap automatically. Tracked as v2.next.</li>
 </ol>
 
-<p class="meta">Generated 2026-05-04 by autonomous loop. Committed at <code>.planning/reports/SESSION-2026-05-04.html</code>. Updated on every PR landing in this session. Last commit referenced: <code>e0fd3125</code>.</p>
+<h2>Section 8 — Late-session arc (2026-05-04 afternoon → evening)</h2>
+
+<p>After the Phase 52.2 close-out captured in Sections 1-7, the autonomous loop continued without pause through Phase 53 + Phase 54 scaffold. The user's directive « pourquoi tu te stop tout le temps ? » triggered the <code>feedback_no_micro_pauses.md</code> memory rule + the <code>feedback_post_phase_panel_loop.md</code> rule, which together restructured the loop to keep shipping until natural blockers (CI awaiting / sim required / context limit).</p>
+
+<h3>10 PRs shipped or in flight today</h3>
+
+<table>
+<tr><th>PR</th><th>Phase / Plan</th><th>Status</th></tr>
+<tr><td>#442</td><td>Phase 52.3 — false E2EE claim @ doc-scan auth gate (6 locales) + new no_e2ee_overclaim lint</td><td><span class="badge b-pass">MERGED</span></td></tr>
+<tr><td>#443</td><td>Walker scripts (--archetype mode, smoke harness) — Plan 53-01 dependency</td><td><span class="badge b-pass">MERGED</span></td></tr>
+<tr><td>#444</td><td>Plan 53-01 PR-1 — ScreenRegistry parity lint + 41-route gap inventory</td><td><span class="badge b-pass">MERGED</span></td></tr>
+<tr><td>#445</td><td>Plan 53-01 PR-2 — close 41-route gap (33 new ScreenEntry rows) + CI gate</td><td><span class="badge b-pass">MERGED</span></td></tr>
+<tr><td>#446</td><td>Plan 53-03 — Tab 1 commitments/check-ins surface</td><td><span class="badge b-pass">MERGED</span></td></tr>
+<tr><td>#447</td><td>Plan 53-02 — SequenceChatHandler wired end-to-end (retirement_choice → retirement_prep template)</td><td><span class="badge b-pass">MERGED</span></td></tr>
+<tr><td>#448</td><td>Phase 52.4 — vault metaphor sweep (6 locales) + lint expansion (VAULT_METAPHOR family)</td><td><span class="badge b-pass">MERGED</span></td></tr>
+<tr><td>#449</td><td>Plan 53-04 — 3-way intent contract codegen (110 LLM tags + 106 mobile routes from MintScreenRegistry; was 24 + 70 hand-maintained)</td><td><span class="badge b-pass">MERGED</span></td></tr>
+<tr><td>#450</td><td>Plan 54-02 PR-1 — chip refactor + proactive trigger plumbing + ARB-route Plan 53-02 hardcoded copy</td><td><span class="badge b-pass">MERGED</span></td></tr>
+<tr><td>#451</td><td>Plan 54-01 PR-1 — walker catalog (48 rows) + dry-run harness + 12-test smoke</td><td><span class="badge b-pass">MERGED</span></td></tr>
+</table>
+
+<h3>Two close-out audits PASSed</h3>
+
+<ul>
+  <li><strong>T-52-08 audit re-run on dev (2026-05-04 morning):</strong> Phase 52.1+52.2 cloud-sync gating fully closed. Cloud-sync OFF demonstrably stops every PII write through the chat dispatcher.</li>
+  <li><strong>Phase 53 close-out audit (2026-05-04 afternoon):</strong> all 4 sub-plans verified end-to-end. Picked intent <code>withdrawal_calendar</code> traces through all 4 contract artifacts. SequenceChatHandler wiring live. Tab 1 commitments card mounted. 105 backend tests + 60 Flutter tests + 3 lints all green.</li>
+</ul>
+
+<h3>Two adversarial-trust hot-fixes shipped from panel feedback</h3>
+
+<ol>
+  <li><strong>Phase 52.3 (PR #442):</strong> false « end-to-end encryption » claim at doc-scan auth gate caught by post-Phase-52.2 Adversarial Trust Reviewer. Fixed in 6 ARB locales + new <code>no_e2ee_overclaim.py</code> lint.</li>
+  <li><strong>Phase 52.4 (PR #448):</strong> false « secure vault / coffre-fort sécurisé » metaphor at salary auth gate caught by post-Phase-53 Adversarial Trust Reviewer (same regression class — Phase 52.3 lint had wrong scope). Fixed in 6 locales + lint expanded with VAULT_METAPHOR pattern family.</li>
+</ol>
+
+<h3>Two memory rules added to prevent regression</h3>
+
+<ul>
+  <li><code>feedback_no_micro_pauses.md</code> — don't end turns with status summaries when there's independent work.</li>
+  <li><code>feedback_post_phase_panel_loop.md</code> — after every phase close-out, convene 5-7 expert panel → synthesize next phase → execute → repeat. Loop only stops when MINT is TestFlight-ready + journalist-defensible.</li>
+</ul>
+
+<h3>Phase 54 GSD scaffold complete on dev</h3>
+
+<ul>
+  <li><code>.planning/decisions/2026-05-04-phase-54-target.md</code> — 5-expert panel synthesis (Roadmap Sequencer / Engineering / Adversarial / Coach Intelligence / Production Readiness)</li>
+  <li><code>.planning/phases/54-testflight-gate-closure/54-CONTEXT.md</code></li>
+  <li><code>54-01-PLAN.md</code> — autonomous walker walkthrough (PR-1 #451 merged; PR-2 real tap execution pending sim)</li>
+  <li><code>54-02-PLAN.md</code> — chip wiring (PR-1 #450 merged; PR-2 covers PrecomputedInsight + nav lock)</li>
+  <li><code>54-03-PLAN.md</code> — FAIL triage + ship to TestFlight staging</li>
+  <li><code>54-VERIFICATION-REPORT.html</code> — rolling evidence</li>
+</ul>
+
+<h3>Strategic Phase 54 priority</h3>
+
+<p>Per Expert 5 (Production Readiness): <strong>« no primary-surface tap-to-render walkthrough has ever been signed against dev tip »</strong>. All other infra blockers CLOSED (testflight.yml LIVE, Match certs, PrivacyInfo.xcprivacy filled, account-deletion endpoint wired, Sentry release tagging in place). Single missing artifact: the actual walk. Plans 54-01 + 54-03 close it; Phase 55 = Chat Vivant scenes (Expert 1) deferred until TestFlight beta validation.</p>
+
+<h3>Pre-existing in-flight branch deleted</h3>
+
+<p><code>feature/v2.9-phase-40-marge-fiscale</code> work-extracted (walker scripts → PR #443) and deleted from origin. Documented in earlier session sections 6-7.</p>
+
+<p class="meta">Late-session arc generated 2026-05-04 evening by autonomous loop. Last commit referenced: PR #451 squash-merged at 14:42 UTC.</p>
 
 </body>
 </html>
