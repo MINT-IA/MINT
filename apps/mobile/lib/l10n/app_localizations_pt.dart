@@ -7512,7 +7512,7 @@ class SPt extends S {
 
   @override
   String get authGateSalaryMessage =>
-      'O teu salário e os teus dados financeiros merecem um cofre seguro.';
+      'Cria uma conta para cifrar o teu salário e os teus dados financeiros nos nossos servidores e aceder-lhes a partir dos teus dispositivos — podes manter tudo localmente a qualquer momento em Privacidade.';
 
   @override
   String get authGateCoachTitle => 'O coach precisa de te conhecer';

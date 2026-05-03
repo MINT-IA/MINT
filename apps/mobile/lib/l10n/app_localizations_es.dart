@@ -7518,7 +7518,7 @@ class SEs extends S {
 
   @override
   String get authGateSalaryMessage =>
-      'Tu salario y tus datos financieros merecen una caja fuerte segura.';
+      'Crea una cuenta para cifrar tu salario y tus datos financieros en nuestros servidores y acceder a ellos desde tus dispositivos — puedes mantener todo en local en cualquier momento desde Privacidad.';
 
   @override
   String get authGateCoachTitle => 'El coach necesita conocerte';

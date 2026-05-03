@@ -50,6 +50,18 @@ DOC_GLOBS = (
 # E2EE / zero-knowledge claim patterns, multilingual. Case-insensitive.
 # Word boundaries are loose because « end-to-end » / « bout en bout » are
 # multi-token; we match the loaded phrases verbatim.
+#
+# Phase 52.4 expansion: VAULT_METAPHOR family. The previous Phase 52.3
+# sweep caught the literal « end-to-end encryption » class but missed
+# « secure vault / coffre-fort sécurisé / sicherer Tresor / cassaforte
+# sicura / caja fuerte segura / cofre seguro », which carries the same
+# zero-knowledge implication for users familiar with Bitwarden /
+# 1Password / Threema. Any reader who associates « vault » with the
+# password-manager category will infer that MINT cannot decrypt their
+# data — which contradicts Path A (operator-held DEK on Railway).
+# Allow-listed via `ALLOW-VAULT-METAPHOR` per-line override OR by
+# co-occurring « operator-held / chiffré côté serveur / Path A » on
+# the same line (handled by ALLOW_LINE_PATTERNS).
 PATTERNS: list[tuple[re.Pattern, str]] = [
     (re.compile(r"\bend[- ]to[- ]end\s+encrypt", re.I), "EN E2EE claim"),
     (re.compile(r"\bchiffrement\s+de\s+bout\s+en\s+bout\b", re.I), "FR E2EE claim"),
@@ -60,6 +72,13 @@ PATTERNS: list[tuple[re.Pattern, str]] = [
     (re.compile(r"\bencripta[çc][ãa]o\s+ponto\s+a\s+ponto\b", re.I), "PT E2EE claim"),
     (re.compile(r"\bE2EE\b", re.I), "E2EE acronym"),
     (re.compile(r"\bzero[- ]knowledge\b", re.I), "zero-knowledge claim"),
+    # ── VAULT_METAPHOR family (Phase 52.4) ──────────────────────────
+    (re.compile(r"\bsecure\s+vault\b", re.I), "EN vault metaphor"),
+    (re.compile(r"\bcoffre[- ]fort\s+s[ée]curis[ée]\b", re.I), "FR vault metaphor"),
+    (re.compile(r"\bsicheren?\s+Tresor\b", re.I), "DE vault metaphor"),
+    (re.compile(r"\bcassaforte\s+sicura\b", re.I), "IT vault metaphor"),
+    (re.compile(r"\bcaja\s+fuerte\s+segura\b", re.I), "ES vault metaphor"),
+    (re.compile(r"\bcofre\s+seguro\b", re.I), "PT vault metaphor"),
 ]
 
 # Allow-list patterns: legitimate references that MUST stay (roadmap /
@@ -76,6 +95,14 @@ ALLOW_LINE_PATTERNS: list[re.Pattern] = [
     re.compile(r"ADR-", re.I),
     re.compile(r"ALLOW-E2EE-CLAIM", re.I),
     re.compile(r"//\s*ALLOW-E2EE", re.I),
+    re.compile(r"ALLOW-VAULT-METAPHOR", re.I),
+    re.compile(r"//\s*ALLOW-VAULT", re.I),
+    # Path A truthful framing: if the line co-mentions « operator-held »
+    # or « chiffré côté serveur » or « Path A », the vault metaphor is
+    # contextualized and not a zero-knowledge overclaim.
+    re.compile(r"operator[- ]held", re.I),
+    re.compile(r"chiffr[ée]\s+c[ôo]t[ée]\s+serveur", re.I),
+    re.compile(r"\bPath\s+A\b", re.I),
 ]
 
 # Files where E2EE is discussed as future-state and therefore allowed
@@ -88,6 +115,7 @@ ALLOW_FILE_PATTERNS: list[re.Pattern] = [
     re.compile(r"decisions/.*ADR-", re.I),
     re.compile(r"tools/checks/no_e2ee_overclaim\.py$"),
     re.compile(r"\.planning/phases/52\.3"),
+    re.compile(r"\.planning/phases/52\.4"),
     re.compile(r"\.planning/reports/SESSION-"),
     re.compile(r"\.planning/reviews/"),
 ]
