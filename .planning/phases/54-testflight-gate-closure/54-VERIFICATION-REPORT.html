@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINT — Phase 54 — TestFlight Gate Closure (Evidence)</title>
+<style>
+  :root {
+    --primary: #003b2f;
+    --textPrimary: #1d1d1f;
+    --textSecondary: #525256;
+    --textMuted: #95989d;
+    --success: #157b35;
+    --warning: #8c3f06;
+    --error: #8b1d1d;
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --border: #e5e5e0;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         max-width: 1100px; margin: 0 auto; padding: 24px;
+         background: var(--bg); color: var(--textPrimary); line-height: 1.55; }
+  h1 { font-size: 28px; margin: 8px 0 4px; color: var(--primary); }
+  h2 { font-size: 22px; margin: 32px 0 8px; padding-bottom: 6px;
+       border-bottom: 1px solid var(--border); color: var(--primary); }
+  h3 { font-size: 17px; margin: 18px 0 6px; color: var(--textPrimary); }
+  .subtitle { color: var(--textSecondary); font-size: 14px; margin-bottom: 20px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px;
+          font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+          text-transform: uppercase; }
+  .b-pass { background: #e6f4ec; color: var(--success); }
+  .b-warn { background: #fbecde; color: var(--warning); }
+  .b-fail { background: #fbe6e6; color: var(--error); }
+  .b-info { background: #e9eef3; color: var(--textSecondary); }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0;
+          background: var(--surface); border: 1px solid var(--border); }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--border);
+          text-align: left; vertical-align: top; font-size: 14px; }
+  th { background: #f3f3ed; font-weight: 600; }
+  code { background: #f3f3ed; padding: 1px 5px; border-radius: 4px;
+         font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+  pre { background: #1d1d1f; color: #f0f0f0; padding: 12px;
+        border-radius: 6px; overflow-x: auto; font-size: 13px; }
+  .meta { color: var(--textMuted); font-size: 12px; margin-top: 32px; }
+  ul, ol { margin: 8px 0 14px 22px; }
+</style>
+</head>
+<body>
+
+<h1>Phase 54 — TestFlight Gate Closure (Evidence)</h1>
+<p class="subtitle">Plan 54-02 partial in flight · Plan 54-01 + 54-03 pending · Decision <code>.planning/decisions/2026-05-04-phase-54-target.md</code></p>
+
+<h2>Phase scope</h2>
+
+<p>Per the post-Phase-53 5-expert MINT panel synthesis, Phase 54 ships MINT to TestFlight staging. Per <code>.planning/MILESTONES.md:109</code>, <code>.planning/backlog/STAB-carryover.md:38</code>, and <code>.planning/research/_pre-v2.2-archive/PITFALLS.md:191</code>, this is the literal TestFlight blocker — all other infra closed (testflight.yml LIVE, Match certs, PrivacyInfo.xcprivacy filled, account-deletion endpoint wired, Sentry release tagging in place).</p>
+
+<table>
+<tr><th>Plan</th><th>Status</th><th>Scope</th></tr>
+<tr><td>54-02</td><td><span class="badge b-warn">in flight (partial)</span></td><td>intentTag → tappable chip wiring on every coach opener (proactive trigger, sequence prompt, precomputed insight). Must ship BEFORE 54-01 per CONTEXT D-02</td></tr>
+<tr><td>54-01</td><td><span class="badge b-info">pending</span></td><td>Autonomous walker walkthrough across 56 AUDIT_TAP_RENDER.md rows</td></tr>
+<tr><td>54-03</td><td><span class="badge b-info">pending</span></td><td>FAIL triage + bump pubspec 2.9.0+1 + push staging → testflight.yml succeeds → sign GATE-01</td></tr>
+</table>
+
+<h2>Plan 54-02 — execution log (PR-1 merged 2026-05-04)</h2>
+
+<table>
+<tr><th>Task</th><th>Status</th><th>Evidence</th></tr>
+<tr><td>T-01 — _addCoachOpenerMessage refactored to accept optional intentTag</td><td><span class="badge b-pass">done</span></td><td>PR #450 merged. New parameters (intentTag / routeHint / contextMessage) + emits route_to_screen RagToolCall in richToolCalls when intentTag non-empty</td></tr>
+<tr><td>T-02 — Proactive trigger intentTag plumbed end-to-end</td><td><span class="badge b-pass">done</span></td><td>PR #450 merged. _maybeShowProactiveTrigger now passes trigger.intentTag through. 7/8 ProactiveTrigger types now surface tappable chips</td></tr>
+<tr><td>T-03 — PrecomputedInsight on chat-open surfacing</td><td><span class="badge b-info">deferred</span></td><td>Defers to Plan 54-02 PR-2 (or rolled into Phase 55 if scope creeps); needs careful dedup with proactive trigger + silent opener flows</td></tr>
+<tr><td>T-04 — ARB-route Plan 53-02 « Étape suivante » hardcoded copy</td><td><span class="badge b-pass">done</span></td><td>PR #450 merged. New ARB keys coachSequenceNextStepLabel(label) + coachSequenceCompletedMessage in 6 locales; closes the « hardcoded FR » regression flagged by post-Phase-53 Adversarial reviewer</td></tr>
+<tr><td>T-05 — Single navigation lock to dedupe chip tap vs LLM tool dispatch</td><td><span class="badge b-info">deferred</span></td><td>Folds into Plan 54-01 walker work (which also touches the chat surface) OR Plan 54-02 PR-2</td></tr>
+<tr><td>T-06 — Initialize Phase 54 verification HTML</td><td><span class="badge b-pass">done</span></td><td>This document</td></tr>
+</table>
+
+<h3>Stats — Plan 54-02 PR-1</h3>
+
+<table>
+<tr><th>Metric</th><th>Before PR-1</th><th>After PR-1</th></tr>
+<tr><td>ProactiveTrigger types surfacing tappable chips</td><td><span class="badge b-fail">0/8</span></td><td><span class="badge b-pass">7/8</span> (lifecyclePhaseChange has no intentTag by design)</td></tr>
+<tr><td>Hardcoded FR strings in Plan 53-02 wiring</td><td><span class="badge b-fail">2 (« Étape suivante » + « Tu as terminé »)</span></td><td><span class="badge b-pass">0</span> (ARB-routed × 6 locales)</td></tr>
+<tr><td>ARB key counts</td><td>8727 / 9133 (fr)</td><td>8730 / 9136 (fr) (+3 keys)</td></tr>
+<tr><td>flutter analyze on touched files</td><td>5 pre-existing warnings</td><td>5 pre-existing (no new issues)</td></tr>
+</table>
+
+<h2>What's next</h2>
+
+<ol>
+  <li>Plan 54-02 PR-2 (or fold into 54-01): T-03 (PrecomputedInsight on chat-open) + T-05 (500ms nav lock) — small follow-up</li>
+  <li>Plan 54-01 EXEC: build <code>walker_audit_tap_render.sh</code> + TSV row catalog + first walker run on dev tip → produces FAIL triage tickets</li>
+  <li>Plan 54-03 EXEC: triage every FAIL → focused per-surface fix PRs → walker re-runs to PASS → bump pubspec to 2.9.0+1 → push staging → testflight.yml triggers → Apple Connect processes build → sign GATE-01</li>
+  <li>Phase 54 close-out audit: « Is MINT shippable to TestFlight today? » — 4-expert post-merge panel per <code>feedback_post_phase_panel_loop.md</code></li>
+  <li>If audit PASS → Phase 55 (Chat Vivant scenes per Expert 1, now provably reachable post-54). If BLOCK → Phase 54.x hot-fix loop</li>
+</ol>
+
+<p style="font-size: 12px; color: #95989d; margin-top: 32px;">Generated 2026-05-04. Updated on every PR landing in Phase 54. Per <code>feedback_html_evidence_report.md</code> + <code>feedback_post_phase_panel_loop.md</code>.</p>
+
+</body>
+</html>
