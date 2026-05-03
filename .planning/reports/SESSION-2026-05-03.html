@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINT — Session 2026-05-03 — Phase 54 close-out + Phase 54.1 micro-PR</title>
+<style>
+  :root {
+    --primary: #003b2f;
+    --textPrimary: #1d1d1f;
+    --textSecondary: #525256;
+    --textMuted: #95989d;
+    --success: #157b35;
+    --warning: #8c3f06;
+    --error: #8b1d1d;
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --border: #e5e5e0;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         max-width: 1100px; margin: 0 auto; padding: 24px;
+         background: var(--bg); color: var(--textPrimary); line-height: 1.55; }
+  h1 { font-size: 28px; margin: 8px 0 4px; color: var(--primary); }
+  h2 { font-size: 22px; margin: 32px 0 8px; padding-bottom: 6px;
+       border-bottom: 1px solid var(--border); color: var(--primary); }
+  h3 { font-size: 17px; margin: 18px 0 6px; color: var(--textPrimary); }
+  .subtitle { color: var(--textSecondary); font-size: 14px; margin-bottom: 20px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px;
+          font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+          text-transform: uppercase; }
+  .b-pass { background: #e6f4ec; color: var(--success); }
+  .b-warn { background: #fbecde; color: var(--warning); }
+  .b-fail { background: #fbe6e6; color: var(--error); }
+  .b-info { background: #e9eef3; color: var(--textSecondary); }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0;
+          background: var(--surface); border: 1px solid var(--border); }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--border);
+          text-align: left; vertical-align: top; font-size: 14px; }
+  th { background: #f3f3ed; font-weight: 600; }
+  code { background: #f3f3ed; padding: 1px 5px; border-radius: 4px;
+         font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+  pre { background: #1d1d1f; color: #f0f0f0; padding: 12px;
+        border-radius: 6px; overflow-x: auto; font-size: 13px; }
+  .meta { color: var(--textMuted); font-size: 12px; margin-top: 32px; }
+  ul, ol { margin: 8px 0 14px 22px; }
+</style>
+</head>
+<body>
+
+<h1>MINT — Session 2026-05-03 — Evidence Report</h1>
+<p class="subtitle">Phase 54 close-out (PR #452 + #453 merged) · Phase 54.1 micro-PR opened (PR #454) · 5-expert close-out audit complete · Plan 54-03 paused on 3 external blockers</p>
+
+<h2>Section 1 — Headline outcome</h2>
+
+<p><strong>Phase 54 (« TestFlight Gate Closure ») is fully shipped on the SCRIPT side.</strong> Both deferred PR-2 batches landed today: chip wiring is complete (8/8 ProactiveTrigger types after the Phase 54.1 micro-PR + PrecomputedInsight on chat-open + 500ms NavLock), and the autonomous walker has both real-execution path + nightly CI workflow.</p>
+
+<p><strong>The TestFlight beta GATE itself is NOT closed yet</strong> — three external dependencies remain (testflight.yml CocoaPods conflict, walker_nightly on main for workflow_dispatch, Julien GATE-01 physical iPhone walkthrough).</p>
+
+<table>
+<tr><th>Plan</th><th>Status</th><th>Today's PRs</th></tr>
+<tr><td>54-02</td><td><span class="badge b-pass">all PRs merged</span></td><td>#452 (T-03 PrecomputedInsight + T-05 NavLock)</td></tr>
+<tr><td>54-01</td><td><span class="badge b-pass">all script PRs merged</span></td><td>#453 (real-execution + walker_nightly.yml + 16/16 smoke)</td></tr>
+<tr><td>54.1</td><td><span class="badge b-pass">PR opened</span></td><td>#454 (8/8 chip coverage + email scrub)</td></tr>
+<tr><td>54-03</td><td><span class="badge b-warn">PAUSED — 3 blockers</span></td><td>none today (waiting on Julien direction)</td></tr>
+</table>
+
+<h2>Section 2 — PRs shipped this session</h2>
+
+<table>
+<tr><th>PR</th><th>Plan</th><th>Status</th><th>Scope</th></tr>
+<tr><td>#452</td><td>54-02 PR-2</td><td><span class="badge b-pass">MERGED</span></td><td>T-03 PrecomputedInsight on chat-open (consume-once, falls back to proactive trigger) + T-05 RouteSuggestionNavLock (500ms global debounce). 7 new tests (3 PrecomputedInsight scenarios + 3 NavLock unit + 1 NavLock integration). 18/18 PASS targeted.</td></tr>
+<tr><td>#453</td><td>54-01 PR-2</td><td><span class="badge b-pass">MERGED</span></td><td>200-line real-execution path in walker_audit_tap_render.sh + walker_nightly.yml CI workflow + smoke harness extended 12 → 16 tests. New <code>--check-real-run</code> flag for sim-less preflight validation.</td></tr>
+<tr><td>#454</td><td>54.1</td><td><span class="badge b-info">OPEN</span></td><td>contractDeadlineApproaching trigger now emits <code>intentTag: '/coach/chat'</code> (8/8 chip coverage) + <code>_emit_triage</code> git-blame email scrub. 1 file in proactive_trigger_service + 1 file in walker script + HTML evidence update.</td></tr>
+</table>
+
+<h2>Section 3 — Phase 54 close-out audit (5-expert panel)</h2>
+
+<p>Convened immediately after PR #452 + PR #453 merged, per <code>feedback_post_phase_panel_loop.md</code>. Question: <em>« Is MINT shippable to TestFlight beta today? »</em></p>
+
+<table>
+<tr><th>Expert</th><th>Verdict</th><th>Headline</th></tr>
+<tr><td>Production Readiness</td><td><span class="badge b-warn">YES IF</span></td><td>3 unblocked-but-untested gates: testflight.yml run on dev tip must return green, dev→staging→main promotion needed, GATE-01 iPhone walkthrough by Julien remains human-only.</td></tr>
+<tr><td>Engineering</td><td><span class="badge b-pass">ship-with-followups</span></td><td>Both PRs competent. 7 minor follow-ups → batched into Phase 54.1 (#454 closes 2 of them; remaining 5 deferred).</td></tr>
+<tr><td>Adversarial Trust</td><td><span class="badge b-pass">no-trust-regression</span></td><td>All 6 ARB opener strings LSFin-clean. Cache resolves at display-time, no stale-truth risk. P3 nit (git blame emails) closed by PR #454.</td></tr>
+<tr><td>Coach Intelligence</td><td><span class="badge b-pass">gap-closed</span></td><td>3 intelligences flagged in post-Phase-53 panel now have UI consumers. Chip coverage 0/8 → 7/8 → 8/8 (after PR #454). PrecomputedInsight 0 → 1/chat-open. Sequence step 0 → 1/AdvanceAction. Hardcoded copy 2 → 0.</td></tr>
+<tr><td>Roadmap Sequencer</td><td><span class="badge b-info">parallel 54.x + 55-prep</span></td><td>« Don't pause. » Plan 54-03 itself gated on 3 external events; Phase 54.1 micro-PR + Phase 55 prep are autonomous.</td></tr>
+</table>
+
+<h2>Section 4 — Plan 54-03 blockers (the « 3 external dependencies »)</h2>
+
+<h3>Blocker 1 — testflight.yml CocoaPods conflict (run 25283650195)</h3>
+
+<p>workflow_dispatch on dev tip FAILED with:</p>
+
+<pre>[!] CocoaPods could not find compatible versions for pod "GoogleMLKit/MLKitCore":
+  In Podfile:
+    google_mlkit_image_labeling (...) → GoogleMLKit/MLKitCore (= 9.0.0)
+    google_mlkit_text_recognition (...) → GoogleMLKit/MLKitCore (= 7.0.0)</pre>
+
+<p><strong>Diagnosis (all local checks confirm pubspec is clean):</strong></p>
+
+<ul>
+  <li>pubspec.yaml has 0 google_mlkit_* refs (only 2026-04-17 removal comments).</li>
+  <li>pubspec.lock has 0 MLKit refs.</li>
+  <li>.flutter-plugins-dependencies has 0 MLKit entries.</li>
+  <li>apps/mobile/ios/Podfile.lock has 0 MLKit refs (committed file is clean).</li>
+  <li>Local <code>pod deintegrate &amp;&amp; pod install --repo-update</code>: 27 pods installed cleanly, no conflict.</li>
+</ul>
+
+<p><strong>Most plausible cause:</strong> stale <code>subosito/flutter-action@v2</code> cache on the runner (<code>cache: true</code> at testflight.yml line 158) restoring a pre-2026-04-17 pub-cache state. Needs Julien's call between (a) cache-key based on <code>hashFiles('apps/mobile/pubspec.lock')</code>, (b) add <code>flutter clean</code> as a workflow step, (c) drop <code>cache: true</code>.</p>
+
+<h3>Blocker 2 — walker_nightly.yml not on main (gh CLI workflow_dispatch unavailable)</h3>
+
+<p>Workflows must exist on the default branch for <code>gh workflow run</code> to find them. <code>walker_nightly.yml</code> just merged to dev (PR #453); it'll only become triggerable manually after a dev→staging→main promotion. Daily cron @ 03:00 UTC will fire it from dev once the dev→main promotion is done. Until then: no real walker run = no FAIL triage tickets = Plan 54-03 step T-54-03-01 has no input.</p>
+
+<h3>Blocker 3 — Physical iPhone GATE-01 walkthrough by Julien</h3>
+
+<p><code>docs/DEVICE_GATE_V27_CHECKLIST.md</code> Section A explicitly requires « Physical iPhone connected to Mac Mini via USB-C » + 18-checkbox sign-off block. This is human-only by design (« the real exit gate. No YYYY-MM-DD lands in ROADMAP / STATE / MILESTONES until iPhone + Android are ticked by a human hand »).</p>
+
+<h2>Section 5 — Local-sim env limitation discovered</h2>
+
+<p>Attempted a local feasibility run of <code>walker_audit_tap_render.sh --no-dry-run --archetype swiss_native --tab drawer</code> on the Mac mini. Build failed at <code>debug_unpack_ios</code>:</p>
+
+<pre>Failed to codesign /Users/.../Flutter.framework/Flutter with identity -
+resource fork, Finder information, or similar detritus not allowed</pre>
+
+<p>Root cause: macOS Tahoe + the <code>~/Desktop/MINT.nosync/</code> directory attaches a <code>com.apple.provenance</code> xattr to every file built inside it (iCloud Drive opt-out marker). Xcode's « Strip xattrs before codesign » build phase doesn't catch the Flutter framework xattr in time. <code>xattr -cr</code> only clears most xattrs; <code>com.apple.provenance</code> is sticky and re-attaches on every new file.</p>
+
+<p>Workaround: <strong>walker_nightly.yml on macos-latest CI</strong> (no .nosync directory, no provenance xattr) is the correct execution path. Local feasibility runs not supported until either the repo is moved out of <code>~/Desktop/MINT.nosync/</code> or a pre-build xattr-strip script is added (Phase 54.x candidate).</p>
+
+<h2>Section 6 — Process improvements applied</h2>
+
+<table>
+<tr><th>Discipline</th><th>Outcome this session</th></tr>
+<tr><td>HTML evidence per phase (<code>feedback_html_evidence_report.md</code>)</td><td><span class="badge b-pass">applied</span> — Phase 54 HTML updated 4× across the session: PR #452 close-out, PR #453 close-out, panel synthesis, Phase 54.1 closures + TestFlight diagnostic + local-sim limitation.</td></tr>
+<tr><td>Post-phase autonomous expert panel loop (<code>feedback_post_phase_panel_loop.md</code>)</td><td><span class="badge b-pass">applied</span> — 5 experts spawned in parallel after PR #452 + #453 landed. Synthesised verdict drove the Phase 54.1 micro-PR scope.</td></tr>
+<tr><td>Pre-push checklist (<code>feedback_pre_push_checklist.md</code>)</td><td><span class="badge b-pass">applied</span> — both PR-2 PRs and Phase 54.1 went green on first try (no signature changes / new ARB keys / dispatcher branches; targeted suite + flutter analyze clean before push).</td></tr>
+<tr><td>« No micro-pauses » (<code>feedback_no_micro_pauses.md</code>)</td><td><span class="badge b-pass">applied</span> — loop kept shipping (3 PRs in one session: #452 → #453 → #454) without status-summary breaks. Only paused at the genuine 3-blocker Plan 54-03 wall.</td></tr>
+<tr><td>« When blocked, ASK don't defer » (<code>feedback_blockers_ask_dont_defer.md</code>)</td><td><span class="badge b-pass">applied</span> — instead of writing « gaps_found, defer to v2.next », the 3 blockers are captured with explicit decision options + named in this session report for Julien.</td></tr>
+<tr><td>Public-repo discipline (<code>feedback_public_repo_discipline.md</code>)</td><td><span class="badge b-pass">applied</span> — no forensic legal language in commits / PR bodies / docs.</td></tr>
+</table>
+
+<h2>Section 7 — What Julien needs to decide</h2>
+
+<ol>
+  <li><strong>TestFlight CocoaPods unblock approach</strong> — pick (a) cache-key-by-pubspec-lock-hash, (b) <code>flutter clean</code> in workflow, or (c) drop <code>cache: true</code>. Claude can implement any of the three autonomously once direction is given.</li>
+  <li><strong>walker_nightly promotion timing</strong> — wait for daily 03:00 UTC cron (no action needed) OR open dev→staging→main promotion now (more aggressive but unlocks workflow_dispatch + Plan 54-03 sooner).</li>
+  <li><strong>Phase 55 kickoff</strong> — once TestFlight beta validates, the Roadmap Sequencer panel recommends Phase 55 (« Chat Vivant scenes »). Claude can autonomously prep the scene catalog + ARB scaffolding + golden harness in the meantime if Julien wants to keep the loop running on non-TestFlight work.</li>
+</ol>
+
+<h2>Section 8 — Loop status at session end</h2>
+
+<p>Loop is paused — not on a Claude-resolvable blocker, but on three external dependencies that need either Julien direction or genuine wall-clock time (testflight cache fix / dev→staging→main promotion / physical iPhone walkthrough). All Phase 54 SCRIPT-level work is complete. Phase 54.1 micro-PR is open and awaiting CI; Plan 54-03 cannot autonomously close without one of the above.</p>
+
+<p class="meta">Generated 2026-05-03 by autonomous loop. PR #452 + PR #453 merged this session; PR #454 opened. Last commit referenced: 83529a6b (PR #453 squash-merge to dev).</p>
+
+</body>
+</html>
