@@ -34,7 +34,7 @@ After `_NOT_CHAT_ROUTABLE` (13) + `_NESTED_PROFILE_CHILDREN` (7) exemptions: **4
 | 16 | `/explore` | NOT_CHAT_ROUTABLE | `explore_tab` | `conversationPure` | Shell tab — tab bar surfaces it |
 | 17 | `/household` | ROUTABLE | `household_overview` | `decisionCanvas` | Couple/household management |
 | 18 | `/household/accept` | ROUTABLE | `household_accept_invite` | `progressiveDisclosure` | Partner-invite acceptance flow |
-| 19 | `/life-event/divorce` | ROUTABLE | `life_event_divorce` | `decisionCanvas` | High-priority life-event canvas |
+| 19 | `/life-event/divorce` | ROUTABLE | `life_event_divorce_v2` | `decisionCanvas` | High-priority life-event canvas (`_v2` suffix avoids collision with existing `/divorce` entry) |
 | 20 | `/life-event/succession` | ROUTABLE | `life_event_succession` | `decisionCanvas` | Sibling of `/coach/succession`; verify dedup |
 | 21 | `/lpp-deep/epl` | ROUTABLE | `lpp_deep_epl` | `decisionCanvas` | EPL deep-dive (LPP tier) |
 | 22 | `/lpp-deep/libre-passage` | ROUTABLE | `lpp_deep_libre_passage` | `decisionCanvas` | Libre-passage deep-dive |

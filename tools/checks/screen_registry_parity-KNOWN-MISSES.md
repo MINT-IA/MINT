@@ -33,6 +33,14 @@ surfaces, or the chat itself (you don't route INTO the chat from the chat).
 | `/achievements` | Achievements grid — surfaced by tab bar; an entry exists in registry with `preferFromChat: false` |
 | `/coach` | Coach root — same redirect target as `/coach/chat` |
 | `/coach/chat` | The chat itself; coach can't route to itself |
+| `/about` | About / legal screen — surfaced by tab bar / drawer, not chat (Phase 53-01) |
+| `/onboarding/enrichment` | Onboarding flow — runs ONCE pre-chat per user, never re-surfaced (Phase 53-01) |
+| `/onboarding/intent` | Same |
+| `/onboarding/minimal` | Same |
+| `/onboarding/plan` | Same |
+| `/onboarding/promise` | Same |
+| `/onboarding/quick-start` | Same |
+| `/onboarding/smart` | Same |
 
 Adding a route here requires a one-line entry in this table explaining why
 the route should not appear in `MintScreenRegistry`.
