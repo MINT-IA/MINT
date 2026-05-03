@@ -46,6 +46,8 @@ import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
+import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
@@ -417,8 +419,28 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// immediately when the user completes a simulation (e.g., document scan,
   /// retirement dashboard) and returns to the chat.
   void _subscribeToScreenReturns() {
-    _screenReturnSub = ScreenCompletionTracker.stream.listen((screenReturn) {
+    _screenReturnSub =
+        ScreenCompletionTracker.stream.listen((screenReturn) async {
       if (!mounted) return;
+
+      // Phase 53-02 \u2014 if a guided sequence is active, dispatch through
+      // SequenceChatHandler.handleRealtimeReturn FIRST. The handler
+      // returns null when no sequence is active OR when the event is
+      // a stale / wrong-run / duplicate event (its own guards), in
+      // which case we fall back to the legacy contextLine path.
+      try {
+        final result =
+            await SequenceChatHandler.handleRealtimeReturn(screenReturn);
+        if (!mounted) return;
+        if (result != null) {
+          _injectSequencePrompt(result);
+          return;
+        }
+      } catch (e) {
+        // Sequence dispatch must never block the contextLine fallback.
+        debugPrint('[coach_chat] sequence dispatch fallback: $e');
+      }
+
       // Inject the screen return as context for the next coach response.
       final fields = screenReturn.updatedFields;
       final fieldSummary = fields != null && fields.isNotEmpty
@@ -429,6 +451,55 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           "${fieldSummary.isNotEmpty ? '. Donn\u00e9es mises \u00e0 jour\u00a0: $fieldSummary' : ''}.";
       _entryPayloadContext = contextLine;
     });
+  }
+
+  // Phase 53-02 \u2014 inject the sequence's next-step prompt as a coach
+  // message. For now handles AdvanceAction (the most common path) and
+  // CompleteAction; other actions fall back to the contextLine path
+  // (handled by the caller when this returns without enqueueing).
+  void _injectSequencePrompt(SequenceHandlerResult result) {
+    if (!mounted) return;
+    final action = result.action;
+
+    if (action is AdvanceAction) {
+      // Render the next step as a coach-side suggestion: a route
+      // suggestion card pointing at the next step's screen.
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: '\u00c9tape suivante : ${action.progressLabel}.',
+          timestamp: DateTime.now(),
+          richToolCalls: [
+            RagToolCall(
+              name: 'route_to_screen',
+              input: {
+                'intent': action.nextStep.intentTag,
+                'route': action.route,
+                'context_message': action.progressLabel,
+                'prefill': action.prefill,
+              },
+            ),
+          ],
+        ));
+      });
+      return;
+    }
+
+    if (action is CompleteAction) {
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: 'Tu as termin\u00e9 cette s\u00e9quence guid\u00e9e.',
+          timestamp: DateTime.now(),
+        ));
+      });
+      return;
+    }
+
+    // PauseAction / SkipAction / RetryAction / ReEvaluateAction:
+    // for this initial wiring we let the caller fall back to the
+    // legacy contextLine path. A follow-up plan can render dedicated
+    // UI for each branch.
   }
 
   // ════════════════════════════════════════════════════════════
