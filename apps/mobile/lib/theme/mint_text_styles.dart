@@ -186,4 +186,54 @@ class MintTextStyles {
         height: 1.3,
         color: color ?? MintColors.textMuted,
       );
+
+  // ── Editorial (Fraunces) — Handoff 2 « chat vivant » ──
+  //
+  // Fraunces serif italic for editorial moments: phrase-signatures, em
+  // words inside chat bubbles, dated labels (« Aujourd'hui · 14:22 »).
+  // Per Handoff 2 `00-README.md` invariants:
+  // - « Fraunces = signature éditoriale. Pour les `em`, phrases de
+  //   recul, labels horodatés. Jamais en body long. »
+  // - Used as serif italic to give the chat a calm editorial voice
+  //   rather than a chatbot pulse.
+  // Per `colors_and_type.css` line 39:
+  //   --mint-font-display: 'Fraunces', 'Times New Roman', serif;
+
+  /// Editorial display — the largest phrase-signature, e.g. canvas
+  /// chapter intros (« Tu vois ce que ta vie *coûte vraiment*. »).
+  /// 32pt Fraunces italic, weight 400.
+  static TextStyle editorialDisplay({Color? color}) => GoogleFonts.fraunces(
+        fontSize: 32,
+        fontWeight: FontWeight.w400,
+        fontStyle: FontStyle.italic,
+        letterSpacing: -0.4,
+        height: 1.2,
+        color: color ?? MintColors.textPrimary,
+      );
+
+  /// Editorial large — phrase-signature inside MintInlineInsightCard
+  /// + scene headers. The « Tu as 58 ans. 7 ans avant la retraite. »
+  /// pattern from `prototype/captures/01-chat-comparison.png`.
+  /// 22pt Fraunces italic, weight 400.
+  static TextStyle editorialLarge({Color? color}) => GoogleFonts.fraunces(
+        fontSize: 22,
+        fontWeight: FontWeight.w400,
+        fontStyle: FontStyle.italic,
+        letterSpacing: -0.2,
+        height: 1.3,
+        color: color ?? MintColors.textPrimary,
+      );
+
+  /// Editorial body — inline em words inside chat bubbles + the
+  /// « Aujourd'hui · 14:22 » timestamp label. 16pt Fraunces italic,
+  /// weight 400. Use sparingly — Fraunces is for signal moments,
+  /// never for long body copy (which stays in Inter).
+  static TextStyle editorialBody({Color? color}) => GoogleFonts.fraunces(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        fontStyle: FontStyle.italic,
+        letterSpacing: 0,
+        height: 1.4,
+        color: color ?? MintColors.textPrimary,
+      );
 }

@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 // ADR-20260223: financial_core via barrel only — no direct sub-imports.
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
 
 /// Data class for a single chat message in the anonymous flow.
@@ -321,12 +322,17 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
                             ),
                           ),
                           const SizedBox(height: 2),
+                          // Handoff 2 invariant: dated/phase labels use
+                          // Fraunces italic (« editorial » voice). 12.5pt
+                          // is small but readable at the standalone
+                          // top-bar density used in the prototype.
                           Text(
                             l.anonymousChatPhaseSubtitle,
-                            style: const TextStyle(
+                            style: MintTextStyles.editorialBody(
                               color: MintColors.textSecondary,
-                              fontSize: 11.5,
-                              letterSpacing: 0.2,
+                            ).copyWith(
+                              fontSize: 12.5,
+                              letterSpacing: 0.1,
                               height: 1.2,
                             ),
                           ),
