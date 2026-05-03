@@ -482,13 +482,25 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isUser ? MintColors.primary : MintColors.surface,
+            // Handoff 2 invariant: MINT bubble uses `craie` (#FCFBF8)
+            // warm cream, NEVER the cool `surface` grey. The vision doc
+            // explicitly calls out « les bulles grises par défaut du
+            // chat actuel » as what to avoid.
+            color: isUser ? MintColors.primary : MintColors.craie,
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(18),
               topRight: const Radius.circular(18),
               bottomLeft: Radius.circular(isUser ? 18 : 4),
               bottomRight: Radius.circular(isUser ? 4 : 18),
             ),
+            // Hairline border on the MINT bubble so the warm cream
+            // doesn't disappear into the surrounding craie background.
+            border: isUser
+                ? null
+                : Border.all(
+                    color: MintColors.lightBorder.withValues(alpha: 0.5),
+                    width: 0.5,
+                  ),
           ),
           child: Text(
             message.text,
@@ -510,13 +522,18 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
         alignment: Alignment.centerLeft,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: const BoxDecoration(
-            color: MintColors.surface,
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            // Handoff 2 — same craie warm cream as the MINT bubble.
+            color: MintColors.craie,
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(18),
               topRight: Radius.circular(18),
               bottomRight: Radius.circular(18),
               bottomLeft: Radius.circular(4),
+            ),
+            border: Border.all(
+              color: MintColors.lightBorder.withValues(alpha: 0.5),
+              width: 0.5,
             ),
           ),
           child: Row(
