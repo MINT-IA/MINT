@@ -25,6 +25,35 @@ pre-commit:
       glob: "*.{dart,py}"
       tags: [map, agents]
 
+pre-push:
+  parallel: true
+  commands:
+    tool-census-fresh:
+      # Discipline 14 (claude-code-discipline-kit). Warn (never block) if no
+      # tool-census artefact in `.planning/audits/` newer than 7 days. Forces
+      # awareness of skill/lint/script inventory drift without gating ship.
+      run: |
+        if [ ! -f bin/tool-census.sh ]; then
+          exit 0
+        fi
+        LAST_CENSUS_FILE=$(ls -1t .planning/audits/*tool-census*.{json,md} 2>/dev/null | head -1)
+        if [ -z "$LAST_CENSUS_FILE" ]; then
+          echo "::warning::Tool census never run on this repo. Run: bash bin/tool-census.sh > .planning/audits/$(date +%Y-%m-%d)-tool-census.md"
+          exit 0
+        fi
+        if stat -f %m "$LAST_CENSUS_FILE" >/dev/null 2>&1; then
+          MTIME=$(stat -f %m "$LAST_CENSUS_FILE")
+        else
+          MTIME=$(stat -c %Y "$LAST_CENSUS_FILE")
+        fi
+        NOW=$(date +%s)
+        AGE_DAYS=$(( (NOW - MTIME) / 86400 ))
+        if [ "$AGE_DAYS" -gt 7 ]; then
+          echo "::warning::Tool census stale (${AGE_DAYS}d old, last: $LAST_CENSUS_FILE). Run: bash bin/tool-census.sh"
+        fi
+        exit 0
+      tags: [discipline, tool-discovery]
+
 skip:
   - merge
   - rebase
