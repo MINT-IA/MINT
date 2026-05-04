@@ -136,6 +136,71 @@
   <li>If audit PASS → Phase 55 (Chat Vivant scenes per Expert 1, now provably reachable post-54). If BLOCK → Phase 54.x hot-fix loop.</li>
 </ol>
 
+<h2>Late-session arc — 2026-05-03 — PR #463 (Handoff 2 palette + B4 beta disclosure)</h2>
+
+<p><strong>Trigger</strong> : Julien — capture iPhone 17 Pro montrant l'auth gate sheet en noir/blanc/gris générique au lieu des tokens warm porcelaine/sauge/forest du Handoff 2.</p>
+
+<p><strong>Diagnostic</strong> : drift palette + tokens cool sur surfaces hero/sheet :</p>
+
+<table>
+<tr><th>Token Handoff 2 (source : <code>~/Downloads/handoff 2/colors_and_type.css</code>)</th><th>Valeur source</th><th>État avant PR #463</th></tr>
+<tr><td><code>--mint-porcelaine</code></td><td><code>#F4F1EC</code></td><td><span class="badge b-fail">drift</span> <code>porcelaine #F7F4EE</code></td></tr>
+<tr><td><code>--mint-craie</code></td><td><code>#F8F5F0</code></td><td><span class="badge b-fail">drift</span> <code>craie #FCFBF8</code> (trop blanc)</td></tr>
+<tr><td><code>--mint-text-primary</code></td><td><code>#1A1A1A</code> warm</td><td><span class="badge b-fail">drift</span> <code>primary #1D1D1F</code> Apple cool</td></tr>
+<tr><td><code>--mint-border-subtle</code></td><td><code>#E8E4DE</code> warm</td><td><span class="badge b-fail">drift</span> <code>border #D2D2D7</code> cool</td></tr>
+<tr><td><code>--mint-primary</code> (deep forest signal)</td><td><code>#2F5F3F</code></td><td><span class="badge b-fail">absent</span></td></tr>
+<tr><td><code>--mint-sauge</code></td><td><code>#B8C9B4</code></td><td><span class="badge b-fail">absent</span></td></tr>
+<tr><td><code>--mint-terracotta</code></td><td><code>#B8735A</code></td><td><span class="badge b-fail">absent</span></td></tr>
+</table>
+
+<p><strong>Fix surgical (additif, pas de big-bang qui casse les 18 tests AAA)</strong> : 7 nouveaux tokens (<code>porcelaineHero</code>, <code>craieHandoff</code>, <code>inkPrimary</code>, <code>borderSubtle</code>, <code>mintForest</code>, <code>sauge</code>, <code>terracotta</code>) + 3 styles Fraunces editorial (<code>editorialDisplay</code> 32pt, <code>editorialLarge</code> 22pt, <code>editorialBody</code> 16pt) + rewire <code>auth_gate_bottom_sheet.dart</code> + <code>beta_program_disclosure_sheet.dart</code> sur les nouveaux tokens.</p>
+
+<table>
+<tr><th>Surface</th><th>Avant</th><th>Après</th></tr>
+<tr><td>Auth gate sheet bg</td><td><code>surface #F5F5F7</code> cool grey</td><td><span class="badge b-pass"><code>porcelaineHero #F4F1EC</code> warm</span></td></tr>
+<tr><td>Auth gate primary CTA</td><td><code>primary #1D1D1F</code> Apple cool</td><td><span class="badge b-pass"><code>inkPrimary #1A1A1A</code> warm</span></td></tr>
+<tr><td>Auth gate coach icon halo</td><td><code>coachAccent</code> ardoise slate</td><td><span class="badge b-pass"><code>sauge</code> halo + <code>mintForest</code> icon</span></td></tr>
+<tr><td>Auth gate coach message</td><td><code>bodyLarge</code> Inter</td><td><span class="badge b-pass"><code>editorialBody</code> Fraunces</span></td></tr>
+<tr><td>Beta disclosure sheet bg</td><td><code>craie #FCFBF8</code> trop blanc</td><td><span class="badge b-pass"><code>porcelaineHero #F4F1EC</code></span></td></tr>
+<tr><td>Beta disclosure eyebrow</td><td><code>corailDiscret #E6855E</code></td><td><span class="badge b-pass"><code>mintForest #2F5F3F</code> signal</span></td></tr>
+<tr><td>Beta disclosure bullets ▪</td><td><code>corailDiscret</code></td><td><span class="badge b-pass"><code>mintForest</code></span></td></tr>
+</table>
+
+<h3>B4 beta disclosure — Apple TestFlight beta review + FINMA fintech sandbox</h3>
+
+<table>
+<tr><th>Élément</th><th>Évidence</th></tr>
+<tr><td>Disclosure widget</td><td><code>apps/mobile/lib/widgets/beta/beta_program_disclosure_sheet.dart</code> (StatelessWidget, <code>SharedPreferences</code> flag <code>mint_beta_disclosure_seen</code>, one-shot per device)</td></tr>
+<tr><td>i18n parity</td><td><span class="badge b-pass">9 ARB keys × 6 locales</span> (FR/EN/DE/ES/IT/PT) avec <code>x-mint-meta: {"level": "N1"}</code> pour VOICE-14 lint</td></tr>
+<tr><td>Wire</td><td><code>BetaProgramDisclosureSheet.maybeShow(context)</code> dans <code>landing_screen.dart</code> initState <code>addPostFrameCallback</code></td></tr>
+<tr><td>Tests widget</td><td><span class="badge b-pass">7/7 PASS</span> (<code>test/widgets/beta/beta_program_disclosure_sheet_test.dart</code>) — no-op when flag set, render when unset, CTA persists flag, italic em headline, semantics label, reset/markAcknowledged</td></tr>
+</table>
+
+<h3>Verification</h3>
+
+<table>
+<tr><th>Gate</th><th>Verdict</th></tr>
+<tr><td><code>flutter analyze</code> (touched files)</td><td><span class="badge b-pass">0 errors</span></td></tr>
+<tr><td><code>flutter test test/widgets/beta/</code></td><td><span class="badge b-pass">7/7 PASS</span></td></tr>
+<tr><td><code>flutter test test/theme/aaa_tokens_contrast_test.dart</code> (regression guard)</td><td><span class="badge b-pass">18/18 PASS</span> — legacy AAA tokens untouched</td></tr>
+<tr><td><code>accent_lint_fr.py</code> sur fichiers touchés</td><td><span class="badge b-pass">clean</span></td></tr>
+<tr><td>CI rollup PR #463</td><td><span class="badge b-pass">16 SUCCESS, 2 SKIPPED, 0 FAILURES</span> — Flutter screens + widgets + WCAG AA ACCESS-03 + onboarding readability tous green</td></tr>
+<tr><td>Visual sim verification (iPhone 17 Pro iOS 26.2)</td><td><span class="badge b-pass">Beta disclosure rend en porcelaine warm + mintForest eyebrow + Fraunces italic em + ink CTA</span> (capture <code>/tmp/mint_pr463_landing.png</code>)</td></tr>
+</table>
+
+<h3>PR</h3>
+
+<p>PR #463 — <a href="https://github.com/MINT-IA/MINT/pull/463">feat(handoff2,beta): align hero/sheet to Handoff 2 palette + B4 beta disclosure</a> — <strong>OPEN, mergeable, CI green</strong>. Awaiting Julien's merge.</p>
+
+<h3>Suite (post-merge)</h3>
+
+<ol>
+  <li>Sweep Handoff 2 sur <code>anonymous_chat_screen.dart</code> scaffold + input bar + bubbles (les surfaces visibles dans la capture sous le sheet, encore en <code>craie</code> + <code>primary</code> cool tokens).</li>
+  <li>Sweep Handoff 2 sur LandingScreen CTA <code>FilledButton</code> (utilise encore <code>textPrimary</code>).</li>
+  <li>Audit panel : autres surfaces hero/sheet à migrer vers Handoff 2 (onboarding screens, plan reality home, conversation list).</li>
+  <li>B6 backend P95 smoke + reste des Apple TestFlight ship blockers.</li>
+</ol>
+
 <p style="font-size: 12px; color: #95989d; margin-top: 32px;">Generated 2026-05-04. Updated on every PR landing in Phase 54. Per <code>feedback_html_evidence_report.md</code> + <code>feedback_post_phase_panel_loop.md</code>.</p>
 
 </body>

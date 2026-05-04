@@ -164,9 +164,11 @@ class _LandingScreenState extends State<LandingScreen>
                       button: true,
                       label: l10n.landingV2CtaSober,
                       child: FilledButton(
+                        // Handoff 2 sweep 2026-05-04: warm ink CTA + warm
+                        // porcelaine foreground for the « commencer » primary.
                         style: FilledButton.styleFrom(
-                          backgroundColor: MintColors.textPrimary,
-                          foregroundColor: MintColors.craie,
+                          backgroundColor: MintColors.inkPrimary,
+                          foregroundColor: MintColors.porcelaineHero,
                           minimumSize: const Size.fromHeight(56),
                           shape: const StadiumBorder(),
                           textStyle: textTheme.labelLarge,
