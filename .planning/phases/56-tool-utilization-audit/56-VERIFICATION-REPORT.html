@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Phase 56 — Tool Utilization Audit — Verification Report</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; max-width: 920px; margin: 2rem auto; padding: 0 1.25rem; color: #1f2933; line-height: 1.55; }
+  h1, h2, h3 { color: #0f2e22; }
+  h1 { border-bottom: 2px solid #0f2e22; padding-bottom: .35rem; }
+  h2 { margin-top: 2.25rem; }
+  code, pre { background: #f4f4f0; padding: 2px 6px; border-radius: 4px; }
+  pre { padding: .8rem 1rem; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: .75rem 0; }
+  th, td { border: 1px solid #d8d8d2; padding: .35rem .6rem; text-align: left; vertical-align: top; }
+  th { background: #f1f0eb; }
+  .pass { color: #1b6e3a; font-weight: 600; }
+  .warn { color: #a1521b; font-weight: 600; }
+  .pending { color: #475569; font-weight: 600; }
+  .meta { color: #475569; font-size: .9em; }
+  blockquote { border-left: 3px solid #0f2e22; margin: 1rem 0; padding: .25rem .9rem; color: #2a3a33; background: #f8f8f4; }
+</style>
+</head>
+<body>
+
+<h1>Phase 56 — Tool Utilization Audit</h1>
+<p class="meta">Initialized 2026-05-04. Living document — updated as PRs land.</p>
+
+<blockquote>
+<strong>Goal :</strong> mesurer et réduire l'écart entre <em>outils installés</em> (~180+) et <em>outils réellement invoqués</em> (~10-15%). Discipline 14 du <code>claude-code-discipline-kit</code>.
+</blockquote>
+
+<h2>Status par PR</h2>
+<table>
+<tr><th>PR</th><th>Branch</th><th>Status</th><th>Commit</th></tr>
+<tr><td>PR-1 — bootstrap kit + baseline census</td><td><code>feat/phase-56-01-bootstrap-kit-and-census</code></td><td class="pass">Merged into base via PR #465 (foundation)</td><td><code>cfecede6</code></td></tr>
+<tr><td>PR-2 — wire census in workflow (hook + slash + lefthook)</td><td><code>feat/phase-56-02-census-wiring</code></td><td class="pass">Pushed, ready for review</td><td><code>c27866f5</code></td></tr>
+<tr><td>PR-3 — classify 129 tools, retire dormant, promote specialists</td><td>—</td><td class="pending">Not started</td><td>—</td></tr>
+</table>
+
+<h2>PR-2 deliverables</h2>
+<table>
+<tr><th>Task</th><th>Artefact</th><th>Status</th></tr>
+<tr><td>1 — PostToolUse hook → invocations.log</td><td><code>.claude/hooks/tool-usage-logger.js</code> + matcher <code>Skill|Bash|mcp__.*</code> in <code>.claude/settings.json</code></td><td class="pass">Wired, smoke-tested on 5 input shapes (Skill, Bash bin/, Bash python3 tools/checks/, Bash Read, mcp__*)</td></tr>
+<tr><td>2 — /census slash command</td><td><code>.claude/commands/census.md</code></td><td class="pass">Smoke-tested: <code>/census i18n extraction</code> → <code>skill:autoresearch-i18n [never]</code></td></tr>
+<tr><td>3 — Lefthook pre-push warn (>7d stale)</td><td><code>lefthook.yml</code> :: <code>tool-census-fresh</code></td><td class="pass">Smoke-tested with synthetic 14d-old fixture: warn fires</td></tr>
+<tr><td>4 — Day-1 delta after hook fires</td><td><code>.planning/audits/2026-05-04-tool-census-day1.{md,json}</code></td><td class="pass">Generated post-hook activation</td></tr>
+</table>
+
+<h2>Census evolution (baseline → day-1)</h2>
+<table>
+<tr><th>Category</th><th>Baseline (PR-1, 2026-05-03)</th><th>Day-1 (PR-2, 2026-05-04)</th><th>Δ</th></tr>
+<tr><td>active (&lt;7d)</td><td>0</td><td>4</td><td>+4</td></tr>
+<tr><td>recent (7-30d)</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>underused (30-90d)</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>dormant (&gt;90d)</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>never</td><td>129</td><td>125</td><td>−4</td></tr>
+<tr><th>Total</th><th>129</th><th>129</th><th>—</th></tr>
+</table>
+
+<p>Day-1 active tools (the four exercised by this session, captured by the new <code>tool-usage-logger.js</code> hook):</p>
+<ul>
+<li><code>bin:tool-census.sh</code></li>
+<li><code>bin:doctor.sh</code></li>
+<li><code>lint:accent_lint_fr.py</code></li>
+<li><code>lint:lint_status_audit.py</code></li>
+</ul>
+
+<h2>Verification commands</h2>
+<pre>
+# Hook smoke (5 input shapes)
+echo '{"tool_name":"Skill","tool_input":{"skill":"autoresearch-i18n"}}' | node .claude/hooks/tool-usage-logger.js
+echo '{"tool_name":"Bash","tool_input":{"command":"bash bin/tool-census.sh"}}' | node .claude/hooks/tool-usage-logger.js
+echo '{"tool_name":"Bash","tool_input":{"command":"python3 tools/checks/accent_lint_fr.py"}}' | node .claude/hooks/tool-usage-logger.js
+echo '{"tool_name":"Read","tool_input":{"file_path":"foo.md"}}' | node .claude/hooks/tool-usage-logger.js  # skipped (correct)
+echo '{"tool_name":"mcp__mint-tools__check_banned_terms","tool_input":{"text":"x"}}' | node .claude/hooks/tool-usage-logger.js
+
+# /census end-to-end
+bash bin/tool-census.sh --suggest "i18n extraction"
+# → skill:autoresearch-i18n [never]
+
+# Lefthook stale-warn (synthetic 14d fixture)
+cp .planning/audits/2026-05-03-tool-census-baseline.md /tmp/_old.md
+touch -t 202604200000 /tmp/_old.md
+# Simulate the lefthook command body → "::warning::Tool census stale (14d old, ...)"
+</pre>
+
+<h2>Pre-push checklist (memory feedback_pre_push_checklist)</h2>
+<table>
+<tr><th>Check</th><th>Status</th><th>Note</th></tr>
+<tr><td>Function-signature callers grep</td><td class="pass">N/A</td><td>No public signatures changed; new untracked files + additive hook entry only</td></tr>
+<tr><td>OpenAPI canonical / flutter gen-l10n regen</td><td class="pass">N/A</td><td>No backend schema or ARB key change</td></tr>
+<tr><td>Backend pytest -q</td><td class="pending">Deferred — see Operational note</td><td>No backend code touched in this PR; suite ran green at PR-1 close (cfecede6)</td></tr>
+<tr><td>Flutter analyze + test</td><td class="pending">Deferred — see Operational note</td><td>No Dart code touched in this PR</td></tr>
+</table>
+
+<h2>Operational note — daemon-induced branch churn</h2>
+<p>During PR-2 execution an automated process (likely a scheduled <code>git checkout dev &amp;&amp; git pull origin dev</code> on the Mac mini) repeatedly switched branches under the agent, once causing the wiring commit to land on <code>fix/walker-no-codesign-tahoe</code> instead of <code>feat/phase-56-02-census-wiring</code>. Recovered by cherry-picking <code>92d4f0e6</code> (the rogue commit) onto the correct branch as <code>c27866f5</code>, then pushing immediately.</p>
+<p><strong>Remaining cleanup :</strong> local branch <code>fix/walker-no-codesign-tahoe</code> still carries the rogue commit ahead of <code>origin/fix/walker-no-codesign-tahoe</code> (<code>27e187e8</code>). Resolution requires either <code>git branch -f fix/walker-no-codesign-tahoe origin/fix/walker-no-codesign-tahoe</code> or a manual reset — paused for Julien because the local branch belongs to a separate feature.</p>
+<p><strong>Test-suite runs (pytest, flutter test) deferred</strong> for this PR until the daemon's cadence is understood, since long-running test suites are vulnerable to mid-run branch switches. The PR touches only <code>.claude/</code> harness configuration and <code>lefthook.yml</code> warn — no application code paths are exercised.</p>
+
+<h2>Phase 56 PR-3 (next)</h2>
+<p>Per <code>.planning/phases/56-tool-utilization-audit/PLAN.md</code> §PR-3 : classify each of the 129 tools (<code>KEEP-active</code> / <code>KEEP-emergency</code> / <code>PROMOTE</code> / <code>RETIRE</code>) into <code>tools/INVENTORY.md</code>, retire dormants, promote ≤3 frequent patterns into MINT specialists.</p>
+
+<h2>Liens</h2>
+<ul>
+<li><a href="../../phases/56-tool-utilization-audit/PLAN.md">PLAN.md</a></li>
+<li><a href="../../audits/2026-05-03-tool-census-baseline.md">PR-1 baseline census (MD)</a></li>
+<li><a href="../../audits/2026-05-04-tool-census-day1.md">PR-2 day-1 census (MD)</a></li>
+<li><a href="../../audits/2026-05-04-tool-census-day1.json">PR-2 day-1 census (JSON)</a></li>
+<li><a href="../../handoff/2026-05-04-resume-phase-56-pr-2.md">Hand-off doc</a></li>
+</ul>
+
+</body>
+</html>
