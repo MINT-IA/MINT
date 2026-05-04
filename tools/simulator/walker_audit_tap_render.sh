@@ -224,7 +224,13 @@ if [ "$DRY_RUN" = "0" ]; then
   open -a Simulator || true
 
   echo "[walker] build: flutter build ios --simulator (archetype=$ARCHETYPE phase=54)"
-  (cd "$REPO_ROOT/apps/mobile" && flutter build ios --simulator \
+  # macOS Tahoe + .nosync com.apple.provenance xattrs require --no-codesign
+  # to avoid xcrun altool choking on the cocoapods Frameworks dir. Mirrors
+  # tools/simulator/walker.sh:587 (the original walker we ported the build
+  # invocation from). Without this flag, the build hangs ~6 min then fails
+  # with "code signing is required for product type 'Application' in SDK
+  # 'iOS Simulator'". Per memory feedback_diff_against_existing_tool.md.
+  (cd "$REPO_ROOT/apps/mobile" && flutter build ios --simulator --no-codesign \
     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
     --dart-define=SENTRY_DSN="${SENTRY_DSN_STAGING}" \
     --dart-define=MINT_E2E_ARCHETYPE="$ARCHETYPE" \
