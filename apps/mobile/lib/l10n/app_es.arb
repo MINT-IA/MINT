@@ -11163,9 +11163,13 @@
   "aujourdhuiResumeConversation": "Reanudar la conversación",
   "coachSequenceNextStepLabel": "Siguiente paso: {label}.",
   "@coachSequenceNextStepLabel": {
-    "placeholders": {"label": {"type": "String"}}
+    "placeholders": {"label": {"type": "String"}},
+    "x-mint-meta": {"level": "N3"}
   },
   "coachSequenceCompletedMessage": "Has completado esta secuencia guiada.",
+  "@coachSequenceCompletedMessage": {
+    "x-mint-meta": {"level": "N3"}
+  },
   "betaDisclosureEyebrow": "MINT en beta",
   "@betaDisclosureEyebrow": {
     "x-mint-meta": {"level": "N1"}

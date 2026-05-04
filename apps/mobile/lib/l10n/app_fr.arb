@@ -12103,9 +12103,13 @@
   "aujourdhuiResumeConversation": "Reprendre la conversation",
   "coachSequenceNextStepLabel": "Étape suivante : {label}.",
   "@coachSequenceNextStepLabel": {
-    "placeholders": {"label": {"type": "String"}}
+    "placeholders": {"label": {"type": "String"}},
+    "x-mint-meta": {"level": "N3"}
   },
   "coachSequenceCompletedMessage": "Tu as terminé cette séquence guidée.",
+  "@coachSequenceCompletedMessage": {
+    "x-mint-meta": {"level": "N3"}
+  },
   "betaDisclosureEyebrow": "MINT en test",
   "@betaDisclosureEyebrow": {
     "description": "Beta disclosure sheet — uppercase eyebrow.",
