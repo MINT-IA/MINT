@@ -21007,7 +21007,7 @@ class SIt extends S {
 
   @override
   String get jargonAvsTooltip =>
-      'L\'AVS (Assicurazione vecchiaia e superstiti) è il 1° pilastro. Garantisce un reddito di base in pensione.';
+      'L\'AVS (Assicurazione vecchiaia e superstiti) è il 1° pilastro. Mira a fornire un reddito di base in pensione.';
 
   @override
   String get jargonRamdTooltip =>

@@ -20950,7 +20950,7 @@ class SEs extends S {
 
   @override
   String get jargonAvsTooltip =>
-      'El AVS (Seguro de Vejez y Supervivientes) es el 1.er pilar. Garantiza un ingreso básico en la jubilación.';
+      'El AVS (Seguro de Vejez y Supervivientes) es el 1.er pilar. Su objetivo es proporcionar un ingreso básico en la jubilación.';
 
   @override
   String get jargonRamdTooltip =>

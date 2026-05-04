@@ -20842,7 +20842,7 @@ class SEn extends S {
 
   @override
   String get jargonAvsTooltip =>
-      'AVS (Old-age and Survivors’ Insurance) is the 1st pillar. It guarantees a basic retirement income.';
+      'AVS (Old-age and Survivors’ Insurance) is the 1st pillar. It is designed to provide a basic retirement income.';
 
   @override
   String get jargonRamdTooltip =>

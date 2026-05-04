@@ -181,6 +181,15 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/sentence_subject_arb_lint.py
 
+      # ─── CLAUDE.md TOP rule #1: LSFin banned-terms ARB lint ────────
+      # Blocks positive « garanti / guaranteed / garantiert / garantizado /
+      # garantito / garantido » uses across all 6 ARB files. Negation-form
+      # disclaimers (« pas de... garanti », « not guaranteed », « kein
+      # garantierter ») are allowlisted.
+      - name: LSFin banned-terms ARB lint (CLAUDE.md TOP rule #1)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/banned_terms_arb.py
+
       # ─── Phase 9 / ALERT-07: no LLM-driven alert objects ────────────
       - name: No LLM-driven alert objects (ALERT-07)
         working-directory: ${{ github.workspace }}
