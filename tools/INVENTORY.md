@@ -20,17 +20,22 @@ Heuristic: when in doubt, classify `KEEP-emergency` rather than `RETIRE`. Cemete
 | Category | Total | KEEP-active | KEEP-emergency | PROMOTE | RETIRE |
 |---|---:|---:|---:|---:|---:|
 | skills:mint | 10 | 10 | 0 | 0 | 0 |
-| skills:gsd | 60 | 14 | 41 | 0 | 5 |
+| skills:gsd | 60 | 14 | 43 | 0 | 3 |
 | skills:autoresearch | 11 | 0 | 10 | 1 | 0 |
 | skills:superpowers (obra) | 14 | 14 | 0 | 0 | 0 |
 | skills:kit | 1 | 1 | 0 | 0 | 0 |
-| lints (tools/checks/) | 27 | 3 | 24 | 0 | 0 |
+| lints (tools/checks/) | 27 | 4 | 23 | 0 | 0 |
 | scripts (scripts/) | 3 | 2 | 1 | 0 | 0 |
 | bin (bin/) | 2 | 2 | 0 | 0 | 0 |
 | mcp (.mcp.json) | 1 | 1 | 0 | 0 | 0 |
-| **Total** | **129** | **47** | **76** | **1** | **5** |
+| **Total** | **129** | **48** | **77** | **1** | **3** |
 
-Net effect of PR-3b: 5 retires + 1 new specialist → tool count goes 129 → **125** (the PROMOTE wraps existing tools without removing them). Visible *active* surface goes from 129 (or 4 in baseline) to **47 KEEP-active + 1 new specialist = 48 (37%)**; emergency tools remain reachable via `/census <task>`.
+Net effect of PR-3b: 3 retires + 1 new specialist → tool count goes 129 → **127** (the PROMOTE wraps existing tools without removing them). Visible *active* surface goes from 129 (or 4 in baseline) to **48 KEEP-active + 1 new specialist = 49 (38%)**; emergency tools remain reachable via `/census <task>`.
+
+**Calibration update (post 4-expert panel review on PR #472, 2026-05-04) :**
+
+- `gsd-workstreams` and `gsd-autonomous` downgraded from RETIRE → KEEP-emergency. Panel showed: (a) `gsd-workstreams` (planning state mgmt) ≠ git worktrees (filesystem isolation) — they solve different problems; (b) `gsd-autonomous` is the right tool for batch backend phases when explicitly gated, retiring it loses capability. Both are referenced from other GSD workflows (`.claude/get-shit-done/workflows/{do,transition,settings,autonomous}.md`) — retiring would create dangling references.
+- `no_legal_admission_in_public_docs.py` (lints) promoted KEEP-emergency → KEEP-active. Repo MINT-IA/MINT is public per memory `feedback_public_repo_discipline`; this lint is critical *now*, not a Phase 55 item.
 
 ## skills:mint (10) — all KEEP-active
 
@@ -116,15 +121,20 @@ GSD is the planning backbone (PROJECT.md → ROADMAP → milestones → phases).
 | gsd-new-workspace | KEEP-emergency | Isolated workspace creation |
 | gsd-remove-workspace | KEEP-emergency | Cleanup |
 
-### RETIRE (5) — duplicates or zero-value
+### RETIRE (3) — duplicates or zero-value
 
-| Tool | Action | Justification |
+| Tool | Action | Justification | Referential refs to patch in PR-3b |
+|---|---|---|---|
+| gsd-join-discord | RETIRE | Marketing meta-skill, irrelevant to MINT execution. Discord onboarding belongs in Julien's bookmark, not in skill discovery surface. | None (no inbound refs found in workflows) |
+| gsd-new-project | RETIRE | MINT is a single project; new-project bootstrap is one-time and already executed. Zero foreseeable use. | `.claude/get-shit-done/workflows/new-project.md` self-refs only — patch by archiving alongside the skill |
+| gsd-manager | RETIRE | "Interactive command center" — duplicates `gsd-progress` + `gsd-next` workflow. Adds command surface without distinct value. | None significant (orphan command center) |
+
+### KEEP-emergency (downgraded from RETIRE post panel-review)
+
+| Tool | Action | Why kept (panel correction) |
 |---|---|---|
-| gsd-join-discord | RETIRE | Marketing meta-skill, irrelevant to MINT execution. Discord onboarding belongs in Julien's bookmark, not in skill discovery surface. |
-| gsd-new-project | RETIRE | MINT is a single project; new-project bootstrap is one-time and already executed. Zero foreseeable use. |
-| gsd-manager | RETIRE | "Interactive command center" — duplicates `gsd-progress` + `gsd-next` workflow. Adds command surface without distinct value. |
-| gsd-workstreams | RETIRE | Parallel workstream mgmt — superseded by git worktrees pattern Julien adopted (see worktree session 2026-05-04). Latent skill that creates ambiguity over which abstraction owns parallelism. |
-| gsd-autonomous | RETIRE | "Run all remaining phases autonomously discuss→plan→execute" — too coarse for MINT's discipline-13 manual-decision-gates approach (CLAUDE.md). Risk of stamping decisions Julien expects to make. |
+| gsd-workstreams | KEEP-emergency | Planning state mgmt across milestones ≠ filesystem worktrees. Different abstractions; conflating them is the original misclassification. Referenced by `.claude/get-shit-done/workflows/transition.md`. |
+| gsd-autonomous | KEEP-emergency | Batch backend phase execution is legitimate when explicitly gated. Retiring loses a real capability. Mémoire `feedback_post_phase_panel_loop` even encourages autonomous looping. Referenced by `do.md`, `autonomous.md`, `settings.md`. |
 
 ## skills:autoresearch (11)
 
@@ -175,15 +185,16 @@ These are foundational AI-collaboration skills (using-superpowers loads at sessi
 
 3 currently wired in `lefthook.yml`: `memory_retention.py`, `map_freshness_hint.py`, `lint_status_audit.py` (in `lefthook.discipline.yml`). The other 24 are intentionally dormant — Phase 34 GUARD-01 was to wire them; Phase 55 PR-1 will pick that up.
 
-### KEEP-active (3) — currently wired
+### KEEP-active (4) — currently wired or critical-now
 
 | Tool | Action |
 |---|---|
 | memory_retention.py | KEEP-active — pre-commit memory gate |
 | map_freshness_hint.py | KEEP-active — pre-commit map hint |
 | lint_status_audit.py | KEEP-active — pre-commit (kit overlay) |
+| no_legal_admission_in_public_docs.py | KEEP-active — repo MINT-IA/MINT is PUBLIC (mémoire `feedback_public_repo_discipline`). Critical-now, not Phase-55-deferred. PR-3b should wire this in `lefthook.yml` pre-commit. |
 
-### KEEP-emergency (24) — wired in Phase 55, dormant today
+### KEEP-emergency (23) — wired in Phase 55, dormant today
 
 All other lints are 100% KEEP-emergency: they exist for activation in Phase 55 GUARD-01. Listing per spec:
 
@@ -202,7 +213,6 @@ All other lints are 100% KEEP-emergency: they exist for activation in Phase 55 G
 | no_hardcoded_fr.py | KEEP-emergency |
 | no_implicit_bloom_strategy.py | KEEP-emergency |
 | no_legacy_confidence_render.py | KEEP-emergency |
-| no_legal_admission_in_public_docs.py | KEEP-emergency |
 | no_llm_alert.py | KEEP-emergency |
 | regional_microcopy_drift.py | KEEP-emergency |
 | route_registry_parity.py | KEEP-emergency |
