@@ -20996,7 +20996,7 @@ class SDe extends S {
 
   @override
   String get jargonAvsTooltip =>
-      'Die AHV (Alters- und Hinterlassenenversicherung) ist die 1. Säule. Sie garantiert ein Grundeinkommen im Ruhestand.';
+      'Die AHV (Alters- und Hinterlassenenversicherung) ist die 1. Säule. Sie soll ein Grundeinkommen im Ruhestand bereitstellen.';
 
   @override
   String get jargonRamdTooltip =>

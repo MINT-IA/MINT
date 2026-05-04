@@ -9826,7 +9826,7 @@
   "jargonReplacementRateTooltip": "Il tasso di sostituzione misura la quota del tuo reddito attuale che manterrai in pensione. Esempio: 65% significa che riceverai il 65% del tuo stipendio attuale.",
   "jargonLppTooltip": "La LPP (Legge sulla previdenza professionale) è il 2° pilastro. Tu e il tuo datore di lavoro contribuite insieme per la tua pensione.",
   "jargon3aTooltip": "Il pilastro 3a è un risparmio pensionistico volontario con vantaggi fiscali. Il tetto è di CHF 7'258/anno (dipendenti con LPP).",
-  "jargonAvsTooltip": "L'AVS (Assicurazione vecchiaia e superstiti) è il 1° pilastro. Garantisce un reddito di base in pensione.",
+  "jargonAvsTooltip": "L'AVS (Assicurazione vecchiaia e superstiti) è il 1° pilastro. Mira a fornire un reddito di base in pensione.",
   "jargonRamdTooltip": "Il RAMD determina l'importo della tua rendita AVS. È calcolato in base ai redditi soggetti a contribuzione.",
   "confidenceDetailsTooltip": "Basato su: età, reddito, cantone, stato civile, nazionalità, LPP e 3a dichiarati. Più dati fornisci, più accurata è la proiezione.",
   "replacementRateContextGood": "È un buon livello — sopra l'80%.",

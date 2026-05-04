@@ -9826,7 +9826,7 @@
   "jargonReplacementRateTooltip": "A taxa de substituição mede a parte do teu rendimento atual que manterás na reforma. Exemplo: 65% significa que receberás 65% do teu salário atual.",
   "jargonLppTooltip": "A LPP (Lei sobre a Previdência Profissional) é o 2.º pilar. Tu e o teu empregador contribuem juntos para a tua reforma.",
   "jargon3aTooltip": "O pilar 3a é uma poupança voluntária para a reforma com vantagens fiscais. O limite é de CHF 7'258/ano (assalariados com LPP).",
-  "jargonAvsTooltip": "O AVS (Seguro de Velhice e Sobreviventes) é o 1.º pilar. Garante um rendimento básico na reforma.",
+  "jargonAvsTooltip": "O AVS (Seguro de Velhice e Sobreviventes) é o 1.º pilar. Tem como objetivo fornecer um rendimento básico na reforma.",
   "jargonRamdTooltip": "O RAMD determina o montante da tua pensão AVS. É calculado a partir dos teus rendimentos sujeitos a contribuição.",
   "confidenceDetailsTooltip": "Baseado em: idade, rendimento, cantão, estado civil, nacionalidade, LPP e 3a declarados. Quanto mais dados forneceres, mais precisa é a projeção.",
   "replacementRateContextGood": "É um bom nível — acima de 80%.",

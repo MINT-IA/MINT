@@ -9826,7 +9826,7 @@
   "jargonReplacementRateTooltip": "Die Ersatzquote misst, welchen Anteil deines aktuellen Einkommens du im Ruhestand behältst. Beispiel: 65% bedeutet, du erhältst 65% deines aktuellen Lohns.",
   "jargonLppTooltip": "Das BVG (Bundesgesetz über die berufliche Vorsorge) ist die 2. Säule. Du und dein Arbeitgeber zahlen gemeinsam für deine Pension ein.",
   "jargon3aTooltip": "Die Säule 3a ist freiwilliges Alterssparen mit Steuervorteil. Die Obergrenze beträgt CHF 7'258/Jahr (Angestellte mit BVG).",
-  "jargonAvsTooltip": "Die AHV (Alters- und Hinterlassenenversicherung) ist die 1. Säule. Sie garantiert ein Grundeinkommen im Ruhestand.",
+  "jargonAvsTooltip": "Die AHV (Alters- und Hinterlassenenversicherung) ist die 1. Säule. Sie soll ein Grundeinkommen im Ruhestand bereitstellen.",
   "jargonRamdTooltip": "Das RAMD bestimmt die Höhe deiner AHV-Rente. Es wird aus deinen beitragspflichtigen Einkommen berechnet.",
   "confidenceDetailsTooltip": "Basierend auf: Alter, Einkommen, Kanton, Zivilstand, Nationalität, deklarierte BVG und 3a. Je mehr Daten du angibst, desto genauer die Projektion.",
   "replacementRateContextGood": "Das ist ein gutes Niveau — über 80%.",

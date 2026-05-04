@@ -9826,7 +9826,7 @@
   "jargonReplacementRateTooltip": "La tasa de reemplazo mide la parte de tu ingreso actual que conservarás en la jubilación. Ejemplo: 65% significa que recibirás el 65% de tu salario actual.",
   "jargonLppTooltip": "La LPP (Ley de Previsión Profesional) es el 2.º pilar. Tú y tu empleador cotizáis juntos para tu jubilación.",
   "jargon3aTooltip": "El pilar 3a es un ahorro voluntario para la jubilación con ventajas fiscales. El límite es de CHF 7.258/año (asalariados con LPP).",
-  "jargonAvsTooltip": "El AVS (Seguro de Vejez y Supervivientes) es el 1.er pilar. Garantiza un ingreso básico en la jubilación.",
+  "jargonAvsTooltip": "El AVS (Seguro de Vejez y Supervivientes) es el 1.er pilar. Su objetivo es proporcionar un ingreso básico en la jubilación.",
   "jargonRamdTooltip": "El RAMD determina el monto de tu pensión AVS. Se calcula a partir de tus ingresos sujetos a cotización.",
   "confidenceDetailsTooltip": "Basado en: edad, ingresos, cantón, estado civil, nacionalidad, LPP y 3a declarados. Cuantos más datos proporcionas, más precisa es la proyección.",
   "replacementRateContextGood": "Es un buen nivel — por encima del 80%.",

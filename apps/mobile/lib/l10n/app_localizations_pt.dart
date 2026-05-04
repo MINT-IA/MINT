@@ -20954,7 +20954,7 @@ class SPt extends S {
 
   @override
   String get jargonAvsTooltip =>
-      'O AVS (Seguro de Velhice e Sobreviventes) é o 1.º pilar. Garante um rendimento básico na reforma.';
+      'O AVS (Seguro de Velhice e Sobreviventes) é o 1.º pilar. Tem como objetivo fornecer um rendimento básico na reforma.';
 
   @override
   String get jargonRamdTooltip =>
