@@ -3021,6 +3021,120 @@ abstract class S {
   /// **'Complète ton diagnostic pour débloquer ton plan mensuel avec tes vrais revenus et charges.'**
   String get budgetEmptyBody;
 
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charges fixes'**
+  String get budgetSetupTitle;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui part chaque mois, quoi qu\'il arrive.'**
+  String get budgetSetupSubtitle;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loyer ou hypothèque'**
+  String get budgetSetupHousing;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance maladie'**
+  String get budgetSetupLamal;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transport'**
+  String get budgetSetupTransport;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécom'**
+  String get budgetSetupTelecom;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Électricité'**
+  String get budgetSetupElectricity;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais médicaux'**
+  String get budgetSetupMedical;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres'**
+  String get budgetSetupOther;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter d\'autres postes'**
+  String get budgetSetupAddOthers;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get budgetSetupSave;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'en parle plutôt au coach'**
+  String get budgetSetupChatFallback;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF / mois'**
+  String get budgetSetupFieldPlaceholder;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Requis'**
+  String get budgetSetupRequired;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total fixe : {amount} CHF / mois'**
+  String budgetSetupTotalFixed(String amount);
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il te reste {amount} CHF après tes charges.'**
+  String budgetSetupResteAfterCharges(String amount);
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes charges fixes, au clair.'**
+  String get budgetCardEmptyTitle;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sept postes, deux minutes. Ensuite on calcule ce qu\'il te reste vraiment.'**
+  String get budgetCardEmptyBody;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poser mes charges'**
+  String get budgetCardEmptyAction;
+
   /// No description provided for @budgetEmptyAction.
   ///
   /// In fr, this message translates to:
@@ -13233,7 +13347,7 @@ abstract class S {
   /// No description provided for @authGateDocScanMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Tes certificats contiennent des données sensibles. Crée un compte pour les protéger avec un chiffrement de bout en bout.'**
+  /// **'Tes certificats contiennent des données sensibles. Crée un compte pour les chiffrer sur nos serveurs et les retrouver depuis tes appareils — tu peux à tout moment garder tout en local depuis Confidentialité.'**
   String get authGateDocScanMessage;
 
   /// No description provided for @authGateSalaryTitle.
@@ -13245,7 +13359,7 @@ abstract class S {
   /// No description provided for @authGateSalaryMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Ton salaire et tes données financières méritent un coffre-fort sécurisé.'**
+  /// **'Crée un compte pour chiffrer ton salaire et tes données financières sur nos serveurs et y accéder depuis tes appareils — tu peux à tout moment limiter à ton appareil dans Confidentialité.'**
   String get authGateSalaryMessage;
 
   /// No description provided for @authGateCoachTitle.
@@ -13653,7 +13767,7 @@ abstract class S {
   /// No description provided for @authRegisterSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Compte optionnel : tes données restent locales par défaut'**
+  /// **'Crée un compte chiffré. La synchronisation cloud est désactivée par défaut ; tu peux l\'activer depuis Réglages › Confidentialité.'**
   String get authRegisterSubtitle;
 
   /// No description provided for @authWhyCreateAccount.
@@ -13905,7 +14019,7 @@ abstract class S {
   /// No description provided for @coachInputHint.
   ///
   /// In fr, this message translates to:
-  /// **'Dis-moi ce qui te trotte dans la tête.'**
+  /// **'Dis-moi.'**
   String get coachInputHint;
 
   /// No description provided for @coachUserMessage.
@@ -16588,13 +16702,13 @@ abstract class S {
   /// No description provided for @sim3aDebtStrategyTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Stratégie bloquée'**
+  /// **'Stratégie en pause'**
   String get sim3aDebtStrategyTitle;
 
   /// No description provided for @sim3aDebtStrategyMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Les stratégies d\'investissement 3a sont désactivées tant que tu as des dettes actives. Rembourser tes dettes est un rendement plus élevé que tout placement.'**
+  /// **'Les stratégies d\'investissement 3a sont en pause tant que tes dettes actives pèsent sur ton budget. Ordre recommandé : stabiliser d\'abord, placer ensuite.'**
   String get sim3aDebtStrategyMessage;
 
   /// No description provided for @realReturnTitle.
@@ -18931,6 +19045,12 @@ abstract class S {
   /// **'Réduction capital-décès (estimation)'**
   String get eplReductionDeces;
 
+  /// No description provided for @eplReductionAskCaisse.
+  ///
+  /// In fr, this message translates to:
+  /// **'À demander à ta caisse'**
+  String get eplReductionAskCaisse;
+
   /// No description provided for @eplImpactPrestationsNote.
   ///
   /// In fr, this message translates to:
@@ -19504,7 +19624,7 @@ abstract class S {
   /// No description provided for @retroactive3aHeroTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Rattrapage 3a — Nouveauté 2026'**
+  /// **'Rattrapage 3a — Nouveauté 2025'**
   String get retroactive3aHeroTitle;
 
   /// No description provided for @retroactive3aHeroSubtitle.
@@ -20656,19 +20776,19 @@ abstract class S {
   /// No description provided for @reportSafeMode3a.
   ///
   /// In fr, this message translates to:
-  /// **'Le comparateur 3a est désactivée tant que tu as des dettes actives. Rembourser tes dettes est prioritaire avant toute épargne 3a.'**
+  /// **'Le comparateur 3a est en pause tant que tes dettes actives pèsent sur ton budget. Priorité : stabiliser ta trésorerie.'**
   String get reportSafeMode3a;
 
   /// No description provided for @reportSafeModeLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Rachat LPP bloqué'**
+  /// **'Rachat LPP en pause'**
   String get reportSafeModeLpp;
 
   /// No description provided for @reportSafeModeLppMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Le rachat LPP est désactivé en mode protection. Rembourser tes dettes avant de bloquer de la liquidité dans la prévoyance.'**
+  /// **'Le rachat LPP est en pause en mode protection. L\'ordre recommandé : rembourser les dettes avant de bloquer de la liquidité dans la prévoyance.'**
   String get reportSafeModeLppMessage;
 
   /// No description provided for @reportLppTitle.
@@ -32037,7 +32157,7 @@ abstract class S {
   /// No description provided for @portfolioSafeModeBody.
   ///
   /// In fr, this message translates to:
-  /// **'Les conseils d\'allocation sont désactivés en mode protection. Ta priorité est de réduire tes dettes avant de rééquilibrer ton patrimoine.'**
+  /// **'Les conseils d\'allocation sont en pause en mode protection. Ordre recommandé : réduire tes dettes avant de rééquilibrer ton patrimoine.'**
   String get portfolioSafeModeBody;
 
   /// No description provided for @portfolioSafeModeLocked.
@@ -33922,7 +34042,7 @@ abstract class S {
   /// No description provided for @safeModeMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu’un signal de dette est actif. La priorité est de construire ta sécurité.'**
+  /// **'Tant qu’un signal de dette est actif, les optimisations avancées sont en pause. Priorité : stabiliser ta trésorerie. Le reste attendra.'**
   String get safeModeMessage;
 
   /// No description provided for @safeModeTitle.
@@ -36666,7 +36786,7 @@ abstract class S {
   /// No description provided for @coachSuggestBudget.
   ///
   /// In fr, this message translates to:
-  /// **'Quel est mon budget réaliste à la retraite ?'**
+  /// **'Où part mon argent chaque mois ?'**
   String get coachSuggestBudget;
 
   /// No description provided for @coachSuggestBudgetGap.
@@ -36738,7 +36858,7 @@ abstract class S {
   /// No description provided for @jargonAvsTooltip.
   ///
   /// In fr, this message translates to:
-  /// **'L’AVS (assurance-vieillesse et survivants) est le 1er pilier. Elle garantit un revenu de base à la retraite.'**
+  /// **'L’AVS (assurance-vieillesse et survivants) est le 1er pilier. Elle vise à fournir un revenu de base à la retraite.'**
   String get jargonAvsTooltip;
 
   /// No description provided for @jargonRamdTooltip.
@@ -36909,6 +37029,48 @@ abstract class S {
   /// **'Tu veux en parler ?'**
   String get coachSilentOpenerQuestion;
 
+  /// First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salut. Moi c\'est Mint.'**
+  String get coachOpenerIdentity;
+
+  /// First-contact opener line 2 — trust promise. LSFin-compatible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je te connais. Je vois ce qui vient. Je te guide.'**
+  String get coachOpenerPromise;
+
+  /// First-contact opener closing question.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par quoi on commence ?'**
+  String get coachOpenerQuestion;
+
+  /// Conversation starter chip — routes to scanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un papier que je ne comprends pas'**
+  String get coachStarterPaper;
+
+  /// Conversation starter chip — life events opener.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un choix que je dois faire'**
+  String get coachStarterChoice;
+
+  /// Conversation starter chip — budget/fiscal opener.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un truc qui me coûte, je ne sais pas quoi'**
+  String get coachStarterCost;
+
+  /// Conversation starter chip — dismisses opener without forcing engagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je regarde, je me présente après'**
+  String get coachStarterLurk;
+
   /// No description provided for @coachProactiveOptIn.
   ///
   /// In fr, this message translates to:
@@ -36927,10 +37089,16 @@ abstract class S {
   /// **'Non, je viens quand je veux'**
   String get coachOptInDecline;
 
+  /// No description provided for @coachOptInAcknowledged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien noté, je te signalerai ce qui compte.'**
+  String get coachOptInAcknowledged;
+
   /// No description provided for @coachSilentOpenerReplacementRate.
   ///
   /// In fr, this message translates to:
-  /// **'Taux de remplacement à la retraite'**
+  /// **'Taux de remplacement projeté'**
   String get coachSilentOpenerReplacementRate;
 
   /// No description provided for @coachSilentOpenerFitnessScore.
@@ -36944,6 +37112,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Capital projeté à la retraite'**
   String get coachSilentOpenerRetirementCapital;
+
+  /// Silent opener label when the coach surfaces a generic projected-capital number across any life-event horizon (not only retraite). Wave 2 debias — replaces retirement-framed default.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital projeté sur ton horizon'**
+  String get coachSilentOpenerProjectedCapital;
+
+  /// Silent opener label for the user's current LPP balance, surfaced first when enriched via scan. Factual indicative voice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP'**
+  String get coachSilentOpenerLppAvoir;
+
+  /// Silent opener label for 3a savings snapshot. Factual indicative voice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne 3a'**
+  String get coachSilentOpener3aEpargne;
 
   /// No description provided for @confidenceLow.
   ///
@@ -37908,7 +38094,7 @@ abstract class S {
   /// No description provided for @checkInCoachSummary.
   ///
   /// In fr, this message translates to:
-  /// **'Parfait, {summary}. C\'est noté !'**
+  /// **'Bien noté, {summary}.'**
   String checkInCoachSummary(String summary);
 
   /// No description provided for @checkInErrorNoPlan.
@@ -39123,16 +39309,16 @@ abstract class S {
   /// **'Voix'**
   String get tonSectionLabel;
 
-  /// Anonymous intent screen — opening line about money taboo in Switzerland.
+  /// Landing opener. Short and sober — sets up the 'On éclaire. Tu décides.' promise below.
   ///
   /// In fr, this message translates to:
-  /// **'L\'argent, en Suisse, c\'est le sujet dont personne ne parle.'**
+  /// **'Ta vie financière, en clair.'**
   String get anonymousIntentLine1;
 
-  /// Anonymous intent screen — follow-up line.
+  /// Retired 2026-04-17. Kept as empty string for ARB parity; the widget no longer renders it.
   ///
   /// In fr, this message translates to:
-  /// **'Même pas à soi-même.'**
+  /// **''**
   String get anonymousIntentLine2;
 
   /// Anonymous intent — felt-state pill 1.
@@ -39200,6 +39386,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Je rencontre un problème technique. Réessaie dans un instant.'**
   String get anonymousChatError;
+
+  /// Error shown when the anonymous chat request fails due to no network / timeout (walk 2026-04-24 P0-2).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de réseau. Vérifie ta connexion et réessaie.'**
+  String get anonymousChatErrorNetwork;
+
+  /// Error shown when backend returns 503 or 5xx (service unavailable, often missing ANTHROPIC_API_KEY in dev).
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis temporairement indisponible. Reviens dans quelques minutes.'**
+  String get anonymousChatErrorService;
+
+  /// Error shown when backend returns 400 with invalid session (anonymous UUID invalid or expired).
+  ///
+  /// In fr, this message translates to:
+  /// **'Session expirée. Ferme et rouvre l\'app pour continuer.'**
+  String get anonymousChatErrorSession;
 
   /// Anonymous chat — coach message before auth gate after 3rd response.
   ///
@@ -40124,6 +40328,396 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Santé & Protection'**
   String get hubSante;
+
+  /// No description provided for @safeModeWhyBlockedSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi est-ce en pause'**
+  String get safeModeWhyBlockedSemantics;
+
+  /// No description provided for @safeModeWhyBlockedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi c\'est en pause'**
+  String get safeModeWhyBlockedTitle;
+
+  /// No description provided for @safeModeWhyBlockedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'En mode protection, MINT priorise la stabilité de trésorerie avant les optimisations fiscales et prévoyance.'**
+  String get safeModeWhyBlockedBody;
+
+  /// No description provided for @safeModeWhyBlockedLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi est-ce en pause ?'**
+  String get safeModeWhyBlockedLink;
+
+  /// No description provided for @safeModeFormalDesendettementNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.'**
+  String get safeModeFormalDesendettementNote;
+
+  /// Persistent event summary when an LPP certificate is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat LPP scanné'**
+  String get scanSummaryLppCertificate;
+
+  /// Persistent event summary when a Pillar 3a attestation is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attestation 3a scannée'**
+  String get scanSummary3aAttestation;
+
+  /// Persistent event summary when a tax declaration is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale scannée'**
+  String get scanSummaryTaxDeclaration;
+
+  /// Persistent event summary when an AVS extract is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Extrait AVS scanné'**
+  String get scanSummaryAvsExtract;
+
+  /// Persistent event summary when a mortgage attestation is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attestation hypothèque scannée'**
+  String get scanSummaryMortgageAttestation;
+
+  /// Persistent event summary when a salary certificate is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat de salaire scanné'**
+  String get scanSummarySalaryCertificate;
+
+  /// MVP wedge T9 — error SnackBar shown when completeAndFlushToProfile throws (local persistence failure).
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de sceller ton dossier. Vérifie ta connexion et réessaie.'**
+  String get onboardingSealError;
+
+  /// MVP wedge T9 — SnackBar action label to retry sealing the dossier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get onboardingSealRetry;
+
+  /// No description provided for @wedgeTeaserEyebrowExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'APERÇU'**
+  String get wedgeTeaserEyebrowExample;
+
+  /// No description provided for @wedgeTeaserEyebrowEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'ESTIMATION INDICATIVE'**
+  String get wedgeTeaserEyebrowEstimate;
+
+  /// No description provided for @wedgeTeaserSalienceExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'EXEMPLE TYPE · pas une projection sur ta situation'**
+  String get wedgeTeaserSalienceExample;
+
+  /// No description provided for @wedgeTeaserSalienceEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation indicative · carrière complète, retraite à 65 ans'**
+  String get wedgeTeaserSalienceEstimate;
+
+  /// No description provided for @wedgeTeaserAssumptionsExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS seul, exemple carrière complète'**
+  String get wedgeTeaserAssumptionsExample;
+
+  /// No description provided for @wedgeTeaserAssumptionsEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses : 40 ans, carrière 20→65, aucune lacune, AVS seul. Ton vrai chiffre bouge avec ton âge, ton genre, ton canton, ton LPP.'**
+  String get wedgeTeaserAssumptionsEstimate;
+
+  /// No description provided for @wedgeTeaserReculExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseigne ton LPP, MINT calcule tes projections.'**
+  String get wedgeTeaserReculExample;
+
+  /// No description provided for @wedgeTeaserReculEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec un compte, MINT affine avec ton âge, ton LPP, ton canton, tes lacunes.'**
+  String get wedgeTeaserReculEstimate;
+
+  /// No description provided for @wedgeTeaserHeroSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'{amount} francs par mois'**
+  String wedgeTeaserHeroSemantics(String amount);
+
+  /// No description provided for @wedgeTeaserChfPerMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF / mois'**
+  String get wedgeTeaserChfPerMonth;
+
+  /// No description provided for @wedgeTeaserModifySalary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get wedgeTeaserModifySalary;
+
+  /// No description provided for @wedgeTeaserCtaRegister.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crée ton compte pour tes propres projections'**
+  String get wedgeTeaserCtaRegister;
+
+  /// No description provided for @wedgeSalaryInputLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton salaire annuel brut. Pour une estimation rapide.'**
+  String get wedgeSalaryInputLabel;
+
+  /// No description provided for @wedgeSalaryInputAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculer'**
+  String get wedgeSalaryInputAction;
+
+  /// No description provided for @wedgeSalaryInputActionSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculer mon estimation'**
+  String get wedgeSalaryInputActionSemantics;
+
+  /// No description provided for @wedgeSalaryStaysOnDevice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton salaire reste sur ton appareil. MINT ne l\'envoie nulle part.'**
+  String get wedgeSalaryStaysOnDevice;
+
+  /// No description provided for @wedgeSalaryErrorInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre un montant en chiffres, par exemple 95 000.'**
+  String get wedgeSalaryErrorInvalid;
+
+  /// No description provided for @wedgeSalaryErrorOutOfRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre 10 000 et 1 000 000 CHF par an.'**
+  String get wedgeSalaryErrorOutOfRange;
+
+  /// No description provided for @coachOnboardingFirstUserMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salut, je viens de créer mon compte. Par où je commence ?'**
+  String get coachOnboardingFirstUserMessage;
+
+  /// No description provided for @coachAnonymousAuthGateMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'On a déjà découvert quelques pistes ensemble. Crée ton compte pour que je me souvienne de tout.'**
+  String get coachAnonymousAuthGateMessage;
+
+  /// No description provided for @coachAuthGateChipRegister.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon compte'**
+  String get coachAuthGateChipRegister;
+
+  /// No description provided for @coachAuthGateChipLogin.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai déjà un compte'**
+  String get coachAuthGateChipLogin;
+
+  /// No description provided for @cantonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get cantonLabel;
+
+  /// No description provided for @coachNotificationOpenerMonthlyCheckIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'On fait le point sur le mois ?'**
+  String get coachNotificationOpenerMonthlyCheckIn;
+
+  /// No description provided for @coachNotificationOpenerCommitmentWithLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu m\'avais dit que tu allais {commitment}. C\'est fait ?'**
+  String coachNotificationOpenerCommitmentWithLabel(String commitment);
+
+  /// No description provided for @coachNotificationOpenerCommitmentGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu avais un engagement à tenir. C\'est fait ?'**
+  String get coachNotificationOpenerCommitmentGeneric;
+
+  /// No description provided for @coachNotificationOpenerFreshStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mois. On commence par quoi ?'**
+  String get coachNotificationOpenerFreshStart;
+
+  /// No description provided for @settingsPrivacyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confidentialité'**
+  String get settingsPrivacyTitle;
+
+  /// No description provided for @settingsPrivacyCloudSyncTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchronisation cloud (multi-appareils)'**
+  String get settingsPrivacyCloudSyncTitle;
+
+  /// No description provided for @settingsPrivacyCloudSyncSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauvegarde ton profil et synchronise-le entre tes appareils. Désactivée, le coach IA reste disponible mais les faits ne sont retenus que localement.'**
+  String get settingsPrivacyCloudSyncSubtitle;
+
+  /// No description provided for @settingsPrivacyCloudSyncOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activée'**
+  String get settingsPrivacyCloudSyncOn;
+
+  /// No description provided for @settingsPrivacyCloudSyncOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivée'**
+  String get settingsPrivacyCloudSyncOff;
+
+  /// No description provided for @settingsPrivacyMigrationToast.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle option : tu peux désactiver la synchronisation cloud depuis Réglages › Confidentialité.'**
+  String get settingsPrivacyMigrationToast;
+
+  /// No description provided for @settingsPrivacyDataLocation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes réponses au questionnaire et ton historique de chat restent sur ton appareil. Quand tu écris au coach IA, ton message transite par nos serveurs pour générer la réponse — avec la sync activée, les faits que tu confirmes (âge, salaire, canton…) sont aussi sauvegardés sur nos serveurs ; sync désactivée, ils ne sont gardés que sur ton appareil.'**
+  String get settingsPrivacyDataLocation;
+
+  /// No description provided for @settingsPrivacyCloudSyncOffServerCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver la sync n\'efface pas les données déjà sauvegardées sur nos serveurs. Pour les supprimer, va dans Compte › Supprimer mon compte.'**
+  String get settingsPrivacyCloudSyncOffServerCaveat;
+
+  /// No description provided for @profileSyncRowHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer dans Réglages › Confidentialité'**
+  String get profileSyncRowHint;
+
+  /// No description provided for @settingsPrivacyMigrationToastCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get settingsPrivacyMigrationToastCta;
+
+  /// No description provided for @aujourdhuiCommitmentsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes engagements récents'**
+  String get aujourdhuiCommitmentsTitle;
+
+  /// No description provided for @aujourdhuiCheckInsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes derniers check-ins'**
+  String get aujourdhuiCheckInsTitle;
+
+  /// No description provided for @aujourdhuiResumeConversation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre la conversation'**
+  String get aujourdhuiResumeConversation;
+
+  /// No description provided for @coachSequenceNextStepLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape suivante : {label}.'**
+  String coachSequenceNextStepLabel(String label);
+
+  /// No description provided for @coachSequenceCompletedMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as terminé cette séquence guidée.'**
+  String get coachSequenceCompletedMessage;
+
+  /// Beta disclosure sheet — uppercase eyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT en test'**
+  String get betaDisclosureEyebrow;
+
+  /// Beta disclosure sheet — phrase signature prefix (before italic em).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu testes une version qui'**
+  String get betaDisclosureHeadlinePrefix;
+
+  /// Beta disclosure sheet — italicised em portion of the headline.
+  ///
+  /// In fr, this message translates to:
+  /// **'apprend avec toi'**
+  String get betaDisclosureHeadlineEm;
+
+  /// Beta disclosure sheet — punctuation after the em.
+  ///
+  /// In fr, this message translates to:
+  /// **'.'**
+  String get betaDisclosureHeadlineSuffix;
+
+  /// Beta disclosure sheet — first bullet (LSFin disclaimer).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT n\'est pas un conseil financier au sens de la LSFin — outil éducatif uniquement.'**
+  String get betaDisclosureBulletNoAdvice;
+
+  /// Beta disclosure sheet — second bullet (data sovereignty / nLPD).
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune donnée bancaire stockée chez nous. Les données restent sur ton appareil sauf opt-in explicite.'**
+  String get betaDisclosureBulletNoBank;
+
+  /// Beta disclosure sheet — third bullet (feedback loop).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes retours pendant la bêta nous aident à améliorer MINT. On te lit.'**
+  String get betaDisclosureBulletDataLocal;
+
+  /// Beta disclosure sheet — primary acknowledgement CTA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je comprends, on y va'**
+  String get betaDisclosureCta;
+
+  /// Beta disclosure sheet — secondary CTA opening the privacy URL.
+  ///
+  /// In fr, this message translates to:
+  /// **'En savoir plus'**
+  String get betaDisclosureLearnMore;
+
+  /// Beta disclosure sheet — accessibility container label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l\'appareil par défaut.'**
+  String get betaDisclosureSemanticsLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

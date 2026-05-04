@@ -1,211 +1,272 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-04-05
+**Analysis Date:** 2026-04-22
 
-## Overview
+---
 
-**Total test count:** ~12,892 (8,137 Flutter + 4,755 backend) — all green as of 2026-04-05.
+## Flutter / Dart
 
-## Test Framework
+### Test Framework
 
-**Flutter:**
-- Runner: `flutter_test` (built-in)
-- No separate test runner config file — uses `analysis_options.yaml` excludes
-- Assertion: `expect()` with matchers (`closeTo`, `greaterThan`, `findsOneWidget`, etc.)
-
-**Backend:**
-- Runner: `pytest >= 8.0.0` with `pytest-asyncio >= 0.23.0`
-- Config: `[tool.pytest.ini_options]` in `services/backend/pyproject.toml`
-- Options: `addopts = "-ra -q"`, `testpaths = ["tests"]`
-- Coverage: `pytest-cov >= 5.0.0`
+**Runner:** `flutter_test` (built-in Flutter testing)
+- Version: Flutter 3.41.4 (pinned in CI)
+- Config: none beyond `pubspec.yaml`
 
 **Run Commands:**
 ```bash
-# Flutter (in apps/mobile/)
-flutter test                              # Run all tests
-flutter test test/services/               # Run one directory
-flutter test test/golden/ --concurrency=4 # Specific shard
-
-# Backend (in services/backend/)
-python3 -m pytest tests/ -q               # Run all tests
-python3 -m pytest tests/test_retirement.py -v  # Single file verbose
-python3 -m pytest tests/ -q --cov=app --cov-fail-under=60  # With coverage
+cd apps/mobile && flutter test                         # All tests
+cd apps/mobile && flutter test test/golden/            # Specific directory
+cd apps/mobile && flutter test test/golden/golden_couple_validation_test.dart  # Single file
+flutter test --concurrency=4 --reporter compact        # CI mode (4 parallel)
 ```
 
-## Test File Organization
+**Analyze:**
+```bash
+cd apps/mobile && flutter analyze --no-fatal-warnings --no-fatal-infos
+```
 
-**Flutter — Location:**
-- Mirror structure in `apps/mobile/test/` matching `lib/` organization
-- Co-located by layer, not co-located with source
+### Test File Organization
 
-**Flutter — Test directories (by test count):**
-| Directory | Files | What it covers |
-|-----------|-------|----------------|
-| `test/services/` | ~199 | Service logic, financial calculators, coach, LLM |
-| `test/widgets/` | ~80 | Widget rendering, interaction tests |
-| `test/screens/` | ~41 | Screen-level widget tests |
-| `test/providers/` | 8 | Provider state management tests |
-| `test/models/` | 7 | Model serialization, computed properties |
-| `test/simulators/` | 5 | Simulator integration tests |
-| `test/domain/` | 3 | Domain logic (budget) |
-| `test/b2b/` | 3 | B2B feature tests |
-| `test/golden/` | 1 | Golden couple validation (Julien + Lauren) |
-| `test/financial_core/` | 1 | Financial core calculator tests |
-| `test/auth/` | 1 | Authentication tests |
+**Location:** `apps/mobile/test/` — NOT co-located with source files
 
-**Flutter — Naming:**
-- `{feature}_test.dart` — e.g., `avs_calculator_test.dart`, `explore_tab_test.dart`
-- Subdirectories mirror service structure: `test/services/coach/`, `test/services/financial_core/`
+**Structure mirrors source tree:**
+```
+apps/mobile/test/
+├── calculators_test.dart          # Root-level (legacy, basic)
+├── pillar_3a_calculator_test.dart
+├── wizard_test.dart
+├── monte_carlo_determinism_test.dart
+├── golden/
+│   └── golden_couple_validation_test.dart  # Julien+Lauren actuarial audit
+├── simulators/
+│   ├── rente_vs_capital_test.dart
+│   ├── disability_gap_test.dart
+│   ├── lpp_buyback_advanced_simulator_test.dart
+│   ├── buyback_logic_test.dart
+│   └── real_interest_test.dart
+├── models/
+│   ├── coach_profile_bridge_test.dart
+│   ├── financial_plan_test.dart
+│   ├── coach_profile_safe_mode_test.dart
+│   └── ...
+├── providers/
+│   ├── financial_plan_provider_test.dart
+│   ├── coach_profile_provider_tax_extraction_test.dart
+│   └── ...
+├── navigation/
+│   ├── goroute_health_test.dart
+│   └── home_gate_contract_test.dart
+├── integration/
+│   ├── coach_tool_choreography_test.dart  # facade-sans-cablage guard
+│   ├── profile_hydration_test.dart
+│   └── sequence_e2e_test.dart
+├── auth/
+│   └── auth_service_test.dart
+├── design_system/
+│   └── s0_s5_microtypography_test.dart
+└── l10n_regional/
+    └── regional_localizations_test.dart
+```
 
-**Backend — Location:**
-- Flat structure in `services/backend/tests/` (118 test files)
-- Single `conftest.py` for shared fixtures
+**CI sharding (3 parallel runners):**
+- `services` shard: `test/services/`, `test/simulators/`, `test/financial_core/`, `test/domain/`, `test/b2b/`, root-level `test/*.dart`
+- `widgets` shard: `test/widgets/`, `test/models/`, `test/providers/`
+- `screens` shard: `test/screens/`, `test/golden/`, `test/auth/`, `test/modules/`, `test/journeys/`, `test/accessibility/`, `test/i18n/`
 
-**Backend — Naming:**
-- `test_{feature}.py` — e.g., `test_retirement.py`, `test_compliance_guard.py`, `test_golden_julien_lauren.py`
+**Excluded from CI:**
+- `test/patrol/` — requires emulator infrastructure
+- `test/golden_screenshots/` — pixel diffs are cross-platform fragile (macOS baselines drift on Linux)
+- `test/_archive/` — legacy suite
 
-## Flutter Test Structure
+### Test Structure
 
-**Unit Test Pattern (calculators/services):**
+**Standard pattern:**
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 
+// Helper factories at top of file (outside test functions)
+CoachProfile _makeProfile({double salary = 10000.0, String canton = 'VS'}) {
+  return CoachProfile(
+    birthYear: 1977,
+    canton: canton,
+    salaireBrutMensuel: salary,
+    goalA: GoalA(type: GoalAType.achatImmo, ...),
+  );
+}
+
 void main() {
-  group('AvsCalculator.computeMonthlyRente', () {
-    test('high income full career -> max rente 2520', () {
-      final rente = AvsCalculator.computeMonthlyRente(
-        currentAge: 45,
-        retirementAge: 65,
-        grossAnnualSalary: 120000,
-      );
-      expect(rente, closeTo(avsRenteMaxMensuelle, 1));
+  group('FinancialPlanProvider', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
     });
 
-    test('expat arrivalAge 35 -> fewer contribution years', () {
-      final native = AvsCalculator.computeMonthlyRente(
-        currentAge: 45, retirementAge: 65, grossAnnualSalary: 100000,
-      );
-      final expat = AvsCalculator.computeMonthlyRente(
-        currentAge: 45, retirementAge: 65, arrivalAge: 35, grossAnnualSalary: 100000,
-      );
-      expect(expat, lessThan(native));
-      expect(expat / native, closeTo(30 / 44, 0.05));
+    test('Test 7: hasPlan is false initially', () {
+      final provider = FinancialPlanProvider();
+      expect(provider.hasPlan, isFalse);
+      expect(provider.currentPlan, isNull);
     });
   });
 }
 ```
 
-**Widget Test Pattern (screens):**
+**Patterns:**
+- `group()` to namespace related tests — often prefixed with class/feature name
+- `setUp()` for shared initialization, used for `SharedPreferences.setMockInitialValues({})`
+- Test names numbered (`Test 7:`, `Test 8:`) in provider tests for traceability
+- Private `_make*()` factory functions for test fixture construction
+
+### Mocking (Flutter)
+
+**SharedPreferences:**
 ```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:mint_mobile/l10n/app_localizations.dart';
+setUp(() {
+  SharedPreferences.setMockInitialValues({});
+});
+```
 
-void main() {
-  setUp(() {
-    SharedPreferences.setMockInitialValues({});
-  });
+**GoRouter stub for widget tests:**
+```dart
+final router = GoRouter(
+  initialLocation: '/',
+  routes: [
+    GoRoute(path: '/', builder: (_, __) => Scaffold(body: child)),
+    GoRoute(path: '/documents', builder: (_, __) => const Scaffold()),
+  ],
+);
+```
 
-  Widget buildWidget() {
-    return ChangeNotifierProvider<CoachProfileProvider>(
-      create: (_) => CoachProfileProvider(),
-      child: const MaterialApp(
-        locale: Locale('fr'),
-        localizationsDelegates: [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.supportedLocales,
-        home: Scaffold(body: MyWidget()),
-      ),
-    );
-  }
-
-  group('MyWidget', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildWidget());
-      await tester.pump();
-      expect(find.byType(MyWidget), findsOneWidget);
-    });
-  });
+**Provider injection in widget tests:**
+```dart
+Widget _wrap({required Widget child, CoachProfileProvider? coachProvider}) {
+  final coach = coachProvider ?? CoachProfileProvider();
+  return MultiProvider(
+    providers: [ChangeNotifierProvider.value(value: coach)],
+    child: MaterialApp.router(routerConfig: router, ...),
+  );
 }
 ```
 
-**Key patterns for widget tests:**
-- Always `SharedPreferences.setMockInitialValues({})` in `setUp`
-- Wrap in `MaterialApp` with full localization delegates (fr locale)
-- Provide required `ChangeNotifierProvider`s
-- `await tester.pump()` after `pumpWidget` to settle
-- Use `find.byType()`, `find.text()`, `find.byIcon()` for assertions
+**Integration test coaches (facade-sans-cablage guard):**
+- `apps/mobile/test/integration/coach_tool_choreography_test.dart` proves all 4 coach tools render real widgets (not `SizedBox.shrink`) end-to-end
+- Pattern: `RagToolCall → ChatMessage(richToolCalls) → CoachMessageBubble → WidgetRenderer → finder`
 
-## Backend Test Structure
+### Golden Couple Fixture (Dart)
 
-**Unit Test Pattern (services):**
-```python
-import pytest
-from app.services.retirement.avs_estimation_service import AvsEstimationService
+**File:** `apps/mobile/test/golden/golden_couple_validation_test.dart`
 
-@pytest.fixture
-def avs_service():
-    return AvsEstimationService()
-
-class TestAvsEstimation:
-    def test_max_rente_full_career(self, avs_service):
-        result = avs_service.estimate(salary=120000, contribution_years=44)
-        assert result.monthly_rente == pytest.approx(2520, abs=5)
+Julien + Lauren reference data (CLAUDE.md §8):
+```dart
+// Julien: born 1977 (age 49), CHF 122'207/an, VS, swiss_native, CPE Plan Maxi
+// Lauren: born 1982 (age 43), CHF 67'000/an, VS, expat_us (FATCA)
 ```
 
-**Integration Test Pattern (API endpoints):**
-```python
-def test_retirement_estimate(client):
-    response = client.post("/api/v1/retirement/avs/estimate", json={
-        "grossAnnualSalary": 100000,
-        "canton": "VD",
-        "age": 45,
-    })
-    assert response.status_code == 200
-    data = response.json()
-    assert "monthlyRente" in data
-    assert data["disclaimer"] is not None
+**Pattern — actuarial audit:**
+```dart
+test('1a. AVS Julien — individual monthly rente', () {
+  final rente = AvsCalculator.computeMonthlyRente(
+    currentAge: 49,
+    retirementAge: 65,
+    lacunes: 0,
+    grossAnnualSalary: 122207,
+  );
+  const expected = 2520.0;
+  expect(rente, closeTo(expected, 300));
+});
 ```
 
-**Compliance Test Pattern:**
-```python
-class TestBannedTerms:
-    def test_catches_garanti(self, guard):
-        result = guard.validate("Ton rendement est garanti a 3%.")
-        assert not result.is_compliant
-        assert any("garanti" in v for v in result.violations)
+**Tolerance pattern:** `closeTo(expected, toleranceAbs)` or `closeTo(expected, expected * 0.10)` for percentage-based
+**Verbose output:** `print()` with `// ignore: avoid_print` to log computed vs expected for every assertion
+**SUMMARY test:** Last test in golden file prints a full audit table — always include when adding golden tests
+
+### Persona-Named Tests
+
+**Pattern used in simulators:**
+```dart
+test('Marc: ZH single, 200k+300k, surob 5%, age 65', () {
+  final r = computeRenteVsCapital(avoirObligatoire: 200000, ...);
+  expect(r.renteAnnuelle, closeTo(28600, 1));
+  expect(r.impotRetrait, closeTo(39325, 1));
+});
+
+test('Sophie: VD married, 150k+100k, surob 4.5%, age 64', () { ... });
 ```
 
-**Backend test organization by category:**
-- Grouped in `class Test*:` per logical concern
-- Fixtures via `@pytest.fixture` (function-scoped by default)
-- Module docstrings list test count target, sprint reference, and legal sources
+Use exact CHF values in test names (not vague descriptions) for auditability.
 
-## Backend Fixtures (conftest.py)
+---
 
-**Location:** `services/backend/tests/conftest.py`
+## Python / Backend
 
-**Database Setup:**
-- In-memory SQLite with `StaticPool` (shared across connections)
-- Session-scoped `setup_test_database` fixture: creates all tables once
-- Function-scoped `clean_database` fixture: truncates all tables between tests (ordered by FK dependencies)
+### Test Framework
 
-**Auth Override:**
-- `_fake_user()` returns a `MagicMock` with `id="test-user-id"`, `email="test@mint.ch"`
-- All three auth dependencies overridden: `get_db`, `require_current_user`, `get_current_user`
+**Runner:** `pytest` 8.0+
+- Config: `services/backend/pytest.ini` → `asyncio_mode = auto`
+- Config: `services/backend/pyproject.toml` → `[project.optional-dependencies] dev = ["pytest>=8.0.0", "pytest-asyncio>=0.23.0", "pytest-cov>=5.0.0"]`
 
-**Test Client:**
+**Run Commands:**
+```bash
+cd services/backend && python3 -m pytest tests/ -q               # All tests, quiet
+cd services/backend && python -m pytest tests/ -q --tb=short -x  # Fail-fast
+cd services/backend && python -m pytest tests/ --cov=app --cov-report=term-missing --cov-fail-under=60
+cd services/backend && python3 -m pytest tests/test_golden_julien_lauren.py -v  # Specific
+```
+
+**Coverage thresholds:**
+- Overall: `--cov-fail-under=60` (CI gate)
+- Changed lines (PRs): `diff-cover --fail-under=80` (CI gate, only on PRs)
+
+### Test File Organization
+
+**Location:** `services/backend/tests/` — separate from source
+
+```
+services/backend/tests/
+├── conftest.py                        # Shared fixtures, DB setup, auth override
+├── test_rules_engine.py               # Pure calculation tests
+├── test_golden_julien_lauren.py       # Golden couple validation
+├── test_coach_chat_endpoint.py        # API endpoint tests
+├── test_compliance_guard.py (in services/compliance/)
+├── test_structured_reasoning.py
+├── test_enhanced_confidence.py
+├── test_personas_integration.py
+├── test_e2e_coach_pipeline.py
+├── privacy/
+│   ├── test_save_fact_pii_redaction.py
+│   └── test_coerce_fact_value_range.py
+└── tools/
+    └── test_krippendorff_alpha.py
+```
+
+### conftest.py Pattern
+
+**`services/backend/tests/conftest.py`** — shared fixtures:
+
 ```python
+# In-memory SQLite with StaticPool (same connection across test threads)
+engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_database():
+    """Create all tables once per session."""
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
+
+@pytest.fixture(scope="function", autouse=True)
+def clean_database():
+    """Truncate all tables before each test (order matters for FK constraints)."""
+    db = TestingSessionLocal()
+    try:
+        db.query(ScenarioModel).delete()
+        # ... all models in FK-safe order
+        db.commit()
+    finally:
+        db.close()
+
 @pytest.fixture
 def client():
+    """TestClient with auth + DB overrides."""
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[require_current_user] = _fake_user
     app.dependency_overrides[get_current_user] = _fake_user
@@ -214,205 +275,191 @@ def client():
     app.dependency_overrides.clear()
 ```
 
-**Environment:**
-- `os.environ["TESTING"] = "1"` set at module level — disables rate limiting
-- `DATABASE_URL = "sqlite:///./test.db"` in CI
+### Test Structure
 
-## Golden Test Couple (Julien + Lauren)
-
-**Purpose:** Validate ALL financial calculators against known expected values from real Swiss financial data.
-
-**Flutter:** `apps/mobile/test/golden/golden_couple_validation_test.dart`
-- Calls every `financial_core/` calculator with golden data
-- Validates outputs against CLAUDE.md Section 8 expected values
-- Covers: AVS, LPP, tax, cross-pillar, couple optimizer, forecaster
-
-**Backend:** `services/backend/tests/test_golden_julien_lauren.py`
-- 10 deterministic tests using `MinimalProfileService`
-- Helper builders: `_julien_base()`, `_julien_full()`, `_lauren_base()`, `_lauren_full()`
-- Tests: base profile (3 inputs), full profile, complementaire vs base LPP, debt impact, replacement ratio
-
-**Golden Data (from CLAUDE.md Section 8):**
-| Field | Julien | Lauren |
-|-------|--------|--------|
-| Age | 49 | 43 |
-| Salary | 122,207 CHF | 67,000 CHF |
-| Canton | VS | VS |
-| Archetype | swiss_native | expat_us (FATCA) |
-| LPP capital | 70,377 CHF | 19,620 CHF |
-| 3a capital | 32,000 CHF | 14,000 CHF |
-
-**Multi-domain coverage:** tax, housing (EPL), 3a, LPP, couple dynamics, archetype differences.
-
-## Mocking
-
-**Flutter:**
-- `SharedPreferences.setMockInitialValues({})` for local storage
-- Provider injection via `ChangeNotifierProvider` in test widget tree
-- No external mocking framework — test doubles created manually
-- Financial core calculators are pure static functions (no mocking needed, test directly)
-
-**Backend:**
-- `unittest.mock.MagicMock` for auth user
-- FastAPI `dependency_overrides` for database and auth injection
-- `TESTING=1` environment flag to disable rate limiting and external services
-- Pure service functions tested directly without mocking (preferred pattern)
-
-**What to Mock:**
-- External API calls (Anthropic, Sentry)
-- Database connections (overridden via `conftest.py`)
-- Authentication (overridden with fake user)
-- SharedPreferences (mock initial values)
-
-**What NOT to Mock:**
-- Financial calculators — test with real inputs and assert real outputs
-- Pydantic validation — test with real schemas
-- Compliance guard — test with real banned term detection
-
-## Coverage
-
-**CI Requirements:**
-- Backend: `--cov-fail-under=60` (60% minimum overall coverage)
-- Backend PRs: `diff-cover` at 80% minimum on changed lines
-- Flutter: no coverage threshold enforced in CI (implicit via test count)
-
-**View Coverage:**
-```bash
-# Backend
-python3 -m pytest tests/ --cov=app --cov-report=term-missing --cov-report=html
-
-# Flutter (no built-in coverage gate)
-flutter test --coverage
-```
-
-**Well-Tested Areas:**
-- Financial core calculators (`lib/services/financial_core/`) — extensive edge cases
-- Compliance guard (25+ adversarial tests)
-- Golden couple validation across all calculators
-- Service layer logic (199 test files in `test/services/`)
-- Backend onboarding minimal profile service
-
-**Under-Tested Areas (from memory):**
-- ~120 hardcoded strings in 24 secondary service files (i18n gaps)
-- Screen-level tests (41 files for ~65 screen directories)
-- Integration tests (only 2 files in `test/integration/`)
-- Widget tests lighter than service tests (80 vs 199 files)
-
-## CI Integration
-
-**Pipeline:** GitHub Actions in `.github/workflows/ci.yml`
-
-**Triggers:** Push to `dev`/`staging`/`main` + PRs targeting those branches
-
-**Smart Path Detection:**
-- `dorny/paths-filter@v3` detects which paths changed
-- Backend jobs run only when `services/backend/**` changed
-- Flutter jobs run only when `apps/mobile/**` changed
-- On push events, both always run
-
-**Backend CI Job:**
-1. Python 3.12 setup with pip cache
-2. `pip install ".[dev]" pytest-cov diff-cover`
-3. Security audit via `pip-audit`
-4. `pytest tests/ -q --tb=short -x --cov=app --cov-fail-under=60`
-5. `diff-cover` on PRs (80% minimum on changed lines)
-6. OpenAPI contract check (drift detection, auto-commit on main)
-7. Alembic migration round-trip: `upgrade head -> downgrade base -> upgrade head`
-
-**Flutter CI Job (3-shard parallel):**
-- Sharding strategy splits ~369 test files across 3 parallel runners:
-  - `services`: `test/services/` + `test/simulators/` + `test/financial_core/` + `test/domain/` + `test/b2b/` (~200 files)
-  - `widgets`: `test/widgets/` + `test/models/` + `test/providers/` (~85 files)
-  - `screens`: `test/screens/` + `test/golden/` + `test/auth/` + `test/modules/` (~34 files)
-- Flutter 3.27.4 pinned
-- `flutter analyze` runs only in services shard (errors-only gate, warnings logged but non-blocking)
-- Tests run with `--concurrency=4` within each shard
-- Excludes `test/_archive/` (legacy suite)
-
-**CI Gate:**
-- Final `ci-gate` job requires both backend and flutter to pass
-- Skipped jobs (no relevant changes) count as success
-- Concurrency: `ci-${{ github.ref }}` with `cancel-in-progress: true`
-
-## Test Types
-
-**Unit Tests:**
-- Primary test type for both Flutter and backend
-- Pure function testing: inputs -> expected outputs
-- Financial calculators tested with edge cases, boundary values, archetype variations
-- Service logic tested in isolation
-
-**Widget Tests (Flutter):**
-- Render tests: widget builds without crashing
-- Interaction tests: tap, scroll, find text
-- Provider integration: verify state propagation
-- Always include localization setup
-
-**Integration Tests (Backend):**
-- API endpoint tests via `TestClient`
-- Full request/response cycle with JSON payloads
-- Auth dependency overridden with fake user
-- Database operations against in-memory SQLite
-
-**Compliance Tests (Backend):**
-- Adversarial inputs testing banned terms, prescriptive language, hallucinations
-- 5-layer validation pipeline coverage
-- Wording compliance checks against legal requirements
-
-**Golden Tests:**
-- Deterministic validation against known reference values
-- Golden couple (Julien + Lauren) tests both Flutter and backend
-- Cross-calculator consistency checks
-
-**E2E Tests:**
-- `test/integration/` directory exists but minimal (2 files)
-- `integration_test` SDK dependency declared in `pubspec.yaml`
-- Golden screenshot tests in `test/golden_screenshots/` (with failures/ and goldens/ dirs)
-
-## Common Patterns
-
-**Async Testing (Backend):**
+**Class-based grouping (preferred for related tests):**
 ```python
-import pytest
+class TestCompoundInterest:
+    """Tests for compound interest calculations."""
 
-@pytest.mark.asyncio
-async def test_async_service():
-    result = await some_async_service()
-    assert result is not None
+    def test_basic_compound_interest(self):
+        """Docstring: what this validates and why the numbers are expected."""
+        result = calculate_compound_interest(principal=10000, annual_rate=5.0, years=10)
+        assert result["finalValue"] > 16000
+        assert result["finalValue"] < 16500
+
+    def test_zero_rate(self):
+        """Test with zero interest rate — returns sum of contributions."""
+        result = calculate_compound_interest(principal=1000, monthly_contribution=100, annual_rate=0, years=5)
+        assert result["finalValue"] == 1000 + 100 * 60
+        assert result["gains"] == 0
 ```
 
-**Error Testing (Backend):**
+**Minimum 10 tests per service file** (per CLAUDE.md §5).
+
+### Golden Couple Fixture (Python)
+
+**File:** `services/backend/tests/test_golden_julien_lauren.py`
+
+Builder pattern for reuse:
 ```python
-def test_invalid_input_raises(client):
-    response = client.post("/api/v1/endpoint", json={"age": -1})
-    assert response.status_code == 422  # Pydantic validation error
+def _julien_base() -> MinimalProfileInput:
+    """Julien: born 1977, age 49, 122'207 CHF/an, VS (CLAUDE.md §8)."""
+    return MinimalProfileInput(age=49, gross_salary=122_207.0, canton="VS")
+
+def _julien_full() -> MinimalProfileInput:
+    """Julien with ALL optional fields (CLAUDE.md §8 golden values)."""
+    return MinimalProfileInput(
+        age=49, gross_salary=122_207.0, canton="VS",
+        household_type="couple",
+        existing_lpp=70_377.0, lpp_caisse_type="complementaire",
+        ...
+    )
+
+class TestGoldenJulienLauren:
+    def test_julien_base(self):
+        result = compute_minimal_profile(_julien_base())
+        assert result.projected_avs_monthly > 2000, (
+            f"Julien at 100k should get near-max AVS rente, got {result.projected_avs_monthly}"
+        )
+        assert result.confidence_score == 30.0  # 3 inputs = 30%
+        assert len(result.estimated_fields) == 7
 ```
 
-**Comparison Testing (Flutter):**
-```dart
-test('expat gets less than native', () {
-  final native = Calculator.compute(archetype: 'swiss_native');
-  final expat = Calculator.compute(archetype: 'expat_eu');
-  expect(expat, lessThan(native));
-  expect(expat / native, closeTo(expectedRatio, 0.05));
-});
+**Assertion pattern:** Always include an f-string message explaining the expected value source:
+```python
+assert result.projected_lpp_capital > 200_000, (
+    f"Julien with 25 years of contributions should have >200k LPP, "
+    f"got {result.projected_lpp_capital}"
+)
 ```
 
-**Boundary Testing:**
-```dart
-test('zero income -> zero rente', () {
-  final rente = AvsCalculator.computeMonthlyRente(
-    currentAge: 45, retirementAge: 65, grossAnnualSalary: 0,
-  );
-  expect(rente, equals(0.0));
-});
+### Mocking (Backend)
+
+**Auth override in conftest:**
+```python
+def _fake_user():
+    user = MagicMock()
+    user.id = "test-user-id"
+    user.email = "test@mint.ch"
+    user.display_name = "Test User"
+    return user
 ```
 
-**Test Documentation Standard:**
-- Backend: module docstring with test count, sprint reference, legal sources, run command
-- Flutter: group names describe the class/method under test
-- Individual test names describe the scenario: `'expat arrivalAge 35 -> fewer contribution years'`
+**LLM/orchestrator mock in endpoint tests:**
+```python
+@pytest.fixture
+def client_with_auth():
+    app.dependency_overrides[require_current_user] = _fake_user
+    with TestClient(app) as test_client:
+        yield test_client
+    app.dependency_overrides.clear()
+
+def test_chat_success(client_with_auth):
+    with patch("app.api.v1.endpoints.coach_chat.coach_orchestrator.run_async",
+               new_callable=AsyncMock) as mock_run:
+        mock_run.return_value = _ORCHESTRATOR_OK_RESULT
+        resp = client_with_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
+        assert resp.status_code == 200
+```
+
+**fakeredis for Redis-dependent tests:**
+```python
+# In pyproject.toml dev deps: "fakeredis>=2.20.0"
+```
+
+**TESTING env var:** `os.environ["TESTING"] = "1"` in `conftest.py` disables rate limiting globally.
+
+### Test Fixtures (Constants in Tests)
+
+```python
+_VALID_BODY = {
+    "message": "Comment puis-je optimiser mon pilier 3a ?",
+    "api_key": "sk-test-key-12345",
+    "provider": "claude",
+}
+
+_ORCHESTRATOR_OK_RESULT = {
+    "answer": "Le pilier 3a pourrait te permettre d'economiser jusqu'a 2 000 CHF d'impot.",
+    "sources": [{"file": "pilier_3a.md", ...}],
+    "disclaimers": ["Outil educatif, ne constitue pas un conseil financier (LSFin)."],
+    "tokens_used": 350,
+}
+```
+
+Module-level constants (not `@pytest.fixture`) for static request/response bodies.
+
+### Async Testing
+
+**Config:** `asyncio_mode = auto` in `pytest.ini` — all async tests run without explicit `@pytest.mark.asyncio`
+
+```python
+async def test_async_endpoint(client):
+    resp = client.get("/api/v1/profiles/me")
+    assert resp.status_code == 200
+```
+
+### Error Testing
+
+**HTTP error assertions:**
+```python
+def test_unauthenticated(client_no_auth):
+    resp = client_no_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
+    assert resp.status_code == 401
+
+def test_missing_field(client_with_auth):
+    resp = client_with_auth.post("/api/v1/coach/chat", json={"provider": "claude"})
+    assert resp.status_code == 422  # Pydantic validation error
+```
+
+**Compliance violations tested:**
+- `services/backend/tests/compliance/` — dedicated compliance test folder
+- Tests verify banned terms are caught before reaching user
 
 ---
 
-*Testing analysis: 2026-04-05*
+## CI Pipeline — Full Test Gate
+
+**Location:** `.github/workflows/ci.yml`
+
+**Pre-test static gates (backend):**
+1. `python3 tools/checks/no_chiffre_choc.py` — no legacy "chiffre choc" token
+2. `python3 tools/checks/no_legacy_confidence_render.py`
+3. `python3 tools/checks/no_implicit_bloom_strategy.py`
+4. `python3 tools/checks/sentence_subject_arb_lint.py`
+5. `python3 tools/checks/no_llm_alert.py`
+6. `python3 tools/checks/landing_no_numbers.py`
+7. `python3 tools/checks/landing_no_financial_core.py`
+8. Regional microcopy codegen drift check
+9. Alembic migration round-trip: `upgrade head → downgrade base → upgrade head`
+
+**Pre-test static gates (flutter):**
+1. `tools/checks/wcag_aa_all_touched.py` — hardcoded color scan
+2. Dart `meetsGuideline` AA test: `test/accessibility/wcag_aa_all_touched_test.dart`
+3. Flesch–Kincaid readability gate: `dart run tools/checks/flesch_kincaid_fr.dart --min=50`
+
+**Pre-commit hooks (lefthook):**
+- `memory-retention-gate`: `python3 tools/checks/memory_retention.py` (HARD gate)
+- `map-freshness-hint`: `python3 tools/checks/map_freshness_hint.py {staged_files}` (hint only)
+
+**What Device Walkthroughs Gate (non-automated):**
+- No milestone is "production ready" until creator cold-starts on real iPhone
+- "Tests green ≠ app functional" — 9326 tests passing did not prevent 4 blocking device bugs
+
+---
+
+## Integration Tests
+
+**Flutter integration tests:**
+- `apps/mobile/integration_test/persona_marc_test.dart`
+- `apps/mobile/integration_test/persona_lea_test.dart`
+- Run via `test_driver/integration_test.dart`
+- NOT run in CI (`test/patrol/` excluded) — manual gate policy
+
+**Backend e2e pipeline:**
+- `services/backend/tests/test_e2e_coach_pipeline.py` — full coach chain
+- `services/backend/tests/test_personas_integration.py` — persona-driven integration
+
+---
+
+*Testing analysis: 2026-04-22*

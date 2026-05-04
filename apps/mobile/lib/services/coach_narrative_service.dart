@@ -307,6 +307,7 @@ class CoachNarrativeService {
       upcomingEvent: upcomingEvent,
       checkInStreak: checkInStreak,
       dataSources: dataSources,
+      hasDebt: profile.isInDebtCrisis,
     );
   }
 

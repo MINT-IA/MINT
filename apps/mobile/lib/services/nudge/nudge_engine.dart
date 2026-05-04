@@ -1,7 +1,5 @@
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/nudge/nudge_trigger.dart';
-import 'package:mint_mobile/services/voice/voice_cursor_contract.dart';
-import 'package:mint_mobile/widgets/alert/mint_alert_signal.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NUDGE ENGINE — S61 / JITAI Proactive Nudges
@@ -164,38 +162,10 @@ class NudgeEngine {
     return active;
   }
 
-  // ── Phase 9 / L1.5 MintAlertObject feeder wiring (D-09) ──
-
-  /// Convert a list of [Nudge]s into a stream of [MintAlertSignal]s suitable
-  /// for consumption by S5 widgets that build a [MintAlertObject].
-  ///
-  /// Mapping rules:
-  ///   * `NudgePriority.high`   → `Gravity.g3`
-  ///   * `NudgePriority.medium` → `Gravity.g2`
-  ///   * `NudgePriority.low`    → `Gravity.g1`
-  ///
-  /// All keys are ARB keys (no resolved strings). The `nextMomentKey`
-  /// reuses the existing `alertGenericNextMomentPrefix` ARB scaffold
-  /// shipped in Plan 09-01 — feeder-specific keys can override later.
-  ///
-  /// **Sourcing rule (D-07):** never call this from a `claude_*_service.dart`
-  /// file. Enforced by `tools/checks/no_llm_alert.py` (Plan 09-03).
-  static Stream<MintAlertSignal> alertSignalsFrom(List<Nudge> nudges) async* {
-    for (final nudge in nudges) {
-      yield MintAlertSignal(
-        gravity: switch (nudge.priority) {
-          NudgePriority.high => Gravity.g3,
-          NudgePriority.medium => Gravity.g2,
-          NudgePriority.low => Gravity.g1,
-        },
-        factKey: nudge.titleKey,
-        causeKey: nudge.bodyKey,
-        nextMomentKey: 'alertGenericNextMomentPrefix',
-        topicTag: nudge.trigger.name,
-        alertId: 'nudge:${nudge.id}',
-      );
-    }
-  }
+  // Wave E-PRIME (2026-04-18): alertSignalsFrom() deleted in cascade with
+  // MintAlertSignal / MintAlertHost / AnticipationProvider removal
+  // (Panel A P0-3/P0-4/P0-6). NudgeEngine.evaluate() still returns Nudge
+  // lists for context_injector consumption (the real prod caller).
 
   // ── Trigger implementations ──────────────────────────────
 

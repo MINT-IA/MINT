@@ -150,15 +150,17 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('BudgetService.premierEclairage', () {
-    test('zero income returns 0% message', () {
+    test('zero income surfaces enrichment prompt (P0-B1)', () {
       const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
         netIncome: 0,
         housingCost: 1000,
         debtPayments: 0,
       );
+      // Wave 7 P0-B1 — previous "0 % de ton revenu part en charges fixes"
+      // masked a missing income. The fix now surfaces an enrichment CTA.
       expect(BudgetService.premierEclairage(inputs),
-          '0% de ton revenu part en charges fixes');
+          contains('Déclare ton revenu net'));
     });
 
     test('all charges = 0 returns 0%', () {
@@ -169,10 +171,10 @@ void main() {
         debtPayments: 0,
       );
       expect(BudgetService.premierEclairage(inputs),
-          '0% de ton revenu part en charges fixes');
+          '0 % de ton revenu part en charges fixes');
     });
 
-    test('half income in charges → 50%', () {
+    test('half income in charges → 50 % (neutral band)', () {
       const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
         netIncome: 4000,
@@ -180,10 +182,26 @@ void main() {
         debtPayments: 0,
       );
       expect(BudgetService.premierEclairage(inputs),
-          '50% de ton revenu part en charges fixes');
+          '50 % de ton revenu part en charges fixes');
     });
 
-    test('charges exceed income returns 100%+ message', () {
+    test('pct ≥ 70 % triggers fragile band + LP art. 93 (P0-B1)', () {
+      // totalCharges = 2000 + 400 + 200 = 2600 over netIncome 3300 → 79 %.
+      const inputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 3300,
+        housingCost: 2000,
+        debtPayments: 0,
+        taxProvision: 200,
+        healthInsurance: 400,
+      );
+      final msg = BudgetService.premierEclairage(inputs);
+      expect(msg, contains('79 %'));
+      expect(msg, contains('Situation fragile'));
+      expect(msg, contains('LP art. 93'));
+    });
+
+    test('pct ≥ 100 % triggers Safe Mode escalation (P0-B1)', () {
       const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
         netIncome: 2000,
@@ -192,8 +210,10 @@ void main() {
         taxProvision: 200,
       );
       // totalCharges = 2200; pct = round(2200/2000 * 100) = 110
-      expect(BudgetService.premierEclairage(inputs),
-          '110% de ton revenu part en charges fixes');
+      final msg = BudgetService.premierEclairage(inputs);
+      expect(msg, contains('110 %'));
+      expect(msg, contains('dépassent ton revenu'));
+      expect(msg, contains('Safe Mode'));
     });
 
     test('golden couple Julien — typical household budget', () {
@@ -210,7 +230,43 @@ void main() {
       );
       final choc = BudgetService.premierEclairage(inputs);
       // totalCharges = 3350; pct = round(3350/8100 * 100) = 41
-      expect(choc, '41% de ton revenu part en charges fixes');
+      expect(choc, '41 % de ton revenu part en charges fixes');
+    });
+
+    test('BudgetPlan.distress mirrors thresholds (P0-B1 wiring)', () {
+      // Fragile band
+      const fragileInputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 3300,
+        housingCost: 2000,
+        debtPayments: 0,
+        taxProvision: 200,
+        healthInsurance: 400,
+      );
+      final fragilePlan = BudgetService().computePlan(fragileInputs);
+      expect(fragilePlan.distress, BudgetDistressLevel.fragile);
+
+      // Critical band
+      const criticalInputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 2000,
+        housingCost: 1500,
+        debtPayments: 500,
+        taxProvision: 200,
+      );
+      final criticalPlan = BudgetService().computePlan(criticalInputs);
+      expect(criticalPlan.distress, BudgetDistressLevel.critical);
+
+      // Unknown when income missing
+      const unknownInputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 0,
+        housingCost: 1500,
+        debtPayments: 0,
+      );
+      final unknownPlan = BudgetService().computePlan(unknownInputs);
+      expect(unknownPlan.distress, BudgetDistressLevel.unknown);
+      expect(unknownPlan.chargesRatio, isNull);
     });
 
     test('has disclaimer', () {

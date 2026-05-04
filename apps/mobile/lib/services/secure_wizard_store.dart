@@ -39,11 +39,22 @@ class SecureWizardStore {
   }
 
   /// Read a sensitive value from encrypted storage.
+  ///
+  /// On iOS simulator without a valid keychain-access-groups entitlement
+  /// (the usual case during dev sim builds — PlatformException `-34018`),
+  /// returning `null` keeps the non-sensitive answer map intact. Without
+  /// this guard, every `restoreSensitiveKeys` call threw and
+  /// `ReportPersistenceService.loadAnswers` fell into its outer catch,
+  /// silently returning `{}` — meaning freshly-scanned LPP data never
+  /// hydrated the profile at app launch (deep-walk root cause for the
+  /// « opener re-appears after scan » regression).
   static Future<String?> read(String key) async {
-    if (_sensitiveKeys.contains(key)) {
+    if (!_sensitiveKeys.contains(key)) return null;
+    try {
       return await _storage.read(key: key);
+    } on Exception {
+      return null;
     }
-    return null;
   }
 
   /// Delete all sensitive keys from encrypted storage.

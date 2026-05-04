@@ -1611,6 +1611,69 @@ class SEn extends S {
       'Complete your diagnosis to unlock your monthly plan with your real income and expenses.';
 
   @override
+  String get budgetSetupTitle => 'Fixed charges';
+
+  @override
+  String get budgetSetupSubtitle =>
+      'What goes out every month, no matter what.';
+
+  @override
+  String get budgetSetupHousing => 'Rent or mortgage';
+
+  @override
+  String get budgetSetupLamal => 'Health insurance';
+
+  @override
+  String get budgetSetupTransport => 'Transport';
+
+  @override
+  String get budgetSetupTelecom => 'Telecom';
+
+  @override
+  String get budgetSetupElectricity => 'Electricity';
+
+  @override
+  String get budgetSetupMedical => 'Medical expenses';
+
+  @override
+  String get budgetSetupOther => 'Other';
+
+  @override
+  String get budgetSetupAddOthers => 'Add more items';
+
+  @override
+  String get budgetSetupSave => 'Save';
+
+  @override
+  String get budgetSetupChatFallback => 'I\'d rather talk to the coach';
+
+  @override
+  String get budgetSetupFieldPlaceholder => 'CHF / month';
+
+  @override
+  String get budgetSetupRequired => 'Required';
+
+  @override
+  String budgetSetupTotalFixed(String amount) {
+    return 'Fixed total: $amount CHF / month';
+  }
+
+  @override
+  String budgetSetupResteAfterCharges(String amount) {
+    return 'You have $amount CHF left after charges.';
+  }
+
+  @override
+  String get budgetCardEmptyTitle => 'Your fixed charges, clearly.';
+
+  @override
+  String get budgetCardEmptyBody =>
+      'Seven items, two minutes. Then we calculate what truly remains.';
+
+  @override
+  String get budgetCardEmptyAction => 'Set my charges';
+
+  @override
   String get budgetEmptyAction => 'Start my diagnosis';
 
   @override
@@ -7401,14 +7464,14 @@ class SEn extends S {
 
   @override
   String get authGateDocScanMessage =>
-      'Your certificates contain sensitive data. Create an account to protect them with end-to-end encryption.';
+      'Your certificates contain sensitive data. Create an account to encrypt them on our servers and access them from your devices — you can keep everything on-device at any time from Privacy.';
 
   @override
   String get authGateSalaryTitle => 'Protect your financial data';
 
   @override
   String get authGateSalaryMessage =>
-      'Your salary and financial data deserve a secure vault.';
+      'Create an account to encrypt your salary and financial data on our servers and access them from your devices — you can keep everything on-device at any time from Privacy.';
 
   @override
   String get authGateCoachTitle => 'The coach needs to know you';
@@ -7638,7 +7701,7 @@ class SEn extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Optional account: your data stays local by default';
+      'Create an encrypted account. Cloud sync is off by default; you can turn it on in Settings › Privacy.';
 
   @override
   String get authWhyCreateAccount => 'Why create an account?';
@@ -7780,7 +7843,7 @@ class SEn extends S {
   String get coachSources => 'Sources';
 
   @override
-  String get coachInputHint => 'Tell me what\'s on your mind.';
+  String get coachInputHint => 'Tell me.';
 
   @override
   String get coachUserMessage => 'Your message';
@@ -9305,11 +9368,11 @@ class SEn extends S {
       'In safe mode, 3a action recommendations are disabled. The priority is to stabilise your finances before contributing to 3a.';
 
   @override
-  String get sim3aDebtStrategyTitle => 'Strategy locked';
+  String get sim3aDebtStrategyTitle => 'Strategy on hold';
 
   @override
   String get sim3aDebtStrategyMessage =>
-      '3a investment strategies are disabled while you have active debts. Repaying your debts yields a higher return than any investment.';
+      '3a investment strategies are on hold while your active debts weigh on your budget. Recommended order: stabilise first, invest later.';
 
   @override
   String get realReturnTitle => 'Real return 3a';
@@ -10622,6 +10685,9 @@ class SEn extends S {
   String get eplReductionDeces => 'Death capital reduction (estimate)';
 
   @override
+  String get eplReductionAskCaisse => 'Ask your pension fund';
+
+  @override
   String get eplImpactPrestationsNote =>
       'EPL withdrawal proportionally reduces your risk benefits. Check with your pension fund for exact amounts and supplementary insurance options.';
 
@@ -10932,7 +10998,7 @@ class SEn extends S {
   String get retroactive3aTitle => '3a catch-up';
 
   @override
-  String get retroactive3aHeroTitle => '3a catch-up — New in 2026';
+  String get retroactive3aHeroTitle => '3a catch-up — New since 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>
@@ -11577,14 +11643,14 @@ class SEn extends S {
 
   @override
   String get reportSafeMode3a =>
-      'The 3a comparator is disabled while you have active debts. Repaying debts takes priority over any 3a savings.';
+      'The 3a comparator is on hold while your active debts weigh on your budget. Priority: stabilise your cash flow.';
 
   @override
-  String get reportSafeModeLpp => 'LPP buyback blocked';
+  String get reportSafeModeLpp => 'LPP buyback on hold';
 
   @override
   String get reportSafeModeLppMessage =>
-      'LPP buyback is disabled in protection mode. Repay your debts before locking liquidity in pension savings.';
+      'LPP buyback is on hold in protection mode. Recommended order: repay debts before locking liquidity in pension savings.';
 
   @override
   String get reportLppTitle => '💰 LPP Buyback Strategy';
@@ -18096,7 +18162,7 @@ class SEn extends S {
 
   @override
   String get portfolioSafeModeBody =>
-      'Allocation advice is disabled in protection mode. Your priority is reducing debt before rebalancing your portfolio.';
+      'Allocation advice is on hold in protection mode. Recommended order: reduce your debts before rebalancing your portfolio.';
 
   @override
   String get portfolioSafeModeLocked => 'Debt reduction priority';
@@ -19175,7 +19241,7 @@ class SEn extends S {
 
   @override
   String get safeModeMessage =>
-      'For your financial safety, we disable advanced optimisations while a debt signal is active. The priority is building your security.';
+      'While a debt signal is active, advanced optimisations are on hold. Priority: stabilise your cash flow. The rest can wait.';
 
   @override
   String get safeModeTitle => 'Priority Focus';
@@ -20735,7 +20801,7 @@ class SEn extends S {
   String get intensityAdjustedDown => 'OK, I’ve toned it down a notch.';
 
   @override
-  String get coachSuggestBudget => 'What’s my realistic retirement budget?';
+  String get coachSuggestBudget => 'Where does my money go each month?';
 
   @override
   String get coachSuggestBudgetGap => 'How much am I short per month?';
@@ -20776,7 +20842,7 @@ class SEn extends S {
 
   @override
   String get jargonAvsTooltip =>
-      'AVS (Old-age and Survivors’ Insurance) is the 1st pillar. It guarantees a basic retirement income.';
+      'AVS (Old-age and Survivors’ Insurance) is the 1st pillar. It is designed to provide a basic retirement income.';
 
   @override
   String get jargonRamdTooltip =>
@@ -20880,6 +20946,28 @@ class SEn extends S {
   String get coachSilentOpenerQuestion => 'Want to talk about it?';
 
   @override
+  String get coachOpenerIdentity => 'Hi. I\'m Mint.';
+
+  @override
+  String get coachOpenerPromise =>
+      'I know you. I see what is coming. I guide you.';
+
+  @override
+  String get coachOpenerQuestion => 'Where do we start?';
+
+  @override
+  String get coachStarterPaper => 'A paper I don\'t understand';
+
+  @override
+  String get coachStarterChoice => 'A choice I have to make';
+
+  @override
+  String get coachStarterCost => 'Something that costs me, I don\'t know what';
+
+  @override
+  String get coachStarterLurk => 'I\'ll just look around for now';
+
+  @override
   String get coachProactiveOptIn =>
       'By the way — would you like me to flag important things when you open the app? Or do you prefer we only talk when you feel like it?';
 
@@ -20890,7 +20978,10 @@ class SEn extends S {
   String get coachOptInDecline => 'No, I\'ll come when I want';
 
   @override
-  String get coachSilentOpenerReplacementRate => 'Retirement replacement rate';
+  String get coachOptInAcknowledged => 'Got it — I\'ll flag what matters.';
+
+  @override
+  String get coachSilentOpenerReplacementRate => 'Projected replacement rate';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Financial fitness score';
@@ -20898,6 +20989,16 @@ class SEn extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Projected retirement capital';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Projected capital on your horizon';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'LPP balance';
+
+  @override
+  String get coachSilentOpener3aEpargne => '3a savings';
 
   @override
   String get confidenceLow =>
@@ -22190,11 +22291,10 @@ class SEn extends S {
   String get tonSectionLabel => 'Voice';
 
   @override
-  String get anonymousIntentLine1 =>
-      'Money in Switzerland. The thing nobody talks about.';
+  String get anonymousIntentLine1 => 'Your financial life, in plain sight.';
 
   @override
-  String get anonymousIntentLine2 => 'Not even to themselves.';
+  String get anonymousIntentLine2 => '';
 
   @override
   String get anonymousIntentPill1 =>
@@ -22232,6 +22332,18 @@ class SEn extends S {
   @override
   String get anonymousChatError =>
       'I’m having a technical issue. Try again in a moment.';
+
+  @override
+  String get anonymousChatErrorNetwork =>
+      'No network. Check your connection and try again.';
+
+  @override
+  String get anonymousChatErrorService =>
+      'I\'m temporarily unavailable. Come back in a few minutes.';
+
+  @override
+  String get anonymousChatErrorSession =>
+      'Session expired. Close and reopen the app to continue.';
 
   @override
   String get anonymousChatConversionPrompt =>
@@ -22762,4 +22874,232 @@ class SEn extends S {
 
   @override
   String get hubSante => 'Health & Protection';
+
+  @override
+  String get safeModeWhyBlockedSemantics => 'Why is this on hold';
+
+  @override
+  String get safeModeWhyBlockedTitle => 'Why it\'s on hold';
+
+  @override
+  String get safeModeWhyBlockedBody =>
+      'In protection mode, MINT prioritises cash flow stability before tax and pension optimisations.';
+
+  @override
+  String get safeModeWhyBlockedLink => 'Why is this on hold?';
+
+  @override
+  String get safeModeFormalDesendettementNote =>
+      'These withdrawals remain possible under a formal debt resolution procedure — speak to a specialist.';
+
+  @override
+  String get scanSummaryLppCertificate => 'LPP certificate scanned';
+
+  @override
+  String get scanSummary3aAttestation => 'Pillar 3a attestation scanned';
+
+  @override
+  String get scanSummaryTaxDeclaration => 'Tax declaration scanned';
+
+  @override
+  String get scanSummaryAvsExtract => 'AVS extract scanned';
+
+  @override
+  String get scanSummaryMortgageAttestation => 'Mortgage attestation scanned';
+
+  @override
+  String get scanSummarySalaryCertificate => 'Salary certificate scanned';
+
+  @override
+  String get onboardingSealError =>
+      'Couldn\'t seal your dossier. Check your connection and try again.';
+
+  @override
+  String get onboardingSealRetry => 'Try again';
+
+  @override
+  String get wedgeTeaserEyebrowExample => 'EXAMPLE';
+
+  @override
+  String get wedgeTeaserEyebrowEstimate => 'INDICATIVE ESTIMATE';
+
+  @override
+  String get wedgeTeaserSalienceExample =>
+      'EXAMPLE · not a projection of your situation';
+
+  @override
+  String get wedgeTeaserSalienceEstimate =>
+      'Indicative estimate · full career, retirement at 65';
+
+  @override
+  String get wedgeTeaserAssumptionsExample => 'AVS only, full career example';
+
+  @override
+  String get wedgeTeaserAssumptionsEstimate =>
+      'Assumptions: age 40, career 20→65, no gaps, AVS only. Your actual figure shifts with your age, gender, canton, LPP.';
+
+  @override
+  String get wedgeTeaserReculExample =>
+      'Add your LPP and MINT projects your own numbers.';
+
+  @override
+  String get wedgeTeaserReculEstimate =>
+      'With an account, MINT refines with your age, LPP, canton, and gaps.';
+
+  @override
+  String wedgeTeaserHeroSemantics(String amount) {
+    return '$amount francs per month';
+  }
+
+  @override
+  String get wedgeTeaserChfPerMonth => 'CHF / month';
+
+  @override
+  String get wedgeTeaserModifySalary => 'Edit';
+
+  @override
+  String get wedgeTeaserCtaRegister =>
+      'Create your account for your own projections';
+
+  @override
+  String get wedgeSalaryInputLabel =>
+      'Your gross annual salary. For a quick estimate.';
+
+  @override
+  String get wedgeSalaryInputAction => 'Calculate';
+
+  @override
+  String get wedgeSalaryInputActionSemantics => 'Calculate my estimate';
+
+  @override
+  String get wedgeSalaryStaysOnDevice =>
+      'Your salary stays on your device. MINT never sends it anywhere.';
+
+  @override
+  String get wedgeSalaryErrorInvalid =>
+      'Enter an amount in digits, for example 95 000.';
+
+  @override
+  String get wedgeSalaryErrorOutOfRange =>
+      'Between 10 000 and 1 000 000 CHF per year.';
+
+  @override
+  String get coachOnboardingFirstUserMessage =>
+      'Hi, I just created my account. Where do I start?';
+
+  @override
+  String get coachAnonymousAuthGateMessage =>
+      'We already explored a few leads together. Create your account so I remember it all.';
+
+  @override
+  String get coachAuthGateChipRegister => 'Create my account';
+
+  @override
+  String get coachAuthGateChipLogin => 'I already have an account';
+
+  @override
+  String get cantonLabel => 'Canton';
+
+  @override
+  String get coachNotificationOpenerMonthlyCheckIn =>
+      'Time for the monthly check-in. How was it?';
+
+  @override
+  String coachNotificationOpenerCommitmentWithLabel(String commitment) {
+    return 'You told me you were going to $commitment. Done?';
+  }
+
+  @override
+  String get coachNotificationOpenerCommitmentGeneric =>
+      'You had a commitment to keep. Done?';
+
+  @override
+  String get coachNotificationOpenerFreshStart =>
+      'New month. Where do we start?';
+
+  @override
+  String get settingsPrivacyTitle => 'Privacy';
+
+  @override
+  String get settingsPrivacyCloudSyncTitle => 'Cloud sync (multi-device)';
+
+  @override
+  String get settingsPrivacyCloudSyncSubtitle =>
+      'Backs up your profile and syncs it across your devices. When off, the AI coach is still available but facts are kept only on your device.';
+
+  @override
+  String get settingsPrivacyCloudSyncOn => 'On';
+
+  @override
+  String get settingsPrivacyCloudSyncOff => 'Off';
+
+  @override
+  String get settingsPrivacyMigrationToast =>
+      'New option: you can turn off cloud sync from Settings › Privacy.';
+
+  @override
+  String get settingsPrivacyDataLocation =>
+      'Your wizard answers and chat history stay on your device. When you write to the AI coach, your message transits through our servers to generate the reply — with sync on, the facts you confirm (age, salary, canton…) are also saved on our servers; with sync off, they\'re kept only on your device.';
+
+  @override
+  String get settingsPrivacyCloudSyncOffServerCaveat =>
+      'Turning sync off doesn\'t delete data already saved to our servers. To remove it, go to Account › Delete my account.';
+
+  @override
+  String get profileSyncRowHint => 'Manage in Settings › Privacy';
+
+  @override
+  String get settingsPrivacyMigrationToastCta => 'View';
+
+  @override
+  String get aujourdhuiCommitmentsTitle => 'Your recent commitments';
+
+  @override
+  String get aujourdhuiCheckInsTitle => 'Your latest check-ins';
+
+  @override
+  String get aujourdhuiResumeConversation => 'Resume conversation';
+
+  @override
+  String coachSequenceNextStepLabel(String label) {
+    return 'Next step: $label.';
+  }
+
+  @override
+  String get coachSequenceCompletedMessage =>
+      'You\'ve completed this guided sequence.';
+
+  @override
+  String get betaDisclosureEyebrow => 'MINT in beta';
+
+  @override
+  String get betaDisclosureHeadlinePrefix => 'You\'re testing a version that';
+
+  @override
+  String get betaDisclosureHeadlineEm => 'learns with you';
+
+  @override
+  String get betaDisclosureHeadlineSuffix => '.';
+
+  @override
+  String get betaDisclosureBulletNoAdvice =>
+      'MINT is not financial advice under FinSA — it\'s an educational tool only.';
+
+  @override
+  String get betaDisclosureBulletNoBank =>
+      'No banking data is stored on our side. Your data stays on this device unless you explicitly opt in.';
+
+  @override
+  String get betaDisclosureBulletDataLocal =>
+      'Your feedback during the beta helps us improve MINT. We read every word.';
+
+  @override
+  String get betaDisclosureCta => 'Got it, let\'s go';
+
+  @override
+  String get betaDisclosureLearnMore => 'Learn more';
+
+  @override
+  String get betaDisclosureSemanticsLabel =>
+      'Information about the MINT beta version — educational tool only, no financial advice, data stays on your device by default.';
 }

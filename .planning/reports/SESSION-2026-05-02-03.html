@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINT — Session 2026-05-02 → 2026-05-03 — Evidence Report</title>
+<style>
+  :root {
+    --primary: #003b2f;
+    --textPrimary: #1d1d1f;
+    --textSecondary: #525256;
+    --textMuted: #95989d;
+    --success: #157b35;
+    --warning: #8c3f06;
+    --error: #8b1d1d;
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --border: #e5e5e0;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         max-width: 1100px; margin: 0 auto; padding: 24px;
+         background: var(--bg); color: var(--textPrimary); line-height: 1.55; }
+  h1 { font-size: 28px; margin: 8px 0 4px; color: var(--primary); }
+  h2 { font-size: 22px; margin: 32px 0 8px; padding-bottom: 6px;
+       border-bottom: 1px solid var(--border); color: var(--primary); }
+  h3 { font-size: 17px; margin: 18px 0 6px; color: var(--textPrimary); }
+  .subtitle { color: var(--textSecondary); font-size: 14px; margin-bottom: 20px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px;
+          font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+          text-transform: uppercase; }
+  .b-pass { background: rgba(21,123,53,0.12); color: var(--success); }
+  .b-block { background: rgba(139,29,29,0.12); color: var(--error); }
+  .b-warn { background: rgba(140,63,6,0.12); color: var(--warning); }
+  .b-info { background: rgba(0,59,47,0.10); color: var(--primary); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0;
+          background: var(--surface); border: 1px solid var(--border); }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  th { background: var(--bg); font-size: 13px; color: var(--textSecondary); font-weight: 600; }
+  td { font-size: 14px; }
+  td code { background: var(--bg); padding: 1px 6px; border-radius: 4px; font-size: 12.5px; }
+  .card { background: var(--surface); border: 1px solid var(--border);
+          border-radius: 10px; padding: 16px; margin: 12px 0; }
+  .card.block { border-left: 4px solid var(--error); }
+  .card.pass { border-left: 4px solid var(--success); }
+  .card.warn { border-left: 4px solid var(--warning); }
+  .quote { font-style: italic; color: var(--textSecondary);
+           border-left: 3px solid var(--border); padding: 8px 14px; margin: 8px 0; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+  .stat { background: var(--surface); border: 1px solid var(--border);
+          border-radius: 8px; padding: 14px; text-align: center; }
+  .stat-num { font-size: 28px; font-weight: 700; color: var(--primary); display: block; }
+  .stat-label { font-size: 11px; color: var(--textMuted); text-transform: uppercase;
+                letter-spacing: 0.5px; margin-top: 4px; display: block; }
+  pre { background: #1d1d1f; color: #f5f5f7; padding: 12px; border-radius: 8px;
+        font-size: 12.5px; overflow-x: auto; }
+  ul { padding-left: 20px; }
+  li { margin: 4px 0; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px dotted var(--primary); }
+  a:hover { border-bottom-style: solid; }
+  .meta { font-size: 12px; color: var(--textMuted); }
+</style>
+</head>
+<body>
+
+<h1>MINT — Session Evidence Report</h1>
+<div class="subtitle">2026-05-02 → 2026-05-03 · branch <code>feat/phase-52.1-cloud-sync-gating</code> at time of writing · authored by Claude Opus 4.7 (1M context) under Julien's autonomous-Product-Leader mandate</div>
+
+<div class="stats">
+  <div class="stat"><span class="stat-num">18</span><span class="stat-label">PRs merged</span></div>
+  <div class="stat"><span class="stat-num">2</span><span class="stat-label">Phases complete</span></div>
+  <div class="stat"><span class="stat-num">11</span><span class="stat-label">Panels run</span></div>
+  <div class="stat"><span class="stat-num">3</span><span class="stat-label">New memory rules</span></div>
+</div>
+
+<h2>Section 1 — Headline outcomes</h2>
+
+<div class="card pass">
+  <strong>Phase 52 — auth local-first toggle <span class="badge b-pass">SHIPPED</span> <span class="badge b-block">POST-MERGE BLOCK → 52.1</span></strong>
+  <p>4 implementation tasks (T-52-01 / 02 / 03 / 04 + T-52-05/06) shipped via PRs <a href="https://github.com/MINT-IA/MINT/pull/435">#435</a>, <a href="https://github.com/MINT-IA/MINT/pull/436">#436</a>, <a href="https://github.com/MINT-IA/MINT/pull/437">#437</a>. <strong>Post-merge audit (T-52-08, 4-reviewer panel) returned BLOCK</strong> — the toggle was UI theatre (no backend gating) + a false residency claim in the privacy copy. See Section 4.</p>
+</div>
+
+<div class="card warn">
+  <strong>Phase 52.1 — cloud-sync actual gating <span class="badge b-warn">IN FLIGHT</span></strong>
+  <p>PR <a href="https://github.com/MINT-IA/MINT/pull/438">#438</a> open (mobile-only B-1 + B-2 + B-4 + N-1). PR 2 (B-3 backend gating per panel-decided Option C) and PR 3 (N-3 + N-4 polish) queued.</p>
+</div>
+
+<div class="card pass">
+  <strong>Process discipline — 3 new memory rules captured</strong>
+  <p>(1) Design panel BEFORE pushing any screen, expanded with a 4th « engineering / wiring » reviewer after Phase 52 lesson. (2) HTML evidence report per phase + cumulative session report (this document). (3) Public-repo discipline + forensic-language lint (already shipped earlier in session).</p>
+</div>
+
+<h2>Section 2 — PR feed (chronological)</h2>
+
+<table>
+<tr><th>#</th><th>Title</th><th>Status</th><th>Phase</th></tr>
+<tr><td>420</td><td>fix(login): bump magic link button 48→56 (text crop fix)</td><td><span class="badge b-pass">merged</span></td><td>—</td></tr>
+<tr><td>421</td><td>feat(anonymous-chat): visual demo teaser to bridge to register</td><td><span class="badge b-pass">merged</span></td><td>Wedge</td></tr>
+<tr><td>422</td><td>fix(l10n): resolve register screen data-residency contradiction (6 locales)</td><td><span class="badge b-pass">merged</span></td><td>—</td></tr>
+<tr><td>423</td><td>docs(decisions): 2026-05-02 data residency strategic decision (5-expert panel)</td><td><span class="badge b-pass">merged</span></td><td>—</td></tr>
+<tr><td>424→429</td><td>feat(anonymous-wedge): real-data AVS estimate replaces mock once user enters salary</td><td><span class="badge b-pass">merged</span></td><td>Wedge</td></tr>
+<tr><td>425</td><td>ci: lint forensic / loaded language in committed Markdown</td><td><span class="badge b-pass">merged</span></td><td>Discipline</td></tr>
+<tr><td>426</td><td>Phase 52 (planning) — auth local-first toggle (CONTEXT + PLAN)</td><td><span class="badge b-warn">draft, kept for ref</span></td><td>52</td></tr>
+<tr><td>427</td><td>fix(coach-profile): report _syncToBackend failures via breadcrumb + Sentry</td><td><span class="badge b-pass">merged</span></td><td>D-5 fix</td></tr>
+<tr><td>428</td><td>fix(coach,l10n): drop banned LSFin term « Parfait » from chat copy</td><td><span class="badge b-pass">merged</span></td><td>—</td></tr>
+<tr><td>430</td><td>fix(profile,privacy): i18n + hardcoded color + tap target</td><td><span class="badge b-pass">merged</span></td><td>—</td></tr>
+<tr><td>431</td><td>fix+feat(coach): ARB-route hardcoded copy + wire ProactiveTrigger opener</td><td><span class="badge b-pass">merged</span></td><td>—</td></tr>
+<tr><td>432</td><td>feat(coach): render scene card alongside silent opener key number</td><td><span class="badge b-pass">merged</span></td><td>—</td></tr>
+<tr><td>433</td><td>fix(coach): route _notificationOpener through ARB + restore one accent</td><td><span class="badge b-pass">merged</span></td><td>—</td></tr>
+<tr><td>434</td><td>ci(arb): annotate 9 coach* keys with x-mint-meta level N3</td><td><span class="badge b-pass">merged</span></td><td>CI debt</td></tr>
+<tr><td>435</td><td>feat(phase-52): cloud-sync opt-in toggle (T-52-01/02/05/06)</td><td><span class="badge b-pass">merged</span></td><td>52</td></tr>
+<tr><td>436</td><td>feat(phase-52): Profile sync status row (T-52-03)</td><td><span class="badge b-pass">merged</span></td><td>52</td></tr>
+<tr><td>437</td><td>feat(phase-52): one-time migration toast for legacy users (T-52-04)</td><td><span class="badge b-pass">merged</span></td><td>52</td></tr>
+<tr><td>438</td><td>feat(phase-52.1): gate backend writes on cloud-sync toggle (B-1, B-2, B-4, N-1)</td><td><span class="badge b-warn">CI</span></td><td>52.1</td></tr>
+</table>
+
+<h2>Section 3 — Panels run (verdict + how applied)</h2>
+
+<table>
+<tr><th>Panel</th><th>For</th><th>Verdict</th><th>Outcome</th></tr>
+<tr><td>Wedge brand-voice / a11y / compliance</td><td>PR #429</td><td>REQUEST_CHANGES</td><td>i18n + contrast + AVS/LPP coherence + tap targets all fixed in same commit before merge</td></tr>
+<tr><td>Panel batch 2 (PR #425/#426/#427)</td><td>3 PRs</td><td>BLOCK on 5 critical</td><td>All applied (regex bypasses, meta-commentary stripped, comment-block sanitized, register-screen subtitle rewrite, server-data caveat)</td></tr>
+<tr><td>Confidentialité screen design</td><td>T-52-02</td><td>REQUEST_CHANGES</td><td>D-06 caveat + E2EE-honesty rewrite + Switch double-semantics fix → applied BEFORE push (design-panel-first)</td></tr>
+<tr><td>T-52-03 Profile sync row design</td><td>T-52-03</td><td>spec-only</td><td>Spec implemented as-written: MintSurface + InkWell + Row, push (not go), animated state, cloud icon variant</td></tr>
+<tr><td>T-52-04 migration toast design</td><td>T-52-04</td><td>spec-only</td><td>Spec implemented: floating SnackBar 6s, write-pref-then-show idempotency, process-flag dedup, 3 widget tests pass</td></tr>
+<tr><td>Strategic 8-area survey</td><td>Next ship</td><td>recommendation</td><td>Document scan confidence UX → highest ROI → Phase 53 deferred until 52.1 closes</td></tr>
+<tr><td>Document scan deep audit</td><td>Phase 53 prep</td><td>file:line plan</td><td>Saved for Phase 53 design panel</td></tr>
+<tr><td><strong>T-52-08 Phase 52 post-merge</strong></td><td>Phase 52</td><td><span class="badge b-block">BLOCK</span></td><td><strong>Toggle is UI theatre + false residency claim. Phase 52.1 opened immediately.</strong></td></tr>
+<tr><td>T-52.1-03 chat panel</td><td>B-3 design</td><td>Option C decision</td><td>LLM call always allowed; write-tier tools gated via persistence_consent flag. Saved to .planning/decisions/</td></tr>
+</table>
+
+<h2>Section 4 — Phase 52 post-merge audit (the load-bearing finding)</h2>
+
+<div class="card block">
+<strong>Verdict: BLOCK.</strong> Toggle is non-functional + ships at least one demonstrably false copy claim. CI debt = 0; product debt = severe.
+
+<h3>B-1 — `_syncToBackend` doesn't gate</h3>
+<code>apps/mobile/lib/providers/coach_profile_provider.dart:156</code> — gates only on <code>AuthService.isLoggedIn()</code>, not on <code>isLocalMode</code>. Fired from 4 callsites — every profile mutation pushed regardless of toggle. <strong>Fixed in PR #438.</strong>
+
+<h3>B-2 — `_migrateLocalDataIfNeeded` doesn't gate</h3>
+<code>apps/mobile/lib/providers/auth_provider.dart:681</code> — every login path called <code>ApiService.claimLocalData(...)</code> unconditionally. <strong>Fixed in PR #438.</strong>
+
+<h3>B-3 — chat API doesn't gate (nuanced)</h3>
+LLM call is unavoidable (no on-device LLM). Real leak surface = backend tools (<code>save_fact</code>, <code>save_insight</code>, <code>save_pre_mortem</code>, <code>save_provenance</code>, <code>save_earmark</code>, <code>save_partner_estimate</code>, <code>record_check_in</code>, n5 marks). Backend has NO verbatim conversation log — confirmed by panel grep. Decision: Option C (write-tier tools gated via <code>persistence_consent</code> request flag). <strong>Implementation queued as Phase 52.1 PR 2.</strong>
+
+<h3>B-4 — false residency claim</h3>
+<code>app_fr.arb:settingsPrivacyDataLocation</code> shipped « stockée chiffrée sur nos serveurs européens (Suisse/UE) ». Backend currently runs on Railway US (no Swiss region). Quotable as adverse admission under nFADP art. 19. <strong>Fixed in PR #438 across 6 locales.</strong>
+</div>
+
+<h2>Section 5 — Phase 52.1 PR 1 (#438) — what shipped + verification</h2>
+
+<table>
+<tr><th>Touched file</th><th>Change</th></tr>
+<tr><td><code>coach_profile_provider.dart</code></td><td><code>_syncToBackend</code> reads <code>SharedPreferences.getBool('auth_local_mode')</code>; early-return + <code>profile_sync_skipped</code> Sentry breadcrumb</td></tr>
+<tr><td><code>auth_provider.dart</code></td><td><code>_migrateLocalDataIfNeeded</code> gates the <code>claimLocalData</code> block on the same prefs key. Local→local conversation migration unaffected.</td></tr>
+<tr><td><code>app_*.arb</code> × 6</td><td><code>settingsPrivacyDataLocation</code> + <code>settingsPrivacyCloudSyncSubtitle</code> rewritten to disambiguate the 3 boundaries (questionnaire / message-in-flight / structured fact writes). False residency claim removed.</td></tr>
+</table>
+
+<h3>Lints + tests</h3>
+<pre>flutter analyze lib/providers/auth_provider.dart lib/providers/coach_profile_provider.dart
+→ 2 issues (both pre-existing warnings, unrelated to PR)
+
+flutter gen-l10n
+→ regenerated 2 keys × 6 locales
+
+check_banned_terms() on FR strings
+→ all clean
+
+python3 tools/checks/sentence_subject_arb_lint.py
+→ OK — no banned user-as-subject patterns; all coach/chat/alert keys carry @meta level
+
+python3 tools/checks/no_legal_admission_in_public_docs.py
+→ scanned 434 docs / 0 hits</pre>
+
+<h3>Deferred to Phase 52.1 PR 2 + PR 3</h3>
+<ul>
+  <li><strong>PR 2 (B-3)</strong>: chat-API <code>persistence_consent</code> flag (mobile) + backend <code>coach_chat.py</code> gating of <code>save_*</code> handlers + new tests (mobile + backend).</li>
+  <li><strong>PR 3 (N-3 + N-4)</strong>: migration toast re-timing (3s stable foreground or first user-initiated nav) + verify « Continuer en mode local » CTA still wired post-logout.</li>
+  <li>Q3 Swiss-region migration → separate phase</li>
+  <li>v3.0 E2EE → separate epic</li>
+</ul>
+
+<h2>Section 6 — Process discipline rules captured this session</h2>
+
+<table>
+<tr><th>Memory file</th><th>Rule</th></tr>
+<tr><td><code>feedback_design_panel_before_push.md</code></td><td>Every Flutter screen create / revise / refactor → <strong>4-person panel FIRST</strong> (UX + a11y + adversarial + <strong>engineering/wiring</strong>). The wiring reviewer's job is to trace whether the new control's state is actually consumed by the data-flow it claims to gate. Phase 52 lesson: « UI theatre slips through pre-implementation panels that don't include this reviewer ».</td></tr>
+<tr><td><code>feedback_html_evidence_report.md</code></td><td>Every GSD phase produces + updates <code>.planning/phases/&lt;phase&gt;/&lt;phase&gt;-VERIFICATION-REPORT.html</code>. Cumulative <code>.planning/reports/SESSION-YYYY-MM-DD.html</code> rolls them up. <strong>Never <code>/tmp/...</code></strong> — that's lost across sessions.</td></tr>
+<tr><td><code>feedback_public_repo_discipline.md</code> (already existed; reinforced)</td><td>No forensic legal language in commits / docs / PRs. Lint <code>tools/checks/no_legal_admission_in_public_docs.py</code> enforces. Decision artefacts marked « Proposed », not « Decided ».</td></tr>
+</table>
+
+<h2>Section 7 — Compliance posture</h2>
+
+<table>
+<tr><th>Check</th><th>Result</th></tr>
+<tr><td>Banned LSFin terms (« garanti », « optimal », « parfait »…)</td><td><span class="badge b-pass">all FR strings clean</span></td></tr>
+<tr><td>Accent lint (FR diacritics)</td><td><span class="badge b-warn">228 pre-existing repo-wide; 0 new from this session</span></td></tr>
+<tr><td>Forensic-language gate (no_legal_admission)</td><td><span class="badge b-pass">434 docs / 0 hits</span></td></tr>
+<tr><td>Sentence-subject (TRUST-02, ALERT-02)</td><td><span class="badge b-pass">OK</span></td></tr>
+<tr><td>FDPIC art. 6 transparency</td><td><span class="badge b-warn">Phase 52 missed it; Phase 52.1 fixes the false residency claim and adds 3-boundary disambiguation copy</span></td></tr>
+<tr><td>nFADP art. 19 information at collection</td><td><span class="badge b-warn">Same — fixed in PR #438</span></td></tr>
+</table>
+
+<h2>Section 8 — Strategic next steps</h2>
+
+<ol>
+  <li><strong>Land PR #438</strong> (Phase 52.1 PR 1) — CI in flight</li>
+  <li><strong>Ship Phase 52.1 PR 2</strong> (B-3 backend gating per chat panel Option C) — heavier change, touches Python; design contract locked in <code>.planning/decisions/2026-05-03-chat-under-cloud-sync-off.md</code></li>
+  <li><strong>Ship Phase 52.1 PR 3</strong> (N-3 + N-4 polish)</li>
+  <li><strong>Re-run T-52-08 post-merge audit</strong> — verify the load-bearing question is now « yes, sync OFF actually stops backend writes ». Do NOT close Phase 52.1 until this verification passes.</li>
+  <li><strong>Open Phase 53</strong> — document scan confidence UX (highest ROI per the strategic 8-area survey). Pre-spawned design panel goes first per discipline; doc-scan deep-audit findings already saved as input.</li>
+</ol>
+
+<p class="meta">This report is committed under <code>.planning/reports/SESSION-2026-05-02-03.html</code> and is updated on every PR landing in the named phases. Open in any browser. Last update: 2026-05-03 ~09:20 local.</p>
+
+</body>
+</html>

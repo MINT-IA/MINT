@@ -11,6 +11,7 @@ import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LPP VOLONTAIRE SCREEN — Sprint S18 / Independants complet
@@ -71,16 +72,24 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
                 _buildTauxSlider(),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
-                  MintEntrance(child: _buildPremierEclairage()),
-                  const SizedBox(height: 24),
-                  MintEntrance(delay: const Duration(milliseconds: 100), child: _buildResultCards()),
-                  const SizedBox(height: 24),
-                  MintEntrance(delay: const Duration(milliseconds: 150), child: _buildRetirementComparison()),
-                  const SizedBox(height: 24),
-                  MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAgeTable()),
-                  const SizedBox(height: 24),
-                  _buildEducation(),
-                  const SizedBox(height: 24),
+                  // Contribution planning — gated in SafeMode (debt crisis)
+                  SafeModeGate(
+                    hasDebt: lookupSafeModeFlag(context),
+                    child: Column(
+                      children: [
+                        MintEntrance(child: _buildPremierEclairage()),
+                        const SizedBox(height: 24),
+                        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildResultCards()),
+                        const SizedBox(height: 24),
+                        MintEntrance(delay: const Duration(milliseconds: 150), child: _buildRetirementComparison()),
+                        const SizedBox(height: 24),
+                        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAgeTable()),
+                        const SizedBox(height: 24),
+                        _buildEducation(),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
                 ],
                 _buildDisclaimer(),
                 const SizedBox(height: 100),

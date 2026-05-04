@@ -233,54 +233,76 @@ class TestCoachChatResponse:
         assert isinstance(data["disclaimers"], list)
 
     def test_response_has_tokens_used(self, client_with_auth):
-        """Response must contain 'tokensUsed' (camelCase) or 'tokens_used'."""
+        """Response must contain 'tokensUsed' (camelCase) — Flutter-bound contract."""
         with _mock_orchestrator(_ORCHESTRATOR_OK_RESULT):
             response = client_with_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
         data = response.json()
-        # CoachChatBaseModel uses camelCase alias
-        assert "tokensUsed" in data or "tokens_used" in data
-        value = data.get("tokensUsed") or data.get("tokens_used", 0)
-        assert isinstance(value, int)
-        assert value >= 0
+        assert "tokensUsed" in data, "Flutter reads json['tokensUsed']"
+        assert "tokens_used" not in data, "snake_case leak → Flutter ignores it"
+        assert isinstance(data["tokensUsed"], int) and data["tokensUsed"] >= 0
 
     def test_response_tool_calls_none_when_absent(self, client_with_auth):
         """When orchestrator returns no tool_calls, response has null toolCalls."""
         with _mock_orchestrator(_ORCHESTRATOR_OK_RESULT):
             response = client_with_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
         data = response.json()
-        # camelCase alias
-        assert "toolCalls" in data or "tool_calls" in data
-        value = data.get("toolCalls") or data.get("tool_calls")
-        assert value is None
+        assert "toolCalls" in data, "Flutter reads json['toolCalls']"
+        assert "tool_calls" not in data, "snake_case leak → Flutter silently drops"
+        assert data["toolCalls"] is None
 
     def test_response_tool_calls_present_when_returned(self, client_with_auth):
-        """When orchestrator returns tool_calls, response includes them."""
+        """When orchestrator returns tool_calls, response includes them under camelCase."""
         with _mock_orchestrator(_ORCHESTRATOR_TOOL_RESULT):
             response = client_with_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
         data = response.json()
-        value = data.get("toolCalls") or data.get("tool_calls")
-        assert value is not None
-        assert isinstance(value, list)
-        assert len(value) == 1
-        assert value[0]["name"] == "route_to_screen"
+        assert "tool_calls" not in data
+        assert isinstance(data["toolCalls"], list)
+        assert len(data["toolCalls"]) == 1
+        assert data["toolCalls"][0]["name"] == "route_to_screen"
 
     def test_response_tool_call_has_intent_and_context_message(self, client_with_auth):
         """route_to_screen tool_call must include intent and context_message."""
         with _mock_orchestrator(_ORCHESTRATOR_TOOL_RESULT):
             response = client_with_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
         data = response.json()
-        tool = (data.get("toolCalls") or data.get("tool_calls"))[0]
+        tool = data["toolCalls"][0]
         assert tool["input"]["intent"] == "tax_optimization_3a"
         assert "context_message" in tool["input"]
 
     def test_response_system_prompt_used_true(self, client_with_auth):
-        """Response must indicate system_prompt_used=True."""
+        """Response must indicate systemPromptUsed=True under camelCase."""
         with _mock_orchestrator(_ORCHESTRATOR_OK_RESULT):
             response = client_with_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
         data = response.json()
-        # camelCase alias
-        value = data.get("systemPromptUsed") or data.get("system_prompt_used")
-        assert value is True
+        assert "systemPromptUsed" in data
+        assert "system_prompt_used" not in data
+        assert data["systemPromptUsed"] is True
+
+    def test_response_is_strict_camelCase_contract(self, client_with_auth):
+        """Lock the Flutter-bound contract: every camelCase alias present, zero snake leaks.
+
+        Regression guard for the silent-drop bug root-caused 2026-04-17: FastAPI
+        defaults to python-field-name serialization; our Pydantic model defines
+        camelCase aliases via alias_generator=to_camel; without
+        response_model_by_alias=True the endpoint emits snake_case and Flutter's
+        json['toolCalls'] / json['tokensUsed'] / json['responseMeta'] all read
+        null. Previous tests tolerated both casings, which is why the bug lived
+        in production — don't regress."""
+        with _mock_orchestrator(_ORCHESTRATOR_TOOL_RESULT):
+            response = client_with_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
+        data = response.json()
+        expected_camel = {
+            "message", "toolCalls", "sources", "cashLevel", "disclaimers",
+            "tokensUsed", "systemPromptUsed", "responseMeta",
+        }
+        forbidden_snake = {
+            "tool_calls", "cash_level", "tokens_used",
+            "system_prompt_used", "response_meta",
+        }
+        missing = expected_camel - data.keys()
+        leaked = forbidden_snake & data.keys()
+        assert not missing, f"Flutter contract missing keys: {missing}"
+        assert not leaked, f"snake_case leaked into JSON: {leaked}"
 
     def test_disclaimers_forwarded_from_orchestrator(self, client_with_auth):
         """Disclaimers returned by orchestrator must appear in response."""
@@ -416,6 +438,39 @@ class TestCoachChatSystemPrompt:
 
         prompt = build_system_prompt(ctx=None)
         assert "ROUTING RULES" in prompt
+
+    def test_system_prompt_includes_life_event_catalog(self):
+        """Life-event enum (18 types) must be present so Claude can match raw
+        user text to the canonical MINT event and apply the Swiss specificity.
+        Regression guard for deep-audit 2026-04-17 P0-1."""
+        from app.services.coach.claude_coach_service import build_system_prompt
+
+        prompt = build_system_prompt(ctx=None)
+        assert "EVENEMENTS DE VIE" in prompt
+        # Spot-check four events across four categories so the catalog can't
+        # silently shrink in a future refactor.
+        for event in ("marriage", "jobLoss", "housingPurchase", "debtCrisis"):
+            assert event in prompt, f"life event {event!r} missing from prompt"
+
+    def test_system_prompt_includes_archetype_catalog(self):
+        """8 archetypes must be present so Claude doesn't default to swiss_native
+        and miss FATCA/frontalier/returning_swiss specifics."""
+        from app.services.coach.claude_coach_service import build_system_prompt
+
+        prompt = build_system_prompt(ctx=None)
+        assert "ARCHETYPES" in prompt
+        for archetype in (
+            "swiss_native", "expat_us", "cross_border", "returning_swiss"
+        ):
+            assert archetype in prompt, f"archetype {archetype!r} missing"
+
+    def test_system_prompt_expat_us_mentions_fatca(self):
+        """expat_us archetype description must include FATCA (load-bearing for
+        any US-person coaching — persona-journey audit Lauren)."""
+        from app.services.coach.claude_coach_service import build_system_prompt
+
+        prompt = build_system_prompt(ctx=None)
+        assert "FATCA" in prompt
 
     def test_system_prompt_includes_coach_tools_list(self):
         """All 5 coach tool names must be referenced in the system prompt."""

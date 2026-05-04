@@ -38,11 +38,12 @@ void main() {
       );
 
       expect(r.renteAnnuelle, closeTo(14700, 1));
-      // VD base 0.08, married discount 0.85 -> 0.068
-      // Progressive: 100k*0.068*1.0 + 100k*0.068*1.15 + 50k*0.068*1.30
-      // = 6800 + 7820 + 4420 = 19040
-      expect(r.impotRetrait, closeTo(19040, 1));
-      expect(r.capitalNet, closeTo(230960, 1));
+      // Audit 2026-04-18 Q5 : VD = splitting intégral couple → 0.78 (pas 0.85).
+      // VD base 0.08 × 0.78 = 0.0624.
+      // Progressive : 100k × 0.0624 × 1.0 + 100k × 0.0624 × 1.15 + 50k × 0.0624 × 1.30
+      //             = 6240 + 7176 + 4056 = 17'472.
+      expect(r.impotRetrait, closeTo(17472, 1));
+      expect(r.capitalNet, closeTo(232528, 1));
 
       expect(r.scenarios['prudent']!.breakEvenAge, isNotNull);
     });
@@ -78,10 +79,11 @@ void main() {
       );
 
       expect(r.renteAnnuelle, closeTo(6240, 1));
-      // BS base 0.075, married 0.075*0.85 = 0.06375
-      // Progressive: 100k in first bracket only -> 100k*0.06375*1.0 = 6375
-      expect(r.impotRetrait, closeTo(6375, 1));
-      expect(r.capitalNet, closeTo(93625, 1));
+      // Audit 2026-04-18 Q5 : BS n'est pas tabulé → fallback 0.82 (pas 0.85).
+      // BS base 0.075 × 0.82 = 0.0615.
+      // Progressive : 100k × 0.0615 × 1.0 = 6150.
+      expect(r.impotRetrait, closeTo(6150, 1));
+      expect(r.capitalNet, closeTo(93850, 1));
 
       expect(r.scenarios['prudent']!.breakEvenAge, isNotNull);
     });
@@ -170,8 +172,8 @@ void main() {
         statutCivil: 'married',
       );
 
-      // Married should be ~85% of single
-      expect(married.impotRetrait / single.impotRetrait, closeTo(0.85, 0.001));
+      // Audit 2026-04-18 Q5 : ZH splitting intégral → 0.73 (pas 0.85).
+      expect(married.impotRetrait / single.impotRetrait, closeTo(0.73, 0.02));
     });
 
     test('All 26 cantons produce results', () {

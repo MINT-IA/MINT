@@ -75,6 +75,7 @@ def _invoke(tool_input: dict, user_id: str) -> str:
             profile_context=None,
             user_id=user_id,
             db=db,
+            persistence_consent=True,
         )
     finally:
         db.close()

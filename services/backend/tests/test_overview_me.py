@@ -218,6 +218,7 @@ def test_overview_couple_status_complete_when_spouse_income_present(
             profile_context=None,
             user_id=user_id,
             db=db,
+            persistence_consent=True,  # Phase 52.1 PR 2 — test setup writes a fact
         )
     finally:
         db.close()

@@ -386,7 +386,7 @@ def _sanitize_conversation_history(
     """Sanitize conversation history: PII scrub + injection filter + limit.
 
     Threat mitigations:
-        T-20-01 (Tampering): role whitelist, 16-message cap, 2000-char truncation
+        T-20-01 (Tampering): role whitelist, 32-message cap, 2000-char truncation
         T-20-02 (PII): regex scrub on user messages
         T-20-03 (Spoofing): reject 'system' role to prevent prompt injection
         T-20-04 (DoS): hard cap at 16 messages, 2000 chars each
@@ -401,7 +401,7 @@ def _sanitize_conversation_history(
     if not history:
         return None
     sanitized: list[dict[str, str]] = []
-    for msg in history[-16:]:  # hard cap at 16 messages (was 8)
+    for msg in history[-32:]:  # hard cap at 32 messages (8 → 16 → 32, 2026-04-17)
         role = msg.get("role", "")
         content = msg.get("content", "")
         if role not in ("user", "assistant") or not content.strip():
@@ -453,6 +453,8 @@ _PROFILE_SAFE_FIELDS = {
     "years_since_last_buyback",
     # Planned contributions (consumed by claude_coach_service system prompt)
     "planned_contributions",
+    # SafeMode signal: consumer debt stress or emergency-fund shortfall (RULES.md §1)
+    "has_debt",
 }
 
 
@@ -993,13 +995,26 @@ def _coerce_fact_value(key: str, value):
             if isinstance(value, bool):  # bool is a subclass of int in Python
                 return None
             if isinstance(value, (int, float)):
-                return float(value)
-            if isinstance(value, str):
+                coerced = float(value)
+            elif isinstance(value, str):
                 cleaned = value.replace("'", "").replace(" ", "").replace(",", ".")
-                return float(cleaned)
+                coerced = float(cleaned)
+            else:
+                return None
         except (TypeError, ValueError):
             return None
-        return None
+        # B6-minimal (2026-04-18): range checks for birth-year-like keys.
+        # Panel adversaire BUG 4 & panel archi A3: without an upstream
+        # range check, Claude could persist `birthYear=2099` and the mobile
+        # `profile.age` clamp silently returned 0 for every downstream
+        # calculator. Reject impossible values here so the LLM asks again.
+        current_year = datetime.now().year
+        if key in {"birthYear", "spouseBirthYear"}:
+            # Accept newborns (currentYear+1 tolerates local-timezone edge)
+            # down to 1900 (no living user pre-1900 for our purposes).
+            if coerced < 1900 or coerced > current_year + 1:
+                return None
+        return coerced
     if key in _SAVE_FACT_BOOL_KEYS:
         if isinstance(value, bool):
             return value
@@ -1132,12 +1147,60 @@ _REPROMPT_EMPTY_END_TURN = (
 )
 
 
+# Phase 52.1 / 52.2 — WRITE-tier tool whitelist. Re-verified by direct
+# inspection of each handler in this file after the T-52-08 close-out
+# audit (2026-05-03) caught 3 false negatives in the first version.
+#
+# Tools in this dispatcher that ACTUALLY write user-identifying data
+# to the backend DB:
+#   - save_fact         → ProfileModel.data (line ~1390+)
+#   - save_insight      → CoachInsightRecord (line ~1294+)
+#   - save_provenance   → ProvenanceRecord (line ~1510, db.add+commit)
+#   - save_earmark      → EarmarkTag (line ~1531, db.add+commit)
+#   - remove_earmark    → EarmarkTag (line ~1550, db.delete+commit)
+#
+# Genuinely ack-only handlers (NOT in the whitelist; they only
+# logger.info and return a confirmation string):
+#   - record_commitment (line ~1480)
+#   - save_pre_mortem   (line ~1488)
+#
+# Flutter-bound tools intercepted by widget_renderer on device — never
+# reach this dispatcher; mobile gates in PR #438 cover device-side
+# persistence:
+#   - save_partner_estimate / update_partner_estimate
+#   - record_check_in
+#
+# When the request carries `persistence_consent=False` (cloud-sync OFF
+# on the mobile toggle), every WRITE-tier call is refused server-side
+# and the LLM receives a stable rejection string so it can phrase its
+# reply appropriately. LLM call itself proceeds — there is no
+# on-device LLM. See
+# .planning/decisions/2026-05-03-chat-under-cloud-sync-off.md and the
+# verified surface inventory at
+# .planning/phases/52.1-cloud-sync-actual-gating/BACKEND-WRITE-SURFACE.md.
+_WRITE_TIER_TOOLS: frozenset[str] = frozenset({
+    "save_fact",
+    "save_insight",
+    "save_provenance",
+    "save_earmark",
+    "remove_earmark",
+})
+
+_PERSISTENCE_OFF_MARKER = (
+    "[persistence_off: write skipped — sync disabled. The user has cloud "
+    "sync OFF in Settings › Confidentialité; structured facts are kept on "
+    "their device only. Acknowledge by saying you'll keep this in mind for "
+    "the current conversation only.]"
+)
+
+
 def _execute_internal_tool(
     tool_call: dict,
     memory_block: Optional[str],
     profile_context: Optional[dict] = None,
     user_id: Optional[str] = None,
     db: Optional[Session] = None,
+    persistence_consent: bool = False,
 ) -> str:
     """Execute a single internal tool and return the result as text.
 
@@ -1149,12 +1212,25 @@ def _execute_internal_tool(
         tool_call: Dict with "name" and "input" keys (Anthropic format).
         memory_block: The serialized memory block from the request.
         profile_context: Sanitized profile data (for data lookup tools).
+        persistence_consent: Phase 52.1 PR 2 — when False, every
+            WRITE-tier tool (see `_WRITE_TIER_TOOLS`) is refused with
+            `_PERSISTENCE_OFF_MARKER`. LLM call itself is unaffected.
 
     Returns:
         Plain-text result string for the tool.
     """
     name = tool_call.get("name", "")
     raw_input = tool_call.get("input", {})
+
+    # Phase 52.1 PR 2 — gate WRITE-tier tools on `persistence_consent`.
+    # Runs BEFORE any other branch so the rejection is uniform and
+    # auditable (a single log line per skipped write).
+    if not persistence_consent and name in _WRITE_TIER_TOOLS:
+        logger.info(
+            "coach.write.skipped tool=%s reason=cloud_sync_off",
+            name,
+        )
+        return _PERSISTENCE_OFF_MARKER
 
     # P0-4: Validate tool arguments — type check and length limit.
     # LLM-generated arguments could be malformed or adversarially large.
@@ -1231,7 +1307,12 @@ def _execute_internal_tool(
     if name == "save_insight":
         summary = tool_input.get("summary") or tool_input.get("insight") or ""
         topic = tool_input.get("topic", "general")
-        insight_type = tool_input.get("insight_type", "fact")
+        # Wave E-PRIME: schema expose `type` (coach_tools.py:468) mais handler
+        # lisait `insight_type` avec fallback "fact". Anthropic SDK sérialise
+        # tool_use params sous le nom exact du schema — donc tous les events
+        # Wave A A0 (event type) étaient silencieusement downgradés à "fact".
+        # Fallback sur l'ancien nom pour compat tests.
+        insight_type = tool_input.get("type") or tool_input.get("insight_type") or "fact"
         logger.info("save_insight: topic=%s, summary=%s", topic[:50], summary[:100])
         if user_id and db:
             try:
@@ -1359,19 +1440,38 @@ def _execute_internal_tool(
                 profile.updated_at = datetime.now(timezone.utc)
                 db.add(profile)
                 db.commit()
+                # PRIV-07 — PII redaction on save_fact log + LLM return.
+                # Deny-by-default: only keys in SAFE_LOG_FACT_KEYS expose
+                # their value. All numeric financial amounts + quasi-
+                # identifiers (birthYear, dateOfBirth, commune, etc.) are
+                # redacted. The LLM already has `coerced` in its tool
+                # input history — the return string is a confirmation,
+                # not an echo (no need to repeat the value).
+                # Ref: CLAUDE.md §6.7, nLPD art. 4, adversarial panel
+                # 2026-04-18 (agent a39aa3c1db57f30a0).
+                from app.services.privacy.fact_key_allowlist import (
+                    is_safe_to_log,
+                )
+                log_value = coerced if is_safe_to_log(fact_key) else "[REDACTED]"
                 logger.info(
                     "save_fact: user=%s key=%s value=%r conf=%s",
                     str(user_id)[:8] + "...",
                     fact_key,
-                    coerced,
+                    log_value,
                     fact_conf,
                 )
-                return f"Fait enregistré : {fact_key} = {coerced}"
+                if is_safe_to_log(fact_key):
+                    return f"Fait enregistré : {fact_key} = {coerced}"
+                return f"Fait enregistré : {fact_key}"
             except Exception as exc:
                 db.rollback()
                 logger.exception("save_fact DB commit failed: %s", fact_key)
                 return f"[save_fact ÉCHEC: {type(exc).__name__}]"
-        return f"Fait noté (hors DB) : {fact_key} = {fact_value}"
+        # Hors-DB path: same redaction contract applies.
+        from app.services.privacy.fact_key_allowlist import is_safe_to_log
+        if is_safe_to_log(fact_key):
+            return f"Fait noté (hors DB) : {fact_key} = {fact_value}"
+        return f"Fait noté (hors DB) : {fact_key}"
 
     # ─────────────────────────────────────────────────────────────────
     # suggest_actions — READ: dynamic chips from profile gaps + financial
@@ -1742,6 +1842,7 @@ async def _run_agent_loop(
     user_id: Optional[str] = None,
     db: Optional[Session] = None,
     conversation_history: list[dict] | None = None,
+    persistence_consent: bool = False,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -1920,7 +2021,14 @@ async def _run_agent_loop(
         # Execute internal tools and collect results
         tool_results: list = []
         for call in internal_calls:
-            result_text = _execute_internal_tool(call, memory_block, profile_context, user_id=user_id, db=db)
+            result_text = _execute_internal_tool(
+                call,
+                memory_block,
+                profile_context,
+                user_id=user_id,
+                db=db,
+                persistence_consent=persistence_consent,
+            )
             # FIX-W12: Truncate tool results to prevent context explosion
             if len(result_text) > 500:
                 result_text = result_text[:500] + "... [tronqué]"
@@ -1981,7 +2089,20 @@ async def _run_agent_loop(
 # ---------------------------------------------------------------------------
 
 
-@router.post("/chat", response_model=CoachChatResponse)
+@router.post(
+    "/chat",
+    response_model=CoachChatResponse,
+    # CoachChatResponse.model_config sets alias_generator=to_camel so the
+    # schema fields expose camelCase aliases (toolCalls, tokensUsed,
+    # responseMeta, cashLevel, systemPromptUsed). FastAPI's default
+    # serialization uses the python field name (snake_case) unless told
+    # otherwise — so without this flag the Flutter client silently drops
+    # every non-trivial field (it reads json['toolCalls'], backend emits
+    # json['tool_calls'], JSON keys are case-sensitive). Setting
+    # response_model_by_alias=True is the one-line fix that restores the
+    # documented contract. Root-caused 2026-04-17 during deep-audit.
+    response_model_by_alias=True,
+)
 @limiter.limit("30/minute;500/day")
 async def coach_chat(
     request: Request,
@@ -2156,14 +2277,26 @@ async def coach_chat(
     # are persisted to CoachInsightRecord — the same table save_insight
     # writes to. Dedup by (user_id, topic) means the LLM can still call
     # save_insight without double-counting.
-    try:
-        from app.services.coach.profile_extractor import (
-            extract_profile_facts,
-            facts_to_insight_rows,
+    #
+    # Phase 52.1 PR 2 — gate this post-hoc extractor on the same
+    # `persistence_consent` flag as the WRITE-tier tools. With sync
+    # OFF, the regex extractor must NOT write to CoachInsightRecord.
+    if not body.persistence_consent:
+        logger.info(
+            "coach.write.skipped tool=post_hoc_extractor reason=cloud_sync_off",
         )
-        from app.models.coach_insight import CoachInsightRecord
+    try:
+        # Skip the entire extractor when sync is OFF.
+        if not body.persistence_consent:
+            extracted_facts = []
+        else:
+            from app.services.coach.profile_extractor import (
+                extract_profile_facts,
+                facts_to_insight_rows,
+            )
+            from app.models.coach_insight import CoachInsightRecord
 
-        extracted_facts = extract_profile_facts(sanitized_message, safe_profile or {})
+            extracted_facts = extract_profile_facts(sanitized_message, safe_profile or {})
         if extracted_facts and _user and _user.id:
             now_extract = datetime.now(timezone.utc)
             for row in facts_to_insight_rows(extracted_facts, user_id=str(_user.id)):
@@ -2378,6 +2511,7 @@ async def coach_chat(
                 user_id=_user.id if _user else None,
                 db=db,
                 conversation_history=safe_history,
+                persistence_consent=body.persistence_consent,
             ),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )

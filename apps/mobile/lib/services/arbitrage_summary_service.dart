@@ -338,6 +338,23 @@ class ArbitrageSummaryService {
             : 0.25;
     final montant = math.min(lacune, 30000.0); // typical annual buyback
 
+    // Wave 7 A7 wiring (2026-04-18): plumb the planned capital withdrawal
+    // horizon so the ATF 142 II 399 / LPP art. 79b al. 3 anti-abuse alert
+    // actually fires when the user is planning an EPL (achat immo) within
+    // 3 years of the rachat. Retirement itself also counts as a capital
+    // retrait (rente vs capital choice), so we signal both goal types.
+    final now = DateTime.now();
+    final goalYears = profile.goalA.targetDate.year - now.year;
+    int? plannedWithdrawalYears;
+    if (profile.goalA.type == GoalAType.achatImmo && goalYears >= 0) {
+      plannedWithdrawalYears = goalYears;
+    } else if (profile.goalA.type == GoalAType.retraite &&
+        goalYears >= 0 &&
+        goalYears < 3) {
+      // Retraite effective dans < 3 ans → même trap si rachat maintenant.
+      plannedWithdrawalYears = goalYears;
+    }
+
     final result = ArbitrageEngine.compareRachatVsMarche(
       montant: montant,
       tauxMarginal: tauxMarginal,
@@ -345,6 +362,7 @@ class ArbitrageSummaryService {
       canton: canton,
       isMarried: isMarried,
       dataSources: profile.dataSources,
+      plannedCapitalWithdrawalYearsFromNow: plannedWithdrawalYears,
     );
 
     final taxSaving = montant * tauxMarginal;

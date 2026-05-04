@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/mint_custom_paint_mask.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RICH CHAT WIDGETS — S56
@@ -198,11 +199,13 @@ class ChatGaugeCard extends StatelessWidget {
                 children: [
                   Semantics(
                     label: 'Score gauge chart',
-                    child: CustomPaint(
-                      size: const Size(120, 120),
-                      painter: _GaugePainter(
-                        progress: progress,
-                        color: color,
+                    child: MintCustomPaintMask(
+                      child: CustomPaint(
+                        size: const Size(120, 120),
+                        painter: _GaugePainter(
+                          progress: progress,
+                          color: color,
+                        ),
                       ),
                     ),
                   ),

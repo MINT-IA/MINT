@@ -30,6 +30,10 @@ WHITELIST = (
     "package:mint_mobile/l10n/app_localizations.dart",
     "package:mint_mobile/theme/colors.dart",
     "package:mint_mobile/theme/mint_text_styles.dart",
+    # B4 first-launch beta disclosure sheet (Apple TestFlight beta review +
+    # FINMA fintech sandbox compliance). UI sheet, not financial_core /
+    # services / providers / models — does not violate LAND-01 spirit.
+    "package:mint_mobile/widgets/beta/beta_program_disclosure_sheet.dart",
 )
 
 FORBIDDEN_SUBSTRINGS = (

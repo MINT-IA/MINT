@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/beta/beta_program_disclosure_sheet.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -25,7 +26,6 @@ class _LandingScreenState extends State<LandingScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _line1Opacity;
-  late final Animation<double> _line2Opacity;
   late final Animation<double> _paragraphOpacity;
   late final Animation<Offset> _paragraphOffset;
   late final Animation<double> _ctaOpacity;
@@ -36,37 +36,32 @@ class _LandingScreenState extends State<LandingScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 5000),
+      duration: const Duration(milliseconds: 3200),
     );
 
-    // Line 1 — fade in at 800-1200ms of 5000ms.
+    // Line 1 opener — 500-900ms.
     _line1Opacity = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.16, 0.24, curve: Curves.easeOutCubic),
+      curve: const Interval(0.16, 0.28, curve: Curves.easeOutCubic),
     );
-    // Line 2 — fade in at 3500-3900ms of 5000ms.
-    _line2Opacity = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.70, 0.78, curve: Curves.easeOutCubic),
-    );
-    // Promise paragraph — 4000-4400ms.
+    // Promise — 1400-1900ms (arrives as the opener settles).
     _paragraphOpacity = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.80, 0.88, curve: Curves.easeOutCubic),
+      curve: const Interval(0.44, 0.60, curve: Curves.easeOutCubic),
     );
     _paragraphOffset = Tween<Offset>(
       begin: const Offset(0, 0.04),
       end: Offset.zero,
     ).animate(_paragraphOpacity);
-    // CTA — 4400-4700ms.
+    // CTA — 2500-2800ms.
     _ctaOpacity = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.88, 0.94, curve: Curves.easeOutCubic),
+      curve: const Interval(0.78, 0.88, curve: Curves.easeOutCubic),
     );
-    // Legal footer — 4700-5000ms.
+    // Legal footer — 2900-3200ms.
     _legalOpacity = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.94, 1.0, curve: Curves.easeOutCubic),
+      curve: const Interval(0.90, 1.0, curve: Curves.easeOutCubic),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -77,6 +72,10 @@ class _LandingScreenState extends State<LandingScreen>
       } else {
         _controller.forward();
       }
+      // First-launch beta disclosure (Apple TestFlight beta review +
+      // FINMA fintech sandbox). One-shot per device install.
+      // No-op when SharedPreferences flag is already set.
+      BetaProgramDisclosureSheet.maybeShow(context);
     });
   }
 
@@ -123,23 +122,12 @@ class _LandingScreenState extends State<LandingScreen>
                     ),
                   ),
                   const SizedBox(height: 40),
-                  // Line 1 — money taboo
+                  // Landing opener (single line — retired the follow-up in
+                  // 2026-04-17; the promise below carries the setup).
                   FadeTransition(
                     opacity: _line1Opacity,
                     child: Text(
                       l10n.anonymousIntentLine1,
-                      textAlign: TextAlign.center,
-                      style: MintTextStyles.bodyLarge(
-                        color: MintColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Line 2 — even to oneself
-                  FadeTransition(
-                    opacity: _line2Opacity,
-                    child: Text(
-                      l10n.anonymousIntentLine2,
                       textAlign: TextAlign.center,
                       style: MintTextStyles.bodyLarge(
                         color: MintColors.textSecondary,
@@ -176,14 +164,16 @@ class _LandingScreenState extends State<LandingScreen>
                       button: true,
                       label: l10n.landingV2CtaSober,
                       child: FilledButton(
+                        // Handoff 2 sweep 2026-05-04: warm ink CTA + warm
+                        // porcelaine foreground for the « commencer » primary.
                         style: FilledButton.styleFrom(
-                          backgroundColor: MintColors.textPrimary,
-                          foregroundColor: MintColors.craie,
+                          backgroundColor: MintColors.inkPrimary,
+                          foregroundColor: MintColors.porcelaineHero,
                           minimumSize: const Size.fromHeight(56),
                           shape: const StadiumBorder(),
                           textStyle: textTheme.labelLarge,
                         ),
-                        onPressed: () => context.go('/coach/chat'),
+                        onPressed: () => context.go('/start'),
                         child: Text(l10n.landingV2CtaSober),
                       ),
                     ),

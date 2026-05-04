@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/document_event.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
@@ -1081,7 +1082,10 @@ class DocumentService {
 
   /// Sync confirmed scan extraction to backend.
   /// Called after user reviews and confirms extracted fields.
-  /// Offline-first: failure is logged but never blocks the UX.
+  /// Offline-first: failure is logged but never blocks the UX. The caller
+  /// (ExtractionReviewScreen._sendWithRetry) handles its own retry loop
+  /// with backoff; this method tries a JWT refresh on 401 once so we
+  /// don't burn 3 retries when all that's needed is a fresh access token.
   static Future<Map<String, dynamic>?> sendScanConfirmation({
     required String documentType,
     required List<Map<String, dynamic>> confirmedFields,
@@ -1089,24 +1093,52 @@ class DocumentService {
     String extractionMethod = 'claude_vision',
   }) async {
     try {
+      // Phase 52.1: gate on cloud-sync toggle FIRST (before auth
+      // check) so user-intent wins over engineering preconditions.
+      // `confirmedFields` contains the user's extracted PII (LPP/AVS/
+      // tax numbers). Sync OFF → confirmation stays local; the
+      // extracted fields are still applied to the local profile by
+      // the calling ExtractionReviewScreen.
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('auth_local_mode') ?? true) {
+        debugPrint('[DocumentService] Cloud sync OFF — skipping scan-confirmation push');
+        return null;
+      }
       final baseUrl = ApiService.baseUrl;
-      final token = await AuthService.getToken();
-      if (token == null) return null;
+      var token = await AuthService.getToken();
+      if (token == null || token.isEmpty) return null;
 
-      final response = await http.post(
+      final body = jsonEncode({
+        'documentType': documentType,
+        'confirmedFields': confirmedFields,
+        'overallConfidence': overallConfidence,
+        'extractionMethod': extractionMethod,
+        'timestamp': DateTime.now().toUtc().toIso8601String(),
+      });
+
+      var response = await http.post(
         Uri.parse('$baseUrl/documents/scan-confirmation'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'documentType': documentType,
-          'confirmedFields': confirmedFields,
-          'overallConfidence': overallConfidence,
-          'extractionMethod': extractionMethod,
-          'timestamp': DateTime.now().toUtc().toIso8601String(),
-        }),
+        body: body,
       );
+
+      if (response.statusCode == 401) {
+        final fresh = await AuthService.refreshAccessToken();
+        if (fresh != null && fresh.isNotEmpty) {
+          token = fresh;
+          response = await http.post(
+            Uri.parse('$baseUrl/documents/scan-confirmation'),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: body,
+          );
+        }
+      }
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;

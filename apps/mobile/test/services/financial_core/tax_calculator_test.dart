@@ -40,7 +40,9 @@ void main() {
       expect(tax, closeTo(39325, 1));
     });
 
-    test('married discount applied', () {
+    test('married discount applied per cantonal rule', () {
+      // Audit 2026-04-18 Q5 : discount cantonal, pas scalaire 0.85.
+      // ZH = splitting intégral → 0.73.
       final single = RetirementTaxCalculator.capitalWithdrawalTax(
         capitalBrut: 300000,
         canton: 'ZH',
@@ -51,9 +53,17 @@ void main() {
         canton: 'ZH',
         isMarried: true,
       );
-      // Married gets 15% discount on base rate
       expect(married, lessThan(single));
-      expect(married / single, closeTo(0.85, 0.01));
+      expect(married / single, closeTo(0.73, 0.01));
+
+      // VS = barème marié progressif → 0.81 (différent de ZH).
+      final marriedVS = RetirementTaxCalculator.capitalWithdrawalTax(
+        capitalBrut: 300000, canton: 'VS', isMarried: true,
+      );
+      final singleVS = RetirementTaxCalculator.capitalWithdrawalTax(
+        capitalBrut: 300000, canton: 'VS', isMarried: false,
+      );
+      expect(marriedVS / singleVS, closeTo(0.81, 0.01));
     });
 
     test('VD has highest rate', () {

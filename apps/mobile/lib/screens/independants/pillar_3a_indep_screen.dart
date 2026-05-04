@@ -13,6 +13,7 @@ import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR 3A INDEPENDANT SCREEN — Sprint S18
@@ -72,14 +73,22 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
                 _buildTauxSlider(),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
-                  MintEntrance(child: _buildPremierEclairage()),
-                  const SizedBox(height: 24),
-                  MintEntrance(delay: const Duration(milliseconds: 100), child: _buildResultSection()),
-                  const SizedBox(height: 24),
-                  MintEntrance(delay: const Duration(milliseconds: 150), child: _buildComparisonBars()),
-                  const SizedBox(height: 24),
-                  _buildEducation(),
-                  const SizedBox(height: 24),
+                  // Plafond/strategy section — gated in SafeMode (debt crisis)
+                  SafeModeGate(
+                    hasDebt: lookupSafeModeFlag(context),
+                    child: Column(
+                      children: [
+                        MintEntrance(child: _buildPremierEclairage()),
+                        const SizedBox(height: 24),
+                        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildResultSection()),
+                        const SizedBox(height: 24),
+                        MintEntrance(delay: const Duration(milliseconds: 150), child: _buildComparisonBars()),
+                        const SizedBox(height: 24),
+                        _buildEducation(),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
                 ],
                 _buildDisclaimer(),
                 const SizedBox(height: 100),

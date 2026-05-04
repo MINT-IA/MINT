@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/mint_custom_paint_mask.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SPENDING METER — Sprint 2 UX Rewrite
@@ -130,14 +131,16 @@ class _SpendingMeterState extends State<SpendingMeter>
               return Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Custom painted donut
-                  CustomPaint(
-                    painter: _SpendingDonutPainter(
-                      variablesFraction: _variablesFraction,
-                      futureFraction: _futureFraction,
-                      progress: _fillAnimation.value,
+                  // Custom painted donut (Sentry Replay masked — OBS-06 D-06 default-deny)
+                  MintCustomPaintMask(
+                    child: CustomPaint(
+                      painter: _SpendingDonutPainter(
+                        variablesFraction: _variablesFraction,
+                        futureFraction: _futureFraction,
+                        progress: _fillAnimation.value,
+                      ),
+                      size: const Size(200, 200),
                     ),
-                    size: const Size(200, 200),
                   ),
                   // Center content
                   Column(

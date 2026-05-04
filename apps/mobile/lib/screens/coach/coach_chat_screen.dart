@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -18,6 +16,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
+import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
@@ -29,7 +28,11 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
+import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
+import 'package:mint_mobile/services/coach/proactive_trigger_service.dart'
+    show ProactiveTrigger, ProactiveTriggerType;
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -37,11 +40,15 @@ import 'package:mint_mobile/widgets/coach/coach_app_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_input_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_loading_indicator.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
+import 'package:mint_mobile/widgets/coach/response_card_widget.dart'
+    show ResponseCardStrip;
 import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
+import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
@@ -152,8 +159,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Whether the silent opener is currently displayed (no messages yet).
   bool _showSilentOpener = false;
 
-  /// Random greeting index — picked once per screen open.
-  final int _greetingIndex = Random().nextInt(20);
+  // Random greeting index removed 2026-04-18 (performative voice deprecated).
 
   /// SharedPreferences keys for proactive opt-in tracking.
   static const String _conversationCountKey = 'mint_coach_conversation_count';
@@ -162,6 +168,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   /// Whether the proactive opt-in question has been shown this session.
   bool _optInShownThisSession = false;
+
+  /// Whether a `ProactiveTrigger` has been surfaced as an opener this
+  /// session. Per-day deduplication is upstream in
+  /// [ProactiveTriggerService.evaluate] (cooldown on evaluation date);
+  /// this flag prevents re-showing within a single screen lifetime.
+  bool _proactiveTriggerShownThisSession = false;
 
   /// Whether the user has already chosen an intensity (hides picker chips).
   bool _intensityChosen = false;
@@ -341,9 +353,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             // Onboarding topic — send a real intake question instead of
             // injecting raw context. This replaces the old ?prompt=onboarding.
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _sendMessage(
-                'Salut, je viens de creer mon compte. Par ou je commence\u00a0?',
-              );
+              _sendMessage(S.of(context)!.coachOnboardingFirstUserMessage);
             });
           } else if (_isNotificationTopic(payload.topic)) {
             // Notification topics (monthlyCheckIn, commitmentReminder,
@@ -365,6 +375,19 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             // not as a user message.
             _entryPayloadContext = payload.toContextInjection();
           }
+        } else if (!_isResumingConversation) {
+          // No entryPayload + authenticated + fresh conversation:
+          // - Phase 54-02 T-03 — first try to surface a precomputed
+          //   insight (Cleo 3.0 pattern: profile-change-time computation
+          //   read instantly at greeting time). If the cache is non-empty
+          //   AND fresh, surface it as a tappable chip and skip the
+          //   proactive trigger fallback (« 1 opener chip per chat-open »
+          //   rule per Plan 54-02 risks section).
+          // - Otherwise fall back to a `MintStateProvider.pendingTrigger`
+          //   if one was evaluated this calendar day.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _maybeSurfaceOpenerOnChatOpen();
+          });
         }
       } else {
         // CHAT-01: Anonymous user (no profile) — show silent opener
@@ -401,8 +424,28 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// immediately when the user completes a simulation (e.g., document scan,
   /// retirement dashboard) and returns to the chat.
   void _subscribeToScreenReturns() {
-    _screenReturnSub = ScreenCompletionTracker.stream.listen((screenReturn) {
+    _screenReturnSub =
+        ScreenCompletionTracker.stream.listen((screenReturn) async {
       if (!mounted) return;
+
+      // Phase 53-02 \u2014 if a guided sequence is active, dispatch through
+      // SequenceChatHandler.handleRealtimeReturn FIRST. The handler
+      // returns null when no sequence is active OR when the event is
+      // a stale / wrong-run / duplicate event (its own guards), in
+      // which case we fall back to the legacy contextLine path.
+      try {
+        final result =
+            await SequenceChatHandler.handleRealtimeReturn(screenReturn);
+        if (!mounted) return;
+        if (result != null) {
+          _injectSequencePrompt(result);
+          return;
+        }
+      } catch (e) {
+        // Sequence dispatch must never block the contextLine fallback.
+        debugPrint('[coach_chat] sequence dispatch fallback: $e');
+      }
+
       // Inject the screen return as context for the next coach response.
       final fields = screenReturn.updatedFields;
       final fieldSummary = fields != null && fields.isNotEmpty
@@ -413,6 +456,66 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           "${fieldSummary.isNotEmpty ? '. Donn\u00e9es mises \u00e0 jour\u00a0: $fieldSummary' : ''}.";
       _entryPayloadContext = contextLine;
     });
+  }
+
+  // Phase 53-02 \u2014 inject the sequence's next-step prompt as a coach
+  // message. For now handles AdvanceAction (the most common path) and
+  // CompleteAction; other actions fall back to the contextLine path
+  // (handled by the caller when this returns without enqueueing).
+  void _injectSequencePrompt(SequenceHandlerResult result) {
+    if (!mounted) return;
+    final action = result.action;
+
+    final l10n = S.of(context);
+
+    if (action is AdvanceAction) {
+      // Render the next step as a coach-side suggestion: a route
+      // suggestion card pointing at the next step's screen.
+      // Phase 54-02 T-04: route the \u00ab \u00c9tape suivante : \u2026 \u00bb string
+      // through ARB so all 6 locales render correctly + the
+      // accent_lint_fr / no_hardcoded_fr lints don't regress.
+      final nextStepText = l10n != null
+          ? l10n.coachSequenceNextStepLabel(action.progressLabel)
+          : '\u00c9tape suivante : ${action.progressLabel}.';
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: nextStepText,
+          timestamp: DateTime.now(),
+          richToolCalls: [
+            RagToolCall(
+              name: 'route_to_screen',
+              input: {
+                'intent': action.nextStep.intentTag,
+                'route': action.route,
+                'context_message': action.progressLabel,
+                'prefill': action.prefill,
+              },
+            ),
+          ],
+        ));
+      });
+      return;
+    }
+
+    if (action is CompleteAction) {
+      // Phase 54-02 T-04: ARB-route the completion string.
+      final completionText = l10n?.coachSequenceCompletedMessage ??
+          'Tu as termin\u00e9 cette s\u00e9quence guid\u00e9e.';
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: completionText,
+          timestamp: DateTime.now(),
+        ));
+      });
+      return;
+    }
+
+    // PauseAction / SkipAction / RetryAction / ReEvaluateAction:
+    // for this initial wiring we let the caller fall back to the
+    // legacy contextLine path. A follow-up plan can render dedicated
+    // UI for each branch.
   }
 
   // ════════════════════════════════════════════════════════════
@@ -464,17 +567,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// [data] may carry notification-specific fields. For commitmentReminder,
   /// `data['commitment']` (String) is interpolated into the message.
   String? _notificationOpener(String topic, Map<String, dynamic>? data) {
+    final l = S.of(context)!;
     switch (topic) {
       case 'monthlyCheckIn':
-        return 'On fait le point sur le mois\u00a0?';
+        return l.coachNotificationOpenerMonthlyCheckIn;
       case 'commitmentReminder':
         final commitment = data?['commitment']?.toString();
         if (commitment != null && commitment.trim().isNotEmpty) {
-          return 'Tu m\u2019avais dit que tu allais $commitment. C\u2019est fait\u00a0?';
+          return l.coachNotificationOpenerCommitmentWithLabel(commitment);
         }
-        return 'Tu avais un engagement a tenir. C\u2019est fait\u00a0?';
+        return l.coachNotificationOpenerCommitmentGeneric;
       case 'freshStart':
-        return 'Nouveau mois. On commence par quoi\u00a0?';
+        return l.coachNotificationOpenerFreshStart;
       default:
         return null;
     }
@@ -482,8 +586,31 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   /// Appends a coach-authored opening message to the conversation.
   /// Dismisses the silent opener so the chat feels like a live conversation.
-  void _addCoachOpenerMessage(String content) {
+  ///
+  /// Phase 54-02: when [intentTag] is non-null AND maps to a ScreenRegistry
+  /// entry, also emit a `route_to_screen` rich tool call so the existing
+  /// `widget_renderer._buildRouteSuggestion` path renders a tappable
+  /// `RouteSuggestionCard`. Without [intentTag], behavior is unchanged
+  /// (plain text bubble — legacy callers).
+  void _addCoachOpenerMessage(
+    String content, {
+    String? intentTag,
+    String? routeHint,
+    String? contextMessage,
+  }) {
     if (!mounted) return;
+    final richCalls = <RagToolCall>[];
+    if (intentTag != null && intentTag.isNotEmpty) {
+      richCalls.add(RagToolCall(
+        name: 'route_to_screen',
+        input: <String, dynamic>{
+          'intent': intentTag,
+          if (routeHint != null && routeHint.isNotEmpty) 'route': routeHint,
+          'context_message': contextMessage ?? content,
+          'prefill': const <String, dynamic>{},
+        },
+      ));
+    }
     setState(() {
       _showSilentOpener = false;
       _messages.add(ChatMessage(
@@ -491,9 +618,126 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         content: content,
         timestamp: DateTime.now(),
         tier: ChatTier.none,
+        richToolCalls: richCalls,
       ));
     });
     _scrollToBottom();
+  }
+
+  /// Resolve a [ProactiveTrigger] to its localized opener string.
+  ///
+  /// `messageKey` on the trigger refers to a generated `AppLocalizations`
+  /// getter or method; the switch routes through the strongly-typed
+  /// API so missing params surface at compile time instead of runtime.
+  String _resolveProactiveOpener(S l, ProactiveTrigger t) {
+    switch (t.type) {
+      case ProactiveTriggerType.lifecyclePhaseChange:
+        return l.proactiveLifecycleChange;
+      case ProactiveTriggerType.weeklyRecapAvailable:
+        return l.proactiveWeeklyRecap;
+      case ProactiveTriggerType.goalMilestone:
+        return l.proactiveGoalMilestone(t.params?['progress'] ?? '');
+      case ProactiveTriggerType.seasonalReminder:
+        return l.proactiveSeasonalReminder(t.params?['event'] ?? '');
+      case ProactiveTriggerType.inactivityReturn:
+        return l.proactiveInactivityReturn(t.params?['days'] ?? '');
+      case ProactiveTriggerType.confidenceImproved:
+        return l.proactiveConfidenceUp(t.params?['delta'] ?? '');
+      case ProactiveTriggerType.newCapAvailable:
+        return l.proactiveNewCap;
+      case ProactiveTriggerType.contractDeadlineApproaching:
+        return l.proactiveContractDeadline(
+          t.params?['days'] ?? '',
+          t.params?['label'] ?? '',
+        );
+    }
+  }
+
+  /// Phase 54-02 T-03 — surface a single coach opener on chat-open.
+  ///
+  /// Precedence (« 1 opener chip per chat-open » per Plan 54-02 risks):
+  ///   1. Precomputed insight (Cleo 3.0 pattern — pre-computed at
+  ///      profile-change time by [PrecomputedInsightsService.computeAndCache]
+  ///      and read instantly here). Cache is consumed once: cleared after
+  ///      surfacing so the next open falls back to the proactive path
+  ///      until the next state recompute.
+  ///   2. Proactive trigger (legacy path — `MintStateProvider.pendingTrigger`).
+  ///
+  /// When neither produces a result, the silent opener stays as the
+  /// only visual anchor.
+  Future<void> _maybeSurfaceOpenerOnChatOpen() async {
+    if (_proactiveTriggerShownThisSession) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      final insight =
+          await PrecomputedInsightsService.getCachedInsight(prefs: prefs);
+      if (!mounted) return;
+      if (insight != null) {
+        final l10n = S.of(context);
+        if (l10n != null) {
+          final resolved = insight.resolve(l10n);
+          if (resolved != null && resolved.message.isNotEmpty) {
+            // Mark the session flag BEFORE the opener message so a
+            // re-entrant didChangeDependencies (provider rebuild)
+            // can't double-surface.
+            _proactiveTriggerShownThisSession = true;
+            _addCoachOpenerMessage(
+              resolved.message,
+              intentTag: insight.intentTag,
+              contextMessage: resolved.message,
+            );
+            // Consume-once: clear the cache so the next open falls
+            // back to the proactive path until the next recompute.
+            unawaited(PrecomputedInsightsService.clear(prefs));
+            AnalyticsService().trackEvent(
+              'coach_precomputed_insight_shown',
+              data: {
+                'type': insight.type.name,
+                'has_intent_tag': insight.intentTag != null,
+              },
+            );
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      // Silent degradation — never block the proactive fallback on a
+      // SharedPreferences failure.
+      debugPrint('[CoachChat] precomputed insight surfacing failed: $e');
+    }
+    if (!mounted) return;
+    _maybeShowProactiveTrigger();
+  }
+
+  /// If [MintStateProvider] holds a `pendingTrigger`, surface it as the
+  /// opening coach message. Per-day deduplication is enforced upstream
+  /// in [ProactiveTriggerService.evaluate]; this method also guards
+  /// re-show within a single screen lifetime via
+  /// [_proactiveTriggerShownThisSession].
+  void _maybeShowProactiveTrigger() {
+    if (_proactiveTriggerShownThisSession) return;
+    final stateProvider = context.read<MintStateProvider>();
+    final trigger = stateProvider.state?.pendingTrigger;
+    if (trigger == null) return;
+    _proactiveTriggerShownThisSession = true;
+    final opener = _resolveProactiveOpener(S.of(context)!, trigger);
+    // Phase 54-02: pass intentTag through so the opener renders a
+    // tappable chip via RouteSuggestionCard. The existing chip path
+    // (widget_renderer._buildRouteSuggestion) consumes p['intent'] +
+    // resolves the route via ChatToolDispatcher when no explicit
+    // route is provided. Falls back to plain bubble if intentTag is
+    // null (default for some trigger types per
+    // ProactiveTrigger.intentTag nullable contract).
+    _addCoachOpenerMessage(
+      opener,
+      intentTag: trigger.intentTag,
+      contextMessage: opener,
+    );
+    AnalyticsService().trackEvent('coach_proactive_trigger_shown', data: {
+      'type': trigger.type.name,
+      'has_intent_tag': trigger.intentTag != null,
+    });
   }
 
   /// Increment the conversation count in SharedPreferences.
@@ -514,7 +758,41 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (_profile == null) return null;
     final s = S.of(context)!;
 
-    // Priority 1: replacement rate (most impactful)
+    // Priority 1: most recent enrichment fact (LPP avoir or 3a épargne) —
+    // surfaces a raw number the user JUST added to their profile, so the
+    // coach acknowledges the upload instead of opening silent. Factual,
+    // not projected (anti-shame: fact of the world, not judgment of user).
+    final avoirLpp = _profile!.prevoyance.avoirLppTotal;
+    if (avoirLpp != null && avoirLpp > 0) {
+      return (
+        number: _formatChf(avoirLpp),
+        headline: s.coachSilentOpenerLppAvoir,
+      );
+    }
+    final epargne3a = _profile!.prevoyance.totalEpargne3a;
+    if (epargne3a > 0) {
+      return (
+        number: _formatChf(epargne3a),
+        headline: s.coachSilentOpener3aEpargne,
+      );
+    }
+
+    // Priority 2: financial fitness score — neutral, life-event-agnostic.
+    try {
+      final score = FinancialFitnessService.calculate(profile: _profile!);
+      final g = score.global;
+      if (g > 0) {
+        return (
+          number: '$g/100',
+          headline: s.coachSilentOpenerFitnessScore,
+        );
+      }
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+
+    // Priority 3: replacement rate (retirement-framed — only surfaces when
+    // nothing neutral above is available and the user has enough data for
+    // a projection; headline now neutralized to "taux de remplacement
+    // projeté" without the "à la retraite" qualifier).
     try {
       final proj = ForecasterService.project(
         profile: _profile!,
@@ -529,19 +807,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       }
     } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
-    // Priority 2: financial fitness score
-    try {
-      final score = FinancialFitnessService.calculate(profile: _profile!);
-      final g = score.global;
-      if (g > 0) {
-        return (
-          number: '$g/100',
-          headline: s.coachSilentOpenerFitnessScore,
-        );
-      }
-    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
-
-    // Priority 3: projected capital
+    // Priority 4: projected capital (same neutralization rationale).
     try {
       final proj = ForecasterService.project(
         profile: _profile!,
@@ -552,7 +818,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         final formatted = _formatChf(cap);
         return (
           number: formatted,
-          headline: s.coachSilentOpenerRetirementCapital,
+          headline: s.coachSilentOpenerProjectedCapital,
         );
       }
     } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
@@ -899,15 +1165,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // T-02-05: normalize and cap tool calls via ChatToolDispatcher.
     final richCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
 
-    // UX-04: Enrich inferred suggestions with route_to_screen chips (SLM path).
-    final inferredActions = compliance.useFallback
-        ? <String>[]
-        : _inferSuggestedActions(userMessage, finalText);
+    // Audit 2026-04-18 Wave 5 (user feedback): les 3 chips statiques
+    // inférées par regex ("Si je verse plus sur mon 3a", "J'ai combien sur
+    // mes comptes 3a", "Ça vaut le coup de racheter du LPP") remplissaient
+    // l'écran à CHAQUE réponse coach et étaient insupportables. On ne garde
+    // que les chips générées par le LLM via route_to_screen tool_use — ce
+    // sont des actions CONTEXTUELLES produites par le modèle, pas une
+    // béquille regex. Si le coach ne demande aucune action, l'user tape ce
+    // qui l'intéresse. Panel contrarian 2026-04-18 : les chips par défaut
+    // sont une béquille.
     final routeChips = _extractRouteChips(richCalls);
-    final suggestedActions = <String>{
-      ...inferredActions,
-      ...routeChips,
-    }.take(4).toList();
+    final suggestedActions = routeChips.take(3).toList();
 
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
@@ -972,16 +1240,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ...markerCalls,
       ].take(5).toList();
 
-      // UX-04: Use LLM-provided suggestions if available, otherwise infer
-      // from conversation context. Enrich with route_to_screen tool calls
-      // so the coach's navigation proposals also appear as tappable chips.
-      final inferredActions = response.suggestedActions ??
-          _inferSuggestedActions(text, cleanMessage);
+      // Audit 2026-04-18 Wave 5 : on ne garde que les chips produites par
+      // le LLM (suggestedActions directes + route_to_screen tool_use).
+      // L'ancienne inférence regex générait 3 chips statiques à chaque
+      // réponse, même quand le sujet ne s'y prêtait pas — fatigant UX.
+      final llmActions = response.suggestedActions ?? const <String>[];
       final routeChips = _extractRouteChips(richCalls);
       final suggestedActions = <String>{
-        ...inferredActions,
+        ...llmActions,
         ...routeChips,
-      }.take(4).toList();
+      }.take(3).toList();
 
       setState(() {
         _messages.add(ChatMessage(
@@ -1004,6 +1272,34 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       // Wire S58: extract and persist insight from BYOK/fallback exchange.
       _extractAndSaveInsight(text, cleanMessage);
+
+      // Dispatch `save_fact` tool_use blocks locally so that anonymous users
+      // (the default on fresh installs) actually persist the fields the coach
+      // just extracted. Backend `save_fact` only writes to ProfileModel.data
+      // when user_id is present — anon sessions fall through to "Fait noté
+      // (hors DB)" and lose the value otherwise.
+      if (mounted) {
+        final provider = context.read<CoachProfileProvider>();
+        for (final call in response.toolCalls) {
+          if (call.name != 'save_fact') continue;
+          final key = call.input['key'];
+          final value = call.input['value'];
+          final conf = call.input['confidence']?.toString() ?? 'medium';
+          if (key is String && value != null) {
+            unawaited(provider.applySaveFact(key, value, confidence: conf));
+          }
+        }
+
+        // Safety-net extraction: anonymous users don't get backend save_fact
+        // (user_id required) and the INTERNAL_TOOL_NAMES filter strips the
+        // tool from external_calls even for authenticated users. Run a
+        // first-person-only regex fallback on the user message so the
+        // profile actually fills when the user types « j'ai 34 ans, je
+        // gagne 7500 brut/mois ». Source: MVP-PLAN-2026-04-21 P0-MVP-1
+        // étape 1B. Never fires for canton/householdType — those require
+        // explicit LLM save_fact, not brittle regex.
+        unawaited(FactExtractionFallback.extract(text, provider));
+      }
 
       // Sync profile from backend after each coach exchange.
       // save_fact writes server-side; this pulls those updates into Flutter.
@@ -1206,14 +1502,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// with tappable chips for register / login.
   void _showAnonymousAuthGate() {
     if (!mounted) return;
+    final s = S.of(context)!;
     setState(() {
       _messages.add(ChatMessage(
         role: 'assistant',
-        content:
-            'On a deja decouvert quelques pistes ensemble. '
-            'Cree ton compte pour que je me souvienne de tout.',
+        content: s.coachAnonymousAuthGateMessage,
         timestamp: DateTime.now(),
-        suggestedActions: ['Creer mon compte', 'J\'ai deja un compte'],
+        suggestedActions: [
+          s.coachAuthGateChipRegister,
+          s.coachAuthGateChipLogin,
+        ],
         tier: ChatTier.none,
       ));
     });
@@ -1389,6 +1687,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       age: profile.age,
       canton: profile.canton,
       knownValues: knownValues,
+      hasDebt: profile.isInDebtCrisis,
     );
   }
 
@@ -1556,11 +1855,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     final s = S.of(context)!;
 
     // Handle anonymous auth gate chips.
-    if (action == 'Creer mon compte') {
+    if (action == s.coachAuthGateChipRegister) {
       context.push('/auth/register');
       return;
     }
-    if (action == 'J\'ai deja un compte') {
+    if (action == s.coachAuthGateChipLogin) {
       context.push('/auth/login');
       return;
     }
@@ -1576,7 +1875,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ));
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: 'Parfait, je te signalerai ce qui compte.',
+          content: s.coachOptInAcknowledged,
           timestamp: DateTime.now(),
           tier: ChatTier.none,
         ));
@@ -1679,77 +1978,30 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   //  SILENT OPENER WITH TONE CHIPS (CHAT-05)
   // ════════════════════════════════════════════════════════════
 
-  /// CHAT-05: Wraps the silent opener with tone preference chips
-  /// if the user hasn't chosen a tone yet.
+  /// Silent opener + optional intensity chips. One visual anchor at a time:
+  /// if the profile carries a key number or intent override, show that;
+  /// otherwise the SilentOpener's own minimal empty state renders — no
+  /// piquant random greeting (deprecated 2026-04-18 — performative voice
+  /// was fatiguing users who open the app daily; calm minimalism wins).
   Widget _buildSilentOpenerWithTone() {
-    final opener = _buildSilentOpener();
+    final Widget hero = _buildSilentOpener();
 
-    // Random greeting when no messages yet.
-    final greeting = _messages.isEmpty ? _buildRandomGreeting() : const SizedBox.shrink();
+    final body = Expanded(
+      child: SingleChildScrollView(child: hero),
+    );
 
     if (_intensityChosen || !_cashLevelLoaded) {
-      return Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  opener,
-                  greeting,
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
+      return Column(children: [body]);
     }
 
     return Column(
       children: [
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                opener,
-                greeting,
-              ],
-            ),
-          ),
-        ),
+        body,
         Padding(
           padding: const EdgeInsets.only(left: 42, right: 24, bottom: 16),
           child: _buildIntensityChips(),
         ),
       ],
-    );
-  }
-
-  Widget _buildRandomGreeting() {
-    final s = S.of(context)!;
-    final greetings = [
-      s.coachGreetingRandom1,  s.coachGreetingRandom2,
-      s.coachGreetingRandom3,  s.coachGreetingRandom4,
-      s.coachGreetingRandom5,  s.coachGreetingRandom6,
-      s.coachGreetingRandom7,  s.coachGreetingRandom8,
-      s.coachGreetingRandom9,  s.coachGreetingRandom10,
-      s.coachGreetingRandom11, s.coachGreetingRandom12,
-      s.coachGreetingRandom13, s.coachGreetingRandom14,
-      s.coachGreetingRandom15, s.coachGreetingRandom16,
-      s.coachGreetingRandom17, s.coachGreetingRandom18,
-      s.coachGreetingRandom19, s.coachGreetingRandom20,
-    ];
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-      child: Text(
-        greetings[_greetingIndex],
-        style: GoogleFonts.montserrat(
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-          color: MintColors.textPrimary,
-          height: 1.5,
-        ),
-        textAlign: TextAlign.center,
-      ),
     );
   }
 
@@ -1793,24 +2045,36 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       );
     }
 
+    // Sync local _profile from provider so keyData picks up scans / budget
+    // saves / save_fact writes that happened while the user was on another
+    // screen. Without this, a scanned LPP doesn't suppress the opener —
+    // deep walkthrough crack #8 « rupture de confiance ».
+    final freshProfile = context.watch<CoachProfileProvider>().profile;
+    if (freshProfile != null && !identical(freshProfile, _profile)) {
+      _profile = freshProfile;
+    }
+
     final keyData = _computeKeyNumber();
 
-    // If no financial data available, show a minimal empty state.
-    if (keyData == null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-          child: Text(
-            s.coachSilentOpenerQuestion,
-            style: TextStyle(
-              fontSize: 16,
-              fontStyle: FontStyle.italic,
-              color: MintColors.textSecondary.withValues(alpha: 0.7),
-            ),
-          ),
-        ),
-      );
+    // If no financial data available, show the first-contact opener +
+    // 4 conversation starter chips. Gated on BOTH « no conversation yet »
+    // AND « no captured data yet » — either signal means first contact.
+    // The previous version checked only _messages.isEmpty, so after
+    // scan+confirm the user was thrown back into the opener (deep walk
+    // crack #8). Now: once the profile has LPP / 3a / fitness data,
+    // the silent opener takes over, never the first-contact one.
+    if (keyData == null && _messages.isEmpty) {
+      return _buildFirstContactOpener(s);
     }
+    if (keyData == null) {
+      // Fallback — profile empty but conversation started. Silent frame.
+      return const SizedBox.shrink();
+    }
+
+    final silentOpenerCards = ResponseCardService.generateForSilentOpener(
+      _profile!,
+      l: s,
+    );
 
     return Center(
       child: Padding(
@@ -1818,7 +2082,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // The number, big, alone
+            // The number, big, alone — the headline below qualifies it and
+            // the input bar at the bottom already invites the user in, so
+            // we drop the faded "Tu veux en parler ?" prompt (60% opacity
+            // italic undermined the calm of the frame and the adult tone).
             Text(
               keyData.number,
               style: const TextStyle(
@@ -1830,7 +2097,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Short context headline
             Text(
               keyData.headline,
               style: const TextStyle(
@@ -1840,20 +2106,113 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
-            // "Tu veux en parler ?"
-            Text(
-              s.coachSilentOpenerQuestion,
-              style: TextStyle(
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-                color: MintColors.textSecondary.withValues(alpha: 0.6),
-              ),
-            ),
+            // Handoff 2 « scènes inline » applied to the silent opener:
+            // a single contextual scene card surfaces alongside the key
+            // number so the screen feels like a coach who already opened
+            // the right tab, not a static stat. Cards are picked from
+            // profile shape only — no user message required.
+            if (silentOpenerCards.isNotEmpty) ...[
+              const SizedBox(height: 28),
+              ResponseCardStrip(cards: silentOpenerCards),
+            ],
           ],
         ),
       ),
     );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  FIRST-CONTACT OPENER (MVP P0-MVP-2)
+  // ════════════════════════════════════════════════════════════
+
+  /// Opener widget shown on the very first Parle-à-Mint tap for users with
+  /// no profile data and no message history. Combines a 3-line identity +
+  /// promise + question with 4 starter chips that route to the right flow.
+  /// Disappears as soon as the user types or taps a chip — respects the
+  /// « silent chat » doctrine (no widgets hanging around unused).
+  Widget _buildFirstContactOpener(S s) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            s.coachOpenerIdentity,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              color: MintColors.textPrimary,
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            s.coachOpenerPromise,
+            style: const TextStyle(
+              fontSize: 15,
+              color: MintColors.textSecondary,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            s.coachOpenerQuestion,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _OpenerChip(
+            label: s.coachStarterPaper,
+            onTap: () => _handleOpenerChip(_OpenerIntent.paper),
+          ),
+          const SizedBox(height: 10),
+          _OpenerChip(
+            label: s.coachStarterChoice,
+            onTap: () => _handleOpenerChip(_OpenerIntent.choice),
+          ),
+          const SizedBox(height: 10),
+          _OpenerChip(
+            label: s.coachStarterCost,
+            onTap: () => _handleOpenerChip(_OpenerIntent.cost),
+          ),
+          const SizedBox(height: 10),
+          _OpenerChip(
+            label: s.coachStarterLurk,
+            subtle: true,
+            onTap: () => _handleOpenerChip(_OpenerIntent.lurk),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleOpenerChip(_OpenerIntent intent) async {
+    // Mark the opener as seen so it doesn't re-render after a scan/chat
+    // returns to this screen. Uses the same flag the silent-opener hero
+    // number already depends on.
+    await ReportPersistenceService.markPremierEclairageSeen();
+    if (!mounted) return;
+    switch (intent) {
+      case _OpenerIntent.paper:
+        // Route directly to the scanner — the chip wording already made
+        // the intent clear, no need for an intermediate coach turn.
+        context.push('/scan');
+      case _OpenerIntent.choice:
+        // Pre-fills a user message so the coach has a context anchor
+        // rather than a cold « Dis-moi ». The user can still edit it.
+        _controller.text = 'Un choix que je dois faire';
+        _focusNode.requestFocus();
+      case _OpenerIntent.cost:
+        _controller.text =
+            "Un truc qui me coute chaque mois, je sais pas quoi";
+        _focusNode.requestFocus();
+      case _OpenerIntent.lurk:
+        // Opt-out: dismiss the opener without forcing any action.
+        if (mounted) setState(() {});
+    }
   }
 
   // ════════════════════════════════════════════════════════════
@@ -1993,7 +2352,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Au fait, tu pr\u00e9f\u00e8res que je sois plut\u00f4t\u2026',
+          // Was 'Au fait, tu préfères que je sois plutôt…' — the dangling
+          // ellipsis read as a truncation bug and the chips below already
+          // list the options, making the long phrasing redundant.
+          'Comment je te parle\u00a0?',
           style: TextStyle(
             fontSize: 14,
             color: MintColors.textSecondary,
@@ -2095,4 +2457,57 @@ String? resolveIntentOpener(String chipKey, S l10n) {
     'intentChipAutre': l10n.coachOpenerIntentAutre,
   };
   return openers[chipKey];
+}
+
+/// Intent emitted when the user taps one of the 4 first-contact opener
+/// chips. Keeps the action dispatch in one switch rather than per-chip
+/// callbacks so the opener UI stays declarative.
+enum _OpenerIntent { paper, choice, cost, lurk }
+
+/// One starter chip in the first-contact opener. Rectangular pill with
+/// subtle border — intentionally not a filled button because MINT's
+/// opener isn't selling engagement, it's offering entry paths.
+class _OpenerChip extends StatelessWidget {
+  const _OpenerChip({
+    required this.label,
+    required this.onTap,
+    this.subtle = false,
+  });
+
+  final String label;
+  final VoidCallback onTap;
+  final bool subtle;
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor =
+        subtle ? MintColors.textSecondary : MintColors.textPrimary;
+    final borderColor = subtle
+        ? MintColors.textSecondary.withValues(alpha: 0.2)
+        : MintColors.textPrimary.withValues(alpha: 0.3);
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          decoration: BoxDecoration(
+            border: Border.all(color: borderColor),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: subtle ? FontWeight.w400 : FontWeight.w500,
+              color: textColor,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

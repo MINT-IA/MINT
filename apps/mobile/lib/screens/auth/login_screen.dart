@@ -15,7 +15,6 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,6 +34,17 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _appleSignInError;
   int _countdownSeconds = 0;
   Timer? _countdownTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Clear any stale auth error from a previous screen so a fresh arrival
+    // doesn't surface a red banner before the user has tried anything.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AuthProvider>().clearError();
+    });
+  }
 
   @override
   void dispose() {
@@ -160,20 +170,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const SizedBox(height: MintSpacing.xl),
-                        // Logo
-                        const MintEntrance(
-                            child: Center(
-                          child: MintSurface(
-                            padding: EdgeInsets.all(MintSpacing.md),
-                            radius: 24,
-                            elevated: true,
-                            child: Icon(
-                              Icons.token_rounded,
-                              color: MintColors.primary,
-                              size: 48,
+                        // Brand mark — typographic, matches LandingScreen.
+                        MintEntrance(
+                          child: Center(
+                            child: Text(
+                              'MINT',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: MintColors.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 4,
+                                  ),
                             ),
                           ),
-                        )),
+                        ),
                         const SizedBox(height: MintSpacing.xl),
                         // Title
                         MintEntrance(
@@ -227,7 +239,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             label: l10n.authSendLink,
                             button: true,
                             child: SizedBox(
-                              height: 48,
+                              // Material 3 spec primary CTA = 56 (matches
+                              // landing_screen.dart « Parle à Mint » CTA which
+                              // uses minimumSize: Size.fromHeight(56)).
+                              // 48px caused vertical clip on
+                              // « Recevoir un lien magique » (23 chars under
+                              // the project's font-scale exceeded the 48px
+                              // content area — visible bug confirmed via
+                              // live sim screenshot 2026-05-02).
+                              height: 56,
                               child: FilledButton(
                                 onPressed: authProvider.isLoading
                                     ? null
@@ -490,8 +510,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: OutlinedButton(
                             onPressed: authProvider.isLoading
                                 ? null
-                                : () {
-                                    context.go('/coach/chat');
+                                : () async {
+                                    await authProvider.enableLocalMode();
+                                    if (!context.mounted) return;
+                                    final redirect = GoRouterState.of(context)
+                                        .uri
+                                        .queryParameters['redirect'];
+                                    context.go(redirect ?? '/home');
                                   },
                             child: Text(l10n.authContinueLocal),
                           ),

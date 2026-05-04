@@ -1,0 +1,3436 @@
+{
+  "total": 342,
+  "by_class": {
+    "P0": 201,
+    "P1": 141,
+    "P2": 0
+  },
+  "by_body": {
+    "empty": 19,
+    "logged": 106,
+    "rethrow": 8,
+    "other": 209
+  },
+  "catches": [
+    {
+      "file": "lib/data/budget/budget_local_store.dart",
+      "line": 62,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/data/commune_data.dart",
+      "line": 26,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/main.dart",
+      "line": 58,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/main.dart",
+      "line": 79,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/main_web.dart",
+      "line": 25,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/models/coach_insight.dart",
+      "line": 140,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/models/coaching_preference.dart",
+      "line": 221,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/models/sequence_run.dart",
+      "line": 299,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 123,
+      "var": "e",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 137,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 207,
+      "var": "e",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 212,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 262,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 266,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 340,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 345,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 364,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 409,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 429,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 459,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 477,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 494,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 512,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 533,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 609,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 660,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 682,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 690,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/auth_provider.dart",
+      "line": 733,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/biography_provider.dart",
+      "line": 127,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/biography_provider.dart",
+      "line": 142,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/biography_provider.dart",
+      "line": 155,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/biography_provider.dart",
+      "line": 168,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/biography_provider.dart",
+      "line": 181,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/byok_provider.dart",
+      "line": 91,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/byok_provider.dart",
+      "line": 115,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/byok_provider.dart",
+      "line": 139,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/byok_provider.dart",
+      "line": 179,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/coach_profile_provider.dart",
+      "line": 172,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/coach_profile_provider.dart",
+      "line": 213,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/coach_profile_provider.dart",
+      "line": 444,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/coach_profile_provider.dart",
+      "line": 1017,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/coach_profile_provider.dart",
+      "line": 2187,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/coach_profile_provider.dart",
+      "line": 2353,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/document_provider.dart",
+      "line": 71,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/document_provider.dart",
+      "line": 99,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/document_provider.dart",
+      "line": 114,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/document_provider.dart",
+      "line": 149,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/household_provider.dart",
+      "line": 40,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/household_provider.dart",
+      "line": 78,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/household_provider.dart",
+      "line": 113,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/household_provider.dart",
+      "line": 147,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/household_provider.dart",
+      "line": 177,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/mint_state_provider.dart",
+      "line": 113,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/providers/tension_card_provider.dart",
+      "line": 40,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/tension_card_provider.dart",
+      "line": 47,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/tension_card_provider.dart",
+      "line": 59,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/tension_card_provider.dart",
+      "line": 66,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/timeline_provider.dart",
+      "line": 86,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/timeline_provider.dart",
+      "line": 93,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/timeline_provider.dart",
+      "line": 105,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/timeline_provider.dart",
+      "line": 112,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/providers/timeline_provider.dart",
+      "line": 124,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/admin_analytics_screen.dart",
+      "line": 72,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/admin_observability_screen.dart",
+      "line": 70,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/admin_observability_screen.dart",
+      "line": 89,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/arbitrage/allocation_annuelle_screen.dart",
+      "line": 85,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/arbitrage/rente_vs_capital_screen.dart",
+      "line": 134,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/arbitrage/rente_vs_capital_screen.dart",
+      "line": 308,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/arbitrage/rente_vs_capital_screen.dart",
+      "line": 490,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/arbitrage/rente_vs_capital_screen.dart",
+      "line": 513,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/auth/login_screen.dart",
+      "line": 127,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/bank_import_screen.dart",
+      "line": 871,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/budget/budget_screen.dart",
+      "line": 98,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/budget/budget_screen.dart",
+      "line": 112,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/budget/budget_screen.dart",
+      "line": 122,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/budget/budget_screen.dart",
+      "line": 135,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/budget/budget_screen.dart",
+      "line": 186,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/cantonal_benchmark_screen.dart",
+      "line": 48,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 231,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 244,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 260,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 283,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 503,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 544,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 562,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 578,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 776,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 863,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 895,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 1099,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 1138,
+      "var": "anonError",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 1247,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 1286,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 1424,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 1435,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/coach_chat_screen.dart",
+      "line": 1594,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/conversation_history_screen.dart",
+      "line": 52,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/optimisation_decaissement_screen.dart",
+      "line": 46,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/retirement_dashboard_screen.dart",
+      "line": 156,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/retirement_dashboard_screen.dart",
+      "line": 214,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/retirement_dashboard_screen.dart",
+      "line": 227,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/retirement_dashboard_screen.dart",
+      "line": 322,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/coach/retirement_dashboard_screen.dart",
+      "line": 744,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/consumer_credit_screen.dart",
+      "line": 61,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/coverage_check_screen.dart",
+      "line": 87,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/debt_prevention/debt_ratio_screen.dart",
+      "line": 55,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/debt_prevention/repayment_screen.dart",
+      "line": 51,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/deces_proche_screen.dart",
+      "line": 63,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/demenagement_cantonal_screen.dart",
+      "line": 72,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/document_scan/document_impact_screen.dart",
+      "line": 113,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_impact_screen.dart",
+      "line": 148,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 475,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 557,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 619,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 661,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 755,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 814,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 856,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 1298,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 1337,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 1348,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 1404,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/document_scan_screen.dart",
+      "line": 1612,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/extraction_review_screen.dart",
+      "line": 720,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/document_scan/extraction_review_screen.dart",
+      "line": 766,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/screens/first_job_screen.dart",
+      "line": 81,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/fiscal_comparator_screen.dart",
+      "line": 148,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/gender_gap_screen.dart",
+      "line": 70,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/independant_screen.dart",
+      "line": 81,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/independants/avs_cotisations_screen.dart",
+      "line": 43,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/independants/ijm_screen.dart",
+      "line": 51,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/lpp_deep/epl_screen.dart",
+      "line": 89,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/lpp_deep/epl_screen.dart",
+      "line": 122,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/lpp_deep/epl_screen.dart",
+      "line": 238,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/lpp_deep/libre_passage_screen.dart",
+      "line": 64,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/lpp_deep/rachat_echelonne_screen.dart",
+      "line": 123,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/lpp_deep/rachat_echelonne_screen.dart",
+      "line": 282,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/mon_argent/mon_argent_screen.dart",
+      "line": 48,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/mortgage/affordability_screen.dart",
+      "line": 92,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/mortgage/affordability_screen.dart",
+      "line": 106,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/mortgage/affordability_screen.dart",
+      "line": 171,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/mortgage/amortization_screen.dart",
+      "line": 74,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/mortgage/epl_combined_screen.dart",
+      "line": 79,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/mortgage/imputed_rental_screen.dart",
+      "line": 81,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/mortgage/saron_vs_fixed_screen.dart",
+      "line": 59,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart",
+      "line": 910,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/pillar_3a_deep/provider_comparator_screen.dart",
+      "line": 67,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/pillar_3a_deep/real_return_screen.dart",
+      "line": 70,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/pillar_3a_deep/real_return_screen.dart",
+      "line": 116,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/pillar_3a_deep/retroactive_3a_screen.dart",
+      "line": 75,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/pillar_3a_deep/retroactive_3a_screen.dart",
+      "line": 98,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/pillar_3a_deep/retroactive_3a_screen.dart",
+      "line": 144,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/pillar_3a_deep/retroactive_3a_screen.dart",
+      "line": 180,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
+      "line": 69,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
+      "line": 132,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/simulator_3a_screen.dart",
+      "line": 83,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/simulator_3a_screen.dart",
+      "line": 190,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/simulator_3a_screen.dart",
+      "line": 225,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/simulator_3a_screen.dart",
+      "line": 284,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/simulator_compound_screen.dart",
+      "line": 60,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/screens/simulator_leasing_screen.dart",
+      "line": 51,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/analytics_service.dart",
+      "line": 58,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/analytics_service.dart",
+      "line": 272,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": true,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/analytics_service.dart",
+      "line": 294,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/anonymous_session_service.dart",
+      "line": 32,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/anonymous_session_service.dart",
+      "line": 38,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/anonymous_session_service.dart",
+      "line": 48,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/anonymous_session_service.dart",
+      "line": 54,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/anonymous_session_service.dart",
+      "line": 62,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/anonymous_session_service.dart",
+      "line": 66,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/api_service.dart",
+      "line": 166,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/api_service.dart",
+      "line": 279,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/api_service.dart",
+      "line": 1263,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/apple_sign_in_service.dart",
+      "line": 21,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/auth_service.dart",
+      "line": 148,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/b2b/white_label_config.dart",
+      "line": 120,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/biography/biography_fact.dart",
+      "line": 201,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/budget_living_engine.dart",
+      "line": 71,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/budget_living_engine.dart",
+      "line": 105,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/cap_memory_store.dart",
+      "line": 239,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/coach/coach_chat_api_service.dart",
+      "line": 69,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_chat_api_service.dart",
+      "line": 199,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_chat_api_service.dart",
+      "line": 219,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 323,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 379,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 419,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 437,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 512,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 536,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 748,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 947,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 978,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 1356,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 1380,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/coach_orchestrator.dart",
+      "line": 1402,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/context_injector_service.dart",
+      "line": 188,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/context_injector_service.dart",
+      "line": 208,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/context_injector_service.dart",
+      "line": 234,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/context_injector_service.dart",
+      "line": 250,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/context_injector_service.dart",
+      "line": 290,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/context_injector_service.dart",
+      "line": 354,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/context_injector_service.dart",
+      "line": 368,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/conversation_store.dart",
+      "line": 263,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/conversation_store.dart",
+      "line": 425,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/data_driven_opener_service.dart",
+      "line": 401,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/goal_tracker_service.dart",
+      "line": 261,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/memory_reference_service.dart",
+      "line": 197,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/precomputed_insights_service.dart",
+      "line": 148,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/precomputed_insights_service.dart",
+      "line": 260,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/precomputed_insights_service.dart",
+      "line": 289,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/proactive_trigger_service.dart",
+      "line": 273,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/proactive_trigger_service.dart",
+      "line": 325,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/proactive_trigger_service.dart",
+      "line": 409,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/proactive_trigger_service.dart",
+      "line": 442,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach/tool_call_parser.dart",
+      "line": 49,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_llm_service.dart",
+      "line": 425,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_llm_service.dart",
+      "line": 436,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_llm_service.dart",
+      "line": 552,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_llm_service.dart",
+      "line": 565,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 197,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 222,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 247,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 277,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 380,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 409,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 487,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 570,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 709,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 790,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 945,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 1197,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 1390,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 1412,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coach_narrative_service.dart",
+      "line": 1453,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/coaching_service.dart",
+      "line": 257,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/contract_alert_service.dart",
+      "line": 84,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document/third_party_flow.dart",
+      "line": 54,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document/third_party_flow.dart",
+      "line": 122,
+      "var": "exc",
+      "has_stack": true,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_parser/avs_extract_parser.dart",
+      "line": 355,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_parser/avs_extract_parser.dart",
+      "line": 368,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_parser/lpp_certificate_parser.dart",
+      "line": 515,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_parser/salary_certificate_parser.dart",
+      "line": 358,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_parser/tax_declaration_parser.dart",
+      "line": 416,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_progressive_state.dart",
+      "line": 77,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_progressive_state.dart",
+      "line": 98,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_service.dart",
+      "line": 1073,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_service.dart",
+      "line": 1135,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_service.dart",
+      "line": 1181,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_service.dart",
+      "line": 1222,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_service.dart",
+      "line": 1301,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/document_service.dart",
+      "line": 1316,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/feature_flags.dart",
+      "line": 158,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/financial_core/tornado_sensitivity_service.dart",
+      "line": 613,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/financial_plan_service.dart",
+      "line": 40,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/financial_report_service.dart",
+      "line": 72,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/fresh_start_service.dart",
+      "line": 86,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/household_service.dart",
+      "line": 62,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": true,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/household_service.dart",
+      "line": 88,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": true,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/household_service.dart",
+      "line": 110,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": true,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/household_service.dart",
+      "line": 136,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": true,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/ios_iap_service.dart",
+      "line": 126,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/ios_iap_service.dart",
+      "line": 190,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/llm/provider_health_service.dart",
+      "line": 306,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/llm/response_quality_monitor.dart",
+      "line": 357,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/local_image_classifier.dart",
+      "line": 103,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/local_image_classifier.dart",
+      "line": 108,
+      "var": "_",
+      "has_stack": false,
+      "empty": true,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/memory/coach_memory_service.dart",
+      "line": 64,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/memory/coach_memory_service.dart",
+      "line": 78,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/memory/coach_memory_service.dart",
+      "line": 141,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/memory/coach_memory_service.dart",
+      "line": 160,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/memory/coach_memory_service.dart",
+      "line": 253,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": false,
+      "rethrow": true,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 82,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 90,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 112,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 128,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 150,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 175,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 178,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 193,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 206,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 227,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 239,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/mint_state_engine.dart",
+      "line": 263,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/native_document_scanner.dart",
+      "line": 86,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": true,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/native_document_scanner.dart",
+      "line": 138,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/notification_service.dart",
+      "line": 819,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/notifications_wiring_service.dart",
+      "line": 71,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/nudge/nudge_persistence.dart",
+      "line": 93,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/nudge/nudge_persistence.dart",
+      "line": 138,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/nudge/nudge_persistence.dart",
+      "line": 151,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/partner_estimate_service.dart",
+      "line": 109,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/pillar_3a_calculator.dart",
+      "line": 38,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": true,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/plan_generation_service.dart",
+      "line": 174,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/privacy_service.dart",
+      "line": 156,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/rag_service.dart",
+      "line": 372,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/regulatory_sync_service.dart",
+      "line": 58,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/regulatory_sync_service.dart",
+      "line": 82,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/regulatory_sync_service.dart",
+      "line": 87,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/regulatory_sync_service.dart",
+      "line": 106,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/regulatory_sync_service.dart",
+      "line": 122,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/regulatory_sync_service.dart",
+      "line": 175,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/report/report_builder.dart",
+      "line": 38,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/report_persistence_service.dart",
+      "line": 32,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/report_persistence_service.dart",
+      "line": 175,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/report_persistence_service.dart",
+      "line": 230,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/report_persistence_service.dart",
+      "line": 270,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/report_persistence_service.dart",
+      "line": 357,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/report_persistence_service.dart",
+      "line": 388,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/report_persistence_service.dart",
+      "line": 424,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/report_persistence_service.dart",
+      "line": 503,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/report_persistence_service.dart",
+      "line": 606,
+      "var": "e",
+      "has_stack": true,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/screen_completion_tracker.dart",
+      "line": 116,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/screen_completion_tracker.dart",
+      "line": 133,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/screen_completion_tracker.dart",
+      "line": 150,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/screen_completion_tracker.dart",
+      "line": 198,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/screen_completion_tracker.dart",
+      "line": 220,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/screen_completion_tracker.dart",
+      "line": 254,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/session_snapshot_service.dart",
+      "line": 89,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/session_snapshot_service.dart",
+      "line": 104,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/services/smart_onboarding_draft_service.dart",
+      "line": 34,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/snapshot_service.dart",
+      "line": 178,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/snapshot_service.dart",
+      "line": 222,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/subscription_service.dart",
+      "line": 303,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/services/tax_scales_loader.dart",
+      "line": 94,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/widgets/coach/career_timelapse_widget.dart",
+      "line": 62,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/widgets/coach/chat_drawer_host.dart",
+      "line": 123,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/widgets/coach/coach_interrupt_banner.dart",
+      "line": 97,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/widgets/coach/coach_interrupt_banner.dart",
+      "line": 111,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/widgets/coach/conversation_tile.dart",
+      "line": 209,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/widgets/coach/early_retirement_slider.dart",
+      "line": 83,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/widgets/coach/lightning_menu.dart",
+      "line": 78,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/widgets/coach/widget_renderer.dart",
+      "line": 146,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/widgets/coach/widget_renderer.dart",
+      "line": 434,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/widgets/coach/widget_renderer.dart",
+      "line": 440,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/widgets/coach/widget_renderer.dart",
+      "line": 490,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P0"
+    },
+    {
+      "file": "lib/widgets/dashboard/couple_phase_timeline.dart",
+      "line": 124,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/widgets/document/document_result_view.dart",
+      "line": 90,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/widgets/pulse/cap_card.dart",
+      "line": 212,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/widgets/pulse/goal_selector_sheet.dart",
+      "line": 311,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/widgets/tools/letter_generator_sheet.dart",
+      "line": 170,
+      "var": "e",
+      "has_stack": false,
+      "empty": false,
+      "logged": true,
+      "rethrow": false,
+      "class": "P1"
+    },
+    {
+      "file": "lib/widgets/wizard/wizard_score_preview.dart",
+      "line": 161,
+      "var": "_",
+      "has_stack": false,
+      "empty": false,
+      "logged": false,
+      "rethrow": false,
+      "class": "P1"
+    }
+  ]
+}

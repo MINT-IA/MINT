@@ -1,0 +1,121 @@
+{
+  "_meta": {
+    "source": ".planning/information-doctrine-2026-04-18 (PANEL + ADVERSARIAL)",
+    "version": "1.0.0",
+    "created": "2026-04-18",
+    "description": "10-question eval fixture for the MINT coach information doctrine. Covers 3 standard swiss_native questions, 2 non-swiss archetype, 2 irreversible decisions, and 3 existential questions. Each entry provides a curated 'doctrine_response' that is what the amended rule SHOULD produce; mechanical checks verify the reference answers pass the bar we expect from live LLM output.",
+    "amended_rule": "Un chiffre exact avec sa source, ajusté à l'archétype et à l'événement de vie. Un verbe d'action — ou un passage de main explicite quand la décision est irréversible."
+  },
+  "fixtures": [
+    {
+      "id": "swiss_3a_standard",
+      "question": "Mon 3a vaut le coup ?",
+      "meta": {
+        "archetype": "swiss_native",
+        "life_event": null,
+        "irreversible": false,
+        "existential": false
+      },
+      "doctrine_response": "Oui si taux marginal > 20%. Plafond salarié LPP: **7'258 CHF/an** (OPP3 art. 7). Économie d'impôt typique VS: **1'500-2'200 CHF/an**. Retrait taxé séparément (LIFD art. 38).\n\n**Vérifie** ton taux marginal avant de verser."
+    },
+    {
+      "id": "swiss_rachat_standard",
+      "question": "Rachat LPP c'est quoi ?",
+      "meta": {
+        "archetype": "swiss_native",
+        "life_event": null,
+        "irreversible": false,
+        "existential": false
+      },
+      "doctrine_response": "Verser du cash dans ta caisse pour combler des années manquantes. Déductible à 100% du revenu imposable (LPP art. 79b). Bloqué **3 ans** avant tout retrait capital (al. 3) — sinon redressement fiscal.\n\n**Demande** ton attestation 'rachat maximum possible' à ta caisse."
+    },
+    {
+      "id": "swiss_retraite_standard",
+      "question": "Ma retraite ?",
+      "meta": {
+        "archetype": "swiss_native",
+        "life_event": null,
+        "irreversible": false,
+        "existential": false
+      },
+      "doctrine_response": "À 65 ans, tu toucheras ~**8'505 CHF/mois net** (AVS + LPP). Taux de remplacement: **65.5%**. Bande d'incertitude ±12% (confiance 68%).\n\n**Ouvre** ton dossier pour affiner."
+    },
+    {
+      "id": "expat_us_3a_archetype",
+      "question": "Je verse mon 3a avant fin décembre ?",
+      "meta": {
+        "archetype": "expat_us",
+        "life_event": null,
+        "irreversible": false,
+        "existential": false
+      },
+      "doctrine_response": "Plafond salarié LPP: **7'258 CHF/an** (OPP3 art. 7). Côté IRS, ton 3a est un foreign trust déclarable (Form 3520). Risque PFIC selon le support.\n\nAvant de verser, **consulte** un tax advisor US-CH."
+    },
+    {
+      "id": "cross_border_lpp_archetype",
+      "question": "J'ai 45k de LPP en Suisse, je retourne vivre en France. Retrait ou libre passage ?",
+      "meta": {
+        "archetype": "cross_border",
+        "life_event": "countryMove",
+        "irreversible": false,
+        "existential": false
+      },
+      "doctrine_response": "Frontalier avec permis G: retrait capital **taxé à la source** au canton du siège de la caisse (~8-12%). Alternative: libre passage bloqué jusqu'à 60 ans, imposition repoussée.\n\n**Compare** les deux scénarios avec ton taux d'impôt français avant de décider."
+    },
+    {
+      "id": "rente_vs_capital_irreversible",
+      "question": "Je dois choisir rente ou capital LPP, je pars en retraite dans 8 mois.",
+      "meta": {
+        "archetype": "swiss_native",
+        "life_event": "retirement",
+        "irreversible": true,
+        "existential": false
+      },
+      "doctrine_response": "Rente: ~**33'892 CHF/an** à vie (LPP art. 14, conversion 6.8%). Capital: **677'847 CHF** taxé séparément (LIFD art. 38).\n\nC'est une décision lourde et irréversible. Prends le temps: espérance de vie, santé conjointe, héritiers, besoin de liquidité. Voyons d'abord la mécanique ensemble, ensuite **prends** un rendez-vous avec un·e spécialiste avant de signer."
+    },
+    {
+      "id": "rachat_etale_irreversible",
+      "question": "Mon conseiller me propose un rachat LPP de 120k étalé sur 3 ans, avec retrait EPL prévu en 2027 pour acheter.",
+      "meta": {
+        "archetype": "swiss_native",
+        "life_event": "housingPurchase",
+        "irreversible": true,
+        "existential": false
+      },
+      "doctrine_response": "Rachat = déductible (LPP art. 79b). Mais chaque tranche ouvre un **blocage de 3 ans** sur l'EPL (al. 3). Un rachat 2026 bloque ton EPL jusqu'en 2029 — retrait 2027 = redressement fiscal complet.\n\nL'ordre rachat/EPL est irréversible. Prends le temps: voyons le calendrier ensemble, puis **parle** à un·e spécialiste avant la première tranche."
+    },
+    {
+      "id": "divorce_existential",
+      "question": "Mon mari vient de me dire qu'il demande le divorce. Est-ce que je vais m'en sortir ?",
+      "meta": {
+        "archetype": "swiss_native",
+        "life_event": "divorce",
+        "irreversible": false,
+        "existential": true
+      },
+      "doctrine_response": "Oui, tu t'en sors. Voyons ensemble la mécanique avant de paniquer.\n\nPartage LPP 50/50 des avoirs acquis pendant le mariage (CC art. 122). AVS splitting automatique. Si tu as moins cotisé, tu *reçois* de la prévoyance — souvent **+180'000 à +250'000 CHF**.\n\n**Demande** ton relevé LPP au jour du dépôt pour chiffrer ta situation."
+    },
+    {
+      "id": "job_loss_existential",
+      "question": "Je viens de perdre mon boulot. Je panique, j'ai deux gamins et un loyer de 2'200.",
+      "meta": {
+        "archetype": "swiss_native",
+        "life_event": "jobLoss",
+        "irreversible": false,
+        "existential": true
+      },
+      "doctrine_response": "Respire. Tu n'es pas seul. On prend le temps de regarder ce qui est déjà là.\n\nChômage: **70-80% du dernier salaire** (LACI art. 22) pendant 260-520 jours selon ton âge et tes cotisations. LPP transféré en libre passage sous 6 mois (LFLP art. 4).\n\n**Inscris** ton dossier au RAV dès demain — chaque jour de retard = jour d'indemnité perdu."
+    },
+    {
+      "id": "death_relative_existential",
+      "question": "Mon père est décédé la semaine dernière. Personne ne sait quoi faire avec sa LPP.",
+      "meta": {
+        "archetype": "swiss_native",
+        "life_event": "deathOfRelative",
+        "irreversible": false,
+        "existential": true
+      },
+      "doctrine_response": "C'est dur. Prends le temps qu'il faut pour le reste. Voyons d'abord ce qui est simple.\n\nLPP de ton père: rente conjoint ~**60%**, rente orphelin **20%**/enfant (LPP art. 19-20). Capital décès éventuel selon règlement caisse.\n\n**Demande** le règlement et le certificat LPP à la caisse."
+    }
+  ]
+}

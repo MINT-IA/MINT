@@ -132,7 +132,9 @@ class _BudgetScreenState extends State<BudgetScreen>
         _seqRunId = extra['runId'] as String?;
         _seqStepId = extra['stepId'] as String?;
       }
-    } catch (_) {}
+    } catch (_) {
+      // GoRouterState unavailable (no active match) — no sequence context, fine.
+    }
   }
 
   void _emitFinalReturn() {
@@ -238,7 +240,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           title: S.of(context)!.budgetEmptyTitle,
           subtitle: S.of(context)!.budgetEmptySubtitle,
           ctaLabel: S.of(context)!.budgetEmptyCta,
-          onCta: () => context.push('/coach/chat'),
+          onCta: () => context.go('/coach/chat'),
         ),
       );
     }

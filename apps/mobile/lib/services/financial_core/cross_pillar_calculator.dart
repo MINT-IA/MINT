@@ -786,4 +786,73 @@ class CrossPillarCalculator {
       ProfileDataSource.estimated => 0.35,
     };
   }
+
+  /// Détecte le risque fiscal de cumul annuel LPP + 3a retraits dans la
+  /// même année civile.
+  ///
+  /// swiss-brain Q3 ruling 2026-04-18 : LIFD art. 38 al. 2 + LHID art.
+  /// 11 al. 3 imposent aux 26 cantons de taxer ENSEMBLE toutes les
+  /// prestations en capital de prévoyance perçues la même année, au
+  /// taux applicable à la somme totale. La seule optimisation légale
+  /// est d'étaler les retraits sur années fiscales distinctes.
+  ///
+  /// Retourne le surcoût fiscal du cumul vs. l'étalement sur 2 ans,
+  /// plus un booléen `hasRisk` pour l'UX alerting, et la chaîne
+  /// source légale à rendre à l'utilisateur.
+  ///
+  /// [capitalLppAnnee] : capital LPP retiré cette année fiscale (CHF).
+  /// [capital3aAnnee]  : capital 3a retiré cette année fiscale (CHF).
+  ///                     Zéro si aucun retrait 3a prévu cette année.
+  /// [canton]          : canton de domicile (ex : 'VS').
+  /// [isMarried]       : pour l'application du coefficient couple.
+  static ({bool hasRisk, double cumulTaxChf, double deltaVsSplitChf, String sourceLegale})
+      detectCumulAnnuelRisk({
+    required double capitalLppAnnee,
+    required double capital3aAnnee,
+    required String canton,
+    bool isMarried = false,
+  }) {
+    const sourceLegale =
+        'LIFD art.\u00a038 al.\u00a02 + LHID art.\u00a011 al.\u00a03 : '
+        'les retraits en capital de prévoyance (LPP + 3a) perçus la '
+        'même année fiscale sont cumulés et taxés au taux de la somme.';
+
+    // Pas de risque si au moins un des deux est nul (un seul retrait).
+    if (capitalLppAnnee <= 0 || capital3aAnnee <= 0) {
+      return (
+        hasRisk: false,
+        cumulTaxChf: 0.0,
+        deltaVsSplitChf: 0.0,
+        sourceLegale: sourceLegale,
+      );
+    }
+
+    // Impôt scenario cumul (année N).
+    final cumulTax = RetirementTaxCalculator.capitalWithdrawalTax(
+      capitalBrut: capitalLppAnnee + capital3aAnnee,
+      canton: canton,
+      isMarried: isMarried,
+    );
+
+    // Impôt scenario étalement sur 2 années fiscales (N et N+1).
+    final splitTax = RetirementTaxCalculator.capitalWithdrawalTax(
+      capitalBrut: capitalLppAnnee,
+      canton: canton,
+      isMarried: isMarried,
+    ) +
+        RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: capital3aAnnee,
+          canton: canton,
+          isMarried: isMarried,
+        );
+
+    final delta = (cumulTax - splitTax).clamp(0.0, double.infinity);
+
+    return (
+      hasRisk: delta > 100, // seuil de matérialité : 100 CHF
+      cumulTaxChf: cumulTax,
+      deltaVsSplitChf: delta,
+      sourceLegale: sourceLegale,
+    );
+  }
 }

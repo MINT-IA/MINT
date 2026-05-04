@@ -598,6 +598,56 @@ void main() {
         );
       }
     });
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  Q3 — Cumul annuel LPP + 3a (swiss-brain ruling 2026-04-18)
+    //  LIFD art. 38 al. 2 + LHID art. 11 al. 3 : retraits même année
+    //  sont cumulés fiscalement (obligatoire fédéral, 26 cantons).
+    // ══════════════════════════════════════════════════════════════════════
+
+    test('36. detectCumulAnnuelRisk — aucun risque si un seul pilier retiré', () {
+      final r = CrossPillarCalculator.detectCumulAnnuelRisk(
+        capitalLppAnnee: 400000,
+        capital3aAnnee: 0,
+        canton: 'VS',
+        isMarried: true,
+      );
+      expect(r.hasRisk, isFalse);
+      expect(r.deltaVsSplitChf, closeTo(0.0, 0.01));
+    });
+
+    test('37. detectCumulAnnuelRisk — cumul LPP+3a même année déclenche alerte', () {
+      // Julien VS marié : LPP 400k + 3a 32k la même année.
+      final r = CrossPillarCalculator.detectCumulAnnuelRisk(
+        capitalLppAnnee: 400000,
+        capital3aAnnee: 32000,
+        canton: 'VS',
+        isMarried: true,
+      );
+      expect(r.hasRisk, isTrue);
+      expect(r.deltaVsSplitChf, greaterThan(100));
+      expect(r.sourceLegale, contains('LIFD'));
+      expect(r.sourceLegale, contains('LHID'));
+    });
+
+    test('38. detectCumulAnnuelRisk — discount cantonal appliqué', () {
+      // Même scenario en ZH (splitting intégral) vs VS (barème progressif).
+      // ZH (coef 0.73) doit avoir un delta différent de VS (coef 0.81).
+      final zh = CrossPillarCalculator.detectCumulAnnuelRisk(
+        capitalLppAnnee: 300000,
+        capital3aAnnee: 50000,
+        canton: 'ZH',
+        isMarried: true,
+      );
+      final vs = CrossPillarCalculator.detectCumulAnnuelRisk(
+        capitalLppAnnee: 300000,
+        capital3aAnnee: 50000,
+        canton: 'VS',
+        isMarried: true,
+      );
+      expect(zh.cumulTaxChf, isNot(closeTo(vs.cumulTaxChf, 1.0)),
+          reason: 'Coefficients cantonaux différents → taxes différentes');
+    });
   });
 }
 

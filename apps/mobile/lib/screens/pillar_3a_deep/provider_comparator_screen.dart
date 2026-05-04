@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 /// Ecran comparateur de providers 3a (fintech / banque / assurance).
 ///
@@ -110,12 +111,17 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 _buildInputsSection(l),
                 const SizedBox(height: MintSpacing.lg),
 
-                // Provider cards
-                _buildProviderCards(result, l),
-                const SizedBox(height: MintSpacing.lg),
-
-                // Warning assurance
-                ..._buildAssuranceWarnings(result, l),
+                // Provider cards — gated in SafeMode (debt crisis)
+                SafeModeGate(
+                  hasDebt: lookupSafeModeFlag(context),
+                  child: Column(
+                    children: [
+                      _buildProviderCards(result, l),
+                      const SizedBox(height: MintSpacing.lg),
+                      ..._buildAssuranceWarnings(result, l),
+                    ],
+                  ),
+                ),
 
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),

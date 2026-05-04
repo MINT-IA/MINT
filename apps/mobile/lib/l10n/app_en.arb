@@ -681,6 +681,92 @@
   },
   "budgetEmptyTitle": "Your budget",
   "budgetEmptyBody": "Complete your diagnosis to unlock your monthly plan with your real income and expenses.",
+  "budgetSetupTitle": "Fixed charges",
+  "@budgetSetupTitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupSubtitle": "What goes out every month, no matter what.",
+  "@budgetSetupSubtitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupHousing": "Rent or mortgage",
+  "@budgetSetupHousing": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupLamal": "Health insurance",
+  "@budgetSetupLamal": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTransport": "Transport",
+  "@budgetSetupTransport": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTelecom": "Telecom",
+  "@budgetSetupTelecom": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupElectricity": "Electricity",
+  "@budgetSetupElectricity": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupMedical": "Medical expenses",
+  "@budgetSetupMedical": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupOther": "Other",
+  "@budgetSetupOther": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupAddOthers": "Add more items",
+  "@budgetSetupAddOthers": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupSave": "Save",
+  "@budgetSetupSave": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupChatFallback": "I'd rather talk to the coach",
+  "@budgetSetupChatFallback": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupFieldPlaceholder": "CHF / month",
+  "@budgetSetupFieldPlaceholder": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupRequired": "Required",
+  "@budgetSetupRequired": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTotalFixed": "Fixed total: {amount} CHF / month",
+  "@budgetSetupTotalFixed": {
+    "description": "Budget setup label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetSetupResteAfterCharges": "You have {amount} CHF left after charges.",
+  "@budgetSetupResteAfterCharges": {
+    "description": "Budget setup label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetCardEmptyTitle": "Your fixed charges, clearly.",
+  "@budgetCardEmptyTitle": {
+    "description": "Budget setup label."
+  },
+  "budgetCardEmptyBody": "Seven items, two minutes. Then we calculate what truly remains.",
+  "@budgetCardEmptyBody": {
+    "description": "Budget setup label."
+  },
+  "budgetCardEmptyAction": "Set my charges",
+  "@budgetCardEmptyAction": {
+    "description": "Budget setup label."
+  },
   "budgetEmptyAction": "Start my diagnosis",
   "budgetMonthlyTitle": "Monthly Budget",
   "budgetAvailableThisMonth": "Available this month",
@@ -3403,9 +3489,9 @@
   "benchmarkBelowRange": "Your situation is below the typical range.",
   "benchmarkTypicalRange": "Typical range: {low} – {high}",
   "authGateDocScanTitle": "Secure your documents",
-  "authGateDocScanMessage": "Your certificates contain sensitive data. Create an account to protect them with end-to-end encryption.",
+  "authGateDocScanMessage": "Your certificates contain sensitive data. Create an account to encrypt them on our servers and access them from your devices — you can keep everything on-device at any time from Privacy.",
   "authGateSalaryTitle": "Protect your financial data",
-  "authGateSalaryMessage": "Your salary and financial data deserve a secure vault.",
+  "authGateSalaryMessage": "Create an account to encrypt your salary and financial data on our servers and access them from your devices — you can keep everything on-device at any time from Privacy.",
   "authGateCoachTitle": "The coach needs to know you",
   "authGateCoachMessage": "To give you personalised answers, the coach needs an account.",
   "authGateGoalTitle": "Track your progress",
@@ -3421,7 +3507,7 @@
   "authGateCreateAccount": "Create my account",
   "authGateLogin": "I already have an account",
   "authGatePrivacyNote": "Your data stays on your device and is encrypted.",
-  "authRegisterSubtitle": "Optional account: your data stays local by default",
+  "authRegisterSubtitle": "Create an encrypted account. Cloud sync is off by default; you can turn it on in Settings › Privacy.",
   "authWhyCreateAccount": "Why create an account?",
   "authBenefitProjections": "AVS/LPP projections aligned to your situation",
   "authBenefitCoach": "Personalised coach with your first name",
@@ -3597,7 +3683,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Tell me what's on your mind.",
+  "coachInputHint": "Tell me.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",
@@ -4380,8 +4466,8 @@
   "sim3aDisclaimer": "Educational estimate. Actual savings depend on your place of residence and family situation. Not financial advice (FinSA).",
   "sim3aDebtLockedTitle": "Debt repayment first",
   "sim3aDebtLockedMessage": "In safe mode, 3a action recommendations are disabled. The priority is to stabilise your finances before contributing to 3a.",
-  "sim3aDebtStrategyTitle": "Strategy locked",
-  "sim3aDebtStrategyMessage": "3a investment strategies are disabled while you have active debts. Repaying your debts yields a higher return than any investment.",
+  "sim3aDebtStrategyTitle": "Strategy on hold",
+  "sim3aDebtStrategyMessage": "3a investment strategies are on hold while your active debts weigh on your budget. Recommended order: stabilise first, invest later.",
   "realReturnTitle": "Real return 3a",
   "realReturnPremierEclairageLabel": "Equivalent rate on net effort",
   "realReturnVsNominal": "vs {rate}% net 3a rate (gross − fees)",
@@ -5088,6 +5174,7 @@
   "eplSectionImpactPrestations": "Impact on benefits",
   "eplReductionInvalidite": "Disability pension reduction (annual estimate)",
   "eplReductionDeces": "Death capital reduction (estimate)",
+  "eplReductionAskCaisse": "Ask your pension fund",
   "eplImpactPrestationsNote": "EPL withdrawal proportionally reduces your risk benefits. Check with your pension fund for exact amounts and supplementary insurance options.",
   "eplSectionImpactRente": "Impact on pension",
   "eplRenteSansEpl": "Pension without EPL",
@@ -5228,7 +5315,7 @@
   "repaymentTimelinePaiement": "Payment",
   "repaymentTimelineSolde": "Remaining balance",
   "retroactive3aTitle": "3a catch-up",
-  "retroactive3aHeroTitle": "3a catch-up — New in 2026",
+  "retroactive3aHeroTitle": "3a catch-up — New since 2025",
   "retroactive3aHeroSubtitle": "Catch up on up to 10 years of missed contributions",
   "retroactive3aParametres": "Parameters",
   "retroactive3aAnneesARattraper": "Years to catch up",
@@ -5534,9 +5621,9 @@
   },
   "reportSafeModePriority": "Priority: debt reduction",
   "reportSafeModeActions": "Your priority actions are replaced by a debt reduction plan. Stabilise your situation before exploring recommendations.",
-  "reportSafeMode3a": "The 3a comparator is disabled while you have active debts. Repaying debts takes priority over any 3a savings.",
-  "reportSafeModeLpp": "LPP buyback blocked",
-  "reportSafeModeLppMessage": "LPP buyback is disabled in protection mode. Repay your debts before locking liquidity in pension savings.",
+  "reportSafeMode3a": "The 3a comparator is on hold while your active debts weigh on your budget. Priority: stabilise your cash flow.",
+  "reportSafeModeLpp": "LPP buyback on hold",
+  "reportSafeModeLppMessage": "LPP buyback is on hold in protection mode. Recommended order: repay debts before locking liquidity in pension savings.",
   "reportLppTitle": "💰 LPP Buyback Strategy",
   "reportLppEconomie": "Total tax saving: CHF {amount}",
   "@reportLppEconomie": {
@@ -8843,7 +8930,7 @@
   "portfolioNoData": "No wealth data provided.",
   "portfolioRepartitionEnveloppe": "Allocation by Envelope",
   "portfolioReserveFondsUrgence": "Reserved (Emergency Fund)",
-  "portfolioSafeModeBody": "Allocation advice is disabled in protection mode. Your priority is reducing debt before rebalancing your portfolio.",
+  "portfolioSafeModeBody": "Allocation advice is on hold in protection mode. Recommended order: reduce your debts before rebalancing your portfolio.",
   "portfolioSafeModeLocked": "Debt reduction priority",
   "portfolioValeurTotaleNette": "Total Net Value",
   "proactiveConfidenceUp": "Your confidence score has improved by {delta} pts since last time.",
@@ -9157,7 +9244,7 @@
   "routeSuggestionCta": "Open",
   "routeSuggestionPartialWarning": "Estimate — incomplete data",
   "safeModeCta": "View my debt reduction plan",
-  "safeModeMessage": "For your financial safety, we disable advanced optimisations while a debt signal is active. The priority is building your security.",
+  "safeModeMessage": "While a debt signal is active, advanced optimisations are on hold. Priority: stabilise your cash flow. The rest can wait.",
   "safeModeTitle": "Priority Focus",
   "saronCostLabel": "additional cost with SARON",
   "saronEyebrow": "SARON vs Fixed rate",
@@ -9727,7 +9814,7 @@
   "cashModeSubtitle": "How the coach speaks to you",
   "intensityAdjustedUp": "OK, I’ve turned it up a notch.",
   "intensityAdjustedDown": "OK, I’ve toned it down a notch.",
-  "coachSuggestBudget": "What’s my realistic retirement budget?",
+  "coachSuggestBudget": "Where does my money go each month?",
   "coachSuggestBudgetGap": "How much am I short per month?",
   "coachSuggestMortgage": "Can I afford to buy a property?",
   "coachSuggestMortgageCapacity": "What’s my borrowing capacity?",
@@ -9739,7 +9826,7 @@
   "jargonReplacementRateTooltip": "The replacement rate measures the share of your current income you will keep in retirement. Example: 65% means you will receive 65% of your current salary.",
   "jargonLppTooltip": "The LPP (Occupational Pensions Act) is the 2nd pillar. You and your employer contribute together toward your retirement.",
   "jargon3aTooltip": "Pillar 3a is voluntary retirement savings with tax benefits. The ceiling is CHF 7,258/year (employed with LPP).",
-  "jargonAvsTooltip": "AVS (Old-age and Survivors’ Insurance) is the 1st pillar. It guarantees a basic retirement income.",
+  "jargonAvsTooltip": "AVS (Old-age and Survivors’ Insurance) is the 1st pillar. It is designed to provide a basic retirement income.",
   "jargonRamdTooltip": "The RAMD determines your AVS pension amount. It is calculated from your contribution-liable income.",
   "confidenceDetailsTooltip": "Based on: age, income, canton, civil status, nationality, declared LPP and 3a. The more data you provide, the more accurate the projection.",
   "replacementRateContextGood": "That’s a good level — above 80%.",
@@ -9795,12 +9882,44 @@
       "phase": "11-01"
     }
   },
+  "coachOpenerIdentity": "Hi. I'm Mint.",
+  "@coachOpenerIdentity": {
+    "description": "First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data."
+  },
+  "coachOpenerPromise": "I know you. I see what is coming. I guide you.",
+  "@coachOpenerPromise": {
+    "description": "First-contact opener line 2 — trust promise. LSFin-compatible."
+  },
+  "coachOpenerQuestion": "Where do we start?",
+  "@coachOpenerQuestion": {
+    "description": "First-contact opener closing question."
+  },
+  "coachStarterPaper": "A paper I don't understand",
+  "@coachStarterPaper": {
+    "description": "Conversation starter chip — routes to scanner."
+  },
+  "coachStarterChoice": "A choice I have to make",
+  "@coachStarterChoice": {
+    "description": "Conversation starter chip — life events opener."
+  },
+  "coachStarterCost": "Something that costs me, I don't know what",
+  "@coachStarterCost": {
+    "description": "Conversation starter chip — budget/fiscal opener."
+  },
+  "coachStarterLurk": "I'll just look around for now",
+  "@coachStarterLurk": {
+    "description": "Conversation starter chip — dismisses opener without forcing engagement."
+  },
   "coachProactiveOptIn": "By the way — would you like me to flag important things when you open the app? Or do you prefer we only talk when you feel like it?",
   "coachOptInAccept": "Yes, flag for me",
   "coachOptInDecline": "No, I'll come when I want",
-  "coachSilentOpenerReplacementRate": "Retirement replacement rate",
+  "coachOptInAcknowledged": "Got it — I'll flag what matters.",
+  "coachSilentOpenerReplacementRate": "Projected replacement rate",
   "coachSilentOpenerFitnessScore": "Financial fitness score",
   "coachSilentOpenerRetirementCapital": "Projected retirement capital",
+  "coachSilentOpenerProjectedCapital": "Projected capital on your horizon",
+  "coachSilentOpenerLppAvoir": "LPP balance",
+  "coachSilentOpener3aEpargne": "3a savings",
   "confidenceLow": "Your numbers are very approximate. Add your LPP certificate for +25%.",
   "confidenceMedium": "Good start. Scan your AVS statement to confirm your contribution years.",
   "confidenceAction": "Scan my LPP certificate (+25% accuracy)",
@@ -10468,13 +10587,13 @@
   "@tonSectionLabel": {
     "description": "Phase 12-01."
   },
-  "anonymousIntentLine1": "Money in Switzerland. The thing nobody talks about.",
+  "anonymousIntentLine1": "Your financial life, in plain sight.",
   "@anonymousIntentLine1": {
-    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+    "description": "Landing opener. Short and sober — sets up the 'We clarify. You decide.' promise below."
   },
-  "anonymousIntentLine2": "Not even to themselves.",
+  "anonymousIntentLine2": "",
   "@anonymousIntentLine2": {
-    "description": "Anonymous intent screen — follow-up line."
+    "description": "Retired 2026-04-17."
   },
   "anonymousIntentPill1": "I pay, I sign, but I don't really get all of it",
   "@anonymousIntentPill1": {
@@ -10519,6 +10638,18 @@
   "anonymousChatError": "I’m having a technical issue. Try again in a moment.",
   "@anonymousChatError": {
     "description": "Anonymous chat — fallback error message."
+  },
+  "anonymousChatErrorNetwork": "No network. Check your connection and try again.",
+  "@anonymousChatErrorNetwork": {
+    "description": "Error shown when the anonymous chat request fails due to no network / timeout (walk 2026-04-24 P0-2)."
+  },
+  "anonymousChatErrorService": "I'm temporarily unavailable. Come back in a few minutes.",
+  "@anonymousChatErrorService": {
+    "description": "Error shown when backend returns 503 or 5xx (service unavailable, often missing ANTHROPIC_API_KEY in dev)."
+  },
+  "anonymousChatErrorSession": "Session expired. Close and reopen the app to continue.",
+  "@anonymousChatErrorSession": {
+    "description": "Error shown when backend returns 400 with invalid session (anonymous UUID invalid or expired)."
   },
   "anonymousChatConversionPrompt": "We’ve already discovered 3 things together. If you want me to remember them…",
   "@anonymousChatConversionPrompt": {
@@ -10905,7 +11036,9 @@
   "@batchValidationTitle": {
     "description": "Phase 29-04 — BatchValidationBubble headline (PRIV-08).",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "batchValidationConfirmAll": "All good",
@@ -10919,13 +11052,31 @@
   "humanReviewBadge": "Needs a human eye",
   "thirdPartyDeclarationTitle": "One moment before we continue",
   "thirdPartyDeclarationBody": "Do you confirm you obtained {name}'s consent for MINT to process this document?",
-  "@thirdPartyDeclarationBody": {"placeholders": {"name": {"type": "String"}}},
+  "@thirdPartyDeclarationBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyDeclarationMultipleBody": "Do you confirm you obtained consent from {names} for MINT to process this document?",
-  "@thirdPartyDeclarationMultipleBody": {"placeholders": {"names": {"type": "String"}}},
+  "@thirdPartyDeclarationMultipleBody": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyDeclarationConfirm": "Yes, I have their consent",
   "thirdPartyDeclarationCancel": "No, cancel upload",
   "thirdPartyInviteCta": "Invite {name} to MINT",
-  "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
+  "@thirdPartyInviteCta": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyInviteComingSoon": "Invitations coming soon — we noted your intent.",
   "thirdPartyDeclarationNoticeLink": "Without their consent, MINT cannot process another person's data.",
   "monArgentTabTitle": "My money",
@@ -10956,5 +11107,104 @@
   "hubLogement": "Housing",
   "hubFiscalite": "Taxes",
   "hubPatrimoine": "Wealth & Succession",
-  "hubSante": "Health & Protection"
+  "hubSante": "Health & Protection",
+  "safeModeWhyBlockedSemantics": "Why is this on hold",
+  "safeModeWhyBlockedTitle": "Why it's on hold",
+  "safeModeWhyBlockedBody": "In protection mode, MINT prioritises cash flow stability before tax and pension optimisations.",
+  "safeModeWhyBlockedLink": "Why is this on hold?",
+  "safeModeFormalDesendettementNote": "These withdrawals remain possible under a formal debt resolution procedure — speak to a specialist.",
+  "scanSummaryLppCertificate": "LPP certificate scanned",
+  "scanSummary3aAttestation": "Pillar 3a attestation scanned",
+  "scanSummaryTaxDeclaration": "Tax declaration scanned",
+  "scanSummaryAvsExtract": "AVS extract scanned",
+  "scanSummaryMortgageAttestation": "Mortgage attestation scanned",
+  "scanSummarySalaryCertificate": "Salary certificate scanned",
+  "onboardingSealError": "Couldn't seal your dossier. Check your connection and try again.",
+  "onboardingSealRetry": "Try again",
+  "wedgeTeaserEyebrowExample": "EXAMPLE",
+  "wedgeTeaserEyebrowEstimate": "INDICATIVE ESTIMATE",
+  "wedgeTeaserSalienceExample": "EXAMPLE · not a projection of your situation",
+  "wedgeTeaserSalienceEstimate": "Indicative estimate · full career, retirement at 65",
+  "wedgeTeaserAssumptionsExample": "AVS only, full career example",
+  "wedgeTeaserAssumptionsEstimate": "Assumptions: age 40, career 20→65, no gaps, AVS only. Your actual figure shifts with your age, gender, canton, LPP.",
+  "wedgeTeaserReculExample": "Add your LPP and MINT projects your own numbers.",
+  "wedgeTeaserReculEstimate": "With an account, MINT refines with your age, LPP, canton, and gaps.",
+  "wedgeTeaserHeroSemantics": "{amount} francs per month",
+  "wedgeTeaserChfPerMonth": "CHF / month",
+  "wedgeTeaserModifySalary": "Edit",
+  "wedgeTeaserCtaRegister": "Create your account for your own projections",
+  "wedgeSalaryInputLabel": "Your gross annual salary. For a quick estimate.",
+  "wedgeSalaryInputAction": "Calculate",
+  "wedgeSalaryInputActionSemantics": "Calculate my estimate",
+  "wedgeSalaryStaysOnDevice": "Your salary stays on your device. MINT never sends it anywhere.",
+  "wedgeSalaryErrorInvalid": "Enter an amount in digits, for example 95 000.",
+  "wedgeSalaryErrorOutOfRange": "Between 10 000 and 1 000 000 CHF per year.",
+  "coachOnboardingFirstUserMessage": "Hi, I just created my account. Where do I start?",
+  "coachAnonymousAuthGateMessage": "We already explored a few leads together. Create your account so I remember it all.",
+  "coachAuthGateChipRegister": "Create my account",
+  "coachAuthGateChipLogin": "I already have an account",
+  "cantonLabel": "Canton",
+  "coachNotificationOpenerMonthlyCheckIn": "Time for the monthly check-in. How was it?",
+  "coachNotificationOpenerCommitmentWithLabel": "You told me you were going to {commitment}. Done?",
+  "coachNotificationOpenerCommitmentGeneric": "You had a commitment to keep. Done?",
+  "coachNotificationOpenerFreshStart": "New month. Where do we start?",
+  "settingsPrivacyTitle": "Privacy",
+  "settingsPrivacyCloudSyncTitle": "Cloud sync (multi-device)",
+  "settingsPrivacyCloudSyncSubtitle": "Backs up your profile and syncs it across your devices. When off, the AI coach is still available but facts are kept only on your device.",
+  "settingsPrivacyCloudSyncOn": "On",
+  "settingsPrivacyCloudSyncOff": "Off",
+  "settingsPrivacyMigrationToast": "New option: you can turn off cloud sync from Settings › Privacy.",
+  "settingsPrivacyDataLocation": "Your wizard answers and chat history stay on your device. When you write to the AI coach, your message transits through our servers to generate the reply — with sync on, the facts you confirm (age, salary, canton…) are also saved on our servers; with sync off, they're kept only on your device.",
+  "settingsPrivacyCloudSyncOffServerCaveat": "Turning sync off doesn't delete data already saved to our servers. To remove it, go to Account › Delete my account.",
+  "profileSyncRowHint": "Manage in Settings › Privacy",
+  "settingsPrivacyMigrationToastCta": "View",
+  "aujourdhuiCommitmentsTitle": "Your recent commitments",
+  "aujourdhuiCheckInsTitle": "Your latest check-ins",
+  "aujourdhuiResumeConversation": "Resume conversation",
+  "coachSequenceNextStepLabel": "Next step: {label}.",
+  "@coachSequenceNextStepLabel": {
+    "placeholders": {"label": {"type": "String"}},
+    "x-mint-meta": {"level": "N3"}
+  },
+  "coachSequenceCompletedMessage": "You've completed this guided sequence.",
+  "@coachSequenceCompletedMessage": {
+    "x-mint-meta": {"level": "N3"}
+  },
+  "betaDisclosureEyebrow": "MINT in beta",
+  "@betaDisclosureEyebrow": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlinePrefix": "You're testing a version that",
+  "@betaDisclosureHeadlinePrefix": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlineEm": "learns with you",
+  "@betaDisclosureHeadlineEm": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlineSuffix": ".",
+  "@betaDisclosureHeadlineSuffix": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletNoAdvice": "MINT is not financial advice under FinSA — it's an educational tool only.",
+  "@betaDisclosureBulletNoAdvice": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletNoBank": "No banking data is stored on our side. Your data stays on this device unless you explicitly opt in.",
+  "@betaDisclosureBulletNoBank": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletDataLocal": "Your feedback during the beta helps us improve MINT. We read every word.",
+  "@betaDisclosureBulletDataLocal": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureCta": "Got it, let's go",
+  "@betaDisclosureCta": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureLearnMore": "Learn more",
+  "@betaDisclosureLearnMore": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureSemanticsLabel": "Information about the MINT beta version — educational tool only, no financial advice, data stays on your device by default."
 }

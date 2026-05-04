@@ -214,11 +214,16 @@ void main() {
       expect(report.taxSimulation.deductions['3a'], equals(7258.0));
     });
 
-    test('children deduction is 6500 per child', () {
-      final answers = minimalAnswers();
+    test('children deduction = federal + cantonal per child (LIFD art. 35 + LHID art. 9)', () {
+      final answers = minimalAnswers(); // q_canton = 'VD'
       answers['q_children'] = '2';
       final report = service.generateReport(answers);
-      expect(report.taxSimulation.deductions['D\u00e9duction enfants'], equals(13000.0));
+      // Wave 7 fiscal audit P0-R4 : 2 enfants × (6'700 féd. + 11'000 VD) = 35'400 CHF.
+      // Previously the code applied a flat 6'500 × n that ignored the cantonal
+      // layer entirely; the test now pins the corrected value.
+      const expected = 2 * (6700.0 + 11000.0); // 35'400
+      expect(report.taxSimulation.deductions['D\u00e9duction enfants'],
+          equals(expected));
     });
 
     test('LPP buyback triggers tax comparison when available > 50k', () {

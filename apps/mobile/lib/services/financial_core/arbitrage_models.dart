@@ -129,6 +129,12 @@ class ArbitrageResult {
   /// True if capital was projected from current age (vs direct certificate).
   final bool isProjected;
 
+  /// Protection-first alertes: structural traps surfaced to the user above
+  /// the trade-off (e.g. rachat + EPL within 3 years → tax deduction
+  /// reversal per ATF 142 II 399 / 148 II 189). Empty by default; when
+  /// populated, UI MUST render before any projection figure.
+  final List<String> alertes;
+
   const ArbitrageResult({
     required this.options,
     required this.breakevenYear,
@@ -148,6 +154,7 @@ class ArbitrageResult {
     this.renteSurvivant = 0,
     this.capitalProjecte = 0,
     this.isProjected = false,
+    this.alertes = const [],
   });
 }
 

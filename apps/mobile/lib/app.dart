@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/auth/migration_notice_listener.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,25 +12,29 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
+import 'package:mint_mobile/screens/anonymous/anonymous_intent_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
 import 'package:mint_mobile/screens/auth/verify_email_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:mint_mobile/screens/simulator_compound_screen.dart';
 import 'package:mint_mobile/screens/simulator_leasing_screen.dart';
 import 'package:mint_mobile/screens/simulator_3a_screen.dart';
 import 'package:mint_mobile/screens/consumer_credit_screen.dart';
 import 'package:mint_mobile/screens/debt_risk_check_screen.dart';
 // consent_dashboard_screen.dart DELETED (KILL-03, Phase 2)
-import 'package:mint_mobile/theme/colors.dart';
-// portfolio_screen.dart — zombie redirect (Plan 11-02)
+// portfolio_screen.dart DELETED (deep-audit 2026-04-17) — route /portfolio still redirects to /home
 // profile_screen.dart DELETED (KILL-04, Phase 2)
+import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_center_screen.dart';
 // main_navigation_shell.dart DELETED (KILL-07, Phase 2)
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
+import 'package:mint_mobile/screens/budget/budget_setup_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/disability/disability_gap_screen.dart';
@@ -39,9 +44,10 @@ import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
+import 'package:mint_mobile/screens/settings/confidentialite_settings_screen.dart';
 import 'package:mint_mobile/screens/settings/langue_settings_screen.dart';
 import 'package:mint_mobile/screens/about_screen.dart';
-// ask_mint_screen.dart — zombie redirect (Plan 11-02)
+// ask_mint_screen.dart DELETED (deep-audit 2026-04-17) — route /ask-mint redirects to /coach/chat
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
@@ -50,6 +56,7 @@ import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/services/notifications_wiring_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
 import 'package:mint_mobile/screens/frontalier_screen.dart';
@@ -75,7 +82,7 @@ import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
-// score_reveal_screen.dart — zombie redirect (Plan 11-02)
+// score_reveal_screen.dart DELETED (deep-audit 2026-04-17) — route /score-reveal redirects to /home
 // coach_profile.dart — unused after score-reveal zombie (Plan 11-02)
 // financial_fitness_service.dart — unused after score-reveal zombie (Plan 11-02)
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
@@ -102,13 +109,13 @@ import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart'
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
-// annual_refresh_screen.dart — zombie redirect (Plan 11-02)
-// cockpit_detail_screen.dart — zombie redirect (Plan 11-02)
+// annual_refresh_screen.dart + cockpit_detail_screen.dart DELETED (deep-audit 2026-04-17)
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
-import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
 // intent_screen.dart DELETED (KILL-01, Phase 2)
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
@@ -121,29 +128,33 @@ import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
 import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
 import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
-import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
-import 'package:mint_mobile/providers/anticipation_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
-import 'package:mint_mobile/providers/contextual_card_provider.dart';
+import 'package:mint_mobile/screens/mon_argent/mon_argent_screen.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
-import 'package:mint_mobile/models/coach_entry_payload.dart';
-import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
-// achievements_screen.dart — zombie redirect (Plan 11-02)
+// achievements_screen.dart DELETED (deep-audit 2026-04-17) — route /achievements redirects to /home
 import 'package:mint_mobile/screens/cantonal_benchmark_screen.dart';
 // KILL-07: Explorer hub screen imports removed (Phase 2).
 // Hub screen FILES preserved for Phase 3 chat-summoned drawers.
 import 'package:mint_mobile/screens/explore/explorer_screen.dart';
 import 'package:mint_mobile/screens/explore/explore_hub_screen.dart';
+// Phase 32 MAP-02b — dev-only admin schema viewer (tree-shaken when ENABLE_ADMIN=0).
+import 'package:mint_mobile/screens/admin/admin_gate.dart';
+import 'package:mint_mobile/screens/admin/admin_shell.dart';
+import 'package:mint_mobile/screens/admin/routes_registry_screen.dart';
+// Phase 32 MAP-05 — legacy redirect hit breadcrumb (wired at 43 call-sites below).
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
+final _shellNavigatorKeyMonArgent = GlobalKey<NavigatorState>(debugLabel: 'shellMonArgent');
 final _shellNavigatorKeyCoach = GlobalKey<NavigatorState>(debugLabel: 'shellCoach');
 final _shellNavigatorKeyExplorer = GlobalKey<NavigatorState>(debugLabel: 'shellExplorer');
 
@@ -170,11 +181,40 @@ final _shellNavigatorKeyExplorer = GlobalKey<NavigatorState>(debugLabel: 'shellE
 // MultiProvider tree is built (see _bindRouterAuthListener below).
 final _authNotifier = ChangeNotifier();
 
+// OBS-05 (Phase 31-01) — SentryNavigatorObserver sits BESIDE the
+// existing AnalyticsRouteObserver (not instead of it). Analytics
+// pipeline keeps owning product events; SentryNavigatorObserver
+// auto-emits `navigation` breadcrumbs (push/pop/replace) so every
+// Sentry event gets a replay-independent route trail even when
+// sessionSampleRate=0.0 in prod (D-01 Option C).
+// Kept as a top-level `final` so `test/app_router_observers_test.dart`
+// can assert the list contents via `testOnlyRootRouterObservers`
+// without relying on @visibleForTesting getters on go_router
+// internals.
+//
+// Phase 32 J0 Task 2 retroactive hotfix (2026-04-20):
+// `setRouteNameAsTransaction: true` binds `scope.transaction` = current
+// route path on every didPush/didPop/didReplace. Without this flag the
+// SDK default is false (sentry_flutter 9.14.0
+// sentry_navigator_observer.dart:82) and Sentry issues report
+// `transaction = <file.dart in FunctionName>` instead of the route
+// path. This broke Phase 32 CLI `./tools/mint-routes health` which
+// queries `transaction:<path>` (D-07 contract) — empirically verified:
+// mint-mobile project had 2 issues in 90d, neither with route-path
+// transaction. Flipping the flag lets GoRouter's RouteSettings.name
+// flow into scope.transaction via _setCurrentRouteNameAsTransaction.
+// See .planning/phases/32-cartographier/32-VALIDATION.md §Risks Risk 1.
+final List<NavigatorObserver> _routerObservers = [
+  AnalyticsRouteObserver(),
+  SentryNavigatorObserver(setRouteNameAsTransaction: true),
+];
+
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  observers: [AnalyticsRouteObserver()],
+  observers: _routerObservers,
   initialLocation: '/',
   refreshListenable: _authNotifier,
+
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
   redirect: (context, state) {
     // ── Scope-based auth guard ───────────────────────────────
@@ -193,20 +233,45 @@ final _router = GoRouter(
     // refreshListenable, and the user sees a flash of the auth screen.
     if (auth.isLoading) return null;
 
-    // ── Parse /home?tab=N&intent=X query params ─────────────
-    // Notifications emit /home?tab=1&intent=monthlyCheckIn etc.
-    // Redirect to the correct tab route so the shell navigates properly.
+    // ── Parse /home?tab=N&intent=X&screen=S query params ────
+    // Notifications emit /home?tab=N&intent=monthlyCheckIn etc. The
+    // `screen=` param (new 2026-04-17) is the forward-compatible semantic
+    // discriminator and always wins over `tab=`, so re-indexing the shell
+    // won't silently misroute future links.
+    //
+    // V11 shell indexing:
+    //   0 = Aujourd'hui | 1 = Mon argent | 2 = Coach | 3 = Explorer
+    //
+    // Backward-compat matrix (tab=):
+    //   V1 (pre-2026-03) was a 3-tab shell (0=Home, 1=Coach, 2=Dossier).
+    //   V1 notifications always carried `intent=` → caught first.
+    //   V1 shortcuts without intent are rare enough to accept the V11
+    //   mapping (tab=1 → /mon-argent); users will simply land one tap
+    //   away from their old target rather than on a crash.
     if (path == '/home') {
+      final screen = state.uri.queryParameters['screen'];
       final tab = state.uri.queryParameters['tab'];
       final intent = state.uri.queryParameters['intent'];
-      if (tab == '1') {
-        // Tab 1 = Coach — redirect to /coach/chat with intent as topic
+      // Semantic routing wins over positional indexing.
+      switch (screen) {
+        case 'coach':
+          final query = intent != null ? '?topic=$intent' : '';
+          return '/coach/chat$query';
+        case 'mon-argent':
+        case 'money':
+          return '/mon-argent';
+        case 'explore':
+          return '/explore';
+        case 'dossier':
+        case 'profile':
+          return '/profile/bilan';
+      }
+      if (intent != null || tab == '2') {
         final query = intent != null ? '?topic=$intent' : '';
         return '/coach/chat$query';
       }
-      if (tab == '2') {
-        return '/explorer';
-      }
+      if (tab == '1') return '/mon-argent';
+      if (tab == '3') return '/explore';
       // tab=0 or no tab → stay on /home (Aujourd'hui)
     }
 
@@ -228,9 +293,9 @@ final _router = GoRouter(
         return null;
 
       case RouteScope.authenticated:
-        // Require signed-in user; localAnonymous mode also passes
-        // (users who skipped registration still access simulators).
-        if (!isLoggedIn) {
+        // Require signed-in user OR opted-in anonymous local mode.
+        // Local mode is default-on for fresh installs per AuthProvider.checkAuth.
+        if (!isLoggedIn && !auth.isLocalMode) {
           return '/auth/register?redirect=${Uri.encodeComponent(path)}';
         }
         return null;
@@ -242,6 +307,25 @@ final _router = GoRouter(
       path: '/',
       scope: RouteScope.public,
       builder: (context, state) => const LandingScreen(),
+    ),
+    // Landing CTA target — flag-gated redirect. Keeps `LandingScreen`
+    // pure (LAND-01: no `services/` imports in the widget itself).
+    // Default branch = /anonymous/chat (FIX-02: anonymous flow is the
+    // default entry, NOT the auth-gated /coach/chat). MVP wedge flag
+    // overrides to /onb when enabled for the guided intent storyboard.
+    ScopedGoRoute(
+      path: '/start',
+      scope: RouteScope.public,
+      redirect: (_, __) =>
+          FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/intent',
+    ),
+    // MVP Wedge onboarding — storyboard v2 (2026-04-22). 9-step flow
+    // with 4 intents + dossier densification + 3 N2 scenes + magic link.
+    // Doctrine: .planning/mvp-wedge-onboarding-2026-04-21/STORYBOARD-FINAL-LOCKED.md
+    ScopedGoRoute(
+      path: '/onb',
+      scope: RouteScope.public,
+      builder: (context, state) => const OnboardingShellScreen(),
     ),
     ScopedGoRoute(
       path: '/auth/login',
@@ -271,6 +355,17 @@ final _router = GoRouter(
       ),
     ),
 
+    // ── Anonymous intent (public — felt-state pills + free-text) ──
+    // First screen for unauth users after landing CTA. Pill pick routes
+    // to /anonymous/chat?intent=X with auto-send. Without this, the chat
+    // screen renders empty (no greeting, no chips, placeholder "Ou dis-le
+    // comme tu veux" teases alternatives that never appeared) — walk report
+    // 2026-04-24 P0-1.
+    ScopedGoRoute(
+      path: '/anonymous/intent',
+      scope: RouteScope.public,
+      builder: (context, state) => const AnonymousIntentScreen(),
+    ),
     // ── Anonymous chat (public — outside shell, no tabs/drawer) ──
     ScopedGoRoute(
       path: '/anonymous/chat',
@@ -307,14 +402,36 @@ final _router = GoRouter(
                     ),
                   );
                 }
-                return auth.isLoggedIn
+                // Wave B-minimal B0 — Unblock tab Aujourd'hui for anonymous
+                // local-mode users. AuthProvider.dart:87 documents the
+                // intended gate as `isLoggedIn || isLocalMode`; the actual
+                // code shipped only `isLoggedIn`, making /home redirect to
+                // LandingScreen for every fresh-install user who hadn't
+                // explicitly signed in. Wave 0 walkthrough (iPhone 17 Pro
+                // sim, 2026-04-18) confirmed this empirically.
+                // Ref: `.planning/wave-0-walkthrough-verite/FINDINGS.md`,
+                // `.planning/wave-b-home-orchestrateur/PLAN.md` (B0).
+                return (auth.isLoggedIn || auth.isLocalMode)
                     ? const AujourdhuiScreen()
                     : const LandingScreen();
               },
             ),
           ],
         ),
-        // Tab 1: Coach
+        // Tab 1: Mon argent — dashboard with 2 cards (budget + patrimoine).
+        // Architecture A→B: PatrimoineAggregator + CoachWhisperService are
+        // pure reads from CoachProfileProvider. Phase B will add a spending
+        // synthesis card when Open Banking data lands.
+        StatefulShellBranch(
+          navigatorKey: _shellNavigatorKeyMonArgent,
+          routes: [
+            GoRoute(
+              path: '/mon-argent',
+              builder: (context, state) => const MonArgentScreen(),
+            ),
+          ],
+        ),
+        // Tab 2: Coach
         StatefulShellBranch(
           navigatorKey: _shellNavigatorKeyCoach,
           routes: [
@@ -341,7 +458,7 @@ final _router = GoRouter(
             ),
           ],
         ),
-        // Tab 2: Explorer
+        // Tab 3: Explorer
         StatefulShellBranch(
           navigatorKey: _shellNavigatorKeyExplorer,
           routes: [
@@ -466,46 +583,85 @@ final _router = GoRouter(
       builder: (context, state) => const RetirementDashboardScreen(),
     ),
     // Legacy redirects
-    ScopedGoRoute(path: '/coach/dashboard', redirect: (_, __) => '/retraite'),
-    ScopedGoRoute(path: '/retirement', redirect: (_, __) => '/retraite'),
-    ScopedGoRoute(path: '/retirement/projection', redirect: (_, __) => '/retraite'),
+    ScopedGoRoute(path: '/coach/dashboard', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/retraite');
+      return '/retraite';
+    }),
+    ScopedGoRoute(path: '/retirement', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/retraite');
+      return '/retraite';
+    }),
+    ScopedGoRoute(path: '/retirement/projection', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/retraite');
+      return '/retraite';
+    }),
 
     ScopedGoRoute(
       path: '/rente-vs-capital',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RenteVsCapitalScreen(),
     ),
-    ScopedGoRoute(path: '/arbitrage/rente-vs-capital', redirect: (_, __) => '/rente-vs-capital'),
-    ScopedGoRoute(path: '/simulator/rente-capital', redirect: (_, __) => '/rente-vs-capital'),
+    ScopedGoRoute(path: '/arbitrage/rente-vs-capital', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rente-vs-capital');
+      return '/rente-vs-capital';
+    }),
+    ScopedGoRoute(path: '/simulator/rente-capital', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rente-vs-capital');
+      return '/rente-vs-capital';
+    }),
 
     ScopedGoRoute(
       path: '/rachat-lpp',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RachatEchelonneScreen(),
     ),
-    ScopedGoRoute(path: '/lpp-deep/rachat', redirect: (_, __) => '/rachat-lpp'),
-    ScopedGoRoute(path: '/arbitrage/rachat-vs-marche', redirect: (_, __) => '/rachat-lpp'),
+    ScopedGoRoute(path: '/lpp-deep/rachat', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rachat-lpp');
+      return '/rachat-lpp';
+    }),
+    ScopedGoRoute(path: '/arbitrage/rachat-vs-marche', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rachat-lpp');
+      return '/rachat-lpp';
+    }),
 
     ScopedGoRoute(
       path: '/epl',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const EplScreen(),
     ),
-    ScopedGoRoute(path: '/lpp-deep/epl', redirect: (_, __) => '/epl'),
+    ScopedGoRoute(path: '/lpp-deep/epl', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/epl');
+      return '/epl';
+    }),
 
     ScopedGoRoute(
       path: '/decaissement',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const OptimisationDecaissementScreen(),
     ),
-    ScopedGoRoute(path: '/coach/decaissement', redirect: (_, __) => '/decaissement'),
-    ScopedGoRoute(path: '/arbitrage/calendrier-retraits', redirect: (_, __) => '/decaissement'),
+    ScopedGoRoute(path: '/coach/decaissement', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/decaissement');
+      return '/decaissement';
+    }),
+    ScopedGoRoute(path: '/arbitrage/calendrier-retraits', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/decaissement');
+      return '/decaissement';
+    }),
 
     // ── ZOMBIE REDIRECTS (301-style, keep for 2 releases) ──
-    ScopedGoRoute(path: '/coach/cockpit', redirect: (_, __) => '/retraite'),
+    ScopedGoRoute(path: '/coach/cockpit', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/retraite');
+      return '/retraite';
+    }),
     // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to coach chat.
-    ScopedGoRoute(path: '/coach/checkin', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/coach/refresh', redirect: (_, __) => '/home'),
+    ScopedGoRoute(path: '/coach/checkin', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+      return '/coach/chat';
+    }),
+    ScopedGoRoute(path: '/coach/refresh', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
+      return '/home';
+    }),
     // KILL-05: /coach/chat moved into StatefulShellRoute (Tab 1: Coach)
     ScopedGoRoute(
       path: '/coach/history',
@@ -517,15 +673,24 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const SuccessionPatrimoineScreen(),
     ),
-    ScopedGoRoute(path: '/coach/succession', redirect: (_, __) => '/succession'),
-    ScopedGoRoute(path: '/life-event/succession', redirect: (_, __) => '/succession'),
+    ScopedGoRoute(path: '/coach/succession', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/succession');
+      return '/succession';
+    }),
+    ScopedGoRoute(path: '/life-event/succession', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/succession');
+      return '/succession';
+    }),
 
     ScopedGoRoute(
       path: '/libre-passage',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LibrePassageScreen(),
     ),
-    ScopedGoRoute(path: '/lpp-deep/libre-passage', redirect: (_, __) => '/libre-passage'),
+    ScopedGoRoute(path: '/lpp-deep/libre-passage', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/libre-passage');
+      return '/libre-passage';
+    }),
 
     // ── FISCALITE ────────────────────────────────────────────
     ScopedGoRoute(
@@ -533,7 +698,10 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const Simulator3aScreen(),
     ),
-    ScopedGoRoute(path: '/simulator/3a', redirect: (_, __) => '/pilier-3a'),
+    ScopedGoRoute(path: '/simulator/3a', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/pilier-3a');
+      return '/pilier-3a';
+    }),
 
     ScopedGoRoute(
       path: '/3a-deep/comparator',
@@ -567,7 +735,10 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AffordabilityScreen(),
     ),
-    ScopedGoRoute(path: '/mortgage/affordability', redirect: (_, __) => '/hypotheque'),
+    ScopedGoRoute(path: '/mortgage/affordability', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/hypotheque');
+      return '/hypotheque';
+    }),
 
     ScopedGoRoute(
       path: '/mortgage/amortization',
@@ -597,6 +768,11 @@ final _router = GoRouter(
       builder: (context, state) => const BudgetContainerScreen(),
     ),
     ScopedGoRoute(
+      path: '/budget/setup',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const BudgetSetupScreen(),
+    ),
+    ScopedGoRoute(
       path: '/check/debt',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DebtRiskCheckScreen(),
@@ -623,7 +799,10 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DivorceSimulatorScreen(),
     ),
-    ScopedGoRoute(path: '/life-event/divorce', redirect: (_, __) => '/divorce'),
+    ScopedGoRoute(path: '/life-event/divorce', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/divorce');
+      return '/divorce';
+    }),
 
     ScopedGoRoute(
       path: '/mariage',
@@ -701,8 +880,14 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DisabilityGapScreen(),
     ),
-    ScopedGoRoute(path: '/disability/gap', redirect: (_, __) => '/invalidite'),
-    ScopedGoRoute(path: '/simulator/disability-gap', redirect: (_, __) => '/invalidite'),
+    ScopedGoRoute(path: '/disability/gap', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/invalidite');
+      return '/invalidite';
+    }),
+    ScopedGoRoute(path: '/simulator/disability-gap', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/invalidite');
+      return '/invalidite';
+    }),
 
     ScopedGoRoute(
       path: '/disability/insurance',
@@ -735,14 +920,20 @@ final _router = GoRouter(
         return DocumentScanScreen(initialType: initialType);
       },
     ),
-    ScopedGoRoute(path: '/document-scan', redirect: (_, __) => '/scan'),
+    ScopedGoRoute(path: '/document-scan', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/scan');
+      return '/scan';
+    }),
 
     ScopedGoRoute(
       path: '/scan/avs-guide',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AvsGuideScreen(),
     ),
-    ScopedGoRoute(path: '/document-scan/avs-guide', redirect: (_, __) => '/scan/avs-guide'),
+    ScopedGoRoute(path: '/document-scan/avs-guide', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/scan/avs-guide');
+      return '/scan/avs-guide';
+    }),
     ScopedGoRoute(
       path: '/scan/review',
       parentNavigatorKey: _rootNavigatorKey,
@@ -795,7 +986,10 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const HouseholdScreen(),
     ),
-    ScopedGoRoute(path: '/household', redirect: (_, __) => '/couple'),
+    ScopedGoRoute(path: '/household', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/couple');
+      return '/couple';
+    }),
 
     ScopedGoRoute(
       path: '/couple/accept',
@@ -836,8 +1030,14 @@ final _router = GoRouter(
         );
       },
     ),
-    ScopedGoRoute(path: '/report', redirect: (_, __) => '/rapport'),
-    ScopedGoRoute(path: '/report/v2', redirect: (_, __) => '/rapport'),
+    ScopedGoRoute(path: '/report', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rapport');
+      return '/rapport';
+    }),
+    ScopedGoRoute(path: '/report/v2', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/rapport');
+      return '/rapport';
+    }),
 
     // KILL-04: ProfileScreen deleted (Phase 2). /profile redirects to /profile/bilan.
     // Sub-routes (byok, slm, bilan, privacy-control, admin) preserved.
@@ -967,7 +1167,10 @@ final _router = GoRouter(
       builder: (context, state) => const LocationVsProprieteScreen(),
     ),
 
-    ScopedGoRoute(path: '/achievements', redirect: (_, __) => '/home'),
+    ScopedGoRoute(path: '/achievements', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
+      return '/home';
+    }),
 
     // STAB-14 (07-04): /weekly-recap was an orphan redirect-to-/home with zero
     // callers; deleted per AUDIT_ORPHAN_ROUTES row 90.
@@ -985,6 +1188,11 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LangueSettingsScreen(),
     ),
+    ScopedGoRoute(
+      path: '/settings/confidentialite',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ConfidentialiteSettingsScreen(),
+    ),
 
     // ── ABOUT (public) ─────────────────────────────────────────
     ScopedGoRoute(
@@ -994,11 +1202,34 @@ final _router = GoRouter(
       builder: (context, state) => const AboutScreen(),
     ),
 
+    // ─────────── Phase 32 MAP-02b — /admin/routes (dev-only, tree-shaken) ───────────
+    // Compile-time ENABLE_ADMIN=0 default -> Dart dead-code eliminates this branch
+    // entirely (D-11 Task 1 empirically verifies via `strings Runner | grep`).
+    if (AdminGate.isAvailable) ...[
+      ScopedGoRoute(
+        path: '/admin/routes',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AdminShell(
+          child: RoutesRegistryScreen(),
+        ),
+      ),
+      // Phase 33 adds /admin/flags here using the same AdminShell.
+    ],
+
     // ── OUTILS & DIVERS ─────────────────────────────────────
-    ScopedGoRoute(path: '/ask-mint', redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/ask-mint', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+      return '/coach/chat';
+    }),
     // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to coach chat.
-    ScopedGoRoute(path: '/tools', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/portfolio', redirect: (_, __) => '/home'),
+    ScopedGoRoute(path: '/tools', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+      return '/coach/chat';
+    }),
+    ScopedGoRoute(path: '/portfolio', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
+      return '/home';
+    }),
     ScopedGoRoute(
       path: '/timeline',
       parentNavigatorKey: _rootNavigatorKey,
@@ -1018,7 +1249,10 @@ final _router = GoRouter(
         return ConfidenceDashboardScreen(result: result);
       },
     ),
-    ScopedGoRoute(path: '/score-reveal', redirect: (_, __) => '/home'),
+    ScopedGoRoute(path: '/score-reveal', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/home');
+      return '/home';
+    }),
 
     // ── ONBOARDING ───────────────────────────────────────────
     // P10-02b: legacy onboarding screens removed. Routes kept as redirect
@@ -1027,33 +1261,51 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/onboarding/quick',
       scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
-      redirect: (_, __) => '/coach/chat',
+      redirect: (_, state) {
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        return '/coach/chat';
+      },
     ),
     ScopedGoRoute(
       path: '/onboarding/quick-start',
       scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
-      redirect: (_, __) => '/coach/chat',
+      redirect: (_, state) {
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        return '/coach/chat';
+      },
     ),
     ScopedGoRoute(
       path: '/onboarding/premier-eclairage',
       scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
-      redirect: (_, __) => '/coach/chat',
+      redirect: (_, state) {
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        return '/coach/chat';
+      },
     ),
     // KILL-01: intent_screen deleted. Redirect shim for deep links.
     ScopedGoRoute(
       path: '/onboarding/intent',
       scope: RouteScope.onboarding,
-      redirect: (_, __) => '/coach/chat',
+      redirect: (_, state) {
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        return '/coach/chat';
+      },
     ),
     ScopedGoRoute(
       path: '/onboarding/promise',
       scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
-      redirect: (_, __) => '/coach/chat',
+      redirect: (_, state) {
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        return '/coach/chat';
+      },
     ),
     ScopedGoRoute(
       path: '/onboarding/plan',
       scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
-      redirect: (_, __) => '/coach/chat',
+      redirect: (_, state) {
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+        return '/coach/chat';
+      },
     ),
     ScopedGoRoute(
       path: '/data-block/:type',
@@ -1096,19 +1348,49 @@ final _router = GoRouter(
     // ── LEGACY REDIRECTS (backwards compat) ──────────────────
     // NAV-AUDIT: all legacy routes now redirect directly to /coach/chat
     // (previously multi-hop via /home or /onboarding/quick — params were lost)
-    ScopedGoRoute(path: '/advisor', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/advisor/plan-30-days', redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/advisor', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+      return '/coach/chat';
+    }),
+    ScopedGoRoute(path: '/advisor/plan-30-days', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+      return '/coach/chat';
+    }),
     ScopedGoRoute(path: '/advisor/wizard', redirect: (context, state) {
       final section = state.uri.queryParameters['section'];
       if (section == null || section.isEmpty) return '/coach/chat';
       return '/coach/chat?topic=$section';
     }),
-    ScopedGoRoute(path: '/coach/agir', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/onboarding/smart', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/onboarding/minimal', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/onboarding/enrichment', scope: RouteScope.onboarding, redirect: (_, __) => '/profile/bilan'),
+    ScopedGoRoute(path: '/coach/agir', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+      return '/coach/chat';
+    }),
+    ScopedGoRoute(path: '/onboarding/smart', scope: RouteScope.onboarding, redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+      return '/coach/chat';
+    }),
+    ScopedGoRoute(path: '/onboarding/minimal', scope: RouteScope.onboarding, redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');
+      return '/coach/chat';
+    }),
+    ScopedGoRoute(path: '/onboarding/enrichment', scope: RouteScope.onboarding, redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/profile/bilan');
+      return '/profile/bilan';
+    }),
   ],
 );
+
+/// Test-only accessor for the root GoRouter. Used by
+/// `test/app_router_observers_test.dart` (Phase 31-01 OBS-05) to assert
+/// that both AnalyticsRouteObserver and SentryNavigatorObserver are
+/// wired to the observers: list. Do NOT use in production code.
+@visibleForTesting
+GoRouter get testOnlyRootRouter => _router;
+
+/// Test-only accessor for the root GoRouter observers list. Used by
+/// `test/app_router_observers_test.dart` (Phase 31-01 OBS-05).
+@visibleForTesting
+List<NavigatorObserver> get testOnlyRootRouterObservers => _routerObservers;
 
 // ════════════════════════════════════════════════════════════
 //  APP
@@ -1193,42 +1475,103 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.load();
           return provider;
         }),
-        ChangeNotifierProvider(create: (_) {
-          final provider = UserActivityProvider();
-          provider.loadAll();
-          return provider;
-        }),
+        // Wave E-PRIME (2026-04-18): UserActivityProvider deleted — its 13
+        // public methods (markSimulatorExplored, dismissTip, etc.) had 0
+        // consumer. All call-sites use ReportPersistenceService directly.
+        // Panel A P0-1.
         ChangeNotifierProvider(create: (_) {
           final provider = SlmProvider();
           provider.init();
           return provider;
         }),
         ChangeNotifierProvider(create: (_) => BiographyProvider()),
-        ChangeNotifierProvider(create: (_) => AnticipationProvider()),
-        ChangeNotifierProvider(create: (_) => ContextualCardProvider()),
+        // Wave E-PRIME (2026-04-18): AnticipationProvider + ContextualCardProvider
+        // deleted — neither had a Consumer/context.watch/read. Panel A P0-2/P0-3.
+        // Cascade: services/anticipation/ + widgets/alert/MintAlertHost also deleted.
         // STAB-13 ROOT-B: 4 providers previously consumed by production
         // screens but registered only in test helpers (ProviderNotFoundException
         // masked by silent try/catch at consumer sites).
-        ChangeNotifierProvider(create: (_) => MintStateProvider()),
+        //
+        // Wave B-minimal A2 (2026-04-18): convert MintStateProvider to a
+        // ChangeNotifierProxyProvider<CoachProfileProvider, _>. The plain
+        // ChangeNotifierProvider shipped before A2 never had a caller
+        // invoking `.recompute(profile)`, so `state` stayed null in
+        // production and every consumer (BudgetScreen line 107,
+        // AujourdhuiScreen cap banner in B1) read null. The proxy
+        // guarantees recompute fires on every CoachProfileProvider
+        // notifyListeners (save_fact, scan enrichment, wizard load). The
+        // recompute call itself is idempotent (guarded by `_lastProfile`
+        // equality in mint_state_provider.dart:72).
+        // Ref: panel archi review 2026-04-18 R1.
+        ChangeNotifierProxyProvider<CoachProfileProvider, MintStateProvider>(
+          create: (_) => MintStateProvider(),
+          update: (_, profileProvider, mintState) {
+            final provider = mintState ?? MintStateProvider();
+            final profile = profileProvider.profile;
+            if (profile != null) {
+              // Fire-and-forget; recompute is guarded against concurrent
+              // calls and no-ops when the profile is unchanged.
+              provider.recompute(profile);
+            }
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
-        ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
+        // Wave E-PRIME (2026-04-18): CoachEntryPayloadProvider deleted —
+        // setPayload/consumePayload had 0 caller in prod (docstring claimed
+        // MintHomeScreen sets + MintCoachTab reads; neither exists).
+        // Panel A P0-5.
         ChangeNotifierProvider<TimelineProvider>(create: (_) => TimelineProvider()),
+        // Wave A-MINIMAL A2 (2026-04-18): notifications wiring listens
+        // to CoachProfileProvider and reschedules coaching reminders
+        // when the triad (birthYear + canton + salaireBrutMensuel)
+        // transitions incomplete→complete or changes signature. The
+        // previous wiring (`_markOnboardingCompletedIfNeeded` only)
+        // fired once at onboarding intent and never re-fired when a
+        // user completed the triad mid-conversation via save_fact.
+        // Panel adversaire 2026-04-18 BUG 2+3 mitigation.
+        //
+        // A2-fix (2026-04-18): `lazy: false` is MANDATORY. Without it,
+        // ChangeNotifierProxyProvider defers `create`/`update` until a
+        // widget downstream calls `context.watch<NotificationsWiringService>()`.
+        // No screen does — the service is purely reactive plumbing,
+        // not a UI dependency. The 3-panel post-exec audit unanimously
+        // flagged this as a P0 "façade sans câblage" that would ship
+        // 100% dead code while all 7 unit tests passed. The `lazy: false`
+        // flag materialises the service at MultiProvider mount time so
+        // its `update` actually fires on every CoachProfileProvider
+        // notifyListeners.
+        ChangeNotifierProxyProvider<CoachProfileProvider, NotificationsWiringService>(
+          lazy: false,
+          create: (_) => NotificationsWiringService(),
+          update: (_, profileProvider, wiring) {
+            final service = wiring ?? NotificationsWiringService();
+            service.onProfileChanged(profileProvider.profile);
+            return service;
+          },
+        ),
       ],
       child: _AuthRouterBridge(
-        child: Builder(
-          builder: (context) {
-            final localeProvider = context.watch<LocaleProvider>();
-            return MaterialApp.router(
-              title: 'Mint',
-              debugShowCheckedModeBanner: false,
-              theme: _buildPremiumTheme(),
-              themeMode: ThemeMode.light,
-              routerConfig: _router,
-              localizationsDelegates: S.localizationsDelegates,
-              supportedLocales: S.supportedLocales,
-              locale: localeProvider.locale,
-            );
-          },
+        child: MigrationNoticeListener(
+          getMessenger: () => _scaffoldMessengerKey.currentState,
+          getNavContext: () => _rootNavigatorKey.currentContext,
+          onCtaTap: () => _router.go('/settings/confidentialite'),
+          child: Builder(
+            builder: (context) {
+              final localeProvider = context.watch<LocaleProvider>();
+              return MaterialApp.router(
+                title: 'Mint',
+                debugShowCheckedModeBanner: false,
+                theme: _buildPremiumTheme(),
+                themeMode: ThemeMode.light,
+                routerConfig: _router,
+                scaffoldMessengerKey: _scaffoldMessengerKey,
+                localizationsDelegates: S.localizationsDelegates,
+                supportedLocales: S.supportedLocales,
+                locale: localeProvider.locale,
+              );
+            },
+          ),
         ),
       ),
     );
@@ -1558,3 +1901,7 @@ class _AuthRouterBridgeState extends State<_AuthRouterBridge> {
   @override
   Widget build(BuildContext context) => widget.child;
 }
+
+// _MigrationNoticeListener (Phase 52 T-52-04) — extracted to
+// `apps/mobile/lib/widgets/auth/migration_notice_listener.dart`
+// for testability. The wrapper used at line ~1554 imports it.

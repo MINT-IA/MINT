@@ -88,38 +88,36 @@ INTERNAL_TOOL_NAMES: list[str] = [
     # intentionally NOT listed here. They are Flutter-bound WRITE tools
     # dispatched to PlanPreviewCard / DocumentCard by widget_renderer.dart.
     # Backend never executes them — no stub handler is needed.
+    #
+    # Wave E-PRIME (2026-04-18): audit façade systémique Panel B identifié
+    # save_fact et suggest_actions comme shippés sans case dans
+    # widget_renderer.dart. Sans ce routage interne, les tool calls partaient
+    # en external_calls → Flutter → default null → silent drop. Wave A PRIV-07
+    # redaction + Gate 0 dynamic chips étaient code mort. Les handlers
+    # backend existent dans coach_chat.py (save_fact:1337, suggest_actions:1414)
+    # et persistent en DB / calculent respectivement — ils DOIVENT être marqués
+    # internal pour être atteints.
+    "save_fact",
+    "suggest_actions",
 ]
 
 # ---------------------------------------------------------------------------
 # Canonical intent tags understood by Flutter RoutePlanner
 # ---------------------------------------------------------------------------
+# Phase 53-04: now generated from MintScreenRegistry via
+# `tools/contracts/regen_screen_registry_contract.py`. Single source of
+# truth lives in `apps/mobile/lib/services/navigation/screen_registry.dart`.
+# The CI gate `tools/checks/screen_registry_three_way_parity.py` enforces
+# the contract — drift fails CI with a clear diagnostic. Updating: edit
+# screen_registry.dart, then run the regen script (commits all 3 artifacts).
 
-ROUTE_TO_SCREEN_INTENT_TAGS: list[str] = [
-    "retirement_choice",
-    "life_event_divorce",
-    "life_event_birth",
-    "life_event_marriage",
-    "life_event_unemployment",
-    "life_event_first_job",
-    "budget_overview",
-    "tax_optimization_3a",
-    "cantonal_comparison",
-    "disability_gap",
-    "housing_purchase",
-    "self_employment",
-    "cross_border",
-    "lpp_buyback",
-    "pillar_3a_overview",
-    "job_comparison",
-    "debt_check",
-    "lamal_franchise",
-    "coverage_check",
-    "gender_gap",
-    "patrimoine_overview",
-    "compound_interest",
-    "leasing_simulation",
-    "expert_consultation",
-]
+from app.services.coach._route_intents_generated import (
+    GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS,
+)
+
+# Sorted list form expected by downstream callers (claude_coach_service
+# system-prompt injection consumes this in deterministic order).
+ROUTE_TO_SCREEN_INTENT_TAGS: list[str] = sorted(GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS)
 
 # ---------------------------------------------------------------------------
 # Tool definitions
@@ -467,13 +465,17 @@ COACH_TOOLS: list[dict[str, Any]] = [
                 },
                 "type": {
                     "type": "string",
-                    "enum": ["goal", "decision", "concern", "fact"],
+                    "enum": ["goal", "decision", "concern", "fact", "event"],
                     "description": (
                         "Classification of the insight: "
                         "'goal' = user objective, "
                         "'decision' = choice the user has made, "
                         "'concern' = worry or blocker, "
-                        "'fact' = factual data point shared by the user."
+                        "'fact' = factual data point shared by the user, "
+                        "'event' = a structured event the user experienced "
+                        "(scan, life event, major financial action). Events "
+                        "are durable anchors — the coach can reference them "
+                        "later (\"tu as scanné ton certificat mardi\")."
                     ),
                 },
             },

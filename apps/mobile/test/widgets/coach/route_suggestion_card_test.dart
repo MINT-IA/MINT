@@ -19,6 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ────────────────────────────────────────────────────────────
 //  HELPERS
@@ -78,6 +79,11 @@ Future<void> _pumpCard(
 // ────────────────────────────────────────────────────────────
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    RouteSuggestionNavLock.resetForTest();
+  });
+
   group('RouteSuggestionCard', () {
     testWidgets('renders with context_message', (tester) async {
       await _pumpCard(
@@ -228,6 +234,104 @@ void main() {
         ),
       );
       expect(find.text(message), findsOneWidget);
+    });
+  });
+
+  // ────────────────────────────────────────────────────────────
+  //  Phase 54-02 T-05 — RouteSuggestionNavLock (500 ms debounce)
+  // ────────────────────────────────────────────────────────────
+
+  group('RouteSuggestionNavLock (Phase 54-02 T-05)', () {
+    test('first acquire returns true', () {
+      expect(RouteSuggestionNavLock.tryAcquire(now: DateTime(2026, 5, 4)),
+          isTrue);
+    });
+
+    test('second acquire within 500ms window returns false', () {
+      final t0 = DateTime(2026, 5, 4, 12, 0, 0);
+      expect(RouteSuggestionNavLock.tryAcquire(now: t0), isTrue);
+      expect(
+        RouteSuggestionNavLock.tryAcquire(
+          now: t0.add(const Duration(milliseconds: 100)),
+        ),
+        isFalse,
+        reason: 'within window — must be dropped',
+      );
+      expect(
+        RouteSuggestionNavLock.tryAcquire(
+          now: t0.add(const Duration(milliseconds: 499)),
+        ),
+        isFalse,
+        reason: 'still within window — must be dropped',
+      );
+    });
+
+    test('acquire after 500ms window returns true again', () {
+      final t0 = DateTime(2026, 5, 4, 12, 0, 0);
+      expect(RouteSuggestionNavLock.tryAcquire(now: t0), isTrue);
+      expect(
+        RouteSuggestionNavLock.tryAcquire(
+          now: t0.add(const Duration(milliseconds: 500)),
+        ),
+        isTrue,
+        reason: 'window has elapsed — must allow next nav',
+      );
+    });
+
+    testWidgets(
+        'three rapid taps on the same chip route exactly once (no duplicate push)',
+        (tester) async {
+      var pushCount = 0;
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, __) => const Scaffold(
+              body: RouteSuggestionCard(
+                contextMessage: 'Ouvre le simulateur.',
+                route: '/rente-vs-capital',
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/rente-vs-capital',
+            redirect: (_, __) {
+              pushCount += 1;
+              return '/';
+            },
+          ),
+        ],
+      );
+
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(MaterialApp.router(
+        routerConfig: router,
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Three rapid taps within the 500ms window.
+      await tester.tap(find.byType(FilledButton));
+      await tester.tap(find.byType(FilledButton));
+      await tester.tap(find.byType(FilledButton));
+      await tester.pumpAndSettle();
+
+      expect(pushCount, 1,
+          reason:
+              'NavLock must dedupe rapid taps — exactly one push allowed per 500ms window');
     });
   });
 }

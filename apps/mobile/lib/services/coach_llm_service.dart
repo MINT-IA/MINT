@@ -580,6 +580,7 @@ class CoachLlmService {
       age: profile.age,
       canton: profile.canton,
       knownValues: knownValues,
+      hasDebt: profile.isInDebtCrisis,
     );
   }
 

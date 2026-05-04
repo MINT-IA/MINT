@@ -1625,6 +1625,69 @@ class SDe extends S {
       'Schliesse deine Diagnose ab, um deinen Monatsplan mit echten Einnahmen und Ausgaben freizuschalten.';
 
   @override
+  String get budgetSetupTitle => 'Charges fixes';
+
+  @override
+  String get budgetSetupSubtitle =>
+      'Ce qui part chaque mois, quoi qu\'il arrive.';
+
+  @override
+  String get budgetSetupHousing => 'Loyer ou hypothèque';
+
+  @override
+  String get budgetSetupLamal => 'Assurance maladie';
+
+  @override
+  String get budgetSetupTransport => 'Transport';
+
+  @override
+  String get budgetSetupTelecom => 'Télécom';
+
+  @override
+  String get budgetSetupElectricity => 'Électricité';
+
+  @override
+  String get budgetSetupMedical => 'Frais médicaux';
+
+  @override
+  String get budgetSetupOther => 'Autres';
+
+  @override
+  String get budgetSetupAddOthers => 'Ajouter d\'autres postes';
+
+  @override
+  String get budgetSetupSave => 'Enregistrer';
+
+  @override
+  String get budgetSetupChatFallback => 'J\'en parle plutôt au coach';
+
+  @override
+  String get budgetSetupFieldPlaceholder => 'CHF / mois';
+
+  @override
+  String get budgetSetupRequired => 'Requis';
+
+  @override
+  String budgetSetupTotalFixed(String amount) {
+    return 'Total fixe : $amount CHF / mois';
+  }
+
+  @override
+  String budgetSetupResteAfterCharges(String amount) {
+    return 'Il te reste $amount CHF après tes charges.';
+  }
+
+  @override
+  String get budgetCardEmptyTitle => 'Tes charges fixes, au clair.';
+
+  @override
+  String get budgetCardEmptyBody =>
+      'Sept postes, deux minutes. Ensuite on calcule ce qu\'il te reste vraiment.';
+
+  @override
+  String get budgetCardEmptyAction => 'Poser mes charges';
+
+  @override
   String get budgetEmptyAction => 'Meine Diagnose starten';
 
   @override
@@ -7463,14 +7526,14 @@ class SDe extends S {
 
   @override
   String get authGateDocScanMessage =>
-      'Deine Zertifikate enthalten sensible Daten. Erstelle ein Konto, um sie mit Ende-zu-Ende-Verschlüsselung zu schützen.';
+      'Deine Zertifikate enthalten sensible Daten. Erstelle ein Konto, um sie auf unseren Servern zu verschlüsseln und von deinen Geräten abzurufen — du kannst jederzeit alles lokal behalten unter Datenschutz.';
 
   @override
   String get authGateSalaryTitle => 'Schütze deine Finanzdaten';
 
   @override
   String get authGateSalaryMessage =>
-      'Dein Gehalt und deine Finanzdaten verdienen einen sicheren Tresor.';
+      'Erstelle ein Konto, um dein Gehalt und deine Finanzdaten auf unseren Servern zu verschlüsseln und von deinen Geräten abzurufen — du kannst jederzeit alles lokal behalten unter Datenschutz.';
 
   @override
   String get authGateCoachTitle => 'Der Coach muss dich kennenlernen';
@@ -7702,7 +7765,7 @@ class SDe extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Optionales Konto: deine Daten bleiben standardmässig lokal';
+      'Erstelle ein verschlüsseltes Konto. Cloud-Synchronisation ist standardmässig aus; du kannst sie in Einstellungen › Datenschutz aktivieren.';
 
   @override
   String get authWhyCreateAccount => 'Warum ein Konto erstellen?';
@@ -7847,7 +7910,7 @@ class SDe extends S {
   String get coachSources => 'Quellen';
 
   @override
-  String get coachInputHint => 'Sag mir, was dir durch den Kopf geht.';
+  String get coachInputHint => 'Sag\'s mir.';
 
   @override
   String get coachUserMessage => 'Deine Nachricht';
@@ -9375,11 +9438,11 @@ class SDe extends S {
       'Im Schutzmodus sind 3a-Empfehlungen deaktiviert. Priorität ist die Stabilisierung deiner Finanzen vor Einzahlungen in die 3a.';
 
   @override
-  String get sim3aDebtStrategyTitle => 'Strategie gesperrt';
+  String get sim3aDebtStrategyTitle => 'Strategie pausiert';
 
   @override
   String get sim3aDebtStrategyMessage =>
-      '3a-Anlagestrategien sind gesperrt, solange du aktive Schulden hast. Schuldenrückzahlung bringt eine höhere Rendite als jede Anlage.';
+      '3a-Anlagestrategien sind pausiert, solange deine aktiven Schulden dein Budget belasten. Empfohlene Reihenfolge: erst stabilisieren, dann anlegen.';
 
   @override
   String get realReturnTitle => 'Reale Rendite 3a';
@@ -10702,6 +10765,9 @@ class SDe extends S {
   String get eplReductionDeces => 'Todesfallkapital Kürzung (Schätzung)';
 
   @override
+  String get eplReductionAskCaisse => 'Bei deiner Pensionskasse erfragen';
+
+  @override
   String get eplImpactPrestationsNote =>
       'Der WEF-Bezug reduziert proportional deine Risikoleistungen. Erkundige dich bei deiner Pensionskasse nach den genauen Beträgen und Zusatzversicherungen.';
 
@@ -11012,7 +11078,7 @@ class SDe extends S {
   String get retroactive3aTitle => '3a Nachholung';
 
   @override
-  String get retroactive3aHeroTitle => '3a Nachholung — Neu 2026';
+  String get retroactive3aHeroTitle => '3a Nachholung — Neu seit 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>
@@ -11659,14 +11725,14 @@ class SDe extends S {
 
   @override
   String get reportSafeMode3a =>
-      'Der 3a-Vergleich ist deaktiviert, solange du aktive Schulden hast. Die Rückzahlung hat Vorrang vor jeglichem 3a-Sparen.';
+      'Der 3a-Vergleich ist pausiert, solange deine aktiven Schulden dein Budget belasten. Priorität: Liquidität stabilisieren.';
 
   @override
-  String get reportSafeModeLpp => 'BVG-Einkauf gesperrt';
+  String get reportSafeModeLpp => 'BVG-Einkauf pausiert';
 
   @override
   String get reportSafeModeLppMessage =>
-      'Der BVG-Einkauf ist im Schutzmodus deaktiviert. Zahle deine Schulden zurück, bevor du Liquidität in der Vorsorge bindest.';
+      'Der BVG-Einkauf ist im Schutzmodus pausiert. Empfohlene Reihenfolge: Schulden abbauen, bevor Liquidität in der Vorsorge gebunden wird.';
 
   @override
   String get reportLppTitle => '💰 BVG-Einkauf-Strategie';
@@ -18225,7 +18291,7 @@ class SDe extends S {
 
   @override
   String get portfolioSafeModeBody =>
-      'Allokationsempfehlungen sind im Schutzmodus deaktiviert. Deine Priorität ist der Schuldenabbau vor der Umschichtung.';
+      'Allokationsempfehlungen sind im Schutzmodus pausiert. Empfohlene Reihenfolge: Schulden abbauen, bevor das Portfolio umgeschichtet wird.';
 
   @override
   String get portfolioSafeModeLocked => 'Priorität Schuldenabbau';
@@ -19312,7 +19378,7 @@ class SDe extends S {
 
   @override
   String get safeModeMessage =>
-      'Für deine finanzielle Sicherheit deaktivieren wir erweiterte Optimierungen, solange ein Schuldsignal aktiv ist.';
+      'Solange ein Schuldensignal aktiv ist, sind erweiterte Optimierungen pausiert. Priorität: Liquidität stabilisieren. Der Rest wartet.';
 
   @override
   String get safeModeTitle => 'Prioritätsfokus';
@@ -20887,8 +20953,7 @@ class SDe extends S {
   String get intensityAdjustedDown => 'OK, ich nehme es etwas zurück.';
 
   @override
-  String get coachSuggestBudget =>
-      'Was ist mein realistisches Budget bei der Pensionierung?';
+  String get coachSuggestBudget => 'Wo geht mein Geld jeden Monat hin?';
 
   @override
   String get coachSuggestBudgetGap => 'Wie viel fehlt mir pro Monat?';
@@ -20931,7 +20996,7 @@ class SDe extends S {
 
   @override
   String get jargonAvsTooltip =>
-      'Die AHV (Alters- und Hinterlassenenversicherung) ist die 1. Säule. Sie garantiert ein Grundeinkommen im Ruhestand.';
+      'Die AHV (Alters- und Hinterlassenenversicherung) ist die 1. Säule. Sie soll ein Grundeinkommen im Ruhestand bereitstellen.';
 
   @override
   String get jargonRamdTooltip =>
@@ -21037,6 +21102,28 @@ class SDe extends S {
   String get coachSilentOpenerQuestion => 'Möchtest du darüber reden?';
 
   @override
+  String get coachOpenerIdentity => 'Hallo. Ich bin Mint.';
+
+  @override
+  String get coachOpenerPromise =>
+      'Ich kenne dich. Ich sehe, was kommt. Ich begleite dich.';
+
+  @override
+  String get coachOpenerQuestion => 'Womit fangen wir an?';
+
+  @override
+  String get coachStarterPaper => 'Ein Dokument, das ich nicht verstehe';
+
+  @override
+  String get coachStarterChoice => 'Eine Entscheidung, die ich treffen muss';
+
+  @override
+  String get coachStarterCost => 'Etwas kostet mich, ich weiss nicht was';
+
+  @override
+  String get coachStarterLurk => 'Ich schaue erst mal rum';
+
+  @override
   String get coachProactiveOptIn =>
       'Übrigens — soll ich dir wichtige Dinge anzeigen, wenn du die App öffnest? Oder möchtest du lieber nur reden, wenn du Lust hast?';
 
@@ -21047,7 +21134,11 @@ class SDe extends S {
   String get coachOptInDecline => 'Nein, ich komme wenn ich will';
 
   @override
-  String get coachSilentOpenerReplacementRate => 'Ersatzrate bei Pensionierung';
+  String get coachOptInAcknowledged =>
+      'Verstanden, ich melde dir, was wichtig ist.';
+
+  @override
+  String get coachSilentOpenerReplacementRate => 'Projizierte Ersatzrate';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Finanzieller Fitness-Score';
@@ -21055,6 +21146,16 @@ class SDe extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Projiziertes Pensionierungskapital';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Projiziertes Kapital auf deinem Horizont';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'BVG-Guthaben';
+
+  @override
+  String get coachSilentOpener3aEpargne => '3a-Ersparnis';
 
   @override
   String get confidenceLow =>
@@ -22353,11 +22454,10 @@ class SDe extends S {
   String get tonSectionLabel => 'Stimme';
 
   @override
-  String get anonymousIntentLine1 =>
-      'Geld. In der Schweiz redet niemand darüber.';
+  String get anonymousIntentLine1 => 'Dein Finanzleben, klar und deutlich.';
 
   @override
-  String get anonymousIntentLine2 => 'Nicht mal mit sich selbst.';
+  String get anonymousIntentLine2 => '';
 
   @override
   String get anonymousIntentPill1 =>
@@ -22396,6 +22496,18 @@ class SDe extends S {
   @override
   String get anonymousChatError =>
       'Ich habe ein technisches Problem. Versuch es gleich nochmal.';
+
+  @override
+  String get anonymousChatErrorNetwork =>
+      'Keine Verbindung. Prüfe dein Netzwerk und versuche es erneut.';
+
+  @override
+  String get anonymousChatErrorService =>
+      'Vorübergehend nicht verfügbar. Komm in wenigen Minuten wieder.';
+
+  @override
+  String get anonymousChatErrorSession =>
+      'Sitzung abgelaufen. Schließe und öffne die App erneut.';
 
   @override
   String get anonymousChatConversionPrompt =>
@@ -22929,4 +23041,235 @@ class SDe extends S {
 
   @override
   String get hubSante => 'Gesundheit & Schutz';
+
+  @override
+  String get safeModeWhyBlockedSemantics => 'Warum ist das pausiert';
+
+  @override
+  String get safeModeWhyBlockedTitle => 'Warum ist das pausiert';
+
+  @override
+  String get safeModeWhyBlockedBody =>
+      'Im Schutzmodus priorisiert MINT die Liquiditätsstabilisierung vor Steuer- und Vorsorgeoptimierungen.';
+
+  @override
+  String get safeModeWhyBlockedLink => 'Warum ist das pausiert?';
+
+  @override
+  String get safeModeFormalDesendettementNote =>
+      'Diese Auszahlungen bleiben im Rahmen eines formellen Schuldenbereinigungsverfahrens möglich — sprich mit einem Spezialisten.';
+
+  @override
+  String get scanSummaryLppCertificate => 'BVG-Ausweis gescannt';
+
+  @override
+  String get scanSummary3aAttestation => 'Säule-3a-Bescheinigung gescannt';
+
+  @override
+  String get scanSummaryTaxDeclaration => 'Steuererklärung gescannt';
+
+  @override
+  String get scanSummaryAvsExtract => 'AHV-Auszug gescannt';
+
+  @override
+  String get scanSummaryMortgageAttestation =>
+      'Hypothekenbescheinigung gescannt';
+
+  @override
+  String get scanSummarySalaryCertificate => 'Lohnausweis gescannt';
+
+  @override
+  String get onboardingSealError =>
+      'Dein Dossier konnte nicht versiegelt werden. Prüfe deine Verbindung und versuche es erneut.';
+
+  @override
+  String get onboardingSealRetry => 'Erneut versuchen';
+
+  @override
+  String get wedgeTeaserEyebrowExample => 'BEISPIEL';
+
+  @override
+  String get wedgeTeaserEyebrowEstimate => 'RICHTWERT';
+
+  @override
+  String get wedgeTeaserSalienceExample =>
+      'BEISPIEL · keine Projektion deiner Situation';
+
+  @override
+  String get wedgeTeaserSalienceEstimate =>
+      'Richtwert · vollständige Laufbahn, Pensionierung mit 65';
+
+  @override
+  String get wedgeTeaserAssumptionsExample =>
+      'Nur AHV, vollständige Laufbahn als Beispiel';
+
+  @override
+  String get wedgeTeaserAssumptionsEstimate =>
+      'Annahmen: 40 Jahre, Laufbahn 20→65, keine Lücken, nur AHV. Dein tatsächlicher Wert ändert sich mit Alter, Geschlecht, Kanton, BVG.';
+
+  @override
+  String get wedgeTeaserReculExample =>
+      'Trage dein BVG ein, MINT projiziert deine eigenen Werte.';
+
+  @override
+  String get wedgeTeaserReculEstimate =>
+      'Mit einem Konto verfeinert MINT mit Alter, BVG, Kanton und Lücken.';
+
+  @override
+  String wedgeTeaserHeroSemantics(String amount) {
+    return '$amount Franken pro Monat';
+  }
+
+  @override
+  String get wedgeTeaserChfPerMonth => 'CHF / Monat';
+
+  @override
+  String get wedgeTeaserModifySalary => 'Anpassen';
+
+  @override
+  String get wedgeTeaserCtaRegister =>
+      'Erstelle dein Konto für eigene Projektionen';
+
+  @override
+  String get wedgeSalaryInputLabel =>
+      'Dein Bruttojahreslohn. Für eine schnelle Schätzung.';
+
+  @override
+  String get wedgeSalaryInputAction => 'Berechnen';
+
+  @override
+  String get wedgeSalaryInputActionSemantics => 'Meine Schätzung berechnen';
+
+  @override
+  String get wedgeSalaryStaysOnDevice =>
+      'Dein Lohn bleibt auf deinem Gerät. MINT sendet ihn nirgendwohin.';
+
+  @override
+  String get wedgeSalaryErrorInvalid =>
+      'Gib einen Betrag in Ziffern ein, zum Beispiel 95 000.';
+
+  @override
+  String get wedgeSalaryErrorOutOfRange =>
+      'Zwischen 10 000 und 1 000 000 CHF pro Jahr.';
+
+  @override
+  String get coachOnboardingFirstUserMessage =>
+      'Hi, ich habe gerade ein Konto erstellt. Wo fange ich an?';
+
+  @override
+  String get coachAnonymousAuthGateMessage =>
+      'Wir haben schon ein paar Spuren zusammen erkundet. Erstelle dein Konto, damit ich mich an alles erinnere.';
+
+  @override
+  String get coachAuthGateChipRegister => 'Konto erstellen';
+
+  @override
+  String get coachAuthGateChipLogin => 'Ich habe schon ein Konto';
+
+  @override
+  String get cantonLabel => 'Kanton';
+
+  @override
+  String get coachNotificationOpenerMonthlyCheckIn =>
+      'Zeit für den Monatsrückblick. Wie war\'s?';
+
+  @override
+  String coachNotificationOpenerCommitmentWithLabel(String commitment) {
+    return 'Du hast mir gesagt, du würdest $commitment. Erledigt?';
+  }
+
+  @override
+  String get coachNotificationOpenerCommitmentGeneric =>
+      'Du hattest eine Verpflichtung. Erledigt?';
+
+  @override
+  String get coachNotificationOpenerFreshStart =>
+      'Neuer Monat. Wo fangen wir an?';
+
+  @override
+  String get settingsPrivacyTitle => 'Datenschutz';
+
+  @override
+  String get settingsPrivacyCloudSyncTitle =>
+      'Cloud-Synchronisation (mehrere Geräte)';
+
+  @override
+  String get settingsPrivacyCloudSyncSubtitle =>
+      'Sichert dein Profil und synchronisiert es zwischen deinen Geräten. Wenn deaktiviert, bleibt der KI-Coach verfügbar, aber Fakten werden nur lokal gespeichert.';
+
+  @override
+  String get settingsPrivacyCloudSyncOn => 'Aktiviert';
+
+  @override
+  String get settingsPrivacyCloudSyncOff => 'Deaktiviert';
+
+  @override
+  String get settingsPrivacyMigrationToast =>
+      'Neue Option: Du kannst die Cloud-Synchronisation in Einstellungen › Datenschutz deaktivieren.';
+
+  @override
+  String get settingsPrivacyDataLocation =>
+      'Deine Fragebogen-Antworten und dein Chat-Verlauf bleiben auf deinem Gerät. Wenn du dem KI-Coach schreibst, durchläuft deine Nachricht unsere Server, um die Antwort zu generieren — mit aktivierter Synchronisation werden die Fakten, die du bestätigst (Alter, Lohn, Kanton…), auch auf unseren Servern gespeichert; bei deaktivierter Synchronisation bleiben sie nur auf deinem Gerät.';
+
+  @override
+  String get settingsPrivacyCloudSyncOffServerCaveat =>
+      'Die Synchronisation zu deaktivieren löscht nicht die Daten, die bereits auf unseren Servern gespeichert sind. Um sie zu entfernen, gehe zu Konto › Konto löschen.';
+
+  @override
+  String get profileSyncRowHint => 'Verwalten in Einstellungen › Datenschutz';
+
+  @override
+  String get settingsPrivacyMigrationToastCta => 'Ansehen';
+
+  @override
+  String get aujourdhuiCommitmentsTitle => 'Deine letzten Verpflichtungen';
+
+  @override
+  String get aujourdhuiCheckInsTitle => 'Deine letzten Check-ins';
+
+  @override
+  String get aujourdhuiResumeConversation => 'Gespräch fortsetzen';
+
+  @override
+  String coachSequenceNextStepLabel(String label) {
+    return 'Nächster Schritt: $label.';
+  }
+
+  @override
+  String get coachSequenceCompletedMessage =>
+      'Du hast diese geführte Sequenz abgeschlossen.';
+
+  @override
+  String get betaDisclosureEyebrow => 'MINT in der Beta';
+
+  @override
+  String get betaDisclosureHeadlinePrefix => 'Du testest eine Version, die';
+
+  @override
+  String get betaDisclosureHeadlineEm => 'mit dir lernt';
+
+  @override
+  String get betaDisclosureHeadlineSuffix => '.';
+
+  @override
+  String get betaDisclosureBulletNoAdvice =>
+      'MINT ist keine Finanzberatung im Sinne des FIDLEG — es ist nur ein Bildungswerkzeug.';
+
+  @override
+  String get betaDisclosureBulletNoBank =>
+      'Keine Bankdaten werden bei uns gespeichert. Deine Daten bleiben auf deinem Gerät, ausser du stimmst ausdrücklich zu.';
+
+  @override
+  String get betaDisclosureBulletDataLocal =>
+      'Dein Feedback während der Beta hilft uns, MINT zu verbessern. Wir lesen alles.';
+
+  @override
+  String get betaDisclosureCta => 'Verstanden, los geht\'s';
+
+  @override
+  String get betaDisclosureLearnMore => 'Mehr erfahren';
+
+  @override
+  String get betaDisclosureSemanticsLabel =>
+      'Information zur MINT-Beta-Version — nur Bildungswerkzeug, keine Finanzberatung, Daten bleiben standardmässig auf deinem Gerät.';
 }

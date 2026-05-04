@@ -157,6 +157,10 @@ class WidgetRenderer {
       route: route,
       prefill: mergedPrefill,
       isPartial: isPartial,
+      // Phase 53-02 — pass through the LLM-emitted intent so
+      // RouteSuggestionCard can fire SequenceChatHandler.startSequence
+      // when a SequenceTemplate is keyed by this intent.
+      intentTag: p['intent'] as String?,
     );
   }
 

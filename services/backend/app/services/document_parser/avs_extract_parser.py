@@ -206,6 +206,75 @@ _SOURCES = [
 # ══════════════════════════════════════════════════════════════════════════════
 
 
+# ── Table-style IK extract heuristic ────────────────────────────────
+# Official AVS account extracts (CI/IK) print one row per contribution
+# year, typically `YEAR | EMPLOYER | INCOME (CHF)`. We accept any
+# 4-digit year between 1960 and the current year + 1 followed by an
+# income amount on the same line. Min 3 rows to qualify.
+#
+# Income matching: pick the LARGEST number on the year-row that is
+# > 5'000 (typical AVS-cotisable income floor — sub-floor entries are
+# either employer-test indices or apprenticeship part-years).
+
+_IK_YEAR_LINE_RE = re.compile(
+    r"^\s*(?P<year>(?:19[6-9]\d|20[0-3]\d))\b(?P<rest>[^\n]*)$",
+    re.MULTILINE,
+)
+_IK_AMOUNT_TOKEN_RE = re.compile(
+    r"\d{1,3}(?:['’\s]\d{3})+(?:[.,]\d{1,2})?|\d{4,}(?:[.,]\d{1,2})?"
+)
+
+
+def _parse_ik_year_table(text: str) -> Optional[tuple[int, float, str]]:
+    """Detect a YEAR/EMPLOYER/INCOME row table in AVS IK extracts.
+
+    Returns ``(years_count, mean_revenue, raw_window)`` if at least 3
+    rows match. Returns None otherwise. The mean revenue is a *proxy*
+    for RAMD (true RAMD applies LAVS art. 29sexies indexation) and is
+    flagged needs_review by the caller.
+
+    Income heuristic: the income is the LARGEST 4+ digit token (or
+    Swiss-formatted thousands token) on the year-row. Single digits
+    embedded in employer names (`Employeur Test 5`) are ignored.
+    """
+    rows: list[tuple[int, float]] = []
+    raw_lines: list[str] = []
+    for m in _IK_YEAR_LINE_RE.finditer(text):
+        try:
+            year = int(m.group("year"))
+        except ValueError:
+            continue
+        rest = m.group("rest")
+        candidates: list[float] = []
+        for tok in _IK_AMOUNT_TOKEN_RE.findall(rest):
+            cleaned = (
+                tok.replace("'", "").replace("’", "")
+                .replace(" ", "").replace(",", ".")
+            )
+            try:
+                val = float(cleaned)
+            except ValueError:
+                continue
+            # Income floor: AVS-cotisable income above 5'000 CHF.
+            # Years like "2016" are ruled out by the line-anchor design,
+            # but enforce a positive floor here too.
+            if val < 5000.0 or val > 5_000_000.0:
+                continue
+            candidates.append(val)
+        if not candidates:
+            continue
+        amount = max(candidates)
+        rows.append((year, amount))
+        raw_lines.append(f"{year}{rest}".strip())
+    if len(rows) < 3:
+        return None
+    # Years count = unique year count.
+    years_count = len({y for y, _ in rows})
+    mean_revenue = sum(a for _, a in rows) / len(rows)
+    raw_window = "\n".join(raw_lines[:5])
+    return years_count, mean_revenue, raw_window
+
+
 def parse_avs_extract(text: str) -> ExtractionResult:
     """Extrait les champs structures d'un texte OCR d'extrait de compte AVS.
 
@@ -276,6 +345,38 @@ def parse_avs_extract(text: str) -> ExtractionResult:
 
         if best_match is not None:
             extracted_fields.append(best_match)
+
+    # Table-style IK extract fallback: official AVS account extracts (CI/IK)
+    # are usually printed as a YEAR | EMPLOYER | INCOME table without the
+    # explicit "années de cotisation" / "RAMD" labels the patterns above
+    # expect. Detect such tables and derive both fields from the rows.
+    # 2026-04-25: ground-truth `tests/fixtures/documents/avs_ik_extract.pdf`.
+    extracted_field_names = {f.field_name for f in extracted_fields}
+    if "annees_cotisation" not in extracted_field_names or "ramd" not in extracted_field_names:
+        table = _parse_ik_year_table(text)
+        if table is not None:
+            years_count, mean_revenue, raw_window = table
+            if "annees_cotisation" not in extracted_field_names:
+                extracted_fields.append(
+                    ExtractedField(
+                        field_name="annees_cotisation",
+                        value=float(years_count),
+                        confidence=0.85,
+                        source_text=raw_window,
+                        needs_review=False,
+                    )
+                )
+            if "ramd" not in extracted_field_names and mean_revenue >= AVS_RAMD_MIN:
+                extracted_fields.append(
+                    ExtractedField(
+                        field_name="ramd",
+                        value=float(round(mean_revenue, 2)),
+                        confidence=0.75,
+                        source_text=raw_window,
+                        needs_review=True,  # mean of the window, not an
+                                            # official RAMD figure
+                    )
+                )
 
     result.fields = extracted_fields
 

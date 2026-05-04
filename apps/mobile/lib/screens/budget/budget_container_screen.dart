@@ -43,13 +43,13 @@ class BudgetContainerScreen extends StatelessWidget {
               ))),
               const SizedBox(height: 24),
               MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
-                S.of(context)!.budgetEmptyTitle,
+                S.of(context)!.budgetCardEmptyTitle,
                 textAlign: TextAlign.center,
                 style: MintTextStyles.titleLarge(),
               )),
               const SizedBox(height: MintSpacing.md),
               MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
-                S.of(context)!.budgetEmptyBody,
+                S.of(context)!.budgetCardEmptyBody,
                 textAlign: TextAlign.center,
                 style: MintTextStyles.bodyMedium(),
               )),
@@ -58,9 +58,9 @@ class BudgetContainerScreen extends StatelessWidget {
                 button: true,
                 label: S.of(context)!.semanticsBudgetStartButton,
                 child: FilledButton.icon(
-                  onPressed: () => context.push('/coach/chat?topic=budget'),
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: Text(S.of(context)!.budgetEmptyAction),
+                  onPressed: () => context.push('/budget/setup'),
+                  icon: const Icon(Icons.edit_note),
+                  label: Text(S.of(context)!.budgetCardEmptyAction),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
                     padding: const EdgeInsets.symmetric(

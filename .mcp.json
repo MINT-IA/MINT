@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "mint-tools": {
+      "command": "python3.11",
+      "args": [
+        "./tools/mcp/mint-tools/server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "./services/backend:./tools/mcp/mint-tools"
+      }
+    }
+  }
+}

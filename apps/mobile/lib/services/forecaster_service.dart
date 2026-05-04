@@ -545,24 +545,40 @@ class ForecasterService {
         profile.conjoint?.firstName?.toLowerCase() ?? '';
 
     // Partner 3a contribution potential: if conjoint exists, has income,
-    // AND can contribute to 3a (e.g. FATCA US persons cannot).
-    // Add 604.83 CHF/month (7258/12) as potential 3a contribution
-    // (only if not already captured in planned contributions)
+    // AND can contribute to 3a.
+    //
+    // Wave 7 fiscal audit P0-F1 (2026-04-18): archetype-aware FATCA
+    // blocker. Previous code trusted `prevoyance?.canContribute3a ?? true`,
+    // which defaults to TRUE when the nested prevoyance object is null or
+    // the flag wasn't set — so a US-person conjoint like Lauren was auto-
+    // projected with ~7'258 CHF/yr of 3a contribution, inflating her
+    // retirement capital by ~145k CHF and silently pointing downstream
+    // arbitrage (rente vs capital, EPL, rachat) into an IRC §1291 PFIC /
+    // IRS Notice 2014-7 foreign-trust trap. Three independent signals
+    // must now align before we add any partner 3a potential:
+    //   1. `isFatcaResident` false (explicit declaration).
+    //   2. nationality not 'US' (safety net when the FATCA flag drifted).
+    //   3. nested `prevoyance.canContribute3a` true if present, else
+    //      fallback to true only for the non-FATCA, non-US case above.
     double partner3aMonthly = 0;
-    if (profile.conjoint != null &&
-        (profile.conjoint!.salaireBrutMensuel ?? 0) > 0 &&
-        (profile.conjoint!.prevoyance?.canContribute3a ?? true)) {
-      final conjAnnualSalary =
-          (profile.conjoint!.salaireBrutMensuel ?? 0) * 12;
-      // Partner is salaried with LPP if their salary exceeds the LPP threshold
-      if (conjAnnualSalary > reg('lpp.entry_threshold', lppSeuilEntree)) {
-        // Check if partner 3a is already in planned contributions
-        final hasPartner3a = profile.plannedContributions.any((c) =>
-            c.category == '3a' &&
-            conjFirstName.isNotEmpty &&
-            c.id.toLowerCase().contains(conjFirstName));
-        if (!hasPartner3a) {
-          partner3aMonthly = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12; // 604.83
+    final conjoint = profile.conjoint;
+    if (conjoint != null && (conjoint.salaireBrutMensuel ?? 0) > 0) {
+      final bool isUsPerson =
+          conjoint.isFatcaResident || conjoint.nationality == 'US';
+      final bool conjCanContribute = !isUsPerson &&
+          conjoint.canContribute3a &&
+          (conjoint.prevoyance?.canContribute3a ?? true);
+      if (conjCanContribute) {
+        final conjAnnualSalary = (conjoint.salaireBrutMensuel ?? 0) * 12;
+        if (conjAnnualSalary > reg('lpp.entry_threshold', lppSeuilEntree)) {
+          final hasPartner3a = profile.plannedContributions.any((c) =>
+              c.category == '3a' &&
+              conjFirstName.isNotEmpty &&
+              c.id.toLowerCase().contains(conjFirstName));
+          if (!hasPartner3a) {
+            partner3aMonthly =
+                reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12;
+          }
         }
       }
     }

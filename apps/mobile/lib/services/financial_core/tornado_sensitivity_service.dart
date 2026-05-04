@@ -559,10 +559,29 @@ class TornadoSensitivityService {
       }
     }
 
-    // ── Sort by swing descending ─────────────────────────
-    variables.sort((a, b) => b.swing.compareTo(a.swing));
+    // Wave 7 actuarial audit P0-T4 (2026-04-18) : les variants crashés
+    // retournaient 0 via `_project`'s swallow → la variable crashée
+    // ressortait souvent en TOP driver (swing = base). Maintenant
+    // `_project` propage NaN, on filtre et log les variables cassées
+    // avant le tri — elles ne polluent plus le ranking.
+    final ranked = variables
+        .where((v) =>
+            v.baseValue.isFinite &&
+            v.lowValue.isFinite &&
+            v.highValue.isFinite &&
+            v.swing.isFinite)
+        .toList();
+    final dropped = variables.length - ranked.length;
+    if (dropped > 0) {
+      // ignore: avoid_print
+      print('[tornado] dropped $dropped variable(s) with NaN — '
+          'underlying projection raised. Check data completeness.');
+    }
 
-    return variables;
+    // ── Sort by swing descending ─────────────────────────
+    ranked.sort((a, b) => b.swing.compareTo(a.swing));
+
+    return ranked;
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -570,8 +589,11 @@ class TornadoSensitivityService {
   // ════════════════════════════════════════════════════════════════
 
   /// Run projection and return revenuMensuelAt65.
-  /// Returns 0.0 on failure to prevent one bad scenario from crashing the
-  /// entire tornado computation.
+  ///
+  /// Returns `double.nan` on failure so the tornado's NaN-filter (see
+  /// `compute()`) can drop the variant cleanly. The old `catch (_) → 0.0`
+  /// swallowed every exception and made crashed variables rank as top
+  /// drivers (Wave 7 actuarial audit P0-T4).
   static double _project({
     required CoachProfile profile,
     required int retirementAgeUser,
@@ -588,8 +610,10 @@ class TornadoSensitivityService {
         lppCapitalPct: lppCapitalPct,
       );
       return result.revenuMensuelAt65;
-    } catch (_) {
-      return 0.0;
+    } catch (e, s) {
+      // ignore: avoid_print
+      print('[tornado] projection failed: $e\n$s');
+      return double.nan;
     }
   }
 

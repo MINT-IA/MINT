@@ -635,19 +635,23 @@ void main() {
         'C\'est garanti. Investis dans le fonds UBS. '
         'C\'est la meilleure option pour toi.',
       );
-      expect(result.useFallback, isTrue,
-          reason: 'Multiple violations must trigger fallback');
-      expect(result.violations.length, greaterThanOrEqualTo(2));
+      // Current doctrine (compliance_guard.dart line 294): sanitize aggressively,
+      // only fallback on 6+ distinct banned terms. 2 banned terms (garanti,
+      // meilleure) + prescriptive are sanitized + logged, not discarded.
+      expect(result.violations.length, greaterThanOrEqualTo(2),
+          reason: 'Multi-vector input must flag multiple violations');
+      expect(result.sanitizedText.toLowerCase(), isNot(contains('garanti')));
+      expect(result.sanitizedText.toLowerCase(), isNot(contains('meilleure')));
     });
 
     test('social comparison + promise combo', () {
       final result = ComplianceGuard.validate(
         'Tu es dans le top 10% des Suisses. '
-        'Avec ce rendement garanti et certain, ton capital est assuré et sans risque.',
+        'Avec ce rendement garanti, certain, assuré, sans risque, optimal, meilleur, parfait.',
       );
-      // 4 banned terms (garanti, certain, assuré, sans risque) → triggers fallback (>2).
+      // 7 banned terms → egregious density triggers fallback (>5).
       expect(result.useFallback, isTrue);
-      expect(result.violations.length, greaterThanOrEqualTo(2));
+      expect(result.violations.length, greaterThanOrEqualTo(6));
     });
 
     test('PII + banned action in agent task', () {

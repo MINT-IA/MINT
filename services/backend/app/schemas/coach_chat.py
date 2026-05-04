@@ -113,6 +113,20 @@ class CoachChatRequest(CoachChatBaseModel):
         le=5,
         description="Voice intensity 1-5 (1=factual, 5=brut).",
     )
+    persistence_consent: bool = Field(
+        default=False,
+        description=(
+            "Phase 52.1 PR 2 — cloud-sync toggle state from the mobile app. "
+            "When False (the safest default), the backend MUST refuse every "
+            "WRITE-tier tool call (save_fact, save_insight, save_pre_mortem, "
+            "save_provenance, save_earmark, save_partner_estimate, "
+            "record_check_in, n5 emission marks) and instead return a stable "
+            "string '[persistence_off: write skipped — sync disabled]' to the "
+            "LLM. The LLM call itself proceeds normally — there is no "
+            "on-device LLM. See "
+            ".planning/decisions/2026-05-03-chat-under-cloud-sync-off.md."
+        ),
+    )
 
 
 # ===========================================================================

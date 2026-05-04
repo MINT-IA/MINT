@@ -681,6 +681,92 @@
   },
   "budgetEmptyTitle": "Il tuo budget",
   "budgetEmptyBody": "Completa la tua diagnosi per sbloccare il tuo piano mensile con i tuoi veri redditi e spese.",
+  "budgetSetupTitle": "Charges fixes",
+  "@budgetSetupTitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupSubtitle": "Ce qui part chaque mois, quoi qu'il arrive.",
+  "@budgetSetupSubtitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupHousing": "Loyer ou hypothèque",
+  "@budgetSetupHousing": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupLamal": "Assurance maladie",
+  "@budgetSetupLamal": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTransport": "Transport",
+  "@budgetSetupTransport": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTelecom": "Télécom",
+  "@budgetSetupTelecom": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupElectricity": "Électricité",
+  "@budgetSetupElectricity": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupMedical": "Frais médicaux",
+  "@budgetSetupMedical": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupOther": "Autres",
+  "@budgetSetupOther": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupAddOthers": "Ajouter d'autres postes",
+  "@budgetSetupAddOthers": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupSave": "Enregistrer",
+  "@budgetSetupSave": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupChatFallback": "J'en parle plutôt au coach",
+  "@budgetSetupChatFallback": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupFieldPlaceholder": "CHF / mois",
+  "@budgetSetupFieldPlaceholder": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupRequired": "Requis",
+  "@budgetSetupRequired": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTotalFixed": "Total fixe : {amount} CHF / mois",
+  "@budgetSetupTotalFixed": {
+    "description": "Budget setup label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetSetupResteAfterCharges": "Il te reste {amount} CHF après tes charges.",
+  "@budgetSetupResteAfterCharges": {
+    "description": "Budget setup label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetCardEmptyTitle": "Tes charges fixes, au clair.",
+  "@budgetCardEmptyTitle": {
+    "description": "Budget setup label."
+  },
+  "budgetCardEmptyBody": "Sept postes, deux minutes. Ensuite on calcule ce qu'il te reste vraiment.",
+  "@budgetCardEmptyBody": {
+    "description": "Budget setup label."
+  },
+  "budgetCardEmptyAction": "Poser mes charges",
+  "@budgetCardEmptyAction": {
+    "description": "Budget setup label."
+  },
   "budgetEmptyAction": "Fare la mia diagnosi",
   "budgetMonthlyTitle": "Budget mensile",
   "budgetAvailableThisMonth": "Disponibile questo mese",
@@ -3403,9 +3489,9 @@
   "benchmarkBelowRange": "La tua situazione è al di sotto della fascia tipica.",
   "benchmarkTypicalRange": "Fascia tipica: {low} – {high}",
   "authGateDocScanTitle": "Proteggi i tuoi documenti",
-  "authGateDocScanMessage": "I tuoi certificati contengono dati sensibili. Crea un account per proteggerli con crittografia end-to-end.",
+  "authGateDocScanMessage": "I tuoi certificati contengono dati sensibili. Crea un account per cifrarli sui nostri server e accedervi dai tuoi dispositivi — puoi mantenere tutto in locale in qualsiasi momento da Privacy.",
   "authGateSalaryTitle": "Proteggi i tuoi dati finanziari",
-  "authGateSalaryMessage": "Il tuo stipendio e i tuoi dati finanziari meritano una cassaforte sicura.",
+  "authGateSalaryMessage": "Crea un account per cifrare il tuo stipendio e i tuoi dati finanziari sui nostri server e accedervi dai tuoi dispositivi — puoi mantenere tutto in locale in qualsiasi momento da Privacy.",
   "authGateCoachTitle": "Il coach ha bisogno di conoscerti",
   "authGateCoachMessage": "Per darti risposte personalizzate, il coach ha bisogno di un account.",
   "authGateGoalTitle": "Segui i tuoi progressi",
@@ -3421,7 +3507,7 @@
   "authGateCreateAccount": "Crea il mio account",
   "authGateLogin": "Ho già un account",
   "authGatePrivacyNote": "I tuoi dati restano sul tuo dispositivo e sono crittografati.",
-  "authRegisterSubtitle": "Account opzionale: i tuoi dati restano locali per impostazione predefinita",
+  "authRegisterSubtitle": "Crea un account cifrato. La sincronizzazione cloud è disattivata di default; puoi attivarla da Impostazioni › Privacy.",
   "authWhyCreateAccount": "Perché creare un account?",
   "authBenefitProjections": "Proiezioni AVS/LPP adattate alla tua situazione",
   "authBenefitCoach": "Coach personalizzato con il tuo nome",
@@ -3597,7 +3683,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Dimmi cosa ti passa per la testa.",
+  "coachInputHint": "Dimmi.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",
@@ -4380,8 +4466,8 @@
   "sim3aDisclaimer": "Stima educativa. I risparmi reali dipendono dal luogo di residenza e dalla situazione familiare. Non costituisce consulenza finanziaria (LSFin).",
   "sim3aDebtLockedTitle": "Priorità al disdebitamento",
   "sim3aDebtLockedMessage": "In modalità protezione, le raccomandazioni 3a sono disattivate. La priorità è stabilizzare la situazione finanziaria.",
-  "sim3aDebtStrategyTitle": "Strategia bloccata",
-  "sim3aDebtStrategyMessage": "Le strategie d'investimento 3a sono disattivate finché hai debiti attivi. Rimborsare i debiti ha un rendimento più alto di qualsiasi investimento.",
+  "sim3aDebtStrategyTitle": "Strategia in pausa",
+  "sim3aDebtStrategyMessage": "Le strategie d'investimento 3a sono in pausa finché i tuoi debiti attivi gravano sul budget. Ordine consigliato: prima stabilizzare, poi investire.",
   "realReturnTitle": "Rendimento reale 3a",
   "realReturnPremierEclairageLabel": "Tasso equivalente sullo sforzo netto",
   "realReturnVsNominal": "vs {rate} % tasso netto 3a (lordo − spese)",
@@ -5088,6 +5174,7 @@
   "eplSectionImpactPrestations": "Impatto sulle prestazioni",
   "eplReductionInvalidite": "Riduzione rendita invalidità (stima annuale)",
   "eplReductionDeces": "Riduzione capitale decesso (stima)",
+  "eplReductionAskCaisse": "Chiedi alla tua cassa",
   "eplImpactPrestationsNote": "Il prelievo EPL riduce proporzionalmente le tue prestazioni di rischio. Verifica con la tua cassa pensione gli importi esatti e le possibilità di assicurazione complementare.",
   "eplSectionImpactRente": "Impatto sulla rendita",
   "eplRenteSansEpl": "Rendita senza EPL",
@@ -5220,7 +5307,7 @@
   "repaymentTimelinePaiement": "Pagamento",
   "repaymentTimelineSolde": "Saldo restante",
   "retroactive3aTitle": "Recupero 3a",
-  "retroactive3aHeroTitle": "Recupero 3a — Novità 2026",
+  "retroactive3aHeroTitle": "Recupero 3a — Novità 2025",
   "retroactive3aHeroSubtitle": "Recupera fino a 10 anni di contributi mancati",
   "retroactive3aParametres": "Parametri",
   "retroactive3aAnneesARattraper": "Anni da recuperare",
@@ -5529,9 +5616,9 @@
   },
   "reportSafeModePriority": "Priorità al disendebita mento",
   "reportSafeModeActions": "Le tue azioni prioritarie sono sostituite da un piano di riduzione del debito. Stabilizza la tua situazione prima di esplorare le raccomandazioni.",
-  "reportSafeMode3a": "Il comparatore 3a è disattivato finché hai debiti attivi. Rimborsare i debiti è prioritario prima di qualsiasi risparmio 3a.",
-  "reportSafeModeLpp": "Riscatto LPP bloccato",
-  "reportSafeModeLppMessage": "Il riscatto LPP è disattivato in modalità protezione. Rimborsa i tuoi debiti prima di bloccare liquidità nella previdenza.",
+  "reportSafeMode3a": "Il comparatore 3a è in pausa finché i tuoi debiti attivi gravano sul budget. Priorità: stabilizzare la liquidità.",
+  "reportSafeModeLpp": "Riscatto LPP in pausa",
+  "reportSafeModeLppMessage": "Il riscatto LPP è in pausa in modalità protezione. Ordine consigliato: rimborsare i debiti prima di bloccare liquidità nella previdenza.",
   "reportLppTitle": "💰 Strategia di Riscatto LPP",
   "reportLppEconomie": "Risparmio fiscale totale: CHF {amount}",
   "@reportLppEconomie": {
@@ -8843,7 +8930,7 @@
   "portfolioNoData": "Nessun dato patrimoniale inserito.",
   "portfolioRepartitionEnveloppe": "Ripartizione per busta",
   "portfolioReserveFondsUrgence": "Riservato (Fondo di emergenza)",
-  "portfolioSafeModeBody": "I consigli di allocazione sono disattivati in modalità protezione. La tua priorità è ridurre i debiti prima di ribilanciare il patrimonio.",
+  "portfolioSafeModeBody": "I consigli di allocazione sono in pausa in modalità protezione. Ordine consigliato: ridurre i debiti prima di ribilanciare il patrimonio.",
   "portfolioSafeModeLocked": "Priorità al risanamento debiti",
   "portfolioValeurTotaleNette": "Valore totale netto",
   "proactiveConfidenceUp": "La tua fiducia è migliorata di {delta} pts dall’ultima volta.",
@@ -9157,7 +9244,7 @@
   "routeSuggestionCta": "Aprire",
   "routeSuggestionPartialWarning": "Stima — dati incompleti",
   "safeModeCta": "Vedi il mio piano di riduzione del debito",
-  "safeModeMessage": "Per la tua sicurezza finanziaria, disattiviamo le ottimizzazioni avanzate finché un segnale di debito è attivo.",
+  "safeModeMessage": "Finché un segnale di debito è attivo, le ottimizzazioni avanzate sono in pausa. Priorità: stabilizzare la liquidità. Il resto può aspettare.",
   "safeModeTitle": "Concentrazione Prioritaria",
   "saronCostLabel": "di costo aggiuntivo con SARON",
   "saronEyebrow": "SARON vs Tasso fisso",
@@ -9727,7 +9814,7 @@
   "cashModeSubtitle": "Come ti parla il coach",
   "intensityAdjustedUp": "OK, alzo di un livello.",
   "intensityAdjustedDown": "OK, abbasso di un livello.",
-  "coachSuggestBudget": "Qual è il mio budget realistico per la pensione?",
+  "coachSuggestBudget": "Dove va il mio denaro ogni mese?",
   "coachSuggestBudgetGap": "Quanto mi manca al mese?",
   "coachSuggestMortgage": "Posso permettermi un acquisto immobiliare?",
   "coachSuggestMortgageCapacity": "Qual è la mia capacità di credito?",
@@ -9739,7 +9826,7 @@
   "jargonReplacementRateTooltip": "Il tasso di sostituzione misura la quota del tuo reddito attuale che manterrai in pensione. Esempio: 65% significa che riceverai il 65% del tuo stipendio attuale.",
   "jargonLppTooltip": "La LPP (Legge sulla previdenza professionale) è il 2° pilastro. Tu e il tuo datore di lavoro contribuite insieme per la tua pensione.",
   "jargon3aTooltip": "Il pilastro 3a è un risparmio pensionistico volontario con vantaggi fiscali. Il tetto è di CHF 7'258/anno (dipendenti con LPP).",
-  "jargonAvsTooltip": "L'AVS (Assicurazione vecchiaia e superstiti) è il 1° pilastro. Garantisce un reddito di base in pensione.",
+  "jargonAvsTooltip": "L'AVS (Assicurazione vecchiaia e superstiti) è il 1° pilastro. Mira a fornire un reddito di base in pensione.",
   "jargonRamdTooltip": "Il RAMD determina l'importo della tua rendita AVS. È calcolato in base ai redditi soggetti a contribuzione.",
   "confidenceDetailsTooltip": "Basato su: età, reddito, cantone, stato civile, nazionalità, LPP e 3a dichiarati. Più dati fornisci, più accurata è la proiezione.",
   "replacementRateContextGood": "È un buon livello — sopra l'80%.",
@@ -9795,12 +9882,44 @@
       "phase": "11-01"
     }
   },
+  "coachOpenerIdentity": "Ciao. Sono Mint.",
+  "@coachOpenerIdentity": {
+    "description": "First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data."
+  },
+  "coachOpenerPromise": "Ti conosco. Vedo cosa arriva. Ti guido.",
+  "@coachOpenerPromise": {
+    "description": "First-contact opener line 2 — trust promise. LSFin-compatible."
+  },
+  "coachOpenerQuestion": "Da dove cominciamo?",
+  "@coachOpenerQuestion": {
+    "description": "First-contact opener closing question."
+  },
+  "coachStarterPaper": "Un documento che non capisco",
+  "@coachStarterPaper": {
+    "description": "Conversation starter chip — routes to scanner."
+  },
+  "coachStarterChoice": "Una scelta che devo fare",
+  "@coachStarterChoice": {
+    "description": "Conversation starter chip — life events opener."
+  },
+  "coachStarterCost": "Qualcosa mi costa, non so cosa",
+  "@coachStarterCost": {
+    "description": "Conversation starter chip — budget/fiscal opener."
+  },
+  "coachStarterLurk": "Guardo in giro, mi presento dopo",
+  "@coachStarterLurk": {
+    "description": "Conversation starter chip — dismisses opener without forcing engagement."
+  },
   "coachProactiveOptIn": "A proposito — vuoi che ti segnali le cose importanti quando apri l'app? O preferisci che parliamo solo quando ne hai voglia?",
   "coachOptInAccept": "Sì, segnalami",
   "coachOptInDecline": "No, vengo quando voglio",
-  "coachSilentOpenerReplacementRate": "Tasso di sostituzione alla pensione",
+  "coachOptInAcknowledged": "Capito, ti segnalerò ciò che conta.",
+  "coachSilentOpenerReplacementRate": "Tasso di sostituzione proiettato",
   "coachSilentOpenerFitnessScore": "Punteggio di salute finanziaria",
   "coachSilentOpenerRetirementCapital": "Capitale proiettato alla pensione",
+  "coachSilentOpenerProjectedCapital": "Capitale proiettato sul tuo orizzonte",
+  "coachSilentOpenerLppAvoir": "Saldo LPP",
+  "coachSilentOpener3aEpargne": "Risparmio 3a",
   "confidenceLow": "I tuoi numeri sono molto approssimativi. Aggiungi il tuo certificato LPP per +25%.",
   "confidenceMedium": "Buon inizio. Scansiona il tuo estratto AVS per confermare i tuoi anni di contribuzione.",
   "confidenceAction": "Scansiona il mio certificato LPP (+25% di precisione)",
@@ -10468,13 +10587,13 @@
   "@tonSectionLabel": {
     "description": "Phase 12-01."
   },
-  "anonymousIntentLine1": "I soldi, in Svizzera, sono il tema di cui nessuno parla.",
+  "anonymousIntentLine1": "La tua vita finanziaria, in chiaro.",
   "@anonymousIntentLine1": {
-    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+    "description": "Landing opener."
   },
-  "anonymousIntentLine2": "Nemmeno con sé stessi.",
+  "anonymousIntentLine2": "",
   "@anonymousIntentLine2": {
-    "description": "Anonymous intent screen — follow-up line."
+    "description": "Retired 2026-04-17."
   },
   "anonymousIntentPill1": "Pago, firmo, ma non capisco proprio tutto",
   "@anonymousIntentPill1": {
@@ -10519,6 +10638,18 @@
   "anonymousChatError": "Ho un problema tecnico. Riprova tra un momento.",
   "@anonymousChatError": {
     "description": "Anonymous chat — fallback error message."
+  },
+  "anonymousChatErrorNetwork": "Nessuna rete. Controlla la connessione e riprova.",
+  "@anonymousChatErrorNetwork": {
+    "description": "Error shown when the anonymous chat request fails due to no network / timeout (walk 2026-04-24 P0-2)."
+  },
+  "anonymousChatErrorService": "Temporaneamente non disponibile. Torna tra qualche minuto.",
+  "@anonymousChatErrorService": {
+    "description": "Error shown when backend returns 503 or 5xx (service unavailable, often missing ANTHROPIC_API_KEY in dev)."
+  },
+  "anonymousChatErrorSession": "Sessione scaduta. Chiudi e riapri l'app.",
+  "@anonymousChatErrorSession": {
+    "description": "Error shown when backend returns 400 with invalid session (anonymous UUID invalid or expired)."
   },
   "anonymousChatConversionPrompt": "Abbiamo già scoperto 3 cose insieme. Se vuoi che le ricordi…",
   "@anonymousChatConversionPrompt": {
@@ -10905,7 +11036,9 @@
   "@batchValidationTitle": {
     "description": "Phase 29-04 — BatchValidationBubble intestazione (PRIV-08).",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "batchValidationConfirmAll": "Tutto ok",
@@ -10919,13 +11052,31 @@
   "humanReviewBadge": "Serve occhio umano",
   "thirdPartyDeclarationTitle": "Un momento prima di continuare",
   "thirdPartyDeclarationBody": "Confermi di aver ottenuto il consenso di {name} affinché MINT tratti questo documento?",
-  "@thirdPartyDeclarationBody": {"placeholders": {"name": {"type": "String"}}},
+  "@thirdPartyDeclarationBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyDeclarationMultipleBody": "Confermi di aver ottenuto il consenso di {names} affinché MINT tratti questo documento?",
-  "@thirdPartyDeclarationMultipleBody": {"placeholders": {"names": {"type": "String"}}},
+  "@thirdPartyDeclarationMultipleBody": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyDeclarationConfirm": "Sì, ho il suo consenso",
   "thirdPartyDeclarationCancel": "No, annulla il caricamento",
   "thirdPartyInviteCta": "Invita {name} su MINT",
-  "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
+  "@thirdPartyInviteCta": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyInviteComingSoon": "Inviti in arrivo — abbiamo registrato la tua intenzione.",
   "thirdPartyDeclarationNoticeLink": "Senza il suo consenso, MINT non può trattare i dati di un'altra persona.",
   "monArgentTabTitle": "I miei soldi",
@@ -10956,5 +11107,104 @@
   "hubLogement": "Alloggio",
   "hubFiscalite": "Fiscalità",
   "hubPatrimoine": "Patrimonio e Successione",
-  "hubSante": "Salute e Protezione"
+  "hubSante": "Salute e Protezione",
+  "safeModeWhyBlockedSemantics": "Perché è in pausa",
+  "safeModeWhyBlockedTitle": "Perché è in pausa",
+  "safeModeWhyBlockedBody": "In modalità protezione, MINT privilegia la stabilità della liquidità prima delle ottimizzazioni fiscali e previdenziali.",
+  "safeModeWhyBlockedLink": "Perché è in pausa?",
+  "safeModeFormalDesendettementNote": "Questi prelievi restano possibili in caso di procedura formale di risanamento del debito — parla con uno specialista.",
+  "scanSummaryLppCertificate": "Certificato LPP scansionato",
+  "scanSummary3aAttestation": "Attestato 3a scansionato",
+  "scanSummaryTaxDeclaration": "Dichiarazione fiscale scansionata",
+  "scanSummaryAvsExtract": "Estratto AVS scansionato",
+  "scanSummaryMortgageAttestation": "Attestato ipoteca scansionato",
+  "scanSummarySalaryCertificate": "Certificato di stipendio scansionato",
+  "onboardingSealError": "Impossibile sigillare il tuo dossier. Verifica la connessione e riprova.",
+  "onboardingSealRetry": "Riprova",
+  "wedgeTeaserEyebrowExample": "ESEMPIO",
+  "wedgeTeaserEyebrowEstimate": "STIMA INDICATIVA",
+  "wedgeTeaserSalienceExample": "ESEMPIO · non è una proiezione della tua situazione",
+  "wedgeTeaserSalienceEstimate": "Stima indicativa · carriera completa, pensionamento a 65 anni",
+  "wedgeTeaserAssumptionsExample": "Solo AVS, esempio di carriera completa",
+  "wedgeTeaserAssumptionsEstimate": "Ipotesi: 40 anni, carriera 20→65, nessuna lacuna, solo AVS. La tua cifra reale cambia con età, genere, cantone, LPP.",
+  "wedgeTeaserReculExample": "Aggiungi il tuo LPP e MINT proietta i tuoi numeri.",
+  "wedgeTeaserReculEstimate": "Con un account, MINT affina con età, LPP, cantone e lacune.",
+  "wedgeTeaserHeroSemantics": "{amount} franchi al mese",
+  "wedgeTeaserChfPerMonth": "CHF / mese",
+  "wedgeTeaserModifySalary": "Modifica",
+  "wedgeTeaserCtaRegister": "Crea il tuo account per le tue proiezioni",
+  "wedgeSalaryInputLabel": "Il tuo stipendio annuo lordo. Per una stima rapida.",
+  "wedgeSalaryInputAction": "Calcola",
+  "wedgeSalaryInputActionSemantics": "Calcola la mia stima",
+  "wedgeSalaryStaysOnDevice": "Il tuo stipendio resta sul tuo dispositivo. MINT non lo invia da nessuna parte.",
+  "wedgeSalaryErrorInvalid": "Inserisci un importo in cifre, ad esempio 95 000.",
+  "wedgeSalaryErrorOutOfRange": "Tra 10 000 e 1 000 000 CHF all'anno.",
+  "coachOnboardingFirstUserMessage": "Ciao, ho appena creato il mio account. Da dove comincio?",
+  "coachAnonymousAuthGateMessage": "Abbiamo già esplorato alcune piste insieme. Crea il tuo account così ricordo tutto.",
+  "coachAuthGateChipRegister": "Crea il mio account",
+  "coachAuthGateChipLogin": "Ho già un account",
+  "cantonLabel": "Cantone",
+  "coachNotificationOpenerMonthlyCheckIn": "È ora del punto mensile. Com'è andata?",
+  "coachNotificationOpenerCommitmentWithLabel": "Mi avevi detto che avresti {commitment}. Fatto?",
+  "coachNotificationOpenerCommitmentGeneric": "Avevi un impegno da mantenere. Fatto?",
+  "coachNotificationOpenerFreshStart": "Nuovo mese. Da dove cominciamo?",
+  "settingsPrivacyTitle": "Privacy",
+  "settingsPrivacyCloudSyncTitle": "Sincronizzazione cloud (multidispositivo)",
+  "settingsPrivacyCloudSyncSubtitle": "Salva il tuo profilo e lo sincronizza tra i tuoi dispositivi. Disattivata, il coach IA resta disponibile ma i fatti sono conservati solo localmente.",
+  "settingsPrivacyCloudSyncOn": "Attiva",
+  "settingsPrivacyCloudSyncOff": "Disattivata",
+  "settingsPrivacyMigrationToast": "Nuova opzione: puoi disattivare la sincronizzazione cloud da Impostazioni › Privacy.",
+  "settingsPrivacyDataLocation": "Le tue risposte al questionario e la tua cronologia chat restano sul tuo dispositivo. Quando scrivi al coach IA, il tuo messaggio transita per i nostri server per generare la risposta — con la sincronizzazione attiva, i fatti che confermi (età, stipendio, cantone…) sono anche salvati sui nostri server; con la sincronizzazione disattivata, restano solo sul tuo dispositivo.",
+  "settingsPrivacyCloudSyncOffServerCaveat": "Disattivare la sincronizzazione non elimina i dati già salvati sui nostri server. Per rimuoverli, vai su Account › Elimina account.",
+  "profileSyncRowHint": "Gestisci in Impostazioni › Privacy",
+  "settingsPrivacyMigrationToastCta": "Vedi",
+  "aujourdhuiCommitmentsTitle": "I tuoi impegni recenti",
+  "aujourdhuiCheckInsTitle": "I tuoi ultimi check-in",
+  "aujourdhuiResumeConversation": "Riprendi la conversazione",
+  "coachSequenceNextStepLabel": "Prossimo passo: {label}.",
+  "@coachSequenceNextStepLabel": {
+    "placeholders": {"label": {"type": "String"}},
+    "x-mint-meta": {"level": "N3"}
+  },
+  "coachSequenceCompletedMessage": "Hai completato questa sequenza guidata.",
+  "@coachSequenceCompletedMessage": {
+    "x-mint-meta": {"level": "N3"}
+  },
+  "betaDisclosureEyebrow": "MINT in beta",
+  "@betaDisclosureEyebrow": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlinePrefix": "Stai testando una versione che",
+  "@betaDisclosureHeadlinePrefix": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlineEm": "impara con te",
+  "@betaDisclosureHeadlineEm": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlineSuffix": ".",
+  "@betaDisclosureHeadlineSuffix": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletNoAdvice": "MINT non è consulenza finanziaria ai sensi della LSerFi — è solo uno strumento educativo.",
+  "@betaDisclosureBulletNoAdvice": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletNoBank": "Nessun dato bancario è memorizzato da noi. I tuoi dati restano sul tuo dispositivo salvo consenso esplicito.",
+  "@betaDisclosureBulletNoBank": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletDataLocal": "I tuoi feedback durante la beta ci aiutano a migliorare MINT. Ti leggiamo.",
+  "@betaDisclosureBulletDataLocal": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureCta": "Capito, andiamo",
+  "@betaDisclosureCta": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureLearnMore": "Scopri di più",
+  "@betaDisclosureLearnMore": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureSemanticsLabel": "Informazioni sulla versione beta di MINT — solo strumento educativo, nessuna consulenza finanziaria, i dati restano sul tuo dispositivo per impostazione predefinita."
 }

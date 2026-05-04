@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/mint_custom_paint_mask.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EMERGENCY FUND RING — Sprint 2 UX
@@ -98,18 +99,20 @@ class _EmergencyFundRingState extends State<EmergencyFundRing>
             return Stack(
               alignment: Alignment.center,
               children: [
-                // Painted ring
-                CustomPaint(
-                  painter: _EmergencyRingPainter(
-                    fraction: widget.target > 0
-                        ? (widget.months / widget.target).clamp(0.0, 1.0)
-                        : 0.0,
-                    progress: _fillAnimation.value,
-                    ringColor: _ringColor,
-                    targetMonths: widget.target.round(),
-                    currentMonths: widget.months,
+                // Painted ring (Sentry Replay masked — OBS-06 D-06 default-deny)
+                MintCustomPaintMask(
+                  child: CustomPaint(
+                    painter: _EmergencyRingPainter(
+                      fraction: widget.target > 0
+                          ? (widget.months / widget.target).clamp(0.0, 1.0)
+                          : 0.0,
+                      progress: _fillAnimation.value,
+                      ringColor: _ringColor,
+                      targetMonths: widget.target.round(),
+                      currentMonths: widget.months,
+                    ),
+                    size: const Size(120, 120),
                   ),
-                  size: const Size(120, 120),
                 ),
                 // Center content
                 Column(

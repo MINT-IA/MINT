@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
@@ -22,6 +23,22 @@ class CoachChatApiService {
 
   CoachChatApiService({String? baseUrl})
       : baseUrl = baseUrl ?? ApiService.baseUrl;
+
+  /// Phase 52.1 PR 2 — derive the `persistence_consent` flag for the
+  /// `/coach/chat` request body from the cloud-sync toggle.
+  ///
+  /// Returns `true` when sync is enabled (`auth_local_mode = false`),
+  /// `false` otherwise (default = sync OFF). Backend uses this flag
+  /// to gate every WRITE-tier tool. LLM call itself is always allowed.
+  ///
+  /// `@visibleForTesting` so unit tests can verify the prefs read
+  /// without spinning the full chat() flow (which requires secure
+  /// storage mocking for the auth check).
+  @visibleForTesting
+  static Future<bool> readPersistenceConsent() async {
+    final prefs = await SharedPreferences.getInstance();
+    return !(prefs.getBool('auth_local_mode') ?? true);
+  }
 
   /// Send a chat message via the server-key /coach/chat endpoint.
   ///
@@ -49,11 +66,21 @@ class CoachChatApiService {
       );
     }
 
+    // Phase 52.1 PR 2: read the cloud-sync toggle and pass it as
+    // `persistence_consent` to the backend. Backend uses this flag to
+    // gate every WRITE-tier tool (save_fact, save_insight, save_pre_mortem,
+    // save_provenance, save_earmark, save_partner_estimate,
+    // record_check_in, n5 marks). LLM call itself is always allowed —
+    // no on-device LLM exists. See
+    // .planning/decisions/2026-05-03-chat-under-cloud-sync-off.md.
+    final persistenceConsent = await readPersistenceConsent();
+
     final body = <String, dynamic>{
       'message': message,
       'provider': 'claude',
       'language': language,
       'cash_level': cashLevel.clamp(1, 5),
+      'persistence_consent': persistenceConsent,
     };
 
     if (profileContext != null) {
@@ -79,20 +106,20 @@ class CoachChatApiService {
     }
     // No api_key — backend fills in server-side ANTHROPIC_API_KEY
 
-    final response = await http
-        .post(
-          uri,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode(body),
-        )
-        // Gate 0 P0-3: 60s was 3× the user's patience threshold and made
-        // the app feel "disconnected" when Sonnet took 25-40s on a long
-        // tool chain. 20s catches genuine hangs while letting healthy
-        // responses through (P95 backend latency on staging = 8-12s).
-        .timeout(const Duration(seconds: 20));
+    var response = await _post(uri, token, body);
+
+    // 2026-04-17 audit: if the JWT expired between sessions the first
+    // authenticated call came back 401 and the orchestrator silently fell
+    // to the "coach pas disponible" template. We now redeem the stored
+    // refresh token once and retry the original request with the new
+    // access token. A second 401 is a genuine auth failure (refresh
+    // revoked, rotated, or expired) and propagates to the caller.
+    if (response.statusCode == 401) {
+      final fresh = await AuthService.refreshAccessToken();
+      if (fresh != null && fresh.isNotEmpty) {
+        response = await _post(uri, fresh, body);
+      }
+    }
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -120,6 +147,40 @@ class CoachChatApiService {
         message: errorBody ?? 'Server error (${response.statusCode}).',
       );
     }
+  }
+
+  /// Optional injectable HTTP client (visibleForTesting).
+  ///
+  /// When `null` (production), [_post] uses the package-level
+  /// `http.post`. Tests inject a `MockClient` (from
+  /// `package:http/testing`) to capture the actual request body and
+  /// assert on its content (e.g. that `persistence_consent` matches
+  /// the cloud-sync toggle state).
+  http.Client? testClient;
+
+  /// Issue the authenticated POST with the given bearer token.
+  ///
+  /// Extracted so [chat] can retry with a freshly-refreshed token on 401
+  /// without duplicating the body construction. Backend hard cap is 55s;
+  /// 50s leaves a 5s buffer for HTTP overhead.
+  Future<http.Response> _post(
+    Uri uri,
+    String token,
+    Map<String, dynamic> body,
+  ) {
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final encoded = jsonEncode(body);
+    if (testClient != null) {
+      return testClient!
+          .post(uri, headers: headers, body: encoded)
+          .timeout(const Duration(seconds: 50));
+    }
+    return http
+        .post(uri, headers: headers, body: encoded)
+        .timeout(const Duration(seconds: 50));
   }
 
   /// Send a message to the anonymous chat endpoint (no auth required).
@@ -171,22 +232,43 @@ class CoachChatApiService {
           'messagesRemaining': 0,
           'tokensUsed': 0,
         };
+      } else if (response.statusCode == 400) {
+        // Invalid or missing anonymous session header (walk 2026-04-24 P0-2).
+        return _anonymousFallback(errorType: 'session');
+      } else if (response.statusCode == 503 || response.statusCode >= 500) {
+        // Backend unavailable (often missing ANTHROPIC_API_KEY in dev, or
+        // Railway 5xx in prod). Differentiate from generic errors.
+        return _anonymousFallback(errorType: 'service');
       } else {
-        return _anonymousFallback();
+        return _anonymousFallback(errorType: 'unknown');
       }
+    } on http.ClientException catch (e) {
+      debugPrint('[CoachChatApi] Anonymous chat network error: $e');
+      return _anonymousFallback(errorType: 'network');
+    } on TimeoutException catch (e) {
+      debugPrint('[CoachChatApi] Anonymous chat timeout: $e');
+      return _anonymousFallback(errorType: 'network');
     } catch (e) {
       debugPrint('[CoachChatApi] Anonymous chat error: $e');
-      return _anonymousFallback();
+      return _anonymousFallback(errorType: 'unknown');
     }
   }
 
-  static Map<String, dynamic> _anonymousFallback() {
+  /// Fallback payload for anonymous chat errors.
+  ///
+  /// [errorType] distinguishes the cause so the UI can show appropriate copy:
+  ///   - `'network'` : no connectivity or timeout
+  ///   - `'service'` : backend 5xx / 503
+  ///   - `'session'` : 400 invalid session
+  ///   - `'unknown'` : anything else (ultimate fallback)
+  static Map<String, dynamic> _anonymousFallback({String errorType = 'unknown'}) {
     return {
       'message': '',
       'disclaimers': <String>[],
       'messagesRemaining': -1,
       'tokensUsed': 0,
       'error': true,
+      'errorType': errorType,
     };
   }
 

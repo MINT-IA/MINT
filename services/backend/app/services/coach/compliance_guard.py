@@ -96,6 +96,21 @@ class ComplianceGuard:
         "seraient garanties",
         "assurerait",
         "assureront",
+        # Gerund / present-participle forms (GAP #6, deep-audit 2026-04-17:
+        # "Haiku emits 'en garantissant le rendement' which bypassed every
+        # prior rule because all conjugations listed were finite-verb only").
+        "garantissant",
+        "en garantissant",
+        "assurant",
+        "en assurant",
+        # Promise-family verbs — equivalent semantics to guarantee, same risk
+        # profile. Coach must never promise a return.
+        "promettant",
+        "en promettant",
+        "promet un rendement",
+        "promet un retour",
+        "promettre un rendement",
+        "promettre un retour",
         # Infinitive prescriptive bypass
         "garantir un rendement",
         "assurer un retour",
@@ -201,6 +216,17 @@ class ComplianceGuard:
         "seraient garanties": "seraient envisageables",
         "assurerait": "pourrait offrir",
         "assureront": "pourraient offrir",
+        # Gerund / present-participle sanitisation (deep-audit 2026-04-17)
+        "garantissant": "permettant potentiellement",
+        "en garantissant": "en visant",
+        "assurant": "offrant potentiellement",
+        "en assurant": "en visant",
+        "promettant": "visant",
+        "en promettant": "en visant",
+        "promet un rendement": "vise un rendement",
+        "promet un retour": "vise un retour",
+        "promettre un rendement": "viser un rendement",
+        "promettre un retour": "viser un retour",
         "garantir un rendement": "viser un rendement",
         "assurer un retour": "viser un retour",
     }
@@ -228,6 +254,25 @@ class ComplianceGuard:
         re.compile(r"devant\s+\d+\s*%\s+des", re.IGNORECASE),
         re.compile(r"parmi\s+les\s+meilleurs", re.IGNORECASE),
         re.compile(r"au-dessus\s+de\s+la\s+moyenne", re.IGNORECASE),
+        # Named product detection (AUDIT-2026-04-17 — LSFin "no-advice"):
+        # ISIN format (2 letters + 9 alphanumerics + 1 check digit).
+        # Case-sensitive: real ISINs are uppercase, lowering false positives
+        # on mid-sentence acronyms.
+        re.compile(r"\b[A-Z]{2}[A-Z0-9]{9}[0-9]\b"),
+        # Common Swiss/US tickers paired with an investment action word.
+        # 2-5 uppercase letters (rules out French words) followed by an
+        # explicit "action"/"titre"/"stock"/"ETF" context marker.
+        re.compile(
+            r"\b[A-Z]{2,5}\b\s+"
+            r"(?:action|actions|titre|titres|ETF|fonds|stock|shares?)",
+        ),
+        # "achète/vends/investis dans <TICKER>" — catches conjugated forms
+        # even when the ticker is mentioned without a noun marker.
+        re.compile(
+            r"(?:ach[eè]te|vend[s]?|investi[sr]?|souscri[sr]?)\s+"
+            r"(?:des?\s+|du\s+)?[A-Z]{2,5}\b",
+            re.IGNORECASE,
+        ),
     ]
 
     # ═══════════════════════════════════════════════════════════════════
@@ -435,14 +480,17 @@ class ComplianceGuard:
                 # use_fallback intentionally NOT set — log only.
 
         # ── Layer 3: Hallucination detection ──
-        # Threshold-based: only MAJOR deviations (>= 30%) trigger fallback.
-        # Minor deviations (< 30%) are logged and the response is preserved —
-        # small numeric drift (e.g. 7.0% conversion rate vs 6.8%) is closer
-        # to a rounding slip than a material hallucination, and killing the
-        # whole reply over it silently erases substantive coach output.
-        # Major deviations (>= 30%) still fallback: these are genuine
-        # fabrications (e.g. "tu as 500k LPP" when user has 70k).
-        _HALLUCINATION_MAJOR_THRESHOLD_PCT = 30.0
+        # Threshold-based: MAJOR deviations trigger fallback, MINOR are
+        # logged and the response is preserved. Tightened 30% → 15%
+        # (AUDIT-2026-04-17) after the security audit flagged the 30%
+        # band as too lenient — a 28% deviation on LPP (e.g. coach says
+        # 90k when user has 70k) passed silently.
+        #
+        # Cumulative tracking: when 3+ MINOR deviations accumulate in a
+        # single response, we also trigger fallback. Drift that is
+        # individually small can still compound into a wrong picture.
+        _HALLUCINATION_MAJOR_THRESHOLD_PCT = 15.0
+        _HALLUCINATION_MINOR_CUMULATIVE_LIMIT = 3
         if context and context.known_values:
             hallucinations = self._detector.detect(text, context.known_values)
             if hallucinations:
@@ -457,9 +505,10 @@ class ComplianceGuard:
                 if minor:
                     logger.info(
                         "ComplianceGuard L3: minor hallucinations (<%s%%) "
-                        "component=%s user=%s hits=%s (logged, response preserved)",
+                        "component=%s user=%s count=%d hits=%s",
                         _HALLUCINATION_MAJOR_THRESHOLD_PCT,
                         component_type, user_id or "anonymous",
+                        len(minor),
                         [(h.found_text, h.found_value, h.closest_value, round(h.deviation_pct, 1)) for h in minor[:5]],
                     )
                 if major:
@@ -473,6 +522,20 @@ class ComplianceGuard:
                     use_fallback = True
                     fallback_reasons.append(
                         f"hallucination_major hits={[(h.found_text, h.found_value, h.closest_value) for h in major[:3]]}"
+                    )
+                elif len(minor) >= _HALLUCINATION_MINOR_CUMULATIVE_LIMIT:
+                    logger.warning(
+                        "ComplianceGuard L3: cumulative minor hallucinations "
+                        "(%d >= %d) component=%s user=%s hits=%s",
+                        len(minor),
+                        _HALLUCINATION_MINOR_CUMULATIVE_LIMIT,
+                        component_type, user_id or "anonymous",
+                        [(h.found_text, h.found_value, h.closest_value, round(h.deviation_pct, 1)) for h in minor[:5]],
+                    )
+                    use_fallback = True
+                    fallback_reasons.append(
+                        f"hallucination_cumulative count={len(minor)} "
+                        f"hits={[(h.found_text, h.found_value, h.closest_value) for h in minor[:3]]}"
                     )
 
         # ── Layer 4: Disclaimer injection ──

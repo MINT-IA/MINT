@@ -711,7 +711,7 @@ void main() {
       expect(CoachingService.formatChf(1000000), 'CHF\u00A01\'000\'000');
     });
 
-    test('unknown canton uses Swiss-average marginal rate from TaxCalculator', () {
+    test('unknown canton falls back to ZH marginal rate (Wave 7 C1)', () {
       final tips = CoachingService.generateTips(
         profile: const CoachingProfile(
           age: 30,
@@ -724,11 +724,13 @@ void main() {
         ),
       );
 
-      // missing_3a tip should be generated with calculator rate
+      // Wave 7 C1 — `resolveCanton('XX')` retombe sur ZH (canton fallback
+      // documenté), donc `estimateMarginalRate` utilise ZH réel (0.1290)
+      // × income adj 0.90 × marginal uplift 1.3 ≈ 0.15093 → 7'258 ×
+      // 0.15093 ≈ 1'095.45 CHF. Avant la normalisation, le caller
+      // tombait sur le Swiss-average générique 0.13.
       final missing3a = tips.firstWhere((t) => t.id == 'missing_3a');
-      // Uses RetirementTaxCalculator.estimateMarginalRate(80000, 'XX')
-      // fallback=13% effective × 0.90 income adj × 1.3 marginal ≈ 15.21%
-      expect(missing3a.estimatedImpactChf, closeTo(1103.94, 5));
+      expect(missing3a.estimatedImpactChf, closeTo(1095.45, 5));
     });
   });
 

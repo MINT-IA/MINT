@@ -65,6 +65,7 @@ class TestSaveInsightPersistence:
             memory_block=None,
             user_id="test-user-mem",
             db=integration_db,
+            persistence_consent=True,
         )
         assert "Insight enregistré" in result
 
@@ -92,6 +93,7 @@ class TestSaveInsightPersistence:
             memory_block=None,
             user_id=None,
             db=None,
+            persistence_consent=True,
         )
         assert "Insight enregistré" in result
 
@@ -111,6 +113,7 @@ class TestSaveInsightPersistence:
             memory_block=None,
             user_id="test-user-mem",
             db=integration_db,
+            persistence_consent=True,
         )
 
         _execute_internal_tool(
@@ -125,6 +128,7 @@ class TestSaveInsightPersistence:
             memory_block=None,
             user_id="test-user-mem",
             db=integration_db,
+            persistence_consent=True,
         )
 
         rows = integration_db.query(CoachInsightRecord).filter(
@@ -149,6 +153,7 @@ class TestSaveInsightPersistence:
             memory_block=None,
             user_id="test-user-mem",
             db=integration_db,
+            persistence_consent=True,
         )
 
         row = integration_db.query(CoachInsightRecord).filter(
@@ -301,6 +306,7 @@ class TestFullRoundTrip:
             memory_block=None,
             user_id="test-user-mem",
             db=integration_db,
+            persistence_consent=True,
         )
 
         block = _build_insight_memory_block("test-user-mem", integration_db)

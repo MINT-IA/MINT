@@ -319,7 +319,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         _seqRunId = extra['runId'] as String?;
         _seqStepId = extra['stepId'] as String?;
       }
-    } catch (_) {}
+    } catch (_) {
+      // GoRouterState unavailable (no active match) — no sequence context, fine.
+    }
   }
 
   void _emitFinalReturn() {
@@ -913,7 +915,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               button: true,
               label: l.dashboardOnboardingCta,
               child: FilledButton(
-                onPressed: () => context.push('/coach/chat'),
+                onPressed: () => context.go('/coach/chat'),
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 14),

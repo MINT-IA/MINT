@@ -92,15 +92,29 @@ void main() {
       expect(result.breakdown.length, 10);
     });
 
-    // ── 7. Gap years clamped to min 1 ──
-    test('gap years clamped to minimum 1', () {
-      final result = Retroactive3aCalculator.calculate(
-        gapYears: 0,
+    // ── 7. Gap years respect dynamic cap (swiss-brain Q1 2026-04-18) ──
+    test('gap years respect OPP3 art. 7a dynamic cap', () {
+      // Audit 2026-04-18 Q1 : OPP3 art. 7a entré en vigueur 01.01.2025.
+      // En année N, seules les lacunes postérieures au 31.12.2024 sont
+      // rachetables : dynamicCap = N - 2025 (cap max 10).
+      //   - 2025 : 0 année passée (seule la contribution courante).
+      //   - 2026 : 1 année passée (2025).
+      //   - 2035+ : 10 ans permanent.
+      final result2026 = Retroactive3aCalculator.calculate(
+        gapYears: 5,
         tauxMarginal: 0.30,
+        referenceYear: 2026,
       );
+      expect(result2026.gapYears, 1,
+          reason: 'En 2026, dynamicCap = 1 an rachetable');
 
-      expect(result.gapYears, 1);
-      expect(result.breakdown.length, 1);
+      final result2025 = Retroactive3aCalculator.calculate(
+        gapYears: 5,
+        tauxMarginal: 0.30,
+        referenceYear: 2025,
+      );
+      expect(result2025.gapYears, 0,
+          reason: 'En 2025, aucune année passée rachetable');
     });
 
     // ── 8. Chiffre choc contains CHF and year count ──

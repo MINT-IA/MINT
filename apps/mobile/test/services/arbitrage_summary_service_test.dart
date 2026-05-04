@@ -339,5 +339,67 @@ void main() {
           summary.items.where((i) => i.id == 'rachat_vs_marche').toList();
       expect(rachatItems, isEmpty);
     });
+
+    // ── Test 19: Wave 7 A7 wiring — rachat + EPL within 3 years surfaces
+    //   ATF 142 II 399 alert through the summary ────────────────────
+    test('rachat + achatImmo within 3 years → ATF anti-abuse alerte', () {
+      final profile = CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: 10000,
+        etatCivil: CoachCivilStatus.celibataire,
+        goalA: GoalA(
+          type: GoalAType.achatImmo,
+          // Planned purchase in 2 years — triggers the 3-year blockage
+          // reversal under LPP art. 79b al. 3 / ATF 142 II 399.
+          targetDate: DateTime(DateTime.now().year + 2, 6, 30),
+          label: 'Achat immo',
+        ),
+        patrimoine: const PatrimoineProfile(),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 300000,
+          rachatMaximum: 50000,
+        ),
+        depenses: const DepensesProfile(),
+      );
+      final summary = ArbitrageSummaryService.compute(profile);
+      final rachat = summary.items.firstWhere(
+        (i) => i.id == 'rachat_vs_marche',
+        orElse: () => throw StateError('rachat item missing'),
+      );
+      expect(rachat.fullResult.alertes, isNotEmpty);
+      expect(
+        rachat.fullResult.alertes.first.contains('ATF 142 II 399'),
+        isTrue,
+        reason: 'Plumbed plannedCapitalWithdrawalYearsFromNow must trigger '
+            'the anti-abuse alerte when achatImmo is within 3 years.',
+      );
+    });
+
+    test('rachat with retraite 10 years away → no ATF alerte', () {
+      final profile = CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: 10000,
+        etatCivil: CoachCivilStatus.celibataire,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(DateTime.now().year + 10, 12, 31),
+          label: 'Retraite',
+        ),
+        patrimoine: const PatrimoineProfile(),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 300000,
+          rachatMaximum: 50000,
+        ),
+        depenses: const DepensesProfile(),
+      );
+      final summary = ArbitrageSummaryService.compute(profile);
+      final rachat = summary.items.firstWhere(
+        (i) => i.id == 'rachat_vs_marche',
+        orElse: () => throw StateError('rachat item missing'),
+      );
+      expect(rachat.fullResult.alertes, isEmpty);
+    });
   });
 }

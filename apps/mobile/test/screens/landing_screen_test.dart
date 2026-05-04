@@ -4,7 +4,7 @@
 //   • The 4 text surfaces render (wordmark, paragraphe-mère, CTA, legal).
 //   • Privacy micro-phrase is present.
 //   • No banned term (retirement framing, aggressive CTAs) is rendered.
-//   • CTA navigates to /coach/chat (KILL-05: no mandatory account creation).
+//   • CTA navigates to /anonymous/intent (walk 2026-04-24 P0-1: pill picker first).
 //   • Reduced-motion fallback renders content on first pump (no wait).
 //
 // CONTEXT.md §2 D-01..D-13 | LAND-01, LAND-02, LAND-04, LAND-05, LAND-06.
@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 
 GoRouter _buildRouter() {
   return GoRouter(
@@ -25,10 +26,22 @@ GoRouter _buildRouter() {
         path: '/',
         builder: (_, __) => const LandingScreen(),
       ),
+      // Mirror production /start redirect (flag-gated, landing purity).
       GoRoute(
-        path: '/coach/chat',
+        path: '/start',
+        redirect: (_, __) =>
+            FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/intent',
+      ),
+      GoRoute(
+        path: '/anonymous/intent',
         builder: (_, __) => const Scaffold(
-          body: Center(child: Text('COACH_CHAT_STUB')),
+          body: Center(child: Text('ANONYMOUS_INTENT_STUB')),
+        ),
+      ),
+      GoRoute(
+        path: '/onb',
+        builder: (_, __) => const Scaffold(
+          body: Center(child: Text('ONB_STUB')),
         ),
       ),
       GoRoute(
@@ -110,14 +123,15 @@ void main() {
       }
     });
 
-    testWidgets('CTA routes to /coach/chat (KILL-05)', (tester) async {
+    testWidgets('CTA routes to /anonymous/intent (FIX-02 + walk 2026-04-24)',
+        (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
 
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('COACH_CHAT_STUB'), findsOneWidget);
+      expect(find.text('ANONYMOUS_INTENT_STUB'), findsOneWidget);
     });
 
     testWidgets('reduced-motion: content visible on first pump', (tester) async {

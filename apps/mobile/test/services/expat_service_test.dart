@@ -92,13 +92,17 @@ void main() {
       expect(r['effectiveRate'] as double, closeTo(expected, 0.001));
     });
 
-    test('canton inconnu — taux par defaut 13%', () {
+    test('canton inconnu → fallback ZH (cantonFallbackDefault), pas 13 % générique', () {
+      // Wave 7 C1 — `resolveCanton('XX')` retombe sur ZH (documenté
+      // comme fallback), donc on utilise le vrai taux ZH (0.1287)
+      // plutôt que le 0.13 générique.
       final r = ExpatService.calculateSourceTax(
         salary: 10000,
         canton: 'XX',
       );
-
-      expect(r['effectiveRate'] as double, closeTo(0.13, 0.001));
+      final zhRate = ExpatService.sourceTaxRates['ZH']!;
+      expect(r['canton'], 'ZH');
+      expect(r['effectiveRate'] as double, closeTo(zhRate, 0.001));
     });
 
     test('disclaimer toujours present', () {
@@ -356,6 +360,50 @@ void main() {
       );
 
       expect(r['noExitTax'], isTrue);
+    });
+
+    test('P0-E1 — 3a checklist cites LIFD art. 38 + cantonal source tax', () {
+      final r = ExpatService.planDeparture(
+        departureDate: DateTime.now().add(const Duration(days: 60)),
+        canton: 'VS',
+        pillar3aBalance: 50000,
+      );
+      final checklist = r['checklist'] as List<Map<String, dynamic>>;
+      final pillar3a = checklist.firstWhere((c) => c['id'] == 'pillar3a');
+      final subtitle = pillar3a['subtitle'] as String;
+
+      // Previous copy "Impot de sortie reduit" was factually wrong.
+      expect(subtitle, isNot(contains('Impot de sortie reduit')));
+      expect(subtitle, contains('LIFD art. 38'));
+      expect(subtitle, contains('OPP3 art. 3'));
+      expect(pillar3a['usPersonWarning'], contains('foreign trust'));
+    });
+
+    test('P0-E2 — LPP checklist distinguishes oblig vs surobligatoire (LFLP art. 25f)', () {
+      final r = ExpatService.planDeparture(
+        departureDate: DateTime.now().add(const Duration(days: 60)),
+        canton: 'GE',
+        lppBalance: 200000,
+      );
+      final checklist = r['checklist'] as List<Map<String, dynamic>>;
+      final lpp = checklist.firstWhere((c) => c['id'] == 'lpp');
+      final subtitle = lpp['subtitle'] as String;
+
+      expect(subtitle, contains('obligatoire'));
+      expect(subtitle, contains('surobligatoire'));
+      expect(subtitle, contains('LFLP art. 25f'));
+    });
+
+    test('P0-E36 — departureDate in the past returns already_departed status', () {
+      final r = ExpatService.planDeparture(
+        departureDate: DateTime.now().subtract(const Duration(days: 30)),
+        canton: 'ZH',
+        pillar3aBalance: 50000,
+      );
+      expect(r['status'], 'already_departed');
+      expect(r['daysSinceDeparture'], isA<int>());
+      // Checklist should be empty on this path — the user already left.
+      expect((r['checklist'] as List).isEmpty, isTrue);
     });
   });
 

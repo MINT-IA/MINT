@@ -270,10 +270,15 @@ class ExpatService {
     bool isMarried = false,
     int children = 0,
   }) {
-    final baseRate = sourceTaxRates[canton] ?? 0.13;
+    // Wave 7 edge-case audit P0-E33 : un canton en minuscule ou avec
+    // espace ("ge", "GE ", "Geneva") tombait silencieusement sur le
+    // fallback 13 % au lieu du vrai taux cantonal. resolveCanton()
+    // normalise + valide.
+    final cantonCode = resolveCanton(canton).code;
+    final baseRate = sourceTaxRates[cantonCode] ?? 0.13;
 
     // TI special case: taxed in Italy, not at source in CH
-    if (canton == 'TI') {
+    if (cantonCode == 'TI') {
       return {
         'monthlySalary': salary,
         'canton': canton,
@@ -304,8 +309,8 @@ class ExpatService {
 
     return {
       'monthlySalary': salary,
-      'canton': canton,
-      'cantonNom': cantonNames[canton] ?? canton,
+      'canton': cantonCode,
+      'cantonNom': cantonNames[cantonCode] ?? cantonCode,
       'monthlyTax': monthlyTax,
       'effectiveRate': effectiveRate,
       'annualTax': annualTax,
@@ -630,25 +635,68 @@ class ExpatService {
   }) {
     final now = DateTime.now();
     final daysUntilDeparture = departureDate.difference(now).inDays;
+    // Wave 7 edge-case audit P0-E36 (2026-04-18) : une date de départ
+    // passée affichait les items comme "priority: high" et un
+    // daysUntilDeparture négatif rendu brut à l'UI. On surface un
+    // état `already_departed` explicite à la place.
+    if (daysUntilDeparture < 0) {
+      return {
+        'status': 'already_departed',
+        'departureDate': departureDate.toIso8601String(),
+        'canton': canton,
+        'cantonNom': cantonNames[canton] ?? canton,
+        'daysSinceDeparture': -daysUntilDeparture,
+        'checklist': const <Map<String, dynamic>>[],
+        'note':
+            'Date de départ dans le passé. Si tu viens de quitter la Suisse, '
+                'les démarches fiscales (déclaration prorata temporis, '
+                'retrait 3a/LPP) doivent être engagées sans tarder.',
+        'disclaimer': disclaimer,
+      };
+    }
 
     final checklist = <Map<String, dynamic>>[
       {
         'id': 'pillar3a',
         'title': 'Retirer pilier 3a',
-        'subtitle': 'Delai: possible des le depart. Impot de sortie reduit.',
+        // Wave 7 fiscal audit P0-E1 (2026-04-18) : la phrase précédente
+        // « Impot de sortie reduit » est factuellement fausse. Le retrait
+        // 3a pour départ définitif est taxé séparément (LIFD art. 38
+        // al. 2 — barème 1/5 du taux ordinaire) + impôt cantonal à la
+        // source sur prestations en capital prévoyance (3-9 % selon
+        // canton du dernier domicile). Pour une US person, ce retrait
+        // déclenche aussi un exit event côté IRS (3a non-qualified).
+        'subtitle':
+            'Conditions OPP3 art. 3 al. 1 let. b : possible dès départ '
+                'définitif. Imposition séparée LIFD art. 38 + impôt '
+                'cantonal à la source (3-9 %).',
         'timing': 'Avant le depart ou juste apres',
         'balance': pillar3aBalance,
         'priority': pillar3aBalance > 0 ? 'high' : 'low',
+        'legalRef': 'OPP3 art. 3 al. 1 let. b + LIFD art. 38',
+        'usPersonWarning':
+            'US person : retrait 3a = exit event IRS (foreign trust / PFIC). '
+                'Consulte un·e fiscaliste CH-US avant.',
       },
       {
         'id': 'lpp',
         'title': 'Transferer LPP en libre passage',
+        // Wave 7 fiscal audit P0-E2 (2026-04-18) : le libellé précédent
+        // suggérait que toute la LPP était bloquée sur libre passage si
+        // destination UE/AELE. En réalité, seule la PART OBLIGATOIRE
+        // (LPP art. 7-8) est bloquée (LFLP art. 25f al. 1, en vigueur
+        // 01.06.2007) quand l'assuré est soumis à l'assurance obligatoire
+        // retraite/invalidité/décès dans le pays UE/AELE. La PART
+        // SUROBLIGATOIRE peut être retirée en capital (al. 2).
         'subtitle':
-            'Si destination hors UE/AELE: retrait en capital possible. '
-                'Sinon: compte de libre passage obligatoire.',
+            'UE/AELE + affiliation sécu locale → part obligatoire sur '
+                'libre passage, part surobligatoire retirable en capital. '
+                'Hors UE/AELE (ou sans affiliation sécu) → retrait '
+                'intégral possible (LFLP art. 25f al. 1-2).',
         'timing': 'A organiser avant le depart',
         'balance': lppBalance,
         'priority': lppBalance > 0 ? 'high' : 'low',
+        'legalRef': 'LFLP art. 25f al. 1-2',
       },
       {
         'id': 'commune',

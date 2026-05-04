@@ -51,20 +51,26 @@ class CoachAppBar extends StatelessWidget {
                       color: MintColors.textSecondary, size: 18),
                   onPressed: onBack,
                 ),
-              ] else
-                const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'MINT',
-                  style:
-                      MintTextStyles.titleMedium(color: MintColors.textPrimary)
-                          .copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.5,
+                // Standalone: show the brand so the user knows they're still
+                // in MINT after deep-linking from a notification.
+                Expanded(
+                  child: Text(
+                    'MINT',
+                    style: MintTextStyles.titleMedium(
+                      color: MintColors.textPrimary,
+                    ).copyWith(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.5,
+                    ),
                   ),
                 ),
-              ),
+              ] else ...[
+                // Embedded in the shell: bottom nav already tells the user
+                // they're in 'Coach'. Repeating 'MINT' in the app bar is
+                // noise; give the icon cluster room to breathe instead.
+                const Spacer(),
+              ],
               IconButton(
                 icon: const Icon(Icons.history_rounded,
                     color: MintColors.textMuted, size: 20),

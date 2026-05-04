@@ -186,4 +186,39 @@ class MintTextStyles {
         height: 1.3,
         color: color ?? MintColors.textMuted,
       );
+
+  // ── Editorial (Handoff 2 Fraunces — italique 2 écrans max) ──
+  // Source: ~/Downloads/handoff 2/colors_and_type.css §Typography.
+  // Use ONLY on hero / disclosure / first-screen surfaces. Italic
+  // is the single emphasis lever — apply via TextSpan italic on the
+  // 1-3 mots clés that carry the meaning.
+
+  /// Editorial display headline (32pt Fraunces). Hero numbers in
+  /// situational scenes. Hand off 2 §grammaire « Une idée / écran ».
+  static TextStyle editorialDisplay({Color? color}) => GoogleFonts.fraunces(
+        fontSize: 32,
+        fontWeight: FontWeight.w500,
+        height: 1.25,
+        letterSpacing: -0.5,
+        color: color ?? MintColors.inkPrimary,
+      );
+
+  /// Editorial large headline (22pt Fraunces). Disclosure headline,
+  /// first-onboarding question, beta sheet headline.
+  static TextStyle editorialLarge({Color? color}) => GoogleFonts.fraunces(
+        fontSize: 22,
+        fontWeight: FontWeight.w500,
+        height: 1.3,
+        letterSpacing: -0.3,
+        color: color ?? MintColors.inkPrimary,
+      );
+
+  /// Editorial body (16pt Fraunces). Coach message in conversion
+  /// sheets, 1-2 lines max. Italic em on key words via TextSpan.
+  static TextStyle editorialBody({Color? color}) => GoogleFonts.fraunces(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        height: 1.45,
+        color: color ?? MintColors.inkPrimary,
+      );
 }

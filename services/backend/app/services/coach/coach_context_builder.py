@@ -36,6 +36,7 @@ def build_coach_context(
     check_in_streak: int = 0,
     last_milestone: str = "",
     planned_contributions: Optional[List[dict]] = None,
+    has_debt: bool = False,
 ) -> CoachContext:
     """Build CoachContext with known_values populated from financial indicators.
 
@@ -60,6 +61,9 @@ def build_coach_context(
         check_in_streak: Consecutive check-in count.
         last_milestone: Last achieved milestone.
         planned_contributions: List of planned monthly contributions (id, label, amount, category).
+        has_debt: SafeMode signal. True when the profile carries consumer debt stress or an
+            emergency-fund shortfall. Python's bool() coercion handles truthy non-bool callers
+            (string "true", int 1) transparently via the default parameter type.
 
     Returns:
         CoachContext with all fields and known_values populated.
@@ -91,4 +95,5 @@ def build_coach_context(
         last_milestone=last_milestone,
         planned_contributions=planned_contributions or [],
         known_values=known,
+        has_debt=bool(has_debt),
     )

@@ -10,6 +10,7 @@ import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// P2-18: Error codes for i18n — UI layer maps these to AppLocalizations.
 enum ApiErrorCode {
@@ -181,8 +182,63 @@ class ApiService {
     if (token != null) {
       headers['Authorization'] = 'Bearer $token';
     }
+    // OBS-04 (Phase 31-01) — D-05 dual-header trace propagation:
+    // `sentry-trace` (Sentry OTLP-compatible) + `baggage` (W3C).
+    // Legacy `X-MINT-Trace-Id` continues via backend LoggingMiddleware —
+    // this is ADDITIVE, not a replacement. Reuses any active span set
+    // by the caller; otherwise creates a short-lived http.client span.
+    _injectSentryTraceHeaders(headers);
     return headers;
   }
+
+  /// Headers for UNAUTHENTICATED endpoints (/auth/login, /auth/register,
+  /// /auth/magic-link/*, /auth/password-reset/*, /auth/email-verification/*,
+  /// /auth/apple/verify, /auth/refresh, /sessions).
+  ///
+  /// OBS-04 coverage gap mitigation (revision-critical): even non-auth
+  /// calls MUST propagate sentry-trace + baggage for end-to-end
+  /// observability of registration / login / magic-link failures — the
+  /// most observability-critical error paths. OBS-04 REQ spec is "ALL
+  /// HTTP calls carry sentry-trace", not "authenticated ones only".
+  ///
+  /// Does NOT include `Authorization` header (caller is unauthenticated
+  /// by design). Post-migration invariant enforced by plan verify clause:
+  /// only two definitions of the Content-Type literal remain in this
+  /// file (one in _authHeaders, one in _publicHeaders — no bypasses
+  /// left). See 31-01-SUMMARY.md for grep contract.
+  static Map<String, String> _publicHeaders() {
+    final headers = {
+      'Content-Type': 'application/json',
+      'X-App-Version': _appVersion,
+    };
+    _injectSentryTraceHeaders(headers);
+    return headers;
+  }
+
+  /// Inject D-05 propagation headers into the supplied map. Shared by
+  /// `_authHeaders()` and `_publicHeaders()` so both codepaths keep the
+  /// exact same propagation semantics.
+  static void _injectSentryTraceHeaders(Map<String, String> headers) {
+    final span =
+        Sentry.getSpan() ?? Sentry.startTransaction('api.request', 'http.client');
+    final sentryTrace = span.toSentryTrace();
+    headers['sentry-trace'] = sentryTrace.value;
+    final baggage = span.toBaggageHeader();
+    if (baggage != null) {
+      headers['baggage'] = baggage.value;
+    }
+  }
+
+  /// Test-only accessor — `test/services/api_service_sentry_trace_test.dart`
+  /// asserts `sentry-trace` header presence (OBS-04 a). Do NOT use in
+  /// production code.
+  @visibleForTesting
+  static Future<Map<String, String>> debugAuthHeaders() => _authHeaders();
+
+  /// Test-only accessor — same role as [debugAuthHeaders] but for the
+  /// unauthenticated code path.
+  @visibleForTesting
+  static Map<String, String> debugPublicHeaders() => _publicHeaders();
 
   /// F5: Proactively refresh the auth token on app resume.
   /// Silently no-ops if no refresh token or if user is not logged in.
@@ -201,7 +257,7 @@ class ApiService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/refresh'),
-        headers: {'Content-Type': 'application/json'},
+        headers: _publicHeaders(),
         body: jsonEncode({'refresh_token': refreshToken}),
       );
 
@@ -408,7 +464,7 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/register'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _publicHeaders(),
       body: jsonEncode({
         'email': email,
         'password': password,
@@ -433,7 +489,7 @@ class ApiService {
   ) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/login'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _publicHeaders(),
       body: jsonEncode({
         'email': email,
         'password': password,
@@ -454,7 +510,7 @@ class ApiService {
   static Future<Map<String, dynamic>> sendMagicLink(String email) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/magic-link/send'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _publicHeaders(),
       body: jsonEncode({'email': email}),
     );
 
@@ -472,7 +528,7 @@ class ApiService {
   static Future<Map<String, dynamic>> verifyMagicLink(String token) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/magic-link/verify'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _publicHeaders(),
       body: jsonEncode({'token': token}),
     );
 
@@ -493,7 +549,7 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/apple/verify'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _publicHeaders(),
       body: jsonEncode({
         'identityToken': identityToken,
         'nonce': nonce,
@@ -545,7 +601,7 @@ class ApiService {
   static Future<Map<String, dynamic>> requestPasswordReset(String email) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/password-reset/request'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _publicHeaders(),
       body: jsonEncode({'email': email}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -566,7 +622,7 @@ class ApiService {
   ) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/password-reset/confirm'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _publicHeaders(),
       body: jsonEncode({'token': token, 'new_password': newPassword}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -586,7 +642,7 @@ class ApiService {
   ) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/email-verification/request'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _publicHeaders(),
       body: jsonEncode({'email': email}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -606,7 +662,7 @@ class ApiService {
   ) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/email-verification/confirm'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _publicHeaders(),
       body: jsonEncode({'token': token}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
@@ -1258,7 +1314,7 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/sessions'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _publicHeaders(),
       body: jsonEncode({
         'profileId': profileId,
         'answers': answers,

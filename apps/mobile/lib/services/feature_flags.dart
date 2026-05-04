@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 class FeatureFlags {
   /// Timer for periodic backend refresh (set in main, cancellable).
@@ -78,6 +79,28 @@ class FeatureFlags {
   /// Admin screens: observability, analytics
   static bool enableAdminScreens = false;
 
+  /// MVP wedge onboarding — storyboard v2 locked (2026-04-22).
+  /// 9-step flow with 4 intents, dossier densification, and 3 N2 scenes
+  /// (RenteTrouee / CapaciteAchat / 3aLevier) before magic-link sealing.
+  /// When true, the landing CTA routes new users into `/onb` instead of
+  /// the legacy coach anonymous flow.
+  ///
+  /// **Default: `false`** — rolled out via backend `applyFromMap` for staged
+  /// enablement (10% → 50% → 100%). Flip locally via GET
+  /// `/api/v1/config/feature-flags` returning `{"enableMvpWedgeOnboarding": true}`.
+  /// Kill-switch: backend set to false, no app redeploy needed.
+  static bool enableMvpWedgeOnboarding = false;
+
+  // Phase 32 D-10 — local-only gate for /admin/*.
+  // Combined with compile-time ENABLE_ADMIN=1 via AdminGate.
+  // NO backend call (D-10 v4 kills proposed /api/v1/admin/me).
+  //
+  // Phase 32: equals compile-time flag (hardcoded true when ENABLE_ADMIN=1).
+  // Phase 33 may refactor FeatureFlags to ChangeNotifier — `isAdmin`
+  // would then become an instance-level getter.
+  static bool get isAdmin =>
+      const bool.fromEnvironment('ENABLE_ADMIN', defaultValue: false);
+
   /// Apply flags from a backend response map.
   static void applyFromMap(Map<String, dynamic> data) {
     if (data.containsKey('enableCouplePlusTier')) {
@@ -108,6 +131,9 @@ class FeatureFlags {
     if (data.containsKey('enableAdminScreens')) {
       enableAdminScreens = data['enableAdminScreens'] == true;
     }
+    if (data.containsKey('enableMvpWedgeOnboarding')) {
+      enableMvpWedgeOnboarding = data['enableMvpWedgeOnboarding'] == true;
+    }
   }
 
   // ── Server-driven refresh ─────────────────────────────────
@@ -118,8 +144,29 @@ class FeatureFlags {
     try {
       final data = await ApiService.get('/config/feature-flags');
       applyFromMap(data);
-    } catch (_) {
+      // OBS-05 — feature_flags breadcrumb on success (D-03 4-level).
+      MintBreadcrumbs.featureFlagsRefresh(
+        success: true,
+        flagCount: data.length,
+      );
+    } on TimeoutException {
       // Keep current values on failure — safe fallback
+      MintBreadcrumbs.featureFlagsRefresh(
+        success: false,
+        errorCode: 'network_timeout',
+      );
+    } catch (e) {
+      // Keep current values on failure — safe fallback
+      // OBS-05 — feature_flags breadcrumb on failure branch (D-03 4-level
+      // literal `failure`, NOT `error`). Error code enum only — no raw
+      // exception message (may contain PII / stack detail).
+      final code = e is FormatException
+          ? 'parse_error'
+          : (e is ApiException && e.isOffline ? 'offline' : 'unknown');
+      MintBreadcrumbs.featureFlagsRefresh(
+        success: false,
+        errorCode: code,
+      );
     }
   }
 }

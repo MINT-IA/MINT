@@ -13,6 +13,14 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
+/// Keys that have already emitted a fallback warning in this process.
+///
+/// In tests and dev, `RegulatorySyncService._cachedConstants` stays null,
+/// so every [reg] call used to spam `debugPrint` — thousands of duplicate
+/// lines per test run, overflowing CI log buffers and drowning real output.
+/// We now log each missing key at most once per process.
+final Set<String> _regFallbackLogged = <String>{};
+
 /// Read a constant from the synced backend cache, falling back to [fallback].
 ///
 /// Usage: `reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)`
@@ -20,11 +28,21 @@ import 'package:mint_mobile/services/regulatory_sync_service.dart';
 double reg(String key, double fallback) {
   final cached = RegulatorySyncService.getCached(key);
   if (cached != null) return cached;
-  // Fallback: backend cache not available for this key
-  if (kDebugMode) {
-    debugPrint('reg() FALLBACK: $key → $fallback (cache miss)');
+  // Fallback: backend cache not available for this key.
+  // Log once per key per process to avoid flooding CI / dev consoles.
+  if (kDebugMode && _regFallbackLogged.add(key)) {
+    debugPrint('reg() FALLBACK: $key → $fallback (cache miss, logged once)');
   }
   return fallback;
+}
+
+/// Test hook: reset the one-shot fallback log cache.
+///
+/// Some tests exercise the fallback path intentionally and want to observe
+/// the log for a fresh key. Not exported from the library.
+@visibleForTesting
+void debugResetRegFallbackLog() {
+  _regFallbackLogged.clear();
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -141,8 +159,31 @@ int avsReferenceAge({required int birthYear, required bool isFemale}) {
 /// Reduction par annee d'anticipation de la rente AVS: 6.8%.
 const double avsReductionAnticipation = 0.068;
 
-/// Rente AVS maximale individuelle annuelle (= avsRenteMaxMensuelle x 12).
-const double avsRenteMaxAnnuelle = 30240.0;
+/// Rente AVS maximale individuelle annuelle, base 12 mois.
+///
+/// Derived from [avsRenteMaxMensuelle] so the 12m and 13m caps cannot drift
+/// out of sync with the monthly figure. Ne contient PAS la 13eme rente —
+/// utiliser [avsRenteMaxAnnuelle13m] ou [avsMaxAnnualRenteForYear] pour une
+/// projection year-aware.
+const double avsRenteMaxAnnuelle = avsRenteMaxMensuelle * 12;
+
+/// Rente AVS maximale individuelle annuelle avec 13eme rente.
+///
+/// Derived from [avsRenteMaxMensuelle]; active a partir de
+/// [avs13emeRenteAnneeDebut] (decembre 2026, LAVS art. 34 nouveau).
+const double avsRenteMaxAnnuelle13m = avsRenteMaxMensuelle * 13;
+
+/// Return the AVS max annual rente for [year], accounting for the 13th
+/// pension that becomes effective from [avs13emeRenteAnneeDebut].
+///
+/// 2025 and earlier → 30'240 (12 months)
+/// 2026 and later  → 32'760 (13 months)
+double avsMaxAnnualRenteForYear(int year) {
+  if (avs13emeRenteActive && year >= avs13emeRenteAnneeDebut) {
+    return avsRenteMaxAnnuelle13m;
+  }
+  return avsRenteMaxAnnuelle;
+}
 
 /// Cotisation AVS minimale annuelle pour independants (LAVS art. 8).
 const double avsCotisationMinIndependant = 530.0;
@@ -356,9 +397,47 @@ const List<List<double>> retraitCapitalTranches = [
   [1000000, double.infinity, 1.70],
 ];
 
-/// Reduction d'impot pour les couples maries (splitting cantonal).
-/// Les maries paient ~15% de moins sur le retrait en capital.
-const double marriedCapitalTaxDiscount = 0.85;
+/// Coefficient appliqué à l'impôt capital célibataire quand le contribuable
+/// est marié — fonction du canton. Audit swiss-brain 2026-04-18 Q5 : le
+/// scalaire 0.85 uniforme était **faux** (cantons à splitting complet
+/// comme ZH/ZG descendent à 0.70). Chaque canton légifère son propre
+/// tarif couple (LHID art. 11 al. 1 autorise tarif marié ≤ 85% du tarif
+/// célibataire pour le revenu ; pour le capital, chaque canton fixe).
+///
+/// Valeurs 2026 pour un cumul capital ~250k (retrait médian LPP+3a) :
+///   ZH : splitting intégral, barème séparé → 0.73 (LF ZH §37)
+///   BE : barème couple dédié + splitting → 0.80 (LF BE art. 44)
+///   LU : tarif spécial marié → 0.82 (LF LU §58)
+///   ZG : splitting intégral (canton le plus bas CH) → 0.70 (LF ZG §36)
+///   VD : splitting intégral → 0.78 (LI VD art. 49)
+///   GE : quotient familial + splitting → 0.73 (LIPP art. 41)
+///   VS : barème marié progressif → 0.81 (LF VS art. 33b)
+///   TI : splitting intégral → 0.80 (LT TI art. 38)
+///
+/// Les 18 autres cantons (AG/AI/AR/BL/BS/FR/GL/GR/JU/NE/NW/OW/SG/SH/SO/
+/// SZ/TG/UR) utilisent le fallback — `marriedCapitalTaxDiscountFallback`.
+/// Approximation à ±5 points ; ADR-20260418-cantonal-capital-tax-married
+/// prévu pour la table exhaustive tabulée par tranche de montant.
+const Map<String, double> marriedCapitalTaxDiscountByCanton = {
+  'ZH': 0.73,
+  'BE': 0.80,
+  'LU': 0.82,
+  'ZG': 0.70,
+  'VD': 0.78,
+  'GE': 0.73,
+  'VS': 0.81,
+  'TI': 0.80,
+};
+
+/// Fallback pour les 18 cantons non tabulés (moyenne empirique). À
+/// remplacer par la matrice complète une fois l'ADR résolu. La UI DOIT
+/// signaler à l'utilisateur quand ce fallback s'applique.
+const double marriedCapitalTaxDiscountFallback = 0.82;
+
+/// Helper : retourne le coefficient du canton demandé ou le fallback.
+double marriedCapitalTaxDiscountFor(String canton) =>
+    marriedCapitalTaxDiscountByCanton[canton.toUpperCase()] ??
+    marriedCapitalTaxDiscountFallback;
 
 /// Noms complets des 26 cantons suisses en francais.
 const Map<String, String> cantonFullNames = {
@@ -379,6 +458,83 @@ const List<String> sortedCantonCodes = [
   'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
   'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
 ];
+
+/// Fallback canton code utilisé quand l'utilisateur n'a pas encore
+/// renseigné le sien. Exposé pour que les consommateurs puissent
+/// afficher un badge « donnée estimée — canton par défaut » à l'UI
+/// (protection-first : ne pas mentir sur la source).
+const String cantonFallbackDefault = 'ZH';
+
+/// Résultat de [resolveCanton] : le code normalisé et une indication
+/// de sa provenance.
+class ResolvedCanton {
+  final String code;
+  final bool isResolved;
+  final String? rawInput;
+
+  const ResolvedCanton({
+    required this.code,
+    required this.isResolved,
+    this.rawInput,
+  });
+
+  /// `true` quand le canton vient de l'utilisateur et est valide.
+  /// Les consommateurs DOIVENT afficher un disclaimer quand
+  /// `isResolved` est `false` (CLAUDE.md §6 information obligations).
+  bool get isFallback => !isResolved;
+}
+
+/// Normalise un canton et valide contre les 26 cantons suisses.
+///
+/// Wave 7 edge-case audit C1 (2026-04-18) : chaque simulateur
+/// retombait indépendamment sur 'ZH' quand `canton` était null, vide
+/// ou invalide, sans jamais le signaler à l'UI. Un utilisateur VS
+/// voyait silencieusement une fiscalité ZH (rates ZG 0.70 vs VS 0.81
+/// = écart ~15 %, ZH 0.73 = écart ~10 %). Cette version :
+///
+/// 1. Uppercase + trim le code.
+/// 2. Refuse codes vides ou non-listés → retombe sur le fallback.
+/// 3. Exposé la provenance via `ResolvedCanton.isFallback` pour que
+///    l'UI et le coach puissent router vers une enrichment prompt
+///    "quel canton ?" au lieu d'afficher une projection inexacte.
+/// 4. Log un avertissement en debug mode pour faire remonter les
+///    sites d'appel qui devraient toujours avoir un canton valide.
+ResolvedCanton resolveCanton(String? raw) {
+  if (raw == null) {
+    assert(() {
+      // ignore: avoid_print
+      print('[resolveCanton] null canton — falling back to '
+          '$cantonFallbackDefault. Caller should pass profile.canton.');
+      return true;
+    }());
+    return const ResolvedCanton(
+      code: cantonFallbackDefault,
+      isResolved: false,
+    );
+  }
+  final trimmed = raw.trim().toUpperCase();
+  if (trimmed.isEmpty) {
+    return ResolvedCanton(
+      code: cantonFallbackDefault,
+      isResolved: false,
+      rawInput: raw,
+    );
+  }
+  if (!sortedCantonCodes.contains(trimmed)) {
+    assert(() {
+      // ignore: avoid_print
+      print('[resolveCanton] unknown canton "$raw" — falling back to '
+          '$cantonFallbackDefault. Expected one of $sortedCantonCodes.');
+      return true;
+    }());
+    return ResolvedCanton(
+      code: cantonFallbackDefault,
+      isResolved: false,
+      rawInput: raw,
+    );
+  }
+  return ResolvedCanton(code: trimmed, isResolved: true, rawInput: raw);
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // EPL — Encouragement a la propriete du logement
@@ -430,29 +586,40 @@ const double lamalQuotePartMax = 700.0;
 const double lamalQuotePartMaxJeunesAdultes = 350.0;
 
 // ══════════════════════════════════════════════════════════════════════════════
-// Pilier 3a — Rattrapage retroactif (nouveau droit 2026+)
-// Base legale: OPP3 art. 7 (amendement 2026), OFAS publications annuelles
+// Pilier 3a — Rattrapage rétroactif (OPP3 art. 7a)
+// Base légale : OPP3 art. 7a nouveau, RO 2024 687, entrée en vigueur 01.01.2025.
+// swiss-brain ruling 2026-04-18 Q1 :
+//   * SEULES les lacunes postérieures au 31.12.2024 sont rachetables.
+//   * Les plafonds 2016-2024 NE SONT JAMAIS rachetables — pas de table
+//     historique stockée côté client (elle induit en erreur).
+//   * Le nombre d'années rachetables en année N = min(10, N - 2024).
+//     En 2026 : 2 ans max (2025 + 2026 partiel). En 2035+ : 10 permanent.
+//   * Le plafond appliqué au rachat est celui de L'ANNÉE DU RACHAT
+//     (art. 7a al. 2), pas de l'année manquée.
 // ══════════════════════════════════════════════════════════════════════════════
 
-/// Plafonds historiques 3a (avec LPP) par annee.
-/// Utilises pour calculer le montant de rattrapage retroactif.
-/// Source: OFAS publications annuelles, OPP3 art. 7.
+/// Plafond 3a salarié avec LPP — déjà défini plus haut (7258 CHF en 2026).
+/// C'est ce plafond (de l'année du rachat) qui s'applique à chaque année
+/// rachetée, PAS un plafond historique.
+///
+/// Map conservée pour compat code mais réduite aux années 2025+ (seules
+/// rachetables). Les valeurs 2025 et 2026 sont identiques par design
+/// fédéral (le plafond suit l'indexation OFAS mais n'a pas changé sur
+/// la courte fenêtre). À jour au 06.11.2024.
 const Map<int, double> pilier3aHistoricalLimits = {
-  2026: 7258.0,
   2025: 7258.0,
-  2024: 7056.0,
-  2023: 6883.0,
-  2022: 6826.0,
-  2021: 6826.0,
-  2020: 6826.0,
-  2019: 6826.0,
-  2018: 6826.0,
-  2017: 6768.0,
-  2016: 6768.0,
+  2026: 7258.0,
 };
 
-/// Nombre maximum d'annees de rattrapage retroactif 3a (OPP3 art. 7, amendement 2026).
+/// Nombre maximum d'années rachetables dans le futur (cap légal à 10 ans
+/// d'historique atteint en 2035). En attendant, la fenêtre effective
+/// est calculée dynamiquement par `retroactive_3a_calculator.dart` en
+/// `referenceYear - 2024`.
 const int pilier3aMaxRetroactiveYears = 10;
+
+/// Première année fiscale éligible au rachat rétroactif (entrée en vigueur
+/// OPP3 art. 7a, RO 2024 687).
+const int pilier3aRetroactiveFirstEligibleYear = 2025;
 
 // ══════════════════════════════════════════════════════════════════════════════
 // Financial Fitness Score (FRI) — Seuils d'affichage

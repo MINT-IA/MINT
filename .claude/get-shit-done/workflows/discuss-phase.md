@@ -360,10 +360,11 @@ Lightweight scan of existing code to inform gray area identification and discuss
 ls .planning/codebase/*.md 2>/dev/null || true
 ```
 
-**If codebase maps exist:** Read the most relevant ones (CONVENTIONS.md, STRUCTURE.md, STACK.md based on phase type). Extract:
+**If codebase maps exist:** Read the most relevant ones (CONVENTIONS.md, STRUCTURE.md, STACK.md based on phase type) AND **always read CONCERNS.md**. Extract:
 - Reusable components/hooks/utilities
 - Established patterns (state management, styling, data fetching)
 - Integration points (where new code would connect)
+- From CONCERNS.md: P0/P1 findings that intersect this phase's scope — surface these as **blocker candidates** (tag: `concerns_blocker`) in `present_gray_areas` so they are explicitly acknowledged or deferred, never silently ignored
 
 Skip to Step 3 below.
 

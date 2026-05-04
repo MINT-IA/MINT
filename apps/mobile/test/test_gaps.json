@@ -1,11 +1,5 @@
 [
   {
-    "file": "lib/services/annual_refresh_service.dart",
-    "current_tests": 0,
-    "target_tests": 10,
-    "priority": "high"
-  },
-  {
     "file": "lib/services/b2b/b2b_organization_service.dart",
     "current_tests": 0,
     "target_tests": 10,
@@ -61,12 +55,6 @@
   },
   {
     "file": "lib/services/dach/multi_country_lifecycle_service.dart",
-    "current_tests": 0,
-    "target_tests": 10,
-    "priority": "high"
-  },
-  {
-    "file": "lib/services/dashboard_projection_snapshot.dart",
     "current_tests": 0,
     "target_tests": 10,
     "priority": "high"

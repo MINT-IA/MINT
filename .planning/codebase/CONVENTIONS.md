@@ -1,230 +1,283 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-04-05
+**Analysis Date:** 2026-04-22
 
-## Naming Conventions
+---
 
-**Files (Flutter/Dart):**
-- `snake_case.dart` for all files: `avs_calculator.dart`, `coach_profile_provider.dart`, `pulse_screen.dart`
-- Screens: `{feature}_screen.dart` (e.g., `pulse_screen.dart`, `expat_screen.dart`, `donation_screen.dart`)
-- Services: `{feature}_service.dart` (e.g., `coaching_service.dart`, `budget_living_engine.dart`)
-- Tests: `{feature}_test.dart` mirroring source (e.g., `avs_calculator_test.dart`)
-- Providers: `{feature}_provider.dart` (e.g., `coach_profile_provider.dart`)
-- Models: `{feature}.dart` or `{feature}_models.dart` (e.g., `coach_profile.dart`, `arbitrage_models.dart`)
-- Widgets: `{feature}.dart` or descriptive name (e.g., `mint_surface.dart`, `cap_card.dart`)
+## Dart / Flutter Conventions
 
-**Files (Python/Backend):**
-- `snake_case.py` for all files
-- Endpoints: `{feature}.py` in `app/api/v1/endpoints/` (e.g., `coach_chat.py`, `retirement.py`)
-- Services: `{feature}_service.py` in `app/services/` (e.g., `billing_service.py`, `donation_service.py`)
-- Tests: `test_{feature}.py` in `tests/` (e.g., `test_retirement.py`, `test_compliance_guard.py`)
-- Schemas: `{feature}.py` in `app/schemas/` (e.g., `profile.py`, `coach_chat.py`)
+### Naming Patterns
 
-**Classes (Dart):**
-- `PascalCase` for classes: `AvsCalculator`, `CoachProfileProvider`, `MintSurface`
-- Prefix `Mint` for design system widgets: `MintSurface`, `MintCountUp`, `MintEntrance`
-- Prefix `MintColors` for color constants (static class)
-- Enums: `PascalCase` with `camelCase` values: `MintSurfaceTone.porcelaine`, `ProfileDataSource.userInput`
-- Private enums scoped to file: prefix with underscore `_ActiveGoal`
+**Files:**
+- `snake_case.dart` for all Dart files: `coach_profile.dart`, `avs_calculator.dart`, `financial_plan_provider.dart`
+- Test files: `snake_case_test.dart` co-located in `apps/mobile/test/` mirroring the `lib/` structure
+- Screen files: `*_screen.dart` suffix, e.g. `coach_chat_screen.dart`, `disability_gap_screen.dart`
+- Widget files: `*_widget.dart` or descriptive noun: `coach_message_bubble.dart`
 
-**Classes (Python):**
-- `PascalCase` for classes: `ComplianceGuard`, `AvsEstimationService`, `CoachContext`
-- Pydantic models: `PascalCase` (e.g., `ProfileBase`, `CoachChatRequest`)
-- Python Enums: `PascalCase` class, `snake_case` values: `HouseholdType.single`, `Goal.optimize_taxes`
+**Classes:**
+- `PascalCase`: `CoachProfile`, `AvsCalculator`, `MintColors`, `FinancialPlanProvider`
+- Enums: `PascalCase` type, `camelCase` values: `enum CoachCivilStatus { celibataire, marie, divorce }`
+- Abstract/base classes: descriptive suffix-free: `CoachChatBaseModel`
 
-**Functions/Methods:**
-- Dart: `camelCase` — `computeMonthlyRente()`, `loadFromWizard()`, `buildCoachContext()`
-- Python: `snake_case` — `compute_minimal_profile()`, `build_system_prompt()`, `validate()`
-- Static calculator methods: `ClassName.methodName()` — `AvsCalculator.computeMonthlyRente()`
+**Functions and Methods:**
+- `camelCase`: `computeMonthlyRente()`, `loadFromPersistence()`, `annualRente()`
+- Private helpers: `_stampTimestamps()`, `_persistTimestamps()`, `_makeProfile()`
+- Static pure functions in calculator classes: `AvsCalculator.computeMonthlyRente(...)`, `LppCalculator.projectToRetirement(...)`
 
 **Variables:**
-- Dart: `camelCase` for locals/fields, `_camelCase` for private, `SCREAMING_SNAKE` not used
-- Python: `snake_case` for locals/fields, `SCREAMING_SNAKE_CASE` for module-level constants
-- Constants (Dart): `camelCase` top-level const — `lppSeuilEntree = 22680.0`, `avsRenteMaxMensuelle`
-- Constants (Python): `SCREAMING_SNAKE_CASE` — `AVS_RENTE_MAX_MENSUELLE`, `LPP_SEUIL_ENTREE`
+- `camelCase`: `currentAge`, `retirementAge`, `lacunes`, `salaireBrutMensuel`
+- Field names match French domain language (Swiss finance): `avoirLpp`, `rachatMaximum`, `tauxConversion`
+- Boolean flags: `isFatcaResident`, `canContribute3a`, `hasPlan`, `isPlanStale`
 
-## Flutter Conventions
+**Test helpers:**
+- Factory functions prefixed with `_make`: `_makeProfile(...)`, `_makePlan(...)`
+- Golden data builders named after persona: `_julienProfile`, `_laurenBase()`
 
-**Widget Structure:**
-- Screens are `StatefulWidget` or `StatelessWidget` depending on local state needs
-- Use `Provider` for shared state (never raw `StatefulWidget` for shared data)
-- Access providers via `context.watch<T>()` (reactive) or `context.read<T>()` (one-shot)
-- Use `context.read<T>()` before any `await` to avoid stale context
-- Screens wrap content in `Scaffold` with standard white `AppBar` (exception: Pulse uses gradient)
-
-**Screen Organization:**
-- `lib/screens/` organized by feature domain: `coach/`, `pulse/`, `arbitrage/`, `budget/`, etc.
-- Main navigation tabs in `lib/screens/main_tabs/`: `explore_tab.dart`, `mint_coach_tab.dart`, `mint_home_screen.dart`
-- 3-tab shell: Aujourd'hui (Pulse) | Coach | Explorer + ProfileDrawer (endDrawer)
-
-**Import Organization (Dart):**
-1. `dart:` SDK imports
-2. `package:flutter/` framework imports
-3. `package:` third-party packages (provider, go_router, shared_preferences)
-4. `package:mint_mobile/` project imports — organized by layer:
-   - `models/`
-   - `providers/`
-   - `services/`
-   - `constants/`
-   - `theme/`
-   - `l10n/`
-   - `widgets/`
-   - `utils/`
-
-**State Management (Provider):**
-- All providers extend `ChangeNotifier` — `lib/providers/`
-- Key providers: `CoachProfileProvider`, `ProfileProvider`, `MintStateProvider`, `AuthProvider`
-- `CoachProfileProvider` is the superset model used by all simulators and coach
-- `ProfileProvider` syncs with backend API (source of truth for persisted data)
-- Provider instances created in top-level `MultiProvider` in app root
-
-**Navigation:**
-- GoRouter exclusively — never use `Navigator.push`
-- Route definitions in centralized router config
-- Deep-link compatible: `/home?tab=3` for ProfileDrawer
-
-**Theme System:**
-- Colors: `MintColors.*` from `lib/theme/colors.dart` — NEVER hardcode hex values
-- Text styles: `MintTextStyles` from `lib/theme/mint_text_styles.dart`
-- Spacing: `MintSpacing` from `lib/theme/mint_spacing.dart`
-- Motion: `MintMotion` from `lib/theme/mint_motion.dart`
-- Fonts: Montserrat (headings), Inter (body) via `GoogleFonts`
-- WCAG AA contrast compliance on all text colors
-
-**Design System Widgets:**
-- Premium widgets in `lib/widgets/premium/`: `MintSurface`, `MintCountUp`, `MintEntrance`
-- `MintSurface` with tone enum (`porcelaine`, `craie`, `sauge`, `bleu`, `peche`, `blanc`)
-- Deprecated: `MintGlassCard`, `MintPremiumButton`, `Outfit` font — do not use
-
-## Backend Conventions
-
-**API Endpoint Pattern:**
-- FastAPI `APIRouter()` per feature domain in `app/api/v1/endpoints/`
-- Docstring at top of file listing all routes, sprint reference, and legal sources
-- Rate limiting via `@limiter.limit()` decorator from `slowapi`
-- Auth via `Depends(require_current_user)` dependency injection
-- Stateless computation endpoints — pure functions, no side effects on most routes
-- Standard disclaimer string included in all financial computation responses
-
-**Schema Pattern (Pydantic v2):**
-- Request/Response models in `app/schemas/` per domain
-- `ConfigDict(populate_by_name=True)` with `alias_generator = to_camel` for camelCase JSON
-- `Optional[T] = None` for optional fields with `Field(None, ge=0, le=10_000_000)` validators
-- Enums as `str, Enum` for JSON serialization
-
-**Service Layer Pattern:**
-- Pure functions preferred: deterministic, stateless, testable
-- Services instantiated per-request or as singletons (no shared mutable state)
-- All financial calculations delegate to centralized services (never inline formulas)
-- Compliance guard validates all LLM output before user display — 5-layer pipeline
-- Docstrings include legal references (LAVS art. X, LPP art. Y, LIFD art. Z)
-
-**Backend Directory Structure:**
-- `app/api/v1/endpoints/` — REST route handlers
-- `app/services/` — Business logic organized by domain (subdirs: `coach/`, `retirement/`, `fiscal/`, etc.)
-- `app/schemas/` — Pydantic request/response models
-- `app/models/` — SQLAlchemy ORM models
-- `app/core/` — Cross-cutting: auth, database, rate limiting
-- `app/constants/` — Swiss law constants (facade on `RegulatoryRegistry`)
-
-## Shared Conventions
-
-**Error Handling (Flutter):**
-- `ApiException` with typed `ApiErrorCode` enum for i18n-friendly error mapping
-- `try/catch` with specific exception types, not bare `catch`
-- Offline detection: `ApiException.offline()` factory method
-- `.firstOrNull` instead of `.first` to avoid runtime exceptions on empty collections
-
-**Error Handling (Backend):**
-- `HTTPException` from FastAPI with appropriate status codes
-- `try/except` with specific exception types
-- Validation errors auto-handled by Pydantic v2
-
-**Logging:**
-- Flutter: `debugPrint()` in debug mode only (gated by `kDebugMode`)
-- Backend: Python `logging` module — `logger = logging.getLogger(__name__)` per file
-- Sentry integration on both sides (`sentry_flutter`, `sentry-sdk[fastapi]`)
-- NEVER log identifiable data (IBANs, names, SSN, employer)
-
-**Constants Management:**
-- Backend `RegulatoryRegistry` is the single source of truth for Swiss law constants
-- Backend `app/constants/social_insurance.py` is a facade (bridge) that reads from `RegulatoryRegistry`
-- Flutter `lib/constants/social_insurance.dart` provides offline fallback constants
-- Flutter `reg()` helper reads from synced backend cache, falls back to local const
-- All constants reference legal articles: `/// Salaire annuel minimum (LPP art. 7).`
-- Annual update procedure: update `RegulatoryRegistry` -> auto-propagates -> update Flutter mirror
-
-**i18n (NON-NEGOTIABLE):**
-- 6 languages: fr (template), en, de, es, it, pt — ARB files in `lib/l10n/`
-- ~10,344 lines in French template ARB
-- ALL user-facing strings via `AppLocalizations.of(context)!.key` (alias `S`)
-- New keys: add to ALL 6 ARB files, at END before closing `}`
-- Run `flutter gen-l10n` after modifying ARB files
-- French diacritics mandatory: e/e/e/o/u/c/a — ASCII "e" for accented = bug
-- Non-breaking space (`\u00a0`) before `!`, `?`, `:`, `;`, `%`
-- Banned terms in user-facing text: "garanti", "certain", "assure", "sans risque", "optimal", "meilleur", "parfait", "conseiller"
-
-**Financial Core Library:**
-- ALL financial calculations MUST use calculators from `lib/services/financial_core/`
-- Barrel export: `lib/services/financial_core/financial_core.dart`
-- Key calculators: `AvsCalculator`, `LppCalculator`, `TaxCalculator`, `ArbitrageEngine`, `ConfidenceScorer`, `MonteCarloService`
-- Static pure methods: `AvsCalculator.computeMonthlyRente(...)` — no instance state
-- NEVER create `_calculate*()` methods in consumer services — always delegate to `financial_core/`
-- Every projection MUST include `EnhancedConfidence` score (4-axis: completeness x accuracy x freshness x understanding)
-
-**Compliance in Every Output:**
-- `disclaimer` — educational purpose, not financial advice, LSFin reference
-- `sources` — legal references (LPP art. X, LIFD art. Y)
-- `premier_eclairage` — first personalized insight (replaces legacy `chiffre_choc`)
-- `alertes` — warnings when thresholds are crossed
-
-## Code Style
+### Code Style
 
 **Formatting:**
-- Dart: `dart format` (standard, no custom config)
-- Python: `ruff` with `line-length = 88`, `target-version = "py310"`
+- Dart `analysis_options.yaml` governs linting (no external formatter config found)
+- `flutter analyze --no-fatal-warnings --no-fatal-infos` — CI fails on errors only
+- `// ignore: avoid_print` annotations used in test golden output (acceptable in test context)
 
-**Linting:**
-- Flutter: `package:flutter_lints` with `analysis_options.yaml`
-  - `prefer_const_constructors: true`
-  - `prefer_const_declarations: true`
-  - `avoid_print: true`
-  - Excludes: `archive/**`, `test/_archive/**`
-- Python: `ruff` (configured in `pyproject.toml`)
+**Import Organization:**
+```dart
+// 1. Dart SDK
+import 'dart:math' as math;
 
-**Comment Style:**
-- Dart: `///` for doc comments on public APIs, `//` for inline. Reference legal articles.
-- Python: triple-quote docstrings with sprint reference, legal sources, and rule reminders
-- Both: Header blocks with `// ════════` or `# ═════════` separators for major sections
-- Backend endpoint files: comprehensive module docstring listing all routes, architecture notes, and compliance references
-- `TODO`/`FIXME` for known debt (tracked in CONCERNS.md)
+// 2. Flutter packages
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
-**Documentation Headers (Backend Services):**
-```python
-"""
-Service Name — Sprint SXX.
+// 3. Third-party packages
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
-Description of purpose.
-
-Sources:
-    - LAVS art. XX
-    - LPP art. YY
-    - LIFD art. ZZ
-
-Rules:
-    - NEVER use banned terms
-    - Educational tone
-"""
+// 4. Internal packages (all via mint_mobile prefix)
+import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 ```
 
-**Documentation Headers (Flutter Calculators):**
+**Path Aliases:** All internal imports use `package:mint_mobile/`. No relative imports in lib code.
+
+### i18n — Mandatory Rule
+
+**Every user-facing string MUST use ARB localization:**
 ```dart
-/// Calculator name — pure static functions.
-///
-/// Legal basis: LAVS art. XX, LPP art. YY.
-/// All computations are deterministic and stateless.
+// CORRECT
+Text(AppLocalizations.of(context)!.startDiagnostic)
+
+// NEVER
+Text('Démarrer mon diagnostic')
+```
+
+- 6 ARB files: `apps/mobile/lib/l10n/app_fr.arb`, `app_en.arb`, `app_de.arb`, `app_es.arb`, `app_it.arb`, `app_pt.arb`
+- Generated classes: `apps/mobile/lib/l10n/app_localizations.dart` (auto-generated, do not edit)
+- Run `flutter gen-l10n` after every ARB change
+- CI gate: `readability` job runs Kandel–Moles French readability on `app_fr.arb` (min score 50)
+- CI gate: `sentence_subject_arb_lint.py` enforces sentence-subject rules in ARB strings
+
+### Colors — Mandatory Rule
+
+**Every color MUST come from `MintColors`:**
+```dart
+// CORRECT
+color: MintColors.primary
+color: MintColors.textSecondary
+color: MintColors.success
+
+// NEVER
+color: Color(0xFF1D1D1F)
+```
+
+- Source: `apps/mobile/lib/theme/colors.dart`
+- 12 core semantic tokens + extended premium palette (`porcelaine`, `craie`, `saugeClaire`, `bleuAir`, `ardoise`, `pecheDouce`, `corailDiscret`, `warmWhite`)
+- All tokens have WCAG AA contrast ratios baked in (comments show old vs new values)
+- CI gate: `tools/checks/wcag_aa_all_touched.py` scans for raw `Color(0xFF...)` in text contexts
+
+### Financial Calculations — Mandatory Rule
+
+**NEVER re-implement calculations. Use `financial_core`:**
+```dart
+// CORRECT
+AvsCalculator.computeMonthlyRente(currentAge: 49, ...)
+LppCalculator.projectToRetirement(currentBalance: 70377, ...)
+RetirementTaxCalculator.capitalWithdrawalTax(capitalBrut: 677847, ...)
+
+// NEVER
+double _calculateAvs(profile) { ... }  // local re-implementation = P0
+```
+
+- Source of truth: `apps/mobile/lib/services/financial_core/` (16 files)
+- All calculators: pure static functions, deterministic, stateless
+- Legal basis annotated in docstrings: `/// LAVS art. 29`, `/// LPP art. 14-16`
+- Singleton-guard comment at top of every calculator: `// ALL X calculations MUST use XCalculator from financial_core.`
+
+### Constants
+
+- Swiss legal constants centralized in `apps/mobile/lib/constants/social_insurance.dart`
+- Always import constants, never hardcode: `avsRenteMaxMensuelle` not `2520.0`
+- Constants sourced from law with comments: `LAVS art. 21-29`, `OPP3 art. 7`
+
+### Comments
+
+**When to Comment:**
+- Legal basis references: `/// LAVS art. 29quinquies`, `/// LPP art. 15-16`
+- Compliance decisions: `// FIX-111: Removed || delta.abs() < 50 loophole`
+- KILL tags for deleted files: `// consent_dashboard_screen.dart DELETED (KILL-03, Phase 2)`
+- Section dividers: `// ════════════════════════════════════ SECTION NAME`
+
+**No comments for self-explanatory getters:**
+```dart
+double get revenuBrutAnnuel {
+  final base = salaireBrutMensuel! * nombreDeMois;
+  final bonus = (bonusPourcentage ?? 0) / 100 * base;
+  return base + bonus;
+}
 ```
 
 ---
 
-*Convention analysis: 2026-04-05*
+## Python / Backend Conventions
+
+### Naming Patterns
+
+**Files:**
+- `snake_case.py`: `compliance_guard.py`, `rules_engine.py`, `minimal_profile_service.py`
+- Test files: `test_<module>.py`: `test_rules_engine.py`, `test_golden_julien_lauren.py`
+- Schema files: domain-named: `coach_chat.py`, `profile.py`, `retirement.py`
+
+**Classes:**
+- `PascalCase`: `ComplianceGuard`, `TestCompoundInterest`, `TestGoldenJulienLauren`
+- Test classes: `Test` prefix: `class TestGoldenJulienLauren:`
+
+**Functions:**
+- `snake_case`: `compute_minimal_profile()`, `calculate_compound_interest()`, `_fake_user()`
+- Private helpers: `_` prefix: `_check_banned_terms()`, `_check_certain_guarantee()`, `_julien_base()`
+- Builder helpers in tests: `_julien_base()`, `_julien_full()`, `_lauren_base()`
+
+**Variables:**
+- `snake_case` for Python fields
+- Pydantic model fields: `snake_case` in Python, auto-aliased to `camelCase` for API output via `alias_generator=to_camel`
+
+### Pydantic v2 Schema Pattern
+
+```python
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic.alias_generators import to_camel
+
+class CoachChatBaseModel(BaseModel):
+    """Base with camelCase aliases for mobile interop."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+class CoachChatRequest(CoachChatBaseModel):
+    message: str = Field(..., min_length=1, max_length=2000)
+
+    @field_validator('message')
+    @classmethod
+    def validate_message_not_whitespace(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError('Le message ne peut pas être vide.')
+        return v
+```
+
+- All API response schemas inherit a base with `alias_generator=to_camel` and `populate_by_name=True`
+- Field constraints declared inline via `Field(ge=0, le=10_000_000)`
+- `@field_validator` for business rule validation, not just type coercion
+
+### FastAPI Route Pattern
+
+```python
+router = APIRouter()
+
+@router.get("/me", response_model=Profile)
+@limiter.limit("30/minute")
+def get_my_profile(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_current_user),
+) -> Profile:
+    """Docstring: what the endpoint does, special behaviors (FIX notes)."""
+    ...
+    raise HTTPException(status_code=404, detail="Profile not found")
+```
+
+- Rate limiting on every endpoint: `@limiter.limit("30/minute")`
+- Auth dependency: `Depends(require_current_user)` for authenticated, `Depends(get_current_user)` for optional
+- `HTTPException` for 4xx errors with descriptive `detail` string
+- Response model declared on decorator, not inferred
+
+### Error Handling
+
+**Backend:**
+- Use `HTTPException` for expected API errors: `raise HTTPException(status_code=404, detail="...")`
+- Unreachable states documented: `# Should be unreachable — ...`
+- `try/except` in database sessions, always `finally: db.close()`
+- Global exception handler wired in `app/main.py`
+
+**Flutter:**
+- `?.` and `.firstOrNull` for safe collection access (per 7 code safety patterns)
+- `context.read<T>()` before `await` (never inside async gap without guard)
+- Provider `dispose()` patterns enforced (no dangling listeners)
+
+### Compliance — LSFin Enforcement
+
+`services/backend/app/services/coach/compliance_guard.py` validates ALL LLM output before display:
+
+**Layer 1 — Banned terms (exact list):**
+- `garanti`, `garantie`, `garantis`, `garanties`
+- `assuré`, `assurée`, `assurés`, `assurées`
+- `optimal`, `optimale`, `optimaux`, `optimales`
+- `meilleur`, `meilleure`, `meilleurs`, `meilleures`
+- `parfait`, `parfaite`, `parfaits`, `parfaites`
+- `tu devrais`, `tu dois`, `il faut que tu`, `la meilleure option`
+- `conseiller` → use `spécialiste` instead
+
+**Allowed alternatives:** `pourrait`, `envisager`, `adapté`, `scénario Bas/Moyen/Haut`, `selon ton profil`
+
+**Layer 2** — Prescriptive language detection
+**Layer 3** — Hallucination detection (numbers verified against `financial_core`)
+**Layer 4** — Auto-injection of LSFin disclaimer for projections
+**Layer 5** — Length constraints per component type
+
+### FR Accent Lint
+
+`tools/checks/accent_lint_fr.py` scans `.dart`, `.py`, `.arb`, `.md` for ASCII-flattened French:
+
+| Wrong | Correct |
+|-------|---------|
+| `creer` | `créer` |
+| `decouvrir` | `découvrir` |
+| `eclairage` | `éclairage` |
+| `securite` | `sécurité` |
+| `liberer` | `libérer` |
+| `deja` | `déjà` |
+| `specialiste` | `spécialiste` |
+
+Exit code 1 = violation. Wire `--file <path>` for per-file lint.
+
+### Logging
+
+**Backend:** Python `logging` module, structured via `app/core/logging_config.py`
+```python
+logger = logging.getLogger(__name__)
+logger.info("...")
+logger.error("...")
+```
+- `send_default_pii=False` in Sentry (nLPD compliance)
+- PII log gate in CI: `scripts/check_pii_in_logs.py` scans for IBAN/AVS/phone in logs
+
+**Flutter:** No logging framework found. `print()` used in test golden output only (annotated `// ignore: avoid_print`).
+
+---
+
+## Cross-Stack Contracts
+
+- Dart field names match Python `snake_case` field names before aliasing: `avoirLpp` ↔ `avoirLpp`
+- `tools/contracts/voice_cursor.json` → codegen produces `apps/mobile/lib/services/voice/voice_cursor_contract.g.dart` and `services/backend/app/schemas/voice_cursor.py`
+- CI `contracts-drift` job regenerates and diffs — any drift blocks the build
+
+---
+
+*Convention analysis: 2026-04-22*

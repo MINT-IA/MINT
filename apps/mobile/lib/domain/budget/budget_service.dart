@@ -16,19 +16,62 @@ class BudgetService {
     'CC art. 163 (contribution d\'entretien / charges du ménage)',
   ];
 
-  /// Chiffre-choc : pourcentage des charges fixes par rapport au revenu net.
+  /// Premier éclairage : pourcentage des charges fixes par rapport au revenu net.
   ///
-  /// Permet a l'utilisateur de visualiser en un chiffre la part de son
-  /// revenu absorbee par les charges incompressibles.
+  /// Wave 7 fiscal audit P0-B1 (2026-04-18) — la version précédente
+  /// retournait « 0 % de ton revenu part en charges fixes » quand
+  /// `netIncome <= 0` (masque un profil incomplet) et acceptait sans
+  /// broncher des pct > 100 % (situation dette-crise sans aucun signal
+  /// d'escalade). Cette version escalade aux seuils 70 % / 100 % pour
+  /// que l'UI (et le coach, via `BudgetPlan.distress`) puisse router
+  /// vers le Safe Mode protection-désendettement (CLAUDE.md §7).
+  /// Sources : LP art. 93 (minimum vital), normes CSIAS 2025.
   static String premierEclairage(BudgetInputs inputs) {
-    if (inputs.netIncome <= 0) return '0% de ton revenu part en charges fixes';
-    final totalCharges = inputs.housingCost +
-        inputs.debtPayments +
-        inputs.taxProvision +
-        inputs.healthInsurance +
-        inputs.otherFixedCosts;
-    final pct = (totalCharges / inputs.netIncome * 100).round();
-    return '$pct% de ton revenu part en charges fixes';
+    if (inputs.netIncome <= 0 || !inputs.netIncome.isFinite) {
+      return 'Déclare ton revenu net pour voir la part de tes charges fixes';
+    }
+    final totalCharges = _totalFixedCharges(inputs);
+    if (!totalCharges.isFinite) {
+      return 'Complète tes charges fixes pour voir ton éclairage';
+    }
+    final ratio = totalCharges / inputs.netIncome;
+    final pct = (ratio * 100).round();
+    if (ratio >= BudgetPlan.criticalThreshold) {
+      return '$pct % — tes charges fixes dépassent ton revenu. '
+          'Safe Mode recommandé (LP art. 93).';
+    }
+    if (ratio >= BudgetPlan.fragileThreshold) {
+      return '$pct % de ton revenu part en charges fixes. '
+          'Situation fragile — priorité désendettement (LP art. 93).';
+    }
+    return '$pct % de ton revenu part en charges fixes';
+  }
+
+  static double _totalFixedCharges(BudgetInputs inputs) =>
+      inputs.housingCost +
+      inputs.debtPayments +
+      inputs.taxProvision +
+      inputs.healthInsurance +
+      inputs.otherFixedCosts;
+
+  /// Classe le niveau de détresse budgétaire — alimente `BudgetPlan.distress`.
+  static BudgetDistressLevel _distressOf(BudgetInputs inputs) {
+    if (inputs.netIncome <= 0 || !inputs.netIncome.isFinite) {
+      return BudgetDistressLevel.unknown;
+    }
+    final charges = _totalFixedCharges(inputs);
+    if (!charges.isFinite) return BudgetDistressLevel.unknown;
+    final ratio = charges / inputs.netIncome;
+    if (ratio >= BudgetPlan.criticalThreshold) return BudgetDistressLevel.critical;
+    if (ratio >= BudgetPlan.fragileThreshold) return BudgetDistressLevel.fragile;
+    return BudgetDistressLevel.none;
+  }
+
+  static double? _chargesRatioOf(BudgetInputs inputs) {
+    if (inputs.netIncome <= 0 || !inputs.netIncome.isFinite) return null;
+    final charges = _totalFixedCharges(inputs);
+    if (!charges.isFinite) return null;
+    return charges / inputs.netIncome;
   }
 
   /// Calcule le plan budgétaire en fonction des inputs et des overrides optionnels (sliders).
@@ -47,6 +90,9 @@ class BudgetService {
         inputs.otherFixedCosts;
     final available = max(0.0, rawAvailable);
 
+    final distress = _distressOf(inputs);
+    final chargesRatio = _chargesRatioOf(inputs);
+
     if (inputs.style == BudgetStyle.justAvailable) {
       return BudgetPlan(
         available: available,
@@ -55,6 +101,8 @@ class BudgetService {
         future: 0,
         stopRuleTriggered: false,
         emergencyFundMonths: inputs.emergencyFundMonths,
+        distress: distress,
+        chargesRatio: chargesRatio,
       );
     }
 
@@ -103,6 +151,8 @@ class BudgetService {
       stopRuleTriggered: variables <= 0.01,
       /* quasi 0 */
       emergencyFundMonths: inputs.emergencyFundMonths,
+      distress: distress,
+      chargesRatio: chargesRatio,
     );
   }
 }

@@ -21,6 +21,7 @@ import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
 ///
@@ -45,6 +46,12 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   // --- Fiscal situation ---
   String _canton = 'ZH';
   String _civilStatus = 'single';
+  int _age = 45; // P1-1 audit 2026-04-18 : pré-rempli depuis profile, impacte bonif LPP
+  // Audit 2026-04-18 Q2 swiss-brain : archetype + années CH alimentent
+  // le cap OPP2 art. 60b (expats < 5 ans → 20% salaire assuré).
+  double? _salaireAssure;
+  int _anneesCotisationCH = 100;
+  String _archetype = 'swiss_native';
   bool _manualTauxOverride = false;
   double _manualTaux = 0.32;
 
@@ -82,6 +89,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         canton: _canton,
         civilStatus: _civilStatus,
         horizon: _horizon,
+        age: _age,
+        salaireAssure: _salaireAssure,
+        anneesCotisationCH: _anneesCotisationCH,
+        archetype: _archetype,
       );
 
   bool _prefilled = false;
@@ -171,6 +182,20 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     }
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     _civilStatus = isMarried ? 'married' : 'single';
+    // P1-1 : propager l'âge réel pour les bonifications LPP (7/10/15/18%).
+    if (profile.age > 0) {
+      _age = profile.age;
+    }
+    // Audit 2026-04-18 Q2 (swiss-brain) : OPP2 art. 60b s'applique aux
+    // expats < 5 ans de cotisation CH → cap rachat 20% du salaire assuré.
+    _archetype = profile.archetype.name.replaceAll('_', '_').toLowerCase();
+    final sAssure = profile.prevoyance.salaireAssure;
+    if (sAssure != null && sAssure > 0) {
+      _salaireAssure = sAssure;
+    }
+    if (profile.arrivalAge != null && profile.age > 0) {
+      _anneesCotisationCH = (profile.age - profile.arrivalAge!).clamp(0, 60);
+    }
   }
 
   /// Apply prefill values from GoRouter coach suggestion.
@@ -225,9 +250,18 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       if (profile == null) return;
 
       final result = _result;
+      // Audit 2026-04-18 Q4 (swiss-brain) : on enregistre la date du rachat
+      // simulé pour que l'EPL simulator puisse calculer le blocage 3 ans
+      // (LPP art. 79b al. 3, ATF 142 II 399 + 148 II 189). L'ancien code
+      // écrivait `rachatEffectue` (un double) de façon identitaire (no-op)
+      // et n'avait aucune trace temporelle → blocage EPL jamais déclenché.
+      final newDates = [...profile.prevoyance.dateRachats, DateTime.now()];
       final updated = profile.copyWith(
         prevoyance: profile.prevoyance.copyWith(
-          rachatEffectue: profile.prevoyance.rachatEffectue,
+          rachatEffectue:
+              (profile.prevoyance.rachatEffectue ?? 0) + result.yearlyPlan
+                  .fold<double>(0, (sum, p) => sum + p.montantRachat),
+          dateRachats: newDates,
           projectedRenteLpp: result.delta > 0
               ? null // Not projecting rente here, just marking interaction
               : null,
@@ -348,15 +382,23 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 const SizedBox(height: MintSpacing.md),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeroPremierEclairage(result, l)),
-                const SizedBox(height: MintSpacing.lg),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildLppSituationCard(l)),
-                const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFiscalSituationCard(l)),
-                const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildStrategieCard(l)),
-                const SizedBox(height: MintSpacing.lg),
-                _buildComparisonSection(result, l),
+                // Rachat table — gated in SafeMode (debt crisis)
+                SafeModeGate(
+                  hasDebt: lookupSafeModeFlag(context),
+                  child: Column(
+                    children: [
+                      MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeroPremierEclairage(result, l)),
+                      const SizedBox(height: MintSpacing.lg),
+                      MintEntrance(delay: const Duration(milliseconds: 300), child: _buildLppSituationCard(l)),
+                      const SizedBox(height: MintSpacing.md),
+                      MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFiscalSituationCard(l)),
+                      const SizedBox(height: MintSpacing.md),
+                      MintEntrance(delay: const Duration(milliseconds: 500), child: _buildStrategieCard(l)),
+                      const SizedBox(height: MintSpacing.lg),
+                      _buildComparisonSection(result, l),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: MintSpacing.lg),
                 const EarlyRetirementSlider(
                   monthlyIncomeAt65: 4000,
@@ -679,7 +721,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         children: [
           _buildSectionHeader(Icons.timeline, l.rachatEchelonneStrategie),
           const SizedBox(height: MintSpacing.lg),
-          _buildSliderRow(label: l.rachatEchelonneHorizon, value: _horizon.toDouble(), min: 1, max: 15, divisions: 14, format: '$_horizon an${_horizon > 1 ? 's' : ''}', onChanged: (v) { _horizon = v.round(); _onInputChanged(); }),
+          // Horizon max étendu 15 → 25 ans (audit simulateur 2026-04-18 P0-1) :
+          // pour un rachat max 350k+ sur revenu modeste, l'étalement soutenable
+          // cashflow (25% brut max) demande 12-20 ans.
+          _buildSliderRow(label: l.rachatEchelonneHorizon, value: _horizon.toDouble(), min: 1, max: 25, divisions: 24, format: '$_horizon an${_horizon > 1 ? 's' : ''}', onChanged: (v) { _horizon = v.round(); _onInputChanged(); }),
         ],
       ),
     );
@@ -763,16 +808,21 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         const SizedBox(height: MintSpacing.sm + 4),
         Row(
           children: [
-            Expanded(child: _buildComparisonCard(title: l.rachatEchelonneBlocTitle, subtitle: l.rachatEchelonneBlocSubtitle, amount: result.economieBlocTotal, color: MintColors.warning, isWinner: result.delta <= 0, adaptedLabel: l.rachatEchelonnePlusAdapte, savingsLabel: l.rachatEchelonneEconomieFiscale)),
+            // Audit 2026-04-18 doctrine : CLAUDE.md §6.4 No-Ranking —
+            // les deux options (bloc vs échelonné) sont side-by-side sans
+            // badge "Plus adapté" qui désigne un vainqueur. L'utilisateur
+            // lit les chiffres et décide — pas l'app.
+            Expanded(child: _buildComparisonCard(title: l.rachatEchelonneBlocTitle, subtitle: l.rachatEchelonneBlocSubtitle, amount: result.economieBlocTotal, color: MintColors.warning, savingsLabel: l.rachatEchelonneEconomieFiscale)),
             const SizedBox(width: MintSpacing.sm + 4),
-            Expanded(child: _buildComparisonCard(title: '$_horizon ${l.staggered3aAns}', subtitle: l.rachatEchelonneEchelonneSubtitle, amount: result.economieEchelonneTotal, color: MintColors.success, isWinner: result.delta > 0, adaptedLabel: l.rachatEchelonnePlusAdapte, savingsLabel: l.rachatEchelonneEconomieFiscale)),
+            Expanded(child: _buildComparisonCard(title: '$_horizon ${l.staggered3aAns}', subtitle: l.rachatEchelonneEchelonneSubtitle, amount: result.economieEchelonneTotal, color: MintColors.success, savingsLabel: l.rachatEchelonneEconomieFiscale)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildComparisonCard({required String title, required String subtitle, required double amount, required Color color, required bool isWinner, required String adaptedLabel, required String savingsLabel}) {
+  Widget _buildComparisonCard({required String title, required String subtitle, required double amount, required Color color, required String savingsLabel}) {
+    // isWinner + adaptedLabel supprimés 2026-04-18 (No-Ranking doctrine).
     return MintSurface(
       tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
@@ -780,13 +830,6 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isWinner)
-            Container(
-              margin: const EdgeInsets.only(bottom: MintSpacing.sm),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(color: color.withAlpha(30), borderRadius: BorderRadius.circular(6)),
-              child: Text(adaptedLabel, style: MintTextStyles.micro(color: color).copyWith(fontWeight: FontWeight.w800, fontStyle: FontStyle.normal, letterSpacing: 0.5, fontSize: 9)),
-            ),
           Text(title, style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
           const SizedBox(height: MintSpacing.xs),
           Text(subtitle, style: MintTextStyles.labelMedium()),

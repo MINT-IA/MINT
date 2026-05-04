@@ -559,7 +559,7 @@ Lightweight codebase scan to inform grey area identification and proposals. Keep
 ls .planning/codebase/*.md 2>/dev/null || true
 ```
 
-**If codebase maps exist:** Read the most relevant ones (CONVENTIONS.md, STRUCTURE.md, STACK.md based on phase type). Extract reusable components, established patterns, integration points. Skip to building context below.
+**If codebase maps exist:** Read the most relevant ones (CONVENTIONS.md, STRUCTURE.md, STACK.md based on phase type) AND **always read CONCERNS.md**. Extract reusable components, established patterns, integration points. From CONCERNS.md, extract any P0/P1 findings that intersect this phase's scope — if an intersecting P0/P1 exists, surface it as a **blocker candidate** in gray areas (tag: `concerns_blocker`) so the auto-decision stage cannot silently proceed past known debt. Skip to building context below.
 
 **If no codebase maps, do targeted grep:**
 

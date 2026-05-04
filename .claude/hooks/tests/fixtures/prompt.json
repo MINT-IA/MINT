@@ -1,0 +1,5 @@
+{
+  "session_id": "test-session-001",
+  "tool_name": "",
+  "user_prompt": "Please edit apps/mobile/lib/l10n/app_fr.arb and also update the calcul in apps/mobile/lib/screens/retirement_screen.dart"
+}

@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -49,7 +48,6 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: provider),
         ChangeNotifierProvider(create: (_) => ByokProvider()),
-        ChangeNotifierProvider(create: (_) => UserActivityProvider()),
         ChangeNotifierProvider(create: (_) => MintStateProvider()),
       ],
       child: const MaterialApp(
@@ -98,9 +96,12 @@ void main() {
       // Since _intensityChosen is false and _cashLevelLoaded is true,
       // the chips should appear in the message list once the opener is dismissed.
 
-      // The tone preference question text
+      // The tone preference question text — shortened 2026-04-17 from
+      // "Au fait, tu préfères que je sois plutôt…" to "Comment je te parle ?"
+      // (commit d1ce63b5: the trailing ellipsis read as a truncation bug and
+      // the 3 chips below already enumerate the options).
       expect(
-        find.textContaining('tu pr\u00e9f\u00e8res que je sois'),
+        find.textContaining('Comment je te parle'),
         findsOneWidget,
       );
 

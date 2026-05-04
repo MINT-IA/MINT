@@ -319,7 +319,7 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
     if (provided.contains('canton')) {
       items.add(_ProfileDataItem(
         icon: Icons.location_on_outlined,
-        label: 'Canton',
+        label: l.cantonLabel,
         value: profile.canton,
       ));
     }

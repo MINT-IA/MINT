@@ -83,6 +83,11 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   AuthError? _error;
   bool _requiresEmailVerification = false;
+  // Local-mode default-on: the router's "authenticated" scope passes when
+  // `isLoggedIn || isLocalMode`. Starting true keeps tab navigation alive
+  // even if `checkAuth()` throws before the prefs block runs (e.g. on a
+  // keychain failure). `register()`/`login()` explicitly flip this to false.
+  bool _isLocalMode = true;
 
   bool get isLoggedIn => _isLoggedIn;
   String? get userId => _userId;
@@ -91,6 +96,13 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   AuthError? get error => _error;
   bool get requiresEmailVerification => _requiresEmailVerification;
+  bool get isLocalMode => _isLocalMode;
+
+  /// Phase 52: cloud-sync state from the user's perspective.
+  /// `true` ⇔ user has explicitly opted into multi-device sync; data
+  /// is mirrored to the backend on each save. `false` (default after
+  /// register) ⇔ data stays on device.
+  bool get isCloudSyncEnabled => !_isLocalMode;
 
   /// Check stored auth on app startup
   Future<void> checkAuth() async {
@@ -121,6 +133,16 @@ class AuthProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       _requiresEmailVerification =
           prefs.getBool('requires_email_verification') ?? false;
+      // Local-mode default: true on fresh install. Phase 52 (D-01):
+      // register / login no longer auto-flip this to false; cloud sync
+      // is opt-in via Settings › Confidentialité (`toggleCloudSync`).
+      // Existing users registered pre-Phase-52 retain whatever value
+      // was persisted — their `auth_local_mode = false` stays, no
+      // surprise switch in their sync state.
+      if (!prefs.containsKey('auth_local_mode')) {
+        await prefs.setBool('auth_local_mode', true);
+      }
+      _isLocalMode = prefs.getBool('auth_local_mode') ?? true;
     } catch (e) {
       _error = _toUserFriendlyAuthError(e);
       _isLoggedIn = false;
@@ -163,6 +185,8 @@ class AuthProvider extends ChangeNotifier {
           refreshToken: response['refresh_token'] as String?,
         );
         _isLoggedIn = true;
+        // Phase 52 (D-01): no longer auto-disable local mode on register.
+        // Cloud sync is opt-in via Settings › Confidentialité.
         // FIX-W11-7: Set user prefix for conversation isolation.
         ConversationStore.setCurrentUserId(userId);
       } else {
@@ -228,6 +252,8 @@ class AuthProvider extends ChangeNotifier {
       _email = userEmail;
       _displayName = response['display_name'] as String?;
       _isLoggedIn = true;
+      // Phase 52 (D-01): no longer auto-disable local mode on login.
+      // Cloud sync is opt-in via Settings › Confidentialité.
       // FIX-W11-7: Set user prefix for conversation isolation.
       ConversationStore.setCurrentUserId(userId);
       _requiresEmailVerification = false;
@@ -306,6 +332,8 @@ class AuthProvider extends ChangeNotifier {
       _email = userEmail;
       _displayName = displayName;
       _isLoggedIn = true;
+      // Phase 52 (D-01): no longer auto-disable local mode on Apple SSO.
+      // Cloud sync is opt-in via Settings › Confidentialité.
       _requiresEmailVerification = false;
       _error = null;
       // FIX-W11-7: Set user prefix for conversation isolation.
@@ -389,6 +417,8 @@ class AuthProvider extends ChangeNotifier {
       }
 
       _isLoggedIn = true;
+      // Phase 52 (D-01): no longer auto-disable local mode on magic link.
+      // Cloud sync is opt-in via Settings › Confidentialité.
       _requiresEmailVerification = false;
       _error = null;
       _isLoading = false;
@@ -425,6 +455,9 @@ class AuthProvider extends ChangeNotifier {
       _email = null;
       _displayName = null;
       _requiresEmailVerification = false;
+      _isLocalMode = false;
+      await (await SharedPreferences.getInstance())
+          .setBool('auth_local_mode', false);
       _isLoading = false;
       notifyListeners();
       return true;
@@ -522,6 +555,12 @@ class AuthProvider extends ChangeNotifier {
     _email = null;
     _displayName = null;
     _requiresEmailVerification = false;
+    _isLocalMode = false;
+    // Persist AFTER _purgeLocalData (which prefs.clear()s the store).
+    // Logout = fully out; the user can re-enable local mode by tapping
+    // "Continuer en mode local" on the register/login screens.
+    await (await SharedPreferences.getInstance())
+        .setBool('auth_local_mode', false);
     _error = null;
     notifyListeners();
   }
@@ -629,25 +668,35 @@ class AuthProvider extends ChangeNotifier {
         }
       }
 
-      // Push local wizard data to backend via claimLocalData.
-      // Best-effort: failure does not block the auth flow.
-      try {
-        final answers = await ReportPersistenceService.loadAnswers();
-        if (answers.isNotEmpty) {
-          var deviceId = prefs.getString('_mint_device_id');
-          if (deviceId == null) {
-            deviceId = const Uuid().v4();
-            await prefs.setString('_mint_device_id', deviceId);
+      // Phase 52.1 B-2: gate the wizard-data backend push on the
+      // cloud-sync toggle. New accounts default OFF (Phase 52 D-01)
+      // → wizard answers stay on device. If the user later flips
+      // sync ON in Settings › Confidentialité, the next save
+      // naturally pushes via _syncToBackend (also gated by B-1).
+      // Conversation migration above is local→local within the
+      // device's ConversationStore namespace and is unaffected.
+      final cloudSyncEnabled = !(prefs.getBool('auth_local_mode') ?? true);
+      if (cloudSyncEnabled) {
+        // Push local wizard data to backend via claimLocalData.
+        // Best-effort: failure does not block the auth flow.
+        try {
+          final answers = await ReportPersistenceService.loadAnswers();
+          if (answers.isNotEmpty) {
+            var deviceId = prefs.getString('_mint_device_id');
+            if (deviceId == null) {
+              deviceId = const Uuid().v4();
+              await prefs.setString('_mint_device_id', deviceId);
+            }
+            await ApiService.claimLocalData(
+              localDataVersion: 1,
+              deviceId: deviceId,
+              wizardAnswers: answers,
+            );
           }
-          await ApiService.claimLocalData(
-            localDataVersion: 1,
-            deviceId: deviceId,
-            wizardAnswers: answers,
-          );
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          debugPrint('[AuthProvider] claimLocalData sync failed: $e');
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('[AuthProvider] claimLocalData sync failed: $e');
+          }
         }
       }
 
@@ -707,6 +756,26 @@ class AuthProvider extends ChangeNotifier {
   /// Clear error message
   void clearError() {
     _error = null;
+    notifyListeners();
+  }
+
+  /// Enable anonymous local mode so the router's auth guard lets users
+  /// browse tabs without creating an account. Persisted across launches.
+  Future<void> enableLocalMode() async {
+    _isLocalMode = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('auth_local_mode', true);
+    notifyListeners();
+  }
+
+  /// Phase 52 (D-01, D-03): user-controlled cloud-sync toggle from
+  /// Settings › Confidentialité. `true` enables multi-device sync
+  /// (next save pushes to the backend), `false` keeps data on device.
+  /// Persisted across launches via `auth_local_mode`.
+  Future<void> toggleCloudSync(bool enabled) async {
+    _isLocalMode = !enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('auth_local_mode', _isLocalMode);
     notifyListeners();
   }
 

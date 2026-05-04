@@ -225,10 +225,18 @@ class RetirementTaxCalculator {
     bool isMarried = false,
   }) {
     if (capitalBrut <= 0) return 0;
-    final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : 'ZH';
+    // Wave 7 edge-case audit C1 (2026-04-18) : normalise + valide le
+    // canton via resolveCanton() plutôt que le direct ?? 'ZH'. En debug
+    // mode, un canton invalide/vide affiche un warning sur stdout pour
+    // faire remonter le caller. La valeur de repli reste ZH en prod
+    // pour ne pas casser les écrans legacy, mais la provenance est
+    // traçable si le caller consomme ResolvedCanton directement.
+    final cantonCode = resolveCanton(canton).code;
     final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
-    final effectiveRate =
-        isMarried ? baseRate * reg('capital_tax.married_discount', marriedCapitalTaxDiscount) : baseRate;
+    // Audit 2026-04-18 Q5 : coefficient marié par CANTON, plus un scalaire
+    // uniforme 0.85. ZH/ZG (splitting intégral) → ~0.70 ; VS → 0.81 ; etc.
+    final discount = isMarried ? marriedCapitalTaxDiscountFor(cantonCode) : 1.0;
+    final effectiveRate = baseRate * discount;
     return progressiveTax(capitalBrut, effectiveRate);
   }
 
@@ -318,7 +326,8 @@ class RetirementTaxCalculator {
       return actualRate;
     }
 
-    final cantonCode = canton.toUpperCase();
+    // Wave 7 C1 — resolve via helper so invalid codes surface in debug.
+    final cantonCode = resolveCanton(canton).code;
 
     // Base rate from real cantonal data (fallback = Swiss average ~13%)
     final baseRate = _effectiveRates100k[cantonCode] ?? 0.13;

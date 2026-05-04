@@ -43,7 +43,9 @@ class _OptimisationDecaissementScreenState
           _seqRunId = extra['runId'] as String?;
           _seqStepId = extra['stepId'] as String?;
         }
-      } catch (_) {}
+      } catch (_) {
+        // GoRouterState unavailable (no active match) — no sequence context, fine.
+      }
     });
   }
 

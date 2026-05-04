@@ -146,8 +146,12 @@ void main() {
         canton: laurenCanton,
         isMarried: true,
       );
-      // Married discount = 0.85x
-      expect(taxMarried, closeTo(taxSingle * marriedCapitalTaxDiscount, 0.01));
+      // Audit 2026-04-18 Q5 : coefficient marié par canton.
+      // Lauren = VS → 0.81 (pas 0.85 uniforme).
+      expect(
+        taxMarried,
+        closeTo(taxSingle * marriedCapitalTaxDiscountFor(laurenCanton), 0.01),
+      );
       expect(taxMarried, lessThan(taxSingle));
     });
 

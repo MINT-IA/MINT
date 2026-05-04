@@ -78,6 +78,10 @@ class CoachContext:
     known_values: dict = field(default_factory=dict)
     # Onboarding intent (e.g., 'firstJob', 'intentChip3a', etc.)
     intent: str = ""
+    # Safe Mode signal: consumer debt stress or emergency-fund shortfall.
+    # When True, the system prompt injects _SAFE_MODE_PROTOCOL to block
+    # all 3a/LPP optimisation advice (RULES.md §2).
+    has_debt: bool = False
 
 
 @dataclass

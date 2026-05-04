@@ -34,7 +34,9 @@ async def embed_insight(
         insight_id: Unique insight identifier.
         topic: Topic category (e.g., 'lpp', 'retraite', '3a').
         summary: Privacy-safe summary text (~200 chars, no PII).
-        insight_type: 'goal', 'decision', 'concern', 'fact'.
+        insight_type: 'goal', 'decision', 'concern', 'fact', 'event'.
+            ('event' added Wave A-MINIMAL 2026-04-18 for durable anchors
+            like scans and life events. Backend column is free-form String.)
         metadata: Optional structured data (NOT embedded, stored as JSONB).
         created_at: When the insight was created.
 

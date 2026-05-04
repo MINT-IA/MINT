@@ -1,0 +1,37 @@
+0acc529c66bbfdd7d64ae8df6da1bf9e2f139dd3  2026-04-17  feature/S57-navigation-v11
+70dd51adfcdd9d83a014c3bb27b40d9fec5ea84c  2026-04-16  feature/S57-scan-profile-merge
+c58d6552bcbcc8e80939caa743298c94c4246589  2026-04-16  fix/S57-post-merge-cleanup
+d66753d680bd33b96eb30e546e8d6534069db6c0  2026-04-15  fix/coach-sees-income-gross
+ff72739dcfd099a9ff41b60ff3c35bd1c7e2dbd8  2026-04-15  fix/followups-tool-mandatory
+3bde5f1bc387bc4b67fe88097eface44b9d50a61  2026-04-15  fix/e2e-smoke-swiss-number-format
+3042b700ead194e0224f73f48f50d76520eaa0da  2026-04-15  fix/smoke-skip-arbitrage
+e482b6508d01673fc04391ee8d8ab9dc09c2e84c  2026-04-15  fix/coach-profile-wire-e2e
+36bc4d54c1378f5b255e09c55109fc9a28e06f0a  2026-04-15  fix/prompt-hardening-v2
+0673849e4ed63e9bb5289d0898ae32cb3d23419e  2026-04-15  fix/coach-chips-followup-questions-v2
+2c0f81f684ecae764426112fc7ff54c57a5c0a22  2026-04-15  fix/coach-disclaimer-slim-footer
+64a3c4357f429d1d311d1b9ed4f0f084a896a8e8  2026-04-15  fix/anonymous-coach-v2-prompt-facts
+624a3e535b263a03d06d23e608bcd424c28663da  2026-04-15  fix/flutter-compliance-language-log-only
+
+=== Cleanup executed 2026-04-18 ===
+All 13 branches above were either squash-merged (PRs #322-#345) or
+closed-superseded (#324 → #325, #326 → #327). Remote tracking refs
+were stale locally; 12 of 13 were already pruned server-side via
+their PR merge-and-delete. feature/S57-navigation-v11 was the only
+one still live on origin and was deleted explicitly.
+
+Also deleted 8 local-only stale branches (tracking refs marked `gone`):
+- feature/S57-navigation-v11   (was 0acc529c)
+- feature/S57-scan-profile-merge (was 70dd51ad)
+- feature/audit-fixes-p0-p1    (was cb93ecff)
+- fix/coach-chips-followup-questions (was 748366b3)
+- fix/e2e-smoke-swiss-number-format (was 3bde5f1b)
+- fix/flutter-compliance-language-log-only (was 624a3e53)
+- fix/followups-tool-mandatory (was ff72739d)
+- fix/prompt-hardening-chips-couche-tutoiement (was b91699b1)
+
+Final state: 4 local (claude/fix-app-navigation-zkVRx, dev, main,
+staging) — 4 remote (same).
+
+Recovery: all SHAs above are still reachable via GitHub's PR diff
+view (squash-merge preserves content on dev/main). If a specific
+branch needs to come back, checkout the SHA and create a new branch.

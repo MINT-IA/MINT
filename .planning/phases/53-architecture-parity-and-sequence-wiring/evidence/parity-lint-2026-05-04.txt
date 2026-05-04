@@ -1,0 +1,3 @@
+[info] extracted 153 path literal(s) from app.dart
+[info] registry has 138 ScreenEntry route(s); 21 not-chat-routable + 7 nested-profile entries exempted per KNOWN-MISSES.md
+[OK] 125 routes parity OK (after KNOWN-MISSES exemption).

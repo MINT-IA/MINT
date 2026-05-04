@@ -8,8 +8,10 @@ import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/widgets/report/thematic_card.dart';
-import 'package:mint_mobile/widgets/alert/mint_alert_object.dart';
-import 'package:mint_mobile/services/voice/voice_cursor_contract.dart';
+// Wave E-PRIME (2026-04-18): MintAlertObject + VoiceResolutionContext imports
+// removed — widgets/alert/ cluster deleted with AnticipationProvider (Panel A
+// P0-3/P0-6). Debt state is now surfaced exclusively via SafeModeGate wrapper
+// at screen level, not a dedicated alert widget here.
 import 'package:mint_mobile/widgets/report/budget_waterfall.dart';
 import 'package:mint_mobile/widgets/report/retirement_projection_card.dart';
 import 'package:mint_mobile/widgets/comparators/pillar3a_comparator_widget.dart';
@@ -111,21 +113,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
             const SizedBox(height: MintSpacing.lg),
 
-            // ── Debt alert (Phase 9 D-08: MintAlertObject replaces legacy
-            //    DebtAlertBanner). Fed by AnticipationProvider — never by
-            //    any claude_*_service. Anti-shame: MINT-as-subject grammar.
-            if (hasDebt)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-                child: MintAlertObject(
-                  gravity: Gravity.g3,
-                  fact: S.of(context)!.mintAlertDebtFact,
-                  cause: S.of(context)!.mintAlertDebtCause,
-                  nextMoment: S.of(context)!.mintAlertDebtNextMoment,
-                  alertId: 'anticipation:debtCrisis:report',
-                  resolutionContext: VoiceResolutionContext.neutral,
-                ),
-              ),
+            // Wave E-PRIME (2026-04-18): Debt alert block removed.
+            // The screen is already wrapped by SafeModeGate at the caller
+            // level (widgets/common/safe_mode_gate.dart, imported L20), which
+            // handles toxic-debt state globally. The redundant inline alert
+            // relied on MintAlertObject (widgets/alert/, deleted in Phase 2c
+            // cascade with AnticipationProvider Panel A P0-3).
 
             // ── Budget thematic card ──
             MintEntrance(delay: const Duration(milliseconds: 100), child: Padding(
