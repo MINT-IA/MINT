@@ -34,8 +34,29 @@
 <tr><th>PR</th><th>Branch</th><th>Status</th><th>Commit</th></tr>
 <tr><td>PR-1 — bootstrap kit + baseline census</td><td><code>feat/phase-56-01-bootstrap-kit-and-census</code></td><td class="pass">Merged into base via PR #465 (foundation)</td><td><code>cfecede6</code></td></tr>
 <tr><td>PR-2 — wire census in workflow (hook + slash + lefthook)</td><td><code>feat/phase-56-02-census-wiring</code></td><td class="pass">Pushed, ready for review</td><td><code>c27866f5</code></td></tr>
-<tr><td>PR-3 — classify 129 tools, retire dormant, promote specialists</td><td>—</td><td class="pending">Not started</td><td>—</td></tr>
+<tr><td>PR-3a — classify 129 tools (INVENTORY.md, no destructive action)</td><td><code>feat/phase-56-03-tool-classification</code></td><td class="pass">Pushed in worktree, ready for review</td><td>(see PR-3a commit)</td></tr>
+<tr><td>PR-3b — apply RETIRE moves + create PROMOTE specialists</td><td>—</td><td class="pending">Awaits Julien sign-off on INVENTORY.md classifications</td><td>—</td></tr>
 </table>
+
+<h2>PR-3a deliverable — <code>tools/INVENTORY.md</code></h2>
+<table>
+<tr><th>Category</th><th>Total</th><th>KEEP-active</th><th>KEEP-emergency</th><th>PROMOTE</th><th>RETIRE</th></tr>
+<tr><td>skills:mint</td><td>10</td><td>10</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>skills:gsd</td><td>60</td><td>14</td><td>41</td><td>0</td><td>5</td></tr>
+<tr><td>skills:autoresearch</td><td>11</td><td>0</td><td>10</td><td>1</td><td>0</td></tr>
+<tr><td>skills:superpowers (obra)</td><td>14</td><td>14</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>skills:kit</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>lints (tools/checks/)</td><td>27</td><td>3</td><td>24</td><td>0</td><td>0</td></tr>
+<tr><td>scripts (scripts/)</td><td>3</td><td>2</td><td>1</td><td>0</td><td>0</td></tr>
+<tr><td>bin (bin/)</td><td>2</td><td>2</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>mcp (.mcp.json)</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><th>Total</th><th>129</th><th>47</th><th>76</th><th>1</th><th>5</th></tr>
+</table>
+<p><strong>RETIRE proposals (5) :</strong> <code>gsd-join-discord</code>, <code>gsd-new-project</code>, <code>gsd-manager</code>, <code>gsd-workstreams</code>, <code>gsd-autonomous</code>. Justifications in <a href="../../../tools/INVENTORY.md"><code>tools/INVENTORY.md</code></a>.</p>
+<p><strong>PROMOTE proposal (1) :</strong> <code>mint-pre-flutter-push</code> bundling <code>accent_lint_fr.py</code> + MCP <code>check_banned_terms</code> + <code>flutter analyze && flutter test</code> + <code>autoresearch-i18n</code> hook for new hardcoded FR strings. Cap-3-max kept; <code>mint-discipline-doctor</code> deferred until Discipline 14 has been live longer.</p>
+
+<h2>Operational note — multi-agent collision (post-PR-2 retro)</h2>
+<p>PR-2 ran in the shared <code>MINT.nosync/</code> checkout while a parallel agent worked Phase 55. The two sessions raced for HEAD, causing one wiring commit to land on the wrong branch (recovered by cherry-pick). PR-3a runs in an isolated worktree at <code>MINT.phase56-pr3.nosync/</code> per <code>using-git-worktrees</code> skill — collision-free pattern adopted going forward.</p>
 
 <h2>PR-2 deliverables</h2>
 <table>
