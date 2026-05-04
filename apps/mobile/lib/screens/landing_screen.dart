@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/beta/beta_program_disclosure_sheet.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -71,6 +72,10 @@ class _LandingScreenState extends State<LandingScreen>
       } else {
         _controller.forward();
       }
+      // First-launch beta disclosure (Apple TestFlight beta review +
+      // FINMA fintech sandbox). One-shot per device install.
+      // No-op when SharedPreferences flag is already set.
+      BetaProgramDisclosureSheet.maybeShow(context);
     });
   }
 

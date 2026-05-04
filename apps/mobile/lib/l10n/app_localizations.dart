@@ -40658,6 +40658,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Tu as terminé cette séquence guidée.'**
   String get coachSequenceCompletedMessage;
+
+  /// Beta disclosure sheet — uppercase eyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT en test'**
+  String get betaDisclosureEyebrow;
+
+  /// Beta disclosure sheet — phrase signature prefix (before italic em).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu testes une version qui'**
+  String get betaDisclosureHeadlinePrefix;
+
+  /// Beta disclosure sheet — italicised em portion of the headline.
+  ///
+  /// In fr, this message translates to:
+  /// **'apprend avec toi'**
+  String get betaDisclosureHeadlineEm;
+
+  /// Beta disclosure sheet — punctuation after the em.
+  ///
+  /// In fr, this message translates to:
+  /// **'.'**
+  String get betaDisclosureHeadlineSuffix;
+
+  /// Beta disclosure sheet — first bullet (LSFin disclaimer).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT n\'est pas un conseil financier au sens de la LSFin — outil éducatif uniquement.'**
+  String get betaDisclosureBulletNoAdvice;
+
+  /// Beta disclosure sheet — second bullet (data sovereignty / nLPD).
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune donnée bancaire stockée chez nous. Les données restent sur ton appareil sauf opt-in explicite.'**
+  String get betaDisclosureBulletNoBank;
+
+  /// Beta disclosure sheet — third bullet (feedback loop).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes retours pendant la bêta nous aident à améliorer MINT. On te lit.'**
+  String get betaDisclosureBulletDataLocal;
+
+  /// Beta disclosure sheet — primary acknowledgement CTA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je comprends, on y va'**
+  String get betaDisclosureCta;
+
+  /// Beta disclosure sheet — secondary CTA opening the privacy URL.
+  ///
+  /// In fr, this message translates to:
+  /// **'En savoir plus'**
+  String get betaDisclosureLearnMore;
+
+  /// Beta disclosure sheet — accessibility container label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l\'appareil par défaut.'**
+  String get betaDisclosureSemanticsLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

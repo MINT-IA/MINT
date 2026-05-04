@@ -23238,4 +23238,38 @@ class SDe extends S {
   @override
   String get coachSequenceCompletedMessage =>
       'Du hast diese geführte Sequenz abgeschlossen.';
+
+  @override
+  String get betaDisclosureEyebrow => 'MINT in der Beta';
+
+  @override
+  String get betaDisclosureHeadlinePrefix => 'Du testest eine Version, die';
+
+  @override
+  String get betaDisclosureHeadlineEm => 'mit dir lernt';
+
+  @override
+  String get betaDisclosureHeadlineSuffix => '.';
+
+  @override
+  String get betaDisclosureBulletNoAdvice =>
+      'MINT ist keine Finanzberatung im Sinne des FIDLEG — es ist nur ein Bildungswerkzeug.';
+
+  @override
+  String get betaDisclosureBulletNoBank =>
+      'Keine Bankdaten werden bei uns gespeichert. Deine Daten bleiben auf deinem Gerät, ausser du stimmst ausdrücklich zu.';
+
+  @override
+  String get betaDisclosureBulletDataLocal =>
+      'Dein Feedback während der Beta hilft uns, MINT zu verbessern. Wir lesen alles.';
+
+  @override
+  String get betaDisclosureCta => 'Verstanden, los geht\'s';
+
+  @override
+  String get betaDisclosureLearnMore => 'Mehr erfahren';
+
+  @override
+  String get betaDisclosureSemanticsLabel =>
+      'Information zur MINT-Beta-Version — nur Bildungswerkzeug, keine Finanzberatung, Daten bleiben standardmässig auf deinem Gerät.';
 }

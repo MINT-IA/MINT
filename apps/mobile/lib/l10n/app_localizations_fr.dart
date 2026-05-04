@@ -23183,4 +23183,38 @@ class SFr extends S {
   @override
   String get coachSequenceCompletedMessage =>
       'Tu as terminé cette séquence guidée.';
+
+  @override
+  String get betaDisclosureEyebrow => 'MINT en test';
+
+  @override
+  String get betaDisclosureHeadlinePrefix => 'Tu testes une version qui';
+
+  @override
+  String get betaDisclosureHeadlineEm => 'apprend avec toi';
+
+  @override
+  String get betaDisclosureHeadlineSuffix => '.';
+
+  @override
+  String get betaDisclosureBulletNoAdvice =>
+      'MINT n\'est pas un conseil financier au sens de la LSFin — outil éducatif uniquement.';
+
+  @override
+  String get betaDisclosureBulletNoBank =>
+      'Aucune donnée bancaire stockée chez nous. Les données restent sur ton appareil sauf opt-in explicite.';
+
+  @override
+  String get betaDisclosureBulletDataLocal =>
+      'Tes retours pendant la bêta nous aident à améliorer MINT. On te lit.';
+
+  @override
+  String get betaDisclosureCta => 'Je comprends, on y va';
+
+  @override
+  String get betaDisclosureLearnMore => 'En savoir plus';
+
+  @override
+  String get betaDisclosureSemanticsLabel =>
+      'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l\'appareil par défaut.';
 }

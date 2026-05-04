@@ -23189,4 +23189,38 @@ class SPt extends S {
   @override
   String get coachSequenceCompletedMessage =>
       'Concluíste esta sequência guiada.';
+
+  @override
+  String get betaDisclosureEyebrow => 'MINT em beta';
+
+  @override
+  String get betaDisclosureHeadlinePrefix => 'Estás a testar uma versão que';
+
+  @override
+  String get betaDisclosureHeadlineEm => 'aprende contigo';
+
+  @override
+  String get betaDisclosureHeadlineSuffix => '.';
+
+  @override
+  String get betaDisclosureBulletNoAdvice =>
+      'MINT não é aconselhamento financeiro nos termos da LSFin — é apenas uma ferramenta educativa.';
+
+  @override
+  String get betaDisclosureBulletNoBank =>
+      'Nenhum dado bancário é armazenado do nosso lado. Os teus dados permanecem no teu dispositivo salvo consentimento explícito.';
+
+  @override
+  String get betaDisclosureBulletDataLocal =>
+      'O teu feedback durante a beta ajuda-nos a melhorar a MINT. Lemos tudo.';
+
+  @override
+  String get betaDisclosureCta => 'Entendido, vamos';
+
+  @override
+  String get betaDisclosureLearnMore => 'Saber mais';
+
+  @override
+  String get betaDisclosureSemanticsLabel =>
+      'Informação sobre a versão beta da MINT — apenas ferramenta educativa, nenhum aconselhamento financeiro, os dados permanecem no teu dispositivo por defeito.';
 }

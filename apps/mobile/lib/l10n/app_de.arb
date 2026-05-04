@@ -11165,5 +11165,42 @@
   "@coachSequenceNextStepLabel": {
     "placeholders": {"label": {"type": "String"}}
   },
-  "coachSequenceCompletedMessage": "Du hast diese geführte Sequenz abgeschlossen."
+  "coachSequenceCompletedMessage": "Du hast diese geführte Sequenz abgeschlossen.",
+  "betaDisclosureEyebrow": "MINT in der Beta",
+  "@betaDisclosureEyebrow": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlinePrefix": "Du testest eine Version, die",
+  "@betaDisclosureHeadlinePrefix": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlineEm": "mit dir lernt",
+  "@betaDisclosureHeadlineEm": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureHeadlineSuffix": ".",
+  "@betaDisclosureHeadlineSuffix": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletNoAdvice": "MINT ist keine Finanzberatung im Sinne des FIDLEG — es ist nur ein Bildungswerkzeug.",
+  "@betaDisclosureBulletNoAdvice": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletNoBank": "Keine Bankdaten werden bei uns gespeichert. Deine Daten bleiben auf deinem Gerät, ausser du stimmst ausdrücklich zu.",
+  "@betaDisclosureBulletNoBank": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureBulletDataLocal": "Dein Feedback während der Beta hilft uns, MINT zu verbessern. Wir lesen alles.",
+  "@betaDisclosureBulletDataLocal": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureCta": "Verstanden, los geht's",
+  "@betaDisclosureCta": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureLearnMore": "Mehr erfahren",
+  "@betaDisclosureLearnMore": {
+    "x-mint-meta": {"level": "N1"}
+  },
+  "betaDisclosureSemanticsLabel": "Information zur MINT-Beta-Version — nur Bildungswerkzeug, keine Finanzberatung, Daten bleiben standardmässig auf deinem Gerät."
 }

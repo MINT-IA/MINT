@@ -23068,4 +23068,38 @@ class SEn extends S {
   @override
   String get coachSequenceCompletedMessage =>
       'You\'ve completed this guided sequence.';
+
+  @override
+  String get betaDisclosureEyebrow => 'MINT in beta';
+
+  @override
+  String get betaDisclosureHeadlinePrefix => 'You\'re testing a version that';
+
+  @override
+  String get betaDisclosureHeadlineEm => 'learns with you';
+
+  @override
+  String get betaDisclosureHeadlineSuffix => '.';
+
+  @override
+  String get betaDisclosureBulletNoAdvice =>
+      'MINT is not financial advice under FinSA — it\'s an educational tool only.';
+
+  @override
+  String get betaDisclosureBulletNoBank =>
+      'No banking data is stored on our side. Your data stays on this device unless you explicitly opt in.';
+
+  @override
+  String get betaDisclosureBulletDataLocal =>
+      'Your feedback during the beta helps us improve MINT. We read every word.';
+
+  @override
+  String get betaDisclosureCta => 'Got it, let\'s go';
+
+  @override
+  String get betaDisclosureLearnMore => 'Learn more';
+
+  @override
+  String get betaDisclosureSemanticsLabel =>
+      'Information about the MINT beta version — educational tool only, no financial advice, data stays on your device by default.';
 }
