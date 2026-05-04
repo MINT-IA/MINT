@@ -271,8 +271,15 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   Widget build(BuildContext context) {
     final l = S.of(context)!;
 
+    // Handoff 2 sweep 2026-05-04 :
+    //  - scaffold bg : craieHandoff (#F8F5F0) au lieu de craie (trop blanc)
+    //  - input bar bg : craieHandoff
+    //  - input bar border : borderSubtle (warm hairline)
+    //  - send icon + locked CTA : inkPrimary (warm près-noir, pas anthracite cool)
+    //  - user bubble bg : inkPrimary
+    //  - typing indicator bg : craieHandoff (cohérent avec scaffold)
     return Scaffold(
-      backgroundColor: MintColors.craie,
+      backgroundColor: MintColors.craieHandoff,
       body: SafeArea(
         child: Column(
           children: [
@@ -283,7 +290,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_rounded),
-                  color: MintColors.textPrimary,
+                  color: MintColors.inkPrimary,
                   onPressed: () => context.go('/'),
                   tooltip: l.anonymousChatBack,
                 ),
@@ -321,7 +328,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                 decoration: const BoxDecoration(
                   border: Border(
-                    top: BorderSide(color: MintColors.lightBorder),
+                    top: BorderSide(color: MintColors.borderSubtle),
                   ),
                 ),
                 child: Column(
@@ -341,7 +348,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
                       child: ElevatedButton(
                         onPressed: _showAuthGate,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: MintColors.primary,
+                          backgroundColor: MintColors.inkPrimary,
                           foregroundColor: MintColors.white,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -369,9 +376,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
               Container(
                 padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
                 decoration: const BoxDecoration(
-                  color: MintColors.craie,
+                  color: MintColors.craieHandoff,
                   border: Border(
-                    top: BorderSide(color: MintColors.lightBorder),
+                    top: BorderSide(color: MintColors.borderSubtle),
                   ),
                 ),
                 child: Row(
@@ -384,7 +391,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
                         onSubmitted: _isLoading ? null : _sendMessage,
                         style: GoogleFonts.inter(
                           fontSize: 16,
-                          color: MintColors.textPrimary,
+                          color: MintColors.inkPrimary,
                         ),
                         decoration: InputDecoration(
                           hintText: l.anonymousIntentFreeTextHint,
@@ -401,8 +408,8 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
                     IconButton(
                       icon: const Icon(Icons.send_rounded),
                       color: _isLoading
-                          ? MintColors.textMuted
-                          : MintColors.primary,
+                          ? MintColors.textMutedAaa
+                          : MintColors.inkPrimary,
                       onPressed: _isLoading
                           ? null
                           : () => _sendMessage(_inputController.text),
@@ -428,7 +435,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isUser ? MintColors.primary : MintColors.surface,
+            color: isUser ? MintColors.inkPrimary : MintColors.craieHandoff,
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(18),
               topRight: const Radius.circular(18),
@@ -440,7 +447,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
             message.text,
             style: GoogleFonts.inter(
               fontSize: 15,
-              color: isUser ? MintColors.white : MintColors.textPrimary,
+              color: isUser ? MintColors.white : MintColors.inkPrimary,
               height: 1.4,
             ),
           ),
@@ -457,7 +464,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: const BoxDecoration(
-            color: MintColors.surface,
+            color: MintColors.craieHandoff,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(18),
               topRight: Radius.circular(18),
