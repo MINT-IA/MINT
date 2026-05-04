@@ -125,11 +125,36 @@ class ConsentService {
   /// Entry-point guard: if any required purpose is not granted at the current
   /// policy version, show the ConsentSheet. Returns true only if all purposes
   /// are (now) granted.
+  ///
+  /// Crash-safety (Sentry fatal `6f9002...` 2026-05-04 ch.mint.app@2.9.0+37):
+  /// when `list(force: true)` hit a 401 → `ApiException.sessionExpired` →
+  /// uncaught propagation through `_onGalleryPressed` → fatal via
+  /// `PlatformDispatcher.onError`. We now catch any `ApiException` from the
+  /// list/grant calls, surface a friendly snackbar, and return `false` so the
+  /// caller treats it like a denied consent (= no-op + early return). The
+  /// AuthService.logout() inside `ApiService.get` already cleared the stale
+  /// token; the next user-driven nav back through a guarded route will
+  /// trigger re-auth via the existing GoRouter redirect.
   Future<bool> requireGrantedOrPrompt(
     BuildContext context,
     List<ConsentPurpose> required,
   ) async {
-    final consents = await list(force: true);
+    final List<ConsentReceipt> consents;
+    try {
+      consents = await list(force: true);
+    } on ApiException catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.errorCode == ApiErrorCode.sessionExpired
+                ? 'Session expirée. Reconnecte-toi pour continuer.'
+                : 'Connexion indisponible. Réessaie dans un instant.'),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+      return false;
+    }
     final missing = required
         .where((p) => !_isGrantedNow(consents, p))
         .toList(growable: false);
@@ -139,8 +164,22 @@ class ConsentService {
     final accepted = await ConsentSheet.show(context, purposes: missing);
     if (accepted != true) return false;
 
-    for (final p in missing) {
-      await grant(p);
+    try {
+      for (final p in missing) {
+        await grant(p);
+      }
+    } on ApiException catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.errorCode == ApiErrorCode.sessionExpired
+                ? 'Session expirée pendant l’enregistrement. Reconnecte-toi.'
+                : 'Impossible d’enregistrer le consentement maintenant.'),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+      return false;
     }
     return true;
   }
