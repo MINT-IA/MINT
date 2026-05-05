@@ -8,19 +8,33 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 
 **Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.**
 
-## Current Milestone: v2.9 Coach Visuel Hybride
+## Current Milestone: v2.12 Production-Ready Sim Validation
 
-**Goal:** Verticale « Onboarding-to-First-Insight ». Un user qui arrive sur MINT a, en moins de 20 min, son profil financier sur les 6 axes suisses (AVS, LPP, 3a, salaire, fortune, charges) + un hero number actionnable « marge fiscale optimisable cette année » + un coach qui balance vignettes / scènes / canvas pour explorer les arbitrages (3a vs rachat LPP vs amortissement vs hypothèque) avec liens deep-dive vers les écrans Explorer existants.
+**Goal :** Aucun TestFlight tant que Claude n'a pas validé que l'app tourne PARFAITEMENT sur simulator — 4 archetypes × 3 langues × 7 quality gates. Le walker est la machine de vérité ; Julien ne fait aucun test. Le STAMP-08 (`.planning/phases/89-stamp/STAMP-PASS-<date>.html`) est la seule autorisation de tag v2.12.0.
 
-**4 phases planned:**
-- **Phase 40 — Marge fiscale backend** (3-5j) : pure function `compute_marge_fiscale(profile)` + endpoint + 10 unit tests
-- **Phase 41 — Hero + Vignettes L1** (1 sem) : `MargeFiscaleHero` + vignette inline chat
-- **Phase 42 — Scènes L2 interactives** (2 sem) : `MintSceneArbitrageRetraite` + `MintSceneArbitrageHypotheque`, slider live, début refactor `Stream<ChatMessage>`
-- **Phase 43 — Canvas L3 + lien Explorer** (1-2 sem) : `MintCanvasArbitrage` modal, return contract chat ← canvas
+**Doctrine v2.12 :** No-Ship-Without-Perfect-Sim. Pas de wishful thinking. 9 jours effort, 4 phases sequential, 32 REQs panel-locked.
 
-**Doctrine v2.9:** Le coach EST le produit. 3 niveaux de projection visuelle (vignette inline / scène interactive / canvas modal) intégrés dans le chat. Arbitrage live entre leviers fiscaux. Lien deep-dive vers écrans Explorer existants.
+**4 phases planned (86-89, post v2.11) :**
 
-**Carry-forward de v2.8:** FIX-01 UUID, FIX-03 save_fact, FIX-04 Coach tab, FIX-05 bare catches Wave 2+, FIX-07 234 backend accent violations, Phase 33 kill-flags (subset). Phase 34/35 deferred.
+- **Phase 86 — Walker green réel 4 archetypes (FR)** (3.0d) : calibration walker_premier_eclairage.sh + tooling upgrades (`--retry-once`, `--record-trace`, `--locale=<fr|de|en>`). 8 SIMQ-* REQs.
+- **Phase 87 — Bare-catches sweep Wave 1 (15 paths critiques)** (2.0d) : ~15 paths (walker-touched 6 + data-integrity 5 + UI-services 3 + top-1 ranked 1). Reste ledger `BARE_CATCH_DEBT.md`. Wave 2 → v2.13. 8 OBSV-* REQs.
+- **Phase 88 — Cross-language walker FR+DE+EN × 4 archetypes = 12 walks** (2.0d) : 0 retries policy, DE golden bake separate (DE strings +30% length), no-ellipsis assertion 4-card éclairage. 8 XLOC-* REQs.
+- **Phase 89 — Quality stamp + No-Ship-Until-Perfect gate** (2.0d) : 7-gate mechanical checklist. STAMP-PASS = autorisation TestFlight. 8 STAMP-* REQs.
+
+**7 quality gates (Phase 89) :**
+1. Walker green 12 walks exit 0, 0 retries
+2. Cold-launch P50 ≤ 2.5s sur iPhone sim (5 boots)
+3. Frame jank < 1% > 16ms sur 4-card éclairage scroll-and-tap 5s
+4. VoiceOver smoke 1 archetype × 3 langues, reading order déterministe via `Semantics.sortKey`
+5. Sentry ≥ 8 breadcrumb categories distincts au walker run staging dans 2 min
+6. ARB parity 6-lang exit 0 (déjà LANG-03)
+7. `BARE_CATCH_DEBT.md` ledger + `tools/checks/no_new_bare_catch.py` lint blocking
+
+**Carry-forward de v2.11 :** PRs #490-#496 absorbées (eclairage E2E + walker tooling + sim hygiene + i18n). v2.12 = la mise à l'épreuve mécanique de v2.11.
+
+**Out of scope (deferred to v2.13) :** IT/ES/PT walker (ARB-parity covers TI strings, visual gate hors scope), auth-tier regression archetype (anonymous-flow first), Wave 2 bare-catches (next 50), couple mode wiring (data layer cracked), iPhone SE / iPad viewports (single sim target = iPhone 17 Pro). v2.9 phases 40-43 (vignettes/scènes/canvas) re-deferred.
+
+**Previous milestone v2.11 — wiring shipped (PRs #490-#496) but runtime UNVALIDATED.** v2.12 = the validation gate.
 
 ## Previous Milestone: v2.8 L'Oracle & La Boucle (shipped 2026-04-25 with gaps)
 

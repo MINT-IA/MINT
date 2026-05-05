@@ -70,3 +70,47 @@ Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT
 
 ---
 *Last updated: 2026-04-25 — v2.8 closed at 5/9 + 13 decimals, gaps_found ; v2.9 « Coach Visuel Hybride » opened with Phase 40-43.*
+
+---
+
+## v2.12 — Production-Ready Sim Validation (opened 2026-05-05)
+
+**Goal :** Aucun TestFlight tant que Claude n'a pas validé que l'app tourne PARFAITEMENT sur simulator. Walker = machine de vérité ; Julien fait zéro test. STAMP-08 PASS = autorisation tag.
+
+**Critère de done :** `.planning/phases/89-stamp/STAMP-PASS-<date>.html` avec 7/7 quality gates green.
+
+**4 phases sequential, ~9d effort :**
+
+| # | Phase | REQs | Effort |
+|---|---|---|---|
+| 86 | Walker green réel 4 archetypes (FR) | SIMQ-01..08 (8) | 3.0d |
+| 87 | Bare-catches sweep Wave 1 (15 paths) | OBSV-01..08 (8) | 2.0d |
+| 88 | Cross-language 12 walks FR+DE+EN | XLOC-01..08 (8) | 2.0d |
+| 89 | Quality stamp 7-gate (LAST gate) | STAMP-01..08 (8) | 2.0d |
+
+**Critical path :** 86 → 87 → 88 → 89. NO parallelization. Sequential merges to dev.
+
+**7 quality gates Phase 89 :**
+1. Walker green 12 walks exit 0, 0 retries
+2. Cold-launch P50 ≤ 2.5s (5 boots)
+3. Frame jank < 1% > 16ms sur 4-card éclairage
+4. VoiceOver smoke 1 archetype × 3 langues, reading order déterministe
+5. Sentry ≥ 8 breadcrumb categories au walker run staging dans 2 min
+6. ARB parity 6-lang exit 0
+7. `BARE_CATCH_DEBT.md` ledger + `no_new_bare_catch.py` lint blocking
+
+**Coverage :** 32/32 REQs mapped (100%). Voir `.planning/REQUIREMENTS.md` traceability.
+
+**Doctrine v2.12 (anti–wishful-thinking) :**
+1. Walker = machine de vérité
+2. Stamp PASS = autorisation TestFlight ; FAIL = boucle 86-89
+3. Sequential merges to dev (anti phantom-contract trap v2.10)
+4. Ledger > sweep tout (Wave 1 = 15, reste v2.13)
+5. 0 retries Phase 88 — flake = real bug
+
+**Pré-requis :** v2.11 PRs #490-#496 mergées (notamment #493 walker overhaul + bash 3.2 fix + #495 sim hygiene).
+
+**Out of scope (deferred to v2.13) :** Walker IT/ES/PT, auth-tier regression, Wave 2 bare-catches (next 50), couple mode wiring, iPhone SE / iPad viewports.
+
+---
+*Updated 2026-05-05 — v2.12 opened, panel-locked.*

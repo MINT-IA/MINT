@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.8
-milestone_name: L'Oracle & La Boucle — Overview
-status: verifying
-stopped_at: Completed 30.7-04-PLAN.md (CLAUDE.md -30% atomic trim shipped, commit `43a38dff` ; T2 semantic cold-read + kill-switch rehearsal APPROVED by Julien 2026-04-22 ; Phase 30.7 5/5 plans complete ; J0 fresh-session smoke deferred to post-merge operational validation on creator's machine — not a code gate). Ready for `/gsd-verify-work 30.7` + `/gsd-secure-phase 30.7` (Auto profile L1 per ADR-20260419-autonomous-profile-tiered).
-last_updated: "2026-04-25T07:54:53.486Z"
-last_activity: 2026-04-25
+milestone: v2.12
+milestone_name: Production-Ready Sim Validation
+status: roadmap_complete
+stopped_at: 2026-05-05 — v2.12 opened post-v2.11 « wired but unvalidated » (PRs #490-#496 absorbés). Panel 4-pers (Sim QA + Observability + i18n + a11y) locked spec. 32 REQs across 4 phases (86-89). 7-gate quality stamp Phase 89 = TestFlight tag block until STAMP-PASS. Ready for `/gsd-plan-phase 86` ou autonomous execution.
+last_updated: "2026-05-05T21:00:00.000Z"
+last_activity: 2026-05-05
 progress:
-  total_phases: 9
-  completed_phases: 4
-  total_plans: 17
-  completed_plans: 22
-  percent: 100
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
