@@ -1250,8 +1250,42 @@
         "type": "object"
       },
       "AnonymousChatRequest": {
-        "description": "Request for anonymous discovery chat.\n\nNo authentication required. Limited to 3 messages per device token.",
+        "description": "Request for anonymous discovery chat.\n\nNo authentication required. Limited to 3 messages per device token.\n\nPhase 81 ECLB-01: optional `archetype` field. When set, the orchestrator\nconsults `MINT_E2E_FORCE_ECLAIRAGE_KIND` (env or `forced_eclairage_kind`\nbody field) to determine whether to emit a deterministic eclairage payload\nat coach turn 2.",
         "properties": {
+          "archetype": {
+            "anyOf": [
+              {
+                "enum": [
+                  "julien_swiss",
+                  "couple_acheteurs_lausanne",
+                  "jeune_diplome_zurich",
+                  "cadre_40_55_lpp_rachat"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Phase 81 ECLB-01: optional v2.10 archetype slug. When present AND turn 2 AND emitter pinned (env or body), backend emits a deterministic eclairage payload.",
+            "title": "Archetype"
+          },
+          "forcedEclairageKind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "fiscal_margin_3a",
+                  "lpp_rachat_3a_nantissement"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Phase 81 ECLB-03: optional emitter pin override. When set, takes precedence over the MINT_E2E_FORCE_ECLAIRAGE_KIND env var. Intended for E2E tests + walker runs.",
+            "title": "Forcedeclairagekind"
+          },
           "intent": {
             "anyOf": [
               {
@@ -1285,7 +1319,7 @@
         "type": "object"
       },
       "AnonymousChatResponse": {
-        "description": "Response for anonymous discovery chat.\n\nIncludes compliance disclaimers and remaining message count.",
+        "description": "Response for anonymous discovery chat.\n\nIncludes compliance disclaimers and remaining message count.\n\nPhase 81 ECLB-02: optional `eclairage: EclairageSchema | None` field.\nNone when the orchestrator emits free-form prose (default behaviour).\nSet when archetype is present + emitter is pinned at coach turn 2.",
         "properties": {
           "disclaimers": {
             "description": "Disclaimers de conformite.",
@@ -1294,6 +1328,17 @@
             },
             "title": "Disclaimers",
             "type": "array"
+          },
+          "eclairage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EclairageSchema"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Phase 81 ECLB-02: optional Premier Éclairage payload. None when the response is free-form prose. Set when the deterministic emitter fires at coach turn 2 with a pinned kind."
           },
           "message": {
             "description": "Reponse du coach en mode decouverte.",
@@ -8653,6 +8698,94 @@
           "disclaimer"
         ],
         "title": "EPLResponse",
+        "type": "object"
+      },
+      "EclairageSchema": {
+        "description": "Premier Éclairage payload — Phase 81 ECLB-02 + ECLB-04.\n\nMirrors Flutter `EclairageCardData` (Phase 80 consumer contract). Field\nnames use snake_case at storage time but are serialized as camelCase via\n`alias_generator=to_camel` (`chf_range_low` → `chfRangeLow`, etc.) so the\nmobile client receives the same convention as every other MINT response.\n\nLSFin compliance (ECLB-04, locked):\n    - chf_range_low + chf_range_high are ALWAYS both set OR both null —\n      a single absolute CHF figure is forbidden (no promise of returns).\n    - lsfin_disclaimer is non-optional (always rendered alongside the card).\n    - banned-terms enforcement is performed at emitter time\n      (anonymous_eclairage_emitter.build_payload), not in this schema —\n      the schema is the contract surface, not the guardrail.",
+        "properties": {
+          "body": {
+            "description": "Body copy (≤240 chars). Two-layer insight (fait + traduction humaine).",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Body",
+            "type": "string"
+          },
+          "chfRangeHigh": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Upper bound of conditional CHF range. None if range not applicable.",
+            "title": "Chfrangehigh"
+          },
+          "chfRangeLow": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Lower bound of conditional CHF range. None if range not applicable.",
+            "title": "Chfrangelow"
+          },
+          "chfRangePeriod": {
+            "default": "year",
+            "description": "Period the CHF range applies to.",
+            "enum": [
+              "year",
+              "month",
+              "lifetime"
+            ],
+            "title": "Chfrangeperiod",
+            "type": "string"
+          },
+          "headline": {
+            "description": "Headline phrase (≤80 chars). Renders as primary card title.",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Headline",
+            "type": "string"
+          },
+          "kind": {
+            "description": "Insight family. Drives Flutter card template selection.",
+            "enum": [
+              "fiscal_margin_3a",
+              "lpp_rachat_3a_nantissement"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "lsfinDisclaimer": {
+            "description": "LSFin compliance disclaimer (always rendered, never optional).",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Lsfindisclaimer",
+            "type": "string"
+          },
+          "softAccountHint": {
+            "description": "Soft hint copy nudging account creation. ≤80 chars, no hard CTA.",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Softaccounthint",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "headline",
+          "body",
+          "softAccountHint",
+          "lsfinDisclaimer"
+        ],
+        "title": "EclairageSchema",
         "type": "object"
       },
       "EmailVerificationConfirmRequest": {
