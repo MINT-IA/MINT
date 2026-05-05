@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/anonymous/eclairage_card.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
 
 /// Data class for a single chat message in the anonymous flow.
@@ -17,10 +18,16 @@ class _ChatMessage {
   final bool isUser;
   final DateTime timestamp;
 
+  /// Phase 72 — optional `eclairage` payload attached to the coach
+  /// response that delivered it. When non-null, the [_EclairageCard] is
+  /// rendered immediately below this bubble in the messages list.
+  final Map<String, dynamic>? eclairage;
+
   const _ChatMessage({
     required this.text,
     required this.isUser,
     required this.timestamp,
+    this.eclairage,
   });
 }
 
@@ -221,11 +228,22 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       return;
     }
 
+    // Phase 72 panel §4: parse `eclairage` payload (Phase 71b backend
+    // populates this field). Attach it to the coach message that
+    // delivered it so the card renders inline immediately below.
+    final rawEclairage = response['eclairage'];
+    Map<String, dynamic>? eclairagePayload;
+    if (rawEclairage is Map<String, dynamic> && !_eclairageDelivered) {
+      eclairagePayload = rawEclairage;
+      _eclairageDelivered = true;
+    }
+
     setState(() {
       _messages.add(_ChatMessage(
         text: coachMessage,
         isUser: false,
         timestamp: DateTime.now(),
+        eclairage: eclairagePayload,
       ));
       _isLoading = false;
       // Phase 71a panel §4: increment ONLY after a real coach response.
@@ -235,18 +253,6 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
 
     // Persist eagerly after each coach response so messages survive navigation.
     _persistToSharedPreferences();
-
-    // Phase 71a panel §4: parse `eclairage` payload (Phase 71b backend).
-    // Render the _EclairageCard inline below the bubble that triggered.
-    // For Phase 71a, the field is expected absent — render gracefully if null.
-    final eclairage = response['eclairage'];
-    if (eclairage is Map<String, dynamic> && !_eclairageDelivered) {
-      _eclairageDelivered = true;
-      // Card is rendered inline in build() via the `eclairage` field on
-      // the most recent coach message. Phase 71b backend will add the
-      // payload contract; for now, the card placeholder reads fields
-      // defensively.
-    }
 
     // After 3rd response (messagesRemaining == 0), show conversion prompt
     if (messagesRemaining == 0) {
@@ -373,8 +379,22 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   if (index == _messages.length) {
                     return _buildTypingIndicator();
                   }
+                  final msg = _messages[index];
                   final isOpener = index == 0 && _openerShown;
-                  return _buildMessageBubble(_messages[index], isOpener: isOpener);
+                  // Phase 72: render the bubble + (optionally) the
+                  // EclairageCard immediately below it when this coach
+                  // message delivered an `eclairage` payload.
+                  final bubble = _buildMessageBubble(msg, isOpener: isOpener);
+                  if (msg.eclairage == null) {
+                    return bubble;
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      bubble,
+                      EclairageCard(payload: msg.eclairage!),
+                    ],
+                  );
                 },
               ),
             ),
