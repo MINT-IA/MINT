@@ -18,7 +18,10 @@ import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/anonymous/eclairage_card.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
-import 'package:mint_mobile/widgets/coach/eclairage_card.dart';
+// v2.12 Phase 86 — `widgets/coach/eclairage_card.dart` was a Phase 80
+// duplicate of the panel-locked Phase 72 widget at
+// widgets/anonymous/eclairage_card.dart. Deleted in this integration
+// to resolve the « EclairageCard imported from both » build error.
 
 /// Data class for a single chat message in the anonymous flow.
 ///
@@ -489,7 +492,16 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       bubble,
-                      EclairageCard(payload: msg.eclairage!),
+                      EclairageCard(payload: <String, dynamic>{
+                        'kind': msg.eclairage!.kind.wireName,
+                        'headline': msg.eclairage!.headline,
+                        'body': msg.eclairage!.body,
+                        'chf_range_low': msg.eclairage!.chfRangeLow,
+                        'chf_range_high': msg.eclairage!.chfRangeHigh,
+                        'chf_range_period': msg.eclairage!.chfRangePeriod,
+                        'soft_account_hint': msg.eclairage!.softAccountHint,
+                        'lsfin_disclaimer': msg.eclairage!.lsfinDisclaimer,
+                      }),
                     ],
                   );
                 },
@@ -716,7 +728,21 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           bubble,
-          EclairageCard(data: message.eclairage!),
+          // v2.12 Phase 86 integration — convert EclairageCardData →
+          // Map<String, dynamic> payload to feed the panel-locked Phase
+          // 72 EclairageCard widget (anon path). Phase 80's typed
+          // eclairage_models.dart stays the canonical model ; we just
+          // adapt at the render boundary.
+          EclairageCard(payload: <String, dynamic>{
+            'kind': message.eclairage!.kind.wireName,
+            'headline': message.eclairage!.headline,
+            'body': message.eclairage!.body,
+            'chf_range_low': message.eclairage!.chfRangeLow,
+            'chf_range_high': message.eclairage!.chfRangeHigh,
+            'chf_range_period': message.eclairage!.chfRangePeriod,
+            'soft_account_hint': message.eclairage!.softAccountHint,
+            'lsfin_disclaimer': message.eclairage!.lsfinDisclaimer,
+          }),
         ],
       ),
     );

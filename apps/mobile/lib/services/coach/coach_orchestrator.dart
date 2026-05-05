@@ -166,13 +166,10 @@ class CoachOrchestrator {
   /// #1). Without this hook the LLM tool-chain re-derives a different
   /// kind every run and image-diff is doomed.
   ///
-  /// Returns null when unset (production / non-E2E runs).
-  static const String _forcedEclairageKindEnv =
-      String.fromEnvironment('MINT_E2E_FORCE_ECLAIRAGE_KIND');
-
-  /// Phase-74 deterministic éclairage kind override. Null in production.
-  static String? get forcedEclairageKind =>
-      _forcedEclairageKindEnv.isEmpty ? null : _forcedEclairageKindEnv;
+  // (duplicate `forcedEclairageKind` String getter from Phase 74 stub
+  // removed in v2.12 Phase 86 integration — the typed EclairageKind?
+  // version at line ~140 is the canonical one. Phase 74 stub was the
+  // phantom contract that v2.12 doctrine expected the walker to expose.)
 
   // ══════════════════════════════════════════════════════════════
   //  PUBLIC API — narrative (dashboard surface)

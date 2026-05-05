@@ -33,7 +33,7 @@ import 'package:mint_mobile/services/coach/chat_tool_dispatcher.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/coach/eclairage_models.dart';
-import 'package:mint_mobile/widgets/coach/eclairage_card.dart';
+import 'package:mint_mobile/widgets/anonymous/eclairage_card.dart';
 
 const String _forcedKindDefine = String.fromEnvironment(
   'MINT_E2E_FORCE_ECLAIRAGE_KIND',

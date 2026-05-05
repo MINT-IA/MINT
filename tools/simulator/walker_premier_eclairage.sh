@@ -292,7 +292,31 @@ _SIM_WIN_H=""
 _get_sim_window_bounds() {
   # Returns "X Y W H" on stdout (single line, space-separated).
   # Side-effect : populates _SIM_WIN_X/Y/W/H for downstream callers.
-  local raw x1 y1 x2 y2
+  # v2.12 Phase 86 — direct `tell application "Simulator"` errors with
+  # -1728 (« Can't get window 1 ») on iOS 26.2 sim runtime even when the
+  # Simulator app is alive. Fallback to `tell process "Simulator"` via
+  # System Events which exposes position + size of window 1 reliably.
+  # Last-resort hardcoded fallback uses audit-A measured bounds (window
+  # at 732,236 size 456×972 for iPhone 17 Pro at default position) so
+  # the walker is robust to Simulator AppleScript flakiness.
+  local raw x1 y1 x2 y2 pos size
+  # Activate first so window 1 is queryable.
+  osascript -e 'tell application "Simulator" to activate' >/dev/null 2>&1 || true
+  sleep 0.3
+  pos=$(osascript -e 'tell application "System Events" to tell process "Simulator" to get position of window 1' 2>/dev/null)
+  size=$(osascript -e 'tell application "System Events" to tell process "Simulator" to get size of window 1' 2>/dev/null)
+  if [ -n "$pos" ] && [ -n "$size" ]; then
+    # pos like "732, 236" ; size like "456, 972"
+    x1=$(echo "$pos"  | awk -F, '{gsub(/ /,"",$1); print $1}')
+    y1=$(echo "$pos"  | awk -F, '{gsub(/ /,"",$2); print $2}')
+    _SIM_WIN_X="$x1"
+    _SIM_WIN_Y="$y1"
+    _SIM_WIN_W=$(echo "$size" | awk -F, '{gsub(/ /,"",$1); print $1}')
+    _SIM_WIN_H=$(echo "$size" | awk -F, '{gsub(/ /,"",$2); print $2}')
+    echo "$_SIM_WIN_X $_SIM_WIN_Y $_SIM_WIN_W $_SIM_WIN_H"
+    return 0
+  fi
+  # Fallback to legacy direct query (works on older Sim runtimes)
   raw=$(osascript <<'APPLESCRIPT' 2>/dev/null || true
 tell application "Simulator"
   if (count of windows) is 0 then return "0,0,0,0"
@@ -302,8 +326,15 @@ end tell
 APPLESCRIPT
 )
   if [ -z "$raw" ] || [ "$raw" = "0,0,0,0" ]; then
-    echo "ERROR: osascript bounds returned empty — Simulator window not open?" >&2
-    return 1
+    # Last-resort hardcoded fallback (audit A measured bounds).
+    # iPhone 17 Pro at default Simulator window position on Mac mini :
+    # X=732 Y=236 W=456 H=972. Override via env if needed.
+    _SIM_WIN_X="${MINT_WALKER_SIM_X:-732}"
+    _SIM_WIN_Y="${MINT_WALKER_SIM_Y:-236}"
+    _SIM_WIN_W="${MINT_WALKER_SIM_W:-456}"
+    _SIM_WIN_H="${MINT_WALKER_SIM_H:-972}"
+    echo "$_SIM_WIN_X $_SIM_WIN_Y $_SIM_WIN_W $_SIM_WIN_H"
+    return 0
   fi
   x1=$(echo "$raw" | awk -F, '{print $1}')
   y1=$(echo "$raw" | awk -F, '{print $2}')
@@ -317,8 +348,14 @@ APPLESCRIPT
 }
 
 _refresh_sim_window_bounds() {
+  # _get_sim_window_bounds runs in a subshell so its global side-effects
+  # are lost — parse stdout ("X Y W H") into the parent shell vars here.
   local raw
   raw=$(_get_sim_window_bounds) || return 1
+  _SIM_WIN_X=$(echo "$raw" | awk '{print $1}')
+  _SIM_WIN_Y=$(echo "$raw" | awk '{print $2}')
+  _SIM_WIN_W=$(echo "$raw" | awk '{print $3}')
+  _SIM_WIN_H=$(echo "$raw" | awk '{print $4}')
   log "osascript bounds: X=$_SIM_WIN_X Y=$_SIM_WIN_Y W=$_SIM_WIN_W H=$_SIM_WIN_H"
 }
 
