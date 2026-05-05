@@ -42,7 +42,17 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.anonymous_session import AnonymousSession
-from app.schemas.anonymous_chat import AnonymousChatRequest, AnonymousChatResponse
+from app.schemas.anonymous_chat import (
+    AnonymousChatRequest,
+    AnonymousChatResponse,
+    EclairageSchema,
+)
+from app.services.coach.anonymous_eclairage_emitter import (
+    BannedTermLeak,
+    build_payload as build_eclairage_payload,
+    resolve_pinned_kind,
+    should_emit as should_emit_eclairage,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -258,17 +268,48 @@ async def anonymous_chat(
         language=body.language,
     )
 
-    # --- Step 6: Increment message count ---
+    # --- Step 6: Phase 81 ECLB-03 — deterministic eclairage emitter gate ---
+    pre_increment_count = anon_session.message_count
+    pinned_kind = resolve_pinned_kind(body.forced_eclairage_kind)
+    eclairage: Optional[EclairageSchema] = None
+    if should_emit_eclairage(
+        archetype=body.archetype,
+        pre_increment_count=pre_increment_count,
+        pinned_kind=pinned_kind,
+    ):
+        try:
+            eclairage = build_eclairage_payload(
+                archetype=body.archetype,  # type: ignore[arg-type]
+                pinned_kind=pinned_kind,
+            )
+        except BannedTermLeak as leak:
+            # ECLB-04 enforcement — server-side bug, surface as 500 so it's
+            # caught by tests/CI rather than silently shipped to the user.
+            logger.error(
+                "eclairage banned-term leak",
+                extra={
+                    "term": leak.term,
+                    "field": leak.field,
+                    "archetype": body.archetype,
+                },
+            )
+            raise HTTPException(
+                status_code=500,
+                detail="Eclairage payload failed compliance check.",
+            )
+
+    # --- Step 7: Increment message count ---
     anon_session.message_count += 1
     db.commit()
 
     new_count = anon_session.message_count
     messages_remaining = MAX_ANONYMOUS_MESSAGES - new_count
 
-    # --- Step 7: Return response ---
+    # --- Step 8: Return response ---
     return AnonymousChatResponse(
         message=result["answer"],
         disclaimers=result["disclaimers"],
         messages_remaining=messages_remaining,
         tokens_used=result["tokens_used"],
+        eclairage=eclairage,
     )
