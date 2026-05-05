@@ -1,0 +1,25 @@
+{
+  "slug": "julien_swiss",
+  "label": "Julien — Suisse natif (canton VD)",
+  "profile": {
+    "age": 34,
+    "canton": "VD",
+    "salary_brut_year": 110000,
+    "has_lpp": true,
+    "lpp_balance": 95000,
+    "has_3a": true,
+    "3a_balance": 12500,
+    "marital_status": "single",
+    "kids_count": 0,
+    "owns_property": false
+  },
+  "expected_eclairage": {
+    "kind": "fiscal_margin_3a",
+    "value_min": 1800,
+    "value_max": 3200
+  },
+  "deterministic_prompts": [
+    "Combien je peux mettre dans un 3a cette annee ?",
+    "Et l'economie d'impots correspondante ?"
+  ]
+}

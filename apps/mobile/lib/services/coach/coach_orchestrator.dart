@@ -149,6 +149,32 @@ class CoachOrchestrator {
       (SlmEngine.maxContextTokens * _charsPerToken).floor();
 
   // ══════════════════════════════════════════════════════════════
+  //  PHASE 74 — DETERMINISTIC ÉCLAIRAGE KIND OVERRIDE (E2E only)
+  // ══════════════════════════════════════════════════════════════
+
+  /// E2E-only override that pins the premier-éclairage `kind`
+  /// post-tool-dispatch so the walker's image-diff captures stay
+  /// deterministic across runs.
+  ///
+  /// Read from `--dart-define=MINT_E2E_FORCE_ECLAIRAGE_KIND=<kind>`.
+  /// Empty (the default) = no override, production behavior unchanged.
+  /// Non-empty = downstream callers (selector / persistence) read this
+  /// getter and substitute the resolved [PremierEclairageType] / payload
+  /// `kind` field with the env value.
+  ///
+  /// Phase 74 walker requirement (PANEL-VERDICT.md §3 + §8 hidden risk
+  /// #1). Without this hook the LLM tool-chain re-derives a different
+  /// kind every run and image-diff is doomed.
+  ///
+  /// Returns null when unset (production / non-E2E runs).
+  static const String _forcedEclairageKindEnv =
+      String.fromEnvironment('MINT_E2E_FORCE_ECLAIRAGE_KIND');
+
+  /// Phase-74 deterministic éclairage kind override. Null in production.
+  static String? get forcedEclairageKind =>
+      _forcedEclairageKindEnv.isEmpty ? null : _forcedEclairageKindEnv;
+
+  // ══════════════════════════════════════════════════════════════
   //  PUBLIC API — narrative (dashboard surface)
   // ══════════════════════════════════════════════════════════════
 

@@ -1,0 +1,10 @@
+{
+  "_comment": "Phase 82 hero bounding boxes for image-diff. iPhone 17 Pro native = 1206x2622 px (audit A 2026-05-05). Dynamic Island excluded — no bbox starts before y=180. Calibration verified by tools/checks/hero_bboxes_sanity.py at script preflight (WALKC-02).",
+  "_device": "iPhone 17 Pro",
+  "_resolution_px": [1206, 2622],
+  "_dynamic_island_y_max": 180,
+  "01-landing":          {"x": 0,  "y": 820,  "w": 1206, "h": 1230},
+  "02-anon-chat-opener": {"x": 0,  "y": 220,  "w": 1206, "h": 1450},
+  "04-eclairage-card":   {"x": 60, "y": 620,  "w": 1086, "h": 1140},
+  "05-register-cta":     {"x": 60, "y": 1860, "w": 1086, "h": 620}
+}

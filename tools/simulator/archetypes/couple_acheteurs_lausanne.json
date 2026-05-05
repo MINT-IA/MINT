@@ -1,0 +1,25 @@
+{
+  "slug": "couple_acheteurs_lausanne",
+  "label": "Couple acheteurs Lausanne",
+  "profile": {
+    "age": 38,
+    "canton": "VD",
+    "salary_brut_year": 145000,
+    "has_lpp": true,
+    "lpp_balance": 220000,
+    "has_3a": true,
+    "3a_balance": 18000,
+    "marital_status": "married",
+    "kids_count": 1,
+    "owns_property": false
+  },
+  "expected_eclairage": {
+    "kind": "lpp_rachat_3a_nantissement",
+    "value_min": 8000,
+    "value_max": 14000
+  },
+  "deterministic_prompts": [
+    "Combien je peux mettre dans un 3a cette annee ?",
+    "Et avec un rachat LPP en plus ?"
+  ]
+}
