@@ -87,45 +87,19 @@ def build_discovery_system_prompt(
     - Conversation history or past interactions
     - Any internal system or feature names
 
+    Phase 84 \u2014 LANG-01: the ``language`` parameter is now honored. Each of the
+    six supported locales (FR/EN/DE/IT/ES/PT) ships a hand-authored prompt
+    via :mod:`app.services.coach.discovery_prompts`. Unknown locales fall
+    back to French to preserve the previous behaviour.
+
     Threat mitigation T-13-05: prevents information disclosure about
     authenticated capabilities.
     """
-    # Base identity and rules
-    prompt_parts = [
-        "Tu es MINT, un compagnon de lucidite financiere suisse.",
-        "",
-        "Contexte : mode decouverte. La personne n'a pas encore de compte.",
-        "Tu ne sais rien sur elle. Tu ne disposes d'aucune donnee personnelle.",
-        "",
-    ]
+    from app.services.coach.discovery_prompts import (
+        build_localized_discovery_prompt,
+    )
 
-    # Intent injection (if user selected a felt-state pill)
-    if intent:
-        prompt_parts.append(
-            f"La personne a exprime ce sentiment : \u00ab\u202f{intent}\u202f\u00bb."
-        )
-        prompt_parts.append(
-            "Utilise ce sentiment comme point de depart pour ta reponse."
-        )
-        prompt_parts.append("")
-
-    # Rules and constraints
-    prompt_parts.extend([
-        "Regles strictes :",
-        "- Reponds avec un insight surprenant sur la finance suisse (un fait, un angle mort, une implication concrete).",
-        "- Couche 1 (fait) + couche 2 (traduction humaine) uniquement.",
-        "- Tutoie. Ton calme, precis, fin, rassurant, net.",
-        "- Maximum 1 question de relance a la fin.",
-        "- Jamais de recommandation de produit specifique.",
-        "- Jamais de promesse de rendement ni de certitude sur les resultats.",
-        "- Jamais de comparaison sociale ('top X%').",
-        "- Jamais de langage absolu ou prescriptif. Utilise le conditionnel.",
-        "- Reponse courte (3-5 phrases max).",
-        "",
-        "Objectif : surprendre la personne avec un eclairage qu'elle ne connaissait pas.",
-    ])
-
-    return "\n".join(prompt_parts)
+    return build_localized_discovery_prompt(intent=intent, language=language)
 
 
 # ---------------------------------------------------------------------------

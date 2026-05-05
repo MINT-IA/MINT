@@ -24,6 +24,15 @@ pre-commit:
       run: python3 tools/checks/map_freshness_hint.py {staged_files}
       glob: "*.{dart,py}"
       tags: [map, agents]
+    arb-key-parity:
+      # Phase 84 LANG-03 — fails the commit when any key in app_fr.arb is
+      # missing in another locale (or vice-versa). Only runs when an ARB
+      # file is staged so unrelated commits stay fast. The script reads
+      # every app_*.arb under apps/mobile/lib/l10n/ regardless of which
+      # one is staged (parity is a global property, not a per-file one).
+      run: python3 tools/checks/arb_parity.py
+      glob: "apps/mobile/lib/l10n/app_*.arb"
+      tags: [i18n, phase-84]
 
 skip:
   - merge
