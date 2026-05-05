@@ -77,6 +77,26 @@ SHOW_HELP=0
 REFERENCE_DIR=""
 PER_ARCHETYPE_TIMEOUT=180  # panel §1
 
+# SIMQ-08 (Phase 86) — timing constants extracted to one block, no
+# magic numbers inline. Values sourced from Phase 82 audit A 2026-05-05.
+BOOT_WAIT=4         # seconds, post-`xcrun simctl boot` settle
+FRAME_SETTLE=800    # milliseconds, post-tap UI settle (used by _wait_for_ui)
+TAP_SETTLE=400      # milliseconds, between tap and screenshot
+
+# SIMQ-05 (Phase 86) — single-retry contract for the WHOLE walker run.
+# When 1, on first non-zero exit the walker re-runs ONCE end-to-end.
+# Default 0 (Phase 88 contract is « 0 retries policy » per XLOC-01..03).
+RETRY_ONCE=0
+
+# SIMQ-06 (Phase 86) — emit `walker-trace-<archetype>-<lang>-<timestamp>.json`
+# manifest with Sentry event_id per step. When 0, no trace emitted.
+RECORD_TRACE=0
+
+# SIMQ-07 (Phase 86) — locale forwarded as `--dart-define=APP_LOCALE=<lang>`
+# to flutter build for cold-restart locale (per ADR ; not toggle-via-Settings).
+LOCALE="fr"
+VALID_LOCALES=(fr de en)
+
 VALID_ARCHETYPES=(
   julien_swiss
   couple_acheteurs_lausanne
@@ -137,6 +157,14 @@ while [ "$i" -lt "${#_args[@]}" ]; do
       REFERENCE_DIR="${_args[$i]:-}"
       ;;
     --reference-dir=*) REFERENCE_DIR="${a#--reference-dir=}" ;;
+    # SIMQ-05/06/07 (Phase 86) — wired flags
+    --retry-once) RETRY_ONCE=1 ;;
+    --record-trace) RECORD_TRACE=1 ;;
+    --locale)
+      i=$((i+1))
+      LOCALE="${_args[$i]:-fr}"
+      ;;
+    --locale=*) LOCALE="${a#--locale=}" ;;
     *)
       echo "ERROR: unknown flag '$a' (try --help)" >&2
       exit 1
@@ -144,6 +172,16 @@ while [ "$i" -lt "${#_args[@]}" ]; do
   esac
   i=$((i+1))
 done
+
+# SIMQ-07 — validate locale slug
+_locale_valid=0
+for v in "${VALID_LOCALES[@]}"; do
+  if [ "$LOCALE" = "$v" ]; then _locale_valid=1; break; fi
+done
+if [ "$_locale_valid" = "0" ]; then
+  echo "ERROR: unknown locale '$LOCALE' (valid : ${VALID_LOCALES[*]})" >&2
+  exit 1
+fi
 
 if [ "$SHOW_HELP" = "1" ]; then
   print_help
@@ -558,6 +596,17 @@ log "flutter build ios --simulator --no-codesign (archetype=$ARCHETYPE kind=$EXP
 # --no-codesign required when the working tree lives under an iCloud Drive
 # .nosync mount (com.apple.provenance xattrs). Mirrors walker.sh:587 +
 # walker_audit_tap_render.sh:233 (per memory feedback_diff_against_existing_tool).
+#
+# WALKC-07 (Phase 86 audit B 2026-05-05) — between consecutive archetype
+# runs the build/ios/Debug-iphonesimulator/Flutter.framework/Flutter binary
+# can pick up a `com.apple.provenance` xattr from filesystem state changes
+# (Spotlight reindex, Time Machine snapshot, anti-virus). macOS Sequoia/Tahoe
+# treats this xattr as immutable so `xattr -cr` cannot remove it. The only
+# reliable remediation is `flutter clean` to delete build/ entirely so
+# Flutter re-copies the framework fresh from the SDK cache. Adds ~30s to
+# each walker run but eliminates the « resource fork detritus » failure.
+log "WALKC-07 — flutter clean to drop xattr-tainted build/ (sim build flake mitigation)"
+(cd "$REPO_ROOT/apps/mobile" && flutter clean >/dev/null 2>&1) || true
 SENTRY_FLAG=""
 if [ -n "${SENTRY_DSN_STAGING:-}" ]; then
   SENTRY_FLAG="--dart-define=SENTRY_DSN=${SENTRY_DSN_STAGING}"
@@ -567,12 +616,24 @@ fi
 # `BetaProgramDisclosureSheet.maybeShow()` so the modal never appears in
 # walker builds. This is belt-and-suspenders alongside Phase 82's explicit
 # `_dismiss_beta_modal` step (WALKC-05). Production builds never set this.
-(cd "$REPO_ROOT/apps/mobile" && flutter build ios --simulator --no-codesign \
+#
+# WALKC-08 (Phase 86 audit B 2026-05-05) — `CODE_SIGNING_ALLOWED=NO` env
+# var disables ad-hoc codesign of Flutter.framework on simulator builds.
+# macOS Sequoia/Tahoe tags Flutter SDK Flutter.framework/Flutter binary
+# with `com.apple.provenance` xattr (system-immutable, survives
+# xattr -cr / xattr -d / cp / ditto / tar / Python rewrite). codesign
+# refuses to sign files with this xattr (treats it as "resource fork
+# detritus"). `--no-codesign` is insufficient because Xcode still
+# attempts ad-hoc signing of embedded frameworks. CODE_SIGNING_ALLOWED=NO
+# tells Xcode to skip that step entirely. Sim builds don't need a
+# real signature anyway. Verified on iPhone 17 Pro sim 2026-05-05.
+(cd "$REPO_ROOT/apps/mobile" && CODE_SIGNING_ALLOWED=NO flutter build ios --simulator --no-codesign \
   --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
   --dart-define=MINT_E2E_ARCHETYPE="$ARCHETYPE" \
   --dart-define=MINT_E2E_FORCE_ECLAIRAGE_KIND="$EXPECTED_KIND" \
   --dart-define=MINT_WALKTHROUGH_PHASE=74 \
   --dart-define=MINT_DISABLE_BETA_MODAL=true \
+  --dart-define=APP_LOCALE="$LOCALE" \
   ${SENTRY_FLAG}) 2>&1 | tee -a "$LOG"
 
 APP_PATH="$REPO_ROOT/apps/mobile/build/ios/iphonesimulator/Runner.app"
