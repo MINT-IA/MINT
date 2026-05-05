@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/anonymous_chat_persistence.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -662,6 +663,11 @@ class AuthProvider extends ChangeNotifier {
       try {
         await ConversationStore.migrateAnonymousToUser(currentUserId);
         await AnonymousSessionService.clearSession();
+        // Phase 57 PR-B — drop the versioned anonymous chat snapshot
+        // (mint.anonymous.chat.v1). Consent boundary : we do NOT keep
+        // a per-user log past account creation ; the conversation has
+        // already been migrated into the user namespace above.
+        await AnonymousChatPersistence().clear();
       } catch (e) {
         if (kDebugMode) {
           debugPrint('[AuthProvider] Anonymous conversation migration failed: $e');

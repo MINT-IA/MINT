@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/anonymous_chat_persistence.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -36,7 +37,12 @@ class AnonymousChatScreen extends StatefulWidget {
   /// The felt-state pill text or free-text from the intent screen.
   final String? intent;
 
-  const AnonymousChatScreen({super.key, this.intent});
+  /// Phase 57 PR-B — optional persistence injection. Defaults to a fresh
+  /// `AnonymousChatPersistence()` (constructor cheap, instance-based). Tests
+  /// inject a mock-backed instance to assert save/clear/load behaviour.
+  final AnonymousChatPersistence? persistence;
+
+  const AnonymousChatScreen({super.key, this.intent, this.persistence});
 
   @override
   State<AnonymousChatScreen> createState() => _AnonymousChatScreenState();
@@ -50,6 +56,14 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   bool _isLoading = false;
   bool _isAuthGateLocked = false;
   bool _intentSent = false;
+
+  /// Phase 57 PR-B — versioned, TTL-bounded SharedPreferences snapshot of
+  /// the anonymous transcript. Hydrated on initState ; saved after every
+  /// user/coach turn ; cleared by auth_provider._migrateLocalDataIfNeeded
+  /// on register_success (consent boundary — no per-user log retained
+  /// past account creation).
+  late final AnonymousChatPersistence _persistence =
+      widget.persistence ?? AnonymousChatPersistence();
 
   /// User-provided gross annual salary for the anonymous AVS+LPP rente
   /// quick estimate. Null until the user enters a value in the teaser.
@@ -68,15 +82,46 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.intent != null && widget.intent!.isNotEmpty) {
-      // Auto-send the intent as the first user message after build.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && !_intentSent) {
-          _intentSent = true;
-          _sendMessage(widget.intent!);
-        }
-      });
-    }
+    // Phase 57 PR-B — hydrate first (must complete before intent auto-send
+    // so we don't double-stack a fresh intent on top of restored history).
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await _hydrateFromPersistence();
+      if (!mounted) return;
+      if (widget.intent != null &&
+          widget.intent!.isNotEmpty &&
+          !_intentSent &&
+          _messages.isEmpty) {
+        // Only auto-send when there is no restored history — resuming a
+        // dead-ended convo must not duplicate the original intent message.
+        _intentSent = true;
+        _sendMessage(widget.intent!);
+      } else if (_messages.isNotEmpty) {
+        // Treat a restored transcript as "intent already sent" so a later
+        // setState pass doesn't re-fire the auto-send branch.
+        _intentSent = true;
+      }
+    });
+  }
+
+  /// Phase 57 PR-B — restore prior anonymous transcript from disk if a
+  /// fresh, non-expired snapshot exists. Silent no-op on empty / expired.
+  Future<void> _hydrateFromPersistence() async {
+    final snapshot = await _persistence.load();
+    if (snapshot == null || snapshot.messages.isEmpty) return;
+    if (!mounted) return;
+    setState(() {
+      _messages
+        ..clear()
+        ..addAll(snapshot.messages.map((r) {
+          return _ChatMessage(
+            text: r.content,
+            isUser: r.role == 'user',
+            timestamp: r.timestamp,
+          );
+        }));
+    });
+    _scrollToBottom();
   }
 
   @override
@@ -140,6 +185,10 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
       _inputController.clear();
     });
     _scrollToBottom();
+    // Phase 57 PR-B — persist eagerly on user-send so a kill mid-LLM-call
+    // still preserves the typed message (and surfaces it on resume even
+    // if the assistant turn never lands).
+    _persistToSharedPreferences();
 
     // Only pass intent on the first message
     final isFirstMessage = _messages.where((m) => m.isUser).length == 1;
@@ -238,6 +287,10 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   /// after account creation, regardless of navigation path.
   ///
   /// Fire-and-forget — never blocks UI. Called after each coach response.
+  ///
+  /// Phase 57 PR-B — also writes the versioned `mint.anonymous.chat.v1`
+  /// envelope via [AnonymousChatPersistence] so the screen can rehydrate
+  /// after an app kill (closes the « 3-msg dead-end » UX bug).
   void _persistToSharedPreferences() {
     // Convert local _ChatMessage list to ChatMessage for ConversationStore.
     final chatMessages = _messages
@@ -252,6 +305,13 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
     ConversationStore.setCurrentUserId(null);
     ConversationStore().saveConversation(_conversationId, chatMessages).catchError((e) {
       debugPrint('[AnonymousChat] Eager persist failed: $e');
+    });
+
+    // Phase 57 PR-B — versioned snapshot for resume-after-kill.
+    _persistence
+        .save(messages: chatMessages, intent: widget.intent)
+        .catchError((Object e) {
+      debugPrint('[AnonymousChat] persistence.save failed: $e');
     });
   }
 
@@ -696,7 +756,13 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
               child: TextButton(
                 onPressed: () {
                   HapticFeedback.lightImpact();
-                  context.go('/auth/register');
+                  // Phase 57 PR-B — round-trip back to /anonymous/chat after
+                  // register. The redirect is only honoured by register_screen
+                  // when it starts with "/" ; the transcript is cleared by
+                  // auth_provider._migrateLocalDataIfNeeded so the user lands
+                  // on a fresh chat surface (anon transcript already migrated
+                  // into the user namespace via ConversationStore).
+                  context.go('/auth/register?redirect=/anonymous/chat');
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: MintColors.primary,
