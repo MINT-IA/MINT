@@ -102,10 +102,11 @@ exactly 1 redirect branch and 0 null-pass-through branches. Plan 03 Task 2 asser
 | 41 | 1169 | `/onboarding/smart`                     | `/coach/chat`      | 1                 | 0                 | `(_, __) => '/coach/chat'` (scope: onboarding)       |
 | 42 | 1170 | `/onboarding/minimal`                   | `/coach/chat`      | 1                 | 0                 | `(_, __) => '/coach/chat'` (scope: onboarding)       |
 | 43 | 1171 | `/onboarding/enrichment`                | `/profile/bilan`   | 1                 | 0                 | `(_, __) => '/profile/bilan'` (scope: onboarding)    |
+| 44 | 1387 | `/dossier`                              | `/profile/bilan`   | 1                 | 0                 | Sprint 1.5 P1 — user-mental alias redirect           |
 
 **Totals:**
-- Total sites: **43**
-- Total `redirect_branches` (expected `MintBreadcrumbs.legacyRedirectHit` source-call count in app.dart): **43**
+- Total sites: **44**
+- Total `redirect_branches` (expected `MintBreadcrumbs.legacyRedirectHit` source-call count in app.dart): **44**
 - Total `null_pass_through` branches: **0** (every site is arrow-form, single-branch, non-null)
 
 **Plan 03 Task 2 contract (derived from this inventory):**

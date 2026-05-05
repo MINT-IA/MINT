@@ -1193,4 +1193,11 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     requiresAuth: false,
     description: 'Onboarding shim -> /profile/bilan',
   ),
+  '/dossier': RouteMeta(
+    path: '/dossier',
+    category: RouteCategory.alias,
+    owner: RouteOwner.system,
+    requiresAuth: true,
+    description: 'Sprint 1.5 P1 — user-mental alias for FinancialSummaryScreen, redirects to /profile/bilan',
+  ),
 };

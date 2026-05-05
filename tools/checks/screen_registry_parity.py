@@ -84,6 +84,9 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     "/onboarding/promise",
     "/onboarding/quick-start",
     "/onboarding/smart",
+    # Sprint 1.5 P1 — user-mental alias redirect to /profile/bilan,
+    # never chat-targetable (chat resolves "dossier" intent → /profile/bilan).
+    "/dossier",
 }
 
 # Routes that belong to the registry but use a dynamic / parametric form
