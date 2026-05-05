@@ -25,6 +25,38 @@ pre-commit:
       glob: "*.{dart,py}"
       tags: [map, agents]
 
+    lsfin-banned-terms-arb:
+      # Phase 70a — milestone v2.10 COMP-01. LSFin Rule #1 « garanti »-
+      # family blocking on the 6 ARB locales. V1 scope per docstring of
+      # banned_terms_arb.py — the « optimal / parfait / sans risque /
+      # idéal / il faut / vous économiserez / rentable / opportunité »
+      # expanded list lives as a runtime check in the coach prompt
+      # pipeline (check_banned_terms MCP, called from
+      # services/backend/app/services/coach/anonymous_eclairage_prompt.py
+      # at request time), NOT in this static lint, because those terms
+      # have too many colloquial uses across FR/EN/DE/IT/ES/PT to lint
+      # mechanically without false positives. This pre-commit gate
+      # catches the most-prosecuted family (« garanti / guaranteed /
+      # garantiert / garantizado / garantito / garantido ») where false
+      # positive rate is near zero. Per memory feedback_public_repo_
+      # discipline.md : the public MINT-IA/MINT mirror must never ship
+      # a positive « garanti* » use.
+      run: python3 tools/checks/banned_terms_arb.py
+      glob: "apps/mobile/lib/l10n/app_*.arb"
+      tags: [compliance, lsfin, milestone-v2.10]
+
+    no-legal-admission-public-docs:
+      # Phase 70a — milestone v2.10 COMP-02. Repo MINT-IA/MINT is
+      # PUBLIC. Forensic / personal-liability framing in committed
+      # markdown reads as adverse admission when quoted out of context.
+      # Per memory feedback_public_repo_discipline.md. Per-line override
+      # via `<!-- ALLOW-LEGAL-ADMISSION: reason -->` comment on the
+      # offending line for legitimate cited references (e.g. citing
+      # nFADP art. 6 in a compliance doc).
+      run: python3 tools/checks/no_legal_admission_in_public_docs.py
+      glob: "{.planning,decisions,docs}/**/*.md"
+      tags: [compliance, public-repo, milestone-v2.10]
+
 skip:
   - merge
   - rebase
