@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/document_event.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:uuid/uuid.dart';
 
 /// v2.7 Task 7 — client-generated UUID v4 for Idempotency-Key header on
@@ -1187,6 +1188,16 @@ class DocumentService {
         throw const DocumentServiceException(
           code: 'not_financial',
           message: 'Document classified as non-financial',
+        );
+      }
+      // Sprint 0 — surface session expiry so it's auditable in Sentry.
+      // Vision endpoint bypasses ApiService and currently graceful-degrades
+      // to null on any non-200/422; without this breadcrumb the 401 was
+      // invisible to ops (degrades silently while the user keeps tapping).
+      if (response.statusCode == 401) {
+        MintBreadcrumbs.sessionExpired(
+          surface: 'DocumentService.extractWithVision',
+          refreshAttempted: false,
         );
       }
       return null;

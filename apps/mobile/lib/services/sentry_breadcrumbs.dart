@@ -150,6 +150,36 @@ class MintBreadcrumbs {
     ));
   }
 
+  /// Sprint 0 — auth session-expired breadcrumb.
+  ///
+  /// Emitted from `ApiService` when a 401 persists after the auto-refresh
+  /// attempt failed (i.e. the user's session is genuinely gone) AND from
+  /// `DocumentService.extractWithVision` when its manual HTTP call
+  /// observes a 401 (currently graceful-degrades to null — invisible
+  /// without this breadcrumb).
+  ///
+  /// category = `mint.auth.session.expired`
+  /// level    = warning
+  /// data     = { 'surface': String, 'refresh_attempted': bool? }
+  ///
+  /// [surface] is a callsite identifier (e.g. `'ApiService.get'`,
+  /// `'DocumentService.extractWithVision'`) — NEVER a user-generated path
+  /// or query string. PII discipline (Pitfall 6) — Sprint 0 keeps the
+  /// payload to ENUM/BOOL like the rest of the helper.
+  static void sessionExpired({
+    required String surface,
+    bool? refreshAttempted,
+  }) {
+    Sentry.addBreadcrumb(Breadcrumb(
+      category: 'mint.auth.session.expired',
+      level: SentryLevel.warning,
+      data: <String, dynamic>{
+        'surface': surface,
+        if (refreshAttempted != null) 'refresh_attempted': refreshAttempted,
+      },
+    ));
+  }
+
   /// Phase 32 D-09 §4 — admin tool access processing record (nLPD Art. 12).
   ///
   /// category = `mint.admin.routes.viewed`

@@ -10,6 +10,7 @@ import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// P2-18: Error codes for i18n — UI layer maps these to AppLocalizations.
@@ -306,6 +307,10 @@ class ApiService {
         // FIX-048: After refresh failure + still 401, clear auth state.
         // User must re-login. Don't leave stale token in secure storage.
         await AuthService.logout();
+        MintBreadcrumbs.sessionExpired(
+          surface: 'ApiService.get',
+          refreshAttempted: true,
+        );
         throw ApiException.sessionExpired();
       } else {
         throw ApiException('GET $endpoint failed: ${response.body}', statusCode: response.statusCode);
@@ -336,6 +341,10 @@ class ApiService {
       } else if (response.statusCode == 401) {
         // P1-11: Clear auth state on 401 after refresh failure.
         await AuthService.logout();
+        MintBreadcrumbs.sessionExpired(
+          surface: 'ApiService.getText',
+          refreshAttempted: true,
+        );
         throw ApiException.sessionExpired();
       }
       throw ApiException(
@@ -371,6 +380,10 @@ class ApiService {
       } else if (response.statusCode == 401) {
         // P1-11: Clear auth state on 401 after refresh failure.
         await AuthService.logout();
+        MintBreadcrumbs.sessionExpired(
+          surface: 'ApiService.post',
+          refreshAttempted: true,
+        );
         throw ApiException.sessionExpired();
       } else {
         throw ApiException(
@@ -407,6 +420,10 @@ class ApiService {
       } else if (response.statusCode == 401) {
         // P1-11: Clear auth state on 401 after refresh failure.
         await AuthService.logout();
+        MintBreadcrumbs.sessionExpired(
+          surface: 'ApiService.put',
+          refreshAttempted: true,
+        );
         throw ApiException.sessionExpired();
       } else {
         throw ApiException(
@@ -438,6 +455,10 @@ class ApiService {
       if (response.statusCode == 401) {
         // P1-11: Clear auth state on 401 after refresh failure.
         await AuthService.logout();
+        MintBreadcrumbs.sessionExpired(
+          surface: 'ApiService.delete',
+          refreshAttempted: true,
+        );
         throw ApiException.sessionExpired();
       }
       if (response.statusCode != 200 && response.statusCode != 204) {
