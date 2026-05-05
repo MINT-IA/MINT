@@ -1,6 +1,7 @@
 # Requirements: MINT v2.10 — Le Premier Éclairage (Cleo-grade)
 
 **Defined:** 2026-05-05
+**Roadmap:** 2026-05-04
 **Core Value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, reçoit une réponse qui le surprend, crée un compte pour ne pas perdre ça.
 
 ## v2.10 Requirements (active scope)
@@ -72,46 +73,55 @@ Periphery serré : 4 surfaces utilisateur + 1 gate walker + hygiène repo. Pas p
 | Vignettes / Scènes / Canvas (v2.9 doctrine) | Deferred — those phases (40-43) are NOT v2.10 ; revisited post-TestFlight. |
 | BYOK (Bring Your Own Key) testing | Out per memory `project_byok_scope` ; ServerKey only for v2.10. |
 
-## Traceability (filled by roadmap)
+## Traceability (filled by roadmap 2026-05-04)
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LAND-01 | TBD | Pending |
-| LAND-02 | TBD | Pending |
-| LAND-03 | TBD | Pending |
-| LAND-04 | TBD | Pending |
-| LAND-05 | TBD | Pending |
-| LAND-06 | TBD | Pending |
-| LAND-07 | TBD | Pending |
-| ANON-01 | TBD | Pending |
-| ANON-02 | TBD | Pending |
-| ANON-03 | TBD | Pending |
-| ANON-04 | TBD | Pending |
-| ANON-05 | TBD | Pending |
-| ANON-06 | TBD | Pending (PR-A #480 ships it) |
-| ANON-07 | TBD | Pending (PR-B #482 ships it) |
-| ECL-01 | TBD | Pending |
-| ECL-02 | TBD | Pending |
-| ECL-03 | TBD | Pending (PR-C #481 ships it) |
-| ECL-04 | TBD | Pending |
-| WALK-01 | TBD | Pending |
-| WALK-02 | TBD | Pending |
-| WALK-03 | TBD | Pending |
-| WALK-04 | TBD | Pending |
-| WALK-05 | TBD | Pending |
-| WALK-06 | TBD | Pending |
-| COMP-01 | TBD | Pending |
-| COMP-02 | TBD | Pending |
-| HYG-01 | TBD | Pending |
-| HYG-02 | TBD | Pending |
-| HYG-03 | TBD | Pending |
-| HYG-04 | TBD | Pending |
-| HYG-05 | TBD | Pending |
+| LAND-01 | 73 | Pending |
+| LAND-02 | 73 | Pending |
+| LAND-03 | 73 | Pending |
+| LAND-04 | 73 | Pending |
+| LAND-05 | 73 | Pending |
+| LAND-06 | 73 | Pending |
+| LAND-07 | 73 | Pending |
+| ANON-01 | 71 | Pending |
+| ANON-02 | 71 | Pending |
+| ANON-03 | 71 | Pending |
+| ANON-04 | 71 | Pending |
+| ANON-05 | 72 | Pending |
+| ANON-06 | 71 | Pending (PR-A #480 ships it ; validated behind new UI in 71) |
+| ANON-07 | 71 | Pending (PR-B #482 ships it ; validated behind new UI in 71) |
+| ECL-01 | 72 | Pending |
+| ECL-02 | 72 | Pending |
+| ECL-03 | 72 | Pending (PR-C #481 ships it ; prompt-path assertion in 72) |
+| ECL-04 | 71 | Pending |
+| WALK-01 | 74 | Pending |
+| WALK-02 | 74 | Pending |
+| WALK-03 | 74 | Pending |
+| WALK-04 | 74 | Pending |
+| WALK-05 | 74 | Pending |
+| WALK-06 | 74 | Pending |
+| COMP-01 | 70 | Pending |
+| COMP-02 | 70 | Pending |
+| HYG-01 | 70 | Pending |
+| HYG-02 | 70 | Pending |
+| HYG-03 | 70 | Pending |
+| HYG-04 | 70 | Pending |
+| HYG-05 | 75 | Pending |
 
 **Coverage:**
 - v2.10 requirements: 31 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 31 ⚠️
+- Mapped to phases: **31** ✓ (100%)
+- Unmapped: 0 ✓
+- Phases: 6 (70 / 71 / 72 / 73 / 74 / 75)
+
+**Phase distribution:**
+- Phase 70 (Hygiene + LSFin lint): 6 REQs (HYG-01..04, COMP-01, COMP-02)
+- Phase 71 (Anonymous Chat redesign): 7 REQs (ANON-01..04, ANON-06, ANON-07, ECL-04)
+- Phase 72 (Premier Éclairage rendering): 4 REQs (ANON-05, ECL-01, ECL-02, ECL-03)
+- Phase 73 (Landing v3 éditorial): 7 REQs (LAND-01..07)
+- Phase 74 (Walker E2E + golden): 6 REQs (WALK-01..06)
+- Phase 75 (TestFlight 2.10.0 cut): 1 REQ (HYG-05)
 
 ## Constraints from Julien (operational, 2026-05-05)
 
@@ -122,4 +132,4 @@ Periphery serré : 4 surfaces utilisateur + 1 gate walker + hygiène repo. Pas p
 
 ---
 *Requirements defined: 2026-05-05*
-*Last updated: 2026-05-05 — v2.10 milestone open, roadmap pending*
+*Last updated: 2026-05-04 — roadmap shipped, 31/31 REQs mapped to phases 70-75, traceability complete.*
