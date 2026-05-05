@@ -47,8 +47,27 @@
     <tr>
       <td>STAMP-02</td>
       <td>Cold-launch P50 ≤ 2.5s sur iPhone 17 Pro sim (5 boots)</td>
-      <td class="pending">PENDING</td>
-      <td>Requires dedicated measurement session via <code>xcrun simctl spawn booted log stream --predicate 'process="Runner"'</code> over 5 boots. Walker artifacts contain launch timestamps but P50 calc not yet aggregated.</td>
+      <td class="fail">MEASURED — gate FAIL by 167ms</td>
+      <td>
+        Measurement infra shipped : <code>tools/simulator/measure_cold_launch.sh</code>
+        (commit 904151eb). 5 iterations on booted iPhone 17 Pro sim 2026-05-05 23:35 :
+        <ul>
+          <li>min : 2653ms</li>
+          <li><strong>P50 : 2667ms</strong></li>
+          <li>P95 : 2714ms</li>
+          <li>max : 2714ms</li>
+        </ul>
+        Gate threshold P50 ≤ 2500ms violated by ~167ms (~7%). Optimization paths
+        evaluated but not applied this session :
+        <ol>
+          <li>Defer <code>ApiService.ensureReachableBaseUrl()</code> (currently blocks main.dart line 42 with network call).</li>
+          <li>Reduce <code>FeatureFlags.refreshFromBackend()</code> timeout from 2s to 800ms.</li>
+          <li>Lazy-init <code>SlmDownloadService.initializePlugin()</code> (currently blocks up to 5s ; usually fast but worst-case heavy).</li>
+        </ol>
+        Recommendation : either (a) apply optimizations 1+2 above (~est 200-400ms saving), or
+        (b) adjust gate threshold to 2.7s (8% headroom, defensible on real iPhone hardware
+        which is faster than simulator). Decision deferred to follow-up.
+      </td>
     </tr>
     <tr>
       <td>STAMP-03</td>
