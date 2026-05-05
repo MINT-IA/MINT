@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINT — Phase 55 — Sprint 1 Navigation Audit (Evidence)</title>
+<style>
+  :root {
+    --primary: #003b2f;
+    --textPrimary: #1d1d1f;
+    --textSecondary: #525256;
+    --textMuted: #95989d;
+    --success: #157b35;
+    --warning: #8c3f06;
+    --error: #8b1d1d;
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --border: #e5e5e0;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         max-width: 1100px; margin: 0 auto; padding: 24px;
+         background: var(--bg); color: var(--textPrimary); line-height: 1.55; }
+  h1 { font-size: 28px; margin: 8px 0 4px; color: var(--primary); }
+  h2 { font-size: 22px; margin: 32px 0 8px; padding-bottom: 6px;
+       border-bottom: 1px solid var(--border); color: var(--primary); }
+  h3 { font-size: 17px; margin: 18px 0 6px; color: var(--textPrimary); }
+  .subtitle { color: var(--textSecondary); font-size: 14px; margin-bottom: 20px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px;
+          font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+          text-transform: uppercase; }
+  .b-pass { background: #e6f4ec; color: var(--success); }
+  .b-warn { background: #fbecde; color: var(--warning); }
+  .b-fail { background: #fbe6e6; color: var(--error); }
+  .b-info { background: #e9eef3; color: var(--textSecondary); }
+  .b-pending { background: #f3eedb; color: var(--warning); }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0;
+          background: var(--surface); border: 1px solid var(--border); }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--border);
+          text-align: left; vertical-align: top; font-size: 14px; }
+  th { background: #f3f3ed; font-weight: 600; }
+  code { background: #f3f3ed; padding: 1px 5px; border-radius: 4px;
+         font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+  pre { background: #1d1d1f; color: #f0f0f0; padding: 12px;
+        border-radius: 6px; overflow-x: auto; font-size: 13px; }
+  .meta { color: var(--textMuted); font-size: 12px; margin-top: 32px; }
+  ul, ol { margin: 8px 0 14px 22px; }
+</style>
+</head>
+<body>
+
+<h1>Phase 55 — Sprint 1 Navigation Audit (Evidence)</h1>
+<p class="subtitle">Audit-only · No applicative Dart code modified · Inputs: <code>apps/mobile/lib/app.dart</code> (1907 LOC) + <code>apps/mobile/lib/services/navigation/screen_registry.dart</code> (2046 LOC) · Companion docs: <code>.planning/audits/2026-05-05-nav-audit-routes.md</code> + <code>.planning/audits/2026-05-05-nav-audit-gaps.md</code></p>
+
+<h2>Phase scope</h2>
+
+<p>Sprint 1 of the TestFlight trajectory (Mission #1, allégée). Goal: produce a Pareto-aligned fix plan shippable in 1–2 days. Deliverables: 2 audit Markdown files (route inventory + gaps&dead-ends) + this HTML evidence report. No Dart edits this phase — fixes are scheduled for Sprint 2 implementation per the Pareto table below.</p>
+
+<h2>Recap table — before / after route counts</h2>
+
+<table>
+<tr><th>Metric</th><th>Before (today, 2026-05-05)</th><th>After Pareto fixes shipped</th></tr>
+<tr><td>app.dart path literals</td><td><span class="badge b-info">153</span> (incl. legacy redirects + nested children)</td><td>same (legacy routes preserved per « 2-release zombie » policy)</td></tr>
+<tr><td>MintScreenRegistry entries</td><td><span class="badge b-info">138</span></td><td>≤138 (P5 dedup of 26 DUPLICATE-INTENT-SHIM may reduce to ~112 — backlog)</td></tr>
+<tr><td>screen_registry_parity.py verdict</td><td><span class="badge b-pass">[OK] 125 routes parity OK</span></td><td>same (parity tool unaffected)</td></tr>
+<tr><td>References-zombie semantiques (entry → redirect-only)</td><td><span class="badge b-warn">9</span></td><td>P5 fix → <span class="badge b-pass">2</span> (only `coach_chat?topic=` shortcuts remain, by design)</td></tr>
+<tr><td>Top dead-ends found</td><td><span class="badge b-fail">5</span></td><td>P1+P2 fix → <span class="badge b-pass">0 critical</span> (P3-5 PENDING-VERIFY tracked Sprint 5)</td></tr>
+<tr><td>404 silent (`/dossier` alias inexistant)</td><td><span class="badge b-fail">YES</span></td><td><span class="badge b-pass">redirect → /profile/bilan</span></td></tr>
+<tr><td>Onboarding system-back behaviour</td><td><span class="badge b-pending">PENDING-VERIFY</span></td><td>Sprint 5 walker E2E</td></tr>
+</table>
+
+<h2>Inventory deltas (programmatic diff)</h2>
+
+<p>Computed via <code>python3 tools/checks/screen_registry_parity.py --extract-only {app,registry}</code> + <code>comm</code>. Numbers exclude KNOWN-MISSES allow-list categories A (NOT_CHAT_ROUTABLE) and B (NESTED_PROFILE_CHILDREN).</p>
+
+<table>
+<tr><th>Side</th><th>Count</th><th>Notes</th></tr>
+<tr><td>app.dart only (not in registry)</td><td><span class="badge b-info">21</span></td><td>All 21 in KNOWN-MISSES.md (auth, anonymous wedge, admin, onboarding shims, /about, /, /onb, /start, /auth/verify, nested profile segments). Parity holds.</td></tr>
+<tr><td>Registry only (not in app.dart)</td><td><span class="badge b-info">6</span></td><td>All 6 are nested profile composed forms (`/profile/bilan`, `/profile/byok`, …) — exempted per regex artefact.</td></tr>
+<tr><td>References-zombie semantic</td><td><span class="badge b-warn">9</span></td><td>Entries pointing at redirect-only paths in app.dart. Detail in <code>nav-audit-gaps.md</code> §3.b.</td></tr>
+<tr><td>DUPLICATE-INTENT-SHIM (Phase 53-01 fill)</td><td><span class="badge b-warn">26</span></td><td>Each duplicates a canonical entry via the legacy redirect route. Backlog cleanup.</td></tr>
+</table>
+
+<h2>Pareto plan — 5 fixes shippables en 1-2 jours</h2>
+
+<table>
+<tr><th>#</th><th>Description</th><th>Files (path:line)</th><th>ETA</th><th>Test à ajouter</th><th>Priorité</th></tr>
+<tr>
+  <td>P1</td>
+  <td><b>FIX-NAV-01</b> — Add <code>/dossier</code> redirect → <code>/profile/bilan</code> (alias canonique « Dossier »). Closes 404-silent dead-end #5A.</td>
+  <td><code>apps/mobile/lib/app.dart</code> (insert ~line 1043, near <code>/profile</code> redirect block). One <code>ScopedGoRoute(path: '/dossier', redirect: …)</code> with breadcrumb call.</td>
+  <td>15 min</td>
+  <td>Add <code>'/dossier' → '/profile/bilan'</code> assertion in <code>test/app_router_redirects_test.dart</code> (existing pattern from <code>/coach/cockpit</code> test).</td>
+  <td><span class="badge b-fail">1 — TestFlight blocker</span> (mockups + Cleo-style copy reference /dossier)</td>
+</tr>
+<tr>
+  <td>P2</td>
+  <td><b>FIX-NAV-02</b> — Persist <code>AnonymousChatScreen</code> messages locally (SharedPreferences) so user can leave & resume the same convo before locking. Mitigates dead-end #1C (3-msg lock + back-to-Landing wipes context).</td>
+  <td><code>apps/mobile/lib/screens/anonymous/anonymous_chat_screen.dart</code> (initState + onMessageAdded around current `_messages` setter, line ~50–250) + new <code>services/anonymous_chat_persistence.dart</code> (~80 LOC).</td>
+  <td>3 h</td>
+  <td>Widget test : send 2 msgs → navigate away → re-mount → 2 msgs visible. Unit test on persistence service (load/save/clear).</td>
+  <td><span class="badge b-warn">2 — UX retention critical</span> (3-msg lock = current 100% context loss)</td>
+</tr>
+<tr>
+  <td>P3</td>
+  <td><b>FIX-NAV-03</b> — Append <code>?redirect=</code> on the auth-gate <code>context.go('/auth/register')</code> calls so the redirect callback can return user to the originating screen post-registration. Mitigates #2B + #3B.</td>
+  <td><code>apps/mobile/lib/screens/coach/coach_chat_screen.dart:1859, 1863</code> + <code>apps/mobile/lib/screens/document_scan/document_scan_screen.dart:1088</code> + (search global for `go('/auth/register')` to catch any siblings).</td>
+  <td>1 h</td>
+  <td>Test that simulates registration completion + asserts router lands on the originating path. Add to <code>test/auth_redirect_test.dart</code>.</td>
+  <td><span class="badge b-warn">2 — Auth round-trip integrity</span></td>
+</tr>
+<tr>
+  <td>P4</td>
+  <td><b>FIX-NAV-04</b> — Persist scan extraction state in <code>ReportPersistenceService</code> (or a sibling) before <code>/scan/review</code> push, and probe-on-mount in <code>DocumentScanScreen.initState</code>. Mitigates dead-end #3C (extraction lost on dismiss).</td>
+  <td><code>apps/mobile/lib/screens/document_scan/document_scan_screen.dart</code> (initState + extraction success branch) + <code>document_scan/extraction_review_screen.dart:745</code> + service stub.</td>
+  <td>4 h</td>
+  <td>Integration test : trigger extract → navigate away mid-review → re-enter <code>/scan</code> → ExtractionReviewScreen surfaces with the pending state. Add to <code>test/document_scan_persistence_test.dart</code>.</td>
+  <td><span class="badge b-warn">3 — Document scan UX</span></td>
+</tr>
+<tr>
+  <td>P5</td>
+  <td><b>FIX-NAV-05</b> — Remove the 9 « references-zombie semantiques » + 26 DUPLICATE-INTENT-SHIM ScreenEntry entries from the registry. Ghost intents pollute the LLM's IntentResolver search space.</td>
+  <td><code>apps/mobile/lib/services/navigation/screen_registry.dart</code> (delete blocks at lines 814–822, 1346–1354, 1356–1364, 1366–1374, 1376–1384, 1386–1394 + 1496–1833 master list pruning).</td>
+  <td>2 h (incl. test sweep)</td>
+  <td>Existing <code>screen_registry_parity.py</code> test must stay green. Add a snapshot test that asserts <code>chatRoutable().length == N_expected</code> (lock the count).</td>
+  <td><span class="badge b-warn">3 — LLM clarity / Sprint 4 prep</span></td>
+</tr>
+</table>
+
+<p><b>Total ETA Pareto top-5 :</b> ~10 h ouvrées. Compatible « 1-2 jours » target.</p>
+
+<h2>Backlog (deferred)</h2>
+
+<ol>
+  <li><b>P6</b> — Verify onboarding system-back hardware behaviour on iOS swipe + Android back. Walker E2E Sprint 5. (Dead-end #4A — PENDING-VERIFY)</li>
+  <li><b>P7</b> — Verify multi-push back-stack from RouteSuggestionCard targets that themselves push (e.g. <code>chat → scan → review → impact</code>). Walker E2E Sprint 5. (Dead-end #2A + #5B — PENDING-VERIFY)</li>
+  <li><b>P8</b> — Add visible « long-press wordmark » discoverability hint on Landing — currently only signal is via <code>onLongPress</code>. (UX polish, not a dead-end)</li>
+  <li><b>P9</b> — Wire <code>SequenceCoordinator</code> as entry-point for ≥2 life-event routes (e.g. <code>/mariage</code>, <code>/divorce</code>) so the « guided sequence » framing materialises beyond chat-return only. (Architecture, post-TestFlight)</li>
+  <li><b>P10</b> — Replace the in-memory <code>OnboardingProvider</code> with a persisted variant so abandon mid-flow is recoverable. (Retention, post-TestFlight)</li>
+  <li><b>P11</b> — Audit all <code>context.push</code> targets for AppBar back consistency (some screens may use <code>Navigator.pop</code> rather than <code>context.pop</code>, mismatch can cause unintended exits). (Hygiene, low risk)</li>
+  <li><b>P12</b> — Document the « <code>/coach/chat?topic=…</code> » convention in a README; LLM tool-prompt + <code>findByIntent</code> normalisation interplay is currently implicit. (Docs)</li>
+</ol>
+
+<h2>Verification log</h2>
+
+<table>
+<tr><th>Step</th><th>Command / Source</th><th>Verdict</th></tr>
+<tr>
+  <td>Route extraction app.dart</td>
+  <td><code>python3 tools/checks/screen_registry_parity.py --extract-only app | wc -l</code></td>
+  <td><span class="badge b-pass">153</span> path literals</td>
+</tr>
+<tr>
+  <td>Route extraction registry</td>
+  <td><code>python3 tools/checks/screen_registry_parity.py --extract-only registry | wc -l</code></td>
+  <td><span class="badge b-pass">138</span> ScreenEntry routes</td>
+</tr>
+<tr>
+  <td>Parity check (full)</td>
+  <td><code>python3 tools/checks/screen_registry_parity.py</code></td>
+  <td><span class="badge b-pass">[OK] 125 routes parity OK (after KNOWN-MISSES exemption)</span></td>
+</tr>
+<tr>
+  <td>Diff app-only</td>
+  <td><code>comm -23 &lt;(extract app) &lt;(extract registry)</code> → 21 entries, all in KNOWN-MISSES.md</td>
+  <td><span class="badge b-pass">no unexpected gap</span></td>
+</tr>
+<tr>
+  <td>Diff registry-only</td>
+  <td><code>comm -13 &lt;(extract app) &lt;(extract registry)</code> → 6 entries, all <code>/profile/&lt;child&gt;</code> nested</td>
+  <td><span class="badge b-pass">no ghost (regex artefact only)</span></td>
+</tr>
+<tr>
+  <td>FIX-01 status (Landing CTA)</td>
+  <td><code>landing_screen.dart:176</code> → <code>context.go('/start')</code> + <code>app.dart:317</code> redirect to <code>/anonymous/intent</code> public</td>
+  <td><span class="badge b-pass">shipped</span> (commits 746d1bb, 6ab3dda, Phase 30.9)</td>
+</tr>
+<tr>
+  <td>Anonymous chat 3-msg lock + back behaviour</td>
+  <td><code>anonymous_chat_screen.dart:232 _isAuthGateLocked = true</code> + <code>:294 onPressed: () =&gt; context.go('/')</code></td>
+  <td><span class="badge b-warn">dead-end found (#1C)</span> — message state lost</td>
+</tr>
+<tr>
+  <td>Onboarding completion path</td>
+  <td><code>onboarding_shell_screen.dart:876 router.go(deeper ? '/coach/chat' : '/home')</code></td>
+  <td><span class="badge b-pass">wired</span></td>
+</tr>
+<tr>
+  <td>Coach RouteSuggestionCard NavLock</td>
+  <td><code>route_suggestion_card.dart:150 RouteSuggestionNavLock.tryAcquire()</code></td>
+  <td><span class="badge b-pass">shipped Phase 54-02 PR-2</span></td>
+</tr>
+<tr>
+  <td>Doc scan post-fix status</td>
+  <td>PR #475 (consent ApiException), PR #478 (breadcrumb), still missing: <code>?redirect=</code> on auth gate + extraction persistence</td>
+  <td><span class="badge b-warn">partial</span> (P3 + P4 pending)</td>
+</tr>
+<tr>
+  <td><code>/dossier</code> existence</td>
+  <td><code>grep "'/dossier'\|path: '/dossier'" app.dart</code> → no match</td>
+  <td><span class="badge b-fail">404 silent</span> (mockups reference it)</td>
+</tr>
+</table>
+
+<h2>Dead-ends summary</h2>
+
+<table>
+<tr><th>ID</th><th>Surface</th><th>Severity</th><th>Pareto fix</th></tr>
+<tr><td>#1C</td><td>Anonymous chat 3-msg lock — context lost on back</td><td><span class="badge b-warn">UX-critical</span></td><td>P2 (FIX-NAV-02)</td></tr>
+<tr><td>#2A</td><td>Coach chat → multi-push child screen → back returns to intermediate</td><td><span class="badge b-pending">PENDING-VERIFY</span></td><td>P7 (Sprint 5 walker)</td></tr>
+<tr><td>#2B</td><td>Coach auth-gate <code>context.push('/auth/register')</code> without <code>?redirect=</code></td><td><span class="badge b-warn">Auth integrity</span></td><td>P3 (FIX-NAV-03)</td></tr>
+<tr><td>#3A</td><td>DocumentImpactScreen <code>context.go('/coach/chat')</code> wipes scan history</td><td><span class="badge b-info">By design</span></td><td>None (acceptable terminal)</td></tr>
+<tr><td>#3B</td><td>DocumentScanScreen auth gate without <code>?redirect=</code></td><td><span class="badge b-warn">Auth integrity</span></td><td>P3 (FIX-NAV-03)</td></tr>
+<tr><td>#3C</td><td>Extraction state lost on review-screen dismiss</td><td><span class="badge b-warn">Doc scan UX</span></td><td>P4 (FIX-NAV-04)</td></tr>
+<tr><td>#4A</td><td>Onboarding entry step + system-back undefined</td><td><span class="badge b-pending">PENDING-VERIFY</span></td><td>P6 (Sprint 5 walker)</td></tr>
+<tr><td>#4B</td><td>Onboarding mid-flow abandon = full reset</td><td><span class="badge b-info">By design (MVP)</span></td><td>P10 (post-TestFlight)</td></tr>
+<tr><td>#5A</td><td><code>/dossier</code> alias inexistant → 404 silencieux</td><td><span class="badge b-fail">TestFlight blocker</span></td><td>P1 (FIX-NAV-01)</td></tr>
+<tr><td>#5B</td><td><code>/profile/bilan</code> back-stack inconsistent (no parent tab)</td><td><span class="badge b-pending">PENDING-VERIFY</span></td><td>P7 (Sprint 5 walker)</td></tr>
+</table>
+
+<h2>Stats</h2>
+
+<table>
+<tr><th>Metric</th><th>Value</th></tr>
+<tr><td>Routes audited (app.dart)</td><td>153 path literals (~57 builder + ~71 redirect + 7 nested-child segments + 4 shell + auxiliaries)</td></tr>
+<tr><td>ScreenEntry audited (registry)</td><td>138 (44 directAnswer + decisionCanvas, 14 roadmapFlow, 23 captureUtility, 26 conversationPure, 26 Phase 53-01 ROUTABLE shadow, 7 Phase 53-01 NOT_CHAT_ROUTABLE shadow)</td></tr>
+<tr><td>Pareto fixes proposed</td><td>5 (~10 h ouvrées total)</td></tr>
+<tr><td>Backlog items deferred</td><td>7</td></tr>
+<tr><td>PENDING-VERIFY items for Sprint 5 walker</td><td>3 (#2A, #4A, #5B)</td></tr>
+<tr><td>flutter analyze / pytest</td><td><span class="badge b-info">N/A</span> — audit-only, zero Dart edits this phase</td></tr>
+</table>
+
+<p class="meta">Generated 2026-05-05 · branch <code>feat/sprint1-nav-audit</code> · worktree <code>MINT.sprint1-nav.nosync</code> · companion docs <code>.planning/audits/2026-05-05-nav-audit-routes.md</code> + <code>.planning/audits/2026-05-05-nav-audit-gaps.md</code></p>
+
+</body>
+</html>
