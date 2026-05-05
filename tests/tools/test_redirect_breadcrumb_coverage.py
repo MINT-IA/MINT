@@ -112,10 +112,12 @@ def _extract_callback_body_by_source(src: str, source_path: str) -> str:
     return src[head:min(len(src), head + 4000)]
 
 
-def test_reconcile_report_lists_43_redirect_sites() -> None:
+def test_reconcile_report_lists_44_redirect_sites() -> None:
+    # Sprint 1.5 P1 — bumped 43 → 44 after /dossier user-mental alias
+    # added in app.dart + RECONCILE-REPORT row 44.
     rows = _parse_inventory()
-    assert len(rows) == 43, (
-        "RECONCILE-REPORT inventory should enumerate exactly 43 sites, "
+    assert len(rows) == 44, (
+        "RECONCILE-REPORT inventory should enumerate exactly 44 sites, "
         "got {0}".format(len(rows))
     )
 
