@@ -597,16 +597,17 @@ log "flutter build ios --simulator --no-codesign (archetype=$ARCHETYPE kind=$EXP
 # .nosync mount (com.apple.provenance xattrs). Mirrors walker.sh:587 +
 # walker_audit_tap_render.sh:233 (per memory feedback_diff_against_existing_tool).
 #
-# WALKC-07 (Phase 86 audit B 2026-05-05) — between consecutive archetype
-# runs the build/ios/Debug-iphonesimulator/Flutter.framework/Flutter binary
-# can pick up a `com.apple.provenance` xattr from filesystem state changes
-# (Spotlight reindex, Time Machine snapshot, anti-virus). macOS Sequoia/Tahoe
-# treats this xattr as immutable so `xattr -cr` cannot remove it. The only
-# reliable remediation is `flutter clean` to delete build/ entirely so
-# Flutter re-copies the framework fresh from the SDK cache. Adds ~30s to
-# each walker run but eliminates the « resource fork detritus » failure.
-log "WALKC-07 — flutter clean to drop xattr-tainted build/ (sim build flake mitigation)"
-(cd "$REPO_ROOT/apps/mobile" && flutter clean >/dev/null 2>&1) || true
+# WALKC-07 REVERTED 2026-05-05 audit C — `flutter clean` between
+# archetypes was found to ALSO trigger codesign failures on subsequent
+# runs (because every clean rebuild has to re-codesign Flutter.framework
+# which has the system-immutable `com.apple.provenance` xattr from SDK).
+# Empirically, the SDK xattr is the constant ; flutter clean made the
+# problem worse by forcing fresh codesign each time. Keep build/ between
+# archetype runs so Flutter's debug_unpack_ios sees an already-codesigned
+# Flutter.framework and skips re-signing. The dart-define values that
+# differ per archetype don't require a clean rebuild — kernel snapshot
+# regeneration is sufficient.
+log "WALKC-07 (reverted) — keep build/ between archetypes (skip re-codesign)"
 SENTRY_FLAG=""
 if [ -n "${SENTRY_DSN_STAGING:-}" ]; then
   SENTRY_FLAG="--dart-define=SENTRY_DSN=${SENTRY_DSN_STAGING}"
@@ -627,7 +628,8 @@ fi
 # attempts ad-hoc signing of embedded frameworks. CODE_SIGNING_ALLOWED=NO
 # tells Xcode to skip that step entirely. Sim builds don't need a
 # real signature anyway. Verified on iPhone 17 Pro sim 2026-05-05.
-(cd "$REPO_ROOT/apps/mobile" && CODE_SIGNING_ALLOWED=NO flutter build ios --simulator --no-codesign \
+(cd "$REPO_ROOT/apps/mobile" && \
+  CODE_SIGNING_ALLOWED=NO flutter build ios --simulator --no-codesign \
   --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
   --dart-define=MINT_E2E_ARCHETYPE="$ARCHETYPE" \
   --dart-define=MINT_E2E_FORCE_ECLAIRAGE_KIND="$EXPECTED_KIND" \

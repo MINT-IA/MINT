@@ -1,0 +1,8 @@
+#!/bin/bash
+# WALKC-09 (Phase 86 v2.12 audit B 2026-05-05) — codesign no-op shim.
+# Walker walks unsigned sim builds OK once xcconfig disables codesign
+# entirely (CODE_SIGNING_ALLOWED=NO in Debug.xcconfig). This shim is a
+# defense-in-depth fallback in case some Flutter build phase still
+# tries to codesign — it returns 0 unconditionally.
+# Sim DYLD accepts unsigned frameworks for Debug-iphonesimulator.
+exit 0
