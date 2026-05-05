@@ -1,199 +1,156 @@
-/// CoachProfileSeeds — E2E archetype seed loader (Phase 74).
+/// CoachProfileSeeds — Phase 80 (v2.11).
 ///
-/// Reads `--dart-define=MINT_E2E_ARCHETYPE=<slug>` and resolves it to a
-/// minimal seed [Map] used by the walker harness to drive the anonymous
-/// chat flow with realistic profile data.
+/// Hydrates a deterministic [CoachContext]-like seed when the
+/// `MINT_E2E_ARCHETYPE` dart-define is set at build time (walker /
+/// widget-test runs). Closes phantom contract C1: the v2.10 audit
+/// flagged this primitive as declared-but-never-called.
 ///
-/// In production builds the env var is empty → [activeSeed] returns null
-/// and there is zero behavior change. The seed is consumed only by
-/// E2E-aware code paths (Phase 74 walker_premier_eclairage.sh).
+/// Pinned to the 4 v2.10 walker archetypes (julien_swiss /
+/// couple_acheteurs_lausanne / jeune_diplome_zurich /
+/// cadre_40_55_lpp_rachat). New seeds require a coordinated bump of
+/// the walker fixture set + this file.
 ///
-/// Slug catalog (12 total) :
-///   - 8 CONTEXT D-02 archetypes :
-///     swiss_native, expat_eu, expat_us, cross_border,
-///     independent_no_lpp, recent_arrival, near_retirement,
-///     young_starter
-///   - 4 Phase 74 walker archetypes (per archetype JSON fixtures
-///     under tools/simulator/archetypes/) :
-///     julien_swiss, couple_acheteurs_lausanne, jeune_diplome_zurich,
-///     cadre_40_55_lpp_rachat
+/// SECURITY (ECLW-04 spirit): the dart-define is a build-time constant.
+/// Release builds get an empty string and [activeSeed] returns null.
+/// The `kReleaseMode` short-circuit in [forcedArchetypeSlug] keeps the
+/// codepath dead in production binaries.
 ///
-/// The map values mirror the JSON fixtures so the seed loader stays
-/// hardcoded (no asset bundle lookup → no production runtime cost).
-/// When fixtures change, regenerate manually + add a TODO note.
-///
-/// References :
-///   - PANEL-VERDICT.md §3 + §8 hidden risk #2
-///   - tools/simulator/archetypes/*.json
+/// References:
+///   - REQUIREMENTS.md ECLW-02
+///   - decisions/2026-05-04-post-handoff2-sweep-panel.md
 library;
 
-/// Coach profile seed used by the walker harness.
-///
-/// Fields are intentionally a flat [Map<String, Object>] to mirror the
-/// JSON fixture format (no schema drift between Dart and tooling).
-typedef CoachProfileSeed = Map<String, Object>;
+import 'package:flutter/foundation.dart';
 
-/// Static seed catalog for both legacy CONTEXT D-02 slugs and Phase 74
-/// walker archetypes.
-///
-/// Production callers MUST NOT branch on these — use [activeSeed] which
-/// only returns non-null when the dart-define is set.
+import 'package:mint_mobile/services/coach/coach_models.dart';
+
+/// A pinned, named seed for a single walker archetype.
+class CoachProfileSeed {
+  /// Archetype slug exchanged with the backend / walker fixtures.
+  final String slug;
+
+  /// First name baked into the seed (for greeting prompts).
+  final String firstName;
+
+  /// Age baked into the seed.
+  final int age;
+
+  /// Canton baked into the seed.
+  final String canton;
+
+  /// Archetype tag forwarded to the backend (different from [slug] only
+  /// when an archetype maps to more than one archetype tag — currently
+  /// 1:1).
+  final String archetype;
+
+  /// Gross monthly salary in CHF (typical for the archetype).
+  final double grossMonthlySalary;
+
+  const CoachProfileSeed({
+    required this.slug,
+    required this.firstName,
+    required this.age,
+    required this.canton,
+    required this.archetype,
+    required this.grossMonthlySalary,
+  });
+
+  /// Build a [CoachContext] hydrated from this seed.
+  ///
+  /// Caller may pass [overrides] to tweak a single field without rebuilding
+  /// the seed registry — typically used by widget tests to vary one value.
+  CoachContext toCoachContext({
+    String? primaryFocus,
+  }) {
+    return CoachContext(
+      firstName: firstName,
+      archetype: archetype,
+      age: age,
+      canton: canton,
+      primaryFocus: primaryFocus ?? '',
+      knownValues: <String, double>{
+        'gross_monthly_salary': grossMonthlySalary,
+      },
+    );
+  }
+}
+
+/// Static registry of the 4 v2.10 walker archetype seeds.
 class CoachProfileSeeds {
   CoachProfileSeeds._();
 
-  /// `--dart-define=MINT_E2E_ARCHETYPE=<slug>` — empty in production.
-  static const String _activeSlugEnv =
+  /// Build-time dart-define that pins the seed slug.
+  ///
+  /// Walker / widget-test runs pass `--dart-define=MINT_E2E_ARCHETYPE=<slug>`.
+  /// Production builds get the empty string and [activeSeed] returns null.
+  static const String _archetypeDartDefine =
       String.fromEnvironment('MINT_E2E_ARCHETYPE');
 
-  /// Resolved active slug, or null when no E2E override is set.
-  static String? get activeSlug =>
-      _activeSlugEnv.isEmpty ? null : _activeSlugEnv;
+  /// All seeds keyed by slug. Order is deterministic for tests / walker.
+  static const Map<String, CoachProfileSeed> registry =
+      <String, CoachProfileSeed>{
+    'julien_swiss': CoachProfileSeed(
+      slug: 'julien_swiss',
+      firstName: 'Julien',
+      age: 36,
+      canton: 'VD',
+      archetype: 'swiss_native',
+      grossMonthlySalary: 9500,
+    ),
+    'couple_acheteurs_lausanne': CoachProfileSeed(
+      slug: 'couple_acheteurs_lausanne',
+      firstName: 'Camille',
+      age: 33,
+      canton: 'VD',
+      archetype: 'swiss_native',
+      grossMonthlySalary: 8200,
+    ),
+    'jeune_diplome_zurich': CoachProfileSeed(
+      slug: 'jeune_diplome_zurich',
+      firstName: 'Léa',
+      age: 25,
+      canton: 'ZH',
+      archetype: 'swiss_native',
+      grossMonthlySalary: 6500,
+    ),
+    'cadre_40_55_lpp_rachat': CoachProfileSeed(
+      slug: 'cadre_40_55_lpp_rachat',
+      firstName: 'Marc',
+      age: 48,
+      canton: 'GE',
+      archetype: 'swiss_native',
+      grossMonthlySalary: 13500,
+    ),
+  };
 
-  /// Returns the seed for [slug], or null if the slug is unknown.
-  static CoachProfileSeed? seedFor(String slug) => _seeds[slug];
-
-  /// Returns the seed for the active E2E archetype slug, or null when no
-  /// E2E override is set or the slug is unknown.
-  static CoachProfileSeed? get activeSeed {
-    final s = activeSlug;
-    if (s == null) return null;
-    return _seeds[s];
+  /// Return the slug forced via `MINT_E2E_ARCHETYPE`, or null when:
+  ///   - we are in a release build ([kReleaseMode] = true), OR
+  ///   - the dart-define is empty / unknown.
+  ///
+  /// Release-build short-circuit keeps the codepath dead in production
+  /// (defense-in-depth alongside the dart-define being absent on prod).
+  static String? forcedArchetypeSlug() {
+    if (kReleaseMode) return null;
+    final slug = _archetypeDartDefine.trim();
+    if (slug.isEmpty) return null;
+    if (!registry.containsKey(slug)) return null;
+    return slug;
   }
 
-  /// All registered slugs (D-02 + Phase 74).
-  static List<String> get knownSlugs => _seeds.keys.toList(growable: false);
+  /// Active seed for the current build, or null when not pinned.
+  ///
+  /// In release builds this is ALWAYS null regardless of dart-define value
+  /// — defense-in-depth against an accidental flag leak in App Store IPAs.
+  static CoachProfileSeed? get activeSeed {
+    final slug = forcedArchetypeSlug();
+    if (slug == null) return null;
+    return registry[slug];
+  }
 
-  // ── seed catalog ────────────────────────────────────────────────────
-  //
-  // 8 CONTEXT D-02 slugs : minimal stubs sufficient for archetype
-  //   selection in coach_context_builder. Full profiles live in
-  //   coach_models / coach_context_builder defaults.
-  // 4 Phase 74 slugs : mirror tools/simulator/archetypes/*.json for the
-  //   walker. Source of truth = JSON fixtures.
-  //
-  static final Map<String, CoachProfileSeed> _seeds = {
-    // ── CONTEXT D-02 (8) ─────────────────────────────────────────────
-    'swiss_native': {
-      'archetype': 'swiss_native',
-      'age': 32,
-      'canton': 'ZH',
-      'salary_brut_year': 95000,
-      'has_lpp': true,
-      'has_3a': true,
-    },
-    'expat_eu': {
-      'archetype': 'expat_eu',
-      'age': 30,
-      'canton': 'GE',
-      'salary_brut_year': 105000,
-      'has_lpp': true,
-      'has_3a': false,
-    },
-    'expat_us': {
-      'archetype': 'expat_us',
-      'age': 36,
-      'canton': 'ZG',
-      'salary_brut_year': 180000,
-      'has_lpp': true,
-      'has_3a': false,
-    },
-    'cross_border': {
-      'archetype': 'cross_border',
-      'age': 40,
-      'canton': 'GE',
-      'salary_brut_year': 88000,
-      'has_lpp': true,
-      'has_3a': false,
-    },
-    'independent_no_lpp': {
-      'archetype': 'independent_no_lpp',
-      'age': 42,
-      'canton': 'VD',
-      'salary_brut_year': 130000,
-      'has_lpp': false,
-      'has_3a': true,
-    },
-    'recent_arrival': {
-      'archetype': 'recent_arrival',
-      'age': 28,
-      'canton': 'BS',
-      'salary_brut_year': 75000,
-      'has_lpp': true,
-      'has_3a': false,
-    },
-    'near_retirement': {
-      'archetype': 'near_retirement',
-      'age': 58,
-      'canton': 'BE',
-      'salary_brut_year': 130000,
-      'has_lpp': true,
-      'has_3a': true,
-    },
-    'young_starter': {
-      'archetype': 'young_starter',
-      'age': 24,
-      'canton': 'ZH',
-      'salary_brut_year': 68000,
-      'has_lpp': true,
-      'has_3a': false,
-    },
-
-    // ── PHASE 74 walker archetypes (4) — mirror JSON fixtures ────────
-    'julien_swiss': {
-      'archetype': 'swiss_native',
-      'age': 34,
-      'canton': 'VD',
-      'salary_brut_year': 110000,
-      'has_lpp': true,
-      'lpp_balance': 95000,
-      'has_3a': true,
-      '3a_balance': 12500,
-      'marital_status': 'single',
-      'kids_count': 0,
-      'owns_property': false,
-      'expected_eclairage_kind': 'fiscal_margin_3a',
-    },
-    'couple_acheteurs_lausanne': {
-      'archetype': 'swiss_native',
-      'age': 38,
-      'canton': 'VD',
-      'salary_brut_year': 145000,
-      'has_lpp': true,
-      'lpp_balance': 220000,
-      'has_3a': true,
-      '3a_balance': 18000,
-      'marital_status': 'married',
-      'kids_count': 1,
-      'owns_property': false,
-      'expected_eclairage_kind': 'lpp_rachat_3a_nantissement',
-    },
-    'jeune_diplome_zurich': {
-      'archetype': 'young_starter',
-      'age': 26,
-      'canton': 'ZH',
-      'salary_brut_year': 82000,
-      'has_lpp': true,
-      'lpp_balance': 8500,
-      'has_3a': false,
-      '3a_balance': 0,
-      'marital_status': 'single',
-      'kids_count': 0,
-      'owns_property': false,
-      'expected_eclairage_kind': 'fiscal_margin_3a',
-    },
-    'cadre_40_55_lpp_rachat': {
-      'archetype': 'swiss_native',
-      'age': 48,
-      'canton': 'GE',
-      'salary_brut_year': 185000,
-      'has_lpp': true,
-      'lpp_balance': 410000,
-      'has_3a': true,
-      '3a_balance': 45000,
-      'marital_status': 'married',
-      'kids_count': 2,
-      'owns_property': true,
-      'expected_eclairage_kind': 'lpp_rachat_3a_nantissement',
-    },
-  };
+  /// Look up a seed by slug. Returns null when unknown — never throws,
+  /// so callers can safely degrade.
+  static CoachProfileSeed? bySlug(String? slug) {
+    if (slug == null || slug.isEmpty) return null;
+    return registry[slug];
+  }
 }

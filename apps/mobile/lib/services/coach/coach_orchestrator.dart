@@ -32,6 +32,7 @@ import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
 import 'package:mint_mobile/services/coach/coach_fallback_messages.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
+import 'package:mint_mobile/services/coach/eclairage_models.dart';
 import 'package:mint_mobile/services/coach/fallback_templates.dart';
 import 'package:mint_mobile/services/coach/prompt_registry.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -115,6 +116,33 @@ class CoachOrchestrator {
 
   /// Average chars per token (French with accents).
   static const double _charsPerToken = 3.5;
+
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 80 (v2.11) — Premier Éclairage forced-kind contract
+  // ══════════════════════════════════════════════════════════════
+
+  /// Build-time dart-define that pins the eclairage kind for E2E walker /
+  /// widget tests. Empty in production builds.
+  ///
+  /// Read via [forcedEclairageKind] which gates on [kReleaseMode] so the
+  /// flag is dead code in App Store IPAs (ECLW-04 — defense in depth).
+  static const String _forceEclairageKindDefine =
+      String.fromEnvironment('MINT_E2E_FORCE_ECLAIRAGE_KIND');
+
+  /// The eclairage kind forced by the `MINT_E2E_FORCE_ECLAIRAGE_KIND`
+  /// dart-define, or `null` when:
+  ///   - we are in a release build ([kReleaseMode] is true), OR
+  ///   - the dart-define is empty / unrecognised.
+  ///
+  /// Phase 80 ECLW-01 + ECLW-04: the chat tool dispatcher reads this getter
+  /// post-LLM-parse and overrides the resolved kind in the eclairage
+  /// payload before it reaches the screen render.
+  static EclairageKind? get forcedEclairageKind {
+    if (kReleaseMode) return null;
+    final raw = _forceEclairageKindDefine.trim();
+    if (raw.isEmpty) return null;
+    return EclairageKind.fromWire(raw);
+  }
 
   /// Max chars to send to SLM (derived from maxContextTokens).
   static int get _maxPromptChars =>

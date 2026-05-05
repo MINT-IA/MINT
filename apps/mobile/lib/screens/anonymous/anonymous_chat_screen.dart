@@ -4,24 +4,36 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
+import 'package:mint_mobile/services/coach/chat_tool_dispatcher.dart';
 import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/coach/eclairage_models.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+// ADR-20260223: financial_core via barrel only — no direct sub-imports.
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/anonymous/eclairage_card.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
+import 'package:mint_mobile/widgets/coach/eclairage_card.dart';
 
 /// Data class for a single chat message in the anonymous flow.
+///
+/// Phase 80 (v2.11): coach messages may carry an [eclairage] card rendered
+/// inline beneath the text bubble. When the dart-define
+/// `MINT_E2E_FORCE_ECLAIRAGE_KIND` is set, the card kind is forced via
+/// [ChatToolDispatcher.dispatchEclairagePayload].
 class _ChatMessage {
   final String text;
   final bool isUser;
   final DateTime timestamp;
 
-  /// Phase 72 — optional `eclairage` payload attached to the coach
-  /// response that delivered it. When non-null, the [_EclairageCard] is
-  /// rendered immediately below this bubble in the messages list.
-  final Map<String, dynamic>? eclairage;
+  /// Optional eclairage card attached to this coach message (Phase 80).
+  /// Always null on user messages.
+  final EclairageCardData? eclairage;
 
   const _ChatMessage({
     required this.text,
@@ -228,22 +240,19 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       return;
     }
 
-    // Phase 72 panel §4: parse `eclairage` payload (Phase 71b backend
-    // populates this field). Attach it to the coach message that
-    // delivered it so the card renders inline immediately below.
-    final rawEclairage = response['eclairage'];
-    Map<String, dynamic>? eclairagePayload;
-    if (rawEclairage is Map<String, dynamic> && !_eclairageDelivered) {
-      eclairagePayload = rawEclairage;
-      _eclairageDelivered = true;
-    }
+    // Phase 80 (v2.11): parse the eclairage payload from response['eclairage']
+    // through ChatToolDispatcher so the MINT_E2E_FORCE_ECLAIRAGE_KIND
+    // dart-define overrides the resolved kind in non-release builds (ECLW-01,
+    // ECLW-04). Falls back to PremierEclairageSelector when no payload but
+    // a forced kind + an active CoachProfileSeed are present (ECLW-02, ECLW-03).
+    final eclairage = _resolveEclairageForTurn(response);
 
     setState(() {
       _messages.add(_ChatMessage(
         text: coachMessage,
         isUser: false,
         timestamp: DateTime.now(),
-        eclairage: eclairagePayload,
+        eclairage: eclairage,
       ));
       _isLoading = false;
       // Phase 71a panel §4: increment ONLY after a real coach response.
@@ -295,8 +304,96 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     });
   }
 
-  /// Persist anonymous messages to SharedPreferences (unprefixed keys).
-  /// Fire-and-forget — never blocks UI.
+  /// Resolve the eclairage card to render alongside this coach turn — Phase 80.
+  ///
+  /// Decision tree (matches `ChatToolDispatcher.dispatchEclairagePayload`):
+  ///   1. Read `response['eclairage']` (backend Phase 81 contract — once
+  ///      shipped emits a structured map for archetype-pinned turns).
+  ///   2. Run it through [ChatToolDispatcher.dispatchEclairagePayload] so
+  ///      `MINT_E2E_FORCE_ECLAIRAGE_KIND` (debug builds only — ECLW-04
+  ///      `kReleaseMode` guard) overrides the kind.
+  ///   3. When the dispatcher returns null AND we have an active
+  ///      [CoachProfileSeeds.activeSeed] (walker / widget-test runs with
+  ///      `MINT_E2E_ARCHETYPE` pinned), invoke [PremierEclairageSelector]
+  ///      to derive a fallback `PremierEclairage`, then up-shift it to an
+  ///      [EclairageCardData] template (ECLW-03). This guarantees the
+  ///      walker captures a real card even when the backend half of the
+  ///      contract has not landed yet (Phase 81 sequencing).
+  EclairageCardData? _resolveEclairageForTurn(Map<String, dynamic> response) {
+    final raw = response['eclairage'];
+    final rawMap = raw is Map<String, dynamic>
+        ? raw
+        : (raw is Map ? Map<String, dynamic>.from(raw) : null);
+
+    final dispatched =
+        ChatToolDispatcher.dispatchEclairagePayload(rawMap);
+    if (dispatched != null) return dispatched;
+
+    // Walker / widget-test fallback: when no backend payload AND no forced
+    // kind, but a CoachProfileSeed is pinned via dart-define, run the
+    // selector against the seed's MinimalProfileResult so PremierEclairage
+    // V2 priorities (archetype × stress × lifecycle) drive the surface.
+    final seed = CoachProfileSeeds.activeSeed;
+    if (seed == null) return null;
+
+    final profile = _seedToMinimalProfile(seed);
+    final picked = PremierEclairageSelector.select(profile);
+    return _premierToEclairageCard(picked);
+  }
+
+  /// Synthesize a [MinimalProfileResult] stub from a [CoachProfileSeed]
+  /// good enough for [PremierEclairageSelector] to produce a deterministic
+  /// fallback card. Avoids hitting the backend or financial_core wizard.
+  MinimalProfileResult _seedToMinimalProfile(CoachProfileSeed seed) {
+    final salary = seed.grossMonthlySalary;
+    final annual = salary * 12;
+    return MinimalProfileResult(
+      avsMonthlyRente: 1800,
+      lppAnnualRente: 18000,
+      lppMonthlyRente: 1500,
+      totalMonthlyRetirement: 3300,
+      grossMonthlySalary: salary,
+      replacementRate: 3300 / (salary > 0 ? salary : 1),
+      retirementGapMonthly: salary > 3300 ? salary - 3300 : 0,
+      taxSaving3a: 1800,
+      marginalTaxRate: 0.28,
+      currentSavings: 8000,
+      estimatedMonthlyExpenses: salary * 0.65,
+      monthlyDebtImpact: 0,
+      liquidityMonths: 2.5,
+      canton: seed.canton,
+      age: seed.age,
+      grossAnnualSalary: annual,
+      householdType: 'single',
+      isPropertyOwner: false,
+      existing3a: 0,
+      existingLpp: 35000,
+      employmentStatus: 'salarie',
+      nationalityGroup: 'CH',
+      plafond3a: 7258,
+      estimatedFields: const ['currentSavings', 'existingLpp'],
+    );
+  }
+
+  /// Map a [PremierEclairage] (legacy v1/v2 model) onto an
+  /// [EclairageCardData] template so the unified card widget can render it.
+  EclairageCardData? _premierToEclairageCard(PremierEclairage pe) {
+    final kind = switch (pe.type) {
+      PremierEclairageType.taxSaving3a => EclairageKind.fiscalMargin3a,
+      PremierEclairageType.liquidityAlert => EclairageKind.liquidityRunway,
+      PremierEclairageType.compoundGrowth => EclairageKind.compoundGrowthEdge,
+      PremierEclairageType.retirementGap => EclairageKind.lppRachatWindow,
+      PremierEclairageType.retirementIncome => EclairageKind.lppRachatWindow,
+      PremierEclairageType.hourlyRate => EclairageKind.fiscalMargin3a,
+    };
+    return EclairageCardData.fromForcedKind(kind);
+  }
+
+  /// Persist anonymous messages to SharedPreferences (unprefixed keys) so
+  /// auth_provider._migrateLocalDataIfNeeded() can find and migrate them
+  /// after account creation, regardless of navigation path.
+  ///
+  /// Fire-and-forget — never blocks UI. Called after each coach response.
   void _persistToSharedPreferences() {
     final chatMessages = _messages
         .map((m) => ChatMessage(
@@ -576,40 +673,51 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
 
   Widget _buildMessageBubble(_ChatMessage message, {bool isOpener = false}) {
     final isUser = message.isUser;
-    final bubble = Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Align(
-        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.78,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: isUser ? MintColors.inkPrimary : MintColors.craieHandoff,
-            borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(18),
-              topRight: const Radius.circular(18),
-              bottomLeft: Radius.circular(isUser ? 18 : 4),
-              bottomRight: Radius.circular(isUser ? 4 : 18),
-            ),
-          ),
-          child: Text(
-            message.text,
-            style: isOpener
-                // Panel §1.2 — opener uses Fraunces 16/1.45 inkPrimary.
-                ? GoogleFonts.fraunces(
-                    fontSize: 16,
-                    color: MintColors.inkPrimary,
-                    height: 1.45,
-                  )
-                : GoogleFonts.inter(
-                    fontSize: 15,
-                    color: isUser ? MintColors.white : MintColors.inkPrimary,
-                    height: 1.4,
-                  ),
+    final bubble = Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.78,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isUser ? MintColors.inkPrimary : MintColors.craieHandoff,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(18),
+            topRight: const Radius.circular(18),
+            bottomLeft: Radius.circular(isUser ? 18 : 4),
+            bottomRight: Radius.circular(isUser ? 4 : 18),
           ),
         ),
+        child: Text(
+          message.text,
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            color: isUser ? MintColors.white : MintColors.inkPrimary,
+            height: 1.4,
+          ),
+        ),
+      ),
+    );
+
+    // Phase 80: render the eclairage card inline beneath coach bubbles when
+    // present. Forced via dart-define for walker / widget tests, otherwise
+    // emitted by the backend (Phase 81 contract).
+    if (message.eclairage == null) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: bubble,
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          bubble,
+          EclairageCard(data: message.eclairage!),
+        ],
       ),
     );
 
