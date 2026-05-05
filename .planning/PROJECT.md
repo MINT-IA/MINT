@@ -8,19 +8,74 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 
 **Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.**
 
-## Current Milestone: v2.9 Coach Visuel Hybride
+## Current Milestone: v2.12 Production-Ready Sim Validation (in flight)
 
-**Goal:** Verticale « Onboarding-to-First-Insight ». Un user qui arrive sur MINT a, en moins de 20 min, son profil financier sur les 6 axes suisses (AVS, LPP, 3a, salaire, fortune, charges) + un hero number actionnable « marge fiscale optimisable cette année » + un coach qui balance vignettes / scènes / canvas pour explorer les arbitrages (3a vs rachat LPP vs amortissement vs hypothèque) avec liens deep-dive vers les écrans Explorer existants.
+**Goal :** Aucun TestFlight tant que Claude n'a pas validé que l'app tourne PARFAITEMENT sur simulator — 4 archetypes × 3 langues × 7 quality gates. Le walker est la machine de vérité ; Julien ne fait aucun test. Le STAMP-08 (`.planning/phases/89-stamp/STAMP-PASS-<date>.html`) est la seule autorisation de tag v2.12.0.
 
-**4 phases planned:**
-- **Phase 40 — Marge fiscale backend** (3-5j) : pure function `compute_marge_fiscale(profile)` + endpoint + 10 unit tests
-- **Phase 41 — Hero + Vignettes L1** (1 sem) : `MargeFiscaleHero` + vignette inline chat
-- **Phase 42 — Scènes L2 interactives** (2 sem) : `MintSceneArbitrageRetraite` + `MintSceneArbitrageHypotheque`, slider live, début refactor `Stream<ChatMessage>`
-- **Phase 43 — Canvas L3 + lien Explorer** (1-2 sem) : `MintCanvasArbitrage` modal, return contract chat ← canvas
+**Doctrine v2.12 :** No-Ship-Without-Perfect-Sim. Pas de wishful thinking. 4 phases sequential, 32 REQs panel-locked.
 
-**Doctrine v2.9:** Le coach EST le produit. 3 niveaux de projection visuelle (vignette inline / scène interactive / canvas modal) intégrés dans le chat. Arbitrage live entre leviers fiscaux. Lien deep-dive vers écrans Explorer existants.
+**4 phases (86-89) :**
+- **Phase 86 — Walker green réel 4 archetypes (FR)** — **STATUS 2026-05-05 : julien_swiss GREEN (commit 8d3c127a, 6/6 captures, 82s, exit 0). 3 archetypes restants.**
+- **Phase 87 — Bare-catches sweep Wave 1 (15 paths critiques)** — **STATUS : SHIPPED (PR #498).**
+- **Phase 88 — Cross-language walker FR+DE+EN × 4 archetypes = 12 walks** — pending.
+- **Phase 89 — Quality stamp + No-Ship-Until-Perfect gate (7-gate)** — pending.
 
-**Carry-forward de v2.8:** FIX-01 UUID, FIX-03 save_fact, FIX-04 Coach tab, FIX-05 bare catches Wave 2+, FIX-07 234 backend accent violations, Phase 33 kill-flags (subset). Phase 34/35 deferred.
+## Next Milestone (planned, post v2.12 STAMP-PASS): v2.13 Persona Narrative Scenario Coverage
+
+**Goal :** Bâtir la couche de validation narrative que v2.12 promet — un suite de scripts persona-driven exécutés nightly sur simulator, avec assertions sémantiques (Sentry breadcrumbs + LSFin regex + financial_core numeric) plutôt que pixel-SHA. Le KPI est **pass rate**, pas screenshot-distinct. Le ship gate TestFlight devient « 5 journalist-defense scripts green pour 5 nuits consécutives + walker green + flutter analyze clean + pytest -q clean ».
+
+**Doctrine v2.13 :** Single-persona narrative walkthroughs produisent des findings ; multi-archetype scripted matrices produisent « gaps_found » et se font renommer (preuve empirique : Phase 51 + Phase 74). On cap initialement à **2 personas × 1 scenario × 5 phases = 10 cellules** ; on ne grandit qu'après 5 nuits nightly-green consécutives. Aucune exception.
+
+**Architecture (panel-locked 6-pers, 2026-05-05) :**
+
+- L0 = walker_premier_eclairage.sh (existing, KEPT) — owns flutter build dart-defines, sim boot, install, launch, Sentry pull, artifact bundle.
+- L1 = Maestro YAML flows (`tools/simulator/flows/<persona>.yaml`) — in-app tap choreography via semantic locators, JAMAIS pixel coords.
+- L2 = Dart post-run assertion suite (`tools/simulator/assertions/<persona>.dart`) — semantic events from `MintWalkthroughBreadcrumbs` + LSFin regex library + `financial_core/` numeric assertions + archetype assertion.
+- LLM mocked via replay-cache (`tools/simulator/cache/replay/`). `MINT_LLM_CACHE=replay` mode reads from cache ; `record` populates ; live opt-in for weekly LLM regression.
+- Goldens à R2 (`mint-goldens/`), pas git, pas LFS.
+- `tools/checks/maestro_locator_audit.py` blocking lint pour drift de `tapOn:` literals.
+
+**4 phases planned (90-93, post Phase 89 STAMP-PASS) :**
+
+- **Phase 90 — 2 personas × 1 scenario × 5 phases = 10 cellules + tooling adoption** (4.0d) : Maestro CLI install + idb verify, walker.sh `--maestro-flow` shell-out, replay-cache schema + record/replay modes, R2 bucket + manifest, locator audit lint. julien_swiss + lauren_expat_us, scénario Premier Éclairage. 8 PERS-* REQs.
+- **Phase 91 — 8 archetypes × canonical scenario each (8 scripts)** (3.0d) : per panel #2 « if this works, persona works » set. Numeric assertions wired to AvsCalculator/LppCalculator/TaxCalculator/ConfidenceScorer. LSFin regex library (panel #5) intégrée comme post-run lint. 8 ARCH-* REQs.
+- **Phase 92 — 5 journalist-defense scripts (= TestFlight ship gate)** (2.0d) : Sofia (indép sans LPP) + Lauren (« c'est garanti combien ») + Anna (deuil 23h) + Jennifer (FATCA 3a) + Pierre (rente vs capital). Plus 5 dangerous-scenario regex gates avec mitigation post-gen. 8 JDEF-* REQs.
+- **Phase 93 — Croissance vers 50 scripts par matrice swiss-financial** (4.0d) : 8 archetypes × 18 life events réduit à ~50 cellules priorisées (panel #5's matrix). Stop quand journalist-defensible (no new story changes safety profile). 8 GROW-* REQs.
+
+**Quality gates v2.13 (Phase 92 ship-gate) :**
+1. 5 journalist-defense scripts pass for 5 consecutive nights
+2. Walker green 12 walks (carry-forward v2.12 STAMP-01)
+3. `flutter analyze` clean + `pytest -q` green
+4. LSFin regex library: 0 banned-term hits across all 13+ scripts
+5. Per-script: ≥1 narrative invariant + ≥1 numeric assertion + ≥1 LSFin assertion + ≥1 archetype assertion
+6. Suite-level flake budget : ≤3% per script, auto-retry once, quarantine after 3 consecutive flakes
+7. Locator audit lint exits 0
+
+**Hard scope guards (so v2.13 cannot become Phase 51) :**
+1. NO new persona before all current are nightly-green for 5 nights.
+2. NO life-events × archetypes matrix expansion before 10 cells stable.
+3. ANY backend dependency MUST have a recorded-fixture mock. ANTHROPIC_API_KEY must NOT gate any script.
+4. NO « walker overhaul » phase. Coord drift = locator-layer fix, point.
+5. NO « delegated_via_substitute » markdown. Pass or fail, no third state.
+6. Each phase has HARD STOP at scope cap. Phase 90 = 10 cells, period.
+
+**Sources :**
+- `.planning/decisions/2026-05-05-persona-narrative-scenario-coverage-panel.md` (panel synthesis)
+- `.planning/deep-audit-2026-04-17/02-persona-journeys.md` (10 personas audited prose, 7/10 BROKEN/PARTIAL — input)
+- `.planning/walker/` (36 run dirs Phase 51 corpse)
+- `.planning/wave-0-walkthrough-verite/PLAN.md` (lean version that worked)
+- `.planning/MVP-FLOW-walkthrough-2026-04-21.md` (single-persona narrative that produced findings)
+
+**Carry-forward de v2.12 :** Walker integrity (Phase 86), bare-catch ledger + lint (Phase 87), cross-language walker (Phase 88), 7-gate STAMP (Phase 89). v2.13 = la couche narrative au-dessus.
+
+**Out of scope v2.13 (deferred to v2.14+) :**
+- Wave 2 bare-catches (next 50)
+- Couple mode wiring
+- iPhone SE / iPad viewports
+- Banking + LPP API integration (v3.0+)
+- Wiki coach v3 (post-TestFlight)
+- Patrol migration (Maestro YAML wins per panel #4)
+- Live-LLM regression run nightly (weekly opt-in suffit)
 
 ## Previous Milestone: v2.8 L'Oracle & La Boucle (shipped 2026-04-25 with gaps)
 
@@ -48,77 +103,54 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 - ✓ Anonymous flow `/anonymous/intent` route wired + error mapping — v2.8 (decimal 30.14-30.15)
 - ✓ Backend README first-run + ANTHROPIC_API_KEY documented — v2.8 (decimal 30.16)
 - ✓ MVP wedge T9 email-demain killed + DESIGN.md spec — v2.8 (decimal 30.17)
+- ✓ Walker green julien_swiss FR (Phase 86, commit 8d3c127a 2026-05-05) — proof point first scripted persona
 
 ### Active
 
-See `.planning/REQUIREMENTS.md` for v2.8 requirements (OBS-*, MAP-*, FLAG-*, GUARD-*, LOOP-*, FIX-*).
+See `.planning/REQUIREMENTS.md` for v2.13 requirements (PERS-* / ARCH-* / JDEF-* / GROW-*).
 
-### Out of Scope (v2.8)
+### Out of Scope (v2.13)
 
-- **Any new user-facing feature** — 0 feature nouvelle, règle scellée
-- Monte Carlo UI, withdrawal sequencing UI, tornado sensitivity — reporté v2.9+
-- Privacy Nutrition Label + Data Vault + Trust Mode + Graduation Protocol v1 (proposé initialement comme "v2.8 La Confiance") — déplacé vers v2.9
-- Premium gate wiring (Stripe/RevenueCat) — v2.9+
-- LaunchDarkly / feature flags tiers — on étend le système custom existant ([feature_flags.dart](apps/mobile/lib/services/feature_flags.dart))
-- Datadog RUM / Amplitude / PostHog — Sentry reste le seul vecteur (Replay suffit pour v2.8)
-- Patrol E2E tests — sim-level walkthrough suffit pour la boucle daily
-- OpenTelemetry — nice-to-have, pas bloquant pour l'oracle v2.8
+See « Out of scope v2.13 » block above.
 
 ## Context
 
-### Codebase State (2026-04-19, entrée v2.8)
-- Flutter: 0 compile errors, ~9327 tests pass (28 skipped, pre-existing pumpAndSettle failures catalogués)
+### Codebase State (2026-05-05, entrée v2.13)
+- Flutter: 0 compile errors, ~9327+ tests pass
 - Backend: Railway staging + production live, ~5925 tests pass
-- v2.7 code-complete: LLMRouter Sonnet→Haiku fallback, SLOMonitor auto-rollback, `DocumentUnderstandingResult` canonical, envelope encryption AES-256-GCM, ISO 29184 consent, VisionGuard Haiku judge, Bedrock EU router (off), 17 Vision cassettes + golden flow pytest
-- Wave E-PRIME mergée (PR #356 → dev f35ec8ff) : 42K LOC supprimées, 72 fichiers mobile + 4 backend deleted (autonomous_agent, visibility, plan_tracking, benchmark cascade)
-- Wave C scan-handoff en cours sur branche courante `feature/wave-c-scan-handoff-coach` (PLAN.md écrit, 3 panels pre-exec en background)
-- **Dégâts catalogués entrant v2.8**: 388 bare catches silencieux (332 mobile + 56 backend), flow anonyme mort malgré `AnonymousChatScreen` implémenté, `save_fact` unsync backend→front, MintShell labels hardcodés FR, UUID profile crash, Coach tab routing stale, 23 redirects legacy
-- **Leviers existants à capitaliser**: Sentry backend+mobile wirées (sample 10%), 148 GoRoute documentées ([docs/ROUTE_POLICY.md](docs/ROUTE_POLICY.md) + [docs/NAVIGATION_GRAAL_V10.md](docs/NAVIGATION_GRAAL_V10.md) + [docs/SCREEN_INTEGRATION_MAP.md](docs/SCREEN_INTEGRATION_MAP.md)), système flags custom 8 flags + endpoint backend `/config/feature-flags`, ~10 CI gates mécaniques dans [tools/checks/](tools/checks/), [docs/DEVICE_GATE_V27_CHECKLIST.md](docs/DEVICE_GATE_V27_CHECKLIST.md), [tools/e2e_flow_smoke.sh](tools/e2e_flow_smoke.sh)
-- Source de vérité identité/mission: `docs/MINT_IDENTITY.md` + `.planning/architecture/13-AUDIT.md`
-- Doctrine opérationnelle v2.8: "pas de raccourcis, pas de simplifications, tout doit être parfait" (cf. memory/feedback_no_shortcuts_ever.md)
+- v2.11 wiring shipped (PRs #490-#496) ; v2.12 validation in flight (Phase 86 julien_swiss GREEN today)
+- Phase 87 bare-catches Wave 1 SHIPPED (PR #498) — ledger 318 catches grandfathered, lint blocking
+- 6-expert panel verdict landed 2026-05-05 (Persona Narrative Scenario Coverage)
+- Walker_premier_eclairage.sh just achieved first GREEN run integrated stack (8d3c127a)
+- Past attempt corpse documented: Phase 51 walker (36 run dirs in `.planning/walker/`), 8 archetype seeds, breadcrumb infra, debug overlay — all REUSED in v2.13 (panel rule #5 « burn or commit to reuse — no half-alive »).
 
 ## Constraints
 
-- **Device gate**: Every phase verified by creator (Julien) via `flutter run --release` on iPhone connected to Mac Mini
-- **No retirement framing**: MINT is NOT a retirement app. 18 life events. Every fix must serve 18-99 equally.
+- **Device gate**: persona walker green = the only device gate Julien needs. No human testing per memory feedback_device_gates.
+- **No retirement framing**: MINT is NOT a retirement app. 18 life events.
 - **Branch protocol**: feature/* → dev → staging → main. Never push to staging/main directly.
 - **Compliance**: All coach output through ComplianceGuard. No banned terms. Educational only.
-- **Sequential execution**: One plan at a time to avoid conflicts (lesson learned from cascading agent damage)
-- **No new features**: Recovery only. Fix what's broken, don't add capabilities.
+- **Sequential execution at the milestone level**, parallel agents WITHIN a phase via worktrees.
+- **No new features in v2.13** — testing infra only. Bug-fixes-of-record from script failures DO ship — that's the whole point.
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Wire Flutter to /coach/chat endpoint (not add server-key to /rag/query) | /coach/chat already has agent loop, tools, server-key fallback, system prompt | — Pending |
-| Archive old GSD project, start fresh | The recovery IS the project now, not a milestone on the old roadmap | ✓ Good |
-| Fine-grained phases (8-12) | Each incident isolated, verifiable independently, prevents cascading failures | — Pending |
-| Sequential execution, no parallel plans | Parallel agents caused the current mess — one change at a time | — Pending |
-| All workflow agents enabled (research, plan check, verifier) | Maximum rigor to prevent repeating the facade-without-wiring pattern | — Pending |
-| Device gate (flutter run --release on iPhone) | 9256 tests green + audit passed ≠ app works. Only device walkthrough proves it. | ✓ Good — doctrine appliquée v2.7 |
-| **v2.8**: Rename "Pilote & Compression" → "L'Oracle & La Boucle" | Nom initial ne capturait pas le geste : instrumentation-first + daily loop. Compression devient transversale, pas phase dédiée. | — Pending |
-| **v2.8**: Étendre système flags custom, ne PAS adopter LaunchDarkly | 8 flags + endpoint `/config/feature-flags` + server override déjà en place. Adding LaunchDarkly = dette + vendor lock-in pour zéro gain. | — Pending |
-| **v2.8**: Sentry Replay Flutter + global error boundaries, pas Datadog/Amplitude/PostHog | Sentry déjà wirée. Ajouter un vendor de plus = surface d'attaque + coût nLPD + divergence sources de vérité. | — Pending |
-| **v2.8**: lefthook pre-commit local, pas juste CI | CI gates post-push = feedback 2-5 min. Pre-commit local = feedback <5s. Réduit 10× les PR cassées. | — Pending |
-| **v2.8**: 0 feature nouvelle, règle scellée | Wave E-PRIME a supprimé 42K LOC de façade. Ajouter sans finir = replantation du problème. Compression > création. | — Pending |
-| **v2.8**: Phases 31-36, continuent numérotation v2.7 | Continuité historique > restart. v2.7 termine à 30, v2.8 commence à 31. | — Pending |
+| Wire Flutter to /coach/chat endpoint | /coach/chat already has agent loop, tools, server-key fallback | ✓ Done v2.7+ |
+| Sequential execution, no parallel plans | Parallel agents caused the 2026-04 mess | ✓ Worktree pattern v2.10+ |
+| Device gate (flutter run on iPhone) | tests green ≠ app works | ✓ Replaced v2.13 by walker = machine of truth |
+| **v2.8**: lefthook pre-commit local | Pre-commit local = feedback <5s | ✓ Done |
+| **v2.8**: 0 feature nouvelle | Compression > création | ✓ Done |
+| **v2.12**: Walker = machine de vérité, pas device walkthrough Julien | Memory feedback_device_gates : Claude does device walkthroughs autonomously via sim+idb | ✓ Done |
+| **v2.13**: Persona scripts = Maestro YAML + walker shell + Dart assertions | Panel 6-pers 2026-05-05 ; Patrol rejected (CI flake reports), pure walker rejected (1800 LoC bash bomb), pure Maestro rejected (no SSIM, no dart-defines) | ✓ Decided 2026-05-05 |
+| **v2.13**: Cap Phase 90 at 10 cells, grow only after 5-night nightly-green | Phase 51 postmortem (336 cells → gaps_found) | ✓ Decided 2026-05-05 |
+| **v2.13**: LLM replay-cache mandatory, no live API gates suite | Phase 51 killed by missing ANTHROPIC_API_KEY | ✓ Decided 2026-05-05 |
+| **v2.13**: 5 journalist-defense scripts = TestFlight ship gate, not 50 | Panel #3 + #5 convergence | ✓ Decided 2026-05-05 |
 
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
 
-**After each phase transition** (via `/gsd-transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
-
-**After each milestone** (via `/gsd-complete-milestone`):
-1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
-4. Update Context with current state
-
 ---
-*Last updated: 2026-04-25 after v2.8 close (gaps_found, 5/9 phases shipped + 13 decimals) and v2.9 « Coach Visuel Hybride » open*
+*Last updated: 2026-05-05 — v2.12 Phase 86 (julien_swiss GREEN) + Phase 87 (SHIPPED PR #498) ; v2.13 milestone declared, panel-locked (`.planning/decisions/2026-05-05-persona-narrative-scenario-coverage-panel.md`)*
