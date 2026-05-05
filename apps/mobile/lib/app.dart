@@ -12,7 +12,6 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
-import 'package:mint_mobile/screens/anonymous/anonymous_intent_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
@@ -308,16 +307,15 @@ final _router = GoRouter(
       scope: RouteScope.public,
       builder: (context, state) => const LandingScreen(),
     ),
-    // Landing CTA target — flag-gated redirect. Keeps `LandingScreen`
-    // pure (LAND-01: no `services/` imports in the widget itself).
-    // Default branch = /anonymous/chat (FIX-02: anonymous flow is the
-    // default entry, NOT the auth-gated /coach/chat). MVP wedge flag
-    // overrides to /onb when enabled for the guided intent storyboard.
+    // Landing CTA target — Phase 71a (panel §8.5) : unconditionally
+    // redirect to /anonymous/chat. The intent picker (/anonymous/intent)
+    // was killed in favour of the chat-first cold-open with coach opener
+    // bubble + 3 chip suggestions. The `enableMvpWedgeOnboarding` flag
+    // survives for the /onb storyboard but is decoupled from /start.
     ScopedGoRoute(
       path: '/start',
       scope: RouteScope.public,
-      redirect: (_, __) =>
-          FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/intent',
+      redirect: (_, __) => '/anonymous/chat',
     ),
     // MVP Wedge onboarding — storyboard v2 (2026-04-22). 9-step flow
     // with 4 intents + dossier densification + 3 N2 scenes + magic link.
@@ -355,18 +353,9 @@ final _router = GoRouter(
       ),
     ),
 
-    // ── Anonymous intent (public — felt-state pills + free-text) ──
-    // First screen for unauth users after landing CTA. Pill pick routes
-    // to /anonymous/chat?intent=X with auto-send. Without this, the chat
-    // screen renders empty (no greeting, no chips, placeholder "Ou dis-le
-    // comme tu veux" teases alternatives that never appeared) — walk report
-    // 2026-04-24 P0-1.
-    ScopedGoRoute(
-      path: '/anonymous/intent',
-      scope: RouteScope.public,
-      builder: (context, state) => const AnonymousIntentScreen(),
-    ),
     // ── Anonymous chat (public — outside shell, no tabs/drawer) ──
+    // Phase 71a (2026-05-05) : /anonymous/intent route killed; the chat
+    // cold-open carries the opener bubble + 3 chip suggestions inline.
     ScopedGoRoute(
       path: '/anonymous/chat',
       scope: RouteScope.public,

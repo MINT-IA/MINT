@@ -169,14 +169,8 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
   ),
 
   // ── Anonymous flow (public, outside shell) ─────────────────────
-  '/anonymous/intent': RouteMeta(
-    path: '/anonymous/intent',
-    category: RouteCategory.flow,
-    owner: RouteOwner.anonymous,
-    requiresAuth: false,
-    killFlag: 'enableAnonymousFlow',
-    description: 'Anonymous intent picker — felt-state pills + free-text entry point',
-  ),
+  // Phase 71a (2026-05-05) : /anonymous/intent retired; /anonymous/chat
+  // is now the chat-first cold-open with opener bubble + chip suggestions.
   '/anonymous/chat': RouteMeta(
     path: '/anonymous/chat',
     category: RouteCategory.destination,

@@ -1,10 +1,12 @@
 // Phase 7 — Landing v2 smoke + anti-regression tests.
+// Phase 71a (2026-05-05) — CTA target flipped to /anonymous/chat
+// (chat-first redesign, panel verdict §8.5).
 //
 // Asserts:
 //   • The 4 text surfaces render (wordmark, paragraphe-mère, CTA, legal).
 //   • Privacy micro-phrase is present.
 //   • No banned term (retirement framing, aggressive CTAs) is rendered.
-//   • CTA navigates to /anonymous/intent (walk 2026-04-24 P0-1: pill picker first).
+//   • CTA navigates to /anonymous/chat (Phase 71a: chat-first cold-open).
 //   • Reduced-motion fallback renders content on first pump (no wait).
 //
 // CONTEXT.md §2 D-01..D-13 | LAND-01, LAND-02, LAND-04, LAND-05, LAND-06.
@@ -16,7 +18,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
-import 'package:mint_mobile/services/feature_flags.dart';
 
 GoRouter _buildRouter() {
   return GoRouter(
@@ -26,22 +27,16 @@ GoRouter _buildRouter() {
         path: '/',
         builder: (_, __) => const LandingScreen(),
       ),
-      // Mirror production /start redirect (flag-gated, landing purity).
+      // Mirror production /start redirect (Phase 71a: unconditionally
+      // /anonymous/chat — landing purity preserved).
       GoRoute(
         path: '/start',
-        redirect: (_, __) =>
-            FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/intent',
+        redirect: (_, __) => '/anonymous/chat',
       ),
       GoRoute(
-        path: '/anonymous/intent',
+        path: '/anonymous/chat',
         builder: (_, __) => const Scaffold(
-          body: Center(child: Text('ANONYMOUS_INTENT_STUB')),
-        ),
-      ),
-      GoRoute(
-        path: '/onb',
-        builder: (_, __) => const Scaffold(
-          body: Center(child: Text('ONB_STUB')),
+          body: Center(child: Text('ANONYMOUS_CHAT_STUB')),
         ),
       ),
       GoRoute(
@@ -123,7 +118,7 @@ void main() {
       }
     });
 
-    testWidgets('CTA routes to /anonymous/intent (FIX-02 + walk 2026-04-24)',
+    testWidgets('CTA routes to /anonymous/chat (Phase 71a chat-first)',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
@@ -131,7 +126,7 @@ void main() {
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('ANONYMOUS_INTENT_STUB'), findsOneWidget);
+      expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
     });
 
     testWidgets('reduced-motion: content visible on first pump', (tester) async {

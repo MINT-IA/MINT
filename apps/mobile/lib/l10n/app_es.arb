@@ -10591,37 +10591,29 @@
   "@anonymousIntentLine1": {
     "description": "Landing opener."
   },
-  "anonymousIntentLine2": "",
-  "@anonymousIntentLine2": {
-    "description": "Retired 2026-04-17."
+  "anonymousChatOpener": "Hola. Cuéntame qué te ronda en la cabeza ahora con el dinero — un proyecto, una pregunta, algo que no tienes claro.",
+  "@anonymousChatOpener": {
+    "description": "Phase 71a — coach opener bubble shown on cold-open of anonymous chat. Flutter const string (i18n), NOT backend-generated."
   },
-  "anonymousIntentPill1": "Pago, firmo, pero no entiendo todo",
-  "@anonymousIntentPill1": {
-    "description": "Anonymous intent — felt-state pill 1."
+  "anonymousChatChip1": "Tengo una compra en mente",
+  "@anonymousChatChip1": {
+    "description": "Phase 71a — anonymous chat chip 1 (housing/vehicle, 18-99 neutral)."
   },
-  "anonymousIntentPill2": "Evito pensar en ello",
-  "@anonymousIntentPill2": {
-    "description": "Anonymous intent — felt-state pill 2."
+  "anonymousChatChip2": "Estoy cambiando de trabajo",
+  "@anonymousChatChip2": {
+    "description": "Phase 71a — anonymous chat chip 2 (career, includes promotions/redundancies/expat)."
   },
-  "anonymousIntentPill3": "Tengo miedo de cometer un error costoso",
-  "@anonymousIntentPill3": {
-    "description": "Anonymous intent — felt-state pill 3."
+  "anonymousChatChip3": "Quiero ver claro",
+  "@anonymousChatChip3": {
+    "description": "Phase 71a — anonymous chat chip 3 (open-ended escape hatch)."
   },
-  "anonymousIntentPill4": "Sé que debería ocuparme de esto",
-  "@anonymousIntentPill4": {
-    "description": "Anonymous intent — felt-state pill 4."
+  "anonymousChatLsfinDisclaimer": "Información general, no es un asesoramiento financiero personalizado.",
+  "@anonymousChatLsfinDisclaimer": {
+    "description": "Phase 71a — LSFin disclaimer line above input bar (always visible)."
   },
-  "anonymousIntentPill5": "Algo cambió y no sé por dónde empezar",
-  "@anonymousIntentPill5": {
-    "description": "Anonymous intent — felt-state pill 5."
-  },
-  "anonymousIntentPill6": "Solo quiero ver claro",
-  "@anonymousIntentPill6": {
-    "description": "Anonymous intent — felt-state pill 6."
-  },
-  "anonymousIntentFreeTextHint": "O dilo a tu manera…",
-  "@anonymousIntentFreeTextHint": {
-    "description": "Anonymous intent — free text input hint."
+  "anonymousChatInputHint": "Escribe lo que te ronda en la cabeza…",
+  "@anonymousChatInputHint": {
+    "description": "Phase 71a — anonymous chat input hint."
   },
   "anonymousChatBack": "Volver",
   "@anonymousChatBack": {
@@ -11121,24 +11113,6 @@
   "scanSummarySalaryCertificate": "Certificado de salario escaneado",
   "onboardingSealError": "No se pudo sellar tu dossier. Verifica tu conexión e inténtalo de nuevo.",
   "onboardingSealRetry": "Reintentar",
-  "wedgeTeaserEyebrowExample": "EJEMPLO",
-  "wedgeTeaserEyebrowEstimate": "ESTIMACIÓN ORIENTATIVA",
-  "wedgeTeaserSalienceExample": "EJEMPLO · no es una proyección de tu situación",
-  "wedgeTeaserSalienceEstimate": "Estimación orientativa · carrera completa, jubilación a los 65",
-  "wedgeTeaserAssumptionsExample": "Solo AVS, ejemplo de carrera completa",
-  "wedgeTeaserAssumptionsEstimate": "Hipótesis: 40 años, carrera 20→65, sin lagunas, solo AVS. Tu cifra real cambia con tu edad, género, cantón y LPP.",
-  "wedgeTeaserReculExample": "Añade tu LPP y MINT proyecta tus propias cifras.",
-  "wedgeTeaserReculEstimate": "Con una cuenta, MINT afina con tu edad, LPP, cantón y lagunas.",
-  "wedgeTeaserHeroSemantics": "{amount} francos al mes",
-  "wedgeTeaserChfPerMonth": "CHF / mes",
-  "wedgeTeaserModifySalary": "Modificar",
-  "wedgeTeaserCtaRegister": "Crea tu cuenta para tus propias proyecciones",
-  "wedgeSalaryInputLabel": "Tu salario bruto anual. Para una estimación rápida.",
-  "wedgeSalaryInputAction": "Calcular",
-  "wedgeSalaryInputActionSemantics": "Calcular mi estimación",
-  "wedgeSalaryStaysOnDevice": "Tu salario se queda en tu dispositivo. MINT no lo envía a ninguna parte.",
-  "wedgeSalaryErrorInvalid": "Introduce un importe en cifras, por ejemplo 95 000.",
-  "wedgeSalaryErrorOutOfRange": "Entre 10 000 y 1 000 000 CHF al año.",
   "coachOnboardingFirstUserMessage": "Hola, acabo de crear mi cuenta. ¿Por dónde empiezo?",
   "coachAnonymousAuthGateMessage": "Ya hemos explorado algunas pistas juntos. Crea tu cuenta para que recuerde todo.",
   "coachAuthGateChipRegister": "Crear mi cuenta",
