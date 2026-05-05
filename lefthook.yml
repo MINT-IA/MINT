@@ -24,6 +24,15 @@ pre-commit:
       run: python3 tools/checks/map_freshness_hint.py {staged_files}
       glob: "*.{dart,py}"
       tags: [map, agents]
+    no-new-bare-catch:
+      # Phase 87 OBSV-06 — block NEW bare catches outside the grandfathered
+      # ledger. Wave 1 (15 sites) typed-converted in v2.12 ; the rest is
+      # held in tools/checks/bare_catch_debt.lock + .planning/BARE_CATCH_DEBT.md.
+      # Adding a new `} catch (e) {` outside the ledger fails the commit.
+      # Wave 2 (next 50) deferred to v2.13 per ROADMAP.
+      run: python3 tools/checks/no_new_bare_catch.py
+      glob: "*.dart"
+      tags: [observability, phase-87]
 
 skip:
   - merge

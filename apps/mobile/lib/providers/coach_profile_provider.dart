@@ -3,13 +3,13 @@ import 'dart:async' show unawaited;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart' show Sentry, Hint;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/error_boundary.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -186,26 +186,37 @@ class CoachProfileProvider extends ChangeNotifier {
         deviceId: deviceId,
         wizardAnswers: answers,
       );
-    } catch (e, st) {
-      // Non-fatal to local UX, but report so failures are not invisible.
+    } on ApiException catch (e, st) {
+      // Phase 87 OBSV-02 + OBSV-03 — typed catch routed through the
+      // error_boundary captureSwallowedException helper (single-source
+      // invariant — replaces the direct Sentry.captureException at L202
+      // that was failing tools/checks/sentry_capture_single_source.py).
       debugPrint('[CoachProfile] Backend sync failed (non-fatal): $e');
-      final code = e is ApiException
-          ? (e.isOffline ? 'offline' : 'api_error')
-          : 'unknown';
+      final code = e.isOffline ? 'offline' : 'api_error';
       MintBreadcrumbs.saveFact(
         success: false,
         factKind: 'profile_sync_push',
         errorCode: code,
       );
-      if (code != 'offline') {
-        unawaited(
-          Sentry.captureException(
-            e,
-            stackTrace: st,
-            hint: Hint.withMap({'origin': '_syncToBackend'}),
-          ),
-        );
+      if (!e.isOffline) {
+        unawaited(captureSwallowedException(
+          e,
+          st,
+          surface: 'coach_profile.sync_to_backend',
+        ));
       }
+    } catch (e, st) {
+      debugPrint('[CoachProfile] Backend sync failed (non-fatal): $e');
+      MintBreadcrumbs.saveFact(
+        success: false,
+        factKind: 'profile_sync_push',
+        errorCode: 'unknown',
+      );
+      unawaited(captureSwallowedException(
+        e,
+        st,
+        surface: 'coach_profile.sync_to_backend',
+      ));
     }
   }
 
@@ -245,18 +256,38 @@ class CoachProfileProvider extends ChangeNotifier {
           factKind: 'profile_sync',
         );
       }
-    } catch (e) {
+    } on ApiException catch (e, st) {
+      // Phase 87 OBSV-03 — typed catch on the Coach ChangeNotifier surface.
+      // syncFromBackend is the mobile-side proxy for save_fact server-side
+      // dispatch, so capture failures via captureSwallowedException so STAMP-05
+      // can correlate `mint.coach.save_fact.error` breadcrumbs with the
+      // upstream Sentry event.
       debugPrint('[CoachProfile] syncFromBackend failed (non-fatal): $e');
-      // OBS-05 — save_fact failure proxy breadcrumb. Error code is an
-      // enum (no raw exception message — may contain PII).
-      final code = e is ApiException
-          ? (e.isOffline ? 'offline' : 'api_error')
-          : 'unknown';
+      final code = e.isOffline ? 'offline' : 'api_error';
       MintBreadcrumbs.saveFact(
         success: false,
         factKind: 'profile_sync',
         errorCode: code,
       );
+      if (!e.isOffline) {
+        unawaited(captureSwallowedException(
+          e,
+          st,
+          surface: 'coach_profile.sync_from_backend',
+        ));
+      }
+    } catch (e, st) {
+      debugPrint('[CoachProfile] syncFromBackend failed (non-fatal): $e');
+      MintBreadcrumbs.saveFact(
+        success: false,
+        factKind: 'profile_sync',
+        errorCode: 'unknown',
+      );
+      unawaited(captureSwallowedException(
+        e,
+        st,
+        surface: 'coach_profile.sync_from_backend',
+      ));
     }
   }
 

@@ -10,6 +10,8 @@ import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/error_boundary.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// P2-18: Error codes for i18n — UI layer maps these to AppLocalizations.
@@ -276,8 +278,26 @@ class ApiService {
         );
         return true;
       }
-    } catch (_) {
-      // Refresh failed — user will need to re-login
+    } on http.ClientException catch (e, st) {
+      // Phase 87 OBSV-02 — typed catch on the auto-refresh data path.
+      // Refresh failure is the upstream of every silent 401-loop logout
+      // bug; capture so STAMP-05 sees `mint.swallow.api.try_refresh`.
+      MintBreadcrumbs.swallow(
+        surface: 'api.try_refresh',
+        errorKind: 'http.ClientException',
+        errorCode: 'network',
+      );
+      unawaited(
+        captureSwallowedException(e, st, surface: 'api.try_refresh'),
+      );
+    } catch (e, st) {
+      MintBreadcrumbs.swallow(
+        surface: 'api.try_refresh',
+        errorKind: e.runtimeType.toString(),
+      );
+      unawaited(
+        captureSwallowedException(e, st, surface: 'api.try_refresh'),
+      );
     }
     // P1-11: Clear stale tokens when refresh fails — prevents cached token bypass.
     await AuthService.logout();

@@ -175,4 +175,40 @@ class MintBreadcrumbs {
       },
     ));
   }
+
+  /// Phase 87 OBSV-01..04 — generic « bare-catch swallow » breadcrumb.
+  ///
+  /// Emitted from every Wave-1 typed-catch site so ops can correlate the
+  /// `swallowed:true` Sentry event back to a coarse surface category.
+  ///
+  /// category = `mint.swallow.<surface>`
+  /// level    = warning (swallow = degraded path, never silent success)
+  /// data     = { 'surface': String, 'error_kind': String,
+  ///              'error_code': String? }
+  ///
+  /// [surface] is an enum-like screen / service identifier (e.g.
+  /// `'main.slm_init'`, `'anonymous_chat.persist'`, `'api_service.refresh'`).
+  /// [errorKind] is the runtime type name (`e.runtimeType.toString()`),
+  /// safe because it does NOT include the message body.
+  /// [errorCode] is an optional enum extracted by the call site
+  /// (e.g. `'offline'`, `'api_error'`, `'platform_exception'`).
+  ///
+  /// Pitfall 6 (PII leak) — DO NOT pass `e.toString()` here. The exception
+  /// message can contain a JWT, IBAN, AVS number, or CHF amount.
+  static void swallow({
+    required String surface,
+    required String errorKind,
+    String? errorCode,
+  }) {
+    final data = <String, dynamic>{
+      'surface': surface,
+      'error_kind': errorKind,
+      if (errorCode != null) 'error_code': errorCode,
+    };
+    Sentry.addBreadcrumb(Breadcrumb(
+      category: 'mint.swallow.$surface',
+      level: SentryLevel.warning,
+      data: data,
+    ));
+  }
 }

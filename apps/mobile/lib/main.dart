@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/error_boundary.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/pillar_3a_calculator.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/services/tax_scales_loader.dart';
@@ -50,40 +51,92 @@ Future<void> main() async {
   await RegulatorySyncService.loadFromDisk();
 
   // Initialize SLM plugin runtime once at startup (5s — model check is I/O).
+  // Phase 87 OBSV-01: typed catch + Sentry swallow capture (was bare catch).
   try {
     final ready = await SlmDownloadService.instance
         .initializePlugin()
         .timeout(const Duration(seconds: 5));
     FeatureFlags.slmPluginReady = ready;
-  } catch (e) {
+  } on TimeoutException catch (e, st) {
+    FeatureFlags.slmPluginReady = false;
+    if (kDebugMode) debugPrint('Err SLM plugin (timeout): $e');
+    MintBreadcrumbs.swallow(
+      surface: 'main.slm_init',
+      errorKind: 'TimeoutException',
+      errorCode: 'timeout_5s',
+    );
+    unawaited(captureSwallowedException(e, st, surface: 'main.slm_init'));
+  } catch (e, st) {
     FeatureFlags.slmPluginReady = false;
     if (kDebugMode) debugPrint('Err SLM plugin: $e');
+    MintBreadcrumbs.swallow(
+      surface: 'main.slm_init',
+      errorKind: e.runtimeType.toString(),
+    );
+    unawaited(captureSwallowedException(e, st, surface: 'main.slm_init'));
   }
 
   // Pre-load SLM engine into RAM (async, non-blocking).
   // This way the first chat message doesn't wait for model loading.
+  // Phase 87 OBSV-01: typed catchError + Sentry swallow capture.
   if (FeatureFlags.slmPluginReady) {
     SlmEngine.instance.initialize().then((ok) {
       if (kDebugMode) debugPrint('SLM engine pre-init: $ok');
-    }).catchError((e) {
+    }).catchError((Object e, StackTrace st) {
       if (kDebugMode) debugPrint('SLM engine pre-init err: $e');
+      MintBreadcrumbs.swallow(
+        surface: 'main.slm_engine_preinit',
+        errorKind: e.runtimeType.toString(),
+      );
+      unawaited(
+        captureSwallowedException(e, st, surface: 'main.slm_engine_preinit'),
+      );
     });
   }
 
   // Pull server feature flags before first frame so kill-switches
   // apply immediately (especially narrative degradation flags).
+  // Phase 87 OBSV-01: typed catch + Sentry swallow + breadcrumb (was bare catch).
   try {
     await FeatureFlags.refreshFromBackend().timeout(
       const Duration(seconds: 2),
     );
-  } catch (_) {
-    // Keep local defaults when backend is unavailable.
+  } on TimeoutException catch (e, st) {
+    // Keep local defaults when backend is unavailable. Timeout is the most
+    // common path on cold-launch — emit feature_flags refresh failure
+    // breadcrumb so STAMP-05 gate (Phase 89) sees it as a distinct category.
+    MintBreadcrumbs.featureFlagsRefresh(
+      success: false,
+      errorCode: 'timeout_2s',
+    );
+    unawaited(
+      captureSwallowedException(e, st, surface: 'main.feature_flags_refresh'),
+    );
+  } catch (e, st) {
+    MintBreadcrumbs.featureFlagsRefresh(
+      success: false,
+      errorCode: e.runtimeType.toString(),
+    );
+    unawaited(
+      captureSwallowedException(e, st, surface: 'main.feature_flags_refresh'),
+    );
   }
 
   // Chargement des données critiques en arrière-plan (non-bloquant)
+  // Phase 87 OBSV-01: 2 walker-path entries (3a calculator + regulatory sync)
+  // promoted to typed catchError + Sentry swallow capture (Wave 1).
+  // The other entries stay debugPrint-only for now and are tracked in
+  // .planning/BARE_CATCH_DEBT.md (Wave 2 deferred to v2.13).
   Future.wait([
-    Pillar3aCalculator.loadLimits().catchError((e) {
+    Pillar3aCalculator.loadLimits().catchError((Object e, StackTrace st) {
       if (kDebugMode) debugPrint('Err 3a: $e');
+      MintBreadcrumbs.swallow(
+        surface: 'main.pillar3a_load',
+        errorKind: e.runtimeType.toString(),
+      );
+      unawaited(
+        captureSwallowedException(e, st, surface: 'main.pillar3a_load'),
+      );
     }),
     TaxScalesLoader.load().catchError((e) {
       if (kDebugMode) debugPrint('Err Tax: $e');
@@ -93,10 +146,20 @@ Future<void> main() async {
     }),
     // FIX-164: Removed redundant FeatureFlags.refreshFromBackend()
     // Already awaited at L58 with 2s timeout. Double call was overwriting results.
-    RegulatorySyncService.fetchConstants().catchError((e) {
-      if (kDebugMode) debugPrint('Err Regulatory: $e');
-      return <String, double>{};
-    }),
+    // Phase 87 OBSV-01: typed catchError + Sentry swallow (was bare debugPrint).
+    RegulatorySyncService.fetchConstants().catchError(
+      (Object e, StackTrace st) {
+        if (kDebugMode) debugPrint('Err Regulatory: $e');
+        MintBreadcrumbs.swallow(
+          surface: 'main.regulatory_sync',
+          errorKind: e.runtimeType.toString(),
+        );
+        unawaited(
+          captureSwallowedException(e, st, surface: 'main.regulatory_sync'),
+        );
+        return <String, double>{};
+      },
+    ),
     // W15: Load snapshots from backend (fire-and-forget, non-blocking)
     SnapshotService.loadFromBackend().catchError((e) {
       if (kDebugMode) debugPrint('Err Snapshots: $e');
@@ -162,6 +225,27 @@ Future<void> main() async {
             'mint-staging.up.railway.app',
             'mint-production.up.railway.app',
           ]);
+        // Phase 87 OBSV-03 — defensive `beforeSend` hook. Wraps the
+        // event-shaping pipeline in a typed try/catch so a malformed
+        // SentryEvent never crashes the app on dispatch.
+        // Returning the unmodified event when sanitization fails is a
+        // graceful-degradation path (event still ships, audit trail
+        // preserved). The swallow itself is tagged via the breadcrumb
+        // category `mint.swallow.sentry.before_send` so ops can grep it.
+        options.beforeSend = (event, hint) {
+          try {
+            // Future hook: PII scrubbing, fingerprinting, etc.
+            // For now we pass-through, but the typed-catch contract
+            // ensures we never silently drop events on shaping bugs.
+            return event;
+          } on Object catch (e) {
+            MintBreadcrumbs.swallow(
+              surface: 'sentry.before_send',
+              errorKind: e.runtimeType.toString(),
+            );
+            return event;
+          }
+        };
       },
       appRunner: () => runApp(SentryWidget(child: const MintApp())),
     );

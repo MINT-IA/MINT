@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/error_boundary.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 class FeatureFlags {
@@ -149,24 +150,58 @@ class FeatureFlags {
         success: true,
         flagCount: data.length,
       );
-    } on TimeoutException {
-      // Keep current values on failure — safe fallback
+    } on TimeoutException catch (e, st) {
+      // Keep current values on failure — safe fallback.
+      // Phase 87 OBSV-03 — typed catch promoted to Sentry swallow capture.
+      // STAMP-05 expects feature_flags.refresh.{success,failure} as
+      // distinct breadcrumb categories; capture surfaces the underlying
+      // event so ops can correlate the breadcrumb with the trace.
       MintBreadcrumbs.featureFlagsRefresh(
         success: false,
         errorCode: 'network_timeout',
       );
-    } catch (e) {
-      // Keep current values on failure — safe fallback
-      // OBS-05 — feature_flags breadcrumb on failure branch (D-03 4-level
-      // literal `failure`, NOT `error`). Error code enum only — no raw
-      // exception message (may contain PII / stack detail).
-      final code = e is FormatException
-          ? 'parse_error'
-          : (e is ApiException && e.isOffline ? 'offline' : 'unknown');
+      unawaited(captureSwallowedException(
+        e,
+        st,
+        surface: 'feature_flags.refresh',
+      ));
+    } on FormatException catch (e, st) {
+      MintBreadcrumbs.featureFlagsRefresh(
+        success: false,
+        errorCode: 'parse_error',
+      );
+      unawaited(captureSwallowedException(
+        e,
+        st,
+        surface: 'feature_flags.refresh',
+      ));
+    } on ApiException catch (e, st) {
+      final code = e.isOffline ? 'offline' : 'api_error';
       MintBreadcrumbs.featureFlagsRefresh(
         success: false,
         errorCode: code,
       );
+      if (!e.isOffline) {
+        unawaited(captureSwallowedException(
+          e,
+          st,
+          surface: 'feature_flags.refresh',
+        ));
+      }
+    } catch (e, st) {
+      // Keep current values on failure — safe fallback
+      // OBS-05 — feature_flags breadcrumb on failure branch (D-03 4-level
+      // literal `failure`, NOT `error`). Error code enum only — no raw
+      // exception message (may contain PII / stack detail).
+      MintBreadcrumbs.featureFlagsRefresh(
+        success: false,
+        errorCode: 'unknown',
+      );
+      unawaited(captureSwallowedException(
+        e,
+        st,
+        surface: 'feature_flags.refresh',
+      ));
     }
   }
 }

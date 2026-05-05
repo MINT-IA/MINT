@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -5,6 +6,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/error_boundary.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 /// Service for managing JWT authentication tokens and user session.
 /// Uses flutter_secure_storage (Keychain on iOS, Keystore on Android).
@@ -145,8 +148,34 @@ class AuthService {
         await _storage.write(key: _refreshTokenKey, value: newRefresh);
       }
       return newAccess;
-    } catch (e) {
+    } on http.ClientException catch (e, st) {
+      // Phase 87 OBSV-02 — typed catch for JWT refresh (data-integrity).
+      // Network failure is the most common path; tag distinctly so STAMP-05
+      // can grep `mint.swallow.auth.refresh` separately from FormatException.
       debugPrint('[AuthService] refresh exception: $e');
+      MintBreadcrumbs.swallow(
+        surface: 'auth.refresh',
+        errorKind: 'http.ClientException',
+        errorCode: 'network',
+      );
+      unawaited(captureSwallowedException(e, st, surface: 'auth.refresh'));
+      return null;
+    } on FormatException catch (e, st) {
+      debugPrint('[AuthService] refresh exception: $e');
+      MintBreadcrumbs.swallow(
+        surface: 'auth.refresh',
+        errorKind: 'FormatException',
+        errorCode: 'json_decode',
+      );
+      unawaited(captureSwallowedException(e, st, surface: 'auth.refresh'));
+      return null;
+    } catch (e, st) {
+      debugPrint('[AuthService] refresh exception: $e');
+      MintBreadcrumbs.swallow(
+        surface: 'auth.refresh',
+        errorKind: e.runtimeType.toString(),
+      );
+      unawaited(captureSwallowedException(e, st, surface: 'auth.refresh'));
       return null;
     }
   }

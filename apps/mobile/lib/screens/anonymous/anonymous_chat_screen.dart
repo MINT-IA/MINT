@@ -3,11 +3,15 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'dart:async';
+
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/error_boundary.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 // ADR-20260223: financial_core via barrel only — no direct sub-imports.
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -250,8 +254,21 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
 
     // Save under anonymous namespace (null userId = unprefixed keys).
     ConversationStore.setCurrentUserId(null);
-    ConversationStore().saveConversation(_conversationId, chatMessages).catchError((e) {
+    // Phase 87 OBSV-01 — typed catchError + Sentry swallow capture (was bare).
+    // Walker path: anonymous chat persistence is the « 3 messages then auth-gate »
+    // surface. A silent persist failure was invisible in v2.11; now ops sees a
+    // `mint.swallow.anonymous_chat.persist` breadcrumb on every drop.
+    ConversationStore()
+        .saveConversation(_conversationId, chatMessages)
+        .catchError((Object e, StackTrace st) {
       debugPrint('[AnonymousChat] Eager persist failed: $e');
+      MintBreadcrumbs.swallow(
+        surface: 'anonymous_chat.persist',
+        errorKind: e.runtimeType.toString(),
+      );
+      unawaited(
+        captureSwallowedException(e, st, surface: 'anonymous_chat.persist'),
+      );
     });
   }
 

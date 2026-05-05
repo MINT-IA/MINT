@@ -1,6 +1,12 @@
+import 'dart:async';
+
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
+import 'package:mint_mobile/services/error_boundary.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 /// Manages the anonymous session: device-scoped UUID and message counter.
 ///
@@ -25,12 +31,37 @@ class AnonymousSessionService {
 
   /// Read from secure storage, fall back to SharedPreferences on keychain
   /// error (sim build). Returns null if neither store has the value.
+  ///
+  /// Phase 87 OBSV-02 — typed catch + Sentry swallow capture on the secure
+  /// storage read fallback (data-integrity path: anonymous session UUID is
+  /// the rate-limit key). PlatformException -34018 on sim is the dominant
+  /// case; the breadcrumb tags it distinctly so ops can filter sim noise.
   static Future<String?> _read(String key) async {
     try {
       final v = await _secureStorage.read(key: key);
       if (v != null && v.isNotEmpty) return v;
-    } catch (_) {
-      // keychain failure on sim — fall through
+    } on PlatformException catch (e, st) {
+      // keychain failure on sim — fall through to SharedPreferences.
+      MintBreadcrumbs.swallow(
+        surface: 'anonymous_session.secure_read',
+        errorKind: 'PlatformException',
+        errorCode: e.code,
+      );
+      unawaited(captureSwallowedException(
+        e,
+        st,
+        surface: 'anonymous_session.secure_read',
+      ));
+    } catch (e, st) {
+      MintBreadcrumbs.swallow(
+        surface: 'anonymous_session.secure_read',
+        errorKind: e.runtimeType.toString(),
+      );
+      unawaited(captureSwallowedException(
+        e,
+        st,
+        surface: 'anonymous_session.secure_read',
+      ));
     }
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -42,11 +73,33 @@ class AnonymousSessionService {
 
   /// Write to BOTH stores. Secure is attempted first; SharedPreferences is
   /// always written so a secure failure doesn't drop the value.
+  ///
+  /// Phase 87 OBSV-02 — typed catch + Sentry swallow capture on the secure
+  /// storage write fallback. Same rationale as [_read] above.
   static Future<void> _write(String key, String value) async {
     try {
       await _secureStorage.write(key: key, value: value);
-    } catch (_) {
-      // sim keychain failure — SharedPreferences is our fallback
+    } on PlatformException catch (e, st) {
+      MintBreadcrumbs.swallow(
+        surface: 'anonymous_session.secure_write',
+        errorKind: 'PlatformException',
+        errorCode: e.code,
+      );
+      unawaited(captureSwallowedException(
+        e,
+        st,
+        surface: 'anonymous_session.secure_write',
+      ));
+    } catch (e, st) {
+      MintBreadcrumbs.swallow(
+        surface: 'anonymous_session.secure_write',
+        errorKind: e.runtimeType.toString(),
+      );
+      unawaited(captureSwallowedException(
+        e,
+        st,
+        surface: 'anonymous_session.secure_write',
+      ));
     }
     try {
       final prefs = await SharedPreferences.getInstance();

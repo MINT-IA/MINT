@@ -10,7 +10,9 @@ import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/apple_sign_in_service.dart';
+import 'package:mint_mobile/services/error_boundary.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -124,12 +126,35 @@ class _LoginScreenState extends State<LoginScreen> {
         if (!mounted) return;
         await _navigatePostAuth();
       }
-    } catch (e) {
+    } on SignInWithAppleAuthorizationException catch (e, st) {
+      // Phase 87 OBSV-01 — typed catch + Sentry swallow capture for the
+      // Apple Sign-In auth gate (walker path on /auth/login).
+      if (mounted) {
+        setState(() {
+          _appleSignInError = e.message;
+        });
+      }
+      MintBreadcrumbs.swallow(
+        surface: 'login.apple_sign_in',
+        errorKind: 'SignInWithAppleAuthorizationException',
+        errorCode: e.code.name,
+      );
+      unawaited(
+        captureSwallowedException(e, st, surface: 'login.apple_sign_in'),
+      );
+    } catch (e, st) {
       if (mounted) {
         setState(() {
           _appleSignInError = e.toString().replaceAll('Exception: ', '');
         });
       }
+      MintBreadcrumbs.swallow(
+        surface: 'login.apple_sign_in',
+        errorKind: e.runtimeType.toString(),
+      );
+      unawaited(
+        captureSwallowedException(e, st, surface: 'login.apple_sign_in'),
+      );
     } finally {
       if (mounted) {
         setState(() => _appleSignInLoading = false);

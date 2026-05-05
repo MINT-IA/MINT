@@ -35,10 +35,12 @@ import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach/fallback_templates.dart';
 import 'package:mint_mobile/services/coach/prompt_registry.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/error_boundary.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/llm/provider_health_service.dart';
 import 'package:mint_mobile/services/llm/response_quality_monitor.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 
 // ════════════════════════════════════════════════════════════════
@@ -975,8 +977,22 @@ class CoachOrchestrator {
         context: ctx,
         componentType: componentType,
       );
-    } catch (_) {
-      // If even the guard crashes on the template, return raw template.
+    } catch (e, st) {
+      // Phase 87 OBSV-04 — top walker-overlap catch (ranked by walker
+      // surface count, _generateFallback is hit on every premier-éclairage
+      // walk when SLM/BYOK both miss).
+      // If even the guard crashes on the template, return raw template
+      // so the user still sees the éclairage card. Capture so ops know
+      // the guard itself broke.
+      MintBreadcrumbs.swallow(
+        surface: 'coach_orchestrator.fallback_compliance',
+        errorKind: e.runtimeType.toString(),
+      );
+      unawaited(captureSwallowedException(
+        e,
+        st,
+        surface: 'coach_orchestrator.fallback_compliance',
+      ));
       return OrchestratorOutput(
         text: rawText,
         tier: CoachTier.fallback,
