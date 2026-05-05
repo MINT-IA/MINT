@@ -11344,37 +11344,29 @@
   "@anonymousIntentLine1": {
     "description": "Landing opener. Short and sober — sets up the 'On éclaire. Tu décides.' promise below."
   },
-  "anonymousIntentLine2": "",
-  "@anonymousIntentLine2": {
-    "description": "Retired 2026-04-17. Kept as empty string for ARB parity; the widget no longer renders it."
+  "anonymousChatOpener": "Salut. Dis-moi ce qui te trotte en tête côté finances en ce moment — un projet, une question, un truc flou.",
+  "@anonymousChatOpener": {
+    "description": "Phase 71a — coach opener bubble shown on cold-open of anonymous chat. Flutter const string (i18n), NOT backend-generated."
   },
-  "anonymousIntentPill1": "Je paye, je signe, mais je comprends pas tout",
-  "@anonymousIntentPill1": {
-    "description": "Anonymous intent — felt-state pill 1."
+  "anonymousChatChip1": "J'ai un projet d'achat",
+  "@anonymousChatChip1": {
+    "description": "Phase 71a — anonymous chat chip 1 (housing/vehicle, 18-99 neutral). Pre-fills input, NOT auto-send."
   },
-  "anonymousIntentPill2": "J'évite d'y penser",
-  "@anonymousIntentPill2": {
-    "description": "Anonymous intent — felt-state pill 2."
+  "anonymousChatChip2": "Je change de boulot",
+  "@anonymousChatChip2": {
+    "description": "Phase 71a — anonymous chat chip 2 (career, includes promotions/redundancies/expat). Pre-fills input, NOT auto-send."
   },
-  "anonymousIntentPill3": "J'ai peur de faire une connerie",
-  "@anonymousIntentPill3": {
-    "description": "Anonymous intent — felt-state pill 3."
+  "anonymousChatChip3": "Je veux y voir clair",
+  "@anonymousChatChip3": {
+    "description": "Phase 71a — anonymous chat chip 3 (open-ended escape hatch). Pre-fills input, NOT auto-send."
   },
-  "anonymousIntentPill4": "Je sais que je devrais m'en occuper",
-  "@anonymousIntentPill4": {
-    "description": "Anonymous intent — felt-state pill 4."
+  "anonymousChatLsfinDisclaimer": "Information générale, pas un conseil financier personnalisé.",
+  "@anonymousChatLsfinDisclaimer": {
+    "description": "Phase 71a — LSFin disclaimer line above input bar (ECL-05, always visible)."
   },
-  "anonymousIntentPill5": "Un truc a changé et je sais pas par où commencer",
-  "@anonymousIntentPill5": {
-    "description": "Anonymous intent — felt-state pill 5."
-  },
-  "anonymousIntentPill6": "Je veux juste y voir clair",
-  "@anonymousIntentPill6": {
-    "description": "Anonymous intent — felt-state pill 6."
-  },
-  "anonymousIntentFreeTextHint": "Ou dis-le comme tu veux…",
-  "@anonymousIntentFreeTextHint": {
-    "description": "Anonymous intent — free text input hint."
+  "anonymousChatInputHint": "Écris ce qui te trotte en tête…",
+  "@anonymousChatInputHint": {
+    "description": "Phase 71a — anonymous chat input hint (replaces anonymousIntentFreeTextHint)."
   },
   "anonymousChatBack": "Retour",
   "@anonymousChatBack": {
@@ -12009,31 +12001,6 @@
   "@onboardingSealRetry": {
     "description": "MVP wedge T9 — SnackBar action label to retry sealing the dossier."
   },
-  "wedgeTeaserEyebrowExample": "APERÇU",
-  "wedgeTeaserEyebrowEstimate": "ESTIMATION INDICATIVE",
-  "wedgeTeaserSalienceExample": "EXEMPLE TYPE · pas une projection sur ta situation",
-  "wedgeTeaserSalienceEstimate": "Estimation indicative · carrière complète, retraite à 65 ans",
-  "wedgeTeaserAssumptionsExample": "AVS seul, exemple carrière complète",
-  "wedgeTeaserAssumptionsEstimate": "Hypothèses : 40 ans, carrière 20→65, aucune lacune, AVS seul. Ton vrai chiffre bouge avec ton âge, ton genre, ton canton, ton LPP.",
-  "wedgeTeaserReculExample": "Renseigne ton LPP, MINT calcule tes projections.",
-  "wedgeTeaserReculEstimate": "Avec un compte, MINT affine avec ton âge, ton LPP, ton canton, tes lacunes.",
-  "wedgeTeaserHeroSemantics": "{amount} francs par mois",
-  "@wedgeTeaserHeroSemantics": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "wedgeTeaserChfPerMonth": "CHF / mois",
-  "wedgeTeaserModifySalary": "Modifier",
-  "wedgeTeaserCtaRegister": "Crée ton compte pour tes propres projections",
-  "wedgeSalaryInputLabel": "Ton salaire annuel brut. Pour une estimation rapide.",
-  "wedgeSalaryInputAction": "Calculer",
-  "wedgeSalaryInputActionSemantics": "Calculer mon estimation",
-  "wedgeSalaryStaysOnDevice": "Ton salaire reste sur ton appareil. MINT ne l'envoie nulle part.",
-  "wedgeSalaryErrorInvalid": "Entre un montant en chiffres, par exemple 95 000.",
-  "wedgeSalaryErrorOutOfRange": "Entre 10 000 et 1 000 000 CHF par an.",
   "coachOnboardingFirstUserMessage": "Salut, je viens de créer mon compte. Par où je commence ?",
   "@coachOnboardingFirstUserMessage": {
     "x-mint-meta": {

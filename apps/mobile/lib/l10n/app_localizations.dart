@@ -67,7 +67,7 @@ import 'app_localizations_pt.dart';
 /// property.
 abstract class S {
   S(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -89,11 +89,11 @@ abstract class S {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -102,7 +102,7 @@ abstract class S {
     Locale('en'),
     Locale('es'),
     Locale('it'),
-    Locale('pt')
+    Locale('pt'),
   ];
 
   /// No description provided for @landingFeature1Title.
@@ -6230,7 +6230,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{betterJob} vaut {annualDelta}/an de plus en rente viagère, soit {monthlyDelta}/mois À VIE après la retraite.'**
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta);
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  );
 
   /// No description provided for @jobCompareLifetime20Years.
   ///
@@ -9879,7 +9882,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Simulation incluant l\'intérêt de la caisse ({fundRate} %) et l\'économie d\'impôt lissée sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.'**
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome);
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  );
 
   /// No description provided for @simRealInterestTitle.
   ///
@@ -10360,7 +10366,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Comparaison forfait fiscal. Imposition ordinaire : {ordinary}. Forfait fiscal : {forfait}. Économie : {savings}.'**
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings);
+    String ordinary,
+    String forfait,
+    String savings,
+  );
 
   /// No description provided for @forfaitFiscalOrdinaryLabel.
   ///
@@ -14123,7 +14132,9 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Les banques suisses calculent avec un taux théorique de 5 % (directive ASB), même si le taux réel du marché est bien plus bas. C\'est un test de résistance : elles vérifient que tu pourrais assumer les charges si les taux remontaient. Tes charges théoriques : {chargesTheoriques}/mois. Au taux réel (~1,5 %) : {chargesReelles}/mois.'**
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles);
+    String chargesTheoriques,
+    String chargesReelles,
+  );
 
   /// No description provided for @affordabilityInsightEquityTitle.
   ///
@@ -23514,15 +23525,16 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{name}\n{ssn}\n{address}\n{postalCity}\n\n{avsOrg}\n{avsAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nJe vous prie de bien vouloir m\'adresser un extrait de mon compte individuel AVS (CI) afin de vérifier l\'état de mes cotisations et d\'identifier d\'éventuelles lacunes.\n\nJe vous remercie par avance de votre diligence.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
   String agentLetterAvsExtractBody(
-      String name,
-      String ssn,
-      String address,
-      String postalCity,
-      String avsOrg,
-      String avsAddress,
-      String date,
-      String dateFormatted,
-      String subject);
+    String name,
+    String ssn,
+    String address,
+    String postalCity,
+    String avsOrg,
+    String avsAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+  );
 
   /// No description provided for @agentLetterAvsOrg.
   ///
@@ -23571,31 +23583,33 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{name}\n{address}\n{postalCity}\n\n{caisseSource}\n{caisseCurrentAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nEn raison de la cessation de mes rapports de travail / de mon départ de Suisse (biffer la mention inutile), je vous prie de bien vouloir procéder au transfert de mon avoir de libre passage.\n\nMontant à transférer : la totalité de mon avoir de libre passage à la date de sortie.\n\nEtablissement de destination :\nNom : {toComplete}\nIBAN ou numéro de compte : {toComplete}\nAdresse : {toComplete}\n\nDate de sortie : {toComplete}\n\nJe vous remercie de votre diligence et de me confirmer la bonne exécution de ce transfert.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
   String agentLetterLppTransferBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisseSource,
-      String caisseCurrentAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String toComplete);
+    String name,
+    String address,
+    String postalCity,
+    String caisseSource,
+    String caisseCurrentAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String toComplete,
+  );
 
   /// No description provided for @agentLetterPensionFundBody.
   ///
   /// In fr, this message translates to:
   /// **'{name}\n{address}\n{postalCity}\n\n{caisse}\n{caisseAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nPar la présente, je me permets de vous adresser les demandes suivantes concernant mon dossier de prévoyance professionnelle :\n\n1. Certificat de prévoyance actualisé {year} (avoir de vieillesse, prestations couvertes, taux de conversion applicable)\n\n2. Confirmation de ma capacité de rachat (montant maximal selon l\'art. 79b LPP)\n\n3. Simulation de retraite anticipée (projection de l\'avoir et de la rente à 63 et 64 ans, le cas échéant)\n\nJe vous remercie par avance de votre diligence et reste à votre disposition pour tout complément d\'information.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}\n{policeNumber}'**
   String agentLetterPensionFundBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisse,
-      String caisseAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String year,
-      String policeNumber);
+    String name,
+    String address,
+    String postalCity,
+    String caisse,
+    String caisseAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String year,
+    String policeNumber,
+  );
 
   /// No description provided for @agentLetterPensionSubject.
   ///
@@ -26944,7 +26958,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'AI {aiAmount} + LPP {lppAmount} = {totalAmount} CHF/mois'**
   String disabilityGapAct3Detail(
-      String aiAmount, String lppAmount, String totalAmount);
+    String aiAmount,
+    String lppAmount,
+    String totalAmount,
+  );
 
   /// No description provided for @disabilityGapAct3Duration.
   ///
@@ -33425,7 +33442,9 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Revenu estimé à la retraite : {totalMonthly} CHF/mois vs {currentMonthly} CHF/mois actuellement'**
   String rcReplacementRateExplanation(
-      String totalMonthly, String currentMonthly);
+    String totalMonthly,
+    String currentMonthly,
+  );
 
   /// No description provided for @rcReplacementRateSubtitle.
   ///
@@ -34157,8 +34176,13 @@ abstract class S {
   ///
   /// In fr, this message translates to:
   /// **'Score de forme financière. {score} sur 100. Niveau {level}. Budget {budget}, Prévoyance {prevoyance}, Patrimoine {patrimoine}.'**
-  String scoreGaugeSemanticsLabel(String score, String level, String budget,
-      String prevoyance, String patrimoine);
+  String scoreGaugeSemanticsLabel(
+    String score,
+    String level,
+    String budget,
+    String prevoyance,
+    String patrimoine,
+  );
 
   /// No description provided for @scoreGaugeSubtitle.
   ///
@@ -34303,7 +34327,11 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{label} : {status}. Fourchette typique {low} à {high}'**
   String semanticsBenchmarkMetric(
-      String label, String status, String low, String high);
+    String label,
+    String status,
+    String low,
+    String high,
+  );
 
   /// No description provided for @semanticsBenchmarkToggle.
   ///
@@ -39315,53 +39343,41 @@ abstract class S {
   /// **'Ta vie financière, en clair.'**
   String get anonymousIntentLine1;
 
-  /// Retired 2026-04-17. Kept as empty string for ARB parity; the widget no longer renders it.
+  /// Phase 71a — coach opener bubble shown on cold-open of anonymous chat. Flutter const string (i18n), NOT backend-generated.
   ///
   /// In fr, this message translates to:
-  /// **''**
-  String get anonymousIntentLine2;
+  /// **'Salut. Dis-moi ce qui te trotte en tête côté finances en ce moment — un projet, une question, un truc flou.'**
+  String get anonymousChatOpener;
 
-  /// Anonymous intent — felt-state pill 1.
+  /// Phase 71a — anonymous chat chip 1 (housing/vehicle, 18-99 neutral). Pre-fills input, NOT auto-send.
   ///
   /// In fr, this message translates to:
-  /// **'Je paye, je signe, mais je comprends pas tout'**
-  String get anonymousIntentPill1;
+  /// **'J\'ai un projet d\'achat'**
+  String get anonymousChatChip1;
 
-  /// Anonymous intent — felt-state pill 2.
+  /// Phase 71a — anonymous chat chip 2 (career, includes promotions/redundancies/expat). Pre-fills input, NOT auto-send.
   ///
   /// In fr, this message translates to:
-  /// **'J\'évite d\'y penser'**
-  String get anonymousIntentPill2;
+  /// **'Je change de boulot'**
+  String get anonymousChatChip2;
 
-  /// Anonymous intent — felt-state pill 3.
+  /// Phase 71a — anonymous chat chip 3 (open-ended escape hatch). Pre-fills input, NOT auto-send.
   ///
   /// In fr, this message translates to:
-  /// **'J\'ai peur de faire une connerie'**
-  String get anonymousIntentPill3;
+  /// **'Je veux y voir clair'**
+  String get anonymousChatChip3;
 
-  /// Anonymous intent — felt-state pill 4.
+  /// Phase 71a — LSFin disclaimer line above input bar (ECL-05, always visible).
   ///
   /// In fr, this message translates to:
-  /// **'Je sais que je devrais m\'en occuper'**
-  String get anonymousIntentPill4;
+  /// **'Information générale, pas un conseil financier personnalisé.'**
+  String get anonymousChatLsfinDisclaimer;
 
-  /// Anonymous intent — felt-state pill 5.
+  /// Phase 71a — anonymous chat input hint (replaces anonymousIntentFreeTextHint).
   ///
   /// In fr, this message translates to:
-  /// **'Un truc a changé et je sais pas par où commencer'**
-  String get anonymousIntentPill5;
-
-  /// Anonymous intent — felt-state pill 6.
-  ///
-  /// In fr, this message translates to:
-  /// **'Je veux juste y voir clair'**
-  String get anonymousIntentPill6;
-
-  /// Anonymous intent — free text input hint.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ou dis-le comme tu veux…'**
-  String get anonymousIntentFreeTextHint;
+  /// **'Écris ce qui te trotte en tête…'**
+  String get anonymousChatInputHint;
 
   /// Anonymous chat — back button tooltip.
   ///
@@ -40407,114 +40423,6 @@ abstract class S {
   /// **'Réessayer'**
   String get onboardingSealRetry;
 
-  /// No description provided for @wedgeTeaserEyebrowExample.
-  ///
-  /// In fr, this message translates to:
-  /// **'APERÇU'**
-  String get wedgeTeaserEyebrowExample;
-
-  /// No description provided for @wedgeTeaserEyebrowEstimate.
-  ///
-  /// In fr, this message translates to:
-  /// **'ESTIMATION INDICATIVE'**
-  String get wedgeTeaserEyebrowEstimate;
-
-  /// No description provided for @wedgeTeaserSalienceExample.
-  ///
-  /// In fr, this message translates to:
-  /// **'EXEMPLE TYPE · pas une projection sur ta situation'**
-  String get wedgeTeaserSalienceExample;
-
-  /// No description provided for @wedgeTeaserSalienceEstimate.
-  ///
-  /// In fr, this message translates to:
-  /// **'Estimation indicative · carrière complète, retraite à 65 ans'**
-  String get wedgeTeaserSalienceEstimate;
-
-  /// No description provided for @wedgeTeaserAssumptionsExample.
-  ///
-  /// In fr, this message translates to:
-  /// **'AVS seul, exemple carrière complète'**
-  String get wedgeTeaserAssumptionsExample;
-
-  /// No description provided for @wedgeTeaserAssumptionsEstimate.
-  ///
-  /// In fr, this message translates to:
-  /// **'Hypothèses : 40 ans, carrière 20→65, aucune lacune, AVS seul. Ton vrai chiffre bouge avec ton âge, ton genre, ton canton, ton LPP.'**
-  String get wedgeTeaserAssumptionsEstimate;
-
-  /// No description provided for @wedgeTeaserReculExample.
-  ///
-  /// In fr, this message translates to:
-  /// **'Renseigne ton LPP, MINT calcule tes projections.'**
-  String get wedgeTeaserReculExample;
-
-  /// No description provided for @wedgeTeaserReculEstimate.
-  ///
-  /// In fr, this message translates to:
-  /// **'Avec un compte, MINT affine avec ton âge, ton LPP, ton canton, tes lacunes.'**
-  String get wedgeTeaserReculEstimate;
-
-  /// No description provided for @wedgeTeaserHeroSemantics.
-  ///
-  /// In fr, this message translates to:
-  /// **'{amount} francs par mois'**
-  String wedgeTeaserHeroSemantics(String amount);
-
-  /// No description provided for @wedgeTeaserChfPerMonth.
-  ///
-  /// In fr, this message translates to:
-  /// **'CHF / mois'**
-  String get wedgeTeaserChfPerMonth;
-
-  /// No description provided for @wedgeTeaserModifySalary.
-  ///
-  /// In fr, this message translates to:
-  /// **'Modifier'**
-  String get wedgeTeaserModifySalary;
-
-  /// No description provided for @wedgeTeaserCtaRegister.
-  ///
-  /// In fr, this message translates to:
-  /// **'Crée ton compte pour tes propres projections'**
-  String get wedgeTeaserCtaRegister;
-
-  /// No description provided for @wedgeSalaryInputLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton salaire annuel brut. Pour une estimation rapide.'**
-  String get wedgeSalaryInputLabel;
-
-  /// No description provided for @wedgeSalaryInputAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Calculer'**
-  String get wedgeSalaryInputAction;
-
-  /// No description provided for @wedgeSalaryInputActionSemantics.
-  ///
-  /// In fr, this message translates to:
-  /// **'Calculer mon estimation'**
-  String get wedgeSalaryInputActionSemantics;
-
-  /// No description provided for @wedgeSalaryStaysOnDevice.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton salaire reste sur ton appareil. MINT ne l\'envoie nulle part.'**
-  String get wedgeSalaryStaysOnDevice;
-
-  /// No description provided for @wedgeSalaryErrorInvalid.
-  ///
-  /// In fr, this message translates to:
-  /// **'Entre un montant en chiffres, par exemple 95 000.'**
-  String get wedgeSalaryErrorInvalid;
-
-  /// No description provided for @wedgeSalaryErrorOutOfRange.
-  ///
-  /// In fr, this message translates to:
-  /// **'Entre 10 000 et 1 000 000 CHF par an.'**
-  String get wedgeSalaryErrorOutOfRange;
-
   /// No description provided for @coachOnboardingFirstUserMessage.
   ///
   /// In fr, this message translates to:
@@ -40730,13 +40638,13 @@ class _SDelegate extends LocalizationsDelegate<S> {
 
   @override
   bool isSupported(Locale locale) => <String>[
-        'de',
-        'en',
-        'es',
-        'fr',
-        'it',
-        'pt'
-      ].contains(locale.languageCode);
+    'de',
+    'en',
+    'es',
+    'fr',
+    'it',
+    'pt',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_SDelegate old) => false;
@@ -40760,8 +40668,9 @@ S lookupS(Locale locale) {
   }
 
   throw FlutterError(
-      'S.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'S.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

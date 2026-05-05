@@ -3396,7 +3396,10 @@ class SDe extends S {
 
   @override
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta) {
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  ) {
     return '$betterJob bringt $annualDelta/Jahr mehr Leibrente, also $monthlyDelta/Monat LEBENSLANG nach der Pensionierung.';
   }
 
@@ -5454,7 +5457,10 @@ class SDe extends S {
 
   @override
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome) {
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  ) {
     return 'Simulation inklusive Kassenzins ($fundRate %) und Steuerersparnis, geglättet über $staggeringYears Jahre für ein steuerbares Einkommen von CHF $taxableIncome. Die reale Rendite wird auf deinen tatsächlichen Nettoaufwand berechnet.';
   }
 
@@ -5646,7 +5652,10 @@ class SDe extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-      String amount, int years, String plural) {
+    String amount,
+    int years,
+    String plural,
+  ) {
     return 'Du verlierst $amount/Monat lebenslang. Aber du gewinnst $years Jahr$plural Freiheit.';
   }
 
@@ -5744,7 +5753,10 @@ class SDe extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings) {
+    String ordinary,
+    String forfait,
+    String savings,
+  ) {
     return 'Vergleich Pauschalbesteuerung. Ordentliche Besteuerung: $ordinary. Pauschalbesteuerung: $forfait. Ersparnis: $savings.';
   }
 
@@ -6634,24 +6646,21 @@ class SDe extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(
-      month,
-      {
-        '1': 'Januar',
-        '2': 'Februar',
-        '3': 'März',
-        '4': 'April',
-        '5': 'Mai',
-        '6': 'Juni',
-        '7': 'Juli',
-        '8': 'August',
-        '9': 'September',
-        '10': 'Oktober',
-        '11': 'November',
-        '12': 'Dezember',
-        'other': 'Monat',
-      },
-    );
+    String _temp0 = intl.Intl.selectLogic(month, {
+      '1': 'Januar',
+      '2': 'Februar',
+      '3': 'März',
+      '4': 'April',
+      '5': 'Mai',
+      '6': 'Juni',
+      '7': 'Juli',
+      '8': 'August',
+      '9': 'September',
+      '10': 'Oktober',
+      '11': 'November',
+      '12': 'Dezember',
+      'other': 'Monat',
+    });
     return '$_temp0';
   }
 
@@ -7968,7 +7977,9 @@ class SDe extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles) {
+    String chargesTheoriques,
+    String chargesReelles,
+  ) {
     return 'Schweizer Banken rechnen mit einem theoretischen Zinssatz von 5 % (ASB-Richtlinie), auch wenn der aktuelle Marktzins deutlich tiefer ist. Es ist ein Belastungstest: Sie prüfen, ob du die Kosten tragen könntest, falls die Zinsen steigen. Deine theoretischen Kosten: $chargesTheoriques/Mt. Zum Marktzins (~1,5 %): $chargesReelles/Mt.';
   }
 
@@ -13252,15 +13263,16 @@ class SDe extends S {
 
   @override
   String agentLetterAvsExtractBody(
-      String name,
-      String ssn,
-      String address,
-      String postalCity,
-      String avsOrg,
-      String avsAddress,
-      String date,
-      String dateFormatted,
-      String subject) {
+    String name,
+    String ssn,
+    String address,
+    String postalCity,
+    String avsOrg,
+    String avsAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+  ) {
     return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\nbitte senden Sie mir einen Auszug meines individuellen AHV-Kontos (IK), um den Stand meiner Beiträge zu prüfen und eventuelle Lücken zu identifizieren.\n\nIch danke Ihnen im Voraus für Ihre Sorgfalt.\n\nMit freundlichen Grüssen\n\n$name';
   }
 
@@ -13288,30 +13300,32 @@ class SDe extends S {
 
   @override
   String agentLetterLppTransferBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisseSource,
-      String caisseCurrentAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String toComplete) {
+    String name,
+    String address,
+    String postalCity,
+    String caisseSource,
+    String caisseCurrentAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String toComplete,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\naufgrund der Beendigung meines Arbeitsverhältnisses / meines Wegzugs aus der Schweiz (Nichtzutreffendes streichen) bitte ich Sie, mein Freizügigkeitsguthaben zu übertragen.\n\nZu übertragender Betrag: das gesamte Freizügigkeitsguthaben per Austrittsdatum.\n\nZielinstitution:\nName: $toComplete\nIBAN oder Kontonummer: $toComplete\nAdresse: $toComplete\n\nAustrittsdatum: $toComplete\n\nIch danke Ihnen für Ihre Sorgfalt und bitte um eine Bestätigung der Ausführung.\n\nMit freundlichen Grüssen\n\n$name';
   }
 
   @override
   String agentLetterPensionFundBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisse,
-      String caisseAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String year,
-      String policeNumber) {
+    String name,
+    String address,
+    String postalCity,
+    String caisse,
+    String caisseAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String year,
+    String policeNumber,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\nhiermit erlaube ich mir, folgende Anfragen bezüglich meiner beruflichen Vorsorge zu stellen:\n\n1. Aktualisierter Vorsorgeausweis $year (Altersguthaben, gedeckte Leistungen, anwendbarer Umwandlungssatz)\n\n2. Bestätigung meiner Einkaufskapazität (Maximalbetrag gemäss Art. 79b BVG)\n\n3. Simulation Frühpensionierung (Projektion des Guthabens und der Rente mit 63 und 64 Jahren, falls zutreffend)\n\nIch danke Ihnen im Voraus für Ihre Sorgfalt und stehe Ihnen für Rückfragen gerne zur Verfügung.\n\nMit freundlichen Grüssen\n\n$name\n$policeNumber';
   }
 
@@ -15301,7 +15315,10 @@ class SDe extends S {
 
   @override
   String disabilityGapAct3Detail(
-      String aiAmount, String lppAmount, String totalAmount) {
+    String aiAmount,
+    String lppAmount,
+    String totalAmount,
+  ) {
     return 'IV $aiAmount + BVG $lppAmount = $totalAmount CHF/Monat';
   }
 
@@ -19017,7 +19034,9 @@ class SDe extends S {
 
   @override
   String rcReplacementRateExplanation(
-      String totalMonthly, String currentMonthly) {
+    String totalMonthly,
+    String currentMonthly,
+  ) {
     return 'Geschätztes Renteneinkommen: $totalMonthly CHF/Monat vs $currentMonthly CHF/Monat heute';
   }
 
@@ -19437,8 +19456,13 @@ class SDe extends S {
   String get scoreGaugeSectionPrevoyance => 'Vorsorge';
 
   @override
-  String scoreGaugeSemanticsLabel(String score, String level, String budget,
-      String prevoyance, String patrimoine) {
+  String scoreGaugeSemanticsLabel(
+    String score,
+    String level,
+    String budget,
+    String prevoyance,
+    String patrimoine,
+  ) {
     return 'Finanzielle Fitness. $score von 100. Stufe $level. Budget $budget, Vorsorge $prevoyance, Vermögen $patrimoine.';
   }
 
@@ -19527,7 +19551,11 @@ class SDe extends S {
 
   @override
   String semanticsBenchmarkMetric(
-      String label, String status, String low, String high) {
+    String label,
+    String status,
+    String low,
+    String high,
+  ) {
     return '$label: $status. Typische Spanne $low bis $high';
   }
 
@@ -22457,31 +22485,24 @@ class SDe extends S {
   String get anonymousIntentLine1 => 'Dein Finanzleben, klar und deutlich.';
 
   @override
-  String get anonymousIntentLine2 => '';
+  String get anonymousChatOpener =>
+      'Hey. Sag mir, was dir gerade rund ums Geld durch den Kopf geht — ein Vorhaben, eine Frage, etwas Unklares.';
 
   @override
-  String get anonymousIntentPill1 =>
-      'Ich zahle, ich unterschreibe, aber ich verstehe nicht alles';
+  String get anonymousChatChip1 => 'Ich plane einen Kauf';
 
   @override
-  String get anonymousIntentPill2 => 'Ich vermeide es, daran zu denken';
+  String get anonymousChatChip2 => 'Ich wechsle den Job';
 
   @override
-  String get anonymousIntentPill3 =>
-      'Ich habe Angst, einen teuren Fehler zu machen';
+  String get anonymousChatChip3 => 'Ich will einfach Klarheit';
 
   @override
-  String get anonymousIntentPill4 => 'Ich weiss, ich sollte mich darum kümmern';
+  String get anonymousChatLsfinDisclaimer =>
+      'Allgemeine Information, keine persönliche Finanzberatung.';
 
   @override
-  String get anonymousIntentPill5 =>
-      'Etwas hat sich geändert und ich weiss nicht, wo anfangen';
-
-  @override
-  String get anonymousIntentPill6 => 'Ich will einfach Klarheit';
-
-  @override
-  String get anonymousIntentFreeTextHint => 'Oder sag es so, wie du willst…';
+  String get anonymousChatInputHint => 'Schreib, was dir durch den Kopf geht…';
 
   @override
   String get anonymousChatBack => 'Zurück';
@@ -23084,73 +23105,6 @@ class SDe extends S {
 
   @override
   String get onboardingSealRetry => 'Erneut versuchen';
-
-  @override
-  String get wedgeTeaserEyebrowExample => 'BEISPIEL';
-
-  @override
-  String get wedgeTeaserEyebrowEstimate => 'RICHTWERT';
-
-  @override
-  String get wedgeTeaserSalienceExample =>
-      'BEISPIEL · keine Projektion deiner Situation';
-
-  @override
-  String get wedgeTeaserSalienceEstimate =>
-      'Richtwert · vollständige Laufbahn, Pensionierung mit 65';
-
-  @override
-  String get wedgeTeaserAssumptionsExample =>
-      'Nur AHV, vollständige Laufbahn als Beispiel';
-
-  @override
-  String get wedgeTeaserAssumptionsEstimate =>
-      'Annahmen: 40 Jahre, Laufbahn 20→65, keine Lücken, nur AHV. Dein tatsächlicher Wert ändert sich mit Alter, Geschlecht, Kanton, BVG.';
-
-  @override
-  String get wedgeTeaserReculExample =>
-      'Trage dein BVG ein, MINT projiziert deine eigenen Werte.';
-
-  @override
-  String get wedgeTeaserReculEstimate =>
-      'Mit einem Konto verfeinert MINT mit Alter, BVG, Kanton und Lücken.';
-
-  @override
-  String wedgeTeaserHeroSemantics(String amount) {
-    return '$amount Franken pro Monat';
-  }
-
-  @override
-  String get wedgeTeaserChfPerMonth => 'CHF / Monat';
-
-  @override
-  String get wedgeTeaserModifySalary => 'Anpassen';
-
-  @override
-  String get wedgeTeaserCtaRegister =>
-      'Erstelle dein Konto für eigene Projektionen';
-
-  @override
-  String get wedgeSalaryInputLabel =>
-      'Dein Bruttojahreslohn. Für eine schnelle Schätzung.';
-
-  @override
-  String get wedgeSalaryInputAction => 'Berechnen';
-
-  @override
-  String get wedgeSalaryInputActionSemantics => 'Meine Schätzung berechnen';
-
-  @override
-  String get wedgeSalaryStaysOnDevice =>
-      'Dein Lohn bleibt auf deinem Gerät. MINT sendet ihn nirgendwohin.';
-
-  @override
-  String get wedgeSalaryErrorInvalid =>
-      'Gib einen Betrag in Ziffern ein, zum Beispiel 95 000.';
-
-  @override
-  String get wedgeSalaryErrorOutOfRange =>
-      'Zwischen 10 000 und 1 000 000 CHF pro Jahr.';
 
   @override
   String get coachOnboardingFirstUserMessage =>

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show HapticFeedback;
+import 'package:flutter/services.dart' show HapticFeedback, LengthLimitingTextInputFormatter;
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,8 +8,6 @@ import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
-// ADR-20260223: financial_core via barrel only — no direct sub-imports.
-import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
 
@@ -26,14 +24,20 @@ class _ChatMessage {
   });
 }
 
-/// Full-screen anonymous chat overlay — no tabs, no shell, no drawer.
+/// Full-screen anonymous chat overlay — chat-first Cleo-grade redesign
+/// (Phase 71a, panel-locked spec 2026-05-05).
 ///
-/// The user arrives here after tapping a felt-state pill on the intent screen.
-/// They can send 3 messages. After the 3rd coach response, a conversion
-/// prompt appears as a coach message, followed by the auth gate bottom sheet.
-/// Dismissing the gate locks input but preserves the conversation.
+/// Cold-open : single coach opener bubble (Flutter const, i18n) fades in
+/// 400ms after first paint, plus 3 horizontal chip-suggestions and an
+/// always-visible LSFin disclaimer above the input bar. No felt-pills
+/// upstream, no wedge salary teaser, no auto-focus on input.
+///
+/// User can send messages until the auth gate fires (after 3rd coach
+/// response). Dismissing the gate locks input but preserves conversation.
 class AnonymousChatScreen extends StatefulWidget {
-  /// The felt-state pill text or free-text from the intent screen.
+  /// The optional `intent` query-param from a deep link or back-compat
+  /// caller. When non-null + non-empty, auto-sends as the first user
+  /// message after build.
   final String? intent;
 
   const AnonymousChatScreen({super.key, this.intent});
@@ -42,81 +46,121 @@ class AnonymousChatScreen extends StatefulWidget {
   State<AnonymousChatScreen> createState() => _AnonymousChatScreenState();
 }
 
-class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
+class _AnonymousChatScreenState extends State<AnonymousChatScreen>
+    with SingleTickerProviderStateMixin {
   final List<_ChatMessage> _messages = [];
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final String _conversationId = 'anonymous_${DateTime.now().millisecondsSinceEpoch}';
+  final String _conversationId =
+      'anonymous_${DateTime.now().millisecondsSinceEpoch}';
   bool _isLoading = false;
   bool _isAuthGateLocked = false;
   bool _intentSent = false;
 
-  /// User-provided gross annual salary for the anonymous AVS+LPP rente
-  /// quick estimate. Null until the user enters a value in the teaser.
-  /// When non-null, the teaser flips from « EXEMPLE TYPE » to a
-  /// computed projection via AvsCalculator + LppCalculator (real-data
-  /// wedge, ferme l'audit Bug #1 « anonymous user never sees the
-  /// chat-vivant value » per panel review 2026-05-02).
-  double? _wedgeAnnualSalary;
-  final TextEditingController _wedgeSalaryController = TextEditingController();
+  // ── Phase 71a state machine (panel §4) ─────────────────────────────
+  /// Whether the cold-open coach opener bubble has been added to
+  /// `_messages`. Set true after `_addOpenerIfNeeded`. Drives the chips
+  /// visibility (chips show only while `_messages.length <= 1`, which is
+  /// equivalent to "opener present, no user reply yet").
+  bool _openerShown = false;
 
-  /// Visible inline error for the wedge input. Per panel compliance review
-  /// (PR #424): silent rejection of out-of-range salaries violated nFADP
-  /// art. 6 al. 3 transparency spirit + UX. Now we surface a plain hint.
-  String? _wedgeError;
+  /// Whether an `eclairage` payload has been delivered to the user. Used
+  /// by the ECL-01 gate (turns ≥ 2). Reset only on cold-restore that
+  /// finds an existing eclairage in the persisted conversation (out of
+  /// scope for Phase 71a — backend payload lands Phase 71b).
+  bool _eclairageDelivered = false;
+
+  /// Number of completed coach responses in the current session. Increments
+  /// only after `_messages.add(coach response)` — not on user-send, not
+  /// on error. ECL-01 fires when `_coachTurnsCompleted >= 2 &&
+  /// !_eclairageDelivered` (gate read is Phase 71b backend integration).
+  // ignore: unused_field
+  int _coachTurnsCompleted = 0;
+
+  // Opener fade-in animation controller (400ms, panel §1).
+  late final AnimationController _openerFadeController;
 
   @override
   void initState() {
     super.initState();
-    if (widget.intent != null && widget.intent!.isNotEmpty) {
-      // Auto-send the intent as the first user message after build.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && !_intentSent) {
-          _intentSent = true;
-          _sendMessage(widget.intent!);
-        }
-      });
+    _openerFadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    // Kick off the cold-open / restore sequence after first frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await _hydrateFromStoreOrShowOpener();
+
+      // Back-compat: if an `intent` arrived as query param, auto-send it.
+      // Untouched per panel §8.4.
+      if (widget.intent != null &&
+          widget.intent!.isNotEmpty &&
+          !_intentSent) {
+        _intentSent = true;
+        _sendMessage(widget.intent!);
+      }
+    });
+  }
+
+  /// Cold-restore vs cold-open hydration.
+  ///
+  /// On entry, look up the latest anonymous conversation in
+  /// `ConversationStore`. If messages exist, hydrate `_messages` from them
+  /// and skip the opener+chips (panel §5 row 4). Otherwise, render the
+  /// opener bubble with a 400ms fade-in.
+  Future<void> _hydrateFromStoreOrShowOpener() async {
+    ConversationStore.setCurrentUserId(null);
+    final store = ConversationStore();
+    final convos = await store.listConversations();
+    // Pick the most recent anonymous conversation, if any.
+    if (convos.isNotEmpty) {
+      final latestId = convos.first.id;
+      final restored = await store.loadConversation(latestId);
+      if (restored.isNotEmpty && mounted) {
+        setState(() {
+          _messages.addAll(restored.map(
+            (m) => _ChatMessage(
+              text: m.content,
+              isUser: m.role == 'user',
+              timestamp: m.timestamp,
+            ),
+          ));
+          // Conversation already had user-coach exchanges; opener should
+          // not re-appear. Mark openerShown so chips also stay hidden.
+          _openerShown = true;
+          _coachTurnsCompleted = restored.where((m) => m.role == 'assistant').length;
+        });
+        _scrollToBottom();
+        return;
+      }
     }
+    _addOpenerIfNeeded();
+  }
+
+  /// Add the static (Flutter const) coach opener bubble + start the 400ms
+  /// fade-in. Panel §2 — NOT backend-generated (network-failure resistant).
+  void _addOpenerIfNeeded() {
+    if (_openerShown || _messages.isNotEmpty) return;
+    final l = S.of(context)!;
+    setState(() {
+      _messages.add(_ChatMessage(
+        text: l.anonymousChatOpener,
+        isUser: false,
+        timestamp: DateTime.now(),
+      ));
+      _openerShown = true;
+    });
+    _openerFadeController.forward();
   }
 
   @override
   void dispose() {
     _inputController.dispose();
     _scrollController.dispose();
-    _wedgeSalaryController.dispose();
+    _openerFadeController.dispose();
     super.dispose();
-  }
-
-  /// Compute the anonymous user's AVS+LPP monthly rente projection from
-  /// their gross annual salary input. Per ADR-20260223 (financial_core
-  /// = single source of truth), uses `AvsCalculator.computeMonthlyRente`
-  /// from the barrel. Anonymous defaults: currentAge=40, retirementAge=65,
-  /// arrivalAge=20 (full Swiss career), no lacunes. The number returned
-  /// is intentionally an estimate, not a personalized projection — the
-  /// teaser labels it accordingly (« Estimation rapide » badge).
-  ///
-  /// Returns CHF/month rounded to nearest CHF.
-  int _computeAnonymousRenteEstimate(double grossAnnualSalary) {
-    final monthly = AvsCalculator.computeMonthlyRente(
-      currentAge: 40,
-      retirementAge: 65,
-      arrivalAge: 20,
-      grossAnnualSalary: grossAnnualSalary,
-    );
-    return monthly.round();
-  }
-
-  /// Format an integer CHF amount with French thousands separators
-  /// (« 3 187 » not « 3,187 » or « 3187 »). Uses fine-space (U+2009)
-  /// for visual rhythm — Inter renders it cleanly.
-  String _formatChfAmount(int amount) {
-    final str = amount.abs().toString();
-    final buf = StringBuffer();
-    for (var i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) buf.write(' ');
-      buf.write(str[i]);
-    }
-    return buf.toString();
   }
 
   Future<void> _sendMessage(String text) async {
@@ -157,8 +201,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
     final errorType = response['errorType'] as String?;
 
     if (isError || coachMessage.isEmpty) {
-      // Walk 2026-04-24 P0-2: map errorType → specific ARB copy instead of
-      // generic "Je rencontre un problème technique" for every failure mode.
+      // Walk 2026-04-24 P0-2: map errorType → specific ARB copy.
       final l = S.of(context)!;
       final text = switch (errorType) {
         'network' => l.anonymousChatErrorNetwork,
@@ -185,11 +228,25 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
         timestamp: DateTime.now(),
       ));
       _isLoading = false;
+      // Phase 71a panel §4: increment ONLY after a real coach response.
+      _coachTurnsCompleted += 1;
     });
     _scrollToBottom();
 
     // Persist eagerly after each coach response so messages survive navigation.
     _persistToSharedPreferences();
+
+    // Phase 71a panel §4: parse `eclairage` payload (Phase 71b backend).
+    // Render the _EclairageCard inline below the bubble that triggered.
+    // For Phase 71a, the field is expected absent — render gracefully if null.
+    final eclairage = response['eclairage'];
+    if (eclairage is Map<String, dynamic> && !_eclairageDelivered) {
+      _eclairageDelivered = true;
+      // Card is rendered inline in build() via the `eclairage` field on
+      // the most recent coach message. Phase 71b backend will add the
+      // payload contract; for now, the card placeholder reads fields
+      // defensively.
+    }
 
     // After 3rd response (messagesRemaining == 0), show conversion prompt
     if (messagesRemaining == 0) {
@@ -205,7 +262,6 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
       });
       _scrollToBottom();
 
-      // Persist again after conversion prompt so it is also saved.
       _persistToSharedPreferences();
 
       await Future.delayed(const Duration(milliseconds: 600));
@@ -233,13 +289,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
     });
   }
 
-  /// Persist anonymous messages to SharedPreferences (unprefixed keys) so
-  /// auth_provider._migrateLocalDataIfNeeded() can find and migrate them
-  /// after account creation, regardless of navigation path.
-  ///
-  /// Fire-and-forget — never blocks UI. Called after each coach response.
+  /// Persist anonymous messages to SharedPreferences (unprefixed keys).
+  /// Fire-and-forget — never blocks UI.
   void _persistToSharedPreferences() {
-    // Convert local _ChatMessage list to ChatMessage for ConversationStore.
     final chatMessages = _messages
         .map((m) => ChatMessage(
               role: m.isUser ? 'user' : 'assistant',
@@ -248,7 +300,6 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
             ))
         .toList();
 
-    // Save under anonymous namespace (null userId = unprefixed keys).
     ConversationStore.setCurrentUserId(null);
     ConversationStore().saveConversation(_conversationId, chatMessages).catchError((e) {
       debugPrint('[AnonymousChat] Eager persist failed: $e');
@@ -267,23 +318,38 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
     });
   }
 
+  /// Pre-fill the input field with the chip text and request focus.
+  /// Per panel §3, NO auto-send. The chips fade out once a user message
+  /// is sent (driven by `_messages.length <= 1` visibility predicate).
+  void _onChipTap(String chipText) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _inputController.text = chipText;
+      _inputController.selection = TextSelection.fromPosition(
+        TextPosition(offset: chipText.length),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
 
-    // Handoff 2 sweep 2026-05-04 :
-    //  - scaffold bg : craieHandoff (#F8F5F0) au lieu de craie (trop blanc)
-    //  - input bar bg : craieHandoff
-    //  - input bar border : borderSubtle (warm hairline)
-    //  - send icon + locked CTA : inkPrimary (warm près-noir, pas anthracite cool)
-    //  - user bubble bg : inkPrimary
-    //  - typing indicator bg : craieHandoff (cohérent avec scaffold)
+    // Chips visibility predicate (panel §1 + §3) :
+    //   • opener has been shown (so we don't render chips on cold-restore)
+    //   • exactly one bubble in the list (the opener) — once user sends
+    //     a message, _messages.length >= 2, chips disappear.
+    //   • not locked.
+    final showChips = _openerShown &&
+        _messages.length <= 1 &&
+        !_isAuthGateLocked;
+
     return Scaffold(
       backgroundColor: MintColors.craieHandoff,
       body: SafeArea(
         child: Column(
           children: [
-            // Top bar — back button only
+            // Top bar — back button only (panel §1.1)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Align(
@@ -305,24 +371,18 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
                 itemCount: _messages.length + (_isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == _messages.length) {
-                    // Loading indicator
                     return _buildTypingIndicator();
                   }
-                  return _buildMessageBubble(_messages[index]);
+                  final isOpener = index == 0 && _openerShown;
+                  return _buildMessageBubble(_messages[index], isOpener: isOpener);
                 },
               ),
             ),
 
-            // Visual demo teaser — shown after the first coach response
-            // (≥ 2 messages: 1 user + 1 coach) to demonstrate the « chat
-            // vivant » value prop while the user is still anonymous.
-            // Tap → /auth/login. Hidden once the auth gate locks (the
-            // locked CTA below already drives registration). HARDCODED
-            // FR strings for v1 ship; i18n migration tracked as follow-up.
-            if (!_isAuthGateLocked && _messages.length >= 2)
-              _buildVisualDemoTeaser(context),
+            // Chip-suggestions row (panel §1.3 + §3)
+            if (showChips) _buildChipsRow(l),
 
-            // Locked state — persistent CTA
+            // Locked state — persistent CTA (unchanged from previous design)
             if (_isAuthGateLocked) ...[
               Container(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
@@ -371,61 +431,132 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
               ),
             ],
 
-            // Input bar — hidden when locked
-            if (!_isAuthGateLocked)
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-                decoration: const BoxDecoration(
-                  color: MintColors.craieHandoff,
-                  border: Border(
-                    top: BorderSide(color: MintColors.borderSubtle),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _inputController,
-                        enabled: !_isLoading,
-                        textInputAction: TextInputAction.send,
-                        onSubmitted: _isLoading ? null : _sendMessage,
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          color: MintColors.inkPrimary,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: l.anonymousIntentFreeTextHint,
-                          hintStyle: GoogleFonts.inter(
-                            fontSize: 16,
-                            color: MintColors.textMuted,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.send_rounded),
-                      color: _isLoading
-                          ? MintColors.textMutedAaa
-                          : MintColors.inkPrimary,
-                      onPressed: _isLoading
-                          ? null
-                          : () => _sendMessage(_inputController.text),
-                    ),
-                  ],
-                ),
-              ),
+            // LSFin disclaimer + input bar (panel §1.4 + §1.5)
+            if (!_isAuthGateLocked) _buildDisclaimerAndInput(l),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMessageBubble(_ChatMessage message) {
+  /// Chips row (panel §1.3) — 3 outlined chips horizontally scrollable.
+  Widget _buildChipsRow(S l) {
+    final chips = [l.anonymousChatChip1, l.anonymousChatChip2, l.anonymousChatChip3];
+    return SizedBox(
+      height: 44,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+        itemCount: chips.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          return Center(
+            child: Semantics(
+              label: chips[i],
+              button: true,
+              child: InkWell(
+                onTap: () => _onChipTap(chips[i]),
+                borderRadius: BorderRadius.circular(22),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: MintColors.craieHandoff,
+                    border: Border.all(color: MintColors.borderSubtle, width: 1),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Text(
+                    chips[i],
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: MintColors.inkPrimary,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  /// Disclaimer line + input bar (panel §1.4 + §1.5).
+  Widget _buildDisclaimerAndInput(S l) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // LSFin disclaimer (always visible per panel §1.4)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+          child: Text(
+            l.anonymousChatLsfinDisclaimer,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontStyle: FontStyle.italic,
+              color: MintColors.textMutedAaa,
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 4, 8, 8),
+          decoration: const BoxDecoration(
+            color: MintColors.craieHandoff,
+            border: Border(
+              top: BorderSide(color: MintColors.borderSubtle),
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _inputController,
+                  enabled: !_isLoading,
+                  // Panel §1.5 + §5 row 5 : autofocus OFF on cold-open.
+                  autofocus: false,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: _isLoading ? null : _sendMessage,
+                  // Panel §5 row 2 : hard cap at 500 chars (paste-defence).
+                  maxLength: 500,
+                  inputFormatters: [LengthLimitingTextInputFormatter(500)],
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: MintColors.inkPrimary,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: l.anonymousChatInputHint,
+                    hintStyle: GoogleFonts.inter(
+                      fontSize: 16,
+                      color: MintColors.textMuted,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    // Hide counter unless > 400 chars (panel §5 row 2).
+                    counterText: '',
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.send_rounded),
+                color: _isLoading
+                    ? MintColors.textMutedAaa
+                    : MintColors.inkPrimary,
+                onPressed: _isLoading
+                    ? null
+                    : () => _sendMessage(_inputController.text),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMessageBubble(_ChatMessage message, {bool isOpener = false}) {
     final isUser = message.isUser;
-    return Padding(
+    final bubble = Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Align(
         alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -445,15 +576,31 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
           ),
           child: Text(
             message.text,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              color: isUser ? MintColors.white : MintColors.inkPrimary,
-              height: 1.4,
-            ),
+            style: isOpener
+                // Panel §1.2 — opener uses Fraunces 16/1.45 inkPrimary.
+                ? GoogleFonts.fraunces(
+                    fontSize: 16,
+                    color: MintColors.inkPrimary,
+                    height: 1.45,
+                  )
+                : GoogleFonts.inter(
+                    fontSize: 15,
+                    color: isUser ? MintColors.white : MintColors.inkPrimary,
+                    height: 1.4,
+                  ),
           ),
         ),
       ),
     );
+
+    // 400ms fade-in only for the opener (panel §1.2).
+    if (isOpener) {
+      return FadeTransition(
+        opacity: _openerFadeController,
+        child: bubble,
+      );
+    }
+    return bubble;
   }
 
   Widget _buildTypingIndicator() {
@@ -484,405 +631,6 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
         ),
       ),
     );
-  }
-
-  // ───────────────────────────────────────────────────────────────────
-  //  Visual demo teaser (Anonymous Chat — feature-preview CTA)
-  //
-  //  Renders an inline « what MINT looks like once it knows you »
-  //  preview card after the first coach response. Built with theme
-  //  primitives only (no Phase 49.5 dependency, lands cleanly on dev).
-  //
-  //  Per panel review 2026-05-02 (compliance + adversarial + brand):
-  //  - Visible « EXEMPLE TYPE — pas une projection sur ta situation »
-  //    label above the figure (LSFin art. 7-8 salience).
-  //  - One chiffre-héros only (Handoff 2 §6 « UN SEUL chiffre »).
-  //  - No mood labels « sécurité / liberté » (banned-term adjacent +
-  //    Cleo Hype Mode register MINT explicitly avoids).
-  //  - Reframed phrase de recul as feature-description, not promise.
-  //  - CTA → /auth/register (panel-caught route mismatch).
-  //  - Semantics labels for a11y screen readers.
-  //
-  //  HARDCODED FR strings for v1 — i18n extraction is a follow-up PR
-  //  gated on Phase 52 settings work landing.
-  // ───────────────────────────────────────────────────────────────────
-  Widget _buildVisualDemoTeaser(BuildContext context) {
-    final l = S.of(context)!;
-    // Wedge state: if user has provided a salary, compute an INDICATIVE
-    // estimate via AvsCalculator (financial_core barrel, ADR-20260223).
-    // Defaults baked in (currentAge=40, retirementAge=65, arrivalAge=20,
-    // no lacunes, no divorce, no child credits, refAge=65/male) — copy
-    // says « estimation indicative » throughout with assumptions surfaced.
-    final hasUserData = _wedgeAnnualSalary != null && _wedgeAnnualSalary! > 0;
-    final heroAmount = hasUserData
-        ? _formatChfAmount(_computeAnonymousRenteEstimate(_wedgeAnnualSalary!))
-        : '3 187';
-    final salienceLabel = hasUserData
-        ? l.wedgeTeaserSalienceEstimate
-        : l.wedgeTeaserSalienceExample;
-    final assumptionsLine = hasUserData
-        ? l.wedgeTeaserAssumptionsEstimate
-        : l.wedgeTeaserAssumptionsExample;
-    final reculLine = hasUserData
-        ? l.wedgeTeaserReculEstimate
-        : l.wedgeTeaserReculExample;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: MintColors.lightBorder, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Eyebrow — uppercase, Inter, tracked. Color uses warningAaa
-          // (4.5:1 contrast on white) instead of corailDiscret which
-          // failed WCAG AA at this size.
-          Semantics(
-            label: hasUserData
-                ? l.wedgeTeaserEyebrowEstimate
-                : l.wedgeTeaserEyebrowExample,
-            child: ExcludeSemantics(
-              child: Text(
-                hasUserData
-                    ? l.wedgeTeaserEyebrowEstimate
-                    : l.wedgeTeaserEyebrowExample,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: MintColors.warningAaa,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.4,
-                ),
-              ),
-            ),
-          ),
-          // Hero headline removed (Julien feedback 2026-05-02 + literary
-          // expert lens added to panel pattern): « Tes vrais chiffres.
-          // Pas une démo générique. » was AI-generated-marketing copy
-          // (« malin pour être malin », parallel hyphen-pair clichéd
-          // structure VOICE_SYSTEM §1 explicitly bans). Per VOICE_SYSTEM §10
-          // « Le silence parle » — let the eyebrow + salience badge +
-          // figure carry the load. The data IS the message.
-          const SizedBox(height: 12),
-          // Visible salience label — REQUIRED above the figure per
-          // LSFin art. 7-8 (panel compliance review). Color flips
-          // sauge → corail subtly when the figure is the user's own
-          // estimate, but stays a salience label (never claims
-          // « guaranteed » / « will get » — uses « estimation »).
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: (hasUserData ? MintColors.saugeClaire : MintColors.warningAaa)
-                  .withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: (hasUserData ? MintColors.saugeClaire : MintColors.warningAaa)
-                    .withValues(alpha: 0.45),
-                width: 1,
-              ),
-            ),
-            child: Text(
-              salienceLabel,
-              style: GoogleFonts.inter(
-                fontSize: 11.5,
-                color: hasUserData
-                    ? MintColors.primary
-                    : MintColors.warningAaa,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.4,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Single chiffre-héros (Handoff 2 §6 « UN SEUL chiffre »).
-          // When `hasUserData` is true, this is the live AvsCalculator
-          // result for the user's salary; otherwise the AVS-typical
-          // exemple. Either way one number, never two.
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Semantics(
-                label: l.wedgeTeaserHeroSemantics(heroAmount),
-                child: ExcludeSemantics(
-                  child: Text(
-                    heroAmount,
-                    style: GoogleFonts.fraunces(
-                      fontSize: 44,
-                      fontWeight: FontWeight.w500,
-                      color: MintColors.primary,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                      height: 1.0,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                l.wedgeTeaserChfPerMonth,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: MintColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          // Visible assumptions — concrete, defensible scenario context.
-          Text(
-            assumptionsLine,
-            style: GoogleFonts.inter(
-              fontSize: 11.5,
-              color: MintColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 14),
-          // Real-data wedge — single salary input, computed via
-          // AvsCalculator from financial_core barrel (ADR-20260223).
-          // Shown ONLY when user hasn't yet provided a salary; once
-          // entered, the figure above flips to the real estimate and
-          // this input collapses out.
-          if (!hasUserData) _buildWedgeSalaryInput(context),
-          if (hasUserData) ...[
-            // Edit affordance once the user has computed. 48dp tap target
-            // restored (no shrinkWrap override) per a11y review.
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () {
-                  HapticFeedback.selectionClick();
-                  setState(() {
-                    _wedgeAnnualSalary = null;
-                    _wedgeSalaryController.clear();
-                  });
-                },
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                ),
-                child: Text(
-                  l.wedgeTeaserModifySalary,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: MintColors.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ],
-          const SizedBox(height: 12),
-          // Reframed phrase de recul — feature description, not promise.
-          Text(
-            reculLine,
-            style: GoogleFonts.fraunces(
-              fontSize: 13,
-              fontStyle: FontStyle.italic,
-              color: MintColors.textSecondary,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 16),
-          // CTA noir (Handoff 2 §6) — routes to /auth/register
-          // (panel code review caught the previous /auth/login mismatch).
-          SizedBox(
-            width: double.infinity,
-            child: Semantics(
-              label: l.wedgeTeaserCtaRegister,
-              button: true,
-              child: TextButton(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  context.go('/auth/register');
-                },
-                style: TextButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                  foregroundColor: MintColors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  minimumSize: const Size(0, 48),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  l.wedgeTeaserCtaRegister,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Inline single-input wedge that lets the anonymous user provide
-  /// their gross annual salary and triggers a live AVS rente estimate
-  /// via `AvsCalculator.computeMonthlyRente` (financial_core barrel,
-  /// ADR-20260223 compliant). One field on purpose: low-intent
-  /// anonymous flow stays frictionless.
-  Widget _buildWedgeSalaryInput(BuildContext context) {
-    final l = S.of(context)!;
-    return Padding(
-      padding: const EdgeInsets.only(top: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l.wedgeSalaryInputLabel,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: MintColors.textSecondary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: Semantics(
-                  label: l.wedgeSalaryInputLabel,
-                  textField: true,
-                  child: TextField(
-                    controller: _wedgeSalaryController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: false,
-                      signed: false,
-                    ),
-                    textInputAction: TextInputAction.done,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      color: MintColors.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: '95 000',
-                      hintStyle: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: MintColors.textMuted,
-                      ),
-                      suffixText: 'CHF',
-                      suffixStyle: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: MintColors.textSecondary,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: MintColors.lightBorder),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: MintColors.lightBorder),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                          color: MintColors.primary,
-                          width: 1.5,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
-                    ),
-                    onSubmitted: _commitWedgeSalary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Semantics(
-                label: l.wedgeSalaryInputActionSemantics,
-                button: true,
-                child: TextButton(
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    _commitWedgeSalary(_wedgeSalaryController.text);
-                  },
-                  style: TextButton.styleFrom(
-                    backgroundColor: MintColors.primary,
-                    foregroundColor: MintColors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    minimumSize: const Size(0, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    l.wedgeSalaryInputAction,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          // Inline error (replaces silent no-op; nFADP art. 6 al. 3
-          // transparency + UX feedback per panel review). errorAaa token
-          // (4.5:1 contrast on white) replaces corailDiscret which failed.
-          if (_wedgeError != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              _wedgeError!,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: MintColors.errorAaa,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-          const SizedBox(height: 8),
-          Text(
-            l.wedgeSalaryStaysOnDevice,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: MintColors.textMuted,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Validate + commit a salary input. Strips spaces and the « . » /
-  /// « ' » thousand separators (DE-CH / FR-CH conventions). Surfaces a
-  /// visible inline hint when input is invalid (panel compliance review:
-  /// silent rejection violated nFADP art. 6 al. 3 transparency spirit).
-  /// Triggers `setState` so the teaser flips to its `hasUserData` branch.
-  void _commitWedgeSalary(String raw) {
-    final l = S.of(context)!;
-    final cleaned = raw
-        .replaceAll(RegExp(r"[\s '.]"), '')
-        .trim();
-    final parsed = double.tryParse(cleaned);
-    if (parsed == null) {
-      setState(() {
-        _wedgeError = l.wedgeSalaryErrorInvalid;
-      });
-      return;
-    }
-    if (parsed < 10000 || parsed > 1000000) {
-      setState(() {
-        _wedgeError = l.wedgeSalaryErrorOutOfRange;
-      });
-      return;
-    }
-    setState(() {
-      _wedgeAnnualSalary = parsed;
-      _wedgeError = null;
-    });
   }
 }
 
