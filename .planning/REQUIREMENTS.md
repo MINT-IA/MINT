@@ -83,21 +83,47 @@ v2.11 wire les 5 contrats mécaniquement. Critère de done : `walker_premier_ecl
 | BYOK testing | Out per memory `project_byok_scope`. |
 | iPhone 17 Pro Max / iPhone SE viewports | Out v2.11 — single sim target = iPhone 17 Pro. Multi-device v2.12. |
 
-## Traceability (filled by roadmap)
+## Traceability (filled by roadmap 2026-05-05)
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| ECLW-01..05 | TBD | Pending |
-| ECLB-01..05 | TBD | Pending |
-| WALKC-01..06 | TBD | Pending |
-| SIMH-01..05 | TBD | Pending |
-| LANG-01..03 | TBD | Pending |
-| WALKR-01..06 | TBD | Pending |
+| Requirement | Phase | Status  |
+|-------------|-------|---------|
+| ECLW-01     | 80    | Pending |
+| ECLW-02     | 80    | Pending |
+| ECLW-03     | 80    | Pending |
+| ECLW-04     | 80    | Pending |
+| ECLW-05     | 80    | Pending |
+| ECLB-01     | 81    | Pending |
+| ECLB-02     | 81    | Pending |
+| ECLB-03     | 81    | Pending |
+| ECLB-04     | 81    | Pending |
+| ECLB-05     | 81    | Pending |
+| WALKC-01    | 82    | Pending |
+| WALKC-02    | 82    | Pending |
+| WALKC-03    | 82    | Pending |
+| WALKC-04    | 82    | Pending |
+| WALKC-05    | 82    | Pending |
+| WALKC-06    | 82    | Pending |
+| SIMH-01     | 83    | Pending |
+| SIMH-02     | 83    | Pending |
+| SIMH-03     | 83    | Pending |
+| SIMH-04     | 83    | Pending |
+| SIMH-05     | 83    | Pending |
+| LANG-01     | 84    | Pending |
+| LANG-02     | 84    | Pending |
+| LANG-03     | 84    | Pending |
+| WALKR-01    | 85    | Pending |
+| WALKR-02    | 85    | Pending |
+| WALKR-03    | 85    | Pending |
+| WALKR-04    | 85    | Pending |
+| WALKR-05    | 85    | Pending |
+| WALKR-06    | 85    | Pending |
 
 **Coverage:**
-- v2.11 requirements: 30 total (5 + 5 + 6 + 5 + 3 + 6)
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 30 ⚠️
+- v2.11 requirements: 30 total (5 ECLW + 5 ECLB + 6 WALKC + 5 SIMH + 3 LANG + 6 WALKR)
+- Mapped to phases: **30 / 30 ✓**
+- Unmapped: 0
+- Orphans: 0
+- Duplicates: 0
 
 ## Constraints from Julien (operational)
 
@@ -106,7 +132,11 @@ v2.11 wire les 5 contrats mécaniquement. Critère de done : `walker_premier_ecl
 - TestFlight = Claude-validated only.
 - No new PRs outside the 6 v2.11 phases.
 - 5 audits 2026-05-05 are the research artifacts ; do not re-research.
+- Phase numbering 80-85, sequential, no parallelization (avoids v2.10 phantom-contract trap).
+- Each phase ≤ 2.5 days execution time, ≤ 4 plans inside.
+- Each phase ships a PR-able artifact (no documentation-only phases).
+- Phase 85 = LAST gate before TestFlight 2.11.0 cut.
 
 ---
 *Requirements defined: 2026-05-05*
-*Last updated: 2026-05-05 — v2.11 milestone open, roadmap pending*
+*Last updated: 2026-05-05 — v2.11 roadmap shipped, 30/30 mapped, 6 phases (80-85), sequential.*
