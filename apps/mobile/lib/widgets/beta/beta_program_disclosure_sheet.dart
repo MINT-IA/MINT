@@ -59,8 +59,18 @@ class BetaProgramDisclosureSheet extends StatelessWidget {
   /// No-op when the SharedPreferences flag is already set.
   ///
   /// Returns true if the sheet was shown (and the user dismissed it),
-  /// false if already acked / context unmounted.
+  /// false if already acked / context unmounted / disabled via dart-define.
+  ///
+  /// Phase 83 (v2.11) SIMH-03 — `--dart-define=MINT_DISABLE_BETA_MODAL=true`
+  /// short-circuits the modal entirely, bypassing the SharedPreferences
+  /// flag check so walker runs (which `simctl erase` between archetypes,
+  /// resetting the flag) don't have to dismiss it manually. Walker passes
+  /// this flag in its `flutter build` invocation. NOT gated by
+  /// `kReleaseMode` — only available when the build explicitly opts in.
   static Future<bool> maybeShow(BuildContext context) async {
+    if (const bool.fromEnvironment('MINT_DISABLE_BETA_MODAL')) {
+      return false;
+    }
     final prefs = await SharedPreferences.getInstance();
     final seen = prefs.getBool(_kBetaDisclosureSeenKey) ?? false;
     if (seen) return false;

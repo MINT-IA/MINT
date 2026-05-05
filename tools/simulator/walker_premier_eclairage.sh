@@ -199,10 +199,16 @@ log "  dry-run       : $DRY_RUN"
 # ── dry-run path : enumerate plan + exit ────────────────────────────────
 if [ "$DRY_RUN" = "1" ]; then
   log "dry-run mode — no sim, no build, no taps"
+  log "would run sim hygiene before build (Phase 83 SIMH-01..02) :"
+  log "  xcrun simctl shutdown all || xcrun simctl shutdown <DEVICE>"
+  log "  xcrun simctl erase <DEVICE>   (kills SharedPrefs + beta-disclosure flag)"
+  log "  xcrun simctl boot <DEVICE>"
+  log "  xcrun simctl uninstall <DEVICE> ch.mint.app  (defensive idempotence)"
   log "would build flutter ios sim with :"
   log "  --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1"
   log "  --dart-define=MINT_E2E_ARCHETYPE=$ARCHETYPE"
   log "  --dart-define=MINT_E2E_FORCE_ECLAIRAGE_KIND=<archetype.expected_eclairage.kind>"
+  log "  --dart-define=MINT_DISABLE_BETA_MODAL=true   (SIMH-03 short-circuit)"
   log "would capture 6 checkpoints under $SHOTS_DIR :"
   log "  00-cold-launch.png  01-landing.png  02-anon-chat-opener.png"
   log "  03-after-turn1.png  04-eclairage-card.png  05-register-cta.png"
@@ -452,13 +458,17 @@ _dismiss_keyboard() {
   sleep 0.3
 }
 
-# WALKC-05 — explicit beta-disclosure dismiss step. Tap CTA at sim
-# screen y ≈ 80% vh, x ≈ 50% vw. No-op if the modal is not visible (the
-# tap lands on dead pixels under the landing CTA which is itself hit by
-# the next step). When MINT_DISABLE_BETA_MODAL is wired in Phase 83, the
-# modal is suppressed entirely and this step becomes a quick warm-up.
+# WALKC-05 + SIMH-03 — explicit beta-disclosure dismiss step. Phase 83
+# wires `--dart-define=MINT_DISABLE_BETA_MODAL=true` into the flutter
+# build invocation, which short-circuits `maybeShow()` so the modal is
+# never rendered in walker runs. This step is therefore a defensive
+# warm-up (belt+suspenders) in case the dart-define is ever stripped or
+# the build flag drifts. The CTA tap at (50% vw × 80% vh) lands on dead
+# pixels under the landing CTA when the modal is suppressed, harmless.
 _dismiss_beta_modal() {
   log "step_beta_disclosure_dismiss (anchor=beta_dismiss)"
+  log "  note: MINT_DISABLE_BETA_MODAL=true via dart-define (SIMH-03);"
+  log "        modal expected absent → tap is a defensive no-op."
   _tap_at_anchor beta_dismiss
   sleep 0.6
   _wait_for_ui 4 || true
@@ -478,9 +488,14 @@ log "expected éclairage kind : $EXPECTED_KIND"
 # ── boot + build + install ──────────────────────────────────────────────
 _t0_total=$(date +%s)
 
-log "shutdown all sims"
+# SIMH-01 (Phase 83) — fresh sim state per archetype run :
+# shutdown the target device, erase, then boot. Eliminates SharedPrefs
+# pollution + beta-disclosure flag carry-over between consecutive archetype
+# runs (audit D 2026-05-05). `shutdown all` is kept as a defensive sweep
+# in case a stale sim from another runtime is still booted (CI parity).
+log "sim hygiene (SIMH-01) — shutdown all → shutdown $DEVICE → erase → boot"
 xcrun simctl shutdown all >/dev/null 2>&1 || true
-log "erase + boot $DEVICE"
+xcrun simctl shutdown "$DEVICE" >/dev/null 2>&1 || true
 xcrun simctl erase "$DEVICE" >/dev/null 2>&1 || true
 xcrun simctl boot "$DEVICE"
 open -a Simulator || true
@@ -494,11 +509,16 @@ if [ -n "${SENTRY_DSN_STAGING:-}" ]; then
   SENTRY_FLAG="--dart-define=SENTRY_DSN=${SENTRY_DSN_STAGING}"
 fi
 
+# SIMH-03 (Phase 83) — `MINT_DISABLE_BETA_MODAL=true` short-circuits
+# `BetaProgramDisclosureSheet.maybeShow()` so the modal never appears in
+# walker builds. This is belt-and-suspenders alongside Phase 82's explicit
+# `_dismiss_beta_modal` step (WALKC-05). Production builds never set this.
 (cd "$REPO_ROOT/apps/mobile" && flutter build ios --simulator --no-codesign \
   --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
   --dart-define=MINT_E2E_ARCHETYPE="$ARCHETYPE" \
   --dart-define=MINT_E2E_FORCE_ECLAIRAGE_KIND="$EXPECTED_KIND" \
   --dart-define=MINT_WALKTHROUGH_PHASE=74 \
+  --dart-define=MINT_DISABLE_BETA_MODAL=true \
   ${SENTRY_FLAG}) 2>&1 | tee -a "$LOG"
 
 APP_PATH="$REPO_ROOT/apps/mobile/build/ios/iphonesimulator/Runner.app"
@@ -506,6 +526,13 @@ if [ ! -d "$APP_PATH" ]; then
   log "FAIL: Runner.app not found at $APP_PATH"
   exit 1
 fi
+
+# SIMH-02 (Phase 83) — defensive idempotence guard. If a prior run left
+# the bundle installed and the erase above missed it (rare, but happens
+# when erase races with a SpringBoard reload), uninstall first so the
+# subsequent install is clean. Safe no-op when bundle isn't present.
+log "sim hygiene (SIMH-02) — uninstall $BUNDLE before install (defensive)"
+xcrun simctl uninstall "$DEVICE" "$BUNDLE" >/dev/null 2>&1 || true
 
 log "install $APP_PATH → $DEVICE"
 xcrun simctl install "$DEVICE" "$APP_PATH"
