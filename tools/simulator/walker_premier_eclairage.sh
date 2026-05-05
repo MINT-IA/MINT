@@ -340,20 +340,32 @@ _anchor_to_desktop() {
 # table is declared once (below) and referenced by name everywhere in
 # the script ; this is the single point of truth for coords (zero
 # `cliclick c:NNN,NNN` desktop literals in the script body).
-declare -A ANCHORS_X
-declare -A ANCHORS_Y
-ANCHORS_X[cta_landing]="0.50";   ANCHORS_Y[cta_landing]="0.78"
-ANCHORS_X[chip_1]="0.50";        ANCHORS_Y[chip_1]="0.74"
-ANCHORS_X[input_field]="0.50";   ANCHORS_Y[input_field]="0.90"
-ANCHORS_X[beta_dismiss]="0.50";  ANCHORS_Y[beta_dismiss]="0.80"
-# Swipe endpoints for scroll-to-register-CTA (WALKC-06).
-ANCHORS_X[swipe_start]="0.50";   ANCHORS_Y[swipe_start]="0.65"
-ANCHORS_X[swipe_end]="0.50";     ANCHORS_Y[swipe_end]="0.30"
+# bash-3.2 compat (macOS default 3.2.57) — no `declare -A`. Use `case`
+# for the anchor lookup. This is the single point of truth ; zero
+# `cliclick c:NNN,NNN` desktop literals in the script body.
+_anchor_lookup() {
+  # Echoes "$x_pct $y_pct" for the named anchor, returns 1 if unknown.
+  case "$1" in
+    cta_landing)   echo "0.50 0.78" ;;
+    chip_1)        echo "0.50 0.74" ;;
+    input_field)   echo "0.50 0.90" ;;
+    beta_dismiss)  echo "0.50 0.80" ;;
+    # Swipe endpoints for scroll-to-register-CTA (WALKC-06).
+    swipe_start)   echo "0.50 0.65" ;;
+    swipe_end)     echo "0.50 0.30" ;;
+    *)             return 1 ;;
+  esac
+}
 
 _tap_at_anchor() {
   local name="$1"
-  local px="${ANCHORS_X[$name]:-}"
-  local py="${ANCHORS_Y[$name]:-}"
+  local pair
+  pair=$(_anchor_lookup "$name") || {
+    echo "ERROR: unknown anchor '$name'" >&2
+    return 1
+  }
+  local px="${pair%% *}"
+  local py="${pair##* }"
   if [ -z "$px" ] || [ -z "$py" ]; then
     echo "ERROR: unknown anchor '$name'" >&2
     return 1
@@ -393,12 +405,17 @@ _swipe() {
 
 _swipe_anchor() {
   local name_a="$1" name_b="$2"
-  local pax="${ANCHORS_X[$name_a]:-}"; local pay="${ANCHORS_Y[$name_a]:-}"
-  local pbx="${ANCHORS_X[$name_b]:-}"; local pby="${ANCHORS_Y[$name_b]:-}"
-  if [ -z "$pax" ] || [ -z "$pbx" ]; then
-    echo "ERROR: swipe anchors '$name_a' or '$name_b' not declared" >&2
+  local pair_a pair_b
+  pair_a=$(_anchor_lookup "$name_a") || {
+    echo "ERROR: swipe anchor '$name_a' not declared" >&2
     return 1
-  fi
+  }
+  pair_b=$(_anchor_lookup "$name_b") || {
+    echo "ERROR: swipe anchor '$name_b' not declared" >&2
+    return 1
+  }
+  local pax="${pair_a%% *}" pay="${pair_a##* }"
+  local pbx="${pair_b%% *}" pby="${pair_b##* }"
   local xy_a xy_b
   xy_a=$(_anchor_to_desktop "$pax" "$pay") || return 1
   xy_b=$(_anchor_to_desktop "$pbx" "$pby") || return 1
