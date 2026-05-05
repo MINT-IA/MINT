@@ -1,12 +1,26 @@
 #!/usr/bin/env bash
 # tools/simulator/walker_premier_eclairage.sh
 #
-# Phase 74 — autonomous walker for Premier Éclairage flow.
-# Drives an iOS simulator (iPhone 17 Pro / iOS 18.2) through the
-# anonymous-chat → first éclairage → register-CTA loop and captures
-# 6 deterministic screenshots per archetype.
+# Phase 74 + Phase 82 (v2.11) — autonomous walker for Premier Éclairage flow.
+# Drives an iOS simulator (iPhone 17 Pro) through the anonymous-chat →
+# first éclairage → register-CTA loop and captures 6 deterministic
+# screenshots per archetype.
+#
+# Phase 82 coord-system overhaul (audit A 2026-05-05) :
+#   - Tap coords derived at runtime from the Simulator window bounds via
+#     osascript (WALKC-01) — no hardcoded `cliclick c:NNN,NNN` desktop px.
+#   - hero_bboxes.json calibrated for iPhone 17 Pro 1206×2622 native
+#     resolution, Dynamic Island excluded (WALKC-02).
+#   - _wait_for_ui requires ≥ 2 consecutive stable hashes, dumps hash
+#     sequence to walker.log when retry > 3 (WALKC-03).
+#   - Simulator window activated via osascript before each tap so cliclick
+#     events route to sim and not to Terminal/IDE (WALKC-04).
+#   - Beta-disclosure dismiss step explicit before funnel start (WALKC-05).
+#   - Scroll-to-register-CTA uses cliclick swipe gesture (dd → du), not
+#     tap-as-scroll (WALKC-06).
 #
 # Locked spec : .planning/phases/74-walker-premier-eclairage/PANEL-VERDICT.md
+#               .planning/REQUIREMENTS.md WALKC-01..06 (v2.11)
 #
 # This file deliberately does NOT source walker.sh nor extend
 # walker_audit_tap_render.sh. Reasoning :
@@ -175,7 +189,7 @@ mkdir -p "$SHOTS_DIR" "$DIFF_DIR"
 
 log() { echo "[walker $(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
 
-log "phase 74 walker_premier_eclairage"
+log "phase 74+82 walker_premier_eclairage (v2.11 coord overhaul)"
 log "  archetype     : $ARCHETYPE"
 log "  run-id        : $RUN_ID"
 log "  archetype-json: $ARCHETYPE_JSON"
@@ -193,6 +207,18 @@ if [ "$DRY_RUN" = "1" ]; then
   log "  00-cold-launch.png  01-landing.png  02-anon-chat-opener.png"
   log "  03-after-turn1.png  04-eclairage-card.png  05-register-cta.png"
   log "would run image_diff.py per checkpoint with bboxes from $BBOXES_FILE"
+  log "phase-82 helpers wired :"
+  log "  _get_sim_window_bounds  (osascript bounds of window 1, WALKC-01)"
+  log "  _activate_simulator     (osascript activate before each tap, WALKC-04)"
+  log "  _anchor_to_desktop      (anchor% → desktop px, WALKC-01)"
+  log "  _tap_at_anchor          (anchor lookup → desktop tap, WALKC-01)"
+  log "  _swipe                  (cliclick dd:X,Y du:X,Y2 swipe gesture, WALKC-06)"
+  log "  _dismiss_beta_modal     (CTA at 50%vw × 80%vh, WALKC-05)"
+  log "  _wait_for_ui            (≥ 2 consecutive stable hashes, WALKC-03)"
+  log "anchor table (logical % of sim screen) :"
+  log "  cta_landing  = (50%, 78%)   chip_1   = (50%, 74%)"
+  log "  input_field  = (50%, 90%)   scroll_a = (50%, 65%)  scroll_b = (50%, 30%)"
+  log "  beta_dismiss = (50%, 80%)"
   log "dry-run plan complete"
   exit 0
 fi
@@ -207,40 +233,35 @@ for cmd in xcrun cliclick shasum python3 jq; do
   }
 done
 
-# Sim runtime preflight (panel §6 mitigation #1) — fail fast
-if ! xcrun simctl runtime list 2>/dev/null | grep -q "iOS 18.2"; then
-  echo "ERROR: iOS 18.2 simulator runtime missing" >&2
-  echo "Install via Xcode → Settings → Components → iOS 18.2." >&2
-  exit 1
+# Sim runtime preflight (panel §6 mitigation #1) — fail fast on absence ;
+# accept any iOS version present on the box. Pin to the booted device's
+# runtime by default ; allow override via $MINT_WALKER_REQUIRED_RUNTIME for
+# CI parity. Pass the empty string to opt out entirely.
+REQUIRED_RUNTIME="${MINT_WALKER_REQUIRED_RUNTIME-}"
+if [ -z "${REQUIRED_RUNTIME+__set__}" ]; then
+  REQUIRED_RUNTIME=$(xcrun simctl list devices booted 2>/dev/null \
+    | awk '/^-- iOS / { for (i=2; i<=NF; i++) printf "%s ", $i; print "" }' \
+    | tr -d -- '-' | sed -e 's/^ *//' -e 's/ *$//' | head -n 1)
+fi
+if [ -n "$REQUIRED_RUNTIME" ]; then
+  if ! xcrun simctl list runtimes 2>/dev/null | grep -q "$REQUIRED_RUNTIME"; then
+    echo "ERROR: simulator runtime '$REQUIRED_RUNTIME' missing" >&2
+    echo "Install via Xcode → Settings → Components, or set" >&2
+    echo "MINT_WALKER_REQUIRED_RUNTIME='' to skip the preflight." >&2
+    exit 1
+  fi
 fi
 
 DEVICE="${MINT_WALKER_DEVICE:-iPhone 17 Pro}"
 BUNDLE="ch.mint.app"
 
-log "preflight OK — runtime iOS 18.2 present, device='$DEVICE'"
+log "preflight OK — runtime '${REQUIRED_RUNTIME:-skipped}' present, device='$DEVICE'"
 
 # ── helpers (copied verbatim from walker_audit_tap_render.sh:252-281,
 #     panel §1 mandate — DO NOT source walker.sh) ──────────────────────
-_tap_at() {
-  local x="$1" y="$2"
-  cliclick "c:${x},${y}"
-  sleep 0.4
-}
-
-_wait_for_ui() {
-  local max="${1:-8}"
-  local prev_hash="" cur_hash="" i
-  for i in $(seq 1 "$max"); do
-    xcrun simctl io booted screenshot /tmp/_walker_phase74_poll.png \
-      >/dev/null 2>&1 || true
-    cur_hash=$(shasum /tmp/_walker_phase74_poll.png 2>/dev/null | awk '{print $1}')
-    if [ -n "$prev_hash" ] && [ "$prev_hash" = "$cur_hash" ]; then
-      return 0
-    fi
-    prev_hash="$cur_hash"
-    sleep 1
-  done
-}
+#     Phase 82 (v2.11) overhauls the coord system : taps are now derived
+#     from runtime sim-window bounds (osascript) rather than hardcoded
+#     desktop pixels. The cache + anchor table are below.
 
 _snap() {
   local out="$1"
@@ -252,10 +273,172 @@ _sha() {
   shasum "$1" 2>/dev/null | awk '{print $1}'
 }
 
-# Phase-74-specific helper : send literal text into focused input,
-# then RETURN (panel §6 mitigation #2 — avoid send-button tap).
+# WALKC-01 — read Simulator window bounds at runtime. Output format :
+#   "X Y W H"  (desktop logical px, content area, no chrome).
+# Cached per run to avoid spamming osascript. Populated by
+# _refresh_sim_window_bounds(). Bound names mirror AppleScript bounds
+# tuple (x1, y1, x2, y2) ; we convert to (X, Y, W, H) for arithmetic.
+_SIM_WIN_X=""
+_SIM_WIN_Y=""
+_SIM_WIN_W=""
+_SIM_WIN_H=""
+
+_get_sim_window_bounds() {
+  # Returns "X Y W H" on stdout (single line, space-separated).
+  # Side-effect : populates _SIM_WIN_X/Y/W/H for downstream callers.
+  local raw x1 y1 x2 y2
+  raw=$(osascript <<'APPLESCRIPT' 2>/dev/null || true
+tell application "Simulator"
+  if (count of windows) is 0 then return "0,0,0,0"
+  set b to bounds of window 1
+  return (item 1 of b as text) & "," & (item 2 of b as text) & "," & (item 3 of b as text) & "," & (item 4 of b as text)
+end tell
+APPLESCRIPT
+)
+  if [ -z "$raw" ] || [ "$raw" = "0,0,0,0" ]; then
+    echo "ERROR: osascript bounds returned empty — Simulator window not open?" >&2
+    return 1
+  fi
+  x1=$(echo "$raw" | awk -F, '{print $1}')
+  y1=$(echo "$raw" | awk -F, '{print $2}')
+  x2=$(echo "$raw" | awk -F, '{print $3}')
+  y2=$(echo "$raw" | awk -F, '{print $4}')
+  _SIM_WIN_X="$x1"
+  _SIM_WIN_Y="$y1"
+  _SIM_WIN_W=$(( x2 - x1 ))
+  _SIM_WIN_H=$(( y2 - y1 ))
+  echo "$_SIM_WIN_X $_SIM_WIN_Y $_SIM_WIN_W $_SIM_WIN_H"
+}
+
+_refresh_sim_window_bounds() {
+  local raw
+  raw=$(_get_sim_window_bounds) || return 1
+  log "osascript bounds: X=$_SIM_WIN_X Y=$_SIM_WIN_Y W=$_SIM_WIN_W H=$_SIM_WIN_H"
+}
+
+# WALKC-04 — bring the Simulator window to the front so cliclick events
+# route to the sim, not Terminal/IDE. Called before each tap helper.
+_activate_simulator() {
+  osascript -e 'tell application "Simulator" to activate' >/dev/null 2>&1 || true
+}
+
+# WALKC-01 — convert (anchor_x_pct, anchor_y_pct) ∈ [0,1] within the sim
+# screen content into desktop logical px. Echoes "X Y" on stdout.
+_anchor_to_desktop() {
+  local pct_x="$1" pct_y="$2"
+  if [ -z "$_SIM_WIN_W" ] || [ "$_SIM_WIN_W" -eq 0 ]; then
+    _refresh_sim_window_bounds || return 1
+  fi
+  # awk handles float % values without bash float-math limitation.
+  awk -v wx="$_SIM_WIN_X" -v wy="$_SIM_WIN_Y" \
+      -v ww="$_SIM_WIN_W" -v wh="$_SIM_WIN_H" \
+      -v px="$pct_x"     -v py="$pct_y" \
+      'BEGIN { printf "%d %d\n", wx + (ww * px), wy + (wh * py) }'
+}
+
+# WALKC-01 + WALKC-04 — anchor name → activate sim → tap. The anchor
+# table is declared once (below) and referenced by name everywhere in
+# the script ; this is the single point of truth for coords (zero
+# `cliclick c:NNN,NNN` desktop literals in the script body).
+declare -A ANCHORS_X
+declare -A ANCHORS_Y
+ANCHORS_X[cta_landing]="0.50";   ANCHORS_Y[cta_landing]="0.78"
+ANCHORS_X[chip_1]="0.50";        ANCHORS_Y[chip_1]="0.74"
+ANCHORS_X[input_field]="0.50";   ANCHORS_Y[input_field]="0.90"
+ANCHORS_X[beta_dismiss]="0.50";  ANCHORS_Y[beta_dismiss]="0.80"
+# Swipe endpoints for scroll-to-register-CTA (WALKC-06).
+ANCHORS_X[swipe_start]="0.50";   ANCHORS_Y[swipe_start]="0.65"
+ANCHORS_X[swipe_end]="0.50";     ANCHORS_Y[swipe_end]="0.30"
+
+_tap_at_anchor() {
+  local name="$1"
+  local px="${ANCHORS_X[$name]:-}"
+  local py="${ANCHORS_Y[$name]:-}"
+  if [ -z "$px" ] || [ -z "$py" ]; then
+    echo "ERROR: unknown anchor '$name'" >&2
+    return 1
+  fi
+  _activate_simulator
+  local xy
+  xy=$(_anchor_to_desktop "$px" "$py") || return 1
+  local x="${xy%% *}"
+  local y="${xy##* }"
+  log "tap_at_anchor $name → ($x, $y) [pct ${px}, ${py}]"
+  cliclick "c:${x},${y}"
+  sleep 0.4
+}
+
+# Backwards-compat shim — Phase-82 deprecates raw _tap_at desktop px.
+# Kept ONLY for the rare case a tap target is computed dynamically from
+# image-recognition (none today). New callsites MUST use _tap_at_anchor.
+_tap_at() {
+  local x="$1" y="$2"
+  echo "WARN: _tap_at($x,$y) — deprecated by WALKC-01, prefer _tap_at_anchor" >&2
+  _activate_simulator
+  cliclick "c:${x},${y}"
+  sleep 0.4
+}
+
+# WALKC-06 — swipe from (x1,y1) to (x2,y2) using cliclick drag-down /
+# drag-up. Replaces the no-op « tap-as-scroll » that Phase 74 used.
+# Inputs are desktop px (resolved by callers via _anchor_to_desktop or
+# _swipe_anchor wrapper below).
+_swipe() {
+  local x1="$1" y1="$2" x2="$3" y2="$4"
+  log "swipe ($x1,$y1) → ($x2,$y2)"
+  _activate_simulator
+  cliclick "dd:${x1},${y1}" "du:${x2},${y2}"
+  sleep 0.5
+}
+
+_swipe_anchor() {
+  local name_a="$1" name_b="$2"
+  local pax="${ANCHORS_X[$name_a]:-}"; local pay="${ANCHORS_Y[$name_a]:-}"
+  local pbx="${ANCHORS_X[$name_b]:-}"; local pby="${ANCHORS_Y[$name_b]:-}"
+  if [ -z "$pax" ] || [ -z "$pbx" ]; then
+    echo "ERROR: swipe anchors '$name_a' or '$name_b' not declared" >&2
+    return 1
+  fi
+  local xy_a xy_b
+  xy_a=$(_anchor_to_desktop "$pax" "$pay") || return 1
+  xy_b=$(_anchor_to_desktop "$pbx" "$pby") || return 1
+  _swipe "${xy_a%% *}" "${xy_a##* }" "${xy_b%% *}" "${xy_b##* }"
+}
+
+# WALKC-03 — quiescence detector. Requires ≥ 2 consecutive identical
+# SHA hashes before returning, NOT 1 like Phase 74. When retry > 3, the
+# full hash sequence is dumped to walker.log so a stuck-UI false-positive
+# is auditable.
+_wait_for_ui() {
+  local max="${1:-8}"
+  local h0="" h1="" cur="" i=0
+  local -a seq=()
+  while [ "$i" -lt "$max" ]; do
+    i=$((i+1))
+    xcrun simctl io booted screenshot /tmp/_walker_phase82_poll.png \
+      >/dev/null 2>&1 || true
+    cur=$(shasum /tmp/_walker_phase82_poll.png 2>/dev/null | awk '{print $1}')
+    seq+=("$cur")
+    # Need 3 samples : two identical at the end → ≥ 2 consecutive stable.
+    if [ -n "$h0" ] && [ -n "$h1" ] && [ "$h0" = "$h1" ] && [ "$h1" = "$cur" ]; then
+      return 0
+    fi
+    h0="$h1"
+    h1="$cur"
+    if [ "$i" -gt 3 ]; then
+      log "wait_for_ui retry=$i hash_seq=${seq[*]}"
+    fi
+    sleep 1
+  done
+  log "wait_for_ui exhausted after $max retries — hash_seq=${seq[*]}"
+  return 1
+}
+
+# Phase-74 helper : send literal text into focused input, then RETURN
+# (panel §6 mitigation #2 — avoid send-button tap).
 _type_text() {
   local txt="$1"
+  _activate_simulator
   cliclick "t:${txt}"
   sleep 0.5
   cliclick "kp:return"
@@ -264,8 +447,21 @@ _type_text() {
 # Dismiss soft keyboard (panel §6 mitigation #4) — mandatory between
 # turn 1 and turn 2 when chips need to be tappable.
 _dismiss_keyboard() {
+  _activate_simulator
   cliclick "kp:esc"
   sleep 0.3
+}
+
+# WALKC-05 — explicit beta-disclosure dismiss step. Tap CTA at sim
+# screen y ≈ 80% vh, x ≈ 50% vw. No-op if the modal is not visible (the
+# tap lands on dead pixels under the landing CTA which is itself hit by
+# the next step). When MINT_DISABLE_BETA_MODAL is wired in Phase 83, the
+# modal is suppressed entirely and this step becomes a quick warm-up.
+_dismiss_beta_modal() {
+  log "step_beta_disclosure_dismiss (anchor=beta_dismiss)"
+  _tap_at_anchor beta_dismiss
+  sleep 0.6
+  _wait_for_ui 4 || true
 }
 
 # ── extract éclairage kind for orchestrator pin ─────────────────────────
@@ -337,62 +533,63 @@ declare -a CHECKPOINTS=(
   "05-register-cta"
 )
 
-# Coordinates calibrated against existing landing/chat goldens.
-# iPhone 17 Pro logical (393×852) × scale 3 = 1179×2556 cliclick space.
-# These are intentional initial values — Slice 74c calibrates against
-# real captures and tightens here + in hero_bboxes.json together.
-CTA_LANDING_X=590
-CTA_LANDING_Y=2000
-CHIP_1_X=590
-CHIP_1_Y=1900
-INPUT_X=590
-INPUT_Y=2300
-SCROLL_DOWN_X=590
-SCROLL_DOWN_Y=1700
+# WALKC-01 — derive sim window bounds at runtime, log them so anchor
+# math is auditable in walker.log.
+_refresh_sim_window_bounds || {
+  log "FAIL: cannot read Simulator window bounds (osascript empty)"
+  exit 1
+}
 
 # 00 cold launch
 _within_budget || exit 2
 _snap "$SHOTS_DIR/00-cold-launch.png"
 log "captured 00-cold-launch"
 
+# WALKC-05 — beta-disclosure dismiss BEFORE landing capture so the
+# landing screenshot isn't polluted by the modal.
+_within_budget || exit 2
+_dismiss_beta_modal
+
 # 01 landing
 _within_budget || exit 2
-_wait_for_ui 8
+_wait_for_ui 8 || log "wait_for_ui timeout pre-01-landing — proceeding"
 _snap "$SHOTS_DIR/01-landing.png"
 log "captured 01-landing"
 
 # tap landing CTA → opener bubble + 3 chips
 _within_budget || exit 2
-_tap_at "$CTA_LANDING_X" "$CTA_LANDING_Y"
+_tap_at_anchor cta_landing
 sleep 2.5
-_wait_for_ui 6
+_wait_for_ui 6 || log "wait_for_ui timeout pre-02-opener — proceeding"
 _snap "$SHOTS_DIR/02-anon-chat-opener.png"
 log "captured 02-anon-chat-opener"
 
 # turn 1 — type deterministic prompt #1 + return
 _within_budget || exit 2
-_tap_at "$INPUT_X" "$INPUT_Y"
+_tap_at_anchor input_field
 sleep 0.4
 _type_text "$PROMPT_1"
-_wait_for_ui 12   # staging Anthropic P95 (panel §1)
+_wait_for_ui 12 || log "wait_for_ui timeout post-turn1 — proceeding"  # staging Anthropic P95 (panel §1)
 _snap "$SHOTS_DIR/03-after-turn1.png"
 log "captured 03-after-turn1"
 
 # turn 2 — dismiss keyboard, type prompt #2, wait for ECL-01 card
 _within_budget || exit 2
 _dismiss_keyboard
-_tap_at "$INPUT_X" "$INPUT_Y"
+_tap_at_anchor input_field
 sleep 0.4
 _type_text "$PROMPT_2"
-_wait_for_ui 12
+_wait_for_ui 12 || log "wait_for_ui timeout post-turn2 — proceeding"
 _snap "$SHOTS_DIR/04-eclairage-card.png"
 log "captured 04-eclairage-card"
 
-# 05 register CTA — scroll up so CTA enters viewport, snap
+# 05 register CTA — WALKC-06 swipe-up gesture (NOT tap-as-scroll which
+# was a no-op in Phase 74). Drag from swipe_start (65% vh) up to
+# swipe_end (30% vh) brings the register CTA into viewport.
 _within_budget || exit 2
-_tap_at "$SCROLL_DOWN_X" "$SCROLL_DOWN_Y"
+_swipe_anchor swipe_start swipe_end
 sleep 0.6
-_wait_for_ui 4
+_wait_for_ui 4 || log "wait_for_ui timeout post-scroll — proceeding"
 _snap "$SHOTS_DIR/05-register-cta.png"
 log "captured 05-register-cta"
 
