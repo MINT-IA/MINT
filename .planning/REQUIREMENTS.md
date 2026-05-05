@@ -1,8 +1,27 @@
 # Requirements: MINT v2.10 — Le Premier Éclairage (Cleo-grade)
 
 **Defined:** 2026-05-05
-**Roadmap:** 2026-05-04
+**Roadmap:** 2026-05-05 (revised post-panel)
 **Core Value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, reçoit une réponse qui le surprend, crée un compte pour ne pas perdre ça.
+
+## Panel Revisions Log (2026-05-05, 5-expert audit)
+
+5 specialists audited the v2.10 plan against the codebase. 4 APPROVE-WITH-CHANGES + 1 REJECT (timeline only). 8 revisions integrated:
+
+| # | Revision | Source | Applied to |
+|---|---|---|---|
+| 1 | ECL-01 reformulated as conditional CHF range (no absolute) | 3-piliers actuarial (LSFin art. 8/11/12) | ECL-01 |
+| 2 | ECL-05 added — LSFin disclaimer pre-card non-dismissible | 3-piliers actuarial (LSFin art. 8 al. 1 lit. b) | ECL-05 (NEW) |
+| 3 | COMP-01 banned terms expanded (+8 terms) | 3-piliers actuarial | ECL-04 (inline) |
+| 4 | Archetypes swapped — drop lauren_expat_us + sarah_indep, add couple_acheteurs_lausanne + jeune_diplome_zurich + cadre_40_55_lpp_rachat | Swiss-fintech strategist | WALK-02 + WALK-02b |
+| 5 | ANON-05 reduced 2-3 turns → **1-2 turns** before insight | Cleo-school PM | ANON-05 |
+| 6 | ANON-08 added — 3 chip-suggestions sous input (life-events) | Cleo-school PM | ANON-08 (NEW) |
+| 7 | Phase 71 retargets `anonymous_intent_screen.dart` (260L, the felt-pills) NOT `anonymous_chat_screen.dart` (939L) | Codebase archeologist | ROADMAP.md Phase 71 |
+| 8 | Phase 74 creates new `walker_premier_eclairage.sh` + image-diff tool ; not extension of `walker_audit_tap_render.sh` (regex rejects new archetypes + scope is internal-tabs walker) | Codebase archeologist | ROADMAP.md Phase 74 (effort 2.0d → 3.5-4.0d) |
+
+**Timeline reality check (adversarial cynic):** 11.5d planned × 1.85 multiplier = ~21d effort + 5-7d Apple TestFlight latency = **5-6 weeks wall-clock** (not 2). Phase 70 split into 70a (lefthook+ARB blocking) + 70b (PR triage parallel to 71). Parallelize 72+73. Add Phase 74.5 device-smoke obligatoire (0.5d) before 75. Brand line decision deferred to Phase 73 design panel (3 candidates: « L'argent, en clair. » mockup vs « Ce que ta caisse de pension ne t'expliquera jamais. » vs « La finance suisse, sans les angles morts. »).
+
+**Default coach opener (Cleo-school panel-proposed) :** « Salut. Avant de te montrer un truc utile sur ta vie financière en Suisse, dis-moi : c'est quoi le sujet qui te trotte en tête en ce moment — un emploi, un logement, ta LPP, ou autre chose ? »
 
 ## v2.10 Requirements (active scope)
 
@@ -24,21 +43,24 @@ Periphery serré : 4 surfaces utilisateur + 1 gate walker + hygiène repo. Pas p
 - [ ] **ANON-02**: User lands on a chat-first surface with empty input field and exactly one coach opener message visible.
 - [ ] **ANON-03**: Coach opener is one short concrete question in Cleo voice (adult, clear, witty without joking) — no menu of phrases.
 - [ ] **ANON-04**: Each user reply triggers at most one coach question per turn (no question stacking, no multi-bullet answers).
-- [ ] **ANON-05**: Within 2-3 turns the coach delivers the Premier Éclairage insight payload (ECL-01).
+- [ ] **ANON-05**: Within **1-2 turns** the coach delivers the Premier Éclairage insight payload (ECL-01). Cleo-school panel evidence: Cleo never imposed >1 turn before first insight ; 3-msg friction = drop-off.
+- [ ] **ANON-08**: Below the empty input field, the user sees three short chip-suggestions (`« Premier emploi »`, `« Acheter un appart »`, `« Comprendre ma LPP »`) — life-event prompts to break blank-canvas paralysis. Tap = pre-fill input, user can edit or send. NOT a covering pills layer.
 - [ ] **ANON-06**: User killing the app and reopening within 7 days resumes the same conversation (PR-A AnonymousChatPersistence — already shipped via #480).
 - [ ] **ANON-07**: User registering an account triggers `clear()` of the anonymous transcript (consent boundary — already shipped via #482).
 
 ### Premier Éclairage rendering
 
-- [ ] **ECL-01**: Coach delivers a single insight as a hero card in chat with one CHF figure + one-line « pourquoi ça compte » + a soft account-creation hint.
+- [ ] **ECL-01**: Coach delivers a single insight as a hero card in chat with a **conditional CHF range** (`« jusqu'à ~CHF X / an pourrait être en jeu, selon ton canton et ton taux marginal »`) — never an absolute figure for an anonymous (no-KYC) user. Default insight = unused 3a fiscal margin (plafond OPP3 art. 7 = CHF 7'258 salarié, ~CHF 1'500-2'500 économie d'impôt selon canton/taux). Includes a one-line « pourquoi ça compte » + soft account-creation hint.
 - [ ] **ECL-02**: Account-creation hint renders as a tappable link (not a modal), copy = « Crée ton compte pour suivre ça » or equivalent that does not push.
-- [ ] **ECL-03**: Backend prompt for the anonymous tier is `anonymous_eclairage_prompt.py` (already shipped via #481) — no other prompt is used in the anonymous path.
-- [ ] **ECL-04**: Coach output contains zero LSFin banned terms (« garantit », « garantito », « optimal », « parfait », « certain », « assuré », « sans risque ») — verified via `check_banned_terms` MCP at request time.
+- [ ] **ECL-03**: Backend prompt for the anonymous tier is `anonymous_eclairage_prompt.py` (PR #481 — currently DRAFT, must be merged in Phase 70). No other prompt is used in the anonymous path.
+- [ ] **ECL-04**: Coach output contains zero LSFin banned terms — list expanded post-3-piliers panel: original 7 (« garantit / garantito / optimal / parfait / certain / assuré / sans risque ») PLUS « idéal », « il faut » (prescriptif art. 3 al. 3), « vous économiserez / tu économises » (futur certain de gain art. 12), « rentable », « profiter de », « opportunité » (incitation décision FINMA Circ. 2013/8 marg. 23), « sûr », « avantage fiscal seul » (without `pourrait`). Verified via `check_banned_terms` MCP at request time.
+- [ ] **ECL-05**: Before the first coach message, the user sees a persistent system bubble carrying the LSFin art. 8 disclaimer: « Information éducative basée sur le droit suisse en vigueur. Ce n'est pas un conseil financier personnalisé — pour ta situation, parles-en à un·e spécialiste. » Non-dismissible until ECL-01 fires.
 
 ### Walker E2E + golden (4 archetypes)
 
 - [ ] **WALK-01**: `walker_audit_tap_render.sh --no-dry-run --archetype <X>` runs end-to-end on iPhone 17 simulator from cold-launch to ECL-01 insight render.
-- [ ] **WALK-02**: Walker exit code is `0` for archetypes : `julien_swiss`, `lauren_expat_us`, `fatih_cross_border`, `sarah_indep_no_lpp`.
+- [ ] **WALK-02**: Walker exit code is `0` for archetypes (Swiss-fintech panel revision — drop niche FATCA/indep, add CH-PMF segments) : `julien_swiss` (cadre, salarié), `couple_acheteurs_lausanne` (LPP-rachat + 3a + nantissement, le moment fiscal CH), `jeune_diplome_zurich` (premier salaire, segment Yuh-killer), `cadre_40_55_lpp_rachat` (cœur de la marge fiscale CH).
+- [ ] **WALK-02b**: `lauren_expat_us` (FATCA) walker test deferred to v2.11 — when it ships, walker MUST verify (a) coach does NOT propose 3a insight to US person, (b) FATCA disclaimer renders (« Tu es US person — les règles 3a et fonds suisses ont des implications IRS spécifiques. »).
 - [ ] **WALK-03**: Walker captures screenshots at four checkpoints — landing, anonymous_chat (after coach opener), ECL insight rendered, register CTA exposed.
 - [ ] **WALK-04**: Visual diff vs locked landing mockup ≤ 4 % pixel difference in the hero zone on iPhone 17 viewport.
 - [ ] **WALK-05**: Walker output archived in `.planning/walker/<run-id>/` where run-id = `YYYY-MM-DD-<git-sha-short>`.
