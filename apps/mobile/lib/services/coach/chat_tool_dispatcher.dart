@@ -9,6 +9,8 @@
 library;
 
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
+import 'package:mint_mobile/services/coach/eclairage_models.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/rag_service.dart';
@@ -94,6 +96,47 @@ class ChatToolDispatcher {
       return resolveRouteFromIntent(intent);
     }
     return null;
+  }
+
+  /// Dispatch the eclairage payload extracted from an anonymous-chat
+  /// response — Phase 80 (v2.11), closes phantom contract C1.
+  ///
+  /// Behaviour (decision tree):
+  ///   1. If [CoachOrchestrator.forcedEclairageKind] is non-null (debug build
+  ///      with `--dart-define=MINT_E2E_FORCE_ECLAIRAGE_KIND=<wire>` set), the
+  ///      forced kind WINS — the resolved card is rewritten via
+  ///      [EclairageCardData.withForcedKind] (or constructed from scratch via
+  ///      [EclairageCardData.fromForcedKind] when the backend emitted nothing).
+  ///   2. Otherwise return whatever the backend emitted, parsed by
+  ///      [EclairageCardData.fromMap]. Returns null when the contract is
+  ///      violated (missing kind, empty disclaimer, inverted range, etc.) so
+  ///      the screen falls back to free-form prose.
+  ///
+  /// Release builds (`kReleaseMode == true`) ignore the dart-define entirely
+  /// because [CoachOrchestrator.forcedEclairageKind] returns null in that
+  /// branch (ECLW-04 — defense in depth).
+  ///
+  /// [rawPayload] is the `response['eclairage']` map (or null) returned by
+  /// `/anonymous/chat`.
+  static EclairageCardData? dispatchEclairagePayload(
+    Map<String, dynamic>? rawPayload,
+  ) {
+    final forced = CoachOrchestrator.forcedEclairageKind;
+    final natural = EclairageCardData.fromMap(rawPayload);
+
+    if (forced != null) {
+      if (natural == null) {
+        debugPrint('[ChatToolDispatcher] forced eclairage kind=${forced.wireName} '
+            '(no backend payload — fabricated from template)');
+        return EclairageCardData.fromForcedKind(forced);
+      }
+      if (natural.kind == forced) return natural;
+      debugPrint('[ChatToolDispatcher] forced eclairage kind=${forced.wireName} '
+          'overrides backend kind=${natural.kind.wireName}');
+      return natural.withForcedKind(forced);
+    }
+
+    return natural;
   }
 
   /// Resolves a canonical intent tag to a MINT GoRouter route.
