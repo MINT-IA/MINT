@@ -8,19 +8,32 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 
 **Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.**
 
-## Current Milestone: v2.9 Coach Visuel Hybride
+## Current Milestone: v2.11 Walker-Validated E2E + Eclairage Wiring
 
-**Goal:** Verticale « Onboarding-to-First-Insight ». Un user qui arrive sur MINT a, en moins de 20 min, son profil financier sur les 6 axes suisses (AVS, LPP, 3a, salaire, fortune, charges) + un hero number actionnable « marge fiscale optimisable cette année » + un coach qui balance vignettes / scènes / canvas pour explorer les arbitrages (3a vs rachat LPP vs amortissement vs hypothèque) avec liens deep-dive vers les écrans Explorer existants.
+**Goal:** Boucler la boucle ouverte par v2.10. Câbler le « Premier Éclairage » de bout en bout (backend payload → Flutter parser → écran render → walker validation), fixer les écarts structurels révélés par les **5 audits du 2026-05-05** (eclairage payload jamais consommé côté Flutter, `MINT_E2E_FORCE_ECLAIRAGE_KIND` dead code, walker coords mauvais référentiel, beta-modal blocant, hero bboxes mauvaise résolution iPhone 17 Pro). Critère mécanique : `walker_premier_eclairage.sh` exit 0 sur 4 archetypes avec card éclairage rendue + register CTA exposé + visual diff ≤ 4 % vs goldens calibrés.
 
-**4 phases planned:**
-- **Phase 40 — Marge fiscale backend** (3-5j) : pure function `compute_marge_fiscale(profile)` + endpoint + 10 unit tests
-- **Phase 41 — Hero + Vignettes L1** (1 sem) : `MargeFiscaleHero` + vignette inline chat
-- **Phase 42 — Scènes L2 interactives** (2 sem) : `MintSceneArbitrageRetraite` + `MintSceneArbitrageHypotheque`, slider live, début refactor `Stream<ChatMessage>`
-- **Phase 43 — Canvas L3 + lien Explorer** (1-2 sem) : `MintCanvasArbitrage` modal, return contract chat ← canvas
+**5 audits 2026-05-05 (research artifacts pour ce milestone) :**
 
-**Doctrine v2.9:** Le coach EST le produit. 3 niveaux de projection visuelle (vignette inline / scène interactive / canvas modal) intégrés dans le chat. Arbitrage live entre leviers fiscaux. Lien deep-dive vers écrans Explorer existants.
+- **A — Walker tap coords vs Phase 71a/73 UI réelle :** `cliclick` = macOS desktop logical px (pas device px), sim window mesurée 456×972, ratio device→desktop ≈ 0.378×0.359, hero_bboxes.json calibré pour iPhone 15 Pro (1179×2556) au lieu d'iPhone 17 Pro (1206×2622). 6 screenshots run #1 identiques = walker bloqué sur beta-modal sans le savoir.
+- **B — Backend pipeline staging :** Railway UP, MAIS contract `eclairage` payload assumé par Phase 71b PR #486 N'EST PAS dans le shipped contract sur dev ; cross-language drift confirmé (input DE → output FR + disclaimer DE) ; 2 soft-flag LSFin (« 40% d'impôts », statistiques sans qualification).
+- **C — `MINT_E2E_FORCE_ECLAIRAGE_KIND` lifecycle :** getter `forcedEclairageKind` déclaré (coach_orchestrator.dart:142-147) MAIS zéro callsite, `CoachProfileSeeds.activeSeed` jamais lue, `PremierEclairageSelector` n'est appelé par aucun screen, dart-define 100 % dead code.
+- **D — Beta modal + walker idempotence :** `BetaProgramDisclosureSheet` `isDismissible: false, enableDrag: false`, no dart-define disable, walker `--archetype-walkthrough` mode SKIP sim erase = state pollution entre archetypes, `wait_for_ui` SHA-quiescence retourne happy sur stuck UI (modal stable = quiescent).
+- **E — i18n + animation timing :** `LocaleProvider` hardcode FR (OK pour walker), iPhone 17 Pro screenshot res = 1206×2622, iOS 26 keyboard hide = 350ms (pas 250ms iOS 18), Liquid Glass nav bar translucent = SHA-quiescence flap risk, `wait_for_ui` accepte 1 stable hash = race-prone (devrait exiger ≥2).
 
-**Carry-forward de v2.8:** FIX-01 UUID, FIX-03 save_fact, FIX-04 Coach tab, FIX-05 bare catches Wave 2+, FIX-07 234 backend accent violations, Phase 33 kill-flags (subset). Phase 34/35 deferred.
+**6 phases planned (numérotation 80-85, post v2.10) :**
+
+- **Phase 80 — Eclairage E2E wiring (Flutter)** : brancher `forcedEclairageKind` dans le path qui produit le payload rendu (chat_tool_dispatcher post-parse + selector caller), brancher `CoachProfileSeeds.activeSeed` dans `CoachContext`, ajouter `kReleaseMode` guard, tests qui assert le pin override.
+- **Phase 81 — Backend eclairage contract** : extend `AnonymousChatRequest` avec `archetype: Literal[...]`, extend response avec `eclairage: EclairageSchema | None`, deterministic eclairage emitter keyed sur archetype + turn number, env var `MINT_E2E_FORCE_ECLAIRAGE_KIND` honoré côté backend pour E2E test runs.
+- **Phase 82 — Walker coord-system overhaul** : reader `osascript` sim-window pos+size au runtime, dériver desk-coords par anchor logique, recalibrer `hero_bboxes.json` à 1206×2622, exclure Dynamic Island bbox, `wait_for_ui` exiger ≥2 stable hashes, ajouter beta-disclosure dismiss step.
+- **Phase 83 — Sim hygiene + state isolation** : `--archetype-walkthrough` mode appelle `simctl erase` AVANT chaque archetype build, `xcrun simctl uninstall` defensive, dart-define `MINT_DISABLE_BETA_MODAL=true`, `screenshots/walkthrough/` dans `.gitignore`.
+- **Phase 84 — Cross-language drift fix** : `build_discovery_system_prompt` paramétré sur `language` (currently param accepted but never read), CI gate ARB key parity per locale.
+- **Phase 85 — Walker green sur 4 archetypes + TestFlight v2.11 cut** : exécution finale, golden bake, IPA upload.
+
+**Doctrine v2.11 :** « Phantom contracts » détectées par les 5 audits → wirer mécaniquement (chaque contract a un end-to-end test qui prouve qu'il est vivant), pas de PR sans evidence run-time. Walker = la machine de vérité, pas la documentation.
+
+**Carry-forward de v2.10 :** PRs #483-#489 absorbés dans Phase 80-85. Aucune phase v2.10 fermée comme deferred — toutes intégrées.
+
+**Previous milestone v2.9 — retired 2026-05-05** (scope drift, no shippable gate). Phases 40-43 vignettes/scènes/canvas deferred post-v2.11 ship.
 
 ## Previous Milestone: v2.8 L'Oracle & La Boucle (shipped 2026-04-25 with gaps)
 

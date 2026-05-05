@@ -1,20 +1,59 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.8
-milestone_name: L'Oracle & La Boucle — Overview
-status: verifying
-stopped_at: Completed 30.7-04-PLAN.md (CLAUDE.md -30% atomic trim shipped, commit `43a38dff` ; T2 semantic cold-read + kill-switch rehearsal APPROVED by Julien 2026-04-22 ; Phase 30.7 5/5 plans complete ; J0 fresh-session smoke deferred to post-merge operational validation on creator's machine — not a code gate). Ready for `/gsd-verify-work 30.7` + `/gsd-secure-phase 30.7` (Auto profile L1 per ADR-20260419-autonomous-profile-tiered).
-last_updated: "2026-04-25T07:54:53.486Z"
-last_activity: 2026-04-25
+milestone: v2.11
+milestone_name: Walker-Validated E2E + Eclairage Wiring
+status: defining_requirements
+stopped_at: 2026-05-05 — opened post-v2.10 5-audit synthesis. v2.10 milestone (PR #483) shipped tooling + design + 4 panel verdicts but 5 audits revealed phantom contracts (eclairage payload never consumed Flutter-side, MINT_E2E_FORCE_ECLAIRAGE_KIND dead code, walker coords wrong reference frame, beta modal blocking, hero bboxes wrong resolution). v2.11 closes the loop with end-to-end wiring + walker calibration + sim hygiene. Phase 80-85 planned ; roadmap pending.
+last_updated: "2026-05-05T19:30:00.000Z"
+last_activity: 2026-05-05
 progress:
-  total_phases: 9
-  completed_phases: 4
-  total_plans: 17
-  completed_plans: 22
-  percent: 100
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
-# GSD State: MINT v2.8 — L'Oracle & La Boucle
+# GSD State: MINT v2.11 — Walker-Validated E2E + Eclairage Wiring
+
+## 5 audits 2026-05-05 (research artifacts)
+
+A. Walker tap coords vs Phase 71a/73 — `cliclick` desktop logical px (pas device px), iPhone 17 Pro = 1206×2622 (pas 1179×2556 hero_bboxes), 6 screenshots run #1 identiques = walker bloqué silencieusement par beta modal.
+B. Backend pipeline — Railway UP, contract eclairage Phase 71b absent du shipped code, cross-language drift DE→FR confirmé, 2 soft-flag LSFin.
+C. MINT_E2E_FORCE_ECLAIRAGE_KIND — getter déclaré coach_orchestrator.dart:142, ZÉRO callsite, dead code.
+D. Beta modal + walker idempotence — `isDismissible: false`, sim erase skipped en archetype mode, wait_for_ui returns happy on stuck UI.
+E. i18n + animation — LocaleProvider FR hardcoded (OK), iPhone 17 Pro res 1206×2622, iOS 26 keyboard hide 350ms, Liquid Glass blur SHA flap risk.
+
+## v2.11 Phase plan (sequential, 6 phases)
+
+| # | Phase | Goal | Effort |
+|---|---|---|---|
+| 80 | Eclairage E2E wiring (Flutter) | Brancher forcedEclairageKind dans tool dispatcher + selector caller, brancher CoachProfileSeeds dans CoachContext | 1.5d |
+| 81 | Backend eclairage contract | AnonymousChatRequest+archetype, EclairageSchema response, deterministic emitter + env var honoré | 2.0d |
+| 82 | Walker coord-system overhaul | osascript sim-window pos+size runtime, recalibrate hero_bboxes 1206×2622, Dynamic Island exclude, ≥2 stable hashes, beta dismiss step | 2.0d |
+| 83 | Sim hygiene + state isolation | simctl erase per archetype, MINT_DISABLE_BETA_MODAL dart-define, gitignore screenshots/walkthrough | 1.0d |
+| 84 | Cross-language drift fix | discovery prompt language-parameterized, ARB key parity CI gate | 1.5d |
+| 85 | Walker green 4 archetypes + TestFlight 2.11.0 | Final run, golden bake, IPA upload | 2.0d |
+
+Total : ~10 days effort. Phase 85 last gate before TestFlight.
+
+## Project Reference
+
+See: .planning/PROJECT.md (updated 2026-05-05)
+See: .planning/REQUIREMENTS.md (drafting)
+See: .planning/ROADMAP.md (pending gsd-roadmapper)
+
+**Core value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, reçoit une réponse qui le surprend, crée un compte pour ne pas perdre ça.
+**Current focus:** v2.11 — defining requirements after 5-audit synthesis.
+
+## Constraints (from Julien — 2026-05-05)
+
+- No human-in-the-loop testing — Claude validates everything via simulator iPhone (Mac mini)
+- Image budget : max 1-2 screenshots per checkpoint shown to Julien
+- TestFlight = Claude-validated only
+- No new PRs outside the 6 v2.11 phases
+
+# (legacy v2.8 state archived below for reference) ## v2.8 — L'Oracle & La Boucle
 
 ## Project Reference
 
