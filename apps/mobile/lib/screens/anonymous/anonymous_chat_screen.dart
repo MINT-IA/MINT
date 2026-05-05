@@ -696,7 +696,13 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
               child: TextButton(
                 onPressed: () {
                   HapticFeedback.lightImpact();
-                  context.go('/auth/register');
+                  // Sprint 1.5 P3 — preserve current path so the auth
+                  // redirect callback (app.dart:299) can bring the user
+                  // back to /anonymous/chat after register/login.
+                  final currentPath = GoRouterState.of(context).uri.path;
+                  context.go(
+                    '/auth/register?redirect=${Uri.encodeComponent(currentPath)}',
+                  );
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: MintColors.primary,

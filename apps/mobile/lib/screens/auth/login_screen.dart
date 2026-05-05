@@ -565,7 +565,18 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(width: MintSpacing.sm),
                             TextButton(
                               onPressed: () {
-                                context.go('/auth/register');
+                                // Sprint 1.5 P3 — if /auth/login was reached
+                                // via the auth-gate (app.dart:299) with a
+                                // ?redirect= param, forward it to
+                                // /auth/register so the post-register flow
+                                // lands the user on the original target.
+                                final inboundRedirect = GoRouterState.of(context)
+                                    .uri
+                                    .queryParameters['redirect'];
+                                final query = inboundRedirect != null
+                                    ? '?redirect=${Uri.encodeComponent(inboundRedirect)}'
+                                    : '';
+                                context.go('/auth/register$query');
                               },
                               child: Text(
                                 l10n.authRegister,

@@ -1084,8 +1084,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: () {
+                    // Sprint 1.5 P3 — preserve current path so the auth
+                    // redirect callback (app.dart:299) can bring the user
+                    // back to /scan after register/login.
+                    final currentPath = GoRouterState.of(context).uri.path;
                     ctx.pop();
-                    context.go('/auth/register');
+                    context.go(
+                      '/auth/register?redirect=${Uri.encodeComponent(currentPath)}',
+                    );
                   },
                   icon: const Icon(Icons.person_add_alt_1_outlined),
                   label: Text(S.of(context)!.documentScanCreateAccount),
