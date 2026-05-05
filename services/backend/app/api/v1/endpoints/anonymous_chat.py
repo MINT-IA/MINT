@@ -235,11 +235,29 @@ async def anonymous_chat(
     # --- Step 3: Scrub PII from input (T-13-02) ---
     clean_message = _scrub_pii(body.message)
 
-    # --- Step 4: Build discovery system prompt (T-13-05) ---
-    discovery_prompt = build_discovery_system_prompt(
-        intent=body.intent,
-        language=body.language,
-    )
+    # --- Step 4: Build system prompt — Phase 57 PR-C "Premier éclairage" ---
+    # The anonymous tier is THIS endpoint (coach_chat requires auth, see
+    # _user: User = Depends(require_current_user)). When the request opts in
+    # to the structured "Premier éclairage" experience (or by default in
+    # Phase 57+), use the upgraded prompt that targets ONE insight in 3-5
+    # messages, asks ONE structured question at a time, and never requests
+    # KYC-level data. The legacy `build_discovery_system_prompt` is kept as a
+    # fallback for tests / opt-out via the `X-Mint-Variant: discovery` header.
+    variant_header = (request.headers.get("X-Mint-Variant") or "").strip().lower()
+    if variant_header == "discovery":
+        # Legacy Phase 13 felt-state pill flow — preserved for back-compat.
+        discovery_prompt = build_discovery_system_prompt(
+            intent=body.intent,
+            language=body.language,
+        )
+    else:
+        from app.services.coach.anonymous_eclairage_prompt import (
+            build_anonymous_system_prompt,
+        )
+        discovery_prompt = build_anonymous_system_prompt(
+            intent=body.intent,
+            locale=body.language,
+        )
 
     # --- Step 5: Call LLM ---
     server_key = os.environ.get("ANTHROPIC_API_KEY", "")

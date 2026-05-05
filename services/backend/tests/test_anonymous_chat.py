@@ -367,3 +367,54 @@ def test_anonymous_to_auth_migration(mock_query, client):
         headers={_SESSION_HEADER: _VALID_SESSION_ID},
     )
     assert resp.status_code == 429
+
+
+# ---------------------------------------------------------------------------
+# Test 13 (Phase 57 PR-C): anonymous chat dispatches the "Premier éclairage"
+# system prompt by default — verifies the new prompt module is wired in.
+# ---------------------------------------------------------------------------
+
+
+@patch("app.api.v1.endpoints.anonymous_chat._NoRagOrchestrator.query", new_callable=AsyncMock)
+def test_coach_chat_anonymous_uses_eclairage_prompt(mock_query, client):
+    """Anonymous chat (default variant) sends the Premier éclairage prompt.
+
+    Phase 57 PR-C — verifies the dispatcher branch in anonymous_chat.py
+    selects build_anonymous_system_prompt() (which includes the marker
+    "Premier éclairage") instead of the legacy discovery prompt.
+    """
+    mock_query.return_value = _MOCK_LLM_RESULT
+    resp = client.post(
+        "/api/v1/anonymous/chat",
+        json={"message": "Je veux comprendre mon LPP"},
+        headers={_SESSION_HEADER: _VALID_SESSION_ID},
+    )
+    assert resp.status_code == 200
+    # Inspect what was passed to the LLM orchestrator
+    assert mock_query.await_count == 1
+    call_kwargs = mock_query.await_args.kwargs
+    sp = call_kwargs.get("system_prompt", "")
+    assert "Premier éclairage" in sp, (
+        f"Anonymous default flow must use the Premier éclairage prompt; "
+        f"got system_prompt[:200]={sp[:200]!r}"
+    )
+
+
+@patch("app.api.v1.endpoints.anonymous_chat._NoRagOrchestrator.query", new_callable=AsyncMock)
+def test_anonymous_legacy_discovery_variant_opt_in(mock_query, client):
+    """X-Mint-Variant: discovery header opts back into the Phase 13 prompt."""
+    mock_query.return_value = _MOCK_LLM_RESULT
+    resp = client.post(
+        "/api/v1/anonymous/chat",
+        json={"message": "Je me sens perdu", "intent": "Je me sens perdu"},
+        headers={
+            _SESSION_HEADER: _VALID_SESSION_ID,
+            "X-Mint-Variant": "discovery",
+        },
+    )
+    assert resp.status_code == 200
+    sp = mock_query.await_args.kwargs.get("system_prompt", "")
+    # Legacy prompt does NOT contain the new marker
+    assert "Premier éclairage" not in sp
+    # But it does contain the legacy discovery wording
+    assert "decouverte" in sp.lower() or "découverte" in sp.lower()

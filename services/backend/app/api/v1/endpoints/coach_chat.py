@@ -2359,6 +2359,14 @@ async def coach_chat(
     # Memory block is PII-scrubbed and wrapped in prompt injection armor.
     # Commitment memory block (CMIT-06/LOOP-02) injects active engagements
     # and pre-mortem entries so the LLM can reference them naturally.
+    #
+    # Phase 57 PR-C — TIER NOTE: this endpoint is auth-only (require_current_user
+    # above). The anonymous "Premier éclairage" tier is served by
+    # `anonymous_chat.py` (POST /api/v1/anonymous/chat) which uses
+    # `app.services.coach.anonymous_eclairage_prompt.build_anonymous_system_prompt`.
+    # If you ever relax auth on coach_chat, branch on the absence of `_user`
+    # and call build_anonymous_system_prompt() instead of
+    # _build_system_prompt_with_memory().
     # ------------------------------------------------------------------
     commitment_block = _build_commitment_memory_block(str(_user.id), db)
     intelligence_block = _build_intelligence_memory_block(str(_user.id), db)
