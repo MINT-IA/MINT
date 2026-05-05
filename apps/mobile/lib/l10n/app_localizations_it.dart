@@ -22390,10 +22390,6 @@ class SIt extends S {
       'Il calcolo è fatto, l\'idea merita ancora una conversazione.';
 
   @override
-  String get landingV2Paragraph =>
-      'Mint ti dice quello che nessuno ha interesse a dirti. Sulle tue assicurazioni, sul tuo 3a, sul tuo stipendio, sul tuo contratto d\'affitto, sulla tua coppia, sulle tue imposte. Con calma. Senza venderti nulla.';
-
-  @override
   String get landingV2Cta => 'Continua (senza account)';
 
   @override
@@ -22446,6 +22442,9 @@ class SIt extends S {
 
   @override
   String get landingV2CtaSober => 'Parla con Mint';
+
+  @override
+  String get landingV3Hero => 'Vedere chiaro, decidere da sé.';
 
   @override
   String get tonChooserTitle => 'Scegli come Mint ti parla';

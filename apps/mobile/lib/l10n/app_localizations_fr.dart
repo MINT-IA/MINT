@@ -22331,10 +22331,6 @@ class SFr extends S {
       'Le calcul est posé, l\'idée mérite encore qu\'on en parle.';
 
   @override
-  String get landingV2Paragraph =>
-      'Mint te dit ce que personne n\'a intérêt à te dire. Sur tes assurances, ton 3a, ton salaire, ton bail, ton couple, tes impôts. Calmement. Sans te vendre quoi que ce soit.';
-
-  @override
   String get landingV2Cta => 'Continuer (sans compte)';
 
   @override
@@ -22387,6 +22383,9 @@ class SFr extends S {
 
   @override
   String get landingV2CtaSober => 'Parle à Mint';
+
+  @override
+  String get landingV3Hero => 'Voir clair, décider seul.';
 
   @override
   String get tonChooserTitle => 'Choisis le ton de Mint';

@@ -39157,12 +39157,6 @@ abstract class S {
   /// **'Le calcul est posé, l\'idée mérite encore qu\'on en parle.'**
   String get mtcSummaryWeakUnderstanding;
 
-  /// Landing v2 paragraphe-mère (LOCKED master text per CONTEXT.md D-01). Anti-shame, calm, six life-domains, no retirement framing.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mint te dit ce que personne n\'a intérêt à te dire. Sur tes assurances, ton 3a, ton salaire, ton bail, ton couple, tes impôts. Calmement. Sans te vendre quoi que ce soit.'**
-  String get landingV2Paragraph;
-
   /// Landing v2 primary CTA (LOCKED per D-02). Routes to /onboarding/intent. Parenthetical '(sans compte)' is load-bearing.
   ///
   /// In fr, this message translates to:
@@ -39258,6 +39252,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Parle à Mint'**
   String get landingV2CtaSober;
+
+  /// Phase 73 v2.10 — Landing v3 éditorial hero. Brand line option D locked by 2-pers panel (PANEL-VERDICT.md §1). Two verbs, two beats, hero-shaped. LSFin-safe (capacity, not result). Voice = Linear/Stripe verb-led. Rendered in Fraunces italic 40pt w400.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir clair, décider seul.'**
+  String get landingV3Hero;
 
   /// Phase 12-01 — TonChooserSheet title (first launch). Word 'curseur' BANNED in user-facing copy.
   ///

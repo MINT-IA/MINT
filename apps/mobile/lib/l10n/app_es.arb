@@ -10512,7 +10512,6 @@
   "mtcSummaryWeakAccuracy": "Una cifra clave se apoya en una hipótesis frágil — Mint se mantiene prudente.",
   "mtcSummaryWeakFreshness": "Datos recogidos hace un tiempo — Mint prefiere repetirlo.",
   "mtcSummaryWeakUnderstanding": "El cálculo está hecho, la idea aún merece una conversación.",
-  "landingV2Paragraph": "Mint te dice lo que nadie tiene interés en decirte. Sobre tus seguros, tu 3a, tu salario, tu alquiler, tu pareja, tus impuestos. Con calma. Sin venderte nada.",
   "landingV2Cta": "Continuar (sin cuenta)",
   "landingV2Privacy": "Nada sale de tu teléfono hasta que tú lo decidas.",
   "landingV2Legal": "Herramienta educativa. No constituye asesoramiento financiero según la LSFin.",
@@ -10532,6 +10531,10 @@
   },
   "landingV2PromiseSober": "Nosotros aclaramos. Tú decides.",
   "landingV2CtaSober": "Habla con Mint",
+  "landingV3Hero": "Ver claro, decidir por ti.",
+  "@landingV3Hero": {
+    "description": "Phase 73 v2.10 — Landing v3 editorial hero. Brand line locked by panel."
+  },
   "tonChooserTitle": "Elige cómo te habla Mint",
   "@tonChooserTitle": {
     "description": "Phase 12-01."

@@ -1,15 +1,18 @@
 // Phase 7 — L1.7 Landing v2 "calm promise surface".
+// Phase 73 — Landing v3 éditorial (2-pers panel locked, PANEL-VERDICT.md).
 //
 // NON-NEGOTIABLE invariants (enforced by CI gates in tools/checks/):
 //   • No `financial_core` / services / providers / models imports.
 //   • No digits anywhere in this file.
 //   • No retirement / banned-term vocabulary.
 //
-// Spec: .planning/phases/07-l1.7-landing-v2/CONTEXT.md §2 D-01..D-13.
-// Copy is LOCKED in ARB (landingV2Paragraph/Cta/Privacy/Legal).
+// Spec: .planning/phases/07-l1.7-landing-v2/CONTEXT.md §2 D-01..D-13
+//       .planning/phases/73-landing-v3-editorial/PANEL-VERDICT.md §1-§4 (locked).
+// Copy is LOCKED in ARB (landingV3Hero, landingV2CtaSober, landingV2LoginLink, landingV2Legal).
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -88,125 +91,130 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
-    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: MintColors.warmWhite,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
+            // Phase 73 PANEL-VERDICT §3: maxWidth 480 (descendu de 560).
+            constraints: const BoxConstraints(maxWidth: 480),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              // Phase 73 PANEL-VERDICT §3: padding horizontal 28, vertical 24.
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Spacer(flex: 2),
-                  // Wordmark — long-press routes to /auth/login (D-12 hidden affordance).
-                  Center(
-                    child: Semantics(
-                      header: true,
-                      label: 'MINT',
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onLongPress: () => context.go('/auth/login'),
-                        child: Text(
-                          'MINT',
-                          style: textTheme.titleMedium?.copyWith(
-                            color: MintColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 4,
+                  // 1. Wordmark — Align(centerLeft), letterSpacing 2 (pas 4),
+                  // inkPrimary. Long-press → /auth/login (D-12 hidden affordance).
+                  FadeTransition(
+                    opacity: _line1Opacity,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Semantics(
+                        header: true,
+                        label: 'MINT',
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onLongPress: () => context.go('/auth/login'),
+                          child: Text(
+                            'MINT',
+                            style: MintTextStyles.brandLogo(
+                              color: MintColors.inkPrimary,
+                            ).copyWith(letterSpacing: 2),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 40),
-                  // Landing opener (single line — retired the follow-up in
-                  // 2026-04-17; the promise below carries the setup).
-                  FadeTransition(
-                    opacity: _line1Opacity,
-                    child: Text(
-                      l10n.anonymousIntentLine1,
-                      textAlign: TextAlign.center,
-                      style: MintTextStyles.bodyLarge(
-                        color: MintColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                  const Spacer(flex: 2),
-                  // Promise — single sentence (POLISH-01).
+                  // 2. Spacer flex 3.
+                  const Spacer(flex: 3),
+                  // 3. Hero phrase — l10n.landingV3Hero, Fraunces italic 40pt
+                  // w400, height 1.2, letterSpacing -0.4, inkPrimary, center.
                   FadeTransition(
                     opacity: _paragraphOpacity,
                     child: SlideTransition(
                       position: _paragraphOffset,
                       child: Semantics(
                         container: true,
-                        label: l10n.landingV2PromiseSober,
+                        label: l10n.landingV3Hero,
                         child: Text(
-                          l10n.landingV2PromiseSober,
+                          l10n.landingV3Hero,
                           textAlign: TextAlign.center,
-                          style: textTheme.headlineSmall?.copyWith(
-                            color: MintColors.textPrimary,
-                            fontWeight: FontWeight.w500,
-                            height: 1.45,
-                            letterSpacing: -0.2,
+                          style: GoogleFonts.fraunces(
+                            fontSize: 40,
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.w400,
+                            height: 1.2,
+                            letterSpacing: -0.4,
+                            color: MintColors.inkPrimary,
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const Spacer(flex: 1),
-                  // CTA (POLISH-01 — no privacy subtitle).
+                  // 4. Spacer flex 4.
+                  const Spacer(flex: 4),
+                  // 5. CTA primaire — FilledButton, RoundedRectangleBorder(14)
+                  // (PAS StadiumBorder), 54pt, ink/porcelaine.
                   FadeTransition(
                     opacity: _ctaOpacity,
                     child: Semantics(
                       button: true,
                       label: l10n.landingV2CtaSober,
                       child: FilledButton(
-                        // Handoff 2 sweep 2026-05-04: warm ink CTA + warm
-                        // porcelaine foreground for the « commencer » primary.
                         style: FilledButton.styleFrom(
                           backgroundColor: MintColors.inkPrimary,
                           foregroundColor: MintColors.porcelaineHero,
-                          minimumSize: const Size.fromHeight(56),
-                          shape: const StadiumBorder(),
-                          textStyle: textTheme.labelLarge,
+                          minimumSize: const Size.fromHeight(54),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          textStyle: MintTextStyles.titleMedium(
+                            color: MintColors.porcelaineHero,
+                          ),
                         ),
                         onPressed: () => context.go('/start'),
                         child: Text(l10n.landingV2CtaSober),
                       ),
                     ),
                   ),
-                  const Spacer(flex: 2),
-                  // Legal footer (D-04).
+                  // 6. SizedBox 16.
+                  const SizedBox(height: 16),
+                  // 7. Login link — bodySmall(textSecondaryAaa), no underline.
+                  FadeTransition(
+                    opacity: _ctaOpacity,
+                    child: Semantics(
+                      button: true,
+                      label: l10n.landingV2LoginLink,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => context.go('/auth/login'),
+                        child: Text(
+                          l10n.landingV2LoginLink,
+                          textAlign: TextAlign.center,
+                          style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondaryAaa,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // 8. Spacer flex 1.
+                  const Spacer(flex: 1),
+                  // 9. Legal footer — labelSmall(textMutedAaa), center.
                   FadeTransition(
                     opacity: _legalOpacity,
                     child: Text(
                       l10n.landingV2Legal,
                       textAlign: TextAlign.center,
-                      style: textTheme.bodySmall?.copyWith(
+                      style: MintTextStyles.labelSmall(
                         color: MintColors.textMutedAaa,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  // AUTH-01: Visible login entry point
-                  FadeTransition(
-                    opacity: _legalOpacity,
-                    child: GestureDetector(
-                      onTap: () => context.go('/auth/login'),
-                      child: Text(
-                        l10n.landingV2LoginLink,
-                        textAlign: TextAlign.center,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: MintColors.textPrimary,
-                          decoration: TextDecoration.underline,
-                          decorationColor: MintColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // 10. SizedBox 8.
+                  const SizedBox(height: 8),
                 ],
               ),
             ),

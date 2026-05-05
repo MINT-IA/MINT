@@ -22220,10 +22220,6 @@ class SEn extends S {
       'The math is settled, the idea still deserves a conversation.';
 
   @override
-  String get landingV2Paragraph =>
-      'Mint tells you what no one else has any interest in telling you. About your insurance, your 3a, your salary, your lease, your partner, your taxes. Calmly. Without selling you anything.';
-
-  @override
   String get landingV2Cta => 'Continue (no account)';
 
   @override
@@ -22276,6 +22272,9 @@ class SEn extends S {
 
   @override
   String get landingV2CtaSober => 'Talk to Mint';
+
+  @override
+  String get landingV3Hero => 'See clearly. Decide for yourself.';
 
   @override
   String get tonChooserTitle => 'Pick how Mint speaks to you';

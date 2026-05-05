@@ -11217,10 +11217,6 @@
   "@mtcSummaryWeakUnderstanding": {
     "description": "MTC one-line summary when understanding is the weakest axis."
   },
-  "landingV2Paragraph": "Mint te dit ce que personne n'a intérêt à te dire. Sur tes assurances, ton 3a, ton salaire, ton bail, ton couple, tes impôts. Calmement. Sans te vendre quoi que ce soit.",
-  "@landingV2Paragraph": {
-    "description": "Landing v2 paragraphe-mère (LOCKED master text per CONTEXT.md D-01). Anti-shame, calm, six life-domains, no retirement framing."
-  },
   "landingV2Cta": "Continuer (sans compte)",
   "@landingV2Cta": {
     "description": "Landing v2 primary CTA (LOCKED per D-02). Routes to /onboarding/intent. Parenthetical '(sans compte)' is load-bearing."
@@ -11284,6 +11280,10 @@
   "landingV2CtaSober": "Parle à Mint",
   "@landingV2CtaSober": {
     "description": "Landing v2 CTA — conversational, not generic. Phase 5 POLISH-01."
+  },
+  "landingV3Hero": "Voir clair, décider seul.",
+  "@landingV3Hero": {
+    "description": "Phase 73 v2.10 — Landing v3 éditorial hero. Brand line option D locked by 2-pers panel (PANEL-VERDICT.md §1). Two verbs, two beats, hero-shaped. LSFin-safe (capacity, not result). Voice = Linear/Stripe verb-led. Rendered in Fraunces italic 40pt w400."
   },
   "tonChooserTitle": "Choisis le ton de Mint",
   "@tonChooserTitle": {

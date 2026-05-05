@@ -22383,10 +22383,6 @@ class SDe extends S {
       'Die Rechnung steht, die Idee verdient noch ein Gespräch.';
 
   @override
-  String get landingV2Paragraph =>
-      'Mint sagt dir, was dir sonst niemand sagen will. Über deine Versicherungen, deine 3a, deinen Lohn, deinen Mietvertrag, deine Beziehung, deine Steuern. Ruhig. Ohne dir irgendetwas zu verkaufen.';
-
-  @override
   String get landingV2Cta => 'Weiter (ohne Konto)';
 
   @override
@@ -22439,6 +22435,9 @@ class SDe extends S {
 
   @override
   String get landingV2CtaSober => 'Sprich mit Mint';
+
+  @override
+  String get landingV3Hero => 'Klar sehen. Selbst entscheiden.';
 
   @override
   String get tonChooserTitle => 'Wähle, wie Mint mit dir spricht';

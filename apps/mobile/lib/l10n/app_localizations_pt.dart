@@ -22337,10 +22337,6 @@ class SPt extends S {
       'O cálculo está feito, a ideia ainda merece conversa.';
 
   @override
-  String get landingV2Paragraph =>
-      'Mint diz-te o que mais ninguém tem interesse em dizer-te. Sobre os teus seguros, o teu 3a, o teu salário, o teu arrendamento, o teu casal, os teus impostos. Calmamente. Sem te vender nada.';
-
-  @override
   String get landingV2Cta => 'Continuar (sem conta)';
 
   @override
@@ -22393,6 +22389,9 @@ class SPt extends S {
 
   @override
   String get landingV2CtaSober => 'Fala com o Mint';
+
+  @override
+  String get landingV3Hero => 'Ver claro, decidir sozinho.';
 
   @override
   String get tonChooserTitle => 'Escolhe como o Mint te fala';
