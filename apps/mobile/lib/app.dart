@@ -1377,6 +1377,16 @@ final _router = GoRouter(
       MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/profile/bilan');
       return '/profile/bilan';
     }),
+    // Sprint 1.5 P1 — `/dossier` is the user-mental alias for the
+    // financial summary screen (used in mockups, marketing copy, deep
+    // links). Without this redirect a tap or paste of `/dossier` lands
+    // on the `_MintErrorScreen` 404. Aliases to the canonical
+    // `/profile/bilan` and emits the same legacyRedirectHit breadcrumb
+    // as other redirects so routing usage shows up in Sentry.
+    ScopedGoRoute(path: '/dossier', redirect: (_, state) {
+      MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/profile/bilan');
+      return '/profile/bilan';
+    }),
   ],
 );
 
