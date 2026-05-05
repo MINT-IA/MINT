@@ -1,27 +1,34 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.8
-milestone_name: L'Oracle & La Boucle — Overview
-status: verifying
-stopped_at: Completed 30.7-04-PLAN.md (CLAUDE.md -30% atomic trim shipped, commit `43a38dff` ; T2 semantic cold-read + kill-switch rehearsal APPROVED by Julien 2026-04-22 ; Phase 30.7 5/5 plans complete ; J0 fresh-session smoke deferred to post-merge operational validation on creator's machine — not a code gate). Ready for `/gsd-verify-work 30.7` + `/gsd-secure-phase 30.7` (Auto profile L1 per ADR-20260419-autonomous-profile-tiered).
-last_updated: "2026-04-25T07:54:53.486Z"
-last_activity: 2026-04-25
+milestone: v2.10
+milestone_name: Le Premier Éclairage (Cleo-grade)
+status: defining_requirements
+stopped_at: Milestone v2.10 opened 2026-05-05. PROJECT.md updated. REQUIREMENTS.md drafting next. Roadmap via gsd-roadmapper. PRs #478-#482 in flight (Sprint 0 401 breadcrumb + Sprint 1 nav audit + Phase 57 PR-A/B/C) absorbed into v2.10 scope. v2.8 archived as shipped 4/9 + 13 decimals. v2.9 retired (scope drift, no shippable gate).
+last_updated: "2026-05-05T08:30:00.000Z"
+last_activity: 2026-05-05
 progress:
-  total_phases: 9
-  completed_phases: 4
-  total_plans: 17
-  completed_plans: 22
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
-# GSD State: MINT v2.8 — L'Oracle & La Boucle
+# GSD State: MINT v2.10 — Le Premier Éclairage (Cleo-grade)
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-19)
+See: .planning/PROJECT.md (updated 2026-05-05)
 
-**Core value:** Toute route user-visible marche end-to-end et on le prouve mécaniquement ; on sait en <60s ce qui casse ; aucun agent ne peut ignorer son contexte ; Julien ouvre MINT 20 min sans taper un mur.
-**Current focus:** Phase 30.7 — Tools Déterministes
+**Core value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, reçoit une réponse qui le surprend, crée un compte pour ne pas perdre ça, et revient.
+**Current focus:** v2.10 milestone — defining requirements for chat-first onboarding redesign + walker E2E gate.
+
+## Constraints (from Julien — 2026-05-05)
+
+- **No human tests.** Claude validates everything via simulator iPhone (Mac mini), walker E2E + tap-render diff vs mockup, BEFORE Julien sees anything.
+- **Image budget.** Max 1-2 screenshots per checkpoint shown to Julien ; full gallery archived under `.planning/walker/<run-id>/`.
+- **TestFlight = Claude validates first.** No human device gate. Replaced by automated 4-archetype walker pass.
+- **No new PRs** until v2.10 roadmap approved by Julien.
 
 ## Architecture Decisions (pre-phase, v2.8)
 

@@ -8,19 +8,28 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 
 **Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.**
 
-## Current Milestone: v2.9 Coach Visuel Hybride
+## Current Milestone: v2.10 Le Premier Éclairage (Cleo-grade)
 
-**Goal:** Verticale « Onboarding-to-First-Insight ». Un user qui arrive sur MINT a, en moins de 20 min, son profil financier sur les 6 axes suisses (AVS, LPP, 3a, salaire, fortune, charges) + un hero number actionnable « marge fiscale optimisable cette année » + un coach qui balance vignettes / scènes / canvas pour explorer les arbitrages (3a vs rachat LPP vs amortissement vs hypothèque) avec liens deep-dive vers les écrans Explorer existants.
+**Goal:** Un inconnu ouvre MINT, en moins de 90 secondes + ≤3 messages chat, reçoit UN insight clair sur sa vie financière qui le surprend, et a envie de créer un compte. L'écran d'entrée imite Cleo (chat-first, conversationnel, 1 question à la fois, pas de pills verbeux). Le mockup éditorial « L'argent, en clair. » est l'aboutissement visuel. Périmètre serré : 4 surfaces, 4 archétypes, walker E2E vert, pas plus.
 
-**4 phases planned:**
-- **Phase 40 — Marge fiscale backend** (3-5j) : pure function `compute_marge_fiscale(profile)` + endpoint + 10 unit tests
-- **Phase 41 — Hero + Vignettes L1** (1 sem) : `MargeFiscaleHero` + vignette inline chat
-- **Phase 42 — Scènes L2 interactives** (2 sem) : `MintSceneArbitrageRetraite` + `MintSceneArbitrageHypotheque`, slider live, début refactor `Stream<ChatMessage>`
-- **Phase 43 — Canvas L3 + lien Explorer** (1-2 sem) : `MintCanvasArbitrage` modal, return contract chat ← canvas
+**Target features (4):**
+- **Landing v3 (éditorial)** — mockup serif Fraunces italique « L'argent, en clair. » + sous-titre « Ta Suisse financière, traduite. ». Wordmark MINT top-left, 1 CTA primaire `RoundedRectangleBorder(14px)`, lien secondaire « Déjà là ? Se connecter ». Cream BG, zéro chrome.
+- **Anonymous Chat redesigned (Cleo-grade)** — KILL les 6 felt-state pills verbeuses. Chat-first, ton Cleo (adulte/clair/witty mais pas blagueur), 1 question concrète à la fois. Persistance déjà shippée (#480), wiring déjà shippé (#482).
+- **Premier Éclairage rendering** — UN insight surprise (« Tu paies CHF X de marge fiscale chaque année que tu pourrais récupérer ») + soft account-creation hint (pas pushy). Backend prompt déjà shippé (#481).
+- **Walker E2E + golden + 4 archétypes** — verdict device sim (`julien_swiss`, `lauren_expat_us`, `fatih_cross_border`, `sarah_indep_no_lpp`) avant TestFlight 2.10.0. Diff vs mockup ≤4% pixel zone hero, run-id archivé.
 
-**Doctrine v2.9:** Le coach EST le produit. 3 niveaux de projection visuelle (vignette inline / scène interactive / canvas modal) intégrés dans le chat. Arbitrage live entre leviers fiscaux. Lien deep-dive vers écrans Explorer existants.
+**Doctrine v2.10:** Cleo-imitation où on peut pas faire mieux ; Swiss lucidity où on peut. **Aucun nouveau feature** hors les 4 ci-dessus. **Zéro test côté Julien** : Claude valide tout sur simulator iPhone, présente 1 screenshot final par archétype (max 4 images cumulées) avant TestFlight ship.
 
-**Carry-forward de v2.8:** FIX-01 UUID, FIX-03 save_fact, FIX-04 Coach tab, FIX-05 bare catches Wave 2+, FIX-07 234 backend accent violations, Phase 33 kill-flags (subset). Phase 34/35 deferred.
+**Critère de done mesurable:**
+1. Walker `walker_audit_tap_render.sh --no-dry-run --archetype <X>` vert sur 4 archétypes
+2. Visual diff vs mockup ≤4% pixel zone hero sur landing + anonymous_chat
+3. 0 banned terms LSFin dans 6 ARB (vérifié par lint blocking)
+4. TestFlight 2.10.0 build dispo dans App Store Connect
+5. PRs en cours #478-#482 mergés ou closés (décision merge order Phase 1)
+
+**Carry-forward (explicit):** PR #480 + #481 + #482 (Phase 57 PR-A/B/C) absorbés dans cette milestone. PRs #470 + #472 (Phase 56 tool census) **OUT du chemin TestFlight** — restent ouverts mais ne bloquent pas v2.10.
+
+**Out (non-négociable, anti scope-creep):** Wiki coach v3, couple mode wiring, FIX-03 save_fact (carry-forward post-TestFlight), FIX-04 coach tab routing, 388 bare-catches sweep, redesign coach_chat full, redesign Aujourd'hui/Dossier, redesign onboarding wedge multi-step (T9-style).
 
 ## Previous Milestone: v2.8 L'Oracle & La Boucle (shipped 2026-04-25 with gaps)
 
@@ -121,4 +130,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-25 after v2.8 close (gaps_found, 5/9 phases shipped + 13 decimals) and v2.9 « Coach Visuel Hybride » open*
+*Last updated: 2026-05-05 — v2.9 retired (scope drift / no shippable gate) and v2.10 « Le Premier Éclairage (Cleo-grade) » opened. v2.9 phases 40-43 (marge fiscale + vignettes + scènes + canvas) deferred post-TestFlight ; not abandoned, but not on the path to v2.10 ship.*
