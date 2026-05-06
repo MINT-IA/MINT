@@ -492,16 +492,24 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       bubble,
-                      EclairageCard(payload: <String, dynamic>{
-                        'kind': msg.eclairage!.kind.wireName,
-                        'headline': msg.eclairage!.headline,
-                        'body': msg.eclairage!.body,
-                        'chf_range_low': msg.eclairage!.chfRangeLow,
-                        'chf_range_high': msg.eclairage!.chfRangeHigh,
-                        'chf_range_period': msg.eclairage!.chfRangePeriod,
-                        'soft_account_hint': msg.eclairage!.softAccountHint,
-                        'lsfin_disclaimer': msg.eclairage!.lsfinDisclaimer,
-                      }),
+                      // PERS-03/04 (v2.13 Phase 90) — accessibility identifier
+                      // for Maestro YAML flows. The « register-cta » id targets
+                      // the éclairage card surface (where the softAccountHint
+                      // tap → /auth/register lives, panel-locked Phase 72).
+                      Semantics(
+                        identifier: 'anon-chat-register-cta',
+                        container: true,
+                        child: EclairageCard(payload: <String, dynamic>{
+                          'kind': msg.eclairage!.kind.wireName,
+                          'headline': msg.eclairage!.headline,
+                          'body': msg.eclairage!.body,
+                          'chf_range_low': msg.eclairage!.chfRangeLow,
+                          'chf_range_high': msg.eclairage!.chfRangeHigh,
+                          'chf_range_period': msg.eclairage!.chfRangePeriod,
+                          'soft_account_hint': msg.eclairage!.softAccountHint,
+                          'lsfin_disclaimer': msg.eclairage!.lsfinDisclaimer,
+                        }),
+                      ),
                     ],
                   );
                 },
@@ -639,7 +647,14 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
           child: Row(
             children: [
               Expanded(
-                child: TextField(
+                // PERS-03/04 (v2.13 Phase 90) — accessibility identifier
+                // for Maestro YAML flows (`tools/simulator/flows/*.yaml`
+                // tapOn: id: "anon-chat-input"). iOS accessibility tree
+                // surfaces this via Flutter's Semantics(identifier:).
+                child: Semantics(
+                  identifier: 'anon-chat-input',
+                  textField: true,
+                  child: TextField(
                   controller: _inputController,
                   enabled: !_isLoading,
                   // Panel §1.5 + §5 row 5 : autofocus OFF on cold-open.
@@ -666,6 +681,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                     counterText: '',
                   ),
                 ),
+                ),
               ),
               IconButton(
                 icon: const Icon(Icons.send_rounded),
@@ -685,7 +701,17 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
 
   Widget _buildMessageBubble(_ChatMessage message, {bool isOpener = false}) {
     final isUser = message.isUser;
-    final bubble = Align(
+    // PERS-03/04 (v2.13 Phase 90) — accessibility identifier for Maestro
+    // YAML flows. The opener-bubble id targets the cold-open coach
+    // greeting ; the message-assistant id targets every subsequent coach
+    // reply. User messages are not identified (Maestro doesn't tap into
+    // user-side bubbles).
+    final String? semanticIdentifier = isUser
+        ? null
+        : isOpener
+            ? 'anon-chat-opener-bubble'
+            : 'anon-chat-message-assistant';
+    Align bubble = Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         constraints: BoxConstraints(
@@ -711,14 +737,37 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         ),
       ),
     );
+    // Wrap with Semantics(identifier:) when applicable so iOS
+    // accessibility tree (Maestro consumer) sees the id.
+    final Widget identifiedBubble = semanticIdentifier == null
+        ? bubble
+        : Semantics(
+            identifier: semanticIdentifier,
+            container: true,
+            child: bubble,
+          );
+    // Replace the local `bubble` reference downstream so the rest of
+    // this function emits the identified version (eclairage column path
+    // and bubble-only return below).
+    final Widget bubbleForRender = identifiedBubble;
 
     // Phase 80: render the eclairage card inline beneath coach bubbles when
     // present. Forced via dart-define for walker / widget tests, otherwise
     // emitted by the backend (Phase 81 contract).
+    // 400ms fade-in only for the opener (panel §1.2). Apply BEFORE
+    // identification wrap so the FadeTransition sits inside the
+    // semantics container (identifier still readable during fade).
+    final Widget renderedBubble = isOpener
+        ? FadeTransition(
+            opacity: _openerFadeController,
+            child: bubbleForRender,
+          )
+        : bubbleForRender;
+
     if (message.eclairage == null) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 12),
-        child: bubble,
+        child: renderedBubble,
       );
     }
 
@@ -727,34 +776,33 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          bubble,
+          renderedBubble,
           // v2.12 Phase 86 integration — convert EclairageCardData →
           // Map<String, dynamic> payload to feed the panel-locked Phase
           // 72 EclairageCard widget (anon path). Phase 80's typed
           // eclairage_models.dart stays the canonical model ; we just
           // adapt at the render boundary.
-          EclairageCard(payload: <String, dynamic>{
-            'kind': message.eclairage!.kind.wireName,
-            'headline': message.eclairage!.headline,
-            'body': message.eclairage!.body,
-            'chf_range_low': message.eclairage!.chfRangeLow,
-            'chf_range_high': message.eclairage!.chfRangeHigh,
-            'chf_range_period': message.eclairage!.chfRangePeriod,
-            'soft_account_hint': message.eclairage!.softAccountHint,
-            'lsfin_disclaimer': message.eclairage!.lsfinDisclaimer,
-          }),
+          // PERS-03/04 (v2.13 Phase 90) — same accessibility identifier
+          // as the itemBuilder render path (this is the alternate code
+          // path when bubble + card are emitted from _buildMessageBubble
+          // directly).
+          Semantics(
+            identifier: 'anon-chat-register-cta',
+            container: true,
+            child: EclairageCard(payload: <String, dynamic>{
+              'kind': message.eclairage!.kind.wireName,
+              'headline': message.eclairage!.headline,
+              'body': message.eclairage!.body,
+              'chf_range_low': message.eclairage!.chfRangeLow,
+              'chf_range_high': message.eclairage!.chfRangeHigh,
+              'chf_range_period': message.eclairage!.chfRangePeriod,
+              'soft_account_hint': message.eclairage!.softAccountHint,
+              'lsfin_disclaimer': message.eclairage!.lsfinDisclaimer,
+            }),
+          ),
         ],
       ),
     );
-
-    // 400ms fade-in only for the opener (panel §1.2).
-    if (isOpener) {
-      return FadeTransition(
-        opacity: _openerFadeController,
-        child: bubble,
-      );
-    }
-    return bubble;
   }
 
   Widget _buildTypingIndicator() {

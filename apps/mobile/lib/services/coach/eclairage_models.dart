@@ -161,6 +161,12 @@ class EclairageCardData {
   /// Build a deterministic card from a forced kind alone (used when the
   /// backend did NOT emit any eclairage payload but the dart-define is set
   /// — typically in walker / widget-test runs).
+  ///
+  /// PERS-03/04 (v2.13 Phase 90) — softAccountHint is now panel-tagged
+  /// per kind so Maestro YAML flows can assert on the deterministic
+  /// CTA text. Previously null (no CTA rendered for forced-kind walker
+  /// runs), which prevented assertVisible: "Estime ta marge précise"
+  /// from passing.
   static EclairageCardData fromForcedKind(EclairageKind forcedKind) {
     final tpl = _templateFor(forcedKind);
     return EclairageCardData(
@@ -174,8 +180,24 @@ class EclairageCardData {
           'Information à but éducatif. Pas un conseil personnalisé au sens '
           'de la LSFin. Vérifie ta situation auprès d’un conseiller '
           'agréé avant toute décision.',
-      softAccountHint: null,
+      softAccountHint: _softHintFor(forcedKind),
     );
+  }
+
+  /// Panel-tagged CTA copy per éclairage kind. Used by `fromForcedKind`
+  /// (walker / widget tests) and as a fallback when the backend omits
+  /// the field. Production LLM-natural payloads can override these.
+  static String _softHintFor(EclairageKind kind) {
+    switch (kind) {
+      case EclairageKind.fiscalMargin3a:
+        return 'Estime ta marge précise';
+      case EclairageKind.lppRachatWindow:
+        return 'Estime ton rachat LPP';
+      case EclairageKind.liquidityRunway:
+        return 'Estime ta réserve liquide';
+      case EclairageKind.compoundGrowthEdge:
+        return 'Visualise ta projection';
+    }
   }
 
   static double? _asDouble(Object? v) {

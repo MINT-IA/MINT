@@ -119,15 +119,36 @@ def codebase_has_text(text: str) -> bool:
 
 
 def codebase_has_key(key_id: str) -> bool:
-    """Does this key id have a `Key('<id>')` or `ValueKey('<id>')` declaration ?"""
-    needle_a = re.escape(f"Key('{key_id}')")
-    needle_b = re.escape(f'Key("{key_id}")')
+    """Does this id have a `Key('<id>')` / `ValueKey('<id>')` declaration
+    OR a `Semantics(identifier: '<id>')` declaration ?
+
+    Phase 90 v2.13 — Flutter widgets use `Semantics(identifier:)` to
+    expose accessibility identifiers to iOS / Android, which Maestro's
+    `tapOn: id:` reads via the platform accessibility tree. Both
+    `Key('foo')` (Dart-level) and `Semantics(identifier: 'foo')`
+    (platform-level) are accepted as valid declarations of an id.
+    """
+    # Accept multiple declaration patterns :
+    #   Key('<id>') / Key("<id>") / ValueKey('<id>')
+    #   identifier: '<id>' / identifier: "<id>"
+    #   '<id>' / "<id>"  (conditional ternary or constant literal)
+    # The bare-quoted-string fallback covers cases like
+    # `final id = isOpener ? 'anon-chat-opener-bubble' : 'anon-chat-message-assistant'`.
+    needles = [
+        re.escape(f"Key('{key_id}')"),
+        re.escape(f'Key("{key_id}")'),
+        re.escape(f"identifier: '{key_id}'"),
+        re.escape(f'identifier: "{key_id}"'),
+        re.escape(f"'{key_id}'"),
+        re.escape(f'"{key_id}"'),
+    ]
+    pattern = re.compile("|".join(needles))
     for path in MOBILE_LIB.rglob("*.dart"):
         try:
             content = path.read_text(encoding="utf-8")
         except OSError:
             continue
-        if re.search(needle_a, content) or re.search(needle_b, content):
+        if pattern.search(content):
             return True
     return False
 
