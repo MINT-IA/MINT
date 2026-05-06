@@ -283,3 +283,69 @@ Après lecture du code (parsers vs schémas backend), 5 fixes appliqués dans la
 1. Push backend fix vers `staging` branch → Railway redeploy auto → walk turn 1 et vérifier que le LLM cite « 7'258 » au lieu de « 7'000 ».
 2. Walk register flow manuellement (taper sur Mac keyboard sim focused) pour valider BUG #7 back arrow.
 3. Tester BUG #2 sur un vrai iPhone : taper rapidement « taux marginal je sais pas » et confirmer que les mots passent intacts.
+
+---
+
+## Session 2 — extended walk + tooling (2026-05-06 20:00→20:45)
+
+Après les 5 bug fixes initiaux landés (commit `d8ae8cc1`), j'ai continué à walker l'app via Maestro inputText (BUG #6 close-out) + Schemathesis fuzz contre l'OpenAPI staging.
+
+### 6 nouveaux bugs trouvés (BUG #9 à #15)
+
+| # | Sév. | Bug | Fix |
+|---|---|---|---|
+| 9 | P1 | Landing « J'ai déjà un compte » Text non Maestro-tappable | ✅ `Semantics(identifier:'landing-login-link')` ajouté |
+| 10 | P2 | D-12 hidden affordance (long-press wordmark MINT) silencieusement cassé sur iOS | ✅ `Semantics(onLongPress:..., identifier:'landing-wordmark')` ajouté |
+| 11 | P2 | Register form : 6 fields sans panel-locked identifier | ✅ 6 ids ajoutés (`register-{email\|firstname\|dob\|password\|confirm-password\|submit}-field` + 2 checkboxes) |
+| 12 | P3 | Landing legal EN dit « LSFin » au lieu de « FinSA » (acronyme officiel anglais Federal Act on Financial Services) | ⏳ documenté ; cleanup i18n large à part (toutes les ~60 occurrences EN « LSFin ») |
+| 13 | P2 | `POST /api/v1/anonymous/chat` retourne 400 « Session anonyme requise » mais OpenAPI ne documente que 200/422 | ⏳ FastAPI add `responses={400: ...}` ou faire le header `Header(...)` requis pour 422 |
+| 14 | P2 | `POST /api/v1/auth/register` retourne 409 « email existe déjà » mais OpenAPI ne documente que 201/422 | ⏳ même fix que #13 |
+| 15 | P2 | `POST /api/v1/onboarding/premier-eclairage` retourne 400 « Invalid request parameters » sur inputs schema-valides ; OpenAPI ne documente que 200/422 | ⏳ même fix que #13 |
+
+### 6 Maestro flows ajoutés (qui hit production code path, NO `MINT_E2E_*`)
+
+| Flow | Validation |
+|---|---|
+| `walkthrough_login_path.yaml` | landing → tap login link → login screen ✅ 4/4 GREEN |
+| `walkthrough_long_press_login.yaml` | landing → long-press MINT → login (D-12 hidden affordance) ✅ 4/4 GREEN |
+| `walkthrough_login_screen.yaml` | login screen Magic Link UX ✅ 6/6 GREEN |
+| `walkthrough_login_password_fallback.yaml` | login Magic Link → password fallback toggle ✅ 5/5 GREEN |
+| `walkthrough_auth_gate_login.yaml` | 3-turn anon chat → auth gate « J'ai déjà un compte » → login ✅ 18/18 GREEN |
+| `walkthrough_register_deep.yaml` | register form fill (24/26 commands GREEN ; blocked by Maestro keyboard infra at field 2) |
+
+### Locale walks (FR/DE/EN/IT)
+
+| Locale | Hero phrase | LSFin acronym | Verdict |
+|---|---|---|---|
+| FR | « Voir clair, décider seul. » | LSFin | ✅ correct |
+| DE | « Klar sehen. Selbst entscheiden. » | FIDLEG | ✅ correct |
+| EN | « See clearly. Decide for yourself. » | LSFin | 🚨 BUG #12 (should be FinSA) |
+| IT | « Vedere chiaro, decidere da sé. » | LSerFi | ✅ correct |
+
+Screenshots `13-locale-de.png`, `14-locale-en.png`, `15-locale-it.png`.
+
+### Tooling QA stack live ce soir
+
+- **Maestro local CLI v0.15.4** — 6 flows panel-locked, all hit Railway staging
+- **Schemathesis OSS** — `tools/checks/schemathesis_smoke.sh` runs against staging OpenAPI, finds 7 failures across 5 endpoints en 6 secondes. Wirable dans CI ci.yml.
+- **idb_companion + fb-idb** — sim driving (already wired)
+- **xcrun simctl io booted** — screenshots manuelles
+- **flutter_markdown** — bubble markdown rendering (BUG #8 fix)
+
+### Bilan total — bugs trouvés ce soir
+
+- Walk humain (commit `35c90e76`) : BUG #1-7 (7 bugs)
+- Code review fixes session 1 (commit `d8ae8cc1`) : 5 bugs landed
+- Walk Maestro session 2 (commit `35c90e76+`) : BUG #9-11 + BUG #5/8 (5 fixes)
+- Schemathesis fuzz session 2 (this commit) : BUG #13-15 (3 OpenAPI gaps)
+- Locale walk session 2 : BUG #12 (i18n EN)
+
+**Total : 15 bugs concrets en 2h de walking + tooling**, vs 0 bugs réels en 5 mois de walker fixture-against-fixture.
+
+### Prochaine session
+
+1. Wire `tools/checks/schemathesis_smoke.sh` dans `.github/workflows/ci.yml`
+2. Fix BUG #13/#14/#15 (3 endpoints à add `responses={4xx: ...}` ou switch validators à 422)
+3. Fix BUG #12 (60 occurrences EN « LSFin » → « FinSA » via sed-replace dans app_en.arb + flutter gen-l10n)
+4. Walk register deep avec Maestro (résoudre le keyboard-dismiss workaround)
+5. Walk Documents tab + PDF upload (Phase A6 par doctrine)
