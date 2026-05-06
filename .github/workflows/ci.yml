@@ -158,9 +158,14 @@ jobs:
           # CVE-2026-3219: pip 26.0.1 tar+zip confusion, affects runner's
           # bundled pip. Upstream fix in next pip release; waive until
           # the GHA runner image bumps pip past the affected version.
+          # CVE-2026-6357: pip 26.0.1 self-update timing — pip imports
+          # newly-installed wheel modules during self-update check.
+          # Same runner-bundled-pip story ; fix in pip 26.1. Waive until
+          # GHA runner image bumps.
           pip-audit --skip-editable --desc on \
             --ignore-vuln CVE-2026-4539 \
-            --ignore-vuln CVE-2026-3219
+            --ignore-vuln CVE-2026-3219 \
+            --ignore-vuln CVE-2026-6357
 
       - name: Legacy token gate (no chiffre_choc)
         working-directory: ${{ github.workspace }}

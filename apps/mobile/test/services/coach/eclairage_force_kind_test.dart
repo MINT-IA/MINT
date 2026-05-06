@@ -137,11 +137,25 @@ void main() {
       '(ECLW-05 widget assertion)', (tester) async {
     final card = EclairageCardData.fromForcedKind(EclairageKind.fiscalMargin3a);
 
+    // Phase 86 (v2.12) — EclairageCard now accepts a payload Map<String,dynamic>
+    // (panel-locked Phase 72 widgets/anonymous variant). The Phase 80
+    // `data: EclairageCardData` constructor was deleted as a duplicate.
+    final payload = <String, dynamic>{
+      'kind': card.kind.wireName,
+      'headline': card.headline,
+      'body': card.body,
+      'chf_range_low': card.chfRangeLow,
+      'chf_range_high': card.chfRangeHigh,
+      'chf_range_period': card.chfRangePeriod,
+      'soft_account_hint': card.softAccountHint,
+      'lsfin_disclaimer': card.lsfinDisclaimer,
+    };
+
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: SingleChildScrollView(
-            child: EclairageCard(data: card),
+            child: EclairageCard(payload: payload),
           ),
         ),
       ),

@@ -255,8 +255,11 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // landingV2PromiseSober = "On éclaire. Tu décides."
-      expect(find.textContaining('\u00e9claire'), findsOneWidget);
+      // Phase 73 (v2.11) landing-v3-editorial — hero line is now
+      // landingV3Hero = "Voir clair, décider seul." (Cleo brand line,
+      // panel-locked). The previous landingV2PromiseSober is retired from
+      // the LandingScreen surface ; the ARB key remains for back-compat.
+      expect(find.textContaining("Voir clair"), findsOneWidget);
     });
 
     testWidgets('shows MINT logo text', (tester) async {
