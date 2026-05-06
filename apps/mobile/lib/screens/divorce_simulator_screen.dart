@@ -12,7 +12,9 @@ import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -73,6 +75,11 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   List<bool> _checklistState = [];
 
   bool _prefilled = false;
+
+  /// Plan 93-03 (COMP-03): 4-axis confidence trame source for the result hero.
+  /// v1 cut — empty-profile fallback (matches futur_projection_card.dart:69).
+  EnhancedConfidence get _resolvedConfidence =>
+      EnhancedConfidence.fromBareScore(0.5);
 
   @override
   void didChangeDependencies() {
@@ -158,6 +165,17 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             if (_result != null) ...[
               Container(key: _resultsKey),
               _buildDivorceHeroCard(),
+              // Plan 93-03 (COMP-03 / CLAUDE.md règle 9): 4-axis confidence
+              // trame mounted as a SIBLING after MintResultHeroCard (no slot
+              // prop available — surgical sibling addition only).
+              const SizedBox(height: MintSpacing.md),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: MintTrameConfiance.inline(
+                  confidence: _resolvedConfidence,
+                  bloomStrategy: BloomStrategy.firstAppearance,
+                ),
+              ),
               const SizedBox(height: MintSpacing.xl),
             ] else ...[
               _buildIntroCard(),

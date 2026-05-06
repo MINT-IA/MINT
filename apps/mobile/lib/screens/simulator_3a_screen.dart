@@ -22,6 +22,8 @@ import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 
 class Simulator3aScreen extends StatefulWidget {
   const Simulator3aScreen({super.key});
@@ -40,6 +42,12 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
 
   Map<String, double>? _result;
   bool _hasUserInteracted = false;
+
+  /// Plan 93-03 (COMP-03): 4-axis confidence trame source for the result hero.
+  /// v1 cut — empty-profile fallback (matches futur_projection_card.dart:69).
+  /// Phase 94 may upgrade to EnhancedConfidenceService.computeConfidence(profile).
+  EnhancedConfidence get _resolvedConfidence =>
+      EnhancedConfidence.fromBareScore(0.5);
 
   /// Sequence IDs read from GoRouter.extra (Tier A when present).
   String? _seqRunId;
@@ -598,6 +606,15 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           _buildImpactRow(l.sim3aFinalCapital, _result!['potentialFinalValue']!),
           const SizedBox(height: MintSpacing.sm),
           _buildImpactRow(l.sim3aCumulativeTaxSaved, _result!['totalTaxSavedOverPeriod']!, color: MintColors.success),
+          // Plan 93-03 (COMP-03 / CLAUDE.md règle 9): 4-axis confidence trame.
+          const SizedBox(height: MintSpacing.md),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: MintTrameConfiance.inline(
+              confidence: _resolvedConfidence,
+              bloomStrategy: BloomStrategy.firstAppearance,
+            ),
+          ),
         ],
       ),
     );

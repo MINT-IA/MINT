@@ -11,6 +11,8 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 
 class SimulatorLeasingScreen extends StatefulWidget {
   const SimulatorLeasingScreen({super.key});
@@ -25,6 +27,11 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
   double _alternativeRate = 5.0;
 
   Map<String, dynamic>? _result;
+
+  /// Plan 93-03 (COMP-03): 4-axis confidence trame source for the result hero.
+  /// v1 cut — empty-profile fallback (matches futur_projection_card.dart:69).
+  EnhancedConfidence get _resolvedConfidence =>
+      EnhancedConfidence.fromBareScore(0.5);
 
   // Uses centralized formatChfWithPrefix from chf_formatter.dart
 
@@ -223,6 +230,15 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
             child: Text(
               formatChfWithPrefix(opportunityCost20),
               style: MintTextStyles.displayMedium(color: MintColors.error),
+            ),
+          ),
+          // Plan 93-03 (COMP-03 / CLAUDE.md règle 9): 4-axis confidence trame.
+          const SizedBox(height: MintSpacing.md),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: MintTrameConfiance.inline(
+              confidence: _resolvedConfidence,
+              bloomStrategy: BloomStrategy.firstAppearance,
             ),
           ),
           const SizedBox(height: MintSpacing.lg),

@@ -11,6 +11,8 @@ import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FRONTALIER SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -51,6 +53,11 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   double _chargesSalary = 7000;
   String _chargesCountry = 'France';
   Map<String, dynamic>? _chargesResult;
+
+  /// Plan 93-03 (COMP-03): 4-axis confidence trame source for the result hero.
+  /// v1 cut — empty-profile fallback (matches futur_projection_card.dart:69).
+  EnhancedConfidence get _resolvedConfidence =>
+      EnhancedConfidence.fromBareScore(0.5);
 
   @override
   void initState() {
@@ -498,6 +505,15 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                       color: MintColors.textPrimary),
                 ),
               ],
+            ),
+          ),
+          // Plan 93-03 (COMP-03 / CLAUDE.md règle 9): 4-axis confidence trame.
+          const SizedBox(height: MintSpacing.md),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: MintTrameConfiance.inline(
+              confidence: _resolvedConfidence,
+              bloomStrategy: BloomStrategy.firstAppearance,
             ),
           ),
         ],
