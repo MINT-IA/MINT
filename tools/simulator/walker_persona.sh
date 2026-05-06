@@ -157,9 +157,15 @@ ASSERT_FILE="$REPO_ROOT/apps/mobile/test/personas/${PERSONA}_test.dart"
 if [ ! -f "$ASSERT_FILE" ]; then
   echo "WARN: no Dart assertion suite at $ASSERT_FILE — skipping L2"
 else
-  echo "[L2] flutter test $ASSERT_FILE (MINT_WALKER_RUN_ID=$RUN_ID)"
+  echo "[L2] flutter test $ASSERT_FILE (MINT_WALKER_RUN_ID=$RUN_ID, REQUIRED=true)"
+  # Phase A5 panel hardening (iOS QA finding 2026-05-06) — set
+  # MINT_WALKER_REQUIRED=true so the L2 suite FAILS loudly if RUN_ID
+  # is missing. Without this flag, the test would skip silently and
+  # walker_persona's exit-0 would falsely report « L2 green » even
+  # when none of the assertions actually ran.
   (cd "$REPO_ROOT/apps/mobile" && \
     MINT_WALKER_RUN_ID="$RUN_ID" \
+    MINT_WALKER_REQUIRED=true \
     flutter test "$ASSERT_FILE") || {
       echo "ERROR: L2 Dart assertions failed" >&2; exit 4
     }

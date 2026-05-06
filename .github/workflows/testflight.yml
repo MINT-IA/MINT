@@ -222,11 +222,15 @@ jobs:
             echo "Stripping apps/mobile/assets/llm_replay_cache (dev-only)"
             rm -rf apps/mobile/assets/llm_replay_cache
           fi
-          # Phase A5 (v2.13) — hard guard : refuse to build release with
-          # MINT_LLM_CACHE_MODE=replay in the dart-define list.
-          if [[ "$EXTRA_DEFINES" == *"MINT_LLM_CACHE_MODE=replay"* || \
-                "$EXTRA_DEFINES" == *"MINT_LLM_CACHE_MODE=record"* ]]; then
-            echo "::error::MINT_LLM_CACHE_MODE=replay/record forbidden in release build"
+          # Phase A5 panel hardening (adversarial reviewer 2026-05-06) —
+          # refuse to build release with MINT_LLM_CACHE_MODE *defined at
+          # all* in the dart-define list, not just =replay/=record. A
+          # hypothetical future operator copying « MINT_LLM_CACHE_MODE=live »
+          # into a TestFlight workflow defeats the kReleaseMode guard if
+          # they later toggle it. Fail-closed : the variable must not be
+          # set on release builds. Period.
+          if [[ "$EXTRA_DEFINES" == *"MINT_LLM_CACHE_MODE="* ]]; then
+            echo "::error::MINT_LLM_CACHE_MODE forbidden in release build (any value)"
             exit 1
           fi
           flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_URL $EXTRA_DEFINES

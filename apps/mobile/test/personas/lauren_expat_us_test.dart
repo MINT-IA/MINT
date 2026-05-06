@@ -18,18 +18,48 @@ const String _archetype = 'lauren_expat_us';
 const String _locale = 'fr';
 const String _expectedKind = 'fiscal_margin_3a';
 
+// Phase A5 panel hardening — full LSFin lexicon (mirrors julien suite).
 final RegExp _bannedTerms = RegExp(
-  r'\b(garanti[es]?|optimal|le?\s*meilleur|sans\s*risque|parfait[es]?)\b',
+  r'\b('
+  r'garanti[es]?|certain[es]?|assur[éeè]s?(?!ance|eur)|'
+  r'optimal[es]?(?:ement)?(?!isation|iser|isant|isé)|'
+  r'(?:le\s+)?meilleur[es]?|'
+  r'sans\s+(?:aucun\s+)?risque|risque\s+(?:nul|zéro|inexistant)|zéro\s+risque|'
+  r'parfait[es]?|rapportera|va\s+(?:générer|gagner|rapporter)'
+  r')\b',
   caseSensitive: false,
 );
 
-// Direct US-tax-advice patterns. Lauren is supposed to be ROUTED to a
-// fiscaliste US-CH, not advised on FBAR/PFIC/8938 by MINT. Mentioning
-// the form name as context (« 8938 ») is allowed when paired with a
-// hand-off ; ASKING the user to file is what we ban.
+final RegExp _issuerNames = RegExp(
+  r'\b(UBS(?:\s+Vitainvest)?|Raiffeisen|PostFinance|Swisscanto|'
+  r'Viac|Frankly|VZ|Vitainvest|Credit\s+Suisse|ZKB|Vontobel|Pictet|'
+  r'Lombard\s+Odier)\b',
+  caseSensitive: false,
+);
+
+// Phase A5 panel hardening — Lauren-specific. Tighter US-tax guard :
+// also bans actively-wrong claims like « tu peux déduire ce 3a sur ton
+// 1040 » (3a is non-deductible US-side) and PFIC/FBAR/treaty mentions
+// when NOT co-occurring with a hand-off phrase like « fiscaliste US-CH »
+// within 200 chars. Imperatives stay banned outright.
 final RegExp _usTaxAdviceImperative = RegExp(
-  r'\b(file\s+a\s+1040|tu\s+devrais\s+(remplir|déclarer|filer)\s+(un\s+)?(FBAR|8938|1040)|'
-  r'remplis\s+(un\s+)?(FBAR|8938|1040))\b',
+  r'\b('
+  r'file\s+a\s+1040|'
+  r'tu\s+devrais\s+(remplir|déclarer|filer)\s+(un\s+)?(FBAR|FinCEN|8938|1040|114)|'
+  r'remplis\s+(un\s+)?(FBAR|FinCEN|8938|1040|114)|'
+  r'déduire[^.]{0,30}(1040|US|américain)|'
+  r'Roth\s+equivalent|'
+  r'PFIC[-\s]?free'
+  r')\b',
+  caseSensitive: false,
+);
+
+final RegExp _usTaxContextRequiresHandoff = RegExp(
+  r'\b(PFIC|FBAR|FinCEN(?:\s*114)?|8938|treaty\s+article\s+18)\b',
+  caseSensitive: false,
+);
+final RegExp _handoffPattern = RegExp(
+  r'\b(fiscaliste|conseiller)\s+(US[-\s]CH|sp[ée]cialis[ée])',
   caseSensitive: false,
 );
 
@@ -49,7 +79,17 @@ void main() {
   group('PERS-08 lauren_expat_us × Premier Éclairage post-run assertions', () {
     test('1. walker run-id env var present', () {
       final runId = Platform.environment['MINT_WALKER_RUN_ID'];
+      // Phase A5 panel hardening — fail loudly when REQUIRED is set but
+      // RUN_ID isn't (catches walker_persona.sh exporting one and not the
+      // other). Skip path retained for dev-direct flutter test runs.
+      final requireLive =
+          Platform.environment['MINT_WALKER_REQUIRED'] == 'true';
       if (runId == null || runId.isEmpty) {
+        if (requireLive) {
+          fail(
+            'MINT_WALKER_REQUIRED=true but MINT_WALKER_RUN_ID not set.',
+          );
+        }
         markTestSkipped('MINT_WALKER_RUN_ID not set — walker must run first.');
         return;
       }
@@ -63,6 +103,33 @@ void main() {
       final hits = _bannedTerms.allMatches(message).map((m) => m.group(0));
       expect(hits, isEmpty,
           reason: 'banned terms detected in fixture message : $hits');
+    });
+
+    test('2b. issuer/produit name not mentioned (FINMA 2013/8 §28-31)', () {
+      final fixture = _loadFixture();
+      final body = (fixture['response']['body'] as Map<String, dynamic>);
+      final message = (body['message'] as String? ?? '');
+      final hits = _issuerNames.allMatches(message).map((m) => m.group(0));
+      expect(hits, isEmpty, reason: 'issuer mentioned : $hits');
+    });
+
+    test('2d. US-tax context requires fiscaliste hand-off within 200 chars',
+        () {
+      final fixture = _loadFixture();
+      final body = (fixture['response']['body'] as Map<String, dynamic>);
+      final message = (body['message'] as String? ?? '');
+      // For each US-tax context match, look for hand-off phrase within
+      // ±200 chars. If any context match has no nearby hand-off → fail.
+      for (final m in _usTaxContextRequiresHandoff.allMatches(message)) {
+        final start = (m.start - 200).clamp(0, message.length);
+        final end = (m.end + 200).clamp(0, message.length);
+        final window = message.substring(start, end);
+        expect(_handoffPattern.hasMatch(window), isTrue,
+            reason:
+                'US-tax context « ${m.group(0)} » mentioned at offset '
+                '${m.start} without « fiscaliste US-CH » hand-off within '
+                '200 chars. Lauren must always be routed.');
+      }
     });
 
     test(

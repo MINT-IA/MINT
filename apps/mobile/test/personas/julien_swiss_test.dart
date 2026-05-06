@@ -34,10 +34,40 @@ const String _archetype = 'julien_swiss';
 const String _locale = 'fr';
 const String _expectedKind = 'fiscal_margin_3a';
 
-// Banned-term lexicon (subset, FR — full library lands tools/checks/
-// lsfin_lexicon.py Phase 91 GROW-03).
+// Banned-term lexicon — Phase A5 panel hardening (LSFin compliance
+// reviewer finding 2026-05-06). Covers all 7 CLAUDE.md rule-1 terms +
+// promise-grammar variants + bypass patterns the original shallow
+// regex missed. False-positive guards :
+//   - `(?!isation|iser|isant|isé)` excludes « optimisation/optimiser »
+//   - `(?!ance|eur|és)` after `assur` excludes « assurance », « assureur »
+//   - `\b...\b` word boundaries everywhere
 final RegExp _bannedTerms = RegExp(
-  r'\b(garanti[es]?|optimal|le?\s*meilleur|sans\s*risque|parfait[es]?)\b',
+  r'\b('
+  r'garanti[es]?|'
+  r'certain[es]?|'
+  r'assur[éeè]s?(?!ance|eur)|'
+  r'optimal[es]?(?:ement)?(?!isation|iser|isant|isé)|'
+  r'(?:le\s+)?meilleur[es]?|'
+  r'sans\s+(?:aucun\s+)?risque|'
+  r'risque\s+(?:nul|zéro|inexistant)|'
+  r'zéro\s+risque|'
+  r'parfait[es]?|'
+  r'rapportera|'
+  r'va\s+(?:générer|gagner|rapporter)'
+  r')\b',
+  caseSensitive: false,
+);
+
+// Phase A5 panel hardening — FINMA Circ. 2013/8 §28-31 + LSFin art. 8
+// forbid issuer/produit naming without prospectus framing. Block these
+// from any LLM-style fixture or response body. List is non-exhaustive
+// (Phase 91 GROW-03 wires the full lexicon via tools/checks/).
+final RegExp _issuerNames = RegExp(
+  r'\b('
+  r'UBS(?:\s+Vitainvest)?|Raiffeisen|PostFinance|Swisscanto|'
+  r'Viac|Frankly|VZ|Vitainvest|Credit\s+Suisse|ZKB|'
+  r'Vontobel|Pictet|Lombard\s+Odier'
+  r')\b',
   caseSensitive: false,
 );
 
@@ -58,7 +88,23 @@ void main() {
   group('PERS-08 julien_swiss × Premier Éclairage post-run assertions', () {
     test('1. walker run-id env var present', () {
       final runId = Platform.environment['MINT_WALKER_RUN_ID'];
+      // Phase A5 panel hardening (iOS QA finding 2026-05-06) — walker_persona.sh
+      // sets MINT_WALKER_REQUIRED=true alongside RUN_ID. When that flag is set
+      // and RUN_ID is missing, FAIL loudly instead of skip silently — otherwise
+      // walker_persona's exit-0 reports « L2 green » even though the suite ran
+      // none of its assertions. When REQUIRED is unset (developer running
+      // `flutter test` directly), keep the skip path so dev iteration isn't
+      // forced through the walker.
+      final requireLive =
+          Platform.environment['MINT_WALKER_REQUIRED'] == 'true';
       if (runId == null || runId.isEmpty) {
+        if (requireLive) {
+          fail(
+            'MINT_WALKER_REQUIRED=true but MINT_WALKER_RUN_ID not set. '
+            'walker_persona.sh must export both ; otherwise the L2 suite '
+            'reports green without running the assertions.',
+          );
+        }
         markTestSkipped(
           'MINT_WALKER_RUN_ID not set — walker must run BEFORE this suite. '
           'See tools/simulator/walker_persona.sh',
@@ -77,6 +123,43 @@ void main() {
       final hits = _bannedTerms.allMatches(message).map((m) => m.group(0));
       expect(hits, isEmpty,
           reason: 'banned terms detected in fixture message : $hits');
+    });
+
+    test('2b. issuer/produit name not mentioned (FINMA 2013/8 §28-31)', () {
+      final fixture = _loadFixture();
+      final body = (fixture['response']['body'] as Map<String, dynamic>);
+      final message = (body['message'] as String? ?? '');
+      final hits = _issuerNames.allMatches(message).map((m) => m.group(0));
+      expect(hits, isEmpty,
+          reason:
+              'fixture message must not name issuers/produits without '
+              'prospectus framing (FINMA Circ. 2013/8 §28-31 + LSFin '
+              'art. 8) : $hits');
+    });
+
+    test('2c. year-bound canonical plafond reference', () {
+      final fixture = _loadFixture();
+      final body = (fixture['response']['body'] as Map<String, dynamic>);
+      final message = (body['message'] as String? ?? '');
+      // Phase A5 panel hardening — naive `message.contains("7258")` lets
+      // « le plafond 2025 était 7'258 mais en 2026 c'est 7'500 » pass.
+      // Year+value must co-occur within 60 chars of each other.
+      final ceiling = pilier3aPlafondAvecLpp.toInt();
+      final ceilingPattern = ceiling.toString().replaceAllMapped(
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => "[\\s']?\\D?");
+      // 7258 → 7[\s']?\D?258  (matches 7258 / 7'258 / 7 258 / 7-258)
+      final yearBound = RegExp(
+          r'(?:plafond|maximum|3a|3e\s+pilier|pillar)[^.]{0,60}'
+          r'(202[6-9])[^.]{0,40}(?:7\D?\D?258|7258)|'
+          r'(?:7\D?\D?258|7258)[^.]{0,40}(202[6-9])',
+          caseSensitive: false);
+      final found = yearBound.hasMatch(message);
+      expect(found, isTrue,
+          reason:
+              'fixture message must reference pilier3aPlafondAvecLpp '
+              '($ceiling CHF) co-occurring with year 2026-2029 within '
+              '60 chars (catches « 2025 était 7258, 2026 c\'est X » '
+              'rotation drift). Pattern: $ceilingPattern');
     });
 
     test('3. canonical plafond 3a referenced in message body', () {

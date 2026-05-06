@@ -86,6 +86,17 @@ jobs:
       - name: Build Flutter Web
         working-directory: apps/mobile
         run: |
+          # Phase A5 panel hardening — strip dev-only LLM replay cache
+          # fixtures BEFORE web build. Without this, the JSON files at
+          # apps/mobile/assets/llm_replay_cache/ are deployed to Vercel
+          # as static assets and become world-readable via direct URL
+          # (audit finding 2026-05-06). The runtime kReleaseMode guard
+          # prevents the app from reading them, but `curl <url>` would
+          # still expose the hand-authored fixture content.
+          if [[ -d assets/llm_replay_cache ]]; then
+            echo "Stripping assets/llm_replay_cache (dev-only)"
+            rm -rf assets/llm_replay_cache
+          fi
           flutter build web \
             -t lib/main_web.dart \
             --dart-define=API_BASE_URL=${{ steps.env.outputs.api_url }}

@@ -36,24 +36,36 @@ FORBIDDEN = re.compile(
 )
 
 
+STRIP_LINE = re.compile(r"rm\s+-rf\s+[^\s]*assets/llm_replay_cache")
+
+
 def main() -> int:
     if not WORKFLOWS_DIR.exists():
         print(f"[skip] no workflows dir at {WORKFLOWS_DIR}")
         return 0
 
     violations: list[tuple[Path, int, str]] = []
+    missing_strip: list[Path] = []
     for wf_name in RELEASE_WORKFLOWS:
         wf_path = WORKFLOWS_DIR / wf_name
         if not wf_path.exists():
             continue
-        for lineno, line in enumerate(wf_path.read_text(encoding="utf-8").splitlines(), start=1):
+        text = wf_path.read_text(encoding="utf-8")
+        for lineno, line in enumerate(text.splitlines(), start=1):
             # Allow guard / lint references that mention the flag literally
             # without setting it.
             if "::error::" in line or line.lstrip().startswith("#"):
                 continue
             if FORBIDDEN.search(line):
                 violations.append((wf_path, lineno, line.strip()))
+        # Phase A5 panel hardening — every release workflow MUST contain
+        # an asset-strip line for the replay-cache dir, fail-closed.
+        # Without this, a future fixture sub-tree (e.g. a renamed dir)
+        # would silently ship to production.
+        if not STRIP_LINE.search(text):
+            missing_strip.append(wf_path)
 
+    fail = False
     if violations:
         print("[fail] MINT_LLM_CACHE_MODE=replay/record found in release workflows :")
         for path, lineno, line in violations:
@@ -63,9 +75,24 @@ def main() -> int:
             "\nThe replay cache is debug/profile only. Release builds must hit\n"
             "the live backend. Remove the dart-define from the workflow."
         )
+        fail = True
+
+    if missing_strip:
+        print("[fail] release workflow missing assets/llm_replay_cache strip :")
+        for path in missing_strip:
+            rel = path.relative_to(REPO_ROOT)
+            print(f"  {rel}  (expected line matching: rm -rf .../assets/llm_replay_cache)")
+        print(
+            "\nEvery release-bound build MUST strip the dev-only LLM replay\n"
+            "cache fixtures before flutter build, even though kReleaseMode\n"
+            "guards the runtime path. Add a `rm -rf` step before the build."
+        )
+        fail = True
+
+    if fail:
         return 1
 
-    print("[ok] no replay-cache dart-define in release workflows")
+    print("[ok] no replay-cache dart-define + every release workflow strips fixtures")
     return 0
 
 
