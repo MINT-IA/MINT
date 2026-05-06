@@ -72,9 +72,13 @@ Future<void> main() async {
 
   // Pull server feature flags before first frame so kill-switches
   // apply immediately (especially narrative degradation flags).
+  // STAMP-02 (Phase 89 v2.12) — timeout reduced from 2s to 800ms to
+  // keep cold-launch P50 under the 2.5s gate. If backend is slow,
+  // the app falls back to local defaults — same behaviour as the
+  // 2s-timeout path.
   try {
     await FeatureFlags.refreshFromBackend().timeout(
-      const Duration(seconds: 2),
+      const Duration(milliseconds: 800),
     );
   } catch (_) {
     // Keep local defaults when backend is unavailable.
