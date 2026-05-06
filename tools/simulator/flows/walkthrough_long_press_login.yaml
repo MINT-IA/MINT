@@ -1,0 +1,22 @@
+# tools/simulator/flows/walkthrough_long_press_login.yaml
+#
+# Phase A-USER-WALKTHROUGH (v2.13) — long-press wordmark MINT hidden
+# affordance (D-12) — landing_screen.dart:117-127.
+#
+# The wordmark « MINT » top-left is a GestureDetector with
+# `onLongPress: () => context.go('/auth/login')`. This is the « jamais
+# documenté » power-user shortcut. Test that it works.
+
+appId: ch.mint.app
+---
+- launchApp
+- assertVisible:
+    id: "landing-hero"
+
+# Long-press the MINT wordmark. The wordmark Semantics has
+# header: true + label: 'MINT' but no identifier. Maestro long-press
+# on the label should work IF it's queryable.
+- longPressOn:
+    id: "landing-wordmark"
+
+- assertVisible: "Adresse e-mail"

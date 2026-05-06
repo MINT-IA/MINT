@@ -111,9 +111,19 @@ class _LandingScreenState extends State<LandingScreen>
                     opacity: _line1Opacity,
                     child: Align(
                       alignment: Alignment.centerLeft,
+                      // BUG #10 fix (P2, walkthrough 2026-05-06) — D-12
+                      // hidden affordance (long-press → /auth/login) was
+                      // silently broken because Semantics(header:true)
+                      // wrapping the GestureDetector intercepted the
+                      // touch event without propagating long-press to
+                      // the child. Add `onLongPress` semantic action
+                      // directly on the Semantics widget so iOS
+                      // accessibility / Maestro can route the gesture.
                       child: Semantics(
+                        identifier: 'landing-wordmark',
                         header: true,
                         label: 'MINT',
+                        onLongPress: () => context.go('/auth/login'),
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onLongPress: () => context.go('/auth/login'),
@@ -183,9 +193,15 @@ class _LandingScreenState extends State<LandingScreen>
                   // 6. SizedBox 16.
                   const SizedBox(height: 16),
                   // 7. Login link — bodySmall(textSecondaryAaa), no underline.
+                  // BUG #9 fix (P1, walkthrough 2026-05-06) — `identifier:`
+                  // exposes this link as a queryable accessibility node
+                  // for Maestro tapOn id, since the parent Semantics(button:
+                  // true, label:...) absorbs the inner Text widget on iOS
+                  // (same pattern as anon-chat-eclairage-soft-hint fix).
                   FadeTransition(
                     opacity: _ctaOpacity,
                     child: Semantics(
+                      identifier: 'landing-login-link',
                       button: true,
                       label: l10n.landingV2LoginLink,
                       child: GestureDetector(

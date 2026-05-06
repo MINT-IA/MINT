@@ -1,0 +1,121 @@
+# tools/simulator/flows/walkthrough_register_deep.yaml
+#
+# Phase A-USER-WALKTHROUGH (v2.13) — DEEP register form walk : fill
+# all required fields via Maestro inputText (proves BUG #6 also for
+# multi-field forms), tick CGU + 18+ checkboxes, submit, see what's
+# next (onboarding ? home ? error ?).
+#
+# Email is timestamp-randomized to avoid « email already exists »
+# collision on staging. Date of birth is the picker — Maestro can
+# only tap the row, not select inside the iOS native picker, so we
+# tap, accept the default initial date (1980-01-01) by tapping the
+# system « OK » or by tapping outside.
+
+appId: ch.mint.app
+---
+- launchApp
+- assertVisible:
+    id: "landing-hero"
+
+- tapOn:
+    id: "landing-login-link"
+
+# Land on /auth/login. Tap « Pas encore de compte ? » to navigate
+# to the register screen (route ./register exists per app.dart:16).
+# Or — easier — go via landing CTA + auth gate. Use tapOn « Parle
+# à Mint » fallback path instead since login → register flow has
+# its own bugs to identify.
+- launchApp
+- assertVisible:
+    id: "landing-hero"
+
+- tapOn: "Parle à Mint"
+- assertVisible:
+    id: "anon-chat-opener-bubble"
+
+- tapOn:
+    id: "anon-chat-input"
+- inputText: "test register flow"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: "anon-chat-message-assistant"
+    timeout: 30000
+
+- tapOn:
+    id: "anon-chat-input"
+- inputText: "ok"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: "anon-chat-eclairage-headline"
+    timeout: 30000
+
+- tapOn:
+    id: "anon-chat-input"
+- inputText: "ok"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: "Créer un compte"
+    timeout: 30000
+
+- tapOn: "Créer un compte"
+- extendedWaitUntil:
+    visible:
+      id: "register-back-button"
+    timeout: 5000
+
+# === DEEP FORM FILL ===
+
+- tapOn:
+    id: "register-email-field"
+- inputText: "walk-2026-05-06-2017@mint.test"
+# Maestro hideKeyboard fails on Flutter iOS sim. Workaround : tap the
+# back button area (which is non-interactive when keyboard is up) to
+# dismiss keyboard. Then tap next field by id (Maestro auto-scrolls).
+- swipe:
+    direction: UP
+    duration: 200
+
+- tapOn:
+    id: "register-firstname-field"
+- inputText: "Walk"
+- swipe:
+    direction: UP
+    duration: 200
+
+# DOB picker — tap field, accept default (no Maestro support for
+# native iOS picker scroll). We just tap to dismiss the picker and
+# rely on the default initial date (1980-01-01).
+- tapOn:
+    id: "register-dob-field"
+- waitForAnimationToEnd
+# iOS picker confirm: try tapping « OK » or « Done »
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+
+- tapOn:
+    id: "register-password-field"
+- inputText: "TestPass123!"
+- hideKeyboard
+
+- tapOn:
+    id: "register-confirm-password-field"
+- inputText: "TestPass123!"
+- hideKeyboard
+
+- tapOn:
+    id: "register-cgu-checkbox"
+- tapOn:
+    id: "register-18plus-checkbox"
+
+- tapOn:
+    id: "register-submit-button"
+
+# Where do we land ? Onboarding ? Home ? Error banner ?
+# Capture the outcome — assert at least one of the expected next
+# states OR document the failure.
+- waitForAnimationToEnd

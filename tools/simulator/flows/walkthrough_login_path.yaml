@@ -1,0 +1,30 @@
+# tools/simulator/flows/walkthrough_login_path.yaml
+#
+# Phase A-USER-WALKTHROUGH (v2.13) — login + hidden-affordance probes.
+#
+# Three navigation paths to /auth/login that each user-type uses :
+#   1. Landing « J'ai déjà un compte » link
+#   2. Long-press MINT wordmark on Landing (D-12 hidden affordance,
+#      landing_screen.dart:119)
+#   3. Auth gate « J'ai déjà un compte » button (post-3-turns)
+#
+# We run only path 1 here ; path 2 + 3 in sibling flows. NO MINT_E2E_*
+# flags ; production code path against Railway staging.
+
+appId: ch.mint.app
+---
+# 01 — landing
+- launchApp
+- assertVisible:
+    id: "landing-hero"
+
+# 02 — tap « J'ai déjà un compte » via Semantics(identifier:) since
+# the parent Semantics(button:true, label:...) absorbs the Text from
+# Maestro's text-match path on iOS. BUG #9 fix added the id.
+- tapOn:
+    id: "landing-login-link"
+
+# 03 — login screen MUST render. Existing screen has no panel-locked
+# Semantics(identifier:) yet ; assert by visible text first, then
+# document if this needs a panel-lock too.
+- assertVisible: "Adresse e-mail"

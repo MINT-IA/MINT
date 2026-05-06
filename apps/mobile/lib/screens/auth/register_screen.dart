@@ -217,7 +217,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 )),
                 const SizedBox(height: MintSpacing.xxl),
                 // Email field
+                // BUG #11 fix (P2, walkthrough 2026-05-06) — register
+                // form fields had no panel-locked identifiers, blocking
+                // Maestro inputText flows. Adding ids on every field
+                // (email, firstName, dob, password, confirm) for E2E.
                 MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
+                  identifier: 'register-email-field',
                   label: l10n.authEmail,
                   textField: true,
                   child: TextFormField(
@@ -242,6 +247,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: MintSpacing.md),
                 // First name field (required for coach personalization)
                 Semantics(
+                  identifier: 'register-firstname-field',
                   label: l10n.authFirstName,
                   textField: true,
                   child: TextFormField(
@@ -264,6 +270,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: MintSpacing.md),
                 // Date of birth picker (precise age for AVS/LPP calculations)
                 Semantics(
+                  identifier: 'register-dob-field',
                   label: l10n.authDateOfBirth,
                   button: true,
                   child: GestureDetector(
@@ -315,6 +322,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: MintSpacing.md),
                 // Password field
                 Semantics(
+                  identifier: 'register-password-field',
                   label: l10n.authPassword,
                   textField: true,
                   child: TextFormField(
@@ -368,6 +376,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: MintSpacing.md),
                 // Confirm password field
                 Semantics(
+                  identifier: 'register-confirm-password-field',
                   label: l10n.authConfirmPassword,
                   textField: true,
                   child: TextFormField(
@@ -435,7 +444,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: MintSpacing.lg),
                 // ── CGU & Consent checkboxes ──
                 // CGU checkbox (required, non-pre-checked)
-                CheckboxListTile(
+                Semantics(
+                  identifier: 'register-cgu-checkbox',
+                  child: CheckboxListTile(
                   value: _acceptedCgu,
                   onChanged: (v) => setState(() => _acceptedCgu = v ?? false),
                   controlAffinity: ListTileControlAffinity.leading,
@@ -480,8 +491,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ),
+                ),
                 // 18+ checkbox (required, non-pre-checked)
-                CheckboxListTile(
+                Semantics(
+                  identifier: 'register-18plus-checkbox',
+                  child: CheckboxListTile(
                   value: _confirmed18Plus,
                   onChanged: (v) =>
                       setState(() => _confirmed18Plus = v ?? false),
@@ -494,6 +508,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       color: MintColors.textSecondary,
                     ),
                   ),
+                ),
                 ),
                 const SizedBox(height: MintSpacing.sm + 4),
                 // "Consentements optionnels" divider
@@ -601,6 +616,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 if (authProvider.error != null) const SizedBox(height: MintSpacing.lg),
                 // Register button
                 Semantics(
+                  identifier: 'register-submit-button',
                   label: l10n.authCreateAccount,
                   button: true,
                   child: FilledButton(
