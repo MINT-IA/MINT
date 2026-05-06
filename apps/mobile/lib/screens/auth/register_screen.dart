@@ -142,11 +142,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: Navigator.of(context).canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_rounded,
-                    color: MintColors.inkPrimary),
-                onPressed: () => Navigator.of(context).pop(),
-                tooltip: 'Retour',
+            ? Semantics(
+                identifier: 'register-back-button',
+                button: true,
+                label: 'Retour',
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_rounded,
+                      color: MintColors.inkPrimary),
+                  onPressed: () => Navigator.of(context).pop(),
+                  tooltip: 'Retour',
+                ),
               )
             : null,
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback, LengthLimitingTextInputFormatter;
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -734,14 +735,63 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
             bottomRight: Radius.circular(isUser ? 4 : 18),
           ),
         ),
-        child: Text(
-          message.text,
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            color: isUser ? MintColors.white : MintColors.inkPrimary,
-            height: 1.4,
-          ),
-        ),
+        // BUG #8 fix (P1, walkthrough 2026-05-06) — Claude responses
+        // contain markdown (`**bold**`, `*italic*`, lists, sometimes
+        // headers). Rendering them as plain Text shows the asterisks
+        // raw which looks broken (« **La traduction** » visible in the
+        // user's screenshot). User-side bubbles stay plain Text since
+        // users type plain text. Coach-side bubbles render markdown.
+        child: isUser
+            ? Text(
+                message.text,
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  color: MintColors.white,
+                  height: 1.4,
+                ),
+              )
+            : MarkdownBody(
+                data: message.text,
+                styleSheet: MarkdownStyleSheet(
+                  p: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: MintColors.inkPrimary,
+                    height: 1.4,
+                  ),
+                  strong: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: MintColors.inkPrimary,
+                    height: 1.4,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  em: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: MintColors.inkPrimary,
+                    height: 1.4,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  listBullet: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: MintColors.inkPrimary,
+                    height: 1.4,
+                  ),
+                  blockSpacing: 8,
+                  h1: GoogleFonts.inter(
+                    fontSize: 17,
+                    color: MintColors.inkPrimary,
+                    fontWeight: FontWeight.w700,
+                    height: 1.3,
+                  ),
+                  h2: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: MintColors.inkPrimary,
+                    fontWeight: FontWeight.w600,
+                    height: 1.3,
+                  ),
+                ),
+                shrinkWrap: true,
+                softLineBreak: true,
+              ),
       ),
     );
     // Wrap with Semantics(identifier:) when applicable so iOS

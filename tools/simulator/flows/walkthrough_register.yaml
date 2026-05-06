@@ -1,0 +1,67 @@
+# tools/simulator/flows/walkthrough_register.yaml
+#
+# Phase A-USER-WALKTHROUGH (v2.13) — register-and-onboarding navigation
+# probe with Maestro inputText. NO MINT_E2E_* dart-defines required ;
+# this flow targets the production code path.
+#
+# Goal : prove that Maestro inputText works on Flutter TextField on iOS
+# sim where idb ui text + osascript keystroke both failed (walkthrough
+# 2026-05-06 BUG #6). Then walk: chat (3 turns, real LLM) → auth gate
+# → Créer un compte → fill register → submit → onboarding.
+#
+# Each step has a panel-locked Semantics(identifier:) target. New
+# identifiers are added to register_screen.dart as needed.
+
+appId: ch.mint.app
+---
+# 01 — landing
+- launchApp
+- assertVisible:
+    id: "landing-hero"
+
+# 02 — Parle à Mint → chat opener
+- tapOn: "Parle à Mint"
+- assertVisible:
+    id: "anon-chat-opener-bubble"
+
+# 03 — turn 1 (real LLM, real backend)
+- tapOn:
+    id: "anon-chat-input"
+- inputText: "Salut, j'ai 35 ans, salarie en Suisse, parle-moi du 3a"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: "anon-chat-message-assistant"
+    timeout: 30000
+
+# 04 — turn 2 (real LLM, expect éclairage card after BUG #4 fix)
+- tapOn:
+    id: "anon-chat-input"
+- inputText: "Avec 95k brut Vaud, mon taux marginal"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: "anon-chat-eclairage-headline"
+    timeout: 30000
+
+# 05 — turn 3 → auth gate
+- scroll
+- tapOn:
+    id: "anon-chat-input"
+- inputText: "Et l'economie d'impot concrete ?"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: "Créer un compte"
+    timeout: 30000
+
+# 06 — Créer un compte (auth gate primary CTA)
+- tapOn: "Créer un compte"
+
+# 07 — register screen MUST render with back button (BUG #7 fix
+# validation). Maestro doesn't text-match « Créer ton compte » because
+# the title sits inside Semantics(container:true). The id-based assert
+# is the panel-locked way.
+- extendedWaitUntil:
+    visible:
+      id: "register-back-button"
+    timeout: 5000
