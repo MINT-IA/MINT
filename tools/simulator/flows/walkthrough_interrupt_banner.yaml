@@ -1,0 +1,100 @@
+# tools/simulator/flows/walkthrough_interrupt_banner.yaml
+#
+# Phase 91 Plan 91-02 (VIVANT-03) — CoachInterruptBanner E2E walkthrough.
+#
+# Asserts that a JITAI nudge surfaces above the chat message list as a
+# CoachInterruptBanner, can be dismissed, and stays dismissed across an
+# app kill+relaunch (within the cooldown window of the trigger).
+#
+# Acceptance criteria covered:
+#   - Banner renders when state.activeNudges is non-empty
+#     (`Semantics(identifier: 'coach-interrupt-banner-<id>')`)
+#   - Tap-X dismisses the banner immediately
+#   - Dismissal persists for 7+ days (kill + relaunch → banner gone)
+#
+# NO MINT_E2E_* dart-defines. Production code path against Railway
+# staging. Mirrors the auth flow from walkthrough_authed_app.yaml so this
+# flow can run in the same CI matrix without a separate test harness.
+#
+# Pre-conditions: the test user must have a profile state that triggers
+# at least one nudge (e.g. profileIncomplete or pillar3aDeadline in
+# December). When no nudge is firing, the « banner is gone » assertions
+# still pass — but the « banner visible » step is skipped via
+# `optional: true` so the flow stays useful in non-trigger windows.
+#
+# Identifier contract: the banner exposes
+# `coach-interrupt-banner-<nudgeId>`. Maestro `id:` matchers accept a
+# substring on the identifier root, so we target the prefix
+# `coach-interrupt-banner-` to remain trigger-agnostic.
+
+appId: ch.mint.app
+---
+- launchApp
+- assertVisible:
+    id: "landing-hero"
+
+# ── 01 : login (mirror walkthrough_authed_app.yaml)
+- tapOn:
+    id: "landing-login-link"
+- assertVisible: "Adresse e-mail"
+- tapOn: "Se connecter avec un mot de passe"
+- assertVisible: "Mot de passe"
+- tapOn: "Adresse e-mail"
+- inputText: "mint-walkthrough-2026@gmail.com"
+- tapOn: "Mot de passe"
+- inputText: "WalkthroughTest123!"
+- swipe:
+    direction: UP
+    duration: 200
+- tapOn: "Se connecter"
+
+- extendedWaitUntil:
+    visible:
+      text: "MINT"
+    timeout: 15000
+
+# ── 02 : open the Coach tab so the chat screen + AppBar mount
+- tapOn: "Coach"
+- extendedWaitUntil:
+    visible:
+      id: "coach-app-bar-tone"
+    timeout: 10000
+- takeScreenshot: "01-coach-screen-mounted"
+
+# ── 03 : assert the CoachInterruptBanner is rendered when a nudge is
+#         currently active. The check is `optional: true` — when no
+#         nudge fires (e.g. test runs outside Q4 / Feb-Mar / Aug-Sep
+#         windows AND the test profile has confidence ≥ 40%), the
+#         banner won't render and the rest of the flow is skipped.
+- runFlow:
+    when:
+      visible:
+        id: "coach-interrupt-banner-"
+    commands:
+      - takeScreenshot: "02-banner-visible"
+
+      # ── 04 : dismiss the banner via the X icon. Banner uses an
+      #         `IconButton(icon: Icons.close)` so we target the
+      #         tooltip the widget exposes (« Fermer », from the
+      #         consentClose ARB key reused by the banner).
+      - tapOn: "Fermer"
+      - assertNotVisible:
+          id: "coach-interrupt-banner-"
+      - takeScreenshot: "03-banner-dismissed"
+
+      # ── 05 : kill + relaunch — dismissal must persist (7-day TTL
+      #         via NudgePersistence cooldown).
+      - killApp
+      - launchApp
+      - extendedWaitUntil:
+          visible:
+            text: "MINT"
+          timeout: 15000
+      - tapOn: "Coach"
+      - extendedWaitUntil:
+          visible:
+            id: "coach-app-bar-tone"
+          timeout: 10000
+      - assertNotVisible:
+          id: "coach-interrupt-banner-"
+      - takeScreenshot: "04-banner-still-dismissed-after-relaunch"

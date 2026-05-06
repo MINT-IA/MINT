@@ -54,6 +54,11 @@ import 'package:mint_mobile/models/screen_return.dart';
 // with the inline tone-chip widget; the new persona toggle uses
 // [CoachTonePreference] from `services/preferences/`.
 import 'package:mint_mobile/services/preferences/coach_tone_preference.dart';
+// Phase 91 Plan 91-02 (VIVANT-03) — banner + dismissed-nudges store.
+import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/services/nudge/nudge_engine.dart';
+import 'package:mint_mobile/services/preferences/dismissed_nudges_store.dart';
+import 'package:mint_mobile/widgets/coach/coach_interrupt_banner.dart';
 import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart' show CapCoachBridge;
 
@@ -176,6 +181,27 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// [ProactiveTriggerService.evaluate] (cooldown on evaluation date);
   /// this flag prevents re-showing within a single screen lifetime.
   bool _proactiveTriggerShownThisSession = false;
+
+  /// Phase 91 Plan 91-02 (VIVANT-03) — at most 1 [CoachInterruptBanner]
+  /// per chat session. Once the user dismisses (or once we surface) the
+  /// first non-dismissed nudge, this flag prevents re-rendering another
+  /// banner until the screen is rebuilt from scratch.
+  bool _nudgeBannerShownThisSession = false;
+
+  /// Phase 91 Plan 91-02 (VIVANT-03) — id of the nudge currently rendered
+  /// above the message list, or null if none. Cleared on dismiss so the
+  /// banner unmounts immediately ; persistence is delegated to
+  /// [DismissedNudgesStore] (which writes through [NudgePersistence]).
+  String? _activeBannerNudgeId;
+
+  /// Phase 91 Plan 91-02 (VIVANT-03) — set of nudge ids already filtered
+  /// out by [DismissedNudgesStore] in the current session. Cached locally
+  /// so [build] never blocks on `await` ; the cache is populated via
+  /// [_resolveBannerNudge] off the build hot path.
+  final Set<String> _knownDismissedNudgeIds = <String>{};
+
+  static const DismissedNudgesStore _dismissedNudgesStore =
+      DismissedNudgesStore();
 
   // Phase 91 Plan 91-01 (VIVANT-04) — `_intensityChosen` field removed
   // along with the inline tone-chip widget. The in-chat « plus cash /
@@ -767,6 +793,96 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       'type': trigger.type.name,
       'has_intent_tag': trigger.intentTag != null,
     });
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  Phase 91 Plan 91-02 (VIVANT-03) — CoachInterruptBanner host
+  // ════════════════════════════════════════════════════════════
+
+  /// Resolve the first non-dismissed nudge to surface above the message
+  /// list, or null when there is nothing to show.
+  ///
+  /// `MintStateEngine` already filters [Nudge]s through
+  /// [NudgePersistence.getDismissedIds] when computing `activeNudges`, so
+  /// the only extra filtering done here is the in-session
+  /// [_knownDismissedNudgeIds] guard (covers the window between user tap
+  /// and the next [MintStateProvider.forceRecompute]).
+  Nudge? _resolveBannerNudge(MintUserState? state) {
+    if (state == null) return null;
+    if (state.activeNudges.isEmpty) return null;
+    if (_nudgeBannerShownThisSession && _activeBannerNudgeId == null) {
+      // User already dismissed once this session — stay silent.
+      return null;
+    }
+    for (final nudge in state.activeNudges) {
+      if (_knownDismissedNudgeIds.contains(nudge.id)) continue;
+      return nudge;
+    }
+    return null;
+  }
+
+  /// Mark [nudge] dismissed in storage + trigger a state recompute so
+  /// `state.activeNudges` no longer surfaces it. Called from the banner's
+  /// `onDismiss` callback (X tap or swipe).
+  Future<void> _onNudgeBannerDismissed(Nudge nudge) async {
+    if (!mounted) return;
+    setState(() {
+      _knownDismissedNudgeIds.add(nudge.id);
+      _activeBannerNudgeId = null;
+      _nudgeBannerShownThisSession = true;
+    });
+    try {
+      await _dismissedNudgesStore.dismiss(nudge);
+    } catch (e) {
+      // Best-effort persistence — UI already updated, silent degradation.
+      debugPrint('[CoachChat] dismiss nudge failed: $e');
+    }
+    if (!mounted) return;
+    // Force the unified state to refresh so the banner disappears for
+    // good (otherwise a Provider rebuild from another source could
+    // re-emit the same nudge id).
+    final profile = context.read<CoachProfileProvider>().profile;
+    if (profile != null) {
+      unawaited(
+        context.read<MintStateProvider>().forceRecompute(profile),
+      );
+    }
+    AnalyticsService().trackEvent('coach_interrupt_banner_dismissed', data: {
+      'nudge_id': nudge.id,
+      'trigger': nudge.trigger.name,
+    });
+  }
+
+  /// Build the [CoachInterruptBanner] (Nudge variant) when one should
+  /// surface, otherwise an empty [SizedBox]. Tracks `_activeBannerNudgeId`
+  /// so the « 1 banner per session » throttle can detect first surface.
+  Widget _buildNudgeBanner(BuildContext context) {
+    final state = context.watch<MintStateProvider>().state;
+    final nudge = _resolveBannerNudge(state);
+    if (nudge == null) {
+      return const SizedBox.shrink();
+    }
+    if (_activeBannerNudgeId != nudge.id) {
+      // First time we surface this nudge in the session — record it.
+      // Done in a post-frame callback to avoid setState-during-build.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (_activeBannerNudgeId == nudge.id) return;
+        setState(() {
+          _activeBannerNudgeId = nudge.id;
+          _nudgeBannerShownThisSession = true;
+        });
+        AnalyticsService().trackEvent('coach_interrupt_banner_shown', data: {
+          'nudge_id': nudge.id,
+          'trigger': nudge.trigger.name,
+        });
+      });
+    }
+    return CoachInterruptBanner.fromNudge(
+      key: ValueKey('coach-interrupt-banner-${nudge.id}'),
+      nudge: nudge,
+      onDismiss: () => unawaited(_onNudgeBannerDismissed(nudge)),
+    );
   }
 
   /// Increment the conversation count in SharedPreferences.
@@ -1981,6 +2097,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               onTone: _openToneSettings,
               onSettings: () => context.push('/profile/byok'),
             ),
+            // Phase 91 Plan 91-02 (VIVANT-03) — JITAI nudge banner above
+            // the message list. Shows the first non-dismissed nudge from
+            // `MintStateProvider.state.activeNudges` (capped at 1 per
+            // session) ; dismissal persists 7 days via NudgePersistence.
+            _buildNudgeBanner(context),
             Expanded(
               child: GestureDetector(
                 onTap: () => FocusScope.of(context).unfocus(),
