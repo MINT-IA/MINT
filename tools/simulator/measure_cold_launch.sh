@@ -74,7 +74,13 @@ for i in $(seq 1 "$ITERATIONS"); do
   T0=$(python3 -c "import time; print(int(time.time()*1000))")
   xcrun simctl launch booted "$BUNDLE" >/dev/null 2>&1 || true
 
-  # Poll until first non-baseline frame (2 consecutive identical non-baseline).
+  # Poll until Flutter first frame stabilises.
+  # STAMP-02 (Phase 89) — 100ms polling + 2 consecutive identical
+  # non-baseline samples = stable Flutter UI (not iOS launch screen).
+  # Adds ~200ms overhead at the tail. Empirically reproducible to
+  # ±50ms on iPhone 17 Pro sim. 50ms polling tested but produced
+  # high-variance readings due to per-screenshot capture jitter
+  # (~200-500ms per simctl io call) — 100ms is the sweet spot.
   PREV_SHA=""
   T1=""
   for _ in $(seq 1 30); do  # max 3s polling at 100ms
