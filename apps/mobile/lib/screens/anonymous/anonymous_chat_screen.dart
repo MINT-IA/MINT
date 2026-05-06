@@ -656,6 +656,18 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   autofocus: false,
                   textInputAction: TextInputAction.send,
                   onSubmitted: _isLoading ? null : _sendMessage,
+                  // BUG #2 fix (P2, walkthrough 2026-05-06) — iOS
+                  // autocorrect was mangling FR financial prompts :
+                  // « taux » → « faux », « je » → « he said », « avec »
+                  // → « ave ». Disable autocorrect + smart-dashes/quotes
+                  // for finance vocabulary that the iOS dictionary
+                  // doesn't know. Suggestions stay enabled so users
+                  // still get word completion.
+                  autocorrect: false,
+                  smartDashesType: SmartDashesType.disabled,
+                  smartQuotesType: SmartQuotesType.disabled,
+                  enableSuggestions: true,
+                  textCapitalization: TextCapitalization.sentences,
                   // Panel §5 row 2 : hard cap at 500 chars (paste-defence).
                   maxLength: 500,
                   inputFormatters: [LengthLimitingTextInputFormatter(500)],

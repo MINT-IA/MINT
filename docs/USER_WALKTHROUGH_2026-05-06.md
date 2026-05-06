@@ -232,3 +232,54 @@ Tout ça reste à walker manuellement par Julien sur son iPhone (TestFlight Inte
 ---
 
 **Source :** Phase A-USER-WALKTHROUGH, screenshots `.planning/phases/A-USER-WALKTHROUGH/screenshots/01-cold-launch.png` à `11-back-from-register.png`.
+
+---
+
+## Suite immédiate — 5 fixes posés + 1 validé sur device (2026-05-06 19:55)
+
+Après lecture du code (parsers vs schémas backend), 5 fixes appliqués dans la même session :
+
+### BUG #4 (P0) — RÉSOLU + VALIDÉ DEVICE 🎉
+
+**Cause racine :** `EclairageCardData.fromMap` ([apps/mobile/lib/services/coach/eclairage_models.dart:116-125](apps/mobile/lib/services/coach/eclairage_models.dart#L116-L125)) lisait les clés en **snake_case** (`chf_range_low`, `lsfin_disclaimer`, etc.) alors que le backend Pydantic émet en **camelCase** (`alias_generator=to_camel`, [services/backend/app/schemas/anonymous_chat.py:49](services/backend/app/schemas/anonymous_chat.py#L49)).
+
+→ Les valeurs CHF étaient null → `if (low == null || high == null) return null` → carte jamais construite côté mobile. **5 mois de bug silencieux.**
+
+**Fix :** `fromMap` lit camelCase d'abord, snake_case en fallback (robustesse pour fixtures legacy / older test responses).
+
+**Validation device :** rebuild + erase sim + relaunch + walk turn 1 + turn 2 → **carte « Marge fiscale 3a non utilisée » + CHF 1'500-2'500/an + body avec CHF 7'258 + soft hint visible** (`screenshots/12-after-fix-turn2.png`).
+
+### BUG #7 (P1) — RÉSOLU (validation device deferred)
+
+**Fix :** `register_screen.dart` Scaffold `appBar: AppBar(leading: IconButton(arrow_back) si Navigator.canPop)`. L'user qui change d'avis depuis l'auth gate peut maintenant pop la route et revenir au chat anonyme.
+
+### BUG #1 (P1) — RÉSOLU (deploy Railway requis pour validation)
+
+**Fix :** [anonymous_chat.py build_discovery_system_prompt](services/backend/app/api/v1/endpoints/anonymous_chat.py) injecte maintenant un bloc « Constantes suisses 2026 » avec :
+- pilier3aPlafondAvecLpp 7'258 CHF
+- pilier3aPlafondSansLpp 36'288 CHF
+- LPP coordination 26'460 CHF
+- LPP seuil entrée
+- AVS rente max mensuelle 2'520 CHF (individuelle + couple)
+- AVS âge référence 65 ans
+
++ instruction explicite : « cite UNIQUEMENT ces valeurs littérales, jamais arrondi, jamais paraphrase ». Cas non-couvert → « ordre de grandeur » obligatoire. Plus de 7'000 inventés.
+
+### BUG #3 (P2) — RÉSOLU dans le même prompt fix
+
+**Fix :** la liste « Vocabulaire LSFin interdit » dans le system prompt liste maintenant explicitement « optimiser » et « optimisation » en plus des termes du règlement CLAUDE.md. Le LLM ne devrait plus dire « optimiser ce qui reste ».
+
+### BUG #2 (P2) — RÉSOLU (validation device deferred)
+
+**Fix :** chat input TextField gagne `autocorrect: false` + `smartDashesType/QuotesType: disabled` + `enableSuggestions: true` (suggestions OK, autocorrect KO). Plus de « taux → faux ».
+
+### Status post-fixes
+
+- Mobile : 4 fixes (BUG #4, #7, #2 + une partie de #6 indirectement) → rebuild + tests passent
+- Backend : 2 fixes (BUG #1, #3) → **deploy Railway requis pour validation**
+- BUG #6 (E2E test infra keystroke) : à adresser via Maestro `inputText` ou patch sim, voir doctrine W2
+
+**Top 3 lundi matin (mis à jour) :**
+1. Push backend fix vers `staging` branch → Railway redeploy auto → walk turn 1 et vérifier que le LLM cite « 7'258 » au lieu de « 7'000 ».
+2. Walk register flow manuellement (taper sur Mac keyboard sim focused) pour valider BUG #7 back arrow.
+3. Tester BUG #2 sur un vrai iPhone : taper rapidement « taux marginal je sais pas » et confirmer que les mots passent intacts.

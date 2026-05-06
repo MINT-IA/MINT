@@ -111,18 +111,33 @@ class EclairageCardData {
     final kind = EclairageKind.fromWire(map['kind'] as String?);
     if (kind == null) return null;
 
+    // BUG #4 fix (P0, walkthrough 2026-05-06) — backend Pydantic emits
+    // camelCase via `alias_generator=to_camel` (anonymous_chat.py
+    // schemas line 49). The original parser read snake_case only,
+    // silently dropping every éclairage payload for 5 months. Read
+    // camelCase first, fall back to snake_case for backwards
+    // compatibility with any older fixture / test response.
+    String? readString(String camel, String snake) {
+      final v = map[camel] ?? map[snake];
+      return v is String ? v : null;
+    }
+
+    Object? readNum(String camel, String snake) => map[camel] ?? map[snake];
+
     final headline = (map['headline'] as String? ?? '').trim();
     final body = (map['body'] as String? ?? '').trim();
-    final disclaimer = (map['lsfin_disclaimer'] as String? ?? '').trim();
+    final disclaimer =
+        (readString('lsfinDisclaimer', 'lsfin_disclaimer') ?? '').trim();
     if (headline.isEmpty || body.isEmpty || disclaimer.isEmpty) return null;
 
-    final low = _asDouble(map['chf_range_low']);
-    final high = _asDouble(map['chf_range_high']);
+    final low = _asDouble(readNum('chfRangeLow', 'chf_range_low'));
+    final high = _asDouble(readNum('chfRangeHigh', 'chf_range_high'));
     if (low == null || high == null || low < 0 || high < low) return null;
 
     final period =
-        (map['chf_range_period'] as String? ?? 'year').trim();
-    final softHint = (map['soft_account_hint'] as String?)?.trim();
+        (readString('chfRangePeriod', 'chf_range_period') ?? 'year').trim();
+    final softHint =
+        readString('softAccountHint', 'soft_account_hint')?.trim();
 
     return EclairageCardData(
       kind: kind,

@@ -116,8 +116,33 @@ def build_discovery_system_prompt(
         )
         prompt_parts.append("")
 
-    # Rules and constraints
+    # BUG #1 fix (P1, walkthrough 2026-05-06) — inject canonical Swiss
+    # constants from app.constants.social_insurance so the LLM cites
+    # exact 2026 OPP3/LPP/AVS values instead of hallucinating round
+    # numbers from training data (« 7'000 CHF » seen in production
+    # response when the legal cap is 7'258).
+    from app.constants.social_insurance import (
+        PILIER_3A_PLAFOND_AVEC_LPP,
+        PILIER_3A_PLAFOND_SANS_LPP,
+        LPP_DEDUCTION_COORDINATION,
+        LPP_SEUIL_ENTREE,
+        AVS_RENTE_MAX_MENSUELLE,
+        AVS_RENTE_COUPLE_MAX_MENSUELLE,
+        AVS_AGE_REFERENCE_HOMME,
+        AVS_AGE_REFERENCE_FEMME,
+    )
+
     prompt_parts.extend([
+        "Constantes suisses 2026 (cite UNIQUEMENT ces valeurs litterales si tu en parles, jamais arrondi, jamais paraphrase) :",
+        f"- Plafond 3a salarie LPP (OPP3 art. 7) : {int(PILIER_3A_PLAFOND_AVEC_LPP)} CHF / an",
+        f"- Plafond 3a independant sans LPP : {int(PILIER_3A_PLAFOND_SANS_LPP)} CHF / an",
+        f"- LPP deduction de coordination : {int(LPP_DEDUCTION_COORDINATION)} CHF",
+        f"- LPP seuil d'entree : {int(LPP_SEUIL_ENTREE)} CHF",
+        f"- AVS rente mensuelle max (individuelle) : {int(AVS_RENTE_MAX_MENSUELLE)} CHF",
+        f"- AVS rente mensuelle max (couple) : {int(AVS_RENTE_COUPLE_MAX_MENSUELLE)} CHF",
+        f"- AVS age de reference : {AVS_AGE_REFERENCE_HOMME} ans (hommes), {AVS_AGE_REFERENCE_FEMME} ans (femmes)",
+        "Si tu cites un chiffre Suisse non present ci-dessus (taux d'imposition cantonal, prelevement anticipe, etc.), encadre-le explicitement comme « ordre de grandeur » et n'avance jamais une valeur exacte sans la qualifier.",
+        "",
         "Regles strictes :",
         "- Reponds avec un insight surprenant sur la finance suisse (un fait, un angle mort, une implication concrete).",
         "- Couche 1 (fait) + couche 2 (traduction humaine) uniquement.",
@@ -127,6 +152,7 @@ def build_discovery_system_prompt(
         "- Jamais de promesse de rendement ni de certitude sur les resultats.",
         "- Jamais de comparaison sociale ('top X%').",
         "- Jamais de langage absolu ou prescriptif. Utilise le conditionnel.",
+        "- Vocabulaire LSFin interdit : « garanti », « optimal », « optimiser », « optimisation », « le meilleur », « certain », « assure », « sans risque », « zero risque », « parfait ». Utilise « pourrait », « envisager », « adapte », « ajuster ».",
         "- Reponse courte (3-5 phrases max).",
         "",
         "Objectif : surprendre la personne avec un eclairage qu'elle ne connaissait pas.",

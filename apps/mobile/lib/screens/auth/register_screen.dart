@@ -132,6 +132,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
+      // BUG #7 fix (P1, walkthrough 2026-05-06) — register screen had
+      // no back affordance. A user who hit « Créer un compte » from the
+      // anon-chat auth gate but changed their mind was trapped on this
+      // screen with no exit. Restore the system back arrow ; gracefully
+      // degrades to nothing if the route stack is shallow (deep-link).
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: Navigator.of(context).canPop()
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded,
+                    color: MintColors.inkPrimary),
+                onPressed: () => Navigator.of(context).pop(),
+                tooltip: 'Retour',
+              )
+            : null,
+      ),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(MintSpacing.lg),
