@@ -9910,6 +9910,22 @@
   "@coachStarterLurk": {
     "description": "Conversation starter chip — dismisses opener without forcing engagement."
   },
+  "coachOpenerCrossSessionTemplate": "Hey, wieder da. Letztes Mal ging es um {topic}. {action}.",
+  "@coachOpenerCrossSessionTemplate": {
+    "description": "Phase 91 / VIVANT-02 — cross-session opener bubble prepended at the top of CoachChatScreen when a returning user has prior CapMemory or ConversationMemory.",
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      },
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "coachOpenerCrossSessionAction": "Sollen wir weitermachen?",
+  "@coachOpenerCrossSessionAction": {
+    "description": "Phase 91 / VIVANT-02 — generic next-action suggestion injected as {action} in coachOpenerCrossSessionTemplate."
+  },
   "coachProactiveOptIn": "Übrigens — soll ich dir wichtige Dinge anzeigen, wenn du die App öffnest? Oder möchtest du lieber nur reden, wenn du Lust hast?",
   "coachOptInAccept": "Ja, zeig mir an",
   "coachOptInDecline": "Nein, ich komme wenn ich will",

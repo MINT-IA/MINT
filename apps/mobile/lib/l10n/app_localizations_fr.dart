@@ -21074,6 +21074,15 @@ class SFr extends S {
   String get coachStarterLurk => 'Je regarde, je me présente après';
 
   @override
+  String coachOpenerCrossSessionTemplate(String topic, String action) {
+    return 'Re. La dernière fois, on parlait de $topic. $action.';
+  }
+
+  @override
+  String get coachOpenerCrossSessionAction =>
+      'Tu veux qu\'on regarde la suite ?';
+
+  @override
   String get coachProactiveOptIn =>
       'Au fait — tu veux que je te signale les choses importantes quand tu ouvres l\'app ? Ou tu préfères qu\'on se parle seulement quand tu en as envie ?';
 

@@ -21124,6 +21124,14 @@ class SDe extends S {
   String get coachStarterLurk => 'Ich schaue erst mal rum';
 
   @override
+  String coachOpenerCrossSessionTemplate(String topic, String action) {
+    return 'Hey, wieder da. Letztes Mal ging es um $topic. $action.';
+  }
+
+  @override
+  String get coachOpenerCrossSessionAction => 'Sollen wir weitermachen?';
+
+  @override
   String get coachProactiveOptIn =>
       'Übrigens — soll ich dir wichtige Dinge anzeigen, wenn du die App öffnest? Oder möchtest du lieber nur reden, wenn du Lust hast?';
 

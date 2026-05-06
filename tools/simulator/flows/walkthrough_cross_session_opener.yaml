@@ -1,0 +1,100 @@
+# tools/simulator/flows/walkthrough_cross_session_opener.yaml
+#
+# Phase 91 Plan 91-03 (VIVANT-02) — cross-session opener walkthrough.
+#
+# Asserts that on second open of the Coach chat, after a real
+# conversation turn was persisted, the screen prepends a synthetic
+# coach bubble whose Semantics identifier is `coach-cross-session-opener`.
+# This is acceptance criterion #1 of the plan : Cleo 3.0 parity, the
+# chat never starts cold for a returning user.
+#
+# Maestro flow round-trip :
+#   1. Login (mirror walkthrough_authed_app.yaml).
+#   2. Open Coach tab.
+#   3. Send 1 message « j'ai 35 ans, salaire 7500 » + wait for the
+#      assistant turn so [ConversationMemoryService] has data to
+#      reference.
+#   4. Kill + relaunch.
+#   5. Re-open Coach tab — assert the bubble with the stable
+#      Semantics identifier is visible.
+#
+# NO MINT_E2E_* dart-defines. Production code path against Railway
+# staging. Test user identical to walkthrough_authed_app.yaml.
+
+appId: ch.mint.app
+---
+- launchApp
+- assertVisible:
+    id: "landing-hero"
+
+# ── 01 : login (mirror walkthrough_authed_app.yaml)
+- tapOn:
+    id: "landing-login-link"
+- assertVisible: "Adresse e-mail"
+- tapOn: "Se connecter avec un mot de passe"
+- assertVisible: "Mot de passe"
+- tapOn: "Adresse e-mail"
+- inputText: "mint-walkthrough-2026@gmail.com"
+- tapOn: "Mot de passe"
+- inputText: "WalkthroughTest123!"
+- swipe:
+    direction: UP
+    duration: 200
+- tapOn: "Se connecter"
+
+- extendedWaitUntil:
+    visible:
+      text: "MINT"
+    timeout: 15000
+
+# ── 02 : open the Coach tab.
+- tapOn: "Coach"
+- extendedWaitUntil:
+    visible:
+      id: "coach-app-bar-tone"
+    timeout: 10000
+- takeScreenshot: "01-coach-screen-pre-turn"
+
+# ── 03 : send one user message + wait for the assistant response.
+#         The coach reply persists a ConversationMeta with tags +
+#         a recent title — that's the source the cross-session
+#         opener will reference on the next open.
+- tapOn:
+    id: "coach-input-bar-textfield"
+- inputText: "j'ai 35 ans, salaire 7500"
+- tapOn:
+    id: "coach-input-bar-send"
+- extendedWaitUntil:
+    visible:
+      text: "MINT"
+    timeout: 30000
+- takeScreenshot: "02-after-first-turn"
+
+# ── 04 : leave the chat to make sure the conversation is auto-saved.
+- swipe:
+    direction: DOWN
+    duration: 250
+
+# ── 05 : kill + relaunch.
+- killApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      text: "MINT"
+    timeout: 15000
+
+# ── 06 : re-open Coach tab and assert the cross-session opener
+#         bubble is rendered. The Semantics identifier matches the
+#         one set in coach_chat_screen.dart:_buildMessageList for
+#         the bubble whose timestamp equals
+#         _crossSessionOpenerTimestamp.
+- tapOn: "Coach"
+- extendedWaitUntil:
+    visible:
+      id: "coach-app-bar-tone"
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: "coach-cross-session-opener"
+    timeout: 8000
+- takeScreenshot: "03-cross-session-opener-visible"

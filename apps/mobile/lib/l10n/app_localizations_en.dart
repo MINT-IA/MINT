@@ -20968,6 +20968,14 @@ class SEn extends S {
   String get coachStarterLurk => 'I\'ll just look around for now';
 
   @override
+  String coachOpenerCrossSessionTemplate(String topic, String action) {
+    return 'Welcome back. Last time we discussed $topic. $action.';
+  }
+
+  @override
+  String get coachOpenerCrossSessionAction => 'Want to keep going?';
+
+  @override
   String get coachProactiveOptIn =>
       'By the way — would you like me to flag important things when you open the app? Or do you prefer we only talk when you feel like it?';
 

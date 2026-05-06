@@ -21134,6 +21134,14 @@ class SIt extends S {
   String get coachStarterLurk => 'Guardo in giro, mi presento dopo';
 
   @override
+  String coachOpenerCrossSessionTemplate(String topic, String action) {
+    return 'Bentornato. L\'ultima volta parlavamo di $topic. $action.';
+  }
+
+  @override
+  String get coachOpenerCrossSessionAction => 'Vuoi che andiamo avanti?';
+
+  @override
   String get coachProactiveOptIn =>
       'A proposito — vuoi che ti segnali le cose importanti quando apri l\'app? O preferisci che parliamo solo quando ne hai voglia?';
 

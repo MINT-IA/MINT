@@ -37071,6 +37071,18 @@ abstract class S {
   /// **'Je regarde, je me présente après'**
   String get coachStarterLurk;
 
+  /// Phase 91 / VIVANT-02 — cross-session opener bubble prepended at the top of CoachChatScreen when a returning user has prior CapMemory or ConversationMemory. Cleo 3.0 parity. {topic} is a short label (e.g. « 2e pilier », « la fiscalité »); {action} is the localized next-action suggestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Re. La dernière fois, on parlait de {topic}. {action}.'**
+  String coachOpenerCrossSessionTemplate(String topic, String action);
+
+  /// Phase 91 / VIVANT-02 — generic next-action suggestion injected as {action} in coachOpenerCrossSessionTemplate when no archetype-specific action is available.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu veux qu\'on regarde la suite ?'**
+  String get coachOpenerCrossSessionAction;
+
   /// No description provided for @coachProactiveOptIn.
   ///
   /// In fr, this message translates to:

@@ -21080,6 +21080,14 @@ class SPt extends S {
   String get coachStarterLurk => 'Só vou olhar, apresento-me depois';
 
   @override
+  String coachOpenerCrossSessionTemplate(String topic, String action) {
+    return 'Olá de novo. Da última vez falávamos de $topic. $action.';
+  }
+
+  @override
+  String get coachOpenerCrossSessionAction => 'Queres que continuemos?';
+
+  @override
   String get coachProactiveOptIn =>
       'A propósito — queres que te sinalize as coisas importantes quando abres a app? Ou preferes que falemos só quando te apetecer?';
 

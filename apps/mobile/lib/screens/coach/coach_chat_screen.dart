@@ -30,6 +30,7 @@ import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
+import 'package:mint_mobile/services/coach/cross_session_opener_builder.dart';
 import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart'
     show ProactiveTrigger, ProactiveTriggerType;
@@ -187,6 +188,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// first non-dismissed nudge, this flag prevents re-rendering another
   /// banner until the screen is rebuilt from scratch.
   bool _nudgeBannerShownThisSession = false;
+
+  /// Phase 91 Plan 91-03 (VIVANT-02) — timestamp of the cross-session
+  /// opener bubble (Cleo 3.0 parity), or null when no such bubble was
+  /// surfaced. Used in [_buildMessageList] to add a stable Semantics
+  /// identifier (`coach-cross-session-opener`) on the corresponding
+  /// bubble for Maestro E2E targeting.
+  DateTime? _crossSessionOpenerTimestamp;
 
   /// Phase 91 Plan 91-02 (VIVANT-03) — id of the nudge currently rendered
   /// above the message list, or null if none. Cleared on dismiss so the
@@ -708,9 +716,61 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
   }
 
+  /// Phase 91 Plan 91-03 (VIVANT-02) — Cleo 3.0 cross-session opener.
+  ///
+  /// When the user has seen the premier-éclairage AND `_messages.isEmpty`
+  /// AND we have something to reference in `CapMemoryStore` /
+  /// `ConversationMemoryService`, prepend a synthetic coach bubble at
+  /// the top of the chat referencing the prior topic. Returns `true`
+  /// when a bubble was prepended (caller skips the precomputed-insight
+  /// + proactive-trigger paths) and `false` when no memory was usable
+  /// (caller falls through to the legacy precedence chain).
+  Future<bool> _maybeSurfaceCrossSessionOpener() async {
+    try {
+      // Gate 1 : the premier-éclairage must have been seen — otherwise
+      // we are not « cross-session » yet.
+      final hasSeen =
+          await ReportPersistenceService.hasSeenPremierEclairage();
+      if (!mounted || !hasSeen) return false;
+      // Gate 2 : nothing already on screen — the cross-session opener
+      // is an empty-state primitive only.
+      if (_messages.isNotEmpty) return false;
+      // Build the localized opener (returns null when no memory).
+      final opener =
+          await CrossSessionOpenerBuilder.build(context: context);
+      if (!mounted || opener == null || opener.trim().isEmpty) return false;
+      // Mark as shown BEFORE inserting the bubble — same pattern as
+      // the precomputed-insight path — so a re-entrant rebuild can't
+      // double-surface.
+      _proactiveTriggerShownThisSession = true;
+      final ts = DateTime.now();
+      _crossSessionOpenerTimestamp = ts;
+      setState(() {
+        _showSilentOpener = false;
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: opener,
+          timestamp: ts,
+          tier: ChatTier.none,
+        ));
+      });
+      _scrollToBottom();
+      AnalyticsService().trackEvent('coach_cross_session_opener_shown');
+      return true;
+    } catch (e) {
+      // Best-effort — never block the legacy precedence chain on a
+      // memory-store failure.
+      debugPrint('[CoachChat] cross-session opener failed: $e');
+      return false;
+    }
+  }
+
   /// Phase 54-02 T-03 — surface a single coach opener on chat-open.
   ///
   /// Precedence (« 1 opener chip per chat-open » per Plan 54-02 risks):
+  ///   0. Phase 91 / VIVANT-02 — cross-session opener (Cleo 3.0 parity)
+  ///      when prior memory exists and the user has seen the premier-
+  ///      éclairage. Tried first, short-circuits the rest.
   ///   1. Precomputed insight (Cleo 3.0 pattern — pre-computed at
   ///      profile-change time by [PrecomputedInsightsService.computeAndCache]
   ///      and read instantly here). Cache is consumed once: cleared after
@@ -722,6 +782,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// only visual anchor.
   Future<void> _maybeSurfaceOpenerOnChatOpen() async {
     if (_proactiveTriggerShownThisSession) return;
+    // Phase 91 Plan 91-03 (VIVANT-02) — Cleo 3.0 parity. Try the
+    // cross-session opener FIRST. If we have any prior CapMemory or
+    // ConversationMemory and the user has already seen the premier-
+    // éclairage, prepend a coach bubble that references the prior
+    // topic before the precomputed-insight / proactive-trigger paths.
+    final crossSessionShown = await _maybeSurfaceCrossSessionOpener();
+    if (crossSessionShown) return;
     try {
       final prefs = await SharedPreferences.getInstance();
       if (!mounted) return;
@@ -2420,7 +2487,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             !(_isStreaming && msg == _messages.last) &&
             index == _messages.indexWhere((m) => m.isAssistant);
 
-        final Widget wrappedChild = isFirstAssistantInSession
+        final Widget baseChild = isFirstAssistantInSession
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -2443,6 +2510,19 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 ],
               )
             : child;
+
+        // Phase 91 Plan 91-03 (VIVANT-02) — stable Maestro identifier
+        // on the cross-session opener bubble (and only that one).
+        final bool isCrossSessionOpener = msg.isAssistant &&
+            _crossSessionOpenerTimestamp != null &&
+            msg.timestamp == _crossSessionOpenerTimestamp;
+        final Widget wrappedChild = isCrossSessionOpener
+            ? Semantics(
+                identifier: 'coach-cross-session-opener',
+                container: true,
+                child: baseChild,
+              )
+            : baseChild;
 
         return TweenAnimationBuilder<double>(
           key: ValueKey('msg_$index'),

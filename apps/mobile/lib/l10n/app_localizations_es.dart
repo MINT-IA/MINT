@@ -21077,6 +21077,14 @@ class SEs extends S {
   String get coachStarterLurk => 'Solo miro, me presento después';
 
   @override
+  String coachOpenerCrossSessionTemplate(String topic, String action) {
+    return 'Hola de nuevo. La última vez hablábamos de $topic. $action.';
+  }
+
+  @override
+  String get coachOpenerCrossSessionAction => '¿Quieres que sigamos?';
+
+  @override
   String get coachProactiveOptIn =>
       'Por cierto — ¿quieres que te señale las cosas importantes al abrir la app? ¿O prefieres que hablemos solo cuando te apetezca?';
 

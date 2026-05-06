@@ -10395,6 +10395,28 @@
       "level": "N3"
     }
   },
+  "coachOpenerCrossSessionTemplate": "Re. La dernière fois, on parlait de {topic}. {action}.",
+  "@coachOpenerCrossSessionTemplate": {
+    "description": "Phase 91 / VIVANT-02 — cross-session opener bubble prepended at the top of CoachChatScreen when a returning user has prior CapMemory or ConversationMemory. Cleo 3.0 parity. {topic} is a short label (e.g. « 2e pilier », « la fiscalité »); {action} is the localized next-action suggestion.",
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      },
+      "action": {
+        "type": "String"
+      }
+    },
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "coachOpenerCrossSessionAction": "Tu veux qu'on regarde la suite ?",
+  "@coachOpenerCrossSessionAction": {
+    "description": "Phase 91 / VIVANT-02 — generic next-action suggestion injected as {action} in coachOpenerCrossSessionTemplate when no archetype-specific action is available.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
   "coachProactiveOptIn": "Au fait — tu veux que je te signale les choses importantes quand tu ouvres l'app ? Ou tu préfères qu'on se parle seulement quand tu en as envie ?",
   "coachOptInAccept": "Oui, signale-moi",
   "coachOptInDecline": "Non, je viens quand je veux",
