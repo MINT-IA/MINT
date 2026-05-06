@@ -71,29 +71,6 @@ Git : `feature/S{XX}-<slug>` depuis `dev` ; PRs feature→dev squash, dev→stag
 
 `rules.md` · `docs/MINT_IDENTITY.md` · `docs/DESIGN_SYSTEM.md` · `docs/VOICE_SYSTEM.md` · `SOT.md` · `docs/ROADMAP_V2.md` · `.claude/skills/mint-{swiss-compliance,flutter-dev,backend-dev}/SKILL.md` · `.planning/INDEX.md`.
 
-## 7. WIKI SCHEMA — `.planning/` Karpathy Wiki Pattern conventions
-
-> Karpathy's [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) : *« the LLM is rediscovering knowledge from scratch on every question. There's no accumulation. »* MINT's `.planning/` is the **agent vault** ; `~/.claude/projects/.../memory/` is the **curator vault** (separate per Karpathy practice 1).
-
-**Three layers** :
-- **`raw/`** — implicit : `~/Downloads/handoff*/` PDFs, articles, panels-input. Read-only ; never modified by Claude.
-- **`.planning/`** — agent-owned wiki. CONTEXT, PLAN, VERIFICATION, decisions, reports, milestones, roadmap, state. Claude writes ; you read.
-- **`CLAUDE.md`** (this file) + **`.claude/skills/`** — schema layer. How Claude maintains the wiki.
-
-**Conventions enforced by `tools/checks/wiki_lint.py`** :
-
-1. **TLDR mandatory** — every `.planning/**/*.md` must have either a `description:` frontmatter line OR a non-trivial first paragraph. Auto-extracted into `.planning/INDEX.md` (regen via `python3 tools/checks/wiki_lint.py index`).
-2. **Counter-arguments and data gaps** required on every decision artifact (`.planning/decisions/*.md`) — bias-check against echo-chamber. Template at `.planning/decisions/_TEMPLATE.md`. **HARD lint** (FAIL on missing).
-3. **File queries back into the wiki** — when a session produces a valuable analysis (panel synthesis, postmortem, audit), file it as a new ADR or `.planning/audit/<topic>.md` page. Don't let it die in chat history.
-4. **Monthly lint** — run `python3 tools/checks/wiki_lint.py` to surface contradictions, stale claims, orphan pages, new article candidates. Pre-commit hook (lefthook) runs it on `.planning/**/*.md` touches.
-
-**Scale plan** (Karpathy practice 6, mark in `INDEX.md` when crossed) :
-- 0-300 .md pages : flat files + INDEX.md (current : ~455, but most are leaf reports).
-- 300-500 article-class pages : add FTS5 / BM25 (`qmd` candidate).
-- 500+ : Postgres + frontmatter-driven views.
-
-**Anti-pattern (Karpathy practice 1)** : never write speculative agent-generated drafts into `~/.claude/projects/.../memory/` (curator vault). All Claude-generated content lives in `.planning/`.
-
 ## 7. BEHAVIOR FOUNDATION — Karpathy 4 (LLM coding pitfalls, [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills))
 
 > Karpathy : *« The models make wrong assumptions on your behalf and just run along with them without checking. They don't manage their confusion, don't seek clarifications, don't surface inconsistencies, don't present tradeoffs. They overcomplicate code, bloat abstractions, don't clean up dead code. »* These 4 principles override default speed bias when in doubt.
@@ -125,6 +102,29 @@ Git : `feature/S{XX}-<slug>` depuis `dev` ; PRs feature→dev squash, dev→stag
 - Multi-step task → state plan with `verify:` per step. Strong success criteria let you loop independently. Weak criteria force constant clarification.
 
 **Working when :** fewer unnecessary diff lines, fewer overcomplication rewrites, clarifying questions BEFORE implementation rather than mistake post-mortems.
+
+## 8. WIKI SCHEMA — `.planning/` Karpathy Wiki Pattern conventions
+
+> Karpathy's [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) : *« the LLM is rediscovering knowledge from scratch on every question. There's no accumulation. »* MINT's `.planning/` is the **agent vault** ; `~/.claude/projects/.../memory/` is the **curator vault** (separate per Karpathy practice 1).
+
+**Three layers** :
+- **`raw/`** — implicit : `~/Downloads/handoff*/` PDFs, articles, panels-input. Read-only ; never modified by Claude.
+- **`.planning/`** — agent-owned wiki. CONTEXT, PLAN, VERIFICATION, decisions, reports, milestones, roadmap, state. Claude writes ; you read.
+- **`CLAUDE.md`** (this file) + **`.claude/skills/`** — schema layer. How Claude maintains the wiki.
+
+**Conventions enforced by `tools/checks/wiki_lint.py`** :
+
+1. **TLDR mandatory** — every `.planning/**/*.md` must have either a `description:` frontmatter line OR a non-trivial first paragraph. Auto-extracted into `.planning/INDEX.md` (regen via `python3 tools/checks/wiki_lint.py index`).
+2. **Counter-arguments and data gaps** required on every decision artifact (`.planning/decisions/*.md`) — bias-check against echo-chamber. Template at `.planning/decisions/_TEMPLATE.md`. **HARD lint** (FAIL on missing).
+3. **File queries back into the wiki** — when a session produces a valuable analysis (panel synthesis, postmortem, audit), file it as a new ADR or `.planning/audit/<topic>.md` page. Don't let it die in chat history.
+4. **Monthly lint** — run `python3 tools/checks/wiki_lint.py` to surface contradictions, stale claims, orphan pages, new article candidates. Pre-commit hook (lefthook) runs it on `.planning/**/*.md` touches.
+
+**Scale plan** (Karpathy practice 6, mark in `INDEX.md` when crossed) :
+- 0-300 .md pages : flat files + INDEX.md (current : ~455, but most are leaf reports).
+- 300-500 article-class pages : add FTS5 / BM25 (`qmd` candidate).
+- 500+ : Postgres + frontmatter-driven views.
+
+**Anti-pattern (Karpathy practice 1)** : never write speculative agent-generated drafts into `~/.claude/projects/.../memory/` (curator vault). All Claude-generated content lives in `.planning/`.
 
 ## 🚨 BOTTOM — 5 RULES CRITIQUES (duplicated intentionally, Liu 2024)
 
