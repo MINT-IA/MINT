@@ -166,13 +166,14 @@ void main() {
     // forced kind path produces stable copy walker SSIM goldens can lock to.
     expect(find.text('Ta marge fiscale 3a'), findsOneWidget);
     expect(find.textContaining('plafond du 3e pilier'), findsOneWidget);
-    // Phase 86 (v2.12) — eyebrow is panel-locked Phase 72 widget output
-    // « Premier éclairage » (mixed case, no kind suffix). The previous
-    // « PREMIER ÉCLAIRAGE · 3E PILIER » uppercase + kind-suffix variant
-    // was from the deleted Phase 80 widgets/coach/eclairage_card.dart
-    // duplicate. Phase 72 widgets/anonymous/eclairage_card.dart is the
-    // panel-locked one (commit 8d3c127a).
-    expect(find.text('Premier éclairage'), findsOneWidget);
+    // Phase 86 (v2.12) — eyebrow source is the const « Premier éclairage »
+    // (line 101 of widgets/anonymous/eclairage_card.dart) but `_buildEyebrow`
+    // renders `text.toUpperCase()` (line 188), so the actual widget tree
+    // text is « PREMIER ÉCLAIRAGE ». Test asserts what is rendered, not
+    // what is in source. The deleted Phase 80 widgets/coach variant had
+    // a different « PREMIER ÉCLAIRAGE · 3E PILIER » kind-suffix output ;
+    // panel-lock Phase 72 is what ships.
+    expect(find.text('PREMIER ÉCLAIRAGE'), findsOneWidget);
     // LSFin disclaimer always rendered.
     expect(find.textContaining('LSFin'), findsOneWidget);
   });
