@@ -67,6 +67,14 @@ The « proactive coaching paradox » is solvable: Path A doesn't kill server-sid
 - **Premature E2EE before PMF.** Substantial engineering investment (5-6 months) for limited pre-launch user value + measurable regression in proactive coaching capability. Deferred to v3.0.
 - **Apple Private Cloud Compute literal architecture.** Out of scope at current MINT stage.
 
+## Counter-arguments and data gaps
+
+**Strongest opposing view :** Switzerland-first data residency is a moat we're betting will translate to retention/conversion ; the competitive evidence (Threema, Proton WTP) is from privacy-primary products, not financial-lucidity products. A user shopping for tax help may not care where the LLM token endpoint lives.
+
+**What this source does not address :** Empirical Swiss MINT-specific WTP — we have zero MINT-cohort data on whether « Swiss-only data residency » moves conversion vs « cloud-default with strong messaging ». The 5-persona synthesis cited methodologically is one model with prompted personas, not 5 independent consultations.
+
+**What would change this conclusion :** (a) launch survey signal that ≤ 5% of paid users name « Swiss-only residency » as a top-3 reason for paying, (b) Apple Private Cloud Compute reaching production maturity by v3.0 (would re-open the « literal architecture » alternative), (c) Anthropic / OpenAI shipping verifiable EU-region inference with audit trail (would weaken the cloud-as-untrusted premise).
+
 ## Tracking
 
 - v2.x ARB string update — companion PR (this session)

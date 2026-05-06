@@ -24,6 +24,16 @@ pre-commit:
       run: python3 tools/checks/map_freshness_hint.py {staged_files}
       glob: "*.{dart,py}"
       tags: [map, agents]
+    wiki-lint:
+      # Karpathy Wiki Pattern (practice 7) — lint pass for `.planning/`.
+      # Currently HARD on decision-artifact bias-check (every ADR must
+      # have a « Counter-arguments and data gaps » section). SOFT on
+      # orphan pages + new-article candidates (warnings only). Runs only
+      # when commit touches `.planning/**/*.md` so it doesn't bloat
+      # ordinary code commits.
+      run: python3 tools/checks/wiki_lint.py
+      glob: ".planning/**/*.md"
+      tags: [wiki, planning]
 
 skip:
   - merge
