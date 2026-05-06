@@ -1,0 +1,49 @@
+# tools/simulator/flows/walkthrough_auth_gate_login.yaml
+#
+# Phase A-USER-WALKTHROUGH (v2.13) — path 3 to /auth/login from auth
+# gate « J'ai déjà un compte » button (post 3-turn anon chat).
+
+appId: ch.mint.app
+---
+- launchApp
+- assertVisible:
+    id: "landing-hero"
+
+- tapOn: "Parle à Mint"
+- assertVisible:
+    id: "anon-chat-opener-bubble"
+
+# 3 quick turns to trigger gate
+- tapOn:
+    id: "anon-chat-input"
+- inputText: "Bonjour"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: "anon-chat-message-assistant"
+    timeout: 30000
+
+- tapOn:
+    id: "anon-chat-input"
+- inputText: "Et si je cotise mon 3a maintenant"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: "anon-chat-eclairage-headline"
+    timeout: 30000
+
+- tapOn:
+    id: "anon-chat-input"
+- inputText: "Combien je peux economiser"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible: "J'ai déjà un compte"
+    timeout: 30000
+
+# Path 3 — tap auth gate « J'ai déjà un compte »
+- tapOn: "J'ai déjà un compte"
+
+# Expected : login screen
+- extendedWaitUntil:
+    visible: "Recevoir un lien magique"
+    timeout: 5000

@@ -1,0 +1,24 @@
+# tools/simulator/flows/walkthrough_login_screen.yaml
+#
+# Phase A-USER-WALKTHROUGH (v2.13) — login screen visual + a11y probe.
+# Lists what's expected on a returning-user login experience.
+
+appId: ch.mint.app
+---
+- launchApp
+- assertVisible:
+    id: "landing-hero"
+
+- tapOn:
+    id: "landing-login-link"
+
+# Login screen primary auth flow = Magic Link. Only the email field
+# + « Recevoir un lien magique » CTA are visible initially. Password
+# is a fallback below, behind a « Préférer mot de passe » toggle.
+- assertVisible: "Adresse e-mail"
+
+# Magic link CTA must be visible.
+- assertVisible: "Recevoir un lien magique"
+
+# Fallback to password should also be reachable.
+- assertVisible: "Se connecter avec un mot de passe"
