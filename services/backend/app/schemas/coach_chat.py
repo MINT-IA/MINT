@@ -15,10 +15,21 @@ Sources:
     - docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md §6
 """
 
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
+
+
+# Phase 91 Plan 91-01 (VIVANT-04) — persona toggle wire values. Mobile
+# sends one of these strings in the `tone` field; the backend selects the
+# matching INTENSITY_MAP block (see claude_coach_service.build_system_prompt).
+CoachToneLiteral = Literal["calm", "direct", "sansFilter"]
+COACH_TONE_TO_INTENSITY: dict[str, int] = {
+    "calm": 1,        # Tranquille
+    "direct": 3,      # Direct (default MINT tone)
+    "sansFilter": 5,  # Brut
+}
 
 
 # ===========================================================================
@@ -112,6 +123,17 @@ class CoachChatRequest(CoachChatBaseModel):
         ge=1,
         le=5,
         description="Voice intensity 1-5 (1=factual, 5=brut).",
+    )
+    tone: Optional[CoachToneLiteral] = Field(
+        default=None,
+        description=(
+            "Phase 91 Plan 91-01 (VIVANT-04) — persona toggle wire field. "
+            "Mobile sends 'calm' / 'direct' / 'sansFilter' from the user's "
+            "Settings selection. When present, the backend maps the value "
+            "onto INTENSITY_MAP (1/3/5) and overrides cash_level for the "
+            "voice intensity block injection. Absent (legacy clients) = "
+            "fall back to cash_level."
+        ),
     )
     persistence_consent: bool = Field(
         default=False,

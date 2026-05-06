@@ -266,6 +266,9 @@ class CoachResponse {
 
 /// Signature for the orchestrator's generateChat, used to break the
 /// circular dependency between coach_llm_service ↔ coach_orchestrator.
+///
+/// Phase 91 Plan 91-01 (VIVANT-04) — added optional [tone] field carrying
+/// the persona toggle wire format ('calm' / 'direct' / 'sansFilter').
 typedef OrchestratorChatFn = Future<CoachResponse> Function({
   required String userMessage,
   required List<ChatMessage> history,
@@ -274,6 +277,7 @@ typedef OrchestratorChatFn = Future<CoachResponse> Function({
   String? memoryBlock,
   String language,
   int cashLevel,
+  String? tone,
 });
 
 /// Service de chat LLM pour le Coach MINT
@@ -305,6 +309,10 @@ class CoachLlmService {
     Map<String, dynamic>? enrichedContext,
     String language = 'fr',
     int cashLevel = 3,
+    // Phase 91 Plan 91-01 (VIVANT-04) — persona toggle wire field.
+    // Wire values: 'calm' / 'direct' / 'sansFilter'. Backend maps these
+    // onto INTENSITY_MAP slots (1/3/5) when present.
+    String? tone,
   }) async {
     final coachCtx = _buildCoachContext(profile);
 
@@ -325,6 +333,7 @@ class CoachLlmService {
       memoryBlock: memoryBlock,
       language: language,
       cashLevel: cashLevel,
+      tone: tone,
     );
 
     // suggestedActions are resolved at the screen layer (CoachChatScreen)

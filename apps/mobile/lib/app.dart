@@ -43,6 +43,7 @@ import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
+import 'package:mint_mobile/screens/settings/coach_tone_screen.dart';
 import 'package:mint_mobile/screens/settings/confidentialite_settings_screen.dart';
 import 'package:mint_mobile/screens/settings/langue_settings_screen.dart';
 import 'package:mint_mobile/screens/about_screen.dart';
@@ -1172,6 +1173,11 @@ final _router = GoRouter(
     ),
 
     // ── SETTINGS ────────────────────────────────────────────
+    ScopedGoRoute(
+      path: '/settings/coach-tone',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CoachToneScreen(),
+    ),
     ScopedGoRoute(
       path: '/settings/langue',
       parentNavigatorKey: _rootNavigatorKey,

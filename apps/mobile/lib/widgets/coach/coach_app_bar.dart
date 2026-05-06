@@ -16,6 +16,12 @@ class CoachAppBar extends StatelessWidget {
   final VoidCallback onExport;
   final VoidCallback onSettings;
 
+  /// Phase 91 Plan 91-01 (VIVANT-04) — opens `/settings/coach-tone`.
+  /// Optional: when null, the tone icon is not rendered (e.g. legacy
+  /// callers / tests that haven't migrated). Production wiring lives in
+  /// [CoachChatScreen.build].
+  final VoidCallback? onTone;
+
   const CoachAppBar({
     super.key,
     required this.isEmbeddedInTab,
@@ -24,6 +30,7 @@ class CoachAppBar extends StatelessWidget {
     required this.onHistory,
     required this.onExport,
     required this.onSettings,
+    this.onTone,
   });
 
   @override
@@ -83,6 +90,18 @@ class CoachAppBar extends StatelessWidget {
                       color: MintColors.textMuted, size: 20),
                   tooltip: s.coachTooltipExport,
                   onPressed: onExport,
+                ),
+              if (onTone != null)
+                IconButton(
+                  // Phase 91 Plan 91-01 (VIVANT-04) — relocates the inline
+                  // tone chips. `tune` icon mirrors the audio-mixer mental
+                  // model (« comment Mint te parle ») without inventing a
+                  // new ARB key. Tooltip reuses `voiceCursorPreferenceLabel`.
+                  key: const ValueKey('coach-app-bar-tone'),
+                  icon: const Icon(Icons.tune_rounded,
+                      color: MintColors.textMuted, size: 20),
+                  tooltip: s.voiceCursorPreferenceLabel,
+                  onPressed: onTone,
                 ),
               IconButton(
                 icon: const Icon(Icons.more_horiz_rounded,

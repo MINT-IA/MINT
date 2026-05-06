@@ -995,6 +995,13 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
   ),
 
   // ── Settings ───────────────────────────────────────────────────
+  '/settings/coach-tone': RouteMeta(
+    path: '/settings/coach-tone',
+    category: RouteCategory.destination,
+    owner: RouteOwner.system,
+    requiresAuth: true,
+    description: 'Phase 91 Plan 91-01 — Persona toggle (VIVANT-04). Replaces inline coach chat tone chips.',
+  ),
   '/settings/langue': RouteMeta(
     path: '/settings/langue',
     category: RouteCategory.destination,

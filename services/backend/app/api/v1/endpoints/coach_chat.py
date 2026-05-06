@@ -2380,7 +2380,17 @@ async def coach_chat(
     commitment_block = _build_commitment_memory_block(str(_user.id), db)
     intelligence_block = _build_intelligence_memory_block(str(_user.id), db)
     insight_block = _build_insight_memory_block(str(_user.id), db)
-    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level, commitment_block=commitment_block, intelligence_block=intelligence_block, insight_block=insight_block)
+    # Phase 91 Plan 91-01 (VIVANT-04) — when the mobile sends `tone:` we
+    # override `cash_level` so the matching INTENSITY_MAP block is the one
+    # injected. The mapping lives in app/schemas/coach_chat.py
+    # (COACH_TONE_TO_INTENSITY) — single source of truth.
+    from app.schemas.coach_chat import COACH_TONE_TO_INTENSITY
+    effective_cash_level = (
+        COACH_TONE_TO_INTENSITY[body.tone]
+        if body.tone in COACH_TONE_TO_INTENSITY
+        else body.cash_level
+    )
+    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=effective_cash_level, commitment_block=commitment_block, intelligence_block=intelligence_block, insight_block=insight_block)
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 

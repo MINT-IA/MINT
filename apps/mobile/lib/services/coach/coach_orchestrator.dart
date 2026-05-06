@@ -237,6 +237,8 @@ class CoachOrchestrator {
     String? memoryBlock,
     String language = 'fr',
     int cashLevel = 3,
+    // Phase 91 Plan 91-01 (VIVANT-04) — persona toggle wire field.
+    String? tone,
   }) async {
     // Build system prompt with optional memory block injection (S58).
     // Pan5-1: Use PromptRegistry.chatSystemPrompt (enriched, context-aware)
@@ -292,6 +294,7 @@ class CoachOrchestrator {
         memoryBlock: memoryBlock,
         language: language,
         cashLevel: cashLevel,
+        tone: tone,
       );
       if (byokResponse != null) {
         debugPrint('[CoachChain] tier2=BYOK SUCCESS');
@@ -314,6 +317,7 @@ class CoachOrchestrator {
         memoryBlock: memoryBlock,
         language: language,
         cashLevel: cashLevel,
+        tone: tone,
       );
       if (serverKeyResponse != null) {
         debugPrint('[CoachChain] tier3=ServerKey SUCCESS');
@@ -741,6 +745,11 @@ class CoachOrchestrator {
     String? memoryBlock,
     String language = 'fr',
     int cashLevel = 3,
+    // Phase 91 Plan 91-01 (VIVANT-04) — accepted for caller parity, but
+    // /rag/query (BYOK path) does not currently surface a tone slot. The
+    // server-key path threads it through to /coach/chat.
+    // ignore: unused_element_parameter
+    String? tone,
   }) async {
     final ragService = RagService();
     final providerStr = _llmProviderString(config.provider);
@@ -867,6 +876,10 @@ class CoachOrchestrator {
     String? memoryBlock,
     String language = 'fr',
     int cashLevel = 3,
+    // Phase 91 Plan 91-01 (VIVANT-04) — persona toggle wire field; passed
+    // straight through to /coach/chat where the backend selects the
+    // matching INTENSITY_MAP slot.
+    String? tone,
   }) async {
     final service = CoachChatApiService();
 
@@ -939,6 +952,7 @@ class CoachOrchestrator {
         memoryBlock: memoryBlock,
         language: language,
         cashLevel: cashLevel,
+        tone: tone,
       ).timeout(_byokTimeout);
 
       // Backend /coach/chat has already run its own ComplianceGuard Python pipeline

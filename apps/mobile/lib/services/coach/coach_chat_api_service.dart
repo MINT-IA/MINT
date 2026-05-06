@@ -56,6 +56,12 @@ class CoachChatApiService {
     String? memoryBlock,
     String language = 'fr',
     int cashLevel = 3,
+    // Phase 91 Plan 91-01 (VIVANT-04) — persona toggle wire field. When
+    // set, sent as `tone: <wire>` in the request body. Wire values:
+    // 'calm' / 'direct' / 'sansFilter'. Backend selects matching
+    // INTENSITY_MAP slot when present; absent = backend defaults to
+    // cashLevel-derived block.
+    String? tone,
   }) async {
     final uri = Uri.parse('$baseUrl/coach/chat');
 
@@ -82,6 +88,10 @@ class CoachChatApiService {
       'language': language,
       'cash_level': cashLevel.clamp(1, 5),
       'persistence_consent': persistenceConsent,
+      // Phase 91 Plan 91-01 (VIVANT-04) — only attach when set so legacy
+      // callers (older app versions) keep working with the existing
+      // cash_level-driven mapping on the backend.
+      if (tone != null && tone.isNotEmpty) 'tone': tone,
     };
 
     if (profileContext != null) {

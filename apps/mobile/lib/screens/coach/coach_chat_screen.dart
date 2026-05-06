@@ -50,8 +50,10 @@ import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/models/screen_return.dart';
-import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
-    show VoicePreference;
+// Phase 91 Plan 91-01 (VIVANT-04) — VoicePreference import removed along
+// with the inline tone-chip widget; the new persona toggle uses
+// [CoachTonePreference] from `services/preferences/`.
+import 'package:mint_mobile/services/preferences/coach_tone_preference.dart';
 import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart' show CapCoachBridge;
 
@@ -175,14 +177,27 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// this flag prevents re-showing within a single screen lifetime.
   bool _proactiveTriggerShownThisSession = false;
 
-  /// Whether the user has already chosen an intensity (hides picker chips).
-  bool _intensityChosen = false;
+  // Phase 91 Plan 91-01 (VIVANT-04) — `_intensityChosen` field removed
+  // along with the inline tone-chip widget. The in-chat « plus cash /
+  // plus doux » regex commands at line ~870 only need `_cashLevel`.
 
-  /// Whether the cash level has been loaded from SharedPreferences.
-  bool _cashLevelLoaded = false;
+  // Phase 91 Plan 91-01 (VIVANT-04) — _cashLevelLoaded field removed
+  // along with the inline tone-chip widget that read it; the legacy
+  // _loadCashLevel still keeps _cashLevel in sync for in-chat regex
+  // commands (« plus cash » / « plus doux ») below.
 
   /// SharedPreferences key for voice intensity level.
   static const String _cashLevelKey = 'mint_coach_cash_level';
+
+  /// Phase 91 Plan 91-01 (VIVANT-04) — persona toggle relocated from chips
+  /// (lines 2340-2400, deleted) to `/settings/coach-tone`. Loaded once on
+  /// screen mount + reloaded after the user returns from the settings
+  /// screen (see [_openToneSettings]). Sent in every `/coach/chat` request
+  /// body via the `tone` field; the backend maps it onto the existing
+  /// INTENSITY_MAP slots.
+  CoachTonePreference _tonePreference = CoachTonePreference.calm;
+  static const CoachTonePreferenceStore _toneStore =
+      CoachTonePreferenceStore();
 
   /// Extra context from CoachEntryPayload, injected into the system prompt.
   /// One-shot: cleared after first use.
@@ -211,9 +226,30 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _loadExistingConversation(widget.conversationId!);
     }
     _loadCashLevel();
+    _loadTonePreference();
     _loadOnboardingPayload();
     _subscribeToScreenReturns();
     _consumeCapCoachBridge();
+  }
+
+  /// Phase 91 Plan 91-01 (VIVANT-04) — load the persisted persona tone.
+  /// Default = [CoachTonePreference.calm]. Best-effort: any storage failure
+  /// keeps the default and never blocks chat.
+  Future<void> _loadTonePreference() async {
+    final value = await _toneStore.load();
+    if (mounted) {
+      setState(() => _tonePreference = value);
+    }
+  }
+
+  /// Phase 91 Plan 91-01 (VIVANT-04) — open `/settings/coach-tone` and
+  /// reload the preference when the user comes back. Reload is needed
+  /// because the settings screen persists synchronously but our local
+  /// in-state cache won't otherwise refresh until the next mount.
+  Future<void> _openToneSettings() async {
+    final router = GoRouter.of(context);
+    await router.push('/settings/coach-tone');
+    if (mounted) await _loadTonePreference();
   }
 
   /// Consume any pending prompt from CapCoachBridge (set by CapCard).
@@ -233,20 +269,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final level = prefs.getInt(_cashLevelKey);
-      if (mounted) {
+      if (mounted && level != null) {
         setState(() {
-          _cashLevelLoaded = true;
-          if (level != null) {
-            _cashLevel = level.clamp(1, 5);
-            _intensityChosen = true;
-          }
+          _cashLevel = level.clamp(1, 5);
         });
       }
-    } catch (e) {
-      // Graceful degradation: default level 3, show picker.
-      if (mounted) {
-        setState(() => _cashLevelLoaded = true);
-      }
+    } catch (_) {
+      // Graceful degradation: keep the default _cashLevel.
     }
   }
 
@@ -868,10 +897,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   /// Handle intensity chip selection.
+  // ignore: unused_element
   void _onIntensitySelected(int level) {
     setState(() {
       _cashLevel = level;
-      _intensityChosen = true;
     });
     _saveCashLevel(level);
 
@@ -1213,6 +1242,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         config: config,
         memoryBlock: memoryBlock,
         cashLevel: _cashLevel,
+        // Phase 91 Plan 91-01 (VIVANT-04) — persona toggle wire format.
+        // Backend maps {calm, direct, sansFilter} onto INTENSITY_MAP.
+        tone: _tonePreference.wireName,
       );
 
       final tier = config.hasApiKey ? ChatTier.byok : ChatTier.fallback;
@@ -1945,6 +1977,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 if (mounted) router.push('/coach/history');
               },
               onExport: _exportConversation,
+              // Phase 91 Plan 91-01 (VIVANT-04) — new tone settings entry.
+              onTone: _openToneSettings,
               onSettings: () => context.push('/profile/byok'),
             ),
             Expanded(
@@ -1975,31 +2009,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   // ════════════════════════════════════════════════════════════
-  //  SILENT OPENER WITH TONE CHIPS (CHAT-05)
+  //  SILENT OPENER (CHAT-05)
+  //  Phase 91 Plan 91-01 (VIVANT-04) — tone chips removed; tone now lives
+  //  in `/settings/coach-tone` (icon in CoachAppBar).
   // ════════════════════════════════════════════════════════════
 
-  /// Silent opener + optional intensity chips. One visual anchor at a time:
-  /// if the profile carries a key number or intent override, show that;
-  /// otherwise the SilentOpener's own minimal empty state renders — no
-  /// piquant random greeting (deprecated 2026-04-18 — performative voice
-  /// was fatiguing users who open the app daily; calm minimalism wins).
   Widget _buildSilentOpenerWithTone() {
     final Widget hero = _buildSilentOpener();
-
-    final body = Expanded(
-      child: SingleChildScrollView(child: hero),
-    );
-
-    if (_intensityChosen || !_cashLevelLoaded) {
-      return Column(children: [body]);
-    }
-
     return Column(
       children: [
-        body,
-        Padding(
-          padding: const EdgeInsets.only(left: 42, right: 24, bottom: 16),
-          child: _buildIntensityChips(),
+        Expanded(
+          child: SingleChildScrollView(child: hero),
         ),
       ],
     );
@@ -2271,47 +2291,34 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           );
         }
 
-        // Wrap with intensity picker for first assistant message if needed.
-        final bool showIntensity = _cashLevelLoaded &&
-            !_intensityChosen &&
-            index == 0 &&
-            msg.isAssistant &&
-            !(_isStreaming && msg == _messages.last);
-
-        // Show transparency badge under the first assistant response in session.
+        // Phase 91 Plan 91-01 (VIVANT-04) — inline intensity picker chips
+        // removed. Tone now lives in `/settings/coach-tone` (gear icon in
+        // CoachAppBar). The transparency badge below the first assistant
+        // response stays — it is unrelated to the persona toggle.
         final bool isFirstAssistantInSession = msg.isAssistant &&
             !(_isStreaming && msg == _messages.last) &&
             index == _messages.indexWhere((m) => m.isAssistant);
 
-        final Widget wrappedChild = (showIntensity || isFirstAssistantInSession)
+        final Widget wrappedChild = isFirstAssistantInSession
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   child,
-                  if (isFirstAssistantInSession) ...[
-                    const SizedBox(height: 4),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 42),
-                      child: Text(
-                        msg.tier == ChatTier.slm
-                            ? S.of(context)!.coachTransparencySLM
-                            : S.of(context)!.coachTransparencyBYOK,
-                        style: MintTextStyles.micro(
-                          color: MintColors.textMuted.withValues(alpha: 0.5),
-                        ).copyWith(
-                          fontStyle: FontStyle.italic,
-                          fontSize: 10,
-                        ),
+                  const SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 42),
+                    child: Text(
+                      msg.tier == ChatTier.slm
+                          ? S.of(context)!.coachTransparencySLM
+                          : S.of(context)!.coachTransparencyBYOK,
+                      style: MintTextStyles.micro(
+                        color: MintColors.textMuted.withValues(alpha: 0.5),
+                      ).copyWith(
+                        fontStyle: FontStyle.italic,
+                        fontSize: 10,
                       ),
                     ),
-                  ],
-                  if (showIntensity) ...[
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 42),
-                      child: _buildIntensityChips(),
-                    ),
-                  ],
+                  ),
                 ],
               )
             : child;
@@ -2337,99 +2344,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
   }
 
-  /// CHAT-05: Build tone preference chips (Doux / Direct / Sans filtre).
-  ///
-  /// Shown once in the first conversation after the first assistant message.
-  /// Maps to VoicePreference enum and persists via CoachProfileProvider.
-  Widget _buildIntensityChips() {
-    final chips = <MapEntry<VoicePreference, String>>[
-      const MapEntry(VoicePreference.soft, 'Doux'),
-      const MapEntry(VoicePreference.direct, 'Direct'),
-      const MapEntry(VoicePreference.unfiltered, 'Sans filtre'),
-    ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          // Was 'Au fait, tu préfères que je sois plutôt…' — the dangling
-          // ellipsis read as a truncation bug and the chips below already
-          // list the options, making the long phrasing redundant.
-          'Comment je te parle\u00a0?',
-          style: TextStyle(
-            fontSize: 14,
-            color: MintColors.textSecondary,
-            height: 1.4,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 10,
-          children: chips.map((entry) {
-            return GestureDetector(
-              onTap: () => _onTonePreferenceSelected(entry.key),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: MintColors.porcelaine,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: MintColors.border.withValues(alpha: 0.3),
-                    width: 0.5,
-                  ),
-                ),
-                child: Text(
-                  entry.value,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    height: 1.3,
-                    color: MintColors.textPrimary,
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  /// CHAT-05: Handle tone preference chip selection.
-  void _onTonePreferenceSelected(VoicePreference pref) {
-    final int level;
-    final String confirmation;
-    switch (pref) {
-      case VoicePreference.soft:
-        level = 1;
-        confirmation = 'Not\u00e9. Je serai tout en douceur.';
-      case VoicePreference.direct:
-        level = 3;
-        confirmation = 'Compris. Je vais droit au but.';
-      case VoicePreference.unfiltered:
-        level = 5;
-        confirmation = 'OK. Accroche-toi, je ne filtre rien.';
-    }
-
-    final provider = context.read<CoachProfileProvider>();
-    provider.setVoiceCursorPreference(pref);
-
-    setState(() {
-      _cashLevel = level;
-      _intensityChosen = true;
-      _showSilentOpener = false;
-      _messages.add(ChatMessage(
-        role: 'assistant',
-        content: confirmation,
-        timestamp: DateTime.now(),
-        tier: ChatTier.none,
-      ));
-    });
-    _saveCashLevel(level);
-    _scrollToBottom();
-  }
+  // CHAT-05 tone-chip handler removed in Phase 91 Plan 91-01 (VIVANT-04).
+  // Persona toggle now lives at /settings/coach-tone, surfaced via the
+  // tune icon in [CoachAppBar]. The legacy mint_coach_cash_level int +
+  // VoicePreference enum are kept because the in-chat regex commands
+  // (plus cash / plus doux at line ~924) still use them - out of scope
+  // for this plan.
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
