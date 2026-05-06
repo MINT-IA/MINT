@@ -166,8 +166,13 @@ void main() {
     // forced kind path produces stable copy walker SSIM goldens can lock to.
     expect(find.text('Ta marge fiscale 3a'), findsOneWidget);
     expect(find.textContaining('plafond du 3e pilier'), findsOneWidget);
-    // Eyebrow keyed by kind — uppercase tracked label.
-    expect(find.text('PREMIER ÉCLAIRAGE · 3E PILIER'), findsOneWidget);
+    // Phase 86 (v2.12) — eyebrow is panel-locked Phase 72 widget output
+    // « Premier éclairage » (mixed case, no kind suffix). The previous
+    // « PREMIER ÉCLAIRAGE · 3E PILIER » uppercase + kind-suffix variant
+    // was from the deleted Phase 80 widgets/coach/eclairage_card.dart
+    // duplicate. Phase 72 widgets/anonymous/eclairage_card.dart is the
+    // panel-locked one (commit 8d3c127a).
+    expect(find.text('Premier éclairage'), findsOneWidget);
     // LSFin disclaimer always rendered.
     expect(find.textContaining('LSFin'), findsOneWidget);
   });
