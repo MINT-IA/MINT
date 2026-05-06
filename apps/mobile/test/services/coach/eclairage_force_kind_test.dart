@@ -174,7 +174,12 @@ void main() {
     // a different « PREMIER ÉCLAIRAGE · 3E PILIER » kind-suffix output ;
     // panel-lock Phase 72 is what ships.
     expect(find.text('PREMIER ÉCLAIRAGE'), findsOneWidget);
-    // LSFin disclaimer always rendered.
-    expect(find.textContaining('LSFin'), findsOneWidget);
+    // Phase 86 (v2.12) — LSFin disclaimer is intentionally NOT rendered
+    // inside the card (Phase 71a §1.4 declares the above-input
+    // disclaimer the single source). The card-side `lsfin_disclaimer`
+    // payload field exists for the EclairageCardData round-trip but
+    // the panel-locked Phase 72 widget skips it (line 169 of
+    // widgets/anonymous/eclairage_card.dart : « disclaimer SKIPPED
+    // (Phase 71a §1.4) »). Removing the in-card LSFin assertion.
   });
 }
