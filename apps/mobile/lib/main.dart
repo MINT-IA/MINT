@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/error_boundary.dart';
+import 'package:mint_mobile/services/frame_timing_capture.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/pillar_3a_calculator.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
@@ -25,6 +26,13 @@ import 'package:mint_mobile/services/snapshot_service.dart';
 Future<void> main() async {
   // Initialisation Flutter
   WidgetsFlutterBinding.ensureInitialized();
+
+  // STAMP-03 (Phase 89 v2.12) — register frame timing capture for jank
+  // measurement when the dart-define MINT_FRAME_TIMING_CAPTURE=true is
+  // set (debug/profile only ; release short-circuits). No-op in normal
+  // builds. Walker greps `[MINT_FRAME_TIMING]` log lines to aggregate
+  // the % > 16ms metric.
+  MintFrameTimingCapture.register();
 
   // OBS-02 (Phase 31-01) — install the 3-prong global error boundary
   // BEFORE SentryFlutter.init so PlatformDispatcher.onError + FlutterError
