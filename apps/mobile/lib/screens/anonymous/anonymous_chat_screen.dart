@@ -13,8 +13,10 @@ import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach/eclairage_models.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 // ADR-20260223: financial_core via barrel only — no direct sub-imports.
+import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/anonymous/eclairage_card.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
@@ -249,6 +251,22 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     // ECLW-04). Falls back to PremierEclairageSelector when no payload but
     // a forced kind + an active CoachProfileSeed are present (ECLW-02, ECLW-03).
     final eclairage = _resolveEclairageForTurn(response);
+
+    // Phase 90 (v2.13) — narrative invariant breadcrumb. Maestro flow
+    // assertion suites (PERS-08) poll Sentry for this category to
+    // verify an éclairage was actually delivered to the user. Fired
+    // BEFORE setState so the breadcrumb timestamp precedes the visible
+    // render (matches the « eclairage delivered → user sees it » causal
+    // ordering Sentry traces should reflect).
+    if (eclairage != null) {
+      MintBreadcrumbs.eclairageDelivered(
+        kind: eclairage.kind.wireName,
+        forced: CoachOrchestrator.forcedEclairageKind != null,
+        hasChfRange:
+            eclairage.chfRangeLow != null && eclairage.chfRangeHigh != null,
+        hasSoftAccountHint: (eclairage.softAccountHint ?? '').isNotEmpty,
+      );
+    }
 
     setState(() {
       _messages.add(_ChatMessage(

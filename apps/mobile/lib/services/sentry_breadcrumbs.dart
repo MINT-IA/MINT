@@ -175,4 +175,40 @@ class MintBreadcrumbs {
       },
     ));
   }
+
+  /// Phase 90 (v2.13) — éclairage card delivered to the user breadcrumb.
+  ///
+  /// category = `mint.coach.eclairage.delivered`
+  /// level    = info
+  /// data     = { 'kind': String (wire name, e.g. `fiscal_margin_3a`),
+  ///              'forced': bool (true when MINT_E2E_FORCE_ECLAIRAGE_KIND
+  ///                              dart-define drove the kind),
+  ///              'has_chf_range': bool,
+  ///              'has_soft_account_hint': bool }
+  ///
+  /// Fired from `_AnonymousChatScreenState._handleResponse` after the
+  /// éclairage payload is resolved + attached to the message bubble. This
+  /// is the canonical narrative-invariant signal Maestro flow assertion
+  /// suites poll for (PERS-08 « narrative invariant — eclairage breadcrumb
+  /// fired »).
+  ///
+  /// **No PII** — kind is a fixed enum, booleans are aggregates. CHF
+  /// amounts, headlines, body content NEVER reach Sentry.
+  static void eclairageDelivered({
+    required String kind,
+    required bool forced,
+    required bool hasChfRange,
+    required bool hasSoftAccountHint,
+  }) {
+    Sentry.addBreadcrumb(Breadcrumb(
+      category: 'mint.coach.eclairage.delivered',
+      level: SentryLevel.info,
+      data: <String, dynamic>{
+        'kind': kind,
+        'forced': forced,
+        'has_chf_range': hasChfRange,
+        'has_soft_account_hint': hasSoftAccountHint,
+      },
+    ));
+  }
 }
