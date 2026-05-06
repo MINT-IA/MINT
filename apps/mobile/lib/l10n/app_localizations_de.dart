@@ -23278,4 +23278,15 @@ class SDe extends S {
   @override
   String get betaDisclosureSemanticsLabel =>
       'Information zur MINT-Beta-Version — nur Bildungswerkzeug, keine Finanzberatung, Daten bleiben standardmässig auf deinem Gerät.';
+
+  @override
+  String get fatcaHandoffTitle =>
+      'US-CH-Situation: eine Fachperspektive ist hilfreich';
+
+  @override
+  String get fatcaHandoffBody =>
+      'Als US-Steuerpflichtige·r in der Schweiz hat deine Säule-3a-Situation Wechselwirkungen mit FATCA, FBAR (sobald die Summe deiner ausländischen Konten 10 000 USD übersteigt) und der PFIC-Klassifikation gewisser Schweizer Fonds. Das CH-US-Doppelbesteuerungsabkommen sieht Mechanismen gegen Doppelbesteuerung vor. Vor einer Säule-3a-Einzahlung könnte es passend sein, dich mit einer US-CH Cross-Border-Fachperson auszutauschen, die deine Entscheidung situationsgerecht einordnen kann.';
+
+  @override
+  String get fatcaHandoffCta => 'US-CH-Fachperson finden';
 }

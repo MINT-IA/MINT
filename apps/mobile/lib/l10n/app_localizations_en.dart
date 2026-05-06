@@ -23109,4 +23109,15 @@ class SEn extends S {
   @override
   String get betaDisclosureSemanticsLabel =>
       'Information about the MINT beta version — educational tool only, no financial advice, data stays on your device by default.';
+
+  @override
+  String get fatcaHandoffTitle =>
+      'US-CH situation: a specialist perspective is useful';
+
+  @override
+  String get fatcaHandoffBody =>
+      'As a US taxpayer living in Switzerland, your pillar 3a situation interacts with FATCA, FBAR (when your foreign account total goes above \$10,000) and the PFIC classification that may apply to some Swiss funds. The CH-US tax treaty provides mechanisms to avoid double taxation. Before making any pillar 3a contribution, it could be adapted to discuss your situation with a US-CH cross-border specialist who can frame the decision around your specific case.';
+
+  @override
+  String get fatcaHandoffCta => 'Find a US-CH specialist';
 }

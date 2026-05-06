@@ -40724,6 +40724,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l\'appareil par défaut.'**
   String get betaDisclosureSemanticsLabel;
+
+  /// Title of the FATCA handoff card shown when an expat_us user asks about 3a / PFIC / CH-US treaty topics. Per OAR-G art. 24 + FINMA Guidance 8/2024 §VI.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation US-CH : un éclairage spécialisé est utile'**
+  String get fatcaHandoffTitle;
+
+  /// Body of the FATCA handoff card. References FATCA + FBAR + PFIC + CH-US treaty. Educational tone, no banned terms (LSFin art. 7-10), uses 'pourrait' / 'adapté' not 'optimal' / 'meilleur'.
+  ///
+  /// In fr, this message translates to:
+  /// **'En tant que contribuable US en Suisse, ta situation 3a interagit avec FATCA, FBAR (au-dessus de \$10 000 sur l\'ensemble de tes comptes étrangers) et la classification PFIC de certains fonds suisses. La convention CH-US prévoit des mécanismes contre la double imposition. Avant tout versement 3a, il pourrait être adapté d\'en parler à un·e spécialiste US-CH cross-border, qui saura cadrer ta décision selon ta situation.'**
+  String get fatcaHandoffBody;
+
+  /// CTA button label on the FATCA handoff card. Action-oriented, no promise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trouver un·e spécialiste US-CH'**
+  String get fatcaHandoffCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

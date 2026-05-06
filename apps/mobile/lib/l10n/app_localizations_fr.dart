@@ -23223,4 +23223,15 @@ class SFr extends S {
   @override
   String get betaDisclosureSemanticsLabel =>
       'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l\'appareil par défaut.';
+
+  @override
+  String get fatcaHandoffTitle =>
+      'Situation US-CH : un éclairage spécialisé est utile';
+
+  @override
+  String get fatcaHandoffBody =>
+      'En tant que contribuable US en Suisse, ta situation 3a interagit avec FATCA, FBAR (au-dessus de \$10 000 sur l\'ensemble de tes comptes étrangers) et la classification PFIC de certains fonds suisses. La convention CH-US prévoit des mécanismes contre la double imposition. Avant tout versement 3a, il pourrait être adapté d\'en parler à un·e spécialiste US-CH cross-border, qui saura cadrer ta décision selon ta situation.';
+
+  @override
+  String get fatcaHandoffCta => 'Trouver un·e spécialiste US-CH';
 }

@@ -2468,6 +2468,98 @@ async def coach_chat(
         prompt_len // 4,
     )
 
+    # ──────────────────────────────────────────────────────────────────
+    # Step 2.5: FATCA pre-emission gate (COMP-04)
+    #
+    # Per OAR-G art. 24 + FINMA Guidance 8/2024 §VI.
+    #
+    # When archetype == ``expat_us`` AND the user message matches the
+    # FATCA topic regex (3a / pillar3a / PFIC / treaty / FBAR / foreign
+    # trust), the LLM is NEVER called — we return a hand-off card
+    # pointing the user to a US-CH cross-border specialist. Generic 3a
+    # impératifs are dangerous for US persons (FATCA reporting, FBAR
+    # threshold, PFIC classification of Swiss funds, CH-US treaty).
+    #
+    # The post-validation rule in ``doctrine_checks.py:291`` catches
+    # missing FATCA/PFIC mentions *after* the LLM responds. This gate
+    # closes the residual risk by blocking the LLM call entirely.
+    #
+    # Closes BUG #22 P1 (USER_WALKTHROUGH_2026-05-06).
+    # ──────────────────────────────────────────────────────────────────
+    try:
+        _archetype_for_gate = (
+            (safe_profile.get("archetype") if isinstance(safe_profile, dict) else None)
+            or (coach_ctx.archetype if coach_ctx is not None else None)
+        )
+        if _archetype_for_gate == "expat_us":
+            from app.services.coach.fatca_gate import (
+                _topic_is_fatca_sensitive,
+                build_fatca_handoff_card,
+            )
+
+            _topic_label = _topic_is_fatca_sensitive(sanitized_message)
+            if _topic_label:
+                _handoff = build_fatca_handoff_card(language=body.language or "fr")
+                _handoff.topic_label = _topic_label
+
+                # Sentry breadcrumb for Phase 96 dashboard (gate fire-rate).
+                try:
+                    import sentry_sdk
+
+                    sentry_sdk.add_breadcrumb(
+                        category="compliance.fatca_gate",
+                        message="fatca_handoff_emitted",
+                        data={
+                            "archetype": "expat_us",
+                            "topic_match": _topic_label,
+                        },
+                    )
+                except Exception:  # pragma: no cover — defensive
+                    pass
+
+                # Best-effort audit row — reuses the Plan 93-01 infra.
+                try:
+                    from app.models.coach_message_audit import CoachMessageAudit
+                    from app.utils.audit_hash import hash_for_audit
+
+                    db.add(
+                        CoachMessageAudit(
+                            session_id=str(_user.id),
+                            archetype="expat_us",
+                            prompt_hash=hash_for_audit(sanitized_message),
+                            response_hash=hash_for_audit(_handoff.message),
+                            banned_term_hit=False,
+                            eclairage_kind="fatca_handoff",
+                        )
+                    )
+                    db.commit()
+                    try:
+                        import sentry_sdk
+
+                        sentry_sdk.set_tag("audit_emitted", "true")
+                    except Exception:  # pragma: no cover
+                        pass
+                except Exception as _audit_exc:  # pragma: no cover — best-effort
+                    logger.warning(
+                        "fatca handoff audit insert failed: %s", _audit_exc
+                    )
+
+                return CoachChatResponse(
+                    message=_handoff.message,
+                    tool_calls=[_handoff.tool_call],
+                    sources=[],
+                    disclaimers=[],
+                    tokens_used=0,
+                    system_prompt_used=False,
+                    response_meta={
+                        "degraded": False,
+                        "model_used": "fatca_handoff_gate",
+                    },
+                )
+    except Exception as _gate_exc:  # pragma: no cover — gate must never break the response
+        logger.warning("fatca pre-emission gate failed: %s", _gate_exc)
+        # Fall through to the normal LLM path.
+
     # ------------------------------------------------------------------
     # Step 3: Get RAG orchestrator
     # ------------------------------------------------------------------

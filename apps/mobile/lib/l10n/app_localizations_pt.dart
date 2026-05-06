@@ -23230,4 +23230,15 @@ class SPt extends S {
   @override
   String get betaDisclosureSemanticsLabel =>
       'Informação sobre a versão beta da MINT — apenas ferramenta educativa, nenhum aconselhamento financeiro, os dados permanecem no teu dispositivo por defeito.';
+
+  @override
+  String get fatcaHandoffTitle =>
+      'Situação US-CH: uma perspetiva especializada é útil';
+
+  @override
+  String get fatcaHandoffBody =>
+      'Enquanto contribuinte dos EUA residente na Suíça, a tua situação do pilar 3a interage com FATCA, FBAR (quando o total das tuas contas estrangeiras ultrapassa 10 000 USD) e a classificação PFIC que pode incidir sobre certos fundos suíços. A convenção fiscal CH-US prevê mecanismos contra a dupla tributação. Antes de qualquer contribuição ao pilar 3a, poderia ser adequado conversar com um·a especialista US-CH cross-border que enquadre a tua decisão de acordo com a tua situação.';
+
+  @override
+  String get fatcaHandoffCta => 'Encontrar um·a especialista US-CH';
 }

@@ -23281,4 +23281,15 @@ class SIt extends S {
   @override
   String get betaDisclosureSemanticsLabel =>
       'Informazioni sulla versione beta di MINT — solo strumento educativo, nessuna consulenza finanziaria, i dati restano sul tuo dispositivo per impostazione predefinita.';
+
+  @override
+  String get fatcaHandoffTitle =>
+      'Situazione US-CH: un parere specialistico è utile';
+
+  @override
+  String get fatcaHandoffBody =>
+      'In quanto contribuente statunitense residente in Svizzera, la tua situazione del pilastro 3a interagisce con FATCA, FBAR (quando il totale dei tuoi conti esteri supera i 10 000 USD) e la classificazione PFIC che può riguardare alcuni fondi svizzeri. La convenzione fiscale CH-US prevede meccanismi contro la doppia imposizione. Prima di qualsiasi versamento al pilastro 3a, potrebbe essere adeguato confrontarsi con un·a specialista US-CH cross-border che inquadri la decisione rispetto alla tua situazione.';
+
+  @override
+  String get fatcaHandoffCta => 'Trovare un·a specialista US-CH';
 }
