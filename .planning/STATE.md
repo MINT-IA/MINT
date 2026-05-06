@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.14
 milestone_name: Living MINT
-status: defining
-stopped_at: Roadmap drafted by gsd-roadmapper agent — Phases 91-97 derived from 25 v1 requirements + dependency-ordered (critical-bugs → compliance → test infra → observability → ship gate). 100% coverage validated. Awaiting `/gsd-plan-phase 91` to decompose Phase 91 (Vivant Proactive Primitives) into executable plans.
-last_updated: "2026-05-06T22:00:00.000Z"
+status: executing
+stopped_at: Phase 92 shipped (commit 75f72c3a). Vault upload typed converter + SHA256 idempotency + Cap recompute wiring. 15 new tests. BUG #4 P0 closed. Advancing to Phase 93 (Compliance Hardening — audit log + FATCA gating + simulator confidence badges).
+last_updated: "2026-05-06T23:30:00.000Z"
 last_activity: 2026-05-06
 progress:
   total_phases: 7
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 2
+  total_plans: 5
+  completed_plans: 5
+  percent: 28
 ---
 
 # GSD State: MINT v2.14 — Living MINT

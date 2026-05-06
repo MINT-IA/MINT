@@ -106,8 +106,8 @@ Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT
 
 ### Phases
 
-- [ ] **Phase 91: Vivant Proactive Primitives** — Cleo-parity proactive push + cross-session opener + interrupt banner wired + persona toggle migrated to Settings (closes BUG #5 P0).
-- [ ] **Phase 92: Documents Vault Typed Wiring** — `LppExtractedFields → ExtractedField` typed converter wired + idempotency-key SHA256 (closes BUG #4 P0).
+- [x] **Phase 91: Vivant Proactive Primitives** — Cleo-parity proactive push + cross-session opener + interrupt banner wired + persona toggle migrated to Settings (closes BUG #5 P0). ✅ shipped 2026-05-06 (commits 46928ec2/d5cb375f/e757d3f5/09f28d06)
+- [x] **Phase 92: Documents Vault Typed Wiring** — `LppExtractedFields → ExtractedField` typed converter wired + idempotency-key SHA256 (closes BUG #4 P0). ✅ shipped 2026-05-06 (commit 75f72c3a)
 - [ ] **Phase 93: Compliance Hardening (Audit Log + FATCA + Confidence)** — 10y audit log table per OAR-G art. 24, FATCA pre-emission gating expat_us, 5 simulators ConfidenceBadge (closes BUG #18, #21, #22).
 - [ ] **Phase 94: Compliance Polish (Locale + i18n + Constants)** — éclairage prompt locale branching DE/IT/EN/ES/PT, EN « LSFin → FinSA » sweep, benchmark literal `7000` → constant (closes BUG #20, #12, #23).
 - [ ] **Phase 95: Test Infrastructure Réelle** — promptfoo eval suite 160 prompts × 4 archetypes, Pact mobile↔backend contracts, alembic check forward+rollback, testcontainers-Postgres, VCR cassettes nightly rewrite (closes test theater per doctrine W2).
@@ -198,8 +198,8 @@ Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 91. Vivant Proactive Primitives | 0/? | Not started | - |
-| 92. Documents Vault Typed Wiring | 0/? | Not started | - |
+| 91. Vivant Proactive Primitives | 4/4 | ✅ Shipped | 2026-05-06 |
+| 92. Documents Vault Typed Wiring | 1/1 | ✅ Shipped | 2026-05-06 |
 | 93. Compliance Hardening (Audit + FATCA + Confidence) | 0/? | Not started | - |
 | 94. Compliance Polish (Locale + i18n + Constants) | 0/? | Not started | - |
 | 95. Test Infrastructure Réelle | 0/? | Not started | - |
