@@ -350,6 +350,16 @@ const int acAgeSeuillSenior = 55;
 /// Plafond annuel 3a pour salaries affilies a la LPP (petit 3a).
 const double pilier3aPlafondAvecLpp = 7258.0;
 
+/// Seuil "proche du plafond" 3a — declenche l'eclairage UX
+/// (BenchmarkService._contributionMessage).
+///
+/// Derive du plafond LPP (96 %, soit ~CHF 6'968 pour 7'258 en 2026).
+/// Forme multiplicative (et non additive `plafond - 258`) pour rester
+/// semantiquement « a 4 % du plafond » lorsque l'OFAS revalorise le
+/// plafond annuel 3a (prochain mouvement attendu 7258 → 7350 ~2027).
+/// Phase 94 / COMP-06 — kill literal 7000 in benchmark_service.dart.
+const double pilier3aProchePlafondThreshold = pilier3aPlafondAvecLpp * 0.96;
+
 /// Plafond annuel 3a pour independants sans LPP (grand 3a).
 const double pilier3aPlafondSansLpp = 36288.0;
 

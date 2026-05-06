@@ -1,3 +1,5 @@
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 /// Personal financial progress tracking service.
 ///
 /// COMPLIANCE: No social comparison (CLAUDE.md § 6 — "No-Social-Comparison").
@@ -115,7 +117,7 @@ class BenchmarkService {
       return 'Ta cotisation 3a a augmenté de CHF\u00A0${delta.toStringAsFixed(0)} '
           'par rapport à avant. Continue sur cette lancée.';
     }
-    if (contribution >= 7000) {
+    if (contribution >= pilier3aProchePlafondThreshold) {
       return 'Tu es proche du plafond 3a. '
           'Chaque franc versé réduit tes impôts.';
     }

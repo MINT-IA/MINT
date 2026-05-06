@@ -341,7 +341,7 @@ async def anonymous_chat(
     # insight. Future iterations may refine this with intent classification.
     eclairage: Optional[EclairagePayload] = None
     if new_count >= 2 and not anon_session.eclairage_delivered:
-        eclairage = build_default_fiscal_margin_3a_eclairage()
+        eclairage = build_default_fiscal_margin_3a_eclairage(language=body.language)
         anon_session.eclairage_delivered = True
 
     # ──────────────────────────────────────────────────────────────────

@@ -1237,7 +1237,7 @@
   "unemploymentEduLamalTitle": "LAMal premium reduction",
   "unemploymentEduLamalBody": "With a lower income, you may be entitled to LAMal subsidies. Apply through your canton.",
   "unemploymentTsunamiTitle": "Your financial tsunami in 3 waves",
-  "unemploymentDisclaimer": "Educational estimates — not financial advice under LSFin — LACI/LPP/OPP3. The amounts shown are approximate and depend on your personal situation. Consult a specialist or your canton's ORP.",
+  "unemploymentDisclaimer": "Educational estimates — not financial advice under FinSA — LACI/LPP/OPP3. The amounts shown are approximate and depend on your personal situation. Consult a specialist or your canton's ORP.",
   "firstJobTitle": "First job",
   "firstJobHeaderDesc": "Understand your payslip! We show you where your contributions go, what your employer pays on top, and the first financial reflexes to adopt.",
   "firstJobSalaryTitle": "Monthly gross salary",
@@ -2236,7 +2236,7 @@
   },
   "financialSummaryTotalDettes": "Total debts",
   "financialSummaryToi": "You",
-  "financialSummaryDisclaimer": "Educational tool — does not constitute financial advice (LSFin, LAVS, LPP, LIFD). Estimated values (~) are calculated from Swiss averages. Scan your certificates to improve projection accuracy.",
+  "financialSummaryDisclaimer": "Educational tool — does not constitute financial advice (FinSA, LAVS, LPP, LIFD). Estimated values (~) are calculated from Swiss averages. Scan your certificates to improve projection accuracy.",
   "financialSummaryEnregistrer": "Save",
   "dataQualityTitle": "Data quality",
   "dataQualityMissingCount": "{count} information(s) to add",
@@ -2675,7 +2675,7 @@
       }
     }
   },
-  "earlyRetirementDisclaimer": "Educational estimates — not financial advice (LSFin).",
+  "earlyRetirementDisclaimer": "Educational estimates — not financial advice (FinSA).",
   "earlyRetirementSemanticsLabel": "Retirement age simulator. Selected age : {age} years.",
   "@earlyRetirementSemanticsLabel": {
     "placeholders": {
@@ -7488,14 +7488,14 @@
   "agentLppFormTitle": "LPP Buyback Form",
   "agentLppTransferSubject": "Request for pension transfer (vested benefits)",
   "agentNoAction": "MINT does not automatically submit, transmit or execute anything.",
-  "agentOutputDisclaimer": "Educational tool — does not constitute financial, tax or legal advice. Verify each piece of information. Compliant with LSFin.",
+  "agentOutputDisclaimer": "Educational tool — does not constitute financial, tax or legal advice. Verify each piece of information. Compliant with FinSA.",
   "agentPensionFundSubject": "Request for pension fund certificate",
   "agentSpecialistLabel": "a qualified specialist",
   "agentTaskAvsExtractDesc": "Letter template to request an individual account extract (CI) from your AVS compensation fund.",
   "agentTaskAvsExtractTitle": "AVS extract request",
   "agentTaskCaisseLetterDesc": "Formal letter template to request an LPP certificate, buyback confirmation and early retirement simulation.",
   "agentTaskCaisseLetterTitle": "Letter to pension fund",
-  "agentTaskDisclaimer": "This tool is purely educational and does not constitute financial, tax or legal advice. Amounts shown are indicative estimates. Consult a qualified specialist before any decision. In accordance with LSFin.",
+  "agentTaskDisclaimer": "This tool is purely educational and does not constitute financial, tax or legal advice. Amounts shown are indicative estimates. Consult a qualified specialist before any decision. In accordance with FinSA.",
   "agentTaskFiscalDossierDesc": "Educational summary of your estimated tax situation with possible deductions and questions to ask a specialist.",
   "agentTaskFiscalDossierTitle": "Tax dossier preparation",
   "agentTaskLppCertificateDesc": "Letter template to request an updated occupational pension certificate from your pension fund.",
@@ -8041,7 +8041,7 @@
   "consentLabelSnapshot": "Progress history",
   "consentNoActiveConsents": "No active consents",
   "conversationHistoryError": "Unable to load history.",
-  "deuxViesDisclaimer": "Educational tool. Not financial advice (LSFin).",
+  "deuxViesDisclaimer": "Educational tool. Not financial advice (FinSA).",
   "deuxViesGap": "Gap of {amount}/month in favor of {name}",
   "deuxViesLever": "{lever} would close {impact} of the gap",
   "deuxViesTitle": "Your two lives",
@@ -8210,7 +8210,7 @@
   "expertDebtTypeConso": "Consumer credit",
   "expertDebtTypeHypo": "Mortgage",
   "expertDebtTypeLeasing": "Leasing",
-  "expertDisclaimer": "MINT facilitates the connection — does not replace personalised advice (LSFin art. 3)",
+  "expertDisclaimer": "MINT facilitates the connection — does not replace personalised advice (FinSA art. 3)",
   "expertDossierIncomplete": "Incomplete profile — {count} data points missing",
   "expertDossierSectionBudget": "Budget & debts",
   "expertDossierSectionDeductions": "Tax deductions",
@@ -8403,7 +8403,7 @@
   "friBarStability": "Stability",
   "friBarTitle": "Financial resilience",
   "friInsufficientData": "Complete your profile to see your score",
-  "frontalierDisclaimer": "Simplified estimates for educational purposes — does not constitute fiscal or legal advice. Amounts depend on many factors (deductions, municipality, assets, international agreements, etc.). Consult a tax specialist for a personalised analysis. LSFin.",
+  "frontalierDisclaimer": "Simplified estimates for educational purposes — does not constitute fiscal or legal advice. Amounts depend on many factors (deductions, municipality, assets, international agreements, etc.). Consult a tax specialist for a personalised analysis. FinSA.",
   "gamificationCommunityTitle": "Monthly challenge",
   "gamificationMilestonesTitle": "Your achievements",
   "gamificationOptInPrompt": "Join community challenges",
@@ -8695,7 +8695,7 @@
   "milestoneKnowledgeMaitreTitle": "Master",
   "milestoneKnowledgeStrategisteDesc": "100 insights. You have a strategic long-term view of your finances.",
   "milestoneKnowledgeStrategisteTitle": "Strategist",
-  "monteCarloDisclaimer": "Past returns do not predict future results. Educational simulation (LSFin).",
+  "monteCarloDisclaimer": "Past returns do not predict future results. Educational simulation (FinSA).",
   "monteCarloHeroPhrase": "chance your capital lasts until age 90",
   "monteCarloLegendCurrentIncome": "What you earn today",
   "monteCarloLegendMedian": "Central scenario",
@@ -9937,7 +9937,7 @@
   },
   "coachOpenerPromise": "I know you. I see what is coming. I guide you.",
   "@coachOpenerPromise": {
-    "description": "First-contact opener line 2 — trust promise. LSFin-compatible."
+    "description": "First-contact opener line 2 — trust promise. FinSA-compatible."
   },
   "coachOpenerQuestion": "Where do we start?",
   "@coachOpenerQuestion": {
@@ -10278,7 +10278,7 @@
     }
   },
   "planCard_ctaHide": "Hide details",
-  "planCard_disclaimer": "Educational tool — does not constitute financial advice (LSFin). Sources : LIFD art. 38, LPP art. 14.",
+  "planCard_disclaimer": "Educational tool — does not constitute financial advice (FinSA). Sources : LIFD art. 38, LPP art. 14.",
   "planCard_errorBody": "Unable to generate the plan. Try again by describing your goal to the coach.",
   "planCard_recalculatePrompt": "Recalculate my plan : {goalDescription}",
   "@planCard_recalculatePrompt": {
@@ -10579,7 +10579,7 @@
   "mtcSummaryWeakUnderstanding": "The math is settled, the idea still deserves a conversation.",
   "landingV2Cta": "Continue (no account)",
   "landingV2Privacy": "Nothing leaves your phone until you decide it does.",
-  "landingV2Legal": "Educational tool. Not financial advice under LSFin.",
+  "landingV2Legal": "Educational tool. Not financial advice under FinSA.",
   "landingV2LoginLink": "I already have an account",
   "alertGenericFactPrefix": "MINT noticed",
   "alertGenericCausePrefix": "Why",
@@ -10677,7 +10677,7 @@
   },
   "anonymousChatLsfinDisclaimer": "General information, not personalised financial advice.",
   "@anonymousChatLsfinDisclaimer": {
-    "description": "Phase 71a — LSFin disclaimer line above input bar (always visible)."
+    "description": "Phase 71a — FinSA disclaimer line above input bar (always visible)."
   },
   "anonymousChatInputHint": "Write what's on your mind…",
   "@anonymousChatInputHint": {

@@ -2740,7 +2740,7 @@ class SEn extends S {
 
   @override
   String get unemploymentDisclaimer =>
-      'Educational estimates — not financial advice under LSFin — LACI/LPP/OPP3. The amounts shown are approximate and depend on your personal situation. Consult a specialist or your canton\'s ORP.';
+      'Educational estimates — not financial advice under FinSA — LACI/LPP/OPP3. The amounts shown are approximate and depend on your personal situation. Consult a specialist or your canton\'s ORP.';
 
   @override
   String get firstJobTitle => 'First job';
@@ -4716,7 +4716,7 @@ class SEn extends S {
 
   @override
   String get financialSummaryDisclaimer =>
-      'Educational tool — does not constitute financial advice (LSFin, LAVS, LPP, LIFD). Estimated values (~) are calculated from Swiss averages. Scan your certificates to improve projection accuracy.';
+      'Educational tool — does not constitute financial advice (FinSA, LAVS, LPP, LIFD). Estimated values (~) are calculated from Swiss averages. Scan your certificates to improve projection accuracy.';
 
   @override
   String get financialSummaryEnregistrer => 'Save';
@@ -5618,7 +5618,7 @@ class SEn extends S {
 
   @override
   String get earlyRetirementDisclaimer =>
-      'Educational estimates — not financial advice (LSFin).';
+      'Educational estimates — not financial advice (FinSA).';
 
   @override
   String earlyRetirementSemanticsLabel(int age) {
@@ -13269,7 +13269,7 @@ class SEn extends S {
 
   @override
   String get agentOutputDisclaimer =>
-      'Educational tool — does not constitute financial, tax or legal advice. Verify each piece of information. Compliant with LSFin.';
+      'Educational tool — does not constitute financial, tax or legal advice. Verify each piece of information. Compliant with FinSA.';
 
   @override
   String get agentPensionFundSubject => 'Request for pension fund certificate';
@@ -13293,7 +13293,7 @@ class SEn extends S {
 
   @override
   String get agentTaskDisclaimer =>
-      'This tool is purely educational and does not constitute financial, tax or legal advice. Amounts shown are indicative estimates. Consult a qualified specialist before any decision. In accordance with LSFin.';
+      'This tool is purely educational and does not constitute financial, tax or legal advice. Amounts shown are indicative estimates. Consult a qualified specialist before any decision. In accordance with FinSA.';
 
   @override
   String get agentTaskFiscalDossierDesc =>
@@ -15141,7 +15141,7 @@ class SEn extends S {
 
   @override
   String get deuxViesDisclaimer =>
-      'Educational tool. Not financial advice (LSFin).';
+      'Educational tool. Not financial advice (FinSA).';
 
   @override
   String deuxViesGap(String amount, String name) {
@@ -15725,7 +15725,7 @@ class SEn extends S {
 
   @override
   String get expertDisclaimer =>
-      'MINT facilitates the connection — does not replace personalised advice (LSFin art. 3)';
+      'MINT facilitates the connection — does not replace personalised advice (FinSA art. 3)';
 
   @override
   String expertDossierIncomplete(int count) {
@@ -16356,7 +16356,7 @@ class SEn extends S {
 
   @override
   String get frontalierDisclaimer =>
-      'Simplified estimates for educational purposes — does not constitute fiscal or legal advice. Amounts depend on many factors (deductions, municipality, assets, international agreements, etc.). Consult a tax specialist for a personalised analysis. LSFin.';
+      'Simplified estimates for educational purposes — does not constitute fiscal or legal advice. Amounts depend on many factors (deductions, municipality, assets, international agreements, etc.). Consult a tax specialist for a personalised analysis. FinSA.';
 
   @override
   String get gamificationCommunityTitle => 'Monthly challenge';
@@ -17333,7 +17333,7 @@ class SEn extends S {
 
   @override
   String get monteCarloDisclaimer =>
-      'Past returns do not predict future results. Educational simulation (LSFin).';
+      'Past returns do not predict future results. Educational simulation (FinSA).';
 
   @override
   String get monteCarloHeroPhrase => 'chance your capital lasts until age 90';
@@ -21602,7 +21602,7 @@ class SEn extends S {
 
   @override
   String get planCard_disclaimer =>
-      'Educational tool — does not constitute financial advice (LSFin). Sources : LIFD art. 38, LPP art. 14.';
+      'Educational tool — does not constitute financial advice (FinSA). Sources : LIFD art. 38, LPP art. 14.';
 
   @override
   String get planCard_errorBody =>
@@ -22276,7 +22276,7 @@ class SEn extends S {
 
   @override
   String get landingV2Legal =>
-      'Educational tool. Not financial advice under LSFin.';
+      'Educational tool. Not financial advice under FinSA.';
 
   @override
   String get landingV2LoginLink => 'I already have an account';

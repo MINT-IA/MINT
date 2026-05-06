@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Phase 94 — Compliance Polish — Verification Report</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 980px; margin: 2em auto; padding: 0 1em; color: #1d1d1f; }
+  h1 { border-bottom: 2px solid #003B2F; padding-bottom: .3em; }
+  h2 { color: #003B2F; margin-top: 1.6em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { border: 1px solid #d2d2d7; padding: .5em .8em; text-align: left; }
+  th { background: #f5f5f7; }
+  .pass { color: #248a3d; font-weight: 600; }
+  .fail { color: #d70015; font-weight: 600; }
+  .deferred { color: #b25000; font-weight: 600; }
+  code { background: #f5f5f7; padding: .15em .3em; border-radius: 3px; font-size: .92em; }
+  .meta { color: #6e6e73; font-size: .9em; }
+</style>
+</head>
+<body>
+
+<h1>Phase 94 — Compliance Polish (Locale + i18n + Constants)</h1>
+<p class="meta">Generated: 2026-05-07 · Branch: <code>feat/phase-A-e2e-unblock</code> · Plan: <code>94-01</code></p>
+
+<h2>1. Plan checklist</h2>
+<table>
+  <tr><th>Task</th><th>Requirement</th><th>Bug</th><th>Status</th></tr>
+  <tr><td>Task 1 — éclairage 6-locale registry + builder</td><td>COMP-02</td><td>BUG #20 P1</td><td class="pass">PASSED</td></tr>
+  <tr><td>Task 2 — 39-case backend test suite</td><td>COMP-02</td><td>BUG #20 P1</td><td class="pass">PASSED</td></tr>
+  <tr><td>Task 3 — EN ARB LSFin → FinSA sweep + regression test</td><td>COMP-05</td><td>BUG #12 P3</td><td class="pass">PASSED</td></tr>
+  <tr><td>Task 4 — Derived <code>pilier3aProchePlafondThreshold</code> constant</td><td>COMP-06</td><td>BUG #23 P2</td><td class="pass">PASSED</td></tr>
+</table>
+
+<h2>2. ARB grep gate (pre / post)</h2>
+<table>
+  <tr><th>Locale</th><th>LSFin pre</th><th>LSFin post</th><th>FinSA pre</th><th>FinSA post</th><th>Native</th><th>Touched?</th></tr>
+  <tr><td><strong>en</strong></td><td>13</td><td><strong>0</strong></td><td>57</td><td><strong>70</strong></td><td>FinSA</td><td class="pass">YES (intended)</td></tr>
+  <tr><td>fr</td><td>72</td><td>72</td><td>1</td><td>1</td><td>LSFin</td><td class="pass">no</td></tr>
+  <tr><td>de</td><td>8</td><td>8</td><td>1</td><td>1</td><td>FIDLEG (61)</td><td class="pass">no</td></tr>
+  <tr><td>it</td><td>56</td><td>56</td><td>1</td><td>1</td><td>LSFin (LSerFi → P97)</td><td class="pass">no</td></tr>
+  <tr><td>es</td><td>66</td><td>66</td><td>1</td><td>1</td><td>LSFin (FR-anchored)</td><td class="pass">no</td></tr>
+  <tr><td>pt</td><td>66</td><td>66</td><td>1</td><td>1</td><td>LSFin (FR-anchored)</td><td class="pass">no</td></tr>
+</table>
+<p>Generated <code>app_localizations_en.dart</code>: 0 LSFin / 67 FinSA. ARB key parity preserved (zero key delta).</p>
+
+<h2>3. Per-locale éclairage banned-term scan</h2>
+<table>
+  <tr><th>Locale</th><th>Body hits</th><th>Headline hits</th><th>Hint hits</th><th>Body length / 240 max</th></tr>
+  <tr><td>fr</td><td>[]</td><td>[]</td><td>[]</td><td>223</td></tr>
+  <tr><td>de</td><td>[]</td><td>[]</td><td>[]</td><td>235</td></tr>
+  <tr><td>it</td><td>[]</td><td>[]</td><td>[]</td><td>227</td></tr>
+  <tr><td>en</td><td>[]</td><td>[]</td><td>[]</td><td>228</td></tr>
+  <tr><td>es</td><td>[]</td><td>[]</td><td>[]</td><td>226</td></tr>
+  <tr><td>pt</td><td>[]</td><td>[]</td><td>[]</td><td>222</td></tr>
+</table>
+<p>All variants pass <code>ComplianceGuard._check_banned_terms</code> Layer-1 scan: zero hits across body + headline + soft_account_hint.</p>
+
+<h2>4. Test counts</h2>
+<table>
+  <tr><th>Suite</th><th>Cases</th><th>Status</th></tr>
+  <tr><td>backend new — <code>test_anonymous_eclairage_prompt_locale.py</code></td><td>39</td><td class="pass">39 / 39</td></tr>
+  <tr><td>backend regression — <code>tests/coach/</code></td><td>155</td><td class="pass">155 / 155</td></tr>
+  <tr><td>backend full unit suite — <code>tests/</code></td><td>6 090</td><td class="pass">6 089 / 6 090 (1 pre-existing, deferred)</td></tr>
+  <tr><td>mobile new — <code>test_app_en_arb_finsa_sweep.dart</code></td><td>4</td><td class="pass">4 / 4</td></tr>
+  <tr><td>mobile new — COMP-06 derivation</td><td>4</td><td class="pass">4 / 4</td></tr>
+  <tr><td>mobile regression — <code>benchmark_service_test.dart</code></td><td>27</td><td class="pass">27 / 27</td></tr>
+  <tr><td>mobile static analysis — touched files</td><td>4 files</td><td class="pass">No issues found</td></tr>
+</table>
+
+<h2>5. UX semantic preservation (COMP-06)</h2>
+<p><code>BenchmarkService.compare3a(annualContribution: 7000.0, previousAnnualContribution: 7000.0)</code> still emits « Tu es proche du plafond 3a » because <code>7000 ≥ 6967.68</code>. The literal <code>7000</code> appears <strong>0 times</strong> in <code>apps/mobile/lib/services/benchmark_service.dart</code>.</p>
+<p><strong>Derived form:</strong> <code>const double pilier3aProchePlafondThreshold = pilier3aPlafondAvecLpp * 0.96;</code> &nbsp;&nbsp;= <code>7258.0 * 0.96</code> = <strong>6967.68</strong>.</p>
+
+<h2>6. Deferred items</h2>
+<table>
+  <tr><th>Item</th><th>Owner phase</th><th>Status</th></tr>
+  <tr><td><code>test_compliance_wording.py::test_no_banned_words</code> meta-doc-comment hit at <code>anonymous_chat.py:169</code></td><td>Phase 96 lint allowlist or 97 counsel pass</td><td class="deferred">Pre-existing on tip — out of scope (Karpathy 3)</td></tr>
+  <tr><td>Promptfoo 24-case eval suite (6 × 4 archetypes)</td><td>Phase 95 TEST-01</td><td class="deferred">Code path now exists; eval runner is Phase 95</td></tr>
+  <tr><td>DE/IT regulator-name verification by Swiss counsel (FIDLEG vs FinSA in DE; LSerFi rollout in IT)</td><td>Phase 97</td><td class="deferred">Out of scope by design</td></tr>
+</table>
+
+<h2>7. Bug closure</h2>
+<table>
+  <tr><th>Bug</th><th>Severity</th><th>Description</th><th>Status</th></tr>
+  <tr><td>#20</td><td>P1</td><td>Eclairage card emitted FR even when <code>body.language</code> ∈ {de, it, en, es, pt}</td><td class="pass">CLOSED</td></tr>
+  <tr><td>#12</td><td>P3</td><td>EN ARB shipped « LSFin » (FR regulator name) instead of « FinSA »</td><td class="pass">CLOSED</td></tr>
+  <tr><td>#23</td><td>P2</td><td>Magic literal <code>7000</code> in <code>benchmark_service.dart:118</code></td><td class="pass">CLOSED</td></tr>
+</table>
+
+<h2>8. Commit</h2>
+<p>Single atomic commit on <code>feat/phase-A-e2e-unblock</code>. SHA recorded by executor on commit. Format: <code>feat(94-01): eclairage 6-locale + EN LSFin→FinSA + benchmark constant (closes BUG #20/12/23)</code>.</p>
+
+</body>
+</html>

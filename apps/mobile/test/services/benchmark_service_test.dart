@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/benchmark_service.dart';
 
 void main() {
@@ -285,6 +286,63 @@ void main() {
       );
       expect(result.delta, closeTo(2.0, 0.01));
       expect(result.message, contains('+'));
+    });
+  });
+
+  // =========================================================================
+  // Phase 94 / COMP-06 — derived "proche du plafond" threshold
+  //
+  // The literal `7000` in benchmark_service.dart:118 was replaced by
+  // `pilier3aProchePlafondThreshold = pilier3aPlafondAvecLpp * 0.96`
+  // (= 6967.68 for plafond 7258). The multiplicative form auto-rebalances
+  // the « proche du plafond » band when OFAS revalorises the plafond.
+  // =========================================================================
+
+  group('pilier3aProchePlafondThreshold derivation (COMP-06)', () {
+    test('threshold is derived from pilier3aPlafondAvecLpp (× 0.96), not magic',
+        () {
+      expect(
+        pilier3aProchePlafondThreshold,
+        closeTo(pilier3aPlafondAvecLpp * 0.96, 0.001),
+      );
+      // For the 2026 plafond (CHF 7'258): 7258 * 0.96 = 6967.68.
+      expect(pilier3aProchePlafondThreshold, closeTo(6967.68, 0.01));
+    });
+
+    test('contribution at legacy 7000 still triggers « proche du plafond » UX',
+        () {
+      // Was: literal 7000 >= 7000 ✓
+      // Now: 7000 >= 6967.68 ✓ — semantic preserved.
+      // delta = 0 routes the message into the threshold check (not the
+      // « cotisation a augmenté » branch).
+      final result = BenchmarkService.compare3a(
+        age: 30,
+        has3a: true,
+        annualContribution: 7000.0,
+        previousAnnualContribution: 7000.0,
+      );
+      expect(result.message, contains('proche du plafond 3a'));
+    });
+
+    test('contribution at the exact derived threshold triggers « proche »', () {
+      final result = BenchmarkService.compare3a(
+        age: 30,
+        has3a: true,
+        annualContribution: pilier3aProchePlafondThreshold,
+        previousAnnualContribution: pilier3aProchePlafondThreshold,
+      );
+      expect(result.message, contains('proche du plafond 3a'));
+    });
+
+    test('contribution one cent below threshold does NOT trigger « proche »',
+        () {
+      final result = BenchmarkService.compare3a(
+        age: 30,
+        has3a: true,
+        annualContribution: pilier3aProchePlafondThreshold - 0.01,
+        previousAnnualContribution: pilier3aProchePlafondThreshold - 0.01,
+      );
+      expect(result.message, isNot(contains('proche du plafond 3a')));
     });
   });
 }
