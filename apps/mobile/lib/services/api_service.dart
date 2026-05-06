@@ -145,6 +145,14 @@ class ApiService {
 
   /// Probe known backend URLs and keep the first reachable one.
   /// Prevents release builds from getting stuck on a dead domain.
+  ///
+  /// STAMP-02 (Phase 89 v2.12) — per-candidate timeout reduced from 2s
+  /// to 700ms to keep cold-launch P50 under the 2.5s gate. The defined
+  /// candidate (Railway staging) typically responds in &lt; 200ms when
+  /// healthy ; 700ms gives 3.5× headroom while bounding the worst-case
+  /// startup-blocked time at ~2.1s across the 3 candidates instead of
+  /// ~6s. If no candidate responds, the app falls back to the
+  /// hard-coded default URL (no functional regression).
   static Future<void> ensureReachableBaseUrl() async {
     // In tests/dev without explicit API_BASE_URL, avoid network probing.
     if (!kReleaseMode && _definedApiBaseUrl.isEmpty) {
@@ -155,7 +163,7 @@ class ApiService {
       try {
         final response = await http
             .get(Uri.parse('$candidate/health'))
-            .timeout(const Duration(seconds: 2));
+            .timeout(const Duration(milliseconds: 700));
         if (_isUnavailableEndpoint(response)) {
           continue;
         }

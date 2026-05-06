@@ -69,7 +69,62 @@ Git : `feature/S{XX}-<slug>` depuis `dev` ; PRs feature→dev squash, dev→stag
 
 ## 6. QUICK LINKS
 
-`rules.md` · `docs/MINT_IDENTITY.md` · `docs/DESIGN_SYSTEM.md` · `docs/VOICE_SYSTEM.md` · `SOT.md` · `docs/ROADMAP_V2.md` · `.claude/skills/mint-{swiss-compliance,flutter-dev,backend-dev}/SKILL.md`.
+`rules.md` · `docs/MINT_IDENTITY.md` · `docs/DESIGN_SYSTEM.md` · `docs/VOICE_SYSTEM.md` · `SOT.md` · `docs/ROADMAP_V2.md` · `.claude/skills/mint-{swiss-compliance,flutter-dev,backend-dev}/SKILL.md` · `.planning/INDEX.md`.
+
+## 7. BEHAVIOR FOUNDATION — Karpathy 4 (LLM coding pitfalls, [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills))
+
+> Karpathy : *« The models make wrong assumptions on your behalf and just run along with them without checking. They don't manage their confusion, don't seek clarifications, don't surface inconsistencies, don't present tradeoffs. They overcomplicate code, bloat abstractions, don't clean up dead code. »* These 4 principles override default speed bias when in doubt.
+
+### #1 Think Before Coding — *don't assume, surface tradeoffs*
+- State assumptions explicitly. If uncertain → ask (per memory `feedback_blockers_ask_dont_defer.md`).
+- Multiple interpretations exist → present them, don't pick silently.
+- Simpler approach exists → say so, push back when warranted.
+- Something unclear → stop, name what's confusing, ask.
+
+### #2 Simplicity First — *minimum code that solves the problem*
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No « flexibility » / « configurability » not requested.
+- No error handling for impossible scenarios.
+- 200 lines that could be 50 → rewrite. Test : *« Would a senior engineer say this is overcomplicated ? »*
+
+### #3 Surgical Changes — *touch only what you must, clean only your own mess*
+- Don't « improve » adjacent code, comments, formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- Notice unrelated dead code → mention, don't delete (unless asked).
+- Test : *« Every changed line traces directly to the user's request ? »*
+
+### #4 Goal-Driven Execution — *define success criteria, loop until verified*
+- « Add validation » → « Write tests for invalid inputs, then make them pass ».
+- « Fix the bug » → « Write a test that reproduces it, then make it pass ».
+- « Refactor X » → « Tests pass before AND after ».
+- Multi-step task → state plan with `verify:` per step. Strong success criteria let you loop independently. Weak criteria force constant clarification.
+
+**Working when :** fewer unnecessary diff lines, fewer overcomplication rewrites, clarifying questions BEFORE implementation rather than mistake post-mortems.
+
+## 8. WIKI SCHEMA — `.planning/` Karpathy Wiki Pattern conventions
+
+> Karpathy's [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) : *« the LLM is rediscovering knowledge from scratch on every question. There's no accumulation. »* MINT's `.planning/` is the **agent vault** ; `~/.claude/projects/.../memory/` is the **curator vault** (separate per Karpathy practice 1).
+
+**Three layers** :
+- **`raw/`** — implicit : `~/Downloads/handoff*/` PDFs, articles, panels-input. Read-only ; never modified by Claude.
+- **`.planning/`** — agent-owned wiki. CONTEXT, PLAN, VERIFICATION, decisions, reports, milestones, roadmap, state. Claude writes ; you read.
+- **`CLAUDE.md`** (this file) + **`.claude/skills/`** — schema layer. How Claude maintains the wiki.
+
+**Conventions enforced by `tools/checks/wiki_lint.py`** :
+
+1. **TLDR mandatory** — every `.planning/**/*.md` must have either a `description:` frontmatter line OR a non-trivial first paragraph. Auto-extracted into `.planning/INDEX.md` (regen via `python3 tools/checks/wiki_lint.py index`).
+2. **Counter-arguments and data gaps** required on every decision artifact (`.planning/decisions/*.md`) — bias-check against echo-chamber. Template at `.planning/decisions/_TEMPLATE.md`. **HARD lint** (FAIL on missing).
+3. **File queries back into the wiki** — when a session produces a valuable analysis (panel synthesis, postmortem, audit), file it as a new ADR or `.planning/audit/<topic>.md` page. Don't let it die in chat history.
+4. **Monthly lint** — run `python3 tools/checks/wiki_lint.py` to surface contradictions, stale claims, orphan pages, new article candidates. Pre-commit hook (lefthook) runs it on `.planning/**/*.md` touches.
+
+**Scale plan** (Karpathy practice 6, mark in `INDEX.md` when crossed) :
+- 0-300 .md pages : flat files + INDEX.md (current : ~455, but most are leaf reports).
+- 300-500 article-class pages : add FTS5 / BM25 (`qmd` candidate).
+- 500+ : Postgres + frontmatter-driven views.
+
+**Anti-pattern (Karpathy practice 1)** : never write speculative agent-generated drafts into `~/.claude/projects/.../memory/` (curator vault). All Claude-generated content lives in `.planning/`.
 
 ## 🚨 BOTTOM — 5 RULES CRITIQUES (duplicated intentionally, Liu 2024)
 

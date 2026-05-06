@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-05-06T07:30:00Z",
+  "r2_bucket": "mint-goldens",
+  "r2_endpoint": "<TBD-Phase-91-provisioning>",
+  "personas": {
+    "_comment": "Empty bake. Phase 90 scaffolding only — manifest contract present, no goldens uploaded yet. Bake via `walker_premier_eclairage.sh --bake-golden` once PERS-02 walker integration + R2 bucket provisioned (Phase 91).",
+    "julien_swiss": {
+      "fr": { "light": {} },
+      "de": { "light": {} },
+      "en": { "light": {} }
+    },
+    "lauren_expat_us": {
+      "fr": { "light": {} },
+      "de": { "light": {} },
+      "en": { "light": {} }
+    }
+  }
+}

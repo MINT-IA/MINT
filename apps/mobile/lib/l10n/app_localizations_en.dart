@@ -22192,10 +22192,6 @@ class SEn extends S {
       'The math is settled, the idea still deserves a conversation.';
 
   @override
-  String get landingV2Paragraph =>
-      'Mint tells you what no one else has any interest in telling you. About your insurance, your 3a, your salary, your lease, your partner, your taxes. Calmly. Without selling you anything.';
-
-  @override
   String get landingV2Cta => 'Continue (no account)';
 
   @override
@@ -22250,6 +22246,9 @@ class SEn extends S {
   String get landingV2CtaSober => 'Talk to Mint';
 
   @override
+  String get landingV3Hero => 'See clearly. Decide for yourself.';
+
+  @override
   String get tonChooserTitle => 'Pick how Mint speaks to you';
 
   @override
@@ -22294,30 +22293,24 @@ class SEn extends S {
   String get anonymousIntentLine1 => 'Your financial life, in plain sight.';
 
   @override
-  String get anonymousIntentLine2 => '';
+  String get anonymousChatOpener =>
+      'Hey. Tell me what\'s on your mind right now around money — a project, a question, something fuzzy.';
 
   @override
-  String get anonymousIntentPill1 =>
-      'I pay, I sign, but I don\'t really get all of it';
+  String get anonymousChatChip1 => 'I have a purchase in mind';
 
   @override
-  String get anonymousIntentPill2 => 'I just avoid thinking about it';
+  String get anonymousChatChip2 => 'I\'m changing jobs';
 
   @override
-  String get anonymousIntentPill3 => 'I\'m scared of making a costly mistake';
+  String get anonymousChatChip3 => 'I just want to see clearly';
 
   @override
-  String get anonymousIntentPill4 => 'I know I should be on top of this';
+  String get anonymousChatLsfinDisclaimer =>
+      'General information, not personalised financial advice.';
 
   @override
-  String get anonymousIntentPill5 =>
-      'Something changed and I have no idea where to start';
-
-  @override
-  String get anonymousIntentPill6 => 'I just want to see clearly';
-
-  @override
-  String get anonymousIntentFreeTextHint => 'Or say it in your own words…';
+  String get anonymousChatInputHint => 'Write what\'s on your mind…';
 
   @override
   String get anonymousChatBack => 'Back';
@@ -22916,72 +22909,6 @@ class SEn extends S {
 
   @override
   String get onboardingSealRetry => 'Try again';
-
-  @override
-  String get wedgeTeaserEyebrowExample => 'EXAMPLE';
-
-  @override
-  String get wedgeTeaserEyebrowEstimate => 'INDICATIVE ESTIMATE';
-
-  @override
-  String get wedgeTeaserSalienceExample =>
-      'EXAMPLE · not a projection of your situation';
-
-  @override
-  String get wedgeTeaserSalienceEstimate =>
-      'Indicative estimate · full career, retirement at 65';
-
-  @override
-  String get wedgeTeaserAssumptionsExample => 'AVS only, full career example';
-
-  @override
-  String get wedgeTeaserAssumptionsEstimate =>
-      'Assumptions: age 40, career 20→65, no gaps, AVS only. Your actual figure shifts with your age, gender, canton, LPP.';
-
-  @override
-  String get wedgeTeaserReculExample =>
-      'Add your LPP and MINT projects your own numbers.';
-
-  @override
-  String get wedgeTeaserReculEstimate =>
-      'With an account, MINT refines with your age, LPP, canton, and gaps.';
-
-  @override
-  String wedgeTeaserHeroSemantics(String amount) {
-    return '$amount francs per month';
-  }
-
-  @override
-  String get wedgeTeaserChfPerMonth => 'CHF / month';
-
-  @override
-  String get wedgeTeaserModifySalary => 'Edit';
-
-  @override
-  String get wedgeTeaserCtaRegister =>
-      'Create your account for your own projections';
-
-  @override
-  String get wedgeSalaryInputLabel =>
-      'Your gross annual salary. For a quick estimate.';
-
-  @override
-  String get wedgeSalaryInputAction => 'Calculate';
-
-  @override
-  String get wedgeSalaryInputActionSemantics => 'Calculate my estimate';
-
-  @override
-  String get wedgeSalaryStaysOnDevice =>
-      'Your salary stays on your device. MINT never sends it anywhere.';
-
-  @override
-  String get wedgeSalaryErrorInvalid =>
-      'Enter an amount in digits, for example 95 000.';
-
-  @override
-  String get wedgeSalaryErrorOutOfRange =>
-      'Between 10 000 and 1 000 000 CHF per year.';
 
   @override
   String get coachOnboardingFirstUserMessage =>

@@ -32,6 +32,7 @@ import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
 import 'package:mint_mobile/services/coach/coach_fallback_messages.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
+import 'package:mint_mobile/services/coach/eclairage_models.dart';
 import 'package:mint_mobile/services/coach/fallback_templates.dart';
 import 'package:mint_mobile/services/coach/prompt_registry.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -116,9 +117,59 @@ class CoachOrchestrator {
   /// Average chars per token (French with accents).
   static const double _charsPerToken = 3.5;
 
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 80 (v2.11) — Premier Éclairage forced-kind contract
+  // ══════════════════════════════════════════════════════════════
+
+  /// Build-time dart-define that pins the eclairage kind for E2E walker /
+  /// widget tests. Empty in production builds.
+  ///
+  /// Read via [forcedEclairageKind] which gates on [kReleaseMode] so the
+  /// flag is dead code in App Store IPAs (ECLW-04 — defense in depth).
+  static const String _forceEclairageKindDefine =
+      String.fromEnvironment('MINT_E2E_FORCE_ECLAIRAGE_KIND');
+
+  /// The eclairage kind forced by the `MINT_E2E_FORCE_ECLAIRAGE_KIND`
+  /// dart-define, or `null` when:
+  ///   - we are in a release build ([kReleaseMode] is true), OR
+  ///   - the dart-define is empty / unrecognised.
+  ///
+  /// Phase 80 ECLW-01 + ECLW-04: the chat tool dispatcher reads this getter
+  /// post-LLM-parse and overrides the resolved kind in the eclairage
+  /// payload before it reaches the screen render.
+  static EclairageKind? get forcedEclairageKind {
+    if (kReleaseMode) return null;
+    final raw = _forceEclairageKindDefine.trim();
+    if (raw.isEmpty) return null;
+    return EclairageKind.fromWire(raw);
+  }
+
   /// Max chars to send to SLM (derived from maxContextTokens).
   static int get _maxPromptChars =>
       (SlmEngine.maxContextTokens * _charsPerToken).floor();
+
+  // ══════════════════════════════════════════════════════════════
+  //  PHASE 74 — DETERMINISTIC ÉCLAIRAGE KIND OVERRIDE (E2E only)
+  // ══════════════════════════════════════════════════════════════
+
+  /// E2E-only override that pins the premier-éclairage `kind`
+  /// post-tool-dispatch so the walker's image-diff captures stay
+  /// deterministic across runs.
+  ///
+  /// Read from `--dart-define=MINT_E2E_FORCE_ECLAIRAGE_KIND=<kind>`.
+  /// Empty (the default) = no override, production behavior unchanged.
+  /// Non-empty = downstream callers (selector / persistence) read this
+  /// getter and substitute the resolved [PremierEclairageType] / payload
+  /// `kind` field with the env value.
+  ///
+  /// Phase 74 walker requirement (PANEL-VERDICT.md §3 + §8 hidden risk
+  /// #1). Without this hook the LLM tool-chain re-derives a different
+  /// kind every run and image-diff is doomed.
+  ///
+  // (duplicate `forcedEclairageKind` String getter from Phase 74 stub
+  // removed in v2.12 Phase 86 integration — the typed EclairageKind?
+  // version at line ~140 is the canonical one. Phase 74 stub was the
+  // phantom contract that v2.12 doctrine expected the walker to expose.)
 
   // ══════════════════════════════════════════════════════════════
   //  PUBLIC API — narrative (dashboard surface)

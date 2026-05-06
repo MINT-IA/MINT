@@ -114,13 +114,43 @@ platform :ios do
     )
 
     # ── 7. Upload to TestFlight ──
-    upload_to_testflight(
-      api_key: api_key,
-      skip_waiting_for_build_processing: false,
-      distribute_external: true,
-      groups: ["Beta Testeurs"],
-      changelog: ENV["TESTFLIGHT_CHANGELOG"] || `git log -1 --pretty=format:"%s"`.strip,
-    )
+    # The upload + auto-submit-for-beta-review is a single fastlane action,
+    # but Apple's beta review queue accepts ONLY ONE in-flight build per train
+    # (e.g. version 2.9.0). When a previous build is still in review, the
+    # auto-submit raises Spaceship::UnexpectedResponse and the WHOLE action
+    # exits non-zero — even though the binary IS already in App Store Connect.
+    # That makes our CI flap as failure on what is in fact a successful upload.
+    #
+    # Strategy: try the full submission first. If the « Another build is in
+    # review » error is raised, fall back to upload-only (skip_submission:
+    # true) so the binary lands in ASC and Julien can manually click
+    # « Submit for Review » in the ASC UI once the previous build clears.
+    # Either way, the binary is already uploaded by step 6's altool path.
+    begin
+      upload_to_testflight(
+        api_key: api_key,
+        skip_waiting_for_build_processing: false,
+        distribute_external: true,
+        groups: ["Beta Testeurs"],
+        changelog: ENV["TESTFLIGHT_CHANGELOG"] || `git log -1 --pretty=format:"%s"`.strip,
+      )
+    rescue => e
+      msg = e.message.to_s
+      if msg.include?("Another build is in review") ||
+         msg.include?("already in beta review")
+        UI.important("Auto-submit for beta review skipped: previous build of this train is still in Apple's review queue.")
+        UI.important("The binary is uploaded to App Store Connect — submit it for review manually once the previous build clears.")
+        # Re-run with submission off so the upload phase reconciles cleanly
+        # (idempotent — if binary already uploaded, fastlane fast-paths).
+        upload_to_testflight(
+          api_key: api_key,
+          skip_submission: true,
+          skip_waiting_for_build_processing: true,
+        )
+      else
+        raise
+      end
+    end
   end
 
   desc "Register devices + refresh profiles"

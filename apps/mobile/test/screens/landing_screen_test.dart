@@ -1,10 +1,11 @@
 // Phase 7 — Landing v2 smoke + anti-regression tests.
+// Phase 73 — Updated for Landing v3 éditorial (PANEL-VERDICT.md):
+//   hero now `landingV3Hero` « Voir clair, décider seul. ».
 //
 // Asserts:
-//   • The 4 text surfaces render (wordmark, paragraphe-mère, CTA, legal).
-//   • Privacy micro-phrase is present.
+//   • The text surfaces render (wordmark, hero, CTA, legal, login link).
 //   • No banned term (retirement framing, aggressive CTAs) is rendered.
-//   • CTA navigates to /anonymous/intent (walk 2026-04-24 P0-1: pill picker first).
+//   • CTA navigates to /anonymous/chat (Phase 71a: chat-first cold-open).
 //   • Reduced-motion fallback renders content on first pump (no wait).
 //
 // CONTEXT.md §2 D-01..D-13 | LAND-01, LAND-02, LAND-04, LAND-05, LAND-06.
@@ -16,7 +17,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
-import 'package:mint_mobile/services/feature_flags.dart';
 
 GoRouter _buildRouter() {
   return GoRouter(
@@ -26,22 +26,16 @@ GoRouter _buildRouter() {
         path: '/',
         builder: (_, __) => const LandingScreen(),
       ),
-      // Mirror production /start redirect (flag-gated, landing purity).
+      // Mirror production /start redirect (Phase 71a: unconditionally
+      // /anonymous/chat — landing purity preserved).
       GoRoute(
         path: '/start',
-        redirect: (_, __) =>
-            FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/intent',
+        redirect: (_, __) => '/anonymous/chat',
       ),
       GoRoute(
-        path: '/anonymous/intent',
+        path: '/anonymous/chat',
         builder: (_, __) => const Scaffold(
-          body: Center(child: Text('ANONYMOUS_INTENT_STUB')),
-        ),
-      ),
-      GoRoute(
-        path: '/onb',
-        builder: (_, __) => const Scaffold(
-          body: Center(child: Text('ONB_STUB')),
+          body: Center(child: Text('ANONYMOUS_CHAT_STUB')),
         ),
       ),
       GoRoute(
@@ -74,28 +68,27 @@ Widget _wrap({MediaQueryData? mediaQuery}) {
 }
 
 void main() {
-  group('LandingScreen — calm promise surface', () {
-    testWidgets('renders 3 elements: wordmark + promise + CTA + legal',
+  group('LandingScreen — Phase 73 v3 éditorial surface', () {
+    testWidgets('renders elements: wordmark + hero + CTA + login + legal',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
 
       // Wordmark
       expect(find.text('MINT'), findsOneWidget);
-      // Promise — single sentence (POLISH-01)
-      expect(
-        find.textContaining('\u00e9claire'),
-        findsOneWidget,
-      );
-      // CTA — "Commencer" (not "Continuer (sans compte)")
-      expect(find.text('Parle \u00e0 Mint'), findsOneWidget);
-      // No privacy subtitle
+      // Phase 73 hero — landingV3Hero option D, locked.
+      expect(find.text('Voir clair, décider seul.'), findsOneWidget);
+      // CTA — landingV2CtaSober kept (only the line changed, not button copy).
+      expect(find.text('Parle à Mint'), findsOneWidget);
+      // No privacy subtitle.
       expect(
         find.textContaining('Rien ne sort de ton téléphone'),
         findsNothing,
       );
-      // Legal footer
+      // Legal footer.
       expect(find.textContaining('LSFin'), findsOneWidget);
+      // Login link visible.
+      expect(find.text('J’ai déjà un compte'), findsOneWidget);
     });
 
     testWidgets('renders zero banned terms', (tester) async {
@@ -123,7 +116,7 @@ void main() {
       }
     });
 
-    testWidgets('CTA routes to /anonymous/intent (FIX-02 + walk 2026-04-24)',
+    testWidgets('CTA routes to /anonymous/chat (Phase 71a chat-first)',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
@@ -131,7 +124,7 @@ void main() {
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('ANONYMOUS_INTENT_STUB'), findsOneWidget);
+      expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
     });
 
     testWidgets('reduced-motion: content visible on first pump', (tester) async {
@@ -142,12 +135,9 @@ void main() {
       // One extra pump to flush the post-frame callback that jumps to end.
       await tester.pump();
 
-      // Paragraph is present immediately — no animation delay needed.
-      expect(
-        find.textContaining('\u00e9claire'),
-        findsOneWidget,
-      );
-      expect(find.text('Parle \u00e0 Mint'), findsOneWidget);
+      // Hero is present immediately — no animation delay needed.
+      expect(find.text('Voir clair, décider seul.'), findsOneWidget);
+      expect(find.text('Parle à Mint'), findsOneWidget);
     });
   });
 }
