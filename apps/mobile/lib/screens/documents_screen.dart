@@ -1183,6 +1183,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
     if (result != null && result.files.single.path != null) {
       if (!mounted) return;
+      // BUG #4 (P0, walkthrough audit 2026-05-06) — Vault upload is a
+      // parallel pipeline to /scan that does NOT merge extracted fields
+      // into CoachProfile. The audit's « one-liner pattern » was wrong :
+      // /scan uses raw `List<ExtractedField>` while vault returns typed
+      // `LppExtractedFields`. Real fix needs a new CoachProfileProvider
+      // method `updateFromLppExtractedFields(LppExtractedFields)` —
+      // separate commit. For now, keep upload visible-only.
       await context
           .read<DocumentProvider>()
           .uploadDocument(result.files.single.path!);
