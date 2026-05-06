@@ -1,0 +1,59 @@
+# tools/simulator/flows/julien_swiss.yaml
+#
+# Phase 90 PERS-03 (v2.13) — Premier Éclairage scenario, julien_swiss
+# archetype, FR locale (default). Panel-locked architecture
+# 2026-05-05 : Maestro YAML drives the in-app tap choreography ;
+# walker_premier_eclairage.sh handles the surrounding flutter build /
+# sim boot / install / launch / Sentry pull / artifact bundle.
+#
+# Semantic locators ONLY — zero pixel coordinates. Drift in any
+# `tapOn:` / `assertVisible:` literal is caught by
+# `tools/checks/maestro_locator_audit.py` blocking lint (PERS-07).
+#
+# 5 checkpoints (mirrors walker `walker_premier_eclairage.sh` exit-0
+# contract on the same archetype × scenario) :
+#   01 landing            — landing screen visible
+#   02 anon-chat-opener   — anonymous chat opener bubble + chips
+#   03 after-turn1        — first user prompt sent + assistant reply
+#   04 eclairage-card     — éclairage card rendered (Cleo brand line)
+#   05 register-cta       — register CTA scrolled into viewport
+#
+# Pre-requisite : app installed on booted iPhone 17 Pro sim with
+# dart-defines :
+#   MINT_E2E_ARCHETYPE=julien_swiss
+#   MINT_E2E_FORCE_ECLAIRAGE_KIND=fiscal_margin_3a
+#   MINT_DISABLE_BETA_MODAL=true
+#   APP_LOCALE=fr (or de / en — see flows/julien_swiss.de.yaml etc. for
+#                  cross-language, follow-up Phase 91)
+
+appId: ch.mint.app
+---
+# 01 — landing screen visible
+- launchApp
+- assertVisible: "Voir clair, décider seul."
+
+# 02 — tap landing CTA → anonymous chat opener
+- tapOn:
+    text: "Parle à Mint"
+- assertVisible:
+    id: "anon-chat-opener-bubble"
+
+# 03 — tap input field, type prompt 1, submit, wait for assistant reply
+- tapOn:
+    id: "anon-chat-input"
+- inputText: "Combien je peux mettre dans un 3a cette annee ?"
+- pressKey: Enter
+- assertVisible:
+    id: "anon-chat-message-assistant"
+    timeout: 30000
+
+# 04 — éclairage card rendered (forced kind = fiscal_margin_3a)
+- assertVisible: "Ta marge fiscale 3a"
+- assertVisible:
+    text: "plafond du 3e pilier"
+
+# 05 — scroll to register CTA + assert visible
+- scroll
+- assertVisible:
+    id: "anon-chat-register-cta"
+- assertVisible: "Estime ta marge précise"

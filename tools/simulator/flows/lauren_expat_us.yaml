@@ -1,0 +1,60 @@
+# tools/simulator/flows/lauren_expat_us.yaml
+#
+# Phase 90 PERS-04 (v2.13) — Premier Éclairage scenario,
+# lauren_expat_us archetype, FR locale.
+#
+# Same 5-checkpoint structure as julien_swiss.yaml (PERS-03). The
+# distinction is the archetype seed (lauren_expat_us = expat_us with
+# FATCA gating) which forces a different éclairage kind branch in the
+# coach orchestrator. The forced kind here is `fiscal_margin_3a` for
+# Phase 90 contract (10 cells = 2 personas × 1 scenario), matching
+# the walker fixture set.
+#
+# Phase 92 will introduce the explicit FATCA scenario (Lauren asking
+# « c'est garanti combien ? » with banned-term gate firing) — that's
+# JDEF-02, journalist-defense set, not Phase 90.
+#
+# Semantic locators ONLY — same drift contract as julien_swiss.yaml.
+#
+# Pre-requisite dart-defines (set by walker_premier_eclairage.sh) :
+#   MINT_E2E_ARCHETYPE=lauren_expat_us
+#   MINT_E2E_FORCE_ECLAIRAGE_KIND=fiscal_margin_3a
+#   MINT_DISABLE_BETA_MODAL=true
+#   APP_LOCALE=fr
+
+appId: ch.mint.app
+---
+# 01 — landing screen visible (same brand line as julien_swiss)
+- launchApp
+- assertVisible: "Voir clair, décider seul."
+
+# 02 — tap landing CTA → anonymous chat opener
+- tapOn:
+    text: "Parle à Mint"
+- assertVisible:
+    id: "anon-chat-opener-bubble"
+
+# 03 — first prompt + wait for assistant reply
+# Lauren's prompt frame matches her expat_us archetype (US-aware
+# fiscal posture, even though the forced kind here is fiscal_margin_3a
+# for Phase 90 ; the archetype-seeded prompt is allowed to differ from
+# the walker deterministic prompt — Maestro just observes the response
+# render).
+- tapOn:
+    id: "anon-chat-input"
+- inputText: "Mon revenu en CHF, est-ce que je peux mettre dans un 3a ?"
+- pressKey: Enter
+- assertVisible:
+    id: "anon-chat-message-assistant"
+    timeout: 30000
+
+# 04 — éclairage card rendered (forced kind = fiscal_margin_3a)
+- assertVisible: "Ta marge fiscale 3a"
+- assertVisible:
+    text: "plafond du 3e pilier"
+
+# 05 — scroll to register CTA + assert visible
+- scroll
+- assertVisible:
+    id: "anon-chat-register-cta"
+- assertVisible: "Estime ta marge précise"
