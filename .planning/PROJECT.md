@@ -8,9 +8,38 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 
 **Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.**
 
-## Current Milestone: v2.9 Coach Visuel Hybride
+## Current Milestone: v2.14 « Living MINT » (started 2026-05-06)
 
-**Goal:** Verticale « Onboarding-to-First-Insight ». Un user qui arrive sur MINT a, en moins de 20 min, son profil financier sur les 6 axes suisses (AVS, LPP, 3a, salaire, fortune, charges) + un hero number actionnable « marge fiscale optimisable cette année » + un coach qui balance vignettes / scènes / canvas pour explorer les arbitrages (3a vs rachat LPP vs amortissement vs hypothèque) avec liens deep-dive vers les écrans Explorer existants.
+**Goal :** Transformer MINT d'un prototype « shipped en code, théâtre en validation » en un MVP qui se walke bout-en-bout sans crash, qui rend personnalisé pour 3 archetypes (julien_swiss / lauren_expat_us / sofia_ticino), qui se sent vivant per Cleo benchmark, et qui passe l'inspecteur FINMA test.
+
+**Target features (post-walkthrough audit 2026-05-06 + 6-agent panel synthesis) :**
+
+1. **Closing the 10 deferred bugs from PR #506** — proactive push (#5), audit log table (#18), vault typed converter (#4), eclairage 6-locale (#20), 5 simulators ConfidenceBadge (#21), FATCA pre-emission (#22), benchmark literal 7000 (#23), EN i18n LSFin→FinSA (#12), Mon argent visual validation, Documents wiring complete
+2. **3 « vivant » primitives (Cleo parity per `MILESTONE-MVP-PERIMETER.md`)** — proactive opener cross-session memory-anchored / JITAI nudges via `CoachInterruptBanner` real UI / persona toggle « calme suisse » Apple-grade
+3. **MVP shipping gate** — 5 testers TestFlight Internal NDA cohort, 24h crash-free ≥ 99.5%, banner « pré-conformité »
+4. **Test infrastructure réelle (per doctrine 2026-05-06-test-theater-post-mortem)** — promptfoo eval suite + Pact mobile↔backend + alembic check + testcontainers-Postgres + Sentry release-health alerts
+
+**Phase numbering :** continuing from Phase 90 (Phase A5). v2.14 starts at Phase 91.
+
+**Source artefacts :**
+- `docs/USER_WALKTHROUGH_2026-05-06.md` (351 lignes, 23 bugs documentés)
+- `.planning/decisions/2026-05-06-test-theater-post-mortem-doctrine.md` (7-panel synthesis + 30-day plan)
+- `.planning/MILESTONE-MVP.md` (architecture cible aligned MASTERPLAN)
+- `.planning/MILESTONE-MVP-PERIMETER.md` (« living MVP » + 7 must-haves + 14-day plan)
+
+## Previous Milestone: v2.9-v2.13 (carry-over, partial ship 2026-04 → 2026-05)
+
+v2.9 « Coach Visuel Hybride » planned 4 phases (40-43) but the work expanded
+through Phase 71-90 across 5 versions :
+- v2.9 Phase 40-43 : marge fiscale + scenes + canvas
+- v2.10-v2.12 : anonymous chat + éclairage card + walker pipeline + STAMP-PASS
+- v2.13 Phase A1-A5 : real walker + production safety guards
+- Phase 71-90 : extensive incremental work, walker theater issues, MVP-PLAN P0-1/2/3 shipped
+
+**Carry-over to v2.14 :** the 10 bugs deferred per PR #506 + the « vivant » primitives missing per Cleo benchmark.
+
+<details>
+<summary>v2.9 original scope (planned, partially shipped, see git log Phase 40-43)</summary>
 
 **4 phases planned:**
 - **Phase 40 — Marge fiscale backend** (3-5j) : pure function `compute_marge_fiscale(profile)` + endpoint + 10 unit tests
@@ -21,6 +50,8 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 **Doctrine v2.9:** Le coach EST le produit. 3 niveaux de projection visuelle (vignette inline / scène interactive / canvas modal) intégrés dans le chat. Arbitrage live entre leviers fiscaux. Lien deep-dive vers écrans Explorer existants.
 
 **Carry-forward de v2.8:** FIX-01 UUID, FIX-03 save_fact, FIX-04 Coach tab, FIX-05 bare catches Wave 2+, FIX-07 234 backend accent violations, Phase 33 kill-flags (subset). Phase 34/35 deferred.
+
+</details>
 
 ## Previous Milestone: v2.8 L'Oracle & La Boucle (shipped 2026-04-25 with gaps)
 
