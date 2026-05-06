@@ -78,4 +78,11 @@ flutter:
     - assets/config/tax_scales.json
     - assets/config/tax_scales_2024.json
     - assets/config/personas.json
+    # Phase 90 PERS-05 (v2.13) — LLM replay-cache fixtures. Bundled
+    # as assets so the Flutter app can read them via rootBundle in
+    # debug/profile builds when MINT_LLM_CACHE_MODE=replay. Release
+    # builds short-circuit (kReleaseMode in LlmReplayCache) so users
+    # always hit the live backend.
+    - assets/llm_replay_cache/julien_swiss/fr/premier_eclairage_turn_01.json
+    - assets/llm_replay_cache/lauren_expat_us/fr/premier_eclairage_turn_01.json
     - assets/config/commune_multipliers.json

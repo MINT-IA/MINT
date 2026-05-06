@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
+import 'package:mint_mobile/services/coach/llm_replay_cache.dart';
 import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/rag_service.dart' show RagSource, RagToolCall;
 
@@ -189,11 +190,41 @@ class CoachChatApiService {
   /// Returns a map with keys: message, disclaimers, messagesRemaining, tokensUsed.
   /// On 429 (rate limit), returns a map with messagesRemaining=0 and the detail message.
   /// On network/server error, returns a fallback map so the app works offline.
+  /// Per-session walker turn counter (Phase 90 PERS-05). Increments
+  /// monotonically for replay-cache fixture lookup. Reset only by
+  /// `AnonymousSessionService.clear()` indirectly when a fresh session
+  /// is created.
+  static int _walkerTurnIndex = 0;
+
   static Future<Map<String, dynamic>> sendAnonymousMessage({
     required String message,
     String? intent,
     String language = 'fr',
   }) async {
+    // Phase 90 PERS-05 — replay-cache interceptor. When dart-define
+    // MINT_LLM_CACHE_MODE=replay, look up the deterministic fixture
+    // for (archetype, locale, scenario, turn, prompt) BEFORE any HTTP
+    // call. Hit returns the cached response ; miss raises
+    // MissingReplayCacheError loudly (Phase 51 anti-trap : never
+    // silently fall through to live when replay was requested).
+    // Release builds short-circuit (kReleaseMode handled inside the
+    // cache reader). Live mode = unchanged path below.
+    if (LlmReplayCache.isReplayActive) {
+      _walkerTurnIndex += 1;
+      final cached = await LlmReplayCache.lookup(
+        turn: _walkerTurnIndex,
+        prompt: message,
+        locale: language,
+      );
+      if (cached != null) {
+        // Mirror the live-path session counter update so messagesRemaining
+        // remains consistent across replay calls.
+        final remaining = cached['messagesRemaining'] as int? ?? 0;
+        await AnonymousSessionService.updateFromResponse(remaining);
+        return cached;
+      }
+    }
+
     try {
       final sessionId = await AnonymousSessionService.getOrCreateSessionId();
       final uri = Uri.parse('${ApiService.baseUrl}/anonymous/chat');

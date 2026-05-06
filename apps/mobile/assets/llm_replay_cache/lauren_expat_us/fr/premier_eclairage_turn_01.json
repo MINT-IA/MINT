@@ -1,0 +1,49 @@
+{
+  "_comment": "Phase 90 PERS-05 sample fixture — lauren_expat_us × fr × Premier Éclairage turn 1. Manual bootstrap. Replace with live-recorded version Phase A4.",
+  "schema_version": "1.0",
+  "key": {
+    "archetype": "lauren_expat_us",
+    "locale": "fr",
+    "forced_eclairage_kind": "fiscal_margin_3a",
+    "turn": 1,
+    "prompt_hash": "manual-bootstrap",
+    "prompt_normalized": "mon revenu en chf, est-ce que je peux mettre dans un 3a ?"
+  },
+  "recorded_at": "2026-05-06T11:30:00Z",
+  "recorded_by": "Claude (manual bootstrap, Phase 90 PERS-05 scaffolding)",
+  "request": {
+    "endpoint": "/api/v1/anonymous/chat",
+    "model": "claude-sonnet-4-6-20250929"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "message": "Bonjour Lauren. Comme expat US, le plafond du 3e pilier (7 056 CHF en 2026 pour les salariés) reste accessible mais la fiscalité américaine peut compliquer la donne — un fiscaliste US-CH pourrait t'éclairer sur les implications PFIC et 8938 avant tout versement. Tu pourrais envisager une simulation pour estimer ta marge précise sur la part fiscalement déductible.",
+      "disclaimers": [
+        "Information à but éducatif. Pas un conseil personnalisé au sens de la LSFin."
+      ],
+      "messagesRemaining": 2,
+      "tokensUsed": 487,
+      "intent": "third_pillar_expat_us",
+      "eclairage": {
+        "kind": "fiscal_margin_3a",
+        "headline": "Ta marge fiscale 3a",
+        "body": "À ton revenu CHF, cotiser au plafond du 3e pilier pourrait réduire ton impôt suisse — le bénéfice côté US dépend de ta situation FATCA. Une consultation fiscaliste US-CH est recommandée avant tout versement.",
+        "chf_range_low": 1500,
+        "chf_range_high": 2500,
+        "chf_range_period": "year",
+        "soft_account_hint": "Estime ta marge précise",
+        "lsfin_disclaimer": "Information à but éducatif. Pas un conseil personnalisé au sens de la LSFin. Vérifie ta situation auprès d'un conseiller agréé avant toute décision."
+      }
+    }
+  },
+  "assertions": {
+    "lsfin_banned_regex_hit_count": 0,
+    "issuer_names_hit_count": 0,
+    "promise_regex_hit_count": 0,
+    "us_tax_advice_regex_hit_count": 0,
+    "fr_accent_violations": 0,
+    "min_chf_in_body": 1500,
+    "max_chf_in_body": 2500
+  }
+}
