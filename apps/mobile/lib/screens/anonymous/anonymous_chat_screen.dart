@@ -499,37 +499,14 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   }
                   final msg = _messages[index];
                   final isOpener = index == 0 && _openerShown;
-                  // Phase 72: render the bubble + (optionally) the
-                  // EclairageCard immediately below it when this coach
-                  // message delivered an `eclairage` payload.
-                  final bubble = _buildMessageBubble(msg, isOpener: isOpener);
-                  if (msg.eclairage == null) {
-                    return bubble;
-                  }
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      bubble,
-                      // PERS-03/04 (v2.13 Phase 90) — accessibility identifier
-                      // for Maestro YAML flows. The « register-cta » id targets
-                      // the éclairage card surface (where the softAccountHint
-                      // tap → /auth/register lives, panel-locked Phase 72).
-                      Semantics(
-                        identifier: 'anon-chat-register-cta',
-                        container: true,
-                        child: EclairageCard(payload: <String, dynamic>{
-                          'kind': msg.eclairage!.kind.wireName,
-                          'headline': msg.eclairage!.headline,
-                          'body': msg.eclairage!.body,
-                          'chf_range_low': msg.eclairage!.chfRangeLow,
-                          'chf_range_high': msg.eclairage!.chfRangeHigh,
-                          'chf_range_period': msg.eclairage!.chfRangePeriod,
-                          'soft_account_hint': msg.eclairage!.softAccountHint,
-                          'lsfin_disclaimer': msg.eclairage!.lsfinDisclaimer,
-                        }),
-                      ),
-                    ],
-                  );
+                  // Phase A5 (v2.13) — `_buildMessageBubble` ALREADY
+                  // appends the éclairage card after the bubble (line
+                  // ~785). The previous itemBuilder path also wrapped
+                  // bubble+card in its own Column, producing the
+                  // duplicate card surface Julien reported on
+                  // 2026-05-06. Single source of truth lives in
+                  // `_buildMessageBubble` ; itemBuilder just returns it.
+                  return _buildMessageBubble(msg, isOpener: isOpener);
                 },
               ),
             ),
@@ -811,11 +788,11 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
               'kind': message.eclairage!.kind.wireName,
               'headline': message.eclairage!.headline,
               'body': message.eclairage!.body,
-              'chf_range_low': message.eclairage!.chfRangeLow,
-              'chf_range_high': message.eclairage!.chfRangeHigh,
-              'chf_range_period': message.eclairage!.chfRangePeriod,
-              'soft_account_hint': message.eclairage!.softAccountHint,
-              'lsfin_disclaimer': message.eclairage!.lsfinDisclaimer,
+              'chfRangeLow': message.eclairage!.chfRangeLow,
+              'chfRangeHigh': message.eclairage!.chfRangeHigh,
+              'chfRangePeriod': message.eclairage!.chfRangePeriod,
+              'softAccountHint': message.eclairage!.softAccountHint,
+              'lsfinDisclaimer': message.eclairage!.lsfinDisclaimer,
             }),
           ),
         ],

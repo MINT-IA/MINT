@@ -99,6 +99,7 @@ VALID_LOCALES=(fr de en)
 
 VALID_ARCHETYPES=(
   julien_swiss
+  lauren_expat_us
   couple_acheteurs_lausanne
   jeune_diplome_zurich
   cadre_40_55_lpp_rachat
@@ -628,20 +629,85 @@ fi
 # attempts ad-hoc signing of embedded frameworks. CODE_SIGNING_ALLOWED=NO
 # tells Xcode to skip that step entirely. Sim builds don't need a
 # real signature anyway. Verified on iPhone 17 Pro sim 2026-05-05.
-(cd "$REPO_ROOT/apps/mobile" && \
-  CODE_SIGNING_ALLOWED=NO flutter build ios --simulator --no-codesign \
-  --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
-  --dart-define=MINT_E2E_ARCHETYPE="$ARCHETYPE" \
-  --dart-define=MINT_E2E_FORCE_ECLAIRAGE_KIND="$EXPECTED_KIND" \
-  --dart-define=MINT_WALKTHROUGH_PHASE=74 \
-  --dart-define=MINT_DISABLE_BETA_MODAL=true \
-  --dart-define=APP_LOCALE="$LOCALE" \
-  ${SENTRY_FLAG}) 2>&1 | tee -a "$LOG"
+# Phase 90 PERS-05 (v2.13) — replay-cache mode for walker runs. The
+# default LIVE mode would hit Railway staging on every test run, which
+# is exactly the Phase 51 trap (« ANTHROPIC_API_KEY missing → all
+# walks fail uniformly »). Walker mode = replay by default ; override
+# via env `MINT_LLM_CACHE_MODE_OVERRIDE=live` for the weekly LLM
+# regression run. Bootstrap fixtures live at
+# `apps/mobile/assets/llm_replay_cache/<archetype>/<locale>/` and are
+# bundled as Flutter assets via pubspec.yaml.
+LLM_CACHE_MODE="${MINT_LLM_CACHE_MODE_OVERRIDE:-replay}"
 
+# WALKC-09 (Phase A5 2026-05-06) — first-run codesign retry. On macOS
+# Tahoe (26.x) + iCloud .nosync worktree, the FIRST `flutter build`
+# after Flutter.framework re-extraction always fails at the
+# `debug_unpack_ios` target while ad-hoc signing Flutter.framework
+# (the system-protected `com.apple.provenance` xattr triggers
+# « resource fork, Finder information, or similar detritus » even
+# after `xattr -cr`). The framework IS adhoc-signed despite the
+# non-zero exit code — the SECOND build hits the assemble cache,
+# skips re-signing, and completes. We accept the first failure
+# silently and retry. If the second run fails, the build is genuinely
+# broken (analyzer error, plugin breakage, ...) — emit the real
+# failure log and exit.
 APP_PATH="$REPO_ROOT/apps/mobile/build/ios/iphonesimulator/Runner.app"
+
+run_flutter_build() {
+  # Phase A5 (v2.13) — `--debug` is REQUIRED so `kReleaseMode` resolves to
+  # false at runtime ; otherwise `LlmReplayCache.mode` short-circuits to
+  # `live` (release-build safety guard, see llm_replay_cache.dart:67) and
+  # the walker hits staging instead of the bundled fixture, producing
+  # nondeterministic responses + wrong éclairage kind.
+  (cd "$REPO_ROOT/apps/mobile" && \
+    CODE_SIGNING_ALLOWED=NO flutter build ios --simulator --debug --no-codesign \
+    --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+    --dart-define=MINT_E2E_ARCHETYPE="$ARCHETYPE" \
+    --dart-define=MINT_E2E_FORCE_ECLAIRAGE_KIND="$EXPECTED_KIND" \
+    --dart-define=MINT_WALKTHROUGH_PHASE=74 \
+    --dart-define=MINT_DISABLE_BETA_MODAL=true \
+    --dart-define=APP_LOCALE="$LOCALE" \
+    --dart-define=MINT_LLM_CACHE_MODE="$LLM_CACHE_MODE" \
+    ${SENTRY_FLAG}) 2>&1 | tee -a "$LOG"
+  return ${PIPESTATUS[0]}
+}
+
+# WALKC-09 retry pattern : first build fails at debug_unpack_ios codesign,
+# second build hits assemble cache and succeeds. We delete Runner.app
+# before the second attempt so Xcode re-embeds the freshly-compiled
+# App.framework — otherwise the retry preserves the stale App.framework
+# embedded by the failed first attempt and we install an older binary
+# without our latest dart-source edits (Phase A5 incident 2026-05-06).
+run_flutter_build || true
 if [ ! -d "$APP_PATH" ]; then
-  log "FAIL: Runner.app not found at $APP_PATH"
-  exit 1
+  log "WALKC-09 retry — first flutter build failed (expected on macOS Tahoe + .nosync) ; re-running"
+  rm -rf "$REPO_ROOT/apps/mobile/build/ios/iphonesimulator/Runner.app"
+  rm -rf "$REPO_ROOT/apps/mobile/build/ios/Debug-iphonesimulator/Runner.app"
+  run_flutter_build
+  if [ ! -d "$APP_PATH" ]; then
+    log "FAIL: Runner.app not found at $APP_PATH after retry"
+    exit 1
+  fi
+fi
+
+# WALKC-10 (Phase A5 2026-05-06) — even when the first build « succeeds »
+# on a warm cache, Xcode may still ship an App.framework embedded in
+# Runner.app whose kernel_blob.bin lags the freshly-compiled
+# Debug-iphonesimulator/App.framework. Defensive copy : if we detect a
+# kernel mtime mismatch, overwrite Runner.app/Frameworks/App.framework
+# with the fresh build. This is a no-op when kernels match (most runs).
+FRESH_APP_FW="$REPO_ROOT/apps/mobile/build/ios/Debug-iphonesimulator/App.framework"
+INSTALLED_APP_FW="$APP_PATH/Frameworks/App.framework"
+if [ -d "$FRESH_APP_FW" ] && [ -d "$INSTALLED_APP_FW" ]; then
+  FRESH_KERNEL="$FRESH_APP_FW/flutter_assets/kernel_blob.bin"
+  INSTALLED_KERNEL="$INSTALLED_APP_FW/flutter_assets/kernel_blob.bin"
+  if [ -f "$FRESH_KERNEL" ] && [ -f "$INSTALLED_KERNEL" ]; then
+    if [ "$FRESH_KERNEL" -nt "$INSTALLED_KERNEL" ]; then
+      log "WALKC-10 — fresh kernel newer than installed ; resyncing App.framework"
+      rm -rf "$INSTALLED_APP_FW"
+      cp -R "$FRESH_APP_FW" "$INSTALLED_APP_FW"
+    fi
+  fi
 fi
 
 # SIMH-02 (Phase 83) — defensive idempotence guard. If a prior run left

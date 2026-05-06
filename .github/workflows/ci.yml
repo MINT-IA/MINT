@@ -200,6 +200,13 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/no_llm_alert.py
 
+      # ─── Phase A5 (v2.13) — no LLM replay-cache dart-define in release
+      # Belt + suspenders alongside the runtime kReleaseMode StateError
+      # in llm_replay_cache.dart and the testflight.yml asset strip.
+      - name: No replay-cache in release workflows (Phase A5)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/no_replay_cache_in_release.py
+
       # ─── Phase 6 / REGIONAL-05: no legacy REGIONAL_MAP ──────────
       - name: No legacy REGIONAL_MAP (REGIONAL-05)
         working-directory: ${{ github.workspace }}

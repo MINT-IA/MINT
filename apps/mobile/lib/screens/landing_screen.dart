@@ -137,6 +137,7 @@ class _LandingScreenState extends State<LandingScreen>
                       position: _paragraphOffset,
                       child: Semantics(
                         container: true,
+                        identifier: 'landing-hero',
                         label: l10n.landingV3Hero,
                         child: Text(
                           l10n.landingV3Hero,

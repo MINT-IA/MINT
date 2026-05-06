@@ -35,7 +35,13 @@ if [ ! -x "$HOME/.maestro/bin/maestro" ]; then
 fi
 
 export JAVA_HOME=/opt/homebrew/opt/openjdk/libexec/openjdk.jdk/Contents/Home
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+# Phase A5 (v2.13) — idb_companion + idb python client must be on PATH
+# for Maestro to talk to iOS sim. Maestro 0.15.x auto-starts companion
+# when both binaries are reachable.
+#   brew install idb-companion             → /opt/homebrew/bin/idb_companion
+#   pip3 install --user fb-idb             → ~/Library/Python/3.9/bin/idb
+# fb-idb pip installs into a non-default PATH location ; explicitly add.
+export PATH="$HOME/Library/Python/3.9/bin:/opt/homebrew/opt/openjdk/bin:/opt/homebrew/bin:$PATH"
 export MAESTRO_CLI_NO_ANALYTICS=1
 
 exec "$HOME/.maestro/bin/maestro" "$@"

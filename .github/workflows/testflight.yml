@@ -212,6 +212,23 @@ jobs:
           if [[ -n "$SENTRY_DSN_MOBILE" ]]; then
             EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SENTRY_DSN=$SENTRY_DSN_MOBILE"
           fi
+          # Phase A5 (v2.13) — strip dev-only LLM replay cache fixtures
+          # from the release bundle. The runtime kReleaseMode guard
+          # prevents cache lookups in release, but the JSON fixtures
+          # would still ship inside Runner.app/.../flutter_assets/
+          # if we left them in pubspec.yaml's assets list. Stripping
+          # the directory pre-build keeps the production bundle clean.
+          if [[ -d apps/mobile/assets/llm_replay_cache ]]; then
+            echo "Stripping apps/mobile/assets/llm_replay_cache (dev-only)"
+            rm -rf apps/mobile/assets/llm_replay_cache
+          fi
+          # Phase A5 (v2.13) — hard guard : refuse to build release with
+          # MINT_LLM_CACHE_MODE=replay in the dart-define list.
+          if [[ "$EXTRA_DEFINES" == *"MINT_LLM_CACHE_MODE=replay"* || \
+                "$EXTRA_DEFINES" == *"MINT_LLM_CACHE_MODE=record"* ]]; then
+            echo "::error::MINT_LLM_CACHE_MODE=replay/record forbidden in release build"
+            exit 1
+          fi
           flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_URL $EXTRA_DEFINES
 
       - name: Prepare DART_DEFINES for Xcode/Fastlane

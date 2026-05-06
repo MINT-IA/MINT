@@ -1,0 +1,27 @@
+{
+  "slug": "lauren_expat_us",
+  "label": "Lauren — Expat US (canton GE, FATCA)",
+  "profile": {
+    "age": 31,
+    "canton": "GE",
+    "salary_brut_year": 145000,
+    "has_lpp": true,
+    "lpp_balance": 38000,
+    "has_3a": false,
+    "3a_balance": 0,
+    "marital_status": "single",
+    "kids_count": 0,
+    "owns_property": false,
+    "nationality_group": "US",
+    "fatca_flagged": true
+  },
+  "expected_eclairage": {
+    "kind": "fiscal_margin_3a",
+    "value_min": 1500,
+    "value_max": 2500
+  },
+  "deterministic_prompts": [
+    "Mon revenu en CHF, est-ce que je peux mettre dans un 3a ?",
+    "Et la fiscalite americaine sur ces versements ?"
+  ]
+}

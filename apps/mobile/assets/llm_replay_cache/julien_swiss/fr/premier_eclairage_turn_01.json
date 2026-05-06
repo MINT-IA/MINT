@@ -18,7 +18,7 @@
   "response": {
     "status": 200,
     "body": {
-      "message": "Bonjour Julien. Pour un salarié comme toi, le plafond du 3e pilier en 2026 est de 7 056 CHF. Verser jusqu'à ce plafond pourrait réduire ton revenu imposable et donc ton impôt sur le revenu. Le levier dépend de ton canton et de ta tranche marginale — tu pourrais envisager une simulation pour estimer ta marge précise.",
+      "message": "Bonjour Julien. Pour un salarié comme toi, le plafond du 3e pilier en 2026 est de 7'258 CHF. Verser jusqu'à ce plafond pourrait réduire ton revenu imposable et donc ton impôt sur le revenu. Le levier dépend de ton canton et de ta tranche marginale — tu pourrais envisager une simulation pour estimer ta marge précise.",
       "disclaimers": [
         "Information à but éducatif. Pas un conseil personnalisé au sens de la LSFin."
       ],

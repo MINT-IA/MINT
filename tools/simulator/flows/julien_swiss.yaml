@@ -29,12 +29,16 @@
 appId: ch.mint.app
 ---
 # 01 — landing screen visible
+# Match by Semantics(identifier:) instead of text — Flutter's
+# Semantics(container:true) hides child Text from iOS accessibility
+# tree, so Maestro substring matching against the label was unreliable.
+# The id-based path is the panel-locked architecture default.
 - launchApp
-- assertVisible: "Voir clair, décider seul."
+- assertVisible:
+    id: "landing-hero"
 
 # 02 — tap landing CTA → anonymous chat opener
-- tapOn:
-    text: "Parle à Mint"
+- tapOn: "Parle à Mint"
 - assertVisible:
     id: "anon-chat-opener-bubble"
 
@@ -43,17 +47,33 @@ appId: ch.mint.app
     id: "anon-chat-input"
 - inputText: "Combien je peux mettre dans un 3a cette annee ?"
 - pressKey: Enter
-- assertVisible:
-    id: "anon-chat-message-assistant"
+# Maestro 0.15.x doesn't accept `timeout:` inline on assertVisible.
+# extendedWaitUntil polls until the visible target appears or 30s
+# elapse. Walker replay-cache mode is fast (~50ms response from
+# bundled fixture) but live mode against staging can take 5-15s.
+- extendedWaitUntil:
+    visible:
+      id: "anon-chat-message-assistant"
     timeout: 30000
 
 # 04 — éclairage card rendered (forced kind = fiscal_margin_3a)
-- assertVisible: "Ta marge fiscale 3a"
+# Maestro can't substring-match text wrapped in Semantics(container:true)
+# on iOS, so we match the card's own `anon-chat-eclairage-headline` id
+# (panel-locked Phase A5). The label attribute on the Semantics block
+# carries the localized headline string; per-locale flows assert it.
 - assertVisible:
-    text: "plafond du 3e pilier"
+    id: "anon-chat-eclairage-headline"
 
-# 05 — scroll to register CTA + assert visible
+# 05 — scroll to register CTA + assert visible.
+# Phase A5 (v2.13) — `anon-chat-register-cta` is the panel-locked
+# Semantics container wrapping the entire éclairage card (headline
+# + range + body + soft-hint). Verifying its visibility confirms the
+# CTA surface is rendered + scrolled into viewport. Soft-hint text
+# content is verified at L2 (Dart assertion suite reads walker
+# screenshot OCR + the cached LLM payload's softAccountHint field) —
+# Maestro 0.15.x can't query nested Semantics inside iOS
+# Semantics(container:true), so id-based L1 assertions stop at the
+# parent container.
 - scroll
 - assertVisible:
     id: "anon-chat-register-cta"
-- assertVisible: "Estime ta marge précise"

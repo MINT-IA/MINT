@@ -139,8 +139,15 @@ if [ ! -x "$MAESTRO_ENV" ]; then
   echo "ERROR: Maestro env wrapper not found at $MAESTRO_ENV" >&2; exit 1
 fi
 
-echo "[L1] maestro test $FLOW --device booted"
-"$MAESTRO_ENV" test "$FLOW" --device booted || {
+# Phase A5 (v2.13) — Maestro 0.15.x on macOS Tahoe : `--device booted`
+# fails with « Device booted was requested, but it is not connected »
+# even when xcrun simctl + idb both see the booted iPhone 17 Pro and the
+# idb_companion socket is alive. Auto-detection (no --device flag) picks
+# the booted simulator correctly. Maestro then prints
+# « Running on iPhone 17 Pro - iOS 26.2 - <udid> » and proceeds with the
+# flow.
+echo "[L1] maestro test $FLOW (auto-detect booted device)"
+"$MAESTRO_ENV" test "$FLOW" || {
   echo "ERROR: L1 Maestro flow failed. See ~/.maestro/tests/ for trace." >&2
   exit 3
 }

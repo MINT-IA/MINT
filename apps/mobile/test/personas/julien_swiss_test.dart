@@ -1,121 +1,123 @@
-/// Phase 90 PERS-08 (v2.13) — Dart post-run assertion suite for the
-/// julien_swiss × Premier Éclairage persona scenario.
+/// Phase A5 (v2.13) — Dart post-run assertion suite, julien_swiss.
 ///
-/// Runs AFTER the Maestro flow (`tools/simulator/flows/julien_swiss.yaml`)
-/// completes its 5 in-app checkpoints. Reads artefacts dropped by the
-/// walker (`.planning/walker/<run-id>/julien_swiss/`) and applies the
-/// 4 panel-locked assertion contracts :
+/// Runs AFTER the L1 Maestro flow against the SAME replay-cache fixture
+/// the in-app LlmReplayCache served. We deliberately DO NOT replay the
+/// HTTP call — we read the fixture directly so the assertions stay
+/// hermetic when staging is offline. Live-mode regression runs (weekly,
+/// MINT_LLM_CACHE_MODE_OVERRIDE=live) capture a fresh fixture and feed
+/// the same assertions against it.
 ///
-///   1. **Archetype assertion** — captured Sentry breadcrumb confirms
-///      `MINT_E2E_ARCHETYPE=julien_swiss` was honoured at runtime.
-///   2. **Narrative invariant** — `MintWalkthroughBreadcrumbs` emitted
-///      `eclairage.card.tap` (or equivalent panel-tagged event) within
-///      the 30s post-input window.
-///   3. **LSFin regex assertion** — banned-term lexicon (garanti /
-///      optimal / sans risque / parfait / le meilleur) MUST NOT appear
-///      in any captured assistant message body.
-///   4. **Numeric assertion (financial_core)** — éclairage card's
-///      `chf_range_low` / `chf_range_high` MUST fall within the band
-///      computed by `Pillar3aCalculator.maxAnnualForRange()` for the
-///      julien_swiss profile fixture (age 49, salaire 8200/mo, canton
-///      VS, has_lpp true). Cross-validates that the LLM didn't promise
-///      out-of-bounds figures.
-///
-/// PERS-08 contract carry-forward Phase 91 :
-///   - same 4 assertions on 8 archetypes (ARCH-01..08)
-///   - LSFin regex library extended via `tools/checks/lsfin_lexicon.py`
-///   - financial_core asserts against AvsCalculator + LppCalculator +
-///     TaxCalculator depending on éclairage kind
-///
-/// Pre-requisite : walker run-id exported as env `MINT_WALKER_RUN_ID`.
-/// In Phase 90 scaffolding the assertions are wired but the artifact
-/// reader is stubbed (skip:true on the actual assertions, the test
-/// structure compiles + documents the contract). Wiring lands when
-/// PERS-02 walker `--maestro-flow` shell-out merges (post PR #500
-/// Phase 86 walker improvements rebased onto Phase 90).
+/// Assertions :
+///   1. **Walker run-id env present** — operational gate ; emits a
+///      clear error if L2 is invoked without the walker.
+///   2. **LSFin regex** — banned-term lexicon (garanti / optimal / sans
+///      risque / le meilleur / parfait) MUST NOT appear in the
+///      assistant `message` body.
+///   3. **Canonical plafond reference** — the 2026 plafond du 3e pilier
+///      `pilier3aPlafondAvecLpp` (7258 CHF, OPP3 art. 7) MUST appear
+///      verbatim in the `message` body (catches « 7'056 »-style
+///      hallucinations vs the financial_core constant).
+///   4. **Numeric range bounds** — `eclairage.chf_range_high` MUST NOT
+///      exceed `pilier3aPlafondAvecLpp` (a tax-saving range above the
+///      contribution ceiling is mathematically impossible).
+///   5. **Forced kind honoured** — `eclairage.kind` MUST equal the
+///      walker's `MINT_E2E_FORCE_ECLAIRAGE_KIND` dart-define value.
 library;
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-// Phase 91 will wire :
-// import 'package:mint_mobile/services/pillar_3a_calculator.dart';
-// for the full numeric assertion against julien_swiss profile.
+import 'package:mint_mobile/constants/social_insurance.dart';
 
 const String _archetype = 'julien_swiss';
+const String _locale = 'fr';
 const String _expectedKind = 'fiscal_margin_3a';
 
-// Banned-term lexicon (subset, FR ; full library will land in
-// `tools/checks/lsfin_lexicon.py` Phase 91 GROW-03).
+// Banned-term lexicon (subset, FR — full library lands tools/checks/
+// lsfin_lexicon.py Phase 91 GROW-03).
 final RegExp _bannedTerms = RegExp(
   r'\b(garanti[es]?|optimal|le?\s*meilleur|sans\s*risque|parfait[es]?)\b',
   caseSensitive: false,
 );
 
+Map<String, dynamic> _loadFixture() {
+  final repoRoot = Directory.current.path;
+  // `flutter test` runs from apps/mobile ; resolve assets path relative.
+  final fixturePath =
+      '$repoRoot/assets/llm_replay_cache/$_archetype/$_locale/'
+      'premier_eclairage_turn_01.json';
+  final file = File(fixturePath);
+  if (!file.existsSync()) {
+    fail('replay-cache fixture missing : $fixturePath');
+  }
+  return jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+}
+
 void main() {
   group('PERS-08 julien_swiss × Premier Éclairage post-run assertions', () {
-    test('archetype injected at runtime (dart-define honoured)',
-        () {
-      // Reads walker run summary.json → asserts profile.archetype
-      // resolved to julien_swiss in CoachOrchestrator.
-      // Phase 90 scaffolding : structure + skip true.
-    }, skip: 'Phase 90 scaffolding — wiring lands with PERS-02 walker integration');
-
-    test('narrative invariant — eclairage.card.tap breadcrumb fired',
-        () {
-      // Reads walker breadcrumb capture → asserts the
-      // `mint.coach.eclairage.card.tap` (or panel-tagged equivalent)
-      // breadcrumb was emitted within 30s of input submission.
-    }, skip: 'Phase 90 scaffolding — wiring lands with PERS-02 + PERS-05 replay-cache');
-
-    test('LSFin banned-term regex hit-count == 0 across captured response',
-        () {
-      // Reads walker assistant-response capture → applies _bannedTerms.
-      const sampleResponse =
-          'Plafond du 3e pilier 2026 environ 7 056 CHF. Tu pourrais envisager';
-      final matches = _bannedTerms.allMatches(sampleResponse);
-      expect(matches, isEmpty,
-          reason: 'banned terms in response : '
-              '${matches.map((m) => m.group(0)).toList()}');
-    });
-
-    test('numeric assertion : chf_range falls within Pillar3aCalculator band',
-        () {
-      // Reads éclairage payload chf_range_low/high → cross-validates
-      // against Pillar3aCalculator for julien_swiss profile.
-      // Phase 90 scaffolding : show the cross-check pattern with a
-      // synthetic input ; real wiring reads the captured payload.
-      const mockChfRangeLow = 1500;
-      const mockChfRangeHigh = 2500;
-
-      // Sanity : the band must respect order + be plausible.
-      expect(mockChfRangeLow, lessThan(mockChfRangeHigh));
-      expect(mockChfRangeLow, greaterThanOrEqualTo(0));
-      // 2026 plafond du 3e pilier (salarié) = 7056 CHF (ASF / OFAS).
-      // Phase 91 ARCH-08 will wire Pillar3aCalculator.compute() against
-      // a julien_swiss profile fixture for the full numeric assertion.
-      expect(mockChfRangeHigh, lessThanOrEqualTo(7056),
-          reason:
-              'chf_range_high cannot exceed the 2026 plafond du 3e pilier '
-              '(7056 CHF for salariés).');
-    }, skip: 'Phase 90 scaffolding — full wiring reads walker artefact');
-
-    test('walker run-id env var present',
-        () {
-      // Operational gate : surface a clear error if the assertion
-      // suite is invoked without a walker run-id (= scaffolding
-      // nobody ran the Maestro flow first).
+    test('1. walker run-id env var present', () {
       final runId = Platform.environment['MINT_WALKER_RUN_ID'];
       if (runId == null || runId.isEmpty) {
         markTestSkipped(
-          'MINT_WALKER_RUN_ID not set — walker must run BEFORE this '
-          'assertion suite. See tools/simulator/walker_premier_eclairage.sh '
-          '--maestro-flow tools/simulator/flows/julien_swiss.yaml',
+          'MINT_WALKER_RUN_ID not set — walker must run BEFORE this suite. '
+          'See tools/simulator/walker_persona.sh',
         );
         return;
       }
       expect(runId, matches(RegExp(r'^\d{4}-\d{2}-\d{2}-\d{6}-[0-9a-f]+$')),
           reason: 'walker run-id format : YYYY-MM-DD-HHMMSS-<sha7>');
+    });
+
+    test('2. LSFin banned-term regex hit-count == 0 in fixture message', () {
+      final fixture = _loadFixture();
+      final body =
+          (fixture['response']['body'] as Map<String, dynamic>);
+      final message = (body['message'] as String? ?? '');
+      final hits = _bannedTerms.allMatches(message).map((m) => m.group(0));
+      expect(hits, isEmpty,
+          reason: 'banned terms detected in fixture message : $hits');
+    });
+
+    test('3. canonical plafond 3a referenced in message body', () {
+      final fixture = _loadFixture();
+      final body = (fixture['response']['body'] as Map<String, dynamic>);
+      final message = (body['message'] as String? ?? '');
+      // Accept both apostrophe styles : "7'258" or "7 258" or "7258".
+      final ceiling = pilier3aPlafondAvecLpp.toInt();
+      final patterns = [
+        ceiling.toString(),
+        "$ceiling".replaceAllMapped(
+            RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => "${m.group(1)}'"),
+        ceiling.toString().replaceAllMapped(
+            RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m.group(1)} '),
+      ];
+      final found = patterns.any(message.contains);
+      expect(found, isTrue,
+          reason:
+              'fixture message must reference pilier3aPlafondAvecLpp '
+              '($ceiling CHF, OPP3 art. 7). None of $patterns matched.');
+    });
+
+    test('4. eclairage.chf_range_high <= pilier3aPlafondAvecLpp', () {
+      final fixture = _loadFixture();
+      final eclairage =
+          (fixture['response']['body']['eclairage'] as Map<String, dynamic>);
+      final high = (eclairage['chf_range_high'] as num).toDouble();
+      expect(high, lessThanOrEqualTo(pilier3aPlafondAvecLpp),
+          reason:
+              'chf_range_high ($high) cannot exceed the 3a contribution '
+              'ceiling pilier3aPlafondAvecLpp (${pilier3aPlafondAvecLpp.toInt()} CHF).');
+    });
+
+    test('5. eclairage.kind matches forced kind', () {
+      final fixture = _loadFixture();
+      final eclairage =
+          (fixture['response']['body']['eclairage'] as Map<String, dynamic>);
+      expect(eclairage['kind'], equals(_expectedKind),
+          reason:
+              'fixture éclairage.kind must equal the walker '
+              'MINT_E2E_FORCE_ECLAIRAGE_KIND dart-define (=$_expectedKind).');
     });
   });
 }

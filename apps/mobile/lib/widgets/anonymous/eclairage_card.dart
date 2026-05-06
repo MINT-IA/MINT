@@ -196,15 +196,24 @@ class EclairageCard extends StatelessWidget {
   }
 
   Widget _buildHeadline() {
-    return Text(
-      _headline,
-      style: GoogleFonts.fraunces(
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
-        height: 1.3,
-        color: MintColors.inkPrimary,
-        // §7 row 1 — italic OFF.
-        fontStyle: FontStyle.normal,
+    // Phase A5 (v2.13) — `identifier:` exposes the headline as a queryable
+    // accessibility element to Maestro flows. The parent Semantics
+    // (container:true) wraps the card with the full read-out label, but
+    // Maestro can't substring-match against container labels on iOS, so
+    // each card needs its own id-addressable headline anchor.
+    return Semantics(
+      identifier: 'anon-chat-eclairage-headline',
+      label: _headline,
+      child: Text(
+        _headline,
+        style: GoogleFonts.fraunces(
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+          height: 1.3,
+          color: MintColors.inkPrimary,
+          // §7 row 1 — italic OFF.
+          fontStyle: FontStyle.normal,
+        ),
       ),
     );
   }
@@ -339,10 +348,16 @@ class EclairageCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 14),
       child: Semantics(
+        identifier: 'anon-chat-eclairage-soft-hint',
         button: true,
         label: _softAccountHint,
         hint: 'Crée un compte',
-        excludeSemantics: false,
+        // Phase A5 (v2.13) — `excludeSemantics: true` absorbs the
+        // InkWell's auto-generated child Semantics(button:true) so the
+        // identifier propagates cleanly to iOS UI Automation. With the
+        // default (false), the InkWell's button Semantics competes with
+        // ours and Maestro can't query the id.
+        excludeSemantics: true,
         child: Material(
           color: MintColors.transparent,
           child: InkWell(

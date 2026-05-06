@@ -84,6 +84,19 @@ class LlmReplayCache {
     required String locale,
     String scenario = 'premier_eclairage',
   }) async {
+    // Phase A5 (v2.13) — defence in depth. The `mode` getter already
+    // forces 'live' under kReleaseMode (line 67), but a future refactor
+    // could regress that without breaking unit tests. This second guard
+    // throws a hard StateError if anyone manages to reach the lookup
+    // path in a release build — making the regression visible at
+    // runtime instead of silently shipping fixture data to end users.
+    if (kReleaseMode) {
+      throw StateError(
+        'LlmReplayCache.lookup invoked in kReleaseMode. The replay '
+        'cache is debug/profile only ; production users must hit the '
+        'live backend. Audit the call site.',
+      );
+    }
     if (mode != 'replay') return null;
     if (_archetypeDefine.isEmpty) {
       // Replay mode requested but no archetype seeded → operational
