@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,13 +11,28 @@ import 'package:mint_mobile/services/auth_service.dart';
 import 'package:uuid/uuid.dart';
 
 /// v2.7 Task 7 — client-generated UUID v4 for Idempotency-Key header on
-/// all document upload paths. Prevents duplicate processing on network
-/// retries; same key returns the cached response server-side.
+/// the legacy document upload paths (bank statements). Phase 92 (DOCS-03)
+/// migrated `/documents/upload` to a SHA256-of-bytes key — see
+/// [computeIdempotencyKey].
 const _uuidGen = Uuid();
 
 // ──────────────────────────────────────────────────────────
 // Shared helper
 // ──────────────────────────────────────────────────────────
+
+/// DOCS-03 (Phase 92) — derive a deterministic Idempotency-Key from the
+/// file bytes about to be uploaded. Same bytes → same key, so a retry
+/// with the same payload dedupes at the backend
+/// (`documents.py:415-420` `_idem.lookup_by_key`). Different bytes → new
+/// key. Hex-encoded SHA-256 (64 chars).
+///
+/// Exposed as a top-level function so unit tests can assert the contract
+/// without standing up an HTTP fake. Surgical scope : only the
+/// `/documents/upload` site uses this ; bank-statement upload still uses
+/// a UUID until DOCS-03 follow-up in v2.15.
+String computeIdempotencyKey(Uint8List bytes) {
+  return sha256.convert(bytes).toString();
+}
 
 /// Safely convert a dynamic JSON value to double.
 double? _toDouble(dynamic value) {
@@ -946,10 +962,18 @@ class DocumentService {
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
     }
-    // v2.7 Task 7: idempotency header (UUID v4) — safe retry on network loss.
-    request.headers['Idempotency-Key'] = _uuidGen.v4();
+    // DOCS-03 (Phase 92) — SHA256 of file bytes so retries with the same
+    // payload dedupe at backend (documents.py:415-420 _idem.lookup_by_key).
+    // Random UUID v4 (v2.7 Task 7) gave no real idempotency : every retry
+    // produced a fresh key and re-ran extraction. Closes BUG #4 P0.
+    final fileBytes = await file.readAsBytes();
+    request.headers['Idempotency-Key'] = computeIdempotencyKey(fileBytes);
     request.fields['document_type'] = type.apiValue;
-    request.files.add(await http.MultipartFile.fromPath('file', file.path));
+    request.files.add(http.MultipartFile.fromBytes(
+      'file',
+      fileBytes,
+      filename: file.uri.pathSegments.last,
+    ));
 
     final streamedResponse =
         await request.send().timeout(const Duration(seconds: 120));
@@ -1170,6 +1194,8 @@ class DocumentService {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
           // v2.7 Task 7: idempotency header on retry-prone vision endpoint.
+          // TODO(v2.15) — DOCS-03 followup : SHA256 idempotency for vision
+          // extract (use sha256 of imageBase64 bytes). Out of v2.14 scope.
           'Idempotency-Key': _uuidGen.v4(),
         },
         body: jsonEncode({
@@ -1272,6 +1298,8 @@ class DocumentService {
         req.headers['Authorization'] = 'Bearer $authToken';
       }
       // v2.7 Phase 27: idempotency on retry-prone vision endpoint.
+      // TODO(v2.15) — DOCS-03 followup : SHA256 idempotency on vision
+      // streaming endpoint as well. Out of v2.14 scope.
       req.headers['Idempotency-Key'] = _uuidGen.v4();
 
       req.body = jsonEncode({

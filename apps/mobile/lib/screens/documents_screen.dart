@@ -4,7 +4,9 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -1181,19 +1183,23 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       allowedExtensions: ['pdf'],
     );
 
-    if (result != null && result.files.single.path != null) {
-      if (!mounted) return;
-      // BUG #4 (P0, walkthrough audit 2026-05-06) — Vault upload is a
-      // parallel pipeline to /scan that does NOT merge extracted fields
-      // into CoachProfile. The audit's « one-liner pattern » was wrong :
-      // /scan uses raw `List<ExtractedField>` while vault returns typed
-      // `LppExtractedFields`. Real fix needs a new CoachProfileProvider
-      // method `updateFromLppExtractedFields(LppExtractedFields)` —
-      // separate commit. For now, keep upload visible-only.
-      await context
-          .read<DocumentProvider>()
-          .uploadDocument(result.files.single.path!);
-    }
+    if (result == null || result.files.single.path == null) return;
+    if (!mounted) return;
+
+    // DOCS-02 (Phase 92) — capture providers BEFORE the await so we never
+    // touch BuildContext across an async gap (avoid use_build_context_
+    // synchronously lint + race with widget disposal).
+    final docProvider = context.read<DocumentProvider>();
+    final coachProvider = context.read<CoachProfileProvider>();
+    final mintState = context.read<MintStateProvider>();
+
+    await docProvider.uploadDocument(result.files.single.path!, type: type);
+    await mergeVaultUploadIntoCoachProfile(
+      type: type,
+      docProvider: docProvider,
+      coachProvider: coachProvider,
+      mintState: mintState,
+    );
   }
 
   Future<void> _confirmDelete(
@@ -1448,6 +1454,42 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
   String _formatFieldsFound(S s, int found, int total) {
     return s.documentsFieldsFound(found.toString(), total.toString());
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// DOCS-02 (Phase 92) — vault → CoachProfile merge step
+// ──────────────────────────────────────────────────────────
+
+/// Merge the post-upload result into CoachProfile and trigger a Cap
+/// recompute.
+///
+/// Top-level (not a State method) because the State class is private,
+/// which would prevent widget tests from driving the merge directly.
+/// Closes BUG #4 P0 (walkthrough audit 2026-05-06) : the vault path was
+/// a parallel pipeline to /scan that displayed « 15 fields extracted »
+/// but never merged them into CoachProfile. Now we mirror /scan :
+/// merge extracted fields → CoachProfile, then trigger
+/// `MintStateProvider.recompute`. Confidence invalidation is automatic
+/// via `dataTimestamps` (read by `EnhancedConfidenceService`), so no
+/// explicit invalidate call is needed.
+///
+/// TODO(v2.15) — DOCS-04+ : wire salary / pillar3a / insurance / lease /
+/// lamal extractors the same way once their CoachProfile mappings exist.
+@visibleForTesting
+Future<void> mergeVaultUploadIntoCoachProfile({
+  required VaultDocumentType type,
+  required DocumentProvider docProvider,
+  required CoachProfileProvider coachProvider,
+  required MintStateProvider mintState,
+}) async {
+  final lpp = docProvider.lastUploadResult?.extractedFields.lpp;
+  if (lpp == null || type != VaultDocumentType.lppCertificate) return;
+
+  await coachProvider.updateFromLppExtractedFields(lpp);
+  final profile = coachProvider.profile;
+  if (profile != null) {
+    await mintState.recompute(profile);
   }
 }
 

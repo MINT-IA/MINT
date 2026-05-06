@@ -15,6 +15,7 @@ import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
+import 'package:mint_mobile/services/document_service.dart' show LppExtractedFields;
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
@@ -1350,6 +1351,84 @@ class CoachProfileProvider extends ChangeNotifier {
     if (newVal <= 0) return null;
     final deltaPct = ((newVal - currentAvoir) / currentAvoir * 100).abs();
     return deltaPct > 30 ? deltaPct : null;
+  }
+
+  /// DOCS-01 (Phase 92) — Typed adapter so the vault upload path can reuse
+  /// the same merge engine as the /scan path. Wraps [updateFromLppExtraction]
+  /// to keep a single source of truth (CLAUDE.md règle 4 : no merge-logic
+  /// duplication, financial_core single source of truth).
+  ///
+  /// Each non-null field on [fields] is bridged to an [ExtractedField] whose
+  /// `profileField` matches the existing switch cases inside
+  /// [updateFromLppExtraction] (lines ~1385-1410). The conversion-rate /
+  /// rendement values are passed as-is in percentage form because the
+  /// existing code divides by 100.
+  ///
+  /// Fields with no `profileField` mapping are dropped on purpose — see the
+  /// inline comments below for the v2.15 follow-up TODOs.
+  Future<void> updateFromLppExtractedFields(LppExtractedFields fields) async {
+    final List<ExtractedField> bridged = <ExtractedField>[];
+    void add(String fieldName, String label, double? value, String profileField) {
+      if (value == null) return;
+      bridged.add(ExtractedField(
+        fieldName: fieldName,
+        label: label,
+        value: value,
+        confidence: 1.0, // Backend extractor confirmed
+        sourceText: 'vault_upload',
+        needsReview: false,
+        profileField: profileField,
+      ));
+    }
+
+    // Avoirs (direct money values).
+    add('avoir_vieillesse_total', 'Avoir LPP total',
+        fields.avoirVieillesseTotal, 'avoirLppTotal');
+    add('avoir_obligatoire', 'LPP obligatoire',
+        fields.avoirObligatoire, 'lppObligatoire');
+    add('avoir_surobligatoire', 'LPP surobligatoire',
+        fields.avoirSurobligatoire, 'lppSurobligatoire');
+
+    // Salaire assuré (direct money value).
+    add('salaire_assure', 'Salaire assuré',
+        fields.salaireAssure, 'lppInsuredSalary');
+
+    // Conversion rates — existing switch divides by 100, so pass percentage.
+    add('taux_conversion_obligatoire', 'Taux de conversion obligatoire',
+        fields.tauxConversionObligatoire, 'tauxConversionOblig');
+    add('taux_conversion_surobligatoire', 'Taux de conversion surobligatoire',
+        fields.tauxConversionSurobligatoire, 'tauxConversionSuroblig');
+    // tauxConversionEnveloppe : no profileField mapping in the existing
+    // switch — CPE-style certs fold the two rates into a single enveloppe
+    // figure. Dropped on purpose ; downstream uses obligatoire as fallback.
+
+    // Buyback potential.
+    add('rachat_maximum', 'Rachat maximum',
+        fields.rachatMaximum, 'buybackPotential');
+
+    // Cotisations (annual).
+    add('cotisation_employe', 'Cotisation employé',
+        fields.cotisationEmploye, 'employeeLppContribution');
+    add('cotisation_employeur', 'Cotisation employeur',
+        fields.cotisationEmployeur, 'employerLppContribution');
+
+    // Caisse rendement — existing switch divides by 100, pass percentage.
+    add('remuneration_rate', 'Rendement caisse',
+        fields.remunerationRate, 'rendementCaisse');
+
+    // Couvertures risques.
+    add('rente_invalidite', 'Rente invalidité',
+        fields.renteInvalidite, 'disabilityCoverage');
+    add('capital_deces', 'Capital décès',
+        fields.capitalDeces, 'deathCoverage');
+
+    // TODO(v2.15) — DOCS-04+ : LppExtractedFields exposes salaireAvs,
+    // deductionCoordination, renteConjoint, renteEnfant. The current
+    // CoachProfile.prevoyance schema has no profileField switch case for
+    // them, so they're dropped here. Either widen the switch + schema or
+    // surface a warning when these are present and dropped.
+
+    await updateFromLppExtraction(bridged);
   }
 
   Future<void> updateFromLppExtraction(List<ExtractedField> fields) async {
