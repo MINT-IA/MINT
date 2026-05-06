@@ -1,0 +1,89 @@
+# tools/simulator/flows/walkthrough_proactive_push.yaml
+#
+# Phase 91 Plan 91-04 (VIVANT-01) — proactive push deep-link walkthrough.
+#
+# Scope :
+#   This Maestro flow covers the APP-SIDE half of the proactive-push
+#   contract — the deep-link round-trip from `/coach/chat?topic=<type>
+#   &prefill=<one-liner>` to a prepopulated input field. Maestro CANNOT
+#   capture iOS system notification banners (per CONTEXT.md `<specifics>`
+#   test (a) « Maestro can't test push delivery — document manual test »).
+#
+# Manual `idb` device gate (DO NOT skip — this is the other half) :
+#
+#   On a logged-in build with notifications granted (the FIRST
+#   onboarding screen now requests permission per VIVANT-01 — Apple HIG
+#   pre-prompt) :
+#
+#     1. Force-fire a `lifecyclePhaseChange` trigger via debug menu (or
+#        seed `_proactive_stored_phase` to a stale value via a debug
+#        screen + bump CoachProfile triad signature so
+#        NotificationsWiringService re-runs).
+#     2. Background the app : `idb ui background`.
+#     3. After ~2 minutes (zonedSchedule fire window), capture the
+#        device screen : `idb ui screenshot --output proactive_push.png`.
+#     4. Verify the iOS banner shows :
+#          - title "Une nouvelle phase"
+#          - body  "Un changement de phase mérite un point. On regarde ?"
+#     5. `idb ui tap <banner-coords>` to simulate user tap.
+#     6. Resume the app. The chat screen should be on /coach/chat with
+#        the prefill « Quels changements ma nouvelle phase de vie
+#        implique ? » seeded in the input field — this is what the
+#        Maestro flow below asserts directly via deep-link launch.
+#     7. Verify Sentry breadcrumbs `mint.coach.proactive_push.delivered`
+#        + `mint.coach.proactive_push.tapped` on staging dashboard.
+#
+# This Maestro flow short-circuits the platform-banner half by deep-
+# linking directly into `/coach/chat?topic=lifecyclePhaseChange&
+# prefill=...` (same payload `_scheduleNotification` writes) and asserts
+# the input field is prefilled.
+#
+# NO MINT_E2E_* dart-defines. Production code path against Railway
+# staging. Test user identical to walkthrough_authed_app.yaml.
+
+appId: ch.mint.app
+---
+- launchApp
+- assertVisible:
+    id: "landing-hero"
+
+# ── 01 : login (mirror walkthrough_authed_app.yaml)
+- tapOn:
+    id: "landing-login-link"
+- assertVisible: "Adresse e-mail"
+- tapOn: "Se connecter avec un mot de passe"
+- assertVisible: "Mot de passe"
+- tapOn: "Adresse e-mail"
+- inputText: "mint-walkthrough-2026@gmail.com"
+- tapOn: "Mot de passe"
+- inputText: "WalkthroughTest123!"
+- swipe:
+    direction: UP
+- tapOn: "Se connecter"
+- assertVisible:
+    id: "home-shell"
+    timeout: 20000
+
+# ── 02 : simulate notification tap by deep-linking via openLink
+#         (Maestro openLink is the closest proxy to a real iOS deep-
+#          link tap on the local-notifications payload — same URI
+#          format as `_scheduleNotification` payload :
+#          /coach/chat?topic=<type>&prefill=<encoded-one-liner>).
+- openLink: "mintapp://coach/chat?topic=lifecyclePhaseChange&prefill=Quels%20changements%20ma%20nouvelle%20phase%20de%20vie%20implique%20%3F"
+
+# ── 03 : assert chat opens with prefilled input
+- assertVisible:
+    id: "coach-chat-input"
+    timeout: 8000
+# The input controller value is set in initState by _applyInitialPrefill ;
+# Maestro can verify by attempting to tap the prefilled text and asserting
+# the send button is enabled (a non-empty input enables the send button).
+- assertVisible: "Quels changements ma nouvelle phase de vie implique"
+
+# ── 04 : assert tap-through to send button works (no auto-send per
+#         Apple HIG — user must confirm with a tap).
+- tapOn:
+    id: "coach-chat-send"
+- assertVisible:
+    id: "coach-chat-message-bubble"
+    timeout: 15000

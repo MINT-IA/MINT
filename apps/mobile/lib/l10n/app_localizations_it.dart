@@ -18345,6 +18345,73 @@ class SIt extends S {
       'Il tuo riepilogo settimanale è pronto. Vuoi vederlo ?';
 
   @override
+  String get proactivePushLifecycleTitle => 'Una nuova fase';
+
+  @override
+  String get proactivePushLifecycleBody =>
+      'Un cambio di fase merita un check-in. Vediamo?';
+
+  @override
+  String get proactivePushLifecyclePrefill =>
+      'Cosa cambia la mia nuova fase di vita per me?';
+
+  @override
+  String get proactivePushConfidenceTitle => 'La tua chiarezza cresce';
+
+  @override
+  String proactivePushConfidenceBody(String delta) {
+    return '+$delta punti dall\'ultima volta. Vuoi fare il punto?';
+  }
+
+  @override
+  String get proactivePushConfidencePrefill =>
+      'Su cosa ho fatto progressi dall\'ultima volta?';
+
+  @override
+  String get proactivePushSeasonalTitle => 'Scadenza fiscale';
+
+  @override
+  String proactivePushSeasonalBody(String event) {
+    return 'È il momento di guardare $event. 2 minuti?';
+  }
+
+  @override
+  String get proactivePushSeasonalPrefill =>
+      'Cosa devo fare per questa scadenza?';
+
+  @override
+  String get proactivePushInactivityTitle => 'Riprendiamo?';
+
+  @override
+  String proactivePushInactivityBody(String days) {
+    return 'Sono passati $days giorni. Check-in veloce?';
+  }
+
+  @override
+  String get proactivePushInactivityPrefill =>
+      'Riprendiamo da dove ci siamo fermati.';
+
+  @override
+  String get proactivePushNewCapTitle => 'Una nuova priorità';
+
+  @override
+  String get proactivePushNewCapBody => 'Ho una pista da approfondire con te.';
+
+  @override
+  String get proactivePushNewCapPrefill => 'Qual è la mia nuova priorità?';
+
+  @override
+  String get proactivePushDeadlineTitle => 'Scadenza in arrivo';
+
+  @override
+  String proactivePushDeadlineBody(String label, String days) {
+    return '$label tra $days giorni. Anticipiamo?';
+  }
+
+  @override
+  String get proactivePushDeadlinePrefill => 'Come anticipo questa scadenza?';
+
+  @override
   String projectionUncertaintyBand(String low, String high) {
     return 'CHF $low — $high / mese';
   }

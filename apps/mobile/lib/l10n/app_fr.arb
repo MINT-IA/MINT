@@ -9381,6 +9381,55 @@
   "proactiveNewCap": "J’ai une nouvelle priorité pour toi.",
   "proactiveSeasonalReminder": "C’est la saison {event}. Un bon moment pour…",
   "proactiveWeeklyRecap": "Ton récap de la semaine est prêt. Tu veux le voir ?",
+  "proactivePushLifecycleTitle": "Une nouvelle phase",
+  "proactivePushLifecycleBody": "Un changement de phase mérite un point. On regarde ?",
+  "proactivePushLifecyclePrefill": "Quels changements ma nouvelle phase de vie implique ?",
+  "proactivePushConfidenceTitle": "Ta clarté progresse",
+  "proactivePushConfidenceBody": "+{delta} points depuis la dernière fois. On fait le point ?",
+  "@proactivePushConfidenceBody": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushConfidencePrefill": "Sur quoi j’ai progressé depuis la dernière fois ?",
+  "proactivePushSeasonalTitle": "Échéance fiscale",
+  "proactivePushSeasonalBody": "C’est le moment de regarder {event}. 2 minutes ?",
+  "@proactivePushSeasonalBody": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushSeasonalPrefill": "Que faire pour cette échéance ?",
+  "proactivePushInactivityTitle": "On reprend ?",
+  "proactivePushInactivityBody": "Ça fait {days} jours. Un point rapide ?",
+  "@proactivePushInactivityBody": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushInactivityPrefill": "Reprenons où on s’était arrêtés.",
+  "proactivePushNewCapTitle": "Une nouvelle priorité",
+  "proactivePushNewCapBody": "J’ai une piste à creuser avec toi.",
+  "proactivePushNewCapPrefill": "Quelle est ma nouvelle priorité ?",
+  "proactivePushDeadlineTitle": "Échéance qui approche",
+  "proactivePushDeadlineBody": "{label} dans {days} jours. On anticipe ?",
+  "@proactivePushDeadlineBody": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushDeadlinePrefill": "Comment anticiper cette échéance ?",
   "projectionUncertaintyBand": "CHF {low} — {high} / mois",
   "pulseAmountPerMonth": "{amount}/mois",
   "pulseBudgetATitle": "Aujourd’hui",
@@ -12092,17 +12141,27 @@
   "aujourdhuiResumeConversation": "Reprendre la conversation",
   "coachSequenceNextStepLabel": "Étape suivante : {label}.",
   "@coachSequenceNextStepLabel": {
-    "placeholders": {"label": {"type": "String"}},
-    "x-mint-meta": {"level": "N3"}
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    },
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachSequenceCompletedMessage": "Tu as terminé cette séquence guidée.",
   "@coachSequenceCompletedMessage": {
-    "x-mint-meta": {"level": "N3"}
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "betaDisclosureEyebrow": "MINT en test",
   "@betaDisclosureEyebrow": {
     "description": "Beta disclosure sheet — uppercase eyebrow.",
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlinePrefix": "Tu testes une version qui",
   "@betaDisclosureHeadlinePrefix": {

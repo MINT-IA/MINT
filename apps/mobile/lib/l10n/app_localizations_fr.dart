@@ -18286,6 +18286,73 @@ class SFr extends S {
       'Ton récap de la semaine est prêt. Tu veux le voir ?';
 
   @override
+  String get proactivePushLifecycleTitle => 'Une nouvelle phase';
+
+  @override
+  String get proactivePushLifecycleBody =>
+      'Un changement de phase mérite un point. On regarde ?';
+
+  @override
+  String get proactivePushLifecyclePrefill =>
+      'Quels changements ma nouvelle phase de vie implique ?';
+
+  @override
+  String get proactivePushConfidenceTitle => 'Ta clarté progresse';
+
+  @override
+  String proactivePushConfidenceBody(String delta) {
+    return '+$delta points depuis la dernière fois. On fait le point ?';
+  }
+
+  @override
+  String get proactivePushConfidencePrefill =>
+      'Sur quoi j’ai progressé depuis la dernière fois ?';
+
+  @override
+  String get proactivePushSeasonalTitle => 'Échéance fiscale';
+
+  @override
+  String proactivePushSeasonalBody(String event) {
+    return 'C’est le moment de regarder $event. 2 minutes ?';
+  }
+
+  @override
+  String get proactivePushSeasonalPrefill => 'Que faire pour cette échéance ?';
+
+  @override
+  String get proactivePushInactivityTitle => 'On reprend ?';
+
+  @override
+  String proactivePushInactivityBody(String days) {
+    return 'Ça fait $days jours. Un point rapide ?';
+  }
+
+  @override
+  String get proactivePushInactivityPrefill =>
+      'Reprenons où on s’était arrêtés.';
+
+  @override
+  String get proactivePushNewCapTitle => 'Une nouvelle priorité';
+
+  @override
+  String get proactivePushNewCapBody => 'J’ai une piste à creuser avec toi.';
+
+  @override
+  String get proactivePushNewCapPrefill => 'Quelle est ma nouvelle priorité ?';
+
+  @override
+  String get proactivePushDeadlineTitle => 'Échéance qui approche';
+
+  @override
+  String proactivePushDeadlineBody(String label, String days) {
+    return '$label dans $days jours. On anticipe ?';
+  }
+
+  @override
+  String get proactivePushDeadlinePrefill =>
+      'Comment anticiper cette échéance ?';
+
+  @override
   String projectionUncertaintyBand(String low, String high) {
     return 'CHF $low — $high / mois';
   }

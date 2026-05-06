@@ -431,11 +431,18 @@ final _router = GoRouter(
               builder: (context, state) {
                 final topic = state.uri.queryParameters['topic'];
                 final conversationId = state.uri.queryParameters['conversationId'];
+                // Phase 91 Plan 91-04 (VIVANT-01) — `prefill` carries the
+                // notification one-liner ; when present, the source is
+                // `notification` so CoachChatScreen knows to seed the input
+                // field rather than auto-send.
+                final prefill = state.uri.queryParameters['prefill'];
                 // Build a CoachEntryPayload from the topic query param.
                 // This replaces the old ?prompt= pattern with structured data.
                 final CoachEntryPayload? entryPayload = topic != null
                     ? CoachEntryPayload(
-                        source: CoachEntrySource.direct,
+                        source: prefill != null
+                            ? CoachEntrySource.notification
+                            : CoachEntrySource.direct,
                         topic: topic,
                       )
                     : null;
@@ -443,6 +450,7 @@ final _router = GoRouter(
                   entryPayload: entryPayload,
                   conversationId: conversationId,
                   isEmbeddedInTab: true,
+                  initialPrefill: prefill,
                 );
               },
             ),
@@ -1538,9 +1546,27 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         // notifyListeners.
         ChangeNotifierProxyProvider<CoachProfileProvider, NotificationsWiringService>(
           lazy: false,
-          create: (_) => NotificationsWiringService(),
+          // Phase 91 Plan 91-04 (VIVANT-01) — provide a `stringsProvider`
+          // closure that resolves [S] (AppLocalizations) at notification-
+          // schedule time via the root navigator's BuildContext. This is
+          // the same idiom used elsewhere (`MigrationNoticeListener
+          // .getNavContext`) to bridge non-widget services into the
+          // localised string graph. Returning null is safe : the wiring
+          // service skips the proactive path and logs.
+          create: (_) => NotificationsWiringService(
+            stringsProvider: () {
+              final ctx = _rootNavigatorKey.currentContext;
+              return ctx != null ? S.of(ctx) : null;
+            },
+          ),
           update: (_, profileProvider, wiring) {
-            final service = wiring ?? NotificationsWiringService();
+            final service = wiring ??
+                NotificationsWiringService(
+                  stringsProvider: () {
+                    final ctx = _rootNavigatorKey.currentContext;
+                    return ctx != null ? S.of(ctx) : null;
+                  },
+                );
             service.onProfileChanged(profileProvider.profile);
             return service;
           },

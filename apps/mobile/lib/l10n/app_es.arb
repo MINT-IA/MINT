@@ -8941,6 +8941,55 @@
   "proactiveNewCap": "Tengo una nueva prioridad para ti.",
   "proactiveSeasonalReminder": "Es la temporada de {event}. Un buen momento para…",
   "proactiveWeeklyRecap": "Tu resumen semanal está listo. ¿Quieres verlo ?",
+  "proactivePushLifecycleTitle": "Una nueva etapa",
+  "proactivePushLifecycleBody": "Un cambio de etapa merece un repaso. ¿Vemos?",
+  "proactivePushLifecyclePrefill": "¿Qué cambia mi nueva etapa de vida para mí?",
+  "proactivePushConfidenceTitle": "Tu claridad crece",
+  "proactivePushConfidenceBody": "+{delta} puntos desde la última vez. ¿Hacemos balance?",
+  "@proactivePushConfidenceBody": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushConfidencePrefill": "¿En qué he progresado desde la última vez?",
+  "proactivePushSeasonalTitle": "Hito fiscal",
+  "proactivePushSeasonalBody": "Es el momento de mirar {event}. ¿2 minutos?",
+  "@proactivePushSeasonalBody": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushSeasonalPrefill": "¿Qué debo hacer para este hito?",
+  "proactivePushInactivityTitle": "¿Retomamos?",
+  "proactivePushInactivityBody": "Han pasado {days} días. ¿Un repaso rápido?",
+  "@proactivePushInactivityBody": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushInactivityPrefill": "Retomemos donde lo dejamos.",
+  "proactivePushNewCapTitle": "Una nueva prioridad",
+  "proactivePushNewCapBody": "Tengo una pista para profundizar contigo.",
+  "proactivePushNewCapPrefill": "¿Cuál es mi nueva prioridad?",
+  "proactivePushDeadlineTitle": "Vencimiento próximo",
+  "proactivePushDeadlineBody": "{label} en {days} días. ¿Anticipamos?",
+  "@proactivePushDeadlineBody": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushDeadlinePrefill": "¿Cómo anticipo este vencimiento?",
   "projectionUncertaintyBand": "CHF {low} — {high} / mes",
   "pulseAmountPerMonth": "{amount}/mes",
   "pulseBudgetATitle": "Hoy",

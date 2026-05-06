@@ -18296,6 +18296,73 @@ class SPt extends S {
       'O teu resumo semanal está pronto. Queres vê-lo ?';
 
   @override
+  String get proactivePushLifecycleTitle => 'Uma nova fase';
+
+  @override
+  String get proactivePushLifecycleBody =>
+      'Uma mudança de fase merece um check-in. Vemos?';
+
+  @override
+  String get proactivePushLifecyclePrefill =>
+      'O que muda a minha nova fase de vida para mim?';
+
+  @override
+  String get proactivePushConfidenceTitle => 'A tua clareza cresce';
+
+  @override
+  String proactivePushConfidenceBody(String delta) {
+    return '+$delta pontos desde a última vez. Fazemos balanço?';
+  }
+
+  @override
+  String get proactivePushConfidencePrefill =>
+      'Em que progredi desde a última vez?';
+
+  @override
+  String get proactivePushSeasonalTitle => 'Marco fiscal';
+
+  @override
+  String proactivePushSeasonalBody(String event) {
+    return 'É o momento de olhar para $event. 2 minutos?';
+  }
+
+  @override
+  String get proactivePushSeasonalPrefill =>
+      'O que devo fazer para este marco?';
+
+  @override
+  String get proactivePushInactivityTitle => 'Retomamos?';
+
+  @override
+  String proactivePushInactivityBody(String days) {
+    return 'Passaram $days dias. Check-in rápido?';
+  }
+
+  @override
+  String get proactivePushInactivityPrefill => 'Retomemos de onde paramos.';
+
+  @override
+  String get proactivePushNewCapTitle => 'Uma nova prioridade';
+
+  @override
+  String get proactivePushNewCapBody =>
+      'Tenho uma pista para aprofundar contigo.';
+
+  @override
+  String get proactivePushNewCapPrefill => 'Qual é a minha nova prioridade?';
+
+  @override
+  String get proactivePushDeadlineTitle => 'Prazo a aproximar-se';
+
+  @override
+  String proactivePushDeadlineBody(String label, String days) {
+    return '$label em $days dias. Antecipamos?';
+  }
+
+  @override
+  String get proactivePushDeadlinePrefill => 'Como antecipo este prazo?';
+
+  @override
   String projectionUncertaintyBand(String low, String high) {
     return 'CHF $low — $high / mês';
   }

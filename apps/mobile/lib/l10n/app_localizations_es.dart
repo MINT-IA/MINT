@@ -18301,6 +18301,72 @@ class SEs extends S {
       'Tu resumen semanal está listo. ¿Quieres verlo ?';
 
   @override
+  String get proactivePushLifecycleTitle => 'Una nueva etapa';
+
+  @override
+  String get proactivePushLifecycleBody =>
+      'Un cambio de etapa merece un repaso. ¿Vemos?';
+
+  @override
+  String get proactivePushLifecyclePrefill =>
+      '¿Qué cambia mi nueva etapa de vida para mí?';
+
+  @override
+  String get proactivePushConfidenceTitle => 'Tu claridad crece';
+
+  @override
+  String proactivePushConfidenceBody(String delta) {
+    return '+$delta puntos desde la última vez. ¿Hacemos balance?';
+  }
+
+  @override
+  String get proactivePushConfidencePrefill =>
+      '¿En qué he progresado desde la última vez?';
+
+  @override
+  String get proactivePushSeasonalTitle => 'Hito fiscal';
+
+  @override
+  String proactivePushSeasonalBody(String event) {
+    return 'Es el momento de mirar $event. ¿2 minutos?';
+  }
+
+  @override
+  String get proactivePushSeasonalPrefill => '¿Qué debo hacer para este hito?';
+
+  @override
+  String get proactivePushInactivityTitle => '¿Retomamos?';
+
+  @override
+  String proactivePushInactivityBody(String days) {
+    return 'Han pasado $days días. ¿Un repaso rápido?';
+  }
+
+  @override
+  String get proactivePushInactivityPrefill => 'Retomemos donde lo dejamos.';
+
+  @override
+  String get proactivePushNewCapTitle => 'Una nueva prioridad';
+
+  @override
+  String get proactivePushNewCapBody =>
+      'Tengo una pista para profundizar contigo.';
+
+  @override
+  String get proactivePushNewCapPrefill => '¿Cuál es mi nueva prioridad?';
+
+  @override
+  String get proactivePushDeadlineTitle => 'Vencimiento próximo';
+
+  @override
+  String proactivePushDeadlineBody(String label, String days) {
+    return '$label en $days días. ¿Anticipamos?';
+  }
+
+  @override
+  String get proactivePushDeadlinePrefill => '¿Cómo anticipo este vencimiento?';
+
+  @override
   String projectionUncertaintyBand(String low, String high) {
     return 'CHF $low — $high / mes';
   }

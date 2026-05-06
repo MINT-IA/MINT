@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/constants/social_insurance.dart' show resolveCanton;
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 
@@ -26,11 +28,33 @@ import 'package:mint_mobile/services/notification_service.dart';
 class NotificationsWiringService extends ChangeNotifier {
   NotificationsWiringService({
     Future<void> Function(CoachProfile)? scheduleOverride,
-  }) : _schedule = scheduleOverride ??
+    Future<void> Function(CoachProfile)? proactiveScheduleOverride,
+    S? Function()? stringsProvider,
+  })  : _schedule = scheduleOverride ??
             ((profile) =>
-                NotificationService().scheduleCoachingReminders(profile: profile));
+                NotificationService().scheduleCoachingReminders(profile: profile)),
+        _proactiveSchedule = proactiveScheduleOverride ??
+            ((profile) async {
+              // Phase 91 Plan 91-04 — proactive push pipeline. Real path
+              // resolves SharedPreferences + S (AppLocalizations) and
+              // delegates to NotificationService.scheduleProactiveTriggerCheck.
+              final s = stringsProvider?.call();
+              if (s == null) {
+                debugPrint(
+                  '[NotificationsWiring] proactive skip: no strings provider',
+                );
+                return;
+              }
+              final prefs = await SharedPreferences.getInstance();
+              await NotificationService().scheduleProactiveTriggerCheck(
+                profile: profile,
+                prefs: prefs,
+                strings: s,
+              );
+            });
 
   final Future<void> Function(CoachProfile) _schedule;
+  final Future<void> Function(CoachProfile) _proactiveSchedule;
   Timer? _debouncer;
 
   /// Signature of the last triad we scheduled for. Starts empty — the
@@ -70,6 +94,18 @@ class NotificationsWiringService extends ChangeNotifier {
       debugPrint('[NotificationsWiring] scheduled triad=$signature');
     } catch (e, st) {
       debugPrint('[NotificationsWiring] scheduleCoachingReminders threw: $e\n$st');
+    }
+
+    // Phase 91 Plan 91-04 (VIVANT-01) — proactive push pipeline runs in
+    // parallel with the legacy 3a / tax / check-in scheduler. Failures are
+    // logged but never block the legacy path (which is the user-critical
+    // surface for fiscal deadlines).
+    try {
+      await _proactiveSchedule(profile);
+    } catch (e, st) {
+      debugPrint(
+        '[NotificationsWiring] scheduleProactiveTriggerCheck threw: $e\n$st',
+      );
     }
   }
 

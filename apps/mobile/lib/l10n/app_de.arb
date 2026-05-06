@@ -8941,6 +8941,55 @@
   "proactiveNewCap": "Ich habe eine neue Priorität für dich.",
   "proactiveSeasonalReminder": "Es ist die Saison {event}. Ein guter Zeitpunkt…",
   "proactiveWeeklyRecap": "Deine wöchentliche Zusammenfassung ist bereit. Möchtest du sie sehen ?",
+  "proactivePushLifecycleTitle": "Eine neue Phase",
+  "proactivePushLifecycleBody": "Ein Phasenwechsel verdient einen Check-in. Schauen wir hin?",
+  "proactivePushLifecyclePrefill": "Was ändert meine neue Lebensphase für mich?",
+  "proactivePushConfidenceTitle": "Deine Klarheit wächst",
+  "proactivePushConfidenceBody": "+{delta} Punkte seit dem letzten Mal. Magst du einen Check-in?",
+  "@proactivePushConfidenceBody": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushConfidencePrefill": "Worin habe ich seit dem letzten Mal Fortschritte gemacht?",
+  "proactivePushSeasonalTitle": "Steuerlicher Termin",
+  "proactivePushSeasonalBody": "Zeit, sich {event} anzusehen. 2 Minuten?",
+  "@proactivePushSeasonalBody": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushSeasonalPrefill": "Was sollte ich für diesen Termin tun?",
+  "proactivePushInactivityTitle": "Weitermachen?",
+  "proactivePushInactivityBody": "Es ist {days} Tage her. Kurzer Check-in?",
+  "@proactivePushInactivityBody": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushInactivityPrefill": "Machen wir dort weiter, wo wir aufgehört haben.",
+  "proactivePushNewCapTitle": "Eine neue Priorität",
+  "proactivePushNewCapBody": "Ich habe einen Ansatz, den wir gemeinsam vertiefen können.",
+  "proactivePushNewCapPrefill": "Was ist meine neue Priorität?",
+  "proactivePushDeadlineTitle": "Frist nähert sich",
+  "proactivePushDeadlineBody": "{label} in {days} Tagen. Vorausplanen?",
+  "@proactivePushDeadlineBody": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushDeadlinePrefill": "Wie plane ich für diese Frist voraus?",
   "projectionUncertaintyBand": "CHF {low} — {high} / Monat",
   "pulseAmountPerMonth": "{amount}/Monat",
   "pulseBudgetATitle": "Heute",

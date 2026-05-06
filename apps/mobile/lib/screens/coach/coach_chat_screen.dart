@@ -62,6 +62,7 @@ import 'package:mint_mobile/services/preferences/dismissed_nudges_store.dart';
 import 'package:mint_mobile/widgets/coach/coach_interrupt_banner.dart';
 import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart' show CapCoachBridge;
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -110,12 +111,20 @@ class CoachChatScreen extends StatefulWidget {
   /// Wire Spec V2 §3.6 — CoachEntryPayload carries source + topic + data.
   final CoachEntryPayload? entryPayload;
 
+  /// Phase 91 Plan 91-04 (VIVANT-01) — one-liner pushed into the chat
+  /// input field on notification deep-link. Non-null only when entering
+  /// from a proactive push (`/coach/chat?topic=...&prefill=...`). The
+  /// input is pre-populated and focused but NOT auto-sent — the user
+  /// confirms with a tap (per Apple HIG : « no surprises after tap »).
+  final String? initialPrefill;
+
   const CoachChatScreen({
     super.key,
     this.initialPrompt,
     this.conversationId,
     this.isEmbeddedInTab = false,
     this.entryPayload,
+    this.initialPrefill,
   });
 
   @override
@@ -264,6 +273,40 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     _loadOnboardingPayload();
     _subscribeToScreenReturns();
     _consumeCapCoachBridge();
+    _applyInitialPrefill();
+  }
+
+  /// Phase 91 Plan 91-04 (VIVANT-01) — pre-populate the input field with
+  /// the notification one-liner when [CoachChatScreen.initialPrefill] is
+  /// non-null. Pattern : seed text + focus the input, but do NOT auto-send
+  /// — the user confirms with a tap (Apple HIG « no surprises after tap »).
+  /// Also emits a `mint.coach.proactive_push.tapped` Sentry breadcrumb so
+  /// staging can verify the deep-link round-trip end-to-end.
+  void _applyInitialPrefill() {
+    final prefill = widget.initialPrefill;
+    if (prefill == null || prefill.isEmpty) return;
+    _controller.text = prefill;
+    // Move caret to end so the user can edit naturally.
+    _controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: _controller.text.length),
+    );
+    // Defer focus to first frame so the keyboard doesn't fight the
+    // route transition animation.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _focusNode.requestFocus();
+    });
+    // PII-safe breadcrumb — only the trigger topic name (enum), never the
+    // prefill body or input contents.
+    final topic = widget.entryPayload?.topic ?? 'unknown';
+    Sentry.addBreadcrumb(Breadcrumb(
+      category: 'mint.coach.proactive_push.tapped',
+      level: SentryLevel.info,
+      data: <String, dynamic>{
+        'topic': topic,
+        'has_prefill': true,
+      },
+    ));
   }
 
   /// Phase 91 Plan 91-01 (VIVANT-04) — load the persisted persona tone.

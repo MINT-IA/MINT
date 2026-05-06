@@ -8941,6 +8941,55 @@
   "proactiveNewCap": "Ho una nuova priorità per te.",
   "proactiveSeasonalReminder": "È la stagione {event}. Un buon momento per…",
   "proactiveWeeklyRecap": "Il tuo riepilogo settimanale è pronto. Vuoi vederlo ?",
+  "proactivePushLifecycleTitle": "Una nuova fase",
+  "proactivePushLifecycleBody": "Un cambio di fase merita un check-in. Vediamo?",
+  "proactivePushLifecyclePrefill": "Cosa cambia la mia nuova fase di vita per me?",
+  "proactivePushConfidenceTitle": "La tua chiarezza cresce",
+  "proactivePushConfidenceBody": "+{delta} punti dall'ultima volta. Vuoi fare il punto?",
+  "@proactivePushConfidenceBody": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushConfidencePrefill": "Su cosa ho fatto progressi dall'ultima volta?",
+  "proactivePushSeasonalTitle": "Scadenza fiscale",
+  "proactivePushSeasonalBody": "È il momento di guardare {event}. 2 minuti?",
+  "@proactivePushSeasonalBody": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushSeasonalPrefill": "Cosa devo fare per questa scadenza?",
+  "proactivePushInactivityTitle": "Riprendiamo?",
+  "proactivePushInactivityBody": "Sono passati {days} giorni. Check-in veloce?",
+  "@proactivePushInactivityBody": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushInactivityPrefill": "Riprendiamo da dove ci siamo fermati.",
+  "proactivePushNewCapTitle": "Una nuova priorità",
+  "proactivePushNewCapBody": "Ho una pista da approfondire con te.",
+  "proactivePushNewCapPrefill": "Qual è la mia nuova priorità?",
+  "proactivePushDeadlineTitle": "Scadenza in arrivo",
+  "proactivePushDeadlineBody": "{label} tra {days} giorni. Anticipiamo?",
+  "@proactivePushDeadlineBody": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushDeadlinePrefill": "Come anticipo questa scadenza?",
   "projectionUncertaintyBand": "CHF {low} — {high} / mese",
   "pulseAmountPerMonth": "{amount}/mese",
   "pulseBudgetATitle": "Oggi",

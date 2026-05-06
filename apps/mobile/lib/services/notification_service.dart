@@ -16,10 +16,14 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'dart:io' show Platform;
 
+import 'package:sentry_flutter/sentry_flutter.dart';
+
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/consent_manager.dart';
+import 'package:mint_mobile/services/coach/proactive_notification_copy.dart';
+import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NOTIFICATION STRINGS — i18n-ready, resolved at call site
@@ -604,6 +608,165 @@ class NotificationService {
   // Panel A P1-1 flagged as public API with 0 prod caller. Re-implementation
   // will require a product decision aligned with doctrine-lucidite before
   // any retention notification returns.
+
+  // ── Proactive trigger scheduling (Phase 91 / VIVANT-01) ──
+
+  /// ID range for proactive-trigger push notifications. One slot per
+  /// `ProactiveTriggerType` enum index — capped at 8 slots to match the
+  /// current enum size (lifecyclePhaseChange, weeklyRecapAvailable,
+  /// goalMilestone, seasonalReminder, inactivityReturn, confidenceImproved,
+  /// newCapAvailable, contractDeadlineApproaching).
+  static const _idProactiveBase = 7000;
+
+  /// Phase 91 Plan 91-04 (VIVANT-01) — schedule a proactive push by
+  /// running [ProactiveTriggerService.evaluate] against the current
+  /// [profile] and converting any non-null trigger into a local push via
+  /// [_scheduleNotification].
+  ///
+  /// Wires 6 of the 8 [ProactiveTriggerType] values per CONTEXT.md
+  /// `<decisions>` VIVANT-01 :
+  ///   - lifecyclePhaseChange (plan: lifecyclePhaseChanged)
+  ///   - confidenceImproved
+  ///   - seasonalReminder (plan: jitaiFiscalDate)
+  ///   - inactivityReturn (plan: inactivityReturn7d)
+  ///   - newCapAvailable (plan: documentUploadCompleted — CapMemoryStore
+  ///     surfaces new caps as documents complete)
+  ///   - contractDeadlineApproaching (plan: paieDay — ContractAlertService
+  ///     surfaces deadlines including salary cycles + LPP cert renewal)
+  ///
+  /// Skipped (per CONTEXT.md `<deferred>`) :
+  ///   - weeklyRecapAvailable — façade deleted in Phase 2b
+  ///   - goalMilestone — depends on GoalTrackerService reactivation (v3.x)
+  ///
+  /// Behavior :
+  ///   1. No-op on web / kIsWeb (matches the rest of this file).
+  ///   2. Respects `ConsentManager.notifications` consent.
+  ///   3. Delegates to [ProactiveTriggerService.evaluate] for the trigger
+  ///      decision (cooldown, sequence guard, per-type suppression).
+  ///   4. If a trigger fires, looks up localised push copy via
+  ///      [ProactiveNotificationCopy.titleAndBodyFor] (returns null for
+  ///      the 2 deferred types — caller skips silently).
+  ///   5. Applies quiet-hours (22:00-08:00) + weekend dampening via
+  ///      [ProactiveNotificationCopy.applyQuietHoursAndWeekend]. Result
+  ///      is the actual schedule time.
+  ///   6. Schedules via [_scheduleNotification] with payload
+  ///      `/coach/chat?topic=<trigger_type>&prefill=<one-liner>`.
+  ///   7. Emits a `mint.coach.proactive_push.delivered` Sentry breadcrumb
+  ///      (PII-safe — only enum names + booleans).
+  ///
+  /// Idempotent : the per-type ID slot is cancelled before each schedule,
+  /// so multiple calls within a day collapse to a single live notification.
+  ///
+  /// [strings] — i18n-resolved [S] (AppLocalizations). Pass `S.of(context)!`
+  /// when context is available. Falls back to a debug log + no-op otherwise
+  /// (avoids polluting users with English-locale defaults).
+  /// [now] — overridable clock for tests.
+  Future<void> scheduleProactiveTriggerCheck({
+    required CoachProfile profile,
+    required SharedPreferences prefs,
+    required S strings,
+    DateTime? now,
+  }) async {
+    if (kIsWeb || _plugin == null) return;
+    if (!_isInitialized) await init();
+
+    // Respect notification consent.
+    final hasConsent = await ConsentManager.isConsentGiven(
+      ConsentType.notifications,
+    );
+    if (!hasConsent) {
+      debugPrint('[NotificationService] proactive push skipped: no consent');
+      return;
+    }
+
+    final currentDate = now ?? DateTime.now();
+
+    // Delegate trigger decision to existing ProactiveTriggerService —
+    // single source of truth for cooldown / suppression / sequence guard.
+    final ProactiveTrigger? trigger;
+    try {
+      trigger = await ProactiveTriggerService.evaluate(
+        profile: profile,
+        prefs: prefs,
+        now: currentDate,
+      );
+    } catch (e, st) {
+      debugPrint('[NotificationService] proactive evaluate threw: $e\n$st');
+      return;
+    }
+    if (trigger == null) return;
+
+    // Resolve push copy for this trigger type. Returns null for the 2
+    // deferred types (weeklyRecapAvailable, goalMilestone) — skip them.
+    final copy = ProactiveNotificationCopy.titleAndBodyFor(
+      trigger.type,
+      strings,
+      params: trigger.params,
+    );
+    if (copy == null) {
+      debugPrint(
+        '[NotificationService] proactive push skipped: '
+        'type=${trigger.type.name} is deferred (Phase 91 plan 91-04)',
+      );
+      return;
+    }
+
+    // Apply quiet-hours + weekend dampening.
+    final dampenedAt = ProactiveNotificationCopy.applyQuietHoursAndWeekend(
+      currentDate,
+      trigger.type,
+    );
+    final tzScheduledAt = tz.TZDateTime(
+      tz.local,
+      dampenedAt.year,
+      dampenedAt.month,
+      dampenedAt.day,
+      dampenedAt.hour,
+      dampenedAt.minute,
+    );
+
+    // Cancel any prior schedule on the same slot (idempotent re-runs).
+    final notifId = _idProactiveBase + trigger.type.index;
+    await _plugin!.cancel(notifId);
+
+    // Build payload — deep-link into /coach/chat with intent + prefill.
+    final encodedPrefill = Uri.encodeQueryComponent(copy.prefill);
+    final payload =
+        '/coach/chat?topic=${trigger.type.name}&prefill=$encodedPrefill';
+
+    await _scheduleNotification(
+      id: notifId,
+      title: copy.title,
+      body: copy.body,
+      scheduledDate: tzScheduledAt,
+      payload: payload,
+    );
+
+    // PII-safe Sentry breadcrumb — enum name + booleans only, never the
+    // payload body or push copy (could contain {label} / {event} that
+    // might be a quasi-identifier in edge cases).
+    Sentry.addBreadcrumb(Breadcrumb(
+      category: 'mint.coach.proactive_push.delivered',
+      level: SentryLevel.info,
+      data: <String, dynamic>{
+        'trigger_type': trigger.type.name,
+        'dampened': !dampenedAt.isAtSameMomentAs(currentDate),
+        'weekday': dampenedAt.weekday,
+        'hour': dampenedAt.hour,
+      },
+    ));
+  }
+
+  /// Cancel any scheduled proactive-trigger push.
+  ///
+  /// Used by tests + on consent revocation. Iterates all 8 enum slots so
+  /// no slot is left dangling regardless of which trigger fired last.
+  Future<void> cancelAllProactiveTriggers() async {
+    if (_plugin == null) return;
+    for (var i = 0; i < ProactiveTriggerType.values.length; i++) {
+      await _plugin!.cancel(_idProactiveBase + i);
+    }
+  }
 
   // ── Core scheduling helper ────────────────────────────────
 

@@ -24,6 +24,7 @@ import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_provider.dar
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_3a_levier.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_capacite_achat.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_rente_trouee.dart';
+import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class OnboardingShellScreen extends StatelessWidget {
@@ -160,6 +161,27 @@ class _PrimaryButton extends StatelessWidget {
 class _EntryStep extends StatelessWidget {
   const _EntryStep();
 
+  /// Phase 91 Plan 91-04 (VIVANT-01) — request iOS notification permission
+  /// on the FIRST onboarding screen (per CONTEXT.md `<decisions>` VIVANT-01
+  /// « request iOS notification permission on first onboarding screen — not
+  /// on first launch — too aggressive »). This is an Apple HIG-aligned
+  /// pre-prompt pattern : the user has already tapped « Ouvrir » so they've
+  /// expressed intent to start, and the system dialog appears with that
+  /// context. Best-effort : if the request throws or returns false, the
+  /// onboarding flow continues uninterrupted.
+  ///
+  /// Android : `flutter_local_notifications` returns true automatically on
+  /// Android 12-, and pops the system dialog on Android 13+ — same call.
+  Future<void> _requestNotificationPermissionBestEffort() async {
+    try {
+      await NotificationService().init();
+      await NotificationService().requestPermission();
+    } catch (_) {
+      // Best-effort : permission denial / plugin failure must not block
+      // onboarding. The user can re-enable notifications later from settings.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.read<OnboardingProvider>();
@@ -179,7 +201,16 @@ class _EntryStep extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          _PrimaryButton(label: 'Ouvrir', onPressed: () => provider.advance()),
+          _PrimaryButton(
+            label: 'Ouvrir',
+            onPressed: () async {
+              // Fire-and-forget the permission ask BEFORE advancing — the
+              // system dialog appears overlaid on this screen, then on
+              // tap-through the next step (T2 intents) is already mounted.
+              await _requestNotificationPermissionBestEffort();
+              provider.advance();
+            },
+          ),
           const SizedBox(height: 8),
         ],
       ),

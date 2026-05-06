@@ -8941,6 +8941,55 @@
   "proactiveNewCap": "Tenho uma nova prioridade para ti.",
   "proactiveSeasonalReminder": "É a época de {event}. Uma boa altura para…",
   "proactiveWeeklyRecap": "O teu resumo semanal está pronto. Queres vê-lo ?",
+  "proactivePushLifecycleTitle": "Uma nova fase",
+  "proactivePushLifecycleBody": "Uma mudança de fase merece um check-in. Vemos?",
+  "proactivePushLifecyclePrefill": "O que muda a minha nova fase de vida para mim?",
+  "proactivePushConfidenceTitle": "A tua clareza cresce",
+  "proactivePushConfidenceBody": "+{delta} pontos desde a última vez. Fazemos balanço?",
+  "@proactivePushConfidenceBody": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushConfidencePrefill": "Em que progredi desde a última vez?",
+  "proactivePushSeasonalTitle": "Marco fiscal",
+  "proactivePushSeasonalBody": "É o momento de olhar para {event}. 2 minutos?",
+  "@proactivePushSeasonalBody": {
+    "placeholders": {
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushSeasonalPrefill": "O que devo fazer para este marco?",
+  "proactivePushInactivityTitle": "Retomamos?",
+  "proactivePushInactivityBody": "Passaram {days} dias. Check-in rápido?",
+  "@proactivePushInactivityBody": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushInactivityPrefill": "Retomemos de onde paramos.",
+  "proactivePushNewCapTitle": "Uma nova prioridade",
+  "proactivePushNewCapBody": "Tenho uma pista para aprofundar contigo.",
+  "proactivePushNewCapPrefill": "Qual é a minha nova prioridade?",
+  "proactivePushDeadlineTitle": "Prazo a aproximar-se",
+  "proactivePushDeadlineBody": "{label} em {days} dias. Antecipamos?",
+  "@proactivePushDeadlineBody": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "proactivePushDeadlinePrefill": "Como antecipo este prazo?",
   "projectionUncertaintyBand": "CHF {low} — {high} / mês",
   "pulseAmountPerMonth": "{amount}/mês",
   "pulseBudgetATitle": "Hoje",

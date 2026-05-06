@@ -18336,6 +18336,75 @@ class SDe extends S {
       'Deine wöchentliche Zusammenfassung ist bereit. Möchtest du sie sehen ?';
 
   @override
+  String get proactivePushLifecycleTitle => 'Eine neue Phase';
+
+  @override
+  String get proactivePushLifecycleBody =>
+      'Ein Phasenwechsel verdient einen Check-in. Schauen wir hin?';
+
+  @override
+  String get proactivePushLifecyclePrefill =>
+      'Was ändert meine neue Lebensphase für mich?';
+
+  @override
+  String get proactivePushConfidenceTitle => 'Deine Klarheit wächst';
+
+  @override
+  String proactivePushConfidenceBody(String delta) {
+    return '+$delta Punkte seit dem letzten Mal. Magst du einen Check-in?';
+  }
+
+  @override
+  String get proactivePushConfidencePrefill =>
+      'Worin habe ich seit dem letzten Mal Fortschritte gemacht?';
+
+  @override
+  String get proactivePushSeasonalTitle => 'Steuerlicher Termin';
+
+  @override
+  String proactivePushSeasonalBody(String event) {
+    return 'Zeit, sich $event anzusehen. 2 Minuten?';
+  }
+
+  @override
+  String get proactivePushSeasonalPrefill =>
+      'Was sollte ich für diesen Termin tun?';
+
+  @override
+  String get proactivePushInactivityTitle => 'Weitermachen?';
+
+  @override
+  String proactivePushInactivityBody(String days) {
+    return 'Es ist $days Tage her. Kurzer Check-in?';
+  }
+
+  @override
+  String get proactivePushInactivityPrefill =>
+      'Machen wir dort weiter, wo wir aufgehört haben.';
+
+  @override
+  String get proactivePushNewCapTitle => 'Eine neue Priorität';
+
+  @override
+  String get proactivePushNewCapBody =>
+      'Ich habe einen Ansatz, den wir gemeinsam vertiefen können.';
+
+  @override
+  String get proactivePushNewCapPrefill => 'Was ist meine neue Priorität?';
+
+  @override
+  String get proactivePushDeadlineTitle => 'Frist nähert sich';
+
+  @override
+  String proactivePushDeadlineBody(String label, String days) {
+    return '$label in $days Tagen. Vorausplanen?';
+  }
+
+  @override
+  String get proactivePushDeadlinePrefill =>
+      'Wie plane ich für diese Frist voraus?';
+
+  @override
   String projectionUncertaintyBand(String low, String high) {
     return 'CHF $low — $high / Monat';
   }

@@ -18207,6 +18207,74 @@ class SEn extends S {
       'Your weekly recap is ready. Want to see it?';
 
   @override
+  String get proactivePushLifecycleTitle => 'A new phase';
+
+  @override
+  String get proactivePushLifecycleBody =>
+      'A life-phase change deserves a check-in. Take a look?';
+
+  @override
+  String get proactivePushLifecyclePrefill =>
+      'What does my new life phase change for me?';
+
+  @override
+  String get proactivePushConfidenceTitle => 'Your clarity is growing';
+
+  @override
+  String proactivePushConfidenceBody(String delta) {
+    return '+$delta points since last time. Want to check in?';
+  }
+
+  @override
+  String get proactivePushConfidencePrefill =>
+      'What did I make progress on since last time?';
+
+  @override
+  String get proactivePushSeasonalTitle => 'Fiscal milestone';
+
+  @override
+  String proactivePushSeasonalBody(String event) {
+    return 'Time to look at $event. 2 minutes?';
+  }
+
+  @override
+  String get proactivePushSeasonalPrefill =>
+      'What should I do for this milestone?';
+
+  @override
+  String get proactivePushInactivityTitle => 'Pick it up?';
+
+  @override
+  String proactivePushInactivityBody(String days) {
+    return 'It\'s been $days days. Quick check-in?';
+  }
+
+  @override
+  String get proactivePushInactivityPrefill =>
+      'Let\'s pick up where we left off.';
+
+  @override
+  String get proactivePushNewCapTitle => 'A new priority';
+
+  @override
+  String get proactivePushNewCapBody =>
+      'I have a lead worth digging into with you.';
+
+  @override
+  String get proactivePushNewCapPrefill => 'What is my new priority?';
+
+  @override
+  String get proactivePushDeadlineTitle => 'Deadline approaching';
+
+  @override
+  String proactivePushDeadlineBody(String label, String days) {
+    return '$label in $days days. Plan ahead?';
+  }
+
+  @override
+  String get proactivePushDeadlinePrefill => 'How do I plan for this deadline?';
+
+  @override
   String projectionUncertaintyBand(String low, String high) {
     return 'CHF $low — $high / month';
   }

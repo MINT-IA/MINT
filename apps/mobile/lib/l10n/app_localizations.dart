@@ -32220,6 +32220,114 @@ abstract class S {
   /// **'Ton récap de la semaine est prêt. Tu veux le voir ?'**
   String get proactiveWeeklyRecap;
 
+  /// No description provided for @proactivePushLifecycleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une nouvelle phase'**
+  String get proactivePushLifecycleTitle;
+
+  /// No description provided for @proactivePushLifecycleBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un changement de phase mérite un point. On regarde ?'**
+  String get proactivePushLifecycleBody;
+
+  /// No description provided for @proactivePushLifecyclePrefill.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quels changements ma nouvelle phase de vie implique ?'**
+  String get proactivePushLifecyclePrefill;
+
+  /// No description provided for @proactivePushConfidenceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta clarté progresse'**
+  String get proactivePushConfidenceTitle;
+
+  /// No description provided for @proactivePushConfidenceBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'+{delta} points depuis la dernière fois. On fait le point ?'**
+  String proactivePushConfidenceBody(String delta);
+
+  /// No description provided for @proactivePushConfidencePrefill.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur quoi j’ai progressé depuis la dernière fois ?'**
+  String get proactivePushConfidencePrefill;
+
+  /// No description provided for @proactivePushSeasonalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échéance fiscale'**
+  String get proactivePushSeasonalTitle;
+
+  /// No description provided for @proactivePushSeasonalBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est le moment de regarder {event}. 2 minutes ?'**
+  String proactivePushSeasonalBody(String event);
+
+  /// No description provided for @proactivePushSeasonalPrefill.
+  ///
+  /// In fr, this message translates to:
+  /// **'Que faire pour cette échéance ?'**
+  String get proactivePushSeasonalPrefill;
+
+  /// No description provided for @proactivePushInactivityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'On reprend ?'**
+  String get proactivePushInactivityTitle;
+
+  /// No description provided for @proactivePushInactivityBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ça fait {days} jours. Un point rapide ?'**
+  String proactivePushInactivityBody(String days);
+
+  /// No description provided for @proactivePushInactivityPrefill.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprenons où on s’était arrêtés.'**
+  String get proactivePushInactivityPrefill;
+
+  /// No description provided for @proactivePushNewCapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une nouvelle priorité'**
+  String get proactivePushNewCapTitle;
+
+  /// No description provided for @proactivePushNewCapBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai une piste à creuser avec toi.'**
+  String get proactivePushNewCapBody;
+
+  /// No description provided for @proactivePushNewCapPrefill.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle est ma nouvelle priorité ?'**
+  String get proactivePushNewCapPrefill;
+
+  /// No description provided for @proactivePushDeadlineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échéance qui approche'**
+  String get proactivePushDeadlineTitle;
+
+  /// No description provided for @proactivePushDeadlineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{label} dans {days} jours. On anticipe ?'**
+  String proactivePushDeadlineBody(String label, String days);
+
+  /// No description provided for @proactivePushDeadlinePrefill.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment anticiper cette échéance ?'**
+  String get proactivePushDeadlinePrefill;
+
   /// No description provided for @projectionUncertaintyBand.
   ///
   /// In fr, this message translates to:
