@@ -284,10 +284,16 @@ class ComplianceGuardrails:
         multilingual.
 
         Returns:
-            dict with keys: text, warnings, disclaimers_added
+            dict with keys: text, warnings, disclaimers_added,
+            banned_terms_filtered. The ``banned_terms_filtered`` boolean
+            (Phase 93 / COMP-01) is True iff any banned term matched the
+            input — surfaced so the audit hook in /coach/chat and
+            /anonymous/chat can persist a `banned_term_hit` column
+            without re-scanning the response.
         """
         filter_warnings: list[str] = []
         disclaimers_added: list[str] = []
+        banned_terms_filtered: bool = False  # COMP-01 audit signal.
 
         # ── Guard: None / non-string input ──
         if not isinstance(response, str):
@@ -295,6 +301,7 @@ class ComplianceGuardrails:
                 "text": self._SAFE_FALLBACK_FR,
                 "warnings": ["Entrée invalide (non-string)"],
                 "disclaimers_added": [],
+                "banned_terms_filtered": False,
             }
 
         # ── Delegate to ComplianceGuard for French (primary language) ──
@@ -305,6 +312,15 @@ class ComplianceGuardrails:
                 guard = ComplianceGuard()
                 result = guard.validate(response)
                 filter_warnings.extend(result.violations)
+                # COMP-01: any "Terme interdit:" violation flips the audit
+                # banned_term_hit bit. ComplianceGuard.validate() emits one
+                # violation per matched banned term (compliance_guard.py
+                # ~line 463), so a substring match is the source of truth.
+                if any(
+                    isinstance(v, str) and v.startswith("Terme interdit:")
+                    for v in result.violations
+                ):
+                    banned_terms_filtered = True
                 if result.use_fallback:
                     # CRIT #3 fix: when ComplianceGuard rejects (prescriptive,
                     # hallucination, etc.), use safe fallback — NOT the original
@@ -328,6 +344,7 @@ class ComplianceGuardrails:
                     )
                 if pat.search(response_lower):
                     filter_warnings.append(f"Terme interdit: '{term}'")
+                    banned_terms_filtered = True  # COMP-01 audit signal
 
         # ── Disclaimer logic (multilingual, retained here) ──
         # For French, ComplianceGuard injects disclaimers into the text (Layer 4).
@@ -397,6 +414,7 @@ class ComplianceGuardrails:
             "text": filtered_text,
             "warnings": filter_warnings,
             "disclaimers_added": disclaimers_added,
+            "banned_terms_filtered": banned_terms_filtered,
         }
 
     # ────────────────────────────────────────────────────────────────────

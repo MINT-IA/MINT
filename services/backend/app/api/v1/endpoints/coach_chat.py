@@ -2619,6 +2619,61 @@ async def coach_chat(
         except Exception as exc:  # pragma: no cover — defensive
             logger.warning("token_budget consume failed user=%s err=%s", _user.id, exc)
 
+    # ──────────────────────────────────────────────────────────────────
+    # COMP-01 audit log emit (best-effort, never break the response).
+    # Per OAR-G art. 24 + FINMA Guidance 8/2024 SS VI.
+    #
+    # Persists ONE row per coach response so a FINMA inspector can run
+    #   SELECT * FROM coach_message_audits WHERE created_at > '2026-05-06'
+    # and see hashed prompt + response, archetype, banned-term-hit flag,
+    # eclairage kind, retained_until = +10y. Raw prompt/response are
+    # NEVER stored (nLPD art. 6).
+    #
+    # Best-effort contract: any exception in the insert path is logged
+    # + Sentry-captured but the user STILL receives the LLM response
+    # (`return CoachChatResponse(...)` below is never short-circuited).
+    # ──────────────────────────────────────────────────────────────────
+    try:
+        from app.models.coach_message_audit import CoachMessageAudit
+        from app.utils.audit_hash import hash_for_audit
+        from app.services.rag.guardrails import ComplianceGuardrails as _CG
+
+        # Re-scan the final answer to compute banned_term_hit. Cheap:
+        # one regex pass over the response. Avoids plumbing
+        # `compliance_meta` through `_call_with_fallback` + orchestrator
+        # + 2 query() variants (Karpathy practice 3 — surgical change).
+        try:
+            _scan = _CG().filter_response(loop_result.get("answer", "") or "", language=body.language)
+            _banned_hit = bool(_scan.get("banned_terms_filtered", False))
+        except Exception:
+            _banned_hit = False
+
+        audit = CoachMessageAudit(
+            session_id=str(_user.id),
+            archetype=(
+                (safe_profile.get("archetype") if isinstance(safe_profile, dict) else None)
+                or "swiss_native"
+            ),
+            prompt_hash=hash_for_audit(sanitized_message),
+            response_hash=hash_for_audit(loop_result.get("answer", "") or ""),
+            banned_term_hit=_banned_hit,
+            eclairage_kind=None,
+        )
+        db.add(audit)
+        db.commit()
+        try:
+            import sentry_sdk
+            sentry_sdk.set_tag("audit_emitted", "true")
+        except Exception:
+            pass
+    except Exception as audit_exc:  # pragma: no cover — best-effort
+        logger.warning("coach_message_audit insert failed: %s", audit_exc)
+        try:
+            import sentry_sdk
+            sentry_sdk.capture_exception(audit_exc)
+        except Exception:
+            pass
+
     return CoachChatResponse(
         message=loop_result["answer"],
         tool_calls=loop_result["tool_calls"],

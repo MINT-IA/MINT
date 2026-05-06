@@ -344,6 +344,35 @@ async def anonymous_chat(
         eclairage = build_default_fiscal_margin_3a_eclairage()
         anon_session.eclairage_delivered = True
 
+    # ──────────────────────────────────────────────────────────────────
+    # COMP-01 audit log emit (best-effort, same transaction as
+    # eclairage_delivered=True). Per OAR-G art. 24 + FINMA Guidance
+    # 8/2024 SS VI.
+    #
+    # The row is added BEFORE db.commit() so it commits atomically
+    # with anon_session.message_count + eclairage_delivered. If the
+    # insert raises (mocked DB error), we swallow + log + still return
+    # 200 to the user.
+    # ──────────────────────────────────────────────────────────────────
+    try:
+        from app.models.coach_message_audit import CoachMessageAudit
+        from app.utils.audit_hash import hash_for_audit
+
+        audit = CoachMessageAudit(
+            session_id=session_id,
+            archetype="anonymous",
+            prompt_hash=hash_for_audit(clean_message),
+            response_hash=hash_for_audit(result.get("answer", "") or ""),
+            banned_term_hit=False,  # discovery prompt path; ComplianceGuardrails already filters
+            eclairage_kind=(eclairage.kind if eclairage is not None else None),
+        )
+        db.add(audit)
+        # NOTE: do NOT call db.commit() here — the existing db.commit()
+        # below commits this row in the same transaction as
+        # anon_session.eclairage_delivered=True.
+    except Exception as audit_exc:  # pragma: no cover — best-effort
+        logger.warning("coach_message_audit insert failed: %s", audit_exc)
+
     db.commit()
 
     # --- Step 7: Return response ---
