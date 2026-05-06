@@ -44,7 +44,21 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
       _budgetError = false;
     });
     try {
-      await context.read<BudgetProvider>().loadFromStorage();
+      final budget = context.read<BudgetProvider>();
+      await budget.loadFromStorage();
+      // BUG #3 fix (P0, walkthrough audit 2026-05-06) — `loadFromStorage`
+      // reads the local Budget bucket only. If a user filled depenses
+      // via chat (`save_fact`), via PDF scan (`updateFromLppExtraction`),
+      // or via the `/onb` wedge before reaching `/budget/setup`, the
+      // budget card stayed empty. Auto-derive from CoachProfile when
+      // local storage has nothing but profile has expense data.
+      if (!mounted) return;
+      if (budget.inputs == null) {
+        final profile = context.read<CoachProfileProvider>().profile;
+        if (profile != null && profile.depenses.loyer > 0) {
+          await budget.refreshFromProfile(profile);
+        }
+      }
     } catch (_) {
       if (mounted) setState(() => _budgetError = true);
     } finally {
