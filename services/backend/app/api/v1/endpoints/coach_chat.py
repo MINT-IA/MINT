@@ -1956,13 +1956,30 @@ async def _run_agent_loop(
             t.get("name", "") for t in stripped_tools
         }
 
-        # Separate internal vs Flutter vs unknown tool calls
+        # Separate internal vs Flutter vs unknown tool calls.
+        #
+        # BUG #1 of architecture audit (P0, MVP-PLAN-2026-04-21 step 1A —
+        # scoped 30 min 15 days ago, never merged) : `save_fact` is in
+        # INTERNAL_TOOL_NAMES (executed backend-side for DB write) AND
+        # must ALSO be emitted to Flutter so anonymous users (no DB row)
+        # still capture facts via the Flutter `applySaveFact` handler.
+        # Without this mirror, the Flutter loop at coach_chat_screen
+        # iterates `response.toolCalls.where(name=='save_fact')` which
+        # is always empty by design → every « MINT remembers what you
+        # said » promise is dead for the 80% of users who haven't
+        # signed up. Mirror = both lists contain the call.
+        MIRRORED_TOOL_NAMES = {"save_fact"}
+
         internal_calls = [
             t for t in raw_tool_calls if t.get("name", "") in INTERNAL_TOOL_NAMES
         ]
         external_calls = [
-            t for t in raw_tool_calls if t.get("name", "") not in INTERNAL_TOOL_NAMES
-            and t.get("name", "") in all_known_names
+            t for t in raw_tool_calls
+            if (
+                (t.get("name", "") not in INTERNAL_TOOL_NAMES
+                 and t.get("name", "") in all_known_names)
+                or t.get("name", "") in MIRRORED_TOOL_NAMES
+            )
         ]
 
         # P0-5: Count unknown tool calls — stop loop after threshold

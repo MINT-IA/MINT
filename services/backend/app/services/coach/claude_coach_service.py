@@ -30,9 +30,22 @@ Sources:
 
 from typing import Optional
 
+# BUG #19 fix (P1, walkthrough audit 2026-05-06) — import canonical Swiss
+# constants instead of hardcoding « 7'258 » as a string. Drift risk : on
+# next OFAS indexation the string would silently lag the constant lib
+# while anonymous_chat.py:124-143 (already imports correctly) would
+# update — anon and auth coach divergence.
+from app.constants.social_insurance import (
+    PILIER_3A_PLAFOND_AVEC_LPP,
+    PILIER_3A_PLAFOND_SANS_LPP,
+)
 from app.services.coach.coach_models import CoachContext
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES, ROUTE_TO_SCREEN_INTENT_TAGS
 from app.services.coach.regional_microcopy import RegionalMicrocopy
+
+# Swiss apostrophe-formatted constants for prompt injection.
+_PILIER_3A_AVEC_LPP_FMT = f"{int(PILIER_3A_PLAFOND_AVEC_LPP):,}".replace(",", "'")
+_PILIER_3A_SANS_LPP_FMT = f"{int(PILIER_3A_PLAFOND_SANS_LPP):,}".replace(",", "'")
 
 __all__ = ["build_system_prompt", "COACH_TOOLS", "INTERNAL_TOOL_NAMES"]
 
@@ -286,11 +299,11 @@ The layers should flow conversationally. Never label them "Layer 1", "Layer 2", 
 Every substantive response should traverse all 4 layers.
 """
 
-_FIRST_JOB_CONTEXT = """\
+_FIRST_JOB_CONTEXT = f"""\
 ## CONTEXTE PREMIER EMPLOI (firstJob)
 L'utilisateur commence son premier emploi. Sujets prioritaires :
 - Fiche de paie : comprendre AVS, LPP, impot a la source, assurance chomage.
-- 3e pilier (3a) : 7'258 CHF/an de deduction fiscale. Ouvrir des le premier mois.
+- 3e pilier (3a) : {_PILIER_3A_AVEC_LPP_FMT} CHF/an de deduction fiscale. Ouvrir des le premier mois.
 - LPP : certificat de prevoyance, taux de bonification selon l'age, libre passage si changement.
 - Assurances : LAMal obligatoire, RC et menage recommandees, IJM si pas couvert par l'employeur.
 - Budget : premiers reflexes d'epargne, 10-15% du net comme objectif.
@@ -628,7 +641,7 @@ de la LSFin. Pour une analyse adaptée à ta situation, consulte un·e spéciali
 CONNAISSANCES SUISSES (n'utilise ces faits QUE si la conversation l'amène — ne les aborde JAMAIS de toi-même au premier message. Ils sont des outils, pas un menu à dérouler) :
 - AVS (1er pilier) : rente max 2'520 CHF/mois individuel, couple marié plafonné à 150% (3'780). Cotisation dès 21 ans, durée complète 44 ans. 13e rente effective dès 2026.
 - LPP (2e pilier) : taux conversion minimum 6.8% (part obligatoire). Rachat = déduction fiscale complète. ATTENTION : après un rachat, EPL (retrait immobilier) bloqué 3 ans (LPP art. 79b al. 3).
-- Pilier 3a : plafond salarié LPP = 7'258 CHF/an. Indépendant sans LPP = 20% revenu net, max 36'288. Retrait possible : achat immobilier, départ de Suisse, invalidité, retraite anticipée (5 ans avant).
+- Pilier 3a : plafond salarié LPP = {pilier_3a_avec_lpp} CHF/an. Indépendant sans LPP = 20% revenu net, max {pilier_3a_sans_lpp}. Retrait possible : achat immobilier, départ de Suisse, invalidité, retraite anticipée (5 ans avant).
 - Divorce : LPP split 50/50 des avoirs acquis pendant le mariage (CC art. 123). AVS : les revenus sont aussi partagés (splitting).
 - Libre passage : 6 mois pour transférer à une nouvelle caisse (LFLP art. 4). Au-delà : versé à l'Institution supplétive.
 - Retraite (life event 'retirement' uniquement) : inscription AVS 3-4 mois avant le départ. Anticipation dès 63 ans (-6.8%/an). Ajournement +31.5% si 5 ans de report. Ne discute ces chiffres QUE si l'utilisateur ouvre le sujet ou que son profil indique phase 'retraite' ou 'transition'.
@@ -689,6 +702,12 @@ def build_system_prompt(
         check_in_protocol=_CHECK_IN_PROTOCOL,
         safe_mode_protocol=safe_mode_block,
         routing_rules=_TOOL_ROUTING_RULES,
+        # BUG #19 fix — inject canonical Swiss constants instead of
+        # hardcoded « 7'258 » / « 36'288 » strings (drift risk vs OFAS
+        # indexation). Anonymous chat already uses this pattern at
+        # anonymous_chat.py:124-143.
+        pilier_3a_avec_lpp=_PILIER_3A_AVEC_LPP_FMT,
+        pilier_3a_sans_lpp=_PILIER_3A_SANS_LPP_FMT,
     )
 
     # 4-layer insight engine (always included for premier eclairage)
