@@ -71,6 +71,38 @@ Git : `feature/S{XX}-<slug>` depuis `dev` ; PRs feature→dev squash, dev→stag
 
 `rules.md` · `docs/MINT_IDENTITY.md` · `docs/DESIGN_SYSTEM.md` · `docs/VOICE_SYSTEM.md` · `SOT.md` · `docs/ROADMAP_V2.md` · `.claude/skills/mint-{swiss-compliance,flutter-dev,backend-dev}/SKILL.md`.
 
+## 7. BEHAVIOR FOUNDATION — Karpathy 4 (LLM coding pitfalls, [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills))
+
+> Karpathy : *« The models make wrong assumptions on your behalf and just run along with them without checking. They don't manage their confusion, don't seek clarifications, don't surface inconsistencies, don't present tradeoffs. They overcomplicate code, bloat abstractions, don't clean up dead code. »* These 4 principles override default speed bias when in doubt.
+
+### #1 Think Before Coding — *don't assume, surface tradeoffs*
+- State assumptions explicitly. If uncertain → ask (per memory `feedback_blockers_ask_dont_defer.md`).
+- Multiple interpretations exist → present them, don't pick silently.
+- Simpler approach exists → say so, push back when warranted.
+- Something unclear → stop, name what's confusing, ask.
+
+### #2 Simplicity First — *minimum code that solves the problem*
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No « flexibility » / « configurability » not requested.
+- No error handling for impossible scenarios.
+- 200 lines that could be 50 → rewrite. Test : *« Would a senior engineer say this is overcomplicated ? »*
+
+### #3 Surgical Changes — *touch only what you must, clean only your own mess*
+- Don't « improve » adjacent code, comments, formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- Notice unrelated dead code → mention, don't delete (unless asked).
+- Test : *« Every changed line traces directly to the user's request ? »*
+
+### #4 Goal-Driven Execution — *define success criteria, loop until verified*
+- « Add validation » → « Write tests for invalid inputs, then make them pass ».
+- « Fix the bug » → « Write a test that reproduces it, then make it pass ».
+- « Refactor X » → « Tests pass before AND after ».
+- Multi-step task → state plan with `verify:` per step. Strong success criteria let you loop independently. Weak criteria force constant clarification.
+
+**Working when :** fewer unnecessary diff lines, fewer overcomplication rewrites, clarifying questions BEFORE implementation rather than mistake post-mortems.
+
 ## 🚨 BOTTOM — 5 RULES CRITIQUES (duplicated intentionally, Liu 2024)
 
 1. **Banned terms (LSFin)** — NEVER « garanti », « optimal », « meilleur ». Use « pourrait », « envisager ».
