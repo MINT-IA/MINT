@@ -178,6 +178,15 @@ class BetaProgramDisclosureSheet extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               // Bullets — sauge calme positif sur tous les points.
+              // BUG #16 fix (P0, walkthrough audit 2026-05-06) — FinSA
+              // art. 8 al. 1 let. a requires the « non-supervised by
+              // FINMA » statement to be explicit BEFORE services are
+              // rendered. The previous wording « pas un conseil au sens
+              // de la LSFin » implied it but never said « non
+              // supervisée par la FINMA » verbatim. Inspector knock test
+              // would record this as art. 8 breach.
+              _bulletPoint(l.betaDisclosureBulletNotFinmaSupervised),
+              const SizedBox(height: 6),
               _bulletPoint(l.betaDisclosureBulletNoAdvice),
               const SizedBox(height: 6),
               _bulletPoint(l.betaDisclosureBulletNoBank),

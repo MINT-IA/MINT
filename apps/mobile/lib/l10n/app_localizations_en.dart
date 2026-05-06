@@ -23009,6 +23009,10 @@ class SEn extends S {
   String get betaDisclosureHeadlineSuffix => '.';
 
   @override
+  String get betaDisclosureBulletNotFinmaSupervised =>
+      'MINT is not a FINMA-supervised entity. No banking licence, no asset-manager licence.';
+
+  @override
   String get betaDisclosureBulletNoAdvice =>
       'MINT is not financial advice under FinSA — it\'s an educational tool only.';
 

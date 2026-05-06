@@ -40563,6 +40563,12 @@ abstract class S {
   /// **'.'**
   String get betaDisclosureHeadlineSuffix;
 
+  /// Beta disclosure sheet — explicit FinSA art. 8 al. 1 let. a non-FINMA-supervision statement (BUG #16 fix).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT n\'est pas une entité supervisée par la FINMA. Pas de licence bancaire, pas de licence de gestionnaire de fortune.'**
+  String get betaDisclosureBulletNotFinmaSupervised;
+
   /// Beta disclosure sheet — first bullet (LSFin disclaimer).
   ///
   /// In fr, this message translates to:

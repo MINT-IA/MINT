@@ -23131,6 +23131,10 @@ class SPt extends S {
   String get betaDisclosureHeadlineSuffix => '.';
 
   @override
+  String get betaDisclosureBulletNotFinmaSupervised =>
+      'A MINT não é uma entidade supervisionada pela FINMA. Sem licença bancária, sem licença de gestora de patrimónios.';
+
+  @override
   String get betaDisclosureBulletNoAdvice =>
       'MINT não é aconselhamento financeiro nos termos da LSFin — é apenas uma ferramenta educativa.';
 

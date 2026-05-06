@@ -23123,6 +23123,10 @@ class SEs extends S {
   String get betaDisclosureHeadlineSuffix => '.';
 
   @override
+  String get betaDisclosureBulletNotFinmaSupervised =>
+      'MINT no es una entidad supervisada por la FINMA. Sin licencia bancaria, sin licencia de gestor de patrimonio.';
+
+  @override
   String get betaDisclosureBulletNoAdvice =>
       'MINT no es asesoramiento financiero según la LSFin — solo es una herramienta educativa.';
 

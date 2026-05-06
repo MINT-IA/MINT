@@ -23123,6 +23123,10 @@ class SFr extends S {
   String get betaDisclosureHeadlineSuffix => '.';
 
   @override
+  String get betaDisclosureBulletNotFinmaSupervised =>
+      'MINT n\'est pas une entité supervisée par la FINMA. Pas de licence bancaire, pas de licence de gestionnaire de fortune.';
+
+  @override
   String get betaDisclosureBulletNoAdvice =>
       'MINT n\'est pas un conseil financier au sens de la LSFin — outil éducatif uniquement.';
 

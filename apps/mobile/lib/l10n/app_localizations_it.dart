@@ -23182,6 +23182,10 @@ class SIt extends S {
   String get betaDisclosureHeadlineSuffix => '.';
 
   @override
+  String get betaDisclosureBulletNotFinmaSupervised =>
+      'MINT non è un\'entità supervisionata dalla FINMA. Nessuna licenza bancaria, nessuna licenza di gestore patrimoniale.';
+
+  @override
   String get betaDisclosureBulletNoAdvice =>
       'MINT non è consulenza finanziaria ai sensi della LSerFi — è solo uno strumento educativo.';
 

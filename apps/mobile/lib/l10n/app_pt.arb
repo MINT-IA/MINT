@@ -11140,48 +11140,78 @@
   "aujourdhuiResumeConversation": "Retomar a conversa",
   "coachSequenceNextStepLabel": "Próximo passo: {label}.",
   "@coachSequenceNextStepLabel": {
-    "placeholders": {"label": {"type": "String"}},
-    "x-mint-meta": {"level": "N3"}
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    },
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachSequenceCompletedMessage": "Concluíste esta sequência guiada.",
   "@coachSequenceCompletedMessage": {
-    "x-mint-meta": {"level": "N3"}
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "betaDisclosureEyebrow": "MINT em beta",
   "@betaDisclosureEyebrow": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlinePrefix": "Estás a testar uma versão que",
   "@betaDisclosureHeadlinePrefix": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlineEm": "aprende contigo",
   "@betaDisclosureHeadlineEm": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlineSuffix": ".",
   "@betaDisclosureHeadlineSuffix": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
+  },
+  "betaDisclosureBulletNotFinmaSupervised": "A MINT não é uma entidade supervisionada pela FINMA. Sem licença bancária, sem licença de gestora de patrimónios.",
+  "@betaDisclosureBulletNotFinmaSupervised": {
+    "description": "Beta disclosure — FinSA art. 8 al. 1 let. a non-FINMA-supervision statement (BUG #16)."
   },
   "betaDisclosureBulletNoAdvice": "MINT não é aconselhamento financeiro nos termos da LSFin — é apenas uma ferramenta educativa.",
   "@betaDisclosureBulletNoAdvice": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureBulletNoBank": "Nenhum dado bancário é armazenado do nosso lado. Os teus dados permanecem no teu dispositivo salvo consentimento explícito.",
   "@betaDisclosureBulletNoBank": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureBulletDataLocal": "O teu feedback durante a beta ajuda-nos a melhorar a MINT. Lemos tudo.",
   "@betaDisclosureBulletDataLocal": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureCta": "Entendido, vamos",
   "@betaDisclosureCta": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureLearnMore": "Saber mais",
   "@betaDisclosureLearnMore": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureSemanticsLabel": "Informação sobre a versão beta da MINT — apenas ferramenta educativa, nenhum aconselhamento financeiro, os dados permanecem no teu dispositivo por defeito."
 }

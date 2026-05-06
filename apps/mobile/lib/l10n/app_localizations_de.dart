@@ -23177,6 +23177,10 @@ class SDe extends S {
   String get betaDisclosureHeadlineSuffix => '.';
 
   @override
+  String get betaDisclosureBulletNotFinmaSupervised =>
+      'MINT ist nicht von der FINMA beaufsichtigt. Keine Banklizenz, keine Vermögensverwalter-Lizenz.';
+
+  @override
   String get betaDisclosureBulletNoAdvice =>
       'MINT ist keine Finanzberatung im Sinne des FIDLEG — es ist nur ein Bildungswerkzeug.';
 
