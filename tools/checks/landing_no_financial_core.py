@@ -34,6 +34,11 @@ WHITELIST = (
     # FINMA fintech sandbox compliance). UI sheet, not financial_core /
     # services / providers / models — does not violate LAND-01 spirit.
     "package:mint_mobile/widgets/beta/beta_program_disclosure_sheet.dart",
+    # Phase 73 (v2.11) landing-v3-editorial — Fraunces italic 40pt hero
+    # via google_fonts. Typography package, no domain coupling. Doesn't
+    # violate LAND-01 spirit (financial_core / services / providers /
+    # models forbidden ; google_fonts is none of these).
+    "package:google_fonts/",
 )
 
 FORBIDDEN_SUBSTRINGS = (

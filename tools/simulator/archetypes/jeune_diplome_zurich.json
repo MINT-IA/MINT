@@ -1,0 +1,25 @@
+{
+  "slug": "jeune_diplome_zurich",
+  "label": "Jeune diplome Zurich",
+  "profile": {
+    "age": 26,
+    "canton": "ZH",
+    "salary_brut_year": 82000,
+    "has_lpp": true,
+    "lpp_balance": 8500,
+    "has_3a": false,
+    "3a_balance": 0,
+    "marital_status": "single",
+    "kids_count": 0,
+    "owns_property": false
+  },
+  "expected_eclairage": {
+    "kind": "fiscal_margin_3a",
+    "value_min": 1200,
+    "value_max": 2200
+  },
+  "deterministic_prompts": [
+    "C'est quoi le 3eme pilier ?",
+    "Combien je peux mettre cette annee ?"
+  ]
+}

@@ -39129,12 +39129,6 @@ abstract class S {
   /// **'Le calcul est posé, l\'idée mérite encore qu\'on en parle.'**
   String get mtcSummaryWeakUnderstanding;
 
-  /// Landing v2 paragraphe-mère (LOCKED master text per CONTEXT.md D-01). Anti-shame, calm, six life-domains, no retirement framing.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mint te dit ce que personne n\'a intérêt à te dire. Sur tes assurances, ton 3a, ton salaire, ton bail, ton couple, tes impôts. Calmement. Sans te vendre quoi que ce soit.'**
-  String get landingV2Paragraph;
-
   /// Landing v2 primary CTA (LOCKED per D-02). Routes to /onboarding/intent. Parenthetical '(sans compte)' is load-bearing.
   ///
   /// In fr, this message translates to:
@@ -39231,6 +39225,12 @@ abstract class S {
   /// **'Parle à Mint'**
   String get landingV2CtaSober;
 
+  /// Phase 73 v2.10 — Landing v3 éditorial hero. Brand line option D locked by 2-pers panel (PANEL-VERDICT.md §1). Two verbs, two beats, hero-shaped. LSFin-safe (capacity, not result). Voice = Linear/Stripe verb-led. Rendered in Fraunces italic 40pt w400.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir clair, décider seul.'**
+  String get landingV3Hero;
+
   /// Phase 12-01 — TonChooserSheet title (first launch). Word 'curseur' BANNED in user-facing copy.
   ///
   /// In fr, this message translates to:
@@ -39315,53 +39315,41 @@ abstract class S {
   /// **'Ta vie financière, en clair.'**
   String get anonymousIntentLine1;
 
-  /// Retired 2026-04-17. Kept as empty string for ARB parity; the widget no longer renders it.
+  /// Phase 71a — coach opener bubble shown on cold-open of anonymous chat. Flutter const string (i18n), NOT backend-generated.
   ///
   /// In fr, this message translates to:
-  /// **''**
-  String get anonymousIntentLine2;
+  /// **'Salut. Dis-moi ce qui te trotte en tête côté finances en ce moment — un projet, une question, un truc flou.'**
+  String get anonymousChatOpener;
 
-  /// Anonymous intent — felt-state pill 1.
+  /// Phase 71a — anonymous chat chip 1 (housing/vehicle, 18-99 neutral). Pre-fills input, NOT auto-send.
   ///
   /// In fr, this message translates to:
-  /// **'Je paye, je signe, mais je comprends pas tout'**
-  String get anonymousIntentPill1;
+  /// **'J\'ai un projet d\'achat'**
+  String get anonymousChatChip1;
 
-  /// Anonymous intent — felt-state pill 2.
+  /// Phase 71a — anonymous chat chip 2 (career, includes promotions/redundancies/expat). Pre-fills input, NOT auto-send.
   ///
   /// In fr, this message translates to:
-  /// **'J\'évite d\'y penser'**
-  String get anonymousIntentPill2;
+  /// **'Je change de boulot'**
+  String get anonymousChatChip2;
 
-  /// Anonymous intent — felt-state pill 3.
+  /// Phase 71a — anonymous chat chip 3 (open-ended escape hatch). Pre-fills input, NOT auto-send.
   ///
   /// In fr, this message translates to:
-  /// **'J\'ai peur de faire une connerie'**
-  String get anonymousIntentPill3;
+  /// **'Je veux y voir clair'**
+  String get anonymousChatChip3;
 
-  /// Anonymous intent — felt-state pill 4.
+  /// Phase 71a — LSFin disclaimer line above input bar (ECL-05, always visible).
   ///
   /// In fr, this message translates to:
-  /// **'Je sais que je devrais m\'en occuper'**
-  String get anonymousIntentPill4;
+  /// **'Information générale, pas un conseil financier personnalisé.'**
+  String get anonymousChatLsfinDisclaimer;
 
-  /// Anonymous intent — felt-state pill 5.
+  /// Phase 71a — anonymous chat input hint (replaces anonymousIntentFreeTextHint).
   ///
   /// In fr, this message translates to:
-  /// **'Un truc a changé et je sais pas par où commencer'**
-  String get anonymousIntentPill5;
-
-  /// Anonymous intent — felt-state pill 6.
-  ///
-  /// In fr, this message translates to:
-  /// **'Je veux juste y voir clair'**
-  String get anonymousIntentPill6;
-
-  /// Anonymous intent — free text input hint.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ou dis-le comme tu veux…'**
-  String get anonymousIntentFreeTextHint;
+  /// **'Écris ce qui te trotte en tête…'**
+  String get anonymousChatInputHint;
 
   /// Anonymous chat — back button tooltip.
   ///
@@ -40406,114 +40394,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Réessayer'**
   String get onboardingSealRetry;
-
-  /// No description provided for @wedgeTeaserEyebrowExample.
-  ///
-  /// In fr, this message translates to:
-  /// **'APERÇU'**
-  String get wedgeTeaserEyebrowExample;
-
-  /// No description provided for @wedgeTeaserEyebrowEstimate.
-  ///
-  /// In fr, this message translates to:
-  /// **'ESTIMATION INDICATIVE'**
-  String get wedgeTeaserEyebrowEstimate;
-
-  /// No description provided for @wedgeTeaserSalienceExample.
-  ///
-  /// In fr, this message translates to:
-  /// **'EXEMPLE TYPE · pas une projection sur ta situation'**
-  String get wedgeTeaserSalienceExample;
-
-  /// No description provided for @wedgeTeaserSalienceEstimate.
-  ///
-  /// In fr, this message translates to:
-  /// **'Estimation indicative · carrière complète, retraite à 65 ans'**
-  String get wedgeTeaserSalienceEstimate;
-
-  /// No description provided for @wedgeTeaserAssumptionsExample.
-  ///
-  /// In fr, this message translates to:
-  /// **'AVS seul, exemple carrière complète'**
-  String get wedgeTeaserAssumptionsExample;
-
-  /// No description provided for @wedgeTeaserAssumptionsEstimate.
-  ///
-  /// In fr, this message translates to:
-  /// **'Hypothèses : 40 ans, carrière 20→65, aucune lacune, AVS seul. Ton vrai chiffre bouge avec ton âge, ton genre, ton canton, ton LPP.'**
-  String get wedgeTeaserAssumptionsEstimate;
-
-  /// No description provided for @wedgeTeaserReculExample.
-  ///
-  /// In fr, this message translates to:
-  /// **'Renseigne ton LPP, MINT calcule tes projections.'**
-  String get wedgeTeaserReculExample;
-
-  /// No description provided for @wedgeTeaserReculEstimate.
-  ///
-  /// In fr, this message translates to:
-  /// **'Avec un compte, MINT affine avec ton âge, ton LPP, ton canton, tes lacunes.'**
-  String get wedgeTeaserReculEstimate;
-
-  /// No description provided for @wedgeTeaserHeroSemantics.
-  ///
-  /// In fr, this message translates to:
-  /// **'{amount} francs par mois'**
-  String wedgeTeaserHeroSemantics(String amount);
-
-  /// No description provided for @wedgeTeaserChfPerMonth.
-  ///
-  /// In fr, this message translates to:
-  /// **'CHF / mois'**
-  String get wedgeTeaserChfPerMonth;
-
-  /// No description provided for @wedgeTeaserModifySalary.
-  ///
-  /// In fr, this message translates to:
-  /// **'Modifier'**
-  String get wedgeTeaserModifySalary;
-
-  /// No description provided for @wedgeTeaserCtaRegister.
-  ///
-  /// In fr, this message translates to:
-  /// **'Crée ton compte pour tes propres projections'**
-  String get wedgeTeaserCtaRegister;
-
-  /// No description provided for @wedgeSalaryInputLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton salaire annuel brut. Pour une estimation rapide.'**
-  String get wedgeSalaryInputLabel;
-
-  /// No description provided for @wedgeSalaryInputAction.
-  ///
-  /// In fr, this message translates to:
-  /// **'Calculer'**
-  String get wedgeSalaryInputAction;
-
-  /// No description provided for @wedgeSalaryInputActionSemantics.
-  ///
-  /// In fr, this message translates to:
-  /// **'Calculer mon estimation'**
-  String get wedgeSalaryInputActionSemantics;
-
-  /// No description provided for @wedgeSalaryStaysOnDevice.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton salaire reste sur ton appareil. MINT ne l\'envoie nulle part.'**
-  String get wedgeSalaryStaysOnDevice;
-
-  /// No description provided for @wedgeSalaryErrorInvalid.
-  ///
-  /// In fr, this message translates to:
-  /// **'Entre un montant en chiffres, par exemple 95 000.'**
-  String get wedgeSalaryErrorInvalid;
-
-  /// No description provided for @wedgeSalaryErrorOutOfRange.
-  ///
-  /// In fr, this message translates to:
-  /// **'Entre 10 000 et 1 000 000 CHF par an.'**
-  String get wedgeSalaryErrorOutOfRange;
 
   /// No description provided for @coachOnboardingFirstUserMessage.
   ///

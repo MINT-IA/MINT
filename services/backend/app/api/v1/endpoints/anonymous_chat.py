@@ -42,7 +42,14 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.anonymous_session import AnonymousSession
-from app.schemas.anonymous_chat import AnonymousChatRequest, AnonymousChatResponse
+from app.schemas.anonymous_chat import (
+    AnonymousChatRequest,
+    AnonymousChatResponse,
+    EclairagePayload,
+)
+from app.services.coach.anonymous_eclairage_prompt import (
+    build_default_fiscal_margin_3a_eclairage,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -260,10 +267,28 @@ async def anonymous_chat(
 
     # --- Step 6: Increment message count ---
     anon_session.message_count += 1
-    db.commit()
 
     new_count = anon_session.message_count
     messages_remaining = MAX_ANONYMOUS_MESSAGES - new_count
+
+    # --- Step 6b: Phase 71b — Premier Éclairage gate ---
+    #
+    # Spec (panel-locked, Phase 71 verdict):
+    #   - Emit EclairagePayload exactly once per session.
+    #   - Gate fires when coach has just completed turn 2 (i.e. the user has
+    #     sent 2 messages and the second response is being built).
+    #   - `eclairage_delivered` flag prevents double-emission on turn 3+.
+    #
+    # The user-intent-signal-sufficient check is implicitly satisfied for
+    # v2.10: any 2 successful coach turns through the discovery prompt
+    # qualify as enough signal to surface the default fiscal_margin_3a
+    # insight. Future iterations may refine this with intent classification.
+    eclairage: Optional[EclairagePayload] = None
+    if new_count >= 2 and not anon_session.eclairage_delivered:
+        eclairage = build_default_fiscal_margin_3a_eclairage()
+        anon_session.eclairage_delivered = True
+
+    db.commit()
 
     # --- Step 7: Return response ---
     return AnonymousChatResponse(
@@ -271,4 +296,5 @@ async def anonymous_chat(
         disclaimers=result["disclaimers"],
         messages_remaining=messages_remaining,
         tokens_used=result["tokens_used"],
+        eclairage=eclairage,
     )

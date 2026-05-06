@@ -1,0 +1,25 @@
+{
+  "slug": "cadre_40_55_lpp_rachat",
+  "label": "Cadre 40-55 ans avec marge de rachat LPP",
+  "profile": {
+    "age": 48,
+    "canton": "GE",
+    "salary_brut_year": 185000,
+    "has_lpp": true,
+    "lpp_balance": 410000,
+    "has_3a": true,
+    "3a_balance": 45000,
+    "marital_status": "married",
+    "kids_count": 2,
+    "owns_property": true
+  },
+  "expected_eclairage": {
+    "kind": "lpp_rachat_3a_nantissement",
+    "value_min": 14000,
+    "value_max": 28000
+  },
+  "deterministic_prompts": [
+    "Quel est l'avantage fiscal d'un rachat LPP ?",
+    "Et si je combine avec un 3a ?"
+  ]
+}

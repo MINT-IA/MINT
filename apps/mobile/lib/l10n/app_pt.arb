@@ -10512,7 +10512,6 @@
   "mtcSummaryWeakAccuracy": "Um número-chave assenta numa hipótese frágil — Mint mantém-se prudente.",
   "mtcSummaryWeakFreshness": "Dados recolhidos há algum tempo — Mint prefere voltar a dizer.",
   "mtcSummaryWeakUnderstanding": "O cálculo está feito, a ideia ainda merece conversa.",
-  "landingV2Paragraph": "Mint diz-te o que mais ninguém tem interesse em dizer-te. Sobre os teus seguros, o teu 3a, o teu salário, o teu arrendamento, o teu casal, os teus impostos. Calmamente. Sem te vender nada.",
   "landingV2Cta": "Continuar (sem conta)",
   "landingV2Privacy": "Nada sai do teu telemóvel até que tu o decidas.",
   "landingV2Legal": "Ferramenta educativa. Não constitui aconselhamento financeiro nos termos da LSFin.",
@@ -10532,6 +10531,10 @@
   },
   "landingV2PromiseSober": "Nós esclarecemos. Tu decides.",
   "landingV2CtaSober": "Fala com o Mint",
+  "landingV3Hero": "Ver claro, decidir sozinho.",
+  "@landingV3Hero": {
+    "description": "Phase 73 v2.10 — Landing v3 editorial hero. Brand line locked by panel."
+  },
   "tonChooserTitle": "Escolhe como o Mint te fala",
   "@tonChooserTitle": {
     "description": "Phase 12-01."
@@ -10591,37 +10594,29 @@
   "@anonymousIntentLine1": {
     "description": "Landing opener."
   },
-  "anonymousIntentLine2": "",
-  "@anonymousIntentLine2": {
-    "description": "Retired 2026-04-17."
+  "anonymousChatOpener": "Olá. Diz-me o que te anda na cabeça agora em relação a dinheiro — um projeto, uma pergunta, algo confuso.",
+  "@anonymousChatOpener": {
+    "description": "Phase 71a — coach opener bubble shown on cold-open of anonymous chat. Flutter const string (i18n), NOT backend-generated."
   },
-  "anonymousIntentPill1": "Pago, assino, mas não entendo tudo",
-  "@anonymousIntentPill1": {
-    "description": "Anonymous intent — felt-state pill 1."
+  "anonymousChatChip1": "Tenho uma compra em vista",
+  "@anonymousChatChip1": {
+    "description": "Phase 71a — anonymous chat chip 1 (housing/vehicle, 18-99 neutral)."
   },
-  "anonymousIntentPill2": "Evito pensar nisso",
-  "@anonymousIntentPill2": {
-    "description": "Anonymous intent — felt-state pill 2."
+  "anonymousChatChip2": "Estou a mudar de emprego",
+  "@anonymousChatChip2": {
+    "description": "Phase 71a — anonymous chat chip 2 (career, includes promotions/redundancies/expat)."
   },
-  "anonymousIntentPill3": "Tenho medo de cometer um erro caro",
-  "@anonymousIntentPill3": {
-    "description": "Anonymous intent — felt-state pill 3."
+  "anonymousChatChip3": "Quero ver com clareza",
+  "@anonymousChatChip3": {
+    "description": "Phase 71a — anonymous chat chip 3 (open-ended escape hatch)."
   },
-  "anonymousIntentPill4": "Sei que devia tratar disto",
-  "@anonymousIntentPill4": {
-    "description": "Anonymous intent — felt-state pill 4."
+  "anonymousChatLsfinDisclaimer": "Informação geral, não é aconselhamento financeiro personalizado.",
+  "@anonymousChatLsfinDisclaimer": {
+    "description": "Phase 71a — LSFin disclaimer line above input bar (always visible)."
   },
-  "anonymousIntentPill5": "Algo mudou e não sei por onde começar",
-  "@anonymousIntentPill5": {
-    "description": "Anonymous intent — felt-state pill 5."
-  },
-  "anonymousIntentPill6": "Só quero ver com clareza",
-  "@anonymousIntentPill6": {
-    "description": "Anonymous intent — felt-state pill 6."
-  },
-  "anonymousIntentFreeTextHint": "Ou diz como quiseres…",
-  "@anonymousIntentFreeTextHint": {
-    "description": "Anonymous intent — free text input hint."
+  "anonymousChatInputHint": "Escreve o que te anda na cabeça…",
+  "@anonymousChatInputHint": {
+    "description": "Phase 71a — anonymous chat input hint."
   },
   "anonymousChatBack": "Voltar",
   "@anonymousChatBack": {
@@ -11121,24 +11116,6 @@
   "scanSummarySalaryCertificate": "Certificado de salário digitalizado",
   "onboardingSealError": "Não foi possível selar o teu dossier. Verifica a tua conexão e tenta novamente.",
   "onboardingSealRetry": "Tentar novamente",
-  "wedgeTeaserEyebrowExample": "EXEMPLO",
-  "wedgeTeaserEyebrowEstimate": "ESTIMATIVA INDICATIVA",
-  "wedgeTeaserSalienceExample": "EXEMPLO · não é uma projeção da tua situação",
-  "wedgeTeaserSalienceEstimate": "Estimativa indicativa · carreira completa, reforma aos 65",
-  "wedgeTeaserAssumptionsExample": "Apenas AVS, exemplo de carreira completa",
-  "wedgeTeaserAssumptionsEstimate": "Hipóteses: 40 anos, carreira 20→65, sem lacunas, apenas AVS. O teu valor real varia com a idade, género, cantão e LPP.",
-  "wedgeTeaserReculExample": "Adiciona o teu LPP e MINT projeta os teus próprios números.",
-  "wedgeTeaserReculEstimate": "Com uma conta, MINT refina com a tua idade, LPP, cantão e lacunas.",
-  "wedgeTeaserHeroSemantics": "{amount} francos por mês",
-  "wedgeTeaserChfPerMonth": "CHF / mês",
-  "wedgeTeaserModifySalary": "Modificar",
-  "wedgeTeaserCtaRegister": "Cria a tua conta para as tuas próprias projeções",
-  "wedgeSalaryInputLabel": "O teu salário bruto anual. Para uma estimativa rápida.",
-  "wedgeSalaryInputAction": "Calcular",
-  "wedgeSalaryInputActionSemantics": "Calcular a minha estimativa",
-  "wedgeSalaryStaysOnDevice": "O teu salário fica no teu dispositivo. MINT não o envia para nenhum lado.",
-  "wedgeSalaryErrorInvalid": "Insere um montante em algarismos, por exemplo 95 000.",
-  "wedgeSalaryErrorOutOfRange": "Entre 10 000 e 1 000 000 CHF por ano.",
   "coachOnboardingFirstUserMessage": "Olá, acabei de criar a minha conta. Por onde começo?",
   "coachAnonymousAuthGateMessage": "Já explorámos algumas pistas juntos. Cria a tua conta para eu me lembrar de tudo.",
   "coachAuthGateChipRegister": "Criar a minha conta",

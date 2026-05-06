@@ -95,5 +95,13 @@ tools/agent-drift/spikes/A7_headless_result.txt
 .planning/walker/
 .cache/
 
+# Phase 83 walker_premier_eclairage.sh runtime output (SIMH-04, v2.11) —
+# screenshots, run logs, intermediate diff PNGs. Goldens under
+# tools/simulator/goldens/ stay tracked (those are committed reference
+# images), only the per-run scratch + walkthrough captures are ignored.
+screenshots/walkthrough/
+tools/simulator/walker_runs/
+tools/simulator/walkthrough/
+
 # Phase 30.7 MCP tools dedicated venv — gitignored per D-01 (reproducible via requirements.txt)
 tools/mcp/mint-tools/.venv/

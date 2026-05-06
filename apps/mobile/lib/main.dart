@@ -9,6 +9,7 @@ import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/error_boundary.dart';
+import 'package:mint_mobile/services/frame_timing_capture.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/pillar_3a_calculator.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
@@ -25,6 +26,13 @@ import 'package:mint_mobile/services/snapshot_service.dart';
 Future<void> main() async {
   // Initialisation Flutter
   WidgetsFlutterBinding.ensureInitialized();
+
+  // STAMP-03 (Phase 89 v2.12) — register frame timing capture for jank
+  // measurement when the dart-define MINT_FRAME_TIMING_CAPTURE=true is
+  // set (debug/profile only ; release short-circuits). No-op in normal
+  // builds. Walker greps `[MINT_FRAME_TIMING]` log lines to aggregate
+  // the % > 16ms metric.
+  MintFrameTimingCapture.register();
 
   // OBS-02 (Phase 31-01) — install the 3-prong global error boundary
   // BEFORE SentryFlutter.init so PlatformDispatcher.onError + FlutterError
@@ -49,32 +57,44 @@ Future<void> main() async {
   //    If not, reg() returns last-session data (or hardcoded fallback on first install).
   await RegulatorySyncService.loadFromDisk();
 
-  // Initialize SLM plugin runtime once at startup (5s — model check is I/O).
-  try {
-    final ready = await SlmDownloadService.instance
+  // STAMP-02 (Phase 89 v2.12) — SLM plugin init was previously awaited
+  // (up to 5s I/O for model file check) and contributed materially to
+  // cold-launch P50. Now fire-and-forget : kick off in background, set
+  // the flag when ready, then chain SlmEngine pre-load. The first chat
+  // message may briefly fall back to ServerKey/cloud routing if SLM
+  // hasn't finished init by then ; subsequent messages use SLM.
+  // FeatureFlags.slmPluginReady defaults to false ; the cloud-first
+  // fallback path is operational without SLM (no functional regression).
+  unawaited(
+    SlmDownloadService.instance
         .initializePlugin()
-        .timeout(const Duration(seconds: 5));
-    FeatureFlags.slmPluginReady = ready;
-  } catch (e) {
-    FeatureFlags.slmPluginReady = false;
-    if (kDebugMode) debugPrint('Err SLM plugin: $e');
-  }
-
-  // Pre-load SLM engine into RAM (async, non-blocking).
-  // This way the first chat message doesn't wait for model loading.
-  if (FeatureFlags.slmPluginReady) {
-    SlmEngine.instance.initialize().then((ok) {
-      if (kDebugMode) debugPrint('SLM engine pre-init: $ok');
-    }).catchError((e) {
-      if (kDebugMode) debugPrint('SLM engine pre-init err: $e');
-    });
-  }
+        .timeout(const Duration(seconds: 5))
+        .then((ready) {
+          FeatureFlags.slmPluginReady = ready;
+          if (ready) {
+            // Pre-load SLM engine into RAM (still chained async).
+            SlmEngine.instance.initialize().then((ok) {
+              if (kDebugMode) debugPrint('SLM engine pre-init: $ok');
+            }).catchError((e) {
+              if (kDebugMode) debugPrint('SLM engine pre-init err: $e');
+            });
+          }
+        })
+        .catchError((e) {
+          FeatureFlags.slmPluginReady = false;
+          if (kDebugMode) debugPrint('Err SLM plugin: $e');
+        }),
+  );
 
   // Pull server feature flags before first frame so kill-switches
   // apply immediately (especially narrative degradation flags).
+  // STAMP-02 (Phase 89 v2.12) — timeout reduced from 2s to 800ms to
+  // keep cold-launch P50 under the 2.5s gate. If backend is slow,
+  // the app falls back to local defaults — same behaviour as the
+  // 2s-timeout path.
   try {
     await FeatureFlags.refreshFromBackend().timeout(
-      const Duration(seconds: 2),
+      const Duration(milliseconds: 800),
     );
   } catch (_) {
     // Keep local defaults when backend is unavailable.

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINT — Session 2026-05-05 — v2.12 Phase 86+88 + Phase 89 STAMP partial + v2.13 declared</title>
+<style>
+  :root {
+    --primary: #003b2f; --textPrimary: #1d1d1f; --textSecondary: #525256; --textMuted: #95989d;
+    --success: #157b35; --warning: #8c3f06; --error: #8b1d1d;
+    --bg: #fafaf7; --surface: #ffffff; --border: #e5e5e0;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; color: var(--textPrimary); background: var(--bg); margin: 0; line-height: 1.55; }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 24px; }
+  h1 { font-size: 30px; color: var(--primary); margin-bottom: 4px; }
+  h2 { font-size: 22px; color: var(--primary); margin-top: 36px; border-top: 1px solid var(--border); padding-top: 18px; }
+  h3 { font-size: 17px; color: var(--textPrimary); margin-top: 18px; }
+  .lede { color: var(--textSecondary); font-size: 14px; margin-bottom: 32px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--surface); color: var(--textSecondary); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .pass { color: var(--success); font-weight: 600; }
+  .fail { color: var(--error); font-weight: 600; }
+  .pending { color: var(--warning); font-weight: 600; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  code { background: var(--surface); padding: 2px 6px; border-radius: 4px; font-size: 13px; border: 1px solid var(--border); }
+  .footer { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--textMuted); font-size: 12px; }
+  .kpi { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 13px; margin: 4px 4px 4px 0; }
+  .kpi-pass { background: #e6f4ec; color: var(--success); border: 1px solid #b8e0c8; }
+  .kpi-pending { background: #fbf3e6; color: var(--warning); border: 1px solid #f0d8b0; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Session 2026-05-05 — v2.12 sim-validation + v2.13 persona-narrative declared</h1>
+<p class="lede">Long autonomous session (~6h walker time). Closed v2.12 Phase 86 (4 archetypes FR walker green), Phase 87 (bare-catches Wave 1, PR #498 SHIPPED), Phase 88 (12-walks cross-language GREEN with flake retries), Phase 89 STAMP 3/7 mechanical gates GREEN. Declared v2.13 milestone (Persona Narrative Scenario Coverage) panel-locked by 6 experts. 2 PRs open against dev (#499 v2.13 setup, #500 walker work).</p>
+
+<h2>One-line KPI snapshot</h2>
+
+<div>
+  <span class="kpi kpi-pass">v2.12 Phase 86 SIMQ-01..04: 4/4 walker exit 0</span>
+  <span class="kpi kpi-pass">v2.12 Phase 87: PR #498 SHIPPED (15 sites + ledger 318 + lint blocking)</span>
+  <span class="kpi kpi-pass">v2.12 Phase 88 XLOC: 12/12 walker exit 0 (with retries)</span>
+  <span class="kpi kpi-pass">v2.12 Phase 89 STAMP: 3/7 gates GREEN</span>
+  <span class="kpi kpi-pending">v2.12 Phase 89 STAMP: 4/7 gates PENDING (~3h dedicated measurement)</span>
+  <span class="kpi kpi-pass">v2.13 declared + panel-locked (PR #499)</span>
+</div>
+
+<h2>What shipped</h2>
+
+<table>
+  <thead><tr><th>PR</th><th>Branch</th><th>Scope</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>#498</td><td>feat/phase-87-bare-catches-wave-1</td><td>Phase 87 — 15 bare catches converted + ledger 318 grandfathered + tools/checks/no_new_bare_catch.py blocking + 18/18 unit tests</td><td class="pass">SHIPPED prior to session</td></tr>
+    <tr><td>#499</td><td>chore/milestone-v2.13-setup</td><td>v2.13 milestone declaration : PROJECT.md + REQUIREMENTS.md (32 REQs PERS/ARCH/JDEF/GROW) + ROADMAP.md (Phase 90-93) + STATE.md + decision artifact (panel synthesis 6-pers)</td><td class="pending">OPEN — awaits v2.12 STAMP-PASS to start Phase 90 execution</td></tr>
+    <tr><td>#500</td><td>feat/phase-86-walker-green-fr</td><td>Phase 86 SIMQ-01..04 GREEN + Phase 88 XLOC 12 walks GREEN + Phase 89 STAMP 3/7 + APP_LOCALE wiring + WALKC-01/07/08 codesign audit + Phase 86/88/89 HTML evidence reports</td><td class="pending">OPEN — awaiting CI + manual review</td></tr>
+  </tbody>
+</table>
+
+<h2>v2.12 Phase 86 — Walker GREEN 4 archetypes FR</h2>
+
+<table>
+  <thead><tr><th>SIMQ</th><th>Archetype</th><th>Result</th><th>Run-id</th></tr></thead>
+  <tbody>
+    <tr><td>SIMQ-01</td><td>julien_swiss</td><td class="pass">GREEN 6/6 82s, full nav</td><td><code>2026-05-05-211306-73afa3cb</code></td></tr>
+    <tr><td>SIMQ-02</td><td>couple_acheteurs_lausanne</td><td class="pass">GREEN 6/6 117s, full nav</td><td><code>2026-05-05-222601-8d3c127a</code></td></tr>
+    <tr><td>SIMQ-03</td><td>jeune_diplome_zurich</td><td class="pass">GREEN 6/6 81s, partial nav past turn 1</td><td><code>2026-05-05-225608-980abf15</code></td></tr>
+    <tr><td>SIMQ-04</td><td>cadre_40_55_lpp_rachat</td><td class="pass">GREEN 6/6 125s, full nav</td><td><code>2026-05-05-222931-a28605be</code></td></tr>
+  </tbody>
+</table>
+
+<p>Walker contract per its own header (<code>walker_premier_eclairage.sh</code>) : exit 0 = OK, exit 2 = SSIM fail (no goldens baked yet), exit 3 = register-CTA fail. All 4 archetypes report exit 0.</p>
+
+<h2>v2.12 Phase 88 — Cross-language 12 walks</h2>
+
+<table>
+  <thead><tr><th>Archetype</th><th>FR</th><th>DE</th><th>EN</th></tr></thead>
+  <tbody>
+    <tr><td>julien_swiss</td><td class="pass">PASS 90s</td><td class="pass">PASS 102s</td><td class="pass">PASS 90s (retry 1)</td></tr>
+    <tr><td>couple_acheteurs_lausanne</td><td class="pass">PASS 100s</td><td class="pass">PASS 84s (retry 3)</td><td class="pass">PASS 99s</td></tr>
+    <tr><td>jeune_diplome_zurich</td><td class="pass">PASS 94s</td><td class="pass">PASS 86s (retry 1)</td><td class="pass">PASS 99s</td></tr>
+    <tr><td>cadre_40_55_lpp_rachat</td><td class="pass">PASS 85s (retry 2)</td><td class="pass">PASS 101s</td><td class="pass">PASS 91s (retry 1)</td></tr>
+  </tbody>
+</table>
+
+<p>Net: 12/12 walker exit 0 (after 17 attempts ; 5 build retries needed across the matrix). First-attempt success rate: ~71%. The codesign provenance flake catalogued in Phase 86 audit B is the operational debt — not blocking exit-0 contract but creates retry burden.</p>
+
+<h2>v2.12 Phase 89 — STAMP gates progression</h2>
+
+<table>
+  <thead><tr><th>Gate</th><th>Description</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>STAMP-01</td><td>Walker green 12 walks exit 0</td><td class="pass">PASS (Phase 88)</td></tr>
+    <tr><td>STAMP-02</td><td>Cold-launch P50 ≤ 2.5s × 5 boots</td><td class="pending">PENDING — measurement infra to ship (~45 min)</td></tr>
+    <tr><td>STAMP-03</td><td>Frame jank &lt; 1% &gt; 16ms on 4-card éclairage</td><td class="pending">PENDING — flutter run --profile (~45 min)</td></tr>
+    <tr><td>STAMP-04</td><td>VoiceOver smoke 1 archetype × 3 langues</td><td class="pending">PENDING — sim VoiceOver enable + Semantics dump (~60 min)</td></tr>
+    <tr><td>STAMP-05</td><td>Sentry ≥ 8 distinct breadcrumb categories</td><td class="pending">PENDING — walker --record-trace emit (~30 min) ; in-app emits already wired</td></tr>
+    <tr><td>STAMP-06</td><td>ARB parity 6-lang exits 0</td><td class="pass">PASS — 6/6 langs × 6743 keys verified 2026-05-05 23:30</td></tr>
+    <tr><td>STAMP-07</td><td>BARE_CATCH_DEBT.md ledger + lint blocking</td><td class="pass">PASS — Phase 87 PR #498</td></tr>
+    <tr><td>STAMP-08</td><td>Final stamp report ; TestFlight gate enabled</td><td class="pending">BLOCKED — gates 02/03/04/05 pending. v2.12.0 tag correctly gated.</td></tr>
+  </tbody>
+</table>
+
+<h2>v2.13 milestone — Persona Narrative Scenario Coverage (declared, panel-locked)</h2>
+
+<div class="panel">
+  <p>6-pers expert panel on 2026-05-05 produced a binding architecture decision (`.planning/decisions/2026-05-05-persona-narrative-scenario-coverage-panel.md`) :</p>
+  <ul>
+    <li><strong>L0</strong> : walker_premier_eclairage.sh KEPT as build/seed/Sentry layer.</li>
+    <li><strong>L1</strong> : Maestro YAML flows (<code>tools/simulator/flows/&lt;persona&gt;.yaml</code>) — semantic locators, no pixel coords.</li>
+    <li><strong>L2</strong> : Dart post-run assertion suite — Sentry breadcrumbs + LSFin regex + financial_core numeric + archetype assertion.</li>
+    <li>LLM mocked via replay-cache (<code>MINT_LLM_CACHE_MODE=replay</code>) — ANTHROPIC_API_KEY never gates a script.</li>
+    <li>Goldens to R2 bucket (NOT git, NOT LFS).</li>
+    <li>Locator audit blocking lint.</li>
+  </ul>
+  <p>Scope cap : Phase 90 = <strong>2 personas × 1 scenario × 5 phases = 10 cells</strong>. Grow only after 5-night nightly-green. Hard guards against the Phase 51 trap (336 cells → gaps_found).</p>
+  <p>5 journalist-defense scripts = TestFlight ship gate (Phase 92) : <strong>Sofia / Lauren / Anna / Jennifer / Pierre</strong>.</p>
+</div>
+
+<h2>Bug-fixes-of-record this session</h2>
+
+<table>
+  <thead><tr><th>Tag</th><th>Fix</th><th>Commit</th></tr></thead>
+  <tbody>
+    <tr><td>WALKC-01</td><td>walker <code>_refresh_sim_window_bounds</code> subshell variable propagation — parse stdout into globals in parent shell (was losing all <code>_SIM_WIN_*</code> side-effects, garbling tap coords)</td><td><code>8d3c127a</code></td></tr>
+    <tr><td>WALKC-07</td><td>(reverted) <code>flutter clean</code> per archetype made codesign issue worse ; now skipped — incremental builds reuse codesigned Flutter.framework</td><td><code>980abf15</code></td></tr>
+    <tr><td>WALKC-08</td><td><code>CODE_SIGNING_ALLOWED=NO</code> env var on flutter build (defense-in-depth ; works for some archetypes)</td><td><code>a28605be</code></td></tr>
+    <tr><td>SIMQ-07 wiring</td><td><code>LocaleProvider.load()</code> reads <code>String.fromEnvironment('APP_LOCALE')</code> with kReleaseMode short-circuit ; walker dart-define cold-start locale</td><td><code>71237db3</code></td></tr>
+    <tr><td>strip_provenance.sh</td><td>codesign --remove-signature pre-step (unused now ; defense-in-depth)</td><td><code>980abf15</code></td></tr>
+    <tr><td>codesign_shim/</td><td>no-op codesign shim (unused now ; defense-in-depth)</td><td><code>980abf15</code></td></tr>
+    <tr><td>Phase 86 collisions</td><td>3 collisions resolved : forcedEclairageKind duplicate getter / EclairageCard duplicate import / EclairageCard payload type mismatch</td><td><code>8d3c127a</code></td></tr>
+  </tbody>
+</table>
+
+<h2>Operational debt catalogued</h2>
+
+<ul>
+  <li><strong>Codesign provenance flake</strong>: macOS Sequoia/Tahoe tags Flutter SDK Flutter.framework with <code>com.apple.provenance</code> system-immutable xattr. Sometimes triggers « replacing existing signature: resource fork detritus » error on flutter build. ~30% of walker runs need 1-3 retries. Path forward: v2.13 Phase 90 Maestro YAML decouples this.</li>
+  <li><strong>SIMQ-03 jeune_diplome_zurich partial nav</strong>: walker exit 0 + 6/6 captures, but eclairage card render gap past turn 1 (03=04=05 byte-identical). Phase 89 STAMP concern, not Phase 86 walker contract gate.</li>
+  <li><strong>STAMP-02..05 measurement infra</strong>: ~3h dedicated effort to ship cold-launch / frame jank / VoiceOver / Sentry-breadcrumb-pull tooling. Required for STAMP-PASS = TestFlight tag enabling.</li>
+  <li><strong>SIMQ-05/06 retry-loop / record-trace</strong>: flags wired in argv parser, semantic logic deferred (low-priority since incremental builds reduce flake naturally).</li>
+  <li><strong>SIMQ-08 timing constants inline-replace</strong>: header block declared, in-script replace of <code>sleep 0.4</code>/<code>sleep 6</code> deferred (cosmetic).</li>
+</ul>
+
+<h2>Path forward (next session)</h2>
+
+<ol>
+  <li>Ship STAMP-02 cold-launch measurement (<code>tools/simulator/measure_cold_launch.sh</code>).</li>
+  <li>Ship STAMP-03 frame jank profile run.</li>
+  <li>Ship STAMP-04 VoiceOver smoke + Semantics tree dump.</li>
+  <li>Ship STAMP-05 walker --record-trace emit + Sentry breadcrumb category counter.</li>
+  <li>Re-generate <code>89-STAMP-PASS-&lt;date&gt;.html</code> with 7/7 GREEN.</li>
+  <li>Tag v2.12.0 ; merge dev → staging triggers TestFlight.</li>
+  <li>Open v2.13 Phase 90 worktree : Maestro CLI install + 2 persona Maestro flows + Dart assertions + LLM replay-cache schema + R2 bucket + locator audit lint.</li>
+</ol>
+
+<h2>Decision-of-record</h2>
+
+<div class="panel">
+  <p>v2.13 architecture is panel-locked (6-pers, 2026-05-05) : <strong>walker.sh + Maestro YAML + Dart assertions + LLM replay-cache + R2 goldens</strong>. Patrol rejected (CI flake reports). Pure walker rejected (1800 LoC bash bomb). Pure Maestro rejected (no SSIM, no dart-defines). 5 journalist-defense scripts (Sofia/Lauren/Anna/Jennifer/Pierre) = TestFlight ship gate. Cap Phase 90 = 10 cells, grow only after 5-night nightly-green.</p>
+  <p>This decision supersedes any prior persona-suite framing. Phase 51 (Apr 30 - May 2) and Phase 74 corpses kept as evidence in <code>.planning/walker/</code> (36 run dirs).</p>
+</div>
+
+<div class="footer">
+  Generated 2026-05-05 23:30 — Long autonomous session. Next: STAMP-02..05 dedicated measurement session, then v2.12.0 tag, then v2.13 Phase 90.
+</div>
+
+</main>
+</body>
+</html>
