@@ -80,6 +80,16 @@ class ComplianceGuard {
     // FIX-081: English banned terms (expat users)
     'guaranteed', 'risk-free', 'optimal', 'best', 'perfect',
     'you should', 'you must', 'we recommend', 'ideal',
+    // BUG #17 fix (P0, walkthrough 2026-05-06 audit) — issuer/produit
+    // denylist promoted from N4/N5 cursor (which never fires in prod)
+    // to L1 always-on. Mirrors backend compliance_guard.py addition.
+    // FINMA Circ. 2013/8 §28-31 + FinSA art. 13 forbid naming Swiss
+    // financial products/issuers without prospectus framing.
+    'viac', 'frankly', 'vitainvest', 'swisscanto', 'finpension',
+    'vermögenszentrum', 'vermoegenszentrum', 'vz vermögenszentrum',
+    'ubs', 'postfinance', 'raiffeisen', 'swissquote',
+    'credit suisse', 'credit-suisse', 'pictet', 'vontobel',
+    'zkb', 'lombard odier',
   ];
 
   static const Map<String, String> termReplacements = {

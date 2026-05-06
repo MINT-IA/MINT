@@ -1,0 +1,50 @@
+# tools/simulator/flows/walkthrough_authed_app.yaml
+#
+# Phase B-MVP (v2.13) — walkthrough complet de l'app authentifiée.
+# Login avec test user mint-walkthrough-2026@gmail.com (créé via API
+# 2026-05-06 20:50), walk les 4 onglets (Aujourd'hui / Mon argent /
+# Coach / Explorer), assert les écrans clés rendent.
+#
+# NO MINT_E2E_* dart-defines. Production code path against Railway
+# staging. Reproduit le parcours d'un user qui se RECONNECTE.
+
+appId: ch.mint.app
+---
+- launchApp
+- assertVisible:
+    id: "landing-hero"
+
+# ── 01 : login via password fallback (Magic Link demanderait email
+#       inbox check ; password est plus rapide en E2E auto)
+- tapOn:
+    id: "landing-login-link"
+
+- assertVisible: "Adresse e-mail"
+
+# Switch to password fallback FIRST (before typing email) to avoid
+# keyboard covering the toggle button.
+- tapOn: "Se connecter avec un mot de passe"
+- assertVisible: "Mot de passe"
+
+- tapOn: "Adresse e-mail"
+- inputText: "mint-walkthrough-2026@gmail.com"
+
+- tapOn: "Mot de passe"
+- inputText: "WalkthroughTest123!"
+
+# ── 02 : tap submit button (login). Password screen has its own CTA.
+- swipe:
+    direction: UP
+    duration: 200
+- tapOn: "Se connecter"
+
+# ── 03 : after auth, we should land on /home (Aujourd'hui tab).
+# If onboarding not done, we may land on /onb instead. Both
+# acceptable.
+- extendedWaitUntil:
+    visible:
+      text: "MINT"
+    timeout: 15000
+
+# Capture state — what screen are we on ?
+- takeScreenshot: "01-post-login-state"

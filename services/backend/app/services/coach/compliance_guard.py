@@ -114,6 +114,34 @@ class ComplianceGuard:
         # Infinitive prescriptive bypass
         "garantir un rendement",
         "assurer un retour",
+        # ════════════════════════════════════════════════════════════
+        # Issuer / produit denylist (FINMA Circ. 2013/8 §28-31 + FinSA
+        # art. 13). BUG #17 fix (P0, walkthrough 2026-05-06 audit) —
+        # Swiss compliance reviewer flagged that VIAC, Frankly, etc.
+        # were only gated at N4/N5 cursor (line 469) which never fires
+        # in production. Promote to L1 always-on. The Coach LLM may
+        # legitimately reference these names when the user types them
+        # ; sanitization replaces with generic « un prestataire 3a »
+        # / « une banque suisse » to keep the response useful without
+        # naming-without-prospectus exposure.
+        "viac",
+        "frankly",
+        "vitainvest",
+        "swisscanto",
+        "finpension",
+        "vermögenszentrum",
+        "vermoegenszentrum",
+        "vz vermögenszentrum",
+        "ubs",  # was N4/N5 only, now always-on
+        "postfinance",
+        "raiffeisen",
+        "swissquote",
+        "credit suisse",
+        "credit-suisse",
+        "pictet",
+        "vontobel",
+        "zkb",
+        "lombard odier",
     ]
 
     # Pre-compiled word-boundary patterns (French-aware: includes À-ÿ).
