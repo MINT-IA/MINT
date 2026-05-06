@@ -61,3 +61,11 @@ Both strings re-translated to en/de/it/es/pt with the same disambiguation. `flut
 ## Why this passes the FDPIC art. 6 test
 
 The new copy names the three distinct boundaries (questionnaire = local, message in-flight = transits, structured facts = gated), uses present-tense factual verbs (« transite », « sont sauvegardés », « sont gardés »), and avoids the « no internet » lie that the old copy enabled by omission. Drops the « serveurs européens » residency claim (handled separately by D-04), keeping this string truthful regardless of where Railway's region resolves.
+
+## Counter-arguments and data gaps
+
+**Strongest opposing view :** UX teams often argue that telling users their messages « transit » the network (even with structured-fact gating) creates anxiety that depresses chat engagement. The « simpler narrative » school says : either offer full cloud (with one explicit consent) OR full local (with one explicit consent) — three boundaries (questionnaire/transit/save_fact) is too granular for the median user.
+
+**What this source does not address :** No A/B test of the new 3-boundary copy vs the old 2-mode copy. We don't know whether engagement / first-message rate / save-fact rate change under the new wording. FDPIC compliance is the dominant constraint, but UX impact is unmeasured.
+
+**What would change this conclusion :** (a) Post-launch analytics showing chat opener rate dropped > 10 % under the new copy → trigger a copy refinement (still factual, less anxious). (b) FDPIC opinion clarifying that consent-checkbox sufficiency means we can collapse to 2 modes. (c) Sentry trace showing users abort the chat at the new disambiguation — would suggest the copy reads as a warning rather than a clarification.

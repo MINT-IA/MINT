@@ -95,8 +95,12 @@ Three sub-plans inside Phase 53:
 - `apps/mobile/lib/services/sequence/sequence_chat_handler.dart:45` (target of Phase 53-02)
 - `apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart` (target of Phase 53-03)
 
----
+## Counter-arguments and data gaps
 
-*Methodology note: 5 parallel sub-agents, each given a distinct domain mandate, required to read project artifacts and (where relevant) WebSearch with cited sources. Synthesis by Claude; decision authority remains with Julien.*
+**Strongest opposing view :** « Foundation before scenes » biases toward infrastructural work that does not move user-perceived value. The chat-vivant scenes (Phase 42 / 43) ARE the differentiation ; shipping them later concedes 2-3 sprints of marketing window to competitors who don't gate on architecture parity. Walker green ≠ user-perceived working.
+
+**What this source does not address :** No measured user-side cost of the architecture parity gap. We assert that route drift and ScreenRegistry desync would cause production bugs, but we have zero quantitative data on how often these issues actually manifest as user-visible failures vs internal-only inconsistencies. The 5-sub-agent synthesis is one model with prompted personas, not 5 independent expert consultations.
+
+**What would change this conclusion :** (a) A scene-first prototype that shows ≥ 30 % engagement lift in user testing → would justify deferring architecture parity. (b) A walker run revealing zero ScreenRegistry-driven failures across 4 archetypes × 3 langues for 3 consecutive nights → would weaken the « foundation first » premise empirically. (c) An architecture audit producing a single fix-all PR for parity (vs a multi-phase 53-01..04 sequence) → would invalidate the « must come first » sequencing because the cost gap closes.
 
 *Memory: this decision encodes the « foundation before scenes » sequencing — if any future session contemplates re-prioritizing chat-vivant scenes ahead of the architecture parity work, re-read Expert 5's walker evidence first.*

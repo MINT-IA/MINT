@@ -97,8 +97,12 @@ Per Expert 5's verdict. Three sub-plans:
 - `tools/simulator/walker.sh` + `test_walker_archetype.sh` (Phase 54-01 tooling)
 - `.github/workflows/testflight.yml` (Phase 54-03 deployment pipeline)
 
----
+## Counter-arguments and data gaps
 
-*Methodology: 5 parallel sub-agents with distinct domain mandates. Synthesis by Claude in autonomous mode per `feedback_post_phase_panel_loop.md`. Decision authority remains with Julien.*
+**Strongest opposing view :** « Walker before launch » risks gold-plating. A 4-archetype × 7-phase walker matrix (~28 cells) is a phase-51-style scope-explosion trap waiting to happen — the same trap that closed `gaps_found` in Apr-May 2026 (per Phase 51 postmortem). Real users would find blocking bugs faster than the walker would surface them, AND the walker burns simulator-host engineering hours that don't compound after launch.
+
+**What this source does not address :** No measured detection rate (% of walker-flagged issues that would have been user-impacting). The 5-expert synthesis is one model with prompted personas, not 5 independent consultations. Expert 2's « contract gap evidence » cites ToolCallParser.validRoutes drift but doesn't quantify how many production sessions would actually break vs gracefully degrade.
+
+**What would change this conclusion :** (a) Walker run discovers zero new bugs (only confirms already-known issues) → walker over-engineered, switch to single-persona narrative walkthroughs (per Phase 51 postmortem evidence that single-persona prose surfaced more findings than scripted matrices). (b) v2.13 Maestro YAML adoption succeeds + scales to 12 cells nightly-green within Phase 90 budget → walker.sh shell scaffolding becomes legacy. (c) TestFlight reviewer feedback identifies an issue that walker missed → falsifies the « walker = machine of truth » premise empirically.
 
 *Memory: this decision encodes « contract before scenes, walker before launch » sequencing. If a future session contemplates jumping to chat-vivant scenes ahead of TestFlight, re-read Expert 2's contract-gap evidence + Expert 5's TestFlight-blocker citations first.*
