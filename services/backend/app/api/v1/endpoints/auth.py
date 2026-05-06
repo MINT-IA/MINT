@@ -162,7 +162,25 @@ def _ensure_empty_profile(db: Session, user_id: str) -> None:
     ensure_empty_profile(db, user_id, commit=False)
 
 
-@router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=RegisterResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        # BUG #14 fix (P2, walkthrough 2026-05-06) — Schemathesis flagged
+        # 409 as undocumented. Conflict on duplicate email is a real
+        # business outcome ; declaring it lets mobile clients display a
+        # « Cette adresse est déjà utilisée » UX without surprise.
+        409: {
+            "description": (
+                "Conflict — un utilisateur avec cet email existe déjà."
+            ),
+        },
+        429: {
+            "description": "Rate limit dépassé (>5 register/minute).",
+        },
+    },
+)
 @limiter.limit("5/minute")
 def register_user(
     request: Request,

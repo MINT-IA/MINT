@@ -96,7 +96,27 @@ def compute_profile(request: Request, body: MinimalProfileRequest) -> MinimalPro
         raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
-@router.post("/premier-eclairage", response_model=PremierEclairageResponse)
+@router.post(
+    "/premier-eclairage",
+    response_model=PremierEclairageResponse,
+    responses={
+        # BUG #15 fix (P2, walkthrough 2026-05-06) — Schemathesis flagged
+        # 400 as undocumented. The endpoint raises HTTPException(400,
+        # "Invalid request parameters") at line 96 when the
+        # MinimalProfileResult business validators reject schema-valid
+        # but logically inconsistent inputs (e.g. age < 18, salary
+        # negative, etc.). Declaring 400 unblocks contract-tests.
+        400: {
+            "description": (
+                "Inputs schema-valides mais rejetés par les validators"
+                " métier (âge, salaire, canton, etc.)."
+            ),
+        },
+        429: {
+            "description": "Rate limit dépassé (>30 requests/minute).",
+        },
+    },
+)
 @limiter.limit("30/minute")
 def compute_premier_eclairage(request: Request, body: MinimalProfileRequest) -> PremierEclairageResponse:
     """Calcule le premier éclairage le plus percutant pour l'onboarding.

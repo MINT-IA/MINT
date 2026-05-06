@@ -207,6 +207,20 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/no_replay_cache_in_release.py
 
+      # ─── Phase A walkthrough — Schemathesis OpenAPI contract fuzz ──
+      # Pulls staging /api/v1/openapi.json, runs 3-example fuzz on
+      # critical surfaces (auth, anonymous_chat, onboarding, health).
+      # Caught BUG #13/14/15 (undocumented 400/409 codes) on first run.
+      # Continue-on-error TRUE for now : 3 known gaps still in flight ;
+      # flip to false once all are documented. Tracking to be removed
+      # entirely when the suite becomes a hard PR gate (doctrine W2).
+      - name: Schemathesis contract fuzz (Phase A)
+        working-directory: ${{ github.workspace }}
+        continue-on-error: true
+        run: |
+          pip install --quiet schemathesis
+          bash tools/checks/schemathesis_smoke.sh
+
       # ─── Phase 6 / REGIONAL-05: no legacy REGIONAL_MAP ──────────
       - name: No legacy REGIONAL_MAP (REGIONAL-05)
         working-directory: ${{ github.workspace }}

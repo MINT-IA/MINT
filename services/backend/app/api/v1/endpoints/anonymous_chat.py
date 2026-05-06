@@ -235,7 +235,23 @@ class _NoRagOrchestrator:
 # ---------------------------------------------------------------------------
 
 
-@router.post("/chat", response_model=AnonymousChatResponse)
+@router.post(
+    "/chat",
+    response_model=AnonymousChatResponse,
+    responses={
+        # BUG #13 fix (P2, walkthrough 2026-05-06) — Schemathesis caught
+        # the 400 below as undocumented. The header check at step 1
+        # fires before request validation, so 400 is correct ; we just
+        # need to declare it.
+        400: {
+            "description": (
+                "Header X-Anonymous-Session manquant ou format invalide,"
+                " ou rate limit dépassé (>3 messages par device token)."
+            ),
+        },
+        # 422 already implicit via Pydantic validation.
+    },
+)
 @limiter.limit("10/minute")
 async def anonymous_chat(
     request: Request,
