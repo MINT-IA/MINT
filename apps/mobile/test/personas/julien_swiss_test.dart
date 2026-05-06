@@ -38,7 +38,9 @@ library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/services/financial_core/pillar_3a_calculator.dart';
+// Phase 91 will wire :
+// import 'package:mint_mobile/services/pillar_3a_calculator.dart';
+// for the full numeric assertion against julien_swiss profile.
 
 const String _archetype = 'julien_swiss';
 const String _expectedKind = 'fiscal_margin_3a';
@@ -89,11 +91,13 @@ void main() {
       // Sanity : the band must respect order + be plausible.
       expect(mockChfRangeLow, lessThan(mockChfRangeHigh));
       expect(mockChfRangeLow, greaterThanOrEqualTo(0));
+      // 2026 plafond du 3e pilier (salarié) = 7056 CHF (ASF / OFAS).
+      // Phase 91 ARCH-08 will wire Pillar3aCalculator.compute() against
+      // a julien_swiss profile fixture for the full numeric assertion.
       expect(mockChfRangeHigh, lessThanOrEqualTo(7056),
           reason:
               'chf_range_high cannot exceed the 2026 plafond du 3e pilier '
-              '(7056 CHF). Pillar3aCalculator constants : '
-              '${Pillar3aCalculator.salariedMaxAnnual}.');
+              '(7056 CHF for salariés).');
     }, skip: 'Phase 90 scaffolding — full wiring reads walker artefact');
 
     test('walker run-id env var present',
