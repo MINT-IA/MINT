@@ -1295,6 +1295,17 @@
             "title": "Disclaimers",
             "type": "array"
           },
+          "eclairage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EclairagePayload"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Premier Éclairage payload, emitted exactly once per session after coach turn 2 (LSFin-compliant conditional insight)."
+          },
           "message": {
             "description": "Reponse du coach en mode decouverte.",
             "title": "Message",
@@ -8653,6 +8664,89 @@
           "disclaimer"
         ],
         "title": "EPLResponse",
+        "type": "object"
+      },
+      "EclairagePayload": {
+        "description": "Premier Éclairage — single insight delivered after coach turn 2.\n\nLSFin compliance: NO absolute CHF figure for anonymous users (no KYC).\nAlways conditional range (low + high + period) with disclaimer.\n\nLocked spec (Phase 71 panel verdict):\n    - kind: enum of supported insight types\n    - headline: ≤80 chars hook\n    - body: ≤240 chars educational explanation\n    - chf_range_low/high/period: conditional, never absolute\n    - soft_account_hint: ≤80 chars CTA toward account creation\n    - lsfin_disclaimer: required educational-purpose disclaimer",
+        "properties": {
+          "body": {
+            "description": "Educational body, ≤240 chars.",
+            "maxLength": 240,
+            "title": "Body",
+            "type": "string"
+          },
+          "chfRangeHigh": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Conditional CHF range high bound (never absolute).",
+            "title": "Chfrangehigh"
+          },
+          "chfRangeLow": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Conditional CHF range low bound (never absolute).",
+            "title": "Chfrangelow"
+          },
+          "chfRangePeriod": {
+            "default": "year",
+            "description": "Period for the CHF range.",
+            "enum": [
+              "year",
+              "month",
+              "lifetime"
+            ],
+            "title": "Chfrangeperiod",
+            "type": "string"
+          },
+          "headline": {
+            "description": "Hook headline, ≤80 chars.",
+            "maxLength": 80,
+            "title": "Headline",
+            "type": "string"
+          },
+          "kind": {
+            "default": "fiscal_margin_3a",
+            "description": "Insight category (locked enum).",
+            "enum": [
+              "fiscal_margin_3a",
+              "lpp_gap",
+              "tax_friction"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "lsfinDisclaimer": {
+            "default": "Information éducative basée sur le droit suisse en vigueur. Ce n'est pas un conseil financier personnalisé.",
+            "description": "LSFin educational-purpose disclaimer.",
+            "maxLength": 240,
+            "title": "Lsfindisclaimer",
+            "type": "string"
+          },
+          "softAccountHint": {
+            "description": "Soft CTA toward account creation, ≤80 chars.",
+            "maxLength": 80,
+            "title": "Softaccounthint",
+            "type": "string"
+          }
+        },
+        "required": [
+          "headline",
+          "body",
+          "softAccountHint"
+        ],
+        "title": "EclairagePayload",
         "type": "object"
       },
       "EmailVerificationConfirmRequest": {
