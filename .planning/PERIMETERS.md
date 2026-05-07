@@ -56,11 +56,20 @@ A perimeter is **CLOSED** only when all 5 gates are green. Until G2, status = «
 ## P3 — Construction de profil
 **ACTION CŒUR:** create an account OR stay in local, fill 5-6 fields (age, canton, archetype, salary), see the profile rendered.
 **EXIT:** Mon profil shows 5+ fields, no network error, back button works.
-**BUGS LIÉS:** W-07 register back ✅ #508, W-14 « APERÇU FINANCIER » → « MON PROFIL » naming ✅, W-15 mode local empty states ✅ (logged in P1).
-**PRs MERGED:** #508
-**STATUS:** 🟡 PROVISIONALLY READY — header rename verified, empty state proper. Diagnostic CTA still pending data entry to round-trip the « 5+ fields rendered » exit clause.
+**BUGS LIÉS:** W-07 register back ✅ #508, W-14 « APERÇU FINANCIER » → « MON PROFIL » naming ✅ #517, W-15 mode local empty states ✅ (logged in P1), **W-05 register-screen retirement-first framing** ✅ #521 (CLAUDE.md TOP rule #3 violation), **A03 DOB under-18/over-99** ✅ #521.
+**PRs MERGED:** #508, #515 (BYOK menu hidden — partial), #516 (biography Keychain fallback), #517 (MON PROFIL header)
+**PRs OPEN:** #521 (W-05 brand fix + A03 DOB validator) — awaiting CI
+**STATUS:** 🟡 PROVISIONALLY READY (G1 ✅) — closing on #521 CI green for full P3 closure.
 **GATE LOG:**
-- 2026-05-07 17:40: G1 sim walker — drawer → tap entry → screen renders with header « MON PROFIL » (no longer « APERÇU FINANCIER »). Empty state: hanger icon + « Aucun profil renseigné » + dark-pill CTA « + Commencer le diagnostic ». W-14 fix confirmed. Screenshot: `screenshots/2026-05-07/verify-04-mon-profil.png`.
+- 2026-05-07 17:40: G1 sim walker — drawer → tap entry → screen renders with header « MON PROFIL » (no longer « APERÇU FINANCIER »). Empty state: hanger icon + « Aucun profil renseigné » + dark-pill CTA « + Commencer le diagnostic ». W-14 fix confirmed. Screenshot evidence: `verify-04-mon-profil.png`.
+- 2026-05-07 20:30: 3-auditor lighter panel run on P3 (engineering wiring / adversarial QA / a11y+compliance+brand combined). Reports under `.planning/decisions/p3-audit-2026-05-07/`. 3 P0 surfaced by adversarial QA (email case-collision, Mon profil empty-state collapse, DOB year-only validator) plus compliance auditor caught W-05 still shipping retirement-first in 6 locales.
+- 2026-05-07 21:00: PR #521 ships W-05 (rewrite `authBenefitProjections` × 6 locales: « Projections financières adaptées à tes choix de vie (logement, fiscalité, prévoyance, famille…) ») + A03 DOB fix (`yearsBetween` month/day-aware + picker firstDate now-99 / lastDate now-18). 13 new regression tests (7 DOB + 6 ARB headline). VOICE-14 @meta level fix on `coachTransparencyServer` cherry-picked from #520.
+
+### P3 follow-ups (post-TestFlight wave per panel auditors)
+- A01 (P0 data integrity): email case-collision creates duplicate accounts — needs backend `field_validator` lowercase + frontend `.toLowerCase()` + one-shot `UPDATE users SET email = LOWER(email)` migration
+- A02 (P0 UX): Mon profil empty state collapses loading + error + truly-empty into single `profile == null` check (`financial_summary_screen.dart:49`); fresh launch flashes empty CTA during async load
+- BYOK leak (#515 incomplete): `settings_sheet.dart:43-48` + `coach_chat_screen.dart:1948` still expose entry unconditionally
+- a11y double-Semantics on auth fields, login `'Se connecter'` hardcoded breaks i18n in 5 locales
 
 ## P4 — PDF Upload ← ACTIVE (Julien blocker, iPhone repro 2026-05-07)
 **ACTION CŒUR:** photograph or upload a LPP certificate PDF, see 15 fields extracted, validate.
@@ -105,12 +114,18 @@ A perimeter is **CLOSED** only when all 5 gates are green. Until G2, status = «
 
 **Currently active: P4 — PDF Upload (awaiting #512 CI green = G3, then G2 deep round-trip + G5 lint)**
 
-Status as of 2026-05-07 17:41:
-- P1 🟡 PROVISIONALLY READY (G1 ✅ W-15 verified, W-12 BYOK out-of-scope per project_byok_scope.md)
-- P2 🟡 PROVISIONALLY READY (G1 ✅ W-09 footer copy verified)
-- P3 🟡 PROVISIONALLY READY (G1 ✅ W-14 « MON PROFIL » header verified)
+Status as of 2026-05-07 21:00:
+- P1 🟡 PROVISIONALLY READY (G1 ✅, A02 fix #518 awaiting CI; W-12 BYOK out-of-scope)
+- P2 🟡 PROVISIONALLY READY (G1 ✅, anon prompt parity + injection guard #520 awaiting CI)
+- P3 🟡 PROVISIONALLY READY (G1 ✅, W-05 brand fix + A03 DOB validator #521 awaiting CI)
 - P4 🟡 IN_FLIGHT — PR #512 awaiting CI; sim walker confirms galerie → ConsentSheet → Files picker chain
 - P5/P6/P7 ⚪ PENDING
+
+PRs opened this session (4):
+- #518 fix(anon-chat) prevent permanent lockout when 200 OK drops `messagesRemaining` (P1-A02)
+- #519 docs PERIMETERS audit log + 2026-05-07 sim verification round
+- #520 fix(anon-chat) port auth-coach compliance rules + guard `intent` against prompt injection (P2)
+- #521 fix(p3) W-05 register-screen brand framing + A03 DOB validator (under-18 guard)
 
 Next-up sequence (when P4 closes):
 - P4 → P5 (gated post-PDF round-trip) → P6 (W-13 persona toggle wiring) → P7 (Explorer drill-downs)
