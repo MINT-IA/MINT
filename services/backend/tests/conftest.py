@@ -309,3 +309,195 @@ def pg_db(pg_engine):
             transaction.rollback()
         finally:
             connection.close()
+
+
+# ---------------------------------------------------------------------------
+# Phase 95 Plan 95-04 / TEST-05 — VCR cassettes for Anthropic LLM calls.
+#
+# Additive only: nothing above this line is touched. Tests opt in via
+#     @pytest.mark.vcr_anthropic
+# AND get redacted recording / replay through the `vcr_config` fixture
+# below. Tests that don't carry the marker keep using the existing
+# fixtures (in-memory SQLite or testcontainers-Postgres) untouched.
+#
+# Redact contract (defense-in-depth, doctrine 2026-05-06 §7 ship-gate):
+#   1. `filter_headers` — auth + API-key headers replaced with REDACTED
+#      BEFORE the cassette is written to disk.
+#   2. `before_record_response` — recursively walks the JSON body and
+#      runs `pii_scrubber.scrub` on every string leaf. Strips Set-Cookie
+#      + request-id + sentry-trace + baggage headers entirely.
+#   3. `tools/checks/cassette_hygiene_lint.py` — repo-level regex gate
+#      that blocks commits leaking JWTs / Anthropic keys / IBAN / AVS
+#      / banned terms regardless of (1) and (2). The lint is the
+#      authoritative ship-gate; the fixture hooks are belt-and-suspenders.
+#
+# pii_scrubber lives at app.services.privacy.pii_scrubber (Phase 29-06,
+# PRIV-07). The plan text mentioned app.utils.pii_scrubber — actual
+# import path corrected here per the working tree (Karpathy 1: state
+# the assumption; the SOT is the codebase, not the plan text).
+#
+# Recording protocol (executor / future contributors):
+#     VCR_RECORD_MODE=once \
+#         python -m pytest tests/test_anthropic_vcr_smoke.py \
+#                          -m vcr_anthropic
+# Replay default (CI):
+#     python -m pytest tests/test_anthropic_vcr_smoke.py -m vcr_anthropic
+# Nightly rewrite (DISABLED at ship — see .github/workflows/
+# vcr_nightly_rewrite.yml ACTIVATION RUNBOOK).
+# ---------------------------------------------------------------------------
+
+
+def _vcr_scrub_pii(value):  # pragma: no cover - exercised via vcr replay
+    """Best-effort PII scrub on string leaves of a recorded response body.
+
+    Lazy-imports `pii_scrubber` so the scrubber only loads when a VCR
+    test is actually exercised (avoids paying the Presidio import cost
+    in the SQLite-only fast path). Falls back to identity on import
+    failure with a logged warning — VCR redaction must never silently
+    drop a recording, but it must also never break replay because of
+    an optional dep gap on a contributor laptop.
+
+    Per CLAUDE.md no-bare-catches: ImportError is logged and rethrown
+    on the recording path (where the scrubber must work) and swallowed
+    only on the replay path (where redaction already happened at
+    record-time). The `recording` flag is sourced from VCR_RECORD_MODE.
+    """
+    if not isinstance(value, str) or not value:
+        return value
+    import os
+    try:
+        from app.services.privacy.pii_scrubber import scrub
+    except ImportError as exc:
+        import logging
+        recording_mode = os.environ.get("VCR_RECORD_MODE", "none")
+        if recording_mode in {"once", "all", "new_episodes"}:
+            logging.exception(
+                "[Phase95/TEST-05] pii_scrubber unavailable while RECORDING "
+                "VCR cassette (VCR_RECORD_MODE=%s). Refusing to write an "
+                "unscrubbed cassette to disk.",
+                recording_mode,
+            )
+            raise
+        logging.debug("pii_scrubber unavailable on replay path: %s", exc)
+        return value
+    return scrub(value)
+
+
+def _vcr_scrub_obj(obj):  # pragma: no cover - exercised via vcr replay
+    """Recursively scrub PII out of a decoded JSON value.
+
+    Walks dict / list / tuple containers; runs `_vcr_scrub_pii` on every
+    string leaf. Non-string scalars (int / float / bool / None) pass
+    through untouched — Anthropic API responses encode all PII as
+    strings inside `content[*].text` / `system` / `messages[*].content`
+    so this scope is sufficient.
+    """
+    if isinstance(obj, str):
+        return _vcr_scrub_pii(obj)
+    if isinstance(obj, dict):
+        return {k: _vcr_scrub_obj(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_vcr_scrub_obj(v) for v in obj]
+    if isinstance(obj, tuple):
+        return tuple(_vcr_scrub_obj(v) for v in obj)
+    return obj
+
+
+def _vcr_before_record_response(response):  # pragma: no cover - vcr hook
+    """VCR hook: scrub PII + drop ephemeral headers BEFORE writing cassette.
+
+    1. Drop Set-Cookie / request-id / sentry-trace / baggage headers
+       entirely (no value should ever land in the cassette).
+    2. Decode the response body as JSON (Anthropic always returns
+       application/json), recursively scrub string leaves, re-encode.
+    3. If the body is not JSON, leave it unchanged — the hygiene lint
+       still runs at the repo level so any plain-text leak is caught
+       at PR time.
+    """
+    import json
+    import logging
+
+    headers = response.get("headers") or {}
+    drop_keys = {
+        "set-cookie", "Set-Cookie",
+        "request-id", "Request-Id", "x-request-id", "X-Request-Id",
+        "sentry-trace", "Sentry-Trace",
+        "baggage", "Baggage",
+    }
+    for key in list(headers.keys()):
+        if key in drop_keys or key.lower() in drop_keys:
+            headers.pop(key, None)
+    response["headers"] = headers
+
+    body = response.get("body", {})
+    raw = body.get("string") if isinstance(body, dict) else None
+    if isinstance(raw, (bytes, bytearray)):
+        try:
+            decoded = raw.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            logging.warning(
+                "[Phase95/TEST-05] cassette body not utf-8 (%s); "
+                "leaving untouched, hygiene lint must catch any leak.",
+                exc,
+            )
+            return response
+    elif isinstance(raw, str):
+        decoded = raw
+    else:
+        return response
+
+    try:
+        parsed = json.loads(decoded)
+    except (ValueError, TypeError):
+        # Not JSON; leave as-is. Lint catches plain-text leaks downstream.
+        return response
+
+    scrubbed = _vcr_scrub_obj(parsed)
+    re_encoded = json.dumps(scrubbed, ensure_ascii=False)
+    if isinstance(raw, (bytes, bytearray)):
+        body["string"] = re_encoded.encode("utf-8")
+    else:
+        body["string"] = re_encoded
+    response["body"] = body
+    return response
+
+
+@pytest.fixture(scope="module")
+def vcr_config():
+    """pytest-recording configuration for VCR_anthropic-marked tests.
+
+    Single source of redact rules (vs per-test repetition) — mirrors the
+    `setup_test_database` shared-fixture pattern. Module-scoped so a
+    test module re-recording its cassettes doesn't redo header
+    filter setup on every test function.
+
+    Returns a dict consumed by `pytest-recording` to construct the
+    underlying `vcrpy.VCR` instance. Reference:
+    https://pytest-recording.readthedocs.io/en/latest/#vcr-configuration
+    """
+    return {
+        "filter_headers": [
+            ("authorization", "REDACTED"),
+            ("Authorization", "REDACTED"),
+            ("x-api-key", "REDACTED"),
+            ("X-Api-Key", "REDACTED"),
+            ("anthropic-api-key", "REDACTED"),
+            ("Anthropic-Api-Key", "REDACTED"),
+            ("anthropic-version", "REDACTED"),
+            ("Anthropic-Version", "REDACTED"),
+            ("x-anonymous-session", "REDACTED"),
+            ("X-Anonymous-Session", "REDACTED"),
+            ("cookie", "REDACTED"),
+            ("Cookie", "REDACTED"),
+            ("set-cookie", "REDACTED"),
+            ("Set-Cookie", "REDACTED"),
+        ],
+        "filter_query_parameters": [
+            ("api_key", "REDACTED"),
+            ("apikey", "REDACTED"),
+            ("token", "REDACTED"),
+        ],
+        "before_record_response": _vcr_before_record_response,
+        "decode_compressed_response": True,
+        "match_on": ["method", "scheme", "host", "port", "path", "query"],
+    }

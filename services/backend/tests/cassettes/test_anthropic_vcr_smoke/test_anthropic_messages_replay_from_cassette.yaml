@@ -1,0 +1,30 @@
+interactions:
+- request:
+    body: '{"model": "claude-sonnet-4-5", "max_tokens": 256, "system": "Tu es MINT,
+      l''assistant de lucidité financière suisse.", "messages": [{"role":
+      "user", "content": "Bonjour"}]}'
+    headers:
+      Anthropic-Version:
+      - REDACTED
+      Content-Type:
+      - application/json
+      X-Api-Key:
+      - REDACTED
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: '{"id": "msg_018Aq2RedactedExampleStubFixture", "type": "message", "role":
+        "assistant", "model": "claude-sonnet-4-5-20260201", "content": [{"type": "text",
+        "text": "Bonjour. Pour t''aider à voir clair sur ta situation, peux-tu
+        me dire dans quel canton tu vis et si tu as déjà un pilier 3a ouvert ?
+        On part de là et on avance étape par étape."}], "stop_reason":
+        "end_turn", "stop_sequence": null, "usage": {"input_tokens": 28, "output_tokens":
+        47}}'
+    headers:
+      Content-Type:
+      - application/json
+    status:
+      code: 200
+      message: OK
+version: 1

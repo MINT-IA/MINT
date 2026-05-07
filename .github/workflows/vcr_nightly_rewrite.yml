@@ -1,0 +1,171 @@
+# Phase 95 Plan 95-04 / TEST-05 — VCR cassette nightly rewrite (DISABLED).
+#
+# DISABLED AT SHIP. Activation = manual flag flip + Anthropic budget cap
+# on Railway. Doctrine 2026-05-06 §6 cost objection 1 mitigation.
+# Cost when active: ~$0.05/run × ~30 cassettes ≈ $1.50/run × 30 days
+# ≈ $45/mo Anthropic. At ship: $0/mo (workflow inert).
+#
+# ════════════════════════════════════════════════════════════════════
+# ACTIVATION RUNBOOK
+# ════════════════════════════════════════════════════════════════════
+#   1. Confirm Anthropic budget alert configured on Railway:
+#        - cost cap (~$60/mo cushion above the $45/mo expected)
+#        - email alert on 80% threshold
+#        - automatic pause on 100% threshold
+#      Verify via Railway dashboard → Settings → Anthropic provider.
+#
+#   2. Uncomment the `schedule:` block below (drop `# ` prefix on the
+#      `schedule:` and `- cron:` lines).
+#
+#   3. Flip `if: false` → `if: true` on the `rewrite` job. Both must
+#      change in the SAME PR — the schedule alone leaves the job inert
+#      (belt-and-suspenders), and the `if` alone never runs without a
+#      trigger. Reviewer should reject any partial activation.
+#
+#   4. Verify the following secrets exist in repo Settings → Secrets and
+#      variables → Actions:
+#        - ANTHROPIC_API_KEY_STAGING  (Anthropic Sonnet 4.5 staging key)
+#        - STAGING_API_URL             (e.g. https://mint-staging.up.railway.app/api/v1)
+#      If absent, request from Julien — they live in 1Password and on
+#      Railway only, never in the repo (per memory
+#      feedback_app_targets_staging_always.md).
+#
+#   5. Trigger via workflow_dispatch FIRST with dry_run=true to confirm
+#      the artifact-upload + lint flow before committing to a daily
+#      cron (smoke run only, no auto-PR opened).
+#
+#   6. Open the activation PR; reviewer should pull the previous
+#      nightly run's artifact and confirm cassette diff is sensible.
+#
+#   7. Merge the activation PR → cron starts firing 03:00 UTC daily.
+# ════════════════════════════════════════════════════════════════════
+#
+# Per memory feedback_app_targets_staging_always.md, the Anthropic
+# key for nightly rewrite stays in Railway/GH Secrets only — never
+# committed and never read from a developer laptop.
+
+name: VCR cassette nightly rewrite (DISABLED)
+
+on:
+  # schedule:
+  #   - cron: '0 3 * * *'  # 03:00 UTC daily — DISABLED until activation (see ACTIVATION RUNBOOK above)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Set true to skip the auto-PR step (smoke run only)"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+concurrency:
+  group: vcr-nightly-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rewrite:
+    name: Rewrite cassettes against staging-live
+    runs-on: ubuntu-latest
+    # Belt-and-suspenders: even if the schedule is uncommented, this
+    # `if` block keeps the job inert until explicitly enabled. Flip
+    # to `if: true` along with uncommenting the schedule above. Both
+    # must change in the SAME activation PR.
+    if: false
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: services/backend
+    env:
+      STAGING_API_URL: ${{ secrets.STAGING_API_URL }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY_STAGING }}
+      VCR_RECORD_MODE: all
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/backend/pyproject.toml
+      - name: Install dependencies (app + dev/test)
+        run: pip install ".[dev]"
+      - name: Re-record cassettes against staging-live
+        env:
+          TESTING: "1"
+        run: |
+          # VCR_RECORD_MODE=all forces overwrite of every cassette.
+          # The hygiene lint runs in the next step regardless of
+          # rewrite outcome — a partial rewrite still gets scrubbed.
+          python -m pytest tests/ -q --tb=short -m vcr_anthropic --record-mode=all || true
+      - name: Run hygiene lint on rewritten cassettes
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/cassette_hygiene_lint.py
+      - name: Compute cassette diff vs main
+        id: diff
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          DIFF_FILE="$RUNNER_TEMP/cassette_diff.md"
+          {
+            echo "## Cassette diff (vs main)"
+            echo ""
+            echo '```'
+            git diff --stat services/backend/tests/cassettes/ || true
+            echo '```'
+            echo ""
+            echo "## Per-test response diff (truncated, top 200 lines)"
+            echo ""
+            echo '```diff'
+            git diff services/backend/tests/cassettes/ 2>/dev/null | head -n 200 || true
+            echo '```'
+            echo ""
+            echo "## Hygiene lint result"
+            echo ""
+            echo "Green (banned-terms + secret-patterns + redact-headers checks)."
+          } > "$DIFF_FILE"
+          if [[ -n "$(git diff --name-only services/backend/tests/cassettes/ 2>/dev/null)" ]]; then
+            echo "has_diff=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_diff=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "diff_path=$DIFF_FILE" >> "$GITHUB_OUTPUT"
+      - name: Upload diff report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcr-cassette-diff-${{ github.run_id }}
+          path: ${{ steps.diff.outputs.diff_path }}
+          if-no-files-found: ignore
+      - name: Open auto-PR with cassette rewrite
+        if: steps.diff.outputs.has_diff == 'true' && inputs.dry_run != 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/vcr-cassette-rewrite-${{ github.run_id }}
+          title: "chore(vcr): nightly cassette rewrite ${{ github.run_id }}"
+          body: |
+            ## VCR cassette nightly rewrite
+
+            Automated rewrite of every `vcr_anthropic`-marked cassette against
+            staging-live (`${{ secrets.STAGING_API_URL }}`). All cassettes
+            ran through the redact pipeline + the hygiene lint before this
+            PR was opened — see the workflow run for the artifact-uploaded
+            diff report.
+
+            ### Drift summary
+
+            See workflow artifact `vcr-cassette-diff-${{ github.run_id }}`
+            for the cassette-by-cassette diff (committed bytes vs newly
+            recorded bytes).
+
+            ### Hygiene lint
+
+            Green (banned-terms + secret-patterns + redact-headers all clean).
+
+            Per doctrine 2026-05-06 §4 W2 + memory
+            `feedback_app_targets_staging_always.md`.
+          commit-message: "chore(vcr): nightly cassette rewrite ${{ github.run_id }}"
+          delete-branch: true

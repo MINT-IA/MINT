@@ -383,11 +383,206 @@
   </tbody>
 </table>
 
+<h1 style="margin-top: 3em; border-top: 2px solid #ccc; padding-top: 1em;">Plan 95-04 (TEST-05 VCR + nightly rewrite)</h1>
+
+<p>
+  Closes <strong>TEST-05</strong> + doctrine 2026-05-06 §7 ship-gate item
+  <em>"Banned-term + accent + PII lint over committed VCR cassettes"</em>.
+  Ships deterministic VCR cassettes for Anthropic LLM calls with full
+  PII / secret redaction, plus a nightly rewrite workflow that ships
+  <strong>DISABLED</strong> at <strong>$0/mo</strong> until Julien activates.
+</p>
+
+<h2>Section 1 — PRs opened</h2>
+
+<table>
+  <thead><tr><th>PR</th><th>Scope</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>1 — combined cassette infra + lint + nightly disabled workflow</td>
+      <td>
+        deps (<code>pytest-recording</code> + <code>vcrpy</code>),
+        <code>vcr_anthropic</code> marker,
+        <code>vcr_config</code> fixture (additive),
+        cassettes/ dir + README,
+        smoke test + 1 hand-authored stub cassette,
+        <code>cassette_hygiene_lint.py</code>,
+        <code>cassette-hygiene</code> CI job,
+        <code>vcr_nightly_rewrite.yml</code> (DISABLED).
+      </td>
+      <td><span class="green">Atomic — 1 commit</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Section 2 — Cassette inventory</h2>
+
+<table>
+  <thead><tr><th>Cassette</th><th>Test</th><th>Source</th><th>Bytes</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>tests/cassettes/test_anthropic_vcr_smoke/test_anthropic_messages_replay_from_cassette.yaml</code></td>
+      <td><code>test_anthropic_messages_replay_from_cassette</code></td>
+      <td>Hand-authored stub (executor lacks local <code>ANTHROPIC_API_KEY</code>; per the prompt's record-or-stub clause, a structurally valid happy-path Anthropic Messages reply was committed in lieu of a live recording)</td>
+      <td>~700</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Additional cassettes are added incrementally as Anthropic-calling
+  tests are written. Every cassette MUST pass
+  <code>tools/checks/cassette_hygiene_lint.py</code> on commit.
+</p>
+
+<h2>Section 3 — Cassette banned-term experiment - RED ✓</h2>
+
+<p>
+  Validates the lint catches a banned-term emission injected into a
+  cassette response body.
+</p>
+
+<pre><code># Inject "optimale" into the response text body
+$ cp services/backend/tests/cassettes/test_anthropic_vcr_smoke/test_anthropic_messages_replay_from_cassette.yaml /tmp/cassette_red_term.yaml
+$ python3 -c "src=open('/tmp/cassette_red_term.yaml').read(); open('/tmp/cassette_red_term.yaml','w').write(src.replace('On part de là','On choisit la solution optimale et on part de là'))"
+$ python3 tools/checks/cassette_hygiene_lint.py --target /tmp/cassette_red_term.yaml
+::error file=/tmp/cassette_red_term.yaml,line=21::Banned term 'optimale' found in cassette response body — either re-record (banned-term should never be emitted) or document negation context per allow-list.
+  /tmp/cassette_red_term.yaml:21: Banned term 'optimale' found in cassette response body — either re-record (banned-term should never be emitted) or document negation context per allow-list.
+[cassette_hygiene_lint] FAIL — 1 hygiene violation(s) in /tmp/cassette_red_term.yaml.
+$ echo "exit=$?"
+exit=1
+</code></pre>
+
+<p><span class="green">PASS</span> — exit 1 with banned-term diagnostic referencing « optimale » + the line number.</p>
+
+<h2>Section 4 — Cassette unredacted-secret experiment - RED ✓</h2>
+
+<p>
+  Validates the lint catches an unredacted JWT bearer leaking through an
+  <code>X-Api-Key</code> header value.
+</p>
+
+<pre><code># Inject "Bearer eyJ...dummy_signature" into X-Api-Key
+$ cp services/backend/tests/cassettes/test_anthropic_vcr_smoke/test_anthropic_messages_replay_from_cassette.yaml /tmp/cassette_red_secret.yaml
+$ # (replaces "X-Api-Key:\n      - REDACTED" with the JWT-shaped token)
+$ python3 tools/checks/cassette_hygiene_lint.py --target /tmp/cassette_red_secret.yaml
+::error file=/tmp/cassette_red_secret.yaml,line=12::Secret-pattern leak (jwt_bearer) in committed cassette — re-record with vcr_config.filter_headers + scrubber, or remove the cassette from the commit.
+::error file=/tmp/cassette_red_secret.yaml,line=12::Secret-pattern leak (bearer_token) in committed cassette — re-record with vcr_config.filter_headers + scrubber, or remove the cassette from the commit.
+::error file=/tmp/cassette_red_secret.yaml,line=11::Header `x-api-key` in cassette has unredacted value 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0LXVzZXIifQ.dummy_signature_abc123'; expected literal REDACTED. Re-record or fix vcr_config.filter_headers.
+[cassette_hygiene_lint] FAIL — 3 hygiene violation(s) in /tmp/cassette_red_secret.yaml.
+$ echo "exit=$?"
+exit=1
+</code></pre>
+
+<p>
+  <span class="green">PASS</span> — exit 1 with <strong>three</strong>
+  defense-in-depth diagnostics: jwt_bearer pattern + bearer_token
+  pattern + unredacted-header check. A real-world leak would have to
+  evade all three to slip through.
+</p>
+
+<h2>Section 5 — VCR replay determinism - GREEN ✓</h2>
+
+<p>
+  Validates that replay-mode is deterministic (no live Anthropic call,
+  no network jitter). Three consecutive runs of the smoke test:
+</p>
+
+<table>
+  <thead><tr><th>Run</th><th>Wall-clock (incl. Python startup)</th><th>pytest-internal</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>2394 ms</td><td>0.19 s</td></tr>
+    <tr><td>2</td><td>2037 ms</td><td>0.19 s</td></tr>
+    <tr><td>3</td><td>2058 ms</td><td>0.19 s</td></tr>
+  </tbody>
+</table>
+
+<p>
+  Pytest-internal time identical across all 3 runs (proves cassette
+  replay path with zero network involvement). Wall-clock variance
+  Run 2/3 ≤ 21 ms; Run 1 includes Python interpreter cold-start.
+  <span class="green">PASS</span>.
+</p>
+
+<h2>Section 6 — Cost ledger</h2>
+
+<table>
+  <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+  <tbody>
+    <tr><td>Cassette replay (CI default)</td><td>$0/run</td></tr>
+    <tr><td>CI hygiene lint</td><td>$0/run (stdlib-only, ubuntu-latest free tier)</td></tr>
+    <tr><td><strong>Nightly cron DISABLED at ship</strong></td><td><strong>$0/mo</strong></td></tr>
+    <tr><td>Activation</td><td>manual flag flip + Anthropic budget cap on Railway (see runbook)</td></tr>
+    <tr><td>Cost when activated</td><td>~$45/mo Anthropic ($0.05/run × ~30 cassettes × 30 days)</td></tr>
+    <tr><td><strong>Monthly cost at v2.14 ship</strong></td><td><strong>$0/mo</strong></td></tr>
+  </tbody>
+</table>
+
+<p>
+  <strong>Nightly cron DISABLED at ship.</strong> Activation = manual
+  flag flip + Anthropic budget cap on Railway. Doctrine §6 cost
+  objection 1 mitigation.
+</p>
+
+<h2>Section 7 — Activation runbook (mirrors workflow comment block)</h2>
+
+<ol>
+  <li>Confirm Anthropic budget alert configured on Railway:
+    <ul>
+      <li>cost cap (~$60/mo cushion above the $45/mo expected)</li>
+      <li>email alert on 80% threshold</li>
+      <li>automatic pause on 100% threshold</li>
+    </ul>
+  </li>
+  <li>Uncomment the <code>schedule:</code> block in <code>.github/workflows/vcr_nightly_rewrite.yml</code> (drop <code># </code> prefix on the <code>schedule:</code> + <code>- cron:</code> lines).</li>
+  <li>Flip <code>if: false</code> → <code>if: true</code> on the <code>rewrite</code> job. Both must change in the SAME PR.</li>
+  <li>Verify <code>ANTHROPIC_API_KEY_STAGING</code> + <code>STAGING_API_URL</code> exist in repo Settings → Secrets and variables → Actions.</li>
+  <li>Trigger via <code>workflow_dispatch</code> first with <code>dry_run=true</code> to confirm the artifact-upload + lint flow before committing to a daily cron.</li>
+  <li>Open the activation PR; reviewer pulls the previous nightly run's artifact and confirms cassette diff is sensible.</li>
+  <li>Merge the activation PR → cron starts firing 03:00 UTC daily.</li>
+</ol>
+
+<h2>Section 8 — Karpathy 3 audit (surgical-changes discipline)</h2>
+
+<table>
+  <thead><tr><th>Surface</th><th>Edit shape</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td><code>app/services/privacy/pii_scrubber.py</code></td><td>untouched</td><td><span class="green">OK (SOT preserved)</span></td></tr>
+    <tr><td><code>app/services/coach/compliance_guard.py</code></td><td>untouched (BANNED_TERMS read by lint via regex parse, not import)</td><td><span class="green">OK (SOT preserved)</span></td></tr>
+    <tr><td><code>.github/workflows/walker_nightly.yml</code></td><td>untouched</td><td><span class="green">OK</span></td></tr>
+    <tr><td><code>.github/workflows/deploy-backend.yml</code></td><td>untouched</td><td><span class="green">OK</span></td></tr>
+    <tr><td><code>tests/conftest.py</code></td><td>append-only below 95-03's testcontainers block; no fixture above the new block touched</td><td><span class="green">Additive</span></td></tr>
+    <tr><td><code>services/backend/pytest.ini</code></td><td>+1 marker line inside existing <code>markers =</code> block</td><td><span class="green">Additive</span></td></tr>
+    <tr><td><code>services/backend/pyproject.toml</code></td><td>+2 dev deps + +1 marker entry under <code>[tool.pytest.ini_options]</code></td><td><span class="green">Additive</span></td></tr>
+    <tr><td><code>.github/workflows/ci.yml</code></td><td>+1 new job (<code>cassette-hygiene</code>) + 1 entry in <code>ci-gate.needs[]</code> + 3 lines in result aggregator; existing jobs untouched</td><td><span class="green">Additive</span></td></tr>
+    <tr><td>Replay-mode pytest <code>tests/test_anthropic_vcr_smoke.py</code></td><td>1 passed in 0.19 s × 3 runs</td><td><span class="green">Zero regression</span></td></tr>
+  </tbody>
+</table>
+
+<h2>Section 9 — Files shipped (1 atomic commit)</h2>
+
+<table>
+  <thead><tr><th>Path</th><th>Lines</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>services/backend/pyproject.toml</code></td><td>+11 / mod</td><td><code>pytest-recording&gt;=0.13.0,&lt;1.0.0</code> + <code>vcrpy&gt;=6.0.0,&lt;7.0.0</code> dev deps + <code>vcr_anthropic</code> marker registration</td></tr>
+    <tr><td><code>services/backend/pytest.ini</code></td><td>+1 / mod</td><td><code>vcr_anthropic</code> marker line (precedes pyproject.toml since pytest.ini wins)</td></tr>
+    <tr><td><code>services/backend/tests/conftest.py</code></td><td>+~190 / append</td><td><code>vcr_config</code> fixture + <code>_vcr_before_record_response</code> + <code>_vcr_scrub_obj</code> + <code>_vcr_scrub_pii</code> helpers (additive)</td></tr>
+    <tr><td><code>services/backend/tests/cassettes/.gitkeep</code></td><td>0</td><td>Pin the cassette dir into git tree</td></tr>
+    <tr><td><code>services/backend/tests/cassettes/README.md</code></td><td>~110</td><td>Recording protocol + replay default + redact contract + activation note</td></tr>
+    <tr><td><code>services/backend/tests/cassettes/test_anthropic_vcr_smoke/test_anthropic_messages_replay_from_cassette.yaml</code></td><td>~25</td><td>Hand-authored stub cassette (Anthropic Messages happy-path, fully redacted)</td></tr>
+    <tr><td><code>services/backend/tests/test_anthropic_vcr_smoke.py</code></td><td>~110</td><td>Smoke test under <code>@pytest.mark.vcr_anthropic</code> proving fixture wiring (1 passed × 3 runs)</td></tr>
+    <tr><td><code>tools/checks/cassette_hygiene_lint.py</code></td><td>~430</td><td>Stdlib-only lint (secret patterns + redact headers + banned terms) with <code>--self-test</code> + <code>--target</code> modes</td></tr>
+    <tr><td><code>.github/workflows/vcr_nightly_rewrite.yml</code></td><td>~135</td><td>Nightly cron workflow with <code>schedule:</code> COMMENTED OUT + <code>if: false</code> on the rewrite job + <strong>ACTIVATION RUNBOOK</strong> comment block</td></tr>
+    <tr><td><code>.github/workflows/ci.yml</code></td><td>+25 / mod</td><td>New <code>cassette-hygiene</code> CI job + wired into <code>ci-gate.needs[]</code> + result aggregator</td></tr>
+  </tbody>
+</table>
+
 <p class="footer">
-  Plan 95-01 + 95-03 evidence trail. Authored 2026-05-07 by Claude (gsd-executor) under doctrine
+  Plan 95-01 + 95-03 + 95-04 evidence trail. Authored 2026-05-07 by Claude (gsd-executor) under doctrine
   <a href="../../decisions/2026-05-06-test-theater-post-mortem-doctrine.md">2026-05-06</a> §3-§7.
   See plans <a href="95-01-PLAN.md">95-01-PLAN.md</a> + <a href="95-03-PLAN.md">95-03-PLAN.md</a>
-  for the originating specs. Plan 95-04 (VCR cassettes) lands next on the same branch.
+  + <a href="95-04-PLAN.md">95-04-PLAN.md</a> for the originating specs.
+  Phase 95 Batch B closure: TEST-01..05 all shipped.
 </p>
 
 </body>
