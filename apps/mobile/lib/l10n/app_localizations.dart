@@ -13797,7 +13797,7 @@ abstract class S {
   /// No description provided for @authBenefitProjections.
   ///
   /// In fr, this message translates to:
-  /// **'Projections AVS/LPP alignées à ta situation'**
+  /// **'Projections financières adaptées à tes choix de vie (logement, fiscalité, prévoyance, famille…)'**
   String get authBenefitProjections;
 
   /// No description provided for @authBenefitCoach.

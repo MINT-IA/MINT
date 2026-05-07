@@ -7718,7 +7718,7 @@ class SEn extends S {
 
   @override
   String get authBenefitProjections =>
-      'AVS/LPP projections aligned to your situation';
+      'Financial projections adapted to your life choices (housing, tax, pension, family…)';
 
   @override
   String get authBenefitCoach => 'Personalised coach with your first name';

@@ -7767,7 +7767,7 @@ class SFr extends S {
 
   @override
   String get authBenefitProjections =>
-      'Projections AVS/LPP alignées à ta situation';
+      'Projections financières adaptées à tes choix de vie (logement, fiscalité, prévoyance, famille…)';
 
   @override
   String get authBenefitCoach => 'Coach personnalisé avec ton prénom';

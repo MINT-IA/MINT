@@ -7760,7 +7760,7 @@ class SPt extends S {
 
   @override
   String get authBenefitProjections =>
-      'Projeções AVS/LPP adaptadas à tua situação';
+      'Projeções financeiras adaptadas às tuas escolhas de vida (habitação, fiscalidade, previdência, família…)';
 
   @override
   String get authBenefitCoach => 'Coach personalizado com o teu nome';

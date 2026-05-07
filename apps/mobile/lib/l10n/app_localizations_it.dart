@@ -7778,7 +7778,7 @@ class SIt extends S {
 
   @override
   String get authBenefitProjections =>
-      'Proiezioni AVS/LPP adattate alla tua situazione';
+      'Proiezioni finanziarie adattate alle tue scelte di vita (abitazione, fiscalità, previdenza, famiglia…)';
 
   @override
   String get authBenefitCoach => 'Coach personalizzato con il tuo nome';

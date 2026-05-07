@@ -7766,7 +7766,7 @@ class SEs extends S {
 
   @override
   String get authBenefitProjections =>
-      'Proyecciones AVS/LPP adaptadas a tu situación';
+      'Proyecciones financieras adaptadas a tus decisiones de vida (vivienda, fiscalidad, previsión, familia…)';
 
   @override
   String get authBenefitCoach => 'Coach personalizado con tu nombre';
