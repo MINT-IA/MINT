@@ -1,0 +1,76 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: lauren_expat_us
+# Category: coach_freeform (10 rows, fr/en mix).
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: coach_freeform
+    topic: pillar3a
+    variant: a
+    prompt: "Should US persons even use a Swiss 3a account ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: coach_freeform
+    topic: pillar3a
+    variant: b
+    prompt: "Mon 3a génère du PFIC quand j'investis en fonds suisses ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: coach_freeform
+    topic: divorce
+    variant: a
+    prompt: "I'm divorcing my Swiss husband, US/CH split — how is BVG handled ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: coach_freeform
+    topic: divorce
+    variant: b
+    prompt: "Divorce d'un suisse, je rentre aux US — qu'est-ce qui se passe avec ma LPP ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: coach_freeform
+    topic: tax_residency
+    variant: a
+    prompt: "I commute weekly between NYC and Geneva for work — am I tax resident in CH ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: coach_freeform
+    topic: tax_residency
+    variant: b
+    prompt: "Combien de jours par an je peux passer aux US sans perdre ma résidence fiscale CH ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: coach_freeform
+    topic: mortgage
+    variant: a
+    prompt: "Can a US person buy property in Switzerland with a Swiss mortgage ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: coach_freeform
+    topic: mortgage
+    variant: b
+    prompt: "J'achète à Genève — comment je déclare ce bien à l'IRS ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: coach_freeform
+    topic: investing
+    variant: a
+    prompt: "Where do US persons in CH invest without getting hit by PFIC ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: coach_freeform
+    topic: investing
+    variant: b
+    prompt: "ETF européens vs ETF américains pour une américaine en Suisse ?"

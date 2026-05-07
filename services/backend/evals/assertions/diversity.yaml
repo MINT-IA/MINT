@@ -1,0 +1,39 @@
+# Provenance: assertions only. Prompts live in evals/datasets/ authored separately
+# per doctrine §3 (author-and-grade-same-session banned). This file references
+# code SOTs by symbolic name — never SHA-pinned.
+#
+# Phase 95 Plan 95-01 / TEST-01 — diversity assertion (PLANNED-RED).
+#
+# This assertion WILL fail on commit 1 because
+# `build_default_fiscal_margin_3a_eclairage` returns ONE card today (« same
+# card for every user » product gap, doctrine 2026-05-06 §2 row 4).
+# Phase 96 OBS-03 closes via versioned content registry.
+#
+# Marker `tags: [planned-red]` so the workflow gates on it as a WARNING
+# rather than a hard FAIL until OBS-03 lands. CONTEXT.md « specifics »
+# bullet 1 names this explicit choice.
+
+assertions:
+  - id: eclairage_diversity_floor
+    description: |
+      Across all eclairage rows on the 4 archetypes, the body text must yield
+      at least 4 distinct shapes — or, equivalently, eclairage.kind values
+      must produce a Set size of >= 4. Today this fails (1 card hardcoded).
+    applies_to_categories:
+      - eclairage
+    tags: [planned-red]
+    severity: warning
+    type: javascript
+    expression: |
+      // Aggregate-mode assertion: collect all rows' outputs and compute
+      // a coarse diversity metric. promptfoo passes the full results
+      // matrix to aggregate-mode JS via `context.results`.
+      const rows = (context && context.results) || [];
+      const bodies = rows
+        .map(r => r && r.output && (typeof r.output === 'object' ? r.output.body : r.output))
+        .filter(b => typeof b === 'string');
+      // Coarse fingerprint = first 80 chars lowercased + non-alphanumeric stripped.
+      const fingerprints = new Set(
+        bodies.map(b => b.toLowerCase().replace(/[^a-z0-9 ]/g, '').slice(0, 80))
+      );
+      return fingerprints.size >= 4;

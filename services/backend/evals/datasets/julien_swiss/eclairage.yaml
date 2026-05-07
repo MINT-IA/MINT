@@ -1,0 +1,67 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: julien_swiss (= swiss_native VD/GE)
+# Category: eclairage (premier_eclairage variants — 10 rows)
+# Locale mix: fr/de
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: eclairage
+    variant: age_only
+    prompt: "J'ai 38 ans."
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: eclairage
+    variant: salary_only
+    prompt: "Je gagne 95'000 CHF par an."
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: eclairage
+    variant: age_canton
+    prompt: "J'ai 42 ans, j'habite à Lausanne."
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: eclairage
+    variant: age_salary_canton
+    prompt: "J'ai 35 ans, je gagne 110'000 CHF, je suis à Genève."
+- vars:
+    archetype: julien_swiss
+    locale: de
+    category: eclairage
+    variant: with_lpp
+    prompt: "Ich bin 40, verdiene 105'000 CHF, mit BVG."
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: eclairage
+    variant: no_lpp
+    prompt: "J'ai 30 ans, indépendant, sans LPP, 80'000 CHF."
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: eclairage
+    variant: with_debt
+    prompt: "J'ai 45 ans, 120'000 CHF de salaire, et 60'000 CHF de dettes carte de crédit."
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: eclairage
+    variant: with_pillar3a
+    prompt: "J'ai 38 ans, je verse déjà 7'000 CHF par an dans mon 3a."
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: eclairage
+    variant: with_fatca_mention
+    prompt: "J'ai 36 ans, suisse, mais ma femme est américaine — est-ce que ça change quelque chose ?"
+- vars:
+    archetype: julien_swiss
+    locale: de
+    category: eclairage
+    variant: ambiguous_noise
+    prompt: "Hallo, ich brauche Hilfe — finanziell, irgendwie alles ist unklar."

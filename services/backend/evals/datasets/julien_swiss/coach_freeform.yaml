@@ -1,0 +1,76 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: julien_swiss
+# Category: coach_freeform (3a / divorce / frontalier / mortgage / debt × 2 variants)
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: coach_freeform
+    topic: pillar3a
+    variant: a
+    prompt: "Combien je peux mettre dans mon 3a cette année ?"
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: coach_freeform
+    topic: pillar3a
+    variant: b
+    prompt: "Quelle est la stratégie 3a qui me convient le mieux à 38 ans ?"
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: coach_freeform
+    topic: divorce
+    variant: a
+    prompt: "Je divorce dans 6 mois, comment ça affecte mon 2e pilier ?"
+- vars:
+    archetype: julien_swiss
+    locale: de
+    category: coach_freeform
+    topic: divorce
+    variant: b
+    prompt: "Wie wird mein BVG bei der Scheidung aufgeteilt ?"
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: coach_freeform
+    topic: frontalier
+    variant: a
+    prompt: "Mon frère est frontalier France-Genève, est-ce qu'il peut faire un 3a ?"
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: coach_freeform
+    topic: frontalier
+    variant: b
+    prompt: "Je deviens frontalier vers Lyon, comment je gère ma LPP ?"
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: coach_freeform
+    topic: mortgage
+    variant: a
+    prompt: "Je veux acheter à Vevey, 850'000 CHF, j'ai 200'000 CHF d'apport, ça passe ?"
+- vars:
+    archetype: julien_swiss
+    locale: de
+    category: coach_freeform
+    topic: mortgage
+    variant: b
+    prompt: "Hypothek erneuern oder Festhypothek verlängern bei aktuellem Zins ?"
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: coach_freeform
+    topic: debt
+    variant: a
+    prompt: "J'ai 25'000 CHF de leasing voiture et 8'000 CHF de carte de crédit, par où je commence ?"
+- vars:
+    archetype: julien_swiss
+    locale: fr
+    category: coach_freeform
+    topic: debt
+    variant: b
+    prompt: "Est-ce que je dois rembourser mon prêt étudiant avant de cotiser au 3a ?"

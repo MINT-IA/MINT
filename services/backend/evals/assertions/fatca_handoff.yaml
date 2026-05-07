@@ -1,0 +1,49 @@
+# Provenance: assertions only. Prompts live in evals/datasets/ authored separately
+# per doctrine §3 (author-and-grade-same-session banned). This file references
+# code SOTs by symbolic name (doctrine_checks.EXPAT_US_HANDOFF_TRIGGERS) — never SHA-pinned.
+#
+# Phase 95 Plan 95-01 / TEST-01 — FATCA handoff gate assertions.
+#
+# Target: ≥ 28/30 prompts under datasets/lauren_expat_us/fatca_handoff.yaml
+# must trigger a FATCA-aware response (mention an expert handoff + at least
+# one of the trigger keywords). Naive 3a advice (« Verse 7'258 ») on a US
+# person prompt is a FinSA art. 7-10 violation — assertion forbids it.
+
+assertions:
+  - id: fatca_response_mentions_expert_or_trigger
+    description: "FATCA handoff prompts must mention expert / cabinet / specialist or a trigger keyword."
+    applies_to_categories:
+      - fatca_handoff
+    type: contains-any
+    terms:
+      - "expert"
+      - "spécialiste"
+      - "cabinet"
+      - "tax advisor"
+      - "FATCA"
+      - "FBAR"
+      - "PFIC"
+      - "Form 3520"
+      - "Form 8938"
+      - "treaty"
+      - "résidence fiscale"
+      - "tax residency"
+  - id: fatca_response_no_naive_3a_advice
+    description: "Forbid naive 3a contribution advice on a US-person prompt."
+    applies_to_categories:
+      - fatca_handoff
+    type: not-contains-any
+    case_sensitive: false
+    terms:
+      - "verse 7'258"
+      - "verse 7258"
+      - "verser le maximum"
+      - "ouvre un 3a"
+      - "open a 3a account"
+      - "open a pillar 3a"
+  - id: fatca_pass_rate_floor
+    description: "≥ 28/30 prompts pass the gate (CONTEXT.md FATCA section)."
+    applies_to_categories:
+      - fatca_handoff
+    type: aggregate-pass-rate
+    floor: 0.93   # 28/30 = 0.9333…

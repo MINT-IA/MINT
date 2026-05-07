@@ -1,0 +1,76 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: sofia_ticino_it
+# Category: coach_freeform (10 rows, it/fr).
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: coach_freeform
+    topic: pillar3a
+    variant: a
+    prompt: "Quanto posso versare nel 3° pilastro quest'anno ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: coach_freeform
+    topic: pillar3a
+    variant: b
+    prompt: "Strategia 3° pilastro a 36 anni — cosa considerare ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: coach_freeform
+    topic: divorce
+    variant: a
+    prompt: "Sto divorziando, come si divide la LPP in Ticino ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: fr
+    category: coach_freeform
+    topic: divorce
+    variant: b
+    prompt: "Divorce après 14 ans, mon mari travaille en Italie, comment ça se passe ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: coach_freeform
+    topic: frontalier
+    variant: a
+    prompt: "Mio cognato è frontaliere Italia-Mendrisio, può fare un 3° pilastro ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: coach_freeform
+    topic: frontalier
+    variant: b
+    prompt: "Lavoro a Lugano, vivo a Como — come gestisco la mia LPP ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: coach_freeform
+    topic: mortgage
+    variant: a
+    prompt: "Voglio comprare casa a Locarno, 700'000 CHF, ho 150'000 CHF di acconto, è fattibile ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: coach_freeform
+    topic: mortgage
+    variant: b
+    prompt: "Rinnovo ipoteca o passo a tasso fisso ai tassi attuali ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: coach_freeform
+    topic: debt
+    variant: a
+    prompt: "Ho 18'000 CHF di leasing auto e 5'000 CHF di credito al consumo, da dove inizio ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: fr
+    category: coach_freeform
+    topic: debt
+    variant: b
+    prompt: "Dois-je rembourser mon prêt étudiant italien avant de cotiser au 3a suisse ?"

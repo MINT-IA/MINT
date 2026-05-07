@@ -1,0 +1,66 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: kai_independent_no_lpp (= independent_no_lpp; tests "no LPP" branch of FRI calculator)
+# Category: eclairage (10 rows). Locale mix: de/fr.
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: eclairage
+    variant: age_only
+    prompt: "Ich bin 34 Jahre alt."
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: eclairage
+    variant: salary_only
+    prompt: "Selbstständig, Bruttoumsatz 130'000 CHF in Zürich."
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: eclairage
+    variant: age_canton
+    prompt: "Ich bin 39, lebe in Bern, Freelance UX Designer."
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: fr
+    category: eclairage
+    variant: age_salary_canton
+    prompt: "J'ai 31 ans, indépendant à Berne, 95'000 CHF net."
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: eclairage
+    variant: with_lpp_question
+    prompt: "Ich bin selbstständig — sollte ich freiwillig in eine BVG einzahlen ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: eclairage
+    variant: no_lpp_explicit
+    prompt: "Selbstständig in Zürich, KEINE BVG, 100'000 CHF Umsatz."
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: eclairage
+    variant: with_debt
+    prompt: "Selbstständig, 38, Geschäftskredit 50'000 CHF, Privatumsatz 110'000 CHF."
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: fr
+    category: eclairage
+    variant: with_pillar3a
+    prompt: "Indépendant 33 ans, je verse 20'000 CHF/an dans mon 3a — c'est cohérent ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: eclairage
+    variant: with_avs_concern
+    prompt: "Selbstständig — wie viel AHV zahle ich auf 120'000 CHF Gewinn ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: fr
+    category: eclairage
+    variant: ambiguous_noise
+    prompt: "Salut, je suis indépendant, j'ai aucune idée de ce que je dois faire pour ma retraite."

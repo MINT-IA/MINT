@@ -1,0 +1,66 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: lauren_expat_us (= expat_us; FATCA path)
+# Category: eclairage (10 rows). Locale mix: fr/en (English allowed for FATCA terminology).
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: eclairage
+    variant: age_only
+    prompt: "I'm 32 ans, américaine vivant à Genève."
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: eclairage
+    variant: salary_only
+    prompt: "US citizen in Switzerland, salary CHF 140'000."
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: eclairage
+    variant: age_canton
+    prompt: "J'ai 35 ans, US person, je suis à Zurich."
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: eclairage
+    variant: age_salary_canton
+    prompt: "30 years old, US passport, Geneva, 120'000 CHF salary."
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: eclairage
+    variant: with_lpp
+    prompt: "J'ai 38 ans, américaine, employée Nestlé Vevey avec LPP."
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: eclairage
+    variant: no_lpp
+    prompt: "US citizen, freelance in Lausanne, no LPP, 90'000 CHF/year."
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: eclairage
+    variant: with_debt
+    prompt: "32 ans, US person à Genève, 50'000 USD de student loan US et 200'000 CHF revenu."
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: eclairage
+    variant: with_pillar3a
+    prompt: "I'm a US person — should I open a 3a account in Switzerland ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: eclairage
+    variant: with_fatca_mention
+    prompt: "FATCA, FBAR, PFIC — what does this mean for me as a US person in CH ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: eclairage
+    variant: ambiguous_noise
+    prompt: "Hi, je suis confuse sur tout — taxes, retraite, je sais pas par où commencer."

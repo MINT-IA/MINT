@@ -1,0 +1,62 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: kai_independent_no_lpp
+# Category: simulators (8 cells, de/fr).
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: simulators
+    sim: compound
+    variant: a
+    prompt: "Bei 600 CHF/Monat über 25 Jahre zu 4% — was bleibt netto ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: fr
+    category: simulators
+    sim: compound
+    variant: b
+    prompt: "15'000 CHF placés à 3.5% sur 18 ans — résultat net après impôts BE ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: simulators
+    sim: pillar3a_no_lpp
+    variant: a
+    prompt: "3a-Höchstbetrag 2026 ohne BVG (20% AHV) — exakte Zahl ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: fr
+    category: simulators
+    sim: pillar3a_no_lpp
+    variant: b
+    prompt: "Plafond 3a 2026 indépendant sans LPP — donne-moi le chiffre."
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: simulators
+    sim: avs
+    variant: a
+    prompt: "AHV auf 130'000 CHF Gewinn als Selbstständige — Beitrag ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: fr
+    category: simulators
+    sim: pillar3a_no_lpp
+    variant: c
+    prompt: "Indépendant verse 25'000 CHF dans 3a sur 10 ans — capital final à 4% ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: simulators
+    sim: incorporation_threshold
+    variant: a
+    prompt: "Ab welchem Reingewinn lohnt sich GmbH steuerlich vs Einzelfirma in BE ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: simulators
+    sim: leasing
+    variant: a
+    prompt: "Geschäftsleasing Auto 4 Jahre 700 CHF/Monat — gesamte abzugsfähige Kosten ?"

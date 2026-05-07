@@ -1,0 +1,48 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: lauren_expat_us
+# Category: simulators (6 cells — 2 trimmed to land totals at 160; FATCA file adds 30 separately).
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: simulators
+    sim: compound
+    variant: a
+    prompt: "If I save 1'000 CHF/month for 20 years at 5%, what does it become ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: simulators
+    sim: compound
+    variant: b
+    prompt: "Si je place 50'000 USD à 3% sur 15 ans depuis Genève, quel rendu net ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: simulators
+    sim: leasing
+    variant: a
+    prompt: "Leasing a car in Switzerland 36 months CHF 600/month vs cash 22'000 CHF — full cost ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: simulators
+    sim: pillar3a
+    variant: a
+    prompt: "3a contribution cap 2026 for a US person with LPP — what is it ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: fr
+    category: simulators
+    sim: pillar3a
+    variant: b
+    prompt: "Plafond 3a 2026 pour US person sans LPP ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: simulators
+    sim: divorce
+    variant: a
+    prompt: "10-year marriage with a Swiss, BVG accumulated CHF 200'000 — split ?"

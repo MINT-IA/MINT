@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Phase 95 Plan 95-01 — Verification Report (TEST-01 promptfoo)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; color: #1a1a1a; line-height: 1.55; }
+  h1 { color: #003B2F; border-bottom: 3px solid #003B2F; padding-bottom: 0.5rem; }
+  h2 { color: #003B2F; margin-top: 2rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { padding: 0.5rem 0.75rem; border: 1px solid #d0d0d0; text-align: left; vertical-align: top; }
+  th { background: #f5f7f5; }
+  pre { background: #1e2725; color: #eaeaea; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: 0.85em; }
+  code { background: #f0f2ef; padding: 1px 5px; border-radius: 3px; font-size: 0.92em; }
+  .red { color: #b32127; font-weight: 600; }
+  .green { color: #1f7a3a; font-weight: 600; }
+  .footer { margin-top: 3rem; color: #555; font-size: 0.85em; border-top: 1px solid #d0d0d0; padding-top: 1rem; }
+</style>
+</head>
+<body>
+
+<h1>Phase 95 Plan 95-01 — Test Infrastructure Réelle (TEST-01 promptfoo)</h1>
+
+<p>
+  Authored 2026-05-07 by Claude (gsd-executor) under
+  <a href="../../decisions/2026-05-06-test-theater-post-mortem-doctrine.md">doctrine 2026-05-06</a>
+  §3 (« author-and-grade-same-session banned ») and §6 (cost-runaway mitigation).
+  Closes <strong>TEST-01</strong> — scaffold ready, content backfill is post-MVP.
+</p>
+
+<h2>Section 1 — PR list</h2>
+
+<p>
+  Plan 95-01 ships as <strong>1 atomic commit</strong> (greenfield scaffold)
+  on branch <code>feat/phase-A-e2e-unblock</code>:
+  <code>feat(95-01): promptfoo eval scaffold + author-and-grade lint (closes TEST-01)</code>.
+  Subsequent prompt-vs-assertion edits land as <strong>two-PR splits</strong> per doctrine §3,
+  enforced by <code>tools/checks/no_same_pr_prompts_and_assertions.py</code>.
+</p>
+
+<h2>Section 2 — Test surface (160 prompts × 4 archetypes)</h2>
+
+<table>
+  <thead>
+    <tr><th>Archetype</th><th>Maps to</th><th>Locale</th><th>Eclairage</th><th>Coach</th><th>Simulators</th><th>FATCA</th><th>Banned canaries</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>julien_swiss</td><td>swiss_native VD/GE</td><td>fr/de</td><td>10</td><td>10</td><td>8</td><td>—</td><td>5</td><td>33</td></tr>
+    <tr><td>lauren_expat_us</td><td>expat_us</td><td>fr/en</td><td>10</td><td>10</td><td>6</td><td>30</td><td>5</td><td>61</td></tr>
+    <tr><td>sofia_ticino_it</td><td>swiss_native TI</td><td>it/fr</td><td>10</td><td>10</td><td>8</td><td>—</td><td>5</td><td>33</td></tr>
+    <tr><td>kai_independent_no_lpp</td><td>independent_no_lpp</td><td>de/fr</td><td>10</td><td>10</td><td>8</td><td>—</td><td>5</td><td>33</td></tr>
+    <tr><th colspan="8" style="text-align:right">Total</th><th>160</th></tr>
+  </tbody>
+</table>
+
+<p>Verified by <code>python3 -c "import yaml,glob; total=sum(len(yaml.safe_load(open(f))) for f in glob.glob('services/backend/evals/datasets/**/*.yaml', recursive=True)); assert total==160"</code> at scaffold commit time.</p>
+
+<h2>Section 3 — Cost ledger</h2>
+
+<table>
+  <thead><tr><th>Item</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td>Expected $/run</td><td>~$1.92 (160 prompts × ~$0.012 Sonnet 4.5)</td></tr>
+    <tr><td>Hard cap</td><td>$2.50 (<code>services/backend/evals/cost_cap.json</code>)</td></tr>
+    <tr><td>Enforcement</td><td><code>tools/checks/eval_cost_cap.py</code> — exit 1 if exceeded</td></tr>
+    <tr><td>Frequency</td><td>PR with <code>paths-filter: services/backend/evals/** | services/backend/app/services/coach/**</code></td></tr>
+    <tr><td>Nightly cron</td><td><strong class="red">DISABLED at ship</strong> — see commented <code># schedule:</code> block in <code>.github/workflows/promptfoo_eval.yml</code></td></tr>
+    <tr><td>Monthly cost at ship</td><td><strong>$0/mo</strong></td></tr>
+  </tbody>
+</table>
+
+<p>
+  <strong>Nightly cron DISABLED at ship.</strong> Activation requires manual flag flip
+  + Anthropic budget cap on Railway. See activation runbook in
+  <code>.github/workflows/promptfoo_eval.yml</code> (5-line ordered checklist).
+</p>
+
+<h2>Section 4 — Experiment A: Doctrine §3 lint self-test — <span class="red">RED ✓</span></h2>
+
+<p>
+  <strong>Goal:</strong> prove that
+  <code>tools/checks/no_same_pr_prompts_and_assertions.py</code>
+  fires when a single PR touches both <code>evals/datasets/**</code> and
+  <code>evals/assertions/**</code>.
+</p>
+
+<p>
+  <strong>Method:</strong> run the lint with <code>--dry-run-fixture</code> on a
+  synthetic 2-path diff representing the violation. No git branch was created;
+  no commit was made; the working tree stays clean.
+</p>
+
+<p><strong>Command:</strong></p>
+<pre>python3 tools/checks/no_same_pr_prompts_and_assertions.py \
+  --dry-run-fixture \
+  services/backend/evals/datasets/julien_swiss/eclairage.yaml \
+  services/backend/evals/assertions/banned_terms.yaml</pre>
+
+<p><strong>Output (verbatim, exit code 1):</strong></p>
+<pre>::error::doctrine §3 violation — author-and-grade-same-session banned
+  This PR modifies BOTH services/backend/evals/datasets/** AND services/backend/evals/assertions/** (1 dataset paths, 1 assertion paths).
+  Doctrine: .planning/decisions/2026-05-06-test-theater-post-mortem-doctrine.md §3
+  Fix: split the change into two PRs (datasets first, assertions in a follow-up). Or, if this is a legitimate cross-cutting refactor, add [doctrine-override: <reason>] to the commit body.
+  Offending dataset paths:
+    services/backend/evals/datasets/julien_swiss/eclairage.yaml
+  Offending assertion paths:
+    services/backend/evals/assertions/banned_terms.yaml</pre>
+
+<p>
+  <strong>Verdict:</strong> <span class="red">RED — gate fires as designed.</span>
+  Self-test on the script's 5 in-memory cases also passes
+  (<code>only datasets</code>, <code>only assertions</code>, <code>both — fail</code>,
+  <code>both with override — pass</code>, <code>no evals paths</code>).
+</p>
+
+<h2>Section 5 — Experiment B: Banned-term canary dry-run — <span class="red">RED ✓</span></h2>
+
+<p>
+  <strong>Goal:</strong> prove that the banned-term canary gate fires when an LLM
+  emits a term from <code>compliance_guard.BANNED_TERMS</code>.
+</p>
+
+<p>
+  <strong>Method:</strong> hand-craft a 2-row promptfoo report; row 1 contains
+  the FR banned token <em>« garanti »</em> and a second hit <em>« la meilleure option »</em>;
+  row 2 is a clean response. Pipe through
+  <code>eval_cost_cap.py --self-test-banned-term-mode</code>. Cleanup of the
+  <code>/tmp/dryrun_red.json</code> file after capture leaves the working tree clean.
+</p>
+
+<p><strong>Command:</strong></p>
+<pre>python3 tools/checks/eval_cost_cap.py \
+  --report /tmp/dryrun_red.json \
+  --self-test-banned-term-mode</pre>
+
+<p><strong>Output (verbatim, exit code 1):</strong></p>
+<pre>[INFO] eval cost: $0.0219 (cap $2.50)
+::error::banned-term gate RED: 1 hit(s) in promptfoo output — doctrine §3 canary
+  - term='garanti'  snippet="Avec ce produit, le rendement est garanti sur 10 ans, c'est la meilleure option."</pre>
+
+<p>
+  <strong>Verdict:</strong> <span class="red">RED — banned-term gate fires on injected « garanti ».</span>
+  The cost cap step itself stays green ($0.0219 ≤ $2.50). Banned-term mode is the failure mode.
+</p>
+
+<h2>Section 6 — Deferred items</h2>
+
+<ul>
+  <li><strong>Pactflow hosted broker ($30/mo paid tier)</strong> — defer to v2.16 post-launch
+    (see <a href="95-CONTEXT.md">95-CONTEXT.md</a> &lt;deferred&gt;).</li>
+  <li><strong>LLM-as-judge for soft compliance</strong> (Claude Haiku 3.5) — Phase 96 OBS-03 wave (doctrine §4 W3).</li>
+  <li><strong>Schemathesis property-based fuzz on /openapi.json</strong> — sister to Pact, partially exists
+    (<code>tools/checks/schemathesis_smoke.sh</code>); formal CI wiring deferred to Phase 96/97.</li>
+  <li><strong>Eval-dataset PII lint</strong> — only needed if we capture real prompts from staging
+    traffic (Phase 96+).</li>
+  <li><strong>Promptfoo version pin</strong> — ship with <code>promptfoo@0.x</code>; pin exact patch
+    once the first CI green run gives us a known-good build (<code>npm view promptfoo version</code>).</li>
+  <li><strong>Real-time eval dashboard (Grafana)</strong> on top of <code>evals/runs/*.json</strong> — Phase 96 OBS-03 territory.</li>
+</ul>
+
+<h2>Section 7 — Files shipped (1 atomic commit)</h2>
+
+<table>
+  <thead><tr><th>Path</th><th>Lines</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>services/backend/evals/promptfooconfig.yaml</code></td><td>~50</td><td>Single-source providers + 17 dataset imports + cost guards</td></tr>
+    <tr><td><code>services/backend/evals/datasets/&lt;archetype&gt;/&lt;category&gt;.yaml</code> × 17</td><td>160 prompts</td><td>Prompt fixtures only (no assertions; doctrine §3)</td></tr>
+    <tr><td><code>services/backend/evals/assertions/*.yaml</code> × 6</td><td>~250</td><td>Banned-terms + numeric-bounds + JSON-schema + variance + FATCA + diversity</td></tr>
+    <tr><td><code>services/backend/evals/cost_cap.json</code></td><td>1 obj</td><td>Hard cap $2.50/run</td></tr>
+    <tr><td><code>services/backend/evals/.gitignore</code></td><td>4</td><td>runs/ + node_modules/ + .promptfoo/</td></tr>
+    <tr><td><code>services/backend/evals/README.md</code></td><td>~120</td><td>Operator runbook + SOT-sync drill</td></tr>
+    <tr><td><code>tools/checks/eval_cost_cap.py</code></td><td>~210</td><td>Cost cap + banned-term canary mode (stdlib-only)</td></tr>
+    <tr><td><code>tools/checks/no_same_pr_prompts_and_assertions.py</code></td><td>~190</td><td>Doctrine §3 split lint (stdlib-only)</td></tr>
+    <tr><td><code>.github/workflows/promptfoo_eval.yml</code></td><td>~215</td><td>PR-blocking eval workflow (cron DISABLED)</td></tr>
+    <tr><td><code>.github/workflows/ci.yml</code></td><td>+30 / mod</td><td>doctrine-split-lint job + ci-gate.needs entry</td></tr>
+    <tr><td><code>.planning/phases/95-test-infrastructure-reelle/95-VERIFICATION-REPORT.html</code></td><td>this file</td><td>Evidence trail per <code>feedback_html_evidence_report.md</code></td></tr>
+  </tbody>
+</table>
+
+<p class="footer">
+  Authored 2026-05-07 by Claude (gsd-executor) under doctrine
+  <a href="../../decisions/2026-05-06-test-theater-post-mortem-doctrine.md">2026-05-06</a> §3-§7.
+  See plan <a href="95-01-PLAN.md">95-01-PLAN.md</a> for the originating spec.
+</p>
+
+</body>
+</html>

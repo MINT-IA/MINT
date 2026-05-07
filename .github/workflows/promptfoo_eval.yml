@@ -1,0 +1,214 @@
+# Phase 95 Plan 95-01 / TEST-01 — promptfoo eval workflow.
+#
+# Runs `services/backend/evals/promptfooconfig.yaml` (160 prompts × 4
+# archetypes) against Railway staging Anthropic Sonnet 4.5 and merge-blocks
+# the PR if pass-rate drops vs main, if any archetype falls below 90%, or
+# if the cost cap (services/backend/evals/cost_cap.json $2.50) is exceeded.
+#
+# Doctrine 2026-05-06 §6 cost objection 1 mitigation:
+#   * paths-filter: only triggers on evals/** or coach/** PR changes
+#   * cost cap: tools/checks/eval_cost_cap.py hard-fails > $2.50
+#   * NIGHTLY CRON DISABLED AT SHIP — see commented `schedule:` block
+#     below. Activation requires (a) Julien's manual flag flip and
+#     (b) Anthropic budget alert wired on Railway.
+#
+# Disabled cron (top-level marker so `grep -E "^# +schedule:"` matches):
+# schedule:
+#   - cron: '0 2 * * *'  # 02:00 UTC nightly — DISABLED, see runbook below.
+
+name: Promptfoo Eval (TEST-01)
+
+on:
+  pull_request:
+    branches: [dev, staging, main]
+    paths:
+      - 'services/backend/evals/**'
+      - 'services/backend/app/services/coach/**'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Reason for manual run"
+        required: false
+        default: "operator-triggered"
+
+  # ──────────────────────────────────────────────────────────────────
+  # NIGHTLY CRON — DISABLED AT SHIP.
+  #
+  # Activation runbook (5 lines, MUST be done in this order):
+  #   1. Confirm Anthropic console budget alert ≤ $100/mo on staging key.
+  #   2. Confirm Railway env STAGING_ANTHROPIC_BUDGET_HARD_LIMIT is set.
+  #   3. Open a PR uncommenting the `schedule:` lines below. Title MUST
+  #      start with `chore(promptfoo-cron-activate):` so reviewers spot it.
+  #   4. After merge, monitor first 3 nightlies; abort & re-comment if
+  #      cost > $2.50 or pass-rate variance > 5pp.
+  #   5. Document activation in docs/EVIDENCE.md row 1.
+  #
+  # schedule:
+  #   - cron: '0 2 * * *'   # 02:00 UTC daily
+  # ──────────────────────────────────────────────────────────────────
+
+concurrency:
+  group: promptfoo-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  promptfoo:
+    name: Promptfoo eval (160 × 4 archetypes)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write   # post diff comment
+    timeout-minutes: 25
+    env:
+      RUN_ID: ${{ github.run_id }}
+      STAGING_API_URL: https://mint-staging.up.railway.app/api/v1
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY_STAGING }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # need history for baseline drift comparison
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install promptfoo
+        # Pin exact patch version after first CI green run; document the pin
+        # in services/backend/evals/README.md.
+        run: npm install -g promptfoo@0.x
+
+      - name: Verify cost cap config exists
+        run: test -f services/backend/evals/cost_cap.json
+
+      - name: Self-test cost cap script (smoke before invoking promptfoo)
+        run: python3 tools/checks/eval_cost_cap.py --self-test
+
+      - name: Run promptfoo eval against staging
+        working-directory: services/backend/evals
+        run: |
+          mkdir -p runs
+          promptfoo eval \
+            --config promptfooconfig.yaml \
+            --output "runs/${RUN_ID}.json" \
+            --no-progress-bar
+        # promptfoo logs scrubbed via --no-progress-bar to avoid bleeding
+        # apiKey hints into logs (T-95-01-01 mitigation).
+
+      - name: Cost cap gate (T-95-01-02)
+        run: |
+          python3 tools/checks/eval_cost_cap.py \
+            --report "services/backend/evals/runs/${RUN_ID}.json"
+
+      - name: Compute pass-rate per archetype × locale
+        id: stats
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib, collections
+          report = json.loads(pathlib.Path(f"services/backend/evals/runs/{os.environ['RUN_ID']}.json").read_text())
+          rows = report.get("results")
+          if isinstance(rows, dict):
+              rows = rows.get("results", [])
+          buckets = collections.defaultdict(lambda: [0, 0])  # (pass, total)
+          for r in rows or []:
+              v = (r.get("vars") or {})
+              key = (v.get("archetype", "?"), v.get("locale", "?"))
+              buckets[key][1] += 1
+              if r.get("success") is True or r.get("passed") is True:
+                  buckets[key][0] += 1
+          lines = ["| Archetype | Locale | Pass | Total | Rate |", "|---|---|---|---|---|"]
+          worst = 1.0
+          for (a, l), (p, t) in sorted(buckets.items()):
+              rate = (p / t) if t else 0.0
+              worst = min(worst, rate)
+              lines.append(f"| {a} | {l} | {p} | {t} | {rate:.1%} |")
+          summary = "\n".join(lines)
+          pathlib.Path(os.environ["GITHUB_OUTPUT"]).open("a").write(
+              f"summary<<EOF\n{summary}\nEOF\nworst_rate={worst:.4f}\n"
+          )
+          pathlib.Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a").write(summary + "\n")
+          PY
+
+      - name: Per-archetype pass-rate floor (≥ 90%)
+        run: |
+          worst="${{ steps.stats.outputs.worst_rate }}"
+          python3 -c "
+          import sys
+          worst = float('${worst:-0}'.replace('${{', '').replace('}}', '') or '0')
+          if worst < 0.90:
+              print(f'::error::archetype × locale pass-rate {worst:.1%} < 90% floor')
+              sys.exit(1)
+          print(f'[OK] worst archetype × locale pass-rate {worst:.1%} >= 90% floor')
+          "
+
+      - name: Download main baseline (drift gate)
+        id: baseline
+        continue-on-error: true
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: promptfoo_eval.yml
+          branch: main
+          name: promptfoo-baseline
+          path: services/backend/evals/runs/baseline/
+
+      - name: Baseline drift gate (PR delta vs main, fail > 5pp regress)
+        if: steps.baseline.outcome == 'success'
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib, sys
+          run = pathlib.Path(f"services/backend/evals/runs/{os.environ['RUN_ID']}.json")
+          base = pathlib.Path("services/backend/evals/runs/baseline/main_baseline.json")
+          if not base.exists():
+              print("[INFO] no baseline available — skipping drift gate")
+              sys.exit(0)
+          def rate(p):
+              d = json.loads(pathlib.Path(p).read_text())
+              rows = d.get("results")
+              if isinstance(rows, dict):
+                  rows = rows.get("results", [])
+              if not rows:
+                  return 0.0
+              total = len(rows)
+              passed = sum(1 for r in rows if r.get("success") is True or r.get("passed") is True)
+              return passed / total
+          pr_rate, base_rate = rate(run), rate(base)
+          drop_pp = (base_rate - pr_rate) * 100
+          print(f"[INFO] PR pass-rate {pr_rate:.1%}, main baseline {base_rate:.1%}, drop {drop_pp:+.1f}pp")
+          if drop_pp > 5.0:
+              print(f"::error::pass-rate dropped {drop_pp:.1f}pp vs main (cap +5pp)")
+              sys.exit(1)
+          PY
+
+      - name: Post PR diff comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `${{ steps.stats.outputs.summary }}`;
+            const body = [
+              "### Promptfoo eval (TEST-01)",
+              "",
+              `Run \`${process.env.RUN_ID}\` — 160 prompts × 4 archetypes`,
+              "",
+              summary,
+              "",
+              "_Cost-capped at $2.50/run via cost_cap.json. Doctrine 2026-05-06 §3 + §6._",
+            ].join("\n");
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+      - name: Upload promptfoo run artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptfoo-run-${{ github.run_id }}
+          path: services/backend/evals/runs/${{ github.run_id }}.json
+          retention-days: 90

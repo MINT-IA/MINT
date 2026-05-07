@@ -1,0 +1,49 @@
+# Provenance: assertions only. Prompts live in evals/datasets/ authored separately
+# per doctrine §3 (author-and-grade-same-session banned). This file references
+# code SOTs by symbolic name — never SHA-pinned.
+#
+# Phase 95 Plan 95-01 / TEST-01 — JSON schema assertions on EclairagePayload.
+#
+# SOT: services/backend/app/api/v1/endpoints/anonymous_chat.py response shape
+#   { kind: str, body: str, scenarios?: [{label: str, value: number}],
+#     sources?: [{title: str, url: str}] }
+
+assertions:
+  - id: eclairage_is_valid_json
+    description: "Eclairage responses must be parseable JSON conforming to EclairagePayload."
+    applies_to_categories:
+      - eclairage
+    type: is-json
+  - id: eclairage_payload_shape
+    description: "Eclairage payload requires kind: str + body: str."
+    applies_to_categories:
+      - eclairage
+    type: javascript
+    expression: |
+      const o = output;
+      const ok = (typeof o === 'object') && o !== null
+        && typeof o.kind === 'string' && o.kind.length > 0
+        && typeof o.body === 'string' && o.body.length >= 16;
+      return ok;
+  - id: eclairage_scenarios_optional_well_typed
+    description: "If scenarios is present, every entry has label: str + value: number."
+    applies_to_categories:
+      - eclairage
+    type: javascript
+    expression: |
+      const o = output;
+      if (!o || !Array.isArray(o.scenarios)) return true;
+      return o.scenarios.every(s =>
+        typeof s.label === 'string' && typeof s.value === 'number'
+      );
+  - id: eclairage_sources_optional_well_typed
+    description: "If sources is present, every entry has title: str + url: str."
+    applies_to_categories:
+      - eclairage
+    type: javascript
+    expression: |
+      const o = output;
+      if (!o || !Array.isArray(o.sources)) return true;
+      return o.sources.every(s =>
+        typeof s.title === 'string' && typeof s.url === 'string'
+      );

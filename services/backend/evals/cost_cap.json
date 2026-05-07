@@ -1,0 +1,7 @@
+{
+  "max_usd_per_run": 2.50,
+  "expected_usd_per_run": 1.92,
+  "rationale": "160 prompts x ~$0.012 per call (Anthropic Sonnet 4.5) = ~$1.92 expected. 30% buffer to absolute cap of $2.50 per CI run. Hard-fail beyond cap (doctrine 2026-05-06 §6 objection 1). Activation of nightly cron requires Anthropic budget alert on Railway.",
+  "doctrine_reference": ".planning/decisions/2026-05-06-test-theater-post-mortem-doctrine.md",
+  "enforced_by": "tools/checks/eval_cost_cap.py"
+}

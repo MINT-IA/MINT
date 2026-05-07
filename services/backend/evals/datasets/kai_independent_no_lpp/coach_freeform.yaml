@@ -1,0 +1,76 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: kai_independent_no_lpp
+# Category: coach_freeform (10 rows, de/fr).
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: coach_freeform
+    topic: pillar3a
+    variant: a
+    prompt: "3a-Maximalbetrag für Selbstständige ohne BVG 2026 ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: fr
+    category: coach_freeform
+    topic: pillar3a
+    variant: b
+    prompt: "Stratégie 3a indépendant sans LPP à 33 ans ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: coach_freeform
+    topic: lpp_voluntary
+    variant: a
+    prompt: "Soll ich als Selbstständige in eine freiwillige BVG einzahlen ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: coach_freeform
+    topic: lpp_voluntary
+    variant: b
+    prompt: "Wenn ich BVG selber wähle, welche Vorsorgestiftung als Selbstständiger ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: fr
+    category: coach_freeform
+    topic: avs
+    variant: a
+    prompt: "AVS pour indépendant — combien je paie sur 110'000 CHF de bénéfice ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: coach_freeform
+    topic: avs
+    variant: b
+    prompt: "AHV-Beitrag Selbstständige 2026 — Berechnungsgrundlage ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: coach_freeform
+    topic: incorporation
+    variant: a
+    prompt: "Sollte ich meine Einzelfirma in eine GmbH umwandeln ab welchem Umsatz ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: fr
+    category: coach_freeform
+    topic: incorporation
+    variant: b
+    prompt: "Indépendant CHF 200'000 de chiffre — passer en SARL ou rester raison individuelle ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: de
+    category: coach_freeform
+    topic: mortgage
+    variant: a
+    prompt: "Hypothek als Selbstständige — Banken verlangen oft 3 Jahre Steuerbescheinigung, was tun in Jahr 2 ?"
+- vars:
+    archetype: kai_independent_no_lpp
+    locale: fr
+    category: coach_freeform
+    topic: mortgage
+    variant: b
+    prompt: "Indépendant 4 ans d'historique, achat à 800'000 CHF, fonds propres 200'000 — banque suisse OK ?"

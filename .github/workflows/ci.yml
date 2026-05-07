@@ -524,6 +524,36 @@ jobs:
           echo "Running golden helper unit tests (CI-safe subset)"
           flutter test test/goldens/helpers/ --reporter compact
 
+  # ─── Phase 95 Plan 95-01 / TEST-01: doctrine §3 split lint ───────
+  # Doctrine 2026-05-06 §3 « author-and-grade-same-session banned »:
+  # a single PR cannot modify both services/backend/evals/datasets/**
+  # AND services/backend/evals/assertions/** (escape hatch via
+  # [doctrine-override: <reason>] in the commit body).
+  #
+  # Stdlib-only Python, runtime ~50 ms. Mirrors the route-registry-parity
+  # job shape. Always-on (not paths-filtered) — even cross-cutting refactors
+  # touching unrelated files can sneak in a co-modification.
+  doctrine-split-lint:
+    name: Doctrine §3 split lint (TEST-01)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # need history for git diff <base>...HEAD
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run doctrine-split lint
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: |
+          # On push events github.base_ref is empty → script falls back to
+          # origin/dev, which is a no-op for push because diff is empty.
+          python3 tools/checks/no_same_pr_prompts_and_assertions.py \
+            --base "origin/${GITHUB_BASE_REF:-dev}"
+      - name: Run doctrine-split lint self-test
+        run: python3 tools/checks/no_same_pr_prompts_and_assertions.py --self-test
+
   # ─── Phase 32 Plan 32-05 / D-12 §1: route registry parity gate ──
   # Runs the stdlib-only Python lint (tools/checks/route_registry_parity.py)
   # on every push / PR. Compares 148 extracted GoRoute|ScopedGoRoute(path:)
@@ -717,7 +747,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, control-matrix-coverage, pact-verify]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, control-matrix-coverage, pact-verify, doctrine-split-lint]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -734,6 +764,7 @@ jobs:
           cache_gi="${{ needs.cache-gitignore-check.result }}"
           control_matrix="${{ needs.control-matrix-coverage.result }}"
           pact_verify="${{ needs.pact-verify.result }}"
+          doctrine_split="${{ needs.doctrine-split-lint.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
@@ -744,8 +775,9 @@ jobs:
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
           [[ "$control_matrix" == "skipped" ]] && control_matrix="success"
           [[ "$pact_verify" == "skipped" ]] && pact_verify="success"
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$control_matrix" != "success" ]] || [[ "$pact_verify" != "success" ]]; then
-            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi control_matrix=$control_matrix pact_verify=$pact_verify"
+          [[ "$doctrine_split" == "skipped" ]] && doctrine_split="success"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$control_matrix" != "success" ]] || [[ "$pact_verify" != "success" ]] || [[ "$doctrine_split" != "success" ]]; then
+            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi control_matrix=$control_matrix pact_verify=$pact_verify doctrine_split=$doctrine_split"
             exit 1
           fi
           echo "All checks passed"

@@ -1,0 +1,67 @@
+# Provenance: assertions only. Prompts live in evals/datasets/ authored separately
+# per doctrine §3 (author-and-grade-same-session banned). This file references
+# code SOTs by symbolic name — never SHA-pinned.
+#
+# Phase 95 Plan 95-01 / TEST-01 — Swiss numeric bounds assertions.
+#
+# SOT: apps/mobile/lib/services/financial_core/social_insurance.dart
+#   - pilier3aPlafondAvecLpp = 7258  (CHF, 2026, with LPP)
+#   - pilier3aPlafondSansLpp = 36288 (CHF, 2026, no LPP — 20% AVS net)
+#   - lppDeductibleCoordinationFloor = 26460
+#
+# Numeric LLM hallucination signals: emitting 7'056, 7'000, 7000 (legacy/wrong
+# values) instead of canonical 7'258 / 7258. CONTEXT.md §1 names this as the
+# « real LLM emitting 7'056 instead of 7'258 » failure class the eval gate
+# is meant to catch.
+
+assertions:
+  - id: pilier3a_with_lpp_canonical
+    description: "Eclairage with LPP context must mention canonical 7'258 / 7258 / 7 258."
+    applies_to_categories:
+      - eclairage
+    when_vars_match:
+      variant: ["with_lpp", "with_pillar3a", "age_salary_canton"]
+    type: contains-any
+    terms:
+      - "7'258"
+      - "7258"
+      - "7 258"
+  - id: pilier3a_with_lpp_forbidden_legacy
+    description: "Reject legacy / wrong values for the avec-LPP plafond."
+    applies_to_categories:
+      - eclairage
+      - simulators
+    type: not-contains-any
+    terms:
+      - "7'056"
+      - "7056"
+      - "7'000"
+      - "7000"
+      - "6'883"
+      - "6883"
+  - id: pilier3a_no_lpp_canonical
+    description: "no-LPP context must mention canonical 36'288 / 36288."
+    applies_to_categories:
+      - eclairage
+      - simulators
+      - coach_freeform
+    when_vars_match:
+      variant: ["no_lpp", "no_lpp_explicit"]
+      sim: ["pillar3a_no_lpp"]
+    type: contains-any
+    terms:
+      - "36'288"
+      - "36288"
+      - "36 288"
+  - id: lpp_coordination_floor_canonical
+    description: "LPP coordination floor reference must be 26'460 / 26460 / 26 460."
+    applies_to_categories:
+      - coach_freeform
+      - simulators
+    when_topic_match:
+      topic: ["divorce", "pillar3a"]
+    type: contains-any
+    terms:
+      - "26'460"
+      - "26460"
+      - "26 460"

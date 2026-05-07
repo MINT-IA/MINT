@@ -1,0 +1,56 @@
+# MINT v2.14 promptfoo eval suite — Phase 95 Plan 95-01 / TEST-01
+#
+# 160 prompts × 4 archetypes against staging Anthropic Sonnet 4.5.
+# Wired into .github/workflows/promptfoo_eval.yml (PR-blocking on regress).
+#
+# Doctrine 2026-05-06 §3 — author-and-grade-same-session banned :
+#   prompt fixtures live in evals/datasets/**, assertions live in
+#   evals/assertions/**, and a single PR cannot touch both directories
+#   (enforced by tools/checks/no_same_pr_prompts_and_assertions.py).
+#
+# Cost guard (doctrine §6 objection 1) :
+#   - maxConcurrency: 4 + delay: 250ms      → in-flight rate cap
+#   - cost_cap.json max_usd_per_run: 2.50   → CI hard fail beyond cap
+#   - PR-only path-filter on the workflow   → no full re-run on doc PRs
+#   - Nightly cron DISABLED at ship         → $0/mo until manual flip
+
+description: "MINT v2.14 promptfoo eval suite — 160 prompts × 4 archetypes"
+
+providers:
+  - id: anthropic:messages:claude-sonnet-4-5-20250929
+    config:
+      apiKey: "{{env.ANTHROPIC_API_KEY}}"
+      max_tokens: 1024
+      temperature: 0.4
+
+defaultTest:
+  # Assertions arrive in a separate PR per doctrine §3. Until then the
+  # config tolerates an empty defaultTest block and runs as smoke.
+  assert: []
+
+# Concurrency / rate-limit guards
+maxConcurrency: 4
+delay: 250
+
+# Test cases — every YAML under datasets/<archetype>/ becomes test rows.
+# Each file declares its rows as a top-level YAML list of {vars: ...}.
+tests:
+  - file://datasets/julien_swiss/eclairage.yaml
+  - file://datasets/julien_swiss/coach_freeform.yaml
+  - file://datasets/julien_swiss/simulators.yaml
+  - file://datasets/julien_swiss/banned_canaries.yaml
+  - file://datasets/lauren_expat_us/eclairage.yaml
+  - file://datasets/lauren_expat_us/coach_freeform.yaml
+  - file://datasets/lauren_expat_us/simulators.yaml
+  - file://datasets/lauren_expat_us/fatca_handoff.yaml
+  - file://datasets/lauren_expat_us/banned_canaries.yaml
+  - file://datasets/sofia_ticino_it/eclairage.yaml
+  - file://datasets/sofia_ticino_it/coach_freeform.yaml
+  - file://datasets/sofia_ticino_it/simulators.yaml
+  - file://datasets/sofia_ticino_it/banned_canaries.yaml
+  - file://datasets/kai_independent_no_lpp/eclairage.yaml
+  - file://datasets/kai_independent_no_lpp/coach_freeform.yaml
+  - file://datasets/kai_independent_no_lpp/simulators.yaml
+  - file://datasets/kai_independent_no_lpp/banned_canaries.yaml
+
+outputPath: runs/${RUN_ID}.json

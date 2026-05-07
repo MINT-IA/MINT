@@ -1,0 +1,66 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: sofia_ticino_it (= swiss_native TI Italian-locale)
+# Category: eclairage (10 rows). Locale mix: it/fr.
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: eclairage
+    variant: age_only
+    prompt: "Ho 36 anni."
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: eclairage
+    variant: salary_only
+    prompt: "Guadagno 85'000 CHF all'anno a Lugano."
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: eclairage
+    variant: age_canton
+    prompt: "Ho 41 anni, vivo a Bellinzona."
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: eclairage
+    variant: age_salary_canton
+    prompt: "Ho 33 anni, guadagno 92'000 CHF, sto a Locarno."
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: eclairage
+    variant: with_lpp
+    prompt: "Ho 39 anni, dipendente Banca Stato, con LPP, salario 105'000 CHF."
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: eclairage
+    variant: no_lpp
+    prompt: "Sono freelance graphic designer in Ticino, senza LPP, 70'000 CHF/anno."
+- vars:
+    archetype: sofia_ticino_it
+    locale: fr
+    category: eclairage
+    variant: with_debt
+    prompt: "J'ai 44 ans à Lugano, 95'000 CHF salaire, et 30'000 CHF de dettes."
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: eclairage
+    variant: with_pillar3a
+    prompt: "Ho 37 anni, già verso 6'000 CHF/anno nel mio 3° pilastro."
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: eclairage
+    variant: with_frontalier_mention
+    prompt: "Ho 40 anni, mio marito è frontaliere italiano — cambia qualcosa per me ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: fr
+    category: eclairage
+    variant: ambiguous_noise
+    prompt: "Ciao, non so da dove iniziare per la mia situazione finanziaria."

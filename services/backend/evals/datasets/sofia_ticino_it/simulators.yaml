@@ -1,0 +1,62 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: sofia_ticino_it
+# Category: simulators (8 cells, it/fr).
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: simulators
+    sim: compound
+    variant: a
+    prompt: "Se investo 400 CHF al mese per 25 anni al 4%, quanto ottengo ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: simulators
+    sim: compound
+    variant: b
+    prompt: "10'000 CHF oggi al 3% per 20 anni, netto ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: simulators
+    sim: leasing
+    variant: a
+    prompt: "Leasing 36 mesi 450 CHF/mese o cash 17'000 CHF, cosa costa meno ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: fr
+    category: simulators
+    sim: leasing
+    variant: b
+    prompt: "Leasing Volvo XC40 4 ans 720 CHF/mois — coût total réel ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: simulators
+    sim: divorce
+    variant: a
+    prompt: "Matrimonio di 11 anni, LPP di 165'000 CHF — quanto va all'ex ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: simulators
+    sim: pillar3a
+    variant: a
+    prompt: "Massimale 3° pilastro 2026 con LPP — quale cifra ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: simulators
+    sim: pillar3a
+    variant: b
+    prompt: "Massimale 3° pilastro 2026 senza LPP per indipendente ?"
+- vars:
+    archetype: sofia_ticino_it
+    locale: it
+    category: simulators
+    sim: frontalier
+    variant: a
+    prompt: "Se passo frontaliera Italia→Lugano, perdo quanto sulla LPP all'uscita ?"

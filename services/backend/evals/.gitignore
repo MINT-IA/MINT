@@ -1,0 +1,5 @@
+# Promptfoo eval run telemetry — committed configs only.
+# Run JSON reports stay local + uploaded as GH workflow artifacts.
+runs/
+node_modules/
+.promptfoo/

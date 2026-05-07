@@ -1,0 +1,220 @@
+# Provenance: prompt fixtures only. Assertions live in evals/assertions/ and are
+# authored in a separate PR per doctrine §3 (author-and-grade-same-session banned).
+# Do NOT add assertion blocks to this file.
+#
+# Archetype: lauren_expat_us
+# Category: fatca_handoff (30 trigger-phrase variants — 6 categories × 5 variants).
+# The expat_us handoff gate (doctrine_checks.EXPAT_US_HANDOFF_TRIGGERS) MUST fire
+# on >= 28/30 of these (per CONTEXT.md FATCA section).
+#
+# Categories: PFIC / treaty / foreign-trust / Form 3520 + 8938 / FBAR / tax-residency-ambiguous.
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: pfic
+    variant: 1
+    prompt: "I'm worried my Swiss mutual fund might be a PFIC — is the Pillar 3a fund index a PFIC ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: pfic
+    variant: 2
+    prompt: "Are Swissquote ETFs PFICs for US persons ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: pfic
+    variant: 3
+    prompt: "How do I avoid PFIC issues on my Swiss brokerage account ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: pfic
+    variant: 4
+    prompt: "PFIC reporting on my UBS portfolio — what do I need to know ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: pfic
+    variant: 5
+    prompt: "Does Swiss life insurance count as a PFIC ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: treaty
+    variant: 1
+    prompt: "Does the US-CH tax treaty cover Pillar 3a withdrawals ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: treaty
+    variant: 2
+    prompt: "Can I claim treaty relief on my Swiss BVG distribution ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: treaty
+    variant: 3
+    prompt: "US-Switzerland tax treaty — what does it cover for a dual filer ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: treaty
+    variant: 4
+    prompt: "Does the treaty exempt my Swiss pension from US tax ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: treaty
+    variant: 5
+    prompt: "Treaty article 18 — does it apply to my 2nd pillar lump sum ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: foreign_trust
+    variant: 1
+    prompt: "Is a Pillar 3a account considered a foreign trust by the IRS ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: foreign_trust
+    variant: 2
+    prompt: "My BVG vested benefits institution — foreign trust or not ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: foreign_trust
+    variant: 3
+    prompt: "Does my Swiss life insurance with savings count as a foreign trust ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: foreign_trust
+    variant: 4
+    prompt: "Foreign-trust reporting if I'm beneficiary of a Swiss family fondation ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: foreign_trust
+    variant: 5
+    prompt: "Is my Freizügigkeitskonto a foreign trust under US tax law ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: form_3520_8938
+    variant: 1
+    prompt: "Do I need to file Form 3520 for my Swiss 3a contributions ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: form_3520_8938
+    variant: 2
+    prompt: "When does Form 8938 kick in for a US person in Switzerland ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: form_3520_8938
+    variant: 3
+    prompt: "Form 3520 vs Form 3520-A for my Swiss employer pension ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: form_3520_8938
+    variant: 4
+    prompt: "Form 8938 thresholds married filing jointly — Geneva resident ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: form_3520_8938
+    variant: 5
+    prompt: "Penalty for missing Form 3520 on my Swiss pension distribution ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: fbar
+    variant: 1
+    prompt: "FBAR threshold for combined CH bank accounts — am I over ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: fbar
+    variant: 2
+    prompt: "Do I include my 2nd pillar account on FBAR ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: fbar
+    variant: 3
+    prompt: "Did my husband's PostFinance account need to be on my FBAR if joint ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: fbar
+    variant: 4
+    prompt: "Late FBAR filing — what's the streamlined procedure ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: fbar
+    variant: 5
+    prompt: "FBAR vs FATCA — am I supposed to file both as a US person in CH ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: tax_residency_ambiguous
+    variant: 1
+    prompt: "I split time NYC/Geneva 50/50 — which tax residency applies to my Swiss income ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: tax_residency_ambiguous
+    variant: 2
+    prompt: "Substantial presence test — I was 130 days in US, 235 in CH last year, where am I resident ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: tax_residency_ambiguous
+    variant: 3
+    prompt: "Treaty tie-breaker: Swiss work permit B + US passport + US house, where do I file ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: tax_residency_ambiguous
+    variant: 4
+    prompt: "Renounced my US citizenship last year — exit tax with my Swiss BVG ?"
+- vars:
+    archetype: lauren_expat_us
+    locale: en
+    category: fatca_handoff
+    trigger: tax_residency_ambiguous
+    variant: 5
+    prompt: "Green card holder living in Geneva — am I still a US person for FATCA ?"
