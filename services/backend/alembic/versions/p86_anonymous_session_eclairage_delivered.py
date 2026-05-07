@@ -12,7 +12,7 @@ existing rows on staging/production back-fill cleanly without
 manual SQL.
 
 Revision ID: p86_eclairage_delivered
-Revises: 29_04_drop_auto_confirmed
+Revises: p86a_create_anonymous_sessions
 Create Date: 2026-05-06 11:30:00 UTC
 """
 
@@ -21,7 +21,7 @@ import sqlalchemy as sa
 
 
 revision = "p86_eclairage_delivered"
-down_revision = "29_04_drop_auto_confirmed"
+down_revision = "p86a_create_anonymous_sessions"
 branch_labels = None
 depends_on = None
 
