@@ -38,11 +38,20 @@ A perimeter is **CLOSED** only when all 5 gates are green. Until G2, status = «
 ## P2 — Premier contact (anon chat surprise)
 **ACTION CŒUR:** type a prompt with a number, get an answer that anchors against that number, feel « this listens to me ».
 **EXIT:** « je gagne 7500 CHF, achat Lausanne 800k » → reply uses 33% rule with user's CHF, no « salaire pas envoyé » framing.
-**BUGS LIÉS:** W-03 anon PII scrub ✅ #507, W-09 auth coach « salaire pas envoyé » footer ✅ (server-key copy shipped), W-10 ordre-de-grandeur rule ✅ #510, banned-terms scan response.
-**PRs MERGED:** #507, #510
-**STATUS:** 🟡 PROVISIONALLY READY — W-09 footer copy now reads « Réponse via l'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse. ». No more dissonance with user-typed CHF amounts.
+**BUGS LIÉS:** W-03 anon PII scrub ✅ #507, W-09 auth coach footer ✅ #513, W-10 ordre-de-grandeur rule ✅ (auth: #510, anon: #520), W-14 user-message anchor ✅ (auth: #514, anon: #520), **anon-prompt accent compliance** ✅ #520, **anon `intent` prompt-injection vector** ✅ #520.
+**PRs MERGED:** #507, #510, #513, #514
+**PRs OPEN:** #520 (anon-prompt parity + injection guard) — awaiting CI
+**STATUS:** 🟡 PROVISIONALLY READY (G1 ✅) — closing on #520 CI green for full P2 closure.
 **GATE LOG:**
-- 2026-05-07 17:13: G1 sim walker — auth coach response footer post-fix reads « Réponse via l'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse. ». Replaces previous misleading « Ton salaire exact n'est PAS envoyé ». LSFin disclaimer « Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). » still rendered above. Screenshot: `screenshots/2026-05-07/p2-01-after-fix.png`.
+- 2026-05-07 17:13: G1 sim walker — auth coach response footer post-fix reads « Réponse via l'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse. ». Replaces previous misleading « Ton salaire exact n'est PAS envoyé ». LSFin disclaimer « Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). » still rendered above. Screenshot evidence: `p2-01-after-fix.png`.
+- 2026-05-07 19:30: 5-auditor expert panel run on P2. Reports under `.planning/decisions/p2-audit-2026-05-07/`. Convergent finding (UX + compliance + adversarial): the anon discovery prompt was minimal-by-design (T-13-05) but missed the compliance rules that #510 / #514 added on the auth coach. Plus a P0 prompt-injection vector via the `intent` query param.
+- 2026-05-07 20:00: Fix shipped — PR #520 ports anon prompt to parity (user-message anchor rule + ordre-de-grandeur + LSFin banned-term enumeration + PII-echo guard + accents 100 % FR), and adds a Pydantic `field_validator` on `intent` (strips `\n\r«»`, caps at 120 chars). 11 new regression tests; adjacent anon-chat suite still 32/32 green.
+
+### P2 follow-ups (post-TestFlight wave)
+- a11y P0: chat bubbles need `Semantics(liveRegion: true)` + send `IconButton` `tooltip` (panel auditor 02 — VoiceOver users get silent coach replies)
+- typing-indicator unannounced + animates regardless of Reduce Motion
+- conversion prompt double `Future.delayed` lacks `mounted` guard (glitchy on slow sim)
+- audit-hash `clean_message_for_audit` is dead code on anon endpoint (no Phase 93-01 hook wired)
 
 ## P3 — Construction de profil
 **ACTION CŒUR:** create an account OR stay in local, fill 5-6 fields (age, canton, archetype, salary), see the profile rendered.
