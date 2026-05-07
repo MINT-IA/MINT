@@ -40587,12 +40587,6 @@ abstract class S {
   /// **'Je comprends, on y va'**
   String get betaDisclosureCta;
 
-  /// Beta disclosure sheet — secondary CTA opening the privacy URL.
-  ///
-  /// In fr, this message translates to:
-  /// **'En savoir plus'**
-  String get betaDisclosureLearnMore;
-
   /// Beta disclosure sheet — accessibility container label.
   ///
   /// In fr, this message translates to:
