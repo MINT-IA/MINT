@@ -23197,9 +23197,6 @@ class SIt extends S {
   String get betaDisclosureCta => 'Capito, andiamo';
 
   @override
-  String get betaDisclosureLearnMore => 'Scopri di più';
-
-  @override
   String get betaDisclosureSemanticsLabel =>
       'Informazioni sulla versione beta di MINT — solo strumento educativo, nessuna consulenza finanziaria, i dati restano sul tuo dispositivo per impostazione predefinita.';
 }

@@ -23024,9 +23024,6 @@ class SEn extends S {
   String get betaDisclosureCta => 'Got it, let\'s go';
 
   @override
-  String get betaDisclosureLearnMore => 'Learn more';
-
-  @override
   String get betaDisclosureSemanticsLabel =>
       'Information about the MINT beta version — educational tool only, no financial advice, data stays on your device by default.';
 }

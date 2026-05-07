@@ -23146,9 +23146,6 @@ class SPt extends S {
   String get betaDisclosureCta => 'Entendido, vamos';
 
   @override
-  String get betaDisclosureLearnMore => 'Saber mais';
-
-  @override
   String get betaDisclosureSemanticsLabel =>
       'Informação sobre a versão beta da MINT — apenas ferramenta educativa, nenhum aconselhamento financeiro, os dados permanecem no teu dispositivo por defeito.';
 }

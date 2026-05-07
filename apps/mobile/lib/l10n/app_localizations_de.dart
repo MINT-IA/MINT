@@ -23192,9 +23192,6 @@ class SDe extends S {
   String get betaDisclosureCta => 'Verstanden, los geht\'s';
 
   @override
-  String get betaDisclosureLearnMore => 'Mehr erfahren';
-
-  @override
   String get betaDisclosureSemanticsLabel =>
       'Information zur MINT-Beta-Version — nur Bildungswerkzeug, keine Finanzberatung, Daten bleiben standardmässig auf deinem Gerät.';
 }
