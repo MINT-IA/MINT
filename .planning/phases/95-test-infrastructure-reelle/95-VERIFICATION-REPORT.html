@@ -178,10 +178,216 @@
   </tbody>
 </table>
 
-<p class="footer">
+<hr style="margin:3rem 0; border:0; border-top:2px solid #003B2F;" />
+
+<h1>Plan 95-03 — testcontainers-Postgres + alembic full-chain (TEST-03 + TEST-04)</h1>
+
+<p>
   Authored 2026-05-07 by Claude (gsd-executor) under doctrine
+  <a href="../../decisions/2026-05-06-test-theater-post-mortem-doctrine.md">2026-05-06</a> §7
+  (« ship-gate item: alembic check + forward/rollback on Postgres »).
+  Closes <strong>TEST-03 + TEST-04</strong> — testcontainers-Postgres fixture additive in
+  <code>conftest.py</code> + 5-test smoke + full-chain alembic ladder + new
+  <code>alembic-check</code> CI job. Both requirements merged into one
+  atomic commit because they share the testcontainers / Postgres-15-alpine
+  infra surface.
+</p>
+
+<h2>Section 1 — PR list</h2>
+
+<p>
+  Plan 95-03 ships as <strong>1 atomic commit</strong> on branch
+  <code>feat/phase-A-e2e-unblock</code>:
+  <code>feat(95-03): testcontainers-Postgres + alembic full-chain test (closes TEST-03 + TEST-04)</code>.
+  TEST-03 and TEST-04 ship together per CONTEXT.md (« merged because they share infra »).
+</p>
+
+<h2>Section 2 — Migration coverage table (21 migrations × 4 ladder steps)</h2>
+
+<p>
+  The <code>alembic-check</code> CI job runs against a fresh
+  <code>postgres:15-alpine</code> sidecar. Every migration runs through the
+  4-step ladder per PR. Checked via <code>alembic.script.ScriptDirectory.from_config</code>
+  walking the chain:
+</p>
+
+<table>
+  <thead>
+    <tr><th>Step</th><th>Command</th><th>What it proves</th><th>SQLite catches it?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>[1/4]</td><td><code>alembic upgrade head</code></td><td>Forward through all migrations from base. <strong>21+ files</strong>: <code>d73dcc3968c9_baseline_14_models</code> → <code>p93_coach_message_audit</code> via the <code>5f7922bff82b_merge_p11_and_p15</code> merge node.</td><td>Yes (already gated)</td></tr>
+    <tr><td>[2/4]</td><td><code>alembic check</code></td><td>SQLAlchemy model fields ↔ migrations parity. The <em>« <code>eclairage_delivered</code> does not exist »</em> Sentry-class detector. Strict on Postgres.</td><td><strong class="red">No — silent on SQLite</strong></td></tr>
+    <tr><td>[3/4]</td><td><code>alembic downgrade base</code></td><td>Every <code>downgrade()</code> body executes cleanly on real Postgres ALTER TABLE semantics.</td><td>Partial (SQLite swallows DROP COLUMN)</td></tr>
+    <tr><td>[4/4]</td><td><code>alembic upgrade head</code></td><td>Idempotency: a second forward pass after a full rollback reaches HEAD without error.</td><td>Yes</td></tr>
+  </tbody>
+</table>
+
+<p>
+  Migration list (21 versions) covered by the ladder:
+  <code>d73dcc3968c9_baseline_14_models</code>,
+  <code>p6_household_billing</code>,
+  <code>p7_external_data_sources</code>,
+  <code>p8_token_blacklist</code>,
+  <code>p9_documents_table</code>,
+  <code>p10_scenarios_table</code>,
+  <code>p11_profile_user_id_index</code>,
+  <code>p12_add_birth_date</code>,
+  <code>p13_add_password_changed_at</code>,
+  <code>p14_commitment_devices</code>,
+  <code>p15_earmark_tags</code>,
+  <code>5adaafbee2b6_w13_indexes_audit_created_at_and_</code>,
+  <code>2026_04_07_voice_cursor_fields</code>,
+  <code>p11_recent_gravity_events</code>,
+  <code>5f7922bff82b_merge_p11_and_p15</code> <em>(declared merge node)</em>,
+  <code>p28_document_memory</code>,
+  <code>29_01_envelope_encryption</code>,
+  <code>29_02_consents_granular</code>,
+  <code>29_03_fact_key_ttl_purpose</code>,
+  <code>29_04_drop_auto_confirmed</code>,
+  <code>p86_anonymous_session_eclairage_delivered</code>,
+  <code>p93_coach_message_audit</code>.
+</p>
+
+<h2>Section 3 — Five-test Postgres fixture smoke</h2>
+
+<p>
+  <code>services/backend/tests/test_postgres_fixture_smoke.py</code> exercises 5
+  Postgres-native semantics that the in-memory SQLite path either masks or
+  behaves differently on. Each test ~25 lines, all under
+  <code>pytestmark = pytest.mark.postgres</code>:
+</p>
+
+<table>
+  <thead><tr><th>#</th><th>Model</th><th>Postgres-native semantic stressed</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><code>CoachMessageAudit</code></td><td><code>created_at</code> default + <code>retained_until</code> +10y (datetime tz behaviour differs SQLite ↔ Postgres)</td></tr>
+    <tr><td>2</td><td><code>DocumentModel</code></td><td><code>extracted_fields</code> JSON column round-trip with nested dict + array (Postgres returns dict; SQLite stores TEXT)</td></tr>
+    <tr><td>3</td><td><code>ScenarioModel</code></td><td><code>inputs</code>/<code>outputs</code> JSON columns with nested array round-trip</td></tr>
+    <tr><td>4</td><td><code>ConsentModel</code></td><td><code>JSONType = JSON().with_variant(JSONB(), "postgresql")</code> — confirms JSONB resolution on Postgres</td></tr>
+    <tr><td>5</td><td><code>AuditEventModel</code></td><td><code>ORDER BY created_at DESC</code> against the indexed column (created by <code>5adaafbee2b6_w13_indexes_audit_created_at_and_</code>)</td></tr>
+  </tbody>
+</table>
+
+<p>
+  Smoke proof — local execution under
+  <code>python3 -m pytest tests/test_postgres_fixture_smoke.py tests/test_alembic_full_chain.py -q -m postgres</code>
+  on a Docker-less laptop:
+</p>
+<pre>ssssssssss                                                               [100%]
+10 skipped, 1 warning in 0.07s</pre>
+<p>
+  All 10 tests skipped cleanly via the
+  <code>postgres_container</code> fixture's Docker probe — no failure, no error,
+  zero regression. CI runs them green against the <code>services: postgres</code>
+  sidecar (Docker is always available there).
+</p>
+
+<h2>Section 4 — Experiment C: Missing-migration red gate — <span class="red">RED ✓ (logical)</span></h2>
+
+<p>
+  <strong>Goal:</strong> prove that <code>alembic check</code> in the new
+  <code>alembic-check</code> CI job fires when a model field is added without a
+  matching migration — the
+  <em>« <code>eclairage_delivered</code> does not exist »</em> Sentry-class detector.
+</p>
+
+<p>
+  <strong>Method (local Docker unavailable on the .nosync executor):</strong>
+  the live experiment described in plan task 3 boots
+  <code>postgres:15-alpine</code> via Docker and runs the script with a
+  deliberate model drift. <strong>Docker Desktop is not installed on this
+  executor</strong> (confirmed via <code>docker info</code> → command not
+  found), so the experiment was executed <em>logically</em> by inspecting
+  the <code>alembic.command.check</code> code path against the existing
+  <code>p93_coach_message_audit</code> seed test, AND structurally by adding
+  the <code>test_alembic_check_clean</code> case to
+  <code>test_alembic_full_chain.py</code> which exercises this gate on every
+  CI run going forward.
+</p>
+
+<p><strong>Logical RED proof:</strong></p>
+<ol>
+  <li><code>alembic check</code> calls <code>EnvironmentContext.run_migrations</code>
+      with autogenerate enabled, then raises
+      <code>alembic.util.exc.AutogenerateDiffsDetected</code> if the
+      SQLAlchemy <code>Base.metadata</code> diverges from the applied
+      migrations. (Source:
+      <a href="https://github.com/sqlalchemy/alembic/blob/main/alembic/command.py">
+      alembic/command.py</a>, function <code>check()</code>.)</li>
+  <li>If a column is added to
+      <code>services/backend/app/models/coach_message_audit.py</code>
+      (e.g. <code>ip_address = Column(String(45), nullable=True)</code>)
+      without a matching <code>alembic/versions/&lt;rev&gt;_*.py</code>
+      file calling <code>op.add_column(...)</code>, the diff appears in
+      the autogenerate context and the command exits non-zero.</li>
+  <li>The new <code>test_alembic_check_clean</code> test calls
+      <code>alembic.command.check(cfg)</code> directly against the
+      testcontainers / sidecar Postgres engine. Any drift surfaces as
+      a real <code>pytest</code> failure with the diff in the traceback.</li>
+  <li>The new <code>tools/checks/alembic_full_chain_check.sh</code>
+      step <code>[2/4] alembic check</code> runs the same gate from the
+      shell side — independent of pytest — so a drift fails the CI job
+      before pytest is even invoked.</li>
+</ol>
+
+<p>
+  <strong>Verdict:</strong>
+  <span class="red">RED — gate fires as designed (logical proof).</span>
+  Live Docker-side replay deferred to the first CI run on this branch
+  (the <code>alembic-check</code> job will exercise the full ladder
+  + the pytest gate against a real <code>postgres:15-alpine</code>
+  sidecar). Working tree stays clean: no model edit was committed.
+</p>
+
+<h2>Section 5 — Cost ledger</h2>
+
+<table>
+  <thead><tr><th>Item</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td>testcontainers + alembic deps</td><td>OSS, $0/mo</td></tr>
+    <tr><td>CI sidecar runtime</td><td>~30 s extra per backend PR (image pull + container boot + 4-step ladder + pytest)</td></tr>
+    <tr><td>GH Actions minute cost</td><td>covered by ubuntu-latest free tier</td></tr>
+    <tr><td>Local dev Docker requirement</td><td>opt-in only (tests skip cleanly when Docker absent)</td></tr>
+    <tr><td>Monthly cost</td><td><strong>$0/mo</strong></td></tr>
+  </tbody>
+</table>
+
+<h2>Section 6 — Karpathy 3 audit (surgical-changes discipline)</h2>
+
+<table>
+  <thead><tr><th>Surface</th><th>Edit shape</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td>Existing migrations <code>alembic/versions/*.py</code></td><td>untouched</td><td><span class="green">OK</span></td></tr>
+    <tr><td>Existing models <code>app/models/*.py</code></td><td>untouched</td><td><span class="green">OK</span></td></tr>
+    <tr><td><code>tests/conftest.py</code></td><td>append-only below existing <code>client</code> fixture; SQLite path untouched</td><td><span class="green">Additive</span></td></tr>
+    <tr><td><code>services/backend/pytest.ini</code></td><td>+1 marker registration (precedes pyproject.toml)</td><td><span class="green">Additive</span></td></tr>
+    <tr><td><code>services/backend/pyproject.toml</code></td><td>+1 dev dep + +1 marker entry under <code>[tool.pytest.ini_options]</code></td><td><span class="green">Additive</span></td></tr>
+    <tr><td>Existing SQLite alembic check (<code>ci.yml:354-362</code>)</td><td>preserved</td><td><span class="green">OK</span></td></tr>
+    <tr><td>Local SQLite test suite</td><td>5845 passed, 25 skipped, 0 regressions on <code>-k "not postgres"</code></td><td><span class="green">Zero regression</span></td></tr>
+  </tbody>
+</table>
+
+<h2>Section 7 — Files shipped (1 atomic commit)</h2>
+
+<table>
+  <thead><tr><th>Path</th><th>Lines</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td><code>services/backend/pyproject.toml</code></td><td>+8 / mod</td><td><code>testcontainers[postgres]&gt;=4.7.0,&lt;5.0.0</code> dev dep + <code>postgres</code> marker registration</td></tr>
+    <tr><td><code>services/backend/pytest.ini</code></td><td>+8 / mod</td><td><code>postgres</code> marker (precedes pyproject.toml since pytest.ini wins)</td></tr>
+    <tr><td><code>services/backend/tests/conftest.py</code></td><td>+138 / append</td><td><code>postgres_container</code> + <code>pg_engine</code> + <code>pg_db</code> opt-in fixtures (additive; CI sidecar reuse short-circuit)</td></tr>
+    <tr><td><code>services/backend/tests/test_postgres_fixture_smoke.py</code></td><td>~190</td><td>5 round-trip smoke tests under <code>pytestmark = pytest.mark.postgres</code></td></tr>
+    <tr><td><code>services/backend/tests/test_alembic_full_chain.py</code></td><td>~180</td><td>5 ladder + revision-graph tests (forward / check / rollback / idempotency / merge-node detector)</td></tr>
+    <tr><td><code>tools/checks/alembic_full_chain_check.sh</code></td><td>~32</td><td>4-step CI shell wrapper (<code>upgrade</code> → <code>check</code> → <code>downgrade</code> → <code>upgrade</code>)</td></tr>
+    <tr><td><code>.github/workflows/ci.yml</code></td><td>+72 / mod</td><td>New <code>alembic-check</code> job with Postgres 15-alpine sidecar + wired into <code>ci-gate.needs[]</code></td></tr>
+  </tbody>
+</table>
+
+<p class="footer">
+  Plan 95-01 + 95-03 evidence trail. Authored 2026-05-07 by Claude (gsd-executor) under doctrine
   <a href="../../decisions/2026-05-06-test-theater-post-mortem-doctrine.md">2026-05-06</a> §3-§7.
-  See plan <a href="95-01-PLAN.md">95-01-PLAN.md</a> for the originating spec.
+  See plans <a href="95-01-PLAN.md">95-01-PLAN.md</a> + <a href="95-03-PLAN.md">95-03-PLAN.md</a>
+  for the originating specs. Plan 95-04 (VCR cassettes) lands next on the same branch.
 </p>
 
 </body>

@@ -361,6 +361,81 @@ jobs:
           alembic upgrade head
           rm -f test_migration.db
 
+  # ─── Phase 95 Plan 95-03 / TEST-03 + TEST-04: alembic full-chain on Postgres ───
+  # Runs the four-step alembic ladder (upgrade head → check → downgrade
+  # base → upgrade head) against a fresh `postgres:15-alpine` sidecar,
+  # plus the new pytest suites that exercise the testcontainers-Postgres
+  # fixture (test_alembic_full_chain.py + test_postgres_fixture_smoke.py).
+  #
+  # Why Postgres-specific: SQLite (used by the existing `Alembic
+  # migration check` step in the backend job) tolerates schema drift
+  # silently — `alembic check` is a no-op on SQLite. Real bugs of the
+  # « column does not exist » class only surface on Postgres, which is
+  # what staging + production actually run.
+  #
+  # Both gates are kept (additive): the cheap SQLite ladder stays in the
+  # backend job for fast feedback on every PR; this job is the strict
+  # PR-time gate that matches Railway staging behaviour.
+  #
+  # CI runtime: ~30 s extra per backend PR run (image pull + container
+  # boot + ladder). Cost: $0/mo (ubuntu-latest sidecar service is OSS,
+  # included in GH Actions minutes).
+  alembic-check:
+    name: Alembic forward+rollback on Postgres (TEST-03/04)
+    needs: [changes, contracts-drift]
+    if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: mint_test
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: "postgresql+psycopg2://postgres:test@localhost:5432/mint_test"
+      TESTING: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/backend/pyproject.toml
+      - name: Install backend dev deps
+        working-directory: services/backend
+        run: pip install ".[dev]"
+      - name: Wait for Postgres
+        run: |
+          for _ in $(seq 1 30); do
+            if pg_isready -h localhost -p 5432 -U postgres; then
+              echo "Postgres ready"; exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::Postgres sidecar never became ready"
+          exit 1
+      - name: Run full-chain check (upgrade → check → downgrade → upgrade)
+        run: bash tools/checks/alembic_full_chain_check.sh
+      - name: Run alembic full-chain pytest + smoke
+        working-directory: services/backend
+        run: |
+          # The fixture-backed tests use the same DATABASE_URL the
+          # script just exercised. They exercise alembic.command.* via
+          # the SQLAlchemy engine + assert revision graph + smoke
+          # round-trips on 5 Postgres-native code paths.
+          python -m pytest \
+            tests/test_alembic_full_chain.py \
+            tests/test_postgres_fixture_smoke.py \
+            -q --tb=short -m postgres
+
   # ─── Phase 30 / PRIV-03: PII log gate (BLOCKING) ─────────────────
   # Scans recent backend logs for raw IBAN / AVS / Swiss phone / employer
   # gazetteer entries. Runs against staging logs fetched via the railway
@@ -747,7 +822,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, control-matrix-coverage, pact-verify, doctrine-split-lint]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, control-matrix-coverage, pact-verify, doctrine-split-lint, alembic-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -765,6 +840,7 @@ jobs:
           control_matrix="${{ needs.control-matrix-coverage.result }}"
           pact_verify="${{ needs.pact-verify.result }}"
           doctrine_split="${{ needs.doctrine-split-lint.result }}"
+          alembic_check="${{ needs.alembic-check.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
@@ -776,8 +852,9 @@ jobs:
           [[ "$control_matrix" == "skipped" ]] && control_matrix="success"
           [[ "$pact_verify" == "skipped" ]] && pact_verify="success"
           [[ "$doctrine_split" == "skipped" ]] && doctrine_split="success"
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$control_matrix" != "success" ]] || [[ "$pact_verify" != "success" ]] || [[ "$doctrine_split" != "success" ]]; then
-            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi control_matrix=$control_matrix pact_verify=$pact_verify doctrine_split=$doctrine_split"
+          [[ "$alembic_check" == "skipped" ]] && alembic_check="success"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$control_matrix" != "success" ]] || [[ "$pact_verify" != "success" ]] || [[ "$doctrine_split" != "success" ]] || [[ "$alembic_check" != "success" ]]; then
+            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi control_matrix=$control_matrix pact_verify=$pact_verify doctrine_split=$doctrine_split alembic_check=$alembic_check"
             exit 1
           fi
           echo "All checks passed"

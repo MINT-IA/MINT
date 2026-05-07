@@ -53,6 +53,11 @@ dev = [
     "ruff>=0.1.0",
     "httpx>=0.24.0",
     "fakeredis>=2.20.0",
+    # Phase 95 Plan 95-03 / TEST-04 — testcontainers-Postgres for migration-
+    # sensitive tests (replaces SQLite theater for the alembic check + 5
+    # opt-in tests). Local dev needs Docker Desktop running; tests
+    # gracefully skip with `pytest.skip("Docker unavailable")` otherwise.
+    "testcontainers[postgres]>=4.7.0,<5.0.0",
 ]
 rag = [
     "chromadb>=0.5.5",
@@ -100,4 +105,7 @@ minversion = "6.0"
 addopts = "-ra -q"
 testpaths = [
     "tests",
+]
+markers = [
+    "postgres: opt-in to testcontainers-Postgres fixture (Phase 95 Plan 95-03 / TEST-04). Tests marked `pytestmark = pytest.mark.postgres` activate the session-scoped Postgres container; they skip cleanly when Docker is unavailable.",
 ]

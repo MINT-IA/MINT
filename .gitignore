@@ -24,6 +24,11 @@ __pycache__/
 *.pyo
 .venv/
 services/backend/.venv/
+# Pytest / Hypothesis local caches
+.pytest_cache/
+**/.pytest_cache/
+.hypothesis/
+**/.hypothesis/
 
 # Flutter generated
 apps/mobile/.flutter-plugins
