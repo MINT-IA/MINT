@@ -177,10 +177,14 @@ Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT
 **Depends on**: Phase 95
 **Requirements**: OBS-01, OBS-02, OBS-03
 **Success Criteria** (what must be TRUE):
-  1. Sentry release-health alert triggers PagerDuty/Slack when crash-free sessions < 99.5% over rolling 1h window — verified by deliberate test crash → Slack notification within 15 min.
-  2. Checkly synthetic probes hit 4 staging endpoints (`/anonymous/chat`, `/auth/login`, `/documents/upload`, `/health`) on a 5-min cron and page on failure — verified by deliberate staging downtime drill.
+  1. Sentry release-health alert triggers Slack #mint-alerts when crash-free sessions < 99.5% over rolling 1h window — verified by deliberate test crash → Slack notification within 15 min. (PagerDuty deferred — Slack-first per CONTEXT.md decision.)
+  2. Checkly synthetic probes hit 4 staging endpoints (`/anonymous/chat`, `/auth/login`, `/documents/upload`, `/health`) on a **10-min cron** (locked at Hobby tier $0/mo per Julien cost-scope decision ; upgrade to Team $30/mo + 5-min cron at TestFlight Beta) and page on failure — verified by deliberate staging downtime drill.
   3. Every coach response in `/anonymous/chat` and `/coach/chat` emits a Sentry event tagged with `eval_score` (from promptfoo runtime), `banned_term_hit` (bool), `eclairage_kind` (str) — verified by Sentry dashboard query + sample 10 events from staging traffic.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 96-01-PLAN.md — Sentry release-health alert rule + Slack integration + canary scripts (OBS-01) — Wave 1
+- [ ] 96-02-PLAN.md — Checkly account + checks-as-code config + 4 probes + downtime drill (OBS-02) — Wave 2 (depends on Slack channel from 96-01)
+- [ ] 96-03-PLAN.md — Sentry audit-tag helper + 3 call sites + dashboard saved-query (OBS-03) — Wave 1 (independent code change)
 
 ### Phase 97: MVP Ship Gate
 **Goal**: TestFlight Internal NDA closed cohort, 5 Swiss FR testers, 24h crash-free ≥ 99.5%, banner « pré-conformité », counsel sign-off, Control Matrix ≥ 95%. The actual ship.
@@ -203,7 +207,7 @@ Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT
 | 93. Compliance Hardening (Audit + FATCA + Confidence) | 0/? | Not started | - |
 | 94. Compliance Polish (Locale + i18n + Constants) | 0/? | Not started | - |
 | 95. Test Infrastructure Réelle | 0/? | Not started | - |
-| 96. Production Observability | 0/? | Not started | - |
+| 96. Production Observability | 0/3 | Not started | - |
 | 97. MVP Ship Gate | 0/? | Not started | - |
 
 ### Coverage
