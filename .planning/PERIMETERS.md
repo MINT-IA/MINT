@@ -1,0 +1,111 @@
+# MINT — Debug Perimeters (live audit log)
+
+**Started:** 2026-05-07
+**Doctrine:** 1 perimeter active at a time. No phase GSD theater. No spec docs. This file IS the artifact.
+
+## Exit gates (each perimeter)
+
+| Gate | Verification | Required proof |
+|---|---|---|
+| G1 | Sim walker auto (idb) | log path / screenshot dir |
+| G2 | Sim-driven device-equivalent walk (idb auto, full release-mode flow) | log path + final-state assertion summary |
+| G3 | CI green on dev | sha + date |
+| G4 | Regression tests still green | run id |
+| G5 | LSFin + accent + ARB lint green | lint outputs |
+
+A perimeter is **CLOSED** only when all 5 gates are green. Until G2, status = « PROVISIONALLY READY ».
+
+---
+
+## P1 — Cold launch & landing
+**ACTION CŒUR:** open the app, read the pitch, tap « Parle à Mint » without confusion.
+**EXIT:** beta sheet → landing → CTA tap → anon chat opens. No inappropriate menu entry surfaced.
+**BUGS LIÉS:** W-12 BYOK exposed (out-of-scope per project_byok_scope.md), W-15 « Ce que MINT sait » fail-load on local mode, **A02 anon chat lockout on missing `messagesRemaining`** (P0, found by P1 panel adversarial QA 2026-05-07).
+**PRs MERGED:** #509 (savoir-plus Safari leak removed), #515 (BYOK menu hidden), #516 (biography Keychain fallback) ✅
+**PRs OPEN:** #518 (A02 anon chat lockout fix) — awaiting CI
+**STATUS:** 🟡 PROVISIONALLY READY (G1 ✅) — closing on #518 CI green for full P1 closure.
+**GATE LOG:**
+- 2026-05-07 17:41: G1 sim walker — drawer → « Ce que MINT sait de toi » screen renders with shield icon + « Aucune donnée pour l'instant » + helper « Scanne un document ou discute avec le coach pour que MINT commence à te connaître. ». No error state. Screenshot evidence: `verify-05-privacy.png`. W-15 empty-state behavior confirmed.
+- 2026-05-07 19:00: 5-auditor expert panel run on P1 (UX / a11y / adversarial QA / engineering wiring / compliance + brand). Reports under `.planning/decisions/p1-audit-2026-05-07/`. Result: 1 P0 new bug surfaced (A02), 4 P1/P2 deferred (A01 hit-test guard, A03 disclosure race, A04 SE overflow, A06 SocketException copy) — auditor recommendation: ship A02 alone, others ride post-TestFlight wave.
+- 2026-05-07 19:30: A02 fix shipped — PR #518. `syncAnonymousRemainingFromResponse` helper gates the local count update behind `is int`; absent / malformed payloads no longer write `count = 3 - 0 = 3` and lock the user out. Regression test: 5 cases (present, present-zero rate-limit, absent, absent→present catch-up, non-int). Adjacent service tests still 21/21 green.
+
+### P1 follow-ups (post-TestFlight wave)
+- A01: wrap `landing_screen.dart` interactive `FadeTransition` subtrees in `IgnorePointer` while opacity < 1.0
+- A03: gate `landing_screen.dart` CTA `onPressed` until `mint_beta_disclosure_seen` flag is set
+- A04: wrap landing `Column` in `SingleChildScrollView` for iPhone SE + AAA dynamic type
+- A06: add `on SocketException` clause to `coach_chat_api_service.dart` anon path
+
+## P2 — Premier contact (anon chat surprise)
+**ACTION CŒUR:** type a prompt with a number, get an answer that anchors against that number, feel « this listens to me ».
+**EXIT:** « je gagne 7500 CHF, achat Lausanne 800k » → reply uses 33% rule with user's CHF, no « salaire pas envoyé » framing.
+**BUGS LIÉS:** W-03 anon PII scrub ✅ #507, W-09 auth coach « salaire pas envoyé » footer ✅ (server-key copy shipped), W-10 ordre-de-grandeur rule ✅ #510, banned-terms scan response.
+**PRs MERGED:** #507, #510
+**STATUS:** 🟡 PROVISIONALLY READY — W-09 footer copy now reads « Réponse via l'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse. ». No more dissonance with user-typed CHF amounts.
+**GATE LOG:**
+- 2026-05-07 17:13: G1 sim walker — auth coach response footer post-fix reads « Réponse via l'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse. ». Replaces previous misleading « Ton salaire exact n'est PAS envoyé ». LSFin disclaimer « Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin). » still rendered above. Screenshot: `screenshots/2026-05-07/p2-01-after-fix.png`.
+
+## P3 — Construction de profil
+**ACTION CŒUR:** create an account OR stay in local, fill 5-6 fields (age, canton, archetype, salary), see the profile rendered.
+**EXIT:** Mon profil shows 5+ fields, no network error, back button works.
+**BUGS LIÉS:** W-07 register back ✅ #508, W-14 « APERÇU FINANCIER » → « MON PROFIL » naming ✅, W-15 mode local empty states ✅ (logged in P1).
+**PRs MERGED:** #508
+**STATUS:** 🟡 PROVISIONALLY READY — header rename verified, empty state proper. Diagnostic CTA still pending data entry to round-trip the « 5+ fields rendered » exit clause.
+**GATE LOG:**
+- 2026-05-07 17:40: G1 sim walker — drawer → tap entry → screen renders with header « MON PROFIL » (no longer « APERÇU FINANCIER »). Empty state: hanger icon + « Aucun profil renseigné » + dark-pill CTA « + Commencer le diagnostic ». W-14 fix confirmed. Screenshot: `screenshots/2026-05-07/verify-04-mon-profil.png`.
+
+## P4 — PDF Upload ← ACTIVE (Julien blocker, iPhone repro 2026-05-07)
+**ACTION CŒUR:** photograph or upload a LPP certificate PDF, see 15 fields extracted, validate.
+**EXIT:** select PDF on iOS → upload progresses → 15 fields rendered → confidence +27 → CoachProfile updated → Mon argent reflects new data.
+**BUGS LIÉS:** Julien iPhone repro (2026-05-07): « les PDF ne se uploadent pas ». W-11 accents on chips (« prevoyance », « Declaration »).
+**PRs:** #512 fix/p4-consent-local-fallback (open, awaiting CI)
+**STATUS:** 🟡 IN_FLIGHT — root cause fixed (consent gate Keychain `PlatformException(-34018)` was uncaught in mode local → silent picker fail). PR #512 ships local-mode SharedPreferences-backed consent fallback. Sim walker confirms: tap galerie → ConsentSheet appears → Accepter → iOS Files picker opens. The « Utiliser un exemple de test » path = hardcoded mock (Julien correction 2026-05-07), not real extraction.
+**GATE LOG:**
+- 2026-05-07 16:40: P4 opened. iPhone walk Julien: PDF upload silent fail. Diagnostic launched via sim walker on staging build.
+- 2026-05-07 16:42: G1 sim walker — repro: tap « Depuis la galerie » → no UI change, no error, no log. Confirmed Julien iPhone bug.
+- 2026-05-07 16:50: Root cause via debug-print injection — `_authHeaders` Keychain read raises `PlatformException(-34018)` on fresh sim, ConsentService catch only handled `ApiException`, exception silently swallowed.
+- 2026-05-07 16:55: Fix applied — `_LocalConsentStore` SharedPreferences-backed, `list()`/`grant()` catch `PlatformException` Keychain codes, fall back to local. Sim walker: ConsentSheet appears + iOS Files picker opens after Accepter.
+- 2026-05-07 17:00: G4 — 7/7 unit tests pass; flutter analyze clean. PR #512 opened.
+
+### P4 follow-ups (NOT in #512, separate scope)
+- Push real `cpe_plan_maxi_julien.pdf` into sim Files for full extraction round-trip (G2 deep gate). Sim limitation: « On My iPhone » provider is empty by default; need to either declare `UIFileSharingEnabled` on Runner.app + drop PDF in Documents, OR use iCloud Drive provider.
+- W-11 accents on Scanner chips (« prevoyance » → « prévoyance », « Declaration » → « Déclaration ») — separate ARB-only PR.
+- Refactor `ApiService` to accept injectable `http.Client` for proper unit-test of 401 → fallback path. Tracked here as a Phase 95+ test infra evolution.
+
+## P5 — Mon argent (Cap + benchmarks)
+**ACTION CŒUR:** see a useful chiffré summary (projected capital, fiscal margin, canton benchmark gap).
+**EXIT:** post-upload → Mon argent shows values aligned with profile + ConfidenceBadge.
+**STATUS:** ⚪ PENDING (gated on P4)
+**GATE LOG:** —
+
+## P6 — Coach authentifié end-to-end
+**ACTION CŒUR:** ask a complex question, coach answers with memory of previous turn, tone adjustable.
+**EXIT:** logged-in coach → persona toggle accessible from menu → tone changes the answer → memory persists cross-session.
+**BUGS LIÉS:** W-13 persona toggle inaccessible (Phase 91-01 façade) — `/settings/coach-tone` route exists but no menu entry.
+**STATUS:** ⚪ PENDING
+**GATE LOG:** —
+
+## P7 — Explorer 18 life events
+**ACTION CŒUR:** drill-down a life event (e.g. Logement → simulator achat) without dead-end.
+**EXIT:** 6 cards Explorer → tap each → screen renders with ConfidenceBadge, no crash.
+**STATUS:** ⚪ PENDING
+**GATE LOG:** —
+
+---
+
+## Active perimeter pointer
+
+**Currently active: P4 — PDF Upload (awaiting #512 CI green = G3, then G2 deep round-trip + G5 lint)**
+
+Status as of 2026-05-07 17:41:
+- P1 🟡 PROVISIONALLY READY (G1 ✅ W-15 verified, W-12 BYOK out-of-scope per project_byok_scope.md)
+- P2 🟡 PROVISIONALLY READY (G1 ✅ W-09 footer copy verified)
+- P3 🟡 PROVISIONALLY READY (G1 ✅ W-14 « MON PROFIL » header verified)
+- P4 🟡 IN_FLIGHT — PR #512 awaiting CI; sim walker confirms galerie → ConsentSheet → Files picker chain
+- P5/P6/P7 ⚪ PENDING
+
+Next-up sequence (when P4 closes):
+- P4 → P5 (gated post-PDF round-trip) → P6 (W-13 persona toggle wiring) → P7 (Explorer drill-downs)
+
+Outstanding G2/G3/G5 sweeps for P1/P2/P3 batch when device walker schedule allows. P1+P2+P3 device-equivalent G2 walker can be folded into a single pass since they share the cold-launch → drawer → coach → profile chain.
+
+This sequence is updated only when an active perimeter closes (G1-G5 all green) or when Julien explicitly re-orders.
