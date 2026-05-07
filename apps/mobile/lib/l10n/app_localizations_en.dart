@@ -21122,6 +21122,10 @@ class SEn extends S {
       'Response via your Claude API. Your exact salary is NOT sent — only your age, canton and archetype are shared.';
 
   @override
+  String get coachTransparencyServer =>
+      'Response via the Claude API (MINT server key). Your message is shared as-is to personalize the response.';
+
+  @override
   String get dataTransparencyTitle => 'How MINT uses your data';
 
   @override

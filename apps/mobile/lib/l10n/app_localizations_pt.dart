@@ -21237,6 +21237,10 @@ class SPt extends S {
       'Resposta via a tua API Claude. O teu salário exato NÃO é enviado — apenas a tua idade, cantão e arquétipo são partilhados.';
 
   @override
+  String get coachTransparencyServer =>
+      'Resposta via a API Claude (chave servidor MINT). A tua mensagem é partilhada tal como está para personalizar a resposta.';
+
+  @override
   String get dataTransparencyTitle => 'Como o MINT usa os teus dados';
 
   @override

@@ -21230,6 +21230,10 @@ class SFr extends S {
       'Réponse via ton API Claude. Ton salaire exact n\'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.';
 
   @override
+  String get coachTransparencyServer =>
+      'Réponse via l\'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse.';
+
+  @override
   String get dataTransparencyTitle => 'Comment MINT utilise tes données';
 
   @override

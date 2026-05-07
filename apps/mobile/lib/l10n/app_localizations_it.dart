@@ -21290,6 +21290,10 @@ class SIt extends S {
       'Risposta tramite la tua API Claude. Il tuo stipendio esatto NON viene inviato — solo età, cantone e archetipo sono condivisi.';
 
   @override
+  String get coachTransparencyServer =>
+      'Risposta tramite l\'API Claude (chiave server MINT). Il tuo messaggio è condiviso così com\'è per personalizzare la risposta.';
+
+  @override
   String get dataTransparencyTitle => 'Come MINT usa i tuoi dati';
 
   @override

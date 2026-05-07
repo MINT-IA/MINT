@@ -2293,9 +2293,23 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 42),
                       child: Text(
-                        msg.tier == ChatTier.slm
-                            ? S.of(context)!.coachTransparencySLM
-                            : S.of(context)!.coachTransparencyBYOK,
+                        // P2 walkthrough fix (2026-05-07): the binary
+                        // `slm ? SLM-copy : BYOK-copy` was wrong for
+                        // ChatTier.fallback (server-key path used by mode-
+                        // local + non-BYOK auth users) — it claimed « via
+                        // ton API Claude » when in fact the call goes via
+                        // the MINT server key, AND it claimed « ton salaire
+                        // exact n'est PAS envoyé » even though the user's
+                        // chat message (which may include CHF amounts) is
+                        // shipped verbatim. New `coachTransparencyServer`
+                        // copy is honest about the server-key path.
+                        switch (msg.tier) {
+                          ChatTier.slm => S.of(context)!.coachTransparencySLM,
+                          ChatTier.byok => S.of(context)!.coachTransparencyBYOK,
+                          ChatTier.fallback =>
+                            S.of(context)!.coachTransparencyServer,
+                          ChatTier.none => '',
+                        },
                         style: MintTextStyles.micro(
                           color: MintColors.textMuted.withValues(alpha: 0.5),
                         ).copyWith(
