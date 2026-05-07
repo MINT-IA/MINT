@@ -347,6 +347,50 @@ void main() {
 
       expect(find.text('Retour'), findsOneWidget);
     });
+
+    // BUG-W2026-07: register screen had no persistent back affordance — user
+    // had to scroll past 5 fields + 4 checkboxes to reach the bottom "Retour"
+    // link. We now expose an `AppBar` with a leading back IconButton that
+    // stays pinned to the top regardless of scroll.
+    testWidgets(
+        'has persistent top-bar back button (BUG-W2026-07)',
+        (tester) async {
+      await tester.pumpWidget(buildAuthTestable(const RegisterScreen()));
+      await tester.pump();
+
+      // 1. AppBar exists.
+      expect(find.byType(AppBar), findsOneWidget);
+
+      // 2. Leading icon is the back arrow, and it lives inside the AppBar
+      //    (not somewhere else in the tree).
+      final backIconInAppBar = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byIcon(Icons.arrow_back),
+      );
+      expect(backIconInAppBar, findsOneWidget);
+
+      // 3. The back IconButton is tappable (i.e. has an onPressed wired).
+      final backButton = find.ancestor(
+        of: backIconInAppBar,
+        matching: find.byType(IconButton),
+      );
+      expect(backButton, findsOneWidget);
+      final iconButton = tester.widget<IconButton>(backButton);
+      expect(iconButton.onPressed, isNotNull);
+
+      // 4. Persistence: scroll the form to the bottom — the AppBar back
+      //    button must still be on screen.
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -800));
+      await tester.pump();
+      expect(
+        find.descendant(
+          of: find.byType(AppBar),
+          matching: find.byIcon(Icons.arrow_back),
+        ),
+        findsOneWidget,
+      );
+    });
   });
 
   // ===========================================================================
