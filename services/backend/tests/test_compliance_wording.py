@@ -48,6 +48,7 @@ GUARDRAIL_FILES = {
     "claude_coach_service.py",         # system prompt with banned terms list
     "coach_tools.py",                  # tool schema with banned terms reminder
     "vision_guard.py",                 # LLM-as-judge prompt: literally lists banned terms
+    "anonymous_chat.py",               # endpoint meta-prompt instructs LLM about LSFin banned vocabulary
     # Dart
     "compliance_guard.dart",
     "coach_checkin_screen.dart",

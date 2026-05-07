@@ -1832,6 +1832,13 @@ class MintScreenRegistry extends ScreenRegistry {
     preferFromChat: false,
   );
 
+  static const ScreenEntry _settingsCoachTone = ScreenEntry(
+    route: '/settings/coach-tone',
+    intentTag: 'settings_coach_tone',
+    behavior: ScreenBehavior.conversationPure,
+    preferFromChat: false,
+  );
+
   // ════════════════════════════════════════════════════════════════
   //  MASTER LIST — all surfaces
   // ════════════════════════════════════════════════════════════════
@@ -1998,6 +2005,7 @@ class MintScreenRegistry extends ScreenRegistry {
     _toolsTab,
     _settingsConfidentialite,
     _settingsLangue,
+    _settingsCoachTone,
   ];
 
   // ════════════════════════════════════════════════════════════════

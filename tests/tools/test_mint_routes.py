@@ -94,14 +94,13 @@ def test_missing_token_returns_71(monkeypatch):
 # ---------- DRY_RUN health output ----------
 
 
-def test_health_dry_run_produces_151_json_lines():
-    # Baseline bumped 152 → 151 on 2026-05-06 (route registry drift since
-    # PR #479 ; same pattern as the 152→153 / 43→44 redirect-count
-    # adjustments — see memory `feedback_audit_verification_logs.md`).
+def test_health_dry_run_produces_152_json_lines():
+    # Baseline bumped 151 → 152 on 2026-05-07 (Phase 91-01 added
+    # /settings/coach-tone route for persona toggle migration).
     r = _run(["health", "--json"], env_extra={"MINT_ROUTES_DRY_RUN": "1"})
     assert r.returncode == 0, r.stderr.decode()[:400]
     lines = [ln for ln in r.stdout.decode().splitlines() if ln.strip()]
-    assert len(lines) == 151, "expected 151 JSON lines, got {}".format(
+    assert len(lines) == 152, "expected 152 JSON lines, got {}".format(
         len(lines)
     )
 
@@ -113,7 +112,7 @@ def test_health_dry_run_owner_filter():
     )
     assert r.returncode == 0
     lines = [ln for ln in r.stdout.decode().splitlines() if ln.strip()]
-    assert 0 < len(lines) < 151
+    assert 0 < len(lines) < 152
 
 
 def test_no_color_env_var_suppresses_ansi():
