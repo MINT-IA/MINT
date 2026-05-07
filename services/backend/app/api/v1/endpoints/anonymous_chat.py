@@ -375,6 +375,32 @@ async def anonymous_chat(
 
     db.commit()
 
+    # ──────────────────────────────────────────────────────────────────
+    # OBS-03 (Plan 96-03) — emit the 4 compliance tags on the in-flight
+    # Sentry transaction. Reuses the EXACT values just persisted to
+    # coach_message_audits (no double-compute): banned_term_hit=False is
+    # already pinned for the discovery prompt path (ComplianceGuardrails
+    # filters upstream), eclairage_kind mirrors the audit row, archetype
+    # is the constant "anonymous". eval_score = "unavailable" until the
+    # Phase 95 promptfoo YAMLs land. Best-effort — never breaks the
+    # response.
+    # ──────────────────────────────────────────────────────────────────
+    try:
+        from app.utils.sentry_audit_tags import (
+            emit_sentry_audit_tags as _emit_sentry_audit_tags,
+        )
+
+        _emit_sentry_audit_tags(
+            eclairage_kind=(eclairage.kind if eclairage is not None else None),
+            banned_term_hit=False,
+            eval_score="unavailable",
+            archetype="anonymous",
+        )
+    except Exception as _tag_exc:  # pragma: no cover — best-effort
+        logger.warning(
+            "OBS-03 sentry tag emit (anonymous) failed: %s", _tag_exc
+        )
+
     # --- Step 7: Return response ---
     return AnonymousChatResponse(
         message=result["answer"],

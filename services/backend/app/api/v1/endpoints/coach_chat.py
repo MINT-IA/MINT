@@ -2539,6 +2539,29 @@ async def coach_chat(
                         sentry_sdk.set_tag("audit_emitted", "true")
                     except Exception:  # pragma: no cover
                         pass
+
+                    # OBS-03 — emit the 4 compliance tags (eclairage_kind,
+                    # banned_term_hit, eval_score, archetype). Reuses the
+                    # exact values just persisted to coach_message_audits
+                    # (no double-compute). eval_score = "unavailable"
+                    # until Phase 95 promptfoo YAMLs land — the string
+                    # fallback keeps the tag filterable.
+                    try:
+                        from app.utils.sentry_audit_tags import (
+                            emit_sentry_audit_tags as _emit_sentry_audit_tags,
+                        )
+
+                        _emit_sentry_audit_tags(
+                            eclairage_kind="fatca_handoff",
+                            banned_term_hit=False,
+                            eval_score="unavailable",
+                            archetype="expat_us",
+                        )
+                    except Exception as _tag_exc:  # pragma: no cover — best-effort
+                        logger.warning(
+                            "OBS-03 sentry tag emit (fatca) failed: %s",
+                            _tag_exc,
+                        )
                 except Exception as _audit_exc:  # pragma: no cover — best-effort
                     logger.warning(
                         "fatca handoff audit insert failed: %s", _audit_exc
@@ -2758,6 +2781,29 @@ async def coach_chat(
             sentry_sdk.set_tag("audit_emitted", "true")
         except Exception:
             pass
+
+        # OBS-03 — emit the 4 compliance tags. Reuses the EXACT values
+        # already persisted to coach_message_audits above (no
+        # double-compute: _banned_hit was scanned once, audit.archetype
+        # was derived once, eclairage_kind=None on this path). eval_score
+        # is the string "unavailable" until Phase 95 promptfoo YAMLs
+        # land — the helper formats numeric scores when they arrive.
+        try:
+            from app.utils.sentry_audit_tags import (
+                emit_sentry_audit_tags as _emit_sentry_audit_tags,
+            )
+
+            _emit_sentry_audit_tags(
+                eclairage_kind=None,
+                banned_term_hit=_banned_hit,
+                eval_score="unavailable",
+                archetype=audit.archetype,
+            )
+        except Exception as _tag_exc:  # pragma: no cover — best-effort
+            logger.warning(
+                "OBS-03 sentry tag emit (coach normal) failed: %s",
+                _tag_exc,
+            )
     except Exception as audit_exc:  # pragma: no cover — best-effort
         logger.warning("coach_message_audit insert failed: %s", audit_exc)
         try:
