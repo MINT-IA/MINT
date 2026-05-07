@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.14
 milestone_name: Living MINT
-status: executing
-stopped_at: Phase 92 shipped (commit 75f72c3a). Vault upload typed converter + SHA256 idempotency + Cap recompute wiring. 15 new tests. BUG #4 P0 closed. Advancing to Phase 93 (Compliance Hardening — audit log + FATCA gating + simulator confidence badges).
-last_updated: "2026-05-06T23:30:00.000Z"
-last_activity: 2026-05-06
+status: julien-action-blocked
+stopped_at: Autonomous run shipped 11/11 disposable plans across Phases 91-95 + partial 96/97. Phases 91/92/93/94/95 ✅ FULLY CLOSED. Phase 96 ✅ OBS-03 (Sentry tags) shipped (32121f23) ; OBS-01 + OBS-02 require Julien-action (Slack channel, Sentry alert UI, Checkly account, env secrets). Phase 97 ✅ SHIP-03 Control Matrix shipped (8da43a46, coverage 1.00) + SHIP-04 Counsel brief scaffolded (6fd460ac) ; SHIP-01 (Maestro) + SHIP-02 (TestFlight cohort) + SHIP-04 final sign-off PDF require Julien-action (counsel selection + 5 tester recruitment + NDA + App Store Connect). 22 commits on feat/phase-A-e2e-unblock, NOT pushed. Awaiting Julien checkpoint review.
+last_updated: "2026-05-07T00:00:00.000Z"
+last_activity: 2026-05-07
 progress:
   total_phases: 7
-  completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 28
+  completed_phases: 5
+  total_plans: 18
+  completed_plans: 16
+  percent: 78
 ---
 
 # GSD State: MINT v2.14 — Living MINT

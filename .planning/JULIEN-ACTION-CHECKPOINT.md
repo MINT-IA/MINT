@@ -1,0 +1,101 @@
+# Julien Action Checkpoint — v2.14 « Living MINT »
+
+**Generated:** 2026-05-07
+**Status:** Autonomous run halted at the human-in-the-loop boundary. 16/18 plans shipped on `feat/phase-A-e2e-unblock` (22 commits, NOT pushed). 4 plans require operational decisions only Julien can make.
+
+---
+
+## What's done (no action needed)
+
+| Phase | Plans | Commits | Outcome |
+|-------|-------|---------|---------|
+| 91 Vivant Proactive Primitives | 4/4 | 46928ec2 / d5cb375f / e757d3f5 / 09f28d06 | BUG #5 P0 closed — proactive push, cross-session opener, interrupt banner wired, persona toggle persistent |
+| 92 Documents Vault Typed Wiring | 1/1 | 75f72c3a | BUG #4 P0 closed — typed converter + SHA256 idempotency + Cap recompute |
+| 93 Compliance Hardening | 3/3 | 36936875 / ca02dd42 / 6f95b384 | BUG #18 P0 + #21 P1 + #22 P1 closed — audit log 10y + simulator badges + FATCA gating |
+| 94 Compliance Polish | 1/1 | cb5a8bdc | BUG #20/12/23 closed — eclairage 6-locale, EN LSFin→FinSA, benchmark constant |
+| 95 Test Infrastructure Réelle | 4/4 | bb049b84 / 6f04ab2e / 7fdf98dd / ed73d989 | TEST-01..05 — promptfoo / Pact / alembic / testcontainers / VCR — all DISABLED until activation |
+| 96 OBS-03 Sentry tags | 1/3 | 32121f23 | Sentry tags reuse Phase 93-01 audit hook data |
+| 97 SHIP-03 Control Matrix | 1/4 | 8da43a46 | 17/17 FinSA controls GREEN, coverage 1.00 |
+| 97 SHIP-04 scaffold | scaffold | 6fd460ac | Counsel brief drafted (public + internal); sign-off PDF path reserved |
+
+---
+
+## What's blocked (Julien input required)
+
+### Phase 96 OBS-01 — Sentry release-health alert (Plan 96-01)
+**Cost:** $0/mo (Sentry Developer free tier)
+**Action sequence:**
+1. Create Slack channel `#mint-alerts`
+2. Install Sentry → Slack OAuth integration in Sentry workspace
+3. Create alert rule OBS-01a (mobile crash-free < 99.5% rolling 1h → Slack)
+4. Create alert rule OBS-01b (backend 5xx rate spike → Slack)
+5. Run 2 canary scripts (mobile + backend) to verify both alerts fire end-to-end
+
+### Phase 96 OBS-02 — Checkly synthetic probes (Plan 96-02)
+**Cost:** $0/mo (Hobby tier with 10-min cron — accepted trade-off vs $30/mo Team 5-min)
+**Action sequence:**
+1. Create Checkly account on Hobby tier
+2. Generate `CHECKLY_API_KEY` + `CHECKLY_ACCOUNT_ID`
+3. Create staging user `checkly@mint.test` on staging Postgres
+4. Add 3 GitHub Actions secrets (above + Slack webhook for `#mint-alerts`)
+5. Run 7-min Railway suspend drill — verify Slack message arrives
+
+### Phase 97 SHIP-01 — Maestro suite (Plan 97-01)
+**Cost:** $0 (local Maestro CLI, Cloud deferred to v2.15)
+**Action sequence:**
+1. Provide 5 staging tester credentials in `apps/mobile/.maestro/.env.tester` (gitignored)
+2. Confirm 3-device matrix (iPhone 17 Pro / iPhone SE / iPad mini sims) attached via idb
+
+### Phase 97 SHIP-02 — TestFlight Internal NDA cohort (Plan 97-02)
+**Cost:** $0 (TestFlight Internal Testers free)
+**Action sequence:**
+1. Identify 5 Swiss-FR friends matching archetype mix (2 swiss_native, 1 expat_eu, 1 expat_us, 1 cross_border)
+2. Collect 5 signed NDAs
+3. Add 5 testers to App Store Connect Internal Testers
+4. Confirm banner ARB copy alignment for « pré-conformité, données non recommandées »
+5. Merge `dev → staging` (fires `testflight.yml`, build 2.14.0+1)
+6. Verify Sentry release-health ≥ 99.5% over rolling 24h post-adoption
+
+### Phase 97 SHIP-04 — Swiss fintech counsel sign-off (Plan 97-04 close)
+**Cost:** CHF 800-1'200 one-time
+**Action sequence:**
+1. Request 3 fee quotes from Pestalozzi / Lenz & Staehelin / Vischer
+2. Pick firm + book 1h slot
+3. Send NDA + brief (`docs/compliance/COUNSEL_BRIEF.md`)
+4. Attend 1h call covering 3 questions (FinSA art. 8 al. 6 line / OAR-G art. 24 retention / pre-licensing scope)
+5. File signed PDF at `.planning/compliance/counsel-signoff-2026-05.pdf`
+6. Flip `docs/EVIDENCE.md` row 2 to GREEN
+
+---
+
+## Cost summary
+
+- Phase 91-95 + 96-03 + 97-03/04 scaffolds: **$0/mo** (everything ships disabled until activation)
+- Phase 96 OBS-01: $0/mo (Sentry Developer free)
+- Phase 96 OBS-02: $0/mo (Checkly Hobby + 10-min cron)
+- Phase 97 SHIP-04: CHF 800-1'200 **one-time**
+- **Total recurring at full ship: $0/mo**
+- **Total one-time: CHF 800-1'200 (counsel)**
+
+Activation triggers (manual flag flips after launch):
+- promptfoo nightly cron (~$60/mo Anthropic)
+- VCR cassette nightly rewrite (~$45/mo Anthropic)
+- Checkly Team tier upgrade if 5-min cron needed (~$30/mo)
+
+---
+
+## Suggested deadlines (D-day = Julien resumes work)
+
+- D+1 — Slack channel + Sentry alerts + Checkly account creation (OBS-01 + OBS-02 unblock)
+- D+1 — request 3 counsel fee quotes (SHIP-04 long-lead)
+- D+2 — pick counsel firm, send brief
+- D+2 — identify 5 testers + draft NDAs
+- D+3-D+4 — collect signed NDAs, add testers to App Store Connect, ARB banner copy lock
+- D+5 — merge dev→staging, fire testflight.yml
+- D+6 — counsel call
+- D+6 — start 24h Sentry crash-free soak
+- D+7 — file counsel sign-off PDF, flip EVIDENCE row 2, ship 🟢
+
+---
+
+*Generated by autonomous gsd-autonomous run, halted at the human-in-the-loop boundary per `feedback_blockers_ask_dont_defer.md`.*
