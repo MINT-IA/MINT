@@ -19,8 +19,14 @@
 //   • One-shot per device (SharedPreferences flag).
 //   • Calm Handoff 2 voice — Fraunces italic em on key words.
 //   • Single CTA « Je comprends, on y va » dismisses.
-//   • « En savoir plus » deeplinks to the Privacy Center URL.
 //   • A11y semantics with announced label for screen readers.
+//
+//  BUG-W2026-02 (2026-05-07) — the secondary « En savoir plus » link
+//  was removed : it deeplinked to https://mint.ch/privacy via Safari
+//  but the destination has no actual « About MINT en test » article,
+//  so testers / journalists landed on a generic mint.ch page and lost
+//  trust. The 4-bullet content (no advice, no bank, data local) +
+//  semantics label are self-contained and explanatory enough.
 //
 //  Usage :
 //   await BetaProgramDisclosureSheet.maybeShow(context);
@@ -31,7 +37,6 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -42,18 +47,7 @@ const String _kBetaDisclosureSeenKey = 'mint_beta_disclosure_seen';
 /// First-launch beta disclosure sheet. One-shot per device install.
 /// Apple TestFlight beta review + FINMA fintech sandbox compliance.
 class BetaProgramDisclosureSheet extends StatelessWidget {
-  /// Optional override of the « En savoir plus » deeplink URL.
-  /// Defaults to https://mint.ch/privacy.
-  final Uri privacyUrl;
-
-  // Non-const ctor: Uri.parse is not a const expression. Surface this
-  // as a regular ctor so callers don't try to const-instantiate it.
-  BetaProgramDisclosureSheet({
-    super.key,
-    Uri? privacyUrl,
-  }) : privacyUrl = privacyUrl ?? _defaultPrivacyUrl;
-
-  static final Uri _defaultPrivacyUrl = Uri.parse('https://mint.ch/privacy');
+  const BetaProgramDisclosureSheet({super.key});
 
   /// Show the sheet if it hasn't been acknowledged on this device yet.
   /// No-op when the SharedPreferences flag is already set.
@@ -81,7 +75,7 @@ class BetaProgramDisclosureSheet extends StatelessWidget {
       isDismissible: false,
       enableDrag: false,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => BetaProgramDisclosureSheet(),
+      builder: (ctx) => const BetaProgramDisclosureSheet(),
     );
     return true;
   }
@@ -98,12 +92,6 @@ class BetaProgramDisclosureSheet extends StatelessWidget {
   static Future<void> resetForTest() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_kBetaDisclosureSeenKey);
-  }
-
-  Future<void> _openPrivacyUrl(BuildContext context) async {
-    if (await canLaunchUrl(privacyUrl)) {
-      await launchUrl(privacyUrl, mode: LaunchMode.externalApplication);
-    }
   }
 
   Future<void> _onAcknowledge(BuildContext context) async {
@@ -198,21 +186,6 @@ class BetaProgramDisclosureSheet extends StatelessWidget {
                 child: Text(
                   l.betaDisclosureCta,
                   style: MintTextStyles.titleMedium(color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 8),
-              // Secondary — Privacy URL.
-              TextButton(
-                onPressed: () => _openPrivacyUrl(context),
-                style: TextButton.styleFrom(
-                  foregroundColor: MintColors.textSecondaryAaa,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                ),
-                child: Text(
-                  l.betaDisclosureLearnMore,
-                  style: MintTextStyles.bodySmall(
-                    color: MintColors.textSecondaryAaa,
-                  ).copyWith(decoration: TextDecoration.underline),
                 ),
               ),
             ],

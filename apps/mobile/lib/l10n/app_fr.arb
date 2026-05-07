@@ -12110,10 +12110,6 @@
   "@betaDisclosureCta": {
     "description": "Beta disclosure sheet — primary acknowledgement CTA."
   },
-  "betaDisclosureLearnMore": "En savoir plus",
-  "@betaDisclosureLearnMore": {
-    "description": "Beta disclosure sheet — secondary CTA opening the privacy URL."
-  },
   "betaDisclosureSemanticsLabel": "Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l'appareil par défaut.",
   "@betaDisclosureSemanticsLabel": {
     "description": "Beta disclosure sheet — accessibility container label."

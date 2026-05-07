@@ -23138,9 +23138,6 @@ class SFr extends S {
   String get betaDisclosureCta => 'Je comprends, on y va';
 
   @override
-  String get betaDisclosureLearnMore => 'En savoir plus';
-
-  @override
   String get betaDisclosureSemanticsLabel =>
       'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l\'appareil par défaut.';
 }
