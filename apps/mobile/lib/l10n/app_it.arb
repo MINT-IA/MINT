@@ -9972,6 +9972,7 @@
   "bankImportTransparency": "Il tuo estratto conto viene inviato criptato al nostro server svizzero per l'analisi. Le transazioni vengono categorizzate, poi il file originale viene eliminato. Solo i riepiloghi per categoria vengono conservati nel tuo profilo.",
   "coachTransparencySLM": "Risposta generata sul tuo telefono. Niente inviato a un server.",
   "coachTransparencyBYOK": "Risposta tramite la tua API Claude. Il tuo stipendio esatto NON viene inviato — solo età, cantone e archetipo sono condivisi.",
+  "coachTransparencyServer": "Risposta tramite l'API Claude (chiave server MINT). Il tuo messaggio è condiviso così com'è per personalizzare la risposta.",
   "dataTransparencyTitle": "Come MINT usa i tuoi dati",
   "dataTransparencySalary": "Quando inserisci il tuo stipendio",
   "dataTransparencySalaryDetail": "Salvato solo sul tuo telefono. Mai inviato.",

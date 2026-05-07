@@ -9972,6 +9972,7 @@
   "bankImportTransparency": "Dein Kontoauszug wird verschlüsselt an unseren Schweizer Server zur Analyse gesendet. Transaktionen werden kategorisiert, dann wird die Rohdatei gelöscht. Nur Kategorie-Zusammenfassungen bleiben in deinem Profil.",
   "coachTransparencySLM": "Antwort auf deinem Telefon generiert. Nichts an einen Server gesendet.",
   "coachTransparencyBYOK": "Antwort über deine Claude-API. Dein genaues Gehalt wird NICHT gesendet — nur Alter, Kanton und Archetyp werden geteilt.",
+  "coachTransparencyServer": "Antwort über die Claude-API (MINT-Serverschlüssel). Deine Nachricht wird wie eingegeben geteilt, um die Antwort zu personalisieren.",
   "dataTransparencyTitle": "Wie MINT deine Daten verwendet",
   "dataTransparencySalary": "Wenn du dein Gehalt eingibst",
   "dataTransparencySalaryDetail": "Nur auf deinem Telefon gespeichert. Nie gesendet.",

@@ -9972,6 +9972,7 @@
   "bankImportTransparency": "O teu extrato é enviado encriptado para o nosso servidor suíço para análise. As transações são categorizadas e depois o ficheiro original é eliminado. Apenas os resumos por categoria são mantidos no teu perfil.",
   "coachTransparencySLM": "Resposta gerada no teu telemóvel. Nada enviado para um servidor.",
   "coachTransparencyBYOK": "Resposta via a tua API Claude. O teu salário exato NÃO é enviado — apenas a tua idade, cantão e arquétipo são partilhados.",
+  "coachTransparencyServer": "Resposta via a API Claude (chave servidor MINT). A tua mensagem é partilhada tal como está para personalizar a resposta.",
   "dataTransparencyTitle": "Como o MINT usa os teus dados",
   "dataTransparencySalary": "Quando introduzes o teu salário",
   "dataTransparencySalaryDetail": "Guardado apenas no teu telemóvel. Nunca enviado.",

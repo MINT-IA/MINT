@@ -21233,6 +21233,10 @@ class SEs extends S {
       'Respuesta a través de tu API Claude. Tu salario exacto NO se envía — solo tu edad, cantón y arquetipo se comparten.';
 
   @override
+  String get coachTransparencyServer =>
+      'Respuesta a través de la API Claude (clave servidor MINT). Tu mensaje se comparte tal cual para personalizar la respuesta.';
+
+  @override
   String get dataTransparencyTitle => 'Cómo MINT usa tus datos';
 
   @override

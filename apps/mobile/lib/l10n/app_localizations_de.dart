@@ -21280,6 +21280,10 @@ class SDe extends S {
       'Antwort über deine Claude-API. Dein genaues Gehalt wird NICHT gesendet — nur Alter, Kanton und Archetyp werden geteilt.';
 
   @override
+  String get coachTransparencyServer =>
+      'Antwort über die Claude-API (MINT-Serverschlüssel). Deine Nachricht wird wie eingegeben geteilt, um die Antwort zu personalisieren.';
+
+  @override
   String get dataTransparencyTitle => 'Wie MINT deine Daten verwendet';
 
   @override

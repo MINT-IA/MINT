@@ -37317,6 +37317,12 @@ abstract class S {
   /// **'Réponse via ton API Claude. Ton salaire exact n\'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.'**
   String get coachTransparencyBYOK;
 
+  /// No description provided for @coachTransparencyServer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse via l\'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse.'**
+  String get coachTransparencyServer;
+
   /// No description provided for @dataTransparencyTitle.
   ///
   /// In fr, this message translates to:
