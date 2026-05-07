@@ -79,6 +79,15 @@ class FeatureFlags {
   /// Admin screens: observability, analytics
   static bool enableAdminScreens = false;
 
+  /// Bring-your-own-key (BYOK): user pastes their own Anthropic / OpenAI /
+  /// Mistral API key. Out-of-scope for MVP per `project_byok_scope.md` —
+  /// current builds use ServerKey (MINT's Anthropic key on Railway). The
+  /// settings entry was visible in v2.x QA builds and confused testers
+  /// (« do I need to bring a key? »). v2.14 hides the menu entry until
+  /// BYOK lands; the underlying screen + service remain available behind
+  /// `/profile/byok` for internal testing.
+  static bool enableByok = false;
+
   /// MVP wedge onboarding — storyboard v2 locked (2026-04-22).
   /// 9-step flow with 4 intents, dossier densification, and 3 N2 scenes
   /// (RenteTrouee / CapaciteAchat / 3aLevier) before magic-link sealing.
