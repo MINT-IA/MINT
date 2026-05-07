@@ -1,0 +1,37 @@
+name: Stale PR auto-close
+
+on:
+  schedule:
+    # 09:00 UTC daily (10/11 CH local depending on DST)
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-pr-stale: 7
+          days-before-pr-close: 14
+          stale-pr-message: |
+            🧹 This PR has been inactive for 7 days. It will auto-close in 7 days unless reopened with a comment, a new commit, or removal of the `stale` label.
+
+            If this is still active work, please:
+            - Push a new commit, or
+            - Comment with the reason for delay, or
+            - Remove the `stale` label.
+
+            Hygiene rule: PRs that sit unmerged for >2 weeks block roadmap clarity.
+          close-pr-message: |
+            🔒 Closing — inactive 14 days, no signal of resumption. The branch will be deleted on close per repo policy. Reopen if work resumes.
+          stale-pr-label: stale
+          exempt-pr-labels: 'pinned,blocked,security,do-not-merge'
+          delete-branch: true
+          # Issues: leave alone (we don't track work via issues here).
+          days-before-issue-stale: -1
+          days-before-issue-close: -1

@@ -35,6 +35,19 @@ pre-commit:
       glob: ".planning/**/*.md"
       tags: [wiki, planning]
 
+pre-push:
+  parallel: false
+  commands:
+    route-arb-migration-checklist:
+      # Hardens the « pre-push checklist » memory feedback into actual code.
+      # Runs only when the diff vs upstream touches one of: GoRouter routes
+      # (app.dart / screen_registry.dart), ARB files (l10n/app_*.arb), or
+      # alembic migration versions (services/backend/alembic/versions/*.py).
+      # Fails the push if the relevant local tests / parity scripts are red.
+      # Bypass with LEFTHOOK_BYPASS=1 git push (CLAUDE.md §5 grep-able).
+      run: bash tools/checks/pre_push_route_arb_migration.sh
+      tags: [pre-push, hygiene]
+
 skip:
   - merge
   - rebase
