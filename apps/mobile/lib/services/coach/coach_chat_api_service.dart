@@ -183,6 +183,21 @@ class CoachChatApiService {
         .timeout(const Duration(seconds: 50));
   }
 
+  /// Sync local message count from a `/anonymous/chat` 200 response.
+  ///
+  /// Only writes when the response actually carries an int `messagesRemaining`.
+  /// Treating absence (or a wrong type) as 0 made `count = 3 - 0 = 3` and
+  /// locked the user out on their first reply when the backend dropped the key.
+  @visibleForTesting
+  static Future<void> syncAnonymousRemainingFromResponse(
+    Map<String, dynamic> json,
+  ) async {
+    final remaining = json['messagesRemaining'];
+    if (remaining is int) {
+      await AnonymousSessionService.updateFromResponse(remaining);
+    }
+  }
+
   /// Send a message to the anonymous chat endpoint (no auth required).
   ///
   /// Uses device-scoped session ID via [AnonymousSessionService].
@@ -219,8 +234,7 @@ class CoachChatApiService {
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
-        final remaining = json['messagesRemaining'] as int? ?? 0;
-        await AnonymousSessionService.updateFromResponse(remaining);
+        await syncAnonymousRemainingFromResponse(json);
         return json;
       } else if (response.statusCode == 429) {
         await AnonymousSessionService.updateFromResponse(0);
