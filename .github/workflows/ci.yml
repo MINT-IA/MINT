@@ -631,10 +631,36 @@ jobs:
           fi
           echo "[OK] .cache/ is gitignored"
 
+  # ─── Phase 97 Plan 97-03 / SHIP-03: FinSA Control Matrix coverage ─
+  # Greenfield merge-blocking gate on docs/compliance/CONTROL_MATRIX.md.
+  # Coverage formula = GREEN / (GREEN + AMBER + RED) — DEFERRED rows
+  # excluded from denominator (future-state placeholder, not a failure).
+  # Defensive normalisation downgrades any row to RED if the anchor cell
+  # is empty / AMBER if the test_id cell is empty, regardless of the
+  # declared Status column (mitigates T-97-03-01 « lie via Status »).
+  #
+  # Pure-stdlib script + 10-test pytest suite. Runs in <5 s. Always-on
+  # (not paths-filtered) since the matrix is the FinSA evidence backbone
+  # for the v2.14 ship gate.
+  control-matrix-coverage:
+    name: FinSA Control Matrix coverage (SHIP-03)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pytest
+        run: pip install pytest
+      - name: Coverage gate (>= 0.95 GREEN ratio)
+        run: python3 tools/checks/control_matrix_coverage.py --threshold 0.95 --json
+      - name: Coverage script unit tests
+        run: pytest tools/checks/test_control_matrix_coverage.py -v --tb=short
+
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, control-matrix-coverage]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -649,6 +675,7 @@ jobs:
           cli_tests="${{ needs.mint-routes-tests.result }}"
           admin_sanity="${{ needs.admin-build-sanity.result }}"
           cache_gi="${{ needs.cache-gitignore-check.result }}"
+          control_matrix="${{ needs.control-matrix-coverage.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
@@ -657,8 +684,9 @@ jobs:
           [[ "$cli_tests" == "skipped" ]] && cli_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          [[ "$control_matrix" == "skipped" ]] && control_matrix="success"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$control_matrix" != "success" ]]; then
+            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi control_matrix=$control_matrix"
             exit 1
           fi
           echo "All checks passed"
