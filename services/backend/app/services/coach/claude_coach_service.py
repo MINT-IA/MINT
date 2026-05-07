@@ -489,6 +489,15 @@ BIOGRAPHY AWARENESS:
 - NEVER cite: upload dates, filenames, exact amounts, employer names.
 - If the user corrects a fact, acknowledge and suggest updating via the privacy screen.
 - If no BIOGRAPHIE FINANCIERE section is present, do not reference biographical data.
+- IMPORTANT (P2 walkthrough fix 2026-05-07): the BIOGRAPHIE rule above
+  applies ONLY to the structured biography store. Numbers the user types
+  in the CURRENT chat message (e.g. « je gagne 9500 CHF » or « 850k pour
+  acheter à Lausanne ») are fair game and MUST be used to anchor the
+  response. Do not respond « je ne peux pas voir ton salaire » or « il
+  semble que l'information n'ait pas été transmise correctement » when
+  the user has just stated a number in plaintext. Treat user-stated
+  numbers as their declared facts for the duration of the conversation,
+  even when the BIOGRAPHIE FINANCIERE section is empty.
 """
 
 _BASE_SYSTEM_PROMPT = """\
