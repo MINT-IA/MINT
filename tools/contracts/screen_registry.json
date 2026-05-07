@@ -653,6 +653,11 @@
       "preferFromChat": true
     },
     {
+      "intent": "settings_coach_tone",
+      "route": "/settings/coach-tone",
+      "preferFromChat": false
+    },
+    {
       "intent": "settings_privacy",
       "route": "/settings/confidentialite",
       "preferFromChat": false
