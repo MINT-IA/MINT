@@ -11179,9 +11179,5 @@
   "@betaDisclosureCta": {
     "x-mint-meta": {"level": "N1"}
   },
-  "betaDisclosureLearnMore": "Scopri di più",
-  "@betaDisclosureLearnMore": {
-    "x-mint-meta": {"level": "N1"}
-  },
   "betaDisclosureSemanticsLabel": "Informazioni sulla versione beta di MINT — solo strumento educativo, nessuna consulenza finanziaria, i dati restano sul tuo dispositivo per impostazione predefinita."
 }

@@ -6,12 +6,11 @@
 //   • maybeShow no-op when SharedPreferences flag is set
 //   • maybeShow shows sheet when flag is unset, persists flag on dismiss
 //   • CTA tap dismisses sheet + sets flag
-//   • « En savoir plus » TextButton renders + is tappable
+//   • « En savoir plus » link is NOT rendered (BUG-W2026-02 — link removed
+//     because mint.ch had no destination article ; users were leaking to
+//     Safari with no content. The 4-bullet copy is self-contained.)
 //   • Headline renders Fraunces italic em (TextSpan walk)
 //   • Semantics label is announced for screen readers
-//
-//  Note: url_launcher isn't mocked in widget tests — the canLaunchUrl
-//  guard in _openPrivacyUrl prevents crashes during test runs.
 // ────────────────────────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
@@ -85,9 +84,15 @@ void main() {
     expect(find.byType(BetaProgramDisclosureSheet), findsOneWidget);
     // Headline pieces are visible.
     expect(_treeContainsText(tester, 'apprend avec toi'), isTrue);
-    // CTA + secondary visible.
+    // Primary CTA visible.
     expect(_treeContainsText(tester, 'Je comprends'), isTrue);
-    expect(_treeContainsText(tester, 'En savoir plus'), isTrue);
+    // BUG-W2026-02 : the « En savoir plus » secondary link must NOT render.
+    // It used to deeplink https://mint.ch/privacy via Safari, but the
+    // destination has no « About MINT en test » article, so testers landed
+    // on a generic mint.ch page. Link dropped ; the 4-bullet copy (no
+    // advice / no bank / data local) + semantics label are self-contained.
+    expect(_treeContainsText(tester, 'En savoir plus'), isFalse);
+    expect(find.byType(TextButton), findsNothing);
   });
 
   testWidgets('CTA tap dismisses sheet and persists the flag',
