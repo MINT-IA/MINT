@@ -1,0 +1,261 @@
+{
+  "consumer": {
+    "name": "mint_mobile"
+  },
+  "provider": {
+    "name": "mint_backend"
+  },
+  "interactions": [
+    {
+      "description": "POST /anonymous/chat — first user turn during anonymous discovery flow",
+      "providerStates": [
+        {
+          "name": "anonymous session exists",
+          "params": {
+            "session_id": "11111111-1111-4111-8111-111111111111",
+            "message_count": 0
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/anonymous/chat",
+        "headers": {
+          "Content-Type": "application/json",
+          "X-Anonymous-Session": "11111111-1111-4111-8111-111111111111",
+          "X-App-Version": "1.0.0"
+        },
+        "body": {
+          "message": "Bonjour, j'aimerais comprendre ma situation financiere.",
+          "language": "fr"
+        },
+        "matchingRules": {
+          "header": {
+            "X-Anonymous-Session": {
+              "matchers": [
+                {"match": "regex", "regex": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"}
+              ]
+            }
+          },
+          "body": {
+            "$.message": {"matchers": [{"match": "type"}]},
+            "$.language": {"matchers": [{"match": "regex", "regex": "^(fr|de|en|it)$"}]}
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "message": "Je peux t'accompagner. Parle-moi de ce qui te preoccupe.",
+          "disclaimers": [],
+          "messagesRemaining": 2,
+          "tokensUsed": 42,
+          "eclairage": null
+        },
+        "matchingRules": {
+          "body": {
+            "$.message": {"matchers": [{"match": "type"}]},
+            "$.disclaimers": {"matchers": [{"match": "type"}]},
+            "$.messagesRemaining": {"matchers": [{"match": "integer"}]},
+            "$.tokensUsed": {"matchers": [{"match": "integer"}]}
+          }
+        }
+      }
+    },
+    {
+      "description": "POST /coach/chat — authenticated user asks the coach a 3a question",
+      "providerStates": [
+        {
+          "name": "authenticated user with profile"
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/coach/chat",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer test-token",
+          "X-App-Version": "1.0.0"
+        },
+        "body": {
+          "message": "Combien puis-je verser sur mon 3a cette annee ?",
+          "provider": "claude",
+          "language": "fr",
+          "cash_level": 3,
+          "persistence_consent": false
+        },
+        "matchingRules": {
+          "header": {
+            "Authorization": {
+              "matchers": [{"match": "regex", "regex": "^Bearer .+"}]
+            }
+          },
+          "body": {
+            "$.message": {"matchers": [{"match": "type"}]},
+            "$.provider": {"matchers": [{"match": "regex", "regex": "^(claude|openai|mistral)$"}]},
+            "$.language": {"matchers": [{"match": "regex", "regex": "^(fr|de|en|it)$"}]},
+            "$.cash_level": {"matchers": [{"match": "integer"}]},
+            "$.persistence_consent": {"matchers": [{"match": "type"}]}
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "message": "Avec un salaire LPP, le plafond 3a 2026 est de 7'258 CHF/an.",
+          "toolCalls": null,
+          "sources": [],
+          "cashLevel": 3,
+          "disclaimers": [],
+          "tokensUsed": 120,
+          "systemPromptUsed": true,
+          "responseMeta": null
+        },
+        "matchingRules": {
+          "body": {
+            "$.message": {"matchers": [{"match": "type"}]},
+            "$.sources": {"matchers": [{"match": "type"}]},
+            "$.cashLevel": {"matchers": [{"match": "integer"}]},
+            "$.disclaimers": {"matchers": [{"match": "type"}]},
+            "$.tokensUsed": {"matchers": [{"match": "integer"}]},
+            "$.systemPromptUsed": {"matchers": [{"match": "type"}]}
+          }
+        }
+      }
+    },
+    {
+      "description": "POST /documents/upload — authenticated user uploads a salary slip PDF",
+      "providerStates": [
+        {
+          "name": "user logged in"
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/documents/upload",
+        "headers": {
+          "Authorization": "Bearer test-token",
+          "X-App-Version": "1.0.0"
+        },
+        "body": {
+          "_marker": "multipart/form-data with field 'file' (binary) — request body shape verified out-of-band; provider verifier asserts response shape against the upload endpoint."
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": "doc-uuid-1234",
+          "document_type": "salary_slip",
+          "extracted_fields": {},
+          "confidence": 0.85,
+          "fields_found": 12,
+          "fields_total": 18,
+          "raw_text_preview": "Bulletin de salaire — Janvier 2026...",
+          "warnings": [],
+          "rag_indexed": false
+        },
+        "matchingRules": {
+          "body": {
+            "$.id": {"matchers": [{"match": "type"}]},
+            "$.document_type": {"matchers": [{"match": "regex", "regex": "^(lpp_certificate|salary_slip|unknown)$"}]},
+            "$.extracted_fields": {"matchers": [{"match": "type"}]},
+            "$.confidence": {"matchers": [{"match": "decimal"}]},
+            "$.fields_found": {"matchers": [{"match": "integer"}]},
+            "$.fields_total": {"matchers": [{"match": "integer"}]},
+            "$.raw_text_preview": {"matchers": [{"match": "type"}]},
+            "$.warnings": {"matchers": [{"match": "type"}]},
+            "$.rag_indexed": {"matchers": [{"match": "type"}]}
+          }
+        }
+      }
+    },
+    {
+      "description": "POST /onboarding/premier-eclairage — anonymous onboarding computes le premier eclairage",
+      "providerStates": [
+        {
+          "name": "anonymous session ready for premier eclairage"
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/api/v1/onboarding/premier-eclairage",
+        "headers": {
+          "Content-Type": "application/json",
+          "X-App-Version": "1.0.0"
+        },
+        "body": {
+          "age": 32,
+          "gross_salary": 95000,
+          "canton": "VD",
+          "household_type": "single",
+          "current_savings": 25000,
+          "is_property_owner": false,
+          "existing_3a": 0,
+          "existing_lpp": 12000,
+          "total_debts": 0,
+          "monthly_debt_service": 0
+        },
+        "matchingRules": {
+          "body": {
+            "$.age": {"matchers": [{"match": "integer"}]},
+            "$.gross_salary": {"matchers": [{"match": "decimal"}]},
+            "$.canton": {"matchers": [{"match": "regex", "regex": "^[A-Z]{2}$"}]},
+            "$.household_type": {"matchers": [{"match": "regex", "regex": "^(single|couple|family)$"}]}
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "category": "tax_saving",
+          "primaryNumber": 1500,
+          "displayText": "Tu pourrais economiser environ 1'500 CHF d'impots par an.",
+          "explanationText": "Avec un salaire LPP, ta tranche fiscale rend le 3a particulierement adapte.",
+          "actionText": "Decouvre ton plafond 3a personnalise.",
+          "disclaimer": "Outil educatif (LSFin art. 3). Pas un conseil personnalise.",
+          "sources": ["AVS / OFAS 2026", "OFC 3a"],
+          "confidenceScore": 0.78,
+          "confidenceMode": "factual"
+        },
+        "matchingRules": {
+          "body": {
+            "$.category": {"matchers": [{"match": "regex", "regex": "^(retirement_gap|tax_saving|liquidity|compound_growth|hourly_rate|retirement_income)$"}]},
+            "$.primaryNumber": {"matchers": [{"match": "decimal"}]},
+            "$.displayText": {"matchers": [{"match": "type"}]},
+            "$.explanationText": {"matchers": [{"match": "type"}]},
+            "$.actionText": {"matchers": [{"match": "type"}]},
+            "$.disclaimer": {"matchers": [{"match": "type"}]},
+            "$.sources": {"matchers": [{"match": "type"}]},
+            "$.confidenceScore": {"matchers": [{"match": "decimal"}]},
+            "$.confidenceMode": {"matchers": [{"match": "regex", "regex": "^(factual|pedagogical)$"}]}
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "3.0.0"
+    },
+    "mint": {
+      "phase": "95-test-infrastructure-reelle",
+      "plan": "02",
+      "requirement": "TEST-02",
+      "authoring": "consumer-driven (mobile authors, backend verifies)",
+      "broker": "filesystem (.planning/contracts/pacts/, no Pactflow)",
+      "doctrine": "2026-05-06-test-theater-post-mortem-doctrine.md sect 7"
+    }
+  }
+}

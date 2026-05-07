@@ -58,6 +58,63 @@ jobs:
             exit 1
           fi
 
+  # ─── Phase 95 Plan 95-02 / TEST-02: Pact provider verification ───
+  # Closes doctrine §7 ship-gate item « Pact contracts mobile↔backend
+  # verified green ». Runs three checks in sequence:
+  #   1. Mobile consumer snapshot: `flutter test test/contracts/` reads
+  #      the committed pact JSON and asserts that the mobile call sites
+  #      still emit the request-body keys it declares.
+  #   2. Backend provider verification: pytest replays each pact
+  #      interaction against the FastAPI app via TestClient and checks
+  #      that the live response matches the contract under the declared
+  #      Pact `matchingRules`.
+  #   3. Pact drift gate: `git diff --exit-code .planning/contracts/pacts/`
+  #      catches the case where someone tweaks the JSON without rerunning
+  #      the consumer/provider tests. Mirrors the existing contracts-drift
+  #      pattern at ci.yml:41-59.
+  #
+  # File-system broker decision (95-02-PLAN.md): Pactflow upgrade deferred
+  # to v2.16. $0/mo for now (in-repo pacts since the repo is public until
+  # launch milestone — see feedback_public_repo_discipline.md).
+  pact-verify:
+    name: Pact provider verification (TEST-02)
+    needs: [changes, contracts-drift]
+    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.flutter == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/backend/pyproject.toml
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2  # v2
+        with:
+          flutter-version: '3.41.4'
+          cache: true
+      - name: Verify pact file exists
+        run: test -f .planning/contracts/pacts/mint_mobile-mint_backend.json
+      - name: Mobile consumer snapshot test (drift check vs call sites)
+        working-directory: apps/mobile
+        run: |
+          flutter pub get
+          flutter test test/contracts/
+      - name: Install backend dev deps
+        working-directory: services/backend
+        run: pip install ".[dev]"
+      - name: Backend Pact provider verification
+        working-directory: services/backend
+        env:
+          TESTING: "1"
+          ANTHROPIC_API_KEY: "sk-test-pact-verifier"
+        run: python -m pytest tests/contracts/ -q --tb=short
+      - name: Pact drift guard
+        run: |
+          if ! git diff --exit-code .planning/contracts/pacts/; then
+            echo "::error::Pact files drifted. Regenerate by running 'flutter test test/contracts/' on mobile + 'pytest tests/contracts/' on backend, then commit."
+            exit 1
+          fi
+
   # ─── Phase 10 Plan 10-03 / ACCESS-06: onboarding readability gate ───
   # Pure-Dart Kandel–Moles French readability check on the onboarding
   # surfaces (intent screen + landing v2 + intent chips). Fails the build
@@ -660,7 +717,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, control-matrix-coverage]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, control-matrix-coverage, pact-verify]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -676,6 +733,7 @@ jobs:
           admin_sanity="${{ needs.admin-build-sanity.result }}"
           cache_gi="${{ needs.cache-gitignore-check.result }}"
           control_matrix="${{ needs.control-matrix-coverage.result }}"
+          pact_verify="${{ needs.pact-verify.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
@@ -685,8 +743,9 @@ jobs:
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
           [[ "$control_matrix" == "skipped" ]] && control_matrix="success"
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$control_matrix" != "success" ]]; then
-            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi control_matrix=$control_matrix"
+          [[ "$pact_verify" == "skipped" ]] && pact_verify="success"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$control_matrix" != "success" ]] || [[ "$pact_verify" != "success" ]]; then
+            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi control_matrix=$control_matrix pact_verify=$pact_verify"
             exit 1
           fi
           echo "All checks passed"
