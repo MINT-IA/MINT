@@ -51,6 +51,7 @@ entry is removed from `RESIDUE_BASELINE` as its batch lands on `dev`.
 | 4 | `apps/mobile/lib/screens/coach/cockpit_detail_screen.dart` | 25 | A | 8a Plan 08a-02 | `.detail()` surface; scorer wiring in-place |
 | 5 | `apps/mobile/lib/widgets/coach/plan_preview_card.dart` | 9 | A or B | 8a Plan 08a-02 | `confidenceLevel < 70` collapses to MTC tier read |
 | 6 | `apps/mobile/lib/widgets/confidence_breakdown_card.dart` | 16 | B | 8a Plan 08a-02 | Thin frame → deprecated re-export of MTC `.detail()` |
+| 6.5 | `apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart` | (new call site 2026-05-08) | C | 8a Plan 08a-02 | **New caller of #1** introduced by PR #525 (façade-sans-câblage close — `FinancialPlanCard` + `ConfidenceScoreCard` wire on Aujourd'hui). Migrates transitively with row #1 (`confidence_score_card.dart` → `MintTrameConfiance.inline()` Batch C). Justification : the wire restores user-visible value of an existing widget ; migrating to MTC primitives in this PR would expand scope beyond the surgical wire (Karpathy #3) and would lose the enrichment CTA + MintSurface card (ConfidenceScoreCard renders MTC.detail INSIDE a MintSurface wrapper with an enrichmentPrompts callback that MTC.inline does not natively expose). Tracked : PR #525, will be removed from `RESIDUE_BASELINE` in the same PR that lands Batch C migration of #1. |
 
 > Surfaces #7-11 from the D-01 table (`coach_briefing_card`,
 > `indicatif_banner`, `trajectory_view`, `futur_projection_card`,
@@ -97,11 +98,11 @@ migrations and do not need their own entry:
 - **AUDIT-01 total classified hits**: 42
 - **Phase 8a Plan 08a-02 migration targets**: 11 (D-01 table)
 - **DO-NOT-MIGRATE (MTC-11 lock)**: 7 (AUDIT-01 §DO-NOT-MIGRATE)
-- **Residue documented here**: 14 entries (6 un-migrated targets + 8 deferred)
+- **Residue documented here**: 15 entries (6 un-migrated targets + 1 new transitive caller + 8 deferred)
 - **Transitively absorbed**: 3
 - **Remaining unexplained**: 0
 
-Sum: 11 + 7 + 8 (deferred) + 3 (absorbed) + engine sources (3) + extraction/freshness siblings (10 — AUDIT-01 rows 4, 18, 20, 22, 28, 29, 36, 37, 38, 39) ≈ 42. The accounting closes.
+Sum: 11 + 7 + 8 (deferred) + 3 (absorbed) + 1 (new transitive caller) + engine sources (3) + extraction/freshness siblings (10 — AUDIT-01 rows 4, 18, 20, 22, 28, 29, 36, 37, 38, 39) ≈ 43. The accounting closes.
 
 > **Rows 7-8 in the residue baseline** are intentional Plan 08a-02 back-compat: they both live in (A) migration targets OR (B) deferred, never both. The CI gate's `RESIDUE_BASELINE` set is the single source of truth for which files are currently allowed to carry legacy patterns.
 

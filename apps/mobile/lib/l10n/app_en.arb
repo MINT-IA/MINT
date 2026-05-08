@@ -2086,7 +2086,7 @@
   "futurCompleterProfil": "Complete your profile to refine the projection.",
   "futurDisclaimer": "Educational projection — does not constitute advice (FinSA). SWR 4% = 4% rule, results not guaranteed. AVS/LPP pensions estimated per OASI art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explore details",
-  "financialSummaryTitle": "FINANCIAL OVERVIEW",
+  "financialSummaryTitle": "MY PROFILE",
   "financialSummaryNoProfile": "No profile entered",
   "financialSummaryStartDiagnostic": "Start the diagnostic",
   "financialSummaryRestartDiagnostic": "Restart the diagnostic",
@@ -9972,6 +9972,7 @@
   "bankImportTransparency": "Your statement is sent encrypted to our Swiss server for analysis. Transactions are categorized, then the raw file is deleted. Only category summaries are kept in your profile.",
   "coachTransparencySLM": "Response generated on your phone. Nothing sent to a server.",
   "coachTransparencyBYOK": "Response via your Claude API. Your exact salary is NOT sent — only your age, canton and archetype are shared.",
+  "coachTransparencyServer": "Response via the Claude API (MINT server key). Your message is shared as-is to personalize the response.",
   "dataTransparencyTitle": "How MINT uses your data",
   "dataTransparencySalary": "When you enter your salary",
   "dataTransparencySalaryDetail": "Stored only on your phone. Never sent.",
@@ -11177,10 +11178,6 @@
   },
   "betaDisclosureCta": "Got it, let's go",
   "@betaDisclosureCta": {
-    "x-mint-meta": {"level": "N1"}
-  },
-  "betaDisclosureLearnMore": "Learn more",
-  "@betaDisclosureLearnMore": {
     "x-mint-meta": {"level": "N1"}
   },
   "betaDisclosureSemanticsLabel": "Information about the MINT beta version — educational tool only, no financial advice, data stays on your device by default."

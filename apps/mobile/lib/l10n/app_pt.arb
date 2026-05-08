@@ -2086,7 +2086,7 @@
   "futurCompleterProfil": "Completa o teu perfil para refinar a projeção.",
   "futurDisclaimer": "Projeção educativa — não constitui aconselhamento (LSFin). SWR 4% = regra dos 4%, resultados não assegurados. Pensões AVS/LPP estimadas segundo LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorar detalhes",
-  "financialSummaryTitle": "RESUMO FINANCEIRO",
+  "financialSummaryTitle": "O MEU PERFIL",
   "financialSummaryNoProfile": "Nenhum perfil registado",
   "financialSummaryStartDiagnostic": "Iniciar o diagnóstico",
   "financialSummaryRestartDiagnostic": "Reiniciar o diagnóstico",
@@ -9972,6 +9972,7 @@
   "bankImportTransparency": "O teu extrato é enviado encriptado para o nosso servidor suíço para análise. As transações são categorizadas e depois o ficheiro original é eliminado. Apenas os resumos por categoria são mantidos no teu perfil.",
   "coachTransparencySLM": "Resposta gerada no teu telemóvel. Nada enviado para um servidor.",
   "coachTransparencyBYOK": "Resposta via a tua API Claude. O teu salário exato NÃO é enviado — apenas a tua idade, cantão e arquétipo são partilhados.",
+  "coachTransparencyServer": "Resposta via a API Claude (chave servidor MINT). A tua mensagem é partilhada tal como está para personalizar a resposta.",
   "dataTransparencyTitle": "Como o MINT usa os teus dados",
   "dataTransparencySalary": "Quando introduzes o teu salário",
   "dataTransparencySalaryDetail": "Guardado apenas no teu telemóvel. Nunca enviado.",
@@ -11177,10 +11178,6 @@
   },
   "betaDisclosureCta": "Entendido, vamos",
   "@betaDisclosureCta": {
-    "x-mint-meta": {"level": "N1"}
-  },
-  "betaDisclosureLearnMore": "Saber mais",
-  "@betaDisclosureLearnMore": {
     "x-mint-meta": {"level": "N1"}
   },
   "betaDisclosureSemanticsLabel": "Informação sobre a versão beta da MINT — apenas ferramenta educativa, nenhum aconselhamento financeiro, os dados permanecem no teu dispositivo por defeito."

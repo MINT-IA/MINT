@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
@@ -20,6 +21,33 @@ class AuthService {
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 
+  // In-memory fallback cache. Populated by `saveToken` *before* the
+  // keychain write is attempted, so the session survives a keychain
+  // failure (PlatformException -34018, simulator without passcode,
+  // .nosync-mounted dev builds, etc.). Cleared on `logout()`. Lost on
+  // cold restart by design — security-conscious tradeoff: a transient
+  // keychain failure should not lock the user out of finishing register
+  // flow, but it must not silently grant a persistent session either.
+  // Mirrors the PR #516 « graceful Keychain fallback » pattern shipped
+  // for the biography service on 2026-05-07 (commit 3d7a7559).
+  static String? _memToken;
+  static String? _memRefreshToken;
+  static String? _memUserId;
+  static String? _memUserEmail;
+  static String? _memDisplayName;
+
+  /// Clear the in-memory token cache. Test-only hook so suites that mock
+  /// the keychain channel can guarantee a clean slate per test —
+  /// `static` fields otherwise leak across tests.
+  @visibleForTesting
+  static void resetMemoryCacheForTest() {
+    _memToken = null;
+    _memRefreshToken = null;
+    _memUserId = null;
+    _memUserEmail = null;
+    _memDisplayName = null;
+  }
+
   /// Store auth tokens after login/register
   ///
   /// Gate 0 P0 (2026-04-15): defensive sanity. Empty / whitespace-only
@@ -27,6 +55,12 @@ class AuthService {
   /// "zombie" auth where `isLoggedIn` returned true but every request
   /// 401'd. Now we reject up-front with an explicit error so the caller
   /// can surface it instead of leaving the app in a broken auth state.
+  ///
+  /// 2026-05-08 walker (P0 register-flow blocker): wrap keychain writes
+  /// so a `PlatformException` (e.g. simulator without passcode, missing
+  /// entitlement) does NOT abort the auth flow. The session uses the
+  /// in-memory cache for the rest of its lifetime; cold restart will
+  /// surface as logged-out (caller can re-prompt).
   static Future<void> saveToken(
     String token,
     String userId,
@@ -43,40 +77,104 @@ class AuthService {
     if (email.trim().isEmpty) {
       throw ArgumentError.value(email, 'email', 'must be non-empty');
     }
-    await _storage.write(key: _tokenKey, value: token);
-    await _storage.write(key: _userIdKey, value: userId);
-    await _storage.write(key: _userEmailKey, value: email);
-    if (displayName != null) {
-      await _storage.write(key: _displayNameKey, value: displayName);
-    }
-    if (refreshToken != null && refreshToken.trim().isNotEmpty) {
-      await _storage.write(key: _refreshTokenKey, value: refreshToken);
+
+    // Populate memory cache FIRST so the session is functional even if
+    // the keychain blows up below.
+    _memToken = token;
+    _memUserId = userId;
+    _memUserEmail = email;
+    _memDisplayName = displayName;
+    _memRefreshToken = (refreshToken != null && refreshToken.trim().isNotEmpty)
+        ? refreshToken
+        : null;
+
+    try {
+      await _storage.write(key: _tokenKey, value: token);
+      await _storage.write(key: _userIdKey, value: userId);
+      await _storage.write(key: _userEmailKey, value: email);
+      if (displayName != null) {
+        await _storage.write(key: _displayNameKey, value: displayName);
+      }
+      if (refreshToken != null && refreshToken.trim().isNotEmpty) {
+        await _storage.write(key: _refreshTokenKey, value: refreshToken);
+      }
+    } on PlatformException catch (e) {
+      // PlatformException from flutter_secure_storage on iOS simulator
+      // / passcode-less devices / entitlement mismatches. The user's
+      // session is preserved via the memory cache populated above.
+      // We DON'T catch MissingPluginException — that's a test-environment
+      // signal (plugin not registered) and other code paths rely on it
+      // propagating to fall back to template responses.
+      if (kDebugMode) {
+        debugPrint('[AuthService] Keychain saveToken failed (memory '
+            'fallback active for this session): $e');
+      }
     }
   }
 
   /// Get stored access token (null if not logged in)
   static Future<String?> getToken() async {
-    return _storage.read(key: _tokenKey);
+    if (_memToken != null) return _memToken;
+    try {
+      final v = await _storage.read(key: _tokenKey);
+      if (v != null && v.isNotEmpty) _memToken = v;
+      return v;
+    } on PlatformException catch (e) {
+      if (kDebugMode) debugPrint('[AuthService] Keychain read(token) failed: $e');
+      return null;
+    }
   }
 
   /// Get stored refresh token
   static Future<String?> getRefreshToken() async {
-    return _storage.read(key: _refreshTokenKey);
+    if (_memRefreshToken != null) return _memRefreshToken;
+    try {
+      final v = await _storage.read(key: _refreshTokenKey);
+      if (v != null && v.isNotEmpty) _memRefreshToken = v;
+      return v;
+    } on PlatformException catch (e) {
+      if (kDebugMode) debugPrint('[AuthService] Keychain read(refresh) failed: $e');
+      return null;
+    }
   }
 
   /// Get stored user ID
   static Future<String?> getUserId() async {
-    return _storage.read(key: _userIdKey);
+    if (_memUserId != null) return _memUserId;
+    try {
+      final v = await _storage.read(key: _userIdKey);
+      if (v != null && v.isNotEmpty) _memUserId = v;
+      return v;
+    } on PlatformException catch (e) {
+      if (kDebugMode) debugPrint('[AuthService] Keychain read(userId) failed: $e');
+      return null;
+    }
   }
 
   /// Get stored email
   static Future<String?> getUserEmail() async {
-    return _storage.read(key: _userEmailKey);
+    if (_memUserEmail != null) return _memUserEmail;
+    try {
+      final v = await _storage.read(key: _userEmailKey);
+      if (v != null && v.isNotEmpty) _memUserEmail = v;
+      return v;
+    } on PlatformException catch (e) {
+      if (kDebugMode) debugPrint('[AuthService] Keychain read(email) failed: $e');
+      return null;
+    }
   }
 
   /// Get stored display name
   static Future<String?> getDisplayName() async {
-    return _storage.read(key: _displayNameKey);
+    if (_memDisplayName != null) return _memDisplayName;
+    try {
+      final v = await _storage.read(key: _displayNameKey);
+      if (v != null && v.isNotEmpty) _memDisplayName = v;
+      return v;
+    } on PlatformException catch (e) {
+      if (kDebugMode) debugPrint('[AuthService] Keychain read(name) failed: $e');
+      return null;
+    }
   }
 
   /// Check if user is logged in
@@ -140,9 +238,22 @@ class AuthService {
       final newRefresh = json['refresh_token'] as String?;
       if (newAccess == null || newAccess.isEmpty) return null;
 
-      await _storage.write(key: _tokenKey, value: newAccess);
+      // Update memory first so the rotated token is usable even if the
+      // keychain write fails (same fallback contract as `saveToken`).
+      _memToken = newAccess;
       if (newRefresh != null && newRefresh.isNotEmpty) {
-        await _storage.write(key: _refreshTokenKey, value: newRefresh);
+        _memRefreshToken = newRefresh;
+      }
+      try {
+        await _storage.write(key: _tokenKey, value: newAccess);
+        if (newRefresh != null && newRefresh.isNotEmpty) {
+          await _storage.write(key: _refreshTokenKey, value: newRefresh);
+        }
+      } on PlatformException catch (e) {
+        if (kDebugMode) {
+          debugPrint('[AuthService] Keychain refresh-write failed (memory '
+              'fallback active): $e');
+        }
       }
       return newAccess;
     } catch (e) {
@@ -153,10 +264,19 @@ class AuthService {
 
   /// Clear all tokens (logout)
   static Future<void> logout() async {
-    await _storage.delete(key: _tokenKey);
-    await _storage.delete(key: _refreshTokenKey);
-    await _storage.delete(key: _userIdKey);
-    await _storage.delete(key: _userEmailKey);
-    await _storage.delete(key: _displayNameKey);
+    _memToken = null;
+    _memRefreshToken = null;
+    _memUserId = null;
+    _memUserEmail = null;
+    _memDisplayName = null;
+    try {
+      await _storage.delete(key: _tokenKey);
+      await _storage.delete(key: _refreshTokenKey);
+      await _storage.delete(key: _userIdKey);
+      await _storage.delete(key: _userEmailKey);
+      await _storage.delete(key: _displayNameKey);
+    } on PlatformException catch (e) {
+      if (kDebugMode) debugPrint('[AuthService] Keychain logout failed: $e');
+    }
   }
 }

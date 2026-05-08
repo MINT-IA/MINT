@@ -15,15 +15,25 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/financial_plan.dart' show computeProfileHash;
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_spacing.dart';
 // Wave B-minimal B1 (2026-04-18): Cap du jour banner pulls the
 // highest-priority CapDecision from MintStateProvider and surfaces it
 // above the TensionCards. The provider is kept fresh by the
 // ChangeNotifierProxyProvider wired in `app.dart`.
 import 'package:mint_mobile/widgets/aujourdhui/cap_du_jour_banner.dart';
 import 'package:mint_mobile/widgets/aujourdhui/commitments_and_checkins_card.dart';
+// Walker 2026-05-08 / Aujourdhui-wire fix: surface the persistent
+// FinancialPlan + ConfidenceScore right after the Cap du jour banner.
+// Both widgets existed (lib/widgets/home/) but had ZERO callers — the
+// canonical façade-sans-câblage pattern (CLAUDE.md NEVER #6).
+import 'package:mint_mobile/widgets/home/confidence_score_card.dart';
+import 'package:mint_mobile/widgets/home/financial_plan_card.dart';
 import 'package:mint_mobile/widgets/tension/cleo_loop_indicator.dart';
 import 'package:mint_mobile/widgets/tension/tension_card_widget.dart';
 import 'package:mint_mobile/widgets/timeline/month_header_widget.dart';
@@ -38,6 +48,16 @@ class AujourdhuiScreen extends StatefulWidget {
 
 class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
   final Set<String> _collapsedMonths = {};
+
+  // Memoization for ConfidenceScorer.scoreEnhanced — `now` is captured
+  // once per State and the result is keyed on the profile hash so a
+  // rebuild without profile change reuses the cached EnhancedConfidence.
+  // Without this, scoreEnhanced runs on every build with a fresh
+  // DateTime.now(), recomputing the freshness axis on each tick and
+  // invalidating MintTrameConfiance's bloom-storm guard.
+  late final DateTime _confidenceNow = DateTime.now();
+  EnhancedConfidence? _cachedConfidence;
+  String? _cachedConfidenceProfileHash;
   bool _initialCollapseSet = false;
 
   @override
@@ -74,10 +94,65 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
     });
   }
 
+  /// Build the persistent plan + confidence stack, or null when no plan
+  /// exists (caller hides the section entirely — empty state belongs to
+  /// the coach CTA further down, not to a stub card).
+  ///
+  /// Tap on `Recalculer` (FinancialPlanCard stale state) and
+  /// `onEnrichmentTap` (ConfidenceScoreCard) both route to `/coach/chat`
+  /// — the coach is the canonical channel for plan refresh + data
+  /// enrichment in MINT.
+  Widget? _buildPlanAndConfidenceSection(BuildContext context) {
+    final planProvider = context.watch<FinancialPlanProvider>();
+    if (!planProvider.hasPlan) return null;
+
+    final profile = context.watch<CoachProfileProvider>().profile;
+    if (profile == null) return null;
+
+    // Memoize ConfidenceScorer.scoreEnhanced by profile hash. Reuse
+    // _confidenceNow so the freshness axis is stable across rebuilds.
+    final hash = computeProfileHash(profile);
+    if (_cachedConfidence == null || _cachedConfidenceProfileHash != hash) {
+      _cachedConfidence = ConfidenceScorer.scoreEnhanced(
+        profile,
+        now: _confidenceNow,
+      );
+      _cachedConfidenceProfileHash = hash;
+    }
+    final confidence = _cachedConfidence!;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        MintSpacing.md,
+        0,
+        MintSpacing.md,
+        MintSpacing.md,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          FinancialPlanCard(
+            plan: planProvider.currentPlan!,
+            isStale: planProvider.isPlanStale,
+            onRecalculate: (_) => context.go('/coach/chat'),
+          ),
+          const SizedBox(height: MintSpacing.md),
+          ConfidenceScoreCard(
+            score: confidence.combined,
+            confidence: confidence,
+            enrichmentPrompts: confidence.axisPrompts,
+            onEnrichmentTap: () => context.go('/coach/chat'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TimelineProvider>();
     final l10n = S.of(context)!;
+    final planSection = _buildPlanAndConfidenceSection(context);
 
     if (provider.isLoading) {
       return const Scaffold(
@@ -109,6 +184,10 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
           child: Column(
             children: [
               const CapDuJourBanner(),
+              // Walker 2026-05-08: even on an empty timeline, surface the
+              // persistent plan if one exists (user can have a plan via
+              // coach without a timeline yet).
+              if (planSection != null) planSection,
               if (!hasAnyProfileFact)
                 Expanded(
                   child: Center(
@@ -193,6 +272,13 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             const SliverToBoxAdapter(
               child: CapDuJourBanner(),
             ),
+
+            // ── Persistent plan + confidence (Walker 2026-05-08) ──
+            // Surfaces FinancialPlan + EnhancedConfidence widgets that
+            // existed but were unwired. Hidden when no plan exists —
+            // the empty-state CTA further down owns "Parle au coach".
+            if (planSection != null)
+              SliverToBoxAdapter(child: planSection),
 
             // ── Tension cards (Phase 17 header) ────────────────
             SliverToBoxAdapter(

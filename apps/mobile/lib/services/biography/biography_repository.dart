@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -67,13 +68,36 @@ class BiographyRepository {
 
     final storage = secureStorage ?? const FlutterSecureStorage();
 
-    // Get or generate encryption key
-    var key = await storage.read(key: _keyAlias);
+    // Get or generate encryption key. P1 walkthrough fix (2026-05-07):
+    // on a fresh iOS simulator (or any never-logged-in device) the
+    // Keychain item is absent AND the entitlement isn't present, so the
+    // platform channel raises `PlatformException(-34018,
+    // errSecMissingEntitlement)` BEFORE we ever get a `null` answer.
+    // Without this catch, the entire « Ce que MINT sait de toi » screen
+    // shows « Impossible de charger tes données. Réessaie dans quelques
+    // instants. » instead of the empty-state fallback. The fallback
+    // generates a fresh in-memory key — biography rows persist for the
+    // session but are lost on app restart, which is acceptable for
+    // mode-local users who haven't unlocked encrypted storage yet.
+    String? key;
+    try {
+      key = await storage.read(key: _keyAlias);
+    } on PlatformException catch (e) {
+      debugPrint('[Biography] Keychain read failed (mode local?): $e');
+      key = null;
+    }
     if (key == null) {
-      // Generate a 32-byte hex key on first launch
       key = _generateKey();
-      await storage.write(key: _keyAlias, value: key);
-      debugPrint('[Biography] Generated new encryption key');
+      try {
+        await storage.write(key: _keyAlias, value: key);
+        debugPrint('[Biography] Generated new encryption key');
+      } on PlatformException catch (e) {
+        // Keychain unavailable; proceed with the in-memory key. DB rows
+        // will be encrypted with this key for the lifetime of the
+        // process; lost on app restart in mode local. Fixed at first
+        // login (Keychain becomes writable after auth flow).
+        debugPrint('[Biography] Keychain write failed; in-memory key only: $e');
+      }
     }
 
     // Open encrypted database via sqflite_sqlcipher (AES-256-CBC).

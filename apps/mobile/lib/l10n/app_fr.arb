@@ -2086,7 +2086,7 @@
   "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
   "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4 % = règle des 4 %, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorer les détails",
-  "financialSummaryTitle": "APERÇU FINANCIER",
+  "financialSummaryTitle": "MON PROFIL",
   "financialSummaryNoProfile": "Aucun profil renseigné",
   "financialSummaryStartDiagnostic": "Commencer le diagnostic",
   "financialSummaryRestartDiagnostic": "Recommencer le diagnostic",
@@ -10480,6 +10480,12 @@
   "bankImportTransparency": "Ton relevé est envoyé à notre serveur suisse de manière chiffrée pour analyse. Les transactions sont catégorisées, puis le fichier brut est supprimé. Seuls les résumés par catégorie sont conservés dans ton profil.",
   "coachTransparencySLM": "Réponse générée sur ton téléphone. Rien n'est envoyé à un serveur.",
   "coachTransparencyBYOK": "Réponse via ton API Claude. Ton salaire exact n'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.",
+  "coachTransparencyServer": "Réponse via l'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse.",
+  "@coachTransparencyServer": {
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
   "dataTransparencyTitle": "Comment MINT utilise tes données",
   "dataTransparencySalary": "Quand tu entres ton salaire",
   "dataTransparencySalaryDetail": "Stocké uniquement sur ton téléphone. Jamais envoyé.",
@@ -12109,10 +12115,6 @@
   "betaDisclosureCta": "Je comprends, on y va",
   "@betaDisclosureCta": {
     "description": "Beta disclosure sheet — primary acknowledgement CTA."
-  },
-  "betaDisclosureLearnMore": "En savoir plus",
-  "@betaDisclosureLearnMore": {
-    "description": "Beta disclosure sheet — secondary CTA opening the privacy URL."
   },
   "betaDisclosureSemanticsLabel": "Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l'appareil par défaut.",
   "@betaDisclosureSemanticsLabel": {
