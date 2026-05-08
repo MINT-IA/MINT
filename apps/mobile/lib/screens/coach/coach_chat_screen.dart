@@ -350,10 +350,21 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               _sendMessage(payload.userMessage!);
             });
           } else if (payload.topic == 'onboarding') {
-            // Onboarding topic — send a real intake question instead of
-            // injecting raw context. This replaces the old ?prompt=onboarding.
+            // B1 fix (2026-05-08) : the previous `_sendMessage(...)` call
+            // rendered the seed string as user-authored, producing a
+            // phantom message « Salut, je viens de créer mon compte. Par
+            // où je commence ? » that the user never wrote (CLAUDE.md
+            // NEVER #6 + 0-Trust §9.1 trust killer). Switch to a
+            // coach-initiated opener so the coach speaks first and the
+            // user answers — same pattern as _isNotificationTopic below.
+            // The old ARB key coachOnboardingFirstUserMessage is
+            // deprecated (no callers post-fix); flutter gen-l10n keeps
+            // the binding for backwards compat but it is not referenced
+            // in lib/.
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _sendMessage(S.of(context)!.coachOnboardingFirstUserMessage);
+              _addCoachOpenerMessage(
+                S.of(context)!.coachOnboardingFirstAssistantGreeting,
+              );
             });
           } else if (_isNotificationTopic(payload.topic)) {
             // Notification topics (monthlyCheckIn, commitmentReminder,
