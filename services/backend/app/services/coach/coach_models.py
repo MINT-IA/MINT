@@ -53,9 +53,15 @@ class CoachContext:
     to support the Coach Narrative Service.
     """
     first_name: str = "utilisateur"
-    archetype: str = "swiss_native"
-    age: int = 30
-    canton: str = "VD"
+    # B4 fix (2026-05-08) : defaults set to empty/zero so callers that
+    # don't provide these fields don't leak fake « known facts » into the
+    # LLM context. Consumers (claude_coach_service.py:793-798) gate prompt
+    # lines on truthy values, so an empty canton/archetype/age means the
+    # LLM is told « unknown — ask the user », not « VD / swiss_native /
+    # 30 ans » (false confidence reported in TestFlight v2.12.1+3).
+    archetype: str = ""
+    age: int = 0
+    canton: str = ""
     # Financial state (aggregated, never raw)
     fri_total: float = 0.0
     fri_delta: float = 0.0
