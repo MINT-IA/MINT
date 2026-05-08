@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
@@ -97,10 +98,13 @@ class AuthService {
       if (refreshToken != null && refreshToken.trim().isNotEmpty) {
         await _storage.write(key: _refreshTokenKey, value: refreshToken);
       }
-    } catch (e) {
+    } on PlatformException catch (e) {
       // PlatformException from flutter_secure_storage on iOS simulator
       // / passcode-less devices / entitlement mismatches. The user's
       // session is preserved via the memory cache populated above.
+      // We DON'T catch MissingPluginException — that's a test-environment
+      // signal (plugin not registered) and other code paths rely on it
+      // propagating to fall back to template responses.
       if (kDebugMode) {
         debugPrint('[AuthService] Keychain saveToken failed (memory '
             'fallback active for this session): $e');
@@ -115,7 +119,7 @@ class AuthService {
       final v = await _storage.read(key: _tokenKey);
       if (v != null && v.isNotEmpty) _memToken = v;
       return v;
-    } catch (e) {
+    } on PlatformException catch (e) {
       if (kDebugMode) debugPrint('[AuthService] Keychain read(token) failed: $e');
       return null;
     }
@@ -128,7 +132,7 @@ class AuthService {
       final v = await _storage.read(key: _refreshTokenKey);
       if (v != null && v.isNotEmpty) _memRefreshToken = v;
       return v;
-    } catch (e) {
+    } on PlatformException catch (e) {
       if (kDebugMode) debugPrint('[AuthService] Keychain read(refresh) failed: $e');
       return null;
     }
@@ -141,7 +145,7 @@ class AuthService {
       final v = await _storage.read(key: _userIdKey);
       if (v != null && v.isNotEmpty) _memUserId = v;
       return v;
-    } catch (e) {
+    } on PlatformException catch (e) {
       if (kDebugMode) debugPrint('[AuthService] Keychain read(userId) failed: $e');
       return null;
     }
@@ -154,7 +158,7 @@ class AuthService {
       final v = await _storage.read(key: _userEmailKey);
       if (v != null && v.isNotEmpty) _memUserEmail = v;
       return v;
-    } catch (e) {
+    } on PlatformException catch (e) {
       if (kDebugMode) debugPrint('[AuthService] Keychain read(email) failed: $e');
       return null;
     }
@@ -167,7 +171,7 @@ class AuthService {
       final v = await _storage.read(key: _displayNameKey);
       if (v != null && v.isNotEmpty) _memDisplayName = v;
       return v;
-    } catch (e) {
+    } on PlatformException catch (e) {
       if (kDebugMode) debugPrint('[AuthService] Keychain read(name) failed: $e');
       return null;
     }
@@ -245,7 +249,7 @@ class AuthService {
         if (newRefresh != null && newRefresh.isNotEmpty) {
           await _storage.write(key: _refreshTokenKey, value: newRefresh);
         }
-      } catch (e) {
+      } on PlatformException catch (e) {
         if (kDebugMode) {
           debugPrint('[AuthService] Keychain refresh-write failed (memory '
               'fallback active): $e');
@@ -271,7 +275,7 @@ class AuthService {
       await _storage.delete(key: _userIdKey);
       await _storage.delete(key: _userEmailKey);
       await _storage.delete(key: _displayNameKey);
-    } catch (e) {
+    } on PlatformException catch (e) {
       if (kDebugMode) debugPrint('[AuthService] Keychain logout failed: $e');
     }
   }
