@@ -10,6 +10,7 @@ void main() {
 
   setUp(() {
     mockStorage.clear();
+    AuthService.resetMemoryCacheForTest();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
