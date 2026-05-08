@@ -93,9 +93,15 @@ class CoachContext {
 
   const CoachContext({
     this.firstName = 'utilisateur',
-    this.archetype = 'swiss_native',
-    this.age = 30,
-    this.canton = 'ZH',
+    // B6 fix (2026-05-08) : empty/zero defaults so callers that don't
+    // populate these fields don't leak fake « known facts » to the LLM
+    // context. Mirror of the Python-side B4 fix in coach_models.py.
+    // Consumers gate prompt lines on truthy values (claude_coach_service
+    // .py:793-798). Empty string here means « unknown — ask user »
+    // rather than the previous "swiss_native"/"ZH"/30 lies.
+    this.archetype = '',
+    this.age = 0,
+    this.canton = '',
     this.friTotal = 0.0,
     this.friDelta = 0.0,
     this.primaryFocus = '',
