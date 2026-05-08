@@ -15,6 +15,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/financial_plan.dart' show computeProfileHash;
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
@@ -47,6 +48,16 @@ class AujourdhuiScreen extends StatefulWidget {
 
 class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
   final Set<String> _collapsedMonths = {};
+
+  // Memoization for ConfidenceScorer.scoreEnhanced — `now` is captured
+  // once per State and the result is keyed on the profile hash so a
+  // rebuild without profile change reuses the cached EnhancedConfidence.
+  // Without this, scoreEnhanced runs on every build with a fresh
+  // DateTime.now(), recomputing the freshness axis on each tick and
+  // invalidating MintTrameConfiance's bloom-storm guard.
+  late final DateTime _confidenceNow = DateTime.now();
+  EnhancedConfidence? _cachedConfidence;
+  String? _cachedConfidenceProfileHash;
   bool _initialCollapseSet = false;
 
   @override
@@ -98,7 +109,17 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
     final profile = context.watch<CoachProfileProvider>().profile;
     if (profile == null) return null;
 
-    final confidence = ConfidenceScorer.scoreEnhanced(profile);
+    // Memoize ConfidenceScorer.scoreEnhanced by profile hash. Reuse
+    // _confidenceNow so the freshness axis is stable across rebuilds.
+    final hash = computeProfileHash(profile);
+    if (_cachedConfidence == null || _cachedConfidenceProfileHash != hash) {
+      _cachedConfidence = ConfidenceScorer.scoreEnhanced(
+        profile,
+        now: _confidenceNow,
+      );
+      _cachedConfidenceProfileHash = hash;
+    }
+    final confidence = _cachedConfidence!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
