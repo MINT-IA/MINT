@@ -230,8 +230,32 @@ Ces 8 règles sont **non-négociables** pour le perimeter d'implémentation.
 
 - `MVP-FONTS-TOKENS-V2-2026-05` — install Supreme + Gambarino + Menthe-vive token + Gambarino italic display style + dark palette (foundation, bloque tous les autres)
 - `MVP-ONBOARDING-V2-AUTH-FIRST-2026-05` — 6 micro-steps OTP-style aligné MINT v2 (post fonts ready)
+- `MVP-B8-DOCTRINE-RUNTIME-WIRE-2026-05` — wire `score_response()` au runtime (audit-found gap : B6 fix function-level OK mais 0 production callers — bypass FATCA reste ouvert au runtime malgré commit message claim)
 - `MVP-COACH-V2-ARTEFACTS-2026-05` (à ouvrir Phase 2 après M1 skills modulaires)
 - `MVP-AUJOURDHUI-V2-HUB-2026-05` (à ouvrir Phase 2-3)
+
+## Addendum 2026-05-08T19:30 — retractation B6 claim (audit-found, post-PR-#529 merge)
+
+PR #529 a été mergé puis 4 audit experts ont audité le bundle (a7d759b1 LSFin / a436c079 i18n / a5fd1174 security / a80125307 code review). 3 PASS, 1 PASS-with-FLAG.
+
+**FLAG (a80125307)** : le commit dc987c4c (B6 backend `doctrine_checks.py`) message dit literal « **closes the silent FATCA bypass** ». Audit + grep verification :
+
+```bash
+$ grep -rn "score_response\|check_archetype_aware" services/backend/app
+# (empty — no production callers outside doctrine_checks.py itself)
+```
+
+**Retractation honnête (CLAUDE.md §9.1)** :
+- ✅ B6 mobile-side : `CoachProfile.archetype` plumbed dans `CoachContext` — LLM prompt context plus accurate (livré, vérifié par security audit a5fd1174)
+- ✅ B6 backend defaults empty : empty/zero plutôt que VD/30/swiss_native — privacy posture améliorée (livré, vérifié)
+- ✅ B6 doctrine_checks `check_archetype_aware` : function fail-loud sur empty archetype — function-level fix OK (couvert par test_coach_chat_b2_b6_coverage.py)
+- ❌ B6 « closes FATCA bypass » : **claim overstated**. La function n'a pas de production caller. Le bypass reste ouvert au runtime.
+
+Net B6 livre **~50 % du claimed value**. Le reste est différé au perimeter `MVP-B8-DOCTRINE-RUNTIME-WIRE-2026-05` qui WIRE `score_response()` dans le production response path (`coach_chat.py` agent loop OR `RAGOrchestrator.query()` post-filter).
+
+**Le bypass FATCA est pré-existant** — pas introduit par PR #529. Donc shipping v2.12.2+4 ne fait ni mieux ni pire sur ce point. Les 4 P0 user-facing fixes (B1+B2+B3+B4 + cosmetics + Dart-side B6 archetype plumbing) restent valides et livrent valeur immédiate.
+
+**Lesson for future commits (0-Trust)** : claim « closes » exige citation du production caller, pas juste l'existence de la function. Un grep production-callers AVANT de write « closes » dans le commit message aurait évité cette retractation.
 - `MVP-DENSITY-V2-HYPOTHEQUE-ETC-2026-05` (à ouvrir Phase 3)
 - `MVP-DARK-MODE-V2-2026-05` (à ouvrir post-onboarding-v2)
 
