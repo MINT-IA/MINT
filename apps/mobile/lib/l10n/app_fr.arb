@@ -10481,6 +10481,11 @@
   "coachTransparencySLM": "Réponse générée sur ton téléphone. Rien n'est envoyé à un serveur.",
   "coachTransparencyBYOK": "Réponse via ton API Claude. Ton salaire exact n'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.",
   "coachTransparencyServer": "Réponse via l'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse.",
+  "@coachTransparencyServer": {
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
   "dataTransparencyTitle": "Comment MINT utilise tes données",
   "dataTransparencySalary": "Quand tu entres ton salaire",
   "dataTransparencySalaryDetail": "Stocké uniquement sur ton téléphone. Jamais envoyé.",
