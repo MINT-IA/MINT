@@ -914,7 +914,15 @@ def _compute_suggested_actions(
     if not data.get("canton"):
         actions.append({"label": "Dans quel canton vis-tu ?", "type": "question"})
     if not data.get("incomeNetMonthly") and not data.get("incomeGrossYearly"):
-        actions.append({"label": "Quel est ton salaire net mensuel ?", "type": "question"})
+        # B2 fix (2026-05-08) : archetype-agnostic — salaried_active is only
+        # 4/8 archetypes (independents, retirees, students, expat_us in
+        # transition, etc. don't have « salaire net mensuel »). Asking
+        # about money source covers the 8 archetypes (CLAUDE.md NEVER #4
+        # + #7).
+        actions.append({
+            "label": "D'où vient ton argent ? (salaire, dividendes, rente, autre)",
+            "type": "question",
+        })
 
     if len(actions) >= 3:
         return actions[:3]

@@ -608,7 +608,11 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "JSON list of next actions based on what MINT knows and "
             "doesn't know about the user.\n\n"
             "Examples of returned suggestions:\n"
-            "  - 'Dis-moi ton salaire net mensuel' (profile gap)\n"
+            # B2 fix (2026-05-08) : example must NOT bias the LLM toward a
+            # salaried-active archetype (4/8 archetypes only). Use a
+            # money-source question that covers indépendant, retraité,
+            # étudiant, expat_us in transition, etc. (CLAUDE.md NEVER #4 + #7).
+            "  - 'D'où vient ton argent ? (salaire, dividendes, rente, autre)' (profile gap)\n"
             "  - 'Upload ton certificat LPP' (missing document)\n"
             "  - 'Configure ton budget' (no budget set up)\n"
             "  - 'Simule ton rachat LPP' (has avoirLpp + buybackMax)\n"
