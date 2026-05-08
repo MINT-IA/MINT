@@ -1693,9 +1693,40 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       firstName: profile.firstName ?? 'utilisateur',
       age: profile.age,
       canton: profile.canton,
+      // B6 fix (2026-05-08) : pass archetype to the LLM context. Adversarial
+      // QA audit (panel 2026-05-08) flagged that the previous build dropped
+      // the field on the floor → empty default → doctrine_checks fall-through
+      // PASS → FATCA bypass on expat_us etc. ~35-45% of CH residents were
+      // mis-archétypés silently. Backend snake_case format expected.
+      archetype: _archetypeToBackendName(profile.archetype),
       knownValues: knownValues,
       hasDebt: profile.isInDebtCrisis,
     );
+  }
+
+  /// B6 helper — convert Dart camelCase [FinancialArchetype] to the snake_case
+  /// string the backend expects in [CoachContext.archetype]. Used by the
+  /// LLM doctrine_checks (`check_archetype_aware`) to enforce FATCA / PFIC /
+  /// frontalier-specific cues per archetype.
+  String _archetypeToBackendName(FinancialArchetype a) {
+    switch (a) {
+      case FinancialArchetype.swissNative:
+        return 'swiss_native';
+      case FinancialArchetype.expatEu:
+        return 'expat_eu';
+      case FinancialArchetype.expatNonEu:
+        return 'expat_non_eu';
+      case FinancialArchetype.expatUs:
+        return 'expat_us';
+      case FinancialArchetype.independentWithLpp:
+        return 'independent_with_lpp';
+      case FinancialArchetype.independentNoLpp:
+        return 'independent_no_lpp';
+      case FinancialArchetype.crossBorder:
+        return 'cross_border';
+      case FinancialArchetype.returningSwiss:
+        return 'returning_swiss';
+    }
   }
 
   /// UX-04: Extract contextual chip labels from route_to_screen tool calls.
