@@ -120,7 +120,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   final FocusNode _focusNode = FocusNode();
 
   CoachProfile? _profile;
-  bool _hasProfile = false;
   final List<ChatMessage> _messages = [];
   /// Maximum messages kept in memory to prevent Watchdog RAM termination.
   static const int _maxMessages = 150;
@@ -327,7 +326,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final coachProvider = context.read<CoachProfileProvider>();
       if (coachProvider.hasProfile) {
         _profile = coachProvider.profile!;
-        _hasProfile = true;
         // Skip greeting when resuming an existing conversation.
         if (!_isResumingConversation) {
           _addInitialGreeting();
@@ -878,47 +876,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
   }
 
-  /// Handle intensity chip selection.
-  void _onIntensitySelected(int level) {
-    setState(() {
-      _cashLevel = level;
-      _intensityChosen = true;
-    });
-    _saveCashLevel(level);
-
-    // Add adapted confirmation message.
-    final l10n = S.of(context)!;
-    final String confirmation;
-    switch (level) {
-      case 1:
-        confirmation = l10n.intensityConfirmation1;
-        break;
-      case 2:
-        confirmation = l10n.intensityConfirmation2;
-        break;
-      case 3:
-        confirmation = l10n.intensityConfirmation3;
-        break;
-      case 4:
-        confirmation = l10n.intensityConfirmation4;
-        break;
-      case 5:
-        confirmation = l10n.intensityConfirmation5;
-        break;
-      default:
-        confirmation = l10n.intensityDirect;
-    }
-
-    setState(() {
-      _messages.add(ChatMessage(
-        role: 'assistant',
-        content: confirmation,
-        timestamp: DateTime.now(),
-        tier: ChatTier.none,
-      ));
-    });
-    _scrollToBottom();
-  }
 
   /// Regex patterns for voice intensity adjustment commands.
   static final RegExp _intensityUpPattern = RegExp(
@@ -1035,6 +992,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
 
+    // Mounted gate after the await above (use_build_context_synchronously) —
+    // if the widget unmounted during the 2s timeout, abort before any
+    // further `context.read` / `context.go`.
+    if (!mounted) return;
+
     // Wire Spec V2: append entry payload context if present (one-shot).
     if (_entryPayloadContext != null) {
       memoryBlock = '${memoryBlock ?? ''}\n$_entryPayloadContext';
@@ -1052,7 +1014,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         // Minimal profile with no fake data — zeros mean "unknown".
         _profile = CoachProfile.defaults();
       }
-      _hasProfile = provider.hasProfile;
     }
 
     // Try SLM streaming first.
@@ -1595,7 +1556,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (answers.isNotEmpty) {
       provider.mergeAnswers(answers);
       _profile = provider.profile;
-      _hasProfile = provider.hasProfile;
     }
   }
 
@@ -1736,43 +1696,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       knownValues: knownValues,
       hasDebt: profile.isInDebtCrisis,
     );
-  }
-
-  List<String> _inferSuggestedActions(
-    String userMessage,
-    String coachResponse,
-  ) {
-    final s = S.of(context)!;
-    final combined = '$userMessage $coachResponse'.toLowerCase();
-    final actions = <String>[];
-
-    if (RegExp(r'3a|pilier|troisi[eè]me|versement').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestSimulate3a, s.coachSuggestView3a]);
-    }
-    if (RegExp(r'lpp|rachat|2e\s*pilier|deuxi[eè]me').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestSimulateLpp, s.coachSuggestUnderstandLpp]);
-    }
-    if (RegExp(r'retraite|pension|avs|rente').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestTrajectory, s.coachSuggestScenarios]);
-    }
-    if (RegExp(r'imp[oô]t|fiscal|d[eé]duction').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestDeductions, s.coachSuggestTaxImpact]);
-    }
-    if (RegExp(r'budget|d[eé]pense|train\s*de\s*vie|niveau\s*de\s*vie')
-        .hasMatch(combined)) {
-      actions.addAll([s.coachSuggestBudget, s.coachSuggestBudgetGap]);
-    }
-    if (RegExp(r'immobilier|hypoth[eè]que|maison|achat|propri[eé]t[eé]|logement')
-        .hasMatch(combined)) {
-      actions.addAll([s.coachSuggestMortgage, s.coachSuggestMortgageCapacity]);
-    }
-
-    // UX-04: No hardcoded defaults. Chips appear ONLY when the
-    // conversation matches a topic regex — otherwise the list is empty
-    // and no chips are shown. This prevents static/irrelevant chips
-    // from appearing after every response regardless of context.
-    // Deduplicate and cap at 3
-    return actions.toSet().take(3).toList();
   }
 
   /// UX-04: Extract contextual chip labels from route_to_screen tool calls.
@@ -2305,7 +2228,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                         padding: const EdgeInsets.only(left: 42, top: 4),
                         child: Text(
                           S.of(context)!.coachResponseDegradedHint,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 11,
                             color: MintColors.textSecondary,
                             fontStyle: FontStyle.italic,
