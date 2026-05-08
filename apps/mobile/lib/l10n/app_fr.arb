@@ -12119,5 +12119,12 @@
   "betaDisclosureSemanticsLabel": "Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l'appareil par défaut.",
   "@betaDisclosureSemanticsLabel": {
     "description": "Beta disclosure sheet — accessibility container label."
+  },
+  "coachOnboardingFirstAssistantGreeting": "Bienvenue dans MINT. Avant qu'on commence : qu'est-ce qui t'amène ici aujourd'hui ?",
+  "@coachOnboardingFirstAssistantGreeting": {
+    "description": "Coach-initiated opening message shown when a logged-in user lands on /coach/chat with onboarding intent. Replaces the deprecated coachOnboardingFirstUserMessage which was rendered as user-authored (ventriloquy bug B1, fixed 2026-05-08). Generic, no archetype/life-event assumption per CLAUDE.md NEVER #4 + NEVER #7.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
   }
 }

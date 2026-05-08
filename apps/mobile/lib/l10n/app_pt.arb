@@ -11180,5 +11180,6 @@
   "@betaDisclosureCta": {
     "x-mint-meta": {"level": "N1"}
   },
-  "betaDisclosureSemanticsLabel": "Informação sobre a versão beta da MINT — apenas ferramenta educativa, nenhum aconselhamento financeiro, os dados permanecem no teu dispositivo por defeito."
+  "betaDisclosureSemanticsLabel": "Informação sobre a versão beta da MINT — apenas ferramenta educativa, nenhum aconselhamento financeiro, os dados permanecem no teu dispositivo por defeito.",
+  "coachOnboardingFirstAssistantGreeting": "Bem-vindo à MINT. Antes de começarmos — o que te traz aqui hoje?"
 }

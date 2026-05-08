@@ -120,7 +120,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   final FocusNode _focusNode = FocusNode();
 
   CoachProfile? _profile;
-  bool _hasProfile = false;
   final List<ChatMessage> _messages = [];
   /// Maximum messages kept in memory to prevent Watchdog RAM termination.
   static const int _maxMessages = 150;
@@ -327,7 +326,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final coachProvider = context.read<CoachProfileProvider>();
       if (coachProvider.hasProfile) {
         _profile = coachProvider.profile!;
-        _hasProfile = true;
         // Skip greeting when resuming an existing conversation.
         if (!_isResumingConversation) {
           _addInitialGreeting();
@@ -350,10 +348,21 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               _sendMessage(payload.userMessage!);
             });
           } else if (payload.topic == 'onboarding') {
-            // Onboarding topic — send a real intake question instead of
-            // injecting raw context. This replaces the old ?prompt=onboarding.
+            // B1 fix (2026-05-08) : the previous `_sendMessage(...)` call
+            // rendered the seed string as user-authored, producing a
+            // phantom message « Salut, je viens de créer mon compte. Par
+            // où je commence ? » that the user never wrote (CLAUDE.md
+            // NEVER #6 + 0-Trust §9.1 trust killer). Switch to a
+            // coach-initiated opener so the coach speaks first and the
+            // user answers — same pattern as _isNotificationTopic below.
+            // The old ARB key coachOnboardingFirstUserMessage is
+            // deprecated (no callers post-fix); flutter gen-l10n keeps
+            // the binding for backwards compat but it is not referenced
+            // in lib/.
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _sendMessage(S.of(context)!.coachOnboardingFirstUserMessage);
+              _addCoachOpenerMessage(
+                S.of(context)!.coachOnboardingFirstAssistantGreeting,
+              );
             });
           } else if (_isNotificationTopic(payload.topic)) {
             // Notification topics (monthlyCheckIn, commitmentReminder,
@@ -867,47 +876,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
   }
 
-  /// Handle intensity chip selection.
-  void _onIntensitySelected(int level) {
-    setState(() {
-      _cashLevel = level;
-      _intensityChosen = true;
-    });
-    _saveCashLevel(level);
-
-    // Add adapted confirmation message.
-    final l10n = S.of(context)!;
-    final String confirmation;
-    switch (level) {
-      case 1:
-        confirmation = l10n.intensityConfirmation1;
-        break;
-      case 2:
-        confirmation = l10n.intensityConfirmation2;
-        break;
-      case 3:
-        confirmation = l10n.intensityConfirmation3;
-        break;
-      case 4:
-        confirmation = l10n.intensityConfirmation4;
-        break;
-      case 5:
-        confirmation = l10n.intensityConfirmation5;
-        break;
-      default:
-        confirmation = l10n.intensityDirect;
-    }
-
-    setState(() {
-      _messages.add(ChatMessage(
-        role: 'assistant',
-        content: confirmation,
-        timestamp: DateTime.now(),
-        tier: ChatTier.none,
-      ));
-    });
-    _scrollToBottom();
-  }
 
   /// Regex patterns for voice intensity adjustment commands.
   static final RegExp _intensityUpPattern = RegExp(
@@ -1024,6 +992,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
 
+    // Mounted gate after the await above (use_build_context_synchronously) —
+    // if the widget unmounted during the 2s timeout, abort before any
+    // further `context.read` / `context.go`.
+    if (!mounted) return;
+
     // Wire Spec V2: append entry payload context if present (one-shot).
     if (_entryPayloadContext != null) {
       memoryBlock = '${memoryBlock ?? ''}\n$_entryPayloadContext';
@@ -1041,7 +1014,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         // Minimal profile with no fake data — zeros mean "unknown".
         _profile = CoachProfile.defaults();
       }
-      _hasProfile = provider.hasProfile;
     }
 
     // Try SLM streaming first.
@@ -1584,7 +1556,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (answers.isNotEmpty) {
       provider.mergeAnswers(answers);
       _profile = provider.profile;
-      _hasProfile = provider.hasProfile;
     }
   }
 
@@ -1722,46 +1693,40 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       firstName: profile.firstName ?? 'utilisateur',
       age: profile.age,
       canton: profile.canton,
+      // B6 fix (2026-05-08) : pass archetype to the LLM context. Adversarial
+      // QA audit (panel 2026-05-08) flagged that the previous build dropped
+      // the field on the floor → empty default → doctrine_checks fall-through
+      // PASS → FATCA bypass on expat_us etc. ~35-45% of CH residents were
+      // mis-archétypés silently. Backend snake_case format expected.
+      archetype: _archetypeToBackendName(profile.archetype),
       knownValues: knownValues,
       hasDebt: profile.isInDebtCrisis,
     );
   }
 
-  List<String> _inferSuggestedActions(
-    String userMessage,
-    String coachResponse,
-  ) {
-    final s = S.of(context)!;
-    final combined = '$userMessage $coachResponse'.toLowerCase();
-    final actions = <String>[];
-
-    if (RegExp(r'3a|pilier|troisi[eè]me|versement').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestSimulate3a, s.coachSuggestView3a]);
+  /// B6 helper — convert Dart camelCase [FinancialArchetype] to the snake_case
+  /// string the backend expects in [CoachContext.archetype]. Used by the
+  /// LLM doctrine_checks (`check_archetype_aware`) to enforce FATCA / PFIC /
+  /// frontalier-specific cues per archetype.
+  String _archetypeToBackendName(FinancialArchetype a) {
+    switch (a) {
+      case FinancialArchetype.swissNative:
+        return 'swiss_native';
+      case FinancialArchetype.expatEu:
+        return 'expat_eu';
+      case FinancialArchetype.expatNonEu:
+        return 'expat_non_eu';
+      case FinancialArchetype.expatUs:
+        return 'expat_us';
+      case FinancialArchetype.independentWithLpp:
+        return 'independent_with_lpp';
+      case FinancialArchetype.independentNoLpp:
+        return 'independent_no_lpp';
+      case FinancialArchetype.crossBorder:
+        return 'cross_border';
+      case FinancialArchetype.returningSwiss:
+        return 'returning_swiss';
     }
-    if (RegExp(r'lpp|rachat|2e\s*pilier|deuxi[eè]me').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestSimulateLpp, s.coachSuggestUnderstandLpp]);
-    }
-    if (RegExp(r'retraite|pension|avs|rente').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestTrajectory, s.coachSuggestScenarios]);
-    }
-    if (RegExp(r'imp[oô]t|fiscal|d[eé]duction').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestDeductions, s.coachSuggestTaxImpact]);
-    }
-    if (RegExp(r'budget|d[eé]pense|train\s*de\s*vie|niveau\s*de\s*vie')
-        .hasMatch(combined)) {
-      actions.addAll([s.coachSuggestBudget, s.coachSuggestBudgetGap]);
-    }
-    if (RegExp(r'immobilier|hypoth[eè]que|maison|achat|propri[eé]t[eé]|logement')
-        .hasMatch(combined)) {
-      actions.addAll([s.coachSuggestMortgage, s.coachSuggestMortgageCapacity]);
-    }
-
-    // UX-04: No hardcoded defaults. Chips appear ONLY when the
-    // conversation matches a topic regex — otherwise the list is empty
-    // and no chips are shown. This prevents static/irrelevant chips
-    // from appearing after every response regardless of context.
-    // Deduplicate and cap at 3
-    return actions.toSet().take(3).toList();
   }
 
   /// UX-04: Extract contextual chip labels from route_to_screen tool calls.
@@ -2294,7 +2259,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                         padding: const EdgeInsets.only(left: 42, top: 4),
                         child: Text(
                           S.of(context)!.coachResponseDegradedHint,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 11,
                             color: MintColors.textSecondary,
                             fontStyle: FontStyle.italic,

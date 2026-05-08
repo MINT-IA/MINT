@@ -68,9 +68,14 @@ class CoachContextBuilder {
   ///   Passed through as simplified dataReliability map for SLM prompting.
   static CoachContext build({
     String firstName = '',
-    int age = 30,
-    String canton = 'ZH',
-    String archetype = 'swiss_native',
+    // B6 fix (2026-05-08) : empty/zero defaults — mirror of B4 (Python).
+    // Don't fabricate « 30 / ZH / swiss_native » when caller didn't pass.
+    // Adversarial QA audit found that retiree (70yo) calling build() w/o
+    // overrides got aged 30 + ZH + swiss_native silently — see
+    // .planning/decisions/2026-05-08-coach-onboarding-redesign-panel/
+    int age = 0,
+    String canton = '',
+    String archetype = '',
     double friTotal = 0,
     double friDelta = 0,
     String primaryFocus = '',
