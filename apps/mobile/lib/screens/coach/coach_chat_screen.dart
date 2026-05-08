@@ -1682,6 +1682,42 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
     } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
+    // Walker 2026-05-08 Étape 6 fix: also expose the raw verified inputs
+    // (LPP avoir, gross salary, 3a savings, months of liquidity) so the
+    // coach prompt's HallucinationDetector grounding can cite numbers the
+    // user already provided, instead of replying « scanne ton certificat
+    // LPP » seconds after the user did exactly that. Keys + units match
+    // the contract documented at
+    // `lib/services/coach/coach_context_builder.dart:18-26` (CHF, CHF/an,
+    // months). All gated on > 0 to avoid HallucinationDetector
+    // false-positives on missing data.
+    final salaireBrutAnnuel =
+        profile.salaireBrutMensuel * profile.nombreDeMois;
+    if (salaireBrutAnnuel.isFinite && salaireBrutAnnuel > 0) {
+      knownValues['salaire_brut'] = salaireBrutAnnuel;
+    }
+    final avoirLpp = profile.prevoyance.avoirLppTotal;
+    if (avoirLpp != null && avoirLpp.isFinite && avoirLpp > 0) {
+      knownValues['avoir_lpp'] = avoirLpp;
+    }
+    final epargne3a = profile.prevoyance.totalEpargne3a;
+    if (epargne3a.isFinite && epargne3a > 0) {
+      knownValues['epargne_3a'] = epargne3a;
+    }
+    // Mirrors CoachProfile.isInDebtCrisis (line 1902) heuristic:
+    // prefer logged expenses, fall back to 60% of net monthly.
+    final loggedExpenses = profile.depenses.totalMensuel;
+    final netMensuel = profile.salaireBrutMensuel * profile.nombreDeMois / 12;
+    final monthlyExpenses = loggedExpenses > 0
+        ? loggedExpenses
+        : (netMensuel > 0 ? netMensuel * 0.6 : 0.0);
+    final epargneLiquide = profile.patrimoine.epargneLiquide;
+    if (monthlyExpenses > 0 &&
+        epargneLiquide.isFinite &&
+        epargneLiquide > 0) {
+      knownValues['months_liquidity'] = epargneLiquide / monthlyExpenses;
+    }
+
     return CoachContext(
       firstName: profile.firstName ?? 'utilisateur',
       age: profile.age,

@@ -455,6 +455,14 @@ _PROFILE_SAFE_FIELDS = {
     "planned_contributions",
     # SafeMode signal: consumer debt stress or emergency-fund shortfall (RULES.md §1)
     "has_debt",
+    # Walker 2026-05-08 Étape 6 fix: mobile CoachContext.knownValues keys
+    # (per `apps/mobile/lib/services/coach/coach_context_builder.dart:18-26`).
+    # Mobile sends raw verified inputs alongside derived metrics so the coach
+    # prompt can cite numbers the user already provided (LPP avoir, gross
+    # salary, 3a savings) instead of asking the user to scan a certificate
+    # they just imported. Privacy-safe (numeric, no PII). claude_coach_service
+    # auto-emits these in the « extra_keys » prompt block (line 830-840).
+    "avoir_lpp", "salaire_brut", "epargne_3a", "capital_final",
 }
 
 
@@ -512,13 +520,42 @@ def _build_coach_context_from_profile(profile_context: Optional[dict]):
     if not profile_context:
         return None
 
-    kwargs = {
+    # Whitelisted keys that match `build_coach_context()` named parameters.
+    # `build_coach_context` raises TypeError on unknown kwargs, so we split
+    # the safe profile_context into « builder kwargs » + « extra
+    # known_values » (numeric mobile-side known_values that the system
+    # prompt should still cite — claude_coach_service auto-emits them in
+    # the « extra_keys » block at line 830-840).
+    _BUILDER_PARAMS = {
+        "first_name", "age", "canton", "archetype",
+        "fri_total", "fri_delta", "primary_focus",
+        "replacement_ratio", "months_liquidity", "tax_saving_potential",
+        "confidence_score", "days_since_last_visit", "fiscal_season",
+        "upcoming_event", "check_in_streak", "last_milestone",
+        "planned_contributions", "has_debt",
+    }
+    builder_kwargs = {
         k: v for k, v in profile_context.items()
-        if k in _PROFILE_SAFE_FIELDS and v is not None
+        if k in _PROFILE_SAFE_FIELDS and k in _BUILDER_PARAMS and v is not None
+    }
+    extra_known = {
+        k: v for k, v in profile_context.items()
+        if k in _PROFILE_SAFE_FIELDS
+        and k not in _BUILDER_PARAMS
+        and isinstance(v, (int, float))
+        and v is not None
     }
 
     try:
-        return build_coach_context(**kwargs)
+        ctx = build_coach_context(**builder_kwargs)
+        if extra_known:
+            # known_values is a regular dict; merge non-disruptively.
+            merged = dict(ctx.known_values or {})
+            for k, v in extra_known.items():
+                if k not in merged:  # don't override builder-computed values
+                    merged[k] = v
+            ctx.known_values = merged
+        return ctx
     except Exception as exc:
         logger.warning("Could not build CoachContext from profile_context: %s", exc)
         return None
