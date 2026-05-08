@@ -60,7 +60,7 @@ Pas encore confirmé sur device physique iPhone Julien. Bloquant pour close-out 
 
 **État : 🟢 GREEN.**
 
-Évidence : `gh pr view 525 --json statusCheckRollup` sur run `25565490933` (post-push de 6ff7cbc0). 18 CheckRuns SUCCESS dont :
+Évidence : `gh pr view 525 --json statusCheckRollup` sur run `25565490933` (post-push de 6ff7cbc0). **17 CheckRuns** sur le workflow CI tous SUCCESS, plus 1 Vercel StatusContext SUCCESS + 1 Vercel Preview Comments CheckRun SUCCESS = 19 entries total, toutes SUCCESS.
 
 ```
 Backend tests       SUCCESS  completed 2026-05-08T16:01:21Z
@@ -70,10 +70,12 @@ Flutter services    SUCCESS  completed 2026-05-08T16:01:34Z
 Flutter screens     SUCCESS  completed 2026-05-08T15:59:57Z
 WCAG AA all touched SUCCESS  completed 2026-05-08T15:58:19Z
 PII log gate        SUCCESS  completed 2026-05-08T15:57:32Z
-... (11 autres SUCCESS)
+... (10 autres CheckRuns CI workflow SUCCESS)
+Vercel              SUCCESS  startedAt   2026-05-08T16:05:35Z
+Vercel Preview      SUCCESS  startedAt   2026-05-08T15:56:34Z
 ```
 
-Caveat : 1 StatusContext `Vercel` à `state: PENDING` (web preview, non-blocker pour mobile). `mergeStateStatus: UNSTABLE` reflétait uniquement ce Vercel pending — pas un blocker mécanique.
+Caveat correction post-audit : `mergeStateStatus: UNSTABLE` que j'avais snapshoté plus tôt reflétait un état antérieur où Vercel était encore PENDING. Au moment du merge (`16:05:55Z`), Vercel était passé à SUCCESS depuis ~20s (`16:05:35Z`). Donc le merge n'a PAS été completed avec un Vercel pending — j'avais mal interprété le snapshot précoce. Le doc-verifier audit a flagué cette imprécision.
 
 ### G4 — Regression tests
 
@@ -122,26 +124,48 @@ no_hardcoded_fr.py   : 5 034 violations
 apps/mobile/Makefile : N'EXISTE PAS (l'item « make i18n-fix » n'a même pas de fichier de base)
 ```
 
-Activation HARD aujourd'hui = bloque tous les commits jusqu'à fix de 5316 violations. **C'est un perimeter de 1-3j, pas un quick win.**
+Activation HARD aujourd'hui = bloque tous les commits jusqu'à fix de 5316 violations. **Sizing révisé après audit échantillonné (50 violations) : 3-5 jours, et c'est un i18n migration milestone, PAS un lint cleanup.** Initial estimate « 1-3j » était sous-évalué — voir §Sizing audit ci-dessous.
 
-**Note plus large** : 5 034 strings FR hardcodées dans le mobile est aussi un signal CLAUDE.md NEVER #1 (i18n required). Beaucoup sont probablement dans des `//` `///` commentaires (non user-visibles) — un échantillonnage rapide le confirme. Mais quel % réellement user-visible nécessite un audit avant de chiffrer le cleanup.
+### Sizing audit (50 violations échantillonnées sur les 5034)
+
+Audit conduit post-merge par sub-agent dédié. Sample = chaque 100e ligne du `no_hardcoded_fr.py` output. Classification :
+
+| Catégorie | % | Exemple |
+|---|---|---|
+| **USER-VISIBLE** | **82%** (41/50) | `onboarding_shell_screen.dart:320` `prompt: 'Quel âge tu as ?'` |
+| **CONST/INTERNAL** | **14%** (7/50) | `coach_llm_service.dart:463` `'Tu NE donnes JAMAIS de conseil financier.'` (LLM system prompt, never rendered) |
+| **COMMENT** | **4%** (2/50) | `tax_declaration_parser.dart:128` `// Variante: ...` |
+| **DEAD-CODE** | **0%** | (none) |
+
+**Top 3 offender files** :
+1. `apps/mobile/lib/services/coach/fallback_templates.dart` — 195 hits (coach fallback bodies, mostly user-visible)
+2. `apps/mobile/lib/data/education_content.dart` — 179 hits (educational module text, all user-visible)
+3. `apps/mobile/lib/services/educational_insert_service.dart` — 161 hits (insert subtitles / premier eclairage, user-visible)
+
+**Sizing** : 82% user-visible × 5034 violations ≈ **~4 100 strings à migrer en ARB réel** (key naming + extraction × 6 langs + `gen-l10n` + call-site replacement + interpolation handling). Top-3 offenders alone = ~535 hits dont la traduction nécessite **aussi** un LSFin compliance review (banned terms). Pure allowlist/auto-fix **non viable** — le codebase est en dette i18n bien plus que ce qu'un cleanup 1-3j peut fixer.
+
+**Reframe** : c'est un **i18n migration milestone**, pas un lint cleanup. Lefthook gating doit être différé jusqu'à migration done OR allowlist explicite des non-user-visible (LLM prompts internes principalement).
 
 ## Recommendation perimeter suivant
 
-**À ouvrir post-TestFlight** : `MVP-LINT-CLEANUP-LEFTHOOK-2026-Q3` perimeter dédié.
+**À ouvrir post-TestFlight** : `MILESTONE-I18N-MIGRATION-2026-Q3` (renommé de l'initial `MVP-LINT-CLEANUP-LEFTHOOK` parce que le scope est i18n migration, pas lint cleanup).
 
-**Étapes** :
-1. Audit échantillonné : sur 100 violations no_hardcoded_fr aléatoires, quel % est dans des commentaires vs dans des strings user-visibles ?
-2. Auto-fix `accent_lint_fr.py` 282 violations (mostly `creer→créer`, `securite→sécurité`, `specialiste→spécialiste`, `eclairage→éclairage`) — script propose le fix in-place
-3. Migrer les vrais hardcoded user-visibles vers ARB (Phase 26 i18n protocol)
-4. Allowlist les `//` commentaires (low-priority bypass)
-5. Activer les 2 hooks comme HARD gates dans `lefthook.yml`
-6. Mettre à jour CLAUDE.md §4 pour matcher la config réelle (et empêcher la dérive future)
-7. Ajouter `apps/mobile/Makefile` avec `i18n-fix` shortcut (`make i18n-fix` → invoque le skill `autoresearch-i18n`)
+**Étapes (révisées)** :
+1. **Quick win — auto-fix accent_lint_fr** (282 violations, mostly back-end Python + simulator) : `creer→créer`, `securite→sécurité`, `specialiste→spécialiste`, `eclairage→éclairage`. Script peut proposer le fix in-place. **0.3j**.
+2. **Audit complet** : classifier chaque violation no_hardcoded_fr (5034) en USER-VISIBLE / CONST/INTERNAL / COMMENT. Échantillon 50 dit 82/14/4 — extrapoler ou re-sample plus large pour précision. **0.5j**.
+3. **Migrer les 3 top offenders** vers ARB en priorité (`fallback_templates`, `education_content`, `educational_insert_service` ≈ 535 hits, ~10% du total). LSFin compliance review en même temps. **1.5-2j**.
+4. **Migrer le reste des user-visible** par batch de 200-300 hits (key naming pattern stable, peut être semi-automatique). **1-2j**.
+5. **Allowlist** les CONST/INTERNAL (LLM system prompts) avec un exclusion-pattern dans `no_hardcoded_fr.py` (path-based ou marker comment). **0.2j**.
+6. **Allowlist** les COMMENTS (`//` `///` `"""..."""`) via un ignore-pattern dans `no_hardcoded_fr.py`. **0.2j**.
+7. **Activer** les 2 hooks comme HARD gates dans `lefthook.yml` (sera vert puisque les 5034 violations sont à 0 ou allowlistées). **0.1j**.
+8. **Mettre à jour** CLAUDE.md §4 pour matcher la config réelle (empêcher dérive future). **0.1j**.
+9. **Ajouter** `apps/mobile/Makefile` avec `i18n-fix` shortcut. **0.1j**.
 
-**Effort total** : 1-3 j selon résultat de l'étape 1.
+**Effort total révisé** : **3-5 jours minimum**, plus probable 5-7j incluant LSFin compliance reviews + tests goldens 6 langues.
 
-**Pas blocker TestFlight** — la pipeline ship CI passe déjà sur les paths CI scope. Le gap est local-only.
+**Pas blocker TestFlight Q3** si MINT cohort initiale = FR-only swiss-native — la pipeline ship CI passe déjà sur les paths CI scope. Le gap est :
+- **Local-only** sur lefthook (commits récents skippent les 2 lints en pré-commit, mais CI les bloque s'ils sont activés en CI ; aujourd'hui ils ne sont pas en CI non plus pour le job principal).
+- **Multi-langue** sur user-facing strings — les 6 ARB files ne contiennent QUE le squelette, le contenu réel est codé en FR direct dans le code. MINT en pratique est FR-only en TestFlight Q3 même si les ARBs prétendent supporter 6 langues.
 
 ## Action items immédiats post-merge
 
