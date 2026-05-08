@@ -23,6 +23,7 @@ import 'package:mint_mobile/services/financial_plan_service.dart';
 class FinancialPlanProvider extends ChangeNotifier {
   FinancialPlan? _currentPlan;
   bool _isStale = false;
+  bool _profileAttached = false;
 
   // ── Public getters ──────────────────────────────────────────────────────
 
@@ -73,7 +74,14 @@ class FinancialPlanProvider extends ChangeNotifier {
   /// Each time the profile changes, [_checkStaleness] is called.
   /// notifyListeners is deferred to postFrameCallback to avoid
   /// setState-during-build errors.
+  ///
+  /// Idempotent: subsequent calls (e.g. from a ProxyProvider `update`
+  /// hook firing on every CoachProfile rebuild) are no-ops. Without
+  /// this guard the listener would stack and `_checkStaleness` would
+  /// fire N times per profile change.
   void attachProfileProvider(CoachProfileProvider profileProvider) {
+    if (_profileAttached) return;
+    _profileAttached = true;
     profileProvider.addListener(() {
       _checkStaleness(profileProvider.profile);
     });
