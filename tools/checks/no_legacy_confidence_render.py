@@ -128,6 +128,11 @@ RESIDUE_BASELINE = {
     "apps/mobile/lib/screens/coach/cockpit_detail_screen.dart",
     "apps/mobile/lib/widgets/coach/plan_preview_card.dart",
     "apps/mobile/lib/widgets/confidence_breakdown_card.dart",
+    # New caller of confidence_score_card.dart introduced by PR #525
+    # (Aujourd'hui wire of FinancialPlanCard + ConfidenceScoreCard).
+    # Transitively migrates with Batch C swap of #1 →
+    # MintTrameConfiance.inline(). See docs/MIGRATION_RESIDUE_8a.md row #6.5.
+    "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart",
     # Lower-leverage residue (deferred to Phase 8b/9/10 per residue doc)
     "apps/mobile/lib/widgets/precision/smart_default_indicator.dart",
     "apps/mobile/lib/widgets/premium/mint_confidence_notice.dart",

@@ -1505,7 +1505,35 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
             return provider;
           },
         ),
-        ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
+        // Walker 2026-05-08 / Aujourdhui-wire fix: convert plain
+        // ChangeNotifierProvider to ChangeNotifierProxyProvider so the
+        // provider's lifecycle (loadFromPersistence + attachProfileProvider)
+        // actually fires. The plain registration left both methods
+        // permanently uncalled — the canonical façade-sans-câblage pattern
+        // (CLAUDE.md NEVER #6). `lazy: false` is mandatory: nothing else
+        // currently watches FinancialPlanProvider eagerly, so without it
+        // create+update never run on cold start. Mirrors the
+        // NotificationsWiringService pattern at line 1533.
+        ChangeNotifierProxyProvider<CoachProfileProvider, FinancialPlanProvider>(
+          lazy: false,
+          create: (_) {
+            final fpp = FinancialPlanProvider();
+            // Fire-and-forget: hydrate any persisted plan from
+            // SharedPreferences. Failures are tolerated — `currentPlan`
+            // stays null and the home card is hidden until the user
+            // generates a plan via coach.
+            fpp.loadFromPersistence();
+            return fpp;
+          },
+          update: (_, profileProvider, fpp) {
+            final provider = fpp ?? FinancialPlanProvider();
+            // attachProfileProvider is idempotent (guarded by
+            // `_profileAttached` inside the provider) so calling it on
+            // every update is safe and cheap.
+            provider.attachProfileProvider(profileProvider);
+            return provider;
+          },
+        ),
         // Wave E-PRIME (2026-04-18): CoachEntryPayloadProvider deleted —
         // setPayload/consumePayload had 0 caller in prod (docstring claimed
         // MintHomeScreen sets + MintCoachTab reads; neither exists).
