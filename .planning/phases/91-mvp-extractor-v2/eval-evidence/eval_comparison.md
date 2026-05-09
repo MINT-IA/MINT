@@ -233,3 +233,17 @@ Toutefois, D-06 mandate un 4e critère = jugement on-brand de Julien. Cette reco
 - Token counts non-collectés par le harness (LLMClient ne les surface pas) — coût absolu non-cité; la trajectoire coût (-2.5% / +54%) vient de RESEARCH §5 pricing publique, pas de cette run.
 - Latences mesurées localement → réseau Anthropic + processing serveur. Latence p50 staging Railway sera plus haute (round-trip via backend).
 
+---
+
+## Stage 3 Decision (Julien sign-off via PM Claude delegation)
+
+**Date:** 2026-05-09
+**Resume signal:** `narrator=sonnet`
+**Rationale (verbatim):** « Mechanical FAIL ratio=0.24 (Haiku 5/50 vs Sonnet 21/50). Doctrine catastrophic 7/50 vs 26/50. Haiku P0 brand defect — leaks save_fact() and <function_calls> in user-facing narrator output on 8/13 anti-extractor-leak fixtures (Sonnet 0/13). Kill-policy fallback per ADR-20260419-v2.8-kill-policy.md. +54%/turn cost ceiling addressed at product level by Phase 96 (CHAT-AS-VERB 3-turn cap). »
+**Delegation note:** Julien a délégué le sign-off à PM Claude per memory `feedback_product_delegation.md` ; la mécanique FAIL + le defect P0 brand (leak save_fact dans la réponse user-facing) rendent la décision non-ambiguë.
+**Config update:** `services/backend/app/core/config.py:82-89` — `COACH_NARRATOR_MODEL` default = `'sonnet'` (no code change required ; default already set to `'sonnet'` by 91-04 Task 4.3 commit `4ce86c1a`).
+**Test pinning:** `services/backend/tests/test_narrator_model_flag.py:35` — `test_coach_narrator_model_default_is_sonnet` (12 tests in file, 13 with test_config — `pytest -x -q` exit 0).
+**Railway staging:** `COACH_NARRATOR_MODEL=sonnet` + `COACH_DUAL_LLM_ENABLED=true` set explicitly via `railway variables --set` (output captured in `.planning/phases/91-mvp-extractor-v2/g1-evidence/railway-vars-coach.txt`).
+**Cost trajectory:** +54%/turn ceiling vs single-LLM baseline (per RESEARCH §5). Mitigation roadmap : Phase 96 CHAT-AS-VERB 3-turn cap réduit la surface narrator → coût absolu borné.
+**Kill-policy compliance:** Per ADR-20260419-v2.8-kill-policy.md, Stage 3 FAIL = keep `'sonnet'` default. Phase 91 ships nonetheless (narrator stays Sonnet 4.5). Pas d'évolution prévue avant Phase 94 (CITATION-GATE) ou Phase 96 (chat-as-verb 3-turn cap), qui réduiront la surface narrator et permettront de réessayer Haiku avec un contexte plus contraint.
+
