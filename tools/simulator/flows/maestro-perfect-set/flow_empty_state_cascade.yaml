@@ -79,8 +79,9 @@ tags:
 ---
 
 # 01 — assert we're on /explore fresh (harness pre-deep-linked + uninstalled)
-- assertVisible:
-    text: "Explorer"
+- extendedWaitUntil:
+    visible:
+      text: "Explorer"
     timeout: 10000
 - takeScreenshot: "01-explore-fresh"
 
@@ -94,15 +95,17 @@ tags:
 - tapOn:
     point: "95%, 8%"
     optional: true
-- assertVisible:
-    text: "Mon bilan"
+- extendedWaitUntil:
+    visible:
+      text: "Mon bilan"
     timeout: 4000
 
 # 03 — tap « Mon bilan » → /profile/bilan (empty state expected)
 - tapOn:
     text: "Mon bilan"
-- assertVisible:
-    text: "Aucun profil renseigné"
+- extendedWaitUntil:
+    visible:
+      text: "Aucun profil renseigné"
     timeout: 6000
 
 # Diagnostic CTA must be visible AND tappable.
@@ -124,14 +127,16 @@ tags:
     text: "Commencer le diagnostic"
 
 # Coach chat input hint == we landed on /coach/chat
-- assertVisible:
-    text: "Dis-moi."
+- extendedWaitUntil:
+    visible:
+      text: "Dis-moi."
     timeout: 8000
 
 # B1 — assistant-authored greeting is the FIRST message rendered.
 # This is the assertion that proves PR #529 + PR #519 stuck.
-- assertVisible:
-    text: "Bienvenue dans MINT. Avant qu'on commence : qu'est-ce qui t'amène ici aujourd'hui ?"
+- extendedWaitUntil:
+    visible:
+      text: "Bienvenue dans MINT. Avant qu'on commence : qu'est-ce qui t'amène ici aujourd'hui ?"
     timeout: 12000
 
 # Greeting lives inside a coach Semantics node, not a user one.

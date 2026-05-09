@@ -71,14 +71,16 @@ tags:
 
 # 01 — assert we're on the 3a simulator (harness pre-deep-linked)
 # Tolerates 8s for cold launch + financial_core init.
-- assertVisible:
-    text: "Ton 3e pilier"
+- extendedWaitUntil:
+    visible:
+      text: "Ton 3e pilier"
     timeout: 10000
 - takeScreenshot: "01-3a-screen-loaded"
 
 # 02 — params section visible (« Tes paramètres » header)
-- assertVisible:
-    text: "Tes paramètres"
+- extendedWaitUntil:
+    visible:
+      text: "Tes paramètres"
     timeout: 4000
 - takeScreenshot: "02-params-section"
 
@@ -86,21 +88,24 @@ tags:
 # The chip is wrapped in Semantics (simulator_3a_screen.dart:588) so
 # it surfaces to Maestro as plain text.
 - scroll
-- assertVisible:
-    text: "Gain fiscal annuel"
+- extendedWaitUntil:
+    visible:
+      text: "Gain fiscal annuel"
     timeout: 4000
 - takeScreenshot: "03-result-chip"
 
 # 04 — scroll to strategy section
 - scroll
-- assertVisible:
-    text: "Stratégie gagnante"
+- extendedWaitUntil:
+    visible:
+      text: "Stratégie gagnante"
     timeout: 4000
 
 # 05 — explore-also section (cross-link to comparator + retroactif + …)
 - scroll
-- assertVisible:
-    text: "Explorer aussi"
+- extendedWaitUntil:
+    visible:
+      text: "Explorer aussi"
     timeout: 4000
 - takeScreenshot: "04-strategy-section"
 

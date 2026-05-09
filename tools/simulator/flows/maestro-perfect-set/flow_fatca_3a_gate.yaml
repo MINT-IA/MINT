@@ -1,0 +1,91 @@
+# tools/simulator/flows/maestro-perfect-set/flow_fatca_3a_gate.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Regression guard for the FATCA gate on the 3a simulator (PR #537,
+# dev sha 46a5f2de). Bug : `simulator_3a_screen.dart` had no FATCA
+# gate so US persons (canContribute3a == false) saw a fully functional
+# 3a contribution simulator that they cannot act on (most Swiss 3a
+# providers refuse US persons per LSFin compliance + PFIC tax rules).
+#
+# The fix : `_buildFatcaGateBody()` renders an explainer panel
+# instead of the simulator inputs when the user is FATCA-affected.
+# Title : « Pilier 3a — accès limité (FATCA) » (l10n.sim3aFatcaGateTitle).
+#
+# ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
+# REQUIRES `MINT_E2E_ARCHETYPE=expat_us_seed` so the seeded
+# CoachProfile has nationality=US which triggers
+# `archetype == FinancialArchetype.expatUs` and `canContribute3a` returns
+# false. Without the seed, default profile has nationality=null and the
+# gate would NOT fire (legitimate behavior — gate is binary on
+# canContribute3a).
+#
+# If the seed key isn't wired yet, the alternative is :
+#   1. Build with `--dart-define=MINT_E2E_ARCHETYPE=expat_us_seed`
+#   2. OR use the wizard flow to set nationality=US, then run this
+#      flow with the post-wizard state preserved (`clearState: false`).
+#
+# ─── EXPECTED DURATION ─────────────────────────────────────────────────
+# < 15s wall-clock (cold launch + 1 deep-link + 2 shots).
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed, sim booted, bundle id ch.mint.app
+# - Build dart-defines :
+#     API_BASE_URL=staging
+#     MINT_E2E_ARCHETYPE=expat_us_seed (REQUIRED for this flow)
+#     MINT_DISABLE_BETA_MODAL=true
+# - Harness deep-links to /pilier-3a via :
+#     `xcrun simctl openurl booted ch.mint.app://pilier-3a`
+#
+# ─── LOCATOR STRATEGY ──────────────────────────────────────────────────
+# - FATCA gate title : « Pilier 3a — accès limité (FATCA) »
+#   (l10n.sim3aFatcaGateTitle, added in PR #537)
+# - FATCA gate CTA   : « Voir les alternatives au 3a »
+#   (l10n.sim3aFatcaGateAction)
+# - NEGATIVE assertion : the simulator title from sim3aTitle should
+#   render in the AppBar but NOT « Calcul du gain fiscal annuel » or
+#   slider widgets — those are gated behind isFatcaBlocked == false.
+#
+# ─── OUTPUT ────────────────────────────────────────────────────────────
+# .planning/walker/maestro-flows/fatca-3a-gate/<run-id>/
+#   ├── 01-pilier-3a-fatca-panel.png
+#   └── 02-fatca-cta-tapped.png
+
+appId: ch.mint.app
+tags:
+  - regression
+  - fatca
+  - perimeter-2026-05-09
+  - p0-4
+---
+
+# 01 — cold launch (relies on seeded expat_us archetype)
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      text: "Voir clair, décider seul."
+    timeout: 8000
+
+# 02 — deep-link to /pilier-3a (or navigate via drawer)
+# Maestro's `openLink` uses the iOS deep-link scheme registered in
+# Info.plist. If deep-linking is not wired, fall back to drawer nav.
+- openLink: "ch.mint.app://pilier-3a"
+
+# 03 — assert FATCA gate panel renders (NOT the simulator inputs)
+- extendedWaitUntil:
+    visible:
+      text: "Pilier 3a — accès limité (FATCA)"
+    timeout: 6000
+- assertVisible:
+    text: "Voir les alternatives au 3a"
+- takeScreenshot: "01-pilier-3a-fatca-panel"
+
+# 04 — REGRESSION GUARD : the simulator slider / inputs must NOT
+# appear in the body when isFatcaBlocked == true.
+- assertNotVisible:
+    text: "Gain fiscal annuel"
+
+# 05 — tap FATCA CTA → routes to coach with intent=fatca_3a_alternatives
+- tapOn:
+    text: "Voir les alternatives au 3a"
+- takeScreenshot: "02-fatca-cta-tapped"

@@ -71,8 +71,9 @@ tags:
 ---
 
 # 01 — assert we're on /scan (harness pre-deep-linked)
-- assertVisible:
-    text: "SCANNER UN DOCUMENT"
+- extendedWaitUntil:
+    visible:
+      text: "SCANNER UN DOCUMENT"
     timeout: 8000
 - assertVisible:
     text: "Améliore la précision de ton profil"
@@ -91,14 +92,14 @@ tags:
 # uses the local-parser path) — Maestro doesn't care which.
 - tapOn:
     text: "Utiliser un exemple de test"
-    retryTapIfNoChange: false
 - takeScreenshot: "03-example-tapped"
 
 # 04 — wait for the extraction review screen. Processing takes 2-8s
 # depending on whether the parser hits the local heuristic or the
 # server endpoint. Generous timeout.
-- assertVisible:
-    text: "VÉRIFICATION"
+- extendedWaitUntil:
+    visible:
+      text: "VÉRIFICATION"
     timeout: 30000
 - assertVisible:
     text: "Vérifie les valeurs extraites"
@@ -109,8 +110,9 @@ tags:
 # We use a forgiving OR-shape via two `runFlow` `assertAny` patterns
 # isn't supported in Maestro 2.5 ; instead we assert one most-stable
 # token : « LPP » is present in any avoir-lpp* field label.
-- assertVisible:
-    text: "LPP"
+- extendedWaitUntil:
+    visible:
+      text: "LPP"
     timeout: 4000
 - takeScreenshot: "04-extraction-review"
 
