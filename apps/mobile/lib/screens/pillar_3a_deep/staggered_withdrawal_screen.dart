@@ -181,7 +181,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           title: S.of(context)!.staggeredWithdrawalEmptyTitle,
           subtitle: S.of(context)!.staggeredWithdrawalEmptySubtitle,
           ctaLabel: S.of(context)!.staggeredWithdrawalEmptyCta,
-          onCta: () => context.go('/coach/chat'),
+          // B7-cascade fix 2026-05-09 : push (not go) so the user can
+          // back-out of the coach without losing this empty-state screen.
+          onCta: () => context.push('/coach/chat'),
         ),
       );
     }
