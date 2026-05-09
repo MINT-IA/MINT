@@ -80,9 +80,10 @@ def _scan_file(path: Path, scope_root: Path) -> list[str]:
 
 
 def scan(scope_root: Path, files: list[Path] | None = None) -> list[str]:
+    scope_root = scope_root.resolve()
     out: list[str] = []
     if files:
-        targets = [f for f in files if f.exists() and f.suffix == ".dart"]
+        targets = [f.resolve() for f in files if f.exists() and f.suffix == ".dart"]
     else:
         targets = list(scope_root.rglob("*.dart"))
     for f in targets:
@@ -151,6 +152,10 @@ def main(argv: list[str] | None = None) -> int:
             f"phase, contact #design or use `// lint-ignore: {LINT_NAME}`."
         )
         return 1
+
+    if args.file:
+        print(f"OK {LINT_NAME}: clean (staged scope, baseline unchanged)")
+        return 0
 
     removed = baseline - set(current)
     if removed:
