@@ -1541,6 +1541,15 @@ FALLBACK_MODEL_HAIKU = "claude-haiku-4-5-20251001"
 FALLBACK_TIMEOUT_SECONDS = 20
 FALLBACK_HISTORY_MAX_TURNS = 10
 
+# Phase 91 D-01 — narrator model resolver map. Reads
+# settings.COACH_NARRATOR_MODEL when COACH_DUAL_LLM_ENABLED.
+# Reuses the same model ids defined above (single source of truth);
+# narrator and Sonnet→Haiku fallback share the literal model strings.
+_NARRATOR_MODEL_MAP = {
+    "sonnet": PRIMARY_MODEL_DEFAULT,
+    "haiku": FALLBACK_MODEL_HAIKU,
+}
+
 # v2.7 Task 4: hard-cap user-facing text (FR only in backend; mobile
 # MUST re-localize via ARB key coach.budget.daily_limit_reached).
 HARD_CAP_MESSAGE_FR_FALLBACK = (
@@ -3129,6 +3138,18 @@ async def coach_chat(
         if settings.COACH_DUAL_LLM_ENABLED
         else get_llm_tools()
     )
+    # Phase 91 D-01 — when dual-LLM is on, the narrator's model is selected
+    # by COACH_NARRATOR_MODEL (default 'sonnet' — preserves today's hardcoded
+    # Wave 2 behavior). When dual-LLM is off, the legacy effective_model
+    # resolution stands unchanged (body.model OR budget tier override OR
+    # fallback chain). Stage 3 eval gate (plan 91-05) is the explicit
+    # decision point that may flip the default to 'haiku' (-2.5%/turn) per
+    # ADR-20260419-v2.8-kill-policy.md.
+    _narrator_model = (
+        _NARRATOR_MODEL_MAP[settings.COACH_NARRATOR_MODEL]
+        if settings.COACH_DUAL_LLM_ENABLED
+        else effective_model
+    )
     try:
         loop_result = await asyncio.wait_for(
             _run_agent_loop(
@@ -3136,7 +3157,7 @@ async def coach_chat(
                 question=body.message,
                 api_key=effective_api_key,
                 provider=body.provider,
-                model=effective_model,
+                model=_narrator_model,
                 profile_context=safe_profile,
                 language=body.language,
                 memory_block=effective_memory_block,

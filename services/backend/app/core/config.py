@@ -1,6 +1,7 @@
 import os
+from typing import Literal
 
-from pydantic import ConfigDict
+from pydantic import ConfigDict, Field
 from pydantic_settings import BaseSettings
 
 
@@ -68,6 +69,25 @@ class Settings(BaseSettings):
     # staging soak. See .planning/phases/91-mvp-extractor-v2/RESEARCH.md
     # §4 Stage 0 T0.2 + 91-CONTEXT.md decision D-12.
     COACH_DUAL_LLM_ENABLED: bool = False
+
+    # Phase 91 D-01 — Narrator model selection. Default 'sonnet' matches
+    # today's hardcoded Wave 2 narrator branch (preserves production
+    # parity until Stage 3 eval gate flips the default in 91-05).
+    # Per ADR-20260419-v2.8-kill-policy.md, Stage 3 fail => keep 'sonnet'
+    # (cost +54% per turn ceiling); Stage 3 pass => flip to 'haiku'
+    # (cost -2.5% per turn). The flip is the explicit decision documented
+    # in 91-05-SUMMARY.md, NOT an automated default change here.
+    # Wired in coach_chat.py via _NARRATOR_MODEL_MAP when
+    # COACH_DUAL_LLM_ENABLED is True; flag-OFF path is unaffected.
+    COACH_NARRATOR_MODEL: Literal["sonnet", "haiku"] = Field(
+        default="sonnet",
+        description=(
+            "Phase 91 narrator model selection. 'sonnet' (default) = "
+            "claude-sonnet-4-5-20250929; 'haiku' = claude-haiku-4-5-20251001. "
+            "Wired in coach_chat narrator branch when COACH_DUAL_LLM_ENABLED. "
+            "Per D-01 + ADR-20260419-v2.8-kill-policy.md."
+        ),
+    )
 
     # Apple IAP / StoreKit
     APPLE_IAP_PRODUCT_COACH_MONTHLY: str = "ch.mint.coach.monthly"
