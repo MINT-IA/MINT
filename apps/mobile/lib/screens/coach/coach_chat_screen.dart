@@ -1178,6 +1178,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final config = _buildConfig();
       // Capture l10n before await to avoid using BuildContext across async gap.
       final l10n = S.of(context)!;
+      // B13 fix (2026-05-09): pass isLoggedIn so the orchestrator can skip
+      // the tier 3.5 anonymous fallback on logged users. Pre-fix, an
+      // authenticated user whose tier3 server-key call timed out got
+      // silently routed to /anonymous/chat and saw « Limite atteinte. Crée
+      // un compte pour continuer. » — trust-killer.
+      final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
       final response = await CoachLlmService.chat(
         userMessage: text,
         profile: _profile!,
@@ -1185,6 +1191,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         config: config,
         memoryBlock: memoryBlock,
         cashLevel: _cashLevel,
+        isLoggedIn: isLoggedIn,
       );
 
       final tier = config.hasApiKey ? ChatTier.byok : ChatTier.fallback;
