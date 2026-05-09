@@ -880,9 +880,101 @@ def _handle_retrieve_memories(
 # Agent loop — tool_use -> execute -> re-call LLM
 # ---------------------------------------------------------------------------
 
+# B14 (2026-05-09): keyword-based intent classifier so the coach can avoid
+# off-topic education content (e.g., mortgage amortissement on a debt-conso
+# query). Multi-label : a message can carry several intents (« j'ai des
+# dettes mais je veux acheter » → {debt, housing}). Empty set → no gate.
+_INTENT_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "debt": (
+        "dette", "dettes", "endette", "endettee", "endettes", "endettees",
+        "surendette", "surendettement", "decouvert",
+        "credit conso", "credit a la consommation", "leasing",
+        "rembourser", "remboursement",
+    ),
+    "housing": (
+        "hypotheque", "hypothecaire", "achat immobilier", "acheter un bien",
+        "proprietaire", "logement", "appartement", "maison",
+        "amortissement direct", "amortissement indirect", "epl",
+    ),
+    "family": (
+        "marie", "mariage", "concubin", "concubinage", "divorce",
+        "enfant", "enfants", "famille", "garde", "pension alimentaire",
+        "naissance", "adoption",
+    ),
+    "career": (
+        "demission", "demissionner", "licenciement", "perte d emploi",
+        "chomage", "lpci", "nouveau job", "nouveau travail",
+        "reconversion", "freelance", "independant",
+    ),
+    "retirement": (
+        "retraite", "rentier", "rente avs", "rente lpp",
+        "retrait lpp", "retrait 3a", "62 ans", "63 ans", "64 ans", "65 ans",
+        "pre retraite", "retraite anticipee",
+    ),
+    "taxes": (
+        "impot", "impots", "fiscalite", "declaration", "tax",
+        "taxation", "deduction", "rappel d impot",
+    ),
+}
+
+
+def _classify_user_intent(message: Optional[str]) -> set[str]:
+    """Classify a user message into one or more life-event intent labels.
+
+    Heuristic, not ML. Strips diacritics for robustness ("dette" matches
+    "dettes" / "endetté"). Returns set() when no keyword fires.
+    """
+    if not message or not message.strip():
+        return set()
+    import unicodedata
+    normalized = "".join(
+        c for c in unicodedata.normalize("NFD", message.lower())
+        if unicodedata.category(c) != "Mn"
+    )
+    detected: set[str] = set()
+    for intent, kw_list in _INTENT_KEYWORDS.items():
+        for kw in kw_list:
+            if kw in normalized:
+                detected.add(intent)
+                break
+    return detected
+
+
+# B15 (2026-05-09): detect concrete-fact signals in user message so
+# suggest_actions can skip generic profile-gap chips when the user
+# already volunteered specific data this turn.
+_CONCRETE_FACT_PATTERNS = (
+    re.compile(r"\d+(?:['\s]?\d+)*\s*(?:chf|francs?|fr\.?|eur|euros?|usd)", re.IGNORECASE),
+    re.compile(r"\d+(?:[.,]\d+)?\s*%"),
+    re.compile(r"\b(19|20)\d{2}\b"),  # year markers
+    re.compile(r"\d{2,}\s*(ans|years|jahre)", re.IGNORECASE),
+    re.compile(r"\b\d{4,}\b"),  # any 4-digit+ number (likely amount)
+)
+
+
+def _has_concrete_facts(message: Optional[str]) -> bool:
+    """Return True when the user message contains ≥2 concrete-fact signals.
+
+    « j'ai 50k de dettes à 8% depuis 2024 » → True (3 signals).
+    « j'ai des dettes » → False (no signals).
+    """
+    if not message or not message.strip():
+        return False
+    hits = 0
+    for pat in _CONCRETE_FACT_PATTERNS:
+        if pat.search(message):
+            hits += 1
+            if hits >= 2:
+                return True
+    return False
+
+
 def _compute_suggested_actions(
     user_id: Optional[str],
     db: Optional[Session],
+    last_user_message: Optional[str] = None,
+    detected_intents: Optional[set[str]] = None,
+    fact_keys_saved_this_turn: Optional[list[str]] = None,
 ) -> list[dict[str, str]]:
     """Compute 2-3 personalized next actions from profile state.
 
@@ -908,21 +1000,41 @@ def _compute_suggested_actions(
     except Exception:
         return [{"label": "Parle-moi de ta situation financière", "type": "question"}]
 
-    # Profile gaps → question chips
-    if not data.get("birthYear"):
-        actions.append({"label": "Quel âge as-tu ?", "type": "question"})
-    if not data.get("canton"):
-        actions.append({"label": "Dans quel canton vis-tu ?", "type": "question"})
-    if not data.get("incomeNetMonthly") and not data.get("incomeGrossYearly"):
-        # B2 fix (2026-05-08) : archetype-agnostic — salaried_active is only
-        # 4/8 archetypes (independents, retirees, students, expat_us in
-        # transition, etc. don't have « salaire net mensuel »). Asking
-        # about money source covers the 8 archetypes (CLAUDE.md NEVER #4
-        # + #7).
-        actions.append({
-            "label": "D'où vient ton argent ? (salaire, dividendes, rente, autre)",
-            "type": "question",
-        })
+    intents = detected_intents or set()
+    saved_keys = fact_keys_saved_this_turn or []
+    fact_dense = _has_concrete_facts(last_user_message) and bool(saved_keys)
+
+    # B14 (2026-05-09): debt-intent forward-progress chips when user just
+    # signalled debts. These take priority over generic profile-gap chips.
+    if "debt" in intents:
+        if data.get("hasDebt") is True and not data.get("totalDebt"):
+            actions.append({"label": "Quel est le montant total de tes dettes ?", "type": "question"})
+        elif data.get("totalDebt"):
+            actions.append({"label": "Compare ta dette aux taux du marché", "type": "simulate"})
+            actions.append({"label": "Calcule ta capacité de remboursement mensuelle", "type": "simulate"})
+        else:
+            actions.append({"label": "Quel est le montant total de tes dettes ?", "type": "question"})
+            actions.append({"label": "À quel taux d'intérêt ? (en %)", "type": "question"})
+
+    # Profile gaps → question chips. B15 (2026-05-09): when the user just
+    # gave concrete facts AND a debt-intent chip already filled the slot,
+    # skip generic profile-gap questions (avoid « D'où vient ton argent »
+    # right after the user volunteered « j'ai 50k de dettes à 8% »).
+    skip_generic = fact_dense and len(actions) >= 1
+
+    if not skip_generic:
+        if not data.get("birthYear"):
+            actions.append({"label": "Quel âge as-tu ?", "type": "question"})
+        if not data.get("canton"):
+            actions.append({"label": "Dans quel canton vis-tu ?", "type": "question"})
+        if not data.get("incomeNetMonthly") and not data.get("incomeGrossYearly"):
+            # B2 fix (2026-05-08) : archetype-agnostic — salaried_active is
+            # only 4/8 archetypes. Money-source question covers the 8
+            # archetypes (CLAUDE.md NEVER #4 + #7).
+            actions.append({
+                "label": "D'où vient ton argent ? (salaire, dividendes, rente, autre)",
+                "type": "question",
+            })
 
     if len(actions) >= 3:
         return actions[:3]
@@ -1246,6 +1358,9 @@ def _execute_internal_tool(
     user_id: Optional[str] = None,
     db: Optional[Session] = None,
     persistence_consent: bool = False,
+    last_user_message: Optional[str] = None,
+    detected_intents: Optional[set[str]] = None,
+    fact_keys_saved_this_turn: Optional[list[str]] = None,
 ) -> str:
     """Execute a single internal tool and return the result as text.
 
@@ -1523,7 +1638,13 @@ def _execute_internal_tool(
     # state. Gate 0 #6: replaces static chips with contextual next steps.
     # ─────────────────────────────────────────────────────────────────
     if name == "suggest_actions":
-        suggestions = _compute_suggested_actions(user_id, db)
+        suggestions = _compute_suggested_actions(
+            user_id,
+            db,
+            last_user_message=last_user_message,
+            detected_intents=detected_intents,
+            fact_keys_saved_this_turn=fact_keys_saved_this_turn,
+        )
         import json as _json
         return _json.dumps(suggestions, ensure_ascii=False)
 
@@ -1888,6 +2009,7 @@ async def _run_agent_loop(
     db: Optional[Session] = None,
     conversation_history: list[dict] | None = None,
     persistence_consent: bool = False,
+    detected_intents: Optional[set[str]] = None,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -1927,6 +2049,10 @@ async def _run_agent_loop(
     # Any single iteration that falls back to Haiku marks the whole response.
     degraded_any = False
     model_used_last = model or PRIMARY_MODEL_DEFAULT
+    # B15 (2026-05-09): track save_fact keys persisted in this turn so
+    # suggest_actions can skip generic profile-gap chips when the user
+    # already volunteered concrete data.
+    fact_keys_saved_this_turn: list[str] = []
     # P0-5: Counter for unknown tool calls — stop loop after 2 to prevent infinite retry
     _MAX_UNKNOWN_TOOL_CALLS = 2
     unknown_tool_count = 0
@@ -2063,9 +2189,21 @@ async def _run_agent_loop(
                 current_question = _REPROMPT_EMPTY_END_TURN
             continue
 
-        # Execute internal tools and collect results
+        # Execute internal tools and collect results.
+        # Reorder so save_fact runs BEFORE suggest_actions in the same
+        # iteration: suggest_actions reads profile state + fact_keys
+        # tracker, both of which save_fact mutates. Without the order,
+        # the chips reflect cold profile state on the same turn.
         tool_results: list = []
-        for call in internal_calls:
+        ordered_calls = sorted(
+            internal_calls,
+            key=lambda c: 1 if c.get("name") == "suggest_actions" else 0,
+        )
+        for call in ordered_calls:
+            if call.get("name") == "save_fact":
+                _saved_key = (call.get("input") or {}).get("key")
+                if isinstance(_saved_key, str) and _saved_key:
+                    fact_keys_saved_this_turn.append(_saved_key)
             result_text = _execute_internal_tool(
                 call,
                 memory_block,
@@ -2073,6 +2211,9 @@ async def _run_agent_loop(
                 user_id=user_id,
                 db=db,
                 persistence_consent=persistence_consent,
+                last_user_message=question,
+                detected_intents=detected_intents,
+                fact_keys_saved_this_turn=fact_keys_saved_this_turn,
             )
             # FIX-W12: Truncate tool results to prevent context explosion
             if len(result_text) > 500:
@@ -2311,6 +2452,12 @@ async def coach_chat(
     for pattern in _INJECTION_PATTERNS:
         sanitized_message = pattern.sub("", sanitized_message)
 
+    # B14 (2026-05-09): classify user message intent so the agent loop can
+    # gate suggest_actions chips and the system prompt can steer the LLM
+    # away from off-topic education content (e.g. mortgage amortissement
+    # on a debt-conso query).
+    detected_intents = _classify_user_intent(sanitized_message)
+
     # ------------------------------------------------------------------
     # Step 1.4: Deterministic profile extraction (FIX-A, 2026-04-13)
     # ------------------------------------------------------------------
@@ -2477,6 +2624,27 @@ async def coach_chat(
         except Exception as _pf_exc:
             logger.warning("profile block injection failed: %s", _pf_exc)
 
+    # B14 (2026-05-09): inject detected user intent so the LLM can avoid
+    # off-topic education content. Heuristic, non-binding — Claude can
+    # still discuss multiple topics when the user query is genuinely
+    # multi-intent. Intent labels: debt / housing / family / career /
+    # retirement / taxes.
+    if detected_intents:
+        _intent_label = ", ".join(sorted(detected_intents))
+        intent_block = (
+            f"\n\n## INTENTION DETECTEE (heuristique) : {_intent_label}\n"
+            "Reste centre·e sur cette intention. N'introduis pas de sujets "
+            "tangentiels (ex. amortissement hypothecaire si l'utilisateur "
+            "n'est pas proprietaire et parle de dettes conso). Si la question "
+            "est genuinement multi-intent, traite explicitement chaque volet."
+        )
+        system_prompt = system_prompt + intent_block
+        logger.info(
+            "coach_chat intent classified: user=%s intents=%s",
+            (str(_user.id)[:8] + "...") if _user else "anon",
+            sorted(detected_intents),
+        )
+
     # P3-B readiness metric: track system prompt size for multi-agent trigger.
     # When tokens_est > 3500 regularly, activate domain-specific prompt routing.
     prompt_len = len(system_prompt)
@@ -2557,6 +2725,7 @@ async def coach_chat(
                 db=db,
                 conversation_history=safe_history,
                 persistence_consent=body.persistence_consent,
+                detected_intents=detected_intents,
             ),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )
