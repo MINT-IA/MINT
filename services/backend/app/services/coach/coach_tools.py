@@ -1227,3 +1227,48 @@ def get_llm_tools() -> list[dict[str, Any]]:
         {k: v for k, v in tool.items() if k in _LLM_ALLOWED_FIELDS}
         for tool in COACH_TOOLS
     ]
+
+
+# ---------------------------------------------------------------------------
+# Phase 91 Wave 2 — narrator-only tool list (excludes save_fact + save_insight)
+# ---------------------------------------------------------------------------
+#
+# When COACH_DUAL_LLM_ENABLED=True (CONTEXT D-12), the narrator LLM no longer
+# owns fact capture — that responsibility moves to the dedicated extractor
+# LLM running in `app.services.coach.llm_extractor`. The narrator's tool
+# surface is narrowed to delivery-only tools (route_to_screen, show_*,
+# get_*, etc.). Removing save_fact + save_insight from the tool list is
+# the structural prereq for Phase 94 CITATION-GATE — a narrator that has
+# no fact-write tool cannot silently emit uncited numbers via the
+# tool-call channel.
+#
+# CONTEXT D-05 + EXTR-04 resolution: this Wave 2 EXCLUDES save_insight
+# from the narrator's tools per EXTR-04 + RESEARCH §3 + the milestone
+# architectural commitment ("2 prompts, 2 guardrails, 2 budgets"). The
+# OWNERSHIP question (who detects narrative insights — extractor or
+# narrator) is preserved: D-05 says insight detection is narrative
+# judgment, so a follow-up phase MAY re-introduce save_insight as a
+# NARRATOR tool if under-call symptoms emerge in Stage 3 narrator eval.
+# Until then, insight capture falls back to the regex/heuristic floor
+# (today's degraded baseline). Documented in 91-02-SUMMARY.md.
+_NARRATOR_EXCLUDED_TOOLS: set[str] = {"save_fact", "save_insight"}
+
+
+def get_narrator_llm_tools() -> list[dict[str, Any]]:
+    """Narrator-scoped tool list (Phase 91 Wave 2, EXTR-04).
+
+    Returns COACH_TOOLS minus the fact-capture tools (`save_fact`,
+    `save_insight`). Tool DEFINITIONS remain in COACH_TOOLS — the legacy
+    single-LLM path (`get_llm_tools()`) still uses them. Only this
+    helper's output is filtered.
+
+    Tradeoff (D-05 vs EXTR-04): see module-level _NARRATOR_EXCLUDED_TOOLS
+    comment. EXTR-04 wins on tool list scope; D-05's ownership question
+    on save_insight is deferred to a follow-up phase.
+    """
+    _LLM_ALLOWED_FIELDS = {"name", "description", "input_schema"}
+    return [
+        {k: v for k, v in tool.items() if k in _LLM_ALLOWED_FIELDS}
+        for tool in COACH_TOOLS
+        if tool.get("name") not in _NARRATOR_EXCLUDED_TOOLS
+    ]

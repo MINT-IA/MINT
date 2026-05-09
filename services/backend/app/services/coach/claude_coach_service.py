@@ -34,7 +34,12 @@ from app.services.coach.coach_models import CoachContext
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES, ROUTE_TO_SCREEN_INTENT_TAGS
 from app.services.coach.regional_microcopy import RegionalMicrocopy
 
-__all__ = ["build_system_prompt", "COACH_TOOLS", "INTERNAL_TOOL_NAMES"]
+__all__ = [
+    "build_system_prompt",
+    "build_narrator_system_prompt",
+    "COACH_TOOLS",
+    "INTERNAL_TOOL_NAMES",
+]
 
 
 # ---------------------------------------------------------------------------
@@ -746,23 +751,30 @@ _LANGUAGE_NAMES = {
 }
 
 
-def build_system_prompt(
+def _build_prompt(
+    *,
+    base_template: str,
     ctx: Optional[CoachContext] = None,
     language: str = "fr",
     cash_level: int = 3,
 ) -> str:
-    """Build the full system prompt for the Claude coach.
+    """Phase 91 Wave 2 — shared assembly for legacy and narrator prompts.
 
-    Args:
-        ctx: Optional CoachContext with user-specific data. When provided,
-             the prompt is enriched with the user's known values, archetype,
-             and confidence score. When None, returns the base prompt only.
-        language: ISO 639-1 language code for the response language.
-             The base prompt stays in French (it works for Claude) but a
-             response language instruction is appended when language != 'fr'.
+    `base_template` is the format-string body (must expose `{banned_terms}`
+    + 5 other slots). The 11 appended blocks (life-event catalog, archetype
+    catalog, doctrine information, voice intensity, anti-patterns,
+    biography awareness, commitment devices, intelligence blocks,
+    couple-mode, language switch, user context) are unchanged across both
+    callers — only `base_template` differs.
 
-    Returns:
-        The complete system prompt string to pass to the Anthropic API.
+    Today's two callers:
+      - `build_system_prompt`         → `_BASE_SYSTEM_PROMPT` (legacy single-LLM)
+      - `build_narrator_system_prompt`→ `_NARRATOR_BASE_SYSTEM_PROMPT` (Wave 2)
+
+    Karpathy #2 Simplicity First: this is a parametric refactor of the
+    existing function body, not a rewrite. The legacy path's output is
+    byte-identical when called via `build_system_prompt` (proven by
+    `tests/test_claude_coach_service.py::test_base_system_prompt_blocks`).
     """
     # Phase 6 / REGIONAL-04: single regional voice injection point.
     # RegionalMicrocopy.identity_block returns the per-canton block when
@@ -774,7 +786,7 @@ def build_system_prompt(
     # slot which sits BEFORE {routing_rules} in _BASE_SYSTEM_PROMPT, guaranteeing
     # the model reads "no optim advice" before it reads routing rules (RULES.md §2).
     safe_mode_block = (_SAFE_MODE_PROTOCOL + "\n") if (ctx and ctx.has_debt) else ""
-    base = _BASE_SYSTEM_PROMPT.format(
+    base = base_template.format(
         banned_terms=_BANNED_TERMS_REMINDER,
         regional_identity=RegionalMicrocopy.identity_block(canton),
         lifecycle_awareness=_LIFECYCLE_AWARENESS,
@@ -850,6 +862,61 @@ def build_system_prompt(
     # Enrich with user context
     context_section = _build_context_section(ctx)
     return base + "\n" + context_section
+
+
+def build_system_prompt(
+    ctx: Optional[CoachContext] = None,
+    language: str = "fr",
+    cash_level: int = 3,
+) -> str:
+    """Legacy single-LLM system prompt (used when COACH_DUAL_LLM_ENABLED=False).
+
+    Args:
+        ctx: Optional CoachContext with user-specific data. When provided,
+             the prompt is enriched with the user's known values, archetype,
+             and confidence score. When None, returns the base prompt only.
+        language: ISO 639-1 language code for the response language.
+             The base prompt stays in French (it works for Claude) but a
+             response language instruction is appended when language != 'fr'.
+
+    Returns:
+        The complete system prompt string to pass to the Anthropic API,
+        including the legacy « EXTRACTION DE PROFIL » directives + the
+        « TOUJOURS appeler save_insight » mandate.
+    """
+    return _build_prompt(
+        base_template=_BASE_SYSTEM_PROMPT,
+        ctx=ctx,
+        language=language,
+        cash_level=cash_level,
+    )
+
+
+def build_narrator_system_prompt(
+    ctx: Optional[CoachContext] = None,
+    language: str = "fr",
+    cash_level: int = 3,
+) -> str:
+    """Narrator-only system prompt (Phase 91 Wave 2, EXTR-03).
+
+    Difference vs `build_system_prompt`: uses `_NARRATOR_BASE_SYSTEM_PROMPT`
+    (the « EXTRACTION DE PROFIL » block + « TOUJOURS appeler save_insight »
+    mandate are stripped — fact capture is owned by the dedicated extractor
+    LLM in `app.services.coach.llm_extractor`). The 11 appended blocks
+    (life-event catalog, archetype catalog, doctrine information, voice
+    intensity, anti-patterns, biography awareness, commitment devices,
+    intelligence blocks, couple-mode, language switch, user context) are
+    unchanged.
+
+    Used by `coach_chat.py` when `COACH_DUAL_LLM_ENABLED=True`. The legacy
+    `build_system_prompt` remains the flag-OFF default.
+    """
+    return _build_prompt(
+        base_template=_NARRATOR_BASE_SYSTEM_PROMPT,
+        ctx=ctx,
+        language=language,
+        cash_level=cash_level,
+    )
 
 
 def _build_context_section(ctx: CoachContext) -> str:
