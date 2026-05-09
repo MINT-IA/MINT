@@ -21,9 +21,17 @@ class ExplorerScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.person_outline, color: MintColors.textPrimary),
-            onPressed: () => MintShell.openDrawer(context),
+          // Semantics label exposes the icon-only button to a11y screen
+          // readers AND to Maestro flow selectors (replaces the
+          // `point: "95%, 8%"` pixel fallback in
+          // flow_drawer_navigation_smoke.yaml + flow_empty_state_cascade.yaml).
+          Semantics(
+            label: 'ouvrir-profil-drawer',
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.person_outline, color: MintColors.textPrimary),
+              onPressed: () => MintShell.openDrawer(context),
+            ),
           ),
         ],
       ),
