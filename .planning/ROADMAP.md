@@ -54,7 +54,7 @@ Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT
 **Phase summary (4 architecture + 3 UI, ~14 days critical path with parallel UI/architecture tracks):**
 
 - [x] **Phase 90: MVP-DESIGN-LINTS-V1** ✓ shipped 2026-05-09 (PR #543) — 5 design-system lints + baselines + lefthook + CI
-- [ ] **Phase 91: MVP-EXTRACTOR-V2** — Split single coach LLM into 2 distinct roles (extractor + narrator) ; 2 prompts, 2 guardrails, 2 budgets
+- [x] **Phase 91: MVP-EXTRACTOR-V2** — Split single coach LLM into 2 distinct roles (extractor + narrator) ; 2 prompts, 2 guardrails, 2 budgets (completed 2026-05-09)
 - [ ] **Phase 92: MVP-FONTS-TOKENS-V2** — Land Supreme + Gambarino + Menthe-vive ; drop GoogleFonts.*
 - [ ] **Phase 93: MVP-CTA-UNIFICATION-V1** — `MintCTA.{primary,secondary,tertiary,destructive}` replacing 9+ ad-hoc primitives + 10 ElevatedButton outliers
 - [ ] **Phase 94: MVP-CITATION-GATE** — Post-process parser ; narrator output rejected if any number/legal claim is un-cited
