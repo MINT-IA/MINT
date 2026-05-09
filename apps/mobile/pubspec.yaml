@@ -79,3 +79,23 @@ flutter:
     - assets/config/tax_scales_2024.json
     - assets/config/personas.json
     - assets/config/commune_multipliers.json
+
+  # Phase 92-01 — MVP-FONTS-TOKENS-V2 — Fontshare Supreme + Gambarino bundled .otf
+  # License: apps/mobile/assets/fonts/LICENSE-{SUPREME,GAMBARINO}.txt (Indian Type Foundry FF EULA)
+  # Note: Supreme weight 700 ("Bold") is the closest available substitute for the design system's "Semibold"
+  #       (Fontshare ships 100/200/300/400/500/700/800 — no 600). See 92-01-SUMMARY.md.
+  # Note: Gambarino italic is synthesized via style: italic; Fontshare only ships Gambarino-Regular upright.
+  fonts:
+    - family: Supreme
+      fonts:
+        - asset: assets/fonts/Supreme-Regular.otf
+          weight: 400
+        - asset: assets/fonts/Supreme-Medium.otf
+          weight: 500
+        - asset: assets/fonts/Supreme-Bold.otf
+          weight: 700
+    - family: Gambarino
+      fonts:
+        - asset: assets/fonts/Gambarino-Regular.otf
+          style: italic
+          weight: 400
