@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
-status: in_progress
-stopped_at: Phase 91 (MVP-EXTRACTOR-V2) RESEARCH.md committed (commit `d57b4db7`, 72KB, 848 lines). Phase 1 (90 MVP-DESIGN-LINTS-V1) shipped 2026-05-09 as PR #543 (commit `a7d10bbe`). Roadmap restructured 2026-05-09 — old slug-named dirs renumbered (90-, 91-) for parser compatibility. Next gate: discuss-phase 91 → CONTEXT.md → plan-phase 91.
-last_updated: "2026-05-09T12:30:00.000Z"
+status: completed
+stopped_at: Phase 91 context gathered (12 D-XX decisions locked, accept-all single-pass)
+last_updated: "2026-05-09T10:34:30.483Z"
 last_activity: 2026-05-09
 progress:
   total_phases: 7
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
   percent: 14
 ---
 
@@ -40,6 +40,7 @@ Plan: Not started — RESEARCH.md committed, awaiting CONTEXT.md from `/gsd-disc
 Status: Phase 90 ✓ shipped (PR #543) ; Phase 91 RESEARCH.md done, discuss-phase opens.
 Last activity: 2026-05-09
 Next:
+
   1. `/gsd-discuss-phase 91` → produce CONTEXT.md (locks user decisions for extractor/narrator split)
   2. `/gsd-plan-phase 91` → produce PLAN.md (task breakdown with 5-gate exit contract)
   3. `/gsd-execute-phase 91` → ship via dev branch + PR + Maestro G1 flow
@@ -77,9 +78,9 @@ Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped
 
 ## Session Continuity
 
-Last session: 2026-05-09T12:30:00.000Z
-Stopped at: Roadmap restructure (slug dirs → numeric prefix 90-, 91-) + ROADMAP.md rewritten with v2.9 chat-as-verb block + STATE.md flipped to v2.9. Ready for discuss-phase 91.
-Resume file: .planning/phases/91-mvp-extractor-v2/RESEARCH.md
+Last session: 2026-05-09T10:34:30.476Z
+Stopped at: Phase 91 context gathered (12 D-XX decisions locked, accept-all single-pass)
+Resume file: .planning/phases/91-mvp-extractor-v2/91-CONTEXT.md
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>
