@@ -1,26 +1,28 @@
 # tools/simulator/flows/maestro-perfect-set/flow_extractor_captures_age_canton.yaml
 #
 # ─── PURPOSE ───────────────────────────────────────────────────────────
-# Phase 91 G1 Maestro flow — multi-fact extraction baseline.
+# Phase 91 G1 Maestro flow — multi-fact extraction strict assertion.
 #
-# Wave 0 baseline run: canton + incomeGrossYearly are caught by the regex
-# floor today (PASS expected against the current single-LLM build).
-# birthYear=1990 may FAIL today because the regex extractor's birth-year
-# coverage is weaker (`profile_extractor.py:208-220`) — that single
-# assertion is marked `optional: true` for Wave 0 and becomes strict in
-# Wave 3 once the LLM extractor is wired (T3.2 will remove the optional).
+# Phase 91 Wave 4 (gap-closure 91-04) — STRICT 3-fact assertion.
+# canton + incomeGrossYearly + birthYear ALL strict. Requires
+# COACH_DUAL_LLM_ENABLED=True on staging Railway backend so the
+# LLM extractor catches birthYear=1990 (regex floor coverage is
+# weaker per profile_extractor.py:208-220).
+# G1 gate per EXTR-07 + D-08 — flow PASS gates Phase 91 close-out.
 #
-# This flow exists at Wave 0 to (a) lock the contract early, (b) become
+# This flow exists from Wave 0 to (a) lock the contract early, (b) become
 # the regression detector through Waves 1-2, (c) gate Phase 91 exit at G1.
 #
 # Source: `.planning/phases/91-mvp-extractor-v2/91-00-PLAN.md` Task 0.3
 #         `.planning/phases/91-mvp-extractor-v2/91-CONTEXT.md` decisions
 #         D-07 (telemetry baseline) + D-08 (multi-fact assertion)
+#         `.planning/phases/91-mvp-extractor-v2/91-04-PLAN.md` Task 4.4
+#         (Wave 4 gap-closure — birthYear assertion now strict)
 #
 # ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
-# Anonymous chat path — no `_user`. Per D-04, the extractor (Wave 2+)
-# runs but persists into request-scoped state, never to DB. In Wave 0
-# the regex floor still runs and the coach response renders normally.
+# Anonymous chat path — no `_user`. Per D-04, the LLM extractor runs
+# but persists into request-scoped state, never to DB. The regex floor
+# also runs in parallel and the coach response renders normally.
 #
 # ─── EXPECTED DURATION ─────────────────────────────────────────────────
 # ~40s wall-clock (cold launch + landing CTA + composer + LLM round-trip).
@@ -60,7 +62,8 @@ tags:
   - extractor
   - extractor-v2
   - anonymous-chat
-  - regression-baseline-wave-0
+  - gap-closure-91-04
+  - strict-3-fact
 ---
 
 # 01 — cold launch + landing
@@ -95,8 +98,8 @@ tags:
 
 # 05 — STRICT FACT ASSERTION : canton (Lausanne → VD).
 # The regex floor catches this today (`profile_extractor.py:208-220`).
-# This assertion gates the Wave 0 baseline run as PASS.
-# Surface: anonymous chat does NOT render a profile drawer in Wave 0
+# This assertion gates the Wave 4 strict run as PASS.
+# Surface: anonymous chat does NOT render a profile drawer here
 # (D-04 ; persistence is request-scoped). We assert via the coach reply
 # referencing the canton — the coach must echo the geographic anchor
 # in its response per the « Ancre toujours sur un chiffre concret du
@@ -110,32 +113,34 @@ tags:
 - assertVisible:
     text: ".*80.000.*|.*80'000.*|.*80k.*|.*80 000.*"
 
-# 07 — OPTIONAL FACT ASSERTION : birthYear (1990).
-# Wave 0 expectation: this MAY FAIL today against the regex extractor.
-# Wave 3 (T3.2) removes `optional: true` once the LLM extractor is wired
-# behind COACH_DUAL_LLM_ENABLED=True.
+# 07 — STRICT FACT ASSERTION : birthYear (1990).
+# Phase 91 Wave 4 (gap-closure 91-04) — strict 3-fact mode active.
+# Requires COACH_DUAL_LLM_ENABLED=True on staging Railway backend
+# so the LLM extractor catches birthYear=1990 (regex floor coverage
+# for birth year is weaker per profile_extractor.py:208-220).
 - assertVisible:
     text: ".*1990.*|.*34 ans.*|.*35 ans.*"
-    optional: true
 
-# ─── KNOWN LIMITATIONS / WAVE-PROGRESSION CONTRACT ─────────────────────
-# 1. Wave 0 (this commit): canton + income strict, birthYear optional.
-#    Run command:
-#      bash tools/simulator/walker_audit_tap_render.sh flow_extractor_captures_age_canton
-#    Acceptance: exit 0 against current single-LLM build (regex floor only).
+# ─── PHASE 91 GAP-CLOSURE STATUS (Wave 4, plan 91-04) ──────────────────
+# All 3 assertions are STRICT (canton + incomeGrossYearly + birthYear).
+# Flow runs as a G1 gate against staging Railway with
+# COACH_DUAL_LLM_ENABLED=True. The actual flow run + output capture is
+# task 5.2 in plan 91-05; this YAML edit makes it runnable strict.
 #
-# 2. Wave 2: COACH_DUAL_LLM_ENABLED=False default → no regression on this
-#    flow vs Wave 0 baseline.
+# Run command (from 91-05):
+#   bash tools/simulator/maestro_perfect_set.sh --flow-set extended
+# OR direct invocation:
+#   bash tools/simulator/maestro_env.sh test \
+#     tools/simulator/flows/maestro-perfect-set/flow_extractor_captures_age_canton.yaml \
+#     --device "<DEVICE_ID>" --format junit --output result.xml
 #
-# 3. Wave 3 T3.2: remove `optional: true` from the birthYear assertion
-#    once the LLM extractor is wired. This flow becomes the GATE for
-#    Phase 91 exit at G1.
+# Acceptance: exit 0 against staging build with the dual-LLM flag ON.
+# Per CLAUDE.md §9.6, the run output IS the deterministic citation.
 #
-# 4. The fact-state assertion strategy here is INDIRECT (asserting the
-#    coach's textual echo of the fact). A stronger gate would inspect
-#    the in-memory profile snapshot via a debug overlay — that surface
-#    does not exist yet in Wave 0 (anonymous chat has no drawer or
-#    profile screen). Wave 3 may add a `MINT_E2E_PROFILE_DUMP=true`
-#    dart-define + endpoint that exposes the request-scoped extractor
-#    output for direct fact-state assertion ; until then, the textual
-#    echo is the available signal.
+# Implementation note on the assertion strategy: it is INDIRECT (asserting
+# the coach's textual echo of the fact). A stronger gate would inspect
+# the in-memory profile snapshot via a debug overlay — that surface does
+# not exist yet (anonymous chat has no drawer or profile screen). A
+# follow-up phase may add a `MINT_E2E_PROFILE_DUMP=true` dart-define +
+# endpoint that exposes the request-scoped extractor output for direct
+# fact-state assertion; until then, the textual echo is the available signal.
