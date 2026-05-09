@@ -222,7 +222,7 @@ Per Karpathy Wiki Pattern §3 (every decision artifact must surface them):
 ## Sources
 
 - `.planning/MILESTONE-CHAT-AS-VERB-2026-05-09.md` — milestone strategy
-- `.planning/phases/MVP-DESIGN-LINTS-V1/RESEARCH.md` — drift inventory + tool decision
-- `.planning/phases/MVP-DESIGN-LINTS-V1/PLAN.md` — task breakdown (T1-T12) + 5-gate exit
-- `.planning/phases/MVP-DESIGN-LINTS-V1/PLAN-CHECK.md` — verifier amendments R1/R2/R3
+- `.planning/phases/90-mvp-design-lints-v1/RESEARCH.md` — drift inventory + tool decision
+- `.planning/phases/90-mvp-design-lints-v1/PLAN.md` — task breakdown (T1-T12) + 5-gate exit
+- `.planning/phases/90-mvp-design-lints-v1/PLAN-CHECK.md` — verifier amendments R1/R2/R3
 - `.planning/audit/ui_drift_baseline_2026-05-09.txt` — per-lint baseline summary
