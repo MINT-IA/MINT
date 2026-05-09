@@ -2146,6 +2146,18 @@
     }
   },
   "financialSummaryFatcaWarning": "⚠️ FATCA — Nur eine Minderheit der Anbieter akzeptiert (z.B. Raiffeisen)",
+  "sim3aFatcaGateTitle": "Säule 3a — eingeschränkter Zugang (FATCA)",
+  "@sim3aFatcaGateTitle": {
+    "description": "FATCA gate panel title shown on the 3a simulator when canContribute3a is false (US persons / green card)."
+  },
+  "sim3aFatcaGateBody": "Dein FATCA-Status schränkt den Zugang zur Säule 3a in der Schweiz ein. Die meisten Anbieter lehnen US-Personen oder Green-Card-Inhaber ab. Bevor du Einzahlungen simulierst, vergewissere dich, dass ein Anbieter dich akzeptiert (z.B. Raiffeisen) und erwäge alternative Hebel: Freizügigkeitsguthaben, Hypothekenoptimierung, freies Investment.",
+  "@sim3aFatcaGateBody": {
+    "description": "FATCA gate body explaining why the 3a simulator is not actionable for US persons + alternatives."
+  },
+  "sim3aFatcaGateAction": "Alternativen zur Säule 3a anzeigen",
+  "@sim3aFatcaGateAction": {
+    "description": "FATCA gate CTA — opens an alternatives screen / coach prompt."
+  },
   "financialSummaryModifierPrevoyance": "Vorsorge bearbeiten",
   "financialSummaryEditAvoirLpp": "BVG-Gesamtguthaben (CHF)",
   "financialSummaryEditNombre3a": "Anzahl 3a-Konten",

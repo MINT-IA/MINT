@@ -77,6 +77,41 @@ enum FinancialArchetype {
   returningSwiss,
 }
 
+/// Extension that exposes the canonical snake_case backend name for each
+/// archetype. The backend `CoachContext.archetype` string + the doctrine
+/// checker (`check_archetype_aware`) expect snake_case ; the Dart enum is
+/// camelCase. Without this conversion the backend silently treats every
+/// query as the default archetype, which masks FATCA / PFIC / frontalier
+/// guards.
+///
+/// Audit fix 2026-05-09 (perimeter STUB at
+/// `.planning/decisions/2026-05-09-perimeter-fatca-calculator-gate/STUB.md`)
+/// — extracted from `coach_chat_screen._archetypeToBackendName` so other
+/// screens (rachat_echelonne, simulator_3a, …) can reuse it instead of
+/// re-implementing camelCase → snake_case via a buggy `replaceAll('_','_')`.
+extension FinancialArchetypeBackendName on FinancialArchetype {
+  String get backendName {
+    switch (this) {
+      case FinancialArchetype.swissNative:
+        return 'swiss_native';
+      case FinancialArchetype.expatEu:
+        return 'expat_eu';
+      case FinancialArchetype.expatNonEu:
+        return 'expat_non_eu';
+      case FinancialArchetype.expatUs:
+        return 'expat_us';
+      case FinancialArchetype.independentWithLpp:
+        return 'independent_with_lpp';
+      case FinancialArchetype.independentNoLpp:
+        return 'independent_no_lpp';
+      case FinancialArchetype.crossBorder:
+        return 'cross_border';
+      case FinancialArchetype.returningSwiss:
+        return 'returning_swiss';
+    }
+  }
+}
+
 // ════════════════════════════════════════════════════════════════
 //  SOUS-MODELES
 // ════════════════════════════════════════════════════════════════

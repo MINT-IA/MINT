@@ -4596,6 +4596,16 @@ class SIt extends S {
       '⚠️ FATCA — Solo una minoranza di fornitori accetta (es. Raiffeisen)';
 
   @override
+  String get sim3aFatcaGateTitle => 'Pilastro 3a — accesso limitato (FATCA)';
+
+  @override
+  String get sim3aFatcaGateBody =>
+      'Il tuo status FATCA limita l\'accesso al pilastro 3a in Svizzera. La maggior parte dei fornitori rifiuta le persone US o i titolari di green card. Prima di simulare versamenti, verifica che un fornitore ti accetti (es. Raiffeisen) e considera leve alternative: prestazioni di libero passaggio, ottimizzazione ipotecaria, investimento libero.';
+
+  @override
+  String get sim3aFatcaGateAction => 'Vedi alternative al 3a';
+
+  @override
   String get financialSummaryModifierPrevoyance => 'Modificare previdenza';
 
   @override

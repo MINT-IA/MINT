@@ -2146,6 +2146,18 @@
     }
   },
   "financialSummaryFatcaWarning": "⚠️ FATCA — Only a minority of providers accept (e.g. Raiffeisen)",
+  "sim3aFatcaGateTitle": "Pillar 3a — limited access (FATCA)",
+  "@sim3aFatcaGateTitle": {
+    "description": "FATCA gate panel title shown on the 3a simulator when canContribute3a is false (US persons / green card)."
+  },
+  "sim3aFatcaGateBody": "Your FATCA status limits access to Swiss pillar 3a. Most providers refuse US persons or green card holders. Before simulating contributions, confirm a provider accepts you (e.g. Raiffeisen) and consider alternative levers: vested benefits, mortgage optimization, free investment.",
+  "@sim3aFatcaGateBody": {
+    "description": "FATCA gate body explaining why the 3a simulator is not actionable for US persons + alternatives."
+  },
+  "sim3aFatcaGateAction": "See alternatives to 3a",
+  "@sim3aFatcaGateAction": {
+    "description": "FATCA gate CTA — opens an alternatives screen / coach prompt."
+  },
   "financialSummaryModifierPrevoyance": "Edit pension",
   "financialSummaryEditAvoirLpp": "Total LPP assets (CHF)",
   "financialSummaryEditNombre3a": "Number of 3a accounts",

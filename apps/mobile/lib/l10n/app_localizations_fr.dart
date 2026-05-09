@@ -4591,6 +4591,16 @@ class SFr extends S {
       '⚠️ FATCA — Seule une minorité de prestataires accepte (ex. Raiffeisen)';
 
   @override
+  String get sim3aFatcaGateTitle => 'Pilier 3a — accès limité (FATCA)';
+
+  @override
+  String get sim3aFatcaGateBody =>
+      'Ton statut FATCA limite l\'accès au pilier 3a en Suisse. La majorité des prestataires refuse les personnes US ou titulaires d\'une green card. Avant de simuler des versements, vérifie qu\'un prestataire t\'accepte (ex. Raiffeisen) et envisage des leviers alternatifs : libre passage, optimisation hypothécaire, investissement libre.';
+
+  @override
+  String get sim3aFatcaGateAction => 'Voir les alternatives au 3a';
+
+  @override
   String get financialSummaryModifierPrevoyance => 'Modifier la prévoyance';
 
   @override

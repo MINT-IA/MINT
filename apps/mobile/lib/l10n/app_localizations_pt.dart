@@ -4586,6 +4586,16 @@ class SPt extends S {
       '⚠️ FATCA — Apenas uma minoria de fornecedores aceita (ex. Raiffeisen)';
 
   @override
+  String get sim3aFatcaGateTitle => 'Pilar 3a — acesso limitado (FATCA)';
+
+  @override
+  String get sim3aFatcaGateBody =>
+      'O teu estatuto FATCA limita o acesso ao pilar 3a na Suíça. A maioria dos fornecedores recusa pessoas dos EUA ou titulares de green card. Antes de simular contribuições, confirma que um fornecedor te aceita (ex. Raiffeisen) e considera alavancas alternativas: prestações de livre passagem, otimização hipotecária, investimento livre.';
+
+  @override
+  String get sim3aFatcaGateAction => 'Ver alternativas ao 3a';
+
+  @override
   String get financialSummaryModifierPrevoyance => 'Modificar previdência';
 
   @override
