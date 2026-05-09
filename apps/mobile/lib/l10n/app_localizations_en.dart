@@ -4566,6 +4566,16 @@ class SEn extends S {
       '⚠️ FATCA — Only a minority of providers accept (e.g. Raiffeisen)';
 
   @override
+  String get sim3aFatcaGateTitle => 'Pillar 3a — limited access (FATCA)';
+
+  @override
+  String get sim3aFatcaGateBody =>
+      'Your FATCA status limits access to Swiss pillar 3a. Most providers refuse US persons or green card holders. Before simulating contributions, confirm a provider accepts you (e.g. Raiffeisen) and consider alternative levers: vested benefits, mortgage optimization, free investment.';
+
+  @override
+  String get sim3aFatcaGateAction => 'See alternatives to 3a';
+
+  @override
   String get financialSummaryModifierPrevoyance => 'Edit pension';
 
   @override

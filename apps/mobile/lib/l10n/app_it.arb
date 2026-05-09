@@ -2146,6 +2146,18 @@
     }
   },
   "financialSummaryFatcaWarning": "⚠️ FATCA — Solo una minoranza di fornitori accetta (es. Raiffeisen)",
+  "sim3aFatcaGateTitle": "Pilastro 3a — accesso limitato (FATCA)",
+  "@sim3aFatcaGateTitle": {
+    "description": "FATCA gate panel title shown on the 3a simulator when canContribute3a is false (US persons / green card)."
+  },
+  "sim3aFatcaGateBody": "Il tuo status FATCA limita l'accesso al pilastro 3a in Svizzera. La maggior parte dei fornitori rifiuta le persone US o i titolari di green card. Prima di simulare versamenti, verifica che un fornitore ti accetti (es. Raiffeisen) e considera leve alternative: prestazioni di libero passaggio, ottimizzazione ipotecaria, investimento libero.",
+  "@sim3aFatcaGateBody": {
+    "description": "FATCA gate body explaining why the 3a simulator is not actionable for US persons + alternatives."
+  },
+  "sim3aFatcaGateAction": "Vedi alternative al 3a",
+  "@sim3aFatcaGateAction": {
+    "description": "FATCA gate CTA — opens an alternatives screen / coach prompt."
+  },
   "financialSummaryModifierPrevoyance": "Modificare previdenza",
   "financialSummaryEditAvoirLpp": "Averi LPP totali (CHF)",
   "financialSummaryEditNombre3a": "Numero di conti 3a",
