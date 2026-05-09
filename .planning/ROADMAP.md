@@ -130,11 +130,15 @@ The PLAN here does NOT duplicate `handoff/audit/05-plan.md` — it indexes it. S
 **Depends on**: Phase 90 (lint LINT-04 prefer_mint_fonts must be active before sweep)
 **Requirements**: FONTS-01 Supreme bundled, FONTS-02 Gambarino bundled, FONTS-03 GoogleFonts removal, FONTS-04 Menthe-vive token added, FONTS-05 license review gate
 **Success Criteria** (what must be TRUE):
-  1. 0 occurrences of `GoogleFonts.` in `apps/mobile/lib/` (verified by `grep -rn "GoogleFonts\." apps/mobile/lib/ | wc -l == 0`).
+  1. 0 occurrences of `GoogleFonts.` in `apps/mobile/lib/` (verified by `grep -rn "GoogleFonts\." apps/mobile/lib/ | wc -l == 0`).  *Note: Phase 92 only swaps the landing hero; full sweep deferred to MVP-GOOGLEFONTS-PURGE-V1 per CONTEXT D-92.E. LINT-04 from Phase 90 blocks new GoogleFonts uses.*
   2. Supreme + Gambarino .otf files committed under `apps/mobile/assets/fonts/` ; pubspec.yaml `flutter.fonts` registers both with weight ramps.
   3. `MintTextStyle` and `MintColors` updated to reference Supreme as default sans-serif and Gambarino-italic for display ; Menthe-vive added to `lib/theme/colors.dart` with semantic token name.
   4. License review gate: Fontshare ToS for App Store republication validated by Julien (signed-off in PR description) ; fallback `GoogleFonts.inter` + Gambarino-only italic display documented as escape hatch.
-**Plans**: TBD
+**Requirements (planned)**: FONT-01 (.otf bundled + pubspec), FONT-02 (mentheVive tokens), FONT-03 (Gambarino + Supreme MintTextStyles), FONT-04 (dark palette + ThemeData.dark), FONT-05 (sample landing hero + G1 sim), FONT-06 (Fontshare LICENSE files), FONT-07 (golden re-baseline scoped to landing per D-92.A), FONT-08 (analyze + test green; lint baseline preserved). Note: ROADMAP previously listed FONTS-01..05 — Phase 92 plans use FONT-XX (without S) for consistency with CONTEXT.md.
+**Plans**: 3 plans
+- [ ] 92-01-PLAN.md — Wave 1, autonomous — Font asset bundling (Fontshare .otf download + LICENSE files + pubspec.yaml fonts: block + flutter pub get)
+- [ ] 92-02-PLAN.md — Wave 2, autonomous — Theme tokens (MintColors.mentheVive + 5 dark palette tokens + 5 new MintTextStyles using bundled families + ThemeData.dark factory + theme unit tests)
+- [ ] 92-03-PLAN.md — Wave 3, NOT autonomous (Julien G2 checkpoint) — Sample landing hero swap + landing golden baseline + G1 sim screenshot + G2 device sign-off + 5-gate close-out SUMMARY
 
 **Budget**: 3d
 **Auto profile**: **L1** (UI tokens, mechanical sweep) — `/gsd-execute-phase` ; lints catch regressions ; Maestro G1 flow renders Hero with new fonts.
