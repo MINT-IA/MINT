@@ -372,9 +372,15 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       existing3a: 0,
       existingLpp: 35000,
       employmentStatus: 'salarie',
-      nationalityGroup: 'CH',
+      // Audit fix 2026-05-09 (perimeter STUB
+      // .planning/decisions/2026-05-09-perimeter-archetype-input-normalization/):
+      // never assume Swiss-native for an anonymous user. Pass null so
+      // PremierEclairageSelector / visibility scorer treat the
+      // nationality as unknown rather than silently skipping every
+      // expat / FATCA / cross-border code path.
+      nationalityGroup: null,
       plafond3a: 7258,
-      estimatedFields: const ['currentSavings', 'existingLpp'],
+      estimatedFields: const ['currentSavings', 'existingLpp', 'nationalityGroup'],
     );
   }
 

@@ -1310,6 +1310,44 @@ class PlannedMonthlyContribution {
 //  MODELE PRINCIPAL : CoachProfile
 // ════════════════════════════════════════════════════════════════
 
+/// Maps wizard option values to canonical residence-permit codes.
+///
+/// The wizard at `data/wizard_questions_v2.dart` persists option values
+/// like `permit_g`, `permit_b`, `permit_c`, `swiss`, but downstream logic
+/// (archetype getter, isCrossBorder, screen routing) compares against
+/// canonical single-letter codes `G`, `B`, `C`, `Swiss`. Without this
+/// mapping every cross-border / expat / Swiss-permit user silently falls
+/// through to the default archetype.
+///
+/// Audit finding 2026-05-08, perimeter STUB at
+/// `.planning/decisions/2026-05-09-perimeter-archetype-input-normalization/`.
+const Map<String, String> _kWizardPermitToCanonical = <String, String>{
+  'permit_b': 'B',
+  'permit_c': 'C',
+  'permit_g': 'G',
+  'permit_l': 'L',
+  'swiss': 'Swiss',
+};
+
+/// Normalize a residence-permit string from any source (wizard option
+/// value or already-canonical) to the canonical single-letter form.
+///
+/// Returns null when input is null or empty. Idempotent: calling twice
+/// is the same as calling once.
+String? normalizeResidencePermit(String? raw) {
+  if (raw == null) return null;
+  final trimmed = raw.trim();
+  if (trimmed.isEmpty) return null;
+  final lower = trimmed.toLowerCase();
+  final mapped = _kWizardPermitToCanonical[lower];
+  if (mapped != null) return mapped;
+  // Already canonical (e.g. 'G', 'B'). Uppercase for safety.
+  if (trimmed.length <= 2) return trimmed.toUpperCase();
+  // Unknown form (e.g. 'Swiss' as input, or some legacy value). Pass
+  // through unchanged so downstream comparisons can still use it.
+  return trimmed;
+}
+
 /// Profil financier complet pour MINT Coach.
 ///
 /// Contient toutes les données nécessaires au ForecasterService
@@ -1713,7 +1751,10 @@ class CoachProfile {
       isCouple && conjoint == null;
 
   /// FIX-101: Cross-border worker detection (permis G).
-  bool get isCrossBorder => residencePermit?.toUpperCase() == 'G';
+  ///
+  /// Accepts either canonical (`'G'`) or wizard form (`'permit_g'`)
+  /// via [normalizeResidencePermit].
+  bool get isCrossBorder => normalizeResidencePermit(residencePermit) == 'G';
 
   /// Total depenses fixes mensuelles
   double get totalDepensesMensuelles => depenses.totalMensuel;
@@ -1777,8 +1818,11 @@ class CoachProfile {
   /// Basee sur nationalite, arrivalAge, employmentStatus, residencePermit.
   /// Voir ADR-20260223-archetype-driven-retirement.md.
   FinancialArchetype get archetype {
-    // Cross-border: permis G
-    if (residencePermit == 'G') return FinancialArchetype.crossBorder;
+    // Cross-border: permis G. Normalized to handle both canonical 'G'
+    // and wizard form 'permit_g' (audit fix 2026-05-09, perimeter STUB
+    // at .planning/decisions/2026-05-09-perimeter-archetype-input-normalization/).
+    final permitCanonical = normalizeResidencePermit(residencePermit);
+    if (permitCanonical == 'G') return FinancialArchetype.crossBorder;
 
     // US citizen / FATCA
     if (nationality == 'US') return FinancialArchetype.expatUs;
@@ -2891,7 +2935,9 @@ class CoachProfile {
           ? (answers['q_3a_providers'] as List).cast<String>()
           : <String>[],
       arrivalAge: computedArrivalAge,
-      residencePermit: answers['q_residence_permit'] as String?,
+      residencePermit: normalizeResidencePermit(
+        answers['q_residence_permit'] as String?,
+      ),
       familyChange: familyChange,
       targetRetirementAge: targetRetAge,
       updatedAt:
