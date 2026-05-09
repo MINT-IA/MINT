@@ -34,6 +34,41 @@ pre-commit:
       run: python3 tools/checks/wiki_lint.py
       glob: ".planning/**/*.md"
       tags: [wiki, planning]
+    # ── Phase MVP-DESIGN-LINTS-V1 (chat-as-verb milestone, 2026-05-09) ──
+    # 5 design-system lints. SOFT-warn at pre-commit (`fail_text` only
+    # printed; exit-0 suffices because each script gracefully no-ops on
+    # missing baseline / out-of-scope file). HARD-fail at CI via
+    # .github/workflows/design-lints.yml. Devs see violations during
+    # `git commit`; CI is the merge-blocker.
+    #
+    # `--file {staged_files}` substitution: lefthook splits staged paths
+    # by space and substitutes inline. Each lint declares
+    # `--file action='append'` so multiple paths populate correctly.
+    prefer-mint-color-token:
+      run: python3 tools/checks/prefer_mint_color_token.py --file {staged_files} || true
+      glob: "apps/mobile/lib/*.dart"
+      tags: [design, phase-1-mvp-design-lints]
+      fail_text: "design-lint warning — see CI for full diff (prefer_mint_color_token)"
+    prefer-mint-text-style:
+      run: python3 tools/checks/prefer_mint_text_style.py --file {staged_files} || true
+      glob: "apps/mobile/lib/*.dart"
+      tags: [design, phase-1-mvp-design-lints]
+      fail_text: "design-lint warning — see CI for full diff (prefer_mint_text_style)"
+    prefer-mint-fonts:
+      run: python3 tools/checks/prefer_mint_fonts.py --file {staged_files} || true
+      glob: "apps/mobile/lib/*.dart"
+      tags: [design, phase-1-mvp-design-lints]
+      fail_text: "design-lint warning — see CI for full diff (prefer_mint_fonts)"
+    prefer-mint-radius:
+      run: python3 tools/checks/prefer_mint_radius.py --file {staged_files} || true
+      glob: "apps/mobile/lib/*.dart"
+      tags: [design, phase-1-mvp-design-lints]
+      fail_text: "design-lint warning — see CI for full diff (prefer_mint_radius)"
+    prefer-mint-cta:
+      run: python3 tools/checks/prefer_mint_cta.py --file {staged_files} || true
+      glob: "apps/mobile/lib/*.dart"
+      tags: [design, phase-1-mvp-design-lints]
+      fail_text: "design-lint warning — see CI for full diff (prefer_mint_cta)"
 
 skip:
   - merge
