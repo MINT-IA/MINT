@@ -4,14 +4,14 @@ milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
 stopped_at: Phase 91 context gathered (12 D-XX decisions locked, accept-all single-pass)
-last_updated: "2026-05-09T11:55:11.399Z"
+last_updated: "2026-05-09T13:03:29.920Z"
 last_activity: 2026-05-09 -- Phase 91 execution started
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 0
-  total_plans: 4
-  completed_plans: 0
-  percent: 0
+  total_plans: 5
+  completed_plans: 1
+  percent: 20
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase 91 — mvp-extractor-v2
+**Current focus:** Phase 91 — MVP-EXTRACTOR-V2
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,7 +35,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 91 (mvp-extractor-v2) — EXECUTING
+Phase: 91 (MVP-EXTRACTOR-V2) — EXECUTING
 Plan: 1 of 4
 Status: Executing Phase 91
 Last activity: 2026-05-09 -- Phase 91 execution started
