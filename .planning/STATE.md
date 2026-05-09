@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
-status: completed
+status: executing
 stopped_at: Phase 91 context gathered (12 D-XX decisions locked, accept-all single-pass)
-last_updated: "2026-05-09T10:34:30.483Z"
-last_activity: 2026-05-09
+last_updated: "2026-05-09T11:18:01.970Z"
+last_activity: 2026-05-09 -- Phase 91 planning complete
 progress:
   total_phases: 7
   completed_phases: 0
-  total_plans: 0
+  total_plans: 4
   completed_plans: 0
-  percent: 14
+  percent: 0
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -37,8 +37,8 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 Phase: 91 (MVP-EXTRACTOR-V2)
 Plan: Not started — RESEARCH.md committed, awaiting CONTEXT.md from `/gsd-discuss-phase 91`
-Status: Phase 90 ✓ shipped (PR #543) ; Phase 91 RESEARCH.md done, discuss-phase opens.
-Last activity: 2026-05-09
+Status: Ready to execute
+Last activity: 2026-05-09 -- Phase 91 planning complete
 Next:
 
   1. `/gsd-discuss-phase 91` → produce CONTEXT.md (locks user decisions for extractor/narrator split)
