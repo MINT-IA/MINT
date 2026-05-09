@@ -102,6 +102,29 @@ Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT
 **Budget**: 3d
 **Auto profile**: **L2** (backend + LLM orchestration) — full GSD chain ; mandatory Stage 3 eval gate (50-fixture narrator eval) before Phase 91 closes ; mandatory Maestro G1 flow before merge.
 
+### Phase 91.5: VAGUE-A2-MOBILE-REFACTOR
+**Goal**: Mobile-side rename + CapMemoryStore in-place migration sprint. Independent of Phase 91 (different worktree, different branch, files INTERDITS list enforces collision avoidance). Acts as the merge-back gate for the parallel Vague A.2 sprint already specced in `handoff/`.
+**Depends on**: nothing (parallel to Phase 91). PROMPT 3 chat vivant remains HOLD until Phase 91 mergée sur `dev` (handoff §2 line 20).
+**Requirements**: VA2-01 path+query matcher in `findByRouteStatic`, VA2-02 IntentRouter rename batch (`first_job` → `life_event_first_job`, `debt_check` → `debt_risk_check`, `intentChipBilan` → `arbitrage_bilan`), VA2-03 CapMemoryStore in-place migration for legacy accounts, VA2-04 ARB parity post-relabel, VA2-05 unit + golden tests pass.
+**Worktree**: `~/Desktop/MINT.brand-refondation.nosync`
+**Branch**: `feat/mint-v2-refondation`
+**Spec source** (authoritative — DO NOT duplicate): `handoff/NEXT_SESSION.md`, `handoff/CADRAGE.md`, `handoff/audit/05-plan.md`, `handoff/PROGRESS.md` (live log)
+**Success Criteria** (what must be TRUE at merge-back):
+  1. `apps/mobile/lib/services/coach/intent_router.dart` + call-sites: `first_job` renamed to `life_event_first_job`, `debt_check` to `debt_risk_check`, `intentChipBilan` to `arbitrage_bilan`. Grep on old names returns 0 matches across `apps/mobile/lib/` and `apps/mobile/test/`.
+  2. `apps/mobile/lib/services/navigation/screen_registry.dart` `findByRouteStatic` matches path AND query (T-A1).
+  3. `apps/mobile/lib/services/cap_memory_store.dart` migrates legacy account schema in-place ; legacy data preserved per T-A.2.3.
+  4. ARB parity check (`validate_arb_parity` MCP or `tools/checks/...`) passes 6 locales post-relabel.
+  5. Files INTERDITS untouched (`coach_orchestrator.dart`, `coach_chat_screen.dart`, anything `extractor*` / `chat_*_extractor*`) — verified by `git diff --name-only feat/mint-v2-refondation main`.
+  6. `flutter analyze && flutter test` GREEN on `feat/mint-v2-refondation` ; squash-PR to `dev` opened with body referencing `handoff/audit/05-plan.md` and ticking each T-Ax delivered.
+**Plans**: 91.5-00-PLAN.md (wrapper — task detail lives in `handoff/audit/05-plan.md`)
+
+**Budget**: ~26h (per handoff §3, do NOT exceed)
+**Auto profile**: **Parallel sprint, GSD-tracked** — code authored in the refondation worktree by a separate Claude session reading `handoff/NEXT_SESSION.md`. This phase exists in `.planning/` to:
+  - register the workstream in ROADMAP / `/gsd-progress` / `/gsd-stats`
+  - host the merge-back VERIFICATION.md when `feat/mint-v2-refondation` lands on `dev`
+  - apply the 5-gate exit contract (mémoire `feedback_perimeter_5_gates`) at gate-time
+The PLAN here does NOT duplicate `handoff/audit/05-plan.md` — it indexes it. Single source of truth stays in `handoff/`.
+
 ### Phase 92: MVP-FONTS-TOKENS-V2
 **Goal**: Replace GoogleFonts.* runtime dependency with bundled Fontshare licensed fonts (Supreme + Gambarino) + Menthe-vive accent color. Resolves font CSS render-blocking on cold launch + Fontshare ToS for App Store republication. Existing STUB at `.planning/decisions/2026-05-08-perimeter-mvp-fonts-tokens-v2/STUB.md` to absorb.
 **Depends on**: Phase 90 (lint LINT-04 prefer_mint_fonts must be active before sweep)
