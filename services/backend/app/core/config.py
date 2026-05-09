@@ -59,6 +59,16 @@ class Settings(BaseSettings):
     COACH_MAX_TOKENS: int = 350
     COACH_DAILY_QUOTA: int = 30  # per user, free tier
 
+    # Phase 91 dual-LLM (extractor + narrator) split kill-flag.
+    # False = legacy single-LLM path (current production).
+    # True  = dual-LLM path: extractor LLM captures facts before the
+    #         narrator LLM delivers the user-facing reply.
+    # Wave 0 (this commit): scaffolding only — no consumers yet. The flag
+    # is wired in Wave 2 (coach_chat.py Step 1.5) and flipped per Stage 4
+    # staging soak. See .planning/phases/91-mvp-extractor-v2/RESEARCH.md
+    # §4 Stage 0 T0.2 + 91-CONTEXT.md decision D-12.
+    COACH_DUAL_LLM_ENABLED: bool = False
+
     # Apple IAP / StoreKit
     APPLE_IAP_PRODUCT_COACH_MONTHLY: str = "ch.mint.coach.monthly"
     BILLING_ALLOW_CLIENT_APPLE_VERIFY: bool = False
