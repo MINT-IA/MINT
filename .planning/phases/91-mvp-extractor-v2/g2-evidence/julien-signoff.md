@@ -9,9 +9,11 @@
 
 ## Verdict
 
-**PENDING JULIEN ON-BRAND SIGN-OFF**
+**PASS (partial)**
 
-Mechanical + visual evidence captured by PM Claude. Final on-brand verdict (D-06 4th criterion) requires Julien's eyes — see "Awaiting Julien" section at bottom.
+Resume signal Julien (verbatim) : `g2=pass partial="(1) multi-turn discontinuity in anonymous chat is by D-04 design — surface as Phase 96 input ; (2) sim latency 6.3s above 5s spec — monitor in production via Phase 94 CITATION-GATE telemetry; production p50 expected lower"`
+
+Concerns partiels documentés — ne bloquent pas le close-out Phase 91. Routés vers Phase 96 (multi-turn continuité) et Phase 94 (latence télémétrie).
 
 ## Step-by-step results
 
@@ -60,18 +62,17 @@ Mechanical + visual evidence captured by PM Claude. Final on-brand verdict (D-06
 
 ---
 
-## Awaiting Julien
+## Julien Sign-off (2026-05-09)
 
-**Three decision points :**
+**Resume signal reçu (verbatim) :**
 
-1. **Is the turn-1 reply on-brand per VOICE_SYSTEM.md ?** (PM Claude pre-assessment : YES — érosion lens, concrete CHF, Cleo-mirror, no retraite-first frame)
-2. **Is the multi-turn discontinuity acceptable for MVP ship ?** (D-04 by design, but UX-wise a gap ; future Phase 96 chat-as-verb may fix it via 3-turn cap that includes profile context)
-3. **Is the 6s sim latency acceptable ?** (above 5s spec, expect lower in production)
+```
+g2=pass partial="(1) multi-turn discontinuity in anonymous chat is by D-04 design — surface as Phase 96 input ; (2) sim latency 6.3s above 5s spec — monitor in production via Phase 94 CITATION-GATE telemetry; production p50 expected lower"
+```
 
-**Resume signal format :**
+**Routing downstream :**
 
-- `g2=pass` → all 3 above OK ; Phase 91 close-out (Task 6.3) proceeds.
-- `g2=pass partial="<list of minor concerns>"` → ship anyway, capture concerns for follow-up Phase 94/96.
-- `g2=fail rationale="<what broke>"` → fix loop ; Phase 91 stays gaps_found.
+1. **Multi-turn discontinuité** (concern 1) → Phase 96 MVP-CHAT-AS-VERB (3-turn cap + profile context injection dans le narrator loop anonymous).
+2. **Latence sim 6.3s** (concern 2) → Phase 94 MVP-CITATION-GATE (narrator p50 tracking + télémétrie production).
 
-PM Claude awaiting Julien's ONE-LINE resume signal.
+**Phase 91 close-out :** G2 PASS partial. `91-VERIFICATION.md` frontmatter flippé à `status: verified`, `gaps: []`, score 7/7 (plan 91-06 Task 6.3). 5-gate exit contract complet.

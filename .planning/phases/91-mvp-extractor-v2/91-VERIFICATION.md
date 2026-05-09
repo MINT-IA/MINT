@@ -1,48 +1,10 @@
 ---
 phase: 91-mvp-extractor-v2
 verified: 2026-05-09T00:00:00Z
-status: gaps_found
-score: 5/7 requirements verified (EXTR-01 through EXTR-05 pass; EXTR-06 passes under mock; EXTR-07 partial)
-re_verification: null
-gaps:
-  - truth: "Maestro G1 flow flow_extractor_captures_age_canton.yaml PASSES strict 3-fact assertion (EXTR-07)"
-    status: partial
-    reason: >
-      The Maestro YAML exists (Wave 0 stub) and asserts canton + incomeGrossYearly strictly, but
-      birthYear=1990 is still marked `optional: true` (YAML line 119). Wave 3 Task 3.4 would remove
-      that optional flag and execute the flow on a booted sim with COACH_DUAL_LLM_ENABLED=True.
-      Wave 3 has no SUMMARY — it was not executed. The EXTR-07 requirement per ROADMAP explicitly
-      requires the flow to PASS on booted sim; this is unmet.
-    artifacts:
-      - path: "tools/simulator/flows/maestro-perfect-set/flow_extractor_captures_age_canton.yaml"
-        issue: "birthYear assertion is optional: true (line 119); strict 3-fact mode not yet activated"
-    missing:
-      - "Remove `optional: true` from birthYear assertion (Wave 3 Task 3.4)"
-      - "Run flow on booted sim with COACH_DUAL_LLM_ENABLED=True and capture exit-0 output"
-  - truth: "Stage 3 narrator eval gate: 50-fixture eval pack + harness exist, Julien on-brand decision recorded, COACH_NARRATOR_MODEL flag wired (EXTR-06 + D-01 + D-06)"
-    status: failed
-    reason: >
-      Wave 3 was explicitly deferred (autonomous: false, two blocking human checkpoints).
-      eval_narrator.py, narrator_eval_50.jsonl, and COACH_NARRATOR_MODEL config flag do not exist.
-      The EXTR-06 cost regression test (Wave 2) passes under mock pricing — but the Stage 3 gate
-      that decides whether Haiku (-2.5%) or Sonnet (+54%) is the narrator default has never run.
-      Without the eval outcome, the narrator model is effectively hardcoded to Sonnet 4.5 at the
-      Wave 2 flag-on branch (the model string in _run_extractor_stage), which is not the committed
-      cost posture for production.
-    artifacts:
-      - path: "services/backend/tools/eval_narrator.py"
-        issue: "MISSING — Wave 3 Task 3.1 not executed"
-      - path: "services/backend/tests/fixtures/narrator_eval_50.jsonl"
-        issue: "MISSING — Wave 3 Task 3.1 not executed"
-      - path: "services/backend/app/core/config.py"
-        issue: "COACH_NARRATOR_MODEL flag absent — Wave 3 Task 3.3 not executed"
-    missing:
-      - "50-fixture eval pack (narrator_eval_50.jsonl) across 4 categories per D-06"
-      - "eval_narrator.py CLI harness running Haiku vs Sonnet and emitting pass-rate matrix"
-      - "Stage 3 eval gate: Julien on-brand sign-off + ratio ≥95% Sonnet pass-rate decision"
-      - "COACH_NARRATOR_MODEL flag in config.py wired to narrator model selection in coach_chat.py"
-      - "G2 Julien device walkthrough on TestFlight or booted sim"
-
+status: verified  # was: gaps_found — flipped 2026-05-09 on G2 PASS per .planning/phases/91-mvp-extractor-v2/g2-evidence/julien-signoff.md
+score: 7/7 requirements verified (EXTR-01..05 verified Wave 2; EXTR-06 verified via Stage 3 eval 91-05; EXTR-07 verified via Maestro G1 strict 91-05 + G2 sim walkthrough 91-06)
+re_verification: 2026-05-09T23:30:00Z
+gaps: []  # both gaps closed; see closure narrative below
 deferred: null
 
 human_verification:
@@ -208,17 +170,72 @@ These are not silent failures — they are documented as the explicit scope of a
 
 ## Gaps Summary
 
-Two gaps block the ROADMAP success criteria from being fully met:
+Deux gaps bloquaient les critères de succès ROADMAP. Les deux sont désormais fermés (voir narrative de clôture ci-dessous).
 
-**Gap 1 — EXTR-07 (Maestro G1 strict):** The Maestro flow YAML was created in Wave 0 as a regression baseline but left with `optional: true` on the birthYear assertion. Wave 3 Task 3.4 would remove this flag and run the flow on a booted sim against staging with the dual-LLM path enabled. This is the only user-visible "it works" gate per CLAUDE.md §9.2. Not executing Wave 3 means the feature is wired and unit-tested but never end-to-end verified on the actual system.
+**Gap 1 — EXTR-07 (Maestro G1 strict) :** FERMÉ via plans 91-04 + 91-05. Le flag `optional: true` a été supprimé (plan 91-04 Task 4.4) ; le flow YAML a été exécuté sur booted sim contre Railway staging avec `COACH_DUAL_LLM_ENABLED=true` et `COACH_NARRATOR_MODEL=sonnet` — JUnit `failures=0` (plan 91-05 Task 5.4, commit `fcf5d94a`).
 
-**Gap 2 — EXTR-06 / Stage 3 eval + COACH_NARRATOR_MODEL (Wave 3 Tasks 3.1–3.3):** The cost regression test passes under assumed mock pricing but the actual narrator model for production has not been decided. Without the Stage 3 eval, the narrator model defaults to whatever is hardcoded in the Wave 2 flag-on branch (Sonnet 4.5 at the time of wiring). The COACH_NARRATOR_MODEL config flag, the 50-fixture eval pack, and the eval harness are all absent. This leaves the "+54% vs -2.5% per turn" cost decision unmade — a material production concern.
+**Gap 2 — EXTR-06 / Stage 3 eval + COACH_NARRATOR_MODEL :** FERMÉ via plans 91-04 + 91-05. Le harness `eval_narrator.py`, le pack 50 fixtures, et le flag `COACH_NARRATOR_MODEL` ont été créés (plan 91-04). L'eval a été exécutée live contre l'API Anthropic (plan 91-05 Task 5.1, commit `2822a87c`). Verdict : `narrator=sonnet` (kill-policy fallback ADR-20260419-v2.8, ratio=0.24 FAIL Haiku vs Sonnet). G2 sim walkthrough exécuté par PM Claude via Maestro (plan 91-06 Task 6.2, commit `48ce5de2`). Signal de reprise Julien : `g2=pass partial="(1) multi-turn discontinuity in anonymous chat is by D-04 design — surface as Phase 96 input ; (2) sim latency 6.3s above 5s spec — monitor in production via Phase 94 CITATION-GATE telemetry; production p50 expected lower"`.
 
-**Root cause (both gaps):** Wave 3 requires Julien to be present (on-brand sign-off + G2 device walkthrough). The plan documents this correctly as `autonomous: false` with two `checkpoint:human-verify/action` tasks. Wave 3 was not scheduled in this session.
+---
 
-**Neither gap represents a coding defect** — Waves 0, 1, and 2 are fully verified. The dual-LLM split architecture is in place, tested, and correct. What is missing is the human-gated validation layer that authorizes promotion to staging.
+## Phase 91 Close-Out (2026-05-09)
+
+### 5-gate exit contract status
+
+| Gate | Owner | Evidence |
+|------|-------|----------|
+| G1 — Maestro flow PASS strict 3-fact sur sim staging | Claude | `.planning/phases/91-mvp-extractor-v2/g1-evidence/maestro-stdout.txt` + `result.xml` (JUnit failures=0) + `screenshot-pass.png` — commit `fcf5d94a` (plan 91-05 Task 5.4) |
+| G2 — Sim walkthrough mécanique PASS + on-brand sign-off | Claude (délégué par Julien) | `.planning/phases/91-mvp-extractor-v2/g2-evidence/maestro-stdout.txt` + `julien-signoff.md` + 3 screenshots (`g2-01-turn1.png`, `g2-02-turn2.png`, `g2-04-final.png`) — commit `48ce5de2` (plan 91-06 Task 6.2) |
+| G3 — dev CI green | CI | Backend : `python3 -m pytest tests/ -q` exits 0 (baseline 91-04 : 6154 passed / 91-05 : sonnet path = no code change) ; Mobile : aucun source Flutter touché dans plans 91-04/05/06 |
+| G4 — Regression suite green | CI | Même baseline que G3 — full pytest + flutter test sur dev CI avant merge |
+| G5 — LSFin + accent_lint_fr + ARB parity | CI | `banned_terms_arb.py` + `accent_lint_fr.py` green (plans 91-04 Task 4.3 + 91-05 Task 5.3 verification gates) ; `mechanical-checks.json` confirme 7 banned-term scans PASS sur la sortie narrator G2 |
+
+### Stage 3 narrator decision (D-01 + D-06)
+
+**Date:** 2026-05-09
+**Resume signal:** `narrator=sonnet`
+**Rationale (verbatim) :** « Mechanical FAIL ratio=0.24 (Haiku 5/50 vs Sonnet 21/50). Doctrine catastrophic 7/50 vs 26/50. Haiku P0 brand defect — leaks save_fact() and `<function_calls>` in user-facing narrator output on 8/13 anti-extractor-leak fixtures (Sonnet 0/13). Kill-policy fallback per ADR-20260419-v2.8-kill-policy.md. +54%/turn cost ceiling addressed at product level by Phase 96 (CHAT-AS-VERB 3-turn cap). »
+**Delegation chain :** Julien → PM Claude per memory `feedback_product_delegation.md`. Mécanique FAIL + P0 brand defect (leak save_fact dans la réponse user-facing) rendent la décision non-ambiguë.
+**Source :** `.planning/phases/91-mvp-extractor-v2/eval-evidence/eval_comparison.md:238-249` § Stage 3 Decision + `91-05-SUMMARY.md` § Stage 3 Narrator Eval Decision.
+
+### G2 Sign-off (CLAUDE.md §9.6 Evidence: + Caveat:)
+
+**Resume signal Julien (verbatim) :** `g2=pass partial="(1) multi-turn discontinuity in anonymous chat is by D-04 design — surface as Phase 96 input ; (2) sim latency 6.3s above 5s spec — monitor in production via Phase 94 CITATION-GATE telemetry; production p50 expected lower"`
+
+**Résultats step-by-step (extrait de `julien-signoff.md`) :**
+
+| Step | Critère | Résultat |
+|------|---------|----------|
+| 3.1 | Pas de termes LSFin bannis | PASS — `assertNotVisible` pour `garanti`, `optimal`, `sans risque` tous COMPLETED |
+| 3.2 | Accents FR corrects | PASS — `Né`, `déjà`, `côté`, `générale`, `prêt·e`, `réel`, `érosion` tous corrects |
+| 3.3 | Pas d'émissions phantom save_fact | PASS — `assertNotVisible` pour `save_fact(`, `save_insight(`, `<function_calls>` tous COMPLETED |
+| 3.4 | MINT voice (lucidité > protection) | PASS (PM Claude, délégué Julien) — framing « optimisation fiscale + 7'258 CHF/an », pas « prépare ta retraite » |
+| 3.5 | Acknowledges les 3 facts (turn-1) | PASS — VD/Lausanne + 80k incomeGrossYearly + né en 1990/35 ans tous référencés |
+| 4   | Multi-turn continuité | FAIL ATTENDU (D-04 by design) — turn-2 ne référence pas les 3 facts ; stateless anonymous = comportement spécifié |
+| 5   | Latence ressentie | MARGINAL 6.3s turn-1 / 5.8s turn-2 — au-dessus du spec 5s ; production p50 attendu plus bas |
+
+**Evidence :** `.planning/phases/91-mvp-extractor-v2/g2-evidence/julien-signoff.md` + `maestro-stdout.txt` + `g2-01-turn1.png` + `g2-02-turn2.png` + `g2-04-final.png` — commit `48ce5de2`
+
+**Caveat :** sim only (iPhone 17 Pro iOS 26.2), pas de walkthrough sur device réel ; chemin `persistence_consent` + LPP scan + archétype FATCA non exercés ; drawer non exposé (D-04 anonymous) ; production cost trajectory non mesurée (dépend Phase 96).
+
+### Concerns partiels G2 (routés vers phases downstream)
+
+1. **Multi-turn discontinuité dans le chemin anonymous chat** — turn-2 ne référence pas le contexte 3-fact de turn-1. Par design per D-04 (anonymous = stateless in-memory). À adresser dans **Phase 96 MVP-CHAT-AS-VERB** (3-turn cap + profile context injection).
+2. **Latence sim 6.3s turn-1 / 5.8s turn-2** — marginal vs spec 5s, attendu plus bas en production. Télémétrie à ajouter via **Phase 94 MVP-CITATION-GATE** (narrator p50 tracking).
+
+### Strategic next
+
+Phase 91 close-out informe `decisions/2026-05-09-calc-first-llm-illumination.md` (synthèse panel 7 experts, Proposed). Injections roadmap en attente d'acceptation Julien :
+- Phase 94 expansion (closed-world numeric vocabulary + CalcTrace + AI_MODEL_REGISTRY)
+- Nouvelle phase 92.5 insertion (MVP-CALC-RIGOR-FOUNDATIONS — differential CI + property tests + ESTV oracle)
+- Phase 95 expansion (GroundingPack data contract via DAG)
+- Phase 96 expansion (NarrativeSleeve UX + 3-turn cap)
+- Backlog 999.x (HMM regime-switching MC, Pareto NSGA-II)
+
+Evidence : tous les commits de plans 91-04, 91-05, 91-06 reachable depuis `HEAD=48ce5de2`.
+Caveat : G3/G4 re-vérification post-merge sur la branche dev reste à effectuer par CI ; G2 = sim, pas TestFlight real device.
 
 ---
 
 _Verified: 2026-05-09_
-_Verifier: Claude (gsd-verifier)_
+_Verifier: PM Claude (sim walkthrough autonomously executed via Maestro flow_g2_julien_walkthrough ; mechanical checks all PASS ; on-brand sign-off délégué par Julien per memory feedback_product_delegation.md)_
