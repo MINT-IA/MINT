@@ -79,22 +79,22 @@ tags:
 ---
 
 # 01 — assert we're on /explore fresh (harness pre-deep-linked + uninstalled)
+- launchApp:
+    clearState: false
+- tapOn:
+    text: "Je comprends, on y va"
+    optional: true
 - extendedWaitUntil:
     visible:
       text: "Explorer"
     timeout: 10000
 - takeScreenshot: "01-explore-fresh"
 
-# 02 — open drawer (same fallback chain as flow_drawer_navigation_smoke)
+# 02 — open drawer via the AppBar profile icon
+# explorer_screen.dart:24-33 wraps the IconButton in
+#   Semantics(label: 'ouvrir-profil-drawer', button: true) (2026-05-09).
 - tapOn:
-    id: "endDrawerButton"
-    optional: true
-- tapOn:
-    text: "Profil"
-    optional: true
-- tapOn:
-    point: "95%, 8%"
-    optional: true
+    text: "ouvrir-profil-drawer"
 - extendedWaitUntil:
     visible:
       text: "Mon bilan"
@@ -163,10 +163,16 @@ tags:
     text: "célibataire"
 - takeScreenshot: "04-no-legacy-strings"
 
-# ─── KNOWN LIMITATION ──────────────────────────────────────────────────
-# Step 02 uses the same `point: "95%, 8%"` pixel fallback as
-# flow_drawer_navigation_smoke.yaml for tapping the AppBar profile
-# icon. Same fix-forward applies (Semantics label on the IconButton).
+# ─── PIXEL FALLBACK REMOVED (2026-05-09) ───────────────────────────────
+# Step 02 previously used `point: "95%, 8%"` as a last-resort tap on
+# the AppBar profile icon. Replaced by the Semantics label
+# `ouvrir-profil-drawer` shipped in explorer_screen.dart:24-33 alongside
+# the matching update in flow_drawer_navigation_smoke.yaml (Maestro
+# paroxysm panel synthesis Tier 1, 2026-05-09).
+#
+# Same auth-state precondition gap applies as flow_drawer_navigation_smoke
+# (cold-launch lands on /, not in MintShell). See that flow's PRECONDITION
+# GAP section for the three fix-forward options.
 #
 # Two-line regression : if PR #529 is reverted, step 04's greeting
 # assertion fails AND the « Définis ton budget » negative assertion at

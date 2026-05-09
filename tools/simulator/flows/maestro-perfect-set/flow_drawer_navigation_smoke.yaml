@@ -69,9 +69,12 @@ tags:
 # 00 — start at /explore (MintShell tab 4). Tap Explorer tab.
 - launchApp:
     clearState: false
+- tapOn:
+    text: "Je comprends, on y va"
+    optional: true
 - extendedWaitUntil:
     visible:
-      text: "Voir clair, décider seul."
+      text: "Explorer"
     timeout: 8000
 # Tap landing CTA to enter shell ; the anon path lands us on
 # /anonymous/chat which is OUTSIDE MintShell. We need the shell, so
@@ -105,54 +108,41 @@ tags:
 - takeScreenshot: "01-explore-home"
 
 # 02 — open drawer via person icon
-# explorer_screen.dart:24-27 — IconButton(icon: person_outline) in AppBar actions
+# explorer_screen.dart:24-33 — IconButton wrapped in
+#   Semantics(label: 'ouvrir-profil-drawer', button: true) (2026-05-09).
 - tapOn:
-    id: "endDrawerButton"
-    optional: true
-# Fallback : tap the icon by its accessibility role
-- tapOn:
-    text: "Profil"          # person icon Semantics tooltip (Material default)
-    optional: true
-# Last resort : tap the AppBar trailing region
-- tapOn:
-    point: "95%, 8%"
-    optional: true
-- assertVisible:
-    text: "Mon profil"      # drawerMyProfile — first drawer entry
+    text: "ouvrir-profil-drawer"
+- extendedWaitUntil:
+    visible:
+      text: "Mon profil"      # drawerMyProfile — first drawer entry
     timeout: 4000
 - takeScreenshot: "02-drawer-open"
 
 # 03 — Mon bilan → /profile/bilan
 - tapOn:
     text: "Mon bilan"
-- assertVisible:
-    text: "Aucun profil renseigné"  # financialSummaryNoProfile (anon = empty)
+- extendedWaitUntil:
+    visible:
+      text: "Aucun profil renseigné"  # financialSummaryNoProfile (anon = empty)
     timeout: 6000
 - takeScreenshot: "03-mon-bilan"
 - back
 
 # 04 — re-open drawer + Mes documents → /documents
 - tapOn:
-    text: "Profil"
-    optional: true
-- tapOn:
-    point: "95%, 8%"
-    optional: true
+    text: "ouvrir-profil-drawer"
 - tapOn:
     text: "Mes documents"
-- assertVisible:
-    text: "Mes documents"            # documents screen AppBar
+- extendedWaitUntil:
+    visible:
+      text: "Mes documents"            # documents screen AppBar
     timeout: 6000
 - takeScreenshot: "04-documents"
 - back
 
 # 05 — re-open drawer + Historique coach → /coach/history
 - tapOn:
-    text: "Profil"
-    optional: true
-- tapOn:
-    point: "95%, 8%"
-    optional: true
+    text: "ouvrir-profil-drawer"
 - tapOn:
     text: "Historique coach"
 - extendedWaitUntil:
@@ -163,11 +153,7 @@ tags:
 
 # 06 — re-open drawer + Langue → /settings/langue
 - tapOn:
-    text: "Profil"
-    optional: true
-- tapOn:
-    point: "95%, 8%"
-    optional: true
+    text: "ouvrir-profil-drawer"
 - tapOn:
     text: "Langue"
 - extendedWaitUntil:
@@ -178,11 +164,7 @@ tags:
 
 # 07 — re-open drawer + Ce que MINT sait de toi → /profile/privacy-control
 - tapOn:
-    text: "Profil"
-    optional: true
-- tapOn:
-    point: "95%, 8%"
-    optional: true
+    text: "ouvrir-profil-drawer"
 - tapOn:
     text: "Ce que MINT sait de toi"
 - extendedWaitUntil:
@@ -192,13 +174,30 @@ tags:
 - takeScreenshot: "05-privacy-control"
 - back
 
-# ─── KNOWN LIMITATION ──────────────────────────────────────────────────
-# This flow uses `point:` as a last-resort fallback for tapping the
-# AppBar profile icon. That violates the « semantic locators ONLY » rule
-# from .planning/phases/74-walker-premier-eclairage/PANEL-VERDICT.md.
-# Fix-forward (DEFERRED, not done in this flow design pass) :
-#   wrap the IconButton in screens/explore/explorer_screen.dart:24-27
-#   in `Semantics(label: 'open-profile-drawer', button: true, child: …)`
-#   then the locator becomes `text: "open-profile-drawer"`. Until that
-#   ships, the `point:` fallback is the working workaround and the flow
-#   should be marked « has-pixel-fallback » in the gate report.
+# ─── PIXEL FALLBACK REMOVED (2026-05-09) ───────────────────────────────
+# The previous version of this flow used `point: "95%, 8%"` to tap the
+# AppBar profile icon, plus an optional `text: "Profil"` fallback. Both
+# violated the « semantic locators ONLY » rule from
+# .planning/phases/74-walker-premier-eclairage/PANEL-VERDICT.md.
+#
+# Fix shipped 2026-05-09 (Maestro paroxysm panel synthesis Tier 1) :
+#   apps/mobile/lib/screens/explore/explorer_screen.dart:24-33 wraps the
+#   IconButton in `Semantics(label: 'ouvrir-profil-drawer', button: true)`
+#   so the locator is now `text: "ouvrir-profil-drawer"` (Maestro reads
+#   Flutter Semantics labels via the accessibility-text matcher).
+#
+# ─── KNOWN PRECONDITION GAP (REMAINING) ────────────────────────────────
+# This flow asserts `text: "Explorer"` (step 01) which only renders
+# inside MintShell. Cold-launch on anon brings the user to the LandingScreen
+# (`/`), NOT to the shell, so the assertion fails before reaching the
+# drawer. Fix-forward needs ONE of :
+#   (a) Wire `MINT_E2E_INITIAL_ROUTE=/explore` dart-define into lib/main.dart
+#       and have the harness pass it on `flutter build` for E2E runs.
+#   (b) Pre-deep-link via `xcrun simctl openurl booted ch.mint.app://explore`
+#       BUT this depends on `/explore` being publicly accessible, which is
+#       a `RouteScope` decision still pending Julien's call (see
+#       .planning/decisions/2026-05-09-maestro-paroxysm-panel/SYNTHESIS.md
+#       Tier 2 #1).
+#   (c) Rewrite the flow to register/login first so the shell mounts.
+# Until one of (a)/(b)/(c) lands, this flow ONLY runs successfully on
+# already-authed devices. The CI gate must pre-condition appropriately.
