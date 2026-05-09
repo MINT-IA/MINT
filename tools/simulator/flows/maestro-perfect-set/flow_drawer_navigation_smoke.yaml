@@ -69,8 +69,9 @@ tags:
 # 00 — start at /explore (MintShell tab 4). Tap Explorer tab.
 - launchApp:
     clearState: false
-- assertVisible:
-    text: "Voir clair, décider seul."
+- extendedWaitUntil:
+    visible:
+      text: "Voir clair, décider seul."
     timeout: 8000
 # Tap landing CTA to enter shell ; the anon path lands us on
 # /anonymous/chat which is OUTSIDE MintShell. We need the shell, so
@@ -97,8 +98,9 @@ tags:
 #   not found, which is the correct loud signal.
 
 # 01 — assert we're on /explore (harness pre-conditioned) + drawer icon present
-- assertVisible:
-    text: "Explorer"
+- extendedWaitUntil:
+    visible:
+      text: "Explorer"
     timeout: 8000
 - takeScreenshot: "01-explore-home"
 
@@ -153,8 +155,9 @@ tags:
     optional: true
 - tapOn:
     text: "Historique coach"
-- assertVisible:
-    text: "Historique"
+- extendedWaitUntil:
+    visible:
+      text: "Historique"
     timeout: 6000
 - back
 
@@ -167,8 +170,9 @@ tags:
     optional: true
 - tapOn:
     text: "Langue"
-- assertVisible:
-    text: "Langue"
+- extendedWaitUntil:
+    visible:
+      text: "Langue"
     timeout: 6000
 - back
 
@@ -181,8 +185,9 @@ tags:
     optional: true
 - tapOn:
     text: "Ce que MINT sait de toi"
-- assertVisible:
-    text: "Ce que MINT sait de toi"
+- extendedWaitUntil:
+    visible:
+      text: "Ce que MINT sait de toi"
     timeout: 6000
 - takeScreenshot: "05-privacy-control"
 - back
