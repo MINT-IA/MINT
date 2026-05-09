@@ -94,6 +94,7 @@ class AnnualRefreshService:
         risk_profile: str = "modere",
         last_major_update: Optional[date] = None,
         today: Optional[date] = None,
+        employment_status: Optional[str] = None,
     ) -> AnnualRefreshResult:
         """Generate the 7 refresh questions with pre-filled values.
 
@@ -104,6 +105,13 @@ class AnnualRefreshService:
             risk_profile: Current risk profile (conservateur/modere/dynamique).
             last_major_update: Date of last update (for months_since calculation).
             today: Override for current date (for testing).
+            employment_status: Optional employment status code
+                ('salarie', 'independant', 'retraite', 'student', ...).
+                When set to 'retraite', the salary question is reframed
+                ("source de revenus" instead of "salaire brut") to avoid
+                hitting retirees with an inapplicable cron prompt
+                (B-EXP-F-1 audit fix 2026-05-09 — perimeter STUB
+                .planning/decisions/2026-05-09-perimeter-p1-cron-archetype-aware/).
 
         Returns:
             AnnualRefreshResult with refresh_needed flag and 7 questions.
@@ -121,6 +129,7 @@ class AnnualRefreshService:
             current_lpp=current_lpp,
             current_3a=current_3a,
             risk_profile=risk_profile,
+            employment_status=employment_status,
         )
 
         return AnnualRefreshResult(
@@ -137,18 +146,36 @@ class AnnualRefreshService:
         current_lpp: float,
         current_3a: float,
         risk_profile: str,
+        employment_status: Optional[str] = None,
     ) -> List[RefreshQuestion]:
-        """Build the 7 standard refresh questions."""
+        """Build the 7 standard refresh questions.
+
+        B-EXP-F-1 audit fix 2026-05-09 : when employment_status == 'retraite',
+        reframe the salary question to "source de revenus" so retirees
+        don't get a yearly cron prompt about a salary they don't have.
+        Same pattern as the B2 fix on suggest_actions chips.
+        """
+        is_retired = employment_status == "retraite"
+        salary_label = (
+            "Tes sources de revenus (rentes, retraits, autres) ont-elles change ?"
+            if is_retired
+            else "Ton salaire annuel brut a-t-il change ?"
+        )
+        job_label = (
+            "Y a-t-il eu un changement dans ta situation (rente, activite reduite, deces conjoint) ?"
+            if is_retired
+            else "As-tu change d'emploi ou de statut professionnel ?"
+        )
         return [
             RefreshQuestion(
                 key="salary_changed",
-                label="Ton salaire annuel brut a-t-il change ?",
+                label=salary_label,
                 question_type="slider",
                 current_value=_format_chf_value(current_salary) if current_salary else None,
             ),
             RefreshQuestion(
                 key="job_changed",
-                label="As-tu change d'emploi ou de statut professionnel ?",
+                label=job_label,
                 question_type="yes_no",
             ),
             RefreshQuestion(
