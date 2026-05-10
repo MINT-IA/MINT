@@ -1009,10 +1009,23 @@ _INTENT_KEYWORDS: dict[str, tuple[str, ...]] = {
         "retraite", "rentier", "rente avs", "rente lpp",
         "retrait lpp", "retrait 3a", "62 ans", "63 ans", "64 ans", "65 ans",
         "pre retraite", "retraite anticipee",
+        # Wave 4 additions (Phase 93.5 H8 follow-up, 2026-05-10): the 50-fixture
+        # eval revealed that the heuristic missed common ways users name
+        # pillar-3 / LPP / AVS in plain text. 7+ fixtures landed under the
+        # always-on path, starving the bundle compiler of intent-driven
+        # activations. Additions only — no removal, no semantic shift.
+        "3a", "3 a", "3e pilier", "3eme pilier", "troisieme pilier",
+        "pilier 3", "pilier 3a", "pilier 3b", "pilier3a",
+        "lpp", "loi sur la prevoyance", "prevoyance professionnelle",
+        "avs", "rente", "rentes", "prevoyance", "epargne retraite",
+        "preretraite",
     ),
     "taxes": (
         "impot", "impots", "fiscalite", "declaration", "tax",
         "taxation", "deduction", "rappel d impot",
+        # Wave 4 additions
+        "lifd", "lhid", "fiscal", "fiscaux", "fiscale", "fiscales",
+        "bareme fiscal", "deduction fiscale",
     ),
 }
 
