@@ -124,6 +124,18 @@ pre-commit:
       run: python3 tools/checks/pii_fixture_scan.py {staged_files}
       tags: [compliance, nlpd, phase-95-dag-invalidation]
       fail_text: "PII pattern detected in JSONL fixture (AHV13 or Swiss phone). Replace with synthetic deterministic values — no real personal data in committed fixtures."
+    # ── Phase 95 DAG-INVALIDATION W2 (LSFin annotation, D-12) ──
+    lsfin_annotation_phase_95:
+      # CLAUDE.md TOP rule #1 (LSFin) — when a Phase 95 W2 module emits
+      # credible_low/credible_high in user-facing narrative, the verbatim
+      # FR annotation « selon le modèle simplifié actuel » MUST appear
+      # somewhere in the same file (or its docstring). The 4 Phase 95 W2
+      # compute modules are the only files that emit credible intervals
+      # today ; Phase 96 narrator templates will extend the scope.
+      glob: "services/backend/app/services/coach/{bootstrap_ci,grounding_pack,sensitivity,pareto}.py"
+      run: python3 tools/checks/banned_terms_python.py --lsfin-annotation {staged_files}
+      tags: [compliance, lsfin, phase-95-dag-invalidation]
+      fail_text: "LSFin D-12 violation : credible_low/credible_high emitted without verbatim « selon le modèle simplifié actuel » annotation. Add the FR phrase to the module docstring or output template (CLAUDE.md §1)."
 
 skip:
   - merge

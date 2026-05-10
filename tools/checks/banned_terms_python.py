@@ -135,11 +135,80 @@ def _iter_python_files(paths: list[Path]):
             yield p
 
 
+# ---------------------------------------------------------------------------
+# Phase 95 D-12 — LSFin anti-promise annotation lint (--lsfin-annotation).
+#
+# When a file emits credible_low/credible_high values into user-facing
+# narrative, the verbatim FR annotation « selon le modèle simplifié actuel »
+# MUST appear somewhere in the same file. Paraphrases and ASCII-e variants
+# are rejected (CLAUDE.md §1 LSFin + §2 accent).
+#
+# Heuristic : if the file contains both `credible_low` AND `credible_high`
+# tokens AND no occurrence of the verbatim annotation, emit a violation.
+# Files that don't emit credible intervals are exempt.
+#
+# The rule is OPT-IN via the `--lsfin-annotation` CLI flag so the existing
+# default lint mode is preserved byte-identical for the existing lefthook
+# pre-commit pipeline.
+# ---------------------------------------------------------------------------
+
+_LSFIN_ANNOTATION_FR = "selon le modèle simplifié actuel"  # verbatim, accents preserved
+
+
+def check_lsfin_annotation(path: Path) -> list[tuple[int, str]]:
+    """D-12 LSFin anti-promise annotation rule.
+
+    Returns: list of (line_no, message) tuples ; empty list = clean.
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        return []
+    has_low = "credible_low" in text
+    has_high = "credible_high" in text
+    if not (has_low and has_high):
+        return []  # no credible intervals → rule N/A
+    if _LSFIN_ANNOTATION_FR in text:
+        return []  # annotation present verbatim → clean
+    # Find a representative line where credible_low is mentioned, for reporting.
+    for line_no, line in enumerate(text.splitlines(), start=1):
+        if "credible_low" in line:
+            return [(
+                line_no,
+                f"LSFin D-12 : file emits credible_low/credible_high without "
+                f"verbatim annotation « {_LSFIN_ANNOTATION_FR} ». "
+                f"Required by CONTEXT D-12 + CLAUDE.md §1.",
+            )]
+    return [(1, "LSFin D-12 : annotation missing")]
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Banned-terms LSFin Python lint")
     parser.add_argument("paths", nargs="+", type=Path, help="files or directories")
+    parser.add_argument(
+        "--lsfin-annotation",
+        action="store_true",
+        help=(
+            "Phase 95 D-12 mode : flag files that emit credible_low/credible_high "
+            "without the verbatim FR annotation "
+            "« selon le modèle simplifié actuel »."
+        ),
+    )
     args = parser.parse_args(argv)
 
+    if args.lsfin_annotation:
+        # Opt-in D-12 mode — does NOT run the default banned-term scan.
+        annotation_hits: list[tuple[Path, int, str]] = []
+        for f in _iter_python_files(args.paths):
+            for line_no, msg in check_lsfin_annotation(f):
+                annotation_hits.append((f, line_no, msg))
+        if annotation_hits:
+            for path, line_no, msg in annotation_hits:
+                print(f"{path}:{line_no}: {msg}", file=sys.stderr)
+            return 1
+        return 0
+
+    # Default mode (Phase 93.5) — banned-term scan.
     all_hits: list[tuple[Path, int, str, str]] = []
     for f in _iter_python_files(args.paths):
         for line_no, term, line in scan_file(f):

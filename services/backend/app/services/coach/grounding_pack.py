@@ -40,6 +40,11 @@ class GroundingPackEntry(BaseModel):
     - `source_ref` : calc-call signature (e.g. `pareto.compute_3a_ceiling`).
     - `credible_low` / `credible_high` : bootstrap P5/P95 percentiles
       (None when the underlying calc is deterministic, not stochastic).
+      LSFin D-12 — when these fields surface in narrator output, the
+      verbatim FR annotation « selon le modèle simplifié actuel » MUST
+      accompany them (CLAUDE.md §1). Lint rule
+      `tools/checks/banned_terms_python.py --lsfin-annotation` enforces
+      this on Phase 96 narrator templates.
     - `staleness_iso` : ISO 8601 timestamp of the input snapshot.
     """
 
