@@ -23158,4 +23158,13 @@ class SFr extends S {
   @override
   String get coachOnboardingFirstAssistantGreeting =>
       'Bienvenue dans MINT. Avant qu\'on commence : qu\'est-ce qui t\'amène ici aujourd\'hui ?';
+
+  @override
+  String get verbExplique => 'Explique-moi';
+
+  @override
+  String get verbSimule => 'Simule';
+
+  @override
+  String get verbRassure => 'Rassure-moi';
 }

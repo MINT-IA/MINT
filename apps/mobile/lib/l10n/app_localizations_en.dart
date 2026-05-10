@@ -23044,4 +23044,13 @@ class SEn extends S {
   @override
   String get coachOnboardingFirstAssistantGreeting =>
       'Welcome to MINT. Before we start — what brings you here today?';
+
+  @override
+  String get verbExplique => 'Explain';
+
+  @override
+  String get verbSimule => 'Simulate';
+
+  @override
+  String get verbRassure => 'Reassure me';
 }

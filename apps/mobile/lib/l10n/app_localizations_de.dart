@@ -23212,4 +23212,13 @@ class SDe extends S {
   @override
   String get coachOnboardingFirstAssistantGreeting =>
       'Willkommen bei MINT. Bevor wir starten — was bringt dich heute hierher?';
+
+  @override
+  String get verbExplique => 'Erkläre';
+
+  @override
+  String get verbSimule => 'Simuliere';
+
+  @override
+  String get verbRassure => 'Beruhige mich';
 }

@@ -23158,4 +23158,13 @@ class SEs extends S {
   @override
   String get coachOnboardingFirstAssistantGreeting =>
       'Bienvenido a MINT. Antes de empezar — ¿qué te trae aquí hoy?';
+
+  @override
+  String get verbExplique => 'Explícame';
+
+  @override
+  String get verbSimule => 'Simular';
+
+  @override
+  String get verbRassure => 'Tranquilízame';
 }

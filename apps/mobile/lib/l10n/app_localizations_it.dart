@@ -23217,4 +23217,13 @@ class SIt extends S {
   @override
   String get coachOnboardingFirstAssistantGreeting =>
       'Benvenuto su MINT. Prima di cominciare — cosa ti porta qui oggi?';
+
+  @override
+  String get verbExplique => 'Spiega';
+
+  @override
+  String get verbSimule => 'Simula';
+
+  @override
+  String get verbRassure => 'Rassicurami';
 }

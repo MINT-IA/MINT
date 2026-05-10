@@ -40622,6 +40622,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Bienvenue dans MINT. Avant qu\'on commence : qu\'est-ce qui t\'amène ici aujourd\'hui ?'**
   String get coachOnboardingFirstAssistantGreeting;
+
+  /// Phase 96 D-05 — MintCardActionBar verb 1/3. Tap opens MintChatOverlay with intent=explain. Imperative reflexive FR, accent-clean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explique-moi'**
+  String get verbExplique;
+
+  /// Phase 96 D-05 + D-06 — MintCardActionBar verb 2/3. Tap deep-links to Explorer (context.push('/explorer?simulate=<card_id>')); zero LLM call.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule'**
+  String get verbSimule;
+
+  /// Phase 96 D-05 — MintCardActionBar verb 3/3. Tap opens MintChatOverlay with intent=reassure. Imperative reflexive FR, accent-clean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rassure-moi'**
+  String get verbRassure;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
