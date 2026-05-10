@@ -114,6 +114,16 @@ pre-commit:
       run: python3 tools/checks/estv_oracle_freshness.py
       glob: "services/backend/tests/fixtures/estv_oracle_2025.jsonl"
       tags: [calc-rigor, phase-92.5, estv-oracle]
+    # ── Phase 95 DAG-INVALIDATION (PII fixture scan, D-14) ──
+    pii_fixture_scan:
+      # CLAUDE.md TOP rule #6 (0-trust) + nLPD — refuses any JSONL fixture
+      # containing AHV13 (756.XXXX.XXXX.XX) or Swiss phone (+41 ...) patterns.
+      # Phase 95 tests/fixtures/hash_parity_50.jsonl is the first consumer ;
+      # all future fixture packs must pass. HARD gate, exits 1 on any match.
+      glob: "services/backend/tests/fixtures/*.jsonl"
+      run: python3 tools/checks/pii_fixture_scan.py {staged_files}
+      tags: [compliance, nlpd, phase-95-dag-invalidation]
+      fail_text: "PII pattern detected in JSONL fixture (AHV13 or Swiss phone). Replace with synthetic deterministic values — no real personal data in committed fixtures."
 
 skip:
   - merge
