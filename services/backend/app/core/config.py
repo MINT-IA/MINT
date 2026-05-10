@@ -70,6 +70,15 @@ class Settings(BaseSettings):
     # §4 Stage 0 T0.2 + 91-CONTEXT.md decision D-12.
     COACH_DUAL_LLM_ENABLED: bool = False
 
+    # Phase 93.5 — feature flag for skill-bundle compiler (CONTEXT D-15).
+    # Default `false` in prod ; `true` in staging during Stage 3 eval
+    # (Plan 93.5-04). Mirrors `COACH_DUAL_LLM_ENABLED` rollout pattern.
+    # When `true`, `coach_chat._build_system_prompt_with_memory` routes via
+    # `build_narrator_system_prompt_from_bundles` (compile_bundles → 6 named
+    # bundle fragments + tool allowlist + citation allowlist) instead of
+    # the legacy `_NARRATOR_BASE_SYSTEM_PROMPT` template.
+    COACH_BUNDLE_COMPILER_ENABLED: bool = False
+
     # Phase 91 D-01 — Narrator model selection. Default 'sonnet' matches
     # today's hardcoded Wave 2 narrator branch (preserves production
     # parity until Stage 3 eval gate flips the default in 91-05).
