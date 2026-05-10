@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
-status: executing
+status: verifying
 stopped_at: Plan 94-03 Tasks 1-3 landed ; Task 4 checkpoint awaiting Julien GO/NO-GO
-last_updated: "2026-05-10T19:54:30.536Z"
+last_updated: "2026-05-10T20:49:03.322Z"
 last_activity: 2026-05-10
 progress:
   total_phases: 10
@@ -35,8 +35,8 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 94 (mvp-citation-gate) — EXECUTING (Plan 03 Tasks 1-3 landed, Task 4 checkpoint awaiting Julien)
-Plan: 3 of 3 (T4 awaiting GO/NO-GO)
+Phase: 95
+Plan: Not started
 Status: Plan 94-03 Tasks 1-3 landed ; Task 4 checkpoint:human-verify awaits Julien GO/NO-GO/PARTIAL signal
 Last activity: 2026-05-10
 Next:

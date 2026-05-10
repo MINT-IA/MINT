@@ -48,6 +48,7 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 - ✓ Anonymous flow `/anonymous/intent` route wired + error mapping — v2.8 (decimal 30.14-30.15)
 - ✓ Backend README first-run + ANTHROPIC_API_KEY documented — v2.8 (decimal 30.16)
 - ✓ MVP wedge T9 email-demain killed + DESIGN.md spec — v2.8 (decimal 30.17)
+- ✓ Closed-world citation gate (GATE-01..GATE-04) — Phase 94 mvp-citation-gate (v2.9). `citation_parser.gate()` + 18-key `CITATION_REGISTRY` + `_run_narrator_with_gate()` retry-once-or-fallback wrapper at `coach_chat.py:3339-3376`. 170 unit tests green, byte-identity flag-OFF invariant on prod, staging flag ON for 4-week diagnostic soak. Julien NO-GO + PARTIAL approval 2026-05-10 — prod-flip blocked on Wave 4 narrator-prompt fattening (Stage 3 thresholds 6%/14% vs ≥95%/≥90% targets, root cause = narrator prompt lacks `{{cite:<key>}}` placeholder grammar).
 
 ### Active
 
@@ -121,4 +122,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-09 after Phase 91 MVP-EXTRACTOR-V2 close (verified, 6/7 plans shipped, Stage 3 narrator decision = SONNET kill-policy fallback per ratio 0.24, 5-gate exit contract closed) ; v2.9 milestone in progress with strategic pivot proposed in `decisions/2026-05-09-calc-first-llm-illumination.md` (calc-first + LLM illumination, 7-expert panel synthesis, awaiting acceptance for roadmap injection 94/95/96 expansion + 92.5 insertion)*
+*Last updated: 2026-05-10 after Phase 94 MVP-CITATION-GATE close (verified, 3/3 plans landed, GATE-01..GATE-04 mechanically met, Stage 3 thresholds DEFERRED to Wave 4 narrator-prompt fattening per Julien NO-GO + PARTIAL approval, staging flag ON / prod absent, 4/5 must-haves verified + 1 G2 sim walkthrough tracked as PENDING UAT). Milestone v2.9 Chat-as-Verb Pivot — phases 90/91/91.5/92/92.5/93/93.5/94 closed ; phases 95 (DAG-INVALIDATION) and 96 (CHAT-AS-VERB) next. NOTE: the « v2.9 Coach Visuel Hybride / phases 40-43 » block earlier in this doc reflects a stale milestone snapshot from 2026-04 ; the live milestone per ROADMAP.md + STATE.md is « Chat-as-Verb Pivot » with phases 90-96 — needs a PROJECT.md refresh separately from Phase 94 close-out.*
