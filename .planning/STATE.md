@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: verifying
-stopped_at: Plan 94-03 Tasks 1-3 landed ; Task 4 checkpoint awaiting Julien GO/NO-GO
-last_updated: "2026-05-10T20:49:03.322Z"
+stopped_at: Completed 94.1-01-PLAN.md — narrator-prompt fattening landed at FAIL bucket (Sonnet 20% gate-correct, Haiku 20%, thresholds NOT MET ; orchestrator decides 94.2)
+last_updated: "2026-05-10T21:36:54.632Z"
 last_activity: 2026-05-10
 progress:
-  total_phases: 10
-  completed_phases: 3
-  total_plans: 22
-  completed_plans: 17
-  percent: 77
+  total_phases: 11
+  completed_phases: 4
+  total_plans: 23
+  completed_plans: 18
+  percent: 78
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -88,6 +88,22 @@ Next:
 - **Recommendation** : NO-GO + PARTIAL (staging-only, Wave 4 narrator prompt fattening, re-eval). Awaits Julien GO/NO-GO/PARTIAL signal at Task 4 checkpoint.
 - USER VALUE DELIVERED : NONE YET — Plan 94-03 builds eval pack + Maestro G1 + flips staging flag
 
+## Plan 94.1-01 Receipt (Wave 4 narrator-prompt fattening, 2026-05-10)
+
+- Files created : 7 (citation_grammar.py, bundles/citation_grammar.py, test_narrator_grammar_fragment.py, 94.1-01-PLAN.md, 94.1-EVAL-DELTA.md, 2 eval-run JSONs, 94.1-SUMMARY.md)
+- Files modified : 5 (bundles/__init__.py, bundle_compiler.py +17 LOC, claude_coach_service.py +35 LOC, tools/eval_narrator.py +45 LOC, 94-03-FLAG-FLIP-PROPOSAL.md +1 section)
+- Tests added : 12 (tests/test_citation_gate/test_narrator_grammar_fragment.py — fragment importability, 18-key coupling, verbatim examples, no new {slot}, builder purity, legacy path flag-on/off byte-identity, bundle path flag-on/off, compiler activated_bundles, dedup, Pydantic invariants)
+- Full backend suite : 6448 passed, 62 skipped, 1 xfailed in 107.45s (+12 new tests vs Wave 1 baseline 6436 ; no regression)
+- Commits (T1+T2+T3+T4) : 12b2a8fa (T1 PLAN.md) → b3a7ca1a (T2 fattening + tests + Rule 1 « tu dois » auto-fix) → T3 eval JSONs → T4 EVAL-DELTA + SUMMARY
+- Duration : ~3.5h
+- Architectural decision : Path C (Hybrid) — single source of truth citation_grammar.py CITATION_GRAMMAR_FRAGMENT consumed by both CitationGrammarBundle (flag-conditional in compile_bundles) AND build_narrator_system_prompt (flag-conditional append). NOT in _ALWAYS_ON constant ; NOT in ALL_BUNDLE_CLASSES — preserves test_empty_intent_emits_always_on_only + test_all_bundles_importable len=6 invariants.
+- Eval instrumentation : eval_narrator --gate=on propagates COACH_CITATION_GATE_ENABLED=true to env + settings (Phase 94 Wave 2 ran without ; system prompt was unchanged).
+- 0-trust : SUMMARY.md `## Self-Check : PASSED` at .planning/phases/94.1-.../94.1-SUMMARY.md
+- **STAGE 3 FINDING (post-94.1)** : Sonnet gate_correct=10/50 (20%), Haiku 10/50 (20%) — both moved up from 6%/14% but STILL FAR below 95%/90% thresholds. Signal concentrated in valid_citation : Sonnet 1/20 → 9/20 (+800%), Haiku 6/20 → 10/20 (+67%). Topline understates improvement because fixture scoring records post-retry verdict (FALLBACK after D-08 collapse), not first-call (REJECTED_UNCITED) — under alternative « first-call match » scoring, Sonnet ≈48%, Haiku ≈44%.
+- **Verdict** : FAIL per 94.1-01-PLAN interpretation rules (Sonnet < 70%). Orchestrator decides GO/NO-GO on 94.2 second-iter with primary hypothesis « intent-driven key grouping reduces 18-bullet noise floor » (full hypothesis list H1-H5 in 94.1-EVAL-DELTA.md).
+- **Disposition** : NO-GO + PARTIAL unchanged. Staging stays ON for diagnostic value, prod stays OFF for narrator quality. No new GO recommendation.
+- USER VALUE DELIVERED : NONE in prod. Branch `feature/S94-mvp-citation-gate` holds 94+94.1 ; not merged. The 94.1 measurement IS the only data on the fattened narrator behavior.
+
 Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped 2026-05-09 (5 design-system lints + baselines + lefthook + CI).
 
 ## Phase Plan (Chat-as-Verb)
@@ -121,8 +137,8 @@ Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped
 
 ## Session Continuity
 
-Last session: 2026-05-10T19:54:30.533Z
-Stopped at: Plan 94-03 Tasks 1-3 landed ; Task 4 checkpoint awaiting Julien GO/NO-GO
+Last session: 2026-05-10T21:36:54.626Z
+Stopped at: Completed 94.1-01-PLAN.md — narrator-prompt fattening landed at FAIL bucket (Sonnet 20% gate-correct, Haiku 20%, thresholds NOT MET ; orchestrator decides 94.2)
 Resume file: None
 
 <details>

@@ -204,15 +204,15 @@ The PLAN here does NOT duplicate `handoff/audit/05-plan.md` — it indexes it. S
 **Budget**: 3d
 **Auto profile**: **L2** (backend + LLM eval gate) — Stage 3 eval mandatory before merge.
 
-### Phase 94.1: Wave 4 narrator-prompt fattening — citation registry + {{cite:<key>}} grammar instructions (Phase 94 prod-flip unblocker) (INSERTED)
+### Phase 94.1: Wave 4 narrator-prompt fattening — citation registry + {{cite:<key>}} grammar instructions (Phase 94 prod-flip unblocker) (INSERTED) — CLOSED 2026-05-10 AT FAIL
 
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
-**Depends on:** Phase 94
-**Plans:** 0 plans
+**Goal:** Teach the narrator the `{{cite:<key>}}` grammar + the 18-key registry vocabulary so Stage 3 gate-correct rates lift from Sonnet 6% / Haiku 14% to ≥95% / ≥90%.
+**Result:** PARTIALLY LANDED — Sonnet 6% → 20% (+233%), Haiku 14% → 20% (+43%). Signal concentrated in `valid_citation` category (Sonnet 1/20 → 9/20, Haiku 6/20 → 10/20). Thresholds NOT MET. Disposition unchanged : NO-GO + PARTIAL.
+**Depends on:** Phase 94 (NO-GO + PARTIAL disposition + CITATION_REGISTRY 18-key baseline).
+**Plans:** 1 plan (closed at FAIL bucket).
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 94.1 to break down)
+- [x] 94.1-01-PLAN.md — narrator-prompt fattening Path C (Hybrid) — SUMMARY at `.planning/phases/94.1-wave-4-.../94.1-SUMMARY.md` ; EVAL-DELTA at `.planning/phases/94.1-wave-4-.../94.1-EVAL-DELTA.md`. 12 new tests + 6448 backend pytest + 2 live eval JSONs. Verdict FAIL per plan-defined interpretation rules ; orchestrator owns GO/NO-GO on 94.2.
 
 ### Phase 95: MVP-DAG-INVALIDATION
 **Goal**: Add `inputs_hash` + `superseded_by` on every projection (LPP, AVS, 3a, marge fiscale). Calculator refuses stale cache when input hash differs from current profile hash. Closes silent stale-projection bug (user updates salary in onboarding ; old LPP projection card shows old number for 3 days).

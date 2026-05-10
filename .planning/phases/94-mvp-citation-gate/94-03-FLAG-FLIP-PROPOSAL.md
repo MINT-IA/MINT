@@ -76,6 +76,22 @@ Three of seven gates are NOT MET ; one DEFERRED ; one UNMEASURED ; two MET. The 
 3. **48h Sentry pull** at T+48h (≈ 2026-05-12T19:09Z) — captures the `coach.citation_gate.*` breadcrumbs from the auth-coach traffic on staging during the soak window. Adds the soak section to `94-03-EVAL-RESULTS.md`.
 4. **D-21 sunset clause** remains intact — flag + bypass code path removed in Phase 96 OR after 4 weeks of staging soak with fallback rate ≤2%. Today's fallback rate is 60-80%, far from the sunset threshold ; Wave 4 narrator-prompt fattening is the dependency.
 
+## Post-94.1 measurement (added 2026-05-10)
+
+Phase 94.1 Wave 4 (narrator-prompt fattening) landed on the same `feature/S94-mvp-citation-gate` branch. The citation-grammar fragment was added as a flag-conditional appendix to both narrator paths (legacy `build_narrator_system_prompt` + bundle compiler `compile_bundles`). Re-eval on the unchanged 50-fixture pack gives :
+
+| Gate | Threshold | Pre-94.1 measurement | **Post-94.1 measurement** | Status |
+|------|-----------|----------------------|---------------------------|--------|
+| G-A1 — Sonnet gate-correct | ≥95% | 6.0% (3/50) | **20.0% (10/50)** | **NOT MET** (gap 75 points ; was 89) |
+| G-A2 — Haiku gate-correct | ≥90% | 14.0% (7/50) | **20.0% (10/50)** | **NOT MET** (gap 70 points ; was 76) |
+| G-B — Latency regression ≤+30% | ≤+30% | +56% | **+39%** | **NOT MET** (gap 9 points ; was 26) |
+
+All three Stage 3 gates moved in the right direction but remain NOT MET. Details + per-category × verdict matrix in `../94.1-wave-4-narrator-prompt-fattening-citation-registry-cite-key-/94.1-EVAL-DELTA.md`. The signal is concentrated in the `valid_citation` category : Sonnet 1/20 → 9/20 (+800%), Haiku 6/20 → 10/20 (+67%) — the narrator does learn the syntax for ~50% of in-vocabulary fixtures, but `uncited_number` and `banned_claim` categories score 0/10 due to a SCORING CONTRACT issue (the fixture expects first-call verdict but the JSON records post-retry collapse per D-08, NOT a gate bug). Under alternative « first-call verdict matches expected » scoring, Sonnet would land around 48% and Haiku around 44%.
+
+**Disposition unchanged : NO-GO + PARTIAL.** The thresholds still fail decisively (20% vs 95%). Staging stays ON for diagnostic value, prod stays OFF for narrator quality. Orchestrator decides GO/NO-GO on a Phase 94.2 second-iter (candidate hypothesis : intent-driven key grouping reduces the 18-bullet noise floor — full hypothesis list in `94.1-EVAL-DELTA.md` §"Root cause hypotheses for 94.2").
+
+**No new GO recommendation.** A future 94.2 iter that lifts Sonnet ≥95% AND Haiku ≥90% AND latency ≤+30% would re-open this proposal as a GO recommendation ; today's measurement does not.
+
 ## Rollback procedure (if GO is chosen and post-flip degradation)
 
 1. `railway variables --service MINT --set "COACH_CITATION_GATE_ENABLED=false"` from the prod environment (no code revert needed — flag-OFF path is byte-identical to pre-Phase-94 baseline per Plan 94-01 Task 3 `test_flag_off_byte_identical_to_snapshot` on 5 captured fixtures).
