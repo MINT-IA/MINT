@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: "Phase 95 Wave 1 complete, Wave 2 next"
-last_updated: "2026-05-10T22:43:00.000Z"
-last_activity: 2026-05-10 -- Phase 95 Wave 1 (Plan 95-01) closed
+stopped_at: "Phase 95 Wave 2 complete, phase verifier next"
+last_updated: "2026-05-10T23:04:15.000Z"
+last_activity: 2026-05-10 -- Phase 95 Wave 2 (Plan 95-02) closed
 progress:
   total_phases: 11
   completed_phases: 4
   total_plans: 25
-  completed_plans: 19
-  percent: 76
+  completed_plans: 20
+  percent: 80
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -35,18 +35,19 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 95 (mvp-dag-invalidation) — EXECUTING
-Plan: 2 of 2 (Wave 1 closed, Wave 2 next)
-Status: Phase 95 Wave 1 complete, Wave 2 next
-Last activity: 2026-05-10 -- Phase 95 Wave 1 (Plan 95-01) closed, 5/5 tasks committed, full backend 6479 passed (+31 net new, 0 regressions), R1 hash parity 50/50 byte-identical
+Phase: 95 (mvp-dag-invalidation) — EXECUTING (Wave 2 closed, phase verifier next)
+Plan: 2 of 2 (Wave 1 + Wave 2 both closed)
+Status: Phase 95 Wave 2 complete, phase verifier next
+Last activity: 2026-05-10 -- Phase 95 Wave 2 (Plan 95-02) closed, 6/6 tasks committed, full backend 6522 passed (+43 net new W2, 0 regressions), Phase 94 byte-identity preserved (182/182 test_citation_gate green)
 Next:
 
-  1. **Plan 95-02 (Wave 2) execution** — fattens `ProjectionGroundingPack` emission + `_substitute_placeholders` double-lookup + Pareto 3-point + what_ifs + bootstrap CIs + LSFin annotation. Wave 1 closed all blocking risks (R1 hash parity 50/50, alembic roundtrip green).
-  2. **Julien GO/NO-GO** on `94-03-FLAG-FLIP-PROPOSAL.md` (carried from Phase 94 close) :
+  1. **`/gsd-verify-phase 95`** → 5-gate exit contract close. Both waves (95-01 + 95-02) shipped ; phase-level verifier reads both SUMMARYs, the VALIDATION matrix, and gates G1-G5.
+  2. **Roadmap advancement to Phase 96 (mvp-chat-as-verb)** — Phase 96 W2 (Backend) HARD-depends on the GroundingPack contract surface shipped in 95-02 ; Phase 96 W1 (Flutter) is SOFT-independent and can proceed in parallel.
+  3. **Julien GO/NO-GO** on `94-03-FLAG-FLIP-PROPOSAL.md` (carried from Phase 94 close) :
      - `approved` → Wave 4 opens (narrator-prompt placeholder syntax + re-eval)
      - `approved staging-only` → permanent staging-only, no prod-flip
      - `not approved — issue: <description>` → revision mode
-  3. `/gsd-verify-work 94` → 5-gate exit contract close (G2 device + G3 dev CI pending — carried)
+  4. `/gsd-verify-work 94` → 5-gate exit contract close (G2 device + G3 dev CI pending — carried)
 
 ## Plan 94-01 Receipt (Wave 0 close, 2026-05-10)
 
@@ -119,7 +120,25 @@ Next:
 - staleness_high() production read-path integration + Dart-side projection-model field additions both deferred to Phase 96 W2 per CONTEXT `<deferred>` block.
 - USER VALUE DELIVERED : NONE YET — data-model + parity-test foundation only ; user-visible behavior changes ship in Phase 96 narrator wiring.
 
-Progress: [███░░░░░░░] 28% (2/7 phases, including this Wave 1 of Phase 95 — Phase 90 fully shipped, Phase 95 Plan 1 of 2 closed) — Phase 90 shipped 2026-05-09 (5 design-system lints + baselines + lefthook + CI).
+## Plan 95-02 Receipt (Wave 2 close, 2026-05-10)
+
+- Files created : 10 (3 production modules — pareto, sensitivity, bootstrap_ci — + 7 test files)
+- Files modified : 5 (grounding_pack.py wholesale-replaced, citation_parser.py, coach_chat.py, banned_terms_python.py, lefthook.yml)
+- Tests added : 43 (10 schema + 6 pareto + 6 what_ifs + 7 bootstrap_ci + 9 double-lookup incl 2 BLOCKER-3 propagation + 5 lsfin) + 0 regressions
+- Full backend suite : 6522 passed, 62 skipped, 1 xfailed in 107.83s (Wave 1 baseline 6479 → +43 net new W2)
+- Commits : fb2b13aa (T1 contract) → e316ffbe (T2 pareto) → a037c56d (T3 what_ifs) → 8f474391 (T4 bootstrap_ci) → e6a4a12f (T5 double-lookup + propagation) → debe24f1 (T6 lsfin annotation)
+- Duration : ~25 min
+- 0-trust : SUMMARY.md `## Self-Check : PASSED` cited at .planning/phases/95-mvp-dag-invalidation/95-02-SUMMARY.md
+- **D-07/D-08 contract shipped** : ProjectionGroundingPack + GroundingPackEntry + ParetoPoint Pydantic v2 frozen+forbid with Decimal field_serializer ; min/max validators on inputs_hash (64 chars) + pareto_points (=3) + what_ifs (=5) + superseded_by (None or 36 chars).
+- **D-09 double-lookup shipped** : _substitute_placeholders + gate() gain keyword-only `pack: ProjectionGroundingPack | None = None` ; pack hit overrides registry ; pack miss → Sentry breadcrumb `coach.grounding_pack.fallback` (T-95-04 instrumentation) then registry fallback ; pack=None preserves Phase 94 byte-identity (test_pack_none_preserves_phase_94_behavior green ; 182/182 test_citation_gate green).
+- **BLOCKER-3 fixed** : 6 GatedResponse(...) sites at citation_parser.py:465/494/503/547/556/569 propagate `inputs_hash=pack.inputs_hash if pack else None` ; 2 propagation tests assert the PASS path carries the hash + pack=None preserves inputs_hash=None.
+- **D-10 Pareto + D-11 what_ifs + D-12 bootstrap_ci shipped** as pure-Python compute modules. Phase 96 W2 will wire arbitrage_engine + monte_carlo_service outputs to these consumers (per 95-02-PLAN deferred: block).
+- **D-12 LSFin annotation lint shipped** : banned_terms_python.py --lsfin-annotation opt-in flag ; check_lsfin_annotation rule ; lefthook lsfin_annotation_phase_95 entry on 4 W2 modules ; default banned-terms mode preserved byte-identical.
+- Deviations (3 auto-fixed) : (a) pareto fixture unit-scale math error [Rule 1] ; (b) what_ifs credible_low/high min/max bracket for negative-correlation inputs [Rule 1] ; (c) test_lsfin_annotation LINT path parents[4] not parents[3] [Rule 1]. All 3 are defects in plan-prescribed test scaffolding, ZERO bugs in plan-prescribed production code.
+- USER VALUE DELIVERED : NONE YET — contract surface + plumbing + compute layer + lint. User-visible behaviour changes ship in Phase 96 W2 (narrator templates consume the pack ; chat surfaces P5/P95 bounds with the LSFin annotation).
+- Phase 96 W2 HARD dependency : ProjectionGroundingPack contract + double-lookup plumbing ready ; Phase 96 W1 (Flutter) is SOFT-independent.
+
+Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 of Phase 95 — Phase 90 fully shipped, Phase 95 both plans closed) — Phase 90 shipped 2026-05-09 (5 design-system lints + baselines + lefthook + CI) ; Phase 95 closed both Wave 1 (parity foundation) and Wave 2 (contract + double-lookup + LSFin annotation).
 
 ## Phase Plan (Chat-as-Verb)
 
@@ -152,9 +171,9 @@ Progress: [███░░░░░░░] 28% (2/7 phases, including this Wave 
 
 ## Session Continuity
 
-Last session: 2026-05-10T22:43:00.000Z
-Stopped at: Phase 95 Wave 1 complete (Plan 95-01 closed, 5/5 tasks, 31 tests, R1 closed) — Wave 2 (Plan 95-02) next
-Resume file: .planning/phases/95-mvp-dag-invalidation/95-02-PLAN.md
+Last session: 2026-05-10T23:04:15.000Z
+Stopped at: Phase 95 Wave 2 complete (Plan 95-02 closed, 6/6 tasks, 43 W2 tests, 6522 backend total, +43 net new, 0 regressions, 182/182 citation_gate preserved) — phase verifier next
+Resume file: .planning/phases/95-mvp-dag-invalidation/95-02-SUMMARY.md (then `/gsd-verify-phase 95`)
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>

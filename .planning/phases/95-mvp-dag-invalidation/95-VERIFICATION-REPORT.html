@@ -102,6 +102,95 @@ ul li { margin: 0.2rem 0; }
 <p><strong>Self-Check : PASSED.</strong> All claimed deliverables cite a reproducible command. R1 risk closed.</p>
 
 <hr>
-<p style="color:#666;font-size:0.85rem;">Generated 2026-05-10 by GSD plan executor on branch <code>feature/S94-mvp-citation-gate</code>. Updated cumulatively per phase.</p>
+
+<div class="banner">
+<strong>Wave 2 — Plan 95-02 : CLOSED</strong><br>
+6/6 tasks committed atomically. ProjectionGroundingPack contract surface + D-09 double-lookup + BLOCKER-3 propagation fix + LSFin annotation lint shipped. Full backend pytest <strong>6522 passed</strong> (Wave 1 baseline 6479 → +43 net new W2, 0 regressions). Phase 94 byte-identity preserved (182/182 <code>test_citation_gate/</code> green).
+</div>
+
+<h2>Plan 95-02 — Wave 2 Task Ledger</h2>
+<table>
+<tr><th>Task</th><th>Name</th><th>Commit</th><th>Type</th><th>Tests added</th><th>Status</th></tr>
+<tr><td>T1</td><td>ProjectionGroundingPack + GroundingPackEntry + ParetoPoint (D-07/D-08)</td><td><code>fb2b13aa</code></td><td>feat (TDD)</td><td>10 (8 schema + 2 registry coupling)</td><td class="green">GREEN</td></tr>
+<tr><td>T2</td><td>compute_pareto_points 3-point scalarisation (D-10)</td><td><code>e316ffbe</code></td><td>feat (TDD)</td><td>6 (Rule 1 fixture math fix)</td><td class="green">GREEN</td></tr>
+<tr><td>T3</td><td>compute_what_ifs +/-10% uni-variate sensitivity (D-11)</td><td><code>a037c56d</code></td><td>feat (TDD)</td><td>6 (Rule 1 min/max bracket fix)</td><td class="green">GREEN</td></tr>
+<tr><td>T4</td><td>bootstrap_ci_p5_p95 numpy 200-iter (D-12)</td><td><code>8f474391</code></td><td>feat (TDD)</td><td>7 (incl empty-raises)</td><td class="green">GREEN</td></tr>
+<tr><td>T5</td><td>D-09 double-lookup + pack threading + 6 GatedResponse propagation sites (BLOCKER-3 fix)</td><td><code>e6a4a12f</code></td><td>feat (TDD)</td><td>9 (incl 2 propagation tests)</td><td class="green">GREEN</td></tr>
+<tr><td>T6</td><td>banned_terms_python.py --lsfin-annotation rule (D-12 anti-promise)</td><td><code>debe24f1</code></td><td>feat (TDD)</td><td>5 (Rule 1 LINT path parents[4] fix)</td><td class="green">GREEN</td></tr>
+</table>
+
+<h2>Wave 2 Compliance Gates</h2>
+<table>
+<tr><th>Gate</th><th>Tool / Command</th><th>Result</th></tr>
+<tr><td>D-12 LSFin annotation lint (4 W2 modules)</td><td><code>python3 tools/checks/banned_terms_python.py --lsfin-annotation services/backend/app/services/coach/{bootstrap_ci,grounding_pack,sensitivity,pareto}.py</code></td><td class="green">exit 0</td></tr>
+<tr><td>D-12 LSFin annotation default mode preserved</td><td><code>python3 tools/checks/banned_terms_python.py services/backend/app/services/coach/inputs_hash.py</code></td><td class="green">exit 0 (no false positives ; default mode unchanged)</td></tr>
+<tr><td>D-14 accent_lint_fr (5 changed files)</td><td><code>python3 tools/checks/accent_lint_fr.py --file &lt;each&gt;</code></td><td class="green">exit 0 all 5</td></tr>
+<tr><td>D-16 full backend pytest</td><td><code>cd services/backend &amp;&amp; python3 -m pytest tests/ -q --ignore=tests/integration</code></td><td class="green">6522 passed (+43 vs Wave 1 baseline 6479 ; 0 regressions)</td></tr>
+<tr><td>D-16 Phase 94 byte-identity preserved</td><td><code>cd services/backend &amp;&amp; python3 -m pytest tests/test_citation_gate/ -q</code></td><td class="green">182 passed (Phase 94.1 baseline)</td></tr>
+<tr><td>BLOCKER-3 propagation grep</td><td><code>grep -c "inputs_hash=pack.inputs_hash" services/backend/app/services/coach/citation_parser.py</code></td><td class="green">6 (≥6 required)</td></tr>
+<tr><td>WARN-3 signature grep</td><td><code>grep -c 'pack: "ProjectionGroundingPack | None"' services/backend/app/services/coach/citation_parser.py</code></td><td class="green">2 (≥2 required)</td></tr>
+<tr><td>coach_chat.py wrapper threading grep</td><td><code>grep -c "pack=pack" services/backend/app/api/v1/endpoints/coach_chat.py</code></td><td class="green">2 (both _citation_gate sites)</td></tr>
+<tr><td>Sentry breadcrumb T-95-04 instrumentation</td><td><code>grep -c "coach.grounding_pack.fallback" services/backend/app/services/coach/citation_parser.py</code></td><td class="green">2 (≥1 required)</td></tr>
+</table>
+
+<h2>Wave 2 Test Counts (per file)</h2>
+<table>
+<tr><th>File</th><th>Tests</th><th>Coverage</th></tr>
+<tr><td><code>test_grounding_pack_schema.py</code></td><td>8</td><td>frozen / extra=forbid / inputs_hash 64-char / pareto exactly 3 / what_ifs exactly 5 / superseded_by None or 36-char / Decimal JSON round-trip / credible bounds optional</td></tr>
+<tr><td><code>test_pack_registry_coupling.py</code></td><td>2</td><td>CITATION_REGISTRY has 18 keys / pack keys ⊆ registry drift detector</td></tr>
+<tr><td><code>test_pareto_3point.py</code></td><td>6</td><td>exactly 3 points / canonical label order / winner per weight set / weight sums = 1.00 / ParetoPoint frozen / deterministic across calls</td></tr>
+<tr><td><code>test_what_ifs.py</code></td><td>6</td><td>exactly 5 entries / 5 canonical perturb keys / raw audit trail / +10% income synthetic delta / credible bounds min/max ordering / source_ref per input</td></tr>
+<tr><td><code>test_bootstrap_ci.py</code></td><td>7</td><td>same-seed deterministic / different-seed different / P5≤P95 / Decimal output / constant collapse / iterations=200 .choice call count / empty raises</td></tr>
+<tr><td><code>test_substitute_double_lookup.py</code></td><td>9</td><td>pack hit overrides registry / pack miss → registry / both miss keeps placeholder / pack=None preserves Phase 94 / keyword-only TypeError / Sentry breadcrumb on fallback / coach_chat.py wiring grep / inputs_hash propagated from pack / inputs_hash=None when pack=None</td></tr>
+<tr><td><code>test_lsfin_annotation.py</code></td><td>5</td><td>annotation absent → fail / present → pass / no credible interval → N/A / paraphrase rejected / ASCII-e rejected</td></tr>
+<tr><td><strong>Wave 2 total</strong></td><td><strong>43</strong></td><td>—</td></tr>
+<tr><td><strong>Phase total (W1 + W2)</strong></td><td><strong>74</strong></td><td>31 Wave 1 + 43 Wave 2</td></tr>
+</table>
+
+<h2>Wave 2 Deviations (per CLAUDE.md §9 0-trust + Karpathy #4)</h2>
+<ol>
+<li><strong>[Rule 1 — Bug] Pareto fixture unit-scale math error.</strong> Plan recipe set <code>tax_saving_chf=2400, liquidity_score=0.1</code> ; at 50/50 weights, CHF dominates 0-1 score so the <code>liquidity_prioritized</code> winner assertion failed (3a scored 1200.05 vs rachat_lpp 900.45). Fix : unit-normalized fixture values + comment explaining Phase 96 W2 normalisation handoff. compute_pareto_points implementation itself follows plan verbatim. Fix committed in <code>e316ffbe</code>.</li>
+<li><strong>[Rule 1 — Bug] compute_what_ifs credible_low &gt; credible_high on negative-correlation inputs.</strong> Plan recipe set <code>credible_low=delta_minus, credible_high=delta_plus</code>. Broke <code>credible_low ≤ credible_high</code> invariant for <code>current_age</code> (negative correlation : +10% age → shorter time-to-retirement → lower income). Fix : <code>min/max</code> bracket so the invariant holds for monotone-positive AND monotone-negative inputs. Fix committed in <code>a037c56d</code>.</li>
+<li><strong>[Rule 1 — Bug] test_lsfin_annotation.py LINT path off-by-one.</strong> Plan used <code>Path(__file__).resolve().parents[3]</code> ; tests live 4 dirs deep from repo root (test → test_dag_invalidation → tests → backend → services → MINT.nosync), so <code>parents[3]</code> resolved to <code>services/</code>. Fix : <code>parents[4]</code>. Fix committed in <code>debe24f1</code>.</li>
+</ol>
+<p><strong>Total Wave 2 :</strong> 3 auto-fixes (all Rule 1 bugs in plan-prescribed test scaffolding or test infrastructure ; ZERO bugs in plan-prescribed production code). No scope creep. All deviations documented in <code>95-02-SUMMARY.md</code>.</p>
+
+<h2>Wave 2 Deferred Items (per 95-02-PLAN frontmatter <code>deferred:</code> block)</h2>
+<ul>
+<li><strong>Dart-side <code>financial_core/</code> field additions</strong> (inputs_hash + superseded_by on projection models) → Phase 96 W2.</li>
+<li><strong>financial_core consumer wrapper wiring</strong> (arbitrage_engine + monte_carlo_service → ProjectionGroundingPack emission) → Phase 96 W2. Phase 95 leaves <code>pack=None</code> default at all wrapper call sites so Phase 94 byte-identity holds.</li>
+<li><strong>NSGA-II Pareto / Sobol / HMM / Bayesian CIs / CITATION_REGISTRY removal</strong> → backlog 999.x (unchanged from CONTEXT scope).</li>
+<li><strong>Phase 96 narrator template integration</strong> (consume <code>{{cite:<key>}}</code> placeholders against ProjectionGroundingPack ; surface P5/P95 with verbatim FR « selon le modèle simplifié actuel » annotation) → Phase 96 W2 lint enforcement target.</li>
+</ul>
+
+<h2>Wave 2 0-Trust Self-Check (CLAUDE.md §9.6)</h2>
+<p><strong>Claim :</strong> "Wave 2 closes with all 6 tasks committed and the regression suite green at 6522 passed."</p>
+<ul>
+<li><strong>Evidence :</strong>
+  <ul>
+    <li><code>git log --oneline -7</code> shows : <code>debe24f1</code> T6, <code>e6a4a12f</code> T5, <code>8f474391</code> T4, <code>a037c56d</code> T3, <code>e316ffbe</code> T2, <code>fb2b13aa</code> T1, plus prior Wave 1 close commit.</li>
+    <li><code>cd services/backend &amp;&amp; python3 -m pytest tests/ -q --ignore=tests/integration</code> → <code>6522 passed, 62 skipped, 1 xfailed, 1 warning in 107.83s</code>.</li>
+    <li><code>cd services/backend &amp;&amp; python3 -m pytest tests/test_dag_invalidation/ -q</code> → 74 passed (Wave 1's 31 + Wave 2's 43).</li>
+    <li><code>cd services/backend &amp;&amp; python3 -m pytest tests/test_citation_gate/ -q</code> → 182 passed (Phase 94.1 baseline preserved).</li>
+    <li>6/6 grep acceptance criteria pass : pack signature (2), inputs_hash propagation (6), pack=pack threading (2), Sentry breadcrumb (2), default-mode lint preservation (exit 0), --lsfin-annotation on 4 W2 modules (exit 0).</li>
+    <li>5 modified files iterated through <code>python3 tools/checks/accent_lint_fr.py --file &lt;f&gt;</code> → all exit 0.</li>
+  </ul>
+</li>
+<li><strong>Caveat :</strong>
+  <ul>
+    <li>Plan said "7 GatedResponse sites" but actual is 6 ; acceptance criterion <code>grep -c ≥ 6</code> matches. Documented in SUMMARY decisions block.</li>
+    <li>Sentry breadcrumb production-side integration (Railway Sentry DSN ↔ breadcrumb pipeline) NOT exercised end-to-end ; tests patch <code>sentry_sdk.add_breadcrumb</code>. Phase 96 W2 verification scope.</li>
+    <li>The 4 W2 compute modules don't emit user-facing narrative — they emit Pydantic models. The --lsfin-annotation lint exits 0 because the FR string is in their docstrings. Phase 96 narrator templates will be the actual runtime enforcement target.</li>
+    <li>One pre-existing banned-term hit at <code>coach_chat.py:3079</code> (« Salaire assure LPP », from commit <code>30c6d2b6e</code> 2026-04-17) is OUT OF SCOPE for this plan ; logged in SUMMARY's Issues Encountered.</li>
+    <li>No CI run yet on this branch ; G3 dev CI green is a phase-level gate.</li>
+    <li>End-to-end user value : <em>none yet</em>. Contract surface + plumbing + compute layer + lint. User-visible behaviour changes ship in Phase 96 W2.</li>
+  </ul>
+</li>
+</ul>
+
+<p><strong>Self-Check : PASSED.</strong> All claimed deliverables cite a reproducible command. 6 atomic commits + 43 W2 tests + 0 regressions verified.</p>
+
+<hr>
+<p style="color:#666;font-size:0.85rem;">Generated 2026-05-10 by GSD plan executor on branch <code>feature/S94-mvp-citation-gate</code>. Updated cumulatively per phase. Wave 1 closed 2026-05-10T22:43Z ; Wave 2 closed 2026-05-10T23:04Z.</p>
 </body>
 </html>
