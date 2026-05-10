@@ -4,6 +4,7 @@ slug: mvp-citation-gate
 status: draft
 nyquist_compliant: true
 wave_0_complete: true
+wave_1_complete: true
 created: 2026-05-10
 ---
 
@@ -39,27 +40,27 @@ created: 2026-05-10
 
 | Req ID | Plan | Wave | Behavior | Test Type | Automated Command | Status |
 |--------|------|------|----------|-----------|-------------------|--------|
-| GATE-01 | 94-01 | 0 | 5 number-family regex coverage (CHF/EUR/USD, %, legal article, duration, regulatory constant) | unit | `pytest tests/test_citation_gate/test_number_detection.py -x` | ⬜ pending |
-| GATE-01 | 94-01 | 0 | Property — no number escapes detection (`hypothesis`) | property | `pytest tests/test_citation_gate/test_number_detection.py::test_property_all_numbers_detected -x` | ⬜ pending |
-| GATE-01 | 94-01 | 0 | Regex-engine smoke — ≤50ms on raw `finditer` over 200-token input (gate-level p95 lands in Wave 1, see D-17 row) | unit | `pytest tests/test_citation_gate/test_regex_engine_performance.py -x` | ⬜ pending |
-| GATE-02 | 94-01 | 0 | `CitationSource` Pydantic frozen, extra=forbid | unit | `pytest tests/test_citation_gate/test_registry_contract.py -x` | ⬜ pending |
-| GATE-02 | 94-01 | 0 | `CITATION_REGISTRY` keys ⊆ union of bundles' `citation_allowlist` | invariant | `pytest tests/test_citation_gate/test_registry_contract.py::test_registry_subset_of_bundle_allowlists -x` | ⬜ pending |
-| GATE-02 | 94-01 | 0 | No recursive citation keys | unit | `pytest tests/test_citation_gate/test_registry_contract.py::test_no_recursive_keys -x` | ⬜ pending |
-| GATE-03 | 94-02 | 1 | Retry-once budget never exceeds 1 | unit | `pytest tests/test_citation_gate/test_retry_flow.py::test_max_one_retry -x` | ⬜ pending |
-| GATE-03 | 94-02 | 1 | Reprompt addendum text matches D-09 verbatim | unit | `pytest tests/test_citation_gate/test_retry_flow.py::test_reprompt_addendum_verbatim -x` | ⬜ pending |
-| GATE-03 | 94-02 | 1 | Fallback text matches D-10 verbatim (no template variables) | unit | `pytest tests/test_citation_gate/test_fallback.py::test_fallback_verbatim -x` | ⬜ pending |
-| GATE-04 | 94-02 | 1 | `(vous\|tu)\s+(ferez\|...)\s+\d` rejected EVEN WITH citation | unit | `pytest tests/test_citation_gate/test_banned_claims.py::test_affirmative_verb_with_citation -x` | ⬜ pending |
-| GATE-04 | 94-02 | 1 | Banned-claim retry reprompts at the conditional (D-13) | unit | `pytest tests/test_citation_gate/test_banned_claims.py::test_d13_reprompt_keeps_citation -x` | ⬜ pending |
-| D-03 | 94-01 | 0 | Meta-quote / negation correctness (port 15 tests from Wave 4) | unit | `pytest tests/test_citation_gate/test_meta_helpers.py -x` | ⬜ pending |
-| D-07 | 94-02 | 1 | Flag-ON intersect with `compiled.citation_allowlist` | integration | `pytest tests/test_citation_gate/test_bundle_intersect.py -x` | ⬜ pending |
-| D-07 | 94-02 | 1 | Flag-OFF fallback to global `CITATION_REGISTRY` | integration | `pytest tests/test_citation_gate/test_global_registry_fallback.py -x` | ⬜ pending |
-| D-18 | 94-02 | 1 | Sentry breadcrumb non-PII counts/labels only | unit | `pytest tests/test_citation_gate/test_telemetry.py -x` | ⬜ pending |
-| D-19 | 94-02 | 1 | `COACH_CITATION_GATE_ENABLED` flag in config (default false) | unit | `pytest tests/test_citation_gate/test_config.py -x` | ⬜ pending |
-| D-20 | 94-02 | 1 | Flag-OFF byte-identity vs captured snapshots (mirror Phase 93.5-02 Task 3) | snapshot | `pytest tests/test_citation_gate/test_byte_identity_flag_off.py -x` | ⬜ pending |
-| D-17 | 94-02 | 1 | gate() end-to-end p95 ≤50ms on 4kB FR narrative (H3 fix iter 1 — gate-level perf, not just regex primitives) | unit | `pytest tests/test_citation_gate/test_gate_performance.py -x` | ⬜ pending |
-| D-04#4 | 94-02 | 1 | Placeholder-body strip — digits inside `{{cite:<key>}}` are exempt (M3 fix iter 1) | unit | `pytest tests/test_citation_gate/test_number_detection.py::test_d04_exception_4_placeholder_body_stripped -x` | ⬜ pending |
-| H1 | 94-02 | 1 | `_compiled_bundle = None` upstream initializer — wrapper does NOT raise NameError on flag-OFF / except / elif / else paths | integration | `pytest tests/test_citation_gate/test_bundle_intersect.py::test_compiled_bundle_none_on_compile_failure_does_not_raise tests/test_citation_gate/test_bundle_intersect.py::test_compiled_bundle_none_on_flag_off tests/test_citation_gate/test_bundle_intersect.py::test_compiled_bundle_none_on_dual_llm_branch -x` | ⬜ pending |
-| M2 | 94-02 | 1 | Documented v1 banned-claim regex false-negatives (3rd-person, infinitive, garanti routed to compliance_guard) | unit | `pytest tests/test_citation_gate/test_banned_claims.py::test_known_v1_banned_claim_false_negatives -x` | ⬜ pending |
+| GATE-01 | 94-01 | 0 | 5 number-family regex coverage (CHF/EUR/USD, %, legal article, duration, regulatory constant) | unit | `pytest tests/test_citation_gate/test_number_detection.py -x` | ✅ green (94-02) |
+| GATE-01 | 94-01 | 0 | Property — no number escapes detection (`hypothesis`) | property | `pytest tests/test_citation_gate/test_number_detection.py::test_property_all_numbers_detected -x` | ✅ green (94-02) |
+| GATE-01 | 94-01 | 0 | Regex-engine smoke — ≤50ms on raw `finditer` over 200-token input (gate-level p95 lands in Wave 1, see D-17 row) | unit | `pytest tests/test_citation_gate/test_regex_engine_performance.py -x` | ✅ green (94-02) |
+| GATE-02 | 94-01 | 0 | `CitationSource` Pydantic frozen, extra=forbid | unit | `pytest tests/test_citation_gate/test_registry_contract.py -x` | ✅ green (94-02) |
+| GATE-02 | 94-01 | 0 | `CITATION_REGISTRY` keys ⊆ union of bundles' `citation_allowlist` | invariant | `pytest tests/test_citation_gate/test_registry_contract.py::test_registry_subset_of_bundle_allowlists -x` | ✅ green (94-02) |
+| GATE-02 | 94-01 | 0 | No recursive citation keys | unit | `pytest tests/test_citation_gate/test_registry_contract.py::test_no_recursive_keys -x` | ✅ green (94-02) |
+| GATE-03 | 94-02 | 1 | Retry-once budget never exceeds 1 | unit | `pytest tests/test_citation_gate/test_retry_flow.py::test_max_one_retry -x` | ✅ green (94-02) |
+| GATE-03 | 94-02 | 1 | Reprompt addendum text matches D-09 verbatim | unit | `pytest tests/test_citation_gate/test_retry_flow.py::test_reprompt_addendum_verbatim -x` | ✅ green (94-02) |
+| GATE-03 | 94-02 | 1 | Fallback text matches D-10 verbatim (no template variables) | unit | `pytest tests/test_citation_gate/test_fallback.py::test_fallback_verbatim -x` | ✅ green (94-02) |
+| GATE-04 | 94-02 | 1 | `(vous\|tu)\s+(ferez\|...)\s+\d` rejected EVEN WITH citation | unit | `pytest tests/test_citation_gate/test_banned_claims.py::test_affirmative_verb_with_citation -x` | ✅ green (94-02) |
+| GATE-04 | 94-02 | 1 | Banned-claim retry reprompts at the conditional (D-13) | unit | `pytest tests/test_citation_gate/test_banned_claims.py::test_d13_reprompt_keeps_citation -x` | ✅ green (94-02) |
+| D-03 | 94-01 | 0 | Meta-quote / negation correctness (port 15 tests from Wave 4) | unit | `pytest tests/test_citation_gate/test_meta_helpers.py -x` | ✅ green (94-02) |
+| D-07 | 94-02 | 1 | Flag-ON intersect with `compiled.citation_allowlist` | integration | `pytest tests/test_citation_gate/test_bundle_intersect.py -x` | ✅ green (94-02) |
+| D-07 | 94-02 | 1 | Flag-OFF fallback to global `CITATION_REGISTRY` | integration | `pytest tests/test_citation_gate/test_global_registry_fallback.py -x` | ✅ green (94-02) |
+| D-18 | 94-02 | 1 | Sentry breadcrumb non-PII counts/labels only | unit | `pytest tests/test_citation_gate/test_telemetry.py -x` | ✅ green (94-02) |
+| D-19 | 94-02 | 1 | `COACH_CITATION_GATE_ENABLED` flag in config (default false) | unit | `pytest tests/test_citation_gate/test_config.py -x` | ✅ green (94-02) |
+| D-20 | 94-02 | 1 | Flag-OFF byte-identity vs captured snapshots (mirror Phase 93.5-02 Task 3) | snapshot | `pytest tests/test_citation_gate/test_byte_identity_flag_off.py -x` | ✅ green (94-02) |
+| D-17 | 94-02 | 1 | gate() end-to-end p95 ≤50ms on 4kB FR narrative (H3 fix iter 1 — gate-level perf, not just regex primitives) | unit | `pytest tests/test_citation_gate/test_gate_performance.py -x` | ✅ green (94-02) |
+| D-04#4 | 94-02 | 1 | Placeholder-body strip — digits inside `{{cite:<key>}}` are exempt (M3 fix iter 1) | unit | `pytest tests/test_citation_gate/test_number_detection.py::test_d04_exception_4_placeholder_body_stripped -x` | ✅ green (94-02) |
+| H1 | 94-02 | 1 | `_compiled_bundle = None` upstream initializer — wrapper does NOT raise NameError on flag-OFF / except / elif / else paths | integration | `pytest tests/test_citation_gate/test_bundle_intersect.py::test_compiled_bundle_none_on_compile_failure_does_not_raise tests/test_citation_gate/test_bundle_intersect.py::test_compiled_bundle_none_on_flag_off tests/test_citation_gate/test_bundle_intersect.py::test_compiled_bundle_none_on_dual_llm_branch -x` | ✅ green (94-02) |
+| M2 | 94-02 | 1 | Documented v1 banned-claim regex false-negatives (3rd-person, infinitive, garanti routed to compliance_guard) | unit | `pytest tests/test_citation_gate/test_banned_claims.py::test_known_v1_banned_claim_false_negatives -x` | ✅ green (94-02) |
 | GATE-01..04 | 94-03 | 2 | Stage 3 50-fixture pack ≥95% Sonnet / ≥90% Haiku | live eval | `python3 -m tools.eval_narrator --model sonnet --fixtures tests/fixtures/citation_gate_eval_50.jsonl --out eval-runs/94-eval-sonnet-gate-on.json --gate=on` | ⬜ pending |
 | D-16 | 94-03 | 2 | Maestro G1 — profile-empty user asks "combien je gagne" → no CHF number | manual+sim | `tools/simulator/walker_audit_tap_render.sh tools/simulator/flows/maestro-perfect-set/flow_narrator_refuses_uncited_numbers.yaml` | ⬜ pending |
 
@@ -69,24 +70,24 @@ created: 2026-05-10
 
 ## Wave 0 Requirements
 
-- [ ] `services/backend/tests/test_citation_gate/__init__.py`
-- [ ] `services/backend/tests/test_citation_gate/test_number_detection.py` — GATE-01 (D-02 5-family regex + hypothesis property)
-- [ ] `services/backend/tests/test_citation_gate/test_meta_helpers.py` — D-03 (port 15 tests from `test_eval_narrator_meta_scorer.py`)
-- [ ] `services/backend/tests/test_citation_gate/test_registry_contract.py` — GATE-02 (D-05/D-06 frozen schema)
-- [ ] `services/backend/tests/test_citation_gate/test_regex_engine_performance.py` — D-17 sanity on raw regex passes only (H3 fix iter 1 — renamed from test_performance.py ; the gate-level perf test lands in Wave 1)
-- [ ] `services/backend/tests/test_citation_gate/test_byte_identity_flag_off.py` — D-20 (snapshot test)
-- [ ] No new framework install required.
+- [x] `services/backend/tests/test_citation_gate/__init__.py`
+- [x] `services/backend/tests/test_citation_gate/test_number_detection.py` — GATE-01 (D-02 5-family regex + hypothesis property)
+- [x] `services/backend/tests/test_citation_gate/test_meta_helpers.py` — D-03 (port 15 tests from `test_eval_narrator_meta_scorer.py`)
+- [x] `services/backend/tests/test_citation_gate/test_registry_contract.py` — GATE-02 (D-05/D-06 frozen schema)
+- [x] `services/backend/tests/test_citation_gate/test_regex_engine_performance.py` — D-17 sanity on raw regex passes only (H3 fix iter 1 — renamed from test_performance.py ; the gate-level perf test lands in Wave 1)
+- [x] `services/backend/tests/test_citation_gate/test_byte_identity_flag_off.py` — D-20 (snapshot test)
+- [x] No new framework install required.
 
 ## Wave 1 Requirements
 
-- [ ] `services/backend/tests/test_citation_gate/test_retry_flow.py` — GATE-03 (D-08/D-09)
-- [ ] `services/backend/tests/test_citation_gate/test_fallback.py` — GATE-03 (D-10)
-- [ ] `services/backend/tests/test_citation_gate/test_banned_claims.py` — GATE-04 (D-12/D-13) + M2 v1-scope false-negative regression (iter 1)
-- [ ] `services/backend/tests/test_citation_gate/test_bundle_intersect.py` — D-07 flag-ON + H1 regression suite (3 tests covering flag-OFF / KeyError / elif paths — iter 1)
-- [ ] `services/backend/tests/test_citation_gate/test_global_registry_fallback.py` — D-07 flag-OFF
-- [ ] `services/backend/tests/test_citation_gate/test_telemetry.py` — D-18 breadcrumb hygiene
-- [ ] `services/backend/tests/test_citation_gate/test_gate_performance.py` — D-17 end-to-end p95 ≤50ms (H3 fix iter 1 — gate-level perf)
-- [ ] EXTEND `services/backend/tests/test_citation_gate/test_number_detection.py` (file authored in Wave 0) with `test_d04_exception_4_placeholder_body_stripped` (M3 fix iter 1)
+- [x] `services/backend/tests/test_citation_gate/test_retry_flow.py` — GATE-03 (D-08/D-09)
+- [x] `services/backend/tests/test_citation_gate/test_fallback.py` — GATE-03 (D-10)
+- [x] `services/backend/tests/test_citation_gate/test_banned_claims.py` — GATE-04 (D-12/D-13) + M2 v1-scope false-negative regression (iter 1)
+- [x] `services/backend/tests/test_citation_gate/test_bundle_intersect.py` — D-07 flag-ON + H1 regression suite (3 tests covering flag-OFF / KeyError / elif paths — iter 1)
+- [x] `services/backend/tests/test_citation_gate/test_global_registry_fallback.py` — D-07 flag-OFF
+- [x] `services/backend/tests/test_citation_gate/test_telemetry.py` — D-18 breadcrumb hygiene
+- [x] `services/backend/tests/test_citation_gate/test_gate_performance.py` — D-17 end-to-end p95 ≤50ms (H3 fix iter 1 — gate-level perf)
+- [x] EXTEND `services/backend/tests/test_citation_gate/test_number_detection.py` (file authored in Wave 0) with `test_d04_exception_4_placeholder_body_stripped` (M3 fix iter 1)
 
 ## Wave 2 Requirements
 

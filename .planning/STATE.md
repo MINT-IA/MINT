@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Phase 94 Plan 01 (Wave 0 scaffold) complete — 6372 backend tests green
-last_updated: "2026-05-10T18:09:00.000Z"
-last_activity: 2026-05-10 -- Phase 94-01 Wave 0 shipped (parser primitives + registry + flag + 106 tests)
+stopped_at: Completed 94-02-PLAN.md (Wave 1 — wired citation gate, ≥6436 tests green)
+last_updated: "2026-05-10T18:30:47.012Z"
+last_activity: 2026-05-10
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 22
-  completed_plans: 15
-  percent: 68
+  completed_plans: 16
+  percent: 73
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -36,14 +36,13 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: 94 (MVP-CITATION-GATE) — EXECUTING
-Plan: 1 of 3 — DONE (Wave 0 scaffold)
-Status: Phase 94 Plan 01 shipped ; Plan 02 (Wave 1 — gate body + coach_chat wiring) up next
-Last activity: 2026-05-10 -- Phase 94-01 Wave 0 shipped (3 commits: 033b8445, 668df0de, 2a729c3d)
+Plan: 2 of 3 — DONE (Wave 1 wiring + Wave 0 scaffold)
+Status: Ready to execute Plan 94-03
+Last activity: 2026-05-10
 Next:
 
-  1. `/gsd-execute-phase 94 --plan 02` → fatten gate() body + insert coach_chat wrapper + Wave 1 tests (retry/fallback/banned-claims/bundle-intersect/telemetry/gate-perf)
-  2. `/gsd-execute-phase 94 --plan 03` → Stage 3 eval (50-fixture pack ≥95% Sonnet / ≥90% Haiku) + Maestro G1 flow
-  3. `/gsd-verify-work 94` → 5-gate exit contract close
+  1. `/gsd-execute-phase 94 --plan 03` → Stage 3 eval (50-fixture pack ≥95% Sonnet / ≥90% Haiku) + Maestro G1 flow + FLAG-FLIP-PROPOSAL
+  2. `/gsd-verify-work 94` → 5-gate exit contract close
 
 ## Plan 94-01 Receipt (Wave 0 close, 2026-05-10)
 
@@ -54,6 +53,22 @@ Next:
 - Commits : 033b8445 (T1) → 668df0de (T2) → 2a729c3d (T3)
 - Duration : 13m 18s
 - 0-trust : SUMMARY.md `## Self-Check : PASSED` cited at .planning/phases/94-mvp-citation-gate/94-01-SUMMARY.md
+
+## Plan 94-02 Receipt (Wave 1 close, 2026-05-10)
+
+- Files created : 7 (test_retry_flow, test_fallback, test_banned_claims, test_bundle_intersect, test_global_registry_fallback, test_telemetry, test_gate_performance)
+- Files modified : 4 (citation_parser.py, coach_chat.py, test_number_detection.py, 94-VALIDATION.md)
+- Tests added : ≈ 64 (Wave 1) + 0 regressions
+- Full backend suite : 6436 passed, 62 skipped, 1 xfailed in 106.60s (Wave 0 baseline 6372 → +64 net new)
+- Commits : 1d9b44f1 (T1 — fatten gate body) → 13230885 (T2 — wire wrapper) → final docs commit
+- 0-trust : SUMMARY.md `## Self-Check : PASSED` cited at .planning/phases/94-mvp-citation-gate/94-02-SUMMARY.md
+- Karpathy #3 surgical : ZERO edits inside `_run_agent_loop` (lines 1726-2624) — diff 114+/18- concentrated at narrator handler scope
+- H1 fix iter 1 : `_compiled_bundle: "CompiledBundle | None" = None` initialized BEFORE bundle-compiler branch ; wrapper safe on every code path
+- M2 fix iter 1 : 3 documented v1 banned-claim regex false-negatives codified (3rd-person + infinitive + LSFin « garanti » → compliance_guard)
+- M3 fix iter 1 : D-04#4 placeholder-body strip — 3 regression tests in test_number_detection.py
+- H3 fix iter 1 : end-to-end gate() p95 ≤ 50ms / max ≤ 80ms on 4 kB FR realistic narrative (test_gate_performance.py)
+- Flag default OFF in prod (D-19/D-20) ; flag-OFF byte-identity preserved (6 snapshot tests still green)
+- USER VALUE DELIVERED : NONE YET — Plan 94-03 builds eval pack + Maestro G1 + flips staging flag
 
 Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped 2026-05-09 (5 design-system lints + baselines + lefthook + CI).
 
@@ -88,9 +103,9 @@ Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped
 
 ## Session Continuity
 
-Last session: 2026-05-10T16:58:00.397Z
-Stopped at: Phase 94 context gathered (7 gray areas auto-locked)
-Resume file: .planning/phases/94-mvp-citation-gate/94-CONTEXT.md
+Last session: 2026-05-10T18:30:47.009Z
+Stopped at: Completed 94-02-PLAN.md (Wave 1 — wired citation gate, ≥6436 tests green)
+Resume file: None
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>
