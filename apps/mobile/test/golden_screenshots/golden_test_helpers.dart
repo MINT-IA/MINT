@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,17 +14,37 @@ import 'package:mint_mobile/providers/locale_provider.dart';
 /// iPhone 14 Pro logical dimensions (393×852).
 const Size kGoldenDeviceSize = Size(393, 852);
 
-/// Duration to wait for Google Fonts HTTP download in warmup.
-const Duration kFontWarmupDuration = Duration(seconds: 5);
+/// Time advanced after the initial pump so post-frame callbacks (animation
+/// controllers, microtasks) flush before the snapshot is captured. After
+/// MVP-GOOGLEFONTS-PURGE-V1 (2026-05-10) this no longer waits for a real
+/// HTTP font fetch — Fontshare assets load synchronously via [FontLoader].
+/// The duration is now FakeAsync time, not wall-clock, so 1 s is enough to
+/// absorb any reasonable initState animation curve.
+const Duration kFontWarmupDuration = Duration(seconds: 1);
 
 /// Duration to wait for animations after font warmup.
 const Duration kAnimationDuration = Duration(seconds: 3);
+
+/// Loads the bundled Fontshare typefaces (Supreme + Gambarino) into the
+/// test binding so widgets render with the canonical glyphs (not the
+/// test-default Ahem font).
+///
+/// MVP-GOOGLEFONTS-PURGE-V1 (2026-05-10) — replaces the prior GoogleFonts
+/// HTTP-fetch warmup, which hung FakeAsync timers in the test binding
+/// (« A Timer is still pending » assertion). Bundled fonts load
+/// synchronously from `assets/fonts/` ; no socket, no timer.
+Future<void> _loadFontFromAssets(String family, String assetPath) async {
+  final loader = FontLoader(family);
+  final ByteData bytes = await rootBundle.load(assetPath);
+  loader.addFont(Future<ByteData>.value(bytes));
+  await loader.load();
+}
 
 /// Configures the test environment for golden screenshot capture.
 ///
 /// - Mocks SharedPreferences
 /// - Mocks path_provider (prevents MissingPluginException)
-/// - Enables Google Fonts HTTP fetching
+/// - Loads bundled Fontshare fonts (Supreme + Gambarino)
 Future<void> setupGoldenEnvironment() async {
   SharedPreferences.setMockInitialValues({});
 
@@ -44,30 +61,37 @@ Future<void> setupGoldenEnvironment() async {
     (MethodCall methodCall) async => '/tmp',
   );
 
-  // Allow Google Fonts to fetch via real HTTP.
-  // Tests MUST use tester.runAsync() for the warmup test.
-  GoogleFonts.config.allowRuntimeFetching = true;
-  HttpOverrides.global = null;
+  // Load all 4 bundled font assets declared in pubspec.yaml so glyph
+  // rendering matches production (Supreme regular/medium/bold + Gambarino).
+  await _loadFontFromAssets('Supreme', 'assets/fonts/Supreme-Regular.otf');
+  await _loadFontFromAssets('Supreme', 'assets/fonts/Supreme-Medium.otf');
+  await _loadFontFromAssets('Supreme', 'assets/fonts/Supreme-Bold.otf');
+  await _loadFontFromAssets('Gambarino', 'assets/fonts/Gambarino-Regular.otf');
 }
 
-/// Pumps widget inside runAsync (for real HTTP font fetch),
-/// waits for fonts + animations, then does a final pump.
+/// Pumps the widget and advances FakeAsync time to render the post-warmup
+/// frame.
 ///
-/// Use this pattern for every golden test:
-/// ```dart
-/// await pumpGoldenWidget(tester, buildGoldenWidget(MyScreen()));
-/// await expectLater(find.byType(MyScreen), matchesGoldenFile(...));
-/// ```
+/// MVP-GOOGLEFONTS-PURGE-V1 simplification: no more `tester.runAsync`, no
+/// more real HTTP-fetch wait. Bundled fonts are loaded synchronously by
+/// [setupGoldenEnvironment] before the test runs, so the only remaining
+/// purpose of `warmup` is to absorb post-frame schedulings (animation
+/// controllers that start a curve in initState).
+///
+/// We deliberately do NOT call `pumpAndSettle` because some screens
+/// (e.g., PrivacyControlScreen) have indefinitely-running animations or
+/// streams that would never settle ; those tests previously survived only
+/// because the GoogleFonts warmup pattern bypassed full settling.
 Future<void> pumpGoldenWidget(
   WidgetTester tester,
   Widget widget, {
-  Duration warmup = const Duration(seconds: 3),
+  Duration warmup = const Duration(seconds: 1),
 }) async {
-  await tester.runAsync(() async {
-    await tester.pumpWidget(widget);
-    await Future.delayed(warmup);
-  });
-  // Final pump outside runAsync to render with loaded fonts.
+  await tester.pumpWidget(widget);
+  // Advance FakeAsync to flush the initial frame's post-frame callbacks
+  // (AnimationController.forward(), Future.microtask, etc.).
+  await tester.pump(warmup);
+  // Final synchronous pump so the snapshot reflects the settled-frame state.
   await tester.pump();
 }
 
