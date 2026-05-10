@@ -105,3 +105,6 @@ tools/simulator/walkthrough/
 
 # Phase 30.7 MCP tools dedicated venv — gitignored per D-01 (reproducible via requirements.txt)
 tools/mcp/mint-tools/.venv/
+
+# Python setup.py build artifacts (regenerable)
+services/backend/build/
