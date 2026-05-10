@@ -1,6 +1,6 @@
-"""Phase 94 Wave 0 — closed-world citation gate parser primitives.
+"""Phase 94 — closed-world citation gate parser.
 
-Per CONTEXT D-01..D-04 :
+Per CONTEXT D-01..D-13 :
 - D-01 : citation format is `{{cite:<key>}}` ONLY (legacy bracketed
   square-bracket form is rejected — uniformity with Phase 93.5 bundle
   citation_allowlist annotations).
@@ -16,13 +16,18 @@ Per CONTEXT D-01..D-04 :
 - D-04 : a number is allowed without `{{cite:}}` ONLY when (1) inside a
   meta-negation context, (2) inside a meta-quote, (3) part of a legal
   article reference itself, or (4) inside an explicit `{{cite:...}}`
-  placeholder body. Wave 0 ships the primitives ; Plan 94-02 wires the
-  full `gate()` body.
-
-Wave 0 status — `gate()` is a SKELETON returning PASS / FALLBACK based
-on whether `response_text.strip()` is non-empty. The fattened body
-(allowlist intersect, banned-claim regex, retry-once flow, sentry
-breadcrumbs) lands in Plan 94-02.
+  placeholder body (M3 fix iter 1 — strip placeholders from the SCAN
+  input before number detection ; the original `response_text` is
+  preserved for substitution).
+- D-08 : retry budget HARD-CAPPED at 1. Enforced by the `is_retry`
+  argument — second-pass rejection forces FALLBACK.
+- D-09 : verbatim FR reprompt addendum for missing citations.
+- D-10 : verbatim FR templated fallback (no template variables — the
+  D-10 string is a `str` constant, not an `f"..."`).
+- D-12 : « affirmative verb + cited number » regex — rejection EVEN
+  WITH a valid citation (LSFin no-promise doctrine).
+- D-13 : banned-claim retry reprompts at the conditional ; the cited
+  placeholder is preserved, only the verb is reframed.
 """
 from __future__ import annotations
 
@@ -30,6 +35,8 @@ import re
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Iterable, Optional
+
+from app.services.coach.citation_registry import CITATION_REGISTRY, resolve
 
 
 # ---------------------------------------------------------------------------
@@ -82,6 +89,59 @@ _RE_REGULATORY = re.compile(
 #    Task 1 step 2 consumes this. Single brace / whitespace inside MUST NOT
 #    match (defensive — narrator MUST emit the canonical form).
 _RE_CITE_PLACEHOLDER = re.compile(r"\{\{cite:[A-Za-z0-9_\-]+\}\}")
+
+# 7. D-12 — affirmative verb + immediate digit. Triggers
+#    REJECTED_BANNED_CLAIM EVEN WITH a valid citation. The two patterns
+#    (uncited number / banned claim) run independently per CONTEXT
+#    specifics line 179.
+#
+# v1 scope : 2nd-person futur direct only (vous/tu × ferez/feras/aurez/
+# auras/gagnerez/gagneras + immediate digit). Out of scope in v1 :
+#   - 3rd-person ('rapportera', 'sera de', 'atteindra') — eval pack
+#     measures false-negative rate per fixture category (Plan 94-03
+#     Task 1 fixtures cit-31..cit-40 include 3rd-person variants for
+#     measurement, NOT enforcement).
+#   - infinitive promises ('faire 4%', 'rapporter 100 CHF').
+#   - 'garanti' / 'optimal' / 'meilleur' — these are the LSFin
+#     BANNED_TERMS surface, caught at compliance_guard.py:43-117, NOT
+#     here. The two gates run independently per CONTEXT specifics line
+#     179.
+# Phase 96 fattens the regex if eval-pack 3rd-person false-negative rate
+# exceeds 10% (per RESEARCH §Pitfall 6 walkback path).
+_BANNED_AFFIRMATIVE_VERB_RE = re.compile(
+    r"(?:vous|tu)\s+(?:ferez|feras|aurez|auras|gagnerez|gagneras)\s+\d",
+    re.IGNORECASE,
+)
+
+
+# ---------------------------------------------------------------------------
+# D-09 / D-10 / D-13 — verbatim FR string constants.
+# Byte-equal to CONTEXT.md (UTF-8 with French accents). DO NOT introduce
+# template variables (`f"..."`, `.format(...)`, `%s`) on these strings —
+# determinism contract per D-10. Lint via `tools/checks/accent_lint_fr.py`.
+# ---------------------------------------------------------------------------
+
+# D-09 — verbatim FR reprompt for missing citations
+REPROMPT_ADDENDUM_UNCITED: str = (
+    "\n\nRAPPEL — Cite chaque chiffre via {{cite:<key>}} ou ne l'émets pas. "
+    "Si tu n'as pas la source pour un chiffre, écris "
+    "« je n'ai pas cette donnée » à la place."
+)
+
+# D-13 — verbatim FR reprompt for banned-claim assertions
+REPROMPT_ADDENDUM_BANNED_CLAIM: str = (
+    "\n\nRAPPEL — Une projection est une scénario, pas une promesse. "
+    "Reformule au conditionnel (« pourrait », « selon ce scénario », "
+    "« si X reste constant »)."
+)
+
+# D-10 — verbatim FR fallback text (no template variables — DETERMINISM
+# CONTRACT). String literal only ; no `f"..."`, no `.format(...)`, no `%s`.
+FALLBACK_TEMPLATED_TEXT: str = (
+    "Je n'ai pas cette donnée pour l'instant. Pour avancer ensemble, "
+    "dis-moi un peu plus sur ta situation (canton, salaire, structure familiale) "
+    "et je peux t'orienter vers ce qui s'applique chez toi."
+)
 
 
 # ---------------------------------------------------------------------------
@@ -180,15 +240,17 @@ class GatedResponse:
     Fields :
     - `verdict` — `GateVerdict` enum.
     - `gated_text` — narrator response after placeholder substitution
-      (Wave 0 skeleton : echoes the input verbatim ; Plan 94-02 fattens).
+      (PASS branch) or the verbatim FALLBACK string (FALLBACK branch),
+      or the original `response_text` when verdict is REJECTED_*.
     - `retry_needed` — True if the caller MUST reprompt the narrator
       (cf. D-08 hard-cap=1 retry).
     - `reprompt_addendum` — verbatim FR text appended to the user
-      message on retry (D-09 / D-13).
+      message on retry (D-09 uncited / D-13 banned-claim) ; `None` on
+      PASS / FALLBACK.
     - `uncited_numbers_count` — count of detections that could not be
-      resolved via the closed-world allowlist. Plan 94-02 populates.
+      resolved via the closed-world allowlist (D-07 contract).
     - `banned_claims_found` — tuple of D-12 banned-claim verb spans
-      caught even WITH a citation. Plan 94-02 populates.
+      caught even WITH a citation (LSFin no-promise doctrine).
     - `inputs_hash` — Phase 95 stub field. Always `None` in Phase 94.
     """
 
@@ -202,46 +264,160 @@ class GatedResponse:
 
 
 # ---------------------------------------------------------------------------
-# Wave 0 skeleton — Plan 94-02 fattens.
+# gate() body — fattened in Plan 94-02 (Wave 1).
 # ---------------------------------------------------------------------------
+
+
+# Adjacency horizon (chars) used to bind a number to its `{{cite:<key>}}`
+# placeholder. The narrator is instructed to keep the placeholder right
+# next to the digit ; 80 chars covers typical surrounding punctuation,
+# unit suffixes, and short clauses without bleeding into the next sentence.
+_CITATION_ADJACENCY_CHARS = 80
+
+
+def _strip_placeholders(
+    response_text: str,
+) -> tuple[str, list[tuple[int, int, int, int]]]:
+    """Return the response text with `{{cite:<key>}}` placeholders removed.
+
+    Also returns a sorted list of placeholder spans, each as a 4-tuple
+    `(orig_start, orig_end, scan_start, scan_end)` mapping the original
+    span back to its stripped-text position. Used by the gate to (a)
+    run number detection on `scan_text` (placeholders removed — M3 fix
+    iter 1, D-04#4) and (b) compute citation adjacency on the original
+    `response_text`.
+    """
+    spans: list[tuple[int, int, int, int]] = []
+    scan_chunks: list[str] = []
+    cursor = 0
+    scan_cursor = 0
+    for m in _RE_CITE_PLACEHOLDER.finditer(response_text):
+        s, e = m.start(), m.end()
+        # Append the non-placeholder slice
+        gap = response_text[cursor:s]
+        scan_chunks.append(gap)
+        scan_start = scan_cursor + len(gap)
+        scan_cursor = scan_start
+        spans.append((s, e, scan_start, scan_start))
+        cursor = e
+    scan_chunks.append(response_text[cursor:])
+    return "".join(scan_chunks), spans
+
+
+def _scan_to_orig_offset(
+    scan_pos: int,
+    placeholder_spans: list[tuple[int, int, int, int]],
+) -> int:
+    """Map a position in the stripped `scan_text` back to the position
+    in the original `response_text`. Walks the placeholder span list
+    and adds back the cumulative placeholder length for each span that
+    sits at or before `scan_pos`.
+    """
+    offset = scan_pos
+    for orig_start, orig_end, scan_start, _scan_end in placeholder_spans:
+        if scan_start <= scan_pos:
+            offset += orig_end - orig_start
+        else:
+            break
+    return offset
+
+
+def _has_adjacent_cite(
+    response_text: str,
+    orig_match_start: int,
+    orig_match_end: int,
+    active_allowlist: Optional[set[str]],
+) -> tuple[bool, Optional[str]]:
+    """True iff a `{{cite:<key>}}` placeholder appears within
+    `_CITATION_ADJACENCY_CHARS` before or after the match span in the
+    ORIGINAL `response_text`. Also returns the matched key string when
+    found (or None).
+
+    The closed-world allowlist check : when `active_allowlist` is not
+    None, the key MUST be in the allowlist for the citation to count.
+    Unknown keys are treated as uncited (D-07 closed-world contract).
+    """
+    window_start = max(0, orig_match_start - _CITATION_ADJACENCY_CHARS)
+    window_end = min(len(response_text), orig_match_end + _CITATION_ADJACENCY_CHARS)
+    window = response_text[window_start:window_end]
+    for m in _RE_CITE_PLACEHOLDER.finditer(window):
+        # Extract the key from `{{cite:<key>}}`.
+        body = m.group(0)
+        key = body[len("{{cite:"):-2]
+        if active_allowlist is None or key in active_allowlist:
+            return True, key
+    return False, None
+
+
+def _substitute_placeholders(response_text: str, ctx) -> str:
+    """Replace each `{{cite:<key>}}` by `resolve(key, ctx)` when the
+    resolved value is non-None ; keep the placeholder verbatim
+    otherwise (defensive — Wave 0 stub returns `description_fr` so most
+    keys resolve in-process ; Phase 95 GroundingPack will populate the
+    rest).
+    """
+    def _swap(m: re.Match[str]) -> str:
+        body = m.group(0)
+        key = body[len("{{cite:"):-2]
+        resolved = resolve(key, ctx)
+        return resolved if resolved is not None else body
+
+    return _RE_CITE_PLACEHOLDER.sub(_swap, response_text)
 
 
 def gate(
     response_text: str,
-    ctx,  # CoachContext — typed `Any` in Wave 0 to avoid circular import
+    ctx,  # CoachContext — typed `Any` to avoid a circular import
     citation_allowlist: Optional[Iterable[str]] = None,
     is_retry: bool = False,
 ) -> GatedResponse:
     """Closed-world citation gate. Pure function, no I/O.
 
-    Wave 0 skeleton — Plan 94-02 fattens.
-
-    The fattened version (Plan 94-02) will :
-    1. Strip `{{cite:<key>}}` placeholder bodies via `_RE_CITE_PLACEHOLDER`
-       so digits inside the key don't false-trigger detection (D-04#4).
-    2. Run the 5 D-02 regex over the stripped text.
-    3. For each match, check meta-quote / meta-negation excuses (D-03 / D-04#1-2).
-    4. For un-excused matches, demand an adjacent `{{cite:<key>}}` whose
-       key is in the allowlist union (D-07 closed-world contract).
-    5. Run the D-12 banned-claim regex even on cited numbers — affirmative
-       verbs ("vous ferez") force REJECTED_BANNED_CLAIM.
-    6. On rejection : if `is_retry=False` → `retry_needed=True` +
-       reprompt addendum (D-09 / D-13). If `is_retry=True` →
-       `verdict=FALLBACK` + templated text (D-10).
-
-    Wave 0 contract : non-empty input → PASS verdict (echo) ; empty /
-    whitespace-only input → FALLBACK verdict (empty text).
+    Decision flow (CONTEXT D-08..D-13) :
+    1. Empty / whitespace-only input → FALLBACK (defensive).
+    2. M3 fix iter 1 (D-04#4) — strip `{{cite:<key>}}` placeholder
+       bodies from a SCAN COPY of the text BEFORE running any number
+       detection. Digits inside placeholder keys (e.g. timestamps in
+       `{{cite:plafond_80000_chf_2026}}`) are exempt by construction.
+       The original `response_text` is preserved for citation
+       adjacency checks and final substitution.
+    3. D-12 banned-claim scan on `scan_text` — affirmative verb +
+       immediate digit triggers REJECTED_BANNED_CLAIM EVEN WITH a
+       citation. On `is_retry=True`, the verdict collapses to
+       FALLBACK (D-08 hard-cap).
+    4. Legal-article spans (D-04#3) computed first on `scan_text` —
+       they have priority and exempt interior digits.
+    5. 4 number-family regexes (currency / percentage / duration /
+       regulatory) iterated. Each match is :
+       (a) skipped if it overlaps a legal-article span,
+       (b) skipped if `is_meta_quoted` or `is_meta_negation` excuses,
+       (c) checked for an adjacent `{{cite:<key>}}` within
+           `_CITATION_ADJACENCY_CHARS` chars in the ORIGINAL
+           `response_text` ; if absent OR if the key is not in the
+           active allowlist (closed-world breach), it counts as
+           uncited.
+    6. Verdict :
+       - any uncited number + `is_retry=False` → REJECTED_UNCITED +
+         D-09 reprompt addendum, retry needed.
+       - any uncited number + `is_retry=True` → FALLBACK + D-10
+         templated text, no further retry.
+       - otherwise → PASS, with `{{cite:<key>}}` placeholders
+         substituted via `resolve()` (verbatim when resolve returns
+         None).
 
     Args :
         response_text : narrator output as collected from the LLM.
-        ctx : `CoachContext` (consumed by Plan 94-02 for `resolve()`).
-        citation_allowlist : per-request union of bundle citation_allowlists
-            (Phase 93.5 D-18). When `None`, falls back to the global
-            `CITATION_REGISTRY` keys (Plan 94-02 wires this).
+        ctx : `CoachContext` (or None) — consumed by `resolve()` for
+            `profile:` source kinds. Wave-1 stub passes None at most
+            test sites.
+        citation_allowlist : per-request union of bundle citation
+            allowlists (Phase 93.5 D-18). When `None`, falls back to
+            the global `CITATION_REGISTRY` keys.
         is_retry : True on the second call after a first rejection.
+            Forces FALLBACK on any rejection (D-08 hard-cap).
 
     Returns :
-        `GatedResponse` with `verdict` ∈ {PASS, FALLBACK} in Wave 0.
+        Frozen `GatedResponse`.
     """
     if not response_text or not response_text.strip():
         return GatedResponse(
@@ -254,9 +430,102 @@ def gate(
             inputs_hash=None,
         )
 
+    # D-04#4 (M3 fix iter 1) — strip placeholders from the SCAN copy.
+    # The original `response_text` is preserved for citation adjacency
+    # and substitution at step 6. The banned-claim scan (step 3) ALSO
+    # uses `scan_text` so a fragment like « vous ferez {{cite:foo}} »
+    # does NOT trigger (no digit follows the verb after strip).
+    scan_text, placeholder_spans = _strip_placeholders(response_text)
+
+    # D-07 — active allowlist resolution.
+    active_allowlist: Optional[set[str]]
+    if citation_allowlist is not None:
+        active_allowlist = set(citation_allowlist)
+    else:
+        active_allowlist = set(CITATION_REGISTRY.keys())
+
+    # Step 3 — D-12 banned-claim scan.
+    banned_matches = _BANNED_AFFIRMATIVE_VERB_RE.findall(scan_text)
+    if banned_matches:
+        banned_tuple = tuple(banned_matches)
+        if is_retry:
+            return GatedResponse(
+                verdict=GateVerdict.FALLBACK,
+                gated_text=FALLBACK_TEMPLATED_TEXT,
+                retry_needed=False,
+                reprompt_addendum=None,
+                uncited_numbers_count=0,
+                banned_claims_found=banned_tuple,
+                inputs_hash=None,
+            )
+        return GatedResponse(
+            verdict=GateVerdict.REJECTED_BANNED_CLAIM,
+            gated_text=response_text,  # D-13 keeps the original text incl. cite
+            retry_needed=True,
+            reprompt_addendum=REPROMPT_ADDENDUM_BANNED_CLAIM,
+            uncited_numbers_count=0,
+            banned_claims_found=banned_tuple,
+            inputs_hash=None,
+        )
+
+    # Step 4 — legal-article span priority (D-04#3).
+    legal_spans: list[tuple[int, int]] = [
+        (m.start(), m.end()) for m in _RE_LEGAL_ARTICLE.finditer(scan_text)
+    ]
+
+    def _overlaps_legal(s: int, e: int) -> bool:
+        for ls, le in legal_spans:
+            if s < le and e > ls:
+                return True
+        return False
+
+    # Step 5 — number detection passes.
+    uncited_count = 0
+    for pattern in (_RE_CURRENCY, _RE_PERCENT, _RE_DURATION, _RE_REGULATORY):
+        for m in pattern.finditer(scan_text):
+            s, e = m.start(), m.end()
+            if _overlaps_legal(s, e):
+                continue
+            if is_meta_quoted(scan_text, s, e):
+                continue
+            if is_meta_negation(scan_text, s, e):
+                continue
+            # Map scan_text span back to response_text for adjacency check.
+            orig_s = _scan_to_orig_offset(s, placeholder_spans)
+            orig_e = _scan_to_orig_offset(e, placeholder_spans)
+            cited, _key = _has_adjacent_cite(
+                response_text, orig_s, orig_e, active_allowlist
+            )
+            if not cited:
+                uncited_count += 1
+
+    # Step 6 — verdict.
+    if uncited_count > 0:
+        if is_retry:
+            return GatedResponse(
+                verdict=GateVerdict.FALLBACK,
+                gated_text=FALLBACK_TEMPLATED_TEXT,
+                retry_needed=False,
+                reprompt_addendum=None,
+                uncited_numbers_count=uncited_count,
+                banned_claims_found=(),
+                inputs_hash=None,
+            )
+        return GatedResponse(
+            verdict=GateVerdict.REJECTED_UNCITED,
+            gated_text=response_text,
+            retry_needed=True,
+            reprompt_addendum=REPROMPT_ADDENDUM_UNCITED,
+            uncited_numbers_count=uncited_count,
+            banned_claims_found=(),
+            inputs_hash=None,
+        )
+
+    # PASS — substitute placeholders via resolve().
+    gated_text = _substitute_placeholders(response_text, ctx)
     return GatedResponse(
         verdict=GateVerdict.PASS,
-        gated_text=response_text,
+        gated_text=gated_text,
         retry_needed=False,
         reprompt_addendum=None,
         uncited_numbers_count=0,
@@ -273,6 +542,10 @@ __all__ = [
     "gate",
     "is_meta_quoted",
     "is_meta_negation",
+    # Verbatim FR string constants (D-09 / D-10 / D-13)
+    "REPROMPT_ADDENDUM_UNCITED",
+    "REPROMPT_ADDENDUM_BANNED_CLAIM",
+    "FALLBACK_TEMPLATED_TEXT",
     # Compiled regex (private but re-used by tests)
     "_RE_CURRENCY",
     "_RE_PERCENT",
@@ -280,4 +553,5 @@ __all__ = [
     "_RE_DURATION",
     "_RE_REGULATORY",
     "_RE_CITE_PLACEHOLDER",
+    "_BANNED_AFFIRMATIVE_VERB_RE",
 ]

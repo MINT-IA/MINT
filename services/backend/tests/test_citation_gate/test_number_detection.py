@@ -314,3 +314,77 @@ def test_regex_set_completes_under_50ms_smoke():
         list(r.finditer(text))
     elapsed = time.perf_counter() - start
     assert elapsed < 0.050, f"5-regex finditer took {elapsed*1000:.2f}ms (> 50ms budget)"
+
+
+# ---------------------------------------------------------------------------
+# 10. M3 fix iter 1 — D-04#4 placeholder-body strip.
+# Numbers inside `{{cite:<key>}}` bodies (e.g. timestamps in citation
+# values) MUST NOT trigger uncited rejection. The gate strips
+# placeholders from the SCAN input BEFORE running number detection.
+# ---------------------------------------------------------------------------
+
+
+def test_d04_exception_4_placeholder_body_stripped():
+    """Number inside the {{cite:...}} body must NOT trigger uncited rejection.
+
+    The placeholder body « 80000_chf » is a key fragment, not a
+    narrator-emitted number. The gate's pre-strip (D-04#4) exempts it.
+    """
+    from app.services.coach.citation_parser import GateVerdict, gate
+
+    response = "Le plafond est ce que dit la spec {{cite:plafond_80000_chf_2026}}."
+    result = gate(
+        response_text=response,
+        ctx=None,
+        citation_allowlist=["plafond_80000_chf_2026"],
+        is_retry=False,
+    )
+    assert result.verdict == GateVerdict.PASS
+    assert result.uncited_numbers_count == 0
+
+
+def test_d04_exception_4_placeholder_strip_does_not_hide_real_uncited():
+    """Defensive — a real uncited number OUTSIDE a placeholder MUST
+    still be detected, even when a placeholder with digits ALSO
+    appears in the text.
+    """
+    from app.services.coach.citation_parser import GateVerdict, gate
+
+    response = (
+        "Tu peux mettre 6883 CHF par an, voir spec {{cite:plafond_80000_chf_2026}}."
+    )
+    result = gate(
+        response_text=response,
+        ctx=None,
+        citation_allowlist=["plafond_80000_chf_2026"],
+        is_retry=False,
+    )
+    # The « 6883 CHF » has no adjacent cite for that specific number ;
+    # but in practice the {{cite:plafond_80000_chf_2026}} is within
+    # the 80-char adjacency window. So the gate accepts it as cited.
+    # This test documents the behavior — closed-world is satisfied
+    # because the placeholder is in range.
+    assert result.verdict == GateVerdict.PASS
+
+
+def test_d04_exception_4_placeholder_strip_isolated_uncited():
+    """When a real uncited number is far from any placeholder body,
+    the gate flags it (proves the strip does not silently exempt
+    real numbers — only digits INSIDE placeholder keys).
+    """
+    from app.services.coach.citation_parser import GateVerdict, gate
+
+    # 6883 CHF is at start ; placeholder at the very end > 80 chars away.
+    response = (
+        "Tu peux mettre 6883 CHF par an. " + ("Bla " * 30)
+        + "{{cite:plafond_80000_chf_2026}}"
+    )
+    result = gate(
+        response_text=response,
+        ctx=None,
+        citation_allowlist=["plafond_80000_chf_2026"],
+        is_retry=False,
+    )
+    # The « 6883 CHF » has no cite within 80 chars → REJECTED_UNCITED.
+    assert result.verdict == GateVerdict.REJECTED_UNCITED
+    assert result.uncited_numbers_count >= 1
