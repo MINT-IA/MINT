@@ -53,6 +53,7 @@ dev = [
     "ruff>=0.1.0",
     "httpx>=0.24.0",
     "fakeredis>=2.20.0",
+    "hypothesis>=6.111",
 ]
 rag = [
     "chromadb>=0.5.5",
@@ -81,6 +82,15 @@ privacy = [
     # binary is installed at the Dockerfile layer (+tessdata fra+deu+ita+eng).
     "pytesseract>=0.3.10",
     "Pillow>=10.2",
+]
+oracle = [
+    # Phase 92.5 CALC-03 — ESTV oracle Playwright scraper (manual annual run).
+    # NOT installed by default (extra) to keep dev install lean. Install with:
+    #   pip install ".[oracle]" && playwright install chromium
+    # Cadence: Julien runs once per ESTV publication cycle (Nov-Dec when new
+    # tarifs publish). Output → services/backend/tests/fixtures/estv_oracle_2025.jsonl.
+    "playwright>=1.40,<2.0",
+    "playwright-stealth>=1.0.6,<2.0",
 ]
 
 [tool.setuptools.packages.find]
