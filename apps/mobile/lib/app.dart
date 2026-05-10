@@ -3,7 +3,6 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/auth/migration_notice_listener.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/router/route_scope.dart';
 import 'package:mint_mobile/router/scoped_go_route.dart';
 import 'package:mint_mobile/widgets/mint_shell.dart';
@@ -1597,7 +1596,14 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
 }
 
 ThemeData _buildPremiumTheme() {
-  final textTheme = GoogleFonts.interTextTheme(ThemeData.light().textTheme);
+  // MVP-GOOGLEFONTS-PURGE-V1 (2026-05-10): swapped GoogleFonts.interTextTheme
+  // + GoogleFonts.montserrat to bundled Supreme. Supreme is the MINT v2
+  // canonical sans (declared in pubspec.yaml flutter.fonts). The base text
+  // theme now applies fontFamily: 'Supreme' to all roles, and the override
+  // helpers (displayLarge / headlineLarge / headlineMedium) reuse the same
+  // bundled family.
+  final baseLight = ThemeData.light().textTheme;
+  final textTheme = baseLight.apply(fontFamily: 'Supreme');
 
   return ThemeData(
     useMaterial3: true,
@@ -1614,26 +1620,23 @@ ThemeData _buildPremiumTheme() {
       outline: MintColors.border,
     ),
     textTheme: textTheme.copyWith(
-      displayLarge: GoogleFonts.montserrat(
-        textStyle: textTheme.displayLarge?.copyWith(
-          fontWeight: FontWeight.w700,
-          letterSpacing: -1.5,
-          color: MintColors.textPrimary,
-        ),
+      displayLarge: textTheme.displayLarge?.copyWith(
+        fontFamily: 'Supreme',
+        fontWeight: FontWeight.w700,
+        letterSpacing: -1.5,
+        color: MintColors.textPrimary,
       ),
-      headlineLarge: GoogleFonts.montserrat(
-        textStyle: textTheme.headlineLarge?.copyWith(
-          fontWeight: FontWeight.w700,
-          letterSpacing: -1.0,
-          color: MintColors.textPrimary,
-        ),
+      headlineLarge: textTheme.headlineLarge?.copyWith(
+        fontFamily: 'Supreme',
+        fontWeight: FontWeight.w700,
+        letterSpacing: -1.0,
+        color: MintColors.textPrimary,
       ),
-      headlineMedium: GoogleFonts.montserrat(
-        textStyle: textTheme.headlineMedium?.copyWith(
-          fontWeight: FontWeight.w600,
-          letterSpacing: -0.5,
-          color: MintColors.textPrimary,
-        ),
+      headlineMedium: textTheme.headlineMedium?.copyWith(
+        fontFamily: 'Supreme',
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.5,
+        color: MintColors.textPrimary,
       ),
       titleLarge: textTheme.titleLarge?.copyWith(
         fontWeight: FontWeight.w600,
@@ -1657,7 +1660,7 @@ ThemeData _buildPremiumTheme() {
       centerTitle: false,
       titleTextStyle: TextStyle(
         fontWeight: FontWeight.w700,
-        fontFamily: 'Montserrat',
+        fontFamily: 'Supreme',
         color: MintColors.textPrimary,
         fontSize: 20,
         letterSpacing: -0.5,

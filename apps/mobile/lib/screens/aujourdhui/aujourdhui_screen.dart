@@ -11,7 +11,6 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -214,7 +213,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                             children: [
                               Text(
                                 l10n.tensionEmptyWelcome,
-                                style: GoogleFonts.montserrat(
+                                style: TextStyle(fontFamily: 'Supreme', 
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: MintColors.textPrimary,
@@ -224,7 +223,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 l10n.tensionEmptySubtitle,
-                                style: GoogleFonts.inter(
+                                style: TextStyle(fontFamily: 'Supreme', 
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                   color: MintColors.textSecondary,
@@ -261,7 +260,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                 child: Center(
                   child: Text(
                     'MINT',
-                    style: GoogleFonts.montserrat(
+                    style: TextStyle(fontFamily: 'Supreme', 
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 4,
@@ -331,7 +330,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         l10n.timelineSectionTitle,
-                        style: GoogleFonts.montserrat(
+                        style: TextStyle(fontFamily: 'Supreme', 
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1,
@@ -383,7 +382,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                       onPressed: provider.loadMore,
                       child: Text(
                         l10n.timelineLoadMore,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(fontFamily: 'Supreme', 
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: MintColors.textSecondary,
@@ -410,7 +409,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                     ),
                     child: Text(
                       l10n.timelineEmpty,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Supreme', 
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         color: MintColors.textSecondary,

@@ -5,7 +5,6 @@
 // Server could return structured diff chunks later; for now this widget
 // accepts `added` / `removed` line lists and renders with red-line styling.
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -36,7 +35,7 @@ class PolicyDiffView extends StatelessWidget {
         children: [
           Text(
             l.policyDiffTitle,
-            style: GoogleFonts.montserrat(
+            style: TextStyle(fontFamily: 'Supreme', 
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -45,7 +44,7 @@ class PolicyDiffView extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '$fromVersion → $toVersion',
-            style: GoogleFonts.inter(
+            style: TextStyle(fontFamily: 'Supreme', 
               fontSize: 13,
               color: MintColors.textSecondary,
             ),
@@ -97,7 +96,7 @@ class _DiffLine extends StatelessWidget {
       ),
       child: Text(
         '$prefix$text',
-        style: GoogleFonts.inter(
+        style: TextStyle(fontFamily: 'Supreme', 
           fontSize: 13,
           color: MintColors.textPrimary,
           height: 1.4,

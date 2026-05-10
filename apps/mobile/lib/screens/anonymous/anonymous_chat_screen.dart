@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback, LengthLimitingTextInputFormatter;
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
@@ -530,7 +529,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   children: [
                     Text(
                       l.anonymousChatLocked,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Supreme', 
                         fontSize: 14,
                         color: MintColors.textSecondary,
                         fontStyle: FontStyle.italic,
@@ -553,7 +552,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                         ),
                         child: Text(
                           l.anonymousChatCreateAccount,
-                          style: GoogleFonts.inter(
+                          style: TextStyle(fontFamily: 'Supreme', 
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
@@ -601,7 +600,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   ),
                   child: Text(
                     chips[i],
-                    style: GoogleFonts.inter(
+                    style: TextStyle(fontFamily: 'Supreme', 
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: MintColors.inkPrimary,
@@ -627,7 +626,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
           child: Text(
             l.anonymousChatLsfinDisclaimer,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
+            style: TextStyle(fontFamily: 'Supreme', 
               fontSize: 11,
               fontStyle: FontStyle.italic,
               color: MintColors.textMutedAaa,
@@ -655,13 +654,13 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   // Panel §5 row 2 : hard cap at 500 chars (paste-defence).
                   maxLength: 500,
                   inputFormatters: [LengthLimitingTextInputFormatter(500)],
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 16,
                     color: MintColors.inkPrimary,
                   ),
                   decoration: InputDecoration(
                     hintText: l.anonymousChatInputHint,
-                    hintStyle: GoogleFonts.inter(
+                    hintStyle: TextStyle(fontFamily: 'Supreme', 
                       fontSize: 16,
                       color: MintColors.textMuted,
                     ),
@@ -709,7 +708,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         ),
         child: Text(
           message.text,
-          style: GoogleFonts.inter(
+          style: TextStyle(fontFamily: 'Supreme', 
             fontSize: 15,
             color: isUser ? MintColors.white : MintColors.inkPrimary,
             height: 1.4,
