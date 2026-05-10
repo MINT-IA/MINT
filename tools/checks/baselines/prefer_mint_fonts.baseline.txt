@@ -1,8 +1,8 @@
-lib/app.dart:1599: GoogleFonts.interTextTheme
-lib/app.dart:1616: GoogleFonts.montserrat
-lib/app.dart:1623: GoogleFonts.montserrat
-lib/app.dart:1630: GoogleFonts.montserrat
-lib/app.dart:1659: fontFamily: '
+lib/app.dart:1600: GoogleFonts.interTextTheme
+lib/app.dart:1617: GoogleFonts.montserrat
+lib/app.dart:1624: GoogleFonts.montserrat
+lib/app.dart:1631: GoogleFonts.montserrat
+lib/app.dart:1660: fontFamily: '
 lib/screens/anonymous/anonymous_chat_screen.dart:533: GoogleFonts.inter
 lib/screens/anonymous/anonymous_chat_screen.dart:556: GoogleFonts.inter
 lib/screens/anonymous/anonymous_chat_screen.dart:604: GoogleFonts.inter
@@ -18,7 +18,6 @@ lib/screens/aujourdhui/aujourdhui_screen.dart:386: GoogleFonts.inter
 lib/screens/aujourdhui/aujourdhui_screen.dart:413: GoogleFonts.inter
 lib/screens/byok_settings_screen.dart:234: fontFamily: '
 lib/screens/byok_settings_screen.dart:245: fontFamily: '
-lib/screens/landing_screen.dart:144: GoogleFonts.fraunces
 lib/screens/onboarding/mvp_wedge/dossier_strip.dart:162: GoogleFonts.inter
 lib/screens/onboarding/mvp_wedge/dossier_strip.dart:176: GoogleFonts.montserrat
 lib/screens/onboarding/mvp_wedge/dossier_strip.dart:62: GoogleFonts.montserrat

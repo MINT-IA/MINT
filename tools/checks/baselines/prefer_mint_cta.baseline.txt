@@ -1,5 +1,5 @@
-lib/app.dart:1814: FilledButton(
-lib/app.dart:1819: TextButton(
+lib/app.dart:1843: FilledButton(
+lib/app.dart:1848: TextButton(
 lib/screens/admin_observability_screen.dart:185: FilledButton(
 lib/screens/anonymous/anonymous_chat_screen.dart:543: ElevatedButton(
 lib/screens/arbitrage/allocation_annuelle_screen.dart:421: FilledButton(
@@ -60,7 +60,7 @@ lib/screens/household/household_screen.dart:354: TextButton(
 lib/screens/household/household_screen.dart:358: TextButton(
 lib/screens/household/household_screen.dart:418: FilledButton(
 lib/screens/household/household_screen.dart:97: FilledButton(
-lib/screens/landing_screen.dart:165: FilledButton(
+lib/screens/landing_screen.dart:163: FilledButton(
 lib/screens/lpp_deep/rachat_echelonne_screen.dart:643: TextButton(
 lib/screens/mortgage/affordability_screen.dart:758: OutlinedButton(
 lib/screens/onboarding/data_block_enrichment_screen.dart:152: FilledButton(
