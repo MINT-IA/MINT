@@ -42,7 +42,7 @@ Out of scope (deferred to milestone post-v2.9 OR backlog) :
   - « Explique-moi » → `MintChatOverlay` opens with `intent: "explain"`, source_card context propagated
   - « Rassure-moi » → `MintChatOverlay` opens with `intent: "reassure"`, source_card context propagated
   - « Simule » → `context.push('/explorer?simulate=<card_id>')` deep-link to Explorer (ZERO turns consumed, no LLM call)
-- **D-07:** Visual : `MintColors.primary` for active verb tap state ; `MintTextStyles.labelLarge` (or equivalent existing token) ; zero hardcoded `Color(0x...)` per CLAUDE.md rule 2.
+- **D-07:** Visual : `MintColors.mentheVive12` (12% mint-green tint, ARGB `0x1F7DD3B5`) for active verb tap state — chosen over `MintColors.primary` (#1D1D1F anthracite) because the design intent is a subtle accent tint, not a foreground-text-color fill. The UI-SPEC researcher (UX-panel guided) confirmed this resolves D-07's loose « primary » wording. `MintTextStyles.labelLarge` for the verb label ; zero hardcoded `Color(0x...)` in widget files per CLAUDE.md rule 2 (Phase 90 lint `prefer_mint_color_token`).
 
 ### 3-turn cap (server-side, strict)
 

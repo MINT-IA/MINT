@@ -428,7 +428,13 @@ appId: com.mint.mobile.staging
     id: "explorer_screen"  # stable testID on ExplorerScreen root
 
 # ── Step 11: « Simule » verb — separate check (no overlay, no turns) ──
+# Nav-stack at this point: card_list > card_detail (MintChatOverlay terminal-state) > explorer_screen
+# First pressBack pops explorer_screen, second tapOn dismisses overlay close-handle,
+# then card_list re-appears for the next tapOn.
 - pressBack
+- tapOn:
+    id: "mint_chat_overlay_close_handle"  # dismiss terminal-state overlay
+- waitForAnimationToEnd
 - tapOn:
     id: "card_mon_3a_2026"
 - waitForAnimationToEnd
