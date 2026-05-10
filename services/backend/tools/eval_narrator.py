@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 import logging
 import os
@@ -67,6 +68,123 @@ _NARRATOR_MODEL_IDS: dict[str, str] = {
     "haiku": "claude-haiku-4-5-20251001",
     "sonnet": "claude-sonnet-4-5-20250929",
 }
+
+
+# ---------------------------------------------------------------------------
+# Phase 93.5 Plan 04 — `count_tokens` cache (RESEARCH §Pitfall 8).
+#
+# Anthropic's `messages.count_tokens` API is rate-limited and adds latency
+# to every fixture run. The eval pack runs deterministically (same fixtures,
+# same prompt builder, same model) so token counts can be cached
+# sha256(model::prompt) → input_tokens. Cache is committed to git (initial
+# `{}`) so repeated CI runs accumulate hits.
+#
+# Fallback path: when the SDK call raises, return a 4-char-per-token
+# heuristic. This keeps the eval running on offline / rate-limited boxes
+# without polluting the cache with bogus numbers.
+# ---------------------------------------------------------------------------
+_TOKEN_CACHE_PATH: Path = (
+    Path(__file__).parent.parent / "tests" / "fixtures" / ".token_count_cache.json"
+)
+
+
+def _load_token_cache() -> dict[str, int]:
+    if _TOKEN_CACHE_PATH.exists():
+        try:
+            return json.loads(_TOKEN_CACHE_PATH.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            logger.warning("token cache corrupted at %s — resetting", _TOKEN_CACHE_PATH)
+            return {}
+    return {}
+
+
+def _save_token_cache(cache: dict[str, int]) -> None:
+    _TOKEN_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _TOKEN_CACHE_PATH.write_text(
+        json.dumps(cache, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
+def count_tokens_cached(*, prompt: str, model: str, anthropic_client: Any) -> int:
+    """Return input_tokens for `prompt` via cache → SDK → 4-char heuristic.
+
+    The cache key includes the model id so a model swap doesn't reuse
+    stale counts.
+    """
+    key = hashlib.sha256(f"{model}::{prompt}".encode("utf-8")).hexdigest()
+    cache = _load_token_cache()
+    if key in cache:
+        return int(cache[key])
+    try:
+        result = anthropic_client.messages.count_tokens(
+            model=model,
+            system=prompt,
+            messages=[{"role": "user", "content": "."}],
+        )
+        n = int(result.input_tokens)
+        cache[key] = n
+        _save_token_cache(cache)
+        return n
+    except Exception as exc:  # noqa: BLE001 — fallback is the contract
+        logger.warning(
+            "count_tokens API failed (%s) — falling back to 4-char heuristic",
+            type(exc).__name__,
+        )
+        return len(prompt) // 4
+
+
+# ---------------------------------------------------------------------------
+# Phase 93.5 Plan 04 — `--prompt-builder` dispatch helper.
+#
+# Encapsulates the legacy-vs-bundle branch in ONE place so the smoke test
+# can exercise the dispatch without spinning up the full Mode A flow.
+# C3 contract — bundle path uses kwargs-only call. D-14 — fixtures
+# without `intents` field default to `set()` (always-on only).
+# ---------------------------------------------------------------------------
+
+
+def _build_system_prompt_for_fixture(
+    *, fixture: dict[str, Any], prompt_builder: str
+) -> tuple[str, str]:
+    """Compose the narrator system prompt for a single fixture.
+
+    Returns `(system_prompt, builder_label)` where `builder_label` is
+    one of {"bundle", "legacy"} for output-JSON traceability.
+    """
+    language = fixture.get("language", "fr")
+    cash_level = int(fixture.get("cash_level", 3))
+
+    if prompt_builder == "bundle":
+        # Local import: keeps the legacy path import-light when the flag
+        # is OFF, and dodges any future circular-import risk via
+        # `app.services.coach.bundles`.
+        from app.services.coach.claude_coach_service import (
+            build_narrator_system_prompt_from_bundles,
+        )
+
+        intents = set(fixture.get("intents") or [])
+        # C3 — kwargs-only call. Param is `ctx`, NOT `coach_ctx`.
+        # No memory-block kwargs (eval fixtures don't carry them).
+        system_prompt = build_narrator_system_prompt_from_bundles(
+            intents=intents,
+            ctx=None,
+            language=language,
+            cash_level=cash_level,
+        )
+        return system_prompt, "bundle"
+
+    # Default / explicit "legacy" — Phase 91 Wave 2 narrator prompt.
+    from app.services.coach.claude_coach_service import (
+        build_narrator_system_prompt,
+    )
+
+    system_prompt = build_narrator_system_prompt(
+        ctx=None,
+        language=language,
+        cash_level=cash_level,
+    )
+    return system_prompt, "legacy"
 
 
 # ---------------------------------------------------------------------------
@@ -181,20 +299,26 @@ async def _generate_narrator_response(
     model_id: str,
     api_key: str,
     fixture: dict[str, Any],
-) -> tuple[str, int, int, float]:
+    prompt_builder: str = "legacy",
+) -> tuple[str, int, int, float, str]:
     """Call the narrator LLM for a single fixture.
 
-    Returns (response_text, input_tokens, output_tokens, latency_ms).
-    Token counts are best-effort from anthropic SDK; if unavailable, returns 0.
+    Returns (response_text, input_tokens, output_tokens, latency_ms,
+    builder_label). Token counts are best-effort from the Anthropic SDK;
+    if unavailable, returns 0. The trailing `builder_label` (one of
+    "bundle" / "legacy") is returned for output-JSON traceability.
+
+    Phase 93.5 Plan 04 (BUNDLE-04) — when `prompt_builder == "bundle"`,
+    the system prompt is composed via the skill-bundle compiler
+    (kwargs-only `build_narrator_system_prompt_from_bundles`, C3 fix);
+    otherwise the legacy `build_narrator_system_prompt` path is used
+    (byte-identical to Phase 91 Wave 2 behavior, regression-anchored
+    by `tests/test_coach_chat_bundles.py::test_flag_off_byte_identical_to_snapshot`).
     """
-    from app.services.coach.claude_coach_service import (
-        build_narrator_system_prompt,
-    )
     from app.services.rag.llm_client import LLMClient
 
-    system_prompt = build_narrator_system_prompt(
-        ctx=None,
-        language=fixture.get("language", "fr"),
+    system_prompt, builder_label = _build_system_prompt_for_fixture(
+        fixture=fixture, prompt_builder=prompt_builder
     )
     user_message = fixture["user_message"]
     history = fixture.get("conversation_history", []) or []
@@ -216,8 +340,11 @@ async def _generate_narrator_response(
 
     # Token counts are not surfaced by LLMClient.generate today (CoachUpstream
     # path); harness records 0 and the operator runs the eval against the
-    # Anthropic console for billing-grade accounting if needed.
-    return text, 0, 0, latency_ms
+    # Anthropic console for billing-grade accounting if needed. Phase 93.5
+    # Plan 04 adds an out-of-band prompt-token estimate via
+    # `count_tokens_cached` at the call site (with sha256 cache + 4-char
+    # heuristic fallback per RESEARCH §Pitfall 8).
+    return text, 0, 0, latency_ms, builder_label
 
 
 # ---------------------------------------------------------------------------
@@ -228,8 +355,15 @@ async def _generate_narrator_response(
 def _score_fixture(
     *, fixture: dict[str, Any], response_text: str, model_label: str,
     latency_ms: float, input_tokens: int, output_tokens: int,
+    prompt_builder: str = "legacy", prompt_tokens: int = 0,
 ) -> dict[str, Any]:
-    """Apply criteria (a)-(e) and return the per-fixture record."""
+    """Apply criteria (a)-(e) and return the per-fixture record.
+
+    `prompt_builder` is one of {"bundle", "legacy"} (Phase 93.5 BUNDLE-04
+    traceability). `prompt_tokens` is the system-prompt token count
+    (out-of-band, via `count_tokens_cached`) — used in Plan 04
+    EVAL-RESULTS to compute the bundle-vs-legacy cost regression.
+    """
     expected = fixture.get("expected_constraints", {}) or {}
     threshold_pct = float(expected.get("must_pass_doctrine_score_pct", 80))
     banned = list(expected.get("must_avoid_banned_terms") or [])
@@ -258,6 +392,7 @@ def _score_fixture(
         "fixture_id": fixture.get("id"),
         "category": fixture.get("category"),
         "model": model_label,
+        "prompt_builder": prompt_builder,
         "response_excerpt": excerpt,
         "compliance_pass": compliance_pass,
         "doctrine_score": doctrine_score,
@@ -272,6 +407,7 @@ def _score_fixture(
         "latency_ms": round(latency_ms, 2),
         "input_tokens": int(input_tokens or 0),
         "output_tokens": int(output_tokens or 0),
+        "prompt_tokens": int(prompt_tokens or 0),
     }
 
 
@@ -310,9 +446,15 @@ async def _run_eval(args: argparse.Namespace) -> int:
     fixtures_path = Path(args.fixtures)
     out_path = Path(args.out)
     fixtures = _load_fixtures(fixtures_path)
+    # Phase 93.5 Plan 04 — `--limit N` allows smoke-testing the harness on
+    # a small slice of the 50-fixture pack without rewriting the .jsonl.
+    limit = getattr(args, "limit", None)
+    if limit is not None and limit > 0:
+        fixtures = fixtures[:limit]
+    prompt_builder = getattr(args, "prompt_builder", "legacy")
     logger.info(
-        "loaded %d fixtures from %s (model=%s, dry_run=%s)",
-        len(fixtures), fixtures_path, args.model, args.dry_run,
+        "loaded %d fixtures from %s (model=%s, dry_run=%s, prompt_builder=%s)",
+        len(fixtures), fixtures_path, args.model, args.dry_run, prompt_builder,
     )
     model_id = _NARRATOR_MODEL_IDS[args.model]
 
@@ -325,8 +467,39 @@ async def _run_eval(args: argparse.Namespace) -> int:
             )
             return 1
 
+    # Out-of-band Anthropic client used purely for `count_tokens` cost
+    # measurement (Plan 04 — bundle vs legacy cost-regression metric).
+    # Best-effort : when the SDK / network is unavailable, the cache
+    # helper falls back to a 4-char heuristic.
+    anthropic_client = None
+    if not args.dry_run:
+        try:  # pragma: no cover — network-dependent branch
+            import anthropic  # noqa: WPS433 — local import is intentional
+
+            anthropic_client = anthropic.Anthropic(api_key=api_key)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "anthropic SDK unavailable (%s) — prompt_tokens will use heuristic",
+                type(exc).__name__,
+            )
+
     records: list[dict[str, Any]] = []
     for idx, fixture in enumerate(fixtures, 1):
+        # Compose the system prompt up-front so we can record its token
+        # count regardless of the dry-run / live path.
+        system_prompt, builder_label = _build_system_prompt_for_fixture(
+            fixture=fixture, prompt_builder=prompt_builder
+        )
+        prompt_tokens = (
+            count_tokens_cached(
+                prompt=system_prompt,
+                model=model_id,
+                anthropic_client=anthropic_client,
+            )
+            if anthropic_client is not None
+            else len(system_prompt) // 4
+        )
+
         if args.dry_run:
             # Deterministic placeholder. Reverses the user message so the
             # scoring path runs end-to-end without a network call. Latency
@@ -337,9 +510,12 @@ async def _run_eval(args: argparse.Namespace) -> int:
             out_tok = 0
         else:
             try:
-                response_text, in_tok, out_tok, latency_ms = (
+                response_text, in_tok, out_tok, latency_ms, _builder = (
                     await _generate_narrator_response(
-                        model_id=model_id, api_key=api_key, fixture=fixture
+                        model_id=model_id,
+                        api_key=api_key,
+                        fixture=fixture,
+                        prompt_builder=prompt_builder,
                     )
                 )
             except Exception as exc:  # noqa: BLE001 — eval harness is non-fatal
@@ -359,15 +535,28 @@ async def _run_eval(args: argparse.Namespace) -> int:
             latency_ms=latency_ms,
             input_tokens=in_tok,
             output_tokens=out_tok,
+            prompt_builder=builder_label,
+            prompt_tokens=prompt_tokens,
         )
         records.append(record)
         if idx % 10 == 0 or idx == len(fixtures):
             logger.info("scored %d/%d fixtures", idx, len(fixtures))
 
     aggregate = _aggregate(records)
+    # Per Plan 04 — surface average prompt_tokens at aggregate level so the
+    # operator can read cost regression directly off the JSON without
+    # re-walking records.
+    if records:
+        aggregate["avg_prompt_tokens"] = round(
+            sum(int(r.get("prompt_tokens") or 0) for r in records) / len(records), 2
+        )
+        aggregate["avg_latency_ms"] = round(
+            sum(float(r.get("latency_ms") or 0.0) for r in records) / len(records), 2
+        )
     payload = {
         "model": args.model,
         "model_id": model_id,
+        "prompt_builder": prompt_builder,
         "fixtures_count": len(fixtures),
         "fixtures_path": str(fixtures_path),
         "dry_run": bool(args.dry_run),
@@ -380,7 +569,7 @@ async def _run_eval(args: argparse.Namespace) -> int:
     logger.info("wrote eval report to %s", out_path)
 
     summary = (
-        f"MODEL_EVAL: model={args.model} "
+        f"MODEL_EVAL: model={args.model} prompt_builder={prompt_builder} "
         f"all_three_pass={aggregate['all_three_pass']}/{aggregate['total']}"
     )
     print(summary)
@@ -477,6 +666,26 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Skip the LLM call; use a deterministic placeholder response so "
              "the scoring pipeline can be self-tested without API tokens.",
+    )
+    ap.add_argument(
+        "--prompt-builder",
+        choices=["bundle", "legacy"],
+        default="legacy",
+        help=(
+            "Phase 93.5 (BUNDLE-04) — narrator prompt composer. "
+            "'legacy' uses build_narrator_system_prompt (default, baseline). "
+            "'bundle' uses build_narrator_system_prompt_from_bundles "
+            "(skill-bundle compiler, kwargs-only signature per C3 fix)."
+        ),
+    )
+    ap.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help=(
+            "Phase 93.5 Plan 04 — limit Mode A run to the first N fixtures "
+            "(useful for smoke tests; --output is still written)."
+        ),
     )
     # Mode B flags
     ap.add_argument(
