@@ -92,6 +92,18 @@ pre-commit:
       glob: "apps/mobile/lib/*.dart"
       tags: [design, phase-1-mvp-design-lints]
       fail_text: "design-lint warning — see CI for full diff (prefer_mint_cta)"
+    # ── Phase 93.5 BUNDLE-01 (skill-bundle compiler, banned-terms Python lint) ──
+    banned-terms-python-bundles:
+      # LSFin Rule #1 (CLAUDE.md TOP rule #1) — refuses any bundle .py that
+      # contains the banned-term family in non-exempted code. The
+      # compliance-narrator bundle's prompt_fragment IS allowed to LIST the
+      # terms verbatim so the narrator LLM sees them and refuses them ;
+      # those blocks are marked with a `# llm-doctrine-fragment-banned-list`
+      # comment that the lint honors. Per CONTEXT 93.5 D-09 + RESEARCH §Pitfall 4.
+      run: python3 tools/checks/banned_terms_python.py {staged_files}
+      glob: "services/backend/app/services/coach/bundles/*.py"
+      tags: [compliance, lsfin, phase-93.5-bundle-01]
+      fail_text: "LSFin banned terms detected in bundle .py outside exempted blocks. If the block intentionally lists banned terms (doctrine fragment), add a `# llm-doctrine-fragment-banned-list` comment immediately above the triple-quoted string."
     # ── Phase 92.5 CALC-03 (calc-rigor foundations, ESTV oracle pin) ──
     estv-oracle-freshness:
       # WARN-only freshness lint per CONTEXT 92.5 D-13. Triggers when the
