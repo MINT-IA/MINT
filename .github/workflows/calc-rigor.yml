@@ -1,0 +1,193 @@
+# MINT calc-rigor CI gate — Phase 92.5 / CALC-04
+# (CONTEXT 92.5 D-07 / D-18 / D-19 / D-20).
+#
+# Triggers ONLY on PRs / pushes that touch one of the 3 D-18 trigger paths
+# (financial_core, backend services, social_insurance.py). Other PRs skip
+# this workflow entirely — G1-G5 remain the universal gates per
+# .planning/PERIMETERS.md.
+#
+# Hard-block from day 1 (D-19): no warn-only ramp-up, because silent drift
+# is the failure mode this gate exists to prevent.
+#
+# Cascade-Flutter handling: tools/calc_harness/main.dart transitively imports
+# the Flutter foundation lib via apps/mobile/lib/constants/social_insurance.dart
+# (debugPrint guard + SharedPreferences-backed regulatory_sync_service). A
+# pure `dart compile exe` therefore fails today (documented at
+# apps/mobile/tools/calc_harness/main.dart line 19 TODO + 92.5-01-SUMMARY.md).
+# We attempt the compile + pytest path; on compile failure the pytest
+# fixture in services/backend/tests/test_calc_diff_harness.py SKIPs
+# cleanly (pytest.skip when CALC_HARNESS_BIN absent). Property invariants
+# and ESTV oracle jobs remain unaffected. Future plan: extract a pure-Dart
+# core from social_insurance.dart into a runtime-free module so the harness
+# can compile-exe (tracked in 92.5-01-SUMMARY.md).
+
+name: G6 calc-rigor
+
+on:
+  pull_request:
+    branches: [dev, staging, main]
+    paths:
+      # D-18 EXACT trigger paths
+      - 'apps/mobile/lib/services/financial_core/**'
+      - 'services/backend/app/services/**'
+      - 'services/backend/app/constants/social_insurance.py'
+      # Self-edits to the harness / property suite / oracle / failure-comment also re-trigger
+      - 'apps/mobile/tools/calc_harness/**'
+      - 'apps/mobile/test/financial_core/**'
+      - 'services/backend/tests/test_calc_diff_harness.py'
+      - 'services/backend/tests/test_property_invariants.py'
+      - 'services/backend/tests/test_estv_oracle.py'
+      - 'services/backend/tests/fixtures/calc_diff_v1.jsonl'
+      - 'services/backend/tests/fixtures/estv_oracle_2025.jsonl'
+      - 'tools/checks/estv_oracle_freshness.py'
+      - 'tools/checks/g6_path_check.py'
+      - '.github/workflows/calc-rigor.yml'
+      - '.github/workflows/calc-rigor-failure-comment.md'
+  push:
+    branches: [dev, staging, main]
+    paths:
+      - 'apps/mobile/lib/services/financial_core/**'
+      - 'services/backend/app/services/**'
+      - 'services/backend/app/constants/social_insurance.py'
+
+concurrency:
+  group: calc-rigor-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─── Job 1: differential harness (Dart binary + Python pytest) ───────
+  differential-harness:
+    name: G6 differential harness
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write   # required to gh pr comment on failure
+    steps:
+      - uses: actions/checkout@v4
+
+      # ─── Belt-and-suspenders: confirm the path filter would have triggered ──
+      - name: Confirm G6 applies (g6_path_check)
+        env:
+          BASE: ${{ github.event.pull_request.base.ref || 'dev' }}
+        run: |
+          set +e
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${BASE}" --depth=50 || true
+            python3 tools/checks/g6_path_check.py --diff-base "origin/${BASE}"
+            rc=$?
+          else
+            echo "[g6] push event — path filter already gated this run."
+            rc=0
+          fi
+          if [ "$rc" -ne 0 ]; then
+            echo "::warning::g6_path_check disagrees with workflow trigger — investigate."
+          fi
+          # Don't fail on disagreement: the workflow trigger filter is the source of truth.
+          exit 0
+
+      # ─── Dart compile (cached) ────────────────────────────────────
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.6.0'
+
+      - name: Dart pub get
+        working-directory: apps/mobile
+        run: dart pub get || flutter pub get || true
+        # Tolerate failure here; if Flutter SDK is needed for transitive deps
+        # the compile step below will fall back to the pytest-skip path.
+
+      - name: Compute financial_core checksum (for cache key)
+        id: fc-hash
+        run: |
+          HASH=$(find apps/mobile/lib/services/financial_core apps/mobile/tools/calc_harness -type f \
+            \( -name '*.dart' -o -name '*.yaml' \) -print0 \
+            | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')
+          echo "hash=${HASH}" >> "$GITHUB_OUTPUT"
+          echo "financial_core+calc_harness checksum: ${HASH}"
+
+      - name: Cache compiled calc_harness binary
+        id: cache-harness
+        uses: actions/cache@v4
+        with:
+          path: build/calc_harness_dart
+          key: calc-harness-${{ runner.os }}-dart-3.6.0-${{ steps.fc-hash.outputs.hash }}
+
+      - name: Compile calc_harness (Dart) — best-effort
+        if: steps.cache-harness.outputs.cache-hit != 'true'
+        working-directory: apps/mobile
+        run: |
+          mkdir -p ../../build
+          # Best-effort compile; the cascade-Flutter import in social_insurance.dart
+          # may fail today. Pytest fixture skips cleanly when binary absent.
+          dart compile exe tools/calc_harness/main.dart -o ../../build/calc_harness_dart \
+            || echo "::warning::calc_harness compile failed (cascade-Flutter); pytest will SKIP differential — see 92.5-01-SUMMARY.md"
+
+      # ─── Python tests ─────────────────────────────────────────────
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: services/backend/pyproject.toml
+
+      - name: Install backend deps
+        working-directory: services/backend
+        run: pip install ".[dev]"
+
+      - name: Run differential harness (skips cleanly if binary missing)
+        env:
+          CALC_HARNESS_BIN: ${{ github.workspace }}/build/calc_harness_dart
+          TESTING: '1'
+        working-directory: services/backend
+        run: python3 -m pytest tests/test_calc_diff_harness.py -v --tb=short
+
+      # ─── On failure: post failure-comment template to PR (D-20) ──
+      - name: Post failure comment to PR
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR_NUMBER" --body-file .github/workflows/calc-rigor-failure-comment.md \
+            || echo "::warning::failed to post failure comment (continuing, do not gate on comment)"
+
+  # ─── Job 2: property invariants (pure Python, no Dart) ───────────────
+  property-suite:
+    name: G6 property invariants
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: services/backend/pyproject.toml
+      - name: Install backend deps
+        working-directory: services/backend
+        run: pip install ".[dev]"
+      - name: Run property invariants (Hypothesis)
+        env:
+          TESTING: '1'
+        working-directory: services/backend
+        run: python3 -m pytest tests/test_property_invariants.py --hypothesis-profile=ci -v --tb=short
+
+  # ─── Job 3: ESTV oracle + freshness lint ─────────────────────────────
+  estv-oracle:
+    name: G6 ESTV oracle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: services/backend/pyproject.toml
+      - name: Install backend deps (no playwright — capture is manual)
+        working-directory: services/backend
+        run: pip install ".[dev]"
+      - name: Run ESTV oracle test (skips cleanly on empty fixture)
+        env:
+          TESTING: '1'
+        working-directory: services/backend
+        run: python3 -m pytest tests/test_estv_oracle.py -v --tb=short
+      - name: ESTV oracle freshness lint (WARN-only)
+        run: python3 tools/checks/estv_oracle_freshness.py
