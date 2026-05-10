@@ -188,15 +188,18 @@ The PLAN here does NOT duplicate `handoff/audit/05-plan.md` — it indexes it. S
 **Auto profile**: **L2** (backend prompt-eng + LLM eval) — Stage 3 eval after compiler in place ; cost+latency telemetry on staging before merge.
 
 ### Phase 94: MVP-CITATION-GATE
-**Goal**: Post-process parser on narrator output. Narrator output rejected if ANY number or legal claim is emitted without a `[citation:source_id]` reference. Closes the « ChatGPT clone » fear mechanically — narrator is structurally incapable of un-cited numbers. Hard-cap retries at 1, fall back to templated « je n'ai pas la donnée » on retry failure.
-**Depends on**: Phase 91 (extractor + narrator split must exist before citation parser hooks into narrator output stage)
+**Goal**: Post-process parser on narrator output. Narrator output rejected if ANY number or legal claim is emitted without a `{{cite:<key>}}` placeholder (per CONTEXT D-01 — the legacy `[citation:source_id]` wording is superseded). Closes the « ChatGPT clone » fear mechanically — narrator is structurally incapable of un-cited numbers. Hard-cap retries at 1, fall back to templated « je n'ai pas la donnée » on retry failure.
+**Depends on**: Phase 91 (extractor + narrator split must exist before citation parser hooks into narrator output stage), Phase 93.5 (bundle compiler emits `citation_allowlist` consumed by gate per D-07)
 **Requirements**: GATE-01 number detection regex, GATE-02 citation source registry, GATE-03 retry-or-fallback flow, GATE-04 banned-claim list
 **Success Criteria** (what must be TRUE):
-  1. New `app/services/coach/citation_parser.py` parses narrator output, detects every CHF amount / percentage / legal article / regulatory constant ; rejects emission if no `[citation:profile|reasoning|tool_call_id|adr|spec]` is adjacent.
+  1. New `app/services/coach/citation_parser.py` parses narrator output, detects every CHF amount / percentage / legal article / regulatory constant ; rejects emission if no `{{cite:<key>}}` placeholder (resolving to `profile|reasoning|tool_call_id|adr|spec` source kinds) is adjacent.
   2. Narrator response retry-once on rejection with explicit reprompt « cite ton chiffre ou ne l'émets pas » ; second failure returns templated « je n'ai pas cette donnée pour l'instant » with no number.
   3. 50-fixture eval pack (`tests/fixtures/citation_gate_eval_50.jsonl`) passes ≥95% on Sonnet narrator and ≥90% on Haiku narrator.
   4. Maestro flow `flow_narrator_refuses_uncited_numbers.yaml` PASSES — sends a profile-empty user with chat « combien je gagne ? » and asserts the response does NOT contain a fabricated CHF number.
-**Plans**: TBD
+**Plans**: 3 plans (Wave 0 scaffold → Wave 1 wiring → Wave 2 eval+proposal)
+- [ ] 94-01-PLAN.md — Wave 0, autonomous — citation_parser.py + citation_registry.py + COACH_CITATION_GATE_ENABLED flag + 6 test files (number-detection, meta-helpers port, registry contract, performance, byte-identity flag-OFF, config) ; eval_narrator.py refactor to re-import meta-helpers (single source of truth, D-03)
+- [ ] 94-02-PLAN.md — Wave 1, autonomous — fattened gate() body (D-08/D-09/D-10/D-12/D-13 verbatim FR strings) + `_run_narrator_with_gate()` wrapper at coach_chat.py:3264-3373 + bundle integration (D-07) + Sentry breadcrumbs (D-18) + 6 new test files (retry, fallback, banned-claims, bundle-intersect, global-registry-fallback, telemetry)
+- [ ] 94-03-PLAN.md — Wave 2, NOT autonomous (Julien GO/NO-GO checkpoint) — eval_narrator --gate={on,off} flag + 50-fixture pack (D-14) + Maestro G1 flow (D-16) + Stage 3 live eval (Sonnet ≥95% / Haiku ≥90% per D-15) + 94-03-EVAL-RESULTS.md + 94-03-FLAG-FLIP-PROPOSAL.md (D-21 sunset)
 
 **Budget**: 3d
 **Auto profile**: **L2** (backend + LLM eval gate) — Stage 3 eval mandatory before merge.

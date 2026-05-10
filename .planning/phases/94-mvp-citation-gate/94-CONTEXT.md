@@ -43,7 +43,7 @@ Post-process parser on narrator output (`coach_chat.py` response stage). Rejects
   - Legal article references: `\b(art\.?\s*\d+(?:\s*al\.?\s*\d+)?\s*(LIFD|LPP|LAVS|LCA|LPCC|OPP[23]?|OCC|LHID|CO))\b`
   - Time durations: `\b\d+\s*(ans?|mois|jours?|semaines?|années?|trimestres?)\b`
   - Regulatory constants by name: `(taux\s+de\s+conversion|plafond\s+3a|barème\s+LIFD|coefficient\s+\w+)`
-- **D-03:** Detection is **whole-token aware** — must NOT trigger on the meta-quote / negation patterns introduced in Wave 4 (`93.5-w4`). Reuse `_is_meta_negation` + `_is_meta_quoted` helpers from `tools/eval_narrator.py` ; refactor them into `app/services/coach/citation_parser.py` so both eval-time and runtime use the same logic.
+- **D-03:** Detection is **whole-token aware** — must NOT trigger on the meta-quote / negation patterns introduced in Wave 4 (`93.5-w4`). Refactor the existing `_is_meta_negation` + `_is_meta_quoted` helpers from `tools/eval_narrator.py:250-296` into `app/services/coach/citation_parser.py` and **rename them to public API names `is_meta_negation` + `is_meta_quoted` (drop leading underscore)** — they are now consumed by both runtime `gate()` AND eval scorer + tests, so they cease to be private to the eval module. The eval module re-imports them and re-binds the underscore-prefixed names as backward-compat aliases. (Plan-checker iter 1 H2 fix — public API.)
 - **D-04:** A number IS allowed without `{{cite:}}` ONLY when:
   - it appears in a meta-negation context (« aucun X n'est de 4% »)
   - it appears in a meta-quote (« le mythe du "10% garanti" »)
@@ -120,7 +120,7 @@ None — Phase 94 is well-scoped from ROADMAP + calc-first ADR; no backlog items
 - `services/backend/app/core/config.py` — add `COACH_CITATION_GATE_ENABLED` per D-19
 - `services/backend/app/services/coach/bundles/__init__.py` — bundle path emits `citation_allowlist` consumed by gate per D-07 (Phase 93.5 D-18 contract)
 - `services/backend/app/services/coach/bundles/compliance_narrator.py` — banned-terms reminder feeds D-12
-- `services/backend/tools/eval_narrator.py` — `_is_meta_negation` + `_is_meta_quoted` helpers refactored into `citation_parser.py` per D-03
+- `services/backend/tools/eval_narrator.py` — `_is_meta_negation` + `_is_meta_quoted` helpers refactored into `citation_parser.py` and renamed to public `is_meta_negation` / `is_meta_quoted` per D-03 (iter 1 H2 fix) ; eval module re-imports + re-binds underscore aliases for backward compat
 
 ### Pattern precedents
 - `.planning/phases/91-mvp-extractor-v2/91-CONTEXT.md` — `COACH_DUAL_LLM_ENABLED` flag pattern (precedent for D-19)
@@ -152,7 +152,7 @@ None — Phase 94 is well-scoped from ROADMAP + calc-first ADR; no backlog items
 
 ### Reusable Assets
 - **Bundle compiler `citation_allowlist`**: Phase 93.5 already shipped — `services/backend/app/services/coach/bundle_compiler.py:compile_bundles` returns `CompiledBundle.citation_allowlist`. Phase 94 gate consumes this directly per D-07.
-- **`_is_meta_negation` + `_is_meta_quoted`**: Phase 93.5 Wave 4 added these to `tools/eval_narrator.py`. Refactored into `citation_parser.py` per D-03 — used both at eval time AND at runtime. Single source of truth.
+- **`is_meta_negation` + `is_meta_quoted`** (public — iter 1 H2 rename): Phase 93.5 Wave 4 added these as `_is_meta_*` to `tools/eval_narrator.py`. Phase 94 refactors them into `citation_parser.py` AND drops the leading underscore (now public API). Used both at eval time AND at runtime. Single source of truth.
 - **`COACH_BUNDLE_COMPILER_ENABLED` precedent**: `app/core/config.py` already has the env-gated bool pattern (Phase 93.5 Wave 1). `COACH_CITATION_GATE_ENABLED` mirrors it.
 - **`count_tokens_cached`**: `tools/fixtures/.token_count_cache.json` Phase 93.5-04 Task 1 added an Anthropic count_tokens cache. Reused for retry-budget check.
 - **`build_narrator_system_prompt_from_bundles` kwargs-only signature** (Phase 93.5 D-16): the gate's reprompt string is APPENDED to the user message before the retry call — no signature change to the prompt builder.

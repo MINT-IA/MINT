@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: verifying
-stopped_at: Completed 93.5-04-PLAN.md (T1-T5 done; Task 6 GO/NO-GO surfaced to Julien)
-last_updated: "2026-05-10T16:02:49.371Z"
+stopped_at: Phase 94 context gathered (7 gray areas auto-locked)
+last_updated: "2026-05-10T16:58:00.403Z"
 last_activity: 2026-05-10
 progress:
   total_phases: 10
@@ -78,9 +78,9 @@ Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped
 
 ## Session Continuity
 
-Last session: 2026-05-10T16:02:49.368Z
-Stopped at: Completed 93.5-04-PLAN.md (T1-T5 done; Task 6 GO/NO-GO surfaced to Julien)
-Resume file: None
+Last session: 2026-05-10T16:58:00.397Z
+Stopped at: Phase 94 context gathered (7 gray areas auto-locked)
+Resume file: .planning/phases/94-mvp-citation-gate/94-CONTEXT.md
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>
