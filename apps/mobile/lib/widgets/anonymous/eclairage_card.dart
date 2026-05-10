@@ -12,7 +12,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -186,7 +185,7 @@ class EclairageCard extends StatelessWidget {
   Widget _buildEyebrow(String text) {
     return Text(
       text.toUpperCase(),
-      style: GoogleFonts.inter(
+      style: TextStyle(fontFamily: 'Supreme', 
         fontSize: 11,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.2,
@@ -198,7 +197,7 @@ class EclairageCard extends StatelessWidget {
   Widget _buildHeadline() {
     return Text(
       _headline,
-      style: GoogleFonts.fraunces(
+      style: TextStyle(fontFamily: 'Gambarino', 
         fontSize: 18,
         fontWeight: FontWeight.w500,
         height: 1.3,
@@ -214,7 +213,7 @@ class EclairageCard extends StatelessWidget {
     final low = _chfRangeLow;
     final high = _chfRangeHigh;
 
-    final numberStyle = GoogleFonts.montserrat(
+    final numberStyle = TextStyle(fontFamily: 'Supreme', 
       fontSize: 28,
       fontWeight: FontWeight.w700,
       color: MintColors.inkPrimary,
@@ -222,19 +221,19 @@ class EclairageCard extends StatelessWidget {
       height: 1.0,
     );
 
-    final chfBadgeStyle = GoogleFonts.inter(
+    final chfBadgeStyle = TextStyle(fontFamily: 'Supreme', 
       fontSize: 12,
       fontWeight: FontWeight.w600,
       color: MintColors.mintForest,
     );
 
-    final periodStyle = GoogleFonts.inter(
+    final periodStyle = TextStyle(fontFamily: 'Supreme', 
       fontSize: 13,
       fontWeight: FontWeight.w500,
       color: MintColors.textSecondaryAaa,
     );
 
-    final prefixStyle = GoogleFonts.inter(
+    final prefixStyle = TextStyle(fontFamily: 'Supreme', 
       fontSize: 13,
       fontWeight: FontWeight.w500,
       color: MintColors.textSecondaryAaa,
@@ -324,7 +323,7 @@ class EclairageCard extends StatelessWidget {
   Widget _buildBody() {
     return Text(
       _body,
-      style: GoogleFonts.inter(
+      style: TextStyle(fontFamily: 'Supreme', 
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.5,
@@ -363,7 +362,7 @@ class EclairageCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         _softAccountHint,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(fontFamily: 'Supreme', 
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: MintColors.mintForest,

@@ -8,7 +8,6 @@
 // the calling flow is responsible for aborting the operation.
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/consent/consent_service.dart';
@@ -79,7 +78,7 @@ class ConsentSheet extends StatelessWidget {
               children: [
                 Text(
                   l.consentSheetTitle,
-                  style: GoogleFonts.montserrat(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
@@ -88,7 +87,7 @@ class ConsentSheet extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   l.consentSheetSubtitle,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 14,
                     color: MintColors.textSecondary,
                   ),
@@ -106,7 +105,7 @@ class ConsentSheet extends StatelessWidget {
                         children: [
                           Text(
                             _titleForPurpose(l, p),
-                            style: GoogleFonts.montserrat(
+                            style: TextStyle(fontFamily: 'Supreme', 
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: MintColors.textPrimary,
@@ -115,7 +114,7 @@ class ConsentSheet extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             _whyForPurpose(l, p),
-                            style: GoogleFonts.inter(
+                            style: TextStyle(fontFamily: 'Supreme', 
                               fontSize: 13,
                               color: MintColors.textSecondary,
                               height: 1.4,

@@ -3,7 +3,6 @@
 //
 // v2.7 Phase 29 / PRIV-01.
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/consent/consent_service.dart';
@@ -87,7 +86,7 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
         elevation: 0,
         title: Text(
           l.privacyCenterTitle,
-          style: GoogleFonts.montserrat(
+          style: TextStyle(fontFamily: 'Supreme', 
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: MintColors.textPrimary,
@@ -112,7 +111,7 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Text(
                       l.privacyCenterEmpty,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(fontFamily: 'Supreme', 
                         fontSize: 14,
                         color: MintColors.textSecondary,
                       ),
@@ -152,7 +151,7 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: GoogleFonts.montserrat(
+        style: TextStyle(fontFamily: 'Supreme', 
           fontSize: 14,
           fontWeight: FontWeight.w600,
           color: MintColors.textSecondary,
@@ -192,7 +191,7 @@ class _ConsentRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.montserrat(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     color: MintColors.textPrimary,
@@ -203,7 +202,7 @@ class _ConsentRow extends StatelessWidget {
                   revokedAt == null
                       ? '${l.privacyCenterGrantedOn} ${_fmt(grantedAt)}'
                       : '${l.privacyCenterRevokedOn} ${_fmt(revokedAt!)}',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 12,
                     color: MintColors.textSecondary,
                   ),

@@ -381,6 +381,46 @@ grep -n -B 2 -A 2 "console\.log" "$file" 2>/dev/null | grep -E "^\s*(const|funct
 
 Categorize: 🛑 Blocker (prevents goal) | ⚠️ Warning (incomplete) | ℹ️ Info (notable)
 
+## Step 6b: G6 calc-correctness gate check (CALC-04 / CONTEXT 92.5 D-21)
+
+When the verified phase touches one of the G6 trigger paths
+(`apps/mobile/lib/services/financial_core/**`,
+`services/backend/app/services/**`, or
+`services/backend/app/constants/social_insurance.py`), the
+`verify_phase_goal` step MUST also check that the latest run of
+`.github/workflows/calc-rigor.yml` for the phase's PR is green.
+
+**How:**
+
+1. Decide whether G6 applies for this phase using the deterministic CLI:
+
+```bash
+# Collect the file paths declared modified by the phase plans
+PHASE_FILES=$(grep -rE "^  - " "$PHASE_DIR"/*-PLAN.md \
+  | grep -oE '[a-zA-Z0-9_./-]+\.(dart|py|yml|md)' \
+  | sort -u)
+python3 tools/checks/g6_path_check.py --files $PHASE_FILES --quiet
+G6_APPLIES=$?  # 0 = applies, 1 = does not apply
+```
+
+2. If `G6_APPLIES == 0`, fetch the latest workflow run for the phase branch:
+
+```bash
+gh run list --workflow=calc-rigor.yml --branch "$PHASE_BRANCH" \
+  --limit 1 --json databaseId,conclusion,headSha
+```
+
+3. Map the result:
+   - `conclusion: success` → G6 passes; record the run id as evidence.
+   - `conclusion: failure` → report `gaps_found` with the divergence axis
+     cited from the workflow's failure comment (or the workflow log).
+   - No run found / skipped → G6 not required for this phase; report no
+     G6 dependency in the verification report.
+
+This step is additive to G1–G5 verification and only fires for phases
+whose plans touch the trigger paths. Phases that don't touch calc paths
+skip G6 silently (D-21 + PERIMETERS.md G6 scoping note).
+
 ## Step 7b: Behavioral Spot-Checks
 
 Anti-pattern scanning (Step 7) checks for code smells. Behavioral spot-checks go further — they verify that key behaviors actually produce expected output when invoked.

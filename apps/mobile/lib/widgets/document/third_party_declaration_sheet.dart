@@ -11,7 +11,6 @@
 // Copy voice per docs/VOICE_SYSTEM.md. No banned terms (CLAUDE.md §6).
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -71,7 +70,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
           children: [
             Text(
               l.thirdPartyDeclarationTitle,
-              style: GoogleFonts.montserrat(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textPrimary,
@@ -82,7 +81,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
               multiple
                   ? l.thirdPartyDeclarationMultipleBody(names)
                   : l.thirdPartyDeclarationBody(names),
-              style: GoogleFonts.inter(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 15,
                 color: MintColors.textSecondary,
                 height: 1.45,
@@ -91,7 +90,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               l.thirdPartyDeclarationNoticeLink,
-              style: GoogleFonts.inter(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 13,
                 color: MintColors.textSecondary,
                 fontStyle: FontStyle.italic,
@@ -112,7 +111,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                   .pop(ThirdPartyDeclarationChoice.confirmed),
               child: Text(
                 l.thirdPartyDeclarationConfirm,
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Supreme', 
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -125,7 +124,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                   .pop(ThirdPartyDeclarationChoice.cancelled),
               child: Text(
                 l.thirdPartyDeclarationCancel,
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Supreme', 
                   fontSize: 14,
                   color: MintColors.textSecondary,
                 ),
@@ -148,7 +147,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                 l.thirdPartyInviteCta(
                   subjectNames.isNotEmpty ? subjectNames.first : '',
                 ),
-                style: GoogleFonts.inter(fontSize: 13),
+                style: TextStyle(fontFamily: 'Supreme', fontSize: 13),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: MintColors.primary,

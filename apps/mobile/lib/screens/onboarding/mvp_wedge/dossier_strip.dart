@@ -13,7 +13,6 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_provider.dart';
@@ -59,7 +58,7 @@ class _DossierStripState extends State<DossierStrip> {
         children: [
           Text(
             'TON DOSSIER',
-            style: GoogleFonts.montserrat(
+            style: TextStyle(fontFamily: 'Supreme', 
               fontSize: 10.5,
               fontWeight: FontWeight.w600,
               letterSpacing: 1.2,
@@ -70,7 +69,7 @@ class _DossierStripState extends State<DossierStrip> {
           if (entries.isEmpty)
             Text(
               'Il se remplit tour par tour.',
-              style: GoogleFonts.inter(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 13,
                 color: MintColors.textSecondary,
                 fontStyle: FontStyle.italic,
@@ -159,7 +158,7 @@ class _DossierLineState extends State<_DossierLine>
               flex: 4,
               child: Text(
                 widget.entry.label,
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Supreme', 
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
                   color: MintColors.textSecondary,
@@ -173,7 +172,7 @@ class _DossierLineState extends State<_DossierLine>
                 textAlign: TextAlign.right,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.montserrat(
+                style: TextStyle(fontFamily: 'Supreme', 
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,

@@ -23,7 +23,6 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -239,7 +238,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: GoogleFonts.montserrat(
+      style: TextStyle(fontFamily: 'Supreme', 
         fontSize: 13,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.6,
@@ -281,7 +280,7 @@ class _ItemRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   text,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                     color: MintColors.textPrimary,
@@ -294,7 +293,7 @@ class _ItemRow extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   relativeTime,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 11,
                     fontWeight: FontWeight.w400,
                     color: MintColors.textMutedAaa,

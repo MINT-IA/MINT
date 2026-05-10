@@ -1,7 +1,9 @@
-# lefthook.yml — Skeleton version (Phase 30.5 CTX-01, D-04)
-# Scope: STRICTLY MEMORY retention gate only.
-# Phase 34 GUARD-01 will ADD bare_catch, hardcoded_fr, accent_lint, arb_parity
-# ON TOP of this scaffold. Rails posés, lints NON-ACTIVÉS (D-04).
+# lefthook.yml — Phase 34 GUARD-01 partial (banned_terms_arb + arb_parity active)
+# Phase 30.5 CTX-01 D-04 originally scoped this skeleton to memory_retention only.
+# 2026-05-10: replay on last 50 commits of `dev` measured 0/50 commits blocked by
+# banned_terms_arb and 0/50 by arb_parity → activated as HARD gates.
+# Remaining GUARD-* lints (accent_lint_fr 26/50, no_hardcoded_fr 23/50, no_bare_catch
+# script absent) deferred until --diff/baseline mode lands — see ROADMAP_V2 Phase 34.
 
 min_version: 2.1.5
 
@@ -34,6 +36,27 @@ pre-commit:
       run: python3 tools/checks/wiki_lint.py
       glob: ".planning/**/*.md"
       tags: [wiki, planning]
+    # ── Phase 34 GUARD-01 partial (HARD gates, 0/50 historical block rate) ──
+    banned-terms-arb-gate:
+      # LSFin Rule #1 (CLAUDE.md TOP rule #1) — refuses any ARB containing the
+      # « garanti / guaranteed / garantiert / garantizado / garantito / garantido »
+      # family in a positive (non-negated) context. Replay measure 2026-05-10:
+      # 0/50 commits on `dev` would have been blocked. Bypass via LEFTHOOK_BYPASS=1
+      # is grep-able per CLAUDE.md §5 dev rules.
+      run: python3 tools/checks/banned_terms_arb.py
+      glob: "apps/mobile/lib/l10n/*.arb"
+      tags: [compliance, lsfin, phase-34-guard-01]
+      fail_text: "LSFin banned terms detected in ARB. Rewrite using permitted vocabulary (« vise à fournir », « est conçue pour », …) — CLAUDE.md TOP rule #1."
+    arb-parity-gate:
+      # CLAUDE.md TOP rule #5 — 6 ARB files (fr/en/de/es/it/pt) must share the
+      # same key set. Reference locale = fr. Replay measure 2026-05-10: 0/50
+      # commits on `dev` would have been blocked. MCP shim
+      # (tools/mcp/mint-tools/tools/arb_parity.py) wraps this same script and
+      # returns ArbParityResult to agents.
+      run: python3 tools/checks/arb_parity.py
+      glob: "apps/mobile/lib/l10n/*.arb"
+      tags: [compliance, i18n, phase-34-guard-05]
+      fail_text: "ARB parity drift. Run `flutter gen-l10n` after syncing keys, or update FR reference and propagate to en/de/es/it/pt."
     # ── Phase MVP-DESIGN-LINTS-V1 (chat-as-verb milestone, 2026-05-09) ──
     # 5 design-system lints. SOFT-warn at pre-commit (`fail_text` only
     # printed; exit-0 suffices because each script gracefully no-ops on
@@ -69,6 +92,16 @@ pre-commit:
       glob: "apps/mobile/lib/*.dart"
       tags: [design, phase-1-mvp-design-lints]
       fail_text: "design-lint warning — see CI for full diff (prefer_mint_cta)"
+    # ── Phase 92.5 CALC-03 (calc-rigor foundations, ESTV oracle pin) ──
+    estv-oracle-freshness:
+      # WARN-only freshness lint per CONTEXT 92.5 D-13. Triggers when the
+      # ESTV oracle JSONL fixture is staged ; emits stderr WARN lines for
+      # any vector older than 14 months but exits 0 by default. Annual
+      # capture cadence + occasional ESTV downtime should not block CI.
+      # Strict mode (--strict) reserved for a future opt-in.
+      run: python3 tools/checks/estv_oracle_freshness.py
+      glob: "services/backend/tests/fixtures/estv_oracle_2025.jsonl"
+      tags: [calc-rigor, phase-92.5, estv-oracle]
 
 skip:
   - merge

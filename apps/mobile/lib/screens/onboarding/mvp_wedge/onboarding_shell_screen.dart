@@ -13,7 +13,6 @@ import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -105,7 +104,7 @@ class _StepScaffold extends StatelessWidget {
         children: [
           Text(
             prompt,
-            style: GoogleFonts.montserrat(
+            style: TextStyle(fontFamily: 'Supreme', 
               fontSize: 24,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -142,7 +141,7 @@ class _PrimaryButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
+          style: TextStyle(fontFamily: 'Supreme', 
             fontSize: 15,
             fontWeight: FontWeight.w600,
             color: Colors.white,
@@ -171,7 +170,7 @@ class _EntryStep extends StatelessWidget {
           Text(
             'Il est temps que tu comprennes.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.montserrat(
+            style: TextStyle(fontFamily: 'Supreme', 
               fontSize: 28,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -275,7 +274,7 @@ class _IntentCard extends StatelessWidget {
           children: [
             Text(
               eyebrow,
-              style: GoogleFonts.montserrat(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1.2,
@@ -285,7 +284,7 @@ class _IntentCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               phrase,
-              style: GoogleFonts.montserrat(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 17,
                 fontWeight: FontWeight.w500,
                 color: MintColors.textPrimary,
@@ -368,7 +367,7 @@ class _AgePicker extends StatelessWidget {
             return Center(
               child: Text(
                 '$year',
-                style: GoogleFonts.montserrat(
+                style: TextStyle(fontFamily: 'Supreme', 
                   fontSize: isSelected ? 36 : 22,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color: isSelected
@@ -451,7 +450,7 @@ class _CantonStep extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 code,
-                style: GoogleFonts.montserrat(
+                style: TextStyle(fontFamily: 'Supreme', 
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: MintColors.textPrimary,
@@ -513,7 +512,7 @@ class _RevenueStepState extends State<_RevenueStep> {
           if (!_exactMode) ...[
             Text(
               '${_fmt(range.low)} – ${_fmt(range.high)} CHF',
-              style: GoogleFonts.montserrat(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textPrimary,
@@ -522,7 +521,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             const SizedBox(height: 4),
             Text(
               'tu ajusteras quand tu scanneras ta fiche',
-              style: GoogleFonts.inter(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 13,
                 color: MintColors.textSecondary,
                 fontStyle: FontStyle.italic,
@@ -548,14 +547,14 @@ class _RevenueStepState extends State<_RevenueStep> {
               children: [
                 Text(
                   '${_fmt(_kMinNet.toDouble())} CHF',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 12,
                     color: MintColors.textSecondary,
                   ),
                 ),
                 Text(
                   '${_fmt(_kMaxNet.toDouble())} CHF',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 12,
                     color: MintColors.textSecondary,
                   ),
@@ -568,7 +567,7 @@ class _RevenueStepState extends State<_RevenueStep> {
                 onPressed: () => setState(() => _exactMode = true),
                 child: Text(
                   'Je sais le chiffre exact',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: MintColors.textSecondary,
@@ -593,14 +592,14 @@ class _RevenueStepState extends State<_RevenueStep> {
                 FilteringTextInputFormatter.allow(RegExp(r"[0-9 ']")),
               ],
               autofocus: true,
-              style: GoogleFonts.montserrat(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textPrimary,
               ),
               decoration: InputDecoration(
                 hintText: '7\u2019600',
-                hintStyle: GoogleFonts.montserrat(
+                hintStyle: TextStyle(fontFamily: 'Supreme', 
                   fontSize: 32,
                   fontWeight: FontWeight.w600,
                   color:
@@ -622,7 +621,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             const SizedBox(height: 8),
             Text(
               'Avant impôt, après cotisations (le chiffre que tu vois tomber).',
-              style: GoogleFonts.inter(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 13,
                 color: MintColors.textSecondary,
               ),
@@ -633,7 +632,7 @@ class _RevenueStepState extends State<_RevenueStep> {
                 onPressed: () => setState(() => _exactMode = false),
                 child: Text(
                   'Revenir à la fourchette',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 14,
                     color: MintColors.textSecondary,
                     decoration: TextDecoration.underline,
@@ -719,7 +718,7 @@ class _InsightStep extends StatelessWidget {
               children: [
                 Text(
                   eyebrow,
-                  style: GoogleFonts.montserrat(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.2,
@@ -729,7 +728,7 @@ class _InsightStep extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   phrase,
-                  style: GoogleFonts.montserrat(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 19,
                     fontWeight: FontWeight.w500,
                     color: MintColors.textPrimary,
@@ -861,7 +860,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
           backgroundColor: MintColors.textPrimary,
           content: Text(
             l10n.onboardingSealError,
-            style: GoogleFonts.inter(color: MintColors.background),
+            style: TextStyle(fontFamily: 'Supreme', color: MintColors.background),
           ),
           action: SnackBarAction(
             label: l10n.onboardingSealRetry,
@@ -905,7 +904,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
             onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
             child: Text(
               'Plus tard',
-              style: GoogleFonts.inter(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 15,
                 color: MintColors.textSecondary,
               ),

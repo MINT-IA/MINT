@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Phase 91 context gathered (12 D-XX decisions locked, accept-all single-pass)
-last_updated: "2026-05-09T21:39:51.299Z"
+stopped_at: Completed 92.5-03-estv-oracle-PLAN.md (3 tasks, dbc72cc5/7cab5e1b/312d0df4)
+last_updated: "2026-05-10T11:04:35.922Z"
 last_activity: 2026-05-09
 progress:
-  total_phases: 8
+  total_phases: 10
   completed_phases: 1
-  total_plans: 11
-  completed_plans: 9
-  percent: 82
+  total_plans: 15
+  completed_plans: 10
+  percent: 67
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -78,9 +78,9 @@ Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped
 
 ## Session Continuity
 
-Last session: 2026-05-09T10:34:30.476Z
-Stopped at: Phase 91 context gathered (12 D-XX decisions locked, accept-all single-pass)
-Resume file: .planning/phases/91-mvp-extractor-v2/91-CONTEXT.md
+Last session: 2026-05-10T10:32:29.344Z
+Stopped at: Completed 92.5-03-estv-oracle-PLAN.md (3 tasks, dbc72cc5/7cab5e1b/312d0df4)
+Resume file: None
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>
