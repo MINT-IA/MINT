@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
-status: executing
-stopped_at: "Phase 95 Wave 2 complete, phase verifier next"
-last_updated: "2026-05-10T23:04:15.000Z"
-last_activity: 2026-05-10 -- Phase 95 Wave 2 (Plan 95-02) closed
+status: verifying
+stopped_at: Phase 95 Wave 2 complete (Plan 95-02 closed, 6/6 tasks, 43 W2 tests, 6522 backend total, +43 net new, 0 regressions, 182/182 citation_gate preserved) — phase verifier next
+last_updated: "2026-05-10T23:15:38.193Z"
+last_activity: 2026-05-10
 progress:
   total_phases: 11
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 25
   completed_plans: 20
   percent: 80
@@ -35,10 +35,10 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 95 (mvp-dag-invalidation) — EXECUTING (Wave 2 closed, phase verifier next)
-Plan: 2 of 2 (Wave 1 + Wave 2 both closed)
+Phase: 96
+Plan: Not started
 Status: Phase 95 Wave 2 complete, phase verifier next
-Last activity: 2026-05-10 -- Phase 95 Wave 2 (Plan 95-02) closed, 6/6 tasks committed, full backend 6522 passed (+43 net new W2, 0 regressions), Phase 94 byte-identity preserved (182/182 test_citation_gate green)
+Last activity: 2026-05-10
 Next:
 
   1. **`/gsd-verify-phase 95`** → 5-gate exit contract close. Both waves (95-01 + 95-02) shipped ; phase-level verifier reads both SUMMARYs, the VALIDATION matrix, and gates G1-G5.
