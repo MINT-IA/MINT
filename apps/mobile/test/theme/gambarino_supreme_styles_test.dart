@@ -4,10 +4,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 void main() {
-  // GoogleFonts (used by brandLogo regression test below) requires the
-  // services binding to be initialized so it can attempt asset-bundle reads
-  // (it falls back to a default font when assets aren't present in the test
-  // runner, but throws "Binding has not yet been initialized" without this).
+  // Asset-bundle reads (used by the bundled-font regression below) require
+  // the services binding to be initialized.
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('MintTextStyles Gambarino italic (Phase 92 FONT-03)', () {
@@ -55,13 +53,33 @@ void main() {
     });
   });
 
-  group('MintTextStyles regression (Phase 92 — existing styles untouched)', () {
-    test('brandLogo still uses Montserrat via GoogleFonts wrapper', () {
+  group('MintTextStyles regression (MVP-GOOGLEFONTS-PURGE-V1)', () {
+    // Updated 2026-05-10 — after the GoogleFonts purge, brandLogo and the
+    // 20 other legacy helpers (display*, headline*, title*, body*, label*,
+    // micro, editorial*) all reference bundled Fontshare families directly
+    // (Supreme for sans, Gambarino italic for editorial). The previous
+    // assertion (« brandLogo still uses Montserrat ») is obsolete.
+    test('brandLogo uses bundled Supreme', () {
       final s = MintTextStyles.brandLogo();
-      // GoogleFonts injects fontFamily as 'Montserrat_<weight>' (package prefix).
-      // Just assert it's NOT 'Supreme' (sanity guard).
-      expect(s.fontFamily, isNot(equals('Supreme')));
-      expect(s.fontFamily, isNot(equals('Gambarino')));
+      expect(s.fontFamily, equals('Supreme'));
+      expect(s.fontWeight, FontWeight.w800);
+      expect(s.letterSpacing, 3);
+    });
+
+    test('headlineLarge uses bundled Supreme (was Montserrat)', () {
+      final s = MintTextStyles.headlineLarge();
+      expect(s.fontFamily, equals('Supreme'));
+    });
+
+    test('bodyMedium uses bundled Supreme (was Inter)', () {
+      final s = MintTextStyles.bodyMedium();
+      expect(s.fontFamily, equals('Supreme'));
+    });
+
+    test('editorialDisplay uses bundled Gambarino italic (was Fraunces)', () {
+      final s = MintTextStyles.editorialDisplay();
+      expect(s.fontFamily, equals('Gambarino'));
+      expect(s.fontStyle, FontStyle.italic);
     });
   });
 }

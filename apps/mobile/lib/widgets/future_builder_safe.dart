@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// [FutureBuilder] with first-class error + loading handling.
@@ -115,7 +114,7 @@ class _DefaultError extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: GoogleFonts.montserrat(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textPrimary,
@@ -125,7 +124,7 @@ class _DefaultError extends StatelessWidget {
             Text(
               body,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
+              style: TextStyle(fontFamily: 'Supreme', 
                 fontSize: 14,
                 color: MintColors.textSecondary,
               ),

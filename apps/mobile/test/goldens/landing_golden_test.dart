@@ -23,13 +23,39 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helpers/screen_pump.dart';
 
+Future<void> _loadFontFromAssets(String family, String assetPath) async {
+  final loader = FontLoader(family);
+  final ByteData bytes = await rootBundle.load(assetPath);
+  loader.addFont(Future<ByteData>.value(bytes));
+  await loader.load();
+}
+
 void main() {
+  setUpAll(() async {
+    // MVP-GOOGLEFONTS-PURGE-V1: load bundled Fontshare so LandingScreen's
+    // chrome (Supreme via MintTextStyles) renders with canonical glyphs.
+    await _loadFontFromAssets('Supreme', 'assets/fonts/Supreme-Regular.otf');
+    await _loadFontFromAssets('Supreme', 'assets/fonts/Supreme-Medium.otf');
+    await _loadFontFromAssets('Supreme', 'assets/fonts/Supreme-Bold.otf');
+    await _loadFontFromAssets('Gambarino', 'assets/fonts/Gambarino-Regular.otf');
+  });
+
+  setUp(() async {
+    // BetaProgramDisclosureSheet.maybeShow() calls SharedPreferences in
+    // LandingScreen.initState. Without this mock the Landing v2 goldens
+    // throw MissingPluginException (was masked previously by the GoogleFonts
+    // timer-pending exception ; surfaced after MVP-GOOGLEFONTS-PURGE-V1).
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+  });
+
   group('Landing v2 goldens', () {
     testWidgets('iPhone 14 Pro × fr — animated final state', (tester) async {
       await pumpScreen(

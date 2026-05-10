@@ -18,7 +18,6 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/models/cap_decision.dart';
@@ -70,7 +69,7 @@ class _CapBannerCard extends StatelessWidget {
               children: [
                 Text(
                   cap.headline,
-                  style: GoogleFonts.montserrat(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
@@ -80,7 +79,7 @@ class _CapBannerCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   cap.whyNow,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                     color: MintColors.textSecondary,
@@ -93,7 +92,7 @@ class _CapBannerCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         cap.ctaLabel,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(fontFamily: 'Supreme', 
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: MintColors.success,
@@ -190,7 +189,7 @@ class _CapBannerFallback extends StatelessWidget {
               children: [
                 Text(
                   'Parle-moi de toi',
-                  style: GoogleFonts.montserrat(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
@@ -200,7 +199,7 @@ class _CapBannerFallback extends StatelessWidget {
                 Text(
                   'Dis-moi quelques mots sur ta situation, et je te montrerai '
                   'ce qui mérite ton attention aujourd’hui.',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Supreme', 
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                     color: MintColors.textSecondary,
@@ -213,7 +212,7 @@ class _CapBannerFallback extends StatelessWidget {
                     Flexible(
                       child: Text(
                         'Ouvrir le coach',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(fontFamily: 'Supreme', 
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: MintColors.success,

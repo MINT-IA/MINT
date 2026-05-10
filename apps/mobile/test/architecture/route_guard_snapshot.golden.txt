@@ -11,6 +11,7 @@
 /3a-retroactif | authenticated
 /about | public
 /achievements | authenticated
+/admin/routes | authenticated
 /advisor | authenticated
 /advisor/plan-30-days | authenticated
 /advisor/wizard | authenticated
@@ -31,6 +32,7 @@
 /auth/verify-email | public
 /bank-import | authenticated
 /budget | authenticated
+/budget/setup | authenticated
 /cantonal-benchmark | authenticated
 /check/debt | authenticated
 /coach/agir | authenticated
@@ -105,6 +107,7 @@
 /mortgage/imputed-rental | authenticated
 /mortgage/saron-vs-fixed | authenticated
 /naissance | authenticated
+/onb | public
 /onboarding/enrichment | onboarding
 /onboarding/intent | onboarding
 /onboarding/minimal | onboarding
@@ -136,6 +139,7 @@
 /segments/frontalier | authenticated
 /segments/gender-gap | authenticated
 /segments/independant | authenticated
+/settings/confidentialite | authenticated
 /settings/langue | authenticated
 /simulator/3a | authenticated
 /simulator/compound | authenticated
@@ -144,6 +148,7 @@
 /simulator/job-comparison | authenticated
 /simulator/leasing | authenticated
 /simulator/rente-capital | authenticated
+/start | public
 /succession | authenticated
 /timeline | authenticated
 /tools | authenticated
