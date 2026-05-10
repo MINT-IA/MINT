@@ -237,6 +237,10 @@ Progress at v2.8 close: [██████████] 100% (5/9 phases, 22/22
 - **MintShell ARB parity audit** (FIX-06) — labels already i18n-wired, MEMORY.md was stale, audit not rewrite
 - **Wave C scan-handoff** in progress on current branch `feature/wave-c-scan-handoff-coach` (independent, merge before v2.8 Phase 30.5 kickoff)
 
+### Roadmap Evolution
+
+- 2026-05-10 — Phase 94.1 inserted after Phase 94 : « Wave 4 narrator-prompt fattening — citation registry + `{{cite:<key>}}` grammar instructions (Phase 94 prod-flip unblocker) ». URGENT decimal patch surfaced by Phase 94 close-out — Stage 3 thresholds NOT MET (Sonnet 6%, Haiku 14%) because narrator system prompt does not yet teach the citation placeholder grammar. Scope : extend `build_narrator_system_prompt` + `build_narrator_system_prompt_from_bundles` in `services/backend/app/services/coach/claude_coach_service.py` with the 18-key `CITATION_REGISTRY` list + `{{cite:<key>}}` directive ; re-run the 50-fixture `citation_gate_eval_50.jsonl` pack on Sonnet + Haiku ; if Sonnet ≥95% / Haiku ≥90% land, re-open `94-03-FLAG-FLIP-PROPOSAL.md` as GO. ~1d scope. Branch policy : continue on `feature/S94-mvp-citation-gate` OR split to `feature/S94.1-narrator-prompt-fattening` (Julien decides at PR time).
+
 ### Known Good Foundations (to capitalize, still valid for v2.9)
 
 - Sentry backend+mobile wired (sample 10%) ✓

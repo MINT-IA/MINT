@@ -204,6 +204,16 @@ The PLAN here does NOT duplicate `handoff/audit/05-plan.md` — it indexes it. S
 **Budget**: 3d
 **Auto profile**: **L2** (backend + LLM eval gate) — Stage 3 eval mandatory before merge.
 
+### Phase 94.1: Wave 4 narrator-prompt fattening — citation registry + {{cite:<key>}} grammar instructions (Phase 94 prod-flip unblocker) (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 94
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 94.1 to break down)
+
 ### Phase 95: MVP-DAG-INVALIDATION
 **Goal**: Add `inputs_hash` + `superseded_by` on every projection (LPP, AVS, 3a, marge fiscale). Calculator refuses stale cache when input hash differs from current profile hash. Closes silent stale-projection bug (user updates salary in onboarding ; old LPP projection card shows old number for 3 days).
 **Depends on**: Phase 94 (citation gate must reference projection IDs ; staleness propagates upward)
