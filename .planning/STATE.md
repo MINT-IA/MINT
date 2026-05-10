@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: verifying
-stopped_at: Completed 94.1-01-PLAN.md — narrator-prompt fattening landed at FAIL bucket (Sonnet 20% gate-correct, Haiku 20%, thresholds NOT MET ; orchestrator decides 94.2)
-last_updated: "2026-05-10T21:39:36.091Z"
+stopped_at: Phase 95 context gathered (auto from master synthesis)
+last_updated: "2026-05-10T21:44:08.483Z"
 last_activity: 2026-05-10
 progress:
   total_phases: 11
@@ -137,9 +137,9 @@ Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped
 
 ## Session Continuity
 
-Last session: 2026-05-10T21:36:54.626Z
-Stopped at: Completed 94.1-01-PLAN.md — narrator-prompt fattening landed at FAIL bucket (Sonnet 20% gate-correct, Haiku 20%, thresholds NOT MET ; orchestrator decides 94.2)
-Resume file: None
+Last session: 2026-05-10T21:44:08.477Z
+Stopped at: Phase 95 context gathered (auto from master synthesis)
+Resume file: .planning/phases/95-mvp-dag-invalidation/95-CONTEXT.md
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>
