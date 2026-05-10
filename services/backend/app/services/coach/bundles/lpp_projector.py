@@ -1,15 +1,19 @@
 """LppProjectorBundle — intent-driven LPP doctrine fragment.
 
-Phase 93.5 Wave 0 (Plan 93.5-01). Activated when `intents` contains
-`retirement` or `career` (CONTEXT D-02). Wave 0 ships a thin doctrine-only
-fragment ; Wave 2 (Plan 93.5-03) fattens fragments based on Stage 3 eval
-findings (CONTEXT D-17).
+Phase 93.5 Wave 2 (Plan 93.5-03 Task 4). Activated when `intents` contains
+`retirement` or `career` (CONTEXT D-02). Wave 2 fattens the Wave 0 stub
+to a full FR doctrine fragment ≥800 chars covering LPP art. 14 al. 2
+(taux conv. 6.8% obligatoire), art. 19-21 (rente survivant 60%), art.
+79b al. 3 (rachat + EPL bloqué 3 ans), OPP2 art. 1 (déduction de
+coordination), LAVS art. 21 (âge de référence 65 H/F transition 2024).
 
-allowed_tools per CONTEXT D-20 : `[get_retirement_projection, get_cross_pillar_analysis]`.
+allowed_tools per CONTEXT D-20 (C1 lock — UNCHANGED at fattening) :
+`[get_retirement_projection, get_cross_pillar_analysis]`.
 
-Citation keys are P95-pending : every entry below carries an inline
-`# TODO Phase 95 — pending GroundingPack registry` comment until the
-Phase 95 DAG-INVALIDATION work populates the registry.
+CLAUDE.md §1 — fragment MUST NOT extrapoler la rente. Le taux 6.8% est
+DOCTRINE LÉGALE (LPP art. 14 al. 2) ; la déduction de coordination
+annuelle est un `{{cite:<key>}}` placeholder (valeur 2026 résolue par
+`get_regulatory_constant`).
 """
 from __future__ import annotations
 
@@ -19,26 +23,44 @@ from app.services.coach.bundles._base import BundleBase
 
 
 _PROMPT_FRAGMENT = """\
-## LPP — PROJECTION RENTE / CAPITAL (doctrine non-prescriptive)
+## DOCTRINE LPP — PROJECTION RENTE / CAPITAL (non-prescriptive)
 
-Taux de conversion minimum (part obligatoire) : 6.8% (LPP art. 14 al. 2).
-Le taux surobligatoire est librement fixé par la caisse — vérifier sur le
-certificat de prévoyance, jamais présumer.
+Tu projettes les ordres de grandeur, tu n'extrapoles JAMAIS la rente
+sans tool. Tu invoques `get_retirement_projection` pour les valeurs
+projetées et `get_cross_pillar_analysis` pour la coordination 1er / 2e
+/ 3e pilier.
 
-Déduction de coordination : 26'460 CHF (OPP2 art. 1, valeur 2026).
-La part du salaire au-dessus de la déduction génère les bonifications LPP.
+**Taux de conversion (LPP art. 14 al. 2)** : minimum légal 6.8% sur la
+part obligatoire. Le taux surobligatoire est librement fixé par chaque
+caisse — il faut le LIRE sur le certificat de prévoyance, jamais le
+présumer. Voir {{cite:lpp_taux_conv_obligatoire_2026}}.
 
-Rente vs capital : la rente est un revenu imposable annuel (LIFD art. 22) ;
-le capital est taxé une seule fois au retrait, à barème séparé (LIFD art. 38).
-La comparaison dépend de l'horizon, de l'archétype et du canton — chiffrer
-les deux scénarios, jamais classer.
+**Déduction de coordination (OPP2 art. 1)** : montant annuel déduit du
+salaire AVS pour calculer le salaire LPP coordonné (voir
+{{cite:opp2_coordination_2026}}). La part au-dessus de la déduction
+génère les bonifications de vieillesse.
 
-Libre-passage : 6 mois pour transférer à la nouvelle caisse (LFLP art. 4).
-Au-delà, l'avoir part à l'Institution supplétive — récupérable mais
-fragmenté.
+**Rente vs capital (irréversible)** : la rente est un revenu imposable
+annuel (LIFD art. 22) ; le capital est taxé une fois au retrait à
+barème séparé (LIFD art. 38, taux ÷ 5 dans plusieurs cantons). Le
+choix dépend de l'horizon, de l'archétype et du canton — tu chiffres
+les deux scénarios, tu ne classes JAMAIS. Décision irréversible →
+passage de main vers un·e spécialiste.
 
-Tonalité : conditionnel uniquement. Renvoyer à un·e spécialiste pour la
-décision rente-vs-capital (irréversible, doctrine cardinale §3).
+**Survivants (LPP art. 19-21)** : rente conjoint survivant ≈ 60% de la
+rente vieillesse projetée, rente orphelin ≈ 20%. Voir
+{{cite:lpp_rente_survivant_pct}} pour les valeurs exactes par caisse.
+
+**Rachat LPP volontaire (LPP art. 79b)** : déductible du revenu
+imposable (LIFD art. 33 let. d), plafonné par la lacune actuelle vs
+théorique certifiée par la caisse. ATTENTION — après rachat, l'EPL
+(retrait anticipé pour logement) est BLOQUÉ pendant 3 ans (LPP art. 79b
+al. 3) ; ne pas conseiller un rachat si projet immobilier < 3 ans.
+
+**Âge de référence AVS / LPP (LAVS art. 21)** : 65 ans H/F (transition
+AVS 21 vers 65 femmes). Voir {{cite:lavs_age_reference_2026}}.
+Anticipation possible avec réduction actuarielle ; ajournement avec
+bonus.
 """
 
 
@@ -47,13 +69,16 @@ class LppProjectorBundle(BundleBase):
 
     name: Literal["lpp-projector"] = "lpp-projector"
     prompt_fragment: str = _PROMPT_FRAGMENT
+    # C1 lock per CONTEXT D-20.
     allowed_tools: list[str] = [
         "get_retirement_projection",
         "get_cross_pillar_analysis",
-    ]  # D-20
+    ]
     citation_allowlist: list[str] = [
-        "lpp_taux_conversion_2026",         # TODO Phase 95 — pending GroundingPack registry
-        "lpp_deduction_coordination_2026",  # TODO Phase 95 — pending GroundingPack registry
+        "lpp_taux_conv_obligatoire_2026",  # TODO Phase 95 — pending GroundingPack registry
+        "opp2_coordination_2026",          # TODO Phase 95 — pending GroundingPack registry
+        "lpp_rente_survivant_pct",         # TODO Phase 95 — pending GroundingPack registry
+        "lavs_age_reference_2026",         # TODO Phase 95 — pending GroundingPack registry
     ]
 
 
