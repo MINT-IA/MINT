@@ -28,6 +28,8 @@ Sources:
     - docs/VOICE_SYSTEM.md
 """
 
+import os
+import warnings
 from typing import Optional
 
 from app.services.coach.coach_models import CoachContext
@@ -37,9 +39,34 @@ from app.services.coach.regional_microcopy import RegionalMicrocopy
 __all__ = [
     "build_system_prompt",
     "build_narrator_system_prompt",
+    "build_narrator_system_prompt_from_bundles",
     "COACH_TOOLS",
     "INTERNAL_TOOL_NAMES",
 ]
+
+
+# ---------------------------------------------------------------------------
+# Phase 93.5 Plan 04 (BUNDLE-04, H5) — deprecation signal at import time.
+#
+# When the bundle-compiler flag is ON, emit a DeprecationWarning so any
+# tooling that imports this module sees the legacy narrator base prompt
+# is on its way out. Deletion is deferred to Phase 95 per CONTEXT D-19
+# (the legacy path remains the byte-identity reference until prod traffic
+# has run on the bundle path for ≥4 weeks with zero rollback incidents).
+#
+# Reading the env var directly (NOT settings.X) avoids a circular import
+# via app.core.config when this module is loaded early in the FastAPI
+# import graph.
+# ---------------------------------------------------------------------------
+if os.getenv("COACH_BUNDLE_COMPILER_ENABLED", "").lower() == "true":
+    warnings.warn(
+        "_NARRATOR_BASE_SYSTEM_PROMPT is superseded by the bundle "
+        "compiler (Phase 93.5). Deletion is deferred to Phase 95 per "
+        "CONTEXT D-19. Update consumers to call "
+        "build_narrator_system_prompt_from_bundles instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -724,6 +751,21 @@ CONNAISSANCES SUISSES (n'utilise ces faits QUE si la conversation l'amène — n
 # in Phase 91 Wave 2). Not wired in Wave 0. Composed from the three non-
 # extraction parts of the legacy prompt; the `{banned_terms}` and other
 # format slots remain so a future caller can `.format(...)` it identically.
+#
+# DEPRECATED — to be deleted in Phase 95 per CONTEXT D-19.
+# Bundle-compiler path (Phase 93.5, COACH_BUNDLE_COMPILER_ENABLED=true)
+# supersedes this monolithic prompt. See:
+#   - .planning/phases/93.5-mvp-skill-bundle-compiler-inserted-2026-05-10/93.5-CONTEXT.md (D-19)
+#   - services/backend/app/services/coach/bundles/ (replacement)
+# Deletion criteria : Phase 95 unblock = ≥4 weeks of prod traffic with
+# bundle path AT 100% (no flag-OFF traffic) + zero rollback-triggering
+# incidents. Until then both paths coexist (legacy path is the byte-identity
+# regression reference for tests/test_coach_chat_bundles.py).
+# Plan 93.5-04 Task 2 (H5 fix) ships the deprecation signal:
+#   - This grep-able marker comment (BUNDLE-04 wording).
+#   - An import-time DeprecationWarning when COACH_BUNDLE_COMPILER_ENABLED=true
+#     (top of this module). The constant value itself is UNCHANGED — D-19's
+#     deletion deferral is honored.
 _NARRATOR_BASE_SYSTEM_PROMPT = (
     _PROMPT_PART_PREFIX + _PROMPT_PART_MIDDLE + _PROMPT_PART_SUFFIX
 )
@@ -913,6 +955,77 @@ def build_narrator_system_prompt(
     """
     return _build_prompt(
         base_template=_NARRATOR_BASE_SYSTEM_PROMPT,
+        ctx=ctx,
+        language=language,
+        cash_level=cash_level,
+    )
+
+
+def build_narrator_system_prompt_from_bundles(
+    *,
+    intents: set[str],
+    ctx: Optional[CoachContext] = None,
+    language: str = "fr",
+    cash_level: int = 3,
+) -> str:
+    """Phase 93.5 narrator base prompt composed via skill-bundle compiler.
+
+    Replaces `_NARRATOR_BASE_SYSTEM_PROMPT` (legacy single template) with
+    a dynamic union of bundle fragments per CONTEXT D-09 / D-10 / D-11 /
+    D-12 / D-13 / D-14. Coexists with `build_narrator_system_prompt` per
+    CONTEXT D-16 ; the coach_chat caller selects via
+    `settings.COACH_BUNDLE_COMPILER_ENABLED` (flag-OFF default = legacy).
+
+    Per C3 fix (revision iter1 2026-05-10) — kwargs-only, NO memory-block
+    parameters. The 3 memory blocks (`commitment_block`,
+    `intelligence_block`, `insight_block`) are concatenated POST-prompt at
+    the coach_chat caller (coach_chat.py:766-781) IDENTICALLY to the
+    legacy flow — they are NOT parameters here.
+
+    Per RESEARCH §3.7 + verified iter1 2026-05-10 — `_build_prompt`
+    signature is kwargs-only `(*, base_template, ctx, language, cash_level)`
+    and provides ALL 7 slots unconditionally (`safe_mode_protocol` becomes
+    `""` when `ctx is None or not ctx.has_debt`).
+
+    Args:
+      intents: 6-enum heuristic intent set from `_classify_user_intent`
+        at `coach_chat.py:944-963` (CONTEXT D-01 supersession). Empty set
+        produces an always-on-only prompt (D-14).
+      ctx: optional `CoachContext` ; passed through to `_build_prompt` for
+        slot interpolation (canton, has_debt, intent…).
+      language: ISO 639-1 code ; passed through to `_build_prompt` for the
+        language-switch appended block.
+      cash_level: 1-5 voice intensity ; passed through to `_build_prompt`.
+
+    Returns:
+      Composed narrator system prompt (str), ready for the Anthropic API
+      `system=` parameter. The 11 appended blocks (life-event catalog,
+      archetype, doctrine, voice intensity, anti-patterns, biography,
+      commitment, intelligence, couple, language switch, user context)
+      are appended unchanged by `_build_prompt` ; only `base_template` is
+      replaced by the composed bundle fragments (D-11).
+
+    Raises:
+      ValueError: H4 — composed prompt contains an undeclared `{slot}`
+        (compile_bundles guard). Caller is expected to fall back to
+        `build_narrator_system_prompt` on this.
+      KeyError: defensive — `_build_prompt.format(...)` slot interpolation
+        failure (should not happen given H4 guard).
+    """
+    # Local import avoids a circular import via `app.services.coach.bundles`
+    # at module-load time and keeps `claude_coach_service` light when the
+    # flag is OFF in prod.
+    from app.services.coach.bundle_compiler import compile_bundles
+
+    compiled = compile_bundles(intents=intents, ctx=ctx, language=language)
+
+    # Reuse `_build_prompt`'s 7-slot interpolation by passing the compiled
+    # prompt as `base_template`. Kwargs-only call per VERIFIED signature
+    # at line 754. The 11 appendix blocks are still appended by
+    # `_build_prompt` unchanged — the bundle compiler ONLY replaces the
+    # base template (D-11).
+    return _build_prompt(
+        base_template=compiled.prompt,
         ctx=ctx,
         language=language,
         cash_level=cash_level,

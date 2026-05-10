@@ -52,6 +52,7 @@ from app.services.reengagement.reengagement_models import ConsentType
 from app.schemas.coach_chat import CoachChatRequest, CoachChatResponse
 from app.services.coach.claude_coach_service import (
     build_narrator_system_prompt,
+    build_narrator_system_prompt_from_bundles,
     build_system_prompt,
 )
 from app.services.coach.coach_context_builder import build_coach_context
@@ -749,6 +750,7 @@ def _build_system_prompt_with_memory(
     commitment_block: str = "",
     intelligence_block: str = "",
     insight_block: str = "",
+    detected_intents: Optional[set] = None,
 ) -> str:
     """Build the system prompt and optionally append the sanitized memory block.
 
@@ -760,7 +762,81 @@ def _build_system_prompt_with_memory(
     « TOUJOURS appeler save_insight » mandate) — fact capture moves to
     the dedicated extractor LLM. When False (default), uses the legacy
     builder verbatim — flag-OFF path is byte-identical to today.
+
+    Phase 93.5 Wave 1: when `settings.COACH_BUNDLE_COMPILER_ENABLED` is
+    True (default False), routes via `build_narrator_system_prompt_from_bundles`
+    (compile_bundles → 6 named bundle fragments). The legacy path remains
+    byte-identical when the flag is OFF (CONTEXT D-15/D-16, proven by
+    `tests/test_coach_chat_bundles.py::test_flag_off_byte_identical_to_snapshot`).
+    On `KeyError`/`ValueError` the bundle path falls back to the legacy
+    narrator path so a misdeclared slot in a bundle never breaks the
+    coach for users (RESEARCH Pitfall 1 + H4).
     """
+    # Phase 93.5 — bundle-compiler path (CONTEXT D-15 / D-16 / D-01 supersession).
+    # Default OFF in prod — flip-on is gated by Plan 93.5-04 Stage 3 eval ≥95%.
+    if settings.COACH_BUNDLE_COMPILER_ENABLED:
+        try:
+            prompt = build_narrator_system_prompt_from_bundles(
+                intents=detected_intents or set(),
+                ctx=coach_ctx,
+                language=language,
+                cash_level=cash_level,
+            )
+            # Memory blocks concatenated POST-prompt — IDENTICAL to the
+            # legacy flow below (lines under the `else:`). Order matters.
+            sanitized = _sanitize_memory_block(memory_block)
+            if sanitized:
+                prompt = prompt + "\n\n" + sanitized
+            if commitment_block:
+                prompt = prompt + "\n\n" + commitment_block
+            if intelligence_block:
+                prompt = prompt + "\n\n" + intelligence_block
+            if insight_block:
+                prompt = prompt + "\n\n" + insight_block
+
+            # T-93.5-07 — Sentry breadcrumb : whitelisted keys ONLY,
+            # never user message content.
+            try:
+                import sentry_sdk
+                from app.services.coach.bundle_compiler import (
+                    compile_bundles as _cb,
+                )
+                _telemetry = _cb(
+                    intents=detected_intents or set(),
+                    ctx=coach_ctx,
+                    language=language,
+                )
+                sentry_sdk.add_breadcrumb(
+                    category="coach.bundle",
+                    level="info",
+                    data={
+                        "activated_bundles": _telemetry.activated_bundles,
+                        "prompt_tokens": _telemetry.estimated_tokens,
+                        "dropped_bundles": _telemetry.dropped_bundles,
+                    },
+                )
+            except Exception:  # noqa: BLE001 — telemetry must never break narrator
+                pass
+            return prompt
+        except (KeyError, ValueError) as exc:
+            # Defensive Pitfall 1 — slot interpolation failure or H4
+            # undeclared-slot guard → fall back to legacy path.
+            logger.warning(
+                "coach.bundle.fallback type=%s reason=%s — using legacy path",
+                type(exc).__name__,
+                str(exc)[:200],
+            )
+            try:
+                import sentry_sdk
+                sentry_sdk.add_breadcrumb(
+                    category="coach.bundle.fallback",
+                    level="warning",
+                    data={"exc_type": type(exc).__name__},
+                )
+            except Exception:  # noqa: BLE001
+                pass
+            # fall through to legacy path below
+
     if settings.COACH_DUAL_LLM_ENABLED:
         prompt = build_narrator_system_prompt(
             ctx=coach_ctx, language=language, cash_level=cash_level
@@ -2930,7 +3006,7 @@ async def coach_chat(
     commitment_block = _build_commitment_memory_block(str(_user.id), db)
     intelligence_block = _build_intelligence_memory_block(str(_user.id), db)
     insight_block = _build_insight_memory_block(str(_user.id), db)
-    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level, commitment_block=commitment_block, intelligence_block=intelligence_block, insight_block=insight_block)
+    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level, commitment_block=commitment_block, intelligence_block=intelligence_block, insight_block=insight_block, detected_intents=detected_intents)
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
@@ -3133,11 +3209,32 @@ async def coach_chat(
     # EXTR-04). Flag-OFF default keeps `get_llm_tools()` so today's path
     # is byte-identical.
     # ------------------------------------------------------------------
-    _narrator_tools = (
-        get_narrator_llm_tools()
-        if settings.COACH_DUAL_LLM_ENABLED
-        else get_llm_tools()
-    )
+    # Phase 93.5 Wave 1 — when the bundle compiler is on, filter the
+    # narrator tool registry by the union of activated bundles' allowed_tools
+    # (CONTEXT D-12 + D-20). On any compile failure (KeyError / ValueError —
+    # H4 undeclared-slot guard), gracefully fall back to the unfiltered
+    # narrator registry so the coach never breaks for users.
+    if settings.COACH_BUNDLE_COMPILER_ENABLED:
+        try:
+            from app.services.coach.bundle_compiler import (
+                compile_bundles as _cb,
+            )
+            _compiled_bundle = _cb(
+                intents=detected_intents or set(),
+                ctx=coach_ctx,
+                language=body.language,
+            )
+            _allowed_names = set(_compiled_bundle.allowed_tools)
+            _narrator_tools = [
+                t for t in get_narrator_llm_tools()
+                if t["name"] in _allowed_names
+            ]
+        except (KeyError, ValueError):
+            _narrator_tools = get_narrator_llm_tools()
+    elif settings.COACH_DUAL_LLM_ENABLED:
+        _narrator_tools = get_narrator_llm_tools()
+    else:
+        _narrator_tools = get_llm_tools()
     # Phase 91 D-01 — when dual-LLM is on, the narrator's model is selected
     # by COACH_NARRATOR_MODEL (default 'sonnet' — preserves today's hardcoded
     # Wave 2 behavior). When dual-LLM is off, the legacy effective_model
