@@ -244,7 +244,10 @@ Plans:
   4. Chat-tab in main nav hidden behind feature flag `CHAT_TAB_VISIBLE=false` (default-on for kill) ; flag-off for emergency walkback.
   5. Sentry metric `chat_overflow_turn_4` fires on every cap-hit ; alert fires if rate >40% of sessions over 7 days (walkback signal).
   6. Maestro flow `flow_card_action_intent_bar.yaml` validates LPP card → tap « explique » → 3-turn flow → cap → deep-link to Explorer.
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 96-01-PLAN.md — Wave 1 Flutter UI scaffold (chatTabVisible flag + MintCardActionBar 48dp animated row + MintChatOverlay scaffold + SerializedCardContext Dart mirror + 3 ARB keys × 6 locales + toml dep + 2 example card screens wired) [VERB-01, VERB-04]
+- [ ] 96-02-PLAN.md — Wave 2 Backend schemas + 3-turn cap (SerializedCardContext + NarrativeSleeve Pydantic v2 + CoachChatRequest/Response additive extensions + turn_cap.py in-memory counter + narrator <source_card> block + Sentry chat_overflow_turn_4) [VERB-02, VERB-03, VERB-05]
+- [ ] 96-03-PLAN.md — Wave 3 cross-stack close-out (NarrativeSleeve hook digit-free linter ReDoS-safe + Dart+Python metaphor_lookup + metaphors.toml v1 bootstrap + Maestro G1 flow_card_action_intent_bar.yaml + walkback test + G2 Julien sim checkpoint) [VERB-06]
 
 **Budget**: 5d
 **Auto profile**: **L2** (cross-stack: Flutter UI + backend chat + flag rollout) — full GSD chain ; Maestro G1 + creator-device G2 + soak metric (7-day) before flag-on in prod.
