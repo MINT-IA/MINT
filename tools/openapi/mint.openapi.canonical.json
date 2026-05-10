@@ -1255,6 +1255,7 @@
           "intent": {
             "anyOf": [
               {
+                "maxLength": 120,
                 "type": "string"
               },
               {

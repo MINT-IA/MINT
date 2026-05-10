@@ -111,8 +111,26 @@ class AnonymousChatRequest(BaseModel):
 
     intent: Optional[str] = Field(
         None,
+        max_length=120,
         description="Felt-state pill text selected by the user (e.g. 'Je me sens perdu').",
     )
+
+    @field_validator("intent")
+    @classmethod
+    def validate_intent_no_prompt_breakout(cls, v: Optional[str]) -> Optional[str]:
+        """Strip newlines and prompt-frame quotes — the field is rendered
+        inside the system prompt as «{intent}» and a malicious value
+        could break out and inject new instructions.
+        """
+        if v is None:
+            return None
+        cleaned = v.strip()
+        if not cleaned:
+            return None
+        for ch in ("\n", "\r", "«", "»"):
+            cleaned = cleaned.replace(ch, " ")
+        return cleaned[:120]
+
     language: str = Field(
         default="fr",
         description="Langue de la reponse: 'fr', 'de', 'en', 'it'.",
