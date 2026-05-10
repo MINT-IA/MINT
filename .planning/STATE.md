@@ -4,7 +4,7 @@ milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
 stopped_at: Completed 92.5-03-estv-oracle-PLAN.md (3 tasks, dbc72cc5/7cab5e1b/312d0df4)
-last_updated: "2026-05-10T10:32:29.347Z"
+last_updated: "2026-05-10T11:04:35.922Z"
 last_activity: 2026-05-09
 progress:
   total_phases: 10
