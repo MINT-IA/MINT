@@ -497,9 +497,10 @@ async def _run_eval(args: argparse.Namespace) -> int:
     if limit is not None and limit > 0:
         fixtures = fixtures[:limit]
     prompt_builder = getattr(args, "prompt_builder", "legacy")
+    gate_mode = getattr(args, "gate", "off")
     logger.info(
-        "loaded %d fixtures from %s (model=%s, dry_run=%s, prompt_builder=%s)",
-        len(fixtures), fixtures_path, args.model, args.dry_run, prompt_builder,
+        "loaded %d fixtures from %s (model=%s, dry_run=%s, prompt_builder=%s, gate=%s)",
+        len(fixtures), fixtures_path, args.model, args.dry_run, prompt_builder, gate_mode,
     )
     model_id = _NARRATOR_MODEL_IDS[args.model]
 
@@ -573,6 +574,106 @@ async def _run_eval(args: argparse.Namespace) -> int:
                 in_tok = 0
                 out_tok = 0
 
+        # ------------------------------------------------------------------
+        # Phase 94 (GATE-04) — citation gate Stage-3 instrumentation.
+        # When --gate=on, run citation_parser.gate() on the narrator output
+        # and record the verdict. On retry_needed=True, call the narrator
+        # a SECOND time with the reprompt addendum appended to the user
+        # message (D-08 retry-once budget) and re-gate with is_retry=True
+        # (collapses any rejection to FALLBACK, D-10 templated fallback).
+        # When --gate=off, gate_verdict is recorded as "bypass" — legacy
+        # behavior (byte-identical to today's eval).
+        # ------------------------------------------------------------------
+        gate_verdict_str: str = "bypass"
+        gate_retries: int = 0
+        gate_uncited_count: int = 0
+        gate_banned_claims_count: int = 0
+        tokens_total_with_retries: int = int(in_tok or 0)
+        latency_total_with_retries: float = float(latency_ms or 0.0)
+        if gate_mode == "on":
+            try:
+                from app.services.coach.citation_parser import gate as _citation_gate
+            except Exception as exc:  # noqa: BLE001
+                logger.error(
+                    "fixture %s — citation_parser import failed (%s) ; "
+                    "recording gate_verdict='import_error'",
+                    fixture.get("id"), type(exc).__name__,
+                )
+                _citation_gate = None  # type: ignore
+
+            if _citation_gate is not None and response_text:
+                try:
+                    gated = _citation_gate(
+                        response_text=response_text,
+                        ctx=None,
+                        citation_allowlist=None,  # eval uses global registry fallback
+                        is_retry=False,
+                    )
+                    gate_verdict_str = gated.verdict.value
+                    gate_uncited_count = int(gated.uncited_numbers_count or 0)
+                    gate_banned_claims_count = len(gated.banned_claims_found or ())
+
+                    if gated.retry_needed and not args.dry_run:
+                        # D-08 — retry once with reprompt addendum appended.
+                        retry_fixture = dict(fixture)
+                        retry_fixture["user_message"] = (
+                            (fixture.get("user_message") or "")
+                            + (gated.reprompt_addendum or "")
+                        )
+                        try:
+                            (
+                                retry_response, retry_in_tok,
+                                retry_out_tok, retry_latency_ms, _b,
+                            ) = await _generate_narrator_response(
+                                model_id=model_id,
+                                api_key=api_key,
+                                fixture=retry_fixture,
+                                prompt_builder=prompt_builder,
+                            )
+                            gate_retries = 1
+                            tokens_total_with_retries += int(retry_in_tok or 0)
+                            latency_total_with_retries += float(retry_latency_ms or 0.0)
+                        except Exception as exc:  # noqa: BLE001
+                            logger.error(
+                                "fixture %s retry call failed (%s) — using empty",
+                                fixture.get("id"), type(exc).__name__,
+                            )
+                            retry_response = ""
+
+                        retry_gated = _citation_gate(
+                            response_text=retry_response,
+                            ctx=None,
+                            citation_allowlist=None,
+                            is_retry=True,
+                        )
+                        gate_verdict_str = retry_gated.verdict.value
+                        gate_uncited_count = int(
+                            retry_gated.uncited_numbers_count or 0
+                        )
+                        gate_banned_claims_count = len(
+                            retry_gated.banned_claims_found or ()
+                        )
+                        # The gated_text is the surface a user would see —
+                        # adopt it as the scoring substrate for retries.
+                        response_text = retry_gated.gated_text
+                    elif not gated.retry_needed:
+                        # PASS / FALLBACK on first try — adopt gated_text
+                        # as the surface a user would actually see.
+                        response_text = gated.gated_text
+                except Exception as exc:  # noqa: BLE001
+                    logger.error(
+                        "fixture %s gate() raised (%s) — recording gate_verdict='gate_error'",
+                        fixture.get("id"), type(exc).__name__,
+                    )
+                    gate_verdict_str = "gate_error"
+
+        expected_outcome = fixture.get("expected_gate_outcome")
+        gate_correct: Optional[bool] = (
+            (gate_verdict_str == expected_outcome)
+            if (expected_outcome is not None and gate_mode == "on")
+            else None
+        )
+
         record = _score_fixture(
             fixture=fixture,
             response_text=response_text,
@@ -583,6 +684,19 @@ async def _run_eval(args: argparse.Namespace) -> int:
             prompt_builder=builder_label,
             prompt_tokens=prompt_tokens,
         )
+        # Phase 94 — gate outcome fields, recorded in every record so the
+        # JSON output is the deterministic citation for EVAL-RESULTS.
+        record["gate_mode"] = gate_mode
+        record["gate_verdict"] = gate_verdict_str
+        record["expected_gate_outcome"] = expected_outcome
+        record["gate_correct"] = gate_correct
+        record["gate_retries"] = gate_retries
+        record["gate_uncited_numbers_count"] = gate_uncited_count
+        record["gate_banned_claims_count"] = gate_banned_claims_count
+        record["tokens_total_with_retries"] = tokens_total_with_retries
+        record["latency_total_with_retries_ms"] = round(
+            latency_total_with_retries, 2
+        )
         records.append(record)
         if idx % 10 == 0 or idx == len(fixtures):
             logger.info("scored %d/%d fixtures", idx, len(fixtures))
@@ -591,7 +705,37 @@ async def _run_eval(args: argparse.Namespace) -> int:
     # Per Plan 04 — surface average prompt_tokens at aggregate level so the
     # operator can read cost regression directly off the JSON without
     # re-walking records.
+    # Phase 94 Plan 03 — additionally surface gate-correct rate when --gate=on
+    # so EVAL-RESULTS can read the Stage-3 thresholds directly off the JSON.
     if records:
+        # Gate-correct aggregates (Phase 94, GATE-04 Stage 3 thresholds).
+        gate_records = [r for r in records if r.get("gate_mode") == "on"]
+        gate_correct_records = [r for r in gate_records if r.get("gate_correct") is True]
+        retry_records = [r for r in gate_records if int(r.get("gate_retries") or 0) >= 1]
+        fallback_records = [r for r in gate_records if r.get("gate_verdict") == "fallback"]
+        aggregate["gate_mode"] = gate_mode
+        aggregate["gate_count_runs"] = len(gate_records)
+        aggregate["gate_correct"] = len(gate_correct_records)
+        aggregate["gate_retry_rate"] = (
+            round(len(retry_records) / len(gate_records), 4)
+            if gate_records else 0.0
+        )
+        aggregate["gate_fallback_rate"] = (
+            round(len(fallback_records) / len(gate_records), 4)
+            if gate_records else 0.0
+        )
+        aggregate["avg_tokens_total_with_retries"] = round(
+            sum(int(r.get("tokens_total_with_retries") or 0) for r in records)
+            / len(records),
+            2,
+        )
+        aggregate["avg_latency_total_with_retries_ms"] = round(
+            sum(
+                float(r.get("latency_total_with_retries_ms") or 0.0) for r in records
+            )
+            / len(records),
+            2,
+        )
         aggregate["avg_prompt_tokens"] = round(
             sum(int(r.get("prompt_tokens") or 0) for r in records) / len(records), 2
         )
@@ -615,8 +759,16 @@ async def _run_eval(args: argparse.Namespace) -> int:
 
     summary = (
         f"MODEL_EVAL: model={args.model} prompt_builder={prompt_builder} "
+        f"gate={gate_mode} "
         f"all_three_pass={aggregate['all_three_pass']}/{aggregate['total']}"
     )
+    if gate_mode == "on":
+        summary += (
+            f" gate_correct={aggregate.get('gate_correct', 0)}/"
+            f"{aggregate.get('gate_count_runs', 0)}"
+            f" fallback_rate={aggregate.get('gate_fallback_rate', 0.0):.4f}"
+            f" retry_rate={aggregate.get('gate_retry_rate', 0.0):.4f}"
+        )
     print(summary)
     return 0
 
@@ -721,6 +873,17 @@ def _build_parser() -> argparse.ArgumentParser:
             "'legacy' uses build_narrator_system_prompt (default, baseline). "
             "'bundle' uses build_narrator_system_prompt_from_bundles "
             "(skill-bundle compiler, kwargs-only signature per C3 fix)."
+        ),
+    )
+    ap.add_argument(
+        "--gate",
+        choices=["on", "off"],
+        default="off",
+        help=(
+            "Phase 94 (GATE-04) — citation gate runtime mode. "
+            "'off' (default) bypasses the gate (legacy behavior, byte-identical). "
+            "'on' runs the gate ; rejected fixtures retry once with reprompt ; "
+            "second-failure -> templated fallback (D-10)."
         ),
     )
     ap.add_argument(
