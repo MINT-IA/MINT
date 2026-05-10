@@ -952,13 +952,47 @@ def build_narrator_system_prompt(
 
     Used by `coach_chat.py` when `COACH_DUAL_LLM_ENABLED=True`. The legacy
     `build_system_prompt` remains the flag-OFF default.
+
+    Phase 94.1 Wave 4 — when `settings.COACH_CITATION_GATE_ENABLED=True`,
+    the citation-grammar fragment from `app.services.coach.citation_grammar`
+    is appended at the end of the assembled prompt (separator
+    `\\n\\n---\\n\\n` mirrors the bundle compiler's join). When the flag is
+    OFF (default), the prompt is byte-identical to the pre-94.1 output —
+    invariant pinned by `tests/test_citation_gate/
+    test_byte_identity_flag_off.py` and `tests/test_coach_chat_bundles.py::
+    test_flag_off_byte_identical_to_snapshot` (5 fixtures × 2 tests).
     """
-    return _build_prompt(
+    base = _build_prompt(
         base_template=_NARRATOR_BASE_SYSTEM_PROMPT,
         ctx=ctx,
         language=language,
         cash_level=cash_level,
     )
+
+    # Phase 94.1 Wave 4 — flag-conditional citation-grammar append.
+    # Read env var directly (NOT via `settings.X`) to mirror the existing
+    # deferred-import pattern at lines 61-69 (avoids circular import via
+    # `app.core.config` during early FastAPI module-graph load).
+    if os.getenv("COACH_CITATION_GATE_ENABLED", "").lower() == "true":
+        from app.services.coach.citation_grammar import (
+            CITATION_GRAMMAR_FRAGMENT,
+        )
+        return base + "\n\n---\n\n" + CITATION_GRAMMAR_FRAGMENT
+
+    # Defensive fallback : also honor the live `settings` object if the
+    # caller has set the attribute directly (e.g. in-process tests using
+    # `monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", True)`).
+    try:
+        from app.core.config import settings as _settings
+        if getattr(_settings, "COACH_CITATION_GATE_ENABLED", False):
+            from app.services.coach.citation_grammar import (
+                CITATION_GRAMMAR_FRAGMENT,
+            )
+            return base + "\n\n---\n\n" + CITATION_GRAMMAR_FRAGMENT
+    except Exception:  # noqa: BLE001 — defensive ; fall through to base
+        pass
+
+    return base
 
 
 def build_narrator_system_prompt_from_bundles(

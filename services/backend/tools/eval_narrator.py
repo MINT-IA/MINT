@@ -504,6 +504,35 @@ async def _run_eval(args: argparse.Namespace) -> int:
     )
     model_id = _NARRATOR_MODEL_IDS[args.model]
 
+    # Phase 94.1 Wave 4 instrumentation — when --gate=on, propagate
+    # COACH_CITATION_GATE_ENABLED=True for the duration of the run so the
+    # legacy-path narrator system prompt picks up the citation-grammar
+    # fragment (`build_narrator_system_prompt` reads the env var per
+    # `claude_coach_service.py` :976) AND the bundle-path compiler picks
+    # up the CitationGrammarBundle (`bundle_compiler.compile_bundles`
+    # reads `settings.COACH_CITATION_GATE_ENABLED`). This makes Stage 3
+    # eval measure the FATTENED prompt instead of the unchanged Phase 94
+    # baseline. The original env value is restored at function exit.
+    _gate_env_original = os.environ.get("COACH_CITATION_GATE_ENABLED")
+    _gate_settings_original: Optional[bool] = None
+    if gate_mode == "on":
+        os.environ["COACH_CITATION_GATE_ENABLED"] = "true"
+        try:
+            from app.core.config import settings as _live_settings
+            _gate_settings_original = bool(
+                getattr(_live_settings, "COACH_CITATION_GATE_ENABLED", False)
+            )
+            _live_settings.COACH_CITATION_GATE_ENABLED = True  # type: ignore[attr-defined]
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "failed to flip live settings.COACH_CITATION_GATE_ENABLED (%s) — "
+                "env-var path still propagates, bundle-path may not pick up the fragment",
+                type(exc).__name__,
+            )
+        logger.info(
+            "94.1 — propagated COACH_CITATION_GATE_ENABLED=true (env + settings) for the run"
+        )
+
     api_key = ""
     if not args.dry_run:
         api_key = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -770,6 +799,24 @@ async def _run_eval(args: argparse.Namespace) -> int:
             f" retry_rate={aggregate.get('gate_retry_rate', 0.0):.4f}"
         )
     print(summary)
+
+    # Phase 94.1 Wave 4 — restore COACH_CITATION_GATE_ENABLED to its
+    # original value (env var + live settings) so the eval harness is
+    # reentrant and does not bleed state into a subsequent in-process call.
+    if gate_mode == "on":
+        if _gate_env_original is None:
+            os.environ.pop("COACH_CITATION_GATE_ENABLED", None)
+        else:
+            os.environ["COACH_CITATION_GATE_ENABLED"] = _gate_env_original
+        if _gate_settings_original is not None:
+            try:
+                from app.core.config import settings as _live_settings
+                _live_settings.COACH_CITATION_GATE_ENABLED = (  # type: ignore[attr-defined]
+                    _gate_settings_original
+                )
+            except Exception:  # noqa: BLE001 — best-effort restore
+                pass
+
     return 0
 
 
