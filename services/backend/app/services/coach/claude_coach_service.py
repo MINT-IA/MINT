@@ -28,6 +28,8 @@ Sources:
     - docs/VOICE_SYSTEM.md
 """
 
+import os
+import warnings
 from typing import Optional
 
 from app.services.coach.coach_models import CoachContext
@@ -41,6 +43,30 @@ __all__ = [
     "COACH_TOOLS",
     "INTERNAL_TOOL_NAMES",
 ]
+
+
+# ---------------------------------------------------------------------------
+# Phase 93.5 Plan 04 (BUNDLE-04, H5) — deprecation signal at import time.
+#
+# When the bundle-compiler flag is ON, emit a DeprecationWarning so any
+# tooling that imports this module sees the legacy narrator base prompt
+# is on its way out. Deletion is deferred to Phase 95 per CONTEXT D-19
+# (the legacy path remains the byte-identity reference until prod traffic
+# has run on the bundle path for ≥4 weeks with zero rollback incidents).
+#
+# Reading the env var directly (NOT settings.X) avoids a circular import
+# via app.core.config when this module is loaded early in the FastAPI
+# import graph.
+# ---------------------------------------------------------------------------
+if os.getenv("COACH_BUNDLE_COMPILER_ENABLED", "").lower() == "true":
+    warnings.warn(
+        "_NARRATOR_BASE_SYSTEM_PROMPT is superseded by the bundle "
+        "compiler (Phase 93.5). Deletion is deferred to Phase 95 per "
+        "CONTEXT D-19. Update consumers to call "
+        "build_narrator_system_prompt_from_bundles instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -725,6 +751,21 @@ CONNAISSANCES SUISSES (n'utilise ces faits QUE si la conversation l'amène — n
 # in Phase 91 Wave 2). Not wired in Wave 0. Composed from the three non-
 # extraction parts of the legacy prompt; the `{banned_terms}` and other
 # format slots remain so a future caller can `.format(...)` it identically.
+#
+# DEPRECATED — to be deleted in Phase 95 per CONTEXT D-19.
+# Bundle-compiler path (Phase 93.5, COACH_BUNDLE_COMPILER_ENABLED=true)
+# supersedes this monolithic prompt. See:
+#   - .planning/phases/93.5-mvp-skill-bundle-compiler-inserted-2026-05-10/93.5-CONTEXT.md (D-19)
+#   - services/backend/app/services/coach/bundles/ (replacement)
+# Deletion criteria : Phase 95 unblock = ≥4 weeks of prod traffic with
+# bundle path AT 100% (no flag-OFF traffic) + zero rollback-triggering
+# incidents. Until then both paths coexist (legacy path is the byte-identity
+# regression reference for tests/test_coach_chat_bundles.py).
+# Plan 93.5-04 Task 2 (H5 fix) ships the deprecation signal:
+#   - This grep-able marker comment (BUNDLE-04 wording).
+#   - An import-time DeprecationWarning when COACH_BUNDLE_COMPILER_ENABLED=true
+#     (top of this module). The constant value itself is UNCHANGED — D-19's
+#     deletion deferral is honored.
 _NARRATOR_BASE_SYSTEM_PROMPT = (
     _PROMPT_PART_PREFIX + _PROMPT_PART_MIDDLE + _PROMPT_PART_SUFFIX
 )
