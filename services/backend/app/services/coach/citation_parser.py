@@ -50,7 +50,7 @@ _FR_LETTER = r"a-zA-ZÀ-ÿ"
 #    space tolerated as group separator. Decimals via `,` or `.`. Unit MUST
 #    follow the digits (D-02 spec — `CHF 80000` is out of scope).
 _RE_CURRENCY = re.compile(
-    r"\b\d{1,3}(?:['  ]\d{3})*(?:[.,]\d{1,2})?\s*(?:CHF|chf|EUR|eur|USD|usd|fr\.?|francs?)\b"
+    r"\b(?:\d{1,3}(?:['  ]\d{3})+|\d+)(?:[.,]\d{1,2})?\s*(?:CHF|chf|EUR|eur|USD|usd|fr\.?|francs?)\b"
 )
 
 # 2. Percentages — `4%`, `4.5%`, `4,5%`, `100 %`.

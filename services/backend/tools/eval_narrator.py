@@ -230,70 +230,20 @@ def _word_boundary_pattern(term: str) -> re.Pattern[str]:
 
 
 # Wave 4 (Phase 93.5 H8 follow-up) — meta-quote / negation context aware scorer.
-# The legacy regex flagged narrator outputs like « Aucun 3a n'est garanti » or
-# « Pas de "meilleur" universel » as banned-term failures. Those are actually
-# the LUCID compliance behavior MINT wants — the narrator is REFUTING the
-# user's banned claim, not asserting it. The scorer below excuses two patterns:
-#   1. Term preceded by FR negation in the same sentence ("aucun X n'est <T>",
-#      "pas de <T>", "n'est pas <T>", "n'existe pas", "il n'y a pas", "jamais").
-#   2. Term wrapped in quotes (« <T> », "<T>", '<T>') — meta-quoting the term
-#      to refute it.
-# Phase 94 CITATION-GATE will further excuse uses backed by an explicit
-# regulator citation (FINMA / LIFD / LPP); for now those are not auto-excused.
-_NEGATION_RE = re.compile(
-    r"\b(?:aucun(?:e|s)?|pas\s+(?:de|d['’])|n['’]est\s*(?:pas)?|n['’]existe\s*pas"
-    r"|il\s+n['’]y\s+a\s+pas|sans\s+aucun(?:e)?|jamais)\b",
-    re.IGNORECASE,
+# Phase 94 Plan 94-01 Task 2 refactor (D-03) :
+#   The legacy meta-helpers (`_is_meta_quoted` + `_is_meta_negation` + the
+#   `_NEGATION_RE` lexicon, originally defined here at lines 243-296) have
+#   moved to `app/services/coach/citation_parser.py` as PUBLIC API
+#   (`is_meta_quoted` / `is_meta_negation` — no leading underscore) so they
+#   can be consumed by both runtime gate and eval-time scorer.
+#   The eval-local underscore aliases below preserve backward compat —
+#   `_score_banned_terms` (further down) keeps calling `_is_meta_quoted` /
+#   `_is_meta_negation` unchanged.
+# Single source of truth — D-03.
+from app.services.coach.citation_parser import (  # noqa: E402
+    is_meta_negation as _is_meta_negation,
+    is_meta_quoted as _is_meta_quoted,
 )
-
-
-def _is_meta_quoted(response: str, match_start: int, match_end: int) -> bool:
-    """True if the match is wrapped in a quote pair on the same line."""
-    # Find line boundaries around the match
-    line_start = response.rfind("\n", 0, match_start) + 1
-    line_end_idx = response.find("\n", match_end)
-    line_end = line_end_idx if line_end_idx != -1 else len(response)
-    pre = response[line_start:match_start]
-    post = response[match_end:line_end]
-
-    # French guillemets
-    if "«" in pre and "»" in post:
-        # Make sure the « is unmatched in `pre` (i.e. the term is INSIDE)
-        if pre.count("«") > pre.count("»") and post.count("»") > post.count("«"):
-            return True
-    # Straight double quotes — odd count before AND after means we're inside
-    if pre.count('"') % 2 == 1 and post.count('"') % 2 == 1:
-        return True
-    # Curly double quotes
-    if "“" in pre and "”" in post:
-        if pre.count("“") > pre.count("”") and post.count("”") > post.count("“"):
-            return True
-    return False
-
-
-def _is_meta_negation(response: str, match_start: int, match_end: int) -> bool:
-    """True if a FR negation marker appears in the same sentence as the match.
-
-    Negation can be either before the term ("aucun X n'est <T>") or after
-    it ("le <T> n'existe pas"). The scope is the sentence boundary on both
-    sides — the marker MUST be in the same sentence, not just nearby.
-    """
-    boundary_re = re.compile(r"[.!?]\s+|\n\n")
-
-    # Sentence start: walk back from the match through any sentence boundary
-    sentence_start = max(0, match_start - 250)
-    for m in boundary_re.finditer(response[sentence_start:match_start]):
-        sentence_start = sentence_start + m.end()
-
-    # Sentence end: walk forward from the match through next boundary
-    horizon_end = min(len(response), match_end + 250)
-    sentence_end = horizon_end
-    m = boundary_re.search(response[match_end:horizon_end])
-    if m:
-        sentence_end = match_end + m.start()
-
-    sentence = response[sentence_start:sentence_end]
-    return bool(_NEGATION_RE.search(sentence))
 
 
 def _score_banned_terms(
