@@ -38,6 +38,19 @@ these scripts MUST actually run end-to-end — they are not documentation.
 
 ## Required env
 
+- **Java 17+ (for Maestro CLI).** Maestro is a JVM binary launcher at
+  `~/.maestro/bin/maestro`. macOS ships no JDK ; install via Homebrew :
+  ```sh
+  brew install openjdk
+  ```
+  Then ALWAYS invoke Maestro through `tools/simulator/maestro_env.sh`,
+  which exports `JAVA_HOME=/opt/homebrew/opt/openjdk/libexec/openjdk.jdk/Contents/Home`
+  and PATH. Calling `~/.maestro/bin/maestro` directly fails with
+  `Unable to locate a Java Runtime` on a fresh macOS box. The wrapper
+  is sudo-free (no `/Library/Java/JavaVirtualMachines/` symlink needed).
+  Java 25 currently emits JANSI deprecation warnings ; track but do not
+  treat as failure.
+
 - **`SENTRY_AUTH_TOKEN`** — Sentry API token with minimal scopes
   `org:read project:read event:read` (NO write/admin). Created via Sentry
   UI → User Settings → Auth Tokens. Stored locally in macOS Keychain:
@@ -71,6 +84,15 @@ bash tools/simulator/walker.sh --smoke-test-inject-error
 # Phase 31 gate mini-suite (smoke + OBS-02/04/05 assertions when Wave 1 lands)
 bash tools/simulator/walker.sh --gate-phase-31
 
+# Archetype walkthrough (fails if screenshots do not evolve enough)
+bash tools/simulator/walker.sh --archetype swiss_native --scenario retraite
+
+# Same walkthrough with optional Maestro orchestration first
+bash tools/simulator/walker.sh --archetype swiss_native --use-maestro
+
+# Relax strict visual diversity gate (debug only)
+MINT_WALKER_STRICT=0 bash tools/simulator/walker.sh --archetype swiss_native
+
 # OBS-04 (b) round-trip integration — curl staging with sentry-trace header
 bash tools/simulator/trace_round_trip_test.sh
 
@@ -90,3 +112,5 @@ so future Julien / agents don't repeat the debug. Keep this table honest.
 | macOS | Xcode | Simulator iOS | Symptom | Workaround |
 |-------|-------|---------------|---------|------------|
 | _(empty at Wave 0 — fill as we hit issues)_ | | | | |
+| 26 / Tahoe | n/a | n/a | `~/.maestro/bin/maestro --version` returns "Unable to locate a Java Runtime" | Always invoke Maestro through `tools/simulator/maestro_env.sh` ; brew openjdk is keg-only and the system Java shim doesn't auto-discover it. |
+| 26 / Tahoe | n/a | iOS 26.2 sim | `flow_drawer_navigation_smoke.yaml` asserts "Explorer" visible → FAILED (2026-05-09 smoke) | Drawer item rename suspected ; flow needs updating to text/id of current drawer entry. Tracked as L2 stabilization item. |

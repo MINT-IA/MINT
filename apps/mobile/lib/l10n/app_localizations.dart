@@ -8344,6 +8344,24 @@ abstract class S {
   /// **'⚠️ FATCA — Seule une minorité de prestataires accepte (ex. Raiffeisen)'**
   String get financialSummaryFatcaWarning;
 
+  /// FATCA gate panel title shown on the 3a simulator when canContribute3a is false (US persons / green card).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilier 3a — accès limité (FATCA)'**
+  String get sim3aFatcaGateTitle;
+
+  /// FATCA gate body explaining why the 3a simulator is not actionable for US persons + alternatives.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton statut FATCA limite l\'accès au pilier 3a en Suisse. La majorité des prestataires refuse les personnes US ou titulaires d\'une green card. Avant de simuler des versements, vérifie qu\'un prestataire t\'accepte (ex. Raiffeisen) et envisage des leviers alternatifs : libre passage, optimisation hypothécaire, investissement libre.'**
+  String get sim3aFatcaGateBody;
+
+  /// FATCA gate CTA — opens an alternatives screen / coach prompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les alternatives au 3a'**
+  String get sim3aFatcaGateAction;
+
   /// No description provided for @financialSummaryModifierPrevoyance.
   ///
   /// In fr, this message translates to:
@@ -13779,7 +13797,7 @@ abstract class S {
   /// No description provided for @authBenefitProjections.
   ///
   /// In fr, this message translates to:
-  /// **'Projections AVS/LPP alignées à ta situation'**
+  /// **'Projections financières adaptées à tes choix de vie (logement, fiscalité, prévoyance, famille…)'**
   String get authBenefitProjections;
 
   /// No description provided for @authBenefitCoach.

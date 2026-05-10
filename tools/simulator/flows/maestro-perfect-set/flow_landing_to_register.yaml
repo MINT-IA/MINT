@@ -1,0 +1,119 @@
+# tools/simulator/flows/maestro-perfect-set/flow_landing_to_register.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Validates the anon-to-register happy-path funnel :
+#   landing → "Parle à Mint" → anonymous chat → "Créer un compte" →
+#   /auth/register screen visible.
+#
+# This is the canonical conversion path. Any locator drift here breaks
+# the anon-funnel acquisition metric, so Maestro green is a release gate.
+#
+# ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
+# Archetype-agnostic. Reads literal FR strings from app_fr.arb so it
+# runs identically for any seeded archetype. Does NOT exercise the
+# éclairage kind pipeline (that's flows/julien_swiss.yaml).
+#
+# ─── EXPECTED DURATION ─────────────────────────────────────────────────
+# < 25s wall-clock on iPhone 17 Pro sim (cold launch + 4 taps + register
+# screen render + 4 screenshots).
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim with bundle id ch.mint.app
+# - Logged-out state (no auth token in keychain). If a previous run left
+#   an auth token, the harness MUST `xcrun simctl uninstall + install`
+#   before invoking this flow ; Maestro alone cannot wipe keychain.
+# - dart-defines (recommended, NOT strictly required) :
+#     MINT_DISABLE_BETA_MODAL=true   (skips beta gate that would hide CTA)
+#
+# ─── LOCATOR STRATEGY ──────────────────────────────────────────────────
+# Semantic locators ONLY :
+#   - landing hero    : `Voir clair, décider seul.` (l10n.landingV3Hero)
+#   - landing CTA     : `Parle à Mint` (l10n.landingV2CtaSober)
+#   - anon input hint : `Écris ce qui te trotte en tête…` (l10n.anonymousChatInputHint)
+#   - anon LSFin line : `Information générale, pas un conseil financier personnalisé.`
+#                       (l10n.anonymousChatLsfinDisclaimer)
+#   - register CTA    : `Créer un compte` (l10n.anonymousChatCreateAccount)
+#                       — visible AFTER auth-gate triggers (3 messages
+#                       sent OR _isAuthGateLocked=true). For pure happy-
+#                       path we exit via login link instead, see below.
+#   - register screen : `Créer ton compte` (l10n.authRegisterTitle)
+#                       OR `Adresse e-mail` (l10n.authEmail)
+#
+# IMPORTANT — `anon-chat-opener-bubble` / `anon-chat-input` /
+# `anon-chat-register-cta` ValueKeys referenced in flows/julien_swiss.yaml
+# DO NOT EXIST in the Flutter source (verified 2026-05-08 grep on
+# apps/mobile/lib/). This flow uses text-based locators that are present
+# in the codebase to avoid the same drift.
+#
+# ─── OUTPUT ────────────────────────────────────────────────────────────
+# Screenshots written to maestro's --output-dir (set by harness, never
+# /tmp). Convention :
+#   .planning/walker/maestro-flows/landing-to-register/<run-id>/
+#     ├── 01-landing.png
+#     ├── 02-anon-chat-opener.png
+#     ├── 03-message-sent.png
+#     └── 04-register-screen.png
+
+appId: ch.mint.app
+tags:
+  - acquisition
+  - funnel
+  - anon
+  - register
+  - happy-path
+---
+
+# 01 — cold launch landing visible
+- launchApp:
+    clearState: false   # do NOT wipe state ; preserves dart-defines
+- extendedWaitUntil:
+    visible:
+      text: "Voir clair, décider seul."
+    timeout: 8000
+- takeScreenshot: "01-landing"
+
+# 02 — tap landing CTA → anonymous chat opener
+- tapOn:
+    text: "Parle à Mint"
+- extendedWaitUntil:
+    visible:
+      text: "Écris ce qui te trotte en tête…"
+    timeout: 6000
+# LSFin disclaimer must be visible per anonymous_chat_screen.dart §1.4
+- assertVisible:
+    text: "Information générale, pas un conseil financier personnalisé."
+- takeScreenshot: "02-anon-chat-opener"
+
+# 03 — type a message + submit (drives the funnel forward, exposes
+# « Créer un compte » CTA after _isAuthGateLocked toggles).
+- tapOn:
+    text: "Écris ce qui te trotte en tête…"
+- inputText: "J'aimerais comprendre comment optimiser mon 3e pilier"
+- pressKey: Enter
+# Wait for assistant reply ; coach replies render via Semantics(label: « Réponse du coach »).
+- extendedWaitUntil:
+    visible:
+      text: "Réponse du coach"
+    timeout: 30000
+- takeScreenshot: "03-message-sent"
+
+# 04 — scroll to surface the register CTA. Anonymous chat caps free turns
+# then sets `_isAuthGateLocked=true` ; the persistent « Créer un compte »
+# button appears at the bottom. We scroll once (scrollable input area)
+# in case the chat thread pushed it offscreen.
+- scroll
+- extendedWaitUntil:
+    visible:
+      text: "Créer un compte"
+    timeout: 8000
+
+# 05 — tap register CTA → /auth/register
+- tapOn:
+    text: "Créer un compte"
+- extendedWaitUntil:
+    visible:
+      text: "Créer ton compte"
+    timeout: 6000
+- assertVisible:
+    text: "Adresse e-mail"
+- takeScreenshot: "04-register-screen"

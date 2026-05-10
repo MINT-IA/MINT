@@ -4595,6 +4595,16 @@ class SDe extends S {
       '⚠️ FATCA — Nur eine Minderheit der Anbieter akzeptiert (z.B. Raiffeisen)';
 
   @override
+  String get sim3aFatcaGateTitle => 'Säule 3a — eingeschränkter Zugang (FATCA)';
+
+  @override
+  String get sim3aFatcaGateBody =>
+      'Dein FATCA-Status schränkt den Zugang zur Säule 3a in der Schweiz ein. Die meisten Anbieter lehnen US-Personen oder Green-Card-Inhaber ab. Bevor du Einzahlungen simulierst, vergewissere dich, dass ein Anbieter dich akzeptiert (z.B. Raiffeisen) und erwäge alternative Hebel: Freizügigkeitsguthaben, Hypothekenoptimierung, freies Investment.';
+
+  @override
+  String get sim3aFatcaGateAction => 'Alternativen zur Säule 3a anzeigen';
+
+  @override
   String get financialSummaryModifierPrevoyance => 'Vorsorge bearbeiten';
 
   @override
@@ -7772,7 +7782,7 @@ class SDe extends S {
 
   @override
   String get authBenefitProjections =>
-      'AHV/BVG-Projektionen auf deine Situation abgestimmt';
+      'Finanzielle Projektionen passend zu deinen Lebensentscheidungen (Wohnen, Steuern, Vorsorge, Familie…)';
 
   @override
   String get authBenefitCoach => 'Persönlicher Coach mit deinem Vornamen';

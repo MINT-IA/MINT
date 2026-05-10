@@ -212,7 +212,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           title: S.of(context)!.retroactive3aEmptyTitle,
           subtitle: S.of(context)!.retroactive3aEmptySubtitle,
           ctaLabel: S.of(context)!.retroactive3aEmptyCta,
-          onCta: () => context.go('/coach/chat'),
+          // B7-cascade fix 2026-05-09 : push (not go) so the user can
+          // back-out of the coach without losing this empty-state screen.
+          onCta: () => context.push('/coach/chat'),
         ),
       );
     }

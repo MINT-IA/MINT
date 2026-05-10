@@ -4588,6 +4588,16 @@ class SEs extends S {
       '⚠️ FATCA — Solo una minoría de proveedores acepta (ej. Raiffeisen)';
 
   @override
+  String get sim3aFatcaGateTitle => 'Pilar 3a — acceso limitado (FATCA)';
+
+  @override
+  String get sim3aFatcaGateBody =>
+      'Tu estatus FATCA limita el acceso al pilar 3a en Suiza. La mayoría de los proveedores rechaza a las personas estadounidenses o titulares de green card. Antes de simular aportaciones, confirma que un proveedor te acepte (ej. Raiffeisen) y considera palancas alternativas: prestaciones de salida, optimización hipotecaria, inversión libre.';
+
+  @override
+  String get sim3aFatcaGateAction => 'Ver alternativas al 3a';
+
+  @override
   String get financialSummaryModifierPrevoyance => 'Modificar previsión';
 
   @override
@@ -7756,7 +7766,7 @@ class SEs extends S {
 
   @override
   String get authBenefitProjections =>
-      'Proyecciones AVS/LPP adaptadas a tu situación';
+      'Proyecciones financieras adaptadas a tus decisiones de vida (vivienda, fiscalidad, previsión, familia…)';
 
   @override
   String get authBenefitCoach => 'Coach personalizado con tu nombre';

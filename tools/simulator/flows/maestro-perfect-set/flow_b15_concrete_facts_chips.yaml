@@ -1,0 +1,53 @@
+# tools/simulator/flows/maestro-perfect-set/flow_b15_concrete_facts_chips.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Regression guard for B15 (PR #535) — has-facts gate on
+# suggest_actions chips. Bug : concrete-facts user message still
+# triggered generic « D'où vient ton argent » chip. Fix :
+# `_has_concrete_facts(message)` regex scan + `_compute_suggested_actions`
+# accepts last_user_message + fact_keys_saved_this_turn ; agent loop
+# reorders save_fact before suggest_actions.
+#
+# ─── MAESTRO 2.5.1 SYNTAX NOTES ────────────────────────────────────────
+# Same as flow_b14. Regex locators, no timeout on assertVisible.
+
+appId: ch.mint.app
+tags:
+  - regression
+  - b15
+  - perimeter-2026-05-09
+  - suggest-actions-chips
+---
+
+# 01 — cold launch
+- launchApp:
+    clearState: false
+- assertVisible: "Parle à Mint"
+- takeScreenshot: "01-landing"
+
+# 02 — open anon chat
+- tapOn: "Parle à Mint"
+- extendedWaitUntil:
+    visible:
+      text: ".*Écris ce qui te trotte.*"
+    timeout: 8000
+
+# 03 — type concrete-facts message + submit
+- tapOn:
+    text: ".*Écris ce qui te trotte.*"
+- inputText: "j'ai 50000 CHF de dettes à 8 pourcent depuis 2024"
+- pressKey: Enter
+- takeScreenshot: "02-concrete-facts-typed"
+
+# 04 — wait for coach response (LSFin disclaimer renders persistently)
+- extendedWaitUntil:
+    visible:
+      text: ".*Information générale.*"
+    timeout: 35000
+- takeScreenshot: "03-chips-rendered"
+
+# 05 — REGRESSION GUARD : « D'où vient ton argent » chip must NOT
+# appear because the user volunteered concrete facts AND save_fact
+# would have run for totalDebt / debtInterestRate.
+- assertNotVisible:
+    text: ".*D.où vient ton argent.*"

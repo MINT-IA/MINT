@@ -300,6 +300,17 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     final l = S.of(context)!;
     final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
 
+    // Audit fix 2026-05-09 (perimeter STUB
+    // .planning/decisions/2026-05-09-perimeter-fatca-calculator-gate/):
+    // FATCA-affected users (US citizens / green card holders) are blocked
+    // from most Swiss 3a providers (LSFin compliance + PFIC). Render a
+    // calm explainer instead of the simulator inputs so the user does
+    // not waste effort filling fields they can't act on.
+    final coachProfile = context.select<CoachProfileProvider, CoachProfile?>(
+      (p) => p.profile,
+    );
+    final isFatcaBlocked = coachProfile != null && !coachProfile.canContribute3a;
+
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturn();
@@ -312,7 +323,9 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         title: Text(l.sim3aTitle, style: MintTextStyles.headlineMedium()),
         actions: const [],
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
+      body: isFatcaBlocked
+          ? _buildFatcaGateBody()
+          : Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -345,6 +358,75 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           ],
         ),
       )))),
+    );
+  }
+
+  /// Audit fix 2026-05-09 (perimeter STUB
+  /// .planning/decisions/2026-05-09-perimeter-fatca-calculator-gate/):
+  /// FATCA gate body. Rendered instead of the simulator inputs when the
+  /// user is FATCA-affected (US person / green card) and Swiss 3a
+  /// providers refuse them. Calm explainer + CTA to coach for
+  /// alternative levers.
+  Widget _buildFatcaGateBody() {
+    final l = S.of(context)!;
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: MintSpacing.lg,
+            vertical: MintSpacing.lg,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              MintSurface(
+                tone: MintSurfaceTone.porcelaine,
+                padding: const EdgeInsets.all(MintSpacing.lg),
+                radius: 20,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.flag_outlined,
+                            color: MintColors.primary, size: 28),
+                        const SizedBox(width: MintSpacing.sm),
+                        Expanded(
+                          child: Text(
+                            l.sim3aFatcaGateTitle,
+                            style: MintTextStyles.titleLarge(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: MintSpacing.md),
+                    Text(
+                      l.sim3aFatcaGateBody,
+                      style: MintTextStyles.bodyMedium(),
+                    ),
+                    const SizedBox(height: MintSpacing.lg),
+                    FilledButton.icon(
+                      onPressed: () {
+                        // Route to coach with FATCA context — coach has the
+                        // alternative-levers playbook and respects
+                        // archetype-aware doctrine via system prompt.
+                        context.push(
+                          '/coach?intent=fatca_3a_alternatives',
+                        );
+                      },
+                      icon: const Icon(Icons.chat_outlined),
+                      label: Text(l.sim3aFatcaGateAction),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: MintSpacing.xl),
+              _buildDisclaimer(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

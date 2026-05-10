@@ -302,4 +302,35 @@ class MintColors {
   /// trajectory base scenario legend on S0-S5.
   static const Color infoAaa = Color(0xFF004FA3);
 
+  // ============ MINT v2 PHASE 92 — Menthe-vive accent + dark palette ============
+  // Added 2026-05-09 (Phase 92 MVP-FONTS-TOKENS-V2 / FONT-02 / FONT-04).
+  // Source: .planning/decisions/2026-05-08-perimeter-mvp-fonts-tokens-v2/STUB.md
+  // Hex `#7DD3B5` is the STUB pixel-sample default. Julien may adjust at G2.
+  // Common alternates documented for fast pivot: #7BC3A4, #82DABA, #6BC9A8.
+
+  /// Menthe-vive — MINT v2 accent color (vert-cyan vif).
+  /// STUB pixel-sample default. Used on hero highlights, CTA accent rings,
+  /// chip-active fills. Pair with [inkPrimary] text for ≥4.5:1 contrast.
+  static const Color mentheVive = Color(0xFF7DD3B5);
+
+  /// Menthe-vive at 12% alpha — surface tint for selected chips, subtle
+  /// hover/pressed surfaces. ARGB = `0x1F7DD3B5` (alpha 31/255 ≈ 0.122).
+  static const Color mentheVive12 = Color(0x1F7DD3B5);
+
+  // ── Dark palette (token drop only — per-screen migration deferred to MVP-DARK-MODE-V1) ──
+
+  /// Dark mode page background — near-black with warm undertone.
+  static const Color darkBg = Color(0xFF0F1411);
+
+  /// Dark mode primary text — warm off-white, NOT pure white.
+  static const Color darkInk = Color(0xFFEDEAE3);
+
+  /// Dark mode secondary text — softer warm grey for metadata, hints.
+  static const Color darkInkSoft = Color(0xFFA8A39A);
+
+  /// Dark mode subtle hairline divider — barely-perceptible separator.
+  static const Color darkBorderSubtle = Color(0xFF2A2F2C);
+
+  /// Dark mode Menthe-vive — saturated for ≥4.5:1 contrast on darkBg.
+  static const Color darkMentheVive = Color(0xFF8FE6C8);
 }

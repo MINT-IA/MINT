@@ -34,7 +34,12 @@ from app.services.coach.coach_models import CoachContext
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES, ROUTE_TO_SCREEN_INTENT_TAGS
 from app.services.coach.regional_microcopy import RegionalMicrocopy
 
-__all__ = ["build_system_prompt", "COACH_TOOLS", "INTERNAL_TOOL_NAMES"]
+__all__ = [
+    "build_system_prompt",
+    "build_narrator_system_prompt",
+    "COACH_TOOLS",
+    "INTERNAL_TOOL_NAMES",
+]
 
 
 # ---------------------------------------------------------------------------
@@ -500,7 +505,37 @@ BIOGRAPHY AWARENESS:
   even when the BIOGRAPHIE FINANCIERE section is empty.
 """
 
-_BASE_SYSTEM_PROMPT = """\
+# ---------------------------------------------------------------------------
+# Phase 91 Wave 0 — Prompt block decomposition (zero behavior change)
+# ---------------------------------------------------------------------------
+# `_BASE_SYSTEM_PROMPT` is the ~600-line single-LLM coach prompt. Phase 91
+# splits the coach LLM into an extractor (capture-focused, JSON-only) and a
+# narrator (delivery-only, trimmed prompt). Wave 0 (this file) only EXTRACTS
+# the two extraction-related sub-blocks as named module constants so:
+#
+#   1. The legacy single-LLM path (current production) stays byte-identical:
+#      `_BASE_SYSTEM_PROMPT` is recomposed from the 5 named parts in the
+#      same order and produces the same final string. Verified by
+#      `tests/test_claude_coach_service.py::test_base_system_prompt_blocks`.
+#
+#   2. The future narrator path (Wave 2) can build its system prompt by
+#      composing only the non-extraction parts via `_NARRATOR_BASE_SYSTEM_PROMPT`.
+#      This constant is DEFINED here but NOT WIRED — no caller reads it in
+#      Wave 0. Wave 2 (`coach_chat.py` Step 1.5) will pick it up behind the
+#      `COACH_DUAL_LLM_ENABLED` feature flag.
+#
+# Block boundaries (verified by hash equality test):
+#   - `_PROMPT_PART_PREFIX`                  : identity + doctrine + rules 1-4
+#   - `_SAVE_INSIGHT_RULE_FOR_SINGLE_LLM`    : rule 5 (save_insight mandate)
+#   - `_PROMPT_PART_MIDDLE`                  : rule 6 + 4-couches + 5 principes +
+#                                              zones grises + format
+#   - `_EXTRACTION_DIRECTIVES_FOR_SINGLE_LLM`: « EXTRACTION DE PROFIL » block +
+#                                              4-layer extraction examples
+#   - `_PROMPT_PART_SUFFIX`                  : disclaimer + connaissances suisses
+#                                              + format slots
+# ---------------------------------------------------------------------------
+
+_PROMPT_PART_PREFIX = """\
 Tu es le coach financier de MINT, une application d'éducation financière suisse.
 
 IDENTITÉ :
@@ -537,9 +572,19 @@ Tu opères sous régulation suisse (LSFin, FINMA Circular 2008/21).
    "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin).
    Consulte un·e spécialiste pour une analyse personnalisée."
 
+"""
+
+# Save-insight mandate (legacy single-LLM only). In Wave 2 the narrator path
+# will compose `_NARRATOR_BASE_SYSTEM_PROMPT` (which omits this block) — fact
+# capture moves to the dedicated extractor LLM. Defined verbatim here for
+# byte-identity with the pre-refactor `_BASE_SYSTEM_PROMPT`.
+_SAVE_INSIGHT_RULE_FOR_SINGLE_LLM = """\
 5. TOUJOURS appeler save_insight quand l'utilisateur partage un fait
    (âge, salaire, canton, situation, patrimoine). Voir l'exemple plus bas.
 
+"""
+
+_PROMPT_PART_MIDDLE = """\
 6. ORDRE DE GRANDEUR pour les chiffres suisses non-canoniques.
    Pour tout chiffre suisse cité que tu ne peux pas sourcer depuis le contexte
    fourni (médiane de loyer cantonal/communal, taux d'imposition cantonal,
@@ -607,6 +652,14 @@ FORMAT DES RÉPONSES :
 - Pour les actions concrètes : utilise les outils (show_fact_card, route_to_screen, etc.)
   plutôt que de décrire l'action en texte.
 
+"""
+
+# Extraction directives (legacy single-LLM only). Verbatim copy of the
+# original « EXTRACTION DE PROFIL (RÈGLE CRITIQUE — TU DOIS LE FAIRE À
+# CHAQUE FOIS) » block plus the 4-layer extraction examples. In Wave 2,
+# the narrator path skips this block entirely (extraction is owned by the
+# dedicated extractor LLM in `llm_extractor.py`).
+_EXTRACTION_DIRECTIVES_FOR_SINGLE_LLM = """\
 EXTRACTION DE PROFIL (RÈGLE CRITIQUE — TU DOIS LE FAIRE À CHAQUE FOIS) :
 Quand l'utilisateur te donne des informations sur sa vie financière dans un message
 libre (âge, salaire, canton, situation familiale, patrimoine, dettes, projets), tu
@@ -642,6 +695,9 @@ IL EST OBLIGATOIRE D'APPELER save_insight EN MÊME TEMPS QUE TA RÉPONSE TEXTE �
 jamais après, jamais "à la prochaine", jamais "si l'utilisateur confirme". Chaque
 information extractible = un appel à save_insight immédiat, dans la même réponse.
 
+"""
+
+_PROMPT_PART_SUFFIX = """\
 DISCLAIMER (à rappeler si l'utilisateur demande une décision) :
 MINT est un outil éducatif. Il ne constitue pas un conseil financier au sens
 de la LSFin. Pour une analyse adaptée à ta situation, consulte un·e spécialiste.
@@ -664,6 +720,27 @@ CONNAISSANCES SUISSES (n'utilise ces faits QUE si la conversation l'amène — n
 """
 
 
+# Narrator path body — extraction directives removed (owned by extractor LLM
+# in Phase 91 Wave 2). Not wired in Wave 0. Composed from the three non-
+# extraction parts of the legacy prompt; the `{banned_terms}` and other
+# format slots remain so a future caller can `.format(...)` it identically.
+_NARRATOR_BASE_SYSTEM_PROMPT = (
+    _PROMPT_PART_PREFIX + _PROMPT_PART_MIDDLE + _PROMPT_PART_SUFFIX
+)
+
+
+# Legacy single-LLM prompt — recomposed from the 5 named parts in their
+# original order. Byte-identical to the pre-refactor literal (verified by
+# `tests/test_claude_coach_service.py::test_base_system_prompt_blocks`).
+_BASE_SYSTEM_PROMPT = (
+    _PROMPT_PART_PREFIX
+    + _SAVE_INSIGHT_RULE_FOR_SINGLE_LLM
+    + _PROMPT_PART_MIDDLE
+    + _EXTRACTION_DIRECTIVES_FOR_SINGLE_LLM
+    + _PROMPT_PART_SUFFIX
+)
+
+
 _LANGUAGE_NAMES = {
     "fr": "français",
     "de": "Deutsch (Hochdeutsch)",
@@ -674,23 +751,30 @@ _LANGUAGE_NAMES = {
 }
 
 
-def build_system_prompt(
+def _build_prompt(
+    *,
+    base_template: str,
     ctx: Optional[CoachContext] = None,
     language: str = "fr",
     cash_level: int = 3,
 ) -> str:
-    """Build the full system prompt for the Claude coach.
+    """Phase 91 Wave 2 — shared assembly for legacy and narrator prompts.
 
-    Args:
-        ctx: Optional CoachContext with user-specific data. When provided,
-             the prompt is enriched with the user's known values, archetype,
-             and confidence score. When None, returns the base prompt only.
-        language: ISO 639-1 language code for the response language.
-             The base prompt stays in French (it works for Claude) but a
-             response language instruction is appended when language != 'fr'.
+    `base_template` is the format-string body (must expose `{banned_terms}`
+    + 5 other slots). The 11 appended blocks (life-event catalog, archetype
+    catalog, doctrine information, voice intensity, anti-patterns,
+    biography awareness, commitment devices, intelligence blocks,
+    couple-mode, language switch, user context) are unchanged across both
+    callers — only `base_template` differs.
 
-    Returns:
-        The complete system prompt string to pass to the Anthropic API.
+    Today's two callers:
+      - `build_system_prompt`         → `_BASE_SYSTEM_PROMPT` (legacy single-LLM)
+      - `build_narrator_system_prompt`→ `_NARRATOR_BASE_SYSTEM_PROMPT` (Wave 2)
+
+    Karpathy #2 Simplicity First: this is a parametric refactor of the
+    existing function body, not a rewrite. The legacy path's output is
+    byte-identical when called via `build_system_prompt` (proven by
+    `tests/test_claude_coach_service.py::test_base_system_prompt_blocks`).
     """
     # Phase 6 / REGIONAL-04: single regional voice injection point.
     # RegionalMicrocopy.identity_block returns the per-canton block when
@@ -702,7 +786,7 @@ def build_system_prompt(
     # slot which sits BEFORE {routing_rules} in _BASE_SYSTEM_PROMPT, guaranteeing
     # the model reads "no optim advice" before it reads routing rules (RULES.md §2).
     safe_mode_block = (_SAFE_MODE_PROTOCOL + "\n") if (ctx and ctx.has_debt) else ""
-    base = _BASE_SYSTEM_PROMPT.format(
+    base = base_template.format(
         banned_terms=_BANNED_TERMS_REMINDER,
         regional_identity=RegionalMicrocopy.identity_block(canton),
         lifecycle_awareness=_LIFECYCLE_AWARENESS,
@@ -778,6 +862,61 @@ def build_system_prompt(
     # Enrich with user context
     context_section = _build_context_section(ctx)
     return base + "\n" + context_section
+
+
+def build_system_prompt(
+    ctx: Optional[CoachContext] = None,
+    language: str = "fr",
+    cash_level: int = 3,
+) -> str:
+    """Legacy single-LLM system prompt (used when COACH_DUAL_LLM_ENABLED=False).
+
+    Args:
+        ctx: Optional CoachContext with user-specific data. When provided,
+             the prompt is enriched with the user's known values, archetype,
+             and confidence score. When None, returns the base prompt only.
+        language: ISO 639-1 language code for the response language.
+             The base prompt stays in French (it works for Claude) but a
+             response language instruction is appended when language != 'fr'.
+
+    Returns:
+        The complete system prompt string to pass to the Anthropic API,
+        including the legacy « EXTRACTION DE PROFIL » directives + the
+        « TOUJOURS appeler save_insight » mandate.
+    """
+    return _build_prompt(
+        base_template=_BASE_SYSTEM_PROMPT,
+        ctx=ctx,
+        language=language,
+        cash_level=cash_level,
+    )
+
+
+def build_narrator_system_prompt(
+    ctx: Optional[CoachContext] = None,
+    language: str = "fr",
+    cash_level: int = 3,
+) -> str:
+    """Narrator-only system prompt (Phase 91 Wave 2, EXTR-03).
+
+    Difference vs `build_system_prompt`: uses `_NARRATOR_BASE_SYSTEM_PROMPT`
+    (the « EXTRACTION DE PROFIL » block + « TOUJOURS appeler save_insight »
+    mandate are stripped — fact capture is owned by the dedicated extractor
+    LLM in `app.services.coach.llm_extractor`). The 11 appended blocks
+    (life-event catalog, archetype catalog, doctrine information, voice
+    intensity, anti-patterns, biography awareness, commitment devices,
+    intelligence blocks, couple-mode, language switch, user context) are
+    unchanged.
+
+    Used by `coach_chat.py` when `COACH_DUAL_LLM_ENABLED=True`. The legacy
+    `build_system_prompt` remains the flag-OFF default.
+    """
+    return _build_prompt(
+        base_template=_NARRATOR_BASE_SYSTEM_PROMPT,
+        ctx=ctx,
+        language=language,
+        cash_level=cash_level,
+    )
 
 
 def _build_context_section(ctx: CoachContext) -> str:

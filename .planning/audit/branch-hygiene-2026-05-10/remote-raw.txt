@@ -1,0 +1,12 @@
+===Remote branches with merge status===
+origin/dev                                                        | main=no dev=YES | ahead-main=250  | 2026-05-09 6b174f3e docs(milestone): Chat-as-Verb pivot — 7 phases, 4 weeks, GSD workflow (#542)
+origin/docs/phase-2-extractor-v2-research                         | main=no dev=no | ahead-main=307  | 2026-05-09 cbc28584 docs(project): evolve PROJECT.md after Phase 91 completion + ADR calc-first
+origin/docs/post-529-maestro-auth-flow-design                     | main=no dev=no | ahead-main=240  | 2026-05-08 e172ab63 docs(maestro): auth coach post-hotfix flow design (cannot run today)
+origin/docs/walkthrough-perimeters-2026-05-07                     | main=no dev=no | ahead-main=233  | 2026-05-07 777ccf56 docs(perimeters): close out P3 audit panel + status update
+origin/fix/auth-keychain-fallback-saveToken                       | main=no dev=no | ahead-main=234  | 2026-05-08 935513a5 fix(auth): scope keychain catch to PlatformException only (CI test compat)
+origin/fix/coach-context-loads-raw-profile-values                 | main=no dev=no | ahead-main=235  | 2026-05-08 26d79065 fix(coach): wire LPP avoir / salaire / 3a into chat context (walker Étape 6)
+origin/fix/p1-a02-anon-chat-lockout-on-missing-messages-remaining | main=no dev=no | ahead-main=233  | 2026-05-07 581f34ee fix(anon-chat): prevent permanent lockout when 200 OK drops messagesRemaining
+origin/fix/p2-anon-prompt-parity-and-injection-guard              | main=no dev=no | ahead-main=232  | 2026-05-07 2609e191 chore(arb): add @coachTransparencyServer VOICE-14 @meta level (N1)
+origin/fix/p3-w05-brand-and-a03-dob-guards                        | main=no dev=no | ahead-main=232  | 2026-05-07 37e3ea44 chore(arb): add @coachTransparencyServer VOICE-14 @meta level (N1)
+origin/main                                                       | main=YES dev=no | ahead-main=0    | 2026-04-21 255373bb hotfix(backend): gate create_all() on non-prod — 2nd Railway healthcheck blocker (#377)
+origin/staging                                                    | main=no dev=YES | ahead-main=238  | 2026-05-08 f5585f9f Merge pull request #531 from MINT-IA/dev

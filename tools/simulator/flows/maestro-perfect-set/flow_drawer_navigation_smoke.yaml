@@ -1,0 +1,203 @@
+# tools/simulator/flows/maestro-perfect-set/flow_drawer_navigation_smoke.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Validates ProfileDrawer routing from the persistent shell.
+# For each user-facing drawer entry, taps it, asserts the destination
+# screen renders a known anchor, then navigates back so the next entry
+# can be exercised.
+#
+# Catches :
+#   - GoRouter regressions on /profile, /profile/bilan, /documents,
+#     /coach/history, /settings/langue, /profile/privacy-control.
+#   - Drawer i18n drift (entries renamed in app_fr.arb without updating
+#     the drawer widget).
+#
+# ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
+# Archetype-agnostic. Drawer entries are static modulo two gates :
+#   - « Couple » entry : only when `profile.isCouple` (skipped here)
+#   - « Clé API »      : only when FeatureFlags.enableByok (skipped here)
+# Both intentionally NOT asserted ; default builds ship them off.
+#
+# ─── EXPECTED DURATION ─────────────────────────────────────────────────
+# ~45s wall-clock (6 entries × ~6s each + drawer open/close + 5 shots).
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
+# - User on a screen that mounts MintShell (i.e. one of /home,
+#   /mon-argent, /coach/chat, /explore). Drawer is `endDrawer:` on
+#   the shell, opened via the person_outline icon in AppBar actions.
+# - Anonymous mode is fine (drawer renders without auth — header just
+#   shows « Pas de profil »). « Se connecter » entry visible if logged
+#   out, « Se déconnecter » if logged in. We test the layout-stable
+#   entries only.
+#
+# ─── LOCATOR STRATEGY ──────────────────────────────────────────────────
+# Drawer is opened by tapping the person icon in /explore AppBar.
+# This screen is the most reliable launchpad : its AppBar always
+# carries the icon (explorer_screen.dart:24) and the screen is reachable
+# in 1 tab tap from any starting state.
+#
+# Drawer entries (literal FR text from app_fr.arb) :
+#   « Mon profil »                  → /profile (redirects to /profile/bilan)
+#   « Mon bilan »                   → /profile/bilan
+#   « Mes documents »               → /documents
+#   « Historique coach »            → /coach/history
+#   « Langue »                      → /settings/langue
+#   « Ce que MINT sait de toi »     → /profile/privacy-control
+#
+# Destination assertions are stable AppBar / hero strings on each screen.
+# Back navigation : Maestro `back` action (sim-level back gesture).
+#
+# ─── OUTPUT ────────────────────────────────────────────────────────────
+# Screenshots :
+#   .planning/walker/maestro-flows/drawer-navigation-smoke/<run-id>/
+#     ├── 01-explore-home.png
+#     ├── 02-drawer-open.png
+#     ├── 03-mon-bilan.png
+#     ├── 04-documents.png
+#     └── 05-privacy-control.png
+
+appId: ch.mint.app
+tags:
+  - drawer
+  - navigation
+  - smoke
+  - regression-guard
+  - anon
+---
+
+# 00 — start at /explore (MintShell tab 4). Tap Explorer tab.
+- launchApp:
+    clearState: false
+- tapOn:
+    text: "Je comprends, on y va"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Explorer"
+    timeout: 8000
+# Tap landing CTA to enter shell ; the anon path lands us on
+# /anonymous/chat which is OUTSIDE MintShell. We need the shell, so
+# instead we go via /explore directly via the bottom tab bar after
+# entering the shell. Path : tap « J'ai déjà un compte » → cancel →
+# back to landing → bypass via `MINT_DISABLE_BETA_MODAL` is not
+# enough. Simpler : skip the anon path and use the bottom tab bar
+# directly from any shell-mounted screen.
+#
+# REALITY CHECK : MintShell is only mounted on /home, /mon-argent,
+# /coach/chat, /explore (per app.dart:379-455). All four are auth-
+# gated except /explore which is `RouteScope.public`. Cleanest entry
+# from cold-launched anon is: tap landing CTA → anon chat (no shell)
+# → ❌ no drawer there. So this flow REQUIRES the user to already be
+# inside the shell.
+#
+# RECOMMENDED HARNESS WIRING :
+#   The harness passes `MINT_E2E_INITIAL_ROUTE=/explore` dart-define
+#   (NOT YET WIRED in lib/main.dart — verified 2026-05-08 grep). Until
+#   that lands, this flow expects the harness to deep-link via :
+#     `xcrun simctl openurl booted ch.mint.app://explore`
+#   before invoking maestro test. If the deep-link is not wired either,
+#   the flow as-written below will fail at step 01 with « Explorer »
+#   not found, which is the correct loud signal.
+
+# 01 — assert we're on /explore (harness pre-conditioned) + drawer icon present
+- extendedWaitUntil:
+    visible:
+      text: "Explorer"
+    timeout: 8000
+- takeScreenshot: "01-explore-home"
+
+# 02 — open drawer via person icon
+# explorer_screen.dart:24-33 — IconButton wrapped in
+#   Semantics(label: 'ouvrir-profil-drawer', button: true) (2026-05-09).
+- tapOn:
+    text: "ouvrir-profil-drawer"
+- extendedWaitUntil:
+    visible:
+      text: "Mon profil"      # drawerMyProfile — first drawer entry
+    timeout: 4000
+- takeScreenshot: "02-drawer-open"
+
+# 03 — Mon bilan → /profile/bilan
+- tapOn:
+    text: "Mon bilan"
+- extendedWaitUntil:
+    visible:
+      text: "Aucun profil renseigné"  # financialSummaryNoProfile (anon = empty)
+    timeout: 6000
+- takeScreenshot: "03-mon-bilan"
+- back
+
+# 04 — re-open drawer + Mes documents → /documents
+- tapOn:
+    text: "ouvrir-profil-drawer"
+- tapOn:
+    text: "Mes documents"
+- extendedWaitUntil:
+    visible:
+      text: "Mes documents"            # documents screen AppBar
+    timeout: 6000
+- takeScreenshot: "04-documents"
+- back
+
+# 05 — re-open drawer + Historique coach → /coach/history
+- tapOn:
+    text: "ouvrir-profil-drawer"
+- tapOn:
+    text: "Historique coach"
+- extendedWaitUntil:
+    visible:
+      text: "Historique"
+    timeout: 6000
+- back
+
+# 06 — re-open drawer + Langue → /settings/langue
+- tapOn:
+    text: "ouvrir-profil-drawer"
+- tapOn:
+    text: "Langue"
+- extendedWaitUntil:
+    visible:
+      text: "Langue"
+    timeout: 6000
+- back
+
+# 07 — re-open drawer + Ce que MINT sait de toi → /profile/privacy-control
+- tapOn:
+    text: "ouvrir-profil-drawer"
+- tapOn:
+    text: "Ce que MINT sait de toi"
+- extendedWaitUntil:
+    visible:
+      text: "Ce que MINT sait de toi"
+    timeout: 6000
+- takeScreenshot: "05-privacy-control"
+- back
+
+# ─── PIXEL FALLBACK REMOVED (2026-05-09) ───────────────────────────────
+# The previous version of this flow used `point: "95%, 8%"` to tap the
+# AppBar profile icon, plus an optional `text: "Profil"` fallback. Both
+# violated the « semantic locators ONLY » rule from
+# .planning/phases/74-walker-premier-eclairage/PANEL-VERDICT.md.
+#
+# Fix shipped 2026-05-09 (Maestro paroxysm panel synthesis Tier 1) :
+#   apps/mobile/lib/screens/explore/explorer_screen.dart:24-33 wraps the
+#   IconButton in `Semantics(label: 'ouvrir-profil-drawer', button: true)`
+#   so the locator is now `text: "ouvrir-profil-drawer"` (Maestro reads
+#   Flutter Semantics labels via the accessibility-text matcher).
+#
+# ─── KNOWN PRECONDITION GAP (REMAINING) ────────────────────────────────
+# This flow asserts `text: "Explorer"` (step 01) which only renders
+# inside MintShell. Cold-launch on anon brings the user to the LandingScreen
+# (`/`), NOT to the shell, so the assertion fails before reaching the
+# drawer. Fix-forward needs ONE of :
+#   (a) Wire `MINT_E2E_INITIAL_ROUTE=/explore` dart-define into lib/main.dart
+#       and have the harness pass it on `flutter build` for E2E runs.
+#   (b) Pre-deep-link via `xcrun simctl openurl booted ch.mint.app://explore`
+#       BUT this depends on `/explore` being publicly accessible, which is
+#       a `RouteScope` decision still pending Julien's call (see
+#       .planning/decisions/2026-05-09-maestro-paroxysm-panel/SYNTHESIS.md
+#       Tier 2 #1).
+#   (c) Rewrite the flow to register/login first so the shell mounts.
+# Until one of (a)/(b)/(c) lands, this flow ONLY runs successfully on
+# already-authed devices. The CI gate must pre-condition appropriately.

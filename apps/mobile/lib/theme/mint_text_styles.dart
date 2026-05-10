@@ -221,4 +221,88 @@ class MintTextStyles {
         height: 1.45,
         color: color ?? MintColors.inkPrimary,
       );
+
+  // ============ MINT v2 PHASE 92 — Bundled Supreme + Gambarino ============
+  // Added 2026-05-09 (Phase 92 MVP-FONTS-TOKENS-V2 / FONT-03).
+  // Source: .planning/decisions/2026-05-08-perimeter-mvp-fonts-tokens-v2/STUB.md F3.*
+  // Fonts bundled via apps/mobile/pubspec.yaml flutter.fonts (Plan 92-01).
+  // These styles do NOT use GoogleFonts — they reference the bundled families
+  // by name. Family strings 'Supreme' and 'Gambarino' MUST match pubspec.yaml.
+  //
+  // Wave 1 finding propagation (see .planning/phases/92-mvp-fonts-tokens-v2/92-01-SUMMARY.md):
+  //   - Supreme catalog has no weight 600. Flutter's nearest-weight matcher
+  //     resolves FontWeight.w600 requests to the bundled Supreme-Bold (700).
+  //     The TextStyle field stays w600 (per spec) so unit tests assert on intent.
+  //   - Gambarino catalog has no real italic. Italic is synthesized via Flutter's
+  //     skew transform on Gambarino-Regular.otf at render time. Visual fidelity
+  //     of synthetic italic at display sizes (40-56pt) is a G2 device-gate concern.
+
+  /// Landing hero (56pt Gambarino italic w400).
+  /// Used on the landing screen primary phrase per STUB §F5.
+  ///
+  /// NOTE: Italic is synthesized at render time (Fontshare ships no italic
+  /// glyph variant — see Wave 1 finding #2). Visual fidelity vs. real italic
+  /// glyphs validated at G2 sim screenshot review.
+  static TextStyle displayGambarinoItalic56({Color? color}) => TextStyle(
+        fontFamily: 'Gambarino',
+        fontStyle: FontStyle.italic,
+        fontWeight: FontWeight.w400,
+        fontSize: 56,
+        height: 1.15,
+        letterSpacing: -0.5,
+        color: color ?? MintColors.inkPrimary,
+      );
+
+  /// Onboarding hero (40pt Gambarino italic w400).
+  /// Smaller Gambarino variant for non-landing hero contexts.
+  ///
+  /// NOTE: Italic is synthesized at render time (see [displayGambarinoItalic56]
+  /// for synthetic-italic rationale). Visual fidelity TBD at G2.
+  static TextStyle displayGambarinoItalic40({Color? color}) => TextStyle(
+        fontFamily: 'Gambarino',
+        fontStyle: FontStyle.italic,
+        fontWeight: FontWeight.w400,
+        fontSize: 40,
+        height: 1.2,
+        letterSpacing: -0.4,
+        color: color ?? MintColors.inkPrimary,
+      );
+
+  /// Card / section title (18pt Supreme semibold).
+  ///
+  /// NOTE: Fontshare's Supreme catalog ships no weight 600 (Wave 1 finding #1).
+  /// The TextStyle requests `FontWeight.w600` (design-system intent) but
+  /// Flutter's nearest-weight matcher resolves to the bundled Supreme-Bold (700)
+  /// at render time. Keep `w600` here so callsites and tests reflect intent;
+  /// rendered emphasis is one notch heavier than spec until a real Semibold
+  /// is sourced.
+  static TextStyle titleSupreme18Semibold({Color? color}) => TextStyle(
+        fontFamily: 'Supreme',
+        fontWeight: FontWeight.w600,
+        fontSize: 18,
+        height: 1.3,
+        color: color ?? MintColors.inkPrimary,
+      );
+
+  /// Body text (15pt Supreme regular). MINT v2 default reading size.
+  static TextStyle bodySupreme15Regular({Color? color}) => TextStyle(
+        fontFamily: 'Supreme',
+        fontWeight: FontWeight.w400,
+        fontSize: 15,
+        height: 1.5,
+        color: color ?? MintColors.inkPrimary,
+      );
+
+  /// Eyebrow / micro-label (12pt Supreme, uppercase callsite, letterSpacing 0.25).
+  /// Note: callsites must apply `.toUpperCase()` to the displayed text — this
+  /// style only encodes the letterSpacing + size. Avoids duplicating uppercase
+  /// transform across screens.
+  static TextStyle labelSupreme12Uppercase025LS({Color? color}) => TextStyle(
+        fontFamily: 'Supreme',
+        fontWeight: FontWeight.w500,
+        fontSize: 12,
+        letterSpacing: 0.25,
+        height: 1.3,
+        color: color ?? MintColors.textMutedAaa,
+      );
 }
