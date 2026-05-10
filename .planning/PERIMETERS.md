@@ -12,8 +12,13 @@
 | G3 | CI green on dev | sha + date |
 | G4 | Regression tests still green | run id |
 | G5 | LSFin + accent + ARB lint green | lint outputs |
+| G6 | Calc-correctness CI (calc_diff + property + ESTV) | run id of `.github/workflows/calc-rigor.yml` |
 
 A perimeter is **CLOSED** only when all 5 gates are green. Until G2, status = « PROVISIONALLY READY ».
+
+> **G6 scoping (Phase 92.5 / CALC-04, D-18)** — G6 applies ONLY aux périmètres / PRs touchant `apps/mobile/lib/services/financial_core/**`, `services/backend/app/services/**`, ou `services/backend/app/constants/social_insurance.py`. Other perimeters remain on G1–G5 unchanged. The `paths:` filter in `.github/workflows/calc-rigor.yml` mechanically gates trigger ; `tools/checks/g6_path_check.py` is the deterministic CLI decider used by GSD verifier integration. Hard-block from day 1 (D-19) — no warn-only ramp-up.
+>
+> **G6 doctrine** — Mobile `financial_core/` is canonical (ADR-20260223). When differential disagrees, the default presumption is Backend Python drift. Failure comments (D-20) frame asymmetrically: « Mobile (canonical): X, Backend (under test): Y ». Full Backend port deferred to backlog 999.4 / Phase 92.6.
 
 ---
 
