@@ -1,6 +1,8 @@
 ---
 date: 2026-05-09
-status: Proposed
+status: Decided
+decided_at: 2026-05-10
+roadmap_injection: ROADMAP.md (Phase 92.5 inserted, Phase 93.5 inserted per Anthropic agents audit, Phases 94/95/96 expanded, backlog 999.x added)
 authors: Julien (delegated decision) + PM Claude (synthesis)
 panel: 7-pers (quant-actuarial / cleo-fintech / llm-architecture / ml-arbitrage / ux-voice / compliance / production-reliability)
 supersedes: —
