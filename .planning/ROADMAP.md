@@ -223,7 +223,9 @@ Plans:
   2. Calculator wrappers compute hash on read ; if hash mismatch with current profile hash → return last-known-good with `staleness: high` flag (UI surfaces « valeur peut-être obsolète » badge).
   3. Migration is additive : `inputs_hash` is nullable ; existing profiles compute hash lazily on first read ; zero forced recomputation.
   4. Test: `tests/test_projection_dag_invalidation.py` covers (a) fresh hash → no staleness, (b) profile salary changes → projection hash mismatch → staleness=high, (c) recompute resets hash chain.
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 95-01-PLAN.md — Wave 1, autonomous — Hash chain (rfc8785 + Decimal quantize) + UUID7 (uuid_utils backport for Railway py3.12) + additive alembic migration on `scenarios` (DAG-01..DAG-04) + 50-fixture Python↔Dart parity gate (Path A pure-Dart harness sidesteps Phase 92.7 cascade) + new PII fixture lint
+- [ ] 95-02-PLAN.md — Wave 2, autonomous (depends on 95-01) — ProjectionGroundingPack Pydantic v2 rewrite + 3-point Pareto scalarisation + ±10% what_ifs + numpy bootstrap CIs (200 iter) + `_substitute_placeholders` D-09 double-lookup with Sentry breadcrumb + coach_chat.py pack= threading + LSFin `--lsfin-annotation` rule in banned_terms_python.py
 
 **Budget**: 4d
 **Auto profile**: **L2** (backend + Flutter financial_core) — additive migration ; full pytest + flutter test ; Maestro flow on profile-edit → projection-card-staleness flow.
