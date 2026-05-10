@@ -56,6 +56,11 @@ from app.services.coach.claude_coach_service import (
     build_system_prompt,
 )
 from app.services.coach.coach_context_builder import build_coach_context
+from app.services.coach.citation_parser import (
+    GateVerdict,
+    GatedResponse,
+    gate as _citation_gate,
+)
 from app.services.coach.coach_tools import (
     INTERNAL_TOOL_NAMES,
     get_llm_tools,
@@ -3227,6 +3232,16 @@ async def coach_chat(
     # (CONTEXT D-12 + D-20). On any compile failure (KeyError / ValueError —
     # H4 undeclared-slot guard), gracefully fall back to the unfiltered
     # narrator registry so the coach never breaks for users.
+    #
+    # Phase 94 Wave 1 (H1 fix iter 1) — initialize `_compiled_bundle = None`
+    # immediately BEFORE the bundle-compiler branch so the citation-gate
+    # wrapper (Plan 94-02 below at the narrator call site) can safely read
+    # `_compiled_bundle is not None` on EVERY code path : flag-OFF, the
+    # `except (KeyError, ValueError)` branch, the `elif COACH_DUAL_LLM_ENABLED`
+    # branch, and the `else` branch. The success branch overwrites with the
+    # compiled bundle. Type annotation is a forward-reference string so no
+    # import of `CompiledBundle` is required (Karpathy #3 surgical).
+    _compiled_bundle: "CompiledBundle | None" = None  # noqa: F821 — fwd ref
     if settings.COACH_BUNDLE_COMPILER_ENABLED:
         try:
             from app.services.coach.bundle_compiler import (
@@ -3260,27 +3275,108 @@ async def coach_chat(
         if settings.COACH_DUAL_LLM_ENABLED
         else effective_model
     )
-    try:
+    # Phase 94 Wave 1 — citation-gate wrapper. Karpathy #3 surgical: ZERO
+    # edits inside `_run_agent_loop` (1726-2624). The wrapper :
+    #   1. Calls `_run_agent_loop` once.
+    #   2. If `COACH_CITATION_GATE_ENABLED=False` (D-19 default), returns
+    #      the loop_result UNCHANGED — flag-OFF byte-identical bypass per
+    #      D-20 (asserted by tests/test_citation_gate/test_byte_identity_*).
+    #   3. If flag-ON, runs `gate(loop_result["answer"], ...)`. On
+    #      `retry_needed=True`, calls `_run_agent_loop` a SECOND time
+    #      with `question = body.message + reprompt_addendum` (D-08
+    #      hard-cap=1 ; the second-pass gate is invoked with
+    #      `is_retry=True` which collapses any rejection to FALLBACK).
+    # D-07 — citation_allowlist is the bundle's compile-time allowlist
+    # when the compiler flag is on AND the bundle compiled successfully ;
+    # else None → gate falls back to the global CITATION_REGISTRY keys.
+    _initial_loop_kwargs = dict(
+        orchestrator=orchestrator,
+        api_key=effective_api_key,
+        provider=body.provider,
+        model=_narrator_model,
+        profile_context=safe_profile,
+        language=body.language,
+        memory_block=effective_memory_block,
+        system_prompt=system_prompt,
+        user_id=_user.id if _user else None,
+        db=db,
+        conversation_history=safe_history,
+        persistence_consent=body.persistence_consent,
+        detected_intents=detected_intents,
+        tools=_narrator_tools,
+    )
+    _gate_allowlist = (
+        list(_compiled_bundle.citation_allowlist)
+        if (
+            settings.COACH_BUNDLE_COMPILER_ENABLED
+            and _compiled_bundle is not None
+        )
+        else None
+    )
+
+    def _emit_gate_breadcrumb(
+        gated: GatedResponse, retries: int,
+    ) -> None:
+        """D-18 hygiene — counts/labels only, NEVER user message content."""
+        try:
+            import sentry_sdk  # local import (already used elsewhere in file)
+            sentry_sdk.add_breadcrumb(
+                category="coach.citation_gate",
+                message=f"verdict={gated.verdict.value}",
+                level=(
+                    "info" if gated.verdict == GateVerdict.PASS else "warning"
+                ),
+                data={
+                    "verdict": gated.verdict.value,
+                    "retries": int(retries),
+                    "uncited_numbers_count": int(gated.uncited_numbers_count),
+                    "banned_claims_count": len(gated.banned_claims_found),
+                },
+            )
+        except Exception:  # pragma: no cover — telemetry is fail-open
+            pass
+
+    async def _run_narrator_with_gate() -> dict:
         loop_result = await asyncio.wait_for(
-            _run_agent_loop(
-                orchestrator=orchestrator,
-                question=body.message,
-                api_key=effective_api_key,
-                provider=body.provider,
-                model=_narrator_model,
-                profile_context=safe_profile,
-                language=body.language,
-                memory_block=effective_memory_block,
-                system_prompt=system_prompt,
-                user_id=_user.id if _user else None,
-                db=db,
-                conversation_history=safe_history,
-                persistence_consent=body.persistence_consent,
-                detected_intents=detected_intents,
-                tools=_narrator_tools,
-            ),
+            _run_agent_loop(question=body.message, **_initial_loop_kwargs),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )
+        if not settings.COACH_CITATION_GATE_ENABLED:
+            # D-20 byte-identical bypass.
+            return loop_result
+
+        gated = _citation_gate(
+            response_text=loop_result["answer"],
+            ctx=coach_ctx,
+            citation_allowlist=_gate_allowlist,
+            is_retry=False,
+        )
+        _emit_gate_breadcrumb(gated, retries=0)
+
+        if not gated.retry_needed:
+            loop_result["answer"] = gated.gated_text
+            return loop_result
+
+        # D-08 retry-once. Second call is bounded by `is_retry=True` —
+        # any rejection on the second pass collapses to FALLBACK so the
+        # narrator is NEVER called a third time.
+        retry_message = body.message + (gated.reprompt_addendum or "")
+        retry_result = await asyncio.wait_for(
+            _run_agent_loop(question=retry_message, **_initial_loop_kwargs),
+            timeout=AGENT_LOOP_DEADLINE_SECONDS,
+        )
+        retry_gated = _citation_gate(
+            response_text=retry_result["answer"],
+            ctx=coach_ctx,
+            citation_allowlist=_gate_allowlist,
+            is_retry=True,
+        )
+        _emit_gate_breadcrumb(retry_gated, retries=1)
+        retry_result["answer"] = retry_gated.gated_text
+        return retry_result
+
+    try:
+        loop_result = await _run_narrator_with_gate()
     except asyncio.TimeoutError:
         logger.warning(
             "Agent loop total timeout (%ds) for user %s",
