@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: verifying
-stopped_at: Phase 95 Wave 2 complete (Plan 95-02 closed, 6/6 tasks, 43 W2 tests, 6522 backend total, +43 net new, 0 regressions, 182/182 citation_gate preserved) — phase verifier next
-last_updated: "2026-05-10T23:15:38.193Z"
+stopped_at: Phase 96 context gathered (auto from master synthesis)
+last_updated: "2026-05-10T23:20:20.980Z"
 last_activity: 2026-05-10
 progress:
   total_phases: 11
@@ -171,9 +171,9 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-10T23:04:15.000Z
-Stopped at: Phase 95 Wave 2 complete (Plan 95-02 closed, 6/6 tasks, 43 W2 tests, 6522 backend total, +43 net new, 0 regressions, 182/182 citation_gate preserved) — phase verifier next
-Resume file: .planning/phases/95-mvp-dag-invalidation/95-02-SUMMARY.md (then `/gsd-verify-phase 95`)
+Last session: 2026-05-10T23:20:20.970Z
+Stopped at: Phase 96 context gathered (auto from master synthesis)
+Resume file: .planning/phases/96-mvp-chat-as-verb/96-CONTEXT.md
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>
