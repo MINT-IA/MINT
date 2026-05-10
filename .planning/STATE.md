@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Phase 94 context gathered (7 gray areas auto-locked)
-last_updated: "2026-05-10T17:51:31.730Z"
-last_activity: 2026-05-10 -- Phase 94 planning complete
+stopped_at: Phase 94 Plan 01 (Wave 0 scaffold) complete — 6372 backend tests green
+last_updated: "2026-05-10T18:09:00.000Z"
+last_activity: 2026-05-10 -- Phase 94-01 Wave 0 shipped (parser primitives + registry + flag + 106 tests)
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 22
-  completed_plans: 14
-  percent: 64
+  completed_plans: 15
+  percent: 68
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase 93.5 — MVP-SKILL-BUNDLE-COMPILER
+**Current focus:** Phase 94 — MVP-CITATION-GATE
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,15 +35,25 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 93.5 (MVP-SKILL-BUNDLE-COMPILER) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute
-Last activity: 2026-05-10 -- Phase 94 planning complete
+Phase: 94 (MVP-CITATION-GATE) — EXECUTING
+Plan: 1 of 3 — DONE (Wave 0 scaffold)
+Status: Phase 94 Plan 01 shipped ; Plan 02 (Wave 1 — gate body + coach_chat wiring) up next
+Last activity: 2026-05-10 -- Phase 94-01 Wave 0 shipped (3 commits: 033b8445, 668df0de, 2a729c3d)
 Next:
 
-  1. `/gsd-discuss-phase 91` → produce CONTEXT.md (locks user decisions for extractor/narrator split)
-  2. `/gsd-plan-phase 91` → produce PLAN.md (task breakdown with 5-gate exit contract)
-  3. `/gsd-execute-phase 91` → ship via dev branch + PR + Maestro G1 flow
+  1. `/gsd-execute-phase 94 --plan 02` → fatten gate() body + insert coach_chat wrapper + Wave 1 tests (retry/fallback/banned-claims/bundle-intersect/telemetry/gate-perf)
+  2. `/gsd-execute-phase 94 --plan 03` → Stage 3 eval (50-fixture pack ≥95% Sonnet / ≥90% Haiku) + Maestro G1 flow
+  3. `/gsd-verify-work 94` → 5-gate exit contract close
+
+## Plan 94-01 Receipt (Wave 0 close, 2026-05-10)
+
+- Files created : 9 (parser, registry, 6 test files, __init__.py)
+- Files modified : 3 (config.py, eval_narrator.py, 94-VALIDATION.md)
+- Tests added : 106 (Wave 0) + 0 regressions
+- Full backend suite : 6372 passed, 62 skipped, 1 xfailed in 107.21s
+- Commits : 033b8445 (T1) → 668df0de (T2) → 2a729c3d (T3)
+- Duration : 13m 18s
+- 0-trust : SUMMARY.md `## Self-Check : PASSED` cited at .planning/phases/94-mvp-citation-gate/94-01-SUMMARY.md
 
 Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped 2026-05-09 (5 design-system lints + baselines + lefthook + CI).
 
