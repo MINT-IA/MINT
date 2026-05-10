@@ -1,11 +1,11 @@
-lib/app.dart:1644: fontSize: 16
-lib/app.dart:1649: fontSize: 14
-lib/app.dart:1661: fontSize: 20
-lib/app.dart:1685: fontSize: 16
-lib/app.dart:1700: fontSize: 16
-lib/app.dart:1797: fontSize: 16
-lib/app.dart:1811: fontSize: 16
-lib/app.dart:1857: fontSize: 16
+lib/app.dart:1645: fontSize: 16
+lib/app.dart:1650: fontSize: 14
+lib/app.dart:1662: fontSize: 20
+lib/app.dart:1686: fontSize: 16
+lib/app.dart:1701: fontSize: 16
+lib/app.dart:1826: fontSize: 16
+lib/app.dart:1840: fontSize: 16
+lib/app.dart:1886: fontSize: 16
 lib/models/clarity_state.dart:447: fontSize: 18
 lib/models/clarity_state.dart:455: fontSize: 14
 lib/models/clarity_state.dart:477: fontSize: 12
@@ -124,7 +124,6 @@ lib/screens/gender_gap_screen.dart:177: fontSize: 24
 lib/screens/household/accept_invitation_screen.dart:98: fontSize: 28
 lib/screens/independant_screen.dart:338: fontSize: 20
 lib/screens/independant_screen.dart:410: fontSize: 16
-lib/screens/landing_screen.dart:145: fontSize: 40
 lib/screens/lpp_deep/rachat_echelonne_screen.dart:1082: fontSize: 10
 lib/screens/lpp_deep/rachat_echelonne_screen.dart:1099: fontSize: 11
 lib/screens/lpp_deep/rachat_echelonne_screen.dart:1104: fontSize: 11

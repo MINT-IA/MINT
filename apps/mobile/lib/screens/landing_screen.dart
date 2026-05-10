@@ -12,7 +12,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -129,8 +128,12 @@ class _LandingScreenState extends State<LandingScreen>
                   ),
                   // 2. Spacer flex 3.
                   const Spacer(flex: 3),
-                  // 3. Hero phrase — l10n.landingV3Hero, Fraunces italic 40pt
+                  // 3. Hero phrase — l10n.landingV3Hero, Gambarino italic 40pt
                   // w400, height 1.2, letterSpacing -0.4, inkPrimary, center.
+                  // Phase 92-03 (FONT-05/07): swapped from GoogleFonts.fraunces
+                  // to bundled MintTextStyles.displayGambarinoItalic40 (Plan
+                  // 92-01 .otf + Plan 92-02 helper). Italic is synthesized at
+                  // render time — see displayGambarinoItalic40 dartdoc.
                   FadeTransition(
                     opacity: _paragraphOpacity,
                     child: SlideTransition(
@@ -141,12 +144,7 @@ class _LandingScreenState extends State<LandingScreen>
                         child: Text(
                           l10n.landingV3Hero,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.fraunces(
-                            fontSize: 40,
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.w400,
-                            height: 1.2,
-                            letterSpacing: -0.4,
+                          style: MintTextStyles.displayGambarinoItalic40(
                             color: MintColors.inkPrimary,
                           ),
                         ),

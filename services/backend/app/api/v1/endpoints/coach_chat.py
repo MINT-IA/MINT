@@ -42,6 +42,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.core.config import settings
 from app.services.billing_service import recompute_entitlements
 from app.core.database import get_db
 from app.core.rate_limit import limiter
@@ -49,9 +50,18 @@ from app.models.user import User
 from app.services.reengagement.consent_manager import ConsentManager
 from app.services.reengagement.reengagement_models import ConsentType
 from app.schemas.coach_chat import CoachChatRequest, CoachChatResponse
-from app.services.coach.claude_coach_service import build_system_prompt
+from app.services.coach.claude_coach_service import (
+    build_narrator_system_prompt,
+    build_system_prompt,
+)
 from app.services.coach.coach_context_builder import build_coach_context
-from app.services.coach.coach_tools import INTERNAL_TOOL_NAMES, get_llm_tools
+from app.services.coach.coach_tools import (
+    INTERNAL_TOOL_NAMES,
+    get_llm_tools,
+    get_narrator_llm_tools,
+)
+from app.services.coach.extractor_schema import ExtractedFact, ExtractorOutput
+from app.services.coach.llm_extractor import run_llm_extractor
 from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP  # noqa: F401
 from app.services.rules_engine import get_3a_ceiling
 from app.services.coach.structured_reasoning import StructuredReasoningService
@@ -744,8 +754,21 @@ def _build_system_prompt_with_memory(
 
     The memory block is sanitized for PII and wrapped in prompt injection
     armor before being appended to the system prompt.
+
+    Phase 91 Wave 2: when `settings.COACH_DUAL_LLM_ENABLED` is True, uses
+    the trimmed narrator builder (no « EXTRACTION DE PROFIL » block, no
+    « TOUJOURS appeler save_insight » mandate) — fact capture moves to
+    the dedicated extractor LLM. When False (default), uses the legacy
+    builder verbatim — flag-OFF path is byte-identical to today.
     """
-    prompt = build_system_prompt(ctx=coach_ctx, language=language, cash_level=cash_level)
+    if settings.COACH_DUAL_LLM_ENABLED:
+        prompt = build_narrator_system_prompt(
+            ctx=coach_ctx, language=language, cash_level=cash_level
+        )
+    else:
+        prompt = build_system_prompt(
+            ctx=coach_ctx, language=language, cash_level=cash_level
+        )
     sanitized = _sanitize_memory_block(memory_block)
     if sanitized:
         prompt = prompt + "\n\n" + sanitized
@@ -1194,6 +1217,315 @@ def _coerce_fact_value(key: str, value):
             return None
         return stripped
     return None
+
+
+# ---------------------------------------------------------------------------
+# Phase 91 Wave 2 — dual-LLM extractor stage (behind COACH_DUAL_LLM_ENABLED)
+# ---------------------------------------------------------------------------
+#
+# The STAGE 2 LLM extractor runs SEQUENTIALLY between the regex extractor
+# (STAGE 1, kept forever as deterministic floor per CONTEXT D-09) and the
+# narrator agent loop. The narrator must read the freshly-persisted profile
+# AFTER the extractor writes — wrapping these two in `asyncio.gather(...)`
+# would race the read against the write (RESEARCH §6 Pitfall 2).
+#
+# Anonymous chat (CONTEXT D-04): when no `_user`, the extractor still runs
+# but its output goes to a request-scoped Python dict, NEVER the DB.
+#
+# Cache (CONTEXT D-10/D-11): canonical post-_coerce_fact_value values cached
+# 30s; the cache NEVER stores raw `source_quote` strings (no PII in cache).
+
+# Map from regex-extractor `Fact.topic` strings to canonical `_SAVE_FACT_*`
+# key names. Used by `_run_extractor_stage` to compute the "regex-covered
+# keys" set so the LLM extractor can be merged with regex-floor-wins per
+# CONTEXT D-09. Topics emitted today: identity / salary / location /
+# household / family / lpp / 3a / debt
+# (`services/backend/app/services/coach/profile_extractor.py:_extract_*`).
+_REGEX_TOPIC_TO_CANONICAL_KEYS: dict[str, set[str]] = {
+    "identity": {"birthYear"},
+    "salary": {"incomeGrossYearly", "incomeNetYearly"},
+    "location": {"canton"},
+    "household": {"householdType"},
+    # `family` topic has no canonical key in _SAVE_FACT_ALLOWED_KEYS — the
+    # regex emits a Fact but it doesn't shadow any LLM-extractable field.
+    "family": set(),
+    "lpp": {"avoirLpp"},
+    "3a": {"pillar3aBalance"},
+    "debt": {"hasDebt", "totalDebt"},
+}
+
+
+def _persist_extracted_fact(
+    fact: "ExtractedFact",
+    *,
+    user_id: Optional[str],
+    db: Optional[Session],
+    in_memory_state: Optional[dict] = None,
+) -> bool:
+    """Persist a single extracted fact (refactor of save_fact handler).
+
+    Branches per CONTEXT D-04:
+      - Authenticated (`user_id` set, `db` set, `in_memory_state` None):
+        write canonical value to ProfileModel.data via the same code path
+        as the existing save_fact handler.
+      - Anonymous (`user_id` None, `in_memory_state` provided):
+        write canonical value to the request-scoped dict, NEVER to DB.
+
+    Returns True on persistence, False on coercion failure or no-op.
+    The legacy save_fact handler is kept byte-identical when the
+    COACH_DUAL_LLM_ENABLED flag is OFF (Wave 0 invariant); Wave 2 ADDS
+    this extractor-side caller without refactoring the handler itself.
+    """
+    coerced = _coerce_fact_value(fact.key, fact.value)
+    if coerced is None:
+        return False
+
+    if user_id is None and in_memory_state is not None:
+        # Anonymous chat path — D-04 in-memory only.
+        in_memory_state[fact.key] = coerced
+        return True
+
+    if user_id is not None and db is not None:
+        try:
+            from app.models.profile_model import ProfileModel as _PM
+            profile = (
+                db.query(_PM)
+                .filter(_PM.user_id == user_id)
+                .order_by(_PM.updated_at.desc())
+                .first()
+            )
+            if profile is None:
+                return False
+            data = dict(profile.data or {})
+            data[fact.key] = coerced
+            profile.data = data
+            profile.updated_at = datetime.now(timezone.utc)
+            db.add(profile)
+            db.commit()
+            return True
+        except Exception:
+            try:
+                db.rollback()
+            except Exception:
+                pass
+            logger.exception(
+                "_persist_extracted_fact DB commit failed key=%s", fact.key
+            )
+            return False
+
+    return False
+
+
+def _merge_extracted(
+    regex_covered_keys: set[str],
+    llm_facts: list["ExtractedFact"],
+) -> list["ExtractedFact"]:
+    """Merge LLM-extracted facts on top of the regex floor.
+
+    Regex floor wins on conflict (CONTEXT D-09): any LLM fact whose
+    canonical key is already covered by the regex extractor is DROPPED.
+    LLM facts on missing keys are KEPT (regex didn't catch them).
+
+    The regex Fact list itself isn't returned by this helper — the regex
+    pipeline persists its own facts via the legacy CoachInsightRecord
+    path at the existing site. This helper only filters the LLM output.
+    """
+    return [f for f in llm_facts if f.key not in regex_covered_keys]
+
+
+def _extractor_in_memory_state_for_request() -> dict:
+    """Factory for the request-scoped in-memory dict used by anonymous chat.
+
+    A fresh dict per call — request-scoped per D-04. Module-global state
+    would leak facts across requests/users, which is the exact opposite of
+    the CONTEXT D-04 contract.
+    """
+    return {}
+
+
+# Tiny in-memory TTL cache (CONTEXT D-10 with in-memory dict fallback).
+# Stores canonical post-`_coerce_fact_value` values only — NEVER raw
+# extractor output (D-11; no `source_quote` substrings in the cache).
+# Keyed by `f"extractor:{user_id_or_anon}:{sha256(message)[:16]}"`.
+_EXTRACTOR_CACHE: dict[str, tuple[float, list[dict]]] = {}
+_EXTRACTOR_CACHE_TTL_SECONDS = 30.0
+
+
+def _extractor_cache_get(key: str) -> Optional[list[dict]]:
+    """Return the cached canonical fact list, or None on miss/expiry."""
+    import time as _time
+    entry = _EXTRACTOR_CACHE.get(key)
+    if entry is None:
+        return None
+    expires_at, payload = entry
+    if expires_at < _time.time():
+        _EXTRACTOR_CACHE.pop(key, None)
+        return None
+    return payload
+
+
+def _extractor_cache_set(
+    key: str, payload: list[dict], *, ttl: float = _EXTRACTOR_CACHE_TTL_SECONDS
+) -> None:
+    """Store canonical fact list under key for `ttl` seconds (D-10)."""
+    import time as _time
+    _EXTRACTOR_CACHE[key] = (_time.time() + ttl, payload)
+
+
+def _extractor_cache_key(
+    user_id_or_anon: str, sanitized_message: str
+) -> str:
+    """Build a deterministic cache key with sha256-hashed message slice."""
+    import hashlib
+    digest = hashlib.sha256(
+        (sanitized_message or "").encode("utf-8", errors="ignore")
+    ).hexdigest()[:16]
+    return f"extractor:{user_id_or_anon}:{digest}"
+
+
+async def _run_extractor_stage(
+    *,
+    sanitized_message: str,
+    safe_history: list[dict],
+    safe_profile: dict,
+    regex_covered_keys: set[str],
+    user_id: Optional[str],
+    db: Optional[Session],
+    api_key: str,
+    provider: str,
+    persistence_consent: bool,
+) -> dict:
+    """Phase 91 Wave 2 — STAGE 2 LLM extractor wrapper.
+
+    Runs SEQUENTIALLY between the regex extractor (STAGE 1) and the
+    narrator (`_run_agent_loop`). The narrator's PROFIL block reads the
+    freshly persisted state AFTER this returns — wrapping in
+    `asyncio.gather` would race the read against the write
+    (RESEARCH §6 Pitfall 2).
+
+    Returns a dict with:
+        extractor_facts: list[ExtractedFact] — merged LLM facts post-D-09
+        in_memory_state: dict — anonymous-chat fact buffer (D-04); always
+            populated when `user_id is None`, empty otherwise
+
+    Failure paths (all non-fatal — narrator runs anyway with regex floor):
+      - Flag OFF → no-op, returns empty.
+      - `_has_concrete_facts(message) is False` → skip-on-empty (RESEARCH §5).
+      - Authenticated + persistence_consent=False → gate closed.
+      - Anonymous: ALWAYS run when flag ON + concrete facts present (D-04).
+      - asyncio.TimeoutError / any extractor exception → empty fallback.
+
+    Cache (D-10/D-11): canonical post-`_coerce_fact_value` values cached
+    30s under `extractor:<user_or_anon>:<sha256(message)>`. NEVER stores
+    raw `source_quote` (D-11).
+    """
+    in_memory_state: dict = _extractor_in_memory_state_for_request()
+    empty_result = {
+        "extractor_facts": [],
+        "in_memory_state": in_memory_state,
+    }
+
+    if not settings.COACH_DUAL_LLM_ENABLED:
+        return empty_result
+
+    if not _has_concrete_facts(sanitized_message):
+        # Skip-on-empty mitigation (RESEARCH §5) — pure ack messages
+        # never invoke the extractor LLM. Bounds cost regression.
+        return empty_result
+
+    # Persistence gate (CONTEXT D-04):
+    #   - authenticated + consent True  → DB write path
+    #   - authenticated + consent False → SKIP entirely (matches today's
+    #       regex extractor gate at the legacy STAGE 1 site)
+    #   - anonymous (no user_id)        → ALWAYS run, in-memory buffer
+    if user_id is not None and not persistence_consent:
+        return empty_result
+
+    cache_id = user_id or "anon"
+    cache_key = _extractor_cache_key(cache_id, sanitized_message)
+    cached_payload = _extractor_cache_get(cache_key)
+    if cached_payload is not None:
+        # Replay cached canonical values into the appropriate sink.
+        replayed_facts: list[ExtractedFact] = []
+        for entry in cached_payload:
+            try:
+                replayed_facts.append(
+                    ExtractedFact(
+                        key=entry["key"],
+                        value=entry["value"],
+                        confidence="high",
+                        # Cache stores no source_quote (D-11). Re-emit a
+                        # neutral marker so Pydantic validation passes;
+                        # downstream code reads `.key` and `.value` only.
+                        source_quote="cached",
+                    )
+                )
+            except Exception:
+                continue
+        # Re-persist from cache so the narrator sees the same state
+        # (matches the no-cache path's invariants).
+        for fact in replayed_facts:
+            _persist_extracted_fact(
+                fact,
+                user_id=user_id,
+                db=db,
+                in_memory_state=in_memory_state if user_id is None else None,
+            )
+        return {
+            "extractor_facts": replayed_facts,
+            "in_memory_state": in_memory_state,
+        }
+
+    # Live extractor call — sequential, with a hard timeout (non-fatal).
+    extractor_output = ExtractorOutput()
+    try:
+        extractor_output = await asyncio.wait_for(
+            run_llm_extractor(
+                user_message=sanitized_message,
+                # CONTEXT D-12: 6-turn history symmetric for both LLMs.
+                conversation_history=(safe_history or [])[-6:],
+                profile_snapshot={
+                    k: v for k, v in (safe_profile or {}).items()
+                    if v is not None
+                },
+                api_key=api_key,
+                provider=provider,
+                model="claude-sonnet-4-5-20250929",
+            ),
+            timeout=10.0,
+        )
+    except (asyncio.TimeoutError, Exception) as exc:  # noqa: BLE001
+        logger.warning(
+            "llm_extractor failed (non-fatal): %s", type(exc).__name__
+        )
+        extractor_output = ExtractorOutput()
+
+    merged = _merge_extracted(regex_covered_keys, extractor_output.facts)
+
+    # Persistence loop — branches per D-04. Only persist what was merged
+    # (regex-floor-wins already filtered).
+    canonical_payload: list[dict] = []
+    for fact in merged:
+        ok = _persist_extracted_fact(
+            fact,
+            user_id=user_id,
+            db=db,
+            in_memory_state=in_memory_state if user_id is None else None,
+        )
+        if ok:
+            coerced = _coerce_fact_value(fact.key, fact.value)
+            canonical_payload.append({"key": fact.key, "value": coerced})
+
+    # Cache canonical values only (D-11 — no source_quote).
+    if canonical_payload:
+        _extractor_cache_set(cache_key, canonical_payload)
+
+    return {
+        "extractor_facts": merged,
+        "in_memory_state": in_memory_state,
+    }
+
+
 AGENT_LOOP_DEADLINE_SECONDS = 55  # Total wall-clock cap — leaves margin before Gunicorn's 120s
 AGENT_ITERATION_TIMEOUT_SECONDS = 25  # Per-iteration cap — one hung API call doesn't consume all time
 MAX_REQUEST_TOKENS = 4000  # Per-request budget
@@ -1208,6 +1540,15 @@ PRIMARY_MODEL_DEFAULT = "claude-sonnet-4-5-20250929"
 FALLBACK_MODEL_HAIKU = "claude-haiku-4-5-20251001"
 FALLBACK_TIMEOUT_SECONDS = 20
 FALLBACK_HISTORY_MAX_TURNS = 10
+
+# Phase 91 D-01 — narrator model resolver map. Reads
+# settings.COACH_NARRATOR_MODEL when COACH_DUAL_LLM_ENABLED.
+# Reuses the same model ids defined above (single source of truth);
+# narrator and Sonnet→Haiku fallback share the literal model strings.
+_NARRATOR_MODEL_MAP = {
+    "sonnet": PRIMARY_MODEL_DEFAULT,
+    "haiku": FALLBACK_MODEL_HAIKU,
+}
 
 # v2.7 Task 4: hard-cap user-facing text (FR only in backend; mobile
 # MUST re-localize via ARB key coach.budget.daily_limit_reached).
@@ -2010,6 +2351,7 @@ async def _run_agent_loop(
     conversation_history: list[dict] | None = None,
     persistence_consent: bool = False,
     detected_intents: Optional[set[str]] = None,
+    tools: Optional[list[dict]] = None,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -2036,7 +2378,10 @@ async def _run_agent_loop(
     Returns:
         Dict with keys: answer, tool_calls, sources, disclaimers, tokens_used.
     """
-    stripped_tools = get_llm_tools()
+    # Phase 91 Wave 2: caller may pre-compute tools (narrator path uses
+    # `get_narrator_llm_tools()` which excludes save_fact + save_insight).
+    # Default = legacy `get_llm_tools()` so flag-OFF path stays byte-identical.
+    stripped_tools = tools if tools is not None else get_llm_tools()
     flutter_tool_calls: list = []
     all_sources: list = []
     all_disclaimers: list = []
@@ -2539,6 +2884,36 @@ async def coach_chat(
             "profile_extractor failed (non-fatal): %s", type(extract_exc).__name__
         )
 
+    # ------------------------------------------------------------------
+    # Step 1.4 (cont'd) — Phase 91 Wave 2 STAGE 2 LLM extractor.
+    # ------------------------------------------------------------------
+    # Behind COACH_DUAL_LLM_ENABLED (default False — flag-OFF path is
+    # byte-identical to today). When ON: runs SEQUENTIALLY after the
+    # regex extractor (STAGE 1) and BEFORE the narrator agent loop.
+    # See `_run_extractor_stage` for failure paths + cache + D-04
+    # anonymous handling.
+    _regex_covered_keys: set[str] = set()
+    try:
+        for _f in (locals().get("extracted_facts") or []):
+            _regex_covered_keys |= _REGEX_TOPIC_TO_CANONICAL_KEYS.get(
+                getattr(_f, "topic", ""), set()
+            )
+    except Exception:
+        _regex_covered_keys = set()
+
+    _extractor_stage_result = await _run_extractor_stage(
+        sanitized_message=sanitized_message,
+        safe_history=safe_history,
+        safe_profile=safe_profile or {},
+        regex_covered_keys=_regex_covered_keys,
+        user_id=str(_user.id) if _user else None,
+        db=db,
+        api_key=effective_api_key,
+        provider=body.provider,
+        persistence_consent=body.persistence_consent,
+    )
+    _extractor_in_memory_state: dict = _extractor_stage_result["in_memory_state"]
+
     reasoning_output = StructuredReasoningService.reason(
         user_message=sanitized_message,
         profile_context=safe_profile,
@@ -2624,6 +2999,50 @@ async def coach_chat(
         except Exception as _pf_exc:
             logger.warning("profile block injection failed: %s", _pf_exc)
 
+    # Phase 91 Wave 2 — anonymous-chat PROFIL block (D-04).
+    # When no `_user`, the LLM extractor's output lives in a request-scoped
+    # in-memory dict. Surface those just-extracted facts to the narrator's
+    # PROFIL block so the narrator « reads the fresh consolidated profile »
+    # contract from RESEARCH §3 holds for anonymous chat too.
+    if not _user and _extractor_in_memory_state:
+        _anon_facts: list[str] = []
+        _ds = _extractor_in_memory_state
+        if _ds.get("birthYear"):
+            _anon_facts.append(f"- Annee de naissance: {_ds['birthYear']}")
+        if _ds.get("canton"):
+            _anon_facts.append(f"- Canton: {_ds['canton']}")
+        if _ds.get("commune"):
+            _anon_facts.append(f"- Commune: {_ds['commune']}")
+        if _ds.get("incomeGrossYearly"):
+            _anon_facts.append(
+                f"- Salaire brut annuel: {int(_ds['incomeGrossYearly']):,} CHF".replace(",", "'")
+            )
+        if _ds.get("incomeNetMonthly"):
+            _anon_facts.append(
+                f"- Salaire net mensuel: {int(_ds['incomeNetMonthly']):,} CHF".replace(",", "'")
+            )
+        # Include any other simple key=value pairs for completeness.
+        _surfaced_keys = {
+            "birthYear", "canton", "commune",
+            "incomeGrossYearly", "incomeNetMonthly",
+        }
+        for _k, _v in _ds.items():
+            if _k in _surfaced_keys or _v is None:
+                continue
+            _anon_facts.append(f"- {_k}: {_v}")
+        if _anon_facts:
+            anon_block = (
+                "\n\n## PROFIL UTILISATEUR (faits saisis cette session, NE PAS INVENTER) :\n"
+                + "\n".join(_anon_facts)
+                + "\n\nRAPPEL: utilise UNIQUEMENT ces valeurs. "
+                + "Si une info manque, demande-la simplement."
+            )
+            system_prompt = system_prompt + anon_block
+            logger.info(
+                "coach_chat injected anonymous profile block (facts=%d)",
+                len(_anon_facts),
+            )
+
     # B14 (2026-05-09): inject detected user intent so the LLM can avoid
     # off-topic education content. Heuristic, non-binding — Claude can
     # still discuss multiple topics when the user query is genuinely
@@ -2708,7 +3127,29 @@ async def coach_chat(
     # fed back to the LLM for a contextually enriched final answer.
     # Flutter-bound tools (show_*, route_to_screen) are collected and
     # returned in the response without re-calling the LLM.
+    #
+    # Phase 91 Wave 2: when COACH_DUAL_LLM_ENABLED, the narrator path uses
+    # `get_narrator_llm_tools()` (excludes save_fact + save_insight per
+    # EXTR-04). Flag-OFF default keeps `get_llm_tools()` so today's path
+    # is byte-identical.
     # ------------------------------------------------------------------
+    _narrator_tools = (
+        get_narrator_llm_tools()
+        if settings.COACH_DUAL_LLM_ENABLED
+        else get_llm_tools()
+    )
+    # Phase 91 D-01 — when dual-LLM is on, the narrator's model is selected
+    # by COACH_NARRATOR_MODEL (default 'sonnet' — preserves today's hardcoded
+    # Wave 2 behavior). When dual-LLM is off, the legacy effective_model
+    # resolution stands unchanged (body.model OR budget tier override OR
+    # fallback chain). Stage 3 eval gate (plan 91-05) is the explicit
+    # decision point that may flip the default to 'haiku' (-2.5%/turn) per
+    # ADR-20260419-v2.8-kill-policy.md.
+    _narrator_model = (
+        _NARRATOR_MODEL_MAP[settings.COACH_NARRATOR_MODEL]
+        if settings.COACH_DUAL_LLM_ENABLED
+        else effective_model
+    )
     try:
         loop_result = await asyncio.wait_for(
             _run_agent_loop(
@@ -2716,7 +3157,7 @@ async def coach_chat(
                 question=body.message,
                 api_key=effective_api_key,
                 provider=body.provider,
-                model=effective_model,
+                model=_narrator_model,
                 profile_context=safe_profile,
                 language=body.language,
                 memory_block=effective_memory_block,
@@ -2726,6 +3167,7 @@ async def coach_chat(
                 conversation_history=safe_history,
                 persistence_consent=body.persistence_consent,
                 detected_intents=detected_intents,
+                tools=_narrator_tools,
             ),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )

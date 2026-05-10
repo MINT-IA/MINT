@@ -1580,6 +1580,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
                 title: 'Mint',
                 debugShowCheckedModeBanner: false,
                 theme: _buildPremiumTheme(),
+                darkTheme: buildDarkTheme(),
                 themeMode: ThemeMode.light,
                 routerConfig: _router,
                 scaffoldMessengerKey: _scaffoldMessengerKey,
@@ -1721,6 +1722,34 @@ ThemeData _buildPremiumTheme() {
     ),
     dividerTheme: const DividerThemeData(
       color: MintColors.lightBorder,
+      thickness: 1,
+    ),
+  );
+}
+
+/// MINT v2 dark theme factory (Phase 92 FONT-04).
+///
+/// Token drop only — per-screen dark adoption deferred to MVP-DARK-MODE-V1.
+/// Wired as `darkTheme:` on MaterialApp.router so the system dark mode
+/// fallback path exists. Active rendering still gated by `themeMode:`
+/// (currently ThemeMode.light — no behavior change in this phase per D-92.B).
+ThemeData buildDarkTheme() {
+  return ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: MintColors.darkBg,
+    colorScheme: const ColorScheme.dark(
+      primary: MintColors.darkMentheVive,
+      onPrimary: MintColors.darkBg,
+      secondary: MintColors.mentheVive,
+      onSecondary: MintColors.darkBg,
+      surface: MintColors.darkBg,
+      onSurface: MintColors.darkInk,
+      error: MintColors.error,
+      outline: MintColors.darkBorderSubtle,
+    ),
+    dividerTheme: const DividerThemeData(
+      color: MintColors.darkBorderSubtle,
       thickness: 1,
     ),
   );

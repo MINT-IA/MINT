@@ -121,4 +121,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-25 after v2.8 close (gaps_found, 5/9 phases shipped + 13 decimals) and v2.9 « Coach Visuel Hybride » open*
+*Last updated: 2026-05-09 after Phase 91 MVP-EXTRACTOR-V2 close (verified, 6/7 plans shipped, Stage 3 narrator decision = SONNET kill-policy fallback per ratio 0.24, 5-gate exit contract closed) ; v2.9 milestone in progress with strategic pivot proposed in `decisions/2026-05-09-calc-first-llm-illumination.md` (calc-first + LLM illumination, 7-expert panel synthesis, awaiting acceptance for roadmap injection 94/95/96 expansion + 92.5 insertion)*
