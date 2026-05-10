@@ -1,7 +1,9 @@
 """Phase 94 Wave 0 — closed-world citation gate parser primitives.
 
 Per CONTEXT D-01..D-04 :
-- D-01 : citation format is `{{cite:<key>}}` (NEVER `[citation:source_id]`).
+- D-01 : citation format is `{{cite:<key>}}` ONLY (legacy bracketed
+  square-bracket form is rejected — uniformity with Phase 93.5 bundle
+  citation_allowlist annotations).
 - D-02 : 5 number-family regex (currency / percentage / legal article /
   duration / regulatory constant) compiled at module import time. Pure
   Python `re` — no NLP library, no LLM call, ≤50ms target on 200-token
