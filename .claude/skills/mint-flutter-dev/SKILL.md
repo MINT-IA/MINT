@@ -151,3 +151,12 @@ Before ANY commit:
 
 After ANY commit:
 10. **Auto-audit** — list: most likely remaining bug, least proven joint, riskiest fallback
+
+## External skill cross-references (cherry-picked from `flutter/skills` 2026-05-10)
+
+Two generic Flutter skills are available alongside this one for narrow troubleshooting / setup tasks. They live under `.agents/skills/` and do NOT replace anything in this skill — they are supplementary references.
+
+- **[`flutter-fix-layout-issues`](../../../.agents/skills/flutter-fix-layout-issues/SKILL.md)** — debug RenderFlex overflows / unbounded constraints. Use when an exception text mentions « overflowed by N pixels » or « Vertical viewport was given unbounded height ». No MINT equivalent ; this is the only debug reference for these errors.
+- **[`flutter-add-integration-test`](../../../.agents/skills/flutter-add-integration-test/SKILL.md)** — `integration_test` package + Flutter Driver setup. MINT currently uses Maestro for end-to-end ; this skill is reference material for adding a complementary `integration_test/` suite if a regression class needs Dart-level UI verification beyond what Maestro covers.
+
+8 other `flutter/skills` skills are explicitly NOT adopted — see [`.agents/skills/README.md`](../../../.agents/skills/README.md) for the rationale (audit verdict 2026-05-10 : conflicts with locked MINT stack — MVVM vs Provider, GoRouter already wired, 6 ARBs already shipped). Full evaluation : [`.planning/audit/codebase-audit-2026-05-10/flutter-skills-evaluation.md`](../../../.planning/audit/codebase-audit-2026-05-10/flutter-skills-evaluation.md).
