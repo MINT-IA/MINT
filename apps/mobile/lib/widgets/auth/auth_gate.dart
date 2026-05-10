@@ -72,6 +72,13 @@ class AuthGate extends StatelessWidget {
   }
 
   void _showRegistrationSheet(BuildContext context) {
+    // Capture the current route NOW with the outer (GoRouter-rooted) context.
+    // showModalBottomSheet's builder gets a stripped context that lives below
+    // a Navigator overlay — calling `GoRouterState.of(context)` from inside
+    // the sheet builder throws « The parent route must be a page route to
+    // have a GoRouterState ». Sentry fatal `070bdda9…` 2026-05-04 18:48 UTC
+    // (ch.mint.app@2.9.0+37, /byok). Pass the route down as a parameter.
+    final currentRoute = GoRouterState.of(context).uri.toString();
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: MintColors.transparent,
@@ -79,7 +86,10 @@ class AuthGate extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => _RegistrationBottomSheet(trigger: triggerContext),
+      builder: (_) => _RegistrationBottomSheet(
+        trigger: triggerContext,
+        currentRoute: currentRoute,
+      ),
     );
   }
 }
@@ -157,14 +167,16 @@ String _messageForTrigger(AuthTrigger trigger, S l) {
 
 class _RegistrationBottomSheet extends StatelessWidget {
   final AuthTrigger trigger;
+  final String currentRoute;
 
-  const _RegistrationBottomSheet({required this.trigger});
+  const _RegistrationBottomSheet({
+    required this.trigger,
+    required this.currentRoute,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
-    final currentRoute =
-        GoRouterState.of(context).uri.toString();
 
     return Container(
       constraints: BoxConstraints(
