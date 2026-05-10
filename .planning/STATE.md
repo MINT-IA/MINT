@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
-status: verifying
-stopped_at: Phase 95 context gathered (auto from master synthesis)
-last_updated: "2026-05-10T21:44:08.483Z"
-last_activity: 2026-05-10
+status: executing
+stopped_at: "Phase 95 Wave 1 complete, Wave 2 next"
+last_updated: "2026-05-10T22:43:00.000Z"
+last_activity: 2026-05-10 -- Phase 95 Wave 1 (Plan 95-01) closed
 progress:
   total_phases: 11
   completed_phases: 4
-  total_plans: 23
-  completed_plans: 18
-  percent: 78
+  total_plans: 25
+  completed_plans: 19
+  percent: 76
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase 94 — mvp-citation-gate
+**Current focus:** Phase 95 — mvp-dag-invalidation
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,17 +35,18 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 95
-Plan: Not started
-Status: Plan 94-03 Tasks 1-3 landed ; Task 4 checkpoint:human-verify awaits Julien GO/NO-GO/PARTIAL signal
-Last activity: 2026-05-10
+Phase: 95 (mvp-dag-invalidation) — EXECUTING
+Plan: 2 of 2 (Wave 1 closed, Wave 2 next)
+Status: Phase 95 Wave 1 complete, Wave 2 next
+Last activity: 2026-05-10 -- Phase 95 Wave 1 (Plan 95-01) closed, 5/5 tasks committed, full backend 6479 passed (+31 net new, 0 regressions), R1 hash parity 50/50 byte-identical
 Next:
 
-  1. **Julien GO/NO-GO** on `94-03-FLAG-FLIP-PROPOSAL.md` :
+  1. **Plan 95-02 (Wave 2) execution** — fattens `ProjectionGroundingPack` emission + `_substitute_placeholders` double-lookup + Pareto 3-point + what_ifs + bootstrap CIs + LSFin annotation. Wave 1 closed all blocking risks (R1 hash parity 50/50, alembic roundtrip green).
+  2. **Julien GO/NO-GO** on `94-03-FLAG-FLIP-PROPOSAL.md` (carried from Phase 94 close) :
      - `approved` → Wave 4 opens (narrator-prompt placeholder syntax + re-eval)
      - `approved staging-only` → permanent staging-only, no prod-flip
      - `not approved — issue: <description>` → revision mode
-  2. `/gsd-verify-work 94` → 5-gate exit contract close (G2 device + G3 dev CI pending)
+  3. `/gsd-verify-work 94` → 5-gate exit contract close (G2 device + G3 dev CI pending — carried)
 
 ## Plan 94-01 Receipt (Wave 0 close, 2026-05-10)
 
@@ -104,7 +105,21 @@ Next:
 - **Disposition** : NO-GO + PARTIAL unchanged. Staging stays ON for diagnostic value, prod stays OFF for narrator quality. No new GO recommendation.
 - USER VALUE DELIVERED : NONE in prod. Branch `feature/S94-mvp-citation-gate` holds 94+94.1 ; not merged. The 94.1 measurement IS the only data on the fattened narrator behavior.
 
-Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped 2026-05-09 (5 design-system lints + baselines + lefthook + CI).
+## Plan 95-01 Receipt (Wave 1 close, 2026-05-10)
+
+- Files created : 13 (4 production modules — inputs_hash, projection_id, staleness, alembic p95 — + 7 test files + 2 fixture pack + 2 Dart harness + 1 PII lint, counting test_dag_invalidation/__init__.py and conftest.py as 1 setup unit)
+- Files modified : 3 (pyproject.toml +2 deps, scenario.py +2 nullable cols, lefthook.yml +pii_fixture_scan entry)
+- Tests added : 31 (10 inputs_hash + 6 projection_id + 7 staleness incl SC#4(c) + 4 migration + 4 hash_parity) + 0 regressions
+- Full backend suite : 6479 passed, 62 skipped, 1 xfailed in 107.51s (Wave 0 baseline 6448 → +31 net new)
+- Commits : 30381bad (T1 scaffold) → cb613e01 (T2 inputs_hash) → adbda907 (T3 projection_id) → 1296e7a7 (T4 alembic + staleness) → 93baff1c (T5 hash parity)
+- Duration : ~17 min
+- 0-trust : SUMMARY.md `## Self-Check : PASSED` cited at .planning/phases/95-mvp-dag-invalidation/95-01-SUMMARY.md
+- **R1 risk CLOSED** : Python ↔ Dart hash parity 50/50 byte-identical on hash_parity_50.jsonl (50 fixtures across 5 buckets : 20 happy / 10 nested / 10 edge-floats / 5 boolean / 5 lex-sort). Required Dart-side _quantize() addition (Rule 1 auto-fix : initial RESEARCH §D-03 recipe omitted quantize step → 38/50 pre-fix → 50/50 post-fix).
+- Deviations (3 auto-fixed) : (a) alembic p95 chained off 29_05_magic_link_tokens, not p86_eclairage_delivered (Rule 3 — codebase already had a branchpoint at p86) ; (b) Dart harness _quantize() addition (Rule 1) ; (c) test_migration.py monkeypatch.setenv + importlib.reload pattern (Rule 3 — env.py overrides sqlalchemy.url AFTER cfg.set_main_option).
+- staleness_high() production read-path integration + Dart-side projection-model field additions both deferred to Phase 96 W2 per CONTEXT `<deferred>` block.
+- USER VALUE DELIVERED : NONE YET — data-model + parity-test foundation only ; user-visible behavior changes ship in Phase 96 narrator wiring.
+
+Progress: [███░░░░░░░] 28% (2/7 phases, including this Wave 1 of Phase 95 — Phase 90 fully shipped, Phase 95 Plan 1 of 2 closed) — Phase 90 shipped 2026-05-09 (5 design-system lints + baselines + lefthook + CI).
 
 ## Phase Plan (Chat-as-Verb)
 
@@ -115,7 +130,7 @@ Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped
 | 92 | MVP-FONTS-TOKENS-V2 | UI | 3d | not started (depends on 90) |
 | 93 | MVP-CTA-UNIFICATION-V1 | UI | 4d | not started (depends on 90) |
 | 94 | MVP-CITATION-GATE | Architecture | 3d | not started (depends on 91) |
-| 95 | MVP-DAG-INVALIDATION | Architecture | 4d | not started (depends on 94) |
+| 95 | MVP-DAG-INVALIDATION | Architecture | 4d | Wave 1 closed 2026-05-10 (Plan 95-01 5/5 tasks, 31 tests, R1 closed) — Wave 2 next |
 | 96 | MVP-CHAT-AS-VERB | Architecture | 5d | not started (depends on 95) |
 
 ## Cross-cutting
@@ -137,9 +152,9 @@ Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped
 
 ## Session Continuity
 
-Last session: 2026-05-10T21:44:08.477Z
-Stopped at: Phase 95 context gathered (auto from master synthesis)
-Resume file: .planning/phases/95-mvp-dag-invalidation/95-CONTEXT.md
+Last session: 2026-05-10T22:43:00.000Z
+Stopped at: Phase 95 Wave 1 complete (Plan 95-01 closed, 5/5 tasks, 31 tests, R1 closed) — Wave 2 (Plan 95-02) next
+Resume file: .planning/phases/95-mvp-dag-invalidation/95-02-PLAN.md
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>
