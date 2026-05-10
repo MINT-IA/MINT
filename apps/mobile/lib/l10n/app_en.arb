@@ -3521,7 +3521,7 @@
   "authGatePrivacyNote": "Your data stays on your device and is encrypted.",
   "authRegisterSubtitle": "Create an encrypted account. Cloud sync is off by default; you can turn it on in Settings › Privacy.",
   "authWhyCreateAccount": "Why create an account?",
-  "authBenefitProjections": "AVS/LPP projections aligned to your situation",
+  "authBenefitProjections": "Financial projections adapted to your life choices (housing, tax, pension, family…)",
   "authBenefitCoach": "Personalised coach with your first name",
   "authBenefitSync": "Cloud backup + multi-device sync",
   "authFirstName": "First name",

@@ -7782,7 +7782,7 @@ class SDe extends S {
 
   @override
   String get authBenefitProjections =>
-      'AHV/BVG-Projektionen auf deine Situation abgestimmt';
+      'Finanzielle Projektionen passend zu deinen Lebensentscheidungen (Wohnen, Steuern, Vorsorge, Familie…)';
 
   @override
   String get authBenefitCoach => 'Persönlicher Coach mit deinem Vornamen';
