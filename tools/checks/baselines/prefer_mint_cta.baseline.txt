@@ -89,8 +89,8 @@ lib/services/slm/slm_auto_prompt_service.dart:226: FilledButton(
 lib/services/slm/slm_auto_prompt_service.dart:282: OutlinedButton(
 lib/widgets/analytics_consent_banner.dart:174: OutlinedButton(
 lib/widgets/analytics_consent_banner.dart:196: FilledButton(
-lib/widgets/auth/auth_gate.dart:232: ElevatedButton(
-lib/widgets/auth/auth_gate.dart:259: TextButton(
+lib/widgets/auth/auth_gate.dart:244: ElevatedButton(
+lib/widgets/auth/auth_gate.dart:271: TextButton(
 lib/widgets/auth/auth_gate_bottom_sheet.dart:116: TextButton(
 lib/widgets/auth/auth_gate_bottom_sheet.dart:140: TextButton(
 lib/widgets/auth/auth_gate_bottom_sheet.dart:90: ElevatedButton(
