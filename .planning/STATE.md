@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Completed 94-02-PLAN.md (Wave 1 — wired citation gate, ≥6436 tests green)
-last_updated: "2026-05-10T18:30:47.012Z"
+stopped_at: Plan 94-03 Tasks 1-3 landed ; Task 4 checkpoint awaiting Julien GO/NO-GO
+last_updated: "2026-05-10T19:54:30.536Z"
 last_activity: 2026-05-10
 progress:
   total_phases: 10
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 22
-  completed_plans: 16
-  percent: 73
+  completed_plans: 17
+  percent: 77
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase 94 — MVP-CITATION-GATE
+**Current focus:** Phase 94 — mvp-citation-gate
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,14 +35,17 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 94 (MVP-CITATION-GATE) — EXECUTING
-Plan: 2 of 3 — DONE (Wave 1 wiring + Wave 0 scaffold)
-Status: Ready to execute Plan 94-03
+Phase: 94 (mvp-citation-gate) — EXECUTING (Plan 03 Tasks 1-3 landed, Task 4 checkpoint awaiting Julien)
+Plan: 3 of 3 (T4 awaiting GO/NO-GO)
+Status: Plan 94-03 Tasks 1-3 landed ; Task 4 checkpoint:human-verify awaits Julien GO/NO-GO/PARTIAL signal
 Last activity: 2026-05-10
 Next:
 
-  1. `/gsd-execute-phase 94 --plan 03` → Stage 3 eval (50-fixture pack ≥95% Sonnet / ≥90% Haiku) + Maestro G1 flow + FLAG-FLIP-PROPOSAL
-  2. `/gsd-verify-work 94` → 5-gate exit contract close
+  1. **Julien GO/NO-GO** on `94-03-FLAG-FLIP-PROPOSAL.md` :
+     - `approved` → Wave 4 opens (narrator-prompt placeholder syntax + re-eval)
+     - `approved staging-only` → permanent staging-only, no prod-flip
+     - `not approved — issue: <description>` → revision mode
+  2. `/gsd-verify-work 94` → 5-gate exit contract close (G2 device + G3 dev CI pending)
 
 ## Plan 94-01 Receipt (Wave 0 close, 2026-05-10)
 
@@ -68,6 +71,21 @@ Next:
 - M3 fix iter 1 : D-04#4 placeholder-body strip — 3 regression tests in test_number_detection.py
 - H3 fix iter 1 : end-to-end gate() p95 ≤ 50ms / max ≤ 80ms on 4 kB FR realistic narrative (test_gate_performance.py)
 - Flag default OFF in prod (D-19/D-20) ; flag-OFF byte-identity preserved (6 snapshot tests still green)
+- USER VALUE DELIVERED : NONE YET — Plan 94-03 builds eval pack + Maestro G1 + flips staging flag
+
+## Plan 94-03 Receipt (Wave 2 close-pending, 2026-05-10)
+
+- Files created : 8 (citation_gate_eval_50.jsonl, flow_narrator_refuses_uncited_numbers.yaml, 3 eval-run JSONs, EVAL-RESULTS, FLAG-FLIP-PROPOSAL, deferred-items, SUMMARY)
+- Files modified : 2 (tools/eval_narrator.py +215 LOC, .token_count_cache.json +1 entry)
+- Tests added : 0 (Plan 03 deliverables are CLI flag + fixture pack + Maestro flow + docs — gate logic tested in Waves 0+1, total 170 unit tests)
+- Full backend suite : 6436 passed, 62 skipped, 1 xfailed in 106.09s (no regression vs Wave 1 baseline 6436)
+- Commits (T1+T2+T3) : 937e3bba (T1 — --gate flag + 50-fixture pack) → f00fb693 (T2 — Maestro smoke flow + staging Railway + 3 live evals) → close-out docs commit
+- Duration : ≈55 min execution + LLM API wait time
+- 0-trust : SUMMARY.md `## Self-Check : PASSED` cited at .planning/phases/94-mvp-citation-gate/94-03-SUMMARY.md
+- **STAGE 3 FINDING** : Sonnet gate_correct=3/50 (6%), Haiku 7/50 (14%) — both FAR below D-15 ≥95%/≥90% thresholds. Root cause : narrator system prompt does not teach `{{cite:<key>}}` placeholder syntax → gate (correctly per D-02..D-13) rejects naked numbers → 60-80% fallback rate. Mechanical, not a gate-logic bug. Wave 4 fattens narrator prompt → re-evals.
+- **Maestro G1** : smoke-level PASS exit 0 (16-17s) on anonymous surface ; gate verification deferred to Wave 4 because anonymous_chat.py has NO gate wrapper today (deferred-items.md D1).
+- **Staging Railway** : COACH_CITATION_GATE_ENABLED=true SET 2026-05-10T19:09:03Z on service MINT env staging ; prod env variable absent (config.py default False).
+- **Recommendation** : NO-GO + PARTIAL (staging-only, Wave 4 narrator prompt fattening, re-eval). Awaits Julien GO/NO-GO/PARTIAL signal at Task 4 checkpoint.
 - USER VALUE DELIVERED : NONE YET — Plan 94-03 builds eval pack + Maestro G1 + flips staging flag
 
 Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped 2026-05-09 (5 design-system lints + baselines + lefthook + CI).
@@ -103,8 +121,8 @@ Progress: [██░░░░░░░░] 14% (1/7 phases) — Phase 90 shipped
 
 ## Session Continuity
 
-Last session: 2026-05-10T18:30:47.009Z
-Stopped at: Completed 94-02-PLAN.md (Wave 1 — wired citation gate, ≥6436 tests green)
+Last session: 2026-05-10T19:54:30.533Z
+Stopped at: Plan 94-03 Tasks 1-3 landed ; Task 4 checkpoint awaiting Julien GO/NO-GO
 Resume file: None
 
 <details>
