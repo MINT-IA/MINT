@@ -34,9 +34,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Iterable, Optional
+from typing import TYPE_CHECKING, Iterable, Optional
+
+import sentry_sdk
 
 from app.services.coach.citation_registry import CITATION_REGISTRY, resolve
+
+if TYPE_CHECKING:
+    from app.services.coach.grounding_pack import ProjectionGroundingPack
 
 
 # ---------------------------------------------------------------------------
@@ -349,16 +354,44 @@ def _has_adjacent_cite(
     return False, None
 
 
-def _substitute_placeholders(response_text: str, ctx) -> str:
-    """Replace each `{{cite:<key>}}` by `resolve(key, ctx)` when the
-    resolved value is non-None ; keep the placeholder verbatim
-    otherwise (defensive — Wave 0 stub returns `description_fr` so most
-    keys resolve in-process ; Phase 95 GroundingPack will populate the
-    rest).
+def _substitute_placeholders(
+    response_text: str,
+    ctx,
+    *,                                                # keyword-only barrier (Pitfall 3)
+    pack: "ProjectionGroundingPack | None" = None,
+) -> str:
+    """D-09 double-lookup. Tries `pack.entries[key]` first when a pack
+    is supplied ; falls back to `CITATION_REGISTRY.resolve(key, ctx)`.
+
+    Both paths cohabit during Phase 95 + 96 (CITATION_REGISTRY removal
+    deferred post-96). When a pack is present AND a pack miss falls back
+    to a registry hit (or no-op), a Sentry breadcrumb
+    `coach.grounding_pack.fallback` is emitted for T-95-04 instrumentation.
+
+    Phase 95 ships `pack=None` at all production call sites ; Phase 96 W2
+    will populate the pack from financial_core consumer wrappers. The
+    pack=None code path is byte-identical to the Phase 94 behaviour
+    (registry-only) — see test_pack_none_preserves_phase_94_behavior.
     """
     def _swap(m: re.Match[str]) -> str:
         body = m.group(0)
         key = body[len("{{cite:"):-2]
+        # D-09 step 1 — pack lookup if a pack is supplied
+        if pack is not None:
+            entry = pack.entries.get(key)
+            if entry is not None:
+                return str(entry.value)
+            # Pack present but miss → instrument and fall through
+            try:
+                sentry_sdk.add_breadcrumb(
+                    category="coach.grounding_pack.fallback",
+                    message="pack miss -> registry lookup",
+                    level="info",
+                    data={"key": key, "reason": "pack_miss"},
+                )
+            except Exception:  # pragma: no cover — breadcrumb is fail-open
+                pass
+        # D-09 step 2 — registry fallback (unchanged Phase 94 path)
         resolved = resolve(key, ctx)
         return resolved if resolved is not None else body
 
@@ -370,6 +403,8 @@ def gate(
     ctx,  # CoachContext — typed `Any` to avoid a circular import
     citation_allowlist: Optional[Iterable[str]] = None,
     is_retry: bool = False,
+    *,
+    pack: "ProjectionGroundingPack | None" = None,
 ) -> GatedResponse:
     """Closed-world citation gate. Pure function, no I/O.
 
@@ -427,7 +462,7 @@ def gate(
             reprompt_addendum=None,
             uncited_numbers_count=0,
             banned_claims_found=(),
-            inputs_hash=None,
+            inputs_hash=pack.inputs_hash if pack else None,
         )
 
     # D-04#4 (M3 fix iter 1) — strip placeholders from the SCAN copy.
@@ -456,7 +491,7 @@ def gate(
                 reprompt_addendum=None,
                 uncited_numbers_count=0,
                 banned_claims_found=banned_tuple,
-                inputs_hash=None,
+                inputs_hash=pack.inputs_hash if pack else None,
             )
         return GatedResponse(
             verdict=GateVerdict.REJECTED_BANNED_CLAIM,
@@ -465,7 +500,7 @@ def gate(
             reprompt_addendum=REPROMPT_ADDENDUM_BANNED_CLAIM,
             uncited_numbers_count=0,
             banned_claims_found=banned_tuple,
-            inputs_hash=None,
+            inputs_hash=pack.inputs_hash if pack else None,
         )
 
     # Step 4 — legal-article span priority (D-04#3).
@@ -509,7 +544,7 @@ def gate(
                 reprompt_addendum=None,
                 uncited_numbers_count=uncited_count,
                 banned_claims_found=(),
-                inputs_hash=None,
+                inputs_hash=pack.inputs_hash if pack else None,
             )
         return GatedResponse(
             verdict=GateVerdict.REJECTED_UNCITED,
@@ -518,11 +553,12 @@ def gate(
             reprompt_addendum=REPROMPT_ADDENDUM_UNCITED,
             uncited_numbers_count=uncited_count,
             banned_claims_found=(),
-            inputs_hash=None,
+            inputs_hash=pack.inputs_hash if pack else None,
         )
 
-    # PASS — substitute placeholders via resolve().
-    gated_text = _substitute_placeholders(response_text, ctx)
+    # PASS — substitute placeholders via resolve() (D-09 double-lookup
+    # when a pack is supplied ; registry-only fallback otherwise).
+    gated_text = _substitute_placeholders(response_text, ctx, pack=pack)
     return GatedResponse(
         verdict=GateVerdict.PASS,
         gated_text=gated_text,
@@ -530,7 +566,7 @@ def gate(
         reprompt_addendum=None,
         uncited_numbers_count=0,
         banned_claims_found=(),
-        inputs_hash=None,
+        inputs_hash=pack.inputs_hash if pack else None,
     )
 
 

@@ -36,7 +36,13 @@ import logging
 import os
 import re
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    # Phase 95 W2 — Wave 2 plumbing for the citation-gate `pack=` kwarg.
+    # TYPE_CHECKING guard avoids any runtime import-time cycle ; the
+    # production call site keeps `pack=None` during Phase 95.
+    from app.services.coach.grounding_pack import ProjectionGroundingPack  # noqa: F401
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
@@ -3336,7 +3342,9 @@ async def coach_chat(
         except Exception:  # pragma: no cover — telemetry is fail-open
             pass
 
-    async def _run_narrator_with_gate() -> dict:
+    async def _run_narrator_with_gate(
+        pack: "ProjectionGroundingPack | None" = None,
+    ) -> dict:
         loop_result = await asyncio.wait_for(
             _run_agent_loop(question=body.message, **_initial_loop_kwargs),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
@@ -3350,6 +3358,7 @@ async def coach_chat(
             ctx=coach_ctx,
             citation_allowlist=_gate_allowlist,
             is_retry=False,
+            pack=pack,   # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
         )
         _emit_gate_breadcrumb(gated, retries=0)
 
@@ -3370,6 +3379,7 @@ async def coach_chat(
             ctx=coach_ctx,
             citation_allowlist=_gate_allowlist,
             is_retry=True,
+            pack=pack,   # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
         )
         _emit_gate_breadcrumb(retry_gated, retries=1)
         retry_result["answer"] = retry_gated.gated_text
