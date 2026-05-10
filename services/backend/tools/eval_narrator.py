@@ -229,15 +229,107 @@ def _word_boundary_pattern(term: str) -> re.Pattern[str]:
     )
 
 
-def _score_banned_terms(response: str, banned: list[str]) -> tuple[bool, list[str]]:
-    """Return (passed, [terms_found]). Pass when zero matches."""
+# Wave 4 (Phase 93.5 H8 follow-up) — meta-quote / negation context aware scorer.
+# The legacy regex flagged narrator outputs like « Aucun 3a n'est garanti » or
+# « Pas de "meilleur" universel » as banned-term failures. Those are actually
+# the LUCID compliance behavior MINT wants — the narrator is REFUTING the
+# user's banned claim, not asserting it. The scorer below excuses two patterns:
+#   1. Term preceded by FR negation in the same sentence ("aucun X n'est <T>",
+#      "pas de <T>", "n'est pas <T>", "n'existe pas", "il n'y a pas", "jamais").
+#   2. Term wrapped in quotes (« <T> », "<T>", '<T>') — meta-quoting the term
+#      to refute it.
+# Phase 94 CITATION-GATE will further excuse uses backed by an explicit
+# regulator citation (FINMA / LIFD / LPP); for now those are not auto-excused.
+_NEGATION_RE = re.compile(
+    r"\b(?:aucun(?:e|s)?|pas\s+(?:de|d['’])|n['’]est\s*(?:pas)?|n['’]existe\s*pas"
+    r"|il\s+n['’]y\s+a\s+pas|sans\s+aucun(?:e)?|jamais)\b",
+    re.IGNORECASE,
+)
+
+
+def _is_meta_quoted(response: str, match_start: int, match_end: int) -> bool:
+    """True if the match is wrapped in a quote pair on the same line."""
+    # Find line boundaries around the match
+    line_start = response.rfind("\n", 0, match_start) + 1
+    line_end_idx = response.find("\n", match_end)
+    line_end = line_end_idx if line_end_idx != -1 else len(response)
+    pre = response[line_start:match_start]
+    post = response[match_end:line_end]
+
+    # French guillemets
+    if "«" in pre and "»" in post:
+        # Make sure the « is unmatched in `pre` (i.e. the term is INSIDE)
+        if pre.count("«") > pre.count("»") and post.count("»") > post.count("«"):
+            return True
+    # Straight double quotes — odd count before AND after means we're inside
+    if pre.count('"') % 2 == 1 and post.count('"') % 2 == 1:
+        return True
+    # Curly double quotes
+    if "“" in pre and "”" in post:
+        if pre.count("“") > pre.count("”") and post.count("”") > post.count("“"):
+            return True
+    return False
+
+
+def _is_meta_negation(response: str, match_start: int, match_end: int) -> bool:
+    """True if a FR negation marker appears in the same sentence as the match.
+
+    Negation can be either before the term ("aucun X n'est <T>") or after
+    it ("le <T> n'existe pas"). The scope is the sentence boundary on both
+    sides — the marker MUST be in the same sentence, not just nearby.
+    """
+    boundary_re = re.compile(r"[.!?]\s+|\n\n")
+
+    # Sentence start: walk back from the match through any sentence boundary
+    sentence_start = max(0, match_start - 250)
+    for m in boundary_re.finditer(response[sentence_start:match_start]):
+        sentence_start = sentence_start + m.end()
+
+    # Sentence end: walk forward from the match through next boundary
+    horizon_end = min(len(response), match_end + 250)
+    sentence_end = horizon_end
+    m = boundary_re.search(response[match_end:horizon_end])
+    if m:
+        sentence_end = match_end + m.start()
+
+    sentence = response[sentence_start:sentence_end]
+    return bool(_NEGATION_RE.search(sentence))
+
+
+def _score_banned_terms(
+    response: str, banned: list[str]
+) -> tuple[bool, list[str], list[dict]]:
+    """Return (passed, [terms_found], [excused_meta_uses]).
+
+    Pass when zero NON-META matches. Meta usage (negation refuting the term,
+    or quoted meta-quote of the term) is recorded under `excused_meta_uses`
+    for traceability but does NOT count as a failure.
+    """
     found: list[str] = []
+    excused: list[dict] = []
     for term in banned:
         if not term:
             continue
-        if _word_boundary_pattern(term).search(response):
+        term_failed = False
+        for m in _word_boundary_pattern(term).finditer(response):
+            if _is_meta_quoted(response, m.start(), m.end()) or _is_meta_negation(
+                response, m.start(), m.end()
+            ):
+                excused.append(
+                    {
+                        "term": term,
+                        "position": m.start(),
+                        "context": response[
+                            max(0, m.start() - 40) : m.end() + 40
+                        ].replace("\n", " "),
+                    }
+                )
+            else:
+                term_failed = True
+                break  # one non-meta match per term is enough to fail
+        if term_failed:
             found.append(term)
-    return (not found, found)
+    return (not found, found, excused)
 
 
 def _score_anti_extractor_leak(
@@ -372,7 +464,9 @@ def _score_fixture(
 
     compliance_pass = _score_compliance(response_text)
     doctrine_pass, doctrine_score = _score_doctrine(response_text, threshold_pct)
-    banned_pass, banned_found = _score_banned_terms(response_text, banned)
+    banned_pass, banned_found, banned_excused = _score_banned_terms(
+        response_text, banned
+    )
     leak_pass, leaked = _score_anti_extractor_leak(response_text, forbidden)
     grounded_pass, grounded_hit = _score_calculator_grounded(response_text, grounded)
 
@@ -399,6 +493,7 @@ def _score_fixture(
         "doctrine_pass": doctrine_pass,
         "banned_terms_pass": banned_pass,
         "banned_terms_found": banned_found,
+        "banned_terms_excused_meta": banned_excused,
         "anti_extractor_leak_pass": leak_pass,
         "anti_extractor_leak_found": leaked,
         "calculator_grounded_pass": grounded_pass,
