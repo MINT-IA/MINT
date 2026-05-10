@@ -57,7 +57,7 @@ decisions:
 metrics:
   duration: "≈55m"
   completed: 2026-05-10
-  tasks_completed: 3  # Tasks 1-3 ; Task 4 checkpoint awaits Julien GO/NO-GO
+  tasks_completed: 4  # Tasks 1-3 landed; Task 4 checkpoint CONFIRMED 2026-05-10 — Julien token `approved` (NO-GO + PARTIAL)
   files_created: 8
   files_modified: 2
   tests_added: 0  # Plan 03 adds eval fixtures + Maestro flow, not new pytest cases
@@ -287,4 +287,26 @@ Commits cited (verified in `git log`) :
 - FOUND : `f00fb693` (T2 — Maestro flow + staging Railway + 3 evals)
 - FOUND (will be): T3 close-out (this SUMMARY + STATE + ROADMAP commits)
 
-All claims grounded. Stage 3 thresholds NOT MET ; Plan 03 surfaces a NO-GO + PARTIAL flag-flip recommendation + a Wave 4 scope ticket for narrator-prompt fattening. Task 4 (checkpoint:human-verify, blocking) awaits Julien GO/NO-GO/PARTIAL signal before Phase 94 close-out.
+All claims grounded. Stage 3 thresholds NOT MET ; Plan 03 surfaces a NO-GO + PARTIAL flag-flip recommendation + a Wave 4 scope ticket for narrator-prompt fattening.
+
+## Task 4 Checkpoint — Julien GO/NO-GO/PARTIAL — CONFIRMED 2026-05-10
+
+**Decision:** `approved` — NO-GO + PARTIAL (ratifies the pre-filled recommendation in `94-03-FLAG-FLIP-PROPOSAL.md`).
+
+**Recorded by:** `/gsd-execute-phase 94` orchestrator, Task 4 checkpoint surfaced via AskUserQuestion. Julien selected « approved — NO-GO + PARTIAL (Recommended) ».
+
+**Operational consequence (as of 2026-05-10):**
+
+- Staging `COACH_CITATION_GATE_ENABLED=true` STAYS on (diagnostic value during the 4-week soak).
+- Prod `COACH_CITATION_GATE_ENABLED` STAYS absent → default `False` per `services/backend/app/core/config.py:91`. The flag-OFF byte-identity invariant on prod holds (Plan 94-01 Task 3 `test_byte_identity_flag_off`).
+- Wave 4 / Phase 96 scope ticket opens — fatten `build_narrator_system_prompt` + `build_narrator_system_prompt_from_bundles` with the active `CITATION_REGISTRY` keys and the `{{cite:<key>}}` placeholder grammar, then re-run the 50-fixture pack on Sonnet + Haiku.
+- Plan 94-03 closes complete (4/4 tasks). Phase 94 close-out proceeds to regression gate + verifier + ROADMAP/STATE updates.
+- D-21 sunset path remains intact ; flag + bypass code path removal contingent on post-Wave-4 fallback rate ≤2% over rolling 7-day window.
+
+**0-Trust separation (CLAUDE.md §9):**
+
+- WORK DONE = citation parser + gate body + retry/fallback wrapper + 50-fixture eval pack + Maestro G1 smoke + Railway staging provisioning + EVAL-RESULTS + FLAG-FLIP-PROPOSAL + SUMMARY (all 9 files in `files_modified`; 3 atomic commits 937e3bba/f00fb693/880363ca; full backend suite 6436 passed cited in §Test Counts).
+- USER VALUE DELIVERED ON STAGING = gate logic IS active on staging requests (synthetic 50-fixture verification only; first real-traffic measurement requires the 48h staging soak with auth-coach users).
+- USER VALUE DELIVERED IN PROD = NONE (flag absent; byte-identical to pre-Phase-94 narrator behavior). Prod-flip blocked on Wave 4 narrator-prompt fattening + post-Wave-4 Stage 3 re-eval ≥95% / ≥90%.
+
+Phase 94 deliverables (GATE-01..GATE-04 requirements) are landed. The Stage 3 threshold gap is a **narrator-training problem**, not a gate-logic problem (170 unit tests in `tests/test_citation_gate/` pass, byte-identity invariant holds). Wave 4 is the next surface to fatten the narrator prompt.

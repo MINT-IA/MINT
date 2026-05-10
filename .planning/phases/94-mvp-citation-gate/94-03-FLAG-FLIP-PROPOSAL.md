@@ -3,7 +3,7 @@ phase: 94
 plan: 03
 artifact: flag-flip-proposal
 date: 2026-05-10
-status: PROPOSED — awaits Julien GO/NO-GO/PARTIAL
+status: APPROVED — NO-GO + PARTIAL (Julien signed 2026-05-10 via AskUserQuestion in /gsd-execute-phase 94 Task 4 checkpoint)
 flag: COACH_CITATION_GATE_ENABLED
 description: Phase 94 Plan 03 Wave 2 decisional document — recommends flag disposition for COACH_CITATION_GATE_ENABLED based on the 7-gate compliance check measured against the Plan 03 eval-pack run + staging Railway provisioning.
 ---
@@ -11,7 +11,9 @@ description: Phase 94 Plan 03 Wave 2 decisional document — recommends flag dis
 # Phase 94 Flag-Flip Proposal — `COACH_CITATION_GATE_ENABLED`
 
 **Date:** 2026-05-10
-**Status:** PROPOSED — awaits Julien GO/NO-GO/PARTIAL
+**Status:** APPROVED — NO-GO + PARTIAL (Julien signed 2026-05-10)
+**Decision token:** `approved` — ratifies the recommended option below.
+**Recorded by:** `/gsd-execute-phase 94` Task 4 checkpoint (AskUserQuestion, option « approved — NO-GO + PARTIAL (Recommended) »).
 **Flag:** `COACH_CITATION_GATE_ENABLED`
 **Current value:** prod = absent (default `False`) · staging = `true` (provisioned 2026-05-10T19:09:03Z by Plan 94-03 Task 2)
 **Target value:** prod = `true` (post-flip), staging = `true` (unchanged)
@@ -56,7 +58,7 @@ Three of seven gates are NOT MET ; one DEFERRED ; one UNMEASURED ; two MET. The 
 
 ## Decision (Julien)
 
-- [x] **NO-GO + PARTIAL** — keep staging ON, open Wave 4 (narrator prompt placeholder syntax + re-eval), re-evaluate post-Wave 4. *Pre-filled with the recommended option ; Julien confirms via `approved` / `approved staging-only` / `not approved — issue: <description>` token.*
+- [x] **NO-GO + PARTIAL** — keep staging ON, open Wave 4 (narrator prompt placeholder syntax + re-eval), re-evaluate post-Wave 4. **CONFIRMED by Julien 2026-05-10 — token `approved` recorded via `/gsd-execute-phase 94` Task 4 checkpoint.**
 - [ ] **GO** — flip prod to true, monitor 48h, auto-revert on alert (despite G-A1/G-A2/G-B unmet)
 - [ ] **Pure NO-GO** — keep prod absent AND roll back staging to false (counter-recommendation)
 - [ ] Other (specify) :
