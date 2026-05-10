@@ -165,6 +165,8 @@ In scope this phase : the bare bones that make Phase 96 narrator citations groun
 - **Bayesian credible intervals** — deferred indefinitely. No calibrated priors today, fréquentiste bootstrap is the honest MVP.
 - **`CITATION_REGISTRY` complete removal** — post-Phase-96 cleanup phase. Phase 95 ships double-lookup cohabitation ; the registry-only fallback path is the bridge while Phase 96 narrator templates ramp.
 - **Full Phase 96 CI integration of the schema migration verifier** — deferred to Phase 96 G3 (Phase 95 verifies manually on a staging DB clone).
+- **Dart-side `financial_core/` projection-model field additions (`inputs_hash`, `superseded_by`)** — DEFERRED to **Phase 96 W2 backend integration** (added 2026-05-11 per planner-revision iteration 1, checker BLOCKER-1 resolution). Rationale : the Dart side serializes profile inputs to JSON for the backend to hash via `compute_inputs_hash()` ; the backend `ScenarioModel` is the contract surface that persists `inputs_hash` + `superseded_by`. The Dart projection models don't need their own copies of these fields in Phase 95 — they receive `staleness_iso` on the response payload (Phase 96 wires this through `ProjectionGroundingPack`). ROADMAP SC#1 wording (« `apps/mobile/lib/services/financial_core/` projection models gain `inputs_hash` + `superseded_by` fields ») is therefore a **partial-delivery in Phase 95** (backend half) + **full-Dart-integration in Phase 96 W2** (Dart-side response handling). ROADMAP entry updated with one-line note reflecting the split.
+- **Production read-path integration of `staleness_high()`** — pure-function rule + unit tests + chain-reset test ship in Phase 95 (`services/backend/app/services/coach/staleness.py`, Plan 95-01 Task 5). Calling the rule from `arbitrage_engine` consumer and emitting `staleness_iso = "high"` on `GroundingPackEntry` is DEFERRED to Phase 96 W2 per SC#2 scope decision.
 
 ### Reviewed Todos (not folded)
 
@@ -176,3 +178,4 @@ In scope this phase : the bare bones that make Phase 96 narrator citations groun
 
 *Phase: 95-mvp-dag-invalidation*
 *Context gathered: 2026-05-10 (auto-resolved by PM Claude from master synthesis)*
+*Last revision: 2026-05-11 (planner-revision iteration 1 — added 2 deferred items per checker BLOCKER-1 + OQ-4 resolution)*

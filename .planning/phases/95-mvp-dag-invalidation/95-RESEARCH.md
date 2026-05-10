@@ -1104,9 +1104,13 @@ Skip `jcs==0.2.1` (stale since 2022-04-10). Skip `future-uuid` and `uuid6` and `
 | A4 | Top 5 inputs for sensitivity = income/lpp/age/retirement_age/3a_balance | §D-11 | LOW — any 5 inputs work for MVP ; if planner picks differently, document in PLAN.md. |
 | A5 | Bootstrap RNG seed derives from `inputs_hash` (option 2) | §D-12 | LOW — pure cosmetic choice. Fixed `RandomState(42)` is the safer-debug fallback. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-### OQ-1 — Python version for `uuid.uuid7` stdlib
+> All four OQs resolved during planner-revision iteration 1 (2026-05-11). Resolutions inline below.
+
+### OQ-1 — Python version for `uuid.uuid7` stdlib (RESOLVED)
+
+**RESOLUTION (2026-05-11):** Adopt `uuid_utils>=0.14.1` backport. Railway Python 3.14 base-image upgrade tracked as backlog 999.x (deferred — no urgency). The migration path back to stdlib `uuid.uuid7()` is documented in `services/backend/app/services/coach/projection_id.py` module docstring (per Plan 95-01 Task 3).
 
 **What we know:** UUID6/7/8 landed in CPython 3.14 (cpython issue #102461, late 2025). Railway Dockerfile pins `python:3.12-slim`. Architect panel claim « Python 3.12+ » is wrong.
 
@@ -1114,7 +1118,9 @@ Skip `jcs==0.2.1` (stale since 2022-04-10). Skip `future-uuid` and `uuid6` and `
 
 **Recommendation:** Adopt `uuid_utils` backport. Cheaper than a base-image bump that touches every backend deploy + every dev's local env. Document the stdlib migration path for when Railway naturally upgrades.
 
-### OQ-2 — Storage target : `scenarios` extension vs new `projections` table
+### OQ-2 — Storage target : `scenarios` extension vs new `projections` table (RESOLVED)
+
+**RESOLUTION (2026-05-11):** Extend the `scenarios` table (additive nullable columns `inputs_hash` + `superseded_by`). NO new `projections` table this phase. Per Plan 95-01 Task 4 + Pitfall 5 mitigation. Decision documented in `services/backend/alembic/versions/p95_dag_invalidation.py` (`TARGET_TABLE = "scenarios"`).
 
 **What we know:** There is NO `projections` table or model (`grep -rln "class Projection"` returns empty). The closest model is `ScenarioModel` at `services/backend/app/models/scenario.py` — it has `id, profile_id, kind, inputs JSON, outputs JSON, created_at`.
 
@@ -1122,7 +1128,9 @@ Skip `jcs==0.2.1` (stale since 2022-04-10). Skip `future-uuid` and `uuid6` and `
 
 **Recommendation:** Extend `scenarios`. The schema fits — `inputs` column is exactly what we'd hash, `outputs` column is exactly where the GroundingPack snapshot would persist. Renaming `scenarios → projections` is an unnecessary destructive change (Wave 1 would then be a rename + 2-column-add, instead of just 2-column-add). The planner asks Julien at Wave 1 Task 1.
 
-### OQ-3 — Phase 92.7 calc_harness pure-Dart extraction timing
+### OQ-3 — Phase 92.7 calc_harness pure-Dart extraction timing (RESOLVED)
+
+**RESOLUTION (2026-05-11):** Phase 95 does NOT depend on Phase 92.7 closure. Path A — NEW pure-Dart `apps/mobile/tools/hash_parity_harness/main.dart` — sidesteps the calc_harness Flutter cascade entirely (zero `financial_core/` imports). Per Plan 95-01 Task 5. Phase 92.7 remains a backlog quality-gate improvement for the legacy `calc_harness/`, independent of Phase 95 ship.
 
 **What we know:** `dart compile exe apps/mobile/tools/calc_harness/main.dart` fails today due to Flutter cascade. Closure plan exists at `.planning/decisions/2026-05-10-pure-dart-calc-harness-extraction.md` (~3-4h, Path A).
 
@@ -1130,15 +1138,22 @@ Skip `jcs==0.2.1` (stale since 2022-04-10). Skip `future-uuid` and `uuid6` and `
 
 **Recommendation:** Phase 95 does NOT block on Phase 92.7. Sidestep via the NEW pure-Dart `hash_parity_harness/main.dart` (~50 LOC, pure stdlib + `package:crypto`, zero financial_core imports — see §D-03). Phase 92.7 stays a separate quality-gate improvement for the existing calc_diff harness.
 
-### OQ-4 — `staleness_iso` mismatch detection trigger (DAG-03)
+### OQ-4 — `staleness_iso` mismatch detection trigger (DAG-03) (RESOLVED)
+
+**RESOLUTION (2026-05-11):** Staleness trigger is LAZY at read time. The pure-function rule lives at `services/backend/app/services/coach/staleness.py` (Plan 95-01 Task 5 — extracted from `test_staleness.py` to a production module per checker BLOCKER-1 fix #1) :
+
+```python
+def staleness_high(stored_hash: str | None, current_hash: str) -> bool:
+    return stored_hash is None or stored_hash != current_hash
+```
+
+Production read-path integration (calling the rule from the `arbitrage_engine` consumer + emitting `staleness_iso = "high"` on `GroundingPackEntry`) is DEFERRED to Phase 96 W2 per SC#2 scope decision. Phase 95 ships the rule + unit tests + chain-reset test ; Phase 96 wires it to the consumer surface.
 
 **What we know:** D-08 names the field. CONTEXT does NOT specify WHEN staleness=high fires.
 
 **What's unclear:** Possible triggers — (a) profile-write hook that recomputes hash on every save, (b) lazy compare at projection-read time, (c) periodic cron sweep.
 
 **Recommendation:** Lazy compare at read time. Cheapest, no new background job, aligns with the existing `_run_narrator_with_gate()` synchronous wrapper. When the narrator reads a projection : recompute `inputs_hash` from current profile, compare to stored ; if different → emit `staleness_iso = "high"` flag in the GroundingPackEntry, narrator MAY surface « ces chiffres datent de X et certains de tes inputs ont changé depuis ».
-
-Planner confirms in Wave 2 Task design.
 
 ## State of the Art
 
@@ -1225,12 +1240,12 @@ Planner confirms in Wave 2 Task design.
 | Pareto / sensitivity / bootstrap recipes | MEDIUM | Code recipes complete ; producer/consumer split is Claude-discretion |
 | D-03 hash parity Python↔Dart | MEDIUM | Path A sound on paper, W1 Task 1 verifies |
 
-### Open Questions
+### Open Questions (RESOLVED — 2026-05-11)
 
-- OQ-1 — adopt `uuid_utils` backport vs bump Railway to Python 3.14 ? Recommend backport.
-- OQ-2 — extend `scenarios` table vs create new `projections` ? Recommend extend.
-- OQ-3 — depend on Phase 92.7 calc_harness fix ? No — Path A sidesteps.
-- OQ-4 — staleness_iso mismatch trigger : profile-write hook / lazy / cron ? Recommend lazy at read time.
+- OQ-1 — RESOLVED : adopt `uuid_utils>=0.14.1` backport ; Railway Python 3.14 upgrade tracked as backlog 999.x.
+- OQ-2 — RESOLVED : extend `scenarios` table (additive nullable columns) ; no new `projections` table this phase.
+- OQ-3 — RESOLVED : no dependency on Phase 92.7 closure ; Path A pure-Dart harness sidesteps.
+- OQ-4 — RESOLVED : staleness trigger is LAZY at read time. `staleness_high(stored_hash, current_hash)` is the pure-function rule (Plan 95-01 Task 5, production module `services/backend/app/services/coach/staleness.py`). Production read-path integration deferred to Phase 96 W2 per SC#2 scope decision.
 
 ### Ready for Planning
 
