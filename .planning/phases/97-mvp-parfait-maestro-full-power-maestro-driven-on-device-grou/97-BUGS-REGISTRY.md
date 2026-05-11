@@ -344,6 +344,34 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 
 ---
 
+### From sonnet Flutter audit (folded 2026-05-11, see audit-flutter-mobile.md for full F001-F030 catalogue)
+
+Only the rows actively in the iteration loop are mirrored here. The full audit
+catalogue lives in `audit-flutter-mobile.md` (read-only audit artifact). When a
+row enters the 7-step cycle (D-36), it is folded here for state-machine tracking.
+
+```yaml
+- id: F001
+  severity: P0
+  surface: mobile
+  archetype: all
+  feature: chat_as_verb
+  title: « MintChatOverlay scaffold has no chat TextField or send button — Maestro testIDs chat_input_field + chat_send_button don't exist in Dart code »
+  repro: « grep -rn 'chat_input_field\|chat_send_button' apps/mobile/lib/ --include='*.dart' returns 0 results. flow_card_action_intent_bar.yaml:156,162 tapOn { id: 'chat_input_field' } and tapOn { id: 'chat_send_button' }. The widget at apps/mobile/lib/widgets/mint_chat_overlay.dart:8 explicitly says 'W1 scope: SCAFFOLD ONLY — do not add ChatInputBar here'. »
+  blast_radius: « Phase 96 G1 gate (flow_card_action_intent_bar.yaml) fails at step 5 on every run. The entire turn-cap + terminal-template + Sentry breadcrumb sequence is unreachable by Maestro. Phase 97 W3 regression suite cannot run until this is wired. »
+  fix_cost: medium  # downscaled from large : local-state UI only, no provider/backend wiring, ~150-line widget
+  score: 8  # 8 × 4 / 4 ; medium cost after scope clarification (UI-only, simulated narrator response)
+  status: IN_PROGRESS
+  started: 2026-05-11T16:43:45Z
+  fix_commit: null
+  repro_flow: tools/simulator/flows/regression/bug__F001__chat_input_bar_exists.yaml
+  found_in: 2026-05-11
+  resolved_in: null
+  notes: « W7 iteration cycle #2. Closes F001+F002+F003 together: ChatInputBar widget + Key('mint_chat_overlay') + local turn counter (UI-only, NOT wired to server-side turn_cap which is Phase 96 D-08 contract). Backend wiring (real coach_chat POST + NarrativeSleeve render) deferred to F-NEXT in a separate cycle. »
+```
+
+---
+
 ## Pending — to be enriched by sonnet audits in flight
 
 Two sonnet agents running 2026-05-11 :
