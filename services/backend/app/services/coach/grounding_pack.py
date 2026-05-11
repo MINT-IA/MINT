@@ -101,7 +101,16 @@ class ProjectionGroundingPack(BaseModel):
 # Phase 93.5 backward-compat — derived view kept for one cycle so
 # bundles' `citation_allowlist` references don't break. Will be retired
 # in the post-96 cleanup phase per CONTEXT §"Deferred Ideas".
-GROUNDING_PACK_KEYS_REGISTRY: frozenset = frozenset()
+#
+# B018 fix (Phase 97 W7 cycle #9, 2026-05-11) : was `frozenset()` (empty)
+# stubbed by Phase 95 W2 executor and never populated → Phase 95 bundle-
+# contract test « all bundle citation keys must exist in the registry »
+# silently xfailed because every lookup against the empty frozenset
+# returned False. Now derived from CITATION_REGISTRY.keys() per the
+# docstring contract.
+from app.services.coach.citation_registry import CITATION_REGISTRY as _CITATION_REGISTRY_FOR_KEYS
+
+GROUNDING_PACK_KEYS_REGISTRY: frozenset = frozenset(_CITATION_REGISTRY_FOR_KEYS.keys())
 
 
 __all__ = [
