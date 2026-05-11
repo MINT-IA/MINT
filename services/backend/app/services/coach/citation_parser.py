@@ -39,8 +39,10 @@ from typing import TYPE_CHECKING, Iterable, Optional
 import sentry_sdk
 
 from app.services.coach.citation_registry import CITATION_REGISTRY, resolve
+from app.services.coach.narrative_sleeve_lint import lint_sleeve
 
 if TYPE_CHECKING:
+    from app.schemas.narrative_sleeve import NarrativeSleeve
     from app.services.coach.grounding_pack import ProjectionGroundingPack
 
 
@@ -396,6 +398,28 @@ def _substitute_placeholders(
         return resolved if resolved is not None else body
 
     return _RE_CITE_PLACEHOLDER.sub(_swap, response_text)
+
+
+def lint_response_sleeve(
+    sleeve: "NarrativeSleeve | None",
+) -> "NarrativeSleeve | None":
+    """Phase 96 D-16 — middleware-ordering helper.
+
+    The Phase 94 citation gate stays FIRST in the response chain (the
+    ``gate()`` + ``_substitute_placeholders()`` pair above runs on the
+    raw narrator output BEFORE this helper). After substitution AND
+    BEFORE the response is serialised to the client, response-build
+    code calls ``lint_response_sleeve(sleeve)`` — which is a no-op when
+    the sleeve is ``None`` and delegates to
+    ``narrative_sleeve_lint.lint_sleeve`` when the sleeve is populated.
+
+    Centralising the None-guard here keeps caller sites terse and pins
+    the documented invariant from CONTEXT D-16 (« linter never 500s the
+    response » + « citation gate runs first »).
+    """
+    if sleeve is None:
+        return None
+    return lint_sleeve(sleeve)
 
 
 def gate(
