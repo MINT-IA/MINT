@@ -21,6 +21,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/models/cap_decision.dart';
+import 'package:mint_mobile/models/coach_profile.dart' show FinancialArchetypeBackendName;
 import 'package:mint_mobile/models/serialized_card_context.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
