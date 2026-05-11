@@ -502,15 +502,33 @@ row enters the 7-step cycle (D-36), it is folded here for state-machine tracking
   title: « `app/models/snapshot.py` ORM model declares `snapshots` table but `alembic/versions/` has NO migration that creates it — Railway container restart silently wipes user snapshot history »
   repro: « ls services/backend/alembic/versions/ | grep -i snapshot → empty. python3 -c 'from app.models.snapshot import SnapshotModel; from app.core.database import Base; print(\"snapshots\" in Base.metadata.tables)' → True (model registered) but `alembic upgrade head` does NOT create the table. Production Railway path : `Base.metadata.create_all()` may rescue at first boot but is a side-channel ; canonical path is alembic. »
   blast_radius: « ALL snapshot data is lost on every Railway deploy/restart that resets the SQLite file. Users lose their financial snapshot history silently. Affects every registered user using the snapshot feature. The endpoint logs « in-memory fallback active » at every startup (app/api/v1/endpoints/snapshots.py:52) — canonical proof the migration gap was tracked but never closed. »
-  fix_cost: small  # 1 migration file + 1 unit test ; service layer untouched (already wired to SnapshotModel for the db-path branch)
-  score: 16  # 4 × 4 / 1 ; P1 because the in-memory fallback at least KEEPS data alive within a single process lifetime, so it's data-loss on restart rather than unconditional bypass
-  status: IN_PROGRESS
+  fix_cost: small
+  score: 16
+  status: REJECTED
   started: 2026-05-11T21:05:00Z
+  rejected_at: 2026-05-11T21:15:00Z
   fix_commit: null
-  repro_test: null
+  repro_test: services/backend/tests/test_snapshots_migration_exists.py  # the test contract is preserved as a permanent schema-parity regression guard (renamed to B023b scope)
   found_in: 2026-05-11
   resolved_in: null
-  notes: « W7 iter#8 PICK 2026-05-11T21:05Z. Folded from audit-backend-api.md row B023. Unit-test-gated (no UI surface ; data-persistence layer). Plan : Karpathy #3 surgical fix — 1 new migration file `p97_snapshots_table.py` + 1 new pytest at tests/test_snapshots_migration_exists.py. Model file UNTOUCHED. down_revision='p95_dag_invalidation' (sole current head per `alembic heads`). Backward-compatibility via inspector.has_table() guard — production rows already created by Base.metadata.create_all() side-channel will NOT be double-created when the migration runs the first time on Railway. Cycle in progress. »
+  notes: « W7 iter#8 REJECTED — audit row B023 was a FALSE FLAG. The audit checked `ls alembic/versions/ | grep snapshot` which only matches FILENAMES. The snapshots table IS already created by the alembic chain : (i) `d73dcc3968c9_baseline_14_models.py` lines 109-135 — `op.create_table('snapshots', ...)` with 20 columns + 3 indexes (ix_snapshots_created_at, ix_snapshots_user_created composite on user_id+created_at, ix_snapshots_user_id) ; (ii) `p12_add_birth_date.py` — `op.add_column('snapshots', 'birth_date')` adding the 21st column. Deterministic proof : on a fresh SQLite, `alembic upgrade head` produces `snapshots` table with all 21 ORM columns matching `app/models/snapshot.py`. Schema-parity verified : `set(SnapshotModel.__table__.columns) == set(insp.get_columns('snapshots'))` → True. The endpoint's «in-memory fallback active» startup warning at snapshots.py:52 is VESTIGIAL — the service code at app/services/snapshots/snapshot_service.py:105 USES SnapshotModel via SQLAlchemy ORM when a db Session is passed (which IS the production path via FastAPI Depends(get_db)). Per CLAUDE.md memory `feedback_audit_verification_logs` : audits flag false-positives ; always re-verify before fixing. Per CLAUDE.md §9 0-trust : no migration was generated this cycle because none was needed. HOWEVER, a smaller, real schema drift WAS found during the re-verification : (a) ORM declares `ForeignKey(\"users.id\", ondelete=\"CASCADE\")` on user_id, baseline migration created user_id WITHOUT the FK constraint — drift ; (b) ORM declares `server_default=text(\"0.0\")` on 14 nullable columns (age, gross_income, canton, archetype, household_type, replacement_ratio, months_liquidity, tax_saving_potential, confidence_score, enrichment_count, fri_total, fri_l, fri_f, fri_r, fri_s), baseline migration created them with no server_default. That drift is filed as a separate, smaller row B023b for the next cycle. The repro test at `tests/test_snapshots_migration_exists.py` is preserved (renamed in scope to B023b — it now serves as the permanent schema-parity regression guard : test 2 « upgrade creates snapshots table with 21 columns » remains GREEN today on the current chain). Status REJECTED, not RESOLVED, because no fix was needed — the bug was a false flag against the existing chain. »
+
+- id: B023b
+  severity: P2
+  surface: backend
+  archetype: all
+  feature: snapshots / data_persistence
+  title: « snapshots ORM drift — FK on user_id (ondelete=CASCADE) + 14 server_defaults declared in app/models/snapshot.py are NOT in the baseline alembic migration »
+  repro: « Run alembic upgrade head on fresh SQLite ; inspect snapshots table via SQLAlchemy : `inspector.get_foreign_keys('snapshots')` returns [] (ORM has FK users.id ondelete=CASCADE) ; columns age/gross_income/canton/archetype/household_type/replacement_ratio/months_liquidity/tax_saving_potential/confidence_score/enrichment_count/fri_total/fri_l/fri_f/fri_r/fri_s have no server_default in DB but ORM declares `server_default=text(\"0.0\")` or `text(\"0\")` or `text(\"'VD'\")` etc. »
+  blast_radius: « (i) ORM-only FK : if a user row is hard-deleted via direct SQL (not via SQLAlchemy session.delete()), orphan snapshots rows remain — GDPR right-to-erasure (LPD Art. 8) edge case. (ii) Server-default drift : raw SQL INSERTs (e.g. from migration backfills or admin tooling) that omit these columns get NULL instead of 0 / 0.0 / 'VD' / 'swiss_native' / 'single' — calculator code downstream may crash on NULL where it expects 0.0. Not data-loss but data-integrity drift. »
+  fix_cost: small
+  score: 8  # 2 × 4 / 1
+  status: OPEN
+  fix_commit: null
+  repro_test: null
+  found_in: 2026-05-11T21:15:00Z  # surfaced during B023 re-verification
+  resolved_in: null
+  notes: « Surfaced 2026-05-11T21:15Z during B023 re-verification (rejected as false flag). The drift is real but the original B023 framing (« no migration, table missing ») is wrong : the table exists but with relaxed schema. Fix : 1 new alembic migration `p97_snapshots_drift.py` that (a) adds the FK constraint via batch_alter_table on SQLite ; (b) backfills NULL → ORM-default values then adds server_default ; (c) keeps idempotent via inspector.get_foreign_keys() / column.server_default guards. Out of W7 iter#8 budget — file for next cycle. Lower priority than T002 (SQLite encryption, GDPR Art. 32) or B018 quick wins. »
 
 - id: B004
   severity: P1
