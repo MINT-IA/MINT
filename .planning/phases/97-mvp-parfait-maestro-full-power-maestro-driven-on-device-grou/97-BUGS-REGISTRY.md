@@ -5,7 +5,7 @@ slug: mvp-parfait-maestro-full-power-maestro-driven-on-device-grou
 status: draft (W0 in progress)
 created: 2026-05-11
 schema_version: 1
-total_bugs: 37  # W7 iter#7 folded B004 from audit-backend-api.md catalogue (bare except: pass swallowing JTI blacklist DB errors — auth-bypass via infra degradation)
+total_bugs: 39  # W7 iter#8 folded B023 from audit-backend-api.md (REJECTED as false flag — see notes ; permanent schema-parity guard preserved) + filed new row B023b (P2, real drift on FK + server_defaults surfaced during B023 re-verification)
 ---
 
 # Phase 97 Bug Registry
@@ -54,6 +54,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 9 | ~~F007~~ | ~~com.apple.developer.associated-domains missing from Runner.entitlements~~ → **RESOLVED 2026-05-11T20:10:00Z** jointly with S004 | ~~24~~ | mobile |
 | 10 | P001 | Phase 94 Stage 3 narrator gate-correct thresholds NOT MET (Sonnet 20% vs 95% target after Phase 94.1 iter 1) — prod-flip blocked | 16 | backend |
 | 11 | ~~B004~~ | ~~core/auth.py:55 bare except swallows JTI-blacklist DB errors — revoked-token auth-bypass via infra degradation~~ → **RESOLVED 2026-05-11T21:00:00Z** via fail-closed split-except (W7 iter#7, fix d50e2d2e) — 4/4 pytest GREEN, backend suite 6628 passed no regression | 16 | backend |
+| 12 | ~~B023~~ | ~~snapshots model declares table but no alembic migration creates it — Railway restart wipes user history~~ → **REJECTED 2026-05-11T21:25:00Z as audit false flag** (W7 iter#8, guard d57ab894) — baseline migration d73dcc3968c9 + p12 already create the table with all 21 cols + 3 indexes ; repro test preserved as permanent schema-parity regression guard (4/4 pytest GREEN, backend suite 6632 passed vs 6628 baseline, zero regression). Smaller real drift filed as new row B023b (FK + server_defaults, P2) | ~~16~~ → REJECTED-with-guard | backend |
 
 ---
 
