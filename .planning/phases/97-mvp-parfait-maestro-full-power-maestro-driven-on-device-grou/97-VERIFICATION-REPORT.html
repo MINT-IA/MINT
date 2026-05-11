@@ -825,5 +825,143 @@ $ cd services/backend && python3 -m pytest tests/test_sqlite_at_rest_encryption.
 <hr>
 <p class="info">W7 iter#11 close-out generated 2026-05-11T21:50Z by PM Claude — Phase 97 W7 iteration loop. Updated per memory <code>feedback_html_evidence_report</code>. 15 closed rows / 11 cycles (P001 stays IN_PROGRESS — H1 landed but headline REJECTED ; +4 new rows P001b/c/d/e filed for next iterations). Honest verdict per §9.7 — eval JSONs are the canonical citations.</p>
 
+<hr>
+<h2>W7 iteration cycle #12 — L001 close-out (Maestro locator audit, testing-infra hard gate)</h2>
+
+<p><strong>Bug picked</strong> : <code>L001</code> — score 32, severity P0 (testing infra blocker), surface <code>testing</code>, archetype <code>all</code>, feature <code>maestro_infra</code>. <em>« Maestro locator audit FAIL — 14 violations on 4 flows (text literals not in app/ARB + IDs without Key declarations). Testing infra broken. »</em></p>
+
+<p>Per Phase 97 W0 inventory (<code>PHASE97_MAESTRO_LOCATOR_DEBT.md</code>) : 14 violations across <code>tools/simulator/flows/{auth_coach_post_hotfix,julien_swiss,lauren_expat_us}.yaml</code> blocking every Maestro flow that touches the anonymous chat surface. Two root causes : (a) 4 stable Keys (<code>anon-chat-input</code>, <code>anon-chat-opener-bubble</code>, <code>anon-chat-message-assistant</code>, <code>anon-chat-register-cta</code>) referenced by per-archetype test fixtures since Phase 90 PERS-03/04 but never declared in widget tree (W14-pattern : widget exists, no Key for testing) ; (b) narrator-output text-literal drift on assertions that should have been Key-anchored from day 1.</p>
+
+<h3>RED-state evidence (pre-fix)</h3>
+
+<pre><code>$ python3 tools/checks/maestro_locator_audit.py
+maestro_locator_audit: scanned 3 flows, 28 locators.
+
+[FAIL] Locator drift detected — fix before merge :
+  • tools/simulator/flows/auth_coach_post_hotfix.yaml — text literal not found in app code or ARB: 'Comme tu vis dans le canton de Vaud'
+  • tools/simulator/flows/auth_coach_post_hotfix.yaml — text literal not found in app code or ARB: 'Quel est ton salaire net mensuel ?'
+  • tools/simulator/flows/auth_coach_post_hotfix.yaml — text literal not found in app code or ARB: 'explorer des simulateurs pour des estimations chiffrées'
+  • tools/simulator/flows/auth_coach_post_hotfix.yaml — text literal not found in app code or ARB: 'salaire net mensuel'
+  • tools/simulator/flows/julien_swiss.yaml — text literal not found in app code or ARB: 'Estime ta marge précise'
+  • tools/simulator/flows/julien_swiss.yaml — id literal 'anon-chat-input' has no matching Key('anon-chat-input') declaration in apps/mobile/lib/
+  • tools/simulator/flows/julien_swiss.yaml — id literal 'anon-chat-message-assistant' has no matching Key('anon-chat-message-assistant') declaration in apps/mobile/lib/
+  • tools/simulator/flows/julien_swiss.yaml — id literal 'anon-chat-opener-bubble' has no matching Key('anon-chat-opener-bubble') declaration in apps/mobile/lib/
+  • tools/simulator/flows/julien_swiss.yaml — id literal 'anon-chat-register-cta' has no matching Key('anon-chat-register-cta') declaration in apps/mobile/lib/
+  • tools/simulator/flows/lauren_expat_us.yaml — text literal not found in app code or ARB: 'Estime ta marge précise'
+  • tools/simulator/flows/lauren_expat_us.yaml — id literal 'anon-chat-input' has no matching Key('anon-chat-input') declaration in apps/mobile/lib/
+  • tools/simulator/flows/lauren_expat_us.yaml — id literal 'anon-chat-message-assistant' has no matching Key('anon-chat-message-assistant') declaration in apps/mobile/lib/
+  • tools/simulator/flows/lauren_expat_us.yaml — id literal 'anon-chat-opener-bubble' has no matching Key('anon-chat-opener-bubble') declaration in apps/mobile/lib/
+  • tools/simulator/flows/lauren_expat_us.yaml — id literal 'anon-chat-register-cta' has no matching Key('anon-chat-register-cta') declaration in apps/mobile/lib/
+exit=1
+</code></pre>
+
+<p>Citation : <code>/tmp/L001_locator_audit_pre.txt</code> (full capture, 14 violations).</p>
+
+<h3>Triage (per CLAUDE.md never #7 archetype coverage)</h3>
+
+<ul>
+  <li><code>auth_coach_post_hotfix.yaml</code> — authored 2026-05-10 by commit <code>b6770cf0</code> (yesterday), header explicitly « cannot run today ». 4 failing literals are all inside <code>assertNotVisible</code> (B2/B3/B4 contract negative regression guards on banned narrator tokens). <strong>Preserve</strong> as documented future flow ; the lint must learn that <code>assertNotVisible</code> literals are BY DESIGN absent from rendered tree.</li>
+  <li><code>julien_swiss.yaml</code> (swiss_native archetype, Phase 90 PERS-03) + <code>lauren_expat_us.yaml</code> (expat_us FATCA canary, Phase 90 PERS-04) — actively referenced by <code>tools/simulator/walker_persona.sh</code>, <code>walker_premier_eclairage.sh</code>, <code>measure_frame_jank.sh</code>, <code>maestro_env.sh</code>. <strong>FIX over DELETE</strong> — these are per-archetype test fixtures, critical per CLAUDE.md never #7 (« 8 archetypes, FATCA/frontalier ≠ edge cases »).</li>
+</ul>
+
+<h3>Surgical fix (Karpathy #3 — every changed line traces to L001)</h3>
+
+<p>Three-prong fix across 5 files :</p>
+
+<ol>
+  <li><strong>4 stable Keys added to <code>apps/mobile/lib/screens/anonymous/anonymous_chat_screen.dart</code></strong> :
+    <ul>
+      <li><code>Key('anon-chat-input')</code> on the <code>TextField</code> in <code>_buildDisclaimerAndInput</code>.</li>
+      <li><code>Key('anon-chat-register-cta')</code> on the « Créer un compte » <code>ElevatedButton</code> in the <code>_isAuthGateLocked</code> branch.</li>
+      <li><code>Key('anon-chat-opener-bubble')</code> on the first coach message <code>Padding</code> wrapper (<code>isOpener=true</code>).</li>
+      <li><code>Key('anon-chat-message-assistant')</code> on every subsequent coach message <code>Padding</code> wrapper (<code>isOpener=false &amp;&amp; !isUser</code>).</li>
+    </ul>
+    <p>The assistantKey ternary in <code>_buildMessageBubble</code> switches between opener-bubble and message-assistant based on <code>isOpener</code> ; user bubbles stay key-less (Maestro doesn't assert on user content).</p>
+  </li>
+  <li><strong>Lint scope tightened in <code>tools/checks/maestro_locator_audit.py</code></strong> — taught <code>collect_locators</code> to skip <code>assertNotVisible</code> literals (shorthand + block form) via an <code>in_negative_block</code> state machine. A negative regression guard is BY DESIGN absent from the rendered tree ; auditing it as a positive locator inverted-flagged 4 valid B2/B3/B4 contract guards as drift.</li>
+  <li><strong>2 drifted positive-assertion text literals dropped from <code>tools/simulator/flows/{julien_swiss,lauren_expat_us}.yaml</code></strong> — the trailing <code>assertVisible: "Estime ta marge précise"</code> assertion was redundant (the <code>anon-chat-register-cta</code> Key assertion immediately above already proves the CTA rendered) AND drifted (literal does NOT exist in app code / ARB). Per <code>PHASE97_MAESTRO_LOCATOR_DEBT.md</code> CA3 design principle « assert on stable container, not on dynamic content ».</li>
+</ol>
+
+<h3>GREEN gate (post-fix)</h3>
+
+<pre><code>$ python3 tools/checks/maestro_locator_audit.py
+maestro_locator_audit: scanned 3 flows, 17 locators.
+[OK] All locators resolve.
+exit=0
+</code></pre>
+
+<p><strong>14 → 0 violations.</strong> Citation : <code>/tmp/L001_locator_audit_post.txt</code>.</p>
+
+<h3>SUITE no-regression</h3>
+
+<ul>
+  <li><strong>Flutter widget tests on anonymous chat surface</strong> — <code>cd apps/mobile &amp;&amp; flutter test test/screens/anonymous/</code> → <strong>13 passed + 1 skipped</strong> (golden snapshot, unchanged). Key addition on existing widgets is non-breaking (widget identity preserved).</li>
+  <li><strong>banned_terms_python</strong> — clean on touched files.</li>
+  <li><strong>accent_lint_fr</strong> — exit 0 on touched files. Soft-warns only on pre-existing <code>eclairage</code> Dart identifier hits on untouched lines (logged to <code>deferred-items.md</code> item 2).</li>
+  <li><strong>Per-file lefthook stack on commit 2/2</strong> — all pre-commit hooks clean (no <code>prefer-mint-*</code> false-flag on the lint/YAML changes).</li>
+</ul>
+
+<h3>Commit chain (W7 iter#12)</h3>
+
+<pre><code>ac12e4c9  chore(97-W7-iter12): PICK L001 — locator audit FAIL (14 violations across 4 flows)   [Step 1 PICK]
+c689bfcf  feat(97-W7-iter12): L001 — add 4 anon-chat-* Keys to anonymous_chat_screen.dart      [Step 3 FIX 1/2]
+a1bcec8d  fix(97-W7-iter12): L001 — lint skips assertNotVisible + 2 YAML flow drops            [Step 3 FIX 2/2]
+(this commit) docs(97-W7): iter#12 ADVANCE — L001 RESOLVED + _INDEX LOCK + HTML cycle #12      [Step 7 ADVANCE]
+</code></pre>
+
+<h3>Files modified (Karpathy #3 surgical, 5 files)</h3>
+
+<ul>
+  <li><code>apps/mobile/lib/screens/anonymous/anonymous_chat_screen.dart</code> (+22 / -1) — 4 Keys.</li>
+  <li><code>tools/checks/maestro_locator_audit.py</code> (+45 / -3) — lint scope fix + state machine.</li>
+  <li><code>tools/simulator/flows/julien_swiss.yaml</code> (+5 / -1) — drop drifted assertVisible.</li>
+  <li><code>tools/simulator/flows/lauren_expat_us.yaml</code> (+5 / -1) — drop drifted assertVisible.</li>
+  <li><code>tools/simulator/flows/regression/_INDEX.md</code> (+1 row) — L001 LOCK.</li>
+</ul>
+
+<p>Files deleted : <strong>0</strong>. No dependencies added.</p>
+
+<h3>Deferred items logged (out of scope per Karpathy #3 SCOPE_BOUNDARY)</h3>
+
+<ol>
+  <li><strong>14 pre-existing <code>prefer-mint-{fonts,radius,text-style}</code> violations</strong> on legacy <code>_buildChipsRow</code> / <code>_buildDisclaimerAndInput</code> / <code>_buildMessageBubble</code> lines (557-723) of <code>anonymous_chat_screen.dart</code>. Resolution path : v2.10 MVP-CLEANUP legacy theme-token migration.</li>
+  <li><strong>32 pre-existing <code>accent_lint_fr</code> warnings</strong> on the Dart identifier <code>eclairage</code> (class names + field accesses). Renaming would touch backend contract, ARB keys, all anon-chat call sites. Soft warning (exit 0). Resolution path : v2.10 OR lint regex refinement to exclude Dart identifier paths.</li>
+  <li><strong>Dead code at lines 762-768 of <code>anonymous_chat_screen.dart</code></strong> — unreachable second-return path in <code>_buildMessageBubble</code> (the function returns earlier at 730-735 or 737-760, so the trailing <code>if (isOpener) return FadeTransition...</code> never executes).</li>
+</ol>
+
+<p>Full inventory : <code>.planning/phases/97-mvp-parfait-maestro-full-power-maestro-driven-on-device-grou/deferred-items.md</code>.</p>
+
+<h3>0-trust §9 citations</h3>
+
+<ul>
+  <li><strong>« 14 → 0 violations »</strong> : <code>/tmp/L001_locator_audit_pre.txt</code> (RED) + <code>/tmp/L001_locator_audit_post.txt</code> (GREEN). Deterministic lint output.</li>
+  <li><strong>« Flutter widget tests pass »</strong> : <code>cd apps/mobile &amp;&amp; flutter test test/screens/anonymous/</code> → <code>00:00 +13 ~1: All tests passed!</code></li>
+  <li><strong>« Keys added on production widgets »</strong> : <code>git show c689bfcf -- apps/mobile/lib/screens/anonymous/anonymous_chat_screen.dart</code> — 4 Key declarations visible in diff.</li>
+  <li><strong>« Lint scope fix is correct »</strong> : the same audit binary, run pre- and post-fix, returns exit 1 → exit 0 — the binary did NOT change between RED and GREEN captures of the Key violations (commit <code>c689bfcf</code> only added Keys to Dart) ; the <code>assertNotVisible</code>-skip patch only applies in commit <code>a1bcec8d</code>, which is also when the 2 YAML drops land.</li>
+</ul>
+
+<h3>Honest scope caveats (§9.4 sim survival test)</h3>
+
+<ul>
+  <li>The 4 Keys land in <strong>code only</strong>. Maestro running on a booted iPhone 17 Pro sim would still need to invoke the new Keys to prove on-device reachability — that's a Phase 97 W3 deliverable (per-archetype regression flows), out of scope here. <strong>This cycle proves locator drift is gone ; it does NOT prove the flows now pass end-to-end on sim.</strong> A future cycle (W7 iter#13+ or W3 plan-phase) runs the actual <code>tools/simulator/walker_persona.sh --flow julien_swiss.yaml</code> on iPhone 17 Pro sim to capture an end-to-end GREEN.</li>
+  <li><code>auth_coach_post_hotfix.yaml</code> still requires the auth-seeding harness to land (header §« Auth seeding (PRE-FLOW responsibility) ») before it can run on sim. The locator audit is now GREEN for it ; the flow infrastructure gap is a separate bug (not L001).</li>
+  <li>Flutter Keys → iOS Semantics identifier propagation (M001, surfaced W7 iter#4) may still be required for Maestro to actually FIND these Keys via <code>id:</code> matchers on sim. M001 workaround via accessibilityText regex applied to other flows ; canonical fix is <code>Semantics(identifier:)</code> wrap. <strong>Not in L001 scope.</strong></li>
+</ul>
+
+<h3>Next bug pointer (post-iter#12)</h3>
+
+<p>Highest-score remaining OPEN bug from <code>97-BUGS-REGISTRY.md</code> is the next pick. Candidates surfaced during iter#12 :</p>
+
+<ul>
+  <li><strong>P001b/c/d/e</strong> (filed in iter#11) — citation-gate H2-H5 hypotheses, each P0 score 32. P001c (H3, trivial cost) was iter#11's recommended next pick.</li>
+  <li><strong>M001</strong> — Flutter Keys → iOS Semantics identifier propagation (P1, score 16). Now structurally relevant : we just added 4 Keys that Maestro will need to find via native <code>id:</code> on sim. Worth promoting if the W7 iter#13+ end-to-end sim run RED's on these specific Keys.</li>
+  <li><strong>L002</strong> — 8 hardcoded <code>Colors.white/red/grey</code> in app.dart (P1, score 16). Trivial cost, mechanical fix.</li>
+</ul>
+
+<p><strong>Recommendation</strong> : <strong>P001c (H3, trivial cost)</strong> still leads on score ; if iter#13 plan-phase opens a Maestro sim run on julien_swiss.yaml (W3 deliverable preview), <strong>M001</strong> may surface as a hard blocker and should be picked first. PM decision deferred to next cycle's PICK step.</p>
+
+<hr>
+<p class="info">W7 iter#12 close-out generated 2026-05-11 by PM Claude — Phase 97 W7 iteration loop. Updated per memory <code>feedback_html_evidence_report</code>. <strong>16 closed rows / 12 cycles</strong> (L001 RESOLVED ; D-38 10-P0-closed target MET +4 ; testing-infra bucket now fully unblocked for W3 per-archetype regression flows). Honest verdict per §9.7 — <code>/tmp/L001_locator_audit_post.txt</code> is the canonical citation. Per CLAUDE.md never #7 archetype coverage : julien_swiss + lauren_expat_us preserved as test fixtures (FIX over DELETE), <code>auth_coach_post_hotfix.yaml</code> preserved as documented future flow.</p>
+
 </body>
 </html>

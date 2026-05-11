@@ -263,13 +263,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « 4 existing Maestro flows are broken — they cannot find the locators they reference. Any CI run is RED. The locator audit lint exists for exactly this reason. »
   fix_cost: medium  # per flow: either fix the locator to match existing widgets/ARB, OR add the missing Key('...') to the widget code
   score: 32  # 8 × 4 / 1 ; cost low because each fix is mechanical
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11
-  fix_commit: null
-  repro_flow: null
+  fix_commit: « c689bfcf (4 Keys in anonymous_chat_screen.dart) + a1bcec8d (lint assertNotVisible scope + 2 YAML drops) »
+  repro_flow: « tools/simulator/flows/regression/_INDEX.md L001 row — lint-gated by python3 tools/checks/maestro_locator_audit.py »
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « Phase 97 W7 iter#12 PICK 2026-05-11 — strategy : (a) add 4 Keys to anonymous_chat_screen.dart for julien_swiss + lauren_expat_us (FIX, not delete — per archetype coverage CLAUDE.md never #7) ; (b) refactor auth_coach_post_hotfix.yaml narrator-text assertNotVisible literals to stable Semantics labels (drop 4 drifting text literals, keep B1/B2/B3/B4 contract semantics) ; (c) replace 'Estime ta marge précise' text assertion in julien_swiss + lauren_expat_us with the stable anon-chat-register-cta Key assertion (already on that step). Pre-fix audit : 14 violations confirmed @ /tmp/L001_locator_audit_pre.txt. »
+  resolved_in: 2026-05-11
+  notes: « W7 iter#12 RESOLVED 2026-05-11. Pre-fix : 14 violations (8 missing Key declarations on anon-chat-* IDs + 4 false-positive narrator-token literals inside assertNotVisible regression guards + 2 drifted positive-assertion text literals 'Estime ta marge précise'). Post-fix : 0 violations, exit 0 (deterministic citation @ /tmp/L001_locator_audit_post.txt). Three-prong fix : (1) added 4 stable Keys to apps/mobile/lib/screens/anonymous/anonymous_chat_screen.dart (Key('anon-chat-input') on TextField, Key('anon-chat-register-cta') on « Créer un compte » ElevatedButton, Key('anon-chat-opener-bubble') on first coach message Padding when isOpener=true, Key('anon-chat-message-assistant') on subsequent coach message Padding) ; (2) taught tools/checks/maestro_locator_audit.py to skip assertNotVisible literals (negative regression guards are BY DESIGN absent from rendered tree — auditing them as positive locators inverted-flagged 4 valid B2/B3/B4 contract guards as drift) ; (3) dropped 2 drifted positive-assertion text literals from julien_swiss + lauren_expat_us (stable Key assertion above already covers the same gate). Flutter widget tests : cd apps/mobile && flutter test test/screens/anonymous/ 13 passed + 1 skipped (golden), zero regression. banned_terms_python clean. accent_lint_fr soft-warns only on pre-existing 'eclairage' Dart identifier hits on untouched lines (logged to deferred-items.md item 2). Per CLAUDE.md never #7 archetype coverage : julien_swiss (swiss_native) + lauren_expat_us (expat_us FATCA canary) preserved as test fixtures, FIX over DELETE. auth_coach_post_hotfix.yaml preserved as documented future flow (header explicitly says « cannot run today » — its negative regression guards now lint-pass). Karpathy #3 surgical : 5 files modified (anonymous_chat_screen.dart + maestro_locator_audit.py + julien_swiss.yaml + lauren_expat_us.yaml + _INDEX.md), 0 files deleted, 0 new dependencies. Deferred items logged : (a) 14 pre-existing prefer-mint-fonts/radius/text-style violations on legacy lines of anonymous_chat_screen.dart ; (b) 32 pre-existing accent_lint hits on 'eclairage' identifier ; (c) dead code at lines 762-768 (unreachable second-return path in _buildMessageBubble). »
 
 - id: L002
   severity: P1
