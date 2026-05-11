@@ -28,10 +28,114 @@
 <table>
   <tr><th>Phase</th><td>97 MVP-PARFAIT-MAESTRO-FULL-POWER</td></tr>
   <tr><th>Branch</th><td><code>feature/S94-mvp-citation-gate</code></td></tr>
-  <tr><th>Stage</th><td>W7 iteration loop in progress — cycle #3 closed (S001) ; cycle #2 closed (F001+F002+F003) ; cycle #1 closed (B001)</td></tr>
-  <tr><th>Bugs registry total</th><td>33 catalogued (S001-S005, T001-T002, L001-L008, P001-P002, F001-F030, B001) ; 5 closed (B001 + F001 + F002 + F003 + S001) ; 1 new S005 surfaced by S001 close</td></tr>
-  <tr><th>0-trust §9 status</th><td>Honest — S001 fix gated by Flutter widget test (deterministic, 5/5 GREEN), Maestro flow LOCKED for post-S003/S005/W1 end-to-end runnability ; S005 surfaced + registered, NOT silently swallowed</td></tr>
+  <tr><th>Stage</th><td>W7 iteration loop in progress — <strong>cycle #4 closed (S005 + end-to-end methodology validation)</strong> ; cycle #3 closed (S001) ; cycle #2 closed (F001+F002+F003) ; cycle #1 closed (B001)</td></tr>
+  <tr><th>Bugs registry total</th><td>34 catalogued (+ M001 surfaced by S005 close) ; <strong>6 closed (B001 + F001 + F002 + F003 + S001 + S005)</strong> ; 1 new M001 (Flutter Keys → iOS Semantics identifier propagation) surfaced + registered</td></tr>
+  <tr><th>0-trust §9 status</th><td>Honest — S005 fix gated by THREE deterministic citations : (1) widget test landing_screen_test.dart 5/5 GREEN, (2) Maestro standalone failures=0 time=8s, (3) <strong>Maestro chained F001+S001+S005 failures=0 time=10s — FIRST end-to-end Maestro reachability proof of MINT's chat-as-verb surface for anonymous users</strong></td></tr>
+  <tr><th>W7 cumulative</th><td><strong>4 bugs closed via 7-step methodology, 1 end-to-end Maestro flow GREEN — the proof that the cycle works.</strong></td></tr>
 </table>
+
+<h2>W7 iteration cycle #4 — S005 close-out + methodology validation (2026-05-11)</h2>
+
+<div class="iter">
+<p><strong>Bug closed :</strong> S005 (LandingScreen has NO public CTA to /home for anonymous users — anonymous local-mode reachability blocked from cold launch). Resolved by adding a sober « Continuer sans compte » link below « J'ai déjà un compte » that calls <code>context.go('/home')</code>.</p>
+<p><strong>Methodology validation :</strong> This cycle CLOSES the F001+S001 chained Maestro flow end-to-end on iPhone 17 Pro sim — the FIRST end-to-end proof that MINT's chat-as-verb surface is reachable from cold launch for anonymous users. Per CONTEXT D-36 7-step cycle. The methodology is now PROVEN to produce real on-device reachability, not just widget-test green claims.</p>
+<p><strong>Operator constraints honored :</strong> Karpathy #2 (zero new state mgmt ; exposes the existing default-on isLocalMode path), Karpathy #3 surgical (ONLY landing_screen.dart +29 LOC + 6 ARB keys + 1 new widget test + 1 new Maestro flow + chained-flow workaround for M001). CLAUDE.md rule 2 (accent FR clean), rule 5 (ARB parity 6 locales at 6752 keys ; lefthook arb-parity-gate green), rule 6 (read existing code before editing — full grep of isLocalMode + checkAuth before fix), CLAUDE.md §9 (no « shipped » / « ready » claim without deterministic citation).</p>
+<p><strong>Bonus discovery :</strong> M001 registered (Flutter Keys don't propagate as Maestro-queryable iOS Semantics identifiers — every <code>id:</code>-based Maestro assertion broken on iOS Flutter apps). Surfaced honestly per CLAUDE.md §9.7, not silently swallowed. Workaround applied to chained flow : <code>id:</code> matchers switched to accessibilityText regex <code>.*X.*</code>.</p>
+</div>
+
+<h3>7 steps with deterministic citations</h3>
+
+<table>
+<tr><th>Step</th><th>Action</th><th>Commit / Evidence</th></tr>
+<tr><td>1 PICK</td><td>S005 OPEN → IN_PROGRESS, started 2026-05-11T17:22:38Z, target LandingScreen public CTA</td><td><code>51f62a0c</code> docs(97-W7): S005 → IN_PROGRESS (cycle #4 PICK)</td></tr>
+<tr><td>2 REPRO</td><td>Maestro flow bug__S005__landing_anonymous_cta_to_home.yaml authored ; pre-fix RED captured at step 4 « Continuer sans compte » not visible (the canonical S005 bug)</td><td><code>5291173e</code> ; <code>/tmp/maestro_s005_pre_fix_v2.xml</code> failures=1 ; pre-fix screenshot <code>/tmp/96_s005_pre_fix_state.png</code> shows LandingScreen with only Parle à Mint + J'ai déjà un compte CTAs</td></tr>
+<tr><td>3 FIX</td><td>landing_screen.dart adds Semantics(button)+GestureDetector+Text « Continuer sans compte » below the login link ; calls <code>context.go('/home')</code> ; bodySmall+textSecondaryAaa visual weight (matches login link) ; 6 ARB keys (fr/en/de/es/it/pt) + l10n regenerated. landing_screen_test.dart adds 1 new S005 test asserting link renders + routes to /home.</td><td><code>010d851c</code> feat(97-W7): S005 FIX — public « Continuer sans compte » CTA on LandingScreen ; lefthook arb-parity-gate green at 6752 keys × 6 locales</td></tr>
+<tr><td>4 PASS</td><td>flutter build ios --simulator GREEN (10.6s) ; flutter test landing_screen_test.dart 5/5 GREEN ; Maestro post-fix flow GREEN end-to-end on iPhone 17 Pro sim</td><td><code>8c1cf44f</code> test(97-W7): S005 PASS — Maestro flow GREEN end-to-end ; <code>/tmp/maestro_s005_post_fix.xml</code> failures=0 time=8.0s ; screenshot <code>/tmp/96_s005_aujourdhui_landed.png</code> AujourdhuiScreen with CapDuJourBanner + MintCardActionBar 3 verbs</td></tr>
+<tr><td>5 SUITE</td><td>Chained F001+S001+S005 Maestro flow runs GREEN end-to-end ; flutter analyze 273 baseline preserved ; landing+cap_du_jour+mint_chat_overlay widget tests 27/27 GREEN ; no regression</td><td><code>bcd8d46f</code> test(97-W7): F001+S001+S005 chained flow GREEN end-to-end ; <code>/tmp/maestro_chained_f001_s001_s005.xml</code> failures=0 time=10.0s ; screenshot <code>/tmp/96_chained_green_chat_overlay.png</code> MintChatOverlay open with intent badge « explain » + counter 0/3 + ChatInputBar</td></tr>
+<tr><td>6 LOCK</td><td>tools/simulator/flows/regression/_INDEX.md upgraded : S005 row added LOCKED-GREEN 2026-05-11T19:32Z ; F001 + S001 + chained rows all upgraded to LOCKED-GREEN end-to-end 2026-05-11T19:35Z</td><td>final commit (this turn) — _INDEX.md S005 + chained rows</td></tr>
+<tr><td>7 ADVANCE</td><td>97-BUGS-REGISTRY.md S005 → RESOLVED with fix_commit=010d851c + repro_flow + chained_repro_flow + resolved_in=2026-05-11T19:35:00Z ; F001 + S001 rows updated with lock_status_update_2026-05-11T19:35:00Z = LOCKED-GREEN END-TO-END ; M001 NEW row registered (P1, score 16)</td><td>final commit (this turn) updates BUGS-REGISTRY + VERIFICATION-REPORT.html</td></tr>
+</table>
+
+<h3>Citation chain (CLAUDE.md §9.6 format) — THE methodology validation</h3>
+
+<pre>
+Evidence (the chain that proves the cycle works) :
+
+  /tmp/maestro_s005_pre_fix_v2.xml  (S005 RED, standalone)
+  → failures=1, step 4 « Continuer sans compte » is visible → FALSE
+  → confirms the canonical S005 bug pre-fix
+
+  /tmp/maestro_s005_post_fix.xml  (S005 GREEN, standalone)
+  → failures=0, status=SUCCESS, time=8.0s
+  → AujourdhuiScreen reached from cold launch via new link
+
+  /tmp/maestro_chained_f001_s001_s005.xml  (CHAINED GREEN — METHODOLOGY VALIDATION)
+  → failures=0, status=SUCCESS, time=10.0s
+  → END-TO-END reachability chain proven :
+     cold launch
+     → bêta modal (one-shot, already dismissed)
+     → LandingScreen with « Continuer sans compte » link (S005 fix)
+     → tap → context.go('/home')
+     → AujourdhuiScreen via app.dart:417 (isLoggedIn || isLocalMode) gate
+     → CapDuJourBanner « Parle-moi de toi » with MintCardActionBar (S001 fix)
+     → tap « Explique-moi »
+     → MintChatOverlay opens with ChatInputBar + « 0 / 3 » counter (F001 fix)
+
+  /tmp/96_chained_green_chat_overlay.png
+  → screenshot evidence : MintChatOverlay open over Aujourd'hui shell,
+    intent badge « explain », counter 0/3, ChatInputBar « Tape ton
+    message... » + send arrow, 4-tab nav visible underneath
+
+  flutter test test/screens/landing_screen_test.dart
+  → 5/5 passed at fix commit 010d851c
+  → including new S005 test asserting « Continuer sans compte » renders
+    + routes to /home
+
+  flutter test test/widgets/aujourdhui/cap_du_jour_banner_test.dart
+       test/widgets/mint_chat_overlay_test.dart
+       test/screens/landing_v3_test.dart
+  → 27/27 passed (no regression on directly-touched widgets)
+
+  flutter analyze
+  → 273 issues (Phase 96 baseline exactly preserved, no drift)
+
+  lefthook arb-parity-gate
+  → OK — 6 locale(s) parity, 6752 keys each
+
+Caveat :
+  M001 (Flutter Keys → iOS Semantics identifier propagation) is the
+  workaround layer in the chained flow : id:-based matchers were
+  replaced with accessibilityText regex matchers to handle Flutter's
+  iOS bridge doubling pattern « X\nX ». This is fragile (text drifts)
+  and will be retired in a future cycle (W7 iter#5 candidate). The
+  chained flow IS GREEN end-to-end on the workaround ; the M001 fix
+  will lock the contract more robustly.
+</pre>
+
+<h3>Commit chain (W7 iter#4)</h3>
+<pre>
+51f62a0c  docs(97-W7): S005 → IN_PROGRESS (cycle #4 PICK)                  [Step 1 PICK]
+5291173e  test(97-W7): S005 REPRO Maestro flow — RED                       [Step 2 REPRO]
+010d851c  feat(97-W7): S005 FIX — public « Continuer sans compte » CTA     [Step 3 FIX]
+8c1cf44f  test(97-W7): S005 PASS — Maestro flow GREEN end-to-end           [Step 4 PASS]
+bcd8d46f  test(97-W7): F001+S001+S005 chained flow GREEN end-to-end        [Step 5 SUITE]
+&lt;final&gt;   docs(97-W7): S005 RESOLVED — registry+report+regression-index    [Step 6+7 LOCK+ADVANCE]
+</pre>
+
+<h3>What this cycle proves</h3>
+<ul>
+  <li><strong>The 7-step methodology works end-to-end on iOS.</strong> The chained F001+S001+S005 flow is the FIRST end-to-end Maestro reachability proof of MINT's chat-as-verb surface for anonymous users. The « PR opened ≠ shipped » trap (CLAUDE.md §9.5) is closed for this surface.</li>
+  <li><strong>« Tests green ≠ feature working » is now « tests green AND Maestro on-device green ».</strong> The 5/5 widget test + 8s Maestro standalone + 10s Maestro chained = three deterministic gates per CLAUDE.md §9.2.</li>
+  <li><strong>Surfaced + registered new bugs are part of the process.</strong> M001 discovered during the chained flow forensics ; not silently swallowed.</li>
+  <li><strong>Phase 97 W7 cumulative : 4 bugs closed via the 7-step cycle (B001, F001+F002+F003 jointly, S001, S005), 1 end-to-end Maestro flow GREEN.</strong> The methodology is no longer a hypothesis — it's a proven loop.</li>
+</ul>
+
+<h3>Deferred items (out of S005 scope)</h3>
+<ul>
+  <li><strong>M001</strong> — Flutter Keys propagation to iOS Semantics identifiers. P1, score 16. Pick next cycle (W7 iter#5 candidate). Fix path : add <code>Semantics(identifier: '&lt;key&gt;')</code> wraps on ~6 testID widgets, verify <code>SemanticsBinding.ensureSemantics()</code>, rebuild + re-run all Maestro flows to confirm <code>id:</code> matchers work natively.</li>
+  <li><strong>MintCardActionBar overflow by 35px</strong> on iPhone 17 Pro right edge — cosmetic P2, doesn't block reachability. Logged for a future cycle.</li>
+  <li><strong>S003 (mintapp:// URL scheme) + S004 (Universal Links)</strong> — still OPEN, score 16 each. Not blocking end-to-end Maestro (we now have the « Continuer sans compte » in-app path). Close in W5 reachability sweep.</li>
+</ul>
 
 <h2>W7 iteration cycle #3 — S001 close-out (2026-05-11)</h2>
 

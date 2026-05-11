@@ -5,7 +5,7 @@ slug: mvp-parfait-maestro-full-power-maestro-driven-on-device-grou
 status: draft (W0 in progress)
 created: 2026-05-11
 schema_version: 1
-total_bugs: 33  # will grow as sonnet audits return ; W7 iter#3 added S005 (LandingScreen→/home reachability)
+total_bugs: 34  # W7 iter#4 closed S005 (LandingScreen→/home reachability) + registered M001 (Flutter Keys → iOS Semantics identifier propagation)
 ---
 
 # Phase 97 Bug Registry
@@ -42,7 +42,8 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | Rank | ID | Title | Score | Surface |
 |------|-----|-------|-------|---------|
 | 1 | ~~S001~~ | ~~ChatAsVerbDemoScreen unreachable~~ → **RESOLVED 2026-05-11T17:16:53Z** via CapDuJourBanner action-bar wiring (W7 iter#3, fix 1264f18b) | ~~64~~ | mobile |
-| 1bis | S005 | LandingScreen has no public CTA to /home for anonymous users (surfaced by S001 close) | 32 | mobile |
+| 1bis | ~~S005~~ | ~~LandingScreen has no public CTA to /home~~ → **RESOLVED 2026-05-11T19:35:00Z** via « Continuer sans compte » link (W7 iter#4, fix 010d851c) — closes the cold-launch precondition, end-to-end Maestro reachability proven | ~~32~~ | mobile |
+| 1ter | M001 | Flutter Keys don't propagate as Maestro iOS Semantics identifiers (surfaced during S005 close) — every `id:`-based Maestro assertion broken on iOS | 16 | mobile |
 | 2 | L001 | Maestro locator audit fails 14 violations on 4 flows — testing infra broken | 32 | testing |
 | 3 | S002 | Maestro flow `flow_card_action_intent_bar.yaml` doesn't handle cold-app onboarding (bêta modal + landing + auth) | 32 | testing |
 | 4 | T001 | EXIF metadata leak — `document_scan_screen.dart` Vision API retains GPS+timestamp without scrub (GDPR/Swiss data protection violation) | 32 | mobile |
@@ -75,6 +76,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   found_in: 2026-05-11
   resolved_in: 2026-05-11T17:16:53Z
   notes: « W7 iter#3 (2026-05-11) — wired MintCardActionBar onto CapDuJourBanner (PHASE97_AUJOURDHUI_CARD_INVENTORY.md row 2). Root container carries Key('card_cap_du_jour') ; action bar tagged Key('mint_card_action_bar') ; 3-verb routing : Explique-moi → MintChatOverlay intent=explain, Simule → context.push('/explorer?simulate=cap_du_jour') (zero LLM call per D-06), Rassure-moi → intent=reassure. SerializedCardContext built from financial_core only (priorityScore + cap kind + archetype.backendName + canton), zero PII per Phase 96 D-12. Deterministic GREEN gate : flutter test test/widgets/aujourdhui/cap_du_jour_banner_test.dart (5/5 pass). Maestro flow LOCKED in CI for future regression detection ; becomes runnable end-to-end once S003 (custom URL scheme) / S005 (LandingScreen → /home anonymous CTA) / Phase 97 W1 fragments (E2E launch-arg seeding) land. Same close-out pattern as F001 iter#2. Karpathy #3 surgical : only cap_du_jour_banner.dart touched (1 file, 71 LOC delta). »
+  lock_status_update_2026-05-11T19:35:00Z: « LOCKED-GREEN END-TO-END (after S005 close) — bug__F001_S001_combined__chat_via_cap_du_jour.yaml runs the FULL S001 chain end-to-end on iPhone 17 Pro sim : cold launch → LandingScreen Continuer sans compte (S005) → /home → CapDuJourBanner « Parle-moi de toi » → MintCardActionBar 3 verbs visible (Explique-moi / Simule / Rassure-moi) → tap Explique-moi → MintChatOverlay opens. Junit /tmp/maestro_chained_f001_s001_s005.xml failures=0 time=10.0s. Workaround for M001 : `id: card_cap_du_jour` + `id: mint_card_action_bar` switched to accessibilityText regex `.*Parle-moi de toi.*` + `.*Explique-moi.*` ; the S001 fix is exercised end-to-end via the visible content. »
 
 - id: S002
   severity: P0
@@ -137,13 +139,31 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « ALL Phase 96 W1 + Phase 97 W5 reachability surface (CapDuJourBanner action bar, MintChatOverlay, full Aujourd'hui card-action ribbon) is unreachable from cold launch for anonymous users. End-to-end Maestro flows blocked. Phase 94 anonymous-onboarding chat works, but Aujourd'hui is invisible to the anonymous user — they bounce off after the chat session. »
   fix_cost: small  # add a « Continuer sans compte » / « Voir mon Aujourd'hui » CTA to LandingScreen (or after /anonymous/chat completion) → context.go('/home')
   score: 32  # 8 × 4 / 1
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11T17:22:38Z
+  fix_commit: 010d851c
+  repro_flow: tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml
+  chained_repro_flow: tools/simulator/flows/regression/bug__F001_S001_combined__chat_via_cap_du_jour.yaml
+  found_in: 2026-05-11
+  resolved_in: 2026-05-11T19:35:00Z
+  notes: « W7 iteration cycle #4 (2026-05-11) — surgical fix per Karpathy #3. Added a sober « Continuer sans compte » link to LandingScreen below « J'ai déjà un compte » (landing_screen.dart +29 LOC) ; calls context.go('/home'). New ARB key landingV3AnonymousHomeLink × 6 locales (fr/en/de/es/it/pt parity, lefthook arb-parity-gate green at 6752 keys). Exploits the existing default-on isLocalMode (auth_provider.dart:90, checkAuth() seeds it line 142-145, app.dart:417 gate) — production-safe : exposes an existing anonymous-default path, no new bypass. Deterministic GREEN gates : (1) flutter test test/screens/landing_screen_test.dart → 5/5 pass (4 pre-existing + 1 new S005 assertion « Continuer sans compte » renders + routes to /home), (2) Maestro standalone /tmp/maestro_s005_post_fix.xml failures=0 time=8s, (3) Maestro chained F001+S001+S005 /tmp/maestro_chained_f001_s001_s005.xml failures=0 time=10s — FIRST end-to-end Maestro reachability proof of MINT's chat-as-verb surface for anonymous users on iPhone 17 Pro sim. Screenshots : /tmp/96_s005_aujourdhui_landed.png (S005 standalone, AujourdhuiScreen with CapDuJourBanner + MintCardActionBar 3 verbs) ; /tmp/96_chained_green_chat_overlay.png (chained, MintChatOverlay open with intent badge « explain » + counter 0/3 + ChatInputBar « Tape ton message... »). Surfaced new meta-bug M001 during cycle (Flutter Keys don't propagate as Maestro iOS identifiers — separate cycle). »
+
+- id: M001
+  severity: P1
+  surface: mobile
+  archetype: all
+  feature: maestro_infra
+  title: « Flutter Keys do not propagate as Maestro-queryable identifiers on iOS — every `id:`-based Maestro assertion fails on iOS Flutter apps »
+  repro: « bash tools/simulator/maestro_env.sh hierarchy on any Flutter screen with `Key('foo')` widgets shows `resource-id: ""` (empty) across the entire iOS view tree. Maestro's `id:` matcher therefore matches nothing. Verified 2026-05-11T19:35Z during W7 iter#4 chained flow — `id: card_cap_du_jour` failed even though the Dart widget carries `Key(ValueKey('card_cap_du_jour'))`. »
+  blast_radius: « Every Maestro flow that uses `id:`-based assertions or taps on iOS is broken. Affects all current regression flows : bug__F001 (chat_input_field, chat_send_button, chat_turn_counter, mint_chat_overlay), bug__S001 (card_cap_du_jour, mint_card_action_bar). The W3 24-flow regression matrix cannot use Flutter Keys as testIDs on iOS until this is fixed. »
+  fix_cost: medium  # add `Semantics(identifier: '<key>')` wrap (Flutter 3.16+) to every testID widget ; ~6 widgets touched (CapDuJourBanner, MintCardActionBar, MintChatOverlay root, ChatInputBar TextField, send IconButton, turn-counter Text) ; verify SemanticsBinding.ensureSemantics() in main.dart ; rebuild + re-run all Maestro flows for regression
+  score: 16  # 4 × 4 / 1
+  status: OPEN
   fix_commit: null
   repro_flow: null
   found_in: 2026-05-11
   resolved_in: null
-  notes: « W7 iteration cycle #4 PICK 2026-05-11T17:22:38Z. Surfaced by W7 iter#3 (S001 close) — running bug__S001__cap_du_jour_action_bar_reachable.yaml against post-fix build showed cold-launch lands on LandingScreen, not the shell. Was implicit assumption in F001 iter#2 (filed as F013/F014 'cold-launch precondition / auth fragment'). Promoted to S005 explicit bug for tracking. Closes W5 alongside S003+S004 reachability work. Fix path : add a sober « Continuer sans compte » link to LandingScreen under the « J'ai déjà un compte » login link, navigating to /home — exploits the existing default-on isLocalMode (auth_provider.dart:90, app.dart:417 gate) ; no auth_provider/main.dart changes needed, production-safe since the path is already documented as the anonymous default. »
+  notes: « Surfaced 2026-05-11T19:35Z during W7 iter#4 S005 close-out cycle (chained F001+S001+S005 flow). Workaround applied to chained flow : switched all `id:` matchers to accessibilityText regex `.*X.*` (Flutter iOS bridge doubles Semantics-label-with-Text-child as "X\nX"). Chained flow GREEN end-to-end via workaround. But the workaround is fragile — text contents drift, accessibilityText doesn't always match the user-facing label, and the Maestro id:-based contract in the testID convention (CONTEXT D-19) cannot be honored on iOS today. Pick this bug next cycle (W7 iter#5) to lock the testID contract properly. »
 ```
 
 ### From haiku TODO survey audit
@@ -389,6 +409,7 @@ row enters the 7-step cycle (D-36), it is folded here for state-machine tracking
   found_in: 2026-05-11
   resolved_in: 2026-05-11T17:00:46Z
   lock_status_update_2026-05-11T17:16:53Z: « LOCKED-GREEN (after S001 close) — bug__F001_S001_combined__chat_via_cap_du_jour.yaml chains both fixes end-to-end : S001 makes CapDuJourBanner reachable, F001 makes MintChatOverlay carry the required testIDs once the action-bar opens. Combined widget-test gate : 11/11 F001 + 5/5 S001 = 16/16 GREEN. End-to-end Maestro still precondition-blocked by S003/S005/W1 fragments. »
+  lock_status_update_2026-05-11T19:35:00Z: « LOCKED-GREEN END-TO-END (after S005 close) — bug__F001_S001_combined__chat_via_cap_du_jour.yaml NOW RUNS GREEN end-to-end on iPhone 17 Pro sim. /tmp/maestro_chained_f001_s001_s005.xml failures=0 time=10.0s. The chain cold launch → LandingScreen Continuer sans compte (S005) → /home → AujourdhuiScreen → CapDuJourBanner (S001) → MintCardActionBar → tap Explique-moi → MintChatOverlay (F001) with « 0 / 3 » counter + ChatInputBar « Tape ton message... » + send arrow is PROVEN on device. FIRST end-to-end Maestro reachability proof of MINT's chat-as-verb surface for anonymous users. Screenshot evidence : /tmp/96_chained_green_chat_overlay.png. Workaround applied for M001 (Flutter Keys not propagating as iOS Semantics identifiers) : all `id:` matchers switched to accessibilityText regex `.*X.*` — fragile, will be retired once M001 fix lands. »
   notes: « W7 iteration cycle #2. Closes F001 + F002 (Key('mint_chat_overlay') root) + F003 (Text Key('chat_turn_counter') « 0 / 3 »). 4 testIDs added to mint_chat_overlay.dart (lines 157, 199, 313, 356). Deterministic GREEN gate : cd apps/mobile && flutter test test/widgets/mint_chat_overlay_test.dart → 11/11 pass (4 pre-existing + 7 new F001 assertions). ARB key chatInputHint added to 6 locales (6751 keys × 6 parity). Maestro flow tools/simulator/flows/regression/bug__F001__chat_input_bar_exists.yaml is in CI LOCK (becomes runnable end-to-end post-W5 reachability — S001/F012/F013/F014/F028). Backend wiring (real coach_chat POST + NarrativeSleeveCard render) deferred to F-NEXT cycle. W7 iter#3 (S001 close) adds the chained bug__F001_S001_combined__chat_via_cap_du_jour.yaml flow — first end-to-end S001 → F001 reachability proof for MINT. »
 
 - id: F002
