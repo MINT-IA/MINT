@@ -80,6 +80,11 @@ flutter:
     - assets/config/tax_scales_2024.json
     - assets/config/personas.json
     - assets/config/commune_multipliers.json
+    # Phase 96 D-17 — metaphor library v1 bootstrap (loaded at app boot
+    # by MetaphorLookup.loadFromAssets() ; byte-equal mirror at
+    # services/backend/app/data/metaphors.toml, parity enforced by
+    # tools/checks/metaphor_parity.py + lefthook).
+    - assets/metaphors.toml
 
   # Phase 92-01 — MVP-FONTS-TOKENS-V2 — Fontshare Supreme + Gambarino bundled .otf
   # License: apps/mobile/assets/fonts/LICENSE-{SUPREME,GAMBARINO}.txt (Indian Type Foundry FF EULA)

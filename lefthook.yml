@@ -136,6 +136,19 @@ pre-commit:
       run: python3 tools/checks/banned_terms_python.py --lsfin-annotation {staged_files}
       tags: [compliance, lsfin, phase-95-dag-invalidation]
       fail_text: "LSFin D-12 violation : credible_low/credible_high emitted without verbatim « selon le modèle simplifié actuel » annotation. Add the FR phrase to the module docstring or output template (CLAUDE.md §1)."
+    # ── Phase 96 D-17 (metaphor parity + value-poisoning lint) ──
+    metaphor_parity:
+      # Phase 96 D-17 — `apps/mobile/assets/metaphors.toml` and
+      # `services/backend/app/data/metaphors.toml` MUST be byte-equal
+      # (sha256 match). `--scan-values` additionally walks every metaphor
+      # string for LSFin banned terms + PII patterns. HARD gate ; exits 1
+      # on any parity drift OR poisoned value. Symlinks were rejected
+      # because they don't survive cross-platform deployments — parity is
+      # enforced by lint instead.
+      glob: "{apps/mobile/assets/metaphors.toml,services/backend/app/data/metaphors.toml}"
+      run: python3 tools/checks/metaphor_parity.py --scan-values
+      tags: [compliance, lsfin, phase-96-mvp-chat-as-verb]
+      fail_text: "Phase 96 D-17 violation : mobile + backend metaphors.toml diverged OR a metaphor contains an LSFin banned term / PII pattern. Re-copy mobile → backend (cp + shasum -a 256 compare), or rewrite the offending metaphor (CLAUDE.md §1)."
 
 skip:
   - merge
