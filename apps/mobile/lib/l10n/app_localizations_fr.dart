@@ -22331,6 +22331,9 @@ class SFr extends S {
   String get landingV2LoginLink => 'J’ai déjà un compte';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Continuer sans compte';
+
+  @override
   String get alertGenericFactPrefix => 'MINT a remarqué';
 
   @override
@@ -23158,4 +23161,16 @@ class SFr extends S {
   @override
   String get coachOnboardingFirstAssistantGreeting =>
       'Bienvenue dans MINT. Avant qu\'on commence : qu\'est-ce qui t\'amène ici aujourd\'hui ?';
+
+  @override
+  String get verbExplique => 'Explique-moi';
+
+  @override
+  String get verbSimule => 'Simule';
+
+  @override
+  String get verbRassure => 'Rassure-moi';
+
+  @override
+  String get chatInputHint => 'Tape ton message...';
 }

@@ -2,7 +2,7 @@ name: mint_mobile
 description: Mint - Financial mentor mobile app
 publish_to: 'none'
 
-version: 2.12.3+50
+version: 2.12.3+60
 
 environment:
   sdk: ^3.6.0
@@ -54,6 +54,14 @@ dependencies:
   sqflite_sqlcipher: ^3.1.0+1
   path_provider: ^2.1.0
   path: ^1.9.0  # pinned by integration_test from SDK
+  # Phase 96 D-17 — metaphor TOML library asset loading
+  toml: ^0.16.0
+  # Phase 97 W7 iter#5 (T001 EXIF leak) — direct dep promotion of the
+  # already-transitive image package. Used by lib/services/exif_scrub.dart
+  # to strip GPS / DateTime / Make / Model / Software EXIF tags from
+  # photos BEFORE they leave the device on the Vision API path.
+  # GDPR Art. 5(1)(c) data minimization + Swiss DSG/LPD Art. 8 security.
+  image: ^4.1.2
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +86,11 @@ flutter:
     - assets/config/tax_scales_2024.json
     - assets/config/personas.json
     - assets/config/commune_multipliers.json
+    # Phase 96 D-17 — metaphor library v1 bootstrap (loaded at app boot
+    # by MetaphorLookup.loadFromAssets() ; byte-equal mirror at
+    # services/backend/app/data/metaphors.toml, parity enforced by
+    # tools/checks/metaphor_parity.py + lefthook).
+    - assets/metaphors.toml
 
   # Phase 92-01 — MVP-FONTS-TOKENS-V2 — Fontshare Supreme + Gambarino bundled .otf
   # License: apps/mobile/assets/fonts/LICENSE-{SUPREME,GAMBARINO}.txt (Indian Type Foundry FF EULA)

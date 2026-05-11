@@ -1,0 +1,198 @@
+# tools/simulator/flows/regression/bug__F001__chat_input_bar_exists.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Phase 97 W7 iteration cycle #2 (D-36 step 2 REPRO + step 6 LOCK) —
+# regression flow that gates the F001 fix.
+#
+# F001 bug : MintChatOverlay scaffold had no ChatInputBar / send button /
+# turn counter / root Key('mint_chat_overlay'). Maestro flow
+# `flow_card_action_intent_bar.yaml` (Phase 96 W3 stub) referenced
+# testIDs `chat_input_field`, `chat_send_button`, `mint_chat_overlay`
+# that did not exist anywhere in Dart code (grep returns 0).
+#
+# This flow asserts the 4 testIDs are present in the rendered overlay :
+#   - Key('mint_chat_overlay')       — overlay root
+#   - Key('chat_input_field')        — TextField for user message
+#   - Key('chat_send_button')        — send IconButton
+#   - Key('chat_turn_counter')       — Text widget rendering « 0 / 3 »
+#
+# ─── SCOPE LIMITATION ──────────────────────────────────────────────────
+# This flow exercises the OVERLAY-OPEN path only. It assumes a card on
+# Aujourd'hui carries the testID `card_mon_3a_2026` AND that the user
+# is auth'd. Both preconditions belong to OTHER bugs :
+#   • S001 (no UI button reaches /debug/chat-as-verb)
+#   • F012 (Aujourd'hui cards have no stable Key('card_<id>'))
+#   • F013/F014 (cold-launch precondition / auth fragment)
+#   • F028 (custom URL scheme + Universal Links not configured)
+#
+# Until S001/F012/F013/F014/F028 land, this flow CANNOT run end-to-end
+# on a cold simulator. The deterministic gate for the F001 widget fix
+# is :
+#   cd apps/mobile && flutter test test/widgets/mint_chat_overlay_test.dart
+#
+# Per CONTEXT D-37 the no-regression guarantee comes from the Maestro
+# flow LIVING in CI : once S001/F012/F013/F014/F028 land in W5, this
+# flow becomes runnable end-to-end and a future PR that reintroduces
+# F001 (e.g. accidentally removing the ChatInputBar) will fail this
+# flow in CI = PR blocked.
+#
+# ─── RED STATE (pre-F001-fix, 2026-05-11) ──────────────────────────────
+# Run command :
+#   bash tools/simulator/maestro_env.sh test \
+#     tools/simulator/flows/regression/bug__F001__chat_input_bar_exists.yaml \
+#     --device "B03E429D-0422-4357-B754-536637D979F9" \
+#     --format junit --output /tmp/maestro_f001_red.xml
+#
+# Expected RED today (any of) :
+#   (a) Step 2 fails — `Aujourd'hui` not visible because cold-launch
+#       routes anonymous user to LandingScreen, not the shell.
+#   (b) Step 3 fails — `id: card_mon_3a_2026` not findable because no
+#       Aujourd'hui card carries that Key (F012).
+#   (c) IF reached, step 5 fails — `id: mint_chat_overlay` not findable
+#       (F001 root-cause : the overlay has no root Key today).
+#   (d) IF (c) bypassed, step 6 fails — `id: chat_input_field` not in
+#       Dart code at all (F001 root-cause : no TextField).
+#
+# ─── GREEN STATE (post-F001-fix) ───────────────────────────────────────
+# After the F001 fix lands (commit TBD, mint_chat_overlay.dart promoted
+# to StatefulWidget + ChatInputBar inner widget + 4 testIDs) :
+#   • Steps 5-9 will assert successfully WHEN preconditions (S001/F012/
+#     F013/F014/F028) also land. Until then, the FLUTTER WIDGET TEST is
+#     the deterministic gate :
+#       cd apps/mobile && flutter test \
+#         test/widgets/mint_chat_overlay_test.dart
+#
+# ─── MAESTRO 2.5.1 SYNTAX ──────────────────────────────────────────────
+# Per https://docs.maestro.dev/api-reference/commands :
+#   - `assertVisible: { id: "..." }` — block form, OK
+#   - `tapOn: { id: "..." }` — block form, OK
+#   - `inputText: "..." ` — top-level command, OK
+#   - `pressKey: Enter` — OK (not the `pressBack` typo caught Phase 96 G2)
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
+# - Backend = Railway staging mint-staging.up.railway.app
+# - Phase 97 W5 reachability fixes landed (S001/F012/F013/F014/F028)
+# - User auth'd OR local-mode bypass active (F013/F014 fragment)
+
+appId: ch.mint.app
+tags:
+  - phase-97
+  - phase-97-w7
+  - bug-f001
+  - regression
+  - chat-as-verb
+  - feature:chat_as_verb
+  - archetype:all
+---
+
+# ── Step 1 — Cold launch with clean state ─────────────────────────────
+# clearState: true forces a fresh anon session ; assumes auth fragment
+# OR local-mode bypass will set the post-landing state via shared
+# SharedPreferences seeds (Phase 97 W1 D-02 fragment).
+- launchApp:
+    clearState: true
+
+# ── Step 2 — Dismiss bêta modal if present (cold-launch precondition) ─
+# Per Phase 96 G2 evidence (.planning/phases/96-mvp-chat-as-verb/g2-evidence/
+# 01-landing-modal.png), cold-launch shows the bêta sheet first.
+# `optional: true` keeps the flow green when the modal is already
+# dismissed (warm-start) or feature-flagged off.
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# ── Step 3 — Reach Aujourd'hui (or skip to the demo screen) ────────────
+# Today this step fails on anon cold-launch (Maestro lands on
+# LandingScreen, not the shell). Once F013/F014 auth fragment lands OR
+# F028 custom URL scheme is registered, this becomes runnable :
+#   • Option A (F013/F014) : auth fragment seeds an authenticated state
+#     so the shell renders directly.
+#   • Option B (F028) : the regression CI invokes
+#     `xcrun simctl openurl <udid> mintapp://debug/chat-as-verb` BEFORE
+#     this flow runs, landing the app directly on the demo screen.
+- extendedWaitUntil:
+    visible:
+      text: "Aujourd'hui"
+    timeout: 8000
+
+# ── Step 4 — Open the « Mon 3a 2026 » card (Phase 96 G1 entry-point) ───
+# Today this fails — F012 (no Aujourd'hui card carries
+# Key('card_mon_3a_2026')). W5 reachability sweep wires every card.
+- tapOn:
+    id: "card_mon_3a_2026"
+- waitForAnimationToEnd
+
+# ── Step 5 — Tap « Explique-moi » → MintChatOverlay opens ─────────────
+- tapOn: "Explique-moi"
+- waitForAnimationToEnd
+
+# ── Step 6 — F001 ASSERTION 1/4 : overlay root has Key('mint_chat_overlay') ─
+# This is the F001 root assertion. The pre-fix overlay rendered as a
+# DraggableScrollableSheet with NO root Key — Maestro `assertVisible: { id }`
+# matched nothing. Post-fix : the root Container carries
+# `key: const Key('mint_chat_overlay')`.
+- assertVisible:
+    id: "mint_chat_overlay"
+
+# ── Step 7 — F001 ASSERTION 2/4 : chat_input_field exists ─────────────
+# Pre-fix : `grep chat_input_field` returns 0 in apps/mobile/lib/.
+# Post-fix : TextField with `key: const Key('chat_input_field')`.
+- assertVisible:
+    id: "chat_input_field"
+
+# ── Step 8 — F001 ASSERTION 3/4 : chat_send_button exists ─────────────
+# Pre-fix : `grep chat_send_button` returns 0.
+# Post-fix : IconButton with `key: const Key('chat_send_button')` ;
+# DISABLED when TextField is empty (initial state).
+- assertVisible:
+    id: "chat_send_button"
+
+# ── Step 9 — F001 ASSERTION 4/4 : chat_turn_counter renders « 0 / 3 » ─
+# Pre-fix : no turn counter widget in mint_chat_overlay.dart.
+# Post-fix : Text widget with `key: const Key('chat_turn_counter')`
+# rendering the local-state counter. Initial state = « 0 / 3 ».
+# UI-only counter (Phase 96 D-08 server-side turn_cap is the canonical
+# enforcement gate ; this is purely a UI display).
+- assertVisible:
+    id: "chat_turn_counter"
+- assertVisible:
+    text: ".*0\\s*/\\s*3.*"
+
+# ── Step 10 — Typing enables the send button ──────────────────────────
+# Send button is DISABLED when TextField is empty. After typing,
+# `onChanged` setState rebuilds with enabled=true. We use the existence
+# of an enabled icon as a soft signal ; the keyed button is now
+# tappable (Maestro tapOn won't fail on disabled IconButton in MUI,
+# so this is a smoke check, not a hard gate — the hard gate lives in
+# the Flutter widget test).
+- tapOn:
+    id: "chat_input_field"
+- inputText: "Qu'est-ce que ça change pour moi ?"
+
+# ── Step 11 — Tap send → counter increments to « 1 / 3 » ──────────────
+- tapOn:
+    id: "chat_send_button"
+- extendedWaitUntil:
+    visible:
+      text: ".*1\\s*/\\s*3.*"
+    timeout: 5000
+
+# ─── F001 RESOLUTION CONTRACT ─────────────────────────────────────────
+# Acceptance : steps 6, 7, 8, 9 (the 4 F001 assertions) all pass.
+# Per CLAUDE.md §9.6, the run output IS the deterministic citation.
+#
+# Today (2026-05-11) this flow CANNOT run end-to-end due to S001/F012/
+# F013/F014/F028 preconditions. The deterministic F001 gate is the
+# Flutter widget test :
+#   cd apps/mobile && flutter test \
+#     test/widgets/mint_chat_overlay_test.dart
+#
+# Once W5 reachability lands, the regression CI workflow
+# `.github/workflows/maestro-regression.yml` (Phase 97 W3 deliverable)
+# will run this flow on every PR, blocking any future PR that
+# reintroduces F001 (e.g. accidentally collapses ChatInputBar back to
+# the W1 scaffold).

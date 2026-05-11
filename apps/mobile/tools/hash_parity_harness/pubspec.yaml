@@ -1,0 +1,7 @@
+name: hash_parity_harness
+description: Phase 95 Python-Dart hash parity harness. Pure-Dart standalone (no financial_core deps).
+publish_to: 'none'
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+dependencies:
+  crypto: ^3.0.0

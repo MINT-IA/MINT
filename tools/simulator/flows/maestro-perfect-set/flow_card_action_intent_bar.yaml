@@ -1,0 +1,216 @@
+# tools/simulator/flows/maestro-perfect-set/flow_card_action_intent_bar.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Phase 96 G1 Maestro flow — chat-as-verb end-to-end on staging.
+#
+# Exercises the full user path :
+#   - 3-tab nav (chat tab hidden when chatTabVisible=false on staging)
+#   - card tap on Aujourd'hui
+#   - MintCardActionBar 48dp reveal with 3 verbs
+#   - « Explique-moi » → MintChatOverlay opens, turn counter visible
+#   - 3 turns → 4th turn returns the verbatim D-10 terminal template
+#   - Explorer deep-link tappable → lands on Explorer screen
+#   - « Simule » verb routes DIRECTLY to Explorer (no overlay, no LLM)
+#
+# ─── SCOPE LIMITATION (PLAN 96-03 T2) ──────────────────────────────────
+# The flow assumes :
+#   - The booted sim runs a release-flavored build pointing at
+#     `mint-staging.up.railway.app/api/v1` (api_service.dart:111).
+#   - Staging Railway has the Phase 96 W2 deploy live :
+#     CoachChatRequest.source_card + turn_cap + Sentry breadcrumb
+#     `coach.chat_overflow.turn_4`.
+#   - The « Mon 3a 2026 » card is wired with MintCardActionBar via the
+#     Plan 96-01 demo screen at `apps/mobile/lib/screens/coach/
+#     chat_as_verb_demo_screen.dart` (or the production card list once
+#     wired in the content sprint).
+#
+# Several testIDs in the flow (card_mon_3a_2026, mint_chat_overlay,
+# chat_input_field, chat_send_button, mint_chat_overlay_close_handle,
+# explorer_screen) reference widgets that may not yet carry stable Keys
+# on the production card list — they DO exist on the demo screen built
+# in Plan 96-01 T4 (chat_as_verb_demo_screen.dart). The G2 Julien
+# walkthrough is the authoritative end-to-end gate per CLAUDE.md §9.
+#
+# ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
+# Authenticated user, profile-empty or profile-populated — the 3-turn
+# cap is per (user_id, source_card_id) so any logged-in account works.
+#
+# ─── EXPECTED DURATION ─────────────────────────────────────────────────
+# ~90s wall-clock (cold launch + auth + nav + 3 narrator round-trips +
+# cap-hit + Explorer nav).
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
+#   (PRODUCT_BUNDLE_IDENTIFIER from Runner.xcodeproj/project.pbxproj).
+# - Backend = Railway staging `mint-staging.up.railway.app` (release-mode
+#   default per api_service.dart:111 ; memory
+#   `feedback_app_targets_staging_always`).
+# - `chatTabVisible=false` set via `/config/feature-flags` server
+#   override (Plan 96-01 D-21). Without this, Step 1 (assertNotVisible
+#   "Coach") fails — the 4-tab nav is still on. If the staging baseline
+#   pull (D-11) has not authorised the flip, this gate cannot pass on
+#   prod-flavored builds ; document and re-run after the flag flip.
+# - Phase 95 W2 deploy live (already merged + deployed per Plan 96-02 T1
+#   gate-check).
+# - ANTHROPIC_API_KEY present on Railway staging per memory
+#   `feedback_anthropic_key_on_railway`.
+#
+# ─── MAESTRO 2.5.1 SYNTAX NOTES ────────────────────────────────────────
+# Mirrors flow_narrator_refuses_uncited_numbers.yaml conventions :
+#   - regex locators on FR strings where stable testIDs are absent
+#   - extendedWaitUntil with explicit timeouts on narrator round-trips
+#   - takeScreenshot at key transition points
+#
+# ─── OUTPUT ────────────────────────────────────────────────────────────
+# Screenshots :
+#   .planning/walker/maestro-flows/card-action-intent-bar/<run-id>/
+#     ├── 01-3tab-nav.png
+#     ├── 02-card-action-bar-revealed.png
+#     ├── 03-chat-overlay-turn-1.png
+#     ├── 04-chat-overlay-turn-3.png
+#     ├── 05-terminal-template-turn-4.png
+#     ├── 06-explorer-after-deep-link.png
+#     └── 07-simule-skips-overlay.png
+
+appId: ch.mint.app
+tags:
+  - phase-96
+  - gate-g1
+  - chat-as-verb
+  - turn-cap
+  - mint-card-action-bar
+  - mint-chat-overlay
+---
+
+# ── Step 1 — Cold launch + 3-tab nav assertion ────────────────────────
+# clearState=true forces a fresh session so prior runs' chat history
+# doesn't pollute turn counter assertions.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      text: ".*Aujourd'hui.*"
+    timeout: 8000
+- assertVisible: "Aujourd'hui"
+- assertVisible: "Explorer"
+# Chat tab is HIDDEN when chatTabVisible=false on staging.
+- assertNotVisible: "Coach"
+- takeScreenshot: "01-3tab-nav"
+
+# ── Step 2 — Open the « Mon 3a 2026 » card on Aujourd'hui ─────────────
+# The card may surface under a different stable name on the current
+# Aujourd'hui list ; the testID `card_mon_3a_2026` is the preferred
+# locator. Falls back on the visible card title.
+- tapOn:
+    id: "card_mon_3a_2026"
+- waitForAnimationToEnd
+
+# ── Step 3 — Assert MintCardActionBar reveals with 3 verbs ────────────
+- assertVisible: "Explique-moi"
+- assertVisible: "Simule"
+- assertVisible: "Rassure-moi"
+- takeScreenshot: "02-card-action-bar-revealed"
+
+# ── Step 4 — Tap « Explique-moi » → MintChatOverlay opens ─────────────
+- tapOn: "Explique-moi"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "mint_chat_overlay"
+# Turn counter shows "1 / 3" once the empty-state initial render fires.
+- extendedWaitUntil:
+    visible:
+      text: ".*1\\s*/\\s*3.*"
+    timeout: 6000
+- takeScreenshot: "03-chat-overlay-turn-1"
+
+# ── Step 5 — Send turn 1 ───────────────────────────────────────────────
+- tapOn:
+    id: "chat_input_field"
+- inputText: "Qu'est-ce que ça change pour moi ?"
+- tapOn:
+    id: "chat_send_button"
+- extendedWaitUntil:
+    visible:
+      text: ".*2\\s*/\\s*3.*"
+    timeout: 30000
+
+# ── Step 6 — Send turn 2 ───────────────────────────────────────────────
+- tapOn:
+    id: "chat_input_field"
+- inputText: "Et si j'attends encore deux ans ?"
+- tapOn:
+    id: "chat_send_button"
+- extendedWaitUntil:
+    visible:
+      text: ".*3\\s*/\\s*3.*"
+    timeout: 30000
+- takeScreenshot: "04-chat-overlay-turn-3"
+
+# ── Step 7 — Send turn 3 (the last LLM-backed turn) ────────────────────
+- tapOn:
+    id: "chat_input_field"
+- inputText: "Qu'est-ce que tu recommanderais ?"
+- tapOn:
+    id: "chat_send_button"
+
+# ── Step 8 — Send turn 4 → assert terminal template (D-10 verbatim) ────
+# The 4th request must hit the turn_cap and return the static FR
+# template + Explorer deep-link, zero LLM cost. The Sentry breadcrumb
+# `coach.chat_overflow.turn_4` fires on staging (manual verification in
+# the Sentry staging dashboard — capture the event URL in the
+# FLAG-FLIP-PROPOSAL evidence block).
+- tapOn:
+    id: "chat_input_field"
+- inputText: "Une dernière chose ?"
+- tapOn:
+    id: "chat_send_button"
+- extendedWaitUntil:
+    visible:
+      text: ".*Tu as exploré 3 angles sur cette carte.*"
+    timeout: 15000
+- assertVisible: "Explorer →"
+- takeScreenshot: "05-terminal-template-turn-4"
+
+# ── Step 9 — Tap [Explorer →] deep-link → land on Explorer screen ─────
+- tapOn: "Explorer →"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "explorer_screen"
+- takeScreenshot: "06-explorer-after-deep-link"
+
+# ── Step 10 — « Simule » verb skip-overlay check ──────────────────────
+# Pop back to Aujourd'hui, re-open the card, tap « Simule ». This MUST
+# route directly to Explorer with ZERO overlay open + ZERO turns
+# consumed (D-06).
+- back
+- tapOn:
+    id: "mint_chat_overlay_close_handle"
+- waitForAnimationToEnd
+- tapOn: "Aujourd'hui"
+- waitForAnimationToEnd
+- tapOn:
+    id: "card_mon_3a_2026"
+- waitForAnimationToEnd
+- tapOn: "Simule"
+- waitForAnimationToEnd
+- assertNotVisible:
+    id: "mint_chat_overlay"
+- assertVisible:
+    id: "explorer_screen"
+- takeScreenshot: "07-simule-skips-overlay"
+
+# ─── PHASE 96 G1 STATUS (Wave 3, plan 96-03) ───────────────────────────
+# Flow runs as a G1 gate against staging Railway with chatTabVisible=
+# false. Acceptance : exit 0. Per CLAUDE.md §9.6, the run output IS the
+# deterministic citation.
+#
+# Run command (canonical Maestro path per memory `reference_maestro_setup`):
+#   bash tools/simulator/maestro_env.sh test \
+#     tools/simulator/flows/maestro-perfect-set/flow_card_action_intent_bar.yaml \
+#     --device "B03E429D-0422-4357-B754-536637D979F9" \
+#     --format junit --output /tmp/maestro_96_g1.xml
+#
+# Sentry verification (post-run, manual) : open the staging Sentry
+# dashboard, filter `category:coach.chat_overflow.turn_4` over the last
+# 1h. Capture the event URL and paste into 96-03-FLAG-FLIP-PROPOSAL.md
+# §G1 Evidence.

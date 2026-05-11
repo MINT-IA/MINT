@@ -58,10 +58,10 @@ Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT
 - [ ] **Phase 92: MVP-FONTS-TOKENS-V2** — Land Supreme + Gambarino + Menthe-vive ; drop GoogleFonts.* ; consume `docs/brand/MINT v2.html` + `docs/brand/MINT-brand.html` as design source
 - [ ] **Phase 92.5: MVP-CALC-RIGOR-FOUNDATIONS** *(inserted 2026-05-10 per ADR calc-first ; scope-cut 2026-05-10 per CONTEXT D-02)* — Mobile↔Backend differential CI on 80–100 fixtures (existing parity surface) + Hypothesis property tests (8 invariants) + ESTV oracle pin (50 tax vectors) ; G6 calc-correctness gate added to PERIMETERS ; full 200-fixture coverage deferred to backlog 999.4
 - [ ] **Phase 93: MVP-CTA-UNIFICATION-V1** — `MintCTA.{primary,secondary,tertiary,destructive}` replacing 9+ ad-hoc primitives + 10 ElevatedButton outliers
-- [ ] **Phase 93.5: MVP-SKILL-BUNDLE-COMPILER** *(inserted 2026-05-10 per Anthropic financial-services audit)* — Compile-time skill bundles (`pillar3a-optimizer`, `lpp-projector`, `tax-explainer`, `mortgage-stressor`, `compliance-narrator`, `life-event-router`) → single narrator prompt + tool allowlist + citation allowlist ; NOT runtime multi-agent
-- [ ] **Phase 94: MVP-CITATION-GATE** — Closed-world numeric vocabulary (placeholders `{{cite:<key>}}` + post-hoc substitute) + CalcTrace propagated to widgets + `AI_MODEL_REGISTRY.md` + LSFin disclaimer systemic ; ADR calc-first N1
-- [ ] **Phase 95: MVP-DAG-INVALIDATION** — `inputs_hash` + `superseded_by` on every projection + `GroundingPack` JSON emitted by DAG (Pareto front + Sobol indices + what-ifs precomputed + credible intervals) ; ADR calc-first N2
-- [ ] **Phase 96: MVP-CHAT-AS-VERB** — Kill chat-tab ; card-actions intent bar ; 3-turn cap ; source-card context propagation + `NarrativeSleeve {hook, caption, next_step, metaphor}` linter (no num in hook) + métaphores archetype/canton/event ; ADR calc-first N4
+- [x] **Phase 93.5: MVP-SKILL-BUNDLE-COMPILER** *(inserted 2026-05-10 per Anthropic financial-services audit)* — Compile-time skill bundles (`pillar3a-optimizer`, `lpp-projector`, `tax-explainer`, `mortgage-stressor`, `compliance-narrator`, `life-event-router`) → single narrator prompt + tool allowlist + citation allowlist ; NOT runtime multi-agent (completed 2026-05-10)
+- [x] **Phase 94: MVP-CITATION-GATE** — Closed-world numeric vocabulary (placeholders `{{cite:<key>}}` + post-hoc substitute) + CalcTrace propagated to widgets + `AI_MODEL_REGISTRY.md` + LSFin disclaimer systemic ; ADR calc-first N1 (completed 2026-05-10)
+- [x] **Phase 95: MVP-DAG-INVALIDATION** — `inputs_hash` + `superseded_by` on every projection + `GroundingPack` JSON emitted by DAG (Pareto front + Sobol indices + what-ifs precomputed + credible intervals) ; ADR calc-first N2 (completed 2026-05-10)
+- [x] **Phase 96: MVP-CHAT-AS-VERB** — Kill chat-tab ; card-actions intent bar ; 3-turn cap ; source-card context propagation + `NarrativeSleeve {hook, caption, next_step, metaphor}` linter (no num in hook) + métaphores archetype/canton/event ; ADR calc-first N4 (completed 2026-05-11)
 
 ### 5-gate exit contract per phase
 
@@ -188,18 +188,31 @@ The PLAN here does NOT duplicate `handoff/audit/05-plan.md` — it indexes it. S
 **Auto profile**: **L2** (backend prompt-eng + LLM eval) — Stage 3 eval after compiler in place ; cost+latency telemetry on staging before merge.
 
 ### Phase 94: MVP-CITATION-GATE
-**Goal**: Post-process parser on narrator output. Narrator output rejected if ANY number or legal claim is emitted without a `[citation:source_id]` reference. Closes the « ChatGPT clone » fear mechanically — narrator is structurally incapable of un-cited numbers. Hard-cap retries at 1, fall back to templated « je n'ai pas la donnée » on retry failure.
-**Depends on**: Phase 91 (extractor + narrator split must exist before citation parser hooks into narrator output stage)
+**Goal**: Post-process parser on narrator output. Narrator output rejected if ANY number or legal claim is emitted without a `{{cite:<key>}}` placeholder (per CONTEXT D-01 — the legacy `[citation:source_id]` wording is superseded). Closes the « ChatGPT clone » fear mechanically — narrator is structurally incapable of un-cited numbers. Hard-cap retries at 1, fall back to templated « je n'ai pas la donnée » on retry failure.
+**Depends on**: Phase 91 (extractor + narrator split must exist before citation parser hooks into narrator output stage), Phase 93.5 (bundle compiler emits `citation_allowlist` consumed by gate per D-07)
 **Requirements**: GATE-01 number detection regex, GATE-02 citation source registry, GATE-03 retry-or-fallback flow, GATE-04 banned-claim list
 **Success Criteria** (what must be TRUE):
-  1. New `app/services/coach/citation_parser.py` parses narrator output, detects every CHF amount / percentage / legal article / regulatory constant ; rejects emission if no `[citation:profile|reasoning|tool_call_id|adr|spec]` is adjacent.
+  1. New `app/services/coach/citation_parser.py` parses narrator output, detects every CHF amount / percentage / legal article / regulatory constant ; rejects emission if no `{{cite:<key>}}` placeholder (resolving to `profile|reasoning|tool_call_id|adr|spec` source kinds) is adjacent.
   2. Narrator response retry-once on rejection with explicit reprompt « cite ton chiffre ou ne l'émets pas » ; second failure returns templated « je n'ai pas cette donnée pour l'instant » with no number.
   3. 50-fixture eval pack (`tests/fixtures/citation_gate_eval_50.jsonl`) passes ≥95% on Sonnet narrator and ≥90% on Haiku narrator.
   4. Maestro flow `flow_narrator_refuses_uncited_numbers.yaml` PASSES — sends a profile-empty user with chat « combien je gagne ? » and asserts the response does NOT contain a fabricated CHF number.
-**Plans**: TBD
+**Plans**: 3 plans (Wave 0 scaffold → Wave 1 wiring → Wave 2 eval+proposal)
+- [x] 94-01-PLAN.md — Wave 0, autonomous — citation_parser.py + citation_registry.py + COACH_CITATION_GATE_ENABLED flag + 6 test files (number-detection, meta-helpers port, registry contract, performance, byte-identity flag-OFF, config) ; eval_narrator.py refactor to re-import meta-helpers (single source of truth, D-03) — **shipped 2026-05-10 (commits 033b8445 / 668df0de / 2a729c3d, 106 tests, 6372/6266 backend baseline, see 94-01-SUMMARY.md)**
+- [x] 94-02-PLAN.md — Wave 1, autonomous — fattened gate() body (D-08/D-09/D-10/D-12/D-13 verbatim FR strings) + `_run_narrator_with_gate()` wrapper at coach_chat.py:3264-3373 + bundle integration (D-07) + Sentry breadcrumbs (D-18) + 6 new test files (retry, fallback, banned-claims, bundle-intersect, global-registry-fallback, telemetry)
+- [x] 94-03-PLAN.md — Wave 2, NOT autonomous (Julien GO/NO-GO checkpoint) — eval_narrator --gate={on,off} flag + 50-fixture pack (D-14) + Maestro G1 flow (D-16) + Stage 3 live eval (Sonnet ≥95% / Haiku ≥90% per D-15) + 94-03-EVAL-RESULTS.md + 94-03-FLAG-FLIP-PROPOSAL.md (D-21 sunset)
 
 **Budget**: 3d
 **Auto profile**: **L2** (backend + LLM eval gate) — Stage 3 eval mandatory before merge.
+
+### Phase 94.1: Wave 4 narrator-prompt fattening — citation registry + {{cite:<key>}} grammar instructions (Phase 94 prod-flip unblocker) (INSERTED) — CLOSED 2026-05-10 AT FAIL
+
+**Goal:** Teach the narrator the `{{cite:<key>}}` grammar + the 18-key registry vocabulary so Stage 3 gate-correct rates lift from Sonnet 6% / Haiku 14% to ≥95% / ≥90%.
+**Result:** PARTIALLY LANDED — Sonnet 6% → 20% (+233%), Haiku 14% → 20% (+43%). Signal concentrated in `valid_citation` category (Sonnet 1/20 → 9/20, Haiku 6/20 → 10/20). Thresholds NOT MET. Disposition unchanged : NO-GO + PARTIAL.
+**Depends on:** Phase 94 (NO-GO + PARTIAL disposition + CITATION_REGISTRY 18-key baseline).
+**Plans:** 1/1 plans complete
+
+Plans:
+- [x] 94.1-01-PLAN.md — narrator-prompt fattening Path C (Hybrid) — SUMMARY at `.planning/phases/94.1-wave-4-.../94.1-SUMMARY.md` ; EVAL-DELTA at `.planning/phases/94.1-wave-4-.../94.1-EVAL-DELTA.md`. 12 new tests + 6448 backend pytest + 2 live eval JSONs. Verdict FAIL per plan-defined interpretation rules ; orchestrator owns GO/NO-GO on 94.2.
 
 ### Phase 95: MVP-DAG-INVALIDATION
 **Goal**: Add `inputs_hash` + `superseded_by` on every projection (LPP, AVS, 3a, marge fiscale). Calculator refuses stale cache when input hash differs from current profile hash. Closes silent stale-projection bug (user updates salary in onboarding ; old LPP projection card shows old number for 3 days).
@@ -210,7 +223,12 @@ The PLAN here does NOT duplicate `handoff/audit/05-plan.md` — it indexes it. S
   2. Calculator wrappers compute hash on read ; if hash mismatch with current profile hash → return last-known-good with `staleness: high` flag (UI surfaces « valeur peut-être obsolète » badge).
   3. Migration is additive : `inputs_hash` is nullable ; existing profiles compute hash lazily on first read ; zero forced recomputation.
   4. Test: `tests/test_projection_dag_invalidation.py` covers (a) fresh hash → no staleness, (b) profile salary changes → projection hash mismatch → staleness=high, (c) recompute resets hash chain.
-**Plans**: TBD
+
+> **Phase split note (2026-05-11 — planner-revision iteration 1):** SC#1 + SC#2 are **partial-delivery in Phase 95**. Phase 95 ships the BACKEND half : `ScenarioModel` extended with `inputs_hash` + `superseded_by` columns + `services/backend/app/services/coach/staleness.py` production rule + `ProjectionGroundingPack` Pydantic contract + the pure-Python compute modules (pareto / sensitivity / bootstrap_ci). The **DART half** — `apps/mobile/lib/services/financial_core/` projection-model field additions + calculator-wrapper read-path integration emitting `staleness_iso = "high"` on `GroundingPackEntry` — is **deferred to Phase 96 W2** (consumer wiring + UI badges). SC#4(c) « recompute resets hash chain » test ships in Phase 95 Plan 95-01 Task 5 (`test_recompute_resets_hash_chain`). Pattern : same `phase_complete_with_deferred` precedent as Phase 94 NO-GO + PARTIAL.
+
+**Plans**: 2 plans
+- [x] 95-01-PLAN.md — Wave 1, autonomous — Hash chain (rfc8785 + Decimal quantize) + UUID7 (uuid_utils backport for Railway py3.12) + additive alembic migration on `scenarios` (DAG-01..DAG-04) + 50-fixture Python↔Dart parity gate (Path A pure-Dart harness sidesteps Phase 92.7 cascade) + new PII fixture lint
+- [x] 95-02-PLAN.md — Wave 2, autonomous (depends on 95-01) — ProjectionGroundingPack Pydantic v2 rewrite + 3-point Pareto scalarisation + ±10% what_ifs + numpy bootstrap CIs (200 iter) + `_substitute_placeholders` D-09 double-lookup with Sentry breadcrumb + coach_chat.py pack= threading + LSFin `--lsfin-annotation` rule in banned_terms_python.py
 
 **Budget**: 4d
 **Auto profile**: **L2** (backend + Flutter financial_core) — additive migration ; full pytest + flutter test ; Maestro flow on profile-edit → projection-card-staleness flow.
@@ -226,7 +244,10 @@ The PLAN here does NOT duplicate `handoff/audit/05-plan.md` — it indexes it. S
   4. Chat-tab in main nav hidden behind feature flag `CHAT_TAB_VISIBLE=false` (default-on for kill) ; flag-off for emergency walkback.
   5. Sentry metric `chat_overflow_turn_4` fires on every cap-hit ; alert fires if rate >40% of sessions over 7 days (walkback signal).
   6. Maestro flow `flow_card_action_intent_bar.yaml` validates LPP card → tap « explique » → 3-turn flow → cap → deep-link to Explorer.
-**Plans**: TBD
+**Plans**: 3 plans
+- [x] 96-01-PLAN.md — Wave 1 Flutter UI scaffold (chatTabVisible flag + MintCardActionBar 48dp animated row + MintChatOverlay scaffold + SerializedCardContext Dart mirror + 3 ARB keys × 6 locales + toml dep + 2 example card screens wired) [VERB-01, VERB-04]
+- [x] 96-02-PLAN.md — Wave 2 Backend schemas + 3-turn cap (SerializedCardContext + NarrativeSleeve Pydantic v2 + CoachChatRequest/Response additive extensions + turn_cap.py in-memory counter + narrator <source_card> block + Sentry chat_overflow_turn_4) [VERB-02, VERB-03, VERB-05]
+- [x] 96-03-PLAN.md — Wave 3 cross-stack close-out (NarrativeSleeve hook digit-free linter ReDoS-safe + Dart+Python metaphor_lookup + metaphors.toml v1 bootstrap + Maestro G1 flow_card_action_intent_bar.yaml + walkback test + G2 Julien sim checkpoint) [VERB-06]
 
 **Budget**: 5d
 **Auto profile**: **L2** (cross-stack: Flutter UI + backend chat + flag rollout) — full GSD chain ; Maestro G1 + creator-device G2 + soak metric (7-day) before flag-on in prod.
@@ -237,6 +258,7 @@ The PLAN here does NOT duplicate `handoff/audit/05-plan.md` — it indexes it. S
 - **999.2: Pareto NSGA-II multi-objective optimisation** — Expert 4 ML-arbitrage synthesis ; replace terminal-value scalar with multi-objective optimisation across (revenu_médian, ruin_prob, bequest, tax_drag) via pymoo. 1-2 weeks coupled with GroundingPack but livrable séparément.
 - **999.3: `mint-wiring-verifier` full Claude Code dev-time agent** — *Conditional*. Cheap version `mint-wiring-check` skill ships pre-Phase-94 (this week) as the preempt. Build the FULL agent only IF, post Phase 94 CITATION-GATE merged and post 4 weeks of `mint-wiring-check` skill in production, ≥3 incidents of post-merge revert/hotfix PRs are root-caused to "façade-code: file/class created but never imported by any consumer". Trigger metric : grep `git log --grep="revert.*facade\|hotfix.*facade"` over last 4 weeks. Scope if triggered : agent invokable as sub-agent OR pre-commit lefthook gate OR Claude Code skill, doing the 4-level wiring check (N1 file exists → N2 no stub/TODO → N3 import + appel chez ≥1 consumer → N4 sim describe-all contains trace). 1-2 weeks isolated. Architecture audit-compatible per `.planning/audit/codebase-audit-2026-05-10/anthropic-financial-services-agents.md` §142 (dev-time, not runtime).
 - **999.4: Phase 92.6 — Backend calc-parity scaffold** — *Conditional on Phase 94 CITATION-GATE proving Backend must compute (e.g., for citation_allowlist generation that requires server-side numbers).* Python port of the 3 locked Dart calculator methods : `AvsCalculator.computeMonthlyRente` (~265 LOC), `LppCalculator.projectToRetirement` (~470 LOC), `RetirementTaxCalculator.capitalWithdrawalTax` projection wrapper (~490 LOC) ≈ 1227 LOC total. Once delivered, `services/backend/tests/fixtures/calc_diff_v1.jsonl` extends from 80–100 fixtures to 200, covering AVS rente + LPP retirement projection axes. Trigger : post-TestFlight OR Phase 94 §3 CalcTrace requires backend-computed numbers. Scope : 4-6d isolated. Source : ADR `2026-05-09-calc-first-llm-illumination.md` N3 + CONTEXT 92.5 D-03.
+- **999.5: Phase 94.2 — Narrator-prompt iter 2 (intent-driven key grouping)** — *Conditional on prod-flip path being reactivated.* Phase 94.1 (closed 2026-05-10 at FAIL) lifted Sonnet gate-correct 6% → 20% and Haiku 14% → 20% via the citation-grammar fragment ; thresholds (95% / 90%) NOT MET. Iter 2 primary hypothesis : H1 — replace the flat 18-bullet citation-key list with intent-driven key grouping (project only the keys relevant to the user's classified intent set per `_classify_user_intent` at `coach_chat.py:944-963`), reducing the noise floor that drives model attention drift. Full H1-H5 hypothesis list at `.planning/phases/94.1-wave-4-narrator-prompt-fattening-citation-registry-cite-key-/94.1-EVAL-DELTA.md` §"Root cause hypotheses for 94.2". Parallel diagnostic upgrade : record `first_call_verdict` alongside `gate_verdict` in eval_narrator output (today's scoring records post-retry FALLBACK, which understates the true single-call rate ≈48%/44%). Trigger : reactivated when the 4-week staging soak D-21 path becomes the critical path again OR Phase 96 NarrativeSleeve linter surfaces additional prompt-grammar gaps. Scope : ~2d isolated. Source : `94.1-EVAL-DELTA.md` §"Root cause hypotheses for 94.2" + `94.1-SUMMARY.md`.
 
 ### Cross-cutting concerns
 
@@ -254,6 +276,16 @@ The PLAN here does NOT duplicate `handoff/audit/05-plan.md` — it indexes it. S
 4. CHAT-AS-VERB user revolt. Mitigation: feature flag default-on, monitor `chat_overflow_turn_4`.
 5. FONTS license. Mitigation: Fontshare ToS review gate before W1 merge.
 6. Adversarial counter-thesis « chat IS the product ». Mitigation: 3-turn cap is the hypothesis being tested ; walkback path baked in.
+
+### Phase 97: MVP-PARFAIT-MAESTRO-FULL-POWER — Maestro-driven on-device ground-truth + reachability + 8-archetype matrix + CI gates
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 96
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 97 to break down)
 
 ---
 *Last updated: 2026-05-10 — Phase 91 MVP-EXTRACTOR-V2 closed (verified, 6/7 plans, Stage 3 narrator decision = SONNET kill-policy fallback). v2.9 Chat-as-Verb Pivot ACTIVE with 9 phases (90, 91, 91.5, 92, 92.5, 93, 93.5, 94, 95, 96) + backlog 999.x. Roadmap injection per ADR `2026-05-09-calc-first-llm-illumination.md` Decided 2026-05-10.*

@@ -332,3 +332,52 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 @app.get("/")
 def root():
     return {"msg": "Welcome to Mint API"}
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Apple-App-Site-Association (AASA) — Phase 97 W7 iter#6 (S004 + F007)
+#
+# iOS Universal Links require the host domain to serve an AASA file at
+# the exact path /.well-known/apple-app-site-association with
+# Content-Type: application/json and HTTPS only. Apple is strict :
+# - the path must match exactly (no trailing slash, no .json extension)
+# - the response must be served as application/json
+# - the file must be reachable without authentication
+#
+# Reference : https://developer.apple.com/documentation/xcode/supporting-associated-domains
+#
+# Apple Team ID 7F5UDGYS5H (from apps/mobile/ios/Runner.xcodeproj/
+# project.pbxproj line 682 + 707). Bundle ID ch.mint.app. Combined
+# appID = "7F5UDGYS5H.ch.mint.app".
+# ──────────────────────────────────────────────────────────────────────
+
+_AASA_PAYLOAD = {
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "7F5UDGYS5H.ch.mint.app",
+                "paths": [
+                    "/debug/chat-as-verb",
+                    "/home",
+                    "/aujourd-hui",
+                    "/anonymous/chat",
+                    "/coach/chat",
+                    "/explorer/*",
+                ],
+            }
+        ],
+    }
+}
+
+
+@app.get("/.well-known/apple-app-site-association")
+def apple_app_site_association():
+    """Serve the Apple-App-Site-Association JSON for iOS Universal Links.
+
+    Apple strictly requires Content-Type: application/json + HTTPS.
+    The bare /.well-known/apple-app-site-association path (no .json
+    suffix) is the canonical location iOS queries on every fresh app
+    install + every entitlement-change.
+    """
+    return JSONResponse(content=_AASA_PAYLOAD, media_type="application/json")

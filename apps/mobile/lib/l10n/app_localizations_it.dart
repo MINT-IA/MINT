@@ -22390,6 +22390,9 @@ class SIt extends S {
   String get landingV2LoginLink => 'Ho già un account';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Continua senza account';
+
+  @override
   String get alertGenericFactPrefix => 'MINT ha notato';
 
   @override
@@ -23217,4 +23220,16 @@ class SIt extends S {
   @override
   String get coachOnboardingFirstAssistantGreeting =>
       'Benvenuto su MINT. Prima di cominciare — cosa ti porta qui oggi?';
+
+  @override
+  String get verbExplique => 'Spiega';
+
+  @override
+  String get verbSimule => 'Simula';
+
+  @override
+  String get verbRassure => 'Rassicurami';
+
+  @override
+  String get chatInputHint => 'Scrivi il tuo messaggio...';
 }

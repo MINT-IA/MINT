@@ -28,18 +28,51 @@ Sources:
     - docs/VOICE_SYSTEM.md
 """
 
-from typing import Optional
+import os
+import warnings
+from typing import TYPE_CHECKING, Optional
 
 from app.services.coach.coach_models import CoachContext
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES, ROUTE_TO_SCREEN_INTENT_TAGS
 from app.services.coach.regional_microcopy import RegionalMicrocopy
 
+if TYPE_CHECKING:
+    # Phase 96 D-13 — only needed for type-hints ; runtime import is
+    # deferred to avoid circular-import noise (app.schemas.card_context
+    # itself imports nothing from app.services.coach).
+    from app.schemas.card_context import SerializedCardContext
+
 __all__ = [
     "build_system_prompt",
     "build_narrator_system_prompt",
+    "build_narrator_system_prompt_from_bundles",
     "COACH_TOOLS",
     "INTERNAL_TOOL_NAMES",
 ]
+
+
+# ---------------------------------------------------------------------------
+# Phase 93.5 Plan 04 (BUNDLE-04, H5) — deprecation signal at import time.
+#
+# When the bundle-compiler flag is ON, emit a DeprecationWarning so any
+# tooling that imports this module sees the legacy narrator base prompt
+# is on its way out. Deletion is deferred to Phase 95 per CONTEXT D-19
+# (the legacy path remains the byte-identity reference until prod traffic
+# has run on the bundle path for ≥4 weeks with zero rollback incidents).
+#
+# Reading the env var directly (NOT settings.X) avoids a circular import
+# via app.core.config when this module is loaded early in the FastAPI
+# import graph.
+# ---------------------------------------------------------------------------
+if os.getenv("COACH_BUNDLE_COMPILER_ENABLED", "").lower() == "true":
+    warnings.warn(
+        "_NARRATOR_BASE_SYSTEM_PROMPT is superseded by the bundle "
+        "compiler (Phase 93.5). Deletion is deferred to Phase 95 per "
+        "CONTEXT D-19. Update consumers to call "
+        "build_narrator_system_prompt_from_bundles instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -724,6 +757,21 @@ CONNAISSANCES SUISSES (n'utilise ces faits QUE si la conversation l'amène — n
 # in Phase 91 Wave 2). Not wired in Wave 0. Composed from the three non-
 # extraction parts of the legacy prompt; the `{banned_terms}` and other
 # format slots remain so a future caller can `.format(...)` it identically.
+#
+# DEPRECATED — to be deleted in Phase 95 per CONTEXT D-19.
+# Bundle-compiler path (Phase 93.5, COACH_BUNDLE_COMPILER_ENABLED=true)
+# supersedes this monolithic prompt. See:
+#   - .planning/phases/93.5-mvp-skill-bundle-compiler-inserted-2026-05-10/93.5-CONTEXT.md (D-19)
+#   - services/backend/app/services/coach/bundles/ (replacement)
+# Deletion criteria : Phase 95 unblock = ≥4 weeks of prod traffic with
+# bundle path AT 100% (no flag-OFF traffic) + zero rollback-triggering
+# incidents. Until then both paths coexist (legacy path is the byte-identity
+# regression reference for tests/test_coach_chat_bundles.py).
+# Plan 93.5-04 Task 2 (H5 fix) ships the deprecation signal:
+#   - This grep-able marker comment (BUNDLE-04 wording).
+#   - An import-time DeprecationWarning when COACH_BUNDLE_COMPILER_ENABLED=true
+#     (top of this module). The constant value itself is UNCHANGED — D-19's
+#     deletion deferral is honored.
 _NARRATOR_BASE_SYSTEM_PROMPT = (
     _PROMPT_PART_PREFIX + _PROMPT_PART_MIDDLE + _PROMPT_PART_SUFFIX
 )
@@ -892,10 +940,56 @@ def build_system_prompt(
     )
 
 
+def _render_source_card_block(source_card: "SerializedCardContext") -> str:
+    """Phase 96 D-13 — render the ``<source_card>`` block.
+
+    Format (verbatim — the narrator prompt parses positionally) ::
+
+        <source_card>
+          card_id: <id>
+          card_type: <type>
+          life_event: <event>          # only if non-None
+          canton: <canton>             # only if non-None
+          archetype: <archetype>       # only if non-None
+          computed_facts:              # only if non-empty
+            <key1>: <value1>
+            <key2>: <value2>
+          grounding_keys: <k1>, <k2>   # only if non-empty
+        </source_card>
+
+    Optional fields are OMITTED entirely (line and label) when None /
+    empty — the narrator should not see "life_event: None". This is
+    pinned by tests/test_chat_as_verb/test_narrator_source_card_block.py.
+    """
+    lines = [
+        "<source_card>",
+        f"  card_id: {source_card.card_id}",
+        f"  card_type: {source_card.card_type}",
+    ]
+    if source_card.life_event is not None:
+        lines.append(f"  life_event: {source_card.life_event}")
+    if source_card.canton is not None:
+        lines.append(f"  canton: {source_card.canton}")
+    if source_card.archetype is not None:
+        lines.append(f"  archetype: {source_card.archetype}")
+    if source_card.computed_facts:
+        lines.append("  computed_facts:")
+        for key, value in source_card.computed_facts.items():
+            lines.append(f"    {key}: {value}")
+    if source_card.grounding_keys:
+        lines.append(
+            f"  grounding_keys: {', '.join(source_card.grounding_keys)}"
+        )
+    lines.append("</source_card>")
+    return "\n".join(lines)
+
+
 def build_narrator_system_prompt(
     ctx: Optional[CoachContext] = None,
     language: str = "fr",
     cash_level: int = 3,
+    source_card: "Optional[SerializedCardContext]" = None,
+    intents: Optional[set[str]] = None,
 ) -> str:
     """Narrator-only system prompt (Phase 91 Wave 2, EXTR-03).
 
@@ -910,9 +1004,141 @@ def build_narrator_system_prompt(
 
     Used by `coach_chat.py` when `COACH_DUAL_LLM_ENABLED=True`. The legacy
     `build_system_prompt` remains the flag-OFF default.
+
+    Phase 94.1 Wave 4 — when `settings.COACH_CITATION_GATE_ENABLED=True`,
+    the citation-grammar fragment from `app.services.coach.citation_grammar`
+    is appended at the end of the assembled prompt (separator
+    `\\n\\n---\\n\\n` mirrors the bundle compiler's join). When the flag is
+    OFF (default), the prompt is byte-identical to the pre-94.1 output —
+    invariant pinned by `tests/test_citation_gate/
+    test_byte_identity_flag_off.py` and `tests/test_coach_chat_bundles.py::
+    test_flag_off_byte_identical_to_snapshot` (5 fixtures × 2 tests).
+
+    Phase 96 W2 D-13 — when ``source_card`` is non-None, a ``<source_card>``
+    block (card_id + card_type + optional life_event/canton/archetype +
+    computed_facts dict + grounding_keys list) is appended at the end of
+    the assembled prompt (separator ``\\n\\n``). When source_card is None
+    (the default — and the value used by every Phase 91-95 caller), the
+    prompt is byte-identical to the pre-96 output. Invariant pinned by
+    ``tests/test_chat_as_verb/test_narrator_source_card_block.py::
+    test_source_card_none_preserves_legacy_byte_identity`` AND by the
+    existing 213-test byte-identity matrix (Phase 94 + 95).
     """
-    return _build_prompt(
+    base = _build_prompt(
         base_template=_NARRATOR_BASE_SYSTEM_PROMPT,
+        ctx=ctx,
+        language=language,
+        cash_level=cash_level,
+    )
+
+    # Phase 94.1 Wave 4 — flag-conditional citation-grammar append.
+    # Read env var directly (NOT via `settings.X`) to mirror the existing
+    # deferred-import pattern at lines 61-69 (avoids circular import via
+    # `app.core.config` during early FastAPI module-graph load).
+    #
+    # Phase 94.2 / Phase 97 W7 iter#11 — H1 intent-scoped grammar.
+    # When `intents` is non-empty AND contains recognised labels,
+    # `build_intent_scoped_citation_grammar` returns a shorter fragment
+    # that lists ONLY the registry keys relevant to those intents.
+    # Empty / None / unrecognized intents → full 18-key fragment
+    # (defensive cold-start default, preserves byte-identity invariant
+    # for existing callers that don't pass the new kwarg).
+    def _choose_grammar() -> str:
+        from app.services.coach.citation_grammar import (
+            CITATION_GRAMMAR_FRAGMENT,
+            build_intent_scoped_citation_grammar,
+        )
+        if intents:
+            return build_intent_scoped_citation_grammar(intents)
+        return CITATION_GRAMMAR_FRAGMENT
+
+    if os.getenv("COACH_CITATION_GATE_ENABLED", "").lower() == "true":
+        base = base + "\n\n---\n\n" + _choose_grammar()
+    else:
+        # Defensive fallback : also honor the live `settings` object if the
+        # caller has set the attribute directly (e.g. in-process tests using
+        # `monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", True)`).
+        try:
+            from app.core.config import settings as _settings
+            if getattr(_settings, "COACH_CITATION_GATE_ENABLED", False):
+                base = base + "\n\n---\n\n" + _choose_grammar()
+        except Exception:  # noqa: BLE001 — defensive ; fall through to base
+            pass
+
+    # Phase 96 W2 D-13 — additive <source_card> block when non-None.
+    # source_card=None preserves Phase 94+95 byte-identity (pinned by
+    # the existing 213 tests in test_citation_gate/ + tests/test_coach_chat_bundles.py).
+    if source_card is not None:
+        return base + "\n\n" + _render_source_card_block(source_card)
+
+    return base
+
+
+def build_narrator_system_prompt_from_bundles(
+    *,
+    intents: set[str],
+    ctx: Optional[CoachContext] = None,
+    language: str = "fr",
+    cash_level: int = 3,
+) -> str:
+    """Phase 93.5 narrator base prompt composed via skill-bundle compiler.
+
+    Replaces `_NARRATOR_BASE_SYSTEM_PROMPT` (legacy single template) with
+    a dynamic union of bundle fragments per CONTEXT D-09 / D-10 / D-11 /
+    D-12 / D-13 / D-14. Coexists with `build_narrator_system_prompt` per
+    CONTEXT D-16 ; the coach_chat caller selects via
+    `settings.COACH_BUNDLE_COMPILER_ENABLED` (flag-OFF default = legacy).
+
+    Per C3 fix (revision iter1 2026-05-10) — kwargs-only, NO memory-block
+    parameters. The 3 memory blocks (`commitment_block`,
+    `intelligence_block`, `insight_block`) are concatenated POST-prompt at
+    the coach_chat caller (coach_chat.py:766-781) IDENTICALLY to the
+    legacy flow — they are NOT parameters here.
+
+    Per RESEARCH §3.7 + verified iter1 2026-05-10 — `_build_prompt`
+    signature is kwargs-only `(*, base_template, ctx, language, cash_level)`
+    and provides ALL 7 slots unconditionally (`safe_mode_protocol` becomes
+    `""` when `ctx is None or not ctx.has_debt`).
+
+    Args:
+      intents: 6-enum heuristic intent set from `_classify_user_intent`
+        at `coach_chat.py:944-963` (CONTEXT D-01 supersession). Empty set
+        produces an always-on-only prompt (D-14).
+      ctx: optional `CoachContext` ; passed through to `_build_prompt` for
+        slot interpolation (canton, has_debt, intent…).
+      language: ISO 639-1 code ; passed through to `_build_prompt` for the
+        language-switch appended block.
+      cash_level: 1-5 voice intensity ; passed through to `_build_prompt`.
+
+    Returns:
+      Composed narrator system prompt (str), ready for the Anthropic API
+      `system=` parameter. The 11 appended blocks (life-event catalog,
+      archetype, doctrine, voice intensity, anti-patterns, biography,
+      commitment, intelligence, couple, language switch, user context)
+      are appended unchanged by `_build_prompt` ; only `base_template` is
+      replaced by the composed bundle fragments (D-11).
+
+    Raises:
+      ValueError: H4 — composed prompt contains an undeclared `{slot}`
+        (compile_bundles guard). Caller is expected to fall back to
+        `build_narrator_system_prompt` on this.
+      KeyError: defensive — `_build_prompt.format(...)` slot interpolation
+        failure (should not happen given H4 guard).
+    """
+    # Local import avoids a circular import via `app.services.coach.bundles`
+    # at module-load time and keeps `claude_coach_service` light when the
+    # flag is OFF in prod.
+    from app.services.coach.bundle_compiler import compile_bundles
+
+    compiled = compile_bundles(intents=intents, ctx=ctx, language=language)
+
+    # Reuse `_build_prompt`'s 7-slot interpolation by passing the compiled
+    # prompt as `base_template`. Kwargs-only call per VERIFIED signature
+    # at line 754. The 11 appendix blocks are still appended by
+    # `_build_prompt` unchanged — the bundle compiler ONLY replaces the
+    # base template (D-11).
+    return _build_prompt(
+        base_template=compiled.prompt,
         ctx=ctx,
         language=language,
         cash_level=cash_level,

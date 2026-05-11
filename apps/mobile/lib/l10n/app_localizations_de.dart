@@ -22383,6 +22383,9 @@ class SDe extends S {
   String get landingV2LoginLink => 'Ich habe bereits ein Konto';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Ohne Konto fortfahren';
+
+  @override
   String get alertGenericFactPrefix => 'MINT hat bemerkt';
 
   @override
@@ -23212,4 +23215,16 @@ class SDe extends S {
   @override
   String get coachOnboardingFirstAssistantGreeting =>
       'Willkommen bei MINT. Bevor wir starten — was bringt dich heute hierher?';
+
+  @override
+  String get verbExplique => 'Erkläre';
+
+  @override
+  String get verbSimule => 'Simuliere';
+
+  @override
+  String get verbRassure => 'Beruhige mich';
+
+  @override
+  String get chatInputHint => 'Tippe deine Nachricht...';
 }

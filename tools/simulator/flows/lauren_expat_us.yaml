@@ -54,7 +54,11 @@ appId: ch.mint.app
     text: "plafond du 3e pilier"
 
 # 05 — scroll to register CTA + assert visible
+# Phase 97 W7 iter#12 L001 — dropped narrator-text assertion
+# `assertVisible: "Estime ta marge précise"` (literal does NOT exist in
+# app code / ARB ; the stable `anon-chat-register-cta` Key assertion
+# above already proves the CTA rendered). Keeping the text assertion was
+# a drift trap (narrator copy can change without regression intent).
 - scroll
 - assertVisible:
     id: "anon-chat-register-cta"
-- assertVisible: "Estime ta marge précise"

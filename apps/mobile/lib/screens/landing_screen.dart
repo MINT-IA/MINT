@@ -198,6 +198,33 @@ class _LandingScreenState extends State<LandingScreen>
                       ),
                     ),
                   ),
+                  // 7-bis. SizedBox 12 + anonymous /home link (S005, Phase 97
+                  // W7 iter#4). Closes the cold-launch reachability gap : the
+                  // app.dart:417 gate (isLoggedIn || isLocalMode) lets anonymous
+                  // users into AujourdhuiScreen, and AuthProvider defaults
+                  // isLocalMode=true on fresh installs (auth_provider.dart:90,
+                  // checkAuth() seeds it line 142-145). Production-safe : just
+                  // exposes the existing anonymous default path. Same visual
+                  // weight as the login link (bodySmall, textSecondaryAaa).
+                  const SizedBox(height: 12),
+                  FadeTransition(
+                    opacity: _ctaOpacity,
+                    child: Semantics(
+                      button: true,
+                      label: l10n.landingV3AnonymousHomeLink,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => context.go('/home'),
+                        child: Text(
+                          l10n.landingV3AnonymousHomeLink,
+                          textAlign: TextAlign.center,
+                          style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondaryAaa,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   // 8. Spacer flex 1.
                   const Spacer(flex: 1),
                   // 9. Legal footer — labelSmall(textMutedAaa), center.

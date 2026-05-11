@@ -1,6 +1,6 @@
 lib/screens/admin_observability_screen.dart:255: BorderRadius.circular(99)
-lib/screens/anonymous/anonymous_chat_screen.dart:593: BorderRadius.circular(22)
-lib/screens/anonymous/anonymous_chat_screen.dart:599: BorderRadius.circular(22)
+lib/screens/anonymous/anonymous_chat_screen.dart:595: BorderRadius.circular(22)
+lib/screens/anonymous/anonymous_chat_screen.dart:601: BorderRadius.circular(22)
 lib/screens/arbitrage/rente_vs_capital_screen.dart:1855: BorderRadius.circular(3)
 lib/screens/coach/succession_patrimoine_screen.dart:301: BorderRadius.circular(9)
 lib/screens/concubinage_screen.dart:1071: BorderRadius.circular(7)

@@ -100,6 +100,21 @@ class FeatureFlags {
   /// Kill-switch: backend set to false, no app redeploy needed.
   static bool enableMvpWedgeOnboarding = false;
 
+  /// Phase 96 D-01 — chat tab visibility in MintShell.NavigationBar.
+  ///
+  /// Per 96-CONTEXT.md D-21: Phase 96 ships the kill-switch via feature flag;
+  /// permanent route removal after a 4-week soak with zero rollback signal.
+  /// Default `true` (no behavior change in user nav) until staging
+  /// baseline-pull per D-11 authorises the flip. When set to `false` (via
+  /// `/config/feature-flags` server override), MintShell.NavigationBar drops
+  /// index 2 (`tabCoach`), leaving a 3-tab nav (Aujourd'hui / Mon Argent /
+  /// Explorer). The GoRouter branch + CoachChatScreen route STAY registered
+  /// (D-02) so MintChatOverlay can route to it.
+  ///
+  /// Server-overridable via the existing `/config/feature-flags` endpoint
+  /// (applyFromMap below).
+  static bool chatTabVisible = true;
+
   // Phase 32 D-10 — local-only gate for /admin/*.
   // Combined with compile-time ENABLE_ADMIN=1 via AdminGate.
   // NO backend call (D-10 v4 kills proposed /api/v1/admin/me).
@@ -142,6 +157,10 @@ class FeatureFlags {
     }
     if (data.containsKey('enableMvpWedgeOnboarding')) {
       enableMvpWedgeOnboarding = data['enableMvpWedgeOnboarding'] == true;
+    }
+    // Phase 96 D-01 — chat tab visibility server override.
+    if (data.containsKey('chatTabVisible')) {
+      chatTabVisible = data['chatTabVisible'] == true;
     }
   }
 

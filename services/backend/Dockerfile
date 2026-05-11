@@ -58,4 +58,10 @@ ENV PORT=8080
 EXPOSE ${PORT}
 
 # Railway provides its own healthcheck via railway.json
-CMD ["sh", "-c", "gunicorn app.main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8080} --timeout 120 --access-logfile - --error-logfile -"]
+# B001 fix (2026-05-11, Phase 97 W7 #1) : `-w 1` (was `-w 2`) so the
+# in-memory TURN_COUNTER dict at `services/backend/app/services/coach/turn_cap.py:40`
+# is consistent across all requests. Phase 96 3-turn cap was functionally
+# broken on -w 2 (split-brain across workers). Redis-backed TURN_COUNTER
+# is filed as backlog 999.7 ; reverts -w 2 to -w 1 trade ~50% concurrent
+# capacity for cap correctness. Currently traffic does not require -w 2.
+CMD ["sh", "-c", "gunicorn app.main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8080} --timeout 120 --access-logfile - --error-logfile -"]
