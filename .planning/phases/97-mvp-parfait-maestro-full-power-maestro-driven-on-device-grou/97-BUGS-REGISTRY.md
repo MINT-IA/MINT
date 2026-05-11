@@ -5,7 +5,7 @@ slug: mvp-parfait-maestro-full-power-maestro-driven-on-device-grou
 status: draft (W0 in progress)
 created: 2026-05-11
 schema_version: 1
-total_bugs: 34  # W7 iter#5 closed T001 (EXIF leak — privacy compliance, GDPR Art. 5(1)(c) + DSG Art. 8)
+total_bugs: 36  # W7 iter#6 folded F006 + F007 from audit-flutter-mobile.md catalogue into iteration loop (combined cycle with S003 + S004 — 4-bug deep-linking infra batch)
 ---
 
 # Phase 97 Bug Registry
@@ -48,9 +48,11 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 3 | S002 | Maestro flow `flow_card_action_intent_bar.yaml` doesn't handle cold-app onboarding (bêta modal + landing + auth) | 32 | testing |
 | 4 | ~~T001~~ | ~~EXIF metadata leak~~ → **RESOLVED 2026-05-11T20:35:00Z** via scrubExif() util in document_scan_screen.dart (W7 iter#5, fix 5f7d1953) — GDPR Art. 5(1)(c) + Swiss DSG Art. 8 compliance | ~~32~~ | mobile |
 | 5 | T002 | SQLite encryption missing — `document.py` stores user financial documents at rest unencrypted (GDPR Art. 32) | 32 | backend |
-| 6 | S003 | Custom URL scheme `mintapp://` NOT registered in Info.plist — no external deep-linking possible | 16 | mobile |
-| 7 | S004 | Universal Links NOT configured — `https://` URLs fall through to Safari | 16 | mobile |
-| 8 | P001 | Phase 94 Stage 3 narrator gate-correct thresholds NOT MET (Sonnet 20% vs 95% target after Phase 94.1 iter 1) — prod-flip blocked | 16 | backend |
+| 6 | S003 | Custom URL scheme `mintapp://` NOT registered in Info.plist — no external deep-linking possible (W7 iter#6 IN_PROGRESS) | 16 | mobile |
+| 7 | S004 | Universal Links NOT configured — `https://` URLs fall through to Safari (W7 iter#6 IN_PROGRESS) | 16 | mobile |
+| 8 | F006 | FlutterDeepLinkingEnabled key missing from Info.plist — GoRouter cannot intercept Universal Links on iOS 14+ (W7 iter#6 IN_PROGRESS) | 24 | mobile |
+| 9 | F007 | com.apple.developer.associated-domains missing from Runner.entitlements — Universal Links impossible (W7 iter#6 IN_PROGRESS) | 24 | mobile |
+| 10 | P001 | Phase 94 Stage 3 narrator gate-correct thresholds NOT MET (Sonnet 20% vs 95% target after Phase 94.1 iter 1) — prod-flip blocked | 16 | backend |
 
 ---
 
@@ -105,12 +107,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « External deep-links to MINT cannot work. Email links, push notifications with deep-links, Maestro `openLink` tests all blocked. »
   fix_cost: trivial  # add CFBundleURLTypes entry to Info.plist
   score: 16  # 8 × 4 / 2 ; downscaled cost because no GoRouter integration required
-  status: OPEN
+  status: IN_PROGRESS
+  started: 2026-05-11T18:01:05Z
   fix_commit: null
   repro_flow: null
   found_in: 2026-05-11
   resolved_in: null
-  notes: « Closes alongside Universal Links config in W5. »
+  notes: « W7 iter#6 PICK 2026-05-11 — combined cycle with F006 + F007 + S004 (4-bug deep-linking infra batch, same files touched). Closes alongside Universal Links config. »
 
 - id: S004
   severity: P0
@@ -122,12 +125,49 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « External marketing links, email confirmations, social shares — all open in Safari instead of MINT app. SEO and re-engagement impact. »
   fix_cost: small  # entitlements + apple-app-site-association file upload to staging Railway
   score: 16  # 8 × 4 / 2
-  status: OPEN
+  status: IN_PROGRESS
+  started: 2026-05-11T18:01:05Z
   fix_commit: null
   repro_flow: null
   found_in: 2026-05-11
   resolved_in: null
-  notes: « Closes W5 alongside S003. »
+  notes: « W7 iter#6 PICK 2026-05-11 — combined cycle with F006 + F007 + S003. »
+
+- id: F006
+  severity: P0
+  surface: mobile
+  archetype: all
+  feature: infra
+  title: « FlutterDeepLinkingEnabled key missing from Info.plist — GoRouter cannot intercept Universal Links on iOS 14+ »
+  repro: « grep -n 'FlutterDeepLinkingEnabled' apps/mobile/ios/Runner/Info.plist returns nothing. Per Flutter docs + GoRouter README : <key>FlutterDeepLinkingEnabled</key><true/> must be present for Universal Links (HTTPS) to route to GoRouter instead of opening Safari. »
+  blast_radius: « All Universal Links + any https:// deep links from emails / push notifications / App Clips silently fall through to Safari even when com.apple.developer.associated-domains is eventually added (S004). »
+  fix_cost: trivial
+  score: 24  # 8 × 3 / 1 ; trivial: one line in Info.plist
+  status: IN_PROGRESS
+  started: 2026-05-11T18:01:05Z
+  fix_commit: null
+  repro_flow: null
+  found_in: 2026-05-11
+  resolved_in: null
+  notes: « Folded from audit-flutter-mobile.md F006 row (entered iteration loop). W7 iter#6 — combined cycle with F007 + S003 + S004. »
+
+- id: F007
+  severity: P0
+  surface: mobile
+  archetype: all
+  feature: infra
+  title: « com.apple.developer.associated-domains missing from Runner.entitlements — Universal Links impossible even after Info.plist fix »
+  repro: « cat apps/mobile/ios/Runner/Runner.entitlements — has com.apple.developer.applesignin + keychain-access-groups + memory entitlements but no associated-domains. Required : <key>com.apple.developer.associated-domains</key><array><string>applinks:mint.ch</string></array>. »
+  blast_radius: « Same as S004 / F006 : https://mint.ch links never open the app. »
+  fix_cost: trivial
+  score: 24  # 8 × 3 / 1 ; one entry in entitlements + Apple AASA JSON on Railway
+  status: IN_PROGRESS
+  started: 2026-05-11T18:01:05Z
+  fix_commit: null
+  repro_flow: null
+  found_in: 2026-05-11
+  resolved_in: null
+  notes: « Folded from audit-flutter-mobile.md F007 row. W7 iter#6 — combined cycle with F006 + S003 + S004. Companion to S004 ; both fix together (entitlements + AASA upload to Railway /well-known/apple-app-site-association). »
 
 - id: S005
   severity: P0
