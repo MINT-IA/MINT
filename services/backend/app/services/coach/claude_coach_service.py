@@ -989,6 +989,7 @@ def build_narrator_system_prompt(
     language: str = "fr",
     cash_level: int = 3,
     source_card: "Optional[SerializedCardContext]" = None,
+    intents: Optional[set[str]] = None,
 ) -> str:
     """Narrator-only system prompt (Phase 91 Wave 2, EXTR-03).
 
@@ -1034,11 +1035,25 @@ def build_narrator_system_prompt(
     # Read env var directly (NOT via `settings.X`) to mirror the existing
     # deferred-import pattern at lines 61-69 (avoids circular import via
     # `app.core.config` during early FastAPI module-graph load).
-    if os.getenv("COACH_CITATION_GATE_ENABLED", "").lower() == "true":
+    #
+    # Phase 94.2 / Phase 97 W7 iter#11 — H1 intent-scoped grammar.
+    # When `intents` is non-empty AND contains recognised labels,
+    # `build_intent_scoped_citation_grammar` returns a shorter fragment
+    # that lists ONLY the registry keys relevant to those intents.
+    # Empty / None / unrecognized intents → full 18-key fragment
+    # (defensive cold-start default, preserves byte-identity invariant
+    # for existing callers that don't pass the new kwarg).
+    def _choose_grammar() -> str:
         from app.services.coach.citation_grammar import (
             CITATION_GRAMMAR_FRAGMENT,
+            build_intent_scoped_citation_grammar,
         )
-        base = base + "\n\n---\n\n" + CITATION_GRAMMAR_FRAGMENT
+        if intents:
+            return build_intent_scoped_citation_grammar(intents)
+        return CITATION_GRAMMAR_FRAGMENT
+
+    if os.getenv("COACH_CITATION_GATE_ENABLED", "").lower() == "true":
+        base = base + "\n\n---\n\n" + _choose_grammar()
     else:
         # Defensive fallback : also honor the live `settings` object if the
         # caller has set the attribute directly (e.g. in-process tests using
@@ -1046,10 +1061,7 @@ def build_narrator_system_prompt(
         try:
             from app.core.config import settings as _settings
             if getattr(_settings, "COACH_CITATION_GATE_ENABLED", False):
-                from app.services.coach.citation_grammar import (
-                    CITATION_GRAMMAR_FRAGMENT,
-                )
-                base = base + "\n\n---\n\n" + CITATION_GRAMMAR_FRAGMENT
+                base = base + "\n\n---\n\n" + _choose_grammar()
         except Exception:  # noqa: BLE001 — defensive ; fall through to base
             pass
 

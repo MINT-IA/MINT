@@ -175,14 +175,23 @@ def _build_system_prompt_for_fixture(
         return system_prompt, "bundle"
 
     # Default / explicit "legacy" — Phase 91 Wave 2 narrator prompt.
+    # Phase 94.2 / Phase 97 W7 iter#11 — H1 intent-scoped grammar.
+    # The legacy builder now accepts an `intents` kwarg ; fixtures
+    # carry an `intents` array in citation_gate_eval_50.jsonl. When
+    # provided, the citation_grammar.py module returns the intent-scoped
+    # variant (only the keys relevant to those intents) instead of the
+    # full 18-bullet fragment. Empty / missing intents → full fragment
+    # (preserves byte-identity invariant pinned by test_byte_identity_flag_off).
     from app.services.coach.claude_coach_service import (
         build_narrator_system_prompt,
     )
 
+    intents = set(fixture.get("intents") or [])
     system_prompt = build_narrator_system_prompt(
         ctx=None,
         language=language,
         cash_level=cash_level,
+        intents=intents if intents else None,
     )
     return system_prompt, "legacy"
 
