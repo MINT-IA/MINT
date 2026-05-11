@@ -182,7 +182,7 @@ tags:
 # Pop back to Aujourd'hui, re-open the card, tap « Simule ». This MUST
 # route directly to Explorer with ZERO overlay open + ZERO turns
 # consumed (D-06).
-- pressBack
+- back
 - tapOn:
     id: "mint_chat_overlay_close_handle"
 - waitForAnimationToEnd

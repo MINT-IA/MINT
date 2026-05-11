@@ -11,6 +11,7 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
+import 'package:mint_mobile/screens/coach/chat_as_verb_demo_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
@@ -362,6 +363,20 @@ final _router = GoRouter(
         final intent = state.uri.queryParameters['intent'];
         return AnonymousChatScreen(intent: intent);
       },
+    ),
+    // ── Chat-as-verb demo (Phase 96 W1 T4 wired surface) ─────────
+    // Plan 96-01 T4 wired MintCardActionBar onto two example cards
+    // (« Marge fiscale 2026 », « Coût hypothèque mensuel ») in
+    // `chat_as_verb_demo_screen.dart`. Route registration was missed
+    // in T4 (W14-pattern wiring gap surfaced during G2 sim walkthrough
+    // 2026-05-11). This route exposes the demo so the Maestro G1 flow
+    // + Julien sim can reach the wired surface. Public scope = no auth
+    // gate (the chat backend still requires auth, but the UI surface
+    // itself is reachable).
+    ScopedGoRoute(
+      path: '/debug/chat-as-verb',
+      scope: RouteScope.public,
+      builder: (context, state) => const ChatAsVerbDemoScreen(),
     ),
 
     // ── SHELL: 3-tab persistent navigation ───���─────���────────
