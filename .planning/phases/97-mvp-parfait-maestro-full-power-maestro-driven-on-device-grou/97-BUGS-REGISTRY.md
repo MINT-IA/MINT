@@ -175,16 +175,17 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   archetype: all
   feature: privacy
   title: « EXIF metadata leak — Vision API receives photos with GPS coordinates + timestamps + device model »
-  repro: « apps/mobile/lib/screens/document_scan_screen.dart contains TODO: scrub EXIF before upload. Currently captured images go straight to Vision API. »
-  blast_radius: « GDPR Art. 5(1)(c) data minimization violation. Swiss DSG/LPD non-compliance. Any user uploading a document leaks geolocation + timestamp to backend. »
-  fix_cost: small  # use exif package + strip metadata in pre-upload pipeline
+  repro: « apps/mobile/lib/screens/document_scan/document_scan_screen.dart:683 + 1550 contains TODO(P2-W12): Strip EXIF metadata before Vision API call. Currently captured images go straight to base64 + Vision API with GPS, timestamps, device model intact. »
+  blast_radius: « GDPR Art. 5(1)(c) data minimization violation. Swiss DSG/LPD Art. 8 non-compliance. Any user uploading a document leaks geolocation + timestamp + device model to backend. »
+  fix_cost: small  # use image package (already transitive 4.1.2) + scrubExif() util + 2 call sites
   score: 32  # 8 × 4 / 1
-  status: OPEN
+  status: IN_PROGRESS
+  started: 2026-05-11T20:00:00Z
   fix_commit: null
-  repro_flow: null
+  repro_flow: apps/mobile/test/services/exif_scrub_test.dart  # unit-test-gated (no UI surface)
   found_in: 2026-05-11
   resolved_in: null
-  notes: « MVP-blocker per haiku audit. Closes alongside the compliance triplet T002+T003. »
+  notes: « W7 iteration cycle #5 (2026-05-11) — PICK. Unit-test-gated bug (data pipeline, no UI). Repro = synthetic JPEG with GPS+DateTime+Make/Model EXIF tags ; assert scrubExif() strips them, preserves pixel data. Two call sites in document_scan_screen.dart : _tryVisionExtraction (line 682-685) + _processImageViaVision (line 1549-1552). »
 
 - id: T002
   severity: P0
