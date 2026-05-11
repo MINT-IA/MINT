@@ -34,6 +34,21 @@ LIVING in CI. Each row below is one Maestro flow that :
 | S005 | `bug__S005__landing_anonymous_cta_to_home.yaml` | **LOCKED-GREEN 2026-05-11T19:32Z** | `/tmp/maestro_s005_pre_fix_v2.xml` — failures=1, step 4 fails on « Continuer sans compte » not visible (the canonical S005 bug : no public CTA to /home on LandingScreen for anonymous users) | **Maestro end-to-end : `/tmp/maestro_s005_post_fix.xml` failures=0, time=8.0s — AujourdhuiScreen reached from cold launch via the new « Continuer sans compte » link.** Widget test : `flutter test test/screens/landing_screen_test.dart` 5/5 pass |
 | F001+S001+S005 | `bug__F001_S001_combined__chat_via_cap_du_jour.yaml` | **LOCKED-GREEN 2026-05-11T19:35Z** | precondition-blocked before W7 iter#4 — S005 closed today closes the cold-launch precondition. Pre-S005 RED captured in W7 iter#3 (precondition-blocked at step 3 « Aujourd'hui » assertion) | **Maestro end-to-end : `/tmp/maestro_chained_f001_s001_s005.xml` failures=0, time=10.0s — chains cold-launch → LandingScreen Continuer sans compte → /home → CapDuJourBanner « Parle-moi de toi » → MintCardActionBar 3 verbs → tap « Explique-moi » → MintChatOverlay open with « 0 / 3 » counter + ChatInputBar. FIRST end-to-end Maestro reachability proof of MINT's chat-as-verb surface for anonymous users.** Widget tests : 16/16 (11 F001 + 5 S001) |
 
+## Unit-Test-Locked Bugs
+
+> Bootstrapped 2026-05-11 (W7 iter#5, T001 close). Some bugs live in
+> data pipelines that have no visible UI surface — they are pre-upload
+> guards, schema validators, encoding utilities, etc. These cannot
+> meaningfully be reproduced by a Maestro UI flow ; their regression
+> guard is a deterministic Flutter / pytest unit test run by lefthook
+> pre-commit + CI `flutter test` / `pytest -q` (the same gates that
+> Maestro flows feed). Each row below cites the unit test path that
+> any future PR must keep GREEN to merge.
+
+| Bug ID | Unit test path | Status | RED-state evidence | GREEN gate |
+|--------|---------------|--------|---------------------|------------|
+| T001 | `apps/mobile/test/services/exif_scrub_test.dart` | **LOCKED-GREEN 2026-05-11T20:30Z** | Compilation failed on `package:mint_mobile/services/exif_scrub.dart` (No such file or directory) + « Method not found : scrubExif » on 6 call sites — captured pre-fix at commit `d3172e60` | **`cd apps/mobile && flutter test test/services/exif_scrub_test.dart` → 00:00 +6: All tests passed!** Asserts : DateTime / Make / Model / Software stripped, ifd0 empty post-scrub, pixel checksum preserved within JPEG-roundtrip 5 % tolerance, EXIF-less JPEG passes through, regression-detect fixture confirms tags ARE present pre-scrub. Fix commit : `5f7d1953`. |
+
 ## Per-archetype × per-feature regression flows (Phase 97 W3 deliverable)
 
 Below is the target structure for the 24 flow regression matrix per

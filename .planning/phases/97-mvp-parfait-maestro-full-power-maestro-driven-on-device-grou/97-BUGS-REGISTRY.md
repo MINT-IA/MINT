@@ -5,7 +5,7 @@ slug: mvp-parfait-maestro-full-power-maestro-driven-on-device-grou
 status: draft (W0 in progress)
 created: 2026-05-11
 schema_version: 1
-total_bugs: 34  # W7 iter#4 closed S005 (LandingScreen→/home reachability) + registered M001 (Flutter Keys → iOS Semantics identifier propagation)
+total_bugs: 34  # W7 iter#5 closed T001 (EXIF leak — privacy compliance, GDPR Art. 5(1)(c) + DSG Art. 8)
 ---
 
 # Phase 97 Bug Registry
@@ -46,7 +46,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 1ter | M001 | Flutter Keys don't propagate as Maestro iOS Semantics identifiers (surfaced during S005 close) — every `id:`-based Maestro assertion broken on iOS | 16 | mobile |
 | 2 | L001 | Maestro locator audit fails 14 violations on 4 flows — testing infra broken | 32 | testing |
 | 3 | S002 | Maestro flow `flow_card_action_intent_bar.yaml` doesn't handle cold-app onboarding (bêta modal + landing + auth) | 32 | testing |
-| 4 | T001 | EXIF metadata leak — `document_scan_screen.dart` Vision API retains GPS+timestamp without scrub (GDPR/Swiss data protection violation) | 32 | mobile |
+| 4 | ~~T001~~ | ~~EXIF metadata leak~~ → **RESOLVED 2026-05-11T20:35:00Z** via scrubExif() util in document_scan_screen.dart (W7 iter#5, fix 5f7d1953) — GDPR Art. 5(1)(c) + Swiss DSG Art. 8 compliance | ~~32~~ | mobile |
 | 5 | T002 | SQLite encryption missing — `document.py` stores user financial documents at rest unencrypted (GDPR Art. 32) | 32 | backend |
 | 6 | S003 | Custom URL scheme `mintapp://` NOT registered in Info.plist — no external deep-linking possible | 16 | mobile |
 | 7 | S004 | Universal Links NOT configured — `https://` URLs fall through to Safari | 16 | mobile |
@@ -175,17 +175,17 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   archetype: all
   feature: privacy
   title: « EXIF metadata leak — Vision API receives photos with GPS coordinates + timestamps + device model »
-  repro: « apps/mobile/lib/screens/document_scan/document_scan_screen.dart:683 + 1550 contains TODO(P2-W12): Strip EXIF metadata before Vision API call. Currently captured images go straight to base64 + Vision API with GPS, timestamps, device model intact. »
-  blast_radius: « GDPR Art. 5(1)(c) data minimization violation. Swiss DSG/LPD Art. 8 non-compliance. Any user uploading a document leaks geolocation + timestamp + device model to backend. »
-  fix_cost: small  # use image package (already transitive 4.1.2) + scrubExif() util + 2 call sites
+  repro: « apps/mobile/lib/screens/document_scan/document_scan_screen.dart:683 + 1550 contained TODO(P2-W12): Strip EXIF metadata before Vision API call. Captured images flowed straight to base64 + Vision API with GPS, timestamps, device model intact. »
+  blast_radius: « GDPR Art. 5(1)(c) data minimization violation. Swiss DSG/LPD Art. 8 non-compliance. Any user uploading a document leaked geolocation + timestamp + device model to backend. »
+  fix_cost: small  # image package promoted to direct dep + scrubExif() util + 2 call sites
   score: 32  # 8 × 4 / 1
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11T20:00:00Z
-  fix_commit: null
-  repro_flow: apps/mobile/test/services/exif_scrub_test.dart  # unit-test-gated (no UI surface)
+  fix_commit: 5f7d1953
+  repro_test: apps/mobile/test/services/exif_scrub_test.dart  # unit-test-gated (no UI surface)
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « W7 iteration cycle #5 (2026-05-11) — PICK. Unit-test-gated bug (data pipeline, no UI). Repro = synthetic JPEG with GPS+DateTime+Make/Model EXIF tags ; assert scrubExif() strips them, preserves pixel data. Two call sites in document_scan_screen.dart : _tryVisionExtraction (line 682-685) + _processImageViaVision (line 1549-1552). »
+  resolved_in: 2026-05-11T20:35:00Z
+  notes: « W7 iteration cycle #5 (2026-05-11) — RESOLVED. Surgical fix per Karpathy #3 (4 files touched). New util apps/mobile/lib/services/exif_scrub.dart : decode JPEG → fresh Image with pixels only (no exif carrier) → re-encode at quality=100. Two call sites wired in document_scan_screen.dart (line 682-686 _tryVisionExtraction backend Vision path + line 1549-1553 _processImageViaVision BYOK Vision path). image: ^4.1.2 promoted from transitive (pubspec.lock 4.5.4) to direct dep. Sentry breadcrumb category mint.privacy.exif_scrubbed with non-PII payload only ( bytes_before / bytes_after / had_exif ) — NEVER the tag values (those ARE the PII). Deterministic GREEN gate : cd apps/mobile && flutter test test/services/exif_scrub_test.dart → 00:00 +6: All tests passed! Asserts DateTime/Make/Model/Software stripped, ifd0 empty post-scrub, pixel checksum preserved within 5 % JPEG-roundtrip tolerance, EXIF-less input passes through, regression-detect fixture confirms pre-scrub leak. document_scan regression : flutter test test/screens/document_scan/ + test/screens/document_scan_screen_test.dart + test/screens/document_scan_render_mode_test.dart → 11/11 pass. banned_terms + accent_lint clean on new files. The pre-existing 5 failures (route_guard_snapshot + 4 landing goldens) are S005 collateral from W7 iter#4, verified to pre-date this commit via git checkout 98ab8f20 (the commit before T001 PICK) — those 5 failures already existed there. Compliance citations : GDPR Art. 5(1)(c) data minimization + Swiss DSG/LPD Art. 8 security. Unit-test-locked in tools/simulator/flows/regression/_INDEX.md (new « Unit-Test-Locked Bugs » section bootstrap). »
 
 - id: T002
   severity: P0
