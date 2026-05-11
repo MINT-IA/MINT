@@ -67,12 +67,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « Phase 96 W1 entire surface inaccessible to users in production. Full Phase 96 ship-readiness blocked. Same pattern repeats for any post-W1 widgets wired only into demo screens. »
   fix_cost: medium  # need to either (a) wire MintCardActionBar onto a real Aujourd'hui card or (b) add a debug button on Aujourd'hui that navigates to demo screen
   score: 32  # 8 × 4 / 1 ; treating as trivial-after-decision since CONTEXT says ALL cards in W5
-  status: OPEN
+  status: IN_PROGRESS
+  started: 2026-05-11T17:06:32Z
   fix_commit: null
   repro_flow: null
   found_in: 2026-05-11
   resolved_in: null
-  notes: « Phase 97 W5 « reachability fix » closes this. Existing demo screen at chat_as_verb_demo_screen.dart serves as wiring template. »
+  notes: « Phase 97 W5 « reachability fix » closes this. Existing demo screen at chat_as_verb_demo_screen.dart serves as wiring template. W7 iter#3 (2026-05-11) — picked CapDuJourBanner per PHASE97_AUJOURDHUI_CARD_INVENTORY.md priority 2 (highest after branding header). »
 
 - id: S002
   severity: P0
