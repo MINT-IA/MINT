@@ -540,6 +540,10 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
+                        // Phase 97 W7 iter#12 L001 — stable Maestro locator.
+                        // julien_swiss.yaml + lauren_expat_us.yaml step 05
+                        // assertVisible {id: 'anon-chat-register-cta'}.
+                        key: const Key('anon-chat-register-cta'),
                         onPressed: _showAuthGate,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: MintColors.inkPrimary,
@@ -552,7 +556,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                         ),
                         child: Text(
                           l.anonymousChatCreateAccount,
-                          style: TextStyle(fontFamily: 'Supreme', 
+                          style: TextStyle(fontFamily: 'Supreme',
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
@@ -645,6 +649,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
             children: [
               Expanded(
                 child: TextField(
+                  // Phase 97 W7 iter#12 L001 — stable Maestro locator.
+                  // julien_swiss.yaml + lauren_expat_us.yaml depend on this.
+                  key: const Key('anon-chat-input'),
                   controller: _inputController,
                   enabled: !_isLoading,
                   // Panel §1.5 + §5 row 5 : autofocus OFF on cold-open.
@@ -720,14 +727,28 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     // Phase 80: render the eclairage card inline beneath coach bubbles when
     // present. Forced via dart-define for walker / widget tests, otherwise
     // emitted by the backend (Phase 81 contract).
+    //
+    // Phase 97 W7 iter#12 L001 — stable Maestro locators for the anonymous
+    // chat surface. The opener bubble (first coach message, isOpener=true)
+    // gets 'anon-chat-opener-bubble' ; every subsequent coach bubble gets
+    // 'anon-chat-message-assistant'. User bubbles stay key-less (Maestro
+    // doesn't assert on them). Both keys are referenced by
+    // tools/simulator/flows/{julien_swiss,lauren_expat_us}.yaml.
+    final Key? assistantKey = isUser
+        ? null
+        : isOpener
+            ? const Key('anon-chat-opener-bubble')
+            : const Key('anon-chat-message-assistant');
     if (message.eclairage == null) {
       return Padding(
+        key: assistantKey,
         padding: const EdgeInsets.only(bottom: 12),
         child: bubble,
       );
     }
 
     return Padding(
+      key: assistantKey,
       padding: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
