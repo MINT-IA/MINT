@@ -22,24 +22,53 @@
 #   → tap « Explique-moi » → MintChatOverlay opens
 #   → assertVisible mint_chat_overlay + chat_input_field
 #
+# ─── SCOPE LIMITATION (same pattern as F001 iter#2) ────────────────────
+# This flow exercises the ON-HOME path : it ASSUMES the user is already
+# at /home (Aujourd'hui). Cold-launch on anonymous local-mode today
+# routes the user to LandingScreen instead, because :
+#   • LandingScreen has NO public « Continuer sans compte » CTA to /home
+#     (sibling bug S005, registered in 97-BUGS-REGISTRY.md)
+#   • `mintapp://home` deep-link fails (S003 OPEN — custom URL scheme
+#     not registered in Info.plist)
+#   • No E2E launch-argument mechanism (Phase 97 W1 D-02 fragment unbuilt)
+#
+# Until S003 / S005 / W1 fragments land, this flow CANNOT run
+# end-to-end on a cold simulator. The DETERMINISTIC gate for the S001
+# widget fix is the Flutter widget test :
+#   cd apps/mobile && flutter test \
+#     test/widgets/aujourdhui/cap_du_jour_banner_test.dart
+#
+# Per CONTEXT D-37 the no-regression guarantee comes from this Maestro
+# flow LIVING in CI : once preconditions land in W5, this flow becomes
+# runnable end-to-end and a future PR that reintroduces S001 (e.g.
+# accidentally removes Key('card_cap_du_jour') or strips the action-bar
+# wiring) will fail this flow = PR blocked.
+#
 # ─── RED STATE (pre-S001-fix, 2026-05-11) ──────────────────────────────
 # Run command :
 #   bash tools/simulator/maestro_env.sh test \
 #     tools/simulator/flows/regression/bug__S001__cap_du_jour_action_bar_reachable.yaml \
 #     --format junit --output /tmp/maestro_s001_pre_fix.xml
 #
-# Expected RED today : step « assertVisible card_cap_du_jour » fails
-# because CapDuJourBanner has no Key('card_cap_du_jour') and no
-# MintCardActionBar wired. The action-bar surface and the chat overlay
-# remain unreachable.
+# Captured RED today (precondition-blocked, /tmp/maestro_s001_pre_fix.xml) :
+#   failures=1, step 3 fails — "Aujourd'hui" not visible because cold-launch
+#   routes the anon user to LandingScreen (S005 precondition).
 #
-# ─── GREEN STATE (post-S001-fix) ───────────────────────────────────────
+# ─── GREEN STATE (post-S001-fix + post-preconditions) ──────────────────
 # After the S001 fix lands in
-# apps/mobile/lib/widgets/aujourdhui/cap_du_jour_banner.dart :
+# apps/mobile/lib/widgets/aujourdhui/cap_du_jour_banner.dart AND the
+# precondition bugs (S003/S005/W1 fragments) land :
 #   - Root container carries Key('card_cap_du_jour')
 #   - MintCardActionBar appended below the banner content
 #   - 3 verbs route per PHASE97_AUJOURDHUI_CARD_INVENTORY.md table
 # the flow exits 0 (failures=0).
+#
+# Today's deterministic S001 GREEN gate (Flutter widget test) :
+#   cd apps/mobile && flutter test \
+#     test/widgets/aujourdhui/cap_du_jour_banner_test.dart
+#   → 5/5 passed (Key(card_cap_du_jour), MintCardActionBar descendant,
+#                 Key(mint_card_action_bar), 3 verb labels,
+#                 « Simule » → /explorer?simulate=cap_du_jour)
 #
 # ─── MAESTRO 2.5.1 SYNTAX ──────────────────────────────────────────────
 # Per https://docs.maestro.dev/api-reference/commands.

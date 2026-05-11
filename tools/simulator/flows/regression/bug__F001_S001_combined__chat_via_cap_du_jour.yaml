@@ -1,0 +1,126 @@
+# tools/simulator/flows/regression/bug__F001_S001_combined__chat_via_cap_du_jour.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Phase 97 W7 iteration cycle #3 (D-36 step 7 ADVANCE) — chained
+# regression flow that gates BOTH F001 (ChatInputBar wired in
+# MintChatOverlay) AND S001 (CapDuJourBanner reaches MintCardActionBar)
+# in a single end-to-end traversal.
+#
+# Chain :
+#   cold launch
+#   → bêta modal dismissed (optional)
+#   → Aujourd'hui visible (precondition : S005/S003/W1 fragments)
+#   → card_cap_du_jour Key visible (S001 ASSERTION)
+#   → tap card → MintCardActionBar reveals (S001 ASSERTION)
+#   → tap « Explique-moi » → MintChatOverlay opens (S001 → F001 bridge)
+#   → mint_chat_overlay + chat_input_field visible (F001 ASSERTION)
+#   → chat_turn_counter renders « 0 / 3 » (F001 ASSERTION)
+#   → input text + tap send → counter → « 1 / 3 » (F001 ASSERTION)
+#
+# This is the FIRST end-to-end proof that MINT's chat-as-verb surface
+# is reachable from cold launch for a real user — the canonical
+# « Phase 96 W1 surface unreachable » regression breaks here = PR blocked.
+#
+# ─── SCOPE LIMITATION (precondition-blocked, same as bug__S001__) ──────
+# Cannot run end-to-end today because of S003 (no custom URL scheme),
+# S005 (no LandingScreen → /home anonymous CTA), and Phase 97 W1
+# fragments (no E2E launch-arguments seeding). Lives in CI for future
+# regression detection per CONTEXT D-37.
+#
+# Deterministic gates today :
+#   - F001 GREEN : flutter test test/widgets/mint_chat_overlay_test.dart (11/11)
+#   - S001 GREEN : flutter test test/widgets/aujourdhui/cap_du_jour_banner_test.dart (5/5)
+#
+# ─── MAESTRO 2.5.1 SYNTAX ──────────────────────────────────────────────
+# Per https://docs.maestro.dev/api-reference/commands.
+
+appId: ch.mint.app
+tags:
+  - phase-97
+  - phase-97-w7
+  - bug-f001
+  - bug-s001
+  - regression
+  - chat-as-verb
+  - feature:chat_as_verb
+  - archetype:all
+---
+
+# ── Step 1 — Cold launch with clean state ─────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── Step 2 — Dismiss bêta modal if present ────────────────────────────
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# ── Step 3 — Aujourd'hui visible (precondition-gated by S003/S005/W1) ─
+- extendedWaitUntil:
+    visible:
+      text: "Aujourd'hui"
+    timeout: 10000
+
+# ── Step 4 — S001 ASSERTION 1 : card_cap_du_jour Key visible ──────────
+- scrollUntilVisible:
+    element:
+      id: "card_cap_du_jour"
+    direction: DOWN
+    timeout: 8000
+- assertVisible:
+    id: "card_cap_du_jour"
+
+# ── Step 5 — Tap card to reveal MintCardActionBar ─────────────────────
+- tapOn:
+    id: "card_cap_du_jour"
+- waitForAnimationToEnd
+
+# ── Step 6 — S001 ASSERTION 2 : mint_card_action_bar + 3 verbs ────────
+- assertVisible:
+    id: "mint_card_action_bar"
+- assertVisible: "Explique-moi"
+- assertVisible: "Simule"
+- assertVisible: "Rassure-moi"
+
+# ── Step 7 — Tap « Explique-moi » → MintChatOverlay opens ─────────────
+# This is the S001 → F001 BRIDGE : the S001 fix makes the action-bar
+# reachable ; the F001 fix makes the chat overlay carry the required
+# testIDs once the overlay opens.
+- tapOn: "Explique-moi"
+- waitForAnimationToEnd
+
+# ── Step 8 — F001 ASSERTION 1 : mint_chat_overlay root Key ────────────
+- assertVisible:
+    id: "mint_chat_overlay"
+
+# ── Step 9 — F001 ASSERTION 2 : chat_input_field exists ───────────────
+- assertVisible:
+    id: "chat_input_field"
+
+# ── Step 10 — F001 ASSERTION 3 : chat_turn_counter renders « 0 / 3 » ──
+- assertVisible:
+    id: "chat_turn_counter"
+- assertVisible:
+    text: ".*0\\s*/\\s*3.*"
+
+# ── Step 11 — Type message + tap send → counter → « 1 / 3 » ───────────
+- tapOn:
+    id: "chat_input_field"
+- inputText: "Qu'est-ce que ça change pour moi ?"
+- tapOn:
+    id: "chat_send_button"
+- extendedWaitUntil:
+    visible:
+      text: ".*1\\s*/\\s*3.*"
+    timeout: 5000
+
+# ─── F001 + S001 CHAINED RESOLUTION CONTRACT ──────────────────────────
+# Acceptance : steps 4, 6, 8, 9, 10, 11 all pass.
+# Per CLAUDE.md §9.6, the run output IS the deterministic citation.
+#
+# Today (2026-05-11) this flow CANNOT run end-to-end due to S003/S005/W1
+# preconditions. Deterministic GREEN gates are the Flutter widget tests
+# cited in the header comment.
