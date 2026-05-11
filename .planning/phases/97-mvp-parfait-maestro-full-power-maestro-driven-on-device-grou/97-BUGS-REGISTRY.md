@@ -5,7 +5,7 @@ slug: mvp-parfait-maestro-full-power-maestro-driven-on-device-grou
 status: draft (W0 in progress)
 created: 2026-05-11
 schema_version: 1
-total_bugs: 36  # W7 iter#6 folded F006 + F007 from audit-flutter-mobile.md catalogue into iteration loop (combined cycle with S003 + S004 — 4-bug deep-linking infra batch)
+total_bugs: 37  # W7 iter#7 folded B004 from audit-backend-api.md catalogue (bare except: pass swallowing JTI blacklist DB errors — auth-bypass via infra degradation)
 ---
 
 # Phase 97 Bug Registry
@@ -53,6 +53,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 8 | ~~F006~~ | ~~FlutterDeepLinkingEnabled key missing from Info.plist~~ → **RESOLVED 2026-05-11T20:10:00Z** jointly with S003 (one-line Info.plist addition) | ~~24~~ | mobile |
 | 9 | ~~F007~~ | ~~com.apple.developer.associated-domains missing from Runner.entitlements~~ → **RESOLVED 2026-05-11T20:10:00Z** jointly with S004 | ~~24~~ | mobile |
 | 10 | P001 | Phase 94 Stage 3 narrator gate-correct thresholds NOT MET (Sonnet 20% vs 95% target after Phase 94.1 iter 1) — prod-flip blocked | 16 | backend |
+| 11 | ~~B004~~ | ~~core/auth.py:55 bare except swallows JTI-blacklist DB errors — revoked-token auth-bypass via infra degradation~~ → **IN_PROGRESS 2026-05-11T20:50Z** (W7 iter#7) | 16 | backend |
 
 ---
 
@@ -488,6 +489,28 @@ row enters the 7-step cycle (D-36), it is folded here for state-machine tracking
   found_in: 2026-05-11
   resolved_in: 2026-05-11T17:00:46Z
   notes: « Resolved jointly with F001. Text widget at mint_chat_overlay.dart:198-202 carries Key('chat_turn_counter') + renders '$_turnCount / $kChatMaxTurns'. Local-state UI-only counter ; server-side turn_cap.py is the canonical D-08 enforcement gate. Initial state « 0 / 3 », increments on send, reset on overlay re-mount (test asserts these 3 transitions). »
+```
+
+### From sonnet Backend audit (folded 2026-05-11, see audit-backend-api.md for full B001-B025 catalogue)
+
+```yaml
+- id: B004
+  severity: P1
+  surface: backend
+  archetype: all
+  feature: auth / token_revocation
+  title: « core/auth.py:55 bare `except Exception: pass` swallows JTI-blacklist DB errors — revoked tokens may authenticate silently if the blacklist query raises »
+  repro: « grep -n -A3 'except Exception' services/backend/app/core/auth.py → line 55: `except Exception: pass # If decode fails entirely, let decode_token handle it`. The try block (lines 45-56) also calls `is_jti_blacklisted(db, jti)` — a DB query that may raise sqlalchemy.exc.OperationalError, IntegrityError, etc. Those are swallowed too. A revoked JWT whose JTI is blacklisted authenticates if the blacklist DB query raises (e.g. DB overload, connection drop, migration drift). »
+  blast_radius: « Auth-bypass via infrastructure degradation. Under DB stress, every blacklisted token quietly re-authenticates because `is_jti_blacklisted` raises → bare except swallows → flow falls through to `decode_token(token)` which succeeds (token signature is valid ; only the revocation status was unverifiable). Production-grade auth surface ; LSFin + 0-trust §9 risk. »
+  fix_cost: trivial  # split bare except into 2 specific clauses (pyjwt.PyJWTError + sqlalchemy.SQLAlchemyError) + logger.exception + HTTPException 503 on DB error path
+  score: 16  # 4 × 4 / 1 ; P1 (auth-bypass requires DB-degradation precondition, not unconditional bypass) but high-value-fix-trivial-cost
+  status: IN_PROGRESS
+  started: 2026-05-11T20:50:00Z
+  fix_commit: null
+  repro_test: services/backend/tests/test_auth_jti_blacklist_silent_fail.py
+  found_in: 2026-05-11
+  resolved_in: null
+  notes: « W7 iter#7 PICK 2026-05-11T20:50Z. Folded from audit-backend-api.md row B004. Unit-test-gated (no UI surface ; HTTP-level auth dependency). Fix design (Karpathy #2 simplicity-first) : two specific except clauses — `except pyjwt.exceptions.PyJWTError: pass` preserves the intended decode-fallback path ; `except sqlalchemy.exc.SQLAlchemyError as e: logger.exception(...); raise HTTPException(503, "Service de blacklist temporairement indisponible")` makes the system fail-CLOSED on infra-degradation (industry standard for auth-revocation surface ; better to refuse a valid token than to accept a revoked one when revocation cannot be verified). The 503 is API-client-facing (mobile/JSON ; not direct user-rendered string). »
 ```
 
 ---
