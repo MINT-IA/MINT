@@ -12157,6 +12157,7 @@
   },
   "chatInputHint": "Tape ton message...",
   "@chatInputHint": {
-    "description": "Phase 97 W7 F001 — MintChatOverlay ChatInputBar TextField hint. Accent-clean FR, generic (no archetype assumption). Closes Phase 96 W1 scaffold debt."
+    "description": "Phase 97 W7 F001 — MintChatOverlay ChatInputBar TextField hint. Accent-clean FR, generic (no archetype assumption). Closes Phase 96 W1 scaffold debt.",
+    "x-mint-meta": { "level": "N2" }
   }
 }

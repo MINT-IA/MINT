@@ -15,6 +15,7 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/anonymous/eclairage_card.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
 // v2.12 Phase 86 — `widgets/coach/eclairage_card.dart` was a Phase 80
@@ -529,11 +530,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   children: [
                     Text(
                       l.anonymousChatLocked,
-                      style: TextStyle(fontFamily: 'Supreme', 
-                        fontSize: 14,
+                      style: MintTextStyles.bodyMedium(
                         color: MintColors.textSecondary,
-                        fontStyle: FontStyle.italic,
-                      ),
+                      ).copyWith(fontStyle: FontStyle.italic),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 12),
@@ -556,10 +555,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                         ),
                         child: Text(
                           l.anonymousChatCreateAccount,
-                          style: TextStyle(fontFamily: 'Supreme',
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: MintTextStyles.labelLarge(
+                            color: MintColors.white,
+                          ).copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -604,11 +602,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   ),
                   child: Text(
                     chips[i],
-                    style: TextStyle(fontFamily: 'Supreme', 
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                    style: MintTextStyles.bodyMedium(
                       color: MintColors.inkPrimary,
-                    ),
+                    ).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
@@ -630,11 +626,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
           child: Text(
             l.anonymousChatLsfinDisclaimer,
             textAlign: TextAlign.center,
-            style: TextStyle(fontFamily: 'Supreme', 
-              fontSize: 11,
-              fontStyle: FontStyle.italic,
+            style: MintTextStyles.labelSmall(
               color: MintColors.textMutedAaa,
-            ),
+            ).copyWith(fontStyle: FontStyle.italic),
           ),
         ),
         Container(
@@ -661,14 +655,12 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   // Panel §5 row 2 : hard cap at 500 chars (paste-defence).
                   maxLength: 500,
                   inputFormatters: [LengthLimitingTextInputFormatter(500)],
-                  style: TextStyle(fontFamily: 'Supreme', 
-                    fontSize: 16,
+                  style: MintTextStyles.bodyLarge(
                     color: MintColors.inkPrimary,
                   ),
                   decoration: InputDecoration(
                     hintText: l.anonymousChatInputHint,
-                    hintStyle: TextStyle(fontFamily: 'Supreme', 
-                      fontSize: 16,
+                    hintStyle: MintTextStyles.bodyLarge(
                       color: MintColors.textMuted,
                     ),
                     border: InputBorder.none,
@@ -715,11 +707,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         ),
         child: Text(
           message.text,
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 15,
+          style: MintTextStyles.labelLarge(
             color: isUser ? MintColors.white : MintColors.inkPrimary,
-            height: 1.4,
-          ),
+          ).copyWith(fontWeight: FontWeight.w400),
         ),
       ),
     );

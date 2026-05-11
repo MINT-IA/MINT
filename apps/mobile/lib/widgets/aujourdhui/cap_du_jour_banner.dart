@@ -26,6 +26,7 @@ import 'package:mint_mobile/models/serialized_card_context.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/mint_card_action_bar.dart';
 import 'package:mint_mobile/widgets/mint_chat_overlay.dart';
 
@@ -137,22 +138,16 @@ class _CapBannerCard extends StatelessWidget {
               children: [
                 Text(
                   cap.headline,
-                  style: TextStyle(fontFamily: 'Supreme', 
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                  style: MintTextStyles.titleMedium(
                     color: MintColors.textPrimary,
-                    height: 1.3,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   cap.whyNow,
-                  style: TextStyle(fontFamily: 'Supreme', 
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
+                  style: MintTextStyles.bodyMedium(
                     color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  ).copyWith(height: 1.4),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -160,11 +155,9 @@ class _CapBannerCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         cap.ctaLabel,
-                        style: TextStyle(fontFamily: 'Supreme', 
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                        style: MintTextStyles.bodyMedium(
                           color: MintColors.success,
-                        ),
+                        ).copyWith(fontWeight: FontWeight.w600),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -257,9 +250,7 @@ class _CapBannerFallback extends StatelessWidget {
               children: [
                 Text(
                   'Parle-moi de toi',
-                  style: TextStyle(fontFamily: 'Supreme', 
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                  style: MintTextStyles.titleMedium(
                     color: MintColors.textPrimary,
                   ),
                 ),
@@ -267,12 +258,9 @@ class _CapBannerFallback extends StatelessWidget {
                 Text(
                   'Dis-moi quelques mots sur ta situation, et je te montrerai '
                   'ce qui mérite ton attention aujourd’hui.',
-                  style: TextStyle(fontFamily: 'Supreme', 
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
+                  style: MintTextStyles.bodyMedium(
                     color: MintColors.textSecondary,
-                    height: 1.4,
-                  ),
+                  ).copyWith(height: 1.4),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -280,11 +268,9 @@ class _CapBannerFallback extends StatelessWidget {
                     Flexible(
                       child: Text(
                         'Ouvrir le coach',
-                        style: TextStyle(fontFamily: 'Supreme', 
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                        style: MintTextStyles.bodyMedium(
                           color: MintColors.success,
-                        ),
+                        ).copyWith(fontWeight: FontWeight.w600),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
