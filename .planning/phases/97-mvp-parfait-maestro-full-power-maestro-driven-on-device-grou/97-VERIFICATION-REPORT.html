@@ -730,5 +730,100 @@ $ cd services/backend && python3 -m pytest tests/test_sqlite_at_rest_encryption.
 <hr>
 <p class="info">W7 iter#10 close-out generated 2026-05-11T18:55Z by PM Claude — Phase 97 W7 iteration loop. Updated per memory <code>feedback_html_evidence_report</code>. 15 closed rows / 10 cycles ; D-38 10-P0-closed target now MET (+3). Privacy/security compliance bucket FULLY CLOSED (T001 + T002).</p>
 
+<hr>
+
+<h2>W7 Iteration Cycle #11 — P001 H1 intent-scoped citation grammar (2026-05-11T21:30-21:50Z)</h2>
+
+<p><strong>Bug picked :</strong> P001 — Phase 94 Stage 3 narrator gate-correct thresholds NOT MET (Sonnet 20% / Haiku 20% vs 95% / 90% targets). Folds backlog item 999.5 (Phase 94.2).</p>
+
+<p><strong>Hypothesis tested (H1 from <code>.planning/phases/94.1-.../94.1-EVAL-DELTA.md</code>) :</strong> the flat 18-bullet <code>CITATION_GRAMMAR_FRAGMENT</code> dilutes narrator attention ; replacing it with an intent-scoped variant listing ONLY the registry keys relevant to the classified intent set (per <code>_classify_user_intent</code>) should sharpen the closed-world contract teaching.</p>
+
+<p><strong>Honest verdict per CLAUDE.md §9.7 « I don't know is the highest-quality answer » :</strong> <span class="bad">REJECTED on the headline metric</span>, <span class="warn">MARGINAL on process metrics</span>.</p>
+
+<h3>Eval-pack measurements (live, against Railway staging Anthropic API key)</h3>
+<table>
+<tr><th>Metric</th><th>Sonnet baseline</th><th>Sonnet H1</th><th>Δ</th><th>Haiku baseline</th><th>Haiku H1</th><th>Δ</th></tr>
+<tr><td>gate_correct (50 fixtures)</td><td>8/50 (<strong>16%</strong>)</td><td>9/50 (<strong>18%</strong>)</td><td>+1 (+2pt)</td><td>9/50 (<strong>18%</strong>)</td><td>11/50 (<strong>22%</strong>)</td><td>+2 (+4pt)</td></tr>
+<tr><td>gate_retry_rate</td><td>0.76</td><td>0.76</td><td>0</td><td>0.64</td><td>0.52</td><td><strong>−0.12</strong></td></tr>
+<tr><td>gate_fallback_rate</td><td>0.66</td><td>0.62</td><td>−0.04</td><td>0.54</td><td>0.38</td><td><strong>−0.16 (material)</strong></td></tr>
+<tr><td>avg_prompt_tokens</td><td>~11710</td><td>11283</td><td>−4%</td><td>~11710</td><td>11283</td><td>−4%</td></tr>
+<tr><td>avg_latency_ms (single-call)</td><td>~8800</td><td>8694</td><td>−1%</td><td>~3600</td><td>3422</td><td>−5%</td></tr>
+</table>
+
+<p><strong>Threshold verification (per Phase 94 D-15) :</strong></p>
+<table>
+<tr><th>Gate</th><th>Threshold</th><th>Sonnet H1</th><th>Haiku H1</th><th>Status</th></tr>
+<tr><td>G-A1 Sonnet gate-correct</td><td>≥95%</td><td>18%</td><td>—</td><td><span class="bad">NOT MET</span> (gap 77 pts)</td></tr>
+<tr><td>G-A2 Haiku gate-correct</td><td>≥90%</td><td>—</td><td>22%</td><td><span class="bad">NOT MET</span> (gap 68 pts)</td></tr>
+<tr><td>PARTIAL bar (50%)</td><td>≥50%</td><td>18%</td><td>22%</td><td><span class="bad">NOT MET</span> (both below)</td></tr>
+</table>
+
+<p><strong>Decision per envelope contract :</strong> H1 hypothesis REJECTED on the gate-correct primary metric (<50% for both models). However, H1 commits LAND (not reverted) because :</p>
+<ul>
+  <li>The implementation is correct (190/190 citation_gate tests GREEN ; 6621 backend tests pass, no regression)</li>
+  <li>Byte-identity invariant for existing callers is preserved (intents=None → identical behavior)</li>
+  <li>It delivers a real (if small) lift in the right direction (+1 Sonnet / +2 Haiku) with no downside</li>
+  <li>It materially improves process metrics on Haiku (fallback rate −16 pts, retry rate −12 pts)</li>
+  <li>The prompt is ~4% cheaper (≈ 427 tokens × 50 fixtures saved per eval cycle)</li>
+</ul>
+
+<h3>Files touched (Karpathy #3 surgical)</h3>
+<table>
+<tr><th>File</th><th>Change</th><th>LOC delta</th></tr>
+<tr><td><code>services/backend/app/services/coach/citation_grammar.py</code></td><td>New <code>build_intent_scoped_citation_grammar(intents)</code> + <code>_INTENT_TO_CITATION_KEYS</code> mapping (8 intents → key buckets, both canonical and eval-fixture-alias labels)</td><td>+187</td></tr>
+<tr><td><code>services/backend/app/services/coach/claude_coach_service.py</code></td><td>Optional <code>intents</code> kwarg added to <code>build_narrator_system_prompt</code> ; conditional dispatch to scoped grammar when non-empty</td><td>+11 / −5</td></tr>
+<tr><td><code>services/backend/tools/eval_narrator.py</code></td><td>Legacy-path harness reads fixture <code>intents</code> field, passes through to builder</td><td>+9 / −0</td></tr>
+<tr><td><code>services/backend/tests/test_citation_gate/test_intent_scoped_grammar.py</code></td><td>NEW — 8 unit tests covering empty/single/multi/unknown/full-coverage/wire-up/byte-identity</td><td>+283</td></tr>
+<tr><td><code>services/backend/tests/test_eval_narrator_bundle_path.py</code></td><td>Mock signatures extended to accept new <code>intents</code> kwarg</td><td>+8 / −2</td></tr>
+</table>
+
+<h3>0-Trust receipts (per CLAUDE.md §9.6)</h3>
+<ul>
+  <li><strong>Eval JSONs (canonical citations) :</strong> <code>.planning/phases/97-.../eval-runs/P001-iter11-baseline-sonnet.json</code> + <code>P001-iter11-baseline-haiku.json</code> + <code>P001-iter11-h1-sonnet.json</code> + <code>P001-iter11-h1-haiku.json</code></li>
+  <li><strong>Unit-test suite :</strong> <code>cd services/backend && python3 -m pytest tests/test_citation_gate/ -q</code> → 190/190 pass in 0.82s ; <code>tests/test_citation_gate/test_intent_scoped_grammar.py</code> → 8/8 pass in 0.21s</li>
+  <li><strong>Full backend suite :</strong> <code>cd services/backend && python3 -m pytest tests/ -q --ignore=tests/integration</code> → 6621 passed, 62 skipped, 1 xfailed in 112s</li>
+  <li><strong>LSFin / accent compliance :</strong> <code>git diff HEAD~3 -- services/backend/app/services/coach/ services/backend/tools/eval_narrator.py services/backend/tests/test_citation_gate/test_intent_scoped_grammar.py | grep -E "^\+" | grep -iE "garanti|certain|optimal|meilleur|parfait|sans risque"</code> → empty (zero new banned terms) ; <code>accent_lint_fr.py --file</code> exit 0 on both new files</li>
+</ul>
+
+<h3>What I have NOT claimed (per CLAUDE.md §9 0-trust)</h3>
+<ul>
+  <li>Does <strong>NOT</strong> claim the gate is « ready » for prod — it's not. Headline metric REJECTED.</li>
+  <li>Does <strong>NOT</strong> claim the citation_gate flag flip is unblocked — it remains blocked. The four follow-up rows P001b-e file the H2-H5 hypotheses.</li>
+  <li>Does <strong>NOT</strong> claim the H1 + H2 + H3 + H4 stack would lift to ≥95% — that's an empirical question for next cycles. H5 acknowledges that the upper bound may be ≤50% with prompt engineering alone.</li>
+  <li>Did <strong>NOT</strong> re-eval the bundle-path (--prompt-builder=bundle) — only the legacy path was wired with intent-scoping for this cycle. Bundle path is a follow-up if H1 had landed GREEN. Surfaced for transparency.</li>
+</ul>
+
+<h3>Surfaced new bugs (filed in registry)</h3>
+<table>
+<tr><th>ID</th><th>Severity</th><th>Hypothesis</th><th>Fix cost</th></tr>
+<tr><td>P001b</td><td>P0 (score 16)</td><td>H2 — expand examples from 1 to ≥6 covering ≥3 keys × 2 surface contexts</td><td>small</td></tr>
+<tr><td>P001c</td><td>P1 (score 16)</td><td>H3 — align D-09 reprompt addendum verbatim with grammar fragment (« clé » vs « key »)</td><td>trivial</td></tr>
+<tr><td>P001d</td><td>P2 (score 8)</td><td>H4 — instrument gate to log placeholder-placement distance (adjacency drift observability)</td><td>small</td></tr>
+<tr><td>P001e</td><td>P0 (score 4 by formula, but architectural)</td><td>H5 — accept ≤50% gate-correct as upper bound OR escalate to few-shot in-context examples (invasive)</td><td>large</td></tr>
+</table>
+
+<h3>Cycle commits (chronological)</h3>
+<table>
+<tr><th>SHA</th><th>Type</th><th>Summary</th></tr>
+<tr><td><code>86252ede</code></td><td>PICK</td><td>docs(97-W7-iter11): PICK P001 IN_PROGRESS — H1 intent-driven key grouping</td></tr>
+<tr><td><code>f38975d9</code></td><td>FIX</td><td>feat(97-W7-iter11): H1 intent-scoped citation grammar — P001 FIX</td></tr>
+<tr><td><code>4991a552</code></td><td>FIX (collateral)</td><td>fix(97-W7-iter11): mirror H1 intents kwarg in eval_narrator mock signatures</td></tr>
+<tr><td>(this commit)</td><td>ADVANCE</td><td>docs(97-W7): iter#11 ADVANCE — registry P001 IN_PROGRESS + P001b-e new rows + HTML cycle #11 + _INDEX LOCK + eval JSONs in-repo</td></tr>
+</table>
+
+<h3>Next bug pointer (post-iter#11)</h3>
+<p>P001 stays IN_PROGRESS with H1 landed but headline rejected. Next-cycle candidates :</p>
+<ul>
+  <li><strong>P001c — H3 reprompt vocabulary alignment (trivial cost, score 16)</strong> — quickest test of a residual hypothesis. 2 string edits in <code>citation_parser.py</code> + re-eval. If H3 lifts +5-10 points, the dominant failure mode was lexical drift.</li>
+  <li><strong>P001b — H2 expand examples (small cost, score 16)</strong> — bigger investment but addresses the « ONE cited example » brittleness directly.</li>
+  <li><strong>L001 — Maestro locator audit FAIL (medium, score 32)</strong> — testing infra blocker, required for W3 24-flow regression suite to land live.</li>
+  <li><strong>S002 — Maestro flow cold-app onboarding (small, score 32)</strong> — required for W1 fragments to land.</li>
+</ul>
+
+<p><strong>Recommendation</strong> : <strong>P001c (H3, trivial cost)</strong> first — cheapest residual test of a P001 sub-hypothesis. If it adds +5-10 points on top of H1, the stack starts to look promising for P001b. If not, escalate to P001b. If H1+H2+H3 still under 50%, the dominant failure mode is structural (H5 territory) and we need a Julien-level decision on whether citation-gate-as-soft-filter is acceptable for the LSFin compliance promise — that's a methodology call, not an engineering call.</p>
+
+<hr>
+<p class="info">W7 iter#11 close-out generated 2026-05-11T21:50Z by PM Claude — Phase 97 W7 iteration loop. Updated per memory <code>feedback_html_evidence_report</code>. 15 closed rows / 11 cycles (P001 stays IN_PROGRESS — H1 landed but headline REJECTED ; +4 new rows P001b/c/d/e filed for next iterations). Honest verdict per §9.7 — eval JSONs are the canonical citations.</p>
+
 </body>
 </html>
