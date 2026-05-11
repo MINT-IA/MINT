@@ -22331,6 +22331,9 @@ class SFr extends S {
   String get landingV2LoginLink => 'J’ai déjà un compte';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Continuer sans compte';
+
+  @override
   String get alertGenericFactPrefix => 'MINT a remarqué';
 
   @override

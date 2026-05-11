@@ -22220,6 +22220,9 @@ class SEn extends S {
   String get landingV2LoginLink => 'I already have an account';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Continue without an account';
+
+  @override
   String get alertGenericFactPrefix => 'MINT noticed';
 
   @override

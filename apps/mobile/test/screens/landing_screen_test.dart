@@ -44,6 +44,13 @@ GoRouter _buildRouter() {
           body: Center(child: Text('LOGIN_STUB')),
         ),
       ),
+      // S005 (Phase 97 W7 iter#4) — anonymous local-mode /home target.
+      GoRoute(
+        path: '/home',
+        builder: (_, __) => const Scaffold(
+          body: Center(child: Text('AUJOURDHUI_STUB')),
+        ),
+      ),
     ],
   );
 }
@@ -125,6 +132,26 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
+    });
+
+    // S005 (Phase 97 W7 iter#4) — anonymous local-mode /home entry point.
+    // Asserts the « Continuer sans compte » link renders AND navigates to
+    // /home (Aujourd'hui). Closes the cold-launch reachability gap : the
+    // app.dart:417 gate (isLoggedIn || isLocalMode) accepts anonymous
+    // users since AuthProvider defaults isLocalMode=true on fresh installs.
+    testWidgets('S005 — « Continuer sans compte » link renders + routes to /home',
+        (tester) async {
+      await tester.pumpWidget(_wrap());
+      await tester.pumpAndSettle();
+
+      // The S005 link is present below the login link.
+      expect(find.text('Continuer sans compte'), findsOneWidget);
+
+      // Tapping it routes to /home (AUJOURDHUI_STUB).
+      await tester.tap(find.text('Continuer sans compte'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('AUJOURDHUI_STUB'), findsOneWidget);
     });
 
     testWidgets('reduced-motion: content visible on first pump', (tester) async {

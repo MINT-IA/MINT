@@ -22390,6 +22390,9 @@ class SIt extends S {
   String get landingV2LoginLink => 'Ho già un account';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Continua senza account';
+
+  @override
   String get alertGenericFactPrefix => 'MINT ha notato';
 
   @override

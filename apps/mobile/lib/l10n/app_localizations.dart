@@ -39177,6 +39177,12 @@ abstract class S {
   /// **'J’ai déjà un compte'**
   String get landingV2LoginLink;
 
+  /// Landing screen — anonymous local-mode entry point (S005, Phase 97 W7 iter#4). Sober text link below « J'ai déjà un compte ». Routes to /home (Aujourd'hui) ; the (isLoggedIn || isLocalMode) gate at app.dart:417 grants access since isLocalMode defaults true on fresh installs (auth_provider.dart:90, checkAuth() seeds it true line 142-145). Production-safe : exposes an existing anonymous-default path, no new bypass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer sans compte'**
+  String get landingV3AnonymousHomeLink;
+
   /// MintAlertObject default fact prefix (anti-shame: MINT is subject).
   ///
   /// In fr, this message translates to:

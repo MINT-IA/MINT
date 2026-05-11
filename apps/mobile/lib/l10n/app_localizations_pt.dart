@@ -22337,6 +22337,9 @@ class SPt extends S {
   String get landingV2LoginLink => 'Já tenho uma conta';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Continuar sem conta';
+
+  @override
   String get alertGenericFactPrefix => 'A MINT reparou';
 
   @override

@@ -22332,6 +22332,9 @@ class SEs extends S {
   String get landingV2LoginLink => 'Ya tengo una cuenta';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Continuar sin cuenta';
+
+  @override
   String get alertGenericFactPrefix => 'MINT observó';
 
   @override

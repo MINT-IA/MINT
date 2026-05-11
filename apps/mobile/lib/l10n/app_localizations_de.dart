@@ -22383,6 +22383,9 @@ class SDe extends S {
   String get landingV2LoginLink => 'Ich habe bereits ein Konto';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Ohne Konto fortfahren';
+
+  @override
   String get alertGenericFactPrefix => 'MINT hat bemerkt';
 
   @override
