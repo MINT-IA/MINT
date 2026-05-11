@@ -8,6 +8,7 @@ the migration. Failure = blocker.
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -48,6 +49,13 @@ def test_python_hashes_match_expected_golden_file():
 
 
 @pytest.mark.integration
+@pytest.mark.skipif(
+    shutil.which("dart") is None,
+    reason="Dart toolchain not installed on this runner — Python<->Dart "
+    "parity is enforced on Flutter-CI jobs that provision the SDK. Local "
+    "or backend-only CI runs skip cleanly per Phase 95 R1 escalation "
+    "contract (gate runs where Dart is present).",
+)
 def test_python_dart_parity_50_50():
     """Run the Dart harness and assert byte-identical hashes against Python.
 
