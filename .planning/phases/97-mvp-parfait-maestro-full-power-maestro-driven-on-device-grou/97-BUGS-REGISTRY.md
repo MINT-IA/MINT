@@ -361,13 +361,49 @@ row enters the 7-step cycle (D-36), it is folded here for state-machine tracking
   blast_radius: « Phase 96 G1 gate (flow_card_action_intent_bar.yaml) fails at step 5 on every run. The entire turn-cap + terminal-template + Sentry breadcrumb sequence is unreachable by Maestro. Phase 97 W3 regression suite cannot run until this is wired. »
   fix_cost: medium  # downscaled from large : local-state UI only, no provider/backend wiring, ~150-line widget
   score: 8  # 8 × 4 / 4 ; medium cost after scope clarification (UI-only, simulated narrator response)
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11T16:43:45Z
-  fix_commit: null
+  fix_commit: 8b3bb90b
   repro_flow: tools/simulator/flows/regression/bug__F001__chat_input_bar_exists.yaml
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « W7 iteration cycle #2. Closes F001+F002+F003 together: ChatInputBar widget + Key('mint_chat_overlay') + local turn counter (UI-only, NOT wired to server-side turn_cap which is Phase 96 D-08 contract). Backend wiring (real coach_chat POST + NarrativeSleeve render) deferred to F-NEXT in a separate cycle. »
+  resolved_in: 2026-05-11T17:00:46Z
+  notes: « W7 iteration cycle #2. Closes F001 + F002 (Key('mint_chat_overlay') root) + F003 (Text Key('chat_turn_counter') « 0 / 3 »). 4 testIDs added to mint_chat_overlay.dart (lines 157, 199, 313, 356). Deterministic GREEN gate : cd apps/mobile && flutter test test/widgets/mint_chat_overlay_test.dart → 11/11 pass (4 pre-existing + 7 new F001 assertions). ARB key chatInputHint added to 6 locales (6751 keys × 6 parity). Maestro flow tools/simulator/flows/regression/bug__F001__chat_input_bar_exists.yaml is in CI LOCK (becomes runnable end-to-end post-W5 reachability — S001/F012/F013/F014/F028). Backend wiring (real coach_chat POST + NarrativeSleeveCard render) deferred to F-NEXT cycle. »
+
+- id: F002
+  severity: P0
+  surface: mobile
+  archetype: all
+  feature: chat_as_verb
+  title: « MintChatOverlay root has no Key('mint_chat_overlay') — Maestro assertVisible { id: mint_chat_overlay } (step 4) will always fail »
+  repro: « grep -rn 'mint_chat_overlay' apps/mobile/lib/ --include='*.dart' returns 0 results pre-fix. apps/mobile/lib/widgets/mint_chat_overlay.dart:27 defined MintChatOverlay without a root Key. flow_card_action_intent_bar.yaml:103 assertVisible: { id: 'mint_chat_overlay' }. »
+  blast_radius: « Maestro cannot confirm the overlay opened — all subsequent assertions (turn counter, input, close handle) are moot. »
+  fix_cost: trivial
+  score: 24  # 8 × 3 / 1
+  status: RESOLVED
+  started: 2026-05-11T16:43:45Z
+  fix_commit: 8b3bb90b
+  repro_flow: tools/simulator/flows/regression/bug__F001__chat_input_bar_exists.yaml
+  found_in: 2026-05-11
+  resolved_in: 2026-05-11T17:00:46Z
+  notes: « Resolved jointly with F001 (same StatefulWidget refactor adds the root Container Key('mint_chat_overlay') at mint_chat_overlay.dart:157). Same repro flow asserts this testID. »
+
+- id: F003
+  severity: P0
+  surface: mobile
+  archetype: all
+  feature: chat_as_verb
+  title: « MintChatOverlay has no turn counter widget — Maestro step 4 extendedWaitUntil text '.*1/3.*' waits forever (6 s timeout then fail) »
+  repro: « grep -rn '1.*3\|turn.*counter\|counter.*turn\|turnCount\|maxTurns' apps/mobile/lib/widgets/mint_chat_overlay.dart returns 0 results pre-fix. flow_card_action_intent_bar.yaml:108 extendedWaitUntil: visible: text: '.*1\\s*/\\s*3.*'. »
+  blast_radius: « Same as F001 — full G1 gate broken. Every archetype flow that verifies the turn cap fails. »
+  fix_cost: small
+  score: 24  # 8 × 3 / 1
+  status: RESOLVED
+  started: 2026-05-11T16:43:45Z
+  fix_commit: 8b3bb90b
+  repro_flow: tools/simulator/flows/regression/bug__F001__chat_input_bar_exists.yaml
+  found_in: 2026-05-11
+  resolved_in: 2026-05-11T17:00:46Z
+  notes: « Resolved jointly with F001. Text widget at mint_chat_overlay.dart:198-202 carries Key('chat_turn_counter') + renders '$_turnCount / $kChatMaxTurns'. Local-state UI-only counter ; server-side turn_cap.py is the canonical D-08 enforcement gate. Initial state « 0 / 3 », increments on send, reset on overlay re-mount (test asserts these 3 transitions). »
 ```
 
 ---
