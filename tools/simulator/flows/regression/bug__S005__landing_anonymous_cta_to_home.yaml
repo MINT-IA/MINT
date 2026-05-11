@@ -68,23 +68,45 @@ tags:
       text: "Parle à Mint"
     timeout: 10000
 
+# ── Step 3-bis — Wait for the auxiliary-link FadeTransition to settle ──
+# Both « J'ai déjà un compte » and « Continuer sans compte » share the
+# _ctaOpacity (2500-2800ms interval, landing_screen.dart:58-62). The
+# « Parle à Mint » button uses the same controller — once it's visible
+# the FadeTransition is well past 2.8s. waitForAnimationToEnd belt-and-
+# suspenders the assertion against FadeTransition opacity ambiguity.
+- waitForAnimationToEnd
+
 # ── Step 4 — S005 ASSERTION 1/2 : « Continuer sans compte » link visible
 # Pre-fix : the link does not exist on LandingScreen — Maestro
-# assertVisible « Continuer sans compte » matches nothing → FAIL.
-# Post-fix : the link renders below « J'ai déjà un compte ».
-- assertVisible: "Continuer sans compte"
+# accessibilityText hierarchy has no node containing the substring.
+# Post-fix : the link renders below « J'ai déjà un compte » with
+# accessibilityText="Continuer sans compte\nContinuer sans compte" (the
+# Semantics(label:) and the Text child both contribute, separated by \n
+# — Flutter iOS bridge concatenation). Maestro's exact text matcher
+# fails on the doubled form ; the regex matcher pattern
+# `.*Continuer sans compte.*` matches reliably.
+- extendedWaitUntil:
+    visible:
+      text: ".*Continuer sans compte.*"
+    timeout: 5000
+- assertVisible:
+    text: ".*Continuer sans compte.*"
 
 # ── Step 5 — Tap the link → /home (Aujourd'hui) ───────────────────────
-- tapOn: "Continuer sans compte"
+- tapOn:
+    text: ".*Continuer sans compte.*"
 - waitForAnimationToEnd
 
 # ── Step 6 — S005 ASSERTION 2/2 : « Aujourd'hui » visible ─────────────
 # Post-fix : context.go('/home') routes through the app.dart:417 gate
 # (isLoggedIn || isLocalMode) — isLocalMode defaults true → AujourdhuiScreen
-# renders → 3-tab nav header carries « Aujourd'hui » text.
+# renders → 3-tab nav header carries « Aujourd'hui » text. Same regex-
+# wrap as step 4 because the BottomNavigationBar tab carries
+# accessibilityText="Aujourd'hui\nOnglet 1 sur 4" (Flutter iOS bridge
+# concatenation of Semantics label + system-emitted tab-index hint).
 - extendedWaitUntil:
     visible:
-      text: "Aujourd'hui"
+      text: ".*Aujourd'hui.*"
     timeout: 10000
 
 # ── Step 7 — Optional capture for HUMAN-UAT evidence ──────────────────
