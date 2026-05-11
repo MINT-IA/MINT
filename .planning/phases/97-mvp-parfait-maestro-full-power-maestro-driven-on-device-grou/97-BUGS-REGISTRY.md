@@ -281,12 +281,12 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « Dark-mode + theme switching break on these 8 spots. Visual inconsistency. »
   fix_cost: trivial  # replace with MintColors tokens per existing inventory
   score: 8  # 4 × 4 / 2
-  status: IN_PROGRESS
-  fix_commit: null
+  status: RESOLVED
+  fix_commit: 7483200f
   repro_flow: null
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « Surgical fix, ~30 min. W7 iter#13 picked 2026-05-11 — batched with L003. »
+  resolved_in: 2026-05-11
+  notes: « W7 iter#13 RESOLVED 2026-05-11 (batched with L003 in single fix_commit 7483200f). Pre-fix : 8 Colors.* violations on app.dart {1629, 1631, 1672, 1697, 1832, 1852, 1888, 1899}. Post-fix : `python3 tools/checks/prefer_mint_color_token.py` → OK clean (-8 from baseline). Per-site semantic mapping : ColorScheme.onPrimary/onSecondary/FilledButton.foregroundColor → MintColors.white (white-on-dark contract) ; AppBar bg → MintColors.card (#FFFFFF surface) ; Scaffold bg → MintColors.background ; Icon.error_outline → MintColors.error ; 404-icon → MintColors.textMuted. Karpathy #3 surgical : only app.dart touched, theme/colors.dart preserved as source of truth. »
 
 - id: L003
   severity: P1
@@ -298,12 +298,12 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « Typography drift, dynamic-type/accessibility break. »
   fix_cost: trivial  # replace with MintTextStyles tokens
   score: 8  # 4 × 4 / 2
-  status: IN_PROGRESS
-  fix_commit: null
+  status: RESOLVED
+  fix_commit: 7483200f
   repro_flow: null
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « Same file as L002 ; can batch fix in one commit. W7 iter#13 picked 2026-05-11 — batched with L002. Pre-fix lint actually reports 7 on app.dart (lines 1663, 1668, 1680, 1719, 1844, 1858, 1904) — header underreported by 1 (missing line 1663). Fix all 7. »
+  resolved_in: 2026-05-11
+  notes: « W7 iter#13 RESOLVED 2026-05-11 (batched with L002 in single fix_commit 7483200f). Pre-fix : 7 fontSize violations on app.dart {1663, 1668, 1680, 1704 ≈ 1697, 1719, 1844, 1858, 1904} (lint header underreported 6 — actual 7 incl. line 1663). Post-fix : `python3 tools/checks/prefer_mint_text_style.py | grep "lib/app.dart"` → empty (0 violations). Token mapping : fontSize:14 → MintTextStyles.bodyMedium().fontSize ; fontSize:16 → MintTextStyles.bodyLarge().fontSize ; fontSize:20 → MintTextStyles.headlineSmall().fontSize. Pattern uses .fontSize getter instead of TextStyle replacement to keep ThemeData.copyWith + const TextStyle semantics intact ; dropped 4 unnecessary `const` keywords where Mint getters break compile-time constness (functionally identical). 12 fontSize violations remain on anonymous_chat_screen.dart + cap_du_jour_banner.dart — out of L003 scope (which targeted app.dart only) ; logged as future-iter candidates. flutter analyze 273 baseline preserved exactly. »
 
 - id: L004
   severity: P2
