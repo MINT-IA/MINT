@@ -963,5 +963,95 @@ a1bcec8d  fix(97-W7-iter12): L001 — lint skips assertNotVisible + 2 YAML flow 
 <hr>
 <p class="info">W7 iter#12 close-out generated 2026-05-11 by PM Claude — Phase 97 W7 iteration loop. Updated per memory <code>feedback_html_evidence_report</code>. <strong>16 closed rows / 12 cycles</strong> (L001 RESOLVED ; D-38 10-P0-closed target MET +4 ; testing-infra bucket now fully unblocked for W3 per-archetype regression flows). Honest verdict per §9.7 — <code>/tmp/L001_locator_audit_post.txt</code> is the canonical citation. Per CLAUDE.md never #7 archetype coverage : julien_swiss + lauren_expat_us preserved as test fixtures (FIX over DELETE), <code>auth_coach_post_hotfix.yaml</code> preserved as documented future flow.</p>
 
+<hr>
+
+<h2>W7 iter#13 — L002 + L003 batched RESOLVED (theme-token sweep on app.dart)</h2>
+
+<p><em>Generated 2026-05-11 by sequential agent on <code>feature/S94-mvp-citation-gate</code>. Single fix_commit closes two registry rows. Mechanical replace per lint output.</em></p>
+
+<h3>7-step trace</h3>
+
+<table>
+<tr><th>Step</th><th>Action</th><th>Citation</th></tr>
+<tr><td>1 PICK</td><td>L002 (8 <code>Colors.white/red/grey</code> on app.dart 1629-1899) + L003 (7 <code>fontSize: N</code> on app.dart 1663-1904) batched OPEN → IN_PROGRESS. Pre-fix lint reported 6 fontSize hits ; actual run found 7 (header underreported line 1663). All 7 picked.</td><td>commit <code>c5e8961e</code> (PICK)</td></tr>
+<tr><td>2 REPRO</td><td><code>python3 tools/checks/prefer_mint_color_token.py</code> → <strong>8 violations</strong> on <code>lib/app.dart</code> at {1629, 1631, 1672, 1697, 1832, 1852, 1888, 1899}. <code>python3 tools/checks/prefer_mint_text_style.py</code> → <strong>7 violations</strong> on app.dart at {1663, 1668, 1680, 1719, 1844, 1858, 1904}. <code>flutter analyze</code> baseline : 273 issues.</td><td>deterministic lint stdout captured pre-fix</td></tr>
+<tr><td>3 FIX</td><td>Per-site semantic mapping in <code>apps/mobile/lib/app.dart</code> (1 file, +31/-25 LOC) :<br>
+<strong>Colors</strong> — onPrimary/onSecondary/FilledBtn.foregroundColor → <code>MintColors.white</code> (catalog L254) ; AppBar bg → <code>MintColors.card</code> (#FFFFFF surface) ; Scaffold bg → <code>MintColors.background</code> ; <code>Colors.red</code> error icon → <code>MintColors.error</code> ; <code>Colors.grey</code> 404-icon → <code>MintColors.textMuted</code>.<br>
+<strong>fontSize</strong> — 14 → <code>MintTextStyles.bodyMedium().fontSize</code> ; 16 → <code>MintTextStyles.bodyLarge().fontSize</code> ; 20 → <code>MintTextStyles.headlineSmall().fontSize</code>. Pattern uses <code>.fontSize</code> getter (not full TextStyle replacement) to keep <code>ThemeData.copyWith</code> + <code>TextStyle</code> literal semantics intact.<br>
+Side-effects : added <code>import 'package:mint_mobile/theme/mint_text_styles.dart'</code> (line 31) ; dropped 4 unnecessary <code>const</code> keywords where Mint getters break compile-time constness (functionally identical, zero runtime cost).<br>
+Karpathy #3 surgical : only app.dart touched. <code>theme/colors.dart</code> + <code>theme/mint_text_styles.dart</code> source-of-truth preserved.</td><td>commit <code>7483200f</code> (FIX)</td></tr>
+<tr><td>4 PASS</td><td><code>python3 tools/checks/prefer_mint_color_token.py</code> → <strong><code>OK prefer_mint_color_token: clean (-8 from baseline)</code></strong> ; lint exit 0. <code>python3 tools/checks/prefer_mint_text_style.py | grep "lib/app.dart"</code> → <strong>(empty)</strong>, 0 violations on app.dart. 12 fontSize violations remain on <code>anonymous_chat_screen.dart</code> + <code>cap_du_jour_banner.dart</code> — OUT OF L003 SCOPE (which targeted app.dart only).</td><td>deterministic lint stdout captured post-fix</td></tr>
+<tr><td>5 SUITE</td><td><code>cd apps/mobile &amp;&amp; flutter analyze</code> → <strong>273 issues found</strong> (baseline EXACTLY preserved, zero net-new analyzer issues). <code>flutter test test/theme/</code> → <strong>50 passed</strong>, 0 failed (ThemeData factories intact, MintColors + MintTextStyles contracts intact). <code>flutter test test/golden/</code> → <strong>18 passed, 1 skipped, 0 failed</strong> (visual surfaces unchanged — landing/golden tests do not cover the magic-link verify + 404 error screen + ThemeData defaults touched). <code>flutter test test/screens/landing_screen_test.dart test/screens/landing_v3_test.dart</code> → <strong>11 passed, 1 skipped</strong>. <code>flutter test test/widgets/aujourdhui/</code> → <strong>9 passed</strong>.</td><td>captured terminal output from <code>flutter analyze</code> + 4 test sub-suites</td></tr>
+<tr><td>6 LOCK</td><td>Lefthook <code>prefer-mint-color-token</code> + <code>prefer-mint-text-style</code> remain SOFT-warn per memory (baseline allows pre-existing violations) ; staged-scope check on commit <code>7483200f</code> reported <code>OK clean (staged scope, baseline unchanged)</code> — confirming zero net-new on the staged file. Promoting to HARD when global count hits 0 is a separate v2.10 task (12 fontSize violations remain on out-of-scope files ; some <code>prefer_mint_cta</code> + <code>prefer_mint_fonts</code> baseline entries also pending). Not in this iter.</td><td>commit hook output during <code>git commit 7483200f</code></td></tr>
+<tr><td>7 ADVANCE</td><td><code>97-BUGS-REGISTRY.md</code> L002 → RESOLVED + fix_commit=7483200f + resolved_in=2026-05-11. L003 same. <code>97-VERIFICATION-REPORT.html</code> grows this iter#13 section. W7 cumulative : <strong>18 closed rows / 13 cycles</strong>.</td><td>final commit (this turn) updates BUGS-REGISTRY + VERIFICATION-REPORT.html</td></tr>
+</table>
+
+<h3>Commit chain (W7 iter#13)</h3>
+
+<pre><code>c5e8961e chore(97-W7-13): PICK L002 + L003 → IN_PROGRESS (theme token sweep on app.dart)   [Step 1 PICK]
+7483200f fix(97-W7-13): close L002 + L003 — replace 8 Colors.* + 7 fontSize hardcodes...   [Steps 3-6 FIX/PASS/SUITE/LOCK]
+(this commit) docs(97-W7): iter#13 ADVANCE — L002 + L003 RESOLVED + HTML cycle #13          [Step 7 ADVANCE]</code></pre>
+
+<h3>Pre/post lint counts</h3>
+
+<table>
+<tr><th>Lint</th><th>Pre-fix (app.dart only)</th><th>Post-fix (app.dart only)</th><th>Net delta on baseline</th></tr>
+<tr><td><code>prefer_mint_color_token</code></td><td>8 violations</td><td><strong>0</strong></td><td>-8 (lint reports <code>clean</code>)</td></tr>
+<tr><td><code>prefer_mint_text_style</code></td><td>7 violations</td><td><strong>0</strong></td><td>-7 on app.dart ; 12 remain on out-of-scope files</td></tr>
+<tr><td><code>flutter analyze</code></td><td>273 issues</td><td><strong>273 issues</strong></td><td>0 (baseline exactly preserved)</td></tr>
+</table>
+
+<h3>Files modified</h3>
+
+<ul>
+  <li><code>apps/mobile/lib/app.dart</code> (+31 / -25) — 8 Colors.* token replacements + 7 fontSize token replacements + 1 import + 4 const drops.</li>
+  <li><code>.planning/phases/97-mvp-.../97-BUGS-REGISTRY.md</code> — L002 + L003 row status updates (IN_PROGRESS in PICK commit, RESOLVED in this ADVANCE commit).</li>
+  <li><code>.planning/phases/97-mvp-.../97-VERIFICATION-REPORT.html</code> (this file) — iter#13 evidence section appended.</li>
+</ul>
+
+<p>Files deleted : <strong>0</strong>. No dependencies added. <code>theme/colors.dart</code> + <code>theme/mint_text_styles.dart</code> untouched.</p>
+
+<h3>Deferred items logged (out of scope per Karpathy #3 SCOPE_BOUNDARY)</h3>
+
+<ol>
+  <li><strong>12 pre-existing <code>prefer_mint_text_style</code> violations</strong> on <code>anonymous_chat_screen.dart</code> (560, 608, 634, 665, 671, 719) + <code>cap_du_jour_banner.dart</code> (141, 151, 164, 261, 271, 284). Mechanical fix, same pattern as L003. Candidate for next-iter pickup.</li>
+  <li><strong><code>prefer_mint_cta</code> baseline entries</strong> on <code>lib/app.dart:1865</code> + <code>1870</code> (raw <code>FilledButton</code> + <code>TextButton</code> inside <code>_MagicLinkVerifyScreen</code>) — frozen pending Phase 4 MVP-CTA-UNIFICATION-V1 per lint message ; NOT in L002/L003 scope.</li>
+  <li><strong><code>prefer_mint_fonts</code> baseline entries</strong> on <code>lib/app.dart</code> at 1622/1640/1646/1652/1679 (<code>fontFamily: 'Supreme'</code> literals inside <code>ThemeData.textTheme</code> builder) — same family bypass pattern as <code>MintTextStyles</code> itself uses ; resolved when the entire theme builder is rewritten to reference <code>MintTextStyles</code> builders directly (separate refactor, not in this iter).</li>
+</ol>
+
+<h3>0-trust §9 citations</h3>
+
+<ul>
+  <li><strong>« 8 + 7 → 0 + 0 on app.dart »</strong> : <code>python3 tools/checks/prefer_mint_color_token.py</code> stdout (clean -8) + <code>python3 tools/checks/prefer_mint_text_style.py | grep "lib/app.dart"</code> stdout (empty). Deterministic lint output captured in this turn.</li>
+  <li><strong>« flutter analyze 273 baseline preserved »</strong> : <code>cd apps/mobile &amp;&amp; flutter analyze</code> → <code>273 issues found. (ran in 5.1s)</code> — identical to PICK commit baseline.</li>
+  <li><strong>« theme tests pass »</strong> : <code>cd apps/mobile &amp;&amp; flutter test test/theme/</code> → <code>00:02 +50: All tests passed!</code></li>
+  <li><strong>« golden tests pass »</strong> : <code>cd apps/mobile &amp;&amp; flutter test test/golden/</code> → <code>00:00 +18 ~1: All tests passed!</code></li>
+  <li><strong>« landing tests pass »</strong> : <code>cd apps/mobile &amp;&amp; flutter test test/screens/landing_screen_test.dart test/screens/landing_v3_test.dart</code> → <code>00:00 +11 ~1: All tests passed!</code></li>
+  <li><strong>« Tokens applied are actual MintColors / MintTextStyles members »</strong> : <code>grep -n "MintColors\.\(white\|card\|background\|error\|textMuted\)" apps/mobile/lib/theme/colors.dart</code> — all 5 referenced tokens exist (white L254, card L22, background L18, error L36, textMuted L28).</li>
+</ul>
+
+<h3>Honest scope caveats (§9.4 sim survival test)</h3>
+
+<ul>
+  <li>This cycle is a <strong>lint hygiene fix on a mostly-invisible code path</strong> (ThemeData defaults that flow into AppBar/Buttons + 2 rarely-shown screens : magic-link verify + 404 error). The visible behavior change on cold-launch + main flows is zero ; <code>landing_v3_golden</code> and the golden suite both pass unchanged. <strong>If Julien opens the sim now, every visible screen looks identical.</strong></li>
+  <li>The <code>Colors.black87</code> references at lines 1846, 1861, 1892, 1907 in the magic-link/404 screens were <strong>NOT</strong> flagged by <code>prefer_mint_color_token</code> (lint regex matches <code>Colors.&lt;name&gt;</code> without alpha suffix). Left unchanged in this iter. Future cleanup if lint regex tightens.</li>
+  <li><strong>This cycle does NOT prove dark-mode rendering works</strong> on the touched surfaces. L002's stated blast-radius (« Dark-mode + theme switching break ») is structurally addressed by token references, but <code>buildDarkTheme()</code> uses different tokens (<code>darkBg</code>/<code>darkInk</code>) and the touched ThemeData fields apply to the LIGHT theme path. Validating dark-mode on these surfaces requires a separate end-to-end run with <code>MaterialApp.themeMode = ThemeMode.dark</code>, currently gated by D-92.B (<code>themeMode: ThemeMode.light</code>). Out of L002 scope.</li>
+</ul>
+
+<h3>Next bug pointer (post-iter#13)</h3>
+
+<p>Highest-score remaining OPEN bug from <code>97-BUGS-REGISTRY.md</code> per iter#12 recommendation :</p>
+
+<ul>
+  <li><strong>P001c (H3 hypothesis, P0 score 32, trivial cost)</strong> — leads on score. Still the recommended pick.</li>
+  <li><strong>L003 follow-up on <code>anonymous_chat_screen.dart</code> + <code>cap_du_jour_banner.dart</code></strong> (12 fontSize hits remaining) — trivial mechanical fix, same pattern as this iter. Sub-30-min cycle.</li>
+  <li><strong>M001</strong> — Flutter Keys → iOS Semantics propagation. Still pending W3 sim-run RED to trigger pickup.</li>
+</ul>
+
+<p><strong>Recommendation</strong> : <strong>P001c</strong> remains the score-leader. If next iter prefers a fast mechanical win, the 12 remaining <code>fontSize</code> violations on <code>anonymous_chat_screen.dart</code> + <code>cap_du_jour_banner.dart</code> are a sub-30-min cycle using the exact pattern proven this iter.</p>
+
+<hr>
+<p class="info">W7 iter#13 close-out generated 2026-05-11 by sequential agent — Phase 97 W7 iteration loop. <strong>18 closed rows / 13 cycles</strong> (L002 + L003 RESOLVED jointly). Lint hygiene bucket : 1 row (L001) ; theme-token bucket : 2 rows (L002 + L003). Per CLAUDE.md never #2 (MintColors only) + 0-trust §9.1 — every claim above traces to a citable lint stdout / test output / commit SHA. No banned claim words used without paired evidence.</p>
+
 </body>
 </html>
