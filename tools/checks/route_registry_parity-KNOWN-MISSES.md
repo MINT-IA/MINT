@@ -170,6 +170,26 @@ bullet to the occurrence list above. The lint will fail loudly
 allow-list catches up — which is the desired fail-loud behavior
 (no_shortcuts_ever).
 
+## Category 8 — Dev-only debug routes (`/debug/*`)
+
+Public-scope demo surfaces registered for Maestro G1 flows + dev sim
+walkthrough. INTENTIONALLY absent from `kRouteRegistry` because the path
+is not part of the user-facing route taxonomy: the LLM never surfaces it
+from the coach, and prod analytics do not classify it. Registering it
+would force `RouteCategory` to grow a `debug` slot for a single dev
+endpoint.
+
+Current occurrences (1 dev-debug route at HEAD):
+
+- L377 `ScopedGoRoute(path: '/debug/chat-as-verb', scope: RouteScope.public, ...)`
+  (Phase 97 W7 S001 wiring fix — exposes `ChatAsVerbDemoScreen` so the
+  Maestro G1 flow + sim walkthrough can reach the wired surface).
+  Exempt via `_DEV_DEBUG_ONLY = {'/debug/chat-as-verb'}` in the lint source.
+
+When a new `/debug/*` route lands, the maintainer MUST add the path to
+`_DEV_DEBUG_ONLY` in the lint AND append a bullet to the occurrence list
+above.
+
 ## Maintenance policy
 
 When `tools/checks/route_registry_parity.py` reports an unexpected miss on `main`:

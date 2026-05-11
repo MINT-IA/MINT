@@ -1,0 +1,161 @@
+# tools/simulator/flows/regression/bug__S001__cap_du_jour_action_bar_reachable.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Phase 97 W7 iteration cycle #3 (D-36 step 2 REPRO + step 6 LOCK) —
+# regression flow that gates the S001 fix.
+#
+# S001 bug : ChatAsVerbDemoScreen has no UI entry point. The
+# MintCardActionBar surface (Phase 96 W1) is unreachable to users
+# because no Aujourd'hui card wires it. This flow asserts the FIRST
+# real Aujourd'hui card carrying the action bar — CapDuJourBanner
+# (Wave B-minimal B1, top of the scroll view per
+# PHASE97_AUJOURDHUI_CARD_INVENTORY.md priority 2).
+#
+# Reachability path tested :
+#   cold launch (anon local-mode default)
+#   → bêta modal dismissed (optional, warm-start tolerant)
+#   → Aujourd'hui tab visible
+#   → card_cap_du_jour visible (either populated banner OR fallback)
+#   → tap card → MintCardActionBar reveals
+#   → assertVisible mint_card_action_bar
+#   → assertVisible 3 verb labels
+#   → tap « Explique-moi » → MintChatOverlay opens
+#   → assertVisible mint_chat_overlay + chat_input_field
+#
+# ─── SCOPE LIMITATION (same pattern as F001 iter#2) ────────────────────
+# This flow exercises the ON-HOME path : it ASSUMES the user is already
+# at /home (Aujourd'hui). Cold-launch on anonymous local-mode today
+# routes the user to LandingScreen instead, because :
+#   • LandingScreen has NO public « Continuer sans compte » CTA to /home
+#     (sibling bug S005, registered in 97-BUGS-REGISTRY.md)
+#   • `mintapp://home` deep-link fails (S003 OPEN — custom URL scheme
+#     not registered in Info.plist)
+#   • No E2E launch-argument mechanism (Phase 97 W1 D-02 fragment unbuilt)
+#
+# Until S003 / S005 / W1 fragments land, this flow CANNOT run
+# end-to-end on a cold simulator. The DETERMINISTIC gate for the S001
+# widget fix is the Flutter widget test :
+#   cd apps/mobile && flutter test \
+#     test/widgets/aujourdhui/cap_du_jour_banner_test.dart
+#
+# Per CONTEXT D-37 the no-regression guarantee comes from this Maestro
+# flow LIVING in CI : once preconditions land in W5, this flow becomes
+# runnable end-to-end and a future PR that reintroduces S001 (e.g.
+# accidentally removes Key('card_cap_du_jour') or strips the action-bar
+# wiring) will fail this flow = PR blocked.
+#
+# ─── RED STATE (pre-S001-fix, 2026-05-11) ──────────────────────────────
+# Run command :
+#   bash tools/simulator/maestro_env.sh test \
+#     tools/simulator/flows/regression/bug__S001__cap_du_jour_action_bar_reachable.yaml \
+#     --format junit --output /tmp/maestro_s001_pre_fix.xml
+#
+# Captured RED today (precondition-blocked, /tmp/maestro_s001_pre_fix.xml) :
+#   failures=1, step 3 fails — "Aujourd'hui" not visible because cold-launch
+#   routes the anon user to LandingScreen (S005 precondition).
+#
+# ─── GREEN STATE (post-S001-fix + post-preconditions) ──────────────────
+# After the S001 fix lands in
+# apps/mobile/lib/widgets/aujourdhui/cap_du_jour_banner.dart AND the
+# precondition bugs (S003/S005/W1 fragments) land :
+#   - Root container carries Key('card_cap_du_jour')
+#   - MintCardActionBar appended below the banner content
+#   - 3 verbs route per PHASE97_AUJOURDHUI_CARD_INVENTORY.md table
+# the flow exits 0 (failures=0).
+#
+# Today's deterministic S001 GREEN gate (Flutter widget test) :
+#   cd apps/mobile && flutter test \
+#     test/widgets/aujourdhui/cap_du_jour_banner_test.dart
+#   → 5/5 passed (Key(card_cap_du_jour), MintCardActionBar descendant,
+#                 Key(mint_card_action_bar), 3 verb labels,
+#                 « Simule » → /explorer?simulate=cap_du_jour)
+#
+# ─── MAESTRO 2.5.1 SYNTAX ──────────────────────────────────────────────
+# Per https://docs.maestro.dev/api-reference/commands.
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
+# - AuthProvider.checkAuth() defaults `auth_local_mode = true` on
+#   fresh prefs (lib/providers/auth_provider.dart:142-145), so
+#   clearState:true alone routes the user into the shell at /home
+#   via the app.dart:417 `(isLoggedIn || isLocalMode) ? AujourdhuiScreen`
+#   gate. No real auth required for this reachability assertion.
+
+appId: ch.mint.app
+tags:
+  - phase-97
+  - phase-97-w7
+  - bug-s001
+  - regression
+  - chat-as-verb
+  - feature:chat_as_verb
+  - archetype:all
+---
+
+# ── Step 1 — Cold launch with clean state ─────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── Step 2 — Dismiss bêta modal if present (cold-launch precondition) ─
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# ── Step 3 — Reach Aujourd'hui (local-mode default lands here) ─────────
+- extendedWaitUntil:
+    visible:
+      text: "Aujourd'hui"
+    timeout: 10000
+
+# ── Step 4 — S001 ASSERTION 1/4 : card_cap_du_jour visible ────────────
+# Pre-fix : CapDuJourBanner has no root Key. Maestro
+# `assertVisible: { id: card_cap_du_jour }` matches nothing.
+# Post-fix : the root Padding/Container carries
+# `key: const Key('card_cap_du_jour')`.
+- scrollUntilVisible:
+    element:
+      id: "card_cap_du_jour"
+    direction: DOWN
+    timeout: 8000
+- assertVisible:
+    id: "card_cap_du_jour"
+
+# ── Step 5 — Tap card to reveal the MintCardActionBar ─────────────────
+- tapOn:
+    id: "card_cap_du_jour"
+- waitForAnimationToEnd
+
+# ── Step 6 — S001 ASSERTION 2/4 : mint_card_action_bar visible ────────
+# Pre-fix : action bar wired nowhere on Aujourd'hui.
+# Post-fix : MintCardActionBar appended in CapDuJourBanner Column.
+- assertVisible:
+    id: "mint_card_action_bar"
+
+# ── Step 7 — S001 ASSERTION 3/4 : 3 verb labels visible ───────────────
+- assertVisible: "Explique-moi"
+- assertVisible: "Simule"
+- assertVisible: "Rassure-moi"
+
+# ── Step 8 — Tap « Explique-moi » → MintChatOverlay opens ─────────────
+- tapOn: "Explique-moi"
+- waitForAnimationToEnd
+
+# ── Step 9 — S001 ASSERTION 4/4 : chat overlay reachable end-to-end ───
+# F001-chained gate : if F001 widget is wired correctly, mint_chat_overlay
+# + chat_input_field render. This is the FIRST end-to-end proof that the
+# S001 → F001 reachability chain works on device.
+- assertVisible:
+    id: "mint_chat_overlay"
+- assertVisible:
+    id: "chat_input_field"
+
+# ─── S001 RESOLUTION CONTRACT ─────────────────────────────────────────
+# Acceptance : steps 4, 6, 7, 9 (the 4 S001 assertions) all pass.
+# Per CLAUDE.md §9.6, the run output IS the deterministic citation.
+#
+# This flow LIVES in CI : any future PR that breaks CapDuJourBanner's
+# Key('card_cap_du_jour') OR the MintCardActionBar wiring fails this
+# flow = PR blocked.

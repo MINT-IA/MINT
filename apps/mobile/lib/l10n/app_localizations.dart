@@ -39177,6 +39177,12 @@ abstract class S {
   /// **'J’ai déjà un compte'**
   String get landingV2LoginLink;
 
+  /// Landing screen — anonymous local-mode entry point (S005, Phase 97 W7 iter#4). Sober text link below « J'ai déjà un compte ». Routes to /home (Aujourd'hui) ; the (isLoggedIn || isLocalMode) gate at app.dart:417 grants access since isLocalMode defaults true on fresh installs (auth_provider.dart:90, checkAuth() seeds it true line 142-145). Production-safe : exposes an existing anonymous-default path, no new bypass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer sans compte'**
+  String get landingV3AnonymousHomeLink;
+
   /// MintAlertObject default fact prefix (anti-shame: MINT is subject).
   ///
   /// In fr, this message translates to:
@@ -40622,6 +40628,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Bienvenue dans MINT. Avant qu\'on commence : qu\'est-ce qui t\'amène ici aujourd\'hui ?'**
   String get coachOnboardingFirstAssistantGreeting;
+
+  /// Phase 96 D-05 — MintCardActionBar verb 1/3. Tap opens MintChatOverlay with intent=explain. Imperative reflexive FR, accent-clean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explique-moi'**
+  String get verbExplique;
+
+  /// Phase 96 D-05 + D-06 — MintCardActionBar verb 2/3. Tap deep-links to Explorer (context.push('/explorer?simulate=<card_id>')); zero LLM call.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule'**
+  String get verbSimule;
+
+  /// Phase 96 D-05 — MintCardActionBar verb 3/3. Tap opens MintChatOverlay with intent=reassure. Imperative reflexive FR, accent-clean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rassure-moi'**
+  String get verbRassure;
+
+  /// Phase 97 W7 F001 — MintChatOverlay ChatInputBar TextField hint. Accent-clean FR, generic (no archetype assumption). Closes Phase 96 W1 scaffold debt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tape ton message...'**
+  String get chatInputHint;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

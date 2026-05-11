@@ -1,0 +1,50 @@
+{"id": "hp-001", "inputs": {"canton": "VD", "age": 35, "salary": 80000.0, "gross_annual_3a": 7056.0, "marital_status": "single"}}
+{"id": "hp-002", "inputs": {"canton": "ZH", "age": 25, "salary": 60000.0, "gross_annual_3a": 6000.0, "marital_status": "single"}}
+{"id": "hp-003", "inputs": {"canton": "GE", "age": 30, "salary": 70000.0, "gross_annual_3a": 6500.0, "marital_status": "single"}}
+{"id": "hp-004", "inputs": {"canton": "BE", "age": 40, "salary": 90000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-005", "inputs": {"canton": "VS", "age": 45, "salary": 100000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-006", "inputs": {"canton": "VD", "age": 50, "salary": 110000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-007", "inputs": {"canton": "ZH", "age": 55, "salary": 120000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-008", "inputs": {"canton": "GE", "age": 60, "salary": 130000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-009", "inputs": {"canton": "BE", "age": 65, "salary": 140000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-010", "inputs": {"canton": "VS", "age": 28, "salary": 65000.0, "gross_annual_3a": 6200.0, "marital_status": "single"}}
+{"id": "hp-011", "inputs": {"canton": "VD", "age": 33, "salary": 75000.0, "gross_annual_3a": 6800.0, "marital_status": "single"}}
+{"id": "hp-012", "inputs": {"canton": "ZH", "age": 38, "salary": 85000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-013", "inputs": {"canton": "GE", "age": 43, "salary": 95000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-014", "inputs": {"canton": "BE", "age": 48, "salary": 105000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-015", "inputs": {"canton": "VS", "age": 53, "salary": 115000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-016", "inputs": {"canton": "VD", "age": 58, "salary": 125000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-017", "inputs": {"canton": "ZH", "age": 63, "salary": 135000.0, "gross_annual_3a": 7056.0, "marital_status": "married"}}
+{"id": "hp-018", "inputs": {"canton": "GE", "age": 27, "salary": 62000.0, "gross_annual_3a": 6100.0, "marital_status": "single"}}
+{"id": "hp-019", "inputs": {"canton": "BE", "age": 32, "salary": 72000.0, "gross_annual_3a": 6700.0, "marital_status": "single"}}
+{"id": "hp-020", "inputs": {"canton": "VS", "age": 37, "salary": 82000.0, "gross_annual_3a": 7056.0, "marital_status": "single"}}
+{"id": "hp-021", "inputs": {"prevoyance": {"avoir_lpp": 250000.0, "taux_conv": 0.068}, "fiscalite": {"canton_tax_rate": 0.12}}}
+{"id": "hp-022", "inputs": {"prevoyance": {"avoir_lpp": 300000.0, "taux_conv": 0.068}, "fiscalite": {"canton_tax_rate": 0.13}}}
+{"id": "hp-023", "inputs": {"prevoyance": {"avoir_lpp": 350000.0, "taux_conv": 0.065}, "fiscalite": {"canton_tax_rate": 0.14}}}
+{"id": "hp-024", "inputs": {"prevoyance": {"avoir_lpp": 400000.0, "taux_conv": 0.064}, "fiscalite": {"canton_tax_rate": 0.15}}}
+{"id": "hp-025", "inputs": {"prevoyance": {"avoir_lpp": 450000.0, "taux_conv": 0.063}, "fiscalite": {"canton_tax_rate": 0.16}}}
+{"id": "hp-026", "inputs": {"prevoyance": {"avoir_lpp": 500000.0, "taux_conv": 0.062}, "fiscalite": {"canton_tax_rate": 0.17}}}
+{"id": "hp-027", "inputs": {"prevoyance": {"avoir_lpp": 550000.0, "taux_conv": 0.061}, "fiscalite": {"canton_tax_rate": 0.18}}}
+{"id": "hp-028", "inputs": {"prevoyance": {"avoir_lpp": 600000.0, "taux_conv": 0.06}, "fiscalite": {"canton_tax_rate": 0.19}}}
+{"id": "hp-029", "inputs": {"prevoyance": {"avoir_lpp": 650000.0, "taux_conv": 0.059}, "fiscalite": {"canton_tax_rate": 0.2}}}
+{"id": "hp-030", "inputs": {"prevoyance": {"avoir_lpp": 700000.0, "taux_conv": 0.058}, "fiscalite": {"canton_tax_rate": 0.21}}}
+{"id": "hp-031", "inputs": {"x": 0.30000000000000004, "y": 1.0}}
+{"id": "hp-032", "inputs": {"x": 0.3333333333333333, "y": 2.0}}
+{"id": "hp-033", "inputs": {"x": 0.005, "y": 3.0}}
+{"id": "hp-034", "inputs": {"x": 0.1, "y": 4.0}}
+{"id": "hp-035", "inputs": {"x": 0.2, "y": 5.0}}
+{"id": "hp-036", "inputs": {"x": 0.3, "y": 6.0}}
+{"id": "hp-037", "inputs": {"x": 100.0, "y": 200.0}}
+{"id": "hp-038", "inputs": {"x": 1234.56, "y": 9876.54}}
+{"id": "hp-039", "inputs": {"x": 12345.67, "y": 89012.34}}
+{"id": "hp-040", "inputs": {"x": 999999.99, "y": 1.99}}
+{"id": "hp-041", "inputs": {"has_lpp": true, "is_independant": false, "is_married": true}}
+{"id": "hp-042", "inputs": {"has_lpp": false, "is_independant": true, "is_married": false}}
+{"id": "hp-043", "inputs": {"has_lpp": true, "is_independant": true, "is_married": true}}
+{"id": "hp-044", "inputs": {"has_lpp": false, "is_independant": false, "is_married": false}}
+{"id": "hp-045", "inputs": {"has_lpp": true, "is_independant": false, "is_married": false}}
+{"id": "hp-046", "inputs": {"AVS": 2, "a3a": 1, "lpp": 3}}
+{"id": "hp-047", "inputs": {"alpha": 1, "Alpha": 2, "ALPHA": 3}}
+{"id": "hp-048", "inputs": {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5}}
+{"id": "hp-049", "inputs": {"z": 26, "y": 25, "x": 24, "w": 23, "v": 22}}
+{"id": "hp-050", "inputs": {"key_with_underscore": 1, "keyWithCamel": 2, "key-with-dash": 3}}

@@ -3970,6 +3970,22 @@
             "description": "Prior conversation messages for multi-turn context. Each item: {role: 'user'|'assistant', content: str}. Last 8 messages max. Sanitized client-side.",
             "title": "Conversationhistory"
           },
+          "intent": {
+            "anyOf": [
+              {
+                "enum": [
+                  "explain",
+                  "reassure"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Phase 96 D-06 — verb dispatch intent. 'explain' opens from « Explique-moi », 'reassure' from « Rassure-moi ». None on legacy chat-tab path (pre-96 compatibility).",
+            "title": "Intent"
+          },
           "language": {
             "default": "fr",
             "description": "Langue de la reponse: 'fr', 'de', 'en', 'it'.",
@@ -4032,6 +4048,24 @@
             "description": "Fournisseur LLM: 'claude', 'openai', 'mistral'.",
             "title": "Provider",
             "type": "string"
+          },
+          "sourceCard": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SerializedCardContext"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Phase 96 D-13 — optional card snapshot. When non-None, the narrator system prompt receives a <source_card> block with computed_facts + grounding_keys + life_event + canton + archetype. None preserves Phase 94/95 byte-identical behavior (legacy chat-tab path)."
+          },
+          "turnCount": {
+            "default": 0,
+            "description": "Phase 96 D-08 — client-supplied turn counter for UX transparency. The server IGNORES this value when enforcing the 3-turn cap (T-96-W2-TurnCountTamper mitigation) ; the server's in-memory TURN_COUNTER dict at app.services.coach.turn_cap is the source of truth. Accepted on the wire so the client can render its own counter in MintChatOverlay.",
+            "minimum": 0.0,
+            "title": "Turncount",
+            "type": "integer"
           }
         },
         "required": [
@@ -4063,6 +4097,17 @@
             "description": "Reponse textuelle du coach (validee par ComplianceGuard).",
             "title": "Message",
             "type": "string"
+          },
+          "narrativeSleeve": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NarrativeSleeve"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Phase 96 D-15 — 4-field response envelope (hook, caption, next_step, metaphor). None when source_card is None on the request OR when the legacy unstructured fallback path is taken. The response middleware that enforces hook digit-free + next_step word-count lands in Plan 96-03 per D-16."
           },
           "responseMeta": {
             "anyOf": [
@@ -14668,6 +14713,43 @@
         "title": "NarratedScenarioResponse",
         "type": "object"
       },
+      "NarrativeSleeve": {
+        "additionalProperties": false,
+        "description": "4-field response envelope per CONTEXT D-14.",
+        "properties": {
+          "caption": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Caption",
+            "type": "string"
+          },
+          "hook": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Hook",
+            "type": "string"
+          },
+          "metaphor": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Metaphor",
+            "type": "string"
+          },
+          "next_step": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Next Step",
+            "type": "string"
+          }
+        },
+        "required": [
+          "hook",
+          "caption",
+          "next_step"
+        ],
+        "title": "NarrativeSleeve",
+        "type": "object"
+      },
       "NextAction": {
         "properties": {
           "deepLink": {
@@ -19962,6 +20044,95 @@
         "title": "ScoreboardItem",
         "type": "object"
       },
+      "SerializedCardContext": {
+        "additionalProperties": false,
+        "description": "Card snapshot passed to the narrator for source-card context injection.\n\nFrozen, extra-forbid, scalar-only `computed_facts`. The full\n18-life-event taxonomy is accepted via the free-form `card_type` /\n`life_event` strings ; max_length caps prevent abuse.",
+        "properties": {
+          "archetype": {
+            "anyOf": [
+              {
+                "maxLength": 32,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archetype"
+          },
+          "canton": {
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canton"
+          },
+          "cardId": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Cardid",
+            "type": "string"
+          },
+          "cardType": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Cardtype",
+            "type": "string"
+          },
+          "computedFacts": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "title": "Computedfacts",
+            "type": "object"
+          },
+          "groundingKeys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Groundingkeys",
+            "type": "array"
+          },
+          "lifeEvent": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lifeevent"
+          }
+        },
+        "required": [
+          "cardId",
+          "cardType"
+        ],
+        "title": "SerializedCardContext",
+        "type": "object"
+      },
       "Session": {
         "properties": {
           "answers": {
@@ -23522,6 +23693,23 @@
           }
         },
         "summary": "Root"
+      }
+    },
+    "/.well-known/apple-app-site-association": {
+      "get": {
+        "description": "Serve the Apple-App-Site-Association JSON for iOS Universal Links.\n\nApple strictly requires Content-Type: application/json + HTTPS.\nThe bare /.well-known/apple-app-site-association path (no .json\nsuffix) is the canonical location iOS queries on every fresh app\ninstall + every entitlement-change.",
+        "operationId": "apple_app_site_association__well_known_apple_app_site_association_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Apple App Site Association"
       }
     },
     "/api/v1/3a-deep/compare-providers": {

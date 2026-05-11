@@ -36,7 +36,13 @@ import logging
 import os
 import re
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    # Phase 95 W2 — Wave 2 plumbing for the citation-gate `pack=` kwarg.
+    # TYPE_CHECKING guard avoids any runtime import-time cycle ; the
+    # production call site keeps `pack=None` during Phase 95.
+    from app.services.coach.grounding_pack import ProjectionGroundingPack  # noqa: F401
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
@@ -56,10 +62,23 @@ from app.services.coach.claude_coach_service import (
     build_system_prompt,
 )
 from app.services.coach.coach_context_builder import build_coach_context
+from app.services.coach.citation_parser import (
+    GateVerdict,
+    GatedResponse,
+    gate as _citation_gate,
+)
 from app.services.coach.coach_tools import (
     INTERNAL_TOOL_NAMES,
     get_llm_tools,
     get_narrator_llm_tools,
+)
+# Phase 96 W2 D-08..D-11 — 3-turn cap module.
+from app.services.coach.turn_cap import (
+    TURN_COUNTER,
+    emit_overflow_breadcrumb,
+    increment_and_get_previous,
+    is_cap_hit,
+    render_terminal_template,
 )
 from app.services.coach.extractor_schema import ExtractedFact, ExtractorOutput
 from app.services.coach.llm_extractor import run_llm_extractor
@@ -3023,6 +3042,21 @@ async def coach_chat(
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
+    # ------------------------------------------------------------------
+    # Phase 96 W2 D-13 — append the <source_card> block when the client
+    # supplied a SerializedCardContext on the request. Done AFTER the
+    # legacy prompt assembly so the byte-identity invariant (Phase 94 +
+    # 95 213-test matrix) is preserved when source_card is None — no
+    # branch entered, no string mutation.
+    # ------------------------------------------------------------------
+    if body.source_card is not None:
+        from app.services.coach.claude_coach_service import (
+            _render_source_card_block,
+        )
+        system_prompt = (
+            system_prompt + "\n\n" + _render_source_card_block(body.source_card)
+        )
+
     # ARCH-FIX (hallucination root cause): inject the user's actual profile
     # values from the DB as a HARD authoritative block. The existing
     # CoachContext / profile_context chain silently drops most fields (snake_
@@ -3227,6 +3261,16 @@ async def coach_chat(
     # (CONTEXT D-12 + D-20). On any compile failure (KeyError / ValueError —
     # H4 undeclared-slot guard), gracefully fall back to the unfiltered
     # narrator registry so the coach never breaks for users.
+    #
+    # Phase 94 Wave 1 (H1 fix iter 1) — initialize `_compiled_bundle = None`
+    # immediately BEFORE the bundle-compiler branch so the citation-gate
+    # wrapper (Plan 94-02 below at the narrator call site) can safely read
+    # `_compiled_bundle is not None` on EVERY code path : flag-OFF, the
+    # `except (KeyError, ValueError)` branch, the `elif COACH_DUAL_LLM_ENABLED`
+    # branch, and the `else` branch. The success branch overwrites with the
+    # compiled bundle. Type annotation is a forward-reference string so no
+    # import of `CompiledBundle` is required (Karpathy #3 surgical).
+    _compiled_bundle: "CompiledBundle | None" = None  # noqa: F821 — fwd ref
     if settings.COACH_BUNDLE_COMPILER_ENABLED:
         try:
             from app.services.coach.bundle_compiler import (
@@ -3260,27 +3304,170 @@ async def coach_chat(
         if settings.COACH_DUAL_LLM_ENABLED
         else effective_model
     )
-    try:
+    # Phase 94 Wave 1 — citation-gate wrapper. Karpathy #3 surgical: ZERO
+    # edits inside `_run_agent_loop` (1726-2624). The wrapper :
+    #   1. Calls `_run_agent_loop` once.
+    #   2. If `COACH_CITATION_GATE_ENABLED=False` (D-19 default), returns
+    #      the loop_result UNCHANGED — flag-OFF byte-identical bypass per
+    #      D-20 (asserted by tests/test_citation_gate/test_byte_identity_*).
+    #   3. If flag-ON, runs `gate(loop_result["answer"], ...)`. On
+    #      `retry_needed=True`, calls `_run_agent_loop` a SECOND time
+    #      with `question = body.message + reprompt_addendum` (D-08
+    #      hard-cap=1 ; the second-pass gate is invoked with
+    #      `is_retry=True` which collapses any rejection to FALLBACK).
+    # D-07 — citation_allowlist is the bundle's compile-time allowlist
+    # when the compiler flag is on AND the bundle compiled successfully ;
+    # else None → gate falls back to the global CITATION_REGISTRY keys.
+    _initial_loop_kwargs = dict(
+        orchestrator=orchestrator,
+        api_key=effective_api_key,
+        provider=body.provider,
+        model=_narrator_model,
+        profile_context=safe_profile,
+        language=body.language,
+        memory_block=effective_memory_block,
+        system_prompt=system_prompt,
+        user_id=_user.id if _user else None,
+        db=db,
+        conversation_history=safe_history,
+        persistence_consent=body.persistence_consent,
+        detected_intents=detected_intents,
+        tools=_narrator_tools,
+    )
+    _gate_allowlist = (
+        list(_compiled_bundle.citation_allowlist)
+        if (
+            settings.COACH_BUNDLE_COMPILER_ENABLED
+            and _compiled_bundle is not None
+        )
+        else None
+    )
+
+    def _emit_gate_breadcrumb(
+        gated: GatedResponse, retries: int,
+    ) -> None:
+        """D-18 hygiene — counts/labels only, NEVER user message content."""
+        try:
+            import sentry_sdk  # local import (already used elsewhere in file)
+            sentry_sdk.add_breadcrumb(
+                category="coach.citation_gate",
+                message=f"verdict={gated.verdict.value}",
+                level=(
+                    "info" if gated.verdict == GateVerdict.PASS else "warning"
+                ),
+                data={
+                    "verdict": gated.verdict.value,
+                    "retries": int(retries),
+                    "uncited_numbers_count": int(gated.uncited_numbers_count),
+                    "banned_claims_count": len(gated.banned_claims_found),
+                },
+            )
+        except Exception:  # pragma: no cover — telemetry is fail-open
+            pass
+
+    async def _run_narrator_with_gate(
+        pack: "ProjectionGroundingPack | None" = None,
+    ) -> dict:
         loop_result = await asyncio.wait_for(
-            _run_agent_loop(
-                orchestrator=orchestrator,
-                question=body.message,
-                api_key=effective_api_key,
-                provider=body.provider,
-                model=_narrator_model,
-                profile_context=safe_profile,
-                language=body.language,
-                memory_block=effective_memory_block,
-                system_prompt=system_prompt,
-                user_id=_user.id if _user else None,
-                db=db,
-                conversation_history=safe_history,
-                persistence_consent=body.persistence_consent,
-                detected_intents=detected_intents,
-                tools=_narrator_tools,
-            ),
+            _run_agent_loop(question=body.message, **_initial_loop_kwargs),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )
+        if not settings.COACH_CITATION_GATE_ENABLED:
+            # D-20 byte-identical bypass.
+            return loop_result
+
+        gated = _citation_gate(
+            response_text=loop_result["answer"],
+            ctx=coach_ctx,
+            citation_allowlist=_gate_allowlist,
+            is_retry=False,
+            pack=pack,   # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
+        )
+        _emit_gate_breadcrumb(gated, retries=0)
+
+        if not gated.retry_needed:
+            loop_result["answer"] = gated.gated_text
+            return loop_result
+
+        # D-08 retry-once. Second call is bounded by `is_retry=True` —
+        # any rejection on the second pass collapses to FALLBACK so the
+        # narrator is NEVER called a third time.
+        retry_message = body.message + (gated.reprompt_addendum or "")
+        retry_result = await asyncio.wait_for(
+            _run_agent_loop(question=retry_message, **_initial_loop_kwargs),
+            timeout=AGENT_LOOP_DEADLINE_SECONDS,
+        )
+        retry_gated = _citation_gate(
+            response_text=retry_result["answer"],
+            ctx=coach_ctx,
+            citation_allowlist=_gate_allowlist,
+            is_retry=True,
+            pack=pack,   # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
+        )
+        _emit_gate_breadcrumb(retry_gated, retries=1)
+        retry_result["answer"] = retry_gated.gated_text
+        return retry_result
+
+    async def _run_narrator_with_gate_and_cap(
+        pack: "ProjectionGroundingPack | None" = None,
+    ) -> dict:
+        """Phase 96 W2 D-08..D-11 — turn-cap wrapper around the Phase 94/95
+        ``_run_narrator_with_gate``.
+
+        Behaviour matrix :
+
+        - ``body.source_card is None`` → pass-through. The Phase 94/95
+          gated narrator is called unchanged ; the 213-test byte-identity
+          matrix is preserved (legacy chat-tab path).
+        - ``body.source_card is not None`` AND
+          ``TURN_COUNTER[(session_id, card_id)] >= 3`` → return the D-10
+          verbatim FR terminal template with ``card_id`` substituted ;
+          ZERO LLM call, ZERO token cost. Fire the
+          ``coach.chat_overflow.turn_4`` Sentry breadcrumb (VERB-05).
+        - otherwise → increment the counter BEFORE the gated narrator
+          call (read-then-write within a single coroutine — async
+          scheduling at this granularity is not preemptive).
+
+        SECURITY (T-96-W2-TurnCountTamper) — ``body.turn_count`` is
+        IGNORED. The server reads ``TURN_COUNTER`` as the source of
+        truth. The client value is informational only.
+        """
+        if body.source_card is None:
+            return await _run_narrator_with_gate(pack=pack)
+
+        # Session-id derivation : the request schema does not carry a
+        # session_id (chat is stateless on the wire — conversation
+        # history is replayed). Using the authenticated user_id as the
+        # per-app-session anchor matches D-09 ("per session, not per
+        # day") under the workers=1 staging assumption documented in
+        # turn_cap.py. Anonymous fallback for safety.
+        session_id = str(_user.id) if _user else "anonymous"
+        card_id = body.source_card.card_id
+        key = (session_id, card_id)
+
+        if is_cap_hit(key):
+            current_count = TURN_COUNTER.get(key, 0)
+            emit_overflow_breadcrumb(
+                source_card_id=card_id,
+                turn_count=current_count,
+            )
+            return {
+                "answer": render_terminal_template(card_id),
+                "tool_calls": [],
+                "sources": [],
+                "disclaimers": [],
+                "tokens_used": 0,
+                "degraded": False,
+                "model_used": "n/a-cap-hit",
+            }
+
+        # Increment BEFORE the gated narrator call so a concurrent retry
+        # within the same coroutine sees the post-increment state.
+        increment_and_get_previous(key)
+        return await _run_narrator_with_gate(pack=pack)
+
+    try:
+        loop_result = await _run_narrator_with_gate_and_cap()
     except asyncio.TimeoutError:
         logger.warning(
             "Agent loop total timeout (%ds) for user %s",

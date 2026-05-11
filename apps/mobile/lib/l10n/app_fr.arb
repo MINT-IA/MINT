@@ -11251,6 +11251,10 @@
   "@landingV2LoginLink": {
     "description": "Landing screen — visible login entry point (AUTH-01). Underlined text link below legal footer."
   },
+  "landingV3AnonymousHomeLink": "Continuer sans compte",
+  "@landingV3AnonymousHomeLink": {
+    "description": "Landing screen — anonymous local-mode entry point (S005, Phase 97 W7 iter#4). Sober text link below « J'ai déjà un compte ». Routes to /home (Aujourd'hui) ; the (isLoggedIn || isLocalMode) gate at app.dart:417 grants access since isLocalMode defaults true on fresh installs (auth_provider.dart:90, checkAuth() seeds it true line 142-145). Production-safe : exposes an existing anonymous-default path, no new bypass."
+  },
   "alertGenericFactPrefix": "MINT a remarqué",
   "@alertGenericFactPrefix": {
     "description": "MintAlertObject default fact prefix (anti-shame: MINT is subject)."
@@ -12138,5 +12142,22 @@
     "x-mint-meta": {
       "level": "N3"
     }
+  },
+  "verbExplique": "Explique-moi",
+  "@verbExplique": {
+    "description": "Phase 96 D-05 — MintCardActionBar verb 1/3. Tap opens MintChatOverlay with intent=explain. Imperative reflexive FR, accent-clean."
+  },
+  "verbSimule": "Simule",
+  "@verbSimule": {
+    "description": "Phase 96 D-05 + D-06 — MintCardActionBar verb 2/3. Tap deep-links to Explorer (context.push('/explorer?simulate=<card_id>')); zero LLM call."
+  },
+  "verbRassure": "Rassure-moi",
+  "@verbRassure": {
+    "description": "Phase 96 D-05 — MintCardActionBar verb 3/3. Tap opens MintChatOverlay with intent=reassure. Imperative reflexive FR, accent-clean."
+  },
+  "chatInputHint": "Tape ton message...",
+  "@chatInputHint": {
+    "description": "Phase 97 W7 F001 — MintChatOverlay ChatInputBar TextField hint. Accent-clean FR, generic (no archetype assumption). Closes Phase 96 W1 scaffold debt.",
+    "x-mint-meta": { "level": "N2" }
   }
 }

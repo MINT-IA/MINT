@@ -79,6 +79,17 @@ class Settings(BaseSettings):
     # the legacy `_NARRATOR_BASE_SYSTEM_PROMPT` template.
     COACH_BUNDLE_COMPILER_ENABLED: bool = False
 
+    # COACH_CITATION_GATE_ENABLED — Phase 94 (CONTEXT D-19/D-20).
+    # Closed-world citation gate post-process parser. Default OFF in prod ;
+    # ON in staging during Stage 3 eval (Plan 94-03). Wired in coach_chat
+    # narrator response stage (Plan 94-02) when True ; flag-OFF path is
+    # byte-identical to the pre-Phase-94 narrator output (asserted by
+    # tests/test_citation_gate/test_byte_identity_flag_off.py against the
+    # 5 captured legacy snapshots in tests/fixtures/narrator_legacy_snapshots/).
+    # Sunset clause: D-21 — flag + bypass code path removed in Phase 96 OR
+    # after 4-week staging soak with `coach.citation_gate.fallback` rate ≤2%.
+    COACH_CITATION_GATE_ENABLED: bool = False
+
     # Phase 91 D-01 — Narrator model selection. Default 'sonnet' matches
     # today's hardcoded Wave 2 narrator branch (preserves production
     # parity until Stage 3 eval gate flips the default in 91-05).

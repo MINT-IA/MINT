@@ -22337,6 +22337,9 @@ class SPt extends S {
   String get landingV2LoginLink => 'Já tenho uma conta';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Continuar sem conta';
+
+  @override
   String get alertGenericFactPrefix => 'A MINT reparou';
 
   @override
@@ -23166,4 +23169,16 @@ class SPt extends S {
   @override
   String get coachOnboardingFirstAssistantGreeting =>
       'Bem-vindo à MINT. Antes de começarmos — o que te traz aqui hoje?';
+
+  @override
+  String get verbExplique => 'Explica';
+
+  @override
+  String get verbSimule => 'Simular';
+
+  @override
+  String get verbRassure => 'Tranquiliza-me';
+
+  @override
+  String get chatInputHint => 'Escreve a tua mensagem...';
 }

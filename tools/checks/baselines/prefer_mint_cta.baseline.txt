@@ -1,7 +1,7 @@
-lib/app.dart:1846: FilledButton(
-lib/app.dart:1851: TextButton(
+lib/app.dart:1865: FilledButton(
+lib/app.dart:1870: TextButton(
 lib/screens/admin_observability_screen.dart:185: FilledButton(
-lib/screens/anonymous/anonymous_chat_screen.dart:542: ElevatedButton(
+lib/screens/anonymous/anonymous_chat_screen.dart:541: ElevatedButton(
 lib/screens/arbitrage/allocation_annuelle_screen.dart:421: FilledButton(
 lib/screens/arbitrage/arbitrage_bilan_screen.dart:52: FilledButton(
 lib/screens/arbitrage/location_vs_propriete_screen.dart:429: FilledButton(
@@ -39,8 +39,8 @@ lib/screens/disability/disability_gap_screen.dart:457: OutlinedButton(
 lib/screens/document_detail_screen.dart:275: FilledButton(
 lib/screens/document_detail_screen.dart:510: TextButton(
 lib/screens/document_detail_screen.dart:514: FilledButton(
-lib/screens/document_scan/document_scan_screen.dart:915: OutlinedButton(
-lib/screens/document_scan/document_scan_screen.dart:922: FilledButton(
+lib/screens/document_scan/document_scan_screen.dart:920: OutlinedButton(
+lib/screens/document_scan/document_scan_screen.dart:927: FilledButton(
 lib/screens/document_scan/extraction_review_screen.dart:573: TextButton(
 lib/screens/document_scan/extraction_review_screen.dart:580: FilledButton(
 lib/screens/document_scan/extraction_review_screen.dart:625: TextButton(

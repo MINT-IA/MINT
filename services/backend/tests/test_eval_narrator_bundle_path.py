@@ -174,8 +174,12 @@ def test_eval_narrator_bundle_path_dispatches_via_kwargs_only(monkeypatch) -> No
         captured["cash_level"] = cash_level
         return "BUNDLE_PROMPT"
 
-    def fake_legacy(ctx=None, language="fr", cash_level=3):
+    def fake_legacy(ctx=None, language="fr", cash_level=3, source_card=None, intents=None):
+        # Phase 94.2 W7 iter#11 — `intents` kwarg added by H1 wire-up
+        # in tools/eval_narrator.py:_build_system_prompt_for_fixture.
+        # `source_card` kwarg pre-existing from Phase 96 W2 D-13.
         captured["legacy_called"] = True
+        captured["legacy_intents"] = intents
         return "LEGACY_PROMPT"
 
     monkeypatch.setattr(
@@ -211,10 +215,12 @@ def test_eval_narrator_legacy_path_unchanged(monkeypatch) -> None:
 
     captured: dict = {}
 
-    def fake_legacy(ctx=None, language="fr", cash_level=3):
+    def fake_legacy(ctx=None, language="fr", cash_level=3, source_card=None, intents=None):
+        # Phase 94.2 W7 iter#11 — `intents` kwarg added by H1 wire-up.
         captured["called"] = True
         captured["language"] = language
         captured["cash_level"] = cash_level
+        captured["intents"] = intents
         return "LEGACY_PROMPT"
 
     def fake_bundle(*, intents, ctx=None, language="fr", cash_level=3):

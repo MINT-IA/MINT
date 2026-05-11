@@ -57,31 +57,77 @@ ARB_DIR = REPO_ROOT / "apps" / "mobile" / "lib" / "l10n"
 #   - assertVisible:          (block form)
 #       text: "..."
 #       id: "..."
+#   - assertNotVisible:       (negative regression guard — text/id is
+#                              BY DESIGN absent from the rendered tree ;
+#                              skipped by this lint, see § note below)
 #
 # We extract two streams : `text:` literals (must appear in code/ARB)
 # and `id:` literals (must have a `Key('<id>')` declaration somewhere).
+#
+# Phase 97 W7 iter#12 L001 — POSITIVE assertions only. `assertNotVisible`
+# semantics are inverted : the text/id MUST NOT be present in the app
+# (regression guard). Auditing those would flag valid negative guards as
+# « locator drift », which is the exact opposite of the truth. The
+# `_in_negative_assertion` flag tracks the parser depth through a
+# block-form `assertNotVisible:` so its nested `text:` / `id:` literals
+# are excluded from the audit set.
 TEXT_PAT = re.compile(r'^\s*-?\s*(?:tapOn|assertVisible):\s*[\'"]?([^\'"\n#][^\n#]*?)[\'"]?\s*$')
 TEXT_BLOCK_PAT = re.compile(r'^\s+text:\s*[\'"]([^\'"]+)[\'"]\s*$')
 ID_PAT = re.compile(r'^\s+id:\s*[\'"]([^\'"]+)[\'"]\s*$')
+# Match either `- assertNotVisible: "literal"` (shorthand, the literal is
+# captured to skip it from the positive set) or `- assertNotVisible:`
+# (block form, opens a scope whose nested `text:` / `id:` lines are also
+# skipped).
+NEG_SHORTHAND_PAT = re.compile(r'^\s*-?\s*assertNotVisible:\s*[\'"]?([^\'"\n#][^\n#]*?)[\'"]?\s*$')
+NEG_BLOCK_OPEN_PAT = re.compile(r'^\s*-?\s*assertNotVisible:\s*$')
+# A new top-level step (any `- <action>:` line) closes the negative scope.
+NEW_STEP_PAT = re.compile(r'^\s*-\s*\w+:')
 
 
 def collect_locators(flow_path: Path) -> tuple[set[str], set[str]]:
-    """Returns (text_literals, id_literals) referenced by the flow."""
+    """Returns (text_literals, id_literals) referenced by the flow.
+
+    Only POSITIVE `tapOn` / `assertVisible` literals are returned ; any
+    `assertNotVisible` literal (shorthand or block form) is excluded
+    because it is a negative regression guard — the literal is BY DESIGN
+    absent from the rendered tree, and auditing it as a locator would
+    inverted-flag valid guards as drift.
+    """
     texts: set[str] = set()
     ids: set[str] = set()
+    in_negative_block = False
     with flow_path.open() as f:
         for raw in f:
             line = raw.rstrip("\n")
             stripped = line.strip()
             if not stripped or stripped.startswith("#"):
                 continue
+
+            # Negative shorthand : skip the literal AND don't open a block.
+            if NEG_SHORTHAND_PAT.match(line):
+                in_negative_block = False
+                continue
+
+            # Negative block opener : skip the literal AND open a block
+            # scope (nested `text:` / `id:` lines belong to the negative
+            # guard and must be excluded).
+            if NEG_BLOCK_OPEN_PAT.match(line):
+                in_negative_block = True
+                continue
+
+            # Any other `- <action>:` step closes the negative scope.
+            if NEW_STEP_PAT.match(line):
+                in_negative_block = False
+
             m = TEXT_BLOCK_PAT.match(line)
             if m:
-                texts.add(m.group(1))
+                if not in_negative_block:
+                    texts.add(m.group(1))
                 continue
             m = ID_PAT.match(line)
             if m:
-                ids.add(m.group(1))
+                if not in_negative_block:
+                    ids.add(m.group(1))
                 continue
             m = TEXT_PAT.match(line)
             if m:

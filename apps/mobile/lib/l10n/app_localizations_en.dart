@@ -22220,6 +22220,9 @@ class SEn extends S {
   String get landingV2LoginLink => 'I already have an account';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Continue without an account';
+
+  @override
   String get alertGenericFactPrefix => 'MINT noticed';
 
   @override
@@ -23044,4 +23047,16 @@ class SEn extends S {
   @override
   String get coachOnboardingFirstAssistantGreeting =>
       'Welcome to MINT. Before we start — what brings you here today?';
+
+  @override
+  String get verbExplique => 'Explain';
+
+  @override
+  String get verbSimule => 'Simulate';
+
+  @override
+  String get verbRassure => 'Reassure me';
+
+  @override
+  String get chatInputHint => 'Type your message...';
 }

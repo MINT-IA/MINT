@@ -10529,6 +10529,7 @@
   "landingV2Privacy": "Nada sai do teu telemóvel até que tu o decidas.",
   "landingV2Legal": "Ferramenta educativa. Não constitui aconselhamento financeiro nos termos da LSFin.",
   "landingV2LoginLink": "Já tenho uma conta",
+  "landingV3AnonymousHomeLink": "Continuar sem conta",
   "alertGenericFactPrefix": "A MINT reparou",
   "alertGenericCausePrefix": "Porquê",
   "alertGenericNextMomentPrefix": "Quando voltarmos a falar disso",
@@ -11193,5 +11194,9 @@
     "x-mint-meta": {"level": "N1"}
   },
   "betaDisclosureSemanticsLabel": "Informação sobre a versão beta da MINT — apenas ferramenta educativa, nenhum aconselhamento financeiro, os dados permanecem no teu dispositivo por defeito.",
-  "coachOnboardingFirstAssistantGreeting": "Bem-vindo à MINT. Antes de começarmos — o que te traz aqui hoje?"
+  "coachOnboardingFirstAssistantGreeting": "Bem-vindo à MINT. Antes de começarmos — o que te traz aqui hoje?",
+  "verbExplique": "Explica",
+  "verbSimule": "Simular",
+  "verbRassure": "Tranquiliza-me",
+  "chatInputHint": "Escreve a tua mensagem..."
 }

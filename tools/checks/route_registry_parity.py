@@ -56,6 +56,16 @@ _ADMIN_CONDITIONAL: Set[str] = {
     "/admin/routes",
 }
 
+# Category 8 — dev-only debug routes (`/debug/*`).
+# Public-scope demo surfaces registered for Maestro G1 flows + dev sim
+# walkthrough. INTENTIONALLY absent from kRouteRegistry: not part of the
+# user-facing route taxonomy, never surfaced from the coach chat.
+# Adding new debug routes requires updating this set AND KNOWN-MISSES.md
+# Category 8.
+_DEV_DEBUG_ONLY: Set[str] = {
+    "/debug/chat-as-verb",
+}
+
 # Category 5 — nested `routes: [...]` child segments.
 # These bare segments are declared under parent `/profile` at app.dart L906+.
 # At runtime go_router composes parent + child -> `/profile/<segment>`.
@@ -138,6 +148,9 @@ def _apply_known_misses(app_paths: Set[str], reg_keys: Set[str]) -> Tuple[Set[st
     # Category 7: admin-conditional — exempt from app side (not in registry).
     app_cleaned = set(app_paths) - _ADMIN_CONDITIONAL
 
+    # Category 8: dev-only debug routes — exempt from app side (not in registry).
+    app_cleaned = app_cleaned - _DEV_DEBUG_ONLY
+
     # Category 5: nested — exempt bare segments from app side AND composed form
     # from registry side. Both halves must exist; if only one is present, we
     # leave the other unexempted so drift is still caught.
@@ -167,10 +180,11 @@ def run_parity(app_src: str, registry_src: str) -> int:
         )
     )
     sys.stderr.write(
-        "[info] registry has {n} key(s); {a} admin-conditional + {p} nested-profile entries "
-        "exempted per KNOWN-MISSES.md\n".format(
+        "[info] registry has {n} key(s); {a} admin-conditional + {d} dev-debug + "
+        "{p} nested-profile entries exempted per KNOWN-MISSES.md\n".format(
             n=len(reg_keys),
             a=len(_ADMIN_CONDITIONAL & app_paths),
+            d=len(_DEV_DEBUG_ONLY & app_paths),
             p=len(_NESTED_PROFILE_CHILDREN),
         )
     )

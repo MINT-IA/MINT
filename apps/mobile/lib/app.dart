@@ -11,6 +11,7 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
+import 'package:mint_mobile/screens/coach/chat_as_verb_demo_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
@@ -27,6 +28,7 @@ import 'package:mint_mobile/screens/debt_risk_check_screen.dart';
 // portfolio_screen.dart DELETED (deep-audit 2026-04-17) — route /portfolio still redirects to /home
 // profile_screen.dart DELETED (KILL-04, Phase 2)
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_center_screen.dart';
@@ -362,6 +364,20 @@ final _router = GoRouter(
         final intent = state.uri.queryParameters['intent'];
         return AnonymousChatScreen(intent: intent);
       },
+    ),
+    // ── Chat-as-verb demo (Phase 96 W1 T4 wired surface) ─────────
+    // Plan 96-01 T4 wired MintCardActionBar onto two example cards
+    // (« Marge fiscale 2026 », « Coût hypothèque mensuel ») in
+    // `chat_as_verb_demo_screen.dart`. Route registration was missed
+    // in T4 (W14-pattern wiring gap surfaced during G2 sim walkthrough
+    // 2026-05-11). This route exposes the demo so the Maestro G1 flow
+    // + Julien sim can reach the wired surface. Public scope = no auth
+    // gate (the chat backend still requires auth, but the UI surface
+    // itself is reachable).
+    ScopedGoRoute(
+      path: '/debug/chat-as-verb',
+      scope: RouteScope.public,
+      builder: (context, state) => const ChatAsVerbDemoScreen(),
     ),
 
     // ── SHELL: 3-tab persistent navigation ───���─────���────────
@@ -1611,9 +1627,9 @@ ThemeData _buildPremiumTheme() {
     scaffoldBackgroundColor: MintColors.background,
     colorScheme: const ColorScheme.light(
       primary: MintColors.primary,
-      onPrimary: Colors.white,
+      onPrimary: MintColors.white,
       secondary: MintColors.accent,
-      onSecondary: Colors.white,
+      onSecondary: MintColors.white,
       surface: MintColors.appleSurface,
       onSurface: MintColors.textPrimary,
       error: MintColors.error,
@@ -1645,16 +1661,16 @@ ThemeData _buildPremiumTheme() {
       bodyLarge: textTheme.bodyLarge?.copyWith(
         color: MintColors.textPrimary,
         height: 1.5,
-        fontSize: 16,
+        fontSize: MintTextStyles.bodyLarge().fontSize,
       ),
       bodyMedium: textTheme.bodyMedium?.copyWith(
         color: MintColors.textSecondary,
         height: 1.4,
-        fontSize: 14,
+        fontSize: MintTextStyles.bodyMedium().fontSize,
       ),
     ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.white,
+    appBarTheme: AppBarTheme(
+      backgroundColor: MintColors.card,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
@@ -1662,10 +1678,10 @@ ThemeData _buildPremiumTheme() {
         fontWeight: FontWeight.w700,
         fontFamily: 'Supreme',
         color: MintColors.textPrimary,
-        fontSize: 20,
+        fontSize: MintTextStyles.headlineSmall().fontSize,
         letterSpacing: -0.5,
       ),
-      iconTheme: IconThemeData(color: MintColors.textPrimary, size: 22),
+      iconTheme: const IconThemeData(color: MintColors.textPrimary, size: 22),
     ),
     cardTheme: CardThemeData(
       color: MintColors.card,
@@ -1679,14 +1695,14 @@ ThemeData _buildPremiumTheme() {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: MintColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: MintColors.white,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        textStyle: const TextStyle(
+        textStyle: TextStyle(
           fontWeight: FontWeight.w600,
-          fontSize: 16,
+          fontSize: MintTextStyles.bodyLarge().fontSize,
         ),
         elevation: 0,
       ),
@@ -1699,9 +1715,9 @@ ThemeData _buildPremiumTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        textStyle: const TextStyle(
+        textStyle: TextStyle(
           fontWeight: FontWeight.w600,
-          fontSize: 16,
+          fontSize: MintTextStyles.bodyLarge().fontSize,
         ),
       ),
     ),
@@ -1814,19 +1830,21 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.background,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: _isVerifying
-              ? const Column(
+              ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 24),
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 24),
                     Text(
                       'Vérification en cours...',
-                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                      style: TextStyle(
+                          fontSize: MintTextStyles.bodyLarge().fontSize,
+                          color: Colors.black87),
                     ),
                   ],
                 )
@@ -1834,13 +1852,14 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.error_outline,
-                        size: 64, color: Colors.red),
+                        size: 64, color: MintColors.error),
                     const SizedBox(height: 24),
                     Text(
                       _errorMessage ?? 'Erreur de vérification',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 16, color: Colors.black87),
+                      style: TextStyle(
+                          fontSize: MintTextStyles.bodyLarge().fontSize,
+                          color: Colors.black87),
                     ),
                     const SizedBox(height: 24),
                     FilledButton(
@@ -1870,7 +1889,7 @@ class _MintErrorScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Page introuvable'),
-        backgroundColor: Colors.white,
+        backgroundColor: MintColors.card,
         foregroundColor: Colors.black87,
         elevation: 0,
       ),
@@ -1881,12 +1900,14 @@ class _MintErrorScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.explore_off_outlined,
-                  size: 64, color: Colors.grey),
+                  size: 64, color: MintColors.textMuted),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Cette page n\'existe pas ou a été déplacée.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.black87),
+                style: TextStyle(
+                    fontSize: MintTextStyles.bodyLarge().fontSize,
+                    color: Colors.black87),
               ),
               const SizedBox(height: 24),
               FilledButton.icon(

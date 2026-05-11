@@ -25,8 +25,10 @@ import re
 from dataclasses import dataclass
 from typing import Iterable, Optional
 
+from app.core.config import settings
 from app.services.coach.bundles import (
     BundleBase,
+    CitationGrammarBundle,
     ComplianceNarratorBundle,
     LifeEventRouterBundle,
     LppProjectorBundle,
@@ -186,6 +188,23 @@ def compile_bundles(
             if cls not in seen:
                 bundle_classes.append(cls)
                 seen.add(cls)
+
+    # Step 2b — Phase 94.1 Wave 4 : flag-conditional citation-grammar bundle.
+    # When `settings.COACH_CITATION_GATE_ENABLED=True`, append
+    # `CitationGrammarBundle` to the bundle list AFTER the legacy always-on
+    # pair AND any intent-driven bundles. The grammar fragment teaches the
+    # narrator the closed-world `{{cite:<key>}}` placeholder syntax + the
+    # 18-key vocabulary from `citation_registry.CITATION_REGISTRY`. When
+    # the flag is OFF, this branch is a no-op (preserves the activated_bundles
+    # invariant pinned by `tests/bundles/test_bundle_compiler.py::
+    # test_empty_intent_emits_always_on_only` and friends).
+    #
+    # The grammar bundle is conceptually always-on per Phase 94.1 architecture
+    # but registered HERE (not in the `_ALWAYS_ON` constant) to keep the
+    # legacy invariant intact.
+    if settings.COACH_CITATION_GATE_ENABLED and CitationGrammarBundle not in seen:
+        bundle_classes.append(CitationGrammarBundle)
+        seen.add(CitationGrammarBundle)
 
     # Step 3 — instantiate. Bundles are frozen Pydantic v2 ; instantiation
     # is cheap and side-effect-free.

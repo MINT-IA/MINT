@@ -19,6 +19,7 @@ The compiler in Plan 93.5-02 consumes `ALL_BUNDLE_CLASSES` and
 from __future__ import annotations
 
 from app.services.coach.bundles._base import BundleBase
+from app.services.coach.bundles.citation_grammar import CitationGrammarBundle
 from app.services.coach.bundles.compliance_narrator import ComplianceNarratorBundle
 from app.services.coach.bundles.life_event_router import LifeEventRouterBundle
 from app.services.coach.bundles.lpp_projector import LppProjectorBundle
@@ -30,6 +31,17 @@ from app.services.coach.bundles.tax_explainer import TaxExplainerBundle
 # Canonical 6-bundle registry. Order matches CONTEXT D-09 (always-on first,
 # then intent-driven), which is also the priority order the compiler will
 # use when applying token-budget drop priority (D-13).
+#
+# `CitationGrammarBundle` (Phase 94.1, flag-conditional) is intentionally
+# NOT in this list — it is registered per-call inside `compile_bundles`
+# when `settings.COACH_CITATION_GATE_ENABLED=True`. Keeping it out of
+# `ALL_BUNDLE_CLASSES` preserves the canonical 6-bundle invariant pinned
+# by `tests/bundles/test_bundle_contract.py::test_all_bundles_importable`
+# (`len(ALL_BUNDLE_CLASSES) == 6`) AND the subset invariant pinned by
+# `tests/test_citation_gate/test_registry_contract.py::
+# test_registry_subset_of_bundle_allowlists` (the grammar bundle has
+# empty `citation_allowlist=[]` so it would not contribute to the
+# allowlist union anyway).
 ALL_BUNDLE_CLASSES: list[type[BundleBase]] = [
     ComplianceNarratorBundle,   # always-on (D-09)
     LifeEventRouterBundle,      # always-on (D-09)
@@ -42,6 +54,7 @@ ALL_BUNDLE_CLASSES: list[type[BundleBase]] = [
 
 __all__ = [
     "BundleBase",
+    "CitationGrammarBundle",
     "ComplianceNarratorBundle",
     "LifeEventRouterBundle",
     "Pillar3aOptimizerBundle",

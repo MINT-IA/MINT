@@ -70,6 +70,8 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     "/admin/routes",
     "/admin/observability",
     "/admin/analytics",
+    # Debug demos — surfaced for Maestro G1 + dev sim walkthrough only.
+    "/debug/chat-as-verb",
     # Achievements / progress
     "/achievements",
     # Coach surface itself (the chat is the SOURCE of routing; you don't route INTO it)
