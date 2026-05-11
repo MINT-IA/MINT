@@ -281,12 +281,12 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « Dark-mode + theme switching break on these 8 spots. Visual inconsistency. »
   fix_cost: trivial  # replace with MintColors tokens per existing inventory
   score: 8  # 4 × 4 / 2
-  status: OPEN
+  status: IN_PROGRESS
   fix_commit: null
   repro_flow: null
   found_in: 2026-05-11
   resolved_in: null
-  notes: « Surgical fix, ~30 min. »
+  notes: « Surgical fix, ~30 min. W7 iter#13 picked 2026-05-11 — batched with L003. »
 
 - id: L003
   severity: P1
@@ -298,12 +298,12 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « Typography drift, dynamic-type/accessibility break. »
   fix_cost: trivial  # replace with MintTextStyles tokens
   score: 8  # 4 × 4 / 2
-  status: OPEN
+  status: IN_PROGRESS
   fix_commit: null
   repro_flow: null
   found_in: 2026-05-11
   resolved_in: null
-  notes: « Same file as L002 ; can batch fix in one commit. »
+  notes: « Same file as L002 ; can batch fix in one commit. W7 iter#13 picked 2026-05-11 — batched with L002. Pre-fix lint actually reports 7 on app.dart (lines 1663, 1668, 1680, 1719, 1844, 1858, 1904) — header underreported by 1 (missing line 1663). Fix all 7. »
 
 - id: L004
   severity: P2
