@@ -30,6 +30,8 @@ LIVING in CI. Each row below is one Maestro flow that :
 | Bug ID | Flow path | Status | RED-state evidence | GREEN gate |
 |--------|-----------|--------|---------------------|------------|
 | F001 | `bug__F001__chat_input_bar_exists.yaml` | LOCKED 2026-05-11 | `/tmp/maestro_f001_red.xml` — exit 1, step 3 fails on cold-launch precondition (S001/F012/F013/F014/F028 block end-to-end Maestro until W5) | Flutter widget test — `cd apps/mobile && flutter test test/widgets/mint_chat_overlay_test.dart` (11/11 pass) ; Maestro flow becomes runnable end-to-end post-W5 |
+| S001 | `bug__S001__cap_du_jour_action_bar_reachable.yaml` | LOCKED 2026-05-11 | `/tmp/maestro_s001_pre_fix.xml` — exit 1, step 3 fails on cold-launch precondition (S003/S005/W1 fragments block /home reachability from LandingScreen for anonymous users) | Flutter widget test — `cd apps/mobile && flutter test test/widgets/aujourdhui/cap_du_jour_banner_test.dart` (5/5 pass) ; Maestro flow becomes runnable end-to-end once S003/S005/W1 land |
+| F001+S001 | `bug__F001_S001_combined__chat_via_cap_du_jour.yaml` | LOCKED 2026-05-11 | precondition-blocked (S003/S005/W1) — chains both fixes end-to-end : cold-launch → CapDuJourBanner → MintCardActionBar → tap « Explique-moi » → MintChatOverlay → chat_input_field → send → turn « 1 / 3 » | Flutter widget tests above (16/16 combined : 11 F001 + 5 S001) ; Maestro flow is the FIRST end-to-end chat-as-verb reachability proof for MINT once preconditions land |
 
 ## Per-archetype × per-feature regression flows (Phase 97 W3 deliverable)
 

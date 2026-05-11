@@ -28,10 +28,67 @@
 <table>
   <tr><th>Phase</th><td>97 MVP-PARFAIT-MAESTRO-FULL-POWER</td></tr>
   <tr><th>Branch</th><td><code>feature/S94-mvp-citation-gate</code></td></tr>
-  <tr><th>Stage</th><td>W7 iteration loop in progress — cycle #2 closed (F001+F002+F003)</td></tr>
-  <tr><th>Bugs registry total</th><td>32 catalogued (S001-S004, T001-T002, L001-L008, P001-P002, F001-F030, B001) ; 4 closed (B001 + F001 + F002 + F003)</td></tr>
-  <tr><th>0-trust §9 status</th><td>Honest — F001 fix gated by Flutter widget test (deterministic), Maestro flow LOCKED for post-W5 end-to-end runnability</td></tr>
+  <tr><th>Stage</th><td>W7 iteration loop in progress — cycle #3 closed (S001) ; cycle #2 closed (F001+F002+F003) ; cycle #1 closed (B001)</td></tr>
+  <tr><th>Bugs registry total</th><td>33 catalogued (S001-S005, T001-T002, L001-L008, P001-P002, F001-F030, B001) ; 5 closed (B001 + F001 + F002 + F003 + S001) ; 1 new S005 surfaced by S001 close</td></tr>
+  <tr><th>0-trust §9 status</th><td>Honest — S001 fix gated by Flutter widget test (deterministic, 5/5 GREEN), Maestro flow LOCKED for post-S003/S005/W1 end-to-end runnability ; S005 surfaced + registered, NOT silently swallowed</td></tr>
 </table>
+
+<h2>W7 iteration cycle #3 — S001 close-out (2026-05-11)</h2>
+
+<div class="iter">
+<p><strong>Bug closed :</strong> S001 (ChatAsVerbDemoScreen unreachable — Phase 96 W1 surface inaccessible to users). Resolved by wiring MintCardActionBar onto CapDuJourBanner (PHASE97_AUJOURDHUI_CARD_INVENTORY.md row 2 = highest-priority real Aujourd'hui card).</p>
+<p><strong>Methodology :</strong> Phase 97 CONTEXT D-36 7-step cycle (PICK → REPRO → FIX → PASS → SUITE → LOCK → ADVANCE).</p>
+<p><strong>Operator constraints honored :</strong> Karpathy #2 (zero new state management ; banner action bar permanently expanded ; SerializedCardContext from financial_core only), Karpathy #3 surgical (ONLY cap_du_jour_banner.dart touched + 1 new widget test + 2 new Maestro flows + 1 INDEX.md row + 1 BUGS-REGISTRY row update). CLAUDE.md rule 2 (accent FR clean), rule 4 (financial_core reuse — priorityScore from CapEngine), rule 8 (no PII — frozen+forbid backend mirror).</p>
+<p><strong>Bonus discovery :</strong> S005 registered (LandingScreen has no public CTA to /home for anonymous users). Surfaced honestly per CLAUDE.md §9.7 ; not silently swallowed.</p>
+</div>
+
+<h3>7 steps with deterministic citations</h3>
+
+<table>
+<tr><th>Step</th><th>Action</th><th>Commit / Evidence</th></tr>
+<tr><td>1 PICK</td><td>S001 OPEN → IN_PROGRESS, target CapDuJourBanner</td><td><code>ca36cf6a</code> docs(97-W7): S001 → IN_PROGRESS (cycle #3 PICK)</td></tr>
+<tr><td>2 REPRO</td><td>Maestro flow bug__S001__cap_du_jour_action_bar_reachable.yaml authored ; pre-fix RED captured</td><td><code>635db1e4</code> ; <code>/tmp/maestro_s001_pre_fix.xml</code> failures=1, step 3 « Aujourd'hui » not visible (precondition-blocked by S005)</td></tr>
+<tr><td>3 FIX</td><td>cap_du_jour_banner.dart wraps body + MintCardActionBar in keyed Column ; 3-verb routing wired ; SerializedCardContext from financial_core (no PII)</td><td><code>1264f18b</code> feat(97-W7): S001 wire MintCardActionBar onto CapDuJourBanner ; <code>da92cf89</code> fix import FinancialArchetypeBackendName extension</td></tr>
+<tr><td>4 PASS</td><td>flutter build ios --simulator GREEN ; flutter test cap_du_jour_banner_test.dart 5/5 GREEN</td><td><code>150c446e</code> test(97-W7): S001 widget test (5/5 GREEN) + F001+S001 chained Maestro flow</td></tr>
+<tr><td>5 SUITE</td><td>flutter analyze 273 baseline preserved ; locator audit 14 baseline preserved ; grep Color(0x = 0 in changed file ; LSFin banned_terms_python = clean ; accent_lint_fr = clean ; F001 mint_chat_overlay_test 11/11 GREEN (no regression) ; 32 touched widget tests all GREEN</td><td>flutter analyze: 273 issues, locator audit: 14 violations, banned_terms: clean, accent_lint: clean</td></tr>
+<tr><td>6 LOCK</td><td>2 new rows in tools/simulator/flows/regression/_INDEX.md : bug__S001__cap_du_jour_action_bar_reachable.yaml + bug__F001_S001_combined__chat_via_cap_du_jour.yaml (the chained end-to-end flow)</td><td>same commit <code>150c446e</code></td></tr>
+<tr><td>7 ADVANCE</td><td>97-BUGS-REGISTRY.md S001 → RESOLVED with fix_commit=1264f18b + repro_flow + resolved_in=2026-05-11T17:16:53Z ; F001 row upgraded with chained_repro_flow + LOCKED-GREEN-after-S001 ; S005 new row registered</td><td>final commit (this turn) updates BUGS-REGISTRY + VERIFICATION-REPORT.html</td></tr>
+</table>
+
+<h3>Citation chain (CLAUDE.md §9.6 format)</h3>
+
+<pre>
+Evidence :
+  flutter test test/widgets/aujourdhui/cap_du_jour_banner_test.dart
+  → 5/5 passed at fix commit 1264f18b
+  - renders root Key(card_cap_du_jour)
+  - MintCardActionBar is a descendant of CapDuJourBanner
+  - action bar exposes Key(mint_card_action_bar)
+  - renders 3 verb labels (Explique-moi, Simule, Rassure-moi)
+  - tapping « Simule » navigates to /explorer?simulate=cap_du_jour
+
+  flutter test test/widgets/mint_chat_overlay_test.dart
+  → 11/11 passed at HEAD (F001 baseline preserved post-S001 fix)
+
+  /tmp/maestro_s001_pre_fix.xml
+  → failures=1, step 3 « Aujourd'hui » not visible
+  → confirms RED state (S005 precondition blocks /home from cold launch)
+
+  /tmp/96_s001_pre_fix.png, /tmp/96_s001_step3_state.png
+  → on-device screenshots showing LandingScreen (not Aujourd'hui)
+    — proving S005 sibling bug, surfaced + registered
+
+  grep -c 'Color(0x' apps/mobile/lib/widgets/aujourdhui/cap_du_jour_banner.dart
+  → 0 (MintColors tokens only, D-26 grep gate clean)
+
+Caveat :
+  End-to-end Maestro from cold-launch CANNOT run today because S005
+  (LandingScreen → /home anonymous CTA missing) + S003 (mintapp://
+  not registered) + Phase 97 W1 fragments (E2E launch-arg seeding)
+  are OPEN. The S001 widget fix is real and verified ; the on-device
+  Maestro flow LIVES in CI per CONTEXT D-37 for future regression
+  detection (becomes runnable end-to-end once preconditions land).
+</pre>
 
 <h2>W7 iteration cycle #2 — F001 close-out (2026-05-11)</h2>
 

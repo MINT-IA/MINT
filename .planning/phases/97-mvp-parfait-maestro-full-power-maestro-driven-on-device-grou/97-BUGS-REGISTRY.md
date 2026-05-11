@@ -5,7 +5,7 @@ slug: mvp-parfait-maestro-full-power-maestro-driven-on-device-grou
 status: draft (W0 in progress)
 created: 2026-05-11
 schema_version: 1
-total_bugs: 32  # will grow as sonnet audits return
+total_bugs: 33  # will grow as sonnet audits return ; W7 iter#3 added S005 (LandingScreen→/home reachability)
 ---
 
 # Phase 97 Bug Registry
@@ -41,7 +41,8 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 
 | Rank | ID | Title | Score | Surface |
 |------|-----|-------|-------|---------|
-| 1 | S001 | ChatAsVerbDemoScreen still unreachable from app UI (only `/debug/chat-as-verb` route, no UI button) | 64 | mobile |
+| 1 | ~~S001~~ | ~~ChatAsVerbDemoScreen unreachable~~ → **RESOLVED 2026-05-11T17:16:53Z** via CapDuJourBanner action-bar wiring (W7 iter#3, fix 1264f18b) | ~~64~~ | mobile |
+| 1bis | S005 | LandingScreen has no public CTA to /home for anonymous users (surfaced by S001 close) | 32 | mobile |
 | 2 | L001 | Maestro locator audit fails 14 violations on 4 flows — testing infra broken | 32 | testing |
 | 3 | S002 | Maestro flow `flow_card_action_intent_bar.yaml` doesn't handle cold-app onboarding (bêta modal + landing + auth) | 32 | testing |
 | 4 | T001 | EXIF metadata leak — `document_scan_screen.dart` Vision API retains GPS+timestamp without scrub (GDPR/Swiss data protection violation) | 32 | mobile |
@@ -67,13 +68,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « Phase 96 W1 entire surface inaccessible to users in production. Full Phase 96 ship-readiness blocked. Same pattern repeats for any post-W1 widgets wired only into demo screens. »
   fix_cost: medium  # need to either (a) wire MintCardActionBar onto a real Aujourd'hui card or (b) add a debug button on Aujourd'hui that navigates to demo screen
   score: 32  # 8 × 4 / 1 ; treating as trivial-after-decision since CONTEXT says ALL cards in W5
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11T17:06:32Z
-  fix_commit: null
-  repro_flow: null
+  fix_commit: 1264f18b
+  repro_flow: tools/simulator/flows/regression/bug__S001__cap_du_jour_action_bar_reachable.yaml
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « Phase 97 W5 « reachability fix » closes this. Existing demo screen at chat_as_verb_demo_screen.dart serves as wiring template. W7 iter#3 (2026-05-11) — picked CapDuJourBanner per PHASE97_AUJOURDHUI_CARD_INVENTORY.md priority 2 (highest after branding header). »
+  resolved_in: 2026-05-11T17:16:53Z
+  notes: « W7 iter#3 (2026-05-11) — wired MintCardActionBar onto CapDuJourBanner (PHASE97_AUJOURDHUI_CARD_INVENTORY.md row 2). Root container carries Key('card_cap_du_jour') ; action bar tagged Key('mint_card_action_bar') ; 3-verb routing : Explique-moi → MintChatOverlay intent=explain, Simule → context.push('/explorer?simulate=cap_du_jour') (zero LLM call per D-06), Rassure-moi → intent=reassure. SerializedCardContext built from financial_core only (priorityScore + cap kind + archetype.backendName + canton), zero PII per Phase 96 D-12. Deterministic GREEN gate : flutter test test/widgets/aujourdhui/cap_du_jour_banner_test.dart (5/5 pass). Maestro flow LOCKED in CI for future regression detection ; becomes runnable end-to-end once S003 (custom URL scheme) / S005 (LandingScreen → /home anonymous CTA) / Phase 97 W1 fragments (E2E launch-arg seeding) land. Same close-out pattern as F001 iter#2. Karpathy #3 surgical : only cap_du_jour_banner.dart touched (1 file, 71 LOC delta). »
 
 - id: S002
   severity: P0
@@ -125,6 +126,23 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   found_in: 2026-05-11
   resolved_in: null
   notes: « Closes W5 alongside S003. »
+
+- id: S005
+  severity: P0
+  surface: mobile
+  archetype: all
+  feature: navigation
+  title: « LandingScreen has NO public CTA to /home for anonymous users — anonymous local-mode reachability blocked from cold launch »
+  repro: « Cold-launch MINT app → LandingScreen renders with « Parle à Mint » CTA → /start → redirects to /anonymous/chat (apps/mobile/lib/app.dart:315-318). Also « J'ai déjà un compte » → /auth/login. No public button navigates to /home (the Aujourd'hui shell) despite AuthProvider defaulting isLocalMode=true. The (auth.isLoggedIn || auth.isLocalMode) gate at app.dart:417 ALLOWS anonymous /home access, but the user can never reach /home without typing a deep-link OR registering. »
+  blast_radius: « ALL Phase 96 W1 + Phase 97 W5 reachability surface (CapDuJourBanner action bar, MintChatOverlay, full Aujourd'hui card-action ribbon) is unreachable from cold launch for anonymous users. End-to-end Maestro flows blocked. Phase 94 anonymous-onboarding chat works, but Aujourd'hui is invisible to the anonymous user — they bounce off after the chat session. »
+  fix_cost: small  # add a « Continuer sans compte » / « Voir mon Aujourd'hui » CTA to LandingScreen (or after /anonymous/chat completion) → context.go('/home')
+  score: 32  # 8 × 4 / 1
+  status: OPEN
+  fix_commit: null
+  repro_flow: null
+  found_in: 2026-05-11
+  resolved_in: null
+  notes: « Surfaced by W7 iter#3 (S001 close) — running bug__S001__cap_du_jour_action_bar_reachable.yaml against post-fix build showed cold-launch lands on LandingScreen, not the shell. Was implicit assumption in F001 iter#2 (filed as F013/F014 'cold-launch precondition / auth fragment'). Promoted to S005 explicit bug for tracking. Closes W5 alongside S003+S004 reachability work. »
 ```
 
 ### From haiku TODO survey audit
@@ -366,9 +384,11 @@ row enters the 7-step cycle (D-36), it is folded here for state-machine tracking
   started: 2026-05-11T16:43:45Z
   fix_commit: 8b3bb90b
   repro_flow: tools/simulator/flows/regression/bug__F001__chat_input_bar_exists.yaml
+  chained_repro_flow: tools/simulator/flows/regression/bug__F001_S001_combined__chat_via_cap_du_jour.yaml
   found_in: 2026-05-11
   resolved_in: 2026-05-11T17:00:46Z
-  notes: « W7 iteration cycle #2. Closes F001 + F002 (Key('mint_chat_overlay') root) + F003 (Text Key('chat_turn_counter') « 0 / 3 »). 4 testIDs added to mint_chat_overlay.dart (lines 157, 199, 313, 356). Deterministic GREEN gate : cd apps/mobile && flutter test test/widgets/mint_chat_overlay_test.dart → 11/11 pass (4 pre-existing + 7 new F001 assertions). ARB key chatInputHint added to 6 locales (6751 keys × 6 parity). Maestro flow tools/simulator/flows/regression/bug__F001__chat_input_bar_exists.yaml is in CI LOCK (becomes runnable end-to-end post-W5 reachability — S001/F012/F013/F014/F028). Backend wiring (real coach_chat POST + NarrativeSleeveCard render) deferred to F-NEXT cycle. »
+  lock_status_update_2026-05-11T17:16:53Z: « LOCKED-GREEN (after S001 close) — bug__F001_S001_combined__chat_via_cap_du_jour.yaml chains both fixes end-to-end : S001 makes CapDuJourBanner reachable, F001 makes MintChatOverlay carry the required testIDs once the action-bar opens. Combined widget-test gate : 11/11 F001 + 5/5 S001 = 16/16 GREEN. End-to-end Maestro still precondition-blocked by S003/S005/W1 fragments. »
+  notes: « W7 iteration cycle #2. Closes F001 + F002 (Key('mint_chat_overlay') root) + F003 (Text Key('chat_turn_counter') « 0 / 3 »). 4 testIDs added to mint_chat_overlay.dart (lines 157, 199, 313, 356). Deterministic GREEN gate : cd apps/mobile && flutter test test/widgets/mint_chat_overlay_test.dart → 11/11 pass (4 pre-existing + 7 new F001 assertions). ARB key chatInputHint added to 6 locales (6751 keys × 6 parity). Maestro flow tools/simulator/flows/regression/bug__F001__chat_input_bar_exists.yaml is in CI LOCK (becomes runnable end-to-end post-W5 reachability — S001/F012/F013/F014/F028). Backend wiring (real coach_chat POST + NarrativeSleeveCard render) deferred to F-NEXT cycle. W7 iter#3 (S001 close) adds the chained bug__F001_S001_combined__chat_via_cap_du_jour.yaml flow — first end-to-end S001 → F001 reachability proof for MINT. »
 
 - id: F002
   severity: P0
