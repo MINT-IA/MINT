@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Phase 96 Wave 1 complete — 4 atomic commits, 28 net new tests, ARB parity green, D-26 grep gates clean
-last_updated: "2026-05-11T02:08:00.000Z"
-last_activity: 2026-05-11 -- Phase 96 Plan 01 Wave 1 shipped
+stopped_at: Phase 96 Wave 2 complete — 3 atomic commits, 46 net new backend tests, full pytest 6567 passed, Phase 94/95 byte-identity preserved (255 tests)
+last_updated: "2026-05-11T03:30:00.000Z"
+last_activity: 2026-05-11 -- Phase 96 Plan 02 Wave 2 shipped (Backend contract surface + 3-turn cap + Sentry breadcrumb)
 progress:
   total_phases: 11
   completed_phases: 5
   total_plans: 28
-  completed_plans: 21
-  percent: 75
+  completed_plans: 22
+  percent: 79
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -36,9 +36,38 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: 96 (mvp-chat-as-verb) — EXECUTING
-Plan: 2 of 3 (Wave 1 closed 2026-05-11, Wave 2 next — Backend, BLOCKED on Phase 95 W2 merged status verification)
-Status: Phase 96 Wave 1 shipped ; Wave 2 ready
-Last activity: 2026-05-11 -- Phase 96 Plan 01 Wave 1 shipped
+Plan: 3 of 3 (Wave 1 closed 2026-05-11, Wave 2 closed 2026-05-11, Wave 3 next — cross-stack NarrativeSleeve linter + metaphor TOML + Maestro G1)
+Status: Phase 96 Wave 2 shipped ; Wave 3 ready
+Last activity: 2026-05-11 -- Phase 96 Plan 02 Wave 2 shipped (Backend contract surface + 3-turn cap + Sentry breadcrumb)
+
+## Plan 96-02 Receipt (Wave 2 Backend, 2026-05-11)
+
+- Files created : 13 (2 schemas + 1 service module + __init__.py + conftest.py + 6 test files + 2 lint fixtures)
+- Files modified : 4 (coach_chat.py schema + claude_coach_service.py + coach_chat.py endpoint + pii_fixture_scan.py)
+- Tests added : 46 (12 serialized_card_context + 14 narrative_sleeve+extensions + 7 turn_cap + 5 terminal_template + 4 narrator_source_card_block + 4 sentry_overflow_breadcrumb)
+- Full backend pytest : 6567 passed, 60 skipped, 1 xfailed in 109.99s (pre-W2 baseline 6521 → +46 net new W2 = 6567 exact, zero regressions)
+- Phase 94 byte-identity : tests/test_citation_gate/ → 181 passed, 1 skipped (= pre-W2 baseline, preserved)
+- Phase 95 byte-identity : tests/test_dag_invalidation/ → 74 passed (= pre-W2 baseline, preserved)
+- Commits : b81172a3 (T1) → 54fee7cd (T2) → bbcf0853 (T3)
+- Duration : ~42 min execution
+- 0-trust : 96-02-SUMMARY.md `## Self-Check : PASSED` cited at .planning/phases/96-mvp-chat-as-verb/96-02-SUMMARY.md
+- **D-12 shipped (backend mirror)** : SerializedCardContext Pydantic v2 — 7 fields, frozen=True, extra="forbid", camelCase aliases via to_camel. computed_facts scalar-only validator in mode='before' rejects bool (subclass of int — silent coercion fixed inline as Rule 1 auto-fix) + None + nested dict + list. Round-trip-compatible with the Dart mirror shipped in Plan 96-01.
+- **D-14 + D-15 shipped** : NarrativeSleeve Pydantic v2 (4 fields, frozen+forbid) + additive optional `CoachChatResponse.narrative_sleeve` field. The hook digit-free linter + next_step word-count linter LAND in Plan 96-03 W3 per D-16 — Pydantic enforces byte-length caps only so the response middleware can swap on `\d` without 500ing.
+- **D-13 shipped** : `CoachChatRequest` gains `source_card: Optional[SerializedCardContext] = None` + `turn_count: int = 0` (server IGNORES per T-96-W2-TurnCountTamper) + `intent: Optional[Literal["explain", "reassure"]] = None`. Narrator system prompt receives a `<source_card>` block when source_card is non-None ; legacy path (source_card=None) is byte-identical to Phase 94/95.
+- **D-08..D-11 shipped** : `services/backend/app/services/coach/turn_cap.py` — TURN_COUNTER : Dict[(session_id, source_card_id), int], TURN_CAP_THRESHOLD=3, verbatim FR TURN_CAP_TERMINAL_TEMPLATE (« exploré » + « hypothèses » accents present ; zero LSFin terms — snapshot-guarded). At turn 4, the wrapper returns the terminal template with ZERO LLM call ; Sentry breadcrumb `coach.chat_overflow.turn_4` fires with non-PII payload (source_card_id + turn_count only).
+- **New `_run_narrator_with_gate_and_cap` wrapper** at `services/backend/app/api/v1/endpoints/coach_chat.py` — wraps the Phase 94/95 `_run_narrator_with_gate` without modifying its signature (preserves the 213-test byte-identity matrix). Single call-site swap ; `_run_agent_loop` internals (Phase 94 §3 surgical scope) NOT touched.
+- **pii_fixture_scan.py extended** (Phase 96 D-12) : structural walker scans `computed_facts` / `computedFacts` dict values for banned-key substrings (email/phone/ahv/iban/npa/employer/name/surname/address). Backward-compatible with Phase 95 D-14 AHV13 + Swiss-phone regex. 2 fixture pairs (clean exit 0, dirty exit 1 with 3 hits) under `tools/checks/fixtures/pii_scan/`.
+- Auto-fixed deviations (2) : (a) Rule 3 - blocking — `uuid_utils` + `rfc8785` missing from venv ; installed via pip (Phase 95 W1 prerequisites). (b) Rule 1 - bug — Pydantic v2 Union coercion silently flipped bool to int in `computed_facts` ; switched the validator from default `mode='after'` to `mode='before'` (raw-input inspection pre-coercion).
+- Architectural call (within plan latitude) : `<source_card>` block injected at the endpoint (after `_build_system_prompt_with_memory`), NOT inside the prompt builder. Karpathy #3 surgical — minimal blast radius. `_render_source_card_block` is exported from `claude_coach_service.py` for future call sites (anonymous_chat) when they need it.
+- Pre-existing test-ordering issue in `test_coach_chat_bundles.py` (5 tests fail when run AFTER `test_coach_chat_endpoint.py` in the same invocation, pass in isolation and in the full traversal) — verified pre-existing by stashing W2 changes ; NOT introduced by this plan. Logged for post-96 maintenance backlog.
+- USER VALUE DELIVERED : NONE YET — the 3-turn cap is LIVE server-side but no production traffic exercises it until the W3 Maestro flow + the post-W3 staging soak. The Dart-side overlay (Plan 96-01) does not yet send `source_card` payloads (deferred to W3 wiring per CONTEXT D-22).
+- Phase 96 W3 HARD dependency : ProjectionGroundingPack contract + double-lookup plumbing (Phase 95 W2 — present on branch) + the NarrativeSleeve schema (this plan, T2) + the turn_cap surface (this plan, T3). All ready.
+
+Next:
+
+  1. **`/gsd-execute-phase 96 --wave 3`** → cross-stack NarrativeSleeve linter middleware + metaphor TOML library + Maestro G1 flow `flow_card_action_intent_bar.yaml` + G2 Julien sim walkthrough.
+  2. **Post-W3 staging soak** before flipping `chatTabVisible=false` to prod per D-21 (4-week baseline-pull window on `chat_turn_distribution` Sentry metric ; >40% cap-hit → flag stays at false / walkback).
+  3. **Julien GO/NO-GO** on `94-03-FLAG-FLIP-PROPOSAL.md` (carried from Phase 94 close) — still pending.
 
 ## Plan 96-01 Receipt (Wave 1 Flutter UI, 2026-05-11)
 
@@ -192,9 +221,9 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-10T23:20:20.970Z
-Stopped at: Phase 96 context gathered (auto from master synthesis)
-Resume file: .planning/phases/96-mvp-chat-as-verb/96-CONTEXT.md
+Last session: 2026-05-11T03:30:00.000Z
+Stopped at: Phase 96 Wave 2 shipped (Backend) — 3 commits b81172a3..bbcf0853, 46 net new tests, full pytest 6567 passed, Phase 94/95 byte-identity preserved (181+74=255 tests). Wave 3 next (NarrativeSleeve linter + metaphor TOML + Maestro G1).
+Resume file: .planning/phases/96-mvp-chat-as-verb/96-02-SUMMARY.md
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>
@@ -326,4 +355,4 @@ Progress at v2.8 close: [██████████] 100% (5/9 phases, 22/22
 </details>
 
 ---
-*Last activity: 2026-05-09 — v2.9 Chat-as-Verb Pivot ACTIVE. Phase 90 (MVP-DESIGN-LINTS-V1) shipped (PR #543). Phase 91 (MVP-EXTRACTOR-V2) RESEARCH.md committed (commit `d57b4db7`). Roadmap structure repaired: slug-named phase dirs renumbered to 90-mvp-design-lints-v1/ + 91-mvp-extractor-v2/ for parser compatibility ; ROADMAP.md rewritten with parseable Phase blocks 90-96.*
+*Last activity: 2026-05-11 — v2.9 Chat-as-Verb Pivot ACTIVE. Phase 96 Wave 2 (Backend) shipped : SerializedCardContext + NarrativeSleeve Pydantic v2 schemas, CoachChatRequest/Response additive fields, server-side 3-turn cap with verbatim FR terminal template + Sentry breadcrumb, narrator `<source_card>` injection. 3 atomic commits b81172a3..bbcf0853, 46 net new backend tests, full pytest 6567 passed, Phase 94/95 byte-identity preserved (255 tests). Wave 3 next (NarrativeSleeve linter middleware + metaphor TOML + Maestro G1 + G2 Julien sim walkthrough).*
