@@ -23221,4 +23221,7 @@ class SDe extends S {
 
   @override
   String get verbRassure => 'Beruhige mich';
+
+  @override
+  String get chatInputHint => 'Tippe deine Nachricht...';
 }

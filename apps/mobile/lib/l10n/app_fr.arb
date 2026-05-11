@@ -12150,5 +12150,9 @@
   "verbRassure": "Rassure-moi",
   "@verbRassure": {
     "description": "Phase 96 D-05 — MintCardActionBar verb 3/3. Tap opens MintChatOverlay with intent=reassure. Imperative reflexive FR, accent-clean."
+  },
+  "chatInputHint": "Tape ton message...",
+  "@chatInputHint": {
+    "description": "Phase 97 W7 F001 — MintChatOverlay ChatInputBar TextField hint. Accent-clean FR, generic (no archetype assumption). Closes Phase 96 W1 scaffold debt."
   }
 }

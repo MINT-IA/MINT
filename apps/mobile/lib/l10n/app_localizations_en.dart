@@ -23053,4 +23053,7 @@ class SEn extends S {
 
   @override
   String get verbRassure => 'Reassure me';
+
+  @override
+  String get chatInputHint => 'Type your message...';
 }

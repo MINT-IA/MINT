@@ -23167,4 +23167,7 @@ class SEs extends S {
 
   @override
   String get verbRassure => 'Tranquilízame';
+
+  @override
+  String get chatInputHint => 'Escribe tu mensaje...';
 }

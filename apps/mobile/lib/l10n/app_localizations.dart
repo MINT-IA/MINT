@@ -40640,6 +40640,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Rassure-moi'**
   String get verbRassure;
+
+  /// Phase 97 W7 F001 — MintChatOverlay ChatInputBar TextField hint. Accent-clean FR, generic (no archetype assumption). Closes Phase 96 W1 scaffold debt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tape ton message...'**
+  String get chatInputHint;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

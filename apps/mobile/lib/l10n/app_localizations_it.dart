@@ -23226,4 +23226,7 @@ class SIt extends S {
 
   @override
   String get verbRassure => 'Rassicurami';
+
+  @override
+  String get chatInputHint => 'Scrivi il tuo messaggio...';
 }

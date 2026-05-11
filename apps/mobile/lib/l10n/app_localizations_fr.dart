@@ -23167,4 +23167,7 @@ class SFr extends S {
 
   @override
   String get verbRassure => 'Rassure-moi';
+
+  @override
+  String get chatInputHint => 'Tape ton message...';
 }

@@ -23175,4 +23175,7 @@ class SPt extends S {
 
   @override
   String get verbRassure => 'Tranquiliza-me';
+
+  @override
+  String get chatInputHint => 'Escreve a tua mensagem...';
 }

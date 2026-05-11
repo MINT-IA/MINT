@@ -11196,5 +11196,6 @@
   "coachOnboardingFirstAssistantGreeting": "Bem-vindo à MINT. Antes de começarmos — o que te traz aqui hoje?",
   "verbExplique": "Explica",
   "verbSimule": "Simular",
-  "verbRassure": "Tranquiliza-me"
+  "verbRassure": "Tranquiliza-me",
+  "chatInputHint": "Escreve a tua mensagem..."
 }
