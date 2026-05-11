@@ -403,12 +403,18 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « COACH_CITATION_GATE_ENABLED prod-flip blocked. The chat-as-verb feature ships with citation gate flag = false on prod, meaning narrator can emit naked numbers without citations (LSFin compliance gap). »
   fix_cost: medium  # backlog 999.5 iter 2 hypothesis H1 (intent-driven key grouping) is the proposed fix
   score: 16  # 8 × 4 / 2
-  status: OPEN
+  status: IN_PROGRESS
+  started: 2026-05-11T21:30:00Z
+  hypothesis: H1 — intent-driven key grouping (full 18-bullet noise floor → keys relevant to classified intent set only)
+  expected_envelope:
+    GREEN: « Sonnet ≥ 95% AND Haiku ≥ 90% gate-correct → prod-flip path unlocks ; close P001 + close backlog 999.5 (Phase 94.2 folded here) »
+    PARTIAL: « Sonnet 50-94% OR Haiku 50-89% → file P001-iter2 with H2 hypothesis (expand examples) ; H1 commits land but P001 stays IN_PROGRESS »
+    REJECTED: « Sonnet < 50% → revert H1 commits, file H2-H5 as v2.10 work (P001b-e new rows), P001 stays IN_PROGRESS »
   fix_commit: null
   repro_flow: null
   found_in: 2026-05-11
   resolved_in: null
-  notes: « Already filed as backlog 999.5 (Phase 94.2). Reaffirmed in registry for v2.10 cycle priority. »
+  notes: « W7 iter#11 PICK 2026-05-11T21:30Z. Already filed as backlog 999.5 (Phase 94.2). Per CONTEXT D-36 7-step methodology, picked now ; baseline re-run of Sonnet+Haiku gate=on against existing 50-fixture pack = REPRO step ; FIX = implement build_intent_scoped_citation_grammar(intents) + wire into legacy narrator path ; PASS = re-eval Sonnet+Haiku gate=on with H1 active ; SUITE = full backend pytest no regression vs 6644 baseline + banned_terms/accent clean. No prod flag flip even if GREEN — needs Julien explicit sign-off per CONTEXT D-22 4-week staging soak. »
 
 - id: P002
   severity: P1
