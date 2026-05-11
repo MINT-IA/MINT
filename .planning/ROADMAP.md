@@ -61,7 +61,7 @@ Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT
 - [x] **Phase 93.5: MVP-SKILL-BUNDLE-COMPILER** *(inserted 2026-05-10 per Anthropic financial-services audit)* — Compile-time skill bundles (`pillar3a-optimizer`, `lpp-projector`, `tax-explainer`, `mortgage-stressor`, `compliance-narrator`, `life-event-router`) → single narrator prompt + tool allowlist + citation allowlist ; NOT runtime multi-agent (completed 2026-05-10)
 - [x] **Phase 94: MVP-CITATION-GATE** — Closed-world numeric vocabulary (placeholders `{{cite:<key>}}` + post-hoc substitute) + CalcTrace propagated to widgets + `AI_MODEL_REGISTRY.md` + LSFin disclaimer systemic ; ADR calc-first N1 (completed 2026-05-10)
 - [x] **Phase 95: MVP-DAG-INVALIDATION** — `inputs_hash` + `superseded_by` on every projection + `GroundingPack` JSON emitted by DAG (Pareto front + Sobol indices + what-ifs precomputed + credible intervals) ; ADR calc-first N2 (completed 2026-05-10)
-- [ ] **Phase 96: MVP-CHAT-AS-VERB** — Kill chat-tab ; card-actions intent bar ; 3-turn cap ; source-card context propagation + `NarrativeSleeve {hook, caption, next_step, metaphor}` linter (no num in hook) + métaphores archetype/canton/event ; ADR calc-first N4
+- [x] **Phase 96: MVP-CHAT-AS-VERB** — Kill chat-tab ; card-actions intent bar ; 3-turn cap ; source-card context propagation + `NarrativeSleeve {hook, caption, next_step, metaphor}` linter (no num in hook) + métaphores archetype/canton/event ; ADR calc-first N4 (completed 2026-05-11)
 
 ### 5-gate exit contract per phase
 
@@ -245,9 +245,9 @@ Plans:
   5. Sentry metric `chat_overflow_turn_4` fires on every cap-hit ; alert fires if rate >40% of sessions over 7 days (walkback signal).
   6. Maestro flow `flow_card_action_intent_bar.yaml` validates LPP card → tap « explique » → 3-turn flow → cap → deep-link to Explorer.
 **Plans**: 3 plans
-- [ ] 96-01-PLAN.md — Wave 1 Flutter UI scaffold (chatTabVisible flag + MintCardActionBar 48dp animated row + MintChatOverlay scaffold + SerializedCardContext Dart mirror + 3 ARB keys × 6 locales + toml dep + 2 example card screens wired) [VERB-01, VERB-04]
-- [ ] 96-02-PLAN.md — Wave 2 Backend schemas + 3-turn cap (SerializedCardContext + NarrativeSleeve Pydantic v2 + CoachChatRequest/Response additive extensions + turn_cap.py in-memory counter + narrator <source_card> block + Sentry chat_overflow_turn_4) [VERB-02, VERB-03, VERB-05]
-- [ ] 96-03-PLAN.md — Wave 3 cross-stack close-out (NarrativeSleeve hook digit-free linter ReDoS-safe + Dart+Python metaphor_lookup + metaphors.toml v1 bootstrap + Maestro G1 flow_card_action_intent_bar.yaml + walkback test + G2 Julien sim checkpoint) [VERB-06]
+- [x] 96-01-PLAN.md — Wave 1 Flutter UI scaffold (chatTabVisible flag + MintCardActionBar 48dp animated row + MintChatOverlay scaffold + SerializedCardContext Dart mirror + 3 ARB keys × 6 locales + toml dep + 2 example card screens wired) [VERB-01, VERB-04]
+- [x] 96-02-PLAN.md — Wave 2 Backend schemas + 3-turn cap (SerializedCardContext + NarrativeSleeve Pydantic v2 + CoachChatRequest/Response additive extensions + turn_cap.py in-memory counter + narrator <source_card> block + Sentry chat_overflow_turn_4) [VERB-02, VERB-03, VERB-05]
+- [x] 96-03-PLAN.md — Wave 3 cross-stack close-out (NarrativeSleeve hook digit-free linter ReDoS-safe + Dart+Python metaphor_lookup + metaphors.toml v1 bootstrap + Maestro G1 flow_card_action_intent_bar.yaml + walkback test + G2 Julien sim checkpoint) [VERB-06]
 
 **Budget**: 5d
 **Auto profile**: **L2** (cross-stack: Flutter UI + backend chat + flag rollout) — full GSD chain ; Maestro G1 + creator-device G2 + soak metric (7-day) before flag-on in prod.
@@ -276,6 +276,16 @@ Plans:
 4. CHAT-AS-VERB user revolt. Mitigation: feature flag default-on, monitor `chat_overflow_turn_4`.
 5. FONTS license. Mitigation: Fontshare ToS review gate before W1 merge.
 6. Adversarial counter-thesis « chat IS the product ». Mitigation: 3-turn cap is the hypothesis being tested ; walkback path baked in.
+
+### Phase 97: MVP-PARFAIT-MAESTRO-FULL-POWER — Maestro-driven on-device ground-truth + reachability + 8-archetype matrix + CI gates
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 96
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 97 to break down)
 
 ---
 *Last updated: 2026-05-10 — Phase 91 MVP-EXTRACTOR-V2 closed (verified, 6/7 plans, Stage 3 narrator decision = SONNET kill-policy fallback). v2.9 Chat-as-Verb Pivot ACTIVE with 9 phases (90, 91, 91.5, 92, 92.5, 93, 93.5, 94, 95, 96) + backlog 999.x. Roadmap injection per ADR `2026-05-09-calc-first-llm-illumination.md` Decided 2026-05-10.*

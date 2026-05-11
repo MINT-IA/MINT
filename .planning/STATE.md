@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
-status: awaiting-g2-julien-sim
-stopped_at: Phase 96 Wave 3 implementation complete — 4 atomic commits f4f3446d..dfd386f6, 42 net new tests (19 Python + 23 Dart), full backend pytest 6586 passed + Flutter 8401 passed, Phase 94/95 byte-identity preserved. Task 4 G2 Julien sim walkthrough is the open gate per CLAUDE.md §9 0-trust ; Phase 96 cannot claim « shipped » without Julien token.
-last_updated: "2026-05-11T05:45:00.000Z"
-last_activity: 2026-05-11 -- Phase 96 Plan 03 Wave 3 implementation complete (NarrativeSleeve hook linter + metaphor library + Maestro G1 contract + walkback test + NarrativeSleeve render + flag-flip proposal) ; G2 gate awaits Julien
+status: completed
+stopped_at: Phase 96 Wave 2 shipped (Backend) — 3 commits b81172a3..bbcf0853, 46 net new tests, full pytest 6567 passed, Phase 94/95 byte-identity preserved (181+74=255 tests). Wave 3 next (NarrativeSleeve linter + metaphor TOML + Maestro G1).
+last_updated: "2026-05-11T05:18:26.093Z"
+last_activity: 2026-05-11
 progress:
   total_phases: 11
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 28
-  completed_plans: 22
-  percent: 79
+  completed_plans: 23
+  percent: 82
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -35,10 +35,10 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 96 (mvp-chat-as-verb) — AWAITING G2 JULIEN SIM
-Plan: 3 of 3 (Wave 1 closed 2026-05-11, Wave 2 closed 2026-05-11, Wave 3 IMPLEMENTATION COMPLETE 2026-05-11 — G2 Julien sim walkthrough is the open gate)
+Phase: 96
+Plan: Not started
 Status: Phase 96 Wave 3 implementation complete ; Task 4 G2 checkpoint awaits Julien token (`approved` / `approved-with-issues: <desc>` / `not approved — issue: <desc>`)
-Last activity: 2026-05-11 -- Phase 96 Plan 03 Wave 3 implementation complete (NarrativeSleeve hook linter + metaphor library + Maestro G1 contract + walkback test + NarrativeSleeve render + flag-flip proposal)
+Last activity: 2026-05-11
 
 ## Plan 96-03 Receipt (Wave 3 Cross-stack, 2026-05-11)
 
@@ -114,6 +114,7 @@ Next:
 - Auto-fixed deviations (4 × Rule 1) : (a) generated localizations class is `S` not `AppLocalizations` ; (b) D-26 violation in plan's `Color(0x990A0A0F)` literal → replaced with `MintColors.nearBlack.withValues(alpha: 0.6)` ; (c) ARB parity tool name is `arb_parity.py` not `arb_parity_gate.py` ; (d) `MintColors.transparent` token exists, no fallback needed.
 - USER VALUE DELIVERED : NONE end-user-visible YET — Wave 1 is the surface scaffold. Plans 96-02 + 96-03 deliver the chat behavior. The kill-switch infrastructure is READY : flipping `chatTabVisible=false` on Railway staging would drop the chat tab from the bottom nav with zero app redeploy.
 - Phase 96 W2 HARD dependency : ProjectionGroundingPack contract + double-lookup plumbing shipped in Phase 95 W2 (a037c56d..e6a4a12f). Phase 96 W2 + W3 still pending.
+
 Next:
 
   1. **`/gsd-verify-phase 95`** → 5-gate exit contract close. Both waves (95-01 + 95-02) shipped ; phase-level verifier reads both SUMMARYs, the VALIDATION matrix, and gates G1-G5.
