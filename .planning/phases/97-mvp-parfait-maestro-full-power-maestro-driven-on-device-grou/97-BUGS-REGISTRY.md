@@ -239,12 +239,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « GDPR Art. 32 « security of processing » non-compliance. Swiss DSG/LPD Art. 8 « sécurité des données ». If Railway hosting is breached, all user docs exposed. »
   fix_cost: medium  # SQLCipher integration + migration + key management
   score: 16  # 8 × 4 / 2
-  status: OPEN
+  status: IN_PROGRESS
+  started: 2026-05-11T18:43:53Z
   fix_commit: null
   repro_flow: null
   found_in: 2026-05-11
   resolved_in: null
-  notes: « MVP-blocker per haiku audit. Hard gate before TestFlight. »
+  notes: « W7 iter#10 PICK 2026-05-11T18:43Z. At-rest encryption strategy : (a) mobile path = SQLCipher AES-256-CBC via `sqflite_sqlcipher` already shipped in BiographyRepository (apps/mobile/lib/services/biography/biography_repository.dart) — verify with PRAGMA cipher_version test ; (b) backend path = PostgreSQL on Railway (encryption-at-rest provided by Railway infra) + EXISTING per-user envelope encryption layer at services/backend/app/services/encryption/envelope.py (AES-256-GCM, PRIV-04, v2.7 Phase 29) — verify fail-closed config.py:179-188 rejects sqlite in prod/staging ; (c) add explicit at-rest-encryption documentation citing the two layers. »
 ```
 
 ### From PM Claude direct lint sweep (existing tools/checks/)
