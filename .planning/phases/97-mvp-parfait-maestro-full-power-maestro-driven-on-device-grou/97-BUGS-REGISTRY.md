@@ -53,7 +53,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 8 | ~~F006~~ | ~~FlutterDeepLinkingEnabled key missing from Info.plist~~ → **RESOLVED 2026-05-11T20:10:00Z** jointly with S003 (one-line Info.plist addition) | ~~24~~ | mobile |
 | 9 | ~~F007~~ | ~~com.apple.developer.associated-domains missing from Runner.entitlements~~ → **RESOLVED 2026-05-11T20:10:00Z** jointly with S004 | ~~24~~ | mobile |
 | 10 | P001 | Phase 94 Stage 3 narrator gate-correct thresholds NOT MET (Sonnet 20% vs 95% target after Phase 94.1 iter 1) — prod-flip blocked | 16 | backend |
-| 11 | ~~B004~~ | ~~core/auth.py:55 bare except swallows JTI-blacklist DB errors — revoked-token auth-bypass via infra degradation~~ → **IN_PROGRESS 2026-05-11T20:50Z** (W7 iter#7) | 16 | backend |
+| 11 | ~~B004~~ | ~~core/auth.py:55 bare except swallows JTI-blacklist DB errors — revoked-token auth-bypass via infra degradation~~ → **RESOLVED 2026-05-11T21:00:00Z** via fail-closed split-except (W7 iter#7, fix d50e2d2e) — 4/4 pytest GREEN, backend suite 6628 passed no regression | 16 | backend |
 
 ---
 
@@ -504,13 +504,13 @@ row enters the 7-step cycle (D-36), it is folded here for state-machine tracking
   blast_radius: « Auth-bypass via infrastructure degradation. Under DB stress, every blacklisted token quietly re-authenticates because `is_jti_blacklisted` raises → bare except swallows → flow falls through to `decode_token(token)` which succeeds (token signature is valid ; only the revocation status was unverifiable). Production-grade auth surface ; LSFin + 0-trust §9 risk. »
   fix_cost: trivial  # split bare except into 2 specific clauses (pyjwt.PyJWTError + sqlalchemy.SQLAlchemyError) + logger.exception + HTTPException 503 on DB error path
   score: 16  # 4 × 4 / 1 ; P1 (auth-bypass requires DB-degradation precondition, not unconditional bypass) but high-value-fix-trivial-cost
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11T20:50:00Z
-  fix_commit: null
+  fix_commit: d50e2d2e
   repro_test: services/backend/tests/test_auth_jti_blacklist_silent_fail.py
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « W7 iter#7 PICK 2026-05-11T20:50Z. Folded from audit-backend-api.md row B004. Unit-test-gated (no UI surface ; HTTP-level auth dependency). Fix design (Karpathy #2 simplicity-first) : two specific except clauses — `except pyjwt.exceptions.PyJWTError: pass` preserves the intended decode-fallback path ; `except sqlalchemy.exc.SQLAlchemyError as e: logger.exception(...); raise HTTPException(503, "Service de blacklist temporairement indisponible")` makes the system fail-CLOSED on infra-degradation (industry standard for auth-revocation surface ; better to refuse a valid token than to accept a revoked one when revocation cannot be verified). The 503 is API-client-facing (mobile/JSON ; not direct user-rendered string). »
+  resolved_in: 2026-05-11T21:00:00Z
+  notes: « W7 iter#7 RESOLVED 2026-05-11T21:00Z. Folded from audit-backend-api.md row B004. Unit-test-gated (no UI surface ; HTTP-level auth dependency). Fix (Karpathy #2 simplicity-first) : two specific except clauses — `except pyjwt.exceptions.PyJWTError: pass` preserves the intended decode-fallback path (so a malformed token still gets a clean 401 « Token invalide ou expiré » from the canonical decode_token() at auth.py:58) ; `except SQLAlchemyError: logger.exception(...); raise HTTPException(503, "Service de blacklist temporairement indisponible")` makes the system fail-CLOSED on infra-degradation (industry standard for auth-revocation surface). RED captured pre-fix : `AssertionError: Expected 503 fail-closed when blacklist DB raises ; got 200 body='{"authenticated":true,"user_id":"b004-user-id"}'` — canonical proof of the auth-bypass via DB degradation. GREEN proof : 4/4 pytest pass in 0.90s. Full backend pytest 6628 passed, 62 skipped, 2 xfailed in 112.15s — zero regression. banned_terms_python clean on auth.py, accent_lint_fr clean. Karpathy #3 surgical : only auth.py + 1 new test file (245 LOC delta, 2 LOC removed). Honest disclosure : the fail-closed 503 is intentionally aggressive — a real DB outage WILL cause user-facing 503s during auth, but this is the correct trade-off for a revocation surface. Circuit-breaker / retry logic was NOT added in this surgical fix (would require Redis or in-process state) ; if production observes sustained 503 spikes on this endpoint, the operations team has Sentry breadcrumb « auth.jti_blacklist.db_error » to triage from. »
 ```
 
 ---
