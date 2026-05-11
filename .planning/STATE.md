@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
-status: executing
-stopped_at: Phase 96 Wave 2 complete — 3 atomic commits, 46 net new backend tests, full pytest 6567 passed, Phase 94/95 byte-identity preserved (255 tests)
-last_updated: "2026-05-11T03:30:00.000Z"
-last_activity: 2026-05-11 -- Phase 96 Plan 02 Wave 2 shipped (Backend contract surface + 3-turn cap + Sentry breadcrumb)
+status: awaiting-g2-julien-sim
+stopped_at: Phase 96 Wave 3 implementation complete — 4 atomic commits f4f3446d..dfd386f6, 42 net new tests (19 Python + 23 Dart), full backend pytest 6586 passed + Flutter 8401 passed, Phase 94/95 byte-identity preserved. Task 4 G2 Julien sim walkthrough is the open gate per CLAUDE.md §9 0-trust ; Phase 96 cannot claim « shipped » without Julien token.
+last_updated: "2026-05-11T05:45:00.000Z"
+last_activity: 2026-05-11 -- Phase 96 Plan 03 Wave 3 implementation complete (NarrativeSleeve hook linter + metaphor library + Maestro G1 contract + walkback test + NarrativeSleeve render + flag-flip proposal) ; G2 gate awaits Julien
 progress:
   total_phases: 11
   completed_phases: 5
@@ -35,10 +35,35 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 96 (mvp-chat-as-verb) — EXECUTING
-Plan: 3 of 3 (Wave 1 closed 2026-05-11, Wave 2 closed 2026-05-11, Wave 3 next — cross-stack NarrativeSleeve linter + metaphor TOML + Maestro G1)
-Status: Phase 96 Wave 2 shipped ; Wave 3 ready
-Last activity: 2026-05-11 -- Phase 96 Plan 02 Wave 2 shipped (Backend contract surface + 3-turn cap + Sentry breadcrumb)
+Phase: 96 (mvp-chat-as-verb) — AWAITING G2 JULIEN SIM
+Plan: 3 of 3 (Wave 1 closed 2026-05-11, Wave 2 closed 2026-05-11, Wave 3 IMPLEMENTATION COMPLETE 2026-05-11 — G2 Julien sim walkthrough is the open gate)
+Status: Phase 96 Wave 3 implementation complete ; Task 4 G2 checkpoint awaits Julien token (`approved` / `approved-with-issues: <desc>` / `not approved — issue: <desc>`)
+Last activity: 2026-05-11 -- Phase 96 Plan 03 Wave 3 implementation complete (NarrativeSleeve hook linter + metaphor library + Maestro G1 contract + walkback test + NarrativeSleeve render + flag-flip proposal)
+
+## Plan 96-03 Receipt (Wave 3 Cross-stack, 2026-05-11)
+
+- Files created : 14 (1 mobile asset metaphors.toml + 1 backend mirror + 1 parity lint + 1 backend hook-linter + 1 backend metaphor_lookup + 1 Dart metaphor_lookup + 1 Dart NarrativeSleeve model + 1 Dart metaphor_lookup test + 1 Dart walkback test + 1 Dart NarrativeSleeve render test + 2 Python test files + 1 Maestro G1 flow + 1 FLAG-FLIP-PROPOSAL.md)
+- Files modified : 4 (lefthook.yml + apps/mobile/pubspec.yaml + services/backend/app/services/coach/citation_parser.py + apps/mobile/lib/widgets/mint_chat_overlay.dart)
+- Tests added : 42 (13 narrative_sleeve_lint + 6 metaphor_lookup Python + 7 metaphor_lookup Dart + 5 walkback Dart + 11 NarrativeSleeve render Dart)
+- Full backend pytest : 6586 passed, 60 skipped, 1 xfailed (Plan 96-02 baseline 6567 → +19 net new W3 Python = 6586 exact, zero regressions)
+- Full Flutter test : 8401 passed, 24 skipped (Plan 96-01 baseline 8378 → +23 net new W3 Dart = 8401 exact, zero regressions)
+- Phase 94 byte-identity : 181 passed, 1 skipped (preserved)
+- Phase 95 byte-identity : 74 passed (preserved)
+- flutter analyze : 273 issues — identical to baseline (zero new issues)
+- D-26 grep gate : 0 hits on mint_card_action_bar.dart + mint_chat_overlay.dart
+- Commits : f4f3446d (T0) → 1b381faa (T1) → 8ab24f96 (T2) → dfd386f6 (T3)
+- Duration : ~38 min execution (T0-T3)
+- 0-trust : 96-03-SUMMARY.md `## Self-Check : PASSED` cited at .planning/phases/96-mvp-chat-as-verb/96-03-SUMMARY.md
+- **D-17 shipped** : `apps/mobile/assets/metaphors.toml` (+ byte-equal backend mirror at `services/backend/app/data/metaphors.toml`) — 8 entries × 3 archetypes (swiss_native, expat_eu, cross_border) × 2 cantons (VD, GE) × 2 life events (housing, family). Verbatim FR, accent-clean, LSFin-clean, no retirement framing (CLAUDE.md §3). sha256 match = `528a34c9736cd44daafb282530d7c7a0c50c9e32b258430dc85d85991ad8098a`.
+- **T-96-W3-TOMLPoisoning mitigation shipped** : `tools/checks/metaphor_parity.py` (sha256 compare + `--scan-values` LSFin + PII walk) + lefthook pre-commit entry. Python 3.11+ stdlib `tomllib` with `tomli` backport fallback for older runtimes.
+- **D-16 shipped** : `services/backend/app/services/coach/narrative_sleeve_lint.py` — response middleware. `lint_sleeve(NarrativeSleeve) → NarrativeSleeve` swaps `hook` to `HOOK_FALLBACK = "Voyons ensemble ce que ça change pour toi."` on `\d` match. 3 ReDoS defenses : simple character class regex (`r"\d"`), SIGALRM 100 ms budget, broad-except fail-safe. Non-PII Sentry breadcrumb `coach.narrative_sleeve.hook_swap` (payload = `original_hook_length` only).
+- **D-16 middleware wiring shipped** : `services/backend/app/services/coach/citation_parser.py` imports `lint_sleeve` + exposes `lint_response_sleeve(sleeve | None) → sleeve | None` (None-safe passthrough + delegate). Citation gate (`_substitute_placeholders`) stays first in middleware chain ; sleeve linter runs after, before response serialization.
+- **D-18 shipped** : Dart `apps/mobile/lib/services/metaphor_lookup.dart` + Python `services/backend/app/services/coach/metaphor_lookup.py` — mirror resolvers. `lookup(archetype, canton, life_event) → str`, empty-string contract on miss. Dart loads TOML at app boot via `package:toml ^0.16.0` + `rootBundle.loadString` ; Python loads at module import via stdlib `tomllib`.
+- **NarrativeSleeveCard render shipped** : `apps/mobile/lib/widgets/mint_chat_overlay.dart` extended with public `NarrativeSleeveCard` widget (4-field render per UI-SPEC §Component Anatomy : hook headlineSmall, caption bodyLarge, next_step labelLarge(mintForest) with « › » glyph + Semantics(hint='Prochaine étape'), conditional metaphor block under Divider). MintColors.craieHandoff surface. D-26 grep gate preserved (0 hits).
+- **VERB-06 walkback path shipped** : `apps/mobile/test/services/feature_flags_walkback_test.dart` — 5 tests covering applyFromMap-driven flag flips, full false→true→false walkback cycle, key-absent passthrough, strict-true convention. `MintShell.branchToVisibleIndex(2) == 1` when flag is false (Coach collapses onto Mon argent per `mint_shell.dart:64-66`).
+- **Maestro G1 flow contract shipped** : `tools/simulator/flows/maestro-perfect-set/flow_card_action_intent_bar.yaml` — 10 steps per UI-SPEC §Maestro G1 Contract. Live exit-0 run is DEFERRED — needs (a) staging deploy of W3, (b) production card list to carry stable testIDs, (c) `chatTabVisible=false` on Railway staging /config/feature-flags. G2 Julien sim walkthrough is the authoritative end-to-end gate per CLAUDE.md §9.
+- **96-03-FLAG-FLIP-PROPOSAL.md shipped** : 7-row eligibility checklist + D-11 7-day baseline-pull plan (`chat_overflow_turn_4` Sentry query → cap_hit_rate decision matrix) + walkback path + GO/NO-GO row mirroring Phase 94 template.
+- Auto-fixed deviations (4) : (a) Rule 1 — plan claimed `appId: com.mint.mobile.staging` ; actual is single-bundle `ch.mint.app` (Runner.xcodeproj/project.pbxproj:505) ; corrected in T2 commit. (b) Rule 1 — plan-suggested docstring substring `Color(0x...)` would have tripped D-26 grep ; rewritten as « hardcoded ARGB literals » in T3. (c) Rule 3 - blocking — local Python 3.9 has no `tomllib` ; added `tomli` backport fallback to `metaphor_parity.py` + `metaphor_lookup.py`. (d) Rule 1 — `metaphor_parity.py` repo-root path resolution was one parent short ; bumped to `parent.parent.parent`.
 
 ## Plan 96-02 Receipt (Wave 2 Backend, 2026-05-11)
 
@@ -355,4 +380,4 @@ Progress at v2.8 close: [██████████] 100% (5/9 phases, 22/22
 </details>
 
 ---
-*Last activity: 2026-05-11 — v2.9 Chat-as-Verb Pivot ACTIVE. Phase 96 Wave 2 (Backend) shipped : SerializedCardContext + NarrativeSleeve Pydantic v2 schemas, CoachChatRequest/Response additive fields, server-side 3-turn cap with verbatim FR terminal template + Sentry breadcrumb, narrator `<source_card>` injection. 3 atomic commits b81172a3..bbcf0853, 46 net new backend tests, full pytest 6567 passed, Phase 94/95 byte-identity preserved (255 tests). Wave 3 next (NarrativeSleeve linter middleware + metaphor TOML + Maestro G1 + G2 Julien sim walkthrough).*
+*Last activity: 2026-05-11 — v2.9 Chat-as-Verb Pivot ACTIVE. Phase 96 Wave 3 (Cross-stack) implementation complete : metaphors.toml v1 bootstrap (8 entries, mobile + backend byte-equal + parity lint), NarrativeSleeve hook digit-free linter middleware (ReDoS-safe, never raises), Dart + Python metaphor_lookup mirrors, citation_parser middleware-ordering helper, Maestro G1 contract flow, VERB-06 walkback test, NarrativeSleeveCard renderer, FLAG-FLIP-PROPOSAL. 4 atomic commits f4f3446d..dfd386f6, 42 net new tests (19 Python + 23 Dart), full backend pytest 6586 passed + Flutter 8401 passed, Phase 94/95 byte-identity preserved (255 tests). Task 4 G2 Julien sim walkthrough is the open gate per CLAUDE.md §9 0-trust ; Phase 96 cannot claim « shipped » without Julien token.*
