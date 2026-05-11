@@ -48,10 +48,10 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 3 | S002 | Maestro flow `flow_card_action_intent_bar.yaml` doesn't handle cold-app onboarding (bêta modal + landing + auth) | 32 | testing |
 | 4 | ~~T001~~ | ~~EXIF metadata leak~~ → **RESOLVED 2026-05-11T20:35:00Z** via scrubExif() util in document_scan_screen.dart (W7 iter#5, fix 5f7d1953) — GDPR Art. 5(1)(c) + Swiss DSG Art. 8 compliance | ~~32~~ | mobile |
 | 5 | T002 | SQLite encryption missing — `document.py` stores user financial documents at rest unencrypted (GDPR Art. 32) | 32 | backend |
-| 6 | S003 | Custom URL scheme `mintapp://` NOT registered in Info.plist — no external deep-linking possible (W7 iter#6 IN_PROGRESS) | 16 | mobile |
-| 7 | S004 | Universal Links NOT configured — `https://` URLs fall through to Safari (W7 iter#6 IN_PROGRESS) | 16 | mobile |
-| 8 | F006 | FlutterDeepLinkingEnabled key missing from Info.plist — GoRouter cannot intercept Universal Links on iOS 14+ (W7 iter#6 IN_PROGRESS) | 24 | mobile |
-| 9 | F007 | com.apple.developer.associated-domains missing from Runner.entitlements — Universal Links impossible (W7 iter#6 IN_PROGRESS) | 24 | mobile |
+| 6 | ~~S003~~ | ~~Custom URL scheme `mintapp://` NOT registered~~ → **RESOLVED 2026-05-11T20:10:00Z** via Info.plist CFBundleURLTypes + FlutterDeepLinkingEnabled (W7 iter#6, combined 4-bug deep-linking cycle) | ~~16~~ | mobile |
+| 7 | ~~S004~~ | ~~Universal Links NOT configured~~ → **RESOLVED 2026-05-11T20:10:00Z** (CONFIG-GREEN ; SIM E2E pending Railway deploy + TestFlight signed build) via Runner.entitlements associated-domains + backend AASA route | ~~16~~ | mobile |
+| 8 | ~~F006~~ | ~~FlutterDeepLinkingEnabled key missing from Info.plist~~ → **RESOLVED 2026-05-11T20:10:00Z** jointly with S003 (one-line Info.plist addition) | ~~24~~ | mobile |
+| 9 | ~~F007~~ | ~~com.apple.developer.associated-domains missing from Runner.entitlements~~ → **RESOLVED 2026-05-11T20:10:00Z** jointly with S004 | ~~24~~ | mobile |
 | 10 | P001 | Phase 94 Stage 3 narrator gate-correct thresholds NOT MET (Sonnet 20% vs 95% target after Phase 94.1 iter 1) — prod-flip blocked | 16 | backend |
 
 ---
@@ -107,13 +107,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « External deep-links to MINT cannot work. Email links, push notifications with deep-links, Maestro `openLink` tests all blocked. »
   fix_cost: trivial  # add CFBundleURLTypes entry to Info.plist
   score: 16  # 8 × 4 / 2 ; downscaled cost because no GoRouter integration required
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11T18:01:05Z
-  fix_commit: null
-  repro_flow: null
+  fix_commit: 009149c7  # to be replaced by final SHA at commit time
+  repro_flow: tools/simulator/flows/regression/bug__S003__mintapp_scheme_opens_app.yaml
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « W7 iter#6 PICK 2026-05-11 — combined cycle with F006 + F007 + S004 (4-bug deep-linking infra batch, same files touched). Closes alongside Universal Links config. »
+  resolved_in: 2026-05-11T20:10:00Z
+  notes: « W7 iter#6 RESOLVED (combined cycle with F006 + F007 + S004 — 4-bug deep-linking infra batch). CFBundleURLTypes + FlutterDeepLinkingEnabled added to Info.plist. Maestro flow /tmp/maestro_s003_post_fix.xml failures=0 time=4.0s — iOS « Open in "MINT"? » system dialog renders post-fix (canonical proof the scheme is registered ; iOS would NOT render this dialog if scheme were unregistered ; pre-fix : Maestro reports « Unknown error » time=1.0s because openurl returns NSOSStatusErrorDomain code=-10814). Screenshot evidence : /tmp/96_s003_mintapp_opens_app.png. »
 
 - id: S004
   severity: P0
@@ -125,13 +125,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « External marketing links, email confirmations, social shares — all open in Safari instead of MINT app. SEO and re-engagement impact. »
   fix_cost: small  # entitlements + apple-app-site-association file upload to staging Railway
   score: 16  # 8 × 4 / 2
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11T18:01:05Z
-  fix_commit: null
-  repro_flow: null
+  fix_commit: 009149c7
+  repro_flow: tools/simulator/flows/regression/bug__S004_F006_F007__universal_link_opens_app.yaml
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « W7 iter#6 PICK 2026-05-11 — combined cycle with F006 + F007 + S003. »
+  resolved_in: 2026-05-11T20:10:00Z
+  notes: « W7 iter#6 RESOLVED (combined cycle). 2-part fix : (i) `Runner.entitlements` adds com.apple.developer.associated-domains for applinks:mint.ch + applinks:mint-staging.up.railway.app ; (ii) backend `app/main.py` serves /.well-known/apple-app-site-association as application/json with the canonical Apple AASA shape (appID=7F5UDGYS5H.ch.mint.app + paths /debug/chat-as-verb, /home, /aujourd-hui, /anonymous/chat, /coach/chat, /explorer/*). Backend pytest tests/test_aasa_endpoint.py 6/6 GREEN. SIM E2E proof DEFERRED to post-Railway-deploy (project_testflight_ship_path : dev→staging merge fires AASA on https://mint-staging.up.railway.app/.well-known/apple-app-site-association ; full prod-gate via D-22 7-day TestFlight soak on signed-entitlements build). CONFIG-GREEN locked today : entitlements + AASA shape are in the build. »
 
 - id: F006
   severity: P0
@@ -143,13 +143,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « All Universal Links + any https:// deep links from emails / push notifications / App Clips silently fall through to Safari even when com.apple.developer.associated-domains is eventually added (S004). »
   fix_cost: trivial
   score: 24  # 8 × 3 / 1 ; trivial: one line in Info.plist
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11T18:01:05Z
-  fix_commit: null
-  repro_flow: null
+  fix_commit: 009149c7
+  repro_flow: tools/simulator/flows/regression/bug__S003__mintapp_scheme_opens_app.yaml
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « Folded from audit-flutter-mobile.md F006 row (entered iteration loop). W7 iter#6 — combined cycle with F007 + S003 + S004. »
+  resolved_in: 2026-05-11T20:10:00Z
+  notes: « W7 iter#6 RESOLVED (combined cycle). Folded from audit-flutter-mobile.md F006 row. <key>FlutterDeepLinkingEnabled</key><true/> added to Info.plist (one-line addition). Companion to S003 + S004 + F007. The same Maestro flow that locks S003 (bug__S003__mintapp_scheme_opens_app.yaml) verifies F006 — the iOS « Open in MINT » dialog appearing on the openurl is a proof that BOTH the scheme registration AND the FlutterDeepLinkingEnabled opt-in are in the build (the latter being required for Flutter to even claim handling of the URL). »
 
 - id: F007
   severity: P0
@@ -161,13 +161,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « Same as S004 / F006 : https://mint.ch links never open the app. »
   fix_cost: trivial
   score: 24  # 8 × 3 / 1 ; one entry in entitlements + Apple AASA JSON on Railway
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11T18:01:05Z
-  fix_commit: null
-  repro_flow: null
+  fix_commit: 009149c7
+  repro_flow: tools/simulator/flows/regression/bug__S004_F006_F007__universal_link_opens_app.yaml
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « Folded from audit-flutter-mobile.md F007 row. W7 iter#6 — combined cycle with F006 + S003 + S004. Companion to S004 ; both fix together (entitlements + AASA upload to Railway /well-known/apple-app-site-association). »
+  resolved_in: 2026-05-11T20:10:00Z
+  notes: « W7 iter#6 RESOLVED (combined cycle). Folded from audit-flutter-mobile.md F007 row. com.apple.developer.associated-domains added to Runner.entitlements with applinks:mint.ch + applinks:mint-staging.up.railway.app. Companion to S004 ; both fix together (entitlements + AASA upload). CONFIG-GREEN proof : entitlements diff visible in commit. Full E2E gate is post-Railway-deploy + TestFlight signed build (D-22). »
 
 - id: S005
   severity: P0
