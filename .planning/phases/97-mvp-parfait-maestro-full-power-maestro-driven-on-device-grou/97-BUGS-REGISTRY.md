@@ -494,6 +494,24 @@ row enters the 7-step cycle (D-36), it is folded here for state-machine tracking
 ### From sonnet Backend audit (folded 2026-05-11, see audit-backend-api.md for full B001-B025 catalogue)
 
 ```yaml
+- id: B023
+  severity: P1
+  surface: backend
+  archetype: all
+  feature: snapshots / data_persistence
+  title: « `app/models/snapshot.py` ORM model declares `snapshots` table but `alembic/versions/` has NO migration that creates it — Railway container restart silently wipes user snapshot history »
+  repro: « ls services/backend/alembic/versions/ | grep -i snapshot → empty. python3 -c 'from app.models.snapshot import SnapshotModel; from app.core.database import Base; print(\"snapshots\" in Base.metadata.tables)' → True (model registered) but `alembic upgrade head` does NOT create the table. Production Railway path : `Base.metadata.create_all()` may rescue at first boot but is a side-channel ; canonical path is alembic. »
+  blast_radius: « ALL snapshot data is lost on every Railway deploy/restart that resets the SQLite file. Users lose their financial snapshot history silently. Affects every registered user using the snapshot feature. The endpoint logs « in-memory fallback active » at every startup (app/api/v1/endpoints/snapshots.py:52) — canonical proof the migration gap was tracked but never closed. »
+  fix_cost: small  # 1 migration file + 1 unit test ; service layer untouched (already wired to SnapshotModel for the db-path branch)
+  score: 16  # 4 × 4 / 1 ; P1 because the in-memory fallback at least KEEPS data alive within a single process lifetime, so it's data-loss on restart rather than unconditional bypass
+  status: IN_PROGRESS
+  started: 2026-05-11T21:05:00Z
+  fix_commit: null
+  repro_test: null
+  found_in: 2026-05-11
+  resolved_in: null
+  notes: « W7 iter#8 PICK 2026-05-11T21:05Z. Folded from audit-backend-api.md row B023. Unit-test-gated (no UI surface ; data-persistence layer). Plan : Karpathy #3 surgical fix — 1 new migration file `p97_snapshots_table.py` + 1 new pytest at tests/test_snapshots_migration_exists.py. Model file UNTOUCHED. down_revision='p95_dag_invalidation' (sole current head per `alembic heads`). Backward-compatibility via inspector.has_table() guard — production rows already created by Base.metadata.create_all() side-channel will NOT be double-created when the migration runs the first time on Railway. Cycle in progress. »
+
 - id: B004
   severity: P1
   surface: backend
