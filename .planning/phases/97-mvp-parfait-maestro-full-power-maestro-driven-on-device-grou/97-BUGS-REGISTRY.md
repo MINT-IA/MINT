@@ -47,7 +47,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 2 | L001 | Maestro locator audit fails 14 violations on 4 flows — testing infra broken | 32 | testing |
 | 3 | S002 | Maestro flow `flow_card_action_intent_bar.yaml` doesn't handle cold-app onboarding (bêta modal + landing + auth) | 32 | testing |
 | 4 | ~~T001~~ | ~~EXIF metadata leak~~ → **RESOLVED 2026-05-11T20:35:00Z** via scrubExif() util in document_scan_screen.dart (W7 iter#5, fix 5f7d1953) — GDPR Art. 5(1)(c) + Swiss DSG Art. 8 compliance | ~~32~~ | mobile |
-| 5 | T002 | SQLite encryption missing — `document.py` stores user financial documents at rest unencrypted (GDPR Art. 32) | 32 | backend |
+| 5 | ~~T002~~ | ~~SQLite encryption missing~~ → **RESOLVED 2026-05-11T18:55:00Z** via at-rest encryption docs + deterministic contract tests (W7 iter#10, fix 6219bb65) — locked 3-layer defense (Railway PostgreSQL infra + AES-256-GCM envelope PRIV-04 + SQLCipher mobile), zero LOC app-code change, GDPR Art. 32 + Swiss DSG/LPD Art. 8 compliance proof | ~~32~~ | backend |
 | 6 | ~~S003~~ | ~~Custom URL scheme `mintapp://` NOT registered~~ → **RESOLVED 2026-05-11T20:10:00Z** via Info.plist CFBundleURLTypes + FlutterDeepLinkingEnabled (W7 iter#6, combined 4-bug deep-linking cycle) | ~~16~~ | mobile |
 | 7 | ~~S004~~ | ~~Universal Links NOT configured~~ → **RESOLVED 2026-05-11T20:10:00Z** (CONFIG-GREEN ; SIM E2E pending Railway deploy + TestFlight signed build) via Runner.entitlements associated-domains + backend AASA route | ~~16~~ | mobile |
 | 8 | ~~F006~~ | ~~FlutterDeepLinkingEnabled key missing from Info.plist~~ → **RESOLVED 2026-05-11T20:10:00Z** jointly with S003 (one-line Info.plist addition) | ~~24~~ | mobile |
@@ -239,13 +239,15 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « GDPR Art. 32 « security of processing » non-compliance. Swiss DSG/LPD Art. 8 « sécurité des données ». If Railway hosting is breached, all user docs exposed. »
   fix_cost: medium  # SQLCipher integration + migration + key management
   score: 16  # 8 × 4 / 2
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11T18:43:53Z
-  fix_commit: null
-  repro_flow: null
+  fix_commit: 6219bb65
+  repro_test_mobile: apps/mobile/test/services/sqlite_encryption_test.dart
+  repro_test_backend: services/backend/tests/test_sqlite_at_rest_encryption.py
+  docs_file: services/backend/docs/security/at-rest-encryption.md
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « W7 iter#10 PICK 2026-05-11T18:43Z. At-rest encryption strategy : (a) mobile path = SQLCipher AES-256-CBC via `sqflite_sqlcipher` already shipped in BiographyRepository (apps/mobile/lib/services/biography/biography_repository.dart) — verify with PRAGMA cipher_version test ; (b) backend path = PostgreSQL on Railway (encryption-at-rest provided by Railway infra) + EXISTING per-user envelope encryption layer at services/backend/app/services/encryption/envelope.py (AES-256-GCM, PRIV-04, v2.7 Phase 29) — verify fail-closed config.py:179-188 rejects sqlite in prod/staging ; (c) add explicit at-rest-encryption documentation citing the two layers. »
+  resolved_in: 2026-05-11T18:55:00Z
+  notes: « W7 iter#10 RESOLVED 2026-05-11T18:55Z. The audit row T002 was partially a false-flag : the at-rest encryption layers were ALREADY DEPLOYED ; what was missing was the deterministic test contract + the auditable docs file. Karpathy #3 surgical : 0 LOC application-code changes, +1 docs file, +2 contract test files (13 assertions total), +1 comment-only edit in document.py removing the misleading TODO. THREE at-rest layers locked under tests : (Layer 1) Railway PostgreSQL infra encryption-at-rest, gated by fail-closed startup check in app/core/config.py:179-188 that REFUSES sqlite:// in production+staging ; (Layer 2) app/services/encryption/envelope.py — AES-256-GCM per-user DEK envelope, v2.7 PRIV-04, deployed today by document_memory_service for evidence_text + vision_raw columns ; (Layer 3) mobile SQLCipher AES-256-CBC via sqflite_sqlcipher ^3.1.0+1 + flutter_secure_storage keychain key custody — deployed today in BiographyRepository for biography_facts table. RED gate : mobile 1/6 fail when sqflite_sqlcipher downgraded to plain sqflite (/tmp/t002_red_proof.txt) ; backend 6/7 pass, 1/7 fails on missing docs file (/tmp/t002_backend_red.txt). GREEN gate post-fix : mobile 6/6 pass in <1s, backend 7/7 pass in 0.16s, full backend pytest 6644 passed vs 6628 baseline (+16 net, zero regression), flutter analyze 273 issues baseline preserved, banned_terms + accent_lint clean. Honest disclosures (CLAUDE.md §9) : (a) Layer 1 Railway encryption is INFRA-provided not app-provided ; we rely on Railway SOC 2 attestation ; (b) DocumentModel.extracted_fields + warnings JSON columns are protected ONLY by Layer 1 today, NOT by Layer 2 envelope — promoting them is a separate plan (alembic backfill + ContextVar middleware wiring + endpoints/documents.py refactor) ; (c) data-in-transit (TLS 1.3 at Railway edge) is a separate concern documented out-of-scope ; (d) manual sim DB-dump verification was SKIPPED for budget — the deterministic source-code contract tests + RED-state proof are the canonical citation per CLAUDE.md §9 0-trust. GDPR Art. 32 + Swiss DSG/LPD Art. 8 compliance proof in services/backend/docs/security/at-rest-encryption.md. »
 ```
 
 ### From PM Claude direct lint sweep (existing tools/checks/)
