@@ -72,6 +72,14 @@ from app.services.coach.coach_tools import (
     get_llm_tools,
     get_narrator_llm_tools,
 )
+# Phase 96 W2 D-08..D-11 — 3-turn cap module.
+from app.services.coach.turn_cap import (
+    TURN_COUNTER,
+    emit_overflow_breadcrumb,
+    increment_and_get_previous,
+    is_cap_hit,
+    render_terminal_template,
+)
 from app.services.coach.extractor_schema import ExtractedFact, ExtractorOutput
 from app.services.coach.llm_extractor import run_llm_extractor
 from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP  # noqa: F401
@@ -3034,6 +3042,21 @@ async def coach_chat(
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
+    # ------------------------------------------------------------------
+    # Phase 96 W2 D-13 — append the <source_card> block when the client
+    # supplied a SerializedCardContext on the request. Done AFTER the
+    # legacy prompt assembly so the byte-identity invariant (Phase 94 +
+    # 95 213-test matrix) is preserved when source_card is None — no
+    # branch entered, no string mutation.
+    # ------------------------------------------------------------------
+    if body.source_card is not None:
+        from app.services.coach.claude_coach_service import (
+            _render_source_card_block,
+        )
+        system_prompt = (
+            system_prompt + "\n\n" + _render_source_card_block(body.source_card)
+        )
+
     # ARCH-FIX (hallucination root cause): inject the user's actual profile
     # values from the DB as a HARD authoritative block. The existing
     # CoachContext / profile_context chain silently drops most fields (snake_
@@ -3385,8 +3408,66 @@ async def coach_chat(
         retry_result["answer"] = retry_gated.gated_text
         return retry_result
 
+    async def _run_narrator_with_gate_and_cap(
+        pack: "ProjectionGroundingPack | None" = None,
+    ) -> dict:
+        """Phase 96 W2 D-08..D-11 — turn-cap wrapper around the Phase 94/95
+        ``_run_narrator_with_gate``.
+
+        Behaviour matrix :
+
+        - ``body.source_card is None`` → pass-through. The Phase 94/95
+          gated narrator is called unchanged ; the 213-test byte-identity
+          matrix is preserved (legacy chat-tab path).
+        - ``body.source_card is not None`` AND
+          ``TURN_COUNTER[(session_id, card_id)] >= 3`` → return the D-10
+          verbatim FR terminal template with ``card_id`` substituted ;
+          ZERO LLM call, ZERO token cost. Fire the
+          ``coach.chat_overflow.turn_4`` Sentry breadcrumb (VERB-05).
+        - otherwise → increment the counter BEFORE the gated narrator
+          call (read-then-write within a single coroutine — async
+          scheduling at this granularity is not preemptive).
+
+        SECURITY (T-96-W2-TurnCountTamper) — ``body.turn_count`` is
+        IGNORED. The server reads ``TURN_COUNTER`` as the source of
+        truth. The client value is informational only.
+        """
+        if body.source_card is None:
+            return await _run_narrator_with_gate(pack=pack)
+
+        # Session-id derivation : the request schema does not carry a
+        # session_id (chat is stateless on the wire — conversation
+        # history is replayed). Using the authenticated user_id as the
+        # per-app-session anchor matches D-09 ("per session, not per
+        # day") under the workers=1 staging assumption documented in
+        # turn_cap.py. Anonymous fallback for safety.
+        session_id = str(_user.id) if _user else "anonymous"
+        card_id = body.source_card.card_id
+        key = (session_id, card_id)
+
+        if is_cap_hit(key):
+            current_count = TURN_COUNTER.get(key, 0)
+            emit_overflow_breadcrumb(
+                source_card_id=card_id,
+                turn_count=current_count,
+            )
+            return {
+                "answer": render_terminal_template(card_id),
+                "tool_calls": [],
+                "sources": [],
+                "disclaimers": [],
+                "tokens_used": 0,
+                "degraded": False,
+                "model_used": "n/a-cap-hit",
+            }
+
+        # Increment BEFORE the gated narrator call so a concurrent retry
+        # within the same coroutine sees the post-increment state.
+        increment_and_get_previous(key)
+        return await _run_narrator_with_gate(pack=pack)
+
     try:
-        loop_result = await _run_narrator_with_gate()
+        loop_result = await _run_narrator_with_gate_and_cap()
     except asyncio.TimeoutError:
         logger.warning(
             "Agent loop total timeout (%ds) for user %s",

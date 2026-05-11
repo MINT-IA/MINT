@@ -30,11 +30,17 @@ Sources:
 
 import os
 import warnings
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from app.services.coach.coach_models import CoachContext
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES, ROUTE_TO_SCREEN_INTENT_TAGS
 from app.services.coach.regional_microcopy import RegionalMicrocopy
+
+if TYPE_CHECKING:
+    # Phase 96 D-13 — only needed for type-hints ; runtime import is
+    # deferred to avoid circular-import noise (app.schemas.card_context
+    # itself imports nothing from app.services.coach).
+    from app.schemas.card_context import SerializedCardContext
 
 __all__ = [
     "build_system_prompt",
@@ -934,10 +940,55 @@ def build_system_prompt(
     )
 
 
+def _render_source_card_block(source_card: "SerializedCardContext") -> str:
+    """Phase 96 D-13 — render the ``<source_card>`` block.
+
+    Format (verbatim — the narrator prompt parses positionally) ::
+
+        <source_card>
+          card_id: <id>
+          card_type: <type>
+          life_event: <event>          # only if non-None
+          canton: <canton>             # only if non-None
+          archetype: <archetype>       # only if non-None
+          computed_facts:              # only if non-empty
+            <key1>: <value1>
+            <key2>: <value2>
+          grounding_keys: <k1>, <k2>   # only if non-empty
+        </source_card>
+
+    Optional fields are OMITTED entirely (line and label) when None /
+    empty — the narrator should not see "life_event: None". This is
+    pinned by tests/test_chat_as_verb/test_narrator_source_card_block.py.
+    """
+    lines = [
+        "<source_card>",
+        f"  card_id: {source_card.card_id}",
+        f"  card_type: {source_card.card_type}",
+    ]
+    if source_card.life_event is not None:
+        lines.append(f"  life_event: {source_card.life_event}")
+    if source_card.canton is not None:
+        lines.append(f"  canton: {source_card.canton}")
+    if source_card.archetype is not None:
+        lines.append(f"  archetype: {source_card.archetype}")
+    if source_card.computed_facts:
+        lines.append("  computed_facts:")
+        for key, value in source_card.computed_facts.items():
+            lines.append(f"    {key}: {value}")
+    if source_card.grounding_keys:
+        lines.append(
+            f"  grounding_keys: {', '.join(source_card.grounding_keys)}"
+        )
+    lines.append("</source_card>")
+    return "\n".join(lines)
+
+
 def build_narrator_system_prompt(
     ctx: Optional[CoachContext] = None,
     language: str = "fr",
     cash_level: int = 3,
+    source_card: "Optional[SerializedCardContext]" = None,
 ) -> str:
     """Narrator-only system prompt (Phase 91 Wave 2, EXTR-03).
 
@@ -961,6 +1012,16 @@ def build_narrator_system_prompt(
     invariant pinned by `tests/test_citation_gate/
     test_byte_identity_flag_off.py` and `tests/test_coach_chat_bundles.py::
     test_flag_off_byte_identical_to_snapshot` (5 fixtures × 2 tests).
+
+    Phase 96 W2 D-13 — when ``source_card`` is non-None, a ``<source_card>``
+    block (card_id + card_type + optional life_event/canton/archetype +
+    computed_facts dict + grounding_keys list) is appended at the end of
+    the assembled prompt (separator ``\\n\\n``). When source_card is None
+    (the default — and the value used by every Phase 91-95 caller), the
+    prompt is byte-identical to the pre-96 output. Invariant pinned by
+    ``tests/test_chat_as_verb/test_narrator_source_card_block.py::
+    test_source_card_none_preserves_legacy_byte_identity`` AND by the
+    existing 213-test byte-identity matrix (Phase 94 + 95).
     """
     base = _build_prompt(
         base_template=_NARRATOR_BASE_SYSTEM_PROMPT,
@@ -977,20 +1038,26 @@ def build_narrator_system_prompt(
         from app.services.coach.citation_grammar import (
             CITATION_GRAMMAR_FRAGMENT,
         )
-        return base + "\n\n---\n\n" + CITATION_GRAMMAR_FRAGMENT
+        base = base + "\n\n---\n\n" + CITATION_GRAMMAR_FRAGMENT
+    else:
+        # Defensive fallback : also honor the live `settings` object if the
+        # caller has set the attribute directly (e.g. in-process tests using
+        # `monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", True)`).
+        try:
+            from app.core.config import settings as _settings
+            if getattr(_settings, "COACH_CITATION_GATE_ENABLED", False):
+                from app.services.coach.citation_grammar import (
+                    CITATION_GRAMMAR_FRAGMENT,
+                )
+                base = base + "\n\n---\n\n" + CITATION_GRAMMAR_FRAGMENT
+        except Exception:  # noqa: BLE001 — defensive ; fall through to base
+            pass
 
-    # Defensive fallback : also honor the live `settings` object if the
-    # caller has set the attribute directly (e.g. in-process tests using
-    # `monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", True)`).
-    try:
-        from app.core.config import settings as _settings
-        if getattr(_settings, "COACH_CITATION_GATE_ENABLED", False):
-            from app.services.coach.citation_grammar import (
-                CITATION_GRAMMAR_FRAGMENT,
-            )
-            return base + "\n\n---\n\n" + CITATION_GRAMMAR_FRAGMENT
-    except Exception:  # noqa: BLE001 — defensive ; fall through to base
-        pass
+    # Phase 96 W2 D-13 — additive <source_card> block when non-None.
+    # source_card=None preserves Phase 94+95 byte-identity (pinned by
+    # the existing 213 tests in test_citation_gate/ + tests/test_coach_chat_bundles.py).
+    if source_card is not None:
+        return base + "\n\n" + _render_source_card_block(source_card)
 
     return base
 
