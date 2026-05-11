@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
-status: verifying
-stopped_at: Phase 96 context gathered (auto from master synthesis)
-last_updated: "2026-05-10T23:20:20.980Z"
-last_activity: 2026-05-10
+status: executing
+stopped_at: Phase 96 Wave 1 complete — 4 atomic commits, 28 net new tests, ARB parity green, D-26 grep gates clean
+last_updated: "2026-05-11T02:08:00.000Z"
+last_activity: 2026-05-11 -- Phase 96 Plan 01 Wave 1 shipped
 progress:
   total_phases: 11
   completed_phases: 5
-  total_plans: 25
-  completed_plans: 20
-  percent: 80
+  total_plans: 28
+  completed_plans: 21
+  percent: 75
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase 95 — mvp-dag-invalidation
+**Current focus:** Phase 96 — mvp-chat-as-verb
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,10 +35,31 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 96
-Plan: Not started
-Status: Phase 95 Wave 2 complete, phase verifier next
-Last activity: 2026-05-10
+Phase: 96 (mvp-chat-as-verb) — EXECUTING
+Plan: 2 of 3 (Wave 1 closed 2026-05-11, Wave 2 next — Backend, BLOCKED on Phase 95 W2 merged status verification)
+Status: Phase 96 Wave 1 shipped ; Wave 2 ready
+Last activity: 2026-05-11 -- Phase 96 Plan 01 Wave 1 shipped
+
+## Plan 96-01 Receipt (Wave 1 Flutter UI, 2026-05-11)
+
+- Files created : 10 (1 model, 2 widgets, 1 demo screen, 6 test files)
+- Files modified : 17 (1 pubspec.yaml + 1 pubspec.lock + 1 feature_flags.dart + 1 mint_shell.dart + 6 ARB + 7 app_localizations* regen)
+- Tests added : 28 (4 feature_flags + 3 serialized_card_context + 8 mint_card_action_bar + 4 mint_chat_overlay + 5 mint_shell_flag_gate + 4 routing)
+- Full Flutter suite : 8378 passed, ~24 skipped (regression : 0)
+- flutter analyze : 273 issues total (= baseline 273, 0 new ; all info-level)
+- Commits : 80ab0c67 (T1) → 9ece5283 (T2) → 75c1f74a (T3) → c5486f74 (T4)
+- Duration : ~27 min
+- 0-trust : 96-01-SUMMARY.md `## Self-Check : PASSED` cited at .planning/phases/96-mvp-chat-as-verb/96-01-SUMMARY.md
+- **D-01 + D-21 shipped** : FeatureFlags.chatTabVisible default true, applyFromMap server override hook ; MintShell.NavigationBar collapses to 3 tabs when flag=false ; visibleToBranchIndex + branchToVisibleIndex exposed as pure functions for testability (T-96-W1-NavDrift mitigation, both flag states + round-trip identity tested).
+- **D-04 + D-05 + D-06 + D-07 shipped** : MintCardActionBar 48dp / 200ms easeOutCubic / 3 verb chips / 44dp tap targets / MintColors.mentheVive12 splash / Semantics labels / D-26 grep gate (0 hardcoded colors, 1 Duration literal).
+- **D-12 shipped** : SerializedCardContext 7-field Dart mirror (cardId / cardType required, computedFacts + groundingKeys defaulted empty, lifeEvent / canton / archetype optional). Unknown-field defense at fromJson. Backend Pydantic v2 mirror lands in Plan 96-02.
+- **6-locale ARB sweep shipped** : verbExplique / verbSimule / verbRassure in fr / en / de / es / it / pt. arb_parity.py exits 0, 6750 keys per locale.
+- **toml ^0.16.0 added to pubspec.yaml** : flutter pub get exits 0. Consumed in Plan 96-03 (D-17 metaphor library).
+- **MintChatOverlay scaffold** : DraggableScrollableSheet 0.75/0.4/0.95 + 40×4dp drag handle + intent label slot + MintColors.nearBlack 60% scrim (D-26 compliant). W1 scaffold ONLY ; turn history + input bar in Plan 96-03.
+- **Demo wiring screen** : `apps/mobile/lib/screens/coach/chat_as_verb_demo_screen.dart` — 2 NON-retirement cards (« Marge fiscale 2026 », « Coût hypothèque mensuel ») wired with the 3-verb dispatch. Karpathy #3 surgical : did NOT touch 80+ production card widgets — full wiring deferred to post-v2.9 content sprint per plan deferred: block.
+- Auto-fixed deviations (4 × Rule 1) : (a) generated localizations class is `S` not `AppLocalizations` ; (b) D-26 violation in plan's `Color(0x990A0A0F)` literal → replaced with `MintColors.nearBlack.withValues(alpha: 0.6)` ; (c) ARB parity tool name is `arb_parity.py` not `arb_parity_gate.py` ; (d) `MintColors.transparent` token exists, no fallback needed.
+- USER VALUE DELIVERED : NONE end-user-visible YET — Wave 1 is the surface scaffold. Plans 96-02 + 96-03 deliver the chat behavior. The kill-switch infrastructure is READY : flipping `chatTabVisible=false` on Railway staging would drop the chat tab from the bottom nav with zero app redeploy.
+- Phase 96 W2 HARD dependency : ProjectionGroundingPack contract + double-lookup plumbing shipped in Phase 95 W2 (a037c56d..e6a4a12f). Phase 96 W2 + W3 still pending.
 Next:
 
   1. **`/gsd-verify-phase 95`** → 5-gate exit contract close. Both waves (95-01 + 95-02) shipped ; phase-level verifier reads both SUMMARYs, the VALIDATION matrix, and gates G1-G5.
