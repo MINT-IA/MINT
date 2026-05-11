@@ -1,11 +1,3 @@
-lib/app.dart:1614: Colors.white
-lib/app.dart:1616: Colors.white
-lib/app.dart:1657: Colors.white
-lib/app.dart:1682: Colors.white
-lib/app.dart:1817: Colors.white
-lib/app.dart:1837: Colors.red
-lib/app.dart:1873: Colors.white
-lib/app.dart:1884: Colors.grey
 lib/screens/budget/budget_setup_screen.dart:264: Colors.white
 lib/screens/coach/coach_chat_screen.dart:856: Colors.transparent
 lib/screens/explore/explore_hub_screen.dart:24: Colors.white
