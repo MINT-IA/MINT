@@ -21,8 +21,16 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/models/cap_decision.dart';
+import 'package:mint_mobile/models/serialized_card_context.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/mint_card_action_bar.dart';
+import 'package:mint_mobile/widgets/mint_chat_overlay.dart';
+
+/// Stable card identifier for Maestro reachability + SerializedCardContext.
+/// Locked per PHASE97_AUJOURDHUI_CARD_INVENTORY.md row 2 (W5 reachability).
+const String _kCardId = 'cap_du_jour';
 
 class CapDuJourBanner extends StatelessWidget {
   const CapDuJourBanner({super.key});
@@ -32,10 +40,69 @@ class CapDuJourBanner extends StatelessWidget {
     final state = context.watch<MintStateProvider>().state;
     final cap = state?.currentCap;
 
-    if (cap == null) {
-      return const _CapBannerFallback();
+    // Phase 97 W7 iter#3 (S001 fix) — Karpathy #2 simplicity-first :
+    // wrap the existing populated/fallback content in a Column with
+    // Key('card_cap_du_jour') and append MintCardActionBar. Zero new
+    // state management. The action bar is `expanded: true` (always
+    // visible) because the banner itself does not own a press-state
+    // (Phase 96 W1 punted persistent press-state to a later iteration).
+    final Widget body = cap == null
+        ? const _CapBannerFallback()
+        : _CapBannerCard(cap: cap);
+
+    return Container(
+      key: const Key('card_$_kCardId'),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          body,
+          MintCardActionBar(
+            // Phase 97 W7 — Key allows Maestro `assertVisible: { id }` to
+            // resolve the action-bar surface from cold-launch reachability
+            // flows (bug__S001__cap_du_jour_action_bar_reachable.yaml).
+            key: const Key('mint_card_action_bar'),
+            sourceCard: _buildCardContext(context, cap),
+            expanded: true,
+            onExplain: () => MintChatOverlay.show(
+              context,
+              sourceCard: _buildCardContext(context, cap),
+              intent: 'explain',
+            ),
+            onSimulate: () =>
+                context.push('/explorer?simulate=$_kCardId'),
+            onReassure: () => MintChatOverlay.show(
+              context,
+              sourceCard: _buildCardContext(context, cap),
+              intent: 'reassure',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Phase 97 W7 — Karpathy #3 surgical : build the SerializedCardContext
+  /// from financial_core values only (priorityScore + life event when the
+  /// cap is populated). NO PII per CLAUDE.md never #8 + Phase 96 D-12
+  /// (frozen+forbid backend mirror).
+  SerializedCardContext _buildCardContext(
+      BuildContext context, CapDecision? cap) {
+    final profile = context.read<CoachProfileProvider>().profile;
+    final Map<String, dynamic> facts = <String, dynamic>{};
+    if (cap != null) {
+      facts['cap_priority'] = cap.priorityScore;
+      facts['cap_kind'] = cap.kind.name;
     }
-    return _CapBannerCard(cap: cap);
+    return SerializedCardContext(
+      cardId: _kCardId,
+      cardType: 'actionable',
+      computedFacts: facts,
+      groundingKeys: const <String>[],
+      lifeEvent: cap?.kind.name ?? 'general',
+      canton: profile?.canton,
+      archetype: profile?.archetype.backendName,
+    );
   }
 }
 
