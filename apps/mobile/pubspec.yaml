@@ -56,6 +56,12 @@ dependencies:
   path: ^1.9.0  # pinned by integration_test from SDK
   # Phase 96 D-17 — metaphor TOML library asset loading
   toml: ^0.16.0
+  # Phase 97 W7 iter#5 (T001 EXIF leak) — direct dep promotion of the
+  # already-transitive image package. Used by lib/services/exif_scrub.dart
+  # to strip GPS / DateTime / Make / Model / Software EXIF tags from
+  # photos BEFORE they leave the device on the Vision API path.
+  # GDPR Art. 5(1)(c) data minimization + Swiss DSG/LPD Art. 8 security.
+  image: ^4.1.2
 
 dev_dependencies:
   flutter_test:

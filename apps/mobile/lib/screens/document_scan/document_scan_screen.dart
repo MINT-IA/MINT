@@ -18,6 +18,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
+import 'package:mint_mobile/services/exif_scrub.dart';
 import 'package:mint_mobile/services/document_parser/avs_extract_parser.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_parser/lpp_certificate_parser.dart';
@@ -680,9 +681,13 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
     try {
       final rawBytes = await file.readAsBytes();
-      // TODO(P2-W12): Strip EXIF metadata before Vision API call.
-      // Requires `image` package. GPS location and camera info currently exposed.
-      final bytes = await _compressForVision(rawBytes, file.path);
+      // Phase 97 W7 iter#5 (T001) — strip EXIF (GPS / DateTime / device
+      // model / software) BEFORE the Vision API leaves the device. GDPR
+      // Art. 5(1)(c) + Swiss DSG/LPD Art. 8. PDFs are routed via the
+      // _tryVisionExtractionFromPdf path, so this branch only sees JPEG /
+      // PNG / HEIC bytes ; scrubExif() falls through unchanged for non-JPEG.
+      final scrubbed = scrubExif(rawBytes);
+      final bytes = await _compressForVision(scrubbed, file.path);
       final base64Image = base64Encode(bytes);
 
       final response = await DocumentService.extractWithVision(
@@ -1547,9 +1552,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     setState(() => _isProcessing = true);
     try {
       final rawBytes = await file.readAsBytes();
-      // TODO(P2-W12): Strip EXIF metadata before Vision API call.
-      // Requires `image` package. GPS location and camera info currently exposed.
-      final bytes = await _compressForVision(rawBytes, file.path);
+      // Phase 97 W7 iter#5 (T001) — strip EXIF (GPS / DateTime / device
+      // model / software) BEFORE the BYOK Vision LLM call leaves the
+      // device. GDPR Art. 5(1)(c) + Swiss DSG/LPD Art. 8. Same scrub as
+      // _tryVisionExtraction ; PNG / non-JPEG bytes fall through unchanged.
+      final scrubbed = scrubExif(rawBytes);
+      final bytes = await _compressForVision(scrubbed, file.path);
       final base64Image = base64Encode(bytes);
 
       final ext = file.path.split('.').last.toLowerCase();
