@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/profile_drawer.dart';
 
@@ -9,6 +10,14 @@ import 'package:mint_mobile/widgets/profile_drawer.dart';
 /// Navigation V11 — Shell scaffold with Material 3 NavigationBar and
 /// ProfileDrawer mounted as endDrawer. Each tab preserves state via
 /// [StatefulShellRoute.indexedStack].
+///
+/// Phase 96 D-01 — when `FeatureFlags.chatTabVisible` is `false`, the
+/// Coach destination is dropped from the NavigationBar (3-tab nav). The
+/// GoRouter StatefulShellRoute branch list stays at length 4 so the
+/// Coach route remains addressable via MintChatOverlay. The
+/// [visibleToBranchIndex] + [branchToVisibleIndex] helpers below
+/// translate between the user-facing slot index and the GoRouter
+/// branch index — this is the #1 pitfall per 96-RESEARCH.md.
 class MintShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -27,6 +36,36 @@ class MintShell extends StatelessWidget {
     Scaffold.of(context).openEndDrawer();
   }
 
+  /// Branch-index that the GoRouter shell hosts for the Coach tab.
+  /// Stays at 2 regardless of the flag — branches list length is 4.
+  static const int _coachBranchIndex = 2;
+
+  /// Map a NavigationBar visible slot to the GoRouter branch index.
+  ///
+  /// When `FeatureFlags.chatTabVisible` is `true`, identity.
+  /// When `false`, the Coach branch is hidden — visible slot 2
+  /// (Explorer) maps to branch 3.
+  static int visibleToBranchIndex(int visibleIndex) {
+    if (FeatureFlags.chatTabVisible) return visibleIndex;
+    return visibleIndex >= _coachBranchIndex
+        ? visibleIndex + 1
+        : visibleIndex;
+  }
+
+  /// Map a GoRouter branch index to the NavigationBar visible slot.
+  ///
+  /// When `FeatureFlags.chatTabVisible` is `true`, identity.
+  /// When `false`, the Coach branch (index 2) collapses onto the
+  /// nearest preceding visible slot (Mon argent, visible 1) so the
+  /// NavigationBar selectedIndex never points off-list when Coach is
+  /// the active branch (e.g. when MintChatOverlay routes to Coach
+  /// while the Coach tab is hidden).
+  static int branchToVisibleIndex(int branchIndex) {
+    if (FeatureFlags.chatTabVisible) return branchIndex;
+    if (branchIndex == _coachBranchIndex) return _coachBranchIndex - 1;
+    return branchIndex > _coachBranchIndex ? branchIndex - 1 : branchIndex;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,36 +74,45 @@ class MintShell extends StatelessWidget {
       bottomNavigationBar: Builder(
         builder: (ctx) {
           final l = S.of(ctx)!;
-          return NavigationBar(
-            selectedIndex: navigationShell.currentIndex,
-            onDestinationSelected: (index) => navigationShell.goBranch(
-              index,
-              initialLocation: index == navigationShell.currentIndex,
+          final showChatTab = FeatureFlags.chatTabVisible;
+          final destinations = <NavigationDestination>[
+            NavigationDestination(
+              icon: const Icon(Icons.today_outlined),
+              selectedIcon: const Icon(Icons.today, color: MintColors.success),
+              label: l.tabAujourdhui,
             ),
-            backgroundColor: MintColors.craie,
-            indicatorColor: MintColors.success.withValues(alpha: 0.12),
-            destinations: [
-              NavigationDestination(
-                icon: const Icon(Icons.today_outlined),
-                selectedIcon: const Icon(Icons.today, color: MintColors.success),
-                label: l.tabAujourdhui,
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.savings_outlined),
-                selectedIcon: const Icon(Icons.savings, color: MintColors.success),
-                label: l.tabMonArgent,
-              ),
+            NavigationDestination(
+              icon: const Icon(Icons.savings_outlined),
+              selectedIcon:
+                  const Icon(Icons.savings, color: MintColors.success),
+              label: l.tabMonArgent,
+            ),
+            if (showChatTab)
               NavigationDestination(
                 icon: const Icon(Icons.chat_bubble_outline),
-                selectedIcon: const Icon(Icons.chat_bubble, color: MintColors.success),
+                selectedIcon:
+                    const Icon(Icons.chat_bubble, color: MintColors.success),
                 label: l.tabCoach,
               ),
-              NavigationDestination(
-                icon: const Icon(Icons.explore_outlined),
-                selectedIcon: const Icon(Icons.explore, color: MintColors.success),
-                label: l.tabExplorer,
-              ),
-            ],
+            NavigationDestination(
+              icon: const Icon(Icons.explore_outlined),
+              selectedIcon:
+                  const Icon(Icons.explore, color: MintColors.success),
+              label: l.tabExplorer,
+            ),
+          ];
+          return NavigationBar(
+            selectedIndex: branchToVisibleIndex(navigationShell.currentIndex),
+            onDestinationSelected: (visibleIndex) {
+              final branchIndex = visibleToBranchIndex(visibleIndex);
+              navigationShell.goBranch(
+                branchIndex,
+                initialLocation: branchIndex == navigationShell.currentIndex,
+              );
+            },
+            backgroundColor: MintColors.craie,
+            indicatorColor: MintColors.success.withValues(alpha: 0.12),
+            destinations: destinations,
           );
         },
       ),
