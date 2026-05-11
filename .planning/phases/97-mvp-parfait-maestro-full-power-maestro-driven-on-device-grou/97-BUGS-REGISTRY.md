@@ -137,12 +137,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « ALL Phase 96 W1 + Phase 97 W5 reachability surface (CapDuJourBanner action bar, MintChatOverlay, full Aujourd'hui card-action ribbon) is unreachable from cold launch for anonymous users. End-to-end Maestro flows blocked. Phase 94 anonymous-onboarding chat works, but Aujourd'hui is invisible to the anonymous user — they bounce off after the chat session. »
   fix_cost: small  # add a « Continuer sans compte » / « Voir mon Aujourd'hui » CTA to LandingScreen (or after /anonymous/chat completion) → context.go('/home')
   score: 32  # 8 × 4 / 1
-  status: OPEN
+  status: IN_PROGRESS
+  started: 2026-05-11T17:22:38Z
   fix_commit: null
   repro_flow: null
   found_in: 2026-05-11
   resolved_in: null
-  notes: « Surfaced by W7 iter#3 (S001 close) — running bug__S001__cap_du_jour_action_bar_reachable.yaml against post-fix build showed cold-launch lands on LandingScreen, not the shell. Was implicit assumption in F001 iter#2 (filed as F013/F014 'cold-launch precondition / auth fragment'). Promoted to S005 explicit bug for tracking. Closes W5 alongside S003+S004 reachability work. »
+  notes: « W7 iteration cycle #4 PICK 2026-05-11T17:22:38Z. Surfaced by W7 iter#3 (S001 close) — running bug__S001__cap_du_jour_action_bar_reachable.yaml against post-fix build showed cold-launch lands on LandingScreen, not the shell. Was implicit assumption in F001 iter#2 (filed as F013/F014 'cold-launch precondition / auth fragment'). Promoted to S005 explicit bug for tracking. Closes W5 alongside S003+S004 reachability work. Fix path : add a sober « Continuer sans compte » link to LandingScreen under the « J'ai déjà un compte » login link, navigating to /home — exploits the existing default-on isLocalMode (auth_provider.dart:90, app.dart:417 gate) ; no auth_provider/main.dart changes needed, production-safe since the path is already documented as the anonymous default. »
 ```
 
 ### From haiku TODO survey audit
