@@ -263,12 +263,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « 4 existing Maestro flows are broken — they cannot find the locators they reference. Any CI run is RED. The locator audit lint exists for exactly this reason. »
   fix_cost: medium  # per flow: either fix the locator to match existing widgets/ARB, OR add the missing Key('...') to the widget code
   score: 32  # 8 × 4 / 1 ; cost low because each fix is mechanical
-  status: OPEN
+  status: IN_PROGRESS
+  started: 2026-05-11
   fix_commit: null
   repro_flow: null
   found_in: 2026-05-11
   resolved_in: null
-  notes: « Phase 97 W1 fragments + W3 regression suite must address each locator before flows can run live. Inventory in PHASE97_MAESTRO_LOCATOR_DEBT.md (Phase 97 W0 deliverable). »
+  notes: « Phase 97 W7 iter#12 PICK 2026-05-11 — strategy : (a) add 4 Keys to anonymous_chat_screen.dart for julien_swiss + lauren_expat_us (FIX, not delete — per archetype coverage CLAUDE.md never #7) ; (b) refactor auth_coach_post_hotfix.yaml narrator-text assertNotVisible literals to stable Semantics labels (drop 4 drifting text literals, keep B1/B2/B3/B4 contract semantics) ; (c) replace 'Estime ta marge précise' text assertion in julien_swiss + lauren_expat_us with the stable anon-chat-register-cta Key assertion (already on that step). Pre-fix audit : 14 violations confirmed @ /tmp/L001_locator_audit_pre.txt. »
 
 - id: L002
   severity: P1
