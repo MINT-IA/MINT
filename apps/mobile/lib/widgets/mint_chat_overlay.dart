@@ -9,6 +9,7 @@
 // or any other widget here.
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/models/narrative_sleeve.dart';
 import 'package:mint_mobile/models/serialized_card_context.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -115,6 +116,90 @@ class MintChatOverlay extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// Phase 96 D-14 + UI-SPEC §NarrativeSleeve renderer.
+///
+/// 4-field card rendered inside the chat message list when the backend
+/// response carries a NarrativeSleeve envelope :
+///
+///   - `hook` — `MintTextStyles.headlineSmall()` on textPrimary.
+///   - `caption` — `MintTextStyles.bodyLarge()` on textSecondary.
+///   - `next_step` — `labelLarge(MintColors.mintForest)` with a leading
+///     « › » glyph, wrapped in `Semantics(hint: 'Prochaine étape')`.
+///   - `metaphor` — conditional render below a Divider, in
+///     `bodySmall(MintColors.textMuted)`. Hidden when empty.
+///
+/// Surface : `craieHandoff` (#F8F5F0 — coach conversation surface per
+/// DESIGN_SYSTEM.md). D-26 guard : zero hardcoded ARGB literals ; all
+/// colors are MintColors tokens.
+class NarrativeSleeveCard extends StatelessWidget {
+  final NarrativeSleeve sleeve;
+  const NarrativeSleeveCard({super.key, required this.sleeve});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('narrative_sleeve_card'),
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      decoration: BoxDecoration(
+        color: MintColors.craieHandoff,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            sleeve.hook,
+            key: const Key('narrative_sleeve_hook'),
+            style: MintTextStyles.headlineSmall(),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            sleeve.caption,
+            key: const Key('narrative_sleeve_caption'),
+            style: MintTextStyles.bodyLarge(),
+          ),
+          const SizedBox(height: MintSpacing.md),
+          Semantics(
+            hint: 'Prochaine étape',
+            child: Row(
+              key: const Key('narrative_sleeve_next_step'),
+              children: [
+                Text(
+                  '›',
+                  style: MintTextStyles.labelLarge(
+                    color: MintColors.mintForest,
+                  ),
+                ),
+                const SizedBox(width: MintSpacing.xs),
+                Expanded(
+                  child: Text(
+                    sleeve.nextStep,
+                    style: MintTextStyles.labelLarge(
+                      color: MintColors.mintForest,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (sleeve.metaphor.isNotEmpty) ...[
+            const SizedBox(height: MintSpacing.sm),
+            const Divider(color: MintColors.border),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              sleeve.metaphor,
+              key: const Key('narrative_sleeve_metaphor'),
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textMuted,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
