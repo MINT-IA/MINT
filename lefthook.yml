@@ -136,6 +136,28 @@ pre-commit:
       run: python3 tools/checks/banned_terms_python.py --lsfin-annotation {staged_files}
       tags: [compliance, lsfin, phase-95-dag-invalidation]
       fail_text: "LSFin D-12 violation : credible_low/credible_high emitted without verbatim « selon le modèle simplifié actuel » annotation. Add the FR phrase to the module docstring or output template (CLAUDE.md §1)."
+    # ── Incident 2026-05-11 — iOS release capability drift (LINT-IOS-RELEASE-01) ──
+    ios_release_capability_drift:
+      # HARD gate. Runs when `apps/mobile/ios/Runner/Runner.entitlements`
+      # is staged. Scans the file for `com.apple.developer.*` keys and
+      # fails if any key is NOT in the script's `_PROVISIONED_CAPABILITIES`
+      # allowlist. The allowlist enumerates capabilities currently covered
+      # by the App Store provisioning profile in the `mint-certificates`
+      # repo (managed by fastlane match).
+      #
+      # Why : W7 iter#6 commit 009149c7 added
+      # `com.apple.developer.associated-domains` without updating the match
+      # profile. testflight.yml failed at the xcodebuild archive step. Cost
+      # = 2 emergency PRs (#567 + #568). This lint mechanically prevents
+      # recurrence — adding a new capability now requires updating the
+      # allowlist in the same commit, which is the explicit ack that the
+      # match profile has been refreshed.
+      #
+      # Memory : `feedback_ios_entitlements_block_testflight.md` (2026-05-12).
+      glob: "apps/mobile/ios/Runner/Runner.entitlements"
+      run: python3 tools/checks/ios_release_capability_drift.py
+      tags: [ios, release, testflight, incident-2026-05-11]
+      fail_text: "iOS capability drift — Runner.entitlements declares a key not in the provisioning profile allowlist. See stderr above for the 3-step unblock guide."
     # ── Phase 96 D-17 (metaphor parity + value-poisoning lint) ──
     metaphor_parity:
       # Phase 96 D-17 — `apps/mobile/assets/metaphors.toml` and
