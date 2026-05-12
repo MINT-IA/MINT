@@ -182,6 +182,146 @@ def test_snapshots_indexes_present(tmp_path, monkeypatch):
     )
 
 
+# ── B023b additions (2026-05-12) ──────────────────────────────────────
+#
+# During B023 re-verification (W7 iter#8, 2026-05-11) we proved the
+# snapshots table IS created by the baseline migration ; the REAL drift
+# that surfaced was at a finer level :
+#
+#   (i) `user_id` has NO FK constraint to `users.id` in the DB even
+#       though the ORM declares
+#       `ForeignKey("users.id", ondelete="CASCADE")`. Orphan rows can
+#       leak via raw SQL deletes (GDPR right-to-erasure edge case).
+#
+#  (ii) 14 columns have `server_default=text(...)` in the ORM
+#       (snapshot.py:25-44) but the alembic migration emits them as
+#       `nullable=True` with NO server_default. Raw SQL INSERTs that
+#       omit these columns land NULL instead of the ORM-declared
+#       defaults — calculator code downstream may crash on NULL where
+#       it expects 0.0 / 0 / 'VD' / 'swiss_native' / 'single'.
+#
+# These tests are RED pre-fix and GREEN post-fix once the chained
+# migration `p97_snapshots_fk_and_server_defaults.py` lands. They stay
+# in CI as permanent regression guards.
+
+# Columns with server_default declared in the ORM (snapshot.py:25-44).
+# Mapping : column_name -> expected_server_default_sql_text.
+EXPECTED_SERVER_DEFAULTS = {
+    "age": "0",
+    "gross_income": "0.0",
+    "canton": "'VD'",
+    "archetype": "'swiss_native'",
+    "household_type": "'single'",
+    "replacement_ratio": "0.0",
+    "months_liquidity": "0.0",
+    "tax_saving_potential": "0.0",
+    "confidence_score": "0.0",
+    "enrichment_count": "0",
+    "fri_total": "0.0",
+    "fri_l": "0.0",
+    "fri_f": "0.0",
+    "fri_r": "0.0",
+    "fri_s": "0.0",
+}
+
+
+def test_snapshots_user_id_fk_present_and_cascade(tmp_path, monkeypatch):
+    """B023b test 1 : snapshots.user_id carries FK to users.id ON DELETE CASCADE.
+
+    Pre-fix : `inspector.get_foreign_keys('snapshots')` returns `[]` —
+    the ORM-declared FK is not in the DB. Hard-deleting a user via raw
+    SQL leaves orphan snapshots rows (GDPR Art. 8 / LPD right-to-erasure
+    edge case).
+
+    Post-fix : the new migration adds the FK with ON DELETE CASCADE
+    matching the ORM declaration in snapshot.py:19.
+    """
+    cfg = _make_config(tmp_path, monkeypatch)
+    command.upgrade(cfg, "head")
+    engine = sa.create_engine(f"sqlite:///{tmp_path}/test.db")
+    insp = sa.inspect(engine)
+    fks = insp.get_foreign_keys("snapshots")
+    user_id_fks = [
+        fk for fk in fks
+        if "user_id" in fk.get("constrained_columns", [])
+        and fk.get("referred_table") == "users"
+    ]
+    assert user_id_fks, (
+        "snapshots.user_id has NO foreign key to users.id in the DB. "
+        "ORM declares `ForeignKey('users.id', ondelete='CASCADE')` at "
+        "app/models/snapshot.py:19 but the alembic chain emits the "
+        "column as `sa.String()` without a constraint. Hard-deleting a "
+        "user via raw SQL leaves orphan snapshots rows — GDPR Art. 8 / "
+        "LPD right-to-erasure edge case."
+    )
+    fk = user_id_fks[0]
+    options = fk.get("options", {}) or {}
+    ondelete = (options.get("ondelete") or "").upper()
+    assert ondelete == "CASCADE", (
+        f"snapshots.user_id FK to users.id has ondelete='{ondelete}', "
+        f"expected 'CASCADE'. ORM declares "
+        f"`ForeignKey('users.id', ondelete='CASCADE')` ; the migration "
+        f"must match so user-deletion cascades to snapshots without an "
+        f"orphan-row remediation step."
+    )
+
+
+def test_snapshots_server_defaults_match_orm(tmp_path, monkeypatch):
+    """B023b test 2 : 14 columns have server_default in DB matching the ORM.
+
+    Pre-fix : the alembic migration emits all 14 columns as `nullable=
+    True` with NO server_default. Raw SQL INSERTs that omit these
+    columns land NULL ; the calculator code downstream may crash on
+    NULL where it expects a numeric or string default.
+
+    Post-fix : the new migration adds the server_defaults matching the
+    ORM declarations at snapshot.py:25-44 (text("0") / text("0.0") /
+    text("'VD'") / text("'swiss_native'") / text("'single'")).
+    """
+    cfg = _make_config(tmp_path, monkeypatch)
+    command.upgrade(cfg, "head")
+    engine = sa.create_engine(f"sqlite:///{tmp_path}/test.db")
+    insp = sa.inspect(engine)
+    cols = {c["name"]: c for c in insp.get_columns("snapshots")}
+    drift: dict[str, str] = {}
+    for col_name, expected_default_sql in EXPECTED_SERVER_DEFAULTS.items():
+        col = cols.get(col_name)
+        assert col is not None, (
+            f"snapshots.{col_name} not found in DB (covered by test 2 "
+            f"separately, but assertion here ensures the lookup is sound)."
+        )
+        actual_default = col.get("default")
+        if actual_default is None:
+            drift[col_name] = f"DB default is None (expected {expected_default_sql})"
+            continue
+        # SQLite reports the default as the literal SQL text. Normalise
+        # both sides to strip whitespace ; numeric defaults like 0.0 may
+        # be reported as `0.0` or `0` depending on column affinity. We
+        # accept any of these equivalent textual forms.
+        actual_norm = str(actual_default).strip().lower()
+        expected_norm = expected_default_sql.strip().lower()
+        # Numeric equivalence : 0 / 0.0 / '0' / '0.0' all match
+        # when expected is a numeric literal.
+        numeric_equiv = {"0", "0.0"}
+        if expected_norm in numeric_equiv and actual_norm in numeric_equiv:
+            continue
+        if actual_norm != expected_norm:
+            drift[col_name] = (
+                f"DB default {actual_norm!r} != ORM-declared "
+                f"server_default {expected_norm!r}"
+            )
+    assert not drift, (
+        f"{len(drift)}/{len(EXPECTED_SERVER_DEFAULTS)} columns drift "
+        f"between alembic-emitted DB defaults and ORM server_default "
+        f"declarations:\n"
+        + "\n".join(f"  {k}: {v}" for k, v in sorted(drift.items()))
+        + "\n\n"
+        "Pre-fix the alembic chain emits these 15 columns as "
+        "`nullable=True` with no server_default. Raw SQL INSERTs that "
+        "omit them land NULL ; downstream calculators may crash."
+    )
+
+
 def test_alembic_chain_has_single_head(tmp_path, monkeypatch):
     """Test 4 : the alembic chain has a single head (no dangling branches).
 

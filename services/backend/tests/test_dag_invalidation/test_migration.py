@@ -42,10 +42,19 @@ def test_upgrade_adds_columns(tmp_path, monkeypatch):
     assert "superseded_by" in cols
 
 
+# Revision immediately BEFORE p95_dag_invalidation in the alembic chain.
+# Tests downgrade to this revision explicitly (rather than `-1`) so the
+# DAG-04 contract survives future migrations chaining onto p95 as head.
+# Phase 97 W7 B023b (2026-05-12) added p97_snapshots_fk_and_server_defaults
+# as the new head ; `-1` would land at p95 which DOES have inputs_hash,
+# breaking the original (head-coupled) form of these tests.
+_PRE_DAG_REVISION = "29_05_magic_link_tokens"
+
+
 def test_downgrade_removes_columns(tmp_path, monkeypatch):
     cfg = _make_config(tmp_path, monkeypatch)
     command.upgrade(cfg, "head")
-    command.downgrade(cfg, "-1")
+    command.downgrade(cfg, _PRE_DAG_REVISION)
     engine = sa.create_engine(f"sqlite:///{tmp_path}/test.db")
     insp = sa.inspect(engine)
     cols = {c["name"] for c in insp.get_columns("scenarios")}
@@ -56,7 +65,7 @@ def test_downgrade_removes_columns(tmp_path, monkeypatch):
 def test_roundtrip_idempotent(tmp_path, monkeypatch):
     cfg = _make_config(tmp_path, monkeypatch)
     command.upgrade(cfg, "head")
-    command.downgrade(cfg, "-1")
+    command.downgrade(cfg, _PRE_DAG_REVISION)
     command.upgrade(cfg, "head")
     engine = sa.create_engine(f"sqlite:///{tmp_path}/test.db")
     insp = sa.inspect(engine)
