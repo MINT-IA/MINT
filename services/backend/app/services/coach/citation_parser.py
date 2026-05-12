@@ -203,7 +203,7 @@ def _normalize_user_number_token(token: str) -> Optional[_Decimal]:
 # of Decimal values keyed by canonical normalisation, so spelling variants
 # in the narrator's echo still match.
 _USER_NUMBER_EXTRACTION_RE = re.compile(
-    r"\b\d{1,3}(?:[\s' ]\d{3})+(?:[.,]\d+)?"  # 7'600 / 300 000 / 1'234.56
+    r"\b\d{1,3}(?:[ ' ]\d{3})+(?:[.,]\d+)?"  # 7'600 / 300 000 / 1'234.56
     r"|\b\d+(?:[.,]\d+)?\b"  # 49 / 7600 / 7,5
 )
 

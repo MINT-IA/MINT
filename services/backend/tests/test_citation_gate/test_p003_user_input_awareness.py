@@ -339,3 +339,93 @@ def test_gate_post_p003_age_in_years_passes_when_user_supplied():
         f"49 ans should pass when user said « j'ai 49 ans » ; got "
         f"{g.verdict.value}"
     )
+
+
+# ── Tests : the coach_chat.py session-aggregator helper ──────────────
+#
+# `_collect_user_input_numbers_from_session(message, history)` was
+# extracted to a module-level helper so diff-cover hits every branch
+# without integration-test plumbing. These tests lock its behaviour.
+
+
+def test_session_aggregator_empty_history():
+    """No history at all — only the current message is scanned."""
+    from app.api.v1.endpoints.coach_chat import (
+        _collect_user_input_numbers_from_session,
+    )
+    out = _collect_user_input_numbers_from_session(
+        message="j'ai 49 ans", history=None
+    )
+    assert Decimal("49") in out
+
+
+def test_session_aggregator_pulls_user_turns_from_history():
+    """User-role turns add their numeric content to the exemption set."""
+    from app.api.v1.endpoints.coach_chat import (
+        _collect_user_input_numbers_from_session,
+    )
+    history = [
+        {"role": "user", "content": "j'ai 7600 CHF de salaire"},
+        {"role": "assistant", "content": "Compris."},
+        {"role": "user", "content": "et 300 000 CHF de rachat 2e pilier"},
+    ]
+    out = _collect_user_input_numbers_from_session(
+        message="qu'est-ce que je dois faire ?", history=history
+    )
+    assert Decimal("7600") in out
+    assert Decimal("300000") in out
+
+
+def test_session_aggregator_skips_assistant_turns():
+    """Assistant-role turns MUST NOT contribute numbers to the
+    exemption set — only USER-supplied numbers earn the gate
+    exemption."""
+    from app.api.v1.endpoints.coach_chat import (
+        _collect_user_input_numbers_from_session,
+    )
+    history = [
+        {"role": "assistant", "content": "Le plafond 3a 2026 est 7056 CHF"},
+    ]
+    out = _collect_user_input_numbers_from_session(
+        message="merci", history=history
+    )
+    assert Decimal("7056") not in out
+
+
+def test_session_aggregator_skips_non_string_content():
+    """If a turn has a non-string `content` (malformed history payload),
+    skip without raising."""
+    from app.api.v1.endpoints.coach_chat import (
+        _collect_user_input_numbers_from_session,
+    )
+    history = [
+        {"role": "user", "content": ["49", "7600"]},
+        {"role": "user", "content": None},
+        {"role": "user", "content": "300000"},
+    ]
+    out = _collect_user_input_numbers_from_session(
+        message="", history=history
+    )
+    assert Decimal("300000") in out
+
+
+def test_session_aggregator_respects_history_window():
+    """Only the last `history_window` turns are scanned."""
+    from app.api.v1.endpoints.coach_chat import (
+        _collect_user_input_numbers_from_session,
+    )
+    history = [
+        {"role": "user", "content": "100"},
+        {"role": "user", "content": "200"},
+        {"role": "user", "content": "300"},
+        {"role": "user", "content": "400"},
+        {"role": "user", "content": "500"},
+    ]
+    out = _collect_user_input_numbers_from_session(
+        message="", history=history, history_window=2
+    )
+    assert Decimal("500") in out
+    assert Decimal("400") in out
+    assert Decimal("100") not in out
+    assert Decimal("200") not in out
+    assert Decimal("300") not in out
