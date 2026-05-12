@@ -45,7 +45,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 1bis | ~~S005~~ | ~~LandingScreen has no public CTA to /home~~ → **RESOLVED 2026-05-11T19:35:00Z** via « Continuer sans compte » link (W7 iter#4, fix 010d851c) — closes the cold-launch precondition, end-to-end Maestro reachability proven | ~~32~~ | mobile |
 | 1ter | M001 | Flutter Keys don't propagate as Maestro iOS Semantics identifiers (surfaced during S005 close) — every `id:`-based Maestro assertion broken on iOS | 16 | mobile |
 | 2 | L001 | Maestro locator audit fails 14 violations on 4 flows — testing infra broken | 32 | testing |
-| 3 | S002 | Maestro flow `flow_card_action_intent_bar.yaml` doesn't handle cold-app onboarding (bêta modal + landing + auth) | 32 | testing |
+| 3 | ~~S002~~ | ~~Maestro flow `flow_card_action_intent_bar.yaml` doesn't handle cold-app onboarding~~ → **RESOLVED 2026-05-12T05:44:00Z** via reusable cold-launch fragment (W7 single-perimeter cycle, fix TBD-commit) — `_fragment_cold_launch_to_aujourdhui.yaml` extracts launchApp→bêta dismiss→LandingScreen→Continuer-sans-compte→/home walk, called via `runFlow:` from the failing flow. Regression test bug__S002__maestro_cold_launch_fragment.yaml GREEN in 9s on iPhone 17 Pro sim ; S005 sibling regression GREEN in 8s (no adjacency regression). | ~~32~~ | testing |
 | 4 | ~~T001~~ | ~~EXIF metadata leak~~ → **RESOLVED 2026-05-11T20:35:00Z** via scrubExif() util in document_scan_screen.dart (W7 iter#5, fix 5f7d1953) — GDPR Art. 5(1)(c) + Swiss DSG Art. 8 compliance | ~~32~~ | mobile |
 | 5 | ~~T002~~ | ~~SQLite encryption missing~~ → **RESOLVED 2026-05-11T18:55:00Z** via at-rest encryption docs + deterministic contract tests (W7 iter#10, fix 6219bb65) — locked 3-layer defense (Railway PostgreSQL infra + AES-256-GCM envelope PRIV-04 + SQLCipher mobile), zero LOC app-code change, GDPR Art. 32 + Swiss DSG/LPD Art. 8 compliance proof | ~~32~~ | backend |
 | 6 | ~~S003~~ | ~~Custom URL scheme `mintapp://` NOT registered~~ → **RESOLVED 2026-05-11T20:10:00Z** via Info.plist CFBundleURLTypes + FlutterDeepLinkingEnabled (W7 iter#6, combined 4-bug deep-linking cycle) | ~~16~~ | mobile |
@@ -92,12 +92,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « Phase 96 G1 gate cannot be live-run today. All future flows that target authenticated state need shared onboarding fragment. »
   fix_cost: small  # implement dismiss_beta_modal + auth_test_user fragments per Phase 97 W1
   score: 32  # 8 × 4 / 1
-  status: OPEN
-  fix_commit: null
-  repro_flow: « evidence at .planning/phases/96-mvp-chat-as-verb/g2-evidence/maestro-flow-failure-junit.xml »
+  status: RESOLVED
+  started: 2026-05-12T05:35:00Z
+  fix_commit: TBD-S002-fragment  # filled at squash-merge
+  repro_flow: tools/simulator/flows/regression/bug__S002__maestro_cold_launch_fragment.yaml
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « Phase 97 W1 fragments close this. The bêta modal screenshot is at .planning/phases/96-mvp-chat-as-verb/g2-evidence/01-landing-modal.png. »
+  resolved_in: 2026-05-12T05:44:00Z
+  notes: « W7 single-perimeter cycle (2026-05-12, post-incident discipline) — extracted the cold-launch → Aujourd'hui walk into a reusable Maestro subflow at `tools/simulator/flows/maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml`. Six internal steps : launchApp clearState → conditional bêta modal dismiss (`Je comprends, on y va`) → LandingScreen `Parle à Mint` anchor → waitForAnimationToEnd → tap `.*Continuer sans compte.*` (S005 CTA) → `.*Aujourd'hui.*` regex match on BottomNavigationBar tab. `flow_card_action_intent_bar.yaml` step 1 now calls `runFlow: _fragment_cold_launch_to_aujourdhui.yaml` instead of the previous single-line `launchApp + assertVisible`. Karpathy #3 surgical : 3 files touched (1 new fragment + 1 new regression flow + 1 patched perfect-set flow), all YAML, zero LOC delta on app code. Verification : `bash tools/simulator/maestro_env.sh test tools/simulator/flows/regression/bug__S002__maestro_cold_launch_fragment.yaml --format=junit --output=/tmp/maestro_s002_post_fix.xml` → 1/1 Passed in 9s, /tmp/maestro_s002_post_fix.xml `failures="0"`. SUITE check : `bug__S005__landing_anonymous_cta_to_home.yaml` re-run 1/1 Passed in 8s post-fix, no adjacency regression. Side observation NOT included in this perimeter : the AujourdhuiScreen screenshot shows « RIGHT OVERFLOWED BY 35 PIXELS » on the MintCardActionBar — separate UI bug, filed for later. Memory : the cold-launch preamble is now reusable for `flow_3a_calculator.yaml`, `flow_g2_julien_walkthrough.yaml`, and any future flow needing an authenticated 3-tab nav from clean sim state. »
 
 - id: S003
   severity: P0

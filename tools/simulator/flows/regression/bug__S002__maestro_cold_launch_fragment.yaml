@@ -1,0 +1,69 @@
+# tools/simulator/flows/regression/bug__S002__maestro_cold_launch_fragment.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Phase 97 W7 S002 — regression flow that gates the cold-launch fragment
+# extraction.
+#
+# S002 bug : Maestro flow `flow_card_action_intent_bar.yaml` failed at
+# its first `assertVisible "Aujourd'hui"` because cold-launched app lands
+# on bêta modal + LandingScreen, not Aujourd'hui. Every authenticated-
+# state flow that does `clearState: true + assertVisible "Aujourd'hui"`
+# without an onboarding preamble has the same defect.
+#
+# S002 fix (2026-05-12) : extracted the cold-launch → Aujourd'hui walk
+# into a reusable subflow
+# `tools/simulator/flows/maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml`,
+# and patched `flow_card_action_intent_bar.yaml` to use it.
+#
+# This regression flow exercises ONLY the fragment in isolation. If the
+# fragment ever regresses (bêta modal copy change, LandingScreen CTA
+# rename, /home route gate change, etc.), this flow fails and the PR is
+# blocked.
+#
+# ─── MAESTRO 2.5.1 SYNTAX ──────────────────────────────────────────────
+# Per https://docs.maestro.dev/api-reference/commands.
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
+# - Backend = Railway staging (memory `feedback_app_targets_staging_always`)
+# - S005 fix (« Continuer sans compte » CTA) merged on the build under
+#   test (W7 iter#4, commit 010d851c) — the fragment depends on it.
+
+appId: ch.mint.app
+tags:
+  - phase-97
+  - phase-97-w7
+  - bug-s002
+  - regression
+  - fragment
+  - cold-launch
+  - feature:navigation
+  - archetype:all
+---
+
+# ── Step 1 — Include the cold-launch fragment ─────────────────────────
+# The fragment walks : launchApp clearState → bêta dismiss (conditional)
+# → LandingScreen visible → tap « Continuer sans compte » → /home →
+# Aujourd'hui visible. All 6 internal assertions belong to the fragment.
+- runFlow: ../maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml
+
+# ── Step 2 — Belt-and-suspenders : assert 3-tab nav anchor visible ────
+# The fragment's final extendedWaitUntil already asserts « Aujourd'hui »
+# is visible. We re-assert here as the regression contract : this exact
+# string is what the failing flow used to expect at step 1. If a future
+# refactor leaves the fragment passing but breaks the tab anchor naming,
+# this assertion catches the drift.
+- assertVisible:
+    text: ".*Aujourd'hui.*"
+
+# ── Step 3 — Final state screenshot for HUMAN-UAT evidence ────────────
+- takeScreenshot: /tmp/97_s002_aujourdhui_after_fragment
+
+# ─── S002 RESOLUTION CONTRACT ─────────────────────────────────────────
+# Acceptance : the fragment runs end-to-end (its 6 internal assertions
+# all pass) AND step 2 above succeeds.
+# Per CLAUDE.md §9.6, the Maestro junit XML IS the deterministic citation.
+#
+# This flow LIVES in CI : any future PR that breaks the bêta modal copy,
+# the landing CTA text, the /home route gate, or the BottomNavigationBar
+# tab label fails this flow = PR blocked.
