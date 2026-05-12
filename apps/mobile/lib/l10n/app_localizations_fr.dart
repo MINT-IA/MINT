@@ -23173,4 +23173,40 @@ class SFr extends S {
 
   @override
   String get chatInputHint => 'Tape ton message...';
+
+  @override
+  String get chatIntentExplainLabel => 'Explique-moi';
+
+  @override
+  String get chatIntentReassureLabel => 'Rassure-moi';
+
+  @override
+  String get chatIntentSimulateLabel => 'Simule';
+
+  @override
+  String get narrativeSleeveNextStepExplain =>
+      'Tape une question pour creuser.';
+
+  @override
+  String get narrativeSleeveNextStepReassure =>
+      'Tape ce qui t\'inquiète, on regarde ensemble.';
+
+  @override
+  String get narrativeSleeveNextStepSimulate => 'Tape un scénario à explorer.';
+
+  @override
+  String get narrativeSleeveHookFallback =>
+      'Voyons ensemble ce que ça change pour toi.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionExplain =>
+      'Voici ce que ta carte raconte aujourd\'hui.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionReassure =>
+      'On regarde calmement où tu en es.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionSimulate =>
+      'Choisis un scénario à projeter.';
 }

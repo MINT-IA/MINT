@@ -23059,4 +23059,39 @@ class SEn extends S {
 
   @override
   String get chatInputHint => 'Type your message...';
+
+  @override
+  String get chatIntentExplainLabel => 'Explain to me';
+
+  @override
+  String get chatIntentReassureLabel => 'Reassure me';
+
+  @override
+  String get chatIntentSimulateLabel => 'Simulate';
+
+  @override
+  String get narrativeSleeveNextStepExplain => 'Type a question to dig deeper.';
+
+  @override
+  String get narrativeSleeveNextStepReassure =>
+      'Type what worries you, we\'ll look together.';
+
+  @override
+  String get narrativeSleeveNextStepSimulate => 'Type a scenario to explore.';
+
+  @override
+  String get narrativeSleeveHookFallback =>
+      'Let\'s see together what this changes for you.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionExplain =>
+      'Here is what your card tells today.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionReassure =>
+      'Let\'s look calmly at where you stand.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionSimulate =>
+      'Pick a scenario to project.';
 }

@@ -11198,5 +11198,15 @@
   "verbExplique": "Explain",
   "verbSimule": "Simulate",
   "verbRassure": "Reassure me",
-  "chatInputHint": "Type your message..."
+  "chatInputHint": "Type your message...",
+  "chatIntentExplainLabel": "Explain to me",
+  "chatIntentReassureLabel": "Reassure me",
+  "chatIntentSimulateLabel": "Simulate",
+  "narrativeSleeveNextStepExplain": "Type a question to dig deeper.",
+  "narrativeSleeveNextStepReassure": "Type what worries you, we'll look together.",
+  "narrativeSleeveNextStepSimulate": "Type a scenario to explore.",
+  "narrativeSleeveHookFallback": "Let's see together what this changes for you.",
+  "narrativeSleeveOpenerCaptionExplain": "Here is what your card tells today.",
+  "narrativeSleeveOpenerCaptionReassure": "Let's look calmly at where you stand.",
+  "narrativeSleeveOpenerCaptionSimulate": "Pick a scenario to project."
 }

@@ -11198,5 +11198,15 @@
   "verbExplique": "Erkläre",
   "verbSimule": "Simuliere",
   "verbRassure": "Beruhige mich",
-  "chatInputHint": "Tippe deine Nachricht..."
+  "chatInputHint": "Tippe deine Nachricht...",
+  "chatIntentExplainLabel": "Erklär mir",
+  "chatIntentReassureLabel": "Beruhige mich",
+  "chatIntentSimulateLabel": "Simuliere",
+  "narrativeSleeveNextStepExplain": "Tippe eine Frage, um tiefer zu gehen.",
+  "narrativeSleeveNextStepReassure": "Tippe, was dich beunruhigt — wir schauen gemeinsam.",
+  "narrativeSleeveNextStepSimulate": "Tippe ein Szenario zum Erkunden.",
+  "narrativeSleeveHookFallback": "Schauen wir gemeinsam, was sich für dich ändert.",
+  "narrativeSleeveOpenerCaptionExplain": "Das erzählt deine Karte heute.",
+  "narrativeSleeveOpenerCaptionReassure": "Schauen wir ruhig, wo du stehst.",
+  "narrativeSleeveOpenerCaptionSimulate": "Wähle ein Szenario zur Projektion."
 }

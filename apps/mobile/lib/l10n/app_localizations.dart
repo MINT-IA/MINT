@@ -40652,6 +40652,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Tape ton message...'**
   String get chatInputHint;
+
+  /// Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=explain. Replaces raw enum 'explain'. Accent-clean FR, imperative reflexive. LSFin-clean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explique-moi'**
+  String get chatIntentExplainLabel;
+
+  /// Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=reassure. Replaces raw enum 'reassure'. Accent-clean FR, imperative reflexive. LSFin-clean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rassure-moi'**
+  String get chatIntentReassureLabel;
+
+  /// Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=simulate. Reserved for forward compat ; today simulate deep-links to Explorer and does not open the overlay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule'**
+  String get chatIntentSimulateLabel;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve next_step slot for intent=explain on the templated opener (Option A path).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tape une question pour creuser.'**
+  String get narrativeSleeveNextStepExplain;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve next_step slot for intent=reassure on the templated opener (Option A path).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tape ce qui t\'inquiète, on regarde ensemble.'**
+  String get narrativeSleeveNextStepReassure;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve next_step slot for intent=simulate. Reserved for forward compat ; simulate deep-links to Explorer today.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tape un scénario à explorer.'**
+  String get narrativeSleeveNextStepSimulate;
+
+  /// Phase 97.5 W2-T1 — HOOK_FALLBACK string mirroring services/backend/app/services/coach/narrative_sleeve_lint.HOOK_FALLBACK. Rendered on opener when source_card has no canton/archetype/life_event to interpolate against.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voyons ensemble ce que ça change pour toi.'**
+  String get narrativeSleeveHookFallback;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve caption slot for intent=explain on the templated opener (no LLM call, source_card-derived).
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici ce que ta carte raconte aujourd\'hui.'**
+  String get narrativeSleeveOpenerCaptionExplain;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve caption slot for intent=reassure on the templated opener (no LLM call, source_card-derived).
+  ///
+  /// In fr, this message translates to:
+  /// **'On regarde calmement où tu en es.'**
+  String get narrativeSleeveOpenerCaptionReassure;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve caption slot for intent=simulate. Reserved for forward compat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis un scénario à projeter.'**
+  String get narrativeSleeveOpenerCaptionSimulate;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

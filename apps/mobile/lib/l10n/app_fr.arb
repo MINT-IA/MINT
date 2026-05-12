@@ -12159,5 +12159,45 @@
   "@chatInputHint": {
     "description": "Phase 97 W7 F001 — MintChatOverlay ChatInputBar TextField hint. Accent-clean FR, generic (no archetype assumption). Closes Phase 96 W1 scaffold debt.",
     "x-mint-meta": { "level": "N2" }
+  },
+  "chatIntentExplainLabel": "Explique-moi",
+  "@chatIntentExplainLabel": {
+    "description": "Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=explain. Replaces raw enum 'explain'. Accent-clean FR, imperative reflexive. LSFin-clean."
+  },
+  "chatIntentReassureLabel": "Rassure-moi",
+  "@chatIntentReassureLabel": {
+    "description": "Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=reassure. Replaces raw enum 'reassure'. Accent-clean FR, imperative reflexive. LSFin-clean."
+  },
+  "chatIntentSimulateLabel": "Simule",
+  "@chatIntentSimulateLabel": {
+    "description": "Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=simulate. Reserved for forward compat ; today simulate deep-links to Explorer and does not open the overlay."
+  },
+  "narrativeSleeveNextStepExplain": "Tape une question pour creuser.",
+  "@narrativeSleeveNextStepExplain": {
+    "description": "Phase 97.5 W2-T1 — NarrativeSleeve next_step slot for intent=explain on the templated opener (Option A path)."
+  },
+  "narrativeSleeveNextStepReassure": "Tape ce qui t'inquiète, on regarde ensemble.",
+  "@narrativeSleeveNextStepReassure": {
+    "description": "Phase 97.5 W2-T1 — NarrativeSleeve next_step slot for intent=reassure on the templated opener (Option A path)."
+  },
+  "narrativeSleeveNextStepSimulate": "Tape un scénario à explorer.",
+  "@narrativeSleeveNextStepSimulate": {
+    "description": "Phase 97.5 W2-T1 — NarrativeSleeve next_step slot for intent=simulate. Reserved for forward compat ; simulate deep-links to Explorer today."
+  },
+  "narrativeSleeveHookFallback": "Voyons ensemble ce que ça change pour toi.",
+  "@narrativeSleeveHookFallback": {
+    "description": "Phase 97.5 W2-T1 — HOOK_FALLBACK string mirroring services/backend/app/services/coach/narrative_sleeve_lint.HOOK_FALLBACK. Rendered on opener when source_card has no canton/archetype/life_event to interpolate against."
+  },
+  "narrativeSleeveOpenerCaptionExplain": "Voici ce que ta carte raconte aujourd'hui.",
+  "@narrativeSleeveOpenerCaptionExplain": {
+    "description": "Phase 97.5 W2-T1 — NarrativeSleeve caption slot for intent=explain on the templated opener (no LLM call, source_card-derived)."
+  },
+  "narrativeSleeveOpenerCaptionReassure": "On regarde calmement où tu en es.",
+  "@narrativeSleeveOpenerCaptionReassure": {
+    "description": "Phase 97.5 W2-T1 — NarrativeSleeve caption slot for intent=reassure on the templated opener (no LLM call, source_card-derived)."
+  },
+  "narrativeSleeveOpenerCaptionSimulate": "Choisis un scénario à projeter.",
+  "@narrativeSleeveOpenerCaptionSimulate": {
+    "description": "Phase 97.5 W2-T1 — NarrativeSleeve caption slot for intent=simulate. Reserved for forward compat."
   }
 }

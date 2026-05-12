@@ -23173,4 +23173,41 @@ class SEs extends S {
 
   @override
   String get chatInputHint => 'Escribe tu mensaje...';
+
+  @override
+  String get chatIntentExplainLabel => 'Explícame';
+
+  @override
+  String get chatIntentReassureLabel => 'Tranquilízame';
+
+  @override
+  String get chatIntentSimulateLabel => 'Simula';
+
+  @override
+  String get narrativeSleeveNextStepExplain =>
+      'Escribe una pregunta para profundizar.';
+
+  @override
+  String get narrativeSleeveNextStepReassure =>
+      'Escribe lo que te preocupa, lo miramos juntos.';
+
+  @override
+  String get narrativeSleeveNextStepSimulate =>
+      'Escribe un escenario a explorar.';
+
+  @override
+  String get narrativeSleeveHookFallback =>
+      'Veamos juntos lo que esto cambia para ti.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionExplain =>
+      'Esto es lo que tu tarjeta cuenta hoy.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionReassure =>
+      'Miremos con calma dónde estás.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionSimulate =>
+      'Elige un escenario a proyectar.';
 }
