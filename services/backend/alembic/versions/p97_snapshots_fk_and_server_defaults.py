@@ -46,7 +46,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "p97_snapshots_fk_and_server_defaults"
+revision: str = "p97_snapshots_fk_defaults"  # ≤32 chars per Postgres alembic_version.version_num VARCHAR(32) ; long « p97_snapshots_fk_and_server_defaults » (36 ch) blew up Railway staging deploy 2026-05-12T11:14Z with psycopg2.errors.StringDataRightTruncation
 down_revision: Union[str, Sequence[str], None] = "p95_dag_invalidation"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
