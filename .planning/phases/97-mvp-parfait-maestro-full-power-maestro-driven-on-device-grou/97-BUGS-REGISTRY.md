@@ -55,6 +55,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 10 | P001 | Phase 94 Stage 3 narrator gate-correct thresholds NOT MET (Sonnet 18% / Haiku 22% vs 95% / 90% targets after W7 iter#11 H1 fix — H1 marginal lift on process metrics, headline REJECTED ; H2-H5 filed as P001b/c/d/e) — prod-flip stays blocked | 16 | backend |
 | 11 | ~~B004~~ | ~~core/auth.py:55 bare except swallows JTI-blacklist DB errors — revoked-token auth-bypass via infra degradation~~ → **RESOLVED 2026-05-11T21:00:00Z** via fail-closed split-except (W7 iter#7, fix d50e2d2e) — 4/4 pytest GREEN, backend suite 6628 passed no regression | 16 | backend |
 | 12 | ~~B023~~ | ~~snapshots model declares table but no alembic migration creates it — Railway restart wipes user history~~ → **REJECTED 2026-05-11T21:25:00Z as audit false flag** (W7 iter#8, guard d57ab894) — baseline migration d73dcc3968c9 + p12 already create the table with all 21 cols + 3 indexes ; repro test preserved as permanent schema-parity regression guard (4/4 pytest GREEN, backend suite 6632 passed vs 6628 baseline, zero regression). Smaller real drift filed as new row B023b (FK + server_defaults, P2) | ~~16~~ → REJECTED-with-guard | backend |
+| 13 | P003 | Authenticated `/coach/chat` returns canned FALLBACK_TEMPLATED_TEXT on first prompt with full inline profile data — gate had no user-input awareness, narrator's echo of user numbers was treated as uncited → retry → fallback (Julien sim 2026-05-12T08:13Z) | 8 | backend |
 
 ---
 
@@ -576,6 +577,24 @@ row enters the 7-step cycle (D-36), it is folded here for state-machine tracking
   found_in: 2026-05-11
   resolved_in: 2026-05-11T17:00:46Z
   notes: « Resolved jointly with F001. Text widget at mint_chat_overlay.dart:198-202 carries Key('chat_turn_counter') + renders '$_turnCount / $kChatMaxTurns'. Local-state UI-only counter ; server-side turn_cap.py is the canonical D-08 enforcement gate. Initial state « 0 / 3 », increments on send, reset on overlay re-mount (test asserts these 3 transitions). »
+
+- id: P003
+  severity: P0
+  surface: backend
+  archetype: all
+  feature: coach_citation_gate
+  title: « Authenticated /coach/chat returns canned FALLBACK_TEMPLATED_TEXT on first prompt with full inline profile data — gate had no user-input awareness »
+  repro: « Julien sim 2026-05-12T08:13Z + reproduced via L3 curl staging with debug user. Synthetic narrator output echoing 4 user numbers (49, 7600, 300000, 5) hits the gate's number-detection step ; none of the 4 numbers are in CITATION_REGISTRY ; the meta-quote / meta-negation / legal-article exemptions don't apply ; first-pass verdict=REJECTED_UNCITED ; second-pass (is_retry=True) verdict=FALLBACK gated_text=FALLBACK_TEMPLATED_TEXT. citation_grammar.py:147-149 had been lying to the narrator about this exemption since Phase 94.1. Cycle artefacts at .planning/cycles/P003/. »
+  blast_radius: « First-contact UX broken on the canonical user flow. The authenticated coach is the primary product surface ; every logged-in user typing a profile-dump prompt got the canned « tell me more » response that asked for the data they had just supplied. 30s wall-time wasted on a doomed retry cascade. »
+  fix_cost: medium
+  score: 8  # 8 × 4 / 4 — P0 escalated by user-visible impact + all-archetype + medium cost
+  status: IN_PROGRESS
+  started: 2026-05-12T07:40:00Z
+  fix_commit: TBD-P003-user-input-aware  # filled at squash-merge
+  repro_flow: « tests/test_citation_gate/test_p003_user_input_awareness.py — 12 tests covering extractor, gate exemption, adversarial preservation, banned-claim preservation, byte-identity, Swiss-notation handling »
+  found_in: 2026-05-12
+  resolved_in: null  # GATED on Pillar 6 dim 3 (system) + dim 4 (user) post-deploy
+  notes: « First adopter of MINT Debug Method (MDM) v1 written at .planning/MINT-DEBUG-METHOD.md. Cycle artefact stack : CONTEXT.md (Pillar 1 CAP, 10-step reading log + 10 verified facts) ; PANEL.md (Pillar 2, 5 expert subagent verdicts : LLM Eval Engineer GO, Backend Architect GO, LSFin Compliance CHANGE, UX Researcher CHANGE, Adversarial Tester STOP) ; REPRO-AND-RCA.md (Pillar 3+4, L0/L1/L3 ladder climbed + 7 hypotheses with verification) ; FIX-DECISION.md (Pillar 5, 6-option weighted matrix, chose F3=user-input awareness ; F4 FALLBACK rewrite + F5 empty-narrator guard deferred to follow-up cycles). FIX implementation : (a) new `extract_user_input_numbers(text) -> frozenset[Decimal]` + `_normalize_user_number_token` in citation_parser.py with Swiss-notation handling (apostrophe, NBSP, regular space, comma/dot decimals). (b) New kwarg `user_input_numbers: Optional[frozenset[Decimal]] = None` on `gate(...)`. (c) Step 5b exemption between meta-negation and adjacency check — normalised matched token in user_inputs → skip. (d) coach_chat.py wrapper threads body.message + last 8 user turns of history through both gate invocations. (e) citation_grammar.py rewritten : (e1) removed the lie at lines 147-149 (now accurate : « la garde reconnaît automatiquement les chiffres présents dans le message de l'utilisateur ») ; (e2) removed the « ACCEPTÉ — pas de clé adaptée » example that taught narrator to emit FALLBACK_TEMPLATED_TEXT verbatim ; (e3) added a new « ACCEPTÉ — chiffre fourni par l'utilisateur, échoué tel quel » example with Julien's verbatim 49 + 7'600 CHF case ; (e4) added a « REJETÉ — chiffre fabriqué » example covering narrator-derived ratios. Compliance preserved : narrator-fabricated numbers (calculations, ratios) still rejected ; banned-claim verb regex untouched (« vous gagnerez 7600 » still REJECTED_BANNED_CLAIM). Karpathy #3 surgical : 4 files + 1 new test file ; ~280 LOC delta. Verification : 12/12 P003 regression tests GREEN ; 190/190 Phase 94 citation_gate suite GREEN ; 321/321 wide sweep (Phase 94 + chat-as-verb + coach endpoint + anon chat) GREEN ; 6662/62 skipped/1 xfailed full backend suite GREEN in 111s. Verification Cube : dims 1+2 GREEN ; dims 3 (L3 curl post-deploy) + 4 (Julien sim re-test) PENDING — bug stays IN_PROGRESS until all 4 GREEN per MDM Pillar 6 contract. »
 
 - id: F008
   severity: P2
