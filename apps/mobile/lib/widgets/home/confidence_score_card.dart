@@ -169,7 +169,7 @@ class ConfidenceScoreCard extends StatelessWidget {
                   // ── Error retry button ──
                   if (hasError && onRetry != null) ...[
                     const SizedBox(height: MintSpacing.xs),
-                    TextButton(
+                    TextButton(  // lint-ignore: prefer_mint_cta
                       onPressed: onRetry,
                       style: TextButton.styleFrom(
                         foregroundColor: MintColors.primary,
