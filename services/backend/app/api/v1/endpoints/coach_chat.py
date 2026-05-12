@@ -2818,6 +2818,33 @@ async def coach_chat(
             detail="Un abonnement Premium est requis pour le coaching IA.",
         )
 
+    # ------------------------------------------------------------------
+    # Phase 97.5 W2-T5 — ConsentService gate (log_only default in v2.9).
+    # Audit-trail per LSFin Art 8 « ability to demonstrate compliance ».
+    # In log_only mode (Railway staging default): emits a structured warning
+    # log + Sentry breadcrumb when the user lacks TRANSFER_US_ANTHROPIC ;
+    # returns 200 unchanged. soft_block + hard_block deferred to v2.10
+    # (97.5-PLAN.md §M.4). The endpoint requires `_user` via
+    # `require_current_user` — anonymous turns never reach here, so the gate
+    # has no anonymous short-circuit to write.
+    # ------------------------------------------------------------------
+    from app.services.consent.consent_service import consent_service as _consent_svc
+    from app.schemas.consent_receipt import ConsentPurpose as _ConsentPurpose
+    _consent_check = _consent_svc.check_or_log(
+        db,
+        user_id=str(_user.id),
+        purpose=_ConsentPurpose.TRANSFER_US_ANTHROPIC,
+        mode=settings.CONSENT_GATE_ENFORCEMENT_MODE,
+    )
+    if not _consent_check.allow:
+        # hard_block branch (v2.10) — log_only/soft_block keep allow=True.
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=_consent_check.deny_pointer
+            or {"action": "POST /api/v1/consents/grant",
+                "purpose": _ConsentPurpose.TRANSFER_US_ANTHROPIC.value},
+        )
+
     # nLPD art. 6 al. 7: Check conversation_memory consent.
     # Without consent, conversation is stateless (no memory_block persistence).
     has_memory_consent = ConsentManager.is_consent_given(
