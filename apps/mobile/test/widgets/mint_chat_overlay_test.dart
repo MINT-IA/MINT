@@ -66,7 +66,10 @@ void main() {
       expect(labelFinder, findsOneWidget);
 
       final text = tester.widget<Text>(labelFinder);
-      expect(text.data, 'explain');
+      // Phase 97.5 W2-T3 (D2 fix) — header now uses the localised FR
+      // label, not the raw enum. « Explique-moi » comes from the
+      // chatIntentExplainLabel ARB key.
+      expect(text.data, 'Explique-moi');
     });
 
     testWidgets('renders a 40x4dp drag handle', (tester) async {

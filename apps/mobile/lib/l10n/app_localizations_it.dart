@@ -23232,4 +23232,41 @@ class SIt extends S {
 
   @override
   String get chatInputHint => 'Scrivi il tuo messaggio...';
+
+  @override
+  String get chatIntentExplainLabel => 'Spiegami';
+
+  @override
+  String get chatIntentReassureLabel => 'Rassicurami';
+
+  @override
+  String get chatIntentSimulateLabel => 'Simula';
+
+  @override
+  String get narrativeSleeveNextStepExplain =>
+      'Scrivi una domanda per approfondire.';
+
+  @override
+  String get narrativeSleeveNextStepReassure =>
+      'Scrivi cosa ti preoccupa, guardiamo insieme.';
+
+  @override
+  String get narrativeSleeveNextStepSimulate =>
+      'Scrivi uno scenario da esplorare.';
+
+  @override
+  String get narrativeSleeveHookFallback =>
+      'Vediamo insieme cosa cambia per te.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionExplain =>
+      'Ecco cosa racconta la tua carta oggi.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionReassure =>
+      'Guardiamo con calma a che punto sei.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionSimulate =>
+      'Scegli uno scenario da proiettare.';
 }
