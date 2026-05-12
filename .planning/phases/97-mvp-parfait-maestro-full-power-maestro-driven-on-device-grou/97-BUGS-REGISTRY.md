@@ -575,6 +575,24 @@ row enters the 7-step cycle (D-36), it is folded here for state-machine tracking
   found_in: 2026-05-11
   resolved_in: 2026-05-11T17:00:46Z
   notes: « Resolved jointly with F001. Text widget at mint_chat_overlay.dart:198-202 carries Key('chat_turn_counter') + renders '$_turnCount / $kChatMaxTurns'. Local-state UI-only counter ; server-side turn_cap.py is the canonical D-08 enforcement gate. Initial state « 0 / 3 », increments on send, reset on overlay re-mount (test asserts these 3 transitions). »
+
+- id: F008
+  severity: P2
+  surface: mobile
+  archetype: all
+  feature: chat_as_verb
+  title: « MintCardActionBar Row overflows by 35 px on iPhone 17 Pro (393 pt) when the 3 verb chips are laid out without flex distribution »
+  repro: « bash tools/simulator/maestro_env.sh test tools/simulator/flows/regression/bug__S002__maestro_cold_launch_fragment.yaml ; the resulting screenshot /tmp/97_s002_aujourdhui_after_fragment.png shows a yellow-and-black hatch banner « RIGHT OVERFLOWED BY 35 PIXELS » on the action bar row (Rassure-moi chip clipped, third verb partly off-screen). Widget tests at the default 800×600 viewport hide the defect — no width-constrained regression existed pre-fix. »
+  blast_radius: « Every Aujourd'hui card surface using MintCardActionBar. Discoverability of « Rassure-moi » broken on the canonical iPhone 17 Pro screen ; worse on iPhone SE-class widths. »
+  fix_cost: trivial
+  score: 8  # 2 × 4 / 1 (P2 because visual, not functional ; the Rassure-moi InkWell remains tappable via accessibility, just visually clipped)
+  status: RESOLVED
+  started: 2026-05-12T05:48:00Z
+  fix_commit: TBD-F008-row-flex
+  repro_flow: « unit test : apps/mobile/test/widgets/mint_card_action_bar_test.dart group « F008 regression — 3 chips fit within iPhone widths (320pt + 393pt) with no overflow ». Asserts no Flutter overflow exception + width <= viewport at 320 pt AND 393 pt. Pre-fix the assertion `size.width <= widthPt + 0.5` fails on a 393 pt viewport because the chip row natural width is ~428 pt. »
+  found_in: 2026-05-12  # spotted during S002 PASS-step screenshot
+  resolved_in: 2026-05-12T05:55:00Z
+  notes: « Single-perimeter cycle (post-incident discipline). FIX : wrap each `_VerbChip` in `Expanded(flex: 1)` so the 3 chips share the available width equally ; inner `_VerbChip` Row centers its icon+label cluster with `MainAxisAlignment.center` and the Text is wrapped in `Flexible` with `maxLines: 1` + `TextOverflow.ellipsis` as belt-and-suspenders for very narrow viewports (iPhone SE class). LOCK : new widget test « F008 regression » runs at 320 pt + 393 pt viewports, asserts no overflow exception + width ≤ viewport + all 3 verb labels render. SUITE : 14 adjacent widget tests still GREEN (mint_card_action_bar_test 9/9 + mint_card_action_bar_routing_test 4/4 + aujourdhui widget tests 1/1 confirmed via flutter test). Karpathy #3 surgical : 2 files (widget + test), no app-level diff outside this perimeter. »
 ```
 
 ### From sonnet Backend audit (folded 2026-05-11, see audit-backend-api.md for full B001-B025 catalogue)

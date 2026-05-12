@@ -87,6 +87,74 @@ void main() {
       expect(size.height, greaterThanOrEqualTo(48.0));
     });
 
+    // F008 (2026-05-12) — width-constrained overflow regression guard.
+    //
+    // Pre-fix : 3 chips were laid out via Row(mainAxisAlignment: center)
+    // with no flex distribution, so they overflowed by 35px on iPhone 17
+    // Pro (393pt logical width, sim screenshot
+    // /tmp/97_s002_aujourdhui_after_fragment.png). Default test viewport
+    // is 800×600 which hid the defect.
+    //
+    // Post-fix : each chip wrapped in Expanded(flex: 1), so the row
+    // always fits the parent width. Text uses Flexible + ellipsis as
+    // belt-and-suspenders for narrow viewports.
+    //
+    // This test runs at 320pt (iPhone SE 1st gen lower bound) AND at
+    // 393pt (iPhone 17 Pro) — both must pass with no debug-paint
+    // overflow indicator. Catching it at the unit-test layer means we
+    // never push this class of regression to the sim again.
+    testWidgets(
+      'F008 regression — 3 chips fit within iPhone widths (320pt + 393pt) '
+      'with no overflow',
+      (tester) async {
+        // Test at the tightest realistic width first.
+        for (final widthPt in [320.0, 393.0]) {
+          tester.view.physicalSize = Size(widthPt * 3.0, 200.0 * 3.0);
+          tester.view.devicePixelRatio = 3.0;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+
+          await tester.pumpWidget(_harness(
+            expanded: true,
+            onExplain: () {},
+            onSimulate: () {},
+            onReassure: () {},
+          ));
+          await tester.pumpAndSettle();
+
+          // Flutter renders a RenderFlexOverflow warning to the console
+          // AND adds an OverflowIndicator yellow-banner widget when a Row
+          // overflows. Both surface in tester.takeException() / the error
+          // widget descendants — assert neither is present.
+          expect(
+            tester.takeException(),
+            isNull,
+            reason: 'no overflow exception at $widthPt pt width',
+          );
+
+          // The widget must report a finite, non-negative width matching
+          // the viewport (no overflow into negative space).
+          final size = tester.getSize(find.byType(MintCardActionBar));
+          expect(
+            size.width,
+            lessThanOrEqualTo(widthPt + 0.5),
+            reason:
+                'MintCardActionBar width must fit viewport $widthPt pt '
+                '(got ${size.width})',
+          );
+
+          // The 3 chips must all be visible (none clipped to zero width).
+          for (final verb in ['Explique-moi', 'Simule', 'Rassure-moi']) {
+            expect(
+              find.text(verb),
+              findsOneWidget,
+              reason: '$verb must render at $widthPt pt width',
+            );
+          }
+        }
+      },
+    );
+
     testWidgets('each _VerbChip has minHeight/minWidth >= 44 (Apple HIG)',
         (tester) async {
       await tester.pumpWidget(_harness(
