@@ -108,3 +108,10 @@ tools/mcp/mint-tools/.venv/
 
 # Codegraph local index (regenerable, 139MB+ SQLite)
 .codegraph/
+
+# Hypothesis property-based testing cache (regenerated per pytest run, never commit)
+.hypothesis/
+**/.hypothesis/
+
+# .gitignore backups produced by failed edits
+.gitignore.bak
