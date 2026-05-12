@@ -45,7 +45,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 1bis | ~~S005~~ | ~~LandingScreen has no public CTA to /home~~ → **RESOLVED 2026-05-11T19:35:00Z** via « Continuer sans compte » link (W7 iter#4, fix 010d851c) — closes the cold-launch precondition, end-to-end Maestro reachability proven | ~~32~~ | mobile |
 | 1ter | M001 | Flutter Keys don't propagate as Maestro iOS Semantics identifiers (surfaced during S005 close) — every `id:`-based Maestro assertion broken on iOS | 16 | mobile |
 | 2 | L001 | Maestro locator audit fails 14 violations on 4 flows — testing infra broken | 32 | testing |
-| 3 | S002 | Maestro flow `flow_card_action_intent_bar.yaml` doesn't handle cold-app onboarding (bêta modal + landing + auth) | 32 | testing |
+| 3 | ~~S002~~ | ~~Maestro flow `flow_card_action_intent_bar.yaml` doesn't handle cold-app onboarding~~ → **RESOLVED 2026-05-12T05:44:00Z** via reusable cold-launch fragment (W7 single-perimeter cycle, fix TBD-commit) — `_fragment_cold_launch_to_aujourdhui.yaml` extracts launchApp→bêta dismiss→LandingScreen→Continuer-sans-compte→/home walk, called via `runFlow:` from the failing flow. Regression test bug__S002__maestro_cold_launch_fragment.yaml GREEN in 9s on iPhone 17 Pro sim ; S005 sibling regression GREEN in 8s (no adjacency regression). | ~~32~~ | testing |
 | 4 | ~~T001~~ | ~~EXIF metadata leak~~ → **RESOLVED 2026-05-11T20:35:00Z** via scrubExif() util in document_scan_screen.dart (W7 iter#5, fix 5f7d1953) — GDPR Art. 5(1)(c) + Swiss DSG Art. 8 compliance | ~~32~~ | mobile |
 | 5 | ~~T002~~ | ~~SQLite encryption missing~~ → **RESOLVED 2026-05-11T18:55:00Z** via at-rest encryption docs + deterministic contract tests (W7 iter#10, fix 6219bb65) — locked 3-layer defense (Railway PostgreSQL infra + AES-256-GCM envelope PRIV-04 + SQLCipher mobile), zero LOC app-code change, GDPR Art. 32 + Swiss DSG/LPD Art. 8 compliance proof | ~~32~~ | backend |
 | 6 | ~~S003~~ | ~~Custom URL scheme `mintapp://` NOT registered~~ → **RESOLVED 2026-05-11T20:10:00Z** via Info.plist CFBundleURLTypes + FlutterDeepLinkingEnabled (W7 iter#6, combined 4-bug deep-linking cycle) | ~~16~~ | mobile |
@@ -55,6 +55,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 10 | P001 | Phase 94 Stage 3 narrator gate-correct thresholds NOT MET (Sonnet 18% / Haiku 22% vs 95% / 90% targets after W7 iter#11 H1 fix — H1 marginal lift on process metrics, headline REJECTED ; H2-H5 filed as P001b/c/d/e) — prod-flip stays blocked | 16 | backend |
 | 11 | ~~B004~~ | ~~core/auth.py:55 bare except swallows JTI-blacklist DB errors — revoked-token auth-bypass via infra degradation~~ → **RESOLVED 2026-05-11T21:00:00Z** via fail-closed split-except (W7 iter#7, fix d50e2d2e) — 4/4 pytest GREEN, backend suite 6628 passed no regression | 16 | backend |
 | 12 | ~~B023~~ | ~~snapshots model declares table but no alembic migration creates it — Railway restart wipes user history~~ → **REJECTED 2026-05-11T21:25:00Z as audit false flag** (W7 iter#8, guard d57ab894) — baseline migration d73dcc3968c9 + p12 already create the table with all 21 cols + 3 indexes ; repro test preserved as permanent schema-parity regression guard (4/4 pytest GREEN, backend suite 6632 passed vs 6628 baseline, zero regression). Smaller real drift filed as new row B023b (FK + server_defaults, P2) | ~~16~~ → REJECTED-with-guard | backend |
+| 13 | P003 | Authenticated `/coach/chat` returns canned FALLBACK_TEMPLATED_TEXT on first prompt with full inline profile data — gate had no user-input awareness, narrator's echo of user numbers was treated as uncited → retry → fallback (Julien sim 2026-05-12T08:13Z) | 8 | backend |
 
 ---
 
@@ -92,12 +93,13 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « Phase 96 G1 gate cannot be live-run today. All future flows that target authenticated state need shared onboarding fragment. »
   fix_cost: small  # implement dismiss_beta_modal + auth_test_user fragments per Phase 97 W1
   score: 32  # 8 × 4 / 1
-  status: OPEN
-  fix_commit: null
-  repro_flow: « evidence at .planning/phases/96-mvp-chat-as-verb/g2-evidence/maestro-flow-failure-junit.xml »
+  status: RESOLVED
+  started: 2026-05-12T05:35:00Z
+  fix_commit: TBD-S002-fragment  # filled at squash-merge
+  repro_flow: tools/simulator/flows/regression/bug__S002__maestro_cold_launch_fragment.yaml
   found_in: 2026-05-11
-  resolved_in: null
-  notes: « Phase 97 W1 fragments close this. The bêta modal screenshot is at .planning/phases/96-mvp-chat-as-verb/g2-evidence/01-landing-modal.png. »
+  resolved_in: 2026-05-12T05:44:00Z
+  notes: « W7 single-perimeter cycle (2026-05-12, post-incident discipline) — extracted the cold-launch → Aujourd'hui walk into a reusable Maestro subflow at `tools/simulator/flows/maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml`. Six internal steps : launchApp clearState → conditional bêta modal dismiss (`Je comprends, on y va`) → LandingScreen `Parle à Mint` anchor → waitForAnimationToEnd → tap `.*Continuer sans compte.*` (S005 CTA) → `.*Aujourd'hui.*` regex match on BottomNavigationBar tab. `flow_card_action_intent_bar.yaml` step 1 now calls `runFlow: _fragment_cold_launch_to_aujourdhui.yaml` instead of the previous single-line `launchApp + assertVisible`. Karpathy #3 surgical : 3 files touched (1 new fragment + 1 new regression flow + 1 patched perfect-set flow), all YAML, zero LOC delta on app code. Verification : `bash tools/simulator/maestro_env.sh test tools/simulator/flows/regression/bug__S002__maestro_cold_launch_fragment.yaml --format=junit --output=/tmp/maestro_s002_post_fix.xml` → 1/1 Passed in 9s, /tmp/maestro_s002_post_fix.xml `failures="0"`. SUITE check : `bug__S005__landing_anonymous_cta_to_home.yaml` re-run 1/1 Passed in 8s post-fix, no adjacency regression. Side observation NOT included in this perimeter : the AujourdhuiScreen screenshot shows « RIGHT OVERFLOWED BY 35 PIXELS » on the MintCardActionBar — separate UI bug, filed for later. Memory : the cold-launch preamble is now reusable for `flow_3a_calculator.yaml`, `flow_g2_julien_walkthrough.yaml`, and any future flow needing an authenticated 3-tab nav from clean sim state. »
 
 - id: S003
   severity: P0
@@ -575,6 +577,42 @@ row enters the 7-step cycle (D-36), it is folded here for state-machine tracking
   found_in: 2026-05-11
   resolved_in: 2026-05-11T17:00:46Z
   notes: « Resolved jointly with F001. Text widget at mint_chat_overlay.dart:198-202 carries Key('chat_turn_counter') + renders '$_turnCount / $kChatMaxTurns'. Local-state UI-only counter ; server-side turn_cap.py is the canonical D-08 enforcement gate. Initial state « 0 / 3 », increments on send, reset on overlay re-mount (test asserts these 3 transitions). »
+
+- id: P003
+  severity: P0
+  surface: backend
+  archetype: all
+  feature: coach_citation_gate
+  title: « Authenticated /coach/chat returns canned FALLBACK_TEMPLATED_TEXT on first prompt with full inline profile data — gate had no user-input awareness »
+  repro: « Julien sim 2026-05-12T08:13Z + reproduced via L3 curl staging with debug user. Synthetic narrator output echoing 4 user numbers (49, 7600, 300000, 5) hits the gate's number-detection step ; none of the 4 numbers are in CITATION_REGISTRY ; the meta-quote / meta-negation / legal-article exemptions don't apply ; first-pass verdict=REJECTED_UNCITED ; second-pass (is_retry=True) verdict=FALLBACK gated_text=FALLBACK_TEMPLATED_TEXT. citation_grammar.py:147-149 had been lying to the narrator about this exemption since Phase 94.1. Cycle artefacts at .planning/cycles/P003/. »
+  blast_radius: « First-contact UX broken on the canonical user flow. The authenticated coach is the primary product surface ; every logged-in user typing a profile-dump prompt got the canned « tell me more » response that asked for the data they had just supplied. 30s wall-time wasted on a doomed retry cascade. »
+  fix_cost: medium
+  score: 8  # 8 × 4 / 4 — P0 escalated by user-visible impact + all-archetype + medium cost
+  status: IN_PROGRESS
+  started: 2026-05-12T07:40:00Z
+  fix_commit: TBD-P003-user-input-aware  # filled at squash-merge
+  repro_flow: « tests/test_citation_gate/test_p003_user_input_awareness.py — 12 tests covering extractor, gate exemption, adversarial preservation, banned-claim preservation, byte-identity, Swiss-notation handling »
+  found_in: 2026-05-12
+  resolved_in: null  # GATED on Pillar 6 dim 3 (system) + dim 4 (user) post-deploy
+  notes: « First adopter of MINT Debug Method (MDM) v1 written at .planning/MINT-DEBUG-METHOD.md. Cycle artefact stack : CONTEXT.md (Pillar 1 CAP, 10-step reading log + 10 verified facts) ; PANEL.md (Pillar 2, 5 expert subagent verdicts : LLM Eval Engineer GO, Backend Architect GO, LSFin Compliance CHANGE, UX Researcher CHANGE, Adversarial Tester STOP) ; REPRO-AND-RCA.md (Pillar 3+4, L0/L1/L3 ladder climbed + 7 hypotheses with verification) ; FIX-DECISION.md (Pillar 5, 6-option weighted matrix, chose F3=user-input awareness ; F4 FALLBACK rewrite + F5 empty-narrator guard deferred to follow-up cycles). FIX implementation : (a) new `extract_user_input_numbers(text) -> frozenset[Decimal]` + `_normalize_user_number_token` in citation_parser.py with Swiss-notation handling (apostrophe, NBSP, regular space, comma/dot decimals). (b) New kwarg `user_input_numbers: Optional[frozenset[Decimal]] = None` on `gate(...)`. (c) Step 5b exemption between meta-negation and adjacency check — normalised matched token in user_inputs → skip. (d) coach_chat.py wrapper threads body.message + last 8 user turns of history through both gate invocations. (e) citation_grammar.py rewritten : (e1) removed the lie at lines 147-149 (now accurate : « la garde reconnaît automatiquement les chiffres présents dans le message de l'utilisateur ») ; (e2) removed the « ACCEPTÉ — pas de clé adaptée » example that taught narrator to emit FALLBACK_TEMPLATED_TEXT verbatim ; (e3) added a new « ACCEPTÉ — chiffre fourni par l'utilisateur, échoué tel quel » example with Julien's verbatim 49 + 7'600 CHF case ; (e4) added a « REJETÉ — chiffre fabriqué » example covering narrator-derived ratios. Compliance preserved : narrator-fabricated numbers (calculations, ratios) still rejected ; banned-claim verb regex untouched (« vous gagnerez 7600 » still REJECTED_BANNED_CLAIM). Karpathy #3 surgical : 4 files + 1 new test file ; ~280 LOC delta. Verification : 12/12 P003 regression tests GREEN ; 190/190 Phase 94 citation_gate suite GREEN ; 321/321 wide sweep (Phase 94 + chat-as-verb + coach endpoint + anon chat) GREEN ; 6662/62 skipped/1 xfailed full backend suite GREEN in 111s. Verification Cube : dims 1+2 GREEN ; dims 3 (L3 curl post-deploy) + 4 (Julien sim re-test) PENDING — bug stays IN_PROGRESS until all 4 GREEN per MDM Pillar 6 contract. »
+
+- id: F008
+  severity: P2
+  surface: mobile
+  archetype: all
+  feature: chat_as_verb
+  title: « MintCardActionBar Row overflows by 35 px on iPhone 17 Pro (393 pt) when the 3 verb chips are laid out without flex distribution »
+  repro: « bash tools/simulator/maestro_env.sh test tools/simulator/flows/regression/bug__S002__maestro_cold_launch_fragment.yaml ; the resulting screenshot /tmp/97_s002_aujourdhui_after_fragment.png shows a yellow-and-black hatch banner « RIGHT OVERFLOWED BY 35 PIXELS » on the action bar row (Rassure-moi chip clipped, third verb partly off-screen). Widget tests at the default 800×600 viewport hide the defect — no width-constrained regression existed pre-fix. »
+  blast_radius: « Every Aujourd'hui card surface using MintCardActionBar. Discoverability of « Rassure-moi » broken on the canonical iPhone 17 Pro screen ; worse on iPhone SE-class widths. »
+  fix_cost: trivial
+  score: 8  # 2 × 4 / 1 (P2 because visual, not functional ; the Rassure-moi InkWell remains tappable via accessibility, just visually clipped)
+  status: RESOLVED
+  started: 2026-05-12T05:48:00Z
+  fix_commit: TBD-F008-row-flex
+  repro_flow: « unit test : apps/mobile/test/widgets/mint_card_action_bar_test.dart group « F008 regression — 3 chips fit within iPhone widths (320pt + 393pt) with no overflow ». Asserts no Flutter overflow exception + width <= viewport at 320 pt AND 393 pt. Pre-fix the assertion `size.width <= widthPt + 0.5` fails on a 393 pt viewport because the chip row natural width is ~428 pt. »
+  found_in: 2026-05-12  # spotted during S002 PASS-step screenshot
+  resolved_in: 2026-05-12T05:55:00Z
+  notes: « Single-perimeter cycle (post-incident discipline). FIX : wrap each `_VerbChip` in `Expanded(flex: 1)` so the 3 chips share the available width equally ; inner `_VerbChip` Row centers its icon+label cluster with `MainAxisAlignment.center` and the Text is wrapped in `Flexible` with `maxLines: 1` + `TextOverflow.ellipsis` as belt-and-suspenders for very narrow viewports (iPhone SE class). LOCK : new widget test « F008 regression » runs at 320 pt + 393 pt viewports, asserts no overflow exception + width ≤ viewport + all 3 verb labels render. SUITE : 14 adjacent widget tests still GREEN (mint_card_action_bar_test 9/9 + mint_card_action_bar_routing_test 4/4 + aujourdhui widget tests 1/1 confirmed via flutter test). Karpathy #3 surgical : 2 files (widget + test), no app-level diff outside this perimeter. »
 ```
 
 ### From sonnet Backend audit (folded 2026-05-11, see audit-backend-api.md for full B001-B025 catalogue)

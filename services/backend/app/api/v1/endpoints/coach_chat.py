@@ -410,6 +410,33 @@ def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
 # ---------------------------------------------------------------------------
 
 
+def _collect_user_input_numbers_from_session(
+    message: str,
+    history: "list[dict] | None",
+    *,
+    history_window: int = 8,
+):
+    """P003 (2026-05-12) — extract user-supplied numbers across the session.
+
+    Pulls numeric tokens from the current user `message` PLUS the last
+    `history_window` user turns of `history`. Returns a frozenset of
+    canonical Decimal values that `citation_parser.gate(...)` exempts at
+    step 5b. Pure function, no I/O.
+
+    Module-level (NOT nested inside the endpoint handler) so diff-cover
+    can hit the iteration body without integration-test plumbing.
+    """
+    from app.services.coach.citation_parser import extract_user_input_numbers
+
+    sources: list[str] = [message]
+    for turn in (history or [])[-history_window:]:
+        role = turn.get("role", "")
+        content = turn.get("content", "")
+        if role == "user" and isinstance(content, str):
+            sources.append(content)
+    return extract_user_input_numbers("\n".join(sources))
+
+
 def _sanitize_conversation_history(
     history: list[dict[str, str]] | None,
 ) -> list[dict[str, str]] | None:
@@ -3343,6 +3370,18 @@ async def coach_chat(
         else None
     )
 
+    # P003 (2026-05-12) — user-input number awareness for the citation gate.
+    # Extract numeric tokens from the current user message AND the last 8
+    # user turns of conversation history. The gate's step 5b exempts any
+    # narrator-emitted number that normalises to a value in this set, so
+    # narrator can safely echo user-supplied data ("avec 49 ans, 7'600 CHF…")
+    # without triggering REJECTED_UNCITED → FALLBACK. Narrator-fabricated
+    # numbers (calculations, ratios not in any user turn) stay subject to
+    # the closed-world citation requirement (cycle P003 RCA H1+H2+H3).
+    _user_input_numbers = _collect_user_input_numbers_from_session(
+        message=body.message, history=safe_history
+    )
+
     def _emit_gate_breadcrumb(
         gated: GatedResponse, retries: int,
     ) -> None:
@@ -3382,6 +3421,7 @@ async def coach_chat(
             citation_allowlist=_gate_allowlist,
             is_retry=False,
             pack=pack,   # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
+            user_input_numbers=_user_input_numbers,  # P003
         )
         _emit_gate_breadcrumb(gated, retries=0)
 
@@ -3403,6 +3443,7 @@ async def coach_chat(
             citation_allowlist=_gate_allowlist,
             is_retry=True,
             pack=pack,   # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
+            user_input_numbers=_user_input_numbers,  # P003
         )
         _emit_gate_breadcrumb(retry_gated, retries=1)
         retry_result["answer"] = retry_gated.gated_text

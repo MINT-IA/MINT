@@ -1,0 +1,117 @@
+# tools/simulator/flows/maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Reusable Maestro subflow that takes the iPhone sim from « cold launch »
+# (state cleared, no auth, fresh prefs) to the authenticated /home screen
+# (« Aujourd'hui » 3-tab nav visible), via the anonymous local-mode path.
+#
+# Closes Phase 97 W7 S002 : the chat-as-verb G1 flow
+# `flow_card_action_intent_bar.yaml` was failing at step 1 because cold
+# launch lands on the bêta modal + LandingScreen, not on Aujourd'hui.
+# Same precondition for any flow that targets the authenticated 3-tab
+# nav from a clean sim state.
+#
+# ─── USAGE ─────────────────────────────────────────────────────────────
+# Include at the top of any flow that needs an authenticated 3-tab nav :
+#
+#     - runFlow: _fragment_cold_launch_to_aujourdhui.yaml
+#     # ... continue with assertions on Aujourd'hui surface ...
+#
+# Or with explicit path from the regression/ dir :
+#
+#     - runFlow: ../maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml
+#
+# The fragment leaves the sim on the AujourdhuiScreen (route /home),
+# with « Aujourd'hui » tab selected, anonymous local-mode session
+# active (isLocalMode=true, isLoggedIn=false). It does NOT seed any
+# profile data — callers must populate financial_core fixtures via
+# dart-define if their flow needs them.
+#
+# ─── PATH WALKED ───────────────────────────────────────────────────────
+#   1. launchApp clearState:true          — wipe SharedPreferences
+#   2. Dismiss bêta modal (conditional)   — « Je comprends, on y va »
+#   3. LandingScreen renders              — « Voir clair, décider seul »
+#   4. Tap « Continuer sans compte »      — S005 anonymous CTA
+#   5. context.go('/home')                — AuthProvider isLocalMode=true
+#   6. Assert « Aujourd'hui » visible     — AujourdhuiScreen rendered
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App ch.mint.app installed on booted iPhone sim
+# - Backend = Railway staging (per memory `feedback_app_targets_staging_always`)
+# - S005 (« Continuer sans compte » CTA) merged on the build under test
+#   (W7 iter#4, commit 010d851c) — pre-S005 builds will fail at step 4.
+#
+# ─── REGEX MATCHER RATIONALE ───────────────────────────────────────────
+# Both « Continuer sans compte » and « Aujourd'hui » carry doubled
+# accessibilityText on iOS (Semantics label + Text child / Tab hint
+# concatenated by the Flutter iOS bridge with \n). Maestro's exact
+# matcher fails on the doubled form ; the regex matcher pattern
+# `.*<term>.*` matches reliably. Same pattern as
+# bug__S005__landing_anonymous_cta_to_home.yaml (W7 iter#4 reference).
+#
+# ─── MAESTRO 2.5.1 SYNTAX ──────────────────────────────────────────────
+# Per https://docs.maestro.dev/api-reference/commands.
+
+appId: ch.mint.app
+tags:
+  - phase-97
+  - phase-97-w7
+  - bug-s002
+  - fragment
+  - cold-launch
+  - feature:navigation
+---
+
+# ── Step 1 — Cold launch with clean state ─────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── Step 2 — Dismiss bêta modal if present ────────────────────────────
+# The « MINT en test » bêta modal is the first surface on a fresh
+# install. It may not appear on warm-starts ; the conditional `runFlow`
+# only taps when the modal is visible, making this fragment idempotent.
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# ── Step 3 — LandingScreen visible (primary CTA anchor) ───────────────
+# The wordmark MINT + hero « Voir clair, décider seul » render once
+# the bêta modal closes. The « Parle à Mint » primary CTA is the most
+# reliable text anchor (single-line, mid-screen) even when the hero
+# wraps across lines.
+- extendedWaitUntil:
+    visible:
+      text: "Parle à Mint"
+    timeout: 10000
+
+# ── Step 4 — Wait for the CTA FadeTransition to settle (2.5-2.8s) ─────
+# « J'ai déjà un compte » and « Continuer sans compte » share the
+# _ctaOpacity controller (landing_screen.dart:58-62). The « Parle à
+# Mint » assertion above gives 10s of slack ; waitForAnimationToEnd
+# belt-and-suspenders against FadeTransition opacity ambiguity.
+- waitForAnimationToEnd
+
+# ── Step 5 — Tap « Continuer sans compte » → /home ────────────────────
+# S005 (W7 iter#4) added this CTA below « J'ai déjà un compte ». Pre-
+# S005 builds have no such link and this step fails — that's the
+# intended fail-loud signal.
+- extendedWaitUntil:
+    visible:
+      text: ".*Continuer sans compte.*"
+    timeout: 5000
+- tapOn:
+    text: ".*Continuer sans compte.*"
+- waitForAnimationToEnd
+
+# ── Step 6 — Aujourd'hui visible (3-tab nav header) ───────────────────
+# context.go('/home') → AuthProvider isLocalMode=true → app.dart:417
+# gate passes (isLoggedIn || isLocalMode) → AujourdhuiScreen renders.
+# The BottomNavigationBar tab carries accessibilityText="Aujourd'hui\n
+# Onglet 1 sur 4" — regex matcher tolerates the doubled form.
+- extendedWaitUntil:
+    visible:
+      text: ".*Aujourd'hui.*"
+    timeout: 10000

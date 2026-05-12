@@ -72,31 +72,41 @@ class MintCardActionBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                 horizontal: MintSpacing.md,
               ),
+              // F008 (2026-05-12) — 3 chips share the available width via
+              // Expanded(flex: 1) so the row fits any iPhone width
+              // (overflow surfaced at 35px on iPhone 17 Pro pre-fix).
+              // Inner chip row keeps MainAxisSize.min on the icon+label
+              // cluster + centers it within the Expanded slot.
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _VerbChip(
-                    label: l.verbExplique,
-                    icon: Icons.lightbulb_outline,
-                    semanticsLabel:
-                        'Explique-moi — ouvre le coach sur cette carte',
-                    onTap: onExplain,
+                  Expanded(
+                    child: _VerbChip(
+                      label: l.verbExplique,
+                      icon: Icons.lightbulb_outline,
+                      semanticsLabel:
+                          'Explique-moi — ouvre le coach sur cette carte',
+                      onTap: onExplain,
+                    ),
                   ),
                   const SizedBox(width: MintSpacing.sm),
-                  _VerbChip(
-                    label: l.verbSimule,
-                    icon: Icons.tune_outlined,
-                    semanticsLabel:
-                        'Simule — ouvre le simulateur pour cette carte',
-                    onTap: onSimulate,
+                  Expanded(
+                    child: _VerbChip(
+                      label: l.verbSimule,
+                      icon: Icons.tune_outlined,
+                      semanticsLabel:
+                          'Simule — ouvre le simulateur pour cette carte',
+                      onTap: onSimulate,
+                    ),
                   ),
                   const SizedBox(width: MintSpacing.sm),
-                  _VerbChip(
-                    label: l.verbRassure,
-                    icon: Icons.shield_outlined,
-                    semanticsLabel:
-                        "Rassure-moi — ouvre le coach pour réduire l'inquiétude",
-                    onTap: onReassure,
+                  Expanded(
+                    child: _VerbChip(
+                      label: l.verbRassure,
+                      icon: Icons.shield_outlined,
+                      semanticsLabel:
+                          "Rassure-moi — ouvre le coach pour réduire l'inquiétude",
+                      onTap: onReassure,
+                    ),
                   ),
                 ],
               ),
@@ -148,13 +158,18 @@ class _VerbChip extends StatelessWidget {
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(icon, size: 16, color: MintColors.textMuted),
                 const SizedBox(width: MintSpacing.xs),
-                Text(
-                  label,
-                  style: MintTextStyles.labelLarge(
-                    color: MintColors.textSecondary,
+                Flexible(
+                  child: Text(
+                    label,
+                    style: MintTextStyles.labelLarge(
+                      color: MintColors.textSecondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
