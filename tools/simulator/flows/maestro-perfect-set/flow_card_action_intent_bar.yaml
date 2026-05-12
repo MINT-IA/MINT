@@ -82,15 +82,14 @@ tags:
   - mint-chat-overlay
 ---
 
-# ── Step 1 — Cold launch + 3-tab nav assertion ────────────────────────
-# clearState=true forces a fresh session so prior runs' chat history
-# doesn't pollute turn counter assertions.
-- launchApp:
-    clearState: true
-- extendedWaitUntil:
-    visible:
-      text: ".*Aujourd'hui.*"
-    timeout: 8000
+# ── Step 1 — Cold launch + anonymous wedge → Aujourd'hui ──────────────
+# Phase 97 W7 S002 (2026-05-12) — extracted the cold-launch preamble
+# into a reusable fragment. Pre-fix : this step was a single launchApp
+# + assertVisible that failed because cold launch lands on the bêta
+# modal + LandingScreen, not Aujourd'hui. The fragment now walks
+# launchApp → bêta dismiss → LandingScreen → « Continuer sans compte »
+# → /home before the assertions below run.
+- runFlow: _fragment_cold_launch_to_aujourdhui.yaml
 - assertVisible: "Aujourd'hui"
 - assertVisible: "Explorer"
 # Chat tab is HIDDEN when chatTabVisible=false on staging.
