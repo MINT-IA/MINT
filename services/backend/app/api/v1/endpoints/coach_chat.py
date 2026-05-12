@@ -3343,6 +3343,25 @@ async def coach_chat(
         else None
     )
 
+    # P003 (2026-05-12) — user-input number awareness for the citation gate.
+    # Extract numeric tokens from the current user message AND the last 4
+    # user turns of conversation history. The gate's step 5b exempts any
+    # narrator-emitted number that normalises to a value in this set, so
+    # narrator can safely echo user-supplied data ("avec 49 ans, 7'600 CHF…")
+    # without triggering REJECTED_UNCITED → FALLBACK. Narrator-fabricated
+    # numbers (calculations, ratios not in any user turn) stay subject to
+    # the closed-world citation requirement (cycle P003 RCA H1+H2+H3).
+    from app.services.coach.citation_parser import (
+        extract_user_input_numbers as _extract_user_input_numbers,
+    )
+    _user_text_sources = [body.message]
+    for _turn in (safe_history or [])[-8:]:
+        _role = _turn.get("role", "")
+        _content = _turn.get("content", "")
+        if _role == "user" and isinstance(_content, str):
+            _user_text_sources.append(_content)
+    _user_input_numbers = _extract_user_input_numbers("\n".join(_user_text_sources))
+
     def _emit_gate_breadcrumb(
         gated: GatedResponse, retries: int,
     ) -> None:
@@ -3382,6 +3401,7 @@ async def coach_chat(
             citation_allowlist=_gate_allowlist,
             is_retry=False,
             pack=pack,   # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
+            user_input_numbers=_user_input_numbers,  # P003
         )
         _emit_gate_breadcrumb(gated, retries=0)
 
@@ -3403,6 +3423,7 @@ async def coach_chat(
             citation_allowlist=_gate_allowlist,
             is_retry=True,
             pack=pack,   # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
+            user_input_numbers=_user_input_numbers,  # P003
         )
         _emit_gate_breadcrumb(retry_gated, retries=1)
         retry_result["answer"] = retry_gated.gated_text

@@ -107,30 +107,50 @@ def _build_citation_grammar_fragment() -> str:
     # tools/checks/banned_terms_python.py) and respects the « pourrait »
     # / « envisager » vocabulary. Quotes use French guillemets « » and
     # accents are 100% FR (lint-clean).
+    # P003 (2026-05-12) — Examples rewritten to remove (a) the « ACCEPTÉ —
+    # pas de clé adaptée » example that taught the narrator to emit the
+    # FALLBACK_TEMPLATED_TEXT string verbatim (which led to silent self-
+    # fallback, cycle P003 RCA H3), and (b) the « écris je n'ai pas cette
+    # donnée à la place du chiffre » exit hatch in the rule section
+    # (which compounded the same self-fallback path).
+    # New examples cover : (1) registry-cited regulatory chiffre, (2) user-
+    # supplied chiffre echoed back without clé (now genuinely gate-exempt
+    # per the P003 step 5b exemption in citation_parser.gate), (3) the
+    # rejected case where the narrator FABRICATES a number it cannot cite.
     examples = (
         "\n"
         "### Exemples (verbatim, à imiter) :\n"
         "\n"
-        "**ACCEPTÉ — chiffre cité** :\n"
+        "**ACCEPTÉ — chiffre réglementaire cité** :\n"
         "« Pour 2026, le plafond 3a salarié·e est fixé par "
         "l'OPP3 art. 7 al. 1 let. a {{cite:r3a_plafond_salarie_2026}}. »\n"
         "\n"
-        "**ACCEPTÉ — pas de clé adaptée** :\n"
-        "« Je n'ai pas cette donnée pour l'instant. Pour avancer "
-        "ensemble, dis-moi un peu plus sur ta situation. »\n"
+        "**ACCEPTÉ — chiffre fourni par l'utilisateur, échoué tel quel** :\n"
+        "L'utilisateur écrit : « j'ai 49 ans, 7'600 CHF de salaire net ».\n"
+        "Tu peux répondre : « Avec 49 ans et 7'600 CHF de salaire net, "
+        "tu pourrais envisager… ». La garde reconnaît automatiquement "
+        "les chiffres présents dans le message de l'utilisateur et les "
+        "laisse passer sans `{{cite:<clé>}}` — c'est de l'écho de "
+        "données, pas une affirmation de valeur réglementaire.\n"
         "\n"
-        "**REJETÉ — chiffre nu, sans `{{cite:<clé>}}`** :\n"
-        "« Le plafond 3a est de 7'056 CHF cette année. » → la garde "
-        "détecte le chiffre non cité, demande une reformulation, et "
-        "si la deuxième tentative reste non citée, ta réponse bascule "
-        "sur le fallback templaté. Évite ce cas en plaçant la clé "
-        "directement après le chiffre, ou en écrivant « je n'ai pas "
-        "cette donnée pour l'instant » à la place du chiffre.\n"
+        "**REJETÉ — chiffre fabriqué que tu ne peux pas sourcer** :\n"
+        "« Tu pourrais économiser 1'200 CHF de plus par mois. » → "
+        "le chiffre 1'200 n'est PAS dans le message de l'utilisateur "
+        "et n'a pas de clé `{{cite:<clé>}}` adaptée dans le "
+        "vocabulaire fermé. La garde le rejette. Pour formuler une "
+        "estimation, soit cite la clé qui couvre le calcul, soit "
+        "reformule au conditionnel sans avancer de chiffre précis "
+        "(« une marge mensuelle resterait à dégager »).\n"
     )
 
     # Adjacency rule — the gate uses a 80-char window per
     # `citation_parser._CITATION_ADJACENCY_CHARS`. We translate this
     # operationally for the narrator without surfacing the integer.
+    # P003 (2026-05-12) — last bullet rewritten to ACCURATELY describe
+    # the new step 5b exemption added in `citation_parser.gate`.
+    # Pre-P003 wording (« la garde reconnaît les négations et les
+    # méta-citations ») was a prompt-code contract violation : the gate
+    # had no user-input branch and rejected legitimate echoes.
     rule_section = (
         "\n"
         "### Règle de placement :\n"
@@ -144,9 +164,14 @@ def _build_citation_grammar_fragment() -> str:
         "« si X reste constant ») reste au conditionnel ; n'utilise "
         "JAMAIS d'affirmation de promesse même avec une clé citée "
         "(« vous ferez 4% » est rejeté EVEN AVEC `{{cite:}}`).\n"
-        "- Si le chiffre vient d'un calcul utilisateur (revenus, "
-        "patrimoine saisi en chat), tu peux l'écrire sans clé — la "
-        "garde reconnaît les négations et les méta-citations.\n"
+        "- Les chiffres présents dans le message de l'utilisateur "
+        "(âge, salaire, montants déclarés, nombre de comptes) sont "
+        "automatiquement exemptés par la garde : tu peux les "
+        "reprendre tels quels dans ta réponse sans `{{cite:<clé>}}`. "
+        "Cette exemption ne couvre PAS les chiffres dérivés ou "
+        "estimés par toi (calculs, ratios, totaux) — ceux-ci doivent "
+        "soit citer une clé du vocabulaire fermé, soit rester "
+        "qualitatifs.\n"
     )
 
     return header + keys_section + examples + rule_section

@@ -135,6 +135,105 @@ REPROMPT_ADDENDUM_UNCITED: str = (
     "« je n'ai pas cette donnée » à la place."
 )
 
+
+# ---------------------------------------------------------------------------
+# P003 (2026-05-12) — user-input number awareness.
+#
+# The gate's pre-P003 exemption set (meta-quote, meta-negation, legal-article
+# overlap, adjacent {{cite:<key>}}) did NOT include numbers that the user
+# supplied in their own message. citation_grammar.py:147-149 nonetheless
+# promised the narrator that such numbers were exempt — a prompt-code
+# contract violation that caused FALLBACK on every first-prompt where the
+# narrator legitimately echoed user-supplied data (cycle P003 root cause).
+#
+# `_normalize_user_number_token` strips Swiss thousand separators (apostrophe
+# `'`, non-breaking space `\xa0`, regular space ` `), normalises decimal
+# comma to dot, drops currency / duration / count suffixes, and casts the
+# result to `Decimal` for set-membership comparison. Two textual forms
+# `7600`, `7'600`, `7 600 CHF`, `7'600.00`, `7600,00`, `7'600 francs` all
+# normalise to `Decimal("7600")` and match a user-supplied `7600`.
+# ---------------------------------------------------------------------------
+
+import unicodedata as _unicodedata
+from decimal import Decimal as _Decimal, InvalidOperation as _DecimalInvalid
+
+_USER_NUMBER_SUFFIX_RE = re.compile(
+    r"\s*(?:CHF|chf|EUR|eur|USD|usd|fr\.?|francs?|%|ans?|mois|jours?|"
+    r"semaines?|années?|trimestres?|comptes?|enfants?|personnes?)\s*$",
+    re.IGNORECASE,
+)
+
+
+def _normalize_user_number_token(token: str) -> Optional[_Decimal]:
+    """Return the canonical Decimal value of a numeric token, or None.
+
+    Tolerant of Swiss notation : apostrophe / non-breaking space / regular
+    space thousand separators ; comma OR dot decimal mark ; trailing unit
+    (CHF / EUR / %, ans / mois / etc.). Returns None on any parse failure
+    so callers can fail-open (treat unparseable tokens as not-user-input).
+    """
+    if not token:
+        return None
+    # Normalise whitespace (incl. NBSP) and Unicode chars.
+    s = _unicodedata.normalize("NFKC", token).strip()
+    # Drop trailing unit if any.
+    s = _USER_NUMBER_SUFFIX_RE.sub("", s).strip()
+    # Strip thousand separators (apostrophe + any whitespace).
+    s = s.replace("'", "").replace(" ", "").replace(" ", "")
+    # Normalise decimal comma → dot. Only one separator may remain at
+    # this point ; if the string has both comma and dot, we trust the
+    # later one to be the decimal mark.
+    if "," in s and "." in s:
+        # Drop the earlier separator (interpreted as thousands).
+        if s.rfind(",") > s.rfind("."):
+            s = s.replace(".", "").replace(",", ".")
+        else:
+            s = s.replace(",", "")
+    elif "," in s:
+        s = s.replace(",", ".")
+    try:
+        return _Decimal(s)
+    except _DecimalInvalid:
+        return None
+
+
+# Numeric extractor over a user message. Catches integer-like and decimal-
+# like tokens, optionally followed by a currency / unit / count suffix
+# matched by the gate's number-family regexes. The output is a frozenset
+# of Decimal values keyed by canonical normalisation, so spelling variants
+# in the narrator's echo still match.
+_USER_NUMBER_EXTRACTION_RE = re.compile(
+    r"\b\d{1,3}(?:[\s' ]\d{3})+(?:[.,]\d+)?"  # 7'600 / 300 000 / 1'234.56
+    r"|\b\d+(?:[.,]\d+)?\b"  # 49 / 7600 / 7,5
+)
+
+
+def extract_user_input_numbers(text: str) -> frozenset[_Decimal]:
+    """Extract numeric tokens from arbitrary user-supplied free text.
+
+    Tolerates Swiss notation and intermixed prose. Returns a frozenset of
+    canonical Decimal values for set-membership comparison inside the
+    gate's number-detection pass.
+
+    Examples :
+      ``"j'ai 49 ans, 7'600 CHF, 300 000 CHF rachat, 5 comptes"``
+        → frozenset({Decimal("49"), Decimal("7600"),
+                     Decimal("300000"), Decimal("5")})
+      ``""`` → frozenset()
+
+    Per CONTEXT D-04 P003 amendment — single source of truth for the
+    user-input exemption used by the gate (step 5b).
+    """
+    if not text:
+        return frozenset()
+    matches = _USER_NUMBER_EXTRACTION_RE.findall(text)
+    out: set[_Decimal] = set()
+    for raw in matches:
+        normed = _normalize_user_number_token(raw)
+        if normed is not None:
+            out.add(normed)
+    return frozenset(out)
+
 # D-13 — verbatim FR reprompt for banned-claim assertions
 REPROMPT_ADDENDUM_BANNED_CLAIM: str = (
     "\n\nRAPPEL — Une projection est une scénario, pas une promesse. "
@@ -429,6 +528,7 @@ def gate(
     is_retry: bool = False,
     *,
     pack: "ProjectionGroundingPack | None" = None,
+    user_input_numbers: Optional["frozenset[_Decimal]"] = None,
 ) -> GatedResponse:
     """Closed-world citation gate. Pure function, no I/O.
 
@@ -539,6 +639,17 @@ def gate(
         return False
 
     # Step 5 — number detection passes.
+    # P003 (2026-05-12) — step 5b adds a user-input exemption BEFORE the
+    # adjacency check : if the matched numeric span normalises to a value
+    # the user supplied in their own message (`user_input_numbers`), the
+    # gate treats it as already-cited. This aligns the gate's behaviour
+    # with the system-prompt fragment that has long promised this
+    # exemption (citation_grammar.py:147-149 pre-P003). The
+    # `user_input_numbers` set is passed by the coach_chat wrapper after
+    # extracting numbers from `body.message` ; the regulatory v1 (Phase
+    # 94 D-08) called `gate` without this kwarg, in which case the set
+    # is empty and behaviour is byte-identical to pre-P003.
+    user_inputs = user_input_numbers or frozenset()
     uncited_count = 0
     for pattern in (_RE_CURRENCY, _RE_PERCENT, _RE_DURATION, _RE_REGULATORY):
         for m in pattern.finditer(scan_text):
@@ -549,6 +660,11 @@ def gate(
                 continue
             if is_meta_negation(scan_text, s, e):
                 continue
+            # P003 step 5b — user-input exemption.
+            if user_inputs:
+                token_value = _normalize_user_number_token(scan_text[s:e])
+                if token_value is not None and token_value in user_inputs:
+                    continue
             # Map scan_text span back to response_text for adjacency check.
             orig_s = _scan_to_orig_offset(s, placeholder_spans)
             orig_e = _scan_to_orig_offset(e, placeholder_spans)
@@ -606,6 +722,7 @@ __all__ = [
     "REPROMPT_ADDENDUM_UNCITED",
     "REPROMPT_ADDENDUM_BANNED_CLAIM",
     "FALLBACK_TEMPLATED_TEXT",
+    "extract_user_input_numbers",
     # Compiled regex (private but re-used by tests)
     "_RE_CURRENCY",
     "_RE_PERCENT",
