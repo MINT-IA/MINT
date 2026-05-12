@@ -136,6 +136,26 @@ pre-commit:
       run: python3 tools/checks/banned_terms_python.py --lsfin-annotation {staged_files}
       tags: [compliance, lsfin, phase-95-dag-invalidation]
       fail_text: "LSFin D-12 violation : credible_low/credible_high emitted without verbatim « selon le modèle simplifié actuel » annotation. Add the FR phrase to the module docstring or output template (CLAUDE.md §1)."
+    # ── Incident 2026-05-12 — alembic revision id too long (LINT-ALEMBIC-01) ──
+    alembic_revision_length:
+      # HARD gate. Block any alembic migration whose `revision` identifier
+      # exceeds 32 chars. PostgreSQL `alembic_version.version_num` is
+      # `VARCHAR(32)` — a longer id triggers `psycopg2.errors.
+      # StringDataRightTruncation`, the UPDATE fails, the migration rolls
+      # back, alembic_version stays at the previous revision, the container
+      # fails to start, Railway healthcheck retries exhaust, and prod
+      # serves 502.
+      #
+      # 2026-05-12T11:14Z incident : revision_id
+      # `p97_snapshots_fk_and_server_defaults` (36 chars) overflowed the
+      # column. Staging served 502 for ~35 minutes. SQLite tolerates the
+      # overflow at pytest-time, so this defect only surfaces in production.
+      # Fix : PR #575 shortened to `p97_snapshots_fk_defaults` (25 chars).
+      # This lint is the mechanical guard that prevents recurrence.
+      glob: "services/backend/alembic/versions/*.py"
+      run: python3 tools/checks/alembic_revision_length.py --file {staged_files}
+      tags: [backend, alembic, release, incident-2026-05-12]
+      fail_text: "alembic revision id > 32 chars — PostgreSQL alembic_version.version_num VARCHAR(32) overflow. Shorten the `revision` string in the affected file."
     # ── Incident 2026-05-11 — iOS release capability drift (LINT-IOS-RELEASE-01) ──
     ios_release_capability_drift:
       # HARD gate. Runs when `apps/mobile/ios/Runner/Runner.entitlements`
