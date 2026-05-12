@@ -26,7 +26,91 @@ was : I worked at the periphery (CI lints, baseline drift, action
 bar overflow, alembic schema parity) and never repro'd the core
 product flow. MDM v1 makes that pattern mechanically impossible.
 
-## The 9 pillars
+## The 10 pillars (Pillar 0 inverted 2026-05-12, scout-triage-fix-rewalk locked)
+
+**Reading order rule (inversion authority — julien-directive-2026-05-12T09:30Z)** :
+
+> *« Pourquoi n'as-tu pas pensé à ce schéma avant ? […] Toujours partir de l'application et du test de l'application, être sur Maestro, faire tourner le simulateur et puis te loguer, et puis être un utilisateur et faire tourner ce scénario, ce flow d'utilisateur, jusqu'à ce que tout soit en ordre. »*
+
+The orchestrator's biases (doc-first training, comparative-advantage-to-reading, process-fetish, registry-as-truth, Karpathy #1 silent assumption) all pull toward starting from documents. Today's morning failure (8h on periphery while coach was broken at first contact) was the predictable outcome. Pillar 0 is therefore INVERTED : **sim walkthrough FIRST, then docs, then triage**. Sub-steps 0.a → 0.b → 0.c are mandatory in that order before Pillar 1 fires.
+
+### Pillar 0.a — Scout walkthrough (sim-first, breadth-first)
+
+The orchestrator boots the iPhone 17 Pro simulator, logs in as the active archetype (rotating through the 8), and walks the canonical golden-day-in-the-life flow in **scout mode** :
+
+- Maestro flag : `--continue-on-failure` (Maestro ≥ 2.4.0).
+- Each step takes a screenshot `.planning/cycles/_SESSION-<date>/scout/<NN>-<step>.png`.
+- Each `assertVisible` produces a row in `.planning/cycles/_SESSION-<date>-OBSERVED-<archetype>.md` regardless of pass/fail.
+- Each defect surfaced is categorised :
+  - **BLOCKER** — user cannot progress past this step (empty bubble, crash, auth refused, 30s timeout, no narrator response).
+  - **DEGRADED** — user can progress but the experience is broken (overflow banner, label truncated, latency > 10s, missing icon, wrong route).
+  - **COSMETIC** — visual only, functional path intact (wrong color, accent missing, padding off).
+
+The OBSERVED file is the ONLY artefact of pillar 0.a. The orchestrator does NOT fix anything in this pass. Discipline = scout first, fix later. Capturing 10 defects breadth-first is cheaper than 10 stop-restart cycles (O(n) vs O(n²)).
+
+### Pillar 0.b — Docs reload (only AFTER 0.a)
+
+Read the 8 anchoring documents enumerated below. Synthesise into the session-state file. Without 0.a feeding observed defects, doc-reading floats above ground truth and produces the periphery-drift pattern that authored this method.
+
+1. `.planning/STATE.md` — current milestone position, GSD state.
+2. `.planning/MILESTONE-*-<active>.md` — milestone doctrine.
+3. `.planning/phases/<active-phase>/CONTEXT.md` — phase locked decisions.
+4. `.planning/phases/<active-phase>/BUGS-REGISTRY.md` — IN_PROGRESS / OPEN inventory.
+5. `.planning/phases/<active-phase>/deferred-items.md` — what NOT to bundle.
+6. `docs/ROADMAP_V2.md` — shipped scope + current milestone context.
+7. `SOT.md` — domain schemas.
+8. `gh pr list --state=open` — concurrent work streams.
+
+### Pillar 0.c — Triage (cross OBSERVED × registry)
+
+For each defect in `_SESSION-<date>-OBSERVED-<archetype>.md` :
+
+1. Does it already have a BUGS-REGISTRY row ? If yes, link the row + observation.
+2. If no, file a new registry row.
+3. Sort BLOCKERS by dependency order : if defect X masks defect Y, X is fixed first because Y cannot be observed until X is gone.
+4. DEGRADED + COSMETIC → registry only, NOT in the cycle queue.
+5. Pick top BLOCKER as the next cycle's target. Pillar 1 starts on that bug.
+
+### The scout-triage-fix-rewalk loop (operational sequence)
+
+```
+[Pillar 0.a SCOUT pass]
+   ↓ produces OBSERVED file (BLOCKER / DEGRADED / COSMETIC categorised)
+[Pillar 0.b DOC reload]
+   ↓ produces SESSION-STATE file
+[Pillar 0.c TRIAGE]
+   ↓ picks next BLOCKER
+[Pillars 1-7 MDM cycle on chosen BLOCKER]
+   ↓ produces PR, merged to dev
+[dev → staging merge fires testflight.yml + Maestro CI]
+   ↓ automated RE-WALKER on staging via Maestro nightly + on-PR smoke subset
+[Re-scout pass → updated OBSERVED file]
+   ↓ tick resolved entries OR surface masked-until-now defects
+[Triage again → next BLOCKER]
+   ...repeat until SCOUT pass returns 0 BLOCKER and the D-30 ship gate is met.
+```
+
+The orchestrator resists the temptation to fix mid-scout (« I see it, I can fix it now »). Mid-scout fixing returns to Pattern (B) restart-each-time which is O(n²) and obscures cross-defect dependencies. Scout discipline = breadth-first observation always before depth-first fix.
+
+### Why this beats the alternatives
+
+| Pattern | When good | When bad |
+|---|---|---|
+| (A) Continue-and-log-only | Bug-bash sessions with disposable state | Linear flow with mid-flow blocker — downstream invisible |
+| (B) Stop-and-restart-each | Single-defect debugging | Multi-defect flows : O(n²) cost + masks dependencies |
+| (C) Scout-triage-fix-rewalk (CHOSEN) | Production E2E discipline (Stripe / Wise / WHOOP pattern) | Requires discipline to NOT fix mid-scout |
+
+### Anti-game guard (per adversarial-critic finding 2026-05-12)
+
+Pillar 0.a self-attested markdown is gameable (the orchestrator could fabricate OBSERVED.md without actually walking the sim). Mechanical anti-game :
+
+- OBSERVED.md MUST include the Maestro junit XML output path + the screenshot directory.
+- `tools/checks/observed_freshness.py` (TODO file) asserts the screenshots' mtime ≥ session-start AND the junit XML exists AND its `<testsuite ... timestamp="...">` ≥ session-start.
+- A cycle CANNOT advance past Pillar 1 unless `observed_freshness.py` exits 0.
+
+This lint script lands as part of the next Pillar 0 cycle, not retro-actively. For now, the orchestrator commits to the discipline manually with the understanding that mechanical enforcement is the next regression-lock layer.
+
+## The 10 pillars
 
 ### Pillar 0 — Session-state Project CAP (orchestrator-level)
 
