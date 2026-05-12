@@ -26,9 +26,61 @@ was : I worked at the periphery (CI lints, baseline drift, action
 bar overflow, alembic schema parity) and never repro'd the core
 product flow. MDM v1 makes that pattern mechanically impossible.
 
-## The 8 pillars
+## The 9 pillars
 
-### Pillar 1 — Context Acquisition Protocol (CAP)
+### Pillar 0 — Session-state Project CAP (orchestrator-level)
+
+Added 2026-05-12 after Julien's directive « Est-ce que tu as bien tout
+le contexte de Mint ». Reason : the per-cycle Pillar 1 CAP is BUG-
+scoped. It does not establish the global project context (active
+milestone, doctrine, phase decisions, open work, deferred queue).
+Without that anchor, even a perfectly-executed cycle can drift from
+the project's strategic frame. The morning of 2026-05-12 demonstrated
+this : 8 hours of mechanically-correct W7 cycles while the canonical
+authenticated coach flow was broken at first contact (P003 surfaced
+by Julien's sim).
+
+### What Pillar 0 covers
+
+Once per session (or after any long break / context dilution / model
+swap), the orchestrator reads + synthesises :
+
+1. `.planning/STATE.md` — current milestone position, GSD state, last
+   activity.
+2. `.planning/MILESTONE-*-<active>.md` — current milestone doctrine
+   (e.g. `MILESTONE-CHAT-AS-VERB-2026-05-09.md` for v2.9).
+3. `.planning/phases/<active-phase>/CONTEXT.md` — phase locked
+   decisions D-NN.
+4. `.planning/phases/<active-phase>/BUGS-REGISTRY.md` (or equivalent
+   work-tracking file) — IN_PROGRESS / OPEN inventory.
+5. `.planning/phases/<active-phase>/deferred-items.md` — what NOT to
+   bundle.
+6. `docs/ROADMAP_V2.md` — shipped Phases 1-4 + current milestone
+   context.
+7. `SOT.md` — domain object schemas (Profile / SessionReport / etc.).
+8. `gh pr list --state=open` — concurrent work streams.
+
+### What Pillar 0 produces
+
+A single file `.planning/cycles/_SESSION-<YYYY-MM-DD>-STATE.md`. This
+file is the orchestrator's anchor and is referenced by every sub-agent
+that needs global context (via the briefing preamble §8.b).
+
+### When Pillar 0 fires
+
+- At session-start before the first cycle.
+- After any 4+ hour gap in activity.
+- After a model swap (Sonnet ↔ Opus ↔ Haiku).
+- After the user signals « do you have the context ? » or equivalent.
+- Before any cycle whose scope might touch a different phase or
+  milestone than the previous one.
+
+Pillar 0 is NOT optional. Skipping it = drift risk. The session-state
+file MUST exist before Pillar 1 CAP starts on the first bug.
+
+## The 9 pillars
+
+### Pillar 1 — Context Acquisition Protocol (CAP, per-cycle)
 
 Before ANY action on a bug, read in this order :
 
