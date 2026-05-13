@@ -53,18 +53,23 @@ def test_prompt_key_value_dropped() -> None:
 
 
 def test_claude_wildcard_keys_dropped() -> None:
+    # Per code-review I3, `claude_request_id` / `claude_model` /
+    # `claude_token_usage` are NON-PII triage identifiers needed to
+    # correlate Sentry crashes with Anthropic server-side logs. Only
+    # payload-bearing keys (response, prompt, completion, messages,
+    # coach_text) are dropped. Dedicated triage-key test below.
     out = before_send(
         _event(
             extra={
                 "claude_response": "banned-term-bearing answer",
-                "claude_request_id": "msg_01ABCDEF",
+                "claude_prompt": "tu garantis un rendement optimal",
                 "kept_field": "ok",
             }
         ),
         {},
     )
     assert out["extra"]["claude_response"] == REDACTED
-    assert out["extra"]["claude_request_id"] == REDACTED
+    assert out["extra"]["claude_prompt"] == REDACTED
     assert out["extra"]["kept_field"] == "ok"
 
 
@@ -167,3 +172,130 @@ def test_exception_value_scrubbed_but_frames_untouched() -> None:
         out["exception"]["values"][0]["stacktrace"]["frames"][0]["filename"]
         == "app/services/foo.py"
     )
+
+
+# ── Code-review C1 regression guards ──────────────────────────────────
+
+
+def test_avs_dash_separator_redacted() -> None:
+    """C1: dashed AVS '756-1234-5678-97' must redact (Postfinance UI emits dashes)."""
+    out = before_send(_event(message="AVS 756-1234-5678-97 received"), {})
+    assert "756-1234" not in out["message"]
+
+
+def test_avs_space_separator_redacted() -> None:
+    """C1: space-separated AVS '756 1234 5678 97' must redact (PDF paste)."""
+    out = before_send(_event(message="AVS 756 1234 5678 97 received"), {})
+    assert "756 1234" not in out["message"]
+
+
+def test_avs_nbsp_separator_redacted() -> None:
+    """C1: NBSP-separated AVS must redact (Word / browser autocorrect)."""
+    out = before_send(_event(message="AVS 756\xa01234\xa05678\xa097 ok"), {})
+    assert "756\xa01234" not in out["message"]
+
+
+# ── Code-review C2 regression guards ──────────────────────────────────
+
+
+def test_iban_dash_separator_redacted() -> None:
+    """C2: dashed IBAN 'CH93-0076-...' must redact (Postfinance UI)."""
+    out = before_send(_event(message="transfer to CH93-0076-2011-6238-5295-7"), {})
+    assert "CH93-0076" not in out["message"]
+
+
+def test_iban_nbsp_separator_redacted() -> None:
+    """C2: NBSP-separated IBAN must redact."""
+    out = before_send(
+        _event(message="transfer to CH93\xa00076\xa02011\xa06238\xa05295\xa07"),
+        {},
+    )
+    assert "CH93\xa00076" not in out["message"]
+
+
+# ── Code-review I3 — claude_request_id preserved for triage ───────────
+
+
+def test_claude_request_id_NOT_dropped() -> None:
+    """I3: `claude_request_id` is a non-PII triage identifier
+    (msg_01ABCDEF Anthropic API id). Must survive the scrubber so
+    operators can correlate Sentry crashes with Anthropic logs."""
+    out = before_send(
+        _event(
+            extra={
+                "claude_request_id": "msg_01ABCDEF",
+                "claude_model": "claude-sonnet-4-6",
+                "claude_token_usage": 1234,
+                "claude_response": "should be redacted",
+            }
+        ),
+        {},
+    )
+    assert out["extra"]["claude_request_id"] == "msg_01ABCDEF"
+    assert out["extra"]["claude_model"] == "claude-sonnet-4-6"
+    assert out["extra"]["claude_token_usage"] == 1234
+    assert out["extra"]["claude_response"] == REDACTED
+
+
+# ── Code-review I5 — stack-frame local vars scrubbed ──────────────────
+
+
+def test_stack_frame_local_vars_scrubbed() -> None:
+    """I5: `sentry-sdk[fastapi]` enables `include_local_variables=True`
+    by default. A function with a local `iban = 'CH93...'` would ship
+    the raw value if the scrubber didn't recurse into `frames[*].vars`."""
+    out = before_send(
+        _event(
+            exception={
+                "values": [
+                    {
+                        "type": "ValueError",
+                        "value": "boom",
+                        "stacktrace": {
+                            "frames": [
+                                {
+                                    "filename": "app/services/foo.py",
+                                    "function": "process_payment",
+                                    "vars": {
+                                        "iban": "CH93 0076 2011 6238 5295 7",
+                                        "amount_chf": 1200,
+                                        "client_avs": "756.1234.5678.97",
+                                    },
+                                }
+                            ]
+                        },
+                    }
+                ]
+            }
+        ),
+        {},
+    )
+    frame = out["exception"]["values"][0]["stacktrace"]["frames"][0]
+    assert frame["filename"] == "app/services/foo.py"
+    assert frame["function"] == "process_payment"
+    assert "CH93 0076" not in frame["vars"]["iban"]
+    assert "756.1234" not in frame["vars"]["client_avs"]
+    assert frame["vars"]["amount_chf"] == 1200
+
+
+# ── Code-review M6 — tag VALUES scrubbed (keys preserved) ─────────────
+
+
+def test_tags_values_scrubbed() -> None:
+    """M6: a future contributor setting `set_tag('user_input', x)` with
+    PII would bypass the rest of the scrubber. Tag VALUES must pass
+    through the PII regex set; tag KEYS are preserved (Sentry UI filter
+    stability)."""
+    out = before_send(
+        _event(
+            tags={
+                "mint_request_id": "abc-123-uuid",  # untouched
+                "user_input_freetext": "mon iban CH93 0076 2011 6238 5295 7",
+                "system_tag": "production",
+            }
+        ),
+        {},
+    )
+    assert out["tags"]["mint_request_id"] == "abc-123-uuid"
+    assert out["tags"]["system_tag"] == "production"
+    assert "CH93 0076" not in out["tags"]["user_input_freetext"]

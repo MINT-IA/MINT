@@ -40,26 +40,46 @@ class MintSentryScrub {
   /// + free-text user inputs that may contain financial values inline).
   /// Anchored at start/end so a partial substring match (e.g. a key
   /// `is_prompt_eligible`) does not trigger the strip.
+  ///
+  /// Negative-lookahead on `claude_request_id` / `claude_model` /
+  /// `claude_token_usage` — these are non-PII triage identifiers the
+  /// operator needs in Sentry to correlate a crash with Anthropic's
+  /// server-side log (`msg_01ABCDEF`). Per code-review feedback I3,
+  /// the prior wildcard `claude_.*` was over-greedy.
   static final RegExp forbiddenKeyPattern = RegExp(
     r'^(prompt|completion|messages|response|coach_text|coach_response|'
-    r'claude_.*|user_message|user_input|free_text|chat_history)$',
+    r'claude_(?!request_id$|model$|token_usage$).*'
+    r'|user_message|user_input|free_text|chat_history)$',
     caseSensitive: false,
   );
 
   /// PII regex set — Swiss-specific. Each match is replaced with the
   /// [redacted] sentinel before the event is shipped.
+  ///
+  /// Separator classes include dot, space, dash, NBSP. Per code-review
+  /// feedback C1+C2, the original « dot only » AVS pattern and « space
+  /// only » IBAN pattern missed realistic real-world inputs (Postfinance
+  /// UI emits dashed IBAN ; PDFs paste with NBSP ; chat-style messages
+  /// use spaces or dashes). Aligns with the prior-art recognizer at
+  /// `services/backend/app/services/privacy/recognizers_ch.py` which
+  /// already accepts the wider separator class.
   static final List<RegExp> piiPatterns = <RegExp>[
-    // Swiss AVS-13 (canonical + no-dots variants).
-    RegExp(r'\b756\.\d{4}\.\d{4}\.\d{2}\b'),
+    // Swiss AVS-13 (canonical with separators + no-separator variant).
+    // Separators: dot, space, dash, NBSP — any of them, optional.
+    RegExp(r'\b756[.\s\- ]?\d{4}[.\s\- ]?\d{4}[.\s\- ]?\d{2}\b'),
     RegExp(r'\b756\d{10}\b'),
-    // Swiss IBAN (CH XX XXXX XXXX XXXX XXXX X).
-    RegExp(r'\bCH\d{2}[ ]?(?:\d{4}[ ]?){4}\d{1}\b'),
-    // Generic IBAN (FR, DE, IT, ES, PT — MINT's 6 locales).
-    RegExp(r'\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b'),
+    // Swiss IBAN (CH + 2 check + 4×4 + 1). Accepts space, dash, NBSP.
+    RegExp(r'\bCH\d{2}[\s\- ]?(?:\d{4}[\s\- ]?){4}\d{1}\b'),
+    // Generic IBAN narrowed to MINT's 6-locale plus close-neighbour set
+    // (per code-review M2 — avoid false-positive on stack-frame hex blobs).
+    RegExp(
+      r'\b(?:FR|DE|IT|ES|PT|BE|NL|LU|AT|LI)\d{2}[\s\- ]?'
+      r'[A-Z0-9]{11,30}\b',
+    ),
     // Email.
     RegExp(r'[\w.+-]+@[\w-]+\.[\w.-]+'),
     // Swiss / international phone (+41 …, 0041 …, 0 …).
-    RegExp(r'(\+41|0041|0)\s?[1-9]\d(?:[\s.-]?\d{2,3}){3}'),
+    RegExp(r'(\+41|0041|0)\s?[1-9]\d(?:[\s.\-]?\d{2,3}){3}'),
   ];
 
   /// `beforeSend` hook entry point. Returns `null` to drop the event
@@ -106,6 +126,23 @@ class MintSentryScrub {
             data: null,
           );
 
+    // 5. Scrub stack-frame local variables (per code-review I5). The
+    // Flutter SDK includes local var values on Dart exceptions; an
+    // uncaught throw inside a function with `var iban = "CH93..."` would
+    // ship the raw value otherwise. File / function / lineNo untouched
+    // (non-PII per Sentry's own classification).
+    final exceptions = event.exceptions
+        ?.map(_scrubException)
+        .toList(growable: false);
+
+    // 6. Scrub tag VALUES — tags are typically system identifiers but
+    // a future caller setting a free-text value would bypass the rest
+    // of the scrubber. Keys preserved (Sentry UI lookup must stay
+    // stable); values pass through the PII regex set. Per M6.
+    final tags = event.tags?.map<String, String>(
+      (k, v) => MapEntry(k, _scrubString(v)),
+    );
+
     // ignore: deprecated_member_use
     return event.copyWith(
       // ignore: deprecated_member_use
@@ -113,7 +150,38 @@ class MintSentryScrub {
       breadcrumbs: crumbs,
       message: scrubbedMessage,
       request: request,
+      exceptions: exceptions,
+      tags: tags,
     );
+  }
+
+  static SentryException _scrubException(SentryException exc) {
+    final scrubbedValue = exc.value == null ? null : _scrubString(exc.value!);
+    final scrubbedTrace = exc.stackTrace == null
+        ? null
+        : _scrubStackTrace(exc.stackTrace!);
+    // ignore: deprecated_member_use
+    return exc.copyWith(value: scrubbedValue, stackTrace: scrubbedTrace);
+  }
+
+  static SentryStackTrace _scrubStackTrace(SentryStackTrace trace) {
+    final frames = trace.frames.map(_scrubFrame).toList(growable: false);
+    // ignore: deprecated_member_use
+    return trace.copyWith(frames: frames);
+  }
+
+  /// Sentry's stack-frame `vars` is `Map<String, String>?` (already
+  /// string-ified by the SDK at capture time — Dart values are
+  /// repr'd into strings). We scrub each value via [_scrubString];
+  /// keys are preserved for the Sentry UI's variable-name display.
+  static SentryStackFrame _scrubFrame(SentryStackFrame f) {
+    final v = f.vars;
+    if (v.isEmpty) return f;
+    final scrubbed = v.map<String, String>(
+      (key, value) => MapEntry(key, _scrubString(value)),
+    );
+    // ignore: deprecated_member_use
+    return f.copyWith(vars: scrubbed);
   }
 
   static Map<String, dynamic>? _scrubMap(Map<String, dynamic>? input) {

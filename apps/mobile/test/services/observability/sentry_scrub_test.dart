@@ -74,16 +74,63 @@ void main() {
       expect(out.extra!['safe_metric'], 42); // untouched
     });
 
-    test('forbidden key claude_* (wildcard) is dropped', () {
+    test('forbidden claude_* payload keys dropped — request_id preserved (I3)', () {
+      // Per code-review I3: `claude_request_id` / `claude_model` /
+      // `claude_token_usage` are non-PII triage identifiers needed to
+      // correlate Sentry crashes with Anthropic logs (msg_01ABCDEF).
+      // Only payload-bearing keys are dropped.
       final event = eventWith(extra: {
-        'claude_response': 'this would be a banned-term-bearing answer',
+        'claude_response': 'banned-term-bearing answer',
+        'claude_prompt': 'tu garantis un rendement optimal',
         'claude_request_id': 'msg_01ABCDEF',
+        'claude_model': 'claude-sonnet-4-6',
+        'claude_token_usage': 1234,
         'unrelated_field': 'kept',
       });
       final out = MintSentryScrub.beforeSend(event, Hint());
       expect(out!.extra!['claude_response'], MintSentryScrub.redacted);
-      expect(out.extra!['claude_request_id'], MintSentryScrub.redacted);
+      expect(out.extra!['claude_prompt'], MintSentryScrub.redacted);
+      // Triage-relevant Claude keys SURVIVE the scrubber:
+      expect(out.extra!['claude_request_id'], 'msg_01ABCDEF');
+      expect(out.extra!['claude_model'], 'claude-sonnet-4-6');
+      expect(out.extra!['claude_token_usage'], 1234);
       expect(out.extra!['unrelated_field'], 'kept');
+    });
+
+    // ── Code-review C1 — separator variants on AVS ───────────────────
+
+    test('C1: AVS dashed (Postfinance UI) is redacted', () {
+      final event = eventWith(message: 'AVS 756-1234-5678-97 received');
+      final out = MintSentryScrub.beforeSend(event, Hint());
+      expect(out!.message!.formatted, isNot(contains('756-1234')));
+    });
+
+    test('C1: AVS space-separated (PDF paste) is redacted', () {
+      final event = eventWith(message: 'AVS 756 1234 5678 97 received');
+      final out = MintSentryScrub.beforeSend(event, Hint());
+      expect(out!.message!.formatted, isNot(contains('756 1234')));
+    });
+
+    test('C1: AVS NBSP-separated (Word autocorrect) is redacted', () {
+      final event = eventWith(message: 'AVS 756 1234 5678 97');
+      final out = MintSentryScrub.beforeSend(event, Hint());
+      expect(out!.message!.formatted, isNot(contains('756 1234')));
+    });
+
+    // ── Code-review C2 — separator variants on Swiss IBAN ────────────
+
+    test('C2: IBAN dashed (Postfinance UI) is redacted', () {
+      final event =
+          eventWith(message: 'transfer to CH93-0076-2011-6238-5295-7');
+      final out = MintSentryScrub.beforeSend(event, Hint());
+      expect(out!.message!.formatted, isNot(contains('CH93-0076')));
+    });
+
+    test('C2: IBAN NBSP-separated is redacted', () {
+      final event = eventWith(
+          message: 'transfer to CH93 0076 2011 6238 5295 7');
+      final out = MintSentryScrub.beforeSend(event, Hint());
+      expect(out!.message!.formatted, isNot(contains('CH93 0076')));
     });
 
     test('partial-substring key match does NOT trigger drop', () {

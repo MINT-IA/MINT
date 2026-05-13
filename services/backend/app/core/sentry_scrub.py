@@ -32,21 +32,39 @@ REDACTED = "<<REDACTED>>"
 
 # Anchored key pattern — exact match only. `is_prompt_eligible` and
 # similar substrings must NOT trigger the drop.
+#
+# Negative-lookahead on `claude_request_id` / `claude_model` /
+# `claude_token_usage` — non-PII triage identifiers needed to correlate
+# a Sentry crash with Anthropic's server-side log (`msg_01ABCDEF`).
+# Per code-review feedback I3 the prior wildcard `claude_.*` was over-greedy.
 _FORBIDDEN_KEY_RE = re.compile(
     r"^("
     r"prompt|completion|messages|response|coach_text|coach_response|"
-    r"claude_.*|user_message|user_input|free_text|chat_history"
+    r"claude_(?!request_id$|model$|token_usage$).*"
+    r"|user_message|user_input|free_text|chat_history"
     r")$",
     re.IGNORECASE,
 )
 
+# Separator classes include dot, space, dash, NBSP. Per code-review C1+C2,
+# the original « dot only » AVS pattern and « space only » IBAN pattern
+# missed realistic real-world inputs (Postfinance UI emits dashed IBAN ;
+# PDFs paste with NBSP). Aligns with the prior-art recognizer at
+# `services/backend/app/services/privacy/recognizers_ch.py:101`.
 _PII_PATTERNS: list[re.Pattern[str]] = [
-    re.compile(r"\b756\.\d{4}\.\d{4}\.\d{2}\b"),         # Swiss AVS-13 (canonical)
-    re.compile(r"\b756\d{10}\b"),                         # Swiss AVS-13 (no-dots)
-    re.compile(r"\bCH\d{2}[ ]?(?:\d{4}[ ]?){4}\d{1}\b"),  # Swiss IBAN
-    re.compile(r"\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b"),      # generic IBAN
+    # Swiss AVS-13 (canonical with separators + no-separator variant).
+    re.compile(r"\b756[.\s\-\xa0]?\d{4}[.\s\-\xa0]?\d{4}[.\s\-\xa0]?\d{2}\b"),
+    re.compile(r"\b756\d{10}\b"),
+    # Swiss IBAN (CH + 2 check + 4×4 + 1). Accepts space, dash, NBSP.
+    re.compile(r"\bCH\d{2}[\s\-\xa0]?(?:\d{4}[\s\-\xa0]?){4}\d{1}\b"),
+    # Generic IBAN narrowed to MINT's 6-locale plus close-neighbour set
+    # (per code-review M2 — avoid false-positive on stack-frame hex blobs).
+    re.compile(
+        r"\b(?:FR|DE|IT|ES|PT|BE|NL|LU|AT|LI)\d{2}[\s\-\xa0]?"
+        r"[A-Z0-9]{11,30}\b"
+    ),
     re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+"),              # email
-    re.compile(r"(\+41|0041|0)\s?[1-9]\d(?:[\s.-]?\d{2,3}){3}"),  # phone (Swiss + intl)
+    re.compile(r"(\+41|0041|0)\s?[1-9]\d(?:[\s.\-]?\d{2,3}){3}"),  # phone
 ]
 
 
@@ -124,11 +142,38 @@ def before_send(event: dict[str, Any], hint: dict[str, Any]) -> dict[str, Any] |
             # data, headers, cookies, query_string deliberately dropped
         }
 
-    # 5. Scrub exception value strings (not stack frames).
+    # 5. Scrub exception value strings AND stack-frame local variables.
+    # `sentry-sdk[fastapi]` defaults to include_local_variables=True;
+    # a function with a local `iban = "CH93..."` would ship the raw
+    # value to Sentry without this pass. File path + function name on
+    # frames are non-PII (per Sentry's own classification) and are
+    # left untouched.
     exc = event.get("exception")
     if isinstance(exc, Mapping) and isinstance(exc.get("values"), list):
         for v in exc["values"]:
             if isinstance(v.get("value"), str):
                 v["value"] = _scrub_string(v["value"])
+            # Per code-review I5 — scrub `frames[*].vars` deeply.
+            stacktrace = v.get("stacktrace")
+            if isinstance(stacktrace, Mapping) and isinstance(
+                stacktrace.get("frames"), list
+            ):
+                for frame in stacktrace["frames"]:
+                    if isinstance(frame, Mapping):
+                        local_vars = frame.get("vars")
+                        if isinstance(local_vars, Mapping):
+                            frame["vars"] = _scrub_mapping(local_vars)
+
+    # 6. Scrub tag VALUES (defence-in-depth — tags are typically system
+    # identifiers but a future contributor adding `set_tag('user_input',
+    # x)` would bypass the rest of the scrubber). Per code-review M6.
+    # Keys are not redacted (tag-name lookup must stay stable for
+    # Sentry's UI). Values pass through the PII regex set.
+    tags = event.get("tags")
+    if isinstance(tags, Mapping):
+        event["tags"] = {
+            k: (_scrub_string(v) if isinstance(v, str) else v)
+            for k, v in tags.items()
+        }
 
     return event
