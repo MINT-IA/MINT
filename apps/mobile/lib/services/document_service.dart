@@ -8,6 +8,7 @@ import 'package:mint_mobile/models/document_event.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:uuid/uuid.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 /// v2.7 Task 7 — client-generated UUID v4 for Idempotency-Key header on
 /// all document upload paths. Prevents duplicate processing on network
@@ -1016,7 +1017,7 @@ class DocumentService {
       headers['Authorization'] = 'Bearer $token';
     }
 
-    final response = await http
+    final response = await MintHttpClient.shared
         .get(uri, headers: headers)
         .timeout(const Duration(seconds: 30));
 
@@ -1053,7 +1054,7 @@ class DocumentService {
       headers['Authorization'] = 'Bearer $token';
     }
 
-    final response = await http
+    final response = await MintHttpClient.shared
         .delete(uri, headers: headers)
         .timeout(const Duration(seconds: 30));
 
@@ -1116,7 +1117,7 @@ class DocumentService {
         'timestamp': DateTime.now().toUtc().toIso8601String(),
       });
 
-      var response = await http.post(
+      var response = await MintHttpClient.shared.post(
         Uri.parse('$baseUrl/documents/scan-confirmation'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -1129,7 +1130,7 @@ class DocumentService {
         final fresh = await AuthService.refreshAccessToken();
         if (fresh != null && fresh.isNotEmpty) {
           token = fresh;
-          response = await http.post(
+          response = await MintHttpClient.shared.post(
             Uri.parse('$baseUrl/documents/scan-confirmation'),
             headers: {
               'Authorization': 'Bearer $token',
@@ -1164,7 +1165,7 @@ class DocumentService {
       final token = await AuthService.getToken();
       if (token == null) return null;
 
-      final response = await http.post(
+      final response = await MintHttpClient.shared.post(
         Uri.parse('$baseUrl/documents/extract-vision'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -1211,7 +1212,7 @@ class DocumentService {
       final token = await AuthService.getToken();
       if (token == null) return null;
 
-      final response = await http.post(
+      final response = await MintHttpClient.shared.post(
         Uri.parse('$baseUrl/documents/premier-eclairage'),
         headers: {
           'Authorization': 'Bearer $token',

@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FRESH START SERVICE — Phase 14 / CMIT-03 + CMIT-04
@@ -63,7 +63,7 @@ class FreshStartService {
 
     try {
       final uri = Uri.parse('$baseUrl/coach/fresh-start');
-      final response = await http
+      final response = await MintHttpClient.shared
           .get(
             uri,
             headers: {

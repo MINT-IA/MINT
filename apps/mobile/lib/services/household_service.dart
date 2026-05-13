@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 /// Service for managing Couple+ household.
 ///
@@ -33,7 +33,7 @@ class HouseholdService {
     String token,
     String baseUrl,
   ) async {
-    final response = await http.get(
+    final response = await MintHttpClient.shared.get(
       _uri(baseUrl, ''),
       headers: {'Authorization': 'Bearer $token'},
     );
@@ -47,7 +47,7 @@ class HouseholdService {
     String baseUrl,
     String email,
   ) async {
-    final response = await http.post(
+    final response = await MintHttpClient.shared.post(
       _uri(baseUrl, '/invite'),
       headers: {
         'Authorization': 'Bearer $token',
@@ -73,7 +73,7 @@ class HouseholdService {
     String baseUrl,
     String invitationCode,
   ) async {
-    final response = await http.post(
+    final response = await MintHttpClient.shared.post(
       _uri(baseUrl, '/accept'),
       headers: {
         'Authorization': 'Bearer $token',
@@ -99,7 +99,7 @@ class HouseholdService {
     String baseUrl,
     String userId,
   ) async {
-    final response = await http.delete(
+    final response = await MintHttpClient.shared.delete(
       _uri(baseUrl, '/member/$userId'),
       headers: {'Authorization': 'Bearer $token'},
     );
@@ -121,7 +121,7 @@ class HouseholdService {
     String baseUrl,
     String newOwnerId,
   ) async {
-    final response = await http.put(
+    final response = await MintHttpClient.shared.put(
       _uri(baseUrl, '/transfer'),
       headers: {
         'Authorization': 'Bearer $token',
