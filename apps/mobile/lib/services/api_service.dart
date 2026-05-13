@@ -10,6 +10,7 @@ import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// P2-18: Error codes for i18n — UI layer maps these to AppLocalizations.
@@ -96,6 +97,12 @@ class ApiService {
       );
     }
   }
+
+  /// Singleton HTTP client that stamps `X-MINT-Req-Id` on every call and
+  /// emits structured logs to `dart:developer` (category `ch.mint.http`).
+  /// Pair with `tools/debug/mint-trace.sh <req_id>` to fetch matching
+  /// Railway backend logs.
+  static final MintHttpClient _mintHttp = MintHttpClient();
 
   static const String _definedApiBaseUrl =
       String.fromEnvironment('API_BASE_URL');
@@ -263,7 +270,7 @@ class ApiService {
     if (refreshToken == null) return false;
 
     try {
-      final response = await http.post(
+      final response = await _mintHttp.post(
         Uri.parse('$baseUrl/auth/refresh'),
         headers: _publicHeaders(),
         body: jsonEncode({'refresh_token': refreshToken}),
@@ -295,14 +302,14 @@ class ApiService {
   // Méthodes génériques HTTP (now with JWT injection + auto-refresh + P1-7 timeout)
   static Future<Map<String, dynamic>> get(String endpoint) async {
     try {
-      var response = await http.get(
+      var response = await _mintHttp.get(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
       ).timeout(_httpTimeout);
 
       // Auto-refresh on 401
       if (response.statusCode == 401 && await _tryRefreshToken()) {
-        response = await http.get(
+        response = await _mintHttp.get(
           Uri.parse('$baseUrl$endpoint'),
           headers: await _authHeaders(),
         ).timeout(_httpTimeout);
@@ -327,13 +334,13 @@ class ApiService {
 
   static Future<String> getText(String endpoint) async {
     try {
-      var response = await http.get(
+      var response = await _mintHttp.get(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
       ).timeout(_httpTimeout);
 
       if (response.statusCode == 401 && await _tryRefreshToken()) {
-        response = await http.get(
+        response = await _mintHttp.get(
           Uri.parse('$baseUrl$endpoint'),
           headers: await _authHeaders(),
         ).timeout(_httpTimeout);
@@ -360,14 +367,14 @@ class ApiService {
   static Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> data) async {
     try {
-      var response = await http.post(
+      var response = await _mintHttp.post(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
         body: jsonEncode(data),
       ).timeout(_httpTimeout);
 
       if (response.statusCode == 401 && await _tryRefreshToken()) {
-        response = await http.post(
+        response = await _mintHttp.post(
           Uri.parse('$baseUrl$endpoint'),
           headers: await _authHeaders(),
           body: jsonEncode(data),
@@ -396,14 +403,14 @@ class ApiService {
   static Future<Map<String, dynamic>> put(
       String endpoint, Map<String, dynamic> data) async {
     try {
-      var response = await http.put(
+      var response = await _mintHttp.put(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
         body: jsonEncode(data),
       ).timeout(_httpTimeout);
 
       if (response.statusCode == 401 && await _tryRefreshToken()) {
-        response = await http.put(
+        response = await _mintHttp.put(
           Uri.parse('$baseUrl$endpoint'),
           headers: await _authHeaders(),
           body: jsonEncode(data),
@@ -431,13 +438,13 @@ class ApiService {
 
   static Future<void> delete(String endpoint) async {
     try {
-      var response = await http.delete(
+      var response = await _mintHttp.delete(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
       ).timeout(_httpTimeout);
 
       if (response.statusCode == 401 && await _tryRefreshToken()) {
-        response = await http.delete(
+        response = await _mintHttp.delete(
           Uri.parse('$baseUrl$endpoint'),
           headers: await _authHeaders(),
         ).timeout(_httpTimeout);
@@ -470,7 +477,7 @@ class ApiService {
     String password, {
     String? displayName,
   }) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/auth/register'),
       headers: _publicHeaders(),
       body: jsonEncode({
@@ -495,7 +502,7 @@ class ApiService {
     String email,
     String password,
   ) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/auth/login'),
       headers: _publicHeaders(),
       body: jsonEncode({
@@ -516,7 +523,7 @@ class ApiService {
   /// Send a magic link to the given email address.
   /// Returns: { message: "..." }
   static Future<Map<String, dynamic>> sendMagicLink(String email) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/auth/magic-link/send'),
       headers: _publicHeaders(),
       body: jsonEncode({'email': email}),
@@ -534,7 +541,7 @@ class ApiService {
   /// Verify a magic link token and return JWT.
   /// Returns: { accessToken: "...", tokenType: "bearer" }
   static Future<Map<String, dynamic>> verifyMagicLink(String token) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/auth/magic-link/verify'),
       headers: _publicHeaders(),
       body: jsonEncode({'token': token}),
@@ -555,7 +562,7 @@ class ApiService {
     required String identityToken,
     required String nonce,
   }) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/auth/apple/verify'),
       headers: _publicHeaders(),
       body: jsonEncode({
@@ -576,7 +583,7 @@ class ApiService {
   /// Get current user info
   /// Returns: { id, email, display_name?, created_at }
   static Future<Map<String, dynamic>> getMe() async {
-    final response = await http.get(
+    final response = await _mintHttp.get(
       Uri.parse('$baseUrl/auth/me'),
       headers: await _authHeaders(),
     );
@@ -592,7 +599,7 @@ class ApiService {
   }
 
   static Future<void> deleteAccount() async {
-    final response = await http.delete(
+    final response = await _mintHttp.delete(
       Uri.parse('$baseUrl/auth/account'),
       headers: await _authHeaders(),
     );
@@ -607,7 +614,7 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> requestPasswordReset(String email) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/auth/password-reset/request'),
       headers: _publicHeaders(),
       body: jsonEncode({'email': email}),
@@ -628,7 +635,7 @@ class ApiService {
     String token,
     String newPassword,
   ) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/auth/password-reset/confirm'),
       headers: _publicHeaders(),
       body: jsonEncode({'token': token, 'new_password': newPassword}),
@@ -648,7 +655,7 @@ class ApiService {
   static Future<Map<String, dynamic>> requestEmailVerification(
     String email,
   ) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/auth/email-verification/request'),
       headers: _publicHeaders(),
       body: jsonEncode({'email': email}),
@@ -668,7 +675,7 @@ class ApiService {
   static Future<Map<String, dynamic>> confirmEmailVerification(
     String token,
   ) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/auth/email-verification/confirm'),
       headers: _publicHeaders(),
       body: jsonEncode({'token': token}),
@@ -1200,7 +1207,7 @@ class ApiService {
     List<Map<String, dynamic>> checkins = const [],
   }) async {
     // FIX-W11-1: Send ISO 8601 UTC timestamp for conflict resolution
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/sync/claim-local-data'),
       headers: await _authHeaders(),
       body: jsonEncode({
@@ -1231,7 +1238,7 @@ class ApiService {
     bool isTrial = false,
     String? signedPayload,
   }) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/billing/apple/verify'),
       headers: await _authHeaders(),
       body: jsonEncode({
@@ -1288,7 +1295,7 @@ class ApiService {
     bool hasDebt = false,
     Goal goal = Goal.other,
   }) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/profiles'),
       headers: await _authHeaders(),
       body: jsonEncode({
@@ -1320,7 +1327,7 @@ class ApiService {
     required List<String> selectedFocusKinds,
     String? selectedGoalTemplateId,
   }) async {
-    final response = await http.post(
+    final response = await _mintHttp.post(
       Uri.parse('$baseUrl/sessions'),
       headers: _publicHeaders(),
       body: jsonEncode({
