@@ -23181,4 +23181,41 @@ class SPt extends S {
 
   @override
   String get chatInputHint => 'Escreve a tua mensagem...';
+
+  @override
+  String get chatIntentExplainLabel => 'Explica-me';
+
+  @override
+  String get chatIntentReassureLabel => 'Tranquiliza-me';
+
+  @override
+  String get chatIntentSimulateLabel => 'Simula';
+
+  @override
+  String get narrativeSleeveNextStepExplain =>
+      'Escreve uma pergunta para aprofundar.';
+
+  @override
+  String get narrativeSleeveNextStepReassure =>
+      'Escreve o que te preocupa, vemos juntos.';
+
+  @override
+  String get narrativeSleeveNextStepSimulate =>
+      'Escreve um cenário a explorar.';
+
+  @override
+  String get narrativeSleeveHookFallback =>
+      'Vejamos juntos o que isto muda para ti.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionExplain =>
+      'Eis o que a tua carta conta hoje.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionReassure =>
+      'Vejamos com calma onde estás.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionSimulate =>
+      'Escolhe um cenário a projetar.';
 }

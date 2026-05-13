@@ -11,10 +11,12 @@ rationale behind the deferred scheduled job).
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Callable, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from app.models.consent import ConsentModel
+from app.schemas.consent_receipt import ConsentPurpose
 from app.services.consent import merkle_chain
 from app.services.consent.receipt_builder import (
     build_receipt,
@@ -28,6 +30,35 @@ logger = logging.getLogger(__name__)
 
 # Grace window before crypto-shred fires on revoking persistence_365d.
 CASCADE_GRACE_DAYS = 30
+
+
+@dataclass(frozen=True)
+class ConsentCheckResult:
+    """Result of a ConsentService.check_or_log() call — Phase 97.5 W2-T5.
+
+    Carries the gate decision + the payload the caller needs to act on it.
+
+    Fields:
+        grant_exists   : True if an active (non-revoked) grant exists.
+        allow          : True if the gate should let the request through.
+                         In `log_only` + `soft_block` modes this is always True
+                         (gate is telemetry-only). In `hard_block` mode this is
+                         False when grant_exists is False.
+        warning_header : Optional `X-MINT-Consent-Warning` header value the
+                         caller should attach to the response. Populated only
+                         in `soft_block` mode when the grant is missing.
+                         v2.10 wires header propagation ; v2.9 leaves the
+                         structure defined but the field unused.
+        deny_pointer   : Optional structured pointer JSON the caller should
+                         attach to the 403 detail. Populated only in
+                         `hard_block` mode when the grant is missing.
+                         Shape: {"action", "purpose", "modal_copy_key"}.
+    """
+
+    grant_exists: bool
+    allow: bool
+    warning_header: Optional[str] = None
+    deny_pointer: Optional[Dict[str, Any]] = None
 
 
 class ConsentError(Exception):
@@ -62,7 +93,15 @@ class ConsentService:
         user_id: str,
         purpose: str,
         policy_version: str,
+        extra: Optional[Dict[str, Any]] = None,
     ) -> ConsentModel:
+        """Append a new consent receipt to the user's merkle chain.
+
+        `extra` (added in Phase 97.5 W2-T5) is an additive dict merged into
+        `receipt_json` by `build_receipt`. Existing callers pass nothing and
+        get the byte-identical behaviour. New callers (`grant_with_basis`)
+        inject `{"basis": "..."}` for audit-trail provenance.
+        """
         prev_signature = merkle_chain.latest_signature(db, user_id)
         # Full microsecond precision — two consecutive grants in the same
         # second must order deterministically in verify_chain.
@@ -73,6 +112,7 @@ class ConsentService:
             policy_version=policy_version,
             prev_signature=prev_signature,
             now=now,
+            extra=extra,
         )
         signature = sign_receipt(receipt_json)
         row = merkle_chain.append_receipt(
@@ -88,6 +128,167 @@ class ConsentService:
             signature=signature,
         )
         return row
+
+    # -- has_active_grant (Phase 97.5 W2-T5 gate read path) -------------------
+    def has_active_grant(
+        self,
+        db,
+        *,
+        user_id: str,
+        purpose: ConsentPurpose,
+    ) -> bool:
+        """Return True if ANY non-revoked grant exists for (user_id, purpose).
+
+        Semantic per julien-go 2026-05-12 + 97.5-PLAN.md §D.1 + Option A
+        scope-decision: "active" means at least one row in `consents` with
+        `(user_id == X, purpose_category == Y.value, revoked_at IS NULL)`.
+
+        This is a read of the audit log, NOT a merkle-chain integrity check.
+        Chain verification stays on `verify_chain(...)` — the gate read path
+        intentionally does not pay that cost on every request.
+
+        The PRIV-01 design appends a new receipt on every regrant, so multiple
+        non-revoked rows for the same (user, purpose) can coexist legitimately
+        (e.g. user re-confirms consent after policy version bump). "ANY non-
+        revoked row answers yes" is cheaper than "DESC LIMIT 1" and is
+        semantically equivalent for the gate question « does the user have
+        current consent right now ».
+        """
+        return (
+            db.query(ConsentModel)
+            .filter(
+                ConsentModel.user_id == user_id,
+                ConsentModel.purpose_category == purpose.value,
+                ConsentModel.revoked_at.is_(None),
+            )
+            .first()
+            is not None
+        )
+
+    # -- grant_with_basis (Phase 97.5 W2-T6 idempotent backfill granter) ------
+    def grant_with_basis(
+        self,
+        db,
+        *,
+        user_id: str,
+        purpose: ConsentPurpose,
+        policy_version: str,
+        basis: str,
+    ) -> Optional[ConsentModel]:
+        """Idempotent grant variant carrying a provenance `basis` field.
+
+        Semantic per julien-go 2026-05-12 Option A:
+        1. If `has_active_grant(user_id, purpose)` already returns True, this
+           is a no-op and returns None. (LSFin Art 8 audit-trail discipline:
+           we never silently stack duplicate grants for the same purpose
+           when the gate would already pass.)
+        2. Otherwise: call `grant(...)` with `extra={"basis": basis}` injected
+           into `receipt_json`. Returns the new ConsentModel row.
+
+        `basis` discriminates user-initiated grants from admin-backfilled ones
+        in the audit log. v2.9 known values (not enforced as a whitelist per
+        Karpathy #2):
+            - "legal-continuity-pre-granular-T&C" — W2-T6 backfill of users
+              who accepted T&C before the granular-consent schema landed.
+            - "user-initiated" — T&C-acceptance flow grants.
+            - "admin-restore" — future use (operator-driven restore).
+
+        The merkle chain invariant is preserved: this method does not bypass
+        `grant()` ; it just gates the call behind the idempotency check.
+        """
+        if self.has_active_grant(db, user_id=user_id, purpose=purpose):
+            return None
+        return self.grant(
+            db,
+            user_id=user_id,
+            purpose=purpose.value,
+            policy_version=policy_version,
+            extra={"basis": basis},
+        )
+
+    # -- check_or_log (Phase 97.5 W2-T5 gate dispatch) ------------------------
+    def check_or_log(
+        self,
+        db,
+        *,
+        user_id: str,
+        purpose: ConsentPurpose,
+        mode: str,
+    ) -> ConsentCheckResult:
+        """Gate dispatch per Phase 97.5 W2-T5 + 97.5-PLAN.md §D.
+
+        Behaviour by mode:
+
+        - `log_only`   : emit structured warning log + Sentry breadcrumb when
+                         the grant is missing ; ALWAYS returns allow=True.
+                         Pure telemetry — no UX impact. v2.9 default.
+        - `soft_block` : same logging + populate `warning_header` with
+                         "missing:<purpose>" when grant is missing.
+                         allow=True. Caller chooses to attach the header to
+                         the response (v2.10 wiring).
+        - `hard_block` : same logging + populate `deny_pointer` with the
+                         structured 403 detail. allow=False. Caller raises
+                         HTTPException(403, detail=deny_pointer).
+        - Unknown mode : treated as `log_only` (fail-OPEN per R-2 mitigation).
+                         A misconfigured env var must never block traffic in
+                         v2.9. A warning log records the misconfiguration.
+
+        When the grant DOES exist, allow=True and no side-effects fire,
+        regardless of mode.
+        """
+        grant_exists = self.has_active_grant(
+            db, user_id=user_id, purpose=purpose
+        )
+        if grant_exists:
+            return ConsentCheckResult(grant_exists=True, allow=True)
+
+        # --- side-effect: structured telemetry on missing grant ---
+        # Always fires regardless of mode (mode controls the user-visible
+        # consequence, not the telemetry — LSFin Art 8 traceability).
+        logger.warning(
+            "consent_missing",
+            extra={
+                "purpose": purpose.value,
+                "user_id": user_id,
+                "mode": mode,
+            },
+        )
+        try:
+            import sentry_sdk  # local import — keeps test env light
+            sentry_sdk.add_breadcrumb(
+                category="consent",
+                message="missing",
+                level="warning",
+                data={"purpose": purpose.value, "mode": mode},
+            )
+        except Exception:  # pragma: no cover — Sentry is best-effort
+            pass
+
+        if mode == "soft_block":
+            return ConsentCheckResult(
+                grant_exists=False,
+                allow=True,
+                warning_header=f"missing:{purpose.value}",
+            )
+        if mode == "hard_block":
+            pointer = {
+                "action": "POST /api/v1/consents/grant",
+                "purpose": purpose.value,
+                "modal_copy_key": f"consent_modal_{purpose.value}",
+            }
+            return ConsentCheckResult(
+                grant_exists=False,
+                allow=False,
+                deny_pointer=pointer,
+            )
+
+        # Default branch: log_only OR unknown/misconfigured mode (fail-OPEN).
+        if mode != "log_only":
+            logger.warning(
+                "consent_gate_unknown_mode_defaulting_to_log_only",
+                extra={"mode": mode},
+            )
+        return ConsentCheckResult(grant_exists=False, allow=True)
 
     # -- grant nominative (PRIV-02) -------------------------------------------
     def grant_nominative(

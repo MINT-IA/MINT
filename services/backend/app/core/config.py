@@ -90,6 +90,17 @@ class Settings(BaseSettings):
     # after 4-week staging soak with `coach.citation_gate.fallback` rate ≤2%.
     COACH_CITATION_GATE_ENABLED: bool = False
 
+    # Phase 97.5 W2-T5 — ConsentService 3-stage rollout enforcement mode.
+    # `log_only`   (v2.9 default) : gate emits structured warning log +
+    #                               Sentry breadcrumb on missing consent ;
+    #                               returns 200 unchanged. Audit-trail only.
+    # `soft_block` (v2.10 stage 2) : same + non-blocking warning header.
+    # `hard_block` (v2.10 stage 3) : raises HTTPException(403, pointer).
+    # Per .planning/phases/97.5-product-completeness-for-ship/97.5-PLAN.md §D.1.
+    # v2.9 ships log_only by default — LSFin Art 8 « ability to demonstrer
+    # la conformité » minimum. Promotion ladder lives in v2.10 (W3-T3 + W4-T2).
+    CONSENT_GATE_ENFORCEMENT_MODE: Literal["log_only", "soft_block", "hard_block"] = "log_only"
+
     # Phase 91 D-01 — Narrator model selection. Default 'sonnet' matches
     # today's hardcoded Wave 2 narrator branch (preserves production
     # parity until Stage 3 eval gate flips the default in 91-05).

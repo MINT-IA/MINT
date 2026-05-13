@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 /// A tool call returned by the LLM (e.g. route_to_screen).
 class RagToolCall {
@@ -211,7 +212,7 @@ class RagService {
     // T3-11: Retry with exponential backoff on 429 rate limit.
     const maxRetries = 2;
     for (var attempt = 0; attempt <= maxRetries; attempt++) {
-      final response = await http
+      final response = await MintHttpClient.shared
           .post(
             uri,
             headers: {'Content-Type': 'application/json'},
@@ -305,7 +306,7 @@ class RagService {
     const maxRetries = 2;
     late http.Response response;
     for (var attempt = 0; attempt <= maxRetries; attempt++) {
-      response = await http
+      response = await MintHttpClient.shared
           .post(
             uri,
             headers: {'Content-Type': 'application/json'},
@@ -349,7 +350,7 @@ class RagService {
   Future<RagStatus> getStatus() async {
     final uri = Uri.parse('$baseUrl/rag/status');
 
-    final response = await http
+    final response = await MintHttpClient.shared
         .get(uri, headers: {'Content-Type': 'application/json'})
         .timeout(const Duration(seconds: 10));
 

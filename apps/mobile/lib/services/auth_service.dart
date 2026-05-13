@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 /// Service for managing JWT authentication tokens and user session.
 /// Uses flutter_secure_storage (Keychain on iOS, Keystore on Android).
@@ -216,7 +216,7 @@ class AuthService {
     if (refresh == null || refresh.isEmpty) return null;
 
     try {
-      final response = await http
+      final response = await MintHttpClient.shared
           .post(
             Uri.parse('${ApiService.baseUrl}/auth/refresh'),
             headers: const {'Content-Type': 'application/json'},

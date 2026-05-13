@@ -23227,4 +23227,41 @@ class SDe extends S {
 
   @override
   String get chatInputHint => 'Tippe deine Nachricht...';
+
+  @override
+  String get chatIntentExplainLabel => 'Erklär mir';
+
+  @override
+  String get chatIntentReassureLabel => 'Beruhige mich';
+
+  @override
+  String get chatIntentSimulateLabel => 'Simuliere';
+
+  @override
+  String get narrativeSleeveNextStepExplain =>
+      'Tippe eine Frage, um tiefer zu gehen.';
+
+  @override
+  String get narrativeSleeveNextStepReassure =>
+      'Tippe, was dich beunruhigt — wir schauen gemeinsam.';
+
+  @override
+  String get narrativeSleeveNextStepSimulate =>
+      'Tippe ein Szenario zum Erkunden.';
+
+  @override
+  String get narrativeSleeveHookFallback =>
+      'Schauen wir gemeinsam, was sich für dich ändert.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionExplain =>
+      'Das erzählt deine Karte heute.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionReassure =>
+      'Schauen wir ruhig, wo du stehst.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionSimulate =>
+      'Wähle ein Szenario zur Projektion.';
 }

@@ -11198,5 +11198,15 @@
   "verbExplique": "Explícame",
   "verbSimule": "Simular",
   "verbRassure": "Tranquilízame",
-  "chatInputHint": "Escribe tu mensaje..."
+  "chatInputHint": "Escribe tu mensaje...",
+  "chatIntentExplainLabel": "Explícame",
+  "chatIntentReassureLabel": "Tranquilízame",
+  "chatIntentSimulateLabel": "Simula",
+  "narrativeSleeveNextStepExplain": "Escribe una pregunta para profundizar.",
+  "narrativeSleeveNextStepReassure": "Escribe lo que te preocupa, lo miramos juntos.",
+  "narrativeSleeveNextStepSimulate": "Escribe un escenario a explorar.",
+  "narrativeSleeveHookFallback": "Veamos juntos lo que esto cambia para ti.",
+  "narrativeSleeveOpenerCaptionExplain": "Esto es lo que tu tarjeta cuenta hoy.",
+  "narrativeSleeveOpenerCaptionReassure": "Miremos con calma dónde estás.",
+  "narrativeSleeveOpenerCaptionSimulate": "Elige un escenario a proyectar."
 }

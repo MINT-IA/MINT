@@ -11198,5 +11198,15 @@
   "verbExplique": "Spiega",
   "verbSimule": "Simula",
   "verbRassure": "Rassicurami",
-  "chatInputHint": "Scrivi il tuo messaggio..."
+  "chatInputHint": "Scrivi il tuo messaggio...",
+  "chatIntentExplainLabel": "Spiegami",
+  "chatIntentReassureLabel": "Rassicurami",
+  "chatIntentSimulateLabel": "Simula",
+  "narrativeSleeveNextStepExplain": "Scrivi una domanda per approfondire.",
+  "narrativeSleeveNextStepReassure": "Scrivi cosa ti preoccupa, guardiamo insieme.",
+  "narrativeSleeveNextStepSimulate": "Scrivi uno scenario da esplorare.",
+  "narrativeSleeveHookFallback": "Vediamo insieme cosa cambia per te.",
+  "narrativeSleeveOpenerCaptionExplain": "Ecco cosa racconta la tua carta oggi.",
+  "narrativeSleeveOpenerCaptionReassure": "Guardiamo con calma a che punto sei.",
+  "narrativeSleeveOpenerCaptionSimulate": "Scegli uno scenario da proiettare."
 }

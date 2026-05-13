@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/rag_service.dart' show RagSource, RagToolCall;
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 /// HTTP client for POST /api/v1/coach/chat — the server-key tier.
 ///
@@ -178,7 +179,7 @@ class CoachChatApiService {
           .post(uri, headers: headers, body: encoded)
           .timeout(const Duration(seconds: 50));
     }
-    return http
+    return MintHttpClient.shared
         .post(uri, headers: headers, body: encoded)
         .timeout(const Duration(seconds: 50));
   }
@@ -221,7 +222,7 @@ class CoachChatApiService {
         body['intent'] = intent;
       }
 
-      final response = await http
+      final response = await MintHttpClient.shared
           .post(
             uri,
             headers: {

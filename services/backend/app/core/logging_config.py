@@ -7,13 +7,38 @@ Provides a LoggingMiddleware for FastAPI that logs request method, path, status,
 
 import json
 import logging
+import re
 import time
 from contextvars import ContextVar
 from datetime import datetime, timezone
-from uuid import uuid4
+from typing import Optional
+from uuid import UUID, uuid4
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
+
+# Mobile clients (MintHttpClient) stamp this header with a uuid4 per call.
+# When present and well-formed we reuse it as the trace_id so client stdout
+# and backend logs share a single key (see tools/debug/mint-trace.sh).
+CLIENT_REQUEST_ID_HEADER = "x-mint-req-id"
+_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
+
+
+def _coerce_client_request_id(raw: Optional[str]) -> Optional[str]:
+    """Return ``raw`` only if it parses as a UUID — defense against log
+    poisoning when the header is attacker-controlled."""
+    if not raw:
+        return None
+    if not _UUID_RE.match(raw):
+        return None
+    try:
+        UUID(raw)
+    except ValueError:
+        return None
+    return raw.lower()
 
 # Context variable for trace ID (correlates all logs within a single request)
 trace_id_var: ContextVar[str] = ContextVar("trace_id", default="-")
@@ -82,7 +107,10 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request: Request, call_next):
-        request_trace_id = str(uuid4())
+        incoming = _coerce_client_request_id(
+            request.headers.get(CLIENT_REQUEST_ID_HEADER)
+        )
+        request_trace_id = incoming or str(uuid4())
         trace_id_var.set(request_trace_id)
 
         start = time.perf_counter()

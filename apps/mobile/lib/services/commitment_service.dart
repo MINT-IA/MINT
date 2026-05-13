@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
 
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COMMITMENT SERVICE — Phase 14 / CMIT-01 + CMIT-02
@@ -55,7 +55,7 @@ class CommitmentService {
       body['reminderAt'] = reminderAt.toUtc().toIso8601String();
     }
 
-    final response = await http
+    final response = await MintHttpClient.shared
         .post(
           uri,
           headers: {
@@ -129,7 +129,7 @@ class CommitmentService {
       uri = uri.replace(queryParameters: {'status': status});
     }
 
-    final response = await http
+    final response = await MintHttpClient.shared
         .get(
           uri,
           headers: {
@@ -163,7 +163,7 @@ class CommitmentService {
     }
 
     final uri = Uri.parse('$baseUrl/coach/commitment/$commitmentId');
-    final response = await http
+    final response = await MintHttpClient.shared
         .patch(
           uri,
           headers: {
