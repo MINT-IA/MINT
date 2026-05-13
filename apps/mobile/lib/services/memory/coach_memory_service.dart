@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart' show debugPrint, visibleForTesting;
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH MEMORY SERVICE — S58 / AI Memory
@@ -135,7 +135,7 @@ class CoachMemoryService {
       final token = await AuthService.getToken();
       if (token == null) return;
 
-      await http.post(
+      await MintHttpClient.shared.post(
         Uri.parse('$baseUrl/coach/sync-insight'),
         headers: {
           'Authorization': 'Bearer $token',
@@ -171,7 +171,7 @@ class CoachMemoryService {
       final baseUrl = ApiService.baseUrl;
       final token = await AuthService.getToken();
       if (token == null) return;
-      await http.delete(
+      await MintHttpClient.shared.delete(
         Uri.parse('$baseUrl/coach/sync-insight/$insightId'),
         headers: {'Authorization': 'Bearer $token'},
       );

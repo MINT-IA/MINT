@@ -25,6 +25,11 @@ import 'package:uuid/uuid.dart';
 class MintHttpClient extends http.BaseClient {
   MintHttpClient([http.Client? inner]) : _inner = inner ?? http.Client();
 
+  /// Process-wide singleton — every MINT service that performs HTTP
+  /// outbound traffic should call through this so request IDs, body
+  /// inspection, and the connection pool stay unified.
+  static final MintHttpClient shared = MintHttpClient();
+
   final http.Client _inner;
   static const Uuid _uuid = Uuid();
 

@@ -98,11 +98,10 @@ class ApiService {
     }
   }
 
-  /// Singleton HTTP client that stamps `X-MINT-Req-Id` on every call and
-  /// emits structured logs to `dart:developer` (category `ch.mint.http`).
-  /// Pair with `tools/debug/mint-trace.sh <req_id>` to fetch matching
-  /// Railway backend logs.
-  static final MintHttpClient _mintHttp = MintHttpClient();
+  /// Process-wide singleton HTTP client (defined in MintHttpClient.shared).
+  /// Aliased here to keep the in-class call sites short. Every other MINT
+  /// service uses `MintHttpClient.shared` directly.
+  static final MintHttpClient _mintHttp = MintHttpClient.shared;
 
   static const String _definedApiBaseUrl =
       String.fromEnvironment('API_BASE_URL');
@@ -168,7 +167,7 @@ class ApiService {
 
     for (final candidate in _baseUrlCandidates) {
       try {
-        final response = await http
+        final response = await MintHttpClient.shared
             .get(Uri.parse('$candidate/health'))
             .timeout(const Duration(milliseconds: 700));
         if (_isUnavailableEndpoint(response)) {
