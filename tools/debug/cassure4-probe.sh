@@ -68,26 +68,39 @@ JAVA_HOME="${JAVA_HOME_OPENJDK21}" \
   > "${RUN_DIR}/maestro.log" 2>&1 \
   || log "    (maestro exited non-zero — expected, cassure #4 still fails)"
 
-log "4/5  Dump OSLog (category=ch.mint.http) since ${WINDOW_START}"
+log "4/5  Dump OSLog (Runner process, [ch.mint.http] tag) since ${WINDOW_START}"
 xcrun simctl spawn "${SIM_UDID}" log show \
   --start "${WINDOW_START}" \
-  --predicate 'category == "ch.mint.http"' \
-  --style compact \
-  > "${RUN_DIR}/http.oslog" 2>/dev/null || true
+  --predicate 'process == "Runner"' \
+  --style compact 2>/dev/null \
+  | grep -F '[ch.mint.http]' \
+  > "${RUN_DIR}/http.oslog" || true
 
 bodies_file="${RUN_DIR}/anonymous-chat-bodies.txt"
-grep -E "BODY req_id=" "${RUN_DIR}/http.oslog" \
-  | grep -E "anonymous/chat" \
-  > "${bodies_file}" || true
+# BODY lines are tagged distinctly from REQ/RES; for cassure #4 we
+# want the response payloads sent on /anonymous/chat. Since BODY lines
+# don't repeat the URL, we cross-reference req_id with the matching
+# RES line that contains the path.
+awk '
+  /\[ch\.mint\.http\] RES POST .*anonymous\/chat/ {
+    match($0, /req_id=([0-9a-f-]+)/, m); ids[m[1]] = 1
+  }
+  /\[ch\.mint\.http\] BODY req_id=/ {
+    match($0, /req_id=([0-9a-f-]+)/, m); if (ids[m[1]]) print
+  }
+' "${RUN_DIR}/http.oslog" > "${bodies_file}" || true
 
 n="$(wc -l < "${bodies_file}" | tr -d ' ')"
 log "5/5  Classify (${n} BODY entries captured for anonymous/chat)"
 
 if [[ "${n}" -eq 0 ]]; then
-  cat >&2 <<'EOM'
+  cat >&2 <<EOM
 VERDICT: NO BODY CAPTURE.
-Likely cause: staging is not running the obs spine yet (PR #592 not deployed).
-Action: confirm staging has the MintHttpClient changes, then re-run.
+oslog dump : $(wc -l < "${RUN_DIR}/http.oslog" | tr -d ' ') [ch.mint.http] lines.
+Inspect: cat ${RUN_DIR}/http.oslog
+Likely causes:
+  - Maestro broke before any anonymous/chat request fired.
+  - Sim build is stale (rebuild MintHttpClient + reinstall).
 EOM
   exit 4
 fi
