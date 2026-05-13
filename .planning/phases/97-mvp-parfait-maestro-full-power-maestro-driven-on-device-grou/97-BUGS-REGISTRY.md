@@ -5,7 +5,7 @@ slug: mvp-parfait-maestro-full-power-maestro-driven-on-device-grou
 status: draft (W0 in progress)
 created: 2026-05-11
 schema_version: 1
-total_bugs: 43  # W7 iter#11 P001 status updated to IN_PROGRESS (H1 REJECTED on headline metric, MARGINAL lift on process metrics) + filed 4 new rows P001b/P001c/P001d/P001e (H2-H5 follow-up hypotheses from 94.1-EVAL-DELTA)
+total_bugs: 43  # W7 iter#11 P001 status updated to IN_PROGRESS (H1 REJECTED on headline metric, MARGINAL lift on process metrics) + filed 4 new rows P001b/P001c/P001d/P001e (H2-H5 follow-up hypotheses from 94.1-EVAL-DELTA). Phase 97.5 W4-T1 P001-PAPERWORK 2026-05-13 : P001 status promoted IN_PROGRESS → RESOLVED per julien-go ADR 2026-05-12T09:55Z row #2 (v2.9 ships H1-only at 18-22% gate-correct ; FALLBACK_TEMPLATED_TEXT is LSFin runtime safety net) ; P001b/c/d/e stay OPEN tagged `deferred_to: v2.10`.
 ---
 
 # Phase 97 Bug Registry
@@ -52,7 +52,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
 | 7 | ~~S004~~ | ~~Universal Links NOT configured~~ → **RESOLVED 2026-05-11T20:10:00Z** (CONFIG-GREEN ; SIM E2E pending Railway deploy + TestFlight signed build) via Runner.entitlements associated-domains + backend AASA route | ~~16~~ | mobile |
 | 8 | ~~F006~~ | ~~FlutterDeepLinkingEnabled key missing from Info.plist~~ → **RESOLVED 2026-05-11T20:10:00Z** jointly with S003 (one-line Info.plist addition) | ~~24~~ | mobile |
 | 9 | ~~F007~~ | ~~com.apple.developer.associated-domains missing from Runner.entitlements~~ → **RESOLVED 2026-05-11T20:10:00Z** jointly with S004 | ~~24~~ | mobile |
-| 10 | P001 | Phase 94 Stage 3 narrator gate-correct thresholds NOT MET (Sonnet 18% / Haiku 22% vs 95% / 90% targets after W7 iter#11 H1 fix — H1 marginal lift on process metrics, headline REJECTED ; H2-H5 filed as P001b/c/d/e) — prod-flip stays blocked | 16 | backend |
+| 10 | ~~P001~~ | ~~Phase 94 Stage 3 narrator gate-correct thresholds NOT MET (Sonnet 18% / Haiku 22% vs 95% / 90% targets after W7 iter#11 H1 fix)~~ → **RESOLVED 2026-05-12T09:55Z** via julien-go ADR row #2 GO : v2.9 ships H1-only at 18-22% gate-correct as-is ; FALLBACK_TEMPLATED_TEXT path is the LSFin runtime safety net (no narrator output without citation) ; H2-H5 deferred to v2.10 (P001b/c/d/e stay OPEN) | ~~16~~ → RESOLVED-ship-as-is | backend |
 | 11 | ~~B004~~ | ~~core/auth.py:55 bare except swallows JTI-blacklist DB errors — revoked-token auth-bypass via infra degradation~~ → **RESOLVED 2026-05-11T21:00:00Z** via fail-closed split-except (W7 iter#7, fix d50e2d2e) — 4/4 pytest GREEN, backend suite 6628 passed no regression | 16 | backend |
 | 12 | ~~B023~~ | ~~snapshots model declares table but no alembic migration creates it — Railway restart wipes user history~~ → **REJECTED 2026-05-11T21:25:00Z as audit false flag** (W7 iter#8, guard d57ab894) — baseline migration d73dcc3968c9 + p12 already create the table with all 21 cols + 3 indexes ; repro test preserved as permanent schema-parity regression guard (4/4 pytest GREEN, backend suite 6632 passed vs 6628 baseline, zero regression). Smaller real drift filed as new row B023b (FK + server_defaults, P2) | ~~16~~ → REJECTED-with-guard | backend |
 | 13 | P003 | Authenticated `/coach/chat` returns canned FALLBACK_TEMPLATED_TEXT on first prompt with full inline profile data — gate had no user-input awareness, narrator's echo of user numbers was treated as uncited → retry → fallback (Julien sim 2026-05-12T08:13Z) | 8 | backend |
@@ -407,7 +407,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   blast_radius: « COACH_CITATION_GATE_ENABLED prod-flip blocked. The chat-as-verb feature ships with citation gate flag = false on prod, meaning narrator can emit naked numbers without citations (LSFin compliance gap). »
   fix_cost: medium  # backlog 999.5 iter 2 hypothesis H1 (intent-driven key grouping) is the proposed fix
   score: 16  # 8 × 4 / 2
-  status: IN_PROGRESS
+  status: RESOLVED
   started: 2026-05-11T21:30:00Z
   hypothesis: H1 — intent-driven key grouping (full 18-bullet noise floor → keys relevant to classified intent set only)
   expected_envelope:
@@ -424,8 +424,9 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   fix_commit: f38975d9  # H1 implementation + 4991a552 test mock signature fix
   repro_flow: null  # citation gate is backend-only ; G1 evidence are the 4 eval JSONs above + 190/190 unit tests
   found_in: 2026-05-11
-  resolved_in: null
+  resolved_in: 2026-05-12  # promoted IN_PROGRESS → RESOLVED via Phase 97.5 W4-T1 P001-PAPERWORK per julien-go ADR 2026-05-12T09:55Z row #2 GO
   notes: « W7 iter#11 PICK 2026-05-11T21:30Z + CLOSE 2026-05-11T21:45Z. Honest verdict per CLAUDE.md §9.7 : H1 yields MARGINAL improvement that DOES NOT clear thresholds. Sonnet 16%→18% (+2pt) ; Haiku 18%→22% (+4pt) — far below 50% PARTIAL bar. Headline metric REJECTED. BUT process metrics improved : Haiku fallback rate dropped 54%→38% (−16 pts, material) ; Haiku retry rate dropped 64%→52% ; prompt tokens dropped 4% (~427 tokens × 50 fixtures ≈ cost-relevant). H1 commits LANDED (not reverted) because the change is correct, tests are GREEN, byte-identity preserved, and it delivers a real (if small) lift in the right direction with no downside. The dominant failure mode is NOT key-list noise — it's deeper (model attention to the placeholder syntax itself, retry-once collapse semantics per 94.1-EVAL-DELTA §Scoring contract caveat, or genuine instruction-tuned-LLM resistance to the « cite or don't emit » directive per 94.1 H5). Filed as new rows : P001b (H2 — expand examples to ≥6 covering ≥3 keys × 2 contexts), P001c (H3 — align D-09 reprompt addendum verbatim with the fragment grammar), P001d (H4 — log placeholder-placement distance to surface adjacency drift), P001e (H5 — accept ≤50% gate-correct as upper bound + escalate to few-shot in-context examples). P001 stays IN_PROGRESS — picked up next iter or v2.10. Backend pytest 6621 passed (no regression). banned_terms_python clean on new code (no new violations) ; accent_lint_fr clean. No prod flag flip — staging stays ON for diagnostic value. »
+  paperwork_2026-05-12: « julien-go ADR 2026-05-12T09:55Z row #2 verdict GO (.planning/decisions/2026-05-12-r-perimeter-sequencing-julien-go.md) : v2.9 ships H1-only at 18-22% gate-correct as-is ; FALLBACK_TEMPLATED_TEXT path is the LSFin runtime safety net (no narrator output emitted without citation — compliance preserved via banned-claim regex + accent FR lint) ; H2-H5 (P001b/c/d/e) deferred to v2.10. The user-visible degradation is acceptable for v2.9 educational scope ; v2.10 attacks the gate-correct directly. Phase 97.5 W4-T1 P001-PAPERWORK promotes IN_PROGRESS → RESOLVED. The state transition is a PROMOTION (per bug_registry_lint state-machine) — allowed. »
 
 - id: P002
   severity: P1
@@ -459,6 +460,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   repro_flow: null
   found_in: 2026-05-11T21:45:00Z
   resolved_in: null
+  deferred_to: v2.10  # per julien-go ADR 2026-05-12T09:55Z row #2 GO — H2-H5 narrator architectural fix follow-ups, post-TestFlight
   notes: « Filed during P001 W7 iter#11 close-out (H1 REJECTED on headline). Next candidate hypothesis. Cost : expand fragment from ~4kB to ~6-7kB ; test : new fixtures targeting unseen keys (LPP, FINMA, LIFD non-3a). »
 
 - id: P001c
@@ -476,6 +478,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   repro_flow: null
   found_in: 2026-05-11T21:45:00Z
   resolved_in: null
+  deferred_to: v2.10  # per julien-go ADR 2026-05-12T09:55Z row #2 GO — H2-H5 narrator architectural fix follow-ups, post-TestFlight
   notes: « Filed during P001 W7 iter#11 close-out. Trivial cost ; high-value if H3 is the dominant failure mode. Pair with H2 (P001b) for next eval cycle to attribute the deltas. »
 
 - id: P001d
@@ -493,6 +496,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   repro_flow: null
   found_in: 2026-05-11T21:45:00Z
   resolved_in: null
+  deferred_to: v2.10  # per julien-go ADR 2026-05-12T09:55Z row #2 GO — H2-H5 narrator architectural fix follow-ups, post-TestFlight
   notes: « Filed during P001 W7 iter#11 close-out. Cheap instrumentation. Pair with re-eval. »
 
 - id: P001e
@@ -510,6 +514,7 @@ Scoring : severity (P0=8, P1=4, P2=2, P3=1) × blast (all=4, multi=3, single=1) 
   repro_flow: null
   found_in: 2026-05-11T21:45:00Z
   resolved_in: null
+  deferred_to: v2.10  # per julien-go ADR 2026-05-12T09:55Z row #2 GO — H2-H5 narrator architectural fix follow-ups, post-TestFlight
   notes: « Filed during P001 W7 iter#11 close-out. Architectural fallback if H2-H4 don't clear thresholds. v2.10 work, possibly post-TestFlight. The « accept ≤50% as upper bound » sub-option requires a Julien-level decision on whether citation-gate-as-soft-filter is acceptable for the LSFin compliance promise. »
 ```
 
