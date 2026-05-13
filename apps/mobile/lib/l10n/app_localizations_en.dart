@@ -23094,4 +23094,34 @@ class SEn extends S {
   @override
   String get narrativeSleeveOpenerCaptionSimulate =>
       'Pick a scenario to project.';
+
+  @override
+  String get onboardingIntentEyebrow => '01 — INTENTION';
+
+  @override
+  String get onboardingIntentHero => 'What brings you here?';
+
+  @override
+  String get onboardingIntentSub => 'A reason that made you download MINT.';
+
+  @override
+  String get onboardingIntentChipRetraite => 'Retirement';
+
+  @override
+  String get onboardingIntentChipAchat => 'Buying / moving';
+
+  @override
+  String get onboardingIntentChipFamille => 'Family';
+
+  @override
+  String get onboardingIntentChipCarriere => 'Career';
+
+  @override
+  String get onboardingIntentChipFiscalite => 'Tax / 3a';
+
+  @override
+  String get onboardingIntentChipDecouverte => 'Just looking';
+
+  @override
+  String get onboardingContinueCta => 'Continue';
 }

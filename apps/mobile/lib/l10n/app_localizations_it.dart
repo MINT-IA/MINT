@@ -23269,4 +23269,34 @@ class SIt extends S {
   @override
   String get narrativeSleeveOpenerCaptionSimulate =>
       'Scegli uno scenario da proiettare.';
+
+  @override
+  String get onboardingIntentEyebrow => '01 — INTENZIONE';
+
+  @override
+  String get onboardingIntentHero => 'Cosa ti porta qui?';
+
+  @override
+  String get onboardingIntentSub => 'Una ragione per cui hai scaricato MINT.';
+
+  @override
+  String get onboardingIntentChipRetraite => 'Pensione';
+
+  @override
+  String get onboardingIntentChipAchat => 'Acquisto / trasloco';
+
+  @override
+  String get onboardingIntentChipFamille => 'Famiglia';
+
+  @override
+  String get onboardingIntentChipCarriere => 'Carriera';
+
+  @override
+  String get onboardingIntentChipFiscalite => 'Tasse / 3a';
+
+  @override
+  String get onboardingIntentChipDecouverte => 'Sto solo guardando';
+
+  @override
+  String get onboardingContinueCta => 'Continua';
 }

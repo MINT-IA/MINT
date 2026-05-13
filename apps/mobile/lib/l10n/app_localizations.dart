@@ -40712,6 +40712,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Choisis un scénario à projeter.'**
   String get narrativeSleeveOpenerCaptionSimulate;
+
+  /// Onboarding v2 Step 01 eyebrow (Supreme uppercase letterspaced). Per 2026-05-08 SYNTHESIS.
+  ///
+  /// In fr, this message translates to:
+  /// **'01 — INTENTION'**
+  String get onboardingIntentEyebrow;
+
+  /// Onboarding v2 Step 01 hero (Gambarino italic). Accent-clean FR with apostrophe typographique. LSFin-clean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qu’est-ce qui t’amène ?'**
+  String get onboardingIntentHero;
+
+  /// Onboarding v2 Step 01 sub-title (Supreme body). Anti-promiscuous per 8 grammar rules.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une raison qui t’a fait télécharger MINT.'**
+  String get onboardingIntentSub;
+
+  /// Onboarding v2 Step 01 life-event chip 1/6 — retraite / décumulation. CLAUDE.md NEVER #4: one of six, not dominant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite'**
+  String get onboardingIntentChipRetraite;
+
+  /// Onboarding v2 Step 01 life-event chip 2/6 — acheter-déménager.
+  ///
+  /// In fr, this message translates to:
+  /// **'Achat / déménagement'**
+  String get onboardingIntentChipAchat;
+
+  /// Onboarding v2 Step 01 life-event chip 3/6 — famille.
+  ///
+  /// In fr, this message translates to:
+  /// **'Famille'**
+  String get onboardingIntentChipFamille;
+
+  /// Onboarding v2 Step 01 life-event chip 4/6 — carrière.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carrière'**
+  String get onboardingIntentChipCarriere;
+
+  /// Onboarding v2 Step 01 life-event chip 5/6 — impôts / 3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôts / 3a'**
+  String get onboardingIntentChipFiscalite;
+
+  /// Onboarding v2 Step 01 life-event chip 6/6 — explore-first skip-equivalent (Lunchmoney pattern per O6).
+  ///
+  /// In fr, this message translates to:
+  /// **'Je regarde d’abord'**
+  String get onboardingIntentChipDecouverte;
+
+  /// Onboarding v2 generic CTA — used across all 6 step screens.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get onboardingContinueCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

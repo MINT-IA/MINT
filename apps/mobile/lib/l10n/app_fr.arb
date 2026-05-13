@@ -12202,5 +12202,45 @@
   "narrativeSleeveOpenerCaptionSimulate": "Choisis un scénario à projeter.",
   "@narrativeSleeveOpenerCaptionSimulate": {
     "description": "Phase 97.5 W2-T1 — NarrativeSleeve caption slot for intent=simulate. Reserved for forward compat."
+  },
+  "onboardingIntentEyebrow": "01 — INTENTION",
+  "@onboardingIntentEyebrow": {
+    "description": "Onboarding v2 Step 01 eyebrow (Supreme uppercase letterspaced). Per 2026-05-08 SYNTHESIS."
+  },
+  "onboardingIntentHero": "Qu’est-ce qui t’amène ?",
+  "@onboardingIntentHero": {
+    "description": "Onboarding v2 Step 01 hero (Gambarino italic). Accent-clean FR with apostrophe typographique. LSFin-clean."
+  },
+  "onboardingIntentSub": "Une raison qui t’a fait télécharger MINT.",
+  "@onboardingIntentSub": {
+    "description": "Onboarding v2 Step 01 sub-title (Supreme body). Anti-promiscuous per 8 grammar rules."
+  },
+  "onboardingIntentChipRetraite": "Retraite",
+  "@onboardingIntentChipRetraite": {
+    "description": "Onboarding v2 Step 01 life-event chip 1/6 — retraite / décumulation. CLAUDE.md NEVER #4: one of six, not dominant."
+  },
+  "onboardingIntentChipAchat": "Achat / déménagement",
+  "@onboardingIntentChipAchat": {
+    "description": "Onboarding v2 Step 01 life-event chip 2/6 — acheter-déménager."
+  },
+  "onboardingIntentChipFamille": "Famille",
+  "@onboardingIntentChipFamille": {
+    "description": "Onboarding v2 Step 01 life-event chip 3/6 — famille."
+  },
+  "onboardingIntentChipCarriere": "Carrière",
+  "@onboardingIntentChipCarriere": {
+    "description": "Onboarding v2 Step 01 life-event chip 4/6 — carrière."
+  },
+  "onboardingIntentChipFiscalite": "Impôts / 3a",
+  "@onboardingIntentChipFiscalite": {
+    "description": "Onboarding v2 Step 01 life-event chip 5/6 — impôts / 3a."
+  },
+  "onboardingIntentChipDecouverte": "Je regarde d’abord",
+  "@onboardingIntentChipDecouverte": {
+    "description": "Onboarding v2 Step 01 life-event chip 6/6 — explore-first skip-equivalent (Lunchmoney pattern per O6)."
+  },
+  "onboardingContinueCta": "Continuer",
+  "@onboardingContinueCta": {
+    "description": "Onboarding v2 generic CTA — used across all 6 step screens."
   }
 }

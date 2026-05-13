@@ -11208,5 +11208,15 @@
   "narrativeSleeveHookFallback": "Schauen wir gemeinsam, was sich für dich ändert.",
   "narrativeSleeveOpenerCaptionExplain": "Das erzählt deine Karte heute.",
   "narrativeSleeveOpenerCaptionReassure": "Schauen wir ruhig, wo du stehst.",
-  "narrativeSleeveOpenerCaptionSimulate": "Wähle ein Szenario zur Projektion."
+  "narrativeSleeveOpenerCaptionSimulate": "Wähle ein Szenario zur Projektion.",
+  "onboardingIntentEyebrow": "01 — ABSICHT",
+  "onboardingIntentHero": "Was bringt dich hierher?",
+  "onboardingIntentSub": "Ein Grund, warum du MINT installiert hast.",
+  "onboardingIntentChipRetraite": "Ruhestand",
+  "onboardingIntentChipAchat": "Kauf / Umzug",
+  "onboardingIntentChipFamille": "Familie",
+  "onboardingIntentChipCarriere": "Karriere",
+  "onboardingIntentChipFiscalite": "Steuern / 3a",
+  "onboardingIntentChipDecouverte": "Ich schaue zuerst",
+  "onboardingContinueCta": "Weiter"
 }

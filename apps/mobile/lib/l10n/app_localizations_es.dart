@@ -23210,4 +23210,34 @@ class SEs extends S {
   @override
   String get narrativeSleeveOpenerCaptionSimulate =>
       'Elige un escenario a proyectar.';
+
+  @override
+  String get onboardingIntentEyebrow => '01 — INTENCIÓN';
+
+  @override
+  String get onboardingIntentHero => '¿Qué te trae?';
+
+  @override
+  String get onboardingIntentSub => 'Una razón que te hizo descargar MINT.';
+
+  @override
+  String get onboardingIntentChipRetraite => 'Jubilación';
+
+  @override
+  String get onboardingIntentChipAchat => 'Compra / mudanza';
+
+  @override
+  String get onboardingIntentChipFamille => 'Familia';
+
+  @override
+  String get onboardingIntentChipCarriere => 'Carrera';
+
+  @override
+  String get onboardingIntentChipFiscalite => 'Impuestos / 3a';
+
+  @override
+  String get onboardingIntentChipDecouverte => 'Solo mirar';
+
+  @override
+  String get onboardingContinueCta => 'Continuar';
 }

@@ -23264,4 +23264,35 @@ class SDe extends S {
   @override
   String get narrativeSleeveOpenerCaptionSimulate =>
       'Wähle ein Szenario zur Projektion.';
+
+  @override
+  String get onboardingIntentEyebrow => '01 — ABSICHT';
+
+  @override
+  String get onboardingIntentHero => 'Was bringt dich hierher?';
+
+  @override
+  String get onboardingIntentSub =>
+      'Ein Grund, warum du MINT installiert hast.';
+
+  @override
+  String get onboardingIntentChipRetraite => 'Ruhestand';
+
+  @override
+  String get onboardingIntentChipAchat => 'Kauf / Umzug';
+
+  @override
+  String get onboardingIntentChipFamille => 'Familie';
+
+  @override
+  String get onboardingIntentChipCarriere => 'Karriere';
+
+  @override
+  String get onboardingIntentChipFiscalite => 'Steuern / 3a';
+
+  @override
+  String get onboardingIntentChipDecouverte => 'Ich schaue zuerst';
+
+  @override
+  String get onboardingContinueCta => 'Weiter';
 }

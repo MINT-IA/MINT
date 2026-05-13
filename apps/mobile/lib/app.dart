@@ -11,6 +11,7 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
+import 'package:mint_mobile/screens/onboarding/auth_first/step01_intent_screen.dart';
 import 'package:mint_mobile/screens/coach/chat_as_verb_demo_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
@@ -1286,9 +1287,19 @@ final _router = GoRouter(
         return '/coach/chat';
       },
     ),
-    // KILL-01: intent_screen deleted. Redirect shim for deep links.
+    // Onboarding v2 Step 01 — INTENT (2026-05-08 SYNTHESIS).
+    // Replaces the KILL-01 redirect shim with the new auth-first screen.
     ScopedGoRoute(
       path: '/onboarding/intent',
+      scope: RouteScope.onboarding,
+      builder: (_, __) => const Step01IntentScreen(),
+    ),
+    // Onboarding v2 Step 02-06 shim (will be replaced as steps land).
+    // Today (Task 1 of 8 only) the « Continuer » CTA lands here ;
+    // temp redirect to /coach/chat so it doesn't 404. Real screen
+    // ships in Task 2.
+    ScopedGoRoute(
+      path: '/onboarding/profil/age',
       scope: RouteScope.onboarding,
       redirect: (_, state) {
         MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/coach/chat');

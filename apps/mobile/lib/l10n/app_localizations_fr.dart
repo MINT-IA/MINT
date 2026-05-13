@@ -23209,4 +23209,34 @@ class SFr extends S {
   @override
   String get narrativeSleeveOpenerCaptionSimulate =>
       'Choisis un scénario à projeter.';
+
+  @override
+  String get onboardingIntentEyebrow => '01 — INTENTION';
+
+  @override
+  String get onboardingIntentHero => 'Qu’est-ce qui t’amène ?';
+
+  @override
+  String get onboardingIntentSub => 'Une raison qui t’a fait télécharger MINT.';
+
+  @override
+  String get onboardingIntentChipRetraite => 'Retraite';
+
+  @override
+  String get onboardingIntentChipAchat => 'Achat / déménagement';
+
+  @override
+  String get onboardingIntentChipFamille => 'Famille';
+
+  @override
+  String get onboardingIntentChipCarriere => 'Carrière';
+
+  @override
+  String get onboardingIntentChipFiscalite => 'Impôts / 3a';
+
+  @override
+  String get onboardingIntentChipDecouverte => 'Je regarde d’abord';
+
+  @override
+  String get onboardingContinueCta => 'Continuer';
 }

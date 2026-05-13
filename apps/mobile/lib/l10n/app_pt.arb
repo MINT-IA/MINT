@@ -11208,5 +11208,15 @@
   "narrativeSleeveHookFallback": "Vejamos juntos o que isto muda para ti.",
   "narrativeSleeveOpenerCaptionExplain": "Eis o que a tua carta conta hoje.",
   "narrativeSleeveOpenerCaptionReassure": "Vejamos com calma onde estás.",
-  "narrativeSleeveOpenerCaptionSimulate": "Escolhe um cenário a projetar."
+  "narrativeSleeveOpenerCaptionSimulate": "Escolhe um cenário a projetar.",
+  "onboardingIntentEyebrow": "01 — INTENÇÃO",
+  "onboardingIntentHero": "O que te traz?",
+  "onboardingIntentSub": "Uma razão pela qual instalaste o MINT.",
+  "onboardingIntentChipRetraite": "Reforma",
+  "onboardingIntentChipAchat": "Compra / mudança",
+  "onboardingIntentChipFamille": "Família",
+  "onboardingIntentChipCarriere": "Carreira",
+  "onboardingIntentChipFiscalite": "Impostos / 3a",
+  "onboardingIntentChipDecouverte": "Só estou a olhar",
+  "onboardingContinueCta": "Continuar"
 }

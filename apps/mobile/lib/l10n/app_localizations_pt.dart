@@ -23218,4 +23218,34 @@ class SPt extends S {
   @override
   String get narrativeSleeveOpenerCaptionSimulate =>
       'Escolhe um cenário a projetar.';
+
+  @override
+  String get onboardingIntentEyebrow => '01 — INTENÇÃO';
+
+  @override
+  String get onboardingIntentHero => 'O que te traz?';
+
+  @override
+  String get onboardingIntentSub => 'Uma razão pela qual instalaste o MINT.';
+
+  @override
+  String get onboardingIntentChipRetraite => 'Reforma';
+
+  @override
+  String get onboardingIntentChipAchat => 'Compra / mudança';
+
+  @override
+  String get onboardingIntentChipFamille => 'Família';
+
+  @override
+  String get onboardingIntentChipCarriere => 'Carreira';
+
+  @override
+  String get onboardingIntentChipFiscalite => 'Impostos / 3a';
+
+  @override
+  String get onboardingIntentChipDecouverte => 'Só estou a olhar';
+
+  @override
+  String get onboardingContinueCta => 'Continuar';
 }

@@ -11208,5 +11208,15 @@
   "narrativeSleeveHookFallback": "Let's see together what this changes for you.",
   "narrativeSleeveOpenerCaptionExplain": "Here is what your card tells today.",
   "narrativeSleeveOpenerCaptionReassure": "Let's look calmly at where you stand.",
-  "narrativeSleeveOpenerCaptionSimulate": "Pick a scenario to project."
+  "narrativeSleeveOpenerCaptionSimulate": "Pick a scenario to project.",
+  "onboardingIntentEyebrow": "01 — INTENTION",
+  "onboardingIntentHero": "What brings you here?",
+  "onboardingIntentSub": "A reason that made you download MINT.",
+  "onboardingIntentChipRetraite": "Retirement",
+  "onboardingIntentChipAchat": "Buying / moving",
+  "onboardingIntentChipFamille": "Family",
+  "onboardingIntentChipCarriere": "Career",
+  "onboardingIntentChipFiscalite": "Tax / 3a",
+  "onboardingIntentChipDecouverte": "Just looking",
+  "onboardingContinueCta": "Continue"
 }
