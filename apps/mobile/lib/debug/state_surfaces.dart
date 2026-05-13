@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mint_mobile/debug/debug_log_zone.dart';
 import 'package:mint_mobile/debug/debug_registry.dart';
 import 'package:mint_mobile/debug/ring_buffer.dart';
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
@@ -43,7 +42,6 @@ class DebugStateSurfaces {
     DebugRegistry.register('router', () => _routerSurface(router));
     DebugRegistry.register('http', _httpSurface);
     DebugRegistry.register('prefs', _prefsSurface);
-    DebugRegistry.register('logs', _logsSurface);
   }
 
   // ─── Router ─────────────────────────────────────────────────────────
@@ -114,16 +112,6 @@ class DebugStateSurfaces {
     }
     if (raw is List<String>) return raw;
     return raw.toString();
-  }
-
-  // ─── Logs (last N debugPrint lines, captured via Zone) ──────────────
-
-  static Map<String, dynamic> _logsSurface() {
-    final lines = DebugLogBuffer.snapshot();
-    return {
-      'count': lines.length,
-      'lines': lines,
-    };
   }
 }
 

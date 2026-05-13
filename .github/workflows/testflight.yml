@@ -214,6 +214,15 @@ jobs:
           fi
           flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_URL $EXTRA_DEFINES
 
+      # LINT-IOS-RELEASE-02 — verify the Tier 2 /debug/state HTTP endpoint
+      # was tree-shaken out of the release binary. Belt-and-suspenders
+      # behind the three compile-time guards (kDebugMode + dart-define +
+      # conditional-import facade). App Store review treats embedded HTTP
+      # servers as a red flag even when dormant.
+      - name: Verify no debug endpoint in release binary
+        working-directory: .
+        run: tools/checks/no_debug_endpoint_in_release.sh apps/mobile/build/ios/iphoneos/Runner.app
+
       - name: Prepare DART_DEFINES for Xcode/Fastlane
         env:
           HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}

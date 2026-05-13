@@ -18,6 +18,24 @@ import 'package:mint_mobile/debug/state_surfaces.dart';
 ///
 /// See `lib/debug/debug_facade.dart` for the public entry point and the
 /// release-build stub.
+///
+/// ## Token retrieval (Maestro / runScript host-side)
+///
+/// `_writeTokenFile` writes to `Directory.systemTemp`, which is **not**
+/// `/tmp` on iOS — it resolves to the app sandbox
+/// `Application/<UUID>/tmp/`. The Maestro `runScript:` block runs on the
+/// host Mac, NOT inside the simulator, so reach the file via:
+///
+/// ```bash
+/// APP_DATA=$(xcrun simctl get_app_container booted ch.mint.mobile data)
+/// TOKEN=$(cat "$APP_DATA/tmp/mint_debug.token")
+/// curl -sS -H "Authorization: Bearer $TOKEN" \
+///   http://127.0.0.1:8181/debug/state/prefs | jq .
+/// ```
+///
+/// Primary channel is still the stdout log line — `_serve()` prints the
+/// resolved absolute path on bind, so an OSLog grep is the canonical
+/// recovery path if the file write fails (read-only fs, sandbox quirk).
 class DebugServer {
   DebugServer._({required this.server, required this.bearerToken});
 
@@ -33,7 +51,7 @@ class DebugServer {
 
   /// Starts the debug server on [port] (default 8181), binds to loopback,
   /// writes the bearer token to a temp file the Maestro runner can read,
-  /// and registers built-in surfaces ([router], `http`, `prefs`, `logs`).
+  /// and registers built-in surfaces ([router], `http`, `prefs`).
   ///
   /// Idempotent: re-calls return the existing instance.
   static Future<DebugServer?> start({
@@ -57,7 +75,7 @@ class DebugServer {
     );
 
     final token = _generateToken();
-    await _writeTokenFile(token);
+    final tokenPath = await _writeTokenFile(token);
 
     DebugStateSurfaces.registerBuiltins(router: router);
 
@@ -68,10 +86,15 @@ class DebugServer {
     // server up; the loop ends when [stop] closes the server.
     unawaited(instance._serve());
 
+    // Stdout is the primary token-discovery channel (greppable from the
+    // host via `xcrun simctl spawn booted log show`). The file at
+    // [tokenPath] is a convenience for desktop dev — on iOS sim it lives
+    // inside the app sandbox (see file-header doc), NOT host `/tmp`.
     // ignore: avoid_print
     print( // intentionally raw stdout — E2E harness greps the port handshake
         '[ch.mint.debug] DebugServer listening on '
-        '127.0.0.1:${server.port} (token at /tmp/$_tokenFileName)');
+        '127.0.0.1:${server.port} '
+        '(token at ${tokenPath ?? "<file-write-failed; use stdout grep>"})');
 
     return instance;
   }
@@ -185,13 +208,29 @@ class DebugServer {
     return base64Url.encode(bytes).replaceAll('=', '');
   }
 
-  static Future<void> _writeTokenFile(String token) async {
+  /// Writes the bearer token to `<systemTemp>/mint_debug.token`. Returns
+  /// the resolved absolute path on success, `null` on failure (read-only
+  /// fs / sandbox quirk). On POSIX hosts we chmod 0600 so a co-tenant on
+  /// the same CI worker cannot read the token before it rotates next
+  /// launch.
+  static Future<String?> _writeTokenFile(String token) async {
     try {
       final dir = Directory.systemTemp;
       final file = File('${dir.path}/$_tokenFileName');
       await file.writeAsString(token, flush: true);
+      if (!Platform.isWindows) {
+        // chmod 600 — owner read/write only. Best-effort: failures on
+        // platforms with a non-POSIX filesystem semantics are non-fatal
+        // because the next-launch rotation already bounds blast radius
+        // to one session.
+        try {
+          await Process.run('chmod', ['600', file.path]);
+        } catch (_) {/* best-effort */}
+      }
+      return file.path;
     } catch (_) {
       // tmpdir unavailable — token still works via stdout log line.
+      return null;
     }
   }
 

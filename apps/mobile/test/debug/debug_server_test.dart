@@ -74,10 +74,11 @@ void main() {
       expect(json['_meta'], isA<Map>());
       expect(json['_meta']['schema'], 'v1');
       expect(json['_meta']['surfaces'], isA<List>());
-      // The four built-in surfaces.
+      // The three built-in surfaces (logs surface removed in code review C1 —
+      // shipped dormant + filter doc mismatched implementation, PII trap risk).
       expect(
         (json['_meta']['surfaces'] as List).toSet(),
-        containsAll({'router', 'http', 'prefs', 'logs'}),
+        equals({'router', 'http', 'prefs'}),
       );
       client.close();
     });
