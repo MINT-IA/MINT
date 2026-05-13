@@ -117,6 +117,21 @@ dump_state() {
     fi
   fi
 
+  # 5. Auto-invoke Phase 4 cassure classifier on the dumped state (per
+  # code-review I3 — was previously a manual operator step despite the
+  # spec claiming « auto-runs on stall dump »). Best-effort: if the
+  # classifier is missing or jq is unavailable, the watchdog still
+  # completes its core dump.
+  classifier="$REPO_ROOT/tools/debug/cassure-classifier.sh"
+  if [ -x "$classifier" ] && [ -f "$ARTIFACT_DIR/debug-state.json" ]; then
+    "$classifier" \
+      --state "$ARTIFACT_DIR/debug-state.json" \
+      --oslog "$ARTIFACT_DIR/oslog-mint.txt" \
+      --out   "$ARTIFACT_DIR/cassure-report.json" \
+      >> "$ARTIFACT_DIR/classifier.log" 2>&1 \
+      || echo "[watchdog] classifier returned non-zero — see classifier.log"
+  fi
+
   echo "[watchdog] dump complete → $ARTIFACT_DIR/"
 }
 

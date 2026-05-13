@@ -97,23 +97,56 @@ command -v jq >/dev/null 2>&1 || {
 }
 
 # ── Heuristic library ──────────────────────────────────────────────────
-# Each heuristic is a bash function `h_<name>` that takes no args, reads
-# globals (STATE_JSON, OSLOG_CONTENT), and echoes ONE LINE on match :
-#   "<hypothesis>|<evidence>|<suggested_file>"
-# Empty output → no match. The classifier runs all heuristics, collects
-# matches, picks the FIRST one (heuristics are ordered by specificity).
+# Each heuristic is a bash function `h_<name>` taking no args, reading
+# globals (STATE_JSON, OSLOG_CONTENT), and echoing ONE JSON OBJECT on
+# match (or nothing on no-match):
+#   {"hypothesis": "<name>", "evidence": "<...>", "suspect_file": "<path>"}
+#
+# Why JSON-object emission instead of pipe-delimited (per code-review C1):
+# OSLog lines using `|` as a field separator would corrupt the split.
+# `jq -n` produces a JSON-safe object directly ; the collector concats
+# with `jq -s '.'`.
+#
+# Ordering (first match wins as primary, others recorded as secondaries) :
+#   1. anonymous_counter_not_persisted — cassure #4 class, highest specificity
+#   2. auth_gate_route_stuck            — route-shape match
+#   3. first_oslog_error                — deterministic « we have an error
+#                                         message » signal beats the
+#                                         speculative inflight check (I4)
+#   4. http_inflight_stuck              — soft signal, single-snapshot
+#                                         can't prove staleness
+# Adding a heuristic: declare its priority slot in this comment block
+# AND in the `for h in ...` loop below.
+
+# Helper to emit a JSON object — keeps callers terse and JSON-safe.
+emit() {
+  jq -nc \
+    --arg h "$1" \
+    --arg e "$2" \
+    --arg f "$3" \
+    '{hypothesis: $h, evidence: $e, suspect_file: $f}'
+}
 
 h_anonymous_counter_not_persisted() {
-  # If state shows anonymous_message_count >= a soft cap (3) AND the
-  # OSLog has the "anonymous chat" route + a parse failure, the counter
-  # is being read but not persisted across rebuilds.
+  # State key resolution (per code-review C3):
+  # `AnonymousSessionService` writes to SecureStorage under
+  # `anonymous_message_count` AND to SharedPreferences fallback under
+  # `anonfb_anonymous_message_count`. iOS sim's SecureStorage raises
+  # PlatformException -34018, so ONLY the prefixed key lands in
+  # SharedPreferences. The Tier 2 prefs whitelist must include both ;
+  # this heuristic accepts EITHER as the source of truth.
   [ -z "${STATE_JSON:-}" ] && return 0
   local count
-  count=$(echo "$STATE_JSON" | jq -r '.prefs.anonymous_message_count // empty' 2>/dev/null)
+  count=$(echo "$STATE_JSON" | jq -r \
+    '(.prefs["anonymous_message_count"] // .prefs["anonfb_anonymous_message_count"] // empty)' \
+    2>/dev/null)
   [ -z "$count" ] && return 0
   if [ "$count" -ge 3 ] 2>/dev/null; then
     if echo "${OSLOG_CONTENT:-}" | grep -qE "anonymous.*messagesRemaining=0|GATE.*willFire=true"; then
-      echo "anonymous_counter_not_persisted|prefs.anonymous_message_count=$count + OSLog 'messagesRemaining=0'|apps/mobile/lib/screens/anonymous_chat_screen.dart"
+      emit \
+        "anonymous_counter_not_persisted" \
+        "prefs.anonymous_message_count=$count + OSLog 'messagesRemaining=0' or 'GATE willFire=true'" \
+        "apps/mobile/lib/screens/anonymous/anonymous_chat_screen.dart"
     fi
   fi
 }
@@ -125,20 +158,29 @@ h_auth_gate_route_stuck() {
   local current
   current=$(echo "$STATE_JSON" | jq -r '.router.currentRoute // empty' 2>/dev/null)
   if [[ "$current" =~ ^/(auth|login|onboarding) ]]; then
-    echo "auth_gate_blocked|router.currentRoute=$current|apps/mobile/lib/widgets/auth_gate_bottom_sheet.dart"
+    emit \
+      "auth_gate_blocked" \
+      "router.currentRoute=$current" \
+      "apps/mobile/lib/widgets/auth/auth_gate_bottom_sheet.dart"
   fi
 }
 
 h_http_inflight_stuck() {
-  # An inflight HTTP request count > 0 at snapshot time AND > 30s old
-  # → network stall.
+  # Per code-review I4: single-snapshot can't prove staleness. Demoted
+  # below `first_oslog_error` so a deterministic ERROR/FATAL line takes
+  # priority over the speculative « some request is in flight » signal.
+  # Kept because a real Maestro stall often coincides with inflight > 0,
+  # and the suspect file is correct.
   [ -z "${STATE_JSON:-}" ] && return 0
   local inflight
   inflight=$(echo "$STATE_JSON" | jq -r '.http.inflightCount // 0' 2>/dev/null)
   if [ "$inflight" -gt 0 ] 2>/dev/null; then
     local stalest
     stalest=$(echo "$STATE_JSON" | jq -r '.http.events[0].path // empty' 2>/dev/null)
-    echo "http_inflight_stuck|http.inflightCount=$inflight (oldest path: ${stalest:-?})|apps/mobile/lib/services/observability/mint_http_client.dart"
+    emit \
+      "http_inflight_stuck" \
+      "http.inflightCount=$inflight (oldest path: ${stalest:-?})" \
+      "apps/mobile/lib/services/observability/mint_http_client.dart"
   fi
 }
 
@@ -148,13 +190,16 @@ h_first_oslog_error() {
   # caller's job to find the file.
   [ -z "${OSLOG_CONTENT:-}" ] && return 0
   local first
-  first=$(echo "$OSLOG_CONTENT" | grep -iE 'ERROR|EXCEPTION|FATAL|PARSE FAILED|ERR ' | head -1 | tr -d '\n' | cut -c1-200)
+  first=$(printf '%s\n' "$OSLOG_CONTENT" | grep -iE 'ERROR|EXCEPTION|FATAL|PARSE FAILED' | head -1 || true)
+  first=$(printf '%s' "$first" | tr -d '\n' | cut -c1-200)
   if [ -n "$first" ]; then
-    # Try to extract a file:line from the error line (Dart stack frame
-    # shape: `package:mint_mobile/foo/bar.dart:42:7`).
+    # Extract a `*.dart` filename if present (Dart stack frame shape).
     local file
-    file=$(echo "$first" | grep -oE '[a-zA-Z_/]+\.dart' | head -1 || true)
-    echo "oslog_first_error|$first|${file:-unknown}"
+    file=$(printf '%s' "$first" | grep -oE '[a-zA-Z_/]+\.dart' | head -1 || true)
+    emit \
+      "oslog_first_error" \
+      "$first" \
+      "${file:-unknown}"
   fi
 }
 
@@ -188,8 +233,11 @@ if [ -d "$REPO_ROOT/.git" ]; then
 fi
 
 # ── Run all heuristics ; collect matches ───────────────────────────────
+# Order per the heuristic-library comment block above. `first_oslog_error`
+# runs BEFORE `http_inflight_stuck` (per code-review I4) so a confirmed
+# error message takes priority over a single-snapshot inflight count.
 HYPOTHESES=()
-for h in h_anonymous_counter_not_persisted h_auth_gate_route_stuck h_http_inflight_stuck h_first_oslog_error; do
+for h in h_anonymous_counter_not_persisted h_auth_gate_route_stuck h_first_oslog_error h_http_inflight_stuck; do
   match=$("$h" || true)
   if [ -n "$match" ]; then
     HYPOTHESES+=("$match")
@@ -197,11 +245,12 @@ for h in h_anonymous_counter_not_persisted h_auth_gate_route_stuck h_http_inflig
 done
 
 # ── Render report JSON ─────────────────────────────────────────────────
+# Each heuristic emits a JSON object directly (per C1) ; jq -s slurps
+# the list. No pipe-delimited string parsing — OSLog lines with `|` no
+# longer corrupt the evidence string.
 hypotheses_json="[]"
 if [ "${#HYPOTHESES[@]}" -gt 0 ]; then
-  hypotheses_json=$(printf '%s\n' "${HYPOTHESES[@]}" \
-    | jq -R 'split("|") | {hypothesis: .[0], evidence: .[1], suspect_file: .[2]}' \
-    | jq -s '.')
+  hypotheses_json=$(printf '%s\n' "${HYPOTHESES[@]}" | jq -s '.')
 fi
 
 # Sanitize multiline content for jq via raw input.
@@ -240,23 +289,30 @@ jq -n \
     }
   }' > "$OUT_PATH"
 
-# ── Human-readable summary on stdout ───────────────────────────────────
-echo ""
-echo "=== cassure-classifier report ==="
-echo "→ $OUT_PATH"
-echo ""
-if [ "${#HYPOTHESES[@]}" -eq 0 ]; then
-  echo "  (no heuristic matched — inspect raw inputs in the report)"
-else
-  echo "  Primary hypothesis: $(echo "${HYPOTHESES[0]}" | cut -d'|' -f1)"
-  echo "  Evidence:           $(echo "${HYPOTHESES[0]}" | cut -d'|' -f2)"
-  echo "  Suspect file:       $(echo "${HYPOTHESES[0]}" | cut -d'|' -f3)"
-  if [ "${#HYPOTHESES[@]}" -gt 1 ]; then
-    echo ""
-    echo "  $((${#HYPOTHESES[@]} - 1)) secondary hypotheses recorded in report."
+# ── Human-readable summary on stderr (so callers can pipe report JSON) ─
+# Per code-review M1 — keep stdout reserved for clean caller piping ;
+# the operator-facing summary lands on stderr.
+{
+  echo ""
+  echo "=== cassure-classifier report ==="
+  echo "→ $OUT_PATH"
+  echo ""
+  if [ "${#HYPOTHESES[@]}" -eq 0 ]; then
+    echo "  (no heuristic matched — inspect raw inputs in the report)"
+  else
+    primary=$(printf '%s' "${HYPOTHESES[0]}")
+    echo "  Primary hypothesis: $(printf '%s' "$primary" | jq -r '.hypothesis')"
+    echo "  Evidence:           $(printf '%s' "$primary" | jq -r '.evidence')"
+    echo "  Suspect file:       $(printf '%s' "$primary" | jq -r '.suspect_file')"
+    if [ "${#HYPOTHESES[@]}" -gt 1 ]; then
+      echo ""
+      echo "  $((${#HYPOTHESES[@]} - 1)) secondary hypotheses recorded in report."
+    fi
   fi
-fi
-echo ""
-echo "  Blast radius: $(echo "$BLAST_RADIUS" | wc -l | tr -d ' ') files touched since '$SINCE'"
-echo "  Backend lines: $(echo "$BACKEND_LINES" | grep -c . 2>/dev/null || echo 0)"
+  echo ""
+  blast_count=$(printf '%s' "$BLAST_RADIUS" | grep -c . 2>/dev/null || echo 0)
+  echo "  Blast radius: ${blast_count} files touched since '$SINCE'"
+  backend_count=$(printf '%s' "$BACKEND_LINES" | grep -c . 2>/dev/null || echo 0)
+  echo "  Backend lines: ${backend_count}"
+} >&2
 exit 0
