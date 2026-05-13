@@ -113,6 +113,21 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         request_trace_id = incoming or str(uuid4())
         trace_id_var.set(request_trace_id)
 
+        # S98 Phase 2 — promote the X-MINT-Req-Id to a Sentry-searchable
+        # tag. A backend exception captured during this request now
+        # ships to Sentry with `mint_request_id=<uuid>`, which is the
+        # join key into Railway log lines (same tag wired on mobile in
+        # MintHttpClient). No-op when SENTRY_DSN unset.
+        try:
+            import sentry_sdk
+
+            sentry_sdk.set_tag("mint_request_id", request_trace_id)
+        except Exception:
+            # Defence-in-depth — Sentry init failure must never block a
+            # request response. Already-imported sentry_sdk is a no-op
+            # when not initialised.
+            pass
+
         start = time.perf_counter()
         response = await call_next(request)
         duration_ms = round((time.perf_counter() - start) * 1000, 2)

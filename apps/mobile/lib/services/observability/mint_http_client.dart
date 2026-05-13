@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 /// HTTP client that injects a per-call correlation ID and emits structured
@@ -42,6 +43,16 @@ class MintHttpClient extends http.BaseClient {
     final requestId = _uuid.v4();
     request.headers[requestIdHeader] = requestId;
     final start = DateTime.now();
+
+    // S98 Phase 2 — promote the X-MINT-Req-Id to a Sentry-searchable
+    // tag on the current scope. A crash thrown anywhere during this
+    // request now ships to Sentry with `mint_request_id=<uuid>`, which
+    // is the join key into Railway backend logs (echoed as X-Trace-Id).
+    // No-op when Sentry SDK is not initialised (tests, debug builds
+    // without SENTRY_DSN dart-define).
+    Sentry.configureScope((scope) {
+      scope.setTag('mint_request_id', requestId);
+    });
 
     _log(
       'REQ ${request.method} ${request.url.path} '
