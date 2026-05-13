@@ -77,6 +77,12 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       'anonymous_${DateTime.now().millisecondsSinceEpoch}';
   bool _isLoading = false;
   bool _isAuthGateLocked = false;
+  // Holds a message typed while the previous coach turn is still in flight.
+  // Without it, the second-fast Enter press is silently dropped by the
+  // `onSubmitted` guard, breaking the 3-message → auth-gate path
+  // (cassure #4, 2026-05-13). Single slot — only the most recent attempted
+  // submission is kept; older queued text is overwritten by intent.
+  String? _queuedMessage;
   bool _intentSent = false;
 
   // ── Phase 71a state machine (panel §4) ─────────────────────────────
@@ -189,6 +195,16 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
 
+    // Cassure #4 fix (2026-05-13): if a prior coach turn is still in flight,
+    // queue this submission instead of silently dropping it. The tail of
+    // the current `_sendMessage` drains the queue. Fixes "user presses
+    // Enter twice fast" + the Maestro E2E flow that hit auth-gate
+    // because msg 3's Enter fired while msg 2 was still loading.
+    if (_isLoading) {
+      _queuedMessage = trimmed;
+      return;
+    }
+
     // Check if user can still send
     final canSend = await AnonymousSessionService.canSendMessage();
     if (!canSend) {
@@ -240,6 +256,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         _isLoading = false;
       });
       _scrollToBottom();
+      _drainQueuedMessage();
       return;
     }
 
@@ -284,6 +301,17 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
 
       await Future.delayed(const Duration(milliseconds: 600));
       if (mounted) _showAuthGate();
+    }
+    _drainQueuedMessage();
+  }
+
+  /// Fires a queued message that was typed while a previous coach turn
+  /// was still loading. See cassure #4 (2026-05-13).
+  void _drainQueuedMessage() {
+    final next = _queuedMessage;
+    _queuedMessage = null;
+    if (next != null && next.isNotEmpty && mounted) {
+      _sendMessage(next);
     }
   }
 
@@ -647,11 +675,15 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   // julien_swiss.yaml + lauren_expat_us.yaml depend on this.
                   key: const Key('anon-chat-input'),
                   controller: _inputController,
-                  enabled: !_isLoading,
-                  // Panel §1.5 + §5 row 5 : autofocus OFF on cold-open.
+                  // Field stays editable during loading so a fast second
+                  // Enter is captured by the queue inside `_sendMessage`
+                  // instead of being silently dropped (cassure #4 fix).
+                  // Visual loading feedback comes from the typing
+                  // indicator + the greyed-out send button below.
+                  enabled: true,
                   autofocus: false,
                   textInputAction: TextInputAction.send,
-                  onSubmitted: _isLoading ? null : _sendMessage,
+                  onSubmitted: _sendMessage,
                   // Panel §5 row 2 : hard cap at 500 chars (paste-defence).
                   maxLength: 500,
                   inputFormatters: [LengthLimitingTextInputFormatter(500)],
