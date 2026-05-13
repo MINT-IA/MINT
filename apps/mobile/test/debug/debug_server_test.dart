@@ -157,5 +157,22 @@ void main() {
     test('MintHttpClient.eventBuffer wired by start()', () {
       expect(MintHttpClient.eventBuffer, isNotNull);
     });
+
+    test('token file at <systemTemp>/mint_debug.token matches server.bearerToken',
+        () async {
+      // C2 fix contract: `_writeTokenFile` writes the resolved absolute
+      // path on POSIX hosts and returns it. Maestro's primary recovery
+      // path (when stdout grep is unavailable) is reading this file.
+      // Regression guard: if the writer silently fails or stops writing
+      // the token contents, this test catches it before TestFlight.
+      if (Platform.isWindows) return; // chmod 600 skipped on Windows
+      final tokenFile = File(
+          '${Directory.systemTemp.path}/mint_debug.token');
+      expect(tokenFile.existsSync(), isTrue,
+          reason: 'token file must exist at <systemTemp>/mint_debug.token');
+      final contents = (await tokenFile.readAsString()).trim();
+      expect(contents, equals(server.bearerToken),
+          reason: 'token file contents must match server.bearerToken');
+    });
   });
 }

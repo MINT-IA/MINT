@@ -27,7 +27,7 @@ import 'package:mint_mobile/debug/state_surfaces.dart';
 /// host Mac, NOT inside the simulator, so reach the file via:
 ///
 /// ```bash
-/// APP_DATA=$(xcrun simctl get_app_container booted ch.mint.mobile data)
+/// APP_DATA=$(xcrun simctl get_app_container booted ch.mint.app data)
 /// TOKEN=$(cat "$APP_DATA/tmp/mint_debug.token")
 /// curl -sS -H "Authorization: Bearer $TOKEN" \
 ///   http://127.0.0.1:8181/debug/state/prefs | jq .

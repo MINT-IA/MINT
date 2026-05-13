@@ -33,7 +33,7 @@ Current state :
 ## Decision
 
 ### Phase 1 — Close Tier 2 (Day 0, ~3-4h)
-Fix C1 (delete `_logsSurface` + `debug_log_zone.dart` — out of Tier 2 scope, dormant PII trap), C2 (emit real `file.path` + iOS-sim retrieval doc), C3 (write `tools/checks/no_debug_endpoint_in_release.sh` + wire in lefthook). Open PR. Merge.
+Fix C1 (delete `_logsSurface` + `debug_log_zone.dart` — out of Tier 2 scope, dormant PII trap), C2 (emit real `file.path` + iOS-sim retrieval doc), C3 (write `tools/checks/no_debug_endpoint_in_release.sh` + wire in `testflight.yml` after `flutter build ios --release`, before Fastlane sign+upload — lefthook is the wrong integration point because there's no release binary at commit time). Open PR. Merge.
 
 ### Phase 2 — Sentry v0 (Day 1, ~1 dev-day total)
 **EU region (Frankfurt) selected at org creation — irrevocable.** Per Swiss-compliance panel : non-negotiable for Swiss data-residency defence.

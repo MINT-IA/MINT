@@ -185,6 +185,19 @@ pre-commit:
       tags: [walker, maestro, debug-infra]
       fail_text: "Maestro stall-detector watchdog regressed. See test output above."
     # ── Incident 2026-05-11 — iOS release capability drift (LINT-IOS-RELEASE-01) ──
+    no_debug_endpoint_release_self_test:
+      # LINT-IOS-RELEASE-02 self-test. HARD gate. Runs when either the
+      # release-binary symbol-leak check OR its own test is staged.
+      # Spawns fake Runner.app binaries with each forbidden pattern in
+      # isolation and asserts the lint exits 1 on each; asserts exit 0 on
+      # a clean binary and exit 2 on missing inputs. Without this, a
+      # careless edit weakening the FORBIDDEN_PATTERNS regex would go
+      # undetected until a real debug build leaked to TestFlight (which
+      # is the entire failure mode the lint exists to prevent).
+      glob: "tools/checks/no_debug_endpoint_in_release{,_test}.sh"
+      run: tools/checks/no_debug_endpoint_in_release_test.sh
+      tags: [ios, release, testflight, debug-endpoint]
+      fail_text: "Release-binary symbol-leak lint regressed. See test output above."
     ios_release_capability_drift:
       # HARD gate. Runs when `apps/mobile/ios/Runner/Runner.entitlements`
       # is staged. Scans the file for `com.apple.developer.*` keys and
