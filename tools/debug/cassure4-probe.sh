@@ -45,6 +45,20 @@ curl -fsS --max-time 5 "${STAGING_API}/health" >/dev/null \
 log "1/5  Boot sim ${SIM_UDID}"
 xcrun simctl boot "${SIM_UDID}" 2>/dev/null || true
 
+if ! xcrun simctl get_app_container "${SIM_UDID}" ch.mint.app >/dev/null 2>&1; then
+  cat >&2 <<EOM
+ERR: ch.mint.app is not installed on the sim.
+Build + install first (must include the MintHttpClient bits) :
+
+  cd apps/mobile
+  flutter build ios --simulator --no-codesign \\
+    --dart-define=API_BASE_URL=${STAGING_API}
+  xcrun simctl install ${SIM_UDID} \\
+    build/ios/iphonesimulator/Runner.app
+EOM
+  exit 5
+fi
+
 log "2/5  Mark OSLog window start"
 WINDOW_START="$(date -u '+%Y-%m-%d %H:%M:%S')"
 
