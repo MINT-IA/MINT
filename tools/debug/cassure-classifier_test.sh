@@ -22,6 +22,17 @@
 #   #5 — No inputs (empty state + empty OSLog) → report produced but
 #        no primary_hypothesis (null).
 #
+#   #6 — anonfb_ prefix variant (iOS-sim SharedPreferences fallback key).
+#
+#   #7 — OSLog evidence containing pipe character (regression guard for
+#        prior bash-split-on-pipe corruption).
+#
+#   #8 — Maestro assertion-failed pattern (regular exit-1 path, NOT a
+#        watchdog stall). Closes the sweep ↔ classifier loop : on a
+#        normal Maestro flow failure, the heuristic must extract the
+#        FAILED assertion + preceding tap + name the flow YAML as
+#        suspect_file.
+#
 # Run:
 #   tools/debug/cassure-classifier_test.sh
 #
@@ -214,6 +225,40 @@ else
   FAIL=1
 fi
 
+# ── Scenario 8 — Maestro assertion-failed pattern ────────────────────
+# Regression guard for h_maestro_assertion_failed (added 2026-05-13 to
+# close the sweep ↔ classifier loop on regular Maestro exit-1, where
+# the watchdog never fires its stall dump). The heuristic must :
+#   - parse "Assert that ... is visible... FAILED" lines
+#   - capture the preceding "... COMPLETED" action as PRECEDING evidence
+#   - use --flow-path as suspect_file (the .yaml owns the assertion)
+echo "=== Scenario 8 — Maestro assertion failed (real exit-1 path) ==="
+mkdir -p "$TMP/s8"
+cat > "$TMP/s8/maestro.log" <<'EOF'
+Tap on "Créer un compte"... COMPLETED
+Assert that "Pas encore de compte ?" is visible... FAILED
+
+Assertion is false: "Pas encore de compte ?" is visible
+EOF
+"$CLF" --maestro-log "$TMP/s8/maestro.log" \
+       --flow-path  "tools/simulator/flows/e2e/flow_e2e_new_user_full_journey.yaml" \
+       --out        "$TMP/s8/report.json" >/dev/null 2>&1
+assert_primary "$TMP/s8/report.json" "maestro_assertion_failed" "scenario 8"
+evidence8=$(jq -r '.primary_hypothesis.evidence' "$TMP/s8/report.json")
+if [[ "$evidence8" == *"Créer un compte"* && "$evidence8" == *"Pas encore de compte"* ]]; then
+  echo "  PASS  scenario 8 evidence — captures both PRECEDING tap + FAILED assertion"
+else
+  echo "  FAIL  scenario 8 evidence — missing tap-or-assertion text: $evidence8"
+  FAIL=1
+fi
+suspect8=$(jq -r '.primary_hypothesis.suspect_file' "$TMP/s8/report.json")
+if [[ "$suspect8" == "tools/simulator/flows/e2e/flow_e2e_new_user_full_journey.yaml" ]]; then
+  echo "  PASS  scenario 8 suspect_file — flow YAML correctly named"
+else
+  echo "  FAIL  scenario 8 suspect_file — expected flow YAML got '$suspect8'"
+  FAIL=1
+fi
+
 # ── Schema validation ─────────────────────────────────────────────────
 echo "=== Schema validation ==="
 for report in "$TMP"/s{1,2,3,4}/report.json; do
@@ -233,4 +278,4 @@ if [[ $FAIL -ne 0 ]]; then
   exit 1
 fi
 echo ""
-echo "[cassure-classifier_test] all 7 scenarios passed"
+echo "[cassure-classifier_test] all 8 scenarios passed"

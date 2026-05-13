@@ -36,6 +36,13 @@
 # under .planning/_walker/ and consumes its debug-state.json /
 # oslog-mint.txt.
 #
+# --maestro-log <path> — Maestro CLI stdout/stderr log for the run. Used
+#                        by the maestro_assertion_failed heuristic to
+#                        extract the FAILED step + preceding action.
+# --flow-path   <path> — Path to the .yaml flow file. Used as the
+#                        suspect_file for assertion-class hypotheses
+#                        (the test owns the failing assertion).
+#
 # Exit codes:
 #   0 — report produced (regardless of hypothesis strength)
 #   1 — fatal error (no inputs found, jq missing)
@@ -47,17 +54,21 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # ── Argv parsing ───────────────────────────────────────────────────────
 STATE_PATH=""
 OSLOG_PATH=""
+MAESTRO_LOG_PATH=""
+FLOW_PATH=""
 REQ_ID=""
 SINCE="2 hours ago"
 OUT_PATH=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --state)  STATE_PATH="$2"; shift 2 ;;
-    --oslog)  OSLOG_PATH="$2"; shift 2 ;;
-    --req-id) REQ_ID="$2"; shift 2 ;;
-    --since)  SINCE="$2"; shift 2 ;;
-    --out)    OUT_PATH="$2"; shift 2 ;;
+    --state)        STATE_PATH="$2"; shift 2 ;;
+    --oslog)        OSLOG_PATH="$2"; shift 2 ;;
+    --maestro-log)  MAESTRO_LOG_PATH="$2"; shift 2 ;;
+    --flow-path)    FLOW_PATH="$2"; shift 2 ;;
+    --req-id)       REQ_ID="$2"; shift 2 ;;
+    --since)        SINCE="$2"; shift 2 ;;
+    --out)          OUT_PATH="$2"; shift 2 ;;
     --help|-h)
       sed -n '2,/^set -euo/p' "$0" | head -40
       exit 0
@@ -184,6 +195,30 @@ h_http_inflight_stuck() {
   fi
 }
 
+h_maestro_assertion_failed() {
+  # Parses the Maestro CLI log for the standard failure pattern :
+  #   Tap on "X"... COMPLETED
+  #   Assert that "Y" is visible... FAILED
+  # Emits the assertion text + the action that immediately preceded it
+  # (which is what actually failed to produce the expected screen state).
+  # suspect_file = the .yaml flow path (the test owns the assertion) ;
+  # the operator's first move is to disambiguate « tap was no-op » vs
+  # « assertion text wrong » by reading flow_dir/last-screen.png.
+  [ -z "${MAESTRO_LOG_CONTENT:-}" ] && return 0
+  local failed_line
+  failed_line=$(printf '%s\n' "$MAESTRO_LOG_CONTENT" | grep -E '\.\.\. FAILED$' | head -1 || true)
+  [ -z "$failed_line" ] && return 0
+  local prev_step
+  prev_step=$(printf '%s\n' "$MAESTRO_LOG_CONTENT" | grep -B1 -E '\.\.\. FAILED$' | head -1 || true)
+  prev_step=$(printf '%s' "$prev_step" | tr -d '\n' | cut -c1-160)
+  failed_line=$(printf '%s' "$failed_line" | tr -d '\n' | cut -c1-160)
+  local suspect="${FLOW_PATH:-unknown}"
+  emit \
+    "maestro_assertion_failed" \
+    "FAILED='$failed_line' ; PRECEDING='$prev_step'" \
+    "$suspect"
+}
+
 h_first_oslog_error() {
   # Last resort — grep the OSLog for the FIRST line that looks like an
   # error / parse failure / exception. Names the line as evidence ;
@@ -215,6 +250,12 @@ if [ -n "$OSLOG_PATH" ] && [ -f "$OSLOG_PATH" ]; then
   OSLOG_CONTENT=$(head -c 4194304 "$OSLOG_PATH")
 fi
 
+MAESTRO_LOG_CONTENT=""
+if [ -n "$MAESTRO_LOG_PATH" ] && [ -f "$MAESTRO_LOG_PATH" ]; then
+  # Maestro logs cap at ~2-3 MB for typical e2e flows ; cap at 4 MB.
+  MAESTRO_LOG_CONTENT=$(head -c 4194304 "$MAESTRO_LOG_PATH")
+fi
+
 # ── Fetch Railway backend logs if REQ_ID provided ──────────────────────
 BACKEND_LINES=""
 if [ -n "$REQ_ID" ] && command -v railway >/dev/null 2>&1; then
@@ -237,7 +278,16 @@ fi
 # runs BEFORE `http_inflight_stuck` (per code-review I4) so a confirmed
 # error message takes priority over a single-snapshot inflight count.
 HYPOTHESES=()
-for h in h_anonymous_counter_not_persisted h_auth_gate_route_stuck h_first_oslog_error h_http_inflight_stuck; do
+# Order rationale (highest specificity first) :
+#   1. anonymous_counter_not_persisted — state.prefs match, very narrow
+#   2. auth_gate_blocked                — state.router match, narrow
+#   3. maestro_assertion_failed         — names the EXACT failed step from
+#                                          the Maestro log ; deterministic
+#                                          high-signal hypothesis for any
+#                                          flow exit-1
+#   4. first_oslog_error                — catch-all error grep
+#   5. http_inflight_stuck              — single-snapshot soft signal
+for h in h_anonymous_counter_not_persisted h_auth_gate_route_stuck h_maestro_assertion_failed h_first_oslog_error h_http_inflight_stuck; do
   match=$("$h" || true)
   if [ -n "$match" ]; then
     HYPOTHESES+=("$match")

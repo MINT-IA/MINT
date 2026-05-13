@@ -126,9 +126,13 @@ for flow in "${FLOWS[@]}"; do
   mkdir -p "$flow_dir"
 
   # Run via watchdog. `set +e` so a non-zero exit doesn't kill the sweep.
+  # Note: NO `--device booted` flag. That's an Android convention ; on
+  # iOS Maestro 2.5.1 it raises « Device booted was requested, but it is
+  # not connected. » even when a sim IS booted. Maestro auto-discovers
+  # the booted iOS sim when --device is omitted.
   set +e
   MINT_WALKER_ARTIFACTS="$flow_dir" \
-    "$WATCHDOG" test "$flow" --device booted
+    "$WATCHDOG" test "$flow"
   rc=$?
   set -e
   echo "$rc" > "$flow_dir/EXIT_CODE"
@@ -142,16 +146,45 @@ for flow in "${FLOWS[@]}"; do
   esac
 
   # Classifier already ran inside the watchdog dump path on stall.
-  # For non-stall failures (rc!=0, rc!=124, rc!=137), invoke explicitly
-  # so we always get a cassure-report.json.
+  # For non-stall failures (rc!=0, rc!=124, rc!=137), the watchdog never
+  # called dump_state() — so flow_dir contains only EXIT_CODE + maestro.log.
+  # The classifier degrades gracefully on missing inputs, but to maximize
+  # signal we proactively capture the same artifacts the stall path would
+  # have produced :
+  #   - last-screen.png  ← Maestro's own debug screenshot from
+  #                        ~/.maestro/tests/<latest>/screenshot-❌-*.png
+  #                        (Maestro takes one on assertion failure)
+  #   - oslog-mint.txt   ← simctl log show, ch.mint.* tag, last 5 min
+  #   - cassure-report.json ← classifier output, always invoked on rc!=0
   if [ "$rc" -ne 0 ] && [ "$rc" -ne 124 ] && [ "$rc" -ne 137 ]; then
-    if [ -f "$flow_dir/oslog-mint.txt" ] || [ -f "$flow_dir/debug-state.json" ]; then
-      "$CLASSIFIER" \
-        --state "$flow_dir/debug-state.json" \
-        --oslog "$flow_dir/oslog-mint.txt" \
-        --out   "$flow_dir/cassure-report.json" \
-        2> "$flow_dir/classifier.log" || true
+    # Maestro screenshot (best-effort).
+    if [ -d "$HOME/.maestro/tests" ]; then
+      latest_trace=$(ls -t "$HOME/.maestro/tests" 2>/dev/null | head -1)
+      if [ -n "$latest_trace" ]; then
+        # Maestro names failure screenshots screenshot-❌-<ms>-<flow>.png.
+        # Copy the most recent one into the flow_dir as last-screen.png.
+        latest_screenshot=$(ls -t "$HOME/.maestro/tests/$latest_trace"/screenshot-*.png 2>/dev/null | head -1 || true)
+        if [ -n "$latest_screenshot" ]; then
+          cp "$latest_screenshot" "$flow_dir/last-screen.png" 2>/dev/null || true
+        fi
+        # Also copy Maestro's full per-flow trace dir for downstream forensics.
+        cp -R "$HOME/.maestro/tests/$latest_trace" "$flow_dir/maestro-trace/" 2>/dev/null || true
+      fi
     fi
+    # Sim OSLog (best-effort, requires booted sim).
+    xcrun simctl spawn booted log show --last 5m \
+      --predicate 'subsystem CONTAINS "mint" OR category CONTAINS "mint"' \
+      --style compact > "$flow_dir/oslog-mint.txt" 2>/dev/null || true
+    # Always invoke classifier — it degrades gracefully on missing inputs
+    # and produces at minimum the maestro_assertion_failed hypothesis from
+    # parsing the FAILED line in maestro.log.
+    "$CLASSIFIER" \
+      --state       "$flow_dir/debug-state.json" \
+      --oslog       "$flow_dir/oslog-mint.txt" \
+      --maestro-log "$flow_dir/maestro.log" \
+      --flow-path   "$flow" \
+      --out         "$flow_dir/cassure-report.json" \
+      2> "$flow_dir/classifier.log" || true
   fi
 
   # Pull primary hypothesis if a report exists
