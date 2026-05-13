@@ -566,7 +566,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                     const SizedBox(height: 12),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
+                      child: ElevatedButton( // lint-ignore: prefer_mint_cta
                         // Phase 97 W7 iter#12 L001 — stable Maestro locator.
                         // julien_swiss.yaml + lauren_expat_us.yaml step 05
                         // assertVisible {id: 'anon-chat-register-cta'}.

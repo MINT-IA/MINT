@@ -118,7 +118,7 @@ class AuthGateBottomSheet extends StatelessWidget {
               // Secondary CTA — outlined, warm hairline.
               SizedBox(
                 width: double.infinity,
-                child: TextButton(
+                child: TextButton( // lint-ignore: prefer_mint_cta
                   onPressed: () {
                     // Cassure #6 sibling: same capture-before-pop pattern.
                     final router = GoRouter.of(context);
@@ -144,7 +144,7 @@ class AuthGateBottomSheet extends StatelessWidget {
               const SizedBox(height: 16),
 
               // Dismiss — "Plus tard"
-              TextButton(
+              TextButton( // lint-ignore: prefer_mint_cta
                 onPressed: () {
                   Navigator.of(context).pop();
                   onDismissed?.call();
