@@ -620,13 +620,13 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
               button: true,
               child: InkWell(
                 onTap: () => _onChipTap(chips[i]),
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(20),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: MintColors.craieHandoff,
                     border: Border.all(color: MintColors.borderSubtle, width: 1),
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     chips[i],

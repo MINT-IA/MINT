@@ -89,8 +89,13 @@ class AuthGateBottomSheet extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
+                    // Cassure #6 (2026-05-13): capture the router BEFORE
+                    // pop, otherwise `context.push` runs against the
+                    // popped bottom-sheet context and silently falls
+                    // through to /auth/login instead of /auth/register.
+                    final router = GoRouter.of(context);
                     Navigator.of(context).pop();
-                    context.push('/auth/register?redirect=/home');
+                    router.push('/auth/register?redirect=/home');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: MintColors.inkPrimary,
@@ -115,8 +120,10 @@ class AuthGateBottomSheet extends StatelessWidget {
                 width: double.infinity,
                 child: TextButton(
                   onPressed: () {
+                    // Cassure #6 sibling: same capture-before-pop pattern.
+                    final router = GoRouter.of(context);
                     Navigator.of(context).pop();
-                    context.push('/auth/login?redirect=/home');
+                    router.push('/auth/login?redirect=/home');
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: MintColors.inkPrimary,
