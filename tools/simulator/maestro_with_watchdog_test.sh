@@ -139,6 +139,38 @@ if [[ -f "$TMP/scenario3/artifacts/STALLED" ]]; then
   fi
 fi
 
+# ── Scenario 4 — maestro fails fast (non-stall failure, per code-review I3) ──
+echo "=== Scenario 4 — maestro fails fast (non-zero exit, no stall) ==="
+mkdir -p "$TMP/scenario4"
+cp "$WD" "$TMP/scenario4/maestro_with_watchdog.sh"
+cat > "$TMP/scenario4/maestro_env.sh" <<'EOF'
+#!/usr/bin/env bash
+# Real Maestro flow-failure shape: prints an error message and exits
+# with a non-zero code BEFORE any stall threshold could possibly fire.
+# Watchdog MUST propagate the exact exit code (7 here) — NOT treat as
+# stall and NOT swap to 124 / 137.
+echo "[stub] element not found: 'foo'"
+echo "[stub] flow failed"
+exit 7
+EOF
+chmod +x "$TMP/scenario4/maestro_with_watchdog.sh" "$TMP/scenario4/maestro_env.sh"
+
+set +e
+MAESTRO_STALL_THRESHOLD=10 \
+  MAESTRO_STALL_PROBE_INTERVAL=5 \
+  MAESTRO_HARD_LIMIT=60 \
+  MINT_WALKER_ARTIFACTS="$TMP/scenario4/artifacts" \
+  "$TMP/scenario4/maestro_with_watchdog.sh" test fake-flow.yaml >/dev/null 2>&1
+rc=$?
+set -e
+assert_exit 7 "$rc" "scenario 4 fast non-zero exit (rc=7 propagated)"
+if [[ -f "$TMP/scenario4/artifacts/STALLED" ]]; then
+  echo "  FAIL  scenario 4 — STALLED marker present (should not be)"
+  FAIL=1
+else
+  echo "  PASS  scenario 4 — no STALLED marker on non-stall failure"
+fi
+
 # ── Result ─────────────────────────────────────────────────────────────
 if [[ $FAIL -ne 0 ]]; then
   echo ""
@@ -146,4 +178,4 @@ if [[ $FAIL -ne 0 ]]; then
   exit 1
 fi
 echo ""
-echo "[maestro_with_watchdog_test] all 3 scenarios passed"
+echo "[maestro_with_watchdog_test] all 4 scenarios passed"

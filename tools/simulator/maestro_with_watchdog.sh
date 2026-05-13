@@ -120,28 +120,40 @@ dump_state() {
   echo "[watchdog] dump complete → $ARTIFACT_DIR/"
 }
 
-# ── Spawn Maestro in the background, tee'd to log ──────────────────────
-# `script -q` would give us a real tty for color output, but is non-
-# portable. Use tee + line-buffered cat. macOS bash 3.x doesn't have
-# `stdbuf`, so we accept slight buffering (acceptable — watchdog probes
-# mtime, not byte count).
+# ── Spawn Maestro in its own process group ─────────────────────────────
+# Per code-review C1+C2 (PR #596) : the original `( cmd ) | tee &`
+# pipeline made the maestro subshell a SIBLING of tee, not its child.
+# `pkill -P TEE_PID` found zero processes and `kill TEE_PID` alone left
+# the maestro subshell orphan'd to init. Worse, `wait TEE_PID` waited
+# for the whole pipeline job, so the watchdog itself hung indefinitely
+# on a real stall.
 #
-# The pipeline `( cmd ) | tee &` returns the PID of `tee` via `$!`.
-# Killing `tee` closes the pipe ; the upstream subshell then receives
-# SIGPIPE on its next write and dies. We don't need a separate maestro
-# PID — the pipe-close cascade is sufficient. (Earlier `pgrep`-based
-# detection was fragile under `set -e` + `pipefail` and added no value.)
-( "$MAESTRO_ENV" "$@" 2>&1 ) | tee "$LOG_FILE" &
-TEE_PID=$!
-echo "[watchdog] tee pid=$TEE_PID — killing this cascades SIGPIPE to maestro"
+# Fix : `set -m` enables job control so each background launch gets its
+# own process group. `kill -SIGNAL -PGID` then signals the whole group
+# in one shot. tee runs as a sibling reading from a process-substitution
+# pipe ; on group SIGKILL, tee detects EOF and exits cleanly.
+set -m
+"$MAESTRO_ENV" "$@" > >(tee "$LOG_FILE") 2>&1 &
+MAESTRO_PID=$!
+set +m
+echo "[watchdog] maestro pid=$MAESTRO_PID (running in own process group)"
+
+# Helper — kill the whole maestro process group with escalation.
+kill_maestro_group() {
+  kill -TERM "-$MAESTRO_PID" 2>/dev/null || true
+  # Brief grace period to allow JVM shutdown hooks ; 3s is enough on
+  # macOS for SIGTERM to reach Java's signal handler before SIGKILL.
+  sleep 3
+  kill -KILL "-$MAESTRO_PID" 2>/dev/null || true
+}
 
 # ── Spawn the watchdog ─────────────────────────────────────────────────
 START_TS=$(date +%s)
 (
   while true; do
     sleep "$STALL_PROBE_INTERVAL"
-    # Has the parent tee exited? (maestro completed or crashed)
-    if ! kill -0 "$TEE_PID" 2>/dev/null; then
+    # Has maestro exited?
+    if ! kill -0 "$MAESTRO_PID" 2>/dev/null; then
       exit 0
     fi
     # Hard limit check.
@@ -151,10 +163,7 @@ START_TS=$(date +%s)
       echo "[watchdog] HARD LIMIT ${HARD_LIMIT}s exceeded — killing"
       echo "hard_limit" > "$STALL_MARKER"
       dump_state "hard_limit_${elapsed}s"
-      kill -TERM "$TEE_PID" 2>/dev/null || true
-      sleep 5
-      kill -KILL "$TEE_PID" 2>/dev/null || true
-      pkill -KILL -P "$TEE_PID" 2>/dev/null || true
+      kill_maestro_group
       exit 137
     fi
     # Stall check via log mtime.
@@ -165,11 +174,7 @@ START_TS=$(date +%s)
         echo "[watchdog] STALL — no log output for ${idle}s (> ${STALL_THRESHOLD}s)"
         echo "stall_${idle}s" > "$STALL_MARKER"
         dump_state "stall_${idle}s"
-        kill -TERM "$TEE_PID" 2>/dev/null || true
-        pkill -TERM -P "$TEE_PID" 2>/dev/null || true
-        sleep 3
-        kill -KILL "$TEE_PID" 2>/dev/null || true
-        pkill -KILL -P "$TEE_PID" 2>/dev/null || true
+        kill_maestro_group
         exit 124
       fi
     fi
@@ -177,19 +182,29 @@ START_TS=$(date +%s)
 ) &
 WATCHDOG_PID=$!
 
+# Operator Ctrl-C cleanup (per code-review I4). Without this, SIGINT
+# leaks the maestro process group and the watchdog subshell as orphans.
+cleanup() {
+  trap - EXIT INT TERM
+  kill "$WATCHDOG_PID" 2>/dev/null || true
+  kill -KILL "-$MAESTRO_PID" 2>/dev/null || true
+}
+trap cleanup INT TERM
+
 # ── Wait for maestro to finish ─────────────────────────────────────────
 # `wait` returns the child's exit status (or 128+signal if killed). Under
 # `set -e`, a non-zero return would abort BEFORE we can capture $?.
-# Disable `errexit` just around this call so the watchdog's SIGTERM /
-# SIGKILL of TEE_PID is observable as a normal exit code.
+# Disable `errexit` just around this call so the watchdog's signal of
+# the maestro group is observable as a normal exit code.
 set +e
-wait "$TEE_PID" 2>/dev/null
+wait "$MAESTRO_PID" 2>/dev/null
 MAESTRO_EXIT=$?
 set -e
 
 # Stop the watchdog (whether by stall or normal completion).
 kill "$WATCHDOG_PID" 2>/dev/null || true
 wait "$WATCHDOG_PID" 2>/dev/null || true
+trap - INT TERM
 
 if [ -f "$STALL_MARKER" ]; then
   reason=$(cat "$STALL_MARKER")
