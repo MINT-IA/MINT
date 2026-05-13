@@ -44,8 +44,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 MAESTRO_ENV="$SCRIPT_DIR/maestro_env.sh"
-[ -x "$MAESTRO_ENV" ] || {
-  echo "ERROR: $MAESTRO_ENV not found / not executable" >&2
+# Many .sh files in this repo are committed `100644` (non-executable).
+# Rather than depend on the exec bit, we invoke via `bash` explicitly —
+# matches walker_persona.sh's historical pattern + survives a fresh
+# clone where `chmod +x` wasn't run.
+[ -r "$MAESTRO_ENV" ] || {
+  echo "ERROR: $MAESTRO_ENV not found / not readable" >&2
   exit 2
 }
 
@@ -148,7 +152,7 @@ dump_state() {
 # in one shot. tee runs as a sibling reading from a process-substitution
 # pipe ; on group SIGKILL, tee detects EOF and exits cleanly.
 set -m
-"$MAESTRO_ENV" "$@" > >(tee "$LOG_FILE") 2>&1 &
+bash "$MAESTRO_ENV" "$@" > >(tee "$LOG_FILE") 2>&1 &
 MAESTRO_PID=$!
 set +m
 echo "[watchdog] maestro pid=$MAESTRO_PID (running in own process group)"
