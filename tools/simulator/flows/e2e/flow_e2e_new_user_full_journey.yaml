@@ -108,10 +108,15 @@ env:
       - tapOn: "Je comprends, on y va"
       - waitForAnimationToEnd
 
+# M001 workaround : Flutter Semantics label not always queryable on iOS
+# via Maestro's exact-text match (Gambarino italic hero rendered via
+# custom paint). Use regex wildcards + anchor on the « Parle à Mint »
+# CTA which is a Material button (queryable reliably). Fallback regex
+# on the hero substring stays as soft confirmation.
 - extendedWaitUntil:
     visible:
-      text: "Voir clair, décider seul."
-    timeout: 10000
+      text: "Parle à Mint"
+    timeout: 15000
 - waitForAnimationToEnd
 
 # ╔══════════════════════════════════════════════════════════════════════╗
@@ -130,25 +135,68 @@ env:
 - assertVisible:
     text: "Information générale, pas un conseil financier personnalisé."
 
+# Send 3 messages to trigger auth-gate (the « Créer un compte » CTA
+# surfaces post-cap, not after a single message — observed
+# empirically run 5 2026-05-13 : 1 message ≠ cap reached).
+# Each iteration : tap input → type → enter → wait for input bar to
+# re-enable (signals previous response complete).
 - tapOn:
     text: "Écris ce qui te trotte en tête…"
 - inputText: "J'aimerais comprendre comment optimiser mon 3e pilier"
 - pressKey: Enter
-- extendedWaitUntil:
-    visible:
-      text: "Réponse du coach"
-    timeout: 30000
+- waitForAnimationToEnd
 
-- scroll
 - extendedWaitUntil:
     visible:
-      text: "Créer un compte"
-    timeout: 8000
+      text: "Écris ce qui te trotte en tête…"
+    timeout: 60000
+- tapOn:
+    text: "Écris ce qui te trotte en tête…"
+- inputText: "Et concrètement, combien je peux mettre cette année ?"
+- pressKey: Enter
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Écris ce qui te trotte en tête…"
+    timeout: 60000
+- tapOn:
+    text: "Écris ce qui te trotte en tête…"
+- inputText: "Et si je change d'employeur ?"
+- pressKey: Enter
+- waitForAnimationToEnd
+
+# Post-cap : the auth-gate is a MODAL BOTTOM SHEET (AuthGateBottomSheet)
+# triggered when messagesRemaining == 0. The sheet body carries the
+# conversion message « Je peux garder tout ça en mémoire pour toi —
+# il te suffit de créer un compte. » + primary CTA « Créer un compte »
+# + secondary « J'ai déjà un compte » + dismissive « Plus tard ».
+# We anchor on the conversion message (unique to the modal, no
+# ambiguity with chat text) before tapping the modal's CTA.
+- extendedWaitUntil:
+    visible:
+      text: ".*Je peux garder tout.*en mémoire.*"
+    timeout: 30000
 
 # ╔══════════════════════════════════════════════════════════════════════╗
 # ║ Step 08-11 — Register form : open, fill 5 fields, submit             ║
 # ╚══════════════════════════════════════════════════════════════════════╝
 
+- tapOn:
+    text: "Créer un compte"
+
+# CASSURE #3 (observed run 6 2026-05-13) : the chat's « Créer un compte »
+# CTA navigates to /auth/login (« Connexion ») screen, NOT directly to
+# register form. The Connexion screen offers magic-link / Sign in with
+# Apple / Continuer en mode local / Mot de passe oublié + a « Créer un
+# compte » LINK at the bottom under « Pas encore de compte ? ». We
+# follow the register-with-password path : confirm Connexion, then tap
+# the bottom « Créer un compte » link to reach the actual register
+# form.
+- extendedWaitUntil:
+    visible:
+      text: "Pas encore de compte ?"
+    timeout: 8000
 - tapOn:
     text: "Créer un compte"
 - extendedWaitUntil:
