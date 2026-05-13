@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:mint_mobile/app.dart';
+import 'package:mint_mobile/debug/debug_facade.dart' as mint_debug;
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -194,4 +195,30 @@ Future<void> main() async {
   } else {
     runApp(const MintApp());
   }
+
+  // Tier 2 debug-state HTTP server (debug builds + opt-in dart-define only).
+  // Triple gated: kDebugMode dead-code-eliminates in release, the
+  // `bool.fromEnvironment` defaultValue is false so a release build that
+  // somehow keeps the symbol still no-ops, and the facade's conditional
+  // import resolves to a stub on non-IO targets. See
+  // `lib/debug/debug_facade.dart` for the full safety chain.
+  if (kDebugMode && _debugEndpointEnabled) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        // ignore: invalid_use_of_visible_for_testing_member
+        await mint_debug.DebugServer.start(router: testOnlyRootRouter);
+      } catch (e) {
+        debugPrint('[ch.mint.debug] DebugServer start failed: $e');
+      }
+    });
+  }
 }
+
+/// Opt-in compile-time gate for the Tier 2 debug-state HTTP server.
+/// Build the sim app with `--dart-define=MINT_DEBUG_ENDPOINT=true` to
+/// activate. Release builds NEVER set this flag and never start the
+/// server — verified by `tools/checks/no_debug_endpoint_in_release.sh`.
+const bool _debugEndpointEnabled = bool.fromEnvironment(
+  'MINT_DEBUG_ENDPOINT',
+  defaultValue: false,
+);
