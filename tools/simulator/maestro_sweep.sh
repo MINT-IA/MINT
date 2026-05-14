@@ -64,6 +64,25 @@ FLOWS_PERFECT=(
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_b15_concrete_facts_chips.yaml"
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_empty_state_cascade.yaml"
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_3a_calculator.yaml"
+  # ── Sweep #3 audit (2026-05-14) — pivot per Julien feedback ──────────
+  # The first curated set covered 1/3 of workflow E (only 3a calculator)
+  # and 0/2 of LSFin compliance. Added :
+  #   - flow_extractor_captures_age_canton — workflow E : profile data
+  #     capture (canton + income + birthYear) via dual-LLM extractor.
+  #     Requires COACH_DUAL_LLM_ENABLED=True on Railway staging.
+  #   - flow_lpp_scan_review — workflow E : PDF LPP → ExtractionReview
+  #     → save to Biography + CoachProfile. The « bibliothèque de
+  #     variables » round-trip Julien named as critical.
+  #   - flow_narrator_refuses_uncited_numbers — LSFin compliance gate
+  #     (Phase 94 G1). Requires COACH_CITATION_GATE_ENABLED=true on
+  #     Railway staging. Without this, the coach can fabricate CHF / %
+  #     / duration in production = LSFin breach.
+  #   - flow_fatca_3a_gate — archetype expat_us : 3a simulator must
+  #     show « accès limité » for FATCA-affected users (PR #537).
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_extractor_captures_age_canton.yaml"
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_lpp_scan_review.yaml"
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_narrator_refuses_uncited_numbers.yaml"
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_fatca_3a_gate.yaml"
 )
 FLOWS_PERSONAS=(
   "$REPO_ROOT/tools/simulator/flows/julien_swiss.yaml"
