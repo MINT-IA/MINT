@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>MINT v2 — Refondation identité</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="preconnect" href="https://api.fontshare.com"/>
+<link href="https://api.fontshare.com/v2/css?f[]=supreme@400,500,600&f[]=rosaline@400&f[]=gambarino@400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ui: 'Supreme', 'Neue Haas Grotesk Display', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    --display: 'Gambarino', 'PP Editorial New', 'GT Sectra', Canela, serif;
+  }
+  html, body { margin: 0; padding: 0; background: #f0eee9; font-family: var(--ui); }
+  * { box-sizing: border-box; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="mint-v2/tokens.jsx"></script>
+<script type="text/babel" src="mint-v2/primitives.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-landing.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-onboarding.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-aujourdhui.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-lpp.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-coach.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-coach-empty.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-plan.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-hypotheque.jsx"></script>
+<script type="text/babel" src="mint-v2/design-canvas.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+// Slogans candidats pour landing — lesquels tiennent la route ?
+const SLOGANS = {
+  ok: ['Ta vie financière.\nEnfin lisible.', 'Tu comprends. Puis tu décides.'],
+  clair: ['L\'argent,\nen clair.', 'Ta Suisse financière, traduite.'],
+  sec:   ['Moins de jargon.\nPlus de thune.', 'Trois piliers. Un plan. Toi.'],
+  eclat: ['MINT t\'éclaire.\nTu décides.', 'Le silence te coûte cher.'],
+  vif:   ['Ton argent\nsait des choses.', 'MINT te les dit.'],
+};
+
+function App() {
+  const TWEAKS = /*EDITMODE-BEGIN*/{
+    "palette": "menthe",
+    "slogan": "clair"
+  }/*EDITMODE-END*/;
+  const [palette, setPalette] = useState(TWEAKS.palette);
+  const [slogan, setSlogan]   = useState(TWEAKS.slogan);
+  const [tweaksOn, setTweaksOn] = useState(false);
+
+  React.useEffect(() => {
+    const handler = (e) => {
+      if (e.data?.type === '__activate_edit_mode')   setTweaksOn(true);
+      if (e.data?.type === '__deactivate_edit_mode') setTweaksOn(false);
+    };
+    window.addEventListener('message', handler);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  const persist = (k, v) => {
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [k]: v } }, '*');
+  };
+
+  const p = PALETTES[palette];
+  const s = SLOGANS[slogan];
+
+  // Render each screen in each palette
+  const screens = [
+    { id: 'landing',  label: '01 · Landing',    Component: ScreenLanding,    props: { slogan: s } },
+    { id: 'onb',      label: '02 · Onboarding', Component: ScreenOnboarding },
+    { id: 'today',    label: '03 · Aujourd\'hui', Component: ScreenAujourdhui },
+    { id: 'lpp',      label: '04 · Scan LPP',   Component: ScreenLPP },
+    { id: 'coach-empty', label: '05a · Coach (vide)', Component: ScreenCoachEmpty },
+    { id: 'coach',    label: '05b · Coach (artefacts)', Component: ScreenCoach },
+    { id: 'plan',     label: '06 · Trajectoire', Component: ScreenPlan },
+    { id: 'hypo',     label: '07 · Hypothèque', Component: ScreenHypotheque },
+  ];
+
+  const palettesList = ['menthe', 'encre', 'nuit', 'dark'];
+
+  return (
+    <>
+    {tweaksOn && (
+      <div style={{
+        position: 'fixed', bottom: 20, right: 20, zIndex: 9999,
+        background: '#fff', border: '1px solid rgba(0,0,0,0.1)',
+        borderRadius: 16, padding: 16, width: 260,
+        boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
+        fontFamily: 'var(--ui)',
+      }}>
+        <div style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(0,0,0,0.5)', marginBottom: 12 }}>Tweaks</div>
+        <div style={{ fontSize: 12, color: 'rgba(0,0,0,0.6)', marginBottom: 6 }}>Palette</div>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
+          {palettesList.map(k => (
+            <button key={k} onClick={() => { setPalette(k); persist('palette', k); }} style={{
+              padding: '6px 10px', borderRadius: 100, cursor: 'pointer', fontSize: 12, fontWeight: 500,
+              background: palette === k ? PALETTES[k].ink : 'transparent',
+              color: palette === k ? PALETTES[k].bg : PALETTES[k].ink,
+              border: `1px solid ${PALETTES[k].ink}`,
+              fontFamily: 'var(--ui)',
+            }}>{PALETTES[k].name}</button>
+          ))}
+        </div>
+        <div style={{ fontSize: 12, color: 'rgba(0,0,0,0.6)', marginBottom: 6 }}>Slogan</div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {Object.keys(SLOGANS).map(k => (
+            <button key={k} onClick={() => { setSlogan(k); persist('slogan', k); }} style={{
+              padding: '6px 10px', borderRadius: 100, cursor: 'pointer', fontSize: 12, fontWeight: 500,
+              background: slogan === k ? p.accent : 'transparent',
+              color: '#0f0f10',
+              border: `1px solid ${slogan === k ? p.accent : 'rgba(0,0,0,0.1)'}`,
+              fontFamily: 'var(--ui)',
+            }}>{k}</button>
+          ))}
+        </div>
+      </div>
+    )}
+    <DesignCanvas>
+      {/* Section 0 — identité verrouillée */}
+      <DCSection id="manifest" title="MINT — identité verrouillée"
+                 subtitle={`Palette : ${p.name} · Slogan : ${slogan} · Typo : Supreme + Gambarino · Tweaks pour changer`}>
+        <DCArtboard id="brand" label="Identité" width={740} height={320}>
+          <div style={{
+            height: '100%', padding: 40, background: p.bg, color: p.ink,
+            fontFamily: 'var(--ui)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            {/* Accent plein — un trait vif */}
+            <div style={{
+              position: 'absolute', top: 40, right: 40, width: 52, height: 52, borderRadius: 26,
+              background: p.accent,
+            }}/>
+            <div>
+              <div style={{ ...SCALE.eyebrow, color: p.inkMute, marginBottom: 16 }}>MINT</div>
+              <div style={{ ...SCALE.displayL, color: p.ink, marginBottom: 14 }}>
+                {s[0].split('\n').map((l,i) => <div key={i}>{l}</div>)}
+              </div>
+              <div style={{ ...SCALE.bodyLg, color: p.inkSoft, maxWidth: 420 }}>{s[1]}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 28, ...SCALE.meta, color: p.inkSoft }}>
+              <div><span style={{ color: p.ink, fontWeight: 500 }}>Supreme</span> · UI</div>
+              <div><span style={{ color: p.ink, fontFamily: 'var(--display)', fontStyle: 'italic', fontSize: 14 }}>Gambarino</span> · display</div>
+              <div style={{ marginLeft: 'auto' }}>Active Tweaks pour essayer d'autres palettes</div>
+            </div>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      {/* Section 1 — Entrée en matière */}
+      <DCSection id="entry" title="Entrée — la première seconde compte"
+                 subtitle="Landing + onboarding. Une idée par écran.">
+        {screens.slice(0, 2).map(sc => (
+          <DCArtboard key={sc.id} id={sc.id} label={sc.label} width={380} height={800}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Phone palette={p}>
+                <sc.Component palette={p} {...(sc.props || {})}/>
+              </Phone>
+            </div>
+          </DCArtboard>
+        ))}
+      </DCSection>
+
+      {/* Section 2 — Le quotidien + le hook */}
+      <DCSection id="daily" title="Quotidien — un chiffre à retenir"
+                 subtitle="Hub + le moment insolent qui accroche.">
+        {screens.slice(2, 4).map(sc => (
+          <DCArtboard key={sc.id} id={sc.id} label={sc.label} width={380} height={800}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Phone palette={p}>
+                <sc.Component palette={p} {...(sc.props || {})}/>
+              </Phone>
+            </div>
+          </DCArtboard>
+        ))}
+      </DCSection>
+
+      {/* Section 3 — Le coach : 4 artefacts, vide assumé, streaming visible */}
+      <DCSection id="coach" title="Le coach — kit d'artefacts, pas card unique"
+                 subtitle="État vide → 4 types d'artefacts (décision · comparaison · trajectoire · sensibilité). Bouton ▶ devient ■ pour montrer le streaming.">
+        {screens.slice(4, 7).map(sc => (
+          <DCArtboard key={sc.id} id={sc.id} label={sc.label} width={380} height={800}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Phone palette={p}>
+                <sc.Component palette={p} {...(sc.props || {})}/>
+              </Phone>
+            </div>
+          </DCArtboard>
+        ))}
+      </DCSection>
+
+      {/* Section 4 — Parcours dense justifié */}
+      <DCSection id="dense" title="Quand la densité est justifiée"
+                 subtitle="Parcours complet. Chiffres groupés, pas éparpillés.">
+        {screens.slice(7).map(sc => (
+          <DCArtboard key={sc.id} id={sc.id} label={sc.label} width={380} height={800}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Phone palette={p}>
+                <sc.Component palette={p} {...(sc.props || {})}/>
+              </Phone>
+            </div>
+          </DCArtboard>
+        ))}
+      </DCSection>
+
+      {/* Section finale — notes */}
+      <DCSection id="notes" title="Notes de grammaire"
+                 subtitle="Ce qui change vs v1.">
+        <DCArtboard id="notes-grid" label="Règles visuelles" width={740} height={440}>
+          <div style={{ height: '100%', padding: 32, background: p.bg, color: p.ink, fontFamily: 'var(--ui)' }}>
+            <div style={{ ...SCALE.eyebrow, color: p.inkMute, marginBottom: 14 }}>Grammaire MINT v2</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 40, rowGap: 22 }}>
+              {[
+                ['Une idée / écran', 'Pas de mur de cartes. Le chiffre parle, pas l\'UI.'],
+                ['Italique : 2 écrans max', 'Landing + Onboarding. Ailleurs il banalise.'],
+                ['Voix : observer, pas juger', 'Pas "enfin", pas "de justesse", pas "largement mieux".'],
+                ['Chiffre nu = interdit', 'Toujours ConfidenceBand + EnrichmentPrompts à côté.'],
+                ['4 artefacts Coach', 'Décision · comparaison · trajectoire · sensibilité.'],
+                ['Streaming visible', 'Bouton ▶ → ■ + dots animés pendant la génération.'],
+                ['18 events ≠ retraite-app', '"Trajectoire", pas "Plan retraite". Tab neutre.'],
+                ['Dark mode natif', 'Palette dark = 1ʳᵉ classe, pas un afterthought.'],
+              ].map(([k, v]) => (
+                <div key={k}>
+                  <div style={{ ...SCALE.titleS, color: p.ink, marginBottom: 4 }}>{k}</div>
+                  <div style={{ ...SCALE.body, color: p.inkSoft }}>{v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
