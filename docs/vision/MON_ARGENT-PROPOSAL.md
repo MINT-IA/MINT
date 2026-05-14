@@ -1,6 +1,6 @@
 # Vision Mon Argent — 3 propositions (Wave 0 step E)
 
-> **Status** : PROPOSAL (3 options présentées) — Julien tranche en Wave 0 step E2.
+> **Status** : **P2 DECIDED 2026-05-14** par Julien — voir l'ADR formalisé `.planning/decisions/2026-05-14-mon-argent-p2-dissolution-trajectoire.md`.
 > **Author** : Claude (Wave 0 Sentry — Product Leader mode).
 > **Date** : 2026-05-14.
 > **Context** : Le design doc APPROVED 2026-05-14 demande de définir le rôle de Mon Argent (« numbers panel statique » / « surface secondaire de la trajectoire » / « point d'entrée banking integration » — 3 directions exclusives, Open Question #3).
