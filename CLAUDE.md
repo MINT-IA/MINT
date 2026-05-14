@@ -60,6 +60,23 @@ You operate as a **team lead orchestrator** with `CLAUDE_CODE_EXPERIMENTAL_AGENT
 | Data | `data-engineer` |
 | Orchestration / docs | `context-manager`, `docs-architect`, `tutorial-engineer` |
 
+### VoltAgent specialist team (adopted 2026-05-14 via PR S99.3, MIT, [VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents))
+
+20 specialists cherry-picked depuis le catalog (144 total au upstream, 19.8K stars, MIT) après filtrage : duplicate-de-wshobson + off-stack + gate-overlap removed. Même contrat que wshobson : `memory: local` + bloc engram standard prepended (auto-`mem_search` before, `mem_save` after avec `topic_key` agent-agnostic + `prior_finding_refs`). Auto-dispatch par description matching.
+
+| Domaine | Specialists |
+|---|---|
+| Flutter framework depth | `flutter-expert` |
+| Quality / testing | `qa-expert`, `ui-ux-tester`, `ai-writing-auditor` (LLM output review pour coach AI) |
+| Coach AI / LLM / data | `llm-architect`, `nlp-engineer`, `postgres-pro` |
+| Developer experience | `mcp-developer` (engram + mint-tools), `git-workflow-manager` |
+| Open Banking (next year) | `payment-integration` |
+| Product / UX / docs | `product-manager`, `business-analyst`, `ux-researcher`, `technical-writer` |
+| Agent Teams orchestration | `agent-organizer`, `multi-agent-coordinator`, `knowledge-synthesizer` (engram findings synthesis) |
+| Research / competition | `competitive-analyst` (Cleo), `market-researcher`, `search-specialist` |
+
+**DEFERRED to post-gate 2026-05-21** (7 agents qui overlap les 8 passes de `mint-review-pr` — adoption now contaminerait la mesure compounding observable du gate Phase 1) : `compliance-auditor` (Pass 2 LSFin), `legal-advisor` (Pass 2), `fintech-engineer` (Pass 6 FINANCIAL_CORE), `quant-analyst` (Pass 6), `risk-manager` (Pass 2 + 6), `refactoring-specialist` (Pass 3 REGRESSIONS), `accessibility-tester` (Pass 5 DESIGN SYSTEM). Cf. `.planning/audit/2026-05-14-voltagent-adoption-DEFERRED.md` lines 222-223.
+
 ### GSD orchestration team (already installed via gstack, 21 subagents)
 
 `gsd-planner`, `gsd-executor`, `gsd-codebase-mapper`, `gsd-debugger`, `gsd-doc-writer`, `gsd-phase-researcher`, `gsd-ui-checker`, `gsd-verifier`, `gsd-security-auditor`, and 12 others. Spawned by `/gsd-*` skill commands.
