@@ -1917,7 +1917,7 @@ def _execute_internal_tool(
 
     # >>> dispatch: get_budget_status
     if name == "get_budget_status":
-        return _format_budget_status(ctx)
+        return _compute_budget_status(user_id=user_id, ctx=ctx, db=db)
     # <<< dispatch: get_budget_status
 
     # >>> dispatch: get_retirement_projection
@@ -2277,7 +2277,90 @@ def _fmt_pct(value) -> str:
 #      app.observability.coach_breadcrumbs.emit_coach_tool_breadcrumb
 #      (D-15: tool_name, inputs_hash, profile_id_hashed, elapsed_ms,
 #      flag_state). NEVER ad-hoc sentry_sdk.add_breadcrumb in _compute_*.
+# Implementations landed so far in this file:
+#   - _compute_budget_status  (plan wave-1a-01)
 # === end Wave 1a dispatchers ===
+
+
+def _compute_budget_status(user_id: str | None, ctx: dict, db) -> str:
+    """Wave 1a D-02 server-side path for get_budget_status.
+
+    Returns either:
+      - JSON string `BudgetSnapshotResponse.model_dump_json(by_alias=True)`
+        (flag ON success path), OR
+      - legacy FR string from `_format_budget_status(ctx)`
+        (flag OFF / fallback path).
+
+    Falls back to legacy formatter when:
+      - settings flag is OFF, OR
+      - user_id is None / db session is None, OR
+      - DB returns no ProfileModel for user_id / profile.data is empty, OR
+      - CoachingEngine raises ValueError("budget data missing"), OR
+      - ANY other Exception (defensive: DB flake, Pydantic validation,
+        breadcrumb error). User-facing text never breaks the coach loop.
+    """
+    import time
+    import logging
+    from app.core.config import settings
+
+    if not settings.COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED:
+        return _format_budget_status(ctx)
+    if not user_id or db is None:
+        return _format_budget_status(ctx)
+
+    _t0 = time.perf_counter()
+    try:
+        from datetime import datetime, timezone
+
+        from app.models.coach_tools.budget_snapshot import BudgetSnapshotResponse
+        from app.models.profile_model import ProfileModel
+        from app.observability.coach_breadcrumbs import emit_coach_tool_breadcrumb
+        from app.services.coach.inputs_hash import compute_inputs_hash
+        from app.services.coaching_engine import CoachingEngine
+        from app.utils.hashing import hash_profile_id
+
+        # Newest-profile-wins lookup — matches the canonical pattern used
+        # elsewhere in coach_chat.py for ProfileModel resolution. Filters
+        # by user_id (FK) not by id (PK) because a user may have multiple
+        # ProfileModel rows.
+        profile = (
+            db.query(ProfileModel)
+            .filter(ProfileModel.user_id == user_id)
+            .order_by(ProfileModel.updated_at.desc())
+            .first()
+        )
+        if profile is None or not profile.data:
+            return _format_budget_status(ctx)
+
+        snapshot = CoachingEngine.compute_budget_snapshot(profile.data)
+        slice_ = {
+            "monthly_income": float(snapshot.monthly_income),
+            "monthly_expenses": float(snapshot.monthly_expenses),
+            "months_liquidity": snapshot.months_liquidity,
+        }
+        response = BudgetSnapshotResponse(
+            monthly_income=snapshot.monthly_income,
+            monthly_expenses=snapshot.monthly_expenses,
+            monthly_surplus=snapshot.monthly_surplus,
+            months_liquidity=snapshot.months_liquidity,
+            inputs_hash=compute_inputs_hash(slice_),
+            computed_at=datetime.now(timezone.utc),
+        )
+        # D-15 uniform Sentry payload via plan-00 helper.
+        elapsed_ms = int((time.perf_counter() - _t0) * 1000)
+        emit_coach_tool_breadcrumb(
+            tool_name="budget_status",
+            inputs_hash=response.inputs_hash,
+            profile_id_hashed=hash_profile_id(user_id),
+            elapsed_ms=elapsed_ms,
+            flag_state="on",
+        )
+        return response.model_dump_json(by_alias=True)
+    except Exception as exc:  # defensive fallback (python-pro panel)
+        logging.getLogger(__name__).warning(
+            "compute_budget_status failed, falling back to legacy: %s", exc
+        )
+        return _format_budget_status(ctx)
 
 
 def _format_budget_status(ctx: dict) -> str:
