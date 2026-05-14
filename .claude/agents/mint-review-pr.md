@@ -42,7 +42,7 @@ Before reading the diff, query your accumulated memory of prior reviews. You hav
 For each major file/topic touched by the diff, search engram :
 
 ```
-mem_search "<query>" --project mint-ia-mint
+mem_search "<query>" --project mint
 ```
 
 Useful queries :
@@ -201,7 +201,7 @@ File exists but nobody imports it → BLOCKER ("facade sans cablage").
 For each BLOCKER and WARNING in the report, call `mem_save` so the next review of this surface inherits the context.
 
 ```
-mem_save "<title>" "<message>" --type review-finding --project mint-ia-mint --scope local
+mem_save "<title>" "<message>" --type review-finding --project mint --scope local
 ```
 
 **Title convention** : `<category>: <file>:<line> — <one-liner>` (e.g. `anti-pattern: onboarding_screen.dart:142 — Provider state outside ChangeNotifier`).
@@ -228,7 +228,7 @@ prior_finding_refs: [<obs_id_1>, <obs_id_2>, ...]  // engram obs_ids from Step 0
 After all findings persisted, sanity check :
 
 ```
-mem_search "pr_sha:<sha-of-current-pr>" --project mint-ia-mint
+mem_search "pr_sha:<sha-of-current-pr>" --project mint
 ```
 
 Should return the count of findings just saved.

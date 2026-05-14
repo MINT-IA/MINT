@@ -27,8 +27,8 @@ claude mcp list        # plugin:engram:engram → ✓ Connected
 Round-trip smoke test :
 
 ```bash
-engram save "test" "round-trip" --type validation --project mint-ia-mint
-engram search "test" --project mint-ia-mint
+engram save "test" "round-trip" --type validation --project mint
+engram search "test" --project mint
 ```
 
 ## Public-repo discipline
@@ -55,7 +55,7 @@ Phase 2+ extensions (post 2026-05-21 gate) :
 Currently engram runs local-stdio on Mac mini. If laptop access needed, expose HTTP API via :
 
 ```bash
-engram serve --http :7437 --project mint-ia-mint
+engram serve --http :7437 --project mint
 # + Tailscale Mac mini + laptop
 # + .mcp.json HTTP entry on laptop: http://mac-mini.tailscale.net:7437
 ```
