@@ -89,6 +89,10 @@ from pydantic import BaseModel as _BaseModel
 
 logger = logging.getLogger(__name__)
 
+# Wave 1a — slot marker constant referenced by tests/test_coach_tools_scaffolding.py (Test 13).
+# If you rename the slot, update this constant AND the slot comment block below in sync.
+WAVE_1A_DISPATCHER_SLOT_MARKER = "Wave 1a server-side compute dispatchers (D-08)"
+
 # SEC-6 / PRIV-03 — PII scrubbing now delegates to the centralized
 # privacy.pii_scrubber module (Presidio + custom CH recognizers + regex
 # fallback). The legacy regex list below is kept ONLY as the safety net
@@ -1895,6 +1899,7 @@ def _execute_internal_tool(
 
     ctx = profile_context or {}
 
+    # >>> dispatch: retrieve_memories
     if name == "retrieve_memories":
         import re
         raw_topic = tool_input.get("topic", "")
@@ -1908,21 +1913,32 @@ def _execute_internal_tool(
             user_id=user_id,
             db=db,
         )
+    # <<< dispatch: retrieve_memories
 
+    # >>> dispatch: get_budget_status
     if name == "get_budget_status":
         return _format_budget_status(ctx)
+    # <<< dispatch: get_budget_status
 
+    # >>> dispatch: get_retirement_projection
     if name == "get_retirement_projection":
         return _format_retirement_projection(ctx)
+    # <<< dispatch: get_retirement_projection
 
+    # >>> dispatch: get_cross_pillar_analysis
     if name == "get_cross_pillar_analysis":
         return _format_cross_pillar_analysis(ctx)
+    # <<< dispatch: get_cross_pillar_analysis
 
+    # >>> dispatch: get_cap_status
     if name == "get_cap_status":
         return _format_cap_status(ctx)
+    # <<< dispatch: get_cap_status
 
+    # >>> dispatch: get_couple_optimization
     if name == "get_couple_optimization":
         return _format_couple_optimization(ctx)
+    # <<< dispatch: get_couple_optimization
 
     if name == "get_regulatory_constant":
         return _handle_regulatory_constant(tool_input)
@@ -2244,6 +2260,24 @@ def _fmt_pct(value) -> str:
         return f"{v:.0f}\u00a0%"
     except (ValueError, TypeError):
         return "non disponible"
+
+
+# === Wave 1a server-side compute dispatchers (D-08) ===
+# Plans 01-05 each insert their _compute_<tool_name>() function below
+# this comment block, ABOVE the matching legacy _format_<tool_name>().
+# Plan-06 inserts its _validate_cap_response() middleware here too.
+# Each _compute_* calls _format_<tool>(ctx) when flag OFF — forward reference
+# is intentional (Python resolves at call time), do not reorder.
+# Each _compute_* path:
+#   1. Checks settings.COACH_TOOL_SERVER_SIDE_<NAME>_ENABLED flag.
+#   2. Falls back to legacy _format_<name>(ctx) when flag OFF.
+#   3. Computes via app.services.* (chained per CONTEXT D-02).
+#   4. Wraps in Pydantic response with inputs_hash + computed_at.
+#   5. Emits Sentry breadcrumb via
+#      app.observability.coach_breadcrumbs.emit_coach_tool_breadcrumb
+#      (D-15: tool_name, inputs_hash, profile_id_hashed, elapsed_ms,
+#      flag_state). NEVER ad-hoc sentry_sdk.add_breadcrumb in _compute_*.
+# === end Wave 1a dispatchers ===
 
 
 def _format_budget_status(ctx: dict) -> str:
