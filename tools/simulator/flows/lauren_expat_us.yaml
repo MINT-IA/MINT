@@ -25,10 +25,17 @@
 appId: ch.mint.app
 ---
 # 01 — landing screen visible (same brand line as julien_swiss)
-# Bare `assertVisible` does not wait for landing FadeTransition or bêta
-# modal dismissal. extendedWaitUntil + regex matcher = same pattern as
-# julien_swiss + cold-launch fragment.
-- launchApp
+# 3-part preamble per sweep #5 evidence — see julien_swiss.yaml for full
+# rationale. Summary : (a) clearState forces fresh anon, (b) conditional
+# bêta dismiss, (c) extendedWaitUntil + regex.
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: ".*Voir clair.*décider seul.*"

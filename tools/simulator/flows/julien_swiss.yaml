@@ -29,13 +29,27 @@
 appId: ch.mint.app
 ---
 # 01 — landing screen visible
-# Bare `assertVisible` after `launchApp` does NOT wait for the landing
-# screen's _ctaOpacity FadeTransition (landing_screen.dart:58-62, ~2.5s)
-# nor for the bêta modal dismissal animation. Use `extendedWaitUntil`
-# with a regex matcher to tolerate the doubled iOS accessibilityText
-# (Semantics + Text concatenated with \n). Pattern matches the
-# cold-launch fragment + landing_to_register.
-- launchApp
+# 3-part preamble per sweep #5 evidence (2026-05-14) :
+#   (a) clearState: true forces fresh anon state. Without it, a sim that
+#       had isLocalMode=true from a prior run routes directly to
+#       Aujourd'hui (app.dart:418), bypassing the LandingScreen entirely
+#       — « Voir clair » never renders.
+#   (b) Conditional bêta modal dismiss : if the build under test doesn't
+#       carry MINT_DISABLE_BETA_MODAL=true (the default sim build won't),
+#       the modal opens and covers the landing copy. The persona's own
+#       dart-define preamble assumes the harness sets this flag, but the
+#       canonical sweep doesn't rebuild — so this conditional makes the
+#       flow tolerant of both builds.
+#   (c) extendedWaitUntil + regex matcher tolerates landing FadeTransition
+#       (~2.5s) + iOS doubled accessibilityText.
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: ".*Voir clair.*décider seul.*"
