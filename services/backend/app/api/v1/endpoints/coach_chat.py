@@ -2017,7 +2017,7 @@ def _execute_internal_tool(
 
     # >>> dispatch: get_couple_optimization
     if name == "get_couple_optimization":
-        return _format_couple_optimization(ctx)
+        return _compute_couple_optimization(user_id=user_id, ctx=ctx, db=db)
     # <<< dispatch: get_couple_optimization
 
     if name == "get_regulatory_constant":
@@ -2360,6 +2360,7 @@ def _fmt_pct(value) -> str:
 # Implementations landed so far in this file:
 #   - _compute_budget_status            (plan wave-1a-01)
 #   - _compute_retirement_projection    (plan wave-1a-02)
+#   - _compute_couple_optimization      (plan wave-1a-04)
 # === end Wave 1a dispatchers ===
 
 
@@ -2702,6 +2703,140 @@ def _format_cap_status(ctx: dict) -> str:
         lines.append(f"- Progression : {seq_completed}/{seq_total} étapes")
 
     return "\n".join(lines)
+
+
+def _compute_couple_optimization(user_id, ctx: dict, db) -> str:
+    """Wave 1a D-02 server-side path for get_couple_optimization.
+
+    Returns either:
+      - JSON string ``CoupleOptimizationResponse.model_dump_json(by_alias=True)``
+        (flag ON success path), OR
+      - legacy FR string from ``_format_couple_optimization(ctx)``
+        (flag OFF / fallback path).
+
+    Falls back to legacy formatter when:
+      - settings flag is OFF, OR
+      - user_id is None / db session is None, OR
+      - DB returns no ProfileModel for user_id / profile.data is empty, OR
+      - CoupleOptimizer.optimize raises ANY Exception (defensive: DB flake,
+        unexpected shape, Pydantic validation, breadcrumb error).
+        User-facing text never breaks the coach loop.
+    """
+    import time
+    import logging
+    from app.core.config import settings
+
+    if not settings.COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED:
+        return _format_couple_optimization(ctx)
+    if not user_id or db is None:
+        return _format_couple_optimization(ctx)
+
+    _t0 = time.perf_counter()
+    try:
+        from datetime import datetime, timezone
+        from decimal import Decimal
+
+        from app.models.coach_tools.couple_optimization import (
+            AvsCapResponse,
+            CoupleOptimizationResponse,
+            LppBuybackOrderResponse,
+            MarriagePenaltyResponse,
+            Pillar3aOrderResponse,
+        )
+        from app.models.profile_model import ProfileModel
+        from app.observability.coach_breadcrumbs import emit_coach_tool_breadcrumb
+        from app.services.coach.inputs_hash import compute_inputs_hash
+        from app.services.couple_optimizer import CoupleOptimizer
+        from app.utils.hashing import hash_profile_id
+
+        # Newest-profile-wins lookup — mirrors plan-01/02 pattern.
+        profile = (
+            db.query(ProfileModel)
+            .filter(ProfileModel.user_id == user_id)
+            .order_by(ProfileModel.updated_at.desc())
+            .first()
+        )
+        if profile is None or not profile.data:
+            return _format_couple_optimization(ctx)
+
+        result = CoupleOptimizer.optimize(profile.data)
+        # Build the inputs_hash slice from the actual fields the port reads
+        # (mirror the keys read inside CoupleOptimizer.optimize).
+        slice_ = {
+            "etatCivil": profile.data.get("etatCivil"),
+            "canton": profile.data.get("canton"),
+            "nombreEnfants": profile.data.get("nombreEnfants"),
+            "salaireBrutMensuel": profile.data.get("salaireBrutMensuel"),
+            "nombreDeMois": profile.data.get("nombreDeMois"),
+            "birthYear": profile.data.get("birthYear"),
+            "gender": profile.data.get("gender"),
+            "prevoyance": profile.data.get("prevoyance"),
+            "conjoint": profile.data.get("conjoint"),
+        }
+
+        def _q(value):
+            return Decimal(str(value)).quantize(Decimal("0.01"))
+
+        lpp_resp = None
+        if result.lpp_buyback_order is not None:
+            r = result.lpp_buyback_order
+            lpp_resp = LppBuybackOrderResponse(
+                winner=r.winner.value,
+                saving_delta=_q(r.saving_delta),
+                reason=r.reason,
+                trade_off=r.trade_off,
+            )
+        p3a_resp = None
+        if result.pillar_3a_order is not None:
+            r = result.pillar_3a_order
+            p3a_resp = Pillar3aOrderResponse(
+                winner=r.winner.value,
+                saving_delta=_q(r.saving_delta),
+                reason=r.reason,
+                trade_off=r.trade_off,
+            )
+        avs_resp = None
+        if result.avs_cap is not None:
+            r = result.avs_cap
+            avs_resp = AvsCapResponse(
+                cap_applied=r.cap_applied,
+                monthly_reduction=_q(r.monthly_reduction),
+                user_rente_before_cap=_q(r.user_rente_before_cap),
+                conjoint_rente_before_cap=_q(r.conjoint_rente_before_cap),
+                total_after_cap=_q(r.total_after_cap),
+            )
+        mp_resp = None
+        if result.marriage_penalty is not None:
+            r = result.marriage_penalty
+            mp_resp = MarriagePenaltyResponse(
+                has_penalty=r.has_penalty,
+                annual_delta=_q(r.annual_delta),
+                trade_off=r.trade_off,
+            )
+
+        response = CoupleOptimizationResponse(
+            lpp_buyback=lpp_resp,
+            pillar_3a=p3a_resp,
+            avs_cap=avs_resp,
+            marriage_penalty=mp_resp,
+            inputs_hash=compute_inputs_hash(slice_),
+            computed_at=datetime.now(timezone.utc),
+        )
+        # D-15 uniform Sentry payload via plan-00 helper. EXACT 5 kwargs.
+        elapsed_ms = int((time.perf_counter() - _t0) * 1000)
+        emit_coach_tool_breadcrumb(
+            tool_name="couple_optimization",
+            inputs_hash=response.inputs_hash,
+            profile_id_hashed=hash_profile_id(user_id),
+            elapsed_ms=elapsed_ms,
+            flag_state="on",
+        )
+        return response.model_dump_json(by_alias=True)
+    except Exception as exc:  # defensive fallback (python-pro panel)
+        logging.getLogger(__name__).warning(
+            "compute_couple_optimization failed, falling back to legacy: %s", exc
+        )
+        return _format_couple_optimization(ctx)
 
 
 def _format_couple_optimization(ctx: dict) -> str:
