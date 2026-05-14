@@ -89,6 +89,10 @@ from pydantic import BaseModel as _BaseModel
 
 logger = logging.getLogger(__name__)
 
+# Wave 1a — slot marker constant referenced by tests/test_coach_tools_scaffolding.py (Test 13).
+# If you rename the slot, update this constant AND the slot comment block below in sync.
+WAVE_1A_DISPATCHER_SLOT_MARKER = "Wave 1a server-side compute dispatchers (D-08)"
+
 # SEC-6 / PRIV-03 — PII scrubbing now delegates to the centralized
 # privacy.pii_scrubber module (Presidio + custom CH recognizers + regex
 # fallback). The legacy regex list below is kept ONLY as the safety net
@@ -1895,6 +1899,7 @@ def _execute_internal_tool(
 
     ctx = profile_context or {}
 
+    # >>> dispatch: retrieve_memories
     if name == "retrieve_memories":
         import re
         raw_topic = tool_input.get("topic", "")
@@ -1908,21 +1913,32 @@ def _execute_internal_tool(
             user_id=user_id,
             db=db,
         )
+    # <<< dispatch: retrieve_memories
 
+    # >>> dispatch: get_budget_status
     if name == "get_budget_status":
-        return _format_budget_status(ctx)
+        return _compute_budget_status(user_id=user_id, ctx=ctx, db=db)
+    # <<< dispatch: get_budget_status
 
+    # >>> dispatch: get_retirement_projection
     if name == "get_retirement_projection":
-        return _format_retirement_projection(ctx)
+        return _compute_retirement_projection(user_id=user_id, ctx=ctx, db=db)
+    # <<< dispatch: get_retirement_projection
 
+    # >>> dispatch: get_cross_pillar_analysis
     if name == "get_cross_pillar_analysis":
         return _format_cross_pillar_analysis(ctx)
+    # <<< dispatch: get_cross_pillar_analysis
 
+    # >>> dispatch: get_cap_status
     if name == "get_cap_status":
         return _format_cap_status(ctx)
+    # <<< dispatch: get_cap_status
 
+    # >>> dispatch: get_couple_optimization
     if name == "get_couple_optimization":
         return _format_couple_optimization(ctx)
+    # <<< dispatch: get_couple_optimization
 
     if name == "get_regulatory_constant":
         return _handle_regulatory_constant(tool_input)
@@ -2246,6 +2262,108 @@ def _fmt_pct(value) -> str:
         return "non disponible"
 
 
+# === Wave 1a server-side compute dispatchers (D-08) ===
+# Plans 01-05 each insert their _compute_<tool_name>() function below
+# this comment block, ABOVE the matching legacy _format_<tool_name>().
+# Plan-06 inserts its _validate_cap_response() middleware here too.
+# Each _compute_* calls _format_<tool>(ctx) when flag OFF — forward reference
+# is intentional (Python resolves at call time), do not reorder.
+# Each _compute_* path:
+#   1. Checks settings.COACH_TOOL_SERVER_SIDE_<NAME>_ENABLED flag.
+#   2. Falls back to legacy _format_<name>(ctx) when flag OFF.
+#   3. Computes via app.services.* (chained per CONTEXT D-02).
+#   4. Wraps in Pydantic response with inputs_hash + computed_at.
+#   5. Emits Sentry breadcrumb via
+#      app.observability.coach_breadcrumbs.emit_coach_tool_breadcrumb
+#      (D-15: tool_name, inputs_hash, profile_id_hashed, elapsed_ms,
+#      flag_state). NEVER ad-hoc sentry_sdk.add_breadcrumb in _compute_*.
+# Implementations landed so far in this file:
+#   - _compute_budget_status            (plan wave-1a-01)
+#   - _compute_retirement_projection    (plan wave-1a-02)
+# === end Wave 1a dispatchers ===
+
+
+def _compute_budget_status(user_id: str | None, ctx: dict, db) -> str:
+    """Wave 1a D-02 server-side path for get_budget_status.
+
+    Returns either:
+      - JSON string `BudgetSnapshotResponse.model_dump_json(by_alias=True)`
+        (flag ON success path), OR
+      - legacy FR string from `_format_budget_status(ctx)`
+        (flag OFF / fallback path).
+
+    Falls back to legacy formatter when:
+      - settings flag is OFF, OR
+      - user_id is None / db session is None, OR
+      - DB returns no ProfileModel for user_id / profile.data is empty, OR
+      - CoachingEngine raises ValueError("budget data missing"), OR
+      - ANY other Exception (defensive: DB flake, Pydantic validation,
+        breadcrumb error). User-facing text never breaks the coach loop.
+    """
+    import time
+    import logging
+    from app.core.config import settings
+
+    if not settings.COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED:
+        return _format_budget_status(ctx)
+    if not user_id or db is None:
+        return _format_budget_status(ctx)
+
+    _t0 = time.perf_counter()
+    try:
+        from datetime import datetime, timezone
+
+        from app.models.coach_tools.budget_snapshot import BudgetSnapshotResponse
+        from app.models.profile_model import ProfileModel
+        from app.observability.coach_breadcrumbs import emit_coach_tool_breadcrumb
+        from app.services.coach.inputs_hash import compute_inputs_hash
+        from app.services.coaching_engine import CoachingEngine
+        from app.utils.hashing import hash_profile_id
+
+        # Newest-profile-wins lookup — matches the canonical pattern used
+        # elsewhere in coach_chat.py for ProfileModel resolution. Filters
+        # by user_id (FK) not by id (PK) because a user may have multiple
+        # ProfileModel rows.
+        profile = (
+            db.query(ProfileModel)
+            .filter(ProfileModel.user_id == user_id)
+            .order_by(ProfileModel.updated_at.desc())
+            .first()
+        )
+        if profile is None or not profile.data:
+            return _format_budget_status(ctx)
+
+        snapshot = CoachingEngine.compute_budget_snapshot(profile.data)
+        slice_ = {
+            "monthly_income": float(snapshot.monthly_income),
+            "monthly_expenses": float(snapshot.monthly_expenses),
+            "months_liquidity": snapshot.months_liquidity,
+        }
+        response = BudgetSnapshotResponse(
+            monthly_income=snapshot.monthly_income,
+            monthly_expenses=snapshot.monthly_expenses,
+            monthly_surplus=snapshot.monthly_surplus,
+            months_liquidity=snapshot.months_liquidity,
+            inputs_hash=compute_inputs_hash(slice_),
+            computed_at=datetime.now(timezone.utc),
+        )
+        # D-15 uniform Sentry payload via plan-00 helper.
+        elapsed_ms = int((time.perf_counter() - _t0) * 1000)
+        emit_coach_tool_breadcrumb(
+            tool_name="budget_status",
+            inputs_hash=response.inputs_hash,
+            profile_id_hashed=hash_profile_id(user_id),
+            elapsed_ms=elapsed_ms,
+            flag_state="on",
+        )
+        return response.model_dump_json(by_alias=True)
+    except Exception as exc:  # defensive fallback (python-pro panel)
+        logging.getLogger(__name__).warning(
+            "compute_budget_status failed, falling back to legacy: %s", exc
+        )
+        return _format_budget_status(ctx)
+
+
 def _format_budget_status(ctx: dict) -> str:
     """Format budget data from profile_context as readable text."""
     monthly_income = ctx.get("monthly_income")
@@ -2267,6 +2385,101 @@ def _format_budget_status(ctx: dict) -> str:
         lines.append(f"- Réserve de liquidités : {float(months_liquidity):.1f} mois")
 
     return "\n".join(lines)
+
+
+def _compute_retirement_projection(user_id: str | None, ctx: dict, db) -> str:
+    """Wave 1a D-02 server-side path for get_retirement_projection.
+
+    Returns either:
+      - JSON string `RetirementProjectionResponse.model_dump_json(by_alias=True)`
+        (flag ON success path), OR
+      - legacy FR string from `_format_retirement_projection(ctx)`
+        (flag OFF / fallback path).
+
+    Falls back to legacy formatter when:
+      - settings flag is OFF, OR
+      - user_id is None / db session is None, OR
+      - DB returns no ProfileModel for user_id / profile.data is empty, OR
+      - RetirementProjectionService.compute raises ValueError
+        (e.g. missing birthYear + monthlyIncome + avoirLpp), OR
+      - ANY other Exception (defensive: DB flake, Pydantic validation,
+        breadcrumb error). User-facing text never breaks the coach loop.
+    """
+    import time
+    import logging
+    from app.core.config import settings
+
+    if not settings.COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED:
+        return _format_retirement_projection(ctx)
+    if not user_id or db is None:
+        return _format_retirement_projection(ctx)
+
+    _t0 = time.perf_counter()
+    try:
+        from datetime import datetime, timezone
+
+        from app.models.coach_tools.retirement_projection import (
+            RetirementProjectionResponse,
+        )
+        from app.models.profile_model import ProfileModel
+        from app.observability.coach_breadcrumbs import (
+            emit_coach_tool_breadcrumb,
+        )
+        from app.services.coach.inputs_hash import compute_inputs_hash
+        from app.services.retirement import RetirementProjectionService
+        from app.utils.hashing import hash_profile_id
+
+        # Newest-profile-wins lookup — matches the canonical pattern used
+        # by _compute_budget_status (plan-01). Filters by user_id (FK) not
+        # by id (PK) because a user may have multiple ProfileModel rows.
+        profile = (
+            db.query(ProfileModel)
+            .filter(ProfileModel.user_id == user_id)
+            .order_by(ProfileModel.updated_at.desc())
+            .first()
+        )
+        if profile is None or not profile.data:
+            return _format_retirement_projection(ctx)
+
+        proj = RetirementProjectionService.compute(profile.data)
+        slice_ = {
+            "birthYear": profile.data.get("birthYear"),
+            "householdType": profile.data.get("householdType"),
+            "canton": profile.data.get("canton"),
+            "avsContributionYears": profile.data.get("avsContributionYears"),
+            "avoirLpp": profile.data.get("avoirLpp"),
+            "lppInsuredSalary": profile.data.get("lppInsuredSalary"),
+            "pillar3aBalance": profile.data.get("pillar3aBalance"),
+            "monthlyIncome": profile.data.get("monthlyIncome"),
+            "monthlyExpenses": profile.data.get("monthlyExpenses"),
+            "desiredRetirementAge": profile.data.get("desiredRetirementAge"),
+        }
+        response = RetirementProjectionResponse(
+            replacement_ratio=proj.replacement_ratio,
+            avs_rente=proj.avs_rente,
+            lpp_capital=proj.lpp_capital,
+            monthly_retirement_income=proj.monthly_retirement_income,
+            monthly_gap=proj.monthly_gap,
+            current_monthly_income=proj.current_monthly_income,
+            inputs_hash=compute_inputs_hash(slice_),
+            computed_at=datetime.now(timezone.utc),
+        )
+        # D-15 uniform Sentry payload via plan-00 helper.
+        elapsed_ms = int((time.perf_counter() - _t0) * 1000)
+        emit_coach_tool_breadcrumb(
+            tool_name="retirement_projection",
+            inputs_hash=response.inputs_hash,
+            profile_id_hashed=hash_profile_id(user_id),
+            elapsed_ms=elapsed_ms,
+            flag_state="on",
+        )
+        return response.model_dump_json(by_alias=True)
+    except Exception as exc:  # defensive fallback (python-pro panel)
+        logging.getLogger(__name__).warning(
+            "compute_retirement_projection failed, falling back to legacy: %s",
+            exc,
+        )
+        return _format_retirement_projection(ctx)
 
 
 def _format_retirement_projection(ctx: dict) -> str:

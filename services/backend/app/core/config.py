@@ -90,6 +90,18 @@ class Settings(BaseSettings):
     # after 4-week staging soak with `coach.citation_gate.fallback` rate ≤2%.
     COACH_CITATION_GATE_ENABLED: bool = False
 
+    # === Wave 1a server-side compute rollback flags (D-05, D-09) ===
+    # Plans 01-06 READ these flags but do NOT add new ones.
+    # Defaults: 5 per-tool flags OFF (staged rollout), cap-garde ON.
+    # Staging env enables the 5 OFF flags during Wave 1c validation.
+    COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED: bool = False
+    COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
+    COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED: bool = False
+    COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED: bool = False
+    COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED: bool = False
+    COACH_CAP_CHF_GARDE_ENABLED: bool = True
+    # === end Wave 1a flags ===
+
     # Phase 97.5 W2-T5 — ConsentService 3-stage rollout enforcement mode.
     # `log_only`   (v2.9 default) : gate emits structured warning log +
     #                               Sentry breadcrumb on missing consent ;

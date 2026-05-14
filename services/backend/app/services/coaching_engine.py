@@ -24,6 +24,7 @@ Ethical requirements:
 
 from dataclasses import dataclass
 from datetime import date
+from decimal import Decimal, ROUND_HALF_UP
 from typing import List, Optional
 
 from app.constants.social_insurance import (
@@ -72,6 +73,22 @@ class CoachingTip:
     icon: str
 
 
+@dataclass
+class BudgetSnapshot:
+    """Wave 1a D-02 — server-side budget snapshot for get_budget_status.
+
+    Holds the four numeric fields the legacy `_format_budget_status(ctx)`
+    formatter reads from ctx (`monthly_income`, `monthly_expenses`,
+    `months_liquidity`) plus the derived `monthly_surplus = income - expenses`.
+    CHF amounts use Decimal(0.01) quantization to mirror the convention
+    in `app.services.coach.inputs_hash._quantize_floats`.
+    """
+    monthly_income: Decimal
+    monthly_expenses: Decimal
+    monthly_surplus: Decimal  # income - expenses
+    months_liquidity: float
+
+
 # ---------------------------------------------------------------------------
 # Coaching Engine
 # ---------------------------------------------------------------------------
@@ -82,6 +99,39 @@ class CoachingEngine:
     All tips are in French, include law references, and use gender-neutral
     language. No banned terms ("garanti", "assure", "certain").
     """
+
+    @staticmethod
+    def compute_budget_snapshot(profile_data: dict) -> BudgetSnapshot:
+        """Read budget fields from ProfileModel.data and compute the snapshot.
+
+        Wave 1a D-02 — server-side recompute path for get_budget_status.
+        Reads the SAME keys the legacy _format_budget_status reads from ctx
+        (monthly_income, monthly_expenses, months_liquidity), preserving
+        byte-identity at the formatter boundary.
+
+        Raises:
+            ValueError: if both monthly_income and monthly_expenses are
+                missing from `profile_data`. Dispatcher catches and falls
+                through to legacy formatter.
+        """
+        mi = profile_data.get("monthly_income")
+        me = profile_data.get("monthly_expenses")
+        ml = profile_data.get("months_liquidity")
+        if mi is None and me is None:
+            raise ValueError("budget data missing")
+
+        # Decimal quantization mirrors inputs_hash._quantize_floats convention.
+        def _q(v):
+            return Decimal(str(v)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+        mi_d = _q(mi) if mi is not None else Decimal("0.00")
+        me_d = _q(me) if me is not None else Decimal("0.00")
+        return BudgetSnapshot(
+            monthly_income=mi_d,
+            monthly_expenses=me_d,
+            monthly_surplus=mi_d - me_d,
+            months_liquidity=float(ml) if ml is not None else 0.0,
+        )
 
     # 3a pillar limits (OPP3 art. 7)
     PLAFOND_3A_SALARIE = PILIER_3A_PLAFOND_AVEC_LPP
