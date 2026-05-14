@@ -1932,7 +1932,7 @@ def _execute_internal_tool(
 
     # >>> dispatch: get_cap_status
     if name == "get_cap_status":
-        return _format_cap_status(ctx)
+        return _validate_cap_response(_format_cap_status(ctx))
     # <<< dispatch: get_cap_status
 
     # >>> dispatch: get_couple_optimization
@@ -2538,6 +2538,59 @@ def _format_cross_pillar_analysis(ctx: dict) -> str:
         lines.append(f"- Économie fiscale potentielle : {_fmt_chf(tax_saving)}")
 
     return "\n".join(lines)
+
+
+def _validate_cap_response(rendered: str) -> str:
+    """Wave 1a D-09 — strip un-cited CHF tokens from cap text.
+
+    Cap text comes from CapEngine on the Flutter side. The server cannot
+    recompute the cap (kept Flutter-source per CONTEXT D-17 option b), but
+    it CAN guarantee that no CHF token reaches the LLM without an adjacent
+    ``{{cite:<key>}}`` placeholder. Within ±80 chars of any CHF token a
+    cite placeholder MUST be present; else the token is replaced with the
+    verbatim FR string ``[montant indisponible]`` and a Sentry breadcrumb
+    is emitted with a non-PII snippet payload.
+
+    The flag ``COACH_CAP_CHF_GARDE_ENABLED`` defaults to True per
+    CONTEXT D-09 (set OFF only for legacy parity debugging — see Test 5).
+
+    The currency regex is REUSED from
+    ``app.services.coach.citation_parser._RE_CURRENCY`` (Phase 94, single
+    source of truth at citation_parser.py:68-70, re-exported via
+    ``__all__`` at citation_parser.py:721-734).
+    """
+    from app.core.config import settings
+    if not settings.COACH_CAP_CHF_GARDE_ENABLED:
+        return rendered
+    # Inline import to avoid module-import-time circular dep (the
+    # citation_parser module pulls in coach-side dataclasses transitively).
+    from app.services.coach.citation_parser import _RE_CURRENCY
+
+    result = rendered
+    offset = 0
+    for match in _RE_CURRENCY.finditer(rendered):
+        window_start = max(0, match.start() - 80)
+        window_end = match.end() + 80
+        window = rendered[window_start:window_end]
+        if "{{cite:" in window:
+            continue
+        s = match.start() + offset
+        e = match.end() + offset
+        replacement = "[montant indisponible]"
+        result = result[:s] + replacement + result[e:]
+        offset += len(replacement) - (e - s)
+        try:
+            import sentry_sdk
+            sentry_sdk.add_breadcrumb(
+                category="coach.cap.cap_chf_uncited",
+                message="CHF token rejected",
+                level="warning",
+                data={"snippet": window[:120]},
+            )
+        except Exception:
+            # Fail-open: never let telemetry break the coach response path.
+            pass
+    return result
 
 
 def _format_cap_status(ctx: dict) -> str:
