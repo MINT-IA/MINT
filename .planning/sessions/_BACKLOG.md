@@ -72,6 +72,50 @@ Convention : la première entrée est la plus prioritaire. Quand une session est
 
 ---
 
+## 2. Graphiti MCP — Temporal Knowledge Graph Reconnaissance (Phase 4+ candidate)
+
+**Trigger** : ouvrir cette session **si** Phase 1-2 de vibe-coding-infra (entry #1) ship avec GO et que :
+- engram findings volume > 1000 (≈ 6 mois de critic activity au rythme estimé)
+- `engram mem_conflicts` beta surfaces des limites observables (faux positifs, miss cross-agent temporal patterns, ou drift detection lente)
+- OU `@karpathy-curator` (Phase 2 critic) demande un graph-aware tool pour drift trimestrielle
+
+**Sujet** : Graphiti ([github.com/getzep/graphiti](https://github.com/getzep/graphiti), par Zep.ai) = temporal knowledge graph framework MCP-compatible. Stocke entities + relations + timestamps + episode-based facts. Trois capabilities-clés que engram FTS5 ne couvre PAS nativement :
+
+1. **Fact invalidation auto** — quand une décision passée devient obsolète (« on a accepté Provider en mars » → « non, on a switch Riverpod en juillet »), le graph détecte la contradiction temporellement.
+2. **Decision lineage** — trace l'évolution d'une convention/architecture cross-PRs (ex: la règle « pas de `Navigator.push` » → comment elle a évolué, qui l'a challengée).
+3. **Cross-agent correlation temporelle** — « le `@cso-mint` de mars a flaggué X, le `@lsfin-officer` de mai a flaggué ~X mais ne se sont pas vus » → surface ces patterns automatiquement.
+
+**Origine** : flag externe agent audit 2026-05-14 challenging engram (savedAs engram finding #2 « infra-decision: engram challenged 2026-05-14 — KEEP verdict », topic `infra-decision`). Audit proposait Graphiti parmi alternatives. Verdict session : KEEP engram Phase 1-2, Graphiti **différé Phase 4+** comme candidat conditionnel.
+
+**Outline à challenger en session** :
+
+1. **Empirical limits check** — d'abord empiriquement valider qu'engram + `mem_conflicts` beta sont LIMITED (pas anticipé). Ouvrir cette session **uniquement** si engram montre vraiment des bottlenecks. Sinon over-engineering.
+2. **Stack cost** — Graphiti requires Neo4j OR Postgres + extensions + Python runtime. Match avec Mac mini + Fun2 setup ? OR ça impose une infra parallèle ?
+3. **Cypher learning curve** — query language non-trivial. `@karpathy-curator` doit pouvoir l'invoquer fluently. Coût formation/prompt ?
+4. **Migration story** — engram findings vers Graphiti = pipeline export-ingest ? Idempotent ? Loss-less ?
+5. **Vendor risk** — Zep est une startup (single-org). Similar à engram mais commercial-leaning. License terms à valider (Apache 2 a priori, mais cloud features paid).
+6. **Use case précis** — `@karpathy-curator` Phase 2 doit faire memory drift trimestrielle. Combien de findings cross-agent à corréler ? Graphiti rentabilise à >1000 findings, en-dessous c'est overkill.
+7. **Alternative hybride** — peut-on garder engram pour write-path + exporter une vue Graphiti read-only mensuelle pour audit drift ? Best of both ?
+
+**Status** : NOT STARTED. À ouvrir **uniquement** si engram limits empiriquement observés (Phase 4+).
+
+**Références internes MINT** :
+- Engram finding #2 (mem_save 2026-05-14 11:52:27, topic `infra-decision`)
+- Design doc `~/.gstack/projects/MINT-IA-MINT/julienbattaglia-dev-design-20260514-133000.md` §Post-decision audit
+- Memory `feedback_audit_corpus_before_patching`
+
+**Références externes** :
+- [`getzep/graphiti`](https://github.com/getzep/graphiti) — repo
+- [Zep documentation](https://docs.getzep.com/) — concepts temporal graph
+- [Graphiti MCP wrapper](https://github.com/getzep/graphiti-mcp) — Claude Code integration
+
+**Verdict pré-session (à re-confirmer)** :
+- ⏳ Graphiti = sur-architecture pour Phase 1-2. engram suffit.
+- ⏳ Phase 4+ candidat **conditionnel** : seulement si limites engram empiriques.
+- ⚠️ Risque scope-creep : si on ouvre prématurément, on yak-shave une infra qu'on n'utilise pas.
+
+---
+
 ## Comment maintenir ce backlog
 
 - Quand tu identifies un nouveau topic à traiter en /office-hours dédié (pas dans la session courante), ajoute une entrée ici.
