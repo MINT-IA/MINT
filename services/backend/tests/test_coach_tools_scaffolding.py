@@ -155,22 +155,38 @@ def test_dispatcher_slot_marker_constant_present_in_file():
 
 
 def test_emit_coach_tool_breadcrumb_signature_matches_d15():
-    """D-15 contract: exactly 5 parameters in this order.
+    """D-15 contract: 5 mandated parameters in this order + optional
+    `extra_tags` for data-quality observability.
 
     Pinning the signature via inspect prevents silent payload drift across
     plans 01-05 (panel fix architect-review concern #6).
+
+    Plan-03 (cross_pillar) added the optional `extra_tags: Optional[dict] = None`
+    sixth parameter backward-compatibly (default None preserves plan-01/02
+    call sites). The first 5 names MUST stay locked in that order; the 6th
+    is allowed as an opt-in observability hook for data-quality tags
+    (lpp_buyback_source, tax_saving_source, etc.).
     """
     from app.observability.coach_breadcrumbs import emit_coach_tool_breadcrumb
 
     sig = inspect.signature(emit_coach_tool_breadcrumb)
     param_names = list(sig.parameters.keys())
-    assert param_names == [
+    assert param_names[:5] == [
         "tool_name",
         "inputs_hash",
         "profile_id_hashed",
         "elapsed_ms",
         "flag_state",
-    ], f"D-15 signature drift: got {param_names!r}"
+    ], f"D-15 signature drift on first 5 params: got {param_names!r}"
+    # Plan-03 extension: optional extra_tags (None-defaulted).
+    if len(param_names) > 5:
+        assert param_names[5] == "extra_tags", (
+            f"unexpected 6th parameter: got {param_names[5]!r} "
+            f"(expected 'extra_tags')"
+        )
+        assert sig.parameters["extra_tags"].default is None, (
+            "extra_tags must default to None (backward-compat with plan-01/02)"
+        )
 
 
 # ---------------------------------------------------------------------------

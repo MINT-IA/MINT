@@ -41,6 +41,11 @@ from app.services.arbitrage.calendrier_retraits import (
     RetirementAsset,
 )
 
+from app.services.arbitrage.cross_pillar_service import (  # noqa: E402,F401
+    CrossPillarService,
+    CrossPillarAnalysis,
+)
+
 __all__ = [
     "YearlySnapshot",
     "TrajectoireOption",
@@ -51,4 +56,6 @@ __all__ = [
     "compare_location_vs_propriete",
     "compare_rachat_vs_marche",
     "compare_calendrier_retraits",
+    "CrossPillarService",
+    "CrossPillarAnalysis",
 ]
