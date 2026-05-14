@@ -12,12 +12,25 @@
 # Usage:
 #   tools/simulator/maestro_sweep.sh
 #       — runs the curated default sweep (e2e + regression + top
-#         perfect-set flows + personas).
-#   tools/simulator/maestro_sweep.sh --tier <e2e|regression|perfect|personas|all>
-#       — runs one tier.
+#         perfect-set flows). Excludes deeplink + personas by default.
+#   tools/simulator/maestro_sweep.sh --tier <tier>
+#       — runs one tier. Tiers :
+#           e2e        — the ship-gate journey (1 flow)
+#           regression — bug-XXX regression locks (excl. deeplink)
+#           perfect    — perfect-set flows (workflow E + LSFin + FATCA)
+#           personas   — Premier Éclairage personas (julien_swiss, lauren_expat_us)
+#           deeplink   — opt-in deeplink/Universal Link flows (sim-unreliable,
+#                        crashes SafariViewService on long-booted sims —
+#                        per memory `feedback_sim_crash_mitigation`)
+#           all        — e2e + regression + perfect + personas (no deeplink)
+#           default    — e2e + regression + perfect (no personas, no deeplink)
 #
 # Env (forwarded to the watchdog) :
 #   MAESTRO_STALL_THRESHOLD, MAESTRO_HARD_LIMIT, MINT_DEBUG_PORT, MINT_BUNDLE_ID
+#
+# Sweep-specific env :
+#   MAESTRO_SWEEP_NO_REBOOT=1   skip the pre-sweep sim shutdown+boot
+#                                (default: reboot for clean state)
 #
 # Output : `.planning/_walker/sweep-<TS>/`
 #   ├── <flow_slug>/
@@ -55,6 +68,15 @@ FLOWS_REGRESSION=(
   "$REPO_ROOT/tools/simulator/flows/regression/bug__S002__maestro_cold_launch_fragment.yaml"
   "$REPO_ROOT/tools/simulator/flows/regression/bug__P004__overlay_populated_on_open.yaml"
   "$REPO_ROOT/tools/simulator/flows/regression/bug__F001_S001_combined__chat_via_cap_du_jour.yaml"
+)
+# Deeplink/Safari flows are sim-unreliable per their own header docs
+# (mintapp:// URL scheme + Universal Link both invoke SafariViewService
+# fallbacks that crash on long-booted sims — confirmed 2026-05-14 via
+# 2 EXC_BAD_ACCESS@0x20 crashes in one session, polluting bug__S003
+# from ✅→❌ unrelated to app code). Pulled out of default --tier all
+# into an opt-in --tier deeplink. Run them only on a freshly-booted
+# sim or a real device.
+FLOWS_DEEPLINK=(
   "$REPO_ROOT/tools/simulator/flows/regression/bug__S003__mintapp_scheme_opens_app.yaml"
   "$REPO_ROOT/tools/simulator/flows/regression/bug__S004_F006_F007__universal_link_opens_app.yaml"
 )
@@ -94,10 +116,42 @@ case "$TIER" in
   regression) FLOWS=("${FLOWS_REGRESSION[@]}") ;;
   perfect)    FLOWS=("${FLOWS_PERFECT[@]}") ;;
   personas)   FLOWS=("${FLOWS_PERSONAS[@]}") ;;
+  deeplink)   FLOWS=("${FLOWS_DEEPLINK[@]}") ;;
   all)        FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_PERSONAS[@]}") ;;
   default)    FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}") ;;
-  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | personas | all | default)" >&2; exit 1 ;;
+  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | personas | deeplink | all | default)" >&2; exit 1 ;;
 esac
+
+# ── Reboot the booted sim before any flow runs ────────────────────────
+# Per memory `feedback_sim_crash_mitigation` (2026-05-14) : long-booted
+# iOS sims accumulate state and produce EXC_BAD_ACCESS@0x20 crashes in
+# SpringBoard / SafariViewService mid-sweep, contaminating downstream
+# flow results (e.g. bug__S003 flipping ✅→❌ unrelated to app code).
+# Shutdown + boot is idempotent + ~10s overhead ; isolates each sweep
+# from the prior session's accumulated state.
+#
+# Set MAESTRO_SWEEP_NO_REBOOT=1 to skip (useful when chaining sweeps
+# back-to-back during active investigation, or when the sim was JUST
+# booted via simctl boot in the harness invocation).
+if [ "${MAESTRO_SWEEP_NO_REBOOT:-0}" != "1" ]; then
+  booted_udid=$(xcrun simctl list devices booted -j 2>/dev/null \
+    | jq -r '.devices | to_entries[].value[] | select(.state=="Booted") | .udid' \
+    | head -1)
+  if [ -n "$booted_udid" ]; then
+    echo "[sweep] rebooting sim $booted_udid for clean state..."
+    xcrun simctl shutdown "$booted_udid" 2>/dev/null || true
+    sleep 2
+    xcrun simctl boot "$booted_udid" 2>/dev/null || true
+    sleep 4
+    # Re-launch app so the first flow's launchApp finds it installed
+    # (xcrun simctl boot doesn't restore foreground app).
+    xcrun simctl launch booted "${MINT_BUNDLE_ID:-ch.mint.app}" 2>/dev/null || true
+    sleep 2
+    echo "[sweep] reboot complete."
+  else
+    echo "[sweep] no booted sim found ; skipping reboot." >&2
+  fi
+fi
 
 # ── Setup sweep dir + summary header ──────────────────────────────────
 TS="$(date +%Y%m%dT%H%M%S)"
