@@ -907,6 +907,86 @@ def _build_system_prompt_with_memory(
     return prompt
 
 
+def _compute_retrieve_memories(
+    topic: str,
+    user_id: Optional[str],
+    db: Optional[Session],
+    max_results: int,
+    memory_block: Optional[str],
+) -> str:
+    """Wave 1a D-07 server-side path for retrieve_memories.
+
+    `_compute_retrieve_memories` is the flag-gated sibling of
+    `_handle_retrieve_memories` (preserved unchanged below). It routes
+    through `app.services.memory.bm25.retrieve` when flag ON; falls
+    back to legacy `_handle_retrieve_memories` when:
+      - settings flag is OFF, OR
+      - user_id is None / db is None, OR
+      - BM25 retrieve returns 0 hits, OR
+      - retrieve raises ANY Exception (defensive — user-facing text never
+        breaks the coach loop).
+
+    Output shape: when flag ON + hits found, returns a newline-joined
+    FR string of `[insight_type] topic: summary` lines (byte-identical
+    to the legacy line format at coach_chat.py:967), truncated to
+    max_results.
+    """
+    import time
+    import logging
+    from app.core.config import settings
+
+    if not settings.COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED:
+        return _handle_retrieve_memories(
+            topic=topic, memory_block=memory_block,
+            max_results=max_results, user_id=user_id, db=db,
+        )
+    if not user_id or db is None:
+        return _handle_retrieve_memories(
+            topic=topic, memory_block=memory_block,
+            max_results=max_results, user_id=user_id, db=db,
+        )
+
+    _t0 = time.perf_counter()
+    try:
+        from app.observability.coach_breadcrumbs import emit_coach_tool_breadcrumb
+        from app.services.coach.inputs_hash import compute_inputs_hash
+        from app.services.memory.bm25 import retrieve as _bm25_retrieve
+        from app.utils.hashing import hash_profile_id
+
+        k = min(max(1, max_results), 5)
+        hits = _bm25_retrieve(topic=topic, user_id=user_id, db=db, k=k)
+        if not hits:
+            return _handle_retrieve_memories(
+                topic=topic, memory_block=memory_block,
+                max_results=max_results, user_id=user_id, db=db,
+            )
+
+        lines = [
+            f"[{h.insight_type}] {h.topic}: {h.summary}"
+            for h in hits
+        ]
+        result_text = "\n".join(lines[:max_results])
+
+        elapsed_ms = int((time.perf_counter() - _t0) * 1000)
+        query_slice = {"topic": topic, "user_id": user_id, "k": k}
+        emit_coach_tool_breadcrumb(
+            tool_name="retrieve_memories",
+            inputs_hash=compute_inputs_hash(query_slice),
+            profile_id_hashed=hash_profile_id(user_id),
+            elapsed_ms=elapsed_ms,
+            flag_state="on",
+        )
+        return result_text
+    except Exception as exc:
+        logging.getLogger(__name__).warning(
+            "compute_retrieve_memories failed, falling back to legacy: %s", exc
+        )
+        return _handle_retrieve_memories(
+            topic=topic, memory_block=memory_block,
+            max_results=max_results, user_id=user_id, db=db,
+        )
+
+
 def _handle_retrieve_memories(
     topic: str,
     memory_block: Optional[str],
@@ -1906,12 +1986,12 @@ def _execute_internal_tool(
         # BUG-B fix: sanitize topic to prevent prompt injection via LLM tool_use.
         # Only allow word chars, spaces, hyphens, dots (Unicode-aware).
         safe_topic = raw_topic if re.match(r'^[\w\s\-\.]{1,100}$', raw_topic, re.UNICODE) else ""
-        return _handle_retrieve_memories(
+        return _compute_retrieve_memories(
             topic=safe_topic,
-            memory_block=memory_block,
-            max_results=min(tool_input.get("max_results", 3), 10),
             user_id=user_id,
             db=db,
+            max_results=min(tool_input.get("max_results", 3), 10),
+            memory_block=memory_block,
         )
     # <<< dispatch: retrieve_memories
 
