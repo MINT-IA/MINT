@@ -2,7 +2,7 @@
 
 > Loaded on-demand pour compliance review, Swiss law references, archetype decisions, constants lookup.
 > Ce fichier owns la FULL banned terms list, la table archetype, les key constants 2025/2026, les compliance rules.
-> Tier 2 (project-specific). Tier 1 = `rules.md`. Compagnon : `.claude/skills/mint-swiss-compliance/SKILL.md`.
+> Tier 2 (project-specific). Tier 1 = `rules.md`. Compliance enforcement via `mint-review-pr` agent (Phase 1 pilot) + futurs MINT-pur post-gate 2026-05-21 (`mint-financial-core-guard`, etc.).
 
 > **Pivot 2026-04-12 — lucidité, pas protection.** MINT = outil de lucidité (paix financière, contrôle, compréhension, zéro effort). PAS « protection-first » anxiogène. Voir MEMORY.md §VISION — LUCIDITE, PAS PROTECTION + `project_vision_post_audit_2026_04_12.md`. Compliance guardrails inchangés, messaging hiérarchie à revoir avec `MINT_IDENTITY.md` reconciliation (deferred v2.9+).
 
@@ -213,5 +213,5 @@ inférieur pour la part surobligatoire, selon votre caisse de pension. »
 - `rules.md` — tier 1, fintech-grade principles.
 - `LEGAL_RELEASE_CHECK.md` — pre-release compliance gate.
 - `docs/MINT_IDENTITY.md` — mission, 5 principes, 4-layer engine.
-- `.claude/skills/mint-swiss-compliance/SKILL.md` — skill opérationnel (spec format, chantiers).
+- Subagent `mint-review-pr` (`.claude/agents/mint-review-pr.md`) — pre-merge LSFin/banned-terms/accent compliance gate + post-gate-2026-05-21 décomposition en MINT-pur agents.
 - `visions/vision_compliance.md` — LSFin, FINMA, nLPD framework.

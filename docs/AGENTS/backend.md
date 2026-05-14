@@ -2,7 +2,7 @@
 
 > Loaded on-demand quand l'agent travaille dans `services/backend/` et détecte un contexte FastAPI/Python.
 > Tier 2 (project-specific). Tier 1 = `rules.md`.
-> Compagnon opérationnel : `.claude/skills/mint-backend-dev/SKILL.md`.
+> Subagents : `backend-architect`, `fastapi-pro`, `python-pro` (+ `backend-security-coder` / `threat-modeling-expert` pour security pass, cf. CLAUDE.md §3.5).
 
 ## 1. Architecture
 
@@ -152,5 +152,5 @@ Phase 30.6 (cette phase) exposera via MCP tool `get_swiss_constants(category)`.
 
 - `SOT.md` — data contracts (Profile, SessionReport, EnhancedConfidence).
 - `tools/openapi/mint.openapi.canonical.json` — API contract canonique.
-- `.claude/skills/mint-backend-dev/SKILL.md` — skill opérationnel (chantiers, patterns concrets).
+- Subagents `backend-architect` / `fastapi-pro` / `python-pro` — délégation auto par description matching pour chantiers/patterns concrets.
 - `LEGAL_RELEASE_CHECK.md` — pre-release compliance gate.

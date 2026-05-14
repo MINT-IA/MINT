@@ -2,13 +2,13 @@
 
 Imported skills that work across multiple agent CLIs (Claude Code, Cursor, Copilot, etc.).
 
-Distinct from `.claude/skills/` which holds Claude-Code-specific skills (`mint-flutter-dev`, `mint-backend-dev`, etc.).
+Distinct from `.claude/skills/` which holds Claude-Code-specific skills (autoresearch-*, gsd-*, etc.) and from `.claude/agents/` which holds subagent specs (mint-review-pr, wshobson catalog).
 
 ## Currently installed
 
 | Skill | Source | Purpose | Why imported |
 |-------|--------|---------|--------------|
-| [flutter-fix-layout-issues](flutter-fix-layout-issues/SKILL.md) | github.com/flutter/skills | RenderFlex / unbounded-constraint debugging | Pure complement to MINT's mint-flutter-dev — used on-demand when layout errors happen |
+| [flutter-fix-layout-issues](flutter-fix-layout-issues/SKILL.md) | github.com/flutter/skills | RenderFlex / unbounded-constraint debugging | Pure complement to MINT's `frontend-developer` / `mobile-developer` agents — used on-demand when layout errors happen |
 | [flutter-add-integration-test](flutter-add-integration-test/SKILL.md) | github.com/flutter/skills | integration_test package setup + Flutter Driver | Maestro complement — in-process integration tests for fast inner loops |
 
 ## NOT imported (deliberate)

@@ -22,7 +22,7 @@ You do **NOT** write code. You report findings, AUTO-FIX trivial issues only (de
 The main orchestrator should delegate to this subagent automatically when :
 
 - The user says : « review ce diff », « verify mon code », « review the PR », « est-ce que c'est mergeable », « valide ce changement »
-- BEFORE any `/mint-commit` or `/ship` invocation
+- BEFORE any `/ship` invocation
 - BEFORE any merge to `dev` branch
 - After a Wave 1 / 1a / 1b / 1c / 1.5 task completes coding
 - The user references a PR number and asks for review
@@ -236,10 +236,10 @@ Should return the count of findings just saved.
 ## Step 6: Gate verdict
 
 If verdict is **BLOCKED** : tell the main agent / user explicitly :
-> "This PR has N blockers. Do NOT proceed to /mint-commit or /ship until they are fixed. Blockers: [list]"
+> "This PR has N blockers. Do NOT proceed to /ship until they are fixed. Blockers: [list]"
 
 If verdict is **PASS** or **PASS WITH WARNINGS** : tell the main agent / user :
-> "Review passed (V findings persisted to engram, P prior findings cited). Safe to proceed with /mint-commit or /ship."
+> "Review passed (V findings persisted to engram, P prior findings cited). Safe to proceed with /ship."
 
 The gate is advisory — the main agent / user decides. But you MUST be explicit about the verdict.
 

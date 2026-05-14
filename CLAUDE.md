@@ -38,7 +38,7 @@ You operate as a **team lead orchestrator** with `CLAUDE_CODE_EXPERIMENTAL_AGENT
 
 | Subagent | Delegate when | Memory |
 |---|---|---|
-| `mint-review-pr` | Pre-merge review on any Wave 1+ PR ; user says "review ce diff" / "verify mon code" / "valide ce changement" ; BEFORE `/mint-commit` or `/ship` to `dev` | `local` (engram) |
+| `mint-review-pr` | Pre-merge review on any Wave 1+ PR ; user says "review ce diff" / "verify mon code" / "valide ce changement" ; BEFORE `/ship` to `dev` | `local` (engram) |
 | *(Post-2026-05-21 gate GO — décomposition mint-review-pr en 4 MINT-pur per panel #1)* `mint-i18n-arb` (Pass 4), `mint-financial-core-guard` (Pass 6), `mint-archetype-router` (Pass 7), `mint-anti-facade` (Pass 8) | Triggers spécifiques MINT non couverts par wshobson catalog | `local` |
 
 ### wshobson specialist team (adopted 2026-05-14 via PR S99.2, MIT, fork of [wshobson/agents](https://github.com/wshobson/agents))
@@ -66,7 +66,7 @@ You operate as a **team lead orchestrator** with `CLAUDE_CODE_EXPERIMENTAL_AGENT
 
 ### Routing rules
 
-- **PR work / pre-merge review** → delegate to `mint-review-pr` (Phase 1 pilot, hard gate 2026-05-21) + `code-reviewer` + `architect-review`. Verdict BLOCKED = do NOT `/mint-commit`.
+- **PR work / pre-merge review** → delegate to `mint-review-pr` (Phase 1 pilot, hard gate 2026-05-21) + `code-reviewer` + `architect-review`. Verdict BLOCKED = do NOT `/ship`.
 - **Flutter screen create / revise** → `frontend-developer` + `mobile-developer` + `ui-designer` + `accessibility-expert` (cf. memory `feedback_design_panel_before_push`).
 - **Backend FastAPI work** → `backend-architect` + `fastapi-pro` + `python-pro` ; security pass via `backend-security-coder` + `threat-modeling-expert`.
 - **Database changes** → `database-architect` + `database-optimizer` + `sql-pro`.
