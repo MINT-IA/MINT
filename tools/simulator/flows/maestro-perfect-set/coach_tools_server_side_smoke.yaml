@@ -1,0 +1,133 @@
+# tools/simulator/flows/maestro-perfect-set/coach_tools_server_side_smoke.yaml
+#
+# ─── PURPOSE ──────────────────────────────────────────────────────────────
+# Wave 1a G1 smoke — exercise each of the 6 refactored coach tools end-to-end
+# against the Railway STAGING backend, with all 5 server-side flags ON and the
+# cap CHF garde flag ON. The flow taps a coach card per tool, opens the
+# « Explique-moi » verb, and asserts the per-tool top-line FR string appears
+# in the response (no crash, response returned).
+#
+# This is the G1 contract for plan-08's 5-gate close. Live exit-0 is DEFERRED
+# until staging deploy is live with the flag flips — see PRECONDITIONS below.
+#
+# ─── PRECONDITIONS (DEFERRED — see Task 3 of wave-1a-08-PLAN.md) ──────────
+#   (a) Staging Railway has the Wave 1a branch deployed with all 5 server-side
+#       flags ON + cap garde ON (default already True):
+#         COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED=true
+#         COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED=true
+#         COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED=true
+#         COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED=true
+#         COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED=true
+#         COACH_CAP_CHF_GARDE_ENABLED=true
+#   (b) Mobile build on the booted sim targets staging
+#       (`mint-staging.up.railway.app`, release flavor — memory
+#       `feedback_app_targets_staging_always`).
+#   (c) ANTHROPIC_API_KEY present on Railway staging (memory
+#       `feedback_anthropic_key_on_railway`).
+#   (d) Profile fixture seeded with enough data for each tool to traverse
+#       its server-side branch (budget, retirement, cross-pillar, couple,
+#       insights). A populated `julien` or `lauren` archetype profile is
+#       sufficient.
+#
+# ─── SCOPE ────────────────────────────────────────────────────────────────
+# Wave 1a-only smoke = response returned, no crash, top-line FR string
+# present. Wave 1b will assert the `inputs_hash` chip and the citation
+# placeholders surface UI-side; Wave 1c will run the 20 Q&A parity suite.
+# This flow does NOT assert numeric values — that's the harness in
+# tests/test_coach_tools_parity.py.
+#
+# ─── EXPECTED DURATION ────────────────────────────────────────────────────
+# ~120s wall-clock — cold launch + auth + 6 card taps + 6 narrator
+# round-trips on staging Anthropic.
+#
+# ─── MAESTRO 2.5.1 SYNTAX ─────────────────────────────────────────────────
+# Mirrors flow_card_action_intent_bar.yaml conventions: regex locators on
+# FR strings where stable testIDs are absent (cards may not yet carry
+# Keys on the production card list as of Wave 1a).
+appId: ch.mint.app
+---
+- launchApp:
+    clearState: false
+- assertVisible:
+    text: "Mon argent|Aujourd'hui|Mon coach"
+    timeout: 15000
+
+# ─── 1. get_budget_status (WAVE1A-01) ─────────────────────────────────────
+- tapOn:
+    text: "(?i)Mon argent|Budget|Aujourd'hui"
+- tapOn:
+    text: "(?i)Budget|Mes finances"
+- tapOn:
+    text: "(?i)Explique"
+- assertVisible:
+    text: "(?i)Budget actuel|Revenu net|Marge libre"
+    timeout: 20000
+- back
+
+# ─── 2. get_retirement_projection (WAVE1A-02) ─────────────────────────────
+- tapOn:
+    text: "(?i)Retraite|LPP|Projection"
+- tapOn:
+    text: "(?i)Explique"
+- assertVisible:
+    text: "(?i)Projection retraite|Capital LPP|Rente AVS"
+    timeout: 20000
+- back
+
+# ─── 3. get_cross_pillar_analysis (WAVE1A-03) ─────────────────────────────
+- tapOn:
+    text: "(?i)Inter-piliers|Optimisation|Cross.?pillar"
+- tapOn:
+    text: "(?i)Explique"
+- assertVisible:
+    text: "(?i)Analyse inter-piliers|3a|LPP"
+    timeout: 20000
+- back
+
+# ─── 4. get_couple_optimization (WAVE1A-05) ───────────────────────────────
+# Skipped for single-archetype profiles (etatCivil != marie) — the dispatcher
+# falls back to legacy text in that case. For couple-fixture runs the
+# assertion below covers the server-side branch.
+- runFlow:
+    when:
+      visible:
+        text: "(?i)Couple|Conjoint|Mariage"
+    commands:
+      - tapOn:
+          text: "(?i)Couple|Conjoint|Mariage"
+      - tapOn:
+          text: "(?i)Explique"
+      - assertVisible:
+          text: "(?i)Rachat LPP|Pilier 3a|Cap AVS|Pénalité"
+          timeout: 20000
+      - back
+
+# ─── 5. retrieve_memories (WAVE1A-06) ─────────────────────────────────────
+# Triggered by an explicit user question that the coach answers using
+# stored insights — exercises the BM25 path on Railway staging.
+- tapOn:
+    text: "(?i)Mon coach|Coach"
+- tapOn:
+    id: "chat_input_field"
+    optional: true
+- inputText: "qu'est-ce que tu retiens de moi à propos de mon 3a ?"
+- tapOn:
+    id: "chat_send_button"
+    optional: true
+- assertVisible:
+    text: "(?i)3a|Pilier|Retiens|Souviens"
+    timeout: 25000
+
+# ─── 6. get_cap_status with CHF garde (WAVE1A-04) ─────────────────────────
+# The garde middleware (default ON) replaces any un-cited CHF token with the
+# verbatim FR string « [montant indisponible] » before reaching the LLM. The
+# assertion below covers either a cited CHF amount OR the garde redaction —
+# both are valid (cap text comes from the Flutter CapEngine per CONTEXT D-17
+# option b).
+- tapOn:
+    text: "(?i)Cap|Action du jour|Aujourd'hui"
+- tapOn:
+    text: "(?i)Explique"
+- assertVisible:
+    text: "(?i)Cap du jour|Action|\\[montant indisponible\\]"
+    timeout: 20000

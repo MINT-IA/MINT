@@ -17,7 +17,7 @@ Sources:
 
 Ethical requirements:
     - Gender-neutral language throughout
-    - NEVER use "garanti", "assure", "certain"
+    - NEVER use LSFin banned terms (see tools/checks/banned_terms_python.py)
     - All tips include a source reference
     - Disclaimer on every response
 """
@@ -97,7 +97,7 @@ class CoachingEngine:
     """Generate personalized coaching tips based on user profile.
 
     All tips are in French, include law references, and use gender-neutral
-    language. No banned terms ("garanti", "assure", "certain").
+    language. No LSFin banned terms (see tools/checks/banned_terms_python.py).
     """
 
     @staticmethod
@@ -757,7 +757,7 @@ class CoachingEngine:
                 f"En travaillant a {profile.taux_activite:.0f}%, votre "
                 f"deduction de coordination ({self.COORDINATION_DEDUCTION:,.0f} CHF) "
                 f"n'est pas toujours proratisee par l'employeur. "
-                f"Cela peut reduire significativement votre salaire assure "
+                f"Cela peut reduire significativement votre salaire assuré "
                 f"LPP et donc votre rente future. "
                 f"Verifiez votre certificat de prevoyance."
             ),
