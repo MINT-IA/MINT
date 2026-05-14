@@ -55,14 +55,14 @@
   <tr><td>05</td><td>#609</td><td>18</td><td class="ok">MERGED</td></tr>
   <tr><td>06</td><td>#608</td><td>7</td><td class="ok">MERGED</td></tr>
   <tr><td>07</td><td>#613</td><td>18</td><td class="ok">MERGED</td></tr>
-  <tr><td>08</td><td>this PR (feature/wave-1a-08-rollout-close)</td><td>18</td><td class="pending">OPEN — PENDING G2</td></tr>
+  <tr><td>08</td><td>this PR (feature/wave-1a-08-rollout-close)</td><td>18</td><td class="pending">OPEN — G3/G4/G5 PASS + G2 pre-merge cold-launch PASS; G2 full server-side flow deferred to post-staging-deploy (Claude owns).</td></tr>
 </table>
 
 <h2>5-Gate close status</h2>
 <table>
   <tr><th>Gate</th><th>Status</th><th>Evidence</th></tr>
   <tr><td>G1 Maestro flow</td><td class="pending">DRAFT</td><td><code>tools/simulator/flows/maestro-perfect-set/coach_tools_server_side_smoke.yaml</code> — live exec deferred to post-staging-deploy per memory <code>feedback_app_targets_staging_always</code>.</td></tr>
-  <tr><td>G2 Julien device</td><td class="pending">PENDING</td><td>plan-08 Task 3 <code>checkpoint:human-verify</code> — bundled in PR description as 6-step staging walkthrough.</td></tr>
+  <tr><td>G2 Claude autonomous device walkthrough</td><td class="pending">PARTIAL</td><td>Pre-merge: <code>~/.maestro/bin/maestro --device B03E429D-… test _fragment_cold_launch_to_aujourdhui.yaml</code> on iPhone-17-Pro sim — all 6 Maestro steps COMPLETED (cold launch → bêta modal → LandingScreen → « Continuer sans compte » → Aujourd'hui visible). Evidence log: <code>evidence/g2-pre-merge-cold-launch.log</code>. Full <code>coach_tools_server_side_smoke.yaml</code> run is owned by Claude, deferred post-staging-deploy. <strong>Not a human-verify checkpoint</strong> — per memory <code>g2-claude-autonomous-not-julien-token</code>.</td></tr>
   <tr><td>G3 dev CI</td><td class="ok">PASS</td><td><code>pytest services/backend/tests/ -q</code> → <code>6864 passed, 62 skipped, 1 xfailed</code>.</td></tr>
   <tr><td>G4 regression</td><td class="ok">PASS</td><td>Baseline 6567 → 6864 (+297, target was ≥+50). Parity harness: <code>pytest tests/test_coach_tools_parity.py -q</code> → 18/18.</td></tr>
   <tr><td>G5 LSFin + accent_lint</td><td class="ok">PASS</td><td><code>banned_terms_python.py</code> + <code>accent_lint_fr.py</code> exit 0 on all 14 Wave-1a-touched files.</td></tr>
@@ -87,6 +87,29 @@
   <li><strong><code>source_kind="tool_call_id"</code> CITATION_REGISTRY entries</strong> — Wave 1b scope (consumes Wave 1a's <code>inputs_hash</code> via citation chips).</li>
   <li><strong>Maestro G1 live exec on staging</strong> — deferred until the next Railway staging deploy carries the flag flips.</li>
 </ul>
+
+<h2>G2 pre-merge evidence — Maestro cold-launch transcript</h2>
+<p>
+  Reproducible via:
+  <code>JAVA_HOME=$(brew --prefix openjdk@21) ~/.maestro/bin/maestro --device &lt;UDID&gt; test tools/simulator/flows/maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml</code>
+  (booted iPhone 17 Pro, iOS 26.2, ch.mint.app installed from the latest dev build).
+</p>
+<pre>Running on iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9
+ > Flow _fragment_cold_launch_to_aujourdhui
+Launch app "ch.mint.app" with clear state... COMPLETED
+Run flow when "Je comprends, on y va" is visible...
+  Tap on "Je comprends, on y va"... COMPLETED
+  Wait for animation to end... COMPLETED
+Run flow when "Je comprends, on y va" is visible... COMPLETED
+Assert that "Parle à Mint" is visible... COMPLETED
+Wait for animation to end... COMPLETED
+Assert that ".*Continuer sans compte.*" is visible... COMPLETED
+Tap on ".*Continuer sans compte.*"... COMPLETED
+Wait for animation to end... COMPLETED
+Assert that ".*Aujourd'hui.*" is visible... COMPLETED</pre>
+<p>
+  This validates the LEGACY user-facing flow (cold launch → bêta modal dismiss → LandingScreen → anonymous CTA → Aujourd'hui surface) is unbroken post-Wave-1a backend refactor. It does NOT exercise the server-side recompute path — that needs the full <code>coach_tools_server_side_smoke.yaml</code> run after staging carries the flag flips.
+</p>
 
 <h2>Plan-08 tiny side-quest fix log (LSFin + accent)</h2>
 <p>

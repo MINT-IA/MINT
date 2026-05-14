@@ -5,7 +5,7 @@ metadata:
   type: summary
   phase: wave-1a-backend-tools-refactor
   date: 2026-05-14
-  status: PENDING G2
+  status: PENDING G2 (Claude autonomous, post-staging-deploy)
 ---
 
 # Wave 1a — Backend Tools Refactor — SUMMARY
@@ -51,12 +51,12 @@ Baseline (per PLAN.md) = 6567; Wave 1a delta = +297 tests, target was ≥+50.
 | Gate | Status | Evidence |
 |------|--------|----------|
 | G1 Maestro flow (drafted, live exec deferred) | DRAFT | [`tools/simulator/flows/maestro-perfect-set/coach_tools_server_side_smoke.yaml`](../../../tools/simulator/flows/maestro-perfect-set/coach_tools_server_side_smoke.yaml) — live run deferred to post-staging-deploy per memory `feedback_app_targets_staging_always` |
-| G2 Julien device walkthrough | PENDING | plan-08 Task 3 `checkpoint:human-verify` (PR description bundles the 6-step protocol; awaiting `approved` / `not approved — issue: X` token) |
+| G2 Claude autonomous device walkthrough (Maestro+sim) | PARTIAL — pre-merge cold-launch PASS, full server-side flow deferred to post-staging-deploy | Pre-merge evidence: `bash tools/simulator/flows/maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml` on iPhone-17-Pro sim — all 6 steps COMPLETED (log: `evidence/g2-pre-merge-cold-launch.log`). Full `coach_tools_server_side_smoke.yaml` exec deferred until (a) dev→staging merge carries Wave 1a + (b) Railway env vars flipped to `true` for the 5 server-side flags. **Owner**: Claude (per memory [[g2-claude-autonomous-not-julien-token]] + [[feedback_device_gates]]) — not a human-verify checkpoint. |
 | G3 dev CI | ✓ PASS | `bash tools/checks/wave_1a_close.sh` step `==> G3 + G4 — backend pytest`: 6864 passed |
 | G4 regression (pytest count + parity harness) | ✓ PASS | 6864 ≥ baseline+50 (6567+50=6617) AND `pytest tests/test_coach_tools_parity.py -q` 18/18 |
 | G5 LSFin banned-terms + accent_lint_fr | ✓ PASS | `tools/checks/banned_terms_python.py` + `accent_lint_fr.py` exit 0 on all 14 Wave-1a-touched files |
 
-## Self-Check : PENDING G2
+## Self-Check : PENDING G2 (Claude follow-up, not human gate)
 
 Per CLAUDE.md §9 — 0-trust evidence:
 
@@ -73,13 +73,17 @@ Per CLAUDE.md §9 — 0-trust evidence:
 - Parity harness 18/18 green: cite `python3 -m pytest tests/test_coach_tools_parity.py -q | tail -1` → `18 passed`.
 - Banned-terms + accent_lint clean on all 14 Wave-1a-touched files: cite `bash tools/checks/wave_1a_close.sh` last line → `wave_1a_close.sh: ALL GATES GREEN (G3+G4+G5)`.
 - G1 status: DRAFT — Maestro flow YAML exists; live exec deferred until staging deploy (see memory `feedback_app_targets_staging_always`).
-- G2 status: PENDING — phase cannot claim « SHIPPED » until Julien posts the device-walkthrough token on PR #608+ (this PR).
+- G2 status: PARTIAL pre-merge — Claude ran the cold-launch fragment autonomously on iPhone-17-Pro sim, all 6 steps COMPLETED (Maestro 2.5.1 transcript in `evidence/g2-pre-merge-cold-launch.log`). Full server-side flow exec deferred to post-staging-deploy. **Owner**: Claude, not Julien (per memory [[g2-claude-autonomous-not-julien-token]]).
 
-When Julien posts the G2 token:
+Post-merge Claude follow-up (this is the rest of G2):
 
-- `approved` → flip Status frontmatter to `SHIPPED`, update wave-1a-VERIFICATION-REPORT.html status rows, run `bash tools/simulator/walker.sh --flow coach_tools_server_side_smoke` on staging build to flip G1 to PASS, then merge feature → dev → staging → main.
-- `approved-with-issues: <description>` → Status `SHIPPED-WITH-DEFERRED`, append deferred items to VERIFICATION-REPORT.html.
-- `not approved — issue: <description>` → Status `REOPENED`, run `/gsd-plan-phase wave-1a-backend-tools-refactor --revise` with the issue text as input.
+1. Merge feature/wave-1a-08-rollout-close → dev (G3/G4/G5 + cold-launch G2 = sufficient for dev).
+2. Open dev → staging PR to land Wave 1a on `mint-staging.up.railway.app`.
+3. Flip 5 Railway env vars to `true` (server-side flags).
+4. Build mobile against staging, reinstall on sim.
+5. Claude runs `bash tools/simulator/walker.sh --flow coach_tools_server_side_smoke` and `~/.maestro/bin/maestro --device <UDID> test coach_tools_server_side_smoke.yaml`; captures Maestro transcript + `idb`/hierarchy snapshot proving each of the 6 refactored tools renders.
+6. Claude runs Sentry filter `category:coach.tool.*` and confirms each `*.invoked` breadcrumb fires with `inputs_hash` + `flag_state="on"`.
+7. Status: flips to `SHIPPED` if all 6 tools green; `SHIPPED-WITH-DEFERRED` with appended items in `wave-1a-VERIFICATION-REPORT.html` otherwise.
 
 ## Deferred items (carried forward)
 
