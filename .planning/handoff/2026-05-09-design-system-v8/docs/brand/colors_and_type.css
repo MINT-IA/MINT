@@ -1,0 +1,156 @@
+/* =============================================================
+   MINT — Design System Tokens
+   Source of truth: apps/mobile/lib/theme/ (colors.dart, mint_text_styles.dart, mint_spacing.dart)
+   Brand philosophy: "Calm money. Clarity without noise."
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ---------- Brand Neutrals — "the paper" ---------- */
+  --mint-warm-white:   #FAF8F5;   /* warmWhite — primary app bg */
+  --mint-porcelaine:   #F4F1EC;   /* porcelaine — hero surface */
+  --mint-craie:        #F8F5F0;   /* craie — coach / conversation */
+  --mint-white:        #FFFFFF;
+  --mint-black:        #000000;
+  --mint-transparent:  transparent;
+
+  /* ---------- Ink — text & outlines ---------- */
+  --mint-text-primary:    #1A1A1A;   /* near-black, AAA on warmWhite */
+  --mint-text-secondary:  #5A5A5A;   /* AA+ */
+  --mint-text-muted-aaa:  #4A4A4A;   /* AAA for small legal text */
+  --mint-text-muted:      #8A8A8A;   /* captions, optional */
+  --mint-border-subtle:   #E8E4DE;   /* hairline on warm paper */
+
+  /* ---------- Signal colors (used sparingly) ---------- */
+  --mint-primary:         #2F5F3F;   /* deep forest — reserved for strong emphasis */
+  --mint-sauge:           #B8C9B4;   /* positive / sage */
+  --mint-sauge-claire:    #D4DFCE;
+  --mint-bleu-air:        #C8D5DE;   /* calm info */
+  --mint-peche-douce:     #E8CFB8;   /* milestone, warmth */
+  --mint-terracotta:      #B8735A;   /* rare CTA highlight */
+
+  /* ---------- Surface tones (as tinted overlays) ---------- */
+  --mint-surface-sauge:   rgba(212, 223, 206, 0.4);
+  --mint-surface-bleu:    rgba(200, 213, 222, 0.3);
+  --mint-surface-peche:   rgba(232, 207, 184, 0.25);
+
+  /* ---------- Typography ---------- */
+  --mint-font-display: 'Fraunces', 'Times New Roman', serif;   /* editorial, for numbers & headlines */
+  --mint-font-text:    'Inter', -apple-system, system-ui, sans-serif;
+
+  /* Type scale — mirrors mint_text_styles.dart */
+  --mint-display-lg: 56px;    /* hero numbers */
+  --mint-display-md: 40px;
+  --mint-headline-lg: 32px;
+  --mint-headline-md: 24px;
+  --mint-headline-sm: 20px;
+  --mint-title-lg: 18px;
+  --mint-title-md: 16px;
+  --mint-body-lg: 17px;
+  --mint-body-md: 15px;
+  --mint-body-sm: 13px;
+  --mint-label-md: 14px;
+  --mint-label-sm: 12px;
+
+  /* Line-heights */
+  --mint-lh-tight: 1.1;
+  --mint-lh-snug: 1.25;
+  --mint-lh-normal: 1.45;
+  --mint-lh-relaxed: 1.6;
+
+  /* Letter-spacing */
+  --mint-ls-display: -0.02em;   /* tight editorial */
+  --mint-ls-wordmark: 0.25em;   /* MINT logo */
+  --mint-ls-label: 0.02em;
+
+  /* ---------- Spacing scale ---------- */
+  --mint-space-xs: 4px;
+  --mint-space-sm: 8px;
+  --mint-space-md: 12px;
+  --mint-space-lg: 16px;
+  --mint-space-xl: 24px;
+  --mint-space-2xl: 32px;
+  --mint-space-3xl: 48px;
+  --mint-space-4xl: 64px;
+
+  /* ---------- Radii ---------- */
+  --mint-radius-sm: 8px;
+  --mint-radius-md: 12px;
+  --mint-radius-lg: 16px;
+  --mint-radius-xl: 20px;
+  --mint-radius-2xl: 28px;
+  --mint-radius-pill: 999px;
+
+  /* ---------- Elevation (subtle only) ---------- */
+  --mint-shadow-soft: 0 4px 16px rgba(26, 26, 26, 0.04);
+  --mint-shadow-rest: 0 1px 2px rgba(26, 26, 26, 0.03);
+
+  /* ---------- Motion ---------- */
+  --mint-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --mint-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --mint-dur-fast: 160ms;
+  --mint-dur-med: 280ms;
+  --mint-dur-slow: 480ms;
+}
+
+/* =============================================================
+   Typographic classes — use these, don't re-invent
+   ============================================================= */
+
+.mint-text {
+  font-family: var(--mint-font-text);
+  color: var(--mint-text-primary);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.mint-display { font-family: var(--mint-font-display); font-optical-sizing: auto; }
+
+.mint-wordmark {
+  font-family: var(--mint-font-text);
+  font-weight: 600;
+  letter-spacing: var(--mint-ls-wordmark);
+  text-transform: uppercase;
+}
+
+.mint-hero-number {
+  font-family: var(--mint-font-display);
+  font-weight: 500;
+  font-size: var(--mint-display-lg);
+  line-height: var(--mint-lh-tight);
+  letter-spacing: var(--mint-ls-display);
+  color: var(--mint-text-primary);
+}
+
+.mint-headline-lg { font-family: var(--mint-font-display); font-weight: 500; font-size: var(--mint-headline-lg); line-height: var(--mint-lh-snug); letter-spacing: -0.01em; }
+.mint-headline-md { font-family: var(--mint-font-display); font-weight: 500; font-size: var(--mint-headline-md); line-height: var(--mint-lh-snug); letter-spacing: -0.01em; }
+.mint-headline-sm { font-family: var(--mint-font-text); font-weight: 600; font-size: var(--mint-headline-sm); line-height: var(--mint-lh-snug); }
+
+.mint-title-lg { font-family: var(--mint-font-text); font-weight: 600; font-size: var(--mint-title-lg); line-height: var(--mint-lh-snug); }
+.mint-title-md { font-family: var(--mint-font-text); font-weight: 600; font-size: var(--mint-title-md); line-height: var(--mint-lh-snug); }
+
+.mint-body-lg { font-family: var(--mint-font-text); font-weight: 400; font-size: var(--mint-body-lg); line-height: var(--mint-lh-normal); }
+.mint-body-md { font-family: var(--mint-font-text); font-weight: 400; font-size: var(--mint-body-md); line-height: var(--mint-lh-normal); }
+.mint-body-sm { font-family: var(--mint-font-text); font-weight: 400; font-size: var(--mint-body-sm); line-height: var(--mint-lh-normal); }
+
+.mint-label-md { font-family: var(--mint-font-text); font-weight: 500; font-size: var(--mint-label-md); letter-spacing: var(--mint-ls-label); }
+.mint-label-sm { font-family: var(--mint-font-text); font-weight: 500; font-size: var(--mint-label-sm); letter-spacing: var(--mint-ls-label); text-transform: uppercase; }
+
+.mint-mono-tabular { font-variant-numeric: tabular-nums; }
+
+/* =============================================================
+   Utility: surfaces
+   ============================================================= */
+
+.mint-surface-porcelaine { background: var(--mint-porcelaine); }
+.mint-surface-craie      { background: var(--mint-craie); }
+.mint-surface-warm       { background: var(--mint-warm-white); }
+.mint-surface-white      { background: var(--mint-white); }
+.mint-surface-sauge      { background: var(--mint-surface-sauge); }
+.mint-surface-bleu       { background: var(--mint-surface-bleu); }
+.mint-surface-peche      { background: var(--mint-surface-peche); }
+
+/* Page reset for previews */
+html, body { margin: 0; padding: 0; background: var(--mint-warm-white); color: var(--mint-text-primary); font-family: var(--mint-font-text); }
+* { box-sizing: border-box; }
