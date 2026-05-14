@@ -2007,7 +2007,7 @@ def _execute_internal_tool(
 
     # >>> dispatch: get_cross_pillar_analysis
     if name == "get_cross_pillar_analysis":
-        return _format_cross_pillar_analysis(ctx)
+        return _compute_cross_pillar_analysis(user_id=user_id, ctx=ctx, db=db)
     # <<< dispatch: get_cross_pillar_analysis
 
     # >>> dispatch: get_cap_status
@@ -2360,6 +2360,7 @@ def _fmt_pct(value) -> str:
 # Implementations landed so far in this file:
 #   - _compute_budget_status            (plan wave-1a-01)
 #   - _compute_retirement_projection    (plan wave-1a-02)
+#   - _compute_cross_pillar_analysis    (plan wave-1a-03)
 #   - _compute_couple_optimization      (plan wave-1a-04)
 # === end Wave 1a dispatchers ===
 
@@ -2590,6 +2591,104 @@ def _format_retirement_projection(ctx: dict) -> str:
         lines.append(f"- Avoir LPP actuel : {_fmt_chf(lpp_capital)}")
 
     return "\n".join(lines)
+
+
+def _compute_cross_pillar_analysis(user_id: str | None, ctx: dict, db) -> str:
+    """Wave 1a D-02 server-side path for get_cross_pillar_analysis.
+
+    Returns either:
+      - JSON string `CrossPillarAnalysisResponse.model_dump_json(by_alias=True)`
+        (flag ON success), OR
+      - legacy FR string from `_format_cross_pillar_analysis(ctx)` (flag OFF
+        or any fallback condition).
+
+    Fallback conditions:
+      - settings.COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED is False, OR
+      - user_id is None / db session is None, OR
+      - DB returns no ProfileModel for user_id / profile.data is empty, OR
+      - CrossPillarService.compute raises ValueError("cross pillar data missing"), OR
+      - any other Exception (defensive — never crash the coach turn).
+
+    Sentry breadcrumb tags (D-15 + RESEARCH §3 caveat #3):
+      - lpp_buyback_source: "from_profile" or "missing_from_profile"
+      - tax_saving_source: "strategy_a" | "strategy_b" | "missing_from_profile"
+    """
+    import time
+    import logging
+    from app.core.config import settings
+
+    if not settings.COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED:
+        return _format_cross_pillar_analysis(ctx)
+    if not user_id or db is None:
+        return _format_cross_pillar_analysis(ctx)
+
+    _t0 = time.perf_counter()
+    try:
+        from datetime import datetime, timezone
+
+        from app.models.coach_tools.cross_pillar import (
+            CrossPillarAnalysisResponse,
+        )
+        from app.models.profile_model import ProfileModel
+        from app.observability.coach_breadcrumbs import (
+            emit_coach_tool_breadcrumb,
+        )
+        from app.services.arbitrage.cross_pillar_service import (
+            CrossPillarService,
+        )
+        from app.services.coach.inputs_hash import compute_inputs_hash
+        from app.utils.hashing import hash_profile_id
+
+        # Newest-profile-wins lookup — canonical pattern (plan-01 Task 2,
+        # plan-02 Task 2). Filter by user_id (FK), not id (PK).
+        profile = (
+            db.query(ProfileModel)
+            .filter(ProfileModel.user_id == user_id)
+            .order_by(ProfileModel.updated_at.desc())
+            .first()
+        )
+        if profile is None or not profile.data:
+            return _format_cross_pillar_analysis(ctx)
+
+        analysis = CrossPillarService.compute(profile.data)
+
+        slice_ = {
+            "annual_3a_contribution": float(analysis.annual_3a_contribution),
+            "lpp_buyback_max": float(analysis.lpp_buyback_max),
+            "lpp_capital": float(analysis.lpp_capital),
+            "tax_saving_potential": float(analysis.tax_saving_potential),
+            "three_a_ceiling": float(analysis.three_a_ceiling),
+        }
+        response = CrossPillarAnalysisResponse(
+            annual_3a_contribution=analysis.annual_3a_contribution,
+            three_a_ceiling=analysis.three_a_ceiling,
+            three_a_remaining=analysis.three_a_remaining,
+            lpp_buyback_max=analysis.lpp_buyback_max,
+            lpp_capital=analysis.lpp_capital,
+            tax_saving_potential=analysis.tax_saving_potential,
+            inputs_hash=compute_inputs_hash(slice_),
+            computed_at=datetime.now(timezone.utc),
+        )
+
+        elapsed_ms = int((time.perf_counter() - _t0) * 1000)
+        emit_coach_tool_breadcrumb(
+            tool_name="cross_pillar",
+            inputs_hash=response.inputs_hash,
+            profile_id_hashed=hash_profile_id(user_id),
+            elapsed_ms=elapsed_ms,
+            flag_state="on",
+            extra_tags={
+                "lpp_buyback_source": analysis.lpp_buyback_source,
+                "tax_saving_source": analysis.tax_saving_source,
+            },
+        )
+        return response.model_dump_json(by_alias=True)
+    except Exception as exc:
+        logging.getLogger(__name__).warning(
+            "compute_cross_pillar_analysis failed, falling back to legacy: %s",
+            exc,
+        )
+        return _format_cross_pillar_analysis(ctx)
 
 
 def _format_cross_pillar_analysis(ctx: dict) -> str:
