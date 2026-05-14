@@ -342,14 +342,20 @@ COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED: bool = False
     - Test 12: Sentry breadcrumb `coach.tool.cross_pillar` fires with non-PII payload.
   </behavior>
   <action>
-    Step A — In `services/backend/app/api/v1/endpoints/coach_chat.py`, insert `_compute_cross_pillar_analysis` ABOVE `_format_cross_pillar_analysis` (line ~2301). Mirror the pattern from plan-01 Task 2 (flag check → db check → start `_t0 = time.perf_counter()` → service call → Pydantic + inputs_hash → emit_coach_tool_breadcrumb → JSON). Use `CrossPillarService.compute(dict(profile.data))`. Emit breadcrumb via the plan-00 helper:
+    Step A — In `services/backend/app/api/v1/endpoints/coach_chat.py`, insert `_compute_cross_pillar_analysis(user_id: str | None, ctx: dict, db) -> str` ABOVE `_format_cross_pillar_analysis` (line ~2301). Mirror the pattern from plan-01 Task 2 PANEL-FIXED version:
+    - signature uses `user_id`, NOT `profile_id` (the enclosing `_execute_internal_tool` has `user_id`, panel fix backend-architect obs-d518b856d7e4fe1a)
+    - DB lookup: `db.query(ProfileModel).filter(ProfileModel.user_id == user_id).order_by(ProfileModel.updated_at.desc()).first()` (canonical newest-profile-wins)
+    - pass `profile.data` directly (no `dict(...)` copy)
+    - `except Exception as exc:` + logger.warning fallback (NOT bare `except ValueError`)
+    
+    Service call: `CrossPillarService.compute(profile.data)`. Emit breadcrumb via the plan-00 helper:
 
     ```python
     elapsed_ms = int((time.perf_counter() - _t0) * 1000)
     emit_coach_tool_breadcrumb(
         tool_name="cross_pillar",
         inputs_hash=response.inputs_hash,
-        profile_id_hashed=hash_profile_id(profile_id),
+        profile_id_hashed=hash_profile_id(user_id),
         elapsed_ms=elapsed_ms,
         flag_state="on",
     )
@@ -358,14 +364,24 @@ COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED: bool = False
     Import block at the top of the function body:
     ```python
     import time
+    import logging
     from app.observability.coach_breadcrumbs import emit_coach_tool_breadcrumb
     from app.utils.hashing import hash_profile_id
     ```
 
-    Step B — Replace dispatcher branch at line ~1918:
+    Step B — Replace dispatcher branch INSIDE the marker pair shipped by plan-00. Locate the EXACT 4-line block:
     ```python
+        # >>> dispatch: get_cross_pillar_analysis
         if name == "get_cross_pillar_analysis":
-            return _compute_cross_pillar_analysis(profile_id=profile_id, ctx=ctx, db=db)
+            return _format_cross_pillar_analysis(ctx)
+        # <<< dispatch: get_cross_pillar_analysis
+    ```
+    Replace WITH (markers preserved verbatim):
+    ```python
+        # >>> dispatch: get_cross_pillar_analysis
+        if name == "get_cross_pillar_analysis":
+            return _compute_cross_pillar_analysis(user_id=user_id, ctx=ctx, db=db)
+        # <<< dispatch: get_cross_pillar_analysis
     ```
 
     Step C — Extend test file with Tests 7-12.

@@ -287,10 +287,17 @@ COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED: bool = False
     - Test 7: FR strings in legacy fallback match the strings the Python port emits in `result.lpp_buyback.reason` (cross-source byte-identity assertion).
   </behavior>
   <action>
-    Step A — In `services/backend/app/api/v1/endpoints/coach_chat.py`, insert `_compute_couple_optimization` ABOVE `_format_couple_optimization` (line ~2361). Mirror the pattern from plan-01 Task 2 (flag check → db check → start `_t0 = time.perf_counter()` → service call → Pydantic + inputs_hash → emit_coach_tool_breadcrumb → JSON). Use `CoupleOptimizer.optimize(dict(profile.data))`. Emit breadcrumb via the plan-00 helper:
+    Step A — In `services/backend/app/api/v1/endpoints/coach_chat.py`, insert `_compute_couple_optimization(user_id: str | None, ctx: dict, db) -> str` ABOVE `_format_couple_optimization` (line ~2361). Mirror the PANEL-FIXED pattern from plan-01 Task 2:
+    - signature uses `user_id`, NOT `profile_id` (panel fix backend-architect obs-d518b856d7e4fe1a)
+    - DB lookup: `db.query(ProfileModel).filter(ProfileModel.user_id == user_id).order_by(ProfileModel.updated_at.desc()).first()`
+    - pass `profile.data` directly (no `dict(...)` copy)
+    - `except Exception as exc: logger.warning(...)` fallback (NOT bare `except ValueError`)
+    
+    Service call: `CoupleOptimizer.optimize(profile.data)`. Emit breadcrumb via the plan-00 helper:
 
     ```python
     import time
+    import logging
     from app.observability.coach_breadcrumbs import emit_coach_tool_breadcrumb
     from app.utils.hashing import hash_profile_id
 
@@ -299,16 +306,25 @@ COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED: bool = False
     emit_coach_tool_breadcrumb(
         tool_name="couple_optimization",
         inputs_hash=response.inputs_hash,
-        profile_id_hashed=hash_profile_id(profile_id),
+        profile_id_hashed=hash_profile_id(user_id),
         elapsed_ms=elapsed_ms,
         flag_state="on",
     )
     ```
 
-    Step B — Replace dispatcher branch at line ~1924:
+    Step B — Replace dispatcher branch INSIDE the marker pair shipped by plan-00. Locate the EXACT 4-line block:
     ```python
+        # >>> dispatch: get_couple_optimization
         if name == "get_couple_optimization":
-            return _compute_couple_optimization(profile_id=profile_id, ctx=ctx, db=db)
+            return _format_couple_optimization(ctx)
+        # <<< dispatch: get_couple_optimization
+    ```
+    Replace WITH (markers preserved verbatim):
+    ```python
+        # >>> dispatch: get_couple_optimization
+        if name == "get_couple_optimization":
+            return _compute_couple_optimization(user_id=user_id, ctx=ctx, db=db)
+        # <<< dispatch: get_couple_optimization
     ```
 
     Step C — Create `services/backend/tests/test_coach_tools/test_couple_optimization.py` with Tests 1-7.

@@ -195,11 +195,21 @@ sentry_sdk.add_breadcrumb(
         return result
     ```
 
-    Step C — Replace dispatcher branch at line ~1921:
+    Step C — Replace dispatcher branch INSIDE the marker pair shipped by plan-00. Locate the EXACT 4-line block:
     ```python
+        # >>> dispatch: get_cap_status
+        if name == "get_cap_status":
+            return _format_cap_status(ctx)
+        # <<< dispatch: get_cap_status
+    ```
+    Replace WITH (markers preserved verbatim):
+    ```python
+        # >>> dispatch: get_cap_status
         if name == "get_cap_status":
             return _validate_cap_response(_format_cap_status(ctx))
+        # <<< dispatch: get_cap_status
     ```
+    Acceptance after edit: `grep -c "# >>> dispatch: get_cap_status" services/backend/app/api/v1/endpoints/coach_chat.py` returns exactly 1 AND `grep -c "# <<< dispatch: get_cap_status" services/backend/app/api/v1/endpoints/coach_chat.py` returns exactly 1.
 
     Step D — Create `services/backend/tests/test_cap_garde.py` with Tests 1-6. Mock `sentry_sdk.add_breadcrumb` and assert call count + category for Tests 2/3/6. For Test 5, use `monkeypatch.setattr(settings, "COACH_CAP_CHF_GARDE_ENABLED", False)`.
 

@@ -332,11 +332,32 @@ COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED: bool = False
   <action>
     Step A — In `services/backend/app/api/v1/endpoints/coach_chat.py`, ADD function `_compute_retrieve_memories(topic, user_id, db, max_results, memory_block)` ABOVE the dispatcher entry. The function checks the flag, calls `app.services.memory.retrieve` when ON, formats the returned `list[InsightHit]` into a FR string by copying the legacy `_handle_retrieve_memories` formatting (read its body and replicate verbatim). Falls back to `_handle_retrieve_memories(topic, memory_block, max_results, user_id, db)` when flag OFF or hits empty.
 
-    Step B — Replace the dispatcher branch at line ~1898:
+    Step B — Replace the dispatcher branch INSIDE the marker pair shipped by plan-00. Locate the EXACT block delimited by markers (around lines 1898-1912 post plan-00):
     ```python
+        # >>> dispatch: retrieve_memories
         if name == "retrieve_memories":
             import re
             raw_topic = tool_input.get("topic", "")
+            # BUG-B fix: sanitize topic to prevent prompt injection via LLM tool_use.
+            # Only allow word chars, spaces, hyphens, dots (Unicode-aware).
+            safe_topic = raw_topic if re.match(r'^[\w\s\-\.]{1,100}$', raw_topic, re.UNICODE) else ""
+            return _handle_retrieve_memories(
+                topic=safe_topic,
+                memory_block=memory_block,
+                max_results=min(tool_input.get("max_results", 3), 10),
+                user_id=user_id,
+                db=db,
+            )
+        # <<< dispatch: retrieve_memories
+    ```
+    Replace WITH (markers preserved, body wraps through _compute_retrieve_memories):
+    ```python
+        # >>> dispatch: retrieve_memories
+        if name == "retrieve_memories":
+            import re
+            raw_topic = tool_input.get("topic", "")
+            # BUG-B fix: sanitize topic to prevent prompt injection via LLM tool_use.
+            # Only allow word chars, spaces, hyphens, dots (Unicode-aware).
             safe_topic = raw_topic if re.match(r'^[\w\s\-\.]{1,100}$', raw_topic, re.UNICODE) else ""
             return _compute_retrieve_memories(
                 topic=safe_topic,
@@ -345,7 +366,9 @@ COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED: bool = False
                 max_results=min(tool_input.get("max_results", 3), 10),
                 memory_block=memory_block,
             )
+        # <<< dispatch: retrieve_memories
     ```
+    Acceptance after edit: `grep -c "# >>> dispatch: retrieve_memories" services/backend/app/api/v1/endpoints/coach_chat.py` returns exactly 1 AND `grep -c "# <<< dispatch: retrieve_memories" services/backend/app/api/v1/endpoints/coach_chat.py` returns exactly 1.
 
     Step C — Sentry breadcrumb via the plan-00 helper (D-15 uniform payload). For retrieve_memories, the operation is keyed on user_id (not profile_id) and there is no Pydantic response with an `inputs_hash` field — so the executor computes inputs_hash from the (topic, user_id, k) query slice and reuses `hash_profile_id` on user_id (the helper is name-neutral: it hashes any string identifier to a 16-char SHA-256 prefix).
 

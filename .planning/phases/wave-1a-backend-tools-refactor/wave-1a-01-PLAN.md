@@ -295,19 +295,26 @@ except Exception:
     Insert a new function `_compute_budget_status` IMMEDIATELY ABOVE the existing `def _format_budget_status(ctx: dict) -> str:` at line ~2249:
 
     ```python
-    def _compute_budget_status(profile_id: str | None, ctx: dict, db) -> str:
+    def _compute_budget_status(user_id: str | None, ctx: dict, db) -> str:
         """Wave 1a D-02 server-side path for get_budget_status.
 
-        Falls back to legacy _format_budget_status(ctx) when:
+        Returns either:
+          - JSON string `BudgetSnapshotResponse.model_dump_json(by_alias=True)` (flag ON success), OR
+          - legacy FR string from `_format_budget_status(ctx)` (flag OFF / fallback).
+
+        Falls back to legacy formatter when:
           - settings flag is OFF, OR
-          - profile_id is None / db session is None, OR
-          - CoachingEngine raises ValueError("budget data missing").
+          - user_id is None / db session is None, OR
+          - DB returns no ProfileModel for user_id / profile.data is empty, OR
+          - CoachingEngine raises ValueError("budget data missing"), OR
+          - ANY other Exception (defensive: DB flake, Pydantic validation, breadcrumb error).
         """
         import time
+        import logging
         from app.core.config import settings
         if not settings.COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED:
             return _format_budget_status(ctx)
-        if not profile_id or db is None:
+        if not user_id or db is None:
             return _format_budget_status(ctx)
         _t0 = time.perf_counter()
         try:
@@ -319,14 +326,18 @@ except Exception:
             from app.utils.hashing import hash_profile_id
             from datetime import datetime, timezone
 
+            # Newest-profile-wins lookup — matches canonical pattern at
+            # coach_chat.py:2018-2022 + :2074-2078. Filters by user_id (FK)
+            # not by id (PK) because a user may have multiple ProfileModel rows.
             profile = (
                 db.query(ProfileModel)
-                .filter(ProfileModel.id == profile_id)
+                .filter(ProfileModel.user_id == user_id)
+                .order_by(ProfileModel.updated_at.desc())
                 .first()
             )
             if profile is None or not profile.data:
                 return _format_budget_status(ctx)
-            snapshot = CoachingEngine.compute_budget_snapshot(dict(profile.data))
+            snapshot = CoachingEngine.compute_budget_snapshot(profile.data)
             slice_ = {
                 "monthly_income": float(snapshot.monthly_income),
                 "monthly_expenses": float(snapshot.monthly_expenses),
@@ -345,28 +356,37 @@ except Exception:
             emit_coach_tool_breadcrumb(
                 tool_name="budget_status",
                 inputs_hash=response.inputs_hash,
-                profile_id_hashed=hash_profile_id(profile_id),
+                profile_id_hashed=hash_profile_id(user_id),
                 elapsed_ms=elapsed_ms,
                 flag_state="on",
             )
             return response.model_dump_json(by_alias=True)
-        except ValueError:
+        except Exception as exc:  # defensive fallback per python-pro panel
+            logging.getLogger(__name__).warning(
+                "compute_budget_status failed, falling back to legacy: %s", exc
+            )
             return _format_budget_status(ctx)
     ```
 
-    Step B — Replace the dispatcher branch at line 1912-1913. Locate:
+    Step B — Replace the dispatcher branch INSIDE the marker pair shipped by plan-00 (around lines 1918-1921 post plan-00 commit ab91203e). The markers MUST be preserved. Locate the EXACT 4-line block:
     ```python
+        # >>> dispatch: get_budget_status
         if name == "get_budget_status":
             return _format_budget_status(ctx)
+        # <<< dispatch: get_budget_status
     ```
-    Replace WITH:
+    Replace WITH (markers preserved verbatim, body changed):
     ```python
+        # >>> dispatch: get_budget_status
         if name == "get_budget_status":
-            return _compute_budget_status(profile_id=profile_id, ctx=ctx, db=db)
+            return _compute_budget_status(user_id=user_id, ctx=ctx, db=db)
+        # <<< dispatch: get_budget_status
     ```
-    Verify that `profile_id` and `db` are already in the enclosing function's signature (they are passed in for the existing `retrieve_memories` / `save_insight` branches — same scope, same names).
+    Acceptance after edit: `grep -c "# >>> dispatch: get_budget_status" services/backend/app/api/v1/endpoints/coach_chat.py` returns 1 AND `grep -c "# <<< dispatch: get_budget_status" services/backend/app/api/v1/endpoints/coach_chat.py` returns 1.
 
-    Step C — Extend `services/backend/tests/test_coach_tools/test_budget_snapshot.py` with the 6 tests in `<behavior>` Tests 6-11. Use `monkeypatch.setattr(settings, "COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED", True)` (or `False`) to flip the flag. Mock `db.query(...).filter(...).first()` to return a `ProfileModel` with the test `data` dict. For Test 6 (flag OFF), call `_compute_budget_status(profile_id="dummy", ctx={"monthly_income": 7500.0, ...}, db=mock_db)` and assert the returned string equals the exact legacy output.
+    Why `user_id` not `profile_id`: the enclosing `_execute_internal_tool` function (coach_chat.py:1834) has `user_id` in its signature but NOT `profile_id`. Verified by panel backend-architect concern #2 (obs-d518b856d7e4fe1a). Pre-edit grep proof: `grep -c "profile_id" services/backend/app/api/v1/endpoints/coach_chat.py` returns 0 in dispatcher region.
+
+    Step C — Extend `services/backend/tests/test_coach_tools/test_budget_snapshot.py` with the 6 tests in `<behavior>` Tests 6-11. Use `monkeypatch.setattr(settings, "COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED", True)` (or `False`) to flip the flag. Mock `db.query(...).filter(...).order_by(...).first()` to return a `ProfileModel` with the test `data` dict. For Test 6 (flag OFF), call `_compute_budget_status(user_id="dummy", ctx={"monthly_income": 7500.0, ...}, db=mock_db)` and assert the returned string equals the exact legacy output.
 
     DO NOT touch any other dispatcher branch, formatter, or unrelated test. Karpathy #3 surgical scope.
   </action>
@@ -382,6 +402,11 @@ except Exception:
     - `grep -E "flag_state=\"on\"" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1.
     - `grep -c "COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1.
     - `grep -c "_format_budget_status" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥3 (legacy def preserved + fallback calls).
+    - `grep -c "# >>> dispatch: get_budget_status" services/backend/app/api/v1/endpoints/coach_chat.py` returns exactly 1 (marker preserved post-edit, panel fix).
+    - `grep -c "# <<< dispatch: get_budget_status" services/backend/app/api/v1/endpoints/coach_chat.py` returns exactly 1 (marker preserved post-edit, panel fix).
+    - `grep -c "user_id=user_id" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1 (dispatcher passes user_id, not profile_id — panel fix backend-architect #2).
+    - `grep -E "filter\(ProfileModel\.user_id == user_id\)" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1 (canonical newest-profile-wins lookup pattern).
+    - `grep -E "order_by\(ProfileModel\.updated_at\.desc\(\)\)" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1.
     - `pytest services/backend/tests/test_coach_tools/test_budget_snapshot.py -q` exits 0 with ≥10 tests collected.
     - `python3 tools/checks/banned_terms_python.py services/backend/app/services/coaching_engine.py services/backend/app/models/coach_tools/budget_snapshot.py services/backend/app/api/v1/endpoints/coach_chat.py` exits 0.
     - `python3 tools/checks/accent_lint_fr.py services/backend/app/services/coaching_engine.py services/backend/app/models/coach_tools/budget_snapshot.py` exits 0.

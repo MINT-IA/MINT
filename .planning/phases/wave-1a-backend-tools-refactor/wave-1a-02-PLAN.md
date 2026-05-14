@@ -318,12 +318,13 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
     Step A — In `services/backend/app/api/v1/endpoints/coach_chat.py`, insert `_compute_retirement_projection` ABOVE `_format_retirement_projection` (line ~2272):
 
     ```python
-    def _compute_retirement_projection(profile_id: str | None, ctx: dict, db) -> str:
+    def _compute_retirement_projection(user_id: str | None, ctx: dict, db) -> str:
         import time
+        import logging
         from app.core.config import settings
         if not settings.COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED:
             return _format_retirement_projection(ctx)
-        if not profile_id or db is None:
+        if not user_id or db is None:
             return _format_retirement_projection(ctx)
         _t0 = time.perf_counter()
         try:
@@ -335,14 +336,16 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
             from app.utils.hashing import hash_profile_id
             from datetime import datetime, timezone
 
+            # Newest-profile-wins lookup — matches canonical pattern at coach_chat.py:2018-2022.
             profile = (
                 db.query(ProfileModel)
-                .filter(ProfileModel.id == profile_id)
+                .filter(ProfileModel.user_id == user_id)
+                .order_by(ProfileModel.updated_at.desc())
                 .first()
             )
             if profile is None or not profile.data:
                 return _format_retirement_projection(ctx)
-            proj = RetirementProjectionService.compute(dict(profile.data))
+            proj = RetirementProjectionService.compute(profile.data)
             slice_ = {
                 "salary_gross_yearly": profile.data.get("salary_gross_yearly"),
                 "lpp_avoir": profile.data.get("lpp_avoir"),
@@ -364,25 +367,33 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
             emit_coach_tool_breadcrumb(
                 tool_name="retirement_projection",
                 inputs_hash=response.inputs_hash,
-                profile_id_hashed=hash_profile_id(profile_id),
+                profile_id_hashed=hash_profile_id(user_id),
                 elapsed_ms=elapsed_ms,
                 flag_state="on",
             )
             return response.model_dump_json(by_alias=True)
-        except ValueError:
+        except Exception as exc:  # defensive fallback per python-pro panel
+            logging.getLogger(__name__).warning(
+                "compute_retirement_projection failed, falling back to legacy: %s", exc
+            )
             return _format_retirement_projection(ctx)
     ```
 
-    Step B — Replace the dispatcher branch at line ~1915. Locate:
+    Step B — Replace the dispatcher branch INSIDE the marker pair shipped by plan-00. Locate the EXACT 4-line block:
     ```python
+        # >>> dispatch: get_retirement_projection
         if name == "get_retirement_projection":
             return _format_retirement_projection(ctx)
+        # <<< dispatch: get_retirement_projection
     ```
-    Replace with:
+    Replace WITH (markers preserved verbatim):
     ```python
+        # >>> dispatch: get_retirement_projection
         if name == "get_retirement_projection":
-            return _compute_retirement_projection(profile_id=profile_id, ctx=ctx, db=db)
+            return _compute_retirement_projection(user_id=user_id, ctx=ctx, db=db)
+        # <<< dispatch: get_retirement_projection
     ```
+    Why `user_id` not `profile_id`: `_execute_internal_tool` signature at coach_chat.py:1834 has `user_id`, not `profile_id` (panel fix backend-architect obs-d518b856d7e4fe1a).
 
     Step C — Extend `services/backend/tests/test_coach_tools/test_retirement_projection.py` with Tests 7-12 from `<behavior>`. Use `monkeypatch.setattr(settings, "COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED", True/False)`.
   </action>
