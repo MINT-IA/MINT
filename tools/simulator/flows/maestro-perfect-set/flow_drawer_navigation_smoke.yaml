@@ -89,8 +89,13 @@ tags:
 #   3. Confirm /explore via the « ouvrir-profil-drawer » Semantics anchor
 #      (set on the AppBar profile icon per explorer_screen.dart:24-33)
 - runFlow: _fragment_cold_launch_to_aujourdhui.yaml
+# iOS bridge concatenates NavigationDestination Semantics label with
+# the Text child as « Explorer\nOnglet 4 sur 4 » (or similar). The
+# exact-text matcher fails on the doubled form ; regex `.*Explorer.*`
+# matches reliably. Same pattern as the cold-launch fragment's
+# « .*Continuer sans compte.* » tap.
 - tapOn:
-    text: "Explorer"
+    text: ".*Explorer.*"
 - extendedWaitUntil:
     visible:
       text: "ouvrir-profil-drawer"

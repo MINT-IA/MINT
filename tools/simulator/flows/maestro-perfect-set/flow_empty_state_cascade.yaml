@@ -91,8 +91,10 @@ tags:
 # CoachProfile lives for anon users). Sufficient for the empty-state
 # assertion since anon users have no backend profile either.
 - runFlow: _fragment_cold_launch_to_aujourdhui.yaml
+# iOS doubled accessibilityText — regex matcher required (same as
+# cold-launch fragment's « .*Continuer sans compte.* » pattern).
 - tapOn:
-    text: "Explorer"
+    text: ".*Explorer.*"
 - extendedWaitUntil:
     visible:
       text: "ouvrir-profil-drawer"
