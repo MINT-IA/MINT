@@ -1,11 +1,12 @@
 ---
 name: mint-review-pr
-description: "Staff engineer review of a diff. Checks bugs, compliance, regressions, i18n, archetypes. Fix-First pattern: AUTO-FIX trivial issues, ASK for judgment calls. Use with /review-pr."
-compatibility: Requires Flutter SDK + git
+description: "Staff engineer review of a diff with persistent memory across PRs (engram MCP). Checks bugs, compliance, regressions, i18n, archetypes. Recalls prior findings, accumulates new ones with prior_finding_refs. Fix-First pattern: AUTO-FIX trivial issues, ASK for judgment calls. Use with /review-pr."
+compatibility: Requires Flutter SDK + git + engram MCP (plugin:engram:engram, see docs/AGENTS/VIBE-CODING-INFRA.md)
+memory: local
 metadata:
   author: mint-team
-  version: "1.0"
-  source: "GStack /review (Fix-First + specialist passes) + Superpowers spec-reviewer (Do Not Trust)"
+  version: "2.0"
+  source: "GStack /review (Fix-First + specialist passes) + Superpowers spec-reviewer (Do Not Trust) + vibe-coding infra Phase 1 (engram persistent memory)"
 ---
 
 # Review PR v1 — Staff Engineer Review
@@ -24,6 +25,27 @@ metadata:
 
 **Do NOT approve or say "looks good" without running EVERY verification command yourself.**
 If you haven't run the command in THIS message, you cannot claim it passes.
+
+## Step 0: Recall prior findings (engram MCP, MANDATORY)
+
+Before reading the diff, query your accumulated memory of prior reviews. You DO have memory across sessions via the `plugin:engram:engram` MCP server (see `docs/AGENTS/VIBE-CODING-INFRA.md`).
+
+For each major file/topic touched by the diff, search engram :
+
+```
+mem_search <query> --project mint-ia-mint
+```
+
+Useful queries to run :
+- `mem_search "file:apps/mobile/lib/screens/<filename>"` — past findings on this file
+- `mem_search "topic:flutter:state-management"` — past findings on state management patterns
+- `mem_search "topic:lsfin:banned-terms"` — past banned-term flags + accepted exceptions
+- `mem_search "topic:financial_core:duplicate-calc"` — past calculation duplication flags
+- `mem_search "category:anti-facade"` — past facade-sans-cablage flags
+
+For each hit returned, note the `obs_id` — you'll need it for `prior_finding_refs` in Step 5.5.
+
+**If `mem_search` returns nothing** : either this is the first review of this surface (legitimate), OR engram is disconnected (`claude mcp list` should show `plugin:engram:engram → ✓ Connected`). If disconnected, flag this BEFORE proceeding — do not silently lose memory.
 
 ## Step 1: Read the diff (MANDATORY)
 
@@ -189,7 +211,48 @@ This catches adversarial cases that the grep-based Pass 2 misses.
 - flutter analyze: [result]
 - flutter test: [result]
 - pytest: [result]
+
+### MEMORY (engram findings cited from prior reviews)
+- prior_finding_refs: [list of obs_ids cited in this review, or "none — first review of this surface"]
+- new findings persisted: [count from Step 5.5]
 ```
+
+## Step 5.5: Persist findings to engram (MANDATORY before Step 6)
+
+For each BLOCKER and WARNING in the report, call `mem_save` so the next review of this surface inherits the context.
+
+```
+mem_save "<title>" "<message>" --type review-finding --project mint-ia-mint --scope local
+```
+
+Convention `--title` : `<category>: <file>:<line> — <one-liner>` (e.g. `anti-pattern: onboarding_screen.dart:142 — Provider state outside ChangeNotifier`).
+
+Convention `--message` (structured) :
+
+```
+What:    <one-paragraph description of the finding>
+Why:     <why this is a problem in MINT context — cite CLAUDE.md rule or memory if applicable>
+Where:   file=<path>, line=<int>, pr_number=<N>, pr_sha=<sha>
+Learned: <pattern or principle to remember for future PRs>
+Severity: P0 | P1 | P2 | nit
+Category: anti-pattern | regression | acceptance | warning | anti-facade | banned-term | i18n | financial-duplicate
+Recommendation: <concrete fix or accepted-exception rationale>
+prior_finding_refs: [<obs_id_1>, <obs_id_2>, ...]  // engram obs_ids from Step 0 search that this finding cites
+```
+
+**Topic key convention** : `<area>:<sub-area>:<specific>` — e.g. `flutter:state-management:provider-pattern`, `lsfin:banned-terms:garanti`, `financial_core:avs-calc:duplicate`. Use these in `mem_search` queries for cross-PR retrieval.
+
+**`prior_finding_refs` rule** : if a finding from Step 0 mem_search is **directly relevant** to this finding (same file, same anti-pattern, same banned-term family), include its `obs_id` in `prior_finding_refs`. This is the **compounding observable** metric for Phase 1 gate 2026-05-21 — ≥3 of first 5 PRs must have at least one finding with non-null `prior_finding_refs`.
+
+**Do NOT persist** : trivial AUTO-FIXED items (dead code, missing imports, formatting). Persist only findings that capture a pattern future reviews should re-recognize.
+
+After all findings persisted, sanity check :
+
+```
+mem_search "pr_sha:<sha-of-current-pr>" --project mint-ia-mint
+```
+
+Should return the count of findings just saved.
 
 ## Step 6: Gate for /mint-commit
 
