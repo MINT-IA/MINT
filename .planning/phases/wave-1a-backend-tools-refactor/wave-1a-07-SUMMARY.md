@@ -179,10 +179,24 @@ Per plan-07 frontmatter `<grep_verified_facts_DO_NOT_violate>` block, two tools 
 - Parity assertion (test 6): `garded_output == expected_text` (exact byte-equality) + `garded_output.count("[montant indisponible]") == expected_redactions`.
 - Per-fixture expected output captured by running `_format_cap_status(ctx_legacy)` then `_validate_cap_response(rendered)` on the planned cap text; expected strings checked into the JSONL verbatim.
 
-### `retrieve_memories` — BM25 top-1 record_topic equality
-- BM25 ranking semantics make strict set-equality of returned record_ids brittle (filler insights surface partial matches).
-- Parity assertion (test 5): `computed.split("\n", 1)[0].startswith(f"[{insight_type}] {topic}:")` — the first line of the new path's output must be a `[type] topic:` line for the QUERIED topic.
+### `retrieve_memories` — new-path top-1 line prefix-match against queried topic (NOT a legacy↔new comparison)
+- **Important clarification (post-panel review PR #613):** for this tool ONLY, the parity assertion is NOT a legacy↔new equivalence. The new path (BM25) is asserted to surface the queried `topic` as its top-1 line; the legacy path's output is exercised separately and only checked for `isinstance(str)`. BM25 ranking semantics make strict set-equality of returned record_ids brittle (filler insights surface partial matches), and the legacy substring + fuzzy matcher is a DIFFERENT algorithm — direct numerical/textual parity is not the right contract.
+- Parity assertion (test 5): `computed.split("\n", 1)[0].startswith(f"[{insight_type}] {topic}:")` — the FIRST LINE of the new path's output must be a `[type] topic:` line for the QUERIED topic. The fixture corpus is constructed so the queried topic appears as a literal token in exactly one record's topic field (BM25 deterministic).
 - Empty-corpus edge: both legacy and new path return `"Aucune mémoire disponible pour ce sujet."` — assertion accepts that exact string or any string containing `"Aucune"` (defensive against minor punctuation drift).
+- **Wave-1c follow-up:** when unconstrained fixture sets land (8 archetypes × 6 tools), relax to BM25 top-k set membership (queried topic appears in top-k) rather than top-1 prefix. Topic collisions across records will produce stable but non-legacy-equivalent rankings.
+
+## Coverage Gaps Deferred to Wave-1c
+
+Panel review (qa-expert, PR #613) surfaced these branches as NOT covered by the 18 plan-07 fixtures. Document here so the wave-1c fixture extension can target them explicitly:
+
+- **`get_budget_status`** — `ValueError("budget data missing")` (both monthly_income + monthly_expenses None) + legacy `_format_budget_status` early-return string.
+- **`get_retirement_projection`** — `ValueError("retirement projection inputs missing")` + `DEFAULT_EXPENSE_RATIO` fallback.
+- **`get_cross_pillar_analysis`** — Strategy B relay path (`tax_saving_potential` present, canton + income absent) + `missing_from_profile` fallback path. All 3 current fixtures hit Strategy A; Strategy B / fallback have ZERO coverage. A regression flipping the Sentry tag silently passes parity today.
+- **`get_couple_optimization`** — both-incomes-zero empty path + `lpp_buyback_order=None` partial-couple branch + `_analyze_lpp_buyback_order` zero-tax-saving symmetry branches.
+- **`retrieve_memories`** — PII-scrub branch (`_PII_PATTERNS.sub`) + legacy difflib fuzzy-match path (only new path top-1 is asserted) + BM25 score-floor cutoff + multi-token query.
+- **`get_cap_status`** — `cap_headline=None` early-return + `sequence_completed/total` progression line + multi-line CHF where a `{{cite:}}` on a neighboring line within ±80 chars could false-shield an uncited CHF token (char-window detection, line-agnostic).
+
+Archetype coverage gap (qa-expert pillar 3): plan-07 covers 2 of 8 MINT archetypes (`cross_border` + `independent_no_lpp`). Wave-1c target: 8 archetypes × 6 tools = 48 base fixtures + ~12 edge fixtures = ~60 total. Missing today: `swiss_native` (default 70%+ of traffic), `expat_eu`, `expat_us` (FATCA), `frontalier`, `frontalier_quasi_resident`, `second_pillar_orphan`, mixed-archetype couples.
 
 ## Acceptance Criteria — verbatim outputs
 
