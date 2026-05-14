@@ -28,6 +28,36 @@ cd apps/mobile && flutter analyze && flutter test && flutter gen-l10n
 
 `get_swiss_constants(category)` pillar3a/lpp/avs/mortgage/tax · `check_banned_terms(text)` LSFin scan+sanitize · `validate_arb_parity()` 6-lang ARB check · `check_accent_patterns(text)` 14-pattern FR lint.
 
+**Engram MCP** (`plugin:engram:engram`, auto-loaded user-scope) — persistent memory for subagents. Tools : `mem_save`, `mem_search`, `mem_context`, `mem_stats`, `mem_conflicts` (beta), 19 total. DB on Mac mini `/Volumes/FUN2/engram/engram.db`. Setup : `docs/AGENTS/VIBE-CODING-INFRA.md`.
+
+## 3.5. TEAM AGENTS (subagents, `.claude/agents/`)
+
+You operate as a **team lead orchestrator** with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. Specialists in `.claude/agents/` accumulate per-agent memory via engram MCP. Delegate automatically via description matching, or explicitly via « Use the @<name> subagent ».
+
+### MINT specialist team (auto-delegate by description match)
+
+| Subagent | Delegate when | Memory |
+|---|---|---|
+| `mint-review-pr` | Pre-merge review on any Wave 1+ PR ; user says "review ce diff" / "verify mon code" / "valide ce changement" ; BEFORE `/mint-commit` or `/ship` to `dev` | `local` (engram) |
+| *(Phase 2 — added if 2026-05-21 gate GO)* `mint-lsfin-officer`, `mint-swiss-fintech`, `mint-ux-aesop`, `mint-adversarial`, `mint-karpathy-curator`, `mint-flutter-builder`, `mint-backend-builder`, `mint-maestro-author` | TBD per design doc § Architecture | `local` |
+
+### GSD orchestration team (already installed via gstack)
+
+`gsd-planner`, `gsd-executor`, `gsd-codebase-mapper`, `gsd-debugger`, `gsd-doc-writer`, `gsd-phase-researcher`, `gsd-ui-checker`, `gsd-verifier`, `gsd-security-auditor`, and 12 others. Spawned by `/gsd-*` skill commands.
+
+### Routing rules
+
+- **PR work / pre-merge review** → delegate to `mint-review-pr` (Phase 1 pilot, hard gate 2026-05-21). Verdict BLOCKED = do NOT `/mint-commit`.
+- **Phase planning** (multi-perimeter ≥3 PRs) → `/gsd-plan-phase <slug>` → spawns `gsd-planner` → `gsd-executor`.
+- **Codebase mapping** → `/gsd-map-codebase` → spawns `gsd-codebase-mapper` (4 parallel: tech/arch/quality/concerns).
+- **Bug investigation** → `/gsd-debug` → spawns `gsd-debugger`.
+
+### Memory contract per agent
+
+Each subagent with `memory: local` writes to `.claude/agent-memory-local/<name>/MEMORY.md` (auto-injected first 200 lines on each invocation) AND can call engram MCP for structured findings (file:line + topic_key + prior_finding_refs). Findings backed by `/Volumes/FUN2/engram/engram.db`. Public-repo discipline : `agent-memory-local` is gitignored (PR #602 merged 2026-05-14).
+
+**Compounding observable** : if a subagent flagging finding X in PR-N references its own past finding Y from PR-(N-k) via `prior_finding_refs`, the team is learning. Phase 1 gate 2026-05-21 measures `mint-review-pr` on this metric.
+
 ## 4. DEV RULES
 
 Git : `feature/S{XX}-<slug>` depuis `dev` ; PRs feature→dev squash, dev→staging+staging→main merge ; never force push ; `--rebase` on pull ; `git status` clean avant mod. Tests : ≥10 unit/service, Julien+Lauren golden, `flutter analyze` + `pytest -q` green (tests green ≠ app functional, device Gate 0 obligatoire).
