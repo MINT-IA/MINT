@@ -29,8 +29,17 @@
 appId: ch.mint.app
 ---
 # 01 — landing screen visible
+# Bare `assertVisible` after `launchApp` does NOT wait for the landing
+# screen's _ctaOpacity FadeTransition (landing_screen.dart:58-62, ~2.5s)
+# nor for the bêta modal dismissal animation. Use `extendedWaitUntil`
+# with a regex matcher to tolerate the doubled iOS accessibilityText
+# (Semantics + Text concatenated with \n). Pattern matches the
+# cold-launch fragment + landing_to_register.
 - launchApp
-- assertVisible: "Voir clair, décider seul."
+- extendedWaitUntil:
+    visible:
+      text: ".*Voir clair.*décider seul.*"
+    timeout: 10000
 
 # 02 — tap landing CTA → anonymous chat opener
 - tapOn:

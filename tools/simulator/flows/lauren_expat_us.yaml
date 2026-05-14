@@ -25,8 +25,14 @@
 appId: ch.mint.app
 ---
 # 01 — landing screen visible (same brand line as julien_swiss)
+# Bare `assertVisible` does not wait for landing FadeTransition or bêta
+# modal dismissal. extendedWaitUntil + regex matcher = same pattern as
+# julien_swiss + cold-launch fragment.
 - launchApp
-- assertVisible: "Voir clair, décider seul."
+- extendedWaitUntil:
+    visible:
+      text: ".*Voir clair.*décider seul.*"
+    timeout: 10000
 
 # 02 — tap landing CTA → anonymous chat opener
 - tapOn:

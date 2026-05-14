@@ -97,9 +97,15 @@ tags:
 # 01 — cold launch + landing (clearState=true forces a fresh anonymous
 # session — without it, prior runs' chat history persists and assertions
 # match residual bubbles, masking the G1 contract).
+# Bare `assertVisible` does not wait for landing FadeTransition or bêta
+# modal dismissal. extendedWaitUntil + regex matcher = same pattern as
+# julien_swiss + cold-launch fragment.
 - launchApp:
     clearState: true
-- assertVisible: "Parle à Mint"
+- extendedWaitUntil:
+    visible:
+      text: ".*Parle à Mint.*"
+    timeout: 10000
 - takeScreenshot: "01-landing"
 
 # 02 — open anonymous chat
