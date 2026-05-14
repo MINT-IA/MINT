@@ -1,7 +1,7 @@
 #!/bin/bash
 # Engram weekly digest → Discord #engram-exports (vibe-coding infra Phase 1)
 #
-# Pipes top-10 most-recent findings from engram (project=mint-ia-mint) into a
+# Pipes top-10 most-recent findings from engram (project=mint, was mint-ia-mint pre-2026-05-14 fix) into a
 # Discord webhook message. Triggered by LaunchAgent timer (weekly Monday 09:00)
 # OR manually: `bash tools/scripts/engram-export-discord.sh`
 #
@@ -13,7 +13,7 @@ set -euo pipefail
 WEBHOOK_FILE="$HOME/.gstack/secrets/discord-engram-webhook"
 ENGRAM_BIN="${ENGRAM_BIN:-$HOME/.local/bin/engram}"
 ENGRAM_DATA_DIR="${ENGRAM_DATA_DIR:-/Volumes/FUN2/engram}"
-PROJECT="${PROJECT:-mint-ia-mint}"
+PROJECT="${PROJECT:-mint}"
 LIMIT="${LIMIT:-10}"
 
 if [ ! -f "$WEBHOOK_FILE" ]; then

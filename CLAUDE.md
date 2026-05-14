@@ -34,23 +34,49 @@ cd apps/mobile && flutter analyze && flutter test && flutter gen-l10n
 
 You operate as a **team lead orchestrator** with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. Specialists in `.claude/agents/` accumulate per-agent memory via engram MCP. Delegate automatically via description matching, or explicitly via « Use the @<name> subagent ».
 
-### MINT specialist team (auto-delegate by description match)
+### MINT specialist team (MINT-pur, auto-delegate by description match)
 
 | Subagent | Delegate when | Memory |
 |---|---|---|
 | `mint-review-pr` | Pre-merge review on any Wave 1+ PR ; user says "review ce diff" / "verify mon code" / "valide ce changement" ; BEFORE `/mint-commit` or `/ship` to `dev` | `local` (engram) |
-| *(Phase 2 — added if 2026-05-21 gate GO)* `mint-lsfin-officer`, `mint-swiss-fintech`, `mint-ux-aesop`, `mint-adversarial`, `mint-karpathy-curator`, `mint-flutter-builder`, `mint-backend-builder`, `mint-maestro-author` | TBD per design doc § Architecture | `local` |
+| *(Post-2026-05-21 gate GO — décomposition mint-review-pr en 4 MINT-pur per panel #1)* `mint-i18n-arb` (Pass 4), `mint-financial-core-guard` (Pass 6), `mint-archetype-router` (Pass 7), `mint-anti-facade` (Pass 8) | Triggers spécifiques MINT non couverts par wshobson catalog | `local` |
 
-### GSD orchestration team (already installed via gstack)
+### wshobson specialist team (adopted 2026-05-14 via PR S99.2, MIT, fork of [wshobson/agents](https://github.com/wshobson/agents))
+
+36 specialists adoptés depuis le catalog (35K stars, MIT). Chaque agent : `memory: local` + bloc engram standard prepended au body (auto-mem_search before, mem_save after with `topic_key` + `prior_finding_refs`). Auto-dispatch par description matching (Anthropic Agent Teams, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`).
+
+| Domaine | Specialists |
+|---|---|
+| Code quality / review | `code-reviewer`, `architect-review`, `legacy-modernizer`, `dx-optimizer` |
+| Debugging / errors | `debugger`, `error-detective`, `incident-responder` |
+| Security | `security-auditor`, `backend-security-coder`, `frontend-security-coder`, `mobile-security-coder`, `threat-modeling-expert` |
+| Frontend / mobile | `frontend-developer`, `mobile-developer`, `ui-designer`, `ui-visual-validator`, `design-system-architect`, `accessibility-expert` |
+| Backend / API | `backend-architect`, `fastapi-pro`, `python-pro`, `api-documenter` |
+| Database | `database-architect`, `database-optimizer`, `sql-pro` |
+| Testing | `test-automator`, `tdd-orchestrator` |
+| Performance / observability | `performance-engineer`, `observability-engineer` |
+| Ops / DevOps | `devops-troubleshooter` |
+| AI / LLM (coach AI) | `ai-engineer`, `prompt-engineer` |
+| Data | `data-engineer` |
+| Orchestration / docs | `context-manager`, `docs-architect`, `tutorial-engineer` |
+
+### GSD orchestration team (already installed via gstack, 21 subagents)
 
 `gsd-planner`, `gsd-executor`, `gsd-codebase-mapper`, `gsd-debugger`, `gsd-doc-writer`, `gsd-phase-researcher`, `gsd-ui-checker`, `gsd-verifier`, `gsd-security-auditor`, and 12 others. Spawned by `/gsd-*` skill commands.
 
 ### Routing rules
 
-- **PR work / pre-merge review** → delegate to `mint-review-pr` (Phase 1 pilot, hard gate 2026-05-21). Verdict BLOCKED = do NOT `/mint-commit`.
+- **PR work / pre-merge review** → delegate to `mint-review-pr` (Phase 1 pilot, hard gate 2026-05-21) + `code-reviewer` + `architect-review`. Verdict BLOCKED = do NOT `/mint-commit`.
+- **Flutter screen create / revise** → `frontend-developer` + `mobile-developer` + `ui-designer` + `accessibility-expert` (cf. memory `feedback_design_panel_before_push`).
+- **Backend FastAPI work** → `backend-architect` + `fastapi-pro` + `python-pro` ; security pass via `backend-security-coder` + `threat-modeling-expert`.
+- **Database changes** → `database-architect` + `database-optimizer` + `sql-pro`.
+- **Performance / Sentry / observability** → `performance-engineer` + `observability-engineer`.
+- **Coach AI / LLM prompt change** → `ai-engineer` + `prompt-engineer`.
+- **Bug investigation** → `debugger` + `error-detective` + `incident-responder` (or `/gsd-debug` skill which spawns `gsd-debugger`).
 - **Phase planning** (multi-perimeter ≥3 PRs) → `/gsd-plan-phase <slug>` → spawns `gsd-planner` → `gsd-executor`.
 - **Codebase mapping** → `/gsd-map-codebase` → spawns `gsd-codebase-mapper` (4 parallel: tech/arch/quality/concerns).
-- **Bug investigation** → `/gsd-debug` → spawns `gsd-debugger`.
+- **Architecture review (post-merge / cross-cutting)** → `architect-review` + `context-manager`.
+- **Engram memory contract (all wshobson agents)** : `mem_search` au début (cite `obs_id` via `prior_finding_refs` si pertinent), `mem_save` à la fin avec `topic_key: <area>:<sub-area>:<specific>` agent-agnostic. Project = `mint` (engram auto-detect from git_remote). Schema détaillé : [docs/AGENTS/VIBE-CODING-INFRA.md](docs/AGENTS/VIBE-CODING-INFRA.md).
 
 ### Memory contract per agent
 

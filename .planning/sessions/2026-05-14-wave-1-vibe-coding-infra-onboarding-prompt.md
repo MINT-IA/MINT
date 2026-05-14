@@ -1,17 +1,21 @@
 ---
-description: Prompt à coller dans n'importe quelle session Claude Code Wave 1+ pour onboarder l'agent sur l'infra vibe-coding Phase 1 (engram MCP persistent memory + mint-review-pr critic). Réutilisable Wave 1a/1b/1c et suivantes tant que Phase 1 dure (jusqu'au gate kill-switch 2026-05-21).
+description: Prompt durable à coller dans toute session Claude Code MINT pour onboarder l'agent sur l'infra vibe-coding (engram MCP persistent memory + mint-review-pr critic). Convention engram + critic persistent post-gate kill-switch 2026-05-21 indépendamment du verdict GO/KILL — seule l'identité du critic (mint-review-pr seul vs équipe décomposée) évolue. Le bornage Wave 1 dans certaines phrases reflète le pilote en cours, pas une limitation de l'infra.
 ---
 
-# Wave 1 — Vibe-Coding Infra Onboarding Prompt
+# Vibe-Coding Infra MINT — Onboarding Prompt (durable)
 
-À copier-coller au début d'une session Claude Code qui travaille sur **Wave 1a / 1b / 1c / Wave 1.5** PRs, pour que l'agent comprenne et utilise correctement l'infrastructure vibe-coding mise en place le 2026-05-14.
+À copier-coller au début d'une session Claude Code qui travaille sur **n'importe quelle PR MINT** (Wave 1a/1b/1c en cours pendant le pilote Phase 1, puis tous les PRs post-gate), pour que l'agent comprenne et utilise correctement l'infrastructure vibe-coding mise en place le 2026-05-14.
+
+**Durabilité** : la convention engram (`mem_search` avant code, `mem_save` après finding, `prior_finding_refs` pour compounding) est DURABLE. Le pilote Phase 1 borne uniquement la mesure du kill-switch (5 premiers PRs Wave 1). Post-gate, la convention s'étend à tous les PRs MINT — seule l'identité des critics évolue (mint-review-pr monolithique → 4 MINT-pur + ~17-21 VoltAgent décomposés post-décision GO).
 
 ---
 
 ## Le prompt (copy-paste tout le bloc)
 
 ```
-TU TRAVAILLES DANS L'INFRA VIBE-CODING MINT PHASE 1 — LIS ÇA ENTIÈREMENT AVANT DE COMMENCER.
+TU TRAVAILLES DANS L'INFRA VIBE-CODING MINT — LIS ÇA ENTIÈREMENT AVANT DE COMMENCER.
+
+(Phase 1 pilote en cours jusqu'au 2026-05-21 — la convention engram décrite ci-dessous est DURABLE post-gate. Seule l'identité des critics évolue post-décision GO/KILL.)
 
 === TON ÉQUIPE ET TES OUTILS ===
 
@@ -26,11 +30,11 @@ Le critic accumule des findings (file:line, anti-patterns, regressions, banned t
 
 === TON WORKFLOW PER PR ===
 
-Pour chaque PR Wave 1a/1b/1c que tu prépares :
+Pour chaque PR MINT que tu prépares (durable — Wave 1a/1b/1c pendant le pilote, puis tous les PRs post-gate) :
 
 1. **AVANT d'écrire le code** : si la PR touche une surface déjà visitée, query engram pour les findings passés :
    ```
-   mem_search "<file path / topic>" --project mint-ia-mint
+   mem_search "<file path / topic>" --project mint
    ```
    Topics utiles : `flutter:state-management`, `lsfin:banned-terms`, `financial_core:duplicate-calc`, `category:anti-facade`, `infra-decision`. Note les `obs_id` retournés.
 
@@ -66,7 +70,7 @@ Pour chaque PR Wave 1a/1b/1c que tu prépares :
 - Memory dir : `.claude/agent-memory-local/mint-review-pr/MEMORY.md` (gitignored, machine-local)
 - Plugin marketplace : `Gentleman-Programming/engram` installé user-scope
 - Discord audit channel : `#engram-exports` dans MINT server (LaunchAgent post weekly digest Mondays 09:00)
-- Findings déjà accumulés : 3 observations sur `mint-ia-mint` project (smoke #1, audit verdict #2, Discord setup #3)
+- Findings déjà accumulés : 4 observations sur `mint` project (smoke #1, audit verdict #2, Discord setup #3, project ID consolidation #4 — pre-fix project name was `mint-ia-mint`, see `.planning/audit/2026-05-14-voltagent-adoption-DEFERRED.md` UPDATE section)
 
 === KILL-SWITCH GATE 2026-05-21 (HARD) ===
 
@@ -98,7 +102,7 @@ Lis ces fichiers si tu as besoin de plus de contexte :
 
 === CHECKPOINT À LA FIN DE CHAQUE PR ===
 
-À la fin de chaque PR Wave 1 que tu termines, fais un `engram stats --project mint-ia-mint` et confirme :
+À la fin de chaque PR que tu termines (durable, pas seulement Wave 1), fais un `engram stats --project mint` et confirme :
 - Observations count a augmenté
 - Au moins 1 finding du PR cite un finding précédent (si applicable)
 
