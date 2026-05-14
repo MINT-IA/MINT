@@ -319,7 +319,7 @@ COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED: bool = False
   </read_first>
   <files>
     - services/backend/app/api/v1/endpoints/coach_chat.py (modify)
-    - services/backend/tests/test_coach_tools/test_retrieve_memories.py (create)
+    - services/backend/tests/test_coach_tools_retrieve_memories.py (create)
   </files>
   <behavior>
     - Test 1: dispatcher with flag OFF calls `_handle_retrieve_memories(...)` legacy and returns its output unchanged.
@@ -397,21 +397,21 @@ COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED: bool = False
 
     NOTE on `hits_count` — D-15 mandates a uniform 5-kwarg payload across plans 01-05 (no extra fields per-tool). If hits_count visibility is needed for ops dashboards, attach it as a follow-up breadcrumb after `coach.tool.retrieve_memories` with category `coach.tool.retrieve_memories.hits` and `data={"hits_count": len(hits)}` — separate breadcrumb, separate concern.
 
-    Step D — Create `services/backend/tests/test_coach_tools/test_retrieve_memories.py` with Tests 1-6.
+    Step D — Create `services/backend/tests/test_coach_tools_retrieve_memories.py` with Tests 1-6.
   </action>
   <verify>
-    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_memory_bm25.py tests/test_coach_tools/test_retrieve_memories.py -q &amp;&amp; python3 tools/checks/banned_terms_python.py services/backend/app/services/memory/bm25.py services/backend/app/api/v1/endpoints/coach_chat.py &amp;&amp; python3 tools/checks/accent_lint_fr.py services/backend/app/services/memory/bm25.py</automated>
+    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_memory_bm25.py tests/test_coach_tools_retrieve_memories.py -q &amp;&amp; python3 tools/checks/banned_terms_python.py services/backend/app/services/memory/bm25.py services/backend/app/api/v1/endpoints/coach_chat.py &amp;&amp; python3 tools/checks/accent_lint_fr.py services/backend/app/services/memory/bm25.py</automated>
   </verify>
   <acceptance_criteria>
     - `grep -c "_compute_retrieve_memories" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥3.
     - `grep -c "_handle_retrieve_memories" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥3 (legacy preserved + fallback calls).
     - `grep -c "COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1.
-    - `pytest services/backend/tests/test_memory_bm25.py tests/test_coach_tools/test_retrieve_memories.py -q` exits 0 with ≥16 total tests (10 + 6).
+    - `pytest services/backend/tests/test_memory_bm25.py tests/test_coach_tools_retrieve_memories.py -q` exits 0 with ≥16 total tests (10 + 6).
     - `grep -E "tool_name=\"retrieve_memories\"" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1.
     - `grep -c "emit_coach_tool_breadcrumb(" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥5 (plans 01 + 02 + 03 + 04 + this).
     - `grep -E "elapsed_ms\s*=\s*int\(" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥5.
     - `grep -c "hash_profile_id(user_id)" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1 (user_id hashed through the D-15 helper, NOT raw).
-    - `grep "user_id=user_id\|user_id=user_a\|user_id == user_a" services/backend/tests/test_coach_tools/test_retrieve_memories.py` returns ≥1 (cross-user test asserts isolation).
+    - `grep "user_id=user_id\|user_id=user_a\|user_id == user_a" services/backend/tests/test_coach_tools_retrieve_memories.py` returns ≥1 (cross-user test asserts isolation).
     - `python3 tools/checks/banned_terms_python.py <touched files>` exits 0.
   </acceptance_criteria>
   <done>
@@ -432,7 +432,7 @@ COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED: bool = False
 </threat_model>
 
 <verification>
-- `pytest tests/test_memory_bm25.py tests/test_coach_tools/test_retrieve_memories.py -q` exits 0 with ≥16 tests.
+- `pytest tests/test_memory_bm25.py tests/test_coach_tools_retrieve_memories.py -q` exits 0 with ≥16 tests.
 - `pytest services/backend/ -q` full suite — zero regressions.
 - `banned_terms_python.py` + `accent_lint_fr.py` green.
 - `rank_bm25` dependency installs cleanly on Railway CI (pure-Python, no native deps).

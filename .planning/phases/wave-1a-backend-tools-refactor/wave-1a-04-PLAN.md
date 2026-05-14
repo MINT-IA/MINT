@@ -10,7 +10,7 @@ files_modified:
   - services/backend/app/models/coach_tools/couple_optimization.py
   - services/backend/app/api/v1/endpoints/coach_chat.py
   - services/backend/tests/test_couple_optimizer.py
-  - services/backend/tests/test_coach_tools/test_couple_optimization.py
+  - services/backend/tests/test_coach_tools_couple_optimization.py
 autonomous: true
 requirements: [WAVE1A-05, WAVE1A-09, WAVE1A-10]
 must_haves:
@@ -275,7 +275,7 @@ COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED: bool = False
   </read_first>
   <files>
     - services/backend/app/api/v1/endpoints/coach_chat.py (modify)
-    - services/backend/tests/test_coach_tools/test_couple_optimization.py (create)
+    - services/backend/tests/test_coach_tools_couple_optimization.py (create)
   </files>
   <behavior>
     - Test 1: dispatcher with flag OFF returns legacy `_format_couple_optimization(ctx)` byte-identical.
@@ -327,16 +327,16 @@ COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED: bool = False
         # <<< dispatch: get_couple_optimization
     ```
 
-    Step C — Create `services/backend/tests/test_coach_tools/test_couple_optimization.py` with Tests 1-7.
+    Step C — Create `services/backend/tests/test_coach_tools_couple_optimization.py` with Tests 1-7.
   </action>
   <verify>
-    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_coach_tools/test_couple_optimization.py tests/test_couple_optimizer.py -q &amp;&amp; python3 tools/checks/banned_terms_python.py services/backend/app/services/couple_optimizer/couple_optimizer.py services/backend/app/models/coach_tools/couple_optimization.py services/backend/app/api/v1/endpoints/coach_chat.py &amp;&amp; python3 tools/checks/accent_lint_fr.py services/backend/app/services/couple_optimizer/couple_optimizer.py services/backend/app/models/coach_tools/couple_optimization.py</automated>
+    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_coach_tools_couple_optimization.py tests/test_couple_optimizer.py -q &amp;&amp; python3 tools/checks/banned_terms_python.py services/backend/app/services/couple_optimizer/couple_optimizer.py services/backend/app/models/coach_tools/couple_optimization.py services/backend/app/api/v1/endpoints/coach_chat.py &amp;&amp; python3 tools/checks/accent_lint_fr.py services/backend/app/services/couple_optimizer/couple_optimizer.py services/backend/app/models/coach_tools/couple_optimization.py</automated>
   </verify>
   <acceptance_criteria>
     - `grep -c "_compute_couple_optimization" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥3.
     - `grep -c "_format_couple_optimization" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥3 (legacy preserved + fallback calls).
     - `grep -c "COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1.
-    - `pytest services/backend/tests/test_couple_optimizer.py tests/test_coach_tools/test_couple_optimization.py -q` exits 0 with ≥25 total tests (18 port + 7 dispatcher).
+    - `pytest services/backend/tests/test_couple_optimizer.py tests/test_coach_tools_couple_optimization.py -q` exits 0 with ≥25 total tests (18 port + 7 dispatcher).
     - `grep -E "tool_name=\"couple_optimization\"" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1.
     - `grep -c "emit_coach_tool_breadcrumb(" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥4 (plans 01 + 02 + 03 + this).
     - `grep -E "profile_id_hashed=hash_profile_id\(" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥4.
@@ -362,7 +362,7 @@ COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED: bool = False
 </threat_model>
 
 <verification>
-- `pytest tests/test_couple_optimizer.py tests/test_coach_tools/test_couple_optimization.py -q` exits 0 with ≥25 tests.
+- `pytest tests/test_couple_optimizer.py tests/test_coach_tools_couple_optimization.py -q` exits 0 with ≥25 tests.
 - `pytest services/backend/ -q` full suite — zero regressions.
 - `banned_terms_python.py` + `accent_lint_fr.py` green.
 - `wc -l services/backend/app/services/couple_optimizer/couple_optimizer.py` ≥200 lines (true port, not stub).

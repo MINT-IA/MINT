@@ -9,7 +9,7 @@ files_modified:
   - services/backend/app/services/retirement/retirement_projection_service.py
   - services/backend/app/models/coach_tools/retirement_projection.py
   - services/backend/app/api/v1/endpoints/coach_chat.py
-  - services/backend/tests/test_coach_tools/test_retirement_projection.py
+  - services/backend/tests/test_coach_tools_retirement_projection.py
 autonomous: true
 requirements: [WAVE1A-02, WAVE1A-09, WAVE1A-10]
 must_haves:
@@ -31,7 +31,7 @@ must_haves:
     - path: "services/backend/app/core/config.py"
       provides: "COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED setting"
       contains: "COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED"
-    - path: "services/backend/tests/test_coach_tools/test_retirement_projection.py"
+    - path: "services/backend/tests/test_coach_tools_retirement_projection.py"
       provides: "≥10 unit tests covering chain output + Pydantic shape + flag ON/OFF"
       contains: "def test_"
   key_links:
@@ -145,7 +145,7 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
     - services/backend/app/models/coach_tools/retirement_projection.py (create)
     - services/backend/app/models/coach_tools/__init__.py (modify — add export)
     - services/backend/app/core/config.py (modify — add flag)
-    - services/backend/tests/test_coach_tools/test_retirement_projection.py (create)
+    - services/backend/tests/test_coach_tools_retirement_projection.py (create)
   </files>
   <behavior>
     - Test 1: `RetirementProjectionService.compute(profile_data={...julien fixture...})` returns dataclass `RetirementProjection(replacement_ratio: float, avs_rente: Decimal, lpp_capital: Decimal, monthly_retirement_income: Decimal, monthly_gap: Decimal, current_monthly_income: Decimal)`.
@@ -156,7 +156,45 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
     - Test 6: chained service contract — assert `RetirementProjectionService.compute` calls AvsEstimationService, LppConversionService, RetirementBudgetService at least once each (use `unittest.mock.patch` on the 3 services).
   </behavior>
   <action>
-    Step A — Read the 3 service files thoroughly. Identify their exact public APIs. Record the signatures inline as a comment block at the top of `retirement_projection_service.py` so the executor of plan-07 (parity) knows the contract.
+    Step A — Verify the 3 service signatures (already done by panel — documented below).
+
+    **Verified real APIs** (see panel obs-54a6659a6008b907 + obs-a5f5f19baeb3119b):
+
+    ```python
+    # AvsEstimationService — INSTANCE method, 6 kwargs scalaires, NOT dict input
+    AvsEstimationService().estimate(
+        current_age: int,
+        retirement_age: int = 65,
+        is_couple: bool = False,
+        annees_lacunes: int = 0,
+        life_expectancy: int = 87,
+        gross_salary: float = 0.0,
+    ) -> AvsEstimation  # .rente_mensuelle, .rente_annuelle, .rente_couple_mensuelle, ...
+
+    # LppConversionService — INSTANCE method `compare` (NOT `convert`)
+    LppConversionService().compare(
+        capital_lpp: float,
+        canton: str = "ZH",
+        retirement_age: int = 65,
+        life_expectancy: int = 87,
+        taux_marginal_revenu: float = 0.25,
+    ) -> LppConversionResult  # .capital_total, .option_rente_nette_mensuelle, .option_capital_net, .breakeven_age, ...
+
+    # RetirementBudgetService — INSTANCE method `reconcile` (NOT `compute`)
+    RetirementBudgetService().reconcile(
+        avs_mensuel: float,
+        lpp_mensuel: float,
+        capital_3a_net: float,
+        autres_revenus: float,
+        depenses_mensuelles: float,
+        revenu_pre_retraite: float,
+        is_couple: bool = False,
+    ) -> RetirementBudget  # .total_revenus_mensuels, .solde_mensuel, .taux_remplacement (PERCENT 0-100), ...
+    ```
+
+    **Canonical chain reference**: `services/backend/app/api/v1/endpoints/overview.py:200-246` (chains AVS + LPP with forward-projection; does NOT yet chain Budget — plan-02 is the first caller).
+
+    **Profile schema**: camelCase per Flutter↔backend contract. Keys to read: `birthYear`, `householdType`, `canton`, `avsContributionYears`, `avoirLpp`, `lppInsuredSalary`, `pillar3aBalance`, `monthlyIncome`, `monthlyExpenses`, `desiredRetirementAge`. NO snake_case alternates.
 
     Step B — Create `services/backend/app/services/retirement/retirement_projection_service.py`:
 
@@ -164,16 +202,32 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
     """Wave 1a D-02 — server-side orchestrator for get_retirement_projection.
 
     Chains the 3 existing retirement services:
-      - AvsEstimationService     (annual AVS rente from salary + age)
+      - AvsEstimationService     (monthly AVS rente from age + salary)
       - LppConversionService     (LPP capital + monthly conversion at retirement)
-      - RetirementBudgetService  (budget snapshot at retirement age)
+      - RetirementBudgetService  (budget reconciliation at retirement age)
 
     NO calculation logic re-implementation per CLAUDE.md rule 4
     (financial_core reuse mandatory). This module ORCHESTRATES only.
+
+    Real API signatures verified 2026-05-14 by panel
+    (obs-54a6659a6008b907, obs-a5f5f19baeb3119b):
+      AvsEstimationService().estimate(current_age, retirement_age=65, is_couple=False,
+                                       annees_lacunes=0, life_expectancy=87, gross_salary=0.0)
+        -> AvsEstimation(.rente_mensuelle, .rente_annuelle, ...)
+      LppConversionService().compare(capital_lpp, canton="ZH", retirement_age=65,
+                                      life_expectancy=87, taux_marginal_revenu=0.25)
+        -> LppConversionResult(.option_rente_nette_mensuelle, .option_capital_net, .capital_total, ...)
+      RetirementBudgetService().reconcile(avs_mensuel, lpp_mensuel, capital_3a_net,
+                                           autres_revenus, depenses_mensuelles,
+                                           revenu_pre_retraite, is_couple=False)
+        -> RetirementBudget(.total_revenus_mensuels, .solde_mensuel, .taux_remplacement, ...)
+        NOTE: .taux_remplacement is PERCENT (0-100), NOT a 0-1 ratio.
     """
     from __future__ import annotations
     from dataclasses import dataclass
+    from datetime import date
     from decimal import Decimal, ROUND_HALF_UP
+    from typing import Optional
 
     from app.services.retirement.avs_estimation_service import AvsEstimationService
     from app.services.retirement.lpp_conversion_service import LppConversionService
@@ -182,57 +236,141 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
 
     @dataclass(frozen=True)
     class RetirementProjection:
+        # Ratio 0.0-1.0 (computed = budget.taux_remplacement / 100). NOT a percent.
         replacement_ratio: float
-        avs_rente: Decimal  # annual CHF
-        lpp_capital: Decimal  # CHF at retirement
-        monthly_retirement_income: Decimal  # CHF/month
-        monthly_gap: Decimal  # current_income - retirement_income, CHF/month
+        # Monthly AVS rente (CHF) — NOT annual; matches legacy formatter expectation.
+        avs_rente: Decimal
+        # LPP capital at retirement age (forward-projected) — None if no LPP avoir.
+        lpp_capital: Optional[Decimal]
+        # Total monthly retirement income (AVS + LPP rente net + mensualised 3a + other).
+        monthly_retirement_income: Decimal
+        # current_monthly_income - monthly_retirement_income (CHF/month, can be negative).
+        monthly_gap: Decimal
+        # Pre-retirement monthly income (from profile.monthlyIncome).
         current_monthly_income: Decimal
 
 
-    def _q(v) -> Decimal:
+    def _q(v: float | int | Decimal | None) -> Decimal:
+        """Quantize to 2-decimal Decimal with ROUND_HALF_UP, matching inputs_hash.py:51."""
+        if v is None:
+            return Decimal("0.00")
         return Decimal(str(v)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+    def _age_from_birth_year(birth_year: int | None) -> Optional[int]:
+        """Compute current age from birth year (matches overview.py helper)."""
+        if not birth_year:
+            return None
+        try:
+            return date.today().year - int(birth_year)
+        except (TypeError, ValueError):
+            return None
 
 
     class RetirementProjectionService:
         """Pure orchestrator. No state, no side effects."""
 
+        # Default product assumptions per Wave 1a (documented in CONTEXT, may
+        # become user-editable in Wave 2). All defaults match overview.py canon.
+        DEFAULT_RETIREMENT_AGE = 65
+        DEFAULT_LIFE_EXPECTANCY = 87
+        DEFAULT_TAUX_MARGINAL_LPP = 0.25
+        DEFAULT_EXPENSE_RATIO = 0.70  # depenses_mensuelles = 70% of pre-retirement income if unknown
+        LPP_REAL_RETURN_RATE = 1.02   # matches overview.py:231 forward-projection
+        LPP_INSURED_CONTRIB_RATE = 0.18  # matches overview.py:231
+
         @staticmethod
         def compute(profile_data: dict) -> RetirementProjection:
-            # Validate minimum inputs. Mirror the legacy formatter guard:
-            # if both replacement_ratio AND lpp_capital are missing in legacy
-            # ctx, the message is "Données de projection retraite non
-            # disponibles". Server-side path needs richer inputs because it
-            # COMPUTES rather than reads pre-computed values.
-            salary = profile_data.get("salary_gross_yearly")
-            lpp_avoir = profile_data.get("lpp_avoir")
-            if salary is None and lpp_avoir is None:
+            # camelCase keys (Flutter→backend contract).
+            birth_year = profile_data.get("birthYear")
+            current_age = _age_from_birth_year(birth_year)
+            household_type = profile_data.get("householdType")
+            is_couple = household_type == "couple"
+            canton = profile_data.get("canton") or "ZH"
+            avoir_lpp = profile_data.get("avoirLpp")
+            lpp_insured = profile_data.get("lppInsuredSalary") or 0.0
+            avs_contrib_years = profile_data.get("avsContributionYears")
+            pillar3a_balance = profile_data.get("pillar3aBalance") or 0.0
+            monthly_income = profile_data.get("monthlyIncome")
+            monthly_expenses = profile_data.get("monthlyExpenses")
+            desired_retirement_age = (
+                profile_data.get("desiredRetirementAge")
+                or RetirementProjectionService.DEFAULT_RETIREMENT_AGE
+            )
+
+            # Validate minimum inputs — need age + at least one income source.
+            if current_age is None or (avoir_lpp is None and monthly_income is None):
                 raise ValueError("retirement projection inputs missing")
 
-            # Step 1 — AVS annual rente (existing service).
-            avs_annual = AvsEstimationService.estimate(profile_data)
-            # Step 2 — LPP capital + conversion (existing service).
-            lpp_result = LppConversionService.convert(profile_data)
-            # Step 3 — retirement budget (existing service).
-            budget = RetirementBudgetService.compute(profile_data)
+            # 1. AVS estimate
+            annees_lacunes = 0
+            if avs_contrib_years is not None:
+                try:
+                    annees_lacunes = max(0, 44 - int(avs_contrib_years))
+                except (TypeError, ValueError):
+                    annees_lacunes = 0
+            avs = AvsEstimationService().estimate(
+                current_age=current_age,
+                retirement_age=desired_retirement_age,
+                is_couple=is_couple,
+                annees_lacunes=annees_lacunes,
+                life_expectancy=RetirementProjectionService.DEFAULT_LIFE_EXPECTANCY,
+                gross_salary=float((monthly_income or 0.0) * 12),
+            )
 
-            # NOTE: the EXACT field names on the 3 services' return types
-            # MUST be read from the source files (see <read_first>). The
-            # executor adapts these attribute accesses to the actual
-            # dataclass / dict shape returned by each service.
-            monthly_retirement = _q(budget.monthly_retirement_income)
-            current_monthly = _q(budget.current_monthly_income)
+            # 2. LPP forward-projection + compare. Match overview.py:226-246.
+            lpp_capital_net: Optional[Decimal] = None
+            lpp_rente_mensuelle_net = 0.0
+            if avoir_lpp is not None and float(avoir_lpp) > 0:
+                years_to_retirement = max(0, desired_retirement_age - current_age)
+                projected_capital = (
+                    float(avoir_lpp) * (RetirementProjectionService.LPP_REAL_RETURN_RATE ** years_to_retirement)
+                    + float(lpp_insured) * RetirementProjectionService.LPP_INSURED_CONTRIB_RATE * years_to_retirement
+                )
+                lpp = LppConversionService().compare(
+                    capital_lpp=projected_capital,
+                    canton=canton,
+                    retirement_age=desired_retirement_age,
+                    life_expectancy=RetirementProjectionService.DEFAULT_LIFE_EXPECTANCY,
+                    taux_marginal_revenu=RetirementProjectionService.DEFAULT_TAUX_MARGINAL_LPP,
+                )
+                lpp_capital_net = _q(lpp.option_capital_net)
+                lpp_rente_mensuelle_net = lpp.option_rente_nette_mensuelle
+
+            # 3. Retirement budget reconcile.
+            current_monthly = float(monthly_income or 0.0)
+            depenses = float(
+                monthly_expenses
+                if monthly_expenses is not None
+                else current_monthly * RetirementProjectionService.DEFAULT_EXPENSE_RATIO
+            )
+            budget = RetirementBudgetService().reconcile(
+                avs_mensuel=avs.rente_mensuelle,
+                lpp_mensuel=lpp_rente_mensuelle_net,
+                capital_3a_net=float(pillar3a_balance),
+                autres_revenus=0.0,
+                depenses_mensuelles=depenses,
+                revenu_pre_retraite=current_monthly,
+                is_couple=is_couple,
+            )
+
+            # Convert percent (0-100) to ratio (0.0-1.0). Critical unit fix
+            # per panel obs-54a6659a6008b907 concern #6 and obs-a5f5f19baeb3119b C4.
+            replacement_ratio = float(budget.taux_remplacement) / 100.0
+
+            monthly_retirement = _q(budget.total_revenus_mensuels)
+            current_monthly_q = _q(current_monthly)
             return RetirementProjection(
-                replacement_ratio=float(budget.replacement_ratio),
-                avs_rente=_q(avs_annual),
-                lpp_capital=_q(lpp_result.capital_at_retirement),
+                replacement_ratio=replacement_ratio,
+                avs_rente=_q(avs.rente_mensuelle),
+                lpp_capital=lpp_capital_net,
                 monthly_retirement_income=monthly_retirement,
-                monthly_gap=current_monthly - monthly_retirement,
-                current_monthly_income=current_monthly,
+                monthly_gap=current_monthly_q - monthly_retirement,
+                current_monthly_income=current_monthly_q,
             )
     ```
 
-    NOTE — if the actual return types of the 3 services differ from `budget.monthly_retirement_income` etc., adapt the attribute access. Document the actual signatures in a comment block. DO NOT add new calculation logic.
+    The orchestrator uses real method names (`estimate`, `compare`, `reconcile`), instance-method invocation, the verified chain order from overview.py (AVS → LPP forward-projection → LPP compare → Budget reconcile with computed scalars), camelCase profile keys, and Optional[Decimal] for lpp_capital. The unit conversion `budget.taux_remplacement / 100.0` is the critical fix preventing 6000% replacement_ratio output.
 
     Step C — `services/backend/app/services/retirement/__init__.py` add:
     ```python
@@ -258,15 +396,16 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
             alias_generator=to_camel,
             frozen=True,
         )
-        replacement_ratio: float
-        avs_rente: Decimal
-        lpp_capital: Decimal
+        replacement_ratio: float  # ratio 0.0-1.0, NOT percent (panel obs-a5f5f19baeb3119b C4)
+        avs_rente: Decimal  # monthly CHF
+        lpp_capital: Optional[Decimal] = None  # null when no LPP avoir (panel obs-a5f5f19baeb3119b H3)
         monthly_retirement_income: Decimal
         monthly_gap: Decimal
         current_monthly_income: Decimal
         inputs_hash: str = Field(..., min_length=64, max_length=64)
         computed_at: datetime
     ```
+    Note `from typing import Optional` at top of file.
 
     Step E — DO NOT modify `services/backend/app/models/coach_tools/__init__.py`. Plan-00 left it as an empty marker; plans 01-05 each provide a per-tool file. Consumers import directly: `from app.models.coach_tools.retirement_projection import RetirementProjectionResponse`.
 
@@ -276,18 +415,18 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
     # Expected: 1
     ```
 
-    Step G — Create `services/backend/tests/test_coach_tools/test_retirement_projection.py` with Tests 1-6 from `<behavior>`. Use `unittest.mock.patch("app.services.retirement.retirement_projection_service.AvsEstimationService.estimate")` etc. for Test 6.
+    Step G — Create `services/backend/tests/test_coach_tools_retirement_projection.py` with Tests 1-6 from `<behavior>`. Use `unittest.mock.patch("app.services.retirement.retirement_projection_service.AvsEstimationService.estimate")` etc. for Test 6.
   </action>
   <verify>
-    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_coach_tools/test_retirement_projection.py -q</automated>
+    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_coach_tools_retirement_projection.py -q</automated>
   </verify>
   <acceptance_criteria>
     - `python3 -c "from app.services.retirement.retirement_projection_service import RetirementProjectionService, RetirementProjection; print('ok')"` exits 0.
     - `python3 -c "from app.models.coach_tools.retirement_projection import RetirementProjectionResponse; print('ok')"` exits 0.
     - `grep -c "COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED" services/backend/app/core/config.py` returns ≥1.
     - `grep -c "AvsEstimationService\|LppConversionService\|RetirementBudgetService" services/backend/app/services/retirement/retirement_projection_service.py` returns ≥3.
-    - `pytest services/backend/tests/test_coach_tools/test_retirement_projection.py -q` exits 0 with ≥6 tests.
-    - `grep -E "replacementRatio|avsRente|lppCapital|monthlyRetirementIncome" services/backend/tests/test_coach_tools/test_retirement_projection.py` returns ≥4 matches.
+    - `pytest services/backend/tests/test_coach_tools_retirement_projection.py -q` exits 0 with ≥6 tests.
+    - `grep -E "replacementRatio|avsRente|lppCapital|monthlyRetirementIncome" services/backend/tests/test_coach_tools_retirement_projection.py` returns ≥4 matches.
   </acceptance_criteria>
   <done>
     Orchestrator + Pydantic model + flag exist; 6+ unit tests green; the 3 retirement services are referenced (grep proof) but unchanged.
@@ -304,7 +443,7 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
   </read_first>
   <files>
     - services/backend/app/api/v1/endpoints/coach_chat.py (modify)
-    - services/backend/tests/test_coach_tools/test_retirement_projection.py (extend)
+    - services/backend/tests/test_coach_tools_retirement_projection.py (extend)
   </files>
   <behavior>
     - Test 7: dispatcher with flag OFF returns legacy formatter output byte-identical for a known ctx.
@@ -395,10 +534,10 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
     ```
     Why `user_id` not `profile_id`: `_execute_internal_tool` signature at coach_chat.py:1834 has `user_id`, not `profile_id` (panel fix backend-architect obs-d518b856d7e4fe1a).
 
-    Step C — Extend `services/backend/tests/test_coach_tools/test_retirement_projection.py` with Tests 7-12 from `<behavior>`. Use `monkeypatch.setattr(settings, "COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED", True/False)`.
+    Step C — Extend `services/backend/tests/test_coach_tools_retirement_projection.py` with Tests 7-12 from `<behavior>`. Use `monkeypatch.setattr(settings, "COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED", True/False)`.
   </action>
   <verify>
-    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_coach_tools/test_retirement_projection.py -q &amp;&amp; python3 tools/checks/banned_terms_python.py services/backend/app/services/retirement/retirement_projection_service.py services/backend/app/models/coach_tools/retirement_projection.py services/backend/app/api/v1/endpoints/coach_chat.py &amp;&amp; python3 tools/checks/accent_lint_fr.py services/backend/app/services/retirement/retirement_projection_service.py services/backend/app/models/coach_tools/retirement_projection.py</automated>
+    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_coach_tools_retirement_projection.py -q &amp;&amp; python3 tools/checks/banned_terms_python.py services/backend/app/services/retirement/retirement_projection_service.py services/backend/app/models/coach_tools/retirement_projection.py services/backend/app/api/v1/endpoints/coach_chat.py &amp;&amp; python3 tools/checks/accent_lint_fr.py services/backend/app/services/retirement/retirement_projection_service.py services/backend/app/models/coach_tools/retirement_projection.py</automated>
   </verify>
   <acceptance_criteria>
     - `grep -c "_compute_retirement_projection" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥3.
@@ -408,7 +547,7 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
     - `grep -E "profile_id_hashed=hash_profile_id\(" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥2.
     - `grep -c "_format_retirement_projection" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥3 (legacy preserved + fallback calls).
     - `grep -c "COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1.
-    - `pytest services/backend/tests/test_coach_tools/test_retirement_projection.py -q` exits 0 with ≥12 tests.
+    - `pytest services/backend/tests/test_coach_tools_retirement_projection.py -q` exits 0 with ≥12 tests.
     - `python3 tools/checks/banned_terms_python.py services/backend/app/services/retirement/retirement_projection_service.py services/backend/app/models/coach_tools/retirement_projection.py services/backend/app/api/v1/endpoints/coach_chat.py` exits 0.
     - `python3 tools/checks/accent_lint_fr.py services/backend/app/services/retirement/retirement_projection_service.py services/backend/app/models/coach_tools/retirement_projection.py` exits 0.
   </acceptance_criteria>
@@ -429,7 +568,7 @@ COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
 </threat_model>
 
 <verification>
-- `pytest services/backend/tests/test_coach_tools/test_retirement_projection.py -q` exits 0.
+- `pytest services/backend/tests/test_coach_tools_retirement_projection.py -q` exits 0.
 - `pytest services/backend/ -q` full suite — zero regressions.
 - `banned_terms_python.py` + `accent_lint_fr.py` green on touched files.
 - Dispatcher grep proves the flag-gated path is wired.

@@ -9,7 +9,7 @@ files_modified:
   - services/backend/app/services/arbitrage/cross_pillar_service.py
   - services/backend/app/models/coach_tools/cross_pillar.py
   - services/backend/app/api/v1/endpoints/coach_chat.py
-  - services/backend/tests/test_coach_tools/test_cross_pillar.py
+  - services/backend/tests/test_coach_tools_cross_pillar.py
 autonomous: true
 requirements: [WAVE1A-03, WAVE1A-09, WAVE1A-10]
 must_haves:
@@ -31,7 +31,7 @@ must_haves:
     - path: "services/backend/app/core/config.py"
       provides: "COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED setting"
       contains: "COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED"
-    - path: "services/backend/tests/test_coach_tools/test_cross_pillar.py"
+    - path: "services/backend/tests/test_coach_tools_cross_pillar.py"
       provides: "≥10 unit tests"
       contains: "def test_"
   key_links:
@@ -139,7 +139,7 @@ COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED: bool = False
     - services/backend/app/models/coach_tools/cross_pillar.py (create)
     - services/backend/app/models/coach_tools/__init__.py (modify — add export)
     - services/backend/app/core/config.py (modify — add flag)
-    - services/backend/tests/test_coach_tools/test_cross_pillar.py (create)
+    - services/backend/tests/test_coach_tools_cross_pillar.py (create)
   </files>
   <behavior>
     - Test 1: `CrossPillarService.compute({...julien fixture salary 80000 + lpp_avoir 95000 + employment_status "salarie" + has_2nd_pillar True + annual_3a 5000...})` returns `CrossPillarAnalysis(annual_3a_contribution=Decimal("5000.00"), three_a_ceiling=Decimal("7258.00"), three_a_remaining=Decimal("2258.00"), lpp_buyback_max=Decimal(...), lpp_capital=Decimal("95000.00"), tax_saving_potential=Decimal(...))`. EXACT values for `lpp_buyback_max` and `tax_saving_potential` derived from existing services — DO NOT invent.
@@ -302,17 +302,17 @@ COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED: bool = False
     # Expected: 1
     ```
 
-    Step G — Create `services/backend/tests/test_coach_tools/test_cross_pillar.py` with Tests 1-6.
+    Step G — Create `services/backend/tests/test_coach_tools_cross_pillar.py` with Tests 1-6.
   </action>
   <verify>
-    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_coach_tools/test_cross_pillar.py -q</automated>
+    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_coach_tools_cross_pillar.py -q</automated>
   </verify>
   <acceptance_criteria>
     - `python3 -c "from app.services.arbitrage import CrossPillarService, CrossPillarAnalysis; print('ok')"` exits 0.
     - `python3 -c "from app.models.coach_tools.cross_pillar import CrossPillarAnalysisResponse; print('ok')"` exits 0.
     - `grep -c "COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED" services/backend/app/core/config.py` returns ≥1.
     - `grep -c "get_3a_ceiling\|compare_allocation_annuelle\|pillar_3a_deep\|rachat_vs_marche" services/backend/app/services/arbitrage/cross_pillar_service.py` returns ≥2.
-    - `pytest services/backend/tests/test_coach_tools/test_cross_pillar.py -q` exits 0 with ≥6 tests.
+    - `pytest services/backend/tests/test_coach_tools_cross_pillar.py -q` exits 0 with ≥6 tests.
     - `python3 -c "from app.services.arbitrage.rachat_vs_marche import compute_lpp_buyback_max; print('ok')"` exits 0 (or executor updates the import to the actual function name discovered in <read_first> — and the importability check uses that name instead).
     - `python3 -c "from app.services.pillar_3a_deep.retroactive_3a_service import compute_annual_tax_saving; print('ok')"` exits 0 (or executor updates to the actual function name).
     - `grep -c "except ImportError" services/backend/app/services/arbitrage/cross_pillar_service.py` returns 0 (NO silent fallback present — Issue-4 fix from checker iteration 1).
@@ -331,7 +331,7 @@ COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED: bool = False
   </read_first>
   <files>
     - services/backend/app/api/v1/endpoints/coach_chat.py (modify)
-    - services/backend/tests/test_coach_tools/test_cross_pillar.py (extend)
+    - services/backend/tests/test_coach_tools_cross_pillar.py (extend)
   </files>
   <behavior>
     - Test 7: flag OFF returns byte-identical legacy output.
@@ -387,13 +387,13 @@ COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED: bool = False
     Step C — Extend test file with Tests 7-12.
   </action>
   <verify>
-    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_coach_tools/test_cross_pillar.py -q &amp;&amp; python3 tools/checks/banned_terms_python.py services/backend/app/services/arbitrage/cross_pillar_service.py services/backend/app/models/coach_tools/cross_pillar.py services/backend/app/api/v1/endpoints/coach_chat.py &amp;&amp; python3 tools/checks/accent_lint_fr.py services/backend/app/services/arbitrage/cross_pillar_service.py services/backend/app/models/coach_tools/cross_pillar.py</automated>
+    <automated>cd services/backend &amp;&amp; python3 -m pytest tests/test_coach_tools_cross_pillar.py -q &amp;&amp; python3 tools/checks/banned_terms_python.py services/backend/app/services/arbitrage/cross_pillar_service.py services/backend/app/models/coach_tools/cross_pillar.py services/backend/app/api/v1/endpoints/coach_chat.py &amp;&amp; python3 tools/checks/accent_lint_fr.py services/backend/app/services/arbitrage/cross_pillar_service.py services/backend/app/models/coach_tools/cross_pillar.py</automated>
   </verify>
   <acceptance_criteria>
     - `grep -c "_compute_cross_pillar_analysis" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥3.
     - `grep -c "_format_cross_pillar_analysis" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥3 (legacy preserved + fallback calls).
     - `grep -c "COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1.
-    - `pytest services/backend/tests/test_coach_tools/test_cross_pillar.py -q` exits 0 with ≥12 tests.
+    - `pytest services/backend/tests/test_coach_tools_cross_pillar.py -q` exits 0 with ≥12 tests.
     - `grep -E "tool_name=\"cross_pillar\"" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥1.
     - `grep -c "emit_coach_tool_breadcrumb(" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥3 (plans 01 + 02 + this).
     - `grep -E "profile_id_hashed=hash_profile_id\(" services/backend/app/api/v1/endpoints/coach_chat.py` returns ≥3.
@@ -418,7 +418,7 @@ COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED: bool = False
 </threat_model>
 
 <verification>
-- `pytest services/backend/tests/test_coach_tools/test_cross_pillar.py -q` exits 0.
+- `pytest services/backend/tests/test_coach_tools_cross_pillar.py -q` exits 0.
 - `pytest services/backend/ -q` full suite — zero regressions.
 - `banned_terms_python.py` + `accent_lint_fr.py` green on touched files.
 - `grep` proves CrossPillarService chains existing modules (does not re-implement).
