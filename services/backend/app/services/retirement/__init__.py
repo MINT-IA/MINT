@@ -19,9 +19,15 @@ Sources:
 from app.services.retirement.avs_estimation_service import AvsEstimationService
 from app.services.retirement.lpp_conversion_service import LppConversionService
 from app.services.retirement.retirement_budget_service import RetirementBudgetService
+from app.services.retirement.retirement_projection_service import (
+    RetirementProjection,
+    RetirementProjectionService,
+)
 
 __all__ = [
     "AvsEstimationService",
     "LppConversionService",
     "RetirementBudgetService",
+    "RetirementProjection",
+    "RetirementProjectionService",
 ]
