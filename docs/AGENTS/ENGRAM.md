@@ -111,7 +111,7 @@ prior_finding_refs:
   - obs-8f8f4320fbb9a6f2  # plan-02 outcome
 ```
 
-**Compounding observable** (vibe-coding Phase 1 gate 2026-05-21) : `mint-review-pr` succeeds if it references prior PR's findings via `prior_finding_refs` more than X% of the time. Wave 1a panel reviews demonstrated this on plans 00–03 : each new panel cited 3+ obs from prior plans.
+**Compounding observable** : chaque subagent du panel composite (wshobson+VoltAgent, cf. `CLAUDE.md` §3.5) accumule sa propre série de findings ; on mesure per-specialist quand `prior_finding_refs` non-null cite des obs de PRs antérieures. Wave 1a panel reviews ont démontré la dynamique sur plans 00–03 (chaque panel citait 3+ obs de plans précédents).
 
 ## 5. Conflicts — `mem_judge` heuristic
 

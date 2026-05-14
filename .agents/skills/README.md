@@ -2,7 +2,7 @@
 
 Imported skills that work across multiple agent CLIs (Claude Code, Cursor, Copilot, etc.).
 
-Distinct from `.claude/skills/` which holds Claude-Code-specific skills (autoresearch-*, gsd-*, etc.) and from `.claude/agents/` which holds subagent specs (mint-review-pr, wshobson catalog).
+Distinct from `.claude/skills/` which holds Claude-Code-specific skills (autoresearch-*, gsd-*, etc.) and from `.claude/agents/` which holds subagent specs (wshobson + VoltAgent catalogs).
 
 ## Currently installed
 

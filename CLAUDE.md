@@ -36,10 +36,7 @@ You operate as a **team lead orchestrator** with `CLAUDE_CODE_EXPERIMENTAL_AGENT
 
 ### MINT specialist team (MINT-pur, auto-delegate by description match)
 
-| Subagent | Delegate when | Memory |
-|---|---|---|
-| `mint-review-pr` | Pre-merge review on any Wave 1+ PR ; user says "review ce diff" / "verify mon code" / "valide ce changement" ; BEFORE `/ship` to `dev` | `local` (engram) |
-| *(Post-2026-05-21 gate GO — décomposition mint-review-pr en 4 MINT-pur per panel #1)* `mint-i18n-arb` (Pass 4), `mint-financial-core-guard` (Pass 6), `mint-archetype-router` (Pass 7), `mint-anti-facade` (Pass 8) | Triggers spécifiques MINT non couverts par wshobson catalog | `local` |
+Vide pour le moment — les rôles MINT-pur sont couverts par le panel composite wshobson+VoltAgent (cf. routing rules). MINT-pur n'est ajouté que si un trou réel apparaît dans la couverture wshobson+VoltAgent.
 
 ### wshobson specialist team (adopted 2026-05-14 via PR S99.2, MIT, fork of [wshobson/agents](https://github.com/wshobson/agents))
 
@@ -75,7 +72,7 @@ You operate as a **team lead orchestrator** with `CLAUDE_CODE_EXPERIMENTAL_AGENT
 | Agent Teams orchestration | `agent-organizer`, `multi-agent-coordinator`, `knowledge-synthesizer` (engram findings synthesis) |
 | Research / competition | `competitive-analyst` (Cleo), `market-researcher`, `search-specialist` |
 
-**DEFERRED to post-gate 2026-05-21** (7 agents qui overlap les 8 passes de `mint-review-pr` — adoption now contaminerait la mesure compounding observable du gate Phase 1) : `compliance-auditor` (Pass 2 LSFin), `legal-advisor` (Pass 2), `fintech-engineer` (Pass 6 FINANCIAL_CORE), `quant-analyst` (Pass 6), `risk-manager` (Pass 2 + 6), `refactoring-specialist` (Pass 3 REGRESSIONS), `accessibility-tester` (Pass 5 DESIGN SYSTEM). Cf. `.planning/audit/2026-05-14-voltagent-adoption-DEFERRED.md` lines 222-223.
+**Candidats VoltAgent non-adoptés** (7 specialists, dispo upstream MIT) : `compliance-auditor`, `legal-advisor`, `fintech-engineer`, `quant-analyst`, `risk-manager`, `refactoring-specialist`, `accessibility-tester`. Non-adoptés car le panel wshobson+VoltAgent actuel couvre déjà LSFin/compliance via `security-auditor` + `business-analyst`, FINANCIAL_CORE via `architect-review` + `backend-architect` + `python-pro`, refactoring via `legacy-modernizer`, a11y via `accessibility-expert`. Adopter au cas-par-cas si un trou réel apparaît dans le panel.
 
 ### GSD orchestration team (already installed via gstack, 21 subagents)
 
@@ -83,7 +80,14 @@ You operate as a **team lead orchestrator** with `CLAUDE_CODE_EXPERIMENTAL_AGENT
 
 ### Routing rules
 
-- **PR work / pre-merge review** → delegate to `mint-review-pr` (Phase 1 pilot, hard gate 2026-05-21) + `code-reviewer` + `architect-review`. Verdict BLOCKED = do NOT `/ship`.
+- **PR work / pre-merge review** → spawn en parallèle le panel composite (chaque agent a `memory: local` + engram, donc compounding observable per-specialist) :
+  - `code-reviewer` (wshobson) — bugs, security smells, production reliability (Pass 1)
+  - `architect-review` (wshobson) — financial_core reuse + anti-facade + service boundaries (Pass 6 + 8)
+  - `security-auditor` (wshobson) — LSFin compliance + banned-terms + PII (Pass 2 ; appui mécanique = `check_banned_terms()` MCP + `tools/checks/no_legal_admission_in_public_docs.py`)
+  - `qa-expert` (VoltAgent) + `test-automator` (wshobson) — regressions + test coverage (Pass 3 ; appui mécanique = pytest / flutter test)
+  - Selon PR : `flutter-expert` + `accessibility-expert` + `design-system-architect` pour Flutter UI (Pass 4 i18n + Pass 5 design system ; appui mécanique = `validate_arb_parity()` MCP + `accent_lint_fr.py`) ; `backend-architect` + `python-pro` pour backend (Pass 6) ; `business-analyst` + `ux-researcher` pour archetypes/FATCA/cross-border (Pass 7).
+
+  Verdict BLOCKED par 1+ agent = do NOT `/ship`. Pre-merge mechanical gates (lints + tests + `accent_lint_fr` + `banned_terms_python` + `validate_arb_parity`) sont obligatoires AVANT spawn du panel — le panel review le diff post-lints-green.
 - **Flutter screen create / revise** → `frontend-developer` + `mobile-developer` + `ui-designer` + `accessibility-expert` (cf. memory `feedback_design_panel_before_push`).
 - **Backend FastAPI work** → `backend-architect` + `fastapi-pro` + `python-pro` ; security pass via `backend-security-coder` + `threat-modeling-expert`.
 - **Database changes** → `database-architect` + `database-optimizer` + `sql-pro`.
@@ -99,7 +103,7 @@ You operate as a **team lead orchestrator** with `CLAUDE_CODE_EXPERIMENTAL_AGENT
 
 Each subagent with `memory: local` writes to `.claude/agent-memory-local/<name>/MEMORY.md` (auto-injected first 200 lines on each invocation) AND can call engram MCP for structured findings (file:line + topic_key + prior_finding_refs). Findings backed by `/Volumes/FUN2/engram/engram.db`. Public-repo discipline : `agent-memory-local` is gitignored (PR #602 merged 2026-05-14).
 
-**Compounding observable** : if a subagent flagging finding X in PR-N references its own past finding Y from PR-(N-k) via `prior_finding_refs`, the team is learning. Phase 1 gate 2026-05-21 measures `mint-review-pr` on this metric.
+**Compounding observable** : if a subagent flagging finding X in PR-N references its own past finding Y from PR-(N-k) via `prior_finding_refs`, the team is learning. Mesuré per-specialist (chaque agent du panel composite a sa propre série), pas en agrégat.
 
 ## 4. DEV RULES
 

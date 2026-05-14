@@ -1,5 +1,15 @@
 ---
-description: Audit 2026-05-14 Phase 1 vibe-coding-infra MINT — verdict POST-REVIEW : adopt VoltAgent DEFERRED to post-2026-05-21 gate. Plan radical de mid-session INVALIDÉ par eng-review. Version surgical adoptée. Lecture obligatoire pour toute nouvelle session.
+description: SUPERSEDED 2026-05-14 (later same day) — décision RENVERSÉE par Julien. mint-review-pr SUPPRIMÉ ; couverture des 8 passes assurée par le panel composite wshobson+VoltAgent (cf. CLAUDE.md §3.5). Document conservé comme historique du raisonnement initial.
+---
+
+# SUPERSEDED 2026-05-14 — mint-review-pr DELETED
+
+> **Décision actuelle** (2026-05-14 fin de journée) : Julien a tranché — `mint-review-pr` supprimé. Couverture des 8 passes (bugs / LSFin / regressions / i18n / design / financial_core / archetypes / anti-facade) déléguée au panel composite `code-reviewer` + `architect-review` + `security-auditor` + `qa-expert` + `business-analyst` + flutter/backend specialists selon PR (cf. `CLAUDE.md` §3.5 routing). Gate 2026-05-21 abandonné car la mesure cible (`mint-review-pr` compounding observable) n'a plus de sujet.
+>
+> **Pourquoi le revirement** : le pilote n'a jamais tourné en pratique. Wave 1a panel reviews (plans 02/05/06/04) ont été menés en panel composite ad-hoc (backend-architect + python-pro pré-execution), sans invoquer `mint-review-pr`. La couverture wshobson+VoltAgent suffit ; un agent omni-pass MINT-pur ajoute friction sans gain démontrable.
+>
+> Tout le contenu ci-dessous est historique et reflète l'état au moment de la rédaction. Ne pas l'appliquer.
+
 ---
 
 # Vibe-Coding Infra MINT — Phase 1 État + Plan REVISÉ (2026-05-14)

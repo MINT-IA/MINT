@@ -39,16 +39,11 @@ Findings can contain sensitive code references. `.gitignore` excludes :
 
 Default memory scope for new mint-* skills = `memory: local` (NOT `project`) so memories stay outside version control. `tools/checks/no_legal_admission_in_public_docs.py` scans engram exports if surfaced via `engram export`.
 
-## Skills with persistent memory
+## Agents with persistent memory (subagents, `.claude/agents/`)
 
-| Skill | Memory scope | Role |
-|---|---|---|
-| `mint-review-pr` | `memory: local` | Senior Flutter+Dart reviewer, accumulates patterns across PRs (Phase 1 pilot) |
+PR review = panel composite wshobson+VoltAgent (cf. `CLAUDE.md` §3.5 routing rules). Chaque subagent du panel a `memory: local` + bloc engram standard (auto-`mem_search` before / `mem_save` after avec `topic_key` + `prior_finding_refs`). Le compounding observable est mesuré per-specialist, pas en agrégat.
 
-Phase 2+ extensions (post 2026-05-21 gate) :
-- `mint-swiss-compliance` → `@lsfin-officer` + `@swiss-fintech-expert`
-- `mint-audit-complet` → `@adversarial-tester`
-- NEW `mint-ux-critic-aesop`, `mint-karpathy-curator`
+Pas de subagent MINT-pur installé actuellement — les rôles MINT-pur sont couverts par la combinaison wshobson `code-reviewer` + `architect-review` + `security-auditor` + VoltAgent `qa-expert` + `business-analyst` (+ flutter/backend selon PR). MINT-pur ajouté seulement si trou réel apparaît dans le panel.
 
 ## Multi-machine (future, Phase 4)
 
@@ -66,7 +61,7 @@ LaunchAgent auto-start template in `tools/scripts/launchagent-engram.plist.templ
 
 ```json
 {
-  "agent": "mint-review-pr",
+  "agent": "code-reviewer",
   "topic_key": "flutter:state-management:provider-pattern",
   "file": "apps/mobile/lib/screens/onboarding_screen.dart",
   "line": 142,
