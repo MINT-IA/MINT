@@ -7,10 +7,12 @@ files from `VoltAgent/awesome-claude-code-subagents`, normalizes frontmatter
 body block, writes to `.claude/agents/<name>.md`.
 
 Same pattern used for the wshobson 36 adoption (PR S99.2, 2026-05-14).
-DEFERRED to post-gate 2026-05-21: 7 agents overlapping mint-review-pr's 8 passes
-(compliance-auditor, legal-advisor, fintech-engineer, quant-analyst,
-risk-manager, refactoring-specialist, accessibility-tester) — protects the
-compounding observable measurement.
+7 specialists left non-adopted (compliance-auditor, legal-advisor,
+fintech-engineer, quant-analyst, risk-manager, refactoring-specialist,
+accessibility-tester) — coverage already provided by wshobson security-auditor
++ architect-review + legacy-modernizer + accessibility-expert + VoltAgent
+business-analyst. Adopt case-by-case if a real gap appears in the composite
+PR-review panel (cf. CLAUDE.md §3.5 routing).
 """
 from __future__ import annotations
 
