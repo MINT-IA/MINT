@@ -78,16 +78,27 @@ tags:
   - anon
 ---
 
-# 01 — assert we're on /explore fresh (harness pre-deep-linked + uninstalled)
-- launchApp:
-    clearState: false
+# 01 — bootstrap to /explore via cold-launch fragment + bottom-tab tap.
+#
+# Pre-fix : assumed `xcrun simctl openurl ch.mint.app://explore` was
+# pre-deep-linked by the harness. The canonical sweep doesn't do this.
+# Self-bootstrap via the S005 cold-launch fragment (lands on Aujourd'hui)
+# + Explorer bottom-tab tap = portable across canonical-sweep contexts.
+# Same pattern as drawer_navigation_smoke (sister flow on /explore).
+#
+# Note re « FRESH state » contract : the cold-launch fragment uses
+# `clearState: true` which wipes SharedPreferences (where the local
+# CoachProfile lives for anon users). Sufficient for the empty-state
+# assertion since anon users have no backend profile either.
+- runFlow: _fragment_cold_launch_to_aujourdhui.yaml
+# iOS doubled accessibilityText — regex matcher required (same as
+# cold-launch fragment's « .*Continuer sans compte.* » pattern).
 - tapOn:
-    text: "Je comprends, on y va"
-    optional: true
+    text: ".*Explorer.*"
 - extendedWaitUntil:
     visible:
-      text: "Explorer"
-    timeout: 10000
+      text: "ouvrir-profil-drawer"
+    timeout: 5000
 - takeScreenshot: "01-explore-fresh"
 
 # 02 — open drawer via the AppBar profile icon

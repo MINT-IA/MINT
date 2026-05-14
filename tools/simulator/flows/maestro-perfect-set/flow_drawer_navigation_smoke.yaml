@@ -66,16 +66,40 @@ tags:
   - anon
 ---
 
-# 00 — start at /explore (MintShell tab 4). Tap Explorer tab.
-- launchApp:
-    clearState: false
+# 00 — bootstrap to /explore (MintShell tab 4) via cold-launch fragment
+# + bottom-tab tap.
+#
+# Pre-fix : the original preamble (clearState:false + optional bêta tap
+# + assertVisible "Explorer") assumed the harness pre-deep-linked to
+# /explore via `xcrun simctl openurl booted ch.mint.app://explore`. The
+# canonical sweep doesn't do this — Maestro just runs the YAML against
+# the booted sim's current state. Result : cold launch lands on
+# LandingScreen, never on /explore, assertion times out.
+#
+# Per the file header documentation (« RECOMMENDED HARNESS WIRING »
+# section), the alternative is to wire `MINT_E2E_INITIAL_ROUTE=/explore`
+# dart-define in lib/main.dart. That's a Flutter code change (broader
+# scope). This commit chooses the test-side fix : self-bootstrap to
+# /explore using the canonical S005 cold-launch fragment + a bottom-tab
+# Explorer tap. Portable across all canonical-sweep contexts.
+#
+# Path walked :
+#   1. Cold-launch fragment → lands on Aujourd'hui (MintShell tab 1)
+#   2. Tap Explorer bottom tab (MintShell tab 4 per mint_shell.dart:97)
+#   3. Confirm /explore via the « ouvrir-profil-drawer » Semantics anchor
+#      (set on the AppBar profile icon per explorer_screen.dart:24-33)
+- runFlow: _fragment_cold_launch_to_aujourdhui.yaml
+# iOS bridge concatenates NavigationDestination Semantics label with
+# the Text child as « Explorer\nOnglet 4 sur 4 » (or similar). The
+# exact-text matcher fails on the doubled form ; regex `.*Explorer.*`
+# matches reliably. Same pattern as the cold-launch fragment's
+# « .*Continuer sans compte.* » tap.
 - tapOn:
-    text: "Je comprends, on y va"
-    optional: true
+    text: ".*Explorer.*"
 - extendedWaitUntil:
     visible:
-      text: "Explorer"
-    timeout: 8000
+      text: "ouvrir-profil-drawer"
+    timeout: 5000
 # Tap landing CTA to enter shell ; the anon path lands us on
 # /anonymous/chat which is OUTSIDE MintShell. We need the shell, so
 # instead we go via /explore directly via the bottom tab bar after

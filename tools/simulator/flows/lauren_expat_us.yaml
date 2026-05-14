@@ -25,8 +25,21 @@
 appId: ch.mint.app
 ---
 # 01 — landing screen visible (same brand line as julien_swiss)
-- launchApp
-- assertVisible: "Voir clair, décider seul."
+# 3-part preamble per sweep #5 evidence — see julien_swiss.yaml for full
+# rationale. Summary : (a) clearState forces fresh anon, (b) conditional
+# bêta dismiss, (c) extendedWaitUntil + regex.
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: ".*Voir clair.*décider seul.*"
+    timeout: 10000
 
 # 02 — tap landing CTA → anonymous chat opener
 - tapOn:
@@ -40,12 +53,16 @@ appId: ch.mint.app
 # for Phase 90 ; the archetype-seeded prompt is allowed to differ from
 # the walker deterministic prompt — Maestro just observes the response
 # render).
+# Maestro 2.5.1 rejects `timeout:` as an inline property of
+# `assertVisible:`. Canonical replacement is `extendedWaitUntil:` —
+# same semantics, accepted syntax. See julien_swiss.yaml for rationale.
 - tapOn:
     id: "anon-chat-input"
 - inputText: "Mon revenu en CHF, est-ce que je peux mettre dans un 3a ?"
 - pressKey: Enter
-- assertVisible:
-    id: "anon-chat-message-assistant"
+- extendedWaitUntil:
+    visible:
+      id: "anon-chat-message-assistant"
     timeout: 30000
 
 # 04 — éclairage card rendered (forced kind = fiscal_margin_3a)

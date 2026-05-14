@@ -86,38 +86,17 @@ tags:
   - archetype:all
 ---
 
-# ── Step 1 — Cold launch with clean state ─────────────────────────────
-# clearState: true forces a fresh anon session ; assumes auth fragment
-# OR local-mode bypass will set the post-landing state via shared
-# SharedPreferences seeds (Phase 97 W1 D-02 fragment).
-- launchApp:
-    clearState: true
-
-# ── Step 2 — Dismiss bêta modal if present (cold-launch precondition) ─
-# Per Phase 96 G2 evidence (.planning/phases/96-mvp-chat-as-verb/g2-evidence/
-# 01-landing-modal.png), cold-launch shows the bêta sheet first.
-# `optional: true` keeps the flow green when the modal is already
-# dismissed (warm-start) or feature-flagged off.
-- runFlow:
-    when:
-      visible: "Je comprends, on y va"
-    commands:
-      - tapOn: "Je comprends, on y va"
-      - waitForAnimationToEnd
-
-# ── Step 3 — Reach Aujourd'hui (or skip to the demo screen) ────────────
-# Today this step fails on anon cold-launch (Maestro lands on
-# LandingScreen, not the shell). Once F013/F014 auth fragment lands OR
-# F028 custom URL scheme is registered, this becomes runnable :
-#   • Option A (F013/F014) : auth fragment seeds an authenticated state
-#     so the shell renders directly.
-#   • Option B (F028) : the regression CI invokes
-#     `xcrun simctl openurl <udid> mintapp://debug/chat-as-verb` BEFORE
-#     this flow runs, landing the app directly on the demo screen.
-- extendedWaitUntil:
-    visible:
-      text: "Aujourd'hui"
-    timeout: 8000
+# ── Steps 1-3 — Cold launch → bêta dismiss → LandingScreen → tap
+#               « Continuer sans compte » → /home (Aujourd'hui visible) ──
+# Replaces the inline preamble with the canonical S005 cold-launch
+# fragment. Pre-fragment, this flow assumed cold-launched anon would
+# land directly on Aujourd'hui — but app.dart:418 routes anon-without-
+# local-mode to LandingScreen. The S005 « Continuer sans compte » CTA
+# (W7 iter#4, commit 010d851c) flips isLocalMode=true, after which
+# Aujourd'hui renders. The fragment encapsulates this canonical walk
+# and is shared with bug__S002, bug__F001_S001_combined, and (after
+# this commit) S001 + F001.
+- runFlow: ../maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml
 
 # ── Step 4 — Open the « Mon 3a 2026 » card (Phase 96 G1 entry-point) ───
 # Today this fails — F012 (no Aujourd'hui card carries

@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/error_boundary.dart';
 import 'package:mint_mobile/services/frame_timing_capture.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/observability/sentry_scrub.dart';
 import 'package:mint_mobile/services/pillar_3a_calculator.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
@@ -143,6 +144,11 @@ Future<void> main() async {
         options.dsn = sentryDsn;
         options.tracesSampleRate = 0.1;
         options.sendDefaultPii = false; // nLPD compliance
+        // S98 Phase 2 — second-line PII scrubber (Swiss-compliance panel
+        // non-negotiable). Strips AVS, IBAN_CH, email, phone +41 + drops
+        // Claude payload keys (prompt/completion/messages/response/coach_*).
+        // Contract tests : test/services/observability/sentry_scrub_test.dart.
+        options.beforeSend = MintSentryScrub.beforeSend;
         // D-02 Option A (CONTEXT.md) — single Sentry project with env tag.
         // MINT_ENV dart-define drives the 3-way split (development /
         // staging / production). Staging CI/TestFlight builds MUST pass

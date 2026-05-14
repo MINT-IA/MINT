@@ -134,16 +134,42 @@ echo "[L0] walker_premier_eclairage.sh build + launch"
   }
 
 # ── L1 Maestro flow — in-app choreography ───────────────────────────
-MAESTRO_ENV="$REPO_ROOT/tools/simulator/maestro_env.sh"
-if [ ! -x "$MAESTRO_ENV" ]; then
-  echo "ERROR: Maestro env wrapper not found at $MAESTRO_ENV" >&2; exit 1
+# S98 Phase 3 — Maestro is wrapped in a stall-detector watchdog. The
+# wrapper tees stdout, probes log mtime every MAESTRO_STALL_PROBE_INTERVAL
+# seconds, and kills the maestro process group on stall (default: 90s
+# silence) or hard limit (default: 15 min). Exit 124 = stall,
+# 137 = hard limit. Last session lost 30 min to a silent Maestro hang
+# (bo1o442ww); the wrapper recovers that time and dumps `/debug/state`
+# + OSLog as artifacts on stall.
+MAESTRO_WATCHDOG="$REPO_ROOT/tools/simulator/maestro_with_watchdog.sh"
+if [ ! -x "$MAESTRO_WATCHDOG" ]; then
+  echo "ERROR: Maestro watchdog wrapper not found at $MAESTRO_WATCHDOG" >&2; exit 1
 fi
 
-echo "[L1] maestro test $FLOW --device booted"
-"$MAESTRO_ENV" test "$FLOW" --device booted || {
-  echo "ERROR: L1 Maestro flow failed. See ~/.maestro/tests/ for trace." >&2
+# Pre-compute MINT_WALKER_ARTIFACTS so the post-run error message can
+# print the RESOLVED path (per code-review I1 — earlier version printed
+# the literal `$MINT_WALKER_ARTIFACTS` because of a backslash escape AND
+# the watchdog never exported its own ARTIFACT_DIR).
+export MINT_WALKER_ARTIFACTS="${MINT_WALKER_ARTIFACTS:-$REPO_ROOT/.planning/_walker/${RUN_ID:-$(date +%Y%m%dT%H%M%S)}-${PERSONA}-l1}"
+mkdir -p "$MINT_WALKER_ARTIFACTS"
+
+echo "[L1] maestro test $FLOW --device booted (watchdog-wrapped)"
+echo "[L1] artifacts → $MINT_WALKER_ARTIFACTS"
+# `set -e` aborts on non-zero command exit BEFORE the next-line
+# assignment captures $? (per code-review C3). Bracket the watchdog
+# call with `set +e` so 124 / 137 reach the case statement below.
+set +e
+"$MAESTRO_WATCHDOG" test "$FLOW" --device booted
+rc=$?
+set -e
+if [ "$rc" -ne 0 ]; then
+  case "$rc" in
+    124) echo "ERROR: L1 Maestro STALLED — artifacts in $MINT_WALKER_ARTIFACTS" >&2 ;;
+    137) echo "ERROR: L1 Maestro exceeded hard limit (artifacts in $MINT_WALKER_ARTIFACTS)" >&2 ;;
+    *)   echo "ERROR: L1 Maestro flow failed (exit $rc). See ~/.maestro/tests/ for trace." >&2 ;;
+  esac
   exit 3
-}
+fi
 
 # ── L2 Dart assertions — post-run validation ────────────────────────
 ASSERT_FILE="$REPO_ROOT/apps/mobile/test/personas/${PERSONA}_test.dart"

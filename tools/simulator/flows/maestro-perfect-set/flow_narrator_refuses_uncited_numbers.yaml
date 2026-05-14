@@ -97,9 +97,22 @@ tags:
 # 01 — cold launch + landing (clearState=true forces a fresh anonymous
 # session — without it, prior runs' chat history persists and assertions
 # match residual bubbles, masking the G1 contract).
+# Conditional bêta modal dismiss : if the build under test doesn't
+# carry MINT_DISABLE_BETA_MODAL=true, the modal opens on cold launch
+# and covers « Parle à Mint » — assertion fails. Same pattern as
+# personas (julien_swiss, lauren_expat_us).
 - launchApp:
     clearState: true
-- assertVisible: "Parle à Mint"
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: ".*Parle à Mint.*"
+    timeout: 10000
 - takeScreenshot: "01-landing"
 
 # 02 — open anonymous chat

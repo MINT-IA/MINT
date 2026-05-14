@@ -115,3 +115,15 @@ tools/mcp/mint-tools/.venv/
 
 # .gitignore backups produced by failed edits
 .gitignore.bak
+
+# Maestro sweep artifact directories — local-only debug evidence
+# (per-flow maestro.log + screenshots + cassure-report.json + oslog).
+# Findings docs at .planning/_walker/sweep-*-FINDINGS.md ARE versioned ;
+# the timestamped artifact dirs are not (regenerable, ~MB each).
+.planning/_walker/sweep-2[0-9]*T[0-9]*/
+.planning/_walker/sweep-2[0-9]*-[0-9]*-[0-9]*T*/
+
+# Maestro `takeScreenshot:` dumps numbered PNGs at the working dir
+# (repo root when run via tools/simulator/maestro_sweep.sh). Ignore
+# at root only — leaves intentional design assets in subdirs alone.
+/[0-9][0-9]-*.png

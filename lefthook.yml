@@ -156,6 +156,34 @@ pre-commit:
       run: python3 tools/checks/alembic_revision_length.py --file {staged_files}
       tags: [backend, alembic, release, incident-2026-05-12]
       fail_text: "alembic revision id > 32 chars — PostgreSQL alembic_version.version_num VARCHAR(32) overflow. Shorten the `revision` string in the affected file."
+    # ── S98 Phase 4 — Cassure classifier heuristic self-test ──
+    cassure_classifier_self_test:
+      # HARD gate. Runs when either the cassure classifier OR its self-
+      # test is staged. Replays cassure #4 (anonymous counter) + 4 other
+      # bug-class scenarios as synthetic inputs and asserts the primary
+      # hypothesis matches. Without this, a careless edit to a heuristic
+      # regex or threshold would silently degrade the operator's
+      # cassure-debug velocity until the next live failure exposed it.
+      glob: "tools/debug/cassure-classifier{,_test}.sh"
+      run: tools/debug/cassure-classifier_test.sh
+      tags: [walker, debug-infra]
+      fail_text: "Cassure classifier regressed. See test output above."
+    # ── S98 Phase 3 — Maestro stall-detector watchdog self-test ──
+    maestro_watchdog_self_test:
+      # HARD gate. Runs when either the Maestro stall-detector watchdog
+      # OR its own test is staged. Spawns three synthetic Maestro
+      # scenarios (fast clean exit, deliberate stall, hard-limit
+      # overrun) and asserts the watchdog exits with the right codes
+      # (0 / 124 / 137) and writes the expected artifacts.
+      #
+      # Without this self-test, a careless edit to the stall threshold,
+      # PID handling, or kill cascade would go undetected until the
+      # next live-sim Maestro hang silently buried the failure mode the
+      # watchdog exists to prevent.
+      glob: "tools/simulator/maestro_with_watchdog{,_test}.sh"
+      run: tools/simulator/maestro_with_watchdog_test.sh
+      tags: [walker, maestro, debug-infra]
+      fail_text: "Maestro stall-detector watchdog regressed. See test output above."
     # ── Incident 2026-05-11 — iOS release capability drift (LINT-IOS-RELEASE-01) ──
     ios_release_capability_drift:
       # HARD gate. Runs when `apps/mobile/ios/Runner/Runner.entitlements`
