@@ -3733,7 +3733,7 @@ async def coach_chat(
                 if _d.get("avoirLpp"):
                     _facts.append(f"- Avoir LPP actuel: {int(_d['avoirLpp']):,} CHF".replace(",", "'"))
                 if _d.get("lppInsuredSalary"):
-                    _facts.append(f"- Salaire assure LPP: {int(_d['lppInsuredSalary']):,} CHF".replace(",", "'"))
+                    _facts.append(f"- Salaire assuré LPP: {int(_d['lppInsuredSalary']):,} CHF".replace(",", "'"))
                 if _d.get("lppBuybackMax"):
                     _facts.append(f"- Rachat LPP maximum: {int(_d['lppBuybackMax']):,} CHF".replace(",", "'"))
                 if _d.get("pillar3aBalance"):
