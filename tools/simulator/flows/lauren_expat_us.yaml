@@ -40,12 +40,16 @@ appId: ch.mint.app
 # for Phase 90 ; the archetype-seeded prompt is allowed to differ from
 # the walker deterministic prompt — Maestro just observes the response
 # render).
+# Maestro 2.5.1 rejects `timeout:` as an inline property of
+# `assertVisible:`. Canonical replacement is `extendedWaitUntil:` —
+# same semantics, accepted syntax. See julien_swiss.yaml for rationale.
 - tapOn:
     id: "anon-chat-input"
 - inputText: "Mon revenu en CHF, est-ce que je peux mettre dans un 3a ?"
 - pressKey: Enter
-- assertVisible:
-    id: "anon-chat-message-assistant"
+- extendedWaitUntil:
+    visible:
+      id: "anon-chat-message-assistant"
     timeout: 30000
 
 # 04 — éclairage card rendered (forced kind = fiscal_margin_3a)

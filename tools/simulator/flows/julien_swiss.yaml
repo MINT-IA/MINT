@@ -39,12 +39,19 @@ appId: ch.mint.app
     id: "anon-chat-opener-bubble"
 
 # 03 — tap input field, type prompt 1, submit, wait for assistant reply
+# Maestro 2.5.1 rejects `timeout:` as an inline property of
+# `assertVisible:` (« Unknown Property: timeout », parse error before
+# any step runs). Canonical replacement is `extendedWaitUntil:` with
+# `visible:` and `timeout:` as siblings — same semantics, accepted
+# syntax. Pattern matches the cold-launch fragment + every other
+# extendedWaitUntil call site in this codebase.
 - tapOn:
     id: "anon-chat-input"
 - inputText: "Combien je peux mettre dans un 3a cette annee ?"
 - pressKey: Enter
-- assertVisible:
-    id: "anon-chat-message-assistant"
+- extendedWaitUntil:
+    visible:
+      id: "anon-chat-message-assistant"
     timeout: 30000
 
 # 04 — éclairage card rendered (forced kind = fiscal_margin_3a)
