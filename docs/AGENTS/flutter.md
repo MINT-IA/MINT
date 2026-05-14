@@ -138,4 +138,4 @@ tester.view.devicePixelRatio = 2.0;
 - `docs/VOICE_SYSTEM.md` — 5 piliers, 50 avant/après, microcopy.
 - `docs/NAVIGATION_GRAAL_V10.md` — full IA.
 - `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` — UX 7 laws + 75 propositions.
-- `.claude/skills/mint-flutter-dev/SKILL.md` — skill opérationnel (UI kit, chantiers actifs).
+- Subagents : `frontend-developer`, `mobile-developer`, `ui-designer`, `accessibility-expert` (cf. CLAUDE.md §3.5 routing).

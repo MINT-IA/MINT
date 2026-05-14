@@ -1,4 +1,4 @@
-"""mint-wiring-check — pytest for tools/checks/wiring_check.py.
+"""wiring_check — pytest for tools/checks/wiring_check.py.
 
 Exercises the 4-level check against:
   1. Real wired files (PASS)
