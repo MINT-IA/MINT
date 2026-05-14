@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
-status: completed
+status: executing
 stopped_at: Phase 96 Wave 2 shipped (Backend) — 3 commits b81172a3..bbcf0853, 46 net new tests, full pytest 6567 passed, Phase 94/95 byte-identity preserved (181+74=255 tests). Wave 3 next (NarrativeSleeve linter + metaphor TOML + Maestro G1).
-last_updated: "2026-05-11T05:18:26.093Z"
-last_activity: 2026-05-11
+last_updated: "2026-05-14T22:43:08.278Z"
+last_activity: 2026-05-14 -- Phase wave-1b-citation-chips planning complete
 progress:
-  total_phases: 11
-  completed_phases: 6
-  total_plans: 28
-  completed_plans: 23
-  percent: 82
+  total_phases: 12
+  completed_phases: 1
+  total_plans: 7
+  completed_plans: 4
+  percent: 57
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -37,8 +37,8 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 Phase: 96
 Plan: Not started
-Status: Phase 96 Wave 3 implementation complete ; Task 4 G2 checkpoint awaits Julien token (`approved` / `approved-with-issues: <desc>` / `not approved — issue: <desc>`)
-Last activity: 2026-05-11
+Status: Ready to execute
+Last activity: 2026-05-14 -- Phase wave-1b-citation-chips planning complete
 
 ## Plan 96-03 Receipt (Wave 3 Cross-stack, 2026-05-11)
 
