@@ -17,7 +17,7 @@ pre { background: #f7f7f7; padding: 0.8em; border-radius: 4px; overflow-x: auto;
 </style></head>
 <body>
 <h1>Wave 1b — Citation Chips Activation — Verification Report</h1>
-<p class="small">Phase: <code>wave-1b-citation-chips</code> &middot; Generated: 2026-05-15 &middot; Last updated: <span id="date">2026-05-15</span> &middot; Status: <strong class="pending">PENDING G2</strong> (G3+G4+G5 PASS; G1 drafted; G2 awaits dev&rarr;staging deploy + Railway flag flip).</p>
+<p class="small">Phase: <code>wave-1b-citation-chips</code> &middot; Generated: 2026-05-15 &middot; Last updated: <span id="date">2026-05-15 15:43 CEST</span> &middot; Status: <strong class="pending">PENDING G2 — RUNTIME GAP</strong> (G3+G4+G5 PASS; G1 patched + ran; G2 attempt #2 surfaced 3 distinct blockers — 2 fixed, 1 escalation-needed).</p>
 
 <h2>Requirements coverage (10/10)</h2>
 <table>
@@ -119,6 +119,142 @@ $ cd services/backend && python3 -m pytest tests/test_coach_citation/ -q | tail 
 <li>Trigger Claude autonomous G2 walkthrough: build mobile against staging &rarr; install + launch on iPhone-17-Pro sim &rarr; run <code>~/.maestro/bin/maestro test tools/simulator/flows/maestro-perfect-set/wave_1b_citation_chip_smoke.yaml</code> &rarr; capture transcript + <code>idb describe-all</code> snapshot + Sentry filter &rarr; update this report with verbatim outputs &rarr; flip phase status from <code>PENDING G2</code> to <code>SHIPPED</code>.</li>
 </ol>
 <p>Per CLAUDE.md &sect;9.7 (&laquo; I don't know &raquo; is the highest-quality answer) &mdash; Plan 09 ships the deterministic mechanical gates (G3+G4+G5 PASS), the G1 Maestro flow draft, the G2 autonomous protocol documentation, and refuses to falsely claim <code>SHIPPED</code> until the operator&rsquo;s dev&rarr;staging merge + flag flip lands. No false-exit-0 signal. Phase status stays <code>PENDING G2</code>.</p>
+
+<h2>G2 Run #2 &mdash; 2026-05-15 13:30&ndash;13:43 UTC (Claude autonomous, post dev&rarr;staging merge)</h2>
+
+<p><strong>Trigger:</strong> User invoked <code>/gsd-verify-work wave-1b</code>. Recon surfaced that PR #626 (<code>ship: dev &rarr; staging &mdash; Wave 1a (07/08) + Wave 1b (01-09) citation chips</code>) had already merged at <code>2026-05-15T11:47:28Z</code> (merge commit <code>1d066a35</code> on both <code>origin/dev</code> and <code>origin/staging</code>). The G2 BLOCKED section above no longer applies as written. Re-attempting G2 autonomous.</p>
+
+<h3>Findings &mdash; 3 distinct blockers, 2 fixed inline, 1 escalation-needed</h3>
+
+<h4>Blocker 1 &mdash; Railway env var name mismatch (FIXED)</h4>
+<p>Railway staging had 5 orphan env vars matching nothing in <code>services/backend/app/core/config.py</code>:</p>
+<pre>
+Pre-fix Railway state:
+  COACH_TOOL_SERVER_SIDE_BUDGET_STATUS=true             (orphan, code expects _BUDGET_ENABLED)
+  COACH_TOOL_SERVER_SIDE_CAP_STATUS=true                (orphan, code expects COACH_CAP_CHF_GARDE_ENABLED)
+  COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION=true       (orphan, missing _ENABLED)
+  COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ANALYSIS=true     (orphan, code expects _CROSS_PILLAR_ENABLED)
+  COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION=true     (orphan, missing _ENABLED)
+  (no _RETRIEVE_MEMORIES_ENABLED at all)
+
+Grep proves zero code references to the orphan names:
+  $ grep -rn 'COACH_TOOL_SERVER_SIDE_BUDGET_STATUS' services/backend/ &mdash; (no hits)
+  $ grep -rn 'COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION$' services/backend/ &mdash; (no hits)
+  Pydantic Settings is `case_sensitive=True` (config.py:9), so the orphans are ghosts.
+
+Result: all 5 server-side-tool flags were defaulting to False on the deployed pod
+despite Plan 09 protocol marking them as flipped.
+
+Fix (executed during run):
+  $ railway variable set --service MINT --environment staging \
+      COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED=true \
+      COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED=true \
+      COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED=true \
+      COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED=true \
+      COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED=true
+  $ railway restart --service MINT --yes  &mdash; pod restarted
+
+Post-fix verification:
+  $ railway run --service MINT --environment staging -- bash -c 'env | grep _ENABLED' &mdash;
+  all 5 _ENABLED flags present and =true. Orphans intentionally left in place
+  (Karpathy #3 surgical &mdash; harmless ghosts, separate cleanup).
+</pre>
+
+<h4>Blocker 2 &mdash; Maestro flow <code>timeout</code> syntax invalid on assertVisible (FIXED)</h4>
+<p><code>wave_1b_citation_chip_smoke.yaml</code> used <code>timeout:</code> as a sibling key of <code>assertVisible:</code>, which Maestro 2.5.1 rejects with <code>&gt; Unknown Property: timeout</code>. Confirmed by precedent comment at <code>flow_b14_debt_intent_no_mortgage.yaml:10</code>: &laquo; <code>timeout</code> invalid on <code>assertVisible</code> ; use <code>extendedWaitUntil</code> &raquo;. The wave-1b flow was authored by Plan 09 without ever being live-executed, so the syntax bug shipped undetected.</p>
+<pre>
+Patched in-place to extendedWaitUntil + takeScreenshot per checkpoint, mirroring
+flow_b14 convention. Re-ran &mdash; Maestro now parses + executes the flow.
+
+  $ ~/.maestro/bin/maestro test tools/simulator/flows/maestro-perfect-set/wave_1b_citation_chip_smoke.yaml
+  [Failed] wave_1b_citation_chip_smoke (17s)
+    (Assertion is false: "Mon argent|Aujourd'hui|Mon coach" is visible)
+  1/1 Flow Failed
+</pre>
+<p>Failure root cause: sim is on the anonymous landing screen (&laquo; Voir clair, d&eacute;cider seul. &raquo; / <code>Parle &agrave; Mint</code>), not the authenticated home with the <code>Mon argent</code> tab. The flow assumed authenticated state. The 24h JWT expiry from a prior walker run had lapsed (last Runner.app build was <code>2026-05-13</code>). Maestro debug screenshot captured at <code>g2-evidence/maestro_debug/screenshot-&#10060;-...-(wave_1b_citation_chip_smoke).png</code> (anon landing visible).</p>
+
+<h4>Blocker 3 &mdash; Coach narrator emits no <code>tool_use</code> blocks on staging (ESCALATION-NEEDED)</h4>
+<p>Pivoted to a backend-only HTTP probe (operator provided permission to register a fresh staging account; the email + password are not material to the bug analysis and are redacted here). Registered + logged in + seeded a synthetic <em>swiss_native</em> archetype profile (canton, age-band ~45y, salaried income, partial pillar-3a balance, partial LPP, partial insured salary, factfindCompletionIndex 0.85) + seeded a budget via <code>PUT /api/v1/budget/me</code> consistent with the profile income (4 fixed lines covering housing / health / taxes / transport, savings target ~16% of income, riskLevel green).</p>
+<p>Posted 7 variants of budget/housing/retirement questions to <code>POST /api/v1/coach/chat</code> with the Bearer JWT. <strong>Every single response returned <code>citationChips: null</code> AND <code>toolCalls: null</code>.</strong> Sample tail (probe v7 &mdash; retirement intent):</p>
+<pre>
+$ curl -s -X POST https://mint-staging.up.railway.app/api/v1/coach/chat \
+    -H "Authorization: Bearer $JWT" \
+    -d '{"message":"Quelle sera ma rente AVS et LPP &agrave; 65 ans avec mon 3eme pilier actuel ? Donne-moi la projection chiffr&eacute;e.",...}'
+&rarr;
+HTTP 200, 4s, 16573 tokens
+
+{
+  "message": "Je vais analyser ta situation retraite compl&egrave;te &mdash; projection AVS, LPP et 3a &mdash; &agrave; partir de ton profil.\n\n_Outil &eacute;ducatif simplifi&eacute;. Ne constitue pas un conseil financier (LSFin). Consulte un&middot;e sp&eacute;cialiste pour une analyse personnalis&eacute;e._",
+  "toolCalls": null,
+  "citationChips": null,
+  "responseMeta": {"degraded": false, "model_used": "claude-sonnet-4-5-20250929", "budget_tier": "normal"},
+  "tokensUsed": 16573
+}
+</pre>
+
+<p><strong>Pattern:</strong> the LLM <em>announces</em> tool intent in the response prose (&laquo; Je vais r&eacute;cup&eacute;rer ton instantan&eacute; budg&eacute;taire. &raquo; / &laquo; Je vais analyser ta situation retraite &raquo;) but never emits a <code>tool_use</code> content block. The agent loop iterates 0 times, no dispatcher fires, no <code>inputs_hash</code> JSON returns, <code>_extract_wave_1b_citation_chip</code> has nothing to extract. Wave 1b's chip wiring is byte-correct at the schema level (response includes the <code>citationChips</code> key, just with <code>null</code> value), but it has nothing to emit because the upstream Wave 1a tool path doesn't fire.</p>
+
+<p><strong>Root cause (consensus across 3 specialist agents, 2026-05-15 panel on PR #627):</strong> the initial hypothesis (&laquo; empty intents &rarr; empty allowed_tools &raquo;) was wrong. The narrator IS advertised tools; the LLM has tools available but elects not to use them. Three converging findings (engram obs-1ba08390 backend-architect / obs-240cd512 ai-engineer / obs-8e55517a python-pro):</p>
+
+<ul>
+<li><strong>Proximate cause &mdash; <code>tool_choice={"type": "auto"}</code> at <code>services/backend/app/services/rag/llm_client.py:227</code></strong>. The author's own comment at <code>llm_client.py:222-224</code> literally admits the failure mode: &laquo; Sonnet sometimes skips tool_use entirely even when the system prompt says MANDATORY call save_fact. &raquo;. With <code>"auto"</code> the model is free to skip tool_use; with <code>{"type": "any"}</code> the API forces at least one tool call (per Anthropic spec). The 2-line fix never landed.</li>
+
+<li><strong>Compounding cause &mdash; no MANDATORY-tool-invocation directive in always-on bundle prompts</strong>. <code>grep MANDATORY|invoque|Tu DOIS|tool_use</code> on <code>services/backend/app/services/coach/bundles/life_event_router.py</code> and <code>compliance_narrator.py</code> returns ZERO matches. <code>LifeEventRouterBundle.allowed_tools = ["get_budget_status", "get_retirement_projection"]</code> (<code>life_event_router.py:133-136</code>) but the bundle's <code>prompt_fragment</code> never instructs the narrator to invoke them. The LLM treats the tools as optional.</li>
+
+<li><strong>Compounding cause &mdash; refusal escape hatch at <code>services/backend/app/services/coach/citation_grammar.py:86-89</code></strong>: &laquo; En l'absence de cl&eacute; adapt&eacute;e pour un chiffre, &eacute;cris &lsquo;je n'ai pas cette donn&eacute;e pour l'instant&rsquo; &agrave; la place du chiffre. &raquo; combined with <code>claude_coach_service.py:660</code> &laquo; Ne cite JAMAIS un chiffre que tu ne peux pas sourcer depuis le contexte fourni &raquo;. The LLM is given an explicit refusal path BEFORE being told to invoke a tool. The forced-tool-invocation gate described in memory <code>project_coach_forced_tool_invocation</code> (&laquo; REJECT + re-prompt if LLM produces a number without a tool call trace &raquo;) is NOT wired.</li>
+
+<li><strong>Test gap</strong>: <code>services/backend/tests/test_coach_tools_parity.py:238</code> calls <code>_compute_budget_status(...)</code> directly &mdash; tests the dispatcher math, not whether the narrator actually emits <code>tool_use</code>. <code>tests/bundles/test_bundle_compiler.py:107</code> asserts the 2 always-on bundles activate but NOT that <code>allowed_tools</code> contains a chip-emitting tool. The invariant &laquo; typical user messages must yield &ge;1 citation-emitting tool advertised AND emitted &raquo; is uncovered.</li>
+</ul>
+
+<p><strong>Distinguishing experiment (10 lines of python, no staging deploy)</strong>: replay probe v7 directly against the Anthropic API twice with the same bundle-compiled prompt + tools, only <code>tool_choice</code> differs &mdash; <code>auto</code> baseline vs <code>any</code> variant. Variant returns <code>stop_reason=tool_use</code> with &ge;1 tool_use block &rArr; single-line fix at <code>llm_client.py:227</code> + bundle prompt fragments. Variant still text-only &rArr; doctrine rewrite (kill the refusal escape hatch + wire the forced-tool-invocation gate per <code>project_coach_forced_tool_invocation</code>).</p>
+
+<p><strong>Scope:</strong> this is NOT a Wave 1b code bug. Wave 1b adds citation chips on TOP of a working tool-call response. If the tool doesn't fire, there's nothing to cite. The bug lives in Wave 1a / coach orchestration territory (specifically the <code>tool_choice</code> disposition + bundle prompt fragment construction).</p>
+
+<h3>G2 Run #2 evidence files</h3>
+<ul>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/01_launch.png</code> &mdash; anon landing screenshot, post-launch state on iPhone-17-Pro sim</li>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/diag_after_maestro.png</code> &mdash; iOS home screen, post Maestro failure</li>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/maestro_transcript.log</code> &mdash; Maestro run output (assertion failure tail)</li>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/maestro_debug/</code> &mdash; Maestro debug bundle (commands JSON + maestro.log + failure screenshot)</li>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/maestro_junit.xml</code> &mdash; JUnit verdict</li>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/coach_chat_response_v{1..7}.json.raw</code> &mdash; 7 HTTP probes of <code>/coach/chat</code>, all returning <code>citationChips: null</code></li>
+</ul>
+
+<h3>Updated 5-gate status post Run #2</h3>
+<table>
+<tr><th>Gate</th><th>Pre-Run-2</th><th>Post-Run-2</th><th>Delta</th></tr>
+<tr><td>G1 Maestro flow</td><td class="pending">DRAFT</td><td class="pending">PATCHED + ran &mdash; fails on auth-state assumption</td><td>+1 bug fix (timeout syntax), +1 new finding (flow assumes authed sim)</td></tr>
+<tr><td>G2 Claude autonomous</td><td class="pending">PENDING POST-STAGING</td><td class="fail">BLOCKED on coach runtime gap (Blocker 3)</td><td>Staging deploy is live, flags fixed, but tool-call path doesn't fire</td></tr>
+<tr><td>G3 dev CI</td><td class="ok">PASS</td><td class="ok">PASS</td><td>unchanged</td></tr>
+<tr><td>G4 regression</td><td class="ok">PASS</td><td class="ok">PASS</td><td>unchanged</td></tr>
+<tr><td>G5 LSFin + accent + ARB parity</td><td class="ok">PASS</td><td class="ok">PASS</td><td>unchanged</td></tr>
+</table>
+
+<h3>Recommended next phase &mdash; <code>wave-1c-coach-tool-dispatch-rca</code></h3>
+<p>Scope, ordered by descending leverage (cheapest experiment first):</p>
+<ol>
+<li><strong>Run the distinguishing experiment</strong> &mdash; 10 lines of python, no staging deploy, no PR. Replay probe v7 directly against Anthropic API twice: <code>tool_choice=auto</code> baseline vs <code>tool_choice=any</code> variant. Decision-rule above. Output: a single <code>.planning/phases/wave-1c-coach-tool-dispatch-rca/EXPERIMENT.md</code> with both response payloads inline.</li>
+<li><strong>If <code>any</code> succeeds with <code>tool_use</code></strong> &mdash; ship a focused PR :
+  <ul>
+    <li><code>services/backend/app/services/rag/llm_client.py:227</code> &mdash; route <code>tool_choice</code> by intent: budget/housing/retirement &rarr; <code>{"type": "any"}</code>; greeting/disclaimer-only &rarr; <code>"auto"</code> (preserve LSFin disclaimer-only paths).</li>
+    <li><code>services/backend/app/services/coach/bundles/life_event_router.py</code> + <code>lpp_projector.py</code> &mdash; append a mandate paragraph in each <code>prompt_fragment</code>: &laquo; AVANT toute r&eacute;ponse num&eacute;rique, invoque <code>get_budget_status</code> ou <code>get_retirement_projection</code>. &raquo;</li>
+    <li><code>services/backend/app/services/coach/citation_grammar.py:86-89</code> &mdash; reorder the refusal escape hatch: invoke tool FIRST, refuse only if tool returns empty.</li>
+  </ul>
+</li>
+<li><strong>If <code>any</code> still emits text-only</strong> &mdash; the bug is doctrine-side (refusal escape hatch wins over tool advertisement). Doctrine rewrite + wire the forced-tool-invocation gate per memory <code>project_coach_forced_tool_invocation</code>: reject narrator response if it contains a number not preceded by a <code>tool_use</code> trace, re-prompt with the tool result already inlined.</li>
+<li><strong>Regression test floor</strong> (qa-expert engram obs-69, mandatory before merging the fix PR):
+  <ul>
+    <li><code>tests/test_coach_citation/test_narrator_emits_tool_use_for_intent.py</code> &mdash; 6 force-keyword fixtures (one per Wave 1b tool), mock Anthropic, assert <code>stop_reason=="tool_use"</code> + correct tool name in tool_use block.</li>
+    <li><code>tests/bundles/test_compile_yields_chip_emitter.py</code> (python-pro fixture) &mdash; parameterized over 3 message templates, asserts <code>compile_bundles(intents=_classify_user_intent(msg)).allowed_tools &cap; CHIP_EMITTERS</code> is non-empty.</li>
+    <li><code>tests/test_coach_citation/test_g2_archetype_matrix.py</code> &mdash; 8 archetypes (swiss_native, expat_eu, expat_us FATCA, cross_border, independent_no_lpp, &hellip;) &times; 6 tools, reusing the Wave 1a parity fixture rig (obs_id #48). Per CLAUDE.md NEVER #7.</li>
+    <li><code>tools/simulator/flows/maestro-perfect-set/coach_tool_dispatch_all_6_smoke.yaml</code> &mdash; assert <code>coachCitationChip-&lt;name&gt;</code> for ALL 6 tools (not just <code>budget_snapshot</code>). Wire <code>runFlow: auth/login.yaml</code> as a precondition so the flow stops assuming pre-existing auth state.</li>
+    <li>Sentry breadcrumb at <code>coach_chat.py:4181</code> emitting <code>{detected_intents, narrator_tool_count, narrator_tool_names, chip_emitter_count}</code>. Alarm rule: <code>stop_reason==end_turn AND prose matches /Je vais (r&eacute;cup&eacute;rer|analyser|projeter)/ AND narrator_tool_count &ge; 1</code> &rArr; firehose to investigators (anti-trust-collapse tripwire per memory <code>project_coach_forced_tool_invocation</code>).</li>
+  </ul>
+</li>
+<li><strong>Live G2 retry</strong> &mdash; once the fix PR is on staging, replay the Maestro <code>coach_tool_dispatch_all_6_smoke.yaml</code> flow (after the auth precondition lands). Wave 1b chip-rendering Dart widgets are already covered by widget+golden tests (G4 PASS); confirming the staging response payload contains a non-null <code>citationChips</code> array for at least 1 tool is the only remaining live-G2 evidence Wave 1b needs.</li>
+</ol>
+
+<p><strong>Verdict 2026-05-15 15:43 CEST per CLAUDE.md &sect;9 0-trust:</strong> Wave 1b mechanical wiring is verified end-to-end at the schema + tests level (G3+G4+G5+widget tests). Live runtime chip emission is NOT verified and CANNOT be verified today because the upstream Wave 1a tool dispatch on staging does not fire any server-side tool, regardless of intent keywords, profile completeness, or source_card content. PR #625 (wave-1b-09) is on dev + staging, but the user-visible feature does not yet activate. <strong>Phase status remains <code>PENDING G2 &mdash; RUNTIME GAP</code>.</strong> No false &laquo; SHIPPED &raquo; claim.</p>
 
 <h2>Deferred items</h2>
 <ul>
