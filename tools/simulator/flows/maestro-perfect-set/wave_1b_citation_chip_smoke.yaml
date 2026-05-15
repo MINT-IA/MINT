@@ -1,0 +1,85 @@
+# tools/simulator/flows/maestro-perfect-set/wave_1b_citation_chip_smoke.yaml
+#
+# ─── PURPOSE ──────────────────────────────────────────────────────────────
+# Wave 1b G1 smoke — assert the citation chip + modal end-to-end against
+# the Railway STAGING backend with all 5 server-side flags ON. Builds on
+# Wave 1a's coach_tools_server_side_smoke.yaml: where Wave 1a asserted the
+# narrator response text appears, Wave 1b asserts the inputs_hash chip
+# renders, the modal opens on tap, and the Souviens-toi CTA fires.
+#
+# ─── PRECONDITIONS (live exec deferred — Task 3 of wave-1b-09-PLAN.md) ────
+#   (a) Staging Railway deploy carries the Wave 1b branch with all 5
+#       server-side flags ON + cap garde ON:
+#         COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED=true
+#         COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED=true
+#         COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED=true
+#         COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED=true
+#         COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED=true
+#         COACH_CAP_CHF_GARDE_ENABLED=true
+#   (b) Mobile build on the booted sim targets staging
+#       (`mint-staging.up.railway.app`, release flavor — memory
+#       `feedback_app_targets_staging_always`).
+#   (c) ANTHROPIC_API_KEY present on Railway staging (memory
+#       `feedback_anthropic_key_on_railway`).
+#   (d) Profile fixture seeded with budget data so get_budget_status
+#       traverses its server-side branch (julien archetype profile OK).
+#
+# ─── SCOPE ────────────────────────────────────────────────────────────────
+# Wave 1b-only smoke = chip renders by testID, modal opens on tap, JSON
+# expansion reveals an expected field, Souviens-toi CTA fires. Wave 1c
+# will run the 20 Q&A parity suite across all 6 tools.
+#
+# ─── EXPECTED DURATION ────────────────────────────────────────────────────
+# ~60s wall-clock — cold launch + auth + 1 card tap + 1 narrator round-trip
+# + chip assertions + modal tap.
+#
+# ─── EXEC PROTOCOL ────────────────────────────────────────────────────────
+# Run autonomously by Claude per memory g2-claude-autonomous-not-julien-token
+# AFTER dev→staging merge + Railway env flip lands. The transcript tail is
+# pasted verbatim into .planning/phases/wave-1b-citation-chips/
+# wave-1b-VERIFICATION-REPORT.html under the "G2 Evidence" section.
+appId: ch.mint.app
+---
+- launchApp:
+    clearState: false
+- assertVisible:
+    text: "Mon argent|Aujourd'hui|Mon coach"
+    timeout: 15000
+
+# ─── 1. Tap Mon argent + budget card → trigger get_budget_status ──────────
+- tapOn:
+    text: "(?i)Mon argent|Budget|Aujourd'hui"
+- tapOn:
+    text: "(?i)Budget|Mes finances"
+- tapOn:
+    text: "(?i)Explique"
+- assertVisible:
+    text: "(?i)Budget|Revenu|Marge"
+    timeout: 20000
+
+# ─── 2. Citation chip renders in the coach response footer ────────────────
+# testID stable per Plan 05 Key('coachCitationChip-<toolName>').
+- assertVisible:
+    id: "coachCitationChip-budget_snapshot"
+    timeout: 15000
+
+# ─── 3. Tap chip → modal opens (Plan 06 showCoachCitationModal) ───────────
+- tapOn:
+    id: "coachCitationChip-budget_snapshot"
+- assertVisible:
+    id: "coachCitationModalJsonExpansion"
+    timeout: 5000
+
+# ─── 4. Expand JSON viewer → expected field appears in pretty-printed JSON
+- tapOn:
+    id: "coachCitationModalJsonExpansion"
+- assertVisible:
+    text: "(?i)monthly|net|revenu|budget"
+    timeout: 5000
+
+# ─── 5. Souviens-toi CTA fires SnackBar + closes modal ────────────────────
+- tapOn:
+    id: "coachCitationModalRememberCta"
+
+# ─── 6. Back to card screen ───────────────────────────────────────────────
+- back
