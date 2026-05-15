@@ -319,8 +319,8 @@ lib/widgets/coach/clause_3a_widget.dart:98: fontSize: 22
 lib/widgets/coach/coach_app_bar.dart:62: fontSize: 15
 lib/widgets/coach/coach_briefing_card.dart:73: fontSize: 19
 lib/widgets/coach/coach_disclaimer_footer.dart:53: fontSize: 11
-lib/widgets/coach/coach_message_bubble.dart:110: fontSize: 15
-lib/widgets/coach/coach_message_bubble.dart:305: fontSize: 10
+lib/widgets/coach/coach_message_bubble.dart:111: fontSize: 15
+lib/widgets/coach/coach_message_bubble.dart:320: fontSize: 10
 lib/widgets/coach/crash_test_budget_widget.dart:103: fontSize: 17
 lib/widgets/coach/crash_test_budget_widget.dart:176: fontSize: 18
 lib/widgets/coach/crash_test_budget_widget.dart:205: fontSize: 14
