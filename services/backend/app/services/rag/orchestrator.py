@@ -88,9 +88,16 @@ class RAGOrchestrator:
             user_id=user_id,
         )
 
-        # Step 1b: FAQ fallback — if vector store returned few results, enrich with FAQs
+        # Step 1b: FAQ fallback — if vector store returned few results, enrich with FAQs.
+        # Wave 1c-A2.1 (2026-05-15): when caller asked for n_results=0 (RAG suppressed for
+        # tool-eligible intents per coach_chat.py:_TOOL_ELIGIBLE_INTENTS gate), skip the
+        # FAQ fallback too — otherwise FAQ chunks re-inject the same « consulte ahv-iv.ch »
+        # redirects that the orchestration-layer gate was supposed to suppress, defeating
+        # the entire Wave A2 fix. See `.planning/phases/wave-1c-coach-tool-dispatch-rca/
+        # probe-evidence/payload-2026-05-15-A2-2219.jsonl` (the evidence: gate fired,
+        # n_results=0, but FAQ fallback re-added 3 redirect chunks).
         faq_sources: list[dict] = []
-        if len(retrieved) < 2:
+        if n_results > 0 and len(retrieved) < 2:
             faq_results = FaqService.search(question)
             for faq in faq_results[:3]:
                 retrieved.append({"text": faq.answer, "source": {}})
