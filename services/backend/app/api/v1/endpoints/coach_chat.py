@@ -1544,6 +1544,35 @@ def _classify_user_intent(message: Optional[str]) -> set[str]:
     return detected
 
 
+# Wave 1c-A2 (2026-05-15) — gating set for the orchestration-layer RAG cut.
+# When detected_intents intersects this set AND the agent-loop tools include
+# at least one entry from _TOOL_ELIGIBLE_TOOL_NAMES, n_results is set to 0
+# (RAG retrieval is suppressed) so the « Contexte de la base de connaissances
+# MINT » preamble + redirect chunks don't beat the system-prompt tool_use
+# MANDATE. See `.planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-A2-
+# PLAN.md` and engram obs id 81 (RAG-context root cause) + obs id 86
+# (architect-review surface verdict).
+_TOOL_ELIGIBLE_INTENTS: frozenset[str] = frozenset({
+    "retirement",  # → get_retirement_projection (proven broken in probe)
+    "taxes",       # → get_3a_cap / cross_pillar deductions
+    "debt",        # → cross_pillar consolidation / amortization scenarios
+    "housing",     # → cross_pillar (LPP retrait pour résidence)
+    "family",      # → couple_optimization
+    "career",      # → cross_pillar (LPP rachat)
+})
+
+_TOOL_ELIGIBLE_TOOL_NAMES: frozenset[str] = frozenset({
+    "get_retirement_projection",
+    "get_budget_status",
+    "get_cross_pillar_analysis",
+    "get_couple_optimization",
+    "get_cap_status",
+    # NOTE: retrieve_memories is NOT in this set — it's a Wave 1b memory
+    # retrieval tool, not a financial calculation. Its presence in the
+    # advertised tools should NOT trigger RAG suppression.
+})
+
+
 # B15 (2026-05-09): detect concrete-fact signals in user message so
 # suggest_actions can skip generic profile-gap chips when the user
 # already volunteered specific data this turn.
