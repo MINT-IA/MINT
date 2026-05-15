@@ -126,3 +126,34 @@ def test_pydantic_chip_skipped_on_legacy_string_result() -> None:
         "get_budget_status", "Budget: 1234 CHF (legacy formatter)"
     )
     assert chip is None
+
+
+def test_pydantic_chip_skipped_when_payload_parses_to_non_dict() -> None:
+    """JSON parses to a list/scalar (not an object) → skip the chip."""
+    assert _extract_wave_1b_citation_chip("get_budget_status", "[1, 2, 3]") is None
+    assert _extract_wave_1b_citation_chip("get_budget_status", '"plain"') is None
+    assert _extract_wave_1b_citation_chip("get_budget_status", "42") is None
+
+
+def test_pydantic_chip_skipped_when_missing_hash_or_computed_at() -> None:
+    """Valid dict missing inputsHash or computedAt → skip the chip."""
+    # Missing inputsHash
+    assert (
+        _extract_wave_1b_citation_chip(
+            "get_budget_status",
+            json.dumps({"computedAt": "2026-05-15T00:00:00+00:00"}),
+        )
+        is None
+    )
+    # Missing computedAt
+    assert (
+        _extract_wave_1b_citation_chip(
+            "get_budget_status", json.dumps({"inputsHash": "abc"})
+        )
+        is None
+    )
+    # Both missing
+    assert (
+        _extract_wave_1b_citation_chip("get_budget_status", json.dumps({}))
+        is None
+    )
