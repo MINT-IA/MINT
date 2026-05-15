@@ -1,6 +1,6 @@
 ---
 name: wave-1b-SUMMARY
-description: Phase SUMMARY for wave-1b-citation-chips — 9 plans, 6 tool_call_id registry entries + narrator grammar + Flutter chip + modal + 90 ARB entries + Sentry breadcrumb + 5-gate close + dev→staging coupling. Status PENDING G2 — G3+G4+G5 mechanical green; G1 drafted; G2 = Claude autonomous post-staging-deploy.
+description: Phase SUMMARY for wave-1b-citation-chips — 9 plans, 6 tool_call_id registry entries + narrator grammar + Flutter chip + modal + 90 ARB entries + Sentry breadcrumb + 5-gate close + dev→staging coupling. Status PENDING G2 — G3+G4+G5 mechanical PASS (wave_1b_close.sh exit 0, 6911 backend tests passed, 19/19 Flutter chip+modal+round-trip passed, 6-locale ARB parity clean); G1 drafted; G2 = Claude autonomous post-staging-deploy.
 metadata:
   type: summary
   phase: wave-1b-citation-chips
@@ -120,6 +120,18 @@ Per CLAUDE.md §9 — 0-trust evidence:
 - **G2 cite**: PENDING until dev→staging deploy + Railway env flip + Claude autonomous Maestro+sim. Plan 09 Task 3 documents the autonomous protocol; Plan 09 itself does not execute it (separates docs from runtime per Karpathy #3 surgical).
 
 Phase status: **PENDING G2** — G3+G4+G5 mechanical gates exit 0; G1 drafted; G2 awaits operator dev→staging merge + flag flip, then Claude runs the autonomous Maestro+sim walkthrough.
+
+## G2 BLOCKED — autonomous run attempted, false-negative-trap detected
+
+Plan 09 Task 3 attempted the Claude autonomous G2 walkthrough during execution. Per memory `feedback_blockers_ask_dont_defer` + CLAUDE.md §9.5/§9.7, the BLOCKED state is documented honestly rather than silently marking SHIPPED:
+
+- **Branch state (cite)**: `git rev-parse --short HEAD` on plan-09 branch returns the feature branch SHA; `dev` is at `4bc9d798` (plan-08 squash). plan-09 commits are NOT on dev yet.
+- **Staging deploy state (cite)**: `curl -s -o /dev/null -w "HTTP %{http_code}\n" https://mint-staging.up.railway.app/` returns `HTTP 200` — staging IS up — but the deployed image is pre-dev→staging-merge and the 5 `COACH_TOOL_SERVER_SIDE_*` flags are at their Railway-default `false`.
+- **False-negative-trap (cite)**: running Maestro against staging right now would trigger the legacy `_format_*` formatter path (flags OFF). Narrator response has no `{{cite:tool_*}}` placeholders, no `citation_chips` field, no `coachCitationChip-budget_snapshot` testID rendered. Maestro `assertVisible: id: "coachCitationChip-budget_snapshot"` at line 56 would FAIL. That is a flag-state failure, NOT a Wave 1b code failure. Per CLAUDE.md §9.5 ("PR opened ≠ shipped"), running the flow now would emit a false-shipping signal.
+- **Tooling state (cite)**: `xcrun simctl list devices booted` returns `iPhone 17 Pro (B03E429D-0422-4357-B754-536637D979F9) (Booted)`. `~/.maestro/bin/maestro` is installed. `/opt/homebrew/bin/railway` is present (project `gentle-magic`, env `staging`). Tooling is NOT the blocker.
+- **Recovery action**: documented in wave-1b-VERIFICATION-REPORT.html "G2 BLOCKED" section + WAVE1B-10 protocol above. Operator merges feature→dev, opens dev→staging PR, flips 5 Railway env vars, then Claude runs the autonomous G2.
+
+Per CLAUDE.md §9.7 — "I don't know, I haven't checked" beats "should work". Plan 09 ships the deterministic mechanical gates (G3+G4+G5 PASS), the G1 Maestro flow draft, the G2 autonomous protocol documentation, and refuses to falsely claim SHIPPED until the operator's dev→staging merge + flag flip lands. No false-exit-0 signal.
 
 ## Deferred items
 

@@ -101,6 +101,25 @@ $ cd services/backend && python3 -m pytest tests/test_coach_citation/ -q | tail 
 <h2>G2 Evidence (post-staging)</h2>
 <p class="pending">PENDING — appended after dev&rarr;staging merge + Railway env flip + Claude autonomous Maestro+sim run. Will contain: Maestro transcript tail (60 lines), <code>idb describe-all</code> grep for <code>coachCitationChip-budget_snapshot</code> + <code>coachCitationModalJsonExpansion</code>, Sentry filter result for <code>category:coach.citation.tool_call_id.*</code>.</p>
 
+<h2>G2 BLOCKED — recovery action documented (Plan 09 Task 3, 2026-05-15)</h2>
+<p>Attempted Claude autonomous G2 walkthrough during plan-09 execution. The fundamental precondition (CONTEXT D-01 + memory <code>feedback_app_targets_staging_always</code>) is not met:</p>
+<ul>
+<li><strong>Branch state</strong>: plan-09 is on <code>feature/wave-1b-09-rollout-close</code>, NOT yet merged to <code>dev</code>. dev is at <code>4bc9d798</code> (plan-08 squash from PR #624).</li>
+<li><strong>Staging deploy state</strong>: <code>https://mint-staging.up.railway.app/</code> returns HTTP 200, but the deployed image is pre-dev&rarr;staging-merge &mdash; the 5 <code>COACH_TOOL_SERVER_SIDE_*</code> flags are at their Railway-default <code>false</code> state.</li>
+<li><strong>Mechanical evidence (false-negative trap)</strong>: running Maestro against staging right now would trigger the legacy <code>_format_*</code> formatter path (flags OFF). The narrator response would have no <code>{{cite:tool_*}}</code> placeholders, no <code>citation_chips</code> field, no <code>coachCitationChip-budget_snapshot</code> testID rendered &mdash; the Maestro assertion at line 56 of the flow would <code>FAIL</code>. That is a flag-state failure, NOT a Wave 1b code failure. Per memory <code>feedback_app_targets_staging_always</code> + CLAUDE.md &sect;9.5, running the flow now would emit a false-shipping signal.</li>
+<li><strong>Sim + Maestro tooling state</strong>: iPhone-17-Pro <code>B03E429D-0422-4357-B754-536637D979F9</code> is booted; <code>~/.maestro/bin/maestro</code> is installed; <code>idb</code> wiring per memory <code>feedback_device_gates</code> is operational. Tooling is NOT the blocker.</li>
+<li><strong>Railway CLI state</strong>: <code>/opt/homebrew/bin/railway</code> present; project <code>gentle-magic</code> / env <code>staging</code> linked; service auto-link unresolved in non-interactive mode. Tooling NOT the blocker.</li>
+</ul>
+<p><strong>Recovery action (operator-driven)</strong>:</p>
+<ol>
+<li>Merge <code>feature/wave-1b-09-rollout-close</code> &rarr; <code>dev</code> via squash PR.</li>
+<li>Open <code>dev</code> &rarr; <code>staging</code> PR per WAVE1B-10 protocol above. PR title <code>feat(wave-1a+1b): backend tools refactor + citation chip activation [staging]</code>.</li>
+<li>After PR merges, Railway auto-deploys staging.</li>
+<li>Flip 5 <code>COACH_TOOL_SERVER_SIDE_*=true</code> env vars on Railway (dashboard or <code>railway variables --service &lt;name&gt; --set NAME=true</code> once service is linked).</li>
+<li>Trigger Claude autonomous G2 walkthrough: build mobile against staging &rarr; install + launch on iPhone-17-Pro sim &rarr; run <code>~/.maestro/bin/maestro test tools/simulator/flows/maestro-perfect-set/wave_1b_citation_chip_smoke.yaml</code> &rarr; capture transcript + <code>idb describe-all</code> snapshot + Sentry filter &rarr; update this report with verbatim outputs &rarr; flip phase status from <code>PENDING G2</code> to <code>SHIPPED</code>.</li>
+</ol>
+<p>Per CLAUDE.md &sect;9.7 (&laquo; I don't know &raquo; is the highest-quality answer) &mdash; Plan 09 ships the deterministic mechanical gates (G3+G4+G5 PASS), the G1 Maestro flow draft, the G2 autonomous protocol documentation, and refuses to falsely claim <code>SHIPPED</code> until the operator&rsquo;s dev&rarr;staging merge + flag flip lands. No false-exit-0 signal. Phase status stays <code>PENDING G2</code>.</p>
+
 <h2>Deferred items</h2>
 <ul>
 <li>pgvector <code>retrieve_memories</code> &mdash; Wave 2+ if BM25 recall insufficient (CONTEXT D-07 Wave 1a).</li>
