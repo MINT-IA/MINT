@@ -12,7 +12,9 @@ metadata:
 
 ## TL;DR for next session
 
-Wave 1b citation chips ship to dev+staging but **don't render in practice**. The 3-agent RCA's tool_choice hypothesis was falsified by experiment. Real bug is in the staging context-assembly layer (~9,700-token delta vs local minimal replay). Instrumentation PR chain (#627 → #628 → #630 → #629 → #631) is mid-flight; after PR #631 merges + dev→staging, fire a probe + grep `railway logs` for `WAVE1C_PAYLOAD` + run `bisect.py` to name the culprit context layer. Then ship the fix.
+Wave 1b citation chips ship to dev+staging but **don't render in practice**. The 3-agent RCA's tool_choice hypothesis was falsified by experiment. Real bug isolated 2026-05-15 17:38 CEST via captured payload + bisection: **the narrator grammar teaches citation FORMAT but NOT tool INVOCATION**. The LLM emits `{cite:tool_retirement_projection}` placeholder in prose AND refuses (`stop_reason=end_turn`), without ever calling `tool_use`. Fix path = reorder the narrator grammar instruction so it MANDATES tool invocation BEFORE the citation placeholder. See `## Update 2026-05-15 17:38 CEST` section below for the captured evidence.
+
+The instrumentation PR chain (#627 → #628 → #630 → #629 → #631 → #632 → #633) is COMPLETE. Staging is live with router.py instrumentation. The captured payload + first bisection run are committed. Next session can skip steps 1-9 of the original runbook and jump straight to writing the targeted fix.
 
 ## State of the world
 
@@ -187,3 +189,102 @@ Per engram obs id 69:
 PR #631 is the last instrumentation step. After it lands + dev→staging, the bisection runbook above produces a deterministic answer to "which staging context layer suppresses `tool_use`?" — usually within 5-10 min of polling. Once the culprit is named, the fix PR is small (10-30 lines depending on which layer). Wave 1b ships green after that. Wave 1c becomes "instrumentation teardown + the fix PR + regression test floor".
 
 If anything in this handoff feels wrong, **start from `experiment_results.json`** — that's the deterministic ground truth that anchors everything else.
+
+---
+
+## Update 2026-05-15 17:38 CEST — captured payload + first bisect run
+
+PR #631, #632, #633 all landed during the session (post the section above). Staging is live with router.py instrumentation on commit `e78699aa`. A smoke probe (retirement question) was fired, the `WAVE1C_PAYLOAD` log line was captured, hydrated with full tool schemas from `tools.json`, and `bisect.py` ran against it.
+
+### Captured payload — key facts
+
+- `model`: `claude-sonnet-4-5-20250929`
+- `tool_choice`: `{"type": "auto", "disable_parallel_tool_use": false}`
+- **`tools`: 3 only** (filtered down from the 26-tool registry by the bundle compiler): `get_budget_status`, `get_retirement_projection`, `get_cross_pillar_analysis`. So `get_retirement_projection` IS advertised — the LLM has the tool but doesn't use it.
+- `system`: 44,416 chars (RÈGLES DE CONFORMITÉ + LSFin doctrine + bundle fragments)
+- `messages`: 1 (user role only, no conversation history) — content begins with a RAG injection prefix `"Contexte de la base de connaissances MINT :\n..."` followed by the actual user question. RAG is inlined into the USER MESSAGE, not the system prompt.
+
+Files:
+- `.planning/phases/wave-1c-coach-tool-dispatch-rca/captured_staging_payload.json` (raw)
+- `.planning/phases/wave-1c-coach-tool-dispatch-rca/captured_staging_payload_hydrated.json` (with full tool schemas from `tools.json` lookup — what bisect.py actually consumed)
+- `.planning/phases/wave-1c-coach-tool-dispatch-rca/bisect_results.json` (the bisection verdict)
+
+### Bisection verdict — all 5 drops FAILED
+
+| Layer dropped | stop_reason | tool_use count | system_len (chars) |
+|---|---|---|---|
+| baseline (full payload) | `end_turn` | 0 | 44,416 |
+| `drop_history` | `end_turn` | 0 | 44,416 |
+| `drop_bundles` | `end_turn` | 0 | 44,416 |
+| `drop_profile_ctx` | `end_turn` | 0 | 44,416 |
+| `drop_rag` | `end_turn` | 0 | 44,416 |
+| `drop_legacy_doctrine` | `end_turn` | 0 | 44,416 |
+
+The `system_len` stayed at 44,416 across all drops, meaning my regex-based markers (`# === bundle:`, `<profile_context>`, `<retrieval>`, etc.) **didn't match** the actual format of the staging system prompt. The bisection's `drop_*` transforms were effectively no-ops. The text-only refusal that came back was the same baseline behavior 5 times in a row.
+
+**Next session must update bisect.py's regexes** to match the actual staging system-prompt format. Open `.planning/phases/wave-1c-coach-tool-dispatch-rca/captured_staging_payload.json`, read the `system` field, identify the real block delimiters (likely `RÈGLES DE CONFORMITÉ`, `## ` headers, or some other marker), then re-run.
+
+### Smoking gun discovered in the bisect output
+
+Across MULTIPLE drop variants, the LLM emitted citation placeholders **in its prose response without ever calling `tool_use`**. Examples from the bisect results:
+
+- `drop_history` text: `"calculer ta projection {cite:tool_retirement_projection}"`
+- `drop_legacy_doctrine` text: `"sans connaître ta situation {cite:tool_retirement_projection}"`
+- `drop_bundles` text: `"calculer ta rente AVS ni ta rente LPP {cite:lavs_age_reference_2026}"`
+
+The LLM KNOWS the tool exists. It even **cites the tool by name in the citation grammar**. But it interprets `{{cite:tool_<name>}}` as a **citation FORMAT to follow**, not as a **mandate to actually INVOKE the tool first**. The narrator grammar teaches the LLM how to CITE without teaching it that the underlying tool must be CALLED before the citation is emitted.
+
+This is the doctrine-level root cause. The Wave 1b plan-03 grammar fragment in `services/backend/app/services/coach/citation_grammar.py:146` reads (paraphrased):
+
+> "L'outil `get_budget_status` renvoie un surplus mensuel de … "
+
+That's an EXAMPLE of how to format a citation. Sonnet 4.5 follows the FORMAT pattern in its prose without invoking the tool — because the prompt never says "MANDATORILY call `get_budget_status` BEFORE emitting any `{{cite:tool_<name>}}` placeholder".
+
+### Targeted fix path for Wave 1c (~15-25 lines)
+
+The fix lives in `services/backend/app/services/coach/citation_grammar.py`. Reorder + harden the doctrine block:
+
+1. **Before** showing how to FORMAT a citation, MANDATE that the corresponding tool MUST have been invoked via `tool_use` in this same turn.
+2. Add an explicit example of the WRONG pattern (citation without prior tool_use) and the RIGHT pattern (tool_use → tool_result → cite the result).
+3. Wire a compensating gate in `services/backend/app/api/v1/endpoints/coach_chat.py` (the existing `_citation_gate` or a sibling) that REJECTS any narrator response containing `{{cite:tool_<name>}}` placeholders if there was no corresponding `tool_use` block in the agent loop. Per memory `project_coach_forced_tool_invocation`, this is the "trust collapse" tripwire that should have been there all along.
+
+This is the doctrine rewrite hypothesis — and it explains EVERYTHING the bisection showed:
+- Token count delta (44k staging vs 6.8k minimal local) was a red herring; my minimal prompt didn't have the citation grammar fragment, so the LLM had no template to imitate and defaulted to actual tool_use.
+- Tool advertisement is fine (3 tools incl. `get_retirement_projection`).
+- `tool_choice=auto` is fine (the LLM is capable of choosing tool_use, it just doesn't because the prompt teaches it to fake citations instead).
+
+### Recommended fix-PR shape
+
+```
+services/backend/app/services/coach/citation_grammar.py
+  + add MANDATE paragraph at top of get_grammar() output:
+    "AVANT d'émettre tout placeholder {{cite:tool_<name>}} dans ta réponse,
+     tu DOIS appeler l'outil correspondant via le mécanisme tool_use.
+     UNE citation = UN appel tool_use préalable. Aucune exception."
+  + reorder existing format examples to come AFTER the mandate.
+
+services/backend/app/api/v1/endpoints/coach_chat.py (or a new module)
+  + new function: _enforce_tool_use_for_citations(answer_text, tool_calls)
+    - parse `{{cite:tool_<name>}}` placeholders from answer_text
+    - for each placeholder name, assert at least one matching tool_use block in tool_calls
+    - if mismatch, REJECT → re-prompt with the missing tool_use mandate inlined
+  + wire into _run_narrator_with_gate alongside _citation_gate (line ~4230)
+  + Sentry breadcrumb on REJECT with category="coach.citation.tool_use_missing"
+    (sister to coach.citation_gate, lets us measure the rate over time)
+
+services/backend/tests/test_coach_citation/test_tool_use_mandate.py (NEW)
+  + assert: prompt with {cite:tool_X} produces tool_use:X in response stack
+  + assert: gate REJECTS when LLM emits placeholder without prior tool_use
+  + assert: re-prompt restores correct behavior on retry
+```
+
+After the fix PR + qa-expert regression-test floor lands, tear down the WAVE1C instrumentation per the teardown checklist above. Wave 1b status flips from `PENDING G2 — RUNTIME GAP` to `SHIPPED` once the next probe returns `citationChips: [{toolName: ...}, ...]` non-null from staging.
+
+### Updated PR + engram audit trail (post 17:38 CEST)
+
+- PR #631 (router.py instrumentation): MERGED `d9964422`
+- PR #632 (HANDOFF + bisect.py): MERGED `1e9e4ed9`
+- PR #633 (second dev→staging): MERGED, merge commit `e78699aa`
+- Railway staging deploy: `5408475b` SUCCESS, commit `e78699aa`
+- Engram obs id 75 (`obs-bab7b74851fff6a9`): session handoff (this doc).
+- Smoking-gun insight (this section) is NOT yet saved to engram — the next session should save it as a new `discovery` observation that supersedes the "context bloat" hypothesis from obs id 74.

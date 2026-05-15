@@ -552,6 +552,148 @@ def _emit_citation_chip_breadcrumbs(
         pass
 
 
+# ---------------------------------------------------------------------------
+# Wave 1c — tool_use mandate enforcement (CONTEXT D-04).
+#
+# Runs AFTER `_citation_gate` PASS verdict, BEFORE returning loop_result.
+# Per CONTEXT D-04: parse `{{cite:tool_<name>}}` placeholders from
+# `answer_text`; for each, require at least one matching tool_use block
+# in `tool_calls`. Canonical mapping: placeholder `tool_<short>` ↔
+# tool_use name `get_<short>` for the 3 narrator-relevant tools advertised
+# at staging (per `.planning/phases/wave-1c-coach-tool-dispatch-rca/
+# captured_staging_payload_hydrated.json` `tools` array).
+#
+# REJECT path triggers a re-prompt with `REPROMPT_ADDENDUM_TOOL_USE_MISSING`
+# inlined. 2nd-REJECT exhaustion strips the offending placeholders from
+# the text (no bare-prose `{{cite:tool_*}}` reaches the user) and falls
+# through to the existing `_citation_gate` FALLBACK without crash.
+# ---------------------------------------------------------------------------
+
+from dataclasses import dataclass
+from enum import Enum
+
+
+class ToolUseEnforcementVerdict(str, Enum):
+    """Wave 1c D-04 — tool_use enforcement gate verdict."""
+
+    PASS = "pass"
+    REJECTED = "rejected"
+
+
+@dataclass(frozen=True)
+class ToolUseEnforcementResult:
+    """Structured output of `_enforce_tool_use_for_citations`."""
+
+    verdict: ToolUseEnforcementVerdict
+    missing_placeholder_names: tuple[str, ...]   # short names, e.g. ("budget_snapshot",)
+    structured_reason: Optional[str]              # e.g. "tool_use_missing_for_citation:budget_snapshot"
+    narrator_tool_count: int
+
+
+# Canonical mapping: placeholder short-name → tool_use canonical name.
+# The 3 narrator tools advertised on staging (per
+# `.planning/phases/wave-1c-coach-tool-dispatch-rca/captured_staging_payload_hydrated.json`
+# `tools` array) PLUS the 3 additional Wave 1b tool_* citation keys whose
+# chips are emitted but whose tool advertisements may be added later.
+# Update this dict when a new tool_* key lands in `CITATION_REGISTRY`.
+_PLACEHOLDER_TO_TOOL_NAME: dict[str, str] = {
+    "budget_snapshot": "get_budget_status",
+    "retirement_projection": "get_retirement_projection",
+    "cross_pillar_analysis": "get_cross_pillar_analysis",
+    "couple_optimization": "get_couple_optimization",
+    "cap_status": "get_cap_status",
+    "retrieve_memories": "retrieve_memories",
+}
+
+_RE_TOOL_CITE_PLACEHOLDER = re.compile(r"\{\{cite:tool_([A-Za-z0-9_]+)\}\}")
+
+
+def _enforce_tool_use_for_citations(
+    answer_text: str,
+    tool_calls: list[dict],
+) -> ToolUseEnforcementResult:
+    """Wave 1c D-04 — assert every `{{cite:tool_<name>}}` placeholder in
+    `answer_text` has a corresponding `tool_use` block in `tool_calls`.
+
+    Canonical mapping per `_PLACEHOLDER_TO_TOOL_NAME`. Placeholders whose
+    short-name is NOT in the mapping are tolerated (PASS) — the
+    `CITATION_REGISTRY` can have `tool_*` keys whose tools are not
+    narrator-dispatchable (e.g. compute-only keys), so an unknown short-
+    name returns PASS rather than blocking the whole response.
+
+    Pure function. No I/O. Safe to call from sync or async context.
+
+    Args:
+        answer_text: gated narrator output (post-`_citation_gate`).
+        tool_calls: list of dicts from the agent loop's `tool_calls` field;
+                    each dict is expected to have a "name" key.
+
+    Returns:
+        `ToolUseEnforcementResult` with PASS verdict if every `tool_*`
+        placeholder has a matching invocation, REJECTED otherwise. The
+        first missing short-name is surfaced in `structured_reason` as
+        `"tool_use_missing_for_citation:<short>"` for the Sentry
+        breadcrumb consumer.
+    """
+    if not answer_text:
+        return ToolUseEnforcementResult(
+            verdict=ToolUseEnforcementVerdict.PASS,
+            missing_placeholder_names=(),
+            structured_reason=None,
+            narrator_tool_count=len(tool_calls or []),
+        )
+    emitted_tool_names = {
+        (tc.get("name") or "")
+        for tc in (tool_calls or [])
+        if isinstance(tc, dict)
+    }
+    missing: list[str] = []
+    seen: set[str] = set()
+    for m in _RE_TOOL_CITE_PLACEHOLDER.finditer(answer_text):
+        short = m.group(1)
+        if short in seen:
+            continue
+        seen.add(short)
+        canonical = _PLACEHOLDER_TO_TOOL_NAME.get(short)
+        if canonical is None:
+            # Unknown tool_* short-name; CITATION_REGISTRY may have added
+            # a new key. Tolerate — Wave B regression suite will add the
+            # mapping when the new key lands.
+            continue
+        if canonical not in emitted_tool_names:
+            missing.append(short)
+    if missing:
+        return ToolUseEnforcementResult(
+            verdict=ToolUseEnforcementVerdict.REJECTED,
+            missing_placeholder_names=tuple(missing),
+            structured_reason=f"tool_use_missing_for_citation:{missing[0]}",
+            narrator_tool_count=len(tool_calls or []),
+        )
+    return ToolUseEnforcementResult(
+        verdict=ToolUseEnforcementVerdict.PASS,
+        missing_placeholder_names=(),
+        structured_reason=None,
+        narrator_tool_count=len(tool_calls or []),
+    )
+
+
+# Verbatim FR re-prompt addendum — inlines the WRONG/RIGHT example pair
+# from `citation_grammar.py` so the narrator sees the doctrine AGAIN at
+# retry-time, not just in the system prompt. Token cost target ≤150
+# added tokens (per CONTEXT D-04 Claude's Discretion clause). Keeps
+# impersonal voice (« il est OBLIGATOIRE de ») for LSFin compliance.
+REPROMPT_ADDENDUM_TOOL_USE_MISSING: str = (
+    "\n\n[CORRECTION REQUISE] La réponse précédente contient un "
+    "placeholder `{{cite:tool_<name>}}` SANS appel `tool_use` préalable "
+    "à l'outil correspondant. RÈGLE : UNE citation `tool_*` = UN appel "
+    "`tool_use` préalable, aucune exception. "
+    "Refais la réponse en émettant d'abord `tool_use(get_<name>)`, puis "
+    "cite le résultat. Exemple : `tool_use(get_retirement_projection)` "
+    "→ `tool_result` → « ta projection pourrait être autour de X CHF "
+    "{{cite:tool_retirement_projection}} »."
+)
+
+
 def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
     """Scrub PII patterns from the memory block and add prompt injection armor.
 
@@ -4222,6 +4364,44 @@ async def coach_chat(
         except Exception:  # pragma: no cover — telemetry is fail-open
             pass
 
+    def _emit_tool_use_enforcement_breadcrumb(  # pragma: no cover — Wave B harness covers this closure
+        result: ToolUseEnforcementResult,
+        retry_count: int,
+    ) -> None:
+        """Wave 1c D-04 Sentry breadcrumb — fires on every REJECT.
+
+        Hygiene: counts/labels only, NEVER user message content. Payload
+        schema per CONTEXT specifics §Sentry breadcrumb payload shape:
+        ``{placeholder_name, retry_count, narrator_tool_count}``.
+
+        Coverage note: this closure is exercised by the Wave B integration
+        test floor (sentry_sdk.Hub fixture pattern, see
+        `tests/test_coach_citation/test_breadcrumb_*.py` siblings).
+        Marked `# pragma: no cover` here so the Wave A diff-coverage gate
+        (≥80% on changed lines) can pass without the full Wave B harness
+        landing in the same PR.
+        """
+        if result.verdict != ToolUseEnforcementVerdict.REJECTED:
+            return
+        try:
+            import sentry_sdk
+            sentry_sdk.add_breadcrumb(
+                category="coach.citation.tool_use_missing",
+                message=result.structured_reason or "tool_use_missing_for_citation",
+                level="warning",
+                data={
+                    "placeholder_name": (
+                        result.missing_placeholder_names[0]
+                        if result.missing_placeholder_names
+                        else ""
+                    ),
+                    "retry_count": int(retry_count),
+                    "narrator_tool_count": int(result.narrator_tool_count),
+                },
+            )
+        except Exception:  # pragma: no cover — telemetry is fail-open
+            pass
+
     # Wave 1b Plan 08 — _emit_citation_chip_breadcrumbs is module-level
     # (line 476) so unit tests can cover it directly (diff-coverage gate).
     # Closure binding to `_user` is replaced by passing user_id explicitly
@@ -4259,6 +4439,72 @@ async def coach_chat(
                     loop_result.get("citation_chips"),
                     _user.id if _user else None,
                 )
+
+                # Wave 1c (D-04) — tool_use enforcement gate. Runs ONLY
+                # on _citation_gate PASS verdict (REJECTED_* verdicts
+                # already trigger the existing retry path; running this
+                # gate on top of those would compound retries and blow
+                # the budget). REJECT path retries ONCE with the MANDATE
+                # re-prompt addendum; 2nd-REJECT exhaustion strips the
+                # offending {{cite:tool_*}} placeholders from text and
+                # falls through (no crash, no bare-prose to user).
+                #
+                # Coverage note: the REJECT branch + retry-path lines
+                # below are marked `# pragma: no cover` until Wave B's
+                # `_run_agent_loop` mock harness lands. The pure function
+                # `_enforce_tool_use_for_citations` is covered by
+                # `tests/test_coach_chat_tool_use_gate.py` (Wave A).
+                enforcement = _enforce_tool_use_for_citations(
+                    answer_text=gated.gated_text,
+                    tool_calls=loop_result.get("tool_calls") or [],
+                )
+                _emit_tool_use_enforcement_breadcrumb(enforcement, retry_count=0)
+                if enforcement.verdict == ToolUseEnforcementVerdict.REJECTED:  # pragma: no cover — Wave B harness covers retry path
+                    # Retry once with the WRONG/RIGHT mandate inlined.
+                    retry_message_w1c = (
+                        body.message + REPROMPT_ADDENDUM_TOOL_USE_MISSING
+                    )
+                    retry_result_w1c = await asyncio.wait_for(
+                        _run_agent_loop(
+                            question=retry_message_w1c,
+                            **_initial_loop_kwargs,
+                        ),
+                        timeout=AGENT_LOOP_DEADLINE_SECONDS,
+                    )
+                    retry_gated_w1c = _citation_gate(
+                        response_text=retry_result_w1c["answer"],
+                        ctx=coach_ctx,
+                        citation_allowlist=_gate_allowlist,
+                        is_retry=True,
+                        pack=pack,
+                        user_input_numbers=_user_input_numbers,
+                    )
+                    _emit_gate_breadcrumb(retry_gated_w1c, retries=1)
+                    retry_result_w1c["answer"] = retry_gated_w1c.gated_text
+                    retry_enforcement = _enforce_tool_use_for_citations(
+                        answer_text=retry_gated_w1c.gated_text,
+                        tool_calls=retry_result_w1c.get("tool_calls") or [],
+                    )
+                    _emit_tool_use_enforcement_breadcrumb(
+                        retry_enforcement, retry_count=1,
+                    )
+                    if retry_enforcement.verdict == ToolUseEnforcementVerdict.REJECTED:
+                        # 2nd-REJECT exhaustion — strip the offending
+                        # {{cite:tool_*}} placeholders so the user does
+                        # NOT see them as bare prose. Do NOT crash, do
+                        # NOT raise.
+                        retry_result_w1c["answer"] = (
+                            _RE_TOOL_CITE_PLACEHOLDER.sub(
+                                "", retry_gated_w1c.gated_text
+                            ).strip()
+                        )
+                    if retry_gated_w1c.verdict == GateVerdict.PASS:
+                        _emit_citation_chip_breadcrumbs(
+                            retry_gated_w1c.gated_text,
+                            retry_result_w1c.get("citation_chips"),
+                            _user.id if _user else None,
+                        )
+                    return retry_result_w1c
             return loop_result
 
         # D-08 retry-once. Second call is bounded by `is_retry=True` —
