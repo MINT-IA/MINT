@@ -76,14 +76,26 @@ def test_fragment_is_nonempty_str_with_grammar_header():
 
 
 def test_fragment_lists_all_18_registry_keys():
-    """Coupling : every key in CITATION_REGISTRY appears in the fragment
-    text (so the narrator sees the closed-world vocabulary). If a future
-    PR adds a registry key, this test fails until the prompt builder is
-    re-run / the fragment is regenerated. Defensive against orphan keys
-    (Phase 94.1 must-have #1).
+    """Coupling : every NON-tool_call_id key in CITATION_REGISTRY appears
+    in the fragment text (so the narrator sees the closed-world
+    vocabulary). If a future PR adds a non-tool registry key, this test
+    fails until the prompt builder is re-run / the fragment is regenerated.
+    Defensive against orphan keys (Phase 94.1 must-have #1).
+
+    Wave 1b Plan 02 — exempts `source_kind == 'tool_call_id'` entries from
+    BOTH the fragment-coupling assertion AND the count assertion. Plan 03
+    (narrator-grammar fragment expansion) re-tightens the coupling by
+    adding the `tool_*` keys to the grammar fragment and bumping the count
+    expectation to 24. Until Plan 03 lands, the non-tool baseline of 18
+    keys is the invariant pinned here.
     """
+    non_tool_keys = [
+        k
+        for k, src in CITATION_REGISTRY.items()
+        if src.source_kind != "tool_call_id"
+    ]
     missing: list[str] = []
-    for key in CITATION_REGISTRY.keys():
+    for key in non_tool_keys:
         # The fragment renders each key as `{{cite:<key>}}` inside backticks.
         if f"{{{{cite:{key}}}}}" not in CITATION_GRAMMAR_FRAGMENT:
             missing.append(key)
@@ -91,11 +103,14 @@ def test_fragment_lists_all_18_registry_keys():
         f"{len(missing)} CITATION_REGISTRY key(s) missing from grammar "
         f"fragment : {missing[:5]}..."
     )
-    # Also assert exactly 18 keys (Wave 0 baseline) so a count drift
-    # surfaces here too.
-    assert len(CITATION_REGISTRY) == 18, (
-        f"CITATION_REGISTRY drift : expected 18 keys (Phase 94 Wave 0 "
-        f"baseline), got {len(CITATION_REGISTRY)}. Update both the "
+    # Also assert exactly 18 NON-tool_call_id keys (Phase 94 Wave 0
+    # baseline) so a count drift in the non-tool registry surfaces here.
+    # Wave 1b additions land 6 `tool_call_id` entries (24 total) — those
+    # are counted separately by
+    # `tests/test_coach_citation/test_tool_call_id_registry_entries.py`.
+    assert len(non_tool_keys) == 18, (
+        f"CITATION_REGISTRY non-tool drift : expected 18 keys (Phase 94 "
+        f"Wave 0 baseline), got {len(non_tool_keys)}. Update both the "
         f"registry and this assertion when intentional."
     )
 
