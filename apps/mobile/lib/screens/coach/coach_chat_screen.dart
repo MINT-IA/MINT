@@ -1243,6 +1243,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           richToolCalls: richCalls,
           // v2.7 Task 8: surface degraded flag to bubble for subtle chip.
           degraded: response.degraded,
+          // wave-1b-04 P0-3 fix: forward citationChips into ChatMessage so
+          // CoachCitationChipsSection (Plan 05) receives the list at render.
+          citationChips: response.citationChips,
         ));
         _isLoading = false;
         _trimMessages();
