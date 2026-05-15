@@ -4085,6 +4085,22 @@
             "title": "Cashlevel",
             "type": "integer"
           },
+          "citationChips": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Wave 1b — per-tool citation-chip payload. Each entry: {toolName: str, inputsHash: str (64-char hex), computedAt: str (ISO-8601), rawResponse: dict}. None on legacy path or when no Wave 1a tool ran in the turn.",
+            "title": "Citationchips"
+          },
           "disclaimers": {
             "description": "Disclaimers de conformite ajoutes par ComplianceGuard.",
             "items": {

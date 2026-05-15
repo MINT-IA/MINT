@@ -1002,6 +1002,8 @@ class CoachOrchestrator {
         toolCalls: response.toolCalls,
         // v2.7 Task 8: surface Haiku-fallback flag from backend response_meta.
         degraded: response.degraded,
+        // wave-1b-04 P0-2 fix: forward citationChips from API response.
+        citationChips: response.citationChips,
       );
     } on TimeoutException {
       // 2026-04-17 audit: we used to return null here, which dropped the

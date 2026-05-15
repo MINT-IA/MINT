@@ -355,6 +355,124 @@ _INJECTION_PATTERNS = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Wave 1b Plan 04 — citation-chip collection from internal tool results.
+# ---------------------------------------------------------------------------
+#
+# The 6 Wave 1a internal tools are filtered out of `flutter_tool_calls`
+# upstream (INTERNAL_TOOL_NAMES in coach_chat.py imports + filter at
+# line ~3194). Per wave-1b-04-AUDIT.md §3 Route (b) decision, we collect
+# them into a separate `citation_chips` list that flows alongside
+# `tool_calls` into the HTTP response. Plans 05/06/08 (Flutter chip +
+# modal + Sentry breadcrumb) build against this contract.
+#
+# Q9_DECISION (synthetic-hash adopted) — 4/6 tools have Pydantic
+# response models with `inputs_hash` (budget_snapshot,
+# retirement_projection, cross_pillar_analysis, couple_optimization).
+# `cap_status` + `retrieve_memories` return plain FR strings; we
+# synthesize the hash via hashlib.sha256 over the result text so all 6
+# chips render. Backend AUDIT.md §4 documents the Julien-override path.
+
+_WAVE_1B_TOOL_NAMES: frozenset[str] = frozenset({
+    "get_budget_status",
+    "get_retirement_projection",
+    "get_cross_pillar_analysis",
+    "get_couple_optimization",
+    "get_cap_status",
+    "retrieve_memories",
+})
+
+# Tools whose result string is a JSON dump of a Wave 1a Pydantic response
+# (`model_dump_json(by_alias=True)`). Flag-ON path. Flag-OFF path returns
+# the legacy `_format_*` string; the JSON parse fails and we skip the
+# chip — matches CONTEXT plan default Q4 (legacy = no inputs_hash = no
+# chip).
+_WAVE_1B_JSON_TOOLS: frozenset[str] = frozenset({
+    "get_budget_status",
+    "get_retirement_projection",
+    "get_cross_pillar_analysis",
+    "get_couple_optimization",
+})
+
+# Tools whose result is always a plain FR string (no Pydantic wrapper
+# today). Q9 synthetic-hash applies here — hashlib.sha256 over the text
+# gives a stable, deterministic chip identity per turn.
+_WAVE_1B_STRING_TOOLS: frozenset[str] = frozenset({
+    "get_cap_status",
+    "retrieve_memories",
+})
+
+# Explicit mapping from dispatcher tool_name to citation_registry short-name.
+# Matches `tool_*` keys in `services/backend/app/services/coach/citation_registry.py`
+# (Plan 02). `get_budget_status` → `budget_snapshot` (NOT `budget_status`) —
+# the registry uses the response-model name. Built explicitly because
+# `tool_name.replace("get_", "")` strips ALL occurrences (`budget` contains
+# `get_` at index 3) — broken for `get_budget_status` → `budstatus`.
+_TOOL_NAME_TO_SHORT: dict[str, str] = {
+    "get_budget_status": "budget_snapshot",
+    "get_retirement_projection": "retirement_projection",
+    "get_cross_pillar_analysis": "cross_pillar_analysis",
+    "get_couple_optimization": "couple_optimization",
+    "get_cap_status": "cap_status",
+    "retrieve_memories": "retrieve_memories",
+}
+
+
+def _extract_wave_1b_citation_chip(
+    tool_name: str, result_text: str
+) -> Optional[dict]:
+    """Build a citation chip from an internal tool execution result.
+
+    Returns a dict with keys `toolName`, `inputsHash`, `computedAt`,
+    `rawResponse` ready for camelCase JSON serialization in the HTTP
+    response. Returns None when the tool is not a Wave 1b citation
+    source or when no inputs_hash can be derived (flag-OFF fallback for
+    the 4 Pydantic tools).
+    """
+    import hashlib
+    import json as _json
+    from datetime import datetime, timezone
+
+    short_name = _TOOL_NAME_TO_SHORT.get(tool_name)
+    if short_name is None:
+        return None
+
+    if tool_name in _WAVE_1B_JSON_TOOLS:
+        # Try to parse the Pydantic JSON dump (flag-ON success path).
+        try:
+            payload = _json.loads(result_text)
+        except (ValueError, TypeError):
+            # Flag-OFF / fallback path — legacy formatter string; skip
+            # the chip per CONTEXT plan default Q4.
+            return None
+        if not isinstance(payload, dict):
+            return None
+        inputs_hash = payload.get("inputsHash") or payload.get("inputs_hash")
+        computed_at = payload.get("computedAt") or payload.get("computed_at")
+        if not inputs_hash or not computed_at:
+            return None
+        return {
+            "toolName": short_name,
+            "inputsHash": inputs_hash,
+            "computedAt": computed_at,
+            "rawResponse": payload,
+        }
+
+    # _WAVE_1B_STRING_TOOLS — synthesize per Q9_DECISION.
+    if tool_name in _WAVE_1B_STRING_TOOLS:
+        synthetic = hashlib.sha256(
+            _json.dumps({"text": result_text}, sort_keys=True).encode()
+        ).hexdigest()
+        return {
+            "toolName": short_name,
+            "inputsHash": synthetic,
+            "computedAt": datetime.now(timezone.utc).isoformat(),
+            "rawResponse": {"text": result_text},
+        }
+
+    return None
+
+
 def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
     """Scrub PII patterns from the memory block and add prompt injection armor.
 
@@ -3098,6 +3216,10 @@ async def _run_agent_loop(
     # Default = legacy `get_llm_tools()` so flag-OFF path stays byte-identical.
     stripped_tools = tools if tools is not None else get_llm_tools()
     flutter_tool_calls: list = []
+    # Wave 1b Plan 04 — per-tool citation chips collected from internal
+    # tool execution (Route b per wave-1b-04-AUDIT.md). Sibling to
+    # flutter_tool_calls — never filtered by INTERNAL_TOOL_NAMES.
+    citation_chips: list = []
     all_sources: list = []
     all_disclaimers: list = []
     total_tokens = 0
@@ -3275,6 +3397,15 @@ async def _run_agent_loop(
                 detected_intents=detected_intents,
                 fact_keys_saved_this_turn=fact_keys_saved_this_turn,
             )
+            # Wave 1b Plan 04 — extract citation chip BEFORE truncation /
+            # injection sanitization so the JSON parse sees the full
+            # Pydantic dump. Helper returns None for non-Wave-1b tools
+            # and for flag-OFF (no inputs_hash) — silent skip is correct.
+            _chip = _extract_wave_1b_citation_chip(
+                call.get("name", ""), result_text
+            )
+            if _chip is not None:
+                citation_chips.append(_chip)
             # FIX-W12: Truncate tool results to prevent context explosion
             if len(result_text) > 500:
                 result_text = result_text[:500] + "... [tronqué]"
@@ -3322,6 +3453,7 @@ async def _run_agent_loop(
     return {
         "answer": final_answer,
         "tool_calls": flutter_tool_calls if flutter_tool_calls else None,
+        "citation_chips": citation_chips if citation_chips else None,
         "sources": unique_sources,
         "disclaimers": list(set(all_disclaimers)),
         "tokens_used": total_tokens,
@@ -4102,6 +4234,7 @@ async def coach_chat(
             return {
                 "answer": render_terminal_template(card_id),
                 "tool_calls": [],
+                "citation_chips": None,
                 "sources": [],
                 "disclaimers": [],
                 "tokens_used": 0,
@@ -4126,6 +4259,7 @@ async def coach_chat(
             "answer": "Je n'ai pas pu terminer ma recherche dans le temps imparti. "
                       "Repose ta question, je serai plus rapide.",
             "tool_calls": [],
+            "citation_chips": None,
             "sources": [],
             "disclaimers": [],
             "tokens_used": 0,
@@ -4196,6 +4330,7 @@ async def coach_chat(
     return CoachChatResponse(
         message=loop_result["answer"],
         tool_calls=loop_result["tool_calls"],
+        citation_chips=loop_result.get("citation_chips"),
         sources=loop_result["sources"],
         disclaimers=loop_result["disclaimers"],
         tokens_used=loop_result["tokens_used"],

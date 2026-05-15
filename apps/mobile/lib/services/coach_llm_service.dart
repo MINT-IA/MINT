@@ -9,7 +9,8 @@ import 'package:mint_mobile/services/coach/coach_models.dart';
 // now resolved lazily at call time via _resolveOrchestrator().
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
-import 'package:mint_mobile/services/rag_service.dart' show RagSource, RagToolCall;
+import 'package:mint_mobile/services/rag_service.dart'
+    show RagSource, RagToolCall, ToolCallCitationChip;
 
 // ────────────────────────────────────────────────────────────
 //  COACH LLM SERVICE — Sprint C8 / MINT Coach
@@ -203,6 +204,14 @@ class ChatMessage {
   /// "Réponse rapide" chip in CoachChatScreen — NOT an error indicator.
   final bool degraded;
 
+  /// Wave 1b — citation chips for each Wave 1a tool that ran in the turn
+  /// (budget_snapshot, retirement_projection, cross_pillar_analysis,
+  /// couple_optimization, cap_status, retrieve_memories). Rendered via
+  /// CoachCitationChipsSection (Plan 05) with tap-to-modal (Plan 06).
+  /// Default empty for backward compatibility with messages persisted
+  /// before the chip surface shipped.
+  final List<ToolCallCitationChip> citationChips;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -217,6 +226,7 @@ class ChatMessage {
     this.richToolCalls = const [],
     this.sequencePayload,
     this.degraded = false,
+    this.citationChips = const [],
   });
 
   bool get isUser => role == 'user';
@@ -252,6 +262,13 @@ class CoachResponse {
   /// Surface as a subtle chip, NOT as an error.
   final bool degraded;
 
+  /// Wave 1b — per-tool citation chips. Populated when a Wave 1a tool
+  /// (budget_snapshot, retirement_projection, cross_pillar_analysis,
+  /// couple_optimization, cap_status, retrieve_memories) ran during the
+  /// turn AND the corresponding server-side flag is ON. Empty on legacy
+  /// flag-OFF path (CONTEXT plan default Q4 — no inputs_hash, no chip).
+  final List<ToolCallCitationChip> citationChips;
+
   const CoachResponse({
     required this.message,
     this.suggestedActions,
@@ -261,6 +278,7 @@ class CoachResponse {
     this.wasFiltered = false,
     this.toolCalls = const [],
     this.degraded = false,
+    this.citationChips = const [],
   });
 }
 
@@ -360,6 +378,7 @@ class CoachLlmService {
       disclaimers: orchestratorResponse.disclaimers,
       wasFiltered: orchestratorResponse.wasFiltered,
       toolCalls: orchestratorResponse.toolCalls,
+      citationChips: orchestratorResponse.citationChips,
     );
   }
 

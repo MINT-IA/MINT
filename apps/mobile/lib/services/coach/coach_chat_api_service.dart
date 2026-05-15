@@ -9,7 +9,8 @@ import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/partner_estimate_service.dart';
-import 'package:mint_mobile/services/rag_service.dart' show RagSource, RagToolCall;
+import 'package:mint_mobile/services/rag_service.dart'
+    show RagSource, RagToolCall, ToolCallCitationChip;
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 /// HTTP client for POST /api/v1/coach/chat — the server-key tier.
@@ -315,6 +316,12 @@ class CoachChatApiResponse {
   /// Budget tier: normal / soft_cap / truncate / hard_cap.
   final String? budgetTier;
 
+  /// Wave 1b — per-tool citation chips (Route b per
+  /// `.planning/phases/wave-1b-citation-chips/wave-1b-04-AUDIT.md`).
+  /// Empty list when no Wave 1a tool ran in the turn OR when the
+  /// server-side flag was OFF (legacy formatter, no inputs_hash).
+  final List<ToolCallCitationChip> citationChips;
+
   const CoachChatApiResponse({
     required this.message,
     this.toolCalls = const [],
@@ -324,10 +331,17 @@ class CoachChatApiResponse {
     this.degraded = false,
     this.modelUsed,
     this.budgetTier,
+    this.citationChips = const [],
   });
 
   factory CoachChatApiResponse.fromJson(Map<String, dynamic> json) {
     final meta = (json['responseMeta'] as Map<String, dynamic>?) ?? const {};
+    // Wave 1b — defensive: accept both camelCase (backend default) and
+    // snake_case for resilience against future drift.
+    final citationChipsJson =
+        (json['citationChips'] as List<dynamic>?) ??
+            (json['citation_chips'] as List<dynamic>?) ??
+            const <dynamic>[];
     return CoachChatApiResponse(
       message: json['message'] as String? ?? '',
       toolCalls: (json['toolCalls'] as List?)
@@ -353,6 +367,10 @@ class CoachChatApiResponse {
       degraded: meta['degraded'] as bool? ?? false,
       modelUsed: meta['modelUsed'] as String?,
       budgetTier: meta['budgetTier'] as String?,
+      citationChips: citationChipsJson
+          .whereType<Map<String, dynamic>>()
+          .map(ToolCallCitationChip.fromJson)
+          .toList(growable: false),
     );
   }
 }
