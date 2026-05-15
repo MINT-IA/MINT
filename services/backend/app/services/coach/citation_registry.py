@@ -175,6 +175,48 @@ _REGISTRY: dict[str, CitationSource] = {
         source_ref="reasoning:financial_core.mortgage.tragbarkeit_threshold",
         description_fr="Ratio d'endettement maximal de 33% du revenu brut (charge financière théorique).",
     ),
+    # --------------------------------------------------- Wave 1b tool_call_id
+    # 6 entries — one per Wave 1a server-side tool. Per CONTEXT D-02 +
+    # RESEARCH §3.2. Each tool's runtime `inputs_hash` + `computed_at` travel
+    # via the response container (Pydantic v2 camelCase model with
+    # `inputs_hash` 64-char hex), NOT via the registry entry. The Flutter
+    # chip-tap modal enriches with these dynamic fields at render time.
+    "tool_budget_snapshot": CitationSource(
+        key="tool_budget_snapshot",
+        source_kind="tool_call_id",
+        source_ref="tool:budget_snapshot",
+        description_fr="Instantané du budget calculé côté serveur : revenu mensuel net, dépenses, surplus, mois de liquidité — depuis ton profil MINT.",
+    ),
+    "tool_retirement_projection": CitationSource(
+        key="tool_retirement_projection",
+        source_kind="tool_call_id",
+        source_ref="tool:retirement_projection",
+        description_fr="Projection de retraite calculée côté serveur : rente AVS estimée, rente LPP estimée, total — à partir de ton certificat et de ton profil.",
+    ),
+    "tool_cross_pillar_analysis": CitationSource(
+        key="tool_cross_pillar_analysis",
+        source_kind="tool_call_id",
+        source_ref="tool:cross_pillar_analysis",
+        description_fr="Analyse inter-piliers calculée côté serveur : marge 3a, marge rachat LPP, économie fiscale potentielle — selon ta situation actuelle.",
+    ),
+    "tool_couple_optimization": CitationSource(
+        key="tool_couple_optimization",
+        source_kind="tool_call_id",
+        source_ref="tool:couple_optimization",
+        description_fr="Optimisation couple calculée côté serveur : répartition AVS, partage fiscal, marge 3a couple — depuis tes estimations partenaire.",
+    ),
+    "tool_cap_status": CitationSource(
+        key="tool_cap_status",
+        source_kind="tool_call_id",
+        source_ref="tool:cap_status",
+        description_fr="Cap du jour validé côté serveur (garde CHF appliquée) : texte du cap + sources réglementaires explicites — depuis ton profil et l'état du jour.",
+    ),
+    "tool_retrieve_memories": CitationSource(
+        key="tool_retrieve_memories",
+        source_kind="tool_call_id",
+        source_ref="tool:retrieve_memories",
+        description_fr="Souvenirs pertinents retrouvés par recherche BM25 dans tes faits déclarés — depuis ta biographie financière MINT.",
+    ),
 }
 
 
