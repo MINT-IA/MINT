@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Completed wave-1b-01-PLAN.md — 9 stub files, 32 SKIPPED tests, branch feature/wave-1b-01-test-scaffolding ready for PR
-last_updated: "2026-05-15T06:43:26.052Z"
+stopped_at: Completed wave-1b-02-PLAN.md — 6 tool_call_id entries (registry 18->24), 10 Plan-01 stubs unskipped, branch feature/wave-1b-02-tool-call-id-registry ready for PR
+last_updated: "2026-05-15T07:05:45.373Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 12
@@ -36,7 +36,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: 1b (citation-chips) — EXECUTING
-Plan: 2 of 9
+Plan: 3 of 9
 Status: Ready to execute
 Last activity: 2026-05-15
 
@@ -247,8 +247,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-15T06:43:26.049Z
-Stopped at: Completed wave-1b-01-PLAN.md — 9 stub files, 32 SKIPPED tests, branch feature/wave-1b-01-test-scaffolding ready for PR
+Last session: 2026-05-15T07:05:45.371Z
+Stopped at: Completed wave-1b-02-PLAN.md — 6 tool_call_id entries (registry 18->24), 10 Plan-01 stubs unskipped, branch feature/wave-1b-02-tool-call-id-registry ready for PR
 Resume file: None
 
 <details>
