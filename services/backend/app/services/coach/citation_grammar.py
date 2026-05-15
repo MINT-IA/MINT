@@ -122,6 +122,42 @@ _TOOL_USE_WRONG_RIGHT_EXAMPLE: str = (
 )
 
 
+# ---------------------------------------------------------------------------
+# Wave 1c-A1 (2026-05-15) — MANDATE repeated at BOTTOM of fragment to
+# mitigate Liu 2024 lost-in-the-middle. The TOP occurrence (above the
+# legacy GRAMMAIRE DE CITATION header) sits at ~51% of the staging
+# system prompt; this repeat sits at ~64% (after rule_section). Plus a
+# 3rd injection lives at ~99% (system prompt tail, see coach_chat.py
+# _build_system_prompt_with_memory). 3-position pattern mirrors
+# CLAUDE.md §1 TOP/BOTTOM duplication.
+#
+# Source of the lost-in-the-middle insight:
+# `.planning/phases/wave-1c-coach-tool-dispatch-rca/probe-evidence/
+# probe-2026-05-15-1958-payload.jsonl` — system prompt 45,879 chars,
+# Wave A's MANDATE at chars 23,624 & 23,761 (51.5% / 51.8%) — peak
+# lost-in-the-middle zone. Sonnet under-attended and chose deferral
+# (« j'ai besoin de récupérer tes données ») instead of `tool_use`.
+# ---------------------------------------------------------------------------
+
+_TOOL_USE_MANDATE_REPEAT: str = (
+    "\n"
+    "## RAPPEL — INVOCATION OBLIGATOIRE D'OUTIL "
+    "(seconde occurrence, post-règles)\n"
+    "\n"
+    "AVANT d'émettre tout placeholder `{{cite:tool_<name>}}` dans ta "
+    "réponse, il est OBLIGATOIRE d'invoquer d'abord l'outil "
+    "correspondant via le mécanisme `tool_use`. UNE citation = UN "
+    "appel `tool_use` préalable. Aucune exception.\n"
+    "\n"
+    "Si la question de l'utilisateur appelle un calcul (projection "
+    "rente, surplus mensuel, plafond 3a), n'attends pas que "
+    "l'utilisateur fournisse les données : INVOQUE l'outil. L'outil "
+    "récupère automatiquement le profil et les valeurs côté serveur. "
+    "Toute formulation du type « j'ai besoin de récupérer tes "
+    "données » indique un manquement à cette doctrine.\n"
+)
+
+
 def _build_citation_grammar_fragment() -> str:
     """Compose the FR doctrine fragment from `CITATION_REGISTRY`.
 
@@ -282,7 +318,19 @@ def _build_citation_grammar_fragment() -> str:
 
     # Wave 1c (D-03) — mandate prepended BEFORE the legacy header so the
     # narrator reads "invoke first" before any FORMAT example.
-    return mandate + header + tool_paragraph + keys_section + examples + rule_section
+    # Wave 1c-A1 (D-03 iteration) — `_TOOL_USE_MANDATE_REPEAT` appended at
+    # the END of the fragment so a second copy of the doctrine sits below
+    # the rule_section. Mitigates Liu 2024 lost-in-the-middle (probe
+    # showed Wave A's single-position MANDATE at 51% was insufficient).
+    return (
+        mandate
+        + header
+        + tool_paragraph
+        + keys_section
+        + examples
+        + rule_section
+        + _TOOL_USE_MANDATE_REPEAT
+    )
 
 
 # Frozen module-level constant — built at import. Pure str ; no
@@ -542,8 +590,19 @@ def build_intent_scoped_citation_grammar(intents: Iterable[str]) -> str:
     # Wave 1c (D-03) — mandate prepended BEFORE the legacy header so the
     # narrator reads "invoke first" before any FORMAT example, identical
     # to the full fragment ordering.
+    # Wave 1c-A1 (D-03 iteration) — `_TOOL_USE_MANDATE_REPEAT` appended at
+    # the END so the doctrine appears at TOP and BOTTOM of the intent-
+    # scoped fragment too, matching the full-fragment composition.
     mandate = _TOOL_USE_MANDATE + "\n"
-    return mandate + header + tool_paragraph + keys_section + examples + rule_section
+    return (
+        mandate
+        + header
+        + tool_paragraph
+        + keys_section
+        + examples
+        + rule_section
+        + _TOOL_USE_MANDATE_REPEAT
+    )
 
 
 __all__ = [
@@ -552,4 +611,6 @@ __all__ = [
     "build_intent_scoped_citation_grammar",
     "_INTENT_TO_CITATION_KEYS",
     "_WAVE_1B_TOOL_KEYS_ALWAYS_ON",
+    "_TOOL_USE_MANDATE",
+    "_TOOL_USE_MANDATE_REPEAT",
 ]
