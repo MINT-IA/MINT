@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Completed wave-1b-06-PLAN.md — coach_citation_modal.dart shipped + wired into bubble + 4 widget tests GREEN; branch feature/wave-1b-06-citation-modal ready for PR
-last_updated: "2026-05-15T09:58:42.175Z"
+stopped_at: Completed wave-1b-08-PLAN.md — emit_coach_citation_breadcrumb helper + wrapper wiring on _run_narrator_with_gate PASS paths, 5/5 Plan 01 breadcrumb stubs GREEN, Phase 94 byte-identity preserved (212/212); branch feature/wave-1b-08-sentry-breadcrumb ready for PR
+last_updated: "2026-05-15T10:16:11.831Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 12
@@ -36,9 +36,29 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: 1b (citation-chips) — EXECUTING
-Plan: 7 SUMMARYs landed of 9 (plans 01/02/03/04/05/06/07 closed ; 08/09 pending)
-Status: Plan 06 closed, branch feature/wave-1b-06-citation-modal ready for PR
+Plan: 8 SUMMARYs landed of 9 (plans 01/02/03/04/05/06/07 closed ; 08/09 pending)
+Status: Ready to execute
 Last activity: 2026-05-15
+
+## Plan wave-1b-08 Receipt (Sentry breadcrumb on citation emission, 2026-05-15)
+
+- Files created : 1 (1 SUMMARY)
+- Files modified : 4 (1 helper + 1 endpoint wrapper + 2 test files)
+- Helper : `services/backend/app/observability/coach_breadcrumbs.py` +50 LOC — `emit_coach_citation_breadcrumb` sibling of `emit_coach_tool_breadcrumb` (D-15 5-kwarg schema parity : tool_name + inputs_hash + profile_id_hashed + elapsed_ms + flag_state ; category prefix `coach.citation.tool_call_id.<tool_name>` instead of `coach.tool.<tool_name>`)
+- Wrapper : `services/backend/app/api/v1/endpoints/coach_chat.py` +133 LOC — `_emit_citation_chip_breadcrumbs(gated_text, citation_chips)` closure invoked on BOTH gate-PASS branches of `_run_narrator_with_gate` (initial PASS at line 4173-4179 + retry-PASS at line 4269-4274) ; per-turn dedupe via `seen_tool_names` set ; consumes `_RE_CITE_PLACEHOLDER` read-only from `citation_parser.py` (CONTEXT hard constraint #4 — Phase 94 byte-identity preserved)
+- Q-decisions shipped : `elapsed_ms=0` on the chip breadcrumb (Plan 04 audit pinned chip schema without per-chip timing ; Wave 1a `coach.tool.<name>` breadcrumb carries the genuine compute-path elapsed_ms ; cross-correlation joins on shared `inputs_hash`) ; `flag_state="on"` constant (chip only renders when flag is on per RESEARCH §3.3) ; dedupe in WRAPPER not in helper (helper stays idempotent like `emit_coach_tool_breadcrumb`)
+- Tests : Plan 01's 3 contract stubs + 2 cardinality stubs unskipped + GREEN (5/5)
+- Gates green :
+  - `python3 -m pytest tests/test_coach_citation/test_breadcrumb_contract.py -q` → `3 passed in 0.20s`
+  - `python3 -m pytest tests/test_coach_citation/test_breadcrumb_cardinality.py tests/test_coach_citation/test_breadcrumb_contract.py -q` → `5 passed in 0.22s`
+  - `python3 -m pytest tests/test_citation_gate/ -q` → `212 passed in 0.87s` (Phase 94 / 94.1 byte-identity preserved)
+  - `python3 -m pytest tests/ -q` → `6898 passed, 62 skipped, 1 xfailed, 1 warning in 111.40s` — net delta vs Plan 04 baseline (6880 passed, 67 skipped) = `+18 passed` (5 directly unskipped + 13 from Plans 05/06/07 between-baselines) and `-5 skipped` (exact match for the 5 Plan 01 stubs)
+  - `python3 tools/checks/banned_terms_python.py services/backend/app/observability/coach_breadcrumbs.py services/backend/app/api/v1/endpoints/coach_chat.py` → exit 0
+- Commits : `8534a837` (T1 RED — unskip 3 contract stubs, ImportError 3/3 fail) → `adabeac3` (T1 GREEN — helper 50 LOC, 3/3 pass) → `3319a62b` (T2 — wrapper closure + 2 PASS-branch calls + unskip 2 cardinality, 5/5 pass)
+- Duration : ~8 min
+- Deviations : NONE. Plan 08's Task 2 Step 0 mandated reading wave-1b-04-AUDIT.md before code edit ; audit's Route (b) decision shipped `citation_chips` as a list of dicts on `loop_result` (not objects with `.elapsed_ms`), so the wrapper iterates `loop_result["citation_chips"]` dicts with `.get("toolName")` / `.get("inputsHash")` — audit-confirmed shape, not the plan's speculative `agent_result.tool_calls` / `tc.elapsed_ms`. No naming, category, payload, or placement deviation.
+- 0-trust : `.planning/phases/wave-1b-citation-chips/wave-1b-08-SUMMARY.md` `## Self-Check: PASSED` cited with 7 file evidences + 7 command citations
+- USER VALUE DELIVERED : NONE end-user-visible YET. Sentry breadcrumb fires only when (a) Wave 1a `COACH_TOOL_SERVER_SIDE_*=true` Railway flip lands AND (b) narrator emits `{{cite:tool_*}}` placeholder AND (c) gate verdict = PASS. Pre-coupled-deploy : zero entries in Sentry. PR opened against `dev`, NOT merged. Stage 1 of 4 per CLAUDE.md §9.5. Plan 09 (Maestro G1) is the final Wave 1b plan ; post-09 the dev→staging merge triggers the coupled deploy per CONTEXT D-01.
 
 ## Plan wave-1b-06 Receipt (CoachCitationModal bottom-sheet, 2026-05-15)
 
@@ -335,8 +355,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-15T09:58:42.172Z
-Stopped at: Completed wave-1b-06-PLAN.md — coach_citation_modal.dart shipped + wired into bubble + 4 widget tests GREEN; branch feature/wave-1b-06-citation-modal ready for PR
+Last session: 2026-05-15T10:16:11.828Z
+Stopped at: Completed wave-1b-08-PLAN.md — emit_coach_citation_breadcrumb helper + wrapper wiring on _run_narrator_with_gate PASS paths, 5/5 Plan 01 breadcrumb stubs GREEN, Phase 94 byte-identity preserved (212/212); branch feature/wave-1b-08-sentry-breadcrumb ready for PR
 Resume file: None
 
 <details>
