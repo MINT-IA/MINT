@@ -92,23 +92,15 @@ tags:
   - archetype:all
 ---
 
-# ── Step 1 — Cold launch with clean state ─────────────────────────────
-- launchApp:
-    clearState: true
-
-# ── Step 2 — Dismiss bêta modal if present (cold-launch precondition) ─
-- runFlow:
-    when:
-      visible: "Je comprends, on y va"
-    commands:
-      - tapOn: "Je comprends, on y va"
-      - waitForAnimationToEnd
-
-# ── Step 3 — Reach Aujourd'hui (local-mode default lands here) ─────────
-- extendedWaitUntil:
-    visible:
-      text: "Aujourd'hui"
-    timeout: 10000
+# ── Steps 1-3 — Cold launch → bêta dismiss → LandingScreen → tap
+#               « Continuer sans compte » → /home (Aujourd'hui visible) ──
+# Replaces the inline preamble with the canonical S005 cold-launch
+# fragment. Pre-fragment, this flow's step 3 failed because cold-
+# launched anon routes to LandingScreen (app.dart:418), not the shell.
+# The S005 « Continuer sans compte » CTA flips isLocalMode=true, after
+# which Aujourd'hui renders. Same canonical walk used by bug__S002,
+# bug__F001_S001_combined, and (after this commit) F001 + S001.
+- runFlow: ../maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml
 
 # ── Step 4 — S001 ASSERTION 1/4 : card_cap_du_jour visible ────────────
 # Pre-fix : CapDuJourBanner has no root Key. Maestro

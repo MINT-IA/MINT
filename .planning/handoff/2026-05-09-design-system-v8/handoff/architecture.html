@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>MINT — Architecture cible</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--mint-warm-white);
+    color: var(--mint-text-primary);
+    font-family: var(--mint-font-text);
+    font-size: var(--mint-body-md);
+    line-height: var(--mint-lh-normal);
+    padding: 64px 32px 96px;
+  }
+  .page { max-width: 1180px; margin: 0 auto; }
+
+  /* ───── Header ───── */
+  header { margin-bottom: 56px; padding-bottom: 32px; border-bottom: 1px solid var(--mint-border-subtle); }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mint-text-muted-aaa);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: var(--mint-font-display);
+    font-weight: 400;
+    font-size: 56px;
+    letter-spacing: var(--mint-ls-display);
+    line-height: var(--mint-lh-tight);
+    margin-bottom: 16px;
+  }
+  h1 em { font-style: italic; color: var(--mint-primary); }
+  .lede {
+    font-family: var(--mint-font-display);
+    font-weight: 400;
+    font-size: 21px;
+    line-height: 1.45;
+    color: var(--mint-text-secondary);
+    max-width: 720px;
+  }
+
+  /* ───── Section titles ───── */
+  h2 {
+    font-family: var(--mint-font-display);
+    font-weight: 400;
+    font-size: 32px;
+    letter-spacing: -0.01em;
+    margin: 64px 0 8px;
+  }
+  .section-num {
+    font-family: var(--mint-font-text);
+    font-size: 12px;
+    color: var(--mint-text-muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .section-sub {
+    color: var(--mint-text-secondary);
+    margin-bottom: 32px;
+    max-width: 680px;
+    font-size: 15px;
+  }
+
+  /* ───── 3-layer stack ───── */
+  .stack { display: flex; flex-direction: column; gap: 0; }
+  .layer {
+    border: 1px solid var(--mint-border-subtle);
+    border-radius: 16px;
+    padding: 28px 32px;
+    background: var(--mint-white);
+    position: relative;
+  }
+  .layer + .layer { margin-top: 0; }
+  .arrow {
+    height: 48px; display: flex; justify-content: center; align-items: center;
+    color: var(--mint-text-muted);
+  }
+  .arrow svg { width: 14px; height: 32px; }
+  .layer-tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mint-text-muted-aaa);
+    padding: 4px 10px;
+    border: 1px solid var(--mint-border-subtle);
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+  .layer h3 {
+    font-family: var(--mint-font-display);
+    font-weight: 400;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+  .layer .role { color: var(--mint-text-secondary); font-size: 14px; margin-bottom: 20px; }
+  .layer-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .layer-grid.one { grid-template-columns: 1fr; }
+  .brick {
+    border: 1px solid var(--mint-border-subtle);
+    border-radius: 12px;
+    padding: 14px 18px;
+    background: var(--mint-warm-white);
+  }
+  .brick code {
+    font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+    font-size: 13px;
+    color: var(--mint-primary);
+    font-weight: 500;
+  }
+  .brick .desc { font-size: 13px; color: var(--mint-text-secondary); margin-top: 4px; }
+
+  .layer.surface { background: var(--mint-porcelaine); }
+  .layer.orchestration { background: var(--mint-craie); border-color: rgba(184, 201, 180, 0.4); }
+  .layer.modules { background: var(--mint-warm-white); }
+
+  /* ───── ScreenBehavior table ───── */
+  .behaviors {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .behavior {
+    border: 1px solid var(--mint-border-subtle);
+    border-radius: 12px;
+    padding: 18px 16px;
+    background: var(--mint-white);
+  }
+  .behavior .code {
+    font-family: var(--mint-font-display);
+    font-size: 32px;
+    line-height: 1;
+    color: var(--mint-primary);
+    margin-bottom: 6px;
+  }
+  .behavior .name { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .behavior .ex { font-size: 12px; color: var(--mint-text-secondary); font-style: italic; margin-bottom: 8px; }
+  .behavior .act { font-size: 11px; color: var(--mint-text-muted-aaa); letter-spacing: 0.04em; }
+
+  /* ───── Flow / state machine ───── */
+  .flow {
+    background: var(--mint-white);
+    border: 1px solid var(--mint-border-subtle);
+    border-radius: 16px;
+    padding: 32px;
+    overflow-x: auto;
+  }
+  .flow svg { width: 100%; min-width: 900px; height: auto; display: block; }
+
+  /* ───── RouteDecision actions ───── */
+  .actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+  .action {
+    padding: 18px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--mint-border-subtle);
+    background: var(--mint-white);
+  }
+  .action .label {
+    font-family: 'SF Mono', monospace;
+    font-size: 12px;
+    color: var(--mint-primary);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .action .when { font-size: 12px; color: var(--mint-text-secondary); }
+
+  /* ───── Invariants ───── */
+  .invariants {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 24px;
+  }
+  .inv {
+    border-left: 2px solid var(--mint-primary);
+    padding: 8px 0 8px 16px;
+  }
+  .inv .num {
+    font-family: var(--mint-font-display);
+    font-size: 14px;
+    color: var(--mint-primary);
+    margin-bottom: 2px;
+  }
+  .inv .text { font-size: 14px; line-height: 1.5; }
+
+  /* ───── Migration waves ───── */
+  .waves { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+  .wave {
+    display: grid;
+    grid-template-columns: 80px 1fr 120px;
+    gap: 20px;
+    align-items: baseline;
+    padding: 16px 20px;
+    border: 1px solid var(--mint-border-subtle);
+    border-radius: 12px;
+    background: var(--mint-white);
+  }
+  .wave .letter {
+    font-family: var(--mint-font-display);
+    font-size: 28px;
+    color: var(--mint-primary);
+  }
+  .wave .title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .wave .body { font-size: 13px; color: var(--mint-text-secondary); }
+  .wave .duration {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mint-text-muted-aaa);
+    text-align: right;
+  }
+
+  /* ───── Footer ───── */
+  footer {
+    margin-top: 96px;
+    padding-top: 32px;
+    border-top: 1px solid var(--mint-border-subtle);
+    color: var(--mint-text-muted-aaa);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="eyebrow">MINT — architecture</div>
+    <h1>Trois couches.<br>Un seul <em>contrat</em>.</h1>
+    <p class="lede">L'app a déjà toutes les briques. Ce qui manque, c'est la hiérarchie. Le LLM décide l'intention. Le code décide la navigation. L'agent ne sort rien sans validation.</p>
+  </header>
+
+  <!-- ─── Section 1: 3 layers ─── -->
+  <section>
+    <div class="section-num">01 — Architecture</div>
+    <h2>Trois couches, un flux descendant</h2>
+    <p class="section-sub">L'UI parle à l'orchestrateur conversationnel. L'orchestrateur parle aux modules. Jamais l'inverse.</p>
+
+    <div class="stack">
+
+      <div class="layer surface">
+        <span class="layer-tag">Couche 1 · Surfaces</span>
+        <h3>UI — 4 onglets, ~50 écrans</h3>
+        <p class="role">Le seul endroit où l'utilisateur saisit, tape, valide. Aucune logique métier.</p>
+        <div class="layer-grid">
+          <div class="brick">
+            <code>app.dart</code>
+            <div class="desc">GoRouter — 50+ routes canoniques + redirects legacy + ScopedGoRoute (auth scopes).</div>
+          </div>
+          <div class="brick">
+            <code>MintShell</code>
+            <div class="desc">StatefulShellRoute — Aujourd'hui · Mon argent · Coach · Explorer.</div>
+          </div>
+          <div class="brick">
+            <code>CoachChatScreen</code>
+            <div class="desc">Surface conversationnelle — point d'entrée principal vers la couche 2.</div>
+          </div>
+          <div class="brick">
+            <code>screens/*</code>
+            <div class="desc">Simulateurs, parcours, hubs Explorer, document scan.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow">
+        <svg viewBox="0 0 14 32" fill="none" stroke="currentColor" stroke-width="1">
+          <line x1="7" y1="0" x2="7" y2="26"/>
+          <polyline points="2,22 7,30 12,22"/>
+        </svg>
+      </div>
+
+      <div class="layer orchestration">
+        <span class="layer-tag">Couche 2 · Orchestration</span>
+        <h3>Le LLM propose. Le code dispose.</h3>
+        <p class="role">Aucune navigation issue du chat ne court-circuite cette couche.</p>
+        <div class="layer-grid">
+          <div class="brick">
+            <code>CoachOrchestrator</code>
+            <div class="desc">Tier-chain SLM → BYOK → Fallback. ComplianceGuard centralisé sur toutes les sorties.</div>
+          </div>
+          <div class="brick">
+            <code>ChatToolDispatcher</code>
+            <div class="desc">Exécute les tool-calls du LLM. Déléguer au RoutePlanner ou à l'Agent autonome.</div>
+          </div>
+          <div class="brick">
+            <code>RoutePlanner.plan(intentTag)</code>
+            <div class="desc">Retourne RouteDecision : openScreen / openWithWarning / askFirst / conversationOnly.</div>
+          </div>
+          <div class="brick">
+            <code>ScreenRegistry</code>
+            <div class="desc">Source de vérité — route × intentTag × ScreenBehavior × requiredFields.</div>
+          </div>
+          <div class="brick">
+            <code>ReadinessGate</code>
+            <div class="desc">Vérifie les requiredFields du CoachProfile avant d'ouvrir un écran.</div>
+          </div>
+          <div class="brick">
+            <code>SequenceCoordinator</code>
+            <div class="desc">Décide l'étape suivante d'un parcours multi-écrans (Advance / Pause / Retry / Skip / ReEval).</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow">
+        <svg viewBox="0 0 14 32" fill="none" stroke="currentColor" stroke-width="1">
+          <line x1="7" y1="0" x2="7" y2="26"/>
+          <polyline points="2,22 7,30 12,22"/>
+        </svg>
+      </div>
+
+      <div class="layer modules">
+        <span class="layer-tag">Couche 3 · Modules</span>
+        <h3>Métier pur, sans navigation</h3>
+        <p class="role">Calculent, projettent, génèrent. Lisent CoachProfile. Retournent ScreenReturn.</p>
+        <div class="layer-grid">
+          <div class="brick">
+            <code>services/simulators/*</code>
+            <div class="desc">3a, LPP buyback, real interest, compound, leasing, job comparison, divorce, etc.</div>
+          </div>
+          <div class="brick">
+            <code>services/financial_core, lpp_deep, mortgage</code>
+            <div class="desc">Moteurs métier — calculs LSFin/LIFD/LPP/OPP3.</div>
+          </div>
+          <div class="brick">
+            <code>AutonomousAgentService</code>
+            <div class="desc">Lettres + pré-remplissages. SafetyGate (11 règles) + audit log + requiresValidation === true.</div>
+          </div>
+          <div class="brick">
+            <code>document_parser, document_service</code>
+            <div class="desc">Pipeline scan → OCR → extraction → revue utilisateur.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── Section 2: ScreenBehavior ─── -->
+  <section>
+    <div class="section-num">02 — Contrat central</div>
+    <h2>5 comportements d'écran</h2>
+    <p class="section-sub">Chaque ScreenEntry du registre déclare son <em>ScreenBehavior</em>. C'est ce qui détermine ce que le coach fait quand l'intent arrive.</p>
+
+    <div class="behaviors">
+      <div class="behavior">
+        <div class="code">A</div>
+        <div class="name">Direct Answer</div>
+        <div class="ex">« Plafond 3a 2026 ? »</div>
+        <div class="act">→ Réponse inline</div>
+      </div>
+      <div class="behavior">
+        <div class="code">B</div>
+        <div class="name">Decision Canvas</div>
+        <div class="ex">Rente vs Capital</div>
+        <div class="act">→ openScreen + readiness</div>
+      </div>
+      <div class="behavior">
+        <div class="code">C</div>
+        <div class="name">Roadmap Flow</div>
+        <div class="ex">Mariage, Divorce, Naissance</div>
+        <div class="act">→ SequenceCoordinator</div>
+      </div>
+      <div class="behavior">
+        <div class="code">D</div>
+        <div class="name">Capture · Utility</div>
+        <div class="ex">Scan AVS, profil</div>
+        <div class="act">→ openScreen</div>
+      </div>
+      <div class="behavior">
+        <div class="code">E</div>
+        <div class="name">Conversation pure</div>
+        <div class="ex">Échange ouvert</div>
+        <div class="act">→ conversationOnly</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Section 3: RouteDecision ─── -->
+  <section>
+    <div class="section-num">03 — RouteDecision</div>
+    <h2>4 actions possibles</h2>
+    <p class="section-sub">RoutePlanner.plan() retourne toujours l'une des quatre. Aucune navigation hors de ce contrat.</p>
+
+    <div class="actions">
+      <div class="action">
+        <div class="label">openScreen</div>
+        <div class="when">Profil complet, requiredFields tous présents. Navigation directe + prefill.</div>
+      </div>
+      <div class="action">
+        <div class="label">openWithWarning</div>
+        <div class="when">Profil partiel — l'écran s'ouvre en mode estimation, bandeau d'avertissement.</div>
+      </div>
+      <div class="action">
+        <div class="label">askFirst</div>
+        <div class="when">Champs critiques manquants. Le coach pose 1 à 2 questions ciblées avant de re-planifier.</div>
+      </div>
+      <div class="action">
+        <div class="label">conversationOnly</div>
+        <div class="when">Pas d'écran adapté, intent inconnu, ou comportement E. Réponse texte.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Section 4: state machine ─── -->
+  <section>
+    <div class="section-num">04 — Machine d'état</div>
+    <h2>Un seul flux, deux issues</h2>
+    <p class="section-sub">Tout passe par CoachOrchestrator. Soit un écran s'ouvre (couche 3 module), soit un artefact est généré (Agent autonome). Toujours validation user à la fin.</p>
+
+    <div class="flow">
+      <svg viewBox="0 0 980 620" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif" font-size="12">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#5A5A5A"/>
+          </marker>
+        </defs>
+
+        <!-- Entry -->
+        <rect x="380" y="20" width="220" height="48" rx="10" fill="#F4F1EC" stroke="#E8E4DE"/>
+        <text x="490" y="42" text-anchor="middle" fill="#1A1A1A" font-weight="500">user message · CTA · chip</text>
+        <text x="490" y="58" text-anchor="middle" fill="#5A5A5A" font-size="11">CoachChatScreen</text>
+
+        <line x1="490" y1="68" x2="490" y2="100" stroke="#5A5A5A" stroke-width="1" marker-end="url(#arr)"/>
+
+        <!-- Orchestrator -->
+        <rect x="320" y="105" width="340" height="76" rx="10" fill="#F8F5F0" stroke="#B8C9B4"/>
+        <text x="490" y="128" text-anchor="middle" fill="#2F5F3F" font-weight="600" font-size="13">CoachOrchestrator.generateChat</text>
+        <text x="490" y="148" text-anchor="middle" fill="#5A5A5A" font-size="11">SLM (30s) → BYOK (55s) → Fallback Templates</text>
+        <text x="490" y="166" text-anchor="middle" fill="#5A5A5A" font-size="11">+ ComplianceGuard (LSFin art. 3/8)</text>
+
+        <line x1="490" y1="181" x2="490" y2="215" stroke="#5A5A5A" stroke-width="1" marker-end="url(#arr)"/>
+
+        <!-- Decision diamond -->
+        <polygon points="490,215 580,255 490,295 400,255" fill="#FFFFFF" stroke="#E8E4DE"/>
+        <text x="490" y="252" text-anchor="middle" fill="#1A1A1A" font-size="12" font-weight="500">tool_call ?</text>
+        <text x="490" y="268" text-anchor="middle" fill="#5A5A5A" font-size="10">(intent + args)</text>
+
+        <!-- non -> inline -->
+        <line x1="400" y1="255" x2="220" y2="255" stroke="#5A5A5A" stroke-width="1" marker-end="url(#arr)"/>
+        <text x="310" y="248" text-anchor="middle" fill="#8A8A8A" font-size="11">non</text>
+        <rect x="80" y="230" width="160" height="50" rx="10" fill="#F4F1EC" stroke="#E8E4DE"/>
+        <text x="160" y="252" text-anchor="middle" fill="#1A1A1A" font-size="12">texte inline</text>
+        <text x="160" y="268" text-anchor="middle" fill="#5A5A5A" font-size="10">+ widgets coach</text>
+
+        <!-- oui -> dispatcher -->
+        <line x1="580" y1="255" x2="760" y2="255" stroke="#5A5A5A" stroke-width="1" marker-end="url(#arr)"/>
+        <text x="670" y="248" text-anchor="middle" fill="#8A8A8A" font-size="11">oui</text>
+        <rect x="765" y="225" width="180" height="60" rx="10" fill="#FFFFFF" stroke="#E8E4DE"/>
+        <text x="855" y="248" text-anchor="middle" fill="#1A1A1A" font-size="12" font-weight="500">ChatToolDispatcher</text>
+        <text x="855" y="266" text-anchor="middle" fill="#5A5A5A" font-size="10">.dispatch(toolCall)</text>
+
+        <!-- split into RoutePlanner / AutonomousAgent -->
+        <line x1="810" y1="285" x2="640" y2="345" stroke="#5A5A5A" stroke-width="1" marker-end="url(#arr)"/>
+        <line x1="900" y1="285" x2="900" y2="345" stroke="#5A5A5A" stroke-width="1" marker-end="url(#arr)"/>
+
+        <!-- RoutePlanner box -->
+        <rect x="460" y="350" width="370" height="76" rx="10" fill="#F8F5F0" stroke="#B8C9B4"/>
+        <text x="645" y="373" text-anchor="middle" fill="#2F5F3F" font-weight="600" font-size="13">RoutePlanner.plan(intentTag, confidence)</text>
+        <text x="645" y="393" text-anchor="middle" fill="#5A5A5A" font-size="11">consulte ScreenRegistry + ReadinessGate(profile)</text>
+        <text x="645" y="411" text-anchor="middle" fill="#5A5A5A" font-size="11">→ openScreen | openWithWarning | askFirst | conversationOnly</text>
+
+        <!-- AutonomousAgent box -->
+        <rect x="845" y="350" width="115" height="76" rx="10" fill="#FAF8F5" stroke="#E8CFB8"/>
+        <text x="902" y="373" text-anchor="middle" fill="#1A1A1A" font-weight="600" font-size="11">Autonomous</text>
+        <text x="902" y="389" text-anchor="middle" fill="#1A1A1A" font-weight="600" font-size="11">AgentService</text>
+        <text x="902" y="408" text-anchor="middle" fill="#5A5A5A" font-size="10">.generateTask</text>
+
+        <!-- arrow to module screens -->
+        <line x1="645" y1="426" x2="645" y2="460" stroke="#5A5A5A" stroke-width="1" marker-end="url(#arr)"/>
+        <rect x="495" y="465" width="300" height="56" rx="10" fill="#FFFFFF" stroke="#E8E4DE"/>
+        <text x="645" y="487" text-anchor="middle" fill="#1A1A1A" font-weight="500" font-size="12">Module métier — couche 3</text>
+        <text x="645" y="504" text-anchor="middle" fill="#5A5A5A" font-size="11">simulateur · parcours · scan · calculateur</text>
+
+        <line x1="645" y1="521" x2="645" y2="555" stroke="#5A5A5A" stroke-width="1" marker-end="url(#arr)"/>
+        <rect x="450" y="560" width="390" height="44" rx="10" fill="#F4F1EC" stroke="#E8E4DE"/>
+        <text x="645" y="583" text-anchor="middle" fill="#1A1A1A" font-size="12">ScreenReturn → SequenceCoordinator (si parcours)</text>
+        <text x="645" y="598" text-anchor="middle" fill="#5A5A5A" font-size="10">Advance · Pause · Retry · Skip · ReEvaluate</text>
+
+        <!-- AutonomousAgent flow -->
+        <line x1="902" y1="426" x2="902" y2="460" stroke="#5A5A5A" stroke-width="1" marker-end="url(#arr)"/>
+        <rect x="822" y="465" width="160" height="56" rx="10" fill="#FFFFFF" stroke="#E8CFB8"/>
+        <text x="902" y="487" text-anchor="middle" fill="#1A1A1A" font-weight="500" font-size="12">SafetyGate</text>
+        <text x="902" y="504" text-anchor="middle" fill="#5A5A5A" font-size="10">11 règles · PII · injection</text>
+
+        <line x1="902" y1="521" x2="902" y2="555" stroke="#5A5A5A" stroke-width="1" marker-end="url(#arr)"/>
+        <rect x="822" y="560" width="160" height="44" rx="10" fill="#F4F1EC" stroke="#E8CFB8"/>
+        <text x="902" y="580" text-anchor="middle" fill="#1A1A1A" font-size="11">pendingValidation</text>
+        <text x="902" y="596" text-anchor="middle" fill="#5A5A5A" font-size="10">user review + audit</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ─── Section 5: invariants ─── -->
+  <section>
+    <div class="section-num">05 — Invariants</div>
+    <h2>Six règles non-négociables</h2>
+    <div class="invariants">
+      <div class="inv">
+        <div class="num">01</div>
+        <div class="text">Le LLM ne décide pas de la navigation. Il propose un intent — le code décide la route.</div>
+      </div>
+      <div class="inv">
+        <div class="num">02</div>
+        <div class="text">Aucun écran ne s'ouvre sans ReadinessGate. Si requiredFields manquent : askFirst ou openWithWarning.</div>
+      </div>
+      <div class="inv">
+        <div class="num">03</div>
+        <div class="text">Aucun artefact agent ne sort sans SafetyGate. 11 règles + validation user obligatoire + audit log immuable.</div>
+      </div>
+      <div class="inv">
+        <div class="num">04</div>
+        <div class="text">Une seule source de vérité par couche : ScreenRegistry, CoachProfile, app.dart.</div>
+      </div>
+      <div class="inv">
+        <div class="num">05</div>
+        <div class="text">Compliance centralisée. Toutes les sorties LLM passent par ComplianceGuard (LSFin art. 3/8).</div>
+      </div>
+      <div class="inv">
+        <div class="num">06</div>
+        <div class="text">Privacy-first. Tier 1 = SLM on-device (LPD art. 6). Cloud BYOK uniquement sur opt-in user.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Section 6: migration ─── -->
+  <section>
+    <div class="section-num">06 — Plan de migration</div>
+    <h2>Cinq vagues — sans réécrire</h2>
+    <p class="section-sub">Toutes les briques existent. La migration consiste à fermer les portes latérales et à câbler proprement.</p>
+
+    <div class="waves">
+      <div class="wave">
+        <div class="letter">A</div>
+        <div>
+          <div class="title">Audit & cartographie</div>
+          <div class="body">Vérifier que les 50 routes de app.dart ont un ScreenEntry (ou une exclusion explicite). Compléter ScreenRegistry à 100 %.</div>
+        </div>
+        <div class="duration">1 sprint</div>
+      </div>
+      <div class="wave">
+        <div class="letter">B</div>
+        <div>
+          <div class="title">Fermer les portes latérales</div>
+          <div class="body">Tout context.push issu du chat passe par RoutePlanner. Tous les écrans de parcours retournent ScreenReturn. Lint custom.</div>
+        </div>
+        <div class="duration">1 sprint</div>
+      </div>
+      <div class="wave">
+        <div class="letter">C</div>
+        <div>
+          <div class="title">Sequences</div>
+          <div class="body">Migrer chaque parcours multi-écrans (retraite, hypothèque, mariage, divorce, premier emploi) sur SequenceCoordinator.</div>
+        </div>
+        <div class="duration">1–2 sprints</div>
+      </div>
+      <div class="wave">
+        <div class="letter">D</div>
+        <div>
+          <div class="title">Agent autonome élargi</div>
+          <div class="body">Ajouter les types manquants (demande EPL, attestation 3a). Tableau « Mes documents générés » dans Tab 1. Audit log exposé.</div>
+        </div>
+        <div class="duration">1 sprint</div>
+      </div>
+      <div class="wave">
+        <div class="letter">E</div>
+        <div>
+          <div class="title">Observabilité</div>
+          <div class="body">Métriques par RouteDecision.action, par tier (SLM/BYOK/fallback), par étape de SequenceRun. Sentry breadcrumbs.</div>
+        </div>
+        <div class="duration">continu</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Doc à lire en complément de HANDOFF.md (périmètre Flutter, services métier détaillés) et ARCHITECTURE.md (texte long).
+  </footer>
+
+</div>
+</body>
+</html>

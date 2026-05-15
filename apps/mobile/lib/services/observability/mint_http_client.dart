@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 /// HTTP client that injects a per-call correlation ID and emits structured
@@ -43,6 +44,28 @@ class MintHttpClient extends http.BaseClient {
     request.headers[requestIdHeader] = requestId;
     final start = DateTime.now();
 
+    // S98 Phase 2 — promote the X-MINT-Req-Id to a Sentry-searchable
+    // tag on the current scope. A crash thrown anywhere during this
+    // request ships to Sentry with `mint_request_id=<uuid>`, which is
+    // the join key into Railway backend logs (echoed as X-Trace-Id).
+    // No-op when Sentry SDK is not initialised (tests, debug builds
+    // without SENTRY_DSN dart-define).
+    //
+    // KNOWN LIMITATION (code-review I1, TODO S98-OBS-SCOPE-RACE):
+    // `configureScope` mutates the top of the current Hub's scope stack
+    // — it's process-wide, NOT per-request. Two concurrent `send()`
+    // calls race: the second overwrites the first's tag. In practice
+    // MINT today fires serial requests (each service awaits its call)
+    // but `Future.wait` in main.dart triggers parallel data loads on
+    // startup. If one of THOSE crashes the wrong tag attributes the
+    // event. Mitigation tracked as follow-up: wrap `send()` body in a
+    // forked Hub or use `captureException(withScope: ...)` per-catch.
+    // For now we also set the tag at the catch site so the LAST tag
+    // value when the exception actually fires is correct in serial use.
+    Sentry.configureScope((scope) {
+      scope.setTag('mint_request_id', requestId);
+    });
+
     _log(
       'REQ ${request.method} ${request.url.path} '
       'req_id=$requestId host=${request.url.host}',
@@ -52,6 +75,15 @@ class MintHttpClient extends http.BaseClient {
     try {
       upstream = await _inner.send(request);
     } catch (e, s) {
+      // Re-tag the scope right before rethrow — the global error
+      // boundary captures the exception from THIS catch unwinding,
+      // and the most-recent scope mutation wins. Defends partially
+      // against the I1 concurrent-scope race (see send() preamble):
+      // even if another in-flight request overwrote our tag, the
+      // re-tag here restores the value for the actual failing call.
+      Sentry.configureScope((scope) {
+        scope.setTag('mint_request_id', requestId);
+      });
       _log(
         'ERR ${request.method} ${request.url.path} '
         'req_id=$requestId error=$e',

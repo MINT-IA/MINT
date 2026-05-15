@@ -176,15 +176,30 @@ def _bundle_allowlist_union() -> set[str]:
 
 
 def test_registry_subset_of_bundle_allowlists():
-    """Every CITATION_REGISTRY key MUST be in at least one bundle's allowlist.
+    """Every NON-tool_call_id CITATION_REGISTRY key MUST be in at least one
+    bundle's allowlist.
 
     Threat T-94-04 mitigation — orphan registry entries (keys not referenced
     by any bundle) cannot be emitted by the narrator and therefore never
     resolved at runtime ; they are dead code that masks the closed-world
     contract.
+
+    Wave 1b exemption (Plan 02) — `source_kind == 'tool_call_id'` entries
+    activate per tool call (server-side dispatcher branch), not per intent
+    bundle. They are NOT required to appear in any bundle's
+    `citation_allowlist`. The complementary invariant
+    `test_every_tool_key_has_dispatcher_branch` in
+    `tests/test_coach_citation/test_tool_call_id_registry_entries.py`
+    covers the exempted keys with a positive coach_chat.py dispatcher
+    presence check.
     """
+    non_tool_keys = {
+        k
+        for k, src in CITATION_REGISTRY.items()
+        if src.source_kind != "tool_call_id"
+    }
     allowlist_union = _bundle_allowlist_union()
-    orphans = set(CITATION_REGISTRY.keys()) - allowlist_union
+    orphans = non_tool_keys - allowlist_union
     assert not orphans, (
         f"CITATION_REGISTRY has {len(orphans)} orphan keys not in any bundle "
         f"citation_allowlist : {sorted(orphans)[:5]}..."

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""mint-wiring-check — 4-level wiring check for newly-created Dart/Python files.
+"""wiring_check — 4-level wiring check for newly-created Dart/Python files.
 
 Catches the W14-incident pattern: file exists, tests pass, but no real
-consumer imports it. See `.claude/skills/mint-wiring-check/SKILL.md`.
+consumer imports it.
 
 Levels:
   N1 — file exists on disk

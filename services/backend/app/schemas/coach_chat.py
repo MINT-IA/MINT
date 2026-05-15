@@ -236,3 +236,23 @@ class CoachChatResponse(CoachChatBaseModel):
             "+ next_step word-count lands in Plan 96-03 per D-16."
         ),
     )
+
+    # ------------------------------------------------------------------
+    # Wave 1b Plan 04 — citation chips (Route b per wave-1b-04-AUDIT.md).
+    # The 6 Wave 1a internal tools (budget_snapshot, retirement_projection,
+    # cross_pillar_analysis, couple_optimization, cap_status,
+    # retrieve_memories) are filtered out of `toolCalls` upstream because
+    # they are in INTERNAL_TOOL_NAMES. This additive field carries their
+    # inputs_hash + computed_at + raw_response so Flutter can render the
+    # citation chip + tap-to-modal (Plans 05 / 06). Optional + defaults to
+    # None — legacy clients ignore the key.
+    # ------------------------------------------------------------------
+    citation_chips: Optional[list[dict[str, Any]]] = Field(
+        default=None,
+        description=(
+            "Wave 1b — per-tool citation-chip payload. Each entry: "
+            "{toolName: str, inputsHash: str (64-char hex), "
+            "computedAt: str (ISO-8601), rawResponse: dict}. None on "
+            "legacy path or when no Wave 1a tool ran in the turn."
+        ),
+    )

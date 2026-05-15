@@ -89,6 +89,23 @@ def _build_citation_grammar_fragment() -> str:
         "la réponse bascule alors sur un fallback templaté.\n"
     )
 
+    # Wave 1b Plan 03 — tool_call_id paragraph (RESEARCH §4.4). Teaches the
+    # narrator that `tool_*` keys mark numbers calculated server-side, and
+    # that the per-call `inputs_hash` travels with the response container,
+    # so the narrator only needs to place the single-segment placeholder
+    # after the digit. Per Q5_DECISION (1-segment vs 2-segment grammar at
+    # `wave-1b-03-PLAN.md` top), this respects CONTEXT hard constraint #4
+    # (no edit to `_RE_CURRENCY` / `_RE_PERCENT` / `_RE_CITE_PLACEHOLDER`
+    # regexes in citation_parser.py).
+    tool_paragraph = (
+        "\n"
+        "Certaines clés (`tool_*`) marquent un chiffre calculé côté "
+        "serveur — son `inputs_hash` voyage avec la réponse, tu n'as "
+        "pas besoin de le citer dans le texte. Place simplement la clé "
+        "`{{cite:tool_<nom>}}` après le chiffre, comme pour les autres "
+        "clés du vocabulaire fermé.\n"
+    )
+
     # Vocabulary — every active key from CITATION_REGISTRY with its
     # FR description. Sorted alphabetically for determinism so the
     # fragment is byte-stable across reloads. Builds a markdown bullet
@@ -124,6 +141,14 @@ def _build_citation_grammar_fragment() -> str:
         "**ACCEPTÉ — chiffre réglementaire cité** :\n"
         "« Pour 2026, le plafond 3a salarié·e est fixé par "
         "l'OPP3 art. 7 al. 1 let. a {{cite:r3a_plafond_salarie_2026}}. »\n"
+        "\n"
+        "**ACCEPTÉ — chiffre calculé côté serveur** :\n"
+        "L'outil `get_budget_status` renvoie un surplus mensuel de "
+        "1'234 CHF. Tu peux répondre : « Selon ton dernier instantané, "
+        "ton surplus mensuel pourrait être autour de 1'234 CHF "
+        "{{cite:tool_budget_snapshot}}. La garde reconnaît la clé "
+        "`tool_*` et lie automatiquement le chiffre à l'`inputs_hash` "
+        "du calcul. »\n"
         "\n"
         "**ACCEPTÉ — chiffre fourni par l'utilisateur, échoué tel quel** :\n"
         "L'utilisateur écrit : « j'ai 49 ans, 7'600 CHF de salaire net ».\n"
@@ -174,7 +199,7 @@ def _build_citation_grammar_fragment() -> str:
         "qualitatifs.\n"
     )
 
-    return header + keys_section + examples + rule_section
+    return header + tool_paragraph + keys_section + examples + rule_section
 
 
 # Frozen module-level constant — built at import. Pure str ; no
@@ -206,6 +231,25 @@ CITATION_GRAMMAR_FRAGMENT: str = _build_citation_grammar_fragment()
 # function. No bundle refactor, no Pydantic schema, no I/O.
 # ---------------------------------------------------------------------------
 
+# Wave 1b Plan 03 — `tool_*` registry keys are activated for ANY narrator
+# turn that calls a server-side coach tool (per RESEARCH §4.4 + CONTEXT
+# D-02). Tool calls are LLM-driven, NOT intent-driven : the narrator can
+# call `get_budget_status` even on a « retirement » intent. Adding the 6
+# `tool_*` keys to EVERY intent bucket guarantees the keys are surfaced
+# in the intent-scoped grammar regardless of the classified intent.
+# Mirrors the « always-on » contract pinned by
+# `test_intent_scoped_grammar_includes_tools` in
+# `tests/test_coach_citation/test_tool_call_id_grammar.py`.
+_WAVE_1B_TOOL_KEYS_ALWAYS_ON: frozenset[str] = frozenset({
+    "tool_budget_snapshot",
+    "tool_retirement_projection",
+    "tool_cross_pillar_analysis",
+    "tool_couple_optimization",
+    "tool_cap_status",
+    "tool_retrieve_memories",
+})
+
+
 _INTENT_TO_CITATION_KEYS: Mapping[str, frozenset[str]] = MappingProxyType({
     # `retirement` — 3a / LPP / AVS / cross-pillar capital tax. The most
     # populated bucket (8 keys) because Phase 94.1's 50-fixture pack
@@ -219,7 +263,7 @@ _INTENT_TO_CITATION_KEYS: Mapping[str, frozenset[str]] = MappingProxyType({
         "lavs_age_reference_2026",
         "lifd_art_22_rentes",
         "lifd_art_38_capital_taux",
-    }),
+    }) | _WAVE_1B_TOOL_KEYS_ALWAYS_ON,
     # `taxes` (canonical) + `tax` (alias used by eval fixtures) — LIFD /
     # LHID deductions + capital tax at retrait.
     "taxes": frozenset({
@@ -230,7 +274,7 @@ _INTENT_TO_CITATION_KEYS: Mapping[str, frozenset[str]] = MappingProxyType({
         "lifd_art_38_capital_taux",
         "lifd_art_38_taux_reduit",
         "lhid_harmonisation",
-    }),
+    }) | _WAVE_1B_TOOL_KEYS_ALWAYS_ON,
     "tax": frozenset({
         "lifd_art_33_deduction",
         "lifd_art_33_deduction_3a",
@@ -239,7 +283,7 @@ _INTENT_TO_CITATION_KEYS: Mapping[str, frozenset[str]] = MappingProxyType({
         "lifd_art_38_capital_taux",
         "lifd_art_38_taux_reduit",
         "lhid_harmonisation",
-    }),
+    }) | _WAVE_1B_TOOL_KEYS_ALWAYS_ON,
     # `housing` (canonical) + `mortgage` (alias used by eval fixtures) —
     # FINMA Tragbarkeit / LTV / amortissement rules.
     "housing": frozenset({
@@ -248,31 +292,31 @@ _INTENT_TO_CITATION_KEYS: Mapping[str, frozenset[str]] = MappingProxyType({
         "finma_lcb_tragbarkeit",
         "ltv_max_residence_principale",
         "ratio_endettement_max_33pct",
-    }),
+    }) | _WAVE_1B_TOOL_KEYS_ALWAYS_ON,
     "mortgage": frozenset({
         "finma_taux_calculatoire",
         "amortissement_taux_2026",
         "finma_lcb_tragbarkeit",
         "ltv_max_residence_principale",
         "ratio_endettement_max_33pct",
-    }),
+    }) | _WAVE_1B_TOOL_KEYS_ALWAYS_ON,
     # `debt` — same Tragbarkeit / debt-service ratio surface as housing,
     # without the LTV/amortization specifics (debt-conso is not mortgage).
     "debt": frozenset({
         "finma_lcb_tragbarkeit",
         "ratio_endettement_max_33pct",
-    }),
+    }) | _WAVE_1B_TOOL_KEYS_ALWAYS_ON,
     # `career` — LPP at career transition + AVS reference age.
     "career": frozenset({
         "lpp_taux_conv_obligatoire_2026",
         "opp2_coordination_2026",
         "lavs_age_reference_2026",
-    }),
+    }) | _WAVE_1B_TOOL_KEYS_ALWAYS_ON,
     # `family` — LPP survivant + AVS (couple / orphelin).
     "family": frozenset({
         "lpp_rente_survivant_pct",
         "lavs_age_reference_2026",
-    }),
+    }) | _WAVE_1B_TOOL_KEYS_ALWAYS_ON,
 })
 
 
@@ -340,6 +384,18 @@ def build_intent_scoped_citation_grammar(intents: Iterable[str]) -> str:
         "un fallback templaté.\n"
     )
 
+    # Wave 1b Plan 03 — same `tool_*` paragraph as the full fragment, so
+    # the intent-scoped builder teaches the narrator the same tool_call_id
+    # semantics regardless of which path is rendered.
+    tool_paragraph = (
+        "\n"
+        "Certaines clés (`tool_*`) marquent un chiffre calculé côté "
+        "serveur — son `inputs_hash` voyage avec la réponse, tu n'as "
+        "pas besoin de le citer dans le texte. Place simplement la clé "
+        "`{{cite:tool_<nom>}}` après le chiffre, comme pour les autres "
+        "clés du vocabulaire fermé.\n"
+    )
+
     keys_section_lines: list[str] = ["", "### Clés autorisées (vocabulaire fermé) :", ""]
     for key in sorted(scoped_keys):
         src = CITATION_REGISTRY[key]
@@ -356,6 +412,14 @@ def build_intent_scoped_citation_grammar(intents: Iterable[str]) -> str:
         "**ACCEPTÉ — chiffre cité** :\n"
         "« Pour 2026, le plafond 3a salarié·e est fixé par "
         "l'OPP3 art. 7 al. 1 let. a {{cite:r3a_plafond_salarie_2026}}. »\n"
+        "\n"
+        "**ACCEPTÉ — chiffre calculé côté serveur** :\n"
+        "L'outil `get_budget_status` renvoie un surplus mensuel de "
+        "1'234 CHF. Tu peux répondre : « Selon ton dernier instantané, "
+        "ton surplus mensuel pourrait être autour de 1'234 CHF "
+        "{{cite:tool_budget_snapshot}}. La garde reconnaît la clé "
+        "`tool_*` et lie automatiquement le chiffre à l'`inputs_hash` "
+        "du calcul. »\n"
         "\n"
         "**ACCEPTÉ — pas de clé adaptée** :\n"
         "« Je n'ai pas cette donnée pour l'instant. Pour avancer "
@@ -388,7 +452,7 @@ def build_intent_scoped_citation_grammar(intents: Iterable[str]) -> str:
         "garde reconnaît les négations et les méta-citations.\n"
     )
 
-    return header + keys_section + examples + rule_section
+    return header + tool_paragraph + keys_section + examples + rule_section
 
 
 __all__ = [
@@ -396,4 +460,5 @@ __all__ = [
     "_build_citation_grammar_fragment",
     "build_intent_scoped_citation_grammar",
     "_INTENT_TO_CITATION_KEYS",
+    "_WAVE_1B_TOOL_KEYS_ALWAYS_ON",
 ]

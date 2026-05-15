@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
-status: completed
-stopped_at: Phase 96 Wave 2 shipped (Backend) — 3 commits b81172a3..bbcf0853, 46 net new tests, full pytest 6567 passed, Phase 94/95 byte-identity preserved (181+74=255 tests). Wave 3 next (NarrativeSleeve linter + metaphor TOML + Maestro G1).
-last_updated: "2026-05-11T05:18:26.093Z"
-last_activity: 2026-05-11
+status: executing
+stopped_at: Completed wave-1b-09-PLAN.md — wave_1b_close.sh + Maestro G1 + phase SUMMARY + VERIFICATION-REPORT.html + G2 BLOCKED docs; phase PENDING G2 awaiting dev→staging merge + Railway flag flip; branch feature/wave-1b-09-rollout-close ready for PR
+last_updated: "2026-05-15T10:47:58.031Z"
+last_activity: 2026-05-15
 progress:
-  total_phases: 11
-  completed_phases: 6
-  total_plans: 28
-  completed_plans: 23
-  percent: 82
+  total_phases: 12
+  completed_phases: 1
+  total_plans: 7
+  completed_plans: 4
+  percent: 57
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase 96 — mvp-chat-as-verb
+**Current focus:** Phase 1b — citation-chips
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,10 +35,118 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 96
-Plan: Not started
-Status: Phase 96 Wave 3 implementation complete ; Task 4 G2 checkpoint awaits Julien token (`approved` / `approved-with-issues: <desc>` / `not approved — issue: <desc>`)
-Last activity: 2026-05-11
+Phase: 1b (citation-chips) — PENDING G2
+Plan: 9 SUMMARYs landed of 9 (all plans closed ; phase status PENDING G2 = awaiting operator dev→staging merge + Railway 5-flag flip per WAVE1B-10 protocol, then Claude runs autonomous Maestro+sim G2 walkthrough per CONTEXT D-05)
+Status: Ready to execute Wave 1c (after operator triggers Wave 1b→staging deploy)
+Last activity: 2026-05-15
+
+## Plan wave-1b-08 Receipt (Sentry breadcrumb on citation emission, 2026-05-15)
+
+- Files created : 1 (1 SUMMARY)
+- Files modified : 4 (1 helper + 1 endpoint wrapper + 2 test files)
+- Helper : `services/backend/app/observability/coach_breadcrumbs.py` +50 LOC — `emit_coach_citation_breadcrumb` sibling of `emit_coach_tool_breadcrumb` (D-15 5-kwarg schema parity : tool_name + inputs_hash + profile_id_hashed + elapsed_ms + flag_state ; category prefix `coach.citation.tool_call_id.<tool_name>` instead of `coach.tool.<tool_name>`)
+- Wrapper : `services/backend/app/api/v1/endpoints/coach_chat.py` +133 LOC — `_emit_citation_chip_breadcrumbs(gated_text, citation_chips)` closure invoked on BOTH gate-PASS branches of `_run_narrator_with_gate` (initial PASS at line 4173-4179 + retry-PASS at line 4269-4274) ; per-turn dedupe via `seen_tool_names` set ; consumes `_RE_CITE_PLACEHOLDER` read-only from `citation_parser.py` (CONTEXT hard constraint #4 — Phase 94 byte-identity preserved)
+- Q-decisions shipped : `elapsed_ms=0` on the chip breadcrumb (Plan 04 audit pinned chip schema without per-chip timing ; Wave 1a `coach.tool.<name>` breadcrumb carries the genuine compute-path elapsed_ms ; cross-correlation joins on shared `inputs_hash`) ; `flag_state="on"` constant (chip only renders when flag is on per RESEARCH §3.3) ; dedupe in WRAPPER not in helper (helper stays idempotent like `emit_coach_tool_breadcrumb`)
+- Tests : Plan 01's 3 contract stubs + 2 cardinality stubs unskipped + GREEN (5/5)
+- Gates green :
+  - `python3 -m pytest tests/test_coach_citation/test_breadcrumb_contract.py -q` → `3 passed in 0.20s`
+  - `python3 -m pytest tests/test_coach_citation/test_breadcrumb_cardinality.py tests/test_coach_citation/test_breadcrumb_contract.py -q` → `5 passed in 0.22s`
+  - `python3 -m pytest tests/test_citation_gate/ -q` → `212 passed in 0.87s` (Phase 94 / 94.1 byte-identity preserved)
+  - `python3 -m pytest tests/ -q` → `6898 passed, 62 skipped, 1 xfailed, 1 warning in 111.40s` — net delta vs Plan 04 baseline (6880 passed, 67 skipped) = `+18 passed` (5 directly unskipped + 13 from Plans 05/06/07 between-baselines) and `-5 skipped` (exact match for the 5 Plan 01 stubs)
+  - `python3 tools/checks/banned_terms_python.py services/backend/app/observability/coach_breadcrumbs.py services/backend/app/api/v1/endpoints/coach_chat.py` → exit 0
+- Commits : `8534a837` (T1 RED — unskip 3 contract stubs, ImportError 3/3 fail) → `adabeac3` (T1 GREEN — helper 50 LOC, 3/3 pass) → `3319a62b` (T2 — wrapper closure + 2 PASS-branch calls + unskip 2 cardinality, 5/5 pass)
+- Duration : ~8 min
+- Deviations : NONE. Plan 08's Task 2 Step 0 mandated reading wave-1b-04-AUDIT.md before code edit ; audit's Route (b) decision shipped `citation_chips` as a list of dicts on `loop_result` (not objects with `.elapsed_ms`), so the wrapper iterates `loop_result["citation_chips"]` dicts with `.get("toolName")` / `.get("inputsHash")` — audit-confirmed shape, not the plan's speculative `agent_result.tool_calls` / `tc.elapsed_ms`. No naming, category, payload, or placement deviation.
+- 0-trust : `.planning/phases/wave-1b-citation-chips/wave-1b-08-SUMMARY.md` `## Self-Check: PASSED` cited with 7 file evidences + 7 command citations
+- USER VALUE DELIVERED : NONE end-user-visible YET. Sentry breadcrumb fires only when (a) Wave 1a `COACH_TOOL_SERVER_SIDE_*=true` Railway flip lands AND (b) narrator emits `{{cite:tool_*}}` placeholder AND (c) gate verdict = PASS. Pre-coupled-deploy : zero entries in Sentry. PR opened against `dev`, NOT merged. Stage 1 of 4 per CLAUDE.md §9.5. Plan 09 (Maestro G1) is the final Wave 1b plan ; post-09 the dev→staging merge triggers the coupled deploy per CONTEXT D-01.
+
+## Plan wave-1b-06 Receipt (CoachCitationModal bottom-sheet, 2026-05-15)
+
+- Files created : 2 (1 modal widget + 1 SUMMARY)
+- Files modified : 5 (1 message bubble + 2 test files + 2 lint baselines)
+- Widget : `apps/mobile/lib/widgets/coach/coach_citation_modal.dart` 227 LOC — top-level `showCoachCitationModal(context, chip, {onRememberTap})` + private `_CoachCitationModalBody`
+- 5 sections : drag handle / `s.coachCitationModalTitle(toolDisplayName)` header / truncated 16-char `inputs_hash` (SelectableText monospace) / relative `computed_at` row reading 4 ARB keys (Q8_DECISION) / collapsible `ExpansionTile` JSON viewer (`Key('coachCitationModalJsonExpansion')`, pretty-printed via `JsonEncoder.withIndent('  ')`) / `Souviens-toi` CTA (`Key('coachCitationModalRememberCta')`, fires `onRememberTap` + Navigator.pop)
+- Q7_DECISION shipped : `flag_state` badge dropped in v1 (chip only renders when flag=on, badge would always read "on" with zero info content) — `grep -cE "flag_state|flagState"` returns 0
+- Q8_DECISION shipped : 4 relative-time ARB keys consumed (`coachCitationRelativeJustNow|Minutes|Hours|Days`, 3 ICU plural-aware) — zero Dart literal leak
+- Wiring : `coach_message_bubble.dart` import at line 11 + onChipTap at lines 175-192 invokes `showCoachCitationModal(...)` with `onRememberTap` SnackBar acknowledgement (save_insight wiring deferred to Wave 2)
+- Tests : Plan 01's 3 modal stubs + 1 Souviens-toi stub unskipped + GREEN (4/4)
+- Gates green :
+  - `flutter analyze` → 253 issues = baseline (0 new errors)
+  - `flutter test test/widgets/coach/` → 737/737 pass (+4 vs Plan 05 baseline 733/733, 0 regressions)
+  - `prefer_mint_color_token` → clean (23 grandfathered) — `MintColors.transparent` swap
+  - `prefer_mint_text_style` → clean (683 grandfathered, line-shift baseline regen)
+  - `prefer_mint_radius` → clean (42 grandfathered, line-shift baseline regen)
+  - `prefer_mint_cta` → clean (-1 from baseline)
+  - `prefer_mint_fonts` → clean (92 grandfathered, 2 lint-ignores for `fontFamily: 'monospace'` on hash + JSON SelectableText)
+- Commits : `cd842900` (T1 modal widget) → `9f475812` (baseline regen) → `6f0faad0` (T2 wire + tests)
+- Duration : ~6 min
+- Deviations (5 auto-fixed) : (a) Rule 1 — plan referenced `AppLocalizations`, actual is `S` (inherited from Plan 05) ; (b) Rule 1 — plan imports referenced `text_styles.dart`/`spacing.dart`, actual is `mint_text_styles.dart`/`mint_spacing.dart` (inherited from Plan 05) ; (c) Rule 2 — `Colors.transparent` → `MintColors.transparent` ; (d) Rule 2 — `fontFamily: 'monospace'` lint-ignores added (no `MintTextStyles.monospace()` token exists) ; (e) Rule 3 — bubble wiring 18-line insertion shifted 3 pre-existing violations downstream, baseline regen as separate chore commit. Zero behavioural deviations.
+- 0-trust : wave-1b-06-SUMMARY.md `## Self-Check: PASSED` cited at .planning/phases/wave-1b-citation-chips/wave-1b-06-SUMMARY.md with 9 file evidences + 9 command citations
+- USER VALUE DELIVERED : NONE end-user-visible YET. Modal opens only when a `ToolCallCitationChip` is tapped, which requires the Wave 1a `COACH_TOOL_SERVER_SIDE_*=true` Railway flip (post-Plan-08 coupled deploy per CONTEXT D-01). PR opened against `dev`, NOT merged. Stage 1 of 4 per CLAUDE.md §9.5. Plan 08 (Sentry breadcrumb) hooks into `onChipTap` for `coach.citation.tool_call_id.<tool>.emitted` ; Plan 09 (Maestro G1) references `Key('coachCitationModalJsonExpansion')` + `Key('coachCitationModalRememberCta')` for end-to-end tap flow.
+
+## Plan wave-1b-05 Receipt (CoachCitationChipsSection widget, 2026-05-15)
+
+- Files created : 8 (1 widget + 6 PNG goldens + 1 SUMMARY)
+- Files modified : 5 (1 message bubble + 2 test files + 2 lint baselines)
+- Widget : `apps/mobile/lib/widgets/coach/coach_citation_chips_section.dart` 123 LOC — sibling of CoachSourcesSection (NOT extension per RESEARCH §9.4)
+- Wiring : `coach_message_bubble.dart` import + render block between Sources (line 159-165) and Disclaimers (line 181), gated by `msg.citationChips.isNotEmpty`
+- Tests : Plan 01's 4 widget stubs + 6 golden stubs unskipped + GREEN (4/4 widget, 6/6 golden)
+- Goldens : 6 PNGs 5.2-5.5 KB each (NOT 4 KB stubs) — one per Wave 1a tool
+- Gates green :
+  - `flutter analyze` → 253 issues = baseline (0 new errors)
+  - `flutter test test/widgets/coach/` → 733/733 pass (0 regressions)
+  - `prefer_mint_text_style` → clean (683 grandfathered, line-shift baseline regen)
+  - `prefer_mint_color_token` → clean (23 grandfathered)
+  - `prefer_mint_radius` → clean (42 grandfathered, line-shift baseline regen)
+  - `prefer_mint_cta` → clean
+  - `prefer_mint_fonts` → clean (92 grandfathered)
+- Commits : `fee1f726` (T1 widget) → `bfd78756` (baseline regen) → `38eda46f` (T2 wire+tests+goldens)
+- Duration : ~5 min
+- Deviations (2 × Rule 1 codebase-shape mismatches) : (a) plan imports `text_styles.dart`/`spacing.dart`, actual is `mint_text_styles.dart`/`mint_spacing.dart` ; (b) plan referenced `AppLocalizations.of(context)!`, actual generated class is `S` (`app_localizations.dart:68`). No behavioural deviation.
+- 0-trust : wave-1b-05-SUMMARY.md `## Self-Check: PASSED` cited at .planning/phases/wave-1b-citation-chips/wave-1b-05-SUMMARY.md with 8 file evidences + 8 command citations
+- USER VALUE DELIVERED : NONE end-user-visible YET. Chip surface activates only when `ChatMessage.citationChips` non-empty, which requires the Wave 1a `COACH_TOOL_SERVER_SIDE_*=true` Railway flip (post-Plan-08 coupled deploy per CONTEXT D-01). Plan 06 (modal) hooks into the empty `onChipTap` callback to deliver tap-to-view UX.
+
+## Plan wave-1b-07 Receipt (ARB citation keys × 6 locales, 2026-05-15)
+
+- Files created : 1 (.planning/phases/wave-1b-citation-chips/wave-1b-07-SUMMARY.md)
+- Files modified : 13 (6 ARB + 7 generated app_localizations*.dart via flutter gen-l10n)
+- ARB delta : 90 new entries (15 keys × 6 locales : fr/en/de/es/it/pt)
+- 5 frame keys verbatim from RESEARCH §6.3 : coachCitationChipsHeader, coachCitationChipLabel(toolDisplayName), coachCitationModalTitle(toolDisplayName), coachCitationJsonViewerLabel, coachCitationRememberCta
+- 6 tool-name keys (Q6 doctrine i18n) : coachToolBudgetSnapshot, RetirementProjection, CrossPillarAnalysis, CoupleOptimization, CapStatus, RetrieveMemories
+- 4 Q8 relative-time keys (3 ICU plural-aware `(int count)`) : coachCitationRelativeJustNow, Minutes, Hours, Days
+- Gates green :
+  - `python3 tools/checks/arb_parity.py` → exit 0 (6 locales, 6777 keys each)
+  - `python3 tools/checks/banned_terms_arb.py` → exit 0 (6 locales clean)
+  - `python3 tools/checks/accent_lint_fr.py --file app_fr.arb` → exit 0
+  - `flutter gen-l10n` → exit 0
+  - `flutter analyze` → 253 issues (= baseline-273, 0 new errors)
+- Commits : 49142b79 (atomic 6-locale ARB) → 886a6fd1 (gen-l10n regen)
+- Duration : 5 min
+- Deviation (1) : Rule 3 - blocking — Task 1 (FR+EN) and Task 2 (DE/IT/ES/PT) merged into single ARB commit because lefthook `arb-parity-gate` fails closed on per-locale intermediate state ; atomic 6-locale update preserves gate's fail-closed contract.
+- 0-trust : wave-1b-07-SUMMARY.md `## Self-Check: PASSED` cited at .planning/phases/wave-1b-citation-chips/wave-1b-07-SUMMARY.md with 9 deterministic citations
+- USER VALUE DELIVERED : NONE end-user-visible YET. Plan 07 ships i18n surface only ; plans 05 (CoachCitationChipsSection) + 06 (CoachCitationModal) consume these getters. End-to-end sim verification deferred to Plan 09 close-out.
+
+## Plan wave-1b-03 Receipt (Narrator Grammar Fragment, 2026-05-15)
+
+- Files created : 1 (.planning/phases/wave-1b-citation-chips/wave-1b-03-SUMMARY.md)
+- Files modified : 3 (citation_grammar.py + test_tool_call_id_grammar.py + test_narrator_grammar_fragment.py)
+- Tests added : 0 net new (3 Plan-01 stubs transitioned SKIPPED → PASSED)
+- Full backend pytest : 6877 passed, 67 skipped, 1 xfailed in 113.18s (Plan 02 baseline 6874 → +3 = exact match for unskipping 3 grammar stubs, zero regressions)
+- Phase 94 byte-identity : test_byte_identity_flag_off 6/6 green (preserved)
+- test_citation_gate/ : 212 passed (Plan 02 baseline 212, preserved)
+- test_dag_invalidation/test_pack_registry_coupling : 2/2 green (Plan 02's 24-key drift detector still operational)
+- Commits : 5224af94 (RED — unskip Plan-01 stubs) → 29b01531 (GREEN — tool_paragraph + tool_example + intent always-on + 24-key test re-tighten)
+- Duration : ~9 min execution
+- 0-trust : wave-1b-03-SUMMARY.md `## Self-Check: PASSED` cited at .planning/phases/wave-1b-citation-chips/wave-1b-03-SUMMARY.md
+- **Q5_DECISION shipped** : 1-segment grammar `{{cite:tool_<name>}}` (RESEARCH §4.3 Option A) adopted instead of CONTEXT line 36's 2-segment `{{cite:tool_call_id:<inputs_hash>}}`. Respects CONTEXT hard constraint #4 (zero edit to `_RE_CURRENCY` / `_RE_PERCENT` / `_RE_CITE_PLACEHOLDER` regexes in citation_parser.py). Per-call `inputs_hash` travels via the tool response container, not the placeholder. Julien reviews at PR time; if rejected, alternative cost = 2-3 additional plans.
+- **tool_paragraph shipped** : added in BOTH `_build_citation_grammar_fragment` (full fragment) AND `build_intent_scoped_citation_grammar` (intent-scoped variant) header builders. Verbatim FR per RESEARCH §4.4 : « Certaines clés (`tool_*`) marquent un chiffre calculé côté serveur — son `inputs_hash` voyage avec la réponse, tu n'as pas besoin de le citer dans le texte… ». Banned-terms + accent_lint exit 0.
+- **tool_example shipped** : added `**ACCEPTÉ — chiffre calculé côté serveur**` block in BOTH builders. Verbatim per RESEARCH §4.4 with `{{cite:tool_budget_snapshot}}` placeholder + LSFin-safe modal verb « pourrait ».
+- **Always-on intent mapping shipped** : `_WAVE_1B_TOOL_KEYS_ALWAYS_ON` frozenset (6 tool keys) unioned into EVERY bucket of `_INTENT_TO_CITATION_KEYS` (debt / housing / family / career / retirement / taxes / tax / mortgage). Tool calls are LLM-driven, NOT intent-driven — the narrator can call `get_budget_status` on any intent.
+- **Test renamed** : test_fragment_lists_all_18_registry_keys → test_fragment_lists_all_24_registry_keys (re-tighten from Plan 02's transitional 18-non-tool sub-baseline to unified 24-key total + preserved 18-non-tool + 6-tool sub-baselines as independent regression checks).
+- **3 Plan-01 stubs transitioned SKIPPED → PASSED** : `test_grammar_fragment_lists_all_tool_keys`, `test_grammar_fragment_lists_all_24_registry_keys`, `test_intent_scoped_grammar_includes_tools`. 0 `@pytest.mark.skip` markers remain in test_tool_call_id_grammar.py.
+- **Token-count delta on rendered fragment** : pre-Plan-03 5'880 chars / 1'960 approx tokens → post-Plan-03 6'502 chars / 2'167 approx tokens (+10.6% / +207 tokens). Within RESEARCH §A4 budget (<5% of ~80 kB narrator prompt = <4 kB grammar allotment).
+- Zero deviations from plan. Plan-prescribed implementation matched the codebase shape exactly; no Rule 1-4 auto-fixes triggered.
+- USER VALUE DELIVERED : NONE YET — Plan 03 only proves grammar fragment correctness + intent mapping + 15 test assertions. Narrator LLM emission of `{{cite:tool_*}}` against the new doctrine is Plan 04 wiring; Flutter chip rendering is Plan 05/06; Sentry breadcrumb is Plan 08. No end-to-end user flow exercised. PR opened against `dev`, NOT merged. Per CLAUDE.md §9.5 — Stage 1 of 4.
 
 ## Plan 96-03 Receipt (Wave 3 Cross-stack, 2026-05-11)
 
@@ -247,9 +355,9 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-11T03:30:00.000Z
-Stopped at: Phase 96 Wave 2 shipped (Backend) — 3 commits b81172a3..bbcf0853, 46 net new tests, full pytest 6567 passed, Phase 94/95 byte-identity preserved (181+74=255 tests). Wave 3 next (NarrativeSleeve linter + metaphor TOML + Maestro G1).
-Resume file: .planning/phases/96-mvp-chat-as-verb/96-02-SUMMARY.md
+Last session: 2026-05-15T10:47:58.028Z
+Stopped at: Completed wave-1b-09-PLAN.md — wave_1b_close.sh + Maestro G1 + phase SUMMARY + VERIFICATION-REPORT.html + G2 BLOCKED docs; phase PENDING G2 awaiting dev→staging merge + Railway flag flip; branch feature/wave-1b-09-rollout-close ready for PR
+Resume file: None
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>

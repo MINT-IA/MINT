@@ -75,12 +75,20 @@ def test_fragment_is_nonempty_str_with_grammar_header():
     )
 
 
-def test_fragment_lists_all_18_registry_keys():
+def test_fragment_lists_all_24_registry_keys():
     """Coupling : every key in CITATION_REGISTRY appears in the fragment
     text (so the narrator sees the closed-world vocabulary). If a future
     PR adds a registry key, this test fails until the prompt builder is
     re-run / the fragment is regenerated. Defensive against orphan keys
     (Phase 94.1 must-have #1).
+
+    Wave 1b Plan 03 — re-tightened from the Plan 02 split (18 non-tool +
+    6 tool sub-baseline) to the unified 24-key total because Plan 03 wires
+    `tool_*` keys into the grammar fragment via auto-iteration over
+    `CITATION_REGISTRY.keys()`. The non-tool sub-baseline of 18 (Phase 94
+    Wave 0 baseline) is preserved as a regression check so a count drift
+    in the regulatory surface surfaces here independently of the tool
+    surface.
     """
     missing: list[str] = []
     for key in CITATION_REGISTRY.keys():
@@ -91,12 +99,31 @@ def test_fragment_lists_all_18_registry_keys():
         f"{len(missing)} CITATION_REGISTRY key(s) missing from grammar "
         f"fragment : {missing[:5]}..."
     )
-    # Also assert exactly 18 keys (Wave 0 baseline) so a count drift
-    # surfaces here too.
-    assert len(CITATION_REGISTRY) == 18, (
-        f"CITATION_REGISTRY drift : expected 18 keys (Phase 94 Wave 0 "
-        f"baseline), got {len(CITATION_REGISTRY)}. Update both the "
+    # Phase 94 Wave 0 + Wave 1b Plan 02 cumulative count : 18 non-tool +
+    # 6 tool_call_id = 24 total. Drift in either sub-bucket surfaces here.
+    non_tool_keys = [
+        k
+        for k, src in CITATION_REGISTRY.items()
+        if src.source_kind != "tool_call_id"
+    ]
+    tool_keys = [
+        k
+        for k, src in CITATION_REGISTRY.items()
+        if src.source_kind == "tool_call_id"
+    ]
+    assert len(non_tool_keys) == 18, (
+        f"CITATION_REGISTRY non-tool drift : expected 18 keys (Phase 94 "
+        f"Wave 0 baseline), got {len(non_tool_keys)}. Update both the "
         f"registry and this assertion when intentional."
+    )
+    assert len(tool_keys) == 6, (
+        f"CITATION_REGISTRY tool_call_id drift : expected 6 keys (Wave 1b "
+        f"Plan 02 baseline), got {len(tool_keys)}. Update both the "
+        f"registry and this assertion when intentional."
+    )
+    assert len(CITATION_REGISTRY) == 24, (
+        f"CITATION_REGISTRY total drift : expected 24 keys (18 non-tool + "
+        f"6 tool_call_id), got {len(CITATION_REGISTRY)}."
     )
 
 

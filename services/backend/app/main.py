@@ -15,6 +15,7 @@ from app.core.config import settings
 from app.core.database import Base, engine
 from app.core.logging_config import setup_logging, LoggingMiddleware, trace_id_var
 from app.core.rate_limit import limiter
+from app.core.sentry_scrub import before_send as _mint_sentry_before_send
 from app.api.v1.router import api_router
 
 # Initialize structured logging before anything else
@@ -28,6 +29,11 @@ if settings.SENTRY_DSN:  # pragma: no cover — DSN only set in production env
         traces_sample_rate=0.1,
         profiles_sample_rate=0.1,
         send_default_pii=False,  # nLPD compliance
+        # S98 Phase 2 — second-line PII scrubber (Swiss-compliance panel
+        # non-negotiable). Strips AVS / IBAN_CH / email / phone +41 and
+        # drops Claude payload keys + request.data wholesale.
+        # Contract tests : tests/test_sentry_scrub.py.
+        before_send=_mint_sentry_before_send,
     )
 
 logger = logging.getLogger(__name__)

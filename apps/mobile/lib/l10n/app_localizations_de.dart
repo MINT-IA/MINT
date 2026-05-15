@@ -7932,6 +7932,95 @@ class SDe extends S {
   String get coachSendButton => 'Senden';
 
   @override
+  String get coachCitationChipsHeader => 'Server-Berechnungen';
+
+  @override
+  String coachCitationChipLabel(String toolDisplayName) {
+    return '$toolDisplayName — berechnet';
+  }
+
+  @override
+  String coachCitationModalTitle(String toolDisplayName) {
+    return 'Quelle der Berechnung: $toolDisplayName';
+  }
+
+  @override
+  String get coachCitationJsonViewerLabel =>
+      'Berechnungsdetails anzeigen (JSON)';
+
+  @override
+  String get coachCitationRememberCta => 'Diese Quelle merken';
+
+  @override
+  String get coachToolBudgetSnapshot => 'Aktuelles Budget';
+
+  @override
+  String get coachToolRetirementProjection => 'Rentenprojektion';
+
+  @override
+  String get coachToolCrossPillarAnalysis => 'Säulen-übergreifende Analyse';
+
+  @override
+  String get coachToolCoupleOptimization => 'Paar-Optimierung';
+
+  @override
+  String get coachToolCapStatus => 'Tageslimit';
+
+  @override
+  String get coachToolRetrieveMemories => 'Erinnerungen';
+
+  @override
+  String get coachCitationRelativeJustNow => 'gerade eben';
+
+  @override
+  String coachCitationRelativeMinutes(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'vor $countString Min.',
+      one: 'vor 1 Min.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeHours(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'vor $countString Std.',
+      one: 'vor 1 Std.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeDays(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'vor $countString T.',
+      one: 'vor 1 T.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get profileDefaultName => 'Benutzer';
 
   @override

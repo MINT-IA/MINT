@@ -7,6 +7,8 @@ import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/coach/coach_citation_chips_section.dart';
+import 'package:mint_mobile/widgets/coach/coach_citation_modal.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
 
@@ -161,6 +163,37 @@ class CoachMessageBubble extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 44, right: MintSpacing.xxl),
               child: CoachSourcesSection(sources: msg.sources),
+            ),
+          ],
+          // Citation chips (Wave 1b) — tool-call provenance.
+          // Sibling of Sources; rendered alongside (NOT replacing) it.
+          if (msg.citationChips.isNotEmpty) ...[
+            const SizedBox(height: MintSpacing.md - 4),
+            Padding(
+              padding: const EdgeInsets.only(left: 44, right: MintSpacing.xxl),
+              child: CoachCitationChipsSection(
+                chips: msg.citationChips,
+                onChipTap: (chip) {
+                  // Plan 06 — open citation modal.
+                  showCoachCitationModal(
+                    context,
+                    chip,
+                    onRememberTap: (c) {
+                      // Wave 2 follow-up: persist to user wiki via save_insight.
+                      // For v1 we emit a SnackBar acknowledgement so Maestro G1
+                      // (Plan 09) can assert the CTA wired without persisting.
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            S.of(context)!.coachCitationRememberCta,
+                          ),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
           // Disclaimers (from RAG backend)

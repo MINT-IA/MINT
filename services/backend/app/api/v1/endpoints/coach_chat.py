@@ -89,6 +89,10 @@ from pydantic import BaseModel as _BaseModel
 
 logger = logging.getLogger(__name__)
 
+# Wave 1a — slot marker constant referenced by tests/test_coach_tools_scaffolding.py (Test 13).
+# If you rename the slot, update this constant AND the slot comment block below in sync.
+WAVE_1A_DISPATCHER_SLOT_MARKER = "Wave 1a server-side compute dispatchers (D-08)"
+
 # SEC-6 / PRIV-03 — PII scrubbing now delegates to the centralized
 # privacy.pii_scrubber module (Presidio + custom CH recognizers + regex
 # fallback). The legacy regex list below is kept ONLY as the safety net
@@ -349,6 +353,203 @@ _INJECTION_PATTERNS = [
     re.compile(r'ignoriere?\s+(alle\s+)?(vorherigen?\s+)?(Regeln|Anweisungen)', re.IGNORECASE),
     re.compile(r'vergiss\s+(alles|alle\s+Anweisungen)', re.IGNORECASE),
 ]
+
+
+# ---------------------------------------------------------------------------
+# Wave 1b Plan 04 — citation-chip collection from internal tool results.
+# ---------------------------------------------------------------------------
+#
+# The 6 Wave 1a internal tools are filtered out of `flutter_tool_calls`
+# upstream (INTERNAL_TOOL_NAMES in coach_chat.py imports + filter at
+# line ~3194). Per wave-1b-04-AUDIT.md §3 Route (b) decision, we collect
+# them into a separate `citation_chips` list that flows alongside
+# `tool_calls` into the HTTP response. Plans 05/06/08 (Flutter chip +
+# modal + Sentry breadcrumb) build against this contract.
+#
+# Q9_DECISION (synthetic-hash adopted) — 4/6 tools have Pydantic
+# response models with `inputs_hash` (budget_snapshot,
+# retirement_projection, cross_pillar_analysis, couple_optimization).
+# `cap_status` + `retrieve_memories` return plain FR strings; we
+# synthesize the hash via hashlib.sha256 over the result text so all 6
+# chips render. Backend AUDIT.md §4 documents the Julien-override path.
+
+_WAVE_1B_TOOL_NAMES: frozenset[str] = frozenset({
+    "get_budget_status",
+    "get_retirement_projection",
+    "get_cross_pillar_analysis",
+    "get_couple_optimization",
+    "get_cap_status",
+    "retrieve_memories",
+})
+
+# Tools whose result string is a JSON dump of a Wave 1a Pydantic response
+# (`model_dump_json(by_alias=True)`). Flag-ON path. Flag-OFF path returns
+# the legacy `_format_*` string; the JSON parse fails and we skip the
+# chip — matches CONTEXT plan default Q4 (legacy = no inputs_hash = no
+# chip).
+_WAVE_1B_JSON_TOOLS: frozenset[str] = frozenset({
+    "get_budget_status",
+    "get_retirement_projection",
+    "get_cross_pillar_analysis",
+    "get_couple_optimization",
+})
+
+# Tools whose result is always a plain FR string (no Pydantic wrapper
+# today). Q9 synthetic-hash applies here — hashlib.sha256 over the text
+# gives a stable, deterministic chip identity per turn.
+_WAVE_1B_STRING_TOOLS: frozenset[str] = frozenset({
+    "get_cap_status",
+    "retrieve_memories",
+})
+
+# Explicit mapping from dispatcher tool_name to citation_registry short-name.
+# Matches `tool_*` keys in `services/backend/app/services/coach/citation_registry.py`
+# (Plan 02). `get_budget_status` → `budget_snapshot` (NOT `budget_status`) —
+# the registry uses the response-model name. Built explicitly because
+# `tool_name.replace("get_", "")` strips ALL occurrences (`budget` contains
+# `get_` at index 3) — broken for `get_budget_status` → `budstatus`.
+_TOOL_NAME_TO_SHORT: dict[str, str] = {
+    "get_budget_status": "budget_snapshot",
+    "get_retirement_projection": "retirement_projection",
+    "get_cross_pillar_analysis": "cross_pillar_analysis",
+    "get_couple_optimization": "couple_optimization",
+    "get_cap_status": "cap_status",
+    "retrieve_memories": "retrieve_memories",
+}
+
+
+def _extract_wave_1b_citation_chip(
+    tool_name: str, result_text: str
+) -> Optional[dict]:
+    """Build a citation chip from an internal tool execution result.
+
+    Returns a dict with keys `toolName`, `inputsHash`, `computedAt`,
+    `rawResponse` ready for camelCase JSON serialization in the HTTP
+    response. Returns None when the tool is not a Wave 1b citation
+    source or when no inputs_hash can be derived (flag-OFF fallback for
+    the 4 Pydantic tools).
+    """
+    import hashlib
+    import json as _json
+    from datetime import datetime, timezone
+
+    short_name = _TOOL_NAME_TO_SHORT.get(tool_name)
+    if short_name is None:
+        return None
+
+    if tool_name in _WAVE_1B_JSON_TOOLS:
+        # Try to parse the Pydantic JSON dump (flag-ON success path).
+        try:
+            payload = _json.loads(result_text)
+        except (ValueError, TypeError):
+            # Flag-OFF / fallback path — legacy formatter string; skip
+            # the chip per CONTEXT plan default Q4.
+            return None
+        if not isinstance(payload, dict):
+            return None
+        inputs_hash = payload.get("inputsHash") or payload.get("inputs_hash")
+        computed_at = payload.get("computedAt") or payload.get("computed_at")
+        if not inputs_hash or not computed_at:
+            return None
+        return {
+            "toolName": short_name,
+            "inputsHash": inputs_hash,
+            "computedAt": computed_at,
+            "rawResponse": payload,
+        }
+
+    # _WAVE_1B_STRING_TOOLS — synthesize per Q9_DECISION.
+    if tool_name in _WAVE_1B_STRING_TOOLS:
+        synthetic = hashlib.sha256(
+            _json.dumps({"text": result_text}, sort_keys=True).encode()
+        ).hexdigest()
+        return {
+            "toolName": short_name,
+            "inputsHash": synthetic,
+            "computedAt": datetime.now(timezone.utc).isoformat(),
+            "rawResponse": {"text": result_text},
+        }
+
+    return None
+
+
+def _emit_citation_chip_breadcrumbs(
+    gated_text: str,
+    citation_chips: Optional[list],
+    user_id: Optional[str],
+) -> None:
+    """Wave 1b Plan 08 — emit one coach.citation.tool_call_id.<tool>
+    Sentry breadcrumb per {{cite:tool_*}} placeholder in the gated
+    narrator output, deduplicated per tool short-name per turn.
+
+    Runs OUTSIDE citation_parser.gate() (CONTEXT hard constraint #4 —
+    Phase 94 byte-identity invariant). Consumes its output via
+    `_RE_CITE_PLACEHOLDER` on `gated_text`.
+
+    Lookup: `citation_chips` is built by Plan 04 in `_run_agent_loop`
+    and contains entries with `toolName` (CITATION_REGISTRY short-name,
+    e.g. `"budget_snapshot"`) + `inputsHash` (64-char hex). The wrapper
+    matches placeholder key `tool_<short>` to the chip whose toolName
+    == short. Non-tool placeholders (spec, adr, profile, reasoning)
+    are silently skipped.
+
+    `user_id` is hashed before emission (PII scrub).
+
+    Helper exception → swallowed; telemetry MUST NOT break the coach
+    response path.
+
+    Extracted from `_run_narrator_with_gate` closure for direct unit
+    test coverage (diff-cover ≥80% gate on changed lines per
+    `feedback_pre_push_checklist`).
+    """
+    from app.observability.coach_breadcrumbs import (
+        emit_coach_citation_breadcrumb,
+    )
+    from app.services.coach.citation_parser import _RE_CITE_PLACEHOLDER
+    from app.utils.hashing import hash_profile_id
+
+    try:
+        if not gated_text or not citation_chips:
+            return
+        # Build short-name -> chip lookup once.
+        chips_by_short: dict = {}
+        for chip in citation_chips:
+            short = chip.get("toolName") if isinstance(chip, dict) else None
+            if isinstance(short, str) and short:
+                chips_by_short.setdefault(short, chip)
+        if not chips_by_short:
+            return
+        profile_id_hashed = hash_profile_id(str(user_id or "anonymous"))
+        seen_tool_names: set = set()
+        for m in _RE_CITE_PLACEHOLDER.finditer(gated_text):
+            raw = m.group(0)
+            key = raw[len("{{cite:"):-len("}}")]
+            if not key.startswith("tool_"):
+                continue
+            tool_short = key[len("tool_"):]
+            if tool_short in seen_tool_names:
+                # Cap at one breadcrumb per tool per turn.
+                continue
+            seen_tool_names.add(tool_short)
+            chip = chips_by_short.get(tool_short)
+            if chip is None:
+                continue
+            inputs_hash = chip.get("inputsHash")
+            if not isinstance(inputs_hash, str) or not inputs_hash:
+                continue
+            emit_coach_citation_breadcrumb(
+                tool_name=tool_short,
+                inputs_hash=inputs_hash,
+                profile_id_hashed=profile_id_hashed,
+                # Per Plan 08 <interfaces>: chip-level elapsed_ms is not
+                # surfaced by Plan 04. Set 0 — the Wave 1a
+                # coach.tool.<name> breadcrumb already carries the
+                # genuine compute-path timing for cross-correlation.
+                elapsed_ms=0,
+                flag_state="on",
+            )
+    except Exception:  # pragma: no cover — telemetry is fail-open
+        pass
 
 
 def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
@@ -901,6 +1102,86 @@ def _build_system_prompt_with_memory(
     if insight_block:
         prompt = prompt + "\n\n" + insight_block
     return prompt
+
+
+def _compute_retrieve_memories(
+    topic: str,
+    user_id: Optional[str],
+    db: Optional[Session],
+    max_results: int,
+    memory_block: Optional[str],
+) -> str:
+    """Wave 1a D-07 server-side path for retrieve_memories.
+
+    `_compute_retrieve_memories` is the flag-gated sibling of
+    `_handle_retrieve_memories` (preserved unchanged below). It routes
+    through `app.services.memory.bm25.retrieve` when flag ON; falls
+    back to legacy `_handle_retrieve_memories` when:
+      - settings flag is OFF, OR
+      - user_id is None / db is None, OR
+      - BM25 retrieve returns 0 hits, OR
+      - retrieve raises ANY Exception (defensive — user-facing text never
+        breaks the coach loop).
+
+    Output shape: when flag ON + hits found, returns a newline-joined
+    FR string of `[insight_type] topic: summary` lines (byte-identical
+    to the legacy line format at coach_chat.py:967), truncated to
+    max_results.
+    """
+    import time
+    import logging
+    from app.core.config import settings
+
+    if not settings.COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED:
+        return _handle_retrieve_memories(
+            topic=topic, memory_block=memory_block,
+            max_results=max_results, user_id=user_id, db=db,
+        )
+    if not user_id or db is None:
+        return _handle_retrieve_memories(
+            topic=topic, memory_block=memory_block,
+            max_results=max_results, user_id=user_id, db=db,
+        )
+
+    _t0 = time.perf_counter()
+    try:
+        from app.observability.coach_breadcrumbs import emit_coach_tool_breadcrumb
+        from app.services.coach.inputs_hash import compute_inputs_hash
+        from app.services.memory.bm25 import retrieve as _bm25_retrieve
+        from app.utils.hashing import hash_profile_id
+
+        k = min(max(1, max_results), 5)
+        hits = _bm25_retrieve(topic=topic, user_id=user_id, db=db, k=k)
+        if not hits:
+            return _handle_retrieve_memories(
+                topic=topic, memory_block=memory_block,
+                max_results=max_results, user_id=user_id, db=db,
+            )
+
+        lines = [
+            f"[{h.insight_type}] {h.topic}: {h.summary}"
+            for h in hits
+        ]
+        result_text = "\n".join(lines[:max_results])
+
+        elapsed_ms = int((time.perf_counter() - _t0) * 1000)
+        query_slice = {"topic": topic, "user_id": user_id, "k": k}
+        emit_coach_tool_breadcrumb(
+            tool_name="retrieve_memories",
+            inputs_hash=compute_inputs_hash(query_slice),
+            profile_id_hashed=hash_profile_id(user_id),
+            elapsed_ms=elapsed_ms,
+            flag_state="on",
+        )
+        return result_text
+    except Exception as exc:
+        logging.getLogger(__name__).warning(
+            "compute_retrieve_memories failed, falling back to legacy: %s", exc
+        )
+        return _handle_retrieve_memories(
+            topic=topic, memory_block=memory_block,
+            max_results=max_results, user_id=user_id, db=db,
+        )
 
 
 def _handle_retrieve_memories(
@@ -1895,34 +2176,46 @@ def _execute_internal_tool(
 
     ctx = profile_context or {}
 
+    # >>> dispatch: retrieve_memories
     if name == "retrieve_memories":
         import re
         raw_topic = tool_input.get("topic", "")
         # BUG-B fix: sanitize topic to prevent prompt injection via LLM tool_use.
         # Only allow word chars, spaces, hyphens, dots (Unicode-aware).
         safe_topic = raw_topic if re.match(r'^[\w\s\-\.]{1,100}$', raw_topic, re.UNICODE) else ""
-        return _handle_retrieve_memories(
+        return _compute_retrieve_memories(
             topic=safe_topic,
-            memory_block=memory_block,
-            max_results=min(tool_input.get("max_results", 3), 10),
             user_id=user_id,
             db=db,
+            max_results=min(tool_input.get("max_results", 3), 10),
+            memory_block=memory_block,
         )
+    # <<< dispatch: retrieve_memories
 
+    # >>> dispatch: get_budget_status
     if name == "get_budget_status":
-        return _format_budget_status(ctx)
+        return _compute_budget_status(user_id=user_id, ctx=ctx, db=db)
+    # <<< dispatch: get_budget_status
 
+    # >>> dispatch: get_retirement_projection
     if name == "get_retirement_projection":
-        return _format_retirement_projection(ctx)
+        return _compute_retirement_projection(user_id=user_id, ctx=ctx, db=db)
+    # <<< dispatch: get_retirement_projection
 
+    # >>> dispatch: get_cross_pillar_analysis
     if name == "get_cross_pillar_analysis":
-        return _format_cross_pillar_analysis(ctx)
+        return _compute_cross_pillar_analysis(user_id=user_id, ctx=ctx, db=db)
+    # <<< dispatch: get_cross_pillar_analysis
 
+    # >>> dispatch: get_cap_status
     if name == "get_cap_status":
-        return _format_cap_status(ctx)
+        return _validate_cap_response(_format_cap_status(ctx))
+    # <<< dispatch: get_cap_status
 
+    # >>> dispatch: get_couple_optimization
     if name == "get_couple_optimization":
-        return _format_couple_optimization(ctx)
+        return _compute_couple_optimization(user_id=user_id, ctx=ctx, db=db)
+    # <<< dispatch: get_couple_optimization
 
     if name == "get_regulatory_constant":
         return _handle_regulatory_constant(tool_input)
@@ -2246,6 +2539,110 @@ def _fmt_pct(value) -> str:
         return "non disponible"
 
 
+# === Wave 1a server-side compute dispatchers (D-08) ===
+# Plans 01-05 each insert their _compute_<tool_name>() function below
+# this comment block, ABOVE the matching legacy _format_<tool_name>().
+# Plan-06 inserts its _validate_cap_response() middleware here too.
+# Each _compute_* calls _format_<tool>(ctx) when flag OFF — forward reference
+# is intentional (Python resolves at call time), do not reorder.
+# Each _compute_* path:
+#   1. Checks settings.COACH_TOOL_SERVER_SIDE_<NAME>_ENABLED flag.
+#   2. Falls back to legacy _format_<name>(ctx) when flag OFF.
+#   3. Computes via app.services.* (chained per CONTEXT D-02).
+#   4. Wraps in Pydantic response with inputs_hash + computed_at.
+#   5. Emits Sentry breadcrumb via
+#      app.observability.coach_breadcrumbs.emit_coach_tool_breadcrumb
+#      (D-15: tool_name, inputs_hash, profile_id_hashed, elapsed_ms,
+#      flag_state). NEVER ad-hoc sentry_sdk.add_breadcrumb in _compute_*.
+# Implementations landed so far in this file:
+#   - _compute_budget_status            (plan wave-1a-01)
+#   - _compute_retirement_projection    (plan wave-1a-02)
+#   - _compute_cross_pillar_analysis    (plan wave-1a-03)
+#   - _compute_couple_optimization      (plan wave-1a-04)
+# === end Wave 1a dispatchers ===
+
+
+def _compute_budget_status(user_id: str | None, ctx: dict, db) -> str:
+    """Wave 1a D-02 server-side path for get_budget_status.
+
+    Returns either:
+      - JSON string `BudgetSnapshotResponse.model_dump_json(by_alias=True)`
+        (flag ON success path), OR
+      - legacy FR string from `_format_budget_status(ctx)`
+        (flag OFF / fallback path).
+
+    Falls back to legacy formatter when:
+      - settings flag is OFF, OR
+      - user_id is None / db session is None, OR
+      - DB returns no ProfileModel for user_id / profile.data is empty, OR
+      - CoachingEngine raises ValueError("budget data missing"), OR
+      - ANY other Exception (defensive: DB flake, Pydantic validation,
+        breadcrumb error). User-facing text never breaks the coach loop.
+    """
+    import time
+    import logging
+    from app.core.config import settings
+
+    if not settings.COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED:
+        return _format_budget_status(ctx)
+    if not user_id or db is None:
+        return _format_budget_status(ctx)
+
+    _t0 = time.perf_counter()
+    try:
+        from datetime import datetime, timezone
+
+        from app.models.coach_tools.budget_snapshot import BudgetSnapshotResponse
+        from app.models.profile_model import ProfileModel
+        from app.observability.coach_breadcrumbs import emit_coach_tool_breadcrumb
+        from app.services.coach.inputs_hash import compute_inputs_hash
+        from app.services.coaching_engine import CoachingEngine
+        from app.utils.hashing import hash_profile_id
+
+        # Newest-profile-wins lookup — matches the canonical pattern used
+        # elsewhere in coach_chat.py for ProfileModel resolution. Filters
+        # by user_id (FK) not by id (PK) because a user may have multiple
+        # ProfileModel rows.
+        profile = (
+            db.query(ProfileModel)
+            .filter(ProfileModel.user_id == user_id)
+            .order_by(ProfileModel.updated_at.desc())
+            .first()
+        )
+        if profile is None or not profile.data:
+            return _format_budget_status(ctx)
+
+        snapshot = CoachingEngine.compute_budget_snapshot(profile.data)
+        slice_ = {
+            "monthly_income": float(snapshot.monthly_income),
+            "monthly_expenses": float(snapshot.monthly_expenses),
+            "months_liquidity": snapshot.months_liquidity,
+        }
+        response = BudgetSnapshotResponse(
+            monthly_income=snapshot.monthly_income,
+            monthly_expenses=snapshot.monthly_expenses,
+            monthly_surplus=snapshot.monthly_surplus,
+            months_liquidity=snapshot.months_liquidity,
+            inputs_hash=compute_inputs_hash(slice_),
+            computed_at=datetime.now(timezone.utc),
+        )
+        # D-15 uniform Sentry payload via plan-00 helper.
+        elapsed_ms = int((time.perf_counter() - _t0) * 1000)
+        emit_coach_tool_breadcrumb(
+            tool_name="budget_status",
+            inputs_hash=response.inputs_hash,
+            profile_id_hashed=hash_profile_id(user_id),
+            elapsed_ms=elapsed_ms,
+            flag_state="on",
+        )
+        return response.model_dump_json(by_alias=True)
+    except Exception as exc:  # defensive fallback (python-pro panel)
+        logging.getLogger(__name__).warning(
+            "compute_budget_status failed, falling back to legacy: %s", exc
+        )
+        return _format_budget_status(ctx)
+
+
 def _format_budget_status(ctx: dict) -> str:
     """Format budget data from profile_context as readable text."""
     monthly_income = ctx.get("monthly_income")
@@ -2267,6 +2664,101 @@ def _format_budget_status(ctx: dict) -> str:
         lines.append(f"- Réserve de liquidités : {float(months_liquidity):.1f} mois")
 
     return "\n".join(lines)
+
+
+def _compute_retirement_projection(user_id: str | None, ctx: dict, db) -> str:
+    """Wave 1a D-02 server-side path for get_retirement_projection.
+
+    Returns either:
+      - JSON string `RetirementProjectionResponse.model_dump_json(by_alias=True)`
+        (flag ON success path), OR
+      - legacy FR string from `_format_retirement_projection(ctx)`
+        (flag OFF / fallback path).
+
+    Falls back to legacy formatter when:
+      - settings flag is OFF, OR
+      - user_id is None / db session is None, OR
+      - DB returns no ProfileModel for user_id / profile.data is empty, OR
+      - RetirementProjectionService.compute raises ValueError
+        (e.g. missing birthYear + monthlyIncome + avoirLpp), OR
+      - ANY other Exception (defensive: DB flake, Pydantic validation,
+        breadcrumb error). User-facing text never breaks the coach loop.
+    """
+    import time
+    import logging
+    from app.core.config import settings
+
+    if not settings.COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED:
+        return _format_retirement_projection(ctx)
+    if not user_id or db is None:
+        return _format_retirement_projection(ctx)
+
+    _t0 = time.perf_counter()
+    try:
+        from datetime import datetime, timezone
+
+        from app.models.coach_tools.retirement_projection import (
+            RetirementProjectionResponse,
+        )
+        from app.models.profile_model import ProfileModel
+        from app.observability.coach_breadcrumbs import (
+            emit_coach_tool_breadcrumb,
+        )
+        from app.services.coach.inputs_hash import compute_inputs_hash
+        from app.services.retirement import RetirementProjectionService
+        from app.utils.hashing import hash_profile_id
+
+        # Newest-profile-wins lookup — matches the canonical pattern used
+        # by _compute_budget_status (plan-01). Filters by user_id (FK) not
+        # by id (PK) because a user may have multiple ProfileModel rows.
+        profile = (
+            db.query(ProfileModel)
+            .filter(ProfileModel.user_id == user_id)
+            .order_by(ProfileModel.updated_at.desc())
+            .first()
+        )
+        if profile is None or not profile.data:
+            return _format_retirement_projection(ctx)
+
+        proj = RetirementProjectionService.compute(profile.data)
+        slice_ = {
+            "birthYear": profile.data.get("birthYear"),
+            "householdType": profile.data.get("householdType"),
+            "canton": profile.data.get("canton"),
+            "avsContributionYears": profile.data.get("avsContributionYears"),
+            "avoirLpp": profile.data.get("avoirLpp"),
+            "lppInsuredSalary": profile.data.get("lppInsuredSalary"),
+            "pillar3aBalance": profile.data.get("pillar3aBalance"),
+            "monthlyIncome": profile.data.get("monthlyIncome"),
+            "monthlyExpenses": profile.data.get("monthlyExpenses"),
+            "desiredRetirementAge": profile.data.get("desiredRetirementAge"),
+        }
+        response = RetirementProjectionResponse(
+            replacement_ratio=proj.replacement_ratio,
+            avs_rente=proj.avs_rente,
+            lpp_capital=proj.lpp_capital,
+            monthly_retirement_income=proj.monthly_retirement_income,
+            monthly_gap=proj.monthly_gap,
+            current_monthly_income=proj.current_monthly_income,
+            inputs_hash=compute_inputs_hash(slice_),
+            computed_at=datetime.now(timezone.utc),
+        )
+        # D-15 uniform Sentry payload via plan-00 helper.
+        elapsed_ms = int((time.perf_counter() - _t0) * 1000)
+        emit_coach_tool_breadcrumb(
+            tool_name="retirement_projection",
+            inputs_hash=response.inputs_hash,
+            profile_id_hashed=hash_profile_id(user_id),
+            elapsed_ms=elapsed_ms,
+            flag_state="on",
+        )
+        return response.model_dump_json(by_alias=True)
+    except Exception as exc:  # defensive fallback (python-pro panel)
+        logging.getLogger(__name__).warning(
+            "compute_retirement_projection failed, falling back to legacy: %s",
+            exc,
+        )
+        return _format_retirement_projection(ctx)
 
 
 def _format_retirement_projection(ctx: dict) -> str:
@@ -2298,6 +2790,104 @@ def _format_retirement_projection(ctx: dict) -> str:
     return "\n".join(lines)
 
 
+def _compute_cross_pillar_analysis(user_id: str | None, ctx: dict, db) -> str:
+    """Wave 1a D-02 server-side path for get_cross_pillar_analysis.
+
+    Returns either:
+      - JSON string `CrossPillarAnalysisResponse.model_dump_json(by_alias=True)`
+        (flag ON success), OR
+      - legacy FR string from `_format_cross_pillar_analysis(ctx)` (flag OFF
+        or any fallback condition).
+
+    Fallback conditions:
+      - settings.COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED is False, OR
+      - user_id is None / db session is None, OR
+      - DB returns no ProfileModel for user_id / profile.data is empty, OR
+      - CrossPillarService.compute raises ValueError("cross pillar data missing"), OR
+      - any other Exception (defensive — never crash the coach turn).
+
+    Sentry breadcrumb tags (D-15 + RESEARCH §3 caveat #3):
+      - lpp_buyback_source: "from_profile" or "missing_from_profile"
+      - tax_saving_source: "strategy_a" | "strategy_b" | "missing_from_profile"
+    """
+    import time
+    import logging
+    from app.core.config import settings
+
+    if not settings.COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED:
+        return _format_cross_pillar_analysis(ctx)
+    if not user_id or db is None:
+        return _format_cross_pillar_analysis(ctx)
+
+    _t0 = time.perf_counter()
+    try:
+        from datetime import datetime, timezone
+
+        from app.models.coach_tools.cross_pillar import (
+            CrossPillarAnalysisResponse,
+        )
+        from app.models.profile_model import ProfileModel
+        from app.observability.coach_breadcrumbs import (
+            emit_coach_tool_breadcrumb,
+        )
+        from app.services.arbitrage.cross_pillar_service import (
+            CrossPillarService,
+        )
+        from app.services.coach.inputs_hash import compute_inputs_hash
+        from app.utils.hashing import hash_profile_id
+
+        # Newest-profile-wins lookup — canonical pattern (plan-01 Task 2,
+        # plan-02 Task 2). Filter by user_id (FK), not id (PK).
+        profile = (
+            db.query(ProfileModel)
+            .filter(ProfileModel.user_id == user_id)
+            .order_by(ProfileModel.updated_at.desc())
+            .first()
+        )
+        if profile is None or not profile.data:
+            return _format_cross_pillar_analysis(ctx)
+
+        analysis = CrossPillarService.compute(profile.data)
+
+        slice_ = {
+            "annual_3a_contribution": float(analysis.annual_3a_contribution),
+            "lpp_buyback_max": float(analysis.lpp_buyback_max),
+            "lpp_capital": float(analysis.lpp_capital),
+            "tax_saving_potential": float(analysis.tax_saving_potential),
+            "three_a_ceiling": float(analysis.three_a_ceiling),
+        }
+        response = CrossPillarAnalysisResponse(
+            annual_3a_contribution=analysis.annual_3a_contribution,
+            three_a_ceiling=analysis.three_a_ceiling,
+            three_a_remaining=analysis.three_a_remaining,
+            lpp_buyback_max=analysis.lpp_buyback_max,
+            lpp_capital=analysis.lpp_capital,
+            tax_saving_potential=analysis.tax_saving_potential,
+            inputs_hash=compute_inputs_hash(slice_),
+            computed_at=datetime.now(timezone.utc),
+        )
+
+        elapsed_ms = int((time.perf_counter() - _t0) * 1000)
+        emit_coach_tool_breadcrumb(
+            tool_name="cross_pillar",
+            inputs_hash=response.inputs_hash,
+            profile_id_hashed=hash_profile_id(user_id),
+            elapsed_ms=elapsed_ms,
+            flag_state="on",
+            extra_tags={
+                "lpp_buyback_source": analysis.lpp_buyback_source,
+                "tax_saving_source": analysis.tax_saving_source,
+            },
+        )
+        return response.model_dump_json(by_alias=True)
+    except Exception as exc:
+        logging.getLogger(__name__).warning(
+            "compute_cross_pillar_analysis failed, falling back to legacy: %s",
+            exc,
+        )
+        return _format_cross_pillar_analysis(ctx)
+
+
 def _format_cross_pillar_analysis(ctx: dict) -> str:
     """Format cross-pillar optimization insights as readable text."""
     annual_3a = ctx.get("annual_3a_contribution")
@@ -2325,6 +2915,59 @@ def _format_cross_pillar_analysis(ctx: dict) -> str:
         lines.append(f"- Économie fiscale potentielle : {_fmt_chf(tax_saving)}")
 
     return "\n".join(lines)
+
+
+def _validate_cap_response(rendered: str) -> str:
+    """Wave 1a D-09 — strip un-cited CHF tokens from cap text.
+
+    Cap text comes from CapEngine on the Flutter side. The server cannot
+    recompute the cap (kept Flutter-source per CONTEXT D-17 option b), but
+    it CAN guarantee that no CHF token reaches the LLM without an adjacent
+    ``{{cite:<key>}}`` placeholder. Within ±80 chars of any CHF token a
+    cite placeholder MUST be present; else the token is replaced with the
+    verbatim FR string ``[montant indisponible]`` and a Sentry breadcrumb
+    is emitted with a non-PII snippet payload.
+
+    The flag ``COACH_CAP_CHF_GARDE_ENABLED`` defaults to True per
+    CONTEXT D-09 (set OFF only for legacy parity debugging — see Test 5).
+
+    The currency regex is REUSED from
+    ``app.services.coach.citation_parser._RE_CURRENCY`` (Phase 94, single
+    source of truth at citation_parser.py:68-70, re-exported via
+    ``__all__`` at citation_parser.py:721-734).
+    """
+    from app.core.config import settings
+    if not settings.COACH_CAP_CHF_GARDE_ENABLED:
+        return rendered
+    # Inline import to avoid module-import-time circular dep (the
+    # citation_parser module pulls in coach-side dataclasses transitively).
+    from app.services.coach.citation_parser import _RE_CURRENCY
+
+    result = rendered
+    offset = 0
+    for match in _RE_CURRENCY.finditer(rendered):
+        window_start = max(0, match.start() - 80)
+        window_end = match.end() + 80
+        window = rendered[window_start:window_end]
+        if "{{cite:" in window:
+            continue
+        s = match.start() + offset
+        e = match.end() + offset
+        replacement = "[montant indisponible]"
+        result = result[:s] + replacement + result[e:]
+        offset += len(replacement) - (e - s)
+        try:
+            import sentry_sdk
+            sentry_sdk.add_breadcrumb(
+                category="coach.cap.cap_chf_uncited",
+                message="CHF token rejected",
+                level="warning",
+                data={"snippet": window[:120]},
+            )
+        except Exception:
+            # Fail-open: never let telemetry break the coach response path.
+            pass
+    return result
 
 
 def _format_cap_status(ctx: dict) -> str:
@@ -2356,6 +2999,140 @@ def _format_cap_status(ctx: dict) -> str:
         lines.append(f"- Progression : {seq_completed}/{seq_total} étapes")
 
     return "\n".join(lines)
+
+
+def _compute_couple_optimization(user_id, ctx: dict, db) -> str:
+    """Wave 1a D-02 server-side path for get_couple_optimization.
+
+    Returns either:
+      - JSON string ``CoupleOptimizationResponse.model_dump_json(by_alias=True)``
+        (flag ON success path), OR
+      - legacy FR string from ``_format_couple_optimization(ctx)``
+        (flag OFF / fallback path).
+
+    Falls back to legacy formatter when:
+      - settings flag is OFF, OR
+      - user_id is None / db session is None, OR
+      - DB returns no ProfileModel for user_id / profile.data is empty, OR
+      - CoupleOptimizer.optimize raises ANY Exception (defensive: DB flake,
+        unexpected shape, Pydantic validation, breadcrumb error).
+        User-facing text never breaks the coach loop.
+    """
+    import time
+    import logging
+    from app.core.config import settings
+
+    if not settings.COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED:
+        return _format_couple_optimization(ctx)
+    if not user_id or db is None:
+        return _format_couple_optimization(ctx)
+
+    _t0 = time.perf_counter()
+    try:
+        from datetime import datetime, timezone
+        from decimal import Decimal
+
+        from app.models.coach_tools.couple_optimization import (
+            AvsCapResponse,
+            CoupleOptimizationResponse,
+            LppBuybackOrderResponse,
+            MarriagePenaltyResponse,
+            Pillar3aOrderResponse,
+        )
+        from app.models.profile_model import ProfileModel
+        from app.observability.coach_breadcrumbs import emit_coach_tool_breadcrumb
+        from app.services.coach.inputs_hash import compute_inputs_hash
+        from app.services.couple_optimizer import CoupleOptimizer
+        from app.utils.hashing import hash_profile_id
+
+        # Newest-profile-wins lookup — mirrors plan-01/02 pattern.
+        profile = (
+            db.query(ProfileModel)
+            .filter(ProfileModel.user_id == user_id)
+            .order_by(ProfileModel.updated_at.desc())
+            .first()
+        )
+        if profile is None or not profile.data:
+            return _format_couple_optimization(ctx)
+
+        result = CoupleOptimizer.optimize(profile.data)
+        # Build the inputs_hash slice from the actual fields the port reads
+        # (mirror the keys read inside CoupleOptimizer.optimize).
+        slice_ = {
+            "etatCivil": profile.data.get("etatCivil"),
+            "canton": profile.data.get("canton"),
+            "nombreEnfants": profile.data.get("nombreEnfants"),
+            "salaireBrutMensuel": profile.data.get("salaireBrutMensuel"),
+            "nombreDeMois": profile.data.get("nombreDeMois"),
+            "birthYear": profile.data.get("birthYear"),
+            "gender": profile.data.get("gender"),
+            "prevoyance": profile.data.get("prevoyance"),
+            "conjoint": profile.data.get("conjoint"),
+        }
+
+        def _q(value):
+            return Decimal(str(value)).quantize(Decimal("0.01"))
+
+        lpp_resp = None
+        if result.lpp_buyback_order is not None:
+            r = result.lpp_buyback_order
+            lpp_resp = LppBuybackOrderResponse(
+                winner=r.winner.value,
+                saving_delta=_q(r.saving_delta),
+                reason=r.reason,
+                trade_off=r.trade_off,
+            )
+        p3a_resp = None
+        if result.pillar_3a_order is not None:
+            r = result.pillar_3a_order
+            p3a_resp = Pillar3aOrderResponse(
+                winner=r.winner.value,
+                saving_delta=_q(r.saving_delta),
+                reason=r.reason,
+                trade_off=r.trade_off,
+            )
+        avs_resp = None
+        if result.avs_cap is not None:
+            r = result.avs_cap
+            avs_resp = AvsCapResponse(
+                cap_applied=r.cap_applied,
+                monthly_reduction=_q(r.monthly_reduction),
+                user_rente_before_cap=_q(r.user_rente_before_cap),
+                conjoint_rente_before_cap=_q(r.conjoint_rente_before_cap),
+                total_after_cap=_q(r.total_after_cap),
+            )
+        mp_resp = None
+        if result.marriage_penalty is not None:
+            r = result.marriage_penalty
+            mp_resp = MarriagePenaltyResponse(
+                has_penalty=r.has_penalty,
+                annual_delta=_q(r.annual_delta),
+                trade_off=r.trade_off,
+            )
+
+        response = CoupleOptimizationResponse(
+            lpp_buyback=lpp_resp,
+            pillar_3a=p3a_resp,
+            avs_cap=avs_resp,
+            marriage_penalty=mp_resp,
+            inputs_hash=compute_inputs_hash(slice_),
+            computed_at=datetime.now(timezone.utc),
+        )
+        # D-15 uniform Sentry payload via plan-00 helper. EXACT 5 kwargs.
+        elapsed_ms = int((time.perf_counter() - _t0) * 1000)
+        emit_coach_tool_breadcrumb(
+            tool_name="couple_optimization",
+            inputs_hash=response.inputs_hash,
+            profile_id_hashed=hash_profile_id(user_id),
+            elapsed_ms=elapsed_ms,
+            flag_state="on",
+        )
+        return response.model_dump_json(by_alias=True)
+    except Exception as exc:  # defensive fallback (python-pro panel)
+        logging.getLogger(__name__).warning(
+            "compute_couple_optimization failed, falling back to legacy: %s", exc
+        )
+        return _format_couple_optimization(ctx)
 
 
 def _format_couple_optimization(ctx: dict) -> str:
@@ -2518,6 +3295,10 @@ async def _run_agent_loop(
     # Default = legacy `get_llm_tools()` so flag-OFF path stays byte-identical.
     stripped_tools = tools if tools is not None else get_llm_tools()
     flutter_tool_calls: list = []
+    # Wave 1b Plan 04 — per-tool citation chips collected from internal
+    # tool execution (Route b per wave-1b-04-AUDIT.md). Sibling to
+    # flutter_tool_calls — never filtered by INTERNAL_TOOL_NAMES.
+    citation_chips: list = []
     all_sources: list = []
     all_disclaimers: list = []
     total_tokens = 0
@@ -2695,6 +3476,15 @@ async def _run_agent_loop(
                 detected_intents=detected_intents,
                 fact_keys_saved_this_turn=fact_keys_saved_this_turn,
             )
+            # Wave 1b Plan 04 — extract citation chip BEFORE truncation /
+            # injection sanitization so the JSON parse sees the full
+            # Pydantic dump. Helper returns None for non-Wave-1b tools
+            # and for flag-OFF (no inputs_hash) — silent skip is correct.
+            _chip = _extract_wave_1b_citation_chip(
+                call.get("name", ""), result_text
+            )
+            if _chip is not None:
+                citation_chips.append(_chip)
             # FIX-W12: Truncate tool results to prevent context explosion
             if len(result_text) > 500:
                 result_text = result_text[:500] + "... [tronqué]"
@@ -2742,6 +3532,7 @@ async def _run_agent_loop(
     return {
         "answer": final_answer,
         "tool_calls": flutter_tool_calls if flutter_tool_calls else None,
+        "citation_chips": citation_chips if citation_chips else None,
         "sources": unique_sources,
         "disclaimers": list(set(all_disclaimers)),
         "tokens_used": total_tokens,
@@ -3153,7 +3944,7 @@ async def coach_chat(
                 if _d.get("avoirLpp"):
                     _facts.append(f"- Avoir LPP actuel: {int(_d['avoirLpp']):,} CHF".replace(",", "'"))
                 if _d.get("lppInsuredSalary"):
-                    _facts.append(f"- Salaire assure LPP: {int(_d['lppInsuredSalary']):,} CHF".replace(",", "'"))
+                    _facts.append(f"- Salaire assuré LPP: {int(_d['lppInsuredSalary']):,} CHF".replace(",", "'"))
                 if _d.get("lppBuybackMax"):
                     _facts.append(f"- Rachat LPP maximum: {int(_d['lppBuybackMax']):,} CHF".replace(",", "'"))
                 if _d.get("pillar3aBalance"):
@@ -3431,6 +4222,11 @@ async def coach_chat(
         except Exception:  # pragma: no cover — telemetry is fail-open
             pass
 
+    # Wave 1b Plan 08 — _emit_citation_chip_breadcrumbs is module-level
+    # (line 476) so unit tests can cover it directly (diff-coverage gate).
+    # Closure binding to `_user` is replaced by passing user_id explicitly
+    # at the two call sites in _run_narrator_with_gate below.
+
     async def _run_narrator_with_gate(
         pack: "ProjectionGroundingPack | None" = None,
     ) -> dict:
@@ -3454,6 +4250,15 @@ async def coach_chat(
 
         if not gated.retry_needed:
             loop_result["answer"] = gated.gated_text
+            # Wave 1b Plan 08 — fire citation-emission breadcrumb on
+            # PASS only (T-WAVE1B-08-05 accept: FALLBACK/REJECTED outputs
+            # have no tool_* placeholders to count).
+            if gated.verdict == GateVerdict.PASS:
+                _emit_citation_chip_breadcrumbs(
+                    gated.gated_text,
+                    loop_result.get("citation_chips"),
+                    _user.id if _user else None,
+                )
             return loop_result
 
         # D-08 retry-once. Second call is bounded by `is_retry=True` —
@@ -3474,6 +4279,15 @@ async def coach_chat(
         )
         _emit_gate_breadcrumb(retry_gated, retries=1)
         retry_result["answer"] = retry_gated.gated_text
+        # Wave 1b Plan 08 — retry PASS path. FALLBACK collapses by
+        # is_retry=True; FALLBACK text has no tool_* placeholders so the
+        # filter inside _emit_citation_chip_breadcrumbs is a no-op there.
+        if retry_gated.verdict == GateVerdict.PASS:
+            _emit_citation_chip_breadcrumbs(
+                retry_gated.gated_text,
+                retry_result.get("citation_chips"),
+                _user.id if _user else None,
+            )
         return retry_result
 
     async def _run_narrator_with_gate_and_cap(
@@ -3522,6 +4336,7 @@ async def coach_chat(
             return {
                 "answer": render_terminal_template(card_id),
                 "tool_calls": [],
+                "citation_chips": None,
                 "sources": [],
                 "disclaimers": [],
                 "tokens_used": 0,
@@ -3546,6 +4361,7 @@ async def coach_chat(
             "answer": "Je n'ai pas pu terminer ma recherche dans le temps imparti. "
                       "Repose ta question, je serai plus rapide.",
             "tool_calls": [],
+            "citation_chips": None,
             "sources": [],
             "disclaimers": [],
             "tokens_used": 0,
@@ -3616,6 +4432,7 @@ async def coach_chat(
     return CoachChatResponse(
         message=loop_result["answer"],
         tool_calls=loop_result["tool_calls"],
+        citation_chips=loop_result.get("citation_chips"),
         sources=loop_result["sources"],
         disclaimers=loop_result["disclaimers"],
         tokens_used=loop_result["tokens_used"],
