@@ -7908,6 +7908,94 @@ class SPt extends S {
   String get coachSendButton => 'Enviar';
 
   @override
+  String get coachCitationChipsHeader => 'Cálculos do servidor';
+
+  @override
+  String coachCitationChipLabel(String toolDisplayName) {
+    return '$toolDisplayName — calculado';
+  }
+
+  @override
+  String coachCitationModalTitle(String toolDisplayName) {
+    return 'Origem do cálculo: $toolDisplayName';
+  }
+
+  @override
+  String get coachCitationJsonViewerLabel => 'Ver detalhes do cálculo (JSON)';
+
+  @override
+  String get coachCitationRememberCta => 'Lembra desta fonte';
+
+  @override
+  String get coachToolBudgetSnapshot => 'Orçamento atual';
+
+  @override
+  String get coachToolRetirementProjection => 'Projeção de aposentadoria';
+
+  @override
+  String get coachToolCrossPillarAnalysis => 'Análise entre pilares';
+
+  @override
+  String get coachToolCoupleOptimization => 'Otimização do casal';
+
+  @override
+  String get coachToolCapStatus => 'Limite diário';
+
+  @override
+  String get coachToolRetrieveMemories => 'Lembranças';
+
+  @override
+  String get coachCitationRelativeJustNow => 'agora mesmo';
+
+  @override
+  String coachCitationRelativeMinutes(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'há $countString min',
+      one: 'há 1 min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeHours(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'há $countString h',
+      one: 'há 1 h',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeDays(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'há $countString d',
+      one: 'há 1 d',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get profileDefaultName => 'Utilizador';
 
   @override

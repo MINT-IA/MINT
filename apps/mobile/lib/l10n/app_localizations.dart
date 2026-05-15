@@ -14058,6 +14058,96 @@ abstract class S {
   /// **'Envoyer'**
   String get coachSendButton;
 
+  /// Header text for the Wave 1b citation-chip section under coach messages. Rendered above the list of tool-call chips.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculs serveur'**
+  String get coachCitationChipsHeader;
+
+  /// Label rendered on each citation chip. toolDisplayName interpolates a localized name (e.g. 'Budget actuel').
+  ///
+  /// In fr, this message translates to:
+  /// **'{toolDisplayName} — calculé'**
+  String coachCitationChipLabel(String toolDisplayName);
+
+  /// Title of the citation-chip modal (bottom sheet). Identifies which tool computed the values.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source du calcul : {toolDisplayName}'**
+  String coachCitationModalTitle(String toolDisplayName);
+
+  /// Label on the ExpansionTile that wraps the pretty-printed JSON viewer in the citation modal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le détail du calcul (JSON)'**
+  String get coachCitationJsonViewerLabel;
+
+  /// Call-to-action button at the bottom of the citation modal. Wires (in a future wave) to save_insight tool persistence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souviens-toi de cette source'**
+  String get coachCitationRememberCta;
+
+  /// Display name for the get_budget_status server-side tool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget actuel'**
+  String get coachToolBudgetSnapshot;
+
+  /// Display name for the get_retirement_projection server-side tool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection de retraite'**
+  String get coachToolRetirementProjection;
+
+  /// Display name for the get_cross_pillar_analysis server-side tool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse inter-piliers'**
+  String get coachToolCrossPillarAnalysis;
+
+  /// Display name for the get_couple_optimization server-side tool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimisation couple'**
+  String get coachToolCoupleOptimization;
+
+  /// Display name for the get_cap_status server-side tool (daily cap validation).
+  ///
+  /// In fr, this message translates to:
+  /// **'Cap du jour'**
+  String get coachToolCapStatus;
+
+  /// Display name for the retrieve_memories BM25 server-side tool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souvenirs'**
+  String get coachToolRetrieveMemories;
+
+  /// Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 minute. Replaces Dart literal in coach_citation_modal.dart.
+  ///
+  /// In fr, this message translates to:
+  /// **'à l\'instant'**
+  String get coachCitationRelativeJustNow;
+
+  /// Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 hour. FR doesn't pluralize 'min'; ICU branches are identical.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{il y a {count} min} other{il y a {count} min}}'**
+  String coachCitationRelativeMinutes(int count);
+
+  /// Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 day.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{il y a {count} h} other{il y a {count} h}}'**
+  String coachCitationRelativeHours(int count);
+
+  /// Q8_DECISION — relative-time string for citation modal's computed_at row when delta ≥ 1 day.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{il y a {count} j} other{il y a {count} j}}'**
+  String coachCitationRelativeDays(int count);
+
   /// No description provided for @profileDefaultName.
   ///
   /// In fr, this message translates to:
