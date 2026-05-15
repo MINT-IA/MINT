@@ -58,6 +58,70 @@ from typing import Iterable, Mapping
 from app.services.coach.citation_registry import CITATION_REGISTRY
 
 
+# ---------------------------------------------------------------------------
+# Wave 1c (D-03) — tool_use INVOCATION mandate.
+#
+# Shared constants prepended to BOTH the full fragment AND the intent-scoped
+# variant. The mandate paragraph appears BEFORE any FORMAT example so the
+# narrator reads "you MUST invoke first" before it reads "here is how to cite
+# the result". The WRONG/RIGHT example pair is inserted at the TOP of the
+# examples block (before the existing ACCEPTÉ entries) for the same reason.
+#
+# Doctrine: per `.planning/phases/wave-1c-coach-tool-dispatch-rca/HANDOFF.md`
+# smoking-gun bisection, Sonnet 4.5 was emitting `{{cite:tool_<name>}}`
+# placeholders AS PROSE without ever invoking the matching tool via
+# `tool_use`. The Wave 1b grammar fragment taught the citation FORMAT but
+# never MANDATED the prior `tool_use` invocation. This block adds that
+# mandate at doctrine level, paired with a runtime gate at
+# `app.api.v1.endpoints.coach_chat._enforce_tool_use_for_citations`.
+#
+# LSFin compliance: phrasing uses « il est OBLIGATOIRE de » (impersonal
+# imperative) instead of the LSFin-imperative-voice second-person form
+# (forbidden by CLAUDE.md §5 NEVER #5 in user-facing FR). The lint at
+# `tools/checks/banned_terms_python.py` does NOT scan the second-person
+# imperative form — this is a project-doctrine rule, enforced pre-push by
+# grep + the security-auditor design panel.
+# ---------------------------------------------------------------------------
+
+_TOOL_USE_MANDATE: str = (
+    "## DOCTRINE — INVOCATION OBLIGATOIRE D'OUTIL "
+    "(préalable à toute citation `tool_*`)\n"
+    "\n"
+    "AVANT d'émettre tout placeholder `{{cite:tool_<name>}}` dans ta "
+    "réponse, il est OBLIGATOIRE d'invoquer d'abord l'outil correspondant "
+    "via le mécanisme `tool_use`. UNE citation = UN appel `tool_use` "
+    "préalable. Aucune exception.\n"
+    "\n"
+    "Concrètement : si la réponse écrit "
+    "`{{cite:tool_retirement_projection}}` après un chiffre, un bloc "
+    "`tool_use(get_retirement_projection)` doit avoir été émis plus tôt "
+    "dans ce même tour et son `tool_result` retourné. Sans cet appel "
+    "préalable, le placeholder est rejeté par la garde et la réponse "
+    "bascule sur un fallback templaté.\n"
+    "\n"
+    "Le `{{cite:tool_<name>}}` n'est PAS une formule magique — c'est une "
+    "référence à un calcul serveur qui doit avoir été déclenché via "
+    "`tool_use` plus tôt dans ce même tour.\n"
+)
+
+_TOOL_USE_WRONG_RIGHT_EXAMPLE: str = (
+    "**REJETÉ — placeholder sans tool_use préalable** :\n"
+    "« Ta projection de rente AVS sera de "
+    "{{cite:tool_retirement_projection}} » écrit sans avoir d'abord émis "
+    "`tool_use(get_retirement_projection)` dans ce tour. La garde détecte "
+    "l'absence d'invocation et rejette. Pour corriger : appelle "
+    "`get_retirement_projection` AVANT d'émettre la phrase.\n"
+    "\n"
+    "**ACCEPTÉ — tool_use puis citation du résultat** :\n"
+    "Émets d'abord le bloc `tool_use(get_retirement_projection)` ; attends "
+    "le `tool_result` ; écris ensuite « Ta projection de rente AVS "
+    "pourrait être autour de 24'960 CHF/an "
+    "{{cite:tool_retirement_projection}} ». La garde reconnaît l'appel "
+    "préalable et accepte la citation.\n"
+    "\n"
+)
+
+
 def _build_citation_grammar_fragment() -> str:
     """Compose the FR doctrine fragment from `CITATION_REGISTRY`.
 
@@ -68,7 +132,18 @@ def _build_citation_grammar_fragment() -> str:
     Returns :
         The composed FR fragment as a single multi-line string. Length
         target ≤80 lines (~4 kB) per `94.1-01-PLAN.md` token budget.
+        Wave 1c — extended by the `_TOOL_USE_MANDATE` prelude (~12 lines)
+        and the `_TOOL_USE_WRONG_RIGHT_EXAMPLE` pair (~10 lines) so the
+        budget grows to ~6 kB ; still well within the staging system-prompt
+        envelope (44 kB) measured at
+        `.planning/phases/wave-1c-coach-tool-dispatch-rca/captured_staging_payload_hydrated.json`.
     """
+    # Wave 1c (D-03) — tool_use INVOCATION mandate. Prepended BEFORE the
+    # legacy GRAMMAIRE DE CITATION header so the narrator reads "invoke
+    # first" before it reads "here's how to cite". See `_TOOL_USE_MANDATE`
+    # docstring above for full doctrine.
+    mandate = _TOOL_USE_MANDATE + "\n"
+
     # Header — explicit closed-world rule with the verbatim grammar that
     # the gate's `_RE_CITE_PLACEHOLDER = r"\{\{cite:[A-Za-z0-9_\-]+\}\}"`
     # accepts. Phrasing matches D-09 reprompt addendum style verbatim
@@ -138,7 +213,13 @@ def _build_citation_grammar_fragment() -> str:
         "\n"
         "### Exemples (verbatim, à imiter) :\n"
         "\n"
-        "**ACCEPTÉ — chiffre réglementaire cité** :\n"
+        # Wave 1c (D-03) — WRONG/RIGHT contrast pair surfaces the
+        # tool_use mandate at example level. Placed BEFORE the legacy
+        # ACCEPTÉ entries so the narrator sees the failure mode FIRST,
+        # then the correct invocation pattern, then the regulatory /
+        # user-input variants.
+        + _TOOL_USE_WRONG_RIGHT_EXAMPLE
+        + "**ACCEPTÉ — chiffre réglementaire cité** :\n"
         "« Pour 2026, le plafond 3a salarié·e est fixé par "
         "l'OPP3 art. 7 al. 1 let. a {{cite:r3a_plafond_salarie_2026}}. »\n"
         "\n"
@@ -199,7 +280,9 @@ def _build_citation_grammar_fragment() -> str:
         "qualitatifs.\n"
     )
 
-    return header + tool_paragraph + keys_section + examples + rule_section
+    # Wave 1c (D-03) — mandate prepended BEFORE the legacy header so the
+    # narrator reads "invoke first" before any FORMAT example.
+    return mandate + header + tool_paragraph + keys_section + examples + rule_section
 
 
 # Frozen module-level constant — built at import. Pure str ; no
@@ -409,7 +492,11 @@ def build_intent_scoped_citation_grammar(intents: Iterable[str]) -> str:
         "\n"
         "### Exemples (verbatim, à imiter) :\n"
         "\n"
-        "**ACCEPTÉ — chiffre cité** :\n"
+        # Wave 1c (D-03) — same WRONG/RIGHT contrast pair as the full
+        # fragment, to keep the doctrine identical regardless of which
+        # path is rendered (intent-scoped vs full).
+        + _TOOL_USE_WRONG_RIGHT_EXAMPLE
+        + "**ACCEPTÉ — chiffre cité** :\n"
         "« Pour 2026, le plafond 3a salarié·e est fixé par "
         "l'OPP3 art. 7 al. 1 let. a {{cite:r3a_plafond_salarie_2026}}. »\n"
         "\n"
@@ -452,7 +539,11 @@ def build_intent_scoped_citation_grammar(intents: Iterable[str]) -> str:
         "garde reconnaît les négations et les méta-citations.\n"
     )
 
-    return header + tool_paragraph + keys_section + examples + rule_section
+    # Wave 1c (D-03) — mandate prepended BEFORE the legacy header so the
+    # narrator reads "invoke first" before any FORMAT example, identical
+    # to the full fragment ordering.
+    mandate = _TOOL_USE_MANDATE + "\n"
+    return mandate + header + tool_paragraph + keys_section + examples + rule_section
 
 
 __all__ = [
