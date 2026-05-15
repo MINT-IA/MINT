@@ -4000,74 +4000,89 @@
   "coachSendButton": "Envoyer",
   "coachCitationChipsHeader": "Calculs serveur",
   "@coachCitationChipsHeader": {
-    "description": "Header text for the Wave 1b citation-chip section under coach messages. Rendered above the list of tool-call chips."
+    "description": "Header text for the Wave 1b citation-chip section under coach messages. Rendered above the list of tool-call chips.",
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachCitationChipLabel": "{toolDisplayName} — calculé",
   "@coachCitationChipLabel": {
     "description": "Label rendered on each citation chip. toolDisplayName interpolates a localized name (e.g. 'Budget actuel').",
     "placeholders": {
       "toolDisplayName": { "type": "String" }
-    }
+    },
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachCitationModalTitle": "Source du calcul : {toolDisplayName}",
   "@coachCitationModalTitle": {
     "description": "Title of the citation-chip modal (bottom sheet). Identifies which tool computed the values.",
     "placeholders": {
       "toolDisplayName": { "type": "String" }
-    }
+    },
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachCitationJsonViewerLabel": "Voir le détail du calcul (JSON)",
   "@coachCitationJsonViewerLabel": {
-    "description": "Label on the ExpansionTile that wraps the pretty-printed JSON viewer in the citation modal."
+    "description": "Label on the ExpansionTile that wraps the pretty-printed JSON viewer in the citation modal.",
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachCitationRememberCta": "Souviens-toi de cette source",
   "@coachCitationRememberCta": {
-    "description": "Call-to-action button at the bottom of the citation modal. Wires (in a future wave) to save_insight tool persistence."
+    "description": "Call-to-action button at the bottom of the citation modal. Wires (in a future wave) to save_insight tool persistence.",
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachToolBudgetSnapshot": "Budget actuel",
   "@coachToolBudgetSnapshot": {
-    "description": "Display name for the get_budget_status server-side tool."
+    "description": "Display name for the get_budget_status server-side tool.",
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachToolRetirementProjection": "Projection de retraite",
   "@coachToolRetirementProjection": {
-    "description": "Display name for the get_retirement_projection server-side tool."
+    "description": "Display name for the get_retirement_projection server-side tool.",
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachToolCrossPillarAnalysis": "Analyse inter-piliers",
   "@coachToolCrossPillarAnalysis": {
-    "description": "Display name for the get_cross_pillar_analysis server-side tool."
+    "description": "Display name for the get_cross_pillar_analysis server-side tool.",
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachToolCoupleOptimization": "Optimisation couple",
   "@coachToolCoupleOptimization": {
-    "description": "Display name for the get_couple_optimization server-side tool."
+    "description": "Display name for the get_couple_optimization server-side tool.",
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachToolCapStatus": "Cap du jour",
   "@coachToolCapStatus": {
-    "description": "Display name for the get_cap_status server-side tool (daily cap validation)."
+    "description": "Display name for the get_cap_status server-side tool (daily cap validation).",
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachToolRetrieveMemories": "Souvenirs",
   "@coachToolRetrieveMemories": {
-    "description": "Display name for the retrieve_memories BM25 server-side tool."
+    "description": "Display name for the retrieve_memories BM25 server-side tool.",
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachCitationRelativeJustNow": "à l'instant",
   "@coachCitationRelativeJustNow": {
-    "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 minute. Replaces Dart literal in coach_citation_modal.dart."
+    "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 minute. Replaces Dart literal in coach_citation_modal.dart.",
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachCitationRelativeMinutes": "{count, plural, =1{il y a {count} min} other{il y a {count} min}}",
   "@coachCitationRelativeMinutes": {
     "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 hour. FR doesn't pluralize 'min'; ICU branches are identical.",
     "placeholders": {
       "count": { "type": "int", "format": "compact" }
-    }
+    },
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachCitationRelativeHours": "{count, plural, =1{il y a {count} h} other{il y a {count} h}}",
   "@coachCitationRelativeHours": {
     "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 day.",
     "placeholders": {
       "count": { "type": "int", "format": "compact" }
-    }
+    },
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
   },
   "coachCitationRelativeDays": "{count, plural, =1{il y a {count} j} other{il y a {count} j}}",
   "@coachCitationRelativeDays": {
+    "x-mint-meta": { "level": "N3", "phase": "wave-1b" },
     "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta ≥ 1 day.",
     "placeholders": {
       "count": { "type": "int", "format": "compact" }
