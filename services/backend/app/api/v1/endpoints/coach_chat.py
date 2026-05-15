@@ -4143,6 +4143,80 @@ async def coach_chat(
         except Exception:  # pragma: no cover — telemetry is fail-open
             pass
 
+    def _emit_citation_chip_breadcrumbs(
+        gated_text: str, citation_chips: Optional[list],
+    ) -> None:
+        """Wave 1b Plan 08 — emit one coach.citation.tool_call_id.<tool>
+        Sentry breadcrumb per {{cite:tool_*}} placeholder in the gated
+        narrator output, deduplicated per tool short-name per turn.
+
+        Runs OUTSIDE citation_parser.gate() (CONTEXT hard constraint #4 —
+        Phase 94 byte-identity invariant). Consumes its output via
+        _RE_CITE_PLACEHOLDER on gated_text.
+
+        Lookup: citation_chips is built by Plan 04 in _run_agent_loop and
+        contains entries with `toolName` (CITATION_REGISTRY short-name,
+        e.g. "budget_snapshot") + `inputsHash` (64-char hex). The wrapper
+        matches placeholder key `tool_<short>` to the chip whose toolName
+        == short. Non-tool placeholders (spec, adr, profile, reasoning)
+        are silently skipped.
+
+        Helper exception → swallowed; telemetry MUST NOT break the
+        coach response path.
+        """
+        from app.observability.coach_breadcrumbs import (
+            emit_coach_citation_breadcrumb,
+        )
+        from app.services.coach.citation_parser import _RE_CITE_PLACEHOLDER
+        from app.utils.hashing import hash_profile_id
+
+        try:
+            if not gated_text or not citation_chips:
+                return
+            # Build short-name -> chip lookup once.
+            chips_by_short: dict = {}
+            for chip in citation_chips:
+                short = chip.get("toolName") if isinstance(chip, dict) else None
+                if isinstance(short, str) and short:
+                    chips_by_short.setdefault(short, chip)
+            if not chips_by_short:
+                return
+            _uid = _user.id if _user else "anonymous"
+            profile_id_hashed = hash_profile_id(str(_uid))
+            seen_tool_names: set = set()
+            for m in _RE_CITE_PLACEHOLDER.finditer(gated_text):
+                # Strip `{{cite:` prefix and `}}` suffix (regex has no
+                # capture group; matches the canonical form).
+                raw = m.group(0)
+                key = raw[len("{{cite:"):-len("}}")]
+                if not key.startswith("tool_"):
+                    continue
+                tool_short = key[len("tool_"):]
+                if tool_short in seen_tool_names:
+                    # Cap at one breadcrumb per tool per turn even if the
+                    # narrator placed the placeholder multiple times.
+                    continue
+                seen_tool_names.add(tool_short)
+                chip = chips_by_short.get(tool_short)
+                if chip is None:
+                    continue
+                inputs_hash = chip.get("inputsHash")
+                if not isinstance(inputs_hash, str) or not inputs_hash:
+                    continue
+                emit_coach_citation_breadcrumb(
+                    tool_name=tool_short,
+                    inputs_hash=inputs_hash,
+                    profile_id_hashed=profile_id_hashed,
+                    # Per Plan 08 <interfaces>: chip-level elapsed_ms is
+                    # not surfaced by Plan 04. Set 0 — the Wave 1a
+                    # coach.tool.<name> breadcrumb already carries the
+                    # genuine compute-path timing for cross-correlation.
+                    elapsed_ms=0,
+                    flag_state="on",
+                )
+        except Exception:  # pragma: no cover — telemetry is fail-open
+            pass
+
     async def _run_narrator_with_gate(
         pack: "ProjectionGroundingPack | None" = None,
     ) -> dict:
@@ -4166,6 +4240,13 @@ async def coach_chat(
 
         if not gated.retry_needed:
             loop_result["answer"] = gated.gated_text
+            # Wave 1b Plan 08 — fire citation-emission breadcrumb on
+            # PASS only (T-WAVE1B-08-05 accept: FALLBACK/REJECTED outputs
+            # have no tool_* placeholders to count).
+            if gated.verdict == GateVerdict.PASS:
+                _emit_citation_chip_breadcrumbs(
+                    gated.gated_text, loop_result.get("citation_chips"),
+                )
             return loop_result
 
         # D-08 retry-once. Second call is bounded by `is_retry=True` —
@@ -4186,6 +4267,13 @@ async def coach_chat(
         )
         _emit_gate_breadcrumb(retry_gated, retries=1)
         retry_result["answer"] = retry_gated.gated_text
+        # Wave 1b Plan 08 — retry PASS path. FALLBACK collapses by
+        # is_retry=True; FALLBACK text has no tool_* placeholders so the
+        # filter inside _emit_citation_chip_breadcrumbs is a no-op there.
+        if retry_gated.verdict == GateVerdict.PASS:
+            _emit_citation_chip_breadcrumbs(
+                retry_gated.gated_text, retry_result.get("citation_chips"),
+            )
         return retry_result
 
     async def _run_narrator_with_gate_and_cap(
