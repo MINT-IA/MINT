@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Phase 96 Wave 2 shipped (Backend) — 3 commits b81172a3..bbcf0853, 46 net new tests, full pytest 6567 passed, Phase 94/95 byte-identity preserved (181+74=255 tests). Wave 3 next (NarrativeSleeve linter + metaphor TOML + Maestro G1).
-last_updated: "2026-05-14T22:43:08.278Z"
-last_activity: 2026-05-14 -- Phase wave-1b-citation-chips planning complete
+stopped_at: Completed wave-1b-01-PLAN.md — 9 stub files, 32 SKIPPED tests, branch feature/wave-1b-01-test-scaffolding ready for PR
+last_updated: "2026-05-15T06:43:26.052Z"
+last_activity: 2026-05-15
 progress:
   total_phases: 12
   completed_phases: 1
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase 96 — mvp-chat-as-verb
+**Current focus:** Phase 1b — citation-chips
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,10 +35,10 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 96
-Plan: Not started
+Phase: 1b (citation-chips) — EXECUTING
+Plan: 2 of 9
 Status: Ready to execute
-Last activity: 2026-05-14 -- Phase wave-1b-citation-chips planning complete
+Last activity: 2026-05-15
 
 ## Plan 96-03 Receipt (Wave 3 Cross-stack, 2026-05-11)
 
@@ -247,9 +247,9 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-11T03:30:00.000Z
-Stopped at: Phase 96 Wave 2 shipped (Backend) — 3 commits b81172a3..bbcf0853, 46 net new tests, full pytest 6567 passed, Phase 94/95 byte-identity preserved (181+74=255 tests). Wave 3 next (NarrativeSleeve linter + metaphor TOML + Maestro G1).
-Resume file: .planning/phases/96-mvp-chat-as-verb/96-02-SUMMARY.md
+Last session: 2026-05-15T06:43:26.049Z
+Stopped at: Completed wave-1b-01-PLAN.md — 9 stub files, 32 SKIPPED tests, branch feature/wave-1b-01-test-scaffolding ready for PR
+Resume file: None
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>
