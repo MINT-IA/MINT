@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Completed wave-1b-02-PLAN.md — 6 tool_call_id entries (registry 18->24), 10 Plan-01 stubs unskipped, branch feature/wave-1b-02-tool-call-id-registry ready for PR
-last_updated: "2026-05-15T07:05:45.373Z"
+stopped_at: Completed wave-1b-03-PLAN.md — narrator grammar fragment shipped (tool_paragraph + tool_example + intent always-on), 3 Plan-01 stubs unskipped + green, test renamed to 24-key total, branch feature/wave-1b-03-grammar-fragment ready for PR
+last_updated: "2026-05-15T07:29:21.395Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 12
@@ -36,9 +36,31 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: 1b (citation-chips) — EXECUTING
-Plan: 3 of 9
+Plan: 4 of 9
 Status: Ready to execute
 Last activity: 2026-05-15
+
+## Plan wave-1b-03 Receipt (Narrator Grammar Fragment, 2026-05-15)
+
+- Files created : 1 (.planning/phases/wave-1b-citation-chips/wave-1b-03-SUMMARY.md)
+- Files modified : 3 (citation_grammar.py + test_tool_call_id_grammar.py + test_narrator_grammar_fragment.py)
+- Tests added : 0 net new (3 Plan-01 stubs transitioned SKIPPED → PASSED)
+- Full backend pytest : 6877 passed, 67 skipped, 1 xfailed in 113.18s (Plan 02 baseline 6874 → +3 = exact match for unskipping 3 grammar stubs, zero regressions)
+- Phase 94 byte-identity : test_byte_identity_flag_off 6/6 green (preserved)
+- test_citation_gate/ : 212 passed (Plan 02 baseline 212, preserved)
+- test_dag_invalidation/test_pack_registry_coupling : 2/2 green (Plan 02's 24-key drift detector still operational)
+- Commits : 5224af94 (RED — unskip Plan-01 stubs) → 29b01531 (GREEN — tool_paragraph + tool_example + intent always-on + 24-key test re-tighten)
+- Duration : ~9 min execution
+- 0-trust : wave-1b-03-SUMMARY.md `## Self-Check: PASSED` cited at .planning/phases/wave-1b-citation-chips/wave-1b-03-SUMMARY.md
+- **Q5_DECISION shipped** : 1-segment grammar `{{cite:tool_<name>}}` (RESEARCH §4.3 Option A) adopted instead of CONTEXT line 36's 2-segment `{{cite:tool_call_id:<inputs_hash>}}`. Respects CONTEXT hard constraint #4 (zero edit to `_RE_CURRENCY` / `_RE_PERCENT` / `_RE_CITE_PLACEHOLDER` regexes in citation_parser.py). Per-call `inputs_hash` travels via the tool response container, not the placeholder. Julien reviews at PR time; if rejected, alternative cost = 2-3 additional plans.
+- **tool_paragraph shipped** : added in BOTH `_build_citation_grammar_fragment` (full fragment) AND `build_intent_scoped_citation_grammar` (intent-scoped variant) header builders. Verbatim FR per RESEARCH §4.4 : « Certaines clés (`tool_*`) marquent un chiffre calculé côté serveur — son `inputs_hash` voyage avec la réponse, tu n'as pas besoin de le citer dans le texte… ». Banned-terms + accent_lint exit 0.
+- **tool_example shipped** : added `**ACCEPTÉ — chiffre calculé côté serveur**` block in BOTH builders. Verbatim per RESEARCH §4.4 with `{{cite:tool_budget_snapshot}}` placeholder + LSFin-safe modal verb « pourrait ».
+- **Always-on intent mapping shipped** : `_WAVE_1B_TOOL_KEYS_ALWAYS_ON` frozenset (6 tool keys) unioned into EVERY bucket of `_INTENT_TO_CITATION_KEYS` (debt / housing / family / career / retirement / taxes / tax / mortgage). Tool calls are LLM-driven, NOT intent-driven — the narrator can call `get_budget_status` on any intent.
+- **Test renamed** : test_fragment_lists_all_18_registry_keys → test_fragment_lists_all_24_registry_keys (re-tighten from Plan 02's transitional 18-non-tool sub-baseline to unified 24-key total + preserved 18-non-tool + 6-tool sub-baselines as independent regression checks).
+- **3 Plan-01 stubs transitioned SKIPPED → PASSED** : `test_grammar_fragment_lists_all_tool_keys`, `test_grammar_fragment_lists_all_24_registry_keys`, `test_intent_scoped_grammar_includes_tools`. 0 `@pytest.mark.skip` markers remain in test_tool_call_id_grammar.py.
+- **Token-count delta on rendered fragment** : pre-Plan-03 5'880 chars / 1'960 approx tokens → post-Plan-03 6'502 chars / 2'167 approx tokens (+10.6% / +207 tokens). Within RESEARCH §A4 budget (<5% of ~80 kB narrator prompt = <4 kB grammar allotment).
+- Zero deviations from plan. Plan-prescribed implementation matched the codebase shape exactly; no Rule 1-4 auto-fixes triggered.
+- USER VALUE DELIVERED : NONE YET — Plan 03 only proves grammar fragment correctness + intent mapping + 15 test assertions. Narrator LLM emission of `{{cite:tool_*}}` against the new doctrine is Plan 04 wiring; Flutter chip rendering is Plan 05/06; Sentry breadcrumb is Plan 08. No end-to-end user flow exercised. PR opened against `dev`, NOT merged. Per CLAUDE.md §9.5 — Stage 1 of 4.
 
 ## Plan 96-03 Receipt (Wave 3 Cross-stack, 2026-05-11)
 
@@ -247,8 +269,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-15T07:05:45.371Z
-Stopped at: Completed wave-1b-02-PLAN.md — 6 tool_call_id entries (registry 18->24), 10 Plan-01 stubs unskipped, branch feature/wave-1b-02-tool-call-id-registry ready for PR
+Last session: 2026-05-15T07:29:21.393Z
+Stopped at: Completed wave-1b-03-PLAN.md — narrator grammar fragment shipped (tool_paragraph + tool_example + intent always-on), 3 Plan-01 stubs unskipped + green, test renamed to 24-key total, branch feature/wave-1b-03-grammar-fragment ready for PR
 Resume file: None
 
 <details>
