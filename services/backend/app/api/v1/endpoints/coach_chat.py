@@ -402,6 +402,21 @@ _WAVE_1B_STRING_TOOLS: frozenset[str] = frozenset({
     "retrieve_memories",
 })
 
+# Explicit mapping from dispatcher tool_name to citation_registry short-name.
+# Matches `tool_*` keys in `services/backend/app/services/coach/citation_registry.py`
+# (Plan 02). `get_budget_status` → `budget_snapshot` (NOT `budget_status`) —
+# the registry uses the response-model name. Built explicitly because
+# `tool_name.replace("get_", "")` strips ALL occurrences (`budget` contains
+# `get_` at index 3) — broken for `get_budget_status` → `budstatus`.
+_TOOL_NAME_TO_SHORT: dict[str, str] = {
+    "get_budget_status": "budget_snapshot",
+    "get_retirement_projection": "retirement_projection",
+    "get_cross_pillar_analysis": "cross_pillar_analysis",
+    "get_couple_optimization": "couple_optimization",
+    "get_cap_status": "cap_status",
+    "retrieve_memories": "retrieve_memories",
+}
+
 
 def _extract_wave_1b_citation_chip(
     tool_name: str, result_text: str
@@ -418,13 +433,9 @@ def _extract_wave_1b_citation_chip(
     import json as _json
     from datetime import datetime, timezone
 
-    if tool_name not in _WAVE_1B_TOOL_NAMES:
+    short_name = _TOOL_NAME_TO_SHORT.get(tool_name)
+    if short_name is None:
         return None
-
-    short_name = tool_name.replace("get_", "")
-    # Special case: retrieve_memories has no `get_` prefix.
-    if tool_name == "retrieve_memories":
-        short_name = "retrieve_memories"
 
     if tool_name in _WAVE_1B_JSON_TOOLS:
         # Try to parse the Pydantic JSON dump (flag-ON success path).
