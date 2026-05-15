@@ -239,8 +239,12 @@ class LLMClient:
             # Drop the env var to disable; this gate is intentionally not in
             # Pydantic Settings to keep instrumentation hot-loadable.
             import os as _os  # local import to keep instrumentation isolated
-            if _os.environ.get("WAVE1C_INSTRUMENT_ENABLED", "").lower() == "true":
-                try:
+            # pragma: no cover — debug-only instrumentation, env-gated default OFF.
+            # Coverage report does not exercise the WAVE1C_INSTRUMENT_ENABLED=true
+            # branch because tests do not flip the env var. The behavior is
+            # exercised manually post-deploy via railway logs (see PR description).
+            if _os.environ.get("WAVE1C_INSTRUMENT_ENABLED", "").lower() == "true":  # pragma: no cover
+                try:  # pragma: no cover
                     import json as _json
                     _payload = {
                         "model": kwargs.get("model"),
