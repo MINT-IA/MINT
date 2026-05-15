@@ -1544,6 +1544,35 @@ def _classify_user_intent(message: Optional[str]) -> set[str]:
     return detected
 
 
+# Wave 1c-A2 (2026-05-15) — gating set for the orchestration-layer RAG cut.
+# When detected_intents intersects this set AND the agent-loop tools include
+# at least one entry from _TOOL_ELIGIBLE_TOOL_NAMES, n_results is set to 0
+# (RAG retrieval is suppressed) so the « Contexte de la base de connaissances
+# MINT » preamble + redirect chunks don't beat the system-prompt tool_use
+# MANDATE. See `.planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-A2-
+# PLAN.md` and engram obs id 81 (RAG-context root cause) + obs id 86
+# (architect-review surface verdict).
+_TOOL_ELIGIBLE_INTENTS: frozenset[str] = frozenset({
+    "retirement",  # → get_retirement_projection (proven broken in probe)
+    "taxes",       # → get_3a_cap / cross_pillar deductions
+    "debt",        # → cross_pillar consolidation / amortization scenarios
+    "housing",     # → cross_pillar (LPP retrait pour résidence)
+    "family",      # → couple_optimization
+    "career",      # → cross_pillar (LPP rachat)
+})
+
+_TOOL_ELIGIBLE_TOOL_NAMES: frozenset[str] = frozenset({
+    "get_retirement_projection",
+    "get_budget_status",
+    "get_cross_pillar_analysis",
+    "get_couple_optimization",
+    "get_cap_status",
+    # NOTE: retrieve_memories is NOT in this set — it's a Wave 1b memory
+    # retrieval tool, not a financial calculation. Its presence in the
+    # advertised tools should NOT trigger RAG suppression.
+})
+
+
 # B15 (2026-05-09): detect concrete-fact signals in user message so
 # suggest_actions can skip generic profile-gap chips when the user
 # already volunteered specific data this turn.
@@ -2151,6 +2180,7 @@ async def _call_with_fallback(
     system_prompt: str,
     user_id,
     conversation_history: Optional[list],
+    n_results: int = 5,
 ) -> tuple[dict, dict]:
     """Call orchestrator.query() with Sonnet→Haiku graceful degradation.
 
@@ -2162,6 +2192,17 @@ async def _call_with_fallback(
         2. On CoachUpstreamError OR asyncio.TimeoutError at
            FALLBACK_TIMEOUT_SECONDS → retry with Haiku 4.5 + truncated history.
         3. If provider != 'claude' or already Haiku, no fallback.
+
+    Args:
+        n_results: Number of RAG context chunks to retrieve. Default 5
+            preserves the legacy behavior. Wave 1c-A2 (2026-05-15) wires
+            this to 0 at the agent-loop call site when the user's intent
+            maps to an advertised tool — see _TOOL_ELIGIBLE_INTENTS and
+            _TOOL_ELIGIBLE_TOOL_NAMES. The empty-context_chunks path in
+            LLMClient._build_augmented_message:157-158 is a passthrough,
+            so n_results=0 means the user message reaches the LLM
+            unaugmented (no « Contexte de la base de connaissances MINT »
+            preamble).
 
     Fail-open: if even Haiku fails, re-raise so the existing outer handler
     returns the calm 502/template answer.
@@ -2186,6 +2227,7 @@ async def _call_with_fallback(
             system_prompt=system_prompt,
             user_id=user_id,
             conversation_history=q_history,
+            n_results=n_results,  # Wave 1c-A2 plumbing
         )
 
     try:
@@ -3502,6 +3544,39 @@ async def _run_agent_loop(
             # context from the first call's response.
             iter_history = conversation_history if iteration == 0 else None
 
+            # Wave 1c-A2 (2026-05-15) — RAG suppression for tool-eligible
+            # intents. When the user's intent maps to an advertised tool,
+            # suppress legacy RAG retrieval so its « consulte ahv-iv.ch »
+            # redirect chunks don't beat the system-prompt tool_use MANDATE.
+            # The empty-context_chunks path in
+            # LLMClient._build_augmented_message (line 157-158) is a
+            # passthrough — the user message reaches the LLM unaugmented.
+            # See `.planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c
+            # -A2-PLAN.md`.
+            _intent_match = bool(
+                (detected_intents or set()) & _TOOL_ELIGIBLE_INTENTS
+            )
+            _tool_match = any(
+                (t.get("name") if isinstance(t, dict) else None)
+                in _TOOL_ELIGIBLE_TOOL_NAMES
+                for t in (stripped_tools or [])
+            )
+            _n_results_for_call = 0 if (_intent_match and _tool_match) else 5
+            if _n_results_for_call == 0:
+                logger.info(
+                    "wave1c_a2: RAG suppressed for tool-eligible intent — "
+                    "user=%s intents=%s tools=%s",
+                    (str(user_id)[:8] + "...") if user_id else "anon",
+                    sorted(
+                        (detected_intents or set()) & _TOOL_ELIGIBLE_INTENTS
+                    ),
+                    sorted([
+                        t.get("name") for t in (stripped_tools or [])
+                        if isinstance(t, dict)
+                        and t.get("name") in _TOOL_ELIGIBLE_TOOL_NAMES
+                    ]),
+                )
+
             # v2.7 Task 3: route through graceful model fallback (Sonnet→Haiku).
             # _call_with_fallback has its own inner timeout; outer wait_for keeps
             # AGENT_ITERATION_TIMEOUT_SECONDS as a hard upper bound for the
@@ -3519,6 +3594,7 @@ async def _run_agent_loop(
                     system_prompt=system_prompt,
                     user_id=user_id,
                     conversation_history=iter_history,
+                    n_results=_n_results_for_call,  # Wave 1c-A2
                 ),
                 timeout=AGENT_ITERATION_TIMEOUT_SECONDS,
             )
