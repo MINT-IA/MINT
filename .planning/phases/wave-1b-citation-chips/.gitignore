@@ -1,0 +1,3 @@
+g2-evidence/.*
+g2-evidence/.creds.tmp
+g2-evidence/.jwt.tmp

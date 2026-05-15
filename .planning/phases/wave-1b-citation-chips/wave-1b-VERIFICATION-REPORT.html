@@ -17,7 +17,7 @@ pre { background: #f7f7f7; padding: 0.8em; border-radius: 4px; overflow-x: auto;
 </style></head>
 <body>
 <h1>Wave 1b — Citation Chips Activation — Verification Report</h1>
-<p class="small">Phase: <code>wave-1b-citation-chips</code> &middot; Generated: 2026-05-15 &middot; Last updated: <span id="date">2026-05-15</span> &middot; Status: <strong class="pending">PENDING G2</strong> (G3+G4+G5 PASS; G1 drafted; G2 awaits dev&rarr;staging deploy + Railway flag flip).</p>
+<p class="small">Phase: <code>wave-1b-citation-chips</code> &middot; Generated: 2026-05-15 &middot; Last updated: <span id="date">2026-05-15 15:43 CEST</span> &middot; Status: <strong class="pending">PENDING G2 — RUNTIME GAP</strong> (G3+G4+G5 PASS; G1 patched + ran; G2 attempt #2 surfaced 3 distinct blockers — 2 fixed, 1 escalation-needed).</p>
 
 <h2>Requirements coverage (10/10)</h2>
 <table>
@@ -119,6 +119,116 @@ $ cd services/backend && python3 -m pytest tests/test_coach_citation/ -q | tail 
 <li>Trigger Claude autonomous G2 walkthrough: build mobile against staging &rarr; install + launch on iPhone-17-Pro sim &rarr; run <code>~/.maestro/bin/maestro test tools/simulator/flows/maestro-perfect-set/wave_1b_citation_chip_smoke.yaml</code> &rarr; capture transcript + <code>idb describe-all</code> snapshot + Sentry filter &rarr; update this report with verbatim outputs &rarr; flip phase status from <code>PENDING G2</code> to <code>SHIPPED</code>.</li>
 </ol>
 <p>Per CLAUDE.md &sect;9.7 (&laquo; I don't know &raquo; is the highest-quality answer) &mdash; Plan 09 ships the deterministic mechanical gates (G3+G4+G5 PASS), the G1 Maestro flow draft, the G2 autonomous protocol documentation, and refuses to falsely claim <code>SHIPPED</code> until the operator&rsquo;s dev&rarr;staging merge + flag flip lands. No false-exit-0 signal. Phase status stays <code>PENDING G2</code>.</p>
+
+<h2>G2 Run #2 &mdash; 2026-05-15 13:30&ndash;13:43 UTC (Claude autonomous, post dev&rarr;staging merge)</h2>
+
+<p><strong>Trigger:</strong> User invoked <code>/gsd-verify-work wave-1b</code>. Recon surfaced that PR #626 (<code>ship: dev &rarr; staging &mdash; Wave 1a (07/08) + Wave 1b (01-09) citation chips</code>) had already merged at <code>2026-05-15T11:47:28Z</code> (merge commit <code>1d066a35</code> on both <code>origin/dev</code> and <code>origin/staging</code>). The G2 BLOCKED section above no longer applies as written. Re-attempting G2 autonomous.</p>
+
+<h3>Findings &mdash; 3 distinct blockers, 2 fixed inline, 1 escalation-needed</h3>
+
+<h4>Blocker 1 &mdash; Railway env var name mismatch (FIXED)</h4>
+<p>Railway staging had 5 orphan env vars matching nothing in <code>services/backend/app/core/config.py</code>:</p>
+<pre>
+Pre-fix Railway state:
+  COACH_TOOL_SERVER_SIDE_BUDGET_STATUS=true             (orphan, code expects _BUDGET_ENABLED)
+  COACH_TOOL_SERVER_SIDE_CAP_STATUS=true                (orphan, code expects COACH_CAP_CHF_GARDE_ENABLED)
+  COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION=true       (orphan, missing _ENABLED)
+  COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ANALYSIS=true     (orphan, code expects _CROSS_PILLAR_ENABLED)
+  COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION=true     (orphan, missing _ENABLED)
+  (no _RETRIEVE_MEMORIES_ENABLED at all)
+
+Grep proves zero code references to the orphan names:
+  $ grep -rn 'COACH_TOOL_SERVER_SIDE_BUDGET_STATUS' services/backend/ &mdash; (no hits)
+  $ grep -rn 'COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION$' services/backend/ &mdash; (no hits)
+  Pydantic Settings is `case_sensitive=True` (config.py:9), so the orphans are ghosts.
+
+Result: all 5 server-side-tool flags were defaulting to False on the deployed pod
+despite Plan 09 protocol marking them as flipped.
+
+Fix (executed during run):
+  $ railway variable set --service MINT --environment staging \
+      COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED=true \
+      COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED=true \
+      COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED=true \
+      COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED=true \
+      COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED=true
+  $ railway restart --service MINT --yes  &mdash; pod restarted
+
+Post-fix verification:
+  $ railway run --service MINT --environment staging -- bash -c 'env | grep _ENABLED' &mdash;
+  all 5 _ENABLED flags present and =true. Orphans intentionally left in place
+  (Karpathy #3 surgical &mdash; harmless ghosts, separate cleanup).
+</pre>
+
+<h4>Blocker 2 &mdash; Maestro flow <code>timeout</code> syntax invalid on assertVisible (FIXED)</h4>
+<p><code>wave_1b_citation_chip_smoke.yaml</code> used <code>timeout:</code> as a sibling key of <code>assertVisible:</code>, which Maestro 2.5.1 rejects with <code>&gt; Unknown Property: timeout</code>. Confirmed by precedent comment at <code>flow_b14_debt_intent_no_mortgage.yaml:10</code>: &laquo; <code>timeout</code> invalid on <code>assertVisible</code> ; use <code>extendedWaitUntil</code> &raquo;. The wave-1b flow was authored by Plan 09 without ever being live-executed, so the syntax bug shipped undetected.</p>
+<pre>
+Patched in-place to extendedWaitUntil + takeScreenshot per checkpoint, mirroring
+flow_b14 convention. Re-ran &mdash; Maestro now parses + executes the flow.
+
+  $ ~/.maestro/bin/maestro test tools/simulator/flows/maestro-perfect-set/wave_1b_citation_chip_smoke.yaml
+  [Failed] wave_1b_citation_chip_smoke (17s)
+    (Assertion is false: "Mon argent|Aujourd'hui|Mon coach" is visible)
+  1/1 Flow Failed
+</pre>
+<p>Failure root cause: sim is on the anonymous landing screen (&laquo; Voir clair, d&eacute;cider seul. &raquo; / <code>Parle &agrave; Mint</code>), not the authenticated home with the <code>Mon argent</code> tab. The flow assumed authenticated state. The 24h JWT expiry from a prior walker run had lapsed (last Runner.app build was <code>2026-05-13</code>). Maestro debug screenshot captured at <code>g2-evidence/maestro_debug/screenshot-&#10060;-...-(wave_1b_citation_chip_smoke).png</code> (anon landing visible).</p>
+
+<h4>Blocker 3 &mdash; Coach narrator emits no <code>tool_use</code> blocks on staging (ESCALATION-NEEDED)</h4>
+<p>Pivoted to a backend-only HTTP probe (Julien provided permission to register a fresh staging account with <code>julien.battaglia@gmail.com</code>). Registered + logged in + seeded profile (canton=VD, birthYear=1981, incomeNetMonthly=7500, pillar3aBalance=35000, avoirLpp=85000, lppInsuredSalary=95000, factfindCompletionIndex=0.85) + seeded budget via <code>PUT /api/v1/budget/me</code> (income 7500, fixed lines 2740, free margin 2460, savingsRate 0.16, riskLevel green).</p>
+<p>Posted 7 variants of budget/housing/retirement questions to <code>POST /api/v1/coach/chat</code> with the Bearer JWT. <strong>Every single response returned <code>citationChips: null</code> AND <code>toolCalls: null</code>.</strong> Sample tail (probe v7 &mdash; retirement intent):</p>
+<pre>
+$ curl -s -X POST https://mint-staging.up.railway.app/api/v1/coach/chat \
+    -H "Authorization: Bearer $JWT" \
+    -d '{"message":"Quelle sera ma rente AVS et LPP &agrave; 65 ans avec mon 3eme pilier actuel ? Donne-moi la projection chiffr&eacute;e.",...}'
+&rarr;
+HTTP 200, 4s, 16573 tokens
+
+{
+  "message": "Je vais analyser ta situation retraite compl&egrave;te &mdash; projection AVS, LPP et 3a &mdash; &agrave; partir de ton profil.\n\n_Outil &eacute;ducatif simplifi&eacute;. Ne constitue pas un conseil financier (LSFin). Consulte un&middot;e sp&eacute;cialiste pour une analyse personnalis&eacute;e._",
+  "toolCalls": null,
+  "citationChips": null,
+  "responseMeta": {"degraded": false, "model_used": "claude-sonnet-4-5-20250929", "budget_tier": "normal"},
+  "tokensUsed": 16573
+}
+</pre>
+
+<p><strong>Pattern:</strong> the LLM <em>announces</em> tool intent in the response prose (&laquo; Je vais r&eacute;cup&eacute;rer ton instantan&eacute; budg&eacute;taire. &raquo; / &laquo; Je vais analyser ta situation retraite &raquo;) but never emits a <code>tool_use</code> content block. The agent loop iterates 0 times, no dispatcher fires, no <code>inputs_hash</code> JSON returns, <code>_extract_wave_1b_citation_chip</code> has nothing to extract. Wave 1b's chip wiring is byte-correct at the schema level (response includes the <code>citationChips</code> key, just with <code>null</code> value), but it has nothing to emit because the upstream Wave 1a tool path doesn't fire.</p>
+
+<p><strong>Probable cause (hypothesis, NOT confirmed):</strong> <code>_classify_user_intent</code> at <code>coach_chat.py:1360</code> has no <code>budget</code> intent &mdash; only 6 intents: <code>debt, housing, family, career, retirement, taxes</code>. Budget questions classify to the empty intent set. When <code>COACH_BUNDLE_COMPILER_ENABLED=true</code> (which it is on staging) AND <code>compile_bundles(set(), ...)</code> returns a CompiledBundle with empty <code>allowed_tools</code>, then <code>_narrator_tools = []</code> at line 4130&ndash;4133 &mdash; the LLM is advertised zero tools and physically cannot call <code>get_budget_status</code>. The system prompt still tells it &laquo; you have tools &raquo; (legacy narrator system prompt), producing the &laquo; announce-but-no-emit &raquo; pattern. <strong>This hypothesis needs verification.</strong> The retirement-intent probe (probe v7) should have activated a retirement bundle including <code>get_retirement_projection</code> in its <code>allowed_tools</code>, yet still no tool fired &mdash; so the hypothesis is incomplete or wrong, or the retirement bundle's allowlist doesn't include the server-side tool.</p>
+
+<p><strong>Scope:</strong> this is NOT a Wave 1b code bug. Wave 1b adds citation chips on TOP of a working tool-call response. If the tool doesn't fire, there's nothing to cite. The bug (if confirmed) lives in Wave 1a / Phase 93.5 bundle compiler / intent classifier territory.</p>
+
+<h3>G2 Run #2 evidence files</h3>
+<ul>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/01_launch.png</code> &mdash; anon landing screenshot, post-launch state on iPhone-17-Pro sim</li>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/diag_after_maestro.png</code> &mdash; iOS home screen, post Maestro failure</li>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/maestro_transcript.log</code> &mdash; Maestro run output (assertion failure tail)</li>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/maestro_debug/</code> &mdash; Maestro debug bundle (commands JSON + maestro.log + failure screenshot)</li>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/maestro_junit.xml</code> &mdash; JUnit verdict</li>
+<li><code>.planning/phases/wave-1b-citation-chips/g2-evidence/coach_chat_response_v{1..7}.json.raw</code> &mdash; 7 HTTP probes of <code>/coach/chat</code>, all returning <code>citationChips: null</code></li>
+</ul>
+
+<h3>Updated 5-gate status post Run #2</h3>
+<table>
+<tr><th>Gate</th><th>Pre-Run-2</th><th>Post-Run-2</th><th>Delta</th></tr>
+<tr><td>G1 Maestro flow</td><td class="pending">DRAFT</td><td class="pending">PATCHED + ran &mdash; fails on auth-state assumption</td><td>+1 bug fix (timeout syntax), +1 new finding (flow assumes authed sim)</td></tr>
+<tr><td>G2 Claude autonomous</td><td class="pending">PENDING POST-STAGING</td><td class="fail">BLOCKED on coach runtime gap (Blocker 3)</td><td>Staging deploy is live, flags fixed, but tool-call path doesn't fire</td></tr>
+<tr><td>G3 dev CI</td><td class="ok">PASS</td><td class="ok">PASS</td><td>unchanged</td></tr>
+<tr><td>G4 regression</td><td class="ok">PASS</td><td class="ok">PASS</td><td>unchanged</td></tr>
+<tr><td>G5 LSFin + accent + ARB parity</td><td class="ok">PASS</td><td class="ok">PASS</td><td>unchanged</td></tr>
+</table>
+
+<h3>Recommended next phase</h3>
+<p>Open a separate investigation phase &mdash; <code>wave-1c-coach-tool-dispatch-rca</code> or similar &mdash; with the following scope:</p>
+<ol>
+<li>Add staging instrumentation: log the size of <code>_narrator_tools</code> at line 4180 plus the resolved <code>detected_intents</code> set per request to a debug breadcrumb.</li>
+<li>Trace a single staging coach probe end-to-end through <code>_run_agent_loop</code> &rarr; <code>orchestrator.invoke</code> &rarr; LLM call &rarr; <code>tool_use</code> parse path. Confirm whether the LLM returns <code>stop_reason=tool_use</code> or <code>end_turn</code>.</li>
+<li>If bundles return empty <code>allowed_tools</code> for budget-style intents, add a &laquo; budget &raquo; intent to <code>_INTENT_KEYWORDS</code> or fall back to <code>get_narrator_llm_tools()</code> (full set) when intents is empty.</li>
+<li>If bundles return non-empty <code>allowed_tools</code> but the LLM still doesn't emit <code>tool_use</code>, audit the narrator system prompt for &laquo; refuse if uncertain &raquo; framing that overrides tool-call disposition.</li>
+<li>Once a probe successfully fires a tool + returns <code>citationChips: [...]</code>, run the patched Maestro flow with an authed sim. The Wave 1b chip-rendering Dart widgets are already covered by widget+golden tests (G4 PASS); confirming the response payload contains a non-null <code>citationChips</code> array is the only remaining live-G2 evidence Wave 1b needs.</li>
+</ol>
+
+<p><strong>Verdict 2026-05-15 15:43 CEST per CLAUDE.md &sect;9 0-trust:</strong> Wave 1b mechanical wiring is verified end-to-end at the schema + tests level (G3+G4+G5+widget tests). Live runtime chip emission is NOT verified and CANNOT be verified today because the upstream Wave 1a tool dispatch on staging does not fire any server-side tool, regardless of intent keywords, profile completeness, or source_card content. PR #625 (wave-1b-09) is on dev + staging, but the user-visible feature does not yet activate. <strong>Phase status remains <code>PENDING G2 &mdash; RUNTIME GAP</code>.</strong> No false &laquo; SHIPPED &raquo; claim.</p>
 
 <h2>Deferred items</h2>
 <ul>
