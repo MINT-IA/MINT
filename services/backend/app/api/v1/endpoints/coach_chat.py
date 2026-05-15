@@ -2180,6 +2180,7 @@ async def _call_with_fallback(
     system_prompt: str,
     user_id,
     conversation_history: Optional[list],
+    n_results: int = 5,
 ) -> tuple[dict, dict]:
     """Call orchestrator.query() with Sonnet→Haiku graceful degradation.
 
@@ -2191,6 +2192,17 @@ async def _call_with_fallback(
         2. On CoachUpstreamError OR asyncio.TimeoutError at
            FALLBACK_TIMEOUT_SECONDS → retry with Haiku 4.5 + truncated history.
         3. If provider != 'claude' or already Haiku, no fallback.
+
+    Args:
+        n_results: Number of RAG context chunks to retrieve. Default 5
+            preserves the legacy behavior. Wave 1c-A2 (2026-05-15) wires
+            this to 0 at the agent-loop call site when the user's intent
+            maps to an advertised tool — see _TOOL_ELIGIBLE_INTENTS and
+            _TOOL_ELIGIBLE_TOOL_NAMES. The empty-context_chunks path in
+            LLMClient._build_augmented_message:157-158 is a passthrough,
+            so n_results=0 means the user message reaches the LLM
+            unaugmented (no « Contexte de la base de connaissances MINT »
+            preamble).
 
     Fail-open: if even Haiku fails, re-raise so the existing outer handler
     returns the calm 502/template answer.
@@ -2215,6 +2227,7 @@ async def _call_with_fallback(
             system_prompt=system_prompt,
             user_id=user_id,
             conversation_history=q_history,
+            n_results=n_results,  # Wave 1c-A2 plumbing
         )
 
     try:
