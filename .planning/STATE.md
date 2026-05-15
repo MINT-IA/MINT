@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Completed wave-1b-07-PLAN.md — 15 ARB keys × 6 locales (90 entries) + flutter gen-l10n; branch feature/wave-1b-07-arb-citation-keys ready for PR
-last_updated: "2026-05-15T08:10:12.645Z"
+stopped_at: Completed wave-1b-05-PLAN.md — CoachCitationChipsSection widget shipped + wired into coach_message_bubble + 4 widget tests + 6 goldens GREEN; branch feature/wave-1b-05-citation-chips-section ready for PR
+last_updated: "2026-05-15T09:35:35.519Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 12
@@ -36,9 +36,31 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: 1b (citation-chips) — EXECUTING
-Plan: 5 SUMMARYs landed of 9 (plans 01/02/03/04/07 closed ; 05/06/08/09 pending)
-Status: Plan 07 closed, branch feature/wave-1b-07-arb-citation-keys ready for PR
+Plan: 6 SUMMARYs landed of 9 (plans 01/02/03/04/05/07 closed ; 06/08/09 pending)
+Status: Plan 05 closed, branch feature/wave-1b-05-citation-chips-section ready for PR
 Last activity: 2026-05-15
+
+## Plan wave-1b-05 Receipt (CoachCitationChipsSection widget, 2026-05-15)
+
+- Files created : 8 (1 widget + 6 PNG goldens + 1 SUMMARY)
+- Files modified : 5 (1 message bubble + 2 test files + 2 lint baselines)
+- Widget : `apps/mobile/lib/widgets/coach/coach_citation_chips_section.dart` 123 LOC — sibling of CoachSourcesSection (NOT extension per RESEARCH §9.4)
+- Wiring : `coach_message_bubble.dart` import + render block between Sources (line 159-165) and Disclaimers (line 181), gated by `msg.citationChips.isNotEmpty`
+- Tests : Plan 01's 4 widget stubs + 6 golden stubs unskipped + GREEN (4/4 widget, 6/6 golden)
+- Goldens : 6 PNGs 5.2-5.5 KB each (NOT 4 KB stubs) — one per Wave 1a tool
+- Gates green :
+  - `flutter analyze` → 253 issues = baseline (0 new errors)
+  - `flutter test test/widgets/coach/` → 733/733 pass (0 regressions)
+  - `prefer_mint_text_style` → clean (683 grandfathered, line-shift baseline regen)
+  - `prefer_mint_color_token` → clean (23 grandfathered)
+  - `prefer_mint_radius` → clean (42 grandfathered, line-shift baseline regen)
+  - `prefer_mint_cta` → clean
+  - `prefer_mint_fonts` → clean (92 grandfathered)
+- Commits : `fee1f726` (T1 widget) → `bfd78756` (baseline regen) → `38eda46f` (T2 wire+tests+goldens)
+- Duration : ~5 min
+- Deviations (2 × Rule 1 codebase-shape mismatches) : (a) plan imports `text_styles.dart`/`spacing.dart`, actual is `mint_text_styles.dart`/`mint_spacing.dart` ; (b) plan referenced `AppLocalizations.of(context)!`, actual generated class is `S` (`app_localizations.dart:68`). No behavioural deviation.
+- 0-trust : wave-1b-05-SUMMARY.md `## Self-Check: PASSED` cited at .planning/phases/wave-1b-citation-chips/wave-1b-05-SUMMARY.md with 8 file evidences + 8 command citations
+- USER VALUE DELIVERED : NONE end-user-visible YET. Chip surface activates only when `ChatMessage.citationChips` non-empty, which requires the Wave 1a `COACH_TOOL_SERVER_SIDE_*=true` Railway flip (post-Plan-08 coupled deploy per CONTEXT D-01). Plan 06 (modal) hooks into the empty `onChipTap` callback to deliver tap-to-view UX.
 
 ## Plan wave-1b-07 Receipt (ARB citation keys × 6 locales, 2026-05-15)
 
@@ -289,8 +311,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-15T08:10:12.643Z
-Stopped at: Completed wave-1b-07-PLAN.md — 15 ARB keys × 6 locales (90 entries) + flutter gen-l10n; branch feature/wave-1b-07-arb-citation-keys ready for PR
+Last session: 2026-05-15T09:35:35.517Z
+Stopped at: Completed wave-1b-05-PLAN.md — CoachCitationChipsSection widget shipped + wired into coach_message_bubble + 4 widget tests + 6 goldens GREEN; branch feature/wave-1b-05-citation-chips-section ready for PR
 Resume file: None
 
 <details>
