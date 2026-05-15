@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Completed wave-1b-05-PLAN.md — CoachCitationChipsSection widget shipped + wired into coach_message_bubble + 4 widget tests + 6 goldens GREEN; branch feature/wave-1b-05-citation-chips-section ready for PR
-last_updated: "2026-05-15T09:35:35.519Z"
+stopped_at: Completed wave-1b-06-PLAN.md — coach_citation_modal.dart shipped + wired into bubble + 4 widget tests GREEN; branch feature/wave-1b-06-citation-modal ready for PR
+last_updated: "2026-05-15T09:58:42.175Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 12
@@ -36,9 +36,33 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: 1b (citation-chips) — EXECUTING
-Plan: 6 SUMMARYs landed of 9 (plans 01/02/03/04/05/07 closed ; 06/08/09 pending)
-Status: Plan 05 closed, branch feature/wave-1b-05-citation-chips-section ready for PR
+Plan: 7 SUMMARYs landed of 9 (plans 01/02/03/04/05/06/07 closed ; 08/09 pending)
+Status: Plan 06 closed, branch feature/wave-1b-06-citation-modal ready for PR
 Last activity: 2026-05-15
+
+## Plan wave-1b-06 Receipt (CoachCitationModal bottom-sheet, 2026-05-15)
+
+- Files created : 2 (1 modal widget + 1 SUMMARY)
+- Files modified : 5 (1 message bubble + 2 test files + 2 lint baselines)
+- Widget : `apps/mobile/lib/widgets/coach/coach_citation_modal.dart` 227 LOC — top-level `showCoachCitationModal(context, chip, {onRememberTap})` + private `_CoachCitationModalBody`
+- 5 sections : drag handle / `s.coachCitationModalTitle(toolDisplayName)` header / truncated 16-char `inputs_hash` (SelectableText monospace) / relative `computed_at` row reading 4 ARB keys (Q8_DECISION) / collapsible `ExpansionTile` JSON viewer (`Key('coachCitationModalJsonExpansion')`, pretty-printed via `JsonEncoder.withIndent('  ')`) / `Souviens-toi` CTA (`Key('coachCitationModalRememberCta')`, fires `onRememberTap` + Navigator.pop)
+- Q7_DECISION shipped : `flag_state` badge dropped in v1 (chip only renders when flag=on, badge would always read "on" with zero info content) — `grep -cE "flag_state|flagState"` returns 0
+- Q8_DECISION shipped : 4 relative-time ARB keys consumed (`coachCitationRelativeJustNow|Minutes|Hours|Days`, 3 ICU plural-aware) — zero Dart literal leak
+- Wiring : `coach_message_bubble.dart` import at line 11 + onChipTap at lines 175-192 invokes `showCoachCitationModal(...)` with `onRememberTap` SnackBar acknowledgement (save_insight wiring deferred to Wave 2)
+- Tests : Plan 01's 3 modal stubs + 1 Souviens-toi stub unskipped + GREEN (4/4)
+- Gates green :
+  - `flutter analyze` → 253 issues = baseline (0 new errors)
+  - `flutter test test/widgets/coach/` → 737/737 pass (+4 vs Plan 05 baseline 733/733, 0 regressions)
+  - `prefer_mint_color_token` → clean (23 grandfathered) — `MintColors.transparent` swap
+  - `prefer_mint_text_style` → clean (683 grandfathered, line-shift baseline regen)
+  - `prefer_mint_radius` → clean (42 grandfathered, line-shift baseline regen)
+  - `prefer_mint_cta` → clean (-1 from baseline)
+  - `prefer_mint_fonts` → clean (92 grandfathered, 2 lint-ignores for `fontFamily: 'monospace'` on hash + JSON SelectableText)
+- Commits : `cd842900` (T1 modal widget) → `9f475812` (baseline regen) → `6f0faad0` (T2 wire + tests)
+- Duration : ~6 min
+- Deviations (5 auto-fixed) : (a) Rule 1 — plan referenced `AppLocalizations`, actual is `S` (inherited from Plan 05) ; (b) Rule 1 — plan imports referenced `text_styles.dart`/`spacing.dart`, actual is `mint_text_styles.dart`/`mint_spacing.dart` (inherited from Plan 05) ; (c) Rule 2 — `Colors.transparent` → `MintColors.transparent` ; (d) Rule 2 — `fontFamily: 'monospace'` lint-ignores added (no `MintTextStyles.monospace()` token exists) ; (e) Rule 3 — bubble wiring 18-line insertion shifted 3 pre-existing violations downstream, baseline regen as separate chore commit. Zero behavioural deviations.
+- 0-trust : wave-1b-06-SUMMARY.md `## Self-Check: PASSED` cited at .planning/phases/wave-1b-citation-chips/wave-1b-06-SUMMARY.md with 9 file evidences + 9 command citations
+- USER VALUE DELIVERED : NONE end-user-visible YET. Modal opens only when a `ToolCallCitationChip` is tapped, which requires the Wave 1a `COACH_TOOL_SERVER_SIDE_*=true` Railway flip (post-Plan-08 coupled deploy per CONTEXT D-01). PR opened against `dev`, NOT merged. Stage 1 of 4 per CLAUDE.md §9.5. Plan 08 (Sentry breadcrumb) hooks into `onChipTap` for `coach.citation.tool_call_id.<tool>.emitted` ; Plan 09 (Maestro G1) references `Key('coachCitationModalJsonExpansion')` + `Key('coachCitationModalRememberCta')` for end-to-end tap flow.
 
 ## Plan wave-1b-05 Receipt (CoachCitationChipsSection widget, 2026-05-15)
 
@@ -311,8 +335,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-15T09:35:35.517Z
-Stopped at: Completed wave-1b-05-PLAN.md — CoachCitationChipsSection widget shipped + wired into coach_message_bubble + 4 widget tests + 6 goldens GREEN; branch feature/wave-1b-05-citation-chips-section ready for PR
+Last session: 2026-05-15T09:58:42.172Z
+Stopped at: Completed wave-1b-06-PLAN.md — coach_citation_modal.dart shipped + wired into bubble + 4 widget tests GREEN; branch feature/wave-1b-06-citation-modal ready for PR
 Resume file: None
 
 <details>
