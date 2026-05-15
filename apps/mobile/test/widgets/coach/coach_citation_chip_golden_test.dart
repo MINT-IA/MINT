@@ -8,7 +8,16 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_citation_chips_section.dart';
 
+import '../../golden_screenshots/tolerant_comparator.dart';
+
 void main() {
+  // 1.5% pixel-diff tolerance — absorbs macOS↔Linux rendering deltas
+  // (font hinting, anti-aliasing). Pattern from repo at
+  // test/golden_screenshots/tolerant_comparator.dart.
+  goldenFileComparator = TolerantGoldenFileComparator(
+    Uri.parse('test/widgets/coach/coach_citation_chip_golden_test.dart'),
+  );
+
   for (final tool in const [
     'budget_snapshot',
     'retirement_projection',
