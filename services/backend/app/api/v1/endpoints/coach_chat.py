@@ -3544,6 +3544,39 @@ async def _run_agent_loop(
             # context from the first call's response.
             iter_history = conversation_history if iteration == 0 else None
 
+            # Wave 1c-A2 (2026-05-15) — RAG suppression for tool-eligible
+            # intents. When the user's intent maps to an advertised tool,
+            # suppress legacy RAG retrieval so its « consulte ahv-iv.ch »
+            # redirect chunks don't beat the system-prompt tool_use MANDATE.
+            # The empty-context_chunks path in
+            # LLMClient._build_augmented_message (line 157-158) is a
+            # passthrough — the user message reaches the LLM unaugmented.
+            # See `.planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c
+            # -A2-PLAN.md`.
+            _intent_match = bool(
+                (detected_intents or set()) & _TOOL_ELIGIBLE_INTENTS
+            )
+            _tool_match = any(
+                (t.get("name") if isinstance(t, dict) else None)
+                in _TOOL_ELIGIBLE_TOOL_NAMES
+                for t in (stripped_tools or [])
+            )
+            _n_results_for_call = 0 if (_intent_match and _tool_match) else 5
+            if _n_results_for_call == 0:
+                logger.info(
+                    "wave1c_a2: RAG suppressed for tool-eligible intent — "
+                    "user=%s intents=%s tools=%s",
+                    (str(user_id)[:8] + "...") if user_id else "anon",
+                    sorted(
+                        (detected_intents or set()) & _TOOL_ELIGIBLE_INTENTS
+                    ),
+                    sorted([
+                        t.get("name") for t in (stripped_tools or [])
+                        if isinstance(t, dict)
+                        and t.get("name") in _TOOL_ELIGIBLE_TOOL_NAMES
+                    ]),
+                )
+
             # v2.7 Task 3: route through graceful model fallback (Sonnet→Haiku).
             # _call_with_fallback has its own inner timeout; outer wait_for keeps
             # AGENT_ITERATION_TIMEOUT_SECONDS as a hard upper bound for the
@@ -3561,6 +3594,7 @@ async def _run_agent_loop(
                     system_prompt=system_prompt,
                     user_id=user_id,
                     conversation_history=iter_history,
+                    n_results=_n_results_for_call,  # Wave 1c-A2
                 ),
                 timeout=AGENT_ITERATION_TIMEOUT_SECONDS,
             )

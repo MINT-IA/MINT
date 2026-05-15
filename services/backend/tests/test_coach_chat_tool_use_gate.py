@@ -207,3 +207,60 @@ def test_rappel_mandate_tail_constant_exists_and_is_lsfin_clean():
             f"LSFin: '{forbidden}' is a banned imperative phrase per "
             f"CLAUDE.md §5 NEVER #5"
         )
+
+
+# ---------------------------------------------------------------------------
+# Wave 1c-A2 — orchestration-layer RAG suppression for tool-eligible intents.
+# Three pure-import contracts that lock the gate's allowlist + signature.
+# Integration test (call site sets n_results=0 when both matches fire) lives
+# in Wave B's regression floor (per CONTEXT D-09 sizing).
+# ---------------------------------------------------------------------------
+
+
+def test_tool_eligible_intents_frozenset_includes_retirement():
+    """Wave 1c-A2: `_TOOL_ELIGIBLE_INTENTS` is the gating allowlist for
+    intents that map to a financial-calculation tool. The proven-broken
+    case from `probe-evidence/user_message_a1_2105.txt` is the
+    « retirement » intent (the user message contains « rente AVS »,
+    « LPP », « 65 ans », « 3eme pilier ») — so this label MUST be in
+    the set.
+    """
+    from app.api.v1.endpoints.coach_chat import _TOOL_ELIGIBLE_INTENTS
+
+    assert "retirement" in _TOOL_ELIGIBLE_INTENTS
+    assert isinstance(_TOOL_ELIGIBLE_INTENTS, frozenset)
+
+
+def test_tool_eligible_tool_names_includes_retirement_projection():
+    """Wave 1c-A2: `_TOOL_ELIGIBLE_TOOL_NAMES` is the gating allowlist
+    for advertised tools whose presence in stripped_tools triggers RAG
+    suppression. `get_retirement_projection` is the canonical tool for
+    the proven-broken probe case — it MUST be in the set.
+
+    `retrieve_memories` is a Wave 1b memory-retrieval tool, NOT a
+    financial calculation. Its presence in the advertised tools list
+    must NOT trigger RAG suppression (otherwise educational queries
+    that happen to also have retrieve_memories in scope would lose
+    legitimate context).
+    """
+    from app.api.v1.endpoints.coach_chat import _TOOL_ELIGIBLE_TOOL_NAMES
+
+    assert "get_retirement_projection" in _TOOL_ELIGIBLE_TOOL_NAMES
+    assert "retrieve_memories" not in _TOOL_ELIGIBLE_TOOL_NAMES, (
+        "retrieve_memories is a Wave 1b memory tool, not a financial "
+        "calculation; it must NOT trigger RAG suppression"
+    )
+
+
+def test_call_with_fallback_accepts_n_results_kwarg():
+    """Wave 1c-A2: `_call_with_fallback` MUST accept `n_results: int = 5`
+    so the agent-loop call site can pass `n_results=0` when the gate
+    fires. Default 5 preserves byte-identical legacy behavior for non-
+    tool-eligible queries.
+    """
+    import inspect
+    from app.api.v1.endpoints.coach_chat import _call_with_fallback
+
+    sig = inspect.signature(_call_with_fallback)
+    assert "n_results" in sig.parameters
+    assert sig.parameters["n_results"].default == 5
