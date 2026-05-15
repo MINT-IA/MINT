@@ -1,0 +1,6 @@
+.bisect_account.txt
+.jwt.tmp
+.creds.tmp
+captured_staging_payload.json
+bisect_results.json
+bisect_output.log
