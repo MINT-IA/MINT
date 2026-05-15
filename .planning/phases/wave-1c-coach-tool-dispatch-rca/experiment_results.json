@@ -1,0 +1,37 @@
+{
+  "baseline_auto": {
+    "stop_reason": "tool_use",
+    "model": "claude-sonnet-4-5-20250929",
+    "input_tokens": 6869,
+    "output_tokens": 89,
+    "block_count": 2,
+    "block_types": [
+      "text",
+      "tool_use"
+    ],
+    "tool_use_blocks": [
+      {
+        "name": "get_retirement_projection",
+        "input": {}
+      }
+    ],
+    "text_preview": "Je vais regarder ta projection de retraite pour te donner les chiffres de tes rentes AVS et LPP à 65 ans, ainsi que l'apport de ton 3e pilier."
+  },
+  "variant_any": {
+    "stop_reason": "tool_use",
+    "model": "claude-sonnet-4-5-20250929",
+    "input_tokens": 6961,
+    "output_tokens": 23,
+    "block_count": 1,
+    "block_types": [
+      "tool_use"
+    ],
+    "tool_use_blocks": [
+      {
+        "name": "get_retirement_projection",
+        "input": {}
+      }
+    ],
+    "text_preview": null
+  }
+}
