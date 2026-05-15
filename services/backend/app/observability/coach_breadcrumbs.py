@@ -69,3 +69,53 @@ def emit_coach_tool_breadcrumb(
     except Exception:
         # Never let telemetry break the coach response path.
         pass
+
+
+def emit_coach_citation_breadcrumb(
+    tool_name: str,
+    inputs_hash: str,
+    profile_id_hashed: str,
+    elapsed_ms: int,
+    flag_state: Literal["on", "off"],
+    extra_tags: Optional[Dict[str, str]] = None,
+) -> None:
+    """Wave 1b citation breadcrumb — sibling of emit_coach_tool_breadcrumb.
+
+    Fires at NARRATOR emission time (after gate PASS, before HTTP
+    response), NOT at tool-call time. Different lifecycle than
+    coach.tool.<name>.
+
+    Payload is identical to emit_coach_tool_breadcrumb per D-15
+    schema parity. Category prefix is
+    coach.citation.tool_call_id.<tool_name>.
+
+    Per RESEARCH §3.3 caveat: flag_state is always "on" in the chip
+    path (the chip only renders when inputs_hash is present, which
+    only happens when the flag is on). The kwarg is kept for schema
+    parity with emit_coach_tool_breadcrumb (D-15).
+    """
+    if sentry_sdk is None:
+        return
+    try:
+        data: Dict[str, object] = {
+            "inputs_hash": inputs_hash,
+            "profile_id_hashed": profile_id_hashed,
+            "elapsed_ms": elapsed_ms,
+            "flag_state": flag_state,
+        }
+        if extra_tags:
+            # Merge enum-string tags. Existing keys are NOT overwritten
+            # so callers cannot accidentally clobber the D-15 5-kwarg
+            # invariant payload (mirrors emit_coach_tool_breadcrumb).
+            for tag_k, tag_v in extra_tags.items():
+                if tag_k not in data:
+                    data[tag_k] = tag_v
+        sentry_sdk.add_breadcrumb(  # type: ignore[union-attr]
+            category=f"coach.citation.tool_call_id.{tool_name}",
+            message="emitted",
+            level="info",
+            data=data,
+        )
+    except Exception:
+        # Never let telemetry break the coach response path.
+        pass
