@@ -167,3 +167,43 @@ def test_result_dataclass_is_frozen_and_well_typed():
         pass
     else:
         assert False, "ToolUseEnforcementResult must be frozen"
+
+
+# ---------------------------------------------------------------------------
+# Wave 1c-A1 — RAPPEL_MANDATE_TAIL system-prompt-tail injection contract.
+# ---------------------------------------------------------------------------
+
+
+def test_rappel_mandate_tail_constant_exists_and_is_lsfin_clean():
+    """Wave 1c-A1: `RAPPEL_MANDATE_TAIL` is the 3rd MANDATE injection
+    (after the grammar-fragment TOP and BOTTOM). It is appended
+    UNCONDITIONALLY at the end of `_build_system_prompt_with_memory`'s
+    composition, sitting at ~100% of the system prompt — immediately
+    above the user message — so the narrator reads the doctrine once
+    more before generating its answer.
+
+    LSFin compliance contract: the tail MUST NOT use the second-person
+    imperative form (« tu dois », « tu devrais », « il faut »). It uses
+    the impersonal voice (« il est OBLIGATOIRE de ») and conditional
+    cues (« n'attends pas que ») per CLAUDE.md §5 NEVER #5.
+    """
+    from app.api.v1.endpoints.coach_chat import RAPPEL_MANDATE_TAIL
+
+    assert "RAPPEL" in RAPPEL_MANDATE_TAIL
+    assert "tool_use" in RAPPEL_MANDATE_TAIL
+    # The 3-position pattern's distinguishing header so the model does
+    # not collapse this with the BOTTOM repeat in the grammar fragment.
+    assert "MANDATE TOOL_USE (placement final)" in RAPPEL_MANDATE_TAIL
+    # Anti-deferral guidance — the specific failure mode observed in
+    # `probe-2026-05-15-1958-payload.jsonl` (« j'ai besoin de récupérer
+    # tes données »).
+    assert "n'attends pas que l'utilisateur fournisse les données" in (
+        RAPPEL_MANDATE_TAIL
+    )
+    # LSFin: no banned imperative phrases in user-facing FR.
+    lower = RAPPEL_MANDATE_TAIL.lower()
+    for forbidden in ("tu dois", "tu devrais", "il faut "):
+        assert forbidden not in lower, (
+            f"LSFin: '{forbidden}' is a banned imperative phrase per "
+            f"CLAUDE.md §5 NEVER #5"
+        )

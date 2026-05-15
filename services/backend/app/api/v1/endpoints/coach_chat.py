@@ -694,6 +694,29 @@ REPROMPT_ADDENDUM_TOOL_USE_MISSING: str = (
 )
 
 
+# Wave 1c-A1 (2026-05-15) — Liu 2024 lost-in-the-middle mitigation.
+# Wave A's MANDATE sits at 51% of the 45K-char staging system prompt.
+# Wave A1's grammar-fragment BOTTOM repeat puts a 2nd occurrence at
+# ~64%. This 3rd injection sits at ~100% — the very last thing in the
+# system prompt before the user message — so the narrator reads the
+# MANDATE again immediately before generating its answer. Source of
+# the lost-in-the-middle insight: probe-2026-05-15-1958-payload.jsonl
+# showed that the system prompt was 45,879 chars and the existing
+# MANDATE position (51.4%) was insufficient — Sonnet under-attended
+# and chose the polite-deferral path (« j'ai besoin de récupérer tes
+# données ») instead of invoking `tool_use`. The runtime gate had no
+# leverage because no `{cite:tool_*}` placeholder was emitted.
+RAPPEL_MANDATE_TAIL: str = (
+    "\n\n## RAPPEL — MANDATE TOOL_USE (placement final)\n"
+    "Si la réponse cite un placeholder `{{cite:tool_<name>}}`, le bloc "
+    "`tool_use(get_<name>)` doit avoir été émis plus tôt dans ce même "
+    "tour. Aucune exception. Si la question appelle un chiffre "
+    "(projection, surplus, plafond), INVOQUE l'outil correspondant — "
+    "n'attends pas que l'utilisateur fournisse les données, l'outil "
+    "récupère le profil côté serveur."
+)
+
+
 def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
     """Scrub PII patterns from the memory block and add prompt injection armor.
 
@@ -4173,6 +4196,16 @@ async def coach_chat(
             (str(_user.id)[:8] + "...") if _user else "anon",
             sorted(detected_intents),
         )
+
+    # Wave 1c-A1 — RAPPEL_MANDATE_TAIL is appended AFTER the optional
+    # INTENTION DETECTEE block (and AFTER any PROFIL UTILISATEUR block) so
+    # it sits as the very last directive in the system prompt, immediately
+    # above the user message in the final API payload. Unconditional —
+    # fires even when no intent is classified, because the MANDATE is a
+    # global doctrine rule, not an intent-scoped heuristic. See
+    # RAPPEL_MANDATE_TAIL docstring at module top for full rationale and
+    # the probe-evidence link.
+    system_prompt = system_prompt + RAPPEL_MANDATE_TAIL
 
     # P3-B readiness metric: track system prompt size for multi-agent trigger.
     # When tokens_est > 3500 regularly, activate domain-specific prompt routing.
