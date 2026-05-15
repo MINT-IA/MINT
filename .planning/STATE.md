@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Completed wave-1b-03-PLAN.md — narrator grammar fragment shipped (tool_paragraph + tool_example + intent always-on), 3 Plan-01 stubs unskipped + green, test renamed to 24-key total, branch feature/wave-1b-03-grammar-fragment ready for PR
-last_updated: "2026-05-15T07:29:21.395Z"
+stopped_at: Completed wave-1b-04-PLAN.md — Route (b) citationChips field shipped, Dart ToolCallCitationChip + round-trip test GREEN, branch feature/wave-1b-04-tool-call-chip-round-trip ready for PR
+last_updated: "2026-05-15T07:58:08.552Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 12
@@ -36,7 +36,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: 1b (citation-chips) — EXECUTING
-Plan: 4 of 9
+Plan: 5 of 9
 Status: Ready to execute
 Last activity: 2026-05-15
 
@@ -269,8 +269,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-15T07:29:21.393Z
-Stopped at: Completed wave-1b-03-PLAN.md — narrator grammar fragment shipped (tool_paragraph + tool_example + intent always-on), 3 Plan-01 stubs unskipped + green, test renamed to 24-key total, branch feature/wave-1b-03-grammar-fragment ready for PR
+Last session: 2026-05-15T07:58:08.548Z
+Stopped at: Completed wave-1b-04-PLAN.md — Route (b) citationChips field shipped, Dart ToolCallCitationChip + round-trip test GREEN, branch feature/wave-1b-04-tool-call-chip-round-trip ready for PR
 Resume file: None
 
 <details>
