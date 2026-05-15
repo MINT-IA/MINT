@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.9
 milestone_name: Chat-as-Verb Pivot
 status: executing
-stopped_at: Completed wave-1b-03-PLAN.md — narrator grammar fragment shipped (tool_paragraph + tool_example + intent always-on), 3 Plan-01 stubs unskipped + green, test renamed to 24-key total, branch feature/wave-1b-03-grammar-fragment ready for PR
-last_updated: "2026-05-15T07:29:21.395Z"
+stopped_at: Completed wave-1b-07-PLAN.md — 15 ARB keys × 6 locales (90 entries) + flutter gen-l10n; branch feature/wave-1b-07-arb-citation-keys ready for PR
+last_updated: "2026-05-15T08:10:12.645Z"
 last_activity: 2026-05-15
 progress:
   total_phases: 12
@@ -36,9 +36,29 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: 1b (citation-chips) — EXECUTING
-Plan: 4 of 9
-Status: Ready to execute
+Plan: 5 SUMMARYs landed of 9 (plans 01/02/03/04/07 closed ; 05/06/08/09 pending)
+Status: Plan 07 closed, branch feature/wave-1b-07-arb-citation-keys ready for PR
 Last activity: 2026-05-15
+
+## Plan wave-1b-07 Receipt (ARB citation keys × 6 locales, 2026-05-15)
+
+- Files created : 1 (.planning/phases/wave-1b-citation-chips/wave-1b-07-SUMMARY.md)
+- Files modified : 13 (6 ARB + 7 generated app_localizations*.dart via flutter gen-l10n)
+- ARB delta : 90 new entries (15 keys × 6 locales : fr/en/de/es/it/pt)
+- 5 frame keys verbatim from RESEARCH §6.3 : coachCitationChipsHeader, coachCitationChipLabel(toolDisplayName), coachCitationModalTitle(toolDisplayName), coachCitationJsonViewerLabel, coachCitationRememberCta
+- 6 tool-name keys (Q6 doctrine i18n) : coachToolBudgetSnapshot, RetirementProjection, CrossPillarAnalysis, CoupleOptimization, CapStatus, RetrieveMemories
+- 4 Q8 relative-time keys (3 ICU plural-aware `(int count)`) : coachCitationRelativeJustNow, Minutes, Hours, Days
+- Gates green :
+  - `python3 tools/checks/arb_parity.py` → exit 0 (6 locales, 6777 keys each)
+  - `python3 tools/checks/banned_terms_arb.py` → exit 0 (6 locales clean)
+  - `python3 tools/checks/accent_lint_fr.py --file app_fr.arb` → exit 0
+  - `flutter gen-l10n` → exit 0
+  - `flutter analyze` → 253 issues (= baseline-273, 0 new errors)
+- Commits : 49142b79 (atomic 6-locale ARB) → 886a6fd1 (gen-l10n regen)
+- Duration : 5 min
+- Deviation (1) : Rule 3 - blocking — Task 1 (FR+EN) and Task 2 (DE/IT/ES/PT) merged into single ARB commit because lefthook `arb-parity-gate` fails closed on per-locale intermediate state ; atomic 6-locale update preserves gate's fail-closed contract.
+- 0-trust : wave-1b-07-SUMMARY.md `## Self-Check: PASSED` cited at .planning/phases/wave-1b-citation-chips/wave-1b-07-SUMMARY.md with 9 deterministic citations
+- USER VALUE DELIVERED : NONE end-user-visible YET. Plan 07 ships i18n surface only ; plans 05 (CoachCitationChipsSection) + 06 (CoachCitationModal) consume these getters. End-to-end sim verification deferred to Plan 09 close-out.
 
 ## Plan wave-1b-03 Receipt (Narrator Grammar Fragment, 2026-05-15)
 
@@ -269,8 +289,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-15T07:29:21.393Z
-Stopped at: Completed wave-1b-03-PLAN.md — narrator grammar fragment shipped (tool_paragraph + tool_example + intent always-on), 3 Plan-01 stubs unskipped + green, test renamed to 24-key total, branch feature/wave-1b-03-grammar-fragment ready for PR
+Last session: 2026-05-15T08:10:12.643Z
+Stopped at: Completed wave-1b-07-PLAN.md — 15 ARB keys × 6 locales (90 entries) + flutter gen-l10n; branch feature/wave-1b-07-arb-citation-keys ready for PR
 Resume file: None
 
 <details>

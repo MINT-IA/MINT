@@ -7915,6 +7915,94 @@ class SFr extends S {
   String get coachSendButton => 'Envoyer';
 
   @override
+  String get coachCitationChipsHeader => 'Calculs serveur';
+
+  @override
+  String coachCitationChipLabel(String toolDisplayName) {
+    return '$toolDisplayName — calculé';
+  }
+
+  @override
+  String coachCitationModalTitle(String toolDisplayName) {
+    return 'Source du calcul : $toolDisplayName';
+  }
+
+  @override
+  String get coachCitationJsonViewerLabel => 'Voir le détail du calcul (JSON)';
+
+  @override
+  String get coachCitationRememberCta => 'Souviens-toi de cette source';
+
+  @override
+  String get coachToolBudgetSnapshot => 'Budget actuel';
+
+  @override
+  String get coachToolRetirementProjection => 'Projection de retraite';
+
+  @override
+  String get coachToolCrossPillarAnalysis => 'Analyse inter-piliers';
+
+  @override
+  String get coachToolCoupleOptimization => 'Optimisation couple';
+
+  @override
+  String get coachToolCapStatus => 'Cap du jour';
+
+  @override
+  String get coachToolRetrieveMemories => 'Souvenirs';
+
+  @override
+  String get coachCitationRelativeJustNow => 'à l\'instant';
+
+  @override
+  String coachCitationRelativeMinutes(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'il y a $countString min',
+      one: 'il y a $countString min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeHours(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'il y a $countString h',
+      one: 'il y a $countString h',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeDays(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'il y a $countString j',
+      one: 'il y a $countString j',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get profileDefaultName => 'Utilisateur';
 
   @override

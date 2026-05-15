@@ -3998,6 +3998,81 @@
   "coachUserMessage": "Ton message",
   "coachCoachMessage": "Réponse du coach",
   "coachSendButton": "Envoyer",
+  "coachCitationChipsHeader": "Calculs serveur",
+  "@coachCitationChipsHeader": {
+    "description": "Header text for the Wave 1b citation-chip section under coach messages. Rendered above the list of tool-call chips."
+  },
+  "coachCitationChipLabel": "{toolDisplayName} — calculé",
+  "@coachCitationChipLabel": {
+    "description": "Label rendered on each citation chip. toolDisplayName interpolates a localized name (e.g. 'Budget actuel').",
+    "placeholders": {
+      "toolDisplayName": { "type": "String" }
+    }
+  },
+  "coachCitationModalTitle": "Source du calcul : {toolDisplayName}",
+  "@coachCitationModalTitle": {
+    "description": "Title of the citation-chip modal (bottom sheet). Identifies which tool computed the values.",
+    "placeholders": {
+      "toolDisplayName": { "type": "String" }
+    }
+  },
+  "coachCitationJsonViewerLabel": "Voir le détail du calcul (JSON)",
+  "@coachCitationJsonViewerLabel": {
+    "description": "Label on the ExpansionTile that wraps the pretty-printed JSON viewer in the citation modal."
+  },
+  "coachCitationRememberCta": "Souviens-toi de cette source",
+  "@coachCitationRememberCta": {
+    "description": "Call-to-action button at the bottom of the citation modal. Wires (in a future wave) to save_insight tool persistence."
+  },
+  "coachToolBudgetSnapshot": "Budget actuel",
+  "@coachToolBudgetSnapshot": {
+    "description": "Display name for the get_budget_status server-side tool."
+  },
+  "coachToolRetirementProjection": "Projection de retraite",
+  "@coachToolRetirementProjection": {
+    "description": "Display name for the get_retirement_projection server-side tool."
+  },
+  "coachToolCrossPillarAnalysis": "Analyse inter-piliers",
+  "@coachToolCrossPillarAnalysis": {
+    "description": "Display name for the get_cross_pillar_analysis server-side tool."
+  },
+  "coachToolCoupleOptimization": "Optimisation couple",
+  "@coachToolCoupleOptimization": {
+    "description": "Display name for the get_couple_optimization server-side tool."
+  },
+  "coachToolCapStatus": "Cap du jour",
+  "@coachToolCapStatus": {
+    "description": "Display name for the get_cap_status server-side tool (daily cap validation)."
+  },
+  "coachToolRetrieveMemories": "Souvenirs",
+  "@coachToolRetrieveMemories": {
+    "description": "Display name for the retrieve_memories BM25 server-side tool."
+  },
+  "coachCitationRelativeJustNow": "à l'instant",
+  "@coachCitationRelativeJustNow": {
+    "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 minute. Replaces Dart literal in coach_citation_modal.dart."
+  },
+  "coachCitationRelativeMinutes": "{count, plural, =1{il y a {count} min} other{il y a {count} min}}",
+  "@coachCitationRelativeMinutes": {
+    "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 hour. FR doesn't pluralize 'min'; ICU branches are identical.",
+    "placeholders": {
+      "count": { "type": "int", "format": "compact" }
+    }
+  },
+  "coachCitationRelativeHours": "{count, plural, =1{il y a {count} h} other{il y a {count} h}}",
+  "@coachCitationRelativeHours": {
+    "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 day.",
+    "placeholders": {
+      "count": { "type": "int", "format": "compact" }
+    }
+  },
+  "coachCitationRelativeDays": "{count, plural, =1{il y a {count} j} other{il y a {count} j}}",
+  "@coachCitationRelativeDays": {
+    "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta ≥ 1 day.",
+    "placeholders": {
+      "count": { "type": "int", "format": "compact" }
+    }
+  },
   "profileDefaultName": "Utilisateur",
   "profileNameAge": "{name}, {age} ans",
   "@profileNameAge": {

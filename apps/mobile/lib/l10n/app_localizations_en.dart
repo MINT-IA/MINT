@@ -7865,6 +7865,94 @@ class SEn extends S {
   String get coachSendButton => 'Send';
 
   @override
+  String get coachCitationChipsHeader => 'Server-side computations';
+
+  @override
+  String coachCitationChipLabel(String toolDisplayName) {
+    return '$toolDisplayName — computed';
+  }
+
+  @override
+  String coachCitationModalTitle(String toolDisplayName) {
+    return 'Source of computation: $toolDisplayName';
+  }
+
+  @override
+  String get coachCitationJsonViewerLabel => 'View computation detail (JSON)';
+
+  @override
+  String get coachCitationRememberCta => 'Remember this source';
+
+  @override
+  String get coachToolBudgetSnapshot => 'Current budget';
+
+  @override
+  String get coachToolRetirementProjection => 'Retirement projection';
+
+  @override
+  String get coachToolCrossPillarAnalysis => 'Cross-pillar analysis';
+
+  @override
+  String get coachToolCoupleOptimization => 'Couple optimization';
+
+  @override
+  String get coachToolCapStatus => 'Daily cap';
+
+  @override
+  String get coachToolRetrieveMemories => 'Memories';
+
+  @override
+  String get coachCitationRelativeJustNow => 'just now';
+
+  @override
+  String coachCitationRelativeMinutes(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString min ago',
+      one: '1 min ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeHours(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString h ago',
+      one: '1 h ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeDays(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString d ago',
+      one: '1 d ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get profileDefaultName => 'User';
 
   @override
