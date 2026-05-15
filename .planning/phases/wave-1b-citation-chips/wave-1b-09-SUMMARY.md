@@ -153,5 +153,6 @@ NONE. Plan 09 executed exactly as written:
 ## Commits
 
 - `e17419da` — feat(wave-1b-09): wave_1b_close.sh + Maestro G1 chip-smoke flow
-- (Task 2 commit hash recorded after this SUMMARY lands)
-- (Task 3 commit hash recorded after G2 protocol exec attempt)
+- `3e112e64` — docs(wave-1b-09): phase SUMMARY + VERIFICATION-REPORT.html + dev→staging coupling
+- `6431c0ed` — docs(wave-1b-09): G2 BLOCKED documented honestly — false-negative-trap pre-flag-flip
+- `2dde873a` — docs(wave-1b-09): STATE.md — advance to plan 9/9, phase status PENDING G2
