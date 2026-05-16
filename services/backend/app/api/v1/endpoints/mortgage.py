@@ -386,26 +386,43 @@ def compare_amortization(
 def calculate_epl_combined(
     request: Request,
     body: EplCombinedRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> EplCombinedResponse:
     """Calculate combined EPL equity (3a + LPP) for housing purchase.
 
     Combines cash, 3a withdrawal, and LPP EPL to calculate total
     available equity. Recommends optimal sourcing order.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 11 — silent ZH default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: OPP3 art. 1; LPP art. 30a-30g; LPP art. 79b al. 3.
     """
+    resolved = _resolve_defaults(profile_data, body, EplCombinedRequest)
+    missing = _required_profile_fields_missing(resolved, EplCombinedRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_EPL_COMBINED_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/mortgage/epl-combined",
+        )
+
     result = _epl_combined_service.calculate(
-        avoir_3a=body.avoir3a,
-        avoir_lpp_total=body.avoirLppTotal,
-        avoir_obligatoire=body.avoirObligatoire,
-        avoir_surobligatoire=body.avoirSurobligatoire,
-        age=body.age,
-        canton=body.canton,
-        epargne_cash=body.epargneCash,
-        prix_cible=body.prixCible,
-        a_rachete_recemment=body.aRacheteRecemment,
-        annees_depuis_dernier_rachat=body.anneesDernierRachat,
-        avoir_lpp_a_50_ans=body.avoirLppA50Ans,
+        avoir_3a=resolved["avoir3a"],
+        avoir_lpp_total=resolved["avoirLppTotal"],
+        avoir_obligatoire=resolved["avoirObligatoire"],
+        avoir_surobligatoire=resolved["avoirSurobligatoire"],
+        age=resolved["age"],
+        canton=str(resolved["canton"]),
+        epargne_cash=resolved["epargneCash"],
+        prix_cible=resolved["prixCible"],
+        a_rachete_recemment=resolved["aRacheteRecemment"],
+        annees_depuis_dernier_rachat=resolved["anneesDernierRachat"],
+        avoir_lpp_a_50_ans=resolved["avoirLppA50Ans"],
     )
 
     return EplCombinedResponse(

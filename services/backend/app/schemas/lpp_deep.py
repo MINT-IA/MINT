@@ -254,8 +254,11 @@ class EPLRequest(BaseModel):
     avoirA50Ans: Optional[float] = Field(
         None, description="Avoir LPP a 50 ans (si connu, pour la regle des 50 ans)", ge=0
     )
-    canton: str = Field(
-        "ZH", description="Code canton pour l'estimation fiscale", min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton pour l'estimation fiscale (lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
 
 

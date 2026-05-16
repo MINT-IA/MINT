@@ -547,7 +547,12 @@ class AmortizationComparisonResponse(BaseModel):
 # ===========================================================================
 
 class EplCombinedRequest(BaseModel):
-    """Request for combined EPL (3a + LPP) equity calculation."""
+    """Request for combined EPL (3a + LPP) equity calculation.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch B), `canton` is widened
+    from `default="ZH"` to Optional `default=None` with the `from_profile`
+    marker. W0 audit row 11 sev-1.
+    """
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -570,9 +575,11 @@ class EplCombinedRequest(BaseModel):
     age: int = Field(
         35, description="Age actuel", ge=18, le=70
     )
-    canton: str = Field(
-        "ZH", description="Code canton",
-        min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
     epargneCash: float = Field(
         0, alias="epargneCash",

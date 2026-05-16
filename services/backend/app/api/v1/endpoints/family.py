@@ -66,6 +66,26 @@ _CONCUBINAGE_SUCCESSION_HINT_FR = (
 )
 
 
+_MARIAGE_COMPARE_HINT_FR = (
+    "Pour comparer ta fiscalité célibataire vs mariée, j'ai besoin de ton "
+    "canton — les barèmes varient considérablement. Tu peux me le partager ?"
+)
+
+
+_NAISSANCE_ALLOCATIONS_HINT_FR = (
+    "Pour estimer les allocations familiales, j'ai besoin de ton canton — "
+    "les montants varient considérablement entre cantons. "
+    "Tu peux me le partager ?"
+)
+
+
+_CONCUBINAGE_COMPARE_HINT_FR = (
+    "Pour comparer mariage et concubinage, j'ai besoin de ton canton — "
+    "la fiscalité et la succession varient selon le canton. "
+    "Tu peux me le partager ?"
+)
+
+
 router = APIRouter()
 
 DISCLAIMER = (
@@ -80,19 +100,39 @@ DISCLAIMER = (
 
 @router.post("/mariage/compare", response_model=MariageFiscalResponse)
 @limiter.limit("30/minute")
-def compare_mariage_fiscal(request: Request, body: MariageFiscalRequest) -> MariageFiscalResponse:
+def compare_mariage_fiscal(
+    request: Request,
+    body: MariageFiscalRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> MariageFiscalResponse:
     """Compare l'impot en tant que 2 celibataires vs couple marie.
 
     Montre la 'penalite' ou le 'bonus' du mariage selon les revenus.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 19 — silent ZH default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: LIFD art. 9, 33, 35, 36.
     """
+    resolved = _resolve_defaults(profile_data, body, MariageFiscalRequest)
+    missing = _required_profile_fields_missing(resolved, MariageFiscalRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_MARIAGE_COMPARE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/family/mariage/compare",
+        )
+
     service = MariageService()
     result = service.compare_fiscal_impact(
-        revenu_1=body.revenu_1,
-        revenu_2=body.revenu_2,
-        canton=body.canton,
-        enfants=body.enfants,
+        revenu_1=resolved["revenu_1"],
+        revenu_2=resolved["revenu_2"],
+        canton=str(resolved["canton"]),
+        enfants=resolved["enfants"],
     )
     return MariageFiscalResponse(
         impot_celibataires_total=result.impot_celibataires_total,
@@ -243,18 +283,38 @@ def simulate_conge(request: Request, body: CongeParentalRequest) -> CongeParenta
 
 @router.post("/naissance/allocations", response_model=AllocationsFamilialesResponse)
 @limiter.limit("30/minute")
-def estimate_allocations(request: Request, body: AllocationsFamilialesRequest) -> AllocationsFamilialesResponse:
+def estimate_allocations(
+    request: Request,
+    body: AllocationsFamilialesRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> AllocationsFamilialesResponse:
     """Estime les allocations familiales cantonales.
 
     Allocation enfant: CHF 200-300/mois, allocation formation: +CHF 50/mois.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 18 sev-2 — canton-indexed
+    allocations). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: LAFam art. 3.
     """
+    resolved = _resolve_defaults(profile_data, body, AllocationsFamilialesRequest)
+    missing = _required_profile_fields_missing(resolved, AllocationsFamilialesRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_NAISSANCE_ALLOCATIONS_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/family/naissance/allocations",
+        )
+
     service = NaissanceService()
     result = service.estimate_allocations(
-        canton=body.canton,
-        nb_enfants=body.nb_enfants,
-        ages_enfants=body.ages_enfants,
+        canton=str(resolved["canton"]),
+        nb_enfants=resolved["nb_enfants"],
+        ages_enfants=resolved["ages_enfants"],
     )
     return AllocationsFamilialesResponse(
         canton=result.canton,
@@ -371,20 +431,40 @@ def checklist_naissance(request: Request, body: ChecklistNaissanceRequest) -> Ch
 
 @router.post("/concubinage/compare", response_model=ConcubinageCompareResponse)
 @limiter.limit("30/minute")
-def compare_concubinage(request: Request, body: ConcubinageCompareRequest) -> ConcubinageCompareResponse:
+def compare_concubinage(
+    request: Request,
+    body: ConcubinageCompareRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> ConcubinageCompareResponse:
     """Compare mariage vs concubinage : fiscal, prevoyance, succession, protection.
 
     Analyse complete sur 6 domaines avec scores de protection.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 22 — silent ZH default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: LIFD, LAVS, LPP, CC.
     """
+    resolved = _resolve_defaults(profile_data, body, ConcubinageCompareRequest)
+    missing = _required_profile_fields_missing(resolved, ConcubinageCompareRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_CONCUBINAGE_COMPARE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/family/concubinage/compare",
+        )
+
     service = ConcubinageService()
     result = service.compare_mariage_vs_concubinage(
-        revenu_1=body.revenu_1,
-        revenu_2=body.revenu_2,
-        canton=body.canton,
-        enfants=body.enfants,
-        patrimoine=body.patrimoine,
+        revenu_1=resolved["revenu_1"],
+        revenu_2=resolved["revenu_2"],
+        canton=str(resolved["canton"]),
+        enfants=resolved["enfants"],
+        patrimoine=resolved["patrimoine"],
     )
     comparaisons_schema = [
         ComparisonItemSchema(

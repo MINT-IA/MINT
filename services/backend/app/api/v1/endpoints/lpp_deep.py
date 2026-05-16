@@ -194,26 +194,52 @@ def analyze_libre_passage(
 # EPL (Encouragement a la propriete du logement)
 # ---------------------------------------------------------------------------
 
+_EPL_HINT_FR = (
+    "Pour simuler le retrait EPL, j'ai besoin de ton canton — "
+    "l'impôt sur le retrait dépend du barème cantonal. Tu peux me le partager ?"
+)
+
+
 @router.post("/epl", response_model=EPLResponse)
 @limiter.limit("30/minute")
-def simulate_epl(request: Request, body: EPLRequest) -> EPLResponse:
+def simulate_epl(
+    request: Request,
+    body: EPLRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> EPLResponse:
     """Simulate an EPL (home ownership encouragement) withdrawal from LPP.
 
     Calculates the maximum withdrawable amount, tax impact, and critically
     the impact on death and disability benefits.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 15). Missing profile.canton
+    triggers a 422 with the D-CE-08 `CoachToolIncomplete` envelope when
+    strict mode is enabled.
+
     Sources: LPP art. 30a-30g, OPP2 art. 5-5f, LPP art. 79b al. 3.
     """
+    resolved = _resolve_defaults(profile_data, body, EPLRequest)
+    missing = _required_profile_fields_missing(resolved, EPLRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_EPL_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/lpp-deep/epl",
+        )
+
     result = _epl_service.simulate(
-        avoir_lpp_total=body.avoirLppTotal,
-        avoir_obligatoire=body.avoirObligatoire,
-        avoir_surobligatoire=body.avoirSurobligatoire,
-        age=body.age,
-        montant_retrait_souhaite=body.montantRetraitSouhaite,
-        a_rachete_recemment=body.aRacheteRecemment,
-        annees_depuis_dernier_rachat=body.anneesDernierRachat,
-        avoir_a_50_ans=body.avoirA50Ans,
-        canton=body.canton,
+        avoir_lpp_total=resolved["avoirLppTotal"],
+        avoir_obligatoire=resolved["avoirObligatoire"],
+        avoir_surobligatoire=resolved["avoirSurobligatoire"],
+        age=resolved["age"],
+        montant_retrait_souhaite=resolved["montantRetraitSouhaite"],
+        a_rachete_recemment=resolved["aRacheteRecemment"],
+        annees_depuis_dernier_rachat=resolved["anneesDernierRachat"],
+        avoir_a_50_ans=resolved["avoirA50Ans"],
+        canton=str(resolved["canton"]),
     )
 
     return EPLResponse(
