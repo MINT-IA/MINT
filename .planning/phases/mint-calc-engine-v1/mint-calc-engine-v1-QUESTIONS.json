@@ -1,0 +1,329 @@
+{
+  "phase": "mint-calc-engine-v1",
+  "phase_name": "MINT Lucidité Engine — discoverability, profile-grounding, architecture, DAG-action over the existing 57 calculators",
+  "generated_at": "2026-05-16T22:00:00+02:00",
+  "generator": "gsd-discuss-phase --power (Claude Opus 4.7)",
+  "source_decisions": [
+    ".planning/decisions/2026-05-16-calc-engine-matrix.md",
+    ".planning/decisions/2026-05-16-phase-96-killed.md",
+    ".planning/decisions/2026-05-14-phase-7-ship-or-pause.md"
+  ],
+  "stats": {
+    "total": 20,
+    "answered": 0,
+    "chat_more": 0,
+    "remaining": 20
+  },
+  "sections": [
+    {
+      "id": "discoverability",
+      "title": "1. LLM Tool Discoverability (Problem A) — exposing 52 unregistered calculators to Sonnet narrator",
+      "questions": [
+        {
+          "id": "Q-01",
+          "title": "Comment exposer les 52 calculateurs non enregistrés au narrateur Sonnet ?",
+          "context": "Aujourd'hui Wave 1b+1c expose 5 chip-emitters dans coach_tools.py:637-722. Les 52 autres calculateurs (divorce_simulator, succession_simulator, frontalier_service, repayment_service, etc.) sont invisibles au narrateur. Liu 2024 lost-in-the-middle + RAG-collision Wave 1c-A2 = ne JAMAIS gonfler le system prompt avec 57 outils.",
+          "options": [
+            {"id": "a", "label": "Skill-bundle compiler (Phase 93.5 pattern) par intent utilisateur", "description": "RECOMMENDED. Chaque user-intent classifié charge un bundle compact d'outils pertinents. Pattern déjà éprouvé Phase 93.5 (pillar3a-optimizer / lpp-projector / tax-explainer / mortgage-stressor / compliance-narrator / life-event-router). ~6-11 bundles. Réutilise compile-time bundle + tool allowlist + citation allowlist."},
+            {"id": "b", "label": "Tous les 57 enregistrés en permanence", "description": "Context bloat ~30K tokens d'input_schema dans chaque tour de coach. Liu 2024 attention-drift + RAG-collision Wave 1c-A2 risk. ai-engineer + prompt-engineer Wave 1c panels ont REJETÉ cette voie."},
+            {"id": "c", "label": "Intent classifier → tool subset dynamique runtime", "description": "Une LLM call additionnelle par tour (+1 latence + +1 coût). Plus de flexibilité que skill-bundles mais latence supplémentaire. Sonnet 4.5 picks up tool descriptions mieux qu'un classifier intermediaire."},
+            {"id": "d", "label": "Hybride : skill-bundles pour intents communs + dynamic fallback rare", "description": "Plus de complexité d'implémentation. Mais utile si certains intents long-tail méritent un calcul rare (Sàrl vs RI, US person FATCA). Phase 1 = skill-bundles ; phase 2 = ajouter dynamic fallback."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-02",
+          "title": "Sur quoi se base le routage user-intent → bundle ?",
+          "context": "_classify_user_intent existe déjà à coach_chat.py:944-963 + _INTENT_KEYWORDS:1500-1565 (6 intents canoniques : retirement, taxes, debt, housing, family, career). Wave 1c-A2 _TOOL_ELIGIBLE_INTENTS:1564-1573 réutilise déjà ces 6 labels.",
+          "options": [
+            {"id": "a", "label": "Réutiliser _classify_user_intent existant + map intent → bundle", "description": "RECOMMENDED. Pas de nouvelle infra. 6 intents → 6 bundles canoniques + bundle 'général' pour le défaut. Coût marginal nul, alignement total avec Wave 1c."},
+            {"id": "b", "label": "Étendre _INTENT_KEYWORDS pour couvrir les 18 life events", "description": "18 bundles au lieu de 6. Plus de granularité (divorce / héritage / frontalier ont leur propre bundle) mais regex-matching plus fragile + plus de mainteance."},
+            {"id": "c", "label": "Nouvelle LLM call de classification dédiée", "description": "Sonnet/Haiku ad-hoc pour classifier l'intent. 1 tour de latence + 1 token-cost en plus. Plus flexible (free-form intents) mais coût/bénéfice défavorable vs (a)."},
+            {"id": "d", "label": "Heuristique mot-clé étendue (current pattern, scaled)", "description": "Bourrer _INTENT_KEYWORDS avec ~200 mots-clés couvrant les 11 domaines. Simple mais fragile pour le français-régional (frontalier, vaudois, etc.)."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-03",
+          "title": "Combien de bundles à la version 1 ?",
+          "context": "Skill-bundle compiler Phase 93.5 a livré 6 bundles. La matrice calc-engine identifie 11 domaines (revenu, prévoyance, logement, patrimoine, famille, divorce, héritage, indépendant, mobilité, assurances, dette). MINT identity = 18 life events.",
+          "options": [
+            {"id": "a", "label": "~6 bundles alignés sur les 6 intents canoniques (Wave 1c heritage)", "description": "RECOMMENDED. retirement / taxes / debt / housing / family / career. Couvre 80% des cas. Phase 93.5 pattern. Léger à compiler + maintenir."},
+            {"id": "b", "label": "~11 bundles alignés sur les 11 domaines de la matrice", "description": "Plus complet. Couvre divorce, héritage, indépendant, mobilité explicitement. Mais nécessite 11 bundles à maintenir + 5 nouveaux intents à classifier."},
+            {"id": "c", "label": "~3 bundles pilotes (retirement + tax + housing) ", "description": "Périmètre étroit. Ship vite, mesure, étend. Manque divorce/héritage/frontalier qui sont des life events critiques."},
+            {"id": "d", "label": "~18 bundles alignés sur les 18 life events MINT", "description": "Granularité maximale (1 bundle par life event). Très lourd à maintenir, risque d'overlap (mariage/divorce/enfants partagent des calcs)."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-04",
+          "title": "Wave 1c-A3 (5 chip-emitters missing-fields handshake) — relation avec calc-engine-v1 ?",
+          "context": "A3 PLAN.md committed à dev (2e1060a5) le 2026-05-16. Plan locked + checker green iter 2. Pas encore exécuté. A3 introduit le contrat CoachToolResponse (status: ok / incomplete / policy_blocked) sur 5 outils existants.",
+          "options": [
+            {"id": "a", "label": "A3 = pattern, calc-engine-v1 généralise à tous les bundles", "description": "RECOMMENDED. A3 ship comme wave 1 + le CoachToolResponse devient le contrat universel pour TOUS les calculateurs LLM-exposés. Le pattern handshake reste intact + scale."},
+            {"id": "b", "label": "A3 ship MAINTENANT en parallèle, calc-engine-v1 designe un autre contrat", "description": "A3 est petit + surgical. Mais risque de doctrine divergence si calc-engine-v1 décide un autre tool-response shape."},
+            {"id": "c", "label": "Pause A3, le ré-écrire dans calc-engine-v1 wave 1", "description": "A3 plan + checker green = travail jetable si on le ré-écrit. ~30h de travail (planner + checker iter 2) perdues."},
+            {"id": "d", "label": "A3 ship, calc-engine-v1 traite ce qui n'est PAS couvert par A3", "description": "Hybride. A3 livre le contrat + 5 chip-emitters ; calc-engine-v1 = bundling + grounding + DAG sans toucher au contrat A3."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        }
+      ]
+    },
+    {
+      "id": "profile-grounding",
+      "title": "2. Real-Profile Grounding (Problem B) — corriger l'hypothèse C : calculateurs sans vraies valeurs utilisateur",
+      "questions": [
+        {
+          "id": "Q-05",
+          "title": "Quelle portée pour l'audit de l'hypothèse C ?",
+          "context": "Confirmé sur arbitrage.py:163-213 (1 endpoint sur des dizaines). Les 56 autres endpoints + 57 callers internes pourraient avoir le même problème. Sans audit, on planifie sur des hypothèses non vérifiées.",
+          "options": [
+            {"id": "a", "label": "Auditer TOUS les 57 calculs + leurs callers (REST + Flutter + coach-tool) avant planning", "description": "RECOMMENDED. 2-3 jours sprint pré-planning. Sortie : matrice exhaustive 'reads-from-profile / uses-primitive-only / partial'. Sans ça toute décision downstream est aveugle."},
+            {"id": "b", "label": "Sample-audit 10-15 calcs high-value, extrapoler la prévalence", "description": "Plus rapide (1 jour). Mais extrapolation = risque de gros faux-positifs/négatifs. Acceptable pour décider la STRATÉGIE de fix, pas le scope."},
+            {"id": "c", "label": "Skip audit, fix at planning time of each wave", "description": "Étale l'audit par wave. Risque : chaque wave découvre des surprises + replanifie. Karpathy #1 violation."},
+            {"id": "d", "label": "Auditer prioritairement les 5 chip-emitters Wave 1c (la surface coach actuelle)", "description": "Portée étroite. Pertinent si A3 ship indépendamment + calc-engine-v1 étend après. Mais ne couvre PAS divorce/succession/frontalier qui sont les vraies douleurs UX."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-06",
+          "title": "Où enforce-t-on le pre-fill depuis le profil utilisateur ?",
+          "context": "Trois points d'entrée pour chaque calc : (1) REST endpoint pour Flutter, (2) Coach-tool dispatcher pour LLM, (3) Direct service call interne. arbitrage.py:163-213 montre que (1) ne lit pas _user.profile.",
+          "options": [
+            {"id": "a", "label": "Server-side à chaque endpoint REST (pre-fill _user.profile)", "description": "RECOMMENDED. FastAPI dependency injection : Depends(get_profile_filled_request) qui prend _user.profile + le body, merge, retourne. Couvre Flutter ET coach-tool d'un coup."},
+            {"id": "b", "label": "Coach-tool dispatcher level seulement", "description": "Skip les REST endpoints utilisés par Flutter directement. Si Flutter passe en mode 'piloté par coach' uniquement (route widgets via le coach), OK. Sinon trous de couverture."},
+            {"id": "c", "label": "Flutter ProfileProvider-pull à chaque écran mount", "description": "Solution côté mobile uniquement. Backend reste vulnérable aux callers tiers (tests, scripts, futurs clients web)."},
+            {"id": "d", "label": "Les trois (defense in depth)", "description": "Maximum robustesse. Mais 3 surfaces à maintenir + risque de divergence (Flutter pre-fill ≠ server pre-fill ≠ dispatcher pre-fill)."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-07",
+          "title": "Mécanisme de déclaration 'ce champ vient du profil' ?",
+          "context": "Aujourd'hui chaque endpoint définit ses defaults inline (`if body.X is not None else False`). Pas de convention partagée.",
+          "options": [
+            {"id": "a", "label": "Pydantic Field default_factory lisant _user.profile via ContextVar", "description": "RECOMMENDED. Type-safe + automatique + un seul ContextVar middleware. Pattern standard FastAPI 2025."},
+            {"id": "b", "label": "Metadata `{from_profile: 'canton'}` dans input_schema, parsé par le dispatcher", "description": "Explicite + visible + introspectable par les LLM tools. Plus de boilerplate. Force chaque calculator à déclarer ses champs profil."},
+            {"id": "c", "label": "Fonction _resolve_defaults(profile, request) appelée avant chaque calculator", "description": "Pattern le plus simple (1 fonction par endpoint). Pas type-safe. Risque d'oubli (caller doit appeler manuellement)."},
+            {"id": "d", "label": "Décorateur @grounded_in_profile sur chaque endpoint/handler", "description": "Pythonic + déclaratif. Risque de magie cachée. Difficile à debugger si la résolution échoue."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-08",
+          "title": "Comportement quand un champ profil REQUIS est manquant ?",
+          "context": "Wave 1c-A3 définit déjà ce pattern pour les 5 chip-emitters : CoachToolResponse(status='incomplete', missing_fields=[...], hint_fr='...'). Question : applique-t-on le même pattern aux 52 autres ?",
+          "options": [
+            {"id": "a", "label": "CoachToolIncomplete + handshake (généralisation Wave 1c-A3)", "description": "RECOMMENDED. Cohérence totale. Le narrateur sait poser la question utilisateur via le hint_fr. Réutilise toute l'infra A3 (server-side floor, persistence, sentry breadcrumbs)."},
+            {"id": "b", "label": "Safe defaults + flag low-confidence dans l'output", "description": "Le calc tourne mais le résultat est marqué 'estimation, données incomplètes'. Risque : l'utilisateur prend la décision sur un calcul flou. LSFin/lucidité-incompatible (cf. niveau L1 chiffrer)."},
+            {"id": "c", "label": "Return error 422 (Unprocessable Entity)", "description": "Honnête côté API mais cassant côté UX. Flutter doit afficher 'données manquantes', coach LLM doit gérer l'erreur. Plus de plomberie."},
+            {"id": "d", "label": "Caller's responsibility — le calculator reste primitive-only", "description": "Status quo. Aucun changement. Toutes les surfaces (REST, coach, Flutter, tests) doivent gérer indépendamment. Le problème de l'audit C reste entier."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        }
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "3. Architecture Consolidation (Problem C) — 57 calcs scattered across 10+ directories",
+      "questions": [
+        {
+          "id": "Q-09",
+          "title": "Structure des fichiers calculateurs ?",
+          "context": "Aujourd'hui : services/{family/, divorce_simulator.py root, succession_simulator.py root, lpp_deep/, expat/, independants/ + independant_service.py duplicate, mortgage/, fiscal/, arbitrage/, unemployment/, retirement/, debt_prevention/}. C'est ce qui m'a fait rater 50 fichiers + ce qui rend la LLM-discoverability difficile.",
+          "options": [
+            {"id": "a", "label": "Registry index auto-généré + status quo physique", "description": "RECOMMENDED Phase 1. `services/backend/app/calculators/_registry.py` auto-scanné. Pas de fichier déplacé. Risque-zéro. Débloque la discoverability immédiate."},
+            {"id": "b", "label": "Consolidation physique vers calculators/<domain>/<calc>.py", "description": "Refactor lourd. 50+ fichiers à déplacer + tous les imports à mettre à jour. Belle hygiène long-terme, dette technique pendant la migration."},
+            {"id": "c", "label": "Hybride : registry now (Phase A), physical move later (Phase B optional)", "description": "Pragmatique. La registry suffit pour 90% des bénéfices. Le physical move attendant qu'il y ait un trigger UX clair (ex : module externe qui consomme l'arborescence)."},
+            {"id": "d", "label": "Status quo + meilleurs greps + docs", "description": "Pas d'infra. Documentation README sous services/ qui liste tout. Survit-il aux ajouts ? Probablement non, drift assuré."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-10",
+          "title": "Comment gérer les duplicates type independant_service.py + independants/ ?",
+          "context": "Le repo contient des doublons issus de l'historique : independant_service.py au root + independants/ sous-arborescence. Pareil pour frontalier_service.py + expat/frontalier_service.py.",
+          "options": [
+            {"id": "a", "label": "Migrer + déprécier (garder l'arborescence, supprimer root)", "description": "RECOMMENDED. independants/ devient canonique, independant_service.py shim avec deprecation warning 1 release, puis suppression."},
+            {"id": "b", "label": "Laisser tel quel + documenter le mapping dans registry", "description": "Zéro risque mais drift continue. La registry note 'voir aussi independants/' mais les deux subsistent."},
+            {"id": "c", "label": "Marquer un canonique dans la registry index", "description": "La registry indique quel fichier est the-truth. Pas de refactor. Mais les imports continuent à pointer aux 2 endroits."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-11",
+          "title": "Granularité de la registry index ?",
+          "context": "L'index sert : (1) à moi/Julien pour naviguer, (2) au compilateur skill-bundle, (3) potentiellement à l'audit hypothèse C.",
+          "options": [
+            {"id": "a", "label": "Per-calculator avec metadata complète (name, file, profile fields needed, life events served, output type)", "description": "RECOMMENDED. Self-documenting. ~57 entrées. Skill-bundle compiler lit directement. Audit hypothèse C devient trivial (grep le champ profile_fields_needed)."},
+            {"id": "b", "label": "Per-domain (11 entrées)", "description": "Minimal. Pas assez granulaire pour skill-bundles. Discoverability humaine OK, machine non."},
+            {"id": "c", "label": "Per-tool exposé à la LLM (5 → 50 entrées selon le bundling)", "description": "Aligné sur ce que la LLM voit. Mais ne couvre PAS les calculs internes (allocation_annuelle, succession_simulator) qui ne sont pas tool-exposés."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        }
+      ]
+    },
+    {
+      "id": "dag-triggers",
+      "title": "4. Triggers / DAG action (Problem D) — agir sur les signaux de péremption Phase 95 déjà shipped",
+      "questions": [
+        {
+          "id": "Q-12",
+          "title": "Activation cache hash read-side (vague A) — quand ?",
+          "context": "Phase 95 a livré inputs_hash + superseded_by (DETECTION). Personne ne LIT le cache aujourd'hui. Activer le read-side = quick win (3-5 jours).",
+          "options": [
+            {"id": "a", "label": "Ship Phase 1, BLOQUE tout le reste (foundation)", "description": "RECOMMENDED. Le cache hash read-side est requis pour que le pré-compute (vague B) ait du sens. Sans lui, vague B refait 100% du travail à chaque lecture."},
+            {"id": "b", "label": "Ship en parallèle avec la première phase calc-engine-v1", "description": "Peut tourner en parallèle si différents devs/agents. Risque de désynchronisation si vague A ship après vague B."},
+            {"id": "c", "label": "Skip vague A, jump directement à vague B", "description": "Vague B sans vague A = pré-compute écrit dans scenarios mais jamais lu. Cassé par construction."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-13",
+          "title": "Post-commit eager pre-compute (vague B) — quand le déclencher ?",
+          "context": "Doctrine restaurée 2026-05-16 : Coach didactique vivant. Le coach rend des widgets inline. Si chaque widget se calcule lazy au moment du rendu, latence visible. Pré-compute = widgets tièdes au prochain tour.",
+          "options": [
+            {"id": "a", "label": "Après audit hypothèse C + grounding + discoverability tous green", "description": "RECOMMENDED. Pré-compute des mauvaises valeurs (hypothèse C non corrigée) = pire que pas de pré-compute. Séquencer après le grounding."},
+            {"id": "b", "label": "En parallèle avec le travail de discoverability", "description": "Plus rapide à ship. Mais risque de pré-calculer avec des defaults hardcodés tant que hypothèse C n'est pas fixée."},
+            {"id": "c", "label": "Defer à un milestone post-launch (v2.11)", "description": "Vague A suffit court-terme. Le pré-compute n'est utile QUE si le coach va rendre les widgets dans 30 secondes — pas un blocker MVP."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-14",
+          "title": "Que pré-calcule-t-on sur mutation profil ?",
+          "context": "BackgroundTasks FastAPI déclenché dans save_fact / save_insight post-commit. Coût = quelques 100ms en background.",
+          "options": [
+            {"id": "a", "label": "Top-3 calcs 'likely-needed-next' basés sur le life event actuel de l'utilisateur", "description": "RECOMMENDED. Ex : utilisateur a saisi naissance → précompute alloc familiales canton + APG maternité + simulateur 3a éducation. Ciblé, économique."},
+            {"id": "b", "label": "Top-5 calcs chip-emitter (les 5 Wave 1c) — warming généralisé", "description": "Couvre les calcs coach les plus probables. Mais ne couvre PAS divorce/héritage/frontalier qui sont life-event-driven."},
+            {"id": "c", "label": "Rien — pure cache hash read-side suffit", "description": "Minimalisme. Tant qu'on n'a pas mesuré la latence p95 sur Coach-didactique-vivant, prématuré. Vague A suffit."},
+            {"id": "d", "label": "Top-10 calcs uniformément (broad warming, simple à coder)", "description": "Coût CPU plus élevé en background. Couvre plus de cas mais gaspille du compute pour des calcs non-utilisés."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        }
+      ]
+    },
+    {
+      "id": "lucidite-metrics",
+      "title": "5. Lucidité framework + métriques (remplacement north-star Phase 96)",
+      "questions": [
+        {
+          "id": "Q-15",
+          "title": "4-level lucidité framework — locké ?",
+          "context": "Verrouillé dans .planning/decisions/2026-05-16-calc-engine-matrix.md : L1 chiffrer / L2 comparer / L3 éclairer arbitrage caché / L4 surfacer invariants. LSFin-clean + FINMA-compliant.",
+          "options": [
+            {"id": "a", "label": "Oui, locké tel que défini (L1-L4)", "description": "RECOMMENDED. Le framework est cohérent + couvre les surfaces (atomique / comparatif / DAG / wiki). Locker maintenant évite re-litigation à chaque PR."},
+            {"id": "b", "label": "Raffiner avant locking — spécifier quel niveau s'applique à quelle surface", "description": "Matrice surface×niveau : atomic calcs → L1 ; coach narration arbitrage → L2-L3 ; insights persistants → L4. Plus clair pour les agents downstream."},
+            {"id": "c", "label": "Drop et re-design", "description": "Si tu n'es pas d'accord avec la cohérence du framework, on le revoit. Mais alors il faut une grille de remplacement avant de planner."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-16",
+          "title": "Enforcement des verbes interdits ?",
+          "context": "tools/checks/banned_terms_python.py vérifie aujourd'hui les termes LSFin (garanti / optimal / meilleur etc.). À étendre pour les verbes de conseil (tu devrais / recommandé / il faut).",
+          "options": [
+            {"id": "a", "label": "Étendre banned_terms_python.py avec une liste 'conseil-verbs'", "description": "RECOMMENDED. Lint pre-commit existing. Couvre tout le code (templates FR, narrator copy, ARB, etc.). Mécanique simple."},
+            {"id": "b", "label": "Runtime check dans la sortie du narrator", "description": "Catch ce qui passe à travers les templates (LLM-generated). Plus de coût compute par tour mais zéro faux-négatif."},
+            {"id": "c", "label": "Les deux (lint-time + runtime)", "description": "Defense in depth. Lint catch le code, runtime catch les LLM hallucinations."},
+            {"id": "d", "label": "Skip enforcement, doctrine only", "description": "Discipline humaine seulement. Risque drift. Wave 1c-A a déjà montré que doctrine seule perd contre la LLM."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-17",
+          "title": "Métrique north-star de remplacement (Phase 96 'turns DOWN' droppée) ?",
+          "context": "Le KPI Phase 96 reposait sur le pivot cards-home killé. Replacement : quelque chose qui mesure la lucidité réelle livrée.",
+          "options": [
+            {"id": "a", "label": "Profile-grounded calc rate (% des calcs invoqués avec ≥3 fields profil vs defaults hardcoded)", "description": "RECOMMENDED. Adresse directement hypothèse C. Target ≥95%. Mesurable mécaniquement via wrapper sur le dispatcher."},
+            {"id": "b", "label": "Citation-chip coverage per coach turn", "description": "Mesure que chaque nombre émis a une source. Hérité Phase 94. Pertinent mais ne couvre pas le grounding."},
+            {"id": "c", "label": "Hallucination rate (zero-citation numeric emission)", "description": "Cible 0. Mesure les nombres non-cités émis par le narrateur. Hérité Phase 94 (citation gate)."},
+            {"id": "d", "label": "Scorecard composite : profile-grounded + citation-coverage + hallucination-rate", "description": "Trois métriques pondérées. Plus complet mais moins de focus. Tableau de bord trimestriel."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        }
+      ]
+    },
+    {
+      "id": "sequencing",
+      "title": "6. Sequencing & A3 — comment cadencer le travail",
+      "questions": [
+        {
+          "id": "Q-18",
+          "title": "Granularité du découpage de cette phase ?",
+          "context": "4 problèmes (discoverability / grounding / architecture / DAG-action) + métriques + lucidité = potentiel 6 sous-axes. Un seul phase ou plusieurs ?",
+          "options": [
+            {"id": "a", "label": "Phase unique mint-calc-engine-v1 avec 4 waves séquencées", "description": "RECOMMENDED. Wave 1 audit + registry + grounding foundation, Wave 2 discoverability + skill-bundles, Wave 3 DAG read-side + pre-compute, Wave 4 lucidité metrics + lints. Cohérence + un seul CONTEXT.md à maintenir."},
+            {"id": "b", "label": "4 phases séparées (1 par problème)", "description": "Plus de discipline GSD. Mais 4 CONTEXT.md à synchroniser. Risque de désalignement entre phases."},
+            {"id": "c", "label": "Phase unique mais découpée en sub-milestones (calc-engine-v1.1, .2, .3...)", "description": "Pattern Wave 1c-A1/A2/A3. Garde cohérence + permet ship intermédiaire."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-19",
+          "title": "Stratégie de ship Wave 1c-A3 ?",
+          "context": "A3 PLAN.md committed 2026-05-16 (sha 2e1060a5). Locked + checker green iter 2. 5 chip-emitters, ~6 dev days estimé. PR pas encore ouverte.",
+          "options": [
+            {"id": "a", "label": "Hold A3 jusqu'à ce que calc-engine doctrine locke (≤3 jours), puis ship comme wave 1 de généralisation", "description": "RECOMMENDED. Évite divergence de contrat. A3 devient l'exemple de référence du pattern handshake. Coût : 3 jours de retard sur A3."},
+            {"id": "b", "label": "Ship A3 maintenant en parallèle (indépendant surgical PR)", "description": "A3 livre value indépendant (empty-message regression closed). Risque : si calc-engine décide un autre contrat, A3 PR doit être refait."},
+            {"id": "c", "label": "Cancel A3, le folder dans calc-engine-v1 wave 1", "description": "Travail jeté (30h+). Mais doctrine cohérente. À éviter sauf si calc-engine décide vraiment un contrat radicalement différent."},
+            {"id": "d", "label": "Ship A3 mais re-écrire le contrat dans calc-engine-v1 wave 1 (migration)", "description": "A3 ship maintenant + calc-engine-v1 le migre proprement après. Coût : 1 migration. Mais bug fixé ship-now."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        },
+        {
+          "id": "Q-20",
+          "title": "Timeline de l'audit hypothèse C ?",
+          "context": "Audit = lire les 57 callers pour voir s'ils lisent _user.profile ou utilisent des defaults. 2-3 jours pour un humain, peut-être moins via Explore agent batché.",
+          "options": [
+            {"id": "a", "label": "Sprint dédié 2-3 jours avant tout planning (wave 0)", "description": "RECOMMENDED. Sortie : matrice exhaustive + rapport. Bloque calc-engine-v1 wave 1 jusqu'à audit done. Évite planifier dans le brouillard."},
+            {"id": "b", "label": "Audit par calc au moment de planifier chaque wave", "description": "Étale le coût. Risque : surprise à chaque wave. Karpathy #1 violation."},
+            {"id": "c", "label": "Audit en parallèle avec la discoverability work (wave 1)", "description": "Plus rapide à ship. Risque : la discoverability livre + des calcs encore avec defaults hardcodés, on doit re-ship."},
+            {"id": "d", "label": "Spawner un agent Explore VERY THOROUGH pour livrer la matrice en 30-60 min", "description": "Le pattern qu'on a utilisé dans cette session. Peut produire la matrice mécaniquement. À combiner avec (a) — l'agent fait le scan, l'humain le valide."}
+          ],
+          "answer": null,
+          "chat_more": "",
+          "status": "unanswered"
+        }
+      ]
+    }
+  ]
+}

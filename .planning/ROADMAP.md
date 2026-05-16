@@ -11,7 +11,21 @@
 - 🟡 **v2.7 Coach Stabilisation + Document Digestion** — Phases 27-30 (code-complete, awaiting device gate)
 - ✅ **v2.8 L'Oracle & La Boucle** — Phases 30.5-32 + decimals (shipped 2026-04-25, 5/9 phases + gaps)
 - 🪦 **v2.9 Coach Visuel Hybride** — superseded 2026-05-09 by Chat-as-Verb pivot. Phases 40-43 (Marge fiscale / Hero / Scènes / Canvas) DROPPED ; design doctrine "le coach EST le produit" partially preserved in chat-as-verb Phase 96.
-- 🚧 **v2.9 Chat-as-Verb Pivot** — ACTIVE 2026-05-09 — Phases 90-96 (7 phases, ~14 days critical path) — see [MILESTONE-CHAT-AS-VERB-2026-05-09.md](MILESTONE-CHAT-AS-VERB-2026-05-09.md)
+- 🪦 **v2.9 Chat-as-Verb Pivot** — KILLED 2026-05-16 — see [decisions/2026-05-16-phase-96-killed.md](decisions/2026-05-16-phase-96-killed.md). Foundation phases (91/93.5/94/95) preserved as **v2.9 Lucidité Foundation** ; kill-tab + cards-home destination doctrine dropped. Direction restored : chat reste la porte d'entrée, tab Coach reste, widgets explorables inline ("Coach didactique vivant").
+- 🚧 **v2.10 Lucidité Engine** — ACTIVE 2026-05-16 — Phase **mint-calc-engine-v1** opens the LLM-discoverability + real-profile-grounding + architecture-consolidation + DAG-action work over the existing ~57 shipped calculators. See [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md) for the full 4-problem framing.
+
+### Phase: mint-calc-engine-v1
+**Goal**: Make MINT's ~57 already-shipped Swiss financial calculators (LLM-)discoverable, real-profile-grounded, architecturally findable, and DAG-reactive. Build the lucidité engine (L1 chiffrer / L2 comparer / L3 éclairer / L4 invariants) on top of the existing calc surface. Does NOT add new calculators in v1 — the surface already exists (per [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md), 57 ✅ + 4 ⚠️ + 3 ❌ truly absent).
+**Status**: Discuss-phase pending (power mode). CONTEXT.md to be produced after Julien answers the question set generated at `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-QUESTIONS.html`.
+**Depends on**: Wave 1c-A3 (held — see decisions/2026-05-16-calc-engine-matrix.md §"Sequencing"). Phase 96 KILLED — replaces that doctrine slot.
+**Canonical refs**:
+- `.planning/decisions/2026-05-16-calc-engine-matrix.md` — 11-category matrix + hypothesis C audit plan + 4-level lucidité framework
+- `.planning/decisions/2026-05-16-phase-96-killed.md` — doctrine pivot context
+- `.planning/decisions/2026-05-14-phase-7-ship-or-pause.md` — Option C Coach didactique vivant decision
+- `services/backend/app/services/arbitrage/allocation_annuelle.py` — the joint optimiser that already exists
+- `services/backend/app/api/v1/endpoints/arbitrage.py:163-213` — hypothesis C evidence surface
+- `CLAUDE.md` §1 + §3.5 + §9
+- `.planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-A3-CONTEXT.md` — missing-fields handshake doctrine (calc-engine-v1 generalizes it)
 
 <details>
 <summary>Previous milestones (v1.0 → v2.7) — see MILESTONES.md + collapsed v2.5-v2.7 detail</summary>
@@ -61,7 +75,7 @@ Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT
 - [x] **Phase 93.5: MVP-SKILL-BUNDLE-COMPILER** *(inserted 2026-05-10 per Anthropic financial-services audit)* — Compile-time skill bundles (`pillar3a-optimizer`, `lpp-projector`, `tax-explainer`, `mortgage-stressor`, `compliance-narrator`, `life-event-router`) → single narrator prompt + tool allowlist + citation allowlist ; NOT runtime multi-agent (completed 2026-05-10)
 - [x] **Phase 94: MVP-CITATION-GATE** — Closed-world numeric vocabulary (placeholders `{{cite:<key>}}` + post-hoc substitute) + CalcTrace propagated to widgets + `AI_MODEL_REGISTRY.md` + LSFin disclaimer systemic ; ADR calc-first N1 (completed 2026-05-10)
 - [x] **Phase 95: MVP-DAG-INVALIDATION** — `inputs_hash` + `superseded_by` on every projection + `GroundingPack` JSON emitted by DAG (Pareto front + Sobol indices + what-ifs precomputed + credible intervals) ; ADR calc-first N2 (completed 2026-05-10)
-- [x] **Phase 96: MVP-CHAT-AS-VERB** — Kill chat-tab ; card-actions intent bar ; 3-turn cap ; source-card context propagation + `NarrativeSleeve {hook, caption, next_step, metaphor}` linter (no num in hook) + métaphores archetype/canton/event ; ADR calc-first N4 (completed 2026-05-11)
+- 🪦 **Phase 96: MVP-CHAT-AS-VERB — KILLED 2026-05-16** — kill-tab + cards-home doctrine dropped per [decisions/2026-05-16-phase-96-killed.md](decisions/2026-05-16-phase-96-killed.md). PAUSED 2026-05-14, KILLED 2026-05-16 (founder-signed risk veto). PRESERVED : `NarrativeSleeve {hook, caption, next_step, metaphor}` linter from 96-03 survives as a framing-agnostic discipline ; intent-bar UI scaffolding from 96-01 becomes vestigial pending re-evaluation. Direction restored : chat is porte d'entrée, tab Coach stays, widgets explorables inline (Coach didactique vivant).
 
 ### 5-gate exit contract per phase
 
