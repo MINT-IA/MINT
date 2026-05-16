@@ -307,7 +307,8 @@ class TestAgentLoopToolFiltering:
         def _capturing(tool_call, memory_block, profile_context=None,
                        user_id=None, db=None, persistence_consent=False,
                        last_user_message=None, detected_intents=None,
-                       fact_keys_saved_this_turn=None):
+                       fact_keys_saved_this_turn=None,
+                       pending_profile_updates=None):
             executed_tools.append(tool_call["name"])
             return original(
                 tool_call, memory_block, profile_context,
@@ -316,6 +317,7 @@ class TestAgentLoopToolFiltering:
                 last_user_message=last_user_message,
                 detected_intents=detected_intents,
                 fact_keys_saved_this_turn=fact_keys_saved_this_turn,
+                pending_profile_updates=pending_profile_updates,
             )
 
         with patch("app.api.v1.endpoints.coach_chat._execute_internal_tool", side_effect=_capturing):

@@ -53,6 +53,12 @@ from app.services.billing_service import recompute_entitlements
 from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.user import User
+# Wave 1c-A3 (D-A3-01) — structured tool_result envelope.
+from app.models.coach_tools._response import (
+    CoachToolIncomplete,
+    CoachToolOk,
+    CoachToolResponse,
+)
 from app.services.reengagement.consent_manager import ConsentManager
 from app.services.reengagement.reengagement_models import ConsentType
 from app.schemas.coach_chat import CoachChatRequest, CoachChatResponse
@@ -2315,6 +2321,206 @@ _PERSISTENCE_OFF_MARKER = (
 )
 
 
+# ---------------------------------------------------------------------------
+# Wave 1c-A3 (D-A3-01, D-A3-03, D-A3-Claude's-Discretion) — missing-fields
+# handshake helpers. Single source of truth for required fields + LSFin-clean
+# French hint copy per chip-emitter. Mirrored by lint test
+# `tests/test_coach_tools_missing_fields_instruction.py` (D-A3-05 #3).
+# ---------------------------------------------------------------------------
+
+_CHIP_EMITTER_REQUIRED_FIELDS: dict[str, list[str]] = {
+    "get_budget_status": ["incomeNetMonthly", "monthlyExpenses", "savingsRate"],
+    "get_retirement_projection": ["age", "avsContributionYears", "lppBalance", "pillar3aBalance"],
+    "get_cross_pillar_analysis": ["age", "lppBalance", "pillar3aBalance", "incomeGrossYearly"],
+    "get_cap_status": ["age", "sequenceProgress", "hasGoal"],
+    "get_couple_optimization": ["age", "partnerAge", "householdType", "lppBalance", "partnerLppBalance"],
+}
+
+_CHIP_EMITTER_HINT_FR: dict[str, str] = {
+    # CONTEXT.md §D-A3-Claude's-Discretion — 2 templates given verbatim, 3 drafted here LSFin-clean.
+    "get_retirement_projection": (
+        "Pour calculer ta rente AVS et LPP, j'ai besoin de ton âge, "
+        "de tes années de cotisation AVS et de tes soldes LPP / 3a."
+    ),
+    "get_cap_status": (
+        "Pour situer ton Cap du jour, j'ai besoin de ton âge et "
+        "d'un objectif financier actif."
+    ),
+    "get_budget_status": (
+        "Pour calculer ton surplus mensuel, j'ai besoin de ton "
+        "salaire net mensuel et d'un ordre de grandeur de tes "
+        "dépenses mensuelles."
+    ),
+    "get_cross_pillar_analysis": (
+        "Pour analyser tes piliers ensemble, j'ai besoin de ton "
+        "âge, de tes soldes LPP et 3a, et de ton revenu brut annuel."
+    ),
+    "get_couple_optimization": (
+        "Pour comparer vos scénarios en couple, j'ai besoin de "
+        "votre âge à chacun·e, du statut du foyer et de vos "
+        "soldes LPP respectifs."
+    ),
+}
+
+
+# Wave 1c-A3 (D-A3-03) — legacy aliases for required-field lookup.
+# The codebase has THREE profile-key families in use today:
+#   1. camelCase (canonical Pydantic v2 alias — incomeNetMonthly).
+#   2. auto snake_case translation (income_net_monthly).
+#   3. legacy snake_case (monthly_income) — predates the camelCase migration,
+#      still read by the `_format_*` fallbacks and by the e2e test fixtures.
+# This map lists the legacy aliases that must ALSO satisfy a required-field
+# gate so the handshake does not fire when the legacy compute would succeed.
+_REQUIRED_FIELD_LEGACY_ALIASES: dict[str, list[str]] = {
+    # Budget — accept legacy monthly_* and the income-net camelCase variant.
+    "incomeNetMonthly": ["monthly_income", "income_net_monthly"],
+    "monthlyExpenses": ["monthly_expenses"],
+    "savingsRate": ["savings_rate", "annual_3a_contribution"],
+    # Identity — age is the same key in both worlds.
+    "age": ["age"],
+    # AVS — input-side (years cotised) OR output-side (pre-computed rente)
+    # both satisfy. Legacy profiles ship `avs_rente` + `monthly_retirement_income`
+    # directly without ever having an explicit `avs_contribution_years` field.
+    "avsContributionYears": [
+        "avs_contribution_years", "avs_years",
+        "avs_rente", "monthly_retirement_income", "replacement_ratio",
+    ],
+    # LPP — input-side (balance) OR legacy `lpp_capital`.
+    "lppBalance": ["lpp_capital", "lpp_balance"],
+    # 3a — accept legacy `existing_3a_ytd` / `annual_3a_contribution` as proxies.
+    "pillar3aBalance": [
+        "pillar_3a_balance", "existing_3a_ytd", "annual_3a_contribution",
+    ],
+    # Gross yearly income — accept legacy `annual_income` or the implied
+    # monthly figure (12x calculation done downstream).
+    "incomeGrossYearly": [
+        "income_gross_yearly", "annual_income", "monthly_income",
+    ],
+    # Cap status — fri_total / cap_status / plan_id are all proxies for
+    # the user having something to project against.
+    "sequenceProgress": ["sequence_progress", "fri_total"],
+    "hasGoal": ["has_goal", "plan_id", "tax_saving_potential"],
+    # Couple optimization — partner_age aliases + civil_status / employment.
+    "partnerAge": ["partner_age"],
+    "householdType": ["household_type", "civil_status"],
+    "partnerLppBalance": ["partner_lpp_balance", "partner_lpp_capital"],
+}
+
+
+def _missing_fields_for(name: str, profile_context: dict | None) -> list[str]:
+    """Return the subset of required fields that are absent / falsy in profile_context.
+
+    Capped at 3 per D-A3-01 conversational-handshake decision.
+    Tolerates camelCase (canonical Pydantic v2 alias), auto snake_case
+    translation, AND a curated list of legacy aliases per
+    `_REQUIRED_FIELD_LEGACY_ALIASES` (e.g. `monthly_income` for `incomeNetMonthly`)
+    so the handshake gate does not fire when the legacy compute path would succeed.
+    """
+    required = _CHIP_EMITTER_REQUIRED_FIELDS.get(name, [])
+    ctx = profile_context or {}
+    missing: list[str] = []
+    for f in required:
+        # camelCase → snake_case auto-translation for tolerance.
+        snake = re.sub(r"([A-Z])", r"_\1", f).lower().lstrip("_")
+        # Build the candidate alias list: canonical + auto-snake + curated legacy.
+        candidates = [f, snake, *(_REQUIRED_FIELD_LEGACY_ALIASES.get(f, []))]
+        if not any(ctx.get(c) for c in candidates):
+            missing.append(f)
+        if len(missing) >= 3:
+            break
+    return missing
+
+
+# Wave 1c-A3 (D-A3-03) — extractor topic → canonical profile field name mapping.
+# I-09 fix: « family » → « number_of_children » (snake_case per the canonical fact
+# list at coach_chat.py:875 _AUGMENTABLE_FACT_NAMES). There is NO `dependentsCount`
+# field anywhere in the codebase.
+_FACT_TOPIC_TO_PROFILE_KEY: dict[str, str] = {
+    "identity": "age",
+    "avs_years": "avsContributionYears",
+    "lpp": "lppBalance",
+    "3a": "pillar3aBalance",
+    "salary": "incomeGrossYearly",
+    "location": "canton",
+    "household": "householdType",
+    "family": "number_of_children",
+    "debt": "hasDebt",
+}
+
+# Wave 1c-A3 (D-A3-03 confidence gating) — only high-confidence facts land in
+# pending_profile_updates. Low-confidence captures go to pending_low_confidence_echoes
+# so the narrator can ask for confirmation instead of silently poisoning the cache.
+_CONFIDENCE_HIGH_THRESHOLD: float = 0.75
+
+
+def _upsert_handshake_facts(facts: list, user_id: str, db) -> None:
+    """Wave 1c-A3 (D-A3-03 step 6) — same-turn wiki write.
+
+    Reuses the existing save_insight upsert pattern (coach_chat.py:2443-2478).
+    Single SQLAlchemy session. I-04 fix: NO new db.commit() here —
+    the agent-loop's outer turn-end commit covers persistence. Caller is
+    responsible for the commit. The helper is in-session add/update only.
+
+    Topic namespacing: `profile.<canonical_field>` (e.g. `profile.avs_years`)
+    to avoid collision with LLM-saved free-form insights (e.g. topic="3a").
+    Provenance encoded inline in summary per D-A3-03 (defer `provenance` JSON
+    column to a follow-up cleanup).
+    """
+    if not user_id or not db or not facts:
+        return
+    from app.models.coach_insight import CoachInsightRecord
+    now = datetime.now(timezone.utc)
+    for fact in facts:
+        topic_key = f"profile.{fact.topic}"
+        summary = (
+            f"{fact.text} (source: handshake, "
+            f"confidence: {fact.confidence:.2f}, "
+            f"captured: {now.isoformat(timespec='seconds')})"
+        )
+        existing = (
+            db.query(CoachInsightRecord)
+            .filter(
+                CoachInsightRecord.user_id == user_id,
+                CoachInsightRecord.topic == topic_key,
+            )
+            .first()
+        )
+        if existing:
+            existing.summary = summary
+            existing.insight_type = fact.insight_type
+            existing.updated_at = now
+        else:
+            db.add(CoachInsightRecord(
+                user_id=user_id,
+                topic=topic_key,
+                summary=summary,
+                insight_type=fact.insight_type,
+            ))
+    # I-04 fix: NO `db.commit()` / `db.rollback()` here.
+    # The outer turn-end commit (existing in the agent loop's request-lifecycle
+    # handler) covers persistence.
+
+
+def _synthesize_handshake_fallback(hint_fr: str) -> str:
+    """Wave 1c-A3 (D-A3-06) — server-side floor.
+
+    Synthesize a French question when Sonnet returns `message: ""` after
+    a `status:"incomplete"` tool_result. Belt-and-braces backup for the
+    obs #88 trust-collapse pattern (never serve empty content).
+
+    LSFin-clean. Default phrasing per CONTEXT.md §Specifics canonical
+    handshake question pattern.
+    """
+    # Strip trailing period from hint to chain a follow-up question cleanly.
+    base = (hint_fr or "").rstrip(" .")
+    if not base:
+        base = (
+            "Pour répondre, j'ai besoin de quelques informations sur "
+            "ton profil financier"
+        )
+    return f"{base}. Tu peux me les partager ?"
+
+
 def _execute_internal_tool(
     tool_call: dict,
     memory_block: Optional[str],
@@ -2325,6 +2531,7 @@ def _execute_internal_tool(
     last_user_message: Optional[str] = None,
     detected_intents: Optional[set[str]] = None,
     fact_keys_saved_this_turn: Optional[list[str]] = None,
+    pending_profile_updates: Optional[dict] = None,
 ) -> str:
     """Execute a single internal tool and return the result as text.
 
@@ -2399,29 +2606,97 @@ def _execute_internal_tool(
         )
     # <<< dispatch: retrieve_memories
 
+    # Wave 1c-A3 (D-A3-03 step 1) — turn-local cache supersedes DB profile.
+    # `pending_profile_updates` is empty on the first turn; populated on the
+    # second turn after the user replies to the handshake question.
+    ctx_merged = {**(ctx or {}), **(pending_profile_updates or {})}
+
+    def _emit_incomplete_breadcrumb(tool_name: str, missing: list[str]) -> None:
+        """Wave 1c-A3 (D-A3-01) — Sentry breadcrumb on dispatcher-incomplete-return."""
+        try:
+            import sentry_sdk
+            sentry_sdk.add_breadcrumb(
+                category="coach.tool.incomplete",
+                data={
+                    "tool_name": tool_name,
+                    "missing_fields": missing,
+                    "user_id_hashed": (str(user_id)[:8] + "...") if user_id else "anon",
+                    "fallback_used": False,
+                },
+                level="info",
+            )
+        except Exception:
+            pass
+
+    def _wrap_ok(data) -> str:
+        """Wrap the existing `_compute_*` / `_format_cap_status` text output in a CoachToolOk envelope JSON.
+
+        D-A3-07 NON-NEGOTIABLE: existing helpers are UNCHANGED. We only wrap their
+        verbatim return value (`str` today) so the narrator gets a discoverable
+        `status:"ok"` discriminator and a `data` payload.
+        """
+        payload = data if isinstance(data, dict) else {"text": data}
+        return CoachToolResponse(root=CoachToolOk(data=payload)).model_dump_json(by_alias=True)
+
     # >>> dispatch: get_budget_status
     if name == "get_budget_status":
-        return _compute_budget_status(user_id=user_id, ctx=ctx, db=db)
+        missing = _missing_fields_for(name, ctx_merged)
+        if missing:
+            _emit_incomplete_breadcrumb(name, missing)
+            return CoachToolResponse(root=CoachToolIncomplete(
+                missing_fields=missing,
+                hint_fr=_CHIP_EMITTER_HINT_FR[name],
+            )).model_dump_json(by_alias=True)
+        return _wrap_ok(_compute_budget_status(user_id=user_id, ctx=ctx_merged, db=db))
     # <<< dispatch: get_budget_status
 
     # >>> dispatch: get_retirement_projection
     if name == "get_retirement_projection":
-        return _compute_retirement_projection(user_id=user_id, ctx=ctx, db=db)
+        missing = _missing_fields_for(name, ctx_merged)
+        if missing:
+            _emit_incomplete_breadcrumb(name, missing)
+            return CoachToolResponse(root=CoachToolIncomplete(
+                missing_fields=missing,
+                hint_fr=_CHIP_EMITTER_HINT_FR[name],
+            )).model_dump_json(by_alias=True)
+        return _wrap_ok(_compute_retirement_projection(user_id=user_id, ctx=ctx_merged, db=db))
     # <<< dispatch: get_retirement_projection
 
     # >>> dispatch: get_cross_pillar_analysis
     if name == "get_cross_pillar_analysis":
-        return _compute_cross_pillar_analysis(user_id=user_id, ctx=ctx, db=db)
+        missing = _missing_fields_for(name, ctx_merged)
+        if missing:
+            _emit_incomplete_breadcrumb(name, missing)
+            return CoachToolResponse(root=CoachToolIncomplete(
+                missing_fields=missing,
+                hint_fr=_CHIP_EMITTER_HINT_FR[name],
+            )).model_dump_json(by_alias=True)
+        return _wrap_ok(_compute_cross_pillar_analysis(user_id=user_id, ctx=ctx_merged, db=db))
     # <<< dispatch: get_cross_pillar_analysis
 
     # >>> dispatch: get_cap_status
     if name == "get_cap_status":
-        return _validate_cap_response(_format_cap_status(ctx))
+        missing = _missing_fields_for(name, ctx_merged)
+        if missing:
+            _emit_incomplete_breadcrumb(name, missing)
+            return CoachToolResponse(root=CoachToolIncomplete(
+                missing_fields=missing,
+                hint_fr=_CHIP_EMITTER_HINT_FR[name],
+            )).model_dump_json(by_alias=True)
+        # _format_cap_status takes ONLY ctx (no user_id, no db) — verbatim signature.
+        return _wrap_ok(_validate_cap_response(_format_cap_status(ctx_merged)))
     # <<< dispatch: get_cap_status
 
     # >>> dispatch: get_couple_optimization
     if name == "get_couple_optimization":
-        return _compute_couple_optimization(user_id=user_id, ctx=ctx, db=db)
+        missing = _missing_fields_for(name, ctx_merged)
+        if missing:
+            _emit_incomplete_breadcrumb(name, missing)
+            return CoachToolResponse(root=CoachToolIncomplete(
+                missing_fields=missing,
+                hint_fr=_CHIP_EMITTER_HINT_FR[name],
+            )).model_dump_json(by_alias=True)
+        return _wrap_ok(_compute_couple_optimization(user_id=user_id, ctx=ctx_merged, db=db))
     # <<< dispatch: get_couple_optimization
 
     if name == "get_regulatory_constant":
@@ -3521,11 +3796,58 @@ async def _run_agent_loop(
     # suggest_actions can skip generic profile-gap chips when the user
     # already volunteered concrete data.
     fact_keys_saved_this_turn: list[str] = []
+    # Wave 1c-A3 (D-A3-03 step 5) — turn-local cache; emptied per turn.
+    # ONLY high-confidence facts (>= 0.75) land here. Low-confidence captures
+    # go to pending_low_confidence_echoes for narrator confirmation.
+    pending_profile_updates: dict[str, Any] = {}
+    pending_low_confidence_echoes: list[tuple[str, Any]] = []
+    # Wave 1c-A3 (I-05 fix) — parallel structured tool-result list (dicts with
+    # {name, content}) for the D-A3-06 server-side floor. Kept alongside the
+    # existing string-list `tool_results` to avoid breaking the LLM-text-injection
+    # path which relies on the legacy `"[name] <text>"` string shape.
+    tool_results_structured: list[dict] = []
     # P0-5: Counter for unknown tool calls — stop loop after 2 to prevent infinite retry
     _MAX_UNKNOWN_TOOL_CALLS = 2
     unknown_tool_count = 0
 
     for iteration in range(MAX_AGENT_LOOP_ITERATIONS):
+        # Wave 1c-A3 (D-A3-03 step 4) — parse the user's message for canonical
+        # profile fields BEFORE the dispatcher runs. On iteration 0 this is the
+        # original question (often nothing extractable, e.g. « Quelle sera ma
+        # rente AVS ? »). On subsequent iterations `current_question` carries
+        # the synthetic augmented text — the extractor reads regex hits regardless.
+        # I-01 fix — confidence gating: high-confidence facts land in
+        # pending_profile_updates; low-confidence in pending_low_confidence_echoes.
+        try:
+            from app.services.coach.profile_extractor import (
+                extract_profile_facts as _extract_profile_facts_a3,
+            )
+            _new_facts_a3 = _extract_profile_facts_a3(current_question, profile_context)
+        except Exception:
+            _new_facts_a3 = []
+        for _fact_a3 in _new_facts_a3:
+            _key_a3 = _FACT_TOPIC_TO_PROFILE_KEY.get(_fact_a3.topic)
+            if not _key_a3 or _fact_a3.value is None:
+                continue
+            if _fact_a3.confidence >= _CONFIDENCE_HIGH_THRESHOLD:
+                pending_profile_updates[_key_a3] = _fact_a3.value
+            else:
+                pending_low_confidence_echoes.append((_key_a3, _fact_a3.value))
+        # I-04 fix: same-turn wiki write (high-confidence only). NO new
+        # db.commit() — outer turn-end commit owns persistence.
+        _hi_facts_a3 = [
+            f for f in _new_facts_a3
+            if f.confidence >= _CONFIDENCE_HIGH_THRESHOLD
+            and _FACT_TOPIC_TO_PROFILE_KEY.get(f.topic)
+        ]
+        if _hi_facts_a3 and user_id and db:
+            try:
+                _upsert_handshake_facts(_hi_facts_a3, user_id, db)
+            except Exception:
+                logger.exception(
+                    "wave1c_a3: _upsert_handshake_facts failed silently — caller commit retains old state"
+                )
+
         # Check token budget BEFORE calling (except first iteration)
         if iteration > 0 and total_tokens >= MAX_AGENT_LOOP_TOKENS:
             logger.warning(
@@ -3716,7 +4038,17 @@ async def _run_agent_loop(
                 last_user_message=question,
                 detected_intents=detected_intents,
                 fact_keys_saved_this_turn=fact_keys_saved_this_turn,
+                # Wave 1c-A3 (D-A3-03) — turn-local cache supersedes DB profile.
+                pending_profile_updates=pending_profile_updates,
             )
+            # Wave 1c-A3 (I-05 fix) — parallel structured list for the D-A3-06
+            # server-side floor; consumed by `_run_narrator_with_gate` to detect
+            # `status:"incomplete"` payloads and synthesize a French fallback
+            # question when the narrator returns empty content.
+            tool_results_structured.append({
+                "name": call.get("name", "unknown"),
+                "content": result_text,
+            })
             # Wave 1b Plan 04 — extract citation chip BEFORE truncation /
             # injection sanitization so the JSON parse sees the full
             # Pydantic dump. Helper returns None for non-Wave-1b tools
@@ -3779,6 +4111,12 @@ async def _run_agent_loop(
         "tokens_used": total_tokens,
         "degraded": degraded_any,
         "model_used": model_used_last,
+        # Wave 1c-A3 (I-05 fix) — was buffered locally only; now exposed for
+        # _run_narrator_with_gate's D-A3-06 server-side floor. Each entry is
+        # a `{"name": str, "content": str}` dict where `content` is the
+        # JSON-encoded CoachToolResponse for chip-emitters (or the legacy
+        # plain-text result for non-chip tools).
+        "tool_results": tool_results_structured,
     }
 
 
@@ -4523,6 +4861,50 @@ async def coach_chat(
             _run_agent_loop(question=body.message, **_initial_loop_kwargs),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )
+        # Wave 1c-A3 (D-A3-06) — server-side floor on empty narrator response.
+        # If the last tool_result in this turn was a CoachToolIncomplete AND the
+        # narrator's answer is empty, synthesize a FR question from hint_fr so
+        # the user never sees `message: ""`. Sentry breadcrumb fires with
+        # fallback_used=true so post-deploy tripwire can alarm. I-05 fix: reads
+        # from loop_result["tool_results"] which is now exposed by the return dict.
+        try:
+            _ans_a3 = (loop_result.get("answer") or "").strip()
+            _tool_results_a3 = loop_result.get("tool_results") or []
+            _last_incomplete_a3 = None
+            _last_incomplete_tool_a3 = "<unknown>"
+            for _tr_a3 in reversed(_tool_results_a3):
+                try:
+                    _parsed_a3 = CoachToolResponse.model_validate_json(
+                        _tr_a3.get("content") or ""
+                    )
+                    if isinstance(_parsed_a3.root, CoachToolIncomplete):
+                        _last_incomplete_a3 = _parsed_a3.root
+                        _last_incomplete_tool_a3 = _tr_a3.get("name", "<unknown>")
+                        break
+                except Exception:
+                    continue
+            if not _ans_a3 and _last_incomplete_a3 is not None:
+                loop_result["answer"] = _synthesize_handshake_fallback(
+                    _last_incomplete_a3.hint_fr
+                )
+                try:
+                    import sentry_sdk
+                    sentry_sdk.add_breadcrumb(
+                        category="coach.tool.incomplete",
+                        data={
+                            "tool_name": _last_incomplete_tool_a3,
+                            "missing_fields": list(_last_incomplete_a3.missing_fields),
+                            "user_id_hashed": (str(_user.id)[:8] + "...") if _user else "anon",
+                            "fallback_used": True,
+                        },
+                        level="warning",
+                    )
+                except Exception:
+                    pass
+        except Exception:
+            # Never crash narrator path on fallback logic. The existing gate handles regressions.
+            pass
+
         if not settings.COACH_CITATION_GATE_ENABLED:
             # D-20 byte-identical bypass.
             return loop_result
