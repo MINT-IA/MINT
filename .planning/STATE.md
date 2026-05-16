@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed wave-1b-09-PLAN.md — wave_1b_close.sh + Maestro G1 + phase SUMMARY + VERIFICATION-REPORT.html + G2 BLOCKED docs; phase PENDING G2 awaiting dev→staging merge + Railway flag flip; branch feature/wave-1b-09-rollout-close ready for PR
-last_updated: "2026-05-16T11:42:28.714Z"
-last_activity: 2026-05-16 -- Phase mint-calc-engine-v1 planning complete
+stopped_at: Completed mint-calc-engine-v1-01-w1-shared-helpers-PLAN.md — A3 envelope cherry-picked (Path B), 4 helpers shipped at app/core/profile_resolver.py, client_with_blank_profile fixture appended, 6947 backend tests green (+49 vs baseline 6898)
+last_updated: "2026-05-16T12:28:43.283Z"
+last_activity: 2026-05-16
 progress:
   total_phases: 12
   completed_phases: 1
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase 1b — citation-chips
+**Current focus:** Phase mint-calc-engine-v1 — Calc Engine v1
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,10 +35,10 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 1b (citation-chips) — PENDING G2
-Plan: 9 SUMMARYs landed of 9 (all plans closed ; phase status PENDING G2 = awaiting operator dev→staging merge + Railway 5-flag flip per WAVE1B-10 protocol, then Claude runs autonomous Maestro+sim G2 walkthrough per CONTEXT D-05)
+Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING
+Plan: 2 of 20
 Status: Ready to execute
-Last activity: 2026-05-16 -- Phase mint-calc-engine-v1 planning complete
+Last activity: 2026-05-16
 
 ## Plan wave-1b-08 Receipt (Sentry breadcrumb on citation emission, 2026-05-15)
 
@@ -355,8 +355,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-15T10:47:58.028Z
-Stopped at: Completed wave-1b-09-PLAN.md — wave_1b_close.sh + Maestro G1 + phase SUMMARY + VERIFICATION-REPORT.html + G2 BLOCKED docs; phase PENDING G2 awaiting dev→staging merge + Railway flag flip; branch feature/wave-1b-09-rollout-close ready for PR
+Last session: 2026-05-16T12:28:43.280Z
+Stopped at: Completed mint-calc-engine-v1-01-w1-shared-helpers-PLAN.md — A3 envelope cherry-picked (Path B), 4 helpers shipped at app/core/profile_resolver.py, client_with_blank_profile fixture appended, 6947 backend tests green (+49 vs baseline 6898)
 Resume file: None
 
 <details>
