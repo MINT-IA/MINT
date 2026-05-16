@@ -10,9 +10,17 @@ POST /api/v1/mortgage/epl-combined      — Combined EPL (3a + LPP) for equity
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 
+from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.mortgage import (
     MortgageAffordabilityRequest,
     MortgageAffordabilityResponse,
@@ -54,26 +62,52 @@ _epl_combined_service = EplCombinedService()
 # Affordability
 # ---------------------------------------------------------------------------
 
+_AFFORDABILITY_HINT_FR = (
+    "Pour estimer ta capacité d'achat, j'ai besoin de ton canton, "
+    "de ton revenu brut annuel et de ton épargne disponible. "
+    "Tu peux me les partager ?"
+)
+
+
 @router.post("/affordability", response_model=MortgageAffordabilityResponse)
 @limiter.limit("30/minute")
 def calculate_affordability(
     request: Request,
     body: MortgageAffordabilityRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> MortgageAffordabilityResponse:
     """Calculate mortgage affordability (Tragbarkeitsrechnung).
 
     Checks whether the household can afford a given property based on
     Swiss lending rules: 20% equity, 33% income ratio, 5% theoretical rate.
 
+    Grounded via D-CE-06 + D-CE-07 : canton, revenu_brut_annuel,
+    epargne_disponible, avoir_3a, avoir_lpp are read from `_user.profile`
+    when not supplied in the body. The 5% theoretical rate is a regulatory
+    constant (FINMA art. 28 / HYPOTHEQUE_TAUX_THEORIQUE) and is NEVER
+    user-overridable. Missing required profile fields trigger 422 with the
+    D-CE-08 `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: Circulaire FINMA 2017/5; directives ASB.
     """
+    resolved = _resolve_defaults(profile_data, body, MortgageAffordabilityRequest)
+    missing = _required_profile_fields_missing(resolved, MortgageAffordabilityRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_AFFORDABILITY_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/mortgage/affordability",
+        )
+
     result = _affordability_service.calculate_affordability(
-        revenu_brut_annuel=body.revenuBrutAnnuel,
-        epargne_disponible=body.epargneDisponible,
-        avoir_3a=body.avoir3a,
-        avoir_lpp=body.avoirLpp,
-        prix_achat=body.prixAchat,
-        canton=body.canton,
+        revenu_brut_annuel=float(resolved["revenuBrutAnnuel"]),
+        epargne_disponible=float(resolved["epargneDisponible"]),
+        avoir_3a=float(resolved["avoir3a"] or 0),
+        avoir_lpp=float(resolved["avoirLpp"] or 0),
+        prix_achat=float(resolved["prixAchat"] or 0),
+        canton=str(resolved["canton"]),
     )
 
     return MortgageAffordabilityResponse(
