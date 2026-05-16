@@ -69,6 +69,32 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  # S98 Phase 5.X — auto-upload Dart obfuscation maps + iOS dSYMs to
+  # Sentry after `flutter build`. Without this, every TestFlight crash
+  # lands in Sentry as obfuscated Dart tokens (file paths look like
+  # `package:mint_mobile/foo/0x4f2`) instead of source-line resolved.
+  # Activation env vars (set as GitHub Secrets — see testflight.yml) :
+  #   SENTRY_AUTH_TOKEN (sntryu_... user token, scope project:read +
+  #     project:write + project:releases + org:read)
+  #   SENTRY_ORG=moneyint
+  #   SENTRY_PROJECT=mint-mobile
+  # Plugin no-ops cleanly if env vars are absent (dev local build path).
+  sentry_dart_plugin: ^2.0.0
+
+sentry:
+  # S98 Phase 5.X — sentry_dart_plugin config. Plugin runs as a post-
+  # `flutter build` hook (invoked via `dart run sentry_dart_plugin`)
+  # and uploads dSYMs + the obfuscation map to Sentry. `upload_sources`
+  # is FALSE — we deliberately do not upload Dart source code (the
+  # symbolicated stack trace is enough ; sources would inflate the
+  # PII / IP-leak surface).
+  upload_debug_symbols: true
+  upload_sources: false
+  upload_source_maps: false
+  # `org` + `project` + `auth_token` resolved from env vars at build
+  # time (set as GitHub Secrets, exposed by testflight.yml). Plugin
+  # falls back to a `sentry.properties` file if env vars are absent
+  # — that file is .gitignored (devs may create it locally).
 
 flutter:
   generate: true

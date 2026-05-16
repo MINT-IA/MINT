@@ -212,7 +212,35 @@ jobs:
           if [[ -n "$SENTRY_DSN_MOBILE" ]]; then
             EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SENTRY_DSN=$SENTRY_DSN_MOBILE"
           fi
-          flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_URL $EXTRA_DEFINES
+          # `--split-debug-info` + `--obfuscate` make crash stacks shippable
+          # but unreadable in Sentry without the matching dSYM + obfuscation
+          # map. Both get uploaded in the next step.
+          flutter build ios --release --no-codesign \
+            --dart-define=API_BASE_URL=$API_URL $EXTRA_DEFINES \
+            --split-debug-info=build/symbols \
+            --obfuscate
+
+      # ── S98 Phase 5.X — auto-upload dSYMs + obfuscation map to Sentry ──
+      # Without this, every TestFlight crash lands in Sentry as obfuscated
+      # Dart tokens. The sentry_dart_plugin reads SENTRY_AUTH_TOKEN +
+      # SENTRY_ORG + SENTRY_PROJECT from env and uploads from the same
+      # `build/symbols` dir that `--split-debug-info` writes to.
+      # No-ops cleanly if SENTRY_AUTH_TOKEN is empty (e.g. fork PR builds).
+      - name: Upload dSYMs + obfuscation map to Sentry
+        if: ${{ env.SENTRY_AUTH_TOKEN != '' }}
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG:        ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT:    ${{ secrets.SENTRY_PROJECT }}
+        run: |
+          if [[ -z "$SENTRY_AUTH_TOKEN" ]]; then
+            echo "::warning::SENTRY_AUTH_TOKEN unset — skipping dSYM upload"
+            exit 0
+          fi
+          dart run sentry_dart_plugin || {
+            echo "::warning::sentry_dart_plugin upload failed — see log above"
+            # Non-fatal — release ships anyway; crashes will be obfuscated.
+          }
 
       - name: Prepare DART_DEFINES for Xcode/Fastlane
         env:
