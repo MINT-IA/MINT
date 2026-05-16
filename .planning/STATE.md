@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-02-w1-priority1-endpoints-PLAN.md — 3 Priority-1 sev-3 endpoints grounded (allocation_annuelle + mortgage/affordability + lpp-deep/rachat-echelonne), sev-3 null-canton crash class closed (T-mint-calc-02-03), Rule-2 auto-add of Depends(require_current_user) on mortgage + lpp_deep routes, 12 cumulative from_profile markers, 6958 backend tests green (+11 vs Plan 01 baseline 6947)
+stopped_at: Completed mint-calc-engine-v1-03-w1-priority2-endpoints-PLAN.md — 4 Priority-2 endpoints grounded (wealth-tax/estimate + life-events/succession/simulate + family/concubinage/succession + arbitrage/location-vs-propriete), sev-3 silent-wrong-tax class structurally closed via Required-to-Optional widening, Rule-2 auto-add of Depends(require_current_user) on 3 previously-anonymous routes, 16 cumulative from_profile markers (12 Plan 02 + 4 Plan 03), 6970 backend tests green (+12 vs Plan 02 baseline 6958), cumulative W0 closure 4 sev-3 + 3 sev-2 endpoints
 last_updated: "2026-05-16T13:10:00.000Z"
 last_activity: 2026-05-16
 progress:
@@ -36,9 +36,9 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING
-Plan: 3 of 20
+Plan: 4 of 20
 Status: Ready to execute
-Last activity: 2026-05-16 — Plan 02 closed (Priority-1 sev-3 grounded ; sev-3 null-canton crash class closed)
+Last activity: 2026-05-16 — Plan 03 closed (Priority-2 sev-3 grounded — wealth_tax + succession + concubinage + location_vs_propriete ; silent-wrong-tax class structurally closed)
 
 ## Plan wave-1b-08 Receipt (Sentry breadcrumb on citation emission, 2026-05-15)
 
@@ -355,8 +355,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-16T13:10:00.000Z
-Stopped at: Completed mint-calc-engine-v1-02-w1-priority1-endpoints-PLAN.md — 3 Priority-1 sev-3 endpoints grounded (allocation_annuelle + mortgage/affordability + lpp-deep/rachat-echelonne), sev-3 null-canton crash class closed (T-mint-calc-02-03), Rule-2 auto-add of Depends(require_current_user) on mortgage + lpp_deep routes, 12 cumulative from_profile markers, 6958 backend tests green (+11 vs Plan 01 baseline 6947)
+Last session: 2026-05-16T13:08:00.000Z
+Stopped at: Completed mint-calc-engine-v1-03-w1-priority2-endpoints-PLAN.md — 4 Priority-2 endpoints grounded (wealth-tax/estimate + life-events/succession/simulate + family/concubinage/succession + arbitrage/location-vs-propriete), sev-3 silent-wrong-tax class structurally closed via Required-to-Optional widening, Rule-2 auto-add of Depends(require_current_user) on 3 previously-anonymous routes, 16 cumulative from_profile markers (12 Plan 02 + 4 Plan 03), 6970 backend tests green (+12 vs Plan 02 baseline 6958), cumulative W0 closure 4 sev-3 + 3 sev-2 endpoints
 Resume file: None
 
 <details>
