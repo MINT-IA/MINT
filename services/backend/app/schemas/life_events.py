@@ -68,8 +68,11 @@ class DivorceSimulationRequest(BaseModel):
     detteCommune: float = Field(
         0.0, description="Common debt (mortgage, credits) in CHF", ge=0
     )
-    canton: str = Field(
-        "GE", description="Canton of residence (2-letter code)", max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Canton of residence (2-letter code, lu depuis le profil si absent)",
+        max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
 
 
@@ -205,8 +208,11 @@ class DonationSimulationRequest(BaseModel):
     lienParente: str = Field(
         ..., description="Relationship: conjoint, descendant, parent, fratrie, concubin, tiers"
     )
-    canton: str = Field(
-        "GE", description="Canton code (2-letter)", min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Canton code (2-letter, lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
     typeDonation: str = Field(
         "especes", description="Type: especes, immobilier, titres"

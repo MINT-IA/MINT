@@ -44,6 +44,21 @@ _SUCCESSION_SIMULATE_HINT_FR = (
     "les taux varient considérablement. Tu peux me le partager ?"
 )
 
+
+_DIVORCE_SIMULATE_HINT_FR = (
+    "Pour simuler l'impact financier d'un divorce, j'ai besoin de ton "
+    "canton — la fiscalité et le partage varient considérablement. "
+    "Tu peux me le partager ?"
+)
+
+
+_DONATION_SIMULATE_HINT_FR = (
+    "Pour simuler ta donation, j'ai besoin de ton canton — "
+    "les taux d'imposition des donations varient considérablement entre "
+    "cantons. Tu peux me le partager ?"
+)
+
+
 router = APIRouter()
 
 _divorce_sim = DivorceSimulator()
@@ -57,25 +72,49 @@ _housing_sale_svc = HousingSaleService()
 # ---------------------------------------------------------------------------
 
 @router.post("/divorce/simulate", response_model=DivorceSimulationResponse)
-def simulate_divorce(request: DivorceSimulationRequest) -> DivorceSimulationResponse:
+def simulate_divorce(
+    request: DivorceSimulationRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> DivorceSimulationResponse:
     """Simulate financial impact of a divorce under Swiss law.
+
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 25 — silent GE default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
 
     Stateless endpoint — no data storage. All computation is done
     on the fly from the provided inputs.
     """
+    resolved = _resolve_defaults(profile_data, request, DivorceSimulationRequest)
+    missing = _required_profile_fields_missing(resolved, DivorceSimulationRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_DIVORCE_SIMULATE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/life-events/divorce/simulate",
+        )
+
+    # Enum-preservation defensive extraction
+    regime_value = resolved["regimeMatrimonial"]
+    if hasattr(regime_value, "value"):
+        regime_value = regime_value.value
+
     input_data = DivorceInput(
-        duree_mariage_annees=request.dureeMarriageAnnees,
-        regime_matrimonial=request.regimeMatrimonial.value,
-        nombre_enfants=request.nombreEnfants,
-        revenu_annuel_conjoint_1=request.revenuAnnuelConjoint1,
-        revenu_annuel_conjoint_2=request.revenuAnnuelConjoint2,
-        lpp_conjoint_1_pendant_mariage=request.lppConjoint1PendantMariage,
-        lpp_conjoint_2_pendant_mariage=request.lppConjoint2PendantMariage,
-        avoirs_3a_conjoint_1=request.avoirs3aConjoint1,
-        avoirs_3a_conjoint_2=request.avoirs3aConjoint2,
-        fortune_commune=request.fortuneCommune,
-        dette_commune=request.detteCommune,
-        canton=request.canton,
+        duree_mariage_annees=resolved["dureeMarriageAnnees"],
+        regime_matrimonial=regime_value,
+        nombre_enfants=resolved["nombreEnfants"],
+        revenu_annuel_conjoint_1=resolved["revenuAnnuelConjoint1"],
+        revenu_annuel_conjoint_2=resolved["revenuAnnuelConjoint2"],
+        lpp_conjoint_1_pendant_mariage=resolved["lppConjoint1PendantMariage"],
+        lpp_conjoint_2_pendant_mariage=resolved["lppConjoint2PendantMariage"],
+        avoirs_3a_conjoint_1=resolved["avoirs3aConjoint1"],
+        avoirs_3a_conjoint_2=resolved["avoirs3aConjoint2"],
+        fortune_commune=resolved["fortuneCommune"],
+        dette_commune=resolved["detteCommune"],
+        canton=str(resolved["canton"]),
     )
 
     result = _divorce_sim.simulate(input_data)
@@ -333,25 +372,41 @@ def simulate_donation(
     request: Request,
     body: DonationSimulationRequest,
     _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> DonationSimulationResponse:
     """Simulate tax impact of a donation (CC art. 239-252).
+
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row — donation_service silent
+    GE default closed). Missing profile.canton triggers a 422 with the
+    D-CE-08 `CoachToolIncomplete` envelope when strict mode is enabled.
 
     Stateless endpoint — no data storage. All computation is done
     on the fly from the provided inputs.
     """
+    resolved = _resolve_defaults(profile_data, body, DonationSimulationRequest)
+    missing = _required_profile_fields_missing(resolved, DonationSimulationRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_DONATION_SIMULATE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/life-events/donation/simulate",
+        )
+
     input_data = DonationInput(
-        montant=body.montant,
-        donateur_age=body.donateurAge,
-        lien_parente=body.lienParente,
-        canton=body.canton,
-        type_donation=body.typeDonation,
-        valeur_immobiliere=body.valeurImmobiliere,
-        avancement_hoirie=body.avancementHoirie,
-        nb_enfants=body.nbEnfants,
-        fortune_totale_donateur=body.fortuneTotaleDonateur,
-        regime_matrimonial=body.regimeMatrimonial,
-        has_spouse=body.hasSpouse,
-        has_parents=body.hasParents,
+        montant=resolved["montant"],
+        donateur_age=resolved["donateurAge"],
+        lien_parente=resolved["lienParente"],
+        canton=str(resolved["canton"]),
+        type_donation=resolved["typeDonation"],
+        valeur_immobiliere=resolved["valeurImmobiliere"],
+        avancement_hoirie=resolved["avancementHoirie"],
+        nb_enfants=resolved["nbEnfants"],
+        fortune_totale_donateur=resolved["fortuneTotaleDonateur"],
+        regime_matrimonial=resolved["regimeMatrimonial"],
+        has_spouse=resolved["hasSpouse"],
+        has_parents=resolved["hasParents"],
     )
 
     result = _donation_svc.calculate(input_data)
