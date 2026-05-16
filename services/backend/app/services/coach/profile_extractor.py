@@ -452,6 +452,68 @@ def _extract_pillar3a(msg: str) -> Fact | None:
     return None
 
 
+def _extract_avs_years(msg: str) -> Fact | None:
+    """Extract AVS contribution years.
+
+    Wave 1c-A3 (D-A3-03). Mirror of `_extract_lpp` pattern. Matches
+    « j ai cotise 8 annees AVS », « 8 ans AVS », « 1er pilier 8 ans »,
+    « AVS 8 ans ».
+
+    I-01 fix (revision iteration 1): the AVS-anchor keyword
+    (avs / cotisation / 1er pilier / premier pilier) is MANDATORY.
+    The previous bare-number fallback regex `\\b\\d{1,2}\\s*ans\\b` was
+    DELETED because it matched off-topic phrases like « j ai 42 ans, ma
+    fille a 12 ans » and silently stuffed 42 into the AVS slot.
+    CONTEXT.md §D-A3-03 mandates low-confidence handshake captures go
+    to a separate `pending_low_confidence_echoes` list (handled by the
+    caller in coach_chat.py) — never to `pending_profile_updates`.
+
+    I-07 fix (revision iteration 1): interstitial cap tightened from
+    `[^.]{0,40}` to `[^,.]{0,25}` so commas + periods both act as
+    clause boundaries — « j ai 42 ans, AVS 8 ans » no longer lets the
+    anchor reach back to 42 across the comma.
+
+    Confidence model: when an AVS-anchor matches, confidence is 1.0.
+    No low-confidence path exists in this extractor today — by the
+    time A3 ships, ALL AVS captures are high-confidence (the
+    pending_low_confidence_echoes machinery is reserved for future
+    extractors where the anchor IS optional, per CONTEXT.md §D-A3-03).
+
+    Closed-list keywords per Karpathy-2 simplicity (CONTEXT.md
+    §D-A3-03 Claude's Discretion). No LLM call.
+    """
+    # Pattern 1: number BEFORE anchor — « 8 années AVS », « 8 ans cotisation »
+    m = re.search(
+        r"\b(\d{1,2})\s*(?:ann[ée]es?|ans|years?)\b[^,.]{0,25}"
+        r"(?:avs|cotisation|1er\s+pilier|premier\s+pilier)",
+        msg,
+        re.IGNORECASE,
+    )
+    # Pattern 2: anchor BEFORE number — « AVS 8 ans », « 1er pilier 8 années »
+    if not m:
+        m = re.search(
+            r"(?:avs|cotisation|1er\s+pilier|premier\s+pilier)"
+            r"[^,.]{0,25}(\d{1,2})\s*(?:ann[ée]es?|ans|years?)",
+            msg,
+            re.IGNORECASE,
+        )
+    # NO bare-number fallback — I-01 fix. If no anchor match, return None.
+    if m:
+        try:
+            years = int(m.group(1))
+        except (ValueError, IndexError):
+            return None
+        if 0 <= years <= 55:
+            return Fact(
+                topic="avs_years",
+                insight_type="fact",
+                text=f"AVS ≈ {years} années de cotisation",
+                value=years,
+                confidence=1.0,
+            )
+    return None
+
+
 def _extract_debt(msg: str) -> Fact | None:
     # Negative explicit
     if re.search(
@@ -493,6 +555,7 @@ _EXTRACTORS = (
     _extract_family,
     _extract_lpp,
     _extract_pillar3a,
+    _extract_avs_years,   # Wave 1c-A3 (D-A3-03) — AVS-anchor MANDATORY (I-01 fix)
     _extract_debt,
 )
 
