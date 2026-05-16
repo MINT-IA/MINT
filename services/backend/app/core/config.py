@@ -102,6 +102,18 @@ class Settings(BaseSettings):
     COACH_CAP_CHF_GARDE_ENABLED: bool = True
     # === end Wave 1a flags ===
 
+    # === Phase mint-calc-engine-v1 Plan 10 (W2-04) ===
+    # Parallel Change V1→V2 of CoachToolResponse envelope (D-CE-19 Fowler).
+    # When True, chip-emitter dispatchers in coach_chat.py wrap their JSON
+    # payloads in a CoachToolOkV2(data=..., latency_tier="L1") envelope so
+    # Flutter can route to the right rendering surface (chip <500ms vs
+    # narrative loader 2-8s). Default False = legacy top-level shape
+    # preserved (backwards-compat with existing Wave 1a contract tests).
+    # Plan 11 or post-phase flips this ON on staging then prod after
+    # Flutter consumer plan (Concern B) is shipped.
+    COACH_TOOL_RESPONSE_V2_ENABLED: bool = False
+    # === end Plan 10 flag ===
+
     # Phase 97.5 W2-T5 — ConsentService 3-stage rollout enforcement mode.
     # `log_only`   (v2.9 default) : gate emits structured warning log +
     #                               Sentry breadcrumb on missing consent ;

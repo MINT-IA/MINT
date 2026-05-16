@@ -382,6 +382,105 @@ _WAVE_1B_TOOL_NAMES: frozenset[str] = frozenset({
     "retrieve_memories",
 })
 
+
+# ─── Phase mint-calc-engine-v1 Plan 10 (W2-04) — CoachToolResponseV2 ───
+# D-CE-19 Parallel Change (Fowler) + Concern B (Flutter routing surface).
+# Mapping: chip-emitter tool name → LatencyTier. The 5 chip-emitters per
+# CONTEXT §code_context Wave 1a all emit L1 (sub-500ms chip surface).
+# Future Plans (W4 metrics + Flutter consumer) extend this map to L2/L3
+# for narrative-loader-bound tools (rachat_echelonne, divorce_simulator,
+# etc.) when wired via ToolRegistryAdapter (Plan 07 + Plan 10 dispatch).
+_CHIP_EMITTER_LATENCY_TIERS: dict[str, str] = {
+    "get_budget_status": "L1",
+    "get_retirement_projection": "L1",
+    "get_cross_pillar_analysis": "L1",
+    "get_cap_status": "L1",
+    "get_couple_optimization": "L1",
+}
+
+
+def _wrap_chip_response_v2(payload: str, latency_tier: str = "L1") -> str:
+    """Wrap a chip-emitter JSON payload in a ``CoachToolOkV2`` envelope.
+
+    When ``settings.COACH_TOOL_RESPONSE_V2_ENABLED`` is False (default),
+    callers SHOULD NOT call this — they should return ``payload`` as-is so
+    existing Wave 1a contract tests stay green. When True, callers route
+    through this helper to opt into the V2 envelope (Concern B routing).
+
+    Behavior:
+      - If ``payload`` is JSON-parseable as an object → wrap as
+        ``CoachToolOkV2(data=<parsed>, latency_tier=...)`` and return
+        ``model_dump_json(by_alias=True)`` (camelCase ``latencyTier``).
+      - If ``payload`` is NOT JSON or NOT a dict (legacy FR string from a
+        ``_format_*`` fallback path) → passthrough unchanged. This
+        preserves the dispatcher contract for legacy paths and matches the
+        Parallel Change invariant (V2 wrapping is opt-in per JSON payload,
+        not a blanket transform of the dispatcher's ``content`` field).
+
+    LatencyTier values are validated by the V2 Pydantic envelope itself
+    (Literal["L1", "L2", "L3"]) — invalid values raise ValidationError.
+    """
+    import json as _json
+
+    # Inline import (Pydantic v2 model construction is expensive when
+    # imported at module load — keep it lazy per existing pattern at
+    # _compute_budget_status:2802).
+    from app.models.coach_tools import CoachToolOkV2
+
+    try:
+        parsed = _json.loads(payload)
+    except (_json.JSONDecodeError, TypeError):
+        # Legacy FR fallback path (e.g. "Budget actuel :\n- ..."). Plan 10
+        # Parallel Change discipline: passthrough unchanged.
+        return payload
+
+    if not isinstance(parsed, dict):
+        # Defensive: only objects make sense as `data`. Arrays/scalars
+        # passthrough — preserves any future per-tool contract that emits
+        # a different shape.
+        return payload
+
+    envelope = CoachToolOkV2(data=parsed, latency_tier=latency_tier)
+    return envelope.model_dump_json(by_alias=True)
+
+
+def _wrap_chip_string_response_v2(
+    text_payload: str, latency_tier: str = "L1"
+) -> str:
+    """Wrap a STRING chip-emitter payload (e.g. ``get_cap_status``) in a V2
+    envelope under ``data.text``. cap_status historically emits a free-text
+    FR string (no Pydantic response model); Plan 10 surfaces it under V2
+    so Flutter can still receive the ``latencyTier`` routing hint. Plan 11
+    or Concern B Flutter plan formalizes the ``data.text`` contract."""
+    from app.models.coach_tools import CoachToolOkV2
+
+    envelope = CoachToolOkV2(
+        data={"text": text_payload},
+        latency_tier=latency_tier,
+    )
+    return envelope.model_dump_json(by_alias=True)
+
+
+def _maybe_wrap_v2(
+    tool_name: str, payload: str, *, is_string_tool: bool = False
+) -> str:
+    """Apply the V2 envelope wrapping to a chip-emitter payload when the
+    Plan 10 feature flag is ON. No-op passthrough when OFF (default), so
+    existing Wave 1a contract tests stay green.
+
+    ``is_string_tool`` distinguishes Pydantic-JSON chip-emitters (False —
+    use _wrap_chip_response_v2) from text-only chip-emitters like
+    ``get_cap_status`` (True — use _wrap_chip_string_response_v2)."""
+    from app.core.config import settings as _settings
+
+    if not _settings.COACH_TOOL_RESPONSE_V2_ENABLED:
+        return payload
+    tier = _CHIP_EMITTER_LATENCY_TIERS.get(tool_name, "L1")
+    if is_string_tool:
+        return _wrap_chip_string_response_v2(payload, latency_tier=tier)
+    return _wrap_chip_response_v2(payload, latency_tier=tier)
+# ─── end Plan 10 W2-04 ───
+
 # Tools whose result string is a JSON dump of a Wave 1a Pydantic response
 # (`model_dump_json(by_alias=True)`). Flag-ON path. Flag-OFF path returns
 # the legacy `_format_*` string; the JSON parse fails and we skip the
@@ -2416,7 +2515,12 @@ def _execute_internal_tool(
 
     # >>> dispatch: get_cap_status
     if name == "get_cap_status":
-        return _validate_cap_response(_format_cap_status(ctx))
+        # Plan 10 W2-04 — cap_status is a STRING chip (no Pydantic response
+        # model). When V2 envelope flag is ON, wrap the validated text in
+        # CoachToolOkV2(data={"text": ...}, latency_tier="L1"). Otherwise
+        # passthrough legacy string (Wave 1a contract preserved).
+        rendered = _validate_cap_response(_format_cap_status(ctx))
+        return _maybe_wrap_v2("get_cap_status", rendered, is_string_tool=True)
     # <<< dispatch: get_cap_status
 
     # >>> dispatch: get_couple_optimization
@@ -2842,7 +2946,10 @@ def _compute_budget_status(user_id: str | None, ctx: dict, db) -> str:
             elapsed_ms=elapsed_ms,
             flag_state="on",
         )
-        return response.model_dump_json(by_alias=True)
+        # Plan 10 W2-04 — opt-in V2 envelope wrapping (latency_tier="L1").
+        return _maybe_wrap_v2(
+            "get_budget_status", response.model_dump_json(by_alias=True)
+        )
     except Exception as exc:  # defensive fallback (python-pro panel)
         logging.getLogger(__name__).warning(
             "compute_budget_status failed, falling back to legacy: %s", exc
@@ -2959,7 +3066,11 @@ def _compute_retirement_projection(user_id: str | None, ctx: dict, db) -> str:
             elapsed_ms=elapsed_ms,
             flag_state="on",
         )
-        return response.model_dump_json(by_alias=True)
+        # Plan 10 W2-04 — opt-in V2 envelope wrapping (latency_tier="L1").
+        return _maybe_wrap_v2(
+            "get_retirement_projection",
+            response.model_dump_json(by_alias=True),
+        )
     except Exception as exc:  # defensive fallback (python-pro panel)
         logging.getLogger(__name__).warning(
             "compute_retirement_projection failed, falling back to legacy: %s",
@@ -3086,7 +3197,11 @@ def _compute_cross_pillar_analysis(user_id: str | None, ctx: dict, db) -> str:
                 "tax_saving_source": analysis.tax_saving_source,
             },
         )
-        return response.model_dump_json(by_alias=True)
+        # Plan 10 W2-04 — opt-in V2 envelope wrapping (latency_tier="L1").
+        return _maybe_wrap_v2(
+            "get_cross_pillar_analysis",
+            response.model_dump_json(by_alias=True),
+        )
     except Exception as exc:
         logging.getLogger(__name__).warning(
             "compute_cross_pillar_analysis failed, falling back to legacy: %s",
@@ -3334,7 +3449,11 @@ def _compute_couple_optimization(user_id, ctx: dict, db) -> str:
             elapsed_ms=elapsed_ms,
             flag_state="on",
         )
-        return response.model_dump_json(by_alias=True)
+        # Plan 10 W2-04 — opt-in V2 envelope wrapping (latency_tier="L1").
+        return _maybe_wrap_v2(
+            "get_couple_optimization",
+            response.model_dump_json(by_alias=True),
+        )
     except Exception as exc:  # defensive fallback (python-pro panel)
         logging.getLogger(__name__).warning(
             "compute_couple_optimization failed, falling back to legacy: %s", exc
