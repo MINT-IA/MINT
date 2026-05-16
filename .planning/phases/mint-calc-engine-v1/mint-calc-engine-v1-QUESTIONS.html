@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>MINT calc-engine-v1 — Discussion Questions</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    margin: 0;
+    padding: 24px;
+    background: #fafaf9;
+    color: #18181b;
+    line-height: 1.5;
+  }
+  header {
+    max-width: 1400px;
+    margin: 0 auto 24px;
+    border-bottom: 2px solid #e7e5e4;
+    padding-bottom: 16px;
+  }
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    color: #003B2F;
+  }
+  header p { margin: 4px 0; color: #57534e; font-size: 13px; }
+  .stats {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: white;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+  }
+  .stat-num {
+    font-size: 22px;
+    font-weight: 700;
+    color: #003B2F;
+  }
+  .stat-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #78716c;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: #e7e5e4;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #22c55e;
+    transition: width 0.3s ease;
+  }
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  button {
+    padding: 10px 16px;
+    border: 1px solid #003B2F;
+    background: #003B2F;
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  button.secondary {
+    background: white;
+    color: #003B2F;
+  }
+  button:hover { opacity: 0.9; }
+  main { max-width: 1400px; margin: 0 auto; }
+  section {
+    margin-bottom: 32px;
+    background: white;
+    border: 1px solid #e7e5e4;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 16px 20px;
+    background: #f5f5f4;
+    border-bottom: 1px solid #e7e5e4;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-header h2 { margin: 0; font-size: 16px; color: #003B2F; }
+  .section-count {
+    font-size: 12px;
+    color: #78716c;
+    font-weight: 600;
+  }
+  .questions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+    gap: 16px;
+    padding: 20px;
+  }
+  .question-card {
+    border: 1px solid #e7e5e4;
+    border-radius: 10px;
+    padding: 16px;
+    background: white;
+    transition: all 0.2s;
+  }
+  .question-card.answered {
+    border: 2px solid #22c55e;
+    background: #f0fdf4;
+  }
+  .qid-badge {
+    display: inline-block;
+    background: #003B2F;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .qid-badge.answered { background: #22c55e; }
+  .q-title {
+    font-weight: 600;
+    margin: 6px 0;
+    font-size: 14px;
+    color: #18181b;
+  }
+  .q-context {
+    font-size: 12px;
+    color: #57534e;
+    font-style: italic;
+    background: #fafaf9;
+    padding: 8px 10px;
+    border-left: 3px solid #d6d3d1;
+    margin: 8px 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .options { margin: 12px 0 8px; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .option:hover { background: #f5f5f4; }
+  .option input[type="radio"] { margin-top: 4px; flex-shrink: 0; }
+  .option-content { flex: 1; }
+  .option-label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #18181b;
+  }
+  .option-label.recommended::after {
+    content: " ⭐ recommandé";
+    font-size: 11px;
+    color: #22c55e;
+    font-weight: 700;
+  }
+  .option-desc {
+    font-size: 12px;
+    color: #57534e;
+    margin-top: 2px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 56px;
+    padding: 8px;
+    border: 1px solid #e7e5e4;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    resize: vertical;
+    margin-top: 8px;
+  }
+  textarea:focus { outline: none; border-color: #003B2F; }
+  textarea.has-content {
+    border: 2px solid #f97316;
+    background: #fff7ed;
+  }
+  .save-instructions {
+    background: #fef3c7;
+    border: 1px solid #fbbf24;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    color: #78350f;
+  }
+  .save-instructions code {
+    background: white;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MINT calc-engine-v1 — Discussion Questions</h1>
+  <p><strong>Phase:</strong> mint-calc-engine-v1 (v2.10 Lucidité Engine)</p>
+  <p><strong>Source:</strong> <code>.planning/decisions/2026-05-16-calc-engine-matrix.md</code></p>
+  <p><strong>Mode:</strong> <code>--power</code> (asynchronous answering)</p>
+
+  <div class="save-instructions">
+    <strong>📋 Instructions :</strong> coche tes choix + ajoute du contexte dans les champs "chat more" si besoin.
+    Quand tu as fini (ou même partiellement), clique <strong>Télécharger JSON</strong> et remplace le fichier
+    <code>mint-calc-engine-v1-QUESTIONS.json</code> dans le même dossier. Puis dis-moi
+    <code>"refresh"</code> ou <code>"finalize"</code> dans Claude.
+  </div>
+
+  <div class="stats">
+    <div><div class="stat-num" id="stat-total">20</div><div class="stat-label">Total</div></div>
+    <div><div class="stat-num" id="stat-answered">0</div><div class="stat-label">Répondu</div></div>
+    <div><div class="stat-num" id="stat-remaining">20</div><div class="stat-label">Restant</div></div>
+    <div><div class="stat-num" id="stat-chat">0</div><div class="stat-label">Chat-more</div></div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width: 0%"></div></div>
+  </div>
+
+  <div class="actions">
+    <button onclick="downloadJSON()">⬇ Télécharger JSON (à remplacer dans le dossier)</button>
+    <button class="secondary" onclick="resetAll()">Reset</button>
+  </div>
+</header>
+
+<main id="content"></main>
+
+<script>
+const QUESTIONS_DATA = {
+  "phase": "mint-calc-engine-v1",
+  "phase_name": "MINT Lucidité Engine — discoverability, profile-grounding, architecture, DAG-action over the existing 57 calculators",
+  "generated_at": "2026-05-16T22:00:00+02:00",
+  "generator": "gsd-discuss-phase --power (Claude Opus 4.7)",
+  "stats": { "total": 20, "answered": 0, "chat_more": 0, "remaining": 20 },
+  "sections": []
+};
+
+// Sections data injected as JSON
+const SECTIONS_DATA = [
+  {id:"discoverability",title:"1. LLM Tool Discoverability — exposer 52 calculateurs au narrateur Sonnet",questions:[
+    {id:"Q-01",title:"Comment exposer les 52 calculateurs non enregistrés au narrateur Sonnet ?",context:"Wave 1b+1c expose 5 chip-emitters (coach_tools.py:637-722). Les 52 autres calcs (divorce_simulator, succession_simulator, frontalier_service, repayment_service, etc.) sont invisibles. Liu 2024 + RAG-collision Wave 1c-A2 = JAMAIS gonfler le system prompt avec 57 outils.",options:[
+      {id:"a",label:"Skill-bundle compiler (Phase 93.5 pattern) par user intent",desc:"⭐ RECOMMANDÉ. Chaque user-intent → bundle compact d'outils. Phase 93.5 pattern. ~6-11 bundles. Compile-time bundle + tool allowlist + citation allowlist.",rec:true},
+      {id:"b",label:"Tous les 57 enregistrés en permanence",desc:"Context bloat ~30K tokens d'input_schema. Liu 2024 attention drift + RAG-collision risk. Panels Wave 1c ont REJETÉ."},
+      {id:"c",label:"Intent classifier → tool subset dynamique runtime",desc:"+1 LLM call par tour (+ latence + coût). Plus flexible mais latence."},
+      {id:"d",label:"Hybride : skill-bundles common + dynamic fallback rare",desc:"Plus complexe. Utile pour les long-tail (Sàrl vs RI, FATCA)."}
+    ]},
+    {id:"Q-02",title:"Sur quoi se base le routage user-intent → bundle ?",context:"_classify_user_intent existe à coach_chat.py:944-963 + _INTENT_KEYWORDS:1500-1565 (6 intents : retirement / taxes / debt / housing / family / career). Wave 1c-A2 réutilise déjà ces 6.",options:[
+      {id:"a",label:"Réutiliser _classify_user_intent existant + map intent → bundle",desc:"⭐ RECOMMANDÉ. Zéro nouvelle infra. 6 intents → 6 bundles + 'général' défaut. Alignement total Wave 1c.",rec:true},
+      {id:"b",label:"Étendre _INTENT_KEYWORDS pour les 18 life events",desc:"18 bundles. Plus granulaire mais regex fragile + maintenance ↑."},
+      {id:"c",label:"Nouvelle LLM call de classification",desc:"+ 1 tour latence + coût. Plus flexible (free-form) mais coût/bénéfice ↓."},
+      {id:"d",label:"Heuristique mot-clé étendue (current pattern scaled)",desc:"~200 keywords couvrant 11 domaines. Simple mais fragile en FR-régional."}
+    ]},
+    {id:"Q-03",title:"Combien de bundles à la version 1 ?",context:"Skill-bundle compiler Phase 93.5 a livré 6 bundles. Matrice = 11 domaines. MINT identity = 18 life events.",options:[
+      {id:"a",label:"~6 bundles alignés sur les 6 intents canoniques",desc:"⭐ RECOMMANDÉ. retirement / taxes / debt / housing / family / career. Couvre 80% des cas. Phase 93.5 pattern.",rec:true},
+      {id:"b",label:"~11 bundles alignés sur les 11 domaines matrice",desc:"Couvre divorce/héritage/indépendant/mobilité explicitement. + 5 nouveaux intents à classifier."},
+      {id:"c",label:"~3 bundles pilotes (retirement+tax+housing)",desc:"Périmètre étroit. Ship vite, étend après. Manque divorce/héritage/frontalier."},
+      {id:"d",label:"~18 bundles = 18 life events MINT",desc:"Granularité max. Lourd à maintenir, overlap (mariage/divorce/enfants partagent calcs)."}
+    ]},
+    {id:"Q-04",title:"Wave 1c-A3 (5 chip-emitters handshake) — relation avec calc-engine-v1 ?",context:"A3 PLAN.md committed dev (2e1060a5) le 2026-05-16. Locked + checker green iter 2. PR pas ouverte. A3 introduit CoachToolResponse(status: ok/incomplete/policy_blocked) sur 5 outils.",options:[
+      {id:"a",label:"A3 = pattern, calc-engine-v1 généralise à tous les bundles",desc:"⭐ RECOMMANDÉ. A3 ship comme wave 1. CoachToolResponse = contrat universel. Pattern intact + scale.",rec:true},
+      {id:"b",label:"A3 ship maintenant en parallèle, calc-engine designe autre contrat",desc:"A3 petit + surgical. Risque divergence doctrine."},
+      {id:"c",label:"Pause A3, le ré-écrire dans calc-engine-v1 wave 1",desc:"~30h travail (planner + checker) jetées."},
+      {id:"d",label:"A3 ship + calc-engine couvre ce qui n'est PAS dans A3",desc:"Hybride. A3 livre contrat + 5 chip-emitters ; calc-engine = bundling + grounding + DAG."}
+    ]}
+  ]},
+  {id:"profile-grounding",title:"2. Real-Profile Grounding — corriger l'hypothèse C (calcs sans vraies valeurs utilisateur)",questions:[
+    {id:"Q-05",title:"Portée de l'audit hypothèse C ?",context:"Confirmé sur arbitrage.py:163-213 (1 endpoint). 56 autres + 57 callers internes possiblement même problème. Sans audit on planifie aveugle.",options:[
+      {id:"a",label:"Auditer TOUS les 57 calcs + callers avant planning",desc:"⭐ RECOMMANDÉ. 2-3 jours sprint pré-planning. Matrice 'reads-from-profile / primitive-only / partial' exhaustive.",rec:true},
+      {id:"b",label:"Sample-audit 10-15 calcs high-value, extrapoler",desc:"Plus rapide (1 jour). Risque extrapolation. OK pour STRATÉGIE, pas pour scope."},
+      {id:"c",label:"Skip audit, fix at planning time of each wave",desc:"Étale l'audit. Chaque wave découvre surprises + replanifie. Karpathy #1."},
+      {id:"d",label:"Auditer prioritairement 5 chip-emitters Wave 1c",desc:"Portée étroite. Pertinent si A3 indépendant. Ne couvre PAS divorce/succession/frontalier."}
+    ]},
+    {id:"Q-06",title:"Où enforce-t-on le pre-fill depuis le profil ?",context:"3 points d'entrée : (1) REST endpoint Flutter, (2) Coach-tool dispatcher LLM, (3) Direct service call interne. arbitrage.py montre que (1) ne lit pas _user.profile.",options:[
+      {id:"a",label:"Server-side à chaque endpoint REST (pre-fill _user.profile via Depends)",desc:"⭐ RECOMMANDÉ. FastAPI dependency injection. Couvre Flutter ET coach-tool d'un coup.",rec:true},
+      {id:"b",label:"Coach-tool dispatcher level seulement",desc:"Skip REST endpoints Flutter direct. OK si tout passe par coach."},
+      {id:"c",label:"Flutter ProfileProvider-pull à chaque écran",desc:"Côté mobile uniquement. Backend reste vulnérable aux callers tiers."},
+      {id:"d",label:"Les trois (defense in depth)",desc:"Max robustesse. 3 surfaces à maintenir + risque divergence."}
+    ]},
+    {id:"Q-07",title:"Mécanisme de déclaration 'ce champ vient du profil' ?",context:"Aujourd'hui chaque endpoint définit ses defaults inline. Pas de convention.",options:[
+      {id:"a",label:"Pydantic Field default_factory lisant _user.profile via ContextVar",desc:"⭐ RECOMMANDÉ. Type-safe + automatique + un seul middleware. Pattern FastAPI 2025.",rec:true},
+      {id:"b",label:"Metadata {from_profile: 'canton'} dans input_schema",desc:"Explicite + introspectable LLM tools. Plus de boilerplate."},
+      {id:"c",label:"Fonction _resolve_defaults(profile, request) appelée avant chaque calc",desc:"Simple (1 fn par endpoint). Pas type-safe. Risque oubli."},
+      {id:"d",label:"Décorateur @grounded_in_profile",desc:"Pythonic + déclaratif. Risque magie cachée. Debug difficile."}
+    ]},
+    {id:"Q-08",title:"Comportement quand un champ profil REQUIS est manquant ?",context:"Wave 1c-A3 définit déjà ce pattern pour les 5 chip-emitters : CoachToolResponse(status='incomplete', missing_fields, hint_fr). Étend-on aux 52 autres ?",options:[
+      {id:"a",label:"CoachToolIncomplete + handshake (généralisation Wave 1c-A3)",desc:"⭐ RECOMMANDÉ. Cohérence totale. Réutilise toute l'infra A3 (server-side floor, persistence, sentry).",rec:true},
+      {id:"b",label:"Safe defaults + flag low-confidence dans l'output",desc:"Le calc tourne mais résultat 'estimation, données incomplètes'. Risque LSFin/lucidité incompatible."},
+      {id:"c",label:"Return error 422",desc:"Honnête API mais cassant UX. Plus de plomberie."},
+      {id:"d",label:"Caller's responsibility — calc reste primitive-only",desc:"Status quo. Le problème de l'audit C reste entier."}
+    ]}
+  ]},
+  {id:"architecture",title:"3. Architecture Consolidation — 57 calcs scattered across 10+ directories",questions:[
+    {id:"Q-09",title:"Structure des fichiers calculateurs ?",context:"Aujourd'hui : services/{family/, divorce_simulator.py root, succession_simulator.py root, lpp_deep/, expat/, independants/ + independant_service.py duplicate, mortgage/, fiscal/, arbitrage/, unemployment/, retirement/, debt_prevention/}.",options:[
+      {id:"a",label:"Registry index auto-généré + status quo physique",desc:"⭐ RECOMMANDÉ Phase 1. services/backend/app/calculators/_registry.py auto-scanné. Pas de fichier déplacé. Risque-zéro.",rec:true},
+      {id:"b",label:"Consolidation physique vers calculators/<domain>/<calc>.py",desc:"Refactor lourd. 50+ fichiers + imports à update. Belle hygiène long-terme."},
+      {id:"c",label:"Hybride : registry now (Phase A), physical move later (Phase B)",desc:"Pragmatique. Registry suffit pour 90% des bénéfices."},
+      {id:"d",label:"Status quo + meilleurs greps + docs",desc:"Pas d'infra. README qui liste tout. Drift assuré."}
+    ]},
+    {id:"Q-10",title:"Comment gérer les duplicates (independant_service.py + independants/) ?",context:"Doublons issus de l'historique. Pareil pour frontalier_service.py + expat/frontalier_service.py.",options:[
+      {id:"a",label:"Migrer + déprécier (garder l'arborescence, supprimer root)",desc:"⭐ RECOMMANDÉ. Canonique = independants/. Root devient shim deprecation warning 1 release puis suppression.",rec:true},
+      {id:"b",label:"Laisser tel quel + documenter mapping dans registry",desc:"Zéro risque mais drift continue."},
+      {id:"c",label:"Marquer canonique dans registry",desc:"Registry indique the-truth. Pas de refactor. Imports continuent aux 2 endroits."}
+    ]},
+    {id:"Q-11",title:"Granularité de la registry index ?",context:"Sert à : (1) navigation humaine, (2) skill-bundle compiler, (3) audit hypothèse C.",options:[
+      {id:"a",label:"Per-calc avec metadata (name, file, profile_fields, life_events, output_type)",desc:"⭐ RECOMMANDÉ. Self-documenting. ~57 entrées. Skill-bundle compiler lit direct. Audit C trivial.",rec:true},
+      {id:"b",label:"Per-domain (11 entrées)",desc:"Minimal. Pas assez granulaire pour skill-bundles."},
+      {id:"c",label:"Per-tool exposé à la LLM (5-50 entrées)",desc:"Aligné LLM. Ne couvre PAS calcs internes non-exposés."}
+    ]}
+  ]},
+  {id:"dag-triggers",title:"4. Triggers / DAG action — agir sur les signaux Phase 95 déjà shipped",questions:[
+    {id:"Q-12",title:"Activation cache hash read-side (vague A) — quand ?",context:"Phase 95 a livré inputs_hash + superseded_by (DETECTION). Personne ne LIT le cache. Activer le read-side = quick win 3-5 jours.",options:[
+      {id:"a",label:"Ship Phase 1, BLOQUE tout le reste (foundation)",desc:"⭐ RECOMMANDÉ. Requis pour que pré-compute (vague B) ait du sens.",rec:true},
+      {id:"b",label:"Ship en parallèle avec première phase calc-engine-v1",desc:"Peut tourner en parallèle. Risque désync."},
+      {id:"c",label:"Skip vague A, jump à vague B",desc:"Vague B sans A = pré-compute jamais lu. Cassé."}
+    ]},
+    {id:"Q-13",title:"Post-commit eager pre-compute (vague B) — quand le déclencher ?",context:"Coach didactique vivant rend widgets inline. Lazy = latence visible. Pré-compute = widgets tièdes au prochain tour.",options:[
+      {id:"a",label:"Après audit hypothèse C + grounding + discoverability tous green",desc:"⭐ RECOMMANDÉ. Pré-compute avec mauvaises valeurs = pire que rien.",rec:true},
+      {id:"b",label:"En parallèle avec discoverability work",desc:"Plus rapide. Risque : pré-calcul avec defaults hardcodés."},
+      {id:"c",label:"Defer à milestone post-launch (v2.11)",desc:"Vague A suffit court-terme."}
+    ]},
+    {id:"Q-14",title:"Que pré-calcule-t-on sur mutation profil ?",context:"BackgroundTasks FastAPI déclenché dans save_fact/save_insight post-commit. ~100ms en background.",options:[
+      {id:"a",label:"Top-3 'likely-needed-next' basés sur life event actuel",desc:"⭐ RECOMMANDÉ. Ex : naissance saisie → alloc familiales canton + APG + 3a éducation. Ciblé.",rec:true},
+      {id:"b",label:"Top-5 chip-emitter calcs — warming généralisé",desc:"Couvre cas coach probables. Ne couvre PAS divorce/héritage/frontalier."},
+      {id:"c",label:"Rien — pure cache hash read-side",desc:"Tant que latence p95 pas mesurée, prématuré."},
+      {id:"d",label:"Top-10 uniforme (broad warming, simple)",desc:"Coût CPU ↑. Couvre plus mais gaspille compute."}
+    ]}
+  ]},
+  {id:"lucidite-metrics",title:"5. Lucidité framework + métriques (remplacement north-star Phase 96)",questions:[
+    {id:"Q-15",title:"4-level lucidité framework — locké ?",context:"Verrouillé dans calc-engine-matrix : L1 chiffrer / L2 comparer / L3 éclairer arbitrage caché / L4 surfacer invariants. LSFin-clean + FINMA.",options:[
+      {id:"a",label:"Oui, locké tel que défini (L1-L4)",desc:"⭐ RECOMMANDÉ. Cohérent + couvre les surfaces. Lock évite re-litigation à chaque PR.",rec:true},
+      {id:"b",label:"Raffiner — spécifier quel niveau pour quelle surface",desc:"Matrice surface × niveau. atomic → L1 / arbitrage → L2-L3 / insights → L4."},
+      {id:"c",label:"Drop et re-design",desc:"Si désaccord cohérence, grille de remplacement avant planner."}
+    ]},
+    {id:"Q-16",title:"Enforcement des verbes interdits ?",context:"tools/checks/banned_terms_python.py couvre déjà LSFin (garanti/optimal/etc.). À étendre verbes conseil (tu devrais / recommandé / il faut).",options:[
+      {id:"a",label:"Étendre banned_terms_python.py avec liste 'conseil-verbs'",desc:"⭐ RECOMMANDÉ. Lint pre-commit existant. Couvre code+ARB. Mécanique simple.",rec:true},
+      {id:"b",label:"Runtime check dans sortie narrator",desc:"Catch LLM hallucinations. + coût compute par tour."},
+      {id:"c",label:"Les deux (lint-time + runtime)",desc:"Defense in depth."},
+      {id:"d",label:"Skip enforcement, doctrine only",desc:"Discipline humaine. Wave 1c-A a montré doctrine seule perd."}
+    ]},
+    {id:"Q-17",title:"Métrique north-star de remplacement (Phase 96 'turns DOWN' droppée) ?",context:"Le KPI Phase 96 reposait sur cards-home killé. Replacement = mesurer lucidité réelle.",options:[
+      {id:"a",label:"Profile-grounded calc rate (% calcs invoqués avec ≥3 fields profil)",desc:"⭐ RECOMMANDÉ. Adresse hypothèse C. Target ≥95%. Mesurable mécaniquement.",rec:true},
+      {id:"b",label:"Citation-chip coverage per coach turn",desc:"Mesure chaque nombre a une source. Hérité Phase 94."},
+      {id:"c",label:"Hallucination rate (zero-citation numeric)",desc:"Cible 0. Hérité Phase 94 (citation gate)."},
+      {id:"d",label:"Scorecard composite (profile-grounded + citation + hallucination)",desc:"Trois métriques pondérées. Plus complet, moins de focus."}
+    ]}
+  ]},
+  {id:"sequencing",title:"6. Sequencing & A3 — comment cadencer le travail",questions:[
+    {id:"Q-18",title:"Granularité du découpage de cette phase ?",context:"4 problèmes (discoverability / grounding / archi / DAG) + métriques + lucidité = 6 sous-axes.",options:[
+      {id:"a",label:"Phase unique mint-calc-engine-v1 avec 4 waves",desc:"⭐ RECOMMANDÉ. W1 audit+registry+grounding / W2 discoverability+bundles / W3 DAG+pre-compute / W4 metrics+lints.",rec:true},
+      {id:"b",label:"4 phases séparées (1 par problème)",desc:"Plus de discipline GSD. 4 CONTEXT.md à synchroniser."},
+      {id:"c",label:"Phase unique découpée en sub-milestones (v1.1, v1.2...)",desc:"Pattern Wave 1c-A1/A2/A3. Garde cohérence + ship intermédiaire."}
+    ]},
+    {id:"Q-19",title:"Stratégie de ship Wave 1c-A3 ?",context:"A3 PLAN.md committed 2026-05-16 (2e1060a5). Locked + checker green iter 2. 5 chip-emitters ~6 dev days. PR pas ouverte.",options:[
+      {id:"a",label:"Hold A3 jusqu'à calc-engine doctrine locke (≤3 j), ship comme wave 1",desc:"⭐ RECOMMANDÉ. Évite divergence contrat. A3 devient exemple de référence handshake.",rec:true},
+      {id:"b",label:"Ship A3 maintenant en parallèle (surgical PR)",desc:"A3 livre value indépendant (empty-message regression closed). Risque rework si autre contrat."},
+      {id:"c",label:"Cancel A3, le folder dans calc-engine-v1 wave 1",desc:"Travail jeté (30h+). Doctrine cohérente."},
+      {id:"d",label:"Ship A3 + migrer le contrat dans calc-engine-v1 wave 1",desc:"Bug fixé ship-now + migration propre après. Coût 1 migration."}
+    ]},
+    {id:"Q-20",title:"Timeline de l'audit hypothèse C ?",context:"Audit = lire 57 callers. 2-3 jours humain, peut-être moins via Explore batché.",options:[
+      {id:"a",label:"Sprint dédié 2-3 jours avant tout planning (wave 0)",desc:"⭐ RECOMMANDÉ. Matrice exhaustive + rapport. Bloque wave 1 jusqu'à audit done.",rec:true},
+      {id:"b",label:"Audit par calc au moment de planifier chaque wave",desc:"Étale coût. Risque surprise par wave. Karpathy #1."},
+      {id:"c",label:"Audit en parallèle avec discoverability (wave 1)",desc:"Plus rapide. Risque : discoverability livre + defaults hardcodés."},
+      {id:"d",label:"Spawner Explore VERY THOROUGH 30-60 min pour livrer matrice",desc:"Pattern utilisé cette session. Combiner avec (a) — agent scan, humain valide."}
+    ]}
+  ]}
+];
+QUESTIONS_DATA.sections = SECTIONS_DATA;
+
+function render() {
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+  SECTIONS_DATA.forEach(section => {
+    const sec = document.createElement('section');
+    const answered = section.questions.filter(q => q.answer).length;
+    sec.innerHTML = `
+      <div class="section-header">
+        <h2>${section.title}</h2>
+        <span class="section-count">${answered} / ${section.questions.length} répondu</span>
+      </div>
+      <div class="questions-grid">
+        ${section.questions.map(q => renderQuestion(q)).join('')}
+      </div>
+    `;
+    content.appendChild(sec);
+  });
+  updateStats();
+}
+
+function renderQuestion(q) {
+  const isAnswered = !!q.answer;
+  return `
+    <div class="question-card ${isAnswered ? 'answered' : ''}" data-qid="${q.id}">
+      <span class="qid-badge ${isAnswered ? 'answered' : ''}">${q.id}</span>
+      <div class="q-title">${q.title}</div>
+      <div class="q-context">${q.context}</div>
+      <div class="options">
+        ${q.options.map(opt => `
+          <label class="option">
+            <input type="radio" name="${q.id}" value="${opt.id}" ${q.answer === opt.id ? 'checked' : ''} onchange="setAnswer('${q.id}', '${opt.id}')">
+            <div class="option-content">
+              <div class="option-label ${opt.rec ? 'recommended' : ''}">${opt.label}</div>
+              <div class="option-desc">${opt.desc}</div>
+            </div>
+          </label>
+        `).join('')}
+      </div>
+      <textarea
+        placeholder="Chat more : context, nuance, contre-arguments, idées..."
+        oninput="setChatMore('${q.id}', this.value)"
+        class="${q.chat_more ? 'has-content' : ''}"
+      >${q.chat_more || ''}</textarea>
+    </div>
+  `;
+}
+
+function setAnswer(qid, optId) {
+  SECTIONS_DATA.forEach(s => s.questions.forEach(q => {
+    if (q.id === qid) { q.answer = optId; q.status = 'answered'; }
+  }));
+  render();
+}
+
+function setChatMore(qid, val) {
+  SECTIONS_DATA.forEach(s => s.questions.forEach(q => {
+    if (q.id === qid) {
+      q.chat_more = val;
+      if (val && !q.answer) q.status = 'chat-more';
+    }
+  }));
+  // Don't re-render on every keystroke — just update card style
+  const card = document.querySelector(`[data-qid="${qid}"] textarea`);
+  if (card) card.classList.toggle('has-content', !!val.trim());
+  updateStats();
+}
+
+function updateStats() {
+  const all = SECTIONS_DATA.flatMap(s => s.questions);
+  const total = all.length;
+  const answered = all.filter(q => q.answer).length;
+  const chatMore = all.filter(q => q.chat_more && q.chat_more.trim()).length;
+  const remaining = total - answered;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-answered').textContent = answered;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-chat').textContent = chatMore;
+  document.getElementById('progress-fill').style.width = (answered / total * 100) + '%';
+  QUESTIONS_DATA.stats = { total, answered, chat_more: chatMore, remaining };
+}
+
+function downloadJSON() {
+  updateStats();
+  const blob = new Blob([JSON.stringify(QUESTIONS_DATA, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mint-calc-engine-v1-QUESTIONS.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  alert("Téléchargé. Remplace le fichier dans .planning/phases/mint-calc-engine-v1/ puis dis 'refresh' ou 'finalize' à Claude.");
+}
+
+function resetAll() {
+  if (!confirm("Effacer toutes les réponses ?")) return;
+  SECTIONS_DATA.forEach(s => s.questions.forEach(q => { q.answer = null; q.chat_more = ''; q.status = 'unanswered'; }));
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
