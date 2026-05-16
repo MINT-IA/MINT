@@ -88,9 +88,16 @@ def test_hash_profile_id_importable_and_deterministic():
 
 def test_models_coach_tools_package_importable():
     import app.models.coach_tools as m
-    # Empty package — __all__ exists and is the empty list.
+    # Wave 1a shipped __all__ = [] as an empty package marker. mint-calc-engine-v1
+    # Plan 01 Task 0 cherry-picked the A3 CoachToolResponse envelope per D-CE-04
+    # + D-CE-19 Parallel Change, so __all__ now exports the 4 envelope classes.
     assert hasattr(m, "__all__")
-    assert m.__all__ == []
+    assert set(m.__all__) == {
+        "CoachToolIncomplete",
+        "CoachToolOk",
+        "CoachToolPolicyBlocked",
+        "CoachToolResponse",
+    }
 
 
 def test_services_memory_package_importable():

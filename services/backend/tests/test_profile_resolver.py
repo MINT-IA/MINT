@@ -187,23 +187,50 @@ def test_cap_enforcement_at_envelope_level_in_both_modes(monkeypatch):
 # --------------------------------------------------------------------------- #
 
 
-def test_non_strict_mode_logs_warning_and_returns_resolved_body(monkeypatch, caplog):
-    """Test 9 — non-strict mode does NOT raise, emits warning + returns resolved_body."""
+def test_non_strict_mode_logs_warning_and_returns_resolved_body(monkeypatch):
+    """Test 9 — non-strict mode does NOT raise, emits warning + returns resolved_body.
+
+    Attaches a dedicated `_RecordCollector` handler directly to the module
+    logger instead of relying on pytest's `caplog` — `app.core.logging_config.
+    setup_logging()` invoked by upstream integration tests calls
+    `root_logger.handlers.clear()`, which evicts pytest's caplog handler
+    from the root logger and causes suite-order-dependent failures (Rule 3
+    auto-fix : isolate the test from observed upstream pollution).
+    """
     pr = _reload_resolver(monkeypatch, strict=False)
 
-    caplog.set_level(logging.WARNING, logger="app.core.profile_resolver")
-    out = pr.raise_incomplete_as_422(
-        missing_fields=["canton"],
-        hint_fr="J'ai besoin de ton canton pour estimer.",
-        resolved_body={"x": 1},
-        endpoint="/foo",
-    )
+    class _RecordCollector(logging.Handler):
+        def __init__(self):
+            super().__init__(level=logging.WARNING)
+            self.records: list[logging.LogRecord] = []
+
+        def emit(self, record: logging.LogRecord) -> None:
+            self.records.append(record)
+
+    collector = _RecordCollector()
+    # Force-reset the module logger : stdlib `logging.getLogger(name)` returns
+    # a process-global cached instance, so a prior test that called
+    # `setLevel(CRITICAL)`, `disabled = True`, or removed the propagate flag
+    # would silence our handler even after `importlib.reload(pr)`. Reset
+    # explicitly so the test is self-contained.
+    pr._logger.setLevel(logging.WARNING)
+    pr._logger.disabled = False
+    pr._logger.propagate = True
+    pr._logger.addHandler(collector)
+    try:
+        out = pr.raise_incomplete_as_422(
+            missing_fields=["canton"],
+            hint_fr="J'ai besoin de ton canton pour estimer.",
+            resolved_body={"x": 1},
+            endpoint="/foo",
+        )
+    finally:
+        pr._logger.removeHandler(collector)
 
     assert out == {"x": 1}
-    # Warning record with extra dict shape
-    warnings = [r for r in caplog.records if r.levelno == logging.WARNING]
-    assert any(r.message == "profile_grounding_incomplete_non_strict" for r in warnings)
-    rec = next(r for r in warnings if r.message == "profile_grounding_incomplete_non_strict")
+    warnings = [r for r in collector.records if r.levelno == logging.WARNING]
+    assert any(r.msg == "profile_grounding_incomplete_non_strict" for r in warnings)
+    rec = next(r for r in warnings if r.msg == "profile_grounding_incomplete_non_strict")
     assert rec.endpoint == "/foo"
     assert rec.missing_fields == ["canton"]
     assert rec.hint_fr.startswith("J'ai besoin")
