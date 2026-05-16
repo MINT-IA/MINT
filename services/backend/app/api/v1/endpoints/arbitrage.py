@@ -171,6 +171,12 @@ _ALLOCATION_ANNUELLE_HINT_FR = (
 )
 
 
+_LOCATION_VS_PROPRIETE_HINT_FR = (
+    "Pour comparer location et propriété, j'ai besoin de ton canton "
+    "de domicile fiscal. Tu peux me le partager ?"
+)
+
+
 @router.post("/allocation-annuelle", response_model=AllocationAnnuelleResponse)
 @limiter.limit("10/minute")
 def arbitrage_allocation_annuelle(
@@ -257,6 +263,7 @@ def arbitrage_location_vs_propriete(
     request: Request,
     body: LocationVsProprieteRequest,
     _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> LocationVsProprieteResponse:
     """Compare continuer a louer vs acheter un bien immobilier.
 
@@ -264,48 +271,62 @@ def arbitrage_location_vs_propriete(
     - Option A: Continuer a louer + investir le capital sur le marche
     - Option B: Acheter le bien avec hypotheque
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 3 sev-2 fix — legacy default
+    "VD" produced wrong rent vs property economic comparison for non-VD
+    users). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;
+    otherwise a warning is logged and the legacy hardcoded-default branch
+    resumes (non-strict graceful Flutter rollout).
+
     Returns:
         LocationVsProprieteResponse avec 2 trajectoires, breakeven, sensibilite,
         disclaimer et sources legales (CO, LIFD, FINMA).
     """
+    resolved = _resolve_defaults(profile_data, body, LocationVsProprieteRequest)
+    missing = _required_profile_fields_missing(resolved, LocationVsProprieteRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_LOCATION_VS_PROPRIETE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/arbitrage/location-vs-propriete",
+        )
+
     try:
         result = compare_location_vs_propriete(
-            capital_disponible=body.capital_disponible,
-            loyer_mensuel_actuel=body.loyer_mensuel_actuel,
-            prix_bien=body.prix_bien,
-            canton=(
-                body.canton.upper()
-                if body.canton is not None
-                else "VD"
-            ),
+            capital_disponible=resolved["capital_disponible"],
+            loyer_mensuel_actuel=resolved["loyer_mensuel_actuel"],
+            prix_bien=resolved["prix_bien"],
+            canton=str(resolved["canton"]).upper(),
             horizon_annees=(
-                body.horizon_annees
-                if body.horizon_annees is not None
+                resolved["horizon_annees"]
+                if resolved["horizon_annees"] is not None
                 else 20
             ),
             rendement_marche=(
-                body.rendement_marche
-                if body.rendement_marche is not None
+                resolved["rendement_marche"]
+                if resolved["rendement_marche"] is not None
                 else 0.04
             ),
             appreciation_immo=(
-                body.appreciation_immo
-                if body.appreciation_immo is not None
+                resolved["appreciation_immo"]
+                if resolved["appreciation_immo"] is not None
                 else 0.015
             ),
             taux_hypotheque=(
-                body.taux_hypotheque
-                if body.taux_hypotheque is not None
+                resolved["taux_hypotheque"]
+                if resolved["taux_hypotheque"] is not None
                 else 0.02
             ),
             taux_entretien=(
-                body.taux_entretien
-                if body.taux_entretien is not None
+                resolved["taux_entretien"]
+                if resolved["taux_entretien"] is not None
                 else 0.01
             ),
             is_married=(
-                body.is_married
-                if body.is_married is not None
+                resolved["is_married"]
+                if resolved["is_married"] is not None
                 else False
             ),
         )

@@ -11,9 +11,17 @@ All endpoints are stateless (no data storage). Pure computation on the fly.
 Sources: LHID art. 14, OFS Charge Fiscale 2024, lois fiscales cantonales.
 """
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
+from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.wealth_tax import (
     WealthTaxEstimateRequest,
     WealthTaxEstimateResponse,
@@ -38,27 +46,55 @@ from app.services.fiscal.church_tax_service import (
 router = APIRouter()
 
 
+_WEALTH_TAX_ESTIMATE_HINT_FR = (
+    "Pour estimer ton impôt sur la fortune, j'ai besoin de ton canton. "
+    "Tu peux me le partager ?"
+)
+
+
 # ---------------------------------------------------------------------------
 # Estimate wealth tax for a profile in a specific canton
 # ---------------------------------------------------------------------------
 
 @router.post("/estimate", response_model=WealthTaxEstimateResponse)
 @limiter.limit("30/minute")
-def estimate_wealth_tax(request: Request, body: WealthTaxEstimateRequest) -> WealthTaxEstimateResponse:
+def estimate_wealth_tax(
+    request: Request,
+    body: WealthTaxEstimateRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> WealthTaxEstimateResponse:
     """Estimate wealth tax for a given fortune in a specific canton.
 
     Returns the fortune imposable (after exemption) and the estimated
     annual wealth tax based on simplified effective rates.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (no silent hardcoded fallback). Missing
+    required profile field triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;
+    otherwise a warning is logged and the legacy hardcoded-defaults branch
+    resumes (non-strict graceful Flutter rollout).
+
     Sources: LHID art. 14, OFS Charge Fiscale 2024.
     """
+    resolved = _resolve_defaults(profile_data, body, WealthTaxEstimateRequest)
+    missing = _required_profile_fields_missing(resolved, WealthTaxEstimateRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_WEALTH_TAX_ESTIMATE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/fiscal/wealth-tax/estimate",
+        )
+
     service = WealthTaxService()
 
     try:
         estimate = service.estimate_wealth_tax(
-            fortune=body.fortune_nette,
-            canton=body.canton,
-            civil_status=body.etat_civil,
+            fortune=resolved["fortune_nette"],
+            canton=resolved["canton"],
+            civil_status=resolved["etat_civil"],
         )
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")

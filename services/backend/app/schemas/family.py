@@ -13,7 +13,7 @@ Covers:
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.alias_generators import to_camel
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 # ===========================================================================
@@ -504,15 +504,25 @@ class ConcubinageCompareResponse(FamilyBaseModel):
 # ===========================================================================
 
 class SuccessionRequest(FamilyBaseModel):
-    """Requete pour la comparaison d'impot sur les successions."""
+    """Requete pour la comparaison d'impot sur les successions.
+
+    Per D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is widened
+    from `default="ZH"` to Optional `default=None` with the `from_profile`
+    marker so the `_resolve_defaults` helper can fill it from
+    `_user.profile.canton` before the missing-check fires. A silent ZH default
+    on null canton (W0 audit row 23 sev-3) returned wrong concubin tax rates
+    (~18% ZH vs canton-specific 0-26%) ; the grounding contract closes that
+    silent-wrong-tax class.
+    """
 
     patrimoine: float = Field(
         ..., ge=0,
         description="Patrimoine a transmettre (CHF)",
     )
-    canton: str = Field(
-        default="ZH", min_length=2, max_length=2,
-        description="Code canton (2 lettres)",
+    canton: Optional[str] = Field(
+        default=None, min_length=2, max_length=2,
+        description="Code canton (2 lettres, lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "canton"},
     )
     is_married: bool = Field(
         default=False,

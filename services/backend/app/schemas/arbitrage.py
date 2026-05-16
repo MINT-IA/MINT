@@ -232,7 +232,14 @@ class AllocationAnnuelleResponse(ArbitrageResultSchema):
 # ===========================================================================
 
 class LocationVsProprieteRequest(ArbitrageBaseModel):
-    """Requete pour la comparaison location vs achat immobilier."""
+    """Requete pour la comparaison location vs achat immobilier.
+
+    Per D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` carries the
+    `from_profile` marker so `_resolve_defaults` fills it from
+    `_user.profile.canton` before the missing-check fires. W0 audit row 3
+    sev-2 : the legacy `canton="VD"` fallback produced wrong rent vs property
+    economic comparison for non-VD users.
+    """
 
     capital_disponible: float = Field(
         ..., ge=0,
@@ -248,7 +255,8 @@ class LocationVsProprieteRequest(ArbitrageBaseModel):
     )
     canton: Optional[str] = Field(
         default=None, min_length=2, max_length=2,
-        description="Canton de domicile fiscal (defaut: VD)",
+        description="Canton de domicile fiscal (lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "canton"},
     )
     horizon_annees: Optional[int] = Field(
         default=None, ge=1, le=50,

@@ -17,9 +17,17 @@ GET  /api/v1/family/concubinage/checklist — Checklist concubinage
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 
+from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.family import (
     MariageFiscalRequest,
     MariageFiscalResponse,
@@ -49,6 +57,13 @@ from app.schemas.family import (
 from app.services.family.mariage_service import MariageService
 from app.services.family.naissance_service import NaissanceService
 from app.services.family.concubinage_service import ConcubinageService
+
+
+_CONCUBINAGE_SUCCESSION_HINT_FR = (
+    "Pour estimer la succession en concubinage, j'ai besoin de ton canton — "
+    "les règles successorales varient considérablement entre cantons. "
+    "Tu peux me le partager ?"
+)
 
 
 router = APIRouter()
@@ -402,19 +417,42 @@ def compare_concubinage(request: Request, body: ConcubinageCompareRequest) -> Co
 
 @router.post("/concubinage/succession", response_model=SuccessionResponse)
 @limiter.limit("30/minute")
-def compare_succession(request: Request, body: SuccessionRequest) -> SuccessionResponse:
+def compare_succession(
+    request: Request,
+    body: SuccessionRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> SuccessionResponse:
     """Compare l'impot de succession conjoint vs concubin.
 
     Le conjoint est exonere dans la plupart des cantons. Le concubin
     est impose au taux 'tiers' (10-25% selon le canton).
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 23 sev-3 fix — legacy default
+    "ZH" silently returned wrong concubin tax rates for non-ZH users).
+    Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;
+    otherwise a warning is logged and the legacy hardcoded-default branch
+    resumes (non-strict graceful Flutter rollout).
+
     Sources: Lois cantonales successions, CC art. 457-466.
     """
+    resolved = _resolve_defaults(profile_data, body, SuccessionRequest)
+    missing = _required_profile_fields_missing(resolved, SuccessionRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_CONCUBINAGE_SUCCESSION_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/family/concubinage/succession",
+        )
+
     service = ConcubinageService()
     result = service.estimate_inheritance_tax(
-        patrimoine=body.patrimoine,
-        canton=body.canton,
-        is_married=body.is_married,
+        patrimoine=resolved["patrimoine"],
+        canton=resolved["canton"],
+        is_married=resolved["is_married"],
     )
     return SuccessionResponse(
         canton=result.canton,

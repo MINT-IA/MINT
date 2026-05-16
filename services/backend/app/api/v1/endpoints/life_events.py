@@ -13,6 +13,12 @@ Sprint S10 + W15 (donation + housing sale wiring).
 
 from fastapi import APIRouter, Depends, Request
 from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.core.rate_limit import limiter
 from app.models.user import User
 from app.schemas.life_events import (
@@ -31,6 +37,12 @@ from app.services.divorce_simulator import DivorceSimulator, DivorceInput
 from app.services.succession_simulator import SuccessionSimulator, SuccessionInput
 from app.services.donation_service import DonationService, DonationInput
 from app.services.housing_sale_service import HousingSaleService, HousingSaleInput
+
+
+_SUCCESSION_SIMULATE_HINT_FR = (
+    "Pour estimer les frais de succession, j'ai besoin de ton canton — "
+    "les taux varient considérablement. Tu peux me le partager ?"
+)
 
 router = APIRouter()
 
@@ -167,26 +179,53 @@ def get_divorce_checklist() -> LifeEventChecklistResponse:
 
 @router.post("/succession/simulate", response_model=SuccessionSimulationResponse)
 def simulate_succession(
-    request: SuccessionSimulationRequest,
+    body: SuccessionSimulationRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> SuccessionSimulationResponse:
     """Simulate inheritance distribution under Swiss law (2023 revision).
+
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 26 sev-3 fix — legacy default
+    "GE" silently leaked canton-specific tax rates for non-GE users). Missing
+    profile.canton triggers a 422 with the D-CE-08 `CoachToolIncomplete`
+    envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ; otherwise a warning
+    is logged and the legacy hardcoded-default branch resumes.
 
     Stateless endpoint — no data storage. All computation is done
     on the fly from the provided inputs.
     """
+    resolved = _resolve_defaults(profile_data, body, SuccessionSimulationRequest)
+    missing = _required_profile_fields_missing(resolved, SuccessionSimulationRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_SUCCESSION_SIMULATE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/life-events/succession/simulate",
+        )
+
+    # Pydantic v2 alias_generator is NOT used on this schema (camelCase comes
+    # from raw field names), so resolved keys are camelCase (e.g. `fortuneTotale`).
+    # The enum `etatCivil` is still a SuccessionSimulationRequest field object
+    # when sourced from body ; resolved preserves the value as-is.
+    etat_civil_value = resolved["etatCivil"]
+    if hasattr(etat_civil_value, "value"):
+        etat_civil_value = etat_civil_value.value
+
     input_data = SuccessionInput(
-        fortune_totale=request.fortuneTotale,
-        etat_civil=request.etatCivil.value,
-        a_conjoint=request.aConjoint,
-        nombre_enfants=request.nombreEnfants,
-        a_parents_vivants=request.aParentsVivants,
-        a_fratrie=request.aFratrie,
-        a_concubin=request.aConcubin,
-        a_testament=request.aTestament,
-        quotite_disponible_testament=request.quotiteDisponibleTestament,
-        avoirs_3a=request.avoirs3a,
-        capital_deces_lpp=request.capitalDecesLpp,
-        canton=request.canton,
+        fortune_totale=resolved["fortuneTotale"],
+        etat_civil=etat_civil_value,
+        a_conjoint=resolved["aConjoint"],
+        nombre_enfants=resolved["nombreEnfants"],
+        a_parents_vivants=resolved["aParentsVivants"],
+        a_fratrie=resolved["aFratrie"],
+        a_concubin=resolved["aConcubin"],
+        a_testament=resolved["aTestament"],
+        quotite_disponible_testament=resolved["quotiteDisponibleTestament"],
+        avoirs_3a=resolved["avoirs3a"],
+        capital_deces_lpp=resolved["capitalDecesLpp"],
+        canton=resolved["canton"],
     )
 
     result = _succession_sim.simulate(input_data)
