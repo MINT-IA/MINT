@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-01-w1-shared-helpers-PLAN.md — A3 envelope cherry-picked (Path B), 4 helpers shipped at app/core/profile_resolver.py, client_with_blank_profile fixture appended, 6947 backend tests green (+49 vs baseline 6898)
-last_updated: "2026-05-16T12:28:43.283Z"
+stopped_at: Completed mint-calc-engine-v1-02-w1-priority1-endpoints-PLAN.md — 3 Priority-1 sev-3 endpoints grounded (allocation_annuelle + mortgage/affordability + lpp-deep/rachat-echelonne), sev-3 null-canton crash class closed (T-mint-calc-02-03), Rule-2 auto-add of Depends(require_current_user) on mortgage + lpp_deep routes, 12 cumulative from_profile markers, 6958 backend tests green (+11 vs Plan 01 baseline 6947)
+last_updated: "2026-05-16T13:10:00.000Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 12
   completed_phases: 1
   total_plans: 7
-  completed_plans: 4
-  percent: 57
+  completed_plans: 5
+  percent: 71
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -36,9 +36,9 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING
-Plan: 2 of 20
+Plan: 3 of 20
 Status: Ready to execute
-Last activity: 2026-05-16
+Last activity: 2026-05-16 — Plan 02 closed (Priority-1 sev-3 grounded ; sev-3 null-canton crash class closed)
 
 ## Plan wave-1b-08 Receipt (Sentry breadcrumb on citation emission, 2026-05-15)
 
@@ -355,8 +355,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-16T12:28:43.280Z
-Stopped at: Completed mint-calc-engine-v1-01-w1-shared-helpers-PLAN.md — A3 envelope cherry-picked (Path B), 4 helpers shipped at app/core/profile_resolver.py, client_with_blank_profile fixture appended, 6947 backend tests green (+49 vs baseline 6898)
+Last session: 2026-05-16T13:10:00.000Z
+Stopped at: Completed mint-calc-engine-v1-02-w1-priority1-endpoints-PLAN.md — 3 Priority-1 sev-3 endpoints grounded (allocation_annuelle + mortgage/affordability + lpp-deep/rachat-echelonne), sev-3 null-canton crash class closed (T-mint-calc-02-03), Rule-2 auto-add of Depends(require_current_user) on mortgage + lpp_deep routes, 12 cumulative from_profile markers, 6958 backend tests green (+11 vs Plan 01 baseline 6947)
 Resume file: None
 
 <details>

@@ -22,7 +22,7 @@
 **Plans**: 20 plans (W1: 6, W2: 5, W3: 5, W4: 4)
 Plans:
 - [x] mint-calc-engine-v1-01-w1-shared-helpers-PLAN.md — shared `_resolve_defaults` + `get_profile_filled` + `raise_incomplete_as_422` + A3 envelope cherry-pick + `client_with_blank_profile` fixture
-- [ ] mint-calc-engine-v1-02-w1-priority1-endpoints-PLAN.md — Priority-1 sev-3 endpoint grounding (allocation_annuelle + affordability + rachat_echelonne)
+- [x] mint-calc-engine-v1-02-w1-priority1-endpoints-PLAN.md — Priority-1 sev-3 endpoint grounding (allocation_annuelle + affordability + rachat_echelonne) ; sev-3 null-canton crash class closed (T-mint-calc-02-03) ; Rule-2 auto-add of Depends(require_current_user) on mortgage + lpp_deep routes ; 12 cumulative from_profile markers ; 6958 backend tests green (+11)
 - [ ] mint-calc-engine-v1-03-w1-priority2-endpoints-PLAN.md — Priority-2 sev-3 endpoint grounding (wealth_tax + succession + concubinage + location_vs_propriete)
 - [ ] mint-calc-engine-v1-04-w1-lucidity-payloads-PLAN.md — L1/L2/L3/L4 typed payloads + L4 wedge endpoint (Finding 5)
 - [ ] mint-calc-engine-v1-05-w1-calc-registry-PLAN.md — AST scanner + `_registry.py` scaffold (~40-57 entries)
