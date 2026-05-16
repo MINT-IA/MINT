@@ -21,7 +21,7 @@
 **Requirements**: D-CE-01, D-CE-02, D-CE-03, D-CE-04, D-CE-05, D-CE-06, D-CE-07, D-CE-08, D-CE-09, D-CE-10, D-CE-11, D-CE-12, D-CE-13, D-CE-14, D-CE-15, D-CE-16, D-CE-17, D-CE-18, D-CE-19, D-CE-20 + Concerns A/B/C/D/E/F + Findings 3/4/5/6
 **Plans**: 20 plans (W1: 6, W2: 5, W3: 5, W4: 4)
 Plans:
-- [ ] mint-calc-engine-v1-01-w1-shared-helpers-PLAN.md — shared `_resolve_defaults` + `get_profile_filled` + `raise_incomplete_as_422` + A3 envelope cherry-pick + `client_with_blank_profile` fixture
+- [x] mint-calc-engine-v1-01-w1-shared-helpers-PLAN.md — shared `_resolve_defaults` + `get_profile_filled` + `raise_incomplete_as_422` + A3 envelope cherry-pick + `client_with_blank_profile` fixture
 - [ ] mint-calc-engine-v1-02-w1-priority1-endpoints-PLAN.md — Priority-1 sev-3 endpoint grounding (allocation_annuelle + affordability + rachat_echelonne)
 - [ ] mint-calc-engine-v1-03-w1-priority2-endpoints-PLAN.md — Priority-2 sev-3 endpoint grounding (wealth_tax + succession + concubinage + location_vs_propriete)
 - [ ] mint-calc-engine-v1-04-w1-lucidity-payloads-PLAN.md — L1/L2/L3/L4 typed payloads + L4 wedge endpoint (Finding 5)
