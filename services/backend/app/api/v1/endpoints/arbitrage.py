@@ -23,6 +23,12 @@ Sources:
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.core.rate_limit import limiter
 from app.models.user import User
 from app.schemas.arbitrage import (
@@ -158,12 +164,20 @@ def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest, _u
         raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
+_ALLOCATION_ANNUELLE_HINT_FR = (
+    "Pour estimer ton allocation annuelle, j'ai besoin de ton canton, "
+    "de savoir si tu es propriétaire et de ton taux hypothécaire actuel. "
+    "Tu peux me les partager ?"
+)
+
+
 @router.post("/allocation-annuelle", response_model=AllocationAnnuelleResponse)
 @limiter.limit("10/minute")
 def arbitrage_allocation_annuelle(
     request: Request,
     body: AllocationAnnuelleRequest,
     _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> AllocationAnnuelleResponse:
     """Compare les strategies d'allocation annuelle de l'epargne.
 
@@ -173,59 +187,62 @@ def arbitrage_allocation_annuelle(
     - Amortissement indirect (si proprietaire)
     - Investissement libre (toujours disponible)
 
+    Grounded via D-CE-06 + D-CE-07 : canton, is_property_owner,
+    taux_hypothecaire and rendement_3a are read from `_user.profile` when
+    not supplied in the body (no silent hardcoded VD/False/1.5%/2%
+    fallback). Missing required profile fields trigger a 422 with the
+    D-CE-08 `CoachToolIncomplete` envelope when
+    `PROFILE_GROUNDING_STRICT_MODE=true` ; otherwise a warning is logged
+    and the legacy hardcoded-defaults branch resumes (non-strict
+    graceful Flutter rollout).
+
     Returns:
         AllocationAnnuelleResponse avec trajectoires, breakeven, sensibilite,
         disclaimer et sources legales.
     """
+    resolved = _resolve_defaults(profile_data, body, AllocationAnnuelleRequest)
+    missing = _required_profile_fields_missing(resolved, AllocationAnnuelleRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_ALLOCATION_ANNUELLE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/arbitrage/allocation-annuelle",
+        )
+
     try:
         result = compare_allocation_annuelle(
-            montant_disponible=body.montant_disponible,
-            taux_marginal=body.taux_marginal,
+            montant_disponible=resolved["montant_disponible"],
+            taux_marginal=resolved["taux_marginal"],
             a3a_maxed=(
-                body.a3a_maxed
-                if body.a3a_maxed is not None
+                resolved["a3a_maxed"]
+                if resolved["a3a_maxed"] is not None
                 else False
             ),
             potentiel_rachat_lpp=(
-                body.potentiel_rachat_lpp
-                if body.potentiel_rachat_lpp is not None
+                resolved["potentiel_rachat_lpp"]
+                if resolved["potentiel_rachat_lpp"] is not None
                 else 0
             ),
-            is_property_owner=(
-                body.is_property_owner
-                if body.is_property_owner is not None
-                else False
-            ),
-            taux_hypothecaire=(
-                body.taux_hypothecaire
-                if body.taux_hypothecaire is not None
-                else 0.015
-            ),
+            is_property_owner=bool(resolved["is_property_owner"]),
+            taux_hypothecaire=float(resolved["taux_hypothecaire"]),
             annees_avant_retraite=(
-                body.annees_avant_retraite
-                if body.annees_avant_retraite is not None
+                resolved["annees_avant_retraite"]
+                if resolved["annees_avant_retraite"] is not None
                 else 20
             ),
-            rendement_3a=(
-                body.rendement_3a
-                if body.rendement_3a is not None
-                else 0.02
-            ),
+            rendement_3a=float(resolved["rendement_3a"]),
             rendement_lpp=(
-                body.rendement_lpp
-                if body.rendement_lpp is not None
+                resolved["rendement_lpp"]
+                if resolved["rendement_lpp"] is not None
                 else 0.0125
             ),
             rendement_marche=(
-                body.rendement_marche
-                if body.rendement_marche is not None
+                resolved["rendement_marche"]
+                if resolved["rendement_marche"] is not None
                 else 0.04
             ),
-            canton=(
-                body.canton.upper()
-                if body.canton is not None
-                else "VD"
-            ),
+            canton=str(resolved["canton"]).upper(),
         )
 
         return _result_to_response(result, AllocationAnnuelleResponse)

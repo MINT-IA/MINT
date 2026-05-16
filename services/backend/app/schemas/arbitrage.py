@@ -190,11 +190,13 @@ class AllocationAnnuelleRequest(ArbitrageBaseModel):
     )
     is_property_owner: Optional[bool] = Field(
         default=None,
-        description="Proprietaire d'un bien immobilier (defaut: False)",
+        description="Proprietaire d'un bien immobilier (lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "is_property_owner"},
     )
     taux_hypothecaire: Optional[float] = Field(
         default=None,
-        description="Taux hypothecaire actuel (defaut: 1.5%)",
+        description="Taux hypothecaire actuel (lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "taux_hypothecaire"},
     )
     annees_avant_retraite: Optional[int] = Field(
         default=None, ge=1, le=50,
@@ -202,7 +204,8 @@ class AllocationAnnuelleRequest(ArbitrageBaseModel):
     )
     rendement_3a: Optional[float] = Field(
         default=None,
-        description="Rendement attendu du 3a (defaut: 2%)",
+        description="Rendement attendu du 3a (lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "rendement_3a"},
     )
     rendement_lpp: Optional[float] = Field(
         default=None,
@@ -214,7 +217,8 @@ class AllocationAnnuelleRequest(ArbitrageBaseModel):
     )
     canton: Optional[str] = Field(
         default=None, min_length=2, max_length=2,
-        description="Canton de domicile fiscal (defaut: VD)",
+        description="Canton de domicile fiscal (lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "canton"},
     )
 
 
