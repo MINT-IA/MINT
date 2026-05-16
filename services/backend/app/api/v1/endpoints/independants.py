@@ -10,9 +10,17 @@ POST /api/v1/independants/lpp-volontaire       — Voluntary LPP simulator
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 
+from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.independants import (
     AvsCotisationsRequest,
     AvsCotisationsResponse,
@@ -31,6 +39,19 @@ from app.services.independants.ijm_service import simuler_ijm
 from app.services.independants.pillar_3a_indep_service import calculer_3a_independant
 from app.services.independants.dividende_vs_salaire_service import simuler_dividende_vs_salaire
 from app.services.independants.lpp_volontaire_service import simuler_lpp_volontaire
+
+
+_PILLAR_3A_INDEP_HINT_FR = (
+    "Pour calculer ton 3a indépendant, j'ai besoin de ton canton — "
+    "l'économie fiscale dépend du barème cantonal. Tu peux me le partager ?"
+)
+
+
+_DIVIDENDE_VS_SALAIRE_HINT_FR = (
+    "Pour comparer dividende et salaire, j'ai besoin de ton canton — "
+    "la charge sociale et fiscale dépend du barème cantonal. "
+    "Tu peux me le partager ?"
+)
 
 
 router = APIRouter()
@@ -112,19 +133,36 @@ def simulate_ijm(
 def compute_3a_independant(
     request: Request,
     body: Pillar3aIndepRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> Pillar3aIndepResponse:
     """Calculate enhanced 3a limit and tax savings for a self-employed worker.
 
     Self-employed WITHOUT LPP benefit from the "grand 3a": 20% of net income,
     max 36'288 CHF/year.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 29 — silent ZH default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: OPP3 art. 7, LPP art. 4, LIFD art. 33 al. 1 let. e.
     """
+    resolved = _resolve_defaults(profile_data, body, Pillar3aIndepRequest)
+    missing = _required_profile_fields_missing(resolved, Pillar3aIndepRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_PILLAR_3A_INDEP_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/independants/3a-independant",
+        )
+
     result = calculer_3a_independant(
-        revenu_net=body.revenu_net,
-        affilie_lpp=body.affilie_lpp,
-        taux_marginal_imposition=body.taux_marginal_imposition,
-        canton=body.canton,
+        revenu_net=resolved["revenu_net"],
+        affilie_lpp=resolved["affilie_lpp"],
+        taux_marginal_imposition=resolved["taux_marginal_imposition"],
+        canton=str(resolved["canton"]),
     )
 
     return Pillar3aIndepResponse(
@@ -147,19 +185,36 @@ def compute_3a_independant(
 def simulate_dividende_vs_salaire(
     request: Request,
     body: DividendeVsSalaireRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> DividendeVsSalaireResponse:
     """Simulate dividend vs salary optimization for SA/Sarl directors.
 
     Compares total fiscal and social charge across different salary/dividend
     splits. Warns about requalification risk.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 31 — silent ZH default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: LIFD art. 20, LIFD art. 17-18, LAVS art. 14.
     """
+    resolved = _resolve_defaults(profile_data, body, DividendeVsSalaireRequest)
+    missing = _required_profile_fields_missing(resolved, DividendeVsSalaireRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_DIVIDENDE_VS_SALAIRE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/independants/dividende-vs-salaire",
+        )
+
     result = simuler_dividende_vs_salaire(
-        benefice_disponible=body.benefice_disponible,
-        part_salaire=body.part_salaire,
-        taux_marginal=body.taux_marginal,
-        canton=body.canton,
+        benefice_disponible=resolved["benefice_disponible"],
+        part_salaire=resolved["part_salaire"],
+        taux_marginal=resolved["taux_marginal"],
+        canton=str(resolved["canton"]),
     )
 
     return DividendeVsSalaireResponse(

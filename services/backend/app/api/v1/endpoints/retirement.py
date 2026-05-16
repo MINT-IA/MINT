@@ -9,9 +9,17 @@ GET  /api/v1/retirement/checklist     — Retirement preparation checklist
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 
+from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.retirement import (
     AvsEstimationRequest,
     AvsEstimationResponse,
@@ -30,6 +38,12 @@ router = APIRouter()
 DISCLAIMER = (
     "Estimations educatives simplifiees. Ne constitue pas un conseil "
     "en prevoyance (LSFin). Consulte un ou une specialiste."
+)
+
+
+_LPP_COMPARE_HINT_FR = (
+    "Pour comparer rente et capital LPP, j'ai besoin de ton canton — "
+    "l'imposition du capital varie considérablement. Tu peux me le partager ?"
 )
 
 
@@ -78,19 +92,39 @@ def estimate_avs(request: Request, body: AvsEstimationRequest) -> AvsEstimationR
 
 @router.post("/lpp/compare", response_model=LppConversionResponse)
 @limiter.limit("10/minute")
-def compare_lpp(request: Request, body: LppConversionRequest) -> LppConversionResponse:
+def compare_lpp(
+    request: Request,
+    body: LppConversionRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> LppConversionResponse:
     """Compare LPP rente vs capital withdrawal at retirement.
 
     Includes breakeven age, progressive capital tax, and neutral recommendation.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 43 — silent ZH default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: LPP art. 14, LIFD art. 38.
     """
+    resolved = _resolve_defaults(profile_data, body, LppConversionRequest)
+    missing = _required_profile_fields_missing(resolved, LppConversionRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_LPP_COMPARE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/retirement/lpp/compare",
+        )
+
     service = LppConversionService()
     result = service.compare(
-        capital_lpp=body.capital_lpp,
-        canton=body.canton,
-        retirement_age=body.age_retraite,
-        life_expectancy=body.esperance_vie,
+        capital_lpp=resolved["capital_lpp"],
+        canton=str(resolved["canton"]),
+        retirement_age=resolved["age_retraite"],
+        life_expectancy=resolved["esperance_vie"],
     )
     return LppConversionResponse(
         capital_total=result.capital_total,
