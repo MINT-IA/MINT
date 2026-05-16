@@ -169,12 +169,16 @@ def test_debt_intent_activates_mortgage_and_compliance():
 
 
 def test_family_intent_activates_life_event_and_compliance():
-    """family → {life-event-router, compliance-narrator}. Both always-on
-    already → no new entries beyond the always-on baseline."""
+    """family → {life-event-router, compliance-narrator, succession-divorce}.
+
+    Pre-Plan-08 : both were always-on → no new entries beyond the always-on
+    baseline. Plan 08 (D-CE-03 Override #2) added SuccessionDivorceBundle
+    to the `family` intent so the narrator can surface CC art. 122-124 +
+    CC art. 462 + CC art. 467-469 + LAVS art. 29sexies citation grammar.
+    """
     out = compile_bundles(intents={"family"})
-    # Both are already always-on, so the activated list is unchanged.
     assert sorted(out.activated_bundles) == sorted(
-        ["compliance-narrator", "life-event-router"]
+        ["compliance-narrator", "life-event-router", "succession-divorce"]
     )
 
 
