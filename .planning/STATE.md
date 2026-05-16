@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-04-w1-lucidity-payloads-PLAN.md — D-CE-15 typed L1-L4 discriminated union live, recommended_option-equivalents structurally rejected by extra=forbid, narrative parity validator kills lopsided 200/50/50 ranking creep, L4 wedge endpoint /api/v1/lucidity/invariants/mortgage-cap (33% LCC plafond per LCC art. 28) authenticated and lint-clean, 6989 backend tests green (+19 vs Plan 03 baseline 6970)
-last_updated: "2026-05-16T13:25:38.480Z"
+stopped_at: Completed mint-calc-engine-v1-05-w1-calc-registry-PLAN.md — AST calc registry scaffold (63 calcs across 12 domains) + REVERSE_DEP_MAP seed (146 fields, 25 calcs depend on canton) live at services/backend/app/calculators/, generator at tools/generate_calc_registry.py with --check CLI for CI freshness gate, 13 contract tests green, 7002 backend tests green (+13 vs Plan 04 baseline 6989, zero regressions). D-CE-09 Strangler-fig honored (zero physical moves) ; D-CE-14 reverse-dep seed kills two birds with the same AST walk ; Q2 resolved CI-only.
+last_updated: "2026-05-16T13:39:51.021Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 12
@@ -36,9 +36,32 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING
-Plan: 5 of 20
+Plan: 6 of 20
 Status: Ready to execute
 Last activity: 2026-05-16
+
+## Plan mint-calc-engine-v1-05 Receipt (W1 calc registry AST scaffold + reverse-dep map seed, 2026-05-16)
+
+- Files created : 4 (1 SUMMARY + 1 generator + 1 package __init__ + 1 auto-generated registry + 1 test file = 5 ; SUMMARY counted under docs)
+- Generator : `tools/generate_calc_registry.py` 577 LOC — AST scanner walking `services/backend/app/services/` (12 calc sub-dirs + 12 root calc files) with widened heuristic (compute_/simulate_/compare_/estimate_/calculate_ + bare verbs on class methods) + 27-name EXCLUDED_FUNC_NAMES blocklist (utility helpers : compute_inputs_hash, compute_fingerprint, calculate_precision_score, etc.). CLI : `--print` (stdout) / `--check` (exit 1 on drift) / no-arg (writes `_registry.py`). Canonical name format `<file_stem>__<func_qualname>` (double underscore) for unambiguous parsing.
+- Generated artifact : `services/backend/app/calculators/_registry.py` 1034 LOC AUTO-GENERATED, 63 CalculatorMetadata entries vs W0-AUDIT-MATRIX expected 57 — overcount driven by class-method services that emit 2-3 entries per logical calculator (WealthTaxService → 3 entries : estimate_wealth_tax + compare_all_cantons + simulate_move_wealth). 146 REVERSE_DEP_MAP fields (25 calcs depend on `canton`, the W0 prediction « ~half of 57 calcs are canton-dependent »).
+- Package marker : `services/backend/app/calculators/__init__.py` 24 LOC — re-exports REGISTRY + REVERSE_DEP_MAP + CalculatorMetadata + get_calculator + get_reverse_deps.
+- D-CE-09 Strangler-fig honored : zero physical file moves. The registry only INDEXES the existing services tree ; `entry['file']` field points to relative paths under `services/backend/app/services/`.
+- D-CE-14 reverse-dep map seed : produced as a side product of the SAME AST walk per Override #5 (« kills two birds »). Full implementation lands in Plan 14.
+- Tests : 13 contract tests (`services/backend/tests/test_calc_registry.py` 240 LOC) — 8 registry-shape (min entries / shape / file exists / output_type valid / reverse-dep min / canton non-empty / KeyError / idempotent regen) + 5 generator-behavior (sample find / min 40 / canton ≥ 20 / life-events mapping / --print parseable).
+- Q-decisions shipped : Q2 resolved CI-only (lefthook deferred to Wave 2 IF Plan 07 ToolRegistryAdapter surfaces drift) ; canonical name format uses `__` double underscore separator (plan's example `_` was ambiguous) ; widened heuristic from plan's 3 prefixes to 5 prefixes + 5 bare verbs (plan's heuristic caught 17 of 57 — would have failed Task 2 acceptance).
+- Gates green :
+  - `python3 tools/generate_calc_registry.py` → `WROTE : services/backend/app/calculators/_registry.py (63 calculators)`
+  - `python3 tools/generate_calc_registry.py --check` (immediately after) → `OK : registry is fresh.` (proves idempotence)
+  - `python3 tools/generate_calc_registry.py --print | python3 -c "import ast, sys; ast.parse(sys.stdin.read())"` → exit 0 (parseable Python)
+  - `cd services/backend && python3 -m pytest tests/test_calc_registry.py -q -x` → `13 passed in 0.54s`
+  - `cd services/backend && python3 -m pytest tests/ -q` → `7002 passed, 62 skipped, 1 xfailed, 1 warning in 113.77s` — net delta vs Plan 04 baseline (`6989 passed`) = `+13 passed` (exact match for the 13 new tests, zero regressions, zero new skips)
+  - `python3 tools/checks/banned_terms_python.py tools/generate_calc_registry.py services/backend/tests/test_calc_registry.py services/backend/app/calculators/__init__.py services/backend/app/calculators/_registry.py` → exit 0
+- Commits : `fdbeb1af` (Task 1 — generator) → `1d107a0d` (Task 2 — registry artifact + 13 contract tests) → docs commit pending (this SUMMARY + STATE.md + ROADMAP.md update).
+- Duration : ~12 min
+- Deviations : 2 auto-fixed. (1) Rule 2 — widened heuristic from plan's `(compute_|simulate_|compare_)` (caught 17 module-level) to `(compute_|simulate_|compare_|estimate_|calculate_)` + bare verbs on class methods scoped to whitelist + 27-name blocklist (catches 63) to satisfy Task 2's `len(REGISTRY) >= 40` acceptance. (2) Rule 1 — canonical name format uses `__` double underscore separator (plan's `_` example was ambiguous when func name contains underscores).
+- 0-trust : `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-05-w1-calc-registry-SUMMARY.md` `## Self-Check: PASSED` with 11 file/command citations + caveat block listing what was NOT checked (CI workflow wiring is the Q2 TODO ; per-row 63-vs-57 diff not produced ; magic-comment lucidity annotations not in any production calc).
+- USER VALUE DELIVERED : zero end-user-visible change. Registry is plumbing for Plan 07 (`w2-tool-registry-adapter`) — first consumer the user will feel via better LLM tool discoverability. PRs opened against `dev` (no PR — direct commits on `dev` branch per plan sequential model). Stage 1 of 4 per CLAUDE.md §9.5.
 
 ## Plan wave-1b-08 Receipt (Sentry breadcrumb on citation emission, 2026-05-15)
 
@@ -355,8 +378,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-16T13:25:38.477Z
-Stopped at: Completed mint-calc-engine-v1-04-w1-lucidity-payloads-PLAN.md — D-CE-15 typed L1-L4 discriminated union live, recommended_option-equivalents structurally rejected by extra=forbid, narrative parity validator kills lopsided 200/50/50 ranking creep, L4 wedge endpoint /api/v1/lucidity/invariants/mortgage-cap (33% LCC plafond per LCC art. 28) authenticated and lint-clean, 6989 backend tests green (+19 vs Plan 03 baseline 6970)
+Last session: 2026-05-16T13:39:51.018Z
+Stopped at: Completed mint-calc-engine-v1-05-w1-calc-registry-PLAN.md — AST calc registry scaffold (63 calcs across 12 domains) + REVERSE_DEP_MAP seed (146 fields, 25 calcs depend on canton) live at services/backend/app/calculators/, generator at tools/generate_calc_registry.py with --check CLI for CI freshness gate, 13 contract tests green, 7002 backend tests green (+13 vs Plan 04 baseline 6989, zero regressions). D-CE-09 Strangler-fig honored (zero physical moves) ; D-CE-14 reverse-dep seed kills two birds with the same AST walk ; Q2 resolved CI-only.
 Resume file: None
 
 <details>
