@@ -1,6 +1,26 @@
 """
 Frontalier (Cross-Border Worker) Service.
 
+S12 « segments sociologiques » service — kept as canonical alongside the S23
+sister `app.services.expat.frontalier_service` module. **This module is NOT a
+deprecated shim** despite W0-AUDIT-MATRIX row 35 misclassification (corrected
+2026-05-16 via Plan 11 mint-calc-engine-v1 scope correction).
+
+This module exposes the monolithic `FrontalierService.analyze(FrontalierInput)
+-> FrontalierResult` API + `COUNTRY_RULES` (5 pays: FR/DE/IT/AT/LI) +
+`PAYS_FRONTALIERS` set, consumed by `app.api.v1.endpoints.segments`
+(/api/v1/segments/frontalier/simulate).
+
+The S23 sister `app.services.expat.frontalier_service` defines a class with
+the **same name** `FrontalierService` but a **completely different surface**:
+`calculate_source_tax`, `check_quasi_resident`, `simulate_90_day_rule`,
+`compare_social_charges`, `estimate_lamal_option` (no `.analyze()`,
+no Input/Result dataclasses, no COUNTRY_RULES). Homonymous classes,
+incompatible APIs — they are **sister services**, not duplicates.
+
+API consolidation (monolithic vs granular) is deferred —
+see `.planning/deferred-items.md` entry « S12-API-consolidation ».
+
 Provides analysis and recommendations for cross-border workers (permit G)
 based on their country of residence and canton of work in Switzerland.
 

@@ -1,6 +1,22 @@
 """
 Independant (Self-Employed Worker) Service.
 
+S12 « segments sociologiques » service — kept as canonical alongside the S18
+`app.services.independants` package. **This module is NOT a deprecated shim**
+despite W0-AUDIT-MATRIX row 32 misclassification (corrected 2026-05-16 via
+Plan 11 mint-calc-engine-v1 scope correction).
+
+This module exposes the monolithic `IndependantService.analyze(IndependantInput)
+-> IndependantResult` API consumed by `app.api.v1.endpoints.segments`
+(/api/v1/segments/independant/simulate). The S18 package
+`app.services.independants` exposes a separate **functional** API
+(5 `calculer_*` functions + 5 `*Result` dataclasses, no class).
+Both surfaces are correct for their respective callers — they are
+**sister services**, not duplicates.
+
+API consolidation (monolithic class vs functional split) is deferred —
+see `.planning/deferred-items.md` entry « S12-API-consolidation ».
+
 Provides analysis of social security coverage, contribution calculations,
 and protection gap identification for self-employed workers in Switzerland.
 
