@@ -499,25 +499,31 @@ python3 tools/gsd_infra/update_verification_html.py --phase {phase-slug} --appen
 ```
 This regenerates `.planning/phases/{phase-slug}/{phase-slug}-VERIFICATION-REPORT.html` (dashboard of all plan SUMMARYs in the phase) AND appends/refreshes the phase section in `.planning/reports/SESSION-YYYY-MM-DD.html`. Memory feedback_html_evidence_report.md mandates this — never `/tmp/...`, never plain markdown only.
 
-**2. Persist plan outcome to engram MCP (mandatory, not « deferred »)**
-Call the `mem_save` MCP tool with:
-- `title`: short searchable label (e.g. "calc-engine W1-NN-plan-slug shipped on dev")
+**2. Persist plan outcome to engram (MCP primary, Bash CLI fallback)**
+Primary path : call the `mcp__plugin_engram_engram__mem_save` MCP tool with:
+- `title`: short searchable label
 - `type`: "decision" (default), or "bugfix" / "pattern" / "architecture" depending on plan nature
-- `topic_key`: `<area>:<sub-area>:<specific>` agent-agnostic (e.g. `calc_engine:w1:priority1_endpoints_grounded`)
+- `topic_key`: `<area>:<sub-area>:<specific>` agent-agnostic
 - `content`: **What** / **Why** / **Where** / **Learned** structured body — extract from SUMMARY.md
-- Include `prior_finding_refs: [<obs_id>, ...]` if your `mem_search` at plan start surfaced relevant past observations
+- `prior_finding_refs: [<obs_id>, ...]` if your `mem_search` at plan start surfaced relevant past observations
 
-If `mem_save` MCP tool is NOT in your tool list, this is a configuration bug — log it in SUMMARY.md as « Engram save BLOCKED — MCP not exposed » and ask the orchestrator to fix the agent frontmatter. Do NOT fall back to `engram save` CLI — the CLI respects `ENGRAM_DATA_DIR=/Volumes/FUN2/engram` which points to a corrupted DB (see CLAUDE.md §3 Engram note).
+If `mem_save` MCP tool is NOT in your tool list, fall back to the Bash CLI : `engram save "<title>" "<msg>" --project <project> --type <type> --topic_key <key>`. The CLI writes to the same live DB as the MCP daemon. This matches GSD upstream pattern (PR #2074, anthropics/claude-code#13898 — `tools:` whitelist strips inherited MCP, CLI fallback is the documented workaround).
 
-**3. LSFin compliance via MCP (not just file lint)**
-For ANY file you wrote/modified that contains user-facing French strings (`hint_fr`, `description`, narrative payloads, error messages), call the `check_banned_terms` MCP tool (from `mint-tools` server). The MCP returns structured `{banned_found, sanitized_text}` JSON — strictly better signal than `python3 tools/checks/banned_terms_python.py`. Run BOTH if uncertain.
+If BOTH MCP and CLI fail, log « Engram save BLOCKED — both paths failed » in SUMMARY.md with the exact error. Orchestrator will save manually post-return (orchestrator-side save belt-and-suspenders — see CLAUDE.md §3.5).
 
-For ARB changes : also call `validate_arb_parity` MCP.
+**3. LSFin compliance via file lints (mint-tools MCP doesn't propagate to subagents)**
+Run Bash file lints on any file you wrote/modified that contains user-facing French strings (`hint_fr`, `description`, narrative payloads, error messages):
+- `python3 tools/checks/banned_terms_python.py <touched-files>` — exits non-zero on LSFin banned terms
+- `python3 tools/checks/accent_lint_fr.py --scope backend` — flags ASCII-instead-of-accent patterns
+
+For ARB changes : `python3 tools/checks/arb_parity_lint.py` (lefthook-active hard gate).
+
+Project-scope `.mcp.json` MCP servers (mint-tools, context7) do NOT propagate to subagents (Claude Code limitation). File lints via Bash are the reliable path. mint-tools MCP remains available to the orchestrator for structured `{banned_found, sanitized_text}` output.
 
 **4. Cite evidence — 0-trust protocol (CLAUDE.md §9)**
 Your completion report MUST include explicit evidence citations for any « green » / « shipped » / « ready » claim. Forbidden without citation: « shipped », « closed », « ready », « works », « validated », « green », « PROVISIONALLY READY ». Acceptable substitutes when no citation : « unit tests green, end-to-end UNKNOWN », « PR opened, merge + sim verification pending », « I haven't checked ». The completion report goes into the orchestrator's context — be precise.
 
-**Why this contract exists:** Plans 01-05 of mint-calc-engine-v1 (2026-05-16 session) all logged « Engram save — DEFERRED » because the MCP wasn't whitelisted in the agent frontmatter, AND no HTML report was generated because the convention was oral. Both gaps closed in this contract.
+**Why this contract exists:** Closes the gap where subagents drop engram saves silently (Claude Code agent loader strips inherited MCP when `tools:` whitelist is set — see anthropics/claude-code#13898) AND no HTML evidence dashboard was produced because the convention lived only in oral history. This contract codifies both — engram via MCP-or-CLI, HTML via Bash helper, FR compliance via file lints.
 </mint_infra_contract>
 
 <final_commit>
