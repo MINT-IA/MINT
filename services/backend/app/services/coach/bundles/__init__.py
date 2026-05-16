@@ -26,6 +26,7 @@ from app.services.coach.bundles.life_event_router import LifeEventRouterBundle
 from app.services.coach.bundles.lpp_projector import LppProjectorBundle
 from app.services.coach.bundles.mortgage_stressor import MortgageStressorBundle
 from app.services.coach.bundles.pillar3a_optimizer import Pillar3aOptimizerBundle
+from app.services.coach.bundles.succession_divorce_bundle import SuccessionDivorceBundle
 from app.services.coach.bundles.tax_explainer import TaxExplainerBundle
 
 
@@ -61,6 +62,7 @@ __all__ = [
     "LifeEventRouterBundle",
     "Pillar3aOptimizerBundle",
     "LppProjectorBundle",
+    "SuccessionDivorceBundle",
     "TaxExplainerBundle",
     "MortgageStressorBundle",
     "ALL_BUNDLE_CLASSES",
