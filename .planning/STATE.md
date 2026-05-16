@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.9
-milestone_name: Chat-as-Verb Pivot
+milestone: v2.10
+milestone_name: Lucidité Engine
 status: executing
-stopped_at: Wave 1c-A3 missing-fields-handshake CONTEXT + DISCUSSION-LOG written (4 expert panels run 2026-05-15 21:00-21:05 CEST; 4 decisions locked D-A3-01..04 + 7 derivative D-A3-05..11). Predecessor wave-1c-A2.1 MERGED to dev (PR #641 sha 37fbd889) + deployed to staging (PR #642 sha c235e865, Railway SUCCESS 2026-05-15T20:39:46Z); A2.1 live probe shows clean 104-char user message but empty narrator response (probe-2026-05-15-A21-2240.json) — this is the bug A3 fixes. A3 not yet planned / no PR opened.
-last_updated: "2026-05-15T21:15:00.000Z"
-last_activity: 2026-05-15 -- Wave 1c-A3 CONTEXT landed via 4-panel expert brainstorm (engram obs #89/#90/#91-in-message/#92)
+stopped_at: Completed wave-1b-09-PLAN.md — wave_1b_close.sh + Maestro G1 + phase SUMMARY + VERIFICATION-REPORT.html + G2 BLOCKED docs; phase PENDING G2 awaiting dev→staging merge + Railway flag flip; branch feature/wave-1b-09-rollout-close ready for PR
+last_updated: "2026-05-16T10:06:40.993Z"
+last_activity: "2026-05-16 — Wave 1c-A3 PR #643 opened"
 progress:
   total_phases: 12
   completed_phases: 1
@@ -38,7 +38,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 Phase: 1b (citation-chips) — PENDING G2
 Plan: 9 SUMMARYs landed of 9 (all plans closed ; phase status PENDING G2 = awaiting operator dev→staging merge + Railway 5-flag flip per WAVE1B-10 protocol, then Claude runs autonomous Maestro+sim G2 walkthrough per CONTEXT D-05)
 Status: Ready to execute
-Last activity: 2026-05-15 -- Phase wave-1c-coach-tool-dispatch-rca planning complete
+Last activity: 2026-05-16 — Wave 1c-A3 PR #643 opened
 
 ## Plan wave-1b-08 Receipt (Sentry breadcrumb on citation emission, 2026-05-15)
 

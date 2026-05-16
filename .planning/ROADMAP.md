@@ -16,16 +16,47 @@
 
 ### Phase: mint-calc-engine-v1
 **Goal**: Make MINT's ~57 already-shipped Swiss financial calculators (LLM-)discoverable, real-profile-grounded, architecturally findable, and DAG-reactive. Build the lucidité engine (L1 chiffrer / L2 comparer / L3 éclairer / L4 invariants) on top of the existing calc surface. Does NOT add new calculators in v1 — the surface already exists (per [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md), 57 ✅ + 4 ⚠️ + 3 ❌ truly absent).
-**Status**: Discuss-phase pending (power mode). CONTEXT.md to be produced after Julien answers the question set generated at `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-QUESTIONS.html`.
-**Depends on**: Wave 1c-A3 (held — see decisions/2026-05-16-calc-engine-matrix.md §"Sequencing"). Phase 96 KILLED — replaces that doctrine slot.
+**Status**: 🚧 PLANNED 2026-05-16 — 20 plans across 4 waves (W1 grounding + L1-L4 payloads + registry / W2 ToolRegistryAdapter + bundles + Tool Search + envelope V2 + deprecations / W3 DAG cache + reverse-dep map + pre-compute + GC / W4 metrics + lints + parity + phase close).
+**Depends on**: Wave 1c-A3 (held — see decisions/2026-05-16-calc-engine-matrix.md §"Sequencing"). Phase 96 KILLED — replaces that doctrine slot. Plan 01 cherry-picks A3 envelope `_response.py` if not yet merged to dev.
+**Requirements**: D-CE-01, D-CE-02, D-CE-03, D-CE-04, D-CE-05, D-CE-06, D-CE-07, D-CE-08, D-CE-09, D-CE-10, D-CE-11, D-CE-12, D-CE-13, D-CE-14, D-CE-15, D-CE-16, D-CE-17, D-CE-18, D-CE-19, D-CE-20 + Concerns A/B/C/D/E/F + Findings 3/4/5/6
+**Plans**: 20 plans (W1: 6, W2: 5, W3: 5, W4: 4)
+Plans:
+- [ ] mint-calc-engine-v1-01-w1-shared-helpers-PLAN.md — shared `_resolve_defaults` + `get_profile_filled` + `raise_incomplete_as_422` + A3 envelope cherry-pick + `client_with_blank_profile` fixture
+- [ ] mint-calc-engine-v1-02-w1-priority1-endpoints-PLAN.md — Priority-1 sev-3 endpoint grounding (allocation_annuelle + affordability + rachat_echelonne)
+- [ ] mint-calc-engine-v1-03-w1-priority2-endpoints-PLAN.md — Priority-2 sev-3 endpoint grounding (wealth_tax + succession + concubinage + location_vs_propriete)
+- [ ] mint-calc-engine-v1-04-w1-lucidity-payloads-PLAN.md — L1/L2/L3/L4 typed payloads + L4 wedge endpoint (Finding 5)
+- [ ] mint-calc-engine-v1-05-w1-calc-registry-PLAN.md — AST scanner + `_registry.py` scaffold (~40-57 entries)
+- [ ] mint-calc-engine-v1-06-w1-sev2-batch-grounding-PLAN.md — Remaining sev-3 + sev-2 endpoint batches + blank-profile 422 contract test
+- [ ] mint-calc-engine-v1-07-w2-tool-registry-adapter-PLAN.md — ToolRegistryAdapter Protocol + 3 concrete adapters + factory
+- [ ] mint-calc-engine-v1-08-w2-bundles-PLAN.md — IndependentTaxBundle + SuccessionDivorceBundle (9 bundles total)
+- [ ] mint-calc-engine-v1-09-w2-tool-description-rewrite-PLAN.md — Concern A rubric lint + ≥35 FR description rewrites + Tool Search round-trip + Maestro G1 (NOT autonomous — Julien G2 checkpoint)
+- [ ] mint-calc-engine-v1-10-w2-coach-tool-response-v2-PLAN.md — CoachToolResponse V2 with `latency_tier` (Parallel Change V1→V2 per D-CE-19)
+- [ ] mint-calc-engine-v1-11-w2-deprecation-shims-PLAN.md — independant_service.py + frontalier_service.py root shims (D-CE-10)
+- [ ] mint-calc-engine-v1-12-w3-composite-index-migration-PLAN.md — Alembic p110 composite partial index (autocommit_block) — Finding 3 critical gap
+- [ ] mint-calc-engine-v1-13-w3-cache-reader-writer-singleflight-PLAN.md — Cache reader + writer + AsyncSingleflight + get_or_compute (Concern E)
+- [ ] mint-calc-engine-v1-14-w3-reverse-dep-map-PLAN.md — REVERSE_DEP_MAP regenerated alongside REGISTRY (D-CE-14 «kills two birds»)
+- [ ] mint-calc-engine-v1-15-w3-pre-compute-background-tasks-PLAN.md — `precompute_after_fact_save` BackgroundTasks + SLI precision/recall tests
+- [ ] mint-calc-engine-v1-16-w3-gc-job-PLAN.md — Daily GC job (Railway cron) for superseded scenarios (Finding 4) — NOT autonomous (Julien Railway setup)
+- [ ] mint-calc-engine-v1-17-w4-metrics-counters-PLAN.md — Prometheus counters + `/metrics` + `inputs_provenance` schema — NOT autonomous (Open Q1 prometheus-vs-sentry decision)
+- [ ] mint-calc-engine-v1-18-w4-banned-verb-lint-runtime-gate-PLAN.md — 11 paraphrase verbs lint extension + runtime gate with NFKC + zero-width — NOT autonomous (Open Q5 placement decision)
+- [ ] mint-calc-engine-v1-19-w4-profile-safe-fields-parity-PLAN.md — Flutter↔server parity lint + lefthook wiring (Concern C)
+- [ ] mint-calc-engine-v1-20-w4-wave-close-engram-doctrine-PLAN.md — Phase close: VERIFICATION-REPORT.html + ROADMAP + STATE + phase-level engram + 5-gate G1-G5 exit — NOT autonomous (Julien G2 device sign-off)
+
 **Canonical refs**:
 - `.planning/decisions/2026-05-16-calc-engine-matrix.md` — 11-category matrix + hypothesis C audit plan + 4-level lucidité framework
 - `.planning/decisions/2026-05-16-phase-96-killed.md` — doctrine pivot context
 - `.planning/decisions/2026-05-14-phase-7-ship-or-pause.md` — Option C Coach didactique vivant decision
+- `.planning/decisions/2026-05-16-calc-engine-v1-panel-synthesis.md` — 20 D-CE-XX verdicts table + 11 overrides + 6 critical findings
+- `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-CONTEXT.md` — locked decisions source-of-truth
+- `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-RESEARCH.md` — HOW-to-implement code patterns
+- `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-VALIDATION.md` — Nyquist verify map per task ID
+- `.planning/phases/mint-calc-engine-v1/W0-AUDIT-MATRIX.md` — 49/57 hypothesis C confirmed + 12 sev-3 + 23 sev-2
 - `services/backend/app/services/arbitrage/allocation_annuelle.py` — the joint optimiser that already exists
 - `services/backend/app/api/v1/endpoints/arbitrage.py:163-213` — hypothesis C evidence surface
 - `CLAUDE.md` §1 + §3.5 + §9
 - `.planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-A3-CONTEXT.md` — missing-fields handshake doctrine (calc-engine-v1 generalizes it)
+
+
 
 <details>
 <summary>Previous milestones (v1.0 → v2.7) — see MILESTONES.md + collapsed v2.5-v2.7 detail</summary>
