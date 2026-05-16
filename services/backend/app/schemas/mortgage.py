@@ -47,33 +47,49 @@ class DecompositionChargesResponse(BaseModel):
 # ===========================================================================
 
 class MortgageAffordabilityRequest(BaseModel):
-    """Request for mortgage affordability calculation."""
+    """Request for mortgage affordability calculation.
+
+    Profile-grounded per D-CE-06+07 : when `revenuBrutAnnuel` or `canton`
+    are omitted from the body, the endpoint reads them from
+    `_user.profile.data` via `_resolve_defaults`. Body explicit values
+    (including explicit-None) still win — see Plan 01 D-CE-07 semantics.
+    """
 
     model_config = ConfigDict(populate_by_name=True)
 
-    revenuBrutAnnuel: float = Field(
-        ..., alias="revenuBrutAnnuel",
-        description="Revenu brut annuel du menage (CHF)", ge=0
+    revenuBrutAnnuel: Optional[float] = Field(
+        default=None, alias="revenuBrutAnnuel",
+        description="Revenu brut annuel du menage (CHF, lu depuis le profil si absent)",
+        ge=0,
+        json_schema_extra={"from_profile": "income_gross_yearly"},
     )
-    epargneDisponible: float = Field(
-        ..., alias="epargneDisponible",
-        description="Epargne disponible / cash (CHF)", ge=0
+    epargneDisponible: Optional[float] = Field(
+        default=None, alias="epargneDisponible",
+        description="Epargne disponible / cash (CHF, lu depuis le profil si absent)",
+        ge=0,
+        json_schema_extra={"from_profile": "epargne_disponible"},
     )
-    avoir3a: float = Field(
-        0, alias="avoir3a",
-        description="Avoir 3a disponible pour EPL (CHF)", ge=0
+    avoir3a: Optional[float] = Field(
+        default=None, alias="avoir3a",
+        description="Avoir 3a disponible pour EPL (CHF, lu depuis le profil si absent)",
+        ge=0,
+        json_schema_extra={"from_profile": "epargne_3a"},
     )
-    avoirLpp: float = Field(
-        0, alias="avoirLpp",
-        description="Avoir LPP disponible pour EPL (CHF)", ge=0
+    avoirLpp: Optional[float] = Field(
+        default=None, alias="avoirLpp",
+        description="Avoir LPP disponible pour EPL (CHF, lu depuis le profil si absent)",
+        ge=0,
+        json_schema_extra={"from_profile": "avoir_lpp"},
     )
     prixAchat: float = Field(
         0, alias="prixAchat",
         description="Prix d'achat cible (CHF). 0 = calculer le max.", ge=0
     )
-    canton: str = Field(
-        "ZH", description="Code canton (ex: ZH, VD, GE)",
-        min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (ex: ZH, VD, GE, lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
 
 

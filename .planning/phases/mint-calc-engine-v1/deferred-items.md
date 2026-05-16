@@ -1,0 +1,1 @@
+- 2026-05-16 Plan 02 Task 2: pre-existing banned term `optimal` at `services/backend/app/api/v1/endpoints/mortgage.py:341` in `calculate_epl_combined` docstring (introduced sha 7daaa65c1, 2026-04-08). Out of Plan 02 scope (different endpoint). Fix in W1 Plan 03 or as separate cleanup PR.
