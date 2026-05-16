@@ -120,6 +120,50 @@ from app.services.coach._route_intents_generated import (
 ROUTE_TO_SCREEN_INTENT_TAGS: list[str] = sorted(GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS)
 
 # ---------------------------------------------------------------------------
+# Wave 1c-A3 (D-A3-02) — missing-fields handshake instruction.
+#
+# Injected verbatim into the `description` field of every chip-emitter tool
+# (get_budget_status, get_retirement_projection, get_cross_pillar_analysis,
+# get_cap_status, get_couple_optimization). Source of truth — drift-guarded
+# by tests/test_coach_tools_missing_fields_instruction.py.
+#
+# Per Anthropic 2025 « Advanced tool use » (https://www.anthropic.com/
+# engineering/advanced-tool-use) the embedded Tool-Use Example sequence is
+# what Sonnet 4.5 actually picks up reliably — abstract instructions alone
+# are not enough. The example shows the literal turn flow:
+# blank-profile -> narrator-asks -> user-replies -> tool_use-emits.
+#
+# LSFin (CLAUDE.md §5 NEVER #5): no « garanti / optimal / meilleur / certain
+# / assure / sans risque / parfait ». Accents 100% FR.
+#
+# I-03 fix: every literal `{` and `}` in the embedded example JSON is doubled
+# (`{{` / `}}`) so the `.format(required_fields_csv=...)` call at registration
+# time does NOT crash on the JSON braces. Import-time smoke test in
+# tests/test_coach_tools_missing_fields_instruction.py pins this.
+# ---------------------------------------------------------------------------
+
+MISSING_FIELDS_INSTRUCTION_FR: str = (
+    "\n\n## Champs profil requis : {required_fields_csv}\n"
+    "Si un champ manque dans le profil de l'utilisateur, ne devine pas, "
+    "ne redirige pas vers une ressource externe : pose la question "
+    "explicitement à l'utilisateur dans ta réponse texte, et renvoie "
+    "un statut « incomplete » au prochain tour via cet outil.\n"
+    "\n"
+    "### Exemple de séquence (à imiter — pattern Anthropic 2025) :\n"
+    "1. Profil utilisateur vide. Question : « Quelle sera ma rente AVS ? »\n"
+    "2. Tu invoques `tool_use(get_retirement_projection)`. Le tool_result "
+    "renvoie `{{\"status\":\"incomplete\",\"missingFields\":[\"age\",\"avsContributionYears\"],\"hintFr\":\"Pour calculer ta rente AVS, j'ai besoin de ton âge et de tes années de cotisation AVS.\"}}`.\n"
+    "3. Tu réponds à l'utilisateur en français : « Pour calculer ta rente "
+    "AVS, j'ai besoin de ton âge et de tes années de cotisation AVS. Tu "
+    "peux me les partager ? »\n"
+    "4. L'utilisateur répond : « 42 ans, 8 années AVS ».\n"
+    "5. Tu invoques à nouveau `tool_use(get_retirement_projection)`. Le "
+    "tool_result renvoie cette fois `{{\"status\":\"ok\",\"data\":{{...}}}}` "
+    "avec les chiffres calculés.\n"
+)
+
+
+# ---------------------------------------------------------------------------
 # Tool definitions
 # ---------------------------------------------------------------------------
 
@@ -642,6 +686,9 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "savings rate, and budget stage. Use when you need to reason about "
             "the user's financial situation, remaining budget, or spending capacity. "
             "Returns structured data as text. This tool is handled internally."
+            + MISSING_FIELDS_INSTRUCTION_FR.format(
+                required_fields_csv="incomeNetMonthly, monthlyExpenses, savingsRate",
+            )
         ),
         "input_schema": {
             "type": "object",
@@ -658,6 +705,9 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "projected gap, and pillar breakdown. Use when the user asks about "
             "retirement income, pension, or how much they will receive. "
             "Returns structured data as text. This tool is handled internally."
+            + MISSING_FIELDS_INSTRUCTION_FR.format(
+                required_fields_csv="age, avsContributionYears, lppBalance, pillar3aBalance",
+            )
         ),
         "input_schema": {
             "type": "object",
@@ -674,6 +724,9 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "tax optimization, and coordination between pillars. Use when the user "
             "asks about optimizing their financial situation across pillars. "
             "Returns structured data as text. This tool is handled internally."
+            + MISSING_FIELDS_INSTRUCTION_FR.format(
+                required_fields_csv="age, lppBalance, pillar3aBalance, incomeGrossYearly",
+            )
         ),
         "input_schema": {
             "type": "object",
@@ -690,6 +743,9 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "and next recommended step. Use when you need to know what the user "
             "should focus on next or their progress toward their financial goal. "
             "Returns structured data as text. This tool is handled internally."
+            + MISSING_FIELDS_INSTRUCTION_FR.format(
+                required_fields_csv="age, sequenceProgress, hasGoal",
+            )
         ),
         "input_schema": {
             "type": "object",
@@ -708,6 +764,9 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "and marriage penalty analysis. Use when the user is in a couple and "
             "asks about joint financial decisions, partner coordination, or "
             "marriage impact. This tool is handled internally."
+            + MISSING_FIELDS_INSTRUCTION_FR.format(
+                required_fields_csv="age, partnerAge, householdType, lppBalance, partnerLppBalance",
+            )
         ),
         "input_schema": {
             "type": "object",
