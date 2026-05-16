@@ -94,6 +94,13 @@ blockquote { border-left: 3px solid #d0d6d4; padding: .2em .8em; color: #555; ma
           <td>bdf50c95 / 771d958b / 80d89473 / d7b95167 / 1bda1ebf / b89671c5</td>
           <td><span class='pass'>Rubric lint (4 rules + scope flags) + 5 chip-emitter rewrites + 56 long-tail _TOOL_DESCRIPTIONS_FR map (61 descriptions, 75 art. legal refs across 13 Swiss laws) + 30-fixture round-trip pytest (28 real passes + 2 xfail polish-TODOs + aggregate ≥25/30 gate) + Maestro G1 YAML ; full backend suite 7105 passed (+29 vs Plan 08 baseline 7076 ; zero regressions) ; banned-terms + accent FR + rubric lint exit 0 ; engram obs #131 saved via CLI fallback. <strong>Staging pilot env-flip (Task 5b TOOL_REGISTRY_ADAPTER=anthropic_defer_loading on Railway mint-staging) explicitly DEFERRED — requires Julien GO.</strong></span></td>
           <td><a href=".planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-09-w2-tool-description-rewrite-SUMMARY.md">SUMMARY.md</a></td>
+        </tr>
+        <tr>
+          <td>mint-calc-engine-v1-10-w2-coach-tool-response-v2</td>
+          <td>4/4</td>
+          <td>670f3278 / 9ce25bff / 455ceee8 / 4d99175b / 4a3659f9</td>
+          <td><span class='pass'>CoachToolResponseV2 Pydantic v2 RootModel discriminated union shipped ALONGSIDE V1 (Parallel Change D-CE-19, V1 classes UNCHANGED). LatencyTier=Literal["L1","L2","L3"] REQUIRED on Ok variant, default "L1" on Incomplete + PolicyBlocked. 5 chip-emitter dispatchers (_compute_budget_status / _compute_retirement_projection / _compute_cross_pillar_analysis / _compute_couple_optimization + cap_status dispatch) wired with opt-in V2 envelope wrapping via COACH_TOOL_RESPONSE_V2_ENABLED feature flag (default False, Wave 1a contract preserved). 31 new tests across 3 test files (13 V2 unit + 9 chip-emitter migration + 9 Parallel Change invariants) ; full backend suite <strong>7136 passed (+31 vs Plan 09 baseline 7105 ; zero regressions ; 3 xfailed unchanged)</strong> ; banned-terms + accent FR lint exit 0 on 8 touched files ; Plan 09 string state preserved intact (10 + 66 + 56 art. refs unchanged) ; engram obs #132 saved via CLI fallback. Plan-spec deviation Rule 1 (path inaccuracy) : plan said coach_tools.py:637-722, reality is coach_chat.py:_compute_* — same coach internal tools area, D-CE-19 intent honored. V1 retirement DEFERRED to Plan 11 or post-phase per Fowler Parallel Change discipline. Flutter Concern B routing doctrine documented in SUMMARY for downstream consumer plan.</span></td>
+          <td><a href=".planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-10-w2-coach-tool-response-v2-SUMMARY.md">SUMMARY.md</a></td>
         </tr></tbody>
 </table>
 
