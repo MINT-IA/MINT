@@ -41,8 +41,9 @@ SOME_TOOLS = [
     {
         "name": "divorce_simulator",
         "description": (
-            "Simule l'impact financier d'un divorce (CC art. 122-124) : "
-            "splitting AVS (LAVS art. 29sexies), partage LPP, pension alimentaire."
+            "Simule l'impact financier d'une séparation ou d'un divorce "
+            "(CC art. 122-124) : splitting AVS (LAVS art. 29sexies), partage "
+            "LPP, pension alimentaire éventuelle."
         ),
     },
 ]
