@@ -28,8 +28,6 @@ LSFin (CLAUDE.md §1) : hintFr assertions use conversational ask vocabulary
 """
 from __future__ import annotations
 
-import importlib
-
 import pytest
 
 
@@ -37,50 +35,27 @@ import pytest
 # test below asserts the strict-mode 422 path.
 @pytest.fixture(autouse=True)
 def _strict_mode(monkeypatch: pytest.MonkeyPatch):
+    """Enable D-CE-08 strict mode for this module without reloading endpoint
+    modules.
+
+    AVOIDING IMPORTLIB.RELOAD on endpoint modules :
+    each `importlib.reload(ep)` re-runs all `@limiter.limit("X/minute")`
+    decorators in the module, which APPENDS to `slowapi.Limiter._route_limits`
+    instead of replacing. After 11 endpoint reloads we end up with 154+ stale
+    entries — when a downstream test hits `/api/v1/retirement/avs/estimate`,
+    slowapi finds multiple matching limit specs and applies them all,
+    causing every request to 429 instantly even with a fresh storage.
+
+    Instead of reloading, we mutate the module-level constant
+    `PROFILE_GROUNDING_STRICT_MODE` on the resolver directly. This is the only
+    state the `raise_incomplete_as_422` helper actually reads — and it's read
+    at call-time, not at decorator-stamp-time. No reload needed.
+    """
     monkeypatch.setenv("PROFILE_GROUNDING_STRICT_MODE", "true")
     from app.core import profile_resolver as pr
-    importlib.reload(pr)
-    # Re-import each touched endpoint module so its
-    # `from app.core.profile_resolver import ...` picks up the reloaded constants.
-    from app.api.v1.endpoints import (
-        arbitrage as arb_ep,
-        assurances as ass_ep,
-        expat as exp_ep,
-        family as fam_ep,
-        independants as ind_ep,
-        life_events as le_ep,
-        lpp_deep as lpp_ep,
-        mortgage as mort_ep,
-        retirement as ret_ep,
-        unemployment as une_ep,
-        wealth_tax as wt_ep,
-    )
-    importlib.reload(arb_ep)
-    importlib.reload(ass_ep)
-    importlib.reload(exp_ep)
-    importlib.reload(fam_ep)
-    importlib.reload(ind_ep)
-    importlib.reload(le_ep)
-    importlib.reload(lpp_ep)
-    importlib.reload(mort_ep)
-    importlib.reload(ret_ep)
-    importlib.reload(une_ep)
-    importlib.reload(wt_ep)
+    monkeypatch.setattr(pr, "PROFILE_GROUNDING_STRICT_MODE", True)
     yield
-    # Restore the resolver to default (false) for downstream tests.
-    monkeypatch.setenv("PROFILE_GROUNDING_STRICT_MODE", "false")
-    importlib.reload(pr)
-    importlib.reload(arb_ep)
-    importlib.reload(ass_ep)
-    importlib.reload(exp_ep)
-    importlib.reload(fam_ep)
-    importlib.reload(ind_ep)
-    importlib.reload(le_ep)
-    importlib.reload(lpp_ep)
-    importlib.reload(mort_ep)
-    importlib.reload(ret_ep)
-    importlib.reload(une_ep)
-    importlib.reload(wt_ep)
+    # monkeypatch.setattr is auto-undone on teardown — no manual restore.
 
 
 # --------------------------------------------------------------------------- #
