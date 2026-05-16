@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-06-w1-sev2-batch-grounding-PLAN.md — W1 wave-close batch grounding. 4 batches × ~5 endpoints = 19 endpoints grounded on _user.profile.canton via _resolve_defaults + CoachToolIncomplete envelope. Cumulative W1 closure : 26 endpoints (Plan 02 = 3 + Plan 03 = 4 + Plan 06 = 19). Single-source-of-truth parametrized contract test (test_blank_profile_422_contract.py, 28 cases) asserts every W1-grounded endpoint returns 422 with the CoachToolIncomplete envelope on blank profile. Full backend suite 7030 passed (+28 vs Plan 05 baseline 7002, zero regressions). Critical discovery & fix : importlib.reload of endpoint modules pollutes slowapi._route_limits via decorator-stamp accumulation — fixed by replacing reload chain with monkeypatch.setattr on the profile_resolver module-level constant. W2 (ToolRegistryAdapter + bundles) unblocked. MCP exposure issue persists — engram mem_save deferred for 6th consecutive plan despite merge bc07d915.
-last_updated: "2026-05-16T17:00:00.000Z"
+stopped_at: Completed mint-calc-engine-v1-07-w2-tool-registry-adapter-PLAN.md — D-CE-01 vendor-agnostic ToolRegistryAdapter Protocol + 3 concrete adapters (Anthropic defer_loading default / SkillBundleOnly fallback / ManualSubset backup) + env-flag factory at services/backend/app/services/coach/tool_registry/. 5 chip-emitters always-on + 63 long-tail from REGISTRY (Plan 05) + tool_search_tool_bm25_20251119 declaration on Anthropic adapter. 21 contract tests across 5 files (3+6+4+4+4), all green. Full backend suite 7051 passed (+21 vs Plan 06 baseline 7030, exact match, zero regressions). Banned-terms + accent FR lint exit 0. Engram obs #129 saved via CLI fallback. Adapter is SCAFFOLDING — Plan 10 W2-04 wires it into coach_chat.py ; Plan 09 W2-03 rewrites long-tail descriptions for LSFin BM25 surfacing. First W2 plan complete.
+last_updated: "2026-05-16T20:13:47.371Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 12
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
-  percent: 71
+  completed_plans: 4
+  percent: 57
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -36,9 +36,33 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING
-Plan: 7 of 20
-Status: Ready to execute (W1 wave closed ; W2 ToolRegistryAdapter next)
+Plan: 8 of 20
+Status: Ready to execute
 Last activity: 2026-05-16
+
+## Plan mint-calc-engine-v1-07 Receipt (W2 ToolRegistryAdapter + 3 concrete adapters + factory, 2026-05-16)
+
+- Files created : 11 (6 module files + 5 test files) — ~993 LOC across module + tests
+- Files modified : 0
+- Module : `services/backend/app/services/coach/tool_registry/` ships 5 modules + package init :
+  - `adapter.py` (76 LOC) — `@runtime_checkable Protocol` (`ToolRegistryAdapter`) + `TypedDict(total=False)` (`ToolDefinition`) + `LatencyTier = Literal["L1","L2","L3"]` aligned with Plan 04 LucidityLevel
+  - `anthropic_defer_loading_adapter.py` (197 LOC) — DEFAULT : 5 chip-emitters always-on (sourced from `coach_tools.COACH_TOOLS` at construction) + 63 long-tail from `app.calculators.REGISTRY` (Plan 05) with `defer_loading=True` + 1 `tool_search_tool_bm25_20251119` declaration + `beta_header` property pinned `tool-search-tool-2025-10-19`
+  - `skill_bundle_only_adapter.py` (92 LOC) — FALLBACK : all 5+63 always-on, NO defer_loading, NO tool_search (Bedrock-compatible)
+  - `manual_subset_adapter.py` (119 LOC) — BACKUP : per-intent filter via `REGISTRY.life_events_served` tags ; 6 intents mapped to life-event sets (retirement→{retirement,buyback} / taxes→{taxes,succession} / housing→{housing} / debt→{debt} / family→{family,marriage,divorce} / career→{career,independent,cross_border}) ; empty intents → only 5 chip-emitters
+  - `factory.py` (63 LOC) — `TOOL_REGISTRY_ADAPTER` env-flag selector, default `anthropic_defer_loading`, invalid value falls back to default + WARNING log breadcrumb (Sentry-compatible)
+- Tests : 21 contract tests across 5 files (3 Protocol + 6 Anthropic + 4 SkillBundle + 4 ManualSubset + 4 factory) — TDD RED→GREEN per task
+- Gates green :
+  - `cd services/backend && python3 -m pytest tests/test_tool_registry_adapter.py tests/test_anthropic_defer_loading_adapter.py tests/test_skill_bundle_only_adapter.py tests/test_manual_subset_adapter.py tests/test_tool_registry_factory.py -q` → `21 passed in 0.30s`
+  - `cd services/backend && python3 -m pytest tests/ -q` → `7051 passed, 62 skipped, 1 xfailed, 1 warning in 113.87s` — net delta vs Plan 06 baseline (`7030 passed`) = `+21 passed` (exact match for 21 new Plan 07 tests, zero regressions, zero new skips)
+  - `python3 tools/checks/banned_terms_python.py <11 files>` → exit 0
+  - `python3 tools/checks/accent_lint_fr.py --scope backend` → exit 0
+  - `cd services/backend && python3 -c "from app.services.coach.tool_registry.factory import get_tool_registry_adapter; print(type(get_tool_registry_adapter()).__name__)"` → `AnthropicDeferLoadingAdapter`
+- Commits : `6f9d3f07` (RED-1) → `92e1535c` (GREEN-1) → `b3f5b5c4` (RED-2) → `f520978d` (GREEN-2) → `6f26743c` (RED-3) → `bf134afe` (GREEN-3) → `8f1cd590` (RED-4) → `6e80cdbf` (GREEN-4) → `0096f82d` (RED-5) → `1e917eb3` (GREEN-5) → `f78f4518` (caplog flake fix) → docs commit pending (this STATE update + SUMMARY + HTML + ROADMAP)
+- Duration : ~17 min
+- Deviations : 2 auto-fixed. (1) Rule 2 — ManualSubsetAdapter switched from plan's hardcoded short-name allowlist (`avs_estimation`, `lpp_projector`, ...) to `REGISTRY.life_events_served` filter axis because 3/24 short-names had zero REGISTRY matches due to canonical `<file_stem>__<func_qualname>` naming from Plan 05 AST scanner. (2) Rule 1 — pytest caplog flake in full backend suite : `test_invalid_value_falls_back_to_default_with_warning` passed in isolation but failed when run after `test_profile_resolver.py:210-228` (which resets its own module logger state). Switched to local `_RecordCollector(logging.Handler)` direct-attach pattern mirroring the test_profile_resolver convention.
+- 0-trust : `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-07-w2-tool-registry-adapter-SUMMARY.md` `## Self-Check: PASSED` with 11 file/command citations + caveat block (NOT wired into coach_chat.py — Plan 10 does that ; NOT description-rewritten for LSFin — Plan 09 does that ; NOT staging-piloted — Plan 10 or later ; engram saved via CLI fallback because MCP `mem_save` tool NOT in executor scope for the 7th consecutive plan despite merge bc07d915).
+- Engram : observation **#129** saved via CLI fallback (`engram save ... --project mint --type architecture --topic_key mint-calc-engine-v1:w2-plan-07:tool-registry-adapter`). `prior_finding_refs` content cites #103 (vendor-agnostic adapter refinement, Julien's founder refinement 2026-05-16) + #128 (Wave 1 closure handoff).
+- USER VALUE DELIVERED : zero end-user-visible change yet. Adapter is SCAFFOLDING — Plan 10 (W2-04 CoachToolResponse V2 latency_tier envelope) wires it into `coach_chat.py`. Plan 09 (W2-03 description rewrite) lands LSFin-grade French descriptions before staging pilot. Stage 1 of 4 per CLAUDE.md §9.5 (direct commits on `dev` branch, no PR).
 
 ## Plan mint-calc-engine-v1-06 Receipt (W1 sev-2 batch grounding + wave close, 2026-05-16)
 
