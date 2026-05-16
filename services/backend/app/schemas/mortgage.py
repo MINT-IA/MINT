@@ -268,7 +268,13 @@ class SaronVsFixedResponse(BaseModel):
 # ===========================================================================
 
 class ImputedRentalRequest(BaseModel):
-    """Request for imputed rental value calculation."""
+    """Request for imputed rental value calculation.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` is widened
+    from `default="ZH"` to Optional `default=None` with the `from_profile`
+    marker. W0 audit row 9 sev-0 (canonical-defaults canton, included for
+    grounding consistency).
+    """
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -276,9 +282,11 @@ class ImputedRentalRequest(BaseModel):
         ..., alias="valeurVenale",
         description="Valeur venale du bien (CHF)", ge=0
     )
-    canton: str = Field(
-        "ZH", description="Code canton",
-        min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
     interetsHypothecairesAnnuels: float = Field(
         0, alias="interetsHypothecairesAnnuels",
@@ -383,7 +391,15 @@ class ImputedRentalResponse(BaseModel):
 # ===========================================================================
 
 class AmortizationComparisonRequest(BaseModel):
-    """Request for direct vs indirect amortization comparison."""
+    """Request for direct vs indirect amortization comparison.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` is widened
+    from `default="ZH"` to Optional `default=None` with the `from_profile`
+    marker so the `_resolve_defaults` helper can fill it from
+    `_user.profile.canton` before the missing-check fires. W0 audit row 10
+    sev-1 : silent ZH default on null canton produced wrong amortization
+    economic comparison for non-ZH users.
+    """
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -411,9 +427,11 @@ class AmortizationComparisonRequest(BaseModel):
         0.02, alias="rendement3a",
         description="Rendement attendu du 3a (0-0.10)", ge=-0.05, le=0.10
     )
-    canton: str = Field(
-        "ZH", description="Code canton",
-        min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
 
 

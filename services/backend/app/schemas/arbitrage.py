@@ -104,7 +104,14 @@ class ArbitrageResultSchema(ArbitrageBaseModel):
 # ===========================================================================
 
 class RenteVsCapitalRequest(ArbitrageBaseModel):
-    """Requete pour la comparaison rente vs capital LPP."""
+    """Requete pour la comparaison rente vs capital LPP.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` carries
+    the `from_profile` marker so `_resolve_defaults` fills it from
+    `_user.profile.canton` before the missing-check fires. W0 audit row 2
+    sev-1 : silent VD fallback on null canton produced wrong tax brackets
+    for non-VD users.
+    """
 
     capital_lpp_total: float = Field(
         ..., ge=0,
@@ -132,7 +139,8 @@ class RenteVsCapitalRequest(ArbitrageBaseModel):
     )
     canton: Optional[str] = Field(
         default=None, min_length=2, max_length=2,
-        description="Canton de domicile fiscal (defaut: VD)",
+        description="Canton de domicile fiscal (lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "canton"},
     )
     age_retraite: Optional[int] = Field(
         default=None, ge=58, le=70,
@@ -294,7 +302,11 @@ class LocationVsProprieteResponse(ArbitrageResultSchema):
 # ===========================================================================
 
 class RachatVsMarcheRequest(ArbitrageBaseModel):
-    """Requete pour la comparaison rachat LPP vs investissement libre."""
+    """Requete pour la comparaison rachat LPP vs investissement libre.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` carries
+    the `from_profile` marker. W0 audit row 4 sev-1.
+    """
 
     montant: float = Field(
         ..., ge=0,
@@ -322,7 +334,8 @@ class RachatVsMarcheRequest(ArbitrageBaseModel):
     )
     canton: Optional[str] = Field(
         default=None, min_length=2, max_length=2,
-        description="Canton de domicile fiscal (defaut: VD)",
+        description="Canton de domicile fiscal (lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "canton"},
     )
     is_married: Optional[bool] = Field(
         default=None,
@@ -355,7 +368,12 @@ class RetirementAssetSchema(ArbitrageBaseModel):
 
 
 class CalendrierRetraitsRequest(ArbitrageBaseModel):
-    """Requete pour la comparaison de calendrier de retraits."""
+    """Requete pour la comparaison de calendrier de retraits.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` carries
+    the `from_profile` marker. W0 audit row 5 sev-0 (canonical-defaults
+    canton, included for grounding consistency across arbitrage surface).
+    """
 
     assets: List[RetirementAssetSchema] = Field(
         ..., min_length=1,
@@ -367,7 +385,8 @@ class CalendrierRetraitsRequest(ArbitrageBaseModel):
     )
     canton: Optional[str] = Field(
         default=None, min_length=2, max_length=2,
-        description="Canton de domicile fiscal (defaut: VD)",
+        description="Canton de domicile fiscal (lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "canton"},
     )
     is_married: Optional[bool] = Field(
         default=None,

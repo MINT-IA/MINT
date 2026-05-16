@@ -206,27 +206,62 @@ def compare_saron_vs_fixed(
 # Imputed Rental Value
 # ---------------------------------------------------------------------------
 
+_IMPUTED_RENTAL_HINT_FR = (
+    "Pour calculer la valeur locative imposable, j'ai besoin de ton canton — "
+    "les barèmes varient considérablement. Tu peux me le partager ?"
+)
+
+
+_AMORTIZATION_HINT_FR = (
+    "Pour comparer amortissement direct et indirect, j'ai besoin de ton canton — "
+    "l'avantage fiscal dépend du barème cantonal. Tu peux me le partager ?"
+)
+
+
+_EPL_COMBINED_HINT_FR = (
+    "Pour calculer ton apport combiné 3a + LPP, j'ai besoin de ton canton — "
+    "l'impôt sur le retrait varie selon le canton. Tu peux me le partager ?"
+)
+
+
 @router.post("/imputed-rental", response_model=ImputedRentalResponse)
 @limiter.limit("30/minute")
 def calculate_imputed_rental(
     request: Request,
     body: ImputedRentalRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> ImputedRentalResponse:
     """Calculate imputed rental value (Eigenmietwert) and tax impact.
 
     Swiss homeowners must declare the imputed rental value as income,
     but can deduct mortgage interest, maintenance, and insurance.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 9). Missing profile.canton
+    triggers a 422 with the D-CE-08 `CoachToolIncomplete` envelope when
+    strict mode is enabled.
+
     Sources: LIFD art. 21 al. 1 let. b; LIFD art. 32; LIFD art. 33.
     """
+    resolved = _resolve_defaults(profile_data, body, ImputedRentalRequest)
+    missing = _required_profile_fields_missing(resolved, ImputedRentalRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_IMPUTED_RENTAL_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/mortgage/imputed-rental",
+        )
+
     result = _imputed_rental_service.calculate(
-        valeur_venale=body.valeurVenale,
-        canton=body.canton,
-        interets_hypothecaires_annuels=body.interetsHypothecairesAnnuels,
-        frais_entretien_annuels=body.fraisEntretienAnnuels,
-        prime_assurance_batiment=body.primeAssuranceBatiment,
-        age_bien_ans=body.ageBienAns,
-        taux_marginal_imposition=body.tauxMarginalImposition,
+        valeur_venale=resolved["valeurVenale"],
+        canton=str(resolved["canton"]),
+        interets_hypothecaires_annuels=resolved["interetsHypothecairesAnnuels"],
+        frais_entretien_annuels=resolved["fraisEntretienAnnuels"],
+        prime_assurance_batiment=resolved["primeAssuranceBatiment"],
+        age_bien_ans=resolved["ageBienAns"],
+        taux_marginal_imposition=resolved["tauxMarginalImposition"],
     )
 
     return ImputedRentalResponse(
@@ -264,22 +299,39 @@ def calculate_imputed_rental(
 def compare_amortization(
     request: Request,
     body: AmortizationComparisonRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> AmortizationComparisonResponse:
     """Compare direct vs indirect mortgage amortization.
 
     Direct: reduce debt -> lower interest -> lower deductions.
     Indirect: contribute to pledged 3a -> constant debt + 3a growth + max deductions.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 10 — silent ZH default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: OPP3 art. 1; LIFD art. 33; pratique bancaire suisse.
     """
+    resolved = _resolve_defaults(profile_data, body, AmortizationComparisonRequest)
+    missing = _required_profile_fields_missing(resolved, AmortizationComparisonRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_AMORTIZATION_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/mortgage/amortization",
+        )
+
     result = _amortization_service.compare(
-        montant_hypothecaire=body.montantHypothecaire,
-        taux_interet=body.tauxInteret,
-        duree_ans=body.dureeAns,
-        versement_annuel_amortissement=body.versementAnnuelAmortissement,
-        taux_marginal_imposition=body.tauxMarginalImposition,
-        rendement_3a=body.rendement3a,
-        canton=body.canton,
+        montant_hypothecaire=resolved["montantHypothecaire"],
+        taux_interet=resolved["tauxInteret"],
+        duree_ans=resolved["dureeAns"],
+        versement_annuel_amortissement=resolved["versementAnnuelAmortissement"],
+        taux_marginal_imposition=resolved["tauxMarginalImposition"],
+        rendement_3a=resolved["rendement3a"],
+        canton=str(resolved["canton"]),
     )
 
     return AmortizationComparisonResponse(
