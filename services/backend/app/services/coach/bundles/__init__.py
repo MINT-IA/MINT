@@ -21,6 +21,7 @@ from __future__ import annotations
 from app.services.coach.bundles._base import BundleBase
 from app.services.coach.bundles.citation_grammar import CitationGrammarBundle
 from app.services.coach.bundles.compliance_narrator import ComplianceNarratorBundle
+from app.services.coach.bundles.independent_tax_bundle import IndependentTaxBundle
 from app.services.coach.bundles.life_event_router import LifeEventRouterBundle
 from app.services.coach.bundles.lpp_projector import LppProjectorBundle
 from app.services.coach.bundles.mortgage_stressor import MortgageStressorBundle
@@ -56,6 +57,7 @@ __all__ = [
     "BundleBase",
     "CitationGrammarBundle",
     "ComplianceNarratorBundle",
+    "IndependentTaxBundle",
     "LifeEventRouterBundle",
     "Pillar3aOptimizerBundle",
     "LppProjectorBundle",
