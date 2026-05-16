@@ -58,6 +58,7 @@ from app.api.v1.endpoints import (
     anonymous_chat,
     consents,
     overview,
+    lucidity,
 )
 
 api_router = APIRouter()
@@ -222,4 +223,7 @@ api_router.include_router(
 )
 api_router.include_router(
     overview.router, prefix="/overview", tags=["Overview — Aperçu financier"]
+)
+api_router.include_router(
+    lucidity.router, prefix="/lucidity", tags=["Lucidity L1-L4 (calc-engine-v1)"]
 )
