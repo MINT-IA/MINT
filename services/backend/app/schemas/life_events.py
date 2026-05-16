@@ -131,8 +131,11 @@ class SuccessionSimulationRequest(BaseModel):
     capitalDecesLpp: float = Field(
         0.0, description="LPP death capital (CHF)", ge=0
     )
-    canton: str = Field(
-        "GE", description="Canton for tax rates (2-letter code)", max_length=2
+    canton: Optional[str] = Field(
+        None,
+        description="Canton for tax rates (2-letter code, read from profile if absent)",
+        max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
 
 

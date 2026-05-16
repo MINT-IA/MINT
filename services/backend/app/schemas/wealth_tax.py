@@ -13,7 +13,7 @@ Covers:
 
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.alias_generators import to_camel
-from typing import List
+from typing import List, Optional
 
 
 # ===========================================================================
@@ -21,7 +21,15 @@ from typing import List
 # ===========================================================================
 
 class WealthTaxEstimateRequest(BaseModel):
-    """Request for wealth tax estimation in a specific canton."""
+    """Request for wealth tax estimation in a specific canton.
+
+    Per D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is widened
+    from REQUIRED to Optional with the `from_profile` marker so the
+    `_resolve_defaults` helper can fill it from `_user.profile.canton` before
+    the missing-check fires. Without this widening, Pydantic rejects
+    blank-canton requests with a raw 422 validation error and the
+    CoachToolIncomplete envelope never gets a chance to fire (D-CE-08 contract).
+    """
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -31,9 +39,10 @@ class WealthTaxEstimateRequest(BaseModel):
     fortune_nette: float = Field(
         ..., ge=0, description="Fortune nette (CHF)"
     )
-    canton: str = Field(
-        ..., min_length=2, max_length=2,
-        description="Code canton (2 lettres, ex: ZH, GE, VD)"
+    canton: Optional[str] = Field(
+        default=None, min_length=2, max_length=2,
+        description="Code canton (2 lettres, lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "canton"},
     )
     etat_civil: str = Field(
         default="celibataire",
