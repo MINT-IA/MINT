@@ -31,7 +31,7 @@ Plans:
 - [x] mint-calc-engine-v1-08-w2-bundles-PLAN.md — IndependentTaxBundle + SuccessionDivorceBundle (9 bundles total)
 - [x] mint-calc-engine-v1-09-w2-tool-description-rewrite-PLAN.md — Concern A rubric lint + ≥35 FR description rewrites + Tool Search round-trip + Maestro G1 (NOT autonomous — Julien G2 checkpoint)
 - [x] mint-calc-engine-v1-10-w2-coach-tool-response-v2-PLAN.md — CoachToolResponse V2 with `latency_tier` (Parallel Change V1→V2 per D-CE-19)
-- [ ] mint-calc-engine-v1-11-w2-deprecation-shims-PLAN.md — independant_service.py + frontalier_service.py root shims (D-CE-10)
+- [x] mint-calc-engine-v1-11-w2-deprecation-shims-PLAN.md — independant_service.py + frontalier_service.py root shims (D-CE-10)
 - [ ] mint-calc-engine-v1-12-w3-composite-index-migration-PLAN.md — Alembic p110 composite partial index (autocommit_block) — Finding 3 critical gap
 - [ ] mint-calc-engine-v1-13-w3-cache-reader-writer-singleflight-PLAN.md — Cache reader + writer + AsyncSingleflight + get_or_compute (Concern E)
 - [ ] mint-calc-engine-v1-14-w3-reverse-dep-map-PLAN.md — REVERSE_DEP_MAP regenerated alongside REGISTRY (D-CE-14 «kills two birds»)

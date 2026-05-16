@@ -101,6 +101,13 @@ blockquote { border-left: 3px solid #d0d6d4; padding: .2em .8em; color: #555; ma
           <td>670f3278 / 9ce25bff / 455ceee8 / 4d99175b / 4a3659f9</td>
           <td><span class='pass'>CoachToolResponseV2 Pydantic v2 RootModel discriminated union shipped ALONGSIDE V1 (Parallel Change D-CE-19, V1 classes UNCHANGED). LatencyTier=Literal["L1","L2","L3"] REQUIRED on Ok variant, default "L1" on Incomplete + PolicyBlocked. 5 chip-emitter dispatchers (_compute_budget_status / _compute_retirement_projection / _compute_cross_pillar_analysis / _compute_couple_optimization + cap_status dispatch) wired with opt-in V2 envelope wrapping via COACH_TOOL_RESPONSE_V2_ENABLED feature flag (default False, Wave 1a contract preserved). 31 new tests across 3 test files (13 V2 unit + 9 chip-emitter migration + 9 Parallel Change invariants) ; full backend suite <strong>7136 passed (+31 vs Plan 09 baseline 7105 ; zero regressions ; 3 xfailed unchanged)</strong> ; banned-terms + accent FR lint exit 0 on 8 touched files ; Plan 09 string state preserved intact (10 + 66 + 56 art. refs unchanged) ; engram obs #132 saved via CLI fallback. Plan-spec deviation Rule 1 (path inaccuracy) : plan said coach_tools.py:637-722, reality is coach_chat.py:_compute_* — same coach internal tools area, D-CE-19 intent honored. V1 retirement DEFERRED to Plan 11 or post-phase per Fowler Parallel Change discipline. Flutter Concern B routing doctrine documented in SUMMARY for downstream consumer plan.</span></td>
           <td><a href=".planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-10-w2-coach-tool-response-v2-SUMMARY.md">SUMMARY.md</a></td>
+        </tr>
+        <tr>
+          <td>mint-calc-engine-v1-11-w2-deprecation-shims</td>
+          <td>SCOPE CORRECTION (4 tasks NOT executed — original PLAN premise invalidated at pre-flight Task 0 ; Option A executed end-to-end after orchestrator decision)</td>
+          <td>0a15dd63 + pending docs commit</td>
+          <td><span class='pass'><strong>WAVE 2 CLOSE-OUT.</strong> Plan 11 caught a W0-AUDIT-MATRIX misclassification (rows 32+35) before it shipped broken <code>from X import *</code> shims into <code>app.api.v1.endpoints.segments</code>. Pre-flight grep proved (a) <code>independant_service.py</code> would <code>ImportError</code> at FastAPI boot (none of <code>IndependantService</code>/<code>IndependantInput</code>/<code>IndependantResult</code>/<code>AVS_FULL_RATE</code>/<code>DISCLAIMER</code> are in S18 <code>independants/__init__.py.__all__</code>) ; (b) <code>frontalier_service.py</code> would silently <code>AttributeError</code> at runtime — S23 <code>expat/frontalier_service.py</code> defines a class with the <strong>same name</strong> <code>FrontalierService</code> but with <code>calculate_source_tax</code> / <code>check_quasi_resident</code> / <code>simulate_90_day_rule</code> / <code>compare_social_charges</code> / <code>estimate_lamal_option</code> and no <code>.analyze()</code> method. Orchestrator chose Option A (scope correction). Shipped : (1) W0-AUDIT-MATRIX rows 32+35 reclassified as S12 sister services with explicit « Reclassified 2026-05-16 via Plan 11 scope correction » markers ; (2) S12-lineage module docstrings on both root files (zero behavioral change) ; (3) <code>.planning/deferred-items.md</code> entry « S12-API-consolidation » with open design questions per domain, 5 caller sites listed, required design artifacts (panel synthesis + naming-collision resolution), scheduling guidance (after Wave 3). Full backend suite <strong>7136 passed (exact baseline preserved ; zero tests added or removed)</strong>. Banned-terms exit 1 on 2 hits — pre-Plan-11 in HEAD (<code>git show HEAD:</code> verified), out-of-scope, logged to deferred-items.md. Engram obs #134 saved via CLI fallback. <strong>Wave 2 complete : 07 + 08 + 09 + 10 + 11 = 5/5 plans landed.</strong> Wave 3 opens at Plan 12.</span></td>
+          <td><a href=".planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-11-w2-deprecation-shims-SUMMARY.md">SUMMARY.md</a></td>
         </tr></tbody>
 </table>
 
@@ -148,6 +155,24 @@ blockquote { border-left: 3px solid #d0d6d4; padding: .2em .8em; color: #555; ma
 | 10 endpoint files carry Depends(get_profile_filled) | `grep -lE &#x27;Depends\\(get_profile_filled\\)&#x27; services/backend/app/api/v1/endpoints/*.py \| wc -l` → 10 |
 | Service files untouched (financial_core SoT preservation) | `git diff bc07d915..HEAD services/backend/app/services/` → only one trivial change in app/services (none on the SoT services — confirmed) |
 | Batch A grounding test (3 arbitrage + 2 mortgage) | `python3 -m pytest t</pre></div>
+<div class='caveat'><strong>mint-calc-engine-v1-11-w2-deprecation-shims (scope correction)</strong><br><pre style='white-space:pre-wrap'>| Claim | Evidence command + result |
+|-------|---------------------------|
+| W0-AUDIT-MATRIX row 32 reclassified | `grep -n "Reclassified 2026-05-16 via Plan 11" .planning/phases/mint-calc-engine-v1/W0-AUDIT-MATRIX.md` returns line 140 + 148 (2 hits) |
+| W0-AUDIT-MATRIX row 35 reclassified | same grep, line 148 |
+| S12-lineage docstring on independant_service.py | Read tool — file lines 1-37 carry « S12 « segments sociologiques » service — kept as canonical alongside the S18 ... NOT a deprecated shim despite W0-AUDIT-MATRIX row 32 misclassification (corrected 2026-05-16 via Plan 11 mint-calc-engine-v1 scope correction). » |
+| S12-lineage docstring on frontalier_service.py with S23 collision warning | Read tool — file lines 1-49 carry « ... Sister `app.services.expat.frontalier_service` (S23) defines a class with the SAME NAME `FrontalierService` but a completely different surface: calculate_source_tax, check_quasi_resident, simulate_90_day_rule, compare_social_charges, estimate_lamal_option (no .analyze(), no Input/Result dataclasses, no COUNTRY_RULES) ... » |
+| deferred-items.md S12-API-consolidation entry | Read tool — `.planning/phases/mint-calc-engine-v1/deferred-items.md:3-37` carries the new entry with open design questions, 5 caller sites, required design artifacts, scheduling guidance |
+| Full backend suite preserved | `cd services/backend &amp;&amp; python3 -m pytest tests/ -q` → `7136 passed, 62 skipped, 3 xfailed, 1 warning in 114.01s` (exact Plan 10 baseline — zero tests added or removed, behavioral parity guaranteed since changes are docstring-only) |
+| FR accent lint exit 0 | `python3 tools/checks/accent_lint_fr.py --scope backend` → exit 0 |
+| Banned-terms lint exit 1 with 2 hits | `python3 tools/checks/banned_terms_python.py services/backend/app/services/{independant,frontalier}_service.py` → exit 1, 2 hits at independant:34 + frontalier:46 (« NEVER use "garanti"... » meta-mentions in Ethical-requirements docstring blocks). Pre-Plan-11 in HEAD : `git show HEAD~1:services/backend/app/services/independant_service.py | grep -n garanti` → line 18 (now line 34 after docstring prefix expansion). Out-of-scope per SCOPE BOUNDARY ; logged to deferred-items.md |
+| Caller grep — 5 import sites unchanged | `grep -rn "from app.services.independant_service\|from app.services.frontalier_service" services/backend/ apps/ tools/` → 5 hits (segments.py:28-29, test_segments.py:22-27, test_independant_service.py:21) — naive shim NOT shipped, callers continue working via the existing S12 root modules |
+| Engram observation #134 saved | `engram save "D-CE-10 Plan 11 deprecation shims BLOCKED: API mismatch" --project mint --type architecture --topic_key mint-calc-engine-v1:w2-plan-11:deprecation-shims-blocked` → « Memory saved: #134 » |
+| Caveat — DID NOT consolidate S12 vs S18/S23 APIs | future plan ; deferred-items.md « S12-API-consolidation » entry holds the design questions |
+| Caveat — DID NOT modify any caller | `git diff HEAD~1 services/backend/app/api/v1/endpoints/segments.py services/backend/tests/test_segments.py services/backend/tests/test_independant_service.py` → empty diff |
+| Caveat — DID NOT delete either root file | both files still ~420 LOC + ~810 LOC respectively, behavioral parity |
+| Caveat — DID NOT create any shim | <code>git diff HEAD~1 -- services/backend/app/services/independant_service.py services/backend/app/services/frontalier_service.py</code> shows only docstring additions (lines 1-37 + lines 1-49) ; the class definitions + module-level constants below are byte-identical |
+| Caveat — DID NOT run Maestro G1 | no UI surface touched by docstrings + planning artifacts ; G1 gate is not applicable to this plan |
+| Caveat — DID NOT open a PR or push to remote | direct commits on `dev`, as with every other Plan in this phase ; Stage 1 of 4 per CLAUDE.md §9.5 |</pre></div>
 
 <h2>Deviations from PLAN</h2>
 <h3>mint-calc-engine-v1-01-w1-shared-helpers</h3><pre style='white-space:pre-wrap;background:#f4f4f4;padding:8px 12px;font-size:12px'>### Auto-fixed Issues
@@ -237,6 +262,45 @@ blockquote { border-left: 3px solid #d0d6d4; padding: .2em .8em; color: #555; ma
 - **Found during:** Batch D scope review.
 - **Issue:** `DebtRatioRequest` carries income/charges/family fields only. No canton needed (minimum vital is federal LP art. 93).
 - **Fix:** Skipped. Batch D ended at 4 endpoints not 5 — no other canton-grounded candidate available in scope.</pre>
+<h3>mint-calc-engine-v1-11-w2-deprecation-shims (scope correction)</h3><pre style='white-space:pre-wrap;background:#f4f4f4;padding:8px 12px;font-size:12px'>### Architectural Override — Rule 4 (entire plan)
+
+**Trigger:** Task 0 (pre-flight grep) audited the API surface of both root files (`independant_service.py`, `frontalier_service.py`) vs their alleged canonical sub-dirs (`independants/`, `expat/frontalier_service.py`) and confirmed the W0-AUDIT-MATRIX rows 32+35 « deprecated shim » classification is a misclassification.
+
+**Two independent failure modes for the naive `from X import *` shim:**
+
+1. **`independant_service.py` — ImportError at FastAPI app boot.** The S18 `app.services.independants/__init__.py:37-48 __all__` re-exports only `calculer_cotisation_avs / AvsCotisationResult / simuler_ijm / IjmResult / calculer_3a_independant / Pillar3aIndepResult / simuler_dividende_vs_salaire / DividendeVsSalaireResult / simuler_lpp_volontaire / LppVolontaireResult`. NONE of `IndependantService` / `IndependantInput` / `IndependantResult` / `AVS_FULL_RATE` / `AVS_MINIMUM_CONTRIBUTION` / `PLAFOND_3A_INDEPENDANT_MAX` / `PLAFOND_3A_SALARIE` / `DISCLAIMER` (which segments.py + 2 test files import) exist there. Result: `segments.py:29` raises `ImportError` at app boot.
+
+2. **`frontalier_service.py` — silent AttributeError at runtime.** The S23 `expat/frontalier_service.py:378` defines a class with the SAME NAME `FrontalierService` but completely different methods (`calculate_source_tax`, `check_quasi_resident`, `simulate_90_day_rule`, `compare_social_charges`, `estimate_lamal_option`, no `.analyze()`). A `from X import *` shim would silently replace `segments.py:34`'s `_frontalier_service = FrontalierService()` with the S23 class. Next call `_frontalier_service.analyze(input_data)` (segments.py:99) raises `AttributeError` at first request. Worse: `test_segments.py` already imports `FrontalierService` directly from `app.services.frontalier_service` so tests would test themselves green while production breaks.
+
+**Action taken:** Returned structured checkpoint to orchestrator (type: decision) with 3 options:
+- **A. Reclassify** W0-AUDIT-MATRIX rows 32+35 as « not duplicates, sister services from S12 », ship docstrings + deferred-items entry, close plan as scope correction.
+- **B. Defer** plan to post-W2 with carry-forward.
+- **C. Consolidate** S12 vs S18/S23 APIs first (2-3-plan architectural effort + naming-collision resolution on `FrontalierService`).
+
+Orchestrator confirmed **Option A**. Executed end-to-end:
+- W0-AUDIT-MATRIX rows 32 (line 140) + 35 (line 148) reclassified with explicit « Reclassified 2026-05-16 via Plan 11 scope correction. » marker.
+- S12-lineage docstrings on both root files (zero behavioral change).
+- `.planning/deferred-items.md` entry « S12-API-consolidation » with the real design questions, 5 caller sites, required design artifacts, scheduling guidance.
+- Full backend suite preserved at 7136 passed.
+
+**0 auto-fix attempts** : no shim was attempted, so no fix cycle was triggered. The entire plan is the architectural override.
+
+### Out-of-scope items logged
+
+**1. [SCOPE BOUNDARY] Pre-existing banned-term meta-mentions in « Ethical requirements » docstrings**
+- **Found during:** Task 1 post-edit lint sanity check (`python3 tools/checks/banned_terms_python.py services/backend/app/services/{independant,frontalier}_service.py`).
+- **Issue:** 2 hits at `services/backend/app/services/independant_service.py:34` + `services/backend/app/services/frontalier_service.py:46` — « NEVER use "garanti", "assure" (sens de garantie), "certain" » documentation lines (meta-mentions of the rule, not usages). `banned_terms_python.py` cannot distinguish.
+- **Pre-Plan-11 verified:** `git show HEAD~1:services/backend/app/services/independant_service.py | grep -n garanti` → line 18 in HEAD (pre-Plan-11). My Edit only pushed the line from 18 → 34 via the docstring prefix.
+- **Fix:** NOT in Plan 11 scope. Logged to `.planning/phases/mint-calc-engine-v1/deferred-items.md` with the same precedent already documented for `coach_tools.py` in Plan 09 deviation #2.
+
+### Wave 2 close-out
+
+**Wave 2 complete : 07 + 08 + 09 + 10 + 11 = 5/5 plans landed.** Deferred items from W2 tracked in `deferred-items.md`:
+- Plan 09 Task 5b staging pilot (Railway env-flip `TOOL_REGISTRY_ADAPTER=anthropic_defer_loading`) — requires Julien GO.
+- Plan 11 S12-API-consolidation — requires panel synthesis + naming-collision resolution.
+- Pre-existing banned-term meta-mentions in 3 docstring blocks total across the wave (Plan 09 #2 + Plan 11).
+
+Wave 3 opens at Plan 12 (W3 composite index migration).</pre>
 
 </body>
 </html>

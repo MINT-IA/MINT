@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-10-w2-coach-tool-response-v2-PLAN.md
-last_updated: "2026-05-16T21:30:38.279Z"
+stopped_at: Completed mint-calc-engine-v1-11-w2-deprecation-shims-PLAN.md (scope correction — Option A)
+last_updated: "2026-05-16T21:43:53.857Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 12
@@ -35,10 +35,35 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING
-Plan: 11 of 20
+Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 opens at Plan 12)
+Plan: 12 of 20
 Status: Ready to execute
 Last activity: 2026-05-16
+
+## Plan mint-calc-engine-v1-11 Receipt (W2 deprecation-shims — scope correction, 2026-05-16)
+
+- **Plan outcome** : **scope correction, not mechanical execution.** The original PLAN asked for 1-line `from <canonical> import *` shims with `DeprecationWarning` on root `independant_service.py` + `frontalier_service.py`. Pre-flight grep (Task 0) + API surface audit proved the W0-AUDIT-MATRIX rows 32+35 premise was a **misclassification** — the root files are sister Sprint S12 services (monolithic `IndependantService.analyze()` + `FrontalierService.analyze()` API), the sub-dir « canonical » modules are S18/S23 with completely different surfaces. A naive `import *` shim would (a) `ImportError` at boot for independant (`IndependantService` not in S18 `__all__`), (b) silent `AttributeError` at runtime for frontalier (homonymous `class FrontalierService` collision, S23 has no `.analyze()` method). Surfaced as Rule 4 architectural checkpoint to orchestrator ; **orchestrator chose Option A (scope correction)**.
+- Files modified : 4
+  - `services/backend/app/services/independant_service.py` — module-level S12-lineage docstring (lines 1-37) referencing S18 `app.services.independants` as the sister functional API + pointer to `deferred-items.md` entry « S12-API-consolidation ». Zero behavioral change.
+  - `services/backend/app/services/frontalier_service.py` — module-level S12-lineage docstring (lines 1-49) **explicitly flagging the S23 homonymous `FrontalierService` class** in `expat/frontalier_service.py` (different methods: `calculate_source_tax`, `check_quasi_resident`, `simulate_90_day_rule`, `compare_social_charges`, `estimate_lamal_option`, no `.analyze()`) to prevent future import confusion. Zero behavioral change.
+  - `.planning/phases/mint-calc-engine-v1/W0-AUDIT-MATRIX.md` — rows 32 (line 140) + 35 (line 148) reclassified with explicit « **Reclassified 2026-05-16 via Plan 11 scope correction.** » marker. Row 32 now reads `independant_service (S12)` with full S12-monolithic-vs-S18-functional context. Row 35 same pattern for frontalier with S23 homonymous-collision warning.
+  - `.planning/phases/mint-calc-engine-v1/deferred-items.md` — new « S12-API-consolidation » entry (lines 3-37) with : open design questions per domain (monolithic class vs functional split for independants ; monolithic vs granular for frontaliers + `FrontalierService` naming-collision resolution), 5 caller sites to migrate (`segments.py:28-29`, `test_segments.py:22-27`, `test_independant_service.py:21`), required design artifacts (panel synthesis + decision on `lacunes`/`urgences`/`checklist` semantic outputs + naming collision plan), scheduling guidance (after Wave 3). Plus a 2nd entry tracking pre-existing banned-term meta-mentions in « Ethical requirements » docstrings (out-of-scope per SCOPE BOUNDARY, pre-Plan-11 verified via `git show HEAD:`).
+- Files created : 1 (SUMMARY.md) ; nothing in `services/` or `tests/`.
+- **No imports rewritten. No tests deleted. No shims created. No callers modified.**
+- Gates green :
+  - `cd services/backend && python3 -m pytest tests/ -q` → **`7136 passed, 62 skipped, 3 xfailed, 1 warning in 114.01s`** — exact baseline preserved (zero tests added or removed by Plan 11 ; behavioral parity guaranteed because changes are docstring-only on already-tested modules)
+  - `python3 tools/checks/accent_lint_fr.py --scope backend` → exit 0
+  - `python3 tools/checks/banned_terms_python.py services/backend/app/services/{independant,frontalier}_service.py` → exit 1 with 2 hits at independant:34 + frontalier:46 — pre-Plan-11 in HEAD (`git show HEAD:` confirmed line 18 + 26 hits before Plan 11 ; Edit only pushed those lines from 18→34 and 26→46) ; meta-mentions of the rule in the « Ethical requirements » docstring block, not usages ; out-of-scope per SCOPE BOUNDARY, logged to deferred-items.md
+  - `grep -rn "from app.services.independant_service\|from app.services.frontalier_service" services/backend/ apps/ tools/` → 5 hits all unchanged (segments.py:28-29, test_segments.py:22-27, test_independant_service.py:21) — naive shim NOT shipped, so callers continue working via the existing S12 root modules
+- Commits :
+  - `0a15dd63` (Task 1 — docstrings on the 2 root service files)
+  - docs commit pending (this STATE update + SUMMARY + ROADMAP + W0-AUDIT-MATRIX + deferred-items + HTML report)
+- Duration : ~12 min (scope correction is mechanically faster than mechanical execution since no test scaffold is built)
+- Deviations : the entire plan IS a deviation. Architectural override per `<deviation_protocol>` Rule 4 — pre-flight Task 0 found the plan premise was unachievable without first consolidating the S12 vs S18/S23 APIs, which is itself a 2-3-plan design+migration effort. Returned checkpoint to orchestrator with 3 options (A reclassify / B defer / C consolidate). Orchestrator confirmed Option A. Executed end-to-end. **0 auto-fix attempts** (no shim was ever attempted, so no fix cycle was triggered).
+- 0-trust : `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-11-w2-deprecation-shims-SUMMARY.md` `## Self-Check: PASSED` with 9 file/command citations + explicit « What I HAVE NOT done » block listing: did NOT consolidate S12 vs S18/S23 APIs (future plan), did NOT delete either root file, did NOT create any shim, did NOT modify any caller, did NOT fix pre-existing « garanti » meta-mentions, did NOT run Maestro G1 (no UI surface), did NOT open a PR, did NOT push to remote, did NOT re-run W0 audit pass with new heuristic.
+- Engram : observation **#134** saved via CLI fallback (`engram save "D-CE-10 Plan 11 deprecation shims BLOCKED: API mismatch" --project mint --type architecture --topic_key mint-calc-engine-v1:w2-plan-11:deprecation-shims-blocked`) at pre-flight checkpoint. Engram MCP `mem_save` tool became available mid-plan after the system-reminder instructions — second observation pending with topic_key `mint-calc-engine-v1:w2-plan-11:scope-correction-shipped` for the executed outcome.
+- USER VALUE DELIVERED : zero end-user-visible change. The scope correction is **infrastructure-level** — it prevents a future agent (human or LLM) from re-attempting the broken D-CE-10 shim, and it documents the real consolidation question as a backlog item with the open design questions explicit. Stage 1 of 4 per CLAUDE.md §9.5 (direct commits on `dev` branch, no PR). **The real architectural value : caught a W0-audit misclassification before it shipped broken `from X import *` into a FastAPI app boot.**
+- Wave 2 close-out : **complete.** Plans 07 (ToolRegistryAdapter) + 08 (bundles) + 09 (description rewrite) + 10 (CoachToolResponse V2 envelope) + 11 (scope correction in lieu of shims) = 5/5 Wave 2 plans landed. The deferred items from W2 (Plan 09 staging pilot Task 5b ; Plan 11 S12-API-consolidation ; pre-existing « garanti » meta-mentions in 3 docstring blocks total across the wave) are tracked in `.planning/phases/mint-calc-engine-v1/deferred-items.md`. **Wave 3 opens at Plan 12 (W3 composite index migration).**
 
 ## Plan mint-calc-engine-v1-09 Receipt (W2 tool description rewrite Concern A, 2026-05-16)
 
@@ -446,8 +471,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-16T21:30:38.276Z
-Stopped at: Completed mint-calc-engine-v1-10-w2-coach-tool-response-v2-PLAN.md
+Last session: 2026-05-16T21:43:53.854Z
+Stopped at: Completed mint-calc-engine-v1-11-w2-deprecation-shims-PLAN.md (scope correction — Option A)
 Resume file: None
 
 <details>
