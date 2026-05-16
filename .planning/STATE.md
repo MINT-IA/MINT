@@ -4,8 +4,8 @@ milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
 stopped_at: Completed wave-1b-09-PLAN.md — wave_1b_close.sh + Maestro G1 + phase SUMMARY + VERIFICATION-REPORT.html + G2 BLOCKED docs; phase PENDING G2 awaiting dev→staging merge + Railway flag flip; branch feature/wave-1b-09-rollout-close ready for PR
-last_updated: "2026-05-16T10:06:40.993Z"
-last_activity: "2026-05-16 — Wave 1c-A3 PR #643 opened"
+last_updated: "2026-05-16T11:42:28.714Z"
+last_activity: 2026-05-16 -- Phase mint-calc-engine-v1 planning complete
 progress:
   total_phases: 12
   completed_phases: 1
@@ -38,7 +38,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 Phase: 1b (citation-chips) — PENDING G2
 Plan: 9 SUMMARYs landed of 9 (all plans closed ; phase status PENDING G2 = awaiting operator dev→staging merge + Railway 5-flag flip per WAVE1B-10 protocol, then Claude runs autonomous Maestro+sim G2 walkthrough per CONTEXT D-05)
 Status: Ready to execute
-Last activity: 2026-05-16 — Wave 1c-A3 PR #643 opened
+Last activity: 2026-05-16 -- Phase mint-calc-engine-v1 planning complete
 
 ## Plan wave-1b-08 Receipt (Sentry breadcrumb on citation emission, 2026-05-15)
 
