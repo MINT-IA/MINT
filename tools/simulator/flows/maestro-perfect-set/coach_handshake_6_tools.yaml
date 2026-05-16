@@ -1,0 +1,156 @@
+# tools/simulator/flows/maestro-perfect-set/coach_handshake_6_tools.yaml
+#
+# Wave 1c-A3 (D-A3-05 #5) — missing-fields handshake smoke flow.
+#
+# Filename keeps `_6_tools.yaml` per CONTEXT.md §D-A3-05 even though A3
+# currently wires 5 chip-emitter sub-scenarios. The sixth slot is reserved
+# for `get_regulatory_constant` if A3.2 ever extends scope to it (currently
+# excluded because it takes a `key` parameter from a static registry and
+# has no user-profile dependency).
+#
+# 5 sub-scenarios in this file:
+#   1. get_retirement_projection
+#   2. get_budget_status
+#   3. get_cross_pillar_analysis
+#   4. get_cap_status
+#   5. get_couple_optimization
+#
+# ─── PRECONDITIONS ────────────────────────────────────────────────────────
+#   (a) Staging Railway deploy carries the Wave 1c-A3 branch merged to dev.
+#   (b) Mobile build on the booted sim targets staging
+#       (`mint-staging.up.railway.app`, release flavor — memory
+#       `feedback_app_targets_staging_always`).
+#   (c) Test user account starts with a BLANK profile (no age, no avs years,
+#       no LPP balance, no 3a balance) so the dispatcher fires the
+#       `CoachToolIncomplete` branch on first turn.
+#   (d) ANTHROPIC_API_KEY present on Railway staging (memory
+#       `feedback_anthropic_key_on_railway`).
+#
+# ─── EXEC PROTOCOL ────────────────────────────────────────────────────────
+# Run autonomously by Claude post-merge dev→staging. The transcript tail is
+# pasted verbatim into
+# .planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-A3-VERIFICATION-REPORT.html
+# under the "G1 Evidence" section.
+#
+# ─── SELECTOR RECONCILIATION NOTE ─────────────────────────────────────────
+# Citation chip IDs follow the pattern `coachCitationChip-<toolName>` per
+# Wave 1b Plan 05. Confirm against `apps/mobile/lib/widgets/coach/` before
+# push if the chip widget signature has drifted.
+appId: ch.mint.app
+---
+# ─── Scenario 1 — get_retirement_projection ───────────────────────────────
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      text: "Mon argent|Aujourd'hui|Mon coach"
+    timeout: 15000
+- takeScreenshot: "01a-landing"
+
+- tapOn:
+    text: "(?i)Mon coach|Coach"
+- inputText: "Quelle sera ma rente AVS à 65 ans ?"
+- tapOn:
+    text: "(?i)Envoyer|Send"
+- extendedWaitUntil:
+    visible:
+      text: "(?i)besoin de|peux-tu|tu peux me partager"
+    timeout: 20000
+- takeScreenshot: "01b-narrator-asks-retirement"
+
+- inputText: "j'ai 42 ans, 8 années AVS, 320'000 LPP, 25'000 sur mon 3a"
+- tapOn:
+    text: "(?i)Envoyer|Send"
+- extendedWaitUntil:
+    visible:
+      id: "coachCitationChip-retirement_projection"
+    timeout: 20000
+- takeScreenshot: "01c-chip-retirement"
+
+---
+# ─── Scenario 2 — get_budget_status ───────────────────────────────────────
+- tapOn:
+    text: "(?i)Nouvelle conversation|Nouveau"
+- inputText: "Quel est mon surplus mensuel ?"
+- tapOn:
+    text: "(?i)Envoyer|Send"
+- extendedWaitUntil:
+    visible:
+      text: "(?i)besoin de|peux-tu|tu peux me partager"
+    timeout: 20000
+- takeScreenshot: "02a-narrator-asks-budget"
+
+- inputText: "salaire net 6500 CHF, dépenses environ 4200 CHF"
+- tapOn:
+    text: "(?i)Envoyer|Send"
+- extendedWaitUntil:
+    visible:
+      id: "coachCitationChip-budget_snapshot"
+    timeout: 20000
+- takeScreenshot: "02b-chip-budget"
+
+---
+# ─── Scenario 3 — get_cross_pillar_analysis ───────────────────────────────
+- tapOn:
+    text: "(?i)Nouvelle conversation|Nouveau"
+- inputText: "Comment optimiser mes piliers ensemble ?"
+- tapOn:
+    text: "(?i)Envoyer|Send"
+- extendedWaitUntil:
+    visible:
+      text: "(?i)besoin de|peux-tu|tu peux me partager"
+    timeout: 20000
+- takeScreenshot: "03a-narrator-asks-cross-pillar"
+
+- inputText: "42 ans, LPP 320'000, 3a 25'000, brut annuel 120'000"
+- tapOn:
+    text: "(?i)Envoyer|Send"
+- extendedWaitUntil:
+    visible:
+      id: "coachCitationChip-cross_pillar"
+    timeout: 20000
+- takeScreenshot: "03b-chip-cross-pillar"
+
+---
+# ─── Scenario 4 — get_cap_status ──────────────────────────────────────────
+- tapOn:
+    text: "(?i)Nouvelle conversation|Nouveau"
+- inputText: "Quel est mon Cap du jour ?"
+- tapOn:
+    text: "(?i)Envoyer|Send"
+- extendedWaitUntil:
+    visible:
+      text: "(?i)besoin de|peux-tu|tu peux me partager"
+    timeout: 20000
+- takeScreenshot: "04a-narrator-asks-cap"
+
+- inputText: "j'ai 42 ans, objectif : acheter un appartement à Lausanne"
+- tapOn:
+    text: "(?i)Envoyer|Send"
+- extendedWaitUntil:
+    visible:
+      id: "coachCitationChip-cap_status"
+    timeout: 20000
+- takeScreenshot: "04b-chip-cap-status"
+
+---
+# ─── Scenario 5 — get_couple_optimization ─────────────────────────────────
+- tapOn:
+    text: "(?i)Nouvelle conversation|Nouveau"
+- inputText: "Avec ma conjointe, comment optimiser nos LPP ?"
+- tapOn:
+    text: "(?i)Envoyer|Send"
+- extendedWaitUntil:
+    visible:
+      text: "(?i)besoin de|peux-tu|tu peux me partager"
+    timeout: 20000
+- takeScreenshot: "05a-narrator-asks-couple"
+
+- inputText: "moi 42 ans LPP 320'000, elle 39 ans LPP 180'000, on est mariés"
+- tapOn:
+    text: "(?i)Envoyer|Send"
+- extendedWaitUntil:
+    visible:
+      id: "coachCitationChip-couple_optimization"
+    timeout: 20000
+- takeScreenshot: "05b-chip-couple-optimization"
