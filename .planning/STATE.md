@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-05-w1-calc-registry-PLAN.md — AST calc registry scaffold (63 calcs across 12 domains) + REVERSE_DEP_MAP seed (146 fields, 25 calcs depend on canton) live at services/backend/app/calculators/, generator at tools/generate_calc_registry.py with --check CLI for CI freshness gate, 13 contract tests green, 7002 backend tests green (+13 vs Plan 04 baseline 6989, zero regressions). D-CE-09 Strangler-fig honored (zero physical moves) ; D-CE-14 reverse-dep seed kills two birds with the same AST walk ; Q2 resolved CI-only.
-last_updated: "2026-05-16T13:39:51.021Z"
+stopped_at: Completed mint-calc-engine-v1-06-w1-sev2-batch-grounding-PLAN.md — W1 wave-close batch grounding. 4 batches × ~5 endpoints = 19 endpoints grounded on _user.profile.canton via _resolve_defaults + CoachToolIncomplete envelope. Cumulative W1 closure : 26 endpoints (Plan 02 = 3 + Plan 03 = 4 + Plan 06 = 19). Single-source-of-truth parametrized contract test (test_blank_profile_422_contract.py, 28 cases) asserts every W1-grounded endpoint returns 422 with the CoachToolIncomplete envelope on blank profile. Full backend suite 7030 passed (+28 vs Plan 05 baseline 7002, zero regressions). Critical discovery & fix : importlib.reload of endpoint modules pollutes slowapi._route_limits via decorator-stamp accumulation — fixed by replacing reload chain with monkeypatch.setattr on the profile_resolver module-level constant. W2 (ToolRegistryAdapter + bundles) unblocked. MCP exposure issue persists — engram mem_save deferred for 6th consecutive plan despite merge bc07d915.
+last_updated: "2026-05-16T17:00:00.000Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 12
   completed_phases: 1
   total_plans: 7
-  completed_plans: 4
-  percent: 57
+  completed_plans: 5
+  percent: 71
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -36,9 +36,29 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING
-Plan: 6 of 20
-Status: Ready to execute
+Plan: 7 of 20
+Status: Ready to execute (W1 wave closed ; W2 ToolRegistryAdapter next)
 Last activity: 2026-05-16
+
+## Plan mint-calc-engine-v1-06 Receipt (W1 sev-2 batch grounding + wave close, 2026-05-16)
+
+- Files created : 2 (1 parametrized contract test + 1 SUMMARY)
+- Files modified : 20 (10 endpoint files + 10 schema files)
+- Batches : 4 (Batch A arbitrage+mortgage / B lpp+family+mortgage / C retirement+independants+expat / D life-events+unemployment+assurances)
+- Endpoints grounded this plan : 19 (Batch A=5, B=5, C=5, D=4)
+- Cumulative W1 closure : 26 endpoints with Depends(get_profile_filled) — meets ≥25 W1 acceptance criterion
+- Contract test : `services/backend/tests/test_blank_profile_422_contract.py` 281 LOC, 28 cases (26 parametrized + 2 regression guards) — every W1-grounded endpoint returns 422 with CoachToolIncomplete envelope on blank profile
+- Gates green :
+  - `cd services/backend && python3 -m pytest tests/test_blank_profile_422_contract.py -q` → `28 passed in 2.51s`
+  - `cd services/backend && python3 -m pytest tests/ -q` → `7030 passed, 62 skipped, 1 xfailed, 1 warning in 113.93s` — delta vs Plan 05 baseline `7002 passed` = `+28 passed` (exact match for 26 contract cases + 2 regression guards, zero regressions)
+  - `grep -rE 'json_schema_extra=\{"from_profile"' services/backend/app/schemas/*.py | wc -l` → 23 cumulative from_profile markers (target ≥7 cumulative ✓)
+  - `grep -lE 'Depends\(get_profile_filled\)' services/backend/app/api/v1/endpoints/*.py | wc -l` → 10 endpoint files (target ≥7 ✓)
+- Commits : `a0166435` Batch A → `e96a1514` Batch B → `dbb10aa2` Batch C → `9a9269d1` Batch D → `70aee84a` contract test → `cf747899` slowapi fix → docs commit pending (this STATE update + SUMMARY + HTML report + ROADMAP)
+- Duration : ~95 min (split across 2 sessions)
+- Deviations : 6 auto-fixed. (1-3) Rule 1 plan-path inaccuracy — 3 endpoints dropped as non-canton-grounded (assurances/lamal/optimize, mortgage/saron-vs-fixed, debt/ratio) ; substituted with imputed-rental, source-tax, lamal-option to keep batch sizes at 5. (4) Rule 2 — 13 endpoints promoted from anonymous to authenticated via Depends(require_current_user). (5) Rule 1 — Enum-preservation defensive logic on 4 handlers. (6) Rule 1 — slowapi._route_limits cross-pollution discovered post-suite, fixed by replacing importlib.reload chain with monkeypatch.setattr on profile_resolver module-level constant.
+- 0-trust : `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-06-w1-sev2-batch-grounding-SUMMARY.md` `## Self-Check: PASSED` with 11 file/command citations + caveat block listing what was NOT checked (no end-to-end sim ; no PR ; no merge to remote ; no Railway deploy ; no strict-mode flip ; no Maestro G1 ; engram mem_save deferred for 6th consecutive plan due to MCP exposure mismatch despite merge bc07d915).
+- USER VALUE DELIVERED : zero end-user-visible change yet. Strict mode ships `false` by default — until Railway flag flip, helper logs WARNING + returns resolved body so legacy hardcoded-default computation continues. Plan 06 is Stage 1 of 4 per CLAUDE.md §9.5 — work shipped to local `dev`, no PR yet.
+- W1 wave-close blocker : MCP tools (`mcp__plugin_engram_engram__*` + `mcp__mint-tools__*`) NOT exposed in executor agent scope despite merge `bc07d915 + 1b106220 fix(gsd-agents): expose engram + mint-tools MCP to all GSD subagents`. Recommendation : verify the `.claude/agents/gsd-executor.md` frontmatter tools line includes literal MCP namespaces.
 
 ## Plan mint-calc-engine-v1-05 Receipt (W1 calc registry AST scaffold + reverse-dep map seed, 2026-05-16)
 
