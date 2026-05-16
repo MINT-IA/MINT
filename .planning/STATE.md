@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-07-w2-tool-registry-adapter-PLAN.md — D-CE-01 vendor-agnostic ToolRegistryAdapter Protocol + 3 concrete adapters (Anthropic defer_loading default / SkillBundleOnly fallback / ManualSubset backup) + env-flag factory at services/backend/app/services/coach/tool_registry/. 5 chip-emitters always-on + 63 long-tail from REGISTRY (Plan 05) + tool_search_tool_bm25_20251119 declaration on Anthropic adapter. 21 contract tests across 5 files (3+6+4+4+4), all green. Full backend suite 7051 passed (+21 vs Plan 06 baseline 7030, exact match, zero regressions). Banned-terms + accent FR lint exit 0. Engram obs #129 saved via CLI fallback. Adapter is SCAFFOLDING — Plan 10 W2-04 wires it into coach_chat.py ; Plan 09 W2-03 rewrites long-tail descriptions for LSFin BM25 surfacing. First W2 plan complete.
-last_updated: "2026-05-16T20:13:47.371Z"
+stopped_at: "Completed mint-calc-engine-v1-08-w2-bundles-PLAN.md — D-CE-03 Override #2 shipped 2 evidence-gap bundles (IndependentTaxBundle for taxes+career intents citing LAVS art. 8 + LPP art. 4 + LIFD art. 33 al. 1 let. d/e ; SuccessionDivorceBundle for family intent citing CC art. 122-124 partage LPP + CC art. 462 conjoint survivant + CC art. 467-469 reserves heritieres + LAVS art. 29sexies splitting). Bundle count 7 -> 9. 25 new contract tests (9+10+6), full backend suite 7076 passed (+25 vs Plan 07 baseline 7051, exact match, zero regressions). _DROP_PRIORITY prepended with both new bundles (drop FIRST under token-budget). _DROP_PRIORITY ∩ _ALWAYS_ON invariant preserved (module-import-time assert + test). Banned-terms + accent FR lint exit 0. Engram obs #130 saved via CLI fallback. _INTENT_BUNDLES audit completed (Task 0) — no current-state gaps to patch in W2. 5 auto-fixed deviations (all Rule 1 bug : pattern-consistency + 2 legacy-test-staleness + banned-verb-substring + docstring-lint-leak)."
+last_updated: "2026-05-16T20:35:38.472Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 12
@@ -36,7 +36,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING
-Plan: 8 of 20
+Plan: 9 of 20
 Status: Ready to execute
 Last activity: 2026-05-16
 
@@ -422,8 +422,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-16T13:39:51.018Z
-Stopped at: Completed mint-calc-engine-v1-05-w1-calc-registry-PLAN.md — AST calc registry scaffold (63 calcs across 12 domains) + REVERSE_DEP_MAP seed (146 fields, 25 calcs depend on canton) live at services/backend/app/calculators/, generator at tools/generate_calc_registry.py with --check CLI for CI freshness gate, 13 contract tests green, 7002 backend tests green (+13 vs Plan 04 baseline 6989, zero regressions). D-CE-09 Strangler-fig honored (zero physical moves) ; D-CE-14 reverse-dep seed kills two birds with the same AST walk ; Q2 resolved CI-only.
+Last session: 2026-05-16T20:35:38.469Z
+Stopped at: Completed mint-calc-engine-v1-08-w2-bundles-PLAN.md — D-CE-03 Override #2 shipped 2 evidence-gap bundles (IndependentTaxBundle for taxes+career intents citing LAVS art. 8 + LPP art. 4 + LIFD art. 33 al. 1 let. d/e ; SuccessionDivorceBundle for family intent citing CC art. 122-124 partage LPP + CC art. 462 conjoint survivant + CC art. 467-469 reserves heritieres + LAVS art. 29sexies splitting). Bundle count 7 -> 9. 25 new contract tests (9+10+6), full backend suite 7076 passed (+25 vs Plan 07 baseline 7051, exact match, zero regressions). _DROP_PRIORITY prepended with both new bundles (drop FIRST under token-budget). _DROP_PRIORITY ∩ _ALWAYS_ON invariant preserved (module-import-time assert + test). Banned-terms + accent FR lint exit 0. Engram obs #130 saved via CLI fallback. _INTENT_BUNDLES audit completed (Task 0) — no current-state gaps to patch in W2. 5 auto-fixed deviations (all Rule 1 bug : pattern-consistency + 2 legacy-test-staleness + banned-verb-substring + docstring-lint-leak).
 Resume file: None
 
 <details>
