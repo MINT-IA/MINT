@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-03-w1-priority2-endpoints-PLAN.md — 4 Priority-2 endpoints grounded (wealth-tax/estimate + life-events/succession/simulate + family/concubinage/succession + arbitrage/location-vs-propriete), sev-3 silent-wrong-tax class structurally closed via Required-to-Optional widening, Rule-2 auto-add of Depends(require_current_user) on 3 previously-anonymous routes, 16 cumulative from_profile markers (12 Plan 02 + 4 Plan 03), 6970 backend tests green (+12 vs Plan 02 baseline 6958), cumulative W0 closure 4 sev-3 + 3 sev-2 endpoints
-last_updated: "2026-05-16T13:10:00.000Z"
+stopped_at: Completed mint-calc-engine-v1-04-w1-lucidity-payloads-PLAN.md — D-CE-15 typed L1-L4 discriminated union live, recommended_option-equivalents structurally rejected by extra=forbid, narrative parity validator kills lopsided 200/50/50 ranking creep, L4 wedge endpoint /api/v1/lucidity/invariants/mortgage-cap (33% LCC plafond per LCC art. 28) authenticated and lint-clean, 6989 backend tests green (+19 vs Plan 03 baseline 6970)
+last_updated: "2026-05-16T13:25:38.480Z"
 last_activity: 2026-05-16
 progress:
   total_phases: 12
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
-  percent: 71
+  completed_plans: 4
+  percent: 57
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -36,9 +36,9 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING
-Plan: 4 of 20
+Plan: 5 of 20
 Status: Ready to execute
-Last activity: 2026-05-16 — Plan 03 closed (Priority-2 sev-3 grounded — wealth_tax + succession + concubinage + location_vs_propriete ; silent-wrong-tax class structurally closed)
+Last activity: 2026-05-16
 
 ## Plan wave-1b-08 Receipt (Sentry breadcrumb on citation emission, 2026-05-15)
 
@@ -355,8 +355,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-16T13:08:00.000Z
-Stopped at: Completed mint-calc-engine-v1-03-w1-priority2-endpoints-PLAN.md — 4 Priority-2 endpoints grounded (wealth-tax/estimate + life-events/succession/simulate + family/concubinage/succession + arbitrage/location-vs-propriete), sev-3 silent-wrong-tax class structurally closed via Required-to-Optional widening, Rule-2 auto-add of Depends(require_current_user) on 3 previously-anonymous routes, 16 cumulative from_profile markers (12 Plan 02 + 4 Plan 03), 6970 backend tests green (+12 vs Plan 02 baseline 6958), cumulative W0 closure 4 sev-3 + 3 sev-2 endpoints
+Last session: 2026-05-16T13:25:38.477Z
+Stopped at: Completed mint-calc-engine-v1-04-w1-lucidity-payloads-PLAN.md — D-CE-15 typed L1-L4 discriminated union live, recommended_option-equivalents structurally rejected by extra=forbid, narrative parity validator kills lopsided 200/50/50 ranking creep, L4 wedge endpoint /api/v1/lucidity/invariants/mortgage-cap (33% LCC plafond per LCC art. 28) authenticated and lint-clean, 6989 backend tests green (+19 vs Plan 03 baseline 6970)
 Resume file: None
 
 <details>

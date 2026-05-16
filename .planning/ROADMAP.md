@@ -24,7 +24,7 @@ Plans:
 - [x] mint-calc-engine-v1-01-w1-shared-helpers-PLAN.md — shared `_resolve_defaults` + `get_profile_filled` + `raise_incomplete_as_422` + A3 envelope cherry-pick + `client_with_blank_profile` fixture
 - [x] mint-calc-engine-v1-02-w1-priority1-endpoints-PLAN.md — Priority-1 sev-3 endpoint grounding (allocation_annuelle + affordability + rachat_echelonne) ; sev-3 null-canton crash class closed (T-mint-calc-02-03) ; Rule-2 auto-add of Depends(require_current_user) on mortgage + lpp_deep routes ; 12 cumulative from_profile markers ; 6958 backend tests green (+11)
 - [x] mint-calc-engine-v1-03-w1-priority2-endpoints-PLAN.md — Priority-2 endpoint grounding (wealth_tax/estimate + life-events/succession/simulate + family/concubinage/succession + arbitrage/location-vs-propriete) ; silent-wrong-tax sev-3 class structurally closed via Required-to-Optional widening ; Rule-2 auto-add of Depends(require_current_user) on 3 previously-anonymous routes ; 16 cumulative from_profile markers (12 Plan 02 + 4 Plan 03) ; 6970 backend tests green (+12) ; cumulative W0 closure 4 sev-3 + 3 sev-2 endpoints
-- [ ] mint-calc-engine-v1-04-w1-lucidity-payloads-PLAN.md — L1/L2/L3/L4 typed payloads + L4 wedge endpoint (Finding 5)
+- [x] mint-calc-engine-v1-04-w1-lucidity-payloads-PLAN.md — L1/L2/L3/L4 typed payloads + L4 wedge endpoint (Finding 5)
 - [ ] mint-calc-engine-v1-05-w1-calc-registry-PLAN.md — AST scanner + `_registry.py` scaffold (~40-57 entries)
 - [ ] mint-calc-engine-v1-06-w1-sev2-batch-grounding-PLAN.md — Remaining sev-3 + sev-2 endpoint batches + blank-profile 422 contract test
 - [ ] mint-calc-engine-v1-07-w2-tool-registry-adapter-PLAN.md — ToolRegistryAdapter Protocol + 3 concrete adapters + factory
