@@ -14,13 +14,18 @@ MINT runs `engram` (Gentleman-Programming, MIT, single Go binary + SQLite) as MC
 claude plugin marketplace add Gentleman-Programming/engram
 claude plugin install engram
 
-# Storage on Fun2 (1.7 TB free, persistent)
-mkdir -p /Volumes/FUN2/engram
-echo 'export ENGRAM_DATA_DIR="/Volumes/FUN2/engram"' >> ~/.zshrc
+# Storage: ~/.engram/ (local default — daemons ignore ENGRAM_DATA_DIR env var)
+# Historical: /Volumes/FUN2/engram/ was the original target via ENGRAM_DATA_DIR but
+# the DB there got corrupted (« database disk image is malformed (11) ») on 2026-05-16.
+# The live MCP daemons (engram serve, engram mcp) use ~/.engram/engram.db regardless.
+# The CLI (engram save / engram doctor) respects ENGRAM_DATA_DIR → fails until you
+# either remove the env var from ~/.zshrc OR repoint it to ~/.engram.
+# Recommended: prefer the MCP tools (mem_save, mem_search, etc.) over the CLI.
 
 # Verify
 engram --version       # engram 1.15.11+
-engram doctor          # 4 ok, 0 errors expected
+sqlite3 ~/.engram/engram.db "PRAGMA integrity_check;"  # expects: ok
+sqlite3 ~/.engram/engram.db "SELECT COUNT(*) FROM observations;"  # expects: 100+
 claude mcp list        # plugin:engram:engram → ✓ Connected
 ```
 

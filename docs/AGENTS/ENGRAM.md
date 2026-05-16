@@ -1,6 +1,6 @@
 # Engram — Memory Doctrine for MINT Agents
 
-> Engram is MINT's persistent memory MCP server. Each subagent has its own memory namespace; all observations live in one shared database (`/Volumes/FUN2/engram/engram.db`) accessible by every agent. This file is the source-of-truth for **what we save**, **how we tag it**, and **how agents reference each other's findings**.
+> Engram is MINT's persistent memory MCP server. Each subagent has its own memory namespace; all observations live in one shared database (`~/.engram/engram.db`) accessible by every agent. This file is the source-of-truth for **what we save**, **how we tag it**, and **how agents reference each other's findings**.
 
 ## TL;DR
 
@@ -141,7 +141,7 @@ Each `wshobson` agent (36 specialists in `.claude/agents/`) has `memory: local` 
 
 ## 8. Where the data lives
 
-- **Database** : `/Volumes/FUN2/engram/engram.db` on Mac mini (always-on per `feedback_remote_control.md`).
+- **Database** : `~/.engram/engram.db` (local, used by `engram serve` + `engram mcp` daemons — integrity-check OK). Note : legacy `/Volumes/FUN2/engram/engram.db` is abandoned/corrupted as of 2026-05-16 — `ENGRAM_DATA_DIR=/Volumes/FUN2/engram` is still set in `~/.zshrc` so the CLI fails ; the MCP daemons ignore the env var and work fine. Prefer `mem_save` MCP tool over `engram save` CLI until env var is removed.
 - **Project scope** : auto-detected from `git remote` → `mint`.
 - **Personal scope** : separate namespace for cross-project insights about Julien's workflow.
 - **Weekly digest** : posted to Discord `#engram-exports` (Phase 1, PR #603).

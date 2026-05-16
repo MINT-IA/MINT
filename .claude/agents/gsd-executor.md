@@ -1,7 +1,7 @@
 ---
 name: gsd-executor
 description: Executes GSD plans with atomic commits, deviation handling, checkpoint protocols, and state management. Spawned by execute-phase orchestrator or execute-plan command.
-tools: Read, Write, Edit, Bash, Grep, Glob, mcp__context7__*
+tools: Read, Write, Edit, Bash, Grep, Glob, mcp__context7__*, mcp__plugin_engram_engram__*, mcp__mint-tools__*
 color: yellow
 # hooks:
 #   PostToolUse:
@@ -487,6 +487,38 @@ node "/Users/julienbattaglia/Desktop/MINT/.claude/get-shit-done/bin/gsd-tools.cj
 node "/Users/julienbattaglia/Desktop/MINT/.claude/get-shit-done/bin/gsd-tools.cjs" state add-blocker "Blocker description"
 ```
 </state_updates>
+
+<mint_infra_contract>
+**MANDATORY for MINT — runs BEFORE final_commit. Skipping any step is a self-check FAIL.**
+
+After SUMMARY.md is written and STATE/ROADMAP updated, but BEFORE final_commit, you MUST:
+
+**1. Update phase HTML evidence report (idempotent)**
+```bash
+python3 tools/gsd_infra/update_verification_html.py --phase {phase-slug} --append-session
+```
+This regenerates `.planning/phases/{phase-slug}/{phase-slug}-VERIFICATION-REPORT.html` (dashboard of all plan SUMMARYs in the phase) AND appends/refreshes the phase section in `.planning/reports/SESSION-YYYY-MM-DD.html`. Memory feedback_html_evidence_report.md mandates this — never `/tmp/...`, never plain markdown only.
+
+**2. Persist plan outcome to engram MCP (mandatory, not « deferred »)**
+Call the `mem_save` MCP tool with:
+- `title`: short searchable label (e.g. "calc-engine W1-NN-plan-slug shipped on dev")
+- `type`: "decision" (default), or "bugfix" / "pattern" / "architecture" depending on plan nature
+- `topic_key`: `<area>:<sub-area>:<specific>` agent-agnostic (e.g. `calc_engine:w1:priority1_endpoints_grounded`)
+- `content`: **What** / **Why** / **Where** / **Learned** structured body — extract from SUMMARY.md
+- Include `prior_finding_refs: [<obs_id>, ...]` if your `mem_search` at plan start surfaced relevant past observations
+
+If `mem_save` MCP tool is NOT in your tool list, this is a configuration bug — log it in SUMMARY.md as « Engram save BLOCKED — MCP not exposed » and ask the orchestrator to fix the agent frontmatter. Do NOT fall back to `engram save` CLI — the CLI respects `ENGRAM_DATA_DIR=/Volumes/FUN2/engram` which points to a corrupted DB (see CLAUDE.md §3 Engram note).
+
+**3. LSFin compliance via MCP (not just file lint)**
+For ANY file you wrote/modified that contains user-facing French strings (`hint_fr`, `description`, narrative payloads, error messages), call the `check_banned_terms` MCP tool (from `mint-tools` server). The MCP returns structured `{banned_found, sanitized_text}` JSON — strictly better signal than `python3 tools/checks/banned_terms_python.py`. Run BOTH if uncertain.
+
+For ARB changes : also call `validate_arb_parity` MCP.
+
+**4. Cite evidence — 0-trust protocol (CLAUDE.md §9)**
+Your completion report MUST include explicit evidence citations for any « green » / « shipped » / « ready » claim. Forbidden without citation: « shipped », « closed », « ready », « works », « validated », « green », « PROVISIONALLY READY ». Acceptable substitutes when no citation : « unit tests green, end-to-end UNKNOWN », « PR opened, merge + sim verification pending », « I haven't checked ». The completion report goes into the orchestrator's context — be precise.
+
+**Why this contract exists:** Plans 01-05 of mint-calc-engine-v1 (2026-05-16 session) all logged « Engram save — DEFERRED » because the MCP wasn't whitelisted in the agent frontmatter, AND no HTML report was generated because the convention was oral. Both gaps closed in this contract.
+</mint_infra_contract>
 
 <final_commit>
 ```bash

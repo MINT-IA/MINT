@@ -28,7 +28,7 @@ cd apps/mobile && flutter analyze && flutter test && flutter gen-l10n
 
 `get_swiss_constants(category)` pillar3a/lpp/avs/mortgage/tax · `check_banned_terms(text)` LSFin scan+sanitize · `validate_arb_parity()` 6-lang ARB check · `check_accent_patterns(text)` 14-pattern FR lint.
 
-**Engram MCP** (`plugin:engram:engram`, auto-loaded user-scope) — persistent memory for subagents. Tools : `mem_save`, `mem_search`, `mem_context`, `mem_stats`, `mem_conflicts` (beta), 19 total. DB on Mac mini `/Volumes/FUN2/engram/engram.db`. Setup : `docs/AGENTS/VIBE-CODING-INFRA.md`.
+**Engram MCP** (`plugin:engram:engram`, auto-loaded user-scope) — persistent memory for subagents. Tools : `mem_save`, `mem_search`, `mem_context`, `mem_stats`, `mem_conflicts` (beta), 19 total. **Live DB : `~/.engram/engram.db`** (used by `engram serve` + `engram mcp` daemons — integrity-check OK, 122+ obs). The legacy `/Volumes/FUN2/engram/engram.db` is abandoned/corrupted as of 2026-05-16 — don't restore. `ENGRAM_DATA_DIR=/Volumes/FUN2/engram` is still exported in `~/.zshrc` so the CLI `engram save` / `engram doctor` fail with « database disk image is malformed (11) » — prefer MCP tools (`mem_save` etc.) over the CLI until the env var is removed. Setup : `docs/AGENTS/VIBE-CODING-INFRA.md`.
 
 ## 3.5. TEAM AGENTS (subagents, `.claude/agents/`)
 
@@ -101,7 +101,7 @@ Vide pour le moment — les rôles MINT-pur sont couverts par le panel composite
 
 ### Memory contract per agent
 
-Each subagent with `memory: local` writes to `.claude/agent-memory-local/<name>/MEMORY.md` (auto-injected first 200 lines on each invocation) AND can call engram MCP for structured findings (file:line + topic_key + prior_finding_refs). Findings backed by `/Volumes/FUN2/engram/engram.db`. Public-repo discipline : `agent-memory-local` is gitignored (PR #602 merged 2026-05-14).
+Each subagent with `memory: local` writes to `.claude/agent-memory-local/<name>/MEMORY.md` (auto-injected first 200 lines on each invocation) AND can call engram MCP for structured findings (file:line + topic_key + prior_finding_refs). Findings backed by `~/.engram/engram.db`. Public-repo discipline : `agent-memory-local` is gitignored (PR #602 merged 2026-05-14).
 
 **Compounding observable** : if a subagent flagging finding X in PR-N references its own past finding Y from PR-(N-k) via `prior_finding_refs`, the team is learning. Mesuré per-specialist (chaque agent du panel composite a sa propre série), pas en agrégat.
 
