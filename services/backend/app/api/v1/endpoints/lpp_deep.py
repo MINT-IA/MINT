@@ -9,9 +9,17 @@ Sprint S15 — Chantier 4: LPP approfondi.
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 
+from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.lpp_deep import (
     RachatEchelonneRequest,
     RachatEchelonneResponse,
@@ -42,26 +50,51 @@ _epl_service = EPLService()
 # Rachat Echelonne
 # ---------------------------------------------------------------------------
 
+_RACHAT_ECHELONNE_HINT_FR = (
+    "Pour estimer ton rachat LPP échelonné, j'ai besoin de ton canton "
+    "et de ton revenu imposable annuel. Tu peux me les partager ?"
+)
+
+
 @router.post("/rachat-echelonne", response_model=RachatEchelonneResponse)
 @limiter.limit("30/minute")
 def simulate_rachat_echelonne(
     request: Request,
     body: RachatEchelonneRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> RachatEchelonneResponse:
     """Simulate a stepped LPP buyback to optimize tax savings.
 
     Compares buying back in a single year (bloc) vs spreading over N years.
     The stepped approach typically saves more due to progressive taxation.
 
+    Grounded via D-CE-06 + D-CE-07 : canton, revenuImposable, avoirActuel
+    are read from `_user.profile.data` when not in body. Missing canton or
+    revenuImposable triggers 422 with the D-CE-08 `CoachToolIncomplete`
+    envelope when strict mode is enabled — closes the sev-3 incident class
+    where `TAUX_MARGINAUX_PAR_CANTON[None]` would otherwise raise KeyError
+    → 500 (threat T-mint-calc-02-03 DoS mitigation).
+
     Sources: LPP art. 79b, LIFD art. 33 al. 1 let. d, OPP2 art. 60a.
     """
+    resolved = _resolve_defaults(profile_data, body, RachatEchelonneRequest)
+    missing = _required_profile_fields_missing(resolved, RachatEchelonneRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_RACHAT_ECHELONNE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/lpp-deep/rachat-echelonne",
+        )
+
     result = _rachat_service.simulate(
-        avoir_actuel=body.avoirActuel,
-        rachat_max=body.rachatMax,
-        revenu_imposable=body.revenuImposable,
-        taux_marginal_estime=body.tauxMarginalEstime,
-        canton=body.canton,
-        horizon_rachat_annees=body.horizonRachatAnnees,
+        avoir_actuel=float(resolved["avoirActuel"]),
+        rachat_max=float(resolved["rachatMax"]),
+        revenu_imposable=float(resolved["revenuImposable"]),
+        taux_marginal_estime=resolved["tauxMarginalEstime"],
+        canton=str(resolved["canton"]),
+        horizon_rachat_annees=int(resolved["horizonRachatAnnees"]),
     )
 
     return RachatEchelonneResponse(
