@@ -17,9 +17,11 @@ from app.services.coach.tool_registry.adapter import (
     ToolDefinition,
     ToolRegistryAdapter,
 )
+from app.services.coach.tool_registry.factory import get_tool_registry_adapter
 
 __all__ = [
     "LatencyTier",
     "ToolDefinition",
     "ToolRegistryAdapter",
+    "get_tool_registry_adapter",
 ]
