@@ -40,6 +40,7 @@ Task 1 RED→GREEN and consumed by Plan 09 Task 2 acceptance.
 """
 from __future__ import annotations
 
+import argparse
 import ast
 import re
 import sys
@@ -65,32 +66,107 @@ R3_LEGAL_OR_DOMAIN = re.compile(
 R4_MIN_LEN = 80
 
 
-def _extract_description_strings(source: str) -> list[tuple[int, str]]:
-    """Return ``[(line_no, description_text), ...]`` for every ``"description":``
-    key/value pair found in dict literals.
+def _extract_description_strings(
+    source: str,
+) -> list[tuple[int, str, str | None]]:
+    """Return ``[(line_no, description_text, name_or_None), ...]`` for every
+    ``"description":`` key/value pair found in dict literals.
+
+    ``name`` is the sibling ``"name":`` string constant from the same dict,
+    when present — used to scope the lint to an allowlist via ``--names``.
 
     Concatenated string literals (``"foo " "bar"``) and parenthesised
     multi-string literals (``("foo " "bar")``) are handled because Python's
     AST folds them into a single ``ast.Constant`` at compile time.
+
+    Dict literals whose ``"description"`` is preceded by a same-dict
+    ``"rubric_exempt": True`` or ``"rubric_exempt": "<reason>"`` key are
+    skipped (allows in-source carve-outs without an external allowlist).
     """
     tree = ast.parse(source)
-    found: list[tuple[int, str]] = []
+    found: list[tuple[int, str, str | None]] = []
     for node in ast.walk(tree):
         if not isinstance(node, ast.Dict):
             continue
+        # Pre-scan the dict for sibling "name" + "rubric_exempt".
+        sibling_name: str | None = None
+        is_exempt = False
+        desc_value: tuple[int, str] | None = None
         for key, value in zip(node.keys, node.values):
-            if not isinstance(key, ast.Constant) or key.value != "description":
+            if not isinstance(key, ast.Constant):
                 continue
-            # Resolve the value : either a direct string constant or a
-            # constant after folding (``ast.parse`` already folds adjacent
-            # string literals into a single Constant).
-            if isinstance(value, ast.Constant) and isinstance(value.value, str):
-                found.append((value.lineno, value.value))
+            if key.value == "name" and isinstance(value, ast.Constant) and isinstance(value.value, str):
+                sibling_name = value.value
+            elif key.value == "rubric_exempt" and isinstance(value, ast.Constant):
+                if value.value:
+                    is_exempt = True
+            elif key.value == "description" and isinstance(value, ast.Constant) and isinstance(value.value, str):
+                desc_value = (value.lineno, value.value)
+        if desc_value is None or is_exempt:
+            continue
+        lineno, desc_text = desc_value
+        found.append((lineno, desc_text, sibling_name))
     return found
 
 
-def lint_file(path: Path) -> list[tuple[int, str, str]]:
-    """Return ``[(line_no, rule_id, snippet), ...]`` of failures in ``path``."""
+def _extract_dict_var_values(
+    source: str, var_name: str
+) -> list[tuple[int, str, str]]:
+    """Scan ``source`` for a top-level assignment ``<var_name>: ... = {...}``
+    where the dict has string-literal keys and string-literal values. Returns
+    ``[(line_no, value_text, key_name), ...]`` for every such entry.
+
+    Used to lint maps like ``_TOOL_DESCRIPTIONS_FR = {"tool_x": "...", ...}``
+    where the KEY is the tool name and the VALUE is the description string.
+    """
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return []
+    found: list[tuple[int, str, str]] = []
+    for node in tree.body:
+        target_dict: ast.Dict | None = None
+        if isinstance(node, ast.Assign):
+            for tgt in node.targets:
+                if isinstance(tgt, ast.Name) and tgt.id == var_name and isinstance(node.value, ast.Dict):
+                    target_dict = node.value
+                    break
+        elif isinstance(node, ast.AnnAssign):
+            if (
+                isinstance(node.target, ast.Name)
+                and node.target.id == var_name
+                and node.value is not None
+                and isinstance(node.value, ast.Dict)
+            ):
+                target_dict = node.value
+        if target_dict is None:
+            continue
+        for key, value in zip(target_dict.keys, target_dict.values):
+            if (
+                isinstance(key, ast.Constant)
+                and isinstance(key.value, str)
+                and isinstance(value, ast.Constant)
+                and isinstance(value.value, str)
+            ):
+                found.append((value.lineno, value.value, key.value))
+    return found
+
+
+def lint_file(
+    path: Path,
+    allowlist: set[str] | None = None,
+    dict_var: str | None = None,
+) -> list[tuple[int, str, str]]:
+    """Return ``[(line_no, rule_id, snippet), ...]`` of failures in ``path``.
+
+    When ``allowlist`` is provided (non-empty set), only descriptions whose
+    sibling ``"name"`` is in the set are linted. When ``allowlist`` is
+    ``None``, every description is linted (legacy mode for unit tests).
+
+    When ``dict_var`` is provided, additionally lint each string-value of a
+    top-level ``<dict_var> = {"<tool_name>": "<description>"}`` map. The
+    ``allowlist`` (if any) still gates which keys are checked.
+    """
     try:
         source = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
@@ -99,8 +175,16 @@ def lint_file(path: Path) -> list[tuple[int, str, str]]:
         descriptions = _extract_description_strings(source)
     except SyntaxError:
         return []
+    if dict_var:
+        for lineno, desc, key_name in _extract_dict_var_values(source, dict_var):
+            descriptions.append((lineno, desc, key_name))
     failures: list[tuple[int, str, str]] = []
-    for lineno, desc in descriptions:
+    for lineno, desc, name in descriptions:
+        if allowlist is not None and name is not None and name not in allowlist:
+            continue
+        if allowlist is not None and name is None:
+            # Skip entries without a sibling "name" when allowlist is active.
+            continue
         snippet = desc.replace("\n", " ").strip()[:80]
         if not R1_VERBS.search(desc):
             failures.append((lineno, "R1 FR verb", snippet))
@@ -116,20 +200,55 @@ def lint_file(path: Path) -> list[tuple[int, str, str]]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = list(argv if argv is not None else sys.argv[1:])
-    if not args:
-        print(
-            "Usage: tool_description_rubric.py <python-file> [<python-file> ...]",
-            file=sys.stderr,
-        )
-        return 2
+    parser = argparse.ArgumentParser(
+        description="Concern A tool description FR rubric lint."
+    )
+    parser.add_argument("paths", nargs="+", type=Path, help="Python files to lint")
+    parser.add_argument(
+        "--names",
+        type=str,
+        default=None,
+        help=(
+            "Comma-separated allowlist of tool names to enforce. When set, "
+            "only dict entries whose sibling 'name' is in the allowlist are "
+            "checked. When omitted, every description in the file is checked "
+            "(legacy mode)."
+        ),
+    )
+    parser.add_argument(
+        "--names-file",
+        type=Path,
+        default=None,
+        help="Path to a newline-delimited file of tool names (allowlist).",
+    )
+    parser.add_argument(
+        "--dict-var",
+        type=str,
+        default=None,
+        help=(
+            "Additionally lint string-values of a top-level "
+            "``<NAME> = {'<tool_name>': '<description>'}`` map (used for "
+            "Plan 09's ``_TOOL_DESCRIPTIONS_FR`` in the Anthropic adapter)."
+        ),
+    )
+    args = parser.parse_args(argv)
+
+    allowlist: set[str] | None = None
+    if args.names:
+        allowlist = {n.strip() for n in args.names.split(",") if n.strip()}
+    if args.names_file and args.names_file.is_file():
+        if allowlist is None:
+            allowlist = set()
+        for line in args.names_file.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                allowlist.add(line)
 
     total = 0
-    for arg in args:
-        path = Path(arg)
+    for path in args.paths:
         if not path.is_file():
             continue
-        failures = lint_file(path)
+        failures = lint_file(path, allowlist=allowlist, dict_var=args.dict_var)
         for lineno, rule, snippet in failures:
             print(f"{path}:{lineno}: {rule} — {snippet}...", file=sys.stderr)
             total += 1
