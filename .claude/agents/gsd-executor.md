@@ -493,13 +493,7 @@ node "/Users/julienbattaglia/Desktop/MINT/.claude/get-shit-done/bin/gsd-tools.cj
 
 After SUMMARY.md is written and STATE/ROADMAP updated, but BEFORE final_commit, you MUST:
 
-**1. Update phase HTML evidence report (idempotent)**
-```bash
-python3 tools/gsd_infra/update_verification_html.py --phase {phase-slug} --append-session
-```
-This regenerates `.planning/phases/{phase-slug}/{phase-slug}-VERIFICATION-REPORT.html` (dashboard of all plan SUMMARYs in the phase) AND appends/refreshes the phase section in `.planning/reports/SESSION-YYYY-MM-DD.html`. Memory feedback_html_evidence_report.md mandates this — never `/tmp/...`, never plain markdown only.
-
-**2. Persist plan outcome to engram (MCP primary, Bash CLI fallback)**
+**1. Persist plan outcome to engram (MCP primary, Bash CLI fallback)**
 Primary path : call the `mcp__plugin_engram_engram__mem_save` MCP tool with:
 - `title`: short searchable label
 - `type`: "decision" (default), or "bugfix" / "pattern" / "architecture" depending on plan nature
@@ -511,7 +505,7 @@ If `mem_save` MCP tool is NOT in your tool list, fall back to the Bash CLI : `en
 
 If BOTH MCP and CLI fail, log « Engram save BLOCKED — both paths failed » in SUMMARY.md with the exact error. Orchestrator will save manually post-return (orchestrator-side save belt-and-suspenders — see CLAUDE.md §3.5).
 
-**3. LSFin compliance via file lints (mint-tools MCP doesn't propagate to subagents)**
+**2. LSFin compliance via file lints (mint-tools MCP doesn't propagate to subagents)**
 Run Bash file lints on any file you wrote/modified that contains user-facing French strings (`hint_fr`, `description`, narrative payloads, error messages):
 - `python3 tools/checks/banned_terms_python.py <touched-files>` — exits non-zero on LSFin banned terms
 - `python3 tools/checks/accent_lint_fr.py --scope backend` — flags ASCII-instead-of-accent patterns
@@ -520,10 +514,10 @@ For ARB changes : `python3 tools/checks/arb_parity_lint.py` (lefthook-active har
 
 Project-scope `.mcp.json` MCP servers (mint-tools, context7) do NOT propagate to subagents (Claude Code limitation). File lints via Bash are the reliable path. mint-tools MCP remains available to the orchestrator for structured `{banned_found, sanitized_text}` output.
 
-**4. Cite evidence — 0-trust protocol (CLAUDE.md §9)**
+**3. Cite evidence — 0-trust protocol (CLAUDE.md §9)**
 Your completion report MUST include explicit evidence citations for any « green » / « shipped » / « ready » claim. Forbidden without citation: « shipped », « closed », « ready », « works », « validated », « green », « PROVISIONALLY READY ». Acceptable substitutes when no citation : « unit tests green, end-to-end UNKNOWN », « PR opened, merge + sim verification pending », « I haven't checked ». The completion report goes into the orchestrator's context — be precise.
 
-**Why this contract exists:** Closes the gap where subagents drop engram saves silently (Claude Code agent loader strips inherited MCP when `tools:` whitelist is set — see anthropics/claude-code#13898) AND no HTML evidence dashboard was produced because the convention lived only in oral history. This contract codifies both — engram via MCP-or-CLI, HTML via Bash helper, FR compliance via file lints.
+**Why this contract exists:** Closes the gap where subagents drop engram saves silently (Claude Code agent loader strips inherited MCP when `tools:` whitelist is set — see anthropics/claude-code#13898). Codifies engram persistence via MCP-or-CLI plus FR compliance via file lints. HTML evidence dashboards are an optional orchestrator-side concern — see `tools/gsd_infra/update_verification_html.py`.
 </mint_infra_contract>
 
 <final_commit>
