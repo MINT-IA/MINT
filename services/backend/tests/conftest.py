@@ -137,3 +137,52 @@ def client():
 
     # Clean up
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def client_with_blank_profile():
+    """Concern D (Karpathy #4 reproduce-the-bug-first) — yields a TestClient
+    authenticated as the conftest `_fake_user` whose `profile.data == {}`.
+
+    Use in one contract test per Wave-1-fixed endpoint to assert 422 fires
+    when profile fields are missing (D-CE-08 + CoachToolIncomplete envelope).
+
+    Without this fixture, happy-path test bodies that pass all fields
+    explicit-set pass the 422 check even though real users with blank profiles
+    would hit the bug. The fixture is the cheapest way to reproduce the bug
+    that ships to production today.
+    """
+    from uuid import uuid4
+    from app.models.profile_model import ProfileModel
+
+    # Override the same dependencies as the standard `client` fixture.
+    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[require_current_user] = _fake_user
+    app.dependency_overrides[get_current_user] = _fake_user
+
+    # Insert a ProfileModel row with data={} tied to _fake_user.id.
+    db = TestingSessionLocal()
+    profile = ProfileModel(
+        id=str(uuid4()),
+        user_id="test-user-id",  # matches _fake_user() above
+        data={},
+    )
+    db.add(profile)
+    db.commit()
+    db.close()
+
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        # Clean up the row (clean_database autouse handles it for next test,
+        # but be explicit so the fixture is self-contained).
+        cleanup = TestingSessionLocal()
+        try:
+            cleanup.query(ProfileModel).filter(
+                ProfileModel.user_id == "test-user-id"
+            ).delete()
+            cleanup.commit()
+        finally:
+            cleanup.close()
+        app.dependency_overrides.clear()
