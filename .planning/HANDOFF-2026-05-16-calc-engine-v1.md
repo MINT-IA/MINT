@@ -164,5 +164,101 @@ If you want to ship A3 first instead :
 - [x] Wave 1c-A3 PLAN.md locked + committed (sha 2e1060a5)
 - [x] 8+ engram observations saved (#94-108 range)
 - [x] HANDOFF.md (this file) written
-- [ ] HANDOFF.md committed (next bash call)
-- [ ] mem_session_summary saved (next mem call)
+- [x] HANDOFF.md committed (sha 84a2cf78)
+- [x] mem_session_summary saved
+- [x] Wave 1c-A3 EXECUTED 6/7 tasks (see addendum below)
+
+---
+
+## ADDENDUM 2026-05-16 — Wave 1c-A3 execution complete (6/7 tasks)
+
+`gsd-executor` agent ran 30 min and returned `EXECUTION COMPLETE` (6/7 tasks). A3.7 (pre-push panel + PR open + post-merge verification) explicitly deferred to next session per executor prompt boundary.
+
+### Branch state
+
+- Branch : `feature/wave-1c-A3-missing-fields-handshake`
+- Based on dev sha `84a2cf78`
+- 7 commits ahead of dev, 1380 insertions / 6 deletions across 12 files
+- Working tree clean
+
+### Commits on branch (oldest → newest)
+
+```
+a55b5469  feat(wave-1c-A3): CoachToolResponse Pydantic v2 envelope (D-A3-01)
+de3e44d1  feat(wave-1c-A3): MISSING_FIELDS_INSTRUCTION_FR + 5 chip-emitter description rewrites (D-A3-02)
+baac3870  feat(wave-1c-A3): citation_grammar.py pointer to per-tool description (D-A3-02)
+792c27e2  feat(wave-1c-A3): _extract_avs_years + _EXTRACTORS update — anchor-mandatory (D-A3-03, I-01+I-07)
+dcb79cfd  feat(wave-1c-A3): dispatcher + turn-local cache + same-turn upsert + fallback + tool_results in return dict (D-A3-03, D-A3-06, I-01/I-02/I-04/I-05/I-09)
+e1656e8a  test(wave-1c-A3): 4 pytest artifacts (flat tests/ convention) + Maestro flow per D-A3-05 (I-06+I-08)
+59883a89  docs(wave-1c-A3): SUMMARY.md — 6/7 tasks committed, ready for orchestrator pre-push panel + PR open
+```
+
+### Test results (executor self-report, spot-checked)
+
+- `pytest <4 new A3 test files> -q` → **exit 0, 38 passed**
+- Full backend suite `pytest services/backend/tests/ -q` → **exit 0, 6970 passed / 0 failed / 62 skipped / 1 xfailed** (was 6932 pre-A3, +38 net-new)
+- `python3 -c "...MISSING_FIELDS_INSTRUCTION_FR.format(...)"` → exit 0 (I-03 format-smoke)
+- `accent_lint_fr.py` on all 5 backend files → exit 0 each
+- `banned_terms_python.py` on 5 backend files → exit 1 BUT only 2 pre-existing hits (coach_tools.py:377 + :846 from pre-A3 commits b7782086 + 37209ed1) ; **0 net-new banned terms introduced by A3**
+
+### Files modified (12)
+
+- `services/backend/app/models/coach_tools/_response.py` — created (76 lines, `CoachToolResponse` RootModel)
+- `services/backend/app/services/coach/coach_tools.py` — +59 lines (5 chip-emitter descriptions + `MISSING_FIELDS_INSTRUCTION_FR`)
+- `services/backend/app/services/coach/citation_grammar.py` — +10 lines (TOP/BOTTOM MANDATE pointer)
+- `services/backend/app/services/coach/profile_extractor.py` — +63 lines (`_extract_avs_years` + `_EXTRACTORS` update)
+- `services/backend/app/api/v1/endpoints/coach_chat.py` — +388 / -6 lines (dispatcher rewrite + turn-local cache + Step 6a `tool_results` exposure + fallback)
+- `services/backend/tests/test_coach_tools_missing_fields_instruction.py` — created (D-A3-05 #3)
+- `services/backend/tests/test_coach_chat_missing_fields_handshake.py` — created (D-A3-05 #1)
+- `services/backend/tests/test_coach_chat_narrator_asks_on_incomplete.py` — created (D-A3-05 #2, mock-Anthropic round-trip)
+- `services/backend/tests/test_coach_chat_handshake_persistence.py` — created (D-A3-05 #4)
+- `services/backend/tests/test_agent_loop.py` — +2 lines (Rule 1 legacy-alias fix)
+- `tools/simulator/flows/maestro-perfect-set/coach_handshake_6_tools.yaml` — created (148 lines, D-A3-05 #5, 5 sub-scenarios)
+- `.planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-A3-SUMMARY.md` — created (222 lines)
+
+### Checker iter 1 fixes all applied
+
+I-01 (AVS-extractor anchor-mandatory), I-02 (verbatim _compute signatures), I-03 (.format() smoke), I-04 (no new db.commit), I-05 (tool_results in return dict), I-06 (mock-Anthropic test), I-07 (comma-boundary regex), I-08 (Maestro explainer comment), I-09 (family → number_of_children), I-10 (test inventory done), I-11 (panel severity ladder in PR body template).
+
+### Decisions honored
+
+D-A3-01 ✓ / D-A3-02 ✓ / D-A3-03 ✓ / D-A3-04 ✓ (5 not 6, off-by-2 corrected) / D-A3-05 ✓ (5 artifacts) / D-A3-06 ✓ (server-side floor wired) / D-A3-07 ✓ (financial_core reuse) / D-A3-08 ✓ (branch + commits) / D-A3-09 partial (G4 + G5 pre-push satisfied ; G1+G2+G3 post-merge) / D-A3-10 deferred to orchestrator / D-A3-11 noted in PR-body.
+
+### Deferred to next session
+
+1. **Pre-push 5-agent panel D-A3-10** : spawn in parallel `security-auditor` + `qa-expert` + `ai-engineer` + `prompt-engineer` + `architect-review` on the 7 commits + SUMMARY.md. I-11 severity ladder : BLOCKED/CRITICAL → fix mandatory ; MAJOR → fix or PR-body deferral ; MINOR/SUGGESTION → acknowledge + ship.
+2. **PR open** : `gh pr create --base dev --title "feat(wave-1c-A3): missing-fields handshake on 5 chip-emitters" --body "..."` — after panel CLEAN + Julien explicit confirmation.
+3. **G3** : `gh pr checks <N> --watch` until green.
+4. **Squash-merge** : `gh pr merge --squash --delete-branch`.
+5. **dev→staging bundle PR** for G1 Maestro + G2 Julien.
+6. **`wave-1c-A3-VERIFICATION-REPORT.html`** per memory `feedback_html_evidence_report`.
+7. **Engram mem_save** : panel verdicts + merge sha as one group of `prior_finding_refs`.
+
+### FIRST COMMAND for next session (A3 ship-finish path)
+
+```
+Read .planning/HANDOFF-2026-05-16-calc-engine-v1.md (especially the
+2026-05-16 A3 addendum at the bottom).
+Then verify the feature/wave-1c-A3-missing-fields-handshake branch is at
+expected state (7 commits ahead of dev, sha 59883a89 as HEAD).
+Then spawn the pre-push 5-agent panel D-A3-10 in PARALLEL :
+- security-auditor (LSFin banned-terms scan + LSFin lucidité grammar)
+- qa-expert (regression coverage + 5-artifact test floor review)
+- ai-engineer (Pydantic v2 CoachToolResponse contract review)
+- prompt-engineer (5 per-tool description rewrites + MANDATE pointer review)
+- architect-review (financial_core reuse + anti-facade + single-transaction discipline)
+Apply I-11 severity ladder. After panel CLEAN, prompt Julien for
+explicit confirmation, then gh pr create against dev with the PR body
+template from wave-1c-A3-SUMMARY.md.
+```
+
+### Alternative first command (skip A3 panel, jump to sev-3 incident fix)
+
+If you prefer the sev-3 incident-fix takes priority over A3 ship-finish (per panel F + my prior PM recommendation), the alternative first command is the « PR-1 sev-3 grounding fixes » prompt at the top of this HANDOFF (line ~95). A3 branch waits on `feature/wave-1c-A3-missing-fields-handshake`, no rebase debt for ~1 week.
+
+### 0-trust note
+
+- Nothing shipped to dev or staging. A3 is on a feature branch only.
+- No PR opened yet.
+- Tests pass on the FEATURE BRANCH, not on dev. Once squash-merged, dev re-run will validate.
+- The 2 pre-existing banned_terms hits (coach_tools.py:377 + :846) are documented baseline noise NOT introduced by A3 — flagged for separate cleanup PR if cosmetic priority.
