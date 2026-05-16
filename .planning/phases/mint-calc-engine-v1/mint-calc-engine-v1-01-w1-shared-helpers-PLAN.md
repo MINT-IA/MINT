@@ -208,15 +208,19 @@ class ProfileModel(Base):
     - Test 4: `_resolve_defaults(profile=None, body=Req(canton="VD"), schema=Req)` returns `{"canton": "VD"}` — None profile treated as empty dict.
     - Test 5: `_required_profile_fields_missing` returns the profile-key list (NOT body-field list) capped at 3.
     - Test 6: `_required_profile_fields_missing` only flags fields with `json_schema_extra={"from_profile": ...}` — fields without the marker are NOT considered required-via-profile.
-    - Test 7: `raise_incomplete_as_422(missing_fields=["canton"], hint_fr="...")` raises `HTTPException(status_code=422)` whose `detail` is a dict matching `CoachToolIncomplete.model_dump(by_alias=True)` shape (camelCase: `status`, `missingFields`, `hintFr`).
-    - Test 8: `raise_incomplete_as_422(missing_fields=["a","b","c","d"], hint_fr="...")` raises `ValueError` from the `CoachToolIncomplete._cap_missing_fields` validator (4 > 3 cap inherited from A3 D-A3-01) — the helper must NOT silently truncate ; the cap belongs to the envelope.
+    - Test 7: `raise_incomplete_as_422(missing_fields=["canton"], hint_fr="...")` with `PROFILE_GROUNDING_STRICT_MODE=true` raises `HTTPException(status_code=422)` whose `detail` is a dict matching `CoachToolIncomplete.model_dump(by_alias=True)` shape (camelCase: `status`, `missingFields`, `hintFr`).
+    - Test 8: `raise_incomplete_as_422(missing_fields=["a","b","c","d"], hint_fr="...")` raises `ValueError` from the `CoachToolIncomplete._cap_missing_fields` validator (4 > 3 cap inherited from A3 D-A3-01) — the helper must NOT silently truncate ; the cap belongs to the envelope. Test runs in BOTH strict and non-strict modes (cap is envelope-level, mode-independent).
+    - Test 9 (D-CE-08 non-strict graceful fallback): `raise_incomplete_as_422(missing_fields=["canton"], hint_fr="...", resolved_body={"x":1}, endpoint="/foo")` with `PROFILE_GROUNDING_STRICT_MODE=false` does NOT raise — returns `{"x":1}` (the resolved_body passthrough) AND emits a `logger.warning` with `extra={endpoint, missing_fields, hint_fr}`. Use `caplog.records` fixture to assert the warning + extra dict shape.
+    - Test 10 (D-CE-08 default ENV value): `os.getenv("PROFILE_GROUNDING_STRICT_MODE", "false")` defaults to `"false"` — running pytest WITHOUT setting the env var puts the helper in non-strict mode. Strict mode requires explicit opt-in.
   </behavior>
   <action>
     Create `services/backend/app/core/profile_resolver.py` matching RESEARCH §Q-B lines 282-403 verbatim. Use this signature contract:
 
     ```python
     # services/backend/app/core/profile_resolver.py
-    from typing import Any, NoReturn
+    import logging
+    import os
+    from typing import Any
     from fastapi import HTTPException, Depends, status
     from pydantic import BaseModel
     from sqlalchemy.orm import Session
@@ -270,13 +274,45 @@ class ProfileModel(Base):
         return missing[:3]
 
 
-    def raise_incomplete_as_422(missing_fields: list[str], hint_fr: str) -> NoReturn:
-        """Raise HTTPException(422) carrying the A3 CoachToolIncomplete envelope (D-CE-04)."""
+    # D-CE-08 feature flag for graceful Flutter rollout
+    # rollout : staging strict=true → prod strict=false (1 release) → prod strict=true
+    PROFILE_GROUNDING_STRICT_MODE: bool = (
+        os.getenv("PROFILE_GROUNDING_STRICT_MODE", "false").lower() == "true"
+    )
+
+    _logger = logging.getLogger(__name__)
+
+
+    def raise_incomplete_as_422(
+        missing_fields: list[str],
+        hint_fr: str,
+        *,
+        resolved_body: dict[str, Any] | None = None,
+        endpoint: str | None = None,
+    ) -> dict[str, Any]:
+        """D-CE-08: raise HTTPException(422) carrying CoachToolIncomplete envelope (D-CE-04)
+        if PROFILE_GROUNDING_STRICT_MODE; otherwise emit warning + return resolved_body (graceful fallback).
+
+        Returns the body dict ONLY in non-strict path — caller must use the return value
+        to continue computation in the legacy hardcoded-defaults branch. In strict path,
+        the function never returns (raises HTTPException).
+        """
         incomplete = CoachToolIncomplete(missing_fields=missing_fields, hint_fr=hint_fr)
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=incomplete.model_dump(by_alias=True),
+        if PROFILE_GROUNDING_STRICT_MODE:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=incomplete.model_dump(by_alias=True),
+            )
+        # graceful fallback : log + return resolved body (legacy behavior continues)
+        _logger.warning(
+            "profile_grounding_incomplete_non_strict",
+            extra={
+                "endpoint": endpoint or "unknown",
+                "missing_fields": missing_fields,
+                "hint_fr": hint_fr,
+            },
         )
+        return resolved_body or {}
 
 
     def get_profile_filled(
@@ -293,7 +329,7 @@ class ProfileModel(Base):
         return profile.data if profile and profile.data else {}
     ```
 
-    Then write `services/backend/tests/test_profile_resolver.py` with the 8 unit tests from the `<behavior>` block above. Use the FLAT `tests/test_*.py` convention (Wave 1c-A3 precedent — per RESEARCH §Q-I). Define a small `_TestRequest(BaseModel)` schema inline with `canton: Optional[str] = Field(default=None, json_schema_extra={"from_profile": "canton"})` for precedence tests.
+    Then write `services/backend/tests/test_profile_resolver.py` with the 10 unit tests from the `<behavior>` block above. Use the FLAT `tests/test_*.py` convention (Wave 1c-A3 precedent — per RESEARCH §Q-I). Define a small `_TestRequest(BaseModel)` schema inline with `canton: Optional[str] = Field(default=None, json_schema_extra={"from_profile": "canton"})` for precedence tests. For Tests 9-10 (D-CE-08 strict-mode branching), use `monkeypatch.setenv("PROFILE_GROUNDING_STRICT_MODE", "true"/"false")` + `caplog.set_level(logging.WARNING)` + reload the module (`importlib.reload(profile_resolver)`) so the env-time-set flag re-evaluates.
 
     DO NOT instantiate the FastAPI app or use TestClient — these are pure-Python unit tests. `get_profile_filled` integration test ships in Task 2.
 
@@ -308,8 +344,9 @@ class ProfileModel(Base):
     - `grep -c "def _required_profile_fields_missing" services/backend/app/core/profile_resolver.py` returns `1`
     - `grep -c "def raise_incomplete_as_422" services/backend/app/core/profile_resolver.py` returns `1`
     - `grep -c "def get_profile_filled" services/backend/app/core/profile_resolver.py` returns `1`
+    - `grep -c "PROFILE_GROUNDING_STRICT_MODE" services/backend/app/core/profile_resolver.py` returns `≥2` (declaration + branch in `raise_incomplete_as_422`) — D-CE-08 feature flag wired
     - `grep "from app.models.coach_tools._response import CoachToolIncomplete" services/backend/app/core/profile_resolver.py` returns 1 match
-    - `cd services/backend && python3 -m pytest tests/test_profile_resolver.py -q -x` exits 0 with ≥8 tests passed
+    - `cd services/backend && python3 -m pytest tests/test_profile_resolver.py -q -x` exits 0 with ≥10 tests passed (8 base + Test 9 non-strict graceful fallback + Test 10 ENV default)
     - `python3 tools/checks/banned_terms_python.py services/backend/app/core/profile_resolver.py services/backend/tests/test_profile_resolver.py` exits 0
     - `python3 tools/checks/accent_lint_fr.py --scope backend 2>&1 | grep profile_resolver` returns no errors
   </acceptance_criteria>

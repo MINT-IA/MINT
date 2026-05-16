@@ -99,7 +99,7 @@ CoachToolResponseV2 = RootModel[Annotated[Union[OkV2|IncompleteV2|PolicyBlockedV
     - Test 4: `CoachToolResponseV2.model_validate({"status": "ok", "data": {...}, "latencyTier": "L1"})` succeeds with camelCase alias.
     - Test 5: `model_dump(by_alias=True)` produces `latencyTier` (camelCase) NOT `latency_tier`.
     - Test 6: V1 still importable and constructible — `from app.models.coach_tools import CoachToolOk; CoachToolOk(data={}); print('V1 still works')`.
-    - Test 7: Both V1 and V2 can be unioned and discriminated by Pydantic — `Union[CoachToolResponse, CoachToolResponseV2]` discriminates correctly on `status` (V1) or `status` (V2).
+    - Test 7 (Parallel Change coexistence invariant — D-CE-19): V1 and V2 envelopes coexist in the same module + can be imported simultaneously. V1 stays a discriminated union on `status` ; V2 is a SEPARATE RootModel also discriminated on `status` but with the added `latencyTier` field on `CoachToolOkV2`. They are NOT unioned together (Pydantic can't discriminate between V1 and V2 by `status` alone since both use the same status values). The test asserts (a) `from app.models.coach_tools import CoachToolResponse, CoachToolResponseV2` succeeds without import error, (b) both envelopes round-trip independently (V1 dict → V1 model → V1 dict equal ; same for V2), (c) V2 with extra `latencyTier` field rejects when validated by V1 (or vice-versa via `extra="forbid"` boundary).
   </behavior>
   <action>
     APPEND to `services/backend/app/models/coach_tools/_response.py` (DO NOT modify V1 classes — Parallel Change rule):

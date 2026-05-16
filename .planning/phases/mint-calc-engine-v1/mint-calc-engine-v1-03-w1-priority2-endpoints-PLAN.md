@@ -44,7 +44,9 @@ Ship the W0 Priority-2 sev-3 grounding fixes. Closes 4 more sev-3 endpoints (wea
 
 Purpose: D-CE-06 + D-CE-07 + D-CE-08 applied to the second-priority batch per W0 audit § Recommended Fix Priority Order line 229-233.
 
-Output: 4 patched endpoint handlers + 4 schema updates + 1 parametrized test file (12 tests total).
+**D-CE-08 strict-mode contract (inherited from Plan 01):** `raise_incomplete_as_422` branches on `PROFILE_GROUNDING_STRICT_MODE` env flag. In non-strict mode (initial prod rollout) the helper logs a warning + returns `resolved_body` so legacy hardcoded-defaults computation continues ; in strict mode (staging always, prod after 1-release gradual rollout) it raises HTTPException(422). The 4 endpoints in this plan honor the same dual-path pattern — the test fixtures parametrize over `PROFILE_GROUNDING_STRICT_MODE=true/false` to verify both branches.
+
+Output: 4 patched endpoint handlers + 4 schema updates + 1 parametrized test file (12 tests total ; 6 strict + 6 non-strict).
 </objective>
 
 <execution_context>

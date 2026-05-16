@@ -50,6 +50,8 @@ Ship the remaining sev-3 + sev-2 endpoint grounding fixes in 4 batches of 5-6 en
 
 Purpose: D-CE-06 + D-CE-07 + D-CE-08 applied at scale. Close hypothesis C (the 86%-confirmed « hardcoded defaults » bug) on the entire REST surface. Concern D (blank-profile contract test) generalized: one parametrized test asserts every grounded endpoint behaves correctly.
 
+**D-CE-08 strict-mode contract (inherited from Plan 01):** `raise_incomplete_as_422` honors `PROFILE_GROUNDING_STRICT_MODE` env flag — non-strict mode logs + returns `resolved_body` (legacy path continues), strict mode raises HTTPException(422). The parametrized contract test in this plan runs each endpoint twice (strict=true + strict=false) to assert both branches behave correctly. Rollout sequence per CONTEXT D-CE-08 : staging strict=true (initial deploy) → prod strict=false (1 release safety net) → prod strict=true (full enforcement).
+
 Output: ~18-25 endpoint handlers patched + corresponding schema patches + 1 parametrized contract test file driving the whole wave.
 
 **Granularity note:** This plan groups 4-6 batches conceptually but ships them as a single coordinated PR. If pre-flight count shows >25 endpoints (CONTEXT data gap «12 sev-3 may have shifted post-Plan 02/03»), executor MAY split into 2 sequential plans (06a + 06b) and report back to orchestrator.

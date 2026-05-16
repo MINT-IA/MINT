@@ -1600,37 +1600,43 @@ See Q-I above for the full 30+ row table. Critical paths :
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED — all 6 routed to specific plans, see planner output 2026-05-16)
 
 1. **`prometheus-client` vs Sentry custom metrics for D-CE-17 ?**
    - What we know : both work ; Prometheus gives Grafana panels + alerting ; Sentry already wired.
    - What's unclear : MINT's current Grafana access + operator pref.
    - **Recommendation :** planner asks Julien at W4 PR-1 plan time.
+   - **RESOLVED in:** Plan 17 (W4 metrics counters) carries the decision checkpoint with Julien G2.
 
 2. **Pre-commit lefthook freshness lint for `_registry.py` vs CI-only ?**
    - What we know : lefthook hooks fire per-commit ; CI gates fire per-push.
    - What's unclear : tolerable lefthook latency (AST scan of ~150 files).
    - **Recommendation :** measure ; if AST scan < 2s, lefthook is the right gate ; else CI-only.
+   - **RESOLVED in:** Plan 05 (W1 calc registry) carries the measurement task + decision.
 
 3. **W2 `latency_tier` envelope V2 — drop-in vs Parallel Change ?**
    - What we know : A3's envelope is locked at `services/backend/app/models/coach_tools/_response.py` sha `a55b5469`. Adding `latency_tier: Literal["L1","L2","L3"]` to `CoachToolOk` MIGHT be drop-in if existing Flutter parser ignores unknown fields.
    - What's unclear : Flutter's parse strictness on unknown camelCase fields.
    - **Recommendation :** W2 task 0 = test add unknown field to mock response, see if `apps/mobile/lib/widgets/coach/` parser swallows it. If yes → drop-in. If no → Parallel Change V2 per D-CE-19.
+   - **RESOLVED in:** Plan 10 (W2 CoachToolResponse V2) ships Parallel Change explicitly per D-CE-19 panel verdict — the drop-in path is rejected by D-CE-19's locked-in « ship V2 alongside V1, retire V1 in separate PR » contract.
 
 4. **Reverse-dep-map handling of derived fields ?**
    - What we know : profile.data has 18-life-event-derived fields (e.g. `replacement_ratio`, `tax_saving_potential`).
    - What's unclear : whether changing `salary` should invalidate calcs that depend on derived `replacement_ratio`. Today the AST scan only sees `replacement_ratio` as the input.
    - **Recommendation :** W2 task = ship the registry with direct deps ; W3 task = surface a follow-up TODO if Sentry shows warm-recall < 70% target.
+   - **RESOLVED in:** Plan 14 (W3 reverse-dep-map) ships direct-deps only ; Plan 15 carries the follow-up TODO + the `mint_calc_warm_total{kind, hit}` SLI instrumentation.
 
 5. **W4 banned-verb runtime gate placement : pre-citation-gate or post ?**
    - What we know : Phase 94 citation gate runs at `coach_chat.py:_run_narrator_with_gate`. D-CE-16(c) runtime gate has to sit somewhere on the narrator-output path.
    - What's unclear : whether to chain BEFORE the citation gate (so failures cascade to template fallback) or AFTER (so citation-clean text is verb-validated).
    - **Recommendation :** ship BEFORE — paraphrase verb on naked text is a clearer signal than paraphrase verb post-substitution. Planner verifies with Phase 94 author.
+   - **RESOLVED in:** Plan 18 (W4 banned-verb lint + runtime gate) wires BEFORE Phase 94 citation gate per recommendation.
 
 6. **D-CE-08 `profile_grounding_strict_mode` rollout staging ?**
    - What we know : flag default = false, staging strict=true → prod strict=false (1 release) → prod strict=true.
    - What's unclear : exact « 1 release » duration in MINT cadence.
    - **Recommendation :** ship behind flag in W1 with strict=false default ; flip to true on staging at W1 close ; prod flip at W2 close or with W3 PR-1.
+   - **RESOLVED in:** Plan 01 (W1 shared helpers) carries the `PROFILE_GROUNDING_STRICT_MODE` env flag wiring + dual-path `raise_incomplete_as_422` ; Plans 02/03/06 inherit + parametrize tests over both modes ; Plan 20 (W4 wave-close) tracks the staging→prod flip cadence as G2 checkpoint.
 
 ---
 

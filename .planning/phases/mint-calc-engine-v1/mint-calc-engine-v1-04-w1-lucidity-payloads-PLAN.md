@@ -42,6 +42,8 @@ must_haves:
 <objective>
 Ship the typed lucidity payload contracts that make L2/L3 ranking-creep STRUCTURALLY impossible (D-CE-15), and surface the first L4 invariant endpoint as the « wedge » per Finding 5 (« L4 is MINT's strongest LSFin moat + highest user-value surface »).
 
+**Finding 6 fix (L2→L3 ranking creep = highest LSFin-finding risk per CONTEXT.md §Counter-arguments + §Finding 6):** the `extra="forbid"` ConfigDict on `L2ComparePayload` + `L3EclairePayload` PLUS the narrative-length-parity validator (±15% char-count budget across scenarios) kill ranking creep AT TYPE LEVEL — paraphrase cannot evade because the field `recommended_option` (and its 5 synonyms) literally cannot exist in the JSON output. This is the structural counterpart to the lint-time + runtime-gate defense (D-CE-16 triple defense, lexical layers shipped in Plan 18).
+
 Purpose: D-CE-15 schema impossibility kills paraphrase ranking creep before payload leaves the calculator. D-CE-16(a) schema layer of triple defense. Finding 5 surfaces « 33% LCC plafond » as the wedge invariant — pure information générale + legal article reference + zero ranking surface.
 
 Output: 1 Pydantic schema module + 1 endpoint module + 2 test files. L4 endpoint becomes the proof-of-concept that L1-L4 contracts work end-to-end before W2 starts emitting L2/L3 from compute services.
