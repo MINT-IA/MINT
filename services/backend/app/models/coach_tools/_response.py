@@ -74,3 +74,73 @@ CoachToolResponse = RootModel[
         Field(discriminator="status"),
     ]
 ]
+
+
+# ─────── Parallel Change V2 (Phase mint-calc-engine-v1 W2-04, D-CE-19) ───────
+# Fowler Parallel Change pattern. V2 ships ALONGSIDE V1 — V1 is NOT modified.
+# V1 retirement happens in a SEPARATE follow-up PR (Plan 11 or post-phase).
+# Migration budget: ≤200 LOC ≤1 day per panel proof (CONTEXT D-CE-19).
+#
+# Concern B (latency_tier field): Flutter routes V2 responses to the right
+# rendering surface — chip (L1 < 500 ms) vs narrative loader (L2/L3, 2-8 s).
+# The field is SERVER-EMITTED, never client-input (threat T-mint-calc-10-01).
+# ─────────────────────────────────────────────────────────────────────
+
+
+LatencyTier = Literal["L1", "L2", "L3"]
+"""L1 = chip surface (atomic chiffrage, sub-500ms cache hit).
+L2 = narrative loader medium-budget (2-4s combinatorial arbitrage).
+L3 = narrative loader long-budget (4-8s multi-option scenarios)."""
+
+
+class CoachToolOkV2(_Base):
+    """V2 happy path — adds latency_tier server-side hint for Flutter routing."""
+
+    status: Literal["ok"] = "ok"
+    data: dict[str, Any]
+    latency_tier: LatencyTier = Field(
+        ...,
+        description=(
+            "L1=chip <500ms, L2-L3=narrative loader 2-8s. Server-emitted, "
+            "never client-input."
+        ),
+    )
+
+
+class CoachToolIncompleteV2(_Base):
+    """V2 missing-fields handshake. Defaults latency_tier=L1 (sub-500ms 422)."""
+
+    status: Literal["incomplete"] = "incomplete"
+    missing_fields: list[str] = Field(..., min_length=1)
+    hint_fr: str = Field(..., min_length=10)
+    latency_tier: LatencyTier = Field(
+        default="L1",
+        description="Incomplete always L1 (sub-500ms 422 envelope).",
+    )
+
+    @field_validator("missing_fields")
+    @classmethod
+    def _cap_missing_fields_v2(cls, v: list[str]) -> list[str]:
+        if len(v) > _MAX_MISSING_FIELDS:
+            raise ValueError(
+                f"missing_fields capped at {_MAX_MISSING_FIELDS} per "
+                "conversational-handshake decision D-A3-01"
+            )
+        return v
+
+
+class CoachToolPolicyBlockedV2(_Base):
+    """V2 LSFin/FINMA gate envelope. Defaults latency_tier=L1."""
+
+    status: Literal["policy_blocked"] = "policy_blocked"
+    reason_code: str
+    message_fr: str
+    latency_tier: LatencyTier = Field(default="L1")
+
+
+CoachToolResponseV2 = RootModel[
+    Annotated[
+        Union[CoachToolOkV2, CoachToolIncompleteV2, CoachToolPolicyBlockedV2],
+        Field(discriminator="status"),
+    ]
+]

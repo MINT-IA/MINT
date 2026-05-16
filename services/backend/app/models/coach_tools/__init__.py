@@ -12,14 +12,26 @@ REST endpoint 422 handshake.
 """
 from app.models.coach_tools._response import (
     CoachToolIncomplete,
+    CoachToolIncompleteV2,
     CoachToolOk,
+    CoachToolOkV2,
     CoachToolPolicyBlocked,
+    CoachToolPolicyBlockedV2,
     CoachToolResponse,
+    CoachToolResponseV2,
+    LatencyTier,
 )
 
 __all__: list[str] = [
+    # V1 (Wave 1c-A3 canonical, cherry-picked into mint-calc-engine-v1 Plan 01)
     "CoachToolIncomplete",
     "CoachToolOk",
     "CoachToolPolicyBlocked",
     "CoachToolResponse",
+    # V2 (mint-calc-engine-v1 Plan 10 W2-04, Parallel Change D-CE-19, Concern B)
+    "CoachToolIncompleteV2",
+    "CoachToolOkV2",
+    "CoachToolPolicyBlockedV2",
+    "CoachToolResponseV2",
+    "LatencyTier",
 ]
