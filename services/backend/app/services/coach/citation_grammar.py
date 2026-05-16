@@ -102,6 +102,11 @@ _TOOL_USE_MANDATE: str = (
     "Le `{{cite:tool_<name>}}` n'est PAS une formule magique — c'est une "
     "référence à un calcul serveur qui doit avoir été déclenché via "
     "`tool_use` plus tôt dans ce même tour.\n"
+    "\n"
+    # Wave 1c-A3 (D-A3-02) — pointer to per-tool `description` field.
+    # ~28 tokens. Sister pointer in _TOOL_USE_MANDATE_REPEAT (BOTTOM).
+    "Pour chaque outil, lis le champ `description` : il liste les champs "
+    "profil requis et la procédure si un champ manque.\n"
 )
 
 _TOOL_USE_WRONG_RIGHT_EXAMPLE: str = (
@@ -155,6 +160,11 @@ _TOOL_USE_MANDATE_REPEAT: str = (
     "récupère automatiquement le profil et les valeurs côté serveur. "
     "Toute formulation du type « j'ai besoin de récupérer tes "
     "données » indique un manquement à cette doctrine.\n"
+    "\n"
+    # Wave 1c-A3 (D-A3-02) — pointer to per-tool `description` field.
+    # ~28 tokens. Mirror of the TOP pointer (Liu 2024 mitigation).
+    "Pour chaque outil, lis le champ `description` : il liste les champs "
+    "profil requis et la procédure si un champ manque.\n"
 )
 
 
