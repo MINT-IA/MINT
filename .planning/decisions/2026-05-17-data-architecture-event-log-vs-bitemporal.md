@@ -1,6 +1,6 @@
 ---
 date: 2026-05-17
-status: Proposed
+status: Decided (calc-engine portion) ; Proposed (event-log + coach-extractor)
 authors: Julien Battaglia (PM) + Claude (panel orchestration)
 panel: 5-pers (architect-review, database-architect, ai-engineer, security-auditor, backend-architect — wshobson + VoltAgent adversarial)
 supersedes: .planning/decisions/2026-05-06-personal-financial-wiki-v3-candidate.md
@@ -58,7 +58,7 @@ Five specialist agents spawned in parallel with explicit instruction to *try to 
 4. **Pattern C lacks an advice audit trail.** [`SnapshotModel`](../../services/backend/app/models/snapshot.py) stores projection outputs but carries no `constants_version_hash`. The regulatory snapshot used at projection time cannot be reconstructed from persisted data. LSFin documentation requirements are not currently satisfied for stored projections.
 5. **Three of five agents independently converged on the same target shape** (event log + denormalised projection + per-user DEK envelope), via different reasoning paths: `architect-review` from anti-facade and service boundaries; `database-architect` from query latency and crypto-shred opacity; `security-auditor` from existing `DEKVault` infrastructure and erasure compliance. Cross-route convergence is strong signal.
 
-## Decision (Proposed — pending calc-engine canonical discuss-phase)
+## Decision (Decided 2026-05-17 — calc-engine portion ; event-log + coach-extractor remain Proposed)
 
 ### Target data-layer shape
 
@@ -137,6 +137,10 @@ Every projection output stores `constants_version_hash` alongside its `scenario_
 
 ### Calc-engine integration (deferred to GSD discuss-phase 1)
 
+<!-- mint-data-architecture-v1-01-canonical:start -->
+**RESOLVED 2026-05-17** by Phase `mint-data-architecture-v1-01-calc-engine-canonical`. See the phase CONTEXT.md for the 16 D-XX decisions : split-with-arbiter L1 mobile-canonical + L2-L4 backend-canonical, `services/backend/app/models/lucidity/_payload.py` as discriminator boundary, D-CE-09 strangler-fig migration sequence (Monte Carlo + tornado sensitivity migrate FIRST per D-11), and codegen-based regulatory-constants sync (D-08, D-15, D-16). Plan 02 of that phase landed the doctrine PR carrying this status flip atomically — the D-04 atomicity gate at `tools/checks/doctrine_atomicity_gate.py` enforces that the 6 doctrine files (CLAUDE.md + docs/AGENTS/{backend,flutter}.md + 2 SKILL.md + this ADR) co-modify in the same diff range. The shape above is REFINED : the ADR's original « backend-canonical full-stack » assumption becomes « L2-L4 backend-canonical, L1 mobile-canonical », with mobile owning offline L1 chiffrer via codegen-baked constants snapshot.
+<!-- mint-data-architecture-v1-01-canonical:end -->
+
 The shape above assumes a **backend-canonical** calc engine: `financial_core/` calculators live in backend services; mobile becomes a thin renderer that fetches projections via versioned REST. The mobile-canonical alternative (delete backend calc layer, mobile owns calculators, backend syncs facts) is viable but requires a different sync target architecture. **This decision is upstream of every detail above and must be resolved first.**
 
 ## Counter-arguments and data gaps
@@ -212,6 +216,10 @@ This argument is partly addressed by the user-visible review surface (which make
 - **Phase 1 (GSD discuss-phase, pending)** — calc-engine canonical (mobile vs backend). Required prerequisite to Phase 2.
 - **Phase 2 (GSD discuss-phase, depends Phase 1)** — event-log + projection schema migration from `SnapshotModel` + `CoachInsightRecord` + `RegulatoryParameter`.
 - **Phase 3 (GSD discuss-phase, depends Phase 2)** — coach-extractor LLM + guardrails (banlist, TTL, evidence quote, user-visible review surface).
+
+### 2026-05-17 — Calc-engine portion Decided
+
+Phase `mint-data-architecture-v1-01-calc-engine-canonical` resolved the prerequisite calc-engine ownership question (16 D-XX decisions locked in CONTEXT.md ; doctrine rewrite + ADR flip landed atomically in Plan 02 — see `.planning/phases/mint-data-architecture-v1-01-calc-engine-canonical/01-02-SUMMARY.md`). Refined verdict : split-with-arbiter (L1 mobile-canonical / L2-L4 backend-canonical) with `lucidity._payload` discriminator as boundary, D-CE-09 strangler-fig migration (Monte Carlo first per D-11), build-time Dart codegen for regulatory constants (D-08, D-16). The event-log + projection schema migration (originally framed as Phase 2 above) AND the coach-extractor LLM guardrails (Phase 3) remain **Proposed** ; they will be discussed in their own GSD phases gated on this phase's ship.
 
 ### Re-litigation triggers
 
