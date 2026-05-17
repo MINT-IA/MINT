@@ -356,7 +356,8 @@
                 "type": "null"
               }
             ],
-            "description": "Canton de domicile fiscal (defaut: VD)",
+            "description": "Canton de domicile fiscal (lu depuis le profil si absent)",
+            "from_profile": "canton",
             "title": "Canton"
           },
           "isPropertyOwner": {
@@ -368,7 +369,8 @@
                 "type": "null"
               }
             ],
-            "description": "Proprietaire d'un bien immobilier (defaut: False)",
+            "description": "Proprietaire d'un bien immobilier (lu depuis le profil si absent)",
+            "from_profile": "is_property_owner",
             "title": "Ispropertyowner"
           },
           "montantDisponible": {
@@ -399,7 +401,8 @@
                 "type": "null"
               }
             ],
-            "description": "Rendement attendu du 3a (defaut: 2%)",
+            "description": "Rendement attendu du 3a (lu depuis le profil si absent)",
+            "from_profile": "rendement_3a",
             "title": "Rendement3A"
           },
           "rendementLpp": {
@@ -435,7 +438,8 @@
                 "type": "null"
               }
             ],
-            "description": "Taux hypothecaire actuel (defaut: 1.5%)",
+            "description": "Taux hypothecaire actuel (lu depuis le profil si absent)",
+            "from_profile": "taux_hypothecaire",
             "title": "Tauxhypothecaire"
           },
           "tauxMarginal": {
@@ -529,7 +533,7 @@
         "type": "object"
       },
       "AllocationsFamilialesRequest": {
-        "description": "Requete pour l'estimation des allocations familiales.",
+        "description": "Requete pour l'estimation des allocations familiales.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch B), `canton` is widened\nRequired→Optional with the `from_profile` marker so the resolver can fill\nit from `_user.profile.canton` before the missing-check fires. W0 audit\nrow 18 sev-2 : canton-indexed allocations.",
         "properties": {
           "agesEnfants": {
             "description": "Liste des ages des enfants",
@@ -540,11 +544,19 @@
             "type": "array"
           },
           "canton": {
-            "description": "Code canton (2 lettres)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "nbEnfants": {
             "description": "Nombre d'enfants",
@@ -554,7 +566,6 @@
           }
         },
         "required": [
-          "canton",
           "nbEnfants",
           "agesEnfants"
         ],
@@ -737,15 +748,22 @@
         "type": "object"
       },
       "AmortizationComparisonRequest": {
-        "description": "Request for direct vs indirect amortization comparison.",
+        "description": "Request for direct vs indirect amortization comparison.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker so the `_resolve_defaults` helper can fill it from\n`_user.profile.canton` before the missing-check fires. W0 audit row 10\nsev-1 : silent ZH default on null canton produced wrong amortization\neconomic comparison for non-ZH users.",
         "properties": {
           "canton": {
-            "default": "ZH",
-            "description": "Code canton",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "dureeAns": {
             "default": 15,
@@ -2979,7 +2997,7 @@
         "type": "object"
       },
       "CalendrierRetraitsRequest": {
-        "description": "Requete pour la comparaison de calendrier de retraits.",
+        "description": "Requete pour la comparaison de calendrier de retraits.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` carries\nthe `from_profile` marker. W0 audit row 5 sev-0 (canonical-defaults\ncanton, included for grounding consistency across arbitrage surface).",
         "properties": {
           "ageRetraite": {
             "anyOf": [
@@ -3015,7 +3033,8 @@
                 "type": "null"
               }
             ],
-            "description": "Canton de domicile fiscal (defaut: VD)",
+            "description": "Canton de domicile fiscal (lu depuis le profil si absent)",
+            "from_profile": "canton",
             "title": "Canton"
           },
           "isMarried": {
@@ -4810,15 +4829,22 @@
         "type": "object"
       },
       "ConcubinageCompareRequest": {
-        "description": "Requete pour la comparaison mariage vs concubinage.",
+        "description": "Requete pour la comparaison mariage vs concubinage.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch B), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker. W0 audit row 22 sev-1.",
         "properties": {
           "canton": {
-            "default": "ZH",
-            "description": "Code canton (2 lettres)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "enfants": {
             "default": 0,
@@ -5836,7 +5862,7 @@
         "type": "object"
       },
       "CoverageCheckRequest": {
-        "description": "Request model for coverage checklist evaluation.",
+        "description": "Request model for coverage checklist evaluation.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch D), `canton` is widened\nfrom `default=\"GE\"` to Optional `default=None` with the `from_profile`\nmarker so the resolver can fill it from `_user.profile.canton`.",
         "properties": {
           "aAssuranceDeces": {
             "default": false,
@@ -5893,11 +5919,18 @@
             "type": "boolean"
           },
           "canton": {
-            "default": "GE",
-            "description": "Canton de residence (code 2 lettres)",
-            "maxLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Canton de residence (code 2 lettres, lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "estLocataire": {
             "default": false,
@@ -7334,7 +7367,7 @@
         "type": "object"
       },
       "DividendeVsSalaireRequest": {
-        "description": "Request for dividend vs salary optimization.",
+        "description": "Request for dividend vs salary optimization.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch C), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker. W0 audit row 31.",
         "properties": {
           "beneficeDisponible": {
             "description": "Benefice disponible a distribuer (CHF)",
@@ -7343,12 +7376,19 @@
             "type": "number"
           },
           "canton": {
-            "default": "ZH",
-            "description": "Code canton (ex: ZH, VD, GE)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "partSalaire": {
             "description": "Part proposee en salaire (0-1)",
@@ -7464,11 +7504,18 @@
             "type": "number"
           },
           "canton": {
-            "default": "GE",
-            "description": "Canton of residence (2-letter code)",
-            "maxLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Canton of residence (2-letter code, lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "detteCommune": {
             "default": 0.0,
@@ -8230,12 +8277,19 @@
             "type": "boolean"
           },
           "canton": {
-            "default": "GE",
-            "description": "Canton code (2-letter)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Canton code (2-letter, lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "donateurAge": {
             "default": 50,
@@ -8570,12 +8624,19 @@
             "type": "number"
           },
           "canton": {
-            "default": "ZH",
-            "description": "Code canton pour l'estimation fiscale",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton pour l'estimation fiscale (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "montantRetraitSouhaite": {
             "description": "Montant de retrait souhaite (CHF)",
@@ -9031,7 +9092,7 @@
         "type": "object"
       },
       "EplCombinedRequest": {
-        "description": "Request for combined EPL (3a + LPP) equity calculation.",
+        "description": "Request for combined EPL (3a + LPP) equity calculation.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch B), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker. W0 audit row 11 sev-1.",
         "properties": {
           "aRacheteRecemment": {
             "default": false,
@@ -9100,12 +9161,19 @@
             "type": "number"
           },
           "canton": {
-            "default": "ZH",
-            "description": "Code canton",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "epargneCash": {
             "default": 0,
@@ -11813,7 +11881,7 @@
         "type": "object"
       },
       "ImputedRentalRequest": {
-        "description": "Request for imputed rental value calculation.",
+        "description": "Request for imputed rental value calculation.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker. W0 audit row 9 sev-0 (canonical-defaults canton, included for\ngrounding consistency).",
         "properties": {
           "ageBienAns": {
             "default": 5,
@@ -11823,12 +11891,19 @@
             "type": "integer"
           },
           "canton": {
-            "default": "ZH",
-            "description": "Code canton",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "fraisEntretienAnnuels": {
             "default": 0,
@@ -12519,6 +12594,34 @@
         "title": "JobComparisonResponse",
         "type": "object"
       },
+      "L4InvariantPayload": {
+        "additionalProperties": false,
+        "description": "L4 « Surfacer les invariants » : information générale + legal article ref.\n\nFinding 5 of CONTEXT.md : « L4 is MINT's strongest LSFin moat + highest\nuser-value surface ». Pure information générale (no user-profile data),\nno ranking, no recommendation — just the regulatory invariant the user\nneeds to know.\n\nExample payload (the « 33% LCC plafond » wedge invariant for Finding 5) :\n\n  L4InvariantPayload(\n      legal_article_ref=\"LCC art. 28\",\n      condition_text_fr=(\n          \"Quel que soit le scénario, ta capacité d'emprunt \"\n          \"hypothécaire reste plafonnée à 33% de tes revenus bruts \"\n          \"annuels selon la LCC art. 28.\"\n      ),\n  )\n\nConstraints :\n  - `legal_article_ref` min_length=5 to ensure a citable source\n    (e.g. « LCC art. 28 », « CC art. 122 »).\n  - `condition_text_fr` min_length=20 to prevent trivial invariants\n    (« plafond 33% » alone is not an invariant — it needs context).",
+        "properties": {
+          "condition_text_fr": {
+            "minLength": 20,
+            "title": "Condition Text Fr",
+            "type": "string"
+          },
+          "legal_article_ref": {
+            "minLength": 5,
+            "title": "Legal Article Ref",
+            "type": "string"
+          },
+          "level": {
+            "const": "L4",
+            "default": "L4",
+            "title": "Level",
+            "type": "string"
+          }
+        },
+        "required": [
+          "legal_article_ref",
+          "condition_text_fr"
+        ],
+        "title": "L4InvariantPayload",
+        "type": "object"
+      },
       "LLMProvider": {
         "description": "Supported LLM providers.",
         "enum": [
@@ -12817,7 +12920,7 @@
         "type": "object"
       },
       "LamalOptionRequest": {
-        "description": "Requete pour la comparaison LAMal vs assurance residence.",
+        "description": "Requete pour la comparaison LAMal vs assurance residence.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch C), `canton` is widened\nfrom `default=\"GE\"` to Optional `default=None` with the `from_profile`\nmarker. W0 audit row 34.",
         "properties": {
           "age": {
             "description": "Age de la personne",
@@ -12827,12 +12930,19 @@
             "type": "integer"
           },
           "canton": {
-            "default": "GE",
-            "description": "Canton de travail (2 lettres)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Canton de travail (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "familySize": {
             "default": 1,
@@ -13168,7 +13278,7 @@
         "type": "object"
       },
       "LocationVsProprieteRequest": {
-        "description": "Requete pour la comparaison location vs achat immobilier.",
+        "description": "Requete pour la comparaison location vs achat immobilier.\n\nPer D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` carries the\n`from_profile` marker so `_resolve_defaults` fills it from\n`_user.profile.canton` before the missing-check fires. W0 audit row 3\nsev-2 : the legacy `canton=\"VD\"` fallback produced wrong rent vs property\neconomic comparison for non-VD users.",
         "properties": {
           "appreciationImmo": {
             "anyOf": [
@@ -13193,7 +13303,8 @@
                 "type": "null"
               }
             ],
-            "description": "Canton de domicile fiscal (defaut: VD)",
+            "description": "Canton de domicile fiscal (lu depuis le profil si absent)",
+            "from_profile": "canton",
             "title": "Canton"
           },
           "capitalDisponible": {
@@ -13393,7 +13504,7 @@
         "type": "object"
       },
       "LppConversionRequest": {
-        "description": "Request for LPP capital vs rente comparison.",
+        "description": "Request for LPP capital vs rente comparison.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch C), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker. W0 audit row 43 sev-1.",
         "properties": {
           "ageRetraite": {
             "default": 65,
@@ -13404,12 +13515,19 @@
             "type": "integer"
           },
           "canton": {
-            "default": "ZH",
-            "description": "Code canton pour estimation fiscale",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "capitalLpp": {
             "description": "Capital LPP total a la retraite (CHF)",
@@ -13681,15 +13799,22 @@
         "type": "object"
       },
       "MariageFiscalRequest": {
-        "description": "Requete pour la comparaison fiscale mariage.",
+        "description": "Requete pour la comparaison fiscale mariage.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch B), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker so the resolver can fill it from `_user.profile.canton`. W0 audit\nrow 19 sev-1.",
         "properties": {
           "canton": {
-            "default": "ZH",
-            "description": "Code canton (2 lettres)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "enfants": {
             "default": 0,
@@ -14382,35 +14507,64 @@
         "type": "object"
       },
       "MortgageAffordabilityRequest": {
-        "description": "Request for mortgage affordability calculation.",
+        "description": "Request for mortgage affordability calculation.\n\nProfile-grounded per D-CE-06+07 : when `revenuBrutAnnuel` or `canton`\nare omitted from the body, the endpoint reads them from\n`_user.profile.data` via `_resolve_defaults`. Body explicit values\n(including explicit-None) still win — see Plan 01 D-CE-07 semantics.",
         "properties": {
           "avoir3a": {
-            "default": 0,
-            "description": "Avoir 3a disponible pour EPL (CHF)",
-            "minimum": 0.0,
-            "title": "Avoir3A",
-            "type": "number"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Avoir 3a disponible pour EPL (CHF, lu depuis le profil si absent)",
+            "from_profile": "epargne_3a",
+            "title": "Avoir3A"
           },
           "avoirLpp": {
-            "default": 0,
-            "description": "Avoir LPP disponible pour EPL (CHF)",
-            "minimum": 0.0,
-            "title": "Avoirlpp",
-            "type": "number"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Avoir LPP disponible pour EPL (CHF, lu depuis le profil si absent)",
+            "from_profile": "avoir_lpp",
+            "title": "Avoirlpp"
           },
           "canton": {
-            "default": "ZH",
-            "description": "Code canton (ex: ZH, VD, GE)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (ex: ZH, VD, GE, lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "epargneDisponible": {
-            "description": "Epargne disponible / cash (CHF)",
-            "minimum": 0.0,
-            "title": "Epargnedisponible",
-            "type": "number"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Epargne disponible / cash (CHF, lu depuis le profil si absent)",
+            "from_profile": "epargne_disponible",
+            "title": "Epargnedisponible"
           },
           "prixAchat": {
             "default": 0,
@@ -14420,16 +14574,20 @@
             "type": "number"
           },
           "revenuBrutAnnuel": {
-            "description": "Revenu brut annuel du menage (CHF)",
-            "minimum": 0.0,
-            "title": "Revenubrutannuel",
-            "type": "number"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Revenu brut annuel du menage (CHF, lu depuis le profil si absent)",
+            "from_profile": "income_gross_yearly",
+            "title": "Revenubrutannuel"
           }
         },
-        "required": [
-          "revenuBrutAnnuel",
-          "epargneDisponible"
-        ],
         "title": "MortgageAffordabilityRequest",
         "type": "object"
       },
@@ -15620,7 +15778,7 @@
         "type": "object"
       },
       "Pillar3aIndepRequest": {
-        "description": "Request for enhanced 3a calculation for self-employed.",
+        "description": "Request for enhanced 3a calculation for self-employed.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch C), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker. W0 audit row 29.",
         "properties": {
           "affilieLpp": {
             "description": "Affilie-e a un LPP volontaire?",
@@ -15628,12 +15786,19 @@
             "type": "boolean"
           },
           "canton": {
-            "default": "ZH",
-            "description": "Code canton (ex: ZH, VD, GE)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "revenuNet": {
             "description": "Revenu net annuel (CHF)",
@@ -17929,20 +18094,36 @@
         "type": "object"
       },
       "RachatEchelonneRequest": {
-        "description": "Request for stepped LPP buyback simulation.",
+        "description": "Request for stepped LPP buyback simulation.\n\nProfile-grounded per D-CE-06+07 : canton, revenuImposable and avoirActuel\nare read from `_user.profile.data` when omitted from the body.\nBody explicit values (incl. explicit-None) still win — see Plan 01\nD-CE-07 semantics. Closes the W0 audit sev-3 incident class :\ncanton-dependent tax brackets crash or wrong-VD for non-VD users.",
         "properties": {
           "avoirActuel": {
-            "description": "Avoir LPP actuel (CHF)",
-            "minimum": 0.0,
-            "title": "Avoiractuel",
-            "type": "number"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Avoir LPP actuel (CHF, lu depuis le profil si absent)",
+            "from_profile": "avoir_lpp",
+            "title": "Avoiractuel"
           },
           "canton": {
-            "description": "Code canton (ex: ZH, VD, GE)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (ex: ZH, VD, GE, lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "horizonRachatAnnees": {
             "default": 3,
@@ -17959,10 +18140,18 @@
             "type": "number"
           },
           "revenuImposable": {
-            "description": "Revenu imposable annuel (CHF)",
-            "minimum": 0.0,
-            "title": "Revenuimposable",
-            "type": "number"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Revenu imposable annuel (CHF, lu depuis le profil si absent)",
+            "from_profile": "revenu_imposable",
+            "title": "Revenuimposable"
           },
           "tauxMarginalEstime": {
             "anyOf": [
@@ -17980,10 +18169,7 @@
           }
         },
         "required": [
-          "avoirActuel",
-          "rachatMax",
-          "revenuImposable",
-          "canton"
+          "rachatMax"
         ],
         "title": "RachatEchelonneRequest",
         "type": "object"
@@ -18089,7 +18275,7 @@
         "type": "object"
       },
       "RachatVsMarcheRequest": {
-        "description": "Requete pour la comparaison rachat LPP vs investissement libre.",
+        "description": "Requete pour la comparaison rachat LPP vs investissement libre.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` carries\nthe `from_profile` marker. W0 audit row 4 sev-1.",
         "properties": {
           "anneesAvantRetraite": {
             "anyOf": [
@@ -18116,7 +18302,8 @@
                 "type": "null"
               }
             ],
-            "description": "Canton de domicile fiscal (defaut: VD)",
+            "description": "Canton de domicile fiscal (lu depuis le profil si absent)",
+            "from_profile": "canton",
             "title": "Canton"
           },
           "isMarried": {
@@ -18974,7 +19161,7 @@
         "type": "string"
       },
       "RenteVsCapitalRequest": {
-        "description": "Requete pour la comparaison rente vs capital LPP.",
+        "description": "Requete pour la comparaison rente vs capital LPP.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` carries\nthe `from_profile` marker so `_resolve_defaults` fills it from\n`_user.profile.canton` before the missing-check fires. W0 audit row 2\nsev-1 : silent VD fallback on null canton produced wrong tax brackets\nfor non-VD users.",
         "properties": {
           "ageRetraite": {
             "anyOf": [
@@ -19001,7 +19188,8 @@
                 "type": "null"
               }
             ],
-            "description": "Canton de domicile fiscal (defaut: VD)",
+            "description": "Canton de domicile fiscal (lu depuis le profil si absent)",
+            "from_profile": "canton",
             "title": "Canton"
           },
           "capitalLppTotal": {
@@ -20740,15 +20928,22 @@
         "type": "object"
       },
       "SourceTaxRequest": {
-        "description": "Requete pour le calcul d'impot a la source frontalier.",
+        "description": "Requete pour le calcul d'impot a la source frontalier.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch C), `canton` is widened\nfrom `default=\"VD\"` to Optional `default=None` with the `from_profile`\nmarker. W0 audit row 34.",
         "properties": {
           "canton": {
-            "default": "VD",
-            "description": "Canton de travail (2 lettres)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Canton de travail (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "children": {
             "default": 0,
@@ -21121,15 +21316,22 @@
         "type": "object"
       },
       "SuccessionRequest": {
-        "description": "Requete pour la comparaison d'impot sur les successions.",
+        "description": "Requete pour la comparaison d'impot sur les successions.\n\nPer D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker so the `_resolve_defaults` helper can fill it from\n`_user.profile.canton` before the missing-check fires. A silent ZH default\non null canton (W0 audit row 23 sev-3) returned wrong concubin tax rates\n(~18% ZH vs canton-specific 0-26%) ; the grounding contract closes that\nsilent-wrong-tax class.",
         "properties": {
           "canton": {
-            "default": "ZH",
-            "description": "Code canton (2 lettres)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (2 lettres, lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "isMarried": {
             "default": false,
@@ -21262,11 +21464,18 @@
             "type": "number"
           },
           "canton": {
-            "default": "GE",
-            "description": "Canton for tax rates (2-letter code)",
-            "maxLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Canton for tax rates (2-letter code, read from profile if absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "capitalDecesLpp": {
             "default": 0.0,
@@ -22031,7 +22240,7 @@
         "type": "object"
       },
       "UnemploymentBenefitsRequest": {
-        "description": "Request for LACI unemployment benefits calculation.",
+        "description": "Request for LACI unemployment benefits calculation.\n\nPer D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch D), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker. W0 audit row 37 sev-2.",
         "properties": {
           "age": {
             "description": "Age actuel",
@@ -22048,12 +22257,19 @@
             "type": "integer"
           },
           "canton": {
-            "default": "ZH",
-            "description": "Code canton (ex: ZH, VD, GE)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "dateLicenciement": {
             "anyOf": [
@@ -22605,14 +22821,22 @@
         "type": "object"
       },
       "WealthTaxEstimateRequest": {
-        "description": "Request for wealth tax estimation in a specific canton.",
+        "description": "Request for wealth tax estimation in a specific canton.\n\nPer D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is widened\nfrom REQUIRED to Optional with the `from_profile` marker so the\n`_resolve_defaults` helper can fill it from `_user.profile.canton` before\nthe missing-check fires. Without this widening, Pydantic rejects\nblank-canton requests with a raw 422 validation error and the\nCoachToolIncomplete envelope never gets a chance to fire (D-CE-08 contract).",
         "properties": {
           "canton": {
-            "description": "Code canton (2 lettres, ex: ZH, GE, VD)",
-            "maxLength": 2,
-            "minLength": 2,
-            "title": "Canton",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 2,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Code canton (2 lettres, lu depuis le profil si absent)",
+            "from_profile": "canton",
+            "title": "Canton"
           },
           "etatCivil": {
             "default": "celibataire",
@@ -22628,8 +22852,7 @@
           }
         },
         "required": [
-          "fortuneNette",
-          "canton"
+          "fortuneNette"
         ],
         "title": "WealthTaxEstimateRequest",
         "type": "object"
@@ -24396,7 +24619,7 @@
     },
     "/api/v1/arbitrage/allocation-annuelle": {
       "post": {
-        "description": "Compare les strategies d'allocation annuelle de l'epargne.\n\nSimule jusqu'a 4 options selon l'eligibilite:\n- 3a (si pas encore verse au max)\n- Rachat LPP (si potentiel de rachat > 0)\n- Amortissement indirect (si proprietaire)\n- Investissement libre (toujours disponible)\n\nReturns:\n    AllocationAnnuelleResponse avec trajectoires, breakeven, sensibilite,\n    disclaimer et sources legales.",
+        "description": "Compare les strategies d'allocation annuelle de l'epargne.\n\nSimule jusqu'a 4 options selon l'eligibilite:\n- 3a (si pas encore verse au max)\n- Rachat LPP (si potentiel de rachat > 0)\n- Amortissement indirect (si proprietaire)\n- Investissement libre (toujours disponible)\n\nGrounded via D-CE-06 + D-CE-07 : canton, is_property_owner,\ntaux_hypothecaire and rendement_3a are read from `_user.profile` when\nnot supplied in the body (no silent hardcoded VD/False/1.5%/2%\nfallback). Missing required profile fields trigger a 422 with the\nD-CE-08 `CoachToolIncomplete` envelope when\n`PROFILE_GROUNDING_STRICT_MODE=true` ; otherwise a warning is logged\nand the legacy hardcoded-defaults branch resumes (non-strict\ngraceful Flutter rollout).\n\nReturns:\n    AllocationAnnuelleResponse avec trajectoires, breakeven, sensibilite,\n    disclaimer et sources legales.",
         "operationId": "arbitrage_allocation_annuelle_api_v1_arbitrage_allocation_annuelle_post",
         "requestBody": {
           "content": {
@@ -24443,7 +24666,7 @@
     },
     "/api/v1/arbitrage/calendrier-retraits": {
       "post": {
-        "description": "Compare retrait total la meme annee vs retraits echelonnes.\n\nSimule 2 options:\n- Option A: Tout retirer la meme annee (progressivite maximale)\n- Option B: Echelonner les retraits sur plusieurs annees fiscales\n\nLe premier éclairage montre l'economie fiscale potentielle, souvent\nCHF 15'000 a 40'000+ pour des capitaux importants.\n\nReturns:\n    CalendrierRetraitsResponse avec 2 trajectoires, premier éclairage,\n    disclaimer et sources legales (LIFD art. 38, OPP3, LPP).",
+        "description": "Compare retrait total la meme annee vs retraits echelonnes.\n\nSimule 2 options:\n- Option A: Tout retirer la meme annee (progressivite maximale)\n- Option B: Echelonner les retraits sur plusieurs annees fiscales\n\nLe premier éclairage montre l'economie fiscale potentielle, souvent\nCHF 15'000 a 40'000+ pour des capitaux importants.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 5 — silent VD fallback\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nReturns:\n    CalendrierRetraitsResponse avec 2 trajectoires, premier éclairage,\n    disclaimer et sources legales (LIFD art. 38, OPP3, LPP).",
         "operationId": "arbitrage_calendrier_retraits_api_v1_arbitrage_calendrier_retraits_post",
         "requestBody": {
           "content": {
@@ -24490,7 +24713,7 @@
     },
     "/api/v1/arbitrage/location-vs-propriete": {
       "post": {
-        "description": "Compare continuer a louer vs acheter un bien immobilier.\n\nSimule 2 options:\n- Option A: Continuer a louer + investir le capital sur le marche\n- Option B: Acheter le bien avec hypotheque\n\nReturns:\n    LocationVsProprieteResponse avec 2 trajectoires, breakeven, sensibilite,\n    disclaimer et sources legales (CO, LIFD, FINMA).",
+        "description": "Compare continuer a louer vs acheter un bien immobilier.\n\nSimule 2 options:\n- Option A: Continuer a louer + investir le capital sur le marche\n- Option B: Acheter le bien avec hypotheque\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 3 sev-2 fix — legacy default\n\"VD\" produced wrong rent vs property economic comparison for non-VD\nusers). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-default branch\nresumes (non-strict graceful Flutter rollout).\n\nReturns:\n    LocationVsProprieteResponse avec 2 trajectoires, breakeven, sensibilite,\n    disclaimer et sources legales (CO, LIFD, FINMA).",
         "operationId": "arbitrage_location_vs_propriete_api_v1_arbitrage_location_vs_propriete_post",
         "requestBody": {
           "content": {
@@ -24537,7 +24760,7 @@
     },
     "/api/v1/arbitrage/rachat-vs-marche": {
       "post": {
-        "description": "Compare rachat LPP vs investissement libre.\n\nSimule 2 options:\n- Option A: Rachat LPP (deduction fiscale + croissance en caisse)\n- Option B: Investissement libre (liquidite totale + rendement marche)\n\nReturns:\n    RachatVsMarcheResponse avec 2 trajectoires, breakeven, sensibilite,\n    disclaimer et sources legales (LPP, LIFD, OPP2).",
+        "description": "Compare rachat LPP vs investissement libre.\n\nSimule 2 options:\n- Option A: Rachat LPP (deduction fiscale + croissance en caisse)\n- Option B: Investissement libre (liquidite totale + rendement marche)\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 4 — silent VD fallback\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nReturns:\n    RachatVsMarcheResponse avec 2 trajectoires, breakeven, sensibilite,\n    disclaimer et sources legales (LPP, LIFD, OPP2).",
         "operationId": "arbitrage_rachat_vs_marche_api_v1_arbitrage_rachat_vs_marche_post",
         "requestBody": {
           "content": {
@@ -24584,7 +24807,7 @@
     },
     "/api/v1/arbitrage/rente-vs-capital": {
       "post": {
-        "description": "Compare rente viagere vs retrait en capital vs mixte.\n\nSimule 3 options pour la prevoyance LPP a la retraite:\n- Option A: Rente viagere integrale\n- Option B: Retrait en capital integral (+ SWR)\n- Option C: Mixte (obligatoire en rente, surobligatoire en capital)\n\nReturns:\n    RenteVsCapitalResponse avec 3 trajectoires, breakeven, sensibilite,\n    disclaimer et sources legales.",
+        "description": "Compare rente viagere vs retrait en capital vs mixte.\n\nSimule 3 options pour la prevoyance LPP a la retraite:\n- Option A: Rente viagere integrale\n- Option B: Retrait en capital integral (+ SWR)\n- Option C: Mixte (obligatoire en rente, surobligatoire en capital)\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 2 — silent VD fallback\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-default branch\nresumes (non-strict graceful Flutter rollout).\n\nReturns:\n    RenteVsCapitalResponse avec 3 trajectoires, breakeven, sensibilite,\n    disclaimer et sources legales.",
         "operationId": "arbitrage_rente_vs_capital_api_v1_arbitrage_rente_vs_capital_post",
         "requestBody": {
           "content": {
@@ -24631,7 +24854,7 @@
     },
     "/api/v1/assurances/coverage/check": {
       "post": {
-        "description": "Evaluate insurance coverage and generate personalized checklist.\n\nThis stateless endpoint performs no data storage -- all computation\nis done on the fly from the provided inputs.",
+        "description": "Evaluate insurance coverage and generate personalized checklist.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit — silent GE default closed).\nMissing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nThis stateless endpoint performs no data storage -- all computation\nis done on the fly from the provided inputs.",
         "operationId": "check_coverage_api_v1_assurances_coverage_check_post",
         "requestBody": {
           "content": {
@@ -28118,7 +28341,7 @@
     },
     "/api/v1/expat/frontalier/lamal-option": {
       "post": {
-        "description": "Compare l'option LAMal vs assurance du pays de residence.\n\nDroit d'option pour les frontaliers (LAMal art. 3, OLCP art. 9).\n\nSources: LAMal art. 3, 6, OLCP art. 9.",
+        "description": "Compare l'option LAMal vs assurance du pays de residence.\n\nDroit d'option pour les frontaliers (LAMal art. 3, OLCP art. 9).\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 34 — silent GE default\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: LAMal art. 3, 6, OLCP art. 9.",
         "operationId": "estimate_lamal_option_api_v1_expat_frontalier_lamal_option_post",
         "requestBody": {
           "content": {
@@ -28152,6 +28375,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Estimate Lamal Option",
         "tags": [
           "expat"
@@ -28244,7 +28472,7 @@
     },
     "/api/v1/expat/frontalier/source-tax": {
       "post": {
-        "description": "Calcule l'impot a la source pour un travailleur frontalier.\n\nCouvre les regimes speciaux GE (quasi-resident) et TI (accord Italie).\n\nSources: LIFD art. 83-85, accords bilateraux.",
+        "description": "Calcule l'impot a la source pour un travailleur frontalier.\n\nCouvre les regimes speciaux GE (quasi-resident) et TI (accord Italie).\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 34 — silent VD default\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: LIFD art. 83-85, accords bilateraux.",
         "operationId": "calculate_source_tax_api_v1_expat_frontalier_source_tax_post",
         "requestBody": {
           "content": {
@@ -28278,6 +28506,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Calculate Source Tax",
         "tags": [
           "expat"
@@ -28350,7 +28583,7 @@
     },
     "/api/v1/family/concubinage/compare": {
       "post": {
-        "description": "Compare mariage vs concubinage : fiscal, prevoyance, succession, protection.\n\nAnalyse complete sur 6 domaines avec scores de protection.\n\nSources: LIFD, LAVS, LPP, CC.",
+        "description": "Compare mariage vs concubinage : fiscal, prevoyance, succession, protection.\n\nAnalyse complete sur 6 domaines avec scores de protection.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 22 — silent ZH default\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: LIFD, LAVS, LPP, CC.",
         "operationId": "compare_concubinage_api_v1_family_concubinage_compare_post",
         "requestBody": {
           "content": {
@@ -28384,6 +28617,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Compare Concubinage",
         "tags": [
           "family"
@@ -28392,7 +28630,7 @@
     },
     "/api/v1/family/concubinage/succession": {
       "post": {
-        "description": "Compare l'impot de succession conjoint vs concubin.\n\nLe conjoint est exonere dans la plupart des cantons. Le concubin\nest impose au taux 'tiers' (10-25% selon le canton).\n\nSources: Lois cantonales successions, CC art. 457-466.",
+        "description": "Compare l'impot de succession conjoint vs concubin.\n\nLe conjoint est exonere dans la plupart des cantons. Le concubin\nest impose au taux 'tiers' (10-25% selon le canton).\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 23 sev-3 fix — legacy default\n\"ZH\" silently returned wrong concubin tax rates for non-ZH users).\nMissing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-default branch\nresumes (non-strict graceful Flutter rollout).\n\nSources: Lois cantonales successions, CC art. 457-466.",
         "operationId": "compare_succession_api_v1_family_concubinage_succession_post",
         "requestBody": {
           "content": {
@@ -28426,6 +28664,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Compare Succession",
         "tags": [
           "family"
@@ -28476,7 +28719,7 @@
     },
     "/api/v1/family/mariage/compare": {
       "post": {
-        "description": "Compare l'impot en tant que 2 celibataires vs couple marie.\n\nMontre la 'penalite' ou le 'bonus' du mariage selon les revenus.\n\nSources: LIFD art. 9, 33, 35, 36.",
+        "description": "Compare l'impot en tant que 2 celibataires vs couple marie.\n\nMontre la 'penalite' ou le 'bonus' du mariage selon les revenus.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 19 — silent ZH default\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: LIFD art. 9, 33, 35, 36.",
         "operationId": "compare_mariage_fiscal_api_v1_family_mariage_compare_post",
         "requestBody": {
           "content": {
@@ -28510,6 +28753,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Compare Mariage Fiscal",
         "tags": [
           "family"
@@ -28602,7 +28850,7 @@
     },
     "/api/v1/family/naissance/allocations": {
       "post": {
-        "description": "Estime les allocations familiales cantonales.\n\nAllocation enfant: CHF 200-300/mois, allocation formation: +CHF 50/mois.\n\nSources: LAFam art. 3.",
+        "description": "Estime les allocations familiales cantonales.\n\nAllocation enfant: CHF 200-300/mois, allocation formation: +CHF 50/mois.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 18 sev-2 — canton-indexed\nallocations). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: LAFam art. 3.",
         "operationId": "estimate_allocations_api_v1_family_naissance_allocations_post",
         "requestBody": {
           "content": {
@@ -28636,6 +28884,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Estimate Allocations",
         "tags": [
           "family"
@@ -29084,7 +29337,7 @@
     },
     "/api/v1/fiscal/wealth-tax/estimate": {
       "post": {
-        "description": "Estimate wealth tax for a given fortune in a specific canton.\n\nReturns the fortune imposable (after exemption) and the estimated\nannual wealth tax based on simplified effective rates.\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
+        "description": "Estimate wealth tax for a given fortune in a specific canton.\n\nReturns the fortune imposable (after exemption) and the estimated\nannual wealth tax based on simplified effective rates.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (no silent hardcoded fallback). Missing\nrequired profile field triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-defaults branch\nresumes (non-strict graceful Flutter rollout).\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
         "operationId": "estimate_wealth_tax_api_v1_fiscal_wealth_tax_estimate_post",
         "requestBody": {
           "content": {
@@ -29118,6 +29371,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Estimate Wealth Tax",
         "tags": [
           "wealth-tax"
@@ -29601,7 +29859,7 @@
     },
     "/api/v1/independants/3a-independant": {
       "post": {
-        "description": "Calculate enhanced 3a limit and tax savings for a self-employed worker.\n\nSelf-employed WITHOUT LPP benefit from the \"grand 3a\": 20% of net income,\nmax 36'288 CHF/year.\n\nSources: OPP3 art. 7, LPP art. 4, LIFD art. 33 al. 1 let. e.",
+        "description": "Calculate enhanced 3a limit and tax savings for a self-employed worker.\n\nSelf-employed WITHOUT LPP benefit from the \"grand 3a\": 20% of net income,\nmax 36'288 CHF/year.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 29 — silent ZH default\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: OPP3 art. 7, LPP art. 4, LIFD art. 33 al. 1 let. e.",
         "operationId": "compute_3a_independant_api_v1_independants_3a_independant_post",
         "requestBody": {
           "content": {
@@ -29635,6 +29893,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Compute 3A Independant",
         "tags": [
           "independants"
@@ -29685,7 +29948,7 @@
     },
     "/api/v1/independants/dividende-vs-salaire": {
       "post": {
-        "description": "Simulate dividend vs salary optimization for SA/Sarl directors.\n\nCompares total fiscal and social charge across different salary/dividend\nsplits. Warns about requalification risk.\n\nSources: LIFD art. 20, LIFD art. 17-18, LAVS art. 14.",
+        "description": "Simulate dividend vs salary optimization for SA/Sarl directors.\n\nCompares total fiscal and social charge across different salary/dividend\nsplits. Warns about requalification risk.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 31 — silent ZH default\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: LIFD art. 20, LIFD art. 17-18, LAVS art. 14.",
         "operationId": "simulate_dividende_vs_salaire_api_v1_independants_dividende_vs_salaire_post",
         "requestBody": {
           "content": {
@@ -29719,6 +29982,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Simulate Dividende Vs Salaire",
         "tags": [
           "independants"
@@ -29926,7 +30194,7 @@
     },
     "/api/v1/life-events/divorce/simulate": {
       "post": {
-        "description": "Simulate financial impact of a divorce under Swiss law.\n\nStateless endpoint — no data storage. All computation is done\non the fly from the provided inputs.",
+        "description": "Simulate financial impact of a divorce under Swiss law.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 25 — silent GE default\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nStateless endpoint — no data storage. All computation is done\non the fly from the provided inputs.",
         "operationId": "simulate_divorce_api_v1_life_events_divorce_simulate_post",
         "requestBody": {
           "content": {
@@ -29960,6 +30228,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Simulate Divorce",
         "tags": [
           "life-events"
@@ -29968,7 +30241,7 @@
     },
     "/api/v1/life-events/donation/simulate": {
       "post": {
-        "description": "Simulate tax impact of a donation (CC art. 239-252).\n\nStateless endpoint — no data storage. All computation is done\non the fly from the provided inputs.",
+        "description": "Simulate tax impact of a donation (CC art. 239-252).\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row — donation_service silent\nGE default closed). Missing profile.canton triggers a 422 with the\nD-CE-08 `CoachToolIncomplete` envelope when strict mode is enabled.\n\nStateless endpoint — no data storage. All computation is done\non the fly from the provided inputs.",
         "operationId": "simulate_donation_api_v1_life_events_donation_simulate_post",
         "requestBody": {
           "content": {
@@ -30084,7 +30357,7 @@
     },
     "/api/v1/life-events/succession/simulate": {
       "post": {
-        "description": "Simulate inheritance distribution under Swiss law (2023 revision).\n\nStateless endpoint — no data storage. All computation is done\non the fly from the provided inputs.",
+        "description": "Simulate inheritance distribution under Swiss law (2023 revision).\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 26 sev-3 fix — legacy default\n\"GE\" silently leaked canton-specific tax rates for non-GE users). Missing\nprofile.canton triggers a 422 with the D-CE-08 `CoachToolIncomplete`\nenvelope when `PROFILE_GROUNDING_STRICT_MODE=true` ; otherwise a warning\nis logged and the legacy hardcoded-default branch resumes.\n\nStateless endpoint — no data storage. All computation is done\non the fly from the provided inputs.",
         "operationId": "simulate_succession_api_v1_life_events_succession_simulate_post",
         "requestBody": {
           "content": {
@@ -30118,6 +30391,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Simulate Succession",
         "tags": [
           "life-events"
@@ -30126,7 +30404,7 @@
     },
     "/api/v1/lpp-deep/epl": {
       "post": {
-        "description": "Simulate an EPL (home ownership encouragement) withdrawal from LPP.\n\nCalculates the maximum withdrawable amount, tax impact, and critically\nthe impact on death and disability benefits.\n\nSources: LPP art. 30a-30g, OPP2 art. 5-5f, LPP art. 79b al. 3.",
+        "description": "Simulate an EPL (home ownership encouragement) withdrawal from LPP.\n\nCalculates the maximum withdrawable amount, tax impact, and critically\nthe impact on death and disability benefits.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 15). Missing profile.canton\ntriggers a 422 with the D-CE-08 `CoachToolIncomplete` envelope when\nstrict mode is enabled.\n\nSources: LPP art. 30a-30g, OPP2 art. 5-5f, LPP art. 79b al. 3.",
         "operationId": "simulate_epl_api_v1_lpp_deep_epl_post",
         "requestBody": {
           "content": {
@@ -30160,6 +30438,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Simulate Epl",
         "tags": [
           "lpp-deep"
@@ -30210,7 +30493,7 @@
     },
     "/api/v1/lpp-deep/rachat-echelonne": {
       "post": {
-        "description": "Simulate a stepped LPP buyback to optimize tax savings.\n\nCompares buying back in a single year (bloc) vs spreading over N years.\nThe stepped approach typically saves more due to progressive taxation.\n\nSources: LPP art. 79b, LIFD art. 33 al. 1 let. d, OPP2 art. 60a.",
+        "description": "Simulate a stepped LPP buyback to optimize tax savings.\n\nCompares buying back in a single year (bloc) vs spreading over N years.\nThe stepped approach typically saves more due to progressive taxation.\n\nGrounded via D-CE-06 + D-CE-07 : canton, revenuImposable, avoirActuel\nare read from `_user.profile.data` when not in body. Missing canton or\nrevenuImposable triggers 422 with the D-CE-08 `CoachToolIncomplete`\nenvelope when strict mode is enabled — closes the sev-3 incident class\nwhere `TAUX_MARGINAUX_PAR_CANTON[None]` would otherwise raise KeyError\n→ 500 (threat T-mint-calc-02-03 DoS mitigation).\n\nSources: LPP art. 79b, LIFD art. 33 al. 1 let. d, OPP2 art. 60a.",
         "operationId": "simulate_rachat_echelonne_api_v1_lpp_deep_rachat_echelonne_post",
         "requestBody": {
           "content": {
@@ -30244,15 +30527,47 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Simulate Rachat Echelonne",
         "tags": [
           "lpp-deep"
         ]
       }
     },
+    "/api/v1/lucidity/invariants/mortgage-cap": {
+      "get": {
+        "description": "L4 wedge invariant : 33% LCC mortgage cap.\n\nReturns the canonical FR condition text + LCC art. 28 legal reference.\nNo user-profile input required — this is information générale.\n\nSources : LCC art. 28 (Loi sur le crédit à la consommation).\nDoctrine : MINT_IDENTITY.md « Mint te dit ce que personne n'a intérêt\nà te dire ».",
+        "operationId": "lucidity_invariant_mortgage_cap_api_v1_lucidity_invariants_mortgage_cap_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/L4InvariantPayload"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Lucidity Invariant Mortgage Cap",
+        "tags": [
+          "Lucidity L1-L4 (calc-engine-v1)"
+        ]
+      }
+    },
     "/api/v1/mortgage/affordability": {
       "post": {
-        "description": "Calculate mortgage affordability (Tragbarkeitsrechnung).\n\nChecks whether the household can afford a given property based on\nSwiss lending rules: 20% equity, 33% income ratio, 5% theoretical rate.\n\nSources: Circulaire FINMA 2017/5; directives ASB.",
+        "description": "Calculate mortgage affordability (Tragbarkeitsrechnung).\n\nChecks whether the household can afford a given property based on\nSwiss lending rules: 20% equity, 33% income ratio, 5% theoretical rate.\n\nGrounded via D-CE-06 + D-CE-07 : canton, revenu_brut_annuel,\nepargne_disponible, avoir_3a, avoir_lpp are read from `_user.profile`\nwhen not supplied in the body. The 5% theoretical rate is a regulatory\nconstant (FINMA art. 28 / HYPOTHEQUE_TAUX_THEORIQUE) and is NEVER\nuser-overridable. Missing required profile fields trigger 422 with the\nD-CE-08 `CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: Circulaire FINMA 2017/5; directives ASB.",
         "operationId": "calculate_affordability_api_v1_mortgage_affordability_post",
         "requestBody": {
           "content": {
@@ -30286,6 +30601,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Calculate Affordability",
         "tags": [
           "mortgage"
@@ -30294,7 +30614,7 @@
     },
     "/api/v1/mortgage/amortization": {
       "post": {
-        "description": "Compare direct vs indirect mortgage amortization.\n\nDirect: reduce debt -> lower interest -> lower deductions.\nIndirect: contribute to pledged 3a -> constant debt + 3a growth + max deductions.\n\nSources: OPP3 art. 1; LIFD art. 33; pratique bancaire suisse.",
+        "description": "Compare direct vs indirect mortgage amortization.\n\nDirect: reduce debt -> lower interest -> lower deductions.\nIndirect: contribute to pledged 3a -> constant debt + 3a growth + max deductions.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 10 — silent ZH default\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: OPP3 art. 1; LIFD art. 33; pratique bancaire suisse.",
         "operationId": "compare_amortization_api_v1_mortgage_amortization_post",
         "requestBody": {
           "content": {
@@ -30328,6 +30648,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Compare Amortization",
         "tags": [
           "mortgage"
@@ -30336,7 +30661,7 @@
     },
     "/api/v1/mortgage/epl-combined": {
       "post": {
-        "description": "Calculate combined EPL equity (3a + LPP) for housing purchase.\n\nCombines cash, 3a withdrawal, and LPP EPL to calculate total\navailable equity. Recommends optimal sourcing order.\n\nSources: OPP3 art. 1; LPP art. 30a-30g; LPP art. 79b al. 3.",
+        "description": "Calculate combined EPL equity (3a + LPP) for housing purchase.\n\nCombines cash, 3a withdrawal, and LPP EPL to calculate total\navailable equity. Recommends optimal sourcing order.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 11 — silent ZH default\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: OPP3 art. 1; LPP art. 30a-30g; LPP art. 79b al. 3.",
         "operationId": "calculate_epl_combined_api_v1_mortgage_epl_combined_post",
         "requestBody": {
           "content": {
@@ -30370,6 +30695,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Calculate Epl Combined",
         "tags": [
           "mortgage"
@@ -30378,7 +30708,7 @@
     },
     "/api/v1/mortgage/imputed-rental": {
       "post": {
-        "description": "Calculate imputed rental value (Eigenmietwert) and tax impact.\n\nSwiss homeowners must declare the imputed rental value as income,\nbut can deduct mortgage interest, maintenance, and insurance.\n\nSources: LIFD art. 21 al. 1 let. b; LIFD art. 32; LIFD art. 33.",
+        "description": "Calculate imputed rental value (Eigenmietwert) and tax impact.\n\nSwiss homeowners must declare the imputed rental value as income,\nbut can deduct mortgage interest, maintenance, and insurance.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 9). Missing profile.canton\ntriggers a 422 with the D-CE-08 `CoachToolIncomplete` envelope when\nstrict mode is enabled.\n\nSources: LIFD art. 21 al. 1 let. b; LIFD art. 32; LIFD art. 33.",
         "operationId": "calculate_imputed_rental_api_v1_mortgage_imputed_rental_post",
         "requestBody": {
           "content": {
@@ -30412,6 +30742,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Calculate Imputed Rental",
         "tags": [
           "mortgage"
@@ -32494,7 +32829,7 @@
     },
     "/api/v1/retirement/lpp/compare": {
       "post": {
-        "description": "Compare LPP rente vs capital withdrawal at retirement.\n\nIncludes breakeven age, progressive capital tax, and neutral recommendation.\n\nSources: LPP art. 14, LIFD art. 38.",
+        "description": "Compare LPP rente vs capital withdrawal at retirement.\n\nIncludes breakeven age, progressive capital tax, and neutral recommendation.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 43 — silent ZH default\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: LPP art. 14, LIFD art. 38.",
         "operationId": "compare_lpp_api_v1_retirement_lpp_compare_post",
         "requestBody": {
           "content": {
@@ -32528,6 +32863,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Compare Lpp",
         "tags": [
           "retirement"
@@ -33186,7 +33526,7 @@
     },
     "/api/v1/unemployment/calculate": {
       "post": {
-        "description": "Calculate LACI unemployment benefits.\n\nComputes daily/monthly indemnities, duration, eligibility status,\nand provides a timeline + checklist for post-job-loss actions.\n\nSources: LACI art. 8, 13, 22, 23, 27. OAC art. 37.",
+        "description": "Calculate LACI unemployment benefits.\n\nComputes daily/monthly indemnities, duration, eligibility status,\nand provides a timeline + checklist for post-job-loss actions.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 37 — silent ZH default\nclosed). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: LACI art. 8, 13, 22, 23, 27. OAC art. 37.",
         "operationId": "calculate_unemployment_benefits_api_v1_unemployment_calculate_post",
         "requestBody": {
           "content": {
@@ -33220,6 +33560,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Calculate Unemployment Benefits",
         "tags": [
           "unemployment"
