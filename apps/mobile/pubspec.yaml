@@ -56,6 +56,11 @@ dependencies:
   path: ^1.9.0  # pinned by integration_test from SDK
   # Phase 96 D-17 — metaphor TOML library asset loading
   toml: ^0.16.0
+  # Phase 02 D-MOB — direct dep promotion of already-transitive package_info_plus
+  # (used by api_service.dart ApiService.initAppVersion to read pubspec version
+  # at boot, replacing the hardcoded `_appVersion = '1.0.0'`). Powers
+  # X-App-Version header + future mobile L1 audit trail (D-MOB-03 obs #186).
+  package_info_plus: ^8.0.0
   # Phase 97 W7 iter#5 (T001 EXIF leak) — direct dep promotion of the
   # already-transitive image package. Used by lib/services/exif_scrub.dart
   # to strip GPS / DateTime / Make / Model / Software EXIF tags from
