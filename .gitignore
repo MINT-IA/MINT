@@ -140,3 +140,4 @@ tools/mcp/mint-tools/.venv/
 # (repo root when run via tools/simulator/maestro_sweep.sh). Ignore
 # at root only — leaves intentional design assets in subdirs alone.
 /[0-9][0-9]-*.png
+test_anonymous_chat_eclairage.db
