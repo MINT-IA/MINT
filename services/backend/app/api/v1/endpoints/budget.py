@@ -177,9 +177,13 @@ def _build_response(
         )
 
     if income == 0:
+        # B2 fix (2026-05-08) : archetype-agnostic prompt — money source
+        # rather than « salaire net mensuel » (covers the 8 MINT archetypes
+        # incl. indépendants / retraités / étudiants / expat_us, per
+        # CLAUDE.md NEVER #4 + NEVER #7).
         eclairage = (
             "On ne peut pas tracer ta marge sans revenu connu. "
-            "Dis-moi ton salaire net mensuel pour démarrer."
+            "Dis-moi d'où vient ton argent (salaire, dividendes, rente, autre)."
         )
     elif free_margin < 0:
         eclairage = (

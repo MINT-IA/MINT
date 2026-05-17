@@ -2,7 +2,7 @@
 
 > Loaded on-demand quand l'agent travaille dans `services/backend/` et détecte un contexte FastAPI/Python.
 > Tier 2 (project-specific). Tier 1 = `rules.md`.
-> Compagnon opérationnel : `.claude/skills/mint-backend-dev/SKILL.md`.
+> Subagents : `backend-architect`, `fastapi-pro`, `python-pro` (+ `backend-security-coder` / `threat-modeling-expert` pour security pass, cf. CLAUDE.md §3.5).
 
 ## 1. Architecture
 
@@ -36,7 +36,9 @@ ruff check app/                       # Linter
 
 - **Pure functions** pour tous les calculs (déterministes, testables, no side effects).
 - **Pydantic v2** : `ConfigDict(populate_by_name=True)`, `alias_generator = to_camel`.
-- **Backend = source of truth** pour constants et formulas. Flutter mirrors, jamais n'invente.
+<!-- mint-data-architecture-v1-01-canonical:start -->
+- **Backend = source of truth pour L2-L4** (comparer / éclairer / invariants — `services/backend/app/services/`) **+ regulatory constants** (`services/backend/app/services/regulatory/registry.py`, active version selection via `effective_from / effective_to`). Mobile owns L1 chiffrer (`apps/mobile/lib/services/financial_core/`, offline-capable, codegen-baked snapshot per D-08). Boundary criterion : `services/backend/app/models/lucidity/_payload.py` discriminated type. Flutter mirrors regulatory constants via Plan 04 codegen ; does NOT mirror calculator logic across the L1/L2 boundary.
+<!-- mint-data-architecture-v1-01-canonical:end -->
 - **Contract change** → update `tools/openapi/mint.openapi.canonical.json` + `SOT.md`.
 - Backend enforce les banned terms compliance via `ComplianceGuard` avant réponse LLM.
 
@@ -152,5 +154,5 @@ Phase 30.6 (cette phase) exposera via MCP tool `get_swiss_constants(category)`.
 
 - `SOT.md` — data contracts (Profile, SessionReport, EnhancedConfidence).
 - `tools/openapi/mint.openapi.canonical.json` — API contract canonique.
-- `.claude/skills/mint-backend-dev/SKILL.md` — skill opérationnel (chantiers, patterns concrets).
+- Subagents `backend-architect` / `fastapi-pro` / `python-pro` — délégation auto par description matching pour chantiers/patterns concrets.
 - `LEGAL_RELEASE_CHECK.md` — pre-release compliance gate.

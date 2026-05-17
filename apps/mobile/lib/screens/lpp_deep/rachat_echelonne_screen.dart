@@ -188,7 +188,12 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     }
     // Audit 2026-04-18 Q2 (swiss-brain) : OPP2 art. 60b s'applique aux
     // expats < 5 ans de cotisation CH → cap rachat 20% du salaire assuré.
-    _archetype = profile.archetype.name.replaceAll('_', '_').toLowerCase();
+    // Audit 2026-05-09 fix : pre-existing `replaceAll('_', '_').toLowerCase()`
+    // was a no-op (Dart enum `name` is camelCase, not snake_case). Result :
+    // `_archetype` ended up as `'swissnative'` / `'crossborder'` etc. and
+    // never matched the backend snake_case constants. Use the canonical
+    // [FinancialArchetype.backendName] extension instead.
+    _archetype = profile.archetype.backendName;
     final sAssure = profile.prevoyance.salaireAssure;
     if (sAssure != null && sAssure > 0) {
       _salaireAssure = sAssure;

@@ -1,0 +1,191 @@
+# tools/simulator/flows/maestro-perfect-set/flow_empty_state_cascade.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Validates the B7 « empty state cascade » regression-guard for the
+# fix shipped in PR #529 (« coach-context-loads-raw-profile-values »).
+#
+# The cascade :
+#   fresh anon → drawer → « Mon bilan » → empty-state CTA visible →
+#   tap CTA → /coach/chat → assistant greeting renders (NOT the legacy
+#   « Définis ton budget » placeholder, NOT « Aucune donnée pour
+#   l'instant » empty splash).
+#
+# The B1 fix (PR #519) requires the FIRST coach message to be the
+# new assistant-authored greeting :
+#   « Bienvenue dans MINT. Avant qu'on commence : qu'est-ce qui
+#     t'amène ici aujourd'hui ? »
+# A regression here means the fix was reverted or the prompt cache
+# poisoned the new greeting. Both are visible in this flow.
+#
+# ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
+# Strictly anonymous (NO archetype seed). The empty-state path is only
+# triggered when CoachProfile is empty / null. Setting MINT_E2E_ARCHETYPE
+# would seed a non-empty profile and bypass the empty state, defeating
+# the test.
+#
+# DO NOT run this flow with `--dart-define=MINT_E2E_ARCHETYPE=*`.
+#
+# ─── EXPECTED DURATION ─────────────────────────────────────────────────
+# ~30s wall-clock (cold launch + landing + drawer open + 2 navigations
+# + assistant greeting render + 4 shots).
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
+# - FRESH state : harness MUST `xcrun simctl uninstall ch.mint.app +
+#   install` before this flow. A leftover CoachProfile from a previous
+#   walker run will mask the empty state and false-pass the flow.
+# - Recommended dart-defines :
+#     MINT_DISABLE_BETA_MODAL=true
+# - PROHIBITED dart-defines (would mask the bug being tested) :
+#     MINT_E2E_ARCHETYPE=*
+#     MINT_E2E_FORCE_ECLAIRAGE_KIND=*
+# - Harness deep-links to /explore (drawer launchpad) AFTER install :
+#     `xcrun simctl openurl booted ch.mint.app://explore`
+#
+# ─── LOCATOR STRATEGY ──────────────────────────────────────────────────
+# Literal FR strings from app_fr.arb :
+#   drawerMyReport                      = "Mon bilan"
+#   financialSummaryNoProfile           = "Aucun profil renseigné"
+#   financialSummaryStartDiagnostic     = "Commencer le diagnostic"
+#   coachInputHint                      = "Dis-moi."
+#   coachCoachMessage                   = "Réponse du coach"   (Semantics)
+#
+# B1 greeting literal (coach_chat_screen.dart wires this in via the
+# coach orchestrator on first-turn-ever) :
+#   « Bienvenue dans MINT. Avant qu'on commence : qu'est-ce qui
+#     t'amène ici aujourd'hui ? »
+#
+# Negative assertions guard against regression :
+#   "Aucune donnée pour l'instant"  ← old empty splash, must be GONE
+#   "Définis ton budget"            ← legacy placeholder, must be GONE
+#
+# ─── OUTPUT ────────────────────────────────────────────────────────────
+# Screenshots :
+#   .planning/walker/maestro-flows/empty-state-cascade/<run-id>/
+#     ├── 01-explore-fresh.png
+#     ├── 02-empty-state-mon-bilan.png
+#     ├── 03-coach-greeting.png
+#     ├── 04-no-legacy-strings.png
+
+appId: ch.mint.app
+tags:
+  - empty-state
+  - regression-guard
+  - PR-529
+  - PR-519
+  - B1
+  - B7
+  - anon
+---
+
+# 01 — bootstrap to /explore via cold-launch fragment + bottom-tab tap.
+#
+# Pre-fix : assumed `xcrun simctl openurl ch.mint.app://explore` was
+# pre-deep-linked by the harness. The canonical sweep doesn't do this.
+# Self-bootstrap via the S005 cold-launch fragment (lands on Aujourd'hui)
+# + Explorer bottom-tab tap = portable across canonical-sweep contexts.
+# Same pattern as drawer_navigation_smoke (sister flow on /explore).
+#
+# Note re « FRESH state » contract : the cold-launch fragment uses
+# `clearState: true` which wipes SharedPreferences (where the local
+# CoachProfile lives for anon users). Sufficient for the empty-state
+# assertion since anon users have no backend profile either.
+- runFlow: _fragment_cold_launch_to_aujourdhui.yaml
+# iOS doubled accessibilityText — regex matcher required (same as
+# cold-launch fragment's « .*Continuer sans compte.* » pattern).
+- tapOn:
+    text: ".*Explorer.*"
+- extendedWaitUntil:
+    visible:
+      text: "ouvrir-profil-drawer"
+    timeout: 5000
+- takeScreenshot: "01-explore-fresh"
+
+# 02 — open drawer via the AppBar profile icon
+# explorer_screen.dart:24-33 wraps the IconButton in
+#   Semantics(label: 'ouvrir-profil-drawer', button: true) (2026-05-09).
+- tapOn:
+    text: "ouvrir-profil-drawer"
+- extendedWaitUntil:
+    visible:
+      text: "Mon bilan"
+    timeout: 4000
+
+# 03 — tap « Mon bilan » → /profile/bilan (empty state expected)
+- tapOn:
+    text: "Mon bilan"
+- extendedWaitUntil:
+    visible:
+      text: "Aucun profil renseigné"
+    timeout: 6000
+
+# Diagnostic CTA must be visible AND tappable.
+- assertVisible:
+    text: "Commencer le diagnostic"
+
+# Negative assertion : the OLD empty-state strings must NOT appear.
+# These were the visible symptoms of the B7 bug Julien screenshotted
+# on 2026-05-07 (the « Aucune donnée pour l'instant » splash).
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+- takeScreenshot: "02-empty-state-mon-bilan"
+
+# 04 — tap CTA → /coach/chat → wait for assistant greeting
+# financial_summary_screen.dart:92 wires onCta to context.go('/coach/chat')
+- tapOn:
+    text: "Commencer le diagnostic"
+
+# Coach chat input hint == we landed on /coach/chat
+- extendedWaitUntil:
+    visible:
+      text: "Dis-moi."
+    timeout: 8000
+
+# B1 — assistant-authored greeting is the FIRST message rendered.
+# This is the assertion that proves PR #529 + PR #519 stuck.
+- extendedWaitUntil:
+    visible:
+      text: "Bienvenue dans MINT. Avant qu'on commence : qu'est-ce qui t'amène ici aujourd'hui ?"
+    timeout: 12000
+
+# Greeting lives inside a coach Semantics node, not a user one.
+- assertVisible:
+    text: "Réponse du coach"
+- takeScreenshot: "03-coach-greeting"
+
+# 05 — Final regression sweep : the legacy placeholder strings must
+# never appear ANYWHERE in this cascade. We assert them again here so
+# that even if step 03's screen rerendered, this exit-gate catches it.
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+# B4 byproduct guard : fake facts injection (canton/age/civil status)
+# must NOT appear in the assistant greeting either. The B1+B4 fixes
+# share a code path (CoachContext build) so this is a cheap belt-and-
+# suspenders check.
+- assertNotVisible:
+    text: "VD"
+- assertNotVisible:
+    text: "35 ans"
+- assertNotVisible:
+    text: "célibataire"
+- takeScreenshot: "04-no-legacy-strings"
+
+# ─── PIXEL FALLBACK REMOVED (2026-05-09) ───────────────────────────────
+# Step 02 previously used `point: "95%, 8%"` as a last-resort tap on
+# the AppBar profile icon. Replaced by the Semantics label
+# `ouvrir-profil-drawer` shipped in explorer_screen.dart:24-33 alongside
+# the matching update in flow_drawer_navigation_smoke.yaml (Maestro
+# paroxysm panel synthesis Tier 1, 2026-05-09).
+#
+# Same auth-state precondition gap applies as flow_drawer_navigation_smoke
+# (cold-launch lands on /, not in MintShell). See that flow's PRECONDITION
+# GAP section for the three fix-forward options.
+#
+# Two-line regression : if PR #529 is reverted, step 04's greeting
+# assertion fails AND the « Définis ton budget » negative assertion at
+# step 05 fires. Both signals point at the same root cause, which is
+# what we want for a Karpathy-style cheap-and-loud regression alarm.

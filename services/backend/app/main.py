@@ -15,6 +15,7 @@ from app.core.config import settings
 from app.core.database import Base, engine
 from app.core.logging_config import setup_logging, LoggingMiddleware, trace_id_var
 from app.core.rate_limit import limiter
+from app.core.sentry_scrub import before_send as _mint_sentry_before_send
 from app.api.v1.router import api_router
 
 # Initialize structured logging before anything else
@@ -28,6 +29,11 @@ if settings.SENTRY_DSN:  # pragma: no cover — DSN only set in production env
         traces_sample_rate=0.1,
         profiles_sample_rate=0.1,
         send_default_pii=False,  # nLPD compliance
+        # S98 Phase 2 — second-line PII scrubber (Swiss-compliance panel
+        # non-negotiable). Strips AVS / IBAN_CH / email / phone +41 and
+        # drops Claude payload keys + request.data wholesale.
+        # Contract tests : tests/test_sentry_scrub.py.
+        before_send=_mint_sentry_before_send,
     )
 
 logger = logging.getLogger(__name__)
@@ -63,7 +69,19 @@ async def lifespan(app: FastAPI):
     """Create database tables and auto-ingest RAG knowledge base on startup."""
     # Import models to ensure they're registered with Base
     from app import models as _models  # noqa: F401
-    Base.metadata.create_all(bind=engine)
+
+    # Backport of hotfix #377 (was main-only until 2026-05-17). Alembic is
+    # the source of truth in production — running create_all() after migrate
+    # conflicts with existing tables whose implicit row-type already exists
+    # in pg_type (UniqueViolation on pg_type_typname_nsp_index, observed
+    # 2026-04-21 for magic_link_tokens which lacked a dedicated alembic
+    # revision at the time). Keep create_all() in dev/test where the DB can
+    # start empty and there is no alembic at boot time. Any production-only
+    # table missing a migration must be backfilled via a dedicated alembic
+    # revision, not by this bypass. Incident: Railway prod healthcheck loop
+    # post-#376.
+    if settings.ENVIRONMENT != "production":
+        Base.metadata.create_all(bind=engine)
 
     # FIX-106: Validate DB connectivity at startup — fail fast if misconfigured.
     try:
@@ -329,6 +347,64 @@ def _auto_ingest_rag():
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
+# Phase mint-calc-engine-v1 W4 Plan 17 (D-CE-17) — Prometheus metrics
+# exposition endpoint at /metrics (no API_V1_STR prefix — convention for
+# Prometheus scrapers). `include_in_schema=False` keeps it out of OpenAPI.
+# Open Q1 resolved with Prometheus (preferred per RESEARCH §Q-H Option 1).
+from app.core.metrics import metrics_router  # noqa: E402
+
+app.include_router(metrics_router)
+
+
 @app.get("/")
 def root():
     return {"msg": "Welcome to Mint API"}
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Apple-App-Site-Association (AASA) — Phase 97 W7 iter#6 (S004 + F007)
+#
+# iOS Universal Links require the host domain to serve an AASA file at
+# the exact path /.well-known/apple-app-site-association with
+# Content-Type: application/json and HTTPS only. Apple is strict :
+# - the path must match exactly (no trailing slash, no .json extension)
+# - the response must be served as application/json
+# - the file must be reachable without authentication
+#
+# Reference : https://developer.apple.com/documentation/xcode/supporting-associated-domains
+#
+# Apple Team ID 7F5UDGYS5H (from apps/mobile/ios/Runner.xcodeproj/
+# project.pbxproj line 682 + 707). Bundle ID ch.mint.app. Combined
+# appID = "7F5UDGYS5H.ch.mint.app".
+# ──────────────────────────────────────────────────────────────────────
+
+_AASA_PAYLOAD = {
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "7F5UDGYS5H.ch.mint.app",
+                "paths": [
+                    "/debug/chat-as-verb",
+                    "/home",
+                    "/aujourd-hui",
+                    "/anonymous/chat",
+                    "/coach/chat",
+                    "/explorer/*",
+                ],
+            }
+        ],
+    }
+}
+
+
+@app.get("/.well-known/apple-app-site-association")
+def apple_app_site_association():
+    """Serve the Apple-App-Site-Association JSON for iOS Universal Links.
+
+    Apple strictly requires Content-Type: application/json + HTTPS.
+    The bare /.well-known/apple-app-site-association path (no .json
+    suffix) is the canonical location iOS queries on every fresh app
+    install + every entitlement-change.
+    """
+    return JSONResponse(content=_AASA_PAYLOAD, media_type="application/json")

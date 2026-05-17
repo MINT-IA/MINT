@@ -9,6 +9,7 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/widgets/voice/ton_chooser.dart';
 
 /// Right-side drawer replacing DossierTab.
@@ -104,12 +105,19 @@ class ProfileDrawer extends StatelessWidget {
               ),
             ),
 
-            _buildSection(
-              context,
-              icon: Icons.key_outlined,
-              title: l10n.drawerApiKey,
-              onTap: () => _navigate(context, '/profile/byok'),
-            ),
+            // P1 walkthrough fix (2026-05-07): hide BYOK from the user-
+            // facing drawer until BYOK lands as a feature. Out-of-scope per
+            // `project_byok_scope.md`; current builds use ServerKey.
+            // Visible entry confused QA testers (« do I need to bring a key? »).
+            // Underlying screen + service remain at `/profile/byok` for
+            // internal testing.
+            if (FeatureFlags.enableByok)
+              _buildSection(
+                context,
+                icon: Icons.key_outlined,
+                title: l10n.drawerApiKey,
+                onTap: () => _navigate(context, '/profile/byok'),
+              ),
             _buildSection(
               context,
               icon: Icons.language_outlined,

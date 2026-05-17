@@ -237,6 +237,12 @@ class CoachOrchestrator {
     String? memoryBlock,
     String language = 'fr',
     int cashLevel = 3,
+    // B13 fix (2026-05-09): tier 3.5 anonymous is gated on auth state.
+    // Pre-fix, an authenticated user whose tier3 (server-key) call timed
+    // out would silently fall through to /anonymous/chat and hit the
+    // 3-message anon quota, returning « Limite atteinte. Crée un compte
+    // pour continuer. » — a trust-killer for users who ARE logged in.
+    bool isLoggedIn = false,
   }) async {
     // Build system prompt with optional memory block injection (S58).
     // Pan5-1: Use PromptRegistry.chatSystemPrompt (enriched, context-aware)
@@ -330,16 +336,34 @@ class CoachOrchestrator {
     // only fired in the chat-screen catch block, which was never reached
     // when the orchestrator degraded gracefully — users saw "Le coach IA
     // n'est pas disponible" even though anonymous would have worked.
-    debugPrint('[CoachChain] tier3.5=Anonymous trying...');
-    final anonymousResponse = await _tryAnonymousChat(
-      userMessage: userMessage,
-      language: language,
-    );
-    if (anonymousResponse != null) {
-      debugPrint('[CoachChain] tier3.5=Anonymous SUCCESS');
-      return anonymousResponse;
+    //
+    // B13 fix (2026-05-09): gated on !isLoggedIn. An authenticated user
+    // whose tier3 (server-key) call failed (timeout, 5xx, rate limit) was
+    // silently routed to /anonymous/chat and hit the 3-message anon quota,
+    // returning « Limite atteinte. Crée un compte pour continuer. » to a
+    // user who was already logged in. Trust-killer reported by Julien on
+    // TestFlight v2.12.2+4 (« j'ai des dettes » flow). For logged users
+    // we now skip tier 3.5 and fall straight to the offline template,
+    // which surfaces a more honest « service indisponible, réessaie »
+    // message instead of an anon-quota one.
+    if (!isLoggedIn) {
+      debugPrint('[CoachChain] tier3.5=Anonymous trying...');
+      final anonymousResponse = await _tryAnonymousChat(
+        userMessage: userMessage,
+        language: language,
+      );
+      if (anonymousResponse != null) {
+        debugPrint('[CoachChain] tier3.5=Anonymous SUCCESS');
+        return anonymousResponse;
+      }
+      debugPrint('[CoachChain] tier3.5=Anonymous returned null');
+    } else {
+      debugPrint(
+        '[CoachChain] tier3.5=Anonymous skipped (user is logged in — '
+        'avoid leaking « Limite atteinte » anon-quota response to '
+        'authenticated users, B13 fix 2026-05-09)',
+      );
     }
-    debugPrint('[CoachChain] tier3.5=Anonymous returned null');
 
     // 4. Fallback — honest "coach unavailable" message.
     debugPrint('[CoachChain] ALL TIERS FAILED — returning fallback');
@@ -978,6 +1002,8 @@ class CoachOrchestrator {
         toolCalls: response.toolCalls,
         // v2.7 Task 8: surface Haiku-fallback flag from backend response_meta.
         degraded: response.degraded,
+        // wave-1b-04 P0-2 fix: forward citationChips from API response.
+        citationChips: response.citationChips,
       );
     } on TimeoutException {
       // 2026-04-17 audit: we used to return null here, which dropped the

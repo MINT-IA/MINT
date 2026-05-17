@@ -1,0 +1,76 @@
+# Design lints workflow — Phase MVP-DESIGN-LINTS-V1 (chat-as-verb milestone, 2026-05-09).
+#
+# Runs the 5 design-system Python lints in HARD-FAIL mode (PLAN.md T9):
+#   - prefer_mint_color_token  (LINT-01)
+#   - prefer_mint_text_style   (LINT-02)
+#   - prefer_mint_fonts        (LINT-03)
+#   - prefer_mint_radius       (LINT-04)
+#   - prefer_mint_cta          (LINT-05)
+#
+# Net-new violations (current scan ⊄ baseline) → exit 1 → PR merge blocked.
+# Lefthook (pre-commit) runs the same lints in SOFT-warn mode (`|| true`).
+#
+# Trigger surface (PLAN-CHECK §3 R3 expansion):
+#   - apps/mobile/lib/**/*.dart       (production code that the lints scan)
+#   - apps/mobile/pubspec.yaml        (dep changes that may add new patterns)
+#   - tools/checks/prefer_mint_*.py   (the lint scripts themselves)
+#   - tools/checks/baselines/*        (baseline updates after sweep PRs)
+#   - tools/checks/tests/test_prefer_mint_*.py + tests/_lint_test_helpers.py
+#       + tests/fixtures/             (test/fixture changes — close R3 escape valve)
+#   - .github/workflows/design-lints.yml  (self-trigger)
+
+name: Design lints (MVP-DESIGN-LINTS-V1)
+
+on:
+  push:
+    branches: [dev, staging, main]
+  pull_request:
+    branches: [dev, staging, main]
+    paths:
+      - 'apps/mobile/lib/**/*.dart'
+      - 'apps/mobile/pubspec.yaml'
+      - 'tools/checks/prefer_mint_*.py'
+      - 'tools/checks/baselines/prefer_mint_*.baseline.txt'
+      - 'tools/checks/tests/test_prefer_mint_*.py'
+      - 'tools/checks/tests/_lint_test_helpers.py'
+      - 'tools/checks/tests/__init__.py'
+      - 'tools/checks/tests/fixtures/**'
+      - '.github/workflows/design-lints.yml'
+
+concurrency:
+  group: design-lints-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  design-lints:
+    name: Design system lints
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ── 5 lint scripts (hard-fail on net-new) ────────────────────────────
+      - name: prefer_mint_color_token (LINT-01)
+        run: python3 tools/checks/prefer_mint_color_token.py
+
+      - name: prefer_mint_text_style (LINT-02)
+        run: python3 tools/checks/prefer_mint_text_style.py
+
+      - name: prefer_mint_fonts (LINT-03)
+        run: python3 tools/checks/prefer_mint_fonts.py
+
+      - name: prefer_mint_radius (LINT-04)
+        run: python3 tools/checks/prefer_mint_radius.py
+
+      - name: prefer_mint_cta (LINT-05)
+        run: python3 tools/checks/prefer_mint_cta.py
+
+      # ── Unit-test suite for the 5 lints (PLAN-CHECK §3 R3) ───────────────
+      # Runs the pure-stdlib unittest discovery so a PR that softens a test
+      # without touching the lint script also fails CI on the same workflow.
+      - name: prefer_mint_* unit-test suite
+        run: |
+          python3 -m unittest discover tools/checks/tests -p 'test_prefer_mint_*.py' -v

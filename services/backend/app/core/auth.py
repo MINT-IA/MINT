@@ -3,15 +3,19 @@ Authentication dependency for FastAPI endpoints.
 Extracts and validates JWT tokens from requests.
 """
 
+import logging
 from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import User
 from app.core.config import settings
 import jwt as pyjwt
 from app.services.auth_service import decode_token, is_jti_blacklisted
+
+logger = logging.getLogger(__name__)
 
 security = HTTPBearer(auto_error=False)
 
@@ -52,8 +56,26 @@ def get_current_user(
             )
     except HTTPException:
         raise  # Re-raise auth failures
-    except Exception:
-        pass  # If decode fails entirely, let decode_token handle it
+    except pyjwt.exceptions.PyJWTError:
+        # SECURITY (B004) : INTENDED fall-through — if the unverified
+        # decode fails (malformed token, wrong segments), let the
+        # canonical decode_token() below produce a clean 401 « Token
+        # invalide ou expiré ». Do NOT swallow DB errors here.
+        pass
+    except SQLAlchemyError:
+        # SECURITY (B004) : FAIL-CLOSED on infra degradation. If the
+        # blacklist DB query raises (OperationalError, IntegrityError,
+        # connection drop, migration drift), we CANNOT confirm the
+        # token's revocation status — refuse authentication rather than
+        # accept it. Industry standard for revocation surfaces.
+        logger.exception(
+            "auth.jti_blacklist.db_error — blacklist check failed ; "
+            "failing closed to refuse potentially revoked token"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Service de blacklist temporairement indisponible",
+        )
 
     payload = decode_token(token)
 

@@ -2086,7 +2086,7 @@
   "futurCompleterProfil": "Complete your profile to refine the projection.",
   "futurDisclaimer": "Educational projection — does not constitute advice (FinSA). SWR 4% = 4% rule, results not guaranteed. AVS/LPP pensions estimated per OASI art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explore details",
-  "financialSummaryTitle": "FINANCIAL OVERVIEW",
+  "financialSummaryTitle": "MY PROFILE",
   "financialSummaryNoProfile": "No profile entered",
   "financialSummaryStartDiagnostic": "Start the diagnostic",
   "financialSummaryRestartDiagnostic": "Restart the diagnostic",
@@ -2146,6 +2146,18 @@
     }
   },
   "financialSummaryFatcaWarning": "⚠️ FATCA — Only a minority of providers accept (e.g. Raiffeisen)",
+  "sim3aFatcaGateTitle": "Pillar 3a — limited access (FATCA)",
+  "@sim3aFatcaGateTitle": {
+    "description": "FATCA gate panel title shown on the 3a simulator when canContribute3a is false (US persons / green card)."
+  },
+  "sim3aFatcaGateBody": "Your FATCA status limits access to Swiss pillar 3a. Most providers refuse US persons or green card holders. Before simulating contributions, confirm a provider accepts you (e.g. Raiffeisen) and consider alternative levers: vested benefits, mortgage optimization, free investment.",
+  "@sim3aFatcaGateBody": {
+    "description": "FATCA gate body explaining why the 3a simulator is not actionable for US persons + alternatives."
+  },
+  "sim3aFatcaGateAction": "See alternatives to 3a",
+  "@sim3aFatcaGateAction": {
+    "description": "FATCA gate CTA — opens an alternatives screen / coach prompt."
+  },
   "financialSummaryModifierPrevoyance": "Edit pension",
   "financialSummaryEditAvoirLpp": "Total LPP assets (CHF)",
   "financialSummaryEditNombre3a": "Number of 3a accounts",
@@ -3509,7 +3521,7 @@
   "authGatePrivacyNote": "Your data stays on your device and is encrypted.",
   "authRegisterSubtitle": "Create an encrypted account. Cloud sync is off by default; you can turn it on in Settings › Privacy.",
   "authWhyCreateAccount": "Why create an account?",
-  "authBenefitProjections": "AVS/LPP projections aligned to your situation",
+  "authBenefitProjections": "Financial projections adapted to your life choices (housing, tax, pension, family…)",
   "authBenefitCoach": "Personalised coach with your first name",
   "authBenefitSync": "Cloud backup + multi-device sync",
   "authFirstName": "First name",
@@ -3693,6 +3705,21 @@
   "coachUserMessage": "Your message",
   "coachCoachMessage": "Coach response",
   "coachSendButton": "Send",
+  "coachCitationChipsHeader": "Server-side computations",
+  "coachCitationChipLabel": "{toolDisplayName} — computed",
+  "coachCitationModalTitle": "Source of computation: {toolDisplayName}",
+  "coachCitationJsonViewerLabel": "View computation detail (JSON)",
+  "coachCitationRememberCta": "Remember this source",
+  "coachToolBudgetSnapshot": "Current budget",
+  "coachToolRetirementProjection": "Retirement projection",
+  "coachToolCrossPillarAnalysis": "Cross-pillar analysis",
+  "coachToolCoupleOptimization": "Couple optimization",
+  "coachToolCapStatus": "Daily cap",
+  "coachToolRetrieveMemories": "Memories",
+  "coachCitationRelativeJustNow": "just now",
+  "coachCitationRelativeMinutes": "{count, plural, =1{1 min ago} other{{count} min ago}}",
+  "coachCitationRelativeHours": "{count, plural, =1{1 h ago} other{{count} h ago}}",
+  "coachCitationRelativeDays": "{count, plural, =1{1 d ago} other{{count} d ago}}",
   "profileDefaultName": "User",
   "profileNameAge": "{name}, {age} years",
   "@profileNameAge": {
@@ -9972,6 +9999,7 @@
   "bankImportTransparency": "Your statement is sent encrypted to our Swiss server for analysis. Transactions are categorized, then the raw file is deleted. Only category summaries are kept in your profile.",
   "coachTransparencySLM": "Response generated on your phone. Nothing sent to a server.",
   "coachTransparencyBYOK": "Response via your Claude API. Your exact salary is NOT sent — only your age, canton and archetype are shared.",
+  "coachTransparencyServer": "Response via the Claude API (MINT server key). Your message is shared as-is to personalize the response.",
   "dataTransparencyTitle": "How MINT uses your data",
   "dataTransparencySalary": "When you enter your salary",
   "dataTransparencySalaryDetail": "Stored only on your phone. Never sent.",
@@ -10516,6 +10544,7 @@
   "landingV2Privacy": "Nothing leaves your phone until you decide it does.",
   "landingV2Legal": "Educational tool. Not financial advice under LSFin.",
   "landingV2LoginLink": "I already have an account",
+  "landingV3AnonymousHomeLink": "Continue without an account",
   "alertGenericFactPrefix": "MINT noticed",
   "alertGenericCausePrefix": "Why",
   "alertGenericNextMomentPrefix": "When we come back to it",
@@ -11179,9 +11208,20 @@
   "@betaDisclosureCta": {
     "x-mint-meta": {"level": "N1"}
   },
-  "betaDisclosureLearnMore": "Learn more",
-  "@betaDisclosureLearnMore": {
-    "x-mint-meta": {"level": "N1"}
-  },
-  "betaDisclosureSemanticsLabel": "Information about the MINT beta version — educational tool only, no financial advice, data stays on your device by default."
+  "betaDisclosureSemanticsLabel": "Information about the MINT beta version — educational tool only, no financial advice, data stays on your device by default.",
+  "coachOnboardingFirstAssistantGreeting": "Welcome to MINT. Before we start — what brings you here today?",
+  "verbExplique": "Explain",
+  "verbSimule": "Simulate",
+  "verbRassure": "Reassure me",
+  "chatInputHint": "Type your message...",
+  "chatIntentExplainLabel": "Explain to me",
+  "chatIntentReassureLabel": "Reassure me",
+  "chatIntentSimulateLabel": "Simulate",
+  "narrativeSleeveNextStepExplain": "Type a question to dig deeper.",
+  "narrativeSleeveNextStepReassure": "Type what worries you, we'll look together.",
+  "narrativeSleeveNextStepSimulate": "Type a scenario to explore.",
+  "narrativeSleeveHookFallback": "Let's see together what this changes for you.",
+  "narrativeSleeveOpenerCaptionExplain": "Here is what your card tells today.",
+  "narrativeSleeveOpenerCaptionReassure": "Let's look calmly at where you stand.",
+  "narrativeSleeveOpenerCaptionSimulate": "Pick a scenario to project."
 }

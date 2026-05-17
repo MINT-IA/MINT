@@ -1,0 +1,188 @@
+# tools/simulator/flows/regression/bug__P004__overlay_populated_on_open.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Phase 97.5 W3-T4-stripped — canonical regression lock for P004 (P004
+# = MintChatOverlay body must be POPULATED, not empty, after the user
+# taps « Explique-moi » on a CapDuJourBanner card). Per 97.5-PLAN.md v4
+# §B Wave 3 task W3-T4-stripped.
+#
+# This flow is the « tests passing ≠ feature working » §9.2 lock at the
+# journey level. The existing flow bug__F001_S001_combined__ already
+# asserts the overlay OPENS (structural visibility). This flow extends
+# the assertion contract to the SEMANTIC level : the overlay must carry
+# a NarrativeSleeveCard with the 4-slot anatomy (hook + caption +
+# next_step + optional metaphor) per Phase 96 D-15..D-17 + the auto-fire
+# turn-1 path landed in W2-T1.
+#
+# ─── REGRESSION CONTRACT ───────────────────────────────────────────────
+# Pre-W2-merge (D1 BLOCKER, SCOUT 2026-05-12T19:30Z) : tap « Explique-moi »
+# → MintChatOverlay opens → BODY COMPLETELY EMPTY (header + turn counter
+# + bare input only). The « chat-as-verb » value prop collapses : tapping
+# « Explique-moi » is functionally identical to tapping the Coach tab.
+#
+# Post-W2-merge (PR #582 Option A path) : auto-fire turn-1 on overlay
+# open populates the NarrativeSleeveCard. body renders 4 slots :
+#   - Header FR « Explique-moi » (verbatim, NOT raw enum « explain » —
+#     W2-T3 ARB sweep contract)
+#   - Hook (digit-free-linter-protected, fallback string applied if the
+#     narrator emits any digit — per D-16)
+#   - Caption (narrator-emitted, voice-system-aligned)
+#   - Next step « Tape une question pour creuser. » (ARB key
+#     narrativeSleeveNextStepExplain — VERBATIM ANCHOR for this flow)
+#   - Turn counter « 0 / 3 » (free-turn semantics, locked since W2)
+#
+# The « Tape une question pour creuser » anchor is the deterministic
+# semantic-non-empty proof : if the body is empty, this text is absent ;
+# if the NarrativeSleeveCard renders even minimally, this text appears.
+# ARB-locked → drift-proof against narrator output variation.
+#
+# ─── ACCEPTANCE (97.5-PLAN.md §B W3-T4-stripped row) ───────────────────
+# (a) maestro test against post-W2-merge staging exits 0 GREEN.
+# (b) the same flow against PRE-W2-merge build (Option A path
+#     reverted) MUST exit non-zero RED — the « Tape une question pour
+#     creuser » anchor is absent when the body is empty. This is the
+#     mechanical proof the assertion bites.
+#
+# Local repro for (b) : revert apps/mobile/lib/widgets/mint_chat_overlay.dart
+# to pre-PR-#582 state, rebuild, re-run → flow fails on Step 9 RED.
+#
+# ─── M001 WORKAROUND (Flutter Keys ≠ Maestro iOS resource-id) ──────────
+# Per Phase 97 W7 iter#4 META-BUG NOTE in bug__F001_S001_combined__ : iOS
+# Flutter doesn't propagate Dart-side Key() values to Maestro's iOS view
+# tree. The W3-T4 spec mentions « assertVisible: { id: narrative_sleeve_card } »
+# — that matcher would fail on iOS regardless of fix state. This flow
+# uses TEXT-anchor assertions instead (ARB-locked strings), which work
+# cross-platform and are equally drift-proof. M001 itself is tracked
+# separately (Flutter Semantics(identifier:) refit).
+#
+# ─── MAESTRO 2.5.1 SYNTAX ──────────────────────────────────────────────
+# Per https://docs.maestro.dev/api-reference/commands. Mirrors the
+# template flow bug__F001_S001_combined__chat_via_cap_du_jour.yaml on
+# Steps 1-7 (same nav contract) ; diverges on Steps 8-10 (W3-T4 lock).
+
+appId: ch.mint.app
+tags:
+  - phase-97-5
+  - phase-97-5-w3
+  - bug-p004
+  - regression
+  - chat-as-verb
+  - narrative-sleeve
+  - feature:chat_as_verb
+  - archetype:all
+---
+
+# ── Step 1 — Cold launch with clean state ─────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── Step 2 — Dismiss bêta modal if present ────────────────────────────
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# ── Step 2-bis — Wait for LandingScreen FadeTransitions to settle ─────
+- extendedWaitUntil:
+    visible:
+      text: "Parle à Mint"
+    timeout: 10000
+- waitForAnimationToEnd
+
+# ── Step 2-ter — S005 BRIDGE : tap « Continuer sans compte » → /home ──
+# Anonymous local-mode path (auth_provider.dart:90 default) opens
+# AujourdhuiScreen. Regex wrap mandatory : iOS Semantics doubling.
+- tapOn:
+    text: ".*Continuer sans compte.*"
+- waitForAnimationToEnd
+
+# ── Step 3 — Aujourd'hui visible (S005 precondition closed) ───────────
+- extendedWaitUntil:
+    visible:
+      text: ".*Aujourd'hui.*"
+    timeout: 10000
+
+# ── Step 4 — CapDuJourBanner reachable ────────────────────────────────
+- extendedWaitUntil:
+    visible:
+      text: ".*Parle-moi de toi.*"
+    timeout: 8000
+
+# ── Step 5 — MintCardActionBar 3-verb row visible on the banner ───────
+# Action-bar permanently visible on the wired banner per PHASE97
+# AUJOURDHUI_CARD_INVENTORY.md. The « Explique-moi » chip is the SC-2
+# header source for the next steps.
+- assertVisible:
+    text: ".*Explique-moi.*"
+- assertVisible:
+    text: ".*Simule.*"
+- assertVisible:
+    text: ".*Rassure-moi.*"
+
+# ── Step 6 — Tap « Explique-moi » → MintChatOverlay opens ─────────────
+- tapOn:
+    text: ".*Explique-moi.*"
+- waitForAnimationToEnd
+
+# ── Step 7 — Overlay open : turn counter « 0 / 3 » renders ────────────
+# The turn counter is the deterministic overlay-open anchor — present
+# only when MintChatOverlay is rendered. Pre-W2 + post-W2 : both show
+# 0 / 3 (the regression is in the BODY, not the counter).
+- extendedWaitUntil:
+    visible:
+      text: ".*0\\s*/\\s*3.*"
+    timeout: 8000
+
+# ╔══════════════════════════════════════════════════════════════════════╗
+# ║ W3-T4-stripped P004 SEMANTIC LOCKS — within 5 s of overlay open      ║
+# ╚══════════════════════════════════════════════════════════════════════╝
+
+# ── Step 8 — SC-1 LOCK : NarrativeSleeveCard body is NON-EMPTY ────────
+# The narrativeSleeveNextStepExplain ARB key (« Tape une question pour
+# creuser. ») is rendered by NarrativeSleeveCard's next_step slot. This
+# slot is ALWAYS present when the sleeve is non-null + intent=explain.
+# Pre-W2 : sleeve is null → text absent → assertion RED.
+# Post-W2 (PR #582 Option A) : sleeve auto-fires on open → text present
+# → assertion GREEN. This is the canonical « overlay populated » proof
+# that the existing structural flow does NOT catch.
+- extendedWaitUntil:
+    visible:
+      text: ".*Tape une question pour creuser.*"
+    timeout: 5000
+- assertVisible:
+    text: ".*Tape une question pour creuser.*"
+
+# ── Step 9 — SC-2 LOCK : header FR label, NOT raw enum « explain » ────
+# Verifies W2-T3 ARB sweep is wired : the overlay header renders the
+# verbatim FR label (« Explique-moi »), not the bare API enum value.
+# Note : the action-bar « Explique-moi » chip is technically still in
+# the view tree behind the overlay scrim ; Maestro's text matcher may
+# see either. The assertion still catches the « raw enum 'explain' »
+# regression (which would be a different string entirely) and that's
+# the load-bearing case for SC-2. Strict overlay-subtree scoping is
+# deferred to v2.10 (would require Flutter Semantics(identifier:) refit
+# per M001).
+- assertVisible:
+    text: ".*Explique-moi.*"
+
+# ── Step 10 — Negative assertion : raw enum « explain » must NOT leak ─
+# This is the explicit anti-regression : if W2-T3 ARB sweep is reverted,
+# the overlay header rolls back to the raw enum « explain ». Asserts
+# the lowercase English token is absent — locks the FR-FIRST voice
+# contract per CLAUDE.md §2 and VOICE_SYSTEM.md.
+- assertNotVisible:
+    text: "^explain$"
+
+# ─── P004 SEMANTIC LOCK COMPLETE ───────────────────────────────────────
+# Steps 8 + 9 + 10 are the W3-T4-stripped contract. Pre-W2 build :
+# Step 8 fails RED (body empty). Post-W2 build : all 3 GREEN.
+#
+# Deferred per v2.10 §M.5 TODO list (97.5-PLAN.md plan-check v3 Defect
+# #4 + julien-go MUST-only cut) :
+#   - bug__F001_S001_combined__chat_via_cap_du_jour.yaml — extend with
+#     the same semantic anchor (Step 8 equivalent)
+#   - bug__S005__landing_anonymous_cta_to_home.yaml — add cap_du_jour
+#     content check
+# Both move to v2.10 ; this new flow is the canonical lock for v2.9.

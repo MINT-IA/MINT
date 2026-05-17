@@ -20,6 +20,10 @@ class SnapshotModel(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
     trigger = Column(String, nullable=False)  # quarterly, life_event, profile_update, check_in
     model_version = Column(String, default="1.0", nullable=False)
+    # Hotfix B 2026-05-17 — sha256 of active RegulatoryRegistry params at compute time.
+    # Enables LSFin reconstruction of the regulatory snapshot that produced this row.
+    # Nullable for backfill compat; populated by snapshot_service writer on new rows.
+    constants_version_hash = Column(String(64), nullable=True)
 
     # Core inputs
     age = Column(Integer, default=0, server_default=text("0"))

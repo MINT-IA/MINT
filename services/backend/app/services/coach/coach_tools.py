@@ -330,7 +330,8 @@ COACH_TOOLS: list[dict[str, Any]] = [
                         "screen is relevant. Shown to the user before navigation. "
                         "Must be educational and non-prescriptive. "
                         "Use conditional language ('pourrait', 'dans ce scénario'). "
-                        "Never use banned terms (garanti, optimal, tu devrais)."
+                        "Never use LSFin-forbidden terms (see swiss-brain.md §1 + "
+                        "ComplianceNarratorBundle for the verbatim banned list)."
                     ),
                 },
                 "prefill": {
@@ -608,7 +609,11 @@ COACH_TOOLS: list[dict[str, Any]] = [
             "JSON list of next actions based on what MINT knows and "
             "doesn't know about the user.\n\n"
             "Examples of returned suggestions:\n"
-            "  - 'Dis-moi ton salaire net mensuel' (profile gap)\n"
+            # B2 fix (2026-05-08) : example must NOT bias the LLM toward a
+            # salaried-active archetype (4/8 archetypes only). Use a
+            # money-source question that covers indépendant, retraité,
+            # étudiant, expat_us in transition, etc. (CLAUDE.md NEVER #4 + #7).
+            "  - 'D'où vient ton argent ? (salaire, dividendes, rente, autre)' (profile gap)\n"
             "  - 'Upload ton certificat LPP' (missing document)\n"
             "  - 'Configure ton budget' (no budget set up)\n"
             "  - 'Simule ton rachat LPP' (has avoirLpp + buybackMax)\n"
@@ -634,10 +639,14 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Get the user's current budget status including monthly free margin, "
-            "savings rate, and budget stage. Use when you need to reason about "
-            "the user's financial situation, remaining budget, or spending capacity. "
-            "Returns structured data as text. This tool is handled internally."
+            "Calcule le bilan budgétaire mensuel (revenus moins charges fixes et "
+            "dépenses récurrentes) basé sur le profil utilisateur et les "
+            "transactions disponibles, en prenant en compte les obligations légales "
+            "de cotisation salariale (LAVS art. 5, LPP art. 7-8, LACI art. 3). "
+            "Produit la marge libre CHF/mois, le taux d'épargne, le stade "
+            "budgétaire et la capacité de financement résiduelle. Mots-clés : "
+            "budget, marge, dépenses, épargne, salaire, charges, liquidité, "
+            "capacité financière, train de vie."
         ),
         "input_schema": {
             "type": "object",
@@ -650,10 +659,13 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Get the user's retirement projection including replacement rate, "
-            "projected gap, and pillar breakdown. Use when the user asks about "
-            "retirement income, pension, or how much they will receive. "
-            "Returns structured data as text. This tool is handled internally."
+            "Projette la rente totale à la retraite en cumulant AVS (LAVS art. 21 "
+            "+ 35 cap couple), LPP (art. 14 taux de conversion) et 3a (LIFD art. 33 "
+            "al. 1 let. e) selon l'âge, le salaire brut, les années de cotisation et "
+            "le canton du profil. Produit la rente CHF/mois projetée, le taux de "
+            "remplacement par rapport au revenu actuel et la décomposition par "
+            "pilier. Mots-clés : retraite, rente, AVS, LPP, 3a, pension, pilier, "
+            "anticipée, différée, taux de remplacement, prévoyance."
         ),
         "input_schema": {
             "type": "object",
@@ -666,10 +678,13 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Get cross-pillar optimization insights: 3a gap, LPP buyback potential, "
-            "tax optimization, and coordination between pillars. Use when the user "
-            "asks about optimizing their financial situation across pillars. "
-            "Returns structured data as text. This tool is handled internally."
+            "Analyse les trois piliers cumulés (AVS LAVS art. 18 + LPP art. 14 "
+            "+ 3a LIFD art. 33 al. 1 let. e) pour identifier les écarts de "
+            "couverture et les arbitrages chiffrés entre piliers selon le canton "
+            "et l'âge du profil. Compare le potentiel de rachat LPP, le gap 3a "
+            "annuel et l'effet fiscal estimé. Produit une vue cross-pilier avec "
+            "leviers possibles. Mots-clés : 3a, LPP, AVS, rachat, arbitrage, "
+            "prévoyance, déduction fiscale, plafond, pilier."
         ),
         "input_schema": {
             "type": "object",
@@ -682,10 +697,13 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Get the user's current Cap du jour (priority action), sequence progress, "
-            "and next recommended step. Use when you need to know what the user "
-            "should focus on next or their progress toward their financial goal. "
-            "Returns structured data as text. This tool is handled internally."
+            "Estime la capacité d'emprunt hypothécaire selon les règles FINMA/ASB "
+            "(LCC art. 28, taux théorique 5%, charges max 33% du revenu brut, "
+            "fonds propres min 20% dont max 10% issu du 2e pilier) en croisant "
+            "salaire brut, épargne disponible, avoirs 3a et LPP du profil. Produit "
+            "le prix d'achat plafond CHF, le delta vs propriété visée et le Cap du "
+            "jour (action prioritaire). Mots-clés : hypothèque, achat, immobilier, "
+            "fonds propres, charges, propriété, financement, capacité."
         ),
         "input_schema": {
             "type": "object",
@@ -698,12 +716,13 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Get couple-level financial optimization analysis. Compares scenarios "
-            "for the user and their partner: who should buy back LPP first, who "
-            "should contribute to 3a first (FATCA-aware), AVS couple cap impact, "
-            "and marriage penalty analysis. Use when the user is in a couple and "
-            "asks about joint financial decisions, partner coordination, or "
-            "marriage impact. This tool is handled internally."
+            "Compare les arbitrages financiers d'un couple (mariage CC art. 159 vs "
+            "concubinage) selon les deux cantons, revenus et archétypes (FATCA pour "
+            "expat US). Estime l'écart d'impôt CHF/an, l'effet du cap AVS couple "
+            "(LAVS art. 35, plafond 150%), l'ordre de rachat LPP entre conjoints "
+            "et l'impact 3a. Produit les scénarios chiffrés sans ranking. "
+            "Mots-clés : couple, mariage, concubinage, conjoint, partenaire, "
+            "fiscal, FATCA, splitting, rachat, cap AVS."
         ),
         "input_schema": {
             "type": "object",
@@ -780,7 +799,7 @@ COACH_TOOLS: list[dict[str, Any]] = [
                     "type": "string",
                     "description": (
                         "Coach summary to display to user "
-                        "(e.g. 'Parfait, 500 CHF sur le 3a et 200 CHF en épargne libre. C'est noté\u00a0!')"
+                        "(e.g. 'C'est noté, 500 CHF sur le 3a et 200 CHF en épargne libre. C'est noté\u00a0!')"
                     ),
                 },
             },
@@ -1222,4 +1241,49 @@ def get_llm_tools() -> list[dict[str, Any]]:
     return [
         {k: v for k, v in tool.items() if k in _LLM_ALLOWED_FIELDS}
         for tool in COACH_TOOLS
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Phase 91 Wave 2 — narrator-only tool list (excludes save_fact + save_insight)
+# ---------------------------------------------------------------------------
+#
+# When COACH_DUAL_LLM_ENABLED=True (CONTEXT D-12), the narrator LLM no longer
+# owns fact capture — that responsibility moves to the dedicated extractor
+# LLM running in `app.services.coach.llm_extractor`. The narrator's tool
+# surface is narrowed to delivery-only tools (route_to_screen, show_*,
+# get_*, etc.). Removing save_fact + save_insight from the tool list is
+# the structural prereq for Phase 94 CITATION-GATE — a narrator that has
+# no fact-write tool cannot silently emit uncited numbers via the
+# tool-call channel.
+#
+# CONTEXT D-05 + EXTR-04 resolution: this Wave 2 EXCLUDES save_insight
+# from the narrator's tools per EXTR-04 + RESEARCH §3 + the milestone
+# architectural commitment ("2 prompts, 2 guardrails, 2 budgets"). The
+# OWNERSHIP question (who detects narrative insights — extractor or
+# narrator) is preserved: D-05 says insight detection is narrative
+# judgment, so a follow-up phase MAY re-introduce save_insight as a
+# NARRATOR tool if under-call symptoms emerge in Stage 3 narrator eval.
+# Until then, insight capture falls back to the regex/heuristic floor
+# (today's degraded baseline). Documented in 91-02-SUMMARY.md.
+_NARRATOR_EXCLUDED_TOOLS: set[str] = {"save_fact", "save_insight"}
+
+
+def get_narrator_llm_tools() -> list[dict[str, Any]]:
+    """Narrator-scoped tool list (Phase 91 Wave 2, EXTR-04).
+
+    Returns COACH_TOOLS minus the fact-capture tools (`save_fact`,
+    `save_insight`). Tool DEFINITIONS remain in COACH_TOOLS — the legacy
+    single-LLM path (`get_llm_tools()`) still uses them. Only this
+    helper's output is filtered.
+
+    Tradeoff (D-05 vs EXTR-04): see module-level _NARRATOR_EXCLUDED_TOOLS
+    comment. EXTR-04 wins on tool list scope; D-05's ownership question
+    on save_insight is deferred to a follow-up phase.
+    """
+    _LLM_ALLOWED_FIELDS = {"name", "description", "input_schema"}
+    return [
+        {k: v for k, v in tool.items() if k in _LLM_ALLOWED_FIELDS}
+        for tool in COACH_TOOLS
+        if tool.get("name") not in _NARRATOR_EXCLUDED_TOOLS
     ]

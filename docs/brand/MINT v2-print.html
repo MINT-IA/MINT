@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>MINT v2 — Print</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="preconnect" href="https://api.fontshare.com"/>
+<link href="https://api.fontshare.com/v2/css?f[]=supreme@400,500,600&f[]=rosaline@400&f[]=gambarino@400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ui: 'Supreme', 'Neue Haas Grotesk Display', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    --display: 'Gambarino', 'PP Editorial New', 'GT Sectra', Canela, serif;
+  }
+  html, body { margin: 0; padding: 0; background: #f0eee9; font-family: var(--ui); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  * { box-sizing: border-box; }
+
+  /* Screen view: a clean, paged stack so it looks correct even before print */
+  .page {
+    width: 297mm; min-height: 209mm;
+    margin: 12px auto;
+    background: #f0eee9;
+    padding: 16mm 14mm;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  .page-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 14mm;
+  }
+  .eyebrow { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(0,0,0,0.45); }
+  .page-title { font-family: var(--display); font-style: italic; font-size: 32px; line-height: 1; color: #111; margin: 6px 0 0; letter-spacing: -0.01em; }
+  .page-sub { font-size: 13px; color: rgba(0,0,0,0.55); margin-top: 6px; max-width: 200mm; }
+  .phones-row {
+    display: flex; gap: 24px; align-items: flex-start; justify-content: center;
+    flex-wrap: wrap;
+  }
+  .phone-cell { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .phone-label { font-size: 11px; color: rgba(0,0,0,0.55); letter-spacing: 0.04em; }
+  .phone-shrink {
+    /* phones are 380x800 — fit 3 per landscape page comfortably */
+    transform: scale(0.78);
+    transform-origin: top center;
+    width: 380px; height: 800px;
+  }
+  .phone-cell-frame {
+    width: calc(380px * 0.78); height: calc(800px * 0.78);
+    overflow: hidden;
+  }
+  .brand-card {
+    width: 100%; max-width: 740px; margin: 0 auto;
+  }
+  .notes-card { width: 100%; max-width: 740px; margin: 0 auto; }
+  #root { background: transparent; }
+  .footer-meta {
+    margin-top: auto; padding-top: 10mm;
+    display: flex; justify-content: space-between;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(0,0,0,0.4);
+  }
+
+  @page { size: A4 landscape; margin: 0; }
+  @media print {
+    html, body { background: #f0eee9; }
+    .page {
+      margin: 0; box-shadow: none; width: 297mm; height: 210mm; min-height: 210mm;
+      page-break-after: always; break-after: page;
+      break-inside: avoid;
+    }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+  }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="mint-v2/tokens.jsx"></script>
+<script type="text/babel" src="mint-v2/primitives.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-landing.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-onboarding.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-aujourdhui.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-lpp.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-coach.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-coach-empty.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-plan.jsx"></script>
+<script type="text/babel" src="mint-v2/screen-hypotheque.jsx"></script>
+
+<script type="text/babel">
+const SLOGAN = ['L\'argent,\nen clair.', 'Ta Suisse financière, traduite.'];
+const PALETTE_KEY = 'menthe';
+
+function PhoneCell({ Component, label, palette, props = {} }) {
+  return (
+    <div className="phone-cell">
+      <div className="phone-cell-frame">
+        <div className="phone-shrink">
+          <Phone palette={palette}>
+            <Component palette={palette} {...props}/>
+          </Phone>
+        </div>
+      </div>
+      <div className="phone-label">{label}</div>
+    </div>
+  );
+}
+
+function Page({ section, title, subtitle, children, footer = 'MINT v2' }) {
+  return (
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <div className="eyebrow">{section}</div>
+          <h1 className="page-title">{title}</h1>
+          {subtitle && <div className="page-sub">{subtitle}</div>}
+        </div>
+        <div className="eyebrow" style={{ alignSelf: 'flex-end' }}>MINT — Refondation v2</div>
+      </div>
+      {children}
+      <div className="footer-meta">
+        <span>{footer}</span>
+        <span>Palette · Menthe vive · Slogan · L'argent, en clair.</span>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const p = PALETTES[PALETTE_KEY];
+
+  return (
+    <>
+      {/* Page 1 — Identité */}
+      <Page section="00 · Identité" title="MINT — identité verrouillée"
+            subtitle="Palette Menthe vive · Supreme (UI) + Gambarino (display)">
+        <div className="brand-card">
+          <div style={{
+            padding: 40, background: p.bg, color: p.ink,
+            fontFamily: 'var(--ui)', position: 'relative', overflow: 'hidden',
+            border: '1px solid rgba(0,0,0,0.08)',
+          }}>
+            <div style={{
+              position: 'absolute', top: 40, right: 40, width: 52, height: 52, borderRadius: 26,
+              background: p.accent,
+            }}/>
+            <div>
+              <div style={{ ...SCALE.eyebrow, color: p.inkMute, marginBottom: 16 }}>MINT</div>
+              <div style={{ ...SCALE.displayL, color: p.ink, marginBottom: 14 }}>
+                {SLOGAN[0].split('\n').map((l,i) => <div key={i}>{l}</div>)}
+              </div>
+              <div style={{ ...SCALE.bodyLg, color: p.inkSoft, maxWidth: 420 }}>{SLOGAN[1]}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 28, ...SCALE.meta, color: p.inkSoft, marginTop: 36 }}>
+              <div><span style={{ color: p.ink, fontWeight: 500 }}>Supreme</span> · UI</div>
+              <div><span style={{ color: p.ink, fontFamily: 'var(--display)', fontStyle: 'italic', fontSize: 14 }}>Gambarino</span> · display</div>
+            </div>
+          </div>
+        </div>
+      </Page>
+
+      {/* Page 2 — Entrée */}
+      <Page section="01 · Entrée" title="La première seconde compte"
+            subtitle="Landing + onboarding. Une idée par écran.">
+        <div className="phones-row">
+          <PhoneCell Component={ScreenLanding}    label="01 · Landing"    palette={p} props={{ slogan: SLOGAN }}/>
+          <PhoneCell Component={ScreenOnboarding} label="02 · Onboarding" palette={p}/>
+        </div>
+      </Page>
+
+      {/* Page 3 — Quotidien */}
+      <Page section="02 · Quotidien" title="Un chiffre à retenir"
+            subtitle="Hub + le moment insolent qui accroche.">
+        <div className="phones-row">
+          <PhoneCell Component={ScreenAujourdhui} label="03 · Aujourd'hui" palette={p}/>
+          <PhoneCell Component={ScreenLPP}        label="04 · Scan LPP"   palette={p}/>
+        </div>
+      </Page>
+
+      {/* Page 4 — Coach */}
+      <Page section="03 · Coach" title="Kit d'artefacts, pas card unique"
+            subtitle="Décision · comparaison · trajectoire · sensibilité. Le coach dessine en parlant.">
+        <div className="phones-row">
+          <PhoneCell Component={ScreenCoachEmpty} label="05a · Coach (vide)"      palette={p}/>
+          <PhoneCell Component={ScreenCoach}      label="05b · Coach (artefacts)" palette={p}/>
+          <PhoneCell Component={ScreenPlan}       label="06 · Trajectoire"        palette={p}/>
+        </div>
+      </Page>
+
+      {/* Page 5 — Densité justifiée */}
+      <Page section="04 · Densité" title="Quand la densité est justifiée"
+            subtitle="Parcours complet. Chiffres groupés, pas éparpillés.">
+        <div className="phones-row">
+          <PhoneCell Component={ScreenHypotheque} label="07 · Hypothèque" palette={p}/>
+        </div>
+      </Page>
+
+      {/* Page 6 — Notes */}
+      <Page section="05 · Grammaire" title="Notes de grammaire"
+            subtitle="Ce qui change vs v1.">
+        <div className="notes-card">
+          <div style={{ padding: 32, background: p.bg, color: p.ink, fontFamily: 'var(--ui)', border: '1px solid rgba(0,0,0,0.08)' }}>
+            <div style={{ ...SCALE.eyebrow, color: p.inkMute, marginBottom: 14 }}>Grammaire MINT v2</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 40, rowGap: 22 }}>
+              {[
+                ['Une idée / écran', 'Pas de mur de cartes. Le chiffre parle, pas l\'UI.'],
+                ['Italique : 2 écrans max', 'Landing + Onboarding. Ailleurs il banalise.'],
+                ['Voix : observer, pas juger', 'Pas "enfin", pas "de justesse", pas "largement mieux".'],
+                ['Chiffre nu = interdit', 'Toujours ConfidenceBand + EnrichmentPrompts à côté.'],
+                ['4 artefacts Coach', 'Décision · comparaison · trajectoire · sensibilité.'],
+                ['Streaming visible', 'Bouton ▶ → ■ + dots animés pendant la génération.'],
+                ['18 events ≠ retraite-app', '"Trajectoire", pas "Plan retraite". Tab neutre.'],
+                ['Dark mode natif', 'Palette dark = 1ʳᵉ classe, pas un afterthought.'],
+              ].map(([k, v]) => (
+                <div key={k}>
+                  <div style={{ ...SCALE.titleS, color: p.ink, marginBottom: 4 }}>{k}</div>
+                  <div style={{ ...SCALE.body, color: p.inkSoft }}>{v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Page>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+// Auto-print after fonts + Babel JSX scripts have all evaluated
+(async () => {
+  try {
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
+  } catch (e) {}
+  // Wait for all babel scripts to have parsed/run
+  await new Promise(r => setTimeout(r, 1200));
+  window.print();
+})();
+</script>
+</body>
+</html>

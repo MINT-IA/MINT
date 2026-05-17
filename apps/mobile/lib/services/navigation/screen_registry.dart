@@ -240,7 +240,10 @@ ReadinessResult gateRachatLppDeep(CoachProfile profile) {
 /// Should only be surfaced for frontaliers (permis G) or users who have
 /// declared employmentStatus as 'frontalier'. Non-frontaliers are blocked.
 ReadinessResult gateFrontalier(CoachProfile profile) {
-  final isPermitG = profile.residencePermit == 'G';
+  // Use isCrossBorder helper so wizard-form values ('permit_g') match
+  // canonical ('G'). See perimeter STUB
+  // .planning/decisions/2026-05-09-perimeter-archetype-input-normalization/.
+  final isPermitG = profile.isCrossBorder;
   final isFrontalierStatus = profile.employmentStatus == 'frontalier';
 
   if (!isPermitG && !isFrontalierStatus) {

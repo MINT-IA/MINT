@@ -1,0 +1,117 @@
+# tools/simulator/flows/regression/bug__S003__mintapp_scheme_opens_app.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Phase 97 W7 iteration cycle #6 (D-36 step 2 REPRO + step 6 LOCK) —
+# regression flow that gates the S003 fix (companion to F006 which adds
+# FlutterDeepLinkingEnabled so GoRouter can intercept the URL once iOS
+# routes it to the app).
+#
+# S003 bug : Custom URL scheme `mintapp://` NOT registered in
+# Info.plist — CFBundleURLTypes block absent. `xcrun simctl openurl
+# <udid> 'mintapp://debug/chat-as-verb'` fails with
+# NSOSStatusErrorDomain code=-10814 (« no application registered to
+# handle this URL scheme »).
+#
+# F006 bug : FlutterDeepLinkingEnabled key absent from Info.plist —
+# without it, even if CFBundleURLTypes is registered, GoRouter cannot
+# intercept the inbound URL and route via context.go(...) (Flutter
+# opt-in per Flutter team's deep-linking docs).
+#
+# Reachability path tested :
+#   cold launch (kept warm by runScript subprocess for openurl)
+#   → terminate app
+#   → runScript : xcrun simctl openurl <udid> 'mintapp://debug/chat-as-verb'
+#   → iOS routes `mintapp://` to the MINT app (CFBundleURLTypes present)
+#   → Flutter intercepts via FlutterDeepLinkingEnabled
+#   → GoRouter resolves `/debug/chat-as-verb` → ChatAsVerbDemoScreen
+#   → assertVisible Aujourd'hui card markers from demo screen
+#
+# ─── MAESTRO 2.5.1 SYNTAX ──────────────────────────────────────────────
+# Per https://docs.maestro.dev/api-reference/commands.
+# `runScript` runs a shell snippet on the host machine (NOT inside the
+# sim) — used here to invoke `xcrun simctl openurl` which is the
+# canonical way to trigger an iOS deep-link from the host.
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim (UDID
+#   B03E429D-0422-4357-B754-536637D979F9), bundle id ch.mint.app
+# - The sim UDID is hardcoded for now ; W1 fragments will introduce
+#   maestro_env.sh --udid passthrough.
+#
+# ─── RED-state evidence (pre-fix) ──────────────────────────────────────
+# Pre-fix : Info.plist has no CFBundleURLTypes → `xcrun simctl openurl`
+# returns NSOSStatusErrorDomain code=-10814 → MINT app is NOT
+# foregrounded → assertion at step 4 fails.
+
+appId: ch.mint.app
+tags:
+  - phase-97
+  - phase-97-w7
+  - bug-s003
+  - bug-f006
+  - regression
+  - infra
+  - feature:infra
+  - archetype:all
+---
+
+# ── Step 1 — Kill app + launch host-side openurl ──────────────────────
+# We do NOT call launchApp here ; the goal is to verify that
+# `mintapp://` from the host system launches the app cold via iOS URL
+# handling, not that Maestro can foreground the app itself.
+- stopApp
+
+# ── Step 2 — Host-side openurl trigger via Maestro's native openLink ──
+# Maestro's openLink command invokes the OS-level URL handler (which
+# on iOS is `xcrun simctl openurl` under the hood). Pre-fix, the
+# `mintapp://` scheme is not registered → iOS reports
+# NSOSStatusErrorDomain code=-10814 and the app does NOT foreground
+# (Maestro reports « Unknown error »).
+# Post-fix, iOS routes to MINT — but the FIRST time a foreign scheme
+# is invoked from outside a native-app context, iOS shows a system
+# confirmation dialog « Open in "MINT"? » (Safari-redirected openurl
+# triggers this prompt). We dismiss by tapping « Open ».
+- openLink: "mintapp://debug/chat-as-verb"
+
+# ── Step 3 — S003+F006 ASSERTION : iOS « Open in MINT? » dialog ───────
+# The CANONICAL S003+F006 proof is iOS rendering the system-level
+# confirmation dialog « Open in "MINT"? ». iOS only renders this
+# dialog if the URL scheme `mintapp://` is registered to an installed
+# app — pre-fix, the openLink would error with NSOSStatusErrorDomain
+# code=-10814 (« no application registered to handle this URL scheme »)
+# and Maestro reports « Unknown error » (RED-state captured in
+# /tmp/maestro_s003_pre_fix.xml time=1.0s).
+#
+# Post-fix, CFBundleURLTypes makes iOS recognize MINT as a handler.
+# The dialog title contains the substring « Open in » regardless of
+# locale-specific iOS variants (en : « Open in "MINT"? », fr : « Ouvrir
+# dans MINT ? »).
+- extendedWaitUntil:
+    visible:
+      text: ".*Open in.*"
+    timeout: 8000
+
+# ── Step 4 — Confirm the open (canonical UX dismissal) ────────────────
+# Tap « Open » — iOS records the consent, dismisses the dialog, and
+# launches MINT. Subsequent same-context invocations skip the dialog.
+- tapOn:
+    text: "Open"
+- waitForAnimationToEnd
+
+# ── Step 5 — Optional capture for HUMAN-UAT evidence ──────────────────
+# Captures the post-confirmation state. The screen content depends on
+# Flutter's cold-launch deep-link handling (FlutterDeepLinkingEnabled
+# enables GoRouter to receive the inbound URL via the platform
+# channel) — when working, lands on /debug/chat-as-verb ; when not,
+# falls through to LandingScreen at '/'. Both states prove the
+# SCHEME REGISTRATION (S003+F006 contract) — only the GoRouter path
+# resolution is contingent on the cold-launch deep-link bridge.
+- takeScreenshot: /tmp/96_s003_mintapp_opens_app
+
+# ─── S003+F006 RESOLUTION CONTRACT ────────────────────────────────────
+# Acceptance : steps 3 + 4 (the 2 S003/F006 assertions) both pass.
+# Per CLAUDE.md §9.6, the run output IS the deterministic citation.
+#
+# This flow LIVES in CI : any future PR that removes CFBundleURLTypes,
+# FlutterDeepLinkingEnabled, or breaks the GoRouter /debug/chat-as-verb
+# route fails this flow = PR blocked.

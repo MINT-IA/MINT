@@ -48,6 +48,9 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 - ✓ Anonymous flow `/anonymous/intent` route wired + error mapping — v2.8 (decimal 30.14-30.15)
 - ✓ Backend README first-run + ANTHROPIC_API_KEY documented — v2.8 (decimal 30.16)
 - ✓ MVP wedge T9 email-demain killed + DESIGN.md spec — v2.8 (decimal 30.17)
+- ✓ Closed-world citation gate (GATE-01..GATE-04) — Phase 94 mvp-citation-gate (v2.9). `citation_parser.gate()` + 18-key `CITATION_REGISTRY` + `_run_narrator_with_gate()` retry-once-or-fallback wrapper at `coach_chat.py:3339-3376`. 170 unit tests green, byte-identity flag-OFF invariant on prod, staging flag ON for 4-week diagnostic soak. Julien NO-GO + PARTIAL approval 2026-05-10 — prod-flip blocked on Wave 4 narrator-prompt fattening (Stage 3 thresholds 6%/14% vs ≥95%/≥90% targets, root cause = narrator prompt lacks `{{cite:<key>}}` placeholder grammar).
+- ✓ Narrator citation-grammar fragment (Phase 94.1 mvp-narrator-prompt-fattening, v2.9). 18-key `CITATION_GRAMMAR_FRAGMENT` built from `CITATION_REGISTRY` at module-import, Path C hybrid (single source of truth + dual consumers + byte-identity preservation). Stage 3 lifted Sonnet 6→20% and Haiku 14→20% (valid_citation Sonnet 1/20→9/20, +800%); thresholds NOT MET, iter 2 hypothesis H1 (intent-driven key grouping) filed as backlog 999.5.
+- ✓ DAG invalidation foundation (DAG-01..DAG-04) — Phase 95 mvp-dag-invalidation (v2.9). `inputs_hash.py` SHA256+JCS(rfc8785)+Decimal(2) + `projection_id.py` UUID7 via uuid_utils backport + `staleness.py` production module + alembic additive migration on ScenarioModel + 50/50 Python↔Dart hash parity via Path A pure-Dart harness + `ProjectionGroundingPack` Pydantic v2 frozen+forbid + 3-point Pareto scalarisation + ±10% sensitivity + bootstrap CIs 200-iter + double-lookup `_substitute_placeholders` with Sentry breadcrumb on fallback + `banned_terms_python.py --lsfin-annotation` rule. 6522 backend tests green (+74 vs Phase 94 baseline 6448), byte-identity preserved. SC#1/SC#2 partial — Dart financial_core field additions DEFERRED to Phase 96 W2.
 
 ### Active
 
@@ -121,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-25 after v2.8 close (gaps_found, 5/9 phases shipped + 13 decimals) and v2.9 « Coach Visuel Hybride » open*
+*Last updated: 2026-05-11 after Phase 95 MVP-DAG-INVALIDATION close (verifier PASSED, 2/2 plans landed, DAG-01..DAG-04 verified in code, 15/15 observable truths, 6522 backend tests green, byte-identity preserved, Python↔Dart hash parity 50/50). Milestone v2.9 Chat-as-Verb Pivot — phases 90/91/91.5/92/92.5/93/93.5/94/94.1/95 closed ; Phase 96 (CHAT-AS-VERB, final phase) next. Phase 94.2 narrator-prompt iter 2 filed as backlog 999.5. NOTE: the « v2.9 Coach Visuel Hybride / phases 40-43 » block earlier in this doc reflects a stale milestone snapshot from 2026-04 ; the live milestone per ROADMAP.md + STATE.md is « Chat-as-Verb Pivot » with phases 90-96 — needs a PROJECT.md refresh separately.*

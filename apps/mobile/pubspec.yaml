@@ -2,7 +2,7 @@ name: mint_mobile
 description: Mint - Financial mentor mobile app
 publish_to: 'none'
 
-version: 2.12.0+2
+version: 2.12.3+60
 
 environment:
   sdk: ^3.6.0
@@ -18,7 +18,6 @@ dependencies:
   go_router: ^13.2.0
   intl: any  # Pinned by flutter_localizations SDK — do not constrain further
   url_launcher: ^6.2.0
-  google_fonts: ^6.3.3  # 6.3.3+ required for Dart 3.11 / Flutter 3.41 (FontWeight const map fix)
   uuid: ^4.0.0
   pdf: ^3.10.8
   printing: ^5.12.0
@@ -55,6 +54,14 @@ dependencies:
   sqflite_sqlcipher: ^3.1.0+1
   path_provider: ^2.1.0
   path: ^1.9.0  # pinned by integration_test from SDK
+  # Phase 96 D-17 — metaphor TOML library asset loading
+  toml: ^0.16.0
+  # Phase 97 W7 iter#5 (T001 EXIF leak) — direct dep promotion of the
+  # already-transitive image package. Used by lib/services/exif_scrub.dart
+  # to strip GPS / DateTime / Make / Model / Software EXIF tags from
+  # photos BEFORE they leave the device on the Vision API path.
+  # GDPR Art. 5(1)(c) data minimization + Swiss DSG/LPD Art. 8 security.
+  image: ^4.1.2
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +69,32 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  # S98 Phase 5.X — auto-upload Dart obfuscation maps + iOS dSYMs to
+  # Sentry after `flutter build`. Without this, every TestFlight crash
+  # lands in Sentry as obfuscated Dart tokens (file paths look like
+  # `package:mint_mobile/foo/0x4f2`) instead of source-line resolved.
+  # Activation env vars (set as GitHub Secrets — see testflight.yml) :
+  #   SENTRY_AUTH_TOKEN (sntryu_... user token, scope project:read +
+  #     project:write + project:releases + org:read)
+  #   SENTRY_ORG=moneyint
+  #   SENTRY_PROJECT=mint-mobile
+  # Plugin no-ops cleanly if env vars are absent (dev local build path).
+  sentry_dart_plugin: ^2.0.0
+
+sentry:
+  # S98 Phase 5.X — sentry_dart_plugin config. Plugin runs as a post-
+  # `flutter build` hook (invoked via `dart run sentry_dart_plugin`)
+  # and uploads dSYMs + the obfuscation map to Sentry. `upload_sources`
+  # is FALSE — we deliberately do not upload Dart source code (the
+  # symbolicated stack trace is enough ; sources would inflate the
+  # PII / IP-leak surface).
+  upload_debug_symbols: true
+  upload_sources: false
+  upload_source_maps: false
+  # `org` + `project` + `auth_token` resolved from env vars at build
+  # time (set as GitHub Secrets, exposed by testflight.yml). Plugin
+  # falls back to a `sentry.properties` file if env vars are absent
+  # — that file is .gitignored (devs may create it locally).
 
 flutter:
   generate: true
@@ -79,3 +112,28 @@ flutter:
     - assets/config/tax_scales_2024.json
     - assets/config/personas.json
     - assets/config/commune_multipliers.json
+    # Phase 96 D-17 — metaphor library v1 bootstrap (loaded at app boot
+    # by MetaphorLookup.loadFromAssets() ; byte-equal mirror at
+    # services/backend/app/data/metaphors.toml, parity enforced by
+    # tools/checks/metaphor_parity.py + lefthook).
+    - assets/metaphors.toml
+
+  # Phase 92-01 — MVP-FONTS-TOKENS-V2 — Fontshare Supreme + Gambarino bundled .otf
+  # License: apps/mobile/assets/fonts/LICENSE-{SUPREME,GAMBARINO}.txt (Indian Type Foundry FF EULA)
+  # Note: Supreme weight 700 ("Bold") is the closest available substitute for the design system's "Semibold"
+  #       (Fontshare ships 100/200/300/400/500/700/800 — no 600). See 92-01-SUMMARY.md.
+  # Note: Gambarino italic is synthesized via style: italic; Fontshare only ships Gambarino-Regular upright.
+  fonts:
+    - family: Supreme
+      fonts:
+        - asset: assets/fonts/Supreme-Regular.otf
+          weight: 400
+        - asset: assets/fonts/Supreme-Medium.otf
+          weight: 500
+        - asset: assets/fonts/Supreme-Bold.otf
+          weight: 700
+    - family: Gambarino
+      fonts:
+        - asset: assets/fonts/Gambarino-Regular.otf
+          style: italic
+          weight: 400

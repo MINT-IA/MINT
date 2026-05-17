@@ -1,0 +1,155 @@
+name: Regulatory codegen sync (D-08 + D-16 mint-data-architecture-v1-01)
+
+# Phase mint-data-architecture-v1-01-calc-engine-canonical Plan 04 Task 2.
+# SOFT-WARN against staging with concrete 7/14/28-day aging policy (codex
+# HIGH #3 fix) :
+#   * 0-6 days staging-down  → escalation_level 0 (warn only, exit 0)
+#   * 7-13 days staging-down → escalation_level 1 (PR comment, exit 0)
+#   * 14-27 days             → escalation_level 2 (auto-open issue, exit 0)
+#   * >=28 days              → escalation_level 3 (HARD BLOCK exit 1)
+#
+# State file `.planning/state/regulatory-codegen-aging.json` makes the aging
+# auditable and prevents « staging-soft » from becoming invisible long-term
+# drift. Local --check always runs as the safety net so this workflow
+# never silently passes when the registry has drifted.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'services/backend/app/services/regulatory/**'
+      - 'apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart'
+      - 'tools/codegen/regulatory_constants_to_dart.py'
+      - '.github/workflows/regulatory-codegen.yml'
+      - '.planning/state/regulatory-codegen-aging.json'
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  check-staging-then-local:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install backend deps (for local --check fallback + --source local)
+        run: |
+          # Use the project's pyproject if requirements.txt is absent.
+          if [ -f services/backend/requirements.txt ]; then
+            python3 -m pip install -r services/backend/requirements.txt
+          elif [ -f services/backend/pyproject.toml ]; then
+            python3 -m pip install -e services/backend
+          else
+            echo "::error::No requirements.txt or pyproject.toml under services/backend"
+            exit 1
+          fi
+
+      - name: Probe staging health
+        id: staging
+        continue-on-error: true
+        run: |
+          if curl -sf -m 10 https://mint-staging.up.railway.app/api/v1/regulatory/constants/version > /dev/null; then
+            echo "staging_up=true" >> $GITHUB_OUTPUT
+          else
+            echo "staging_up=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update aging state + run --check (staging UP)
+        if: steps.staging.outputs.staging_up == 'true'
+        env:
+          DATABASE_URL: "sqlite:///:memory:"
+        run: |
+          # --write against staging to refresh aging state (UP transition) ;
+          # then re-run --check (network-free) to verify the committed file
+          # still matches the local source. If staging differs from the
+          # committed file the contributor must regen.
+          python3 tools/codegen/regulatory_constants_to_dart.py \
+            --source staging \
+            --aging-state-file .planning/state/regulatory-codegen-aging.json \
+            --json \
+            --write \
+            --output /tmp/staging-snapshot.g.dart || true
+          # Compare staging hash to committed hash.
+          STAGING_HASH=$(grep -oE "regulatoryConstantsVersionHash = '[0-9a-f]{64}'" /tmp/staging-snapshot.g.dart | grep -oE "[0-9a-f]{64}")
+          COMMITTED_HASH=$(grep -oE "regulatoryConstantsVersionHash = '[0-9a-f]{64}'" apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart | grep -oE "[0-9a-f]{64}")
+          echo "staging_hash=$STAGING_HASH"
+          echo "committed_hash=$COMMITTED_HASH"
+          if [ "$STAGING_HASH" != "$COMMITTED_HASH" ]; then
+            echo "::error::Staging hash differs from committed Dart file. Regen via: python3 tools/codegen/regulatory_constants_to_dart.py --source staging --write"
+            exit 1
+          fi
+
+      - name: Update aging state (staging DOWN)
+        if: steps.staging.outputs.staging_up == 'false'
+        id: aging
+        env:
+          DATABASE_URL: "sqlite:///:memory:"
+        run: |
+          # --write against staging will fail-and-fallback to local, which
+          # writes the aging state file with the DOWN escalation level.
+          # We redirect to a temp output so the committed file is untouched
+          # and capture the aging level for downstream steps.
+          python3 tools/codegen/regulatory_constants_to_dart.py \
+            --source staging \
+            --aging-state-file .planning/state/regulatory-codegen-aging.json \
+            --json \
+            --write \
+            --output /tmp/staging-snapshot.g.dart || true
+          LEVEL=$(python3 -c "import json; print(json.load(open('.planning/state/regulatory-codegen-aging.json'))['escalation_level'])")
+          echo "escalation_level=$LEVEL" >> $GITHUB_OUTPUT
+          echo "Escalation level after staging-down: $LEVEL"
+
+      - name: Local fallback --check (always runs as safety net)
+        env:
+          DATABASE_URL: "sqlite:///:memory:"
+        run: |
+          python3 tools/codegen/regulatory_constants_to_dart.py --check --source local
+
+      - name: Escalation level 1 (>= 7 days down) — post PR comment
+        if: steps.staging.outputs.staging_up == 'false' && steps.aging.outputs.escalation_level == '1'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '[aging-level-1] regulatory-codegen has been operating against the local fixture for 7+ days — staging drift is invisible. Restore staging or accept potential drift.'
+            });
+
+      - name: Escalation level 2 (>= 14 days down) — auto-open issue
+        if: steps.staging.outputs.staging_up == 'false' && steps.aging.outputs.escalation_level == '2'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '[STAGING-AGING] regulatory-codegen drift visibility blocked';
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'staging-aging'
+            });
+            if (!issues.data.some(i => i.title === title)) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: 'Staging has been down for 14+ days. regulatory-codegen drift is invisible. Restore staging or merge an explicit allowlist PR.',
+                labels: ['staging-aging', 'mint-data-architecture-v1-01']
+              });
+            }
+
+      - name: Escalation level 3 (>= 28 days down) — HARD BLOCK
+        if: steps.staging.outputs.staging_up == 'false' && steps.aging.outputs.escalation_level == '3'
+        run: |
+          echo "::error::regulatory-codegen aging escalation level 3 — staging down >= 28 days. HARD BLOCK enforced. Restore staging or merge an allowlist PR."
+          exit 1

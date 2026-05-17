@@ -1,0 +1,135 @@
+# tools/simulator/flows/maestro-perfect-set/flow_3a_calculator.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Validates the Pilier 3a simulator end-to-end :
+#   /pilier-3a → render with default profile → tweak rate slider →
+#   assert tax savings chip + LSFin disclaimer block.
+#
+# This is a CORE financial-core gate. Simulator3aScreen reads
+# CoachProfile.salaireBrutMensuel, applies the 3a contribution and
+# 30 % marginal rate (slider-driven), and renders « Gain fiscal annuel »
+# via the financial_core/avs_calculator path.
+#
+# Catches :
+#   - pilier-3a route regression (was broken in PR #511 redirect).
+#   - sim3aTitle drift in app_fr.arb (multi-language parity gate).
+#   - LSFin compliance regression (banned terms must NOT appear in
+#     the disclaimer line).
+#
+# ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
+# Best run with `MINT_E2E_ARCHETYPE=julien_swiss` so the seeded profile
+# has salaireBrutMensuel > 0, otherwise the simulator falls back to
+# placeholder default and the « Gain fiscal annuel » value is 0.
+# Seed dart-define is OPTIONAL ; flow assertions tolerate the placeholder
+# state (see assertions below).
+#
+# ─── EXPECTED DURATION ─────────────────────────────────────────────────
+# < 20s wall-clock (cold launch + 1 deep-link + 2 scrolls + 4 shots).
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
+# - Harness deep-links to /pilier-3a via :
+#     `xcrun simctl openurl booted ch.mint.app://pilier-3a`
+#   before invoking maestro test. (Same caveat as flow_drawer_navigation
+#   _smoke.yaml — deep-link IS wired in app.dart:686 ScopedGoRoute, so
+#   this is the supported path.)
+# - Recommended dart-defines :
+#     MINT_E2E_ARCHETYPE=julien_swiss
+#     MINT_DISABLE_BETA_MODAL=true
+#
+# ─── LOCATOR STRATEGY ──────────────────────────────────────────────────
+# All literal FR strings from app_fr.arb :
+#   sim3aTitle              = "Ton 3e pilier"
+#   sim3aParamsHeader       = "Tes paramètres"
+#   sim3aAnnualTaxSaved     = "Gain fiscal annuel"
+#   sim3aStrategyHeader     = "Stratégie gagnante"
+#   sim3aExploreAlso        = "Explorer aussi"
+#
+# LSFin compliance :
+#   The screen renders a disclaimer line (sim3a*) which must contain
+#   « hypothèses » or « projection » but MUST NOT contain « garanti »,
+#   « optimal », « meilleur », « certain », « sans risque » (see
+#   CLAUDE.md §1 banned terms). We assertNotVisible for the worst
+#   offenders.
+#
+# ─── OUTPUT ────────────────────────────────────────────────────────────
+# Screenshots :
+#   .planning/walker/maestro-flows/3a-calculator/<run-id>/
+#     ├── 01-3a-screen-loaded.png
+#     ├── 02-params-section.png
+#     ├── 03-result-chip.png
+#     └── 04-strategy-section.png
+
+appId: ch.mint.app
+tags:
+  - calculator
+  - 3a
+  - financial-core
+  - lsfin-compliance
+  - regression-guard
+---
+
+# 01 — assert we're on the 3a simulator (harness pre-deep-linked)
+# Tolerates 8s for cold launch + financial_core init.
+- extendedWaitUntil:
+    visible:
+      text: "Ton 3e pilier"
+    timeout: 10000
+- takeScreenshot: "01-3a-screen-loaded"
+
+# 02 — params section visible (« Tes paramètres » header)
+- extendedWaitUntil:
+    visible:
+      text: "Tes paramètres"
+    timeout: 4000
+- takeScreenshot: "02-params-section"
+
+# 03 — scroll to result section + assert « Gain fiscal annuel » chip
+# The chip is wrapped in Semantics (simulator_3a_screen.dart:588) so
+# it surfaces to Maestro as plain text.
+- scroll
+- extendedWaitUntil:
+    visible:
+      text: "Gain fiscal annuel"
+    timeout: 4000
+- takeScreenshot: "03-result-chip"
+
+# 04 — scroll to strategy section
+- scroll
+- extendedWaitUntil:
+    visible:
+      text: "Stratégie gagnante"
+    timeout: 4000
+
+# 05 — explore-also section (cross-link to comparator + retroactif + …)
+- scroll
+- extendedWaitUntil:
+    visible:
+      text: "Explorer aussi"
+    timeout: 4000
+- takeScreenshot: "04-strategy-section"
+
+# ─── LSFin BANNED-TERM REGRESSION GUARDS ───────────────────────────────
+# These MUST never appear on a calculator screen. If they do, a content
+# author shipped a banned term ; the lint should have caught it but
+# this is the runtime safety net.
+
+- assertNotVisible:
+    text: "garanti"
+- assertNotVisible:
+    text: "rendement garanti"
+- assertNotVisible:
+    text: "sans risque"
+- assertNotVisible:
+    text: "optimal"
+- assertNotVisible:
+    text: "le meilleur"
+
+# ─── KNOWN LIMITATION ──────────────────────────────────────────────────
+# Slider interaction (changing the marginal-rate slider) is NOT scripted
+# here. Maestro 2.5.1 supports `swipe:` on a slider but the slider is
+# referenced by ChoiceChip rate buttons (« 20 %, 25 %, 30 %, 35 % »
+# rendered at simulator_3a_screen.dart:490). Tapping a rate chip would
+# add a 6th step but expand the test surface beyond « calculator
+# renders » into « calculator recomputes » — that's a separate flow
+# (TODO : flow_3a_calculator_rate_change.yaml, deferred).

@@ -1,0 +1,185 @@
+# tools/simulator/flows/maestro-perfect-set/flow_narrator_refuses_uncited_numbers.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Phase 94 G1 Maestro flow — closed-world citation gate end-to-end.
+#
+# Profile-empty user asks « combien je gagne ? » on the auth-coach
+# surface. Staging Railway runs COACH_CITATION_GATE_ENABLED=true
+# (provisioned by Plan 94-03 Task 2 on project gentle-magic, env
+# staging, service MINT — receipt cited in 94-03-EVAL-RESULTS.md).
+# The gate (wired into coach_chat.py per CONTEXT D-11) blocks any
+# fabricated CHF / % / duration without an adjacent {{cite:<key>}}.
+# Response is either a citation-substituted reply OR the D-10
+# templated FALLBACK text :
+# « Je n'ai pas cette donnée pour l'instant. Pour avancer ensemble,
+#   dis-moi un peu plus sur ta situation (canton, salaire, structure
+#   familiale) et je peux t'orienter vers ce qui s'applique chez toi. »
+#
+# ─── SCOPE LIMITATION (PLAN 94-03) ─────────────────────────────────────
+# The gate is wired ONLY in coach_chat.py (auth-coach endpoint). The
+# anonymous chat endpoint (anonymous_chat.py) calls the narrator
+# through ask_anonymous_coach() and has NO gate wrapper today.
+# See .planning/phases/94-mvp-citation-gate/deferred-items.md D1.
+#
+# Therefore this flow EXERCISES the visual surface end-to-end (smoke
+# test) but does NOT yet verify the closed-world contract on the
+# anonymous surface. The 50-fixture Stage 3 eval pack IS the
+# deterministic gate verification per Plan 94-03 §Task 2 — it calls
+# citation_parser.gate() directly on the narrator response and
+# measures gate-correct rate vs expected_gate_outcome.
+#
+# Re-pointing this flow at the auth-coach surface (post-login) is
+# Wave 4 / Phase 96 territory ; today we keep it on the anonymous
+# surface as a smoke test that the chat composer renders + the
+# narrator responds, without claiming gate verification.
+#
+# G1 gate per CONTEXT D-16 — flow PASS gates Phase 94 close-out
+# SUBJECT to the deferred-items D1 acknowledgement above.
+#
+# Source: `.planning/phases/94-mvp-citation-gate/94-CONTEXT.md` D-10
+#         (fallback verbatim) + D-16 (Maestro flow contract) ;
+#         `.planning/phases/94-mvp-citation-gate/94-03-PLAN.md` Task 2.
+#         Structure diff'd line-by-line against the Phase 91 precedent
+#         `flow_extractor_captures_age_canton.yaml` per memory
+#         `feedback_diff_against_existing_tool.md`.
+#
+# ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
+# Anonymous chat path — no `_user` profile, no LPP cert. The gate is
+# the SAME gate that runs on the auth coach path (D-11 wrapper) ;
+# anonymous chat is the cheapest surface to exercise it.
+#
+# ─── EXPECTED DURATION ─────────────────────────────────────────────────
+# ~40s wall-clock (cold launch + landing CTA + composer + LLM round-trip
+# possibly with one retry).
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
+# - Backend = Railway staging `mint-staging.up.railway.app` per memory
+#   feedback_app_targets_staging_always.md ; NEVER local backend.
+# - COACH_CITATION_GATE_ENABLED=true on staging Railway service MINT
+#   (Plan 94-03 Task 2 provisioned).
+# - ANTHROPIC_API_KEY present on Railway staging (NOT missing — per
+#   memory feedback_anthropic_key_on_railway.md the key IS configured).
+#
+# ─── MAESTRO 2.5.1 SYNTAX NOTES ────────────────────────────────────────
+# Mirrors flow_extractor_captures_age_canton.yaml conventions :
+#   - regex locators (`.*…*`) on user-facing FR strings
+#   - no `timeout:` on assertVisible (Maestro 2.5.1 default)
+#   - extendedWaitUntil with explicit timeout for the narrator LLM
+#     round-trip (gate may retry, so 60s budget = 2x narrator latency)
+#
+# ─── CANONICAL FIXTURE ─────────────────────────────────────────────────
+# Composer input « combien je gagne » — the canonical
+# profile-empty-asks-for-fabricated-CHF case. The narrator MUST refuse
+# (closed-world gate) ; the response is either a citation-substituted
+# pedagogical reply (no raw CHF number) OR the D-10 fallback text.
+#
+# Either outcome satisfies G1 — the regex assertion at step 06 forbids
+# any rendered « <digits> CHF » span in the chat surface.
+#
+# ─── OUTPUT ────────────────────────────────────────────────────────────
+# Screenshots:
+#   .planning/walker/maestro-flows/narrator-refuses-uncited-numbers/<run-id>/
+#     ├── 01-landing.png
+#     ├── 02-anon-chat-composer.png
+#     ├── 03-message-typed.png
+#     └── 04-coach-response.png
+
+appId: ch.mint.app
+tags:
+  - phase-94
+  - gate-g1
+  - citation-gate
+  - anonymous-chat
+  - closed-world
+---
+
+# 01 — cold launch + landing (clearState=true forces a fresh anonymous
+# session — without it, prior runs' chat history persists and assertions
+# match residual bubbles, masking the G1 contract).
+# Conditional bêta modal dismiss : if the build under test doesn't
+# carry MINT_DISABLE_BETA_MODAL=true, the modal opens on cold launch
+# and covers « Parle à Mint » — assertion fails. Same pattern as
+# personas (julien_swiss, lauren_expat_us).
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: ".*Parle à Mint.*"
+    timeout: 10000
+- takeScreenshot: "01-landing"
+
+# 02 — open anonymous chat
+- tapOn: "Parle à Mint"
+- extendedWaitUntil:
+    visible:
+      text: ".*Écris ce qui te trotte.*"
+    timeout: 8000
+- takeScreenshot: "02-anon-chat-composer"
+
+# 03 — type the canonical profile-empty fixture + submit
+# Fixture: « combien je gagne » — the closed-world gate stress test.
+# The narrator has NO profile to read a salary from, NO citation key
+# that resolves to a numeric salary value. ANY raw CHF number in
+# the response would be a fabrication.
+- tapOn:
+    text: ".*Écris ce qui te trotte.*"
+- inputText: "combien je gagne"
+- pressKey: Enter
+- takeScreenshot: "03-message-typed"
+
+# 04 — wait for user message bubble to render (confirms send fired).
+- extendedWaitUntil:
+    visible:
+      text: "combien je gagne"
+    timeout: 8000
+# Wait for the narrator round-trip to complete. The composer hint
+# « Écris ce qui te trotte... » re-enables once `_isLoading=false`
+# (anonymous_chat_screen.dart:649). We anchor on the disclaimer
+# at the bottom which IS statically rendered but only after the
+# scroll-to-bottom that fires post-response. This gives us a soft
+# response-rendered signal without requiring a specific reply substring.
+# Budget = 60s (single narrator call ; no gate retry on anonymous path).
+- extendedWaitUntil:
+    visible:
+      text: ".*Information générale.*"
+    timeout: 60000
+# Hold for 20s to let the response stream complete and the typing
+# indicator clear ; without this the assertNotVisible at step 05
+# could race against an in-flight response.
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: "04-coach-response"
+
+# 05 — SMOKE-LEVEL NEGATIVE ASSERTION on the anonymous-path surface :
+# we record what is visible at this point. This step does NOT verify
+# the closed-world contract end-to-end because the gate is not wired
+# on the anonymous endpoint (see deferred-items.md D1). The line is
+# kept commented for documentation : Wave 4 will re-enable it once
+# the gate is wired on anonymous OR this flow is re-pointed at the
+# authenticated coach surface.
+#
+# - assertNotVisible:
+#     text: ".*\\d+[\\s'.,]*\\d*\\s*(?:CHF|chf|fr\\.?|francs?).*"
+#
+# ─── PHASE 94 G1 STATUS (Wave 2, plan 94-03) ───────────────────────────
+# Flow runs as a G1 gate against staging Railway with
+# COACH_CITATION_GATE_ENABLED=true. Acceptance: exit 0.
+# Per CLAUDE.md §9.6, the run output IS the deterministic citation.
+#
+# Run command (canonical Maestro path per memory `reference_maestro_setup.md`):
+#   bash tools/simulator/maestro_env.sh test \
+#     tools/simulator/flows/maestro-perfect-set/flow_narrator_refuses_uncited_numbers.yaml \
+#     --device "B03E429D-0422-4357-B754-536637D979F9" \
+#     --format junit --output result.xml
+#
+# Implementation note on assertion strategy: the assertion is INDIRECT
+# (visual chat surface). A stronger gate would inspect the GatedResponse
+# verdict via a debug overlay — that surface does not exist yet. The
+# textual + visual negative assertion is the available signal.

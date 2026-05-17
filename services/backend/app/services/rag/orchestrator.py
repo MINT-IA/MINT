@@ -88,9 +88,16 @@ class RAGOrchestrator:
             user_id=user_id,
         )
 
-        # Step 1b: FAQ fallback — if vector store returned few results, enrich with FAQs
+        # Step 1b: FAQ fallback — if vector store returned few results, enrich with FAQs.
+        # Wave 1c-A2.1 (2026-05-15): when caller asked for n_results=0 (RAG suppressed for
+        # tool-eligible intents per coach_chat.py:_TOOL_ELIGIBLE_INTENTS gate), skip the
+        # FAQ fallback too — otherwise FAQ chunks re-inject the same « consulte ahv-iv.ch »
+        # redirects that the orchestration-layer gate was supposed to suppress, defeating
+        # the entire Wave A2 fix. See `.planning/phases/wave-1c-coach-tool-dispatch-rca/
+        # probe-evidence/payload-2026-05-15-A2-2219.jsonl` (the evidence: gate fired,
+        # n_results=0, but FAQ fallback re-added 3 redirect chunks).
         faq_sources: list[dict] = []
-        if len(retrieved) < 2:
+        if n_results > 0 and len(retrieved) < 2:
             faq_results = FaqService.search(question)
             for faq in faq_results[:3]:
                 retrieved.append({"text": faq.answer, "source": {}})
@@ -134,8 +141,19 @@ class RAGOrchestrator:
         else:
             response_text = raw_response
 
-        # Step 6: Apply post-generation compliance filter
-        filtered = self.guardrails.filter_response(response_text, language)
+        # Step 6: Apply post-generation compliance filter.
+        # Guard: empty response_text combined with tool_calls is a legitimate
+        # intermediate state in the agent loop — the LLM emitted only a
+        # tool_use (e.g. save_insight(salary=8500)) without text narration.
+        # Running filter_response on empty text fires the "Sortie vide"
+        # fallback (_SAFE_FALLBACK_FR) and masks the tool_use with a canned
+        # « Je suis là pour t'aider… » message. This guard mirrors the one
+        # already in _NoRagOrchestrator (coach_chat.py L151-157, fix from
+        # commit 3483f4e3 2026-04-14 that was never ported here).
+        if response_text and response_text.strip():
+            filtered = self.guardrails.filter_response(response_text, language)
+        else:
+            filtered = {"text": "", "warnings": [], "disclaimers_added": []}
 
         # Step 7: Build sources list (vector sources + FAQ sources)
         sources = []

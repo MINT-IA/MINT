@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/services/dob_age_calculator.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -132,6 +133,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
+      // BUG-W2026-07: persistent top-bar back button. Without this, the user
+      // is trapped 5 fields + 4 checkboxes deep before they reach the bottom
+      // "Retour" link, and iOS edge-swipe-back is unreliable from a `go` push.
+      // We match the sibling auth pattern (`forgot_password_screen` /
+      // `verify_email_screen`) — plain `AppBar`, MintColors.white, elevation 0
+      // — but skip the title to avoid duplicating the body's `MintEntrance`
+      // headline. Leading is an explicit IconButton: `Navigator.pop` if the
+      // route is poppable, otherwise `context.go('/auth/login')` because the
+      // landing→login→register entry path uses `context.go` (replaces the
+      // stack, so `canPop` is false).
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        elevation: 0,
+        leading: Semantics(
+          label: l10n.semanticsBack,
+          button: true,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            tooltip: l10n.authBack,
+            color: MintColors.textPrimary,
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                context.go('/auth/login');
+              }
+            },
+          ),
+        ),
+      ),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(MintSpacing.lg),
@@ -248,9 +280,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       final now = DateTime.now();
                       final picked = await showDatePicker(
                         context: context,
-                        initialDate: _dateOfBirth ?? DateTime(1980, 1, 1),
-                        firstDate: DateTime(1940),
-                        lastDate: now,
+                        initialDate: _dateOfBirth ?? DateTime(now.year - 35, 1, 1),
+                        firstDate: DateTime(now.year - 99),
+                        lastDate: DateTime(now.year - 18, now.month, now.day),
                         locale: const Locale('fr'),
                         helpText: l10n.authDateOfBirthHelp,
                         cancelText: l10n.authDateOfBirthCancel,
@@ -279,8 +311,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           if (_dateOfBirth == null) {
                             return l10n.authDateOfBirthRequired;
                           }
-                          final age = DateTime.now().year - _dateOfBirth!.year;
-                          if (age < 18) {
+                          if (yearsBetween(_dateOfBirth!, DateTime.now()) < 18) {
                             return l10n.authDateOfBirthTooYoung;
                           }
                           return null;

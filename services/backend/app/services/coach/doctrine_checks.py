@@ -487,6 +487,23 @@ def check_archetype_aware(response: str, meta: QuestionMeta) -> CheckResult:
     the response names at least one archetype-specific cue.
     """
     name = "archetype_aware"
+
+    # B6 fix (2026-05-08) — fail-loud on empty/unknown archetype.
+    # Adversarial QA panel found that pre-B6, the front-end never plumbed
+    # CoachProfile.archetype into CoachContext, so meta.archetype defaulted
+    # to "" (post-B4 empty default) and the check fell through to the
+    # « no cues defined → pass » branch below. Net effect: an expat_us user
+    # could receive « Verse 7'258 CHF sur ton 3a » without the FATCA guard
+    # firing. Treat empty/unknown archetype as a guard violation rather than
+    # a silent skip — the response is reviewable but cannot be claimed
+    # archetype-aware.
+    if not meta.archetype or not meta.archetype.strip():
+        return CheckResult(
+            name,
+            False,
+            "archetype empty/unknown — cannot enforce archetype-aware constraint (would silently bypass FATCA/PFIC/frontalier guards)",
+        )
+
     if meta.archetype == "swiss_native":
         return CheckResult(name, True, "swiss_native: no extra constraint")
 

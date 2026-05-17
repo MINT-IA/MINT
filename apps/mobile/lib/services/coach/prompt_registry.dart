@@ -256,16 +256,19 @@ TÂCHE : Guide l'utilisateur pour compléter le bloc "$blockType".
           'réel et la fortune imposable. Impact sur confiance : +15 pts.',
       'objectifRetraite' => 'DONNÉES CONNUES :\n'
           '- Âge actuel : ${ctx.age} ans\n'
-          '- Âge retraite cible : ${ctx.knownValues['target_retirement_age']?.toInt() ?? 65} ans\n'
+          '- Âge retraite cible : ${ctx.knownValues['target_retirement_age']?.toInt() ?? '?'}\n'
           '\n'
           'OBJECTIF : Définir un âge de retraite souhaité (58-70 ans).\n'
+          'Si l\'âge retraite cible est "?", DEMANDE-le, ne suppose pas 65 par défaut.\n'
           'Avant 63 ans : seule la LPP est disponible (pas d\'AVS).\n'
           'Impact sur confiance : +10 pts.',
       'compositionMenage' => 'DONNÉES CONNUES :\n'
-          '- État civil : ${ctx.knownValues['etat_civil'] ?? 'célibataire'}\n'
-          '- Enfants : ${ctx.knownValues['nombre_enfants']?.toInt() ?? 0}\n'
+          '- État civil : ${ctx.knownValues['etat_civil'] ?? '?'}\n'
+          '- Enfants : ${ctx.knownValues['nombre_enfants']?.toInt() ?? '?'}\n'
           '\n'
           'OBJECTIF : Savoir si en couple (marié/concubin) et les données du conjoint.\n'
+          'Si l\'état civil est "?" ou les enfants sont "?", DEMANDE-les. Ne suppose JAMAIS\n'
+          'célibataire ou 0 enfants par défaut — ne dis pas "tu es célibataire" si tu ne le sais pas.\n'
           'Impact : AVS plafonnée à 150% pour les mariés (LAVS art. 35).\n'
           'Impact sur confiance : +15 pts.',
       _ => 'Score de confiance : ${ctx.confidenceScore.toStringAsFixed(0)}%\n'

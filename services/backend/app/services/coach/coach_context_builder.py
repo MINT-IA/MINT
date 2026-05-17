@@ -20,9 +20,12 @@ from app.services.coach.coach_models import CoachContext
 
 def build_coach_context(
     first_name: str = "utilisateur",
-    age: int = 30,
-    canton: str = "VD",
-    archetype: str = "swiss_native",
+    # B4 fix (2026-05-08) : defaults set to empty/zero so missing fields
+    # don't leak fake « known facts » into the LLM context. Consumers
+    # gate prompt lines on truthy values (claude_coach_service.py:793-798).
+    age: int = 0,
+    canton: str = "",
+    archetype: str = "",
     fri_total: float = 0.0,
     fri_delta: float = 0.0,
     primary_focus: str = "",

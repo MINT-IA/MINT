@@ -2086,7 +2086,7 @@
   "futurCompleterProfil": "Completa tu perfil para afinar la proyección.",
   "futurDisclaimer": "Proyección educativa — no constituye asesoramiento (LSFin). SWR 4% = regla del 4%, resultados no asegurados. Pensiones AVS/LPP estimadas según LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorar detalles",
-  "financialSummaryTitle": "RESUMEN FINANCIERO",
+  "financialSummaryTitle": "MI PERFIL",
   "financialSummaryNoProfile": "Ningún perfil registrado",
   "financialSummaryStartDiagnostic": "Comenzar el diagnóstico",
   "financialSummaryRestartDiagnostic": "Reiniciar el diagnóstico",
@@ -2146,6 +2146,18 @@
     }
   },
   "financialSummaryFatcaWarning": "⚠️ FATCA — Solo una minoría de proveedores acepta (ej. Raiffeisen)",
+  "sim3aFatcaGateTitle": "Pilar 3a — acceso limitado (FATCA)",
+  "@sim3aFatcaGateTitle": {
+    "description": "FATCA gate panel title shown on the 3a simulator when canContribute3a is false (US persons / green card)."
+  },
+  "sim3aFatcaGateBody": "Tu estatus FATCA limita el acceso al pilar 3a en Suiza. La mayoría de los proveedores rechaza a las personas estadounidenses o titulares de green card. Antes de simular aportaciones, confirma que un proveedor te acepte (ej. Raiffeisen) y considera palancas alternativas: prestaciones de salida, optimización hipotecaria, inversión libre.",
+  "@sim3aFatcaGateBody": {
+    "description": "FATCA gate body explaining why the 3a simulator is not actionable for US persons + alternatives."
+  },
+  "sim3aFatcaGateAction": "Ver alternativas al 3a",
+  "@sim3aFatcaGateAction": {
+    "description": "FATCA gate CTA — opens an alternatives screen / coach prompt."
+  },
   "financialSummaryModifierPrevoyance": "Modificar previsión",
   "financialSummaryEditAvoirLpp": "Activos LPP totales (CHF)",
   "financialSummaryEditNombre3a": "Número de cuentas 3a",
@@ -3509,7 +3521,7 @@
   "authGatePrivacyNote": "Tus datos permanecen en tu dispositivo y están cifrados.",
   "authRegisterSubtitle": "Crea una cuenta cifrada. La sincronización en la nube está desactivada por defecto; puedes activarla en Ajustes › Privacidad.",
   "authWhyCreateAccount": "¿Por qué crear una cuenta?",
-  "authBenefitProjections": "Proyecciones AVS/LPP adaptadas a tu situación",
+  "authBenefitProjections": "Proyecciones financieras adaptadas a tus decisiones de vida (vivienda, fiscalidad, previsión, familia…)",
   "authBenefitCoach": "Coach personalizado con tu nombre",
   "authBenefitSync": "Copia de seguridad + sincronización multi-dispositivo",
   "authFirstName": "Nombre",
@@ -3693,6 +3705,21 @@
   "coachUserMessage": "Tu mensaje",
   "coachCoachMessage": "Respuesta del coach",
   "coachSendButton": "Enviar",
+  "coachCitationChipsHeader": "Cálculos del servidor",
+  "coachCitationChipLabel": "{toolDisplayName} — calculado",
+  "coachCitationModalTitle": "Origen del cálculo: {toolDisplayName}",
+  "coachCitationJsonViewerLabel": "Ver detalle del cálculo (JSON)",
+  "coachCitationRememberCta": "Recuerda esta fuente",
+  "coachToolBudgetSnapshot": "Presupuesto actual",
+  "coachToolRetirementProjection": "Proyección de jubilación",
+  "coachToolCrossPillarAnalysis": "Análisis entre pilares",
+  "coachToolCoupleOptimization": "Optimización en pareja",
+  "coachToolCapStatus": "Límite diario",
+  "coachToolRetrieveMemories": "Recuerdos",
+  "coachCitationRelativeJustNow": "justo ahora",
+  "coachCitationRelativeMinutes": "{count, plural, =1{hace 1 min} other{hace {count} min}}",
+  "coachCitationRelativeHours": "{count, plural, =1{hace 1 h} other{hace {count} h}}",
+  "coachCitationRelativeDays": "{count, plural, =1{hace 1 d} other{hace {count} d}}",
   "profileDefaultName": "Usuario",
   "profileNameAge": "{name}, {age} años",
   "@profileNameAge": {
@@ -9972,6 +9999,7 @@
   "bankImportTransparency": "Tu extracto se envía cifrado a nuestro servidor suizo para su análisis. Las transacciones se categorizan y luego el archivo original se elimina. Solo los resúmenes por categoría se conservan en tu perfil.",
   "coachTransparencySLM": "Respuesta generada en tu teléfono. Nada enviado a un servidor.",
   "coachTransparencyBYOK": "Respuesta a través de tu API Claude. Tu salario exacto NO se envía — solo tu edad, cantón y arquetipo se comparten.",
+  "coachTransparencyServer": "Respuesta a través de la API Claude (clave servidor MINT). Tu mensaje se comparte tal cual para personalizar la respuesta.",
   "dataTransparencyTitle": "Cómo MINT usa tus datos",
   "dataTransparencySalary": "Cuando introduces tu salario",
   "dataTransparencySalaryDetail": "Almacenado solo en tu teléfono. Nunca enviado.",
@@ -10516,6 +10544,7 @@
   "landingV2Privacy": "Nada sale de tu teléfono hasta que tú lo decidas.",
   "landingV2Legal": "Herramienta educativa. No constituye asesoramiento financiero según la LSFin.",
   "landingV2LoginLink": "Ya tengo una cuenta",
+  "landingV3AnonymousHomeLink": "Continuar sin cuenta",
   "alertGenericFactPrefix": "MINT observó",
   "alertGenericCausePrefix": "Por qué",
   "alertGenericNextMomentPrefix": "Cuando volvamos a hablar de esto",
@@ -11179,9 +11208,20 @@
   "@betaDisclosureCta": {
     "x-mint-meta": {"level": "N1"}
   },
-  "betaDisclosureLearnMore": "Saber más",
-  "@betaDisclosureLearnMore": {
-    "x-mint-meta": {"level": "N1"}
-  },
-  "betaDisclosureSemanticsLabel": "Información sobre la versión beta de MINT — herramienta educativa únicamente, no es asesoramiento financiero, los datos permanecen en tu dispositivo por defecto."
+  "betaDisclosureSemanticsLabel": "Información sobre la versión beta de MINT — herramienta educativa únicamente, no es asesoramiento financiero, los datos permanecen en tu dispositivo por defecto.",
+  "coachOnboardingFirstAssistantGreeting": "Bienvenido a MINT. Antes de empezar — ¿qué te trae aquí hoy?",
+  "verbExplique": "Explícame",
+  "verbSimule": "Simular",
+  "verbRassure": "Tranquilízame",
+  "chatInputHint": "Escribe tu mensaje...",
+  "chatIntentExplainLabel": "Explícame",
+  "chatIntentReassureLabel": "Tranquilízame",
+  "chatIntentSimulateLabel": "Simula",
+  "narrativeSleeveNextStepExplain": "Escribe una pregunta para profundizar.",
+  "narrativeSleeveNextStepReassure": "Escribe lo que te preocupa, lo miramos juntos.",
+  "narrativeSleeveNextStepSimulate": "Escribe un escenario a explorar.",
+  "narrativeSleeveHookFallback": "Veamos juntos lo que esto cambia para ti.",
+  "narrativeSleeveOpenerCaptionExplain": "Esto es lo que tu tarjeta cuenta hoy.",
+  "narrativeSleeveOpenerCaptionReassure": "Miremos con calma dónde estás.",
+  "narrativeSleeveOpenerCaptionSimulate": "Elige un escenario a proyectar."
 }

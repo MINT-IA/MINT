@@ -10,6 +10,13 @@ Sprint S13, Chantier 7: Assurances completes.
 from fastapi import APIRouter, Depends
 
 from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    emit_calc_invoke_metric,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.models.user import User
 from app.schemas.assurances import (
     LamalFranchiseRequest,
@@ -29,6 +36,13 @@ from app.services.coverage_checklist_service import (
     CoverageChecklistService,
     CoverageCheckInput,
 )
+
+
+_COVERAGE_CHECK_HINT_FR = (
+    "Pour évaluer ta couverture d'assurance, j'ai besoin de ton canton "
+    "de résidence. Tu peux me le partager ?"
+)
+
 
 router = APIRouter()
 
@@ -95,26 +109,55 @@ def optimize_franchise(request: LamalFranchiseRequest, _user: User = Depends(req
 
 
 @router.post("/coverage/check", response_model=CoverageCheckResponse)
-def check_coverage(request: CoverageCheckRequest, _user: User = Depends(require_current_user)) -> CoverageCheckResponse:
+def check_coverage(
+    request: CoverageCheckRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> CoverageCheckResponse:
     """Evaluate insurance coverage and generate personalized checklist.
+
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit — silent GE default closed).
+    Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
 
     This stateless endpoint performs no data storage -- all computation
     is done on the fly from the provided inputs.
     """
+    resolved = _resolve_defaults(profile_data, request, CoverageCheckRequest)
+    missing = _required_profile_fields_missing(resolved, CoverageCheckRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_COVERAGE_CHECK_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/assurances/coverage/check",
+        )
+    emit_calc_invoke_metric(
+        kind="coverage_check",
+        resolved=resolved,
+        schema_class=CoverageCheckRequest,
+    )
+
+    # Enum-preservation defensive extraction
+    statut_value = resolved["statutProfessionnel"]
+    if hasattr(statut_value, "value"):
+        statut_value = statut_value.value
+
     input_data = CoverageCheckInput(
-        statut_professionnel=request.statutProfessionnel.value,
-        a_hypotheque=request.aHypotheque,
-        a_famille=request.aFamille,
-        est_locataire=request.estLocataire,
-        voyages_frequents=request.voyagesFrequents,
-        a_ijm_collective=request.aIjmCollective,
-        a_laa=request.aLaa,
-        a_rc_privee=request.aRcPrivee,
-        a_menage=request.aMenage,
-        a_protection_juridique=request.aProtectionJuridique,
-        a_assurance_voyage=request.aAssuranceVoyage,
-        a_assurance_deces=request.aAssuranceDeces,
-        canton=request.canton,
+        statut_professionnel=statut_value,
+        a_hypotheque=resolved["aHypotheque"],
+        a_famille=resolved["aFamille"],
+        est_locataire=resolved["estLocataire"],
+        voyages_frequents=resolved["voyagesFrequents"],
+        a_ijm_collective=resolved["aIjmCollective"],
+        a_laa=resolved["aLaa"],
+        a_rc_privee=resolved["aRcPrivee"],
+        a_menage=resolved["aMenage"],
+        a_protection_juridique=resolved["aProtectionJuridique"],
+        a_assurance_voyage=resolved["aAssuranceVoyage"],
+        a_assurance_deces=resolved["aAssuranceDeces"],
+        canton=str(resolved["canton"]),
     )
 
     result = _coverage_service.evaluate(input_data)

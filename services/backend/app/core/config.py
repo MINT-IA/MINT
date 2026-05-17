@@ -1,6 +1,7 @@
 import os
+from typing import Literal
 
-from pydantic import ConfigDict
+from pydantic import ConfigDict, Field
 from pydantic_settings import BaseSettings
 
 
@@ -58,6 +59,90 @@ class Settings(BaseSettings):
     # without re-running the length-cap E2E suite.
     COACH_MAX_TOKENS: int = 350
     COACH_DAILY_QUOTA: int = 30  # per user, free tier
+
+    # Phase 91 dual-LLM (extractor + narrator) split kill-flag.
+    # False = legacy single-LLM path (current production).
+    # True  = dual-LLM path: extractor LLM captures facts before the
+    #         narrator LLM delivers the user-facing reply.
+    # Wave 0 (this commit): scaffolding only — no consumers yet. The flag
+    # is wired in Wave 2 (coach_chat.py Step 1.5) and flipped per Stage 4
+    # staging soak. See .planning/phases/91-mvp-extractor-v2/RESEARCH.md
+    # §4 Stage 0 T0.2 + 91-CONTEXT.md decision D-12.
+    COACH_DUAL_LLM_ENABLED: bool = False
+
+    # Phase 93.5 — feature flag for skill-bundle compiler (CONTEXT D-15).
+    # Default `false` in prod ; `true` in staging during Stage 3 eval
+    # (Plan 93.5-04). Mirrors `COACH_DUAL_LLM_ENABLED` rollout pattern.
+    # When `true`, `coach_chat._build_system_prompt_with_memory` routes via
+    # `build_narrator_system_prompt_from_bundles` (compile_bundles → 6 named
+    # bundle fragments + tool allowlist + citation allowlist) instead of
+    # the legacy `_NARRATOR_BASE_SYSTEM_PROMPT` template.
+    COACH_BUNDLE_COMPILER_ENABLED: bool = False
+
+    # COACH_CITATION_GATE_ENABLED — Phase 94 (CONTEXT D-19/D-20).
+    # Closed-world citation gate post-process parser. Default OFF in prod ;
+    # ON in staging during Stage 3 eval (Plan 94-03). Wired in coach_chat
+    # narrator response stage (Plan 94-02) when True ; flag-OFF path is
+    # byte-identical to the pre-Phase-94 narrator output (asserted by
+    # tests/test_citation_gate/test_byte_identity_flag_off.py against the
+    # 5 captured legacy snapshots in tests/fixtures/narrator_legacy_snapshots/).
+    # Sunset clause: D-21 — flag + bypass code path removed in Phase 96 OR
+    # after 4-week staging soak with `coach.citation_gate.fallback` rate ≤2%.
+    COACH_CITATION_GATE_ENABLED: bool = False
+
+    # === Wave 1a server-side compute rollback flags (D-05, D-09) ===
+    # Plans 01-06 READ these flags but do NOT add new ones.
+    # Defaults: 5 per-tool flags OFF (staged rollout), cap-garde ON.
+    # Staging env enables the 5 OFF flags during Wave 1c validation.
+    COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED: bool = False
+    COACH_TOOL_SERVER_SIDE_RETIREMENT_PROJECTION_ENABLED: bool = False
+    COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED: bool = False
+    COACH_TOOL_SERVER_SIDE_COUPLE_OPTIMIZATION_ENABLED: bool = False
+    COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED: bool = False
+    COACH_CAP_CHF_GARDE_ENABLED: bool = True
+    # === end Wave 1a flags ===
+
+    # === Phase mint-calc-engine-v1 Plan 10 (W2-04) ===
+    # Parallel Change V1→V2 of CoachToolResponse envelope (D-CE-19 Fowler).
+    # When True, chip-emitter dispatchers in coach_chat.py wrap their JSON
+    # payloads in a CoachToolOkV2(data=..., latency_tier="L1") envelope so
+    # Flutter can route to the right rendering surface (chip <500ms vs
+    # narrative loader 2-8s). Default False = legacy top-level shape
+    # preserved (backwards-compat with existing Wave 1a contract tests).
+    # Plan 11 or post-phase flips this ON on staging then prod after
+    # Flutter consumer plan (Concern B) is shipped.
+    COACH_TOOL_RESPONSE_V2_ENABLED: bool = False
+    # === end Plan 10 flag ===
+
+    # Phase 97.5 W2-T5 — ConsentService 3-stage rollout enforcement mode.
+    # `log_only`   (v2.9 default) : gate emits structured warning log +
+    #                               Sentry breadcrumb on missing consent ;
+    #                               returns 200 unchanged. Audit-trail only.
+    # `soft_block` (v2.10 stage 2) : same + non-blocking warning header.
+    # `hard_block` (v2.10 stage 3) : raises HTTPException(403, pointer).
+    # Per .planning/phases/97.5-product-completeness-for-ship/97.5-PLAN.md §D.1.
+    # v2.9 ships log_only by default — LSFin Art 8 « ability to demonstrer
+    # la conformité » minimum. Promotion ladder lives in v2.10 (W3-T3 + W4-T2).
+    CONSENT_GATE_ENFORCEMENT_MODE: Literal["log_only", "soft_block", "hard_block"] = "log_only"
+
+    # Phase 91 D-01 — Narrator model selection. Default 'sonnet' matches
+    # today's hardcoded Wave 2 narrator branch (preserves production
+    # parity until Stage 3 eval gate flips the default in 91-05).
+    # Per ADR-20260419-v2.8-kill-policy.md, Stage 3 fail => keep 'sonnet'
+    # (cost +54% per turn ceiling); Stage 3 pass => flip to 'haiku'
+    # (cost -2.5% per turn). The flip is the explicit decision documented
+    # in 91-05-SUMMARY.md, NOT an automated default change here.
+    # Wired in coach_chat.py via _NARRATOR_MODEL_MAP when
+    # COACH_DUAL_LLM_ENABLED is True; flag-OFF path is unaffected.
+    COACH_NARRATOR_MODEL: Literal["sonnet", "haiku"] = Field(
+        default="sonnet",
+        description=(
+            "Phase 91 narrator model selection. 'sonnet' (default) = "
+            "claude-sonnet-4-5-20250929; 'haiku' = claude-haiku-4-5-20251001. "
+            "Wired in coach_chat narrator branch when COACH_DUAL_LLM_ENABLED. "
+            "Per D-01 + ADR-20260419-v2.8-kill-policy.md."
+        ),
+    )
 
     # Apple IAP / StoreKit
     APPLE_IAP_PRODUCT_COACH_MONTHLY: str = "ch.mint.coach.monthly"

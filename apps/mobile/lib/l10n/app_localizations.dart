@@ -8197,7 +8197,7 @@ abstract class S {
   /// No description provided for @financialSummaryTitle.
   ///
   /// In fr, this message translates to:
-  /// **'APERÇU FINANCIER'**
+  /// **'MON PROFIL'**
   String get financialSummaryTitle;
 
   /// No description provided for @financialSummaryNoProfile.
@@ -8343,6 +8343,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'⚠️ FATCA — Seule une minorité de prestataires accepte (ex. Raiffeisen)'**
   String get financialSummaryFatcaWarning;
+
+  /// FATCA gate panel title shown on the 3a simulator when canContribute3a is false (US persons / green card).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilier 3a — accès limité (FATCA)'**
+  String get sim3aFatcaGateTitle;
+
+  /// FATCA gate body explaining why the 3a simulator is not actionable for US persons + alternatives.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton statut FATCA limite l\'accès au pilier 3a en Suisse. La majorité des prestataires refuse les personnes US ou titulaires d\'une green card. Avant de simuler des versements, vérifie qu\'un prestataire t\'accepte (ex. Raiffeisen) et envisage des leviers alternatifs : libre passage, optimisation hypothécaire, investissement libre.'**
+  String get sim3aFatcaGateBody;
+
+  /// FATCA gate CTA — opens an alternatives screen / coach prompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les alternatives au 3a'**
+  String get sim3aFatcaGateAction;
 
   /// No description provided for @financialSummaryModifierPrevoyance.
   ///
@@ -13779,7 +13797,7 @@ abstract class S {
   /// No description provided for @authBenefitProjections.
   ///
   /// In fr, this message translates to:
-  /// **'Projections AVS/LPP alignées à ta situation'**
+  /// **'Projections financières adaptées à tes choix de vie (logement, fiscalité, prévoyance, famille…)'**
   String get authBenefitProjections;
 
   /// No description provided for @authBenefitCoach.
@@ -14039,6 +14057,96 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Envoyer'**
   String get coachSendButton;
+
+  /// Header text for the Wave 1b citation-chip section under coach messages. Rendered above the list of tool-call chips.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculs serveur'**
+  String get coachCitationChipsHeader;
+
+  /// Label rendered on each citation chip. toolDisplayName interpolates a localized name (e.g. 'Budget actuel').
+  ///
+  /// In fr, this message translates to:
+  /// **'{toolDisplayName} — calculé'**
+  String coachCitationChipLabel(String toolDisplayName);
+
+  /// Title of the citation-chip modal (bottom sheet). Identifies which tool computed the values.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source du calcul : {toolDisplayName}'**
+  String coachCitationModalTitle(String toolDisplayName);
+
+  /// Label on the ExpansionTile that wraps the pretty-printed JSON viewer in the citation modal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le détail du calcul (JSON)'**
+  String get coachCitationJsonViewerLabel;
+
+  /// Call-to-action button at the bottom of the citation modal. Wires (in a future wave) to save_insight tool persistence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souviens-toi de cette source'**
+  String get coachCitationRememberCta;
+
+  /// Display name for the get_budget_status server-side tool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget actuel'**
+  String get coachToolBudgetSnapshot;
+
+  /// Display name for the get_retirement_projection server-side tool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection de retraite'**
+  String get coachToolRetirementProjection;
+
+  /// Display name for the get_cross_pillar_analysis server-side tool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse inter-piliers'**
+  String get coachToolCrossPillarAnalysis;
+
+  /// Display name for the get_couple_optimization server-side tool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimisation couple'**
+  String get coachToolCoupleOptimization;
+
+  /// Display name for the get_cap_status server-side tool (daily cap validation).
+  ///
+  /// In fr, this message translates to:
+  /// **'Cap du jour'**
+  String get coachToolCapStatus;
+
+  /// Display name for the retrieve_memories BM25 server-side tool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Souvenirs'**
+  String get coachToolRetrieveMemories;
+
+  /// Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 minute. Replaces Dart literal in coach_citation_modal.dart.
+  ///
+  /// In fr, this message translates to:
+  /// **'à l\'instant'**
+  String get coachCitationRelativeJustNow;
+
+  /// Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 hour. FR doesn't pluralize 'min'; ICU branches are identical.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{il y a {count} min} other{il y a {count} min}}'**
+  String coachCitationRelativeMinutes(int count);
+
+  /// Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 day.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{il y a {count} h} other{il y a {count} h}}'**
+  String coachCitationRelativeHours(int count);
+
+  /// Q8_DECISION — relative-time string for citation modal's computed_at row when delta ≥ 1 day.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{il y a {count} j} other{il y a {count} j}}'**
+  String coachCitationRelativeDays(int count);
 
   /// No description provided for @profileDefaultName.
   ///
@@ -37317,6 +37425,12 @@ abstract class S {
   /// **'Réponse via ton API Claude. Ton salaire exact n\'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.'**
   String get coachTransparencyBYOK;
 
+  /// No description provided for @coachTransparencyServer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse via l\'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse.'**
+  String get coachTransparencyServer;
+
   /// No description provided for @dataTransparencyTitle.
   ///
   /// In fr, this message translates to:
@@ -39153,6 +39267,12 @@ abstract class S {
   /// **'J’ai déjà un compte'**
   String get landingV2LoginLink;
 
+  /// Landing screen — anonymous local-mode entry point (S005, Phase 97 W7 iter#4). Sober text link below « J'ai déjà un compte ». Routes to /home (Aujourd'hui) ; the (isLoggedIn || isLocalMode) gate at app.dart:417 grants access since isLocalMode defaults true on fresh installs (auth_provider.dart:90, checkAuth() seeds it true line 142-145). Production-safe : exposes an existing anonymous-default path, no new bypass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer sans compte'**
+  String get landingV3AnonymousHomeLink;
+
   /// MintAlertObject default fact prefix (anti-shame: MINT is subject).
   ///
   /// In fr, this message translates to:
@@ -40587,17 +40707,101 @@ abstract class S {
   /// **'Je comprends, on y va'**
   String get betaDisclosureCta;
 
-  /// Beta disclosure sheet — secondary CTA opening the privacy URL.
-  ///
-  /// In fr, this message translates to:
-  /// **'En savoir plus'**
-  String get betaDisclosureLearnMore;
-
   /// Beta disclosure sheet — accessibility container label.
   ///
   /// In fr, this message translates to:
   /// **'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l\'appareil par défaut.'**
   String get betaDisclosureSemanticsLabel;
+
+  /// Coach-initiated opening message shown when a logged-in user lands on /coach/chat with onboarding intent. Replaces the deprecated coachOnboardingFirstUserMessage which was rendered as user-authored (ventriloquy bug B1, fixed 2026-05-08). Generic, no archetype/life-event assumption per CLAUDE.md NEVER #4 + NEVER #7.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue dans MINT. Avant qu\'on commence : qu\'est-ce qui t\'amène ici aujourd\'hui ?'**
+  String get coachOnboardingFirstAssistantGreeting;
+
+  /// Phase 96 D-05 — MintCardActionBar verb 1/3. Tap opens MintChatOverlay with intent=explain. Imperative reflexive FR, accent-clean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explique-moi'**
+  String get verbExplique;
+
+  /// Phase 96 D-05 + D-06 — MintCardActionBar verb 2/3. Tap deep-links to Explorer (context.push('/explorer?simulate=<card_id>')); zero LLM call.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule'**
+  String get verbSimule;
+
+  /// Phase 96 D-05 — MintCardActionBar verb 3/3. Tap opens MintChatOverlay with intent=reassure. Imperative reflexive FR, accent-clean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rassure-moi'**
+  String get verbRassure;
+
+  /// Phase 97 W7 F001 — MintChatOverlay ChatInputBar TextField hint. Accent-clean FR, generic (no archetype assumption). Closes Phase 96 W1 scaffold debt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tape ton message...'**
+  String get chatInputHint;
+
+  /// Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=explain. Replaces raw enum 'explain'. Accent-clean FR, imperative reflexive. LSFin-clean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explique-moi'**
+  String get chatIntentExplainLabel;
+
+  /// Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=reassure. Replaces raw enum 'reassure'. Accent-clean FR, imperative reflexive. LSFin-clean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rassure-moi'**
+  String get chatIntentReassureLabel;
+
+  /// Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=simulate. Reserved for forward compat ; today simulate deep-links to Explorer and does not open the overlay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simule'**
+  String get chatIntentSimulateLabel;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve next_step slot for intent=explain on the templated opener (Option A path).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tape une question pour creuser.'**
+  String get narrativeSleeveNextStepExplain;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve next_step slot for intent=reassure on the templated opener (Option A path).
+  ///
+  /// In fr, this message translates to:
+  /// **'Tape ce qui t\'inquiète, on regarde ensemble.'**
+  String get narrativeSleeveNextStepReassure;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve next_step slot for intent=simulate. Reserved for forward compat ; simulate deep-links to Explorer today.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tape un scénario à explorer.'**
+  String get narrativeSleeveNextStepSimulate;
+
+  /// Phase 97.5 W2-T1 — HOOK_FALLBACK string mirroring services/backend/app/services/coach/narrative_sleeve_lint.HOOK_FALLBACK. Rendered on opener when source_card has no canton/archetype/life_event to interpolate against.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voyons ensemble ce que ça change pour toi.'**
+  String get narrativeSleeveHookFallback;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve caption slot for intent=explain on the templated opener (no LLM call, source_card-derived).
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici ce que ta carte raconte aujourd\'hui.'**
+  String get narrativeSleeveOpenerCaptionExplain;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve caption slot for intent=reassure on the templated opener (no LLM call, source_card-derived).
+  ///
+  /// In fr, this message translates to:
+  /// **'On regarde calmement où tu en es.'**
+  String get narrativeSleeveOpenerCaptionReassure;
+
+  /// Phase 97.5 W2-T1 — NarrativeSleeve caption slot for intent=simulate. Reserved for forward compat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis un scénario à projeter.'**
+  String get narrativeSleeveOpenerCaptionSimulate;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

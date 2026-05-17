@@ -1,0 +1,144 @@
+# UI drift baseline — 2026-05-09 (Phase MVP-DESIGN-LINTS-V1)
+
+Total: 1036 grandfathered violations across 5 design lints.
+Net-new violations BLOCK CI (`.github/workflows/design-lints.yml`).
+Existing violations are deferred to Phase 3 (FONTS-TOKENS-V2) + Phase 4
+(CTA-UNIFICATION-V1) sweep PRs.
+
+How baselines work:
+  - Each `tools/checks/prefer_mint_*.baseline.txt` is a sorted list of
+    `path:line: snippet` rows.
+  - The lint passes when current_violations is a subset of baseline.
+  - Net-new violations fail with exit 1.
+  - Run `python3 tools/checks/<lint>.py --update-baseline` after a sweep
+    PR to shrink the baseline (always a separate, reviewed commit).
+
+Branch / commit at snapshot time: gsd/phase-1-design-lints-v1, post-Wave-1.
+
+---
+
+## prefer_mint_color_token: 31 entries
+
+See: tools/checks/baselines/prefer_mint_color_token.baseline.txt
+
+Pattern: `Color(0xFF...)` literals + Material `Colors.{white,black,...}` outside `apps/mobile/lib/theme/`.
+
+Sample (top 5):
+  lib/app.dart:1607: Colors.white
+  lib/app.dart:1609: Colors.white
+  lib/app.dart:1653: Colors.white
+  lib/app.dart:1678: Colors.white
+  lib/app.dart:1785: Colors.white
+
+Pivot phase: none planned (Phase 1 hard-mode is sufficient — only 31 outliers).
+
+---
+
+## prefer_mint_text_style: 705 entries
+
+See: tools/checks/baselines/prefer_mint_text_style.baseline.txt
+
+Pattern: `fontSize: <N>` literals outside `apps/mobile/lib/theme/`.
+
+Sample (top 5):
+  lib/app.dart:1644: fontSize: 16
+  lib/app.dart:1649: fontSize: 14
+  lib/app.dart:1661: fontSize: 20
+  lib/app.dart:1685: fontSize: 16
+  lib/app.dart:1700: fontSize: 16
+
+Pivot phase: Phase 3 (MVP-FONTS-TOKENS-V2) sweep — most fontSize sites
+will migrate to MintTextStyles.<token>() builders during the font swap.
+
+---
+
+## prefer_mint_fonts: 106 entries
+
+See: tools/checks/baselines/prefer_mint_fonts.baseline.txt
+
+Pattern: `GoogleFonts.<family>(...)` calls + `TextStyle(fontFamily: '...')`
+outside `apps/mobile/lib/theme/`.
+
+Sample (top 5):
+  lib/app.dart:1599: GoogleFonts.interTextTheme
+  lib/app.dart:1616: GoogleFonts.montserrat
+  lib/app.dart:1623: GoogleFonts.montserrat
+  lib/app.dart:1630: GoogleFonts.montserrat
+  lib/app.dart:1659: fontFamily: '
+
+Pivot phase: Phase 3 (MVP-FONTS-TOKENS-V2) drops the `google_fonts`
+package entirely. All 106 sites collapse during that sweep. The lint
+prevents Phase 3 from accidentally re-introducing GoogleFonts.* in the
+same edits.
+
+---
+
+## prefer_mint_radius: 42 entries
+
+See: tools/checks/baselines/prefer_mint_radius.baseline.txt
+
+Pattern: `BorderRadius.circular(N)` where N is OUTSIDE the allowlist
+{2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 999}. Top-6 values cover 84% of
+1545 existing call sites; outliers {1, 3, 5, 7, 9, 11, 19, 22, 99} are
+the 42-site baseline.
+
+Sample (top 5):
+  lib/screens/admin_observability_screen.dart:255: BorderRadius.circular(99)
+  lib/screens/anonymous/anonymous_chat_screen.dart:594: BorderRadius.circular(22)
+  lib/screens/anonymous/anonymous_chat_screen.dart:600: BorderRadius.circular(22)
+  lib/screens/arbitrage/rente_vs_capital_screen.dart:1855: BorderRadius.circular(3)
+  lib/screens/coach/succession_patrimoine_screen.dart:301: BorderRadius.circular(9)
+
+Pivot phase: Phase 4 (MVP-CTA-UNIFICATION-V1) lands a MintRadius.{xs..pill}
+token; this lint pivots from soft numeric allowlist to hard import-path
+enforcement.
+
+---
+
+## prefer_mint_cta: 152 entries
+
+See: tools/checks/baselines/prefer_mint_cta.baseline.txt
+
+Pattern: raw button widgets `\b(?:Elevated|Outlined|Filled|Text)Button\s*\(`
+outside `apps/mobile/lib/widgets/cta/` and `apps/mobile/lib/theme/`.
+
+Sample (top 5):
+  lib/app.dart:1814: FilledButton(
+  lib/app.dart:1819: TextButton(
+  lib/screens/admin_observability_screen.dart:185: FilledButton(
+  lib/screens/anonymous/anonymous_chat_screen.dart:543: ElevatedButton(
+  lib/screens/arbitrage/allocation_annuelle_screen.dart:421: FilledButton(
+
+Pivot phase: Phase 4 (MVP-CTA-UNIFICATION-V1) creates `MintCTA.{primary,
+secondary,tertiary,destructive}` and converts all 152 sites. The lint
+flips from baseline-only to hard import-path enforcement post-Phase 4.
+
+---
+
+## Counter-arguments and data gaps
+
+- **Counter-argument**: « 1036 grandfathered entries is a quarter of the
+  drift budget. The lint catches new violations only — it doesn't shrink
+  the existing surface. » Rejected: this is the milestone strategy
+  (RESEARCH §Locked Decisions). Phases 3 + 4 do the sweeping; Phase 1
+  stops the bleeding. Without Phase 1, every Phase 3/4 sweep PR risks
+  re-introducing the violations being swept.
+
+- **Data gap**: empirical false-positive rate is unmeasured. Synthetic
+  fixtures in `tools/checks/tests/fixtures/` cover the canonical RED/
+  GREEN cases; real-world FP rate (regex over multi-line TextStyle blocks,
+  comment-stripped doc lines) becomes visible only on the first 3 PRs
+  that touch `apps/mobile/lib/**/*.dart`. Track in VERIFICATION.md at
+  phase close. PLAN-CHECK §3 R4 promotes this to a follow-up perimeter
+  if FP > 10% on any lint.
+
+- **Data gap**: lefthook latency on a 100-file commit (sweep PR shape)
+  is unmeasured. Budget is ≤ 1.5 s on a 1-line commit; 100-file commits
+  may exceed this. Mitigation in plan §Risks (fold into a single
+  dispatcher script) is deferred until empirically required.
+
+---
+
+Generated: 2026-05-09 by Claude during Wave 2 of MVP-DESIGN-LINTS-V1
+execution. Re-snapshot with: `for s in tools/checks/prefer_mint_*.py;
+do python3 $s --update-baseline; done`.

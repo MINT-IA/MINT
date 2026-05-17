@@ -1,0 +1,146 @@
+# tools/simulator/flows/maestro-perfect-set/flow_extractor_captures_age_canton.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Phase 91 G1 Maestro flow — multi-fact extraction strict assertion.
+#
+# Phase 91 Wave 4 (gap-closure 91-04) — STRICT 3-fact assertion.
+# canton + incomeGrossYearly + birthYear ALL strict. Requires
+# COACH_DUAL_LLM_ENABLED=True on staging Railway backend so the
+# LLM extractor catches birthYear=1990 (regex floor coverage is
+# weaker per profile_extractor.py:208-220).
+# G1 gate per EXTR-07 + D-08 — flow PASS gates Phase 91 close-out.
+#
+# This flow exists from Wave 0 to (a) lock the contract early, (b) become
+# the regression detector through Waves 1-2, (c) gate Phase 91 exit at G1.
+#
+# Source: `.planning/phases/91-mvp-extractor-v2/91-00-PLAN.md` Task 0.3
+#         `.planning/phases/91-mvp-extractor-v2/91-CONTEXT.md` decisions
+#         D-07 (telemetry baseline) + D-08 (multi-fact assertion)
+#         `.planning/phases/91-mvp-extractor-v2/91-04-PLAN.md` Task 4.4
+#         (Wave 4 gap-closure — birthYear assertion now strict)
+#
+# ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
+# Anonymous chat path — no `_user`. Per D-04, the LLM extractor runs
+# but persists into request-scoped state, never to DB. The regex floor
+# also runs in parallel and the coach response renders normally.
+#
+# ─── EXPECTED DURATION ─────────────────────────────────────────────────
+# ~40s wall-clock (cold launch + landing CTA + composer + LLM round-trip).
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
+# - Backend is reachable (Railway staging `mint-staging.up.railway.app`
+#   per memory feedback_app_targets_staging_always.md)
+# - ANTHROPIC_API_KEY set on Railway (server-key path used by anonymous)
+# - No special dart-defines required; landing CTA flow is the default.
+#
+# ─── MAESTRO 2.5.1 SYNTAX NOTES ────────────────────────────────────────
+# Mirrors flow_b15_concrete_facts_chips.yaml conventions:
+#   - regex locators (`.*…*`)
+#   - no `timeout:` on assertVisible (Maestro 2.5.1 default suffices)
+#   - extendedWaitUntil with explicit timeout for LLM round-trip
+#
+# ─── CANONICAL FIXTURE ─────────────────────────────────────────────────
+# The user message « j'ai 80k de salaire à Lausanne, je suis né en 1990 »
+# is the multi-fact stress test:
+#   - incomeGrossYearly = 80000 (regex catches « 80k de salaire » today)
+#   - canton            = 'VD'  (regex catches « Lausanne » → VD today)
+#   - birthYear         = 1990  (regex coverage weak; LLM extractor target)
+#
+# ─── OUTPUT ────────────────────────────────────────────────────────────
+# Screenshots:
+#   .planning/walker/maestro-flows/extractor-captures-age-canton/<run-id>/
+#     ├── 01-landing.png
+#     ├── 02-anon-chat-composer.png
+#     ├── 03-message-typed.png
+#     └── 04-coach-response.png
+
+appId: ch.mint.app
+tags:
+  - phase-91
+  - gate-g1
+  - extractor
+  - extractor-v2
+  - anonymous-chat
+  - gap-closure-91-04
+  - strict-3-fact
+---
+
+# 01 — cold launch + landing
+- launchApp:
+    clearState: false
+- assertVisible: "Parle à Mint"
+- takeScreenshot: "01-landing"
+
+# 02 — open anonymous chat
+- tapOn: "Parle à Mint"
+- extendedWaitUntil:
+    visible:
+      text: ".*Écris ce qui te trotte.*"
+    timeout: 8000
+- takeScreenshot: "02-anon-chat-composer"
+
+# 03 — type the canonical multi-fact message + submit
+# Fixture: « j'ai 80k de salaire à Lausanne, je suis né en 1990 »
+- tapOn:
+    text: ".*Écris ce qui te trotte.*"
+- inputText: "j'ai 80k de salaire à Lausanne, je suis né en 1990"
+- pressKey: Enter
+- takeScreenshot: "03-message-typed"
+
+# 04 — wait for coach response (LSFin disclaimer renders persistently
+# at the bottom of every coach turn ; same anchor pattern as flow_b15)
+- extendedWaitUntil:
+    visible:
+      text: ".*Information générale.*"
+    timeout: 35000
+- takeScreenshot: "04-coach-response"
+
+# 05 — STRICT FACT ASSERTION : canton (Lausanne → VD).
+# The regex floor catches this today (`profile_extractor.py:208-220`).
+# This assertion gates the Wave 4 strict run as PASS.
+# Surface: anonymous chat does NOT render a profile drawer here
+# (D-04 ; persistence is request-scoped). We assert via the coach reply
+# referencing the canton — the coach must echo the geographic anchor
+# in its response per the « Ancre toujours sur un chiffre concret du
+# contexte utilisateur » rule (claude_coach_service.py FORMAT block).
+- assertVisible:
+    text: ".*Lausanne.*|.*Vaud.*|.*VD.*"
+
+# 06 — STRICT FACT ASSERTION : incomeGrossYearly (80k).
+# Regex floor catches this today. The coach response should reference
+# the income figure in some form (« 80'000 », « 80k », « 80 000 »).
+- assertVisible:
+    text: ".*80.000.*|.*80'000.*|.*80k.*|.*80 000.*"
+
+# 07 — STRICT FACT ASSERTION : birthYear (1990).
+# Phase 91 Wave 4 (gap-closure 91-04) — strict 3-fact mode active.
+# Requires COACH_DUAL_LLM_ENABLED=True on staging Railway backend
+# so the LLM extractor catches birthYear=1990 (regex floor coverage
+# for birth year is weaker per profile_extractor.py:208-220).
+- assertVisible:
+    text: ".*1990.*|.*34 ans.*|.*35 ans.*"
+
+# ─── PHASE 91 GAP-CLOSURE STATUS (Wave 4, plan 91-04) ──────────────────
+# All 3 assertions are STRICT (canton + incomeGrossYearly + birthYear).
+# Flow runs as a G1 gate against staging Railway with
+# COACH_DUAL_LLM_ENABLED=True. The actual flow run + output capture is
+# task 5.2 in plan 91-05; this YAML edit makes it runnable strict.
+#
+# Run command (from 91-05):
+#   bash tools/simulator/maestro_perfect_set.sh --flow-set extended
+# OR direct invocation:
+#   bash tools/simulator/maestro_env.sh test \
+#     tools/simulator/flows/maestro-perfect-set/flow_extractor_captures_age_canton.yaml \
+#     --device "<DEVICE_ID>" --format junit --output result.xml
+#
+# Acceptance: exit 0 against staging build with the dual-LLM flag ON.
+# Per CLAUDE.md §9.6, the run output IS the deterministic citation.
+#
+# Implementation note on the assertion strategy: it is INDIRECT (asserting
+# the coach's textual echo of the fact). A stronger gate would inspect
+# the in-memory profile snapshot via a debug overlay — that surface does
+# not exist yet (anonymous chat has no drawer or profile screen). A
+# follow-up phase may add a `MINT_E2E_PROFILE_DUMP=true` dart-define +
+# endpoint that exposes the request-scoped extractor output for direct
+# fact-state assertion; until then, the textual echo is the available signal.

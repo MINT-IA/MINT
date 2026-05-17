@@ -11,7 +11,6 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/income_converter.dart';
@@ -81,7 +80,7 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
       children: [
         Text(
           'SCENE · TA RETRAITE PROJETEE',
-          style: GoogleFonts.montserrat(
+          style: TextStyle(fontFamily: 'Supreme', 
             fontSize: 10.5,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.4,
@@ -91,7 +90,7 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
         const SizedBox(height: 14),
         Text(
           'À ton âge et ton revenu, voici ce qui arrive\u00a0si tu ne bouges rien.',
-          style: GoogleFonts.montserrat(
+          style: TextStyle(fontFamily: 'Supreme', 
             fontSize: 17,
             fontWeight: FontWeight.w500,
             color: MintColors.textPrimary,
@@ -101,7 +100,7 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
         const SizedBox(height: 28),
         Text(
           'CHF ${_fmt(r.low)} \u2013 ${_fmt(r.high)}',
-          style: GoogleFonts.montserrat(
+          style: TextStyle(fontFamily: 'Supreme', 
             fontSize: 36,
             fontWeight: FontWeight.w600,
             color: MintColors.textPrimary,
@@ -111,7 +110,7 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
         const SizedBox(height: 4),
         Text(
           '/ mois, dès 65 ans',
-          style: GoogleFonts.inter(
+          style: TextStyle(fontFamily: 'Supreme', 
             fontSize: 14,
             color: MintColors.textSecondary,
           ),
@@ -128,7 +127,7 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
             children: [
               Text(
                 'ÂGE D\u2019ESPÉRANCE DE VIE · ${_ageEsperance.toInt()} ans',
-                style: GoogleFonts.montserrat(
+                style: TextStyle(fontFamily: 'Supreme', 
                   fontSize: 10.5,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.2,
@@ -153,7 +152,7 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
               Text(
                 'Cumulé entre 65 et ${_ageEsperance.toInt()} ans\u00a0: '
                 'environ CHF ${_fmt(cumulTotal)}.',
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Supreme', 
                   fontSize: 13,
                   color: MintColors.textSecondary,
                   height: 1.4,
@@ -166,7 +165,7 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
         Text(
           'Hypothèse\u00a0: rendement moyen 1,5 à 3,5\u202f%. '
           'Source\u00a0: AVS art. 33ter LAVS, LPP art. 14-16.',
-          style: GoogleFonts.inter(
+          style: TextStyle(fontFamily: 'Supreme', 
             fontSize: 11,
             color: MintColors.textSecondary,
             fontStyle: FontStyle.italic,

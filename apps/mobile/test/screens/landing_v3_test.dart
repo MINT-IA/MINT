@@ -89,9 +89,10 @@ void main() {
           reason: 'PANEL-VERDICT §3: w400.');
       expect(style.height, closeTo(1.2, 0.001));
       expect(style.letterSpacing, closeTo(-0.4, 0.001));
-      // Fraunces from Google Fonts ships fontFamily with the family in name.
-      expect(style.fontFamily, contains('Fraunces'),
-          reason: 'PANEL-VERDICT §3: typography = Fraunces.');
+      // Phase 92-03 (FONT-05/07) swapped Fraunces → Gambarino — see
+      // apps/mobile/lib/screens/landing_screen.dart:133 + MintTextStyles.displayGambarinoItalic40.
+      expect(style.fontFamily, contains('Gambarino'),
+          reason: 'PANEL-VERDICT §3: typography = Gambarino italic 40pt (post Phase 92).');
     });
 
     testWidgets(

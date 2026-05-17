@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback, LengthLimitingTextInputFormatter;
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
@@ -16,6 +16,7 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/anonymous/eclairage_card.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
 // v2.12 Phase 86 — `widgets/coach/eclairage_card.dart` was a Phase 80
@@ -77,6 +78,12 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       'anonymous_${DateTime.now().millisecondsSinceEpoch}';
   bool _isLoading = false;
   bool _isAuthGateLocked = false;
+  // Holds a message typed while the previous coach turn is still in flight.
+  // Without it, the second-fast Enter press is silently dropped by the
+  // `onSubmitted` guard, breaking the 3-message → auth-gate path
+  // (cassure #4, 2026-05-13). Single slot — only the most recent attempted
+  // submission is kept; older queued text is overwritten by intent.
+  String? _queuedMessage;
   bool _intentSent = false;
 
   // ── Phase 71a state machine (panel §4) ─────────────────────────────
@@ -189,6 +196,16 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
 
+    // Cassure #4 fix (2026-05-13): if a prior coach turn is still in flight,
+    // queue this submission instead of silently dropping it. The tail of
+    // the current `_sendMessage` drains the queue. Fixes "user presses
+    // Enter twice fast" + the Maestro E2E flow that hit auth-gate
+    // because msg 3's Enter fired while msg 2 was still loading.
+    if (_isLoading) {
+      _queuedMessage = trimmed;
+      return;
+    }
+
     // Check if user can still send
     final canSend = await AnonymousSessionService.canSendMessage();
     if (!canSend) {
@@ -240,6 +257,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         _isLoading = false;
       });
       _scrollToBottom();
+      _drainQueuedMessage();
       return;
     }
 
@@ -284,6 +302,17 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
 
       await Future.delayed(const Duration(milliseconds: 600));
       if (mounted) _showAuthGate();
+    }
+    _drainQueuedMessage();
+  }
+
+  /// Fires a queued message that was typed while a previous coach turn
+  /// was still loading. See cassure #4 (2026-05-13).
+  void _drainQueuedMessage() {
+    final next = _queuedMessage;
+    _queuedMessage = null;
+    if (next != null && next.isNotEmpty && mounted) {
+      _sendMessage(next);
     }
   }
 
@@ -372,9 +401,15 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       existing3a: 0,
       existingLpp: 35000,
       employmentStatus: 'salarie',
-      nationalityGroup: 'CH',
+      // Audit fix 2026-05-09 (perimeter STUB
+      // .planning/decisions/2026-05-09-perimeter-archetype-input-normalization/):
+      // never assume Swiss-native for an anonymous user. Pass null so
+      // PremierEclairageSelector / visibility scorer treat the
+      // nationality as unknown rather than silently skipping every
+      // expat / FATCA / cross-border code path.
+      nationalityGroup: null,
       plafond3a: 7258,
-      estimatedFields: const ['currentSavings', 'existingLpp'],
+      estimatedFields: const ['currentSavings', 'existingLpp', 'nationalityGroup'],
     );
   }
 
@@ -524,17 +559,19 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                   children: [
                     Text(
                       l.anonymousChatLocked,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
+                      style: MintTextStyles.bodyMedium(
                         color: MintColors.textSecondary,
-                        fontStyle: FontStyle.italic,
-                      ),
+                      ).copyWith(fontStyle: FontStyle.italic),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 12),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
+                      child: ElevatedButton( // lint-ignore: prefer_mint_cta
+                        // Phase 97 W7 iter#12 L001 — stable Maestro locator.
+                        // julien_swiss.yaml + lauren_expat_us.yaml step 05
+                        // assertVisible {id: 'anon-chat-register-cta'}.
+                        key: const Key('anon-chat-register-cta'),
                         onPressed: _showAuthGate,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: MintColors.inkPrimary,
@@ -547,10 +584,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                         ),
                         child: Text(
                           l.anonymousChatCreateAccount,
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: MintTextStyles.labelLarge(
+                            color: MintColors.white,
+                          ).copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -585,21 +621,19 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
               button: true,
               child: InkWell(
                 onTap: () => _onChipTap(chips[i]),
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(20),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: MintColors.craieHandoff,
                     border: Border.all(color: MintColors.borderSubtle, width: 1),
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     chips[i],
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                    style: MintTextStyles.bodyMedium(
                       color: MintColors.inkPrimary,
-                    ),
+                    ).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
@@ -621,11 +655,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
           child: Text(
             l.anonymousChatLsfinDisclaimer,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontStyle: FontStyle.italic,
+            style: MintTextStyles.labelSmall(
               color: MintColors.textMutedAaa,
-            ),
+            ).copyWith(fontStyle: FontStyle.italic),
           ),
         ),
         Container(
@@ -640,23 +672,28 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
             children: [
               Expanded(
                 child: TextField(
+                  // Phase 97 W7 iter#12 L001 — stable Maestro locator.
+                  // julien_swiss.yaml + lauren_expat_us.yaml depend on this.
+                  key: const Key('anon-chat-input'),
                   controller: _inputController,
-                  enabled: !_isLoading,
-                  // Panel §1.5 + §5 row 5 : autofocus OFF on cold-open.
+                  // Field stays editable during loading so a fast second
+                  // Enter is captured by the queue inside `_sendMessage`
+                  // instead of being silently dropped (cassure #4 fix).
+                  // Visual loading feedback comes from the typing
+                  // indicator + the greyed-out send button below.
+                  enabled: true,
                   autofocus: false,
                   textInputAction: TextInputAction.send,
-                  onSubmitted: _isLoading ? null : _sendMessage,
+                  onSubmitted: _sendMessage,
                   // Panel §5 row 2 : hard cap at 500 chars (paste-defence).
                   maxLength: 500,
                   inputFormatters: [LengthLimitingTextInputFormatter(500)],
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
+                  style: MintTextStyles.bodyLarge(
                     color: MintColors.inkPrimary,
                   ),
                   decoration: InputDecoration(
                     hintText: l.anonymousChatInputHint,
-                    hintStyle: GoogleFonts.inter(
-                      fontSize: 16,
+                    hintStyle: MintTextStyles.bodyLarge(
                       color: MintColors.textMuted,
                     ),
                     border: InputBorder.none,
@@ -701,28 +738,82 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
             bottomRight: Radius.circular(isUser ? 4 : 18),
           ),
         ),
-        child: Text(
-          message.text,
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            color: isUser ? MintColors.white : MintColors.inkPrimary,
-            height: 1.4,
-          ),
-        ),
+        // obs #158 (2026-05-17) — coach LLM emits markdown bold (`**…**`),
+        // italic (`_…_`), etc. The main coach surface
+        // (`widgets/coach/coach_message_bubble.dart:89-118`) already renders
+        // these via MarkdownBody. The anonymous chat surface was the orphan
+        // raw-Text holdout — users were seeing literal asterisks. Mirror the
+        // proven pattern from coach_message_bubble. Guard with `!isUser` so
+        // user-typed bubbles stay plain text (users don't emit markdown ;
+        // their input is echoed back via `Text(message.text)` in the user
+        // branch to avoid markdown-injection via user message into the chat
+        // surface).
+        child: isUser
+            ? Text(
+                message.text,
+                style: MintTextStyles.labelLarge(
+                  color: MintColors.white,
+                ).copyWith(fontWeight: FontWeight.w400),
+              )
+            : MarkdownBody(
+                data: message.text,
+                styleSheet: MarkdownStyleSheet(
+                  p: MintTextStyles.labelLarge(
+                    color: MintColors.inkPrimary,
+                  ).copyWith(fontWeight: FontWeight.w400, height: 1.45),
+                  strong: MintTextStyles.labelLarge(
+                    color: MintColors.inkPrimary,
+                  ).copyWith(fontWeight: FontWeight.w700, height: 1.45),
+                  em: MintTextStyles.labelLarge(
+                    color: MintColors.inkPrimary,
+                  ).copyWith(
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.italic,
+                    height: 1.45,
+                  ),
+                  listBullet: MintTextStyles.labelLarge(
+                    color: MintColors.inkPrimary,
+                  ).copyWith(fontWeight: FontWeight.w400, height: 1.45),
+                  h3: MintTextStyles.labelLarge(
+                    color: MintColors.inkPrimary,
+                  ).copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    height: 1.45,
+                  ),
+                ),
+                shrinkWrap: true,
+                softLineBreak: false,
+                selectable: true,
+              ),
       ),
     );
 
     // Phase 80: render the eclairage card inline beneath coach bubbles when
     // present. Forced via dart-define for walker / widget tests, otherwise
     // emitted by the backend (Phase 81 contract).
+    //
+    // Phase 97 W7 iter#12 L001 — stable Maestro locators for the anonymous
+    // chat surface. The opener bubble (first coach message, isOpener=true)
+    // gets 'anon-chat-opener-bubble' ; every subsequent coach bubble gets
+    // 'anon-chat-message-assistant'. User bubbles stay key-less (Maestro
+    // doesn't assert on them). Both keys are referenced by
+    // tools/simulator/flows/{julien_swiss,lauren_expat_us}.yaml.
+    final Key? assistantKey = isUser
+        ? null
+        : isOpener
+            ? const Key('anon-chat-opener-bubble')
+            : const Key('anon-chat-message-assistant');
     if (message.eclairage == null) {
       return Padding(
+        key: assistantKey,
         padding: const EdgeInsets.only(bottom: 12),
         child: bubble,
       );
     }
 
     return Padding(
+      key: assistantKey,
       padding: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -66,12 +66,19 @@ void main() {
     });
 
     test('default values produce a valid CoachContext', () {
+      // B6 fix (2026-05-08): empty/zero defaults — see commit d68a0f14 +
+      // .planning/decisions/2026-05-08-coach-onboarding-redesign-panel/.
+      // Pre-B6, defaults were 30 / ZH / swiss_native — fake « known facts »
+      // injected into the LLM context for empty profiles, producing the
+      // « 3 pièces du puzzle » bug reported in TestFlight v2.12.1+3.
+      // Consumers (claude_coach_service.py:793-798) gate prompt lines on
+      // truthy values so empty defaults correctly drop the line.
       final ctx = CoachContextBuilder.build();
 
       expect(ctx.firstName, '');
-      expect(ctx.age, 30);
-      expect(ctx.canton, 'ZH');
-      expect(ctx.archetype, 'swiss_native');
+      expect(ctx.age, 0);
+      expect(ctx.canton, '');
+      expect(ctx.archetype, '');
       expect(ctx.friTotal, 0);
       expect(ctx.friDelta, 0);
       expect(ctx.knownValues, isEmpty);

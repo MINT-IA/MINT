@@ -4480,7 +4480,7 @@ class SEn extends S {
   String get futurExplorerDetails => 'Explore details';
 
   @override
-  String get financialSummaryTitle => 'FINANCIAL OVERVIEW';
+  String get financialSummaryTitle => 'MY PROFILE';
 
   @override
   String get financialSummaryNoProfile => 'No profile entered';
@@ -4564,6 +4564,16 @@ class SEn extends S {
   @override
   String get financialSummaryFatcaWarning =>
       '⚠️ FATCA — Only a minority of providers accept (e.g. Raiffeisen)';
+
+  @override
+  String get sim3aFatcaGateTitle => 'Pillar 3a — limited access (FATCA)';
+
+  @override
+  String get sim3aFatcaGateBody =>
+      'Your FATCA status limits access to Swiss pillar 3a. Most providers refuse US persons or green card holders. Before simulating contributions, confirm a provider accepts you (e.g. Raiffeisen) and consider alternative levers: vested benefits, mortgage optimization, free investment.';
+
+  @override
+  String get sim3aFatcaGateAction => 'See alternatives to 3a';
 
   @override
   String get financialSummaryModifierPrevoyance => 'Edit pension';
@@ -7708,7 +7718,7 @@ class SEn extends S {
 
   @override
   String get authBenefitProjections =>
-      'AVS/LPP projections aligned to your situation';
+      'Financial projections adapted to your life choices (housing, tax, pension, family…)';
 
   @override
   String get authBenefitCoach => 'Personalised coach with your first name';
@@ -7853,6 +7863,94 @@ class SEn extends S {
 
   @override
   String get coachSendButton => 'Send';
+
+  @override
+  String get coachCitationChipsHeader => 'Server-side computations';
+
+  @override
+  String coachCitationChipLabel(String toolDisplayName) {
+    return '$toolDisplayName — computed';
+  }
+
+  @override
+  String coachCitationModalTitle(String toolDisplayName) {
+    return 'Source of computation: $toolDisplayName';
+  }
+
+  @override
+  String get coachCitationJsonViewerLabel => 'View computation detail (JSON)';
+
+  @override
+  String get coachCitationRememberCta => 'Remember this source';
+
+  @override
+  String get coachToolBudgetSnapshot => 'Current budget';
+
+  @override
+  String get coachToolRetirementProjection => 'Retirement projection';
+
+  @override
+  String get coachToolCrossPillarAnalysis => 'Cross-pillar analysis';
+
+  @override
+  String get coachToolCoupleOptimization => 'Couple optimization';
+
+  @override
+  String get coachToolCapStatus => 'Daily cap';
+
+  @override
+  String get coachToolRetrieveMemories => 'Memories';
+
+  @override
+  String get coachCitationRelativeJustNow => 'just now';
+
+  @override
+  String coachCitationRelativeMinutes(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString min ago',
+      one: '1 min ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeHours(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString h ago',
+      one: '1 h ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeDays(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString d ago',
+      one: '1 d ago',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get profileDefaultName => 'User';
@@ -21122,6 +21220,10 @@ class SEn extends S {
       'Response via your Claude API. Your exact salary is NOT sent — only your age, canton and archetype are shared.';
 
   @override
+  String get coachTransparencyServer =>
+      'Response via the Claude API (MINT server key). Your message is shared as-is to personalize the response.';
+
+  @override
   String get dataTransparencyTitle => 'How MINT uses your data';
 
   @override
@@ -22206,6 +22308,9 @@ class SEn extends S {
   String get landingV2LoginLink => 'I already have an account';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Continue without an account';
+
+  @override
   String get alertGenericFactPrefix => 'MINT noticed';
 
   @override
@@ -23024,9 +23129,57 @@ class SEn extends S {
   String get betaDisclosureCta => 'Got it, let\'s go';
 
   @override
-  String get betaDisclosureLearnMore => 'Learn more';
-
-  @override
   String get betaDisclosureSemanticsLabel =>
       'Information about the MINT beta version — educational tool only, no financial advice, data stays on your device by default.';
+
+  @override
+  String get coachOnboardingFirstAssistantGreeting =>
+      'Welcome to MINT. Before we start — what brings you here today?';
+
+  @override
+  String get verbExplique => 'Explain';
+
+  @override
+  String get verbSimule => 'Simulate';
+
+  @override
+  String get verbRassure => 'Reassure me';
+
+  @override
+  String get chatInputHint => 'Type your message...';
+
+  @override
+  String get chatIntentExplainLabel => 'Explain to me';
+
+  @override
+  String get chatIntentReassureLabel => 'Reassure me';
+
+  @override
+  String get chatIntentSimulateLabel => 'Simulate';
+
+  @override
+  String get narrativeSleeveNextStepExplain => 'Type a question to dig deeper.';
+
+  @override
+  String get narrativeSleeveNextStepReassure =>
+      'Type what worries you, we\'ll look together.';
+
+  @override
+  String get narrativeSleeveNextStepSimulate => 'Type a scenario to explore.';
+
+  @override
+  String get narrativeSleeveHookFallback =>
+      'Let\'s see together what this changes for you.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionExplain =>
+      'Here is what your card tells today.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionReassure =>
+      'Let\'s look calmly at where you stand.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionSimulate =>
+      'Pick a scenario to project.';
 }

@@ -1,0 +1,166 @@
+# tools/simulator/flows/auth_coach_post_hotfix.yaml
+#
+# B1+B2+B3+B4 hotfix bundle — AUTHENTICATED coach path validation.
+# Parallel to flows/julien_swiss.yaml (which exercises the ANON path).
+#
+# Scope :
+#   B1 — first message on /coach/chat is the new ASSISTANT greeting
+#        (« Bienvenue dans MINT. Avant qu'on commence : … »), NOT a
+#        user-authored bubble.
+#   B2 — first-turn suggested-action chip is « D'où vient ton argent ? … »,
+#        NOT the legacy « salaire net mensuel ».
+#   B3 — typing « je gagne 8500 francs par mois » + Enter must NOT trigger
+#        the rag/guardrails canned « Je suis là pour t'aider à comprendre
+#        ta situation financière. N'hésite pas à reformuler … ».
+#   B4 — fresh post-auth cold launch must NOT inject « VD » / « 35 ans » /
+#        « célibataire » into LLM context as fake known facts.
+#
+# B4 LIMITATION (read this before relying on the assertion below) :
+#   Maestro has no `ios.fileSystem` / `runScript`-with-host-fs extension.
+#   The coach profile is held in-process (Hive/SharedPreferences keyed by
+#   user id), NOT a sidecar `coach_profile.json` file we could `assertText`
+#   on. So B4 is asserted via two WEAK PROXIES inside Maestro :
+#     1. The first assistant bubble must NOT contain the literal tokens
+#        « VD », « 35 ans », « célibataire » (i.e. coach is not parroting
+#        fake facts back at the user).
+#     2. After the user types « je gagne 8500 francs par mois » the next
+#        assistant turn must NOT start with « Comme tu vis dans le canton
+#        de Vaud … » or similar canton-of-residence opener.
+#   For STRONG B4 evidence (filesystem read of the actual context blob
+#   sent to the LLM), use the harness companion `auth_coach_post_hotfix.sh`
+#   (sibling to walker_premier_eclairage.sh) which curls the staging coach
+#   endpoint with the same auth token and inspects the request payload via
+#   server-side log tailing. The Maestro flow alone CANNOT prove B4.
+#
+# Auth seeding (PRE-FLOW responsibility — NOT done by this YAML) :
+#   This flow assumes the harness has already brought the app to a
+#   « post-login fresh » state on /coach/chat before invoking
+#   `maestro test`. There is no `MINT_E2E_AUTH_SEEDED` dart-define wired
+#   in the codebase today (verified 2026-05-08 grep — only
+#   MINT_E2E_ARCHETYPE / MINT_E2E_FORCE_ECLAIRAGE_KIND exist). Two options
+#   for the harness :
+#     (a) Drive the register flow with cliclick before maestro starts.
+#     (b) Add a `MINT_E2E_AUTH_SEEDED=true` dart-define (small lib/main.dart
+#         change) that auto-routes to /coach/chat after splash with a
+#         seeded auth token from `String.fromEnvironment('MINT_E2E_AUTH_TOKEN')`.
+#   Option (b) is cleaner and parallels Phase 74's seeding pattern.
+#
+# Semantic locators ONLY (per .planning/phases/74-walker-premier-eclairage
+# panel + memory feedback_perimeter_5_gates). Drift in any tapOn / assertVisible
+# literal is caught by tools/checks/maestro_locator_audit.py blocking lint.
+#
+# Wall-clock budget : < 60s. 4 deterministic screenshots (B1, B2, B3, B4
+# proxy). Output dir : .planning/walker/auth-flow-test/<run-id>/screenshots/
+# (set via maestro --output-dir or harness mv post-run; never /tmp).
+
+appId: ch.mint.app
+---
+
+# ─── PRE-CONDITION ──────────────────────────────────────────────────────
+# App is already launched & user is on /coach/chat fresh post-auth.
+# We do NOT relaunch (would lose the seeded auth state). We just assert
+# the screen we expect to be on.
+
+# 00 — confirm we landed on coach chat (not still on splash/onboarding/landing)
+- assertVisible:
+    text: "Dis-moi."          # coachInputHint — input bar present == /coach/chat
+    timeout: 5000
+
+- takeScreenshot: "00-coach-chat-fresh-loaded"
+
+# ─── B1 — assistant-authored greeting, NOT user-authored ────────────────
+# The greeting bubble must exist AND must be tagged with the coach (not user)
+# Semantics label. coach_chat_screen.dart:2237/2252 wraps each bubble in
+# Semantics(label: coachUserMessage | coachCoachMessage).
+#   coachUserMessage  = "Ton message"     (app_fr.arb:3986)
+#   coachCoachMessage = "Réponse du coach"(app_fr.arb:3987)
+
+- assertVisible:
+    text: "Bienvenue dans MINT. Avant qu'on commence : qu'est-ce qui t'amène ici aujourd'hui ?"
+    timeout: 8000
+
+# Positive : the greeting lives inside a "Réponse du coach" Semantics node.
+- assertVisible:
+    text: "Réponse du coach"
+
+# Negative : the greeting must NOT be inside a "Ton message" (user) bubble.
+# Maestro doesn't support « assert text X is not a sibling of label Y »,
+# so we assert the user-bubble label has zero matches at this point
+# (the first-turn screen has no user messages yet).
+- assertNotVisible:
+    text: "Ton message"
+
+- takeScreenshot: "01-B1-assistant-greeting"
+
+# ─── B2 — chip is « D'où vient ton argent ? », not « salaire net mensuel » ──
+# Backend coach_chat.py:923 emits the new label verbatim ; the Flutter chip
+# renders it as text. Strong assertion : the new string is visible.
+
+- assertVisible:
+    text: "D'où vient ton argent ? (salaire, dividendes, rente, autre)"
+    timeout: 5000
+
+# Hard-fail if the legacy phrasing leaked back in (regression guard,
+# mirrors backend test_coach_chat_b2_b6_coverage.py:65-68).
+- assertNotVisible:
+    text: "Quel est ton salaire net mensuel ?"
+- assertNotVisible:
+    text: "salaire net mensuel"
+
+- takeScreenshot: "02-B2-money-source-chip"
+
+# ─── B3 — substantive engagement, NOT the canned guardrails fallback ────
+# Tap input field via its Semantics(textField: true, label: coachInputHint),
+# type the deterministic prompt, submit with Enter.
+
+- tapOn:
+    text: "Dis-moi."          # coachInputHint as Semantics label
+- inputText: "je gagne 8500 francs par mois"
+- pressKey: Enter
+
+# Wait for the next assistant bubble (id selector via ValueKey('msg_$index')
+# isn't reliable here — we don't know the index — so we wait on the
+# « Réponse du coach » Semantics label appearing more than once).
+- assertVisible:
+    text: "Réponse du coach"
+    timeout: 30000
+
+# B3 hard-fail : the guardrails.py:272-273 canned fallback must NOT appear.
+# The string is split across two lines in source ; in the rendered bubble
+# it concatenates. We check for both halves to catch either rendering.
+- assertNotVisible:
+    text: "Je suis là pour t'aider à comprendre ta situation financière"
+- assertNotVisible:
+    text: "N'hésite pas à reformuler ta question"
+- assertNotVisible:
+    text: "explorer des simulateurs pour des estimations chiffrées"
+
+- takeScreenshot: "03-B3-substantive-response"
+
+# ─── B4 (WEAK PROXY — see header note) — no parroted fake facts ─────────
+# After the user mentioned 8500 CHF/month income, the assistant should not
+# inject fabricated profile facts that were never given by the user.
+# These are the three sentinel tokens the bug report calls out :
+#   - « VD »   (canton)
+#   - « 35 ans » (age)
+#   - « célibataire » (civil status)
+#
+# A real user typing one prompt about salary cannot have leaked any of
+# these — if any appear, the LLM context was pre-poisoned with raw profile
+# defaults (the B4 bug). This is necessary-but-not-sufficient evidence ;
+# strong evidence requires server-log inspection (harness companion).
+
+- assertNotVisible:
+    text: "VD"
+- assertNotVisible:
+    text: "35 ans"
+- assertNotVisible:
+    text: "célibataire"
+
+# Common opener pattern when canton is leaked into context :
+- assertNotVisible:
+    text: "Comme tu vis dans le canton de Vaud"
+- assertNotVisible:
+    text: "À 35 ans"
+
+- takeScreenshot: "04-B4-no-fake-facts"

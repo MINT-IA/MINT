@@ -47,33 +47,49 @@ class DecompositionChargesResponse(BaseModel):
 # ===========================================================================
 
 class MortgageAffordabilityRequest(BaseModel):
-    """Request for mortgage affordability calculation."""
+    """Request for mortgage affordability calculation.
+
+    Profile-grounded per D-CE-06+07 : when `revenuBrutAnnuel` or `canton`
+    are omitted from the body, the endpoint reads them from
+    `_user.profile.data` via `_resolve_defaults`. Body explicit values
+    (including explicit-None) still win — see Plan 01 D-CE-07 semantics.
+    """
 
     model_config = ConfigDict(populate_by_name=True)
 
-    revenuBrutAnnuel: float = Field(
-        ..., alias="revenuBrutAnnuel",
-        description="Revenu brut annuel du menage (CHF)", ge=0
+    revenuBrutAnnuel: Optional[float] = Field(
+        default=None, alias="revenuBrutAnnuel",
+        description="Revenu brut annuel du menage (CHF, lu depuis le profil si absent)",
+        ge=0,
+        json_schema_extra={"from_profile": "income_gross_yearly"},
     )
-    epargneDisponible: float = Field(
-        ..., alias="epargneDisponible",
-        description="Epargne disponible / cash (CHF)", ge=0
+    epargneDisponible: Optional[float] = Field(
+        default=None, alias="epargneDisponible",
+        description="Epargne disponible / cash (CHF, lu depuis le profil si absent)",
+        ge=0,
+        json_schema_extra={"from_profile": "epargne_disponible"},
     )
-    avoir3a: float = Field(
-        0, alias="avoir3a",
-        description="Avoir 3a disponible pour EPL (CHF)", ge=0
+    avoir3a: Optional[float] = Field(
+        default=None, alias="avoir3a",
+        description="Avoir 3a disponible pour EPL (CHF, lu depuis le profil si absent)",
+        ge=0,
+        json_schema_extra={"from_profile": "epargne_3a"},
     )
-    avoirLpp: float = Field(
-        0, alias="avoirLpp",
-        description="Avoir LPP disponible pour EPL (CHF)", ge=0
+    avoirLpp: Optional[float] = Field(
+        default=None, alias="avoirLpp",
+        description="Avoir LPP disponible pour EPL (CHF, lu depuis le profil si absent)",
+        ge=0,
+        json_schema_extra={"from_profile": "avoir_lpp"},
     )
     prixAchat: float = Field(
         0, alias="prixAchat",
         description="Prix d'achat cible (CHF). 0 = calculer le max.", ge=0
     )
-    canton: str = Field(
-        "ZH", description="Code canton (ex: ZH, VD, GE)",
-        min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (ex: ZH, VD, GE, lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
 
 
@@ -252,7 +268,13 @@ class SaronVsFixedResponse(BaseModel):
 # ===========================================================================
 
 class ImputedRentalRequest(BaseModel):
-    """Request for imputed rental value calculation."""
+    """Request for imputed rental value calculation.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` is widened
+    from `default="ZH"` to Optional `default=None` with the `from_profile`
+    marker. W0 audit row 9 sev-0 (canonical-defaults canton, included for
+    grounding consistency).
+    """
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -260,9 +282,11 @@ class ImputedRentalRequest(BaseModel):
         ..., alias="valeurVenale",
         description="Valeur venale du bien (CHF)", ge=0
     )
-    canton: str = Field(
-        "ZH", description="Code canton",
-        min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
     interetsHypothecairesAnnuels: float = Field(
         0, alias="interetsHypothecairesAnnuels",
@@ -367,7 +391,15 @@ class ImputedRentalResponse(BaseModel):
 # ===========================================================================
 
 class AmortizationComparisonRequest(BaseModel):
-    """Request for direct vs indirect amortization comparison."""
+    """Request for direct vs indirect amortization comparison.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch A), `canton` is widened
+    from `default="ZH"` to Optional `default=None` with the `from_profile`
+    marker so the `_resolve_defaults` helper can fill it from
+    `_user.profile.canton` before the missing-check fires. W0 audit row 10
+    sev-1 : silent ZH default on null canton produced wrong amortization
+    economic comparison for non-ZH users.
+    """
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -395,9 +427,11 @@ class AmortizationComparisonRequest(BaseModel):
         0.02, alias="rendement3a",
         description="Rendement attendu du 3a (0-0.10)", ge=-0.05, le=0.10
     )
-    canton: str = Field(
-        "ZH", description="Code canton",
-        min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
 
 
@@ -513,7 +547,12 @@ class AmortizationComparisonResponse(BaseModel):
 # ===========================================================================
 
 class EplCombinedRequest(BaseModel):
-    """Request for combined EPL (3a + LPP) equity calculation."""
+    """Request for combined EPL (3a + LPP) equity calculation.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch B), `canton` is widened
+    from `default="ZH"` to Optional `default=None` with the `from_profile`
+    marker. W0 audit row 11 sev-1.
+    """
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -536,9 +575,11 @@ class EplCombinedRequest(BaseModel):
     age: int = Field(
         35, description="Age actuel", ge=18, le=70
     )
-    canton: str = Field(
-        "ZH", description="Code canton",
-        min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
     epargneCash: float = Field(
         0, alias="epargneCash",

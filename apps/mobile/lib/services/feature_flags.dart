@@ -79,6 +79,15 @@ class FeatureFlags {
   /// Admin screens: observability, analytics
   static bool enableAdminScreens = false;
 
+  /// Bring-your-own-key (BYOK): user pastes their own Anthropic / OpenAI /
+  /// Mistral API key. Out-of-scope for MVP per `project_byok_scope.md` —
+  /// current builds use ServerKey (MINT's Anthropic key on Railway). The
+  /// settings entry was visible in v2.x QA builds and confused testers
+  /// (« do I need to bring a key? »). v2.14 hides the menu entry until
+  /// BYOK lands; the underlying screen + service remain available behind
+  /// `/profile/byok` for internal testing.
+  static bool enableByok = false;
+
   /// MVP wedge onboarding — storyboard v2 locked (2026-04-22).
   /// 9-step flow with 4 intents, dossier densification, and 3 N2 scenes
   /// (RenteTrouee / CapaciteAchat / 3aLevier) before magic-link sealing.
@@ -90,6 +99,21 @@ class FeatureFlags {
   /// `/api/v1/config/feature-flags` returning `{"enableMvpWedgeOnboarding": true}`.
   /// Kill-switch: backend set to false, no app redeploy needed.
   static bool enableMvpWedgeOnboarding = false;
+
+  /// Phase 96 D-01 — chat tab visibility in MintShell.NavigationBar.
+  ///
+  /// Per 96-CONTEXT.md D-21: Phase 96 ships the kill-switch via feature flag;
+  /// permanent route removal after a 4-week soak with zero rollback signal.
+  /// Default `true` (no behavior change in user nav) until staging
+  /// baseline-pull per D-11 authorises the flip. When set to `false` (via
+  /// `/config/feature-flags` server override), MintShell.NavigationBar drops
+  /// index 2 (`tabCoach`), leaving a 3-tab nav (Aujourd'hui / Mon Argent /
+  /// Explorer). The GoRouter branch + CoachChatScreen route STAY registered
+  /// (D-02) so MintChatOverlay can route to it.
+  ///
+  /// Server-overridable via the existing `/config/feature-flags` endpoint
+  /// (applyFromMap below).
+  static bool chatTabVisible = true;
 
   // Phase 32 D-10 — local-only gate for /admin/*.
   // Combined with compile-time ENABLE_ADMIN=1 via AdminGate.
@@ -133,6 +157,10 @@ class FeatureFlags {
     }
     if (data.containsKey('enableMvpWedgeOnboarding')) {
       enableMvpWedgeOnboarding = data['enableMvpWedgeOnboarding'] == true;
+    }
+    // Phase 96 D-01 — chat tab visibility server override.
+    if (data.containsKey('chatTabVisible')) {
+      chatTabVisible = data['chatTabVisible'] == true;
     }
   }
 

@@ -29,8 +29,31 @@
 appId: ch.mint.app
 ---
 # 01 — landing screen visible
-- launchApp
-- assertVisible: "Voir clair, décider seul."
+# 3-part preamble per sweep #5 evidence (2026-05-14) :
+#   (a) clearState: true forces fresh anon state. Without it, a sim that
+#       had isLocalMode=true from a prior run routes directly to
+#       Aujourd'hui (app.dart:418), bypassing the LandingScreen entirely
+#       — « Voir clair » never renders.
+#   (b) Conditional bêta modal dismiss : if the build under test doesn't
+#       carry MINT_DISABLE_BETA_MODAL=true (the default sim build won't),
+#       the modal opens and covers the landing copy. The persona's own
+#       dart-define preamble assumes the harness sets this flag, but the
+#       canonical sweep doesn't rebuild — so this conditional makes the
+#       flow tolerant of both builds.
+#   (c) extendedWaitUntil + regex matcher tolerates landing FadeTransition
+#       (~2.5s) + iOS doubled accessibilityText.
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: ".*Voir clair.*décider seul.*"
+    timeout: 10000
 
 # 02 — tap landing CTA → anonymous chat opener
 - tapOn:
@@ -39,12 +62,19 @@ appId: ch.mint.app
     id: "anon-chat-opener-bubble"
 
 # 03 — tap input field, type prompt 1, submit, wait for assistant reply
+# Maestro 2.5.1 rejects `timeout:` as an inline property of
+# `assertVisible:` (« Unknown Property: timeout », parse error before
+# any step runs). Canonical replacement is `extendedWaitUntil:` with
+# `visible:` and `timeout:` as siblings — same semantics, accepted
+# syntax. Pattern matches the cold-launch fragment + every other
+# extendedWaitUntil call site in this codebase.
 - tapOn:
     id: "anon-chat-input"
 - inputText: "Combien je peux mettre dans un 3a cette annee ?"
 - pressKey: Enter
-- assertVisible:
-    id: "anon-chat-message-assistant"
+- extendedWaitUntil:
+    visible:
+      id: "anon-chat-message-assistant"
     timeout: 30000
 
 # 04 — éclairage card rendered (forced kind = fiscal_margin_3a)
@@ -53,7 +83,11 @@ appId: ch.mint.app
     text: "plafond du 3e pilier"
 
 # 05 — scroll to register CTA + assert visible
+# Phase 97 W7 iter#12 L001 — dropped narrator-text assertion
+# `assertVisible: "Estime ta marge précise"` (literal does NOT exist in
+# app code / ARB ; the stable `anon-chat-register-cta` Key assertion
+# above already proves the CTA rendered). Keeping the text assertion was
+# a drift trap (narrator copy can change without regression intent).
 - scroll
 - assertVisible:
     id: "anon-chat-register-cta"
-- assertVisible: "Estime ta marge précise"

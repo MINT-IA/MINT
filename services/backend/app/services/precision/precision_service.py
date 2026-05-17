@@ -92,28 +92,39 @@ _FIELD_HELP_REGISTRY: Dict[str, FieldHelp] = {
     ),
     "salaire_brut": FieldHelp(
         field_name="salaire_brut",
+        # B-EXP-F-2 audit fix 2026-05-09 : phrasing was salaried-active
+        # only ("Fiche de salaire mensuelle"). Independents, retirees,
+        # students, expat_us in transition, returning_swiss don't have a
+        # salary slip. Reframe via "selon ta source de revenus" so it
+        # covers the 8 archetypes (CLAUDE.md NEVER #4 + #7).
         where_to_find=(
-            "Ton salaire brut annuel figure sur ta fiche de salaire (ligne 'Salaire brut') "
-            "ou sur ton contrat de travail. Inclus le 13e salaire si applicable."
+            "Selon ta source de revenus : pour un emploi salarie, fiche de salaire "
+            "(ligne 'Salaire brut') ou contrat — inclus le 13e si applicable. Pour un "
+            "statut independant, declaration fiscale (revenu net independant). Pour "
+            "un statut retraite / sans emploi, somme des rentes et autres revenus."
         ),
-        document_name="Fiche de salaire mensuelle ou contrat de travail",
-        german_name="Bruttolohn (Lohnabrechnung / Arbeitsvertrag)",
+        document_name="Fiche de salaire / contrat / declaration fiscale / decompte de rente",
+        german_name="Lohnabrechnung / Vertrag / Steuererklaerung / Rentenabrechnung",
         fallback_estimation=(
-            "Tu peux aussi regarder ta declaration fiscale: "
-            "le revenu d'activite lucrative dependante."
+            "A defaut, tu peux estimer a partir de ta declaration fiscale "
+            "ou des decomptes mensuels recents."
         ),
     ),
     "salaire_net": FieldHelp(
         field_name="salaire_net",
+        # B-EXP-F-2 audit fix 2026-05-09 : same archetype-blind phrasing.
         where_to_find=(
-            "Ton salaire net mensuel figure en bas de ta fiche de salaire, "
-            "apres deductions AVS, LPP, AC, impot a la source (si applicable)."
+            "Selon ta source de revenus : pour un emploi salarie, bas de la fiche de "
+            "salaire (apres AVS, LPP, AC, impot a la source si applicable). Pour un "
+            "statut independant, revenu net apres cotisations sociales et charges "
+            "professionnelles. Pour une rente, montant net verse mensuellement."
         ),
-        document_name="Fiche de salaire mensuelle",
-        german_name="Nettolohn (Lohnabrechnung)",
+        document_name="Fiche de salaire / decompte cotisations / decompte de rente",
+        german_name="Lohnabrechnung / Beitragsabrechnung / Rentenabrechnung",
         fallback_estimation=(
-            "En general, le net represente 75-85% du brut selon le canton "
-            "et la situation familiale."
+            "En general, pour un emploi salarie, le net represente 75-85% du brut "
+            "selon le canton et la situation familiale ; pour les autres statuts, "
+            "se referer aux decomptes specifiques."
         ),
     ),
     "taux_marginal": FieldHelp(

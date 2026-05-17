@@ -35,24 +35,40 @@ class DestinationDepartEnum(str, Enum):
 # ===========================================================================
 
 class RachatEchelonneRequest(BaseModel):
-    """Request for stepped LPP buyback simulation."""
+    """Request for stepped LPP buyback simulation.
+
+    Profile-grounded per D-CE-06+07 : canton, revenuImposable and avoirActuel
+    are read from `_user.profile.data` when omitted from the body.
+    Body explicit values (incl. explicit-None) still win — see Plan 01
+    D-CE-07 semantics. Closes the W0 audit sev-3 incident class :
+    canton-dependent tax brackets crash or wrong-VD for non-VD users.
+    """
 
     model_config = ConfigDict(populate_by_name=True)
 
-    avoirActuel: float = Field(
-        ..., description="Avoir LPP actuel (CHF)", ge=0
+    avoirActuel: Optional[float] = Field(
+        default=None,
+        description="Avoir LPP actuel (CHF, lu depuis le profil si absent)",
+        ge=0,
+        json_schema_extra={"from_profile": "avoir_lpp"},
     )
     rachatMax: float = Field(
         ..., description="Montant de rachat maximum selon le certificat LPP (CHF)", ge=0
     )
-    revenuImposable: float = Field(
-        ..., description="Revenu imposable annuel (CHF)", ge=0
+    revenuImposable: Optional[float] = Field(
+        default=None,
+        description="Revenu imposable annuel (CHF, lu depuis le profil si absent)",
+        ge=0,
+        json_schema_extra={"from_profile": "revenu_imposable"},
     )
     tauxMarginalEstime: Optional[float] = Field(
         None, description="Taux marginal estime (0-1). Si absent, calcule selon le canton.", ge=0, le=1
     )
-    canton: str = Field(
-        ..., description="Code canton (ex: ZH, VD, GE)", min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (ex: ZH, VD, GE, lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
     horizonRachatAnnees: int = Field(
         3, description="Nombre d'annees pour echelonner le rachat (1-5)", ge=1, le=5
@@ -238,8 +254,11 @@ class EPLRequest(BaseModel):
     avoirA50Ans: Optional[float] = Field(
         None, description="Avoir LPP a 50 ans (si connu, pour la regle des 50 ans)", ge=0
     )
-    canton: str = Field(
-        "ZH", description="Code canton pour l'estimation fiscale", min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton pour l'estimation fiscale (lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
 
 

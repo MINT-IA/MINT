@@ -35,6 +35,7 @@ class ConsentCategory(str, Enum):
     open_banking = "open_banking"
     document_upload = "document_upload"
     rag_queries = "rag_queries"
+    coach_insights = "coach_insights"
 
 
 class ConsentBasis(str, Enum):
@@ -80,6 +81,10 @@ class DataExportRequest(PrivacyBaseModel):
     include_analytics: bool = Field(
         default=True,
         description="Inclure les evenements analytics",
+    )
+    include_coach_insights: bool = Field(
+        default=True,
+        description="Inclure les insights enregistres par le coach IA",
     )
 
 
@@ -140,6 +145,10 @@ class DataExportResponse(PrivacyBaseModel):
     donnees_analytics: List[Dict] = Field(
         default_factory=list,
         description="Evenements analytics",
+    )
+    donnees_coach_insights: List[Dict] = Field(
+        default_factory=list,
+        description="Insights enregistres par le coach IA (memoire conversationnelle)",
     )
     politique_conservation: Dict[str, str] = Field(
         default_factory=dict,

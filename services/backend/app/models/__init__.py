@@ -34,6 +34,7 @@ from app.models.magic_link_token import MagicLinkTokenModel
 from app.models.coach_insight import CoachInsightRecord
 from app.models.document_memory import DocumentMemory
 from app.models.dek_vault import DEKVault
+from app.models.projection_audit_record import ProjectionAuditRecord
 
 __all__ = [
     "User",
@@ -62,4 +63,5 @@ __all__ = [
     "CoachInsightRecord",
     "DocumentMemory",
     "DEKVault",
+    "ProjectionAuditRecord",
 ]

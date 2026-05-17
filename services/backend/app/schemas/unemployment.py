@@ -81,7 +81,12 @@ class OrpLinkResponse(BaseModel):
 # ===========================================================================
 
 class UnemploymentBenefitsRequest(BaseModel):
-    """Request for LACI unemployment benefits calculation."""
+    """Request for LACI unemployment benefits calculation.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch D), `canton` is widened
+    from `default="ZH"` to Optional `default=None` with the `from_profile`
+    marker. W0 audit row 37 sev-2.
+    """
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -104,8 +109,11 @@ class UnemploymentBenefitsRequest(BaseModel):
     has_disability: bool = Field(
         False, description="Situation de handicap?"
     )
-    canton: str = Field(
-        "ZH", description="Code canton (ex: ZH, VD, GE)", min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
     date_licenciement: Optional[str] = Field(
         None, description="Date de licenciement (ISO 8601, ex: 2026-03-01)"

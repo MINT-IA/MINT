@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/financial_plan.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/financial_plan_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -110,5 +112,50 @@ void main() {
       expect(provider.hasPlan, isFalse);
       expect(provider.currentPlan, isNull);
     });
+
+    test(
+      'Test 12: attachProfileProvider is idempotent — repeat calls do '
+      'not stack listeners',
+      () {
+        // Walker 2026-05-08 / Aujourdhui-wire fix: the ProxyProvider
+        // `update` callback fires on every CoachProfile rebuild. Without
+        // an idempotency guard inside attachProfileProvider, the listener
+        // would stack and CoachProfileProvider.notifyListeners() would
+        // trigger N independent _checkStaleness runs per change, scaling
+        // to N² over a session.
+        //
+        // We bypass the heavy CoachProfileProvider (it pulls
+        // ReportPersistenceService → flutter_secure_storage which needs
+        // platform binding) and verify the guard with a CoachProfile-
+        // shaped stub that only counts addListener calls.
+        final provider = FinancialPlanProvider();
+        final stub = _ListenerCountingProfileStub();
+
+        // Attach 5 times — without the guard, 5 listeners stack.
+        for (var i = 0; i < 5; i++) {
+          provider.attachProfileProvider(stub);
+        }
+
+        expect(
+          stub.addListenerCallCount,
+          equals(1),
+          reason: 'attachProfileProvider should add exactly 1 listener '
+              'across N calls — guard is the contract',
+        );
+      },
+    );
   });
+}
+
+/// Test stub that mimics [CoachProfileProvider.addListener] just enough
+/// to count attach calls. Bypasses the real provider (which pulls
+/// flutter_secure_storage and needs platform binding).
+class _ListenerCountingProfileStub extends CoachProfileProvider {
+  int addListenerCallCount = 0;
+
+  @override
+  void addListener(VoidCallback listener) {
+    addListenerCallCount++;
+    // Don't actually wire — we only care about the call count.
+  }
 }

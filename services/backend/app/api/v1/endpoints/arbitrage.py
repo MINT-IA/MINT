@@ -23,6 +23,13 @@ Sources:
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    emit_calc_invoke_metric,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.core.rate_limit import limiter
 from app.models.user import User
 from app.schemas.arbitrage import (
@@ -87,7 +94,12 @@ def _result_to_response(result, response_class):
 
 @router.post("/rente-vs-capital", response_model=RenteVsCapitalResponse)
 @limiter.limit("10/minute")
-def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest, _user: User = Depends(require_current_user)) -> RenteVsCapitalResponse:
+def arbitrage_rente_vs_capital(
+    request: Request,
+    body: RenteVsCapitalRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> RenteVsCapitalResponse:
     """Compare rente viagere vs retrait en capital vs mixte.
 
     Simule 3 options pour la prevoyance LPP a la retraite:
@@ -95,59 +107,77 @@ def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest, _u
     - Option B: Retrait en capital integral (+ SWR)
     - Option C: Mixte (obligatoire en rente, surobligatoire en capital)
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 2 — silent VD fallback
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;
+    otherwise a warning is logged and the legacy hardcoded-default branch
+    resumes (non-strict graceful Flutter rollout).
+
     Returns:
         RenteVsCapitalResponse avec 3 trajectoires, breakeven, sensibilite,
         disclaimer et sources legales.
     """
+    resolved = _resolve_defaults(profile_data, body, RenteVsCapitalRequest)
+    missing = _required_profile_fields_missing(resolved, RenteVsCapitalRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_RENTE_VS_CAPITAL_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/arbitrage/rente-vs-capital",
+        )
+    emit_calc_invoke_metric(
+        kind="rente_vs_capital",
+        resolved=resolved,
+        schema_class=RenteVsCapitalRequest,
+    )
+
     try:
         result = compare_rente_vs_capital(
-            capital_lpp_total=body.capital_lpp_total,
-            capital_obligatoire=body.capital_obligatoire,
-            capital_surobligatoire=body.capital_surobligatoire,
-            rente_annuelle_proposee=body.rente_annuelle_proposee,
+            capital_lpp_total=resolved["capital_lpp_total"],
+            capital_obligatoire=resolved["capital_obligatoire"],
+            capital_surobligatoire=resolved["capital_surobligatoire"],
+            rente_annuelle_proposee=resolved["rente_annuelle_proposee"],
             taux_conversion_obligatoire=(
-                body.taux_conversion_obligatoire
-                if body.taux_conversion_obligatoire is not None
+                resolved["taux_conversion_obligatoire"]
+                if resolved["taux_conversion_obligatoire"] is not None
                 else 0.068
             ),
             taux_conversion_surobligatoire=(
-                body.taux_conversion_surobligatoire
-                if body.taux_conversion_surobligatoire is not None
+                resolved["taux_conversion_surobligatoire"]
+                if resolved["taux_conversion_surobligatoire"] is not None
                 else 0.05
             ),
-            canton=(
-                body.canton.upper()
-                if body.canton is not None
-                else "VD"
-            ),
+            canton=str(resolved["canton"]).upper(),
             age_retraite=(
-                body.age_retraite
-                if body.age_retraite is not None
+                resolved["age_retraite"]
+                if resolved["age_retraite"] is not None
                 else 65
             ),
             taux_retrait=(
-                body.taux_retrait
-                if body.taux_retrait is not None
+                resolved["taux_retrait"]
+                if resolved["taux_retrait"] is not None
                 else 0.04
             ),
             rendement_capital=(
-                body.rendement_capital
-                if body.rendement_capital is not None
+                resolved["rendement_capital"]
+                if resolved["rendement_capital"] is not None
                 else 0.03
             ),
             inflation=(
-                body.inflation
-                if body.inflation is not None
+                resolved["inflation"]
+                if resolved["inflation"] is not None
                 else 0.02
             ),
             horizon=(
-                body.horizon
-                if body.horizon is not None
+                resolved["horizon"]
+                if resolved["horizon"] is not None
                 else 25
             ),
             is_married=(
-                body.is_married
-                if body.is_married is not None
+                resolved["is_married"]
+                if resolved["is_married"] is not None
                 else False
             ),
         )
@@ -158,12 +188,46 @@ def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest, _u
         raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
+_ALLOCATION_ANNUELLE_HINT_FR = (
+    "Pour estimer ton allocation annuelle, j'ai besoin de ton canton, "
+    "de savoir si tu es propriétaire et de ton taux hypothécaire actuel. "
+    "Tu peux me les partager ?"
+)
+
+
+_LOCATION_VS_PROPRIETE_HINT_FR = (
+    "Pour comparer location et propriété, j'ai besoin de ton canton "
+    "de domicile fiscal. Tu peux me le partager ?"
+)
+
+
+_RENTE_VS_CAPITAL_HINT_FR = (
+    "Pour comparer rente et capital LPP, j'ai besoin de ton canton — "
+    "les taux d'imposition varient considérablement. Tu peux me le partager ?"
+)
+
+
+_RACHAT_VS_MARCHE_HINT_FR = (
+    "Pour comparer rachat LPP et investissement libre, j'ai besoin de ton "
+    "canton — l'économie fiscale dépend du barème cantonal. "
+    "Tu peux me le partager ?"
+)
+
+
+_CALENDRIER_RETRAITS_HINT_FR = (
+    "Pour comparer un retrait groupé et un retrait échelonné, j'ai besoin "
+    "de ton canton — la progressivité fiscale change tout. "
+    "Tu peux me le partager ?"
+)
+
+
 @router.post("/allocation-annuelle", response_model=AllocationAnnuelleResponse)
 @limiter.limit("10/minute")
 def arbitrage_allocation_annuelle(
     request: Request,
     body: AllocationAnnuelleRequest,
     _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> AllocationAnnuelleResponse:
     """Compare les strategies d'allocation annuelle de l'epargne.
 
@@ -173,59 +237,67 @@ def arbitrage_allocation_annuelle(
     - Amortissement indirect (si proprietaire)
     - Investissement libre (toujours disponible)
 
+    Grounded via D-CE-06 + D-CE-07 : canton, is_property_owner,
+    taux_hypothecaire and rendement_3a are read from `_user.profile` when
+    not supplied in the body (no silent hardcoded VD/False/1.5%/2%
+    fallback). Missing required profile fields trigger a 422 with the
+    D-CE-08 `CoachToolIncomplete` envelope when
+    `PROFILE_GROUNDING_STRICT_MODE=true` ; otherwise a warning is logged
+    and the legacy hardcoded-defaults branch resumes (non-strict
+    graceful Flutter rollout).
+
     Returns:
         AllocationAnnuelleResponse avec trajectoires, breakeven, sensibilite,
         disclaimer et sources legales.
     """
+    resolved = _resolve_defaults(profile_data, body, AllocationAnnuelleRequest)
+    missing = _required_profile_fields_missing(resolved, AllocationAnnuelleRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_ALLOCATION_ANNUELLE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/arbitrage/allocation-annuelle",
+        )
+    emit_calc_invoke_metric(
+        kind="allocation_annuelle",
+        resolved=resolved,
+        schema_class=AllocationAnnuelleRequest,
+    )
+
     try:
         result = compare_allocation_annuelle(
-            montant_disponible=body.montant_disponible,
-            taux_marginal=body.taux_marginal,
+            montant_disponible=resolved["montant_disponible"],
+            taux_marginal=resolved["taux_marginal"],
             a3a_maxed=(
-                body.a3a_maxed
-                if body.a3a_maxed is not None
+                resolved["a3a_maxed"]
+                if resolved["a3a_maxed"] is not None
                 else False
             ),
             potentiel_rachat_lpp=(
-                body.potentiel_rachat_lpp
-                if body.potentiel_rachat_lpp is not None
+                resolved["potentiel_rachat_lpp"]
+                if resolved["potentiel_rachat_lpp"] is not None
                 else 0
             ),
-            is_property_owner=(
-                body.is_property_owner
-                if body.is_property_owner is not None
-                else False
-            ),
-            taux_hypothecaire=(
-                body.taux_hypothecaire
-                if body.taux_hypothecaire is not None
-                else 0.015
-            ),
+            is_property_owner=bool(resolved["is_property_owner"]),
+            taux_hypothecaire=float(resolved["taux_hypothecaire"]),
             annees_avant_retraite=(
-                body.annees_avant_retraite
-                if body.annees_avant_retraite is not None
+                resolved["annees_avant_retraite"]
+                if resolved["annees_avant_retraite"] is not None
                 else 20
             ),
-            rendement_3a=(
-                body.rendement_3a
-                if body.rendement_3a is not None
-                else 0.02
-            ),
+            rendement_3a=float(resolved["rendement_3a"]),
             rendement_lpp=(
-                body.rendement_lpp
-                if body.rendement_lpp is not None
+                resolved["rendement_lpp"]
+                if resolved["rendement_lpp"] is not None
                 else 0.0125
             ),
             rendement_marche=(
-                body.rendement_marche
-                if body.rendement_marche is not None
+                resolved["rendement_marche"]
+                if resolved["rendement_marche"] is not None
                 else 0.04
             ),
-            canton=(
-                body.canton.upper()
-                if body.canton is not None
-                else "VD"
-            ),
+            canton=str(resolved["canton"]).upper(),
         )
 
         return _result_to_response(result, AllocationAnnuelleResponse)
@@ -240,6 +312,7 @@ def arbitrage_location_vs_propriete(
     request: Request,
     body: LocationVsProprieteRequest,
     _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> LocationVsProprieteResponse:
     """Compare continuer a louer vs acheter un bien immobilier.
 
@@ -247,48 +320,67 @@ def arbitrage_location_vs_propriete(
     - Option A: Continuer a louer + investir le capital sur le marche
     - Option B: Acheter le bien avec hypotheque
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 3 sev-2 fix — legacy default
+    "VD" produced wrong rent vs property economic comparison for non-VD
+    users). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;
+    otherwise a warning is logged and the legacy hardcoded-default branch
+    resumes (non-strict graceful Flutter rollout).
+
     Returns:
         LocationVsProprieteResponse avec 2 trajectoires, breakeven, sensibilite,
         disclaimer et sources legales (CO, LIFD, FINMA).
     """
+    resolved = _resolve_defaults(profile_data, body, LocationVsProprieteRequest)
+    missing = _required_profile_fields_missing(resolved, LocationVsProprieteRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_LOCATION_VS_PROPRIETE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/arbitrage/location-vs-propriete",
+        )
+    emit_calc_invoke_metric(
+        kind="location_vs_propriete",
+        resolved=resolved,
+        schema_class=LocationVsProprieteRequest,
+    )
+
     try:
         result = compare_location_vs_propriete(
-            capital_disponible=body.capital_disponible,
-            loyer_mensuel_actuel=body.loyer_mensuel_actuel,
-            prix_bien=body.prix_bien,
-            canton=(
-                body.canton.upper()
-                if body.canton is not None
-                else "VD"
-            ),
+            capital_disponible=resolved["capital_disponible"],
+            loyer_mensuel_actuel=resolved["loyer_mensuel_actuel"],
+            prix_bien=resolved["prix_bien"],
+            canton=str(resolved["canton"]).upper(),
             horizon_annees=(
-                body.horizon_annees
-                if body.horizon_annees is not None
+                resolved["horizon_annees"]
+                if resolved["horizon_annees"] is not None
                 else 20
             ),
             rendement_marche=(
-                body.rendement_marche
-                if body.rendement_marche is not None
+                resolved["rendement_marche"]
+                if resolved["rendement_marche"] is not None
                 else 0.04
             ),
             appreciation_immo=(
-                body.appreciation_immo
-                if body.appreciation_immo is not None
+                resolved["appreciation_immo"]
+                if resolved["appreciation_immo"] is not None
                 else 0.015
             ),
             taux_hypotheque=(
-                body.taux_hypotheque
-                if body.taux_hypotheque is not None
+                resolved["taux_hypotheque"]
+                if resolved["taux_hypotheque"] is not None
                 else 0.02
             ),
             taux_entretien=(
-                body.taux_entretien
-                if body.taux_entretien is not None
+                resolved["taux_entretien"]
+                if resolved["taux_entretien"] is not None
                 else 0.01
             ),
             is_married=(
-                body.is_married
-                if body.is_married is not None
+                resolved["is_married"]
+                if resolved["is_married"] is not None
                 else False
             ),
         )
@@ -305,6 +397,7 @@ def arbitrage_rachat_vs_marche(
     request: Request,
     body: RachatVsMarcheRequest,
     _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> RachatVsMarcheResponse:
     """Compare rachat LPP vs investissement libre.
 
@@ -312,42 +405,58 @@ def arbitrage_rachat_vs_marche(
     - Option A: Rachat LPP (deduction fiscale + croissance en caisse)
     - Option B: Investissement libre (liquidite totale + rendement marche)
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 4 — silent VD fallback
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Returns:
         RachatVsMarcheResponse avec 2 trajectoires, breakeven, sensibilite,
         disclaimer et sources legales (LPP, LIFD, OPP2).
     """
+    resolved = _resolve_defaults(profile_data, body, RachatVsMarcheRequest)
+    missing = _required_profile_fields_missing(resolved, RachatVsMarcheRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_RACHAT_VS_MARCHE_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/arbitrage/rachat-vs-marche",
+        )
+    emit_calc_invoke_metric(
+        kind="rachat_vs_marche",
+        resolved=resolved,
+        schema_class=RachatVsMarcheRequest,
+    )
+
     try:
         result = compare_rachat_vs_marche(
-            montant=body.montant,
-            taux_marginal=body.taux_marginal,
+            montant=resolved["montant"],
+            taux_marginal=resolved["taux_marginal"],
             annees_avant_retraite=(
-                body.annees_avant_retraite
-                if body.annees_avant_retraite is not None
+                resolved["annees_avant_retraite"]
+                if resolved["annees_avant_retraite"] is not None
                 else 20
             ),
             rendement_lpp=(
-                body.rendement_lpp
-                if body.rendement_lpp is not None
+                resolved["rendement_lpp"]
+                if resolved["rendement_lpp"] is not None
                 else 0.0125
             ),
             rendement_marche=(
-                body.rendement_marche
-                if body.rendement_marche is not None
+                resolved["rendement_marche"]
+                if resolved["rendement_marche"] is not None
                 else 0.04
             ),
             taux_conversion=(
-                body.taux_conversion
-                if body.taux_conversion is not None
+                resolved["taux_conversion"]
+                if resolved["taux_conversion"] is not None
                 else 0.068
             ),
-            canton=(
-                body.canton.upper()
-                if body.canton is not None
-                else "VD"
-            ),
+            canton=str(resolved["canton"]).upper(),
             is_married=(
-                body.is_married
-                if body.is_married is not None
+                resolved["is_married"]
+                if resolved["is_married"] is not None
                 else False
             ),
         )
@@ -364,6 +473,7 @@ def arbitrage_calendrier_retraits(
     request: Request,
     body: CalendrierRetraitsRequest,
     _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> CalendrierRetraitsResponse:
     """Compare retrait total la meme annee vs retraits echelonnes.
 
@@ -374,10 +484,30 @@ def arbitrage_calendrier_retraits(
     Le premier éclairage montre l'economie fiscale potentielle, souvent
     CHF 15'000 a 40'000+ pour des capitaux importants.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 5 — silent VD fallback
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Returns:
         CalendrierRetraitsResponse avec 2 trajectoires, premier éclairage,
         disclaimer et sources legales (LIFD art. 38, OPP3, LPP).
     """
+    resolved = _resolve_defaults(profile_data, body, CalendrierRetraitsRequest)
+    missing = _required_profile_fields_missing(resolved, CalendrierRetraitsRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_CALENDRIER_RETRAITS_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/arbitrage/calendrier-retraits",
+        )
+    emit_calc_invoke_metric(
+        kind="calendrier_retraits",
+        resolved=resolved,
+        schema_class=CalendrierRetraitsRequest,
+    )
+
     try:
         # Convert schema assets to service dataclass
         assets = [
@@ -386,24 +516,20 @@ def arbitrage_calendrier_retraits(
                 amount=a.amount,
                 earliest_withdrawal_age=a.earliest_withdrawal_age,
             )
-            for a in body.assets
+            for a in resolved["assets"]
         ]
 
         result = compare_calendrier_retraits(
             assets=assets,
             age_retraite=(
-                body.age_retraite
-                if body.age_retraite is not None
+                resolved["age_retraite"]
+                if resolved["age_retraite"] is not None
                 else 65
             ),
-            canton=(
-                body.canton.upper()
-                if body.canton is not None
-                else "VD"
-            ),
+            canton=str(resolved["canton"]).upper(),
             is_married=(
-                body.is_married
-                if body.is_married is not None
+                resolved["is_married"]
+                if resolved["is_married"] is not None
                 else False
             ),
         )

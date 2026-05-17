@@ -1,0 +1,43 @@
+# Phase 96 D-17 — metaphor library v1 bootstrap.
+# 8 entries × 3 archetypes × 2 cantons × 2 life events.
+# Expansion to full archetype × canton × life_event matrix is deferred to a
+# post-v2.9 content sprint (D-19, Karpathy #2 simplicity-first).
+#
+# Constraints (locked) :
+#   - Verbatim FR ; accent_lint_fr clean ; no LSFin banned terms
+#     (« garanti », « optimal », « parfait », « sans risque », ...).
+#   - No retirement framing (CLAUDE.md rule 3 — 18 life events balanced).
+#     Coverage today : housing (4 entries) + family (4 entries).
+#   - This file is mirrored byte-equal at
+#     services/backend/app/data/metaphors.toml ; parity is enforced by
+#     tools/checks/metaphor_parity.py + lefthook.
+#
+# Loader contracts :
+#   - Mobile : apps/mobile/lib/services/metaphor_lookup.dart calls
+#     `rootBundle.loadString('assets/metaphors.toml')` at app boot.
+#   - Backend : services/backend/app/services/coach/metaphor_lookup.py
+#     calls `tomllib.load()` at module import.
+
+[swiss_native.VD.housing]
+metaphor = "À Lausanne, acheter, c'est planter un arbre — il faut des années avant qu'il porte ombre, mais une fois enraciné, il tient."
+
+[swiss_native.VD.family]
+metaphor = "Une famille à Vaud, c'est un orchestre : chaque revenu joue sa partition, l'équilibre vient du chef."
+
+[swiss_native.GE.housing]
+metaphor = "À Genève, le marché immobilier ressemble à un lac de montagne — clair en surface, profond et froid en réalité."
+
+[swiss_native.GE.family]
+metaphor = "Fonder une famille à Genève, c'est tisser une toile : chaque fil compte, et la toile porte plus que la somme des fils."
+
+[expat_eu.VD.housing]
+metaphor = "Arriver à Lausanne sans héritage local, c'est apprendre une langue : la grammaire du logement met du temps à entrer."
+
+[expat_eu.GE.family]
+metaphor = "Avec une famille à Genève, tes choix fiscaux ressemblent à un puzzle : chaque pièce nouvelle redessine l'image."
+
+[cross_border.VD.housing]
+metaphor = "Vivre côté France et travailler côté Vaud, c'est avoir deux montres : il faut savoir laquelle regarder selon l'heure."
+
+[cross_border.GE.family]
+metaphor = "Une famille à cheval sur la frontière genevoise, c'est jouer aux échecs sur deux échiquiers — chaque coup compte des deux côtés."

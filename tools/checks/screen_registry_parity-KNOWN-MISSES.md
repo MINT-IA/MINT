@@ -30,6 +30,7 @@ surfaces, or the chat itself (you don't route INTO the chat from the chat).
 | `/admin/routes` | Phase 32 admin shell — dev-only, tree-shaken in prod (D-06 + D-10) |
 | `/admin/observability` | Phase 31 admin observability — dev-only |
 | `/admin/analytics` | Phase 32 admin analytics — dev-only |
+| `/debug/chat-as-verb` | Phase 97 W7 S001 — `ChatAsVerbDemoScreen` Maestro G1 demo surface, public scope but never surfaced from chat |
 | `/achievements` | Achievements grid — surfaced by tab bar; an entry exists in registry with `preferFromChat: false` |
 | `/coach` | Coach root — same redirect target as `/coach/chat` |
 | `/coach/chat` | The chat itself; coach can't route to itself |

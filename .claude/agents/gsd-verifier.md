@@ -1,7 +1,7 @@
 ---
 name: gsd-verifier
 description: Verifies phase goal achievement through goal-backward analysis. Checks codebase delivers what phase promised, not just that tasks completed. Creates VERIFICATION.md report.
-tools: Read, Write, Bash, Grep, Glob
+tools: Read, Write, Bash, Grep, Glob, mcp__plugin_engram_engram__*, mcp__mint-tools__*
 color: green
 # hooks:
 #   PostToolUse:
@@ -381,6 +381,46 @@ grep -n -B 2 -A 2 "console\.log" "$file" 2>/dev/null | grep -E "^\s*(const|funct
 
 Categorize: 🛑 Blocker (prevents goal) | ⚠️ Warning (incomplete) | ℹ️ Info (notable)
 
+## Step 6b: G6 calc-correctness gate check (CALC-04 / CONTEXT 92.5 D-21)
+
+When the verified phase touches one of the G6 trigger paths
+(`apps/mobile/lib/services/financial_core/**`,
+`services/backend/app/services/**`, or
+`services/backend/app/constants/social_insurance.py`), the
+`verify_phase_goal` step MUST also check that the latest run of
+`.github/workflows/calc-rigor.yml` for the phase's PR is green.
+
+**How:**
+
+1. Decide whether G6 applies for this phase using the deterministic CLI:
+
+```bash
+# Collect the file paths declared modified by the phase plans
+PHASE_FILES=$(grep -rE "^  - " "$PHASE_DIR"/*-PLAN.md \
+  | grep -oE '[a-zA-Z0-9_./-]+\.(dart|py|yml|md)' \
+  | sort -u)
+python3 tools/checks/g6_path_check.py --files $PHASE_FILES --quiet
+G6_APPLIES=$?  # 0 = applies, 1 = does not apply
+```
+
+2. If `G6_APPLIES == 0`, fetch the latest workflow run for the phase branch:
+
+```bash
+gh run list --workflow=calc-rigor.yml --branch "$PHASE_BRANCH" \
+  --limit 1 --json databaseId,conclusion,headSha
+```
+
+3. Map the result:
+   - `conclusion: success` → G6 passes; record the run id as evidence.
+   - `conclusion: failure` → report `gaps_found` with the divergence axis
+     cited from the workflow's failure comment (or the workflow log).
+   - No run found / skipped → G6 not required for this phase; report no
+     G6 dependency in the verification report.
+
+This step is additive to G1–G5 verification and only fires for phases
+whose plans touch the trigger paths. Phases that don't touch calc paths
+skip G6 silently (D-21 + PERIMETERS.md G6 scoping note).
+
 ## Step 7b: Behavioral Spot-Checks
 
 Anti-pattern scanning (Step 7) checks for code smells. Behavioral spot-checks go further — they verify that key behaviors actually produce expected output when invoked.
@@ -638,6 +678,29 @@ Only include this section if deferred items exist (from Step 9b).
 _Verified: {timestamp}_
 _Verifier: Claude (gsd-verifier)_
 ```
+
+## MINT Infra Contract (MANDATORY, before Return)
+
+After VERIFICATION.md is written, BEFORE returning to orchestrator, you MUST:
+
+**1. Persist verification outcome to engram (MCP primary, Bash CLI fallback)**
+Primary : call `mcp__plugin_engram_engram__mem_save` with:
+- `title`: "phase {phase} VERIFIED — {pass|gaps|human_needed}, N/M must-haves"
+- `type`: "decision"
+- `topic_key`: `{phase-area}:verification:outcome` agent-agnostic
+- `content`: **What** verification ran, **Why** the verdict, **Where** the gaps/passes are cited (file:line), **Learned** what surprised you about goal-vs-claims
+- `prior_finding_refs`: list `obs_id`s of plan-level engram saves from this phase
+
+Fallback if MCP not in tool list : `engram save "<title>" "<msg>" --project <project> --type decision --topic_key <key>` (matches GSD upstream pattern per anthropics/claude-code#13898 — `tools:` whitelist strips inherited MCP, CLI fallback documented).
+
+**2. Surface Sentry release-check + Maestro G1 hint (if applicable)**
+If this phase touched code that's already deployed to staging (check git log for merge to staging in current sprint), explicitly note in your return to orchestrator:
+- « Sentry: check https://sentry.io for new error groups in last 24h after {sha} »
+- « Maestro G1: surface {api/screen} is sim-visible — run `tools/simulator/walker.sh` to verify end-to-end »
+These are not blocking gates at verification time but flag for /gsd-secure-phase + /gsd-verify-work follow-ups.
+
+**3. 0-trust evidence (CLAUDE.md §9)**
+Your « status: passed » verdict in VERIFICATION.md frontmatter requires citation per must-have. Forbidden without citation: « shipped », « ready », « works », « green ». Substitute « unit tests green, end-to-end UNKNOWN » when you have not run the sim flow yourself.
 
 ## Return to Orchestrator
 

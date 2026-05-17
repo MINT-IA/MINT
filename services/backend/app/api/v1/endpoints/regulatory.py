@@ -20,9 +20,12 @@ Sources:
 
 from __future__ import annotations
 
+import json
+from datetime import date
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request, Response
+from fastapi.responses import JSONResponse
 
 from app.services.regulatory.registry import RegulatoryRegistry
 
@@ -56,6 +59,103 @@ def list_constants(
         "count": len(params),
         "constants": [p.to_dict() for p in params],
     }
+
+
+@router.get("/constants/version")
+def get_constants_version() -> JSONResponse:
+    """Lightweight delta-check endpoint (D-08 + D-15).
+
+    Returns the active version_hash + effective_from + reviewed_at as a
+    small JSON body (< 1 KB) so the mobile client can decide whether to
+    fetch the full /snapshot. ETag header derived from version_hash for
+    HTTP-cache friendliness.
+
+    Phase mint-data-architecture-v1-01-calc-engine-canonical Plan 03 Task 1.
+    Canonical insertion rule : MUST be registered BEFORE /constants/{key:path}
+    so the catch-all does not shadow this route.
+    """
+    registry = RegulatoryRegistry.instance()
+    today = date.today()
+    active = [p for p in registry.get_all() if p.is_active(today)]
+
+    # Null-safe derivation per codex MEDIUM finding — min/max over [] would raise.
+    effective_from = min(
+        (p.effective_from for p in active if p.effective_from is not None),
+        default=None,
+    )
+    reviewed_at = max(
+        (p.reviewed_at for p in active if p.reviewed_at is not None),
+        default=None,
+    )
+
+    version_hash = registry.version_hash(today)
+    payload = {
+        "version_hash": version_hash,
+        "effective_from": effective_from.isoformat() if effective_from else None,
+        "reviewed_at": reviewed_at.isoformat() if reviewed_at else None,
+    }
+    # Byte-stable serialisation matching Plan 01 measurement pipeline.
+    body = json.dumps(payload, separators=(",", ":"), sort_keys=True, ensure_ascii=False)
+    return JSONResponse(
+        content=json.loads(body),
+        headers={
+            "ETag": f'W/"{version_hash}"',
+            "Cache-Control": "public, max-age=60, must-revalidate",
+        },
+    )
+
+
+@router.get("/constants/snapshot")
+def get_constants_snapshot(request: Request) -> Response:
+    """Full active 26-canton regulatory snapshot (D-08 + D-15 + D-16).
+
+    Same serialisation pipeline as tools/measurement/regulatory_snapshot_bundle_size.py
+    (Plan 01) so byte-count + version_hash stay coherent across measurement,
+    codegen (Plan 04), and runtime delta-check. Response carries a weak ETag
+    header ``W/"<version_hash>"`` ; supports If-None-Match conditional GET
+    (304 Not Modified) per RFC 7232. Cache-Control: public, max-age=300,
+    must-revalidate.
+
+    Phase mint-data-architecture-v1-01-calc-engine-canonical Plan 03 Task 2.
+    Canonical insertion rule : MUST be registered BEFORE /constants/{key:path}
+    so the catch-all does not shadow this route.
+    """
+    registry = RegulatoryRegistry.instance()
+    today = date.today()
+    active = [p for p in registry.get_all() if p.is_active(today)]
+    version_hash = registry.version_hash(today)
+    etag = f'W/"{version_hash}"'
+
+    # Conditional GET — RFC 7232 §3.2. Return 304 if client already has this snapshot.
+    if_none_match = request.headers.get("If-None-Match")
+    if if_none_match == etag:
+        return Response(
+            status_code=304,
+            headers={
+                "ETag": etag,
+                "Cache-Control": "public, max-age=300, must-revalidate",
+            },
+        )
+
+    payload = {
+        # Legacy key kept for byte-parity with Plan 01 measurement script.
+        "active_version_hash": version_hash,
+        # Canonical D-15 key consumed by Plan 04 codegen + mobile delta-check.
+        "version_hash": version_hash,
+        "effective_on": today.isoformat(),
+        "param_count": len(active),
+        "parameters": [p.to_dict() for p in active],
+    }
+    # Byte-stable serialisation matching Plan 01 measurement script.
+    body = json.dumps(payload, separators=(",", ":"), sort_keys=True, ensure_ascii=False)
+    return Response(
+        content=body,
+        media_type="application/json",
+        headers={
+            "ETag": etag,
+            "Cache-Control": "public, max-age=300, must-revalidate",
+        },
+    )
 
 
 @router.get("/constants/{key:path}")

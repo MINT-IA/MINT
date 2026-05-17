@@ -1,0 +1,2 @@
+{"source_card": {"card_id": "mon_3a_2026", "card_type": "pillar_3a", "computed_facts": {"annual_contribution_chf": "7056.00", "years_until_retirement": 22, "frequency_note": "annual"}, "grounding_keys": ["pillar_3a.max_contribution_2026"], "life_event": "retirement", "canton": "VD", "archetype": "swiss_native"}}
+{"source_card": {"card_id": "mortgage_2026", "card_type": "mortgage", "computed_facts": {"monthly_amount_chf": "2150.50", "rate_pct": "1.45"}, "grounding_keys": [], "life_event": "housing", "canton": "GE", "archetype": "expat_eu"}}

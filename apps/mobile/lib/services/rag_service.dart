@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/observability/mint_http_client.dart';
 
 /// A tool call returned by the LLM (e.g. route_to_screen).
 class RagToolCall {
@@ -13,6 +14,65 @@ class RagToolCall {
     return RagToolCall(
       name: json['name'] as String? ?? '',
       input: (json['input'] as Map<String, dynamic>?) ?? {},
+    );
+  }
+}
+
+/// Wave 1b — citation chip carrying tool-call provenance.
+///
+/// Surfaces in chat messages alongside `RagSource` entries; renders via
+/// `CoachCitationChipsSection` (Plan 05) with tap-to-modal (Plan 06).
+/// The backend populates one chip per Wave 1a internal tool execution
+/// (budget_snapshot, retirement_projection, cross_pillar_analysis,
+/// couple_optimization, cap_status, retrieve_memories) — see
+/// `.planning/phases/wave-1b-citation-chips/wave-1b-04-AUDIT.md` for
+/// the Route (b) decision and Q9_DECISION synthetic-hash strategy.
+///
+/// Defensive parser accepts both camelCase (backend default via
+/// `alias_generator=to_camel` on `CoachChatResponse`) and snake_case
+/// (resilience against future drift).
+class ToolCallCitationChip {
+  /// Short tool name (e.g. `"budget_snapshot"`, `"cap_status"`).
+  final String toolName;
+
+  /// 64-char hex SHA-256 over the tool inputs. For tools without a
+  /// Pydantic response model (cap_status, retrieve_memories) the hash
+  /// is synthesized server-side via sha256 over the result text
+  /// (Q9_DECISION synthetic-hash adopted in wave-1b-04-AUDIT.md §4).
+  final String inputsHash;
+
+  /// Server-side timestamp when the tool was computed (ISO-8601).
+  final DateTime computedAt;
+
+  /// Full Pydantic dump (or synthetic `{"text": ...}` wrapper for the
+  /// 2 string-returning tools). Rendered in the modal JSON viewer
+  /// (Plan 06). Never sent back to backend or telemetry.
+  final Map<String, dynamic> rawResponse;
+
+  const ToolCallCitationChip({
+    required this.toolName,
+    required this.inputsHash,
+    required this.computedAt,
+    required this.rawResponse,
+  });
+
+  factory ToolCallCitationChip.fromJson(Map<String, dynamic> json) {
+    final hash = (json['inputsHash'] as String?) ??
+        (json['inputs_hash'] as String?) ??
+        '';
+    final computedAtStr = (json['computedAt'] as String?) ??
+        (json['computed_at'] as String?) ??
+        DateTime.now().toUtc().toIso8601String();
+    return ToolCallCitationChip(
+      toolName: (json['toolName'] as String?) ??
+          (json['tool_name'] as String?) ??
+          (json['name'] as String?) ??
+          '',
+      inputsHash: hash,
+      computedAt: DateTime.tryParse(computedAtStr) ?? DateTime.now().toUtc(),
+      rawResponse: (json['rawResponse'] as Map<String, dynamic>?) ??
+          (json['raw_response'] as Map<String, dynamic>?) ??
+          const <String, dynamic>{},
     );
   }
 }
@@ -211,7 +271,7 @@ class RagService {
     // T3-11: Retry with exponential backoff on 429 rate limit.
     const maxRetries = 2;
     for (var attempt = 0; attempt <= maxRetries; attempt++) {
-      final response = await http
+      final response = await MintHttpClient.shared
           .post(
             uri,
             headers: {'Content-Type': 'application/json'},
@@ -305,7 +365,7 @@ class RagService {
     const maxRetries = 2;
     late http.Response response;
     for (var attempt = 0; attempt <= maxRetries; attempt++) {
-      response = await http
+      response = await MintHttpClient.shared
           .post(
             uri,
             headers: {'Content-Type': 'application/json'},
@@ -349,7 +409,7 @@ class RagService {
   Future<RagStatus> getStatus() async {
     final uri = Uri.parse('$baseUrl/rag/status');
 
-    final response = await http
+    final response = await MintHttpClient.shared
         .get(uri, headers: {'Content-Type': 'application/json'})
         .timeout(const Duration(seconds: 10));
 

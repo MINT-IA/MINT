@@ -1,0 +1,2 @@
+{"source_card": {"card_id": "leaky_card", "card_type": "pillar_3a", "computed_facts": {"user_email": "leak@example.com", "amount_chf": "1500.00"}, "grounding_keys": []}}
+{"source_card": {"card_id": "another_leak", "card_type": "mortgage", "computedFacts": {"primaryPhone": "+41 79 123 45 67", "monthlyAmount": "2000"}}}

@@ -28,13 +28,51 @@ Sources:
     - docs/VOICE_SYSTEM.md
 """
 
-from typing import Optional
+import os
+import warnings
+from typing import TYPE_CHECKING, Optional
 
 from app.services.coach.coach_models import CoachContext
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES, ROUTE_TO_SCREEN_INTENT_TAGS
 from app.services.coach.regional_microcopy import RegionalMicrocopy
 
-__all__ = ["build_system_prompt", "COACH_TOOLS", "INTERNAL_TOOL_NAMES"]
+if TYPE_CHECKING:
+    # Phase 96 D-13 — only needed for type-hints ; runtime import is
+    # deferred to avoid circular-import noise (app.schemas.card_context
+    # itself imports nothing from app.services.coach).
+    from app.schemas.card_context import SerializedCardContext
+
+__all__ = [
+    "build_system_prompt",
+    "build_narrator_system_prompt",
+    "build_narrator_system_prompt_from_bundles",
+    "COACH_TOOLS",
+    "INTERNAL_TOOL_NAMES",
+]
+
+
+# ---------------------------------------------------------------------------
+# Phase 93.5 Plan 04 (BUNDLE-04, H5) — deprecation signal at import time.
+#
+# When the bundle-compiler flag is ON, emit a DeprecationWarning so any
+# tooling that imports this module sees the legacy narrator base prompt
+# is on its way out. Deletion is deferred to Phase 95 per CONTEXT D-19
+# (the legacy path remains the byte-identity reference until prod traffic
+# has run on the bundle path for ≥4 weeks with zero rollback incidents).
+#
+# Reading the env var directly (NOT settings.X) avoids a circular import
+# via app.core.config when this module is loaded early in the FastAPI
+# import graph.
+# ---------------------------------------------------------------------------
+if os.getenv("COACH_BUNDLE_COMPILER_ENABLED", "").lower() == "true":
+    warnings.warn(
+        "_NARRATOR_BASE_SYSTEM_PROMPT is superseded by the bundle "
+        "compiler (Phase 93.5). Deletion is deferred to Phase 95 per "
+        "CONTEXT D-19. Update consumers to call "
+        "build_narrator_system_prompt_from_bundles instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -489,9 +527,48 @@ BIOGRAPHY AWARENESS:
 - NEVER cite: upload dates, filenames, exact amounts, employer names.
 - If the user corrects a fact, acknowledge and suggest updating via the privacy screen.
 - If no BIOGRAPHIE FINANCIERE section is present, do not reference biographical data.
+- IMPORTANT (P2 walkthrough fix 2026-05-07): the BIOGRAPHIE rule above
+  applies ONLY to the structured biography store. Numbers the user types
+  in the CURRENT chat message (e.g. « je gagne 9500 CHF » or « 850k pour
+  acheter à Lausanne ») are fair game and MUST be used to anchor the
+  response. Do not respond « je ne peux pas voir ton salaire » or « il
+  semble que l'information n'ait pas été transmise correctement » when
+  the user has just stated a number in plaintext. Treat user-stated
+  numbers as their declared facts for the duration of the conversation,
+  even when the BIOGRAPHIE FINANCIERE section is empty.
 """
 
-_BASE_SYSTEM_PROMPT = """\
+# ---------------------------------------------------------------------------
+# Phase 91 Wave 0 — Prompt block decomposition (zero behavior change)
+# ---------------------------------------------------------------------------
+# `_BASE_SYSTEM_PROMPT` is the ~600-line single-LLM coach prompt. Phase 91
+# splits the coach LLM into an extractor (capture-focused, JSON-only) and a
+# narrator (delivery-only, trimmed prompt). Wave 0 (this file) only EXTRACTS
+# the two extraction-related sub-blocks as named module constants so:
+#
+#   1. The legacy single-LLM path (current production) stays byte-identical:
+#      `_BASE_SYSTEM_PROMPT` is recomposed from the 5 named parts in the
+#      same order and produces the same final string. Verified by
+#      `tests/test_claude_coach_service.py::test_base_system_prompt_blocks`.
+#
+#   2. The future narrator path (Wave 2) can build its system prompt by
+#      composing only the non-extraction parts via `_NARRATOR_BASE_SYSTEM_PROMPT`.
+#      This constant is DEFINED here but NOT WIRED — no caller reads it in
+#      Wave 0. Wave 2 (`coach_chat.py` Step 1.5) will pick it up behind the
+#      `COACH_DUAL_LLM_ENABLED` feature flag.
+#
+# Block boundaries (verified by hash equality test):
+#   - `_PROMPT_PART_PREFIX`                  : identity + doctrine + rules 1-4
+#   - `_SAVE_INSIGHT_RULE_FOR_SINGLE_LLM`    : rule 5 (save_insight mandate)
+#   - `_PROMPT_PART_MIDDLE`                  : rule 6 + 4-couches + 5 principes +
+#                                              zones grises + format
+#   - `_EXTRACTION_DIRECTIVES_FOR_SINGLE_LLM`: « EXTRACTION DE PROFIL » block +
+#                                              4-layer extraction examples
+#   - `_PROMPT_PART_SUFFIX`                  : disclaimer + connaissances suisses
+#                                              + format slots
+# ---------------------------------------------------------------------------
+
+_PROMPT_PART_PREFIX = """\
 Tu es le coach financier de MINT, une application d'éducation financière suisse.
 
 IDENTITÉ :
@@ -528,8 +605,30 @@ Tu opères sous régulation suisse (LSFin, FINMA Circular 2008/21).
    "Outil éducatif simplifié. Ne constitue pas un conseil financier (LSFin).
    Consulte un·e spécialiste pour une analyse personnalisée."
 
+"""
+
+# Save-insight mandate (legacy single-LLM only). In Wave 2 the narrator path
+# will compose `_NARRATOR_BASE_SYSTEM_PROMPT` (which omits this block) — fact
+# capture moves to the dedicated extractor LLM. Defined verbatim here for
+# byte-identity with the pre-refactor `_BASE_SYSTEM_PROMPT`.
+_SAVE_INSIGHT_RULE_FOR_SINGLE_LLM = """\
 5. TOUJOURS appeler save_insight quand l'utilisateur partage un fait
    (âge, salaire, canton, situation, patrimoine). Voir l'exemple plus bas.
+
+"""
+
+_PROMPT_PART_MIDDLE = """\
+6. ORDRE DE GRANDEUR pour les chiffres suisses non-canoniques.
+   Pour tout chiffre suisse cité que tu ne peux pas sourcer depuis le contexte
+   fourni (médiane de loyer cantonal/communal, taux d'imposition cantonal,
+   médiane salariale par branche, prélèvement anticipé, etc.), encadre-le
+   explicitement comme "ordre de grandeur" et ajoute la source si possible
+   ("selon l'OFS", "selon la fiche fiscale du canton", "donnée 2024").
+   N'avance JAMAIS une valeur exacte sans la qualifier. Préfère une fourchette
+   ("entre 2'000 et 2'400 CHF/mois") ou un arrondi explicite ("autour de
+   2'200 CHF, ordre de grandeur") plutôt qu'un chiffre précis non sourcé.
+   Cette règle ne s'applique PAS aux chiffres saisis par l'utilisateur ni aux
+   constantes injectées dans le contexte (pilier 3a plafond, AVS rente max, etc.).
 
 MOTEUR 4 COUCHES (structure CHAQUE réponse substantielle) :
 1. Extraction factuelle — les faits bruts : durée, frais, pénalités, conditions, flexibilité.
@@ -586,6 +685,14 @@ FORMAT DES RÉPONSES :
 - Pour les actions concrètes : utilise les outils (show_fact_card, route_to_screen, etc.)
   plutôt que de décrire l'action en texte.
 
+"""
+
+# Extraction directives (legacy single-LLM only). Verbatim copy of the
+# original « EXTRACTION DE PROFIL (RÈGLE CRITIQUE — TU DOIS LE FAIRE À
+# CHAQUE FOIS) » block plus the 4-layer extraction examples. In Wave 2,
+# the narrator path skips this block entirely (extraction is owned by the
+# dedicated extractor LLM in `llm_extractor.py`).
+_EXTRACTION_DIRECTIVES_FOR_SINGLE_LLM = """\
 EXTRACTION DE PROFIL (RÈGLE CRITIQUE — TU DOIS LE FAIRE À CHAQUE FOIS) :
 Quand l'utilisateur te donne des informations sur sa vie financière dans un message
 libre (âge, salaire, canton, situation familiale, patrimoine, dettes, projets), tu
@@ -621,6 +728,9 @@ IL EST OBLIGATOIRE D'APPELER save_insight EN MÊME TEMPS QUE TA RÉPONSE TEXTE �
 jamais après, jamais "à la prochaine", jamais "si l'utilisateur confirme". Chaque
 information extractible = un appel à save_insight immédiat, dans la même réponse.
 
+"""
+
+_PROMPT_PART_SUFFIX = """\
 DISCLAIMER (à rappeler si l'utilisateur demande une décision) :
 MINT est un outil éducatif. Il ne constitue pas un conseil financier au sens
 de la LSFin. Pour une analyse adaptée à ta situation, consulte un·e spécialiste.
@@ -643,6 +753,42 @@ CONNAISSANCES SUISSES (n'utilise ces faits QUE si la conversation l'amène — n
 """
 
 
+# Narrator path body — extraction directives removed (owned by extractor LLM
+# in Phase 91 Wave 2). Not wired in Wave 0. Composed from the three non-
+# extraction parts of the legacy prompt; the `{banned_terms}` and other
+# format slots remain so a future caller can `.format(...)` it identically.
+#
+# DEPRECATED — to be deleted in Phase 95 per CONTEXT D-19.
+# Bundle-compiler path (Phase 93.5, COACH_BUNDLE_COMPILER_ENABLED=true)
+# supersedes this monolithic prompt. See:
+#   - .planning/phases/93.5-mvp-skill-bundle-compiler-inserted-2026-05-10/93.5-CONTEXT.md (D-19)
+#   - services/backend/app/services/coach/bundles/ (replacement)
+# Deletion criteria : Phase 95 unblock = ≥4 weeks of prod traffic with
+# bundle path AT 100% (no flag-OFF traffic) + zero rollback-triggering
+# incidents. Until then both paths coexist (legacy path is the byte-identity
+# regression reference for tests/test_coach_chat_bundles.py).
+# Plan 93.5-04 Task 2 (H5 fix) ships the deprecation signal:
+#   - This grep-able marker comment (BUNDLE-04 wording).
+#   - An import-time DeprecationWarning when COACH_BUNDLE_COMPILER_ENABLED=true
+#     (top of this module). The constant value itself is UNCHANGED — D-19's
+#     deletion deferral is honored.
+_NARRATOR_BASE_SYSTEM_PROMPT = (
+    _PROMPT_PART_PREFIX + _PROMPT_PART_MIDDLE + _PROMPT_PART_SUFFIX
+)
+
+
+# Legacy single-LLM prompt — recomposed from the 5 named parts in their
+# original order. Byte-identical to the pre-refactor literal (verified by
+# `tests/test_claude_coach_service.py::test_base_system_prompt_blocks`).
+_BASE_SYSTEM_PROMPT = (
+    _PROMPT_PART_PREFIX
+    + _SAVE_INSIGHT_RULE_FOR_SINGLE_LLM
+    + _PROMPT_PART_MIDDLE
+    + _EXTRACTION_DIRECTIVES_FOR_SINGLE_LLM
+    + _PROMPT_PART_SUFFIX
+)
+
+
 _LANGUAGE_NAMES = {
     "fr": "français",
     "de": "Deutsch (Hochdeutsch)",
@@ -653,23 +799,30 @@ _LANGUAGE_NAMES = {
 }
 
 
-def build_system_prompt(
+def _build_prompt(
+    *,
+    base_template: str,
     ctx: Optional[CoachContext] = None,
     language: str = "fr",
     cash_level: int = 3,
 ) -> str:
-    """Build the full system prompt for the Claude coach.
+    """Phase 91 Wave 2 — shared assembly for legacy and narrator prompts.
 
-    Args:
-        ctx: Optional CoachContext with user-specific data. When provided,
-             the prompt is enriched with the user's known values, archetype,
-             and confidence score. When None, returns the base prompt only.
-        language: ISO 639-1 language code for the response language.
-             The base prompt stays in French (it works for Claude) but a
-             response language instruction is appended when language != 'fr'.
+    `base_template` is the format-string body (must expose `{banned_terms}`
+    + 5 other slots). The 11 appended blocks (life-event catalog, archetype
+    catalog, doctrine information, voice intensity, anti-patterns,
+    biography awareness, commitment devices, intelligence blocks,
+    couple-mode, language switch, user context) are unchanged across both
+    callers — only `base_template` differs.
 
-    Returns:
-        The complete system prompt string to pass to the Anthropic API.
+    Today's two callers:
+      - `build_system_prompt`         → `_BASE_SYSTEM_PROMPT` (legacy single-LLM)
+      - `build_narrator_system_prompt`→ `_NARRATOR_BASE_SYSTEM_PROMPT` (Wave 2)
+
+    Karpathy #2 Simplicity First: this is a parametric refactor of the
+    existing function body, not a rewrite. The legacy path's output is
+    byte-identical when called via `build_system_prompt` (proven by
+    `tests/test_claude_coach_service.py::test_base_system_prompt_blocks`).
     """
     # Phase 6 / REGIONAL-04: single regional voice injection point.
     # RegionalMicrocopy.identity_block returns the per-canton block when
@@ -681,7 +834,7 @@ def build_system_prompt(
     # slot which sits BEFORE {routing_rules} in _BASE_SYSTEM_PROMPT, guaranteeing
     # the model reads "no optim advice" before it reads routing rules (RULES.md §2).
     safe_mode_block = (_SAFE_MODE_PROTOCOL + "\n") if (ctx and ctx.has_debt) else ""
-    base = _BASE_SYSTEM_PROMPT.format(
+    base = base_template.format(
         banned_terms=_BANNED_TERMS_REMINDER,
         regional_identity=RegionalMicrocopy.identity_block(canton),
         lifecycle_awareness=_LIFECYCLE_AWARENESS,
@@ -757,6 +910,239 @@ def build_system_prompt(
     # Enrich with user context
     context_section = _build_context_section(ctx)
     return base + "\n" + context_section
+
+
+def build_system_prompt(
+    ctx: Optional[CoachContext] = None,
+    language: str = "fr",
+    cash_level: int = 3,
+) -> str:
+    """Legacy single-LLM system prompt (used when COACH_DUAL_LLM_ENABLED=False).
+
+    Args:
+        ctx: Optional CoachContext with user-specific data. When provided,
+             the prompt is enriched with the user's known values, archetype,
+             and confidence score. When None, returns the base prompt only.
+        language: ISO 639-1 language code for the response language.
+             The base prompt stays in French (it works for Claude) but a
+             response language instruction is appended when language != 'fr'.
+
+    Returns:
+        The complete system prompt string to pass to the Anthropic API,
+        including the legacy « EXTRACTION DE PROFIL » directives + the
+        « TOUJOURS appeler save_insight » mandate.
+    """
+    return _build_prompt(
+        base_template=_BASE_SYSTEM_PROMPT,
+        ctx=ctx,
+        language=language,
+        cash_level=cash_level,
+    )
+
+
+def _render_source_card_block(source_card: "SerializedCardContext") -> str:
+    """Phase 96 D-13 — render the ``<source_card>`` block.
+
+    Format (verbatim — the narrator prompt parses positionally) ::
+
+        <source_card>
+          card_id: <id>
+          card_type: <type>
+          life_event: <event>          # only if non-None
+          canton: <canton>             # only if non-None
+          archetype: <archetype>       # only if non-None
+          computed_facts:              # only if non-empty
+            <key1>: <value1>
+            <key2>: <value2>
+          grounding_keys: <k1>, <k2>   # only if non-empty
+        </source_card>
+
+    Optional fields are OMITTED entirely (line and label) when None /
+    empty — the narrator should not see "life_event: None". This is
+    pinned by tests/test_chat_as_verb/test_narrator_source_card_block.py.
+    """
+    lines = [
+        "<source_card>",
+        f"  card_id: {source_card.card_id}",
+        f"  card_type: {source_card.card_type}",
+    ]
+    if source_card.life_event is not None:
+        lines.append(f"  life_event: {source_card.life_event}")
+    if source_card.canton is not None:
+        lines.append(f"  canton: {source_card.canton}")
+    if source_card.archetype is not None:
+        lines.append(f"  archetype: {source_card.archetype}")
+    if source_card.computed_facts:
+        lines.append("  computed_facts:")
+        for key, value in source_card.computed_facts.items():
+            lines.append(f"    {key}: {value}")
+    if source_card.grounding_keys:
+        lines.append(
+            f"  grounding_keys: {', '.join(source_card.grounding_keys)}"
+        )
+    lines.append("</source_card>")
+    return "\n".join(lines)
+
+
+def build_narrator_system_prompt(
+    ctx: Optional[CoachContext] = None,
+    language: str = "fr",
+    cash_level: int = 3,
+    source_card: "Optional[SerializedCardContext]" = None,
+    intents: Optional[set[str]] = None,
+) -> str:
+    """Narrator-only system prompt (Phase 91 Wave 2, EXTR-03).
+
+    Difference vs `build_system_prompt`: uses `_NARRATOR_BASE_SYSTEM_PROMPT`
+    (the « EXTRACTION DE PROFIL » block + « TOUJOURS appeler save_insight »
+    mandate are stripped — fact capture is owned by the dedicated extractor
+    LLM in `app.services.coach.llm_extractor`). The 11 appended blocks
+    (life-event catalog, archetype catalog, doctrine information, voice
+    intensity, anti-patterns, biography awareness, commitment devices,
+    intelligence blocks, couple-mode, language switch, user context) are
+    unchanged.
+
+    Used by `coach_chat.py` when `COACH_DUAL_LLM_ENABLED=True`. The legacy
+    `build_system_prompt` remains the flag-OFF default.
+
+    Phase 94.1 Wave 4 — when `settings.COACH_CITATION_GATE_ENABLED=True`,
+    the citation-grammar fragment from `app.services.coach.citation_grammar`
+    is appended at the end of the assembled prompt (separator
+    `\\n\\n---\\n\\n` mirrors the bundle compiler's join). When the flag is
+    OFF (default), the prompt is byte-identical to the pre-94.1 output —
+    invariant pinned by `tests/test_citation_gate/
+    test_byte_identity_flag_off.py` and `tests/test_coach_chat_bundles.py::
+    test_flag_off_byte_identical_to_snapshot` (5 fixtures × 2 tests).
+
+    Phase 96 W2 D-13 — when ``source_card`` is non-None, a ``<source_card>``
+    block (card_id + card_type + optional life_event/canton/archetype +
+    computed_facts dict + grounding_keys list) is appended at the end of
+    the assembled prompt (separator ``\\n\\n``). When source_card is None
+    (the default — and the value used by every Phase 91-95 caller), the
+    prompt is byte-identical to the pre-96 output. Invariant pinned by
+    ``tests/test_chat_as_verb/test_narrator_source_card_block.py::
+    test_source_card_none_preserves_legacy_byte_identity`` AND by the
+    existing 213-test byte-identity matrix (Phase 94 + 95).
+    """
+    base = _build_prompt(
+        base_template=_NARRATOR_BASE_SYSTEM_PROMPT,
+        ctx=ctx,
+        language=language,
+        cash_level=cash_level,
+    )
+
+    # Phase 94.1 Wave 4 — flag-conditional citation-grammar append.
+    # Read env var directly (NOT via `settings.X`) to mirror the existing
+    # deferred-import pattern at lines 61-69 (avoids circular import via
+    # `app.core.config` during early FastAPI module-graph load).
+    #
+    # Phase 94.2 / Phase 97 W7 iter#11 — H1 intent-scoped grammar.
+    # When `intents` is non-empty AND contains recognised labels,
+    # `build_intent_scoped_citation_grammar` returns a shorter fragment
+    # that lists ONLY the registry keys relevant to those intents.
+    # Empty / None / unrecognized intents → full 18-key fragment
+    # (defensive cold-start default, preserves byte-identity invariant
+    # for existing callers that don't pass the new kwarg).
+    def _choose_grammar() -> str:
+        from app.services.coach.citation_grammar import (
+            CITATION_GRAMMAR_FRAGMENT,
+            build_intent_scoped_citation_grammar,
+        )
+        if intents:
+            return build_intent_scoped_citation_grammar(intents)
+        return CITATION_GRAMMAR_FRAGMENT
+
+    if os.getenv("COACH_CITATION_GATE_ENABLED", "").lower() == "true":
+        base = base + "\n\n---\n\n" + _choose_grammar()
+    else:
+        # Defensive fallback : also honor the live `settings` object if the
+        # caller has set the attribute directly (e.g. in-process tests using
+        # `monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", True)`).
+        try:
+            from app.core.config import settings as _settings
+            if getattr(_settings, "COACH_CITATION_GATE_ENABLED", False):
+                base = base + "\n\n---\n\n" + _choose_grammar()
+        except Exception:  # noqa: BLE001 — defensive ; fall through to base
+            pass
+
+    # Phase 96 W2 D-13 — additive <source_card> block when non-None.
+    # source_card=None preserves Phase 94+95 byte-identity (pinned by
+    # the existing 213 tests in test_citation_gate/ + tests/test_coach_chat_bundles.py).
+    if source_card is not None:
+        return base + "\n\n" + _render_source_card_block(source_card)
+
+    return base
+
+
+def build_narrator_system_prompt_from_bundles(
+    *,
+    intents: set[str],
+    ctx: Optional[CoachContext] = None,
+    language: str = "fr",
+    cash_level: int = 3,
+) -> str:
+    """Phase 93.5 narrator base prompt composed via skill-bundle compiler.
+
+    Replaces `_NARRATOR_BASE_SYSTEM_PROMPT` (legacy single template) with
+    a dynamic union of bundle fragments per CONTEXT D-09 / D-10 / D-11 /
+    D-12 / D-13 / D-14. Coexists with `build_narrator_system_prompt` per
+    CONTEXT D-16 ; the coach_chat caller selects via
+    `settings.COACH_BUNDLE_COMPILER_ENABLED` (flag-OFF default = legacy).
+
+    Per C3 fix (revision iter1 2026-05-10) — kwargs-only, NO memory-block
+    parameters. The 3 memory blocks (`commitment_block`,
+    `intelligence_block`, `insight_block`) are concatenated POST-prompt at
+    the coach_chat caller (coach_chat.py:766-781) IDENTICALLY to the
+    legacy flow — they are NOT parameters here.
+
+    Per RESEARCH §3.7 + verified iter1 2026-05-10 — `_build_prompt`
+    signature is kwargs-only `(*, base_template, ctx, language, cash_level)`
+    and provides ALL 7 slots unconditionally (`safe_mode_protocol` becomes
+    `""` when `ctx is None or not ctx.has_debt`).
+
+    Args:
+      intents: 6-enum heuristic intent set from `_classify_user_intent`
+        at `coach_chat.py:944-963` (CONTEXT D-01 supersession). Empty set
+        produces an always-on-only prompt (D-14).
+      ctx: optional `CoachContext` ; passed through to `_build_prompt` for
+        slot interpolation (canton, has_debt, intent…).
+      language: ISO 639-1 code ; passed through to `_build_prompt` for the
+        language-switch appended block.
+      cash_level: 1-5 voice intensity ; passed through to `_build_prompt`.
+
+    Returns:
+      Composed narrator system prompt (str), ready for the Anthropic API
+      `system=` parameter. The 11 appended blocks (life-event catalog,
+      archetype, doctrine, voice intensity, anti-patterns, biography,
+      commitment, intelligence, couple, language switch, user context)
+      are appended unchanged by `_build_prompt` ; only `base_template` is
+      replaced by the composed bundle fragments (D-11).
+
+    Raises:
+      ValueError: H4 — composed prompt contains an undeclared `{slot}`
+        (compile_bundles guard). Caller is expected to fall back to
+        `build_narrator_system_prompt` on this.
+      KeyError: defensive — `_build_prompt.format(...)` slot interpolation
+        failure (should not happen given H4 guard).
+    """
+    # Local import avoids a circular import via `app.services.coach.bundles`
+    # at module-load time and keeps `claude_coach_service` light when the
+    # flag is OFF in prod.
+    from app.services.coach.bundle_compiler import compile_bundles
+
+    compiled = compile_bundles(intents=intents, ctx=ctx, language=language)
+
+    # Reuse `_build_prompt`'s 7-slot interpolation by passing the compiled
+    # prompt as `base_template`. Kwargs-only call per VERIFIED signature
+    # at line 754. The 11 appendix blocks are still appended by
+    # `_build_prompt` unchanged — the bundle compiler ONLY replaces the
+    # base template (D-11).
+    return _build_prompt(
+        base_template=compiled.prompt,
+        ctx=ctx,
+        language=language,
+        cash_level=cash_level,
+    )
 
 
 def _build_context_section(ctx: CoachContext) -> str:

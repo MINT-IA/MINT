@@ -15,10 +15,14 @@ Sources:
     - docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md §6
 """
 
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
+
+# Phase 96 D-13 / D-15 — additive optional fields point to these schemas.
+from app.schemas.card_context import SerializedCardContext
+from app.schemas.narrative_sleeve import NarrativeSleeve
 
 
 # ===========================================================================
@@ -128,6 +132,40 @@ class CoachChatRequest(CoachChatBaseModel):
         ),
     )
 
+    # ------------------------------------------------------------------
+    # Phase 96 W2 D-08 / D-13 — chat-as-verb additions (all optional, additive,
+    # backward-compatible with pre-96 clients).
+    # ------------------------------------------------------------------
+    source_card: Optional[SerializedCardContext] = Field(
+        default=None,
+        description=(
+            "Phase 96 D-13 — optional card snapshot. When non-None, the narrator "
+            "system prompt receives a <source_card> block with computed_facts + "
+            "grounding_keys + life_event + canton + archetype. None preserves "
+            "Phase 94/95 byte-identical behavior (legacy chat-tab path)."
+        ),
+    )
+    turn_count: int = Field(
+        default=0,
+        ge=0,
+        description=(
+            "Phase 96 D-08 — client-supplied turn counter for UX transparency. "
+            "The server IGNORES this value when enforcing the 3-turn cap "
+            "(T-96-W2-TurnCountTamper mitigation) ; the server's in-memory "
+            "TURN_COUNTER dict at app.services.coach.turn_cap is the source of "
+            "truth. Accepted on the wire so the client can render its own "
+            "counter in MintChatOverlay."
+        ),
+    )
+    intent: Optional[Literal["explain", "reassure"]] = Field(
+        default=None,
+        description=(
+            "Phase 96 D-06 — verb dispatch intent. 'explain' opens from "
+            "« Explique-moi », 'reassure' from « Rassure-moi ». None on legacy "
+            "chat-tab path (pre-96 compatibility)."
+        ),
+    )
+
 
 # ===========================================================================
 # Response schema
@@ -181,5 +219,40 @@ class CoachChatResponse(CoachChatBaseModel):
             "Metadata sur la generation de la reponse. Cles: "
             "degraded (bool — true si fallback Haiku active), "
             "model_used (str — id du modele qui a servi la reponse)."
+        ),
+    )
+
+    # ------------------------------------------------------------------
+    # Phase 96 W2 D-15 — narrative envelope (optional ; None on legacy
+    # chat-tab path OR when source_card was None on the request).
+    # ------------------------------------------------------------------
+    narrative_sleeve: Optional[NarrativeSleeve] = Field(
+        default=None,
+        description=(
+            "Phase 96 D-15 — 4-field response envelope (hook, caption, "
+            "next_step, metaphor). None when source_card is None on the "
+            "request OR when the legacy unstructured fallback path is "
+            "taken. The response middleware that enforces hook digit-free "
+            "+ next_step word-count lands in Plan 96-03 per D-16."
+        ),
+    )
+
+    # ------------------------------------------------------------------
+    # Wave 1b Plan 04 — citation chips (Route b per wave-1b-04-AUDIT.md).
+    # The 6 Wave 1a internal tools (budget_snapshot, retirement_projection,
+    # cross_pillar_analysis, couple_optimization, cap_status,
+    # retrieve_memories) are filtered out of `toolCalls` upstream because
+    # they are in INTERNAL_TOOL_NAMES. This additive field carries their
+    # inputs_hash + computed_at + raw_response so Flutter can render the
+    # citation chip + tap-to-modal (Plans 05 / 06). Optional + defaults to
+    # None — legacy clients ignore the key.
+    # ------------------------------------------------------------------
+    citation_chips: Optional[list[dict[str, Any]]] = Field(
+        default=None,
+        description=(
+            "Wave 1b — per-tool citation-chip payload. Each entry: "
+            "{toolName: str, inputsHash: str (64-char hex), "
+            "computedAt: str (ISO-8601), rawResponse: dict}. None on "
+            "legacy path or when no Wave 1a tool ran in the turn."
         ),
     )

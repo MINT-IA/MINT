@@ -119,7 +119,12 @@ class AvsEstimationResponse(BaseModel):
 # ===========================================================================
 
 class LppConversionRequest(BaseModel):
-    """Request for LPP capital vs rente comparison."""
+    """Request for LPP capital vs rente comparison.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch C), `canton` is widened
+    from `default="ZH"` to Optional `default=None` with the `from_profile`
+    marker. W0 audit row 43 sev-1.
+    """
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -130,9 +135,10 @@ class LppConversionRequest(BaseModel):
         ..., gt=0,
         description="Capital LPP total a la retraite (CHF)",
     )
-    canton: str = Field(
-        default="ZH", min_length=2, max_length=2,
-        description="Code canton pour estimation fiscale",
+    canton: Optional[str] = Field(
+        default=None, min_length=2, max_length=2,
+        description="Code canton (lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "canton"},
     )
     age_retraite: int = Field(
         default=65, ge=60, le=70,

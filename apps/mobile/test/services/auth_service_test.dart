@@ -22,6 +22,7 @@ void main() {
 
   setUp(() {
     mockStorage.clear();
+    AuthService.resetMemoryCacheForTest();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
@@ -256,6 +257,109 @@ void main() {
       await AuthService.saveToken('tok', 'uid', 'a@b.ch', displayName: name);
       final retrieved = await AuthService.getDisplayName();
       expect(retrieved, equals(name));
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Keychain failure fallback (MVP-walker 2026-05-08, P0 register blocker)
+  // ═══════════════════════════════════════════════════════════════════════
+  //
+  // Regression for: register flow on iOS sim threw a PlatformException
+  // from flutter_secure_storage *after* the backend HTTP 201 had already
+  // created the user. saveToken's keychain write was ungated; the
+  // exception propagated to AuthProvider.register's catch and surfaced
+  // as the generic "Action impossible pour le moment" — leaving the user
+  // stuck on the register screen with an orphan account on staging.
+  //
+  // Fix: keychain writes are wrapped; the in-memory cache is populated
+  // first so the session is functional for the rest of its lifetime
+  // even when the keychain layer is unavailable.
+  group('AuthService — keychain failure fallback', () {
+    test(
+        'saveToken does NOT throw when keychain write fails (PlatformException)',
+        () async {
+      // Replace the mock with one that fails every write — emulates the
+      // simulator without a passcode / missing entitlement / -34018.
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          if (call.method == 'write') {
+            throw PlatformException(
+              code: 'Unexpected security result code',
+              message: 'A required entitlement is not present.',
+            );
+          }
+          return null;
+        },
+      );
+
+      // Should NOT rethrow; the auth flow must continue.
+      await AuthService.saveToken('tok', 'uid', 'a@b.ch');
+    });
+
+    test('getToken returns memory token after keychain write failure',
+        () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          if (call.method == 'write') {
+            throw PlatformException(code: 'kc-write-fail');
+          }
+          // read returns null (mock storage stays empty because writes failed)
+          return null;
+        },
+      );
+
+      await AuthService.saveToken('jwt-mem-fallback', 'uid-mem', 'mem@mint.ch',
+          refreshToken: 'refresh-mem', displayName: 'MemUser');
+
+      expect(await AuthService.getToken(), equals('jwt-mem-fallback'));
+      expect(await AuthService.getRefreshToken(), equals('refresh-mem'));
+      expect(await AuthService.getUserId(), equals('uid-mem'));
+      expect(await AuthService.getUserEmail(), equals('mem@mint.ch'));
+      expect(await AuthService.getDisplayName(), equals('MemUser'));
+      expect(await AuthService.isLoggedIn(), isTrue);
+    });
+
+    test('getToken returns null when keychain read fails AND memory empty',
+        () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          throw PlatformException(code: 'kc-everything-fails');
+        },
+      );
+
+      // No saveToken first — memory cache is empty (setUp resets it).
+      expect(await AuthService.getToken(), isNull);
+      expect(await AuthService.isLoggedIn(), isFalse);
+    });
+
+    test('logout clears memory cache even when keychain delete fails',
+        () async {
+      // First, save successfully via the default mock (mockStorage works).
+      await AuthService.saveToken('logout-tok', 'logout-uid', 'l@b.ch');
+      expect(await AuthService.getToken(), equals('logout-tok'));
+
+      // Then swap to a mock that fails every call (including delete).
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          throw PlatformException(code: 'kc-delete-fail');
+        },
+      );
+
+      // logout must still clear memory and not throw.
+      await AuthService.logout();
+
+      // After logout: getToken consults memory (cleared) then keychain
+      // (throwing → returns null). Both paths yield null.
+      expect(await AuthService.getToken(), isNull);
+      expect(await AuthService.isLoggedIn(), isFalse);
     });
   });
 }

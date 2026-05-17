@@ -4505,7 +4505,7 @@ class SFr extends S {
   String get futurExplorerDetails => 'Explorer les détails';
 
   @override
-  String get financialSummaryTitle => 'APERÇU FINANCIER';
+  String get financialSummaryTitle => 'MON PROFIL';
 
   @override
   String get financialSummaryNoProfile => 'Aucun profil renseigné';
@@ -4589,6 +4589,16 @@ class SFr extends S {
   @override
   String get financialSummaryFatcaWarning =>
       '⚠️ FATCA — Seule une minorité de prestataires accepte (ex. Raiffeisen)';
+
+  @override
+  String get sim3aFatcaGateTitle => 'Pilier 3a — accès limité (FATCA)';
+
+  @override
+  String get sim3aFatcaGateBody =>
+      'Ton statut FATCA limite l\'accès au pilier 3a en Suisse. La majorité des prestataires refuse les personnes US ou titulaires d\'une green card. Avant de simuler des versements, vérifie qu\'un prestataire t\'accepte (ex. Raiffeisen) et envisage des leviers alternatifs : libre passage, optimisation hypothécaire, investissement libre.';
+
+  @override
+  String get sim3aFatcaGateAction => 'Voir les alternatives au 3a';
 
   @override
   String get financialSummaryModifierPrevoyance => 'Modifier la prévoyance';
@@ -7757,7 +7767,7 @@ class SFr extends S {
 
   @override
   String get authBenefitProjections =>
-      'Projections AVS/LPP alignées à ta situation';
+      'Projections financières adaptées à tes choix de vie (logement, fiscalité, prévoyance, famille…)';
 
   @override
   String get authBenefitCoach => 'Coach personnalisé avec ton prénom';
@@ -7903,6 +7913,94 @@ class SFr extends S {
 
   @override
   String get coachSendButton => 'Envoyer';
+
+  @override
+  String get coachCitationChipsHeader => 'Calculs serveur';
+
+  @override
+  String coachCitationChipLabel(String toolDisplayName) {
+    return '$toolDisplayName — calculé';
+  }
+
+  @override
+  String coachCitationModalTitle(String toolDisplayName) {
+    return 'Source du calcul : $toolDisplayName';
+  }
+
+  @override
+  String get coachCitationJsonViewerLabel => 'Voir le détail du calcul (JSON)';
+
+  @override
+  String get coachCitationRememberCta => 'Souviens-toi de cette source';
+
+  @override
+  String get coachToolBudgetSnapshot => 'Budget actuel';
+
+  @override
+  String get coachToolRetirementProjection => 'Projection de retraite';
+
+  @override
+  String get coachToolCrossPillarAnalysis => 'Analyse inter-piliers';
+
+  @override
+  String get coachToolCoupleOptimization => 'Optimisation couple';
+
+  @override
+  String get coachToolCapStatus => 'Cap du jour';
+
+  @override
+  String get coachToolRetrieveMemories => 'Souvenirs';
+
+  @override
+  String get coachCitationRelativeJustNow => 'à l\'instant';
+
+  @override
+  String coachCitationRelativeMinutes(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'il y a $countString min',
+      one: 'il y a $countString min',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeHours(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'il y a $countString h',
+      one: 'il y a $countString h',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coachCitationRelativeDays(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.compact(
+      locale: localeName,
+    );
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'il y a $countString j',
+      one: 'il y a $countString j',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get profileDefaultName => 'Utilisateur';
@@ -21230,6 +21328,10 @@ class SFr extends S {
       'Réponse via ton API Claude. Ton salaire exact n\'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.';
 
   @override
+  String get coachTransparencyServer =>
+      'Réponse via l\'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse.';
+
+  @override
   String get dataTransparencyTitle => 'Comment MINT utilise tes données';
 
   @override
@@ -22317,6 +22419,9 @@ class SFr extends S {
   String get landingV2LoginLink => 'J’ai déjà un compte';
 
   @override
+  String get landingV3AnonymousHomeLink => 'Continuer sans compte';
+
+  @override
   String get alertGenericFactPrefix => 'MINT a remarqué';
 
   @override
@@ -23138,9 +23243,58 @@ class SFr extends S {
   String get betaDisclosureCta => 'Je comprends, on y va';
 
   @override
-  String get betaDisclosureLearnMore => 'En savoir plus';
-
-  @override
   String get betaDisclosureSemanticsLabel =>
       'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l\'appareil par défaut.';
+
+  @override
+  String get coachOnboardingFirstAssistantGreeting =>
+      'Bienvenue dans MINT. Avant qu\'on commence : qu\'est-ce qui t\'amène ici aujourd\'hui ?';
+
+  @override
+  String get verbExplique => 'Explique-moi';
+
+  @override
+  String get verbSimule => 'Simule';
+
+  @override
+  String get verbRassure => 'Rassure-moi';
+
+  @override
+  String get chatInputHint => 'Tape ton message...';
+
+  @override
+  String get chatIntentExplainLabel => 'Explique-moi';
+
+  @override
+  String get chatIntentReassureLabel => 'Rassure-moi';
+
+  @override
+  String get chatIntentSimulateLabel => 'Simule';
+
+  @override
+  String get narrativeSleeveNextStepExplain =>
+      'Tape une question pour creuser.';
+
+  @override
+  String get narrativeSleeveNextStepReassure =>
+      'Tape ce qui t\'inquiète, on regarde ensemble.';
+
+  @override
+  String get narrativeSleeveNextStepSimulate => 'Tape un scénario à explorer.';
+
+  @override
+  String get narrativeSleeveHookFallback =>
+      'Voyons ensemble ce que ça change pour toi.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionExplain =>
+      'Voici ce que ta carte raconte aujourd\'hui.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionReassure =>
+      'On regarde calmement où tu en es.';
+
+  @override
+  String get narrativeSleeveOpenerCaptionSimulate =>
+      'Choisis un scénario à projeter.';
 }

@@ -14,8 +14,17 @@
 
 ## 1. ART DIRECTION
 
-**MINT = l'anti-dashboard.** Une expérience intime et premium qui donne confiance.
-Chaque écran doit ressembler à une page d'un beau livre, pas à un cockpit d'avion.
+**MINT = l'anti-cockpit-d-avion.** Une expérience intime et premium qui donne confiance.
+Chaque écran porte UNE idée dominante (un chiffre, une mission, un choix), pas un cockpit.
+Les autres signaux reculent — secondaires visuellement, sous le fold si nécessaire.
+Le mur-de-cartes-coloré est l'anti-pattern.
+
+> **Note doctrine 2026-05-14** — Cette section reformulée par
+> [`.planning/decisions/2026-05-14-aujourdhui-doctrine.md`](../.planning/decisions/2026-05-14-aujourdhui-doctrine.md).
+> Le terme « anti-dashboard » du draft d'avril 2026 était ambigu (lu comme « zéro chiffre dominant »).
+> L'intention reste : rejeter le cockpit-d-avion (mur de KPIs), pas rejeter le one-number hero.
+> Le PDF MINT-Design-System-2026-05-08 page 3 « Un chiffre à retenir » est la référence visuelle
+> canonique. Voir aussi le drift audit `.planning/audit/2026-05-14-handoff-vs-code-drift.md` §D.bis.
 
 **Références** : Chloé (luxe discret), Aesop (espace), Wise (clarté), Linear (sobriété).
 
@@ -26,6 +35,7 @@ Chaque écran doit ressembler à une page d'un beau livre, pas à un cockpit d'a
 3. **Dire moins, montrer mieux.** Si tu peux enlever un élément, enlève-le.
 4. **Le scroll est noble.** Plutôt un scroll aéré que tout comprimer au-dessus du fold.
 5. **Zéro décoration gratuite.** Chaque bordure, ombre, icône a une raison fonctionnelle.
+6. **Chiffre nu = interdit.** Tout chiffre projeté ou estimé est accompagné d'un `ConfidenceBand` + `EnrichmentPrompts` (PDF DS v2 mai 8 grammaire #6).
 
 ---
 

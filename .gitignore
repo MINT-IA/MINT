@@ -63,6 +63,12 @@ apps/mobile/ios/DerivedData/
 # Claude Code worktrees
 .claude/worktrees/
 
+# Claude Code persistent agent memory (vibe-coding infra Phase 1, per design doc 2026-05-14)
+# memory: project scope (would be checked-in by default — overridden for MINT public-repo discipline)
+.claude/agent-memory/
+# memory: local scope (always machine-local; default scope for all mint-* skills)
+.claude/agent-memory-local/
+
 # GStack security reports & analytics
 .gstack/
 
@@ -70,6 +76,13 @@ apps/mobile/ios/DerivedData/
 key.properties
 *.jks
 *.keystore
+
+# S98 Phase 5.X — Sentry dSYM-plugin local config. Devs may create a
+# `sentry.properties` under apps/mobile/ to test the plugin locally
+# (mirrors what CI sets via env vars). NEVER commit — contains the
+# Sentry auth token.
+apps/mobile/sentry.properties
+sentry.properties
 coverage.xml
 # Golden test failures - never commit
 apps/mobile/test/golden_screenshots/failures/
@@ -105,3 +118,25 @@ tools/simulator/walkthrough/
 
 # Phase 30.7 MCP tools dedicated venv — gitignored per D-01 (reproducible via requirements.txt)
 tools/mcp/mint-tools/.venv/
+
+# Codegraph local index (regenerable, 139MB+ SQLite)
+.codegraph/
+
+# Hypothesis property-based testing cache (regenerated per pytest run, never commit)
+.hypothesis/
+**/.hypothesis/
+
+# .gitignore backups produced by failed edits
+.gitignore.bak
+
+# Maestro sweep artifact directories — local-only debug evidence
+# (per-flow maestro.log + screenshots + cassure-report.json + oslog).
+# Findings docs at .planning/_walker/sweep-*-FINDINGS.md ARE versioned ;
+# the timestamped artifact dirs are not (regenerable, ~MB each).
+.planning/_walker/sweep-2[0-9]*T[0-9]*/
+.planning/_walker/sweep-2[0-9]*-[0-9]*-[0-9]*T*/
+
+# Maestro `takeScreenshot:` dumps numbered PNGs at the working dir
+# (repo root when run via tools/simulator/maestro_sweep.sh). Ignore
+# at root only — leaves intentional design assets in subdirs alone.
+/[0-9][0-9]-*.png

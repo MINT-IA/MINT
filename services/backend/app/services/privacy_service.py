@@ -48,6 +48,7 @@ RETENTION_POLICIES: Dict[str, str] = {
     "open_banking": "Duree du consentement, donnees supprimees a la revocation",
     "document_upload": "Duree du consentement, max 24 mois",
     "rag_queries": "Duree du consentement, donnees supprimees a la revocation (BYOK)",
+    "coach_insights": "Duree du consentement, donnees supprimees a la revocation",
 }
 
 # Categories de consentement avec leurs bases legales et descriptions
@@ -139,6 +140,22 @@ CONSENT_CATEGORIES: Dict[str, Dict] = {
             "Toutes les autres fonctionnalites restent disponibles."
         ),
     },
+    "coach_insights": {
+        "nom_affiche": "Memoire du coach (insights conversationnels)",
+        "description": (
+            "Le coach IA enregistre des faits, decisions et preferences detectes "
+            "dans tes conversations pour personnaliser les sessions futures. "
+            "Tu peux consulter, exporter et supprimer ces enregistrements a tout moment."
+        ),
+        "base_legale": "consent",
+        "est_obligatoire": False,
+        "peut_etre_retire": True,
+        "impact_retrait": (
+            "Les insights enregistres seront supprimes et le coach ne sauvegardera "
+            "plus de nouvelles informations entre les sessions. Il continuera de t'aider "
+            "mais devra te reposer les questions de base a chaque conversation."
+        ),
+    },
 }
 
 # Sources legales
@@ -194,6 +211,7 @@ class ExportResult:
     responsable_traitement: str
     premier_eclairage: str
     disclaimer: str
+    donnees_coach_insights: List[Dict] = field(default_factory=list)
     sources: List[str] = field(default_factory=list)
 
 
@@ -287,10 +305,12 @@ class PrivacyService:
         reports_data: Optional[List[Dict]] = None,
         documents_data: Optional[List[Dict]] = None,
         analytics_data: Optional[List[Dict]] = None,
+        coach_insights_data: Optional[List[Dict]] = None,
         include_sessions: bool = True,
         include_reports: bool = True,
         include_documents: bool = True,
         include_analytics: bool = True,
+        include_coach_insights: bool = True,
     ) -> ExportResult:
         """Exporte toutes les donnees personnelles d'un utilisateur.
 
@@ -322,6 +342,7 @@ class PrivacyService:
         _reports = reports_data if include_reports and reports_data else []
         _documents = documents_data if include_documents and documents_data else []
         _analytics = analytics_data if include_analytics and analytics_data else []
+        _coach_insights = coach_insights_data if include_coach_insights and coach_insights_data else []
 
         # Build category info
         categories: List[DataCategoryInfo] = []
@@ -370,6 +391,15 @@ class PrivacyService:
                 duree_conservation=RETENTION_POLICIES["analytics"],
             ))
 
+        if include_coach_insights:
+            categories.append(DataCategoryInfo(
+                categorie="coach_insights",
+                nombre_enregistrements=len(_coach_insights),
+                description="Insights enregistres par le coach IA (faits, decisions, preferences)",
+                base_legale="Consentement (nLPD art. 6 al. 6)",
+                duree_conservation=RETENTION_POLICIES["coach_insights"],
+            ))
+
         # Count total records
         total_records = sum(c.nombre_enregistrements for c in categories)
 
@@ -394,6 +424,7 @@ class PrivacyService:
             responsable_traitement=RESPONSABLE_TRAITEMENT,
             premier_eclairage=premier_eclairage,
             disclaimer=DISCLAIMER,
+            donnees_coach_insights=_coach_insights,
             sources=SOURCES_EXPORT,
         )
 
@@ -405,6 +436,7 @@ class PrivacyService:
         nb_reports: int = 0,
         nb_documents: int = 0,
         nb_analytics: int = 0,
+        nb_coach_insights: int = 0,
         raison: Optional[str] = None,
     ) -> DeletionResult:
         """Supprime les donnees personnelles d'un utilisateur.
@@ -482,7 +514,14 @@ class PrivacyService:
             statut=statut_donnees,
         ))
 
-        total_supprime = nb_sessions + nb_reports + nb_documents + nb_analytics + 1
+        # Coach insights (memoire conversationnelle)
+        categories_traitees.append(DeletionCategoryInfo(
+            categorie="coach_insights",
+            nombre_supprime=nb_coach_insights,
+            statut=statut_donnees,
+        ))
+
+        total_supprime = nb_sessions + nb_reports + nb_documents + nb_analytics + nb_coach_insights + 1
 
         # Build alertes
         alertes: List[str] = []

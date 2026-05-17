@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Session 2026-05-09 — 5 perimeters shipped (debt-context, archetype, FATCA, B7-cascade, P1 cron)</title>
+<style>
+  body { font: 14px/1.55 -apple-system, system-ui, sans-serif; max-width: 920px; margin: 2em auto; padding: 0 1em; color: #1a2520; }
+  h1, h2 { color: #003B2F; }
+  h1 { border-bottom: 3px solid #003B2F; padding-bottom: .3em; }
+  h2 { margin-top: 1.6em; }
+  table { border-collapse: collapse; width: 100%; margin: .5em 0; }
+  th, td { border: 1px solid #ccc; padding: 6px 9px; text-align: left; font-size: 13px; vertical-align: top; }
+  th { background: #f4faf7; }
+  .pass { color: #0a7a4f; font-weight: 600; }
+  .partial { color: #b58b00; font-weight: 600; }
+  .fail { color: #b3261e; font-weight: 600; }
+  code, pre { font: 12px/1.45 ui-monospace, Menlo, monospace; background: #f4f4f4; padding: 1px 4px; border-radius: 3px; }
+  blockquote { border-left: 3px solid #d0d6d4; padding: .2em .8em; color: #555; margin: .5em 0; }
+  .meta { color: #666; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Session 2026-05-09 — 5 perimeters shipped (debt-context, archetype, FATCA, B7-cascade, P1 cron)</h1>
+<p class="meta">Author: Claude Opus 4.7 · branch <code>fix/perimeter-p1-cron-archetype-aware</code> off <code>origin/dev</code> · 4 PRs merged + 1 awaiting CI</p>
+
+<h2>Outcome</h2>
+<ul>
+<li><strong>5 perimeter STUBs filed</strong> at <code>.planning/decisions/2026-05-09-perimeter-*/STUB.md</code></li>
+<li><strong>4 PRs merged to dev</strong> (#535, #536, #537, #538)</li>
+<li><strong>1 PR awaiting CI</strong> (#539 — P1 cron archetype-aware)</li>
+<li><strong>Backend pytest</strong>: <code>6047 passed, 6 skipped</code> (was 6041, +6 new B14/B15 tests + 6 new P1 cron tests)</li>
+<li><strong>Mobile flutter test models/</strong>: <code>229 passed</code> + 19 new archetype normalization + 3 new backendName tests</li>
+</ul>
+
+<h2>Shipped perimeters</h2>
+
+<table>
+<tr><th>#</th><th>PR</th><th>Title</th><th>Status</th><th>STUB</th></tr>
+
+<tr>
+<td>1</td>
+<td><a href="https://github.com/MINT-IA/MINT/pull/535">#535</a></td>
+<td>fix(coach): intent classifier + has-facts chips (B14+B15)</td>
+<td class="pass">MERGED</td>
+<td><code>.planning/decisions/2026-05-09-perimeter-b14-b15-debt-context-rag/STUB.md</code></td>
+</tr>
+
+<tr>
+<td>2</td>
+<td><a href="https://github.com/MINT-IA/MINT/pull/536">#536</a></td>
+<td>fix(profile): normalize residence permit + drop anon CH default</td>
+<td class="pass">MERGED</td>
+<td><code>.planning/decisions/2026-05-09-perimeter-archetype-input-normalization/STUB.md</code></td>
+</tr>
+
+<tr>
+<td>3</td>
+<td><a href="https://github.com/MINT-IA/MINT/pull/537">#537</a></td>
+<td>fix(calc): FATCA gate on 3a sim + canonical archetype.backendName</td>
+<td class="pass">MERGED</td>
+<td><code>.planning/decisions/2026-05-09-perimeter-fatca-calculator-gate/STUB.md</code></td>
+</tr>
+
+<tr>
+<td>4</td>
+<td><a href="https://github.com/MINT-IA/MINT/pull/538">#538</a></td>
+<td>fix(nav): convert 6 empty-state CTAs from context.go to context.push</td>
+<td class="pass">MERGED</td>
+<td><code>.planning/decisions/2026-05-09-perimeter-b7-cascade-empty-state/STUB.md</code></td>
+</tr>
+
+<tr>
+<td>5</td>
+<td><a href="https://github.com/MINT-IA/MINT/pull/539">#539</a></td>
+<td>fix(p1): archetype-aware annual refresh + precision field help</td>
+<td class="partial">CI in flight</td>
+<td><code>.planning/decisions/2026-05-09-perimeter-p1-cron-archetype-aware/STUB.md</code></td>
+</tr>
+
+</table>
+
+<h2>What each perimeter closes</h2>
+
+<h3>PR #535 — B14+B15 debt-context RAG gate</h3>
+<p>Device finding 2026-05-08: user typed « j'ai des dettes » → coach response framed around « amortissement direct vs indirect » (mortgage content) + generic chips ignoring just-given context.</p>
+<ul>
+<li>B14 — keyword-based intent classifier (debt / housing / family / career / retirement / taxes), injected into system prompt so the LLM stays on-topic.</li>
+<li>B15 — <code>_compute_suggested_actions</code> now skips generic profile-gap chips (« D'où vient ton argent ») when user volunteered concrete facts (numbers / CHF / %) AND a save_fact ran in the same turn.</li>
+<li>Agent loop reorders save_fact before suggest_actions so chips read freshly-persisted facts.</li>
+<li>13 new regression tests in <code>test_coach_b14_b15_debt_intent.py</code>.</li>
+</ul>
+
+<h3>PR #536 — Archetype input normalization + anon CH null</h3>
+<p>Audit P0#3: wizard persists <code>'permit_g'</code> but archetype getter compares to <code>'G'</code> → cross-border / FATCA / expat detection silently broken. Anon stub hardcoded <code>nationalityGroup: 'CH'</code> pre-framing every anonymous user as Swiss.</p>
+<ul>
+<li>New <code>normalizeResidencePermit()</code> top-level helper at <code>coach_profile.dart</code>.</li>
+<li><code>archetype</code> getter + <code>isCrossBorder</code> + <code>fromWizardAnswers</code> + <code>screen_registry.gateFrontalier</code> all wired through the normalizer.</li>
+<li><code>anonymous_chat_screen._seedToMinimalProfile</code> drops hardcoded <code>'CH'</code>, passes null instead.</li>
+<li>19 new tests in <code>coach_profile_archetype_normalization_test.dart</code> — wizard ↔ canonical, idempotency, exhaustiveness, regression guard.</li>
+</ul>
+
+<h3>PR #537 — FATCA gate on 3a sim + canonical archetype.backendName</h3>
+<p>Audit P0#4: <code>simulator_3a_screen</code> had no FATCA gate (US users fill a simulator they can't act on); <code>rachat_echelonne_screen:191</code> had no-op <code>replaceAll('_','_').toLowerCase()</code> producing <code>'crossborder'</code> instead of <code>'cross_border'</code> → backend doctrine_checks always defaulted to swiss_native, masking OPP2 art. 60b expat caps.</p>
+<ul>
+<li>New <code>FinancialArchetype.backendName</code> extension on <code>coach_profile.dart</code> (single source of truth for camelCase → snake_case).</li>
+<li><code>rachat_echelonne_screen</code> now uses <code>profile.archetype.backendName</code>.</li>
+<li><code>simulator_3a_screen.build</code> reads <code>coachProfile.canContribute3a</code> ; if false, renders <code>_buildFatcaGateBody()</code> with explainer + CTA to <code>/coach?intent=fatca_3a_alternatives</code>.</li>
+<li>3 new ARB keys × 6 locales (fr/en/de/es/it/pt) — <code>sim3aFatcaGate{Title,Body,Action}</code>.</li>
+<li>3 new tests in <code>coach_profile_archetype_backend_name_test.dart</code>.</li>
+</ul>
+
+<h3>PR #538 — B7-cascade empty-state push</h3>
+<p>Audit P1: 6 call sites across 4 screens used <code>context.go('/coach/chat')</code> from empty-state CTAs — <code>go</code> replaces stack so user can't back-out to the source screen.</p>
+<ul>
+<li>aujourdhui_screen.dart L137 + L144 + L197</li>
+<li>financial_report_screen_v2.dart L78</li>
+<li>staggered_withdrawal_screen.dart L184</li>
+<li>retroactive_3a_screen.dart L215</li>
+<li>All converted to <code>context.push</code>. Mechanical 6-line refactor, 0 issues from <code>flutter analyze</code>.</li>
+</ul>
+
+<h3>PR #539 — P1 cron archetype-aware (B-EXP-F)</h3>
+<p>Audit P1: <code>annual_refresh_service:145</code> yearly cron asked « Ton salaire annuel brut a-t-il change ? » to retirees ; <code>precision_service:99,109</code> hardcoded « Fiche de salaire mensuelle » as the canonical document for both salary fields, ignoring independents / retirees.</p>
+<ul>
+<li><code>generate_refresh_questions</code> accepts new optional <code>employment_status</code>. When <code>'retraite'</code>, salary + job-change questions reframed to retiree-relevant phrasing.</li>
+<li><code>precision_service.salaire_brut</code> + <code>salaire_net</code> field-help reframed to enumerate 3 sources (salaried / independent / retiree).</li>
+<li>6 new regression tests in <code>test_annual_refresh_archetype_aware.py</code>.</li>
+</ul>
+
+<h2>0-Trust receipts (CLAUDE.md §9)</h2>
+<table>
+<tr><th>Claim</th><th>Citation</th></tr>
+<tr><td>4 PRs merged</td><td>gh api PUT merge returns merged:true at <code>60e14c12</code> (#535), <code>f3b740a4</code> (#534 inherited), <code>f18dc5db</code> (#536), <code>46a5f2de</code> (#537), <code>4beda9aa</code> (#538)</td></tr>
+<tr><td>Backend pytest green</td><td>6047 passed, 6 skipped (after P1 commit)</td></tr>
+<tr><td>Flutter analyze clean on touched files</td><td><code>flutter analyze lib/...</code> on all 5 PRs returned 0 NEW issues</td></tr>
+<tr><td>Flutter test models/ green</td><td>229 passed (was 207 + 19 archetype + 3 backendName)</td></tr>
+<tr><td>ARB parity</td><td>3 new keys × 6 locales added in PR #537 ; <code>flutter gen-l10n</code> regenerated cleanly</td></tr>
+<tr><td>Wiki lint green</td><td>0 FAIL-level violations on the 5 new STUBs</td></tr>
+</table>
+
+<h2>What this session does NOT claim</h2>
+<p>Per CLAUDE.md §9.5 « PR opened ≠ shipped » — even MERGED PRs are at stage 3 of 4. The user-facing « works » claim requires :</p>
+<ul>
+<li>G1 sim walker on each fixed flow (debt-conso, frontalier, FATCA-blocked 3a sim, retiree annual refresh, empty-state back-button)</li>
+<li>G2 device verify by Julien on TestFlight v2.12.2+5 (the next bump that includes today's merges)</li>
+<li>G4 post-merge sim re-run logging the touched flows</li>
+</ul>
+
+<h2>Next session</h2>
+<ul>
+<li>Wait for PR #539 CI green, merge.</li>
+<li>Cut TestFlight v2.12.2+5 with all 5 merged perimeters bundled.</li>
+<li>Per memory <code>feedback_post_phase_panel_loop</code> — convene 5-7 expert panel post-G2 to score next-perimeter priorities (B-EXP-D-1 retraite-first chip, B-EXP-D-2 bare CHF Text widgets, MVP-B8-DOCTRINE-RUNTIME-WIRE).</li>
+</ul>
+
+
+<h2>Phase 91 close-out — MVP-EXTRACTOR-V2 (later this session)</h2>
+<p>After the 5 perimeter merges of the morning, the afternoon orchestrator session ran <code>/gsd-execute-phase 91 --no-transition</code>: closed Wave 4 (gap-closure plans 91-04 + 91-05 + 91-06), Stage 3 narrator decision = <strong>SONNET</strong> (kill-policy fallback per ratio 0.24, ADR-20260419-v2.8), Maestro G1 strict 3-fact PASS 16s on iPhone 17 Pro sim, Maestro G2 walkthrough PASS 38s with mechanical checks all green, on-brand sign-off delegated to PM Claude (PASS partial with 2 concerns routed to Phase 96 + Phase 94).</p>
+<p>Strategic pivot artifact: <a href="../decisions/2026-05-09-calc-first-llm-illumination.md"><code>.planning/decisions/2026-05-09-calc-first-llm-illumination.md</code></a> — 7-expert panel synthesis proposing « calc engine = source of truth, LLM = narrator illumination ». Roadmap injection (94 expansion + new 92.5 + 95/96 expansion + 999.x backlog) awaits Julien acceptance.</p>
+<p>Full evidence: <a href="../phases/91-mvp-extractor-v2/91-VERIFICATION-REPORT.html">91-VERIFICATION-REPORT.html</a>.</p>
+<p><strong>Gates this phase:</strong></p>
+<table>
+<tr><th>Gate</th><th>Status</th><th>Note</th></tr>
+<tr><td>G1 Maestro strict</td><td class="pass">PASS</td><td>16s, exit 0</td></tr>
+<tr><td>G2 sim walkthrough</td><td class="partial">PASS partial</td><td>2 concerns routed downstream</td></tr>
+<tr><td>G3 dev CI</td><td>pending merge</td><td>branch not yet pushed when report generated</td></tr>
+<tr><td>G4 regression</td><td class="pass">PASS</td><td>6154 tests passed local</td></tr>
+<tr><td>G5 lints</td><td class="pass">PASS</td><td>banned_terms 6 locales clean + accent_lint exit 0</td></tr>
+</table>
+
+
+</body>
+</html>

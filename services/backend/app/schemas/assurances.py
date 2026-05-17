@@ -145,7 +145,12 @@ class ChecklistItemResponse(BaseModel):
 
 
 class CoverageCheckRequest(BaseModel):
-    """Request model for coverage checklist evaluation."""
+    """Request model for coverage checklist evaluation.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch D), `canton` is widened
+    from `default="GE"` to Optional `default=None` with the `from_profile`
+    marker so the resolver can fill it from `_user.profile.canton`.
+    """
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -185,10 +190,11 @@ class CoverageCheckRequest(BaseModel):
     aAssuranceDeces: bool = Field(
         False, description="A une assurance deces"
     )
-    canton: str = Field(
-        "GE",
-        description="Canton de residence (code 2 lettres)",
+    canton: Optional[str] = Field(
+        default=None,
+        description="Canton de residence (code 2 lettres, lu depuis le profil si absent)",
         max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
 
 
