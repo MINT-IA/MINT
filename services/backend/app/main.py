@@ -335,6 +335,15 @@ def _auto_ingest_rag():
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
+# Phase mint-calc-engine-v1 W4 Plan 17 (D-CE-17) — Prometheus metrics
+# exposition endpoint at /metrics (no API_V1_STR prefix — convention for
+# Prometheus scrapers). `include_in_schema=False` keeps it out of OpenAPI.
+# Open Q1 resolved with Prometheus (preferred per RESEARCH §Q-H Option 1).
+from app.core.metrics import metrics_router  # noqa: E402
+
+app.include_router(metrics_router)
+
+
 @app.get("/")
 def root():
     return {"msg": "Welcome to Mint API"}
