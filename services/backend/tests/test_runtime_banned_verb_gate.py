@@ -147,3 +147,72 @@ def test_zero_width_chars_constant_present():
     assert "﻿" in _ZERO_WIDTH_CHARS  # ZERO WIDTH NO-BREAK SPACE
     assert "⁠" in _ZERO_WIDTH_CHARS  # WORD JOINER
     assert len(_ZERO_WIDTH_CHARS) >= 5
+
+
+# ---------------------------------------------------------------------------
+# Stage 0-followup (2026-05-17, post mint-calc-engine-v1) — drift guard.
+# Runtime gate inlines its banned-term vocabulary so the Railway container
+# (where `tools/checks/banned_terms_python.py` is NOT shipped) can boot.
+# This test asserts the 3 inlined tuples match the canonical lint exactly.
+# Runs in CI + local — both files are present here. Drift = test fails.
+# ---------------------------------------------------------------------------
+def test_runtime_lint_drift_guard():
+    """Runtime gate's 3 banned-term tuples MUST match the lint canonical.
+
+    Inlined values live in `runtime_verb_gate.py` (so Railway container can
+    boot without `tools/` on Python path). Source-of-truth values live in
+    `tools/checks/banned_terms_python.py`. Any drift between the two would
+    create a Layer-(b) ↔ Layer-(c) defense gap : the lint flags a verb at
+    commit-time but the runtime gate doesn't catch it at narrator output
+    (or vice versa).
+
+    Test uses importlib (not regular import) because `tools/` is not on
+    Python path from `services/backend/tests/`. Test SKIPS cleanly if the
+    canonical lint file cannot be found — that's the expected state on
+    Railway container ; the test is a dev-box / CI gate, not a runtime gate.
+    """
+    import importlib.util
+    from pathlib import Path
+
+    from app.services.coach.runtime_verb_gate import (
+        BANNED_PARAPHRASE_VERBS as runtime_paraphrase,
+        _PHRASE_BANNED as runtime_phrase,
+        _WORD_BOUNDARY_BANNED as runtime_word,
+    )
+
+    # Walk up from `services/backend/tests/test_runtime_banned_verb_gate.py`
+    # to the repo root (parents[3] = repo root) then into `tools/checks/`.
+    lint_path = (
+        Path(__file__).resolve().parents[3]
+        / "tools"
+        / "checks"
+        / "banned_terms_python.py"
+    )
+
+    if not lint_path.is_file():
+        pytest.skip(
+            f"Canonical lint not found at {lint_path} — skipping drift guard. "
+            f"Expected state on Railway container (build context excludes "
+            f"repo-root tools/). On dev-box / CI this should resolve."
+        )
+
+    spec = importlib.util.spec_from_file_location(
+        "banned_terms_python_drift_guard", lint_path
+    )
+    assert spec is not None and spec.loader is not None
+    lint_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(lint_module)
+
+    assert runtime_word == tuple(lint_module._WORD_BOUNDARY_BANNED), (
+        f"_WORD_BOUNDARY_BANNED drift — runtime={runtime_word!r} vs "
+        f"lint={tuple(lint_module._WORD_BOUNDARY_BANNED)!r}. Sync "
+        f"runtime_verb_gate.py with tools/checks/banned_terms_python.py."
+    )
+    assert runtime_phrase == tuple(lint_module._PHRASE_BANNED), (
+        f"_PHRASE_BANNED drift — runtime={runtime_phrase!r} vs "
+        f"lint={tuple(lint_module._PHRASE_BANNED)!r}"
+    )
+    assert runtime_paraphrase == tuple(lint_module.BANNED_PARAPHRASE_VERBS), (
+        f"BANNED_PARAPHRASE_VERBS drift — runtime={runtime_paraphrase!r} vs "
+        f"lint={tuple(lint_module.BANNED_PARAPHRASE_VERBS)!r}"
+    )

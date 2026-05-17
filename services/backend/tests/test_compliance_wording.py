@@ -49,6 +49,7 @@ GUARDRAIL_FILES = {
     "coach_tools.py",                  # tool schema with banned terms reminder
     "vision_guard.py",                 # LLM-as-judge prompt: literally lists banned terms
     "anonymous_chat.py",               # anon discovery prompt: « Termes interdits : garanti... »
+    "runtime_verb_gate.py",            # Plan 18 D-CE-16(c) inlined banned-term vocab (2026-05-17)
     # Dart
     "compliance_guard.dart",
     "coach_checkin_screen.dart",

@@ -40,51 +40,60 @@ Threat coverage per Plan-18 STRIDE register :
 """
 from __future__ import annotations
 
-import importlib.util
 import re
 import unicodedata
-from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Pattern established in Plan 04 SUMMARY decisions — load the banned-term
-# vocabulary at runtime via importlib so the backend doesn't depend on
-# `tools/` being on `sys.path` (which it isn't when running from
-# `services/backend/`). This keeps the lint module the canonical single
-# source of truth without forcing a packaging restructure.
+# Stage 0-followup (2026-05-17, post mint-calc-engine-v1) — INLINED banned-
+# term vocabulary. The previous `parents[5] / "tools" / "checks" /
+# "banned_terms_python.py"` importlib path traversal worked on dev-box
+# (5 levels up from `services/backend/app/services/coach/runtime_verb_gate.py`
+# lands at repo root) but CRASHED on Railway container at boot with
+# `IndexError: 5` because (a) Railway `WORKDIR=/app` only has 4 ancestors
+# and (b) `tools/checks/banned_terms_python.py` is NOT shipped to the
+# container — the Dockerfile build context is `services/backend/` so the
+# repo-root `tools/` directory is OUTSIDE the build context.
+#
+# Fix : inline the 3 tuples here verbatim. Drift between runtime gate and
+# the canonical `tools/checks/banned_terms_python.py` is caught by
+# `tests/test_runtime_banned_verb_gate.py::test_runtime_lint_drift_guard`
+# (added in this same commit), which runs locally + in CI where both
+# files are accessible. The runtime gate becomes self-contained — no
+# build-time tooling dependency at HTTP request path.
+#
+# Self-exemption marker below tells `banned_terms_python.py` to skip
+# scanning these 3 tuples when it walks this file ; the strings here are
+# the lint vocabulary, not user-facing narrator output.
 # ---------------------------------------------------------------------------
-_LINT_PATH = (
-    Path(__file__).resolve().parents[5] / "tools" / "checks" / "banned_terms_python.py"
+# llm-doctrine-fragment-banned-list
+"""
+Inlined banned-term vocabulary — kept in sync with
+`tools/checks/banned_terms_python.py` via test_runtime_lint_drift_guard.
+"""
+
+_WORD_BOUNDARY_BANNED: tuple[str, ...] = (
+    "garanti",
+    "optimal",
+    "meilleur",
+    "certain",
+    "assure",
+    "parfait",
 )
 
+_PHRASE_BANNED: tuple[str, ...] = ("sans risque",)
 
-def _load_lint_vocabulary() -> tuple[
-    tuple[str, ...], tuple[str, ...], tuple[str, ...]
-]:
-    """Load (_WORD_BOUNDARY_BANNED, _PHRASE_BANNED, BANNED_PARAPHRASE_VERBS).
-
-    Same import-via-importlib pattern as `tests/test_lucidity_payloads.py`
-    (Plan 04 decision) — avoids the `tools.checks` ImportError when this
-    module is imported from inside `services/backend/`.
-    """
-    spec = importlib.util.spec_from_file_location(
-        "banned_terms_python_runtime", _LINT_PATH
-    )
-    if spec is None or spec.loader is None:  # pragma: no cover — defensive
-        raise ImportError(
-            f"D-CE-16(c) runtime gate cannot load banned-term vocabulary "
-            f"from {_LINT_PATH}"
-        )
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return (
-        tuple(module._WORD_BOUNDARY_BANNED),
-        tuple(module._PHRASE_BANNED),
-        tuple(module.BANNED_PARAPHRASE_VERBS),
-    )
-
-
-_WORD_BOUNDARY_BANNED, _PHRASE_BANNED, BANNED_PARAPHRASE_VERBS = (
-    _load_lint_vocabulary()
+BANNED_PARAPHRASE_VERBS: tuple[str, ...] = (
+    "le choix le plus avisé",
+    "le plus pertinent",
+    "plus avantageux que",
+    "nettement plus",
+    "clairement supérieur",
+    "à mon avis",
+    "je pense que tu",
+    "mon conseil serait",
+    "tu devrais",
+    "il faut",
+    "recommandé",
 )
 
 # Verbatim FR fallback. INTENTIONALLY shorter than Phase 94's
