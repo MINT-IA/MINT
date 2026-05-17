@@ -206,6 +206,27 @@ pre-commit:
       run: python3 tools/checks/ios_release_capability_drift.py
       tags: [ios, release, testflight, incident-2026-05-11]
       fail_text: "iOS capability drift — Runner.entitlements declares a key not in the provisioning profile allowlist. See stderr above for the 3-step unblock guide."
+    # ── Phase mint-calc-engine-v1 Plan 19 W4 (Concern C parity lint) ──
+    profile_safe_fields_parity:
+      # SOFT-WARN gate (exits 0 via `|| true`). Surface drift between server
+      # canonical `_PROFILE_SAFE_FIELDS` at coach_chat.py and the Flutter
+      # profileContext call-sites at coach_orchestrator.dart /
+      # coach_chat_api_service.dart / coach_narrative_service.dart /
+      # coaching_service.dart. Concern C from phase mint-calc-engine-v1
+      # CONTEXT.md §Data gaps.
+      #
+      # Baseline 2026-05-17 measured 40 server-only fields + 5 Flutter-only
+      # fields (drift documented in Plan 19 SUMMARY). Until Flutter catches
+      # up via a dedicated follow-up PR, the hook stays SOFT to avoid
+      # blocking unrelated commits. Promote to HARD (drop `|| true`) once
+      # baseline diff is closed.
+      #
+      # Memory: feedback_ci_path_filter_blind_spots — pre-commit lint lives
+      # on the file glob, not (only) in CI workflows.
+      glob: "{services/backend/app/api/v1/endpoints/coach_chat.py,apps/mobile/lib/services/coach/coach_orchestrator.dart,apps/mobile/lib/services/coach/coach_chat_api_service.dart,apps/mobile/lib/services/coach_narrative_service.dart,apps/mobile/lib/services/coaching_service.dart}"
+      run: python3 tools/checks/profile_safe_fields_parity.py || true
+      tags: [compliance, grounding, phase-mint-calc-engine-v1-w4]
+      fail_text: "Concern C parity lint surfaced drift between server _PROFILE_SAFE_FIELDS and Flutter profileContext call-sites. See stdout for missing-in-Flutter / missing-in-server diff. SOFT mode for now ; promote to HARD once baseline closed."
     # ── Phase 96 D-17 (metaphor parity + value-poisoning lint) ──
     metaphor_parity:
       # Phase 96 D-17 — `apps/mobile/assets/metaphors.toml` and
