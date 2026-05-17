@@ -35,6 +35,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 # Word-boundary-anchored single tokens.
@@ -49,7 +50,42 @@ _WORD_BOUNDARY_BANNED: tuple[str, ...] = (
 # Multi-word phrases (no word boundary, just substring).
 _PHRASE_BANNED: tuple[str, ...] = ("sans risque",)
 
+# ---------------------------------------------------------------------------
+# Phase mint-calc-engine-v1 W4 — D-CE-16(b) paraphrase-verb extension.
+# 11 verbs verbatim from CONTEXT §D-CE-16(b). Scanned as substrings (not
+# word-boundary) because most are multi-word phrases. Order preserved to
+# match the doctrine table.
+# Self-exemption (see _SELF_PATH below) keeps this file's own source clean
+# under the lint — the strings here are the lint's vocabulary, not user-
+# facing narrator output.
+# ---------------------------------------------------------------------------
+BANNED_PARAPHRASE_VERBS: tuple[str, ...] = (
+    "le choix le plus avisé",
+    "le plus pertinent",
+    "plus avantageux que",
+    "nettement plus",
+    "clairement supérieur",
+    "à mon avis",
+    "je pense que tu",
+    "mon conseil serait",
+    "tu devrais",
+    "il faut",
+    "recommandé",
+)
+
+# Doctrine-level union for downstream consumers (runtime_verb_gate.py).
+# Combines all word-boundary + phrase + paraphrase verbs into one tuple.
+BANNED_TERMS: tuple[str, ...] = (
+    *_WORD_BOUNDARY_BANNED,
+    *_PHRASE_BANNED,
+    *BANNED_PARAPHRASE_VERBS,
+)
+
 EXEMPTION_MARKER = "# llm-doctrine-fragment-banned-list"
+
+# Self-path : this module is its own canonical list ; scan_file MUST NOT
+# flag its own paraphrase-verb tuple as user-facing narrator output.
+_SELF_PATH = Path(__file__).resolve()
 
 
 def _compute_exempted_lines(lines: list[str]) -> set[int]:
@@ -96,7 +132,24 @@ def _compute_exempted_lines(lines: list[str]) -> set[int]:
 
 
 def scan_file(path: Path) -> list[tuple[int, str, str]]:
-    """Return [(line_no, term, line_text), ...] for non-exempted hits."""
+    """Return [(line_no, term, line_text), ...] for non-exempted hits.
+
+    NFKC-normalises each line before regex match so decomposed-accent /
+    fullwidth / combining-mark variants of banned terms cannot evade the
+    lint (CONTEXT §D-CE-16(b) — paraphrase + unicode evasion vector).
+
+    Self-exemption : when called on this module's own file (e.g. by a
+    pre-commit hook that walks the repo), the function returns an empty
+    list — the paraphrase tuple here IS the lint vocabulary, not narrator
+    output.
+    """
+    # D-CE-16(b) self-exemption.
+    try:
+        if path.resolve() == _SELF_PATH:
+            return []
+    except OSError:  # pragma: no cover — defensive on weird paths
+        pass
+
     text = path.read_text(encoding="utf-8")
     lines = text.splitlines()
     exempted = _compute_exempted_lines(lines)
@@ -104,6 +157,10 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
     word_re = {
         term: re.compile(r"\b" + re.escape(term) + r"\b", re.IGNORECASE)
         for term in _WORD_BOUNDARY_BANNED
+    }
+    paraphrase_re = {
+        term: re.compile(re.escape(term), re.IGNORECASE)
+        for term in BANNED_PARAPHRASE_VERBS
     }
     hits: list[tuple[int, str, str]] = []
 
@@ -115,15 +172,29 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
         stripped = line.lstrip()
         if stripped.startswith("#"):
             continue
+        # D-CE-16(b) NFKC normalisation : neutralises decomposed accents,
+        # fullwidth chars, and combining marks BEFORE substring/regex match.
+        nfkc_line = unicodedata.normalize("NFKC", line)
+        matched = False
         for term in _WORD_BOUNDARY_BANNED:
-            if word_re[term].search(line):
+            if word_re[term].search(nfkc_line):
                 hits.append((line_no, term, line.rstrip()))
+                matched = True
                 break
-        else:
-            for phrase in _PHRASE_BANNED:
-                if phrase in line.lower():
-                    hits.append((line_no, phrase, line.rstrip()))
-                    break
+        if matched:
+            continue
+        for phrase in _PHRASE_BANNED:
+            if phrase in nfkc_line.lower():
+                hits.append((line_no, phrase, line.rstrip()))
+                matched = True
+                break
+        if matched:
+            continue
+        # D-CE-16(b) — paraphrase verbs (substring, NFKC-aware, case-insensitive).
+        for verb in BANNED_PARAPHRASE_VERBS:
+            if paraphrase_re[verb].search(nfkc_line):
+                hits.append((line_no, verb, line.rstrip()))
+                break
     return hits
 
 
