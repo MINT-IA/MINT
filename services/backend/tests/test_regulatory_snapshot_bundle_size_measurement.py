@@ -49,7 +49,15 @@ _EXPECTED_JURISDICTIONS = {
 
 
 def _run_script(*extra_args: str) -> subprocess.CompletedProcess:
-    """Invoke the measurement script from repo root with stable PYTHONPATH."""
+    """Invoke the measurement script from repo root with stable PYTHONPATH + DATABASE_URL.
+
+    The measurement script transitively imports ``app.models`` which triggers
+    ``app.core.database`` import-time ``create_engine()``. If the surrounding
+    pytest session mutated ``DATABASE_URL`` to an unparseable value, the
+    subprocess inherits the broken env and ``sqlalchemy.exc.ArgumentError``
+    fires before our code runs. Pin a known-good in-memory sqlite URL so the
+    subprocess is isolated from full-suite env pollution.
+    """
     env = dict(os.environ)
     # Ensure services/backend is importable so `from app.services...` resolves
     # regardless of caller cwd. The script also self-injects this but belt+suspenders.
@@ -58,6 +66,10 @@ def _run_script(*extra_args: str) -> subprocess.CompletedProcess:
     env["PYTHONPATH"] = (
         f"{backend_path}:{existing_path}" if existing_path else backend_path
     )
+    # Override any pytest-session-polluted DATABASE_URL with a parseable
+    # in-memory sqlite so SQLAlchemy.create_engine doesn't crash on import.
+    # The measurement script never touches the DB ; the URL only needs to parse.
+    env["DATABASE_URL"] = "sqlite:///:memory:"
     return subprocess.run(
         [sys.executable, str(_SCRIPT_PATH), *extra_args],
         capture_output=True,
