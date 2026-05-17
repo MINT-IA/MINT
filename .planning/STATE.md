@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-17 (W4 metrics-counters + inputs_provenance)
-last_updated: "2026-05-17T07:23:13.418Z"
+stopped_at: Completed mint-calc-engine-v1-18 (W4 banned-verb lint extension + runtime fail-closed gate — D-CE-16 triple defense complete)
+last_updated: "2026-05-17T07:45:51.254Z"
 last_activity: 2026-05-17
 progress:
   total_phases: 12
@@ -35,10 +35,53 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 CLOSED code-side ; Plans 12-13-14-15-16 shipped ; Wave 4 opens at Plan 17 ; Wave 3 close-out gate = Railway cron activation pending Julien GO)
-Plan: 18 of 20 (next)
+Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 CLOSED code-side ; Plans 12-13-14-15-16 shipped ; Wave 4 opens at Plan 17 ; Plan 17 + 18 shipped ; Wave 3 close-out gate = Railway cron activation pending Julien GO)
+Plan: 19 of 20 (next)
 Status: Ready to execute
 Last activity: 2026-05-17
+
+## Plan mint-calc-engine-v1-18 Receipt (W4 banned-verb lint extension + runtime fail-closed gate — D-CE-16 triple defense complete, 2026-05-17)
+
+- **Plan outcome** : mechanical execution, mid-Wave-4. Ships D-CE-16 layers (b) lint-time + (c) runtime fail-closed. Plan 04 (Wave 1) already shipped layer (a) schema-impossibility (`L2ComparePayload` rejects `recommended_option` etc. via `extra='forbid'`). Now : (b) `tools/checks/banned_terms_python.py` extended with `BANNED_PARAPHRASE_VERBS` (11 verbs verbatim from CONTEXT §D-CE-16(b)) + NFKC normalisation + self-exempt ; (c) `services/backend/app/services/coach/runtime_verb_gate.py` (184 LOC, `gate(text) -> (passed, _FALLBACK_FR)`) with NFKC + zero-width-char strip BEFORE pre-compiled `re.IGNORECASE` patterns, wired UPSTREAM of Phase 94 citation parser inside `_run_narrator_with_gate` (Q5 = before per VALIDATION default + orchestrator pre-decide). Sentry breadcrumb `coach.verb_gate.fired` on every fire (PII-safe : profile_id_hashed sha256-16 + `fallback_emitted=True`). Always-on, NO feature flag — fail-closed beats opt-in for LSFin liability per orchestrator pre-decide.
+- Files created : 4
+  - `services/backend/app/services/coach/runtime_verb_gate.py` — 184 LOC. `gate(text)` + `_strip_zero_width()` + `_ZERO_WIDTH_CHARS` frozenset (U+200B/200C/200D/FEFF/2060) + `_FALLBACK_FR = "Je n'ai pas cette donnée pour l'instant."` verbatim string literal + importlib loader for the lint vocabulary.
+  - `services/backend/tests/test_runtime_banned_verb_gate.py` — 149 LOC, 22 tests (empty/whitespace pass, clean LSFin passes, base ban triggers, paraphrase verb triggers, NFKC decomposed-accent caught, zero-width injection caught, case-insensitive, multi-violation single fallback, parametrised across all 11 paraphrase verbs).
+  - `services/backend/tests/test_coach_chat_verb_gate_wire.py` — 202 LOC, 9 tests (symbol import, BEFORE-citation-gate ordering, short-circuit on fail, `coach.verb_gate.fired` breadcrumb category, placement inside `_run_narrator_with_gate`, baselines `art. `/`_maybe_wrap_v2`/`inputs_provenance` preserved).
+  - `tools/checks/tests/test_paraphrase_verbs.py` — 180 LOC, 16 tests (BANNED_PARAPHRASE_VERBS constant exposed, 11 verbs scanned, lint CLI exit 1 per verb, base 7 still flagged, safe LSFin exit 0, NFKC normalised input still flagged).
+- Files modified : 5
+  - `tools/checks/banned_terms_python.py` — added `BANNED_PARAPHRASE_VERBS` tuple (11 verbs), `BANNED_TERMS` public union (19 entries), NFKC normalisation in `scan_file()`, self-exempt via `_SELF_PATH`, paraphrase_re pre-compiled patterns.
+  - `services/backend/app/api/v1/endpoints/coach_chat.py` — added `from app.services.coach.runtime_verb_gate import gate as _runtime_verb_gate` next to the citation_parser import + insert verb-gate call BEFORE `_citation_gate` inside `_run_narrator_with_gate` with short-circuit return on fail + `sentry_sdk` breadcrumb category `coach.verb_gate.fired`.
+  - `services/backend/app/services/coach/bundles/lpp_projector.py` + `succession_divorce_bundle.py` + `tax_explainer.py` — added `# llm-doctrine-fragment-banned-list` exemption marker above `_PROMPT_FRAGMENT` so newly-flagged « il faut » / « tu devrais » roots in doctrine strings don't break the bundles lefthook gate.
+- Gates green :
+  - `cd services/backend && python3 -m pytest tests/test_runtime_banned_verb_gate.py -q` → `22 passed in 0.27s`
+  - `cd services/backend && python3 -m pytest tests/test_coach_chat_verb_gate_wire.py -q` → `9 passed in 0.21s`
+  - `python3 -m pytest tools/checks/tests/test_paraphrase_verbs.py -q` → `16 passed in 0.33s`
+  - `cd services/backend && python3 -m pytest tests/test_citation_gate/ -q` → `212 passed in 0.89s` (Phase 94 byte-identity matrix intact, zero regression)
+  - `cd services/backend && python3 -m pytest tests/ -q` → **`7264 passed, 63 skipped, 3 xfailed, 1 warning in 115.53s`** (delta vs Plan 17 baseline 7233 = `+31 passed`, zero regression on skipped/xfailed)
+  - `python3 tools/checks/banned_terms_python.py tools/checks/banned_terms_python.py` → exit 0 (self-exempt)
+  - `python3 tools/checks/banned_terms_python.py services/backend/app/services/coach/bundles/ services/backend/app/services/coach/runtime_verb_gate.py` → exit 0 (after 3 exemption markers added)
+  - `python3 tools/checks/accent_lint_fr.py --scope backend` → exit 0
+  - `python3 -c "from tools.checks.banned_terms_python import BANNED_TERMS; print(len(BANNED_TERMS))"` → `18` ≥ 18 acceptance
+  - `grep -c "le plus pertinent\|plus avantageux\|nettement plus\|clairement supérieur\|mon conseil" tools/checks/banned_terms_python.py` → `5` ≥ 5 acceptance
+  - `grep -c "unicodedata.normalize" services/backend/app/services/coach/runtime_verb_gate.py` → `1` ≥ 1 acceptance
+  - `grep -c "_ZERO_WIDTH_CHARS\|_strip_zero_width" services/backend/app/services/coach/runtime_verb_gate.py` → `6` ≥ 2 acceptance
+  - `grep -c "runtime_verb_gate" services/backend/app/api/v1/endpoints/coach_chat.py` → `2` ≥ 1 acceptance
+  - Baselines preserved (Plans 09 / 10 / 17 surfaces in coach_chat.py) : `art. `=5, `_maybe_wrap_v2`=6, `inputs_provenance`=0
+- Commits :
+  - `a8ca28a1` (Task 1 RED — 14 failing lint tests, NFKC + 11 paraphrase verbs not yet present)
+  - `95778fef` (Task 1 GREEN — banned_terms_python extension + 3 bundle exemption markers, 16/16 tests pass)
+  - `a4476320` (Task 2 RED — 22 failing gate tests, ModuleNotFoundError as expected)
+  - `6927d15f` (Task 2 GREEN — runtime_verb_gate.py 184 LOC, NFKC + zero-width strip, 22/22 tests pass)
+  - `2cb19f8d` (Task 3 RED — 9 failing wire-up tests, runtime_verb_gate not yet imported in coach_chat.py)
+  - `d48ca303` (Task 3 GREEN — verb gate wired BEFORE citation gate in _run_narrator_with_gate, 9/9 tests pass)
+  - docs commit pending (this STATE update + SUMMARY + ROADMAP)
+- Duration : ~28 min
+- Deviations : 4 auto-fixed. (1) **Rule 1 bug** : `from tools.checks.banned_terms_python import …` raises `ModuleNotFoundError` from `services/backend/` cwd (`tools.checks` not on sys.path). Switched to `importlib.util.spec_from_file_location` loader at module load time (same pattern as Plan 04 SUMMARY decision). (2) **Rule 1 bug** : initial `Path(__file__).resolve().parents[4]` resolved to `services/`, not repo root ; bumped to `parents[5]` (`coach[0]/services[1]/app[2]/backend[3]/services-dir[4]/MINT.nosync[5]`). (3) **Rule 2 critical missing functionality** : newly-extended lint flagged 3 pre-existing `_PROMPT_FRAGMENT` doctrine strings (`bundles/lpp_projector.py:35`, `bundles/succession_divorce_bundle.py:65`, `bundles/tax_explainer.py:57`) containing « il faut » / « tu devrais » as legitimate narrator instructions (« pose la règle, jamais "tu devrais" »). Added `# llm-doctrine-fragment-banned-list` exemption marker above each — existing documented pattern (CONTEXT 93.5 D-09). (4) **Rule 3 blocking issue** : wire-up comment said « Runs BEFORE _citation_gate (Q5 = before) » → test regex `_citation_gate\s*\(` matched the comment (with trailing space) at offset 518, making the gate appear AFTER its own wire-up call. Reworded comment to « BEFORE the Phase 94 citation parser » ; semantically identical, no false-positive regex hit.
+- Out-of-scope discoveries : 2 pre-existing « recommandé » hits in `coach_chat.py:1180` + `:2814` flagged by extended lint — PROVENANCE-block + tool-result confirmation strings (FactBot Sprint data fields, NOT narrator output). Lefthook gate cibles `bundles/*.py` so `endpoints/coach_chat.py` not blocked. Tracked in `.planning/phases/mint-calc-engine-v1/deferred-items.md` row 2026-05-17 for a small follow-up PR in W4 close batch.
+- 0-trust : `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-18-w4-banned-verb-lint-runtime-gate-SUMMARY.md` `## Self-Check: PASSED` with 16 citations + explicit « What I HAVE NOT done » block listing : did NOT run the verb gate end-to-end on Railway staging sim (no live cloud session) ; did NOT add `coach.verb_gate.fired` Sentry dashboard / alerting rule (observability follow-up, NOT Plan 18 scope) ; did NOT measure latency overhead at scale ; did NOT open a PR (direct on `dev`) ; did NOT merge dev → staging ; did NOT call MCP `mem_save` tool (14th consecutive plan with MCP exposure mismatch) ; did NOT fix the 2 pre-existing « recommandé » hits in coach_chat.py (deferred) ; did NOT update `docs/coach-tool-routing.md` (no tool routing keys / calculators / invariants modified) ; did NOT run Maestro G1 sim flow (no UI surface) ; did NOT activate any feature flag (gate is always-on by design per orchestrator pre-decide).
+- Engram : observation **#144** saved via CLI fallback (`engram save "D-CE-16 triple defense complete — Plan 18 ships layers (b) lint extension + (c) runtime gate" --project mint --type architecture --topic_key mint-calc-engine-v1:w4-plan-18:banned-verb-runtime-gate`). `prior_finding_refs` content cites Plan 04 obs (no engram id — only in CONTEXT / Plan 04 SUMMARY) + **#103** (panel synthesis D-CE-16) + **#137** (Plan 12 W3 idx, same codebase) + **#141** (Plan 16 W3 wave-close pattern).
+- USER VALUE DELIVERED : ZERO direct end-user-visible change YET, but the safety floor under the narrator just got 2 redundant defense layers. Triple defense complete : (a) schema-impossibility (Plan 04) + (b) lint extension + (c) runtime fail-closed. Per arXiv 2504.11168 + 2512.01353 : lexical guardrails alone fail at 40-80 % paraphrase + 100 % character injection ; schema layer is the only one paraphrase-resistant by construction ; lint + runtime are belt-and-suspenders for emission paths above it. End-user impact materialises the next time the LLM tries to emit « tu devrais » / « le plus pertinent » / « recommandé » : the user sees the LSFin-safe templated FR fallback (« Je n'ai pas cette donnée pour l'instant. ») rather than a ranking verb that could trigger LSFin art. 8 / 10 liability. Stage 1 of 4 per CLAUDE.md §9.5 (direct commits on `dev`, no PR, no merge, no end-user behavior change YET).
+- Wave 4 progress : Plan 17 (Prometheus metrics counters + inputs_provenance) + Plan 18 (D-CE-16 triple defense) shipped. Remaining : Plan 19 (Flutter ↔ server `_PROFILE_SAFE_FIELDS` parity lint, Concern C) + Plan 20 (Wave 4 close-out + engram doctrine).
 
 ## Plan mint-calc-engine-v1-16 Receipt (W3 GC daily job — Finding 4 mitigation + Wave 3 close-out, 2026-05-17)
 
@@ -562,8 +605,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-17T07:23:13.414Z
-Stopped at: Completed mint-calc-engine-v1-17 (W4 metrics-counters + inputs_provenance)
+Last session: 2026-05-17T07:45:51.250Z
+Stopped at: Completed mint-calc-engine-v1-18 (W4 banned-verb lint extension + runtime fail-closed gate — D-CE-16 triple defense complete)
 Resume file: None
 
 <details>
