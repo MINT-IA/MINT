@@ -28,6 +28,10 @@ Future<void> main() async {
   // Initialisation Flutter
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Phase 02 D-MOB side-finding fix — replace hardcoded ApiService._appVersion='1.0.0'
+  // with real pubspec.yaml version (X-App-Version header + mobile L1 audit trail).
+  await ApiService.initAppVersion();
+
   // STAMP-03 (Phase 89 v2.12) — register frame timing capture for jank
   // measurement when the dart-define MINT_FRAME_TIMING_CAPTURE=true is
   // set (debug/profile only ; release short-circuits). No-op in normal

@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// P2-18: Error codes for i18n — UI layer maps these to AppLocalizations.
@@ -184,7 +185,26 @@ class ApiService {
   }
 
   /// App version sent with every request for backend compatibility checks.
-  static const String _appVersion = '1.0.0';
+  /// Mutated once on app boot by [initAppVersion] (called from main.dart
+  /// before runApp). Mobile L1 audit trail (Phase 02) reads this to log
+  /// which baked-snapshot-version+app-build the user saw at observed_at.
+  /// Format: `<version>+<build>` from pubspec.yaml via package_info_plus.
+  /// Falls back to `1.0.0` if package_info lookup fails (sim with no host
+  /// app bundle, etc.) — backend treats 1.0.0 as "unknown legacy" client.
+  static String _appVersion = '1.0.0';
+
+  /// One-shot boot init for [_appVersion]. Must be awaited in main.dart
+  /// before runApp so the FIRST request already carries the real version.
+  /// Idempotent: subsequent calls re-fetch but the result is stable.
+  static Future<void> initAppVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      _appVersion = '${info.version}+${info.buildNumber}';
+    } catch (_) {
+      // Keep fallback. Sentry breadcrumb optional; bootstrap path stays
+      // resilient because failure here must NOT block app launch.
+    }
+  }
 
   // Helper method to get auth headers with JWT token + version
   static Future<Map<String, String>> _authHeaders() async {
