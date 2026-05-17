@@ -1,0 +1,7 @@
+{
+  "consecutive_down_days": 0,
+  "escalation_level": 0,
+  "first_staging_down_at": null,
+  "last_staging_down_at": null,
+  "last_staging_up_at": null
+}

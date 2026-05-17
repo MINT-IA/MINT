@@ -283,7 +283,7 @@ def render_dart_file(payload: dict, source_label: str) -> str:
         f"// To regenerate: python3 tools/codegen/regulatory_constants_to_dart.py --source local --write\n"
         f"// To verify: python3 tools/codegen/regulatory_constants_to_dart.py --check\n"
         f"\n"
-        f"// ignore_for_file: prefer_const_constructors, lines_longer_than_80_chars\n"
+        f"// ignore_for_file: prefer_const_constructors, lines_longer_than_80_chars, unused_element\n"
         f"\n"
         f"import 'dart:convert' show jsonDecode;\n"
         f"\n"

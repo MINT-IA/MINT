@@ -227,6 +227,24 @@ pre-commit:
       run: python3 tools/checks/profile_safe_fields_parity.py || true
       tags: [compliance, grounding, phase-mint-calc-engine-v1-w4]
       fail_text: "Concern C parity lint surfaced drift between server _PROFILE_SAFE_FIELDS and Flutter profileContext call-sites. See stdout for missing-in-Flutter / missing-in-server diff. SOFT mode for now ; promote to HARD once baseline closed."
+    # ── Phase mint-data-architecture-v1-01 Plan 04 (D-16 codegen --check) ──
+    regulatory-codegen-check:
+      # HARD gate (D-16 + codex HIGH #3 mitigated by aging policy in CI).
+      # Re-runs codegen against the in-process RegulatoryRegistry and fails
+      # the commit if the committed Dart file's baked version_hash OR
+      # _payloadIntegrityHash diverges from a freshly-computed snapshot.
+      # Local-only mode — network-free per Karpathy #2 simplicity. The
+      # CI workflow .github/workflows/regulatory-codegen.yml runs the
+      # SOFT-WARN staging variant with the 7/14/28-day aging policy.
+      #
+      # Complementary to plan-05 regulatory_constants_drift (which is the
+      # D-12 parity lint reading the baked hash) : this hook catches
+      # « committed Dart was hand-edited or codegen forgotten » while the
+      # plan-05 hook catches « registry drifted from baked hash ».
+      glob: "{services/backend/app/services/regulatory/**,apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart,tools/codegen/regulatory_constants_to_dart.py}"
+      run: python3 tools/codegen/regulatory_constants_to_dart.py --check --source local
+      tags: [codegen, mint-data-architecture-v1-01, d-16]
+      fail_text: "D-16 codegen --check FAIL : the committed regulatory_constants.g.dart drifted from the in-process registry OR was hand-edited. Re-run: python3 tools/codegen/regulatory_constants_to_dart.py --source local --write"
     # ── Phase mint-data-architecture-v1-01 Plan 05 (D-12 constants-drift) ──
     regulatory_constants_drift:
       # D-12 SOFT-WARN gate. Reads the baked Dart version_hash from
