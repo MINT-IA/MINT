@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-18 (W4 banned-verb lint extension + runtime fail-closed gate — D-CE-16 triple defense complete)
-last_updated: "2026-05-17T07:45:51.254Z"
+stopped_at: Completed mint-calc-engine-v1-19-w4-profile-safe-fields-parity-PLAN.md
+last_updated: "2026-05-17T08:04:15.339Z"
 last_activity: 2026-05-17
 progress:
   total_phases: 12
@@ -36,7 +36,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 CLOSED code-side ; Plans 12-13-14-15-16 shipped ; Wave 4 opens at Plan 17 ; Plan 17 + 18 shipped ; Wave 3 close-out gate = Railway cron activation pending Julien GO)
-Plan: 19 of 20 (next)
+Plan: 20 of 20 (next)
 Status: Ready to execute
 Last activity: 2026-05-17
 
@@ -605,8 +605,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-17T07:45:51.250Z
-Stopped at: Completed mint-calc-engine-v1-18 (W4 banned-verb lint extension + runtime fail-closed gate — D-CE-16 triple defense complete)
+Last session: 2026-05-17T08:04:15.335Z
+Stopped at: Completed mint-calc-engine-v1-19-w4-profile-safe-fields-parity-PLAN.md
 Resume file: None
 
 <details>
