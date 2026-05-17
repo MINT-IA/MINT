@@ -172,20 +172,26 @@ def test_upgrade_head_creates_index_on_sqlite(tmp_path, monkeypatch):
     )
 
 
-def test_downgrade_one_removes_index(tmp_path, monkeypatch):
-    """`alembic downgrade -1` from p110 head removes the index, leaves p97 intact."""
+def test_downgrade_below_p110_removes_index(tmp_path, monkeypatch):
+    """Downgrading past p110 removes the index, leaves p97 + p95 intact.
+
+    Targets the specific revision boundary (`p97_snapshots_fk_defaults`,
+    the parent of p110) instead of relative `-1` so the test is robust
+    to future migrations stacked above p110 (Hotfix B p111, Hotfix C
+    p112, etc.).
+    """
     cfg = _make_config(tmp_path, monkeypatch)
     command.upgrade(cfg, "head")
-    command.downgrade(cfg, "-1")
+    command.downgrade(cfg, "p97_snapshots_fk_defaults")
     engine = sa.create_engine(f"sqlite:///{tmp_path}/test.db")
     insp = sa.inspect(engine)
     index_names = {idx["name"] for idx in insp.get_indexes("scenarios")}
     assert INDEX_NAME not in index_names, (
-        f"Expected index {INDEX_NAME} dropped after `alembic downgrade -1` ; "
+        f"Expected index {INDEX_NAME} dropped after downgrade past p110 ; "
         f"still found: {index_names}"
     )
     # Sanity : scenarios table itself + Phase 95 columns still present
-    # (we only undid p110, not p95).
+    # (we only undid p110+later, not p95).
     cols = {c["name"] for c in insp.get_columns("scenarios")}
     assert "inputs_hash" in cols, "Downgraded too far — p95 columns gone"
     assert "superseded_by" in cols, "Downgraded too far — p95 columns gone"
