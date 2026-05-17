@@ -5347,7 +5347,8 @@
           "coaching_notifications",
           "open_banking",
           "document_upload",
-          "rag_queries"
+          "rag_queries",
+          "coach_insights"
         ],
         "title": "ConsentCategory",
         "type": "string"
@@ -6456,6 +6457,12 @@
             "title": "Includeanalytics",
             "type": "boolean"
           },
+          "includeCoachInsights": {
+            "default": true,
+            "description": "Inclure les insights enregistres par le coach IA",
+            "title": "Includecoachinsights",
+            "type": "boolean"
+          },
           "includeDocuments": {
             "default": true,
             "description": "Inclure les documents uploades",
@@ -6518,6 +6525,15 @@
               "type": "object"
             },
             "title": "Donneesanalytics",
+            "type": "array"
+          },
+          "donneesCoachInsights": {
+            "description": "Insights enregistres par le coach IA (memoire conversationnelle)",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Donneescoachinsights",
             "type": "array"
           },
           "donneesDocuments": {

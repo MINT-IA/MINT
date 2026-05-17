@@ -102,13 +102,25 @@ def create_snapshot(
     now = datetime.now(timezone.utc)
 
     if db is not None:
+        import hashlib
+        import json
+
         from app.models.snapshot import SnapshotModel
+        from app.models.projection_audit_record import ProjectionAuditRecord
+        from app.services.regulatory.registry import RegulatoryRegistry
+
+        # Hotfix B 2026-05-17 — stamp the snapshot with the regulatory
+        # version hash that was active at compute time. Enables LSFin
+        # reconstruction of the inputs that produced this projection.
+        constants_hash = RegulatoryRegistry.instance().version_hash(on_date=now.date())
+
         row = SnapshotModel(
             id=snapshot_id,
             user_id=user_id,
             created_at=now,
             trigger=trigger,
             model_version="1.0",
+            constants_version_hash=constants_hash,
             age=profile_data.get("age", 0),
             gross_income=profile_data.get("gross_income", 0.0),
             canton=profile_data.get("canton", "VD"),
@@ -126,6 +138,47 @@ def create_snapshot(
             fri_s=profile_data.get("fri_s", 0.0),
         )
         db.add(row)
+
+        # Hotfix B 2026-05-17 — append-only LSFin advice audit trail.
+        # Hashes are computed before the commit so the audit row and the
+        # snapshot land in the same transaction.
+        inputs_canonical = json.dumps(
+            {k: v for k, v in profile_data.items() if not k.startswith("_")},
+            sort_keys=True,
+            separators=(",", ":"),
+            default=str,
+        )
+        inputs_hash = hashlib.sha256(inputs_canonical.encode("utf-8")).hexdigest()
+        output_canonical = json.dumps(
+            {
+                "replacement_ratio": row.replacement_ratio,
+                "months_liquidity": row.months_liquidity,
+                "tax_saving_potential": row.tax_saving_potential,
+                "confidence_score": row.confidence_score,
+                "fri_total": row.fri_total,
+                "fri_l": row.fri_l,
+                "fri_f": row.fri_f,
+                "fri_r": row.fri_r,
+                "fri_s": row.fri_s,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        output_hash = hashlib.sha256(output_canonical.encode("utf-8")).hexdigest()
+        user_id_hash = hashlib.sha256(user_id.encode("utf-8")).hexdigest()
+
+        audit_row = ProjectionAuditRecord(
+            user_id_hash=user_id_hash,
+            computed_at=now,
+            projection_type="snapshot",
+            projection_id=snapshot_id,
+            constants_version_hash=constants_hash,
+            scenario_inputs_hash=inputs_hash,
+            output_hash=output_hash,
+            lsfin_disclaimer_shown=False,  # endpoint owns this signal; conservative default
+        )
+        db.add(audit_row)
+
         db.commit()
         db.refresh(row)
         return _snapshot_to_dataclass(row)

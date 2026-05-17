@@ -1385,3 +1385,41 @@ class RegulatoryRegistry:
     def count(self) -> int:
         """Return total number of parameters (including historical variants)."""
         return sum(len(v) for v in self._params.values())
+
+    def version_hash(self, on_date: Optional[date] = None) -> str:
+        """SHA-256 hex digest of the active parameter set at ``on_date``.
+
+        Hotfix B 2026-05-17 — stamps every persisted projection with a
+        deterministic fingerprint of the regulatory snapshot that produced
+        it. Required by LSFin advice-documentation obligations so a future
+        audit can reconstruct the inputs to a given projection.
+
+        The hash is stable across runs given identical _PARAMETERS and
+        identical ``on_date``. Adding a new parameter with a future
+        ``effective_from`` does NOT change hashes for past dates (the new
+        param is not ``is_active(past_date)``).
+
+        Args:
+            on_date: Date at which to evaluate the active parameter set;
+                None means today.
+
+        Returns:
+            64-character SHA-256 hex digest.
+        """
+        import hashlib
+        import json
+
+        check_date = on_date or date.today()
+        active: list[tuple[str, str, str, str]] = []
+        for params in self._params.values():
+            for p in params:
+                if p.is_active(check_date):
+                    active.append((
+                        p.key,
+                        p.jurisdiction,
+                        p.effective_from.isoformat() if p.effective_from else "",
+                        repr(p.value),  # handles floats, ints, and list values (avs.echelle44)
+                    ))
+        active.sort()
+        canonical = json.dumps(active, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
