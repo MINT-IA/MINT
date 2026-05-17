@@ -1,3 +1,4 @@
+# noqa: stale-regulatory-anchors — module documents the values it catches in its docstring + tests (not LLM-injected). Per Fix D opt-out convention.
 """Post-Stage-3-UAT (2026-05-17, obs #157) — runtime regulatory-value freshness gate.
 
 Triple-defense layer (c) for stale-numeric-value LSFin risk. Sister to
