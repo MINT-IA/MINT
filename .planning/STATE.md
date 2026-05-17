@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-11-w2-deprecation-shims-PLAN.md (scope correction — Option A)
-last_updated: "2026-05-16T21:43:53.857Z"
-last_activity: 2026-05-16
+stopped_at: Completed mint-calc-engine-v1-12-w3-composite-index-migration-PLAN.md (D-CE-12 + Finding 3 — composite partial index shipped)
+last_updated: "2026-05-17T05:51:52.300Z"
+last_activity: 2026-05-17
 progress:
   total_phases: 12
   completed_phases: 1
@@ -35,10 +35,34 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 opens at Plan 12)
-Plan: 12 of 20
+Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 open ; Plan 12 closed, Plan 13 next)
+Plan: 13 of 20
 Status: Ready to execute
-Last activity: 2026-05-16
+Last activity: 2026-05-17
+
+## Plan mint-calc-engine-v1-12 Receipt (W3 composite index migration — D-CE-12 + Finding 3, 2026-05-17)
+
+- **Plan outcome** : mechanical execution, Wave 3 opens. Ships the composite partial index Phase 95 left missing — `idx_scenarios_cache_lookup ON scenarios (profile_id, kind, inputs_hash, created_at DESC) WHERE superseded_by IS NULL` — via `op.get_context().autocommit_block()` on PG / plain `CREATE INDEX IF NOT EXISTS` on SQLite. Closes the Finding 3 critical gap before Plan 13's read-side `cache_reader` consumes it (without this index, the cache lookup would seq-scan `scenarios` and MAKE performance WORSE for power users).
+- Files created : 2
+  - `services/backend/alembic/versions/p110_scenarios_cache_lookup_index.py` — 118 LOC. revision id `p110_scenarios_cache_idx` (24 chars, ≤32 PG `alembic_version.version_num VARCHAR(32)` cap). down_revision `p97_snapshots_fk_defaults` (the actual head at plan-time, not RESEARCH §Q-D's stale `p97_snapshots_fk_and_server_defaults` long-form). `autocommit_block()` wraps both `CREATE INDEX CONCURRENTLY IF NOT EXISTS` and `DROP INDEX CONCURRENTLY IF EXISTS` on the PG branch. SQLite branch ships plain `CREATE INDEX IF NOT EXISTS` / `DROP INDEX IF EXISTS` for the pytest in-memory test path. Idempotent (IF NOT EXISTS / IF EXISTS).
+  - `services/backend/tests/test_scenarios_cache_index.py` — 230 LOC. 13 tests : 9 static (file exists, ast.parse, down_revision token, autocommit_block ≥2x, CREATE INDEX CONCURRENTLY ≥1x, dialect-branch ≥2x, partial WHERE, DROP INDEX, INDEX_NAME) + 3 runtime against in-memory SQLite (upgrade head creates index, downgrade -1 removes it, idempotent re-upgrade) + 1 PG-only EXPLAIN ANALYZE always-skip (production verification ships post-deploy on Railway PG14+).
+- Files modified : 0. No ORM change needed (scenario.py model already declares all 5 indexed columns). No caller change needed (the index is read-only infrastructure that Plan 13's cache_reader will consume).
+- Gates green :
+  - `cd services/backend && python3 -m pytest tests/test_scenarios_cache_index.py -q` → `12 passed, 1 skipped in 0.53s`
+  - `cd services/backend && python3 -m pytest tests/ -q` → **`7148 passed, 63 skipped, 3 xfailed, 1 warning in 113.89s`** — delta vs Plan 11 baseline (`7136 passed, 62 skipped`) = `+12 passed +1 skipped` (exact match for the 13 new tests, zero regressions)
+  - `python3 tools/checks/banned_terms_python.py services/backend/alembic/versions/p110_scenarios_cache_lookup_index.py services/backend/tests/test_scenarios_cache_index.py` → exit 0
+  - `python3 tools/checks/accent_lint_fr.py --scope backend` → exit 0
+  - `python3 tools/checks/alembic_revision_length.py --file services/backend/alembic/versions/p110_scenarios_cache_lookup_index.py` → exit 0 (`OK alembic_revision_length: scanned 0 migration(s), all ≤32 chars`)
+  - Smoke (manual python script in execution session) : `command.upgrade(cfg, "head")` → `alembic_version.version_num='p110_scenarios_cache_idx'` ; inspector returns `['idx_scenarios_cache_lookup', 'ix_scenarios_profile_id']` ; `command.downgrade(cfg, "-1")` → returns to p97 + index dropped ; `command.upgrade(cfg, "head")` again → idempotent
+- Commits :
+  - `41638661` (RED Task 1 — 13 tests, 11 fail / 1 trivially pass / 1 skip as expected)
+  - `925920f3` (GREEN Task 1 — p110 migration with revision id shortened from 33→24 chars after lefthook block)
+  - docs commit pending (this STATE update + SUMMARY + ROADMAP + HTML report)
+- Duration : ~7 min
+- Deviations : 2 auto-fixed Rule 1 bugs. (1) RESEARCH §Q-D + PLAN.md template cited `down_revision = "p97_snapshots_fk_and_server_defaults"` (36 chars) — actual revision id in the p97 file is `"p97_snapshots_fk_defaults"` (25 chars), truncated during the 2026-05-12T11:14Z Railway 502 incident (`psycopg2.errors.StringDataRightTruncation`). If pasted verbatim from RESEARCH, `alembic upgrade head` would have raised `KeyError` at chain resolution. Pinned the actual revision id by reading p97 file at plan-time. (2) RESEARCH § Q-D + PLAN template used `revision = "p110_scenarios_cache_lookup_index"` (33 chars) — `lefthook alembic_revision_length` (tools/checks/alembic_revision_length.py, introduced post the 2026-05-12 incident with `MAX_LEN = 32`, zero grandfathering) blocked the commit. Shortened to `p110_scenarios_cache_idx` (24 chars). INDEX_NAME (`idx_scenarios_cache_lookup`, 26 chars) and filename (`p110_scenarios_cache_lookup_index.py`) stay at the long form — Postgres only caps the version_num column, not index names or filesystem paths.
+- 0-trust : `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-12-w3-composite-index-migration-SUMMARY.md` `## Self-Check: PASSED` with 16 citations + explicit « What I HAVE NOT done » block listing : did NOT run EXPLAIN ANALYZE on Railway PG (no live PG access this session) ; did NOT open a PR (direct on `dev`, stage 1 of 4 per CLAUDE.md §9.5) ; did NOT merge dev → staging ; did NOT run Maestro G1 (no UI surface) ; did NOT modify scenario.py ORM (no schema change needed) ; did NOT touch any caller code ; did NOT call MCP `mem_save` tool (not exposed this session, 9th consecutive plan).
+- Engram : observation **#137** saved via CLI fallback (`engram save "D-CE-12 W3 Plan 12 composite index migration shipped" --project mint --type bugfix --topic_key mint-calc-engine-v1:w3-plan-12:composite-index-migration`). `prior_finding_refs` empty (no prior MINT engram observations on this axis ; panel Finding 3 lives in PLAN.md frontmatter + W3-planning synthesis, not in engram).
+- USER VALUE DELIVERED : zero end-user-visible change yet. The index is infrastructure for Plan 13's `cache_reader` — first user-visible benefit (sub-millisecond cache HIT latency on power-user query plans) materializes after Plan 13 + Plan 14 + Plan 15 ship and dev → staging → main merges trigger the coupled deploy. Stage 1 of 4 per CLAUDE.md §9.5 (direct commits on `dev` branch, no PR). **The real architectural value : closes the Finding 3 critical gap that would have shipped a worse-than-baseline cache lookup if Plan 13 ran without it.**
 
 ## Plan mint-calc-engine-v1-11 Receipt (W2 deprecation-shims — scope correction, 2026-05-16)
 
@@ -471,8 +495,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-16T21:43:53.854Z
-Stopped at: Completed mint-calc-engine-v1-11-w2-deprecation-shims-PLAN.md (scope correction — Option A)
+Last session: 2026-05-17T05:51:52.297Z
+Stopped at: Completed mint-calc-engine-v1-12-w3-composite-index-migration-PLAN.md (D-CE-12 + Finding 3 — composite partial index shipped)
 Resume file: None
 
 <details>
