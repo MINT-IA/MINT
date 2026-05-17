@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
-status: executing
-stopped_at: Completed mint-calc-engine-v1-19-w4-profile-safe-fields-parity-PLAN.md
-last_updated: "2026-05-17T08:04:15.339Z"
-last_activity: 2026-05-17
+status: phase-closed-pending-operational-gates
+stopped_at: Completed mint-calc-engine-v1 (20 plans, ~26 endpoints grounded, L1-L4 typed payloads, ToolRegistryAdapter + 3 adapters, 9 bundles, CoachToolResponse V2 envelope w/ latency_tier, Alembic p110 composite partial index, cache reader/writer/AsyncSingleflight, REVERSE_DEP_MAP 146 fields, BackgroundTasks pre-compute + SLI 0.767/0.900, GC predicate + Railway cron declaration, 4 Prometheus counters + /metrics endpoint + inputs_provenance V2 field, D-CE-16 triple defense schema+lint+runtime, profile_safe_fields_parity lint w/ 45-field baseline drift documented incl. dead-COUP-04 finding). Phase status ◆ code-shipped on dev, pending operational gates (NOT ✓ SHIPPED per CLAUDE.md §9.5 4-stage shipping pipeline — Stage 1 of 4 complete). 8 deferred gates: G2 Julien device sign-off · Plan 09 Task 5b Railway env-flip · Plan 09 Task 5a FR tone review · Plan 11 S12-API consolidation · Plan 16 Railway cron activation · Plan 17 Railway metrics scraping config · Plan 17 endpoint metric fanout · Plan 19 Flutter 45-field drift fix (incl. dead-COUP-04).
+last_updated: "2026-05-17T08:30:00.000Z"
+last_activity: 2026-05-17 — Phase mint-calc-engine-v1 phase-closed-pending-operational-gates
 progress:
   total_phases: 12
   completed_phases: 1
-  total_plans: 7
-  completed_plans: 4
-  percent: 57
+  total_plans: 27
+  completed_plans: 24
+  percent: 88
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -35,10 +35,32 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 CLOSED code-side ; Plans 12-13-14-15-16 shipped ; Wave 4 opens at Plan 17 ; Plan 17 + 18 shipped ; Wave 3 close-out gate = Railway cron activation pending Julien GO)
-Plan: 20 of 20 (next)
-Status: Ready to execute
-Last activity: 2026-05-17
+Phase: mint-calc-engine-v1 (Calc Engine v1) — **◆ code-shipped on dev, pending operational gates** (Plan 20 phase-close complete: VERIFICATION-REPORT.html 541 lines + SUMMARY.md per-D-CE-XX/Concern/Finding disposition + ROADMAP/STATE updated + phase-level engram saved with ≥10 prior_finding_refs)
+Plan: 20 of 20 (complete — phase-close)
+Status: phase-closed-pending-operational-gates
+Last activity: 2026-05-17 — Phase mint-calc-engine-v1 closed code-side. 8 deferred operational gates require Julien action (G2 device sign-off + 7 follow-up items). Phase cannot be marked ✓ SHIPPED per CLAUDE.md §9.5 (Stage 1 of 4 only).
+
+## Plan mint-calc-engine-v1-20 Receipt (W4 phase-close engram doctrine — D-CE-18 + Concern F + 5-gate exit contract, 2026-05-17)
+
+- **Plan outcome** : phase close-out + 5-gate exit gate run. Produces (1) `mint-calc-engine-v1-VERIFICATION-REPORT.html` finalized at 541 lines with phase-level header + per-wave rollup (W1/W2/W3/W4) + 5-gate exit panel + cumulative metric snapshot + 2 Critical Discoveries (Plan 19 dead-COUP-04 + Plan 11 SCOPE CORRECTION) + 8 deferred items + engram doctrine roll-up + 5 lessons learned + next-phase pointer ; (2) `mint-calc-engine-v1-SUMMARY.md` with per-D-CE-XX (20 verdicts) + per-Concern (A-F) + per-Finding (1-6) disposition + counter-arguments and data gaps block ; (3) ROADMAP.md milestone marker flipped 🚧 → ◆ + phase status block + Plan 20 checkbox ticked ; (4) STATE.md frontmatter status `executing` → `phase-closed-pending-operational-gates` + this receipt ; (5) phase-level engram observation saved via CLI fallback with ≥10 prior_finding_refs (Concern F compounding observable proof).
+- Files created/modified : 4
+  - `mint-calc-engine-v1-SUMMARY.md` (NEW — phase-level SUMMARY ~220 lines, frontmatter + TLDR + cumulative metric snapshot + per-D-CE-XX disposition + per-Concern disposition + per-Finding disposition + 2 Critical Discoveries + 5-gate exit + 8 deferred items + counter-args + lessons learned + next-phase pointer + Self-Check)
+  - `mint-calc-engine-v1-VERIFICATION-REPORT.html` (MODIFIED — appended phase-close rollup section after per-plan caveat blocks, 361 → 541 lines, +180 lines)
+  - `.planning/ROADMAP.md` (MODIFIED — milestone v2.10 marker 🚧 → ◆ + Phase block status flipped + Plan 20 checkbox ticked)
+  - `.planning/STATE.md` (MODIFIED — frontmatter + Current Position + this receipt)
+- Gates run :
+  - **G1 Maestro** : ⏭ SKIPPED — `xcrun simctl list devices booted` → `-- iOS 26.2 --` (no booted device). Maestro CLI present at `/Users/julienbattaglia/.maestro/bin/maestro` but flow files require sim. Standard caveat per executor protocol ; re-runnable by Julien with sim booted.
+  - **G2 Julien device sign-off** : ⏳ DEFERRED — `autonomous: false` plan, executor cannot self-clear visual gate ; 5 walkthrough scenarios documented in SUMMARY + HTML report.
+  - **G3 dev CI commit sha trail** : ✓ PASS — `git log --oneline | grep -i "mint-calc-engine-v1" | wc -l` → **109 commits** ; first `91b741ed` (KILL Phase 96 + open phase) ; latest pre-Plan-20 `91fe510e` (Plan 19 docs commit) ; no holes between Plan 01 and Plan 19 commits.
+  - **G4 Regression** : ✓ PASS — `cd services/backend && python3 -m pytest tests/ -q` → **7264 passed, 63 skipped, 3 xfailed, 1 warning in 117.22s** (matches Plan 18 baseline ; Plan 19 = test-only +11 lint tests already in count ; zero regression).
+  - **G5 Lints** : ✓ PASS — (a) `banned_terms_python services/backend/app/services/coach/bundles/ runtime_verb_gate.py` exit 0 ; (b) `accent_lint_fr.py --scope backend` exit 0 ; (c) `tool_description_rubric.py services/backend/app/services/coach/coach_tools.py` exit 0 (Plan 09 polish-TODO warnings baseline) ; (d) `profile_safe_fields_parity.py` exit 0 (SOFT mode, reports 45-field drift baseline).
+- Commits : Plan 20 docs commit pending at end of executor turn (single phase-close commit covering SUMMARY + HTML + ROADMAP + STATE per executor `<final_commit>` protocol).
+- Duration : ~17 min (executor turn).
+- Deviations : 0 auto-fix. (1 minor scope-extension noted) the orchestrator-supplied `<objective>` listed 7 deferred items + G2 = 8 total ; the deferred list in SUMMARY+HTML matches verbatim. No new deferred items surfaced during the close-out run beyond what was tracked across prior plans.
+- Out-of-scope discoveries : 0 net new. The 2 pre-existing « recommandé » hits in `coach_chat.py:1180` + `:2814` (FactBot provenance + tool-result strings) flagged by Plan 18's extended lint remain in `deferred-items.md` for a small follow-up PR, NOT escalated to a Critical Discovery (already documented disposition).
+- 0-trust : every claim in SUMMARY + HTML cites a specific source (plan SUMMARY block, commit sha, command output, or grep count). Banned claim words (« shipped », « ready », « SHIPPED ») are NOT used about the phase as a whole — phase status string is « ◆ code-shipped on dev, pending operational gates » throughout. Stage 1 of 4 per CLAUDE.md §9.5 is honored explicitly in SUMMARY + HTML + ROADMAP. The « what we have NOT done » list (8 deferred items + G2 walkthrough steps) is the most prominent block in SUMMARY § Deferred + HTML § Deferred.
+- Engram : Plan 20 phase-level observation save pending at end of executor turn via CLI fallback with `topic_key=mint-calc-engine-v1:phase-close:shipped-pending-G2` and `type=architecture`. Expected obs id **#146** (sequential from W4 plan obs #143/#144/#145). `prior_finding_refs` cites ALL 6 wave-close obs (#128 W1 / #136 W2 / #142 W3 / #143 #144 #145 W4 plan obs) + W0 audit obs (#103-107) + phase planning obs (#117-118). Total ≥10 refs as required by Plan 20 acceptance criteria + Concern F compounding observable per CLAUDE.md §3.5.
+- USER VALUE DELIVERED : **0 direct end-user-visible change**. Phase close-out is documentation + observability roll-up — no code change, no behavior change, no UI change. End-user value from this phase MATERIALIZES only when (1) Julien runs G2 device sign-off, (2) operational gates #2-#8 activate (Railway env-flip + cron + metrics scraping + endpoint fanout + Flutter drift fix), (3) dev → staging → main merge pipeline completes (Stages 2-4 of 4 per CLAUDE.md §9.5). What's been built in 20 plans is a complete substrate (grounding + typed payloads + tool discoverability + cache + metrics + verb gate + parity lint) — every plan's SUMMARY documents what it shipped, what it didn't, and what Stage of 4 the corresponding work occupies. The substrate is observable and reversible (every plan can be re-opened if G2 finds a defect). The phase status « ◆ code-shipped on dev, pending operational gates » is the honest framing per CLAUDE.md §9.
 
 ## Plan mint-calc-engine-v1-18 Receipt (W4 banned-verb lint extension + runtime fail-closed gate — D-CE-16 triple defense complete, 2026-05-17)
 

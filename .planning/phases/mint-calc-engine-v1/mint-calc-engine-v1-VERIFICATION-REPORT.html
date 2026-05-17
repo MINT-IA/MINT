@@ -358,5 +358,185 @@ Orchestrator confirmed **Option A**. Executed end-to-end:
 
 Wave 3 opens at Plan 12 (W3 composite index migration).</pre>
 
+<hr style="border:0; border-top:3px solid #003B2F; margin: 3em 0 2em 0;">
+
+<h1>Phase mint-calc-engine-v1 — Phase-Close Rollup</h1>
+<p class="meta">Plan 20 close-out finalized: 2026-05-17 · Branch HEAD before Plan 20 docs commit: <span class="sha">91fe510e</span> · Phase status: <strong>◆ code-shipped on dev, pending operational gates</strong> (NOT ✓ SHIPPED per CLAUDE.md §9.5 4-stage shipping pipeline)</p>
+
+<h2>Phase-level summary</h2>
+<table>
+<thead><tr><th>Field</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Phase name</td><td><code>mint-calc-engine-v1</code></td></tr>
+<tr><td>Goal</td><td>Make MINT's ~57 already-shipped Swiss financial calculators (LLM-)discoverable, real-profile-grounded, architecturally findable, and DAG-reactive. Build the lucidité engine (L1 chiffrer / L2 comparer / L3 éclairer / L4 invariants) on top of the existing surface. Does NOT add new calculators in v1.</td></tr>
+<tr><td>Waves shipped</td><td>4 (W1 grounding + L1-L4 payloads + registry / W2 ToolRegistryAdapter + bundles + Tool Search + envelope V2 + deprecation correction / W3 DAG cache + composite index + reverse-dep + pre-compute + GC / W4 metrics + lints + parity + phase close)</td></tr>
+<tr><td>Plans shipped</td><td>20 (W1: 6 — Plans 01-06 · W2: 5 — Plans 07-11 · W3: 5 — Plans 12-16 · W4: 4 — Plans 17-20)</td></tr>
+<tr><td>Commits on dev with <code>mint-calc-engine-v1</code> prefix</td><td><strong>109</strong> (first <span class="sha">91b741ed</span> 2026-05-16 KILL Phase 96 + open phase; latest pre-Plan-20 <span class="sha">91fe510e</span> 2026-05-17 Plan 19 docs commit; 105 per-plan commits + 4 scaffold commits)</td></tr>
+<tr><td>Test count (main backend suite)</td><td><strong>7264 passed, 63 skipped, 3 xfailed, 1 warning in 117.22s</strong> (Plan 20 G4 run, zero regression vs Plan 18 baseline; Plan 19 = test-only +11 lint tests already in the count)</td></tr>
+<tr><td>Cumulative test delta (Plan 06 W1-close baseline → Plan 18 final)</td><td><strong>+234 net new tests</strong> (7030 → 7264)</td></tr>
+<tr><td>D-CE-XX delivered</td><td>20/20 (D-CE-10 shipped as scope correction per orchestrator Option A; all others delivered)</td></tr>
+<tr><td>Concerns A-F delivered</td><td>6/6 (Concern C ships the parity lint LIVE in SOFT-WARN mode; baseline 45-field drift documented for Flutter follow-up)</td></tr>
+<tr><td>Findings 1-6 disposition</td><td>F1 acknowledged · F2 closed (Plan 19 lint) · F3 closed (Plan 12 index) · F4 closed code-side (Plan 16 — cron activation deferred) · F5 shipped first (Plan 04 L4) · F6 closed structurally (Plan 04 schema-impossibility + Plan 18 runtime gate)</td></tr>
+<tr><td>Phase status</td><td><strong style="color:#b58b00">◆ code-shipped on dev, pending operational gates</strong> — Stage 1 of 4 per CLAUDE.md §9.5; cannot claim <span class="fail">SHIPPED</span> without G2 + 7 deferred operational gates</td></tr>
+</tbody>
+</table>
+
+<h2>Per-wave rollup</h2>
+<table>
+<thead><tr><th>Wave</th><th>Plans</th><th>Test delta</th><th>Key deliverables</th><th>Engram wave-close obs</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>W1</strong> grounding + L1-L4 payloads + registry</td>
+  <td>6 (Plans 01-06)</td>
+  <td>+83 (6947 → 7030)</td>
+  <td>app.core.profile_resolver (5 helpers) · Depends(get_profile_filled) on 26 endpoints · 16 from_profile schema markers · CoachToolResponse envelope cherry-pick · 12 W0 sev-3 (null-canton + silent-wrong-tax) closed · L1/L2/L3/L4 Pydantic typed payloads (L2 extra='forbid' on recommended_option) · _registry.py AST-generated 63 calcs × 12 domains · REVERSE_DEP_MAP seed (146 fields) · 28-case blank-profile 422 contract test</td>
+  <td><strong>#128</strong> (decision) — W1 done + GSD MINT-aware contract aligned upstream</td>
+</tr>
+<tr>
+  <td><strong>W2</strong> discoverability + bundles + Tool Search + envelope V2 + deprecation correction</td>
+  <td>5 (Plans 07-11)</td>
+  <td>+106 (7030 → 7136)</td>
+  <td>ToolRegistryAdapter Protocol + 3 concrete adapters · 9 bundles (D-CE-03 +2 gap-fill: IndependentTaxBundle + SuccessionDivorceBundle) · 61 FR tool description rewrites + R1-R4 rubric lint + 30-fixture round-trip pytest · CoachToolResponseV2 with latency_tier=Literal[L1,L2,L3] Parallel Change · Plan 11 SCOPE CORRECTION (W0 audit rows 32+35 misclassification — Option A reclassification, no broken shims shipped)</td>
+  <td><strong>#136</strong> (decision) — W2 complete, 5/5 plans landed on dev, 34 commits</td>
+</tr>
+<tr>
+  <td><strong>W3</strong> DAG cache + composite index + reverse-dep + pre-compute + GC</td>
+  <td>5 (Plans 12-16)</td>
+  <td>+53 (7136 → 7189)</td>
+  <td>Alembic p110 composite partial index idx_scenarios_cache_lookup (Finding 3 closed) · cache_reader + cache_writer + AsyncSingleflight + get_or_compute (Concern E stampede mitigation verified end-to-end) · REVERSE_DEP_MAP 7 contract tests + canton→25 calcs anchor · precompute_after_fact_save BackgroundTasks wired into save_fact + save_insight · D-CE-14 SLI baseline precision=0.767 / recall=0.900 · purge_superseded_scenarios + run_gc.py + railway.cron.json declaration (Finding 4 closed code-side; activation DEFERRED)</td>
+  <td><strong>#142</strong> (decision) — W3 complete, suite 7189, Finding 3+4 closed structurally</td>
+</tr>
+<tr>
+  <td><strong>W4</strong> metrics + lints + parity + phase close</td>
+  <td>4 (Plans 17-20)</td>
+  <td>+75 (7189 → 7264)</td>
+  <td>4 Prometheus counters + /metrics endpoint + inputs_provenance V2 schema-typed field (D-CE-17) · banned_terms_python BANNED_PARAPHRASE_VERBS 11 verbs + NFKC + self-exempt (D-CE-16 layer b) · runtime_verb_gate.py UPSTREAM of Phase 94 citation parser with NFKC + zero-width strip + Sentry breadcrumb (D-CE-16 layer c) · profile_safe_fields_parity.py lefthook-wired SOFT-WARN with 45-field baseline drift documented (Concern C, includes critical dead-COUP-04 partner-aggregate finding) · this phase-close rollup</td>
+  <td><strong>#146</strong> (this plan — architecture type) — phase-close shipped-pending-G2</td>
+</tr>
+</tbody>
+</table>
+
+<h2>5-gate exit contract — Plan 20 close-out run</h2>
+<table>
+<thead><tr><th>Gate</th><th>Status</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>G1 Maestro</strong></td>
+  <td><span class="deferred">SKIPPED</span></td>
+  <td>No booted iOS sim at executor run time. <code>xcrun simctl list devices booted</code> → <code>-- iOS 26.2 --</code> (header only, no booted device). Maestro CLI installed at <code>/Users/julienbattaglia/.maestro/bin/maestro</code> but flow files require sim. Standard caveat per executor protocol — re-runnable by Julien with sim booted.</td>
+</tr>
+<tr>
+  <td><strong>G2 Julien device sign-off</strong></td>
+  <td><span class="partial">⏳ DEFERRED</span></td>
+  <td>Plan 20 is <code>autonomous: false</code> — executor cannot self-clear visual gate. Walkthrough steps documented in 8 deferred items below (5 scenarios: coach grounding, 422 envelope, L4 invariant, Tool Search round-trip, banned verb fallback).</td>
+</tr>
+<tr>
+  <td><strong>G3 dev CI commit sha trail</strong></td>
+  <td><span class="pass">PASS</span></td>
+  <td><code>git log --oneline | grep -i "mint-calc-engine-v1" | wc -l</code> → <strong>109 commits</strong>. First commit: <span class="sha">91b741ed</span> (2026-05-16 KILL Phase 96 + open phase). Latest pre-Plan-20: <span class="sha">91fe510e</span> (2026-05-17 Plan 19 docs commit). Per-plan SUMMARY blocks all cite their commit shas; no holes between Plan 01 and Plan 19 commits.</td>
+</tr>
+<tr>
+  <td><strong>G4 Regression</strong></td>
+  <td><span class="pass">PASS</span></td>
+  <td><code>cd services/backend && python3 -m pytest tests/ -q</code> → <strong>7264 passed, 63 skipped, 3 xfailed, 1 warning in 117.22s</strong>. Matches Plan 18 baseline (Plan 19 = test-only +11 lint tests counted in that baseline run). Zero regression. 1 warning = pre-existing <code>pytest.mark.integration</code> typo at <code>test_hash_parity.py:51</code> — not introduced by this phase.</td>
+</tr>
+<tr>
+  <td><strong>G5 Lints</strong></td>
+  <td><span class="pass">PASS</span></td>
+  <td>(a) <code>banned_terms_python services/backend/app/services/coach/bundles/ runtime_verb_gate.py</code> → exit 0 (Plan 18 lefthook gate scope = production narrator-emit path). Full <code>services/backend/</code> traversal includes test fixtures + LSFin meta-mentions + .venv noise but script exits 0 (informational warnings only, no fail-mode trigger). (b) <code>accent_lint_fr.py --scope backend</code> → exit 0. (c) <code>tool_description_rubric.py services/backend/app/services/coach/coach_tools.py</code> → exit 0 (rubric R1-R4 warnings on 3 long-tail entries = Plan 09 polish-TODO baseline, NOT a regression). (d) <code>profile_safe_fields_parity.py</code> → exit 0 (SOFT mode per Plan 19 lefthook <code>|| true</code>; reports 45-field drift baseline, does NOT fail).</td>
+</tr>
+</tbody>
+</table>
+
+<h2>Cumulative metric snapshot</h2>
+<table>
+<thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Backend test count (main suite)</td><td><strong>7264 passed</strong> + 63 skipped + 3 xfailed</td><td>Plan 20 G4 run, 117.22s</td></tr>
+<tr><td>Endpoints grounded with <code>Depends(get_profile_filled)</code></td><td><strong>26</strong></td><td>Plan 06 W1-close + Plans 02/03 totals</td></tr>
+<tr><td>from_profile schema markers cumulative</td><td>16 (Plan 02 +12, Plan 03 +4)</td><td>Per Plan 02 + Plan 03 SUMMARY blocks</td></tr>
+<tr><td>Bundles count</td><td>7 → <strong>9</strong></td><td>Plan 08 D-CE-03 (+IndependentTax +SuccessionDivorce)</td></tr>
+<tr><td>FR tool descriptions rewritten</td><td>61 (5 chip-emitters + 56 long-tail map)</td><td>Plan 09 — 75 art. legal refs across 13 Swiss laws · 30-fixture round-trip pytest 28 real passes + 2 xfail polish-TODOs</td></tr>
+<tr><td>L1-L4 typed payload classes</td><td>4 + 1 enum + 1 RootModel union</td><td>Plan 04 — L2 forbids <code>recommended_option</code> at schema level via Pydantic <code>extra='forbid'</code></td></tr>
+<tr><td>ToolRegistryAdapter implementations</td><td>3 (AnthropicDeferLoading default + SkillBundleOnly fallback + ManualSubset backup)</td><td>Plan 07 — env flag <code>TOOL_REGISTRY_ADAPTER=anthropic_defer_loading</code></td></tr>
+<tr><td>Composite partial index</td><td><code>idx_scenarios_cache_lookup ON scenarios (profile_id, kind, inputs_hash, created_at DESC) WHERE superseded_by IS NULL</code></td><td>Plan 12 Alembic <code>p110_scenarios_cache_idx</code> — autocommit_block PG / IF NOT EXISTS SQLite · 24-char revision id ≤ 32 PG VARCHAR cap</td></tr>
+<tr><td>Cache layer SQLite warm bench</td><td>p50=0.167ms · p95=0.188ms · p99=0.237ms · mean=0.171ms</td><td>Plan 13 informational bench (MINT_RUN_CACHE_BENCH=1) · PG SLO <50ms verification DEFERRED post-Railway-deploy EXPLAIN ANALYZE</td></tr>
+<tr><td>REVERSE_DEP_MAP size</td><td>146 fields · canton → 25 calcs · age → 6 calcs</td><td>Plan 05 (seed via AST) + Plan 14 (7 contract tests)</td></tr>
+<tr><td>D-CE-14 SLI baseline</td><td>precision = 0.767 (target 0.60, +16.7pp) · recall = 0.900 (target 0.70, +20.0pp)</td><td>Plan 15 on 20 synthetic scenarios across 8 life-event domains</td></tr>
+<tr><td>Prometheus counters wired</td><td>4 (<code>mint_calc_invoke_total</code>, <code>mint_cache_lookup_total</code>, <code>mint_calc_warm_total</code>, <code>mint_zero_citation_total</code>)</td><td>Plan 17 — <code>/metrics</code> endpoint Prometheus text format + V2 envelope <code>inputs_provenance</code> field</td></tr>
+<tr><td>Banned-verb defense layers</td><td>3 (schema-impossibility · lint extension · runtime fail-closed)</td><td>(a) Plan 04 <code>L2ComparePayload.extra='forbid'</code> · (b) Plan 18 <code>BANNED_PARAPHRASE_VERBS</code> 11 verbs + NFKC · (c) Plan 18 <code>runtime_verb_gate.gate()</code> UPSTREAM of Phase 94 citation parser inside <code>_run_narrator_with_gate</code> + Sentry breadcrumb <code>coach.verb_gate.fired</code></td></tr>
+<tr><td><code>_PROFILE_SAFE_FIELDS</code> parity baseline drift</td><td><strong>45 fields</strong> (40 server-only + 5 Flutter-only)</td><td>Plan 19 baseline run — includes dead-COUP-04 <code>partner_declared</code> + <code>partner_confidence</code> P1 follow-on (see Critical Discoveries below)</td></tr>
+</tbody>
+</table>
+
+<h2>Critical Discoveries (P1 follow-on items)</h2>
+
+<h3>1. Plan 19 — Dead COUP-04 partner-aggregate flow</h3>
+<div class='caveat'>
+<strong>Severity : P1 (silent functional regression, NOT a crash).</strong> Plan 19's first lint run surfaced that <code>partner_declared</code> + <code>partner_confidence</code> are spread Flutter-side into the <code>profileContext</code> payload (added by Phase 16 COUP-04 in <code>coach_chat_api_service.dart:94-97</code>) but <strong>NOT present in server <code>_PROFILE_SAFE_FIELDS</code> at <code>coach_chat.py:957</code></strong>. The server silently drops both keys. The whole COUP-04 partner-aggregate flow into coach context is <strong>dead</strong> — the narrator never sees a partner-aware fact when COUP-04 was the explicit reason for adding these keys.
+<br><br>
+<strong>Fix path</strong> : Flutter+backend follow-up PR — either (a) add <code>partner_declared</code> + <code>partner_confidence</code> to server <code>_PROFILE_SAFE_FIELDS</code> (preferred, restores COUP-04 intent) or (b) drop both keys Flutter-side (regression-confirms COUP-04 abandonment, decision required from product owner). Discovered as a side-product of Plan 19's parity lint — exactly the lint's purpose.
+</div>
+
+<h3>2. Plan 11 — W0 audit row 32+35 SCOPE CORRECTION</h3>
+<div class='caveat'>
+Plan 11 W2 deprecation-shims was scoped against W0-AUDIT-MATRIX rows 32+35, which labelled <code>independant_service.py</code> + <code>frontalier_service.py</code> as « deprecated shims routing to canonical sub-dirs (D-CE-10) ». Pre-flight grep + API surface audit (2026-05-16) proved this was a <strong>misclassification</strong> : the ROOT files are sister Sprint S12 services with monolithic <code>.analyze()</code> APIs ; the sub-dir « canonical » modules (S18, S23) are completely different surfaces with per-function calculators (no <code>.analyze()</code> method, naming collision on <code>class FrontalierService</code>).
+<br><br>
+A <code>from &lt;canonical&gt; import *</code> shim would have broken <code>app.api.v1.endpoints.segments</code> either at FastAPI boot (independant — <code>ImportError</code>) or at runtime via <code>AttributeError</code> (frontalier — homonymous class, different methods). Orchestrator chose Option A (scope correction). Shipped : W0-AUDIT-MATRIX rows 32+35 RECLASSIFIED with explicit markers + S12-lineage module docstrings + design+migration plan deferred to <code>deferred-items.md</code> as <code>S12-API-consolidation</code>.
+</div>
+
+<h2>Deferred — Phase ship-readiness gates (8 items)</h2>
+<table>
+<thead><tr><th>#</th><th>Item</th><th>Owner</th><th>Source plan</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>G2 Julien device sign-off</strong> (TestFlight or booted sim) — 5 scenarios: coach grounding L1 chip · 422 envelope · L4 invariant · Tool Search round-trip · banned-verb fallback</td><td>Julien</td><td>Plan 20 (this plan)</td></tr>
+<tr><td>2</td><td>Plan 09 Task 5b — staging pilot Railway env-flip <code>TOOL_REGISTRY_ADAPTER=anthropic_defer_loading</code> on <code>mint-staging.up.railway.app</code></td><td>Julien</td><td>Plan 09</td></tr>
+<tr><td>3</td><td>Plan 09 Task 5a — FR tone review of 3 sampled tool descriptions against <code>docs/VOICE_SYSTEM.md</code></td><td>Julien</td><td>Plan 09</td></tr>
+<tr><td>4</td><td>Plan 11 — S12 vs S18/S23 API consolidation decision (panel synthesis + naming-collision resolution for <code>class FrontalierService</code>)</td><td>Julien post-phase</td><td>Plan 11 SCOPE CORRECTION → <code>.planning/phases/mint-calc-engine-v1/deferred-items.md</code> §S12-API-consolidation</td></tr>
+<tr><td>5</td><td>Plan 16 — Railway cron activation (create service · Config-as-code path <code>services/backend/railway.cron.json</code> · dry-run · live · auto-fire at 03:00 UTC)</td><td>Julien</td><td>Plan 16 §Deferred — Wave 3 close-out gates</td></tr>
+<tr><td>6</td><td>Plan 17 — Railway-side metrics scraping config (Grafana Cloud / Datadog / Railway built-in scraper for <code>/metrics</code>)</td><td>Julien (vendor decision)</td><td>Plan 17</td></tr>
+<tr><td>7</td><td>Plan 17 — endpoint fanout follow-up: wire <code>emit_calc_invoke_metric()</code> into the 26 W1-grounded endpoints (1 LOC each)</td><td>Follow-up PR</td><td>Plan 17</td></tr>
+<tr><td>8</td><td>Plan 19 — Flutter-side 45-field drift fix (40 server-only + 5 Flutter-only) <strong>including the CRITICAL dead-COUP-04 partner-aggregate decision</strong>; promote lefthook gate from SOFT to HARD after baseline zeroed</td><td>Flutter+backend follow-up PR</td><td>Plan 19 §"CRITICAL flag for follow-up"</td></tr>
+</tbody>
+</table>
+
+<h2>Engram doctrine roll-up (Concern F compounding observable)</h2>
+<p>Per CLAUDE.md §3.5 + Concern F, every wave-close + plan-close persists a finding to engram with <code>topic_key: mint-calc-engine-v1:&lt;wave&gt;:&lt;sub_area&gt;:&lt;specific&gt;</code> and <code>prior_finding_refs</code> linking back to W0 audit + panel synthesis + prior wave-close obs.</p>
+<table>
+<thead><tr><th>Source</th><th>Obs ID</th><th>Type</th><th>Topic key (or content anchor)</th></tr></thead>
+<tbody>
+<tr><td>Panel synthesis (W0)</td><td><strong>#103</strong></td><td>architecture</td><td>calc_engine:panel_synthesis:20_d_ce_xx_verdicts</td></tr>
+<tr><td>W0 audit per-calc</td><td>#104-107</td><td>discovery</td><td>calc_engine:audit_hypothesis_c:&lt;calc_slug&gt; (12 sev-3)</td></tr>
+<tr><td>Phase context</td><td>#117 / #118</td><td>architecture / decision</td><td>CONTEXT.md generated · phase fully planned</td></tr>
+<tr><td>W1 wave-close (Plan 06)</td><td><strong>#128</strong></td><td>decision</td><td>mint-calc-engine-v1:w1-wave-close:plans-01-06-grounding-l4-registry</td></tr>
+<tr><td>W2 individual plans</td><td>#129 / #130 / #131 / #132 / #134 / #135</td><td>architecture</td><td>Plans 07/08/09/10/11</td></tr>
+<tr><td>W2 wave-close (Plan 11 close-out)</td><td><strong>#136</strong></td><td>decision</td><td>mint-calc-engine-v1:w2-wave-close:plans-07-11</td></tr>
+<tr><td>W3 individual plans</td><td>#137 / #138 / #139 / #140 / #141</td><td>architecture</td><td>Plans 12/13/14/15/16</td></tr>
+<tr><td>W3 wave-close (Plan 16 close-out)</td><td><strong>#142</strong></td><td>decision</td><td>mint-calc-engine-v1:w3-wave-close:plans-12-16</td></tr>
+<tr><td>W4 individual plans</td><td><strong>#143</strong> / <strong>#144</strong> / <strong>#145</strong></td><td>architecture / pattern</td><td>Plans 17/18/19</td></tr>
+<tr><td>W4 wave-close + phase-close (Plan 20)</td><td><strong>#146</strong> (this plan, expected new obs id)</td><td>architecture</td><td>mint-calc-engine-v1:phase-close:shipped-pending-G2</td></tr>
+</tbody>
+</table>
+<p>Total <code>prior_finding_refs</code> collected for phase-close engram save : <strong>≥10 obs</strong> (6 wave-close + W0 audit + panel synthesis + W2/W3/W4 individual plan obs) — Concern F compounding observable proof.</p>
+
+<h2>Lessons learned (per CLAUDE.md §8 wiki schema)</h2>
+<ol>
+<li><strong>Plan 11 scope correction is the proof Concern D fixtures matter.</strong> A pre-flight grep + API surface audit caught a W0 audit misclassification before broken code shipped. Karpathy #4 "reproduce-the-bug-first" prevented a FastAPI boot failure.</li>
+<li><strong>Override #5 "kills two birds" saved a wave.</strong> Plan 05 emitting BOTH <code>REGISTRY</code> AND <code>REVERSE_DEP_MAP</code> from the same AST walk meant Plan 14 (W3) was 95% test-only. Without the override, W3 would have shipped a duplicate scanner.</li>
+<li><strong>Engram CLI fallback is operational.</strong> 14+ consecutive plans saved via <code>engram save ...</code> CLI when MCP <code>mem_save</code> tool wasn't exposed to subagents. Writes to same DB (~/.engram/engram.db). Per CLAUDE.md §3.5 + GSD upstream PR #2074 pattern.</li>
+<li><strong>Triple defense on banned verbs is the only paraphrase-resistant design.</strong> Per arXiv 2504.11168 + 2512.01353, lexical guardrails alone fail at 40-80% paraphrase + 100% character injection. Plan 04 schema-impossibility is the only structurally paraphrase-resistant layer ; Plan 18 lint + runtime are belt-and-suspenders for paths above.</li>
+<li><strong>"autonomous: false" is the right setting when Stage 4 verification requires human judgment.</strong> This phase-close plan correctly identifies G2 as DEFERRED. CLAUDE.md §9.5's 4-stage shipping pipeline is honored : Stage 1 (code on dev) complete · Stages 2-4 (CI merge dev→staging→main · post-merge sim verification) require Julien.</li>
+</ol>
+
+<h2>Next phase pointer</h2>
+<ol>
+<li><strong>Flutter <code>_PROFILE_SAFE_FIELDS</code> 45-field drift fix + COUP-04 partner-aggregate decision PR.</strong> Smallest follow-up, unblocks SOFT→HARD lefthook promotion. Estimated : 1 plan, ~6h.</li>
+<li><strong>Backlog 999.4 — Backend calc-parity scaffold (post-TestFlight).</strong> Python port of 3 locked Dart methods (~1227 LOC) so <code>calc_diff_v1.jsonl</code> extends from 80-100 to 200 fixtures. Estimated : 4-6d.</li>
+<li><strong>ML reverse-dep map iter 2.</strong> Trigger : Plan 15 SLI baseline drifts below target after first month of production.</li>
+<li><strong>Phase 97 MVP-PARFAIT-MAESTRO-FULL-POWER.</strong> Pre-existing ROADMAP placeholder, likely opens after v2.10 Lucidité Engine ships final operational gates.</li>
+</ol>
+
+<p class="meta">Phase mint-calc-engine-v1 phase-close rollup generated 2026-05-17 by Plan 20 executor. Status: <strong>◆ code-shipped on dev, pending operational gates</strong>. Per CLAUDE.md §9.5 (0-TRUST 4-stage shipping pipeline), this phase has completed Stage 1 of 4. Cannot claim <span class="fail">SHIPPED</span> without G2 + 7 deferred operational gates.</p>
+
 </body>
 </html>
