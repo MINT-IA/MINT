@@ -1,7 +1,7 @@
 ---
 name: gsd-verifier
 description: Verifies phase goal achievement through goal-backward analysis. Checks codebase delivers what phase promised, not just that tasks completed. Creates VERIFICATION.md report.
-tools: Read, Write, Bash, Grep, Glob
+tools: Read, Write, Bash, Grep, Glob, mcp__plugin_engram_engram__*, mcp__mint-tools__*
 color: green
 # hooks:
 #   PostToolUse:
@@ -678,6 +678,29 @@ Only include this section if deferred items exist (from Step 9b).
 _Verified: {timestamp}_
 _Verifier: Claude (gsd-verifier)_
 ```
+
+## MINT Infra Contract (MANDATORY, before Return)
+
+After VERIFICATION.md is written, BEFORE returning to orchestrator, you MUST:
+
+**1. Persist verification outcome to engram (MCP primary, Bash CLI fallback)**
+Primary : call `mcp__plugin_engram_engram__mem_save` with:
+- `title`: "phase {phase} VERIFIED — {pass|gaps|human_needed}, N/M must-haves"
+- `type`: "decision"
+- `topic_key`: `{phase-area}:verification:outcome` agent-agnostic
+- `content`: **What** verification ran, **Why** the verdict, **Where** the gaps/passes are cited (file:line), **Learned** what surprised you about goal-vs-claims
+- `prior_finding_refs`: list `obs_id`s of plan-level engram saves from this phase
+
+Fallback if MCP not in tool list : `engram save "<title>" "<msg>" --project <project> --type decision --topic_key <key>` (matches GSD upstream pattern per anthropics/claude-code#13898 — `tools:` whitelist strips inherited MCP, CLI fallback documented).
+
+**2. Surface Sentry release-check + Maestro G1 hint (if applicable)**
+If this phase touched code that's already deployed to staging (check git log for merge to staging in current sprint), explicitly note in your return to orchestrator:
+- « Sentry: check https://sentry.io for new error groups in last 24h after {sha} »
+- « Maestro G1: surface {api/screen} is sim-visible — run `tools/simulator/walker.sh` to verify end-to-end »
+These are not blocking gates at verification time but flag for /gsd-secure-phase + /gsd-verify-work follow-ups.
+
+**3. 0-trust evidence (CLAUDE.md §9)**
+Your « status: passed » verdict in VERIFICATION.md frontmatter requires citation per must-have. Forbidden without citation: « shipped », « ready », « works », « green ». Substitute « unit tests green, end-to-end UNKNOWN » when you have not run the sim flow yourself.
 
 ## Return to Orchestrator
 

@@ -1,0 +1,116 @@
+# tools/simulator/flows/maestro-perfect-set/coach_tool_search_round_trip.yaml
+#
+# ─── PURPOSE ──────────────────────────────────────────────────────────────
+# Phase mint-calc-engine-v1 Plan 09 Task 4 — G1 Maestro flow for Concern A
+# round-trip. Walks 5 representative French user queries on the booted sim
+# (Coach tab) and asserts that each query surfaces a tool whose result echoes
+# at least one expected FR keyword. The real BM25 surfacing happens on the
+# Anthropic side ; this flow proves the queries land on relevant tool paths.
+#
+# The full 30-fixture round-trip is the unit-test at
+# services/backend/tests/test_tool_search_round_trip.py (Plan 09 Task 3,
+# Jaccard scorer approximation). This Maestro flow is the device contract.
+#
+# ─── PRECONDITIONS ────────────────────────────────────────────────────────
+#   (a) Staging Railway has Plan 09 deployed with TOOL_REGISTRY_ADAPTER=
+#       anthropic_defer_loading (default) so the FR descriptions are
+#       registered with Anthropic Tool Search Tool.
+#   (b) Mobile build on the booted sim targets staging (per memory
+#       feedback_app_targets_staging_always).
+#   (c) ANTHROPIC_API_KEY present on Railway staging (memory
+#       feedback_anthropic_key_on_railway).
+#   (d) Profile fixture seeded with enough data so the long-tail calculators
+#       can be invoked end-to-end (a populated `julien` archetype is
+#       sufficient).
+#
+# ─── SCOPE ────────────────────────────────────────────────────────────────
+# 5 representative FR queries cover the 5 most-likely Concern A surfacing
+# axes : divorce, rachat LPP, frontalier, achat immobilier, indépendant.
+# The full Plan 09 Task 3 unit-test runs 30 fixtures ; this device flow
+# spot-checks the production path.
+#
+# ─── EXPECTED DURATION ────────────────────────────────────────────────────
+# ~150s wall-clock — cold launch + 5 chat round-trips on staging Anthropic.
+#
+# ─── MAESTRO 2.5.1 SYNTAX ─────────────────────────────────────────────────
+appId: ch.mint.app
+tags:
+  - mint-calc-engine-v1
+  - concern-a
+  - tool-search
+  - plan-09
+---
+- launchApp:
+    clearState: false
+- assertVisible:
+    text: "Mon argent|Aujourd'hui|Mon coach"
+    timeout: 15000
+
+# Tap into the Coach tab — entry point for the chat-driven tool surfacing.
+- tapOn:
+    text: "(?i)Mon coach|Coach"
+
+# ─── Query 1 — divorce (CC art. 122-124 + LAVS art. 29sexies) ─────────────
+- tapOn:
+    id: "chat_input_field"
+    optional: true
+- inputText: "si je divorce demain, que se passe-t-il ?"
+- tapOn:
+    id: "chat_send_button"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "(?i)divorce|séparation|splitting|partage LPP|CC art\\. 122"
+    timeout: 25000
+
+# ─── Query 2 — rachat LPP (LIFD art. 33 al. 1 let. d) ─────────────────────
+- tapOn:
+    id: "chat_input_field"
+    optional: true
+- inputText: "je veux racheter ma LPP avant la retraite"
+- tapOn:
+    id: "chat_send_button"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "(?i)rachat|LPP|2e pilier|LIFD art\\. 33"
+    timeout: 25000
+
+# ─── Query 3 — frontalier (LIFD art. 91 impôt à la source) ────────────────
+- tapOn:
+    id: "chat_input_field"
+    optional: true
+- inputText: "frontalier vaudois, impôt à la source"
+- tapOn:
+    id: "chat_send_button"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "(?i)frontalier|impôt à la source|permis G|LIFD art\\. 91"
+    timeout: 25000
+
+# ─── Query 4 — achat Lausanne (LCC art. 28 capacité) ──────────────────────
+- tapOn:
+    id: "chat_input_field"
+    optional: true
+- inputText: "acheter un appartement à Lausanne, quelle capacité"
+- tapOn:
+    id: "chat_send_button"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "(?i)hypothèque|capacité|FINMA|charges|LCC art\\. 28|fonds propres"
+    timeout: 25000
+
+# ─── Query 5 — indépendant 80K (LAVS art. 8 cotisations) ──────────────────
+- tapOn:
+    id: "chat_input_field"
+    optional: true
+- inputText: "je suis indépendant à 80K, mes cotisations AVS"
+- tapOn:
+    id: "chat_send_button"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "(?i)indépendant|cotisation|AVS|LAVS art\\. 8"
+    timeout: 25000

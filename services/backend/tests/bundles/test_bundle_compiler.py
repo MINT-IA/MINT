@@ -27,10 +27,12 @@ from app.services.coach.bundle_compiler import (
 )
 from app.services.coach.bundles import (
     ComplianceNarratorBundle,
+    IndependentTaxBundle,
     LifeEventRouterBundle,
     LppProjectorBundle,
     MortgageStressorBundle,
     Pillar3aOptimizerBundle,
+    SuccessionDivorceBundle,
     TaxExplainerBundle,
 )
 
@@ -167,12 +169,16 @@ def test_debt_intent_activates_mortgage_and_compliance():
 
 
 def test_family_intent_activates_life_event_and_compliance():
-    """family → {life-event-router, compliance-narrator}. Both always-on
-    already → no new entries beyond the always-on baseline."""
+    """family → {life-event-router, compliance-narrator, succession-divorce}.
+
+    Pre-Plan-08 : both were always-on → no new entries beyond the always-on
+    baseline. Plan 08 (D-CE-03 Override #2) added SuccessionDivorceBundle
+    to the `family` intent so the narrator can surface CC art. 122-124 +
+    CC art. 462 + CC art. 467-469 + LAVS art. 29sexies citation grammar.
+    """
     out = compile_bundles(intents={"family"})
-    # Both are already always-on, so the activated list is unchanged.
     assert sorted(out.activated_bundles) == sorted(
-        ["compliance-narrator", "life-event-router"]
+        ["compliance-narrator", "life-event-router", "succession-divorce"]
     )
 
 
@@ -396,8 +402,17 @@ def test_compile_bundles_rejects_undeclared_slot(monkeypatch):
 
 
 def test_allowed_tools_is_subset_of_d20_canonical_six():
-    """D-20 — every emitted tool name must be in the canonical 6-name
-    narrator-tool registry (coach_tools.py:637-730)."""
+    """D-20 — every emitted tool name from the canonical 7 Wave 0/2 bundles
+    must be in the canonical 6-name narrator-tool registry
+    (coach_tools.py:637-730).
+
+    Plan 08 (D-CE-03) adds 2 evidence-gap bundles (IndependentTaxBundle +
+    SuccessionDivorceBundle) whose `allowed_tools` are PLACEHOLDER names
+    awaiting Plan 09 W2-03 (LSFin description rewrite + REGISTRY canonical
+    naming review). The legacy D-20 subset invariant continues to hold for
+    the 7 Wave 0/2 bundles ; the 2 new bundles are explicitly exempted
+    from this test until Plan 09 wires them through the narrator registry.
+    """
     canonical = {
         "get_budget_status",
         "get_retirement_projection",
@@ -406,7 +421,79 @@ def test_allowed_tools_is_subset_of_d20_canonical_six():
         "get_couple_optimization",
         "get_regulatory_constant",
     }
+    # Plan 08 placeholder tools — to be reconciled by Plan 09 W2-03.
+    plan_08_placeholder_tools = (
+        set(IndependentTaxBundle().allowed_tools)
+        | set(SuccessionDivorceBundle().allowed_tools)
+    )
     out = compile_bundles(
         intents={"retirement", "taxes", "housing", "debt", "family", "career"}
     )
-    assert set(out.allowed_tools) <= canonical
+    # Subtract Plan 08 placeholders ; what's left must be in the canonical six.
+    legacy_tools = set(out.allowed_tools) - plan_08_placeholder_tools
+    assert legacy_tools <= canonical, (
+        f"D-20 violation : legacy Wave 0/2 bundles leaked tools outside the "
+        f"canonical 6-name registry : {legacy_tools - canonical}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Plan 08 W2-02-03 — IndependentTaxBundle + SuccessionDivorceBundle wire-up
+# ---------------------------------------------------------------------------
+
+
+def test_taxes_intent_includes_independent_tax_bundle():
+    """D-CE-03 — `taxes` intent activates IndependentTaxBundle alongside
+    TaxExplainerBundle and Pillar3aOptimizerBundle."""
+    out = compile_bundles(intents={"taxes"})
+    assert "independent-tax" in out.activated_bundles
+    assert "tax-explainer" in out.activated_bundles
+    assert "pillar3a-optimizer" in out.activated_bundles
+
+
+def test_family_intent_includes_succession_divorce_bundle():
+    """D-CE-03 — `family` intent activates SuccessionDivorceBundle alongside
+    the always-on LifeEventRouterBundle and ComplianceNarratorBundle."""
+    out = compile_bundles(intents={"family"})
+    assert "succession-divorce" in out.activated_bundles
+    assert "life-event-router" in out.activated_bundles
+    assert "compliance-narrator" in out.activated_bundles
+
+
+def test_career_intent_includes_independent_tax_bundle():
+    """D-CE-03 — `career` intent activates IndependentTaxBundle alongside
+    LppProjectorBundle (and the always-on LifeEventRouterBundle)."""
+    out = compile_bundles(intents={"career"})
+    assert "independent-tax" in out.activated_bundles
+    assert "lpp-projector" in out.activated_bundles
+
+
+def test_drop_priority_lists_new_bundles_first():
+    """RESEARCH §Q-F lines 945-953 — under token-budget pressure the 2 new
+    Plan 08 bundles drop FIRST (right-most in budget terms = leftmost in
+    list per the right-to-left dropping semantics of bundle_compiler)."""
+    from app.services.coach.bundle_compiler import _DROP_PRIORITY
+    # Both new bundles MUST be in _DROP_PRIORITY (otherwise they couldn't drop).
+    assert IndependentTaxBundle in _DROP_PRIORITY
+    assert SuccessionDivorceBundle in _DROP_PRIORITY
+    # IndependentTaxBundle is listed FIRST in _DROP_PRIORITY.
+    assert _DROP_PRIORITY.index(IndependentTaxBundle) == 0
+    # SuccessionDivorceBundle is listed SECOND.
+    assert _DROP_PRIORITY.index(SuccessionDivorceBundle) == 1
+
+
+def test_drop_priority_disjoint_from_always_on_after_plan_08():
+    """T-93.5-06 — module-import-time invariant preserved after Plan 08
+    extends _DROP_PRIORITY with 2 new bundles."""
+    from app.services.coach.bundle_compiler import _ALWAYS_ON, _DROP_PRIORITY
+    assert set(_DROP_PRIORITY).isdisjoint(set(_ALWAYS_ON))
+
+
+def test_family_intent_compiled_includes_divorce_simulator_tool():
+    """End-to-end — when `family` intent is active, `compile_bundles`
+    returns a CompiledBundle whose `allowed_tools` includes
+    `divorce_simulator` (proves SuccessionDivorceBundle wired in)."""
+    out = compile_bundles(intents={"family"})
+    assert "divorce_simulator" in out.allowed_tools
+    assert "succession_simulator" in out.allowed_tools
+    assert "concubinage_succession" in out.allowed_tools

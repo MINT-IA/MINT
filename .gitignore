@@ -76,6 +76,13 @@ apps/mobile/ios/DerivedData/
 key.properties
 *.jks
 *.keystore
+
+# S98 Phase 5.X — Sentry dSYM-plugin local config. Devs may create a
+# `sentry.properties` under apps/mobile/ to test the plugin locally
+# (mirrors what CI sets via env vars). NEVER commit — contains the
+# Sentry auth token.
+apps/mobile/sentry.properties
+sentry.properties
 coverage.xml
 # Golden test failures - never commit
 apps/mobile/test/golden_screenshots/failures/

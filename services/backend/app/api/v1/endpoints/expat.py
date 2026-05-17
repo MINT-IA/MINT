@@ -15,9 +15,18 @@ POST /api/v1/expat/tax-comparison              — Comparaison fiscale internati
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 
+from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    emit_calc_invoke_metric,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.core.rate_limit import limiter
+from app.models.user import User
 
 from app.schemas.expat import (
     SourceTaxRequest,
@@ -51,26 +60,69 @@ from app.services.expat.expat_service import DISCLAIMER as EXPAT_DISCLAIMER
 router = APIRouter()
 
 
+_SOURCE_TAX_HINT_FR = (
+    "Pour calculer ton impôt à la source, j'ai besoin de ton canton "
+    "de travail — les barèmes varient considérablement. Tu peux me le partager ?"
+)
+
+
+_LAMAL_OPTION_HINT_FR = (
+    "Pour comparer LAMal et assurance résidence, j'ai besoin de ton canton "
+    "de travail — les primes LAMal varient selon le canton. "
+    "Tu peux me le partager ?"
+)
+
+
 # ---------------------------------------------------------------------------
 # Frontalier — Impot a la source
 # ---------------------------------------------------------------------------
 
 @router.post("/frontalier/source-tax", response_model=SourceTaxResponse)
 @limiter.limit("30/minute")
-def calculate_source_tax(request: Request, body: SourceTaxRequest) -> SourceTaxResponse:
+def calculate_source_tax(
+    request: Request,
+    body: SourceTaxRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> SourceTaxResponse:
     """Calcule l'impot a la source pour un travailleur frontalier.
 
     Couvre les regimes speciaux GE (quasi-resident) et TI (accord Italie).
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 34 — silent VD default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: LIFD art. 83-85, accords bilateraux.
     """
+    resolved = _resolve_defaults(profile_data, body, SourceTaxRequest)
+    missing = _required_profile_fields_missing(resolved, SourceTaxRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_SOURCE_TAX_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/expat/frontalier/source-tax",
+        )
+    emit_calc_invoke_metric(
+        kind="source_tax",
+        resolved=resolved,
+        schema_class=SourceTaxRequest,
+    )
+
+    # marital_status is preserved through resolver — extract enum value
+    marital_value = resolved["marital_status"]
+    if hasattr(marital_value, "value"):
+        marital_value = marital_value.value
+
     service = FrontalierService()
     result = service.calculate_source_tax(
-        salary=body.salary,
-        canton=body.canton,
-        marital_status=body.marital_status.value,
-        children=body.children,
-        church_tax=body.church_tax,
+        salary=resolved["salary"],
+        canton=str(resolved["canton"]),
+        marital_status=marital_value,
+        children=resolved["children"],
+        church_tax=resolved["church_tax"],
     )
     return SourceTaxResponse(
         salaire_brut=result.salaire_brut,
@@ -193,19 +245,48 @@ def compare_social_charges(request: Request, body: SocialChargesRequest) -> Soci
 
 @router.post("/frontalier/lamal-option", response_model=LamalOptionResponse)
 @limiter.limit("30/minute")
-def estimate_lamal_option(request: Request, body: LamalOptionRequest) -> LamalOptionResponse:
+def estimate_lamal_option(
+    request: Request,
+    body: LamalOptionRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
+) -> LamalOptionResponse:
     """Compare l'option LAMal vs assurance du pays de residence.
 
     Droit d'option pour les frontaliers (LAMal art. 3, OLCP art. 9).
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 34 — silent GE default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: LAMal art. 3, 6, OLCP art. 9.
     """
+    resolved = _resolve_defaults(profile_data, body, LamalOptionRequest)
+    missing = _required_profile_fields_missing(resolved, LamalOptionRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_LAMAL_OPTION_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/expat/frontalier/lamal-option",
+        )
+    emit_calc_invoke_metric(
+        kind="lamal_option",
+        resolved=resolved,
+        schema_class=LamalOptionRequest,
+    )
+
+    residence_value = resolved["residence_country"]
+    if hasattr(residence_value, "value"):
+        residence_value = residence_value.value
+
     service = FrontalierService()
     result = service.estimate_lamal_option(
-        age=body.age,
-        canton=body.canton,
-        family_size=body.family_size,
-        residence_country=body.residence_country.value,
+        age=resolved["age"],
+        canton=str(resolved["canton"]),
+        family_size=resolved["family_size"],
+        residence_country=residence_value,
     )
     return LamalOptionResponse(
         canton=result.canton,

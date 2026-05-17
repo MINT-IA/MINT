@@ -10,9 +10,18 @@ POST /api/v1/mortgage/epl-combined      — Combined EPL (3a + LPP) for equity
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 
+from app.core.auth import require_current_user
+from app.core.profile_resolver import (
+    _required_profile_fields_missing,
+    _resolve_defaults,
+    emit_calc_invoke_metric,
+    get_profile_filled,
+    raise_incomplete_as_422,
+)
 from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.mortgage import (
     MortgageAffordabilityRequest,
     MortgageAffordabilityResponse,
@@ -54,26 +63,57 @@ _epl_combined_service = EplCombinedService()
 # Affordability
 # ---------------------------------------------------------------------------
 
+_AFFORDABILITY_HINT_FR = (
+    "Pour estimer ta capacité d'achat, j'ai besoin de ton canton, "
+    "de ton revenu brut annuel et de ton épargne disponible. "
+    "Tu peux me les partager ?"
+)
+
+
 @router.post("/affordability", response_model=MortgageAffordabilityResponse)
 @limiter.limit("30/minute")
 def calculate_affordability(
     request: Request,
     body: MortgageAffordabilityRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> MortgageAffordabilityResponse:
     """Calculate mortgage affordability (Tragbarkeitsrechnung).
 
     Checks whether the household can afford a given property based on
     Swiss lending rules: 20% equity, 33% income ratio, 5% theoretical rate.
 
+    Grounded via D-CE-06 + D-CE-07 : canton, revenu_brut_annuel,
+    epargne_disponible, avoir_3a, avoir_lpp are read from `_user.profile`
+    when not supplied in the body. The 5% theoretical rate is a regulatory
+    constant (FINMA art. 28 / HYPOTHEQUE_TAUX_THEORIQUE) and is NEVER
+    user-overridable. Missing required profile fields trigger 422 with the
+    D-CE-08 `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: Circulaire FINMA 2017/5; directives ASB.
     """
+    resolved = _resolve_defaults(profile_data, body, MortgageAffordabilityRequest)
+    missing = _required_profile_fields_missing(resolved, MortgageAffordabilityRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_AFFORDABILITY_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/mortgage/affordability",
+        )
+    emit_calc_invoke_metric(
+        kind="affordability",
+        resolved=resolved,
+        schema_class=MortgageAffordabilityRequest,
+    )
+
     result = _affordability_service.calculate_affordability(
-        revenu_brut_annuel=body.revenuBrutAnnuel,
-        epargne_disponible=body.epargneDisponible,
-        avoir_3a=body.avoir3a,
-        avoir_lpp=body.avoirLpp,
-        prix_achat=body.prixAchat,
-        canton=body.canton,
+        revenu_brut_annuel=float(resolved["revenuBrutAnnuel"]),
+        epargne_disponible=float(resolved["epargneDisponible"]),
+        avoir_3a=float(resolved["avoir3a"] or 0),
+        avoir_lpp=float(resolved["avoirLpp"] or 0),
+        prix_achat=float(resolved["prixAchat"] or 0),
+        canton=str(resolved["canton"]),
     )
 
     return MortgageAffordabilityResponse(
@@ -172,27 +212,67 @@ def compare_saron_vs_fixed(
 # Imputed Rental Value
 # ---------------------------------------------------------------------------
 
+_IMPUTED_RENTAL_HINT_FR = (
+    "Pour calculer la valeur locative imposable, j'ai besoin de ton canton — "
+    "les barèmes varient considérablement. Tu peux me le partager ?"
+)
+
+
+_AMORTIZATION_HINT_FR = (
+    "Pour comparer amortissement direct et indirect, j'ai besoin de ton canton — "
+    "l'avantage fiscal dépend du barème cantonal. Tu peux me le partager ?"
+)
+
+
+_EPL_COMBINED_HINT_FR = (
+    "Pour calculer ton apport combiné 3a + LPP, j'ai besoin de ton canton — "
+    "l'impôt sur le retrait varie selon le canton. Tu peux me le partager ?"
+)
+
+
 @router.post("/imputed-rental", response_model=ImputedRentalResponse)
 @limiter.limit("30/minute")
 def calculate_imputed_rental(
     request: Request,
     body: ImputedRentalRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> ImputedRentalResponse:
     """Calculate imputed rental value (Eigenmietwert) and tax impact.
 
     Swiss homeowners must declare the imputed rental value as income,
     but can deduct mortgage interest, maintenance, and insurance.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 9). Missing profile.canton
+    triggers a 422 with the D-CE-08 `CoachToolIncomplete` envelope when
+    strict mode is enabled.
+
     Sources: LIFD art. 21 al. 1 let. b; LIFD art. 32; LIFD art. 33.
     """
+    resolved = _resolve_defaults(profile_data, body, ImputedRentalRequest)
+    missing = _required_profile_fields_missing(resolved, ImputedRentalRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_IMPUTED_RENTAL_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/mortgage/imputed-rental",
+        )
+    emit_calc_invoke_metric(
+        kind="imputed_rental",
+        resolved=resolved,
+        schema_class=ImputedRentalRequest,
+    )
+
     result = _imputed_rental_service.calculate(
-        valeur_venale=body.valeurVenale,
-        canton=body.canton,
-        interets_hypothecaires_annuels=body.interetsHypothecairesAnnuels,
-        frais_entretien_annuels=body.fraisEntretienAnnuels,
-        prime_assurance_batiment=body.primeAssuranceBatiment,
-        age_bien_ans=body.ageBienAns,
-        taux_marginal_imposition=body.tauxMarginalImposition,
+        valeur_venale=resolved["valeurVenale"],
+        canton=str(resolved["canton"]),
+        interets_hypothecaires_annuels=resolved["interetsHypothecairesAnnuels"],
+        frais_entretien_annuels=resolved["fraisEntretienAnnuels"],
+        prime_assurance_batiment=resolved["primeAssuranceBatiment"],
+        age_bien_ans=resolved["ageBienAns"],
+        taux_marginal_imposition=resolved["tauxMarginalImposition"],
     )
 
     return ImputedRentalResponse(
@@ -230,22 +310,44 @@ def calculate_imputed_rental(
 def compare_amortization(
     request: Request,
     body: AmortizationComparisonRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> AmortizationComparisonResponse:
     """Compare direct vs indirect mortgage amortization.
 
     Direct: reduce debt -> lower interest -> lower deductions.
     Indirect: contribute to pledged 3a -> constant debt + 3a growth + max deductions.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 10 — silent ZH default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: OPP3 art. 1; LIFD art. 33; pratique bancaire suisse.
     """
+    resolved = _resolve_defaults(profile_data, body, AmortizationComparisonRequest)
+    missing = _required_profile_fields_missing(resolved, AmortizationComparisonRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_AMORTIZATION_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/mortgage/amortization",
+        )
+    emit_calc_invoke_metric(
+        kind="amortization",
+        resolved=resolved,
+        schema_class=AmortizationComparisonRequest,
+    )
+
     result = _amortization_service.compare(
-        montant_hypothecaire=body.montantHypothecaire,
-        taux_interet=body.tauxInteret,
-        duree_ans=body.dureeAns,
-        versement_annuel_amortissement=body.versementAnnuelAmortissement,
-        taux_marginal_imposition=body.tauxMarginalImposition,
-        rendement_3a=body.rendement3a,
-        canton=body.canton,
+        montant_hypothecaire=resolved["montantHypothecaire"],
+        taux_interet=resolved["tauxInteret"],
+        duree_ans=resolved["dureeAns"],
+        versement_annuel_amortissement=resolved["versementAnnuelAmortissement"],
+        taux_marginal_imposition=resolved["tauxMarginalImposition"],
+        rendement_3a=resolved["rendement3a"],
+        canton=str(resolved["canton"]),
     )
 
     return AmortizationComparisonResponse(
@@ -300,26 +402,48 @@ def compare_amortization(
 def calculate_epl_combined(
     request: Request,
     body: EplCombinedRequest,
+    _user: User = Depends(require_current_user),
+    profile_data: dict = Depends(get_profile_filled),
 ) -> EplCombinedResponse:
     """Calculate combined EPL equity (3a + LPP) for housing purchase.
 
     Combines cash, 3a withdrawal, and LPP EPL to calculate total
     available equity. Recommends optimal sourcing order.
 
+    Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
+    when not supplied in the body (W0 audit row 11 — silent ZH default
+    closed). Missing profile.canton triggers a 422 with the D-CE-08
+    `CoachToolIncomplete` envelope when strict mode is enabled.
+
     Sources: OPP3 art. 1; LPP art. 30a-30g; LPP art. 79b al. 3.
     """
+    resolved = _resolve_defaults(profile_data, body, EplCombinedRequest)
+    missing = _required_profile_fields_missing(resolved, EplCombinedRequest)
+    if missing:
+        raise_incomplete_as_422(
+            missing_fields=missing,
+            hint_fr=_EPL_COMBINED_HINT_FR,
+            resolved_body=resolved,
+            endpoint="/api/v1/mortgage/epl-combined",
+        )
+    emit_calc_invoke_metric(
+        kind="epl_combined",
+        resolved=resolved,
+        schema_class=EplCombinedRequest,
+    )
+
     result = _epl_combined_service.calculate(
-        avoir_3a=body.avoir3a,
-        avoir_lpp_total=body.avoirLppTotal,
-        avoir_obligatoire=body.avoirObligatoire,
-        avoir_surobligatoire=body.avoirSurobligatoire,
-        age=body.age,
-        canton=body.canton,
-        epargne_cash=body.epargneCash,
-        prix_cible=body.prixCible,
-        a_rachete_recemment=body.aRacheteRecemment,
-        annees_depuis_dernier_rachat=body.anneesDernierRachat,
-        avoir_lpp_a_50_ans=body.avoirLppA50Ans,
+        avoir_3a=resolved["avoir3a"],
+        avoir_lpp_total=resolved["avoirLppTotal"],
+        avoir_obligatoire=resolved["avoirObligatoire"],
+        avoir_surobligatoire=resolved["avoirSurobligatoire"],
+        age=resolved["age"],
+        canton=str(resolved["canton"]),
+        epargne_cash=resolved["epargneCash"],
+        prix_cible=resolved["prixCible"],
+        a_rachete_recemment=resolved["aRacheteRecemment"],
+        annees_depuis_dernier_rachat=resolved["anneesDernierRachat"],
+        avoir_lpp_a_50_ans=resolved["avoirLppA50Ans"],
     )
 
     return EplCombinedResponse(

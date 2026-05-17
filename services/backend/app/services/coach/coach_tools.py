@@ -330,7 +330,8 @@ COACH_TOOLS: list[dict[str, Any]] = [
                         "screen is relevant. Shown to the user before navigation. "
                         "Must be educational and non-prescriptive. "
                         "Use conditional language ('pourrait', 'dans ce scénario'). "
-                        "Never use banned terms (garanti, optimal, tu devrais)."
+                        "Never use LSFin-forbidden terms (see swiss-brain.md §1 + "
+                        "ComplianceNarratorBundle for the verbatim banned list)."
                     ),
                 },
                 "prefill": {
@@ -638,10 +639,14 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Get the user's current budget status including monthly free margin, "
-            "savings rate, and budget stage. Use when you need to reason about "
-            "the user's financial situation, remaining budget, or spending capacity. "
-            "Returns structured data as text. This tool is handled internally."
+            "Calcule le bilan budgétaire mensuel (revenus moins charges fixes et "
+            "dépenses récurrentes) basé sur le profil utilisateur et les "
+            "transactions disponibles, en prenant en compte les obligations légales "
+            "de cotisation salariale (LAVS art. 5, LPP art. 7-8, LACI art. 3). "
+            "Produit la marge libre CHF/mois, le taux d'épargne, le stade "
+            "budgétaire et la capacité de financement résiduelle. Mots-clés : "
+            "budget, marge, dépenses, épargne, salaire, charges, liquidité, "
+            "capacité financière, train de vie."
         ),
         "input_schema": {
             "type": "object",
@@ -654,10 +659,13 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Get the user's retirement projection including replacement rate, "
-            "projected gap, and pillar breakdown. Use when the user asks about "
-            "retirement income, pension, or how much they will receive. "
-            "Returns structured data as text. This tool is handled internally."
+            "Projette la rente totale à la retraite en cumulant AVS (LAVS art. 21 "
+            "+ 35 cap couple), LPP (art. 14 taux de conversion) et 3a (LIFD art. 33 "
+            "al. 1 let. e) selon l'âge, le salaire brut, les années de cotisation et "
+            "le canton du profil. Produit la rente CHF/mois projetée, le taux de "
+            "remplacement par rapport au revenu actuel et la décomposition par "
+            "pilier. Mots-clés : retraite, rente, AVS, LPP, 3a, pension, pilier, "
+            "anticipée, différée, taux de remplacement, prévoyance."
         ),
         "input_schema": {
             "type": "object",
@@ -670,10 +678,13 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Get cross-pillar optimization insights: 3a gap, LPP buyback potential, "
-            "tax optimization, and coordination between pillars. Use when the user "
-            "asks about optimizing their financial situation across pillars. "
-            "Returns structured data as text. This tool is handled internally."
+            "Analyse les trois piliers cumulés (AVS LAVS art. 18 + LPP art. 14 "
+            "+ 3a LIFD art. 33 al. 1 let. e) pour identifier les écarts de "
+            "couverture et les arbitrages chiffrés entre piliers selon le canton "
+            "et l'âge du profil. Compare le potentiel de rachat LPP, le gap 3a "
+            "annuel et l'effet fiscal estimé. Produit une vue cross-pilier avec "
+            "leviers possibles. Mots-clés : 3a, LPP, AVS, rachat, arbitrage, "
+            "prévoyance, déduction fiscale, plafond, pilier."
         ),
         "input_schema": {
             "type": "object",
@@ -686,10 +697,13 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Get the user's current Cap du jour (priority action), sequence progress, "
-            "and next recommended step. Use when you need to know what the user "
-            "should focus on next or their progress toward their financial goal. "
-            "Returns structured data as text. This tool is handled internally."
+            "Estime la capacité d'emprunt hypothécaire selon les règles FINMA/ASB "
+            "(LCC art. 28, taux théorique 5%, charges max 33% du revenu brut, "
+            "fonds propres min 20% dont max 10% issu du 2e pilier) en croisant "
+            "salaire brut, épargne disponible, avoirs 3a et LPP du profil. Produit "
+            "le prix d'achat plafond CHF, le delta vs propriété visée et le Cap du "
+            "jour (action prioritaire). Mots-clés : hypothèque, achat, immobilier, "
+            "fonds propres, charges, propriété, financement, capacité."
         ),
         "input_schema": {
             "type": "object",
@@ -702,12 +716,13 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Get couple-level financial optimization analysis. Compares scenarios "
-            "for the user and their partner: who should buy back LPP first, who "
-            "should contribute to 3a first (FATCA-aware), AVS couple cap impact, "
-            "and marriage penalty analysis. Use when the user is in a couple and "
-            "asks about joint financial decisions, partner coordination, or "
-            "marriage impact. This tool is handled internally."
+            "Compare les arbitrages financiers d'un couple (mariage CC art. 159 vs "
+            "concubinage) selon les deux cantons, revenus et archétypes (FATCA pour "
+            "expat US). Estime l'écart d'impôt CHF/an, l'effet du cap AVS couple "
+            "(LAVS art. 35, plafond 150%), l'ordre de rachat LPP entre conjoints "
+            "et l'impact 3a. Produit les scénarios chiffrés sans ranking. "
+            "Mots-clés : couple, mariage, concubinage, conjoint, partenaire, "
+            "fiscal, FATCA, splitting, rachat, cap AVS."
         ),
         "input_schema": {
             "type": "object",
@@ -784,7 +799,7 @@ COACH_TOOLS: list[dict[str, Any]] = [
                     "type": "string",
                     "description": (
                         "Coach summary to display to user "
-                        "(e.g. 'Parfait, 500 CHF sur le 3a et 200 CHF en épargne libre. C'est noté\u00a0!')"
+                        "(e.g. 'C'est noté, 500 CHF sur le 3a et 200 CHF en épargne libre. C'est noté\u00a0!')"
                     ),
                 },
             },

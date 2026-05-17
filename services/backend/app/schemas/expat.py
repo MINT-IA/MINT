@@ -70,15 +70,21 @@ class IncomeType(str, Enum):
 # ===========================================================================
 
 class SourceTaxRequest(ExpatBaseModel):
-    """Requete pour le calcul d'impot a la source frontalier."""
+    """Requete pour le calcul d'impot a la source frontalier.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch C), `canton` is widened
+    from `default="VD"` to Optional `default=None` with the `from_profile`
+    marker. W0 audit row 34.
+    """
 
     salary: float = Field(
         ..., ge=0, le=10_000_000,
         description="Salaire brut annuel (CHF)",
     )
-    canton: str = Field(
-        default="VD", min_length=2, max_length=2,
-        description="Canton de travail (2 lettres)",
+    canton: Optional[str] = Field(
+        default=None, min_length=2, max_length=2,
+        description="Canton de travail (lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "canton"},
     )
     marital_status: MaritalStatus = Field(
         default=MaritalStatus.celibataire,
@@ -217,15 +223,21 @@ class SocialChargesResponse(ExpatBaseModel):
 # ===========================================================================
 
 class LamalOptionRequest(ExpatBaseModel):
-    """Requete pour la comparaison LAMal vs assurance residence."""
+    """Requete pour la comparaison LAMal vs assurance residence.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch C), `canton` is widened
+    from `default="GE"` to Optional `default=None` with the `from_profile`
+    marker. W0 audit row 34.
+    """
 
     age: int = Field(
         ..., ge=18, le=100,
         description="Age de la personne",
     )
-    canton: str = Field(
-        default="GE", min_length=2, max_length=2,
-        description="Canton de travail (2 lettres)",
+    canton: Optional[str] = Field(
+        default=None, min_length=2, max_length=2,
+        description="Canton de travail (lu depuis le profil si absent)",
+        json_schema_extra={"from_profile": "canton"},
     )
     family_size: int = Field(
         default=1, ge=1,

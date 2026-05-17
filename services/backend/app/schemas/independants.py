@@ -14,7 +14,7 @@ Covers:
 
 from pydantic import BaseModel, Field, ConfigDict
 from pydantic.alias_generators import to_camel
-from typing import List
+from typing import List, Optional
 
 
 # ===========================================================================
@@ -127,7 +127,12 @@ class IjmResponse(BaseModel):
 # ===========================================================================
 
 class Pillar3aIndepRequest(BaseModel):
-    """Request for enhanced 3a calculation for self-employed."""
+    """Request for enhanced 3a calculation for self-employed.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch C), `canton` is widened
+    from `default="ZH"` to Optional `default=None` with the `from_profile`
+    marker. W0 audit row 29.
+    """
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -143,8 +148,11 @@ class Pillar3aIndepRequest(BaseModel):
     taux_marginal_imposition: float = Field(
         ..., description="Taux marginal d'imposition estime (0-1)", ge=0, le=1
     )
-    canton: str = Field(
-        "ZH", description="Code canton (ex: ZH, VD, GE)", min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
 
 
@@ -184,7 +192,12 @@ class Pillar3aIndepResponse(BaseModel):
 # ===========================================================================
 
 class DividendeVsSalaireRequest(BaseModel):
-    """Request for dividend vs salary optimization."""
+    """Request for dividend vs salary optimization.
+
+    Per D-CE-06+07 (Plan mint-calc-engine-v1-06 Batch C), `canton` is widened
+    from `default="ZH"` to Optional `default=None` with the `from_profile`
+    marker. W0 audit row 31.
+    """
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -200,8 +213,11 @@ class DividendeVsSalaireRequest(BaseModel):
     taux_marginal: float = Field(
         ..., description="Taux marginal d'imposition estime (0-1)", ge=0, le=1
     )
-    canton: str = Field(
-        "ZH", description="Code canton (ex: ZH, VD, GE)", min_length=2, max_length=2
+    canton: Optional[str] = Field(
+        default=None,
+        description="Code canton (lu depuis le profil si absent)",
+        min_length=2, max_length=2,
+        json_schema_extra={"from_profile": "canton"},
     )
 
 

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +17,15 @@ import 'package:uuid/uuid.dart';
 /// Surface the logs from a booted iOS simulator with:
 ///
 ///   xcrun simctl spawn booted log show --last 5m \
-///     --predicate 'category == "ch.mint.http"' --style compact
+///     --predicate 'process == "Runner"' --style compact \
+///     | grep '\[ch.mint.http\]'
+///
+/// Why `debugPrint` and not `dart:developer.log` — Flutter's `developer.log`
+/// goes to the Dart VM service / stderr, but it does NOT bridge to iOS
+/// `os_log` with a structured category. `debugPrint` (and `print`) DO
+/// surface in OSLog as `(Flutter) flutter: …`, which is what
+/// `simctl log show` can grep. Verified runtime 2026-05-13 on the
+/// cassure #4 probe.
 ///
 /// Debug builds include the response body (capped at [_bodyLogCap] chars)
 /// to surface parsing / serialization mismatches. Release builds log
@@ -140,12 +147,16 @@ class MintHttpClient extends http.BaseClient {
   }
 
   void _log(String message, {Object? error, StackTrace? stackTrace}) {
-    developer.log(
-      message,
-      name: logCategory,
-      error: error,
-      stackTrace: stackTrace,
-    );
+    // `debugPrint` is `print` in debug + profile mode and a no-op in
+    // release. Flutter wraps stdout into OSLog as `(Flutter) flutter:` on
+    // iOS, so `simctl log show` can grep the `[ch.mint.http]` tag.
+    debugPrint('[$logCategory] $message');
+    if (error != null) {
+      debugPrint('[$logCategory] error=$error');
+    }
+    if (stackTrace != null) {
+      debugPrint('[$logCategory] stack=$stackTrace');
+    }
   }
 
   String _truncate(String s, int max) =>

@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     # production call site keeps `pack=None` during Phase 95.
     from app.services.coach.grounding_pack import ProjectionGroundingPack  # noqa: F401
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
@@ -62,11 +62,18 @@ from app.services.coach.claude_coach_service import (
     build_system_prompt,
 )
 from app.services.coach.coach_context_builder import build_coach_context
+# Phase mint-calc-engine-v1 Plan 15 — D-CE-13 BackgroundTasks pre-compute.
+# Imported here (not lazily) so the wire-test grep finds the symbol in source.
+from app.services.coach.pre_compute import precompute_after_fact_save
 from app.services.coach.citation_parser import (
     GateVerdict,
     GatedResponse,
     gate as _citation_gate,
 )
+# Phase mint-calc-engine-v1 Plan 18 — D-CE-16(c) runtime banned-verb gate.
+# Wired UPSTREAM of `_citation_gate` (Q5 = before) so paraphrase verbs are
+# caught BEFORE citation substitution to avoid double-template fallback chains.
+from app.services.coach.runtime_verb_gate import gate as _runtime_verb_gate
 from app.services.coach.coach_tools import (
     INTERNAL_TOOL_NAMES,
     get_llm_tools,
@@ -381,6 +388,105 @@ _WAVE_1B_TOOL_NAMES: frozenset[str] = frozenset({
     "get_cap_status",
     "retrieve_memories",
 })
+
+
+# ─── Phase mint-calc-engine-v1 Plan 10 (W2-04) — CoachToolResponseV2 ───
+# D-CE-19 Parallel Change (Fowler) + Concern B (Flutter routing surface).
+# Mapping: chip-emitter tool name → LatencyTier. The 5 chip-emitters per
+# CONTEXT §code_context Wave 1a all emit L1 (sub-500ms chip surface).
+# Future Plans (W4 metrics + Flutter consumer) extend this map to L2/L3
+# for narrative-loader-bound tools (rachat_echelonne, divorce_simulator,
+# etc.) when wired via ToolRegistryAdapter (Plan 07 + Plan 10 dispatch).
+_CHIP_EMITTER_LATENCY_TIERS: dict[str, str] = {
+    "get_budget_status": "L1",
+    "get_retirement_projection": "L1",
+    "get_cross_pillar_analysis": "L1",
+    "get_cap_status": "L1",
+    "get_couple_optimization": "L1",
+}
+
+
+def _wrap_chip_response_v2(payload: str, latency_tier: str = "L1") -> str:
+    """Wrap a chip-emitter JSON payload in a ``CoachToolOkV2`` envelope.
+
+    When ``settings.COACH_TOOL_RESPONSE_V2_ENABLED`` is False (default),
+    callers SHOULD NOT call this — they should return ``payload`` as-is so
+    existing Wave 1a contract tests stay green. When True, callers route
+    through this helper to opt into the V2 envelope (Concern B routing).
+
+    Behavior:
+      - If ``payload`` is JSON-parseable as an object → wrap as
+        ``CoachToolOkV2(data=<parsed>, latency_tier=...)`` and return
+        ``model_dump_json(by_alias=True)`` (camelCase ``latencyTier``).
+      - If ``payload`` is NOT JSON or NOT a dict (legacy FR string from a
+        ``_format_*`` fallback path) → passthrough unchanged. This
+        preserves the dispatcher contract for legacy paths and matches the
+        Parallel Change invariant (V2 wrapping is opt-in per JSON payload,
+        not a blanket transform of the dispatcher's ``content`` field).
+
+    LatencyTier values are validated by the V2 Pydantic envelope itself
+    (Literal["L1", "L2", "L3"]) — invalid values raise ValidationError.
+    """
+    import json as _json
+
+    # Inline import (Pydantic v2 model construction is expensive when
+    # imported at module load — keep it lazy per existing pattern at
+    # _compute_budget_status:2802).
+    from app.models.coach_tools import CoachToolOkV2
+
+    try:
+        parsed = _json.loads(payload)
+    except (_json.JSONDecodeError, TypeError):
+        # Legacy FR fallback path (e.g. "Budget actuel :\n- ..."). Plan 10
+        # Parallel Change discipline: passthrough unchanged.
+        return payload
+
+    if not isinstance(parsed, dict):
+        # Defensive: only objects make sense as `data`. Arrays/scalars
+        # passthrough — preserves any future per-tool contract that emits
+        # a different shape.
+        return payload
+
+    envelope = CoachToolOkV2(data=parsed, latency_tier=latency_tier)
+    return envelope.model_dump_json(by_alias=True)
+
+
+def _wrap_chip_string_response_v2(
+    text_payload: str, latency_tier: str = "L1"
+) -> str:
+    """Wrap a STRING chip-emitter payload (e.g. ``get_cap_status``) in a V2
+    envelope under ``data.text``. cap_status historically emits a free-text
+    FR string (no Pydantic response model); Plan 10 surfaces it under V2
+    so Flutter can still receive the ``latencyTier`` routing hint. Plan 11
+    or Concern B Flutter plan formalizes the ``data.text`` contract."""
+    from app.models.coach_tools import CoachToolOkV2
+
+    envelope = CoachToolOkV2(
+        data={"text": text_payload},
+        latency_tier=latency_tier,
+    )
+    return envelope.model_dump_json(by_alias=True)
+
+
+def _maybe_wrap_v2(
+    tool_name: str, payload: str, *, is_string_tool: bool = False
+) -> str:
+    """Apply the V2 envelope wrapping to a chip-emitter payload when the
+    Plan 10 feature flag is ON. No-op passthrough when OFF (default), so
+    existing Wave 1a contract tests stay green.
+
+    ``is_string_tool`` distinguishes Pydantic-JSON chip-emitters (False —
+    use _wrap_chip_response_v2) from text-only chip-emitters like
+    ``get_cap_status`` (True — use _wrap_chip_string_response_v2)."""
+    from app.core.config import settings as _settings
+
+    if not _settings.COACH_TOOL_RESPONSE_V2_ENABLED:
+        return payload
+    tier = _CHIP_EMITTER_LATENCY_TIERS.get(tool_name, "L1")
+    if is_string_tool:
+        return _wrap_chip_string_response_v2(payload, latency_tier=tier)
+    return _wrap_chip_response_v2(payload, latency_tier=tier)
+# ─── end Plan 10 W2-04 ───
 
 # Tools whose result string is a JSON dump of a Wave 1a Pydantic response
 # (`model_dump_json(by_alias=True)`). Flag-ON path. Flag-OFF path returns
@@ -886,6 +992,16 @@ _PROFILE_SAFE_FIELDS = {
     # they just imported. Privacy-safe (numeric, no PII). claude_coach_service
     # auto-emits these in the « extra_keys » prompt block (line 830-840).
     "avoir_lpp", "salaire_brut", "epargne_3a", "capital_final",
+    # mint-calc-engine-v1 Stage 0 fix (2026-05-17): partner aggregate keys from
+    # Phase 16 COUP-04. Flutter `coach_chat_api_service.dart:94-97` spreads
+    # `partner_declared` + `partner_confidence` from SecureStorage into
+    # profileContext. Prior to this addition, both keys were SILENTLY DROPPED
+    # by _sanitize_profile_context — the entire COUP-04 partner-aggregate
+    # ground-truth pathway into the coach context was dead in production.
+    # Detected by Plan 19 profile_safe_fields_parity lint (drift baseline 45
+    # → 43 after this fix). Privacy-safe: declared = bool, confidence = float
+    # in [0,1]; no PII.
+    "partner_declared", "partner_confidence",
 }
 
 
@@ -2325,6 +2441,7 @@ def _execute_internal_tool(
     last_user_message: Optional[str] = None,
     detected_intents: Optional[set[str]] = None,
     fact_keys_saved_this_turn: Optional[list[str]] = None,
+    background_tasks: Optional[BackgroundTasks] = None,
 ) -> str:
     """Execute a single internal tool and return the result as text.
 
@@ -2416,7 +2533,12 @@ def _execute_internal_tool(
 
     # >>> dispatch: get_cap_status
     if name == "get_cap_status":
-        return _validate_cap_response(_format_cap_status(ctx))
+        # Plan 10 W2-04 — cap_status is a STRING chip (no Pydantic response
+        # model). When V2 envelope flag is ON, wrap the validated text in
+        # CoachToolOkV2(data={"text": ...}, latency_tier="L1"). Otherwise
+        # passthrough legacy string (Wave 1a contract preserved).
+        rendered = _validate_cap_response(_format_cap_status(ctx))
+        return _maybe_wrap_v2("get_cap_status", rendered, is_string_tool=True)
     # <<< dispatch: get_cap_status
 
     # >>> dispatch: get_couple_optimization
@@ -2529,6 +2651,30 @@ def _execute_internal_tool(
             except Exception as mirror_exc:
                 logger.warning("Could not mirror insight to profile: %s", mirror_exc)
                 db.rollback()
+        # Phase mint-calc-engine-v1 Plan 15 — D-CE-13 BackgroundTasks pre-compute.
+        # Topic acts as the canonical fact_key bridge for insight-driven warming.
+        # Best-effort : if background_tasks is None (sync test path) or profile
+        # is None, schedule is skipped. Failures logged + swallowed by
+        # precompute_after_fact_save itself.
+        if background_tasks is not None and user_id and db:
+            try:
+                from app.models.profile_model import ProfileModel as _PMIns
+                _prof = (
+                    db.query(_PMIns)
+                    .filter(_PMIns.user_id == user_id)
+                    .order_by(_PMIns.updated_at.desc())
+                    .first()
+                )
+                if _prof is not None:
+                    precompute_after_fact_save(
+                        background_tasks=background_tasks,
+                        fact_key=topic,
+                        fact_value=summary,
+                        profile_id=str(_prof.id),
+                        db=db,
+                    )
+            except Exception as _pre_exc:  # pragma: no cover — pre-compute fail-open
+                logger.warning("precompute_after_fact_save(save_insight) skipped: %s", _pre_exc)
         return f"Insight enregistré : {summary}" if summary else "Insight enregistré."
 
     # ─────────────────────────────────────────────────────────────────
@@ -2596,6 +2742,22 @@ def _execute_internal_tool(
                     log_value,
                     fact_conf,
                 )
+                # Phase mint-calc-engine-v1 Plan 15 — D-CE-13 BackgroundTasks pre-compute.
+                # Schedule top-3 cache warming for calcs depending on fact_key.
+                # Runs AFTER db.commit() so the warming-task DB reads see the
+                # freshly-committed profile state. Best-effort : failures
+                # logged + swallowed inside precompute_after_fact_save.
+                if background_tasks is not None:
+                    try:
+                        precompute_after_fact_save(
+                            background_tasks=background_tasks,
+                            fact_key=fact_key,
+                            fact_value=coerced,
+                            profile_id=str(profile.id),
+                            db=db,
+                        )
+                    except Exception as _pre_exc:  # pragma: no cover — pre-compute fail-open
+                        logger.warning("precompute_after_fact_save(save_fact) skipped: %s", _pre_exc)
                 if is_safe_to_log(fact_key):
                     return f"Fait enregistré : {fact_key} = {coerced}"
                 return f"Fait enregistré : {fact_key}"
@@ -2842,7 +3004,10 @@ def _compute_budget_status(user_id: str | None, ctx: dict, db) -> str:
             elapsed_ms=elapsed_ms,
             flag_state="on",
         )
-        return response.model_dump_json(by_alias=True)
+        # Plan 10 W2-04 — opt-in V2 envelope wrapping (latency_tier="L1").
+        return _maybe_wrap_v2(
+            "get_budget_status", response.model_dump_json(by_alias=True)
+        )
     except Exception as exc:  # defensive fallback (python-pro panel)
         logging.getLogger(__name__).warning(
             "compute_budget_status failed, falling back to legacy: %s", exc
@@ -2959,7 +3124,11 @@ def _compute_retirement_projection(user_id: str | None, ctx: dict, db) -> str:
             elapsed_ms=elapsed_ms,
             flag_state="on",
         )
-        return response.model_dump_json(by_alias=True)
+        # Plan 10 W2-04 — opt-in V2 envelope wrapping (latency_tier="L1").
+        return _maybe_wrap_v2(
+            "get_retirement_projection",
+            response.model_dump_json(by_alias=True),
+        )
     except Exception as exc:  # defensive fallback (python-pro panel)
         logging.getLogger(__name__).warning(
             "compute_retirement_projection failed, falling back to legacy: %s",
@@ -3086,7 +3255,11 @@ def _compute_cross_pillar_analysis(user_id: str | None, ctx: dict, db) -> str:
                 "tax_saving_source": analysis.tax_saving_source,
             },
         )
-        return response.model_dump_json(by_alias=True)
+        # Plan 10 W2-04 — opt-in V2 envelope wrapping (latency_tier="L1").
+        return _maybe_wrap_v2(
+            "get_cross_pillar_analysis",
+            response.model_dump_json(by_alias=True),
+        )
     except Exception as exc:
         logging.getLogger(__name__).warning(
             "compute_cross_pillar_analysis failed, falling back to legacy: %s",
@@ -3334,7 +3507,11 @@ def _compute_couple_optimization(user_id, ctx: dict, db) -> str:
             elapsed_ms=elapsed_ms,
             flag_state="on",
         )
-        return response.model_dump_json(by_alias=True)
+        # Plan 10 W2-04 — opt-in V2 envelope wrapping (latency_tier="L1").
+        return _maybe_wrap_v2(
+            "get_couple_optimization",
+            response.model_dump_json(by_alias=True),
+        )
     except Exception as exc:  # defensive fallback (python-pro panel)
         logging.getLogger(__name__).warning(
             "compute_couple_optimization failed, falling back to legacy: %s", exc
@@ -3471,6 +3648,7 @@ async def _run_agent_loop(
     persistence_consent: bool = False,
     detected_intents: Optional[set[str]] = None,
     tools: Optional[list[dict]] = None,
+    background_tasks: Optional[BackgroundTasks] = None,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -3716,6 +3894,7 @@ async def _run_agent_loop(
                 last_user_message=question,
                 detected_intents=detected_intents,
                 fact_keys_saved_this_turn=fact_keys_saved_this_turn,
+                background_tasks=background_tasks,
             )
             # Wave 1b Plan 04 — extract citation chip BEFORE truncation /
             # injection sanitization so the JSON parse sees the full
@@ -3805,6 +3984,7 @@ async def _run_agent_loop(
 async def coach_chat(
     request: Request,
     body: CoachChatRequest,
+    background_tasks: BackgroundTasks,
     _user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
 ) -> CoachChatResponse:
@@ -4429,6 +4609,10 @@ async def coach_chat(
         persistence_consent=body.persistence_consent,
         detected_intents=detected_intents,
         tools=_narrator_tools,
+        # Phase mint-calc-engine-v1 Plan 15 — D-CE-13 BackgroundTasks
+        # threaded through the agent loop to the save_fact / save_insight
+        # handlers (pre_compute.precompute_after_fact_save site).
+        background_tasks=background_tasks,
     )
     _gate_allowlist = (
         list(_compiled_bundle.citation_allowlist)
@@ -4525,6 +4709,34 @@ async def coach_chat(
         )
         if not settings.COACH_CITATION_GATE_ENABLED:
             # D-20 byte-identical bypass.
+            return loop_result
+
+        # Phase mint-calc-engine-v1 Plan 18 — D-CE-16(c) runtime banned-verb
+        # gate. Runs BEFORE the Phase 94 citation parser (Q5 = before) on the
+        # raw narrator output. On match -> templated FR fallback + Sentry
+        # breadcrumb + short-circuit (no citation-parser call, no retry — the
+        # narrator text is NEVER returned to the user when it contains a
+        # banned paraphrase verb). Fail-closed by design.
+        _vg_passed, _vg_text = _runtime_verb_gate(loop_result["answer"])
+        if not _vg_passed:
+            try:
+                import sentry_sdk  # type: ignore
+                sentry_sdk.add_breadcrumb(  # type: ignore[union-attr]
+                    category="coach.verb_gate.fired",
+                    message="runtime banned-verb gate fired",
+                    level="info",
+                    data={
+                        "profile_id_hashed": (
+                            __import__("hashlib")
+                            .sha256(str(_user.id).encode("utf-8") if _user else b"")
+                            .hexdigest()[:16]
+                        ),
+                        "fallback_emitted": True,
+                    },
+                )
+            except Exception:  # pragma: no cover — telemetry is fail-open
+                pass
+            loop_result["answer"] = _vg_text
             return loop_result
 
         gated = _citation_gate(

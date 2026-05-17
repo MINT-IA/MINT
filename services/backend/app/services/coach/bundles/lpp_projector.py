@@ -22,6 +22,7 @@ from typing import Literal
 from app.services.coach.bundles._base import BundleBase
 
 
+# llm-doctrine-fragment-banned-list
 _PROMPT_FRAGMENT = """\
 ## DOCTRINE LPP — PROJECTION RENTE / CAPITAL (non-prescriptive)
 

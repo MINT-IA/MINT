@@ -185,24 +185,17 @@ env:
 - tapOn:
     text: "Créer un compte"
 
-# CASSURE #3 (observed run 6 2026-05-13) : the chat's « Créer un compte »
-# CTA navigates to /auth/login (« Connexion ») screen, NOT directly to
-# register form. The Connexion screen offers magic-link / Sign in with
-# Apple / Continuer en mode local / Mot de passe oublié + a « Créer un
-# compte » LINK at the bottom under « Pas encore de compte ? ». We
-# follow the register-with-password path : confirm Connexion, then tap
-# the bottom « Créer un compte » link to reach the actual register
-# form.
-- extendedWaitUntil:
-    visible:
-      text: "Pas encore de compte ?"
-    timeout: 8000
-- tapOn:
-    text: "Créer un compte"
+# CASSURE #5 (observed run 11 2026-05-13, post cassure #4 fix in PR #594) :
+# the « Créer un compte » CTA inside the AuthGateBottomSheet routes
+# directly to /auth/register (see auth_gate_bottom_sheet.dart:93 :
+# `context.push('/auth/register?redirect=/home')`). The previous detour
+# via the Connexion screen was correct only when the CTA was tapped on
+# the chat's text bubble (cassure #3 path). With the modal, we skip
+# Connexion entirely. Anchor on the register form header right away.
 - extendedWaitUntil:
     visible:
       text: "Créer ton compte"
-    timeout: 6000
+    timeout: 8000
 
 - assertVisible:
     text: "Adresse e-mail"

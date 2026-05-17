@@ -52,6 +52,13 @@ dependencies = [
     # Phase 95 DAG-INVALIDATION — UUID7 backport (stdlib uuid.uuid7 is Python 3.14-only,
     # Railway base image is python:3.12-slim). Rust-backed, drop-in API.
     "uuid_utils>=0.14.1,<1.0.0",
+    # Phase mint-calc-engine-v1 W4 Plan 17 (D-CE-17 composite scorecard) —
+    # Prometheus client library for counter + histogram declarations and the
+    # /metrics exposition endpoint. Open Q1 resolved with Prometheus (vs
+    # Sentry-only fallback) per RESEARCH §Q-H Option 1. Railway scrape
+    # target config deferred to Julien decision (Grafana Cloud vs Datadog
+    # vs Railway built-in).
+    "prometheus-client>=0.20,<1.0",
 ]
 
 [project.optional-dependencies]

@@ -1,7 +1,7 @@
 ---
 name: gsd-executor
 description: Executes GSD plans with atomic commits, deviation handling, checkpoint protocols, and state management. Spawned by execute-phase orchestrator or execute-plan command.
-tools: Read, Write, Edit, Bash, Grep, Glob, mcp__context7__*
+tools: Read, Write, Edit, Bash, Grep, Glob, mcp__context7__*, mcp__plugin_engram_engram__*, mcp__mint-tools__*
 color: yellow
 # hooks:
 #   PostToolUse:
@@ -487,6 +487,38 @@ node "/Users/julienbattaglia/Desktop/MINT/.claude/get-shit-done/bin/gsd-tools.cj
 node "/Users/julienbattaglia/Desktop/MINT/.claude/get-shit-done/bin/gsd-tools.cjs" state add-blocker "Blocker description"
 ```
 </state_updates>
+
+<mint_infra_contract>
+**MANDATORY for MINT — runs BEFORE final_commit. Skipping any step is a self-check FAIL.**
+
+After SUMMARY.md is written and STATE/ROADMAP updated, but BEFORE final_commit, you MUST:
+
+**1. Persist plan outcome to engram (MCP primary, Bash CLI fallback)**
+Primary path : call the `mcp__plugin_engram_engram__mem_save` MCP tool with:
+- `title`: short searchable label
+- `type`: "decision" (default), or "bugfix" / "pattern" / "architecture" depending on plan nature
+- `topic_key`: `<area>:<sub-area>:<specific>` agent-agnostic
+- `content`: **What** / **Why** / **Where** / **Learned** structured body — extract from SUMMARY.md
+- `prior_finding_refs: [<obs_id>, ...]` if your `mem_search` at plan start surfaced relevant past observations
+
+If `mem_save` MCP tool is NOT in your tool list, fall back to the Bash CLI : `engram save "<title>" "<msg>" --project <project> --type <type> --topic_key <key>`. The CLI writes to the same live DB as the MCP daemon. This matches GSD upstream pattern (PR #2074, anthropics/claude-code#13898 — `tools:` whitelist strips inherited MCP, CLI fallback is the documented workaround).
+
+If BOTH MCP and CLI fail, log « Engram save BLOCKED — both paths failed » in SUMMARY.md with the exact error. Orchestrator will save manually post-return (orchestrator-side save belt-and-suspenders — see CLAUDE.md §3.5).
+
+**2. LSFin compliance via file lints (mint-tools MCP doesn't propagate to subagents)**
+Run Bash file lints on any file you wrote/modified that contains user-facing French strings (`hint_fr`, `description`, narrative payloads, error messages):
+- `python3 tools/checks/banned_terms_python.py <touched-files>` — exits non-zero on LSFin banned terms
+- `python3 tools/checks/accent_lint_fr.py --scope backend` — flags ASCII-instead-of-accent patterns
+
+For ARB changes : `python3 tools/checks/arb_parity_lint.py` (lefthook-active hard gate).
+
+Project-scope `.mcp.json` MCP servers (mint-tools, context7) do NOT propagate to subagents (Claude Code limitation). File lints via Bash are the reliable path. mint-tools MCP remains available to the orchestrator for structured `{banned_found, sanitized_text}` output.
+
+**3. Cite evidence — 0-trust protocol (CLAUDE.md §9)**
+Your completion report MUST include explicit evidence citations for any « green » / « shipped » / « ready » claim. Forbidden without citation: « shipped », « closed », « ready », « works », « validated », « green », « PROVISIONALLY READY ». Acceptable substitutes when no citation : « unit tests green, end-to-end UNKNOWN », « PR opened, merge + sim verification pending », « I haven't checked ». The completion report goes into the orchestrator's context — be precise.
+
+**Why this contract exists:** Closes the gap where subagents drop engram saves silently (Claude Code agent loader strips inherited MCP when `tools:` whitelist is set — see anthropics/claude-code#13898). Codifies engram persistence via MCP-or-CLI plus FR compliance via file lints. HTML evidence dashboards are an optional orchestrator-side concern — see `tools/gsd_infra/update_verification_html.py`.
+</mint_infra_contract>
 
 <final_commit>
 ```bash

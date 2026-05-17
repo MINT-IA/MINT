@@ -11,7 +11,52 @@
 - 🟡 **v2.7 Coach Stabilisation + Document Digestion** — Phases 27-30 (code-complete, awaiting device gate)
 - ✅ **v2.8 L'Oracle & La Boucle** — Phases 30.5-32 + decimals (shipped 2026-04-25, 5/9 phases + gaps)
 - 🪦 **v2.9 Coach Visuel Hybride** — superseded 2026-05-09 by Chat-as-Verb pivot. Phases 40-43 (Marge fiscale / Hero / Scènes / Canvas) DROPPED ; design doctrine "le coach EST le produit" partially preserved in chat-as-verb Phase 96.
-- 🚧 **v2.9 Chat-as-Verb Pivot** — ACTIVE 2026-05-09 — Phases 90-96 (7 phases, ~14 days critical path) — see [MILESTONE-CHAT-AS-VERB-2026-05-09.md](MILESTONE-CHAT-AS-VERB-2026-05-09.md)
+- 🪦 **v2.9 Chat-as-Verb Pivot** — KILLED 2026-05-16 — see [decisions/2026-05-16-phase-96-killed.md](decisions/2026-05-16-phase-96-killed.md). Foundation phases (91/93.5/94/95) preserved as **v2.9 Lucidité Foundation** ; kill-tab + cards-home destination doctrine dropped. Direction restored : chat reste la porte d'entrée, tab Coach reste, widgets explorables inline ("Coach didactique vivant").
+- ◆ **v2.10 Lucidité Engine** — code-shipped on dev 2026-05-17, pending operational gates — Phase **mint-calc-engine-v1** closed 20/20 plans across W1-W4 (109 commits on `dev`, suite 7264, zero regression). Per CLAUDE.md §9.5 (0-TRUST 4-stage shipping pipeline) the phase is Stage 1 of 4 — cannot claim ✅ SHIPPED without Julien G2 device sign-off + 7 deferred operational gates (see [`phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md`](phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md) § Deferred). See [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md) for the full 4-problem framing.
+
+### Phase: mint-calc-engine-v1
+**Goal**: Make MINT's ~57 already-shipped Swiss financial calculators (LLM-)discoverable, real-profile-grounded, architecturally findable, and DAG-reactive. Build the lucidité engine (L1 chiffrer / L2 comparer / L3 éclairer / L4 invariants) on top of the existing calc surface. Does NOT add new calculators in v1 — the surface already exists (per [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md), 57 ✅ + 4 ⚠️ + 3 ❌ truly absent).
+**Status**: ◆ code-shipped on dev 2026-05-17, pending operational gates — 20/20 plans landed across 4 waves on `dev` (109 commits, backend suite **7264 passed** zero regression). Phase is Stage 1 of 4 per CLAUDE.md §9.5 — cannot claim ✅ SHIPPED without **G2 Julien device sign-off** + 7 deferred operational gates (staging env-flip · Railway cron activation · Railway metrics scraping · endpoint metric fanout · Flutter 45-field drift fix incl. dead-COUP-04 · FR description tone review · S12-API consolidation). See [`phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md`](phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md) + [`phases/mint-calc-engine-v1/mint-calc-engine-v1-VERIFICATION-REPORT.html`](phases/mint-calc-engine-v1/mint-calc-engine-v1-VERIFICATION-REPORT.html).
+**Depends on**: Wave 1c-A3 (held — see decisions/2026-05-16-calc-engine-matrix.md §"Sequencing"). Phase 96 KILLED — replaces that doctrine slot. Plan 01 cherry-picks A3 envelope `_response.py` if not yet merged to dev.
+**Requirements**: D-CE-01, D-CE-02, D-CE-03, D-CE-04, D-CE-05, D-CE-06, D-CE-07, D-CE-08, D-CE-09, D-CE-10, D-CE-11, D-CE-12, D-CE-13, D-CE-14, D-CE-15, D-CE-16, D-CE-17, D-CE-18, D-CE-19, D-CE-20 + Concerns A/B/C/D/E/F + Findings 3/4/5/6
+**Plans**: 20 plans (W1: 6, W2: 5, W3: 5, W4: 4)
+Plans:
+- [x] mint-calc-engine-v1-01-w1-shared-helpers-PLAN.md — shared `_resolve_defaults` + `get_profile_filled` + `raise_incomplete_as_422` + A3 envelope cherry-pick + `client_with_blank_profile` fixture
+- [x] mint-calc-engine-v1-02-w1-priority1-endpoints-PLAN.md — Priority-1 sev-3 endpoint grounding (allocation_annuelle + affordability + rachat_echelonne) ; sev-3 null-canton crash class closed (T-mint-calc-02-03) ; Rule-2 auto-add of Depends(require_current_user) on mortgage + lpp_deep routes ; 12 cumulative from_profile markers ; 6958 backend tests green (+11)
+- [x] mint-calc-engine-v1-03-w1-priority2-endpoints-PLAN.md — Priority-2 endpoint grounding (wealth_tax/estimate + life-events/succession/simulate + family/concubinage/succession + arbitrage/location-vs-propriete) ; silent-wrong-tax sev-3 class structurally closed via Required-to-Optional widening ; Rule-2 auto-add of Depends(require_current_user) on 3 previously-anonymous routes ; 16 cumulative from_profile markers (12 Plan 02 + 4 Plan 03) ; 6970 backend tests green (+12) ; cumulative W0 closure 4 sev-3 + 3 sev-2 endpoints
+- [x] mint-calc-engine-v1-04-w1-lucidity-payloads-PLAN.md — L1/L2/L3/L4 typed payloads + L4 wedge endpoint (Finding 5)
+- [x] mint-calc-engine-v1-05-w1-calc-registry-PLAN.md — AST scanner generator + `_registry.py` AUTO-GENERATED (63 calcs across 12 domains + 146 REVERSE_DEP_MAP fields, 25 canton-dependent) + 13 contract tests + Q2 resolved CI-only ; D-CE-09 Strangler-fig honored (zero physical moves) ; D-CE-14 reverse-dep map seed ships as side product (kills two birds per Override #5) ; 7002 backend tests green (+13 vs Plan 04 baseline 6989)
+- [x] mint-calc-engine-v1-06-w1-sev2-batch-grounding-PLAN.md — W1 wave-close batch grounding (4 batches × ~5 endpoints = 19 endpoints grounded ; cumulative W1 closure = 26 endpoints with `Depends(get_profile_filled)`) ; `services/backend/tests/test_blank_profile_422_contract.py` 28 cases (26 parametrized + 2 regression guards) ; Slowapi `_route_limits` cross-pollution discovered & fixed via `monkeypatch.setattr` (no more `importlib.reload` of endpoint modules) ; 7030 backend tests green (+28 vs Plan 05 baseline 7002, zero regressions). MCP engram save deferred for 6th consecutive plan despite merge bc07d915 — tools registered as MCP server but NOT exposed in executor agent callable function list.
+- [x] mint-calc-engine-v1-07-w2-tool-registry-adapter-PLAN.md — ToolRegistryAdapter Protocol + 3 concrete adapters + factory
+- [x] mint-calc-engine-v1-08-w2-bundles-PLAN.md — IndependentTaxBundle + SuccessionDivorceBundle (9 bundles total)
+- [x] mint-calc-engine-v1-09-w2-tool-description-rewrite-PLAN.md — Concern A rubric lint + ≥35 FR description rewrites + Tool Search round-trip + Maestro G1 (NOT autonomous — Julien G2 checkpoint)
+- [x] mint-calc-engine-v1-10-w2-coach-tool-response-v2-PLAN.md — CoachToolResponse V2 with `latency_tier` (Parallel Change V1→V2 per D-CE-19)
+- [x] mint-calc-engine-v1-11-w2-deprecation-shims-PLAN.md — independant_service.py + frontalier_service.py root shims (D-CE-10)
+- [x] mint-calc-engine-v1-12-w3-composite-index-migration-PLAN.md — Alembic p110 composite partial index (autocommit_block) — Finding 3 critical gap
+- [x] mint-calc-engine-v1-13-w3-cache-reader-writer-singleflight-PLAN.md — Cache reader + writer + AsyncSingleflight + get_or_compute (Concern E)
+- [x] mint-calc-engine-v1-14-w3-reverse-dep-map-PLAN.md — REVERSE_DEP_MAP regenerated alongside REGISTRY (D-CE-14 «kills two birds»)
+- [x] mint-calc-engine-v1-15-w3-pre-compute-background-tasks-PLAN.md — `precompute_after_fact_save` BackgroundTasks + SLI precision/recall tests
+- [x] mint-calc-engine-v1-16-w3-gc-job-PLAN.md — Daily GC job (Railway cron) for superseded scenarios (Finding 4) — `purge_superseded_scenarios(db, max_age_days=30, dry_run=False)` + `scripts/run_gc.py` standalone runner + `railway.cron.json` (cronSchedule `0 3 * * *`, schema-validated against `backboard.railway.app/railway.schema.json`) ; 6 new tests, 7189 backend tests green (+6 vs Plan 15 baseline 7183, zero regressions) ; **Railway cron service activation DEFERRED to Julien GO** — declaration committed to repo as `services/backend/railway.cron.json` ; Julien creates the Railway service + points Config-as-code Path to that file. W3 wave-close code-side complete (Plans 12+13+14+15+16 all landed). Finding 4 closed structurally.
+- [x] mint-calc-engine-v1-17-w4-metrics-counters-PLAN.md — Prometheus counters + `/metrics` + `inputs_provenance` schema — NOT autonomous (Open Q1 prometheus-vs-sentry decision)
+- [x] mint-calc-engine-v1-18-w4-banned-verb-lint-runtime-gate-PLAN.md — 11 paraphrase verbs lint extension + runtime gate with NFKC + zero-width — NOT autonomous (Open Q5 placement decision)
+- [x] mint-calc-engine-v1-19-w4-profile-safe-fields-parity-PLAN.md — Flutter↔server parity lint + lefthook wiring (Concern C)
+- [x] mint-calc-engine-v1-20-w4-wave-close-engram-doctrine-PLAN.md — Phase close: VERIFICATION-REPORT.html (541 lines, phase-level rollup + 5-gate exit panel + per-wave + cumulative metrics + critical discoveries + 8 deferred items + engram doctrine roll-up + lessons learned) + SUMMARY.md (per-D-CE-XX + per-Concern + per-Finding disposition) + ROADMAP/STATE updates + phase-level engram observation (Concern F compounding observable ≥10 prior_finding_refs) + G3 ✓ commit sha trail (109 commits) + G4 ✓ backend suite 7264 zero regression + G5 ✓ lints exit 0 + G1 skipped cleanly (no sim booted, standard caveat) + G2 explicitly DEFERRED to Julien per `autonomous: false` plan. **Phase status: ◆ code-shipped on dev, pending operational gates** — NOT ✓ SHIPPED.
+
+**Canonical refs**:
+- `.planning/decisions/2026-05-16-calc-engine-matrix.md` — 11-category matrix + hypothesis C audit plan + 4-level lucidité framework
+- `.planning/decisions/2026-05-16-phase-96-killed.md` — doctrine pivot context
+- `.planning/decisions/2026-05-14-phase-7-ship-or-pause.md` — Option C Coach didactique vivant decision
+- `.planning/decisions/2026-05-16-calc-engine-v1-panel-synthesis.md` — 20 D-CE-XX verdicts table + 11 overrides + 6 critical findings
+- `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-CONTEXT.md` — locked decisions source-of-truth
+- `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-RESEARCH.md` — HOW-to-implement code patterns
+- `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-VALIDATION.md` — Nyquist verify map per task ID
+- `.planning/phases/mint-calc-engine-v1/W0-AUDIT-MATRIX.md` — 49/57 hypothesis C confirmed + 12 sev-3 + 23 sev-2
+- `services/backend/app/services/arbitrage/allocation_annuelle.py` — the joint optimiser that already exists
+- `services/backend/app/api/v1/endpoints/arbitrage.py:163-213` — hypothesis C evidence surface
+- `CLAUDE.md` §1 + §3.5 + §9
+- `.planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-A3-CONTEXT.md` — missing-fields handshake doctrine (calc-engine-v1 generalizes it)
+
+
 
 <details>
 <summary>Previous milestones (v1.0 → v2.7) — see MILESTONES.md + collapsed v2.5-v2.7 detail</summary>
@@ -61,7 +106,7 @@ Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT
 - [x] **Phase 93.5: MVP-SKILL-BUNDLE-COMPILER** *(inserted 2026-05-10 per Anthropic financial-services audit)* — Compile-time skill bundles (`pillar3a-optimizer`, `lpp-projector`, `tax-explainer`, `mortgage-stressor`, `compliance-narrator`, `life-event-router`) → single narrator prompt + tool allowlist + citation allowlist ; NOT runtime multi-agent (completed 2026-05-10)
 - [x] **Phase 94: MVP-CITATION-GATE** — Closed-world numeric vocabulary (placeholders `{{cite:<key>}}` + post-hoc substitute) + CalcTrace propagated to widgets + `AI_MODEL_REGISTRY.md` + LSFin disclaimer systemic ; ADR calc-first N1 (completed 2026-05-10)
 - [x] **Phase 95: MVP-DAG-INVALIDATION** — `inputs_hash` + `superseded_by` on every projection + `GroundingPack` JSON emitted by DAG (Pareto front + Sobol indices + what-ifs precomputed + credible intervals) ; ADR calc-first N2 (completed 2026-05-10)
-- [x] **Phase 96: MVP-CHAT-AS-VERB** — Kill chat-tab ; card-actions intent bar ; 3-turn cap ; source-card context propagation + `NarrativeSleeve {hook, caption, next_step, metaphor}` linter (no num in hook) + métaphores archetype/canton/event ; ADR calc-first N4 (completed 2026-05-11)
+- 🪦 **Phase 96: MVP-CHAT-AS-VERB — KILLED 2026-05-16** — kill-tab + cards-home doctrine dropped per [decisions/2026-05-16-phase-96-killed.md](decisions/2026-05-16-phase-96-killed.md). PAUSED 2026-05-14, KILLED 2026-05-16 (founder-signed risk veto). PRESERVED : `NarrativeSleeve {hook, caption, next_step, metaphor}` linter from 96-03 survives as a framing-agnostic discipline ; intent-bar UI scaffolding from 96-01 becomes vestigial pending re-evaluation. Direction restored : chat is porte d'entrée, tab Coach stays, widgets explorables inline (Coach didactique vivant).
 
 ### 5-gate exit contract per phase
 

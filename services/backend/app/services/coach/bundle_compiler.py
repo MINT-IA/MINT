@@ -30,25 +30,31 @@ from app.services.coach.bundles import (
     BundleBase,
     CitationGrammarBundle,
     ComplianceNarratorBundle,
+    IndependentTaxBundle,
     LifeEventRouterBundle,
     LppProjectorBundle,
     MortgageStressorBundle,
     Pillar3aOptimizerBundle,
+    SuccessionDivorceBundle,
     TaxExplainerBundle,
 )
 from app.services.coach.coach_models import CoachContext
 
 
 # ---------------------------------------------------------------------------
-# CONTEXT D-02 — static intent → bundle mapping (frozen at module load).
+# CONTEXT D-02 + D-CE-03 — static intent → bundle mapping (frozen at module load).
+#
+# Plan 08 (W2 bundles, D-CE-03 Override #2) extends the 7-bundle Wave 0/2
+# state to 9 bundles by adding IndependentTaxBundle (wired in `taxes` +
+# `career`) and SuccessionDivorceBundle (wired in `family`).
 # ---------------------------------------------------------------------------
 _INTENT_BUNDLES: dict[str, list[type[BundleBase]]] = {
     "retirement": [Pillar3aOptimizerBundle, LppProjectorBundle],
-    "taxes":      [TaxExplainerBundle, Pillar3aOptimizerBundle],
+    "taxes":      [TaxExplainerBundle, Pillar3aOptimizerBundle, IndependentTaxBundle],
     "housing":    [MortgageStressorBundle, TaxExplainerBundle],
     "debt":       [MortgageStressorBundle, ComplianceNarratorBundle],
-    "family":     [LifeEventRouterBundle, ComplianceNarratorBundle],
-    "career":     [LppProjectorBundle, LifeEventRouterBundle],
+    "family":     [LifeEventRouterBundle, ComplianceNarratorBundle, SuccessionDivorceBundle],
+    "career":     [LppProjectorBundle, LifeEventRouterBundle, IndependentTaxBundle],
 }
 
 
@@ -61,8 +67,15 @@ _ALWAYS_ON: list[type[BundleBase]] = [
 ]
 
 
-# CONTEXT D-13 — drop priority right-to-left when over budget.
+# CONTEXT D-13 + D-CE-03 — drop priority right-to-left when over budget.
+#
+# Plan 08 (D-CE-03 Override #2) prepends the 2 new bundles so they drop
+# FIRST under token-budget pressure. The 7 Wave 0/2 bundles keep their
+# historical drop order to preserve regression-test signal on D-13
+# behavior (test_drop_order_is_right_to_left).
 _DROP_PRIORITY: list[type[BundleBase]] = [
+    IndependentTaxBundle,        # Plan 08 — drop first
+    SuccessionDivorceBundle,     # Plan 08 — drop second
     MortgageStressorBundle,
     TaxExplainerBundle,
     LppProjectorBundle,
