@@ -147,10 +147,20 @@ def test_parallel_change_coexistence_invariant() -> None:
     assert v1_model.root.model_dump() == v1_dump
 
     # (b) V2 round-trip independently — by_alias for round-trip.
+    # Plan 17 (D-CE-17) added `inputs_provenance` as an ADDITIVE optional
+    # field with `default_factory=dict`. Same Parallel Change discipline as
+    # Plan 10's `latency_tier` addition : V1 untouched, V2 super-set. The
+    # roundtrip dump therefore includes the new `inputsProvenance: {}`
+    # default. Assert v2_input is a SUBSET of v2_dump (additive contract).
     v2_input = {"status": "ok", "data": {"x": 1}, "latencyTier": "L1"}
     v2_model = CoachToolResponseV2.model_validate(v2_input)
     v2_dump = v2_model.root.model_dump(by_alias=True)
-    assert v2_dump == v2_input
+    for k, v in v2_input.items():
+        assert v2_dump.get(k) == v, (
+            f"V2 roundtrip lost key {k!r}: dump={v2_dump!r} input={v2_input!r}"
+        )
+    # Plan 17 additive field default = empty dict.
+    assert v2_dump.get("inputsProvenance") == {}, v2_dump
 
     # (c) latency_tier is the V2-only discriminator marker.
     # V2 model_dump (no alias) produces snake_case latency_tier.

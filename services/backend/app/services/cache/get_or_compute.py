@@ -51,10 +51,16 @@ async def get_or_compute(
         a row (Test 4 of `test_get_or_compute.py`). The singleflight lock is
         still released cleanly via the `async with` context manager.
     """
+    # Plan 17 W4 (D-CE-12 SLI) — fire `mint_cache_lookup_total{kind, hit}`
+    # at every lookup site. Late-import to avoid circular dep at module load.
+    from app.core.metrics import cache_lookup_total
+
     # Fast path : cache hit, no lock taken.
     cached = await cache_read(profile_id, kind, inputs_hash, db)
     if cached is not None:
+        cache_lookup_total.labels(kind=kind, hit="true").inc()
         return cached
+    cache_lookup_total.labels(kind=kind, hit="false").inc()
 
     # Slow path : acquire singleflight lock for this key, then re-check.
     key = (profile_id, kind, inputs_hash)
@@ -63,6 +69,10 @@ async def get_or_compute(
         # were waiting on the lock. This is THE singleflight stampede property.
         cached = await cache_read(profile_id, kind, inputs_hash, db)
         if cached is not None:
+            # Re-check hit (post-singleflight) — count separately from the
+            # fast-path hit so observability can distinguish stampede
+            # collapse from true cache warmth.
+            cache_lookup_total.labels(kind=kind, hit="true").inc()
             return cached
 
         # Single survivor : run compute, persist, return.

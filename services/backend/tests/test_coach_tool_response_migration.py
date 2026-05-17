@@ -107,7 +107,16 @@ def test_v2_envelope_round_trips_with_latency_tier() -> None:
     v2_model = CoachToolResponseV2.model_validate(v2_payload)
     assert v2_model.root.status == "ok"
     assert v2_model.root.latency_tier == "L1"
-    assert v2_model.root.model_dump(by_alias=True) == v2_payload
+    # Plan 17 (D-CE-17) added `inputs_provenance` as an additive optional
+    # field with default empty dict. Same Parallel Change additive
+    # discipline as Plan 10's `latency_tier`. The dump therefore includes
+    # `inputsProvenance: {}` ; assert v2_payload is a SUBSET of the dump.
+    dump = v2_model.root.model_dump(by_alias=True)
+    for k, v in v2_payload.items():
+        assert dump.get(k) == v, (
+            f"V2 roundtrip lost {k!r}: dump={dump!r} input={v2_payload!r}"
+        )
+    assert dump.get("inputsProvenance") == {}, dump
 
 
 def test_v2_incomplete_envelope_inherits_same_cap() -> None:

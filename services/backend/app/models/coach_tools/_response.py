@@ -93,8 +93,27 @@ L2 = narrative loader medium-budget (2-4s combinatorial arbitrage).
 L3 = narrative loader long-budget (4-8s multi-option scenarios)."""
 
 
+_INPUTS_PROVENANCE_LITERALS = Literal["user_input", "default", "derived"]
+"""Plan 17 W4 (D-CE-17 composite scorecard) — per-field provenance audit trail.
+
+Values :
+  - ``"user_input"`` — field was in ``body.model_fields_set`` (client supplied
+    it explicitly, even if None).
+  - ``"default"``    — field was filled from the user's profile via the
+    ``from_profile`` marker (server-side fallback from profile).
+  - ``"derived"``    — field fell through to the Pydantic default (typically
+    None or a schema-defined fallback). No profile data, no client input.
+"""
+
+
 class CoachToolOkV2(_Base):
-    """V2 happy path — adds latency_tier server-side hint for Flutter routing."""
+    """V2 happy path — adds latency_tier server-side hint for Flutter routing.
+
+    Plan 17 W4 (D-CE-17) adds the optional ``inputs_provenance`` audit field
+    for per-field « real profile / default / derived » signal. Field is
+    OPTIONAL with default ``{}`` for backwards-compatibility with Plan 10
+    Wave-1a callers that don't emit provenance yet.
+    """
 
     status: Literal["ok"] = "ok"
     data: dict[str, Any]
@@ -103,6 +122,15 @@ class CoachToolOkV2(_Base):
         description=(
             "L1=chip <500ms, L2-L3=narrative loader 2-8s. Server-emitted, "
             "never client-input."
+        ),
+    )
+    inputs_provenance: dict[str, _INPUTS_PROVENANCE_LITERALS] = Field(
+        default_factory=dict,
+        description=(
+            "D-CE-17 audit trail. Per-field origin: user_input (body) / "
+            "default (profile-driven server-side fallback) / derived "
+            "(Pydantic default). Optional, defaults to empty dict for "
+            "backwards-compatibility with Plan 10 Wave-1a callers."
         ),
     )
 

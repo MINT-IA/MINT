@@ -58,14 +58,50 @@ def _resolve_defaults(
       - otherwise → fall through to the Pydantic default (typically None).
 
     Returns a fresh dict ; never mutates `profile_data` or `body`.
+
+    Note (Plan 17) : prefer `_resolve_with_provenance` when the caller needs
+    the D-CE-17 `inputs_provenance` audit dict. This function is the V1
+    contract — kept unchanged for Wave 1 callers that don't need provenance.
+    """
+    resolved, _ = _resolve_with_provenance(profile_data, body, schema_class)
+    return resolved
+
+
+def _resolve_with_provenance(
+    profile_data: dict[str, Any] | None,
+    body: BaseModel,
+    schema_class: type[BaseModel],
+) -> tuple[dict[str, Any], dict[str, str]]:
+    """Plan 17 W4-01-03 (D-CE-17) — `_resolve_defaults` variant returning a
+    per-field provenance dict alongside the resolved values.
+
+    Returns:
+        `(resolved, provenance)` where `provenance[field_name]` is exactly
+        one of :
+          - ``"user_input"`` — field was in ``body.model_fields_set``
+            (client supplied it explicitly, even if None).
+          - ``"default"``    — field was filled from the user's profile via
+            the ``from_profile`` marker (server-side fallback). This
+            semantic-choice naming follows RESEARCH §Q-H — « default » in
+            the audit trail means « profile-driven default », distinct from
+            « Pydantic default » (which is ``"derived"`` below).
+          - ``"derived"``    — field was NOT in body, has no profile_key
+            with a value, fell through to ``getattr(body, name)`` (the
+            Pydantic default — typically None or a schema-defined fallback).
+
+    The 3 values match the ``Literal["user_input", "default", "derived"]``
+    type on ``CoachToolOkV2.inputs_provenance`` and are auditable per
+    D-CE-17 composite scorecard.
     """
     if profile_data is None:
         profile_data = {}
     resolved: dict[str, Any] = {}
+    provenance: dict[str, str] = {}
     body_set = body.model_fields_set
     for name, field_info in schema_class.model_fields.items():
         if name in body_set:
             resolved[name] = getattr(body, name)
+            provenance[name] = "user_input"
             continue
         extra = field_info.json_schema_extra or {}
         profile_key = (
@@ -77,9 +113,58 @@ def _resolve_defaults(
             and profile_data[profile_key] is not None
         ):
             resolved[name] = profile_data[profile_key]
+            provenance[name] = "default"  # server-side fallback from profile
         else:
             resolved[name] = getattr(body, name)
-    return resolved
+            provenance[name] = "derived"  # Pydantic default / no profile_key
+    return resolved, provenance
+
+
+def emit_calc_invoke_metric(
+    kind: str,
+    resolved: dict[str, Any],
+    schema_class: type[BaseModel],
+) -> None:
+    """Plan 17 W4-01-02 (D-CE-17 PRIMARY) — fire `mint_calc_invoke_total`.
+
+    `profile_grounded` label is "true" iff ANY field declaring a
+    ``from_profile`` marker resolved to a non-None value (the calc had
+    real profile data available, vs falling back to body/default only).
+
+    Late-imports `app.core.metrics` to avoid a circular import at module
+    load time (metrics.py imports nothing from profile_resolver but tests
+    that mock the resolver can preempt the registry).
+
+    Args:
+        kind: calculator kind / tool name used as the Prometheus `kind` label.
+            Convention : the REST path tail (e.g. ``"allocation_annuelle"``)
+            OR the chip-emitter name (e.g. ``"get_budget_status"``).
+        resolved: the resolved dict returned by `_resolve_defaults` /
+            `_resolve_with_provenance`.
+        schema_class: the Pydantic request schema (used to inspect
+            ``from_profile`` markers).
+
+    Safe to call from any handler — never raises ; metric increments are
+    fire-and-forget.
+    """
+    try:  # pragma: no cover — defensive : metric must never break the request
+        any_grounded = False
+        for name, field_info in schema_class.model_fields.items():
+            extra = field_info.json_schema_extra or {}
+            if not isinstance(extra, dict) or "from_profile" not in extra:
+                continue
+            if resolved.get(name) is not None:
+                any_grounded = True
+                break
+        from app.core.metrics import calc_invoke_total
+
+        calc_invoke_total.labels(
+            kind=kind, profile_grounded=str(any_grounded).lower()
+        ).inc()
+    except Exception:  # pragma: no cover
+        _logger.warning(
+            "emit_calc_invoke_metric failed (swallowed): kind=%r", kind
+        )
 
 
 def _required_profile_fields_missing(

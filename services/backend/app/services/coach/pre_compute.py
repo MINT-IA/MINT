@@ -146,6 +146,14 @@ async def _warm_calc(profile_id: str, kind: str, db: Session) -> None:
         }
         inputs_hash = compute_inputs_hash(inputs)
 
+        # Plan 17 W4 (D-CE-14 SLI) — fire `mint_calc_warm_total{kind, hit}`.
+        # `hit` semantic : the warm-marker write SUCCEEDED (the row will be
+        # available for next-turn singleflight serialization). A real
+        # downstream user-side cache hit is tracked separately via
+        # `mint_cache_lookup_total{hit="true"}` on the consumer call —
+        # Plan 16 GC compacts warm-vs-live row duplication.
+        from app.core.metrics import calc_warm_total
+
         await get_or_compute(
             profile_id=profile_id,
             kind=kind,
@@ -153,7 +161,15 @@ async def _warm_calc(profile_id: str, kind: str, db: Session) -> None:
             compute_fn=compute_fn,
             db=db,
         )
+        calc_warm_total.labels(kind=kind, hit="true").inc()
     except Exception as exc:
+        # Fire warm_total miss BEFORE swallowing the exception.
+        try:  # pragma: no cover — defensive : metric must never break the request
+            from app.core.metrics import calc_warm_total as _ct
+
+            _ct.labels(kind=kind, hit="false").inc()
+        except Exception:  # pragma: no cover
+            pass
         # NEVER propagate. Pre-compute is best-effort by design.
         _logger.warning(
             "_warm_calc(%r, %r) failed (swallowed): %s: %s",
