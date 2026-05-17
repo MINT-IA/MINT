@@ -70,6 +70,10 @@ from app.services.coach.citation_parser import (
     GatedResponse,
     gate as _citation_gate,
 )
+# Phase mint-calc-engine-v1 Plan 18 — D-CE-16(c) runtime banned-verb gate.
+# Wired UPSTREAM of `_citation_gate` (Q5 = before) so paraphrase verbs are
+# caught BEFORE citation substitution to avoid double-template fallback chains.
+from app.services.coach.runtime_verb_gate import gate as _runtime_verb_gate
 from app.services.coach.coach_tools import (
     INTERNAL_TOOL_NAMES,
     get_llm_tools,
@@ -4695,6 +4699,34 @@ async def coach_chat(
         )
         if not settings.COACH_CITATION_GATE_ENABLED:
             # D-20 byte-identical bypass.
+            return loop_result
+
+        # Phase mint-calc-engine-v1 Plan 18 — D-CE-16(c) runtime banned-verb
+        # gate. Runs BEFORE the Phase 94 citation parser (Q5 = before) on the
+        # raw narrator output. On match -> templated FR fallback + Sentry
+        # breadcrumb + short-circuit (no citation-parser call, no retry — the
+        # narrator text is NEVER returned to the user when it contains a
+        # banned paraphrase verb). Fail-closed by design.
+        _vg_passed, _vg_text = _runtime_verb_gate(loop_result["answer"])
+        if not _vg_passed:
+            try:
+                import sentry_sdk  # type: ignore
+                sentry_sdk.add_breadcrumb(  # type: ignore[union-attr]
+                    category="coach.verb_gate.fired",
+                    message="runtime banned-verb gate fired",
+                    level="info",
+                    data={
+                        "profile_id_hashed": (
+                            __import__("hashlib")
+                            .sha256(str(_user.id).encode("utf-8") if _user else b"")
+                            .hexdigest()[:16]
+                        ),
+                        "fallback_emitted": True,
+                    },
+                )
+            except Exception:  # pragma: no cover — telemetry is fail-open
+                pass
+            loop_result["answer"] = _vg_text
             return loop_result
 
         gated = _citation_gate(
