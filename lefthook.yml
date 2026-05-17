@@ -227,6 +227,29 @@ pre-commit:
       run: python3 tools/checks/profile_safe_fields_parity.py || true
       tags: [compliance, grounding, phase-mint-calc-engine-v1-w4]
       fail_text: "Concern C parity lint surfaced drift between server _PROFILE_SAFE_FIELDS and Flutter profileContext call-sites. See stdout for missing-in-Flutter / missing-in-server diff. SOFT mode for now ; promote to HARD once baseline closed."
+    # ── Phase mint-data-architecture-v1-01 Plan 05 (D-12 constants-drift) ──
+    regulatory_constants_drift:
+      # D-12 SOFT-WARN gate. Reads the baked Dart version_hash from
+      # apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart
+      # (Plan 04 artifact ; missing-file = graceful exit 0) and diffs against
+      # RegulatoryRegistry.instance().version_hash(date.today()). Exit 0
+      # on drift in Phase 01 ; Phase 02 first-migration PR (Monte Carlo per
+      # D-11) promotes to HARD by adding --hard to this invocation + the
+      # matching CI workflow.
+      #
+      # Narrow glob (3 file pointers : backend registry, generated Dart,
+      # the lint script itself) keeps the SOFT-WARN noise floor low —
+      # codex LOW #2 mitigation. ImportError is LOUD (exit 2 status
+      # IMPORT-FAILURE) per codex MEDIUM #2 ; sys.path hacks never
+      # silently degrade to warn-only.
+      #
+      # --json-status emits one machine-readable line per mode invoked so
+      # CI can surface the status in a PR summary even though the exit
+      # code is 0 in SOFT mode.
+      glob: "{services/backend/app/services/regulatory/**,apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart,tools/checks/profile_safe_fields_parity.py}"
+      run: python3 tools/checks/profile_safe_fields_parity.py --mode constants-drift --json-status
+      tags: [parity, mint-data-architecture-v1-01, soft-warn, d-12]
+      fail_text: "D-12 constants-drift SOFT-WARN surfaced. Re-run codegen : python3 tools/codegen/regulatory_constants_to_dart.py --source local --write. Phase 02 will promote this gate to HARD."
     # ── Phase 96 D-17 (metaphor parity + value-poisoning lint) ──
     metaphor_parity:
       # Phase 96 D-17 — `apps/mobile/assets/metaphors.toml` and
