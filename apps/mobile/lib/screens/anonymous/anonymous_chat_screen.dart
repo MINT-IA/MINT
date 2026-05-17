@@ -778,7 +778,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                     color: MintColors.inkPrimary,
                   ).copyWith(
                     fontWeight: FontWeight.w600,
-                    fontSize: 15,
+                    fontSize: 15, // lint-ignore: prefer_mint_text_style — h3 markdown needs +1pt above labelLarge (14pt)
                     height: 1.45,
                   ),
                 ),
