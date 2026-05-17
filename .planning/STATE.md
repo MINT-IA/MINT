@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-16-PLAN.md (Plan 16, GC daily job — Wave 3 closed pending Railway activation)
-last_updated: "2026-05-17T06:55:00.000Z"
+stopped_at: Completed mint-calc-engine-v1-17 (W4 metrics-counters + inputs_provenance)
+last_updated: "2026-05-17T07:23:13.418Z"
 last_activity: 2026-05-17
 progress:
   total_phases: 12
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
-  percent: 71
+  completed_plans: 4
+  percent: 57
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -36,8 +36,8 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 CLOSED code-side ; Plans 12-13-14-15-16 shipped ; Wave 4 opens at Plan 17 ; Wave 3 close-out gate = Railway cron activation pending Julien GO)
-Plan: 17 of 20 (next)
-Status: Ready to execute Plan 17 (W4 metrics counters)
+Plan: 18 of 20 (next)
+Status: Ready to execute
 Last activity: 2026-05-17
 
 ## Plan mint-calc-engine-v1-16 Receipt (W3 GC daily job — Finding 4 mitigation + Wave 3 close-out, 2026-05-17)
@@ -562,8 +562,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-17T06:43:55.109Z
-Stopped at: Completed mint-calc-engine-v1-15-PLAN.md (Plan 15, D-CE-13 + D-CE-14 SLI baseline)
+Last session: 2026-05-17T07:23:13.414Z
+Stopped at: Completed mint-calc-engine-v1-17 (W4 metrics-counters + inputs_provenance)
 Resume file: None
 
 <details>
