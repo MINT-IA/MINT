@@ -35,7 +35,7 @@ Plans:
 - [x] mint-calc-engine-v1-12-w3-composite-index-migration-PLAN.md — Alembic p110 composite partial index (autocommit_block) — Finding 3 critical gap
 - [x] mint-calc-engine-v1-13-w3-cache-reader-writer-singleflight-PLAN.md — Cache reader + writer + AsyncSingleflight + get_or_compute (Concern E)
 - [x] mint-calc-engine-v1-14-w3-reverse-dep-map-PLAN.md — REVERSE_DEP_MAP regenerated alongside REGISTRY (D-CE-14 «kills two birds»)
-- [ ] mint-calc-engine-v1-15-w3-pre-compute-background-tasks-PLAN.md — `precompute_after_fact_save` BackgroundTasks + SLI precision/recall tests
+- [x] mint-calc-engine-v1-15-w3-pre-compute-background-tasks-PLAN.md — `precompute_after_fact_save` BackgroundTasks + SLI precision/recall tests
 - [ ] mint-calc-engine-v1-16-w3-gc-job-PLAN.md — Daily GC job (Railway cron) for superseded scenarios (Finding 4) — NOT autonomous (Julien Railway setup)
 - [ ] mint-calc-engine-v1-17-w4-metrics-counters-PLAN.md — Prometheus counters + `/metrics` + `inputs_provenance` schema — NOT autonomous (Open Q1 prometheus-vs-sentry decision)
 - [ ] mint-calc-engine-v1-18-w4-banned-verb-lint-runtime-gate-PLAN.md — 11 paraphrase verbs lint extension + runtime gate with NFKC + zero-width — NOT autonomous (Open Q5 placement decision)
