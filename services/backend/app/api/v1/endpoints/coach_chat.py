@@ -74,6 +74,17 @@ from app.services.coach.citation_parser import (
 # Wired UPSTREAM of `_citation_gate` (Q5 = before) so paraphrase verbs are
 # caught BEFORE citation substitution to avoid double-template fallback chains.
 from app.services.coach.runtime_verb_gate import gate as _runtime_verb_gate
+
+# Post-Stage-3-UAT (2026-05-17, obs #157) — runtime freshness gate.
+# Wired AFTER `_runtime_verb_gate` and BEFORE `_citation_gate` : verb
+# gate catches LSFin banned verbs ; freshness gate catches stale
+# regulatory values (e.g. 7'056 hallucinated for 2024 plafond 3a) ;
+# citation gate then validates the placeholder format on the remaining
+# clean output. Defense layer (c) of the obs #157 quad-defense.
+from app.services.coach.runtime_freshness_gate import (
+    gate as _runtime_freshness_gate,
+)
+
 from app.services.coach.coach_tools import (
     INTERNAL_TOOL_NAMES,
     get_llm_tools,
@@ -4737,6 +4748,38 @@ async def coach_chat(
             except Exception:  # pragma: no cover — telemetry is fail-open
                 pass
             loop_result["answer"] = _vg_text
+            return loop_result
+
+        # Post-Stage-3-UAT (obs #157) — runtime freshness gate. Catches
+        # stale regulatory integer values (e.g. 7'056 CHF for 2024 3a
+        # plafond) emitted by an LLM that hallucinated from training-
+        # data instead of invoking `get_regulatory_constant`. Fail-
+        # closed : Sentry breadcrumb + templated FR fallback + short-
+        # circuit (no citation-parser call when the value is stale —
+        # the citation chip would falsely assert authority on the
+        # stale figure).
+        _fg_passed, _fg_text = _runtime_freshness_gate(
+            loop_result["answer"], user_message=body.message
+        )
+        if not _fg_passed:
+            try:
+                import sentry_sdk  # type: ignore
+                sentry_sdk.add_breadcrumb(  # type: ignore[union-attr]
+                    category="coach.freshness_gate.fired",
+                    message="runtime regulatory-value freshness gate fired",
+                    level="info",
+                    data={
+                        "profile_id_hashed": (
+                            __import__("hashlib")
+                            .sha256(str(_user.id).encode("utf-8") if _user else b"")
+                            .hexdigest()[:16]
+                        ),
+                        "fallback_emitted": True,
+                    },
+                )
+            except Exception:  # pragma: no cover — telemetry is fail-open
+                pass
+            loop_result["answer"] = _fg_text
             return loop_result
 
         gated = _citation_gate(

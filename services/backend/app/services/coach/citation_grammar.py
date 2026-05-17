@@ -102,6 +102,27 @@ _TOOL_USE_MANDATE: str = (
     "Le `{{cite:tool_<name>}}` n'est PAS une formule magique — c'est une "
     "référence à un calcul serveur qui doit avoir été déclenché via "
     "`tool_use` plus tôt dans ce même tour.\n"
+    "\n"
+    "## DOCTRINE — VALEURS RÉGLEMENTAIRES DATÉES "
+    "(plafond 3a, coordination LPP, rente AVS, barèmes IFD/IS, taux LAMal)\n"
+    "\n"
+    "Pour TOUTE valeur réglementaire datée (CHF, %, durée) que tu cites "
+    "avec une clé non-`tool_*` (par exemple `r3a_plafond_salarie_2026`, "
+    "`lpp_coordination_2026`, `avs_rente_max_2026`, `ifd_bracket_*`), il "
+    "est OBLIGATOIRE d'invoquer d'abord l'outil `get_regulatory_constant` "
+    "via `tool_use(get_regulatory_constant, key=\"<registry-key>\")`, ET "
+    "d'écrire EXACTEMENT la valeur retournée par `tool_result` — JAMAIS "
+    "de mémoire, d'estimation, ni de valeur tirée d'un exemple "
+    "(les exemples REJETÉS plus bas ne sont pas des sources de "
+    "valeurs).\n"
+    "\n"
+    "Le registre officiel (OFAS, OPP3, LAVS, LIFD) est la SEULE source "
+    "fiable. Toute valeur reproduite « de tête » est par définition "
+    "obsolète — les plafonds OFAS sont révisés chaque année. Ne donne "
+    "JAMAIS un chiffre régulatoire sans `tool_use(get_regulatory_constant)` "
+    "préalable dans ce même tour. À défaut, écris « je n'ai pas cette "
+    "donnée pour l'instant » plutôt que d'émettre une valeur non "
+    "sourcée.\n"
 )
 
 _TOOL_USE_WRONG_RIGHT_EXAMPLE: str = (
@@ -155,6 +176,15 @@ _TOOL_USE_MANDATE_REPEAT: str = (
     "récupère automatiquement le profil et les valeurs côté serveur. "
     "Toute formulation du type « j'ai besoin de récupérer tes "
     "données » indique un manquement à cette doctrine.\n"
+    "\n"
+    "## RAPPEL — VALEURS RÉGLEMENTAIRES (seconde occurrence)\n"
+    "\n"
+    "Pour TOUTE valeur réglementaire datée citée avec une clé "
+    "non-`tool_*` (`r3a_*`, `lpp_*`, `avs_*`, `ifd_*`, etc.) : "
+    "INVOQUE `tool_use(get_regulatory_constant, key=\"<registry-key>\")` "
+    "AVANT d'écrire le chiffre, puis recopie EXACTEMENT la valeur du "
+    "`tool_result`. Une valeur tirée de mémoire est par construction "
+    "obsolète et déclenche le fallback templaté.\n"
 )
 
 
@@ -560,13 +590,20 @@ def build_intent_scoped_citation_grammar(intents: Iterable[str]) -> str:
         "« Je n'ai pas cette donnée pour l'instant. Pour avancer "
         "ensemble, dis-moi un peu plus sur ta situation. »\n"
         "\n"
-        "**REJETÉ — chiffre nu, sans `{{cite:<clé>}}`** :\n"
-        "« Le plafond 3a est de 7'056 CHF cette année. » → la garde "
-        "détecte le chiffre non cité, demande une reformulation, et "
-        "si la deuxième tentative reste non citée, ta réponse bascule "
-        "sur le fallback templaté. Évite ce cas en plaçant la clé "
-        "directement après le chiffre, ou en écrivant « je n'ai pas "
-        "cette donnée pour l'instant » à la place du chiffre.\n"
+        # obs #157 (2026-05-17) — replaced earlier REJETÉ example that
+        # used the literal value « 7'056 CHF cette année » (the 2024
+        # Pilier 3a max). LLMs leak negative few-shot examples as
+        # positive when surface form matches the user query (« cette
+        # année ») — staging coach was emitting 7'056 for 2026 prompts.
+        # Mirror the full fragment's safer fabricated-estimate framing.
+        "**REJETÉ — chiffre fabriqué que tu ne peux pas sourcer** :\n"
+        "« Tu pourrais économiser 1'200 CHF de plus par mois. » → "
+        "le chiffre 1'200 n'est PAS dans le message de l'utilisateur "
+        "et n'a pas de clé `{{cite:<clé>}}` adaptée dans le "
+        "vocabulaire fermé. La garde le rejette. Pour formuler une "
+        "estimation, soit cite la clé qui couvre le calcul, soit "
+        "reformule au conditionnel sans avancer de chiffre précis "
+        "(« une marge mensuelle resterait à dégager »).\n"
     )
 
     rule_section = (
