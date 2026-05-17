@@ -118,8 +118,10 @@ class ConsentManager:
         details: dict,
     ) -> None:
         """Persist an audit entry to the audit_events table."""
+        from app.services.audit_service import hash_user_id  # local import: avoid cycle on module load
         db.add(AuditEventModel(
             user_id=user_id,
+            user_id_hash=hash_user_id(user_id),
             event_type=event_type,
             status="success",
             source="open_banking",
