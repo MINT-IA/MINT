@@ -20,9 +20,12 @@ Sources:
 
 from __future__ import annotations
 
+import json
+from datetime import date
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import JSONResponse
 
 from app.services.regulatory.registry import RegulatoryRegistry
 
@@ -56,6 +59,50 @@ def list_constants(
         "count": len(params),
         "constants": [p.to_dict() for p in params],
     }
+
+
+@router.get("/constants/version")
+def get_constants_version() -> JSONResponse:
+    """Lightweight delta-check endpoint (D-08 + D-15).
+
+    Returns the active version_hash + effective_from + reviewed_at as a
+    small JSON body (< 1 KB) so the mobile client can decide whether to
+    fetch the full /snapshot. ETag header derived from version_hash for
+    HTTP-cache friendliness.
+
+    Phase mint-data-architecture-v1-01-calc-engine-canonical Plan 03 Task 1.
+    Canonical insertion rule : MUST be registered BEFORE /constants/{key:path}
+    so the catch-all does not shadow this route.
+    """
+    registry = RegulatoryRegistry.instance()
+    today = date.today()
+    active = [p for p in registry.get_all() if p.is_active(today)]
+
+    # Null-safe derivation per codex MEDIUM finding — min/max over [] would raise.
+    effective_from = min(
+        (p.effective_from for p in active if p.effective_from is not None),
+        default=None,
+    )
+    reviewed_at = max(
+        (p.reviewed_at for p in active if p.reviewed_at is not None),
+        default=None,
+    )
+
+    version_hash = registry.version_hash(today)
+    payload = {
+        "version_hash": version_hash,
+        "effective_from": effective_from.isoformat() if effective_from else None,
+        "reviewed_at": reviewed_at.isoformat() if reviewed_at else None,
+    }
+    # Byte-stable serialisation matching Plan 01 measurement pipeline.
+    body = json.dumps(payload, separators=(",", ":"), sort_keys=True, ensure_ascii=False)
+    return JSONResponse(
+        content=json.loads(body),
+        headers={
+            "ETag": f'W/"{version_hash}"',
+            "Cache-Control": "public, max-age=60, must-revalidate",
+        },
+    )
 
 
 @router.get("/constants/{key:path}")
