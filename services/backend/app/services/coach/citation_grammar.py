@@ -102,6 +102,27 @@ _TOOL_USE_MANDATE: str = (
     "Le `{{cite:tool_<name>}}` n'est PAS une formule magique — c'est une "
     "référence à un calcul serveur qui doit avoir été déclenché via "
     "`tool_use` plus tôt dans ce même tour.\n"
+    "\n"
+    "## DOCTRINE — VALEURS RÉGLEMENTAIRES DATÉES "
+    "(plafond 3a, coordination LPP, rente AVS, barèmes IFD/IS, taux LAMal)\n"
+    "\n"
+    "Pour TOUTE valeur réglementaire datée (CHF, %, durée) que tu cites "
+    "avec une clé non-`tool_*` (par exemple `r3a_plafond_salarie_2026`, "
+    "`lpp_coordination_2026`, `avs_rente_max_2026`, `ifd_bracket_*`), il "
+    "est OBLIGATOIRE d'invoquer d'abord l'outil `get_regulatory_constant` "
+    "via `tool_use(get_regulatory_constant, key=\"<registry-key>\")`, ET "
+    "d'écrire EXACTEMENT la valeur retournée par `tool_result` — JAMAIS "
+    "de mémoire, d'estimation, ni de valeur tirée d'un exemple "
+    "(les exemples REJETÉS plus bas ne sont pas des sources de "
+    "valeurs).\n"
+    "\n"
+    "Le registre officiel (OFAS, OPP3, LAVS, LIFD) est la SEULE source "
+    "fiable. Toute valeur reproduite « de tête » est par définition "
+    "obsolète — les plafonds OFAS sont révisés chaque année. Ne donne "
+    "JAMAIS un chiffre régulatoire sans `tool_use(get_regulatory_constant)` "
+    "préalable dans ce même tour. À défaut, écris « je n'ai pas cette "
+    "donnée pour l'instant » plutôt que d'émettre une valeur non "
+    "sourcée.\n"
 )
 
 _TOOL_USE_WRONG_RIGHT_EXAMPLE: str = (
@@ -155,6 +176,15 @@ _TOOL_USE_MANDATE_REPEAT: str = (
     "récupère automatiquement le profil et les valeurs côté serveur. "
     "Toute formulation du type « j'ai besoin de récupérer tes "
     "données » indique un manquement à cette doctrine.\n"
+    "\n"
+    "## RAPPEL — VALEURS RÉGLEMENTAIRES (seconde occurrence)\n"
+    "\n"
+    "Pour TOUTE valeur réglementaire datée citée avec une clé "
+    "non-`tool_*` (`r3a_*`, `lpp_*`, `avs_*`, `ifd_*`, etc.) : "
+    "INVOQUE `tool_use(get_regulatory_constant, key=\"<registry-key>\")` "
+    "AVANT d'écrire le chiffre, puis recopie EXACTEMENT la valeur du "
+    "`tool_result`. Une valeur tirée de mémoire est par construction "
+    "obsolète et déclenche le fallback templaté.\n"
 )
 
 
