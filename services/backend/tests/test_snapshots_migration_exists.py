@@ -49,12 +49,15 @@ from alembic.script import ScriptDirectory
 
 
 # Expected columns on the snapshots table (mirrors app/models/snapshot.py).
+# 22 columns since Hotfix B 2026-05-17 added constants_version_hash for the
+# LSFin advice audit trail (see migration p111_projection_audit).
 EXPECTED_COLUMNS = {
     "id",
     "user_id",
     "created_at",
     "trigger",
     "model_version",
+    "constants_version_hash",
     "age",
     "birth_date",
     "gross_income",
