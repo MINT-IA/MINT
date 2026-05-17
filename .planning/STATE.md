@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-13-w3-cache-reader-writer-singleflight-PLAN.md (D-CE-12 read-through cache + Concern E AsyncSingleflight shipped)
-last_updated: "2026-05-17T06:11:32.476Z"
+stopped_at: Completed mint-calc-engine-v1-14-w3-reverse-dep-map-PLAN.md
+last_updated: "2026-05-17T06:25:24.324Z"
 last_activity: 2026-05-17
 progress:
   total_phases: 12
@@ -36,7 +36,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 mid ; Plans 12-13 closed, Plan 14 next)
-Plan: 14 of 20
+Plan: 15 of 20
 Status: Ready to execute
 Last activity: 2026-05-17
 
@@ -531,8 +531,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-17T06:11:32.473Z
-Stopped at: Completed mint-calc-engine-v1-13-w3-cache-reader-writer-singleflight-PLAN.md (D-CE-12 read-through cache + Concern E AsyncSingleflight shipped)
+Last session: 2026-05-17T06:25:24.320Z
+Stopped at: Completed mint-calc-engine-v1-14-w3-reverse-dep-map-PLAN.md
 Resume file: None
 
 <details>
