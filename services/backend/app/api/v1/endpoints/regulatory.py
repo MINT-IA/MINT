@@ -24,7 +24,7 @@ import json
 from datetime import date
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse
 
 from app.services.regulatory.registry import RegulatoryRegistry
@@ -101,6 +101,58 @@ def get_constants_version() -> JSONResponse:
         headers={
             "ETag": f'W/"{version_hash}"',
             "Cache-Control": "public, max-age=60, must-revalidate",
+        },
+    )
+
+
+@router.get("/constants/snapshot")
+def get_constants_snapshot(request: Request) -> Response:
+    """Full active 26-canton regulatory snapshot (D-08 + D-15 + D-16).
+
+    Same serialisation pipeline as tools/measurement/regulatory_snapshot_bundle_size.py
+    (Plan 01) so byte-count + version_hash stay coherent across measurement,
+    codegen (Plan 04), and runtime delta-check. Supports If-None-Match
+    conditional GET (304 Not Modified) per RFC 7232. Cache-Control: public,
+    max-age=300, must-revalidate.
+
+    Phase mint-data-architecture-v1-01-calc-engine-canonical Plan 03 Task 2.
+    Canonical insertion rule : MUST be registered BEFORE /constants/{key:path}
+    so the catch-all does not shadow this route.
+    """
+    registry = RegulatoryRegistry.instance()
+    today = date.today()
+    active = [p for p in registry.get_all() if p.is_active(today)]
+    version_hash = registry.version_hash(today)
+    etag = f'W/"{version_hash}"'
+
+    # Conditional GET — RFC 7232 §3.2. Return 304 if client already has this snapshot.
+    if_none_match = request.headers.get("If-None-Match")
+    if if_none_match == etag:
+        return Response(
+            status_code=304,
+            headers={
+                "ETag": etag,
+                "Cache-Control": "public, max-age=300, must-revalidate",
+            },
+        )
+
+    payload = {
+        # Legacy key kept for byte-parity with Plan 01 measurement script.
+        "active_version_hash": version_hash,
+        # Canonical D-15 key consumed by Plan 04 codegen + mobile delta-check.
+        "version_hash": version_hash,
+        "effective_on": today.isoformat(),
+        "param_count": len(active),
+        "parameters": [p.to_dict() for p in active],
+    }
+    # Byte-stable serialisation matching Plan 01 measurement script.
+    body = json.dumps(payload, separators=(",", ":"), sort_keys=True, ensure_ascii=False)
+    return Response(
+        content=body,
+        media_type="application/json",
+        headers={
+            "ETag": etag,
+            "Cache-Control": "public, max-age=300, must-revalidate",
         },
     )
 
