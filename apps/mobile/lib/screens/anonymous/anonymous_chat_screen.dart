@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback, LengthLimitingTextInputFormatter;
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -737,12 +738,54 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
             bottomRight: Radius.circular(isUser ? 4 : 18),
           ),
         ),
-        child: Text(
-          message.text,
-          style: MintTextStyles.labelLarge(
-            color: isUser ? MintColors.white : MintColors.inkPrimary,
-          ).copyWith(fontWeight: FontWeight.w400),
-        ),
+        // obs #158 (2026-05-17) — coach LLM emits markdown bold (`**…**`),
+        // italic (`_…_`), etc. The main coach surface
+        // (`widgets/coach/coach_message_bubble.dart:89-118`) already renders
+        // these via MarkdownBody. The anonymous chat surface was the orphan
+        // raw-Text holdout — users were seeing literal asterisks. Mirror the
+        // proven pattern from coach_message_bubble. Guard with `!isUser` so
+        // user-typed bubbles stay plain text (users don't emit markdown ;
+        // their input is echoed back via `Text(message.text)` in the user
+        // branch to avoid markdown-injection via user message into the chat
+        // surface).
+        child: isUser
+            ? Text(
+                message.text,
+                style: MintTextStyles.labelLarge(
+                  color: MintColors.white,
+                ).copyWith(fontWeight: FontWeight.w400),
+              )
+            : MarkdownBody(
+                data: message.text,
+                styleSheet: MarkdownStyleSheet(
+                  p: MintTextStyles.labelLarge(
+                    color: MintColors.inkPrimary,
+                  ).copyWith(fontWeight: FontWeight.w400, height: 1.45),
+                  strong: MintTextStyles.labelLarge(
+                    color: MintColors.inkPrimary,
+                  ).copyWith(fontWeight: FontWeight.w700, height: 1.45),
+                  em: MintTextStyles.labelLarge(
+                    color: MintColors.inkPrimary,
+                  ).copyWith(
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.italic,
+                    height: 1.45,
+                  ),
+                  listBullet: MintTextStyles.labelLarge(
+                    color: MintColors.inkPrimary,
+                  ).copyWith(fontWeight: FontWeight.w400, height: 1.45),
+                  h3: MintTextStyles.labelLarge(
+                    color: MintColors.inkPrimary,
+                  ).copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    height: 1.45,
+                  ),
+                ),
+                shrinkWrap: true,
+                softLineBreak: false,
+                selectable: true,
+              ),
       ),
     );
 
