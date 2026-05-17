@@ -13,6 +13,7 @@
 - 🪦 **v2.9 Coach Visuel Hybride** — superseded 2026-05-09 by Chat-as-Verb pivot. Phases 40-43 (Marge fiscale / Hero / Scènes / Canvas) DROPPED ; design doctrine "le coach EST le produit" partially preserved in chat-as-verb Phase 96.
 - 🪦 **v2.9 Chat-as-Verb Pivot** — KILLED 2026-05-16 — see [decisions/2026-05-16-phase-96-killed.md](decisions/2026-05-16-phase-96-killed.md). Foundation phases (91/93.5/94/95) preserved as **v2.9 Lucidité Foundation** ; kill-tab + cards-home destination doctrine dropped. Direction restored : chat reste la porte d'entrée, tab Coach reste, widgets explorables inline ("Coach didactique vivant").
 - ◆ **v2.10 Lucidité Engine** — code-shipped on dev 2026-05-17, pending operational gates — Phase **mint-calc-engine-v1** closed 20/20 plans across W1-W4 (109 commits on `dev`, suite 7264, zero regression). Per CLAUDE.md §9.5 (0-TRUST 4-stage shipping pipeline) the phase is Stage 1 of 4 — cannot claim ✅ SHIPPED without Julien G2 device sign-off + 7 deferred operational gates (see [`phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md`](phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md) § Deferred). See [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md) for the full 4-problem framing.
+- 📋 **v2.11 Data Architecture v1 — Trust & Compliance Foundation** — initiated 2026-05-17 — see [decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md](decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md). Phase **mint-data-architecture-v1-01-calc-engine-canonical** opens the milestone — resolves the upstream calc-engine ownership conflict (mobile-canonical vs backend-canonical) that gates the event-log + projection migration (deferred Phase 02) and the coach-extractor guardrails (deferred Phase 03). Phases 02 + 03 will be declared in ROADMAP only after this phase's outcome is locked.
 
 ### Phase: mint-calc-engine-v1
 **Goal**: Make MINT's ~57 already-shipped Swiss financial calculators (LLM-)discoverable, real-profile-grounded, architecturally findable, and DAG-reactive. Build the lucidité engine (L1 chiffrer / L2 comparer / L3 éclairer / L4 invariants) on top of the existing calc surface. Does NOT add new calculators in v1 — the surface already exists (per [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md), 57 ✅ + 4 ⚠️ + 3 ❌ truly absent).
@@ -55,6 +56,39 @@ Plans:
 - `services/backend/app/api/v1/endpoints/arbitrage.py:163-213` — hypothesis C evidence surface
 - `CLAUDE.md` §1 + §3.5 + §9
 - `.planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-A3-CONTEXT.md` — missing-fields handshake doctrine (calc-engine-v1 generalizes it)
+
+
+### Phase: mint-data-architecture-v1-01-calc-engine-canonical
+**Goal**: Resolve the upstream `apps/mobile/lib/services/financial_core/` vs `services/backend/app/services/` calc-engine ownership conflict (CLAUDE.md triplet #3 ↔ docs/AGENTS/backend.md:39). Pick a canonical home for ~10 279 LOC mobile calculators + 76 backend services + auto-generated `_registry.py` bridge, and define the sync mechanism in the other direction. This is upstream of every detail in the panel-converged data-layer shape (event-log + projection + DEK envelope) per [decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md §"Calc-engine integration (deferred to GSD discuss-phase 1)"](decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md). Does NOT migrate fact storage (that is deferred Phase 02). Does NOT change coach extraction (that is deferred Phase 03).
+**Status**: 📋 discuss-phase initiated 2026-05-17.
+**Depends on**: `mint-calc-engine-v1` Stage 1 close (code-shipped on dev 2026-05-17). Phase 0 hot-fix `hotfix/compliance-2026-05-17` (coach_insights consent + SnapshotModel.constants_version_hash + DEK shred wiring) merges in parallel per the ADR — separate from GSD and out of scope here.
+**Blocks**: deferred Phase 02 (event-log + projection schema migration), deferred Phase 03 (coach-extractor LLM + guardrails). The panel ADR explicitly assumed backend-canonical for the downstream shape; if mobile-canonical wins, the ADR's downstream phases require revision before being declared.
+**Open questions to resolve in CONTEXT.md**:
+- Canonical home (mobile-canonical vs backend-canonical vs split-with-explicit-arbiter) and rationale grounded in offline-first, LSFin advice-audit, archetype routing, and Maestro UAT constraints.
+- Sync mechanism direction and surface (mobile-canonical ⇒ how backend ingests/projects ; backend-canonical ⇒ how mobile fetches projections + handles offline).
+- Migration path for today's 10 279 LOC mobile + 76 backend services + `_registry.py` bridge (strangler-fig preserving `_registry.py` doctrine per D-CE-09 vs big-bang).
+- LSFin advice-audit consequences per ownership choice — where `constants_version_hash` lives, where audit-record provenance is computed.
+- Reconciliation with `mint-calc-engine-v1` shipped work — what stays, what gets re-homed.
+
+**Canonical refs**:
+- `.planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md` — panel-converged shape, the 9 explicit data gaps (§"What does this source not address?"), and the calc-engine-canonical re-litigation triggers
+- `.planning/decisions/2026-05-06-personal-financial-wiki-v3-candidate.md` — superseded wiki framing (historical context)
+- `.planning/decisions/2026-05-16-calc-engine-matrix.md` — 11-category matrix + 4-level lucidité framework (the mint-calc-engine-v1 upstream)
+- `.planning/decisions/2026-05-16-calc-engine-v1-panel-synthesis.md` — D-CE-09 strangler-fig + D-CE-10 deprecation-shims + D-CE-14 reverse-dep map (locked doctrine to honour)
+- `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-CONTEXT.md` — locked decisions from the prior phase
+- `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md` — what shipped + 8 deferred items + Concern C parity lint
+- `apps/mobile/lib/services/financial_core/` — ~10 279 LOC mobile calculator surface (today's source-of-truth per CLAUDE.md triplet #3)
+- `apps/mobile/lib/services/financial_core/lpp_calculator.dart` — hardcoded `static const` drift surface (`safeWithdrawalRate`, `survivorSpouseRate`)
+- `services/backend/app/services/` — 76 backend services (today's source-of-truth per docs/AGENTS/backend.md:39 — the conflict)
+- `services/backend/app/services/regulatory/registry.py` — backend `RegulatoryParameter` with `effective_from/to`
+- `services/backend/app/services/calc/_registry.py` (auto-generated) — `mint-calc-engine-v1` Plan 05 strangler-fig bridge (D-CE-09)
+- `services/backend/app/models/coach_insight.py` — `CoachInsightRecord` (Pattern D today, downstream compliance gap)
+- `services/backend/app/models/snapshot.py` — projection storage (no `constants_version_hash` today)
+- `services/backend/app/services/dek_vault.py` — crypto-shred mechanism (downstream-only; informational here)
+- `CLAUDE.md` §1 + §5 D-07 NEVER #3 — current mobile-canonical declaration
+- `docs/AGENTS/backend.md:39` — current backend-canonical declaration (the conflict)
+- `tools/checks/profile_safe_fields_parity.py` — Concern C Flutter↔server parity lint (W4 Plan 19) — partial bridge of the gap today
+- engram obs #150 (event-log decision) + #151 (panel compliance findings)
 
 
 
