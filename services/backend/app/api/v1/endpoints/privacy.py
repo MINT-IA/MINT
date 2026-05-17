@@ -194,6 +194,27 @@ def export_user_data(
     profile_data["consents"] = consent_data
     profile_data["coach_memory"] = coach_memory_data
 
+    # P1-nLPD: Coach insights (relational CoachInsightRecord rows — distinct from
+    # pgvector coach_memory above). Surfaces save_insight tool outputs for DSAR
+    # right-of-access (nLPD art. 25).
+    from app.models.coach_insight import CoachInsightRecord
+    coach_insights_data: list = []
+    if request.include_coach_insights:
+        coach_insights_rows = db.query(CoachInsightRecord).filter(
+            CoachInsightRecord.user_id == user_id
+        ).order_by(CoachInsightRecord.created_at.desc()).limit(1000).all()
+        coach_insights_data = [
+            {
+                "id": ci.id,
+                "topic": ci.topic,
+                "summary": ci.summary,
+                "insight_type": ci.insight_type,
+                "created_at": str(ci.created_at),
+                "updated_at": str(ci.updated_at),
+            }
+            for ci in coach_insights_rows
+        ]
+
     result = service.export_user_data(
         profile_id=user_id,
         profile_data=profile_data,
@@ -201,10 +222,12 @@ def export_user_data(
         reports_data=reports_data,
         documents_data=documents_data,
         analytics_data=analytics_data,
+        coach_insights_data=coach_insights_data,
         include_sessions=request.include_sessions,
         include_reports=request.include_reports,
         include_documents=request.include_documents,
         include_analytics=request.include_analytics,
+        include_coach_insights=request.include_coach_insights,
     )
 
     categories_schema = [
@@ -228,6 +251,7 @@ def export_user_data(
         donnees_rapports=result.donnees_rapports,
         donnees_documents=result.donnees_documents,
         donnees_analytics=result.donnees_analytics,
+        donnees_coach_insights=result.donnees_coach_insights,
         politique_conservation=result.politique_conservation,
         responsable_traitement=result.responsable_traitement,
         premier_eclairage=result.premier_eclairage,
@@ -261,6 +285,15 @@ def delete_user_data(
     # V12-1: Use authenticated user ID, never client-supplied profile_id.
     user_id = _user.id
 
+    # Count coach insights (CoachInsightRecord rows) for nLPD art. 32 deletion
+    # manifest. Note: other categories still pass 0 — pre-existing systemic gap
+    # tracked in PR body (this endpoint returns a manifest; the actual row
+    # deletion happens via FK CASCADE when the user row is deleted elsewhere).
+    from app.models.coach_insight import CoachInsightRecord
+    nb_coach_insights = db.query(CoachInsightRecord).filter(
+        CoachInsightRecord.user_id == user_id
+    ).count()
+
     # In production, counts would come from the database
     result = service.delete_user_data(
         profile_id=user_id,
@@ -269,6 +302,7 @@ def delete_user_data(
         nb_reports=0,
         nb_documents=0,
         nb_analytics=0,
+        nb_coach_insights=nb_coach_insights,
         raison=request.raison,
     )
 

@@ -111,7 +111,7 @@ class TestDataExport:
         sample_sessions_data, sample_reports_data,
         sample_documents_data, sample_analytics_data,
     ):
-        """Full export should include 5 categories."""
+        """Full export should include 6 categories (incl. coach_insights since Hotfix A 2026-05-17)."""
         result = privacy_service.export_user_data(
             profile_id="u1",
             profile_data=sample_profile_data,
@@ -120,13 +120,14 @@ class TestDataExport:
             documents_data=sample_documents_data,
             analytics_data=sample_analytics_data,
         )
-        assert len(result.categories) == 5
+        assert len(result.categories) == 6
         category_names = [c.categorie for c in result.categories]
         assert "core_profile" in category_names
         assert "sessions" in category_names
         assert "rapports" in category_names
         assert "documents" in category_names
         assert "analytics" in category_names
+        assert "coach_insights" in category_names
 
     def test_export_category_counts(
         self, privacy_service, sample_profile_data,
@@ -237,13 +238,13 @@ class TestDataDeletion:
         diff = (effective_date - request_date).total_seconds()
         assert diff == 0
 
-    def test_deletion_returns_all_5_categories(self, privacy_service):
-        """Deletion should process all 5 data categories."""
+    def test_deletion_returns_all_6_categories(self, privacy_service):
+        """Deletion should process all 6 data categories (coach_insights added Hotfix A 2026-05-17)."""
         result = privacy_service.delete_user_data(
             profile_id="u1", mode="immediate",
             nb_sessions=5, nb_reports=2, nb_documents=3, nb_analytics=10,
         )
-        assert len(result.categories_traitees) == 5
+        assert len(result.categories_traitees) == 6
 
     def test_deletion_core_profile_conserve_obligation_legale(self, privacy_service):
         """Core profile should be marked as conserved for legal obligation."""
@@ -312,17 +313,18 @@ class TestConsentStatus:
             if c.categorie != "core_profile":
                 assert c.est_actif is False, f"{c.categorie} should not be active by default"
 
-    def test_consent_returns_6_categories(self, privacy_service):
-        """Should return exactly 6 consent categories."""
+    def test_consent_returns_7_categories(self, privacy_service):
+        """Should return exactly 7 consent categories (coach_insights added Hotfix A 2026-05-17)."""
         result = privacy_service.get_consent_status(profile_id="u1")
-        assert len(result.consentements) == 6
+        assert len(result.consentements) == 7
 
     def test_consent_categories_complete(self, privacy_service):
         """All expected categories should be present."""
         result = privacy_service.get_consent_status(profile_id="u1")
         categories = {c.categorie for c in result.consentements}
         expected = {"core_profile", "analytics", "coaching_notifications",
-                    "open_banking", "document_upload", "rag_queries"}
+                    "open_banking", "document_upload", "rag_queries",
+                    "coach_insights"}
         assert categories == expected
 
     def test_consent_core_profile_is_obligatory(self, privacy_service):
@@ -356,6 +358,7 @@ class TestConsentStatus:
             "open_banking": False,
             "document_upload": True,
             "rag_queries": False,
+            "coach_insights": True,
         }
         result = privacy_service.get_consent_status(
             profile_id="u1",
@@ -375,13 +378,14 @@ class TestConsentStatus:
             "open_banking": False,
             "document_upload": True,
             "rag_queries": False,
+            "coach_insights": False,
         }
         result = privacy_service.get_consent_status(
             profile_id="u1",
             current_consents=custom,
         )
         assert result.nb_consentements_actifs == 3  # core, analytics, documents
-        assert result.nb_consentements_optionnels == 5  # all except core
+        assert result.nb_consentements_optionnels == 6  # all except core (was 5; Hotfix A added coach_insights)
 
 
 # ===========================================================================
@@ -598,25 +602,26 @@ class TestPrivacyEndpoints:
         assert "profileId" in data
         assert data["profileId"] == "test-user-id"
         assert "consentements" in data
-        assert len(data["consentements"]) == 6
+        assert len(data["consentements"]) == 7
         assert "nbConsentementsActifs" in data
         assert "nbConsentementsOptionnels" in data
         assert "disclaimer" in data
         assert "sources" in data
 
-    def test_consent_status_has_6_categories(self, client):
-        """Consent status should list exactly 6 categories."""
+    def test_consent_status_has_7_categories(self, client):
+        """Consent status should list exactly 7 categories (coach_insights added Hotfix A 2026-05-17)."""
         response = client.get("/api/v1/privacy/consent-status")
         assert response.status_code == 200
         data = response.json()
         categories = [c["categorie"] for c in data["consentements"]]
-        assert len(categories) == 6
+        assert len(categories) == 7
         assert "core_profile" in categories
         assert "analytics" in categories
         assert "coaching_notifications" in categories
         assert "open_banking" in categories
         assert "document_upload" in categories
         assert "rag_queries" in categories
+        assert "coach_insights" in categories
 
     def test_consent_update_activate(self, client):
         """POST /privacy/consent-update should activate a consent.
