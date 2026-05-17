@@ -111,9 +111,10 @@ def get_constants_snapshot(request: Request) -> Response:
 
     Same serialisation pipeline as tools/measurement/regulatory_snapshot_bundle_size.py
     (Plan 01) so byte-count + version_hash stay coherent across measurement,
-    codegen (Plan 04), and runtime delta-check. Supports If-None-Match
-    conditional GET (304 Not Modified) per RFC 7232. Cache-Control: public,
-    max-age=300, must-revalidate.
+    codegen (Plan 04), and runtime delta-check. Response carries a weak ETag
+    header ``W/"<version_hash>"`` ; supports If-None-Match conditional GET
+    (304 Not Modified) per RFC 7232. Cache-Control: public, max-age=300,
+    must-revalidate.
 
     Phase mint-data-architecture-v1-01-calc-engine-canonical Plan 03 Task 2.
     Canonical insertion rule : MUST be registered BEFORE /constants/{key:path}

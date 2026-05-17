@@ -32628,7 +32628,7 @@
     },
     "/api/v1/regulatory/constants/snapshot": {
       "get": {
-        "description": "Full active 26-canton regulatory snapshot (D-08 + D-15 + D-16).\n\nSame serialisation pipeline as tools/measurement/regulatory_snapshot_bundle_size.py\n(Plan 01) so byte-count + version_hash stay coherent across measurement,\ncodegen (Plan 04), and runtime delta-check. Supports If-None-Match\nconditional GET (304 Not Modified) per RFC 7232. Cache-Control: public,\nmax-age=300, must-revalidate.\n\nPhase mint-data-architecture-v1-01-calc-engine-canonical Plan 03 Task 2.\nCanonical insertion rule : MUST be registered BEFORE /constants/{key:path}\nso the catch-all does not shadow this route.",
+        "description": "Full active 26-canton regulatory snapshot (D-08 + D-15 + D-16).\n\nSame serialisation pipeline as tools/measurement/regulatory_snapshot_bundle_size.py\n(Plan 01) so byte-count + version_hash stay coherent across measurement,\ncodegen (Plan 04), and runtime delta-check. Response carries a weak ETag\nheader ``W/\"<version_hash>\"`` ; supports If-None-Match conditional GET\n(304 Not Modified) per RFC 7232. Cache-Control: public, max-age=300,\nmust-revalidate.\n\nPhase mint-data-architecture-v1-01-calc-engine-canonical Plan 03 Task 2.\nCanonical insertion rule : MUST be registered BEFORE /constants/{key:path}\nso the catch-all does not shadow this route.",
         "operationId": "get_constants_snapshot_api_v1_regulatory_constants_snapshot_get",
         "responses": {
           "200": {
