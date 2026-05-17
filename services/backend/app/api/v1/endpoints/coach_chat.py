@@ -992,6 +992,16 @@ _PROFILE_SAFE_FIELDS = {
     # they just imported. Privacy-safe (numeric, no PII). claude_coach_service
     # auto-emits these in the « extra_keys » prompt block (line 830-840).
     "avoir_lpp", "salaire_brut", "epargne_3a", "capital_final",
+    # mint-calc-engine-v1 Stage 0 fix (2026-05-17): partner aggregate keys from
+    # Phase 16 COUP-04. Flutter `coach_chat_api_service.dart:94-97` spreads
+    # `partner_declared` + `partner_confidence` from SecureStorage into
+    # profileContext. Prior to this addition, both keys were SILENTLY DROPPED
+    # by _sanitize_profile_context — the entire COUP-04 partner-aggregate
+    # ground-truth pathway into the coach context was dead in production.
+    # Detected by Plan 19 profile_safe_fields_parity lint (drift baseline 45
+    # → 43 after this fix). Privacy-safe: declared = bool, confidence = float
+    # in [0,1]; no PII.
+    "partner_declared", "partner_confidence",
 }
 
 
