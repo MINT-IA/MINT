@@ -52,17 +52,24 @@ _logger = logging.getLogger(__name__)
 _MAX_WARM_FANOUT = 3
 
 
-async def precompute_after_fact_save(
+def precompute_after_fact_save(
     background_tasks: BackgroundTasks,
     fact_key: str,
     fact_value: Any,
     profile_id: str,
     db: Session,
-) -> None:
+) -> int:
     """Schedule top-3 calc warming after `save_fact()` / `save_insight()` lands.
 
     Per D-CE-13 : pure scheduling. Compute runs AFTER the user-facing response
     is sent (FastAPI `BackgroundTasks` lifecycle).
+
+    Synchronous because (a) `get_reverse_deps` is an in-memory dict lookup,
+    (b) `BackgroundTasks.add_task` just appends to a list, (c) the caller
+    site (`_execute_internal_tool`) is a sync function inside an async agent
+    loop — making this `async` would force ugly `asyncio.run` plumbing in the
+    sync handler. The scheduled task itself (`_warm_calc`) is async and runs
+    in FastAPI's BackgroundTasks loop after the response is sent.
 
     Args:
         background_tasks: FastAPI BackgroundTasks dependency from the route.
@@ -74,8 +81,7 @@ async def precompute_after_fact_save(
             the BackgroundTasks per FastAPI same-request semantics.
 
     Returns:
-        None. Side effect : up to `_MAX_WARM_FANOUT` tasks appended to
-        `background_tasks`.
+        Number of tasks scheduled (0..`_MAX_WARM_FANOUT`).
 
     Behavior :
         - Unknown `fact_key` (no entry in `REVERSE_DEP_MAP`) → no-op, no error.
@@ -85,16 +91,18 @@ async def precompute_after_fact_save(
     """
     affected_kinds = get_reverse_deps(fact_key)
     if not affected_kinds:
-        return
+        return 0
     # Sort for deterministic test selection. Production may swap in a
     # weighted ordering once D-CE-14 SLI data is available (W4).
-    for kind in sorted(affected_kinds)[:_MAX_WARM_FANOUT]:
+    selected = sorted(affected_kinds)[:_MAX_WARM_FANOUT]
+    for kind in selected:
         background_tasks.add_task(
             _warm_calc,
             profile_id=profile_id,
             kind=kind,
             db=db,
         )
+    return len(selected)
 
 
 async def _warm_calc(profile_id: str, kind: str, db: Session) -> None:

@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     # production call site keeps `pack=None` during Phase 95.
     from app.services.coach.grounding_pack import ProjectionGroundingPack  # noqa: F401
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
@@ -62,6 +62,9 @@ from app.services.coach.claude_coach_service import (
     build_system_prompt,
 )
 from app.services.coach.coach_context_builder import build_coach_context
+# Phase mint-calc-engine-v1 Plan 15 — D-CE-13 BackgroundTasks pre-compute.
+# Imported here (not lazily) so the wire-test grep finds the symbol in source.
+from app.services.coach.pre_compute import precompute_after_fact_save
 from app.services.coach.citation_parser import (
     GateVerdict,
     GatedResponse,
@@ -2424,6 +2427,7 @@ def _execute_internal_tool(
     last_user_message: Optional[str] = None,
     detected_intents: Optional[set[str]] = None,
     fact_keys_saved_this_turn: Optional[list[str]] = None,
+    background_tasks: Optional[BackgroundTasks] = None,
 ) -> str:
     """Execute a single internal tool and return the result as text.
 
@@ -2633,6 +2637,30 @@ def _execute_internal_tool(
             except Exception as mirror_exc:
                 logger.warning("Could not mirror insight to profile: %s", mirror_exc)
                 db.rollback()
+        # Phase mint-calc-engine-v1 Plan 15 — D-CE-13 BackgroundTasks pre-compute.
+        # Topic acts as the canonical fact_key bridge for insight-driven warming.
+        # Best-effort : if background_tasks is None (sync test path) or profile
+        # is None, schedule is skipped. Failures logged + swallowed by
+        # precompute_after_fact_save itself.
+        if background_tasks is not None and user_id and db:
+            try:
+                from app.models.profile_model import ProfileModel as _PMIns
+                _prof = (
+                    db.query(_PMIns)
+                    .filter(_PMIns.user_id == user_id)
+                    .order_by(_PMIns.updated_at.desc())
+                    .first()
+                )
+                if _prof is not None:
+                    precompute_after_fact_save(
+                        background_tasks=background_tasks,
+                        fact_key=topic,
+                        fact_value=summary,
+                        profile_id=str(_prof.id),
+                        db=db,
+                    )
+            except Exception as _pre_exc:  # pragma: no cover — pre-compute fail-open
+                logger.warning("precompute_after_fact_save(save_insight) skipped: %s", _pre_exc)
         return f"Insight enregistré : {summary}" if summary else "Insight enregistré."
 
     # ─────────────────────────────────────────────────────────────────
@@ -2700,6 +2728,22 @@ def _execute_internal_tool(
                     log_value,
                     fact_conf,
                 )
+                # Phase mint-calc-engine-v1 Plan 15 — D-CE-13 BackgroundTasks pre-compute.
+                # Schedule top-3 cache warming for calcs depending on fact_key.
+                # Runs AFTER db.commit() so the warming-task DB reads see the
+                # freshly-committed profile state. Best-effort : failures
+                # logged + swallowed inside precompute_after_fact_save.
+                if background_tasks is not None:
+                    try:
+                        precompute_after_fact_save(
+                            background_tasks=background_tasks,
+                            fact_key=fact_key,
+                            fact_value=coerced,
+                            profile_id=str(profile.id),
+                            db=db,
+                        )
+                    except Exception as _pre_exc:  # pragma: no cover — pre-compute fail-open
+                        logger.warning("precompute_after_fact_save(save_fact) skipped: %s", _pre_exc)
                 if is_safe_to_log(fact_key):
                     return f"Fait enregistré : {fact_key} = {coerced}"
                 return f"Fait enregistré : {fact_key}"
@@ -3590,6 +3634,7 @@ async def _run_agent_loop(
     persistence_consent: bool = False,
     detected_intents: Optional[set[str]] = None,
     tools: Optional[list[dict]] = None,
+    background_tasks: Optional[BackgroundTasks] = None,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -3835,6 +3880,7 @@ async def _run_agent_loop(
                 last_user_message=question,
                 detected_intents=detected_intents,
                 fact_keys_saved_this_turn=fact_keys_saved_this_turn,
+                background_tasks=background_tasks,
             )
             # Wave 1b Plan 04 — extract citation chip BEFORE truncation /
             # injection sanitization so the JSON parse sees the full
@@ -3924,6 +3970,7 @@ async def _run_agent_loop(
 async def coach_chat(
     request: Request,
     body: CoachChatRequest,
+    background_tasks: BackgroundTasks,
     _user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
 ) -> CoachChatResponse:
@@ -4548,6 +4595,10 @@ async def coach_chat(
         persistence_consent=body.persistence_consent,
         detected_intents=detected_intents,
         tools=_narrator_tools,
+        # Phase mint-calc-engine-v1 Plan 15 — D-CE-13 BackgroundTasks
+        # threaded through the agent loop to the save_fact / save_insight
+        # handlers (pre_compute.precompute_after_fact_save site).
+        background_tasks=background_tasks,
     )
     _gate_allowlist = (
         list(_compiled_bundle.citation_allowlist)

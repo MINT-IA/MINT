@@ -30,18 +30,17 @@ def test_precompute_schedules_at_least_one_task_for_canton():
     bg = MagicMock()
     bg.add_task = MagicMock()
 
-    asyncio.run(
-        precompute_after_fact_save(
-            background_tasks=bg,
-            fact_key="canton",
-            fact_value="VD",
-            profile_id=str(uuid4()),
-            db=MagicMock(),
-        )
+    n = precompute_after_fact_save(
+        background_tasks=bg,
+        fact_key="canton",
+        fact_value="VD",
+        profile_id=str(uuid4()),
+        db=MagicMock(),
     )
 
     assert bg.add_task.call_count >= 1
     assert bg.add_task.call_count <= 3  # _MAX_WARM_FANOUT
+    assert n == bg.add_task.call_count
 
 
 # ----------------------------------------------------------------------- Test 2
@@ -52,17 +51,16 @@ def test_precompute_empty_reverse_deps_no_tasks_scheduled():
     bg = MagicMock()
     bg.add_task = MagicMock()
 
-    asyncio.run(
-        precompute_after_fact_save(
-            background_tasks=bg,
-            fact_key="nonexistent_field_xyz_42",
-            fact_value="whatever",
-            profile_id=str(uuid4()),
-            db=MagicMock(),
-        )
+    n = precompute_after_fact_save(
+        background_tasks=bg,
+        fact_key="nonexistent_field_xyz_42",
+        fact_value="whatever",
+        profile_id=str(uuid4()),
+        db=MagicMock(),
     )
 
     assert bg.add_task.call_count == 0
+    assert n == 0
 
 
 # ----------------------------------------------------------------------- Test 3
@@ -77,19 +75,18 @@ def test_precompute_caps_fanout_at_three():
     bg = MagicMock()
     bg.add_task = MagicMock()
 
-    asyncio.run(
-        precompute_after_fact_save(
-            background_tasks=bg,
-            fact_key="canton",
-            fact_value="GE",
-            profile_id=str(uuid4()),
-            db=MagicMock(),
-        )
+    n = precompute_after_fact_save(
+        background_tasks=bg,
+        fact_key="canton",
+        fact_value="GE",
+        profile_id=str(uuid4()),
+        db=MagicMock(),
     )
 
     assert bg.add_task.call_count == 3, (
         f"_MAX_WARM_FANOUT=3 violated : got {bg.add_task.call_count} tasks"
     )
+    assert n == 3
 
 
 # ----------------------------------------------------------------------- Test 4
