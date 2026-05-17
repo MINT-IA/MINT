@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-12-w3-composite-index-migration-PLAN.md (D-CE-12 + Finding 3 — composite partial index shipped)
-last_updated: "2026-05-17T05:51:52.300Z"
+stopped_at: Completed mint-calc-engine-v1-13-w3-cache-reader-writer-singleflight-PLAN.md (D-CE-12 read-through cache + Concern E AsyncSingleflight shipped)
+last_updated: "2026-05-17T06:11:32.476Z"
 last_activity: 2026-05-17
 progress:
   total_phases: 12
@@ -35,10 +35,46 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 open ; Plan 12 closed, Plan 13 next)
-Plan: 13 of 20
+Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 mid ; Plans 12-13 closed, Plan 14 next)
+Plan: 14 of 20
 Status: Ready to execute
 Last activity: 2026-05-17
+
+## Plan mint-calc-engine-v1-13 Receipt (W3 cache reader + writer + AsyncSingleflight + get_or_compute — D-CE-12 + Concern E, 2026-05-17)
+
+- **Plan outcome** : mechanical execution, mid-Wave-3. Ships the D-CE-12 read-through cache layer + Concern E AsyncSingleflight stampede mitigation that consume Plan 12's `idx_scenarios_cache_lookup` composite partial index. `cache_reader.lookup()` runs the partial-index query verbatim (`WHERE profile_id=? AND kind=? AND inputs_hash=? AND superseded_by IS NULL ORDER BY created_at DESC LIMIT 1`). `cache_writer.write()` maintains the supersede-chain DAG (new row + flips prior row's `superseded_by`, idempotent on same `inputs_hash`). `AsyncSingleflight` = `defaultdict(asyncio.Lock)` keyed by `(profile_id, kind, inputs_hash)` ; GIL-safe slot insertion per RESEARCH §Q-E. `get_or_compute()` orchestrates read → singleflight → re-check → compute_fn → write. Plan 14 (reverse-dep map) + Plan 15 (BackgroundTasks pre-compute) + Plan 16 (GC) consume this layer downstream.
+- Files created : 10
+  - `services/backend/app/services/cache/__init__.py` — 24 LOC. Public API exports : `lookup`, `write`, `AsyncSingleflight`, `_singleflight`, `get_or_compute`.
+  - `services/backend/app/services/cache/cache_reader.py` — 59 LOC. Single async function ; query column order matches Plan 12 index column order verbatim.
+  - `services/backend/app/services/cache/cache_writer.py` — 87 LOC. 5-step transaction (find prior live → idempotent guard → insert new → flip prior.superseded_by → commit). Maps public `payload` arg → ScenarioModel `outputs` column (Rule 1 column-name fix).
+  - `services/backend/app/services/cache/singleflight.py` — 54 LOC. `AsyncSingleflight` class + module-level `_singleflight` singleton. Locks NEVER pop'd after release (eviction = GC's job, Plan 16).
+  - `services/backend/app/services/cache/get_or_compute.py` — 70 LOC. Read-through orchestrator verbatim from RESEARCH §Q-E lines 792-813.
+  - `services/backend/tests/test_cache_reader.py` — 175 LOC, 4 tests (live / superseded / most-recent / missing).
+  - `services/backend/tests/test_cache_writer.py` — 171 LOC, 4 tests (first-insert / supersede-chain / idempotent / 3-write chain depth 2).
+  - `services/backend/tests/test_cache_singleflight.py` — 165 LOC, 5 tests (same-key peak=1 / different-keys parallel / release / lock-identity-persists / stampede headline ≥80ms elapsed for 10×10ms hold).
+  - `services/backend/tests/test_get_or_compute.py` — 202 LOC, 4 tests (cold-1-call / warm-0-call / **headline stampede 10→1** / compute-raises-no-row).
+  - `services/backend/tests/bench_cache_reader.py` — 139 LOC, 1 env-gated test (MINT_RUN_CACHE_BENCH=1).
+- Files modified : 0. No ORM change, no migration, no caller change (Plan 14+ wire the consumers).
+- Gates green :
+  - 4 cache test files : `cd services/backend && python3 -m pytest tests/test_cache_reader.py tests/test_cache_writer.py tests/test_cache_singleflight.py tests/test_get_or_compute.py -q` → `17 passed in 0.55s`
+  - Full regression : `cd services/backend && python3 -m pytest tests/ -q` → **`7165 passed, 63 skipped, 3 xfailed, 1 warning in 114.39s`** (delta vs Plan 12 baseline 7148/63/3 = `+17 passed`, zero skipped/xfail regression — bench's skip is compensated by another session-fixture flip but zero new failures)
+  - Bench (env-gated) : `cd services/backend && MINT_RUN_CACHE_BENCH=1 python3 -m pytest tests/bench_cache_reader.py -q -s` → `1 passed in 0.26s` ; SQLite warm `p50=0.167ms p95=0.188ms p99=0.237ms mean=0.171ms` (informational only — PG SLO < 50ms verified post-deploy)
+  - `python3 tools/checks/banned_terms_python.py <all 10 files>` → exit 0
+  - `python3 tools/checks/accent_lint_fr.py --scope backend` → exit 0
+  - Stampede property end-to-end : `test_concurrent_cold_cache_compute_fn_called_once_singleflight` asserts `state["calls"] == 1` across 10 concurrent tasks ; all 10 callers got same `row.id` ; DB row count == 1
+- Commits :
+  - `f15dd846` (RED Task 1 — 4 failing reader tests, ModuleNotFoundError as expected)
+  - `1180eee6` (GREEN Task 1 + scaffold — 5 cache modules ; 4/4 reader tests pass)
+  - `5e5a4415` (Task 2 — writer tests, 4/4 pass, supersede chain integrity)
+  - `1cd20b29` (Task 3 — singleflight tests, 5/5 pass, stampede headline ≥80ms)
+  - `555dff14` (Task 4 — get_or_compute tests, 4/4 pass including end-to-end 10→1)
+  - `0ed5ae09` (Task 5 — env-gated bench)
+  - docs commit pending (this STATE update + SUMMARY + ROADMAP + REQUIREMENTS + HTML report)
+- Duration : ~12 min
+- Deviations : 3 auto-fixed Rule 1 bugs. (1) Plan spec writer arg was `payload` AND attempted to write to a `payload` column ; actual ScenarioModel column is `outputs` — kept public `payload` arg + mapped to `outputs` column at insert site. (2) Plan & test scaffolding imported `from app.models.profile import ProfileModel` ; actual module is `profile_model.py` — fixed across all 4 test files. (3) Python 3.9 forbids `asyncio.Lock()` outside running event loop — replaced test-side `call_lock = asyncio.Lock()` with plain `state = {"calls": 0}` dict (asyncio single-threaded → no race needed).
+- 0-trust : `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-13-w3-cache-reader-writer-singleflight-SUMMARY.md` `## Self-Check: PASSED` with 16 citations + explicit « What I HAVE NOT done » block listing : did NOT run EXPLAIN ANALYZE on Railway PG ; did NOT wire `get_or_compute` into any caller (Plan 14+ scope) ; did NOT add pytest-benchmark dependency (stdlib bench) ; did NOT add observability hooks (Plan 17 scope) ; did NOT add singleflight TTL/timeout (not in plan, no concrete need yet) ; did NOT open a PR (direct on `dev`) ; did NOT merge dev → staging ; did NOT run Maestro G1 (no UI surface) ; did NOT call MCP `mem_save` tool (10th consecutive session mismatch) ; did NOT modify `scenario.py` ; did NOT touch any caller code.
+- Engram : observation **#138** saved via CLI fallback (`engram save "D-CE-12 W3 Plan 13 cache reader+writer+singleflight+get_or_compute shipped" --project mint --type architecture --topic_key mint-calc-engine-v1:w3-plan-13:cache-reader-writer-singleflight`). `prior_finding_refs` : Plan 12 obs #137 (composite index — direct dep), Phase 95 scenarios columns (transitive, not in engram), Concern E panel synthesis (CONTEXT/RESEARCH only, not engram).
+- USER VALUE DELIVERED : zero end-user-visible change yet. Cache layer is server-internal infrastructure. First user-visible benefit (sub-millisecond cache HIT on power-user query plans + zero cold-start storms during deploy) materializes after Plan 14 (reverse-dep map) + Plan 15 (BackgroundTasks pre-compute) wire `get_or_compute` into the chip-emitter call sites + after dev → staging → main merges trigger the coupled deploy. Stage 1 of 4 per CLAUDE.md §9.5 (direct commits on `dev`, no PR). **The real architectural value : Plan 12's index now has consumers — without Plan 13, the index was dead infrastructure ; without Plan 13's singleflight, Plan 15's pre-compute would cause 10-replica cold-start storms on every deploy.**
 
 ## Plan mint-calc-engine-v1-12 Receipt (W3 composite index migration — D-CE-12 + Finding 3, 2026-05-17)
 
@@ -495,8 +531,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-17T05:51:52.297Z
-Stopped at: Completed mint-calc-engine-v1-12-w3-composite-index-migration-PLAN.md (D-CE-12 + Finding 3 — composite partial index shipped)
+Last session: 2026-05-17T06:11:32.473Z
+Stopped at: Completed mint-calc-engine-v1-13-w3-cache-reader-writer-singleflight-PLAN.md (D-CE-12 read-through cache + Concern E AsyncSingleflight shipped)
 Resume file: None
 
 <details>

@@ -33,7 +33,7 @@ Plans:
 - [x] mint-calc-engine-v1-10-w2-coach-tool-response-v2-PLAN.md — CoachToolResponse V2 with `latency_tier` (Parallel Change V1→V2 per D-CE-19)
 - [x] mint-calc-engine-v1-11-w2-deprecation-shims-PLAN.md — independant_service.py + frontalier_service.py root shims (D-CE-10)
 - [x] mint-calc-engine-v1-12-w3-composite-index-migration-PLAN.md — Alembic p110 composite partial index (autocommit_block) — Finding 3 critical gap
-- [ ] mint-calc-engine-v1-13-w3-cache-reader-writer-singleflight-PLAN.md — Cache reader + writer + AsyncSingleflight + get_or_compute (Concern E)
+- [x] mint-calc-engine-v1-13-w3-cache-reader-writer-singleflight-PLAN.md — Cache reader + writer + AsyncSingleflight + get_or_compute (Concern E)
 - [ ] mint-calc-engine-v1-14-w3-reverse-dep-map-PLAN.md — REVERSE_DEP_MAP regenerated alongside REGISTRY (D-CE-14 «kills two birds»)
 - [ ] mint-calc-engine-v1-15-w3-pre-compute-background-tasks-PLAN.md — `precompute_after_fact_save` BackgroundTasks + SLI precision/recall tests
 - [ ] mint-calc-engine-v1-16-w3-gc-job-PLAN.md — Daily GC job (Railway cron) for superseded scenarios (Finding 4) — NOT autonomous (Julien Railway setup)
