@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.10
 milestone_name: Lucidité Engine
 status: executing
-stopped_at: Completed mint-calc-engine-v1-15-PLAN.md (Plan 15, D-CE-13 + D-CE-14 SLI baseline)
-last_updated: "2026-05-17T06:43:55.112Z"
+stopped_at: Completed mint-calc-engine-v1-16-PLAN.md (Plan 16, GC daily job — Wave 3 closed pending Railway activation)
+last_updated: "2026-05-17T06:55:00.000Z"
 last_activity: 2026-05-17
 progress:
   total_phases: 12
   completed_phases: 1
   total_plans: 7
-  completed_plans: 4
-  percent: 57
+  completed_plans: 5
+  percent: 71
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -35,10 +35,41 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 mid ; Plans 12-13 closed, Plan 14 next)
-Plan: 16 of 20
-Status: Ready to execute
+Phase: mint-calc-engine-v1 (Calc Engine v1) — EXECUTING (Wave 2 closed, Wave 3 CLOSED code-side ; Plans 12-13-14-15-16 shipped ; Wave 4 opens at Plan 17 ; Wave 3 close-out gate = Railway cron activation pending Julien GO)
+Plan: 17 of 20 (next)
+Status: Ready to execute Plan 17 (W4 metrics counters)
 Last activity: 2026-05-17
+
+## Plan mint-calc-engine-v1-16 Receipt (W3 GC daily job — Finding 4 mitigation + Wave 3 close-out, 2026-05-17)
+
+- **Plan outcome** : mechanical execution + 1 plan-spec drift fix + Wave 3 close-out. Ships the Finding 4 mitigation — daily GC for the `scenarios` table trimming rows where `superseded_by IS NOT NULL AND created_at < now() - interval '<max_age_days> days'`. `purge_superseded_scenarios(db, max_age_days=30, dry_run=False) -> int` runs the predicate ; `scripts/run_gc.py` is the standalone Railway-cron-ready runner ; `railway.cron.json` declares the cron service config (schema-valid against Railway public schema). **Cron NOT activated** — Julien GO required for the final activation step (Railway dashboard or CLI). Plan 15 warm-marker interaction VERIFIED : warm-markers are written as LIVE rows (invisible to GC) and only enter GC eligibility once a later real compute supersedes them — exactly the compaction semantics Plan 15 SUMMARY promised.
+- Files created : 4 (448 LOC total)
+  - `services/backend/app/services/cache/gc_job.py` (91 LOC) — single `def purge_superseded_scenarios(db, max_age_days=30, dry_run=False) -> int`. Predicate factored into `base_query`. Dry-run path : `base_query.count()` + log + return. Live path : `base_query.delete(synchronize_session=False)` + commit + log + return.
+  - `services/backend/scripts/run_gc.py` (94 LOC, executable bit set) — argparse for `--dry-run` + `--max-age-days N`. `sys.path.insert(0, _BACKEND_DIR)` injection so script runs from any cwd (Rule 1 bug fix). Exit 0 on success / 1 on exception.
+  - `services/backend/tests/test_gc_job.py` (250 LOC, 6 tests against in-memory SQLite) — covers 5 predicate scenarios (old superseded purged / live preserved / recent within-window preserved / dry-run mutates nothing / max_age_days configurable) + 1 idempotence test (second run on stable state = 0 deletions).
+  - `services/backend/railway.cron.json` (13 LOC) — `deploy.cronSchedule: "0 3 * * *"` + `deploy.startCommand: "python scripts/run_gc.py"` + `deploy.restartPolicyType: "ON_FAILURE"` + `restartPolicyMaxRetries: 3` + `build.dockerfilePath: "Dockerfile"`. Schema-validated against `backboard.railway.app/railway.schema.json` — zero unknown fields.
+- Files modified : 0. No ORM change, no migration change, no caller change.
+- Gates green :
+  - `cd services/backend && python3 -m pytest tests/test_gc_job.py -q` → `6 passed in 0.27s`
+  - `cd services/backend && python3 -m pytest tests/ -q` → **`7189 passed, 63 skipped, 3 xfailed, 1 warning in 115.23s`** (delta vs Plan 15 baseline 7183 = `+6 passed`, zero regression on skipped/xfailed)
+  - Local dry-run (services/backend cwd) : `python3 scripts/run_gc.py --dry-run` → exit 0 + `GC complete: 0 rows would be purged (max_age_days=30, dry_run=True).`
+  - Local dry-run (repo root cwd) : `python3 services/backend/scripts/run_gc.py --dry-run --max-age-days 30` → exit 0
+  - `grep -c "superseded_by.isnot(None)" services/backend/app/services/cache/gc_job.py` → `2` (acceptance ≥2 OK)
+  - Railway schema validation : `used: {'cronSchedule', 'restartPolicyType', 'startCommand', 'restartPolicyMaxRetries'}` ; `unknown: set()` ; `build_unknown: set()`
+  - `python3 tools/checks/banned_terms_python.py <3 touched code files>` → exit 0
+  - `python3 tools/checks/accent_lint_fr.py --scope backend` → exit 0
+- Commits :
+  - `848651c5` (RED Task 1 — 6 failing tests, ModuleNotFoundError as expected)
+  - `fd624142` (GREEN Task 1 — gc_job module, 6/6 tests pass)
+  - `26ccfa8d` (Task 2 — run_gc.py standalone runner with sys.path injection)
+  - `1636e71c` (railway.cron.json declaration — DECLARATION ONLY, not activated)
+  - docs commit pending (this STATE update + SUMMARY + ROADMAP + REQUIREMENTS + HTML report)
+- Duration : ~7 min
+- Deviations : 1 auto-fixed. (Rule 1 bug) `python scripts/run_gc.py` from any non-`services/backend/` cwd raised `ModuleNotFoundError: No module named 'app'` because `sys.path[0]` is set to the script's `scripts/` directory, not the parent. Injected `sys.path.insert(0, _BACKEND_DIR)` at line 35-36 of the script BEFORE the `from app.*` imports (with `# noqa: E402`). The sibling `scripts/railway_pre_deploy_migrate.py` avoided this by not importing `app.*` at all (uses `subprocess` + `sqlalchemy` directly). Verified : script now runs cleanly from repo root, `services/backend/`, or Railway's `/app` Docker dir. ALSO : one plan-template adjustment — primary `railway.json` NOT modified (would convert uvicorn service into cron job). Idiomatic Railway pattern is a SEPARATE config-as-code file (`railway.cron.json`) for the cron service. Documented in SUMMARY decisions block. Not a Rule 4 escalation — plan intent (ship a cron declaration) delivered with adapted file shape.
+- 0-trust : `.planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-16-w3-gc-job-SUMMARY.md` `## Self-Check : PASSED` with 13 citations + explicit « What I HAVE NOT done » block listing : did NOT activate the Railway cron (Julien GO required, detailed activation steps in SUMMARY § Deferred — Wave 3 close-out gates) ; did NOT run dry-run on Railway staging (no live Railway CLI session) ; did NOT run EXPLAIN ANALYZE on Railway PG (no live PG access) ; did NOT open a PR (direct on `dev`) ; did NOT merge dev → staging ; did NOT add Sentry breadcrumbs (Plan 17 metrics scope) ; did NOT measure DELETE latency at scale ; did NOT modify primary `railway.json` ; did NOT modify `scenario.py` model ; did NOT use APScheduler in-process variant (rejected per RESEARCH §Q-E) ; did NOT call MCP `mem_save` tool (12th consecutive plan with MCP exposure mismatch).
+- Engram : observation **#141** saved via CLI fallback (`engram save "W3 closed — Plan 16 GC job ships, Wave 3 cache+pre-compute+GC spine complete" --project mint --type architecture --topic_key mint-calc-engine-v1:w3-plan-16:gc-job`). `prior_finding_refs` content cites **#137** (Plan 12 composite index — same table) + **#138** (Plan 13 cache reader/writer — reader filter makes GC invisible) + **#140** (Plan 15 pre-compute warm-markers — compaction semantics verified) + **#103** (panel synthesis D-CE-12+13+14 + Finding 3+4 wave-close).
+- USER VALUE DELIVERED : ZERO end-user-visible YET, and zero infrastructure value until activation. Plan 16 ships pure backend infrastructure : a dormant DELETE function + a dormant Railway cron declaration. End-infra impact lands when (1) Julien activates the cron service ; (2) the first 03:00 UTC tick fires + dry-run validates eligibility count ; (3) 30+ days of accumulated production traffic produce superseded-past-cutoff rows ; (4) daily ops cycle settles into bounded scenarios-table growth. Stage 1 of 4 per CLAUDE.md §9.5 (direct commits on `dev`, no PR, no merge, no Railway service created, no end-user behavior change).
+- Wave 3 close-out : **complete code-side.** Plans 12 (index) + 13 (cache layer) + 14 (REVERSE_DEP_MAP) + 15 (BackgroundTasks pre-compute + SLI baseline) + 16 (GC) all landed. D-CE-12 SLO sub-50ms p95 baseline. D-CE-13 lifecycle accepted. D-CE-14 SLI 0.767/0.900 baseline. Finding 3 closed (composite index ships). Finding 4 closed (GC predicate ships + cron declaration committed). **Final activation gate = Julien Railway cron service creation.** Wave 4 (Plans 17-19 — metrics counters, lints, runtime gate) can open immediately ; activation is parallelizable with W4 plan execution.
 
 ## Plan mint-calc-engine-v1-13 Receipt (W3 cache reader + writer + AsyncSingleflight + get_or_compute — D-CE-12 + Concern E, 2026-05-17)
 
