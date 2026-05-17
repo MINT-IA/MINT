@@ -7,7 +7,7 @@
 1. **Banned terms (LSFin)** — NEVER « garanti », « optimal », « meilleur », « certain », « assuré », « sans risque », « parfait ». Use « pourrait », « envisager », « adapté ». Full list → [swiss-brain.md §1](docs/AGENTS/swiss-brain.md).
 2. **Accents 100% FR mandatory** — `creer → créer`, `eclairage → éclairage`, `decouvrir → découvrir`, `securite → sécurité`, `premier éclairage` (jamais `premier eclairage`). ASCII « e » à la place de « é » = bug. Lint : `tools/checks/accent_lint_fr.py`.
 3. **MINT ≠ retirement app** — 18 life events equally weighted (housing, family, tax, career, debt…). Never frame screens/prompts as « retraite-first ». Target : 18-99. Pivot 2026-04-12 : lucidité, pas protection.
-4. **Financial_core reuse mandatory** — `lib/services/financial_core/` est SOURCE OF TRUTH. Never re-implement `_calculate*()` dans services. ADR : `decisions/ADR-20260223-unified-financial-engine.md`.
+4. **Financial_core reuse mandatory** — <!-- mint-data-architecture-v1-01-canonical:start --> `lib/services/financial_core/` est SOURCE OF TRUTH **pour L1 chiffrer** (single-number deterministic outputs, offline-capable). **L2-L4 (comparer / éclairer / invariants) = backend-canonical** sous `services/backend/app/services/`. Boundary criterion = `services/backend/app/models/lucidity/_payload.py` discriminated type (L1ChiffrePayload → mobile ; L2ComparePayload / L3EclairePayload / L4InvariantPayload → backend). Never re-implement `_calculate*()` cross-layer. ADR : `.planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md` (calc-engine portion, Decided 2026-05-17) + legacy `decisions/ADR-20260223-unified-financial-engine.md`. Phase : `mint-data-architecture-v1-01-calc-engine-canonical`. <!-- mint-data-architecture-v1-01-canonical:end -->
 5. **i18n required** — Toutes strings user-facing via `AppLocalizations.of(context)!.key`. Never `Text('Bonjour')`. 6 ARB files (fr/en/de/es/it/pt) sous `lib/l10n/`. Run `flutter gen-l10n`.
 6. **0-TRUST — never trust your own claims** — banned without deterministic citation in same message: « shipped », « closed », « ready », « works », « validated », « green », « PROVISIONALLY READY ». Citation = `path:line` / command output / `idb ui describe-all` snapshot / PR-merge timestamp / Julien confirmation. **PR opened ≠ shipped. Tests passing ≠ feature working.** End-to-end user flow on sim before any « ready ». Detail → § 9.
 
@@ -15,7 +15,7 @@
 
 ## 1. IDENTITY & ARCHITECTURE
 
-MINT = Swiss financial lucidity app (Flutter + FastAPI). Pivot 2026-04-12 : lucidité, pas protection. 18-99, segmentation par life event. `apps/mobile/lib/services/financial_core/` = ★ shared calculators (source of truth) · `lib/theme/colors.dart` MintColors · `lib/l10n/` 6 ARBs · `services/backend/` FastAPI Pydantic v2 camelCase. Role docs : `docs/AGENTS/{flutter,backend,swiss-brain}.md`. Full identity : `docs/MINT_IDENTITY.md`.
+MINT = Swiss financial lucidity app (Flutter + FastAPI). Pivot 2026-04-12 : lucidité, pas protection. 18-99, segmentation par life event. <!-- mint-data-architecture-v1-01-canonical:start --> `apps/mobile/lib/services/financial_core/` = ★ L1 chiffrer canonical home (single-number outputs, offline-capable, bundle-size validated 4509 gzip bytes / 95.6% headroom vs 100 KB ceiling per `.planning/phases/mint-data-architecture-v1-01-calc-engine-canonical/01-01-BUNDLE-SIZE-REPORT.md`) ; `services/backend/app/services/` = L2-L4 canonical (comparer / éclairer / invariants — backend-canonical for L2-L4). Boundary = `services/backend/app/models/lucidity/_payload.py` discriminator. <!-- mint-data-architecture-v1-01-canonical:end --> `lib/theme/colors.dart` MintColors · `lib/l10n/` 6 ARBs · `services/backend/` FastAPI Pydantic v2 camelCase. Role docs : `docs/AGENTS/{flutter,backend,swiss-brain}.md`. Full identity : `docs/MINT_IDENTITY.md`.
 
 ## 2. COMMANDS
 
@@ -119,8 +119,10 @@ Git : `feature/S{XX}-<slug>` depuis `dev` ; PRs feature→dev squash, dev→stag
 ### NEVER #2 — Hardcode colors
 ❌ `Color(0xFF003B2F)` · ✅ `MintColors.primary` · ⚠️ theme, dark-mode, canton branding.
 
-### NEVER #3 — Duplicate calculation logic
-❌ `_calculateRente(profile)` dans un service · ✅ `AvsCalculator.computeMonthlyRente` depuis `financial_core/` · ⚠️ single source of truth, backend parity.
+### NEVER #3 — Duplicate calculation logic across the L1/L2 boundary
+<!-- mint-data-architecture-v1-01-canonical:start -->
+❌ `_calculateRente(profile)` re-implemented in a backend service (L1 is mobile-canonical) OR re-implemented in a Dart widget for an L2 sensitivity / Monte Carlo (L2-L4 is backend-canonical) · ✅ L1 outputs (returning L1ChiffrePayload) live in `lib/services/financial_core/` ; L2-L4 outputs (returning L2/L3/L4 payloads) live in `services/backend/app/services/`. Boundary criterion = `services/backend/app/models/lucidity/_payload.py` discriminated type · ⚠️ single source of truth per layer ; backend parity for L1 NOT required (mobile is canonical for L1). Strangler-fig migration (D-11) governs any cross-layer move.
+<!-- mint-data-architecture-v1-01-canonical:end -->
 
 ### NEVER #4 — Frame MINT as retirement app
 ❌ « Préparez votre retraite » hero copy · ✅ framer par life event (housing/career/family/tax) · ⚠️ 18-99, exclure 25 ans casse trust.
@@ -312,6 +314,6 @@ When uncertain : « I don't know, I haven't checked » beats « should work » /
 1. **Banned terms (LSFin)** — NEVER « garanti », « optimal », « meilleur ». Use « pourrait », « envisager ».
 2. **Accents 100% FR mandatory** — `creer → créer`, `eclairage → éclairage`. ASCII = bug.
 3. **MINT ≠ retirement app** — 18 life events equally weighted. Frame generically, pas « retraite-first ».
-4. **Financial_core reuse mandatory** — `lib/services/financial_core/`. Never re-implement `_calculate*()`.
+4. **Financial_core reuse mandatory** — <!-- mint-data-architecture-v1-01-canonical:start --> `lib/services/financial_core/` est SOURCE OF TRUTH **pour L1 chiffrer** (single-number deterministic outputs, offline-capable). **L2-L4 (comparer / éclairer / invariants) = backend-canonical** sous `services/backend/app/services/`. Boundary criterion = `services/backend/app/models/lucidity/_payload.py` discriminated type (L1ChiffrePayload → mobile ; L2ComparePayload / L3EclairePayload / L4InvariantPayload → backend). Never re-implement `_calculate*()` cross-layer. ADR : `.planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md` (calc-engine portion, Decided 2026-05-17). <!-- mint-data-architecture-v1-01-canonical:end -->
 5. **i18n required** — `AppLocalizations.of(context)!.key`. 6 ARB files. Run `flutter gen-l10n`.
 6. **0-TRUST — never trust your own claims** — banned without deterministic citation : « shipped », « closed », « ready », « works », « validated », « green », « PROVISIONALLY READY ». PR opened ≠ shipped. Tests passing ≠ feature working. End-to-end sim run before any « ready ». Detail § 9.
