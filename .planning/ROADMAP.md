@@ -60,7 +60,8 @@ Plans:
 
 ### Phase: mint-data-architecture-v1-01-calc-engine-canonical
 **Goal**: Resolve the upstream `apps/mobile/lib/services/financial_core/` vs `services/backend/app/services/` calc-engine ownership conflict (CLAUDE.md triplet #3 ↔ docs/AGENTS/backend.md:39). Pick a canonical home for ~10 279 LOC mobile calculators + 76 backend services + auto-generated `_registry.py` bridge, and define the sync mechanism in the other direction. This is upstream of every detail in the panel-converged data-layer shape (event-log + projection + DEK envelope) per [decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md §"Calc-engine integration (deferred to GSD discuss-phase 1)"](decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md). Does NOT migrate fact storage (that is deferred Phase 02). Does NOT change coach extraction (that is deferred Phase 03).
-**Status**: 📋 discuss-phase initiated 2026-05-17.
+**Status**: 📋 5 plans created 2026-05-17 (4 waves) — ready for /gsd-execute-phase.
+**Plans**: 5 plans (W1: 1, W2: 1, W3: 2 parallel, W4: 1)
 **Depends on**: `mint-calc-engine-v1` Stage 1 close (code-shipped on dev 2026-05-17). Phase 0 hot-fix `hotfix/compliance-2026-05-17` (coach_insights consent + SnapshotModel.constants_version_hash + DEK shred wiring) merges in parallel per the ADR — separate from GSD and out of scope here.
 **Blocks**: deferred Phase 02 (event-log + projection schema migration), deferred Phase 03 (coach-extractor LLM + guardrails). The panel ADR explicitly assumed backend-canonical for the downstream shape; if mobile-canonical wins, the ADR's downstream phases require revision before being declared.
 **Open questions to resolve in CONTEXT.md**:
@@ -69,6 +70,15 @@ Plans:
 - Migration path for today's 10 279 LOC mobile + 76 backend services + `_registry.py` bridge (strangler-fig preserving `_registry.py` doctrine per D-CE-09 vs big-bang).
 - LSFin advice-audit consequences per ownership choice — where `constants_version_hash` lives, where audit-record provenance is computed.
 - Reconciliation with `mint-calc-engine-v1` shipped work — what stays, what gets re-homed.
+
+**Open questions disposition**: All 5 resolved in `.planning/phases/mint-data-architecture-v1-01-calc-engine-canonical/mint-data-architecture-v1-01-calc-engine-CONTEXT.md` §<decisions> (D-01..D-16 locked).
+
+Plans:
+- [x] 01-01-PLAN.md — Wave 1, autonomous — Pre-flight bundle-size validation (D-14, 100 KB ceiling) + 3 telemetry counters declared in app/core/metrics.py (D-13 implication, CONTEXT §"What this discussion did NOT address")
+- [x] 01-02-PLAN.md — Wave 2, autonomous — Doctrine rewrite + ADR flip in SAME PR per D-04 : CLAUDE.md §1 + TOP rule #4 + §5 NEVER #3 + BOTTOM rule 4 + docs/AGENTS/backend.md line 39 + docs/AGENTS/flutter.md + .claude/skills/mint-{flutter,backend}-dev/SKILL.md (NEW) + .planning/decisions/2026-05-17-... status: Proposed → Decided (calc-engine portion only)
+- [x] 01-03-PLAN.md — Wave 3, autonomous — Backend sync endpoints `GET /v1/regulatory/constants/version` + `GET /v1/regulatory/constants/snapshot` (D-15) + ETag header + OpenAPI canonical regen
+- [x] 01-04-PLAN.md — Wave 4, autonomous — `tools/codegen/regulatory_constants_to_dart.py` (D-08 + D-16) + `tools/codegen/doctrinal_constants_to_dart.py` (D-13) + 2 committed .g.dart files + lefthook 2 soft-warn hooks + `.github/workflows/regulatory-codegen.yml` with staging-down SOFT-WARN fall-back path
+- [x] 01-05-PLAN.md — Wave 3 (parallel to 03), autonomous — Parity lint extension `tools/checks/profile_safe_fields_parity.py --check-constants` (D-12) in SOFT-WARN mode + lefthook hook ; Phase 02 first-migration PR promotes to HARD per D-12
 
 **Canonical refs**:
 - `.planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md` — panel-converged shape, the 9 explicit data gaps (§"What does this source not address?"), and the calc-engine-canonical re-litigation triggers

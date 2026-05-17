@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
-status: phase-closed-pending-operational-gates
+status: executing
 stopped_at: Phase mint-data-architecture-v1-01-calc-engine-canonical context gathered (16/16 recommended; split-with-arbiter L1 mobile + L2-L4 backend along the lucidity L1-L4 typology; offline-first preserved via build-time codegen + runtime delta-check + 7d soft / 30d hard staleness; per-domain strangler-fig PRs honouring D-CE-09/10, Monte Carlo + sensitivity migrate first; constants sync via /v1/regulatory/constants/version + /snapshot endpoints + committed regulatory_constants.g.dart; doctrine rewrite CLAUDE.md + docs/AGENTS/ in same PR as merge; Phase 02 + 03 deferred until 01 outcome locked)
-last_updated: "2026-05-17T13:46:41.589Z"
-last_activity: 2026-05-17 — Phase mint-calc-engine-v1 closed code-side. 8 deferred operational gates require Julien action (G2 device sign-off + 7 follow-up items). Phase cannot be marked ✓ SHIPPED per CLAUDE.md §9.5 (Stage 1 of 4 only).
+last_updated: "2026-05-17T17:46:22.642Z"
+last_activity: 2026-05-17
 progress:
-  total_phases: 12
-  completed_phases: 1
-  total_plans: 7
-  completed_plans: 4
-  percent: 57
+  total_phases: 9
+  completed_phases: 5
+  total_plans: 57
+  completed_plans: 50
+  percent: 88
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase mint-calc-engine-v1 — Calc Engine v1
+**Current focus:** Phase mint-data-architecture-v1-01-calc-engine — canonical
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,10 +35,10 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: mint-calc-engine-v1 (Calc Engine v1) — **◆ code-shipped on dev, pending operational gates** (Plan 20 phase-close complete: VERIFICATION-REPORT.html 541 lines + SUMMARY.md per-D-CE-XX/Concern/Finding disposition + ROADMAP/STATE updated + phase-level engram saved with ≥10 prior_finding_refs)
-Plan: 20 of 20 (complete — phase-close)
-Status: phase-closed-pending-operational-gates
-Last activity: 2026-05-17 — Phase mint-calc-engine-v1 closed code-side. 8 deferred operational gates require Julien action (G2 device sign-off + 7 follow-up items). Phase cannot be marked ✓ SHIPPED per CLAUDE.md §9.5 (Stage 1 of 4 only).
+Phase: mint-data-architecture-v1-01-calc-engine-canonical
+Plan: Not started
+Status: Executing Phase mint-data-architecture-v1-01-calc-engine
+Last activity: 2026-05-17
 
 ## Plan mint-calc-engine-v1-20 Receipt (W4 phase-close engram doctrine — D-CE-18 + Concern F + 5-gate exit contract, 2026-05-17)
 
