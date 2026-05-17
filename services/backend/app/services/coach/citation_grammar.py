@@ -560,13 +560,20 @@ def build_intent_scoped_citation_grammar(intents: Iterable[str]) -> str:
         "« Je n'ai pas cette donnée pour l'instant. Pour avancer "
         "ensemble, dis-moi un peu plus sur ta situation. »\n"
         "\n"
-        "**REJETÉ — chiffre nu, sans `{{cite:<clé>}}`** :\n"
-        "« Le plafond 3a est de 7'056 CHF cette année. » → la garde "
-        "détecte le chiffre non cité, demande une reformulation, et "
-        "si la deuxième tentative reste non citée, ta réponse bascule "
-        "sur le fallback templaté. Évite ce cas en plaçant la clé "
-        "directement après le chiffre, ou en écrivant « je n'ai pas "
-        "cette donnée pour l'instant » à la place du chiffre.\n"
+        # obs #157 (2026-05-17) — replaced earlier REJETÉ example that
+        # used the literal value « 7'056 CHF cette année » (the 2024
+        # Pilier 3a max). LLMs leak negative few-shot examples as
+        # positive when surface form matches the user query (« cette
+        # année ») — staging coach was emitting 7'056 for 2026 prompts.
+        # Mirror the full fragment's safer fabricated-estimate framing.
+        "**REJETÉ — chiffre fabriqué que tu ne peux pas sourcer** :\n"
+        "« Tu pourrais économiser 1'200 CHF de plus par mois. » → "
+        "le chiffre 1'200 n'est PAS dans le message de l'utilisateur "
+        "et n'a pas de clé `{{cite:<clé>}}` adaptée dans le "
+        "vocabulaire fermé. La garde le rejette. Pour formuler une "
+        "estimation, soit cite la clé qui couvre le calcul, soit "
+        "reformule au conditionnel sans avancer de chiffre précis "
+        "(« une marge mensuelle resterait à dégager »).\n"
     )
 
     rule_section = (
