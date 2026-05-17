@@ -144,6 +144,47 @@ def prometheus_metrics() -> Response:
     return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
+# --------------------------------------------------------------------------- #
+# Phase mint-data-architecture-v1-01 Plan 01 — telemetry counters             #
+# (D-13 telemetry implication + CONTEXT.md §"What this discussion did NOT     #
+# address" — declarations only ; firing call-sites land in Phase 02 per       #
+# CONTEXT.md §Decisions D-05 chip rendering + §'What would change this        #
+# conclusion' offline-session telemetry trigger.)                             #
+# --------------------------------------------------------------------------- #
+
+
+mint_offline_session_total = Counter(
+    "mint_offline_session_total",
+    "Sessions that completed at least one L1 chiffrer compute while the device was offline (online_at_compute=False). Wired in Phase 02 client-side per CONTEXT.md D-05 chip rendering — Phase 01 only declares the counter so Phase 02 can fire it without a metrics-module change.",
+)
+"""Phase 01 declaration only — firing wired in Phase 02 once client-side
+offline detection ships. Backend-side exposition path : the mobile telemetry
+bridge POSTs aggregate counts to a Phase 02 endpoint that increments this
+counter (no per-request mobile-to-prometheus tunnel). Labels intentionally
+omitted to forbid high-cardinality tags at firing time."""
+
+
+mint_l1_only_session_total = Counter(
+    "mint_l1_only_session_total",
+    "Sessions that only invoked L1 chiffrer surfaces (no L2/L3/L4 backend hit) — the empirical denominator for the offline-first hypothesis per CONTEXT.md §'What would change this conclusion' (<2% trigger). Wired in Phase 02.",
+)
+"""Phase 01 declaration only — firing wired in Phase 02. The denominator that
+turns mint_offline_session_total into the offline-session-rate SLI that
+unlocks the §'What would change this conclusion' re-litigation gate
+(rate < 2% → re-open full backend-canonical). Labels intentionally omitted."""
+
+
+mint_constants_staleness_at_render_seconds = Histogram(
+    "mint_constants_staleness_at_render_seconds",
+    "Seconds elapsed between baked-snapshot effective_from and L1-widget render time. Buckets cover the 7d soft / 30d hard staleness window per CONTEXT.md D-07. Wired in Phase 02.",
+    buckets=(0, 3_600, 86_400, 604_800, 1_209_600, 2_592_000, 5_184_000),  # 0, 1h, 1d, 7d, 14d, 30d, 60d
+)
+"""Phase 01 declaration only — firing wired in Phase 02. Bucket boundaries
+align with D-07 thresholds : 7d (soft-warn chip), 14d (mid), 30d (hard refuse).
+0 / 1h / 1d / 60d buckets are headroom for sanity-check visualisation. Labels
+intentionally omitted to forbid per-user partitions."""
+
+
 __all__ = [
     "calc_invoke_total",
     "cache_lookup_total",
@@ -151,4 +192,8 @@ __all__ = [
     "zero_citation_total",
     "calc_latency_seconds",
     "metrics_router",
+    # Phase mint-data-architecture-v1-01 Plan 01 — telemetry primitives
+    "mint_offline_session_total",
+    "mint_l1_only_session_total",
+    "mint_constants_staleness_at_render_seconds",
 ]
