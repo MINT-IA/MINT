@@ -296,7 +296,7 @@ pre-push:
       # files (CLAUDE.md + docs/AGENTS/{backend,flutter}.md + 2 SKILL.md + the
       # ADR) appear in the diff range, OR none of them do (unrelated push).
       # Partial co-modification = exit 1.
-      run: python3 tools/checks/doctrine_atomicity_gate.py --base {push_branch} --head HEAD
+      run: python3 tools/checks/doctrine_atomicity_gate.py --base "@{u}" --head HEAD
       tags: [doctrine, mint-data-architecture-v1-01, phase-02-task-4]
       fail_text: "D-04 atomicity violated — partial doctrine co-modification. See stderr above for missing files + fix command."
     doctrine-consistency:
