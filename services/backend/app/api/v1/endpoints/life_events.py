@@ -16,6 +16,7 @@ from app.core.auth import require_current_user
 from app.core.profile_resolver import (
     _required_profile_fields_missing,
     _resolve_defaults,
+    emit_calc_invoke_metric,
     get_profile_filled,
     raise_incomplete_as_422,
 )
@@ -96,6 +97,11 @@ def simulate_divorce(
             resolved_body=resolved,
             endpoint="/api/v1/life-events/divorce/simulate",
         )
+    emit_calc_invoke_metric(
+        kind="divorce_simulate",
+        resolved=resolved,
+        schema_class=DivorceSimulationRequest,
+    )
 
     # Enum-preservation defensive extraction
     regime_value = resolved["regimeMatrimonial"]
@@ -243,6 +249,11 @@ def simulate_succession(
             resolved_body=resolved,
             endpoint="/api/v1/life-events/succession/simulate",
         )
+    emit_calc_invoke_metric(
+        kind="succession_simulate",
+        resolved=resolved,
+        schema_class=SuccessionSimulationRequest,
+    )
 
     # Pydantic v2 alias_generator is NOT used on this schema (camelCase comes
     # from raw field names), so resolved keys are camelCase (e.g. `fortuneTotale`).
@@ -393,6 +404,11 @@ def simulate_donation(
             resolved_body=resolved,
             endpoint="/api/v1/life-events/donation/simulate",
         )
+    emit_calc_invoke_metric(
+        kind="donation_simulate",
+        resolved=resolved,
+        schema_class=DonationSimulationRequest,
+    )
 
     input_data = DonationInput(
         montant=resolved["montant"],

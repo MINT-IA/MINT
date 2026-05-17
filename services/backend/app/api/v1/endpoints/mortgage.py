@@ -16,6 +16,7 @@ from app.core.auth import require_current_user
 from app.core.profile_resolver import (
     _required_profile_fields_missing,
     _resolve_defaults,
+    emit_calc_invoke_metric,
     get_profile_filled,
     raise_incomplete_as_422,
 )
@@ -100,6 +101,11 @@ def calculate_affordability(
             resolved_body=resolved,
             endpoint="/api/v1/mortgage/affordability",
         )
+    emit_calc_invoke_metric(
+        kind="affordability",
+        resolved=resolved,
+        schema_class=MortgageAffordabilityRequest,
+    )
 
     result = _affordability_service.calculate_affordability(
         revenu_brut_annuel=float(resolved["revenuBrutAnnuel"]),
@@ -253,6 +259,11 @@ def calculate_imputed_rental(
             resolved_body=resolved,
             endpoint="/api/v1/mortgage/imputed-rental",
         )
+    emit_calc_invoke_metric(
+        kind="imputed_rental",
+        resolved=resolved,
+        schema_class=ImputedRentalRequest,
+    )
 
     result = _imputed_rental_service.calculate(
         valeur_venale=resolved["valeurVenale"],
@@ -323,6 +334,11 @@ def compare_amortization(
             resolved_body=resolved,
             endpoint="/api/v1/mortgage/amortization",
         )
+    emit_calc_invoke_metric(
+        kind="amortization",
+        resolved=resolved,
+        schema_class=AmortizationComparisonRequest,
+    )
 
     result = _amortization_service.compare(
         montant_hypothecaire=resolved["montantHypothecaire"],
@@ -410,6 +426,11 @@ def calculate_epl_combined(
             resolved_body=resolved,
             endpoint="/api/v1/mortgage/epl-combined",
         )
+    emit_calc_invoke_metric(
+        kind="epl_combined",
+        resolved=resolved,
+        schema_class=EplCombinedRequest,
+    )
 
     result = _epl_combined_service.calculate(
         avoir_3a=resolved["avoir3a"],

@@ -21,6 +21,7 @@ from app.core.auth import require_current_user
 from app.core.profile_resolver import (
     _required_profile_fields_missing,
     _resolve_defaults,
+    emit_calc_invoke_metric,
     get_profile_filled,
     raise_incomplete_as_422,
 )
@@ -104,6 +105,11 @@ def calculate_source_tax(
             resolved_body=resolved,
             endpoint="/api/v1/expat/frontalier/source-tax",
         )
+    emit_calc_invoke_metric(
+        kind="source_tax",
+        resolved=resolved,
+        schema_class=SourceTaxRequest,
+    )
 
     # marital_status is preserved through resolver — extract enum value
     marital_value = resolved["marital_status"]
@@ -265,6 +271,11 @@ def estimate_lamal_option(
             resolved_body=resolved,
             endpoint="/api/v1/expat/frontalier/lamal-option",
         )
+    emit_calc_invoke_metric(
+        kind="lamal_option",
+        resolved=resolved,
+        schema_class=LamalOptionRequest,
+    )
 
     residence_value = resolved["residence_country"]
     if hasattr(residence_value, "value"):

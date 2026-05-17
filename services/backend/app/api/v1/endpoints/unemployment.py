@@ -14,6 +14,7 @@ from app.core.auth import require_current_user
 from app.core.profile_resolver import (
     _required_profile_fields_missing,
     _resolve_defaults,
+    emit_calc_invoke_metric,
     get_profile_filled,
     raise_incomplete_as_422,
 )
@@ -72,6 +73,11 @@ def calculate_unemployment_benefits(
             resolved_body=resolved,
             endpoint="/api/v1/unemployment/calculate",
         )
+    emit_calc_invoke_metric(
+        kind="unemployment_calculate",
+        resolved=resolved,
+        schema_class=UnemploymentBenefitsRequest,
+    )
 
     calculator = UnemploymentCalculator()
     result = calculator.calculate(

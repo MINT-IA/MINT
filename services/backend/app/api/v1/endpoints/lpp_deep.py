@@ -15,6 +15,7 @@ from app.core.auth import require_current_user
 from app.core.profile_resolver import (
     _required_profile_fields_missing,
     _resolve_defaults,
+    emit_calc_invoke_metric,
     get_profile_filled,
     raise_incomplete_as_422,
 )
@@ -87,6 +88,11 @@ def simulate_rachat_echelonne(
             resolved_body=resolved,
             endpoint="/api/v1/lpp-deep/rachat-echelonne",
         )
+    emit_calc_invoke_metric(
+        kind="rachat_echelonne",
+        resolved=resolved,
+        schema_class=RachatEchelonneRequest,
+    )
 
     result = _rachat_service.simulate(
         avoir_actuel=float(resolved["avoirActuel"]),
@@ -229,6 +235,11 @@ def simulate_epl(
             resolved_body=resolved,
             endpoint="/api/v1/lpp-deep/epl",
         )
+    emit_calc_invoke_metric(
+        kind="epl",
+        resolved=resolved,
+        schema_class=EPLRequest,
+    )
 
     result = _epl_service.simulate(
         avoir_lpp_total=resolved["avoirLppTotal"],

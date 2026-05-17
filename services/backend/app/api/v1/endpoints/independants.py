@@ -16,6 +16,7 @@ from app.core.auth import require_current_user
 from app.core.profile_resolver import (
     _required_profile_fields_missing,
     _resolve_defaults,
+    emit_calc_invoke_metric,
     get_profile_filled,
     raise_incomplete_as_422,
 )
@@ -157,6 +158,11 @@ def compute_3a_independant(
             resolved_body=resolved,
             endpoint="/api/v1/independants/3a-independant",
         )
+    emit_calc_invoke_metric(
+        kind="trois_a_independant",
+        resolved=resolved,
+        schema_class=Pillar3aIndepRequest,
+    )
 
     result = calculer_3a_independant(
         revenu_net=resolved["revenu_net"],
@@ -209,6 +215,11 @@ def simulate_dividende_vs_salaire(
             resolved_body=resolved,
             endpoint="/api/v1/independants/dividende-vs-salaire",
         )
+    emit_calc_invoke_metric(
+        kind="dividende_vs_salaire",
+        resolved=resolved,
+        schema_class=DividendeVsSalaireRequest,
+    )
 
     result = simuler_dividende_vs_salaire(
         benefice_disponible=resolved["benefice_disponible"],

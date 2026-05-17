@@ -26,6 +26,7 @@ from app.core.auth import require_current_user
 from app.core.profile_resolver import (
     _required_profile_fields_missing,
     _resolve_defaults,
+    emit_calc_invoke_metric,
     get_profile_filled,
     raise_incomplete_as_422,
 )
@@ -126,6 +127,11 @@ def arbitrage_rente_vs_capital(
             resolved_body=resolved,
             endpoint="/api/v1/arbitrage/rente-vs-capital",
         )
+    emit_calc_invoke_metric(
+        kind="rente_vs_capital",
+        resolved=resolved,
+        schema_class=RenteVsCapitalRequest,
+    )
 
     try:
         result = compare_rente_vs_capital(
@@ -253,6 +259,11 @@ def arbitrage_allocation_annuelle(
             resolved_body=resolved,
             endpoint="/api/v1/arbitrage/allocation-annuelle",
         )
+    emit_calc_invoke_metric(
+        kind="allocation_annuelle",
+        resolved=resolved,
+        schema_class=AllocationAnnuelleRequest,
+    )
 
     try:
         result = compare_allocation_annuelle(
@@ -330,6 +341,11 @@ def arbitrage_location_vs_propriete(
             resolved_body=resolved,
             endpoint="/api/v1/arbitrage/location-vs-propriete",
         )
+    emit_calc_invoke_metric(
+        kind="location_vs_propriete",
+        resolved=resolved,
+        schema_class=LocationVsProprieteRequest,
+    )
 
     try:
         result = compare_location_vs_propriete(
@@ -407,6 +423,11 @@ def arbitrage_rachat_vs_marche(
             resolved_body=resolved,
             endpoint="/api/v1/arbitrage/rachat-vs-marche",
         )
+    emit_calc_invoke_metric(
+        kind="rachat_vs_marche",
+        resolved=resolved,
+        schema_class=RachatVsMarcheRequest,
+    )
 
     try:
         result = compare_rachat_vs_marche(
@@ -481,6 +502,11 @@ def arbitrage_calendrier_retraits(
             resolved_body=resolved,
             endpoint="/api/v1/arbitrage/calendrier-retraits",
         )
+    emit_calc_invoke_metric(
+        kind="calendrier_retraits",
+        resolved=resolved,
+        schema_class=CalendrierRetraitsRequest,
+    )
 
     try:
         # Convert schema assets to service dataclass

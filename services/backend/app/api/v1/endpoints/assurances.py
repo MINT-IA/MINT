@@ -13,6 +13,7 @@ from app.core.auth import require_current_user
 from app.core.profile_resolver import (
     _required_profile_fields_missing,
     _resolve_defaults,
+    emit_calc_invoke_metric,
     get_profile_filled,
     raise_incomplete_as_422,
 )
@@ -132,6 +133,11 @@ def check_coverage(
             resolved_body=resolved,
             endpoint="/api/v1/assurances/coverage/check",
         )
+    emit_calc_invoke_metric(
+        kind="coverage_check",
+        resolved=resolved,
+        schema_class=CoverageCheckRequest,
+    )
 
     # Enum-preservation defensive extraction
     statut_value = resolved["statutProfessionnel"]

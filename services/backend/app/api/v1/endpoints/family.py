@@ -23,6 +23,7 @@ from app.core.auth import require_current_user
 from app.core.profile_resolver import (
     _required_profile_fields_missing,
     _resolve_defaults,
+    emit_calc_invoke_metric,
     get_profile_filled,
     raise_incomplete_as_422,
 )
@@ -126,6 +127,11 @@ def compare_mariage_fiscal(
             resolved_body=resolved,
             endpoint="/api/v1/family/mariage/compare",
         )
+    emit_calc_invoke_metric(
+        kind="mariage_compare",
+        resolved=resolved,
+        schema_class=MariageFiscalRequest,
+    )
 
     service = MariageService()
     result = service.compare_fiscal_impact(
@@ -309,6 +315,11 @@ def estimate_allocations(
             resolved_body=resolved,
             endpoint="/api/v1/family/naissance/allocations",
         )
+    emit_calc_invoke_metric(
+        kind="naissance_allocations",
+        resolved=resolved,
+        schema_class=AllocationsFamilialesRequest,
+    )
 
     service = NaissanceService()
     result = service.estimate_allocations(
@@ -457,6 +468,11 @@ def compare_concubinage(
             resolved_body=resolved,
             endpoint="/api/v1/family/concubinage/compare",
         )
+    emit_calc_invoke_metric(
+        kind="concubinage_compare",
+        resolved=resolved,
+        schema_class=ConcubinageCompareRequest,
+    )
 
     service = ConcubinageService()
     result = service.compare_mariage_vs_concubinage(
@@ -527,6 +543,11 @@ def compare_succession(
             resolved_body=resolved,
             endpoint="/api/v1/family/concubinage/succession",
         )
+    emit_calc_invoke_metric(
+        kind="concubinage_succession",
+        resolved=resolved,
+        schema_class=SuccessionRequest,
+    )
 
     service = ConcubinageService()
     result = service.estimate_inheritance_tax(

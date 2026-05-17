@@ -15,6 +15,7 @@ from app.core.auth import require_current_user
 from app.core.profile_resolver import (
     _required_profile_fields_missing,
     _resolve_defaults,
+    emit_calc_invoke_metric,
     get_profile_filled,
     raise_incomplete_as_422,
 )
@@ -118,6 +119,11 @@ def compare_lpp(
             resolved_body=resolved,
             endpoint="/api/v1/retirement/lpp/compare",
         )
+    emit_calc_invoke_metric(
+        kind="lpp_compare",
+        resolved=resolved,
+        schema_class=LppConversionRequest,
+    )
 
     service = LppConversionService()
     result = service.compare(
