@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.10
-milestone_name: Lucidité Engine
+milestone: v2.8
+milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
 status: phase-closed-pending-operational-gates
-stopped_at: Completed mint-calc-engine-v1 (20 plans, ~26 endpoints grounded, L1-L4 typed payloads, ToolRegistryAdapter + 3 adapters, 9 bundles, CoachToolResponse V2 envelope w/ latency_tier, Alembic p110 composite partial index, cache reader/writer/AsyncSingleflight, REVERSE_DEP_MAP 146 fields, BackgroundTasks pre-compute + SLI 0.767/0.900, GC predicate + Railway cron declaration, 4 Prometheus counters + /metrics endpoint + inputs_provenance V2 field, D-CE-16 triple defense schema+lint+runtime, profile_safe_fields_parity lint w/ 45-field baseline drift documented incl. dead-COUP-04 finding). Phase status ◆ code-shipped on dev, pending operational gates (NOT ✓ SHIPPED per CLAUDE.md §9.5 4-stage shipping pipeline — Stage 1 of 4 complete). 8 deferred gates: G2 Julien device sign-off · Plan 09 Task 5b Railway env-flip · Plan 09 Task 5a FR tone review · Plan 11 S12-API consolidation · Plan 16 Railway cron activation · Plan 17 Railway metrics scraping config · Plan 17 endpoint metric fanout · Plan 19 Flutter 45-field drift fix (incl. dead-COUP-04).
-last_updated: "2026-05-17T08:30:00.000Z"
-last_activity: 2026-05-17 — Phase mint-calc-engine-v1 phase-closed-pending-operational-gates
+stopped_at: Phase mint-data-architecture-v1-01-calc-engine-canonical context gathered (16/16 recommended; split-with-arbiter L1 mobile + L2-L4 backend along the lucidity L1-L4 typology; offline-first preserved via build-time codegen + runtime delta-check + 7d soft / 30d hard staleness; per-domain strangler-fig PRs honouring D-CE-09/10, Monte Carlo + sensitivity migrate first; constants sync via /v1/regulatory/constants/version + /snapshot endpoints + committed regulatory_constants.g.dart; doctrine rewrite CLAUDE.md + docs/AGENTS/ in same PR as merge; Phase 02 + 03 deferred until 01 outcome locked)
+last_updated: "2026-05-17T13:46:41.589Z"
+last_activity: 2026-05-17 — Phase mint-calc-engine-v1 closed code-side. 8 deferred operational gates require Julien action (G2 device sign-off + 7 follow-up items). Phase cannot be marked ✓ SHIPPED per CLAUDE.md §9.5 (Stage 1 of 4 only).
 progress:
   total_phases: 12
   completed_phases: 1
-  total_plans: 27
-  completed_plans: 24
-  percent: 88
+  total_plans: 7
+  completed_plans: 4
+  percent: 57
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -627,9 +627,9 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-17T08:04:15.335Z
-Stopped at: Completed mint-calc-engine-v1-19-w4-profile-safe-fields-parity-PLAN.md
-Resume file: None
+Last session: 2026-05-17T13:46:41.582Z
+Stopped at: Phase mint-data-architecture-v1-01-calc-engine-canonical context gathered (16/16 recommended; split-with-arbiter L1 mobile + L2-L4 backend along the lucidity L1-L4 typology; offline-first preserved via build-time codegen + runtime delta-check + 7d soft / 30d hard staleness; per-domain strangler-fig PRs honouring D-CE-09/10, Monte Carlo + sensitivity migrate first; constants sync via /v1/regulatory/constants/version + /snapshot endpoints + committed regulatory_constants.g.dart; doctrine rewrite CLAUDE.md + docs/AGENTS/ in same PR as merge; Phase 02 + 03 deferred until 01 outcome locked)
+Resume file: .planning/phases/mint-data-architecture-v1-01-calc-engine-canonical/mint-data-architecture-v1-01-calc-engine-CONTEXT.md
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>
