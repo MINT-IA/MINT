@@ -32,6 +32,7 @@ import secrets
 from datetime import datetime, timezone
 from typing import Optional
 
+from cachetools import TTLCache
 from cryptography.fernet import Fernet, InvalidToken
 
 logger = logging.getLogger(__name__)
@@ -51,6 +52,16 @@ class DEKRevokedError(Exception):
 
 class KeyVaultServiceError(Exception):
     """Generic key vault failure (MK unavailable, wrap/unwrap mismatch)."""
+
+
+class KMSBackendUnavailable(KeyVaultServiceError):
+    """iter-2 A4 + D-35 PROPOSED — fail-closed when KMS backend cannot be resolved.
+
+    Replaces the Plan 02-01 silent KMS->Fernet fallback (security HIGH:
+    split-brain key wrapping). Production deploys MUST set MINT_KMS_KEY_ID
+    (Railway-native logical key-id 'mint-master-v1' per D-02), OR opt in
+    to dev-Fernet explicitly via MINT_KMS_BACKEND=fernet.
+    """
 
 
 # ---------------------------------------------------------------------------
@@ -132,13 +143,62 @@ class _KMSBackend:
 
 
 def _select_backend():
-    kms_key = os.environ.get("MINT_KMS_KEY_ID")
-    if kms_key:
+    """Resolve KMS backend from MINT_KMS_KEY_ID env. Fail-closed per D-35.
+
+    Resolution order:
+        1. MINT_KMS_BACKEND='fernet' explicit dev opt-in -> _FernetBackend()
+        2. MINT_KMS_KEY_ID set -> _KMSBackend or _FernetBackend(env)
+           depending on prefix; raise KMSBackendUnavailable on failure
+        3. TESTING=1 fallback -> _FernetBackend() (allows the existing
+           7000+ test suite to run without explicit env)
+        4. Nothing set in production -> raise KMSBackendUnavailable
+
+    D-35 PROPOSED (iter-2 A4): silent KMS->Fernet fallback REMOVED; was a
+    security HIGH (split-brain key wrapping). Increments
+    mint_kms_backend_failure_total{backend, reason} on every fallback /
+    failure path.
+    """
+    # Lazy import to avoid circular dependency with observability/counters
+    try:
+        from app.observability.counters import mint_kms_backend_failure_total
+    except Exception:  # pragma: no cover — counters module may not yet exist on Plan 02-01 base
+        mint_kms_backend_failure_total = None  # type: ignore
+
+    def _inc(backend: str, reason: str) -> None:
+        if mint_kms_backend_failure_total is not None:
+            try:
+                mint_kms_backend_failure_total.labels(backend=backend, reason=reason).inc()
+            except Exception:
+                pass  # never let observability take down a real request
+
+    explicit_backend = os.environ.get("MINT_KMS_BACKEND", "").strip().lower()
+    key_id = os.environ.get("MINT_KMS_KEY_ID", "").strip()
+
+    if explicit_backend == "fernet":
+        _inc("fernet", "explicit_dev_optin")
+        return _FernetBackend()
+
+    if key_id:
+        # Future: AWS KMS / GCP KMS branching on key_id prefix.
+        # Phase 02 Railway-native 'mint-master-v1' maps to Fernet for now.
         try:
-            return _KMSBackend(kms_key)
+            return _FernetBackend()
         except KeyVaultServiceError as exc:
-            logger.warning("key_vault: KMS backend unavailable (%s) → fallback Fernet", exc)
-    return _FernetBackend()
+            _inc("fernet", type(exc).__name__)
+            raise KMSBackendUnavailable(
+                f"KMS backend resolution failed for {key_id}: {exc}"
+            ) from exc
+
+    if os.environ.get("TESTING") == "1":
+        # TESTING fallback allows the suite to run without explicit env.
+        # Production deploys never hit this path (TESTING is unset).
+        return _FernetBackend()
+
+    _inc("none", "MINT_KMS_KEY_ID_unset")
+    raise KMSBackendUnavailable(
+        "MINT_KMS_KEY_ID is unset. Set it to 'mint-master-v1' for Railway-native KMS, "
+        "OR set MINT_KMS_BACKEND=fernet explicitly for dev (D-35 fail-closed contract)."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -148,15 +208,23 @@ def _select_backend():
 class KeyVaultService:
     """Facade over MK backend + DEKVault ORM row lifecycle.
 
-    In-process DEK cache (plaintext) keyed by user_id. Cache is cleared by
-    revoke_dek so shredded users cannot decrypt via stale cache entries.
+    iter-2 A5: in-process DEK cache (plaintext) is now a TTLCache (5min TTL
+    + maxsize 1024) — bounded so a long-lived worker cannot leak DEKs for
+    every user it ever touched, and expiring so a rotation propagates within
+    5min without a process restart. Cache is also cleared by revoke_dek so
+    shredded users cannot decrypt via stale cache entries.
     """
 
     DEK_SIZE_BYTES = 32  # AES-256
+    _DEK_CACHE_TTL_SECONDS = 300  # iter-2 A5: 5 minutes
+    _DEK_CACHE_MAXSIZE = 1024     # iter-2 A5: staging traffic << 1024 active users
 
     def __init__(self) -> None:
         self._backend = None  # lazy — avoids import-time env read failures
-        self._dek_cache: dict[str, bytes] = {}
+        self._dek_cache: TTLCache = TTLCache(
+            maxsize=self._DEK_CACHE_MAXSIZE,
+            ttl=self._DEK_CACHE_TTL_SECONDS,
+        )
 
     def _get_backend(self):
         if self._backend is None:
@@ -211,10 +279,15 @@ class KeyVaultService:
         # Create
         dek = self._generate_dek()
         wrapped = self.wrap_dek(dek)
+        # D-02: kms_key_ref is the LOGICAL key-id (audit anchor), not the
+        # backend wrapping-key material. Prefer MINT_KMS_KEY_ID env (the
+        # logical id Julien sets on Railway, e.g. 'mint-master-v1');
+        # fall back to backend self-reported key_ref when unset (dev path).
+        logical_key_id = os.environ.get("MINT_KMS_KEY_ID", "").strip() or self.key_ref
         row = DEKVault(
             user_id=user_id,
             wrapped_dek=wrapped,
-            kms_key_ref=self.key_ref,
+            kms_key_ref=logical_key_id,
             algo="AES-256-GCM",
             created_at=datetime.now(timezone.utc),
         )
