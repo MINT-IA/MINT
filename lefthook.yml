@@ -36,6 +36,39 @@ pre-commit:
       run: python3 tools/checks/wiki_lint.py
       glob: ".planning/**/*.md"
       tags: [wiki, planning]
+    # ── Phase mint-data-architecture-v1-02 W0 Plan 02-01 HARD lints (D-20, D-24, iter-2 B4) ──
+    alembic-boolean-default-lint:
+      # D-20 — Refuses sa.Boolean + non-Boolean server_default combos
+      # (Hotfix B regression class: sa.text("0"/"1"/"true"/"false") on a
+      # Boolean column crashes Postgres with DatatypeMismatch at upgrade time).
+      # iter-2 Tier-A A7 catches 5+ bypass shapes. Self-test :
+      # `python3 tools/checks/alembic_boolean_default_lint.py --self-test`.
+      # NO LEFTHOOK_BYPASS exception (CONTEXT D-20).
+      run: python3 tools/checks/alembic_boolean_default_lint.py {staged_files}
+      glob: "services/backend/alembic/versions/*.py"
+      tags: [migration, postgres, phase-02-d-20]
+      fail_text: "Postgres BOOLEAN DEFAULT bug — use sa.false()/sa.true() not sa.text(\"0\"/\"1\"/\"true\"/\"false\"). CLAUDE.md Hotfix B regression class."
+    hmac-pepper-audit:
+      # D-24 — Refuses bare hashlib.sha256(user_id|actor_email|ip_address|user_agent)
+      # outside the canonical entry app/services/audit/hmac_pepper.py.
+      # Audit-PII hashes are rainbow-table-reversible without a pepper
+      # (security-auditor obs #175). Baselined sites in
+      # tools/checks/_baseline_hmac_sites_at_p112.txt — Plan 02-02 W1 D-14/D-15
+      # progressively shrinks this baseline ; Plan 02-02 close requires it empty.
+      # NO LEFTHOOK_BYPASS exception (CONTEXT D-24).
+      run: python3 tools/checks/hmac_pepper_audit.py {staged_files} --baseline tools/checks/_baseline_hmac_sites_at_p112.txt
+      glob: "services/backend/app/**/*.py"
+      tags: [security, audit, phase-02-d-24]
+      fail_text: "Audit-PII hash must route through app.services.audit.hmac_pepper.hmac_user_id() — bare hashlib.sha256(user_id) is rainbow-table-reversible (security-auditor obs #175). Pre-existing sites baselined in tools/checks/_baseline_hmac_sites_at_p112.txt ; NEW sites outside the baseline are HARD-rejected."
+    s23-class-name-lint:
+      # iter-2 Tier-B B4 (D-09) — Refuses re-introduction of `class FrontalierService:`
+      # outside the S12 façade allowlist `app/services/frontalier_service.py`.
+      # The S23 (expat) class is `FrontalierSegmentService` since Phase 02 D-09 ;
+      # alias `FrontalierService = FrontalierSegmentService` removed in Plan 02-04 PR-2.
+      run: python3 tools/checks/s23_class_name_lint.py {staged_files}
+      glob: "services/backend/**/*.py"
+      tags: [refactor, phase-02-d-09, post-rename-protection]
+      fail_text: "Do not re-introduce `class FrontalierService:` outside the S12 façade `app/services/frontalier_service.py`. The S23 class is `FrontalierSegmentService` since Phase 02 D-09."
     # ── Phase 34 GUARD-01 partial (HARD gates, 0/50 historical block rate) ──
     banned-terms-arb-gate:
       # LSFin Rule #1 (CLAUDE.md TOP rule #1) — refuses any ARB containing the
