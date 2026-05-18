@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="0" time="18.0">
+    <testcase id="flow_narrator_refuses_uncited_numbers" name="flow_narrator_refuses_uncited_numbers" classname="flow_narrator_refuses_uncited_numbers" time="18.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="phase-94, gate-g1, citation-gate, anonymous-chat, closed-world"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

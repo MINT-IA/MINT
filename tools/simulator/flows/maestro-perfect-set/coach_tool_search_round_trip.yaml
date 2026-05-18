@@ -42,8 +42,9 @@ tags:
 ---
 - launchApp:
     clearState: false
-- assertVisible:
-    text: "Mon argent|Aujourd'hui|Mon coach"
+- extendedWaitUntil:
+    visible:
+      text: "Mon argent|Aujourd'hui|Mon coach"
     timeout: 15000
 
 # Tap into the Coach tab — entry point for the chat-driven tool surfacing.
