@@ -19,7 +19,7 @@ Sources:
 
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 from app.services.snapshots.snapshot_models import (
     FinancialSnapshot,
@@ -330,3 +330,74 @@ def get_evolution(
         }
         for s in sorted_snaps
     ]
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# fact_current read-path (feature-flag-gated, Plan 02-02 W1 D-25 canary substrate)
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Phase mint-data-architecture-v1-02 Plan 02-02 W1 — D-25 canary parity gate.
+#
+# When the FF_FACT_CURRENT_READ feature flag is OFF (default), reads of
+# `monthly_gross_income` continue to come from SnapshotModel.gross_income
+# (the legacy plaintext Float column). When the flag is ON, the read goes
+# through `fact_current.value_enc` decrypted via the D-26 EncryptedValue
+# helper.
+#
+# The flag will be flipped ON in Plan 02-03 PR-2 (dual-write phase) once
+# the projector is wired into the snapshot-write side. Until then, the
+# default-OFF behaviour preserves zero end-user-visible change.
+#
+# The canary parity test (`test_canary_monthly_gross_income.py`) writes the
+# SAME value via BOTH paths and asserts the two reads return IDENTICAL
+# results — the W1 → W2 gate per D-25.
+
+def read_monthly_gross_income(user_id: str, db) -> Optional[float]:
+    """Read the current `monthly_gross_income` for a user.
+
+    When FF_FACT_CURRENT_READ is OFF (default), returns the latest
+    SnapshotModel.gross_income value for the user (legacy plaintext path).
+    When FF_FACT_CURRENT_READ is ON, decrypts fact_current.value_enc via
+    the D-26 helper.
+
+    Returns None if the user has no snapshot / no fact_current row.
+
+    Note : SnapshotModel.gross_income is a YEARLY float ; the canary
+    parity-test writes the same numeric value via BOTH paths and asserts
+    they read back identically. Whether the field semantically represents
+    monthly vs annual is the caller's contract — this helper is a transport
+    layer, not a unit converter.
+    """
+    import os
+
+    use_fact_current = os.environ.get("FF_FACT_CURRENT_READ", "").lower() in (
+        "1", "true", "yes",
+    )
+
+    if use_fact_current:
+        from app.models.fact_current import FactCurrent
+        from app.services.encryption.encrypted_value_helper import decrypt_value
+
+        row = (
+            db.query(FactCurrent)
+            .filter(
+                FactCurrent.user_id == user_id,
+                FactCurrent.field_key == "monthly_gross_income",
+            )
+            .one_or_none()
+        )
+        if row is None:
+            return None
+        return decrypt_value(db, user_id, row.value_enc)
+
+    # Legacy path : latest SnapshotModel.gross_income
+    from app.models.snapshot import SnapshotModel
+    row = (
+        db.query(SnapshotModel)
+        .filter(SnapshotModel.user_id == user_id)
+        .order_by(SnapshotModel.created_at.desc())
+        .first()
+    )
+    if row is None:
+        return None
+    return row.gross_income
