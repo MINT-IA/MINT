@@ -71,6 +71,15 @@ dev = [
     "fakeredis>=2.20.0",
     "hypothesis>=6.111",
 ]
+# Phase mint-data-architecture-v1-02 W0 Plan 02-01 — D-22 testcontainers Postgres harness
+# (per-PR primary ; Railway staging replica is supplementary nightly soak). Requires Docker
+# on the test runner. GH Actions ubuntu-latest ships Docker pre-installed ; local devs without
+# Docker see `pytest.skip("Docker unavailable")` in `tests/fixtures/test_pg_fixture_self.py`.
+# uuid_utils is already declared in the main `dependencies` list (Phase 95 DAG-INVALIDATION
+# UUID7 backport, pinned >=0.14.1,<1.0). No duplicate pin here.
+test = [
+    "testcontainers[postgres]>=4.7,<5",
+]
 rag = [
     "chromadb>=0.5.5",
     "anthropic>=0.40.0,<1.0.0",

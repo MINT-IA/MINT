@@ -17,6 +17,20 @@ from app.main import app
 from app.core.auth import get_current_user, require_current_user
 from app.core.database import Base, get_db
 
+# Phase mint-data-architecture-v1-02 W0 Plan 02-01 (D-22) — real-Postgres pg_fixture.
+# Imported at module-import so `pytest --collect-only` discovers `pg_engine`/`pg_session`.
+# The fixture itself self-skips if Docker is unavailable on the host (local-dev path).
+from tests.fixtures.pg_fixture import pg_engine, pg_session  # noqa: F401
+
+
+def pytest_configure(config):
+    """Register the `pg` marker for Phase 02 real-Postgres tests (D-22)."""
+    config.addinivalue_line(
+        "markers",
+        "pg: real-Postgres integration test (uses pg_fixture testcontainers, "
+        "skips if Docker unavailable). Phase mint-data-architecture-v1-02 D-22.",
+    )
+
 
 def _fake_user():
     """Return a mock user for auth dependency override in tests."""
