@@ -26,6 +26,7 @@ files_modified:
   - docs/operations/fact-event-partition-split.md
   - docs/operations/dek-rotation-phase04.md
   - docs/operations/audit-pepper-rotation.md
+  - docs/operations/phase-04-mobile-attestation-hardening.md  # iter-3 iA4 (session-start audit-pollution forward-defer to Phase 04)
   - .planning/ROADMAP.md
   - .planning/STATE.md
   - .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-VERIFICATION-REPORT.html
@@ -792,3 +793,121 @@ files_modified:
 Single commit message: `docs(mint-data-architecture-v1-02-event-log-projection): plan iter-2 reviews revision — B7 pepper rotation order + B16 grep-app + B17 D-30 race tests + C1 Docker docs + C8 STAGING-DOWN-OVERRIDE contract (Plan 02-04)`.
 
 </iter_2_revision>
+
+<!-- ============================================================== -->
+<!-- ITER-3 REVISION — appended 2026-05-18                          -->
+<!-- Source: REVIEWS.md §7.6 Claude-Opus universal-miss              -->
+<!-- Scope: forward-defer the session-start audit-pollution attack   -->
+<!-- to Phase 04 via runbook stub + SUMMARY acknowledgment. NO       -->
+<!-- implementation in Phase 02 (per scope_contract item iA4).       -->
+<!-- ============================================================== -->
+
+<iter_3_revision>
+
+## Iter-3 Reviews Revision — Plan 02-04
+
+**Trigger:** REVIEWS.md §7.6 — Claude-Opus surfaced a finding ALL prior reviewers missed (Gemini + 5-panel + Codex-pending). Quote:
+
+> *« Per Plan 02-02 Task 3 step 7: `Depends(get_current_user_optional)` on `/v1/audit/mobile-session-start` accepts anonymous payload. With A6 handshake mitigation, link-spoofing IS closed — but session-start spoofing is wide open. Any HTTP client can POST a fake `anonymous_session_id` with any `app_version` claim ; server INSERTs without validation. The UNIQUE constraint on `(anonymous_session_id, observed_at)` blocks only exact duplicates — adversary just varies `observed_at`. Result: audit trail polluted with synthetic rows that look legitimate (correct shape, server timestamps). »*
+
+**Phase 02 disposition:** ACKNOWLEDGED as known limitation. Mitigation deferred to Phase 04 hardening per Claude-Opus §7.8 recommendation 4. Rationale: Phase 02 closes the LSFin audit-trail gap (architect-review obs #176) and the link-spoofing high (T-S01 / iter-2 A6). Session-start spoofing requires App Attestation infrastructure (Apple DeviceCheck + Android Play Integrity) that has no Railway-side equivalent and demands fastlane match profile updates per `feedback_ios_entitlements_block_testflight.md` — out-of-scope for Phase 02.
+
+### iA4 — Forward-deferred Phase 04 mobile-attestation hardening runbook + SUMMARY acknowledgment
+
+**Source:** REVIEWS.md §7.6 universal-miss + §7.8 recommendation 4.
+
+**Fix landing sites:**
+
+1. **NEW file `docs/operations/phase-04-mobile-attestation-hardening.md`** (≥30 lines stub authored by Plan 02-04 Task 4) — documents the attack + mitigation + Phase 04 work breakdown. NO implementation in Phase 02.
+2. **Plan 02-04 Task 4 step 5 SUMMARY** — extend the per-D-XX disposition table with a « Forward-deferred to Phase 04 » subsection citing this runbook + the Claude-Opus REVIEWS reference.
+3. **Plan 02-04 Task 4 step 4 VERIFICATION-REPORT.html** — extend the « Deferred items » section with the session-start audit-pollution finding (linked to the new runbook).
+
+#### Patch to Task 4 `<files>` block — add (iter-3 iA4)
+
+Add to Task 4 `<files>` element:
+- `docs/operations/phase-04-mobile-attestation-hardening.md` (NEW, ≥30 lines, content outlined below)
+
+Add to Plan 02-04 frontmatter `files_modified`:
+- `docs/operations/phase-04-mobile-attestation-hardening.md    # iter-3 iA4 (session-start audit-pollution forward-defer)`
+
+#### Patch to Task 4 step 1-3 ordering — INSERT NEW step before step 4 VERIFICATION-REPORT
+
+Insert as new step **3.5** (between « audit-pepper-rotation.md » step 3 and « VERIFICATION-REPORT.html » step 4):
+
+```markdown
+3.5. **`docs/operations/phase-04-mobile-attestation-hardening.md` (NEW, ≥ 30 lines, iter-3 iA4)**: per REVIEWS.md §7.6 Claude-Opus universal-miss + §7.8 recommendation 4. Sections (each non-trivial — wiki_lint enforces counter-arguments + data gaps blocks):
+
+   - **TL;DR + status** (forward-deferred to Phase 04 — Phase 02 ACKNOWLEDGES but does NOT mitigate).
+   - **The attack** (Claude-Opus REVIEWS §7.6 quote verbatim): session-start endpoint accepts anonymous payload with `Depends(get_current_user_optional)`. iter-2 A6 closed the link-side spoofing but session-start spoofing remains: any HTTP client can POST `/v1/audit/mobile-session-start` with synthetic `anonymous_session_id` + `app_version` + `observed_at` ; UNIQUE `(anonymous_session_id, observed_at)` blocks only exact duplicates ; adversary varies `observed_at` per row. Result : audit trail polluted with synthetic rows that look legitimate (correct shape, server timestamps).
+   - **Why Phase 02 does NOT fix this**: requires App Attestation infrastructure outside Phase 02 scope. Phase 02 closes the LSFin audit-trail gap (architect-review obs #176) + link-side spoofing (T-S01 / iter-2 A6) ; session-start hardening is an Apple-Developer-portal + fastlane-match-profile update per `feedback_ios_entitlements_block_testflight.md` discipline rule (entitlements PRs ship in isolation).
+   - **Mitigation plan for Phase 04** (4 layers, defense-in-depth) :
+     1. **Rate-limit per source IP** — FastAPI middleware (e.g., `slowapi` or `fastapi-limiter` with Redis backend). Suggested rate: 5 requests / 5 minutes per IP on `/v1/audit/mobile-session-start`. Counter `mint_audit_mobile_session_rate_limited_total{source_ip_hash}` increments on cap-hit.
+     2. **Apple App Attestation (DeviceCheck)** — production iOS builds embed a signed App Attestation token in the POST body (`x-mint-app-attestation-token` header). FastAPI handler validates via Apple's public-key endpoint per `https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity`. Untokened or invalid-token POSTs return 401 in production ; dev builds bypass via `MINT_REQUIRE_APP_ATTESTATION=false` env flag.
+     3. **Android Play Integrity** — equivalent for Android builds via `https://developer.android.com/google/play/integrity`. Token validation server-side.
+     4. **`projection_audit_record.attestation_status` column** (Alembic p1XX in Phase 04) — discriminator: `'valid' | 'invalid' | 'bypass_dev' | 'rate_limited'`. Existing rows backfill to `'unattested_phase02'` (cleanly signaling the pre-hardening window in audit logs).
+   - **Trigger conditions for Phase 04 activation** :
+     - First production iOS / Android release reaches TestFlight / Play Internal Testing.
+     - First sustained `mint_anonymous_session_link_total{outcome='rejected_no_handshake'}` spike on Railway (≥10 events/hour) — indicates an attacker is probing the endpoint.
+     - First LSFin audit inquiry pre-launch (low probability) — auditor asks « how do you authenticate that an audit row came from an actual MINT install? ».
+   - **Rollback procedure** — pre-launch zero-data + zero paying users = full revert is safe. Drop the attestation_status column ; revert the rate-limit middleware ; the existing audit chain stays intact (no data loss).
+   - **Counter-arguments and data gaps block** (HARD per wiki_lint) :
+     - **Steel-man for NOT hardening** : pre-launch zero users + zero adversary motivation. Spend on Phase 03 coach-extractor instead. **Mitigation** : the trigger conditions above gate activation ; no work happens until evidence demands it.
+     - **What this discussion did NOT address** : (a) battery cost of App Attestation token generation per cold-start (deferred to Phase 04 device-gate measurement) ; (b) audit-row deletion semantics if attestation INVALIDATES post-INSERT (deferred — current design: attestation is INSERT-time only, no retroactive invalidation per D-04 PIT doctrine) ; (c) iOS App Attestation requires `com.apple.developer.devicecheck.appattest-environment` entitlement which per `feedback_ios_entitlements_block_testflight.md` is release-blocking and MUST ship in isolation (separate PR from app-feature changes).
+     - **What would change this conclusion** : (a) Phase 02 launch + spike in `mint_anonymous_session_link_total{outcome='rejected_no_handshake'}` counter; (b) FINMA/EDÖB inquiry on audit-source authentication; (c) iOS 19+ deprecates DeviceCheck (mitigated by Phase 04 picking AppAttest API, not legacy DeviceCheck).
+   - **Cross-references** :
+     - REVIEWS.md §7.6 (Claude-Opus universal-miss source).
+     - REVIEWS.md §7.8 recommendation 4 (forward-defer recommendation).
+     - `iter-3` SUMMARY entry in this plan's Task 4 step 5 (per-D-XX disposition).
+     - `apps/mobile/lib/services/audit/mobile_l1_audit_service.dart` (Plan 02-02 Task 3 — Phase-02-shipped mobile L1 audit service ; Phase 04 wires the attestation token here).
+     - `services/backend/app/api/v1/endpoints/audit_mobile.py` (Plan 02-02 Task 3 — Phase-02-shipped endpoint ; Phase 04 adds the validation middleware).
+     - `feedback_ios_entitlements_block_testflight.md` (release-blocking entitlement discipline).
+
+   File must pass `wiki_lint.py --strict` (counter-arguments + data gaps blocks present, accent_lint_fr green, no banned terms).
+```
+
+#### Patch to Task 4 step 4 VERIFICATION-REPORT.html — add Deferred-items entry
+
+Update Task 4 step 4 « Deferred items » section to include:
+
+```markdown
+- **Session-start audit-pollution mitigation** (REVIEWS.md §7.6 Claude-Opus universal-miss) — forward-deferred to Phase 04 ; runbook: `docs/operations/phase-04-mobile-attestation-hardening.md` ; trigger: TestFlight/Play release OR `mint_anonymous_session_link_total{outcome='rejected_no_handshake'}` ≥ 10/hour OR LSFin inquiry. **NOT shipped in Phase 02.** Existing audit rows stay in `'unattested_phase02'` status post-Phase-04 backfill.
+```
+
+#### Patch to Task 4 step 5 SUMMARY — add « Forward-deferred to Phase 04 » subsection
+
+Insert into the SUMMARY.md per-D-XX disposition table, AFTER the « iter-2 Tier-C deferred items » subsection (from iter-2_revision Task 4 patch above):
+
+```markdown
+### iter-3 Forward-deferred to Phase 04 (Claude-Opus post-iter-2 review universal-miss)
+
+| Finding | Status | Runbook | Trigger | Reference |
+|---------|--------|---------|---------|-----------|
+| Session-start audit-pollution attack | ⏳ FORWARD-DEFERRED to Phase 04 | `docs/operations/phase-04-mobile-attestation-hardening.md` | TestFlight/Play release OR `mint_anonymous_session_link_total{outcome='rejected_no_handshake'}` ≥10/hr OR LSFin inquiry | REVIEWS.md §7.6 + §7.8 recommendation 4 |
+
+**Note on coverage**: Phase 02 closes the link-side spoofing (iter-2 A6 — `/v1/audit/mobile-session-link` proof-of-session-start handshake) but does NOT close the session-start endpoint itself. Phase 04 ships rate-limit + Apple App Attestation + Android Play Integrity + `attestation_status` column. Existing Phase 02 audit rows will backfill to `'unattested_phase02'` (cleanly signaling the pre-hardening window) when Phase 04 migration runs. Per `feedback_ios_entitlements_block_testflight.md`, the iOS App Attestation entitlement PR ships in isolation from feature PRs.
+```
+
+#### Patch to Task 4 `<acceptance_criteria>` — add (iter-3 iA4)
+
+- `wc -l docs/operations/phase-04-mobile-attestation-hardening.md` ≥ 30.
+- `grep -c "REVIEWS.md §7.6\|REVIEWS.md §7.8\|attestation_status\|App Attestation\|Play Integrity" docs/operations/phase-04-mobile-attestation-hardening.md` ≥ 5.
+- `python3 tools/checks/wiki_lint.py lint --file docs/operations/phase-04-mobile-attestation-hardening.md` exits 0 (counter-arguments + data gaps blocks present).
+- `python3 tools/checks/accent_lint_fr.py docs/operations/phase-04-mobile-attestation-hardening.md` exits 0.
+- `python3 tools/checks/banned_terms_python.py docs/operations/phase-04-mobile-attestation-hardening.md` exits 0.
+- SUMMARY.md contains the « iter-3 Forward-deferred to Phase 04 » subsection (`grep -c "iter-3 Forward-deferred to Phase 04" .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-SUMMARY.md` ≥ 1).
+- VERIFICATION-REPORT.html contains the session-start audit-pollution deferred-item entry (`grep -c "session-start audit-pollution\|phase-04-mobile-attestation-hardening" .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-VERIFICATION-REPORT.html` ≥ 1).
+
+### Effort spent vs scope budget
+
+| Patch | Budget | Actual | Status |
+|---|---|---|---|
+| iA4 | 45 min | 35 min | APPLIED in iter_3_revision append (Plan 02-04 Task 4 extended with step 3.5 runbook spec + SUMMARY subsection + VERIFICATION deferred-item) |
+
+iA1, iA2, iA3 land in Plan 02-02 (separate iter_3_revision block there).
+
+### Iter-3 commit recommendation
+
+Covered in Plan 02-02 iter_3_revision block — single commit covers iA1+iA2+iA3+iA4 across both plans.
+
+</iter_3_revision>
+
