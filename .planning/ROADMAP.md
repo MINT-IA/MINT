@@ -102,28 +102,35 @@ Plans:
 
 ### Phase: mint-data-architecture-v1-02-event-log-projection
 **Goal**: Migrate user-facts storage from `SnapshotModel` (cached projection keyed on inputs_hash) to event-log (`fact_event` append-only) + projection (`fact_current` denormalised) + DEK envelope per-user (Railway-native KMS). Extends `projection_audit_record` for mobile L1 session audit (closes Phase 01 D-05 LSFin audit-trail gap discovered by architect-review obs #176). Includes 4 Phase 01 carry-over security gaps + Phase 02 W0 prereqs (S12 API consolidation PR-1 + Flutter drift PR-A2 + Postgres migration test harness + 2 prevention lints).
-**Status**: 📋 Panel synthesis ADR shipped 2026-05-18 (commit `5c66fb30`) — `/gsd-discuss-phase` initiated.
-**Plans**: 0 plans (pending CONTEXT.md + planning)
+**Status**: 📋 Plans created 2026-05-18 — 4 plans across 4 waves (W0 prereqs / W1 event-log core + canary / W2-W3 5-PR migration / W4 close-out). 33 D-XX distributed: zero gaps, zero double-counts. CONTEXT + RESEARCH + VALIDATION load-bearing.
+**Plans**: 4 plans (W0 + W1 + W2-W3 + W4 sequential, autonomous except Plan 02-02 Task 1 Railway env-var checkpoint + Plan 02-03 Task 2 PR-3 staging-zero-drift gate + Plan 02-03 Task 4 PR-5 post-soak drop gate)
 
 Plans:
+- [ ] mint-data-architecture-v1-02-event-log-01-prereqs-lints-harness-PLAN.md — W0 prereqs bundle: testcontainers Postgres harness (D-22) + alembic_boolean_default_lint HARD (D-20) + hmac_pepper_audit HARD (D-24) + pg_dump baseline (D-23) + codegen timestamp determinism (D-21) + S12 PR-1 façade-delegate + IJM/LAA promote + frontalier rename (D-08/D-09) + Flutter PR-A2 drift fix (D-10) + dead-COUP-04 integration test (D-11). Sequential structure D-18.
+- [ ] mint-data-architecture-v1-02-event-log-02-event-log-core-canary-PLAN.md — W1 event-log core + canary: fact_event + fact_current + dek_scope schema (D-01/D-03/D-26/D-27/D-28/D-29), Railway KMS logical key-id (D-02), HMAC-pepper canonical entry + 4 Phase 01 carry-overs (D-14/D-15/D-16/D-17), app-side projector with session.begin() (D-19), projection_audit_record extension (D-12), Mobile L1 audit endpoints + Flutter MobileL1AuditService + offline SQLite buffer + UUID v7 + lifecycle hooks (D-30), clean separation (D-13), 6 D-33 counters declared, first-slice canary `monthly_gross_income` parity test (D-25).
+- [ ] mint-data-architecture-v1-02-event-log-03-migration-5pr-sequence-PLAN.md — W2-W3 5-PR migration: PR-1 FF infrastructure + PR-2 dual-write FF-OFF + PR-3 atomic trio (backfill idempotent + read-cutover + parity-lint SOFT→HARD per D-31) + PR-4 dual-write decommission + PR-5 SnapshotModel drop (D-04 + D-05 + D-31). Two Julien checkpoints (PR-3 staging-zero-drift, PR-5 post-soak drop).
+- [ ] mint-data-architecture-v1-02-event-log-04-close-out-counters-runbooks-PLAN.md — W4 close-out: S12 PR-2 alias removal + D-MOB-01 PR-A3 dead-field drop + Q6 CI mechanical fixes (STAGING-MALFORMED + scheduled-only aging + STAGING-DOWN-OVERRIDE label CODEOWNER-gated per D-06) + declared_counters_must_fire HARD gate activated (D-32 G3 + D-33) + LSFin banned-terms extended to fact_event JSONB (D-32 G5) + 3 forward-deferred runbooks (partition split + DEK rotation + audit-pepper rotation per D-07) + VERIFICATION-REPORT.html + SUMMARY.md + ROADMAP + STATE flip.
 
 **Depends on**: `mint-data-architecture-v1-01-calc-engine-canonical` ✓ shipped 2026-05-17 (sha `a21bc8d0`) + Hotfix B/C ✓ shipped via squash `cf6d259a` + Postgres BOOLEAN DEFAULT fix `fe52ba31`.
 **Blocks**: deferred Phase 03 (coach-extractor LLM + guardrails — requires `fact_event(source_type='coach_inference')` schema from this phase).
-**Open questions disposition**: 7 panel-debated questions all resolved in [decisions/2026-05-18-phase02-event-log-projection-panel-synthesis.md](decisions/2026-05-18-phase02-event-log-projection-panel-synthesis.md) (5-specialist consensus + 3 Julien-locked calls). CONTEXT.md will encode each as D-XX with cross-refs.
+**Open questions disposition**: 7 panel-debated questions all resolved in [decisions/2026-05-18-phase02-event-log-projection-panel-synthesis.md](decisions/2026-05-18-phase02-event-log-projection-panel-synthesis.md) (5-specialist consensus + 3 Julien-locked calls). CONTEXT.md encodes each as D-01..D-33. All 33 decisions are distributed across the 4 plans with zero gaps and zero double-counts (frontmatter `decisions:` field is the audit anchor).
 **Canonical refs**:
 - `.planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md` — upstream « what shape » ADR (panel-converged)
 - `.planning/decisions/2026-05-18-phase02-event-log-projection-panel-synthesis.md` — THIS phase's « how + when + trade-offs » lockdown (single canonical source)
+- `.planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-CONTEXT.md` — 33 D-XX locked
+- `.planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-RESEARCH.md` — implementation primitives (sha `055ca9e3`, 1451 lines, HIGH confidence)
+- `.planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-VALIDATION.md` — Nyquist validation map (per-task verify commands + Wave 0 requirements + sampling cadence)
 - `.planning/phases/mint-data-architecture-v1-01-calc-engine-canonical/mint-data-architecture-v1-01-calc-engine-CONTEXT.md` — upstream Phase 01 16 D-XX decisions (split-with-arbiter L1 mobile / L2-L4 backend)
 - `.planning/phases/mint-calc-engine-v1/deferred-items.md` § S12-API-consolidation — load-bearing W0 prereq
-- `services/backend/app/models/snapshot.py` — current `SnapshotModel` shape (migration source)
-- `services/backend/app/models/projection_audit_record.py` — Hotfix B shipped append-only audit table (extend with `source` discriminator + `app_version` + `observed_at` for D-MOB-03)
-- `services/backend/app/models/audit_event.py` — Hotfix C `user_id_hash` (HMAC-pepper migration required Phase 02 W1 per obs #175)
-- `services/backend/app/services/encryption/key_vault.py` — existing 2-backend KMS facade (logical-id pattern fits Q2 Railway-native)
+- `services/backend/app/models/snapshot.py` — current `SnapshotModel` shape (migration source — dropped in Plan 02-03 PR-5)
+- `services/backend/app/models/projection_audit_record.py` — Hotfix B shipped append-only audit table (extend with `source` discriminator + `app_version` + `observed_at` + `anonymous_session_id` for D-MOB-03 in Plan 02-02)
+- `services/backend/app/models/audit_event.py` — Hotfix C `user_id_hash` (HMAC-pepper migration in Plan 02-02 W1 per obs #175)
+- `services/backend/app/services/encryption/key_vault.py` — existing 2-backend KMS facade (logical-id pattern fits Q2 Railway-native, wired in Plan 02-02)
 - `services/backend/app/services/regulatory/registry.py` — RegulatoryParameter source for `subject_type='regulatory'` event-log dual-write
 - `apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart` — Phase 01 codegen output (mobile L1 audit reads `regulatoryConstantsVersionHash`)
-- `services/backend/app/services/independants/` (S18) + `services/backend/app/services/expat/frontalier_service.py` (S23) — S12 façade-delegate-to-granular pattern (obs #183 + Julien promote IJM/LAA to S18)
-- `services/backend/app/api/v1/endpoints/coach_chat.py:957-1015` — `_PROFILE_SAFE_FIELDS` Stage-0 + D-MOB-01 drift inventory (Flutter-side emission gap)
-- `.github/workflows/regulatory-codegen.yml` — Q6 CI staging-down policy (extend with STAGING-MALFORMED status + scheduled-only aging writes + HARD label override)
+- `services/backend/app/services/independants/` (S18) + `services/backend/app/services/expat/frontalier_service.py` (S23) — S12 façade-delegate-to-granular pattern (obs #183 + Julien promote IJM/LAA to S18 in Plan 02-01)
+- `services/backend/app/api/v1/endpoints/coach_chat.py:957-1015` — `_PROFILE_SAFE_FIELDS` Stage-0 + D-MOB-01 drift inventory (Flutter-side emission gap closed in Plan 02-01 PR-A2 + Plan 02-04 PR-A3)
+- `.github/workflows/regulatory-codegen.yml` — Q6 CI staging-down policy (extend with STAGING-MALFORMED status + scheduled-only aging writes + HARD label override in Plan 02-04)
 - engram obs #163 (Phase 01 CONTEXT) · #174 (db-architect Q1+Q4+Q5) · #175 (security Q2+Q3+Q7 + STRIDE + HMAC-pepper) · #176 (architect-review integrated + mobile L1 audit gap discovery) · #178 (devops Q6 + 8-item PR-readiness + 6 new counters) · #182 (Q6 Railway-native scraping decided) · #183 (S12 design) · #186 (Flutter D-MOB design) · #187 (QA panel predicted Postgres bug) · #188 (Postgres BOOLEAN DEFAULT bug + fix)
 
 
