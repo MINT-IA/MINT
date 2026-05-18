@@ -4,14 +4,14 @@ milestone: v2.8
 milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
 status: executing
 stopped_at: Phase mint-data-architecture-v1-02-event-log-projection context gathered — 33 D-XX locked
-last_updated: "2026-05-18T05:26:43.246Z"
-last_activity: 2026-05-17
+last_updated: "2026-05-18T06:25:04.697Z"
+last_activity: 2026-05-18 -- Phase mint-data-architecture-v1-02-event-log-projection planning complete
 progress:
   total_phases: 10
   completed_phases: 5
-  total_plans: 57
+  total_plans: 61
   completed_plans: 50
-  percent: 88
+  percent: 82
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -37,8 +37,8 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 Phase: mint-data-architecture-v1-01-calc-engine-canonical
 Plan: Not started
-Status: Executing Phase mint-data-architecture-v1-01-calc-engine
-Last activity: 2026-05-17
+Status: Ready to execute
+Last activity: 2026-05-18 -- Phase mint-data-architecture-v1-02-event-log-projection planning complete
 
 ## Plan mint-calc-engine-v1-20 Receipt (W4 phase-close engram doctrine — D-CE-18 + Concern F + 5-gate exit contract, 2026-05-17)
 

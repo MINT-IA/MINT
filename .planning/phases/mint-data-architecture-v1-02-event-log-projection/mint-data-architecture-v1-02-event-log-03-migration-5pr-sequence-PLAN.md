@@ -27,13 +27,26 @@ files_modified:
   - services/backend/app/observability/counters.py
   - docs/operations/snapshot-model-decommission.md
   - apps/mobile/lib/services/coach_narrative_service.dart
+  # --- iter-2 additions (promoted from iter-2 appendix; structurally required for parser visibility) ---
+  - services/backend/scripts/preflight_zero_user_gate.py                                  # Task 0 B1
+  - services/backend/tests/integration/test_preflight_zero_user_gate.py                   # Task 0 B1
+  - tools/parity/projection_diff.py                                                       # A10
+  - tools/parity/tests/test_projection_diff.py                                            # A10
+  - services/backend/tests/fixtures/parity_diff_fixtures.py                               # A10
+  - services/backend/alembic/versions/p118_phase02_parity_audit_table.py                  # B14
+  - services/backend/app/models/phase02_parity_audit.py                                   # B14
+  - services/backend/alembic/versions/p119_phase02_parity_audit_continuous.py             # B18
+  - services/backend/app/models/phase02_parity_audit_continuous.py                        # B18
+  - services/backend/app/cron/continuous_drift_sampler.py                                 # B18
+  - .github/workflows/pg-soak-nightly.yml                                                 # B18
+  - tools/db/pre_pr3b_pg_dump.sql                                                         # B5
 autonomous: false
 decisions: [D-04, D-05, D-31]
-checkpoint_reason: "PR-3 (read cutover + D-31 SOFT→HARD atomic flip) requires Julien staging-zero-drift gate per 0-trust §9. PR-5 (SnapshotModel table drop) is irreversible; Julien post-launch + 1-week observability soak gate per CONTEXT D-05."
+checkpoint_reason: "Task 2a (PR-3a staging-backfill zero-diff gate) + Task 2b (PR-3b 7-day soak + Phase-01 D-12 HARD flip gate) require Julien approval per 0-trust §9. PR-5 drop is irreversible; Julien post-launch + 1-week observability soak gate per D-05."
 requirements_addressed:
   - CONTEXT.md#D-04 constants propagation point-in-time (no retroactive re-flag — proven by PR-2 dual-write parity test)
-  - CONTEXT.md#D-05 big-bang 5-PR migration sequence (PR-1 FF infra → PR-2 dual-write FF-OFF → PR-3 backfill+read-cutover+HARD flip → PR-4 decommission → PR-5 drop)
-  - CONTEXT.md#D-31 D-12 parity-lint SOFT→HARD atomic with PR-3 read cutover (THREE sub-conditions in one PR)
+  - CONTEXT.md#D-05 big-bang 6-PR migration sequence (PR-0 zero-user gate → PR-1 FF infra → PR-2 dual-write FF-OFF → PR-3a backfill-only → PR-3b read-cutover+HARD flip → PR-4 decommission → PR-5 drop)
+  - CONTEXT.md#D-31 Phase-01 D-12 parity-lint SOFT→HARD atomic with PR-3b read cutover (TWO sub-conditions in one PR: read-cutover + HARD-flip)
 threat_model_summary:
   - T-02-06 Read-cutover drift (mitigated: PR-3 atomic D-31 SOFT→HARD flip + zero-drift proof in coverage; D-12 parity-lint HARD catches future regressions at commit-time)
   - T-02-07 Orphan SnapshotModel data post-drop (mitigated: PR-5 gated on 1-week post-PR-3 observability soak + Julien checkpoint; rollback procedure documented in snapshot-model-decommission.md)
@@ -43,7 +56,8 @@ must_haves:
   truths:
     - "PR-1: `fact_event_dual_write_enabled` feature flag added to `app/services/feature_flags.py`, default OFF in all envs; reading the flag returns False on dev + staging + prod (D-05 PR-1)."
     - "PR-2: `snapshot_service.py` writer branches on `fact_event_dual_write_enabled` flag; when ON it also writes fact_event + runs projector inside `session.begin()`; when OFF (default), only SnapshotModel write happens (D-05 PR-2). FF stays OFF in this PR — code path compiled + tested with FF-ON in test fixtures."
-    - "PR-3 (ATOMIC, the D-31 trio): (a) `services/backend/scripts/backfill_snapshot_to_fact_event.py` exists, is idempotent (second run = 0 new rows + idempotency counter increments), and is invoked on staging; (b) `/v1/projection` + `/v1/snapshots` endpoints read from `fact_current` instead of SnapshotModel (with dual-read window verifying identical output before flipping); (c) `tools/checks/profile_safe_fields_parity.py` SOFT→HARD flag flipped in lefthook + `.github/workflows/design-lints.yml` CI; zero-drift coverage proof in the test suite."
+    - "PR-3a (backfill-only, idempotent): backfill_snapshot_to_fact_event.py idempotent (second run row-count-delta=0); 100% staging-user canonical-JSON parity audit zero diff via projection_diff.py persisted to _phase02_parity_audit."
+    - "PR-3b (ATOMIC, the D-31 pair): read-cutover (/v1/projection reads fact_current) AND Phase-01 D-12 parity-lint SOFT→HARD flip in lefthook + CI are in ONE PR. 7-day continuous drift sampler clean window prerequisite met. pre_pr3b_pg_dump.sql committed."
     - "PR-4: `fact_event_dual_write_enabled` removed from `app/services/feature_flags.py`; `snapshot_service.py` dual-write branch removed; SnapshotModel writes marked deprecated via `warnings.warn(DeprecationWarning)` in any remaining writer paths (D-05 PR-4)."
     - "PR-5: Alembic p117 drops `snapshots` table; `app/models/snapshot.py` removed; rollback procedure in `docs/operations/snapshot-model-decommission.md` documents Postgres `pg_restore` from baseline (D-05 PR-5). GATED on Julien checkpoint after 1-week observability soak."
     - "Drift-resolution telemetry counter `mint_snapshot_fact_current_drift_total` wired (Plan 02-04 will assert firing); D-MOB-02 drift-resolution gauge added (D-31 read-cutover lock)."
@@ -250,9 +264,12 @@ Canary verification (D-25 W1 gate already proven): the dual-write code path is p
   </done>
 </task>
 
-<task type="checkpoint:human-verify" gate="blocking">
-  <name>Task 2: PR-3 atomic trio (D-31) — backfill idempotent + /v1/projection read-cutover + profile_safe_fields_parity SOFT→HARD. Three changes ONE PR. Then Julien gates staging-zero-drift before merge to dev.</name>
+<task type="checkpoint:superseded" gate="blocking">
+  <name>Task 2 (SUPERSEDED iter-2): PR-3 atomic trio (D-31) — backfill idempotent + /v1/projection read-cutover + profile_safe_fields_parity SOFT→HARD. Three changes ONE PR. Then Julien gates staging-zero-drift before merge to dev.</name>
   <what-built>
+    <!-- SUPERSEDED in iter-2 by Task 2a + Task 2b. DO NOT EXECUTE THIS CHECKPOINT. -->
+    <!-- The « atomic trio » framing was operationally unsafe per 4-way reviewer convergence (architect-review MED + database-architect MED-6 + postgres-pro MED-5 + qa-expert HIGH-1). PR-3 has been split into PR-3a (backfill-only) + PR-3b (read-cutover + HARD parity-lint flip atomic). The 2 replacement checkpoints are Task 2a + Task 2b below in the iter-2 revision block. -->
+
     Claude has implemented PR-3 as a single PR containing three load-bearing changes per CONTEXT D-31 atomicity rule:
 
     1. **`services/backend/scripts/backfill_snapshot_to_fact_event.py` (NEW)**: idempotent backfill script. Reads all SnapshotModel rows; for each row, emits fact_event for each `_FACT_TYPE_MAP` field; calls `project_fact_event` inside `session.begin()`. Re-running = 0 new rows (UNIQUE blocks dups; `mint_projector_idempotency_skip_total` increments).
@@ -289,7 +306,7 @@ Canary verification (D-25 W1 gate already proven): the dual-write code path is p
     - ANY check fails → describe failure mode; Claude diagnoses + ships a fix-up commit on the same PR branch before re-asking.
   </how-to-verify>
   <resume-signal>
-    Type "approved — zero drift, HARD lint green, backfill idempotent on staging" OR describe failure mode (e.g., "3 users out of 20 have diff in monthly_gross_income decimal precision"). On approval, Claude merges PR-3 to dev. On failure, Claude pushes a fix-up commit + re-runs the 6 checks.
+    « This checkpoint is SUPERSEDED by iter-2 PR-3 split. Do not type any resume signal here. Proceed directly to Task 2a (PR-3a) and Task 2b (PR-3b) — those checkpoints replace this one. »
   </resume-signal>
 </task>
 
@@ -501,3 +518,413 @@ After completion, create `.planning/phases/mint-data-architecture-v1-02-event-lo
 - 0-trust §9.6 Evidence + Caveat block.
 - `mem_save` with `topic_key: mint-data-architecture-v1-02:wave-2-3:five-pr-migration` + `prior_finding_refs` to obs #174, #178, #186, #188 + Plan 02-01 + Plan 02-02 obs.
 </output>
+
+---
+
+<!-- ============================================================== -->
+<!-- ITER-2 REVIEWS REVISION — appended 2026-05-18                 -->
+<!-- STRUCTURAL CHANGE: 5-PR sequence → 6-PR sequence (PR-3 SPLIT). -->
+<!-- A9 + A10 + B1 + B3 + B5 + B14 + B18 land here.                 -->
+<!-- ============================================================== -->
+
+<iter_2_revision>
+
+## Iter-2 Reviews Revision — Plan 02-03
+
+**Trigger:** REVIEWS.md 4-way convergence on PR-3 unsafe atomicity (architect-review MED + database-architect MED-6 + postgres-pro MED-5 + qa-expert HIGH-1) + zero-drift gate undefined (qa-expert HIGH-1 + postgres-pro MED-5).
+
+**STRUCTURAL CHANGE — Plan 02-03 is renamed:**
+
+| Before iter-1 | After iter-2 |
+|---|---|
+| filename: `*-03-migration-5pr-sequence-PLAN.md` | filename: **unchanged** (filename preserved for git history ; the « 5pr » slug in the filename is now legacy — content describes 6-PR sequence) |
+| « 5-PR migration sequence » | « **6-PR migration sequence** : PR-3 split into PR-3a (backfill-only, idempotent, row-count-delta=0 gate) + PR-3b (read-cutover + HARD parity-lint flip atomic) » |
+| PR ordering : PR-1 → PR-2 → PR-3 (atomic trio) → PR-4 → PR-5 | PR ordering : **PR-0 (zero-user prod gate) → PR-1 → PR-2 → PR-3a (backfill-only) → PR-3b (read-cutover + HARD flip atomic) → PR-4 → PR-5** |
+| Task count : 5 | Task count : **7** (Task 0 NEW + Task 2 SPLIT into Task 2a + Task 2b) |
+| `<task>` blocks : 5 | `<task>` blocks : **7** |
+
+Recommended ROADMAP.md entry hint update : « **Plan 02-03 — 6-PR migration sequence (was: 5-PR)** : zero-user prod gate + dual-write FF infra + backfill split from cutover + deterministic drift gate. »
+
+**Tier-A blockers handled here (3 of 11):**
+- A9: PR-3 split — backfill (PR-3a) operationally separable from cutover (PR-3b). PR-3a is idempotent + row-count-delta=0 gate ; PR-3b is read-cutover + HARD parity-lint flip atomic.
+- A10: `tools/parity/projection_diff.py` deterministic drift definition — canonical JSON via `sort_keys=True, default=str` + Decimal tolerance `1e-9` + missing-key==NULL rule. The « zero drift » assertion previously was « `diff /tmp/proj_new.json /tmp/proj_legacy.json` → empty diff » with no canonicalisation — qa-expert HIGH-1.
+- A11 (consumer): assumes the multi-shape canary from Plan 02-02 Task 3C has been parity-PROVEN ; this is a precondition of Task 2a (backfill).
+
+**Tier-B handled here:**
+- B1: Pre-flight zero-user prod gate `SELECT COUNT(*) FROM users` at head of Plan (Task 0 NEW).
+- B3: D-12 label collision rename — `Phase-01 D-12` (parity-lint) vs `D-MOB-03` (Mobile L1 audit). Updates `requirements_addressed` + all `<verify>` blocks.
+- B5: 7th gate pre-HARD-flip pg_dump snapshot + restore-on-diff path (Task 2b).
+- B14: 100% staging users SHA-256 canonical-JSON parity audit, persist to `_phase02_parity_audit` table (Task 2a).
+- B18: Continuous drift sampler Railway cron 30min × 100 users × 7-day soak (Task 2b checkpoint).
+- B19: Plan 02-03 PR-5 enumeration of Phase 01 SnapshotModel-referencing tests (Task 5 patch).
+- B20: D-31 soak duration reconciled — CONTEXT says « 1-week », Plan said « ≥7 days », REVIEWS says « 14-day ». **Reconciliation : 7 days minimum, 14 days target.** CONTEXT.md change proposed below.
+
+**Tier-C acknowledged:**
+- C2: PR-3 commit-message contract → applied in Task 2a + Task 2b commit message templates below.
+
+**Tier-A not handled here:**
+- A1-A8: Plan 02-02 iter-2.
+
+### CONTEXT.md changes proposed by this revision (PROPOSED — owner-approval required)
+
+**D-05 (Migration strategy)** — restructure 5-PR → 6-PR:
+```diff
+-  - **D-05:** **Q5 — Migration strategy from SnapshotModel.** Big-bang cut-over, 5-PR sequence (postgres-pro lock).
++  - **D-05:** **Q5 — Migration strategy from SnapshotModel.** Big-bang cut-over, **6-PR sequence** (iter-2 A9 — PR-3 split per 4-way reviewer convergence on backfill-vs-cutover separability) :
+     PR-1 schema introduction (additive p98) →
+     PR-2 dual-write feature-flagged off →
+-    PR-3 backfill script idempotent + read cut-over + HARD parity-lint flip (atomic per D-31)
++    **PR-3a backfill-only, idempotent, gated on row-count-delta=0 + 100% staging-user canonical-JSON parity audit** →
++    **PR-3b read cut-over + HARD parity-lint flip + 7th-gate pre-HARD-flip pg_dump snapshot (atomic per D-31)** →
+     PR-4 dual-write decommission →
+     PR-5 legacy SnapshotModel drop.
++    Reason for split (iter-2 A9): backfill interruption mid-run could leave fact_current half-populated AND reads cut over ; the original « atomic trio » framing was operationally unsafe per architect-review MED + database-architect MED-6 + postgres-pro MED-5 + qa-expert HIGH-1 (4-way convergence).
+```
+
+**D-31 (D-12 parity-lint SOFT→HARD promotion timing)** — adjust trigger PR + soak duration:
+```diff
+-  - **D-31:** **D-12 parity-lint SOFT→HARD promotion timing.** Atomic with **PR-3 read cut-over** in Plan 02-03 5-PR sequence.
++  - **D-31:** **D-12 parity-lint SOFT→HARD promotion timing.** Atomic with **PR-3b read cut-over** in Plan 02-03 6-PR sequence (iter-2 — PR-3a backfill ships separately as a prerequisite). **Soak duration reconciled (iter-2 B20) : 7-day minimum, 14-day target on Railway staging with continuous drift sampler (cron 30min × 100 users) ; PR-3b merges to dev only after either (a) 7-day clean window OR (b) Julien override with documented justification.** D-31 zero-drift definition deterministic per iter-2 A10 — `tools/parity/projection_diff.py` with canonical JSON `sort_keys=True, default=str` + Decimal tolerance 1e-9 + missing-key==NULL rule. Sample size is 100% of staging users, NOT 20 random — per iter-2 B14 + postgres-pro MED-5.
+```
+
+### New Task 0 — Pre-flight zero-user prod gate (Tier-B B1)
+
+Inserted as FIRST task. Cheap and decisive : if prod has any user rows, the entire « big-bang pre-launch » premise (D-05 + CONTEXT counter-argument section) is invalid and Plan 02-03 MUST NOT proceed.
+
+<task type="auto">
+  <name>Task 0 (NEW iter-2): Pre-flight zero-user prod gate (Tier-B B1, Gemini)</name>
+  <files>
+    services/backend/scripts/preflight_zero_user_gate.py,
+    services/backend/tests/integration/test_preflight_zero_user_gate.py
+  </files>
+  <read_first>
+    .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-CONTEXT.md (counter-arguments section — « big-bang pre-launch is the only window » framing depends on zero prod users)
+  </read_first>
+  <action>
+1. **`services/backend/scripts/preflight_zero_user_gate.py` (NEW, ≥20 LOC)**: connects to `PROD_DATABASE_URL` (env var ; if unset, exits 0 with WARN message — test path uses test DB). Runs `SELECT COUNT(*) FROM users WHERE deleted_at IS NULL` (or equivalent — grep `app/models/user.py` for soft-delete column). If count > 0:
+   - exit 1
+   - stdout: `BLOCKED: prod has <N> users — big-bang migration premise invalid. Plan 02-03 requires Julien escape-hatch decision (slip migration OR document deletion).`
+   If count == 0:
+   - exit 0
+   - stdout: `OK: prod users=0 — big-bang migration safe to proceed.`
+2. **`services/backend/tests/integration/test_preflight_zero_user_gate.py`**: pg_fixture seeds 0 users → expect exit 0 ; pg_fixture seeds 1 user → expect exit 1.
+3. **CI integration**: add to `.github/workflows/backend-ci.yml` as a workflow_dispatch job ; NOT a per-PR gate (would need prod DB creds in CI ; instead, Claude runs the script manually before opening PR-3a as part of the « gate decision » preamble).
+4. **PR description requirement**: Plan 02-03 PR-1 description MUST include the stdout of this script (exit 0 + count=0 confirmation) AS evidence that the prerequisite holds. If the script reports count > 0, Plan 02-03 STOPS and surfaces a CHECKPOINT to Julien.
+  </action>
+  <verify>
+    <automated>cd services/backend && python3 -m pytest tests/integration/test_preflight_zero_user_gate.py -q -k pg && PROD_DATABASE_URL='' python3 services/backend/scripts/preflight_zero_user_gate.py 2>&1 | grep -E "WARN|OK"</automated>
+  </verify>
+  <acceptance_criteria>
+    - Script exits 0 when `users` table is empty.
+    - Script exits 1 when `users` table has any non-deleted row, with explicit BLOCKED stdout.
+    - `cd services/backend && python3 -m pytest tests/integration/test_preflight_zero_user_gate.py -q -k pg` exits 0.
+    - PR-1 description (when shipped per Task 1 below) includes the prod gate stdout verbatim.
+  </acceptance_criteria>
+  <done>
+    Pre-flight zero-user prod gate active. Plan 02-03 cannot proceed if prod has any user data ; Julien must explicitly escape-hatch (slip migration to a different strategy) before any PR opens.
+  </done>
+</task>
+
+### Patch to original Task 1 (PR-1 + PR-2) — D-12 label collision rename (Tier-B B3)
+
+**Adds** a documentation rename to Task 1 ; no code change. The architect-review identified that Plan 02-03 `requirements_addressed` uses `D-12` ambiguously :
+- « D-12 parity-lint SOFT→HARD » means *Phase-01 D-12* (the existing profile_safe_fields_parity lint).
+- *Phase-02 D-12* in CONTEXT.md `### Area 2 — D-12` is « D-MOB-03 Mobile L1 audit POST ».
+
+Executor running `/gsd-execute-phase` may mis-route. iter-2 renames all occurrences :
+
+**Updated `<action>` step (insert at start of Task 1)**:
+
+```
+0. **iter-2 B3 — D-12 label rename**: replace all occurrences of « D-12 parity-lint » (or « D-12 » when meaning the Phase 01 parity-lint pattern) with « Phase-01 D-12 » in Plan 02-03 frontmatter + `<verify>` blocks + commit message templates. Replace all occurrences of « D-12 » meaning the Phase 02 Mobile L1 audit POST with « D-MOB-03 » (matches CONTEXT.md alias). After rename:
+   - `requirements_addressed: - CONTEXT.md#D-12 parity-lint SOFT→HARD atomic with PR-3 read cut-over` → `requirements_addressed: - CONTEXT.md#D-31 → Phase-01 D-12 parity-lint SOFT→HARD atomic with PR-3b read cut-over`.
+   - `<verify>` block « D-12 parity-lint HARD flip » → « Phase-01 D-12 parity-lint HARD flip ».
+   - **NO D-MOB-03 references in this plan** (Mobile L1 audit is fully shipped in Plan 02-02 — Plan 02-03 does not touch it). The rename clarifies the routing for executors.
+```
+
+**Updated `<acceptance_criteria>` addition**:
+- `git grep -n "D-12 parity-lint" .planning/phases/mint-data-architecture-v1-02-event-log-projection/` returns 0 hits (all renamed to `Phase-01 D-12 parity-lint`).
+- `git grep -n "Phase-01 D-12 parity-lint" .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-03-migration-5pr-sequence-PLAN.md` returns ≥3 hits.
+
+### Task 2 SPLIT — Original Task 2 (PR-3 atomic trio) → Task 2a (PR-3a backfill-only) + Task 2b (PR-3b read-cutover + HARD flip) (Tier-A A9)
+
+**Replaces** original Task 2 (single checkpoint task with 3-component atomic trio). Iter-2 splits into 2 sequential tasks, each with its own checkpoint :
+
+- **Task 2a (NEW iter-2)** : PR-3a backfill-only, idempotent. Lands separately from read-cutover. Julien gates `row-count-delta=0` + 100% staging-user canonical-JSON parity audit (`_phase02_parity_audit` table) BEFORE Task 2b fires.
+- **Task 2b (replaces original Task 2 in scope)** : PR-3b read-cutover + Phase-01 D-12 parity-lint HARD flip atomic. Lands AFTER Task 2a checkpoint resolves « approved ». Julien gates 7-day continuous-drift-sampler clean window + 7th-gate pre-HARD-flip pg_dump snapshot.
+
+Original Task 2 content is INVALIDATED by this split. Executor MUST use the two replacement tasks below.
+
+<task type="checkpoint:human-verify" gate="blocking">
+  <name>Task 2a (NEW iter-2 — replaces original Task 2 PR-3 backfill component): PR-3a backfill-only, idempotent, gated on row-count-delta=0 + 100% staging-user canonical-JSON parity audit (Tier-A A9 + A10 + Tier-B B14)</name>
+  <what-built>
+    Claude has implemented PR-3a as a single PR containing TWO load-bearing changes :
+
+    1. **`services/backend/scripts/backfill_snapshot_to_fact_event.py` (NEW)** — idempotent backfill. Reads all SnapshotModel rows ; for each row, emits fact_event for each `_FACT_TYPE_MAP` field ; calls `project_fact_event` inside `session.begin()`. **NOT** read-cutover — the `/v1/projection` endpoint still reads from SnapshotModel (or both, via `?legacy=true` escape hatch) until Task 2b fires.
+    2. **`tools/parity/projection_diff.py` (NEW)** — deterministic drift definition per iter-2 A10 :
+       - JSON canonicalisation : `json.dumps(value, sort_keys=True, default=str, separators=(",", ":"))`.
+       - Decimal tolerance : `abs(a - b) < Decimal("1e-9")` (NOT float equality).
+       - Missing-key rule : a key absent from one side AND present-with-None on the other = EQUAL (NOT diff).
+       - Decimal precision : preserve trailing zeros (`Decimal("12345.00")` vs `Decimal("12345.0")` — first is preserved by JSON canonical via str()).
+       - Self-test mode : run against `tests/fixtures/parity_diff_fixtures.py` with 6 known-equal and 6 known-different pairs.
+
+    NOT yet shipped (defer to Task 2b) :
+    - Read endpoint cutover from SnapshotModel to FactCurrent.
+    - `profile_safe_fields_parity.py` SOFT→HARD flip in lefthook + CI.
+
+    Before this checkpoint fires, Claude has run :
+    - The backfill script against Railway staging Postgres (first run + idempotent second run).
+    - The new `projection_diff.py` against 100% of staging users — output persisted to a new staging table `_phase02_parity_audit` (created by an additive migration p118).
+    - Captured the row-count-delta verification : `SELECT COUNT(*) FROM fact_event WHERE source_type='snapshot_backfill'` (post-run-1) == (post-run-2) — proves second run idempotent.
+  </what-built>
+  <how-to-verify>
+    **Pre-checkpoint Claude actions** :
+    1. **Run preflight zero-user prod gate (Task 0)** : `python3 services/backend/scripts/preflight_zero_user_gate.py` exit 0.
+    2. **Verify Plan 02-02 Task 3C multi-shape canary parity gate PASSED** : `cd services/backend && python3 -m pytest tests/integration/test_canary_multi_shape_parity.py -q -k pg` exits 0 ; SUMMARY of Plan 02-02 documents 5/5 PASS (precondition of PR-3a).
+    3. **Set `FF_FACT_EVENT_DUAL_WRITE=on` on Railway staging only** : `railway variables set FF_FACT_EVENT_DUAL_WRITE=on --environment staging`. Prod stays OFF.
+    4. **Deploy PR-3a branch to staging** : wait for Application startup complete.
+    5. **Run backfill — first pass** : `cd services/backend && DATABASE_URL=$STAGING_DATABASE_URL python3 scripts/backfill_snapshot_to_fact_event.py --apply > /tmp/backfill_run1.log`. Capture row-count : `psql $STAGING_DATABASE_URL -tAc "SELECT count(*) FROM fact_event WHERE source_type='snapshot_backfill'"` → record as `N_RUN1`.
+    6. **Run backfill — second pass (idempotency proof)** : same command, `> /tmp/backfill_run2.log`. Capture row-count again : `N_RUN2`. **Assert `N_RUN2 == N_RUN1`** (zero new rows on second run).
+    7. **Capture idempotency counter delta** : `curl -sf https://mint-staging.up.railway.app/metrics | grep mint_projector_idempotency_skip_total` → should show increment ≥ N_RUN1 (one skip per backfilled row on the re-run).
+    8. **Run 100% staging-user canonical-JSON parity audit** : `DATABASE_URL=$STAGING_DATABASE_URL python3 tools/parity/projection_diff.py --audit-all-users --persist-to _phase02_parity_audit > /tmp/full_parity_audit.log`. Capture stdout + table row count : `psql $STAGING_DATABASE_URL -tAc "SELECT count(*), count(*) FILTER (WHERE diff_detected) FROM _phase02_parity_audit"` → record as `(USERS_AUDITED, USERS_WITH_DIFF)`.
+    9. **Assert `USERS_WITH_DIFF == 0`**. If non-zero, BLOCK PR-3a, investigate per-user diff, ship a fix-up commit, re-run.
+
+    **Julien verifies (in this order)** :
+    1. **Open `/tmp/backfill_run1.log` + `/tmp/backfill_run2.log`** : run-1 reports `Backfilled N users → M fact_event rows` ; run-2 reports `0 new fact_event rows ; M idempotency_skip increments`.
+    2. **Open `/tmp/full_parity_audit.log`** : last line reads `USERS_AUDITED=<N>, USERS_WITH_DIFF=0` (canonical-JSON diff via projection_diff.py).
+    3. **Sample test on staging — pick 1 user from Julien's own test account** :
+       ```bash
+       USER_ID=<julien-staging-test-uid>
+       curl -sf "https://mint-staging.up.railway.app/v1/projection/$USER_ID" > /tmp/proj_pre_cutover.json
+       psql $STAGING_DATABASE_URL -tAc "SELECT * FROM _phase02_parity_audit WHERE user_id_hash = hmac_user_id('$USER_ID')"
+       ```
+       Expected : 1 row in `_phase02_parity_audit` with `diff_detected=false`.
+    4. **Confirm `projection_diff.py` deterministic on local re-run** : Claude runs `python3 tools/parity/projection_diff.py --self-test` (the 12-pair fixture) → exit 0.
+    5. **Type gate decision**.
+
+    **Gate decision** :
+    - All checks pass → "approved PR-3a — backfill idempotent, 100% staging-user parity audit zero diff, projection_diff.py deterministic" → Claude merges PR-3a to dev. Task 2b fires next.
+    - Any check fails → describe failure mode ; Claude diagnoses + ships fix-up commit on the SAME PR-3a branch + re-runs checks.
+  </how-to-verify>
+  <resume-signal>
+    Type "approved PR-3a — backfill idempotent, 100% staging-user parity audit zero diff, projection_diff.py deterministic" OR describe failure mode for fix-up.
+  </resume-signal>
+</task>
+
+<task type="checkpoint:human-verify" gate="blocking">
+  <name>Task 2b (NEW iter-2 — replaces original Task 2 PR-3 read-cutover + HARD-flip): PR-3b read-cutover + Phase-01 D-12 parity-lint SOFT→HARD atomic + 7th-gate pre-HARD-flip pg_dump snapshot. 7-day soak prerequisite (Tier-A A9 + Tier-B B5 + B18 + B20)</name>
+  <what-built>
+    Claude has implemented PR-3b as a single PR containing THREE load-bearing changes :
+
+    1. **`services/backend/app/api/v1/endpoints/projection.py` + `snapshots.py`** : read endpoints switch from `SnapshotModel` lookups to `FactCurrent` PK lookups via `decrypt_value`. The `?legacy=true` query-param escape hatch is added (NOT removed yet — needed for the dual-read soak window in Task 3 PR-4).
+    2. **`tools/checks/profile_safe_fields_parity.py`** : SOFT→HARD flip in `lefthook.yml` + `.github/workflows/design-lints.yml`. The 3 Flutter-only-fields-pending-drop are whitelisted via `tools/checks/profile_safe_fields_parity_allowlist.txt` (Plan 02-04 PR-A3 drops this allowlist).
+    3. **`tools/db/pre_pr3b_pg_dump.sql`** (Tier-B B5 — 7th gate) : pg_dump snapshot of staging Postgres captured RIGHT BEFORE the read-cutover commit. Committed to git alongside the read-cutover code. If post-cutover drift is detected within 24h, the rollback procedure is `pg_restore tools/db/pre_pr3b_pg_dump.sql` on staging + revert PR-3b on dev.
+
+    Before this checkpoint fires, Claude has run :
+    - 7-day continuous-drift sampler on Railway staging — cron `*/30 * * * *` sampling 100 random users via `projection_diff.py` (canonical-JSON deterministic per A10), persisting results to `_phase02_parity_audit_continuous` table. **All 7 days must show `diff_count = 0` for at least 24 consecutive hours adjacent to the proposed PR-3b merge.**
+    - Run `projection_diff.py --audit-all-users` against staging Postgres a SECOND time (after PR-3a merge + 7-day soak) — assert still zero diff.
+    - Captured the pg_dump snapshot.
+    - Verified Phase-01 D-12 parity-lint exits 0 in HARD mode against current dev branch (`python3 tools/checks/profile_safe_fields_parity.py --hard --allowlist tools/checks/profile_safe_fields_parity_allowlist.txt`).
+  </what-built>
+  <how-to-verify>
+    **Pre-checkpoint Claude actions** :
+    1. **Verify PR-3a merged ≥ 7 days ago** : `gh pr view <PR-3a-NUM> --json mergedAt` returns timestamp where (now - mergedAt) ≥ 7 days. iter-2 B20 — soak duration reconciled : 7-day minimum, 14-day target ; <7d → BLOCK ; 7-14d → soft-warn but proceed if drift counter clean ; ≥14d → proceed.
+    2. **Continuous drift sampler 7-day clean window** : query `_phase02_parity_audit_continuous` for the last 7 days :
+       ```sql
+       SELECT date_trunc('hour', sampled_at) AS h, count(*) FILTER (WHERE diff_count > 0) AS dirty
+       FROM _phase02_parity_audit_continuous
+       WHERE sampled_at > now() - interval '7 days'
+       GROUP BY 1 ORDER BY 1 DESC;
+       ```
+       Assert : zero rows with `dirty > 0` across the 7-day window OR at least 24 consecutive hours adjacent to NOW are clean.
+    3. **Run 100% staging-user canonical-JSON parity audit (RE-RUN of Task 2a step 8)** : `python3 tools/parity/projection_diff.py --audit-all-users` → assert `USERS_WITH_DIFF == 0` still holds (no regression since PR-3a merge).
+    4. **Capture pre-cutover pg_dump (7th gate, B5)** : `pg_dump --schema-only --data-only $STAGING_DATABASE_URL > tools/db/pre_pr3b_pg_dump.sql ; git add tools/db/pre_pr3b_pg_dump.sql ; git commit -m "snapshot(p02-pr3b): pre-cutover staging pg_dump for rollback (B5 7th gate)"`. The file is committed as part of the PR-3b branch.
+    5. **Apply read-cutover code** : update `app/api/v1/endpoints/projection.py` + `snapshots.py` to read from `FactCurrent` via `decrypt_value`. Add `?legacy=true` escape hatch (removed in Plan 02-04 PR-5 ; lives during PR-3b soak window).
+    6. **Apply Phase-01 D-12 SOFT→HARD flip** : update `lefthook.yml` + `.github/workflows/design-lints.yml` invocations of `tools/checks/profile_safe_fields_parity.py` to include `--hard`. Create `tools/checks/profile_safe_fields_parity_allowlist.txt` with the 3 Flutter-only field names (per Plan 02-04 PR-A3 cleanup).
+    7. **Run local HARD mode** : `python3 tools/checks/profile_safe_fields_parity.py --hard --allowlist tools/checks/profile_safe_fields_parity_allowlist.txt` → assert exit 0.
+
+    **Julien verifies (in this order)** :
+    1. **Continuous drift sampler dashboard** : `curl -sf https://mint-staging.up.railway.app/metrics | grep mint_snapshot_fact_current_drift_total` returns 0 ; `psql $STAGING_DATABASE_URL -tAc "SELECT count(*) FROM _phase02_parity_audit_continuous WHERE sampled_at > now() - interval '24 hours' AND diff_count > 0"` returns 0.
+    2. **Spot-check staging projection endpoint pre/post-cutover** (PR-3b is on a feature branch, not yet on dev) :
+       ```bash
+       # Pre-cutover (legacy path via ?legacy=true on the deployed PR-3b branch)
+       curl -sf "https://mint-staging-pr-NN.up.railway.app/v1/projection/$USER_ID?legacy=true" > /tmp/proj_legacy_pr3b.json
+       # Post-cutover (new path, default on PR-3b branch)
+       curl -sf "https://mint-staging-pr-NN.up.railway.app/v1/projection/$USER_ID" > /tmp/proj_new_pr3b.json
+       python3 tools/parity/projection_diff.py --pair /tmp/proj_legacy_pr3b.json /tmp/proj_new_pr3b.json
+       ```
+       Assert : `projection_diff.py` returns exit 0 + stdout `EQUAL` (deterministic per A10).
+    3. **HARD lint local run** : `python3 tools/checks/profile_safe_fields_parity.py --hard --allowlist tools/checks/profile_safe_fields_parity_allowlist.txt ; echo exit=$?` → exit 0.
+    4. **Verify pg_dump snapshot committed** : `ls -la tools/db/pre_pr3b_pg_dump.sql` ≥ 50 lines, contains `CREATE TABLE fact_event` AND `CREATE TABLE fact_current` (post-p98 state).
+    5. **Confirm rollback procedure exists** : `docs/operations/snapshot-model-decommission.md` Phase 02-03 Task 2b section documents how to invoke `pg_restore` + revert PR-3b on read-cutover-drift > 0 within 24h post-merge.
+    6. **Type gate decision**.
+
+    **Gate decision** :
+    - All checks pass → "approved PR-3b — 7-day drift sampler clean, parity audit re-run zero diff, pg_dump snapshot committed, HARD lint green" → Claude merges PR-3b to dev.
+    - <7d soak → "soak window short — defer N days" → Claude waits N days + re-runs the continuous sampler verification.
+    - Any check fails → describe failure mode ; Claude diagnoses + ships fix-up commit on PR-3b branch + re-runs checks (NOT pre_pr3b_pg_dump.sql — that's append-only ; recapture happens only if PR-3b is force-pushed).
+  </how-to-verify>
+  <resume-signal>
+    Type "approved PR-3b — 7-day drift sampler clean, parity audit re-run zero diff, pg_dump snapshot committed, HARD lint green" OR "soak window short — defer N days" OR describe failure mode.
+  </resume-signal>
+</task>
+
+### New helper task — Continuous drift sampler infrastructure (Tier-B B18)
+
+The 7-day drift sampler (referenced by Task 2b) requires Railway cron infra. Ships ahead of Task 2a as a passive monitoring component (zero functional change to user flows).
+
+<task type="auto">
+  <name>Task 2-helper (NEW iter-2): Continuous drift sampler Railway cron 30min × 100 users × 7-day soak (Tier-B B18 — runs ALL THROUGH Task 2a soak window)</name>
+  <files>
+    services/backend/app/cron/continuous_drift_sampler.py,
+    services/backend/alembic/versions/p119_phase02_parity_audit_continuous.py,
+    services/backend/app/models/phase02_parity_audit_continuous.py,
+    .github/workflows/pg-soak-nightly.yml,
+    railway.json
+  </files>
+  <read_first>
+    services/backend/app/cron/ (existing cron jobs — patterns + module shape),
+    tools/parity/projection_diff.py (from Task 2a iter-2 — drift definition module),
+    railway.json (Railway service config ; if cron mechanism is Railway-native cron, update here ; if it's GH Actions cron, update workflow YAML)
+  </read_first>
+  <action>
+1. **Alembic p119 (additive migration)** : create `_phase02_parity_audit_continuous` table :
+   ```sql
+   CREATE TABLE _phase02_parity_audit_continuous (
+     id            BIGSERIAL PRIMARY KEY,
+     sampled_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+     user_id_hash  VARCHAR(64) NOT NULL,
+     diff_count    INTEGER NOT NULL,
+     diff_details  JSONB NOT NULL DEFAULT '{}',
+     sampler_run_id UUID NOT NULL
+   );
+   CREATE INDEX ix_phase02_parity_audit_continuous_sampled ON _phase02_parity_audit_continuous (sampled_at DESC);
+   CREATE INDEX ix_phase02_parity_audit_continuous_dirty ON _phase02_parity_audit_continuous (diff_count) WHERE diff_count > 0;
+   ```
+   This table is staging-only ; prod migration ships as no-op CREATE-IF-NOT-EXISTS so PR-3a doesn't fail prod runtime if it ever touches.
+2. **`services/backend/app/cron/continuous_drift_sampler.py` (NEW, ~80 LOC)** :
+   - On invocation, picks 100 random user_ids from `SnapshotModel` table.
+   - For each, fetches `/v1/projection/<uid>` (new path) AND `/v1/projection/<uid>?legacy=true` (legacy path) AS the running service serves them.
+   - Runs `projection_diff.py` on each pair.
+   - Inserts result into `_phase02_parity_audit_continuous` with the `sampler_run_id` (single UUID per cron invocation).
+3. **`.github/workflows/pg-soak-nightly.yml` (NEW, OR extend existing)** : GitHub Actions cron job running every 30min during the PR-3a → PR-3b soak window. Targets `$STAGING_DATABASE_URL`. Invokes `python3 -m services.backend.app.cron.continuous_drift_sampler --sample-size 100`. Captures stdout to GitHub Actions log. **Cron schedule disabled by default ; enabled manually by Claude when PR-3a merges.**
+4. **`railway.json` (if Railway-native cron preferred)** : add a cron service definition with the same schedule. Pick ONE — GH Actions OR Railway-native — based on what Julien already has wired (executor : grep `railway.json` for existing cron entries ; if absent, default to GH Actions).
+5. **Sentry alert wiring (operational, executor surfaces in SUMMARY)** : configure a Sentry alert rule `mint_snapshot_fact_current_drift_total > 0 in 24h window` ; route to Julien email. Plan 02-04 close-out asserts this alert is configured (not Claude-actionable — Julien-only).
+  </action>
+  <verify>
+    <automated>cd services/backend && python3 -m pytest tests/integration/test_migration_p119.py tests/integration/test_continuous_drift_sampler.py -q -k pg && [ -f services/backend/app/cron/continuous_drift_sampler.py ] && grep -E "schedule|cron" .github/workflows/pg-soak-nightly.yml</automated>
+  </verify>
+  <acceptance_criteria>
+    - `cd services/backend && python3 -m pytest tests/integration/test_migration_p119.py tests/integration/test_continuous_drift_sampler.py -q -k pg` exits 0.
+    - `services/backend/app/cron/continuous_drift_sampler.py` exists with sampling logic.
+    - Cron schedule is `*/30 * * * *` (every 30 min).
+    - Manual smoke test on staging : `python3 -m services.backend.app.cron.continuous_drift_sampler --sample-size 5 --dry-run` exits 0 and prints 5 diff results to stdout.
+  </acceptance_criteria>
+  <done>
+    Continuous drift sampler infrastructure ready. Runs every 30min × 100 users × 7-day window between PR-3a merge and PR-3b merge. Outputs to `_phase02_parity_audit_continuous` table for the Task 2b 7-day-clean-window verification.
+  </done>
+</task>
+
+### Patch to original Task 5 (PR-5 execution) — B19 SnapshotModel-referencing tests enumeration
+
+**Adds** a new step to original Task 5 action block — enumerate Phase 01 tests that reference `SnapshotModel` and decide per-test (delete / migrate / mark deprecated).
+
+**Updated `<action>` step 0a (insert at top of original Task 5)** :
+
+```
+0a. **iter-2 B19 — Enumerate Phase 01 SnapshotModel-referencing tests**. Run :
+   ```bash
+   grep -rln "SnapshotModel" services/backend/tests/ > /tmp/snap_test_inventory.txt
+   wc -l /tmp/snap_test_inventory.txt   # expected: ~5-20 test files
+   ```
+   For each file in the inventory, decide per-test :
+   - **Delete** if the test asserts SnapshotModel-specific behavior (e.g., `test_snapshot_inputs_hash_*`) that's invalidated by PR-5 drop. Add deletion to the PR-5 commit.
+   - **Migrate** if the test asserts behaviour the post-cutover code MUST preserve (e.g., projection round-trip semantics) — rewrite to use FactCurrent + decrypt_value. Add as a new test in the PR-5 commit.
+   - **Mark deprecated** if the test is in a Phase 01 « end-of-life suite » directory — add `@pytest.mark.deprecated` and skip in CI ; queue for deletion in a Plan 02-04 follow-up cleanup task.
+
+   The decision matrix is published in PR-5 description as a 3-column table : `test_file | decision (delete/migrate/deprecate) | rationale`. CI does NOT pass until the inventory is exhausted (every file in `/tmp/snap_test_inventory.txt` has a documented decision).
+
+   Reference : qa-expert plan-patch #6.
+```
+
+**Updated `<verify>` addition for Task 5** :
+```bash
+grep -rln "SnapshotModel" services/backend/tests/ | wc -l  # expected: 0 after PR-5 (all migrated/deleted/deprecated-skipped)
+```
+
+**Updated `<acceptance_criteria>` addition for Task 5** :
+- `grep -rln "SnapshotModel" services/backend/tests/` returns 0 hits OR only `@pytest.mark.deprecated` test files (verified via `grep -A2 "deprecated" services/backend/tests/.../test_*.py`).
+- PR-5 description includes a 3-column table enumerating the per-test decisions.
+
+### CONTEXT.md changes proposed by this revision (summary)
+
+1. **D-05** : 5-PR → 6-PR sequence (PR-3 split into PR-3a + PR-3b). Full diff above.
+2. **D-31** : trigger PR `PR-3` → `PR-3b` ; soak duration reconciled « 7-day minimum, 14-day target » ; zero-drift definition deterministic via `projection_diff.py` ; sample size 100% (NOT 20 random). Full diff above.
+
+### VALIDATION.md additions proposed by this revision
+
+Append to `## Per-Task Verification Map → Wave 2-3 — Backfill + dual-write + cutover (Plan 02-03)` :
+
+| Task ID | Plan | Wave | Decision | Threat Ref | Secure Behavior | Test Type | Automated Command |
+|---------|------|------|----------|------------|-----------------|-----------|-------------------|
+| 02-03-0 | 02-03 | 2 | B1 zero-user prod gate | — | `preflight_zero_user_gate.py` rejects when prod has any user rows ; big-bang migration premise validated | unit | `python3 services/backend/scripts/preflight_zero_user_gate.py` |
+| 02-03-2a | 02-03 | 2 | A9 PR-3a backfill split + A10 deterministic drift + B14 100% audit | T-02-06 | `backfill_*.py` idempotent (run-2 row-count delta = 0) ; `projection_diff.py` deterministic via canonical JSON + Decimal tolerance + missing-key=NULL ; 100% staging users persisted to `_phase02_parity_audit` zero diff | integration | `pytest tests/integration/test_backfill_idempotent.py + tools/parity/projection_diff.py --self-test` |
+| 02-03-2b | 02-03 | 3 | A9 PR-3b cutover + Phase-01 D-12 HARD + B5 pg_dump 7th gate | T-02-06 | Read-cutover atomic with `profile_safe_fields_parity.py --hard` ; pre-cutover `pg_dump` committed ; rollback procedure documented | integration + lint HARD | `pytest tests/integration/test_read_cutover.py && python3 tools/checks/profile_safe_fields_parity.py --hard --allowlist tools/checks/profile_safe_fields_parity_allowlist.txt` |
+| 02-03-2helper | 02-03 | 2 | B18 continuous sampler | T-02-06 monitoring | `continuous_drift_sampler.py` Railway cron 30min × 100 users × 7-day window ; `_phase02_parity_audit_continuous` table | integration | `pytest tests/integration/test_continuous_drift_sampler.py -q -k pg` |
+| 02-03-5 (extend) | 02-03 | 3 | B19 SnapshotModel test inventory | T-02-19 | All Phase 01 SnapshotModel-referencing tests classified (delete/migrate/deprecate) before PR-5 merges | grep | `grep -rln "SnapshotModel" services/backend/tests/ | wc -l` = 0 OR all matches `@pytest.mark.deprecated` |
+
+### Threat-model extension (append, do not rewrite)
+
+Append to the existing STRIDE Threat Register in this plan :
+
+| Threat ID | Category | Component | Disposition | Mitigation Plan |
+|-----------|----------|-----------|-------------|-----------------|
+| T-02-06-EXT | Tampering / Integrity (4-way convergence) | PR-3 « atomic trio » unsafe — backfill interruption mid-run leaves fact_current half-populated AND reads cut over | mitigate (A9) | iter-2 splits PR-3 → PR-3a (backfill-only, idempotent, row-count-delta=0 gate) + PR-3b (read-cutover + HARD-flip atomic). 7-day continuous drift sampler between. Pre-HARD-flip pg_dump committed. |
+| T-QA-01 | Tampering / Cutover | Drift gate « zero drift » undefined (no canonicalisation, no tolerance, no NULL-vs-missing rule, sample size 20 random) | mitigate (A10 + B14) | iter-2 `tools/parity/projection_diff.py` with canonical JSON `sort_keys=True, default=str` + Decimal tolerance 1e-9 + missing-key=NULL rule. Sample size 100% staging users persisted to `_phase02_parity_audit`. |
+| T-PG-03 | DoS | Backfill exhausts Railway connection pool (40 connections vs ~100 cap) | mitigate (B15) | iter-2 backfill script uses `get_backfill_engine()` with throttled `pool_size=2, max_overflow=0` ; main engine retains `pool_timeout=10`. |
+| T-02-PR3a | Performance | Backfill runs against staging during peak window | accept | iter-2 — schedule backfill outside Julien's active hours ; staging traffic pre-launch is near-zero ; the throttled pool prevents user-facing degradation. |
+
+### Tier-C considered, deferred
+
+- **C2 PR-3 commit-message contract** → applied below as commit message template (Task 2a + Task 2b). Sample :
+  ```
+  feat(p02-pr3a): backfill SnapshotModel → fact_event idempotent (D-05 PR-3a iter-2 A9)
+
+  Iter-2 reviews revision split: backfill is now operationally separable from read-cutover.
+  - Run 1: <N> users backfilled
+  - Run 2: 0 new rows, <N> idempotency_skip increments (proves idempotency on real data)
+  - 100% staging-user canonical-JSON parity audit via tools/parity/projection_diff.py
+    persisted to _phase02_parity_audit: <N> users, 0 diff
+  - Allowlist rationale: 3 Flutter-only fields whitelisted in PR-3b (Plan 02-04 PR-A3 drops)
+  - Forward link: Plan 02-04 PR-A3 cleanup
+  - Reviewer rotation: 4-way convergence (architect-review + database-architect + postgres-pro + qa-expert)
+  ```
+
+### `<files_modified>` additions for Plan 02-03 frontmatter
+
+```yaml
+files_modified:
+  # ...original list...
+  - services/backend/scripts/preflight_zero_user_gate.py                                  # Task 0 B1
+  - services/backend/tests/integration/test_preflight_zero_user_gate.py                   # Task 0 B1
+  - tools/parity/projection_diff.py                                                       # A10
+  - tools/parity/tests/test_projection_diff.py                                            # A10
+  - services/backend/tests/fixtures/parity_diff_fixtures.py                               # A10
+  - services/backend/alembic/versions/p118_phase02_parity_audit_table.py                  # B14
+  - services/backend/app/models/phase02_parity_audit.py                                   # B14
+  - services/backend/alembic/versions/p119_phase02_parity_audit_continuous.py             # B18
+  - services/backend/app/models/phase02_parity_audit_continuous.py                        # B18
+  - services/backend/app/cron/continuous_drift_sampler.py                                 # B18
+  - .github/workflows/pg-soak-nightly.yml                                                  # B18
+  - tools/db/pre_pr3b_pg_dump.sql                                                          # B5
+```
+
+### Iter-2 commit recommendation
+
+Per task — 4 separate commits :
+1. `docs(mint-data-architecture-v1-02-event-log-projection): plan iter-2 reviews revision part 1 — Task 0 preflight gate + Task 1 D-12 label rename (Plan 02-03)`
+2. `docs(mint-data-architecture-v1-02-event-log-projection): plan iter-2 reviews revision part 2 — Task 2 SPLIT PR-3 → PR-3a + PR-3b (A9 4-way convergence) + A10 deterministic drift gate (Plan 02-03)`
+3. `docs(mint-data-architecture-v1-02-event-log-projection): plan iter-2 reviews revision part 3 — B14 + B18 + B5 + B19 + B20 (Plan 02-03)`
+4. (during execution) `feat(p02-pr3a): ...` then later `feat(p02-pr3b): ...` per the commit message template above.
+
+</iter_2_revision>

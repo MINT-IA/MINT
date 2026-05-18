@@ -38,11 +38,11 @@ requirements_addressed:
   - CONTEXT.md#D-06 Q6 CI staging-down policy (STAGING-MALFORMED + scheduled-only aging + HARD-mode label override)
   - CONTEXT.md#D-07 Audit retention 10y policy + REVOKE assertion + pepper-rotation runbook
   - CONTEXT.md#D-32 Phase 02 5-gate mechanical exit checklist
-  - CONTEXT.md#D-33 6 new observability counters declared + ASSERTED firing via declared_counters_must_fire close-out gate
+  - CONTEXT.md#D-33 6 new observability counters declared + ASSERTED firing via declared_counters_must_fire close-out gate (extended to 8 in iter-2: + mint_kms_backend_failure_total + mint_dek_cache_size_total per Plan 02-02 A4/A5)
   - CONTEXT.md#D-09 S12 PR-2 alias removal (FrontalierService = FrontalierSegmentService alias removed)
   - CONTEXT.md#D-10 D-MOB-01 PR-A3 (drop 3 dead Flutter-only fields; remove parity-lint allowlist)
 threat_model_summary:
-  - T-02-22 Counter declared but never fires (mitigated: declared_counters_must_fire HARD gate fails CI if any of the 6 D-33 counters has zero increments in a 24h test window; covers regressions where a writer drops the counter)
+  - T-02-22 Counter declared but never fires (mitigated: declared_counters_must_fire HARD gate fails CI if any of the 8 D-33-tracked counters — 6 D-33 base + 2 iter-2 additions per Plan 02-02 A4/A5 — has zero increments in a 24h test window; covers regressions where a writer drops the counter)
   - T-02-23 Alias removal breaks downstream callers (mitigated: PR-A2 ships first in Plan 02-01; this plan's PR-2 only removes the alias once `git grep FrontalierService` confirms no live importers remain)
   - T-02-24 LSFin banned-terms leak via fact_event payload (mitigated: extend banned_terms_python lint to scan fact_event JSONB shape; assertion test seeds a banned term in payload and confirms lint catches it)
   - T-02-25 STAGING-DOWN-OVERRIDE label abused by non-CODEOWNER (mitigated: GitHub Actions workflow step gates the override on `github.event.pull_request.user.login == 'julienbattaglia' AND 'STAGING-DOWN-OVERRIDE' in labels`)
@@ -53,7 +53,7 @@ must_haves:
     - "Q6 CI mechanical fix #1 (STAGING-MALFORMED): `.github/workflows/regulatory-codegen.yml` extended with a step that distinguishes 200-OK-with-malformed-payload from 503-DOWN; separate counter `mint_staging_status_total{status='down'|'malformed'|'ok'}` (D-06)."
     - "Q6 CI mechanical fix #2 (scheduled-only aging): aging-state writes (parity-lint SOFT→HARD promotion candidate logic) run ONLY on cron-scheduled workflow runs, not on PR runs (D-06)."
     - "Q6 CI mechanical fix #3 (HARD-mode override label): workflow accepts `STAGING-DOWN-OVERRIDE` PR label as fail-closed bypass, gated to CODEOWNER `julienbattaglia` via workflow `github.event.pull_request.user.login` check (D-06)."
-    - "`tools/checks/declared_counters_must_fire.py` HARD close-out gate: asserts all 6 D-33 counters increment at least once during a representative test scenario; fails CI if any counter is declared but never fires (D-32 G3 + D-33)."
+    - "`tools/checks/declared_counters_must_fire.py` HARD close-out gate: asserts all 8 declared counters (6 D-33 base + 2 iter-2 additions per Plan 02-02 A4/A5: `mint_kms_backend_failure_total` + `mint_dek_cache_size_total`) increment at least once during a representative test scenario; fails CI if any counter is declared but never fires (D-32 G3 + D-33)."
     - "`tools/checks/banned_terms_python.py` extended to scan `fact_event.payload` JSONB shape in fixtures (Phase 02 LSFin parity coverage); test seeds a banned term in payload and confirms lint exit 1 (D-32 G5 extension)."
     - "`docs/operations/fact-event-partition-split.md` ships with concrete thresholds (5M rows OR p99 > 15ms sustained 7d) + step-by-step ATTACH PARTITION procedure + Prometheus alert spec."
     - "`docs/operations/dek-rotation-phase04.md` ships documenting the forward-deferred Phase 04 rotation procedure; Phase 02 does NOT execute rotation (deferred-items.md anchor)."
@@ -98,7 +98,7 @@ must_haves:
 <objective>
 Continues close-out of D-09 (S12 alias removal) and D-10 (Flutter PR-A3 dead-fields) from Plan 02-01 — primary disposition there, terminal disposition here.
 
-Wave 4 closes the phase. Five workstreams: (1) S12 PR-2 alias removal + D-MOB-01 PR-A3 dead-field drop (the carry-over completions from Plan 02-01); (2) Q6 CI mechanical fixes (STAGING-MALFORMED status + scheduled-only aging writes + HARD-mode STAGING-DOWN-OVERRIDE label) per D-06; (3) `declared_counters_must_fire.py` close-out HARD gate activated per D-32 G3 + D-33; (4) three forward-deferred operational runbooks (partition-split + DEK rotation + audit-pepper rotation); (5) phase close-out artifacts (VERIFICATION-REPORT.html + SUMMARY.md + ROADMAP + STATE updates).
+Wave 4 closes the phase. Five workstreams: (1) S12 PR-2 alias removal + D-MOB-01 PR-A3 dead-field drop (the carry-over completions from Plan 02-01); (2) Q6 CI mechanical fixes (STAGING-MALFORMED status + scheduled-only aging writes + HARD-mode STAGING-DOWN-OVERRIDE label) per D-06; (3) `declared_counters_must_fire.py` close-out HARD gate activated per D-32 G3 + D-33 (asserts all 8 declared counters fire: 6 D-33 base + 2 iter-2 additions per Plan 02-02 A4/A5); (4) three forward-deferred operational runbooks (partition-split + DEK rotation + audit-pepper rotation); (5) phase close-out artifacts (VERIFICATION-REPORT.html + SUMMARY.md + ROADMAP + STATE updates).
 
 Purpose: lock the 5-gate mechanical exit (G1 Maestro, G2 Julien device — DEFERRED, G3 dev CI green, G4 regression + 2 new test classes, G5 lint suite) and flip the phase status to `◆ code-shipped on dev, pending operational gates`. Every D-XX (1-33) has a verifiable disposition in the SUMMARY by close-out.
 
@@ -317,7 +317,15 @@ SUMMARY.md template anchor: same Phase 01 W4 Plan 20 receipt block (per-D-CE-XX 
     <automated>cd services/backend && python3 -m pytest tests/observability/test_phase02_counters.py tests/compliance/test_event_log_banned_terms.py -q -k pg && python3 -m pytest tests/ -q -x && cd /Users/julienbattaglia/Desktop/MINT.nosync && python3 tools/checks/declared_counters_must_fire.py --all && python3 -m pytest tools/checks/tests/test_declared_counters_must_fire.py -q && python3 tools/checks/banned_terms_python.py --scan-jsonb-payload services/backend/tests/fixtures/banned_payload.json 2>&1 | tee /tmp/banned_payload.log && grep -q "exit 1\|VIOLATION" /tmp/banned_payload.log && python3 tools/checks/banned_terms_python.py services/backend/app/services/projector/</automated>
   </verify>
   <acceptance_criteria>
-    - `python3 tools/checks/declared_counters_must_fire.py --all` exits 0 (all 6 D-33 counters fire ≥1 in scenario).
+    - `python3 tools/checks/declared_counters_must_fire.py --all` exits 0 (all 8 counters fire ≥1 in scenario — full enumeration:
+      1. `mint_snapshot_fact_current_drift_total`
+      2. `mint_projector_fact_written_total`
+      3. `mint_projector_idempotency_skip_total`
+      4. `mint_dek_operations_total`
+      5. `mint_fact_event_write_total`
+      6. `mint_anonymous_session_link_total`
+      7. `mint_kms_backend_failure_total` (iter-2 A4 — D-35 PROPOSED, Plan 02-02 addition)
+      8. `mint_dek_cache_size_total` (iter-2 A5, Plan 02-02 addition)).
     - `cd services/backend && python3 -m pytest tests/observability/test_phase02_counters.py -q -k pg` exits 0.
     - `python3 -m pytest tools/checks/tests/test_declared_counters_must_fire.py -q` exits 0 (self-test green).
     - `git grep -n "declared-counters-must-fire" lefthook.yml` returns 1 hit on `pre-push` hook.
@@ -459,7 +467,7 @@ SUMMARY.md template anchor: same Phase 01 W4 Plan 20 receipt block (per-D-CE-XX 
 - [ ] S12 PR-2 alias removed; all `FrontalierService` callers (S23) updated to `FrontalierSegmentService` (Task 1, D-09).
 - [ ] D-MOB-01 PR-A3: 3 dead Flutter-only fields removed; allowlist file deleted; parity-lint HARD without allowlist green (Task 1, D-10).
 - [ ] Q6 CI mechanical fixes shipped: STAGING-MALFORMED + scheduled-only aging + STAGING-DOWN-OVERRIDE label CODEOWNER-gated (Task 2, D-06).
-- [ ] `declared_counters_must_fire.py` HARD close-out gate activated; all 6 D-33 counters fire in scenario (Task 3, D-32 G3 + D-33).
+- [ ] `declared_counters_must_fire.py` HARD close-out gate activated; all 8 D-33 counters fire in scenario (Task 3, D-32 G3 + D-33; 6 D-33 base + 2 iter-2 additions per Plan 02-02 A4/A5).
 - [ ] LSFin banned-terms extended to fact_event JSONB payload; writer-level scan blocks insertion (Task 3, D-32 G5).
 - [ ] 3 forward-deferred runbooks shipped: partition-split (Task 4, ≥50 lines), DEK rotation (≥40 lines), audit-pepper rotation (≥40 lines).
 - [ ] Phase 02 VERIFICATION-REPORT.html (≥200 lines) and SUMMARY.md (≥180 lines) document every D-XX + 5-gate exit panel (Task 4).
@@ -484,3 +492,303 @@ After completion, ensure:
   - 0-trust §9.6 Evidence + Caveat block.
   - `mem_save` with `topic_key: mint-data-architecture-v1-02:phase-close:shipped-pending-G2` + `prior_finding_refs` to obs #163, #174, #175, #176, #178, #183, #186, #187, #188 + Plan 02-01 obs + Plan 02-02 obs + Plan 02-03 obs (≥10 refs per Phase 01 compounding-observable doctrine).
 </output>
+
+---
+
+<!-- ============================================================== -->
+<!-- ITER-2 REVIEWS REVISION — appended 2026-05-18                 -->
+<!-- Close-out plan absorbs B7 + B16 + B17 + C1 + C6 + C7 + C8.    -->
+<!-- ============================================================== -->
+
+<iter_2_revision>
+
+## Iter-2 Reviews Revision — Plan 02-04
+
+**Trigger:** REVIEWS.md residual Tier-B/C items that landed on close-out plan : runbook ordering (B7), counter-firing site verification (B16), Mobile L1 race tests (B17), docker docs (C1), native UUID/TIMESTAMPTZ (C6), JSONB size cap (C7), STAGING-DOWN-OVERRIDE required check (C8).
+
+**Tier-B handled here:**
+- B7 : `audit-pepper-rotation.md` runbook PR-ordering rule — p114 BEFORE any query-layer code change. (Patch to Task 4 step 3 below.)
+- B16 : `declared_counters_must_fire.py` grep ≥1 increment site in `app/` source (not tests) — counter cannot be declared and never wired. (Patch to Task 3.)
+- B17 : D-30 race tests — 2-device + clock-skew + reinstall + low-storage. (NEW Task 5 below — Flutter-side tests + sim coverage.)
+
+**Tier-C handled here:**
+- C1 : Document Docker dep in `services/backend/README.md` or `CONTRIBUTING.md`. (Small README patch in Task 4 below.)
+- C6 : `event_id VARCHAR(36)` → native UUID + `TIMESTAMP` → `TIMESTAMPTZ`. (Deferred to Phase 03 close-out per Tier-C low severity ; document the deferral here.)
+- C7 : JSONB `pg_column_size < 65536` CHECK constraint on `fact_event.value_enc`. (Deferred to Phase 03 schema-hardening migration ; B11 enrichmentPrompts cap from Plan 02-02 iter-2 mitigates the dominant TOAST risk in Phase 02.)
+- C8 : STAGING-DOWN-OVERRIDE as required status check. (Patch to Task 2 below — adds GitHub branch-protection contract documentation ; actual rule enable is Julien-only via GitHub UI.)
+
+**Tier-A/B NOT handled here:**
+- All Tier-A handled in Plan 02-02 (DDL + security + projector + canary) and Plan 02-03 (PR-3 split + drift gate).
+- Tier-A A11 D-34 PROPOSED needs Plan 02-04 close-out to ACKNOWLEDGE in SUMMARY (Task 4 patch below).
+
+### Patch to original Task 3 — B16 declared_counters grep-in-app/ source check
+
+**Updated `<action>` step 1 — `tools/checks/declared_counters_must_fire.py`** (insert after Step 3 « runs representative scenario », BEFORE Step 4 « if delta == 0 ») :
+
+```python
+# Step 3.5 (iter-2 B16): for each declared counter, grep app/ source for at least one increment site.
+# This catches declare-and-forget regressions even if the pytest scenario doesn't exercise the counter.
+import subprocess
+DECLARED_COUNTERS = [...]  # extracted via AST in step 1
+APP_ROOT = "services/backend/app/"
+unwired = []
+for counter_name in DECLARED_COUNTERS:
+    # ripgrep is faster + has dedup ; fall back to git grep if rg missing
+    cmd = ["rg", "-c", "--type", "py", "-l", counter_name, APP_ROOT] if shutil.which("rg") else ["git", "grep", "-rln", counter_name, APP_ROOT]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    found_files = [f for f in result.stdout.strip().split("\n") if f and not f.endswith("counters.py")]
+    if not found_files:
+        unwired.append(counter_name)
+if unwired:
+    print(f"BLOCKED: {len(unwired)} declared counters have ZERO increment sites in {APP_ROOT}:")
+    for c in unwired:
+        print(f"  - {c}")
+    sys.exit(1)
+```
+
+**Updated `<action>` step 1 final — counter set bumped to 8** (from 6 D-33 base) :
+- 6 D-33 base counters (Plan 02-02 declares).
+- + `mint_kms_backend_failure_total` (Plan 02-02 iter-2 A4 / D-35 PROPOSED).
+- + `mint_dek_cache_size_total` (Plan 02-02 iter-2 A5).
+
+The scenario test `tests/observability/test_phase02_counters.py` (original Task 3 step 2) MUST be extended :
+- A4 scenario : invoke `_select_backend()` with `MINT_KMS_KEY_ID` unset → catch `KMSBackendUnavailable` ; assert `mint_kms_backend_failure_total.labels(backend='none', reason='MINT_KMS_KEY_ID unset')._value.get() >= 1`.
+- A5 scenario : invoke 3 `get_or_create_dek()` calls → assert `mint_dek_cache_size_total._value.get() in (1, 2, 3)` (depending on whether deks reuse the same user_id).
+
+**Updated `<acceptance_criteria>` for original Task 3** (add) :
+- `python3 tools/checks/declared_counters_must_fire.py --all` exits 0 for all 8 declared counters.
+- `mint_kms_backend_failure_total` has ≥1 increment site in `app/services/encryption/` (grep verified).
+- `mint_dek_cache_size_total` has ≥1 increment site in `app/services/encryption/key_vault.py` (grep verified).
+
+### Patch to original Task 4 step 3 — B7 audit-pepper rotation runbook PR-ordering rule
+
+**Updated `<action>` step 3 — `docs/operations/audit-pepper-rotation.md`** — INSERT a new section between « Step-by-step procedure » and « Rehearsal » :
+
+```markdown
+## PR-ordering rule (iter-2 B7, security-auditor non-negotiable)
+
+Audit-pepper rotation requires Postgres backfill writes (alembic `p114_hmac_pepper_audit_events`-style migration that re-hashes existing rows with new pepper) AND query-layer code changes (read-path reads from `user_id_hash_v2` column).
+
+**These MUST land in strict order :**
+
+1. **First PR — backfill alembic only (no query-layer changes).** Migration writes new `user_id_hash_v2` column ; backfills from plaintext (if retained per D-15 deprecation cycle) OR raises explicit `PepperRotationDataLossError` if plaintext already dropped.
+2. **Second PR — query-layer dual-read.** Read path queries BOTH `user_id_hash` (v1) AND `user_id_hash_v2` (transition window 6 months).
+3. **Third PR — drop v1 column + rename v2 → v1.** Atomic with the rotation completion.
+
+**Why this order matters :** if the query-layer change ships BEFORE backfill, audit queries return 0 rows for the entire pre-rotation window (silent data hole). The backfill must complete + verify FIRST, then the query layer can safely include the new column.
+
+**Freeze contract :** during the backfill PR's execution window (typically 1-4 hours on Railway production), ALL audit_event writes are frozen via a feature flag `FF_AUDIT_PEPPER_ROTATION_IN_PROGRESS=on`. Reads continue ; writes return `503 Service Unavailable` with retry-after header. Mobile L1 audit offline queue absorbs the temporary write-rejection per D-30 retry-with-backoff.
+
+**Rollback :** if the backfill PR fails mid-execution, the new `user_id_hash_v2` column is left in PARTIAL state. The freeze flag is left on ; recovery procedure is the inverse-PR-1 (drop the new column ; rebuild from plaintext-retained-rows OR accept the data hole).
+```
+
+**Updated `<acceptance_criteria>` for original Task 4 step 3** (add) :
+- `docs/operations/audit-pepper-rotation.md` contains the « PR-ordering rule » section with 3-step ordering, freeze contract, and rollback procedure.
+- `wc -l docs/operations/audit-pepper-rotation.md` ≥ 50 (was 40 — bumped by the new section).
+
+### Patch to original Task 2 — C8 STAGING-DOWN-OVERRIDE required check contract
+
+**Updated `<action>` step 2** — append to the section creating `.github/CODEOWNERS` :
+
+```markdown
+**iter-2 C8 — STAGING-DOWN-OVERRIDE required check contract** :
+
+The label-based gate (introduced in original Task 2 step 1) is enforced at runtime in `.github/workflows/regulatory-codegen.yml`. To prevent a label-bypass when the workflow itself is bypassed (e.g., branch protection allows skipping required workflows), iter-2 documents the required-check rule that Julien MUST apply via the GitHub UI (NOT Claude-actionable) :
+
+**Required actions for Julien (post-merge of this plan, owner-only)** :
+
+1. GitHub repo Settings → Branches → Branch protection rule for `main` :
+   - Add `regulatory-codegen / staging-check` as a required status check.
+   - Enable « Require status checks to pass before merging ».
+   - Enable « Restrict who can dismiss pull request reviews » to `@julienbattaglia`.
+2. GitHub repo Settings → Branches → Branch protection rule for `dev` (mirror to `main`).
+3. Document the contract in `docs/operations/staging-down-override.md` (a sibling to the existing `audit-pepper-rotation.md`).
+
+**`docs/operations/staging-down-override.md` (NEW, ≥30 lines)** : surfaces the 2-key invariant —
+(1) STAGING-DOWN/MALFORMED state requires the `STAGING-DOWN-OVERRIDE` PR label,
+(2) the label requires `@julienbattaglia` as PR author (workflow-enforced) ;
+plus the override audit-trail (each override application logs to `_phase02_parity_audit_continuous` via a workflow step that writes a one-row INSERT).
+```
+
+**Updated `<files_modified>` for original Task 2** (add) :
+- `docs/operations/staging-down-override.md`
+
+**Updated `<acceptance_criteria>` for original Task 2** (add) :
+- `docs/operations/staging-down-override.md` exists ≥30 lines, contains 2-key invariant + override audit-trail.
+- Branch protection rule enable is DEFERRED to Julien (NOT Claude-actionable) — surfaced in Plan 02-04 SUMMARY as an outstanding operational item.
+
+### Patch to original Task 4 — C1 Docker docs
+
+**Updated `<action>` step 1 — `docs/operations/fact-event-partition-split.md`** — append a paragraph after « Counter-arguments and data gaps block » :
+
+```markdown
+## Local development prerequisites (iter-2 C1)
+
+The Postgres-real test harness (D-22, testcontainers-python ≥4.7) requires Docker. macOS users : install Docker Desktop or OrbStack ; Linux users : `apt install docker.io docker-compose-plugin`. CI : GitHub Actions `ubuntu-latest` ships Docker pre-installed.
+
+**Test-time Docker availability check** : `services/backend/tests/fixtures/pg_fixture.py` runs `docker info` once at session-scope startup ; if Docker is unavailable, all `@pytest.mark.pg` tests skip with explicit message « Docker unavailable — install Docker Desktop or run with PG_FIXTURE_SKIP=1 ». No silent skip — the skip reason is logged.
+
+**Backend README addendum** : `services/backend/README.md` (DOES this file exist? executor: check via `[ -f services/backend/README.md ] && tail -50 OR create new`) includes a « Test harness setup » section pointing to this runbook for the Docker requirement.
+```
+
+**New file `services/backend/README.md` (or extend if exists)** — add a « Test harness setup » section :
+
+```markdown
+## Test harness setup (Phase 02 D-22)
+
+The MINT backend test suite includes integration tests against a real Postgres 15.x instance via testcontainers-python. Local prerequisites :
+
+- Docker Desktop (macOS) OR Docker Engine (Linux).
+- Python 3.11+ with `pip install -e "services/backend[test]"`.
+
+Quick start :
+```bash
+cd services/backend
+pytest tests/ -q -k "not pg"   # skip Postgres-real tests (fast, ~25s)
+pytest tests/ -q               # full suite incl. Postgres (~90s with testcontainers spin-up)
+```
+
+CI gates : GitHub Actions runs `pytest tests/ -q -k pg` on every PR touching `services/backend/alembic/**` or `services/backend/app/models/**` or `services/backend/tests/fixtures/**`.
+
+See `docs/operations/fact-event-partition-split.md` for the Docker version pinning + Railway PG version sync procedure.
+```
+
+### New Task 5 — D-30 race tests (Tier-B B17, qa-expert)
+
+Inserted at end of Plan 02-04. Flutter-side + sim coverage for Pitfall 3 (out-of-order event_id), Pitfall 5 (reinstall orphan chain), Pitfall 6 (battery drain). qa-expert flagged the `<verify>` block as empty in Plan 02-02 ; iter-2 lifts the work into Plan 02-04 close-out because the tests are observational (would slow down Plan 02-02 PR cycle).
+
+<task type="auto">
+  <name>Task 5 (NEW iter-2): D-30 race + edge-case tests (Tier-B B17, qa-expert plan-patch #7)</name>
+  <files>
+    apps/mobile/test/services/audit/test_two_device_offline_to_online.dart,
+    apps/mobile/test/services/audit/test_clock_skew_uuid7_ordering.dart,
+    apps/mobile/test/services/audit/test_anonymous_session_reinstall_orphan.dart,
+    apps/mobile/test/services/audit/test_sqlite_buffer_full_low_storage.dart,
+    services/backend/tests/integration/test_projector_out_of_order_event_id.py,
+    services/backend/tests/integration/test_anonymous_session_reinstall_orphan_backend.py
+  </files>
+  <read_first>
+    apps/mobile/lib/services/audit/mobile_l1_audit_service.dart (from Plan 02-02 — service under test),
+    apps/mobile/lib/services/audit/offline_queue.dart (from Plan 02-02 — replay logic + backoff cap),
+    apps/mobile/lib/services/audit/audit_buffer_db.dart (from Plan 02-02 — sqflite_sqlcipher buffer schema),
+    .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-RESEARCH.md (Pitfall 3 + 5 + 6 — explicit race surfaces flagged but not wired)
+  </read_first>
+  <action>
+1. **`apps/mobile/test/services/audit/test_two_device_offline_to_online.dart` (NEW)** : Pitfall 3 race surface — same user has 2 devices, both offline, both queue events with monotonic UUID v7 (per device). When both come online, the link batch from device A and device B both POST to `/v1/audit/mobile-session-link`. **Assertion** : server's UNIQUE `(anonymous_session_id, observed_at)` constraint blocks dups (device A and device B have DIFFERENT anonymous_session_ids → no collision ; but if user re-installs A → A's old anonymous_session_id is dropped + new one generated, both old and new sessions get linked at next login). Test the « both online simultaneously » race and assert response shape : both batches return 200, link count is sum.
+2. **`apps/mobile/test/services/audit/test_clock_skew_uuid7_ordering.dart` (NEW)** : UUID v7 incorporates the 48-bit ms timestamp. If the device clock skews backward 1 hour between two events, UUID v7 ordering is INVERTED relative to actual recording order. **Assertion** : projector (server-side) skips re-projection if `event.event_id <= fact_current.latest_event_id` — under clock skew, the second-recorded event might have a SMALLER UUID v7. iter-2 mitigation : the projector uses `event_id` as sequence number, NOT timestamp ; the « monotonicity » is by UUID v7 sort order, which IS the recording-order intent. Document the trade-off : a skew-induced inversion makes the projection « miss » the clock-skewed event ; D-30 + UUID v7 accept this as cost of offline-capable design (server-side timestamp is authoritative for read-back via `recorded_at`).
+3. **`apps/mobile/test/services/audit/test_anonymous_session_reinstall_orphan.dart` (NEW)** : Pitfall 5 — user wipes app + reinstalls BEFORE linking. **Assertion** : the previous anonymous_session_id's audit rows in mobile SQLite are GONE (sqflite_sqlcipher buffer cleared on uninstall) ; on reinstall, a NEW UUID v7 is generated. The 6-month-old anonymous session is orphan on the backend (no user_id_hash) but LSFin-auditable by `(observed_at, app_version, constants_version_hash)`. The test confirms the new install does NOT attempt to re-link the old session (no shared device fingerprint).
+4. **`apps/mobile/test/services/audit/test_sqlite_buffer_full_low_storage.dart` (NEW)** : Pitfall 6 — low-storage iOS hits 80% storage → sqflite_sqlcipher returns `SqliteException` on insert. **Assertion** : `MobileL1AuditService.recordSessionStart()` catches the exception, logs to Sentry as breadcrumb (NOT user-facing), increments `mint_anonymous_session_link_total{outcome='error', reason='sqlite_full'}` (Plan 02-02 declared counter), AND returns gracefully (no crash). The audit row is LOST (acceptable cost — LSFin auditor can match by `observed_at` + `app_version` per CONTEXT data gap).
+5. **`services/backend/tests/integration/test_projector_out_of_order_event_id.py` (NEW)** : Pitfall 3 backend side — write fact_event with event_id_NEW (sorted lower than fact_current.latest_event_id), project, assert skip + counter increment. Already partially covered by `test_projector_idempotency.py` from Plan 02-02 ; this test specifically asserts the clock-skew inversion case (event_id sort < latest_event_id by NON-trivial delta).
+6. **`services/backend/tests/integration/test_anonymous_session_reinstall_orphan_backend.py` (NEW)** : write a `projection_audit_records` row with `anonymous_session_id=A` + `source='mobile_session_start'` ; never call /v1/audit/mobile-session-link for that A (user wiped app). Assert : the row stays in the table with `user_id_hash=NULL` ; query by `(observed_at, app_version, constants_version_hash)` returns the orphan row.
+  </action>
+  <verify>
+    <automated>cd apps/mobile && flutter test test/services/audit/test_two_device_offline_to_online.dart test/services/audit/test_clock_skew_uuid7_ordering.dart test/services/audit/test_anonymous_session_reinstall_orphan.dart test/services/audit/test_sqlite_buffer_full_low_storage.dart 2>&1 | tail -10 && cd services/backend && python3 -m pytest tests/integration/test_projector_out_of_order_event_id.py tests/integration/test_anonymous_session_reinstall_orphan_backend.py -q -k pg    </automated>
+  </verify>
+  <acceptance_criteria>
+    - 4 Flutter test files in `apps/mobile/test/services/audit/` exit 0 under `flutter test`.
+    - 2 Python integration test files in `services/backend/tests/integration/` exit 0 under `pytest -q -k pg`.
+    - `mint_anonymous_session_link_total{outcome='error', reason='sqlite_full'}` is incremented in the SQLite-full test (asserted via prometheus_client counter inspection at test end).
+    - Test for clock-skew inversion is documented as « accepting trade-off » in test docstring + Plan 02-04 SUMMARY (NOT as a bug ; D-30 + UUID v7 explicitly accept this race).
+  </acceptance_criteria>
+  <done>
+    D-30 race surface tests shipped. Pitfall 3 (out-of-order event_id) + Pitfall 5 (reinstall orphan) + Pitfall 6 (low-storage SQLite full) all have explicit test coverage. The 4 race surfaces qa-expert flagged as `<verify>` empty in Plan 02-02 are now wired.
+  </done>
+</task>
+
+### Patch to original Task 4 — SUMMARY acknowledgment of D-34 + D-35 PROPOSED + Tier-C deferrals
+
+**Updated `<action>` step 5 — `mint-data-architecture-v1-02-event-log-SUMMARY.md`** (insert NEW subsections in the per-D-XX disposition table) :
+
+```markdown
+### iter-2 PROPOSED decisions (pending Julien-owner approval)
+
+| D-XX | Status | Disposition | Reference |
+|------|--------|-------------|-----------|
+| D-34 (PROPOSED) | ✓ shipped (pending CONTEXT lock) | Multi-shape canary parity gate (5 fact-types covering scalar + decimal + nested JSONB + nullable + TOAST) BEFORE Plan 02-03 PR-3 fires | Plan 02-02 Task 3C + REVIEWS.md A11 |
+| D-35 (PROPOSED) | ✓ shipped (pending CONTEXT lock) | KMS fail-closed never silent fallback — `_select_backend()` raises `KMSBackendUnavailable` ; `mint_kms_backend_failure_total` counter | Plan 02-02 Task 2 iter-2 A4 + REVIEWS.md security-auditor T-S09 |
+
+### iter-2 Tier-C deferred items (documented, not blocking)
+
+| Tier-C | Item | Defer-to | Justification |
+|--------|------|----------|---------------|
+| C4 | Merge over-decomposed D-XX (33 → ~26) | Post-Phase-02 retrospective | Renumbering risks audit-trail breakage during active execution. Acceptable cost of 33 distinct decisions. |
+| C6 | `event_id VARCHAR(36)` → native UUID + `TIMESTAMP` → `TIMESTAMPTZ` | Phase 03 schema-hardening migration | Pre-launch performance dominated by network, not column-type. Native UUID storage is ~25% smaller but the savings are << total row size. |
+| C7 | JSONB `pg_column_size < 65536` CHECK constraint on `fact_event.value_enc` | Phase 03 schema-hardening migration | B11 enrichmentPrompts cap (Plan 02-02 iter-2) mitigates dominant TOAST risk in Phase 02. A blanket CHECK requires defining « what is too big » — defer until prod data shape known. |
+```
+
+### Patch to original Task 4 step 4 — VERIFICATION-REPORT.html iter-2 acknowledgment
+
+**Updated `<action>` step 4 — `mint-data-architecture-v1-02-event-log-VERIFICATION-REPORT.html`** (add new section after « 5-gate exit panel ») :
+
+```html
+<section class="iter-2-reviews-revision">
+  <h2>Cross-AI Reviews Revision (iter-2)</h2>
+  <p>Phase 02 was reviewed by 6 AI reviewers (Gemini 2.5 Pro + Claude MINT panel of 5 specialists). Risk verdict consensus: <strong>MEDIUM</strong> (5-of-6 reviewers), NOT LOW.</p>
+  <h3>Tier-A blockers handled (11/11)</h3>
+  <ul>
+    <li>A1 — dek_vault ON DELETE RESTRICT + tombstone_at: Plan 02-02 Task 3A (DDL)</li>
+    <li>A2 — fact_event PK reorder (subject_id, event_id): Plan 02-02 Task 3A (DDL)</li>
+    <li>A3 — fact_current covering index leading column: Plan 02-02 Task 3A (DDL)</li>
+    <li>A4 — KMS fail-closed (D-35 PROPOSED): Plan 02-02 Task 2 patch</li>
+    <li>A5 — DEK cache TTL eviction: Plan 02-02 Task 2 patch</li>
+    <li>A6 — Audit mobile link handshake: Plan 02-02 Task 3 patch</li>
+    <li>A7 — D-20 lint 5 bypass shapes: Plan 02-01 Task 2 patch</li>
+    <li>A8 — Projector atomic UPSERT: Plan 02-02 Task 3B</li>
+    <li>A9 — PR-3 split into PR-3a + PR-3b: Plan 02-03 Task 2 SPLIT</li>
+    <li>A10 — projection_diff.py deterministic: Plan 02-03 Task 2a</li>
+    <li>A11 — Multi-shape canary (D-34 PROPOSED): Plan 02-02 Task 3C</li>
+  </ul>
+  <h3>Tier-B applied (16/20) + deferred (4/20)</h3>
+  <p>Applied: B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B12, B13, B14, B15, B16, B17, B18, B19, B20 (full list per per-plan iter_2_revision sections).</p>
+  <p>Deferred with explicit reasoning: (none — all 20 absorbed).</p>
+  <h3>Tier-C acknowledged (8/8)</h3>
+  <p>C1 + C2 + C3 + C5 + C8 applied as small patches. C4 + C6 + C7 deferred to Phase 03 schema-hardening with documented rationale.</p>
+</section>
+```
+
+### CONTEXT.md changes proposed by Plan 02-04 iter-2 (summary)
+
+NONE new for Plan 02-04. The Plan 02-02 + Plan 02-03 iter-2 sections propose D-05 + D-26 + D-28 + D-29 + D-30 + D-31 amendments + D-34 + D-35 PROPOSED ; this plan ACKNOWLEDGES them in SUMMARY.md but does NOT itself amend CONTEXT.md (those amendments are owner-approval gates).
+
+### VALIDATION.md additions proposed by this revision
+
+Append to `## Per-Task Verification Map → Wave 4 — Close-out + counters + runbooks (Plan 02-04)` :
+
+| Task ID | Plan | Wave | Decision | Threat Ref | Secure Behavior | Test Type | Automated Command |
+|---------|------|------|----------|------------|-----------------|-----------|-------------------|
+| 02-04-5 | 02-04 | 4 | B17 D-30 race tests | T-02-15 + clock-skew | 4 Flutter tests + 2 backend tests cover Pitfall 3/5/6 race surfaces ; SQLite-full graceful degradation | unit + integration | `flutter test test/services/audit/test_*.dart && pytest tests/integration/test_projector_out_of_order_event_id.py tests/integration/test_anonymous_session_reinstall_orphan_backend.py -q -k pg` |
+| 02-04-3 (extend) | 02-04 | 4 | B16 grep-in-app/ | T-02-22 | declared_counters_must_fire greps each counter has ≥1 increment site in app/ source (not tests) | unit | `python3 tools/checks/declared_counters_must_fire.py --all` (already in original verify, extended with grep step) |
+| 02-04-4 (extend) | 02-04 | 4 | B7 pepper rotation PR-ordering | T-02-04 | audit-pepper-rotation.md contains PR-ordering rule (3 steps) + freeze contract + rollback | grep | `grep "PR-ordering rule" docs/operations/audit-pepper-rotation.md` |
+| 02-04-2 (extend) | 02-04 | 4 | C8 STAGING-DOWN-OVERRIDE required check | T-02-25 | staging-down-override.md exists ≥30 lines ; branch protection rule enable deferred to Julien | grep | `[ -f docs/operations/staging-down-override.md ] && wc -l docs/operations/staging-down-override.md` |
+| 02-04-1 (extend) | 02-04 | 4 | C1 Docker docs | — | services/backend/README.md or fact-event-partition-split.md documents Docker prerequisite | grep | `grep -E "Docker|testcontainers" services/backend/README.md docs/operations/fact-event-partition-split.md` |
+
+### Threat-model extension (append, do not rewrite)
+
+Append to the existing STRIDE Threat Register in this plan :
+
+| Threat ID | Category | Component | Disposition | Mitigation Plan |
+|-----------|----------|-----------|-------------|-----------------|
+| T-02-27 | Tampering | Counter declared but no increment site in app/ source (declare-and-forget regression) | mitigate (B16) | declared_counters_must_fire.py extended with grep step on app/ source ; CI/pre-push fails if any counter lacks ≥1 increment site outside counters.py declaration. |
+| T-02-28 | Repudiation | Mobile L1 audit row LOST on SQLite-full edge case | accept (B17) | Pitfall 6 — sqflite_sqlcipher returns SqliteException ; service catches + Sentry breadcrumb + counter increment ; LSFin auditor can match by (observed_at, app_version, constants_version_hash). Documented in test docstring. |
+| T-02-29 | Integrity / Repudiation | Audit-pepper rotation query-layer-before-backfill creates silent data hole | mitigate (B7) | audit-pepper-rotation.md documents strict 3-step PR ordering + freeze contract. Plan 02-04 ships the runbook but rotation EXECUTION is forward-deferred. |
+
+### `<files_modified>` additions for Plan 02-04 frontmatter
+
+```yaml
+files_modified:
+  # ...original list...
+  - apps/mobile/test/services/audit/test_two_device_offline_to_online.dart                    # B17
+  - apps/mobile/test/services/audit/test_clock_skew_uuid7_ordering.dart                       # B17
+  - apps/mobile/test/services/audit/test_anonymous_session_reinstall_orphan.dart              # B17
+  - apps/mobile/test/services/audit/test_sqlite_buffer_full_low_storage.dart                  # B17
+  - services/backend/tests/integration/test_projector_out_of_order_event_id.py                # B17
+  - services/backend/tests/integration/test_anonymous_session_reinstall_orphan_backend.py     # B17
+  - services/backend/README.md                                                                 # C1
+  - docs/operations/staging-down-override.md                                                   # C8
+```
+
+### Iter-2 commit recommendation
+
+Single commit message: `docs(mint-data-architecture-v1-02-event-log-projection): plan iter-2 reviews revision — B7 pepper rotation order + B16 grep-app + B17 D-30 race tests + C1 Docker docs + C8 STAGING-DOWN-OVERRIDE contract (Plan 02-04)`.
+
+</iter_2_revision>

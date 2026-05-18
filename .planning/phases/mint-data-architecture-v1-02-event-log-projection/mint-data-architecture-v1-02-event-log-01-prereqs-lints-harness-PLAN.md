@@ -464,3 +464,272 @@ After completion, create `.planning/phases/mint-data-architecture-v1-02-event-lo
 - 0-trust §9.6 evidence/caveat for any "ready" / "works" claim.
 - Engram `mem_save` with `topic_key: mint-data-architecture-v1-02:wave-0:prereqs` and `prior_finding_refs` to obs #163 (Phase 01 CONTEXT) + #174 (db-architect) + #183 (S12) + #186 (Flutter D-MOB) + #187 (QA Postgres) + #188 (Postgres BOOLEAN bug root cause — this plan ships the lint that prevents recurrence).
 </output>
+
+---
+
+<!-- ============================================================== -->
+<!-- ITER-2 REVIEWS REVISION — appended 2026-05-18                 -->
+<!-- Based on REVIEWS.md (Gemini iter-1 + Claude MINT panel iter-1b) -->
+<!-- Consensus: MEDIUM risk, NOT LOW. 5-of-6 reviewer convergence.   -->
+<!-- This block applies SURGICAL patches without rewriting tasks 1-3. -->
+<!-- Executor MUST read this block alongside tasks 1-3 above.         -->
+<!-- ============================================================== -->
+
+<iter_2_revision>
+
+## Iter-2 Reviews Revision — Plan 02-01
+
+**Trigger:** REVIEWS.md `postgres-pro HIGH-1` + `architect-review` plan-patches #2 + #4.
+
+**Tier-A blockers handled here:**
+- A7: D-20 lint expand to 5 bypass shapes + scan fixture in self-test (`tools/checks/alembic_boolean_default_lint.py`).
+
+**Tier-B handled here (W0 budget):**
+- B4: `s23_class_name_lint.py` HARD lefthook forbidding literal `FrontalierService` on new backend files since W0.
+
+**Tier-A not handled here (out of plan scope):**
+- A1-A6, A8-A11: ship in Plan 02-02 (DDL + projector + security) and Plan 02-03 (PR-3 split + drift gate + canary).
+
+**Tier-B deferred:**
+- B1 zero-user prod gate → defer_in_plan_03_pr_3a (head-of-plan precondition).
+- B2 `no_mobile_fact_current_regulatory_read.py` → defer_in_plan_02_task_3 (lints alongside fact_current code-emission).
+- B3 D-12 label rename → defer_in_plan_03_revision (label collision is a Plan 02-03 frontmatter defect).
+- B12 `prepare_threshold=None` engine URL guard → defer_in_plan_02_task_2 (lands with KMS+pool wiring).
+- B13 `tools/db/probe_railway_pg_version.sh` → applied below (Task 1A — small enough to fit W0).
+- B15 pool sizing override → defer_in_plan_02_task_2.
+- B16 `declared_counters_must_fire.py` grep-in-app/ → defer_in_plan_04_task_3.
+
+### New Task 1A — Probe Railway Postgres major version + pin testcontainers dynamically (Tier-B B13)
+
+Inserted between original Task 1 (pg_fixture build) and Task 2 (lints). Tiny — 1 shell script + 1 line in `conftest.py`. Lives in W0 because it parameterises Task 1's PG image pin.
+
+<task type="auto">
+  <name>Task 1A (NEW iter-2): Add `tools/db/probe_railway_pg_version.sh` + dynamic testcontainers PG pin (Tier-B B13, postgres-pro MED)</name>
+  <files>
+    tools/db/probe_railway_pg_version.sh,
+    services/backend/tests/fixtures/pg_fixture.py,
+    services/backend/tests/fixtures/test_pg_fixture_self.py
+  </files>
+  <read_first>
+    services/backend/tests/fixtures/pg_fixture.py (created by Task 1 — image pin currently hardcoded to `postgres:15.5`),
+    tools/db/regenerate_baseline.sh (created by Task 1 — pattern for probe script shape)
+  </read_first>
+  <action>
+1. **`tools/db/probe_railway_pg_version.sh` (NEW, +x)**: bash script that queries Railway-staging Postgres `SELECT current_setting('server_version')` (via `psql $STAGING_DATABASE_URL -tAc "..."`) and prints the major-minor (e.g., `15.5` or `15.7`). If `STAGING_DATABASE_URL` env var is unset, exits 0 with stdout `default:15.5` (test-friendly fallback, NOT silent — prints `WARN: STAGING_DATABASE_URL unset, defaulting to 15.5` on stderr).
+   ```bash
+   #!/usr/bin/env bash
+   set -euo pipefail
+   if [[ -z "${STAGING_DATABASE_URL:-}" ]]; then
+     echo "WARN: STAGING_DATABASE_URL unset, defaulting to 15.5" >&2
+     echo "default:15.5"
+     exit 0
+   fi
+   VER=$(psql "$STAGING_DATABASE_URL" -tAc "SELECT current_setting('server_version')" | head -c8 | tr -d ' \n')
+   echo "railway:${VER}"
+   ```
+2. **`services/backend/tests/fixtures/pg_fixture.py`**: at module top, add:
+   ```python
+   import os, subprocess
+   def _probe_pg_version() -> str:
+       """Returns the major.minor PG version to pin in testcontainers. Falls back to 15.5 if probe fails."""
+       try:
+           script = os.path.join(os.path.dirname(__file__), "../../../../tools/db/probe_railway_pg_version.sh")
+           result = subprocess.run(["bash", os.path.abspath(script)], capture_output=True, text=True, timeout=5)
+           # output shape: "railway:15.7" or "default:15.5"
+           return result.stdout.strip().split(":", 1)[1] if ":" in result.stdout else "15.5"
+       except Exception:
+           return "15.5"
+   _PG_IMAGE = f"postgres:{_probe_pg_version()}"
+   ```
+   Replace the hardcoded `PostgresContainer("postgres:15.5")` with `PostgresContainer(_PG_IMAGE)`.
+3. **`services/backend/tests/fixtures/test_pg_fixture_self.py`**: add a sub-test `test_pg_image_pin_matches_probe()` that asserts the running container's `SELECT current_setting('server_version')` output starts with the value from `_probe_pg_version()`. Skip if `STAGING_DATABASE_URL` unset.
+  </action>
+  <verify>
+    <automated>chmod +x tools/db/probe_railway_pg_version.sh && bash tools/db/probe_railway_pg_version.sh > /tmp/pg_probe.log 2>&1 && grep -E "^(railway|default):[0-9]+\.[0-9]+" /tmp/pg_probe.log && cd services/backend && python3 -c "from tests.fixtures.pg_fixture import _probe_pg_version, _PG_IMAGE; assert _PG_IMAGE.startswith('postgres:'); print(_PG_IMAGE)" && python3 -m pytest tests/fixtures/test_pg_fixture_self.py -q 2>&1 | tee /tmp/pg_fixture_iter2.log && grep -q "passed" /tmp/pg_fixture_iter2.log</automated>
+  </verify>
+  <acceptance_criteria>
+    - `[ -x tools/db/probe_railway_pg_version.sh ]` exits 0.
+    - `bash tools/db/probe_railway_pg_version.sh` prints `default:15.5` to stdout when `STAGING_DATABASE_URL` is unset, exits 0.
+    - `python3 -c "from tests.fixtures.pg_fixture import _PG_IMAGE; print(_PG_IMAGE)"` outputs `postgres:<MAJOR>.<MINOR>` (e.g., `postgres:15.5`).
+    - `cd services/backend && python3 -m pytest tests/fixtures/test_pg_fixture_self.py -q` exits 0.
+  </acceptance_criteria>
+  <done>
+    Testcontainers PG image pin is dynamic, defaulting to 15.5 but auto-syncing with Railway staging when `STAGING_DATABASE_URL` is set in CI. Closes Tier-B B13 (postgres-pro version-pin drift risk).
+  </done>
+</task>
+
+### Patch to original Task 2 — Expand D-20 lint to 5 bypass shapes + scan fixture in self-test (Tier-A A7)
+
+**Replaces** the original Task 2 step 1 spec for `tools/checks/alembic_boolean_default_lint.py`. The original spec only catches `sa.text("0")` + `sa.Boolean()`. The 5 documented bypasses per postgres-pro HIGH-1:
+
+1. `server_default="0"` plain string (no `sa.text` wrapper).
+2. `server_default=sa.literal_column("0")`.
+3. `sa.text("FALSE" | "TRUE" | "'0'::int" | "'f'" | "'t'")`.
+4. `sa.BOOLEAN()` uppercase (the original spec only checked title-case `sa.Boolean`).
+5. `type_=sa.Boolean()` as a keyword arg (instead of the positional type arg).
+
+**Updated `<action>` for original Task 2 step 1** (executor: apply both the original step 1 logic AND these expansions):
+
+```python
+# In tools/checks/alembic_boolean_default_lint.py — AST visitor LOGIC
+def _is_boolean_type(node: ast.AST) -> bool:
+    """Match sa.Boolean(), sa.BOOLEAN(), Boolean(), BOOLEAN(). Both ast.Call and ast.Attribute resolved forms."""
+    if isinstance(node, ast.Call):
+        node = node.func
+    if isinstance(node, ast.Attribute):
+        return node.attr in ("Boolean", "BOOLEAN")
+    if isinstance(node, ast.Name):
+        return node.id in ("Boolean", "BOOLEAN")
+    return False
+
+def _is_bad_server_default(node: ast.AST) -> tuple[bool, str]:
+    """Returns (is_bad, reason) for any non-Boolean server_default value applied to a Boolean column."""
+    # Shape 1: server_default="0" or server_default="1" (plain string)
+    if isinstance(node, ast.Constant) and isinstance(node.value, str) and node.value in ("0", "1", "true", "false", "TRUE", "FALSE", "'0'", "'1'"):
+        return True, f"plain string '{node.value}' — use sa.false() / sa.true()"
+    # Shape 2: server_default=sa.text("...") with non-Boolean literal
+    if isinstance(node, ast.Call) and isinstance(node.func, (ast.Attribute, ast.Name)):
+        name = node.func.attr if isinstance(node.func, ast.Attribute) else node.func.id
+        if name == "text" and node.args and isinstance(node.args[0], ast.Constant):
+            arg = str(node.args[0].value).strip().lower().strip("'")
+            if arg in ("0", "1", "false", "true", "'0'::int", "'1'::int", "f", "t"):
+                return True, f"sa.text({node.args[0].value!r}) — use sa.false() / sa.true()"
+        # Shape 3: server_default=sa.literal_column("0")
+        if name == "literal_column" and node.args and isinstance(node.args[0], ast.Constant):
+            return True, f"sa.literal_column({node.args[0].value!r}) — use sa.false() / sa.true()"
+    return False, ""
+
+def _scan_column_call(call: ast.Call) -> list[tuple[int, str]]:
+    """Scan a Column(...) call. Returns [(lineno, reason), ...] for each violation."""
+    # Find the type arg: either positional (1st or 2nd depending on whether name is first) OR keyword type_=
+    type_arg = None
+    for arg in call.args:
+        if _is_boolean_type(arg):
+            type_arg = arg
+            break
+    for kw in call.keywords:
+        if kw.arg == "type_" and _is_boolean_type(kw.value):
+            type_arg = kw.value
+            break
+    if type_arg is None:
+        return []
+    # Find server_default kwarg
+    for kw in call.keywords:
+        if kw.arg == "server_default":
+            is_bad, reason = _is_bad_server_default(kw.value)
+            if is_bad:
+                return [(call.lineno, reason)]
+    return []
+```
+
+**Updated `<action>` step 2 — extend `services/backend/tests/fixtures/alembic_bad.py`** to seed all 5 bypass shapes (one stanza per shape):
+
+```python
+# services/backend/tests/fixtures/alembic_bad.py — seed all 5 bypass shapes
+import sqlalchemy as sa
+# Shape 1: plain string
+_BAD1 = sa.Column("flag1", sa.Boolean(), nullable=False, server_default="0")
+# Shape 2: sa.literal_column
+_BAD2 = sa.Column("flag2", sa.Boolean(), nullable=False, server_default=sa.literal_column("0"))
+# Shape 3: sa.text with non-Boolean literal
+_BAD3 = sa.Column("flag3", sa.Boolean(), nullable=False, server_default=sa.text("FALSE"))
+_BAD4 = sa.Column("flag4", sa.Boolean(), nullable=False, server_default=sa.text("'0'::int"))
+# Shape 4: sa.BOOLEAN() uppercase
+_BAD5 = sa.Column("flag5", sa.BOOLEAN(), nullable=False, server_default=sa.text("0"))
+# Shape 5: type_= keyword
+_BAD6 = sa.Column("flag6", type_=sa.Boolean(), nullable=False, server_default=sa.text("1"))
+```
+
+**Updated `<action>` step 3 — `--self-test` flag MUST scan `services/backend/tests/fixtures/alembic_bad.py` and assert it produces exactly 6 violations** (one per `_BADn`). The current spec only documents 1 fixture; expand to 6.
+
+**Updated `<verify>` block additions**:
+
+```bash
+# Add to original Task 2 verify
+python3 tools/checks/alembic_boolean_default_lint.py services/backend/tests/fixtures/alembic_bad.py; [ $? -eq 1 ] && \
+  python3 tools/checks/alembic_boolean_default_lint.py services/backend/tests/fixtures/alembic_bad.py 2>&1 | grep -c "BOOLEAN columns must" | grep -E "^[6-9]|[1-9][0-9]" && \
+  echo "lint catches 5+ bypass shapes"
+```
+
+**Updated `<acceptance_criteria>` additions**:
+- The lint's `--self-test` mode scans `tests/fixtures/alembic_bad.py` and reports ≥ 6 violations (one per documented bypass shape).
+- Running the lint against the existing `services/backend/alembic/versions/` tree exits 0 (no false positives on the Hotfix B fix `fe52ba31`).
+
+### Patch to original Task 3 — Add `tools/checks/s23_class_name_lint.py` HARD lefthook (Tier-B B4)
+
+Inserted as a sub-step inside original Task 3 (the S12 PR-1 work). The lint surface is small (~25 LOC), the wiring is one line in `lefthook.yml`. Lands here because Task 3 already touches `lefthook.yml` and the S12 rename — best blast-radius coupling.
+
+**New sub-step in original Task 3 action — between current step 3 (frontalier rename) and step 4 (Flutter PR-A2)**:
+
+```
+3a. **`tools/checks/s23_class_name_lint.py` (NEW)** — HARD lefthook:
+   - CLI: `python3 tools/checks/s23_class_name_lint.py [paths]` defaulting to `services/backend/`.
+   - Logic: regex `r"\bclass\s+FrontalierService\b"` against new files only (git-diff base = `dev`). If a new file contains `class FrontalierService` (outside the S12 façade allowlist) → exit 1.
+   - Allowlist (hardcoded): `services/backend/app/services/frontalier_service.py` (S12 façade — keeps its `FrontalierService` name forever per D-08).
+   - Self-exempt: this lint script + its tests fixture.
+   - Self-test mode: scan fixture `services/backend/tests/fixtures/bad_s23_redeclaration.py` containing `class FrontalierService:` → expect exit 1; scan empty tree → expect exit 0.
+   - Wire on `pre-commit` AFTER `hmac-pepper-audit`:
+   ```yaml
+   s23-class-name-lint:
+     run: python3 tools/checks/s23_class_name_lint.py {staged_files}
+     glob: "services/backend/**/*.py"
+     tags: [refactor, phase-02-d-09, post-rename-protection]
+     fail_text: "Do not re-introduce `class FrontalierService:` outside the S12 façade `app/services/frontalier_service.py`. The S23 class is `FrontalierSegmentService` since Phase 02 D-09."
+   ```
+   - Reason: D-09 alias is removed in Plan 02-04 PR-2; until then, the alias prevents collision, but new code landing between W0 and W4 must NOT re-declare the old name in S23 namespace.
+
+3b. **`services/backend/tests/fixtures/bad_s23_redeclaration.py` (NEW)**: 3-line fixture containing the forbidden pattern. Self-exempt by path glob in the lint.
+```
+
+**Updated `<verify>` block additions for Task 3**:
+
+```bash
+python3 tools/checks/s23_class_name_lint.py --self-test && echo "s23 lint self-test: $?"
+python3 tools/checks/s23_class_name_lint.py services/backend/; [ $? -eq 0 ] && echo "s23 lint passes on clean tree"
+grep -c "s23-class-name-lint:" lefthook.yml | grep -E "^1$"
+```
+
+**Updated `<acceptance_criteria>` additions for Task 3**:
+- `python3 tools/checks/s23_class_name_lint.py services/backend/tests/fixtures/bad_s23_redeclaration.py; [ $? -eq 1 ]` (rejects re-introduction).
+- `python3 tools/checks/s23_class_name_lint.py services/backend/` exits 0 (S12 façade in `app/services/frontalier_service.py` is allowlisted).
+- `grep -c "s23-class-name-lint" lefthook.yml` returns 1.
+
+### CONTEXT.md changes proposed by this revision
+
+NONE for Plan 02-01. All Tier-A/B patches in this plan refine implementation specs of existing D-XX (D-20, D-09) without redefining the locked decisions. Plan 02-02 and 02-03 propose CONTEXT changes (see those plans' iter-2 sections).
+
+### VALIDATION.md additions proposed by this revision
+
+Append to `## Per-Task Verification Map → Wave 0 — Prereqs + lints + test harness`:
+
+| Task ID | Plan | Wave | Decision | Threat Ref | Secure Behavior | Test Type | Automated Command |
+|---------|------|------|----------|------------|-----------------|-----------|-------------------|
+| 02-01-1A | 02-01 | 0 | D-22 (TC PG version pin) | T-02-09 | Testcontainers image pin auto-syncs with Railway PG major-minor; fallback default:15.5 when STAGING_DATABASE_URL unset | unit + integration | `bash tools/db/probe_railway_pg_version.sh && python3 -c "from tests.fixtures.pg_fixture import _PG_IMAGE"` |
+| 02-01-06 | 02-01 | 0 | D-20 (lint expand 5 shapes) | T-02-08 | alembic_boolean_default_lint catches 5+ bypass shapes (plain str, literal_column, sa.text variants, BOOLEAN uppercase, type_= kwarg) on self-test fixture | unit (lint) | `python3 tools/checks/alembic_boolean_default_lint.py --self-test` |
+| 02-01-07 | 02-01 | 0 | D-09 (s23 lint) | T-02-11 alias-window | `s23_class_name_lint.py` HARD-rejects new `class FrontalierService:` outside S12 allowlist | unit (lint) | `python3 tools/checks/s23_class_name_lint.py --self-test` |
+
+### Threat-model extension (append, do not rewrite)
+
+Append to the existing STRIDE Threat Register in this plan:
+
+| Threat ID | Category | Component | Disposition | Mitigation Plan |
+|-----------|----------|-----------|-------------|-----------------|
+| T-02-08-EXT | Tampering | D-20 lint bypass via 5 alternate shapes | mitigate | Iter-2 expands AST visitor + fixture to cover plain str, literal_column, sa.text variants (FALSE/'0'::int), BOOLEAN uppercase, type_= kwarg. Self-test fixture asserts ≥6 violations rejected. |
+| T-02-11-EXT | Spoofing | S12 alias-window — new `class FrontalierService:` re-introduced in S23 namespace post-W0 | mitigate | `s23_class_name_lint.py` HARD lefthook on `services/backend/**/*.py`. Allowlist: `app/services/frontalier_service.py` (S12 façade). |
+
+### `<files_modified>` additions for Plan 02-01 frontmatter (executor: edit when starting iter-2 work)
+
+```yaml
+files_modified:
+  # ...original list...
+  - tools/db/probe_railway_pg_version.sh                       # Tier-B B13
+  - tools/checks/s23_class_name_lint.py                         # Tier-B B4
+  - tools/checks/tests/test_s23_class_name_lint.py              # Tier-B B4
+  - services/backend/tests/fixtures/bad_s23_redeclaration.py    # Tier-B B4
+```
+
+### Iter-2 commit recommendation
+
+Single commit message: `docs(mint-data-architecture-v1-02-event-log-projection): plan iter-2 reviews revision — A7 lint expand + B4 s23 lint + B13 PG version probe (Plan 02-01)`.
+
+</iter_2_revision>

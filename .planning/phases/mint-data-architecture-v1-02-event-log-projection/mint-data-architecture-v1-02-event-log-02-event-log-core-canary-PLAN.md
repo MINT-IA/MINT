@@ -59,6 +59,23 @@ files_modified:
   - apps/mobile/test/services/audit/offline_queue_test.dart
   - apps/mobile/test/services/audit/mobile_l1_audit_service_test.dart
   - apps/mobile/pubspec.yaml
+  # --- iter-2 additions (promoted from iter-2 appendix; structurally required for parser visibility) ---
+  - services/backend/app/services/encryption/dek_tombstone.py                          # A1
+  - services/backend/app/services/encryption/banned_terms_runtime.py                   # B6
+  - services/backend/app/db.py                                                         # B12 + B15
+  - services/backend/tests/integration/test_migration_p98_iter2.py                     # A1 + A2 + A3 + B8 + B9 + B10
+  - services/backend/tests/integration/test_fact_current_covering_index.py             # A3
+  - services/backend/tests/integration/test_dek_vault_restrict_tombstone.py            # A1
+  - services/backend/tests/integration/test_projector_concurrent_upsert.py             # A8
+  - services/backend/tests/integration/test_canary_multi_shape_parity.py               # A11 + D-34
+  - services/backend/tests/integration/test_canary_pillar_3a_balance.py                # A11
+  - services/backend/tests/integration/test_canary_archetype_tags_jsonb.py             # A11
+  - services/backend/tests/integration/test_canary_lpp_avoirs_nullable.py              # A11
+  - services/backend/tests/integration/test_canary_coach_extracted_toast.py            # A11
+  - services/backend/tests/fixtures/canary_fixtures.py                                 # A11
+  - tools/checks/no_mobile_fact_current_regulatory_read.py                             # B2
+  - tools/checks/tests/test_no_mobile_fact_current_regulatory_read.py                  # B2
+  - apps/mobile/test/_fixtures/bad_regulatory_read.dart                                # B2
 autonomous: false
 decisions: [D-01, D-02, D-03, D-12, D-13, D-14, D-15, D-16, D-17, D-19, D-25, D-26, D-27, D-28, D-29, D-30]
 checkpoint_reason: "Task 1 (D-02 Railway KMS rotation rehearsal env-var verification) requires Julien to confirm Railway dashboard procedure for env-var rotation in production environment per CONTEXT D-02 + RESEARCH § Runtime State Inventory. All other tasks autonomous."
@@ -652,3 +669,791 @@ After completion, create `.planning/phases/mint-data-architecture-v1-02-event-lo
 - 0-trust §9.6 Evidence + Caveat block.
 - `mem_save` with `topic_key: mint-data-architecture-v1-02:wave-1:event-log-core-canary` + `prior_finding_refs` to obs #150, #163, #174, #175, #176, #186, #187, #188 + Plan 02-01 obs.
 </output>
+
+---
+
+<!-- ============================================================== -->
+<!-- ITER-2 REVIEWS REVISION — appended 2026-05-18                 -->
+<!-- Heaviest patch surface: 7 Tier-A blockers land here.           -->
+<!-- A1+A2+A3 = DDL ; A4+A5+A6 = security ; A8+A11 = projector.    -->
+<!-- ============================================================== -->
+
+<iter_2_revision>
+
+## Iter-2 Reviews Revision — Plan 02-02
+
+**Trigger:** REVIEWS.md `database-architect HIGH-1/2/3` + `security-auditor T-S01/S05/S09` + `postgres-pro HIGH-2` + `qa-expert HIGH-2`.
+
+**Tier-A blockers handled here (7 of 11):**
+- A1: `dek_vault` `ON DELETE CASCADE` → `ON DELETE RESTRICT` + add `tombstone_at` column. **Crypto-shred-as-tombstone fix.**
+- A2: `fact_event` PK reorder `(event_id, subject_id)` → `(subject_id, event_id)`. Index-only scan for dominant query.
+- A3: `fact_current` covering index leading column `(subject_id, fact_type) INCLUDE (...)`. **RECURRENCE of obs #174 — iter-1 missed.**
+- A4: `key_vault._select_backend()` remove silent KMS→Fernet fallback + `mint_kms_backend_failure_total` counter. **Single highest-severity finding.**
+- A5: `KeyVaultService._dek_cache` 5-min TTL eviction + `mint_dek_cache_size_total` gauge.
+- A6: `/v1/audit/mobile-session-link` proof-of-session-start handshake.
+- A8: Projector SELECT-then-UPDATE → `INSERT ... ON CONFLICT ... DO UPDATE WHERE latest_event_id < EXCLUDED`. Atomic UPSERT.
+- A11: Multi-shape canary (scalar + nested JSONB + nullable + multi-KB blob) before PR-3 ships.
+
+**Tier-B handled here (W1 budget):**
+- B2: `no_mobile_fact_current_regulatory_read.py` HARD lefthook on Dart.
+- B6: `encrypt_value()` calls `check_banned_terms(plaintext)` for `coach_inference` / `user_input` source_types.
+- B8: `MODULUS 1` → `MODULUS 8` for fact_event partitioning from day one.
+- B9: FK `fact_current.latest_event_id → fact_event.event_id NOT VALID`.
+- B10: `fillfactor=70` on fact_current + autovacuum tuning.
+- B11: Cap `confidence.enrichmentPrompts` at 5×200 chars in D-29 contract.
+- B12: Engine URL `prepare_threshold=None` guard before Railway PgBouncer.
+- B15: Pool sizing `pool_timeout=10` + backfill script `pool_size=2, max_overflow=0` override.
+- B17 (partial): D-30 two-device + clock-skew + reinstall + low-storage tests scaffolded (full deferred to Plan 02-04 Task 3).
+
+**Tier-C acknowledged (defer):**
+- C3: Projector transaction-pattern docstring → applied below (one-line patch).
+- C5: `EncryptedValue.tag` `Literal[""]` + docstring → applied below.
+- C7: JSONB `pg_column_size < 65536` CHECK constraint → defer_in_plan_04_task_3 (close-out runbook contract).
+
+**Tier-A not handled here:**
+- A7: D-20 lint expand → Plan 02-01 iter-2 revision above.
+- A9: PR-3 split → Plan 02-03 (structural change).
+- A10: `projection_diff.py` deterministic drift → Plan 02-03.
+
+### New D-XX proposed (justification block, owner-approval required before silent CONTEXT.md edit)
+
+The iter-2 revision surfaces 2 new locked decisions that REVIEWS.md plan-patches imply but CONTEXT.md does not yet codify. Surfacing them here for Julien-owner approval BEFORE editing CONTEXT.md (per patching_constraints rule 6):
+
+**D-34 (PROPOSED)** — **Multi-shape canary parity gate BEFORE PR-3 cutover.**
+> D-25 single-shape `monthly_gross_income` (scalar float) is INSUFFICIENT to validate cutover for decimal-precision facts (`pillar_3a_balance`), nested JSONB (`confidence`, `archetype_tags`), nullable optionals, large TOAST-eligible blobs. iter-2 adds 4 canary fact-types covering all 4 shape classes:
+> - scalar float: `monthly_gross_income` (already in D-25)
+> - decimal-precision: `pillar_3a_balance` (Decimal exact 2dp)
+> - nested JSONB: `archetype_tags` (list[str] + nested confidence map)
+> - nullable optional: `lpp_avoirs_vieillesse` (NULL for users w/o LPP)
+> - multi-KB TOAST blob: synthetic `coach_extracted_facts` payload ≥ 4KB
+> All 5 canaries must parity-prove on staging BEFORE Plan 02-03 PR-3a backfill fires.
+
+**D-35 (PROPOSED)** — **KMS backend failure is fail-closed, never silent fallback.**
+> `key_vault._select_backend()` MUST raise `KMSBackendUnavailable` if the primary KMS resolution fails. The silent KMS→Fernet fallback shipped in `services/backend/app/services/encryption/key_vault.py:134-141` was a security HIGH (split-brain key wrapping). Counter `mint_kms_backend_failure_total{backend, reason}` increments on every fallback attempt — alarms ring before next request. Re-litigation trigger: Railway KMS provider GA-launch + 3-month soak with zero `mint_kms_backend_failure_total` increments.
+
+**Status:** PROPOSED — pending Julien-owner approval. If approved, CONTEXT.md gains D-34 + D-35 in Area 4. If rejected, Plan 02-02 iter-2 still ships A4 + A11 patches but as Plan-internal hardening, not phase-locked decisions.
+
+### Patch to original Task 2 — A4 + A5 + B6 + B12 + B15 (security + pooling + banned-terms write-time)
+
+**Replaces** the original Task 2 step 5 (`key_vault.py` extend block). The original spec defaulted to Fernet on dev when `MINT_KMS_KEY_ID` unset and did NOT remove the silent fallback path. iter-2 makes both paths explicit and observable.
+
+**Updated `<action>` step 5 — `services/backend/app/services/encryption/key_vault.py` (Tier-A A4 + A5)**:
+
+1. **Remove silent KMS→Fernet fallback (A4).** Current `_select_backend()` catches `KeyVaultServiceError` and falls through to `_FernetBackend`. Replace with:
+   ```python
+   def _select_backend(self) -> KeyVaultBackend:
+       """Resolve KMS backend from MINT_KMS_KEY_ID env. Fail-closed: raise instead of falling back silently.
+
+       D-35 (iter-2): silent KMS→Fernet fallback is a security HIGH (split-brain key wrapping).
+       Dev environments MUST opt in to Fernet explicitly via MINT_KMS_BACKEND=fernet.
+       """
+       key_id = os.environ.get("MINT_KMS_KEY_ID", "").strip()
+       explicit_backend = os.environ.get("MINT_KMS_BACKEND", "").strip().lower()
+       if explicit_backend == "fernet":
+           mint_kms_backend_failure_total.labels(backend="fernet", reason="explicit_dev_optin").inc()
+           return _FernetBackend()
+       if not key_id:
+           mint_kms_backend_failure_total.labels(backend="none", reason="MINT_KMS_KEY_ID unset").inc()
+           raise KMSBackendUnavailable(
+               "MINT_KMS_KEY_ID is unset. Set it to 'mint-master-v1' for Railway-native KMS, "
+               "OR set MINT_KMS_BACKEND=fernet explicitly for dev (D-35 fail-closed contract)."
+           )
+       # Future: when AWS KMS / GCP KMS backends ship, branch here on key_id prefix.
+       # Phase 02 Railway-native: logical key-id 'mint-master-v1' maps to the Fernet-backed
+       # key for now (per D-02 trade-off); this path is fail-closed when key_id is set
+       # but the backend cannot be resolved.
+       try:
+           return _FernetBackend(key_id=key_id)
+       except KeyVaultServiceError as e:
+           mint_kms_backend_failure_total.labels(backend="fernet", reason=type(e).__name__).inc()
+           raise KMSBackendUnavailable(f"KMS backend resolution failed for {key_id}: {e}") from e
+   ```
+2. **Add `mint_kms_backend_failure_total` Counter to `app/observability/counters.py`** alongside the 6 D-33 counters (this becomes the 7th counter declared in this plan, increment to D-33 list in this plan's `must_haves.truths`).
+3. **Add `mint_dek_cache_size_total` Gauge** (A5 monitoring) — the 8th counter.
+4. **DEK cache TTL eviction (A5).** Current `_dek_cache: dict[str, bytes]` is unbounded. Replace with:
+   ```python
+   from cachetools import TTLCache  # pyproject add: cachetools>=5.3
+   class KeyVaultService:
+       _DEK_CACHE_TTL_SECONDS = 300  # 5 minutes
+       _DEK_CACHE_MAXSIZE = 1024     # bounded; staging traffic << 1024 active users
+       def __init__(self, ...):
+           self._dek_cache: TTLCache[str, bytes] = TTLCache(
+               maxsize=self._DEK_CACHE_MAXSIZE,
+               ttl=self._DEK_CACHE_TTL_SECONDS,
+           )
+       def get_or_create_dek(self, db, user_id: str) -> bytes:
+           # ... existing logic ...
+           dek = self._dek_cache.get(user_id)
+           if dek is not None:
+               mint_dek_cache_size_total.set(len(self._dek_cache))
+               return dek
+           # ... resolve from dek_vault + unwrap ...
+           self._dek_cache[user_id] = dek
+           mint_dek_cache_size_total.set(len(self._dek_cache))
+           return dek
+   ```
+   Sentry `before_send` (already touched in Task 2 step 13) MUST recursively strip the `_dek_cache` attribute from any captured exception (per security-auditor T-S05 mitigation note).
+5. **Pool sizing (Tier-B B12 + B15).** `services/backend/app/db.py` (or wherever the engine factory lives — executor must grep before patching):
+   ```python
+   engine = create_engine(
+       DATABASE_URL,
+       pool_size=20,
+       max_overflow=20,
+       pool_timeout=10,                # NEW — backfill must not exhaust pool indefinitely (B15)
+       pool_pre_ping=True,
+       connect_args={
+           "prepare_threshold": None,  # NEW — PgBouncer transaction-pool compat (B12)
+           "options": "-c application_name=mint-backend",
+       },
+   )
+   ```
+   Backfill script (Plan 02-03 PR-3a) imports a separate engine with `pool_size=2, max_overflow=0`. Reference helper in `app/db.py`: `get_backfill_engine()` returning the throttled variant.
+
+**Updated `<action>` step 4 — `encrypted_value_helper.py` (Tier-B B6 banned-terms write-time)**:
+
+Insert after JSON serialization, BEFORE `encrypt_bytes`:
+```python
+from app.services.encryption.banned_terms_runtime import scan_value_for_banned_terms, BannedTermsViolation
+
+def encrypt_value(db, user_id: str, value: Any, *, source_type: str | None = None) -> dict:
+    """...existing docstring...
+
+    iter-2 (Tier-B B6): when source_type in {'coach_inference', 'user_input'}, the plaintext
+    is scanned for LSFin banned terms BEFORE encryption. NFKC-normalised + zero-width-strip
+    + 14-pattern regex from tools/checks/banned_terms_python.py reused via the runtime helper.
+    Raises BannedTermsViolation if any banned term is detected — fail-closed at write time.
+    """
+    plaintext_bytes = json.dumps(value, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    if source_type in ("coach_inference", "user_input"):
+        scan_value_for_banned_terms(value)  # raises BannedTermsViolation on hit
+    envelope_bytes = encrypt_bytes(db, user_id, plaintext_bytes)
+    # ... existing assembly into dict ...
+```
+
+Add new module `services/backend/app/services/encryption/banned_terms_runtime.py` (NEW, ~40 LOC) that reuses `tools/checks/banned_terms_python.py` scan logic at runtime (NOT a subprocess — import the scan function directly). Self-exempt: nothing (production scan path).
+
+### New Task 3A — DDL patches to p98 + p113 (Tier-A A1 + A2 + A3 + Tier-B B8 + B9 + B10 + B11)
+
+Inserted as a sub-task of original Task 3. **ALL DDL patches land in the p98 migration body that Task 3 step 1 writes.** Cheap because the migration is being authored fresh; expensive post-merge (DETACH + recreate). Pre-launch zero-data is the ONLY window.
+
+<task type="auto" tdd="true">
+  <name>Task 3A (NEW iter-2): DDL patches to p98 alembic — A1 dek_vault RESTRICT + tombstone_at, A2 fact_event PK reorder, A3 fact_current covering index leading column, B8 MODULUS 8, B9 FK NOT VALID, B10 fillfactor + autovacuum, B11 enrichmentPrompts cap</name>
+  <files>
+    services/backend/alembic/versions/p98_fact_event_projection_dek.py,
+    services/backend/app/models/fact_event.py,
+    services/backend/app/models/fact_current.py,
+    services/backend/app/models/dek_vault.py,
+    services/backend/app/models/encryption/encrypted_value.py,
+    services/backend/tests/integration/test_migration_p98_iter2.py,
+    services/backend/tests/integration/test_fact_current_covering_index.py,
+    services/backend/tests/integration/test_dek_vault_restrict_tombstone.py
+  </files>
+  <read_first>
+    services/backend/alembic/versions/p98_fact_event_projection_dek.py (DRAFT from Task 3 step 1 — DDL body to patch),
+    services/backend/app/models/dek_vault.py (current ON DELETE CASCADE — pre-iter-2),
+    .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-REVIEWS.md (database-architect HIGH-1/2/3, postgres-pro LOW-iii),
+    .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-RESEARCH.md (lines 457 fact_event PK + 532 fact_current covering index)
+  </read_first>
+  <behavior>
+    **Test 20 (A1 dek_vault RESTRICT)**: pg_fixture. `DELETE FROM users WHERE id=$x` where x has a dek_vault row → IntegrityError (RESTRICT blocks cascade). Setting `dek_vault.tombstone_at = now()` is the only path to break the FK; `value_enc` rows referencing the DEK remain queryable AND decrypt-fail (existing crypto-shred opacity test still holds).
+    **Test 21 (A2 fact_event PK reorder)**: pg_fixture. After p98 upgrade, `\d fact_event` shows PRIMARY KEY `(subject_id, event_id)` (NOT `(event_id, subject_id)`). `EXPLAIN (ANALYZE, BUFFERS) SELECT event_id, fact_type FROM fact_event WHERE subject_type='user' AND subject_id='<u>' ORDER BY recorded_at DESC LIMIT 50` returns « Index Only Scan » (NOT « Heap Scan »).
+    **Test 22 (A3 fact_current covering index leading column)**: pg_fixture. After p98 upgrade, `\d fact_current` shows `ix_fact_current_subject_covering ON fact_current (subject_id, fact_type) INCLUDE (latest_event_id, value_enc, confidence, visibility)`. `EXPLAIN SELECT value_enc, latest_event_id FROM fact_current WHERE subject_id='<u>' AND fact_type='monthly_gross_income'` returns « Index Only Scan using ix_fact_current_subject_covering ».
+    **Test 23 (B8 MODULUS 8)**: pg-only. `SELECT count(*) FROM pg_class WHERE relname LIKE 'fact_event_p%'` returns 8 (partitions `_p_0` through `_p_7`).
+    **Test 24 (B9 FK NOT VALID)**: pg-only. `SELECT conname, convalidated FROM pg_constraint WHERE conname = 'fk_fact_current_latest_event_id'` returns (1 row, convalidated=false). Inserting a `fact_current` row with `latest_event_id` not in `fact_event` raises NO error (NOT VALID is descriptive, not enforced) — by design pre-launch; planner re-litigation when first prod data lands.
+    **Test 25 (B10 fillfactor + autovacuum)**: pg-only. `SELECT reloptions FROM pg_class WHERE relname='fact_current'` contains `fillfactor=70` AND `autovacuum_vacuum_scale_factor=0.05`.
+    **Test 26 (B11 enrichmentPrompts cap)**: Pydantic v2 model on `EncryptedValue.confidence.enrichmentPrompts` rejects payloads with >5 prompts OR any prompt >200 chars → ValidationError. Unit test seeds bad payload + asserts rejection.
+  </behavior>
+  <action>
+1. **A1 — `dek_vault` ON DELETE RESTRICT + `tombstone_at` column** (modify p98 DDL body):
+
+   In the original Task 3 p98 migration `upgrade()`, after `dek_scope` column addition, ADD:
+   ```python
+   # iter-2 A1: change FK ON DELETE behaviour CASCADE → RESTRICT + add tombstone_at column
+   if bind.dialect.name == "postgresql":
+       op.execute("""
+           ALTER TABLE dek_vault DROP CONSTRAINT IF EXISTS dek_vault_user_id_fkey;
+           ALTER TABLE dek_vault ADD CONSTRAINT dek_vault_user_id_fkey
+             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT;
+       """)
+   else:
+       # SQLite path: batch_alter_table recreate with new FK
+       with op.batch_alter_table("dek_vault") as batch:
+           batch.drop_constraint("dek_vault_user_id_fkey", type_="foreignkey")
+           batch.create_foreign_key("dek_vault_user_id_fkey", "users", ["user_id"], ["id"], ondelete="RESTRICT")
+   op.add_column("dek_vault",
+       sa.Column("tombstone_at", sa.DateTime(timezone=True), nullable=True))
+   # tombstone_at IS NULL → active row; tombstone_at IS NOT NULL → user-requested deletion,
+   # FK relaxed via app code (set ON DELETE behaviour via `services/backend/app/services/encryption/dek_tombstone.py`
+   # which (1) sets tombstone_at = now(), (2) crypto_shred_user(NULLs wrapped_dek), (3) eventually
+   # DELETE FROM users (allowed once dek_vault.tombstone_at IS NOT NULL — RESTRICT
+   # is enforced unless app explicitly tombstones first).
+   ```
+
+   `services/backend/app/models/dek_vault.py` update Python ORM:
+   ```python
+   class DEKVault(Base):
+       user_id = Column(String, ForeignKey("users.id", ondelete="RESTRICT"), primary_key=True)  # iter-2 A1
+       # ... existing columns ...
+       tombstone_at = Column(DateTime(timezone=True), nullable=True)  # iter-2 A1
+       dek_scope = Column(String(32), nullable=False, server_default=sa.text("'user'"))
+   ```
+
+   `services/backend/app/services/encryption/dek_tombstone.py` (NEW, ~25 LOC): `tombstone_user_dek(db, user_id)` sets `tombstone_at`, calls `crypto_shred_user`, increments `mint_dek_envelope_status_total{status='tombstoned'}`. The existing `crypto_shred_user` (key_vault.py) is left unchanged; this new helper composes it with the tombstone marker so RESTRICT can be bypassed by app code only.
+
+2. **A2 — `fact_event` PK reorder** (modify p98 DDL body):
+
+   In the `fact_event` CREATE TABLE block (Postgres path), the original spec used `PRIMARY KEY (event_id, subject_id)` (with `subject_id` as partition key). iter-2 reorders to `(subject_id, event_id)` so the dominant « all events for subject » query is index-only:
+   ```sql
+   CREATE TABLE fact_event (
+       event_id        UUID NOT NULL,
+       subject_id      UUID NOT NULL,
+       -- ... other columns ...
+       PRIMARY KEY (subject_id, event_id)   -- iter-2 A2: subject_id LEADS for index-only scan
+   ) PARTITION BY HASH (subject_id);
+   CREATE INDEX ix_fact_event_subject_recorded ON fact_event
+       (subject_type, subject_id, recorded_at DESC) INCLUDE (event_id, fact_type);   -- secondary
+   ```
+   `services/backend/app/models/fact_event.py` `__table_args__` updated to match.
+
+3. **A3 — `fact_current` covering index leading column** (modify p98 DDL body):
+
+   The original spec wrote `CREATE INDEX ix_fact_current_subject_covering ON fact_current (subject_id) INCLUDE (...)`. iter-2 expands the index key to include `fact_type` so the « 20-50 facts for one user » query (D-01) is fully covered:
+   ```sql
+   CREATE INDEX ix_fact_current_subject_covering ON fact_current
+       (subject_id, fact_type)   -- iter-2 A3: fact_type joins leading cols, NOT INCLUDE
+       INCLUDE (latest_event_id, value_enc, confidence, visibility)
+       WITH (fillfactor=70);     -- iter-2 B10
+   ALTER TABLE fact_current SET (
+       fillfactor=70,
+       autovacuum_vacuum_scale_factor=0.05,   -- iter-2 B10: aggressive
+       autovacuum_analyze_scale_factor=0.05
+   );
+   ```
+
+4. **B8 — `MODULUS 8` from day one** (modify p98 DDL):
+
+   Replace `PARTITION OF fact_event FOR VALUES WITH (MODULUS 1, REMAINDER 0)` (single partition) with 8 partitions:
+   ```python
+   for remainder in range(8):
+       op.execute(f"""
+           CREATE TABLE fact_event_p_{remainder} PARTITION OF fact_event
+           FOR VALUES WITH (MODULUS 8, REMAINDER {remainder});
+       """)
+   ```
+   Reason: pre-launch zero data → free to start at 8 partitions; future split requires DETACH/ATTACH choreography that this avoids.
+
+5. **B9 — FK `fact_current.latest_event_id → fact_event.event_id NOT VALID`** (append to p98 DDL):
+
+   ```python
+   if bind.dialect.name == "postgresql":
+       op.execute("""
+           ALTER TABLE fact_current ADD CONSTRAINT fk_fact_current_latest_event_id
+             FOREIGN KEY (subject_id, latest_event_id)
+             REFERENCES fact_event (subject_id, event_id)
+             NOT VALID;
+       """)
+       # NOT VALID is descriptive (Postgres doesn't enforce on existing rows but enforces on
+       # NEW INSERT). pre-launch zero data → effectively enforced from row 1. VALIDATE
+       # CONSTRAINT deferred to post-launch.
+   # SQLite path: skip — SQLite enforces FKs only via PRAGMA, and the test fixture
+   # already exercises pg_fixture for FK contracts.
+   ```
+
+6. **B11 — Cap `confidence.enrichmentPrompts` at 5×200 chars in D-29 contract** (modify Pydantic v2 model):
+
+   `services/backend/app/models/encryption/encrypted_value.py` — extend or add a sibling model `EnhancedConfidence`:
+   ```python
+   from pydantic import BaseModel, Field, field_validator
+   class EnhancedConfidence(BaseModel):
+       c: float = Field(ge=0.0, le=1.0)
+       a: float = Field(ge=0.0, le=1.0)
+       f: float = Field(ge=0.0, le=1.0)
+       u: float = Field(ge=0.0, le=1.0)
+       score: float = Field(ge=0.0, le=1.0)
+       enrichmentPrompts: list[str] = Field(default_factory=list, max_length=5)
+       @field_validator("enrichmentPrompts")
+       @classmethod
+       def _cap_prompt_length(cls, v: list[str]) -> list[str]:
+           for prompt in v:
+               if len(prompt) > 200:
+                   raise ValueError(f"enrichmentPrompt too long ({len(prompt)} chars > 200): {prompt[:50]}...")
+           return v
+       model_config = {"extra": "forbid"}
+   ```
+   Update D-29 contract (CONTEXT.md change proposed below). Plan 02-02 `must_haves` adds: « `EnhancedConfidence.enrichmentPrompts` rejects >5 entries OR any entry >200 chars at Pydantic validate time. »
+
+7. **Tier-C C5 — `EncryptedValue.tag` typed** (one-line patch to `EncryptedValue` already in Task 2):
+
+   ```python
+   tag: Literal[""] = Field(default="", description="Reserved; AESGCM appends auth tag to ct. iter-2 C5: typed as Literal[''] to surface ambiguity to readers.")
+   ```
+
+8. **Tier-C C3 — Projector transaction-pattern docstring** (one-line patch to `fact_projector.py`):
+
+   At the top of `project_fact_event`:
+   ```python
+   """Caller MUST wrap this in `session.begin()` (or `session.begin_nested()` if already in a transaction).
+   D-19: app-side transactional projector. iter-2 C3: choosing `session.begin()` over `begin_nested()`
+   for top-level callers (Plan 02-02 writers); `session.begin_nested()` for nested transaction callers
+   (Plan 02-03 PR-2 dual-write — already in transaction)."""
+   ```
+  </action>
+  <verify>
+    <automated>cd services/backend && python3 -m pytest tests/integration/test_migration_p98.py tests/integration/test_migration_p98_iter2.py tests/integration/test_fact_current_covering_index.py tests/integration/test_dek_vault_restrict_tombstone.py tests/integration/test_partition_declared.py -q -k pg && python3 -m pytest tests/ -q -x && python3 -c "from app.models.encryption.encrypted_value import EnhancedConfidence; from pydantic import ValidationError; failed=False
+try:
+    EnhancedConfidence(c=0.8,a=0.9,f=1.0,u=0.7,score=0.85, enrichmentPrompts=['x'*201])
+except ValidationError: failed=True
+assert failed, 'B11 cap not enforced'" && python3 tools/checks/alembic_boolean_default_lint.py services/backend/alembic/versions/</automated>
+  </verify>
+  <acceptance_criteria>
+    - `cd services/backend && python3 -m pytest tests/integration/test_dek_vault_restrict_tombstone.py -q -k pg` exits 0; pg_fixture confirms ON DELETE RESTRICT enforced + tombstone_at column exists.
+    - `cd services/backend && python3 -m pytest tests/integration/test_migration_p98_iter2.py -q -k pg` exits 0; assertions: PK `(subject_id, event_id)`, 8 partitions, fact_current covering index `(subject_id, fact_type) INCLUDE (...)`, FK NOT VALID present, fillfactor=70.
+    - `cd services/backend && python3 -m pytest tests/integration/test_fact_current_covering_index.py -q -k pg` exits 0; EXPLAIN ANALYZE output contains « Index Only Scan ».
+    - `python3 -c "from app.models.encryption.encrypted_value import EnhancedConfidence; from pydantic import ValidationError; EnhancedConfidence(c=0.8,a=0.9,f=1.0,u=0.7,score=0.85, enrichmentPrompts=['x'*201])"` raises ValidationError (B11 enforced).
+    - `git grep -n "fillfactor=70" services/backend/alembic/versions/p98_fact_event_projection_dek.py` returns ≥2 hits (fact_current + index).
+    - `git grep -n "MODULUS 8" services/backend/alembic/versions/p98_fact_event_projection_dek.py` returns ≥1 hit.
+    - `git grep -n "ON DELETE RESTRICT" services/backend/alembic/versions/p98_fact_event_projection_dek.py services/backend/app/models/dek_vault.py` returns ≥2 hits.
+    - Existing Task 3 acceptance criteria still hold (D-25 canary parity + audit_mobile endpoint + Mobile L1 audit service); nothing in iter-2 regresses original Task 3.
+  </acceptance_criteria>
+  <done>
+    p98 ships with: dek_vault FK RESTRICT + tombstone_at; fact_event PK (subject_id, event_id); fact_current covering index with leading (subject_id, fact_type); 8 partitions; FK NOT VALID on fact_current.latest_event_id; fillfactor=70 + autovacuum tuning; EnhancedConfidence enrichmentPrompts capped 5×200. The Crypto-shred-as-tombstone semantic is restored; the dominant index-only scans are real; partition split is a future no-op.
+  </done>
+</task>
+
+### New Task 3B — Projector atomic UPSERT (Tier-A A8)
+
+Inserted as a sub-task of original Task 3. **Surgical patch to `fact_projector.py`** — replaces SELECT-then-UPDATE with `INSERT ... ON CONFLICT ... DO UPDATE WHERE`. Single roundtrip + lost-update-safe under Read Committed.
+
+<task type="auto" tdd="true">
+  <name>Task 3B (NEW iter-2): Projector SELECT-then-UPDATE → atomic INSERT ... ON CONFLICT ... DO UPDATE WHERE (Tier-A A8 + database-architect MED-1)</name>
+  <files>
+    services/backend/app/services/projector/fact_projector.py,
+    services/backend/tests/integration/test_projector_concurrent_upsert.py
+  </files>
+  <read_first>
+    services/backend/app/services/projector/fact_projector.py (DRAFT from Task 3 step 6 — SELECT-then-UPDATE pattern to replace),
+    .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-RESEARCH.md (Pattern 2 projector lines 320-407),
+    .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-REVIEWS.md (postgres-pro HIGH-2 lost-update under Read Committed)
+  </read_first>
+  <behavior>
+    **Test 27 (concurrent UPSERT lost-update)**: pg_fixture. Spin 2 threads, each writing `fact_event(subject_id=U, fact_type='monthly_gross_income')` with monotonic `event_id`s e1 < e2. Both call `project_fact_event` concurrently. After both commit, `fact_current.latest_event_id = e2` (NOT e1, NOT NULL). Run 100 iterations; assert latest_event_id is monotonic across all runs. `mint_projector_idempotency_skip_total` increments by 100 (one per loser-thread per iteration).
+    **Test 28 (single-writer idempotency unchanged)**: existing `test_projector_idempotency.py` from original Task 3 must still pass — re-injecting the same event_id is a no-op (counter increments, fact_current unchanged).
+  </behavior>
+  <action>
+**Replaces** the original Task 3 step 6 projector implementation. The current spec uses:
+```python
+existing = session.query(FactCurrent).filter_by(...).one_or_none()
+if existing and existing.latest_event_id >= event.event_id:
+    mint_projector_idempotency_skip_total.inc()
+    return
+if existing:
+    existing.latest_event_id = event.event_id
+    existing.value_enc = event.value_enc
+    # ...
+else:
+    session.add(FactCurrent(...))
+```
+This is 2 roundtrips AND lost-update-vulnerable under Read Committed (two concurrent writers both see `existing.latest_event_id < event.event_id`, both UPDATE, second commit wins by clock NOT by event_id monotonicity).
+
+**Replace with atomic UPSERT (Postgres path)**:
+```python
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+
+def project_fact_event(session: Session, event: FactEvent) -> None:
+    """iter-2 A8: atomic UPSERT via INSERT ... ON CONFLICT ... DO UPDATE WHERE.
+    Single roundtrip + lost-update-safe under Read Committed.
+    """
+    session.add(event)
+    session.flush()  # raises IntegrityError if D-27 UNIQUE blocks dup at fact_event level
+
+    if session.bind.dialect.name == "postgresql":
+        stmt = pg_insert(FactCurrent).values(
+            subject_type=event.subject_type,
+            subject_id=event.subject_id,
+            fact_type=event.fact_type,
+            value_enc=event.value_enc,
+            latest_event_id=event.event_id,
+            confidence=event.confidence,
+            visibility=event.visibility,
+            updated_at=event.recorded_at,
+        )
+        upsert = stmt.on_conflict_do_update(
+            index_elements=["subject_type", "subject_id", "fact_type"],
+            set_={
+                "value_enc": stmt.excluded.value_enc,
+                "latest_event_id": stmt.excluded.latest_event_id,
+                "confidence": stmt.excluded.confidence,
+                "visibility": stmt.excluded.visibility,
+                "updated_at": stmt.excluded.updated_at,
+            },
+            where=(FactCurrent.latest_event_id < stmt.excluded.latest_event_id),
+        )
+        result = session.execute(upsert)
+        if result.rowcount == 0:
+            # ON CONFLICT WHERE didn't update — sequence-number monotonicity skip
+            mint_projector_idempotency_skip_total.inc()
+        else:
+            mint_fact_event_insert_total.labels(source_type=event.source_type).inc()
+    else:
+        # SQLite path: emulate via SELECT-then-UPDATE under SAVEPOINT (test-only path)
+        existing = session.query(FactCurrent).filter_by(
+            subject_type=event.subject_type,
+            subject_id=event.subject_id,
+            fact_type=event.fact_type,
+        ).one_or_none()
+        if existing is None:
+            session.add(FactCurrent(...))  # full row
+        elif existing.latest_event_id < event.event_id:
+            existing.latest_event_id = event.event_id
+            # ... update other fields ...
+        else:
+            mint_projector_idempotency_skip_total.inc()
+            return
+        mint_fact_event_insert_total.labels(source_type=event.source_type).inc()
+```
+
+**New test `tests/integration/test_projector_concurrent_upsert.py`** (TDD-first):
+```python
+import threading
+import uuid_utils
+def test_two_concurrent_writers_monotonic_latest_event_id(pg_session):
+    """A8: 2-thread race on same (subject_id, fact_type) → latest_event_id is the MAX event_id, NOT clock-order."""
+    user_id = "u-test"
+    # ensure DEK for both threads
+    dek = KeyVaultService(...).get_or_create_dek(pg_session, user_id)
+    barrier = threading.Barrier(2)
+    results = []
+    def writer(event_id_seed: int):
+        with pg_session() as s:
+            event = FactEvent(
+                event_id=str(uuid_utils.uuid7()),  # seed bumps the timestamp ms
+                subject_type='user', subject_id=user_id, fact_type='monthly_gross_income',
+                value_enc=encrypt_value(s, user_id, 8500.0 + event_id_seed, source_type='user_input'),
+                source_type='user_input', recorded_at=datetime.now(timezone.utc),
+            )
+            barrier.wait()
+            with s.begin():
+                project_fact_event(s, event)
+            results.append(event.event_id)
+    t1 = threading.Thread(target=writer, args=(0,))
+    t2 = threading.Thread(target=writer, args=(1,))
+    t1.start(); t2.start(); t1.join(); t2.join()
+    assert len(results) == 2
+    max_event = max(results)
+    fc = pg_session.query(FactCurrent).filter_by(subject_id=user_id, fact_type='monthly_gross_income').one()
+    assert fc.latest_event_id == max_event, "lost-update detected: latest_event_id is not max"
+```
+  </action>
+  <verify>
+    <automated>cd services/backend && python3 -m pytest tests/integration/test_projector_concurrent_upsert.py tests/integration/test_projector_idempotency.py tests/integration/test_projector_atomicity.py -q -k pg && python3 -m pytest tests/ -q -x</automated>
+  </verify>
+  <acceptance_criteria>
+    - `cd services/backend && python3 -m pytest tests/integration/test_projector_concurrent_upsert.py -q -k pg` exits 0; 100-iteration loop shows zero lost-update events.
+    - Existing `test_projector_idempotency.py` + `test_projector_atomicity.py` from original Task 3 still pass (no regression).
+    - `git grep -n "on_conflict_do_update" services/backend/app/services/projector/fact_projector.py` returns ≥1 hit.
+    - `git grep -n "where=" services/backend/app/services/projector/fact_projector.py | grep -c "latest_event_id"` returns ≥1.
+  </acceptance_criteria>
+  <done>
+    Projector is single-roundtrip + lost-update-safe under Read Committed. The race surface that postgres-pro HIGH-2 flagged is closed at the DB layer. SQLite test path retains the SELECT-then-UPDATE emulation (test-only, single-threaded).
+  </done>
+</task>
+
+### New Task 3C — Multi-shape canary parity gate (Tier-A A11, D-34 PROPOSED)
+
+Inserted as a sub-task of original Task 3, AFTER the single-shape canary on `monthly_gross_income`. Adds 4 additional canary fact-types covering decimal-precision, nested JSONB, nullable, and multi-KB TOAST blob shapes. Lands BEFORE Plan 02-03 PR-3 backfill fires.
+
+<task type="auto" tdd="true">
+  <name>Task 3C (NEW iter-2): Multi-shape canary parity gate — 5 fact-types covering scalar + decimal + nested JSONB + nullable + TOAST blob (Tier-A A11 + D-34 PROPOSED)</name>
+  <files>
+    services/backend/tests/integration/test_canary_multi_shape_parity.py,
+    services/backend/tests/integration/test_canary_pillar_3a_balance.py,
+    services/backend/tests/integration/test_canary_archetype_tags_jsonb.py,
+    services/backend/tests/integration/test_canary_lpp_avoirs_nullable.py,
+    services/backend/tests/integration/test_canary_coach_extracted_toast.py,
+    services/backend/tests/fixtures/canary_fixtures.py
+  </files>
+  <read_first>
+    services/backend/tests/integration/test_canary_monthly_gross_income.py (from original Task 3 — scalar baseline shape),
+    services/backend/app/models/snapshot.py (deprecated post-Plan-02-03 PR-5 but still present here — read shape for parity comparator)
+  </read_first>
+  <behavior>
+    **Test 29 (decimal-precision canary — `pillar_3a_balance`)**: write fact_event with `value = Decimal("12345.67")`; project; assert `decrypt_value(... fact_current.value_enc) == Decimal("12345.67")` (NOT `12345.67` float). Round-trip through JSON canonical → `"12345.67"` string preserved.
+    **Test 30 (nested JSONB canary — `archetype_tags`)**: write fact_event with `value = ["expat_eu", "frontalier"] + nested confidence map`. Project. Decrypt. Assert deep-equality.
+    **Test 31 (nullable canary — `lpp_avoirs_vieillesse`)**: user has NO LPP. write fact_event with `value = None` (or skip the row). Project should NOT emit a fact_current row for this fact_type — assert `SELECT count(*) FROM fact_current WHERE fact_type='lpp_avoirs_vieillesse' AND subject_id=$U = 0`. Comparator: SnapshotModel.lpp_avoirs_vieillesse for the same user IS NULL → parity holds.
+    **Test 32 (TOAST blob canary — synthetic `coach_extracted_facts`)**: write fact_event with `value = {"facts": ["x" * 4000]}` (~4KB). Project. Decrypt. Assert blob ≥ 4KB AND `pg_column_size(value_enc)` triggers TOAST (Postgres only).
+    **Test 33 (multi-shape parity composite)**: invoke all 4 + the existing scalar canary in one pytest session; assert all 5 pass before Plan 02-03 PR-3a can fire.
+  </behavior>
+  <action>
+1. **`services/backend/tests/fixtures/canary_fixtures.py` (NEW)**: shared fixture builders for the 5 canary shapes (`build_scalar_canary`, `build_decimal_canary`, `build_jsonb_canary`, `build_nullable_canary`, `build_toast_canary`).
+2. **Per-shape test file**: each runs `pg_fixture`, writes `fact_event` with the appropriate shape, runs projector, asserts decrypt round-trip + parity vs SnapshotModel (where applicable).
+3. **`test_canary_multi_shape_parity.py`**: runs all 5 in one composite test that imports the per-shape tests as helpers. Outputs a summary report `/tmp/multi_shape_canary.log` with PASS/FAIL per shape. **The composite test is the W1 → W2 explicit gate before Plan 02-03 PR-3 fires.**
+4. Document in Plan 02-02 SUMMARY: « D-34 (PROPOSED) — Multi-shape canary parity gate: 5/5 PASS at commit SHA `<X>`. Plan 02-03 PR-3 fires only after this gate. »
+  </action>
+  <verify>
+    <automated>cd services/backend && python3 -m pytest tests/integration/test_canary_multi_shape_parity.py tests/integration/test_canary_pillar_3a_balance.py tests/integration/test_canary_archetype_tags_jsonb.py tests/integration/test_canary_lpp_avoirs_nullable.py tests/integration/test_canary_coach_extracted_toast.py -q -k pg 2>&1 | tee /tmp/multi_shape_canary.log && grep -c "PASSED" /tmp/multi_shape_canary.log | grep -E "^[5-9]|[1-9][0-9]"</automated>
+  </verify>
+  <acceptance_criteria>
+    - All 5 canary tests pass: `pytest test_canary_*.py -q -k pg` exits 0.
+    - `/tmp/multi_shape_canary.log` contains 5 PASSED lines (one per shape).
+    - Decimal canary: round-trip preserves `Decimal("12345.67")` (NOT float coercion).
+    - JSONB canary: deep-equality preserves nested map + list order.
+    - Nullable canary: zero fact_current rows for NULL value_enc.
+    - TOAST canary: `pg_column_size(value_enc) > 2048` (TOAST threshold hit).
+    - SUMMARY documents D-34 PROPOSED status + 5/5 PASS verbatim before any Plan 02-03 PR-3a work begins.
+  </acceptance_criteria>
+  <done>
+    Multi-shape canary parity gate active. The W1 → W2 transition gate is now 5-shape parity-proven, NOT single-shape. qa-expert HIGH-2 + postgres-pro LOW-iii closed.
+  </done>
+</task>
+
+### Patch to original Task 3 — A6 audit-mobile endpoint proof-of-session-start handshake (security-auditor T-S01)
+
+**Replaces** the original Task 3 step 7 `audit_mobile.py` `/v1/audit/mobile-session-link` implementation. The original spec accepts any batch POST with auth header; iter-2 requires proof-of-session-start as a precondition.
+
+**Updated `<action>` step 7** (executor: apply this in place of the original step 7):
+
+```python
+@router.post("/audit/mobile-session-link")
+async def link_mobile_audit_batch(
+    payload: MobileSessionLinkBatch,
+    user=Depends(get_current_user),
+    db=Depends(get_db),
+) -> MobileSessionLinkResponse:
+    """iter-2 A6: require proof-of-session-start handshake BEFORE accepting batch link.
+
+    Without this gate, any authenticated client can inject audit rows with any
+    `anonymous_session_id`; at link time the server permanently attributes
+    spoofed sessions to the authenticated user (LSFin audit-integrity HIGH).
+
+    The handshake: for each batch entry, the server MUST find at least one prior
+    row in projection_audit_records with the SAME `anonymous_session_id` AND
+    `source='mobile_session_start'`. If absent → reject the entire batch (NOT
+    just the offending entry — partial-batch acceptance creates ambiguity).
+    """
+    user_id_hash = hmac_user_id(user.id)
+    # Group batch by anonymous_session_id
+    sids_in_batch: set[str] = {row.anonymous_session_id for row in payload.items}
+    # Single query to find which sids have a prior session-start row
+    rows = db.execute(
+        sa.text("""
+            SELECT DISTINCT anonymous_session_id
+            FROM projection_audit_records
+            WHERE anonymous_session_id = ANY(:sids)
+              AND source = 'mobile_session_start'
+        """),
+        {"sids": list(sids_in_batch)},
+    ).fetchall()
+    sids_with_proof: set[str] = {r[0] for r in rows}
+    missing_proof = sids_in_batch - sids_with_proof
+    if missing_proof:
+        mint_anonymous_session_link_total.labels(outcome="rejected_no_handshake").inc()
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "session_link_handshake_missing",
+                "message": "Batch contains anonymous_session_id values with no prior mobile_session_start row. "
+                           "Link is rejected. Per D-30 + iter-2 A6 (T-S01 spoofing mitigation), the mobile client "
+                           "MUST POST /v1/audit/mobile-session-start before /v1/audit/mobile-session-link.",
+                "missing_sids": sorted(missing_proof),
+            },
+        )
+    # ... existing batch INSERT ON CONFLICT DO NOTHING logic ...
+    mint_anonymous_session_link_total.labels(outcome="linked").inc()
+    return MobileSessionLinkResponse(linked=count_new, skipped=count_dup)
+```
+
+**Updated `<verify>` block for original Task 3** (add):
+```bash
+cd services/backend && python3 -m pytest tests/integration/test_audit_mobile_link.py::test_link_rejects_batch_without_session_start_handshake -q -k pg
+```
+
+**Updated `<acceptance_criteria>` for original Task 3** (add):
+- `test_link_rejects_batch_without_session_start_handshake` exits 0: a batch POST with `anonymous_session_id` lacking a prior `mobile_session_start` row returns HTTP 403 with `error: session_link_handshake_missing`.
+- `test_link_accepts_batch_with_handshake` exits 0: a batch POST where each `anonymous_session_id` has a prior `mobile_session_start` row returns 200 with `linked: N`.
+
+**Mobile-side flutter test addition** (`apps/mobile/test/services/audit/mobile_l1_audit_service_test.dart`):
+- Test that the offline-queue replay logic POSTs `/v1/audit/mobile-session-start` BEFORE `/v1/audit/mobile-session-link` on first-ever-replay (cold install → linkable state).
+
+### New Task 3D — `no_mobile_fact_current_regulatory_read.py` HARD lefthook (Tier-B B2)
+
+Inserted as a sub-task of original Task 3. Small lint surface (~30 LOC). Architect-review concern: mobile must NEVER read `fact_current(subject_type='regulatory')` rows directly — that path breaks L1 offline-canonical.
+
+<task type="auto">
+  <name>Task 3D (NEW iter-2): `no_mobile_fact_current_regulatory_read.py` HARD lefthook on Dart (Tier-B B2, architect-review)</name>
+  <files>
+    tools/checks/no_mobile_fact_current_regulatory_read.py,
+    tools/checks/tests/test_no_mobile_fact_current_regulatory_read.py,
+    apps/mobile/test/_fixtures/bad_regulatory_read.dart,
+    lefthook.yml
+  </files>
+  <read_first>
+    tools/checks/profile_safe_fields_parity.py (Phase 01 D-12 lint pattern reference),
+    .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-REVIEWS.md (architect-review MED concern — fact_current(subject_type='regulatory') read-path UNDEFINED)
+  </read_first>
+  <action>
+1. **`tools/checks/no_mobile_fact_current_regulatory_read.py` (NEW)**: Python CLI script. Default scan: `apps/mobile/lib/**/*.dart`. Logic: regex `r"fact_current.*subject_type.*['\"]regulatory['\"]"` (with `re.IGNORECASE`). If match → exit 1 with file:line + message:
+   > « Mobile MUST NOT read fact_current(subject_type='regulatory') directly. Regulatory constants come from codegen-baked `regulatoryConstantsVersionHash` per Phase 01 D-08 + D-16. Bypassing codegen breaks L1 offline-canonical and L1/L2 boundary discipline. »
+2. **`apps/mobile/test/_fixtures/bad_regulatory_read.dart` (NEW)**: 5-line fixture containing the forbidden pattern. Self-exempt by path glob.
+3. **lefthook.yml**: append on `pre-commit`:
+   ```yaml
+   no-mobile-fact-current-regulatory-read:
+     run: python3 tools/checks/no_mobile_fact_current_regulatory_read.py {staged_files}
+     glob: "apps/mobile/lib/**/*.dart"
+     tags: [mobile, l1-offline-canonical, phase-02-d-12]
+     fail_text: "Mobile MUST NOT read fact_current(subject_type='regulatory') — use codegen-baked constants (Phase 01 D-08). iter-2 B2 architect-review."
+   ```
+4. **`tools/checks/tests/test_no_mobile_fact_current_regulatory_read.py` (NEW)**: assert lint exits 1 on bad fixture + exits 0 on clean tree + self-exempts itself.
+  </action>
+  <verify>
+    <automated>python3 tools/checks/no_mobile_fact_current_regulatory_read.py apps/mobile/test/_fixtures/bad_regulatory_read.dart; [ $? -eq 1 ] && python3 tools/checks/no_mobile_fact_current_regulatory_read.py apps/mobile/lib/ && grep -c "no-mobile-fact-current-regulatory-read" lefthook.yml | grep -E "^1$" && python3 -m pytest tools/checks/tests/test_no_mobile_fact_current_regulatory_read.py -q</automated>
+  </verify>
+  <acceptance_criteria>
+    - Lint exits 1 on bad fixture; exits 0 on clean `apps/mobile/lib/` tree.
+    - `grep -c "no-mobile-fact-current-regulatory-read" lefthook.yml` returns 1.
+    - `python3 -m pytest tools/checks/tests/test_no_mobile_fact_current_regulatory_read.py -q` exits 0.
+  </acceptance_criteria>
+  <done>
+    Mobile L1/L2 boundary discipline enforced at commit time. architect-review MED concern closed.
+  </done>
+</task>
+
+### CONTEXT.md changes proposed by this revision (PROPOSED — owner-approval required)
+
+These changes refine 3 existing D-XX without redefining the locked decisions. Proposing as patch diff:
+
+**D-26 (EncryptedValue typed JSONB shape)** — append after the existing Pydantic class definition:
+```diff
+   class EncryptedValue(BaseModel):
+       ct: str   # base64-encoded ciphertext
+       iv: str   # base64-encoded IV/nonce (96-bit for GCM)
+-      tag: str  # base64-encoded auth tag
++      tag: Literal[""] = ""  # iter-2 C5: AESGCM appends auth tag to ct; this field is reserved + typed.
+       alg: Literal["AES-256-GCM"] = "AES-256-GCM"
+       dek_id: str  # logical key ref, e.g. "mint-master-v1"
+       enc_v: int = 1  # envelope-format version (for future DEK rotation)
+```
+
+**D-28 (Partition declaration in p98)** — bump partition count:
+```diff
+-  - **D-28:** **Partition declaration in p98.** `PARTITION BY HASH (subject_id) PARTITIONS 1` ships in p98 alembic from day one.
++  - **D-28:** **Partition declaration in p98.** `PARTITION BY HASH (subject_id) PARTITIONS 8` ships in p98 alembic from day one (iter-2 B8 — pre-launch zero-data window is the only free split opportunity ; future split = `ATTACH PARTITION` no-op at production scale).
+```
+
+**D-29 (`confidence` JSONB shape)** — add cap:
+```diff
+-  - **D-29:** **`confidence` JSONB = full EnhancedConfidence 4-axis.** Shape : `{c: 0.8, a: 0.9, f: 1.0, u: 0.7, score: 0.85, enrichmentPrompts: ["..."]}`
++  - **D-29:** **`confidence` JSONB = full EnhancedConfidence 4-axis.** Shape : `{c: 0.8, a: 0.9, f: 1.0, u: 0.7, score: 0.85, enrichmentPrompts: ["..."]}` — **iter-2 B11 cap: enrichmentPrompts MAX 5 entries × 200 chars each** (TOAST-row-size discipline ; Pydantic v2 `EnhancedConfidence` enforces at validate time).
+```
+
+**D-30 (Anonymous-session buffer mechanics)** — add handshake requirement:
+```diff
+-    - **Link on first login** — single batch POST `/v1/audit/mobile-session-link` with array of buffered audit rows.
++    - **Link on first login** — single batch POST `/v1/audit/mobile-session-link` with array of buffered audit rows. **iter-2 A6 — proof-of-session-start handshake**: the server REJECTS the entire batch if any `anonymous_session_id` lacks a prior `projection_audit_records` row with `source='mobile_session_start'` for that sid. T-S01 spoofing mitigation.
+```
+
+**New: D-34 PROPOSED + D-35 PROPOSED** — full text in « New D-XX proposed » section above.
+
+### VALIDATION.md additions proposed by this revision
+
+Append to `## Per-Task Verification Map → Wave 1 — Schema + KMS + HMAC-pepper`:
+
+| Task ID | Plan | Wave | Decision | Threat Ref | Secure Behavior | Test Type | Automated Command |
+|---------|------|------|----------|------------|-----------------|-----------|-------------------|
+| 02-02-3A | 02-02 | 1 | A1 (dek_vault RESTRICT) | T-02-02 + crypto-shred-as-tombstone | ON DELETE RESTRICT + tombstone_at column ; app code path tombstone → shred → DELETE | integration (pg_fixture) | `pytest tests/integration/test_dek_vault_restrict_tombstone.py -q -k pg` |
+| 02-02-3A | 02-02 | 1 | A2 (fact_event PK reorder) | T-S03 + perf | PK `(subject_id, event_id)` → index-only scan on dominant query | integration | `pytest tests/integration/test_migration_p98_iter2.py::test_fact_event_pk_order -q -k pg` |
+| 02-02-3A | 02-02 | 1 | A3 (fact_current covering index leading col) | obs #174 RECURRENCE | Index `(subject_id, fact_type) INCLUDE (...)` → EXPLAIN shows Index Only Scan | integration | `pytest tests/integration/test_fact_current_covering_index.py -q -k pg` |
+| 02-02-3A | 02-02 | 1 | B8 (MODULUS 8) | T-S03 + future-perf | 8 partitions present at p98 ; split is a no-op | integration | `pytest tests/integration/test_migration_p98_iter2.py::test_partition_count_eight -q -k pg` |
+| 02-02-3A | 02-02 | 1 | B9 (FK NOT VALID) | T-S03 integrity | fact_current.latest_event_id → fact_event.event_id NOT VALID present | integration | `pytest tests/integration/test_migration_p98_iter2.py::test_fact_current_fk_not_valid -q -k pg` |
+| 02-02-3A | 02-02 | 1 | B11 (enrichmentPrompts cap) | T-S08 DoS + TOAST | Pydantic rejects >5 prompts OR any >200 chars | unit | `python3 -c "from app.models.encryption.encrypted_value import EnhancedConfidence; EnhancedConfidence(...prompts=['x'*201])"` raises ValidationError |
+| 02-02-3B | 02-02 | 1 | A8 (atomic UPSERT) | T-S03 lost-update | INSERT ON CONFLICT DO UPDATE WHERE latest_event_id < EXCLUDED — concurrent writers ordered by event_id NOT clock | integration (concurrency) | `pytest tests/integration/test_projector_concurrent_upsert.py -q -k pg` |
+| 02-02-3C | 02-02 | 1 | A11 + D-34 PROPOSED (multi-shape canary) | T-S03 parity | 5/5 shapes (scalar+decimal+jsonb+nullable+TOAST) parity-pass | integration (composite) | `pytest tests/integration/test_canary_multi_shape_parity.py -q -k pg` |
+| 02-02-3D | 02-02 | 1 | B2 (Dart L1 boundary lint) | architect MED — mobile fact_current(regulatory) read | HARD lefthook rejects `fact_current.*subject_type.*'regulatory'` regex on Dart files | unit (lint) | `python3 tools/checks/no_mobile_fact_current_regulatory_read.py --self-test` |
+| 02-02-A4 | 02-02 | 1 | A4 + D-35 PROPOSED (KMS fail-closed) | T-S09 HIGH | `_select_backend()` raises KMSBackendUnavailable on resolution fail ; counter increments ; no silent Fernet fallback | unit + integration | `pytest tests/test_key_vault_logical_id.py::test_no_silent_fernet_fallback -q` |
+| 02-02-A5 | 02-02 | 1 | A5 (DEK cache TTL) | T-S05 HIGH | TTLCache 5min + 1024 maxsize ; `mint_dek_cache_size_total` gauge set on each access | unit | `pytest tests/test_key_vault_logical_id.py::test_dek_cache_ttl_eviction -q` |
+| 02-02-A6 | 02-02 | 1 | A6 (link handshake) | T-S01 HIGH | Batch link rejects if any sid lacks prior mobile_session_start row → 403 | integration | `pytest tests/integration/test_audit_mobile_link.py::test_link_rejects_batch_without_session_start_handshake -q -k pg` |
+| 02-02-B6 | 02-02 | 1 | B6 (banned-terms write-time) | T-S11 MED | `encrypt_value(... source_type='coach_inference')` scans plaintext + raises BannedTermsViolation | unit | `pytest tests/test_encrypted_value_helper.py::test_banned_terms_scan_on_coach_inference -q` |
+
+### Threat-model extension (append, do not rewrite)
+
+Append to the existing STRIDE Threat Register in this plan:
+
+| Threat ID | Category | Component | Severity | Disposition | Mitigation Plan |
+|-----------|----------|-----------|----------|-------------|-----------------|
+| T-S09 | Elevation of Privilege | `key_vault._select_backend()` silent KMS→Fernet fallback | HIGH | mitigate (A4) | iter-2 removes silent fallback ; `_select_backend()` raises `KMSBackendUnavailable` ; `mint_kms_backend_failure_total{backend, reason}` counter. Dev opt-in via `MINT_KMS_BACKEND=fernet` env explicit. |
+| T-S05 | Information Disclosure | `KeyVaultService._dek_cache` plaintext DEK cache as unbounded process singleton | HIGH | mitigate (A5) | iter-2 TTLCache 5min + 1024 maxsize ; `mint_dek_cache_size_total` gauge ; Sentry `before_send` recursively strips `_dek_cache` attribute from captured exceptions. |
+| T-S01 | Spoofing | `/v1/audit/mobile-session-link` anonymous-session-link spoofing | HIGH | mitigate (A6) | iter-2 proof-of-session-start handshake : batch link rejects if any sid lacks prior `mobile_session_start` row → 403. `mint_anonymous_session_link_total{outcome='rejected_no_handshake'}` counter. |
+| T-DA-01 | Tampering / RTBF | `dek_vault` ON DELETE CASCADE breaks crypto-shred-as-tombstone | HIGH | mitigate (A1) | iter-2 FK ON DELETE RESTRICT + `tombstone_at` column ; app code path `tombstone_user_dek()` → `crypto_shred_user()` → `DELETE FROM users` (only allowed once tombstone_at IS NOT NULL). |
+| T-DA-02 | Performance / Heap-fetch | `fact_event` PK `(event_id, subject_id)` forces heap fetch on dominant query | HIGH | mitigate (A2) | iter-2 PK `(subject_id, event_id)` + secondary `(subject_type, subject_id, recorded_at DESC) INCLUDE (event_id, fact_type)` → Index Only Scan confirmed via `EXPLAIN ANALYZE` in test. |
+| T-PG-02 | Tampering / Lost-update | Projector SELECT-then-UPDATE under Read Committed | HIGH | mitigate (A8) | iter-2 `INSERT ... ON CONFLICT ... DO UPDATE WHERE latest_event_id < EXCLUDED` atomic. 100-iteration 2-thread test asserts monotonic latest_event_id. |
+| T-QA-02 | Tampering / Cutover | Single-shape canary (D-25 scalar only) cannot validate decimal / JSONB / nullable / TOAST | HIGH | mitigate (A11 + D-34) | iter-2 multi-shape canary : 5 fact-types covering all shape classes parity-prove BEFORE Plan 02-03 PR-3 fires. |
+| T-S11-EXT | Compliance / LSFin | Runtime banned-terms in `coach_inference` / `user_input` plaintext | MED | mitigate (B6) | iter-2 `encrypt_value(... source_type='coach_inference')` scans plaintext via `banned_terms_runtime` BEFORE encryption + raises `BannedTermsViolation`. |
+
+### Tier-C considered, deferred
+
+- **C1 Docker docs** → defer_in_plan_04_task_4 (CONTRIBUTING.md / services/backend/README.md addendum at phase close).
+- **C2 PR-3 commit-message contract** → defer_in_plan_03 iter-2 (commit-message template + cite allowlist rationale ; lands with PR-3 split).
+- **C4 over-decomposed D-XX merge** → defer to post-Phase-02 retrospective (renumbering risks audit-trail breakage during active execution).
+- **C6 native UUID / TIMESTAMPTZ** → defer_in_plan_04_task_4 (post-Phase-02 hardening migration ; pre-launch performance is dominated by network, not column-type).
+- **C7 JSONB `pg_column_size < 65536` CHECK** → defer_in_plan_04_task_3 (close-out runbook adds CHECK as separate migration ; B11 enrichmentPrompts cap mitigates the dominant TOAST risk).
+- **C8 STAGING-DOWN-OVERRIDE required check** → defer_in_plan_04_task_2 (CI fix lands with D-06 mechanical fixes ; GitHub branch-protection rule update needs Julien repo-admin access).
+
+### `<files_modified>` additions for Plan 02-02 frontmatter
+
+```yaml
+files_modified:
+  # ...original list...
+  - services/backend/app/services/encryption/dek_tombstone.py                          # A1
+  - services/backend/app/services/encryption/banned_terms_runtime.py                   # B6
+  - services/backend/app/db.py                                                          # B12 + B15
+  - services/backend/tests/integration/test_migration_p98_iter2.py                     # A1 + A2 + A3 + B8 + B9 + B10
+  - services/backend/tests/integration/test_fact_current_covering_index.py             # A3
+  - services/backend/tests/integration/test_dek_vault_restrict_tombstone.py            # A1
+  - services/backend/tests/integration/test_projector_concurrent_upsert.py             # A8
+  - services/backend/tests/integration/test_canary_multi_shape_parity.py               # A11 + D-34
+  - services/backend/tests/integration/test_canary_pillar_3a_balance.py                # A11
+  - services/backend/tests/integration/test_canary_archetype_tags_jsonb.py             # A11
+  - services/backend/tests/integration/test_canary_lpp_avoirs_nullable.py              # A11
+  - services/backend/tests/integration/test_canary_coach_extracted_toast.py            # A11
+  - services/backend/tests/fixtures/canary_fixtures.py                                 # A11
+  - tools/checks/no_mobile_fact_current_regulatory_read.py                             # B2
+  - tools/checks/tests/test_no_mobile_fact_current_regulatory_read.py                  # B2
+  - apps/mobile/test/_fixtures/bad_regulatory_read.dart                                # B2
+```
+
+### `<decisions>` frontmatter additions for Plan 02-02
+
+```yaml
+decisions: [D-01, D-02, D-03, D-12, D-13, D-14, D-15, D-16, D-17, D-19, D-25, D-26, D-27, D-28, D-29, D-30, D-34-PROPOSED, D-35-PROPOSED]
+requirements_addressed:
+  # ...original list...
+  - CONTEXT.md#D-34 PROPOSED multi-shape canary parity gate (iter-2)
+  - CONTEXT.md#D-35 PROPOSED KMS fail-closed never silent fallback (iter-2)
+```
+
+### `<must_haves.truths>` additions for Plan 02-02
+
+```yaml
+  - "iter-2 A1: dek_vault FK ON DELETE RESTRICT + tombstone_at column ; deleting users w/ active dek_vault row raises IntegrityError ; tombstone_user_dek() is the only path to break the FK."
+  - "iter-2 A2: fact_event PRIMARY KEY (subject_id, event_id) → EXPLAIN ANALYZE on dominant query returns Index Only Scan."
+  - "iter-2 A3: fact_current covering index (subject_id, fact_type) INCLUDE (latest_event_id, value_enc, confidence, visibility) → EXPLAIN returns Index Only Scan using ix_fact_current_subject_covering."
+  - "iter-2 A4 + D-35 PROPOSED: key_vault._select_backend() raises KMSBackendUnavailable on resolution failure ; no silent Fernet fallback ; mint_kms_backend_failure_total{backend, reason} counter increments."
+  - "iter-2 A5: KeyVaultService._dek_cache is TTLCache(maxsize=1024, ttl=300) ; mint_dek_cache_size_total gauge set on each access ; Sentry before_send strips _dek_cache attribute."
+  - "iter-2 A6: /v1/audit/mobile-session-link rejects batch with any anonymous_session_id lacking a prior mobile_session_start row (HTTP 403, mint_anonymous_session_link_total{outcome='rejected_no_handshake'})."
+  - "iter-2 A8: project_fact_event uses INSERT ... ON CONFLICT ... DO UPDATE WHERE latest_event_id < EXCLUDED (atomic upsert) ; 100-iteration 2-thread test asserts monotonic latest_event_id."
+  - "iter-2 A11 + D-34 PROPOSED: 5-shape canary parity-PROVEN (scalar monthly_gross_income + decimal pillar_3a_balance + nested JSONB archetype_tags + nullable lpp_avoirs_vieillesse + TOAST coach_extracted_facts ≥4KB) BEFORE Plan 02-03 PR-3 fires."
+  - "iter-2 B2: tools/checks/no_mobile_fact_current_regulatory_read.py HARD lefthook on Dart files rejects fact_current(subject_type='regulatory') reads."
+  - "iter-2 B6: encrypt_value(... source_type='coach_inference'|'user_input') scans plaintext via banned_terms_runtime BEFORE encryption ; raises BannedTermsViolation."
+  - "iter-2 B8: fact_event ships with 8 partitions (MODULUS 8) from p98 ; future split is no-op at production scale."
+  - "iter-2 B9: fact_current.latest_event_id FOREIGN KEY (subject_id, latest_event_id) → fact_event(subject_id, event_id) NOT VALID."
+  - "iter-2 B10: fact_current SET (fillfactor=70, autovacuum_vacuum_scale_factor=0.05, autovacuum_analyze_scale_factor=0.05)."
+  - "iter-2 B11 + D-29 amended: EnhancedConfidence.enrichmentPrompts MAX 5 × 200 chars ; Pydantic v2 ValidationError if violated."
+  - "iter-2 B12: engine connect_args includes prepare_threshold=None for future PgBouncer compat."
+  - "iter-2 B15: engine pool_timeout=10 ; backfill script uses throttled pool_size=2, max_overflow=0 via get_backfill_engine()."
+  - "iter-2: 2 NEW counters (mint_kms_backend_failure_total + mint_dek_cache_size_total) bring D-33 declared count from 6 → 8 (Plan 02-04 close-out asserts firing on all 8)."
+```
+
+### Iter-2 commit recommendation
+
+Single commit message: `docs(mint-data-architecture-v1-02-event-log-projection): plan iter-2 reviews revision — A1+A2+A3 DDL + A4+A5+A6 security + A8 atomic UPSERT + A11 multi-shape canary + Tier-B B2/B6/B8-B12/B15 (Plan 02-02)`.
+
+</iter_2_revision>
