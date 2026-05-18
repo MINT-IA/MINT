@@ -72,7 +72,14 @@ def upgrade() -> None:
             "lsfin_disclaimer_shown",
             sa.Boolean(),
             nullable=False,
-            server_default=sa.text("0"),  # SQLite-safe; Postgres coerces to false
+            # sa.false() emits dialect-correct DDL: `FALSE` on Postgres,
+            # `0` on SQLite. The previous `sa.text("0")` worked only on
+            # SQLite — Postgres raises DatatypeMismatch ("column ... is of
+            # type boolean but default expression is of type integer"), which
+            # crashed staging deploy 2026-05-17. SQLite fallback at the cost
+            # of Postgres correctness was the wrong trade-off; sa.false()
+            # gives both for free.
+            server_default=sa.false(),
         ),
         sa.PrimaryKeyConstraint("id"),
     )
