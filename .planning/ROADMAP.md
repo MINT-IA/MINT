@@ -100,6 +100,32 @@ Plans:
 - `tools/checks/profile_safe_fields_parity.py` — Concern C Flutter↔server parity lint (W4 Plan 19) — partial bridge of the gap today
 - engram obs #150 (event-log decision) + #151 (panel compliance findings)
 
+### Phase: mint-data-architecture-v1-02-event-log-projection
+**Goal**: Migrate user-facts storage from `SnapshotModel` (cached projection keyed on inputs_hash) to event-log (`fact_event` append-only) + projection (`fact_current` denormalised) + DEK envelope per-user (Railway-native KMS). Extends `projection_audit_record` for mobile L1 session audit (closes Phase 01 D-05 LSFin audit-trail gap discovered by architect-review obs #176). Includes 4 Phase 01 carry-over security gaps + Phase 02 W0 prereqs (S12 API consolidation PR-1 + Flutter drift PR-A2 + Postgres migration test harness + 2 prevention lints).
+**Status**: 📋 Panel synthesis ADR shipped 2026-05-18 (commit `5c66fb30`) — `/gsd-discuss-phase` initiated.
+**Plans**: 0 plans (pending CONTEXT.md + planning)
+
+Plans:
+
+**Depends on**: `mint-data-architecture-v1-01-calc-engine-canonical` ✓ shipped 2026-05-17 (sha `a21bc8d0`) + Hotfix B/C ✓ shipped via squash `cf6d259a` + Postgres BOOLEAN DEFAULT fix `fe52ba31`.
+**Blocks**: deferred Phase 03 (coach-extractor LLM + guardrails — requires `fact_event(source_type='coach_inference')` schema from this phase).
+**Open questions disposition**: 7 panel-debated questions all resolved in [decisions/2026-05-18-phase02-event-log-projection-panel-synthesis.md](decisions/2026-05-18-phase02-event-log-projection-panel-synthesis.md) (5-specialist consensus + 3 Julien-locked calls). CONTEXT.md will encode each as D-XX with cross-refs.
+**Canonical refs**:
+- `.planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md` — upstream « what shape » ADR (panel-converged)
+- `.planning/decisions/2026-05-18-phase02-event-log-projection-panel-synthesis.md` — THIS phase's « how + when + trade-offs » lockdown (single canonical source)
+- `.planning/phases/mint-data-architecture-v1-01-calc-engine-canonical/mint-data-architecture-v1-01-calc-engine-CONTEXT.md` — upstream Phase 01 16 D-XX decisions (split-with-arbiter L1 mobile / L2-L4 backend)
+- `.planning/phases/mint-calc-engine-v1/deferred-items.md` § S12-API-consolidation — load-bearing W0 prereq
+- `services/backend/app/models/snapshot.py` — current `SnapshotModel` shape (migration source)
+- `services/backend/app/models/projection_audit_record.py` — Hotfix B shipped append-only audit table (extend with `source` discriminator + `app_version` + `observed_at` for D-MOB-03)
+- `services/backend/app/models/audit_event.py` — Hotfix C `user_id_hash` (HMAC-pepper migration required Phase 02 W1 per obs #175)
+- `services/backend/app/services/encryption/key_vault.py` — existing 2-backend KMS facade (logical-id pattern fits Q2 Railway-native)
+- `services/backend/app/services/regulatory/registry.py` — RegulatoryParameter source for `subject_type='regulatory'` event-log dual-write
+- `apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart` — Phase 01 codegen output (mobile L1 audit reads `regulatoryConstantsVersionHash`)
+- `services/backend/app/services/independants/` (S18) + `services/backend/app/services/expat/frontalier_service.py` (S23) — S12 façade-delegate-to-granular pattern (obs #183 + Julien promote IJM/LAA to S18)
+- `services/backend/app/api/v1/endpoints/coach_chat.py:957-1015` — `_PROFILE_SAFE_FIELDS` Stage-0 + D-MOB-01 drift inventory (Flutter-side emission gap)
+- `.github/workflows/regulatory-codegen.yml` — Q6 CI staging-down policy (extend with STAGING-MALFORMED status + scheduled-only aging writes + HARD label override)
+- engram obs #163 (Phase 01 CONTEXT) · #174 (db-architect Q1+Q4+Q5) · #175 (security Q2+Q3+Q7 + STRIDE + HMAC-pepper) · #176 (architect-review integrated + mobile L1 audit gap discovery) · #178 (devops Q6 + 8-item PR-readiness + 6 new counters) · #182 (Q6 Railway-native scraping decided) · #183 (S12 design) · #186 (Flutter D-MOB design) · #187 (QA panel predicted Postgres bug) · #188 (Postgres BOOLEAN DEFAULT bug + fix)
+
 
 
 <details>
