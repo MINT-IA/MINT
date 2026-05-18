@@ -42,6 +42,16 @@ description: Items discovered during Phase 02 execution that are OUT OF SCOPE fo
 - **Recommended owner** : Plan 02-04 PR-A3 owner picks (a) or (b). Option (a) is principled but bigger lint surgery ; option (b) is mechanical but introduces a 4x duplication maintenance burden.
 - **Test coverage** : `apps/mobile/test/services/coach_narrative_profile_context_test.dart` proves the 15 keys ARE emitted (test-level guard) — the lint blind-spot is a static-analysis limitation, not a runtime bug.
 
+## Pre-existing — discovered Plan 02-02 (W1, 2026-05-18)
+
+### DEFERRED-02-02-A : `test_tool_search_round_trip.py` frontalier-tool-name fixture stale post-D-09 rename
+
+- **Discovery context** : full backend regression after Plan 02-02 Task 2 commits (8166e3f4 / d7e2d4b3 / 3d7e38ea) shows `tests/test_tool_search_round_trip.py::test_anthropic_adapter_descriptions_match_fr_queries[frontalier vaudois, impôt à la source-expected_top_320]` failing. Expected `FrontalierService_*` tool names; the adapter now emits `WealthTaxService_*` because D-09 PR-1 (Plan 02-01) renamed the class to `FrontalierSegmentService`, which auto-regenerated the calculator registry tool-name list — the FR-query overlap scoring no longer surfaces frontalier tools at top-3 for « frontalier vaudois ».
+- **Pre-existing failing test** : NOT caused by Plan 02-02. Caused by Plan 02-01 D-09 (commit `c465719f`). The test was a Plan-09 polish-TODO `xfail` candidate already (per the test's docstring : « Failing fixtures surface as description-polish TODOs for the Plan 09 staging pilot (Task 5b, DEFERRED) »).
+- **Scope boundary** : Plan 02-02 ships hmac_pepper / EncryptedValue / DEK envelope + counters + Sentry strip. The tool-search adapter description list is owned by `services/backend/app/services/coach/tools/` — out of scope for this plan.
+- **Recommended owner** : the next plan that touches the canonical-tool description list OR the rename PR-2 (Plan 02-04 per D-09), should either (a) update the expected_top_3 fixture to the post-rename canonical names OR (b) mark the fixture xfail with a reference to D-09 + this deferred item.
+- **Risk if not addressed by Plan 02-03** : 1 flaky test in the regression suite. CI workflows must add `--ignore=tests/test_tool_search_round_trip.py::test_anthropic_adapter_descriptions_match_fr_queries[frontalier*]` OR the test must be xfailed to keep CI green.
+
 ## Format
 
 Each entry must contain : Discovery context · Reason out of scope · Recommended owner (which plan / when) · Risk if not addressed.
