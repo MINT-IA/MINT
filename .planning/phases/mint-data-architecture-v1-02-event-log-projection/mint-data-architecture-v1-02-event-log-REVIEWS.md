@@ -4,11 +4,12 @@ phase_number: 02
 reviewers:
   - gemini-2.5-pro (external, cross-vendor independence)
   - claude-mint-panel (5 specialists: architect-review + security-auditor + database-architect + postgres-pro + qa-expert)
+  - claude-opus-4-7 (post-iter-2 fresh-session via `claude -p`, same model family — independence sacrificed for iter-2 absorption validation)
 reviewers_skipped:
   - codex (gpt-5.3-codex): usage limit hit 2026-05-18T10:45Z, retry after 13:36 local
   - coderabbit: not installed
   - opencode: not installed
-reviewed_at: 2026-05-18T11:15:00Z
+reviewed_at: 2026-05-18T13:00:00Z (iter-2 post-revision Claude-Opus session)
 plans_reviewed:
   - mint-data-architecture-v1-02-event-log-01-prereqs-lints-harness-PLAN.md
   - mint-data-architecture-v1-02-event-log-02-event-log-core-canary-PLAN.md
@@ -24,7 +25,7 @@ panel_obs_ids:
   database-architect: 196
   postgres-pro: 197
   qa-expert: 198
-description: Cross-AI peer review of Phase 02 (event-log + projection + DEK envelope). Gemini 2.5 Pro (external) rated LOW. Claude MINT specialist panel (architect-review + security-auditor + database-architect + postgres-pro + qa-expert) escalates to MEDIUM with 8 HIGH + 12 MEDIUM findings Gemini missed — including 3-way convergence on PR-3 « zero drift » gate being undefined. 20+ plan-patches surfaced; HIGH-class patches are blockers for /gsd-execute-phase.
+description: Cross-AI peer review of Phase 02 (event-log + projection + DEK envelope). Gemini 2.5 Pro (external) rated LOW. Claude MINT specialist panel (architect-review + security-auditor + database-architect + postgres-pro + qa-expert) escalated to MEDIUM with 8 HIGH + 12 MEDIUM findings Gemini missed. Iter-2 plan revision absorbed 41/44 patches (93.2%). Post-iter-2 Claude-Opus fresh-session review (commit `35eb5eee` baseline) validates absorption AND surfaces 3 new HIGH (SQLite test-path divergence, handshake replay ordering, secret handoff hygiene) + 1 finding ALL prior reviewers missed (session-start audit-pollution attack). Final verdict: MEDIUM, close to LOW. Execution-ready conditioned on 4 acceptance items.
 ---
 
 # Cross-AI Plan Review — Phase 02 (event-log + projection)
@@ -217,20 +218,21 @@ Reviewing : D-XX Nyquist coverage, parity-lint promotion criteria, offline-buffe
 
 ---
 
-## 3. Consensus Summary (across all 6 reviewers)
+## 3. Consensus Summary (across all 7 reviewers — pre-iter-2 + Claude-Opus post-iter-2)
 
 ### Risk verdict consensus
 
-| Reviewer | Verdict |
-|---|---|
-| Gemini 2.5 Pro | LOW |
-| architect-review | **MEDIUM** |
-| security-auditor | **MEDIUM** |
-| database-architect | **MEDIUM** |
-| postgres-pro | **MEDIUM** |
-| qa-expert | **MEDIUM** |
+| Reviewer | Verdict | Stage |
+|---|---|---|
+| Gemini 2.5 Pro | LOW | iter-1 (pre-revision) |
+| architect-review | **MEDIUM** | iter-1b (pre-revision) |
+| security-auditor | **MEDIUM** | iter-1b (pre-revision) |
+| database-architect | **MEDIUM** | iter-1b (pre-revision) |
+| postgres-pro | **MEDIUM** | iter-1b (pre-revision) |
+| qa-expert | **MEDIUM** | iter-1b (pre-revision) |
+| Claude Opus 4.7 (`claude -p`) | **MEDIUM, close to LOW** | iter-2 (post-revision, commit `35eb5eee` baseline) |
 
-**5 of 6 → MEDIUM. Phase risk verdict for execution purposes : MEDIUM.**
+**6 of 7 → MEDIUM. Phase risk verdict for execution purposes : MEDIUM.** Claude-Opus iter-2 review additionally confirms 41/44 absorption (93.2%) and surfaces 3 NEW HIGH + 1 universal-miss not in prior reviews — see Section 7.
 
 ### Convergent findings (≥ 2 reviewers)
 
@@ -346,3 +348,108 @@ When Codex usage resets (≥ 13:36 local 2026-05-18) :
 - The 3 security HIGH findings are vendor-single (security-auditor agent only) but high-confidence because they cite specific file:line in existing code (`key_vault.py:134-141`, `key_vault.py:158-159`) that any reader can verify.
 - Convergent findings (PR-3 split, zero-drift gate, projector race) are 2-4-way and constitute the highest-confidence patch set.
 - All 5 panel agents persisted findings to engram with `prior_finding_refs` to obs #163-#193 — the panel built on Phase 01 close + Phase 02 brainstorm + ADR + hotfix lineage rather than rediscovering them.
+- Post-iter-2 Claude-Opus review (Section 7) ran via `claude -p` on commit `35eb5eee` baseline — same-model-family independence (caveat noted) but value-add via absorption audit + 3 new HIGH findings + 1 universal-miss. Raw output: `/tmp/gsd-review-claude-02.md` (279 lines, exit 0).
+
+---
+
+## 7. Post-Iter-2 Review — Claude Opus 4.7 (`claude -p` fresh session, commit `35eb5eee` baseline)
+
+> **Independence caveat** : same model family as orchestrator. Fresh session via `claude -p --model opus`. Value-add comes from iter-2 absorption audit + finding what BOTH Gemini AND the 5-panel missed, not from cross-vendor diversity.
+
+### 7.1. Independent verdict (fresh-eyes, adversarial)
+
+**Risk: MEDIUM, leaning close to LOW post-iter-2 absorption.**
+
+Iter-2 is « substantially stronger than iter-1 ». The 6-PR migration (A9), deterministic drift gate (A10), DEK fail-closed (A4/D-35), multi-shape canary (A11/D-34) all close the load-bearing HIGH findings from iter-1b. Reuse discipline rated « Karpathy #2 done right » — `encrypt_value` wraps existing `envelope.py` ; p98 alembic copies p111 REVOKE verbatim. Plan growth +1808 lines / +85% is structural patching, not narrative bloat.
+
+**Why not LOW** : 3 residual HIGH + 7 MEDIUM concerns iter-2 absorption did not fully resolve. These don't break the migration choreography but create « false-confidence surfaces ». For a phase touching canonical user-facts + crypto envelope + audit chain, the bar is « no surprises ».
+
+### 7.2. Iter-2 absorption audit
+
+| Tier | Score | Status |
+|---|---|---|
+| Tier A (11 blockers) | **11/11 (100%)** | APPLIED at file:line with landing site identified per patch |
+| Tier B (20 recommended) | **20/20 (100%)** | APPLIED |
+| Tier C (8 polish) | **5/8 (62.5%) APPLIED** + 3/8 DEFERRED with documented rationale (C4 D-XX merge, C6 native UUID/TIMESTAMPTZ, C7 JSONB CHECK) |
+| Convergent findings (5) | **5/5 (100%)** | All applied — PR-3 split (A9), zero-drift gate (A10), multi-shape canary (A11), covering index (A3), projector UPSERT (A8) |
+
+**Overall absorption score: 41/44 (93.2%) APPLIED + 3 explicitly DEFERRED with technical justification.** Verdict: « exemplary iter-2 plan revision discipline ».
+
+### 7.3. 3 NEW HIGH concerns iter-2 absorption did not fully resolve
+
+**HIGH-A1 — Projector atomic UPSERT SQLite-path divergence (false-green trap)**
+Plan 02-02 Task 3B uses Postgres `INSERT ... ON CONFLICT ... DO UPDATE WHERE` (correct). SQLite test path falls back to SELECT-then-UPDATE under SAVEPOINT (the iter-1 vulnerable pattern). The 100-iteration race test uses `pg_session` — only exercises Postgres. **Developers running `pytest -q -k "not pg"` locally see ALL projector tests pass on the SQLite path, even though that path will not ship.** A regression dropping `WHERE latest_event_id < EXCLUDED.latest_event_id` only surfaces at CI `pg-integration` stage. Creates « tests green ≠ feature working » risk per CLAUDE.md §9.
+**Fix:** add `pytest.mark.requires_pg` marker to projector tests ; CI must run pg-integration on EVERY PR touching `app/services/projector/` (not just alembic migrations).
+
+**HIGH-A2 — Handshake replay ordering not integration-tested**
+A6 mandates `/v1/audit/mobile-session-link` reject batches where any `anonymous_session_id` lacks a prior `mobile_session_start`. The Flutter test covers the simple case (« first-ever-replay »). **No integration test asserts end-to-end ordering across mobile + backend** — e.g., user offline 3 days with 5 session-starts + 5 warm-resumes + login event interleaved. Backend must accept all 11 events without 403 errors when the buffer replays.
+**Fix:** add `tests/integration/test_audit_mobile_link_handshake_replay_ordering.py` POSTing an interleaved batch + asserting 200 for all sids.
+
+**HIGH-A3 — Secret handoff hygiene in Plan 02-02 Task 1**
+Plan 02-02 Task 1 generates pepper locally via `secrets.token_urlsafe(48)`, writes to `/tmp/mint_audit_pepper_for_julien.txt`, Julien copies to Railway dashboard, then `rm`. Risks:
+- macOS `/tmp` = `/private/tmp` (disk-backed) → recoverable via filesystem tools post-rm
+- Julien terminal scrollback captures pepper on `cat`
+- Pepper sits in Claude tool output → conversation context → `~/.claude/projects/.../*.jsonl` session logs
+
+**Fix:** Replace `/tmp` flow with Railway CLI one-liner :
+```bash
+railway variables set MINT_AUDIT_HASH_PEPPER --environment production \
+  --value "$(python3 -c 'import secrets; print(secrets.token_urlsafe(48))')"
+```
+Pepper generated → set → never persisted to disk or stdout. Update Plan 02-02 Task 1 step 1 + step 6.
+
+### 7.4. 7 NEW MEDIUM concerns
+
+- **MEDIUM-A4** — D-04 constants-PIT verify fuzzy. « no retroactive flag » observed via what? Need explicit assertion: `SELECT constants_version_hash FROM fact_event WHERE event_id=$T1_event` returns `H1` after bumping active to `H2`.
+- **MEDIUM-A5** — Statistical sample weakness at "100% staging users". Pre-launch staging has ~5 test accounts → 100% × 5 = 5 audits. Cannot statistically validate 8-archetype population MINT will see post-launch. Need `tools/db/seed_staging_archetype_distribution.py` seeding ≥1000 synthetic users.
+- **MEDIUM-A6** — Clock-skew silent drop in B17 test. `mint_projector_idempotency_skip_total` doesn't distinguish replay vs clock-skew vs monotonicity violation. LSFin auditor sees gap in user's L1 audit chain with no observability signal. Add `reason` label.
+- **MEDIUM-A7** — B7 pepper rotation runbook tx-too-large risk. Single `UPDATE audit_events SET user_id_hash_v2 = ...` on 10y-retained table → WAL bloat + replica lag + autovacuum delays. Need batched updates (1000 rows/tx) + pepper-immutability check.
+- **MEDIUM-A8** — Self-test bootstrapping fragility in `hmac_pepper_audit.py`. Self-exempts `services/backend/app/services/audit/hmac_pepper.py` (file created in Plan 02-02). Plan 02-01 needs TODO stub + sentinel comment + stability regression test.
+- **MEDIUM-A9** — B4 s23 lint is regex, not AST. `r"\bclass\s+FrontalierService\b"` bypassable via `_cls_name = "FrontalierService"; class_for_name(_cls_name, ...)`. Rewrite as `ast.parse` + walk for `ast.ClassDef.name == "FrontalierService"`.
+- **MEDIUM-A10** — Continuous drift sampler (B18) overload risk. 33,600 audit rows + 67,200 read requests / 7 days on staging concurrent with Maestro sim + Julien testing → false drift positives from cache pressure. Add rate-limit + degradation-aware skip + weekly vacuum.
+
+### 7.5. 5 LOW polish
+
+- **LOW-A11** — VERIFICATION-REPORT.html `grep -c "G1 Maestro\|G2 Julien..."` ≥ 5 gameable ; assert per-gate evidence.
+- **LOW-A12** — Sentry quota budget for Phase 02 unspecified. Add per-counter quota table to Plan 02-04 SUMMARY.
+- **LOW-A13** — PR-5 reverse-projector pseudocode « outline only ». Ship 40-LOC Python skeleton.
+- **LOW-A14** — Iter-2 commits 4-part on Plan 02-03 but task mapping implicit. Add commit-to-task table per iter-2_revision block.
+- **LOW-A15** — Pepper-missing migration deploy-time fail-closed correct but undocumented in `audit-pepper-rotation.md`. Add prerequisite checklist.
+
+### 7.6. THE finding ALL prior reviewers missed
+
+**Session-start audit-pollution attack (NEW universal miss)**
+
+Per Plan 02-02 Task 3 step 7: `Depends(get_current_user_optional)` on `/v1/audit/mobile-session-start` accepts anonymous payload. With A6 handshake mitigation, link-spoofing IS closed — but **session-start spoofing is wide open**.
+
+Any HTTP client can POST a fake `anonymous_session_id` with any `app_version` claim ; server INSERTs without validation. The UNIQUE constraint on `(anonymous_session_id, observed_at)` blocks only exact duplicates — adversary just varies `observed_at`. Result : **audit trail polluted with synthetic rows** that look legitimate (correct shape, server timestamps).
+
+**Fix:** Rate-limit `/v1/audit/mobile-session-start` per source IP + add lightweight proof-of-mobile (signed Apple App Attestation token from `DeviceCheck` / Android Play Integrity for production builds). **Defer to Plan 02-04 close-out as forward-looking item OR Phase 04 hardening.**
+
+### 7.7. 5-panel findings Claude-Opus DISAGREES with (downgrade severity)
+
+- postgres-pro MED « testcontainers Docker overhead » → actually LOW (30-60s per pg-integration job is acceptable amortized).
+- qa-expert MED « D-32 G3 representative-scenario tautology » → mitigated by B16 grep-in-app/ check ; severity overstated.
+- database-architect MED-2 « fillfactor=70 HOT update killer » → actually LOW (pre-launch zero data = theoretical issue).
+
+### 7.8. Claude-Opus recommendation for `/gsd-execute-phase` readiness
+
+**Execution-ready conditioned on 4 acceptance items:**
+
+1. **3 residual HIGHs (HIGH-A1, HIGH-A2, HIGH-A3)** ACCEPTED as known limitations + documented in Plan 02-02 SUMMARY before PR-1 opens, OR shipped in iter-3 micro-revision (estimated 2-4h Claude work).
+2. Julien gates each `checkpoint:human-verify` per 0-trust §9 (no exception).
+3. **4 MEDIUMs (A4, A5, A6, A7)** tracked as backlog items for iter-3 OR fix-up commits during execution.
+4. **Session-start audit-pollution finding** surfaced in Plan 02-04 SUMMARY as deferred Phase 04 hardening item.
+
+If iter-3 micro-revision is in budget (2-4h) : recommended. Otherwise proceed with documented residual risk.
+
+### 7.9. New Tier-A (iter-3) candidates (if iter-3 micro-revision authorised)
+
+| # | Patch | Source | Effort |
+|---|---|---|---|
+| iA1 | `pytest.mark.requires_pg` on projector tests + CI workflow update | Claude-Opus HIGH-A1 | 30 min |
+| iA2 | `tests/integration/test_audit_mobile_link_handshake_replay_ordering.py` + interleaved-batch case | Claude-Opus HIGH-A2 | 1-2 h |
+| iA3 | Replace `/tmp` pepper file with `railway variables set` one-liner in Plan 02-02 Task 1 step 1 + step 6 | Claude-Opus HIGH-A3 | 15 min |
+| iA4 | (Optional, deferable) Plan 02-04 SUMMARY entry: session-start audit-pollution → Phase 04 hardening (App Attestation + IP rate-limit) | Claude-Opus universal-miss | 30 min |
+
+Total iter-3 effort if all 4 ship: ~3-4 hours Claude work. None require CONTEXT.md changes.
