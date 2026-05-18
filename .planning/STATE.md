@@ -4,8 +4,8 @@ milestone: v2.8
 milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
 status: executing
 stopped_at: Phase mint-data-architecture-v1-02-event-log-projection context gathered — 33 D-XX locked
-last_updated: "2026-05-18T06:25:04.697Z"
-last_activity: 2026-05-18 -- Phase mint-data-architecture-v1-02-event-log-projection planning complete
+last_updated: "2026-05-18T16:43:36.488Z"
+last_activity: 2026-05-18 -- Phase mint-data-architecture-v1-02-event-log execution started
 progress:
   total_phases: 10
   completed_phases: 5
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase mint-data-architecture-v1-01-calc-engine — canonical
+**Current focus:** Phase mint-data-architecture-v1-02-event-log — projection
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,10 +35,10 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: mint-data-architecture-v1-01-calc-engine-canonical
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-18 -- Phase mint-data-architecture-v1-02-event-log-projection planning complete
+Phase: mint-data-architecture-v1-02-event-log (projection) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase mint-data-architecture-v1-02-event-log
+Last activity: 2026-05-18 -- Phase mint-data-architecture-v1-02-event-log execution started
 
 ## Plan mint-calc-engine-v1-20 Receipt (W4 phase-close engram doctrine — D-CE-18 + Concern F + 5-gate exit contract, 2026-05-17)
 
