@@ -52,16 +52,20 @@ from app.constants.social_insurance import (
 
 
 # ---------------------------------------------------------------------------
-# Local estimation constants (not legal constants — keep here)
+# Phase mint-data-architecture-v1-02 W0 Plan 02-01 (D-08 composition pattern)
 # ---------------------------------------------------------------------------
-
-# IJM (indemnite journaliere maladie) estimated cost
-# Typical: ~1-3% of insured salary for 720 days coverage
-IJM_ESTIMATE_RATE = 0.02  # 2% as middle estimate
-
-# LAA (accident insurance) estimated cost
-# Typical: ~1-2% of insured salary for non-professional accident
-LAA_ESTIMATE_RATE = 0.015  # 1.5% estimate
+# IJM/LAA market-estimate rates moved to the S18 single source of truth
+# `app.services.independants.indemnity_rates`. The S12 `IndependantService`
+# kept here is the canonical façade per the W0-AUDIT-MATRIX row 32 correction
+# (2026-05-16, Plan 11 mint-calc-engine-v1 scope correction) — calculator
+# primitives delegate to S18, but the S12 monolithic API surface remains.
+# The re-exports below preserve the public surface of this module so any
+# `from app.services.independant_service import IJM_ESTIMATE_RATE` caller
+# stays green.
+from app.services.independants.indemnity_rates import (  # noqa: E402
+    IJM_ESTIMATE_RATE,
+    LAA_ESTIMATE_RATE,
+)
 
 # Degressive rates (simplified brackets for independant AVS calculation)
 # Kept local because AVS_BAREME_INDEPENDANT in social_insurance.py uses

@@ -34,6 +34,14 @@ description: Items discovered during Phase 02 execution that are OUT OF SCOPE fo
 - **Risk** : SOFT-mode parity-lint will still flag ~25 missing fields post-Plan-02-01. HARD-mode flip remains in Plan 02-03 PR-3 per D-31 — must close to ≤ 0 before HARD-mode lands, otherwise Plan 02-03 PR-3 cannot ship.
 - **Recommended owner** : Plan 02-04 PR-A3 (closes remaining 25 + drops 3 Flutter-only keys).
 
+### DEFERRED-02-01-C : `profile_safe_fields_parity.py` only scans inline `profileContext: { ... }` blocks
+
+- **Discovery context** : Task 3 step 4 extends `CoachNarrativeService._buildProfileContext` (a static method returning a Map). After landing the 15 new keys in the method body, `profile_safe_fields_parity.py` still reports the same 40 missing-in-Flutter drift — because the lint's regex (`_PROFILECONTEXT_START_RE` at lines 197/207) scans for inline `profileContext: { ... }` literal blocks at 4 explicit call-sites (`coach_orchestrator.dart` 3x, `coaching_service.dart` 1x, `coach_chat_api_service.dart` mutation pattern), NOT method return statements.
+- **Why this is out of scope for Plan 02-01** : extending the 4 inline blocks to mirror `_buildProfileContext`'s 15 new keys would duplicate the field-emission logic across `_buildProfileContext` AND the orchestrator inline blocks — exactly the Karpathy #3 surgical-changes anti-pattern (touch only what you must). The right fix is to teach the lint to follow Dart static method return statements, which is a separate scope.
+- **Risk** : the parity-lint signal stays at 40 even though Flutter now emits 15 new keys via the `_buildProfileContext` path. Plan 02-03 PR-3 (HARD-mode flip per D-31) requires the lint to report ≤ 0 drift — but the lint's static-analysis model can't see method-return emissions, so either (a) the lint must be extended OR (b) the 4 inline blocks must duplicate the emission.
+- **Recommended owner** : Plan 02-04 PR-A3 owner picks (a) or (b). Option (a) is principled but bigger lint surgery ; option (b) is mechanical but introduces a 4x duplication maintenance burden.
+- **Test coverage** : `apps/mobile/test/services/coach_narrative_profile_context_test.dart` proves the 15 keys ARE emitted (test-level guard) — the lint blind-spot is a static-analysis limitation, not a runtime bug.
+
 ## Format
 
 Each entry must contain : Discovery context · Reason out of scope · Recommended owner (which plan / when) · Risk if not addressed.
