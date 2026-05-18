@@ -179,6 +179,70 @@ def create_snapshot(
         )
         db.add(audit_row)
 
+        # ── Phase 02 Plan 02-03 PR-2 (D-05) — dual-write under feature flag ──
+        # When FF_FACT_EVENT_DUAL_WRITE is ON (default OFF), every scalar /
+        # JSONB / nullable / TOAST-blob fact from profile_data that has a
+        # canary-proven field_key (Plan 02-02 D-25 + D-34) is projected to
+        # fact_event + fact_current atomically inside the same transaction
+        # via project_event() (D-19 atomicity).
+        #
+        # Field-key surface (5 canary-proven shapes from Plan 02-02 T3-C) :
+        #   profile_data['gross_income']         -> 'monthly_gross_income'
+        #   profile_data['pillar_3a_balance']    -> 'pillar_3a_balance'
+        #   profile_data['archetype_tags']       -> 'archetype_tags'
+        #   profile_data['lpp_avoirs_vieillesse']-> 'lpp_avoirs_vieillesse'
+        #   profile_data['coach_extracted_facts']-> 'coach_extracted_facts'
+        #
+        # Substrate adaptation (Karpathy #1 — assumption surfacing) :
+        # The Plan 02-03 <interfaces> section assumed every SnapshotModel
+        # scalar column maps 1:1 to a fact_type. Reality : only `gross_income`
+        # is a SnapshotModel column ; the other 4 canary field_keys live in
+        # profile_data only. The minimal dual-write surface is therefore the
+        # 5 canary-proven field_keys, read from profile_data (or row for the
+        # gross_income case).
+        #
+        # The projector uses session.begin_nested() when the caller is
+        # already in a transaction (we're between db.add(audit_row) and
+        # db.commit() so session IS in a txn) — SAVEPOINT semantics keep
+        # the dual-write atomic with the SnapshotModel + audit writes.
+        # If any dual-write step raises, the outer commit() will fail and
+        # NEITHER table is mutated.
+        from app.services.feature_flags import is_fact_event_dual_write_enabled
+
+        if is_fact_event_dual_write_enabled():
+            from app.services.encryption.encrypted_value_helper import encrypt_value
+            from app.services.projector.fact_projector import (
+                FactEventInput,
+                project_event,
+            )
+
+            # field-key -> (profile_data key, presence-rule)
+            # Presence rule : `required` means write even if value is None
+            # (nullable canary tracks None as a real fact ; lpp_avoirs is
+            # Plan 02-02 nullable canary). `optional` means skip when the
+            # key is absent from profile_data (the user hasn't provided it).
+            dual_write_specs = (
+                # name in profile_data,   field_key,                presence
+                ("gross_income",          "monthly_gross_income",   "optional"),
+                ("pillar_3a_balance",     "pillar_3a_balance",      "optional"),
+                ("archetype_tags",        "archetype_tags",         "optional"),
+                ("lpp_avoirs_vieillesse", "lpp_avoirs_vieillesse",  "optional"),
+                ("coach_extracted_facts", "coach_extracted_facts",  "optional"),
+            )
+            for profile_key, field_key, presence in dual_write_specs:
+                if profile_key not in profile_data and presence == "optional":
+                    continue
+                value = profile_data.get(profile_key)
+                value_enc = encrypt_value(db, user_id, value)
+                event = FactEventInput(
+                    user_id=user_id,
+                    field_key=field_key,
+                    value_enc=value_enc,
+                    valid_from=now,
+                    source="snapshot_dual_write",
+                )
+                project_event(db, event)
+
         db.commit()
         db.refresh(row)
         return _snapshot_to_dataclass(row)
