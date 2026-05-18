@@ -32,6 +32,8 @@ files_modified:
   - .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-SUMMARY.md
 autonomous: true
 decisions: [D-06, D-07, D-32, D-33]
+decisions_continued: [D-09, D-10]  # close-out continuation; primary disposition in Plan 02-01
+decisions_continued_from: [01]  # D-09 alias removal + D-10 PR-A3 dead-fields — terminal disposition here
 requirements_addressed:
   - CONTEXT.md#D-06 Q6 CI staging-down policy (STAGING-MALFORMED + scheduled-only aging + HARD-mode label override)
   - CONTEXT.md#D-07 Audit retention 10y policy + REVOKE assertion + pepper-rotation runbook
@@ -94,6 +96,8 @@ must_haves:
 ---
 
 <objective>
+Continues close-out of D-09 (S12 alias removal) and D-10 (Flutter PR-A3 dead-fields) from Plan 02-01 — primary disposition there, terminal disposition here.
+
 Wave 4 closes the phase. Five workstreams: (1) S12 PR-2 alias removal + D-MOB-01 PR-A3 dead-field drop (the carry-over completions from Plan 02-01); (2) Q6 CI mechanical fixes (STAGING-MALFORMED status + scheduled-only aging writes + HARD-mode STAGING-DOWN-OVERRIDE label) per D-06; (3) `declared_counters_must_fire.py` close-out HARD gate activated per D-32 G3 + D-33; (4) three forward-deferred operational runbooks (partition-split + DEK rotation + audit-pepper rotation); (5) phase close-out artifacts (VERIFICATION-REPORT.html + SUMMARY.md + ROADMAP + STATE updates).
 
 Purpose: lock the 5-gate mechanical exit (G1 Maestro, G2 Julien device — DEFERRED, G3 dev CI green, G4 regression + 2 new test classes, G5 lint suite) and flip the phase status to `◆ code-shipped on dev, pending operational gates`. Every D-XX (1-33) has a verifiable disposition in the SUMMARY by close-out.
@@ -397,7 +401,7 @@ SUMMARY.md template anchor: same Phase 01 W4 Plan 20 receipt block (per-D-CE-XX 
 8. Run wiki_lint on all 5 new docs.
   </action>
   <verify>
-    <automated>python3 tools/checks/wiki_lint.py --file docs/operations/fact-event-partition-split.md && python3 tools/checks/wiki_lint.py --file docs/operations/dek-rotation-phase04.md && python3 tools/checks/wiki_lint.py --file docs/operations/audit-pepper-rotation.md && python3 tools/checks/wiki_lint.py --file .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-SUMMARY.md && python3 tools/checks/wiki_lint.py --file .planning/ROADMAP.md && python3 tools/checks/wiki_lint.py --file .planning/STATE.md && [ $(wc -l < docs/operations/fact-event-partition-split.md) -ge 50 ] && [ $(wc -l < docs/operations/dek-rotation-phase04.md) -ge 40 ] && [ $(wc -l < docs/operations/audit-pepper-rotation.md) -ge 40 ] && [ $(wc -l < .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-VERIFICATION-REPORT.html) -ge 200 ] && [ $(wc -l < .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-SUMMARY.md) -ge 180 ] && python3 tools/checks/accent_lint_fr.py docs/operations/ && grep "◆ code-shipped on dev, pending operational gates" .planning/ROADMAP.md && grep "◆ code-shipped on dev, pending operational gates" .planning/STATE.md && cd services/backend && python3 -m pytest tests/ -q -x</automated>
+    <automated>python3 tools/checks/wiki_lint.py lint --strict && [ $(wc -l < docs/operations/fact-event-partition-split.md) -ge 50 ] && [ $(wc -l < docs/operations/dek-rotation-phase04.md) -ge 40 ] && [ $(wc -l < docs/operations/audit-pepper-rotation.md) -ge 40 ] && [ $(wc -l < .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-VERIFICATION-REPORT.html) -ge 200 ] && [ $(wc -l < .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-SUMMARY.md) -ge 180 ] && python3 tools/checks/accent_lint_fr.py docs/operations/ && grep "◆ code-shipped on dev, pending operational gates" .planning/ROADMAP.md && grep "◆ code-shipped on dev, pending operational gates" .planning/STATE.md && cd services/backend && python3 -m pytest tests/ -q -x</automated>
   </verify>
   <acceptance_criteria>
     - `wc -l docs/operations/fact-event-partition-split.md` ≥ 50.
@@ -405,10 +409,10 @@ SUMMARY.md template anchor: same Phase 01 W4 Plan 20 receipt block (per-D-CE-XX 
     - `wc -l docs/operations/audit-pepper-rotation.md` ≥ 40.
     - `wc -l .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-VERIFICATION-REPORT.html` ≥ 200.
     - `wc -l .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-SUMMARY.md` ≥ 180.
-    - All 5 docs pass `wiki_lint.py --file` (counter-arguments + data gaps blocks present).
+    - `python3 tools/checks/wiki_lint.py lint --strict` exits 0 after committing the 3 runbooks + SUMMARY + ROADMAP + STATE updates (full-suite pass over `.planning/**/*.md` + `docs/**/*.md`; counter-arguments + data gaps blocks present in all 5 new docs).
     - `grep "◆ code-shipped on dev, pending operational gates" .planning/ROADMAP.md` returns ≥1 hit.
     - `grep "◆ code-shipped on dev, pending operational gates" .planning/STATE.md` returns ≥1 hit.
-    - SUMMARY.md contains all 33 D-XX dispositions (`grep -c "D-[0-9]\{2\}:" SUMMARY.md` ≥ 33).
+    - SUMMARY.md covers all 33 D-XX dispositions uniquely (`[ "$(grep -oE "D-[0-9]{2}" .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-SUMMARY.md | sort -u | wc -l)" -eq 33 ]`; dedup count enforces no D-XX missing — `grep -c` would mask gaps by counting duplicate lines).
     - VERIFICATION-REPORT.html contains the 5-gate exit panel (`grep -c "G1 Maestro\|G2 Julien\|G3 dev CI\|G4 Regression\|G5 lint" VERIFICATION-REPORT.html` ≥ 5).
     - `python3 tools/checks/accent_lint_fr.py docs/operations/` exits 0.
     - Full backend pytest: `cd services/backend && python3 -m pytest tests/ -q` exits 0.

@@ -417,7 +417,7 @@ Canary verification (D-25 W1 gate already proven): the dual-write code path is p
 11. Commit: `feat(p02-pr5): drop SnapshotModel table; fact_current is sole canonical projection (D-05 PR-5)`.
   </action>
   <verify>
-    <automated>cd services/backend && python3 -m pytest tests/integration/test_snapshot_drop.py tests/integration/test_backfill_idempotent.py tests/integration/test_read_cutover.py tests/observability/test_drift_telemetry.py -q -k pg && python3 -m pytest tests/ -q -x && ! git ls-files services/backend/app/models/snapshot.py && ! git grep -rn "from app.models.snapshot import SnapshotModel" services/backend/ && cd /Users/julienbattaglia/Desktop/MINT.nosync && python3 tools/checks/wiki_lint.py --file docs/operations/snapshot-model-decommission.md && ls -la tools/db/baseline_snapshot_phase02_pre_drop.sql && python3 tools/checks/alembic_boolean_default_lint.py services/backend/alembic/versions/ && python3 tools/checks/hmac_pepper_audit.py services/backend/app/</automated>
+    <automated>cd services/backend && python3 -m pytest tests/integration/test_snapshot_drop.py tests/integration/test_backfill_idempotent.py tests/integration/test_read_cutover.py tests/observability/test_drift_telemetry.py -q -k pg && python3 -m pytest tests/ -q -x && ! git ls-files services/backend/app/models/snapshot.py && ! git grep -rn "from app.models.snapshot import SnapshotModel" services/backend/ && cd /Users/julienbattaglia/Desktop/MINT.nosync && python3 tools/checks/wiki_lint.py lint --strict && ls -la tools/db/baseline_snapshot_phase02_pre_drop.sql && python3 tools/checks/alembic_boolean_default_lint.py services/backend/alembic/versions/ && python3 tools/checks/hmac_pepper_audit.py services/backend/app/</automated>
   </verify>
   <acceptance_criteria>
     - `cd services/backend && python3 -m pytest tests/integration/test_snapshot_drop.py -q -k pg` exits 0; pg_fixture confirms `snapshots` table absent after upgrade, re-present after downgrade.
@@ -425,7 +425,7 @@ Canary verification (D-25 W1 gate already proven): the dual-write code path is p
     - `! git grep -rn "from app.models.snapshot import SnapshotModel" services/backend/` returns exit code 1 (no hits = exit 1 in `grep -E ...`; the `!` inverts to exit 0).
     - `git grep -rn "from app.models.snapshot" services/backend/` returns 0 hits.
     - `git grep -n "?legacy=true\|legacy.*query.*param" services/backend/app/api/v1/endpoints/projection.py services/backend/app/api/v1/endpoints/snapshots.py` returns 0 hits.
-    - `python3 tools/checks/wiki_lint.py --file docs/operations/snapshot-model-decommission.md` exits 0 (counter-arguments + data gaps block present).
+    - `python3 tools/checks/wiki_lint.py lint --strict` exits 0 after committing the runbook (full-suite pass; covers `.planning/**/*.md` + `docs/**/*.md`; counter-arguments + data gaps block present in `docs/operations/snapshot-model-decommission.md`).
     - `ls -la tools/db/baseline_snapshot_phase02_pre_drop.sql` shows file ≥ 50 lines, contains `CREATE TABLE snapshots` (preserved as recovery anchor).
     - Full pytest: `cd services/backend && python3 -m pytest tests/ -q` exits 0 (≥ Plan 02-02 baseline + new tests).
     - `python3 tools/checks/alembic_boolean_default_lint.py services/backend/alembic/versions/` exits 0.

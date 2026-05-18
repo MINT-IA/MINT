@@ -29,6 +29,7 @@ files_modified:
   - apps/mobile/test/services/coach_narrative_profile_context_test.dart
   - tools/checks/alembic_boolean_default_lint.py
   - tools/checks/hmac_pepper_audit.py
+  - tools/checks/_baseline_hmac_sites_at_p112.txt
   - tools/checks/tests/test_alembic_boolean_default_lint.py
   - tools/checks/tests/test_hmac_pepper_audit.py
   - tools/codegen/regulatory_constants_to_dart.py
@@ -262,6 +263,7 @@ Per CONTEXT D-22 + RESEARCH § Standard Stack: testcontainers-python is the per-
     tools/checks/hmac_pepper_audit.py,
     tools/checks/tests/test_alembic_boolean_default_lint.py,
     tools/checks/tests/test_hmac_pepper_audit.py,
+    tools/checks/_baseline_hmac_sites_at_p112.txt,
     services/backend/tests/fixtures/alembic_bad.py,
     services/backend/tests/fixtures/bad_audit_writer.py,
     lefthook.yml,
@@ -279,6 +281,10 @@ Per CONTEXT D-22 + RESEARCH § Standard Stack: testcontainers-python is the per-
 1. **tools/checks/alembic_boolean_default_lint.py** (NEW): Python script with CLI `python3 tools/checks/alembic_boolean_default_lint.py [paths...]`. Default scan path: `services/backend/alembic/versions/*.py`. Logic: parse each file with `ast.parse`; walk for `ast.Call` whose `.func` resolves to `sa.Column` (or imported `Column`); inspect each call's keyword args; flag if a kwarg `server_default` is `ast.Call` whose `.func` is `sa.text` AND the same column call passes `sa.Boolean()` (or `Boolean()`) as the type positional arg. Exit 1 with file:line + `« BOOLEAN columns must use sa.false() / sa.true() — sa.text() server_default crashes Postgres DatatypeMismatch (Hotfix B regression class, see services/backend/alembic/versions/p111_projection_audit.py:55) »`. Self-exempt the script itself + test fixtures path. Support `--self-test` flag that runs against `services/backend/tests/fixtures/alembic_bad.py` and asserts exit code 1; against the existing `alembic/versions/` tree it MUST exit 0 (regression sentinel).
 2. **services/backend/tests/fixtures/alembic_bad.py** (NEW): contains the exact forbidden pattern verbatim so the lint has a deterministic positive test: `sa.Column("flag", sa.Boolean(), nullable=False, server_default=sa.text("0"))`. NEVER imported by production; it's a lint fixture.
 3. **tools/checks/hmac_pepper_audit.py** (NEW): Python script with CLI `python3 tools/checks/hmac_pepper_audit.py [paths...]`. Default scan: `services/backend/app/**/*.py`. Logic: regex pattern `hashlib\.sha256\s*\(\s*(?:user_id|actor_email|ip_address|user_agent)\b` (with `re.IGNORECASE`). Self-exempt this script + tests fixtures + `services/backend/app/services/audit/hmac_pepper.py` (added in Plan 02-02 W1 — pre-create with a TODO stub here to seed the self-exempt path). Exit 1 with file:line + `« Use app.services.audit.hmac_pepper.hmac_user_id() instead of bare hashlib.sha256 — D-07/D-24 HMAC-pepper canonical entry »`. NFKC normalization on input. Self-test mode same shape as Task 2.1.
+   - Add argparse flag `--baseline FILE`. When provided: read `FILE` as newline-separated `path:line` baseline entries (each line is one pre-existing violation site); for each detected violation, if its `path:line` matches a baseline entry, skip it (do not count as a violation). Exit 0 if all violations are baselined; exit 1 otherwise (a NEW violation outside the baseline is unconditionally HARD).
+   - Generate the initial baseline file `tools/checks/_baseline_hmac_sites_at_p112.txt` by running the lint without `--baseline`, capturing the Hotfix C pre-existing sites to the file (`python3 tools/checks/hmac_pepper_audit.py services/backend/app/ > tools/checks/_baseline_hmac_sites_at_p112.txt || true`). Commit the file in this task.
+   - Wire lefthook + CI to invoke `python3 tools/checks/hmac_pepper_audit.py services/backend/app/ --baseline tools/checks/_baseline_hmac_sites_at_p112.txt` (NOT the bare form). The CI pre-commit shape from step 6 below is updated accordingly.
+   - Plan 02-02 W1 D-14/D-15 progressively empties `_baseline_hmac_sites_at_p112.txt` as sites are migrated to `hmac_user_id()`; Plan 02-02 close requires the baseline file to be empty (zero remaining pre-existing sites).
 4. **services/backend/tests/fixtures/bad_audit_writer.py** (NEW): contains `import hashlib; def bad(user_id): return hashlib.sha256(user_id.encode()).hexdigest()` to seed positive test.
 5. **tools/checks/tests/test_alembic_boolean_default_lint.py** + **test_hmac_pepper_audit.py** (NEW each): pytest unit tests asserting (a) exit 1 on bad fixture, (b) exit 0 on clean tree, (c) NFKC normalization works, (d) self-exempt is respected.
 6. **lefthook.yml**: append two commands to `pre-commit:commands` AFTER `wiki-lint`, BEFORE `banned-terms-arb-gate`:
@@ -289,23 +295,26 @@ Per CONTEXT D-22 + RESEARCH § Standard Stack: testcontainers-python is the per-
      tags: [migration, postgres, phase-02-d-20]
      fail_text: "Postgres BOOLEAN DEFAULT bug — use sa.false()/sa.true() not sa.text(\"0\"/\"1\"). CLAUDE.md Hotfix B regression class."
    hmac-pepper-audit:
-     run: python3 tools/checks/hmac_pepper_audit.py {staged_files}
+     run: python3 tools/checks/hmac_pepper_audit.py {staged_files} --baseline tools/checks/_baseline_hmac_sites_at_p112.txt
      glob: "services/backend/app/**/*.py"
      tags: [security, audit, phase-02-d-24]
-     fail_text: "Audit-PII hash must route through app.services.audit.hmac_pepper.hmac_user_id() — bare hashlib.sha256(user_id) is rainbow-table-reversible (security-auditor obs #175)."
+     fail_text: "Audit-PII hash must route through app.services.audit.hmac_pepper.hmac_user_id() — bare hashlib.sha256(user_id) is rainbow-table-reversible (security-auditor obs #175). Pre-existing sites baselined in tools/checks/_baseline_hmac_sites_at_p112.txt; NEW sites outside the baseline are HARD-rejected."
    ```
-7. **.github/workflows/backend-ci.yml**: under existing jobs, add a `pg-integration` job using `ubuntu-latest` (Docker pre-installed). Steps: checkout, set up Python 3.11, `pip install -e "services/backend[test]"`, `cd services/backend && python3 -m pytest tests/fixtures/test_pg_fixture_self.py tests/integration_pg -q -k pg --tb=short`. Run on PRs touching `services/backend/alembic/**` or `services/backend/app/models/**` or `services/backend/tests/fixtures/**`. ALSO add steps in existing backend-lint job to run `python3 tools/checks/alembic_boolean_default_lint.py services/backend/alembic/versions/` + `python3 tools/checks/hmac_pepper_audit.py services/backend/app/` as HARD gates.
+7. **.github/workflows/backend-ci.yml**: under existing jobs, add a `pg-integration` job using `ubuntu-latest` (Docker pre-installed). Steps: checkout, set up Python 3.11, `pip install -e "services/backend[test]"`, `cd services/backend && python3 -m pytest tests/fixtures/test_pg_fixture_self.py tests/integration_pg -q -k pg --tb=short`. Run on PRs touching `services/backend/alembic/**` or `services/backend/app/models/**` or `services/backend/tests/fixtures/**`. ALSO add steps in existing backend-lint job to run `python3 tools/checks/alembic_boolean_default_lint.py services/backend/alembic/versions/` + `python3 tools/checks/hmac_pepper_audit.py services/backend/app/ --baseline tools/checks/_baseline_hmac_sites_at_p112.txt` as HARD gates.
 
 Per CONTEXT D-20 + D-24: HARD lints, no warning mode, no LEFTHOOK_BYPASS exception for these two (Hotfix B class is non-negotiable; HMAC-pepper is security-auditor obs #175 non-negotiable).
   </action>
   <verify>
-    <automated>python3 tools/checks/alembic_boolean_default_lint.py --self-test && echo "lint self-test: $?" && python3 tools/checks/hmac_pepper_audit.py --self-test && echo "audit self-test: $?" && python3 tools/checks/alembic_boolean_default_lint.py services/backend/alembic/versions/ && python3 tools/checks/hmac_pepper_audit.py services/backend/app/ && grep -A2 "alembic-boolean-default-lint:" lefthook.yml && grep -A2 "hmac-pepper-audit:" lefthook.yml && python3 -m pytest tools/checks/tests/test_alembic_boolean_default_lint.py tools/checks/tests/test_hmac_pepper_audit.py -q</automated>
+    <automated>python3 tools/checks/alembic_boolean_default_lint.py --self-test && echo "lint self-test: $?" && python3 tools/checks/hmac_pepper_audit.py --self-test && echo "audit self-test: $?" && python3 tools/checks/alembic_boolean_default_lint.py services/backend/alembic/versions/ && python3 tools/checks/hmac_pepper_audit.py services/backend/app/ --baseline tools/checks/_baseline_hmac_sites_at_p112.txt && grep -A2 "alembic-boolean-default-lint:" lefthook.yml && grep -A2 "hmac-pepper-audit:" lefthook.yml && python3 -m pytest tools/checks/tests/test_alembic_boolean_default_lint.py tools/checks/tests/test_hmac_pepper_audit.py -q</automated>
   </verify>
   <acceptance_criteria>
     - `python3 tools/checks/alembic_boolean_default_lint.py services/backend/tests/fixtures/alembic_bad.py; [ $? -eq 1 ]` (exit 1 on bad fixture).
     - `python3 tools/checks/alembic_boolean_default_lint.py services/backend/alembic/versions/` exits 0 (existing tree is clean per Hotfix B fix `fe52ba31`).
     - `python3 tools/checks/hmac_pepper_audit.py services/backend/tests/fixtures/bad_audit_writer.py; [ $? -eq 1 ]` (exit 1 on bad fixture).
-    - `python3 tools/checks/hmac_pepper_audit.py services/backend/app/` exits 0 OR exit 1 with a SHORT, REVIEW-ABLE list (the Hotfix C sites that need migrating — those become Plan 02-02 W1 D-14/D-15 work, NOT a blocker here; in this case we tee output to a known-baseline file `tools/checks/_baseline_hmac_sites_at_p112.txt` and the CI uses `--baseline` flag to silence pre-existing sites until Plan 02-02 migrates them). If chosen route is baseline-mode, the lint MUST be HARD on new occurrences in any file touched by the PR.
+    - `tools/checks/hmac_pepper_audit.py --self-test` exits 0 (asserts both the bad-fixture rejection and the `--baseline` skip-list behavior).
+    - `python3 tools/checks/hmac_pepper_audit.py services/backend/app/ --baseline tools/checks/_baseline_hmac_sites_at_p112.txt` exits 0 (pre-existing Hotfix C sites baselined; any new site outside the baseline = HARD reject).
+    - `tools/checks/_baseline_hmac_sites_at_p112.txt` exists and is committed; each line matches `<path>:<lineno>` shape (validated by a one-liner: `grep -vE "^[A-Za-z0-9._/-]+:[0-9]+$" tools/checks/_baseline_hmac_sites_at_p112.txt | grep -v "^$" | wc -l` equals 0).
+    - Plan 02-02 W1 D-14/D-15 progressively shrinks this baseline file; Plan 02-02 close requires the file to be empty.
     - `grep -c "alembic-boolean-default-lint\|hmac-pepper-audit" lefthook.yml` returns 2.
     - `python3 -m pytest tools/checks/tests/test_alembic_boolean_default_lint.py tools/checks/tests/test_hmac_pepper_audit.py -q` exits 0.
     - `git grep -n "sa.text(\"0\")" services/backend/alembic/versions/` returns 0 results.
