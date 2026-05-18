@@ -234,6 +234,7 @@ def test_canary_via_snapshot_service_helper_branches(sqlite_session, user_id, mo
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @pytest.mark.pg
+@pytest.mark.requires_pg  # iter-3 iA1 — explicit projector-SQLite-divergence guard
 def test_canary_monthly_gross_income_pg(pg_session):
     """Same D-25 contract as the SQLite variant, but against real Postgres.
 
