@@ -41,7 +41,12 @@ _FORBIDDEN_KEY_RE = re.compile(
     r"^("
     r"prompt|completion|messages|response|coach_text|coach_response|"
     r"claude_(?!request_id$|model$|token_usage$).*"
-    r"|user_message|user_input|free_text|chat_history"
+    r"|user_message|user_input|free_text|chat_history|"
+    # Phase mint-data-architecture-v1-02 Plan 02-02 W1 — strip Phase 02
+    # encryption envelopes from any breadcrumb / extra / event payload.
+    # value_enc rows are the D-26 JSONB ciphertexts; _dek_cache is the
+    # KeyVaultService plaintext-DEK cache (iter-2 A5 Sentry redaction).
+    r"value_enc|_dek_cache"
     r")$",
     re.IGNORECASE,
 )
