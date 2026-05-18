@@ -217,6 +217,17 @@ def create_snapshot(
 def get_snapshots(user_id: str, limit: int = 10, db=None) -> List[FinancialSnapshot]:
     """Get recent snapshots for a user, in reverse chronological order.
 
+    D-17 (Plan 02-02 P1 continuation-4) : when reading from DB, each row's
+    `constants_version_hash` is checked against the active regulatory
+    registry via `snapshot_cache.is_snapshot_stale()`. Stale rows are
+    annotated via the `mint_constants_version_mismatch_total` counter
+    (one increment per stale row observed) so observability surfaces
+    « how many rows need a recompute ». The rows themselves are NOT
+    mutated (D-04 point-in-time immutability) and ARE still returned to
+    the caller — the staleness signal is a recompute trigger, not a
+    filter. Callers that want only-fresh rows can re-filter via the
+    same `is_snapshot_stale()` helper.
+
     Args:
         user_id: User identifier.
         limit: Maximum number of snapshots to return (default 10).
@@ -234,6 +245,21 @@ def get_snapshots(user_id: str, limit: int = 10, db=None) -> List[FinancialSnaps
             .limit(limit)
             .all()
         )
+        # D-17 read-path wiring : observe staleness without mutating rows.
+        # Lazy-imports keep module-load lightweight + avoid circular imports.
+        try:
+            from app.services.cache.snapshot_cache import is_snapshot_stale
+            from app.observability.counters import (
+                mint_constants_version_mismatch_total,
+            )
+            for row in rows:
+                if is_snapshot_stale(row):
+                    mint_constants_version_mismatch_total.inc()
+        except Exception:  # pragma: no cover — observability never breaks reads
+            # If the staleness check fails (registry mis-init, counter
+            # unavailable), fall through silently — D-17 observability is
+            # a signal, not a hard dependency on the read path.
+            pass
         return [_snapshot_to_dataclass(r) for r in rows]
 
     # In-memory fallback
