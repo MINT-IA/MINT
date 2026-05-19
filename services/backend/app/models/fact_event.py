@@ -58,10 +58,18 @@ class FactEvent(Base):
 
     __tablename__ = "fact_event"
 
+    # Composite PK (event_id, user_id) — Postgres v14+ requires the
+    # partition-key column (user_id, partitioned by HASH) to be part of any
+    # UNIQUE / PRIMARY KEY on fact_event. event_id is a UUID7 so collisions
+    # across users are practically zero ; the composite PK is functionally
+    # equivalent to a unique constraint on event_id alone while satisfying
+    # the partition rule. See p98_fact_event_projection.py for the matching
+    # migration DDL.
     event_id = Column(String(36), primary_key=True, nullable=False)
     user_id = Column(
         String,
         ForeignKey("users.id", ondelete="CASCADE"),
+        primary_key=True,
         nullable=False,
     )
     field_key = Column(String(128), nullable=False)
