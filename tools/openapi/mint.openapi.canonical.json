@@ -14417,6 +14417,146 @@
         "title": "MintRoadmap",
         "type": "object"
       },
+      "MobileSessionEvent": {
+        "description": "Single Mobile L1 audit event payload — matches the D-12 contract.\n\n`source` is restricted at the application layer to the Mobile L1 source\nvalues ; backend writer code (snapshot_service) writes\nsource='projection' via the ORM default, NEVER through this endpoint.",
+        "properties": {
+          "anonymous_session_id": {
+            "maxLength": 36,
+            "minLength": 8,
+            "title": "Anonymous Session Id",
+            "type": "string"
+          },
+          "app_lifecycle_state": {
+            "anyOf": [
+              {
+                "maxLength": 32,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Lifecycle State"
+          },
+          "app_version": {
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "App Version",
+            "type": "string"
+          },
+          "constants_version_hash": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Constants Version Hash",
+            "type": "string"
+          },
+          "local_event_id": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Event Id"
+          },
+          "observed_at": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Observed At",
+            "type": "string"
+          },
+          "source": {
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "anonymous_session_id",
+          "app_version",
+          "observed_at",
+          "constants_version_hash",
+          "source"
+        ],
+        "title": "MobileSessionEvent",
+        "type": "object"
+      },
+      "MobileSessionHandshakeResponse": {
+        "description": "Per iter-3 iA2 — server-side state used by mobile replay-ordering logic.",
+        "properties": {
+          "has_prior_session_start": {
+            "title": "Has Prior Session Start",
+            "type": "boolean"
+          },
+          "last_seen_local_event_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Seen Local Event Id"
+          },
+          "server_received_ts": {
+            "title": "Server Received Ts",
+            "type": "string"
+          },
+          "session_token": {
+            "title": "Session Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_token",
+          "has_prior_session_start",
+          "last_seen_local_event_id",
+          "server_received_ts"
+        ],
+        "title": "MobileSessionHandshakeResponse",
+        "type": "object"
+      },
+      "MobileSessionLinkBatch": {
+        "description": "Batch upload from the mobile offline buffer.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MobileSessionEvent"
+            },
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "MobileSessionLinkBatch",
+        "type": "object"
+      },
+      "MobileSessionLinkResponse": {
+        "description": "Outcome of the batch link with handshake enforcement.",
+        "properties": {
+          "linked": {
+            "default": 0,
+            "title": "Linked",
+            "type": "integer"
+          },
+          "skipped": {
+            "default": 0,
+            "title": "Skipped",
+            "type": "integer"
+          }
+        },
+        "title": "MobileSessionLinkResponse",
+        "type": "object"
+      },
       "MonthlyEntryResponse": {
         "description": "A single month in the repayment plan.",
         "properties": {
@@ -24959,6 +25099,105 @@
         "summary": "Optimize Franchise",
         "tags": [
           "assurances"
+        ]
+      }
+    },
+    "/api/v1/audit/mobile-session-events": {
+      "post": {
+        "description": "Batch upload Mobile L1 audit events (auth optional — auth-gated handshake).\n\nTwo operating modes :\n  1. Anonymous (no auth header) : accepts only `source='mobile_session_start'`\n     entries. Other source values are rejected 403 (anonymous clients\n     cannot link a warm_resume without proof of a prior start).\n  2. Authenticated (auth header present) : enforces iter-2 A6 proof-\n     of-session-start handshake for any non-start entry.\n\nIdempotent : duplicate (anonymous_session_id, observed_at) entries\nare silently skipped (counted as `skipped`).",
+        "operationId": "upload_mobile_session_events_api_v1_audit_mobile_session_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MobileSessionLinkBatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileSessionLinkResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Upload Mobile Session Events",
+        "tags": [
+          "Mobile L1 Audit D-12",
+          "audit-mobile"
+        ]
+      }
+    },
+    "/api/v1/audit/mobile-session-handshake": {
+      "get": {
+        "description": "Return server-side state for an anonymous_session_id (iter-3 iA2).\n\nThe authenticated mobile client calls this BEFORE issuing a\n/mobile-session-events link batch to verify :\n  - the server has a prior mobile_session_start row (else the link\n    batch will fail handshake);\n  - the last_seen_local_event_id matches the mobile's tail of the\n    replay queue (else the buffer has drifted ; client triggers a\n    full re-replay including missing session_start);\n  - the session_token derived from (anonymous_session_id, user.id)\n    matches the client-side cache (else either the user has\n    rotated or the session is being replayed under the wrong user\n    identity — link batch rejected by application layer).",
+        "operationId": "get_mobile_session_handshake_api_v1_audit_mobile_session_handshake_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "anonymous_session_id",
+            "required": true,
+            "schema": {
+              "maxLength": 36,
+              "minLength": 8,
+              "title": "Anonymous Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MobileSessionHandshakeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Mobile Session Handshake",
+        "tags": [
+          "Mobile L1 Audit D-12",
+          "audit-mobile"
         ]
       }
     },

@@ -285,23 +285,52 @@ def delete_user_data(
     # V12-1: Use authenticated user ID, never client-supplied profile_id.
     user_id = _user.id
 
-    # Count coach insights (CoachInsightRecord rows) for nLPD art. 32 deletion
-    # manifest. Note: other categories still pass 0 — pre-existing systemic gap
-    # tracked in PR body (this endpoint returns a manifest; the actual row
-    # deletion happens via FK CASCADE when the user row is deleted elsewhere).
+    # D-16 (Plan 02-02 P1) — REAL DSAR counts.
+    # Pre-Plan-02-02 this returned hardcoded zeros for sessions / reports /
+    # documents / analytics, which violated nLPD art. 32 (the « manifest of
+    # what was deleted » must be truthful). We now query each table by the
+    # authenticated user_id and pass the real counts to PrivacyService.
+    #
+    # Tables counted :
+    #   - sessions          via SessionModel.profile_id (= user_id in this codebase)
+    #   - snapshots         via SnapshotModel.user_id (the « reports » category)
+    #   - documents         via DocumentModel.user_id
+    #   - analytics_events  via AnalyticsEvent.user_id
+    #   - coach_insights    via CoachInsightRecord.user_id (already present pre-Plan-02-02)
+    #
+    # The PrivacyService deletion-manifest schema names these « nb_sessions /
+    # nb_reports / nb_documents / nb_analytics » for backwards-compat with the
+    # nLPD receipt template — that mapping is preserved here.
     from app.models.coach_insight import CoachInsightRecord
+    from app.models.session_model import SessionModel
+    from app.models.snapshot import SnapshotModel
+    from app.models.document import DocumentModel
+    from app.models.analytics_event import AnalyticsEvent
+    from app.models.profile_model import ProfileModel
+
+    # sessions live under profile_id (which IS the user_id per ProfileModel mapping)
+    profile_ids = [
+        p.id for p in db.query(ProfileModel).filter(ProfileModel.user_id == user_id).all()
+    ]
+    nb_sessions = (
+        db.query(SessionModel).filter(SessionModel.profile_id.in_(profile_ids)).count()
+        if profile_ids
+        else 0
+    )
+    nb_reports = db.query(SnapshotModel).filter(SnapshotModel.user_id == user_id).count()
+    nb_documents = db.query(DocumentModel).filter(DocumentModel.user_id == user_id).count()
+    nb_analytics = db.query(AnalyticsEvent).filter(AnalyticsEvent.user_id == user_id).count()
     nb_coach_insights = db.query(CoachInsightRecord).filter(
         CoachInsightRecord.user_id == user_id
     ).count()
 
-    # In production, counts would come from the database
     result = service.delete_user_data(
         profile_id=user_id,
         mode=request.mode.value,
-        nb_sessions=0,
-        nb_reports=0,
-        nb_documents=0,
-        nb_analytics=0,
+        nb_sessions=nb_sessions,
+        nb_reports=nb_reports,
+        nb_documents=nb_documents,
+        nb_analytics=nb_analytics,
         nb_coach_insights=nb_coach_insights,
         raison=request.raison,
     )
