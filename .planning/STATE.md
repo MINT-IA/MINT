@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
 status: executing
-stopped_at: Plan 02-03 PARTIAL — 7 commits, 21 files, Task 2a CHECKPOINT next (Julien-gated staging-zero-drift)
-last_updated: "2026-05-18T20:58:26.074Z"
-last_activity: 2026-05-18 -- Plan 02-03 substrate-and-code first executor turn (7 commits)
+stopped_at: Phase 02 substrate LANDED on dev (4 PRs #653 #657 #656 #655 squash-merged) — next Plan 02-03 continuation (PR-3b atomic-trio + PR-4 + PR-5) + Plan 02-04 close-out + Task 2a operational gate
+last_updated: "2026-05-19T07:00:00.000Z"
+last_activity: 2026-05-19 -- Phase 02 substrate (Plans 02-01 + 02-02 + 02-03 partial + QA panel fixes) merged to dev as 4 squash commits dc28f974/d8c97dd1/979e45f4/40afcaba after 5 rounds of CI fixes
 progress:
   total_phases: 10
   completed_phases: 5
@@ -35,10 +35,10 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: mint-data-architecture-v1-02-event-log (projection) — EXECUTING
-Plan: 3 of 4 (Plan 02-03 PARTIAL — substrate + PR-1/PR-2 + PR-3a code shipped, Task 2a CHECKPOINT next)
-Status: Executing Phase mint-data-architecture-v1-02-event-log
-Last activity: 2026-05-18 -- Plan 02-03 substrate-and-code first executor turn (7 commits)
+Phase: mint-data-architecture-v1-02-event-log (projection) — EXECUTING (substrate landed on dev)
+Plan: 3 of 4 PARTIAL — Plan 02-03 PR-3a code-only shipped, Plan 02-03 continuation (PR-3b atomic-trio + PR-4 + PR-5) + Plan 02-04 close-out + Task 2a operational gate REMAIN
+Status: Phase 02 substrate (Plans 02-01 + 02-02 + 02-03 partial + QA panel fixes) SQUASH-MERGED to dev as 4 PRs (#653 dc28f974, #657 d8c97dd1, #656 979e45f4, #655 40afcaba) on 2026-05-19
+Last activity: 2026-05-19 -- Phase 02 substrate landed on dev after 5 rounds of CI fixes + local hygiene complete (alembic single-head p119_phase02_parity_cont ✓)
 
 ## Plan mint-data-architecture-v1-02-event-log-03 Receipt (PARTIAL — Task 0 + PR-1 + PR-2 + iter-2 A10/B14/B18 + PR-3a code, 2026-05-18)
 
