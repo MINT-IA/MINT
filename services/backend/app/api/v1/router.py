@@ -59,6 +59,7 @@ from app.api.v1.endpoints import (
     consents,
     overview,
     lucidity,
+    audit_mobile,
 )
 
 api_router = APIRouter()
@@ -226,4 +227,10 @@ api_router.include_router(
 )
 api_router.include_router(
     lucidity.router, prefix="/lucidity", tags=["Lucidity L1-L4 (calc-engine-v1)"]
+)
+# Phase mint-data-architecture-v1-02 Plan 02-02 W1 continuation-4 P2 —
+# Mobile L1 audit ingestion (D-12 + D-MOB-03 + iter-2 A6 handshake +
+# iter-3 iA2 replay-ordering).
+api_router.include_router(
+    audit_mobile.router, prefix="/audit", tags=["Mobile L1 Audit D-12"]
 )

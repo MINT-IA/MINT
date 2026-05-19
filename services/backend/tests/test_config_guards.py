@@ -164,20 +164,33 @@ class TestChromaDBPersistDir:
         import importlib
         from app.core import config
 
+        # Snapshot the original singleton — `importlib.reload(config)` swaps
+        # `config.settings` for a NEW instance, but every module across the
+        # codebase that did `from app.core.config import settings` at load
+        # time still holds the ORIGINAL reference. To prevent contamination
+        # of downstream tests (which patch the ORIGINAL via
+        # `monkeypatch.setattr(settings, ...)` but the new code reads NEW),
+        # we restore the original singleton on the module after the reload.
+        original_settings = config.settings
         # Save and clear env var if set
         original = os.environ.pop("CHROMADB_PERSIST_DIR", None)
         try:
             importlib.reload(config)
             assert config.settings.CHROMADB_PERSIST_DIR == "data/chromadb"
         finally:
+            # Restore env first so any subsequent reads see the original env.
             if original is not None:
                 os.environ["CHROMADB_PERSIST_DIR"] = original
+            # Restore the ORIGINAL singleton so downstream tests' module-level
+            # `from app.core.config import settings` references remain valid.
+            config.settings = original_settings
 
     def test_chromadb_persist_dir_from_env(self):
         """Env var overrides the default."""
         import importlib
         from app.core import config
 
+        original_settings = config.settings
         original = os.environ.get("CHROMADB_PERSIST_DIR")
         os.environ["CHROMADB_PERSIST_DIR"] = "/data/chromadb"
         try:
@@ -188,3 +201,5 @@ class TestChromaDBPersistDir:
                 os.environ["CHROMADB_PERSIST_DIR"] = original
             else:
                 os.environ.pop("CHROMADB_PERSIST_DIR", None)
+            # Restore the ORIGINAL singleton — see sibling test for rationale.
+            config.settings = original_settings

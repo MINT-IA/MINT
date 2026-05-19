@@ -59,6 +59,13 @@ dependencies = [
     # target config deferred to Julien decision (Grafana Cloud vs Datadog
     # vs Railway built-in).
     "prometheus-client>=0.20,<1.0",
+    # Phase mint-data-architecture-v1-02 Plan 02-02 — D-02 DEK TTL cache
+    # in key_vault.py uses cachetools.TTLCache. Without this declared dep,
+    # Railway clean `pip install .` lands without cachetools (it was
+    # transitively installed locally but not in the lockfile), and the
+    # first call to encrypt_value/decrypt_value crashes with ImportError.
+    # Detected by Phase 02 QA panel code-reviewer (2026-05-19).
+    "cachetools>=5.0,<7.0",
 ]
 
 [project.optional-dependencies]
@@ -70,6 +77,15 @@ dev = [
     "httpx>=0.24.0",
     "fakeredis>=2.20.0",
     "hypothesis>=6.111",
+]
+# Phase mint-data-architecture-v1-02 W0 Plan 02-01 — D-22 testcontainers Postgres harness
+# (per-PR primary ; Railway staging replica is supplementary nightly soak). Requires Docker
+# on the test runner. GH Actions ubuntu-latest ships Docker pre-installed ; local devs without
+# Docker see `pytest.skip("Docker unavailable")` in `tests/fixtures/test_pg_fixture_self.py`.
+# uuid_utils is already declared in the main `dependencies` list (Phase 95 DAG-INVALIDATION
+# UUID7 backport, pinned >=0.14.1,<1.0). No duplicate pin here.
+test = [
+    "testcontainers[postgres]>=4.7,<5",
 ]
 rag = [
     "chromadb>=0.5.5",

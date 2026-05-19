@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
 status: executing
-stopped_at: Phase mint-data-architecture-v1-01-calc-engine-canonical context gathered (16/16 recommended; split-with-arbiter L1 mobile + L2-L4 backend along the lucidity L1-L4 typology; offline-first preserved via build-time codegen + runtime delta-check + 7d soft / 30d hard staleness; per-domain strangler-fig PRs honouring D-CE-09/10, Monte Carlo + sensitivity migrate first; constants sync via /v1/regulatory/constants/version + /snapshot endpoints + committed regulatory_constants.g.dart; doctrine rewrite CLAUDE.md + docs/AGENTS/ in same PR as merge; Phase 02 + 03 deferred until 01 outcome locked)
-last_updated: "2026-05-17T17:46:22.642Z"
-last_activity: 2026-05-17
+stopped_at: Phase 02 substrate ◆ CODE-SHIPPED ON DEV (4 PRs #653 #657 #656 #655 squash-merged + PR #658 dev-CI consent-caplog fix in flight). Operational cutover (PR-3b/PR-4/PR-5 + Task 2a + Plan 02-04 Task 1-4) split to new phase mint-data-architecture-v1-02-deploy — see .planning/phases/mint-data-architecture-v1-02-deploy/CONTEXT.md
+last_updated: "2026-05-19T17:00:00.000Z"
+last_activity: 2026-05-19 -- Phase 02 substrate close-out artifacts shipped (VERIFICATION-REPORT.html + SUMMARY.md + STATE/ROADMAP/PROJECT updates + Phase 02-deploy bootstrap). Operational substrate gap discovered (engram obs #233) — staging Postgres at p112 head, prod at 29_05_magic_link_tokens head, neither has fact_event/fact_current tables. Plan 02-03 PR-3b/PR-4/PR-5 + Plan 02-04 autonomous tasks split to Phase 02-deploy.
 progress:
-  total_phases: 9
+  total_phases: 11
   completed_phases: 5
-  total_plans: 57
-  completed_plans: 50
-  percent: 88
+  total_plans: 61
+  completed_plans: 53
+  percent: 79
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase mint-data-architecture-v1-01-calc-engine — canonical
+**Current focus:** Phase mint-data-architecture-v1-02-event-log — projection
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,10 +35,32 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: mint-data-architecture-v1-01-calc-engine-canonical
-Plan: Not started
-Status: Executing Phase mint-data-architecture-v1-01-calc-engine
-Last activity: 2026-05-17
+Phase: mint-data-architecture-v1-02-event-log (projection) — EXECUTING (substrate landed on dev)
+Plan: 3 of 4 PARTIAL — Plan 02-03 PR-3a code-only shipped, Plan 02-03 continuation (PR-3b atomic-trio + PR-4 + PR-5) + Plan 02-04 close-out + Task 2a operational gate REMAIN
+Status: Phase 02 substrate (Plans 02-01 + 02-02 + 02-03 partial + QA panel fixes) SQUASH-MERGED to dev as 4 PRs (#653 dc28f974, #657 d8c97dd1, #656 979e45f4, #655 40afcaba) on 2026-05-19
+Last activity: 2026-05-19 -- Phase 02 substrate landed on dev after 5 rounds of CI fixes + local hygiene complete (alembic single-head p119_phase02_parity_cont ✓)
+
+## Plan mint-data-architecture-v1-02-event-log-03 Receipt (PARTIAL — Task 0 + PR-1 + PR-2 + iter-2 A10/B14/B18 + PR-3a code, 2026-05-18)
+
+- **Plan outcome (PARTIAL — substrate-and-code-only delivery)** : 7 commits on `feature/mint-data-arch-v1-02-event-log-03-pre-flight-and-pr1` land the Plan 02-03 first executor turn :
+  - `0b93151f` — Task 0 (iter-2 B1) preflight zero-user prod gate : script + 5 tests (3 SQLite + 2 pg-marked).
+  - `3c1c9981` — PR-1 : `FF_FACT_EVENT_DUAL_WRITE` feature flag (default OFF), added to `FeatureFlags` class + module-level `is_fact_event_dual_write_enabled()` helper matching Plan 02-02 `FF_FACT_CURRENT_READ` pattern.
+  - `53149452` — PR-2 : dual-write code path in `snapshot_service.create_snapshot()` under FF (default OFF) ; 5 canary field_keys projected via `FactProjector.project_event()` ; 4 SQLite tests including UPSERT-last-writer-wins.
+  - `61f86adf` — iter-2 A10 (qa-expert HIGH-1) : deterministic `tools/parity/projection_diff.py` (canonical JSON + Decimal 1e-9 tolerance + missing-key=None) + 18 library/CLI tests + 13-fixture self-test.
+  - `67223b5b` — iter-2 B14 (postgres-pro MED-5 + database-architect MED-6) : alembic p118 `_phase02_parity_audit` table + ORM + 5 migration tests (100%-staging-user audit persistence ; replaces original 20-random-users sample).
+  - `0663fba7` — iter-2 B18 (REVIEWS.md 4-way convergence) : alembic p119 `_phase02_parity_audit_continuous` table + ORM + `continuous_drift_sampler.py` cron (30min × 100 users × 7-day soak) + `.github/workflows/pg-soak-nightly.yml` (cron commented OFF by default) + 9 tests.
+  - `ee12f2d9` — PR-3a code-only : idempotent `backfill_snapshot_to_fact_event.py` + 4 idempotency tests (first run writes 1 row, second run skips with counter increment, dry-run reports without writing).
+- **Files created/modified : 22 total** — 20 new + 2 modified (`feature_flags.py` PR-1 + `snapshot_service.py` PR-2). +2889 lines.
+- **Gates run :**
+  - **G3 dev CI commit sha trail :** N/A — branch not yet pushed ; commits visible via `git log --oneline 1004b4192da7033e5f2e51c2ef959781d4d77fc9..HEAD` (7 sequential commits).
+  - **G4 Regression :** ✓ 31 passed + 3 skipped (pg-marked) on targeted sweep (Plan 02-02 canaries + Plan 02-03 new tests + projector atomicity). NOT full pytest suite — focused on touched surface. Plus 18 passed for `tools/parity/tests/test_projection_diff.py`.
+  - **G5 Lints :** ✓ `banned_terms_python.py` × 6 new+modified files exit 0 ; `alembic_boolean_default_lint.py p118+p119` exit 0 ; `hmac_pepper_audit.py services/backend/app/cron/` exit 0 (caught initial `hashlib.sha256(user_id)` bug → fixed to `hmac_user_id()` per D-24/obs #175).
+  - **G2 Julien sign-off :** ⏳ DEFERRED — Task 2a CHECKPOINT is the next operational gate (Julien-gated staging-zero-drift, see SUMMARY § Awaiting).
+- **Duration :** ~23 min executor turn.
+- **Deviations :** 6 Karpathy #1 assumption-surfacing applied (FeatureFlags shape ≠ plan ; SnapshotModel cols ≠ canary keys + FactEvent schema ≠ plan ; User has no deleted_at ; SQLite BigInteger PK is not autoincrement ; alembic head ≠ p116 ; hmac lint correctly caught bare sha256). Plus 1 honest-mapping disclosure : backfill recovers only `monthly_gross_income` from historical SnapshotModel rows — other 4 canary keys come from FORWARD writes via PR-2 dual-write. Documented in `deferred-items.md` style in SUMMARY § Deviations.
+- **0-Trust §9 honesty :** SUMMARY uses neither « shipped » nor « ready » nor « green » about the Plan as a whole. Code is « code-only-shipped on a local branch ; operational verification on Railway staging is the Task 2a CHECKPOINT ». Banned phrases avoided ; required claim-format (Evidence + Caveat) block present in SUMMARY § 0-Trust §9.6.
+- **Engram :** Observation #217 saved via CLI fallback : `topic_key=mint-data-architecture-v1-02:wave-2-3:six-pr-migration-substrate-pr0-pr1-pr2-pr3a-code` type=decision. `prior_finding_refs` cite Plan 02-02 #214 (FULLY COMPLETE) + #211 (canary GATE) + #205 (Plan 02-01 merged) + #174 (Phase 02 schema verdict) + Plan 02-01 #204.
+- **USER VALUE DELIVERED :** 0 direct end-user-visible change. The substrate (FF + dual-write + parity tooling + audit tables + cron + backfill script) enables the operational migration once Julien gates the Task 2a CHECKPOINT and the subsequent PR-3b / PR-4 / PR-5 stages each clear their own checkpoints. Plan 02-04 close-out (counter firing + Sentry alarms) remains downstream.
 
 ## Plan mint-calc-engine-v1-20 Receipt (W4 phase-close engram doctrine — D-CE-18 + Concern F + 5-gate exit contract, 2026-05-17)
 
@@ -627,9 +649,9 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-17T13:46:41.582Z
-Stopped at: Phase mint-data-architecture-v1-01-calc-engine-canonical context gathered (16/16 recommended; split-with-arbiter L1 mobile + L2-L4 backend along the lucidity L1-L4 typology; offline-first preserved via build-time codegen + runtime delta-check + 7d soft / 30d hard staleness; per-domain strangler-fig PRs honouring D-CE-09/10, Monte Carlo + sensitivity migrate first; constants sync via /v1/regulatory/constants/version + /snapshot endpoints + committed regulatory_constants.g.dart; doctrine rewrite CLAUDE.md + docs/AGENTS/ in same PR as merge; Phase 02 + 03 deferred until 01 outcome locked)
-Resume file: .planning/phases/mint-data-architecture-v1-01-calc-engine-canonical/mint-data-architecture-v1-01-calc-engine-CONTEXT.md
+Last session: 2026-05-18T20:57:18.354Z
+Stopped at: Plan 02-03 PARTIAL — 7 commits, 21 files, Task 2a CHECKPOINT next (Julien-gated staging-zero-drift)
+Resume file: None
 
 <details>
 <summary>v2.8 archive — L'Oracle & La Boucle (shipped 2026-04-25, 5/9 phases + 13 decimals)</summary>

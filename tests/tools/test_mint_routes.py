@@ -187,19 +187,33 @@ def test_pii_redaction_walks_dict_user_keys():
 
 
 def test_status_classification_buckets():
+    """MAP-03 status classification (D-06 locked).
+
+    CI fix 2026-05-19 : use a date that's deterministically WITHIN the
+    30-day green window rather than a hardcoded 2026-04-19 that became a
+    time-bomb (failed once `now - 2026-04-19 > 30 days`, which happened
+    on exactly 2026-05-19). Using `now - 7 days` gives the test a safe
+    runway and removes the date dependency.
+    """
+    from datetime import datetime, timedelta, timezone
+
     from tools.mint_routes.sentry_client import classify_status
 
+    recent_visit = (datetime.now(timezone.utc) - timedelta(days=7)).strftime(
+        "%Y-%m-%dT%H:%M:%SZ"
+    )
+
     assert classify_status(
-        sentry_24h=0, ff_state=True, last_visit="2026-04-19T00:00:00Z"
+        sentry_24h=0, ff_state=True, last_visit=recent_visit,
     ) == "green"
     assert classify_status(
-        sentry_24h=3, ff_state=True, last_visit="2026-04-19T00:00:00Z"
+        sentry_24h=3, ff_state=True, last_visit=recent_visit,
     ) == "yellow"
     assert classify_status(
-        sentry_24h=15, ff_state=True, last_visit="2026-04-19T00:00:00Z"
+        sentry_24h=15, ff_state=True, last_visit=recent_visit,
     ) == "red"
     assert classify_status(
-        sentry_24h=0, ff_state=False, last_visit=None
+        sentry_24h=0, ff_state=False, last_visit=None,
     ) == "dead"
 
 

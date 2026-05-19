@@ -26,7 +26,7 @@ Revises:    29_04_drop_auto_confirmed
 from __future__ import annotations
 
 revision = "29_05_magic_link_tokens"
-down_revision = "p86_eclairage_delivered"
+down_revision = "29_04_drop_auto_confirmed"
 
 from alembic import op
 import sqlalchemy as sa

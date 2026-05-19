@@ -49,10 +49,16 @@ def _flip_gate_flag(monkeypatch: pytest.MonkeyPatch, value: bool) -> None:
     Mirrors the dual-write pattern in `tools.eval_narrator._run_eval` so
     both the legacy path (env-var read) and the bundle path (settings
     attribute read) pick up the change.
+
+    Use dotted-string monkeypatch resolution so the patch hits the CURRENT
+    ``app.core.config.settings`` instance — ``test_config_guards`` does
+    ``importlib.reload(config)`` mid-suite which replaces the singleton,
+    leaving any captured local reference stale.
     """
     monkeypatch.setenv("COACH_CITATION_GATE_ENABLED", "true" if value else "false")
-    from app.core.config import settings as _settings
-    monkeypatch.setattr(_settings, "COACH_CITATION_GATE_ENABLED", value)
+    monkeypatch.setattr(
+        "app.core.config.settings.COACH_CITATION_GATE_ENABLED", value
+    )
 
 
 # ---------------------------------------------------------------------------

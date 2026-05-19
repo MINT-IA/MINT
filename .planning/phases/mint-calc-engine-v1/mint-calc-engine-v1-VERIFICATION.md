@@ -8,9 +8,13 @@ deferred:
   - truth: "G2 Julien device sign-off — 5 coach-flow scenarios (grounding 422, L4 invariant, Tool Search round-trip, banned-verb fallback, narrator latency)"
     addressed_in: "Deferred operational gate — requires Julien to run walkthrough"
     evidence: "Phase SUMMARY § Deferred item #1: full 5-scenario walkthrough steps documented. Autonomous: false plan, cannot self-clear visual gate."
-  - truth: "Railway staging env-flip TOOL_REGISTRY_ADAPTER=anthropic_defer_loading (Plan 09 Task 5b)"
-    addressed_in: "Deferred operational gate — requires Julien Railway dashboard action"
-    evidence: "Phase SUMMARY § Deferred item #2"
+  # STRUCK 2026-05-18 (G2 retry sweep) — env-flip verified set on Railway staging:
+  # TOOL_REGISTRY_ADAPTER, COACH_CITATION_GATE_ENABLED, COACH_DUAL_LLM_ENABLED, ANTHROPIC_API_KEY
+  # all present per `railway variables --environment staging --service MINT --kv`.
+  # Citation: obs #185 § Learned #2 + verification 2026-05-18 06:43 UTC.
+  # - truth: "Railway staging env-flip TOOL_REGISTRY_ADAPTER=anthropic_defer_loading (Plan 09 Task 5b)"
+  #   addressed_in: "RESOLVED 2026-05-18 — flag set on Railway staging"
+  #   evidence: "railway variables --environment staging --service MINT --kv | grep TOOL_REGISTRY_ADAPTER → set"
   - truth: "FR tone review of 3 sampled tool descriptions (Plan 09 Task 5a)"
     addressed_in: "Deferred — Julien review"
     evidence: "Phase SUMMARY § Deferred item #3; 3 sample descriptions quoted in Plan 09 SUMMARY § Tone sample"

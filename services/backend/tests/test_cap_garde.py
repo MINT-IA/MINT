@@ -125,8 +125,21 @@ def test_no_chf_tokens_passes_through():
 # Test 5 — flag OFF: byte-identical even with un-cited CHF
 # ---------------------------------------------------------------------------
 def test_flag_off_passes_through(monkeypatch):
-    """``COACH_CAP_CHF_GARDE_ENABLED=False``: middleware short-circuits."""
-    monkeypatch.setattr(settings, "COACH_CAP_CHF_GARDE_ENABLED", False)
+    """``COACH_CAP_CHF_GARDE_ENABLED=False``: middleware short-circuits.
+
+    Sequence-dependent flake fix : ``_validate_cap_response`` does an
+    in-function ``from app.core.config import settings`` to avoid a
+    module-import circular dep (coach_chat.py:3330). ``test_config_guards``
+    does ``importlib.reload(config)`` mid-suite which replaces
+    ``app.core.config.settings`` with a new instance. The test's
+    module-level ``settings`` reference then points to the OLD instance ;
+    ``_validate_cap_response`` resolves the NEW instance. Monkeypatching
+    via dotted-string forces resolution at patch time using the same
+    module-state ``_validate_cap_response`` will see at call time.
+    """
+    monkeypatch.setattr(
+        "app.core.config.settings.COACH_CAP_CHF_GARDE_ENABLED", False
+    )
     rendered = "Impact attendu : économise 1'250 CHF par an"
     with mock.patch.object(sentry_sdk, "add_breadcrumb") as m_bc:
         out = _validate_cap_response(rendered)

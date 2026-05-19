@@ -1,0 +1,69 @@
+# Phase 02 Plan 02-03 iter-2 B18 — continuous drift sampler.
+#
+# Runs the projection-parity sampler every 30 min during the PR-3a -> PR-3b
+# 7-day soak window. Disabled by default ; the cron block is enabled
+# manually by Claude when PR-3a merges, and disabled again at PR-3b merge.
+#
+# The sampler hits Railway staging (mint-staging.up.railway.app) and writes
+# to the staging Postgres `_phase02_parity_audit_continuous` table. The
+# Task 2b checkpoint queries that table for the « 7-day clean window »
+# verification.
+#
+# Required GH Actions secrets :
+#   STAGING_BASE_URL          - e.g. https://mint-staging.up.railway.app
+#   STAGING_DATABASE_URL      - Railway staging Postgres URL
+#
+# Manual trigger : `gh workflow run pg-soak-nightly.yml`
+
+name: pg-soak-nightly
+
+on:
+  # Schedule block — UNCOMMENT WHEN PR-3a MERGES, RE-COMMENT WHEN PR-3b MERGES.
+  # schedule:
+  #   - cron: '*/30 * * * *'  # every 30 min UTC
+  workflow_dispatch:
+    inputs:
+      sample_size:
+        description: 'Number of users to sample this run'
+        default: '100'
+        required: false
+      dry_run:
+        description: 'Set true to print diffs instead of persisting'
+        default: 'false'
+        required: false
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install backend deps
+        run: |
+          cd services/backend
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          # tools/parity is import-only, no setup.
+
+      - name: Run sampler
+        env:
+          STAGING_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          STAGING_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          # Repo root for `from tools.parity.projection_diff import ...`
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/services/backend
+        run: |
+          DRY_RUN_FLAG=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+          fi
+          python3 -m app.cron.continuous_drift_sampler \
+            --sample-size "${{ github.event.inputs.sample_size || 100 }}" \
+            $DRY_RUN_FLAG
+        working-directory: services/backend

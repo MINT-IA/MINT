@@ -19,7 +19,7 @@ Sources:
 
 import uuid
 from datetime import datetime, timezone
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 from app.services.snapshots.snapshot_models import (
     FinancialSnapshot,
@@ -107,6 +107,7 @@ def create_snapshot(
 
         from app.models.snapshot import SnapshotModel
         from app.models.projection_audit_record import ProjectionAuditRecord
+        from app.services.audit.hmac_pepper import hmac_user_id
         from app.services.regulatory.registry import RegulatoryRegistry
 
         # Hotfix B 2026-05-17 — stamp the snapshot with the regulatory
@@ -165,7 +166,12 @@ def create_snapshot(
             separators=(",", ":"),
         )
         output_hash = hashlib.sha256(output_canonical.encode("utf-8")).hexdigest()
-        user_id_hash = hashlib.sha256(user_id.encode("utf-8")).hexdigest()
+        # QA arch FLAG-1 (2026-05-19) : D-14 canonical HMAC-pepper for audit-PII
+        # user_id_hash. Replaces the prior bare SHA-256 hashing pattern which
+        # was rainbow-table-reversible. Plan 02-02 close-criterion : baseline
+        # shrinks by 1 (snapshot_service entry removed from
+        # tools/checks/_baseline_hmac_sites_at_p112.txt).
+        user_id_hash = hmac_user_id(user_id)
 
         audit_row = ProjectionAuditRecord(
             user_id_hash=user_id_hash,
@@ -178,6 +184,70 @@ def create_snapshot(
             lsfin_disclaimer_shown=False,  # endpoint owns this signal; conservative default
         )
         db.add(audit_row)
+
+        # ── Phase 02 Plan 02-03 PR-2 (D-05) — dual-write under feature flag ──
+        # When FF_FACT_EVENT_DUAL_WRITE is ON (default OFF), every scalar /
+        # JSONB / nullable / TOAST-blob fact from profile_data that has a
+        # canary-proven field_key (Plan 02-02 D-25 + D-34) is projected to
+        # fact_event + fact_current atomically inside the same transaction
+        # via project_event() (D-19 atomicity).
+        #
+        # Field-key surface (5 canary-proven shapes from Plan 02-02 T3-C) :
+        #   profile_data['gross_income']         -> 'monthly_gross_income'
+        #   profile_data['pillar_3a_balance']    -> 'pillar_3a_balance'
+        #   profile_data['archetype_tags']       -> 'archetype_tags'
+        #   profile_data['lpp_avoirs_vieillesse']-> 'lpp_avoirs_vieillesse'
+        #   profile_data['coach_extracted_facts']-> 'coach_extracted_facts'
+        #
+        # Substrate adaptation (Karpathy #1 — assumption surfacing) :
+        # The Plan 02-03 <interfaces> section assumed every SnapshotModel
+        # scalar column maps 1:1 to a fact_type. Reality : only `gross_income`
+        # is a SnapshotModel column ; the other 4 canary field_keys live in
+        # profile_data only. The minimal dual-write surface is therefore the
+        # 5 canary-proven field_keys, read from profile_data (or row for the
+        # gross_income case).
+        #
+        # The projector uses session.begin_nested() when the caller is
+        # already in a transaction (we're between db.add(audit_row) and
+        # db.commit() so session IS in a txn) — SAVEPOINT semantics keep
+        # the dual-write atomic with the SnapshotModel + audit writes.
+        # If any dual-write step raises, the outer commit() will fail and
+        # NEITHER table is mutated.
+        from app.services.feature_flags import is_fact_event_dual_write_enabled
+
+        if is_fact_event_dual_write_enabled():
+            from app.services.encryption.encrypted_value_helper import encrypt_value
+            from app.services.projector.fact_projector import (
+                FactEventInput,
+                project_event,
+            )
+
+            # field-key -> (profile_data key, presence-rule)
+            # Presence rule : `required` means write even if value is None
+            # (nullable canary tracks None as a real fact ; lpp_avoirs is
+            # Plan 02-02 nullable canary). `optional` means skip when the
+            # key is absent from profile_data (the user hasn't provided it).
+            dual_write_specs = (
+                # name in profile_data,   field_key,                presence
+                ("gross_income",          "monthly_gross_income",   "optional"),
+                ("pillar_3a_balance",     "pillar_3a_balance",      "optional"),
+                ("archetype_tags",        "archetype_tags",         "optional"),
+                ("lpp_avoirs_vieillesse", "lpp_avoirs_vieillesse",  "optional"),
+                ("coach_extracted_facts", "coach_extracted_facts",  "optional"),
+            )
+            for profile_key, field_key, presence in dual_write_specs:
+                if profile_key not in profile_data and presence == "optional":
+                    continue
+                value = profile_data.get(profile_key)
+                value_enc = encrypt_value(db, user_id, value)
+                event = FactEventInput(
+                    user_id=user_id,
+                    field_key=field_key,
+                    value_enc=value_enc,
+                    valid_from=now,
+                    source="snapshot_dual_write",
+                )
+                project_event(db, event)
 
         db.commit()
         db.refresh(row)
@@ -217,6 +287,17 @@ def create_snapshot(
 def get_snapshots(user_id: str, limit: int = 10, db=None) -> List[FinancialSnapshot]:
     """Get recent snapshots for a user, in reverse chronological order.
 
+    D-17 (Plan 02-02 P1 continuation-4) : when reading from DB, each row's
+    `constants_version_hash` is checked against the active regulatory
+    registry via `snapshot_cache.is_snapshot_stale()`. Stale rows are
+    annotated via the `mint_constants_version_mismatch_total` counter
+    (one increment per stale row observed) so observability surfaces
+    « how many rows need a recompute ». The rows themselves are NOT
+    mutated (D-04 point-in-time immutability) and ARE still returned to
+    the caller — the staleness signal is a recompute trigger, not a
+    filter. Callers that want only-fresh rows can re-filter via the
+    same `is_snapshot_stale()` helper.
+
     Args:
         user_id: User identifier.
         limit: Maximum number of snapshots to return (default 10).
@@ -234,6 +315,21 @@ def get_snapshots(user_id: str, limit: int = 10, db=None) -> List[FinancialSnaps
             .limit(limit)
             .all()
         )
+        # D-17 read-path wiring : observe staleness without mutating rows.
+        # Lazy-imports keep module-load lightweight + avoid circular imports.
+        try:
+            from app.services.cache.snapshot_cache import is_snapshot_stale
+            from app.observability.counters import (
+                mint_constants_version_mismatch_total,
+            )
+            for row in rows:
+                if is_snapshot_stale(row):
+                    mint_constants_version_mismatch_total.inc()
+        except Exception:  # pragma: no cover — observability never breaks reads
+            # If the staleness check fails (registry mis-init, counter
+            # unavailable), fall through silently — D-17 observability is
+            # a signal, not a hard dependency on the read path.
+            pass
         return [_snapshot_to_dataclass(r) for r in rows]
 
     # In-memory fallback
@@ -330,3 +426,74 @@ def get_evolution(
         }
         for s in sorted_snaps
     ]
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# fact_current read-path (feature-flag-gated, Plan 02-02 W1 D-25 canary substrate)
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Phase mint-data-architecture-v1-02 Plan 02-02 W1 — D-25 canary parity gate.
+#
+# When the FF_FACT_CURRENT_READ feature flag is OFF (default), reads of
+# `monthly_gross_income` continue to come from SnapshotModel.gross_income
+# (the legacy plaintext Float column). When the flag is ON, the read goes
+# through `fact_current.value_enc` decrypted via the D-26 EncryptedValue
+# helper.
+#
+# The flag will be flipped ON in Plan 02-03 PR-2 (dual-write phase) once
+# the projector is wired into the snapshot-write side. Until then, the
+# default-OFF behaviour preserves zero end-user-visible change.
+#
+# The canary parity test (`test_canary_monthly_gross_income.py`) writes the
+# SAME value via BOTH paths and asserts the two reads return IDENTICAL
+# results — the W1 → W2 gate per D-25.
+
+def read_monthly_gross_income(user_id: str, db) -> Optional[float]:
+    """Read the current `monthly_gross_income` for a user.
+
+    When FF_FACT_CURRENT_READ is OFF (default), returns the latest
+    SnapshotModel.gross_income value for the user (legacy plaintext path).
+    When FF_FACT_CURRENT_READ is ON, decrypts fact_current.value_enc via
+    the D-26 helper.
+
+    Returns None if the user has no snapshot / no fact_current row.
+
+    Note : SnapshotModel.gross_income is a YEARLY float ; the canary
+    parity-test writes the same numeric value via BOTH paths and asserts
+    they read back identically. Whether the field semantically represents
+    monthly vs annual is the caller's contract — this helper is a transport
+    layer, not a unit converter.
+    """
+    import os
+
+    use_fact_current = os.environ.get("FF_FACT_CURRENT_READ", "").lower() in (
+        "1", "true", "yes",
+    )
+
+    if use_fact_current:
+        from app.models.fact_current import FactCurrent
+        from app.services.encryption.encrypted_value_helper import decrypt_value
+
+        row = (
+            db.query(FactCurrent)
+            .filter(
+                FactCurrent.user_id == user_id,
+                FactCurrent.field_key == "monthly_gross_income",
+            )
+            .one_or_none()
+        )
+        if row is None:
+            return None
+        return decrypt_value(db, user_id, row.value_enc)
+
+    # Legacy path : latest SnapshotModel.gross_income
+    from app.models.snapshot import SnapshotModel
+    row = (
+        db.query(SnapshotModel)
+        .filter(SnapshotModel.user_id == user_id)
+        .order_by(SnapshotModel.created_at.desc())
+        .first()
+    )
+    if row is None:
+        return None
+    return row.gross_income

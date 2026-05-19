@@ -17,6 +17,103 @@ from app.main import app
 from app.core.auth import get_current_user, require_current_user
 from app.core.database import Base, get_db
 
+# Phase mint-data-architecture-v1-02 W0 Plan 02-01 (D-22) — real-Postgres pg_fixture.
+# Imported at module-import so `pytest --collect-only` discovers `pg_engine`/`pg_session`.
+# The fixture itself self-skips if Docker is unavailable on the host (local-dev path).
+from tests.fixtures.pg_fixture import pg_engine, pg_session  # noqa: F401
+
+
+# ---------------------------------------------------------------------------
+# Settings singleton reload contamination guard (autouse)
+# ---------------------------------------------------------------------------
+#
+# Several backend tests call `importlib.reload(app.core.config)` to test
+# env-var pickup at Settings init. This swaps `app.core.config.settings`
+# for a NEW Settings instance. Every other module in the codebase that did
+# `from app.core.config import settings` at module load time still holds
+# a NAME binding to the ORIGINAL instance. Downstream tests then
+# `monkeypatch.setattr(settings, "X", v)` to patch the ORIGINAL, but
+# production code paths that re-import (in-function) or live in modules
+# loaded AFTER the contaminating reload see the NEW instance — the patches
+# are ignored.
+#
+# This autouse fixture snapshots the original singleton at session start
+# and restores it after every test. Cost : a single attribute write per
+# test (~µs). Benefit : no test ever sees a contaminated singleton.
+@pytest.fixture(autouse=True)
+def _restore_settings_singleton():
+    """Snapshot + restore `app.core.config.settings` per test.
+
+    Prevents `importlib.reload(app.core.config)` in any test from
+    contaminating downstream tests' module-level `settings` references.
+    """
+    from app.core import config as _cfg_mod
+    original_settings = _cfg_mod.settings
+    yield
+    _cfg_mod.settings = original_settings
+
+
+def pytest_configure(config):
+    """Register markers for Phase 02 real-Postgres tests.
+
+    - `pg` (D-22) : continuation-2/3 baseline marker.
+    - `requires_pg` (iter-3 iA1) : explicit « skip with visible reason when
+      Docker unavailable » marker. Applied to projector tests so SQLite-only
+      runs do NOT silently pass on the SQLite emulation path. Per
+      Claude-Opus post-iter-2 review HIGH-A1 + CLAUDE.md §9.2 « tests passing
+      != feature working ». The projector's atomic UPSERT semantics are
+      Postgres-only ; the SQLite emulation is test-fixture-only and does
+      NOT enforce lost-update protection under concurrent writers.
+    """
+    config.addinivalue_line(
+        "markers",
+        "pg: real-Postgres integration test (uses pg_fixture testcontainers, "
+        "skips if Docker unavailable). Phase mint-data-architecture-v1-02 D-22.",
+    )
+    config.addinivalue_line(
+        "markers",
+        "requires_pg: test requires real Postgres (iter-3 iA1 — projector "
+        "SQLite-path divergence trap). Skips with explicit message when "
+        "Docker unavailable. Use this INSTEAD of `pg` when the test asserts "
+        "Postgres-only guarantees (PARTITION BY HASH routing, REVOKE "
+        "enforcement, atomic UPSERT under concurrency, INCLUDE covering "
+        "index). Per Claude-Opus HIGH-A1 (REVIEWS.md §7.3).",
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    """iter-3 iA1: auto-skip `requires_pg` tests when Docker unavailable.
+
+    The `pg_session` fixture itself self-skips on Docker unavailable, but
+    that produces a silent SKIPPED without a clear « projector requires
+    Postgres » reason. This hook surfaces the « requires_pg » semantic
+    explicitly in collection output.
+    """
+    # Lazy detection : only probe Docker if at least one `requires_pg` test
+    # exists in this collection. Avoids a 1-2s Docker probe on every pytest
+    # invocation (including pure unit suites that don't need pg).
+    has_requires_pg = any(
+        item.get_closest_marker("requires_pg") is not None for item in items
+    )
+    if not has_requires_pg:
+        return
+
+    import shutil
+    docker_available = shutil.which("docker") is not None
+    if docker_available:
+        # Docker binary present ; trust pg_fixture to do the real probe (it
+        # tries to start a container and skips on failure). We don't skip
+        # here.
+        return
+
+    import pytest as _pytest
+    skip_marker = _pytest.mark.skip(
+        reason="requires Postgres (iter-3 iA1) — Docker binary not found on host"
+    )
+    for item in items:
+        if item.get_closest_marker("requires_pg") is not None:
+            item.add_marker(skip_marker)
+
 
 def _fake_user():
     """Return a mock user for auth dependency override in tests."""

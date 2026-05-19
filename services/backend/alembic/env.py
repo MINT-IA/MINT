@@ -17,8 +17,20 @@ from alembic import context
 config = context.config
 
 # Interpret the config file for Python logging.
+# disable_existing_loggers=False prevents Alembic from marking every
+# pre-existing named logger (e.g. app.services.*) as disabled=True. The
+# stdlib default `True` causes a sequence-dependent pytest caplog flake :
+# any test that runs after a migration test finds its app loggers disabled
+# and captures zero records — even though the application code does log.
+# Trigger reproducer (pre-fix) :
+#   pytest tests/integration/test_migration_p113.py \
+#          tests/services/privacy/test_fact_key_allowlist.py \
+#       -v  # second test loses all caplog records.
+# Production-neutral : in prod, `alembic upgrade` is a CLI command in a
+# fresh process ; the parameter only matters in long-running processes
+# where loggers are shared (i.e. tests).
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # -- Import application settings & models ------------------------------------
 from app.core.config import settings  # noqa: E402

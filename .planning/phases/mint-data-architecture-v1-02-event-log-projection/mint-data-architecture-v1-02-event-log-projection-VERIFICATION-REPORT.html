@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Phase mint-data-architecture-v1-02 — Substrate Verification Report</title>
+<style>
+body { font: 14px/1.55 -apple-system, system-ui, sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; color: #1a2520; }
+h1, h2, h3 { color: #003B2F; }
+h1 { border-bottom: 3px solid #003B2F; padding-bottom: .3em; }
+h2 { margin-top: 1.8em; border-bottom: 1px solid #d0d6d4; padding-bottom: .2em; }
+h3 { margin-top: 1.2em; }
+table { border-collapse: collapse; width: 100%; margin: .6em 0; }
+th, td { border: 1px solid #ccc; padding: 6px 9px; text-align: left; font-size: 13px; vertical-align: top; }
+th { background: #f4faf7; }
+.pass { color: #0a7a4f; font-weight: 600; }
+.partial { color: #b58b00; font-weight: 600; }
+.fail { color: #b3261e; font-weight: 600; }
+.deferred { color: #888; font-style: italic; }
+.flag { color: #b58b00; font-weight: 600; }
+code, pre { font: 12px/1.45 ui-monospace, Menlo, monospace; background: #f4f4f4; padding: 1px 4px; border-radius: 3px; }
+pre { padding: 8px 12px; overflow-x: auto; }
+blockquote { border-left: 3px solid #d0d6d4; padding: .2em .8em; color: #555; margin: .5em 0; }
+.meta { color: #666; font-size: 12px; }
+.caveat { background: #fff8e6; border-left: 4px solid #b58b00; padding: 8px 12px; margin: .5em 0; }
+.critical { background: #fde8e8; border-left: 4px solid #b3261e; padding: 8px 12px; margin: .5em 0; }
+.evidence { background: #eef6f1; border-left: 4px solid #0a7a4f; padding: 8px 12px; margin: .5em 0; }
+.sha { font-family: ui-monospace, Menlo, monospace; color: #555; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Phase mint-data-architecture-v1-02-event-log-projection — Substrate Verification Report</h1>
+<p class="meta">Generated: 2026-05-19 · Phase status: <span class="partial">◆ SUBSTRATE CODE-SHIPPED ON DEV — operational deploy split to Phase 02-deploy</span> · dev HEAD: <code class="sha">e19461f1</code></p>
+
+<div class="critical">
+<strong>Critical finding (2026-05-19, this session) :</strong> Phase 02 substrate is <strong>code-only on dev branch</strong>. The Phase 02 migrations (<code>p98_fact_event_projection</code>, <code>p113_extend_proj_audit_mob</code>, <code>p116_snapshot_constants_invalidation</code>, <code>p118_phase02_parity_audit_table</code>, <code>p119_phase02_parity_audit_continuous</code>) have <strong>never been applied to staging or production databases</strong>. Plan 02-03's PR-3b/PR-4/PR-5 operational cutover chain is therefore split out of this phase into a new <strong>Phase 02-deploy</strong> milestone — see <a href=".planning/phases/mint-data-architecture-v1-02-deploy/CONTEXT.md">CONTEXT.md</a> for the next-phase scope.
+</div>
+
+<h2>Substrate landed (code, dev branch)</h2>
+<table>
+<thead><tr><th>PR</th><th>Squash SHA</th><th>Plan</th><th>Scope</th><th>CI</th></tr></thead>
+<tbody>
+<tr><td>#653</td><td class="sha">dc28f974</td><td>02-01 — prereqs + lints + harness</td><td>D-08/09/10/11/20-24 + CI fixes</td><td class="pass">CI green at squash</td></tr>
+<tr><td>#657</td><td class="sha">d8c97dd1</td><td>02-02 — event-log + projector + canary + Mobile L1</td><td>D-14..D-30 (replaces auto-closed #654)</td><td class="pass">CI green at squash</td></tr>
+<tr><td>#656</td><td class="sha">979e45f4</td><td>02-03 partial — FF + dual-write + parity audit + PR-3a code</td><td>PR-0/PR-1/PR-2 + iter-2 A10/B14/B18 + PR-3a code surface</td><td class="partial">G6 calc-rigor failed (cachetools missing — fixed retroactively in #655)</td></tr>
+<tr><td>#655</td><td class="sha">40afcaba</td><td>QA panel fixes</td><td>2 BLOCKs + 3 high-FLAGs + 4 polish + cachetools pyproject add</td><td class="pass">CI green at squash</td></tr>
+<tr><td>—</td><td class="sha">16fe62ed</td><td>docs(state)</td><td>STATE.md post-merge update (direct push)</td><td class="pass">design-lints green</td></tr>
+<tr><td>—</td><td class="sha">e19461f1</td><td>docs(phase-02) continuation brief</td><td>CONTINUATION-AFTER-SUBSTRATE-LANDING.md (direct push)</td><td class="fail">backend test consent caplog flake — fix in PR #658 (this session)</td></tr>
+</tbody>
+</table>
+
+<h2>5-Gate mechanical exit checklist (D-32)</h2>
+<table>
+<thead><tr><th>Gate</th><th>Status</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><td>G1 Maestro walker</td><td class="deferred">DEFERRED to Phase 02-deploy</td><td>Substrate is backend-only ; no UI surface to walk. Mobile L1 audit observer ships but device-side wiring (DEFERRED-02-02-D/E) lives in Phase 02-deploy alongside iOS entitlement work.</td></tr>
+<tr><td>G2 Julien device sign-off</td><td class="deferred">DEFERRED (per 0-trust §9.5 — substrate-only, no user flow)</td><td>0-trust §9.4 sim-survival test : substrate is non-user-facing. No device walkthrough applicable until cutover phase ships read endpoints.</td></tr>
+<tr><td>G3 dev CI green commit SHA trail</td><td class="partial">4/5 squash green ; current dev HEAD <code class="sha">e19461f1</code> fails on consent caplog test (PR #658 fix in flight this session)</td><td><code>gh run list --branch dev --limit 10</code> — see <a href="#ci-trail">CI trail</a> below</td></tr>
+<tr><td>G4 Regression + new test classes</td><td class="pass">9 consent-extension tests green local ; Phase 02 new test classes (test_projector_idempotency, test_dek_shred_opacity, test_canary_monthly_gross_income, test_canary_multi_shape_parity, test_backfill_idempotent, test_dual_write_off, test_dual_write_on_staging, test_migration_p118, test_migration_p119, test_continuous_drift_sampler, test_projection_diff) all on dev</td><td>Plan 02-02 + Plan 02-03 SUMMARYs cite per-test exit codes</td></tr>
+<tr><td>G5 Lints (LSFin + accent + ARB + alembic boolean + hmac_pepper)</td><td class="pass">All 5 lints exit 0 on the 4 substrate squash PRs at merge time</td><td>Per-PR SUMMARY § Lints</td></tr>
+</tbody>
+</table>
+
+<h2 id="ci-trail">CI trail (2026-05-19, dev branch)</h2>
+<pre>
+e19461f1 docs(phase-02) continuation brief        — CI fail (consent caplog), design-lints pass
+16fe62ed docs(state) Phase 02 substrate landed    — CI cancelled (path filter), design-lints pass
+40afcaba PR #655 QA panel fixes                   — CI green, design-lints green, G6 calc-rigor green
+979e45f4 PR #656 partial                          — G6 calc-rigor fail (cachetools), design-lints green, CI cancelled
+d8c97dd1 PR #657 event-log + projector            — G6 calc-rigor fail (cachetools), design-lints green
+dc28f974 PR #653 prereqs + lints + harness        — green
+</pre>
+
+<h2>Per-plan rollup</h2>
+<table>
+<thead><tr><th>Plan</th><th>Status</th><th>SUMMARY</th><th>Tasks complete</th></tr></thead>
+<tbody>
+<tr>
+  <td>02-01 prereqs-lints-harness</td>
+  <td class="pass">COMPLETE</td>
+  <td><a href="mint-data-architecture-v1-02-event-log-01-prereqs-lints-harness-SUMMARY.md">SUMMARY.md</a></td>
+  <td>All tasks shipped via PR #653</td>
+</tr>
+<tr>
+  <td>02-02 event-log-core-canary</td>
+  <td class="pass">COMPLETE</td>
+  <td><a href="mint-data-architecture-v1-02-event-log-02-event-log-core-canary-SUMMARY.md">SUMMARY.md</a></td>
+  <td>D-14..D-30 shipped via PR #657 ; Mobile L1 partial — 4 device-gate items deferred to Phase 02-deploy (DEFERRED-02-02-D/E/F + sqflite_sqlcipher prod impl)</td>
+</tr>
+<tr>
+  <td>02-03 migration-6pr-sequence (was 5pr)</td>
+  <td class="partial">PARTIAL — code-only, no operational cutover</td>
+  <td><a href="mint-data-architecture-v1-02-event-log-03-migration-5pr-sequence-SUMMARY.md">SUMMARY.md</a></td>
+  <td>PR-0 + PR-1 + PR-2 + PR-3a code + iter-2 A10/B14/B18 shipped via PR #656. PR-3b read-cutover + PR-4 FF removal + PR-5 SnapshotModel drop SPLIT to Phase 02-deploy (gated on staging+prod migrations being applied first).</td>
+</tr>
+<tr>
+  <td>02-04 close-out-counters-runbooks</td>
+  <td class="partial">PARTIAL — close-out artifacts shipped, autonomous tasks split</td>
+  <td>(no SUMMARY ; tasks split)</td>
+  <td>Task 1 (D-09 alias + D-10 PR-A3 dead-fields) gated on PR-3b → split to Phase 02-deploy ; Task 2 (Q6 CI mechanical fixes) + Task 3 (declared_counters_must_fire) + Task 4 (runbooks) deferred to follow-up PRs in Phase 02-deploy.</td>
+</tr>
+</tbody>
+</table>
+
+<h2>Operational reality check (2026-05-19, this session)</h2>
+<table>
+<thead><tr><th>Layer</th><th>Reality</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Code (dev branch)</td><td>alembic head <code>p119_phase02_parity_cont</code>, Phase 02 substrate code complete</td><td><code>git rev-parse HEAD</code> + local alembic</td></tr>
+<tr><td>Staging DB (postgres-qdyu, MINT-staging actual)</td><td>alembic head <code>p112_audit_event_user_hash</code>, 34 tables, 131 users, <strong>0 snapshots</strong>, <strong>fact_event/fact_current do NOT exist</strong></td><td><code>railway ssh -e staging --service MINT</code></td></tr>
+<tr><td>Prod DB</td><td>alembic head <code>29_05_magic_link_tokens</code> (pre-Phase-01 entirely), 33 tables, 2 users (test accts confirmed by Julien 2026-05-19), <strong>0 snapshots</strong>, <strong>fact_event/fact_current do NOT exist</strong></td><td><code>railway ssh -e production --service MINT</code></td></tr>
+</tbody>
+</table>
+
+<div class="caveat">
+<strong>Why this matters for close-out :</strong> Task 2a operational gate as written in Plan 02-03 iter-2 cannot execute against the current staging DB (no snapshots data, no fact_event table). PR-3b read-cutover would break the system the moment any consumer queries the (non-existent) fact_current table. Plan 02-03's <code>autonomous: false</code> checkpoint protocol acknowledged this risk ; the operational reality discovered today proves it. The substrate phase closes cleanly ; the cutover phase is genuinely separate work that needs its own checkpoint discipline.
+</div>
+
+<h2>Deferred items absorbed by Phase 02-deploy</h2>
+<table>
+<thead><tr><th>ID</th><th>Description</th><th>Plan-of-origin</th></tr></thead>
+<tbody>
+<tr><td>DEFERRED-02-01-A</td><td>Alembic dual-head <code>p112_audit_event_user_hash</code> + <code>p86_eclairage_delivered</code> merge migration</td><td>Plan 02-01</td></tr>
+<tr><td>DEFERRED-02-01-B</td><td>Mobile <code>_buildProfileContext</code> 40-field drift (not 15) — 25 missing fields remaining</td><td>Plan 02-01</td></tr>
+<tr><td>DEFERRED-02-01-C</td><td><code>profile_safe_fields_parity.py</code> lint blind-spot on Dart method-return emissions</td><td>Plan 02-01</td></tr>
+<tr><td>DEFERRED-02-02-A</td><td><code>test_tool_search_round_trip.py</code> frontalier-tool-name fixture stale post-D-09 rename</td><td>Plan 02-02</td></tr>
+<tr><td>DEFERRED-02-02-B</td><td>iter-2 A1 DEK tombstone backend (LOW-risk semantic duplication — pre-launch acceptable)</td><td>Plan 02-02</td></tr>
+<tr><td>DEFERRED-02-02-C</td><td>iter-2 B2 mobile boundary lint <code>no_mobile_fact_current_regulatory_read.py</code> not wired into lefthook.yml</td><td>Plan 02-02</td></tr>
+<tr><td>DEFERRED-02-02-D</td><td>Flutter sqflite_sqlcipher production AuditBufferDb impl + iOS entitlement (release-blocking, isolated PR)</td><td>Plan 02-02</td></tr>
+<tr><td>DEFERRED-02-02-E</td><td>Flutter main.dart MobileL1AuditLifecycleObserver wiring</td><td>Plan 02-02</td></tr>
+<tr><td>DEFERRED-02-02-F</td><td>connectivity_plus integration in OfflineAuditQueue (audit drain on connectivity restore)</td><td>Plan 02-02</td></tr>
+<tr><td>DEFERRED-02-02-G</td><td>True-concurrency pg variant of iter-2 A8 (macOS Python 3.9.6 + SQLAlchemy 2-thread segfault hazard)</td><td>Plan 02-02</td></tr>
+<tr><td>Plan 02-03 PR-3b</td><td>Read-cutover + Phase-01 D-12 parity-lint SOFT→HARD atomic + pg_dump 7th gate</td><td>Plan 02-03 iter-2 split</td></tr>
+<tr><td>Plan 02-03 PR-4</td><td>FF removal + DeprecationWarning + <code>no_ff_fact_event_dual_write.py</code> HARD lefthook</td><td>Plan 02-03</td></tr>
+<tr><td>Plan 02-03 PR-5</td><td>Alembic <code>p117_drop_snapshot_legacy</code> + decommission runbook + B19 SnapshotModel-referencing tests inventory</td><td>Plan 02-03</td></tr>
+<tr><td>Plan 02-04 Task 1</td><td>D-09 S12 alias removal + D-10 PR-A3 dead-fields + allowlist cleanup (gated on PR-3b)</td><td>Plan 02-04</td></tr>
+<tr><td>Plan 02-04 Task 2</td><td>Q6 CI mechanical fixes (STAGING-MALFORMED + scheduled-only aging + CODEOWNER override)</td><td>Plan 02-04</td></tr>
+<tr><td>Plan 02-04 Task 3</td><td><code>declared_counters_must_fire.py</code> HARD close-out gate</td><td>Plan 02-04</td></tr>
+<tr><td>Plan 02-04 Task 4</td><td>3 forward-deferred runbooks (partition-split + DEK rotation + audit-pepper rotation)</td><td>Plan 02-04</td></tr>
+<tr><td>QA-panel-FLAG-sec-2 / sec-4 / sec-5 / arch-2 / arch-3</td><td>5 FLAGs deferred to Plan 02-04 from QA panel review</td><td>QA panel #655</td></tr>
+</tbody>
+</table>
+
+<h2>Counter-arguments + data gaps</h2>
+<table>
+<thead><tr><th>Counter-argument</th><th>Response</th></tr></thead>
+<tbody>
+<tr>
+  <td>« Phase 02 should be marked COMPLETE since all 4 plans have code on dev. »</td>
+  <td>Substrate <em>is</em> complete as substrate. But Plan 02-03 explicitly carried <code>autonomous: false</code> with operational checkpoints (Task 2a + Task 4) that depend on staging+prod DB state. Per 0-trust §9.2 « tests passing != feature working » — PRs merged != schema deployed. Marking COMPLETE without operational deploy would conflate the two.</td>
+</tr>
+<tr>
+  <td>« Run Task 2a operational gate against staging today and ship PR-3b. »</td>
+  <td>Cannot — staging has 0 snapshots and no fact_event table. The backfill is a no-op and the projection_diff audit has nothing to diff. Forcing PR-3b would create read-paths to non-existent tables.</td>
+</tr>
+<tr>
+  <td>« Apply migrations to staging+prod in this session. »</td>
+  <td>Prod alembic head is <code>29_05_magic_link_tokens</code> — dozens of migrations behind dev. This implies Phase 01 + sequence-coordinator + earlier substrate migrations are also undeployed. Advancing prod blindly is high-risk. Phase 02-deploy needs a dedicated session with rollback prep.</td>
+</tr>
+<tr>
+  <td>« The 2 prod users are test accounts so we're safe. »</td>
+  <td>Confirmed by Julien 2026-05-19. Per <code>preflight_zero_user_gate.py</code> contract this is documented justification, not premise validation. The big-bang migration is safe in principle, but staging-first + smoke is still the responsible deploy order.</td>
+</tr>
+</tbody>
+</table>
+
+<h3>Data gaps</h3>
+<ul>
+<li><strong>Cron sampler 7-day soak window</strong> — not started ; gated on PR-3a being deployed (not yet). Phase 02-deploy will start the soak after staging migration applies.</li>
+<li><strong>Sentry alarm wiring for <code>mint_snapshot_fact_current_drift_total</code></strong> — declared in code but not configured in Sentry dashboard. Phase 02-deploy close-out task.</li>
+<li><strong>Why prod alembic is at <code>29_05_magic_link_tokens</code></strong> — unknown. Could be a fork, an old branch deploy, or a never-cleaned state from before Phase 01. Phase 02-deploy must audit-and-decide.</li>
+<li><strong>BYOK vs ServerKey for the 2 prod users</strong> — per memory <code>project_byok_scope</code>, current builds use ServerKey. The 2 test accounts are presumed ServerKey-backed. Verify before any DEK rotation work.</li>
+</ul>
+
+<h2>0-Trust §9.6 Evidence + Caveat block</h2>
+<div class="evidence">
+<strong>Evidence (this session, 2026-05-19) :</strong>
+<ul>
+<li>dev HEAD <code class="sha">e19461f1</code> <code>git log --oneline -5</code> shows 4 squash merges + 2 direct docs pushes for Phase 02 substrate landing.</li>
+<li>Local alembic head : <code>['p119_phase02_parity_cont']</code> via <code>python3 -c "from alembic..."</code> at session start.</li>
+<li>Railway SSH evidence : staging MINT DB shows 131 users + 0 snapshots + alembic <code>p112_audit_event_user_hash</code> + no fact_event/fact_current tables (output captured 2026-05-19 ~16:00 UTC).</li>
+<li>Railway SSH evidence : prod MINT DB shows 2 users + 0 snapshots + alembic <code>29_05_magic_link_tokens</code> + no fact_event/fact_current tables (output captured 2026-05-19 ~16:00 UTC).</li>
+<li>Engram obs #233 captures the full operational substrate gap finding (<code>mem_search "phase02 substrate"</code>).</li>
+<li>PR #658 opened with surgical consent caplog → logger mock fix ; CI in flight at time of writing.</li>
+</ul>
+</div>
+
+<div class="caveat">
+<strong>Caveat (what I have NOT checked) :</strong>
+<ul>
+<li>I have NOT run the full backend pytest suite against the substrate code on dev HEAD this session — only the targeted consent-extensions file.</li>
+<li>I have NOT verified that Plan 02-04 Task 2/3/4 (Q6 CI + counters + runbooks) work end-to-end ; they're deferred to Phase 02-deploy.</li>
+<li>I have NOT applied any migrations to staging or prod in this session. No mutation of any deployed environment.</li>
+<li>The « 7-day soak » referenced in iter-2 B20 has NOT started ; the continuous_drift_sampler cron is shipped in code but never enabled (workflow_dispatch only).</li>
+<li>I have NOT yet checked PR #658 CI completion as of writing this report.</li>
+</ul>
+</div>
+
+<h2>Next-phase pointer</h2>
+<p>See <a href=".planning/phases/mint-data-architecture-v1-02-deploy/CONTEXT.md">.planning/phases/mint-data-architecture-v1-02-deploy/CONTEXT.md</a> (created this session) for Phase 02-deploy scope : alembic chain audit + staging migration apply + smoke + prod migration apply + Task 2a operational + PR-3b/PR-4/PR-5 cutover + Plan 02-04 follow-up PRs.</p>
+
+<h2>Lessons learned</h2>
+<ol>
+<li><strong>« Substrate landed » means « code merged » not « feature deployed ».</strong> Future phase plans should explicitly enumerate the deploy step (or the deferral to a deploy phase) in the autonomous: false / autonomous: true frontmatter.</li>
+<li><strong>Preflight scripts must run BEFORE phase planning, not BEFORE PR merge.</strong> The <code>preflight_zero_user_gate.py</code> check would have surfaced « prod has 2 users + prod is at <code>29_05_magic_link_tokens</code> head » during Plan 02 RESEARCH, not after substrate code merged. Phase 03 onward : include a « deploy environment state audit » as a Phase RESEARCH step.</li>
+<li><strong>Railway service topology is non-obvious from the CLI.</strong> Staging has TWO Postgres services (<code>Postgres</code> empty + <code>postgres-qdyu</code> live). <code>railway variables --service Postgres</code> returns the empty one ; only <code>railway ssh -e staging --service MINT</code> reveals the live DB. Phase 02-deploy CONTEXT.md must document this.</li>
+<li><strong>caplog fragility under <code>pytest -x --cov</code></strong> — direct logger mocking via <code>sys.modules[name].logger</code> is the sequence-independent pattern. Future tests asserting log emission should prefer mock.patch over caplog.</li>
+<li><strong>Split-phase doctrine.</strong> When the operational shape of a phase outgrows the original autonomous: false checkpoint discipline, splitting into substrate-phase + deploy-phase is cleaner than retrofitting. The substrate-phase closes ; the deploy-phase opens with full checkpoint discipline.</li>
+</ol>
+
+<p class="meta">— end of report —</p>
+</body>
+</html>

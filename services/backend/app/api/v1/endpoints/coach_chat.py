@@ -1313,7 +1313,13 @@ def _build_system_prompt_with_memory(
     """
     # Phase 93.5 — bundle-compiler path (CONTEXT D-15 / D-16 / D-01 supersession).
     # Default OFF in prod — flip-on is gated by Plan 93.5-04 Stage 3 eval ≥95%.
-    if settings.COACH_BUNDLE_COMPILER_ENABLED:
+    # Deferred-import (same pattern as `_validate_cap_response` at line 3330)
+    # to survive `importlib.reload(app.core.config)` contamination from
+    # test_config_guards + sibling tests — module-level `settings` binding
+    # captured at coach_chat.py load time becomes stale after reload, breaking
+    # monkeypatch in test_flag_on_uses_compile_bundles.
+    from app.core.config import settings as _live_settings
+    if _live_settings.COACH_BUNDLE_COMPILER_ENABLED:
         try:
             prompt = build_narrator_system_prompt_from_bundles(
                 intents=detected_intents or set(),

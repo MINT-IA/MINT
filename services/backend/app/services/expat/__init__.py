@@ -24,10 +24,14 @@ Sources:
     - CDI bilaterales (conventions de double imposition)
 """
 
-from app.services.expat.frontalier_service import FrontalierService
+from app.services.expat.frontalier_service import (
+    FrontalierService,  # deprecated alias, kept until Plan 02-04 PR-2 per D-09
+    FrontalierSegmentService,  # canonical name since Phase 02 D-09
+)
 from app.services.expat.expat_service import ExpatService
 
 __all__ = [
-    "FrontalierService",
+    "FrontalierService",  # deprecated, prefer FrontalierSegmentService
+    "FrontalierSegmentService",
     "ExpatService",
 ]

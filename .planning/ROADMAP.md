@@ -100,6 +100,59 @@ Plans:
 - `tools/checks/profile_safe_fields_parity.py` — Concern C Flutter↔server parity lint (W4 Plan 19) — partial bridge of the gap today
 - engram obs #150 (event-log decision) + #151 (panel compliance findings)
 
+### Phase: mint-data-architecture-v1-02-event-log-projection
+**Goal**: Migrate user-facts storage from `SnapshotModel` (cached projection keyed on inputs_hash) to event-log (`fact_event` append-only) + projection (`fact_current` denormalised) + DEK envelope per-user (Railway-native KMS). Extends `projection_audit_record` for mobile L1 session audit (closes Phase 01 D-05 LSFin audit-trail gap discovered by architect-review obs #176). Includes 4 Phase 01 carry-over security gaps + Phase 02 W0 prereqs (S12 API consolidation PR-1 + Flutter drift PR-A2 + Postgres migration test harness + 2 prevention lints).
+**Status**: ◆ SUBSTRATE CODE-SHIPPED ON DEV 2026-05-19 — operational cutover (PR-3b/PR-4/PR-5 + Task 2a operational gate + Plan 02-04 autonomous tasks) split to follow-on phase `mint-data-architecture-v1-02-deploy`. 4 squash PRs landed on dev (#653 dc28f974, #657 d8c97dd1, #656 979e45f4, #655 40afcaba) + dev-CI consent-caplog hotfix in PR #658. Substrate close-out artifacts shipped via PR (this milestone close). 33 D-XX distributed across 4 plans : 22 ✅ shipped, 11 ⏸ split to Phase 02-deploy.
+**Plans**: 4 plans — substrate-side complete on dev as code ; operational cutover split.
+
+Plans:
+- [x] mint-data-architecture-v1-02-event-log-01-prereqs-lints-harness-PLAN.md — W0 prereqs bundle (SHIPPED 2026-05-18 per `mint-data-architecture-v1-02-event-log-01-prereqs-lints-harness-SUMMARY.md`, squash `dc28f974` PR #653).
+- [x] mint-data-architecture-v1-02-event-log-02-event-log-core-canary-PLAN.md — W1 event-log core + canary (BACKEND COMPLETE 2026-05-19 ; Mobile L1 device-side wiring DEFERRED to Phase 02-deploy ; squash `d8c97dd1` PR #657 ; D-25 + D-34 GREEN on SQLite).
+- [~] mint-data-architecture-v1-02-event-log-03-migration-5pr-sequence-PLAN.md — W2-W3 6-PR sequence **CODE-PARTIAL** : PR-0 + PR-1 + PR-2 + iter-2 A10/B14/B18 + PR-3a code shipped via squash `979e45f4` PR #656 ; **PR-3b read-cutover + PR-4 FF removal + PR-5 SnapshotModel drop + Task 2a operational gate SPLIT to Phase 02-deploy** (gated on staging+prod alembic chains catching up to dev — both currently behind by 7+ and dozens of revs respectively ; staging-Postgres has 0 snapshots and no fact_event table, prod at `29_05_magic_link_tokens` head per `railway ssh` evidence 2026-05-19).
+- [~] mint-data-architecture-v1-02-event-log-04-close-out-counters-runbooks-PLAN.md — W4 close-out: substrate close-out artifacts (VERIFICATION-REPORT.html + SUMMARY.md + STATE/ROADMAP/PROJECT updates + Phase 02-deploy CONTEXT.md bootstrap) SHIPPED 2026-05-19. **Task 1 (D-09 alias + D-10 dead-fields) + Task 2 (Q6 CI mechanical fixes) + Task 3 (declared_counters_must_fire HARD gate) + Task 4 (3 forward-deferred runbooks) SPLIT to Phase 02-deploy as autonomous follow-up PRs.**
+
+**Depends on**: `mint-data-architecture-v1-01-calc-engine-canonical` ✓ shipped 2026-05-17 (sha `a21bc8d0`) + Hotfix B/C ✓ shipped via squash `cf6d259a` + Postgres BOOLEAN DEFAULT fix `fe52ba31`.
+**Blocks**: deferred Phase 03 (coach-extractor LLM + guardrails — requires `fact_event(source_type='coach_inference')` schema from this phase).
+**Open questions disposition**: 7 panel-debated questions all resolved in [decisions/2026-05-18-phase02-event-log-projection-panel-synthesis.md](decisions/2026-05-18-phase02-event-log-projection-panel-synthesis.md) (5-specialist consensus + 3 Julien-locked calls). CONTEXT.md encodes each as D-01..D-33. All 33 decisions are distributed across the 4 plans with zero gaps and zero double-counts (frontmatter `decisions:` field is the audit anchor).
+**Canonical refs**:
+- `.planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md` — upstream « what shape » ADR (panel-converged)
+- `.planning/decisions/2026-05-18-phase02-event-log-projection-panel-synthesis.md` — THIS phase's « how + when + trade-offs » lockdown (single canonical source)
+- `.planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-CONTEXT.md` — 33 D-XX locked
+- `.planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-RESEARCH.md` — implementation primitives (sha `055ca9e3`, 1451 lines, HIGH confidence)
+- `.planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-VALIDATION.md` — Nyquist validation map (per-task verify commands + Wave 0 requirements + sampling cadence)
+- `.planning/phases/mint-data-architecture-v1-01-calc-engine-canonical/mint-data-architecture-v1-01-calc-engine-CONTEXT.md` — upstream Phase 01 16 D-XX decisions (split-with-arbiter L1 mobile / L2-L4 backend)
+- `.planning/phases/mint-calc-engine-v1/deferred-items.md` § S12-API-consolidation — load-bearing W0 prereq
+- `services/backend/app/models/snapshot.py` — current `SnapshotModel` shape (migration source — dropped in Plan 02-03 PR-5)
+- `services/backend/app/models/projection_audit_record.py` — Hotfix B shipped append-only audit table (extend with `source` discriminator + `app_version` + `observed_at` + `anonymous_session_id` for D-MOB-03 in Plan 02-02)
+- `services/backend/app/models/audit_event.py` — Hotfix C `user_id_hash` (HMAC-pepper migration in Plan 02-02 W1 per obs #175)
+- `services/backend/app/services/encryption/key_vault.py` — existing 2-backend KMS facade (logical-id pattern fits Q2 Railway-native, wired in Plan 02-02)
+- `services/backend/app/services/regulatory/registry.py` — RegulatoryParameter source for `subject_type='regulatory'` event-log dual-write
+- `apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart` — Phase 01 codegen output (mobile L1 audit reads `regulatoryConstantsVersionHash`)
+- `services/backend/app/services/independants/` (S18) + `services/backend/app/services/expat/frontalier_service.py` (S23) — S12 façade-delegate-to-granular pattern (obs #183 + Julien promote IJM/LAA to S18 in Plan 02-01)
+- `services/backend/app/api/v1/endpoints/coach_chat.py:957-1015` — `_PROFILE_SAFE_FIELDS` Stage-0 + D-MOB-01 drift inventory (Flutter-side emission gap closed in Plan 02-01 PR-A2 + Plan 02-04 PR-A3)
+- `.github/workflows/regulatory-codegen.yml` — Q6 CI staging-down policy (extend with STAGING-MALFORMED status + scheduled-only aging writes + HARD label override in Plan 02-04)
+- engram obs #163 (Phase 01 CONTEXT) · #174 (db-architect Q1+Q4+Q5) · #175 (security Q2+Q3+Q7 + STRIDE + HMAC-pepper) · #176 (architect-review integrated + mobile L1 audit gap discovery) · #178 (devops Q6 + 8-item PR-readiness + 6 new counters) · #182 (Q6 Railway-native scraping decided) · #183 (S12 design) · #186 (Flutter D-MOB design) · #187 (QA panel predicted Postgres bug) · #188 (Postgres BOOLEAN DEFAULT bug + fix) · #233 (substrate code-only on dev — operational deploy split 2026-05-19)
+
+### Phase: mint-data-architecture-v1-02-deploy
+**Goal**: Apply the Phase 02 substrate (fact_event + fact_current + DEK envelope + parity audit tables p118/p119 + projection_diff drift gate) to **staging then production** databases. Execute Plan 02-03 operational cutover (Task 2a staging gate + PR-3b read-cutover atomic + PR-4 FF removal + PR-5 SnapshotModel drop) and Plan 02-04 autonomous tasks (Q6 CI mechanical fixes + declared_counters_must_fire HARD gate + 3 forward-deferred runbooks). Includes alembic chain audit (prod at `29_05_magic_link_tokens` head, staging at `p112_audit_event_user_hash` head — both behind dev `p119_phase02_parity_cont` by 7+ to dozens of revs), staging-first migration apply with smoke, prod migration apply, 7-day continuous_drift_sampler soak window, Mobile L1 device-side wiring (DEFERRED-02-02-D/E/F + sqflite_sqlcipher + iOS entitlement isolated PR), and the 5 sec/arch FLAGs from QA panel (sec FLAG-2 + sec FLAG-4 + sec FLAG-5 + arch FLAG-2 + arch FLAG-3).
+**Status**: 📋 OPEN 2026-05-19 — bootstrap CONTEXT.md created. Plan files + RESEARCH + VALIDATION pending. Operational-substrate gap discovery (engram obs #233) is the load-bearing premise.
+**Plans**: TBD — likely 4 plans (W0 alembic chain audit + staging migration prep + W1 staging migration apply + W2 Plan 02-03 PR-3b/PR-4/PR-5 + Task 2a operational + W3 Plan 02-04 Task 1/2/3/4 + Mobile L1 device wiring + W4 prod migration apply + close-out).
+
+Plans:
+- [ ] mint-data-architecture-v1-02-deploy-01-alembic-chain-audit-PLAN.md — TBD : audit why prod is at `29_05_magic_link_tokens` (could be old fork, undeployed Phase 01, or pre-Phase-01 fossil) + design forward-migration path through dozens of revs ; staging at `p112` simpler but still 7+ revs behind.
+- [ ] mint-data-architecture-v1-02-deploy-02-staging-migration-apply-PLAN.md — TBD : apply alembic chain to staging + smoke + Task 2a operational gate (FF=on staging + backfill x2 + 100% projection_diff audit + Julien sign-off) + 7-day continuous_drift_sampler clean window.
+- [ ] mint-data-architecture-v1-02-deploy-03-cutover-PR3b-PR4-PR5-PLAN.md — TBD : PR-3b read-cutover atomic + PR-4 FF removal + PR-5 SnapshotModel drop (alembic p117) — each gated per existing Plan 02-03 iter-2 checkpoint contract.
+- [ ] mint-data-architecture-v1-02-deploy-04-plan-02-04-tasks-PLAN.md — TBD : ship Plan 02-04 Task 1 (D-09 alias + D-10 dead-fields) + Task 2 (Q6 CI mechanical fixes) + Task 3 (declared_counters_must_fire HARD gate) + Task 4 (3 forward-deferred runbooks) + Mobile L1 device-side wiring (DEFERRED-02-02-D/E/F) + 5 QA panel FLAGs.
+
+**Depends on**: `mint-data-architecture-v1-02-event-log-projection` ◆ substrate code-shipped on dev 2026-05-19.
+**Blocks**: deferred Phase 03 (coach-extractor LLM + guardrails — requires fact_event substrate to be DEPLOYED, not just on dev).
+**Canonical refs**:
+- `.planning/phases/mint-data-architecture-v1-02-deploy/CONTEXT.md` — phase bootstrap (created 2026-05-19)
+- `.planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-projection-SUMMARY.md` — Phase 02 substrate close-out narrative (what's done + what's split)
+- `.planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-projection-VERIFICATION-REPORT.html` — substrate verification (5-gate panel)
+- `.planning/phases/mint-data-architecture-v1-02-event-log-projection/deferred-items.md` — Plan 02-01/02-02 deferred items absorbed by this phase
+- engram obs #233 — operational-substrate-gap finding (load-bearing premise)
+
 
 
 <details>

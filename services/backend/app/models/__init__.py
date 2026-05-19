@@ -35,6 +35,9 @@ from app.models.coach_insight import CoachInsightRecord
 from app.models.document_memory import DocumentMemory
 from app.models.dek_vault import DEKVault
 from app.models.projection_audit_record import ProjectionAuditRecord
+# Phase mint-data-architecture-v1-02 Plan 02-02 W1 — D-26 + D-27 + D-28 event log
+from app.models.fact_event import FactEvent
+from app.models.fact_current import FactCurrent
 
 __all__ = [
     "User",
@@ -64,4 +67,6 @@ __all__ = [
     "DocumentMemory",
     "DEKVault",
     "ProjectionAuditRecord",
+    "FactEvent",
+    "FactCurrent",
 ]
