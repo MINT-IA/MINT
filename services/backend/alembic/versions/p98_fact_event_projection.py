@@ -148,22 +148,23 @@ def _upgrade_postgres() -> None:
         """
     )
 
-    # iter-2 A2 : FK added NOT VALID for online-migration semantics, then
-    # VALIDATEd in a separate statement. NOT VALID skips the existing-row
-    # check at ADD time (no AccessExclusiveLock); VALIDATE then walks the
-    # rows with a ShareUpdateExclusiveLock that does NOT block writes.
-    op.execute(
-        """
-        ALTER TABLE fact_event
-            ADD CONSTRAINT fact_event_user_id_fkey
-            FOREIGN KEY (user_id) REFERENCES users (id)
-            ON DELETE CASCADE
-            NOT VALID
-        """
-    )
-    op.execute(
-        "ALTER TABLE fact_event VALIDATE CONSTRAINT fact_event_user_id_fkey"
-    )
+    # Postgres rejects ADD FOREIGN KEY ... NOT VALID on a partitioned table
+    # (« This feature is not yet supported on partitioned tables » — PG 15+).
+    # The supported pattern is to attach the FK to each child partition
+    # individually : Postgres treats each partition as a regular table from
+    # the FK-machinery standpoint, and ON DELETE CASCADE works correctly
+    # because hash(user_id) % 8 routes a deleted user's rows to exactly one
+    # partition. NOT VALID is unnecessary here — each partition has 0 rows
+    # immediately post-CREATE, so validation is a no-op.
+    for i in range(8):
+        op.execute(
+            f"""
+            ALTER TABLE fact_event_p{i}
+                ADD CONSTRAINT fact_event_p{i}_user_id_fkey
+                FOREIGN KEY (user_id) REFERENCES users (id)
+                ON DELETE CASCADE
+            """
+        )
 
     # ── fact_current (denormalised read-side, UPSERT-friendly) ─────────────
     op.execute(
