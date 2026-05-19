@@ -46,6 +46,15 @@ class FeatureFlags:
     # Admin screens: observability, analytics (off by default)
     enable_admin_screens: bool = False
 
+    # Phase 02 Plan 02-03 PR-1 (D-05) — dual-write SnapshotModel -> fact_event.
+    # OFF in dev/staging/prod by default ; flipped ON on staging only during
+    # the PR-3a backfill + soak window ; removed entirely in PR-4 decommission.
+    # Helper : is_fact_event_dual_write_enabled() module-level for the
+    # snapshot_service writer (Karpathy #3 — match existing
+    # os.environ.get('FF_FACT_CURRENT_READ', ...) pattern from Plan 02-02
+    # rather than introducing a third resolution shape).
+    fact_event_dual_write: bool = False
+
     @classmethod
     def require_flag(cls, flag_name: str) -> None:
         """Raise HTTP 403 if the given feature flag is disabled.
@@ -94,4 +103,28 @@ class FeatureFlags:
             "enable_admin_screens": _env_bool(
                 "FF_ENABLE_ADMIN_SCREENS", cls.enable_admin_screens
             ),
+            "fact_event_dual_write": _env_bool(
+                "FF_FACT_EVENT_DUAL_WRITE", cls.fact_event_dual_write
+            ),
         }
+
+
+def is_fact_event_dual_write_enabled() -> bool:
+    """Module-level helper for the snapshot_service writer (Plan 02-03 PR-1, D-05).
+
+    Reads the FF_FACT_EVENT_DUAL_WRITE env var (truthy values : '1', 'true',
+    'yes'). Default False — dev/staging/prod all start with dual-write OFF.
+
+    Matches the existing Plan 02-02 module-level pattern :
+    `read_monthly_gross_income(...)` in snapshot_service.py uses the same
+    `os.environ.get('FF_FACT_CURRENT_READ', '').lower()` shape. Keeping the
+    same shape avoids introducing a third feature-flag resolution path
+    (Karpathy #3 — surgical changes ; one pattern, one env-var prefix).
+
+    PR-1 lands the helper + default-OFF behaviour.
+    PR-2 wires the helper into snapshot_service.create_snapshot() under a
+    feature-flag-gated dual-write branch.
+    PR-4 removes the helper + the writer branch (post-cutover decommission).
+    """
+    val = os.environ.get("FF_FACT_EVENT_DUAL_WRITE", "").lower()
+    return val in ("1", "true", "yes")
