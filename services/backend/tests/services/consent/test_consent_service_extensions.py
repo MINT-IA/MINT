@@ -161,49 +161,74 @@ def test_grant_with_basis_writes_basis_and_chains_via_merkle(db, service):
 
 # --- check_or_log dispatch --------------------------------------------------
 
-def test_check_or_log_log_only_missing_grant(db, service, caplog):
-    """log_only + grant missing → allow=True + warning log emitted."""
-    import logging
-    caplog.set_level(logging.WARNING, logger="app.services.consent.consent_service")
-    result = service.check_or_log(
-        db,
-        user_id="u1",
-        purpose=ConsentPurpose.TRANSFER_US_ANTHROPIC,
-        mode="log_only",
-    )
+def test_check_or_log_log_only_missing_grant(db, service):
+    """log_only + grant missing → allow=True + warning log emitted.
+
+    Uses direct logger.warning mock instead of caplog: CI runs the full
+    suite with `-x --cov` and an earlier test mutates root-logger handler
+    state (PIILogFilter init in app.main + cov instrumentation), causing
+    caplog to drop records sporadically. The mock pattern is sequence-
+    independent and asserts the actual contract: a "consent_missing"
+    warning fires through the consent_service logger.
+
+    NB : `from app.services.consent import consent_service` returns the
+    SINGLETON (__init__.py overrides the submodule name), so we resolve the
+    real submodule via `sys.modules` to mock its module-level `logger`.
+    """
+    import sys
+    from unittest.mock import patch
+    cs_mod = sys.modules["app.services.consent.consent_service"]
+
+    with patch.object(cs_mod.logger, "warning") as mock_warning:
+        result = service.check_or_log(
+            db,
+            user_id="u1",
+            purpose=ConsentPurpose.TRANSFER_US_ANTHROPIC,
+            mode="log_only",
+        )
+
     assert isinstance(result, ConsentCheckResult)
     assert result.grant_exists is False
     assert result.allow is True
     assert result.warning_header is None
     assert result.deny_pointer is None
-    # Warning log fired.
+    # Warning log fired with the canonical "consent_missing" message.
+    assert mock_warning.called, "expected logger.warning to be called"
+    call_msgs = [str(c.args[0]) for c in mock_warning.call_args_list if c.args]
     assert any(
-        "consent_missing" in rec.message for rec in caplog.records
-    ), "expected a 'consent_missing' warning log line"
+        "consent_missing" in m for m in call_msgs
+    ), f"expected a 'consent_missing' warning; got {call_msgs!r}"
 
 
-def test_check_or_log_log_only_grant_present_no_log(db, service, caplog):
-    """log_only + grant present → allow=True, NO warning log."""
-    import logging
+def test_check_or_log_log_only_grant_present_no_log(db, service):
+    """log_only + grant present → allow=True, NO warning log.
+
+    Same mock-based pattern as test_check_or_log_log_only_missing_grant
+    for CI-stability (caplog drops records in -x --cov runs).
+    """
+    import sys
+    from unittest.mock import patch
+    cs_mod = sys.modules["app.services.consent.consent_service"]
+
     service.grant(
         db,
         user_id="u1",
         purpose=ConsentPurpose.TRANSFER_US_ANTHROPIC.value,
         policy_version="v2.3.0",
     )
-    caplog.set_level(logging.WARNING, logger="app.services.consent.consent_service")
-    caplog.clear()
-    result = service.check_or_log(
-        db,
-        user_id="u1",
-        purpose=ConsentPurpose.TRANSFER_US_ANTHROPIC,
-        mode="log_only",
-    )
+    with patch.object(cs_mod.logger, "warning") as mock_warning:
+        result = service.check_or_log(
+            db,
+            user_id="u1",
+            purpose=ConsentPurpose.TRANSFER_US_ANTHROPIC,
+            mode="log_only",
+        )
     assert result.grant_exists is True
     assert result.allow is True
+    call_msgs = [str(c.args[0]) for c in mock_warning.call_args_list if c.args]
     assert not any(
-        "consent_missing" in rec.message for rec in caplog.records
-    ), "no warning log expected when grant exists"
+        "consent_missing" in m for m in call_msgs
+    ), f"no warning log expected when grant exists; got {call_msgs!r}"
 
 
 def test_check_or_log_soft_block_populates_warning_header(db, service):
