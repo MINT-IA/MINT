@@ -12,7 +12,10 @@ late do NOT clobber newer state).
 
 `value_enc` + `confidence` follow the same D-26 + D-29 Pydantic wire shapes
 as `fact_event`. The two tables share a write transaction (D-19) — the
-projector wraps both writes in `async with session.begin()`.
+projector wraps both writes in `with session.begin()` (sync SQLAlchemy
+session ; the original plan spec said async but the implementation chose
+sync for parity with the rest of the backend's request-scoped session ;
+QA code-reviewer polish FLAG-1 docstring correction 2026-05-19).
 
 Read path
 =========

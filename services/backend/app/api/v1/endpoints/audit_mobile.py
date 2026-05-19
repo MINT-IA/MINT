@@ -36,7 +36,7 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List, Literal, Optional
 from uuid import uuid4
 
 import sqlalchemy as sa
@@ -60,16 +60,21 @@ router = APIRouter()
 class MobileSessionEvent(BaseModel):
     """Single Mobile L1 audit event payload — matches the D-12 contract.
 
-    `source` is restricted at the application layer to the Mobile L1 source
-    values ; backend writer code (snapshot_service) writes
-    source='projection' via the ORM default, NEVER through this endpoint.
+    `source` is type-restricted via `Literal` to the Mobile L1 source values
+    (QA sec FLAG-3 fix, 2026-05-19). Backend writer code (snapshot_service,
+    projector, backfill script) writes `source='projection' / 'snapshot_dual_write'
+    / 'snapshot_backfill_v1'` via the ORM default, NEVER through this endpoint.
+    Without the allowlist, a malicious client could POST `source='projection'`
+    to fabricate audit rows structurally indistinguishable from server-side
+    writes (STRIDE: Spoofing). Add new values here as new mobile session
+    states are introduced (and update tests/integration/test_audit_mobile_link.py).
     """
 
     anonymous_session_id: str = Field(min_length=8, max_length=36)
     app_version: str = Field(min_length=1, max_length=32)
     observed_at: str = Field(min_length=1, max_length=64)  # ISO 8601
     constants_version_hash: str = Field(min_length=1, max_length=64)
-    source: str = Field(min_length=1, max_length=32)
+    source: Literal["mobile_session_start", "mobile_session_warm_resume"]
     local_event_id: Optional[str] = Field(default=None, max_length=64)
     app_lifecycle_state: Optional[str] = Field(default=None, max_length=32)
 
@@ -322,21 +327,30 @@ def upload_mobile_session_events(
                 user=user,
                 server_received_ts=server_received_ts,
             )
-            db.add(row)
-            db.flush()  # surface UNIQUE-violation per-row, not at commit
-            seen_in_batch.add(in_batch_key)
-            linked += 1
+            # QA BLOCK-2 fix (2026-05-19) : wrap the per-row INSERT in a
+            # SAVEPOINT so a mid-batch IntegrityError rolls back ONLY this
+            # row, preserving previously-linked rows in the same outer
+            # transaction. The previous `db.rollback()` pattern cascade-
+            # deleted all prior `linked` rows silently — caller saw
+            # `linked=49` but only 20 rows in DB. Mirrors the SAVEPOINT
+            # pattern in fact_projector.py:96-101.
+            try:
+                with db.begin_nested():
+                    db.add(row)
+                    db.flush()  # surface UNIQUE-violation per-row
+                seen_in_batch.add(in_batch_key)
+                linked += 1
+            except sa.exc.IntegrityError:
+                # In-batch tracking missed a concurrent dup (iter-2 A6
+                # spoof scenario : another mobile device replayed the
+                # same anonymous_session_id+observed_at tuple between
+                # the SELECT pre-check and the INSERT). The SAVEPOINT
+                # auto-rolled back this row ; prior linked rows are
+                # preserved in the outer transaction.
+                skipped += 1
+                continue
         except HTTPException:
             raise
-        except sa.exc.IntegrityError:
-            # Belt-and-suspenders : if the in-batch tracking missed a dup
-            # (e.g., concurrent batch from another mobile device with the
-            # same anonymous_session_id under iter-2 A6 spoof scenario),
-            # rollback the failed insert and count it as skipped rather
-            # than crashing the whole batch.
-            db.rollback()
-            skipped += 1
-            continue
         except Exception:  # pragma: no cover — surfaces as 500 + counter
             mint_anonymous_session_link_total.labels(outcome="error").inc()
             db.rollback()

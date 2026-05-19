@@ -10,6 +10,8 @@
 // distinguish « briefly backgrounded » (no new audit row) from
 // « warm-resume after sleep » (new audit row).
 
+import 'dart:async' show unawaited;
+
 import 'package:flutter/widgets.dart';
 
 import '../audit/mobile_l1_audit_service.dart';
@@ -69,10 +71,7 @@ class MobileL1AuditLifecycleObserver extends WidgetsBindingObserver {
     }
   }
 }
-
-void unawaited(Future<void> future) {
-  // Pure helper to silence the « unawaited_futures » lint when we
-  // explicitly want fire-and-forget semantics (lifecycle handlers
-  // cannot await without blocking the framework).
-  future.catchError((Object _) {});
-}
+// QA code-reviewer polish FLAG-4 (2026-05-19) : removed local unawaited()
+// re-definition. The codebase elsewhere imports it from dart:async (see
+// apps/mobile/lib/providers/coach_profile_provider.dart) — local helper
+// shadowed the stdlib version with identical semantics, inconsistency only.

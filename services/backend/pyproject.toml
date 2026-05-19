@@ -59,6 +59,13 @@ dependencies = [
     # target config deferred to Julien decision (Grafana Cloud vs Datadog
     # vs Railway built-in).
     "prometheus-client>=0.20,<1.0",
+    # Phase mint-data-architecture-v1-02 Plan 02-02 — D-02 DEK TTL cache
+    # in key_vault.py uses cachetools.TTLCache. Without this declared dep,
+    # Railway clean `pip install .` lands without cachetools (it was
+    # transitively installed locally but not in the lockfile), and the
+    # first call to encrypt_value/decrypt_value crashes with ImportError.
+    # Detected by Phase 02 QA panel code-reviewer (2026-05-19).
+    "cachetools>=5.0,<7.0",
 ]
 
 [project.optional-dependencies]

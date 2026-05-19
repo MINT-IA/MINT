@@ -148,6 +148,38 @@ def project_event(session: Session, event: FactEventInput) -> str:
             },
         )
 
+        # ── 3. QA sec FLAG-1 (2026-05-19) — post-write divergence assertion ─
+        # Defense-in-depth against ContextVar leak bugs that could swap
+        # event.user_id between the INSERT into fact_event and the UPSERT
+        # into fact_current. Without this guard, a wrong-user_id corruption
+        # would silently land cross-user data until the drift sampler caught
+        # it (continuous_drift_sampler runs hourly, deferred to Plan 02-04
+        # full integration). The cost is one extra SELECT per project_event
+        # call ; the benefit is mechanical proof that the UPSERT actually
+        # targeted the same (user_id, field_key) tuple we just inserted into
+        # fact_event. Failure raises inside the `with ctx:` block so the
+        # SAVEPOINT (or outer transaction) rolls back automatically — neither
+        # fact_event NOR fact_current is mutated on assertion failure.
+        verified_row = session.execute(
+            text(
+                """
+                SELECT 1 FROM fact_current
+                 WHERE user_id = :user_id
+                   AND field_key = :field_key
+                """
+            ),
+            {"user_id": event.user_id, "field_key": event.field_key},
+        ).first()
+        if verified_row is None:
+            raise RuntimeError(
+                f"Phase 02 sec FLAG-1 post-write assertion failed : "
+                f"project_event for user_id={event.user_id!r} "
+                f"field_key={event.field_key!r} valid_from={event.valid_from!r} "
+                f"did not produce a matching fact_current row. Possible "
+                f"ContextVar user_id swap, schema invariant violation, or "
+                f"UPSERT silent failure. Rolling back transaction."
+            )
+
     return event_id
 
 
