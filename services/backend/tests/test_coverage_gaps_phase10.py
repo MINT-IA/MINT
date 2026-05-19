@@ -264,8 +264,15 @@ class TestConfigGuardsCoverage:
         os.environ["ENVIRONMENT"] = "development"
         os.environ.setdefault("DATABASE_URL", "sqlite:///./test.db")
 
+        from app.core import config
+        # Snapshot the original singleton — `importlib.reload(config)` swaps
+        # `config.settings` for a NEW instance, but every module across the
+        # codebase that did `from app.core.config import settings` at load
+        # time still holds the ORIGINAL reference. Restore the original on
+        # teardown to prevent contamination of downstream tests.
+        original_settings = config.settings
+
         try:
-            from app.core import config
             importlib.reload(config)
             assert config.settings is not None
         finally:
@@ -273,6 +280,9 @@ class TestConfigGuardsCoverage:
                 os.environ["ENVIRONMENT"] = original_env
             elif "ENVIRONMENT" in os.environ:
                 del os.environ["ENVIRONMENT"]
+            # Restore the ORIGINAL singleton — see sibling test in
+            # tests/test_config_guards.py::TestChromaDBPersistDir for rationale.
+            config.settings = original_settings
 
     def test_chromadb_persist_dir_field_exists(self):
         """CHROMADB_PERSIST_DIR field is present on Settings."""

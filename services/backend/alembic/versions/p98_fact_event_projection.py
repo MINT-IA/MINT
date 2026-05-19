@@ -84,10 +84,17 @@ def _upgrade_postgres() -> None:
     # ── fact_event (PARTITION BY HASH, 8 partitions, append-only) ──────────
     # We can't use op.create_table directly because alembic doesn't emit
     # `PARTITION BY HASH (...) PARTITIONS N`. Use raw DDL.
+    # Postgres v14+ enforces : any UNIQUE / PRIMARY KEY constraint on a
+    # partitioned table MUST include the partition-key columns. We partition
+    # by HASH (user_id), so the PRIMARY KEY must include user_id. We use a
+    # composite PK (event_id, user_id) instead of just event_id. event_id is
+    # a UUID7 (uuid_utils.uuid7) so collisions across users are practically
+    # impossible — the composite PK is functionally equivalent to a unique
+    # constraint on event_id alone, while satisfying the partition rule.
     op.execute(
         """
         CREATE TABLE fact_event (
-            event_id        UUID PRIMARY KEY,
+            event_id        UUID NOT NULL,
             user_id         VARCHAR NOT NULL,
             field_key       VARCHAR(128) NOT NULL,
             value_enc       JSONB NOT NULL,
@@ -95,7 +102,8 @@ def _upgrade_postgres() -> None:
             valid_from      TIMESTAMPTZ NOT NULL,
             recorded_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
             source          VARCHAR(64) NOT NULL,
-            event_version   INTEGER NOT NULL DEFAULT 1
+            event_version   INTEGER NOT NULL DEFAULT 1,
+            PRIMARY KEY (event_id, user_id)
         ) PARTITION BY HASH (user_id)
         """
     )
@@ -140,22 +148,23 @@ def _upgrade_postgres() -> None:
         """
     )
 
-    # iter-2 A2 : FK added NOT VALID for online-migration semantics, then
-    # VALIDATEd in a separate statement. NOT VALID skips the existing-row
-    # check at ADD time (no AccessExclusiveLock); VALIDATE then walks the
-    # rows with a ShareUpdateExclusiveLock that does NOT block writes.
-    op.execute(
-        """
-        ALTER TABLE fact_event
-            ADD CONSTRAINT fact_event_user_id_fkey
-            FOREIGN KEY (user_id) REFERENCES users (id)
-            ON DELETE CASCADE
-            NOT VALID
-        """
-    )
-    op.execute(
-        "ALTER TABLE fact_event VALIDATE CONSTRAINT fact_event_user_id_fkey"
-    )
+    # Postgres rejects ADD FOREIGN KEY ... NOT VALID on a partitioned table
+    # (« This feature is not yet supported on partitioned tables » — PG 15+).
+    # The supported pattern is to attach the FK to each child partition
+    # individually : Postgres treats each partition as a regular table from
+    # the FK-machinery standpoint, and ON DELETE CASCADE works correctly
+    # because hash(user_id) % 8 routes a deleted user's rows to exactly one
+    # partition. NOT VALID is unnecessary here — each partition has 0 rows
+    # immediately post-CREATE, so validation is a no-op.
+    for i in range(8):
+        op.execute(
+            f"""
+            ALTER TABLE fact_event_p{i}
+                ADD CONSTRAINT fact_event_p{i}_user_id_fkey
+                FOREIGN KEY (user_id) REFERENCES users (id)
+                ON DELETE CASCADE
+            """
+        )
 
     # ── fact_current (denormalised read-side, UPSERT-friendly) ─────────────
     op.execute(
@@ -206,9 +215,13 @@ def _upgrade_sqlite() -> None:
     preserved at the application layer by FactProjector. The DB-level
     enforcement only kicks in on Postgres (Railway prod / pg_fixture tests).
     """
+    # Composite PK (event_id, user_id) to match the Postgres path (where the
+    # partition rule requires user_id in the PK). SQLite doesn't enforce
+    # partitioning, but using the same PK shape here keeps the ORM model
+    # consistent across dialects.
     op.create_table(
         "fact_event",
-        sa.Column("event_id", sa.String(length=36), primary_key=True, nullable=False),
+        sa.Column("event_id", sa.String(length=36), nullable=False),
         sa.Column(
             "user_id",
             sa.String,
@@ -227,6 +240,7 @@ def _upgrade_sqlite() -> None:
         ),
         sa.Column("source", sa.String(length=64), nullable=False),
         sa.Column("event_version", sa.Integer(), nullable=False, server_default=sa.text("1")),
+        sa.PrimaryKeyConstraint("event_id", "user_id"),
     )
     op.create_index(
         "ix_fact_event_user_field_valid",

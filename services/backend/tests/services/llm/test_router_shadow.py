@@ -54,7 +54,21 @@ async def test_router_default_off_uses_anthropic_only():
 
 
 @pytest.mark.asyncio
-async def test_router_shadow_fires_both_returns_anthropic(caplog):
+async def test_router_shadow_fires_both_returns_anthropic():
+    """Shadow comparator fires on both clients ; user receives the anthropic response.
+
+    Uses direct logger.info mock (same pattern as consent caplog tests) for
+    CI-stability under `pytest -x --cov` — sequence-dependent caplog drops
+    when many tests run before this one (PIILogFilter + pytest-cov
+    instrumentation mutate root-logger handler state).
+    """
+    import sys
+    from unittest.mock import patch
+    sc_mod = sys.modules.get("app.services.llm.shadow_comparator")
+    if sc_mod is None:
+        import app.services.llm.shadow_comparator  # noqa: F401 — populate sys.modules
+        sc_mod = sys.modules["app.services.llm.shadow_comparator"]
+
     anthropic_client = AsyncMock()
     anthropic_client.messages.create = AsyncMock(return_value=_make_resp("A"))
     bedrock_client = MagicMock()
@@ -71,7 +85,7 @@ async def test_router_shadow_fires_both_returns_anthropic(caplog):
         bedrock_client=bedrock_client,
         flags=flags,
     )
-    with caplog.at_level(logging.INFO, logger="app.services.llm.shadow_comparator"):
+    with patch.object(sc_mod.logger, "info") as mock_info:
         resp = await router.invoke(LLMRequest(
             model="sonnet",
             messages=[{"role": "user", "content": "hi"}],
@@ -80,8 +94,11 @@ async def test_router_shadow_fires_both_returns_anthropic(caplog):
         ))
     assert resp.content[0].text == "A"  # user receives anthropic
     bedrock_client.messages.assert_called_once()
-    # Shadow comparator emitted diff log
-    assert any("llm_shadow_diff" in r.message for r in caplog.records)
+    # Shadow comparator emitted diff log via logger.info("llm_shadow_diff ...").
+    call_msgs = [str(c.args[0]) for c in mock_info.call_args_list if c.args]
+    assert any(
+        "llm_shadow_diff" in m for m in call_msgs
+    ), f"expected 'llm_shadow_diff' info log; got {call_msgs!r}"
 
 
 @pytest.mark.asyncio
@@ -139,11 +156,20 @@ async def test_router_primary_bedrock_falls_back_on_error():
     assert resp.content[0].text == "A_fallback"
 
 
-def test_shadow_comparator_logs_metrics_no_content(caplog):
+def test_shadow_comparator_logs_metrics_no_content():
+    """ShadowComparator.log() emits metrics-only diff via logger.info, no content leak.
+
+    Uses direct logger.info mock for CI-stability (same caplog flake pattern
+    as test_router_shadow_fires_both_returns_anthropic).
+    """
+    import sys
+    from unittest.mock import patch
+    sc_mod = sys.modules["app.services.llm.shadow_comparator"]
+
     comparator = ShadowComparator()
     anthropic_resp = _make_resp("Bonjour Julien, comment puis-je t'aider ?", 10, 5)
     bedrock_resp = _make_resp("Salut Julien, comment t'aider ?", 10, 6)
-    with caplog.at_level(logging.INFO, logger="app.services.llm.shadow_comparator"):
+    with patch.object(sc_mod.logger, "info") as mock_info:
         comparator.log(
             anthropic_resp=anthropic_resp,
             anthropic_latency_ms=1200,
@@ -151,14 +177,26 @@ def test_shadow_comparator_logs_metrics_no_content(caplog):
             bedrock_latency_ms=1450,
             bedrock_error=None,
         )
-    records = [r for r in caplog.records if "llm_shadow_diff" in r.message]
-    assert len(records) == 1
-    msg = records[0].message
+    # logger.info uses %-format ("...%d...", val1, val2) — apply % to get the
+    # final formatted message that a handler/caplog would have emitted.
+    call_msgs = []
+    for c in mock_info.call_args_list:
+        if not c.args:
+            continue
+        fmt = str(c.args[0])
+        sub = c.args[1:]
+        try:
+            call_msgs.append(fmt % sub if sub else fmt)
+        except (TypeError, ValueError):
+            call_msgs.append(fmt)
+    diff_msgs = [m for m in call_msgs if "llm_shadow_diff" in m]
+    assert len(diff_msgs) == 1, f"expected 1 llm_shadow_diff log; got {call_msgs!r}"
+    msg = diff_msgs[0]
     # Metrics present
     assert "similarity=" in msg
     assert "anthropic_latency_ms=1200" in msg
     assert "bedrock_latency_ms=1450" in msg
-    # Content NOT leaked
+    # Content NOT leaked (PRIV-07 contract)
     assert "Bonjour" not in msg
     assert "Salut" not in msg
 
@@ -270,12 +308,18 @@ async def test_transient_client_closed_even_when_api_raises(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_transient_client_close_failure_is_swallowed(monkeypatch, caplog):
+async def test_transient_client_close_failure_is_swallowed(monkeypatch):
     """A failing close() must not mask the successful upstream response.
 
     If close() raised, the router would leak exceptions from a finalizer
-    path — that's worse than the transport lingering. Log debug, continue."""
+    path — that's worse than the transport lingering. Log debug, continue.
+
+    Uses direct logger.debug mock instead of caplog for CI-stability.
+    """
+    import sys
+    from unittest.mock import patch
     from app.services.llm import router as router_mod
+    router_log_mod = sys.modules["app.services.llm.router"]
 
     created = AsyncMock()
     created.messages.create = AsyncMock(return_value=_make_resp("A"))
@@ -287,7 +331,7 @@ async def test_transient_client_close_failure_is_swallowed(monkeypatch, caplog):
     flags.is_enabled = AsyncMock(return_value=False)
 
     router = LLMRouter(flags=flags)
-    with caplog.at_level(logging.DEBUG, logger="app.services.llm.router"):
+    with patch.object(router_log_mod.logger, "debug") as mock_debug:
         resp = await router.invoke(LLMRequest(
             model="sonnet",
             messages=[{"role": "user", "content": "hi"}],
@@ -295,4 +339,17 @@ async def test_transient_client_close_failure_is_swallowed(monkeypatch, caplog):
         ))
     assert resp.content[0].text == "A"
     created.close.assert_awaited_once()
-    assert any("transient anthropic close failed" in r.message for r in caplog.records)
+    # debug() may use either positional msg or %-format ; resolve both.
+    call_msgs = []
+    for c in mock_debug.call_args_list:
+        if not c.args:
+            continue
+        fmt = str(c.args[0])
+        sub = c.args[1:]
+        try:
+            call_msgs.append(fmt % sub if sub else fmt)
+        except (TypeError, ValueError):
+            call_msgs.append(fmt)
+    assert any(
+        "transient anthropic close failed" in m for m in call_msgs
+    ), f"expected 'transient anthropic close failed' debug log; got {call_msgs!r}"

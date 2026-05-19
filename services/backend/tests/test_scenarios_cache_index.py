@@ -151,6 +151,16 @@ def _make_config(tmp_path, monkeypatch) -> Config:
     # Invalidate the cached Settings if app.core.config has been imported.
     from app.core import config as _cfg_mod
 
+    # Snapshot original singleton before reload — `importlib.reload(_cfg_mod)`
+    # swaps `_cfg_mod.settings` for a NEW instance, but every other module
+    # across the codebase that did `from app.core.config import settings` at
+    # load time still holds the ORIGINAL reference. Without restoration on
+    # monkeypatch teardown, downstream tests that patch the ORIGINAL via
+    # `monkeypatch.setattr(settings, ...)` would see their patches ignored
+    # by code that reads the (orphaned-but-still-cached-via-name-binding)
+    # OLD reference. monkeypatch.setattr restores the attribute on teardown,
+    # which here means re-assigning the module attribute back to the snapshot.
+    monkeypatch.setattr(_cfg_mod, "settings", _cfg_mod.settings)
     importlib.reload(_cfg_mod)
     backend_root = Path(__file__).parent.parent  # services/backend
     cfg = Config(str(backend_root / "alembic.ini"))

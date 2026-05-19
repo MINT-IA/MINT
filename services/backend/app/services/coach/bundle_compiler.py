@@ -215,7 +215,17 @@ def compile_bundles(
     # The grammar bundle is conceptually always-on per Phase 94.1 architecture
     # but registered HERE (not in the `_ALWAYS_ON` constant) to keep the
     # legacy invariant intact.
-    if settings.COACH_CITATION_GATE_ENABLED and CitationGrammarBundle not in seen:
+    #
+    # Deferred-import pattern : `tests/test_config_guards.py` calls
+    # `importlib.reload(app.core.config)` mid-suite which swaps the module's
+    # `settings` attribute for a new instance. The module-level
+    # `from app.core.config import settings` at line 28 captured the OLD
+    # instance ; after reload, monkeypatch on `app.core.config.settings.X`
+    # hits the NEW instance but THIS module still sees the OLD. Re-import
+    # inside the function to read the CURRENT settings instance — mirrors
+    # `app/api/v1/endpoints/coach_chat.py:3330` _validate_cap_response.
+    from app.core.config import settings as _live_settings
+    if _live_settings.COACH_CITATION_GATE_ENABLED and CitationGrammarBundle not in seen:
         bundle_classes.append(CitationGrammarBundle)
         seen.add(CitationGrammarBundle)
 

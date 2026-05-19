@@ -40,16 +40,20 @@ def test_pg_fixture_spins_postgres_and_alembic_upgrade_head_idempotent(pg_engine
     with pg_engine.connect() as conn:
         rows = conn.execute(text("SELECT version_num FROM alembic_version")).fetchall()
         heads_in_db = {r[0] for r in rows}
-    # Three valid states (Phase 02 chain evolution) :
+    # Valid states (Phase 02 chain evolution) :
     #   (a) Pre-merge dual-head : {p112, p86} both present.
     #   (b) Single legacy head : {p112} or {p86} alone (intermediate state).
     #   (c) Post-merge single head : {p98_merge_p86_eclairage} (canonical
     #       Plan 02-01 + PR-A onward, the merge migration was cherry-picked
     #       into Plan 02-01 to unblock pg_fixture CI 2026-05-19).
+    #   (d) Phase 02 substrate fully applied : {p119_phase02_parity_cont}
+    #       (canonical post-Phase-02-substrate, dev branch HEAD after the
+    #       4 squash PRs #653 #657 #656 #655 landed 2026-05-19).
     expected_heads = {
         "p112_audit_event_user_hash",
         "p86_eclairage_delivered",
         "p98_merge_p86_eclairage",
+        "p119_phase02_parity_cont",
     }
     assert heads_in_db & expected_heads, (
         f"alembic_version table missing expected heads. "
