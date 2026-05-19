@@ -100,7 +100,20 @@ def pg_engine():
 
     # Defer heavy imports until we know Docker is available.
     from sqlalchemy import create_engine
-    from testcontainers.postgres import PostgresContainer  # type: ignore[import-not-found]
+    try:
+        from testcontainers.postgres import PostgresContainer  # type: ignore[import-not-found]
+    except ImportError as exc:
+        # CI fix 2026-05-19 : the Backend tests workflow installs the base
+        # `dependencies` but not the `[test]` extra where testcontainers is
+        # declared. PG integration workflow installs `[test]` and runs this
+        # fixture for real. Backend tests path → skip gracefully so the
+        # other 7000+ tests can still run.
+        pytest.skip(
+            f"testcontainers package not installed ({exc}) — pg_fixture "
+            "requires `pip install '.[test]'`. PR-A merges testcontainers "
+            "via PG integration workflow; Backend tests workflow runs the "
+            "rest of the sweep unaffected. Per CONTEXT T-02-09 mitigation."
+        )
 
     with PostgresContainer(_PG_IMAGE) as pg:
         url = pg.get_connection_url()
@@ -165,16 +178,42 @@ def _run_alembic_upgrade_heads(database_url: str) -> None:
     (`p112_audit_event_user_hash` + `p86_eclairage_delivered`). See
     `deferred-items.md` DEFERRED-02-01-A. A merge migration will collapse
     these into a single head in a follow-up PR before / during Plan 02-02.
+
+    CI fix 2026-05-19 : services/backend/alembic/env.py:38 unconditionally
+    overrides `cfg.sqlalchemy.url` with `settings.DATABASE_URL`. Setting the
+    URL on the Config object is insufficient — env.py wins. The reliable
+    path is to set the `DATABASE_URL` env var AND patch the already-imported
+    `settings.DATABASE_URL` BEFORE invoking `command.upgrade()`. Otherwise
+    alembic upgrades whatever DB `settings.DATABASE_URL` resolves to (SQLite
+    default in test env), while the fixture queries the Postgres
+    testcontainer → `relation "alembic_version" does not exist`.
     """
+    import os
     from alembic import command
     from alembic.config import Config
 
-    alembic_ini = _BACKEND_ROOT / "alembic.ini"
-    cfg = Config(str(alembic_ini))
-    cfg.set_main_option("sqlalchemy.url", database_url)
-    # `alembic.ini` uses `prepend_sys_path = .` — when invoked from outside
-    # `services/backend/`, the `app.*` imports inside env.py / migrations would
-    # fail. Inject the backend root explicitly so env.py finds `app`.
     if str(_BACKEND_ROOT) not in sys.path:
         sys.path.insert(0, str(_BACKEND_ROOT))
-    command.upgrade(cfg, "heads")
+
+    # Patch BOTH the env var (for env.py re-loads) and the already-imported
+    # settings instance (Pydantic-Settings caches on first import).
+    from app.core.config import settings
+
+    original_db_url_env = os.environ.get("DATABASE_URL")
+    original_settings_url = settings.DATABASE_URL
+    os.environ["DATABASE_URL"] = database_url
+    settings.DATABASE_URL = database_url
+
+    try:
+        alembic_ini = _BACKEND_ROOT / "alembic.ini"
+        cfg = Config(str(alembic_ini))
+        cfg.set_main_option("sqlalchemy.url", database_url)
+        command.upgrade(cfg, "heads")
+    finally:
+        # Restore previous env state so subsequent non-pg-fixture tests still
+        # see the SQLite default.
+        settings.DATABASE_URL = original_settings_url
+        if original_db_url_env is None:
+            os.environ.pop("DATABASE_URL", None)
+        else:
+            os.environ["DATABASE_URL"] = original_db_url_env
