@@ -99,8 +99,12 @@ def fake_coach_ctx() -> CoachContext:
 def test_flag_on_uses_compile_bundles(monkeypatch, fake_coach_ctx):
     """Flag ON → composed prompt contains the fragment separator AND
     always-on content (DOCTRINE / LSFin keyword / RÈGLES DE CONFORMITÉ)."""
-    from app.core.config import settings as live_settings
-    monkeypatch.setattr(live_settings, "COACH_BUNDLE_COMPILER_ENABLED", True)
+    # Use dotted-string monkeypatch — resolves the settings attribute at
+    # patch time against the CURRENT module state, surviving any prior
+    # `importlib.reload(config)` contamination from other tests in the suite.
+    monkeypatch.setattr(
+        "app.core.config.settings.COACH_BUNDLE_COMPILER_ENABLED", True
+    )
 
     prompt = _build_system_prompt_with_memory(
         coach_ctx=fake_coach_ctx,
@@ -157,8 +161,12 @@ def test_flag_on_telemetry_breadcrumb_no_user_content(monkeypatch, fake_coach_ct
     """T-93.5-07 — Sentry breadcrumb payload MUST be exactly
     {activated_bundles, prompt_tokens, dropped_bundles}. Never user
     message content, never raw intents, never PII."""
-    from app.core.config import settings as live_settings
-    monkeypatch.setattr(live_settings, "COACH_BUNDLE_COMPILER_ENABLED", True)
+    # Use dotted-string monkeypatch — resolves the settings attribute at
+    # patch time against the CURRENT module state, surviving any prior
+    # `importlib.reload(config)` contamination from other tests in the suite.
+    monkeypatch.setattr(
+        "app.core.config.settings.COACH_BUNDLE_COMPILER_ENABLED", True
+    )
 
     captured: list[dict] = []
 
@@ -231,8 +239,12 @@ def test_dual_flag_combinatorial_no_crash(
 def test_flag_on_fallback_on_keyerror(monkeypatch, fake_coach_ctx):
     """Pitfall 1 — `_build_prompt.format(...)` slot interpolation failure
     surfaces as `KeyError` ; the bundle path MUST fall back to legacy."""
-    from app.core.config import settings as live_settings
-    monkeypatch.setattr(live_settings, "COACH_BUNDLE_COMPILER_ENABLED", True)
+    # Use dotted-string monkeypatch — resolves the settings attribute at
+    # patch time against the CURRENT module state, surviving any prior
+    # `importlib.reload(config)` contamination from other tests in the suite.
+    monkeypatch.setattr(
+        "app.core.config.settings.COACH_BUNDLE_COMPILER_ENABLED", True
+    )
 
     with patch(
         "app.api.v1.endpoints.coach_chat.build_narrator_system_prompt_from_bundles",
@@ -252,8 +264,12 @@ def test_flag_on_fallback_on_keyerror(monkeypatch, fake_coach_ctx):
 def test_flag_on_fallback_on_valueerror(monkeypatch, fake_coach_ctx):
     """H4 — bundle_compiler raises ValueError on undeclared slot ; the
     bundle path MUST fall back to legacy and NOT propagate the error."""
-    from app.core.config import settings as live_settings
-    monkeypatch.setattr(live_settings, "COACH_BUNDLE_COMPILER_ENABLED", True)
+    # Use dotted-string monkeypatch — resolves the settings attribute at
+    # patch time against the CURRENT module state, surviving any prior
+    # `importlib.reload(config)` contamination from other tests in the suite.
+    monkeypatch.setattr(
+        "app.core.config.settings.COACH_BUNDLE_COMPILER_ENABLED", True
+    )
 
     with patch(
         "app.api.v1.endpoints.coach_chat.build_narrator_system_prompt_from_bundles",
@@ -274,8 +290,12 @@ def test_flag_on_fallback_on_valueerror(monkeypatch, fake_coach_ctx):
 def test_flag_on_fallback_emits_breadcrumb(monkeypatch, fake_coach_ctx):
     """Fallback path emits a `coach.bundle.fallback` Sentry breadcrumb so
     the regression is visible in staging telemetry."""
-    from app.core.config import settings as live_settings
-    monkeypatch.setattr(live_settings, "COACH_BUNDLE_COMPILER_ENABLED", True)
+    # Use dotted-string monkeypatch — resolves the settings attribute at
+    # patch time against the CURRENT module state, surviving any prior
+    # `importlib.reload(config)` contamination from other tests in the suite.
+    monkeypatch.setattr(
+        "app.core.config.settings.COACH_BUNDLE_COMPILER_ENABLED", True
+    )
 
     captured: list[dict] = []
 
@@ -314,8 +334,12 @@ def test_flag_on_fallback_emits_breadcrumb(monkeypatch, fake_coach_ctx):
 def test_flag_on_empty_intent_routes_through(monkeypatch, fake_coach_ctx):
     """D-14 — flag ON + `detected_intents = set()` should produce a valid
     always-on-only prompt without crashing and without falling back."""
-    from app.core.config import settings as live_settings
-    monkeypatch.setattr(live_settings, "COACH_BUNDLE_COMPILER_ENABLED", True)
+    # Use dotted-string monkeypatch — resolves the settings attribute at
+    # patch time against the CURRENT module state, surviving any prior
+    # `importlib.reload(config)` contamination from other tests in the suite.
+    monkeypatch.setattr(
+        "app.core.config.settings.COACH_BUNDLE_COMPILER_ENABLED", True
+    )
 
     prompt = _build_system_prompt_with_memory(
         coach_ctx=fake_coach_ctx,
@@ -334,8 +358,12 @@ def test_flag_on_empty_intent_routes_through(monkeypatch, fake_coach_ctx):
 def test_flag_on_default_none_intents_treated_as_empty(monkeypatch, fake_coach_ctx):
     """When the caller forgets to pass `detected_intents`, the default
     `None` is treated as an empty set (always-on only). No crash."""
-    from app.core.config import settings as live_settings
-    monkeypatch.setattr(live_settings, "COACH_BUNDLE_COMPILER_ENABLED", True)
+    # Use dotted-string monkeypatch — resolves the settings attribute at
+    # patch time against the CURRENT module state, surviving any prior
+    # `importlib.reload(config)` contamination from other tests in the suite.
+    monkeypatch.setattr(
+        "app.core.config.settings.COACH_BUNDLE_COMPILER_ENABLED", True
+    )
 
     prompt = _build_system_prompt_with_memory(
         coach_ctx=fake_coach_ctx,
