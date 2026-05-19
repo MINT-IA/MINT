@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
 status: executing
-stopped_at: Phase 02 substrate LANDED on dev (4 PRs #653 #657 #656 #655 squash-merged) — next Plan 02-03 continuation (PR-3b atomic-trio + PR-4 + PR-5) + Plan 02-04 close-out + Task 2a operational gate
-last_updated: "2026-05-19T07:00:00.000Z"
-last_activity: 2026-05-19 -- Phase 02 substrate (Plans 02-01 + 02-02 + 02-03 partial + QA panel fixes) merged to dev as 4 squash commits dc28f974/d8c97dd1/979e45f4/40afcaba after 5 rounds of CI fixes
+stopped_at: Phase 02 substrate ◆ CODE-SHIPPED ON DEV (4 PRs #653 #657 #656 #655 squash-merged + PR #658 dev-CI consent-caplog fix in flight). Operational cutover (PR-3b/PR-4/PR-5 + Task 2a + Plan 02-04 Task 1-4) split to new phase mint-data-architecture-v1-02-deploy — see .planning/phases/mint-data-architecture-v1-02-deploy/CONTEXT.md
+last_updated: "2026-05-19T17:00:00.000Z"
+last_activity: 2026-05-19 -- Phase 02 substrate close-out artifacts shipped (VERIFICATION-REPORT.html + SUMMARY.md + STATE/ROADMAP/PROJECT updates + Phase 02-deploy bootstrap). Operational substrate gap discovered (engram obs #233) — staging Postgres at p112 head, prod at 29_05_magic_link_tokens head, neither has fact_event/fact_current tables. Plan 02-03 PR-3b/PR-4/PR-5 + Plan 02-04 autonomous tasks split to Phase 02-deploy.
 progress:
-  total_phases: 10
+  total_phases: 11
   completed_phases: 5
   total_plans: 61
   completed_plans: 53
-  percent: 87
+  percent: 79
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
