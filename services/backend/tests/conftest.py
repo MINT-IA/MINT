@@ -23,6 +23,36 @@ from app.core.database import Base, get_db
 from tests.fixtures.pg_fixture import pg_engine, pg_session  # noqa: F401
 
 
+# ---------------------------------------------------------------------------
+# Settings singleton reload contamination guard (autouse)
+# ---------------------------------------------------------------------------
+#
+# Several backend tests call `importlib.reload(app.core.config)` to test
+# env-var pickup at Settings init. This swaps `app.core.config.settings`
+# for a NEW Settings instance. Every other module in the codebase that did
+# `from app.core.config import settings` at module load time still holds
+# a NAME binding to the ORIGINAL instance. Downstream tests then
+# `monkeypatch.setattr(settings, "X", v)` to patch the ORIGINAL, but
+# production code paths that re-import (in-function) or live in modules
+# loaded AFTER the contaminating reload see the NEW instance — the patches
+# are ignored.
+#
+# This autouse fixture snapshots the original singleton at session start
+# and restores it after every test. Cost : a single attribute write per
+# test (~µs). Benefit : no test ever sees a contaminated singleton.
+@pytest.fixture(autouse=True)
+def _restore_settings_singleton():
+    """Snapshot + restore `app.core.config.settings` per test.
+
+    Prevents `importlib.reload(app.core.config)` in any test from
+    contaminating downstream tests' module-level `settings` references.
+    """
+    from app.core import config as _cfg_mod
+    original_settings = _cfg_mod.settings
+    yield
+    _cfg_mod.settings = original_settings
+
+
 def pytest_configure(config):
     """Register markers for Phase 02 real-Postgres tests.
 
