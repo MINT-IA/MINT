@@ -71,8 +71,16 @@ def encrypt_value(
     if source_type in _BANNED_TERMS_SCAN_SOURCES:
         scan_value_for_banned_terms(value)
 
+    # QA code-reviewer polish FLAG-3 (2026-05-19) : json.dumps without
+    # default= crashes with bare TypeError when callers pass Decimal
+    # (e.g. financial calculations). default=str coerces Decimal /
+    # datetime / UUID to ISO string deterministically. The string-canonical
+    # form is what the canary fixture (build_decimal_canary) already
+    # serializes, so this matches the cross-tooling parity contract used
+    # by tools/parity/projection_diff.py.
     plaintext_bytes = json.dumps(
         value, separators=(",", ":"), sort_keys=True, ensure_ascii=False,
+        default=str,
     ).encode("utf-8")
     blob = encrypt_bytes(db, user_id, plaintext_bytes)
     # envelope.encrypt_bytes returns nonce(12) || ciphertext || tag(16)

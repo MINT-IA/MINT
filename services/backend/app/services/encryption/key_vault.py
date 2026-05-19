@@ -351,6 +351,16 @@ class KeyVaultService:
         return self.revoke_dek(db, user_id)
 
 
-# Process-wide singleton (thread-safe: stateless apart from cache which is
-# keyed by user_id and written only under single-threaded request handlers).
+# Process-wide singleton.
+#
+# Thread-safety caveat (QA code-reviewer polish FLAG-5 2026-05-19) :
+# Starlette routes sync FastAPI handlers in a threadpool (up to `max_threads`
+# workers), so concurrent requests for two distinct new users can interleave
+# writes to `_dek_cache`. Under cachetools 5.x, `TTLCache.__setitem__` is not
+# atomic across the GIL. The race window is tiny and the consequence is a
+# double DEK-row insert (caught by the DB PK constraint), so functional
+# correctness holds — but the cache itself does NOT provide strong
+# concurrent-safety guarantees. If contention becomes observable in
+# Sentry's `mint_kms_backend_failure_total{reason="dek_pk_conflict"}`
+# counter, add a `threading.Lock` around the cache mutations.
 key_vault = KeyVaultService()
