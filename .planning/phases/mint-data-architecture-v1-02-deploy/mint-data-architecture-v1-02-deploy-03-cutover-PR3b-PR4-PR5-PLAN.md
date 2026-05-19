@@ -56,24 +56,31 @@ decisions_locked:
   - id: pr-5-snapshot-drop
     locked: "PR-5 SnapshotModel drop migration = `p121_drop_snapshot_legacy` (NOT `p117` as Plan 02-03 spec — collision with prior phase ; we use next available)."
     rationale: "Plan 01 Task 1 ships `p120_fact_event_idempotency` ; next available is `p121`. RESEARCH §Project-Structure shows p117 as Plan 02-03 spec but post-Plan-01 ship, p121 is correct."
+  - id: cron-lifecycle-active-through-wave-2
+    locked: "Per H-3 fix : `continuous_drift_sampler` cron stays ACTIVE throughout PR-3b → PR-4 → PR-5 AND both soak windows (24h-floor pre-PR-3b + 1-week post-PR-4). Deactivation = OPTIONAL Phase 03 cleanup, NOT part of this plan. Threat T-03-06 (cron disabled accidentally during cutover window) mitigated by : (a) Task 1 commits cron activation, (b) Task 2 PR-3b body documents activation status, (c) Task 4 PR-4 body confirms still active, (d) Task 7 CHECKPOINT confirms still active at PR-5 ship time. NO task in this plan deactivates the cron."
+    rationale: "Checker iteration 1 H-3 fix — Task 1 commit message + threat T-03-06 + Task 7 CHECKPOINT must be coherent. Cron is the canary observability signal across the entire cutover ; deactivating it mid-flight would surface zero drift signal during the highest-risk window."
+  - id: soak-day-1-inline-days-2-7-async
+    locked: "Per H-4 fix : Task 4 `<done>` clarifies that Day-1 daily probe runs INLINE during Task 4 execution ; Days 2-7 (or until PR-4 ready to ship) run ASYNC as the cron continues independently ; Julien monitors the soak evidence file appends via Sentry alert + manual probe between Tasks 4 and 5. Task 5 `<resume-signal>` accepts `defer N days — soak in progress` as a valid alternative response. Without this clarification, Task 4-5 boundary is ambiguous : Task 4 stage `<done>` reads completion but soak is still running."
+    rationale: "Checker iteration 1 H-4 fix — without explicit async-soak protocol, executor may either (a) wait inline for 7 days (blocks orchestrator for a week), or (b) prematurely call Task 4 done while soak still uncertain. The explicit Day-1 inline + Days-2-N async pattern is consistent with locked decision #4 OVERRIDE PATH 24h floor."
 
 must_haves:
   truths:
     - "Plan 02 Task 2a operational gate signed-off by Julien (PERIMETERS.md ledger entry referenced)."
-    - "Continuous_drift_sampler cron activated post-PR-3a merge step (`.github/workflows/pg-soak-nightly.yml` cron uncomment + push) — runs every 30min × 100 staging users × ≥48h before PR-3b ships."
+    - "Continuous_drift_sampler cron activated post-PR-3a merge step (`.github/workflows/pg-soak-nightly.yml` cron uncomment + push) — runs every 30min × 100 staging users × ≥48h before PR-3b ships AND stays active through PR-3b → PR-4 → PR-5 per locked decision `cron-lifecycle-active-through-wave-2`."
     - "PR-3b atomic trio shipped : (a) `app/api/v1/endpoints/projection.py` + `snapshots.py` read from FactCurrent (not SnapshotModel) ; (b) `profile_safe_fields_parity.py --hard` flip in lefthook + design-lints.yml ; (c) `tools/db/pre_pr3b_pg_dump.sql` committed in PR branch as rollback anchor."
     - "7-day soak override exercised per locked decision #4 : PR-3b body contains explicit override rationale + Julien sign-off ledger ref + minimum 24h consecutive clean window verified in `_phase02_parity_audit_continuous`."
     - "PR-3b merged to dev → dev → staging promotion deploys read-cutover to staging postgres-qdyu ; staging /v1/projection now reads FactCurrent path ; `?legacy=true` query-param escape hatch retained for PR-4 transition."
-    - "1-week observability soak post-PR-4 (or override per same locked decision) : `mint_snapshot_fact_current_drift_total{field_key}` counter monitored ; PR-4 ships only if soak clean."
+    - "1-week observability soak post-PR-4 (or override per same locked decision) : `mint_snapshot_fact_current_drift_total{field_key}` counter monitored ; PR-4 ships only if soak clean ; Day-1 probe inline + Days 2-7 async per locked decision `soak-day-1-inline-days-2-7-async`."
     - "PR-4 shipped : `FF_FACT_EVENT_DUAL_WRITE` removed from feature_flags.py + snapshot_service.py dual-write branch removed + `DeprecationWarning` on SnapshotModel writers + `tools/checks/no_ff_fact_event_dual_write.py` HARD lefthook + telemetry counter wire confirmed."
     - "PR-5 shipped : alembic `p121_drop_snapshot_legacy` migration + `docs/operations/snapshot-model-decommission.md` runbook + B19 SnapshotModel-referencing tests inventory (`snapshotmodel-tests-inventory.txt` 3-column table) + `baseline_snapshot_phase02_pre_drop.sql` committed."
     - "After PR-5 merge : `grep -rln 'SnapshotModel' services/backend/tests/ | wc -l` returns 0 OR all matches `@pytest.mark.deprecated`."
     - "All 3 PRs Julien-gated between (PR-3b → 24h+ soak → PR-4 → 1-week+ soak → PR-5). NO parallelism."
+    - "Cron `continuous_drift_sampler` remains ACTIVE at Task 7 CHECKPOINT time (verified by Julien per cron-lifecycle locked decision)."
   artifacts:
     - path: "tools/db/pre_pr3b_pg_dump.sql"
       provides: "Pre-cutover staging pg_dump (7th gate B5) — committed as part of PR-3b branch"
       contains: "CREATE TABLE fact_event"
-      min_lines: 50
+      min_lines: 200
     - path: "tools/checks/no_ff_fact_event_dual_write.py"
       provides: "HARD lefthook lint banning any `FF_FACT_EVENT_DUAL_WRITE` re-introduction post-PR-4"
       min_lines: 30
@@ -118,6 +125,10 @@ Wave 2 — operational cutover sequence (PR-3b → 7-day soak → PR-4 → 1-wee
 
 Purpose : flipper le système de SnapshotModel → fact_current de manière irréversible-mais-rollback-able. Chaque PR a sa baseline pg_dump committed dans le branch. Chaque transition se passe sur staging d'abord (dev→staging auto-deploy), puis prod côté Wave 4 close-out.
 
+Cron lifecycle (per locked decision `cron-lifecycle-active-through-wave-2`) : `continuous_drift_sampler` activé en Task 1 + STAYS ACTIVE throughout PR-3b → PR-4 → PR-5 + both soak windows ; deactivation OPTIONAL Phase 03 cleanup.
+
+Soak protocol (per locked decision `soak-day-1-inline-days-2-7-async`) : Day-1 daily probe inline ; Days-2-7 async (cron continues independently, Julien monitors via Sentry + manual probes between checkpoints). Task 5 `<resume-signal>` accepts `defer N days — soak in progress`.
+
 Output :
 - PR-3b atomic trio (read-cutover + Phase-01 D-12 HARD + pre_pr3b_pg_dump.sql)
 - PR-4 (FF removal + DeprecationWarning + no_ff_fact_event_dual_write HARD lefthook + drift telemetry)
@@ -131,6 +142,7 @@ Out of scope this plan :
 - Prod migration apply (Wave 4 Plan 04 close-out).
 - 5 sec/arch FLAGs (Wave 3 Plan 04).
 - PR D polish (Wave 3 Plan 04 final tasks).
+- Cron deactivation (Phase 03 cleanup if ever) — cron stays running through this plan.
 </objective>
 
 <execution_context>
@@ -199,7 +211,8 @@ State after Plan 02 Wave 1 close :
 
 `.github/workflows/pg-soak-nightly.yml` (current) :
 - Cron `*/30 * * * *` COMMENTED OFF by default
-- PR-3b merge step UNCOMMENTS the cron block (within the PR-3b branch, NOT a separate PR — per Plan 02-03 iter-2 contract)
+- Task 1 of THIS plan uncomments cron block (within Task 1's branch, NOT a separate PR — per Plan 02-03 iter-2 contract)
+- Cron stays ACTIVE through PR-3b → PR-4 → PR-5 per locked decision `cron-lifecycle-active-through-wave-2`
 
 `services/backend/app/cron/continuous_drift_sampler.py` (current) :
 - 30min × 100 users sampler logic shipped Plan 02-03 substrate
@@ -212,6 +225,7 @@ State after Plan 02 Wave 1 close :
 `tools/db/pre_pr3b_pg_dump.sql` :
 - Captured RIGHT BEFORE PR-3b read-cutover commit
 - Committed in PR-3b branch alongside the code change
+- Realistic floor : ≥ 200 lines (staging-qdyu has 34+ tables + indices ; H-8 fix raises threshold from 50 → 200).
 </interfaces>
 </context>
 
@@ -221,6 +235,8 @@ State after Plan 02 Wave 1 close :
 - **PR-3b allowlist transitional** — LOCKED : `profile_safe_fields_parity_allowlist.txt` created by PR-3b with EXACTLY 3 Flutter-only fields ; Wave 3 Plan 04 Task 1 deletes the allowlist. Full 40-field drift closure deferred (DEFERRED-02-01-B backlog) per Phase-decision-lock #7.
 - **PR-5 migration filename** — LOCKED : `p121_drop_snapshot_legacy.py` (NOT p117 as Plan 02-03 spec — collision avoided post-Plan-01 ship of p120).
 - **Open-Q #5 (Sentry alert timing)** — LOCKED : Sentry alert rule scheduled BEFORE Wave 2 PR-3b ; runbook ships in Wave 3 Plan 04 Task 4 but Julien must configure UI before this Plan's PR-3b CHECKPOINT (Task 3). Listed as pre-requisite assertion in Task 1.
+- **Cron lifecycle (H-3 fix)** — LOCKED : `continuous_drift_sampler` cron stays ACTIVE Task 1 → Task 7 (PR-3b → PR-4 → PR-5 + both soak windows). Deactivation = OPTIONAL Phase 03 cleanup. Threat T-03-06 mitigated by Task 1 commit + Task 2 PR body + Task 4 PR body + Task 7 CHECKPOINT all-confirming cron active.
+- **Soak Day-1-inline + Days-2-7-async (H-4 fix)** — LOCKED : Task 4 ships Day-1 probe inline ; Days 2-7 run async ; Task 5 `<resume-signal>` accepts `defer N days — soak in progress` as valid response. Task 4 `<done>` reads « soak monitoring continues async ; Julien resumes Task 5 after N days ».
 </decision_locked>
 
 <tasks>
@@ -255,15 +271,15 @@ on:
   workflow_dispatch:
     ...
 
-# AFTER (Task 1 mutation — uncomment cron block) :
+# AFTER (Task 1 mutation — uncomment cron block ; cron stays active through Task 7 per locked decision cron-lifecycle-active-through-wave-2) :
 on:
   schedule:
-    - cron: '*/30 * * * *'   # Activated Wave 2 PR-3a merge — runs 30min × 100 users × 7d soak
+    - cron: '*/30 * * * *'   # Activated Wave 2 PR-3a merge — STAYS ACTIVE through PR-3b → PR-4 → PR-5 (Phase 03 cleanup may deactivate)
   workflow_dispatch:
     ...
 ```
 
-3. **Commit cron activation** :
+3. **Commit cron activation** (commit message MUST be coherent with locked decision `cron-lifecycle-active-through-wave-2`) :
 
 ```bash
 git checkout -b feat/p02-deploy-wave2-cron-activation
@@ -275,9 +291,16 @@ Per Plan 02-03 iter-2 Task 2-helper contract : cron */30 * * * * runs
 sampler against staging postgres-qdyu, persists to _phase02_parity_audit_continuous.
 
 Activation tied to Plan 02 Task 2a Julien sign-off (PERIMETERS.md ledger ref).
-Deactivation = Wave 2 PR-3b merge step (revert this commit OR re-comment cron).
 
-7-day soak window opens NOW ($(date -u +%Y-%m-%dT%H:%M:%SZ)).
+LIFECYCLE (per locked decision cron-lifecycle-active-through-wave-2) :
+- ACTIVE from this commit onward
+- STAYS ACTIVE through PR-3b → PR-4 → PR-5 + both soak windows
+- Deactivation = OPTIONAL Phase 03 cleanup (NOT this plan)
+- Task 2 PR-3b body documents cron still active
+- Task 4 PR-4 body documents cron still active
+- Task 7 CHECKPOINT confirms cron still active at PR-5 ship
+
+7-day soak window opens NOW (\$(date -u +%Y-%m-%dT%H:%M:%SZ)).
 Override path documented per locked decision #4 — see Task 2 + Task 3 of this plan.
 
 Engram : prior_finding_refs = #233, #249, #194, Plan 02 sign-off"
@@ -291,6 +314,7 @@ cat > .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-7day-evi
 # Phase 02-deploy Wave 2 — continuous_drift_sampler 7-day soak evidence
 # Activated $(date -u +%Y-%m-%dT%H:%M:%SZ)
 # Cron : */30 * * * * via .github/workflows/pg-soak-nightly.yml
+# Lifecycle : ACTIVE through PR-3b → PR-4 → PR-5 (locked decision cron-lifecycle-active-through-wave-2)
 
 ## Soak parameters
 - Sample size : 100 random staging users per tick
@@ -363,20 +387,21 @@ fi
 ```
   </action>
   <verify>
-    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && grep -q "approved PR-3a" PERIMETERS.md && [ -f .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-7day-evidence.txt ] && grep -cE "schedule:\s*$" .github/workflows/pg-soak-nightly.yml && ! grep -E "# schedule:\s*$" .github/workflows/pg-soak-nightly.yml && grep -q "Soak start" .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-7day-evidence.txt</automated>
+    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && grep -q "approved PR-3a" PERIMETERS.md && [ -f .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-7day-evidence.txt ] && grep -cE "schedule:\s*$" .github/workflows/pg-soak-nightly.yml && ! grep -E "# schedule:\s*$" .github/workflows/pg-soak-nightly.yml && grep -q "Soak start" .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-7day-evidence.txt && grep -q "STAYS ACTIVE through PR-3b" .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-7day-evidence.txt</automated>
   </verify>
   <acceptance_criteria>
     - `grep "approved PR-3a" PERIMETERS.md` returns ≥ 1 hit (Plan 02 Task 2a signed-off).
     - `.github/workflows/pg-soak-nightly.yml` has `schedule:` block UN-commented (`grep -E "^  schedule:" .github/workflows/pg-soak-nightly.yml` returns ≥ 1 hit + `grep -E "^  # schedule:" .github/workflows/pg-soak-nightly.yml` returns 0 hits).
+    - Cron-activation PR opened with commit message containing "STAYS ACTIVE through PR-3b → PR-4 → PR-5" (per locked decision `cron-lifecycle-active-through-wave-2`).
     - PR opened with cron activation commit (`gh pr list --base dev --head feat/p02-deploy-wave2-cron-activation` returns ≥ 1).
-    - `.planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-7day-evidence.txt` exists ≥ 20 lines + contains « Soak start » + « Cron activation timestamp ».
+    - `.planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-7day-evidence.txt` exists ≥ 20 lines + contains « Soak start » + « Cron activation timestamp » + « Lifecycle : ACTIVE through PR-3b → PR-4 → PR-5 ».
     - At least 5 sampler ticks captured (either via wait OR via workflow_dispatch) — evidence file has « Tick N : ... » entries ≥ 5.
     - 24h+ clean window assertion present in evidence file (either ✓ green OR ⚠ flag for Julien review).
     - Sentry alert rule precondition documented in evidence file with the (a)/(b) decision tree.
     - `_phase02_parity_audit_continuous` table row count > 0 (sampler has produced data).
   </acceptance_criteria>
   <done>
-    Cron activated + soak window opened. Minimum 24h floor either achieved (✓) or surfaced (⚠) for Julien review. Sentry alert rule precondition flagged. Evidence file ready for Task 2 (PR-3b prep + atomic trio).
+    Cron activated + soak window opened. Cron is locked-active through PR-3b → PR-4 → PR-5 per locked decision. Minimum 24h floor either achieved (✓) or surfaced (⚠) for Julien review. Sentry alert rule precondition flagged. Evidence file ready for Task 2 (PR-3b prep + atomic trio).
   </done>
 </task>
 
@@ -417,7 +442,7 @@ fi
 git checkout -b feat/p02-deploy-pr3b-read-cutover
 ```
 
-2. **Capture pre-cutover staging pg_dump (7th gate B5)** — RESEARCH §Pattern C step 4 + Plan 02-03 iter-2 Task 2b step 4 :
+2. **Capture pre-cutover staging pg_dump (7th gate B5)** — RESEARCH §Pattern C step 4 + Plan 02-03 iter-2 Task 2b step 4 + H-8 threshold fix (≥ 200 lines uncompressed for staging-qdyu which has 34+ tables + indices) :
 
 ```bash
 echo "Capturing pre-PR-3b staging pg_dump baseline ($(date -u +%Y-%m-%dT%H:%M:%SZ))" > .planning/phases/mint-data-architecture-v1-02-deploy/pre-pr3b-pg-dump-capture.log
@@ -426,6 +451,12 @@ railway ssh -e staging --service MINT 'pg_dump --no-comments --no-owner --no-pri
 # Secret guard re-run on captured file (Plan 01 PR B logic)
 if grep -E -i "password\\s*[:=]|api_key|secret_key|bearer\\s+|MINT_AUDIT_HASH_PEPPER\\s*=" tools/db/pre_pr3b_pg_dump.sql > /dev/null; then
   echo "BLOCKED: pg_dump contains secrets — review before commit." ; exit 1
+fi
+
+DUMP_LINES=$(wc -l < tools/db/pre_pr3b_pg_dump.sql)
+echo "pre_pr3b_pg_dump.sql line count : $DUMP_LINES (expected ≥ 200 per H-8 fix — staging-qdyu has 34+ tables + indices)" >> .planning/phases/mint-data-architecture-v1-02-deploy/pre-pr3b-pg-dump-capture.log
+if [ "$DUMP_LINES" -lt 200 ]; then
+  echo "BLOCKED: pg_dump truncated — only $DUMP_LINES lines (expected ≥ 200 for staging-qdyu schema)" ; exit 1
 fi
 
 ls -la tools/db/pre_pr3b_pg_dump.sql >> .planning/phases/mint-data-architecture-v1-02-deploy/pre-pr3b-pg-dump-capture.log
@@ -538,7 +569,7 @@ def test_projection_endpoint_canonical_json_equality_dual_path():
     assert canonical_json(new) == canonical_json(legacy)
 ```
 
-8. **Commit PR-3b atomic trio** :
+8. **Commit PR-3b atomic trio** (commit body MUST mention cron still active per locked decision `cron-lifecycle-active-through-wave-2`) :
 
 ```bash
 git add services/backend/app/api/v1/endpoints/projection.py services/backend/app/api/v1/endpoints/snapshots.py tools/checks/profile_safe_fields_parity_allowlist.txt lefthook.yml .github/workflows/design-lints.yml tools/db/pre_pr3b_pg_dump.sql services/backend/tests/integration/test_projection_read_cutover.py .planning/phases/mint-data-architecture-v1-02-deploy/pre-pr3b-pg-dump-capture.log
@@ -561,6 +592,12 @@ Atomic trio per Plan 02-03 iter-2 Task 2b contract (4-way reviewer convergence) 
    right before this commit (staging postgres-qdyu schema+data baseline). Rollback
    procedure : `psql $STAGING_DATABASE_URL < tools/db/pre_pr3b_pg_dump.sql` + revert
    this commit. Documented in docs/operations/snapshot-model-decommission.md (ships PR-5).
+   Dump file ≥ 200 lines uncompressed per H-8 fix (staging-qdyu schema floor).
+
+Cron status (per locked decision cron-lifecycle-active-through-wave-2) :
+- continuous_drift_sampler ACTIVE since Task 1 cron-activation commit
+- STAYS ACTIVE through this PR-3b merge + PR-4 + PR-5
+- Soak window evidence in .planning/phases/.../staging-soak-7day-evidence.txt
 
 7-day soak override path applied per locked decision #4 :
 - 0-user-prod premise (2 test accounts per CONTEXT line 41 + memory project_byok_scope)
@@ -576,15 +613,16 @@ EOF
 gh pr create --base dev --head feat/p02-deploy-pr3b-read-cutover --title "feat(p02-deploy): PR-3b atomic trio — read-cutover + D-12 HARD + 7th gate pg_dump" --body "$(cat <<EOF
 ## Summary
 - Read-cutover atomic with Phase-01 D-12 parity-lint SOFT→HARD flip per Plan 02-03 iter-2 Task 2b.
-- 7th gate \`pre_pr3b_pg_dump.sql\` committed (B5).
+- 7th gate \`pre_pr3b_pg_dump.sql\` committed (B5, ≥ 200 lines).
 - 7-day soak override applied per locked decision #4 (0-user-prod + 2-test-acct + Julien sign-off).
+- Cron status : continuous_drift_sampler ACTIVE since Task 1, stays active through PR-5.
 
 ## Pre-merge gates
 - [x] Plan 02 Task 2a signed-off (PERIMETERS.md ledger ref)
 - [x] 24h+ continuous_drift_sampler clean window verified
 - [x] HARD-mode parity-lint exits 0 with transitional allowlist
 - [x] 3 integration tests for read-cutover + ?legacy=true escape hatch + canonical JSON equality
-- [x] pg_dump 7th gate captured + secret-guard-validated
+- [x] pg_dump 7th gate captured (≥ 200 lines) + secret-guard-validated
 - [ ] Julien CHECKPOINT (Task 3 of this plan)
 
 ## Rollback procedure
@@ -601,11 +639,11 @@ EOF
    - Branch protection : verify `pg-integration` is a required check (Julien-only UI per Plan 01 PR B).
   </action>
   <verify>
-    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && [ -f tools/db/pre_pr3b_pg_dump.sql ] && [ $(wc -l < tools/db/pre_pr3b_pg_dump.sql) -ge 50 ] && grep -c "CREATE TABLE fact_event" tools/db/pre_pr3b_pg_dump.sql && grep -c "CREATE TABLE fact_current" tools/db/pre_pr3b_pg_dump.sql && [ -f tools/checks/profile_safe_fields_parity_allowlist.txt ] && [ $(grep -c "^[a-zA-Z_]" tools/checks/profile_safe_fields_parity_allowlist.txt) -eq 3 ] && python3 tools/checks/profile_safe_fields_parity.py --hard --allowlist tools/checks/profile_safe_fields_parity_allowlist.txt && grep -c "FactCurrent" services/backend/app/api/v1/endpoints/projection.py && grep -c "?legacy" services/backend/app/api/v1/endpoints/projection.py && cd services/backend && python3 -m pytest tests/integration/test_projection_read_cutover.py -q -k pg --timeout=120</automated>
+    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && [ -f tools/db/pre_pr3b_pg_dump.sql ] && [ $(wc -l < tools/db/pre_pr3b_pg_dump.sql) -ge 200 ] && grep -c "CREATE TABLE fact_event" tools/db/pre_pr3b_pg_dump.sql && grep -c "CREATE TABLE fact_current" tools/db/pre_pr3b_pg_dump.sql && [ -f tools/checks/profile_safe_fields_parity_allowlist.txt ] && [ $(grep -c "^[a-zA-Z_]" tools/checks/profile_safe_fields_parity_allowlist.txt) -eq 3 ] && python3 tools/checks/profile_safe_fields_parity.py --hard --allowlist tools/checks/profile_safe_fields_parity_allowlist.txt && grep -c "FactCurrent" services/backend/app/api/v1/endpoints/projection.py && grep -c "?legacy" services/backend/app/api/v1/endpoints/projection.py && cd services/backend && python3 -m pytest tests/integration/test_projection_read_cutover.py -q -k pg --timeout=120</automated>
   </verify>
   <acceptance_criteria>
     - `[ -f tools/db/pre_pr3b_pg_dump.sql ]` returns 0 (file captured).
-    - `wc -l tools/db/pre_pr3b_pg_dump.sql` ≥ 50 (non-trivial dump).
+    - `wc -l tools/db/pre_pr3b_pg_dump.sql` ≥ 200 (per H-8 fix — staging-qdyu has 34+ tables + indices ; previous 50-line threshold was too low).
     - `grep -c "CREATE TABLE fact_event" tools/db/pre_pr3b_pg_dump.sql` ≥ 1 (post-p98 state in dump).
     - `grep -c "CREATE TABLE fact_current" tools/db/pre_pr3b_pg_dump.sql` ≥ 1.
     - `grep -c "CREATE TABLE snapshots" tools/db/pre_pr3b_pg_dump.sql` ≥ 1 (legacy snapshot table still present pre-PR-5).
@@ -620,20 +658,21 @@ EOF
     - `cd services/backend && python3 -m pytest tests/ -q --timeout=180` exits 0 (full regression including new tests).
     - `gh pr list --base dev --head feat/p02-deploy-pr3b-read-cutover` returns ≥ 1 PR.
     - PR body contains 7-day soak override rationale + Julien sign-off ledger ref + 24h floor verification.
+    - PR body documents cron-lifecycle ACTIVE through PR-3b → PR-5 (per locked decision `cron-lifecycle-active-through-wave-2`).
   </acceptance_criteria>
   <done>
-    PR-3b atomic trio code shipped + tests green + pg_dump 7th gate committed + HARD-mode parity-lint verified with transitional allowlist. PR open + awaiting Julien CHECKPOINT (Task 3).
+    PR-3b atomic trio code shipped + tests green + pg_dump 7th gate committed (≥ 200 lines) + HARD-mode parity-lint verified with transitional allowlist + cron-lifecycle status documented active. PR open + awaiting Julien CHECKPOINT (Task 3).
   </done>
 </task>
 
 <task type="checkpoint:human-verify" gate="blocking">
-  <name>Task 3 (PR-3b Julien CHECKPOINT) : Verify atomic trio + 7-day soak window + override rationale + merge PR-3b</name>
+  <name>Task 3 (PR-3b Julien CHECKPOINT) : Verify atomic trio + 7-day soak window + override rationale + cron still active + merge PR-3b</name>
   <files>N/A — checkpoint task ; no file mutation by Claude. Julien runs verification steps + types resume-signal.</files>
   <what-built>
     Task 1 + Task 2 deliver :
-    - Cron activated → ≥24h soak floor verified (clean OR ⚠ surfaced).
-    - PR-3b branch with atomic trio (read-cutover + D-12 HARD + pg_dump 7th gate) + 3 integration tests green.
-    - PR-3b PR opened + body contains override rationale + Julien sign-off ledger ref.
+    - Cron activated (lifecycle ACTIVE through PR-5 per locked decision `cron-lifecycle-active-through-wave-2`) → ≥24h soak floor verified (clean OR ⚠ surfaced).
+    - PR-3b branch with atomic trio (read-cutover + D-12 HARD + pg_dump 7th gate ≥ 200 lines) + 3 integration tests green.
+    - PR-3b PR opened + body contains override rationale + Julien sign-off ledger ref + cron-lifecycle documentation.
     - Sentry alert rule precondition flagged.
   </what-built>
   <action>
@@ -683,18 +722,27 @@ EOF
     6. **Verify pg_dump 7th gate committed in PR-3b** :
        ```bash
        gh pr view <PR-3b-NUM> --json files | jq '.files[] | select(.path == "tools/db/pre_pr3b_pg_dump.sql")'
+       wc -l tools/db/pre_pr3b_pg_dump.sql
        ```
-       Assert : file present + non-empty.
+       Assert : file present + non-empty + ≥ 200 lines (H-8 floor).
 
-    7. **Verify Sentry alert rule active (locked decision #5)** :
+    7. **Verify cron still active** (per locked decision `cron-lifecycle-active-through-wave-2`) :
+       ```bash
+       gh workflow view pg-soak-nightly.yml --yaml | grep -E "^\s*-?\s*cron:"
+       railway ssh -e staging --service MINT 'psql $DATABASE_URL -tAc "SELECT count(*) FROM _phase02_parity_audit_continuous WHERE sampled_at > now() - interval \"1 hour\""'
+       ```
+       Assert : cron schedule uncommented + at least 1 sample in last hour (proves cron is firing).
+
+    8. **Verify Sentry alert rule active (locked decision #5)** :
        Julien checks Sentry dashboard : `mint_snapshot_fact_current_drift_total > 0 in 24h window` rule exists.
        If MISSING : configure inline (5 min UI task) OR defer PR-3b.
 
-    8. **Type gate decision**.
+    9. **Type gate decision**.
 
     **Gate decision** :
-    - All checks pass → `approved PR-3b — 7-day drift sampler clean (or 24h+ floor + override doc'd), parity audit re-run zero diff, pg_dump 7th gate committed, HARD lint green, Sentry alert configured` → Claude merges PR-3b to dev.
+    - All checks pass → `approved PR-3b — 7-day drift sampler clean (or 24h+ floor + override doc'd), parity audit re-run zero diff, pg_dump 7th gate committed (≥200 lines), HARD lint green, cron still active, Sentry alert configured` → Claude merges PR-3b to dev.
     - `<24h soak` or `Sentry rule missing` → describe + Claude addresses (wait OR configure Sentry inline OR defer).
+    - `cron not firing` → BLOCKING ; Claude diagnoses (workflow_dispatch test) + re-runs assertion.
     - Any check fails → describe failure mode + Claude ships fix-up commit on PR-3b branch (NOT pre_pr3b_pg_dump.sql — that's append-only).
 
     **After merge** : record Julien sign-off in PERIMETERS.md ledger, prepare for 1-week observability soak (Task 4).
@@ -702,6 +750,17 @@ EOF
   <verify>
     <automated>echo "Checkpoint task — verification is manual by Julien per <how-to-verify> ; this <verify> stub is a structural placeholder. Resume blocked until <resume-signal> received."</automated>
   </verify>
+  <acceptance_criteria>
+    - [ ] Julien types `<resume-signal>` verbatim (« approved PR-3b — 7-day drift sampler clean, parity audit re-run zero diff, pg_dump 7th gate committed, HARD lint green, Sentry alert configured ») in chat (or alternative `defer N days — {reason}` / failure-mode signal).
+    - [ ] PERIMETERS.md ledger entry « Phase 02-deploy Wave 2 PR-3b — APPROVED » committed (commit sha recorded in evidence file + SUMMARY).
+    - [ ] No blocker raised in resume signal text — if Julien describes a blocker, Claude opens fix-up commits BEFORE merging PR-3b.
+    - [ ] Soak evidence verified : `_phase02_parity_audit_continuous` query shows ≥ 24h consecutive clean window (or 7-day continuous clean).
+    - [ ] `pre_pr3b_pg_dump.sql` ≥ 200 lines verified (H-8 floor).
+    - [ ] Cron `pg-soak-nightly` confirmed firing (sample in last hour) — per locked decision `cron-lifecycle-active-through-wave-2`.
+    - [ ] HARD lint exits 0 with allowlist (3 fields whitelisted).
+    - [ ] Sentry alert rule active in Sentry dashboard (or inline-configured by Julien before merge).
+    - [ ] PR-3b merged to dev + Railway dev→staging auto-deploy completes (staging serves FactCurrent path).
+  </acceptance_criteria>
   <done>
     Julien types the resume-signal after running the <how-to-verify> steps successfully. Claude proceeds to the next task (or records sign-off in PERIMETERS.md per task spec).
   </done>
@@ -711,7 +770,7 @@ EOF
 </task>
 
 <task type="auto">
-  <name>Task 4 (PR-4 prep + 1-week observability soak) : Remove FF + ship DeprecationWarning + no_ff_fact_event_dual_write HARD lefthook + monitor drift telemetry</name>
+  <name>Task 4 (PR-4 prep + 1-week observability soak — Day-1 inline, Days-2-7 async) : Remove FF + ship DeprecationWarning + no_ff_fact_event_dual_write HARD lefthook + monitor drift telemetry</name>
   <files>
     services/backend/app/services/feature_flags.py,
     services/backend/app/services/snapshots/snapshot_service.py,
@@ -848,7 +907,7 @@ grep -rn "mint_snapshot_fact_current_drift_total" services/backend/app/
 # Expected : at least one increment site in app/cron/continuous_drift_sampler.py
 ```
 
-7. **Open PR + commit** :
+7. **Open PR + commit** (body MUST mention cron still active per locked decision `cron-lifecycle-active-through-wave-2`) :
 
 ```bash
 git add services/backend/app/services/feature_flags.py services/backend/app/services/snapshots/snapshot_service.py tools/checks/no_ff_fact_event_dual_write.py tools/checks/tests/test_no_ff_fact_event_dual_write.py lefthook.yml
@@ -870,6 +929,11 @@ Drift telemetry counter mint_snapshot_fact_current_drift_total{field_key} declar
 by Plan 01 PR B + wired in continuous_drift_sampler.py — verified increment site
 in services/backend/app/cron/.
 
+Cron status (per locked decision cron-lifecycle-active-through-wave-2) :
+- continuous_drift_sampler STILL ACTIVE since Task 1
+- Stays active through this PR-4 merge + post-PR-4 1-week soak + PR-5 merge
+- Day-1 probe inline ; Days-2-7 run async per locked decision soak-day-1-inline-days-2-7-async
+
 Soak window opens NOW : continuous_drift_sampler keeps running 30min × 100 users
 for ≥1 week (or override per same locked decision #4 minimum 24h floor).
 
@@ -877,38 +941,45 @@ Engram prior_finding_refs : Plan 02 Task 2a sign-off, PR-3b sign-off, #194, #178
 gh pr create --base dev --head feat/p02-deploy-pr4-ff-removal --title "feat(p02-deploy): PR-4 FF removal + DeprecationWarning + HARD lefthook" --body "..."
 ```
 
-8. **Initialize 1-week observability soak evidence file** :
+8. **Initialize 1-week observability soak evidence file** (per locked decision `soak-day-1-inline-days-2-7-async`) :
 
 ```bash
 cat > .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt << EOF
 # Phase 02-deploy Wave 2 PR-4 — 1-week observability soak evidence
 # Started $(date -u +%Y-%m-%dT%H:%M:%SZ) ; target ≥7 days OR ≥24h floor override
+# Protocol : Day-1 probe inline (this Task 4), Days 2-7 async (Julien monitors)
 
 ## Drift telemetry monitoring
 - Counter : mint_snapshot_fact_current_drift_total{field_key}
 - Sentry alert : drift > 0 in 24h window (Julien-configured per locked decision #5)
-- Drift sampler : continuous_drift_sampler.py @ 30min × 100 users (still running)
+- Drift sampler : continuous_drift_sampler.py @ 30min × 100 users (still running per cron-lifecycle locked decision)
 
 ## Daily probes
 EOF
 ```
 
-9. **Daily probe loop** (run for ≥24h floor, max 1 week, until PR-4 ready to ship) :
+9. **Day-1 probe inline** (per locked decision `soak-day-1-inline-days-2-7-async`) — Days 2-7 run async, Julien monitors :
 
 ```bash
-# Daily probe (run on each day of soak window)
-echo "" >> staging-soak-post-pr4-week-evidence.txt
-echo "## Day N probe ($(date -u +%Y-%m-%dT%H:%M:%SZ))" >> staging-soak-post-pr4-week-evidence.txt
-curl -sf https://mint-staging.up.railway.app/metrics | grep mint_snapshot_fact_current_drift_total >> staging-soak-post-pr4-week-evidence.txt
+# Day-1 inline probe (run NOW during Task 4 execution)
+echo "" >> .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt
+echo "## Day 1 inline probe ($(date -u +%Y-%m-%dT%H:%M:%SZ))" >> .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt
+curl -sf https://mint-staging.up.railway.app/metrics | grep mint_snapshot_fact_current_drift_total >> .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt
 railway ssh -e staging --service MINT 'psql $DATABASE_URL -tAc "
   SELECT count(*), count(*) FILTER (WHERE diff_count > 0) FROM _phase02_parity_audit_continuous
-  WHERE sampled_at > now() - interval '\''24 hours'\''"' >> staging-soak-post-pr4-week-evidence.txt
-echo "Sentry alert state : (Julien checks dashboard ; ⚠ if fired)" >> staging-soak-post-pr4-week-evidence.txt
+  WHERE sampled_at > now() - interval '\''24 hours'\''"' >> .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt
+echo "Sentry alert state : (Julien checks dashboard ; ⚠ if fired)" >> .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt
+
+# Days 2-7 protocol (async — Julien appends entries between this task and Task 5 CHECKPOINT)
+echo "" >> .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt
+echo "## Days 2-7 async monitoring protocol" >> .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt
+echo "Cron continues firing (30min × 100 users) ; Sentry alert fires on first dirty row." >> .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt
+echo "Julien probes daily via the same query as Day-1 + appends results below." >> .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt
+echo "Task 5 CHECKPOINT accepts 'defer N days — soak in progress' as a valid resume signal." >> .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt
 ```
   </action>
   <verify>
-    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && grep -E "approved PR-3b" PERIMETERS.md && [ ! -z "$(git log origin/dev --grep='PR-3b')" ] && grep -c "FF_FACT_EVENT_DUAL_WRITE" services/backend/app/services/feature_flags.py && grep -c "FF_FACT_EVENT_DUAL_WRITE" services/backend/app/services/snapshots/snapshot_service.py && grep -c "DeprecationWarning" services/backend/app/services/snapshots/snapshot_service.py && python3 tools/checks/no_ff_fact_event_dual_write.py && python3 -m pytest tools/checks/tests/test_no_ff_fact_event_dual_write.py -q && grep -c "no-ff-fact-event-dual-write" lefthook.yml && cd services/backend && python3 -m pytest tests/ -q --timeout=180
-    <automated>grep -qE "approved PR-3b" PERIMETERS.md && [ -z "$(grep -E "^[^#].*FF_FACT_EVENT_DUAL_WRITE" services/backend/app/services/feature_flags.py)" ] && [ -z "$(grep -E "^[^#].*FF_FACT_EVENT_DUAL_WRITE" services/backend/app/services/snapshots/snapshot_service.py)" ] && grep -c "DeprecationWarning" services/backend/app/services/snapshots/snapshot_service.py && python3 tools/checks/no_ff_fact_event_dual_write.py && python3 -m pytest tools/checks/tests/test_no_ff_fact_event_dual_write.py -q && grep -c "no-ff-fact-event-dual-write" lefthook.yml && cd services/backend && python3 -m pytest tests/ -q --timeout=180</automated>
+    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && grep -E "approved PR-3b" PERIMETERS.md && [ ! -z "$(git log origin/dev --grep='PR-3b')" ] && grep -c "FF_FACT_EVENT_DUAL_WRITE" services/backend/app/services/feature_flags.py && grep -c "FF_FACT_EVENT_DUAL_WRITE" services/backend/app/services/snapshots/snapshot_service.py && grep -c "DeprecationWarning" services/backend/app/services/snapshots/snapshot_service.py && python3 tools/checks/no_ff_fact_event_dual_write.py && python3 -m pytest tools/checks/tests/test_no_ff_fact_event_dual_write.py -q && grep -c "no-ff-fact-event-dual-write" lefthook.yml && grep -q "Day 1 inline probe" .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt && grep -q "Days 2-7 async monitoring protocol" .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt && cd services/backend && python3 -m pytest tests/ -q --timeout=180</automated>
   </verify>
   <acceptance_criteria>
     - `grep "approved PR-3b" PERIMETERS.md` returns ≥ 1 hit (PR-3b signed-off).
@@ -920,24 +991,26 @@ echo "Sentry alert state : (Julien checks dashboard ; ⚠ if fired)" >> staging-
     - `grep -c "no-ff-fact-event-dual-write" lefthook.yml` ≥ 1 (lefthook rule registered).
     - `grep -rn "mint_snapshot_fact_current_drift_total" services/backend/app/cron/` returns ≥ 1 hit (counter wired in sampler from Plan 01 PR B — regression check).
     - `cd services/backend && python3 -m pytest tests/ -q --timeout=180` exits 0 (full backend regression — no test references removed FF helper).
-    - PR-4 PR opened (`gh pr list --base dev --head feat/p02-deploy-pr4-ff-removal` returns ≥ 1).
+    - PR-4 PR opened (`gh pr list --base dev --head feat/p02-deploy-pr4-ff-removal` returns ≥ 1) + body mentions cron-lifecycle ACTIVE.
     - 1-week observability soak evidence file initialized (`[ -f .planning/phases/mint-data-architecture-v1-02-deploy/staging-soak-post-pr4-week-evidence.txt ]` returns 0).
-    - At least 1 daily probe entry in soak evidence file (executor may run only Day 1 inline ; Days 2-7 run async as cron continues + Julien monitors via evidence appends).
+    - Day-1 inline probe entry present in soak evidence file (`grep -q "Day 1 inline probe"`) per locked decision `soak-day-1-inline-days-2-7-async`.
+    - Days-2-7 async monitoring protocol documented in evidence file.
   </acceptance_criteria>
   <done>
-    PR-4 code shipped + tests green + no_ff_fact_event_dual_write HARD lefthook + DeprecationWarning on SnapshotModel writer. 1-week observability soak evidence file initialized + Day 1 probe captured. PR open + awaiting Julien CHECKPOINT (Task 5).
+    PR-4 code shipped + tests green + no_ff_fact_event_dual_write HARD lefthook + DeprecationWarning on SnapshotModel writer. 1-week observability soak evidence file initialized + Day-1 probe captured INLINE ; Days-2-7 soak monitoring continues async (cron keeps running per cron-lifecycle locked decision ; Julien resumes Task 5 after N days). PR open + awaiting Julien CHECKPOINT (Task 5).
   </done>
 </task>
 
 <task type="checkpoint:human-verify" gate="blocking">
-  <name>Task 5 (PR-4 Julien CHECKPOINT) : Verify FF removal + 1-week observability soak + drift telemetry clean + merge PR-4</name>
+  <name>Task 5 (PR-4 Julien CHECKPOINT) : Verify FF removal + 1-week observability soak (or 24h+ override) + drift telemetry clean + cron still active + merge PR-4</name>
   <files>N/A — checkpoint task ; no file mutation by Claude. Julien runs verification steps + types resume-signal.</files>
   <what-built>
     Task 4 delivers :
     - `FF_FACT_EVENT_DUAL_WRITE` removed from feature_flags.py + snapshot_service.py.
     - `DeprecationWarning` on SnapshotModel writer path (active during PR-4 → PR-5 transition).
     - `no_ff_fact_event_dual_write.py` HARD lefthook lint + self-tests.
-    - 1-week observability soak evidence file initialized + Day 1 probe captured.
+    - 1-week observability soak evidence file initialized + Day-1 probe captured INLINE.
+    - Days 2-7 cron continues ASYNC (per locked decision `soak-day-1-inline-days-2-7-async`).
     - PR-4 PR open awaiting merge.
   </what-built>
   <action>
@@ -973,13 +1046,19 @@ echo "Sentry alert state : (Julien checks dashboard ; ⚠ if fired)" >> staging-
 
     4. **Verify Sentry alert dashboard** : no `drift_total > 0` alerts fired in 7-day window.
 
-    5. **Spot-check staging endpoints post-PR-4 deploy** :
+    5. **Verify cron still active** (per locked decision `cron-lifecycle-active-through-wave-2`) :
+       ```bash
+       railway ssh -e staging --service MINT 'psql $DATABASE_URL -tAc "SELECT count(*) FROM _phase02_parity_audit_continuous WHERE sampled_at > now() - interval \"1 hour\""'
+       ```
+       Assert : ≥ 1 sample in last hour (cron firing).
+
+    6. **Spot-check staging endpoints post-PR-4 deploy** :
        ```bash
        curl -sf https://mint-staging-pr-NN.up.railway.app/v1/projection/$JULIEN_TEST_UID
        # Expected : reads from FactCurrent (no FF gate involved)
        ```
 
-    6. **Confirm no SnapshotModel writes happen except via legacy path** :
+    7. **Confirm no SnapshotModel writes happen except via legacy path** :
        ```bash
        railway ssh -e staging --service MINT 'psql $DATABASE_URL -tAc "
          SELECT count(*) FROM snapshots WHERE created_at > '\''2026-05-19'\'' - interval '\''1 day'\''
@@ -987,11 +1066,12 @@ echo "Sentry alert state : (Julien checks dashboard ; ⚠ if fired)" >> staging-
        ```
        Document growth rate (should be near-zero post-PR-3b read-cutover since most callers use the new path).
 
-    7. **Type gate decision**.
+    8. **Type gate decision**.
 
     **Gate decision** :
-    - All checks pass → `approved PR-4 — FF removed, 1-week (or 24h+ override) drift telemetry clean, DeprecationWarning on writer, lefthook HARD active` → Claude merges PR-4 to dev.
-    - <1-week soak → `defer N days — {reason}` → Claude waits.
+    - All checks pass → `approved PR-4 — FF removed, 1-week (or 24h+ override) drift telemetry clean, DeprecationWarning on writer, lefthook HARD active, cron still firing` → Claude merges PR-4 to dev.
+    - <1-week soak (still in progress) → `defer N days — soak in progress` → Claude waits + re-presents checkpoint after N days (per locked decision `soak-day-1-inline-days-2-7-async`).
+    - `cron not firing` → BLOCKING ; Claude diagnoses + re-runs.
     - Any check fails → describe failure mode + Claude ships fix-up commit.
 
     **After merge** : record sign-off in PERIMETERS.md ; ready for PR-5 prep (Task 6).
@@ -999,11 +1079,21 @@ echo "Sentry alert state : (Julien checks dashboard ; ⚠ if fired)" >> staging-
   <verify>
     <automated>echo "Checkpoint task — verification is manual by Julien per <how-to-verify> ; this <verify> stub is a structural placeholder. Resume blocked until <resume-signal> received."</automated>
   </verify>
+  <acceptance_criteria>
+    - [ ] Julien types `<resume-signal>` verbatim (« approved PR-4 — FF removed, drift telemetry clean, DeprecationWarning on writer, lefthook HARD active ») in chat OR `defer N days — soak in progress` (valid alternative per locked decision `soak-day-1-inline-days-2-7-async`) OR failure-mode description.
+    - [ ] PERIMETERS.md ledger entry « Phase 02-deploy Wave 2 PR-4 — APPROVED » committed (commit sha recorded in evidence file + SUMMARY).
+    - [ ] No blocker raised in resume signal text (if blocker, Claude addresses BEFORE merging PR-4).
+    - [ ] Soak evidence shows ≥ 1-week clean window (or 24h override per locked decision #4).
+    - [ ] `mint_snapshot_fact_current_drift_total` counter = 0 confirmed on `/metrics`.
+    - [ ] Cron `pg-soak-nightly` confirmed firing (sample in last hour).
+    - [ ] No Sentry alert fired during soak window.
+    - [ ] PR-4 merged to dev + Railway auto-deploy completes (FF removed code path live on staging).
+  </acceptance_criteria>
   <done>
     Julien types the resume-signal after running the <how-to-verify> steps successfully. Claude proceeds to the next task (or records sign-off in PERIMETERS.md per task spec).
   </done>
   <resume-signal>
-    Type "approved PR-4 — FF removed, drift telemetry clean, DeprecationWarning on writer, lefthook HARD active" OR "defer N days — {reason}" OR describe failure mode.
+    Type "approved PR-4 — FF removed, drift telemetry clean, DeprecationWarning on writer, lefthook HARD active" OR "defer N days — soak in progress" OR describe failure mode.
   </resume-signal>
 </task>
 
@@ -1170,6 +1260,7 @@ canonical projection store post-cutover.
 - PR-4 FF removal merged + 1-week observability soak clean (`mint_snapshot_fact_current_drift_total` = 0)
 - B19 tests inventory complete (`.planning/phases/mint-data-architecture-v1-02-deploy/snapshotmodel-tests-inventory.txt`)
 - `tools/db/baseline_snapshot_phase02_pre_drop.sql` committed (full snapshots table dump)
+- continuous_drift_sampler cron still active (per cron-lifecycle locked decision)
 
 ## Emergency rollback procedure (within 30 days post-PR-5 merge)
 If post-PR-5 reads start failing on a previously-projected user-field combination :
@@ -1233,6 +1324,10 @@ Adds :
 
 B19 tests : <N> files inventoried, <X> deleted, <Y> migrated to FactCurrent, <Z> deprecated.
 
+Cron status (per locked decision cron-lifecycle-active-through-wave-2) :
+- continuous_drift_sampler STILL ACTIVE since Task 1 — observability canary preserved
+- Deactivation = OPTIONAL Phase 03 cleanup (NOT this PR)
+
 Engram prior_finding_refs : PR-3b sign-off, PR-4 sign-off, #194, #233."
 gh pr create --base dev --head feat/p02-deploy-pr5-snapshot-drop --title "feat(p02-deploy): PR-5 SnapshotModel drop + decommission runbook + B19 inventory" --body "..."
 ```
@@ -1255,16 +1350,16 @@ gh pr create --base dev --head feat/p02-deploy-pr5-snapshot-drop --title "feat(p
     - `cd services/backend && python3 -m pytest tests/ -q --timeout=180` exits 0 (full regression — B19 tests properly handled).
     - `grep -rln "SnapshotModel" services/backend/tests/ | wc -l` returns 0 OR all matches `@pytest.mark.deprecated`.
     - `git grep "from app.models.snapshot import" services/backend/app/` returns 0 hits (no stale imports).
-    - PR-5 PR opened.
+    - PR-5 PR opened + body mentions cron-lifecycle ACTIVE preserved.
     - PR description includes 3-column B19 inventory table.
   </acceptance_criteria>
   <done>
-    PR-5 code shipped : alembic p121 drops snapshots table, ORM file deleted, `?legacy=true` escape hatch removed, decommission runbook + pre-drop baseline + B19 inventory committed. PR open + awaiting Julien CHECKPOINT (Task 7).
+    PR-5 code shipped : alembic p121 drops snapshots table, ORM file deleted, `?legacy=true` escape hatch removed, decommission runbook + pre-drop baseline + B19 inventory committed. Cron-lifecycle preserved (still active per locked decision). PR open + awaiting Julien CHECKPOINT (Task 7).
   </done>
 </task>
 
 <task type="checkpoint:human-verify" gate="blocking">
-  <name>Task 7 (PR-5 Julien CHECKPOINT) : Final cutover verification + Wave 2 close-out</name>
+  <name>Task 7 (PR-5 Julien CHECKPOINT) : Final cutover verification + cron-lifecycle confirmation + Wave 2 close-out</name>
   <files>N/A — checkpoint task ; no file mutation by Claude. Julien runs verification steps + types resume-signal.</files>
   <what-built>
     Task 6 delivers :
@@ -1273,6 +1368,7 @@ gh pr create --base dev --head feat/p02-deploy-pr5-snapshot-drop --title "feat(p
     - docs/operations/snapshot-model-decommission.md runbook (≥60 lines).
     - tools/db/baseline_snapshot_phase02_pre_drop.sql committed.
     - snapshotmodel-tests-inventory.txt 3-column B19 table.
+    - Cron-lifecycle preserved : continuous_drift_sampler still active (per locked decision `cron-lifecycle-active-through-wave-2`).
     - PR-5 PR open.
   </what-built>
   <action>
@@ -1313,20 +1409,41 @@ gh pr create --base dev --head feat/p02-deploy-pr5-snapshot-drop --title "feat(p
        # Every test file has a decision (delete/migrate/deprecate) + rationale
        ```
 
-    6. **Type gate decision**.
+    6. **Confirm cron still active** (per locked decision `cron-lifecycle-active-through-wave-2` — this is the final-stage verification before Wave 2 close) :
+       ```bash
+       gh workflow view pg-soak-nightly.yml --yaml | grep -E "^\s*-?\s*cron:"
+       railway ssh -e staging --service MINT 'psql $DATABASE_URL -tAc "SELECT count(*) FROM _phase02_parity_audit_continuous WHERE sampled_at > now() - interval \"1 hour\""'
+       ```
+       Assert : cron schedule uncommented + at least 1 sample in last hour. If cron has been disabled accidentally → BLOCKING ; re-enable before merging PR-5.
+
+    7. **Type gate decision**.
 
     **Gate decision** :
-    - All checks pass → `approved PR-5 — SnapshotModel dropped, fact_current canonical, runbook + baseline + B19 inventory complete` → Claude merges PR-5 to dev.
+    - All checks pass → `approved PR-5 — SnapshotModel dropped, fact_current canonical, runbook + baseline + B19 inventory complete, cron still active` → Claude merges PR-5 to dev.
     - Spot-check fails → describe + Claude diagnoses (likely a missed migration of a SnapshotModel test, or a forgotten endpoint).
+    - `cron not firing` → BLOCKING (T-03-06 mitigation) ; Claude re-enables cron + re-runs.
 
     **After merge — Wave 2 close-out** :
     - Record sign-off in PERIMETERS.md (3rd entry for this plan : Task 3 PR-3b + Task 5 PR-4 + Task 7 PR-5).
     - Update STATE.md Wave 2 status from 🚧 to ◆.
     - Forward signal : Wave 3 Plan 04 ready to start (Plan 02-04 tasks + Mobile L1 + 5 FLAGs + prod migration apply).
+    - Cron stays active going into Wave 3 ; Plan 04 may optionally deactivate as Phase 03 cleanup.
   </how-to-verify>
   <verify>
     <automated>echo "Checkpoint task — verification is manual by Julien per <how-to-verify> ; this <verify> stub is a structural placeholder. Resume blocked until <resume-signal> received."</automated>
   </verify>
+  <acceptance_criteria>
+    - [ ] Julien types `<resume-signal>` verbatim (« approved PR-5 — SnapshotModel dropped, fact_current canonical, runbook + baseline + B19 inventory complete ») in chat (or failure-mode description).
+    - [ ] PERIMETERS.md ledger entry « Phase 02-deploy Wave 2 PR-5 — APPROVED » committed (commit sha recorded in evidence file + SUMMARY). This is the 3rd PERIMETERS.md entry for this plan (PR-3b + PR-4 + PR-5).
+    - [ ] No blocker raised in resume signal text — if Julien describes blocker, Claude addresses BEFORE merging PR-5.
+    - [ ] Cron `pg-soak-nightly` confirmed firing at Task 7 verification time (per locked decision `cron-lifecycle-active-through-wave-2`).
+    - [ ] `projection_diff --audit-all-users` returns USERS_WITH_DIFF=0 final sanity check.
+    - [ ] `baseline_snapshot_phase02_pre_drop.sql` committed in PR-5 branch + non-empty.
+    - [ ] B19 inventory complete (every test file has a decision + rationale).
+    - [ ] PR-5 merged to dev + Railway auto-deploy completes (snapshots table dropped on staging).
+    - [ ] STATE.md Wave 2 status flipped from 🚧 to ◆.
+    - [ ] Wave 3 Plan 04 ready to start (forward signal).
+  </acceptance_criteria>
   <done>
     Julien types the resume-signal after running the <how-to-verify> steps successfully. Claude proceeds to the next task (or records sign-off in PERIMETERS.md per task spec).
   </done>
@@ -1346,7 +1463,7 @@ gh pr create --base dev --head feat/p02-deploy-pr5-snapshot-drop --title "feat(p
 | `?legacy=true` escape hatch lifecycle | Active during PR-3b → PR-5 (transitional). Removal in PR-5 finalizes cutover. |
 | `FF_FACT_EVENT_DUAL_WRITE` removal (PR-4) | One-way operation — `no_ff_fact_event_dual_write.py` HARD lefthook prevents re-introduction. |
 | `tools/db/pre_pr3b_pg_dump.sql` + `baseline_snapshot_phase02_pre_drop.sql` committed | Append-only rollback anchors ; never deleted within 30-day window per runbook. |
-| Continuous_drift_sampler 30min × 100 users | Cron schedule activation tied to PR-3a merge step ; deactivation tied to PR-3b merge step (or override) ; observability gap if both fail. |
+| Continuous_drift_sampler 30min × 100 users | Cron schedule activation tied to PR-3a merge step (Task 1) ; STAYS ACTIVE through PR-3b → PR-4 → PR-5 + both soak windows (per locked decision `cron-lifecycle-active-through-wave-2`) ; deactivation = OPTIONAL Phase 03 cleanup. Tasks 1+2+4+6+7 all reference cron-lifecycle for coherent enforcement. |
 
 ## STRIDE Threat Register (ASVS L1 + engram #194 deep audit)
 
@@ -1357,8 +1474,8 @@ gh pr create --base dev --head feat/p02-deploy-pr5-snapshot-drop --title "feat(p
 | T-03-03 | Tampering | HMAC-pepper drift between sampler + decrypt path leaks to drift counter | medium | mitigate | Plan 01 PR A3 `test_hmac_pepper_rotation.py` exercises lru_cache(maxsize=1) interaction ; sampler reads same pepper as projection endpoint. |
 | T-03-04 | Tampering | `projection_diff.py` non-determinism in canonical JSON causes false positives in drift counter | high | mitigate | Plan 02 Task 2 Step 9.5 runs `projection_diff.py --self-test` (12 fixtures) ; iter-2 A10 canonical contract verified. |
 | T-03-05 | Tampering | 7-day soak override accepted without documented rationale | medium | mitigate | Locked decision #4 + PR-3b commit message template REQUIRES rationale + Julien sign-off ledger ref ; Task 3 CHECKPOINT verifies. |
-| T-03-06 | Tampering | continuous_drift_sampler cron disabled accidentally during PR-3b → PR-5 window | high | mitigate | Task 1 activates cron BEFORE PR-3b ; Task 2 PR-3b body documents activation ; Task 7 CHECKPOINT confirms still active. |
-| T-03-07 | Tampering | `tools/db/pre_pr3b_pg_dump.sql` deleted accidentally | medium | mitigate | Committed in PR-3b branch as part of atomic trio ; gitignore'd from any cleanup script ; runbook references it explicitly. |
+| T-03-06 | Tampering | continuous_drift_sampler cron disabled accidentally during PR-3b → PR-5 window | high | mitigate | Per locked decision `cron-lifecycle-active-through-wave-2` : Task 1 commit message documents lifecycle ; Task 2 PR-3b body documents activation status ; Task 4 PR-4 body confirms still active ; Task 6 PR-5 body confirms still active ; Task 7 CHECKPOINT step 6 mechanically asserts cron firing (sample in last hour) and BLOCKS PR-5 merge if cron disabled. Defense-in-depth across 5 task touchpoints. Deactivation = OPTIONAL Phase 03 cleanup, NEVER in this plan. |
+| T-03-07 | Tampering | `tools/db/pre_pr3b_pg_dump.sql` deleted accidentally | medium | mitigate | Committed in PR-3b branch as part of atomic trio ; gitignore'd from any cleanup script ; runbook references it explicitly. Per H-8 fix : ≥ 200 lines threshold (was 50). |
 | T-03-08 | Repudiation | Drift counter declared but never fires (Pitfall 6) | high | mitigate | Plan 01 PR B step 1 declares counter ; Task 4 verifies grep-in-app/ presence ; Wave 3 Plan 04 Task 3 `declared_counters_must_fire.py` HARD gate. |
 | T-03-09 | Spoofing | DeprecationWarning suppressed by global filter | low | mitigate | Task 4 uses `warnings.warn(..., DeprecationWarning, stacklevel=2)` — stacklevel ensures caller-attributable ; pytest captures warnings by default. |
 | T-03-10 | Tampering | Baseline `pg_dump` contains DEK plaintexts | high | mitigate | DEKs are wrapped in `dek_envelope` via KMS — `pg_dump` exports wrapped form ; plaintext DEKs never live in DB. Secret guard in Plan 01 PR B `railway_pg_dump.sh` confirms no plaintext leaks. |
@@ -1374,23 +1491,26 @@ gh pr create --base dev --head feat/p02-deploy-pr5-snapshot-drop --title "feat(p
 
 1. **`autonomous: false`** — 3 Julien CHECKPOINTS (Task 3 PR-3b + Task 5 PR-4 + Task 7 PR-5).
 2. **Sequential strict** : PR-3b → soak ≥24h → PR-4 → soak ≥24h-floor (1-week target) → PR-5. NEVER parallel.
-3. **Each PR has rollback anchor** : PR-3b ships `pre_pr3b_pg_dump.sql` ; PR-4 has revert path (re-introduce FF) ; PR-5 ships `baseline_snapshot_phase02_pre_drop.sql` + runbook.
+3. **Each PR has rollback anchor** : PR-3b ships `pre_pr3b_pg_dump.sql` (≥ 200 lines per H-8) ; PR-4 has revert path (re-introduce FF) ; PR-5 ships `baseline_snapshot_phase02_pre_drop.sql` + runbook.
 4. **0-trust §9 strict** : 3 sign-off entries in PERIMETERS.md ; each PR body cites deterministic evidence ; no « shipped » claim about Wave 2 until Task 7 close.
-5. **Continuous drift sampler lifecycle** : activated Task 1 ; runs THROUGH all 3 PRs ; deactivation deferred to Wave 3 Plan 04 close (or kept running as observability tool indefinitely).
-6. **Pre-push checklist applied per PR** : grep callers + regen OpenAPI + full pytest + lint suite + lefthook regression (memory `feedback_pre_push_checklist`).
-7. **Engram contract** : `mem_save` at end of each PR's task with topic_key per-PR + prior_finding_refs accumulating.
+5. **Continuous drift sampler lifecycle** (per locked decision `cron-lifecycle-active-through-wave-2`) : ACTIVE Task 1 → Task 7 ; coherent across Task 1 commit + Task 2 PR body + Task 4 PR body + Task 6 PR body + Task 7 CHECKPOINT step 6 ; deactivation = OPTIONAL Phase 03 cleanup, NOT this plan.
+6. **Soak protocol** (per locked decision `soak-day-1-inline-days-2-7-async`) : Day-1 inline at Task 4 ; Days-2-7 async ; Task 5 `<resume-signal>` accepts `defer N days — soak in progress` as valid alternative.
+7. **Pre-push checklist applied per PR** : grep callers + regen OpenAPI + full pytest + lint suite + lefthook regression (memory `feedback_pre_push_checklist`).
+8. **Engram contract** : `mem_save` at end of each PR's task with topic_key per-PR + prior_finding_refs accumulating.
 </verification>
 
 <success_criteria>
 - [ ] Plan 02 Task 2a signed-off (PERIMETERS.md entry verified Task 1).
 - [ ] continuous_drift_sampler cron activated + 24h+ floor clean window (Task 1).
-- [ ] PR-3b atomic trio shipped : read-cutover + D-12 HARD + 7th gate pg_dump (Task 2-3).
+- [ ] Cron-lifecycle ACTIVE through PR-3b → PR-4 → PR-5 documented in Task 1 commit + Task 2 PR body + Task 4 PR body + Task 6 PR body (per H-3 fix locked decision).
+- [ ] PR-3b atomic trio shipped : read-cutover + D-12 HARD + 7th gate pg_dump ≥ 200 lines (Task 2-3, H-8 floor).
 - [ ] PR-3b Julien-signed in PERIMETERS.md (Task 3 resume signal received).
 - [ ] PR-4 shipped : FF removed + DeprecationWarning + no_ff_fact_event_dual_write HARD lefthook + drift telemetry wired (Task 4-5).
-- [ ] PR-4 Julien-signed (Task 5 resume signal).
-- [ ] 1-week observability soak clean OR override floor (Task 4 daily probes).
+- [ ] PR-4 Julien-signed (Task 5 resume signal — may include `defer N days — soak in progress` per H-4 fix).
+- [ ] 1-week observability soak Day-1 inline + Days-2-7 async clean OR override floor (Task 4 Day-1 probe + Julien async monitoring).
 - [ ] PR-5 shipped : alembic p121 + ORM delete + escape hatch removed + runbook + baseline + B19 inventory (Task 6-7).
 - [ ] PR-5 Julien-signed (Task 7 resume signal).
+- [ ] Task 7 CHECKPOINT step 6 confirms cron still firing at PR-5 ship time (T-03-06 mitigation).
 - [ ] `grep -rln "SnapshotModel" services/backend/tests/ | wc -l` returns 0 OR all `@pytest.mark.deprecated`.
 - [ ] `grep -rn "SnapshotModel" services/backend/app/` returns 0 hits (post-PR-5 — except runbook references).
 - [ ] Full backend pytest suite green post-each-PR.
@@ -1404,11 +1524,13 @@ After completion, ensure :
 - `.planning/phases/mint-data-architecture-v1-02-deploy/mint-data-architecture-v1-02-deploy-03-cutover-PR3b-PR4-PR5-SUMMARY.md` (per-task receipt) exists.
 - 7 evidence/artifact files committed across the 3 PRs :
   - `staging-soak-7day-evidence.txt` (Task 1)
-  - `pre-pr3b-pg-dump-capture.log` + `tools/db/pre_pr3b_pg_dump.sql` + `tools/checks/profile_safe_fields_parity_allowlist.txt` (Task 2)
-  - `staging-soak-post-pr4-week-evidence.txt` + `tools/checks/no_ff_fact_event_dual_write.py` (Task 4)
+  - `pre-pr3b-pg-dump-capture.log` + `tools/db/pre_pr3b_pg_dump.sql` (≥ 200 lines, H-8 floor) + `tools/checks/profile_safe_fields_parity_allowlist.txt` (Task 2)
+  - `staging-soak-post-pr4-week-evidence.txt` (Day-1 inline + Days-2-7 async protocol, H-4 fix) + `tools/checks/no_ff_fact_event_dual_write.py` (Task 4)
   - `tools/db/baseline_snapshot_phase02_pre_drop.sql` + `docs/operations/snapshot-model-decommission.md` + `snapshotmodel-tests-inventory.txt` (Task 6)
 - 3 PERIMETERS.md ledger entries (PR-3b sign-off + PR-4 sign-off + PR-5 sign-off).
-- 0-trust §9.6 Evidence + Caveat block in SUMMARY listing : Evidence = 3 PR shas + 3 sign-off ledger entries + 2 pg_dump baselines + drift telemetry clean window verification. Caveat = (a) prod NOT yet migrated (Wave 4), (b) Mobile L1 device wiring NOT shipped (Wave 3 Plan 04), (c) Sentry alert rule lifecycle dependency, (d) `baseline_snapshot_phase02_pre_drop.sql` retention 30 days only (Phase 03 cleanup).
+- 0-trust §9.6 Evidence + Caveat block in SUMMARY listing : Evidence = 3 PR shas + 3 sign-off ledger entries + 2 pg_dump baselines + drift telemetry clean window verification + cron-lifecycle ACTIVE verified at Task 7 step 6. Caveat = (a) prod NOT yet migrated (Wave 4), (b) Mobile L1 device wiring NOT shipped (Wave 3 Plan 04), (c) Sentry alert rule lifecycle dependency, (d) `baseline_snapshot_phase02_pre_drop.sql` retention 30 days only (Phase 03 cleanup), (e) cron deactivation deferred to OPTIONAL Phase 03 cleanup (per H-3 fix locked decision).
 - `mem_save` calls per-PR with `topic_key: mint-data-architecture-v1-02-deploy:wave-2:pr-{3b,4,5}-shipped-{date}` + `prior_finding_refs` accumulating across PRs.
-- Forward-deferred items list : Wave 3 Plan 04 work + prod cutover (Wave 4).
+- Forward-deferred items list : Wave 3 Plan 04 work + prod cutover (Wave 4) + cron deactivation (OPTIONAL Phase 03).
 </output>
+</content>
+</invoke>

@@ -479,6 +479,14 @@ session.execute(text(insert_sql), {
 
 <task type="auto" tdd="true">
   <name>Task 3 (PR B) : Observability infrastructure — drift counter declaration + alembic_partition_safety_lint + caplog lefthook rule + railway_pg_dump.sh + conftest health-check + KMS_KEY_ID naming audit</name>
+  <pr_rationale>
+    Per checker iteration 1 H-7 fix : PR B is intentionally a single « mega-PR » with 9 sub-items + 14 acceptance criteria. Rationale for keeping it as one PR (not splitting) :
+    - Infrastructure setup is atomic : the 9 items (counter declaration + 2 lints + railway_pg_dump.sh + lefthook caplog rule + conftest health-check + KMS naming audit + alembic head verification CI step) belong to the same « Wave 0 substrate hardening » concern.
+    - Lefthook rules ship with their tests : splitting `alembic_partition_safety_lint.py` from its `lefthook.yml` registration would leave one PR in an unverifiable state.
+    - KMS_KEY_ID naming audit + Prometheus scrape + branch protection are config-only : no code dependency between them, but bundling avoids 3 separate review cycles for trivial config.
+    - `alembic_partition_safety_lint` ships with its 2 lint targets (PARTITION BY + FK NOT VALID) as a single AST-walk module — splitting would force 2 import points.
+    Keep as a single PR. Documented per checker H-7 fix to surface the rationale.
+  </pr_rationale>
   <files>
     services/backend/app/observability/counters.py,
     tools/checks/alembic_partition_safety_lint.py,

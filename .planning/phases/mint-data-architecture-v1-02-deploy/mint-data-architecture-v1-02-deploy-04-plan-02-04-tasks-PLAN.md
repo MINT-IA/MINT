@@ -49,8 +49,8 @@ files_modified:
   - services/backend/tests/integration/test_event_log_baseline_trim.py
   - tools/checks/subject_type_forward_lint.py
   - tools/checks/tests/test_subject_type_forward_lint.py
-  # DEFERRED-02-01-A merge migration (if not absorbed by p98_merge node)
-  - services/backend/alembic/versions/p122_merge_p86_eclairage_into_p120.py
+  # DEFERRED-02-01-A merge migration (CONDITIONAL — only if `alembic heads | wc -l` ≥ 2)
+  - services/backend/alembic/versions/p122_merge_p86_eclairage.py
   # PR D polish absorbed
   - services/backend/app/models/audit_event.py
   - services/backend/app/services/feature_flags.py
@@ -59,6 +59,7 @@ files_modified:
   # Wave 4 prod close-out
   - .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt
   - .planning/phases/mint-data-architecture-v1-02-deploy/prod-final-5-gate-evidence.txt
+  - tools/db/baselines/production-2026-XX-XX-pre-wave-4.sql.gz
   - .planning/phases/mint-data-architecture-v1-02-deploy/mint-data-architecture-v1-02-deploy-VERIFICATION-REPORT.html
   - .planning/phases/mint-data-architecture-v1-02-deploy/mint-data-architecture-v1-02-deploy-SUMMARY.md
   - .planning/ROADMAP.md
@@ -84,7 +85,7 @@ requirements_addressed:
   - QA-Panel-#655#sec-FLAG-5 pre-existing baseline trim
   - QA-Panel-#655#arch-FLAG-2 UUID4→UUID7 decoupled forward-defer Phase 03
   - QA-Panel-#655#arch-FLAG-3 subject_type forward-lint
-  - DEFERRED-02-01-A alembic dual-head merge (verify absorbed by p98_merge_p86_eclairage OR ship explicit merge migration)
+  - DEFERRED-02-01-A alembic dual-head merge (CONDITIONAL : verify absorbed by p98_merge_p86_eclairage via `alembic heads | wc -l == 1` BEFORE ship-vs-skip decision — Task 9 step 1 ; if absorbed → no p122 ship ; if not → ship explicit `p122_merge_p86_eclairage.py` with `down_revision = "p121_drop_snapshot_legacy"` per locked decision `deferred-02-01-a-resolution` revised in checker C-3 fix)
   - DEFERRED-02-01-C profile_safe_fields_parity static-analysis enhancement (deferred to Phase 03 backlog)
   - PR-D-polish absorbed (TIMESTAMPTZ + rename + feature_flags double-resolution + duplicate output_hash + project_event refactor + create_snapshot refactor + orphan staging Postgres delete)
   - HANDOFF#Wave-4 prod migration apply + final 5-gate panel + VERIFICATION-REPORT.html + SUMMARY.md
@@ -107,8 +108,17 @@ decisions_locked:
     locked: "sec FLAG-1 post-write divergence assertion in fact_projector.py lines 151-181 is NOT deleted in Phase 02-deploy ; revisit Phase 03 after 30j stable event-log per RESEARCH §Anti-Patterns. Conflicts with PR D step 7 — PR D step 7 IS NOT APPLIED."
     rationale: "RESEARCH §Anti-Patterns to Avoid + §Open-Questions Q5 recommendation."
   - id: deferred-02-01-a-resolution
-    locked: "DEFERRED-02-01-A alembic dual-head (p86_eclairage_delivered) : verify via `alembic heads` whether already absorbed by `p98_merge_p86_eclairage` (the merge node identified in Plan 01 Task 4 chain-audit.txt). If absorbed = no action ; if not = ship explicit `p122_merge_p86_eclairage_into_p120.py` migration."
-    rationale: "RESEARCH §Summary 14-rev chain analysis + Plan 01 Task 4 chain-audit.txt outcome."
+    locked: "DEFERRED-02-01-A alembic dual-head (p86_eclairage_delivered) : Task 9 step 1 mechanically asserts `cd services/backend && alembic heads | wc -l == 1` BEFORE deciding to ship p122. If = 1 (single head — DEFERRED-02-01-A already absorbed by p98_merge_p86_eclairage upstream per Plan 01 Task 4 chain-audit.txt) → no p122 ship ; document in SUMMARY. If ≥ 2 (dual head still present) → ship explicit `p122_merge_p86_eclairage.py` with `down_revision = \"p121_drop_snapshot_legacy\"` (NOT p120 — Plan 03 PR-5 already shipped p121, so the chain post-Wave-2 is p121 ; using down_revision=p120 would create a NEW dual-head with p121 vs p122, which is precisely the dual-head bug DEFERRED-02-01-A is meant to close). After p122 ship, mechanically assert `alembic heads | wc -l == 1` post-migration. Filename = `p122_merge_p86_eclairage.py` (drops the `_into_p120` suffix from previous spec — checker C-3 fix to disambiguate down_revision target)."
+    rationale: "Checker iteration 1 C-3 fix : original spec `p122_merge_p86_eclairage_into_p120.py` implied `down_revision = p120`, but post-Plan-03-PR-5 chain is p121_drop_snapshot_legacy → so `down_revision = p120` would create a NEW dual-head between p121 (Plan 03) and p122 (Plan 04). Correct chain post-Wave-2 : p122 must point to p121 as parent. Filename rename = `p122_merge_p86_eclairage.py` disambiguates. Conditional branching locked : if alembic heads pre-task already = 1, skip ship entirely."
+  - id: design-panel-verdict-file-pre-creation
+    locked: "Per checker iteration 1 C-4 fix : Task 5 CHECKPOINT (Mobile L1 design panel) currently references `mobile-l1-design-panel-verdict.md` which doesn't exist when panel convenes. Resolution : Task 5 ships a SKELETON of `mobile-l1-design-panel-verdict.md` as Step 0 (NEW pre-panel step BEFORE Julien spawns 4 sub-agents) with `status: pending` blocks for each of 4 sections (UX / a11y / adversarial / engineering). The 4 sub-agents fill their section in parallel via Claude orchestrator. Final verdict = `approved` ssi 4/4 sections « status: APPROVED » + zero « status: BLOCK ». Task 6 acceptance step #1 `grep approved mobile-L1 sub-PR A4a` in `mobile-l1-design-panel-verdict.md` becomes well-defined."
+    rationale: "Checker iteration 1 C-4 fix : original Task 5 → Task 6 ordering created file-not-yet-existing race. Skeleton-first + parallel panel-fill pattern resolves. Memory `feedback_design_panel_before_push` already requires verdict recorded BEFORE push — skeleton-first makes this enforceable + auditable."
+  - id: prod-baseline-filename-disambiguation
+    locked: "Per checker iteration 1 H-9 fix : Plan 01 Task 4 already captured `tools/db/baselines/production-2026-05-19-pre-deploy.sql.gz`. Plan 04 Task 10 (Wave 4 prod migration apply) captures a SECOND prod baseline immediately pre-cutover. To avoid filename collision, Plan 04's baseline filename = `tools/db/baselines/production-{date}-pre-wave-4.sql.gz` (NOT `-pre-deploy.sql.gz`). Both baselines retained = 2 rollback anchors with distinct semantic meaning (Plan 01 = pre-Plan-01-Wave-0-close-state ; Plan 04 = pre-Wave-4-prod-cutover-state)."
+    rationale: "Checker iteration 1 H-9 fix : two prod baselines with same filename pattern would shadow each other in `ls tools/db/baselines/`. Distinct suffixes (`-pre-deploy` vs `-pre-wave-4`) preserve both as independent rollback anchors per RESEARCH §Don't-Hand-Roll retention policy."
+  - id: plan-04-scope-rationale
+    locked: "Per checker iteration 1 H-2 fix : Plan 04 is intentionally large (11 tasks + 25+ files) and this is justified by its close-out-phase role grouping multiple parallel-independent concerns. Scope-sanity override : 11 tasks justified by close-out-phase grouping ; tasks 1-4 backend atomic (D-09/D-10/Q6/declared_counters/runbooks — independent surfaces) ; tasks 5-7 mobile isolated (design panel + Dart-only A4a + iOS-isolated A4b) ; tasks 8-9 backlog cleanup (FLAGs + DEFERRED + PR-D polish) ; tasks 10-11 prod close not code (prod migration apply + final 5-gate panel close-out). No split required — splitting would introduce Wave 3.1/3.2 sequencing without benefit since tasks 1-4 + 5-7 + 8-9 + 10 all parallelize with file-ownership boundaries respected."
+    rationale: "Checker iteration 1 H-2 fix : flag-raised plan-04-sur-dimensionné, but task decomposition is parallel-independent across 4 groups + close-out tasks 10-11 cannot be split (single prod-cutover event). 11 tasks is a quantitative-large but functionally-bounded set."
 
 must_haves:
   truths:
@@ -120,7 +130,7 @@ must_haves:
     - "Phase 02 LSFin banned-terms extension : banned_terms_python.py --scan-jsonb-payload mode scans fact_event.value_enc + writer-level scan in project_event blocks insertion (D-32 G5)."
     - "3 forward-deferred runbooks shipped : fact-event-partition-split.md (≥50 lines + concrete thresholds) + dek-rotation-phase04.md (≥40 lines) + audit-pepper-rotation.md (≥50 lines + B7 PR-ordering rule)."
     # Mobile L1 (HANDOFF PR-A4 split into A4a + A4b)
-    - "Sub-PR A4a ships : DEFERRED-02-02-C lefthook wiring for no_mobile_fact_current_regulatory_read.py + DEFERRED-02-02-E main.dart MobileL1AuditLifecycleObserver wiring + DEFERRED-02-02-F connectivity_plus integration. 4-person design panel verdict recorded BEFORE push per memory `feedback_design_panel_before_push`."
+    - "Sub-PR A4a ships : DEFERRED-02-02-C lefthook wiring for no_mobile_fact_current_regulatory_read.py + DEFERRED-02-02-E main.dart MobileL1AuditLifecycleObserver wiring + DEFERRED-02-02-F connectivity_plus integration. 4-person design panel verdict recorded BEFORE push per memory `feedback_design_panel_before_push` ; verdict file pre-created in Task 5 Step 0 with 4 status:pending sections then filled by 4 parallel sub-agents (per checker C-4 fix)."
     - "Sub-PR A4b ships : DEFERRED-02-02-D sqflite_sqlcipher production AuditBufferDb impl + Runner.entitlements + fastlane match profile update. ISOLATED PR per memory `feedback_ios_entitlements_block_testflight`."
     # 5 sec/arch FLAGs
     - "sec FLAG-2 scenario_inputs_hash : test_event_log_no_quasi_identifier.py asserts no quasi-identifier (postal_code + birth_date + canton) appears in fact_event payload."
@@ -128,9 +138,11 @@ must_haves:
     - "sec FLAG-5 baseline trim : test_event_log_baseline_trim.py asserts event_log size bounded for pre-Phase-02 users (no balloon-on-cutover)."
     - "arch FLAG-2 UUID4→UUID7 : DECOUPLED Phase 03 (decision documented + audit-pepper-rotation.md runbook references the forward-compat path)."
     - "arch FLAG-3 subject_type forward-lint : subject_type_forward_lint.py catches `subject_type='user'` without registry check ; HARD lefthook."
+    # DEFERRED-02-01-A resolution (CONDITIONAL per checker C-3 fix)
+    - "DEFERRED-02-01-A resolved per locked decision `deferred-02-01-a-resolution` revised : Task 9 step 1 mechanically asserts `alembic heads | wc -l == 1` ; IF = 1 → no p122 ship + document in SUMMARY ; IF ≥ 2 → ship `p122_merge_p86_eclairage.py` with `down_revision = \"p121_drop_snapshot_legacy\"` (NOT p120) + post-migration assert `alembic heads | wc -l == 1`."
     # Wave 4
-    - "Production migration applied : prod alembic head = current dev head (p121_drop_snapshot_legacy or later post-Wave-3 merges) ; fact_event + fact_current + dek_envelope tables exist on prod ; FF_FACT_EVENT_DUAL_WRITE never set on prod (skipped per 0-user-prod premise + Wave 2 cutover semantically COMPLETE-on-staging-and-by-construction-on-prod)."
-    - "Prod baseline pg_dump captured (`tools/db/baselines/production-{date}-pre-deploy.sql.gz` from Plan 01 OR fresh capture Wave 4)."
+    - "Production migration applied : prod alembic head = current dev head (p121_drop_snapshot_legacy or p122_merge_p86_eclairage post-Wave-3 merges) ; fact_event + fact_current + dek_envelope tables exist on prod ; FF_FACT_EVENT_DUAL_WRITE never set on prod (skipped per 0-user-prod premise + Wave 2 cutover semantically COMPLETE-on-staging-and-by-construction-on-prod)."
+    - "Prod baseline pg_dump captured : Plan 04 Task 10 ships `tools/db/baselines/production-{date}-pre-wave-4.sql.gz` (NOT `-pre-deploy.sql.gz` — that suffix is Plan 01's pre-Wave-0-close baseline, per checker H-9 fix `prod-baseline-filename-disambiguation`)."
     - "Final 5-gate panel : G1 Maestro PASS + G2 Julien device sign-off + G3 dev CI green + G4 regression suite + G5 lints (LSFin + accent + ARB + constants drift + hmac_pepper_audit + alembic_partition_safety + declared_counters_must_fire + no_ff_fact_event_dual_write)."
     - "VERIFICATION-REPORT.html (≥200 lines) + SUMMARY.md (≥180 lines) + ROADMAP + STATE + PROJECT.md updated to ◆ Phase 02-deploy COMPLETE (or appropriate status per 0-trust §9.5 stage labeling)."
   artifacts:
@@ -162,8 +174,10 @@ must_haves:
       provides: "Sub-PR A4b sqflite_sqlcipher production AuditBufferDb impl (replaces InMemoryAuditBufferDb)"
       min_lines: 80
     - path: ".planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md"
-      provides: "4-person design panel verdict (UX + a11y + adversarial + engineering) signed BEFORE sub-PR A4a push"
+      provides: "4-person design panel verdict (UX + a11y + adversarial + engineering) signed BEFORE sub-PR A4a push ; pre-created as skeleton in Task 5 Step 0 with 4 status:pending sections (checker C-4 fix locked decision `design-panel-verdict-file-pre-creation`)."
       min_lines: 40
+    - path: "tools/db/baselines/production-2026-XX-XX-pre-wave-4.sql.gz"
+      provides: "Wave 4 prod-cutover-immediate baseline (distinct from Plan 01's `-pre-deploy.sql.gz` per checker H-9 fix)"
     - path: ".planning/phases/mint-data-architecture-v1-02-deploy/mint-data-architecture-v1-02-deploy-VERIFICATION-REPORT.html"
       provides: "Phase-level VERIFICATION report with 5-gate panel + per-wave rollup + cumulative metric snapshot"
       min_lines: 200
@@ -196,17 +210,17 @@ must_haves:
 <objective>
 Wave 3 + Wave 4 — close-out de Phase 02-deploy.
 
-Wave 3 délivre : Plan 02-04 Task 1-4 (D-09 alias + D-10 dead-fields + Q6 CI + declared_counters HARD + 3 runbooks) + Mobile L1 device wiring (sub-PR A4a Dart + sub-PR A4b iOS isolated) + 5 sec/arch FLAGs + DEFERRED-02-01-A vérification + PR D polish absorbée + 2 runbooks supplémentaires (sentry-alert + branch-protection).
+Wave 3 délivre : Plan 02-04 Task 1-4 (D-09 alias + D-10 dead-fields + Q6 CI + declared_counters HARD + 3 runbooks) + Mobile L1 device wiring (sub-PR A4a Dart + sub-PR A4b iOS isolated) + 5 sec/arch FLAGs + DEFERRED-02-01-A vérification conditionnelle (per checker C-3 fix) + PR D polish absorbée + 2 runbooks supplémentaires (sentry-alert + branch-protection).
 
-Wave 4 délivre : prod migration apply (réutilise Wave 1 sequence mais sur production env) + final 5-gate panel + VERIFICATION-REPORT.html + SUMMARY.md + ROADMAP + STATE + PROJECT.md flip.
+Wave 4 délivre : prod migration apply (réutilise Wave 1 sequence mais sur production env, capture pre-cutover baseline en `-pre-wave-4.sql.gz` per checker H-9) + final 5-gate panel + VERIFICATION-REPORT.html + SUMMARY.md + ROADMAP + STATE + PROJECT.md flip.
 
 Purpose : fermer Phase 02-deploy de manière complète + auditable. Chaque D-XX a une disposition. Chaque DEFERRED-02-0X-Y est soit shipped soit re-deferred avec rationale. La 5-gate exit panel est documentée déterministiquement (G1 + G2 + G3 + G4 + G5 chacun avec citation evidence par 0-trust §9).
 
 Type : `autonomous: false` — 2 Julien CHECKPOINTS critiques (Mobile L1 design panel BEFORE push + Wave 4 prod migration apply + final close-out G2 device sign-off).
 
-Output : 11 fichiers code modifiés + 8 docs runbooks + 5 nouveaux tests FLAGs + 1 sub-PR A4b isolated iOS + 1 design panel verdict + Wave 4 phase-close artifacts (HTML report + SUMMARY).
+Output : 11 fichiers code modifiés + 8 docs runbooks + 5 nouveaux tests FLAGs + 1 sub-PR A4b isolated iOS + 1 design panel verdict (skeleton-first + 4-parallel-fill per checker C-4) + Wave 4 phase-close artifacts (HTML report + SUMMARY + `-pre-wave-4.sql.gz` baseline distinct per checker H-9).
 
-Scope alert (critique) : ce plan est large MAIS contraint par Karpathy #3 surgical. Chaque tâche cite son D-XX / DEFERRED-02-0X-Y / FLAG d'origine. Aucun drive-by refactor en dehors du PR-D-polish explicitement scopé. PR D step 7 (delete sec FLAG-1) EXCLU par locked decision #sec-flag-1-preservation.
+Scope sanity (per locked decision `plan-04-scope-rationale` / checker H-2 fix) : 11 tasks justified by close-out-phase grouping — tasks 1-4 backend atomic ; tasks 5-7 mobile isolated ; tasks 8-9 backlog cleanup ; tasks 10-11 prod close. No split required.
 
 Out of scope this plan :
 - Phase 03 (coach extractor) — Phase 03 ouvrira après Wave 4 close.
@@ -216,6 +230,7 @@ Out of scope this plan :
 - DEFERRED-02-01-C profile_safe_fields_parity static-analysis enhancement (backlog Phase 03 lint refactor).
 - DEFERRED-02-02-B DEK tombstone backend (LOW risk, semantically duplicate ; revisit Phase 04).
 - DEFERRED-02-02-G True-concurrency variant iter-2 A8 (CI-only test, Plan 02-04 Task 4 close-out per existing deferred-items).
+- Cron deactivation (OPTIONAL Phase 03 cleanup ; cron stays active from Plan 03 Task 1 onward).
 </objective>
 
 <execution_context>
@@ -266,7 +281,8 @@ Backend post-PR-5 :
   9. mint_snapshot_fact_current_drift_total (Plan 01 PR B step 1)
 - FF_FACT_EVENT_DUAL_WRITE removed from feature_flags.py (PR-4)
 - DeprecationWarning on SnapshotModel writer — but writer file deleted (PR-5) so DeprecationWarning is on the call sites if any remain (review needed)
-- p98_merge_p86_eclairage merge node confirmed via Plan 01 Task 4 chain-audit.txt (or NOT — verify Task 4 of this plan)
+- p98_merge_p86_eclairage merge node confirmed via Plan 01 Task 4 chain-audit.txt (Task 9 step 1 re-asserts via `alembic heads | wc -l` per checker C-3 fix)
+- Alembic chain post-Wave-2 : ...p120_fact_event_idempotency → p121_drop_snapshot_legacy (current head pre-Wave-3) — Task 9 step 1 verifies single-head ; conditional p122 ship targets `down_revision = "p121_drop_snapshot_legacy"` ONLY if dual-head re-emerged.
 
 S12 alias state (post-Plan-02-01) :
 - app/services/expat/frontalier_service.py contains `class FrontalierSegmentService:` + trailing `FrontalierService = FrontalierSegmentService` alias line
@@ -298,10 +314,14 @@ Mobile L1 state (post-Plan-02-02 substrate) :
 - arch FLAG-2 : UUID4 used (random) ; UUID7 migration documented Phase 03 forward-compat
 - arch FLAG-3 : subject_type='user' string-based ; registry check forward-lint missing
 
-DEFERRED-02-01-A status :
-- Plan 01 Task 4 chain-audit.txt should document whether p98_merge_p86_eclairage node already absorbs the dual-head
-- If YES : no action in this plan
-- If NO : ship p122_merge_p86_eclairage_into_p120.py merge migration in Task 5 of this plan
+DEFERRED-02-01-A status (revised per checker C-3 fix) :
+- Plan 01 Task 4 chain-audit.txt should document whether p98_merge_p86_eclairage node already absorbs the dual-head — Task 9 step 1 re-asserts via `cd services/backend && alembic heads | wc -l`.
+- IF result = 1 (single head) : DEFERRED-02-01-A already absorbed by p98_merge upstream → NO p122 ship + document in SUMMARY.
+- IF result ≥ 2 (dual head re-emerged for some reason) : ship `p122_merge_p86_eclairage.py` with `down_revision = "p121_drop_snapshot_legacy"` (NOT p120) ; post-migration assert `alembic heads | wc -l == 1`.
+
+Prod baseline state (per checker H-9 fix) :
+- Plan 01 Task 4 already captured `tools/db/baselines/production-2026-05-19-pre-deploy.sql.gz` (Wave-0-close-state)
+- Plan 04 Task 10 captures distinct `tools/db/baselines/production-{date}-pre-wave-4.sql.gz` (Wave-4-pre-cutover-immediate)
 </interfaces>
 </context>
 
@@ -310,7 +330,10 @@ DEFERRED-02-01-A status :
 - **Open-Q #6 (Sentry alert wiring)** — LOCKED : Julien-only UI task ; Claude ships runbook in Task 4 ; Julien configures BEFORE Wave 4 prod cutover (already required before Plan 03 Task 3 CHECKPOINT).
 - **Open-Q #7 (Mobile parity-lint drift scope)** — LOCKED : PR-A3 drops 3 allowlisted fields only ; full 40-field closure deferred (DEFERRED-02-01-B backlog).
 - **PR D polish absorbed** — LOCKED : items 1-6 + 8 applied in this plan ; item 7 (delete sec FLAG-1) NOT applied per locked decision #sec-flag-1-preservation.
-- **DEFERRED-02-01-A resolution** — LOCKED : verify via `alembic heads` whether absorbed by p98_merge ; if not, ship explicit p122 merge migration in Task 5.
+- **DEFERRED-02-01-A resolution (revised checker C-3 fix)** — LOCKED : Task 9 step 1 mechanically asserts `alembic heads | wc -l` ; if = 1 → skip p122 (no ship) ; if ≥ 2 → ship `p122_merge_p86_eclairage.py` with `down_revision = "p121_drop_snapshot_legacy"` (NOT p120, which would create a NEW dual-head with p121) ; post-migration assert single-head.
+- **Design panel verdict file pre-creation (checker C-4 fix)** — LOCKED : Task 5 Step 0 creates `mobile-l1-design-panel-verdict.md` skeleton with 4 status:pending sections BEFORE Julien convenes the 4-panel ; 4 sub-agents parallel-fill ; verdict = `approved` iff 4/4 APPROVED + 0 BLOCK.
+- **Prod baseline filename disambiguation (checker H-9 fix)** — LOCKED : Plan 04 Task 10 baseline filename = `tools/db/baselines/production-{date}-pre-wave-4.sql.gz` ; distinct from Plan 01's `-pre-deploy.sql.gz`.
+- **Plan 04 scope rationale (checker H-2 fix)** — LOCKED : 11 tasks justified by close-out-phase grouping (4 task groups : backend atomic / mobile isolated / backlog cleanup / prod close). No split.
 </decision_locked>
 
 <tasks>
@@ -390,8 +413,6 @@ echo $?
     Plan 02-04 Task 1 closed : D-09 S12 alias removed ; all live importers use FrontalierSegmentService directly. D-10 D-MOB-01 PR-A3 drops 3 dead Flutter-only fields. profile_safe_fields_parity HARD lint passes WITHOUT allowlist. Plan 02-01 + Plan 02-03 carry-over completions all closed.
   </done>
 </task>
-
-</tasks>
 
 <task type="auto">
   <name>Task 2 (Plan 02-04 Task 2 + iter-2 C8) : Q6 CI mechanical fixes — STAGING-MALFORMED + scheduled-only aging + STAGING-DOWN-OVERRIDE CODEOWNER-gated + branch protection runbook (D-06)</name>
@@ -709,8 +730,10 @@ After Phase 02-deploy completes + 30-day stable operation, the drift counter is 
 </task>
 
 <task type="checkpoint:human-verify" gate="blocking">
-  <name>Task 5 (Mobile L1 design panel BEFORE push) : 4-person design panel verdict for sub-PR A4a per memory `feedback_design_panel_before_push`</name>
-  <files>N/A — checkpoint task ; no file mutation by Claude. Julien runs verification steps + types resume-signal.</files>
+  <name>Task 5 (Mobile L1 design panel BEFORE push) : Pre-create verdict skeleton (C-4 fix Step 0) + spawn 4-person panel + record verdict</name>
+  <files>
+    .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md
+  </files>
   <what-built>
     Pre-built : design panel input package for the 4-person review (UX + a11y + adversarial + engineering) covering :
     - DEFERRED-02-02-C : 1-line lefthook wiring for `no_mobile_fact_current_regulatory_read.py` HARD pre-commit gate
@@ -720,66 +743,131 @@ After Phase 02-deploy completes + 30-day stable operation, the drift counter is 
     Out of scope for THIS sub-PR (A4a) : sqflite_sqlcipher production AuditBufferDb (sub-PR A4b isolated per locked decision #5 + memory `feedback_ios_entitlements_block_testflight`).
   </what-built>
   <action>
-    Checkpoint task — Claude executes no file mutation here. The atomic
-    operations (PR builds, evidence file generation, code commits) all live
-    in the preceding `type="auto"` tasks of this plan. This checkpoint task
-    pauses execution until Julien types the `resume-signal` after running
-    the verification steps listed in `<how-to-verify>` below.
-  </action>
-  <how-to-verify>
-    **Julien spawns 4-person design panel** (per memory `feedback_design_panel_before_push`, parallel sub-agent invocation) :
+    **Step 0 (NEW per checker C-4 fix locked decision `design-panel-verdict-file-pre-creation`) — Pre-create verdict file SKELETON BEFORE convening the panel.**
 
-    1. **UX panel agent** (`frontend-developer` + `mobile-developer`) :
-       - Review main.dart bootstrap sequence : does `recordColdStart()` block the splash screen?
-       - Review connectivity_plus listener placement : is `audit.flush()` debounced to avoid burst writes on flapping connectivity?
-       - Verdict : PASS / BLOCKED with concerns.
+    Claude orchestrator (BEFORE pausing for the human checkpoint) creates `.planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md` with 4 status:pending sections. This is the ONLY file mutation in this task ; everything else is the panel pause + 4-sub-agent parallel-fill orchestration.
 
-    2. **a11y panel agent** (`accessibility-expert`) :
-       - Any user-facing string change? (Should be ZERO — Mobile L1 audit is non-visual.)
-       - Verify no telemetry emissions occur during accessibility-tooling navigation modes.
-       - Verdict : PASS / BLOCKED.
+```bash
+cat > .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md << 'EOF'
+---
+task: mint-data-architecture-v1-02-deploy-04-mobile-l1-sub-pr-a4a
+panel_size: 4
+status: pending
+created: 2026-XX-XX
+deferred_items_addressed:
+  - DEFERRED-02-02-C (lefthook wiring no_mobile_fact_current_regulatory_read.py)
+  - DEFERRED-02-02-E (main.dart MobileL1AuditLifecycleObserver wiring)
+  - DEFERRED-02-02-F (connectivity_plus listener in main.dart caller)
+locked_decision_ref: design-panel-verdict-file-pre-creation (checker C-4 fix)
+---
 
-    3. **Adversarial panel agent** (`security-auditor` + `threat-modeling-expert`) :
-       - Threat : can a malicious connectivity_plus event trigger audit drain on attacker-controlled network?
-       - Threat : main.dart observer wiring order — does it run BEFORE or AFTER Sentry init?
-       - Verify offline queue does NOT contain PII (per RESEARCH §Security Domain row 6).
-       - Verdict : PASS / BLOCKED.
-
-    4. **Engineering panel agent** (`architect-review`) :
-       - Wiring quality : does main.dart respect existing observer chain order?
-       - Surface minimality : 1-line lefthook addition OK per DEFERRED-02-02-C reason-out-of-scope rationale.
-       - Tests : 3 new flutter test files (lifecycle_observer + connectivity_drain + sqlite_buffer_full per Plan 02-04 Task 5 D-30 race tests).
-       - Verdict : PASS / BLOCKED.
-
-    5. **Record verdict in `.planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md`** :
-
-```markdown
-# Mobile L1 Sub-PR A4a — 4-Person Design Panel Verdict ($(date -u +%Y-%m-%d))
+# Mobile L1 Sub-PR A4a — 4-Person Design Panel Verdict
 
 Per memory `feedback_design_panel_before_push` — verdict recorded BEFORE push.
 
-## Panel members
-1. UX : {frontend-developer + mobile-developer} — Verdict : PASS / BLOCKED ({rationale})
-2. a11y : {accessibility-expert} — Verdict : PASS / BLOCKED ({rationale})
-3. Adversarial : {security-auditor + threat-modeling-expert} — Verdict : PASS / BLOCKED ({rationale})
-4. Engineering : {architect-review} — Verdict : PASS / BLOCKED ({rationale})
+Skeleton pre-created per checker C-4 fix : 4 sub-agents fill their sections in
+parallel ; final verdict = `approved` iff 4/4 sections « status: APPROVED » + zero
+« status: BLOCK ».
+
+## UX (frontend-developer + mobile-developer)
+**status: PENDING** ← updated by panel agent to APPROVED or BLOCK
+**findings:**
+- (to be filled by UX panel agent)
+**rationale:**
+- (to be filled)
+
+## A11y (accessibility-expert)
+**status: PENDING**
+**findings:**
+- (to be filled by a11y panel agent)
+**rationale:**
+- (to be filled)
+
+## Adversarial (security-auditor + threat-modeling-expert)
+**status: PENDING**
+**findings:**
+- (to be filled by adversarial panel agent)
+**rationale:**
+- (to be filled)
+
+## Engineering (architect-review + mobile-developer + flutter-expert)
+**status: PENDING**
+**findings:**
+- (to be filled by engineering panel agent)
+**rationale:**
+- (to be filled)
 
 ## Overall verdict
-{PASS / BLOCKED}
+**status: PENDING** ← updated after all 4 sections filled
 
-If any panel BLOCKED : Claude applies fix-up commits before push.
+Verdict rule (per checker C-4 fix locked decision) :
+- `approved` iff all 4 sections « status: APPROVED » AND zero « status: BLOCK » occurrences
+- `BLOCKED` if ANY section « status: BLOCK »
+
+If overall BLOCKED : Claude applies fix-up commits + re-runs panel (re-execute Step 0 to reset skeleton + re-convene 4 agents).
 
 ## Engram observation
 prior_finding_refs : Plan 02-02 substrate Mobile L1 obs, DEFERRED-02-02-C/D/E/F items
+EOF
 ```
 
+    After the skeleton is committed, this checkpoint task pauses execution. Julien spawns the 4 sub-agents via Claude orchestrator (parallel Agent tool invocation per memory `feedback_design_panel_before_push`). Each sub-agent updates ONLY its own section.
+  </action>
+  <how-to-verify>
+    **Julien spawns 4-person design panel** (parallel sub-agent invocation per memory `feedback_design_panel_before_push`) :
+
+    1. **UX panel agent** (`frontend-developer` + `mobile-developer`) — updates `## UX` section of `mobile-l1-design-panel-verdict.md` :
+       - Review main.dart bootstrap sequence : does `recordColdStart()` block the splash screen?
+       - Review connectivity_plus listener placement : is `audit.flush()` debounced to avoid burst writes on flapping connectivity?
+       - Update section `status:` to APPROVED / BLOCK + findings + rationale.
+
+    2. **a11y panel agent** (`accessibility-expert`) — updates `## A11y` section :
+       - Any user-facing string change? (Should be ZERO — Mobile L1 audit is non-visual.)
+       - Verify no telemetry emissions occur during accessibility-tooling navigation modes.
+       - Update section `status:` + findings + rationale.
+
+    3. **Adversarial panel agent** (`security-auditor` + `threat-modeling-expert`) — updates `## Adversarial` section :
+       - Threat : can a malicious connectivity_plus event trigger audit drain on attacker-controlled network?
+       - Threat : main.dart observer wiring order — does it run BEFORE or AFTER Sentry init?
+       - Verify offline queue does NOT contain PII (per RESEARCH §Security Domain row 6).
+       - Update section `status:` + findings + rationale.
+
+    4. **Engineering panel agent** (`architect-review` + `mobile-developer` + `flutter-expert`) — updates `## Engineering` section :
+       - Wiring quality : does main.dart respect existing observer chain order?
+       - Surface minimality : 1-line lefthook addition OK per DEFERRED-02-02-C reason-out-of-scope rationale.
+       - Tests : 3 new flutter test files (lifecycle_observer + connectivity_drain + sqlite_buffer_full per Plan 02-04 Task 5 D-30 race tests).
+       - Update section `status:` + findings + rationale.
+
+    5. **Compute overall verdict** :
+       ```bash
+       APPROVED_COUNT=$(grep -c "^\*\*status: APPROVED\*\*$" .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md)
+       BLOCK_COUNT=$(grep -c "^\*\*status: BLOCK\*\*$" .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md)
+       if [ "$APPROVED_COUNT" -eq 4 ] && [ "$BLOCK_COUNT" -eq 0 ]; then
+         sed -i.bak 's/^## Overall verdict\n\*\*status: PENDING\*\*/## Overall verdict\n**status: APPROVED**/' .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md
+         echo "Overall verdict : APPROVED (4/4 APPROVED, 0 BLOCK)"
+       else
+         sed -i.bak 's/^## Overall verdict\n\*\*status: PENDING\*\*/## Overall verdict\n**status: BLOCKED**/' .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md
+         echo "Overall verdict : BLOCKED (APPROVED=$APPROVED_COUNT, BLOCK=$BLOCK_COUNT)"
+       fi
+       ```
+
     **Gate decision** :
-    - All 4 PASS → Julien types `approved mobile-L1 sub-PR A4a — 4-panel verdict PASS` → Claude opens sub-PR A4a + pushes.
-    - Any BLOCKED → describe + Claude applies fix-up commits + re-runs panel → returns to this CHECKPOINT.
+    - 4 APPROVED + 0 BLOCK → Julien types `approved mobile-L1 sub-PR A4a — 4-panel verdict PASS` → Claude opens sub-PR A4a + pushes (Task 6).
+    - Any BLOCKED → Julien describes blockers + Claude applies fix-up commits + RE-RUNS Step 0 (resets skeleton) + re-convenes 4 agents → returns to this CHECKPOINT.
   </how-to-verify>
   <verify>
-    <automated>echo "Checkpoint task — verification is manual by Julien per <how-to-verify> ; this <verify> stub is a structural placeholder. Resume blocked until <resume-signal> received."</automated>
+    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && [ -f .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md ] && [ $(wc -l < .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md) -ge 40 ] && grep -c "## UX\|## A11y\|## Adversarial\|## Engineering" .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md</automated>
   </verify>
+  <acceptance_criteria>
+    - [ ] Step 0 skeleton file `.planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md` exists BEFORE the panel convenes (per checker C-4 fix locked decision `design-panel-verdict-file-pre-creation`).
+    - [ ] Skeleton contains 4 sections (`## UX` + `## A11y` + `## Adversarial` + `## Engineering`) + `## Overall verdict`.
+    - [ ] All 4 panel sections filled by their respective sub-agents (no `status: PENDING` remaining in any of the 4 section headers).
+    - [ ] Overall verdict computed and recorded (APPROVED iff 4/4 APPROVED + 0 BLOCK).
+    - [ ] If overall APPROVED : Julien types `<resume-signal>` verbatim (« approved mobile-L1 sub-PR A4a — 4-panel verdict PASS »).
+    - [ ] If overall BLOCKED : Julien describes blockers ; Claude re-executes Step 0 (resets skeleton) + re-convenes panel ; returns to this CHECKPOINT.
+    - [ ] PERIMETERS.md ledger entry « Mobile L1 sub-PR A4a — 4-panel verdict APPROVED » committed (commit sha recorded) post-approval — Claude records AFTER resume-signal.
+    - [ ] No blocker raised in resume signal text — if Julien describes a blocker, Claude does NOT proceed to Task 6.
+  </acceptance_criteria>
   <done>
     Julien types the resume-signal after running the <how-to-verify> steps successfully. Claude proceeds to the next task (or records sign-off in PERIMETERS.md per task spec).
   </done>
@@ -808,7 +896,7 @@ prior_finding_refs : Plan 02-02 substrate Mobile L1 obs, DEFERRED-02-02-C/D/E/F 
     apps/mobile/lib/services/audit/offline_audit_queue.dart (Plan 02-02 — connectivity-agnostic drain),
     apps/mobile/pubspec.yaml (add connectivity_plus + flutter_secure_storage),
     tools/checks/no_mobile_fact_current_regulatory_read.py (DEFERRED-02-02-C lint),
-    .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md (panel PASS verdict from Task 5),
+    .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md (panel APPROVED verdict from Task 5),
     .planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-04-close-out-counters-runbooks-PLAN.md (iter-2 Task 5 D-30 race tests spec lines 657-697)
   </read_first>
   <behavior>
@@ -820,10 +908,17 @@ prior_finding_refs : Plan 02-02 substrate Mobile L1 obs, DEFERRED-02-02-C/D/E/F 
     - test_anonymous_session_reinstall_orphan_backend : orphan row stays with user_id_hash=NULL.
   </behavior>
   <action>
-1. **Verify Task 5 panel verdict PASS** :
+1. **Verify Task 5 panel verdict APPROVED** (per checker C-4 fix — file exists from Task 5 Step 0 skeleton + all 4 sections filled APPROVED) :
 
 ```bash
-grep -q "approved mobile-L1 sub-PR A4a — 4-panel verdict PASS" .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md || { echo "BLOCKED: panel verdict not PASS" ; exit 1 ; }
+# Assertion 1 : file exists (created Task 5 Step 0 skeleton)
+[ -f .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md ] || { echo "BLOCKED: panel verdict file does not exist — Task 5 Step 0 was skipped" ; exit 1 ; }
+
+# Assertion 2 : overall verdict = APPROVED (4/4 sections APPROVED + 0 BLOCK)
+grep -q "^\*\*status: APPROVED\*\*$" .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md || { echo "BLOCKED: panel verdict not APPROVED" ; exit 1 ; }
+APPROVED_COUNT=$(grep -c "^\*\*status: APPROVED\*\*$" .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md)
+BLOCK_COUNT=$(grep -c "^\*\*status: BLOCK\*\*$" .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md)
+[ "$APPROVED_COUNT" -ge 5 ] && [ "$BLOCK_COUNT" -eq 0 ] || { echo "BLOCKED: APPROVED=$APPROVED_COUNT BLOCK=$BLOCK_COUNT (expected APPROVED ≥ 5 [4 sections + overall], BLOCK = 0)" ; exit 1 ; }
 ```
 
 2. **Open sub-PR A4a branch** :
@@ -900,8 +995,9 @@ Per locked decision Open-Q #5 + memory feedback_ios_entitlements_block_testfligh
 - A4a = Dart-only wiring (NO iOS plist change)
 - A4b = sqflite_sqlcipher prod impl + Runner.entitlements (ISOLATED PR, ships next)
 
-4-person design panel verdict PASS (UX + a11y + adversarial + engineering)
+4-person design panel verdict APPROVED (UX + a11y + adversarial + engineering)
 recorded in .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md.
+Skeleton pre-created per checker C-4 fix locked decision design-panel-verdict-file-pre-creation.
 
 Closes :
 - DEFERRED-02-02-C (lefthook wiring for no_mobile_fact_current_regulatory_read.py)
@@ -914,10 +1010,10 @@ gh pr create --base dev --head feat/p02-deploy-mobile-l1-a4a-dart-wiring --title
 ```
   </action>
   <verify>
-    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && grep -q "approved mobile-L1 sub-PR A4a" .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md && cd apps/mobile && flutter analyze && flutter test -r expanded 2>&1 | tail -20 && cd /Users/julienbattaglia/Desktop/MINT.nosync && cd services/backend && python3 -m pytest tests/integration/test_projector_out_of_order_event_id.py tests/integration/test_anonymous_session_reinstall_orphan_backend.py -q -k pg --timeout=120 && cd /Users/julienbattaglia/Desktop/MINT.nosync && python3 tools/checks/validate_arb_parity.py && python3 tools/checks/no_mobile_fact_current_regulatory_read.py apps/mobile/lib/ && git grep -c "WidgetsBinding.instance.addObserver" apps/mobile/lib/main.dart && git grep -c "connectivity_plus" apps/mobile/pubspec.yaml</automated>
+    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && grep -q "^\*\*status: APPROVED\*\*$" .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md && cd apps/mobile && flutter analyze && flutter test -r expanded 2>&1 | tail -20 && cd /Users/julienbattaglia/Desktop/MINT.nosync && cd services/backend && python3 -m pytest tests/integration/test_projector_out_of_order_event_id.py tests/integration/test_anonymous_session_reinstall_orphan_backend.py -q -k pg --timeout=120 && cd /Users/julienbattaglia/Desktop/MINT.nosync && python3 tools/checks/validate_arb_parity.py && python3 tools/checks/no_mobile_fact_current_regulatory_read.py apps/mobile/lib/ && git grep -c "WidgetsBinding.instance.addObserver" apps/mobile/lib/main.dart && git grep -c "connectivity_plus" apps/mobile/pubspec.yaml</automated>
   </verify>
   <acceptance_criteria>
-    - `grep "approved mobile-L1 sub-PR A4a — 4-panel verdict PASS" .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md` returns 0 (verdict recorded).
+    - Panel verdict APPROVED recorded in `mobile-l1-design-panel-verdict.md` (per checker C-4 fix : file pre-existed via Task 5 Step 0 skeleton + filled by panel ; this acceptance step #1 is now well-defined — grep matches `status: APPROVED` line).
     - `grep -c "WidgetsBinding.instance.addObserver" apps/mobile/lib/main.dart` ≥ 1 (observer wired).
     - `grep -c "recordColdStart" apps/mobile/lib/main.dart` ≥ 1 (called on bootstrap).
     - `grep -c "connectivity_plus" apps/mobile/lib/main.dart` ≥ 1 (listener in main.dart).
@@ -932,7 +1028,7 @@ gh pr create --base dev --head feat/p02-deploy-mobile-l1-a4a-dart-wiring --title
     - sub-PR A4a PR opened.
   </acceptance_criteria>
   <done>
-    Sub-PR A4a shipped : DEFERRED-02-02-C/E/F + D-30 race tests + 4-panel verdict PASS. NO iOS plist change. Sub-PR A4b (sqflite_sqlcipher + iOS entitlement isolated) ships next.
+    Sub-PR A4a shipped : DEFERRED-02-02-C/E/F + D-30 race tests + 4-panel verdict APPROVED. NO iOS plist change. Sub-PR A4b (sqflite_sqlcipher + iOS entitlement isolated) ships next.
   </done>
 </task>
 
@@ -1148,9 +1244,9 @@ EOF
 </task>
 
 <task type="auto">
-  <name>Task 9 (DEFERRED-02-01-A verification + PR D polish absorbed) : Alembic dual-head merge check + 6 PR-D polish items (excluding sec FLAG-1 deletion)</name>
+  <name>Task 9 (DEFERRED-02-01-A verification + PR D polish absorbed) : Alembic single-head conditional check (CHECKER C-3 FIX) + 6 PR-D polish items (excluding sec FLAG-1 deletion)</name>
   <files>
-    services/backend/alembic/versions/p122_merge_p86_eclairage_into_p120.py,
+    services/backend/alembic/versions/p122_merge_p86_eclairage.py,
     services/backend/app/services/projector/fact_projector.py,
     services/backend/app/services/snapshots/snapshot_service.py,
     services/backend/app/services/feature_flags.py,
@@ -1158,28 +1254,98 @@ EOF
   </files>
   <read_first>
     .planning/phases/mint-data-architecture-v1-02-deploy/chain-audit.txt (Plan 01 Task 4 output — confirms whether p98_merge_p86_eclairage already absorbs the dual-head),
-    services/backend/alembic/versions/ (full inventory to check current heads),
+    services/backend/alembic/versions/ (full inventory to check current heads — Plan 03 PR-5 shipped p121_drop_snapshot_legacy as latest head pre-Wave-3),
     .planning/phases/mint-data-architecture-v1-02-deploy/HANDOFF-2026-05-19.md (PR D items 1-8 — item 7 EXCLUDED),
     services/backend/app/services/projector/fact_projector.py (sec FLAG-1 lines 151-181 — DO NOT TOUCH per locked decision #sec-flag-1-preservation)
   </read_first>
   <action>
-1. **DEFERRED-02-01-A check** :
+1. **DEFERRED-02-01-A conditional check (CHECKER C-3 FIX)** — per locked decision `deferred-02-01-a-resolution` (revised) :
 
 ```bash
 cd services/backend
-alembic heads | tee /tmp/alembic_heads.txt
-# Expected : single head ; if 2 heads, merge needed.
+HEAD_COUNT=$(alembic heads | wc -l)
+echo "alembic heads count pre-Task-9 : $HEAD_COUNT"
 
-if [ $(wc -l < /tmp/alembic_heads.txt) -gt 1 ]; then
-  echo "Two heads present — shipping p122 merge migration"
-  # Create p122_merge_p86_eclairage_into_p120.py
+if [ "$HEAD_COUNT" -eq 1 ]; then
+  echo "SINGLE HEAD detected — DEFERRED-02-01-A already absorbed by p98_merge_p86_eclairage upstream (Plan 01 Task 4 chain-audit.txt confirmed)."
+  echo "NO p122 ship required. Document conditional outcome in SUMMARY."
+  # Skip step 2 (p122 file creation) entirely
+elif [ "$HEAD_COUNT" -ge 2 ]; then
+  echo "DUAL HEAD detected ($HEAD_COUNT heads) — DEFERRED-02-01-A NOT yet absorbed, SHIPPING p122 merge migration."
+  alembic heads
+  # Create p122_merge_p86_eclairage.py — see step 2 below
 else
-  echo "Single head — DEFERRED-02-01-A already absorbed by p98_merge_p86_eclairage (Plan 01 Task 4 confirmed)"
-  # No code change ; document in SUMMARY
+  echo "BLOCKED: alembic heads returned 0 — schema corrupted, escalate" ; exit 1
 fi
 ```
 
-2. **PR D polish items 1-6 + 8** (item 7 sec FLAG-1 deletion EXCLUDED) :
+2. **IF dual-head detected (HEAD_COUNT ≥ 2) ONLY** — ship `services/backend/alembic/versions/p122_merge_p86_eclairage.py` per checker C-3 fix locked decision (NOTE filename = `p122_merge_p86_eclairage.py`, NOT `p122_merge_p86_eclairage_into_p120.py` ; down_revision = `"p121_drop_snapshot_legacy"`, NOT p120) :
+
+```python
+"""p122 merge p86_eclairage_delivered into p121_drop_snapshot_legacy
+
+Revision ID: p122_merge_p86_eclairage
+Revises: ("p121_drop_snapshot_legacy", "p86_eclairage_delivered")  # ← dual-parent merge node
+Create Date: 2026-XX-XX
+
+Per Phase 02-deploy Plan 04 Task 9 locked decision deferred-02-01-a-resolution
+(revised per checker C-3 fix) :
+
+Original spec (PRE-checker-C-3) called the file `p122_merge_p86_eclairage_into_p120.py`
+with `down_revision = "p120_fact_event_idempotency"`. That would create a NEW dual-head
+because Plan 03 PR-5 already shipped `p121_drop_snapshot_legacy` (with down_revision = p120),
+so a p122 with down_revision = p120 would have p121 and p122 as sibling heads from p120.
+
+Correct chain post-Wave-2 :
+  ... → p120_fact_event_idempotency → p121_drop_snapshot_legacy (Plan 03 PR-5)
+                                                                              ↘
+                                                                              merge ← this migration
+                                                                              ↗
+                                                p86_eclairage_delivered (legacy DEFERRED-02-01-A)
+
+Filename renamed to `p122_merge_p86_eclairage.py` (drop `_into_p120` suffix to
+disambiguate target). Conditional ship : only if `alembic heads | wc -l ≥ 2` pre-Task-9.
+"""
+from alembic import op
+import sqlalchemy as sa
+
+revision = "p122_merge_p86_eclairage"
+down_revision = ("p121_drop_snapshot_legacy", "p86_eclairage_delivered")  # dual-parent merge
+branch_labels = None
+depends_on = None
+
+
+def upgrade() -> None:
+    # Empty merge node — no schema change ; only collapses the two parent revisions
+    # into a single descendant head. This is the canonical alembic merge pattern.
+    pass
+
+
+def downgrade() -> None:
+    raise RuntimeError(
+        "p122 downgrade not supported : merge nodes cannot be cleanly undone. "
+        "If rollback is necessary, restore from baseline_pre_wave_4 pg_dump + "
+        "re-apply migrations up to the desired pre-merge state manually."
+    )
+```
+
+3. **Post-p122-ship assertion** (CHECKER C-3 FIX — HARD step) :
+
+```bash
+# After applying p122 (alembic upgrade head), assert single head
+cd services/backend && alembic upgrade head
+NEW_HEAD_COUNT=$(alembic heads | wc -l)
+if [ "$NEW_HEAD_COUNT" -ne 1 ]; then
+  echo "BLOCKED: post-p122-ship still has $NEW_HEAD_COUNT heads (expected 1)"
+  alembic heads
+  exit 1
+fi
+echo "OK : alembic heads = 1 post-p122-ship (DEFERRED-02-01-A closed)"
+```
+
+   (If step 1 detected single-head, steps 2-3 are SKIPPED. SUMMARY documents the conditional outcome.)
+
+4. **PR D polish items 1-6 + 8** (item 7 sec FLAG-1 deletion EXCLUDED) :
 
    a. **TIMESTAMPTZ → DateTime(timezone=True) in p98 ORM** (postgres-pro MED soft) : update `services/backend/app/models/fact_event.py` if applicable.
 
@@ -1195,18 +1361,21 @@ fi
 
    g. **DELETE orphan staging Postgres service** — Julien-only operational task ; surface in SUMMARY with audit step (`railway variables -e staging --service MINT | grep -i postgres-orphan-service-name` returns 0 lines) + Julien runs `railway service delete <orphan-service-id>` after confirmation.
 
-3. **Skipped** : Item 7 (delete sec FLAG-1 post-write divergence assertion) per locked decision #sec-flag-1-preservation.
+5. **Skipped** : Item 7 (delete sec FLAG-1 post-write divergence assertion) per locked decision #sec-flag-1-preservation.
 
-4. **Pre-push checklist per item** :
+6. **Pre-push checklist per item** :
    - Each refactor preserves behavior : full pytest exits 0 BEFORE and AFTER.
    - `grep -rn "read_monthly_gross_income" services/backend apps/mobile` returns 0 hits post-rename (all callers updated).
    - `python3 services/backend/scripts/generate_canonical.py` exits 0 (OpenAPI regen).
+   - **HARD assertion (per checker C-3 fix)** : `cd services/backend && alembic heads | wc -l` returns 1 post-Task-9 (whether p122 was shipped or skipped).
   </action>
   <verify>
-    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && cd services/backend && alembic heads | wc -l && python3 -m pytest tests/ -q --timeout=180 && cd /Users/julienbattaglia/Desktop/MINT.nosync && [ $(git grep -rn "read_monthly_gross_income" services/backend apps/mobile | wc -l) -eq 0 ] && grep -c "post-write divergence" services/backend/app/services/projector/fact_projector.py && python3 services/backend/scripts/generate_canonical.py</automated>
+    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && cd services/backend && [ $(alembic heads | wc -l) -eq 1 ] && python3 -m pytest tests/ -q --timeout=180 && cd /Users/julienbattaglia/Desktop/MINT.nosync && [ $(git grep -rn "read_monthly_gross_income" services/backend apps/mobile | wc -l) -eq 0 ] && grep -c "post-write divergence" services/backend/app/services/projector/fact_projector.py && python3 services/backend/scripts/generate_canonical.py</automated>
   </verify>
   <acceptance_criteria>
-    - `alembic heads` returns single head (either pre-existing or after p122 merge).
+    - **CHECKER C-3 HARD assertion** : `cd services/backend && alembic heads | wc -l` returns 1 post-Task-9 (whether p122 was shipped or skipped per conditional branching). NO DUAL-HEAD allowed.
+    - **CHECKER C-3 conditional logic verified** : if alembic heads pre-Task-9 was already 1, then p122 file was NOT created (no `services/backend/alembic/versions/p122_merge_p86_eclairage.py` exists). If pre-Task-9 was ≥ 2, then file EXISTS + `down_revision = ("p121_drop_snapshot_legacy", "p86_eclairage_delivered")` (NOT including p120 as parent).
+    - **CHECKER C-3 filename** : if shipped, file is `p122_merge_p86_eclairage.py` (NO `_into_p120` suffix).
     - `git grep -rn "read_monthly_gross_income" services/backend apps/mobile` returns 0 hits (rename complete).
     - `grep -c "post-write divergence" services/backend/app/services/projector/fact_projector.py` ≥ 1 (sec FLAG-1 PRESERVED per locked decision).
     - `services/backend/app/services/projector/fact_projector.py` LOC ≤ original count (refactor reduced surface).
@@ -1215,23 +1384,25 @@ fi
     - Full backend pytest exits 0 (no behavior regression).
     - `python3 services/backend/scripts/generate_canonical.py` exits 0 (OpenAPI canonical regenerated).
     - SUMMARY surfaces orphan staging Postgres delete as outstanding Julien manual task.
+    - SUMMARY documents the conditional p122-ship-vs-skip outcome per checker C-3 fix locked decision `deferred-02-01-a-resolution`.
   </acceptance_criteria>
   <done>
-    DEFERRED-02-01-A verified (single head OR p122 merge shipped). PR D polish items 1-6 + 8 absorbed (item 7 sec FLAG-1 EXCLUDED per locked decision). Refactors preserve behavior. Orphan staging Postgres delete surfaced.
+    DEFERRED-02-01-A verified per checker C-3 conditional logic : either single head pre-Task-9 (NO p122 shipped + documented) OR dual head pre-Task-9 (p122_merge_p86_eclairage.py shipped with down_revision = ("p121_drop_snapshot_legacy", "p86_eclairage_delivered") + post-ship alembic heads = 1 assertion green). PR D polish items 1-6 + 8 absorbed (item 7 sec FLAG-1 EXCLUDED per locked decision). Refactors preserve behavior. Orphan staging Postgres delete surfaced.
   </done>
 </task>
 
 <task type="auto">
-  <name>Task 10 (Wave 4 prod migration apply) : Apply alembic chain to production + Task 2a-equivalent operational gate against prod</name>
+  <name>Task 10 (Wave 4 prod migration apply) : Apply alembic chain to production + Task 2a-equivalent operational gate against prod + capture distinct `-pre-wave-4` baseline (CHECKER H-9 FIX)</name>
   <files>
     .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt,
-    tools/db/baselines/production-{date}-pre-deploy.sql.gz
+    tools/db/baselines/production-2026-XX-XX-pre-wave-4.sql.gz
   </files>
   <read_first>
     .planning/phases/mint-data-architecture-v1-02-deploy/chain-audit.txt (Plan 01 Task 4 — 14 revs prod→dev),
     .planning/phases/mint-data-architecture-v1-02-deploy/mint-data-architecture-v1-02-deploy-02-staging-migration-apply-PLAN.md (Wave 1 sequence — repeat against prod),
     tools/db/railway_pg_dump.sh (Plan 01 PR B),
-    services/backend/scripts/preflight_zero_user_gate.py (will return BLOCKED with 2 prod users — Julien override documented per CONTEXT line 41)
+    services/backend/scripts/preflight_zero_user_gate.py (will return BLOCKED with 2 prod users — Julien override documented per CONTEXT line 41),
+    tools/db/baselines/production-2026-05-19-pre-deploy.sql.gz (Plan 01 baseline — DIFFERENT filename suffix from Task 10's per checker H-9 fix `prod-baseline-filename-disambiguation`)
   </read_first>
   <action>
 1. **Verify all Wave 3 PRs merged** :
@@ -1248,11 +1419,32 @@ gh pr list --state merged --search "p02-deploy" --json mergedAt,title | jq lengt
 # Expected : 8+ PRs merged
 ```
 
-2. **Capture fresh pre-Wave-4 prod baseline pg_dump** (Plan 01 captured early but re-capture immediately pre-deploy is safer) :
+2. **Capture fresh pre-Wave-4 prod baseline pg_dump (CHECKER H-9 FIX)** — DISTINCT filename from Plan 01's :
 
 ```bash
-./tools/db/railway_pg_dump.sh production
-# Output : tools/db/baselines/production-{date}-pre-deploy.sql.gz
+DATE=$(date -u +%Y-%m-%d)
+# Per checker H-9 fix locked decision `prod-baseline-filename-disambiguation` :
+# Plan 01 baseline = tools/db/baselines/production-2026-05-19-pre-deploy.sql.gz (Wave-0-close-state)
+# Plan 04 baseline = tools/db/baselines/production-${DATE}-pre-wave-4.sql.gz (Wave-4-cutover-immediate state)
+# Both retained = 2 independent rollback anchors.
+
+# Use Plan 01's railway_pg_dump.sh helper but override the output filename suffix
+TMP_FILE=$(mktemp)
+trap "rm -f $TMP_FILE" EXIT
+railway ssh -e production --service MINT 'pg_dump --no-comments --no-owner --no-privileges --schema-only --data-only "$DATABASE_URL"' > "$TMP_FILE"
+
+# Secret guard (same logic as railway_pg_dump.sh)
+if grep -E -i "password\\s*[:=]|api_key|secret_key|bearer\\s+|MINT_AUDIT_HASH_PEPPER\\s*=" "$TMP_FILE" > /dev/null; then
+  echo "BLOCKED: pg_dump contains potential secret patterns"
+  exit 1
+fi
+
+OUT_FILE="tools/db/baselines/production-${DATE}-pre-wave-4.sql.gz"
+gzip -9 < "$TMP_FILE" > "$OUT_FILE"
+echo "OK : $OUT_FILE captured ($(du -h "$OUT_FILE" | cut -f1) compressed)"
+echo "Distinct from Plan 01 baseline (tools/db/baselines/production-2026-05-19-pre-deploy.sql.gz) per checker H-9 fix."
+
+git add "$OUT_FILE"
 ```
 
 3. **dev → staging → main promotion** (Wave 4 trigger) :
@@ -1262,7 +1454,7 @@ git checkout main
 git pull origin main
 git merge --no-ff staging
 git push origin main
-# This triggers Railway production deploy with the full chain (14 revs from 29_05_magic_link_tokens → p121_drop_snapshot_legacy + p122_merge if applicable + post-Wave-3 migrations).
+# This triggers Railway production deploy with the full chain (14 revs from 29_05_magic_link_tokens → p121_drop_snapshot_legacy + p122_merge_p86_eclairage if conditional applies + post-Wave-3 migrations).
 # railway_pre_deploy_migrate.py runs at boot ; subprocess.run(['alembic', 'upgrade', 'head'], check=True) applies all 14+ migrations.
 ```
 
@@ -1303,13 +1495,14 @@ railway ssh -e production --service MINT 'cd /app && python3 -m tools.parity.pro
 # Expected : USERS_AUDITED=2, USERS_WITH_DIFF=0 (2 test accounts)
 ```
 
-9. **Document in evidence file** : alembic head + table existence + user count + projection_diff output + Sentry alert rule confirmed active.
+9. **Document in evidence file** : alembic head + table existence + user count + projection_diff output + Sentry alert rule confirmed active + baseline filename = `-pre-wave-4.sql.gz`.
   </action>
   <verify>
-    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && [ -f tools/db/baselines/production-*-pre-deploy.sql.gz ] && [ -f .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt ] && grep -q "alembic head:" .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt && grep -q "fact_event: True" .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt && grep -q "fact_current: True" .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt && grep -qE "USERS_WITH_DIFF=0|USERS_AUDITED=" .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt</automated>
+    <automated>cd /Users/julienbattaglia/Desktop/MINT.nosync && ls tools/db/baselines/production-*-pre-wave-4.sql.gz && [ -f .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt ] && grep -q "alembic head:" .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt && grep -q "fact_event: True" .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt && grep -q "fact_current: True" .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt && grep -qE "USERS_WITH_DIFF=0|USERS_AUDITED=" .planning/phases/mint-data-architecture-v1-02-deploy/prod-task-2a-evidence.txt && [ -f tools/db/baselines/production-2026-05-19-pre-deploy.sql.gz ]</automated>
   </verify>
   <acceptance_criteria>
-    - `[ -f tools/db/baselines/production-*-pre-deploy.sql.gz ]` returns 0 (baseline captured).
+    - **CHECKER H-9 FIX** : `ls tools/db/baselines/production-*-pre-wave-4.sql.gz` returns ≥ 1 file (distinct from Plan 01's `-pre-deploy.sql.gz` per locked decision `prod-baseline-filename-disambiguation`).
+    - **CHECKER H-9 FIX** : Plan 01 baseline `tools/db/baselines/production-2026-05-19-pre-deploy.sql.gz` STILL EXISTS (not overwritten by Task 10's distinct suffix). Two independent rollback anchors.
     - Prod alembic head = current dev head (post-Wave-3 merges).
     - `grep -E "fact_event: True" prod-task-2a-evidence.txt` returns 1 hit.
     - `grep -E "fact_current: True" prod-task-2a-evidence.txt` returns 1 hit.
@@ -1319,7 +1512,7 @@ railway ssh -e production --service MINT 'cd /app && python3 -m tools.parity.pro
     - Sentry alert rule confirmed active (Julien verifies dashboard).
   </acceptance_criteria>
   <done>
-    Prod migration applied + post-deploy probe documented + baseline captured. fact_event + fact_current + dek_envelope all present on prod. 0 diff vacuously verified. FF stays unset on prod. Ready for final 5-gate panel (Task 11).
+    Prod migration applied + post-deploy probe documented + baseline captured with DISTINCT filename `-pre-wave-4.sql.gz` (CHECKER H-9 FIX). fact_event + fact_current + dek_envelope all present on prod. 0 diff vacuously verified. FF stays unset on prod. Both Plan 01 + Plan 04 baselines retained as independent rollback anchors. Ready for final 5-gate panel (Task 11).
   </done>
 </task>
 
@@ -1329,10 +1522,10 @@ railway ssh -e production --service MINT 'cd /app && python3 -m tools.parity.pro
   <what-built>
     Tasks 1-10 deliver :
     - Plan 02-04 Task 1-4 shipped (D-06, D-07, D-09, D-10, D-32 G3, D-33).
-    - Mobile L1 device wiring shipped (sub-PR A4a + A4b).
+    - Mobile L1 device wiring shipped (sub-PR A4a + A4b) with panel verdict file pre-created (checker C-4 fix).
     - 5 sec/arch FLAGs disposed.
-    - DEFERRED-02-01-A verified ; PR D polish absorbed.
-    - Prod migration applied + post-deploy probe documented.
+    - DEFERRED-02-01-A verified per checker C-3 conditional logic ; PR D polish absorbed.
+    - Prod migration applied + post-deploy probe documented + distinct `-pre-wave-4` baseline captured (checker H-9 fix).
     - All Wave 3 PRs + Wave 4 prod deploy committed.
 
     Task 11 produces :
@@ -1393,11 +1586,18 @@ railway ssh -e production --service MINT 'cd /app && python3 -m tools.parity.pro
        # All exit 0
        ```
 
-    6. **Claude generates close-out artifacts** :
+    6. **Verify checker fix outcomes captured in evidence** :
+       - C-2 : `grep -q "Hard-stop Assertion" .planning/phases/mint-data-architecture-v1-02-deploy/staging-task-2a-evidence.txt` (Plan 02 hard-stops triggered Wave 1).
+       - C-3 : `cd services/backend && alembic heads | wc -l` returns 1 (conditional p122 logic resolved single-head).
+       - C-4 : `grep -c "## UX\|## A11y\|## Adversarial\|## Engineering" .planning/phases/mint-data-architecture-v1-02-deploy/mobile-l1-design-panel-verdict.md` returns 4 (skeleton pre-created + panel filled).
+       - H-9 : `ls tools/db/baselines/production-*-pre-deploy.sql.gz tools/db/baselines/production-*-pre-wave-4.sql.gz` returns 2 distinct files.
+
+    7. **Claude generates close-out artifacts** :
        - `mint-data-architecture-v1-02-deploy-VERIFICATION-REPORT.html` (≥200 lines, follow Phase 01 W4 Plan 20 reference structure) :
          - Phase-level header (status : ◆ code-shipped on dev, pending operational gates OR ◆ COMPLETE per stage 4 of CLAUDE.md §9.5 after G2 sign-off)
          - Per-wave rollup (Wave 0 + 1 + 2 + 3 + 4)
          - 5-gate exit panel (G1/G2/G3/G4/G5 each with citation evidence)
+         - Checker iteration 1 fixes outcome roll-up (C-1bis acceptance_criteria on 6 checkpoints + C-2 hard-stops + C-3 conditional p122 + C-4 panel skeleton + H-1/H-2/H-3/H-4/H-7/H-8/H-9 applied).
          - Cumulative metric snapshot (alembic head, fact_event row count, fact_current row count, dek_envelope row count, 9 declared counters list)
          - Deferred items (DEFERRED-02-01-B Mobile parity-lint 40-field drift + DEFERRED-02-02-B DEK tombstone + UUID4→UUID7 Phase 03 + sec FLAG-1 reconsider Phase 03 + Phase 03 coach extractor pointer)
          - Lessons learned (≥5 entries from this phase)
@@ -1407,6 +1607,7 @@ railway ssh -e production --service MINT 'cd /app && python3 -m tools.parity.pro
          - TLDR
          - Per-plan summary (4 plans)
          - Per-D-XX disposition (all Phase 02 D-XX redux + Wave 3 additions D-06/D-07/D-09/D-10/D-32/D-33)
+         - Checker iteration 1 fix outcomes (one section)
          - Counter-arguments + data gaps
          - Cumulative metric snapshot
          - Lessons learned
@@ -1417,7 +1618,7 @@ railway ssh -e production --service MINT 'cd /app && python3 -m tools.parity.pro
        - PROJECT.md : update current focus pointer to Phase 03 if Julien confirms moving on
        - `PERIMETERS.md` final Wave 4 sign-off entry
 
-    7. **Type gate decision**.
+    8. **Type gate decision**.
 
     **Gate decision** :
     - All 5 gates evidenced (G1/G2/G3/G4/G5 each citation-backed) → `approved Phase 02-deploy close-out — 5-gate panel green, all D-XX disposed, ready for Phase 03` → Claude commits the close-out artifacts (single phase-close commit per Phase 01 W4 reference) + records final PERIMETERS.md entry.
@@ -1432,6 +1633,20 @@ railway ssh -e production --service MINT 'cd /app && python3 -m tools.parity.pro
   <verify>
     <automated>echo "Checkpoint task — verification is manual by Julien per <how-to-verify> ; this <verify> stub is a structural placeholder. Resume blocked until <resume-signal> received."</automated>
   </verify>
+  <acceptance_criteria>
+    - [ ] Julien types `<resume-signal>` verbatim (« approved Phase 02-deploy close-out — 5-gate panel green, all D-XX disposed, ready for Phase 03 ») in chat (or failure-mode description triggering fix-up plan).
+    - [ ] PERIMETERS.md ledger final entry « Phase 02-deploy Wave 4 close-out — APPROVED » committed (commit sha recorded in evidence file + SUMMARY).
+    - [ ] No blocker raised in resume signal text — if Julien describes blocker, Claude opens fix-up plan (potentially new phase) BEFORE Wave 4 close.
+    - [ ] All 5 gates (G1/G2/G3/G4/G5) evidenced with deterministic citations in VERIFICATION-REPORT.html.
+    - [ ] Checker iteration 1 fixes outcome documented in VERIFICATION-REPORT + SUMMARY (C-1bis + C-2 + C-3 + C-4 + 9 HIGH-fixes applied).
+    - [ ] `mint-data-architecture-v1-02-deploy-VERIFICATION-REPORT.html` exists ≥ 200 lines.
+    - [ ] `mint-data-architecture-v1-02-deploy-SUMMARY.md` exists ≥ 180 lines.
+    - [ ] All 33+ D-XX dispositions present in SUMMARY.
+    - [ ] ROADMAP.md Phase 02-deploy status flipped (📋 OPEN → ◆ code-shipped on dev OR ◆ COMPLETE).
+    - [ ] STATE.md updated.
+    - [ ] PROJECT.md current-focus updated to Phase 03 if Julien confirms.
+    - [ ] Wiki lint HARD green on all `.planning/phases/mint-data-architecture-v1-02-deploy/` content + `docs/operations/` runbooks.
+  </acceptance_criteria>
   <done>
     Julien types the resume-signal after running the <how-to-verify> steps successfully. Claude proceeds to the next task (or records sign-off in PERIMETERS.md per task spec).
   </done>
@@ -1448,17 +1663,18 @@ railway ssh -e production --service MINT 'cd /app && python3 -m tools.parity.pro
 | Boundary | Description |
 |----------|-------------|
 | Mobile L1 sub-PR A4b iOS entitlement | ANY `keychain-access-groups` or `com.apple.developer.*` is release-blocking + requires fastlane match + Apple Developer portal updates ; isolated PR per memory. |
-| Mobile L1 design panel verdict | Pre-push gate ; 4-person verdict recorded as JSON-like document with each panel signature. |
+| Mobile L1 design panel verdict | Pre-push gate ; 4-person verdict recorded as JSON-like document with each panel signature. Skeleton pre-created in Task 5 Step 0 per checker C-4 fix `design-panel-verdict-file-pre-creation`. |
 | `declared_counters_must_fire.py` HARD gate | Pre-push gate ; if a counter regression slips, push fails locally + CI re-runs. |
-| Prod migration apply | Single-point-of-impact mutation ; baseline pg_dump from Plan 01 + fresh capture from this Task 10 = 2 rollback anchors. |
-| Final close-out artifacts | Phase 02-deploy → Phase 03 handoff ; integrity depends on accurate D-XX disposition + Wave 4 prod state probe. |
+| Prod migration apply | Single-point-of-impact mutation ; baseline pg_dump from Plan 01 (`-pre-deploy.sql.gz`) + fresh capture from this Task 10 (`-pre-wave-4.sql.gz`) = 2 distinct rollback anchors per checker H-9 fix. |
+| Final close-out artifacts | Phase 02-deploy → Phase 03 handoff ; integrity depends on accurate D-XX disposition + Wave 4 prod state probe + checker fix outcomes documented. |
+| Alembic single-head invariant (post-Task-9) | Checker C-3 HARD assertion : `alembic heads | wc -l == 1` post-Task-9 regardless of conditional p122 ship-vs-skip outcome. Dual-head invariant violation = corrupt schema. |
 
 ## STRIDE Threat Register (ASVS L1 + engram #194 deep audit)
 
 | Threat ID | Category | Component | Severity | Disposition | Mitigation |
 |-----------|----------|-----------|----------|-------------|------------|
 | T-04-01 | Tampering | Sub-PR A4a + A4b bundled together (iOS entitlement leak through Dart-only PR) | high | mitigate | Locked decision #5 + memory `feedback_ios_entitlements_block_testflight` + Task 6 acceptance criteria explicit `git diff apps/mobile/ios/` shows 0 changes. |
-| T-04-02 | Spoofing | Mobile L1 design panel verdict forged | medium | mitigate | Verdict document recorded with each panel signature + commit attribution to Julien ; Task 5 CHECKPOINT cannot be self-cleared. |
+| T-04-02 | Spoofing | Mobile L1 design panel verdict forged | medium | mitigate | Verdict skeleton pre-created Task 5 Step 0 per checker C-4 fix locked decision `design-panel-verdict-file-pre-creation` ; 4 parallel sub-agents fill ; commit attribution to Julien ; Task 5 CHECKPOINT cannot be self-cleared. |
 | T-04-03 | Information disclosure | SQLCipher passphrase stored in iOS Keychain compromised | high | mitigate | Hardware-backed Keychain (per `flutter_secure_storage` contract) ; passphrase derived once per install ; cleared on uninstall. |
 | T-04-04 | Tampering | UUID v7 not adopted (arch FLAG-2 forward-defer) → clock skew inversion in projector | medium | accept | Documented trade-off in `audit-pepper-rotation.md` runbook + Task 8 test_clock_skew_uuid7_ordering documents the accepted race. |
 | T-04-05 | Information disclosure | DSAR endpoint doesn't include fact_event entries (sec FLAG-4 BLOCKING per FADP) | high | mitigate | Task 8 sec FLAG-4 test extends DSAR endpoint to include fact_event rows ; test_dsar_event_log_inclusion asserts response shape. |
@@ -1466,12 +1682,14 @@ railway ssh -e production --service MINT 'cd /app && python3 -m tools.parity.pro
 | T-04-07 | DoS | Event log baseline trim missing (sec FLAG-5) → unbounded growth for pre-Phase-02 users | medium | mitigate | Task 8 sec FLAG-5 test asserts size bounded ; partition-split runbook (Task 4) documents threshold-triggered remediation. |
 | T-04-08 | Tampering | Subject_type='user' string-based without registry check (arch FLAG-3) | medium | mitigate | Task 8 subject_type_forward_lint.py + lefthook HARD gate. |
 | T-04-09 | Tampering | sec FLAG-1 post-write divergence assertion deleted accidentally (PR D step 7 conflict) | high | mitigate | Locked decision #sec-flag-1-preservation excludes PR D step 7 ; Task 9 acceptance criteria explicit `grep -c "post-write divergence" fact_projector.py ≥ 1`. |
-| T-04-10 | Tampering | Prod migration interrupts mid-chain (14 revs deep) | high | mitigate | Plan 01 Task 4 captured pre-prod baseline ; Task 10 captures fresh pre-Wave-4 baseline ; Railway auto-rollback if alembic upgrade fails (gunicorn doesn't start, previous deploy retained per RESEARCH §Pattern 1 Pitfall). |
+| T-04-10 | Tampering | Prod migration interrupts mid-chain (14 revs deep) | high | mitigate | Plan 01 Task 4 captured pre-prod baseline (`-pre-deploy.sql.gz`) ; Task 10 captures fresh pre-Wave-4 baseline (`-pre-wave-4.sql.gz`, distinct filename per checker H-9 fix) ; Railway auto-rollback if alembic upgrade fails (gunicorn doesn't start, previous deploy retained per RESEARCH §Pattern 1 Pitfall). |
 | T-04-11 | Tampering | Sentry alert rule not configured + drift undetected post-prod-cutover | high | mitigate | Locked decision #6 + Task 4 sentry-alert-config.md runbook + Task 11 G2 verification confirms rule active. |
-| T-04-12 | Repudiation | Final close-out artifacts (VERIFICATION-REPORT + SUMMARY) miss a D-XX disposition | medium | mitigate | Task 11 acceptance asserts 33+ D-XX dispositions present (Phase 02 substrate D-01..D-33 + Wave 3 D-06/D-07/D-09/D-10 closures). |
+| T-04-12 | Repudiation | Final close-out artifacts (VERIFICATION-REPORT + SUMMARY) miss a D-XX disposition | medium | mitigate | Task 11 acceptance asserts 33+ D-XX dispositions present (Phase 02 substrate D-01..D-33 + Wave 3 D-06/D-07/D-09/D-10 closures) + checker iteration 1 fix outcomes documented. |
 | T-04-13 | Information disclosure | Mobile L1 audit_events SQLite buffer (sqflite_sqlcipher) leaks plaintext events to backup | high | mitigate | Encrypted-at-rest via SQLCipher passphrase ; integration test asserts raw file does NOT contain plaintext. |
 | T-04-14 | Information disclosure | Orphan staging Postgres service (devops finding) leaks data | low | accept | Task 9 surfaces as Julien manual delete ; service has no active reads per devops audit. |
-| T-04-15 | Tampering | DEFERRED-02-01-A dual-head still present at Wave 4 → prod migration ambiguous head | high | mitigate | Task 9 Step 1 verifies `alembic heads` returns single head ; if not, ship p122 merge before Task 10. |
+| T-04-15 | Tampering | DEFERRED-02-01-A dual-head still present at Wave 4 → prod migration ambiguous head | high | mitigate | Task 9 Step 1 mechanically asserts `alembic heads | wc -l == 1` per checker C-3 fix conditional branching ; if not single, ship p122_merge_p86_eclairage.py with down_revision = ("p121_drop_snapshot_legacy", "p86_eclairage_delivered") ; post-ship re-assert single-head. |
+| T-04-16 | Tampering | Prod baseline filename collision Plan 01 vs Plan 04 | medium | mitigate | Per checker H-9 fix locked decision `prod-baseline-filename-disambiguation` : Plan 01 = `-pre-deploy.sql.gz`, Plan 04 = `-pre-wave-4.sql.gz`. Distinct semantic meaning ; both retained as independent rollback anchors. |
+| T-04-17 | Repudiation | Task 5 design panel verdict file race (file referenced by Task 6 before existing) | medium | mitigate | Per checker C-4 fix locked decision `design-panel-verdict-file-pre-creation` : Task 5 Step 0 creates skeleton with 4 status:pending sections ; 4 parallel sub-agents fill ; Task 6 grep on `status: APPROVED` is well-defined post-fill. |
 </threat_model>
 
 <verification>
@@ -1486,6 +1704,7 @@ railway ssh -e production --service MINT 'cd /app && python3 -m tools.parity.pro
 7. **Pre-push checklist per refactor** (Task 9 + per-task) : grep callers + regen OpenAPI/flutter gen-l10n + full pytest BEFORE push.
 8. **Public-repo discipline** : `no_legal_admission_in_public_docs.py` on all runbook + SUMMARY content (Task 4 + Task 11 acceptance).
 9. **Wiki schema lint HARD** (Task 4 + Task 11 close-out artifacts) : counter-arguments + data gaps blocks present in every new `.md`.
+10. **Checker iteration 1 fix outcomes** (per locked decisions section) : C-1bis adds acceptance_criteria to 6 CHECKPOINT tasks (Plan 02 Task 3 + Plan 03 Tasks 3/5/7 + Plan 04 Tasks 5/11) ; C-2 hard-stop assertions Plan 02 Task 1 Step 0 ; C-3 conditional p122 ship-vs-skip + filename fix + down_revision = p121 ; C-4 design panel skeleton pre-created Task 5 Step 0 ; H-1/H-2/H-3/H-4/H-7/H-8/H-9 minor fixes. All outcomes documented in Task 11 VERIFICATION-REPORT roll-up.
 </verification>
 
 <success_criteria>
@@ -1493,13 +1712,14 @@ railway ssh -e production --service MINT 'cd /app && python3 -m tools.parity.pro
 - [ ] Plan 02-04 Task 2 (Q6 CI D-06) closed + 2 sub-runbooks (staging-down-override + branch-protection) shipped (Task 2).
 - [ ] Plan 02-04 Task 3 (declared_counters_must_fire + LSFin JSONB extension) closed (Task 3).
 - [ ] Plan 02-04 Task 4 (3 runbooks + sentry-alert-config + Backend README) closed (Task 4).
-- [ ] Mobile L1 sub-PR A4a (DEFERRED-02-02-C/E/F + D-30 race tests) shipped after 4-panel verdict PASS (Tasks 5-6).
+- [ ] Mobile L1 sub-PR A4a (DEFERRED-02-02-C/E/F + D-30 race tests) shipped after 4-panel verdict APPROVED ; skeleton pre-created Task 5 Step 0 per checker C-4 fix (Tasks 5-6).
 - [ ] Mobile L1 sub-PR A4b ISOLATED (DEFERRED-02-02-D sqflite_sqlcipher + iOS entitlement + fastlane match) opened with Julien manual steps documented (Task 7).
 - [ ] 5 sec/arch FLAGs disposed : sec FLAG-2 + sec FLAG-4 + sec FLAG-5 shipped via tests ; arch FLAG-2 UUID4→UUID7 decoupled Phase 03 ; arch FLAG-3 subject_type_forward_lint shipped (Task 8).
-- [ ] DEFERRED-02-01-A verified single head (or p122 merge shipped) ; PR D polish items 1-6 + 8 absorbed (item 7 sec FLAG-1 EXCLUDED) (Task 9).
-- [ ] Prod migration applied : alembic head = current dev head + fact_event/fact_current/dek_envelope on prod + 2 prod test accts audit zero diff (Task 10).
+- [ ] DEFERRED-02-01-A resolved per checker C-3 conditional logic : `alembic heads | wc -l == 1` pre-Task-9 → skip p122 OR ≥ 2 → ship `p122_merge_p86_eclairage.py` with `down_revision = ("p121_drop_snapshot_legacy", "p86_eclairage_delivered")` ; post-ship single-head assertion ; PR D polish items 1-6 + 8 absorbed (item 7 sec FLAG-1 EXCLUDED) (Task 9).
+- [ ] Prod migration applied : alembic head = current dev head + fact_event/fact_current/dek_envelope on prod + 2 prod test accts audit zero diff + distinct `-pre-wave-4.sql.gz` baseline per checker H-9 fix (Task 10).
 - [ ] Final 5-gate panel evidence captured : G1 Maestro (or DEFERRED) + G2 Julien device + G3 dev CI + G4 regression + G5 lints (Task 11).
 - [ ] VERIFICATION-REPORT.html ≥ 200 lines + SUMMARY.md ≥ 180 lines (Task 11).
+- [ ] Checker iteration 1 fix outcomes documented in VERIFICATION-REPORT + SUMMARY (C-1bis + C-2 + C-3 + C-4 + 9 HIGH-fixes).
 - [ ] ROADMAP + STATE + PROJECT + PERIMETERS updated (Task 11).
 - [ ] All 33+ D-XX dispositions present in SUMMARY.
 - [ ] All threats in STRIDE register have a disposition.
@@ -1517,7 +1737,7 @@ After completion, ensure :
 - STATE.md frontmatter updated.
 - PROJECT.md current-focus updated to Phase 03 if Julien confirms.
 - PERIMETERS.md final Wave 4 sign-off entry.
-- 10 evidence/artifact files committed across the 11 tasks.
+- 10 evidence/artifact files committed across the 11 tasks (including `mobile-l1-design-panel-verdict.md` skeleton + filled + `production-{date}-pre-wave-4.sql.gz` per checker H-9 fix).
 - `mem_save` at phase-close with `topic_key: mint-data-architecture-v1-02-deploy:phase-close:shipped-{or-COMPLETE}-{date}` + `prior_finding_refs` ≥ 10 obs (Phase 02 substrate close-out + Wave 0/1/2/3/4 obs + Plan 02-04 Task obs + Mobile L1 panel verdict + Wave 4 prod-deploy obs).
 - Phase 03 entry in ROADMAP unblocked.
 - Forward-deferred items list :
@@ -1528,4 +1748,7 @@ After completion, ensure :
   - sec FLAG-1 post-write divergence assertion reconsideration (Phase 03 after 30-day stable event-log).
   - Sentry alert rule monitoring + tuning (ongoing operational task).
   - Orphan staging Postgres service delete (Julien manual confirmation step).
+  - Cron deactivation (OPTIONAL Phase 03 cleanup ; cron stays active from Plan 03 Task 1 onward).
 </output>
+</content>
+</invoke>
