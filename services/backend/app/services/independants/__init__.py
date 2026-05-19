@@ -33,6 +33,12 @@ from app.services.independants.lpp_volontaire_service import (
     simuler_lpp_volontaire,
     LppVolontaireResult,
 )
+# Phase mint-data-architecture-v1-02 W0 Plan 02-01 (D-08) — single source of
+# truth for IJM/LAA market-estimate rates promoted from S12.
+from app.services.independants.indemnity_rates import (
+    IJM_ESTIMATE_RATE,
+    LAA_ESTIMATE_RATE,
+)
 
 __all__ = [
     "calculer_cotisation_avs",
@@ -45,4 +51,6 @@ __all__ = [
     "DividendeVsSalaireResult",
     "simuler_lpp_volontaire",
     "LppVolontaireResult",
+    "IJM_ESTIMATE_RATE",
+    "LAA_ESTIMATE_RATE",
 ]

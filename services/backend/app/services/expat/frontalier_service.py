@@ -375,8 +375,15 @@ class LamalOptionResult:
 # Service
 # ---------------------------------------------------------------------------
 
-class FrontalierService:
+class FrontalierSegmentService:
     """Simulateur fiscal et social pour les travailleurs frontaliers (permis G).
+
+    Phase mint-data-architecture-v1-02 W0 Plan 02-01 (D-09 PR-1) :
+        renamed from `FrontalierService` to `FrontalierSegmentService` to
+        disambiguate from the S12 façade `app.services.frontalier_service.FrontalierService`
+        (a DIFFERENT class with the same name, kept forever per D-08).
+        A backward-compat alias `FrontalierService = FrontalierSegmentService`
+        remains at the bottom of this module until Plan 02-04 PR-2 removes it.
 
     Regles cles:
     - Permis G: autorisation de travail pour frontaliers (ALCP, OLCP)
@@ -815,3 +822,11 @@ class FrontalierService:
             recommandation=recommandation,
             sources=sources,
         )
+
+
+# Phase mint-data-architecture-v1-02 W0 Plan 02-01 (D-09 PR-1) — backward-compat alias.
+# `FrontalierService` is the OLD name (kept callable until Plan 02-04 PR-2 removes it).
+# All new code MUST use `FrontalierSegmentService`. The s23_class_name_lint
+# (`tools/checks/s23_class_name_lint.py`) HARD-rejects any NEW `class FrontalierService:`
+# declaration outside the S12 façade allowlist.
+FrontalierService = FrontalierSegmentService  # deprecated alias — Plan 02-04 PR-2 removal

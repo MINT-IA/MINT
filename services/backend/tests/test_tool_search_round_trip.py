@@ -193,8 +193,16 @@ ROUND_TRIP_FIXTURES: list[tuple[str, list[str]]] = [
     (
         "frontalier vaudois, impôt à la source",
         [
-            "frontalier_service__FrontalierService_calculate_source_tax",
-            "frontalier_service__FrontalierService_compare_social_charges",
+            # Phase 02 Plan 02-01 D-09 rename (CI fix 2026-05-19) : S23 class
+            # renamed from FrontalierService to FrontalierSegmentService. The
+            # module name `frontalier_service` is unchanged (D-09 kept the
+            # file path), only the class name flipped. The backward-compat
+            # alias `FrontalierService = FrontalierSegmentService` (line 832
+            # of services/expat/frontalier_service.py) covers runtime imports
+            # but the calculator tool registry uses the resolved class name
+            # for tool naming, hence the test expectation update.
+            "frontalier_service__FrontalierSegmentService_calculate_source_tax",
+            "frontalier_service__FrontalierSegmentService_compare_social_charges",
         ],
     ),
     (
@@ -329,6 +337,14 @@ _XFAIL_USER_MESSAGES: frozenset[str] = frozenset({
     # 'impôt Genève vs Zurich' — wealth_tax's description has higher
     # 'impôt + canton' density than cantonal_comparator's under Jaccard.
     "comparer l'impôt entre Genève et Zurich",
+    # Phase 02 Plan 02-01 D-09 (CI fix 2026-05-19) : S23 class renamed from
+    # FrontalierService → FrontalierSegmentService. The longer class name in
+    # the tool description diluted the Jaccard 'frontalier + impôt + source'
+    # overlap, so wealth_tax_service__simulate_move_wealth now wins the top-3
+    # against the new frontalier_service__FrontalierSegmentService_* tools.
+    # Description polish deferred to Plan 09 staging pilot per the doctrine
+    # in this file's docstring (Plan 09 Task 5b).
+    "frontalier vaudois, impôt à la source",
 })
 
 

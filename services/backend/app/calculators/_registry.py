@@ -231,29 +231,29 @@ REGISTRY: Dict[str, CalculatorMetadata] = {
         "life_events_served": ["cross_cutting"],
         "output_type": "L1",
     },
-    "frontalier_service__FrontalierService_calculate_source_tax": {
-        "name": "frontalier_service__FrontalierService_calculate_source_tax",
+    "frontalier_service__FrontalierSegmentService_calculate_source_tax": {
+        "name": "frontalier_service__FrontalierSegmentService_calculate_source_tax",
         "file": "app/services/expat/frontalier_service.py",
         "profile_fields_needed": ["salary", "canton", "marital_status", "children", "church_tax"],
         "life_events_served": ["cross_border"],
         "output_type": "L1",
     },
-    "frontalier_service__FrontalierService_compare_social_charges": {
-        "name": "frontalier_service__FrontalierService_compare_social_charges",
+    "frontalier_service__FrontalierSegmentService_compare_social_charges": {
+        "name": "frontalier_service__FrontalierSegmentService_compare_social_charges",
         "file": "app/services/expat/frontalier_service.py",
         "profile_fields_needed": ["salary", "country_of_residence"],
         "life_events_served": ["cross_border"],
         "output_type": "L1",
     },
-    "frontalier_service__FrontalierService_estimate_lamal_option": {
-        "name": "frontalier_service__FrontalierService_estimate_lamal_option",
+    "frontalier_service__FrontalierSegmentService_estimate_lamal_option": {
+        "name": "frontalier_service__FrontalierSegmentService_estimate_lamal_option",
         "file": "app/services/expat/frontalier_service.py",
         "profile_fields_needed": ["age", "canton", "family_size", "residence_country"],
         "life_events_served": ["cross_border"],
         "output_type": "L1",
     },
-    "frontalier_service__FrontalierService_simulate_90_day_rule": {
-        "name": "frontalier_service__FrontalierService_simulate_90_day_rule",
+    "frontalier_service__FrontalierSegmentService_simulate_90_day_rule": {
+        "name": "frontalier_service__FrontalierSegmentService_simulate_90_day_rule",
         "file": "app/services/expat/frontalier_service.py",
         "profile_fields_needed": ["home_office_days", "commute_days"],
         "life_events_served": ["cross_border"],
@@ -490,7 +490,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "calculator__UnemploymentCalculator_calculate",
         "epl_combined_service__EplCombinedService_calculate",
         "epl_service__EPLService_simulate",
-        "frontalier_service__FrontalierService_estimate_lamal_option",
+        "frontalier_service__FrontalierSegmentService_estimate_lamal_option",
         "job_comparator__JobComparator_compare",
         "provider_comparator_service__ProviderComparatorService_compare_providers",
     },
@@ -581,8 +581,8 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "epl_service__EPLService_simulate",
         "expat_service__ExpatService_compare_tax_burden",
         "expat_service__ExpatService_simulate_forfait_fiscal",
-        "frontalier_service__FrontalierService_calculate_source_tax",
-        "frontalier_service__FrontalierService_estimate_lamal_option",
+        "frontalier_service__FrontalierSegmentService_calculate_source_tax",
+        "frontalier_service__FrontalierSegmentService_estimate_lamal_option",
         "imputed_rental_service__ImputedRentalService_calculate",
         "location_vs_propriete__compare_location_vs_propriete",
         "lpp_conversion_service__LppConversionService_compare",
@@ -628,10 +628,10 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "cantonal_comparator__CantonalComparator_compare_all_cantons",
         "cantonal_comparator__CantonalComparator_estimate_tax",
         "cantonal_comparator__CantonalComparator_simulate_move",
-        "frontalier_service__FrontalierService_calculate_source_tax",
+        "frontalier_service__FrontalierSegmentService_calculate_source_tax",
     },
     "church_tax": {
-        "frontalier_service__FrontalierService_calculate_source_tax",
+        "frontalier_service__FrontalierSegmentService_calculate_source_tax",
     },
     "civil_status": {
         "cantonal_comparator__CantonalComparator_compare_all_cantons",
@@ -642,7 +642,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "wealth_tax_service__WealthTaxService_simulate_move_wealth",
     },
     "commute_days": {
-        "frontalier_service__FrontalierService_simulate_90_day_rule",
+        "frontalier_service__FrontalierSegmentService_simulate_90_day_rule",
     },
     "confidence_score": {
         "fri_display_service__FriDisplayService_compute_for_display",
@@ -650,7 +650,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "fri_service__FriService_compute",
     },
     "country_of_residence": {
-        "frontalier_service__FrontalierService_compare_social_charges",
+        "frontalier_service__FrontalierSegmentService_compare_social_charges",
     },
     "current": {
         "job_comparator__JobComparator_compare",
@@ -685,7 +685,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "affordability_service__AffordabilityService_calculate_affordability",
     },
     "family_size": {
-        "frontalier_service__FrontalierService_estimate_lamal_option",
+        "frontalier_service__FrontalierSegmentService_estimate_lamal_option",
     },
     "fortune": {
         "wealth_tax_service__WealthTaxService_compare_all_cantons",
@@ -720,7 +720,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "retroactive_3a_service__calculate_retroactive_3a",
     },
     "home_office_days": {
-        "frontalier_service__FrontalierService_simulate_90_day_rule",
+        "frontalier_service__FrontalierSegmentService_simulate_90_day_rule",
     },
     "horizon": {
         "rente_vs_capital__compare_rente_vs_capital",
@@ -792,7 +792,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "saron_vs_fixed_service__SaronVsFixedService_compare",
     },
     "marital_status": {
-        "frontalier_service__FrontalierService_calculate_source_tax",
+        "frontalier_service__FrontalierSegmentService_calculate_source_tax",
     },
     "montant": {
         "rachat_vs_marche__compare_rachat_vs_marche",
@@ -891,7 +891,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "mariage_service__MariageService_estimate_survivor_benefits",
     },
     "residence_country": {
-        "frontalier_service__FrontalierService_estimate_lamal_option",
+        "frontalier_service__FrontalierSegmentService_estimate_lamal_option",
     },
     "retirement_age": {
         "avs_estimation_service__AvsEstimationService_estimate",
@@ -930,8 +930,8 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
     },
     "salary": {
         "expat_service__ExpatService_compare_tax_burden",
-        "frontalier_service__FrontalierService_calculate_source_tax",
-        "frontalier_service__FrontalierService_compare_social_charges",
+        "frontalier_service__FrontalierSegmentService_calculate_source_tax",
+        "frontalier_service__FrontalierSegmentService_compare_social_charges",
     },
     "scenarios_saron": {
         "saron_vs_fixed_service__SaronVsFixedService_compare",

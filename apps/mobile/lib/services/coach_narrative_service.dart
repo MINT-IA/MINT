@@ -1159,38 +1159,51 @@ class CoachNarrativeService {
 
   /// Construit le contexte profil pour le RAG backend
   /// (reprend le pattern de CoachLlmService._buildProfileContext).
+  ///
+  /// Phase mint-data-architecture-v1-02 W0 Plan 02-01 (D-10 PR-A2) : delegated
+  /// to `_buildProfileContextImpl` so the public `buildProfileContextForTest`
+  /// test hook can exercise the exact same code path.
   static Map<String, dynamic> _buildProfileContext(CoachProfile profile) {
+    return _buildProfileContextImpl(profile);
+  }
+
+  /// Phase mint-data-architecture-v1-02 W0 Plan 02-01 (D-10 PR-A2) — test hook.
+  /// Public alias for `_buildProfileContextImpl`, used by
+  /// `test/services/coach_narrative_profile_context_test.dart`.
+  /// Keeping `_buildProfileContext` private preserves the original API surface.
+  @visibleForTesting
+  static Map<String, dynamic> buildProfileContextForTest(CoachProfile profile) {
+    return _buildProfileContextImpl(profile);
+  }
+
+  static Map<String, dynamic> _buildProfileContextImpl(CoachProfile profile) {
+    // Recompute the `parts` summary inside the impl so the test hook stays
+    // self-contained.
     final parts = <String>[];
     parts.add('Age : ${profile.age} ans');
     parts.add('Canton : ${profile.canton}');
     parts.add('Statut : ${profile.etatCivil.name}');
-
     if (profile.salaireBrutMensuel > 0) {
       parts.add(
           'Revenu brut : CHF ~${_salaryRange(profile.salaireBrutMensuel * 12)}/an (estimation arrondie)');
     }
-
-    final prev = profile.prevoyance;
-    if (prev.totalEpargne3a > 0) {
-      parts.add('Avoir 3a : ${prev.totalEpargne3a.toStringAsFixed(0)} CHF');
+    final prev0 = profile.prevoyance;
+    if (prev0.totalEpargne3a > 0) {
+      parts.add('Avoir 3a : ${prev0.totalEpargne3a.toStringAsFixed(0)} CHF');
     }
-    if (prev.nombre3a > 0) {
-      parts.add('Nombre de comptes 3a : ${prev.nombre3a}');
+    if (prev0.nombre3a > 0) {
+      parts.add('Nombre de comptes 3a : ${prev0.nombre3a}');
     }
-    if (prev.avoirLppTotal != null && prev.avoirLppTotal! > 0) {
-      parts.add('Avoir LPP : ${prev.avoirLppTotal!.toStringAsFixed(0)} CHF');
+    if (prev0.avoirLppTotal != null && prev0.avoirLppTotal! > 0) {
+      parts.add('Avoir LPP : ${prev0.avoirLppTotal!.toStringAsFixed(0)} CHF');
     }
-
-    final pat = profile.patrimoine;
-    if (pat.totalPatrimoine > 0) {
-      parts.add('Patrimoine : ${pat.totalPatrimoine.toStringAsFixed(0)} CHF');
+    final pat0 = profile.patrimoine;
+    if (pat0.totalPatrimoine > 0) {
+      parts.add('Patrimoine : ${pat0.totalPatrimoine.toStringAsFixed(0)} CHF');
     }
     if (profile.dettes.totalDettes > 0) {
-      parts
-          .add('Dettes : ${profile.dettes.totalDettes.toStringAsFixed(0)} CHF');
+      parts.add('Dettes : ${profile.dettes.totalDettes.toStringAsFixed(0)} CHF');
     }
-
-    // Score fitness
     try {
       final score = FinancialFitnessService.calculate(profile: profile);
       parts.add('Score fitness : ${score.global}/100');
@@ -1198,13 +1211,45 @@ class CoachNarrativeService {
       debugPrint('CoachNarrative: $e');
     }
 
-    return {
+    // Phase mint-data-architecture-v1-02 W0 Plan 02-01 (D-10 PR-A2) — extend
+    // emission to close 15 of the 40-field parity-drift gap reported by
+    // tools/checks/profile_safe_fields_parity.py. Emit-pattern (not handle-pattern)
+    // per RESEARCH § D-10 : no `> 0` guards on these new fields ; the server
+    // _sanitize_profile_context drops `None`/`null` anyway, so unguarded emission
+    // is safe and lets the LLM see "absent" vs "zero" cleanly. Remaining ~25
+    // missing fields tracked in deferred-items.md DEFERRED-02-01-B for PR-A3
+    // (Plan 02-04 per D-10). HARD-mode parity-lint flip lands in Plan 02-03 PR-3
+    // per D-31 — the baseline MUST be empty by then.
+    final prev = profile.prevoyance;
+    final result = <String, dynamic>{
       'canton': profile.canton,
       'age': profile.age,
       'civil_status': profile.etatCivil.name,
+      'marital_status': profile.etatCivil.name,
+      'employment_status': profile.employmentStatus,
+      'is_married': profile.etatCivil.name == 'marie',
+      'number_of_children': profile.nombreEnfants,
+      'has_2nd_pillar': (prev.avoirLppTotal ?? 0) > 0,
       if (profile.firstName != null) 'first_name': profile.firstName,
       'financial_summary': parts.join('\n'),
+      // Income / expense flow ($ + LPP/3a/AVS context).
+      'monthly_income': profile.salaireBrutMensuel,
+      'monthly_expenses': profile.depenses.totalMensuel,
+      'salaire_brut': profile.salaireBrutMensuel,
+      'avoir_lpp': prev.avoirLppTotal ?? 0,
+      'lpp_balance_total': prev.avoirLppTotal ?? 0,
+      'lpp_capital': prev.avoirLppTotal ?? 0,
+      'lpp_buyback_max': prev.rachatMaximum ?? 0,
+      'lpp_buyback_potential': prev.lacuneRachatRestante,
+      'lpp_conversion_rate': prev.tauxConversion,
+      'avs_rente': prev.renteAVSEstimeeMensuelle ?? 0,
+      'avs_annual_estimate': (prev.renteAVSEstimeeMensuelle ?? 0) * 12,
+      'avs_contribution_years': prev.anneesContribuees ?? 0,
+      'epargne_3a': prev.totalEpargne3a,
+      // Adaptive Pulse / Goal context.
+      if (profile.primaryFocus != null) 'primary_focus': profile.primaryFocus,
     };
+    return result;
   }
 
   /// Parse la reponse JSON du LLM en CoachNarrative.

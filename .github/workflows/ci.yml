@@ -195,6 +195,19 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/banned_terms_arb.py
 
+      # ─── Phase mint-data-architecture-v1-02 Plan 02-01 W0 HARD lints (D-20, D-24, iter-2 B4) ──
+      - name: Alembic BOOLEAN DEFAULT lint (Phase 02 D-20)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/alembic_boolean_default_lint.py --self-test
+
+      - name: HMAC pepper audit (Phase 02 D-24)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/hmac_pepper_audit.py services/backend/app/ --baseline tools/checks/_baseline_hmac_sites_at_p112.txt
+
+      - name: S23 class-name lint (Phase 02 D-09 iter-2 B4)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/s23_class_name_lint.py services/backend/
+
       # ─── Phase 9 / ALERT-07: no LLM-driven alert objects ────────────
       - name: No LLM-driven alert objects (ALERT-07)
         working-directory: ${{ github.workspace }}
@@ -282,6 +295,45 @@ jobs:
           alembic downgrade base
           alembic upgrade head
           rm -f test_migration.db
+
+  # ─── Phase mint-data-architecture-v1-02 W0 Plan 02-01 (D-22) — Real Postgres testcontainers job ──
+  # Spins a Postgres 15.x testcontainer + runs the pg_fixture-gated tests under
+  # `services/backend/tests/fixtures/` + `services/backend/tests/integration_pg/`
+  # (latter created in Plan 02-02). Docker is pre-installed on ubuntu-latest
+  # per CONTEXT T-02-09 mitigation. Path-triggered on alembic / models / fixtures
+  # changes — keeps CI runtime bounded on docs-only PRs.
+  pg-integration:
+    name: PG integration (testcontainers)
+    needs: [changes]
+    if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: services/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/backend/pyproject.toml
+      - name: Verify Docker available (T-02-09 mitigation)
+        run: docker info
+      - name: Install backend + test extras
+        run: pip install ".[dev,test]"
+      - name: Run pg_fixture self-test + integration_pg tests
+        env:
+          TESTING: "1"
+        run: |
+          python3 -m pytest tests/fixtures/test_pg_fixture_self.py -v --tb=short
+          # tests/integration_pg/ created in Plan 02-02 — silently no-op if absent
+          if [ -d tests/integration_pg ]; then
+            python3 -m pytest tests/integration_pg -q -k pg --tb=short
+          else
+            echo "tests/integration_pg/ not yet present (lands in Plan 02-02). Skipping."
+          fi
 
   # ─── Phase 30 / PRIV-03: PII log gate (BLOCKING) ─────────────────
   # Scans recent backend logs for raw IBAN / AVS / Swiss phone / employer
