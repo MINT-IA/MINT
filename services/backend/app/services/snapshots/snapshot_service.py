@@ -107,6 +107,7 @@ def create_snapshot(
 
         from app.models.snapshot import SnapshotModel
         from app.models.projection_audit_record import ProjectionAuditRecord
+        from app.services.audit.hmac_pepper import hmac_user_id
         from app.services.regulatory.registry import RegulatoryRegistry
 
         # Hotfix B 2026-05-17 — stamp the snapshot with the regulatory
@@ -165,7 +166,12 @@ def create_snapshot(
             separators=(",", ":"),
         )
         output_hash = hashlib.sha256(output_canonical.encode("utf-8")).hexdigest()
-        user_id_hash = hashlib.sha256(user_id.encode("utf-8")).hexdigest()
+        # QA arch FLAG-1 (2026-05-19) : D-14 canonical HMAC-pepper for audit-PII
+        # user_id_hash. Replaces the prior bare SHA-256 hashing pattern which
+        # was rainbow-table-reversible. Plan 02-02 close-criterion : baseline
+        # shrinks by 1 (snapshot_service entry removed from
+        # tools/checks/_baseline_hmac_sites_at_p112.txt).
+        user_id_hash = hmac_user_id(user_id)
 
         audit_row = ProjectionAuditRecord(
             user_id_hash=user_id_hash,
