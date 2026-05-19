@@ -14418,7 +14418,7 @@
         "type": "object"
       },
       "MobileSessionEvent": {
-        "description": "Single Mobile L1 audit event payload — matches the D-12 contract.\n\n`source` is restricted at the application layer to the Mobile L1 source\nvalues ; backend writer code (snapshot_service) writes\nsource='projection' via the ORM default, NEVER through this endpoint.",
+        "description": "Single Mobile L1 audit event payload — matches the D-12 contract.\n\n`source` is type-restricted via `Literal` to the Mobile L1 source values\n(QA sec FLAG-3 fix, 2026-05-19). Backend writer code (snapshot_service,\nprojector, backfill script) writes `source='projection' / 'snapshot_dual_write'\n/ 'snapshot_backfill_v1'` via the ORM default, NEVER through this endpoint.\nWithout the allowlist, a malicious client could POST `source='projection'`\nto fabricate audit rows structurally indistinguishable from server-side\nwrites (STRIDE: Spoofing). Add new values here as new mobile session\nstates are introduced (and update tests/integration/test_audit_mobile_link.py).",
         "properties": {
           "anonymous_session_id": {
             "maxLength": 36,
@@ -14469,8 +14469,10 @@
             "type": "string"
           },
           "source": {
-            "maxLength": 32,
-            "minLength": 1,
+            "enum": [
+              "mobile_session_start",
+              "mobile_session_warm_resume"
+            ],
             "title": "Source",
             "type": "string"
           }
