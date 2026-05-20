@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>MINT app icon — encre</title>
+  <defs>
+    <clipPath id="mask">
+      <rect x="0" y="0" width="1024" height="1024" rx="0" ry="0"></rect>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#mask)">
+    <rect x="0" y="0" width="1024" height="1024" fill="#0F0F10"></rect>
+    
+  </g>
+</svg>

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>MINT — Icon pack preview</title>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=gambarino@400,400i&f[]=supreme@400,500&display=swap"/>
+<link rel="icon" type="image/svg+xml" href="menthe/icon-rounded.svg"/>
+<style>
+  :root{
+    --bg:#F7F5EE; --paper:#FFFFFF; --ink:#0A0A0A;
+    --inkSoft:rgba(10,10,10,.64); --inkMute:rgba(10,10,10,.42);
+    --hairline:rgba(10,10,10,.10);
+    --ui:'Supreme','Inter',system-ui,sans-serif;
+    --display:'Gambarino','Times New Roman',serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:var(--ui);-webkit-font-smoothing:antialiased}
+  body{padding:80px 64px 160px;max-width:1280px;margin:0 auto}
+
+  .eyebrow{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--inkMute);margin-bottom:14px}
+  h1{font-family:var(--display);font-style:italic;font-weight:400;font-size:64px;letter-spacing:-.025em;line-height:1;margin-bottom:24px}
+  .lede{font-size:15px;line-height:1.55;color:var(--inkSoft);max-width:60ch;margin-bottom:64px}
+
+  section{margin-bottom:80px}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:20px;border-bottom:1px solid var(--hairline);margin-bottom:32px}
+  .section-head h2{font-family:var(--display);font-style:italic;font-weight:400;font-size:32px;letter-spacing:-.02em}
+  .section-head .num{font-family:var(--display);font-style:italic;font-size:32px;color:var(--inkMute)}
+
+  /* Variants overview */
+  .variants{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+  .variant{display:flex;flex-direction:column;gap:12px}
+  .variant .pair{display:flex;gap:8px}
+  .variant .pair img{width:50%;aspect-ratio:1;display:block;border:1px solid var(--hairline)}
+  .variant .meta{font-size:12px;color:var(--inkMute);letter-spacing:.04em}
+  .variant .name{font-size:14px;font-weight:500;margin-top:2px}
+
+  /* Size ladder */
+  .ladder{display:flex;align-items:flex-end;gap:32px;flex-wrap:wrap;padding:32px;background:var(--paper);border:1px solid var(--hairline)}
+  .ladder .step{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .ladder .step img{display:block}
+  .ladder .step .lbl{font-size:10px;color:var(--inkMute);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+
+  /* Use on system */
+  .systems{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .sys{background:var(--paper);border:1px solid var(--hairline);padding:32px;display:flex;flex-direction:column;gap:20px}
+  .sys h3{font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--inkMute)}
+  .sys-demo{display:flex;align-items:center;gap:16px}
+  .sys-demo img{width:64px;height:64px;display:block}
+  .sys-demo .lbl{display:flex;flex-direction:column;gap:2px}
+  .sys-demo .lbl strong{font-size:13px;font-weight:500}
+  .sys-demo .lbl span{font-size:11px;color:var(--inkMute)}
+
+  /* Browser favicon mock */
+  .tab-mock{display:flex;align-items:center;gap:8px;background:#ECEAE3;border:1px solid var(--hairline);border-radius:8px;padding:8px 14px;width:fit-content}
+  .tab-mock img{width:16px;height:16px;display:block}
+  .tab-mock span{font-size:12px;color:var(--inkSoft)}
+
+  /* iOS home mock */
+  .home-mock{background:linear-gradient(180deg,#5a4a3a,#3a2c20);border-radius:32px;padding:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;width:fit-content}
+  .home-mock .app{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .home-mock .app img{width:60px;height:60px;display:block;border-radius:13.42px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  .home-mock .app .lb{font-size:10px;color:#fff;font-family:'SF Pro',-apple-system,system-ui,sans-serif}
+
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:rgba(10,10,10,.05);padding:1px 6px;border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="eyebrow">MINT · Icon pack</div>
+<h1>L'icône — assets prêts pour l'app</h1>
+<p class="lede">
+  La maquette HTML/CSS du brand book a été convertie en assets utilisables : <strong>SVG masters</strong> + <strong>PNG à toutes les tailles</strong>, en 4 variantes de couleur. Voir <code>README.md</code> pour où poser quoi dans le repo.
+</p>
+
+<section>
+  <div class="section-head"><h2>Variantes</h2><div class="num">01</div></div>
+  <div class="variants">
+    <div class="variant">
+      <div class="pair">
+        <img src="menthe/flat-512.png" alt="menthe flat"/>
+        <img src="menthe/rounded-512.png" alt="menthe rounded"/>
+      </div>
+      <div class="name">menthe</div>
+      <div class="meta">Primaire · flat + rounded</div>
+    </div>
+    <div class="variant">
+      <div class="pair">
+        <img src="acide/flat-512.png" alt="acide flat"/>
+        <img src="acide/rounded-512.png" alt="acide rounded"/>
+      </div>
+      <div class="name">acide</div>
+      <div class="meta">Éditoriale</div>
+    </div>
+    <div class="variant">
+      <div class="pair">
+        <img src="encre/flat-512.png" alt="encre flat"/>
+        <img src="encre/rounded-512.png" alt="encre rounded"/>
+      </div>
+      <div class="name">encre</div>
+      <div class="meta">Sombre · contraste fort</div>
+    </div>
+    <div class="variant">
+      <div class="pair">
+        <img src="paper/flat-512.png" alt="paper flat"/>
+        <img src="paper/rounded-512.png" alt="paper rounded"/>
+      </div>
+      <div class="name">paper</div>
+      <div class="meta">Monochrome · print</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>Échelle — variante menthe</h2><div class="num">02</div></div>
+  <div class="ladder">
+    <div class="step"><img src="menthe/rounded-16.png" width="16" height="16"/><div class="lbl">16</div></div>
+    <div class="step"><img src="menthe/rounded-32.png" width="32" height="32"/><div class="lbl">32</div></div>
+    <div class="step"><img src="menthe/rounded-180.png" width="64" height="64"/><div class="lbl">64 (180)</div></div>
+    <div class="step"><img src="menthe/rounded-192.png" width="96" height="96"/><div class="lbl">96 (192)</div></div>
+    <div class="step"><img src="menthe/rounded-512.png" width="128" height="128"/><div class="lbl">128 (512)</div></div>
+    <div class="step"><img src="menthe/flat-1024.png" width="180" height="180"/><div class="lbl">180 (1024 flat)</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>En contexte</h2><div class="num">03</div></div>
+  <div class="systems">
+    <div class="sys">
+      <h3>Onglet navigateur</h3>
+      <div class="tab-mock">
+        <img src="menthe/rounded-16.png"/>
+        <span>mint · paiement vivant</span>
+      </div>
+      <div class="sys-demo">
+        <div class="lbl">
+          <strong>rounded-16.png</strong>
+          <span>+ icon-rounded.svg pour les écrans HiDPI</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys">
+      <h3>iOS · home screen</h3>
+      <div class="home-mock">
+        <div class="app"><img src="menthe/flat-1024.png"/><div class="lb">MINT</div></div>
+        <div class="app"><img src="acide/flat-1024.png"/><div class="lb">MINT acide</div></div>
+        <div class="app"><img src="encre/flat-1024.png"/><div class="lb">MINT noir</div></div>
+      </div>
+      <div class="sys-demo">
+        <div class="lbl">
+          <strong>flat-1024.png</strong>
+          <span>iOS applique son propre masque squircle</span>
+        </div>
+      </div>
+    </div>
+    <div class="sys">
+      <h3>Android · adaptive</h3>
+      <div style="display:flex;gap:16px;align-items:center">
+        <div style="width:96px;height:96px;border-radius:50%;overflow:hidden;background:#9EE5C5;display:flex;align-items:center;justify-content:center">
+          <img src="menthe/flat-512.png" style="width:96px;height:96px"/>
+        </div>
+        <div style="width:96px;height:96px;border-radius:22%;overflow:hidden">
+          <img src="menthe/flat-512.png" style="width:96px;height:96px"/>
+        </div>
+      </div>
+      <div class="sys-demo">
+        <div class="lbl">
+          <strong>flat-512.png</strong>
+          <span>Android adapte la forme selon le launcher</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

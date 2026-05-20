@@ -2,7 +2,7 @@ name: mint_mobile
 description: Mint - Financial mentor mobile app
 publish_to: 'none'
 
-version: 2.12.3+60
+version: 2.12.4+61
 
 environment:
   sdk: ^3.6.0
@@ -74,6 +74,10 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  # Brand app icon generator — reads assets/branding/menthe/flat-1024.png
+  # and produces all iOS sizes + Android mipmaps + web favicons in one shot.
+  # Run manually after any icon change : `dart run flutter_launcher_icons`.
+  flutter_launcher_icons: ^0.13.1
   # S98 Phase 5.X — auto-upload Dart obfuscation maps + iOS dSYMs to
   # Sentry after `flutter build`. Without this, every TestFlight crash
   # lands in Sentry as obfuscated Dart tokens (file paths look like
@@ -100,6 +104,27 @@ sentry:
   # time (set as GitHub Secrets, exposed by testflight.yml). Plugin
   # falls back to a `sentry.properties` file if env vars are absent
   # — that file is .gitignored (devs may create it locally).
+
+# MINT « m. » brand app icon — generated from the designer pack at
+# assets/branding/menthe/flat-1024.png. To regenerate :
+#   flutter pub get
+#   dart run flutter_launcher_icons
+# iOS strips alpha (App Store requirement). Android writes legacy
+# ic_launcher + adaptive_icon (foreground = the same flat PNG, background
+# = the menthe solid color, so the adaptive crop never reveals empty space).
+flutter_launcher_icons:
+  image_path: "assets/branding/menthe/flat-1024.png"
+  ios: true
+  remove_alpha_ios: true
+  android: "ic_launcher"
+  min_sdk_android: 21
+  adaptive_icon_background: "#9EE5C5"
+  adaptive_icon_foreground: "assets/branding/menthe/flat-1024.png"
+  web:
+    generate: true
+    image_path: "assets/branding/menthe/flat-1024.png"
+    background_color: "#9EE5C5"
+    theme_color: "#9EE5C5"
 
 flutter:
   generate: true
