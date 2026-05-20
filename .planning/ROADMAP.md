@@ -429,5 +429,15 @@ Plans:
 Plans:
 - [ ] TBD (run /gsd-plan-phase 97 to break down)
 
+### Phase 1: MINT production-readiness audit: identify top blockers to first usable beta (Sentry remainders, 18 life events coverage, 8 archetypes, watchdog perf, TestFlight infra, iOS keychain entitlement, i18n hardcoded strings) and output a prioritized roadmap addendum with sub-phases
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 0
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 1 to break down)
+
 ---
 *Last updated: 2026-05-10 — Phase 91 MVP-EXTRACTOR-V2 closed (verified, 6/7 plans, Stage 3 narrator decision = SONNET kill-policy fallback). v2.9 Chat-as-Verb Pivot ACTIVE with 9 phases (90, 91, 91.5, 92, 92.5, 93, 93.5, 94, 95, 96) + backlog 999.x. Roadmap injection per ADR `2026-05-09-calc-first-llm-illumination.md` Decided 2026-05-10.*
