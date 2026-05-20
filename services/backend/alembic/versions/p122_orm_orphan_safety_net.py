@@ -111,7 +111,26 @@ def upgrade() -> None:
     # Column shape ported verbatim from services/backend/migrations/003_pgvector.sql
     # (legacy DO-NOT-EXECUTE SQL never executed against any deployed Postgres).
     # IVFFlat lists=10 per legacy comment (sqrt of ~100 docs corpus size).
+    #
+    # pgvector availability gate : the Railway-managed Postgres + the
+    # ghcr.io/railwayapp-templates/postgres-ssl:17 image used on staging /
+    # prod both ship pgvector. The vanilla `postgres:15.5` image used by the
+    # PG integration testcontainers in CI does NOT — `CREATE EXTENSION vector`
+    # would fail with FeatureNotSupported (vector.control missing on the FS).
+    # We probe `pg_available_extensions` before issuing the DDL and skip the
+    # whole document_embeddings block when pgvector isn't installed on the
+    # host. The migration stays applied (head moves to p122) and a future
+    # re-run on a pgvector-equipped Postgres will create the table thanks
+    # to the `not in existing` guard.
     if dialect == "postgresql" and "document_embeddings" not in existing:
+        pgvector_available = bind.execute(
+            sa.text(
+                "SELECT 1 FROM pg_available_extensions WHERE name = 'vector'"
+            )
+        ).scalar()
+        if not pgvector_available:
+            # CI testcontainer (vanilla postgres:15.5) — skip pgvector block.
+            return
         op.execute("CREATE EXTENSION IF NOT EXISTS vector;")
         op.execute(
             """
