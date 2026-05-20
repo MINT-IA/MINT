@@ -1045,6 +1045,11 @@ final _router = GoRouter(
 
     // KILL-04: ProfileScreen deleted (Phase 2). /profile redirects to /profile/bilan.
     // Sub-routes (byok, slm, bilan, privacy-control, admin) preserved.
+    // Sentry MINT-MOBILE-6 (2026-05-20): without a parent builder, go_router 14+ crashes
+    // sub-routes that touch GoRouterState (e.g. byok's context.push('/ask-mint')) with
+    // "The parent route must be a page route". The SizedBox.shrink() below is the
+    // page-route anchor — never actually rendered because the redirect above always fires
+    // on exact /profile match.
     ScopedGoRoute(
       path: '/profile',
       redirect: (_, state) {
@@ -1052,6 +1057,7 @@ final _router = GoRouter(
         if (state.uri.path == '/profile') return '/profile/bilan';
         return null;
       },
+      builder: (_, __) => const SizedBox.shrink(),
       routes: [
         ScopedGoRoute(
           path: 'admin-observability',

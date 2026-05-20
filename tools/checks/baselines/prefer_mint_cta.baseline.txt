@@ -1,7 +1,6 @@
-lib/app.dart:1865: FilledButton(
-lib/app.dart:1870: TextButton(
+lib/app.dart:1871: FilledButton(
+lib/app.dart:1876: TextButton(
 lib/screens/admin_observability_screen.dart:185: FilledButton(
-lib/screens/anonymous/anonymous_chat_screen.dart:541: ElevatedButton(
 lib/screens/arbitrage/allocation_annuelle_screen.dart:421: FilledButton(
 lib/screens/arbitrage/arbitrage_bilan_screen.dart:52: FilledButton(
 lib/screens/arbitrage/location_vs_propriete_screen.dart:429: FilledButton(
@@ -91,8 +90,6 @@ lib/widgets/analytics_consent_banner.dart:174: OutlinedButton(
 lib/widgets/analytics_consent_banner.dart:196: FilledButton(
 lib/widgets/auth/auth_gate.dart:244: ElevatedButton(
 lib/widgets/auth/auth_gate.dart:271: TextButton(
-lib/widgets/auth/auth_gate_bottom_sheet.dart:116: TextButton(
-lib/widgets/auth/auth_gate_bottom_sheet.dart:140: TextButton(
 lib/widgets/auth/auth_gate_bottom_sheet.dart:90: ElevatedButton(
 lib/widgets/beta/beta_program_disclosure_sheet.dart:176: FilledButton(
 lib/widgets/biography/fact_edit_sheet.dart:149: ElevatedButton(
@@ -122,7 +119,6 @@ lib/widgets/document/field_correction_sheet.dart:122: OutlinedButton(
 lib/widgets/document/field_correction_sheet.dart:130: ElevatedButton(
 lib/widgets/document/third_party_declaration_sheet.dart:100: ElevatedButton(
 lib/widgets/document/third_party_declaration_sheet.dart:121: TextButton(
-lib/widgets/home/confidence_score_card.dart:138: TextButton(
 lib/widgets/home/financial_plan_card.dart:245: TextButton(
 lib/widgets/home/financial_plan_card.dart:261: TextButton(
 lib/widgets/mon_argent/budget_summary_card.dart:72: FilledButton(

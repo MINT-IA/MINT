@@ -49,11 +49,15 @@ def test_pg_fixture_spins_postgres_and_alembic_upgrade_head_idempotent(pg_engine
     #   (d) Phase 02 substrate fully applied : {p119_phase02_parity_cont}
     #       (canonical post-Phase-02-substrate, dev branch HEAD after the
     #       4 squash PRs #653 #657 #656 #655 landed 2026-05-19).
+    #   (e) ORM-orphan safety net applied : {p122_orm_orphan_safety_net}
+    #       (canonical post-2026-05-20 hotfix that backfills the 4
+    #       ORM-orphan tables — closes Sentry MINT-BACKEND-3 + MINT-BACKEND-A).
     expected_heads = {
         "p112_audit_event_user_hash",
         "p86_eclairage_delivered",
         "p98_merge_p86_eclairage",
         "p119_phase02_parity_cont",
+        "p122_orm_orphan_safety_net",
     }
     assert heads_in_db & expected_heads, (
         f"alembic_version table missing expected heads. "
