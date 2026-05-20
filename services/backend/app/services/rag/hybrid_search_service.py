@@ -300,7 +300,29 @@ class HybridSearchService:
             return results
 
         except Exception as exc:
-            logger.error("hybrid_search failed: %s", exc)
+            # Sentry MINT-BACKEND-3 (2026-04-11 → 2026-05-15, 208 events) :
+            # `relation "document_embeddings" does not exist` repeatedly when the
+            # pgvector extension / table aren't provisioned on the target Postgres
+            # (probed 2026-05-20 — Railway-managed `postgres-ssl:17` does NOT
+            # ship pgvector ; `pg_available_extensions` returns 0 rows for
+            # 'vector'). The hybrid search is supposed to degrade gracefully —
+            # the FaqService fallback keyword path picks up downstream — so
+            # demote the UndefinedTable case to a warning (not surfaced to
+            # Sentry via the logging integration's default ERROR threshold).
+            # Other errors still go through logger.error → Sentry.
+            try:
+                import psycopg2  # local import to avoid hard dep on parse
+                is_missing_table = isinstance(exc, psycopg2.errors.UndefinedTable)
+            except Exception:  # pragma: no cover — psycopg2 always imported in prod
+                is_missing_table = "does not exist" in str(exc)
+            if is_missing_table:
+                logger.warning(
+                    "hybrid_search skipped: vector table not provisioned on this env "
+                    "(pgvector unavailable). Coach degrades to keyword-only via "
+                    "FaqService fallback."
+                )
+            else:
+                logger.error("hybrid_search failed: %s", exc)
             return []
         finally:
             if conn is not None and self._pool is not None:  # pragma: no cover
