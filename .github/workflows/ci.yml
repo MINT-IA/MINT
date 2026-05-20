@@ -162,10 +162,16 @@ jobs:
           # newly-installed wheel modules during self-update check.
           # Same runner-bundled-pip story ; fix in pip 26.1. Waive until
           # GHA runner image bumps.
+          # PYSEC-2025-183: pyjwt key-length advisory — disputed by the
+          # upstream maintainer (key length is the application's
+          # responsibility, not the library's). No fix version published
+          # because there's no agreed-upon vulnerability. Waive until
+          # the dispute resolves or a real fix lands.
           pip-audit --skip-editable --desc on \
             --ignore-vuln CVE-2026-4539 \
             --ignore-vuln CVE-2026-3219 \
-            --ignore-vuln CVE-2026-6357
+            --ignore-vuln CVE-2026-6357 \
+            --ignore-vuln PYSEC-2025-183
 
       - name: Legacy token gate (no chiffre_choc)
         working-directory: ${{ github.workspace }}
