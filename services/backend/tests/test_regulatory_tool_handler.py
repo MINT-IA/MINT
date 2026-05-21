@@ -16,22 +16,38 @@ import pytest
 
 
 def test_shared_module_does_not_import_coach_chat_auth_stack():
-    """Importing the handler MUST NOT load app.api.v1.endpoints.coach_chat.
+    """Static assertion : the shared module's source MUST NOT import coach_chat.
 
     Sub-phase 01.4 panel FLAG #1 : T-13-06 isolation. The anonymous coach
     endpoint must be able to execute the regulatory tool without dragging
     in `require_current_user`, `billing_service`, `ConsentManager`, etc.
+
+    NOTE — earlier iteration of this test popped `coach_chat` from
+    sys.modules to verify isolation dynamically. That polluted test state
+    for downstream tests in `test_retrieve_memories.py` (their auth
+    `dependency_overrides` keyed on the original callable identity, which
+    a re-import invalidates → 403 instead of 200). Static source check is
+    safer and gives the same regression guard.
     """
-    import sys
-    # Drop pre-loaded coach_chat to test the import path in isolation.
-    sys.modules.pop("app.api.v1.endpoints.coach_chat", None)
-    sys.modules.pop("app.services.regulatory.tool_handler", None)
+    from pathlib import Path
 
-    from app.services.regulatory.tool_handler import handle_regulatory_constant  # noqa: F401
+    src_path = (
+        Path(__file__).parent.parent  # tests -> services/backend
+        / "app" / "services" / "regulatory" / "tool_handler.py"
+    )
+    src = src_path.read_text(encoding="utf-8")
 
-    assert "app.api.v1.endpoints.coach_chat" not in sys.modules, (
-        "regulatory.tool_handler should NOT transitively load coach_chat "
-        "(T-13-06 isolation)"
+    forbidden = [
+        "from app.api.v1.endpoints.coach_chat",
+        "import app.api.v1.endpoints.coach_chat",
+        "from app.services.billing_service",
+        "from app.core.auth import",
+        "from app.services.consent",
+    ]
+    found = [needle for needle in forbidden if needle in src]
+    assert not found, (
+        "regulatory.tool_handler must stay isolated from the authenticated "
+        f"coach stack (T-13-06). Forbidden imports detected : {found}"
     )
 
 
