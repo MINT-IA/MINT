@@ -1,7 +1,7 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.8
-milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
+milestone: v2.11
+milestone_name: Data Architecture v1 — Trust & Compliance Foundation (active, initiated 2026-05-17 per ADR `2026-05-17-data-architecture-event-log-vs-bitemporal.md`)
 status: executing
 stopped_at: Phase 01.1 walkthrough-first-grounding PLANNED — 3 plans in 3 waves (01.1-01 pre-conditions / 01.1-02 hero-flow YAML design / 01.1-03 execute + observe + Julien G2). Ready for /gsd-execute-phase 01.1. Phase 02-deploy Task 2a CHECKPOINT remains deferred (Julien-gated staging-zero-drift) — orthogonal to Phase 01 audit work.
 last_updated: "2026-05-21T05:28:06.282Z"
@@ -44,7 +44,7 @@ Last activity: 2026-05-21 -- Phase 01.1 planning complete (3 PLAN.md + slim CONT
 - Phase 02-deploy Task 2a CHECKPOINT — Julien-gated staging-zero-drift, unblocks operational cutover (PR-3b/PR-4/PR-5 + Plan 02-04). Independent of Phase 01 audit work.
 - Phase 02 substrate ◆ CODE-SHIPPED ON DEV (4 PRs #653 #657 #656 #655 squash-merged 2026-05-19 ; staging Postgres at p122 head per HANDOFF-2026-05-20 pgvector activation).
 
-**STATE.md milestone-field drift flagged:** frontmatter still says `milestone: v2.8 — L'Oracle & La Boucle SHIPPED 2026-04-25`. Active milestone per ROADMAP is v2.11 Data Architecture v1. Re-set during the next milestone-close-out via `/gsd-complete-milestone` or surface as Phase 01 paperwork.
+**Milestone field synced 2026-05-21** — frontmatter now reflects active milestone v2.11 Data Architecture v1 (ADR `2026-05-17-data-architecture-event-log-vs-bitemporal.md`). Previous v2.8 « L'Oracle & La Boucle SHIPPED 2026-04-25 » is past-milestone closed.
 
 ## Phase 01.1 Planning Receipt (walkthrough-first-grounding, 2026-05-21)
 

@@ -1142,7 +1142,7 @@ The audit infra needs ZERO new test files at the Phase 01 level — every recipe
 |---|-------|---------|---------------|
 | A1 | `apps/mobile/lib/models/coach_profile.dart:96` is NOT the silent-fallback site — that's the enum case-match for `swissNative` | §5.1 P0-1 | If wrong, the sub-phase 01.5 fix targets the wrong line ; Mapper 4 must verify before sub-phase opens |
 | A2 | Plafond 3a LIFD 2025 = 7'258 CHF (salaried) / 36'288 CHF (indépendant) | §1.3 + §1.4 | If staging RAG doesn't serve these constants, P0-4 fails ; verify `get_swiss_constants('pillar3a')` returns them |
-| A3 | `~/Downloads/_to-MINT 4/` design pack path exists | §7.1 | If path doesn't exist or content moved, sub-phase 01.9 needs a different reference ; verify before spawn |
+| A3 | ✓ RESOLVED 2026-05-21 — `~/Downloads/_to-MINT 4/` exists, contains same brand/design content as `_to-MINT 2/` but better-organized for AI agent consumption (Julien confirmation). Prefer `_to-MINT 4/` for sub-phase 01.9 design alignment audit ; `_to-MINT 2/` remains valid fallback. | §7.1 | No remaining risk. |
 | A4 | Fontshare 400i Gambarino license permits App Store republication | §7.3 | Phase 92 success criterion #4 demands Julien sign-off ; verify before bundling |
 | A5 | The TRUE archetype-detection site is in `apps/mobile/lib/providers/coach_profile_provider.dart` or `apps/mobile/lib/services/precision/` | §5.1 | Mapper 4 grep matrix in §3.3 surfaces it definitively |
 | A6 | mint-mobile Sentry project's MINT-MOBILE-1 (watchdog) was NOT cleared by mint-calc-engine-v1 or Phase 02 substrate | §8.4 | Verify via `git log --since="2026-05-10" --all` against memory-affecting symbols |
@@ -1157,7 +1157,7 @@ The audit infra needs ZERO new test files at the Phase 01 level — every recipe
 2. **Mapper 6 timing** : should synthesis run AFTER all 5 parallel finish OR can it kick off as soon as 3+ have landed? Recommendation : strict barrier — Mapper 6 reads ALL 5 outputs to produce a coherent CONCERNS.md v2.
 3. **`tools/eval_narrator.py` extensibility** : verified referenced from `citation_parser.py D-03` but not opened this session. If the harness doesn't accept a corpus directory parameter, sub-phase 01.4 needs a small wrapper. Recommendation : verify in early sub-phase 01.4 work.
 4. **Re-litigation handling** : CONTEXT §11 declares 5 re-litigation triggers. Recommendation : sub-phase 01.10 (Maestro sweep) must end with a verdict on whether ANY of the 5 triggers fired during the audit.
-5. **`_to-MINT 4` design pack location** : memory references `_to-MINT 2` brand HTML found 2026-05-16 (per HANDOFF). Verify whether `_to-MINT 4` exists or it's a typo for the same set. Recommendation : ask Julien before spawning sub-phase 01.9 if path is ambiguous.
+5. ✓ RESOLVED 2026-05-21 — **`_to-MINT 4` design pack location** : Julien confirmed `_to-MINT 4/` = same brand/design content as `_to-MINT 2/`, just better-organized for AI agent consumption. Both paths valid ; `_to-MINT 4/` is the preferred reference for sub-phase 01.9. No further action.
 
 ## Environment Availability
 
