@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
 status: executing
-stopped_at: Phase 02 substrate ◆ CODE-SHIPPED ON DEV (4 PRs #653 #657 #656 #655 squash-merged + PR #658 dev-CI consent-caplog fix in flight). Operational cutover (PR-3b/PR-4/PR-5 + Task 2a + Plan 02-04 Task 1-4) split to new phase mint-data-architecture-v1-02-deploy — see .planning/phases/mint-data-architecture-v1-02-deploy/CONTEXT.md
-last_updated: "2026-05-19T17:00:00.000Z"
-last_activity: 2026-05-19 -- Phase 02 substrate close-out artifacts shipped (VERIFICATION-REPORT.html + SUMMARY.md + STATE/ROADMAP/PROJECT updates + Phase 02-deploy bootstrap). Operational substrate gap discovered (engram obs #233) — staging Postgres at p112 head, prod at 29_05_magic_link_tokens head, neither has fact_event/fact_current tables. Plan 02-03 PR-3b/PR-4/PR-5 + Plan 02-04 autonomous tasks split to Phase 02-deploy.
+stopped_at: Phase 01.1 walkthrough-first-grounding PLANNED — 3 plans in 3 waves (01.1-01 pre-conditions / 01.1-02 hero-flow YAML design / 01.1-03 execute + observe + Julien G2). Ready for /gsd-execute-phase 01.1. Phase 02-deploy Task 2a CHECKPOINT remains deferred (Julien-gated staging-zero-drift) — orthogonal to Phase 01 audit work.
+last_updated: "2026-05-21T05:28:06.282Z"
+last_activity: 2026-05-21 -- Phase 01.1 planning complete
 progress:
-  total_phases: 11
-  completed_phases: 5
-  total_plans: 61
-  completed_plans: 53
+  total_phases: 13
+  completed_phases: 6
+  total_plans: 68
+  completed_plans: 54
   percent: 79
 ---
 
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase mint-data-architecture-v1-02-event-log — projection
+**Current focus:** Phase 01.1 walkthrough-first-grounding (PRE-AUDIT) — ground the production-readiness audit in observed reality before mappers spawn in 01.2. Phase 02-deploy Task 2a CHECKPOINT remains parked (Julien-gated, orthogonal).
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,10 +35,31 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: mint-data-architecture-v1-02-event-log (projection) — EXECUTING (substrate landed on dev)
-Plan: 3 of 4 PARTIAL — Plan 02-03 PR-3a code-only shipped, Plan 02-03 continuation (PR-3b atomic-trio + PR-4 + PR-5) + Plan 02-04 close-out + Task 2a operational gate REMAIN
-Status: Phase 02 substrate (Plans 02-01 + 02-02 + 02-03 partial + QA panel fixes) SQUASH-MERGED to dev as 4 PRs (#653 dc28f974, #657 d8c97dd1, #656 979e45f4, #655 40afcaba) on 2026-05-19
-Last activity: 2026-05-19 -- Phase 02 substrate landed on dev after 5 rounds of CI fixes + local hygiene complete (alembic single-head p119_phase02_parity_cont ✓)
+Phase: 01.1 walkthrough-first-grounding (PRE-AUDIT) — PLANNED, ready to execute
+Plan: 0 of 3 plans executed. Wave 1 (01.1-01 pre-conditions) is the GO/NO-GO gate. Waves 2 + 3 sequential (Wave 3 = Julien G2 observation pass, autonomous: false).
+Status: Ready to execute (`/gsd-execute-phase 01.1`)
+Last activity: 2026-05-21 -- Phase 01.1 planning complete (3 PLAN.md + slim CONTEXT inheriting from parent Phase 01 panel-locked decisions ; commit `569b2a52`)
+
+**Parked / orthogonal:**
+- Phase 02-deploy Task 2a CHECKPOINT — Julien-gated staging-zero-drift, unblocks operational cutover (PR-3b/PR-4/PR-5 + Plan 02-04). Independent of Phase 01 audit work.
+- Phase 02 substrate ◆ CODE-SHIPPED ON DEV (4 PRs #653 #657 #656 #655 squash-merged 2026-05-19 ; staging Postgres at p122 head per HANDOFF-2026-05-20 pgvector activation).
+
+**STATE.md milestone-field drift flagged:** frontmatter still says `milestone: v2.8 — L'Oracle & La Boucle SHIPPED 2026-04-25`. Active milestone per ROADMAP is v2.11 Data Architecture v1. Re-set during the next milestone-close-out via `/gsd-complete-milestone` or surface as Phase 01 paperwork.
+
+## Phase 01.1 Planning Receipt (walkthrough-first-grounding, 2026-05-21)
+
+- **Phase outcome (PLANNED)** : 3 PLAN.md files written in 3 sequential waves on dev branch, no PRs yet (planning artifacts only).
+  - `01.1-01-PLAN.md` (Wave 1, autonomous=true) — 2 tasks producing `01.1-PRECONDITIONS.md` with 8 ✓/✗/HALT verdict blocks (PR #663 mergedAt, staging /health, sim bootable, Maestro CLI, sentry-cli, pgvector ≥100 docs, citation_parser + verb_gate + L1 deployed, plafond 3a constants served from staging).
+  - `01.1-02-PLAN.md` (Wave 2, autonomous=true) — 2 tasks producing `tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml` (3-tier assertion grammar : grounded-values / non-crash / exploratory ; salary 80'000 CHF salaried + swiss_native default ; assertNotVisible LSFin lemmas) + `01.1-DRYRUN-TRACE.md`.
+  - `01.1-03-PLAN.md` (Wave 3, **autonomous=false**, Julien G2 checkpoint) — 4 tasks producing `01.1-OBSERVATIONS.md` (per-finding triage into 11 finding-classes from RESEARCH §16) + `01.1-RELITIGATION-VERDICT.md` (5 sub-phase §9 + 5 parent §11 triggers) + ≥6 PNG screenshots under `screenshots/walkthrough/01.1-hero/`.
+- **Files created/modified : 7 total** — 3 PLAN.md + 01.1-CONTEXT.md + parent 01-RESEARCH.md + parent 01-VALIDATION.md + ROADMAP.md entry.
+- **Gates run :**
+  - **gsd-planner verdict** : PLANNING COMPLETE, 3 plans + 3 waves + REQ-AUDIT-01/-08/-10 all assigned. Commit `569b2a52` on `dev`.
+  - **gsd-plan-checker verdict** : VERIFICATION PASSED, 15/15 dimensions ≥ 7 (goal achievement 9, requirement coverage 10, anti-shallow execution 9, Maestro flow concreteness 9, citation-gate trace 10, wave/dependency 10, Julien G2 10, threat model 9, validation Nyquist 9, re-litigation gate 10, public-repo discipline 9, out-of-scope discipline 10, Wave 0 owner 10, OBSERVATIONS schema 10, must_haves 9). 4 POLISH notes (non-blocking, mid-flight) : banned-term lint lemma awareness, idb fallback messaging, Maestro `--dry-run` flag pre-verification, requirements line in sub-phase CONTEXT (cosmetic).
+- **Commits :** `3a9b6d3d` (RESEARCH + VALIDATION) + `60b9e0db` (ROADMAP Phase 1.1 + slim CONTEXT) + `569b2a52` (3 PLAN.md files) on `dev`.
+- **Duration :** ~25 min orchestration turn (researcher + validation seed + planner + checker, no revision loop needed).
+- **0-Trust §9 honesty :** Phase 01.1 is PLANNED, not executed. Per CLAUDE.md §9.5 4-stage shipping pipeline, this is **Stage 0 of 4** (not even « code-shipped ») — the audit's grounded findings only materialize when Plan 01.1-03 executes on a real sim against staging with Julien G2 sign-off. NO claim « ready / works / shipped » applies until then.
+- **USER VALUE DELIVERED :** 0 direct end-user-visible change. Audit-grounding scaffolding ready ; the real value arrives at Plan 01.1-03 completion (observed blockers documented with deterministic citation, escalation rows routing into 01.2 → 01.10 sub-phases).
 
 ## Plan mint-data-architecture-v1-02-event-log-03 Receipt (PARTIAL — Task 0 + PR-1 + PR-2 + iter-2 A10/B14/B18 + PR-3a code, 2026-05-18)
 
