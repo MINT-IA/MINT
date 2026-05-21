@@ -32,6 +32,41 @@ class TestDiscoveryPromptCompliance:
             "numbers as « ordre de grandeur »."
         )
 
+    def test_ordre_de_grandeur_excludes_legal_sourced_values(self) -> None:
+        """Sub-phase 01.4 polish — registry-sourced values (OPP3 art. 7, LIFD,
+        LPP, LAVS, LFLP) must NOT be qualified as « ordre de grandeur ».
+
+        Per Julien 2026-05-21 : a value pulled from the regulatory registry
+        with a legal source is an exact verbatim citation, not an estimate.
+        The « ordre de grandeur » qualifier applies only when the value is
+        neither in the user message nor sourced from a cited legal text.
+        """
+        prompt = build_discovery_system_prompt()
+        assert "ni d'une source légale" in prompt, (
+            "Sub-phase 01.4 polish: « ordre de grandeur » rule must exclude "
+            "registry-sourced legal values from its scope."
+        )
+
+    def test_legal_source_verbatim_citation_rule_present(self) -> None:
+        """Sub-phase 01.4 polish — when the LLM cites a Swiss regulatory
+        value with a legal source, it must integrate the legal reference
+        verbatim (« OPP3 art. 7 », « LIFD art. 33 ») in the same sentence.
+
+        This closes the citation-chip-not-rendered NIT carried from
+        sub-phase 01.1 (Maestro hero flow regex
+        `(OPP3|art.7|art.38|LIFD)` against the bubble text).
+        """
+        prompt = build_discovery_system_prompt()
+        assert "reproduis la valeur exactement" in prompt, (
+            "Sub-phase 01.4 polish: discovery prompt must instruct the LLM "
+            "to reproduce registry-sourced values verbatim."
+        )
+        assert "intègre la référence légale verbatim" in prompt, (
+            "Sub-phase 01.4 polish: discovery prompt must instruct the LLM "
+            "to integrate the legal reference in the same sentence as the "
+            "cited value (OPP3 / LIFD / LPP / LAVS / LFLP)."
+        )
+
     def test_user_message_anchor_rule_present(self) -> None:
         prompt = build_discovery_system_prompt()
         assert "utilise ce chiffre comme ancre" in prompt, (
