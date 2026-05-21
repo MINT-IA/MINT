@@ -224,9 +224,21 @@ class _NoRagOrchestrator:
         executed_tool_names: list[str] = []
 
         if tool_use_blocks:
-            # Import the canonical handler so anonymous + authenticated paths
-            # share one source of truth for tool execution (Karpathy #3 surgical).
-            from app.api.v1.endpoints.coach_chat import _handle_regulatory_constant
+            # Sub-phase 01.4 panel FLAG #1 — import from shared module (NOT
+            # coach_chat) so the anonymous path keeps T-13-06 isolation from
+            # the authenticated auth/billing/consent stack.
+            from app.services.regulatory.tool_handler import (
+                handle_regulatory_constant,
+            )
+            # Sub-phase 01.4 panel FLAG #3 — observability for tool fire.
+            from app.observability.coach_breadcrumbs import (
+                emit_coach_tool_breadcrumb,
+            )
+            import hashlib as _hashlib
+            import json as _json
+            import time as _time
+
+            _t0 = _time.monotonic()
 
             # Build the assistant turn carrying the original content blocks so
             # Anthropic understands the conversation state.
@@ -247,8 +259,26 @@ class _NoRagOrchestrator:
             tool_result_content: list[dict] = []
             for b in tool_use_blocks:
                 if b.name == "get_regulatory_constant":
-                    result_str = _handle_regulatory_constant(b.input or {})
+                    tool_input_dict = b.input or {}
+                    result_str = handle_regulatory_constant(tool_input_dict)
                     executed_tool_names.append("get_regulatory_constant")
+                    # Sub-phase 01.4 panel FLAG #3 — Sentry breadcrumb so prod
+                    # can verify the fix is actually firing. Payload is non-PII
+                    # by construction (SHA-256 hash of input dict).
+                    try:  # pragma: no cover — telemetry-only
+                        _inputs_hash = _hashlib.sha256(
+                            _json.dumps(tool_input_dict, sort_keys=True).encode()
+                        ).hexdigest()
+                        emit_coach_tool_breadcrumb(
+                            tool_name="regulatory_constant",
+                            inputs_hash=_inputs_hash,
+                            profile_id_hashed="anonymous",
+                            elapsed_ms=int((_time.monotonic() - _t0) * 1000),
+                            flag_state="on",
+                            extra_tags={"path": "anonymous"},
+                        )
+                    except Exception:
+                        pass  # fail-open per coach_breadcrumbs.py contract
                 else:
                     # Unknown tool — return error so the LLM doesn't pretend it ran.
                     result_str = f"Erreur : outil '{b.name}' non disponible en mode anonyme."

@@ -136,8 +136,10 @@ async def test_tool_use_triggers_second_call_with_tool_result():
         instance.messages.create = AsyncMock(side_effect=responses)
 
         # Patch the tool executor so the test doesn't need a real registry.
+        # 2026-05-21 panel FLAG #1 — handler now lives in the shared module
+        # (app.services.regulatory.tool_handler) for T-13-06 isolation.
         with patch(
-            "app.api.v1.endpoints.coach_chat._handle_regulatory_constant",
+            "app.services.regulatory.tool_handler.handle_regulatory_constant",
             return_value="pillar3a.max_with_lpp = 7258 CHF\nSource : OPP3 art. 7",
         ) as mock_handler:
             result = await orchestrator.query(
