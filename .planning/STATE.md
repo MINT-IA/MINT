@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.11
-milestone_name: Data Architecture v1 — Trust & Compliance Foundation (active, initiated 2026-05-17 per ADR `2026-05-17-data-architecture-event-log-vs-bitemporal.md`)
+milestone: v2.8
+milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
 status: executing
-stopped_at: Phase 01.1 walkthrough-first-grounding PLANNED — 3 plans in 3 waves (01.1-01 pre-conditions / 01.1-02 hero-flow YAML design / 01.1-03 execute + observe + Julien G2). Ready for /gsd-execute-phase 01.1. Phase 02-deploy Task 2a CHECKPOINT remains deferred (Julien-gated staging-zero-drift) — orthogonal to Phase 01 audit work.
-last_updated: "2026-05-21T05:28:06.282Z"
-last_activity: 2026-05-21 -- Phase 01.1 planning complete
+stopped_at: Completed 01.1-02-PLAN.md (Wave 2 hero-flow YAML + dry-run trace GREEN, commit 016afb09). Plan 01.1-03 unblocked (Wave 3, autonomous=false, Julien G2 next).
+last_updated: "2026-05-21T05:49:51.057Z"
+last_activity: 2026-05-21
 progress:
   total_phases: 13
   completed_phases: 6
   total_plans: 68
-  completed_plans: 54
-  percent: 79
+  completed_plans: 55
+  percent: 81
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -36,11 +36,12 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 ## Current Position
 
 Phase: 01.1 walkthrough-first-grounding (PRE-AUDIT) — PLANNED, ready to execute
-Plan: 0 of 3 plans executed. Wave 1 (01.1-01 pre-conditions) is the GO/NO-GO gate. Waves 2 + 3 sequential (Wave 3 = Julien G2 observation pass, autonomous: false).
-Status: Ready to execute (`/gsd-execute-phase 01.1`)
-Last activity: 2026-05-21 -- Phase 01.1 planning complete (3 PLAN.md + slim CONTEXT inheriting from parent Phase 01 panel-locked decisions ; commit `569b2a52`)
+Plan: 1 of 3 plans executed. Wave 1 (01.1-01 pre-conditions) is the GO/NO-GO gate. Waves 2 + 3 sequential (Wave 3 = Julien G2 observation pass, autonomous: false).
+Status: Ready to execute
+Last activity: 2026-05-21
 
 **Parked / orthogonal:**
+
 - Phase 02-deploy Task 2a CHECKPOINT — Julien-gated staging-zero-drift, unblocks operational cutover (PR-3b/PR-4/PR-5 + Plan 02-04). Independent of Phase 01 audit work.
 - Phase 02 substrate ◆ CODE-SHIPPED ON DEV (4 PRs #653 #657 #656 #655 squash-merged 2026-05-19 ; staging Postgres at p122 head per HANDOFF-2026-05-20 pgvector activation).
 
@@ -670,8 +671,8 @@ Progress: [████░░░░░░] 40% (2/7 phases counting this Wave 2 
 
 ## Session Continuity
 
-Last session: 2026-05-18T20:57:18.354Z
-Stopped at: Plan 02-03 PARTIAL — 7 commits, 21 files, Task 2a CHECKPOINT next (Julien-gated staging-zero-drift)
+Last session: 2026-05-21T05:49:51.052Z
+Stopped at: Completed 01.1-02-PLAN.md (Wave 2 hero-flow YAML + dry-run trace GREEN, commit 016afb09). Plan 01.1-03 unblocked (Wave 3, autonomous=false, Julien G2 next).
 Resume file: None
 
 <details>

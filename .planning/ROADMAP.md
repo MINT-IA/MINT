@@ -465,7 +465,7 @@ Sub-phases (per CONTEXT §8) :
 
 Plans:
 - [ ] 01.1-01-PLAN.md — Pre-condition verification (PR #663 merge + staging /health + sim bootable + Maestro CLI + sentry-cli + pgvector ≥ 100 docs + citation_parser deployed + plafond 3a constants served) → `01.1-PRECONDITIONS.md` with 8 ✓/✗/HALT verdict blocks
-- [ ] 01.1-02-PLAN.md — Hero-flow Maestro YAML design + dry-run on sim (no live staging) → `tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml` + `01.1-DRYRUN-TRACE.md`
+- [x] 01.1-02-PLAN.md — Hero-flow Maestro YAML design + dry-run on sim (no live staging) → `tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml` + `01.1-DRYRUN-TRACE.md`
 - [ ] 01.1-03-PLAN.md — Execute hero flow on staging + 11-class finding triage + 10-trigger re-litigation verdict + Julien G2 observation pass (autonomous: false) → `01.1-OBSERVATIONS.md` + `01.1-RELITIGATION-VERDICT.md` + `screenshots/walkthrough/01.1-hero/`
 
 **T-shirt:** M (CONTEXT §8 row 01.1) — single-flow Maestro design + execution + observation write-up. ~1-2 day.
