@@ -459,12 +459,14 @@ Sub-phases (per CONTEXT §8) :
 
 ### Phase 1.1: Walkthrough-first grounding — Maestro sweep on staging post-icon-merge + Julien observations
 **Goal**: Run the onboarding → first-insight hero flow (marge fiscale 3a annuelle) end-to-end on a booted iPhone 17 Pro sim against Railway staging (post-PR #663 icon merge). Capture observed blockers via Maestro flow + idb ui describe-all + Julien observations. Output a `01.1-OBSERVATIONS.md` that grounds the rest of the audit in reality, NOT abstract grep. This is the **PRE-AUDIT** per CONTEXT §8 row 01.1 — verifies the bar (CONTEXT §1 Q-02 « ≥1 cited number within 3 turns ») is reachable on a real device before the architecture/coach-runtime/i18n sub-phases spend effort on assumed code shapes.
-**Requirements**: TBD — REQ-AUDIT-01 (hero flow reachable) + REQ-AUDIT-08 (Maestro 2-archetype sweep, swiss_native first) + REQ-AUDIT-10 (Maestro hero-flow assertion grammar). Derive in PLAN.md.
+**Requirements**: REQ-AUDIT-01 (hero flow reachable end-to-end on staging post-icon-merge), REQ-AUDIT-08 (Maestro 3-tier assertion grammar — grounded-values / non-crash / exploratory), REQ-AUDIT-10 (Maestro 2-archetype sweep — swiss_native first, swiss_native_couple deferred to 01.10)
 **Depends on:** Phase 1 (CONTEXT locked) ; PR #663 (icon menthe) merged + staging auto-deploy succeeded ; sim iPhone 17 Pro bootable ; Maestro CLI available at `~/.maestro/bin/maestro` ; `~/.sentryclirc` authenticated.
-**Plans:** TBD (run `/gsd-plan-phase 01.1` to break down)
+**Plans:** 3 plans (W1: 1 pre-conditions, W2: 1 hero-flow design + dry-run, W3: 1 execute + observe + Julien G2)
 
 Plans:
-- [ ] TBD
+- [ ] 01.1-01-PLAN.md — Pre-condition verification (PR #663 merge + staging /health + sim bootable + Maestro CLI + sentry-cli + pgvector ≥ 100 docs + citation_parser deployed + plafond 3a constants served) → `01.1-PRECONDITIONS.md` with 8 ✓/✗/HALT verdict blocks
+- [ ] 01.1-02-PLAN.md — Hero-flow Maestro YAML design + dry-run on sim (no live staging) → `tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml` + `01.1-DRYRUN-TRACE.md`
+- [ ] 01.1-03-PLAN.md — Execute hero flow on staging + 11-class finding triage + 10-trigger re-litigation verdict + Julien G2 observation pass (autonomous: false) → `01.1-OBSERVATIONS.md` + `01.1-RELITIGATION-VERDICT.md` + `screenshots/walkthrough/01.1-hero/`
 
 **T-shirt:** M (CONTEXT §8 row 01.1) — single-flow Maestro design + execution + observation write-up. ~1-2 day.
 
@@ -476,4 +478,4 @@ Plans:
 - `tools/simulator/walker.sh` — sim driver
 
 ---
-*Last updated: 2026-05-21 — Phase 01 audit-meta opened with panel-synthesized CONTEXT/RESEARCH/VALIDATION ; Phase 01.1 walkthrough-first-grounding inserted as first executable sub-phase per CONTEXT §8 + §12 directive. Previous: 2026-05-10 — Phase 91 MVP-EXTRACTOR-V2 closed (verified, 6/7 plans, Stage 3 narrator decision = SONNET kill-policy fallback). v2.9 Chat-as-Verb Pivot ACTIVE with 9 phases (90, 91, 91.5, 92, 92.5, 93, 93.5, 94, 95, 96) + backlog 999.x.*
+*Last updated: 2026-05-21 — Phase 01.1 walkthrough-first-grounding PLANNED (3 plans, W1→W2→W3, Wave 3 autonomous:false with Julien G2 checkpoint ; REQ-AUDIT-01/08/10 locked). Previous: 2026-05-21 — Phase 01 audit-meta opened with panel-synthesized CONTEXT/RESEARCH/VALIDATION ; Phase 01.1 inserted as first executable sub-phase per CONTEXT §8 + §12 directive.*
