@@ -160,38 +160,145 @@ class _NoRagOrchestrator:
         model: Optional[str] = None,
         language: str = "fr",
     ) -> dict:
-        from app.services.rag.llm_client import LLMClient
+        # Sub-phase 01.4 fix (F-01.1-06) — anonymous coach must invoke the
+        # regulatory registry tool instead of citing training-data plafonds.
+        # Authentication path already wires this via coach_chat.py:88+186.
+        # Defense-in-depth couches A+B+C+D per .planning/phases/01.4-coach-runtime-stale-data/01.4-AUDIT.md
         from app.services.rag.guardrails import ComplianceGuardrails
+        from app.services.coach.coach_tools import get_llm_tools
 
-        llm_client = LLMClient(provider=provider, api_key=api_key, model=model)
         guardrails = ComplianceGuardrails()
 
-        raw_response = await llm_client.generate(
-            system_prompt=system_prompt,
-            user_message=question,
-            context_chunks=[],
-            tools=None,
+        # Couche A — pass get_regulatory_constant tool definition only (anonymous = no profile)
+        all_tools = get_llm_tools()
+        anon_tools = [t for t in all_tools if t.get("name") == "get_regulatory_constant"]
+
+        # Couche C — finance-keyword detector tightens tool_choice from auto to forced
+        # Use word boundaries; lowercase the question for case-insensitive matching.
+        _FINANCE_KW = re.compile(
+            r"\b(3a|3eme|3ème|3e\s*pilier|lpp|avs|plafond|rente|cotisation|fiscal|imp[oô]t|fortune|salaire|taux|d[ée]duction|barreme|bareme|barème)\b",
+            re.IGNORECASE,
+        )
+        force_tool = bool(_FINANCE_KW.search(question))
+
+        # Direct Anthropic SDK call (LLMClient.generate doesn't support
+        # multi-block content for tool_result — see llm_client.py:196-198).
+        # Anonymous path has no conversation_history beyond the single user
+        # message, so a thin direct call is the simplest surgical path.
+        try:
+            from anthropic import AsyncAnthropic
+        except ImportError as exc:
+            raise RuntimeError(
+                "anthropic package missing — install via pip install -e '.[rag]'"
+            ) from exc
+
+        resolved_model = model or "claude-sonnet-4-5-20250929"
+        client = AsyncAnthropic(api_key=api_key, timeout=60.0)
+
+        messages: list[dict] = [{"role": "user", "content": question}]
+        tool_choice: dict = (
+            {"type": "tool", "name": "get_regulatory_constant"}
+            if force_tool
+            else {"type": "auto"}
         )
 
-        if isinstance(raw_response, dict):
-            response_text = raw_response.get("text", "")
-            actual_usage_tokens = raw_response.get("usage_tokens")
-        else:
-            response_text = raw_response
-
-        filtered = guardrails.filter_response(response_text, language)
-        tokens_used = (
-            actual_usage_tokens
-            if isinstance(raw_response, dict) and raw_response.get("usage_tokens") is not None
-            else len(question) // 4
+        # First LLM turn — may emit text + tool_use blocks.
+        first = await client.messages.create(
+            model=resolved_model,
+            max_tokens=600,
+            system=system_prompt,
+            messages=messages,
+            tools=anon_tools,
+            tool_choice=tool_choice,
         )
 
-        return {
+        tokens_first = (first.usage.input_tokens + first.usage.output_tokens) if first.usage else 0
+        tool_use_blocks = [b for b in first.content if getattr(b, "type", None) == "tool_use"]
+        text_blocks_first = [b.text for b in first.content if getattr(b, "type", None) == "text"]
+
+        # Couche B — 1-iteration tool-use agent loop. If LLM invoked the tool,
+        # execute it locally and feed the result back so the LLM can produce
+        # final user-facing text grounded on the registry value.
+        final_text = "\n".join(text_blocks_first)
+        tokens_total = tokens_first
+        executed_tool_names: list[str] = []
+
+        if tool_use_blocks:
+            # Import the canonical handler so anonymous + authenticated paths
+            # share one source of truth for tool execution (Karpathy #3 surgical).
+            from app.api.v1.endpoints.coach_chat import _handle_regulatory_constant
+
+            # Build the assistant turn carrying the original content blocks so
+            # Anthropic understands the conversation state.
+            assistant_content: list[dict] = []
+            for b in first.content:
+                btype = getattr(b, "type", None)
+                if btype == "text":
+                    assistant_content.append({"type": "text", "text": b.text})
+                elif btype == "tool_use":
+                    assistant_content.append({
+                        "type": "tool_use",
+                        "id": b.id,
+                        "name": b.name,
+                        "input": b.input,
+                    })
+
+            # Execute each tool_use and build the user turn carrying tool_result blocks.
+            tool_result_content: list[dict] = []
+            for b in tool_use_blocks:
+                if b.name == "get_regulatory_constant":
+                    result_str = _handle_regulatory_constant(b.input or {})
+                    executed_tool_names.append("get_regulatory_constant")
+                else:
+                    # Unknown tool — return error so the LLM doesn't pretend it ran.
+                    result_str = f"Erreur : outil '{b.name}' non disponible en mode anonyme."
+                tool_result_content.append({
+                    "type": "tool_result",
+                    "tool_use_id": b.id,
+                    "content": result_str,
+                })
+
+            messages_followup = [
+                *messages,
+                {"role": "assistant", "content": assistant_content},
+                {"role": "user", "content": tool_result_content},
+            ]
+
+            second = await client.messages.create(
+                model=resolved_model,
+                max_tokens=600,
+                system=system_prompt,
+                messages=messages_followup,
+                tools=anon_tools,
+                # Second pass = LLM should now answer with grounded text.
+                # Don't re-force the tool (already executed), let it narrate.
+                tool_choice={"type": "auto"},
+            )
+            tokens_total += (second.usage.input_tokens + second.usage.output_tokens) if second.usage else 0
+
+            second_text = "\n".join(
+                b.text for b in second.content if getattr(b, "type", None) == "text"
+            )
+            if second_text.strip():
+                final_text = second_text
+
+        # Compliance filter (banned-term sanitization, accent normalization,
+        # disclaimer injection). Same gate as before but applied to the
+        # grounded text from the tool-use loop.
+        filtered = guardrails.filter_response(final_text, language)
+
+        tokens_used = tokens_total if tokens_total > 0 else len(question) // 4
+
+        result: dict = {
             "answer": filtered["text"],
             "sources": [],
             "disclaimers": filtered["disclaimers_added"],
             "tokens_used": tokens_used,
         }
+        if executed_tool_names:
+            # Surface tool-use trace for Sentry breadcrumbs + 01.4 verification.
+            result["tool_calls"] = [{"name": n} for n in executed_tool_names]
+        return result
 
 
 # ---------------------------------------------------------------------------
