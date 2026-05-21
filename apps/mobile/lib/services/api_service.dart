@@ -118,6 +118,15 @@ class ApiService {
       if (kReleaseMode) 'https://mint-staging.up.railway.app/api/v1',
       if (kReleaseMode) 'https://mint-api.up.railway.app/api/v1',
       if (!kReleaseMode) 'http://localhost:8888/api/v1',
+      // 2026-05-21 sub-phase 01.1 P0 fix (F-01.1-01) — debug builds fall
+      // back to staging when localhost is unreachable. Without this,
+      // `flutter build ios --debug --simulator` without --dart-define=API_BASE_URL
+      // silently pins baseUrl to localhost ; if no backend is running, the
+      // coach surfaces « Erreur de connexion. Vérifie ta clé API. » as
+      // brand-defining first-contact failure. Per memory
+      // `feedback_app_targets_staging_always` (« sim/walker MUST hit Railway
+      // staging »), this fallback enforces the rule mechanically.
+      if (!kReleaseMode) 'https://mint-staging.up.railway.app/api/v1',
     ];
     final normalized = <String>[];
     for (final raw in candidates) {
@@ -130,6 +139,13 @@ class ApiService {
   static String _activeBaseUrl = _baseUrlCandidates.first;
 
   static String get baseUrl => _activeBaseUrl;
+
+  /// Read-only candidate list. Exposed for tests that verify ordering
+  /// (e.g. sub-phase 01.1 P0 fix — debug fallback to staging). Production
+  /// code MUST go through `baseUrl` instead.
+  @visibleForTesting
+  static List<String> get baseUrlCandidatesForTest =>
+      List.unmodifiable(_baseUrlCandidates);
 
   static String _normalizeBaseUrl(String raw) {
     var value = raw.trim();
@@ -161,8 +177,13 @@ class ApiService {
   /// ~6s. If no candidate responds, the app falls back to the
   /// hard-coded default URL (no functional regression).
   static Future<void> ensureReachableBaseUrl() async {
-    // In tests/dev without explicit API_BASE_URL, avoid network probing.
-    if (!kReleaseMode && _definedApiBaseUrl.isEmpty) {
+    // 2026-05-21 sub-phase 01.1 P0 fix (F-01.1-01) — probe candidates whenever
+    // we have ≥2 entries so the debug staging fallback (added in
+    // `_baseUrlCandidates`) actually kicks in if localhost is dead. Original
+    // early-return existed to avoid 2× 700ms probe latency in pure-dev with
+    // a single localhost candidate ; we preserve that for the single-candidate
+    // edge case only (tests w/ stub HTTP, exotic build configs).
+    if (_baseUrlCandidates.length <= 1) {
       return;
     }
 

@@ -3596,57 +3596,13 @@ def _format_couple_optimization(ctx: dict) -> str:
 def _handle_regulatory_constant(tool_input: dict) -> str:
     """Look up a Swiss financial regulatory constant from the registry.
 
-    This is an internal tool — results are injected into the LLM context
-    so the coach can cite exact legal values in its responses.
+    Delegates to the shared `app.services.regulatory.tool_handler` module
+    (lifted 2026-05-21 from sub-phase 01.4 panel-review High #1 — anonymous
+    coach path must not import this endpoint to preserve T-13-06 isolation).
     """
-    from app.services.regulatory.registry import RegulatoryRegistry
+    from app.services.regulatory.tool_handler import handle_regulatory_constant
 
-    key = tool_input.get("key", "")
-    canton = tool_input.get("canton", "")
-
-    if not key:
-        return "Erreur : clé manquante. Fournis un key comme 'pillar3a.max_with_lpp'."
-
-    registry = RegulatoryRegistry.instance()
-
-    # For cantonal capital tax, auto-build the key if canton is provided separately
-    jurisdiction = "CH"
-    if canton:
-        canton_upper = canton.upper()
-        # If key is generic like "capital_tax.cantonal" and canton is separate
-        if not key.endswith(f".{canton_upper}"):
-            cantonal_key = f"capital_tax.cantonal.{canton_upper}"
-            param = registry.get(cantonal_key, jurisdiction=canton_upper)
-            if param:
-                return (
-                    f"{param.key} = {param.value} {param.unit}\n"
-                    f"Source : {param.source_title}\n"
-                    f"Description : {param.description}\n"
-                    f"En vigueur depuis : {param.effective_from.isoformat()}"
-                )
-        jurisdiction = canton_upper
-
-    param = registry.get(key, jurisdiction=jurisdiction)
-    if param is None:
-        # Try CH jurisdiction as fallback
-        if jurisdiction != "CH":
-            param = registry.get(key, jurisdiction="CH")
-
-    if param is None:
-        available = registry.keys()
-        # Find close matches for suggestions
-        suggestions = [k for k in available if key.split(".")[0] in k][:5]
-        msg = f"Constante '{key}' non trouvée."
-        if suggestions:
-            msg += f" Suggestions : {', '.join(suggestions)}"
-        return msg
-
-    return (
-        f"{param.key} = {param.value} {param.unit}\n"
-        f"Source : {param.source_title}\n"
-        f"Description : {param.description}\n"
-        f"En vigueur depuis : {param.effective_from.isoformat()}"
-    )
+    return handle_regulatory_constant(tool_input)
 
 
 async def _run_agent_loop(
