@@ -1,0 +1,246 @@
+# tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Phase 01.1 hero flow — the parent CONTEXT §1 bar measurement vehicle.
+#
+# Asserts : onboarding (swiss_native default, salary 80'000 CHF salaried)
+# → bottom-nav « Coach » tab → composer « Dis-moi. » → ask « Combien je
+# peux mettre sur mon 3a cette annee ? » → coach emits the salaried
+# plafond 3a 2025 CHF figure (7'258 — per OPP3 art. 7 al. 1, staging
+# /api/v1/regulatory/constants/snapshot.pillar3a.max_with_lpp) with a
+# citation chip (OPP3 art. 7 OR LIFD art. 38) within 3 turns ; no LSFin
+# banned-term ; no app crash.
+#
+# Tier-1 (grounded-values) : assertVisible CHF figure 7258 +
+#                            citation chip (OPP3 art. 7 OR LIFD art. 38).
+# Tier-2 (non-crash)       : composer / Coach tab visible at each gate.
+# Tier-3 (exploratory)     : takeScreenshot at each gate for audit.
+#
+# Negative assertions :
+#   assertNotVisible LSFin banned-term lemmas (garanti / optimal /
+#   meilleur / sans risque / parfait / assure / certain) — anywhere
+#   on the coach reply surface at evaluation time.
+#
+# ─── ARCHETYPE SCOPE ──────────────────────────────────────────────────
+# Authenticated coach surface (NOT anonymous — citation gate IS wired
+# on the auth path per coach_chat.py D-11 wrapper). Default archetype
+# swiss_native per Phase 01.1 CONTEXT §1. swiss_native_couple deferred
+# to sub-phase 01.10.
+#
+# ─── EXPECTED DURATION ────────────────────────────────────────────────
+# ~3-5 min wall-clock (cold launch + onboarding wizard + 1 coach
+# turn LLM round-trip + assertions).
+#
+# ─── PRE-CONDITION ────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app.
+# - Backend = Railway staging mint-staging.up.railway.app per memory
+#   feedback_app_targets_staging_always.md ; NEVER local backend.
+# - Plan 01.1-01 PRECONDITIONS.md overall_verdict = GO (8/8 checks ✓,
+#   see .planning/phases/01.1-walkthrough-first-grounding/01.1-PRECONDITIONS.md).
+# - Staging health endpoint = /api/v1/health (NOT /health — Wave 1
+#   path correction). Staging OpenAPI = /api/v1/openapi.json.
+#
+# ─── REFERENCES ───────────────────────────────────────────────────────
+# Structure diff'd line-by-line against the Phase 94 G1 precedent
+# flow_narrator_refuses_uncited_numbers.yaml per memory
+# feedback_diff_against_existing_tool.md.
+#
+# Selector source-of-truth (per threat-model T-01.1-02-04 mitigation) :
+#   - « Je comprends, on y va »   → app_fr.arb:12221 betaDisclosureCta
+#   - « Parle à Mint »            → app_fr.arb:11392 landingV2CtaSober
+#   - « Coach » (bottom-nav tab)  → app_fr.arb:4154 tabCoach
+#   - « Dis-moi. » (auth coach composer hint) → app_fr.arb:3991 coachInputHint
+#   - « Suivant » (wizard)        → app_fr.arb:2456 wizardNext
+#   - « Continuer » (precision)   → app_fr.arb:2677 precisionPromptContinuer
+#   - « Commencer »               → app_fr.arb:2518 landingCtaCommencer
+#   - « Démarrer mon diagnostic » → app_fr.arb:9 startDiagnostic
+#
+# Plafond 3a CHF source-of-truth :
+#   - 7258 CHF salaried (pillar3a.max_with_lpp, OPP3 art. 7 al. 1,
+#     taxYear 2025) — confirmed staging Check 8 of 01.1-PRECONDITIONS.md.
+#   - 36'288 CHF independent (pillar3a.max_without_lpp, OPP3 art. 7 al. 2)
+#     NOT asserted here — the input archetype is salaried.
+
+appId: ch.mint.app
+tags:
+  - phase-01.1
+  - hero-flow
+  - marge-fiscale-3a
+  - opp3-art-7
+  - lifd-art-38
+  - audit-grounding
+  - gate-g1
+---
+
+# 01 — cold launch + landing (clearState=true forces a fresh state per
+# memory feedback_sim_crash_mitigation : reboot/clean before each sweep).
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: ".*(Commencer|Continuer|Parle à Mint|Démarrer).*"
+    timeout: 15000
+- takeScreenshot: "01.1-hero-01-landing"
+
+# 02 — onboarding entry : tap the most common landing CTA seen on
+# v2.8/v2.10 builds (« Commencer » or « Démarrer mon diagnostic »).
+# If neither is visible, the conditional runFlow no-ops and the next
+# gate falls through to the home shell (re-entrant flow shape).
+- runFlow:
+    when:
+      visible: ".*(Commencer|Démarrer mon diagnostic|Démarrer).*"
+    commands:
+      - tapOn:
+          text: ".*(Commencer|Démarrer mon diagnostic|Démarrer).*"
+      - waitForAnimationToEnd
+
+# 03 — onboarding salary input (single-input, swiss_native default).
+# Triggered ONLY if the wizard surfaces a salary field at this gate.
+# The selector is a regex over the visible field label ; if the wizard
+# uses a numeric pad with no label, this no-ops and Plan 01.1-03 will
+# capture the actual onboarding-screen state via idb describe-all.
+- runFlow:
+    when:
+      visible: ".*(salaire|revenu annuel|revenu brut|salaire brut).*"
+    commands:
+      - tapOn:
+          text: ".*(salaire|revenu annuel|revenu brut|salaire brut).*"
+      - inputText: "80000"
+      - hideKeyboard
+- takeScreenshot: "01.1-hero-02-onboarding-salary"
+
+# 04 — continue through the wizard until home is reached. Maestro
+# re-evaluates `visible:` on each repeat iteration so this is a bounded
+# scan, NOT a busy-loop (5 iterations × ~1s = ~5s budget).
+- repeat:
+    times: 5
+    commands:
+      - runFlow:
+          when:
+            visible: ".*(Suivant|Continuer|Terminer).*"
+          commands:
+            - tapOn:
+                text: ".*(Suivant|Continuer|Terminer).*"
+            - waitForAnimationToEnd
+- takeScreenshot: "01.1-hero-03-home-reached"
+
+# 05 — open « Coach » bottom-nav tab (authenticated coach surface —
+# citation gate wired here per coach_chat.py D-11 wrapper).
+# Note : the tab label is the literal « Coach » per app_fr.arb:4154
+# tabCoach — NOT « Mon coach » as the planner template assumed.
+# Selector is permissive (regex) to tolerate icon-only / icon+label
+# rendering variants.
+- extendedWaitUntil:
+    visible:
+      text: ".*\\bCoach\\b.*"
+    timeout: 10000
+- tapOn:
+    text: ".*\\bCoach\\b.*"
+- extendedWaitUntil:
+    visible:
+      text: ".*(Dis-moi|Tape ton message|Pose|Demande|Écris).*"
+    timeout: 10000
+- takeScreenshot: "01.1-hero-04-coach-composer"
+
+# 06 — turn 1 : the hero question.
+# Literal phrasing per threat-model T-01.1-02-02 — LSFin-neutral :
+# « Combien je peux mettre sur mon 3a cette annee ? ». NEVER « meilleur
+# 3a » or « 3a garanti ». « annee » without accent because Maestro
+# inputText accent rendering varies across sim/build matrix ; the coach
+# NLU normalises both forms.
+- tapOn:
+    text: ".*(Dis-moi|Tape ton message|Pose|Demande|Écris).*"
+- inputText: "Combien je peux mettre sur mon 3a cette annee ?"
+- pressKey: Enter
+- takeScreenshot: "01.1-hero-05-message-typed"
+
+# 07 — wait for user-message bubble to render (confirms send fired).
+# Anchors on the question echo before checking for the response — guards
+# against false-positive matches on residual chat history.
+- extendedWaitUntil:
+    visible:
+      text: ".*(3a|pilier).*"
+    timeout: 8000
+
+# 08 — wait for the coach response stream complete. Budget = 60s
+# single round-trip (citation gate adds ~5s per memory project obs).
+# The anchor matches EITHER citation surface : OPP3 art. 7 (the staging
+# canonical, per PRECONDITIONS Check 8 sourceTitle) OR LIFD art. 38
+# (the RESEARCH §1.4 planner-assumed surface — both are legitimate
+# Swiss-3a citations and the coach may render either).
+- extendedWaitUntil:
+    visible:
+      text: ".*(OPP3|art\\.?\\s*7|art\\.?\\s*38|LIFD).*"
+    timeout: 60000
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: "01.1-hero-06-coach-response"
+
+# 09 — Tier-1 grounded-values assertion : the salaried plafond 3a 2025
+# CHF figure. Regex covers all 3 thousands-separator variants per
+# LIFD/OPP3 doc conventions :
+#   « 7258 » (no separator, Maestro inputText rendering)
+#   « 7'258 » (Swiss apostrophe — canonical UI rendering)
+#   « 7 258 » (narrow no-break space — French typography)
+- assertVisible:
+    text: "(7['\\s ]?258)"
+
+# 10 — Tier-1 grounded-values assertion : citation chip presence.
+# Either source (OPP3 art. 7 al. 1 OR LIFD art. 38) satisfies the gate
+# — the bar is « cited number », not « cited from a specific source ».
+- assertVisible:
+    text: "(OPP3|art\\.?\\s*7|art\\.?\\s*38|LIFD)"
+
+# 11 — negative assertion : NO LSFin banned-term anywhere on the visible
+# coach surface at evaluation time. Lemma list mirrors the canonical
+# vocabulary from tools/checks/banned_terms_python.py (top-3 critical
+# + 4 extended). Maestro evaluates `assertNotVisible` against the
+# CURRENT view hierarchy — Tier-3 takeScreenshot at step 08 captured
+# the surface state moments before this assertion.
+- assertNotVisible:
+    text: "(garanti|optimal|meilleur|sans risque|parfait|assuré|certain)"
+
+# 12 — Tier-2 non-crash : main shell still visible. The Coach tab
+# label remains rendered if the app didn't crash to SpringBoard /
+# white-screen during the coach round-trip.
+- assertVisible:
+    text: ".*\\bCoach\\b.*"
+
+# 13 — Tier-3 exploratory : final screenshot for audit trail.
+- takeScreenshot: "01.1-hero-07-final"
+
+# ─── 3-TURN CAP ───────────────────────────────────────────────────────
+# Per Phase 01.1 CONTEXT §1 bar « coach emits ≥1 cited number within 3
+# turns ». This flow exercises 1 turn (single coach round-trip). If
+# turn 1 fails to surface 7258 + citation, the regex assertions at
+# steps 09-10 fail and the flow exits non-zero — Plan 03 logs that as
+# a finding-class « coach-runtime » row in 01.1-OBSERVATIONS.md, NOT a
+# blocker (per CONTEXT §4 « Number without citation = finding row »).
+#
+# Re-running turn 2 / turn 3 follow-ups is OUT of scope for this flow.
+# Per the 01.1 scope (single hero flow + 4 optional adversarial probes),
+# turn-2/3 logic belongs to the adversarial probes in Plan 01.1-03 OR
+# to sub-phase 01.4 (prompt/RAG iteration).
+#
+# ─── EXPECTED OUTPUT (Plan 03 live run) ───────────────────────────────
+# Screenshots:
+#   .planning/walker/maestro-flows/hero-marge-fiscale-3a/<run-id>/
+#     ├── 01.1-hero-01-landing.png
+#     ├── 01.1-hero-02-onboarding-salary.png
+#     ├── 01.1-hero-03-home-reached.png
+#     ├── 01.1-hero-04-coach-composer.png
+#     ├── 01.1-hero-05-message-typed.png
+#     ├── 01.1-hero-06-coach-response.png
+#     └── 01.1-hero-07-final.png
+#
+# Run command (Plan 01.1-03 ; NOT Plan 01.1-02) :
+#   bash tools/simulator/maestro_env.sh test \
+#     tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml \
+#     --device "B03E429D-0422-4357-B754-536637D979F9" \
+#     --format junit --output result.xml

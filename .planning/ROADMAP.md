@@ -431,13 +431,51 @@ Plans:
 
 ### Phase 1: MINT production-readiness audit: identify top blockers to first usable beta (Sentry remainders, 18 life events coverage, 8 archetypes, watchdog perf, TestFlight infra, iOS keychain entitlement, i18n hardcoded strings) and output a prioritized roadmap addendum with sub-phases
 
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 0
-**Plans:** 0 plans
+**Goal:** Audit-meta phase. The audit itself was executed via 6-agent expert panel synthesis 2026-05-20 (PM + architect + QA + business + AI engineer + security). Output is `01-CONTEXT.md` (panel-locked scope/bar/method/sequencing) + `01-RESEARCH.md` (10 deliverables, codebase recipes, baseline counts) + `01-VALIDATION.md` (per-finding-class Nyquist matrix) + 10 sub-phase decomposition (§8). Phase 01 itself ships no code ; each sub-phase 01.1 → 01.10 is its own GSD phase per CONTEXT §12.
+**Requirements**: TBD — derived per sub-phase. Audit identifies 4 P0 hot items (P0-1 archetype HARD GATE silent-fallback ; P0-2 banned-term 6-locale extension ; P0-3 DSAR fact_event manifest ; P0-4 forced tool-invocation merge-blocker) + 5 P1 line items.
+**Depends on:** Phase 0 (icon shipped via PR #663 ; staging post-icon-merge prerequisite for 01.1).
+**Plans:** Audit-meta only — no Plans land at this level. Sub-phases 01.1 → 01.10 each have their own PLAN.md stack.
+
+Sub-phases (per CONTEXT §8) :
+- [ ] 01.1 — Walkthrough-first grounding (T-shirt M, user-flow) — **active, see Phase 01.1 below**
+- [ ] 01.2 — /gsd-map-codebase refresh (5 mappers) (T-shirt XL, method)
+- [ ] 01.3 — L1/L2 boundary integrity audit (T-shirt L, architecture)
+- [ ] 01.4 — Coach-runtime audit + trust monitor + replay corpus (T-shirt XL, AI/coach)
+- [ ] 01.5 — Archetype HARD GATE fix (T-shirt M, security, P0-1)
+- [ ] 01.6 — Semantic banned-term sweep + ARB cleanup (T-shirt M, compliance, P0-2)
+- [ ] 01.7 — DSAR fact_event manifest fix (T-shirt S, privacy, P0-3)
+- [ ] 01.8 — Maestro assertion-grammar refactor (T-shirt M, QA)
+- [ ] 01.9 — `_to-MINT 4` design alignment audit (T-shirt M, UX, P1-4)
+- [ ] 01.10 — Maestro sweep × 2 archetypes + adversarial coach probes (T-shirt L, QA)
+
+**Critical path** : 01.1 → (01.5 + 01.6 + 01.7) ∥ → (01.2 + 01.3 + 01.4 + 01.9) ∥ → (01.8 + 01.10) → next milestone planning.
+
+**Canonical refs** :
+- `.planning/phases/01-mint-production-readiness-audit-identify-top-blockers-to-fir/01-CONTEXT.md` — panel-locked decisions, scope/bar/method/sequencing, 10 sub-phase decomposition
+- `.planning/phases/01-mint-production-readiness-audit-identify-top-blockers-to-fir/01-RESEARCH.md` — 10 deliverables, code recipes, baseline counts, Sentry inventory, Maestro flow templates
+- `.planning/phases/01-mint-production-readiness-audit-identify-top-blockers-to-fir/01-VALIDATION.md` — per-finding-class Nyquist matrix, wave 0 gaps per sub-phase
+- `.planning/decisions/2026-05-20-audit-01-bar-and-scope.md` — companion ADR
+- `.planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md` — L1/L2 boundary doctrine ADR
+
+### Phase 1.1: Walkthrough-first grounding — Maestro sweep on staging post-icon-merge + Julien observations
+**Goal**: Run the onboarding → first-insight hero flow (marge fiscale 3a annuelle) end-to-end on a booted iPhone 17 Pro sim against Railway staging (post-PR #663 icon merge). Capture observed blockers via Maestro flow + idb ui describe-all + Julien observations. Output a `01.1-OBSERVATIONS.md` that grounds the rest of the audit in reality, NOT abstract grep. This is the **PRE-AUDIT** per CONTEXT §8 row 01.1 — verifies the bar (CONTEXT §1 Q-02 « ≥1 cited number within 3 turns ») is reachable on a real device before the architecture/coach-runtime/i18n sub-phases spend effort on assumed code shapes.
+**Requirements**: REQ-AUDIT-01 (hero flow reachable end-to-end on staging post-icon-merge), REQ-AUDIT-08 (Maestro 3-tier assertion grammar — grounded-values / non-crash / exploratory), REQ-AUDIT-10 (Maestro 2-archetype sweep — swiss_native first, swiss_native_couple deferred to 01.10)
+**Depends on:** Phase 1 (CONTEXT locked) ; PR #663 (icon menthe) merged + staging auto-deploy succeeded ; sim iPhone 17 Pro bootable ; Maestro CLI available at `~/.maestro/bin/maestro` ; `~/.sentryclirc` authenticated.
+**Plans:** 3 plans (W1: 1 pre-conditions, W2: 1 hero-flow design + dry-run, W3: 1 execute + observe + Julien G2)
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 1 to break down)
+- [ ] 01.1-01-PLAN.md — Pre-condition verification (PR #663 merge + staging /health + sim bootable + Maestro CLI + sentry-cli + pgvector ≥ 100 docs + citation_parser deployed + plafond 3a constants served) → `01.1-PRECONDITIONS.md` with 8 ✓/✗/HALT verdict blocks
+- [x] 01.1-02-PLAN.md — Hero-flow Maestro YAML design + dry-run on sim (no live staging) → `tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml` + `01.1-DRYRUN-TRACE.md`
+- [ ] 01.1-03-PLAN.md — Execute hero flow on staging + 11-class finding triage + 10-trigger re-litigation verdict + Julien G2 observation pass (autonomous: false) → `01.1-OBSERVATIONS.md` + `01.1-RELITIGATION-VERDICT.md` + `screenshots/walkthrough/01.1-hero/`
+
+**T-shirt:** M (CONTEXT §8 row 01.1) — single-flow Maestro design + execution + observation write-up. ~1-2 day.
+
+**Canonical refs**:
+- `.planning/phases/01-mint-production-readiness-audit-identify-top-blockers-to-fir/01-CONTEXT.md` §1 (bar) + §3 (method) + §8 (row 01.1)
+- `.planning/phases/01-mint-production-readiness-audit-identify-top-blockers-to-fir/01-RESEARCH.md` §1 Maestro inventory + §6 hero-flow template + §16 Validation (Maestro flow finding-class)
+- `.planning/phases/01.1-walkthrough-first-grounding/01.1-CONTEXT.md` — sub-phase CONTEXT (inherits Phase 01)
+- `tools/simulator/flows/maestro-perfect-set/` — existing Maestro flow inventory
+- `tools/simulator/walker.sh` — sim driver
 
 ---
-*Last updated: 2026-05-10 — Phase 91 MVP-EXTRACTOR-V2 closed (verified, 6/7 plans, Stage 3 narrator decision = SONNET kill-policy fallback). v2.9 Chat-as-Verb Pivot ACTIVE with 9 phases (90, 91, 91.5, 92, 92.5, 93, 93.5, 94, 95, 96) + backlog 999.x. Roadmap injection per ADR `2026-05-09-calc-first-llm-illumination.md` Decided 2026-05-10.*
+*Last updated: 2026-05-21 — Phase 01.1 walkthrough-first-grounding PLANNED (3 plans, W1→W2→W3, Wave 3 autonomous:false with Julien G2 checkpoint ; REQ-AUDIT-01/08/10 locked). Previous: 2026-05-21 — Phase 01 audit-meta opened with panel-synthesized CONTEXT/RESEARCH/VALIDATION ; Phase 01.1 inserted as first executable sub-phase per CONTEXT §8 + §12 directive.*

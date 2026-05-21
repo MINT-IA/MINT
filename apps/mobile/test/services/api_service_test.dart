@@ -40,6 +40,43 @@ void main() {
         expect(ApiService.baseUrl, equals('http://localhost:8888/api/v1'));
       }
     });
+
+    // ───────────────────────────────────────────────────────────────────
+    // 2026-05-21 sub-phase 01.1 P0 fix (F-01.1-01) — debug builds fall back
+    // to staging when localhost is unreachable. Regression guards for the
+    // candidate ordering AND the ensureReachableBaseUrl probe gating.
+    // See `.planning/phases/01.1-walkthrough-first-grounding/01.1-BUG-INVENTORY.md`
+    // ───────────────────────────────────────────────────────────────────
+
+    test('debug-mode candidates include staging fallback after localhost', () {
+      if (kReleaseMode) return; // covered by next test
+      final candidates = ApiService.baseUrlCandidatesForTest;
+      expect(candidates.length, greaterThanOrEqualTo(2),
+          reason:
+              'Debug mode must have ≥2 candidates: localhost + staging fallback');
+      expect(candidates.first, equals('http://localhost:8888/api/v1'),
+          reason: 'localhost must remain first to preserve dev-loop with local backend');
+      expect(
+        candidates,
+        contains('https://mint-staging.up.railway.app/api/v1'),
+        reason:
+            'Staging fallback MUST be present so sim QA builds without --dart-define=API_BASE_URL '
+            'do not silently target dead localhost. Per memory `feedback_app_targets_staging_always`.',
+      );
+    });
+
+    test('release-mode candidate ordering: production first, staging second, api third', () {
+      if (!kReleaseMode) return;
+      final candidates = ApiService.baseUrlCandidatesForTest;
+      expect(candidates, isNotEmpty);
+      final firstNonDefined = candidates.firstWhere(
+        (c) => c.startsWith('https://mint-'),
+        orElse: () => '',
+      );
+      expect(firstNonDefined, equals('https://mint-production-3a41.up.railway.app/api/v1'),
+          reason: 'Release builds default production-first (App Store target)');
+      expect(candidates, contains('https://mint-staging.up.railway.app/api/v1'));
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════════════
