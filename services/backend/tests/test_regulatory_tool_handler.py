@@ -39,7 +39,8 @@ def test_handle_missing_key_returns_error_string():
     from app.services.regulatory.tool_handler import handle_regulatory_constant
 
     result = handle_regulatory_constant({})
-    assert "cle manquante" in result.lower() or "clé manquante" in result.lower()
+    # CLAUDE.md TOP #2 — accents mandatory.
+    assert "clé manquante" in result
 
 
 def test_handle_returns_formatted_param_on_hit():
@@ -89,8 +90,8 @@ def test_handle_miss_emits_sentry_breadcrumb_with_suggestions():
 
         result = handle_regulatory_constant({"key": "pillar3a.maxxxx"})
 
-    # User-facing message includes suggestions.
-    assert "non trouvee" in result.lower() or "non trouvée" in result.lower()
+    # User-facing message includes suggestions. CLAUDE.md TOP #2 — accents mandatory.
+    assert "non trouvée" in result
     assert "pillar3a.max_with_lpp" in result
 
     # Sentry breadcrumb fired with the miss data.

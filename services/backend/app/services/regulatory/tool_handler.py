@@ -60,7 +60,7 @@ def handle_regulatory_constant(tool_input: dict[str, Any]) -> str:
                 )
             except Exception:
                 pass
-        return "Erreur : cle manquante. Fournis un key comme 'pillar3a.max_with_lpp'."
+        return "Erreur : clé manquante. Fournis un key comme 'pillar3a.max_with_lpp'."
 
     try:
         registry = RegulatoryRegistry.instance()
@@ -131,7 +131,7 @@ def handle_regulatory_constant(tool_input: dict[str, Any]) -> str:
             "regulatory_constant miss: key=%s jurisdiction=%s suggestions=%s",
             key, jurisdiction, suggestions,
         )
-        msg = f"Constante '{key}' non trouvee."
+        msg = f"Constante '{key}' non trouvée."
         if suggestions:
             msg += f" Suggestions : {', '.join(suggestions)}"
         return msg
