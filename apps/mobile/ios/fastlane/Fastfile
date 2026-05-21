@@ -150,10 +150,20 @@ platform :ios do
     # That makes our CI flap as failure on what is in fact a successful upload.
     #
     # Strategy: try the full submission first. If the « Another build is in
-    # review » error is raised, fall back to upload-only (skip_submission:
-    # true) so the binary lands in ASC and Julien can manually click
-    # « Submit for Review » in the ASC UI once the previous build clears.
-    # Either way, the binary is already uploaded by step 6's altool path.
+    # review » error is raised, log the manual ASC step and exit clean.
+    # The binary is already in App Store Connect at this point (altool
+    # uploads it BEFORE auto-submit runs) — the operator just needs to
+    # manually submit it to Beta Testeurs from the ASC UI once the
+    # previous build clears Apple's review queue.
+    #
+    # Historical bug (fixed 2026-05-21 by `fix/fastlane-testflight-retry-idempotency`) :
+    # the previous version of this block re-tried with
+    # `upload_to_testflight(skip_submission: true)` on the assumption that
+    # altool would fast-path a duplicate upload. It does NOT — altool
+    # rejects the duplicate with `-19232 ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE`,
+    # making every staging promote a false-positive workflow failure even
+    # though the binary was already in ASC. Removing the retry fixes the
+    # workflow exit code without losing the manual-step message.
     begin
       upload_to_testflight(
         api_key: api_key,
@@ -166,15 +176,11 @@ platform :ios do
       msg = e.message.to_s
       if msg.include?("Another build is in review") ||
          msg.include?("already in beta review")
-        UI.important("Auto-submit for beta review skipped: previous build of this train is still in Apple's review queue.")
-        UI.important("The binary is uploaded to App Store Connect — submit it for review manually once the previous build clears.")
-        # Re-run with submission off so the upload phase reconciles cleanly
-        # (idempotent — if binary already uploaded, fastlane fast-paths).
-        upload_to_testflight(
-          api_key: api_key,
-          skip_submission: true,
-          skip_waiting_for_build_processing: true,
-        )
+        UI.important("✅ Binary uploaded to App Store Connect successfully.")
+        UI.important("⚠️  Auto-submit to « Beta Testeurs » skipped: previous build of this train is still in Apple's review queue.")
+        UI.important("👉  Manual step: once the previous build clears review, open App Store Connect → TestFlight → Beta Testeurs group → submit this build for review.")
+        # Exit clean — the binary IS in ASC, no retry needed. Re-uploading
+        # would trip altool's duplicate-bundle-version guard.
       else
         raise
       end
