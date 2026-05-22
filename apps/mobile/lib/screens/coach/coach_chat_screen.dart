@@ -14,6 +14,8 @@ import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/screens/coach/coach_archetype_guard.dart';
+import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
@@ -1644,6 +1646,42 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   CoachContext _buildCoachContext(CoachProfile profile) {
+    // Sub-phase 01.5 W02-T03 HARD GATE (Mapper §7.2 primary site).
+    //
+    // The coach is calibrated for swissNative only. Any other archetype
+    // (expat_us via FATCA self-declaration, expat_eu, cross_border,
+    // independent_no_lpp, etc.) is routed to /waitlist BEFORE we even
+    // construct a CoachContext. The route navigation is deferred via
+    // addPostFrameCallback because this method runs during the build /
+    // chat-send synchronous path; navigating in-flight would re-enter
+    // the widget tree and trigger setState-during-build assertions.
+    //
+    // The orchestrator carries the secondary refusal layer (Task 5)
+    // in case a deep-link / notification handler bypasses this gate.
+    final gate = evaluateCoachArchetypeGate(profile);
+    if (gate.shouldBlock) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          context.go(
+            '/waitlist',
+            extra: WaitlistArgs(archetype: gate.archetypeSlug),
+          );
+        }
+      });
+      // Return a refusal-marked placeholder CoachContext. The
+      // orchestrator-level guard (Task 5) recognises archetype='unknown'
+      // and refuses to invoke the LLM, so even if the post-frame
+      // callback hasn't navigated yet the LLM is never reached.
+      return CoachContext(
+        firstName: '',
+        age: profile.age,
+        canton: profile.canton,
+        archetype: 'unknown',
+        knownValues: const {},
+        hasDebt: false,
+      );
+    }
+
     final knownValues = <String, double>{};
 
     try {
