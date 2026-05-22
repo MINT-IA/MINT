@@ -86,11 +86,11 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider<WaitlistProvider>(
           create: (_) => WaitlistProvider(service: _NoopWaitlistService()),
-          child: MaterialApp(
-            locale: const Locale('fr'),
+          child: const MaterialApp(
+            locale: Locale('fr'),
             localizationsDelegates: S.localizationsDelegates,
             supportedLocales: S.supportedLocales,
-            home: const WaitlistScreen(
+            home: WaitlistScreen(
               args: WaitlistArgs(archetype: 'expat_us'),
             ),
           ),

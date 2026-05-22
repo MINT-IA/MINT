@@ -35,8 +35,6 @@
 ///      (Codex C1 HIGH data-truth contract from plan 02-05).
 library;
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
