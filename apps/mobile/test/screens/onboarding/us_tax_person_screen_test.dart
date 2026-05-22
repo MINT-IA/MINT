@@ -14,6 +14,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Widget _wrap({
   required Widget child,
@@ -32,6 +33,13 @@ Widget _wrap({
 }
 
 void main() {
+  setUp(() async {
+    // `CoachProfileProvider.mergeAnswers` reads/writes SharedPreferences
+    // and fires `_syncToBackend()` fire-and-forget. The platform channel
+    // is unavailable in test mode unless we initialise mock prefs.
+    SharedPreferences.setMockInitialValues(const <String, Object>{});
+  });
+
   group('UsTaxPersonScreen', () {
     testWidgets('renders the question in French', (tester) async {
       var answered = false;

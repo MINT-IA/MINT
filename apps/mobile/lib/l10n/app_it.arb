@@ -11239,5 +11239,9 @@
   "waitlistSuccessMessage": "Merci, on revient vers toi dès que ton profil est pris en charge.",
   "waitlistSuccessCta": "Revenir à l'accueil",
   "waitlistErrorNetwork": "Impossible d'envoyer ton email pour le moment. Réessaie dans un instant.",
-  "waitlistErrorBadEmail": "Cette adresse email ne semble pas valide. Vérifie la syntaxe."
+  "waitlistErrorBadEmail": "Cette adresse email ne semble pas valide. Vérifie la syntaxe.",
+  "waitlistUsTaxPersonQuestion": "Es-tu citoyen ou résident fiscal aux États-Unis ?",
+  "waitlistUsTaxPersonTooltip": "MINT n'est pas encore calibré pour les contribuables américains en Suisse (obligations FATCA et FBAR). Ta réponse nous aide à t'orienter vers une expérience adaptée.",
+  "waitlistUsTaxPersonYes": "Oui",
+  "waitlistUsTaxPersonNo": "Non"
 }

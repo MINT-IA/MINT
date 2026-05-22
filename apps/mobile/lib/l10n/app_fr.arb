@@ -12344,5 +12344,21 @@
   "waitlistErrorBadEmail": "Cette adresse email ne semble pas valide. Vérifie la syntaxe.",
   "@waitlistErrorBadEmail": {
     "description": "Phase 01.5 W02-T02 — Inline error for 400 bad-email response."
+  },
+  "waitlistUsTaxPersonQuestion": "Es-tu citoyen ou résident fiscal aux États-Unis ?",
+  "@waitlistUsTaxPersonQuestion": {
+    "description": "Phase 01.5 W02-T03 — Onboarding US-tax-person hard-gate question. Asked BEFORE any financial data collection per Security §4 (nLPD art. 6 minimization)."
+  },
+  "waitlistUsTaxPersonTooltip": "MINT n'est pas encore calibré pour les contribuables américains en Suisse (obligations FATCA et FBAR). Ta réponse nous aide à t'orienter vers une expérience adaptée.",
+  "@waitlistUsTaxPersonTooltip": {
+    "description": "Phase 01.5 W02-T03 — Info-icon tooltip explaining why MINT asks the US-tax-person question (FATCA + FBAR exposure)."
+  },
+  "waitlistUsTaxPersonYes": "Oui",
+  "@waitlistUsTaxPersonYes": {
+    "description": "Phase 01.5 W02-T03 — US-tax-person Yes answer button."
+  },
+  "waitlistUsTaxPersonNo": "Non",
+  "@waitlistUsTaxPersonNo": {
+    "description": "Phase 01.5 W02-T03 — US-tax-person No answer button."
   }
 }
