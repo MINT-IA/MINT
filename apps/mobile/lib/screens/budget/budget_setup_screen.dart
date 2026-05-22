@@ -312,6 +312,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           TextField(
             controller: c,
             keyboardType: const TextInputType.numberWithOptions(decimal: false),
+            onTapOutside: (_) => FocusScope.of(context).unfocus(),
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]")),
             ],

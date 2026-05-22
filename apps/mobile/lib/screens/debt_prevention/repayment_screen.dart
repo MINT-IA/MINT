@@ -325,6 +325,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               Expanded(
                 child: TextFormField(
                   initialValue: dette.nom,
+                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
                       .copyWith(fontWeight: FontWeight.w700),
                   decoration: InputDecoration(
@@ -526,6 +527,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                       keyboardType: TextInputType.numberWithOptions(
                         decimal: decimals,
                       ),
+                      onTapOutside: (_) => FocusScope.of(context).unfocus(),
                       autofocus: true,
                       textAlign: TextAlign.center,
                       style: MintTextStyles.displayMedium(color: MintColors.textPrimary),

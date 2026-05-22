@@ -639,6 +639,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             TextField(
               controller: _exactController,
               keyboardType: TextInputType.number,
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r"[0-9 ']")),
               ],

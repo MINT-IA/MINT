@@ -1028,6 +1028,7 @@ class _BudgetAmountFieldState extends State<_BudgetAmountField> {
         TextField(
           controller: _ctrl,
           keyboardType: TextInputType.number,
+          onTapOutside: (_) => FocusScope.of(context).unfocus(),
           style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
               .copyWith(fontWeight: FontWeight.w600),
           decoration: InputDecoration(
