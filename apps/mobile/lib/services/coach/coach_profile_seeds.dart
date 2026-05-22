@@ -46,6 +46,24 @@ class CoachProfileSeed {
   /// Gross monthly salary in CHF (typical for the archetype).
   final double grossMonthlySalary;
 
+  /// FATCA short-circuit signal (sub-phase 01.5 Wave 02 plan 06).
+  ///
+  /// When `true`, the hydrated [CoachProfile.archetype] getter returns
+  /// `FinancialArchetype.expatUs` regardless of nationality (per the
+  /// FATCA short-circuit added in Wave 02 plan 01). When `null`, the seed
+  /// carries no FATCA signal — matches the v2.10 swiss_native seeds.
+  ///
+  /// Optional with default `null` so the 4 v2.10 seeds are unmodified.
+  final bool? usTaxPerson;
+
+  /// ISO 2-letter nationality (e.g. `'US'`, `'CH'`, `'FR'`).
+  ///
+  /// Sub-phase 01.5 Wave 02 plan 06 — supplies the secondary
+  /// archetype-discriminating signal alongside [usTaxPerson] for the new
+  /// `julien_expat_us` seed. Optional with default `null` so the 4 v2.10
+  /// seeds are unmodified.
+  final String? nationality;
+
   const CoachProfileSeed({
     required this.slug,
     required this.firstName,
@@ -53,6 +71,8 @@ class CoachProfileSeed {
     required this.canton,
     required this.archetype,
     required this.grossMonthlySalary,
+    this.usTaxPerson,
+    this.nationality,
   });
 
   /// Build a [CoachContext] hydrated from this seed.
@@ -121,6 +141,23 @@ class CoachProfileSeeds {
       archetype: 'swiss_native',
       grossMonthlySalary: 13500,
     ),
+    // Sub-phase 01.5 Wave 02 plan 06 — walker seed for archetype HARD GATE
+    // testing. Hydrates a profile that resolves to FinancialArchetype.expatUs
+    // via BOTH the FATCA short-circuit (usTaxPerson:true) AND nationality:'US'
+    // so the gate fires at coach_chat_screen.dart and the Wave 03 Maestro
+    // flow can assert /waitlist is reached. Resolved by the walker through
+    // `--dart-define=MINT_E2E_ARCHETYPE=expat_us` via [byArchetype] (the
+    // archetype slug → seed name contract — Codex C3 MEDIUM).
+    'julien_expat_us': CoachProfileSeed(
+      slug: 'julien_expat_us',
+      firstName: 'Julien',
+      age: 38,
+      canton: 'GE',
+      archetype: 'expat_us',
+      grossMonthlySalary: 11500,
+      usTaxPerson: true,
+      nationality: 'US',
+    ),
   };
 
   /// Return the slug forced via `MINT_E2E_ARCHETYPE`, or null when:
@@ -152,5 +189,31 @@ class CoachProfileSeeds {
   static CoachProfileSeed? bySlug(String? slug) {
     if (slug == null || slug.isEmpty) return null;
     return registry[slug];
+  }
+
+  /// Resolve an archetype slug (e.g. `'expat_us'`, `'swiss_native'`) to its
+  /// canonical seed profile. The walker's
+  /// `--dart-define=MINT_E2E_ARCHETYPE=<slug>` carries the archetype slug,
+  /// NOT the seed name — this helper is the explicit contract between the
+  /// two.
+  ///
+  /// Returns `null` if no seed maps to the slug. Callers (walker / Maestro
+  /// flow / test) MUST handle null explicitly — there is NO default seed.
+  ///
+  /// Sub-phase 01.5 Wave 02 plan 06 — Codex C3 MEDIUM fix
+  /// (REVIEWS.md 2026-05-22). Prevents silent test-infra failures where a
+  /// typo in the archetype slug would resolve to no seed without surfacing
+  /// the contract break.
+  static CoachProfileSeed? byArchetype(String archetypeSlug) {
+    switch (archetypeSlug) {
+      case 'expat_us':
+        return registry['julien_expat_us'];
+      case 'swiss_native':
+        return registry['julien_swiss'];
+      // Add other slug → seed mappings here as new seeds are added in
+      // future sub-phases. Do NOT add a default arm — unknown slug = null.
+      default:
+        return null;
+    }
   }
 }
