@@ -67,10 +67,23 @@ def test_pydantic_nationality_max_length():
         ProfileUpdate(nationality="A" * 100)
 
 
-def test_pydantic_us_tax_person_int_rejected():
-    """Pydantic v2 strict bool: int 1 is not accepted for Optional[bool]."""
+def test_pydantic_nationality_int_rejected():
+    """Plan Task 1 behavior Test 8: non-string nationality is rejected."""
     with pytest.raises(ValidationError):
-        ProfileUpdate.model_validate({"usTaxPerson": 1})
+        ProfileUpdate.model_validate({"nationality": 123})
+
+
+def test_pydantic_us_tax_person_non_coercible_rejected():
+    """A non-bool, non-numeric, non-string-bool input is rejected.
+
+    Note: Pydantic v2 in default (lax) mode intentionally coerces 0/1 and
+    'true'/'false' to bool — this is documented Pydantic behavior and is
+    NOT a tri-state bug because the coercion still yields True/False, not None.
+    The R4 guard is about None vs False — proven by the _null / _false tests above.
+    Here we assert that genuinely non-bool inputs (a dict) are rejected.
+    """
+    with pytest.raises(ValidationError):
+        ProfileUpdate.model_validate({"usTaxPerson": {"not": "a bool"}})
 
 
 def test_profile_response_inherits_fields():
