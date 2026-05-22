@@ -91,8 +91,8 @@ class PrecisionService {
     'lpp_total': const FieldHelp(
       fieldName: 'lpp_total',
       whereToFind:
-          'Sur ton certificat de prevoyance, ligne "Avoir de vieillesse" ou "Total des avoirs".',
-      documentName: 'Certificat de prevoyance LPP',
+          'Sur ton certificat de prévoyance, ligne "Avoir de vieillesse" ou "Total des avoirs".',
+      documentName: 'Certificat de prévoyance LPP',
       germanName: 'Altersguthaben (Vorsorgeausweis)',
       fallbackEstimation:
           'On peut estimer depuis ton salaire et ton age, mais la precision sera de +/-30 %.',
@@ -100,8 +100,8 @@ class PrecisionService {
     'lpp_obligatoire': const FieldHelp(
       fieldName: 'lpp_obligatoire',
       whereToFind:
-          'Sur ton certificat de prevoyance, ligne "Part obligatoire" ou "Obligatorisches Altersguthaben".',
-      documentName: 'Certificat de prevoyance LPP',
+          'Sur ton certificat de prévoyance, ligne "Part obligatoire" ou "Obligatorisches Altersguthaben".',
+      documentName: 'Certificat de prévoyance LPP',
       germanName: 'Obligatorisches Altersguthaben (Vorsorgeausweis)',
       fallbackEstimation:
           'Estimation possible depuis le salaire coordonne et les bonifications legales.',
@@ -109,8 +109,8 @@ class PrecisionService {
     'lpp_surobligatoire': const FieldHelp(
       fieldName: 'lpp_surobligatoire',
       whereToFind:
-          'Sur ton certificat de prevoyance, ligne "Part surobligatoire" (= total - obligatoire).',
-      documentName: 'Certificat de prevoyance LPP',
+          'Sur ton certificat de prévoyance, ligne "Part surobligatoire" (= total - obligatoire).',
+      documentName: 'Certificat de prévoyance LPP',
       germanName: 'Ueberobligatorisches Altersguthaben (Vorsorgeausweis)',
       fallbackEstimation:
           'Calculable comme la difference entre LPP total et LPP obligatoire.',
@@ -260,7 +260,7 @@ class PrecisionService {
           severity: 'warning',
           message: 'Ton avoir LPP semble tres eleve.',
           suggestion:
-              'Est-ce que ca inclut bien le surobligatoire? Verifie sur ton certificat de prevoyance.',
+              'Est-ce que ca inclut bien le surobligatoire? Verifie sur ton certificat de prévoyance.',
         ));
       }
     }
@@ -276,7 +276,7 @@ class PrecisionService {
               'La somme obligatoire + surobligatoire (CHF ${_fmt(sum)}) '
               'ne correspond pas au total LPP (CHF ${_fmt(lppTotal)}).',
           suggestion:
-              'Verifie les montants sur ton certificat de prevoyance.',
+              'Verifie les montants sur ton certificat de prévoyance.',
         ));
       }
     }

@@ -839,14 +839,14 @@ class BayesianProfileEnricher {
       'avoirLppTotal': _PromptDef(
         label: 'Ajoute ton solde LPP',
         action:
-            'Consulte ton certificat de prevoyance et saisis ton avoir total '
+            'Consulte ton certificat de prévoyance et saisis ton avoir total '
             '(obligatoire + surobligatoire). Tu peux le demander a ta caisse.',
         category: 'lpp',
       ),
       'tauxConversion': _PromptDef(
         label: 'Precise ton taux de conversion',
         action:
-            'Sur ton certificat de prevoyance, cherche le taux de conversion '
+            'Sur ton certificat de prévoyance, cherche le taux de conversion '
             'de ta caisse (souvent entre 5% et 6.8%). Le taux legal de 6.8% '
             'ne s\'applique qu\'a la part obligatoire.',
         category: 'lpp',

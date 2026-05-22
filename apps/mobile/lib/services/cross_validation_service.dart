@@ -113,7 +113,7 @@ class CrossValidationService {
             '${_fmtChf(theoreticalLpp)}).',
         severity: AlertSeverity.warning,
         suggestion:
-            'Verifie ton certificat de prevoyance. Si tu as change '
+            'Verifie ton certificat de prévoyance. Si tu as change '
             'd\'employeur ou retire du capital (EPL), c\'est normal.',
       ));
     } else if (ratio > 2.0) {
@@ -345,10 +345,10 @@ class CrossValidationService {
         message:
             'En tant que salarie·e avec un revenu au-dessus du seuil '
             'LPP (${_fmtChf(reg('lpp.entry_threshold', lppSeuilEntree))}), tu pourrais avoir un '
-            'avoir de prevoyance.',
+            'avoir de prévoyance.',
         severity: AlertSeverity.info,
         suggestion:
-            'Demande ton certificat de prevoyance a ta caisse de '
+            'Demande ton certificat de prévoyance a ta caisse de '
             'pension pour completer ces donnees.',
       ));
     }

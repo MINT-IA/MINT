@@ -292,7 +292,7 @@ class FirstJobService {
       'Ouvrir un compte 3a fintech (pas une assurance-vie !)',
       'Choisir ta franchise LAMal sur priminfo.admin.ch',
       'Souscrire une RC privee (~CHF 5/mois)',
-      'Verifier ton certificat de prevoyance LPP',
+      'Verifier ton certificat de prévoyance LPP',
       'Preparer ta premiere declaration fiscale',
       'Mettre en place un virement epargne automatique (10-20% du net)',
       'Demander ton attestation de salaire pour les impots',

@@ -11,7 +11,7 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 // retraite pour minimiser la charge fiscale totale.
 //
 // Base legale:
-//   - LIFD art. 38: imposition separee du capital de prevoyance
+//   - LIFD art. 38: imposition separee du capital de prévoyance
 //   - OPP3 art. 3: retrait anticipe 3a (5 ans avant age de reference AVS)
 //   - LPP art. 37: prestations en capital
 //

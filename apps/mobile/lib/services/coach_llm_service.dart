@@ -565,7 +565,7 @@ class CoachLlmService {
     buffer.writeln('CONTEXTE UTILISATEUR :');
     buffer.writeln('- Prenom : $firstName, Age : $age, Canton : $canton');
     buffer.writeln(
-        '- Score Fitness : $globalScore/100 (Budget: $budgetScore, Prevoyance: $prevoyanceScore, Patrimoine: $patrimoineScore)');
+        '- Score Fitness : $globalScore/100 (Budget: $budgetScore, Prévoyance: $prevoyanceScore, Patrimoine: $patrimoineScore)');
     buffer.writeln('- Capital projete base : $capitalBase');
     buffer.writeln('- Taux de remplacement estime : $tauxRemplacement%');
 

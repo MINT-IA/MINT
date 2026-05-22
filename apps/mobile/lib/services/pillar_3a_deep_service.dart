@@ -180,7 +180,7 @@ class StaggeredWithdrawalSimulator {
           'personnelle et du montant total retire dans l\'annee fiscale. '
           'Les taux utilises sont des moyennes cantonales simplifiees. '
           'Base legale : OPP3, LIFD art. 38. '
-          'Consultez un ou une specialiste en prevoyance avant toute decision.',
+          'Consultez un ou une specialiste en prévoyance avant toute decision.',
     );
   }
 

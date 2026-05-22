@@ -242,7 +242,7 @@ class ConfidenceScorer {
         label: 'Confirme ton solde LPP',
         impact: 7,
         category: 'lpp',
-        action: 'Ajoute ton certificat de prevoyance (solde exact)',
+        action: 'Ajoute ton certificat de prévoyance (solde exact)',
       ));
       assumptions.add('LPP estime depuis le salaire — peut varier de +-30%');
     } else if (isIndepSansLpp) {
@@ -254,7 +254,7 @@ class ConfidenceScorer {
         label: 'Ajoute ton solde LPP',
         impact: _wLpp,
         category: 'lpp',
-        action: 'Ajoute ton certificat de prevoyance (solde exact)',
+        action: 'Ajoute ton certificat de prévoyance (solde exact)',
       ));
     }
 
@@ -271,7 +271,7 @@ class ConfidenceScorer {
           label: 'Taux de conversion reel',
           impact: 4,
           category: 'lpp',
-          action: 'Lis ton certificat de prevoyance (taux enveloppe)',
+          action: 'Lis ton certificat de prévoyance (taux enveloppe)',
         ));
         assumptions.add(
             'Taux de conversion LPP: minimum legal 6.8% (reel souvent 5-6%)');
@@ -383,7 +383,7 @@ class ConfidenceScorer {
         impact: yearsLeft <= 5 ? 15 : 10,
         category: 'retirement_urgency',
         action: urgencyLabel == 'URGENT'
-            ? 'Chaque mois compte — confirme tes donnees de prevoyance'
+            ? 'Chaque mois compte — confirme tes donnees de prévoyance'
             : 'Affine tes projections pour une vision claire',
       ));
     }
