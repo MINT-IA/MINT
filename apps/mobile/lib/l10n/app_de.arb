@@ -11223,5 +11223,18 @@
   "narrativeSleeveHookFallback": "Schauen wir gemeinsam, was sich für dich ändert.",
   "narrativeSleeveOpenerCaptionExplain": "Das erzählt deine Karte heute.",
   "narrativeSleeveOpenerCaptionReassure": "Schauen wir ruhig, wo du stehst.",
-  "narrativeSleeveOpenerCaptionSimulate": "Wähle ein Szenario zur Projektion."
+  "narrativeSleeveOpenerCaptionSimulate": "Wähle ein Szenario zur Projektion.",
+  "waitlistTitle": "Noch in Arbeit für dein Profil",
+  "waitlistBodyPara1": "MINT ist heute auf in der Schweiz wohnhafte Angestellte mit 2. Säule (BVG) ausgerichtet.",
+  "waitlistBodyPara2": "Dein Profil entspricht einer Situation, die wir bald abdecken werden.",
+  "waitlistBodyPara3": "Hinterlasse uns deine E-Mail-Adresse und wir benachrichtigen dich, sobald MINT deinen Weg unterstützt.",
+  "waitlistEmailLabel": "E-Mail",
+  "waitlistEmailHint": "deine.email@beispiel.ch",
+  "waitlistCta": "Benachrichtige mich, sobald es so weit ist",
+  "waitlistConsentCheckbox": "Ich willige ein, per E-Mail benachrichtigt zu werden, sobald MINT für mein Profil verfügbar ist. Die MINT SA verwendet deine E-Mail-Adresse ausschliesslich zu diesem Zweck. Du kannst dich jederzeit abmelden.",
+  "waitlistConsentFinePrint": "Mit dem Absenden deiner E-Mail-Adresse stimmst du zu, ausschliesslich für diese Benachrichtigung kontaktiert zu werden. Kein Marketing.",
+  "waitlistSuccessMessage": "Danke, wir melden uns, sobald dein Profil unterstützt wird.",
+  "waitlistSuccessCta": "Zurück zur Startseite",
+  "waitlistErrorNetwork": "Deine E-Mail konnte gerade nicht gesendet werden. Bitte versuche es gleich nochmals.",
+  "waitlistErrorBadEmail": "Diese E-Mail-Adresse scheint nicht gültig zu sein. Bitte prüfe die Schreibweise."
 }

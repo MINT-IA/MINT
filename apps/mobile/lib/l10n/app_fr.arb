@@ -12292,5 +12292,57 @@
   "narrativeSleeveOpenerCaptionSimulate": "Choisis un scénario à projeter.",
   "@narrativeSleeveOpenerCaptionSimulate": {
     "description": "Phase 97.5 W2-T1 — NarrativeSleeve caption slot for intent=simulate. Reserved for forward compat."
+  },
+  "waitlistTitle": "Encore en chantier pour ton profil",
+  "@waitlistTitle": {
+    "description": "Phase 01.5 W02-T02 — Waitlist screen H1. Hard-gate destination for non-supported archetypes (expat_us FATCA + 5 others)."
+  },
+  "waitlistBodyPara1": "MINT est calibré aujourd'hui pour les personnes résidentes en Suisse, salariées et affiliées à un 2e pilier (LPP).",
+  "@waitlistBodyPara1": {
+    "description": "Phase 01.5 W02-T02 — Waitlist body paragraph 1: current scope statement."
+  },
+  "waitlistBodyPara2": "Ton profil correspond à une situation que nous couvrirons prochainement.",
+  "@waitlistBodyPara2": {
+    "description": "Phase 01.5 W02-T02 — Waitlist body paragraph 2: future-coverage promise."
+  },
+  "waitlistBodyPara3": "Laisse-nous ton email et nous te préviendrons dès qu'on ouvre MINT à ton parcours.",
+  "@waitlistBodyPara3": {
+    "description": "Phase 01.5 W02-T02 — Waitlist body paragraph 3: email CTA framing."
+  },
+  "waitlistEmailLabel": "Email",
+  "@waitlistEmailLabel": {
+    "description": "Phase 01.5 W02-T02 — Waitlist email field label."
+  },
+  "waitlistEmailHint": "ton.email@exemple.ch",
+  "@waitlistEmailHint": {
+    "description": "Phase 01.5 W02-T02 — Waitlist email field placeholder."
+  },
+  "waitlistCta": "Préviens-moi quand c'est prêt",
+  "@waitlistCta": {
+    "description": "Phase 01.5 W02-T02 — Waitlist submit CTA label."
+  },
+  "waitlistConsentCheckbox": "J'accepte d'être contacté·e par email lorsque MINT sera disponible pour mon profil. MINT SA utilisera ton adresse email uniquement à cette fin. Tu peux te désabonner à tout moment.",
+  "@waitlistConsentCheckbox": {
+    "description": "Phase 01.5 W02-T02 — Explicit UCA opt-in checkbox label. Required per Security §5 guardrail #1 + CONTEXT.md §0 (override of UI-SPEC §11 Q3)."
+  },
+  "waitlistConsentFinePrint": "En soumettant ton email, tu acceptes d'être contacté·e uniquement pour cette notification. Pas de marketing.",
+  "@waitlistConsentFinePrint": {
+    "description": "Phase 01.5 W02-T02 — Fine-print reassurance below CTA. No-marketing reminder."
+  },
+  "waitlistSuccessMessage": "Merci, on revient vers toi dès que ton profil est pris en charge.",
+  "@waitlistSuccessMessage": {
+    "description": "Phase 01.5 W02-T02 — Post-submit confirmation copy."
+  },
+  "waitlistSuccessCta": "Revenir à l'accueil",
+  "@waitlistSuccessCta": {
+    "description": "Phase 01.5 W02-T02 — Back-to-home CTA shown alongside success message."
+  },
+  "waitlistErrorNetwork": "Impossible d'envoyer ton email pour le moment. Réessaie dans un instant.",
+  "@waitlistErrorNetwork": {
+    "description": "Phase 01.5 W02-T02 — Inline error for network failure (5xx / offline / timeout)."
+  },
+  "waitlistErrorBadEmail": "Cette adresse email ne semble pas valide. Vérifie la syntaxe.",
+  "@waitlistErrorBadEmail": {
+    "description": "Phase 01.5 W02-T02 — Inline error for 400 bad-email response."
   }
 }

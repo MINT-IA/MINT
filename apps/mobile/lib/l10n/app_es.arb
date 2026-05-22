@@ -11223,5 +11223,21 @@
   "narrativeSleeveHookFallback": "Veamos juntos lo que esto cambia para ti.",
   "narrativeSleeveOpenerCaptionExplain": "Esto es lo que tu tarjeta cuenta hoy.",
   "narrativeSleeveOpenerCaptionReassure": "Miremos con calma dónde estás.",
-  "narrativeSleeveOpenerCaptionSimulate": "Elige un escenario a proyectar."
+  "narrativeSleeveOpenerCaptionSimulate": "Elige un escenario a proyectar.",
+  "waitlistTitle": "Encore en chantier pour ton profil",
+  "@waitlistTitle": {
+    "description": "TODO i18n es — Phase 01.5 W02-T02 carries FR fallback per UI-SPEC §6 (translate in 01.6)."
+  },
+  "waitlistBodyPara1": "MINT est calibré aujourd'hui pour les personnes résidentes en Suisse, salariées et affiliées à un 2e pilier (LPP).",
+  "waitlistBodyPara2": "Ton profil correspond à une situation que nous couvrirons prochainement.",
+  "waitlistBodyPara3": "Laisse-nous ton email et nous te préviendrons dès qu'on ouvre MINT à ton parcours.",
+  "waitlistEmailLabel": "Email",
+  "waitlistEmailHint": "ton.email@exemple.ch",
+  "waitlistCta": "Préviens-moi quand c'est prêt",
+  "waitlistConsentCheckbox": "J'accepte d'être contacté·e par email lorsque MINT sera disponible pour mon profil. MINT SA utilisera ton adresse email uniquement à cette fin. Tu peux te désabonner à tout moment.",
+  "waitlistConsentFinePrint": "En soumettant ton email, tu acceptes d'être contacté·e uniquement pour cette notification. Pas de marketing.",
+  "waitlistSuccessMessage": "Merci, on revient vers toi dès que ton profil est pris en charge.",
+  "waitlistSuccessCta": "Revenir à l'accueil",
+  "waitlistErrorNetwork": "Impossible d'envoyer ton email pour le moment. Réessaie dans un instant.",
+  "waitlistErrorBadEmail": "Cette adresse email ne semble pas valide. Vérifie la syntaxe."
 }

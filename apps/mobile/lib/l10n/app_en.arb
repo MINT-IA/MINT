@@ -11223,5 +11223,18 @@
   "narrativeSleeveHookFallback": "Let's see together what this changes for you.",
   "narrativeSleeveOpenerCaptionExplain": "Here is what your card tells today.",
   "narrativeSleeveOpenerCaptionReassure": "Let's look calmly at where you stand.",
-  "narrativeSleeveOpenerCaptionSimulate": "Pick a scenario to project."
+  "narrativeSleeveOpenerCaptionSimulate": "Pick a scenario to project.",
+  "waitlistTitle": "Still being built for your profile",
+  "waitlistBodyPara1": "MINT is currently calibrated for Swiss residents who are salaried and enrolled in a 2nd-pillar pension (LPP).",
+  "waitlistBodyPara2": "Your profile matches a situation we will cover in an upcoming release.",
+  "waitlistBodyPara3": "Leave us your email and we will let you know as soon as MINT supports your journey.",
+  "waitlistEmailLabel": "Email",
+  "waitlistEmailHint": "your.email@example.ch",
+  "waitlistCta": "Notify me when it's ready",
+  "waitlistConsentCheckbox": "I agree to be contacted by email when MINT becomes available for my profile. MINT SA will use your email address solely for this purpose. You can unsubscribe at any time.",
+  "waitlistConsentFinePrint": "By submitting your email, you agree to be contacted only for this notification. No marketing.",
+  "waitlistSuccessMessage": "Thanks, we'll come back to you as soon as your profile is supported.",
+  "waitlistSuccessCta": "Back to home",
+  "waitlistErrorNetwork": "We couldn't send your email right now. Please try again in a moment.",
+  "waitlistErrorBadEmail": "This email address doesn't look valid. Please check the syntax."
 }
