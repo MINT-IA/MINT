@@ -13,10 +13,19 @@ const _errorKeyBadEmail = 'waitlistErrorBadEmail';
 const _errorKeyNetwork = 'waitlistErrorNetwork';
 
 class WaitlistProvider extends ChangeNotifier {
-  WaitlistProvider({WaitlistService? service})
+  WaitlistProvider({WaitlistService? service, this.onGateSuccess})
       : _service = service ?? WaitlistService();
 
   final WaitlistService _service;
+
+  /// Sub-phase 01.5 W02-T03 Task 6 — invoked once when the user
+  /// successfully submits the waitlist form (transition to
+  /// [WaitlistStatus.success]). Used to fire
+  /// `CoachProfileProvider.clearAll()` (nLPD art. 6 minimization per
+  /// Security §6 Q5) without making this provider depend directly on
+  /// [CoachProfileProvider] (avoids a cyclic import). Null callback =
+  /// no-op (existing tests and isolated screens unaffected).
+  final VoidCallback? onGateSuccess;
 
   WaitlistStatus _status = WaitlistStatus.initial;
   String? _errorKey;
@@ -61,6 +70,13 @@ class WaitlistProvider extends ChangeNotifier {
           : _errorKeyNetwork;
     }
     notifyListeners();
+
+    // Sub-phase 01.5 W02-T03 Task 6 — fire AFTER notifyListeners so the
+    // UI has already transitioned to success state when the clearAll
+    // side effect runs (Security §6 Q5 nLPD art. 6 minimization).
+    if (_status == WaitlistStatus.success) {
+      onGateSuccess?.call();
+    }
   }
 
   /// Returns the screen from error → initial so the user can edit the

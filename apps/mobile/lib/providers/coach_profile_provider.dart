@@ -2476,6 +2476,24 @@ class CoachProfileProvider extends ChangeNotifier {
     ReportPersistenceService.clear();
     notifyListeners();
   }
+
+  /// Sub-phase 01.5 W02-T03 Task 6 — nLPD art. 6 minimization
+  /// (Security §6 Q5). Invoked AFTER a successful /waitlist submit
+  /// when the user's archetype is outside the calibrated set: wipes
+  /// the locally-cached financial profile so stale salary / LPP /
+  /// canton signals do not bleed across sessions under the same
+  /// anonymous device id.
+  ///
+  /// Currently delegates to [clear] — both methods have the same
+  /// semantics today (full profile reset + ReportPersistenceService
+  /// SharedPreferences wipe). The named alias keeps the call-site
+  /// intent explicit ("clear all profile data on gate fire") and
+  /// gives us room to diverge if the semantics differ later (e.g.
+  /// preserve a future opt-in marker that 'clear' would drop).
+  void clearAll() {
+    // nLPD art. 6 minimization (sub-phase 01.5 Security §6 Q5).
+    clear();
+  }
 }
 
 /// Safe [CoachProfile] lookup extensions.

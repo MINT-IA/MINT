@@ -375,7 +375,12 @@ final _router = GoRouter(
     // Task 4). WaitlistArgs carries the archetype slug for the consent
     // payload (or null when archetype is unknown/not yet computable).
     //
-    // The nLPD art. 6 clearAll callback is wired in Task 6 (this plan).
+    // Task 6 — onGateSuccess invokes CoachProfileProvider.clearAll()
+    // AFTER waitlist submit succeeds (nLPD art. 6 minimization,
+    // Security §6 Q5). The callback is read off the route's BuildContext
+    // (rather than the WaitlistProvider's own context) so the provider
+    // does NOT depend directly on CoachProfileProvider (no cyclic
+    // import) and remains test-instantiable in isolation.
     ScopedGoRoute(
       path: '/waitlist',
       scope: RouteScope.public,
@@ -384,7 +389,10 @@ final _router = GoRouter(
             ? state.extra as WaitlistArgs
             : const WaitlistArgs();
         return ChangeNotifierProvider<WaitlistProvider>(
-          create: (_) => WaitlistProvider(),
+          create: (ctx) => WaitlistProvider(
+            onGateSuccess: () =>
+                ctx.read<CoachProfileProvider>().clearAll(),
+          ),
           child: WaitlistScreen(args: args),
         );
       },
