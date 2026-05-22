@@ -631,6 +631,10 @@ class CoachLlmService {
       canton: profile.canton,
       knownValues: knownValues,
       hasDebt: profile.isInDebtCrisis,
+      // Sub-phase 01.5-W02 NN-PATCH (2026-05-22): propagate archetype slug
+      // so CoachOrchestrator._calibratedArchetypes check has a real value
+      // instead of the empty-string default that refused every call.
+      archetype: profile.archetype.backendName,
     );
   }
 
