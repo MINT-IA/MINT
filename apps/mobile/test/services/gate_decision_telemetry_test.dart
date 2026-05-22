@@ -33,6 +33,8 @@ void main() {
     });
 
     /// Helper — build a CoachProfile with explicit FATCA signal shape.
+    /// Uses [CoachProfile.defaults] + copyWith to avoid hardcoding the full
+    /// required-field set (mirrors CoachProfile.fromWizardAnswers behavior).
     CoachProfile _profile({
       String? nationality,
       bool? usTaxPerson,
@@ -40,10 +42,7 @@ void main() {
       String? employmentStatus,
       int? arrivalAge,
     }) {
-      return CoachProfile(
-        firstName: 'T',
-        birthYear: 1990,
-        canton: 'VD',
+      return CoachProfile.defaults().copyWith(
         nationality: nationality,
         usTaxPerson: usTaxPerson,
         residencePermit: residencePermit,

@@ -19,6 +19,7 @@ import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/telemetry/gate_decision_telemetry.dart';
 import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -1668,6 +1669,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // re-opens the FATCA / LSFin compliance window — see
     // feature_flags.dart doc-comment for the contract.
     final gate = evaluateCoachArchetypeGate(profile);
+    // Sub-phase 01.5 W02-T05 Task 2 (Codex R4) — observability counter.
+    // Fire-and-forget telemetry BEFORE the kill-switch check so we always
+    // record gate evaluations including kill-switch-bypassed ones. The
+    // `gate_fired` attribute tracks the actual redirect (not the policy
+    // decision) so dashboards can distinguish « gate would have fired but
+    // kill switch is off » via the `kill_switch_enabled` tag. The await
+    // is intentionally NOT chained — telemetry must NEVER block a gate
+    // evaluation (T-01.5-54 mitigation). The PII contract is enforced
+    // inside `recordDecision` (only boolean-shaped strings + archetype
+    // slug + cohort marker — no email / salary / canton).
+    unawaited(GateDecisionTelemetry.recordDecision(
+      profile: profile,
+      computedArchetype: profile.archetype,
+      // `gateFired` reflects the actual outcome: a redirect happens only
+      // when BOTH shouldBlock is true AND the kill switch is on.
+      gateFired: gate.shouldBlock && FeatureFlags.enableCoachHardGate,
+      killSwitchEnabled: FeatureFlags.enableCoachHardGate,
+    ));
     if (gate.shouldBlock && FeatureFlags.enableCoachHardGate) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
