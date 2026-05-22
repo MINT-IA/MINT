@@ -4,8 +4,8 @@ milestone: v2.8
 milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
 status: executing
 stopped_at: Completed 01.1-02-PLAN.md (Wave 2 hero-flow YAML + dry-run trace GREEN, commit 016afb09). Plan 01.1-03 unblocked (Wave 3, autonomous=false, Julien G2 next).
-last_updated: "2026-05-22T11:22:20.408Z"
-last_activity: 2026-05-22 -- Phase 01.5 planning complete
+last_updated: "2026-05-22T15:41:15.786Z"
+last_activity: 2026-05-22 -- Phase 01.5 execution started
 progress:
   total_phases: 15
   completed_phases: 6
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 **North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
 
-**Current focus:** Phase 01.1 walkthrough-first-grounding (PRE-AUDIT) — ground the production-readiness audit in observed reality before mappers spawn in 01.2. Phase 02-deploy Task 2a CHECKPOINT remains parked (Julien-gated, orthogonal).
+**Current focus:** Phase 01.5 — archetype-hard-gate-fatca
 
 ## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
 
@@ -35,10 +35,10 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 
 ## Current Position
 
-Phase: 01.1 walkthrough-first-grounding (PRE-AUDIT) — PLANNED, ready to execute
-Plan: 1 of 3 plans executed. Wave 1 (01.1-01 pre-conditions) is the GO/NO-GO gate. Waves 2 + 3 sequential (Wave 3 = Julien G2 observation pass, autonomous: false).
-Status: Ready to execute
-Last activity: 2026-05-22 -- Phase 01.5 planning complete
+Phase: 01.5 (archetype-hard-gate-fatca) — EXECUTING
+Plan: 1 of 11
+Status: Executing Phase 01.5
+Last activity: 2026-05-22 -- Phase 01.5 execution started
 
 **Parked / orthogonal:**
 
