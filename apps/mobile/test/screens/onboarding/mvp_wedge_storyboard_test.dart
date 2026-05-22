@@ -24,6 +24,17 @@ class _FakeCoachProfileProvider extends CoachProfileProvider {
 
   @override
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+    // Sub-phase 01.5 W02-T03: the us-tax-person hard-gate writes
+    // {'q_us_tax_person': bool} via the same mergeAnswers entry-point.
+    // It is NOT the T8 dossier flush — exclude it from throw + log,
+    // so the existing throwOnMerge tests still target the flush.
+    final isUsTaxPersonGateOnly = partial.length == 1 &&
+        partial.containsKey('q_us_tax_person');
+    if (isUsTaxPersonGateOnly) {
+      // Gate writes succeed unconditionally — they are not the
+      // failure-under-test for the T8 SnackBar story.
+      return;
+    }
     if (throwOnMerge) {
       throw StateError('test: mergeAnswers failed');
     }
@@ -78,8 +89,20 @@ Future<void> _commonEntry(
   await tester.pumpAndSettle();
   expect(find.textContaining('Qu\u2019est-ce qui t\u2019amène'), findsOneWidget);
 
-  // T2 → T3 (tap intent card)
+  // T2 → T2.5 (tap intent card)
+  // Sub-phase 01.5 W02-T03 inserted a us-tax-person gate between
+  // intents and age (Security §4 nLPD art. 6 pre-financial-data).
   await tester.tap(find.text(intentLabel));
+  await tester.pumpAndSettle();
+  expect(
+    find.text('Es-tu citoyen ou résident fiscal aux États-Unis ?'),
+    findsOneWidget,
+  );
+
+  // T2.5 → T3 : tap "Non" (storyboard tests default to non-US users so
+  // they reach the financial-data steps; gate semantics are covered in
+  // coach_route_archetype_guard_test.dart).
+  await tester.tap(find.byKey(const ValueKey('us-tax-person-no')));
   await tester.pumpAndSettle();
   expect(find.text('Quel âge tu as ?'), findsOneWidget);
 }

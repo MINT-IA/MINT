@@ -23,6 +23,7 @@ import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_provider.dar
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_3a_levier.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_capacite_achat.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_rente_trouee.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class OnboardingShellScreen extends StatelessWidget {
@@ -70,6 +71,8 @@ class _OnboardingShellBody extends StatelessWidget {
         return const _EntryStep();
       case OnboardingStep.intents:
         return const _IntentsStep();
+      case OnboardingStep.usTaxPerson:
+        return const _UsTaxPersonStep();
       case OnboardingStep.age:
         return const _AgeStep();
       case OnboardingStep.canton:
@@ -83,6 +86,27 @@ class _OnboardingShellBody extends StatelessWidget {
       case OnboardingStep.bifurcation:
         return const _BifurcationStep();
     }
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────
+// T2.5 — US-tax-person hard-gate (Sub-phase 01.5 W02-T03)
+// ────────────────────────────────────────────────────────────────────
+
+/// Thin wrapper that connects [UsTaxPersonScreen] to the onboarding
+/// step machine. The screen writes `q_us_tax_person` to
+/// [CoachProfileProvider]; on answer the orchestrator advances to T3
+/// (age). No additional dossier-strip entry — the FATCA flag is
+/// invisible to the user post-answer, surfaced only by the route gate.
+class _UsTaxPersonStep extends StatelessWidget {
+  const _UsTaxPersonStep();
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.read<OnboardingProvider>();
+    return UsTaxPersonScreen(
+      onAnswered: (_) => provider.advance(),
+    );
   }
 }
 

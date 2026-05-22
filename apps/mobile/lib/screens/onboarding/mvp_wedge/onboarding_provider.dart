@@ -35,6 +35,14 @@ class DossierEntry {
 enum OnboardingStep {
   entry,       // T1 — opener
   intents,     // T2 — 4 cartes d'intent
+  // T2.5 — Sub-phase 01.5 W02-T03 hard-gate US-tax-person Q.
+  // Placed BEFORE age/canton/revenue because Security §4 (nLPD art. 6
+  // data minimization) requires the FATCA self-declaration to be asked
+  // BEFORE any financial-data collection. Yes → archetype is forced to
+  // expatUs by `CoachProfile.fromWizardAnswers` (plan 02-01), and the
+  // coach-entry gate (plan 02-03 Task 4) routes to /waitlist before
+  // CoachContext is built.
+  usTaxPerson, // T2.5
   age,         // T3
   canton,      // T4
   revenue,     // T5 — slider fourchette + lien exact
