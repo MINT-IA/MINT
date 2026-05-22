@@ -12,11 +12,12 @@
 /// from real user input.
 ///
 /// **Codex C1 HIGH (REVIEWS.md 2026-05-22) — data-truth boundary:**
-/// the previous draft of this plan wrote `nationality='CH'` to legacy
-/// null-nationality profiles. That is the exact class of data-truth
-/// corruption sub-phase 01.5 is designed to PREVENT — writing CH to a
-/// user who didn't declare it is the bug-class this phase exists to
-/// close. The migration is FLAG-ONLY: it sets a SharedPreferences flag
+/// the previous draft of this plan injected a Swiss nationality default
+/// on legacy null-nationality profiles. That is the exact class of
+/// data-truth corruption sub-phase 01.5 is designed to PREVENT —
+/// writing a default to a user who didn't declare it is the bug-class
+/// this phase exists to close. The migration is FLAG-ONLY: it sets a
+/// SharedPreferences flag
 /// (`coachProfile:needsUsTaxPersonReOnboarding`) and never writes any
 /// value to the profile's nationality field. The orchestrator reads the
 /// flag BEFORE archetype detection and routes to the US-tax-person Q
