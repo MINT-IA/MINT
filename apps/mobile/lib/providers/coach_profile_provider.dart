@@ -695,6 +695,11 @@ class CoachProfileProvider extends ChangeNotifier {
     String? nationalityGroup,
     /// ISO country code when nationalityGroup == 'OTHER' (e.g. 'US', 'BR').
     String? nationalityCountry,
+    /// FATCA self-declaration tri-state from the onboarding US-tax-person
+    /// question (added Sub-phase 01.5 Wave 02 plan 03). null = not asked
+    /// yet (do NOT coerce to false). Plumbed via q_us_tax_person so
+    /// `CoachProfile.fromWizardAnswers` writes it into the model.
+    bool? usTaxPerson,
     /// Employment status from onboarding ('salarie', 'independant', etc.).
     String? employmentStatus,
     /// True if a Swiss national has lived abroad and interrupted cotisations.
@@ -795,6 +800,10 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_cash_total': minimal.currentSavings,
       // Nationality for archetype detection (see CLAUDE.md archetype table)
       if (nationality != null) 'q_nationality': nationality,
+      // R4 tri-state (Sub-phase 01.5 Wave 02 Plan 01): FATCA self-declaration
+      // — only write when explicit (true/false). Omitting the key when null
+      // preserves "not asked yet" semantics through to fromWizardAnswers.
+      if (usTaxPerson != null) 'q_us_tax_person': usTaxPerson,
       if (primaryFocus != null) 'q_primary_focus': primaryFocus,
       if (permitType != null) 'q_residence_permit': permitType,
     };
@@ -872,6 +881,15 @@ class CoachProfileProvider extends ChangeNotifier {
     final gender = remote['gender'] as String?;
     final employmentStatus = remote['employment_status'] as String? ??
         remote['employmentStatus'] as String?;
+    // R4 + R6 (Sub-phase 01.5 Wave 02 Plan 01): backend now roundtrips
+    // nationality + usTaxPerson (Wave 01 Plan 01 — Pydantic schema gap
+    // closure). Hydrate them explicitly so a backend-only user (Scenario
+    // B in Mapper §2.1) gets the FATCA signal applied at archetype
+    // detection time. Both casts preserve null when keys are absent
+    // (legacy backend payloads written before Wave 01 ship).
+    final nationality = remote['nationality'] as String?;
+    final usTaxPerson = remote['usTaxPerson'] as bool? ??
+        remote['us_tax_person'] as bool?;
 
     // Only create if we have at least one meaningful field from backend
     if (birthYear == null && canton == null && grossYearly == null) return;
@@ -890,6 +908,9 @@ class CoachProfileProvider extends ChangeNotifier {
       salaireBrutMensuel: salaireBrutMensuel,
       gender: gender,
       employmentStatus: employmentStatus ?? 'salarie',
+      // R4 + R6: explicit pass-through (do NOT default to false).
+      nationality: nationality,
+      usTaxPerson: usTaxPerson,
       goalA: GoalA(
         type: GoalAType.retraite,
         // If birthYear is estimated, use a conservative target (don't assume 65)
