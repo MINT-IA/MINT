@@ -110,6 +110,9 @@ import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 // annual_refresh_screen.dart + cockpit_detail_screen.dart DELETED (deep-audit 2026-04-17)
+import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
+import 'package:mint_mobile/screens/waitlist/waitlist_screen.dart';
+import 'package:mint_mobile/providers/waitlist_provider.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
@@ -363,6 +366,27 @@ final _router = GoRouter(
       builder: (context, state) {
         final intent = state.uri.queryParameters['intent'];
         return AnonymousChatScreen(intent: intent);
+      },
+    ),
+    // ── Sub-phase 01.5 W02-T03 — Hard-gate waitlist destination ──
+    // Public scope: unauthenticated users coming through the onboarding
+    // US-tax-person Q (Yes) or any non-calibrated archetype hit /waitlist
+    // BEFORE any coach context is built (per coach_chat_screen gate at
+    // Task 4). WaitlistArgs carries the archetype slug for the consent
+    // payload (or null when archetype is unknown/not yet computable).
+    //
+    // The nLPD art. 6 clearAll callback is wired in Task 6 (this plan).
+    ScopedGoRoute(
+      path: '/waitlist',
+      scope: RouteScope.public,
+      builder: (context, state) {
+        final args = state.extra is WaitlistArgs
+            ? state.extra as WaitlistArgs
+            : const WaitlistArgs();
+        return ChangeNotifierProvider<WaitlistProvider>(
+          create: (_) => WaitlistProvider(),
+          child: WaitlistScreen(args: args),
+        );
       },
     ),
     // ── Chat-as-verb demo (Phase 96 W1 T4 wired surface) ─────────
