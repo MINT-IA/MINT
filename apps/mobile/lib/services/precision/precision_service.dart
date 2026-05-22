@@ -9,6 +9,7 @@
 /// - ADR-20260223-unified-financial-engine.md
 library;
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
@@ -710,10 +711,26 @@ class PrecisionService {
         return (age - 25).clamp(0, 40).toDouble();
       case 'returning_swiss':
         return (age - 28).clamp(0, 37).toDouble();
+      case 'unknown':
+        // R2 (Sub-phase 01.5 Wave 02 Plan 01, Gemini "silent killer" fix):
+        // unknown archetype → 0 LPP years. Do NOT default to swiss_native
+        // `(age - 25)` which would surface a non-zero contribution count
+        // for an un-archetyped user. Defense-in-depth — the gate
+        // (Wave 02 plan 03) prevents this call but the string-slug
+        // pathway is reachable from cached state per Codex R4.
+        return 0;
       default:
         return (age - 25).clamp(0, 40).toDouble();
     }
   }
+
+  /// Test wrapper exposing the private `_lppYears` for the R2 regression
+  /// guard `test/services/precision_service_unknown_test.dart`. Do NOT
+  /// invoke this in production code — use the public computation entry
+  /// points which call `_lppYears` internally with a validated archetype.
+  @visibleForTesting
+  static double debugLppYears(String archetype, int age) =>
+      _lppYears(archetype, age);
 
   // _bonificationRate removed — use centralized getLppBonificationRate(age)
   // from social_insurance.dart (LPP art. 16).
