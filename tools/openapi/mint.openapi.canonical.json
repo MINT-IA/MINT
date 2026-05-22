@@ -16513,6 +16513,19 @@
             "title": "N5Issuedthisweek",
             "type": "integer"
           },
+          "nationality": {
+            "anyOf": [
+              {
+                "maxLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ISO 3166-1 alpha-2 country code (e.g. 'CH', 'US'). Optional.",
+            "title": "Nationality"
+          },
           "pillar3aAnnual": {
             "anyOf": [
               {
@@ -16624,6 +16637,18 @@
               }
             ],
             "title": "Totalsavings"
+          },
+          "usTaxPerson": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "FATCA self-declaration tri-state. None = not asked yet, True = US person (gate to /waitlist), False = explicitly NOT US person.",
+            "title": "Ustaxperson"
           },
           "voiceCursorPreference": {
             "$ref": "#/components/schemas/VoicePreference",
@@ -16954,6 +16979,19 @@
             "title": "N5Issuedthisweek",
             "type": "integer"
           },
+          "nationality": {
+            "anyOf": [
+              {
+                "maxLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ISO 3166-1 alpha-2 country code (e.g. 'CH', 'US'). Optional.",
+            "title": "Nationality"
+          },
           "pillar3aAnnual": {
             "anyOf": [
               {
@@ -17065,6 +17103,18 @@
               }
             ],
             "title": "Totalsavings"
+          },
+          "usTaxPerson": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "FATCA self-declaration tri-state. None = not asked yet, True = US person (gate to /waitlist), False = explicitly NOT US person.",
+            "title": "Ustaxperson"
           },
           "voiceCursorPreference": {
             "$ref": "#/components/schemas/VoicePreference",
@@ -17371,6 +17421,19 @@
             ],
             "title": "N5Issuedthisweek"
           },
+          "nationality": {
+            "anyOf": [
+              {
+                "maxLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ISO 3166-1 alpha-2 country code (e.g. 'CH', 'US'). Optional.",
+            "title": "Nationality"
+          },
           "pillar3aAnnual": {
             "anyOf": [
               {
@@ -17507,6 +17570,18 @@
               }
             ],
             "title": "Totalsavings"
+          },
+          "usTaxPerson": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "FATCA self-declaration tri-state. None = not asked yet, True = US person (gate to /waitlist), False = explicitly NOT US person.",
+            "title": "Ustaxperson"
           },
           "voiceCursorPreference": {
             "anyOf": [
