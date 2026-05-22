@@ -4,14 +4,14 @@ milestone: v2.8
 milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
 status: executing
 stopped_at: Completed 01.1-02-PLAN.md (Wave 2 hero-flow YAML + dry-run trace GREEN, commit 016afb09). Plan 01.1-03 unblocked (Wave 3, autonomous=false, Julien G2 next).
-last_updated: "2026-05-21T05:49:51.057Z"
-last_activity: 2026-05-21
+last_updated: "2026-05-22T06:41:04.985Z"
+last_activity: 2026-05-22 -- Phase 01.5 planning complete
 progress:
-  total_phases: 13
+  total_phases: 15
   completed_phases: 6
-  total_plans: 68
-  completed_plans: 55
-  percent: 81
+  total_plans: 80
+  completed_plans: 56
+  percent: 70
 ---
 
 # GSD State: MINT v2.9 — Chat-as-Verb Pivot
@@ -38,7 +38,7 @@ See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VER
 Phase: 01.1 walkthrough-first-grounding (PRE-AUDIT) — PLANNED, ready to execute
 Plan: 1 of 3 plans executed. Wave 1 (01.1-01 pre-conditions) is the GO/NO-GO gate. Waves 2 + 3 sequential (Wave 3 = Julien G2 observation pass, autonomous: false).
 Status: Ready to execute
-Last activity: 2026-05-21
+Last activity: 2026-05-22 -- Phase 01.5 planning complete
 
 **Parked / orthogonal:**
 
