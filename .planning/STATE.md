@@ -4,7 +4,7 @@ milestone: v2.8
 milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
 status: executing
 stopped_at: Completed 01.1-02-PLAN.md (Wave 2 hero-flow YAML + dry-run trace GREEN, commit 016afb09). Plan 01.1-03 unblocked (Wave 3, autonomous=false, Julien G2 next).
-last_updated: "2026-05-22T06:41:04.985Z"
+last_updated: "2026-05-22T11:22:20.408Z"
 last_activity: 2026-05-22 -- Phase 01.5 planning complete
 progress:
   total_phases: 15
