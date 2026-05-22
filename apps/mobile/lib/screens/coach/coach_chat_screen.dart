@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -1690,6 +1691,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (gate.shouldBlock && FeatureFlags.enableCoachHardGate) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
+          // Sub-phase 01.5 W02-NN-PATCH-A11Y (H3, WCAG 1.3.2 / 4.1.3):
+          // Announce the redirect so screen reader users hear that the
+          // coach is being skipped in favour of the waitlist screen.
+          // Without this, the navigation is silent for assistive tech.
+          final l10n = S.of(context);
+          if (l10n != null) {
+            SemanticsService.announce(
+              l10n.waitlistAnnounceRedirect,
+              Directionality.of(context),
+            );
+          }
           context.go(
             '/waitlist',
             extra: WaitlistArgs(archetype: gate.archetypeSlug),

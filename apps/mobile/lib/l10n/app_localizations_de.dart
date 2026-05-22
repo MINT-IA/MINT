@@ -23379,6 +23379,10 @@ class SDe extends S {
   String get waitlistCta => 'Benachrichtige mich, sobald es so weit ist';
 
   @override
+  String get waitlistAnnounceRedirect =>
+      'Dein Profil wird von MINT noch nicht unterstützt. Du wirst zur Warteliste weitergeleitet.';
+
+  @override
   String get waitlistConsentCheckbox =>
       'Ich willige ein, per E-Mail benachrichtigt zu werden, sobald MINT für mein Profil verfügbar ist. Die MINT SA verwendet deine E-Mail-Adresse ausschliesslich zu diesem Zweck. Du kannst dich jederzeit abmelden.';
 

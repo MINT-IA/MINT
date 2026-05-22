@@ -11231,6 +11231,7 @@
   "waitlistEmailLabel": "E-Mail",
   "waitlistEmailHint": "deine.email@beispiel.ch",
   "waitlistCta": "Benachrichtige mich, sobald es so weit ist",
+  "waitlistAnnounceRedirect": "Dein Profil wird von MINT noch nicht unterstützt. Du wirst zur Warteliste weitergeleitet.",
   "waitlistConsentCheckbox": "Ich willige ein, per E-Mail benachrichtigt zu werden, sobald MINT für mein Profil verfügbar ist. Die MINT SA verwendet deine E-Mail-Adresse ausschliesslich zu diesem Zweck. Du kannst dich jederzeit abmelden.",
   "waitlistConsentFinePrint": "Mit dem Absenden deiner E-Mail-Adresse stimmst du zu, ausschliesslich für diese Benachrichtigung kontaktiert zu werden. Kein Marketing.",
   "waitlistSuccessMessage": "Danke, wir melden uns, sobald dein Profil unterstützt wird.",

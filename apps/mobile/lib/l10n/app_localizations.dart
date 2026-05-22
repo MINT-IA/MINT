@@ -40845,6 +40845,12 @@ abstract class S {
   /// **'Préviens-moi quand c\'est prêt'**
   String get waitlistCta;
 
+  /// Phase 01.5 W02-NN-PATCH-A11Y (H3, WCAG 1.3.2 / 4.1.3) — SemanticsService.announce text fired when the coach archetype gate redirects an unsupported profile to /waitlist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil n\'est pas encore couvert par MINT. Tu es redirigé·e vers la liste d\'attente.'**
+  String get waitlistAnnounceRedirect;
+
   /// Phase 01.5 W02-T02 — Explicit UCA opt-in checkbox label. Required per Security §5 guardrail #1 + CONTEXT.md §0 (override of UI-SPEC §11 Q3).
   ///
   /// In fr, this message translates to:

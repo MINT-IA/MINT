@@ -23332,6 +23332,10 @@ class SPt extends S {
   String get waitlistCta => 'Préviens-moi quand c\'est prêt';
 
   @override
+  String get waitlistAnnounceRedirect =>
+      'Ton profil n\'est pas encore couvert par MINT. Tu es redirigé·e vers la liste d\'attente.';
+
+  @override
   String get waitlistConsentCheckbox =>
       'J\'accepte d\'être contacté·e par email lorsque MINT sera disponible pour mon profil. MINT SA utilisera ton adresse email uniquement à cette fin. Tu peux te désabonner à tout moment.';
 

@@ -133,37 +133,64 @@ class UsTaxPersonScreen extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: FilledButton.tonal(
-                  key: const ValueKey('us-tax-person-yes'),
-                  onPressed: () => _answer(context, true),
-                  child: Text(
-                    l.waitlistUsTaxPersonYes,
-                    style: const TextStyle(
-                      fontFamily: 'Supreme',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+              // Sub-phase 01.5 W02-NN-PATCH-A11Y (H4, WCAG 1.3.1 / 4.1.2):
+              // Wrap the binary Yes/No in a Semantics container marked as
+              // radio group with explicit position-in-set hints (1/2, 2/2)
+              // and `inMutuallyExclusiveGroup: true`. Without this, screen
+              // readers announce two unrelated buttons instead of a binary
+              // radio group, leaving users without context about the choice
+              // structure.
+              Semantics(
+                container: true,
+                label: l.waitlistUsTaxPersonQuestion,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: Semantics(
+                        inMutuallyExclusiveGroup: true,
+                        button: true,
+                        label: l.waitlistUsTaxPersonYes,
+                        hint: '1 / 2',
+                        child: FilledButton.tonal(
+                          key: const ValueKey('us-tax-person-yes'),
+                          onPressed: () => _answer(context, true),
+                          child: Text(
+                            l.waitlistUsTaxPersonYes,
+                            style: const TextStyle(
+                              fontFamily: 'Supreme',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: FilledButton.tonal(
-                  key: const ValueKey('us-tax-person-no'),
-                  onPressed: () => _answer(context, false),
-                  child: Text(
-                    l.waitlistUsTaxPersonNo,
-                    style: const TextStyle(
-                      fontFamily: 'Supreme',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: Semantics(
+                        inMutuallyExclusiveGroup: true,
+                        button: true,
+                        label: l.waitlistUsTaxPersonNo,
+                        hint: '2 / 2',
+                        child: FilledButton.tonal(
+                          key: const ValueKey('us-tax-person-no'),
+                          onPressed: () => _answer(context, false),
+                          child: Text(
+                            l.waitlistUsTaxPersonNo,
+                            style: const TextStyle(
+                              fontFamily: 'Supreme',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),

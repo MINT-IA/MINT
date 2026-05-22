@@ -23208,6 +23208,10 @@ class SEn extends S {
   String get waitlistCta => 'Notify me when it\'s ready';
 
   @override
+  String get waitlistAnnounceRedirect =>
+      'Your profile isn\'t covered by MINT yet. You\'re being redirected to the waitlist.';
+
+  @override
   String get waitlistConsentCheckbox =>
       'I agree to be contacted by email when MINT becomes available for my profile. MINT SA will use your email address solely for this purpose. You can unsubscribe at any time.';
 

@@ -12321,6 +12321,10 @@
   "@waitlistCta": {
     "description": "Phase 01.5 W02-T02 — Waitlist submit CTA label."
   },
+  "waitlistAnnounceRedirect": "Ton profil n'est pas encore couvert par MINT. Tu es redirigé·e vers la liste d'attente.",
+  "@waitlistAnnounceRedirect": {
+    "description": "Phase 01.5 W02-NN-PATCH-A11Y (H3, WCAG 1.3.2 / 4.1.3) — SemanticsService.announce text fired when the coach archetype gate redirects an unsupported profile to /waitlist."
+  },
   "waitlistConsentCheckbox": "J'accepte d'être contacté·e par email lorsque MINT sera disponible pour mon profil. MINT SA utilisera ton adresse email uniquement à cette fin. Tu peux te désabonner à tout moment.",
   "@waitlistConsentCheckbox": {
     "description": "Phase 01.5 W02-T02 — Explicit UCA opt-in checkbox label. Required per Security §5 guardrail #1 + CONTEXT.md §0 (override of UI-SPEC §11 Q3)."

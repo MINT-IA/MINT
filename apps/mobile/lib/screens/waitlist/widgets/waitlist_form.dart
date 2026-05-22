@@ -130,9 +130,18 @@ class _WaitlistFormState extends State<WaitlistForm> {
           ),
           if (errorKey != null) ...[
             const SizedBox(height: MintSpacing.md),
-            Text(
-              _errorMessage(l, errorKey),
-              style: MintTextStyles.bodyMedium(color: MintColors.error),
+            // Sub-phase 01.5 W02-NN-PATCH-A11Y (H2, WCAG 3.3.1 / 4.1.3):
+            // liveRegion semantics so screen readers announce the error
+            // text when it appears (bad email vs network failure). Without
+            // this, validation failure is silent for assistive-tech users.
+            Semantics(
+              liveRegion: true,
+              container: true,
+              label: _errorMessage(l, errorKey),
+              child: Text(
+                _errorMessage(l, errorKey),
+                style: MintTextStyles.bodyMedium(color: MintColors.error),
+              ),
             ),
           ],
           const SizedBox(height: MintSpacing.lg),
