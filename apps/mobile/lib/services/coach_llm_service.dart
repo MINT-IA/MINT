@@ -269,6 +269,18 @@ class CoachResponse {
   /// flag-OFF path (CONTEXT plan default Q4 — no inputs_hash, no chip).
   final List<ToolCallCitationChip> citationChips;
 
+  /// Sub-phase 01.5 W02-T03 Task 5 — defense-in-depth refusal flag.
+  /// True when the orchestrator refused to invoke the LLM because the
+  /// archetype is outside the calibrated set. The UI can detect this
+  /// to surface the « pas encore prêt » copy and route to /waitlist
+  /// instead of rendering the placeholder message as a coach reply.
+  /// Defaults to false (preserves callers that ignore the field).
+  final bool refused;
+
+  /// Machine-readable refusal reason when [refused] is true. Currently
+  /// 'archetype_not_calibrated' is the only value. Null otherwise.
+  final String? refusalReason;
+
   const CoachResponse({
     required this.message,
     this.suggestedActions,
@@ -279,6 +291,8 @@ class CoachResponse {
     this.toolCalls = const [],
     this.degraded = false,
     this.citationChips = const [],
+    this.refused = false,
+    this.refusalReason,
   });
 }
 

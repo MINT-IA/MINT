@@ -187,6 +187,18 @@ class CoachOrchestrator {
     required CoachContext ctx,
     LlmConfig? byokConfig,
   }) async {
+    // Sub-phase 01.5 W02-T03 Task 5 — orchestrator-level archetype
+    // refusal also applies to the narrative (dashboard) surface so
+    // non-calibrated archetypes that bypass the route gate cannot
+    // exfiltrate via the dashboard cards either. Returns a refusal
+    // OrchestratorOutput with empty text + fallback tier marker (so
+    // upstream renderers can detect non-empty otherwise).
+    if (!_calibratedArchetypes.contains(ctx.archetype)) {
+      return OrchestratorOutput(
+        text: CoachFallbackMessages.archetypeNotCalibrated('fr'),
+        tier: CoachTier.fallback,
+      );
+    }
     // 1. SLM tier
     if (_slmEligible()) {
       final slmOut = await _trySlm(
@@ -229,6 +241,26 @@ class CoachOrchestrator {
   /// [memoryBlock] — optional enriched context from [ContextInjectorService].
   /// When provided, appended to the system prompt for lifecycle-aware,
   /// goal-aware, and conversation-history-aware AI responses.
+  /// Sub-phase 01.5 W02-T03 Task 5 — defense-in-depth calibrated set.
+  ///
+  /// The coach is calibrated for swiss_native only. Any other archetype
+  /// (expat_us via FATCA, expat_eu, cross_border, independent_no_lpp,
+  /// returning_swiss, expat_non_eu, independent_with_lpp, or the
+  /// 'unknown' sentinel) is REFUSED at this layer, even if the route
+  /// gate (coach_chat_screen.dart Task 4) is bypassed (deep-link,
+  /// notification handler, stale cache per Mapper §7.4 risk + Codex R5).
+  ///
+  /// TODO (sub-phase 01.5 future wave): extending to swissNative+isCouple
+  /// at this layer requires reading profile.isCouple, which is NOT
+  /// currently in CoachContext. The route gate already handles
+  /// swissNative+isCouple correctly (Task 4); this layer remains
+  /// {swiss_native} for now. Adding a new archetype requires:
+  ///   (a) verifying calibration in research,
+  ///   (b) updating this set,
+  ///   (c) updating coach_archetype_guard.dart calibrated set,
+  ///   (d) updating waitlist backend enum.
+  static const Set<String> _calibratedArchetypes = {'swiss_native'};
+
   static Future<CoachResponse> generateChat({
     required String userMessage,
     required List<ChatMessage> history,
@@ -244,6 +276,20 @@ class CoachOrchestrator {
     // pour continuer. » — a trust-killer for users who ARE logged in.
     bool isLoggedIn = false,
   }) async {
+    // Sub-phase 01.5 W02-T03 Task 5 — orchestrator-level archetype
+    // refusal (defense-in-depth, secondary gate per Mapper §7.4).
+    // Refuses BEFORE any LLM dispatch (SLM / BYOK / server-key) so the
+    // FATCA exposure documented in 01.5-SECURITY-fatca-scope.md cannot
+    // leak via a route-gate bypass.
+    if (!_calibratedArchetypes.contains(ctx.archetype)) {
+      return CoachResponse(
+        message: CoachFallbackMessages.archetypeNotCalibrated(language),
+        disclaimer: ComplianceGuard.standardDisclaimer,
+        refused: true,
+        refusalReason: 'archetype_not_calibrated',
+      );
+    }
+
     // Build system prompt with optional memory block injection (S58).
     // Pan5-1: Use PromptRegistry.chatSystemPrompt (enriched, context-aware)
     // instead of bare baseSystemPrompt for chat interactions.
@@ -1277,7 +1323,14 @@ class CoachOrchestrator {
       if (eventTip != null) return eventTip;
     }
 
-    // FATCA: highest priority for US taxpayers
+    // FATCA: highest priority for US taxpayers.
+    //
+    // Sub-phase 01.5 W02-T03 Task 5 — this branch is UNREACHABLE for
+    // chat + narrative entry points because the orchestrator-level
+    // _calibratedArchetypes guard at the top of generateChat /
+    // generateNarrativeComponent refuses before reaching the fallback
+    // chain. Left in place for code-archeology + tests that exercise
+    // _contextualTip directly via the visible-for-testing surface.
     if (ctx.archetype == 'expat_us') {
       return FallbackTemplates.fatcaGuidance(ctx);
     }
