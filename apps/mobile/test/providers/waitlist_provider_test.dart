@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -11,25 +10,12 @@ import 'package:mint_mobile/services/waitlist_service.dart';
 /// `MockClient` (http package) for the HTTP layer and a stub session-id
 /// resolver. Mirrors the production service signature 1:1.
 class _TestableWaitlistService extends WaitlistService {
-  _TestableWaitlistService({
-    required this.mockClient,
-    this.sessionId = 'test-session-uuid',
-    this.throwOnSession = false,
-    this.throwSocketException = false,
-  }) : super.test();
+  _TestableWaitlistService({required this.mockClient}) : super.test();
 
   final http.Client mockClient;
-  final String sessionId;
-  final bool throwOnSession;
-  final bool throwSocketException;
 
   @override
-  Future<String> resolveSessionId() async {
-    if (throwOnSession) {
-      throw Exception('session unavailable');
-    }
-    return sessionId;
-  }
+  Future<String> resolveSessionId() async => 'test-session-uuid';
 
   @override
   http.Client get httpClient => mockClient;
