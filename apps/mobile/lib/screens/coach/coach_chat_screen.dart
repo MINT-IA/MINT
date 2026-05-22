@@ -18,6 +18,7 @@ import 'package:mint_mobile/screens/coach/coach_archetype_guard.dart';
 import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -1658,8 +1659,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     //
     // The orchestrator carries the secondary refusal layer (Task 5)
     // in case a deep-link / notification handler bypasses this gate.
+    //
+    // Sub-phase 01.5 W02-T04 Task 2 (Codex R5) — gate wrapped by
+    // FeatureFlags.enableCoachHardGate (default true). When the flag
+    // is set to false via server override (emergency rollback only),
+    // the redirect AND the refusal placeholder are bypassed; the
+    // coach renders normally to all archetypes. Flipping to false
+    // re-opens the FATCA / LSFin compliance window — see
+    // feature_flags.dart doc-comment for the contract.
     final gate = evaluateCoachArchetypeGate(profile);
-    if (gate.shouldBlock) {
+    if (gate.shouldBlock && FeatureFlags.enableCoachHardGate) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           context.go(

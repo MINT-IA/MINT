@@ -193,7 +193,15 @@ class CoachOrchestrator {
     // exfiltrate via the dashboard cards either. Returns a refusal
     // OrchestratorOutput with empty text + fallback tier marker (so
     // upstream renderers can detect non-empty otherwise).
-    if (!_calibratedArchetypes.contains(ctx.archetype)) {
+    //
+    // Sub-phase 01.5 W02-T04 Task 2 (Codex R5) — gate wrapped by
+    // FeatureFlags.enableCoachHardGate. When the flag is false (server
+    // override only — default is true), the guard is bypassed so the
+    // narrative chain proceeds to SLM → BYOK → FallbackTemplates. This
+    // is the emergency rollback path; flipping to false re-opens the
+    // FATCA / LSFin compliance window (see feature_flags.dart doc).
+    if (FeatureFlags.enableCoachHardGate &&
+        !_calibratedArchetypes.contains(ctx.archetype)) {
       return OrchestratorOutput(
         text: CoachFallbackMessages.archetypeNotCalibrated('fr'),
         tier: CoachTier.fallback,
@@ -281,7 +289,15 @@ class CoachOrchestrator {
     // Refuses BEFORE any LLM dispatch (SLM / BYOK / server-key) so the
     // FATCA exposure documented in 01.5-SECURITY-fatca-scope.md cannot
     // leak via a route-gate bypass.
-    if (!_calibratedArchetypes.contains(ctx.archetype)) {
+    //
+    // Sub-phase 01.5 W02-T04 Task 2 (Codex R5) — wrapped by
+    // FeatureFlags.enableCoachHardGate (default true). When the flag
+    // is set to false via server-side override the guard is bypassed,
+    // and chat falls through to the SLM → BYOK → server-key → anonymous
+    // → fallback chain. Emergency rollback only — flipping to false
+    // re-opens the FATCA / LSFin compliance window.
+    if (FeatureFlags.enableCoachHardGate &&
+        !_calibratedArchetypes.contains(ctx.archetype)) {
       return CoachResponse(
         message: CoachFallbackMessages.archetypeNotCalibrated(language),
         disclaimer: ComplianceGuard.standardDisclaimer,
