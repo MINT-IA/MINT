@@ -153,6 +153,8 @@ import 'package:mint_mobile/screens/admin/admin_shell.dart';
 import 'package:mint_mobile/screens/admin/routes_registry_screen.dart';
 // Phase 32 MAP-05 — legacy redirect hit breadcrumb (wired at 43 call-sites below).
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
+// Sub-phase 01.5 W02-T05 — R7 legacy-user flag-based grandfather migration.
+import 'package:mint_mobile/services/profile_migration_service.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -1509,7 +1511,23 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = CoachProfileProvider();
-          provider.loadFromWizard();
+          // Sub-phase 01.5 W02-T05 Task 1 (R7) — flag-based legacy
+          // grandfather migration. Chains the one-shot, idempotent
+          // SharedPreferences write AFTER loadFromWizard so the
+          // archetype-getter null-fallback (plan 02-01) does NOT
+          // mass-evict cached users to /waitlist. Fire-and-forget:
+          // failures are tolerated (the orchestrator's pre-archetype
+          // guard re-reads the flag each session). Codex C1 HIGH
+          // (REVIEWS.md 2026-05-22): the migration is flag-only —
+          // it NEVER writes any value to `nationality`. See
+          // profile_migration_service.dart class doc + the
+          // `legacy_grandfathered_profile_nationality_remains_null`
+          // regression test.
+          provider.loadFromWizard().then((_) {
+            ProfileMigrationService().grandfatherLegacyProfile(
+              provider: provider,
+            );
+          });
           return provider;
         }),
         ChangeNotifierProvider(create: (_) {

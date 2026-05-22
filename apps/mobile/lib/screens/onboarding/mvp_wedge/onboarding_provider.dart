@@ -13,6 +13,11 @@ import 'package:flutter/foundation.dart';
 
 import 'package:mint_mobile/models/onboarding_intent.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+// NOTE (sub-phase 01.5 W02-T05): ProfileMigrationService is consulted by
+// the CALLER (OnboardingShellScreen wrapper after awaiting the flag) — we
+// don't import it here so the provider stays SharedPreferences-free + sync
+// constructable in unit tests. See OnboardingProvider.legacyReOnboarding
+// below.
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Une ligne visible du dossier, affichée dans la bande en bas d'écran.
@@ -62,6 +67,40 @@ enum OnboardingStep {
 enum OnboardingConfidence { low, medium, high, veryHigh }
 
 class OnboardingProvider extends ChangeNotifier {
+  OnboardingProvider();
+
+  /// Sub-phase 01.5 W02-T05 Task 1 (R7) — pre-archetype guard constructor.
+  ///
+  /// Legacy users grandfathered by `ProfileMigrationService` (cached
+  /// pre-fix profile with `usTaxPerson==null AND nationality==null`) start
+  /// the orchestrator DIRECTLY at the `usTaxPerson` step — bypassing
+  /// the entry / intent steps. After they answer the FATCA Q, the
+  /// `UsTaxPersonScreen` calls `ProfileMigrationService.clearReOnboardingFlag`
+  /// and the archetype getter resolves from the fresh signal on the
+  /// next entry.
+  ///
+  /// **Codex C1 HIGH (REVIEWS.md 2026-05-22):** this is the structural
+  /// fix that lets the migration be FLAG-ONLY (no nationality rewrite).
+  /// Without this guard the legacy ambiguous profile would route to
+  /// the archetype getter's "all signals null → unknown" branch and
+  /// land on /waitlist before the user ever sees the FATCA Q.
+  ///
+  /// **Pre-archetype**: this guard runs BEFORE archetype detection
+  /// in the wider app — the orchestrator's step state machine never
+  /// consults `CoachProfile.archetype`.
+  ///
+  /// `needsUsTaxPersonReOnboarding` is computed by the caller (e.g.
+  /// `OnboardingShellScreen` after awaiting `ProfileMigrationService`).
+  /// We accept the bool to keep the provider's constructor synchronous
+  /// and unit-testable in isolation (no SharedPreferences dep).
+  OnboardingProvider.legacyReOnboarding({
+    required bool needsUsTaxPersonReOnboarding,
+  }) {
+    if (needsUsTaxPersonReOnboarding) {
+      _step = OnboardingStep.usTaxPerson;
+    }
+  }
+
   OnboardingStep _step = OnboardingStep.entry;
   final Map<String, DossierEntry> _dossier = {};
 

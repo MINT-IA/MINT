@@ -33,6 +33,7 @@ void main() {
         // (rejected) migration would have rewritten to CH.
         SharedPreferences.setMockInitialValues({
           'wizard_answers_v2': '{"q_birth_year": 1985, "q_canton": "GE"}',
+          'wizard_completed': true,
         });
         final provider = CoachProfileProvider();
         await provider.loadFromWizard();

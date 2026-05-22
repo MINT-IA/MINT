@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/profile_migration_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 /// Binary Yes/No US-tax-person question screen.
@@ -45,6 +46,13 @@ class UsTaxPersonScreen extends StatelessWidget {
     await provider.mergeAnswers(<String, dynamic>{
       'q_us_tax_person': value,
     });
+    // Sub-phase 01.5 W02-T05 Task 1 (R7) — consume the legacy re-onboarding
+    // flag set by ProfileMigrationService on cold start. After this clear,
+    // the orchestrator's pre-archetype guard (plan 03 Task 2) stops
+    // forcing this screen and the archetype getter resolves from the
+    // fresh user-declared FATCA signal. Idempotent — safe when the flag
+    // is already absent (new users, post-fix flow).
+    await ProfileMigrationService().clearReOnboardingFlag();
     onAnswered(value);
   }
 

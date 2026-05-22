@@ -24,6 +24,7 @@ import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_3a_le
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_capacite_achat.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_rente_trouee.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart';
+import 'package:mint_mobile/services/profile_migration_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class OnboardingShellScreen extends StatelessWidget {
@@ -31,9 +32,35 @@ class OnboardingShellScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => OnboardingProvider(),
-      child: const _OnboardingShellBody(),
+    // Sub-phase 01.5 W02-T05 Task 1 (R7) — pre-archetype guard.
+    //
+    // Resolve the legacy `needsUsTaxPersonReOnboarding` flag BEFORE
+    // constructing OnboardingProvider so the step machine starts on
+    // the US-tax-person Q for grandfathered users. New users (flag
+    // absent) keep the standard entry → intents → … flow.
+    //
+    // The future resolves quickly (one SharedPreferences read); we
+    // hide the underlying scaffold during the await to avoid a
+    // single-frame flash of the entry step for legacy users.
+    return FutureBuilder<bool>(
+      future: ProfileMigrationService().needsUsTaxPersonReOnboarding(),
+      builder: (context, snapshot) {
+        // While the flag is loading, show a minimal Scaffold (same
+        // background as the entry step) so there is no visible flash.
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            backgroundColor: MintColors.warmWhite,
+            body: SizedBox.shrink(),
+          );
+        }
+        final needsReOnboarding = snapshot.data ?? false;
+        return ChangeNotifierProvider(
+          create: (_) => OnboardingProvider.legacyReOnboarding(
+            needsUsTaxPersonReOnboarding: needsReOnboarding,
+          ),
+          child: const _OnboardingShellBody(),
+        );
+      },
     );
   }
 }

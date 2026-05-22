@@ -33,8 +33,11 @@ void main() {
         SharedPreferences.setMockInitialValues({
           // Seed a minimal wizard_answers_v2 payload with NEITHER
           // q_us_tax_person NOR a nationality key — the legacy pre-fix
-          // ambiguous shape.
+          // ambiguous shape. `wizard_completed=true` so loadFromWizard
+          // materializes the profile (CoachProfileProvider.loadFromWizard
+          // gates on this flag).
           'wizard_answers_v2': '{"q_birth_year": 1990, "q_canton": "VD"}',
+          'wizard_completed': true,
         });
         final provider = CoachProfileProvider();
         await provider.loadFromWizard();
@@ -65,6 +68,7 @@ void main() {
         SharedPreferences.setMockInitialValues({
           'wizard_answers_v2':
               '{"q_birth_year": 1990, "q_canton": "VD", "q_nationality": "FR"}',
+          'wizard_completed': true,
         });
         final provider = CoachProfileProvider();
         await provider.loadFromWizard();
@@ -95,6 +99,7 @@ void main() {
         SharedPreferences.setMockInitialValues({
           'wizard_answers_v2':
               '{"q_birth_year": 1990, "q_canton": "VD", "q_us_tax_person": true}',
+          'wizard_completed': true,
         });
         final provider = CoachProfileProvider();
         await provider.loadFromWizard();
@@ -121,6 +126,7 @@ void main() {
     test('is idempotent — second run is a no-op', () async {
       SharedPreferences.setMockInitialValues({
         'wizard_answers_v2': '{"q_birth_year": 1990, "q_canton": "VD"}',
+        'wizard_completed': true,
         // Pre-seed the done flag — simulates a previous migration run.
         'coachProfile:migration_01_5_done': true,
       });
