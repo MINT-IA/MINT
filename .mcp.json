@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "mint-tools": {
-      "command": "python3.11",
+      "command": "/Users/julienbattaglia/.pyenv/versions/3.11.9/bin/python3.11",
       "args": [
         "./tools/mcp/mint-tools/server.py"
       ],
