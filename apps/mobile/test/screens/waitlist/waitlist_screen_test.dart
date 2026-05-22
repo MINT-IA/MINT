@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -36,8 +40,8 @@ Widget _wrapWithApp({
       );
   return MaterialApp(
     locale: locale,
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
+    localizationsDelegates: S.localizationsDelegates,
+    supportedLocales: S.supportedLocales,
     home: ChangeNotifierProvider<WaitlistProvider>(
       create: (_) => WaitlistProvider(service: svc),
       child: child,
@@ -202,6 +206,43 @@ void main() {
         find.text('Cette adresse email ne semble pas valide. Vérifie la syntaxe.'),
         findsOneWidget,
       );
+    });
+  });
+
+  group('WaitlistScreen — submitting state', () {
+    testWidgets('shows MintLoadingIndicator inside CTA while submitting',
+        (tester) async {
+      // Delay the response so we can observe the submitting frame.
+      final completer = Completer<http.Response>();
+      final svc = _FakeWaitlistService(
+        responseBuilder: (req) async => completer.future,
+      );
+      await tester.pumpWidget(
+        _wrapWithApp(
+          child: const WaitlistScreen(args: WaitlistArgs(archetype: 'expat_us')),
+          service: svc,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'test@example.ch');
+      await tester.tap(find.byKey(const Key('waitlist-consent-checkbox')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('waitlist-cta')));
+      await tester.pump(); // submitting frame, not settled yet
+
+      // Loading indicator visible inside the CTA.
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('waitlist-cta')),
+          matching: find.byType(CupertinoActivityIndicator),
+        ),
+        findsOneWidget,
+      );
+
+      // Unblock the response so the test can complete cleanly.
+      completer.complete(http.Response('{"id":"x","createdAt":"now"}', 201));
+      await tester.pumpAndSettle();
     });
   });
 
