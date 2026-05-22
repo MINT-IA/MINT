@@ -1736,6 +1736,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         return 'cross_border';
       case FinancialArchetype.returningSwiss:
         return 'returning_swiss';
+      case FinancialArchetype.unknown:
+        // R1+R4 (Sub-phase 01.5 Wave 02 Plan 01): archetype unknown reaches
+        // the LLM context only if the gate (Wave 02 plan 03) is bypassed.
+        // Return literal 'unknown' so backend doctrine_checks refuse instead
+        // of defaulting to swiss_native semantics (FATCA / PFIC / frontalier
+        // guards would silently fail).
+        return 'unknown';
     }
   }
 

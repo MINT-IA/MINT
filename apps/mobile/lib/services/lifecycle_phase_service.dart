@@ -409,6 +409,15 @@ class LifecyclePhaseService {
       case FinancialArchetype.independentWithLpp:
         // Default priorities already cover these archetypes
         break;
+
+      case FinancialArchetype.unknown:
+        // R1+R4 (Sub-phase 01.5 Wave 02 Plan 01): unknown archetype injects
+        // NO archetype-specific priorities. The gate (Wave 02 plan 03)
+        // prevents this code path from firing in production by routing
+        // unknown profiles to /waitlist. Defense-in-depth: explicit no-op
+        // satisfies non_exhaustive_switch_statement and prevents
+        // swiss_native priority leakage if the gate is ever bypassed.
+        break;
     }
   }
 }
