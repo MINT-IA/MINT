@@ -28,6 +28,12 @@ enum TrajectoryStatus {
   insufficientData,
 }
 
+enum DataSpineReadinessStatus {
+  ready,
+  partial,
+  blocked,
+}
+
 class SpineFieldMeta {
   final ProfileDataSource? source;
   final FieldConfidence confidence;
@@ -187,6 +193,36 @@ class TrajectorySummary {
     required this.monthlyRequired,
     required this.monthlyGap,
     required this.nextLeverId,
+  });
+}
+
+class DataSpineReadinessSection {
+  final String id;
+  final DataSpineReadinessStatus status;
+  final int knownCount;
+  final int missingCount;
+
+  const DataSpineReadinessSection({
+    required this.id,
+    required this.status,
+    required this.knownCount,
+    required this.missingCount,
+  });
+}
+
+class DataSpineReadinessDigest {
+  final DataSpineReadinessStatus overallStatus;
+  final List<DataSpineReadinessSection> sections;
+  final List<String> missingDomains;
+  final String nextActionId;
+  final DateTime computedAt;
+
+  const DataSpineReadinessDigest({
+    required this.overallStatus,
+    required this.sections,
+    required this.missingDomains,
+    required this.nextActionId,
+    required this.computedAt,
   });
 }
 
