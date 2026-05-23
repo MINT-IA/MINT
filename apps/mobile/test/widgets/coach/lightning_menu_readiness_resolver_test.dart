@@ -7,8 +7,9 @@ import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 void main() {
-  LightningMenuItem item(String action) => LightningMenuItem(
-        title: action,
+  LightningMenuItem item(String id, String action) => LightningMenuItem(
+        id: id,
+        title: id,
         subtitle: 'subtitle',
         icon: Icons.bolt,
         action: action,
@@ -18,18 +19,18 @@ void main() {
   group('LightningMenuReadinessResolver', () {
     test('puts stabilize_budget first when readiness asks for it', () {
       final items = [
-        item('maintain_plan'),
-        item('stabilize_budget'),
-        item('define_target'),
+        item('maintain_plan', 'Où j’en suis ?'),
+        item('stabilize_budget', 'Mon budget ce mois'),
+        item('define_target', '/profile/bilan'),
       ];
 
       final resolved = LightningMenuReadinessResolver.prioritize(
         readiness: const {'next_action_id': 'stabilize_budget'},
-        itemsByActionId: {for (final item in items) item.action: item},
+        itemsById: {for (final item in items) item.id: item},
         fallbackItems: items,
       );
 
-      expect(resolved.map((item) => item.action), [
+      expect(resolved.map((item) => item.id), [
         'stabilize_budget',
         'maintain_plan',
         'define_target',
@@ -38,13 +39,13 @@ void main() {
 
     test('keeps fallback order when readiness is absent', () {
       final items = [
-        item('maintain_plan'),
-        item('define_target'),
+        item('maintain_plan', 'Où j’en suis ?'),
+        item('define_target', '/profile/bilan'),
       ];
 
       final resolved = LightningMenuReadinessResolver.prioritize(
         readiness: null,
-        itemsByActionId: {for (final item in items) item.action: item},
+        itemsById: {for (final item in items) item.id: item},
         fallbackItems: items,
       );
 
@@ -53,13 +54,13 @@ void main() {
 
     test('keeps fallback order when next action id is unknown', () {
       final items = [
-        item('maintain_plan'),
-        item('define_target'),
+        item('maintain_plan', 'Où j’en suis ?'),
+        item('define_target', '/profile/bilan'),
       ];
 
       final resolved = LightningMenuReadinessResolver.prioritize(
         readiness: const {'next_action_id': 'unknown_action'},
-        itemsByActionId: {for (final item in items) item.action: item},
+        itemsById: {for (final item in items) item.id: item},
         fallbackItems: items,
       );
 
@@ -68,20 +69,36 @@ void main() {
 
     test('does not duplicate the prioritized action', () {
       final items = [
-        item('complete_pillar_avs'),
-        item('maintain_plan'),
+        item('complete_pillar_avs', '/scan/avs-guide'),
+        item('maintain_plan', 'Où j’en suis ?'),
       ];
 
       final resolved = LightningMenuReadinessResolver.prioritize(
         readiness: const {'next_action_id': 'complete_pillar_avs'},
-        itemsByActionId: {for (final item in items) item.action: item},
+        itemsById: {for (final item in items) item.id: item},
         fallbackItems: items,
       );
 
       expect(
-        resolved.where((item) => item.action == 'complete_pillar_avs').length,
+        resolved.where((item) => item.id == 'complete_pillar_avs').length,
         1,
       );
+    });
+
+    test('does not leak readiness ids into the chat action payload', () {
+      final items = [
+        item('maintain_plan', 'Où j’en suis ?'),
+        item('stabilize_budget', 'Mon budget ce mois'),
+      ];
+
+      final resolved = LightningMenuReadinessResolver.prioritize(
+        readiness: const {'next_action_id': 'stabilize_budget'},
+        itemsById: {for (final item in items) item.id: item},
+        fallbackItems: items,
+      );
+
+      expect(resolved.first.id, 'stabilize_budget');
+      expect(resolved.first.action, isNot('stabilize_budget'));
     });
   });
 

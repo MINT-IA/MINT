@@ -8,8 +8,30 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
+abstract final class LightningMenuActionIds {
+  static const payslipExplained = 'payslip_explained';
+  static const threePillars = 'three_pillars';
+  static const scanDocument = 'scan_document';
+  static const firstBudget = 'first_budget';
+  static const retirementOverview = 'retirement_overview';
+  static const taxRelief = 'tax_relief';
+  static const stabilizeBudget = 'stabilize_budget';
+  static const defineTarget = 'define_target';
+  static const completeSituation = 'complete_situation';
+  static const completePillarAvs = 'complete_pillar_avs';
+  static const completePillarLpp = 'complete_pillar_lpp';
+  static const completePillar3a = 'complete_pillar_3a';
+  static const renteCapital = 'rente_capital';
+  static const debtPlan = 'debt_plan';
+  static const couplePrevoyance = 'couple_prevoyance';
+  static const independantNet = 'independant_net';
+  static const lppBuyback = 'lpp_buyback';
+  static const maintainPlan = 'maintain_plan';
+}
+
 /// Data model for a single item in the Lightning Menu.
 class LightningMenuItem {
+  final String id;
   final String title;
   final String subtitle;
   final IconData icon;
@@ -26,6 +48,7 @@ class LightningMenuItem {
   final String? completionTag;
 
   const LightningMenuItem({
+    required this.id,
     required this.title,
     required this.subtitle,
     required this.icon,
@@ -39,7 +62,7 @@ class LightningMenuItem {
 abstract final class LightningMenuReadinessResolver {
   static List<LightningMenuItem> prioritize({
     required Map<String, dynamic>? readiness,
-    required Map<String, LightningMenuItem> itemsByActionId,
+    required Map<String, LightningMenuItem> itemsById,
     required List<LightningMenuItem> fallbackItems,
   }) {
     final nextActionId = readiness?['next_action_id'];
@@ -47,12 +70,12 @@ abstract final class LightningMenuReadinessResolver {
       return fallbackItems;
     }
 
-    final first = itemsByActionId[nextActionId];
+    final first = itemsById[nextActionId];
     if (first == null) return fallbackItems;
 
     return [
       first,
-      ...fallbackItems.where((item) => item.action != first.action),
+      ...fallbackItems.where((item) => item.id != first.id),
     ];
   }
 }
@@ -110,22 +133,25 @@ class LightningMenu extends StatelessWidget {
 
   List<LightningMenuItem> _stage1Items(S s) => [
         LightningMenuItem(
+          id: LightningMenuActionIds.payslipExplained,
           title: s.lightningMenuPayslipTitle,
           subtitle: s.lightningMenuPayslipSubtitle,
           icon: Icons.description_outlined,
           action: s.lightningMenuPayslipAction,
           tone: MintSurfaceTone.bleu,
-          completionTag: 'payslip_explained',
+          completionTag: LightningMenuActionIds.payslipExplained,
         ),
         LightningMenuItem(
+          id: LightningMenuActionIds.threePillars,
           title: s.lightningMenuThreePillarsTitle,
           subtitle: s.lightningMenuThreePillarsSubtitle,
           icon: Icons.account_balance_outlined,
           action: s.lightningMenuThreePillarsAction,
           tone: MintSurfaceTone.sauge,
-          completionTag: 'three_pillars',
+          completionTag: LightningMenuActionIds.threePillars,
         ),
         LightningMenuItem(
+          id: LightningMenuActionIds.scanDocument,
           title: s.lightningMenuScanDocTitle,
           subtitle: s.lightningMenuScanDocSubtitle,
           icon: Icons.document_scanner_outlined,
@@ -134,12 +160,13 @@ class LightningMenu extends StatelessWidget {
           isRoute: true,
         ),
         LightningMenuItem(
+          id: LightningMenuActionIds.firstBudget,
           title: s.lightningMenuFirstBudgetTitle,
           subtitle: s.lightningMenuFirstBudgetSubtitle,
           icon: Icons.receipt_long_outlined,
           action: s.lightningMenuFirstBudgetAction,
           tone: MintSurfaceTone.bleu,
-          completionTag: 'first_budget',
+          completionTag: LightningMenuActionIds.firstBudget,
         ),
       ];
 
@@ -149,22 +176,25 @@ class LightningMenu extends StatelessWidget {
 
   List<LightningMenuItem> _stage2Items(S s) => [
         LightningMenuItem(
+          id: LightningMenuActionIds.retirementOverview,
           title: s.lightningMenuRetirementTitle,
           subtitle: s.lightningMenuRetirementSubtitle,
           icon: Icons.beach_access_outlined,
           action: s.lightningMenuRetirementAction,
           tone: MintSurfaceTone.sauge,
-          completionTag: 'retirement_overview',
+          completionTag: LightningMenuActionIds.retirementOverview,
         ),
         LightningMenuItem(
+          id: LightningMenuActionIds.taxRelief,
           title: s.lightningMenuTaxReliefTitle,
           subtitle: s.lightningMenuTaxReliefSubtitle,
           icon: Icons.savings_outlined,
           action: s.lightningMenuTaxReliefAction,
           tone: MintSurfaceTone.bleu,
-          completionTag: 'tax_relief',
+          completionTag: LightningMenuActionIds.taxRelief,
         ),
         LightningMenuItem(
+          id: LightningMenuActionIds.stabilizeBudget,
           title: s.lightningMenuBudgetTitle,
           subtitle: s.lightningMenuBudgetSubtitle,
           icon: Icons.receipt_long_outlined,
@@ -172,6 +202,7 @@ class LightningMenu extends StatelessWidget {
           tone: MintSurfaceTone.peche,
         ),
         LightningMenuItem(
+          id: LightningMenuActionIds.defineTarget,
           title: s.lightningMenuCompleteProfileTitle,
           subtitle: s.lightningMenuCompleteProfileSubtitle,
           icon: Icons.person_add_alt_1_outlined,
@@ -191,65 +222,71 @@ class LightningMenu extends StatelessWidget {
     // Age >= 45 → rente ou capital
     if (profile.age >= 45) {
       items.add(LightningMenuItem(
+        id: LightningMenuActionIds.renteCapital,
         title: s.lightningMenuRenteCapitalTitle,
         subtitle: s.lightningMenuRenteCapitalSubtitle,
         icon: Icons.account_balance_outlined,
         action: s.lightningMenuRenteCapitalAction,
         tone: MintSurfaceTone.sauge,
-        completionTag: 'rente_capital',
+        completionTag: LightningMenuActionIds.renteCapital,
       ));
     }
 
     // Has debt → debt reduction
     if (profile.dettes.hasDette) {
       items.add(LightningMenuItem(
+        id: LightningMenuActionIds.debtPlan,
         title: s.lightningMenuDebtTitle,
         subtitle: s.lightningMenuDebtSubtitle,
         icon: Icons.trending_down_outlined,
         action: s.lightningMenuDebtAction,
         tone: MintSurfaceTone.peche,
-        completionTag: 'debt_plan',
+        completionTag: LightningMenuActionIds.debtPlan,
       ));
     }
 
     // Couple → couple situation
     if (profile.isCouple) {
       items.add(LightningMenuItem(
+        id: LightningMenuActionIds.couplePrevoyance,
         title: s.lightningMenuCoupleTitle,
         subtitle: s.lightningMenuCoupleSubtitle,
         icon: Icons.family_restroom_outlined,
         action: s.lightningMenuCoupleAction,
         tone: MintSurfaceTone.peche,
-        completionTag: 'couple_prevoyance',
+        completionTag: LightningMenuActionIds.couplePrevoyance,
       ));
     }
 
     // Independent → safety net
     if (profile.employmentStatus == 'independant') {
       items.add(LightningMenuItem(
+        id: LightningMenuActionIds.independantNet,
         title: s.lightningMenuIndependantTitle,
         subtitle: s.lightningMenuIndependantSubtitle,
         icon: Icons.work_outline,
         action: s.lightningMenuIndependantAction,
         tone: MintSurfaceTone.bleu,
-        completionTag: 'independant_net',
+        completionTag: LightningMenuActionIds.independantNet,
       ));
     }
 
     // Rachat LPP > 10k → buyback opportunity
     if (profile.prevoyance.lacuneRachatRestante > 10000) {
       items.add(LightningMenuItem(
+        id: LightningMenuActionIds.lppBuyback,
         title: s.lightningMenuLppBuybackTitle,
         subtitle: s.lightningMenuLppBuybackSubtitle,
         icon: Icons.add_chart_outlined,
         action: s.lightningMenuLppBuybackAction,
         tone: MintSurfaceTone.sauge,
-        completionTag: 'lpp_buyback',
+        completionTag: LightningMenuActionIds.lppBuyback,
       ));
     }
 
     // Always: living budget
     items.add(LightningMenuItem(
+      id: LightningMenuActionIds.maintainPlan,
       title: s.lightningMenuLivingBudgetTitle,
       subtitle: s.lightningMenuLivingBudgetSubtitle,
       icon: Icons.receipt_long_outlined,
@@ -261,7 +298,8 @@ class LightningMenu extends StatelessWidget {
   }
 
   Map<String, LightningMenuItem> _readinessItems(S s) => {
-        'stabilize_budget': LightningMenuItem(
+        LightningMenuActionIds.stabilizeBudget: LightningMenuItem(
+          id: LightningMenuActionIds.stabilizeBudget,
           title: s.lightningMenuBudgetTitle,
           subtitle: s.lightningMenuBudgetSubtitle,
           icon: Icons.receipt_long_outlined,
@@ -269,7 +307,8 @@ class LightningMenu extends StatelessWidget {
           tone: MintSurfaceTone.peche,
           isRoute: true,
         ),
-        'define_target': LightningMenuItem(
+        LightningMenuActionIds.defineTarget: LightningMenuItem(
+          id: LightningMenuActionIds.defineTarget,
           title: s.lightningMenuCompleteProfileTitle,
           subtitle: s.lightningMenuCompleteProfileSubtitle,
           icon: Icons.flag_outlined,
@@ -277,7 +316,8 @@ class LightningMenu extends StatelessWidget {
           tone: MintSurfaceTone.sauge,
           isRoute: true,
         ),
-        'complete_situation': LightningMenuItem(
+        LightningMenuActionIds.completeSituation: LightningMenuItem(
+          id: LightningMenuActionIds.completeSituation,
           title: s.lightningMenuCompleteProfileTitle,
           subtitle: s.lightningMenuCompleteProfileSubtitle,
           icon: Icons.person_add_alt_1_outlined,
@@ -285,7 +325,8 @@ class LightningMenu extends StatelessWidget {
           tone: MintSurfaceTone.sauge,
           isRoute: true,
         ),
-        'complete_pillar_avs': LightningMenuItem(
+        LightningMenuActionIds.completePillarAvs: LightningMenuItem(
+          id: LightningMenuActionIds.completePillarAvs,
           title: s.lightningMenuScanDocTitle,
           subtitle: s.lightningMenuScanDocSubtitle,
           icon: Icons.account_balance_outlined,
@@ -293,7 +334,8 @@ class LightningMenu extends StatelessWidget {
           tone: MintSurfaceTone.peche,
           isRoute: true,
         ),
-        'complete_pillar_lpp': LightningMenuItem(
+        LightningMenuActionIds.completePillarLpp: LightningMenuItem(
+          id: LightningMenuActionIds.completePillarLpp,
           title: s.lightningMenuScanDocTitle,
           subtitle: s.lightningMenuScanDocSubtitle,
           icon: Icons.document_scanner_outlined,
@@ -301,7 +343,8 @@ class LightningMenu extends StatelessWidget {
           tone: MintSurfaceTone.peche,
           isRoute: true,
         ),
-        'complete_pillar_3a': LightningMenuItem(
+        LightningMenuActionIds.completePillar3a: LightningMenuItem(
+          id: LightningMenuActionIds.completePillar3a,
           title: s.lightningMenuScanDocTitle,
           subtitle: s.lightningMenuScanDocSubtitle,
           icon: Icons.document_scanner_outlined,
@@ -309,7 +352,8 @@ class LightningMenu extends StatelessWidget {
           tone: MintSurfaceTone.peche,
           isRoute: true,
         ),
-        'maintain_plan': LightningMenuItem(
+        LightningMenuActionIds.maintainPlan: LightningMenuItem(
+          id: LightningMenuActionIds.maintainPlan,
           title: s.lightningMenuLivingBudgetTitle,
           subtitle: s.lightningMenuLivingBudgetSubtitle,
           icon: Icons.receipt_long_outlined,
@@ -350,7 +394,7 @@ class LightningMenu extends StatelessWidget {
     final fallback = filtered.length >= 2 ? filtered : raw.take(4).toList();
     return LightningMenuReadinessResolver.prioritize(
       readiness: readiness,
-      itemsByActionId: _readinessItems(s),
+      itemsById: _readinessItems(s),
       fallbackItems: fallback,
     );
   }
