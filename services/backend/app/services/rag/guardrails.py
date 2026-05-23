@@ -34,6 +34,8 @@ import logging
 import re
 from typing import Optional
 
+from app.services.coach.context_packet_sanitizer import summarize_coach_context_packet
+
 logger = logging.getLogger(__name__)
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -63,9 +65,7 @@ _FORMAL_VOUS_RE = re.compile(
 # token (`**`, `*`, `_`, `__`, `~~`, `"`, `'`, `)`, `]`) between the
 # terminator and the whitespace. Without this, "Genève.**" stays glued
 # to the next sentence and the truncate cap leaks beyond 5 sentences.
-_SENTENCE_SPLIT_RE = re.compile(
-    r"(?<=[.!?…])(?:\*{1,2}|_{1,2}|~~|[\"'\)\]])?\s+(?=\S)"
-)
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?…])(?:\*{1,2}|_{1,2}|~~|[\"'\)\]])?\s+(?=\S)")
 
 
 class ComplianceGuardrails:
@@ -333,20 +333,26 @@ class ComplianceGuardrails:
         # For French, ComplianceGuard injects disclaimers into the text (Layer 4).
         # We reflect them into disclaimers_added for API consistency.
         if language == "fr":
-
             disclaimers_added.append(self.DISCLAIMERS["fr"]["general"])
             response_lower = response.lower()
             for term in self.REQUIRES_DISCLAIMER:
                 if term.lower() in response_lower:
                     tax_terms = {
-                        "impôt", "fiscal", "déduction",
+                        "impôt",
+                        "fiscal",
+                        "déduction",
                     }
                     if term.lower() in tax_terms:
                         if self.DISCLAIMERS["fr"]["tax"] not in disclaimers_added:
                             disclaimers_added.append(self.DISCLAIMERS["fr"]["tax"])
                     else:
-                        if self.DISCLAIMERS["fr"]["investment"] not in disclaimers_added:
-                            disclaimers_added.append(self.DISCLAIMERS["fr"]["investment"])
+                        if (
+                            self.DISCLAIMERS["fr"]["investment"]
+                            not in disclaimers_added
+                        ):
+                            disclaimers_added.append(
+                                self.DISCLAIMERS["fr"]["investment"]
+                            )
         else:
             response_lower = response.lower()
             needs_tax_disclaimer = False
@@ -355,8 +361,17 @@ class ComplianceGuardrails:
             for term in self.REQUIRES_DISCLAIMER:
                 if term.lower() in response_lower:
                     tax_terms = {
-                        "impôt", "fiscal", "déduction", "steuer", "steuerlich",
-                        "abzug", "tax", "deduction", "imposta", "fiscale", "deduzione",
+                        "impôt",
+                        "fiscal",
+                        "déduction",
+                        "steuer",
+                        "steuerlich",
+                        "abzug",
+                        "tax",
+                        "deduction",
+                        "imposta",
+                        "fiscale",
+                        "deduzione",
                     }
                     if term.lower() in tax_terms:
                         needs_tax_disclaimer = True
@@ -486,7 +501,9 @@ class ComplianceGuardrails:
         return set(words)
 
     @classmethod
-    def truncate_to_sentences(cls, text: str, max_sentences: int = 3) -> tuple[str, bool]:
+    def truncate_to_sentences(
+        cls, text: str, max_sentences: int = 3
+    ) -> tuple[str, bool]:
         """Clamp ``text`` to at most ``max_sentences`` sentences.
 
         Splits on `.!?…` followed by whitespace. Preserves the terminal
@@ -653,6 +670,18 @@ class ComplianceGuardrails:
                 "à la situation spécifique de l'utilisateur. "
                 "Ne répète pas ces données textuellement, "
                 "mais adapte tes explications et exemples en conséquence."
+            )
+
+        packet_summary = summarize_coach_context_packet(
+            profile_context.get("coach_context_packet")
+        )
+        if packet_summary:
+            extra_blocks.append(
+                "\n\n"
+                f"{packet_summary}\n\n"
+                "Utilise ce Data Spine comme contexte structuré. "
+                "Ne cite que les faits listés et demande les données manquantes "
+                "au lieu de les inventer."
             )
 
         # ── Life event taxonomy (deep-audit 2026-04-17 P0-1) ─────────────────

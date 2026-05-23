@@ -31,6 +31,7 @@ import 'package:mint_mobile/services/coach/chat_tool_dispatcher.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
+import 'package:mint_mobile/services/data_spine/coach_context_packet_adapter.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -126,6 +127,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   CoachProfile? _profile;
   final List<ChatMessage> _messages = [];
+
   /// Maximum messages kept in memory to prevent Watchdog RAM termination.
   static const int _maxMessages = 150;
 
@@ -168,7 +170,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// SharedPreferences keys for proactive opt-in tracking.
   static const String _conversationCountKey = 'mint_coach_conversation_count';
   static const String _proactiveOptInKey = 'mint_coach_proactive_optin';
-  static const String _proactiveOptInAskedKey = 'mint_coach_proactive_optin_asked';
+  static const String _proactiveOptInAskedKey =
+      'mint_coach_proactive_optin_asked';
 
   /// Whether the proactive opt-in question has been shown this session.
   bool _optInShownThisSession = false;
@@ -261,7 +264,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       await prefs.setInt(_cashLevelKey, level);
     } catch (e) {
       // Best-effort persistence.
-      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+      debugPrint(
+          '[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -277,7 +281,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       }
     } catch (e) {
       // Best-effort: chat continues even if the flag cannot be written.
-      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+      debugPrint(
+          '[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -291,8 +296,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // Load onboarding intent for first-session opener (D-06).
       final selectedIntent =
           await ReportPersistenceService.getSelectedOnboardingIntent();
-      final hasSeen =
-          await ReportPersistenceService.hasSeenPremierEclairage();
+      final hasSeen = await ReportPersistenceService.hasSeenPremierEclairage();
       if (selectedIntent != null && !hasSeen && mounted) {
         setState(() {
           _pendingIntentChipKey = selectedIntent;
@@ -300,7 +304,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       }
     } catch (e) {
       // Graceful degradation: coach works without onboarding payload.
-      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+      debugPrint(
+          '[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -762,7 +767,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       await prefs.setInt(_conversationCountKey, count + 1);
     } catch (e) {
       // Best-effort persistence.
-      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+      debugPrint(
+          '[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -801,7 +807,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           headline: s.coachSilentOpenerFitnessScore,
         );
       }
-    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+    } catch (e) {
+      debugPrint("[CoachChat] best-effort: $e");
+    }
 
     // Priority 3: replacement rate (retirement-framed — only surfaces when
     // nothing neutral above is available and the user has enough data for
@@ -819,7 +827,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           headline: s.coachSilentOpenerReplacementRate,
         );
       }
-    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+    } catch (e) {
+      debugPrint("[CoachChat] best-effort: $e");
+    }
 
     // Priority 4: projected capital (same neutralization rationale).
     try {
@@ -835,7 +845,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           headline: s.coachSilentOpenerProjectedCapital,
         );
       }
-    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+    } catch (e) {
+      debugPrint("[CoachChat] best-effort: $e");
+    }
 
     return null;
   }
@@ -880,7 +892,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       ),
     );
   }
-
 
   /// Regex patterns for voice intensity adjustment commands.
   static final RegExp _intensityUpPattern = RegExp(
@@ -994,7 +1005,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       }
     } catch (e) {
       // Graceful degradation: chat works without memory block.
-      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+      debugPrint(
+          '[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
 
     // Mounted gate after the await above (use_build_context_synchronously) —
@@ -1136,7 +1148,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // Phase 1: generate inline response cards from user message
     final cards = _profile != null
-        ? ResponseCardService.generateForChat(_profile!, userMessage, l: S.of(context)!)
+        ? ResponseCardService.generateForChat(_profile!, userMessage,
+            l: S.of(context)!)
         : <ResponseCard>[];
 
     // T-02-05: normalize and cap tool calls via ChatToolDispatcher.
@@ -1312,11 +1325,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       }
       // Recover last user message so the user can retry with one tap.
       final lastUserText = _messages
-          .lastWhere((m) => m.isUser, orElse: () => ChatMessage(
-                role: 'user',
-                content: '',
-                timestamp: DateTime.now(),
-              ))
+          .lastWhere((m) => m.isUser,
+              orElse: () => ChatMessage(
+                    role: 'user',
+                    content: '',
+                    timestamp: DateTime.now(),
+                  ))
           .content;
       setState(() {
         _messages.add(ChatMessage(
@@ -1353,9 +1367,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 role: 'assistant',
                 content: anonMsg,
                 timestamp: DateTime.now(),
-                disclaimers: (anonResponse['disclaimers'] as List?)
-                        ?.cast<String>() ??
-                    const [],
+                disclaimers:
+                    (anonResponse['disclaimers'] as List?)?.cast<String>() ??
+                        const [],
                 tier: ChatTier.fallback,
               ));
               _isLoading = false;
@@ -1375,11 +1389,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       // Recover the last user message for retry suggestion.
       final lastUserMsg = _messages
-          .lastWhere((m) => m.isUser, orElse: () => ChatMessage(
-                role: 'user',
-                content: '',
-                timestamp: DateTime.now(),
-              ))
+          .lastWhere((m) => m.isUser,
+              orElse: () => ChatMessage(
+                    role: 'user',
+                    content: '',
+                    timestamp: DateTime.now(),
+                  ))
           .content;
       final retryActions = <String>[
         if (lastUserMsg.isNotEmpty) lastUserMsg,
@@ -1479,7 +1494,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _scrollToBottom();
     } catch (e) {
       // Best-effort — don't block chat.
-      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+      debugPrint(
+          '[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -1520,7 +1536,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       });
     } catch (e) {
       // Best-effort.
-      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+      debugPrint(
+          '[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -1728,7 +1745,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final score = FinancialFitnessService.calculate(profile: profile);
       final g = score.global.toDouble();
       if (g.isFinite && g > 0) knownValues['fri_total'] = g;
-    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+    } catch (e) {
+      debugPrint("[CoachChat] best-effort: $e");
+    }
 
     try {
       final proj = ForecasterService.project(
@@ -1739,7 +1758,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final taux = proj.tauxRemplacementBase;
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
       if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
-    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+    } catch (e) {
+      debugPrint("[CoachChat] best-effort: $e");
+    }
 
     // Walker 2026-05-08 Étape 6 fix: also expose the raw verified inputs
     // (LPP avoir, gross salary, 3a savings, months of liquidity) so the
@@ -1750,8 +1771,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // `lib/services/coach/coach_context_builder.dart:18-26` (CHF, CHF/an,
     // months). All gated on > 0 to avoid HallucinationDetector
     // false-positives on missing data.
-    final salaireBrutAnnuel =
-        profile.salaireBrutMensuel * profile.nombreDeMois;
+    final salaireBrutAnnuel = profile.salaireBrutMensuel * profile.nombreDeMois;
     if (salaireBrutAnnuel.isFinite && salaireBrutAnnuel > 0) {
       knownValues['salaire_brut'] = salaireBrutAnnuel;
     }
@@ -1771,11 +1791,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ? loggedExpenses
         : (netMensuel > 0 ? netMensuel * 0.6 : 0.0);
     final epargneLiquide = profile.patrimoine.epargneLiquide;
-    if (monthlyExpenses > 0 &&
-        epargneLiquide.isFinite &&
-        epargneLiquide > 0) {
+    if (monthlyExpenses > 0 && epargneLiquide.isFinite && epargneLiquide > 0) {
       knownValues['months_liquidity'] = epargneLiquide / monthlyExpenses;
     }
+
+    final coachContextPacket = CoachContextPacketAdapter.fromProfile(profile);
 
     return CoachContext(
       firstName: profile.firstName ?? 'utilisateur',
@@ -1788,6 +1808,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // mis-archétypés silently. Backend snake_case format expected.
       archetype: _archetypeToBackendName(profile.archetype),
       knownValues: knownValues,
+      coachContextPacket: coachContextPacket,
       hasDebt: profile.isInDebtCrisis,
     );
   }
@@ -1935,7 +1956,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     try {
       final score = FinancialFitnessService.calculate(profile: _profile!);
       fitnessScore = score.global;
-    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+    } catch (e) {
+      debugPrint("[CoachChat] best-effort: $e");
+    }
 
     await PdfService.generateDecisionReportPdf(
       firstName: _profile!.firstName ?? 'Utilisateur',
@@ -2302,8 +2325,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         _controller.text = 'Un choix que je dois faire';
         _focusNode.requestFocus();
       case _OpenerIntent.cost:
-        _controller.text =
-            "Un truc qui me coute chaque mois, je sais pas quoi";
+        _controller.text = "Un truc qui me coute chaque mois, je sais pas quoi";
         _focusNode.requestFocus();
       case _OpenerIntent.lurk:
         // Opt-out: dismiss the opener without forcing any action.
@@ -2318,131 +2340,134 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   Widget _buildMessageList() {
     return RepaintBoundary(
       child: ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.symmetric(
-          horizontal: MintSpacing.md, vertical: 24),
-      itemCount: _messages.length,
-      itemBuilder: (context, index) {
-        final msg = _messages[index];
-        final Widget child;
-        if (msg.isSystem) {
-          child = SystemMessageBubble(message: msg);
-        } else if (msg.isUser) {
-          child = Semantics(
-            label: S.of(context)!.coachUserMessage,
-            child: UserMessageBubble(message: msg),
-          );
-        } else {
-          // v2.7 Task 8: compose bubble + subtle degraded chip (if applicable).
-          final bubbleWidget = CoachMessageBubble(
-            message: msg,
-            messageIndex: index,
-            isStreaming:
-                _isStreaming && msg == _messages.last && msg.tier == ChatTier.slm,
-            isInputAnswered: _answeredInputIndices.contains(index),
-            onInputSubmitted: _handleInputSubmitted,
-            onActionTap: _handleActionTap,
-          );
-          child = Semantics(
-            label: S.of(context)!.coachCoachMessage,
-            child: msg.degraded
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      bubbleWidget,
+        controller: _scrollController,
+        padding: const EdgeInsets.symmetric(
+            horizontal: MintSpacing.md, vertical: 24),
+        itemCount: _messages.length,
+        itemBuilder: (context, index) {
+          final msg = _messages[index];
+          final Widget child;
+          if (msg.isSystem) {
+            child = SystemMessageBubble(message: msg);
+          } else if (msg.isUser) {
+            child = Semantics(
+              label: S.of(context)!.coachUserMessage,
+              child: UserMessageBubble(message: msg),
+            );
+          } else {
+            // v2.7 Task 8: compose bubble + subtle degraded chip (if applicable).
+            final bubbleWidget = CoachMessageBubble(
+              message: msg,
+              messageIndex: index,
+              isStreaming: _isStreaming &&
+                  msg == _messages.last &&
+                  msg.tier == ChatTier.slm,
+              isInputAnswered: _answeredInputIndices.contains(index),
+              onInputSubmitted: _handleInputSubmitted,
+              onActionTap: _handleActionTap,
+            );
+            child = Semantics(
+              label: S.of(context)!.coachCoachMessage,
+              child: msg.degraded
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        bubbleWidget,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 42, top: 4),
+                          child: Text(
+                            S.of(context)!.coachResponseDegradedHint,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: MintColors.textSecondary,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : bubbleWidget,
+            );
+          }
+
+          // Wrap with intensity picker for first assistant message if needed.
+          final bool showIntensity = _cashLevelLoaded &&
+              !_intensityChosen &&
+              index == 0 &&
+              msg.isAssistant &&
+              !(_isStreaming && msg == _messages.last);
+
+          // Show transparency badge under the first assistant response in session.
+          final bool isFirstAssistantInSession = msg.isAssistant &&
+              !(_isStreaming && msg == _messages.last) &&
+              index == _messages.indexWhere((m) => m.isAssistant);
+
+          final Widget wrappedChild = (showIntensity ||
+                  isFirstAssistantInSession)
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    child,
+                    if (isFirstAssistantInSession) ...[
+                      const SizedBox(height: 4),
                       Padding(
-                        padding: const EdgeInsets.only(left: 42, top: 4),
+                        padding: const EdgeInsets.only(left: 42),
                         child: Text(
-                          S.of(context)!.coachResponseDegradedHint,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: MintColors.textSecondary,
+                          // P2 walkthrough fix (2026-05-07): the binary
+                          // `slm ? SLM-copy : BYOK-copy` was wrong for
+                          // ChatTier.fallback (server-key path used by mode-
+                          // local + non-BYOK auth users) — it claimed « via
+                          // ton API Claude » when in fact the call goes via
+                          // the MINT server key, AND it claimed « ton salaire
+                          // exact n'est PAS envoyé » even though the user's
+                          // chat message (which may include CHF amounts) is
+                          // shipped verbatim. New `coachTransparencyServer`
+                          // copy is honest about the server-key path.
+                          switch (msg.tier) {
+                            ChatTier.slm => S.of(context)!.coachTransparencySLM,
+                            ChatTier.byok =>
+                              S.of(context)!.coachTransparencyBYOK,
+                            ChatTier.fallback =>
+                              S.of(context)!.coachTransparencyServer,
+                            ChatTier.none => '',
+                          },
+                          style: MintTextStyles.micro(
+                            color: MintColors.textMuted.withValues(alpha: 0.5),
+                          ).copyWith(
                             fontStyle: FontStyle.italic,
+                            fontSize: 10,
                           ),
                         ),
                       ),
                     ],
-                  )
-                : bubbleWidget,
-          );
-        }
-
-        // Wrap with intensity picker for first assistant message if needed.
-        final bool showIntensity = _cashLevelLoaded &&
-            !_intensityChosen &&
-            index == 0 &&
-            msg.isAssistant &&
-            !(_isStreaming && msg == _messages.last);
-
-        // Show transparency badge under the first assistant response in session.
-        final bool isFirstAssistantInSession = msg.isAssistant &&
-            !(_isStreaming && msg == _messages.last) &&
-            index == _messages.indexWhere((m) => m.isAssistant);
-
-        final Widget wrappedChild = (showIntensity || isFirstAssistantInSession)
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  child,
-                  if (isFirstAssistantInSession) ...[
-                    const SizedBox(height: 4),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 42),
-                      child: Text(
-                        // P2 walkthrough fix (2026-05-07): the binary
-                        // `slm ? SLM-copy : BYOK-copy` was wrong for
-                        // ChatTier.fallback (server-key path used by mode-
-                        // local + non-BYOK auth users) — it claimed « via
-                        // ton API Claude » when in fact the call goes via
-                        // the MINT server key, AND it claimed « ton salaire
-                        // exact n'est PAS envoyé » even though the user's
-                        // chat message (which may include CHF amounts) is
-                        // shipped verbatim. New `coachTransparencyServer`
-                        // copy is honest about the server-key path.
-                        switch (msg.tier) {
-                          ChatTier.slm => S.of(context)!.coachTransparencySLM,
-                          ChatTier.byok => S.of(context)!.coachTransparencyBYOK,
-                          ChatTier.fallback =>
-                            S.of(context)!.coachTransparencyServer,
-                          ChatTier.none => '',
-                        },
-                        style: MintTextStyles.micro(
-                          color: MintColors.textMuted.withValues(alpha: 0.5),
-                        ).copyWith(
-                          fontStyle: FontStyle.italic,
-                          fontSize: 10,
-                        ),
+                    if (showIntensity) ...[
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 42),
+                        child: _buildIntensityChips(),
                       ),
-                    ),
+                    ],
                   ],
-                  if (showIntensity) ...[
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 42),
-                      child: _buildIntensityChips(),
-                    ),
-                  ],
-                ],
-              )
-            : child;
+                )
+              : child;
 
-        return TweenAnimationBuilder<double>(
-          key: ValueKey('msg_$index'),
-          tween: Tween<double>(begin: 0.0, end: 1.0),
-          duration: const Duration(milliseconds: 350),
-          curve: Curves.easeOutCubic,
-          builder: (context, value, child) {
-            return Opacity(
-              opacity: value,
-              child: Transform.translate(
-                offset: Offset(0, 20 * (1 - value)),
-                child: child,
-              ),
-            );
-          },
-          child: wrappedChild,
-        );
-      },
+          return TweenAnimationBuilder<double>(
+            key: ValueKey('msg_$index'),
+            tween: Tween<double>(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: child,
+                ),
+              );
+            },
+            child: wrappedChild,
+          );
+        },
       ),
     );
   }

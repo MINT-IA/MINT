@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/coach/coach_models.dart';
 // FIX-P1-7: Removed direct import of coach_orchestrator.dart to break
 // circular dependency (coach_llm ↔ orchestrator). The orchestrator is
 // now resolved lazily at call time via _resolveOrchestrator().
+import 'package:mint_mobile/services/data_spine/coach_context_packet_adapter.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/rag_service.dart'
@@ -360,8 +361,10 @@ class CoachLlmService {
     if (_orchestratorChatFn == null) {
       // Graceful fallback if orchestrator not yet registered.
       return const CoachResponse(
-        message: 'Service en cours d\'initialisation. Reessaie dans un instant.',
-        disclaimer: 'Outil educatif — ne constitue pas un conseil financier. LSFin.',
+        message:
+            'Service en cours d\'initialisation. Reessaie dans un instant.',
+        disclaimer:
+            'Outil educatif — ne constitue pas un conseil financier. LSFin.',
       );
     }
 
@@ -625,11 +628,14 @@ class CoachLlmService {
       knownValues['avoir_lpp'] = avoirLpp;
     }
 
+    final coachContextPacket = CoachContextPacketAdapter.fromProfile(profile);
+
     return CoachContext(
       firstName: profile.firstName ?? 'utilisateur',
       age: profile.age,
       canton: profile.canton,
       knownValues: knownValues,
+      coachContextPacket: coachContextPacket,
       hasDebt: profile.isInDebtCrisis,
       // Sub-phase 01.5-W02 NN-PATCH (2026-05-22): propagate archetype slug
       // so CoachOrchestrator._calibratedArchetypes check has a real value

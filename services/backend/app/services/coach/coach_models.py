@@ -7,7 +7,7 @@ and narrative generation results.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List
+from typing import Any, Dict, List
 
 
 class ComponentType(str, Enum):
@@ -82,6 +82,9 @@ class CoachContext:
     planned_contributions: list = field(default_factory=list)
     # Known numerical values for hallucination detection
     known_values: dict = field(default_factory=dict)
+    # Structured mobile data-spine packet. Already privacy-scoped by mobile
+    # CoachContextPacketService and sanitized again at the API boundary.
+    coach_context_packet: Dict[str, Any] = field(default_factory=dict)
     # Onboarding intent (e.g., 'firstJob', 'intentChip3a', etc.)
     intent: str = ""
     # Safe Mode signal: consumer debt stress or emergency-fund shortfall.

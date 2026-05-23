@@ -93,6 +93,7 @@ class CoachContextBuilder {
     String lastMilestone = '',
     String upcomingEvent = '',
     Map<String, String> dataSources = const {},
+    Map<String, dynamic> coachContextPacket = const {},
     bool hasDebt = false,
   }) {
     // Build grounding values map — only include non-zero values
@@ -128,6 +129,7 @@ class CoachContextBuilder {
       checkInStreak: checkInStreak,
       lastMilestone: lastMilestone,
       knownValues: knownValues,
+      coachContextPacket: coachContextPacket,
       dataReliability: dataSources,
       hasDebt: hasDebt,
     );

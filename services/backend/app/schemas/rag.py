@@ -5,13 +5,16 @@ Defines request/response models for the RAG query, ingest, and status endpoints.
 """
 
 from enum import Enum
-from typing import Optional
+from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from app.services.coach.context_packet_sanitizer import sanitize_coach_context_packet
 
 
 class LLMProvider(str, Enum):
     """Supported LLM providers."""
+
     claude = "claude"
     openai = "openai"
     mistral = "mistral"
@@ -19,6 +22,7 @@ class LLMProvider(str, Enum):
 
 class RAGLanguage(str, Enum):
     """Supported languages."""
+
     fr = "fr"
     de = "de"
     en = "en"
@@ -30,10 +34,17 @@ class RAGLanguage(str, Enum):
 
 class ProfileContext(BaseModel):
     """Optional profile context for personalizing RAG responses."""
-    canton: Optional[str] = Field(None, description="Swiss canton code (e.g., 'VD', 'ZH')")
+
+    canton: Optional[str] = Field(
+        None, description="Swiss canton code (e.g., 'VD', 'ZH')"
+    )
     age: Optional[int] = Field(None, ge=16, le=120, description="User's age")
-    civil_status: Optional[str] = Field(None, description="Civil status (single, married, etc.)")
-    employment_status: Optional[str] = Field(None, description="Employment status (employed, self-employed, etc.)")
+    civil_status: Optional[str] = Field(
+        None, description="Civil status (single, married, etc.)"
+    )
+    employment_status: Optional[str] = Field(
+        None, description="Employment status (employed, self-employed, etc.)"
+    )
     financial_summary: Optional[str] = Field(
         None,
         max_length=3000,
@@ -41,10 +52,23 @@ class ProfileContext(BaseModel):
         "contributions, check-ins, and fitness score. "
         "Injected into the system prompt for personalized responses.",
     )
+    coach_context_packet: Optional[dict[str, Any]] = Field(
+        None,
+        description=(
+            "Privacy-scoped Data Spine packet from mobile: facts, missing fields, "
+            "trajectory, and next questions. Never raw wizard answers."
+        ),
+    )
+
+    @field_validator("coach_context_packet", mode="before")
+    @classmethod
+    def _sanitize_context_packet(cls, value):
+        return sanitize_coach_context_packet(value)
 
 
 class RAGQueryRequest(BaseModel):
     """Request body for the RAG query endpoint."""
+
     question: str = Field(
         ...,
         min_length=3,
@@ -90,6 +114,7 @@ class RAGQueryRequest(BaseModel):
 
 class RAGSource(BaseModel):
     """A source reference from the knowledge base."""
+
     title: str = Field("", description="Document title")
     file: str = Field("", description="Source filename")
     section: str = Field("", description="Section within the document")
@@ -97,6 +122,7 @@ class RAGSource(BaseModel):
 
 class RAGQueryResponse(BaseModel):
     """Response from the RAG query endpoint."""
+
     answer: str = Field(..., description="The generated answer")
     sources: list[RAGSource] = Field(
         default_factory=list,
@@ -125,6 +151,7 @@ VISION_PROVIDERS = {"claude", "openai"}
 
 class DocumentExtractionType(str, Enum):
     """Target document type for structured extraction."""
+
     lpp_certificate = "lpp_certificate"
     tax_declaration = "tax_declaration"
     avs_extract = "avs_extract"
@@ -138,6 +165,7 @@ class RAGVisionRequest(BaseModel):
     Extracts structured financial data via Claude/GPT-4o vision.
     Privacy: image processed in-flight, never stored by MINT.
     """
+
     image_base64: str = Field(
         ...,
         min_length=100,
@@ -176,6 +204,7 @@ class RAGVisionRequest(BaseModel):
 
 class ExtractedDocumentField(BaseModel):
     """A single field extracted from a document image."""
+
     field_name: str = Field(..., description="Canonical field name (e.g. 'lpp_total')")
     label: str = Field(..., description="Human-readable label (FR)")
     value: Optional[float] = Field(None, description="Numeric value if applicable")
@@ -186,6 +215,7 @@ class ExtractedDocumentField(BaseModel):
 
 class RAGVisionResponse(BaseModel):
     """Response from the vision-augmented RAG endpoint."""
+
     extracted_fields: list[ExtractedDocumentField] = Field(
         default_factory=list,
         description="Structured fields extracted from the document",
@@ -214,6 +244,7 @@ class RAGVisionResponse(BaseModel):
 
 class RAGIngestRequest(BaseModel):
     """Request body for the RAG ingest endpoint."""
+
     directory: str = Field(
         ...,
         description="Path to the directory containing markdown files to ingest",
@@ -226,7 +257,10 @@ class RAGIngestRequest(BaseModel):
 
 class RAGIngestResponse(BaseModel):
     """Response from the RAG ingest endpoint."""
-    documents_ingested: int = Field(..., description="Number of document chunks ingested")
+
+    documents_ingested: int = Field(
+        ..., description="Number of document chunks ingested"
+    )
     status: str = Field(..., description="Ingestion status message")
 
 
@@ -235,7 +269,10 @@ class RAGIngestResponse(BaseModel):
 
 class RAGStatusResponse(BaseModel):
     """Response from the RAG status endpoint."""
-    vector_store_ready: bool = Field(..., description="Whether the vector store is initialized")
+
+    vector_store_ready: bool = Field(
+        ..., description="Whether the vector store is initialized"
+    )
     documents_count: int = Field(0, description="Number of documents in the store")
     collections: list[str] = Field(
         default_factory=list,

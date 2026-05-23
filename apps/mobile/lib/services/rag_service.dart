@@ -191,11 +191,11 @@ class RagVisionResponse {
   factory RagVisionResponse.fromJson(Map<String, dynamic> json) {
     return RagVisionResponse(
       extractedFields: (json['extracted_fields'] as List<dynamic>?)
-              ?.map((f) => RagExtractedField.fromJson(f as Map<String, dynamic>))
+              ?.map(
+                  (f) => RagExtractedField.fromJson(f as Map<String, dynamic>))
               .toList() ??
           [],
-      documentTypeDetected:
-          json['document_type_detected'] as String? ?? '',
+      documentTypeDetected: json['document_type_detected'] as String? ?? '',
       rawAnalysis: json['raw_analysis'] as String? ?? '',
       confidenceDelta: json['confidence_delta'] as int? ?? 0,
       disclaimers: (json['disclaimers'] as List<dynamic>?)
@@ -256,17 +256,16 @@ class RagService {
   }) async {
     final uri = Uri.parse('$baseUrl/rag/query');
 
-    final body = <String, dynamic>{
-      'question': question,
-      'api_key': apiKey,
-      'provider': provider,
-      'language': language,
-      'cash_level': cashLevel.clamp(1, 5),
-    };
-
-    if (model != null) body['model'] = model;
-    if (profileContext != null) body['profile_context'] = profileContext;
-    if (tools != null) body['tools'] = tools;
+    final body = buildQueryBodyForTest(
+      question: question,
+      apiKey: apiKey,
+      provider: provider,
+      model: model,
+      profileContext: profileContext,
+      language: language,
+      tools: tools,
+      cashLevel: cashLevel,
+    );
 
     // T3-11: Retry with exponential backoff on 429 rate limit.
     const maxRetries = 2;
@@ -296,7 +295,8 @@ class RagService {
         throw const RagApiException(
           code: 'rate_limit',
           // ragErrorRateLimit — user-visible, extracted to ARB
-          message: 'Limite de requ\u00eates atteinte. R\u00e9essaie dans quelques instants.',
+          message:
+              'Limite de requ\u00eates atteinte. R\u00e9essaie dans quelques instants.',
         );
       } else if (response.statusCode == 400) {
         // T3-12: Specific error for bad request.
@@ -311,7 +311,8 @@ class RagService {
         throw const RagApiException(
           code: 'service_unavailable',
           // ragErrorServiceUnavailable — user-visible, extracted to ARB
-          message: 'Service temporairement indisponible. R\u00e9essaie plus tard.',
+          message:
+              'Service temporairement indisponible. R\u00e9essaie plus tard.',
         );
       } else {
         final errorBody = _tryDecodeError(response.body);
@@ -327,6 +328,30 @@ class RagService {
       // ragErrorRateLimitShort — user-visible, extracted to ARB
       message: 'Limite de requ\u00eates atteinte.',
     );
+  }
+
+  static Map<String, dynamic> buildQueryBodyForTest({
+    required String question,
+    required String apiKey,
+    required String provider,
+    String? model,
+    Map<String, dynamic>? profileContext,
+    String language = 'fr',
+    List<Map<String, dynamic>>? tools,
+    int cashLevel = 3,
+  }) {
+    final body = <String, dynamic>{
+      'question': question,
+      'api_key': apiKey,
+      'provider': provider,
+      'language': language,
+      'cash_level': cashLevel.clamp(1, 5),
+    };
+
+    if (model != null) body['model'] = model;
+    if (profileContext != null) body['profile_context'] = profileContext;
+    if (tools != null) body['tools'] = tools;
+    return body;
   }
 
   /// Extract structured fields from a document image via BYOK vision LLM.
@@ -409,9 +434,9 @@ class RagService {
   Future<RagStatus> getStatus() async {
     final uri = Uri.parse('$baseUrl/rag/status');
 
-    final response = await MintHttpClient.shared
-        .get(uri, headers: {'Content-Type': 'application/json'})
-        .timeout(const Duration(seconds: 10));
+    final response = await MintHttpClient.shared.get(uri, headers: {
+      'Content-Type': 'application/json'
+    }).timeout(const Duration(seconds: 10));
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;

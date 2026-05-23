@@ -6,18 +6,18 @@ library;
 
 /// Type of coach output component, each with length constraints.
 enum ComponentType {
-  greeting,          // max 30 words
-  scoreSummary,      // max 80 words
-  tip,               // max 120 words
-  premierEclairage,       // max 100 words
-  scenario,          // max 150 words
-  enrichmentGuide,   // max 150 words — data block conversational guide
-  chatSystem,        // max 300 words — main chat system prompt (S51)
-  chatSafeMode,      // max 200 words — debt/stress mode (S51)
-  chatFollowUp,      // max 250 words — multi-turn follow-up (S51)
-  chatSimulation,    // max 250 words — simulation scenario (S51)
-  chatSenior,        // max 200 words — adapted for 60+ users (S51)
-  general,           // max 200 words
+  greeting, // max 30 words
+  scoreSummary, // max 80 words
+  tip, // max 120 words
+  premierEclairage, // max 100 words
+  scenario, // max 150 words
+  enrichmentGuide, // max 150 words — data block conversational guide
+  chatSystem, // max 300 words — main chat system prompt (S51)
+  chatSafeMode, // max 200 words — debt/stress mode (S51)
+  chatFollowUp, // max 250 words — multi-turn follow-up (S51)
+  chatSimulation, // max 250 words — simulation scenario (S51)
+  chatSenior, // max 200 words — adapted for 60+ users (S51)
+  general, // max 200 words
 }
 
 /// Word limits per component type.
@@ -80,6 +80,10 @@ class CoachContext {
   final String lastMilestone;
   // Known numerical values for hallucination detection
   final Map<String, double> knownValues;
+  // Structured, privacy-scoped data spine packet for chat grounding.
+  // Built from DataSpineSnapshot + CoachContextPacketService, never raw
+  // wizard answers.
+  final Map<String, dynamic> coachContextPacket;
   // Data reliability by field: ProfileDataSource enum name — 'certificate',
   // 'wizard', 'estimated', 'userInput'. Stringified in
   // CoachNarrativeService._buildContext via `entry.value.name`.
@@ -115,6 +119,7 @@ class CoachContext {
     this.checkInStreak = 0,
     this.lastMilestone = '',
     this.knownValues = const {},
+    this.coachContextPacket = const {},
     this.dataReliability = const {},
     this.hasDebt = false,
   });
@@ -138,6 +143,7 @@ class CoachContext {
       checkInStreak: checkInStreak,
       lastMilestone: lastMilestone,
       knownValues: knownValues,
+      coachContextPacket: coachContextPacket,
       dataReliability: dataReliability,
       hasDebt: hasDebt ?? this.hasDebt,
     );

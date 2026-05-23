@@ -148,6 +148,42 @@ class CoachOrchestrator {
   static int get _maxPromptChars =>
       (SlmEngine.maxContextTokens * _charsPerToken).floor();
 
+  @visibleForTesting
+  static Map<String, dynamic> buildProfileContextForTest(CoachContext ctx) {
+    return _buildProfileContext(ctx);
+  }
+
+  static Map<String, dynamic> _buildProfileContext(CoachContext ctx) {
+    return {
+      'first_name': ctx.firstName,
+      'age': ctx.age,
+      'canton': ctx.canton,
+      'archetype': ctx.archetype,
+      'fri_total': ctx.friTotal,
+      'fri_delta': ctx.friDelta,
+      'primary_focus': ctx.primaryFocus.isNotEmpty ? ctx.primaryFocus : null,
+      'replacement_ratio':
+          ctx.replacementRatio > 0 ? ctx.replacementRatio / 100.0 : null,
+      'months_liquidity': ctx.monthsLiquidity > 0 ? ctx.monthsLiquidity : null,
+      'tax_saving_potential':
+          ctx.taxSavingPotential > 0 ? ctx.taxSavingPotential : null,
+      'confidence_score': ctx.confidenceScore > 0 ? ctx.confidenceScore : null,
+      'has_debt': ctx.hasDebt,
+      'days_since_last_visit': ctx.daysSinceLastVisit,
+      'fiscal_season': ctx.fiscalSeason.isNotEmpty ? ctx.fiscalSeason : null,
+      'upcoming_event': ctx.upcomingEvent.isNotEmpty ? ctx.upcomingEvent : null,
+      'check_in_streak': ctx.checkInStreak,
+      'last_milestone': ctx.lastMilestone.isNotEmpty ? ctx.lastMilestone : null,
+      if (ctx.dataReliability.isNotEmpty)
+        'data_reliability': ctx.dataReliability,
+      if (ctx.coachContextPacket.isNotEmpty)
+        'coach_context_packet': ctx.coachContextPacket,
+      ...ctx.knownValues.map(
+        (k, v) => MapEntry(k, v.isFinite && v > 0 ? v : null),
+      ),
+    };
+  }
+
   // ══════════════════════════════════════════════════════════════
   //  PHASE 74 — DETERMINISTIC ÉCLAIRAGE KIND OVERRIDE (E2E only)
   // ══════════════════════════════════════════════════════════════
@@ -389,7 +425,8 @@ class CoachOrchestrator {
       }
       debugPrint('[CoachChain] tier3=ServerKey returned null, falling through');
     } else {
-      debugPrint('[CoachChain] tier3=ServerKey skipped (BYOK active or safeMode)');
+      debugPrint(
+          '[CoachChain] tier3=ServerKey skipped (BYOK active or safeMode)');
     }
 
     // 3.5. Anonymous tier — 3 free messages via /anonymous/chat, no auth
@@ -572,7 +609,8 @@ class CoachOrchestrator {
         componentType: componentType,
       );
     } catch (e) {
-      debugPrint('[Orchestrator] ComplianceGuard error on SLM output: $e (returning raw)');
+      debugPrint(
+          '[Orchestrator] ComplianceGuard error on SLM output: $e (returning raw)');
     }
 
     final text = (compliance != null && compliance.sanitizedText.isNotEmpty)
@@ -608,8 +646,7 @@ class CoachOrchestrator {
 
     // Circuit breaker: skip provider if circuit is open (3+ consecutive failures).
     if (await _isProviderCircuitOpen(providerStr)) {
-      debugPrint(
-          '[Orchestrator] BYOK skipped — $providerStr circuit open');
+      debugPrint('[Orchestrator] BYOK skipped — $providerStr circuit open');
       return null;
     }
 
@@ -622,23 +659,7 @@ class CoachOrchestrator {
             apiKey: config.apiKey,
             provider: providerStr,
             model: config.model,
-            profileContext: {
-              'first_name': ctx.firstName,
-              'age': ctx.age,
-              'canton': ctx.canton,
-              'archetype': ctx.archetype,
-              'fri_total': ctx.friTotal,
-              'replacement_ratio': ctx.replacementRatio > 0
-                  ? ctx.replacementRatio / 100.0
-                  : null,
-              'confidence_score': ctx.confidenceScore > 0
-                  ? ctx.confidenceScore
-                  : null,
-              'has_debt': ctx.hasDebt,
-              // Spread knownValues for data lookup tools
-              ...ctx.knownValues.map((k, v) =>
-                  MapEntry(k, v.isFinite && v > 0 ? v : null)),
-            },
+            profileContext: _buildProfileContext(ctx),
           )
           .timeout(_byokTimeout);
     } on TimeoutException {
@@ -671,12 +692,15 @@ class CoachOrchestrator {
         componentType: componentType,
       );
     } catch (e) {
-      debugPrint('[Orchestrator] ComplianceGuard error on BYOK narrative: $e (returning raw)');
+      debugPrint(
+          '[Orchestrator] ComplianceGuard error on BYOK narrative: $e (returning raw)');
     }
 
     await _recordProviderAttempt(providerStr, true, stopwatch.elapsed);
     await _recordResponseQuality(
-      providerStr, rawText, prompt,
+      providerStr,
+      rawText,
+      prompt,
     );
 
     final text = (compliance != null && compliance.sanitizedText.isNotEmpty)
@@ -741,14 +765,12 @@ class CoachOrchestrator {
               'pension_fund_letter',
               'lpp_buyback_request',
             ],
-            'description':
-                'Type of document to generate: fiscal_declaration, '
-                    'pension_fund_letter, or lpp_buyback_request.',
+            'description': 'Type of document to generate: fiscal_declaration, '
+                'pension_fund_letter, or lpp_buyback_request.',
           },
           'context': {
             'type': 'string',
-            'description':
-                'Brief summary of what the user asked for. No PII.',
+            'description': 'Brief summary of what the user asked for. No PII.',
           },
         },
         'required': ['document_type', 'context'],
@@ -800,9 +822,8 @@ class CoachOrchestrator {
           },
           'versements': {
             'type': 'object',
-            'description':
-                'Map of contribution category → amount in CHF '
-                    '(e.g. {"3a": 604.0, "lpp": 250.0}).',
+            'description': 'Map of contribution category → amount in CHF '
+                '(e.g. {"3a": 604.0, "lpp": 250.0}).',
           },
           'summary_message': {
             'type': 'string',
@@ -854,23 +875,7 @@ class CoachOrchestrator {
             apiKey: config.apiKey,
             provider: providerStr,
             model: config.model,
-            profileContext: {
-              'first_name': ctx.firstName,
-              'age': ctx.age,
-              'canton': ctx.canton,
-              'archetype': ctx.archetype,
-              'fri_total': ctx.friTotal,
-              'replacement_ratio': ctx.replacementRatio > 0
-                  ? ctx.replacementRatio / 100.0
-                  : null,
-              'confidence_score': ctx.confidenceScore > 0
-                  ? ctx.confidenceScore
-                  : null,
-              'has_debt': ctx.hasDebt,
-              // Spread knownValues for data lookup tools
-              ...ctx.knownValues.map((k, v) =>
-                  MapEntry(k, v.isFinite && v > 0 ? v : null)),
-            },
+            profileContext: _buildProfileContext(ctx),
             language: language,
             cashLevel: cashLevel,
             // Pass tools so Claude can return route_to_screen tool_use blocks.
@@ -903,7 +908,9 @@ class CoachOrchestrator {
     // Success — record health + quality metrics.
     await _recordProviderAttempt(providerStr, true, stopwatch.elapsed);
     await _recordResponseQuality(
-      providerStr, ragResponse.answer, userMessage,
+      providerStr,
+      ragResponse.answer,
+      userMessage,
     );
 
     var text = ragResponse.answer;
@@ -918,7 +925,8 @@ class CoachOrchestrator {
               '"context_message":"${_escapeJson(toolCall.input['context_message'] as String? ?? '')}"}';
           text = '$text\n[ROUTE_TO_SCREEN:$markerJson]';
         } else if (toolCall.name == 'generate_document') {
-          final markerJson = '{"document_type":"${_escapeJson(toolCall.input['document_type'] as String? ?? '')}",'
+          final markerJson =
+              '{"document_type":"${_escapeJson(toolCall.input['document_type'] as String? ?? '')}",'
               '"context":"${_escapeJson(toolCall.input['context'] as String? ?? '')}"}';
           text = '$text\n[GENERATE_DOCUMENT:$markerJson]';
         }
@@ -963,9 +971,8 @@ class CoachOrchestrator {
     // regional identity injected at onboarding) so it survives deep
     // conversations. Backend cap is also bumped to 32 msg
     // (coach_chat.py:_sanitize_conversation_history).
-    final recentHistory = history
-        .where((m) => m.isUser || m.isAssistant)
-        .toList();
+    final recentHistory =
+        history.where((m) => m.isUser || m.isAssistant).toList();
     final List<ChatMessage> kept;
     if (recentHistory.length <= _conversationContextMaxMessages) {
       kept = recentHistory;
@@ -987,45 +994,17 @@ class CoachOrchestrator {
         .toList();
 
     try {
-      final response = await service.chat(
-        message: userMessage,
-        conversationHistory:
-            conversationHistory.isNotEmpty ? conversationHistory : null,
-        profileContext: {
-          'first_name': ctx.firstName,
-          'age': ctx.age,
-          'canton': ctx.canton,
-          'archetype': ctx.archetype,
-          'fri_total': ctx.friTotal,
-          'fri_delta': ctx.friDelta,
-          'primary_focus':
-              ctx.primaryFocus.isNotEmpty ? ctx.primaryFocus : null,
-          'replacement_ratio':
-              ctx.replacementRatio > 0 ? ctx.replacementRatio / 100.0 : null,
-          'months_liquidity':
-              ctx.monthsLiquidity > 0 ? ctx.monthsLiquidity : null,
-          'tax_saving_potential':
-              ctx.taxSavingPotential > 0 ? ctx.taxSavingPotential : null,
-          'confidence_score':
-              ctx.confidenceScore > 0 ? ctx.confidenceScore : null,
-          'has_debt': ctx.hasDebt,
-          'days_since_last_visit': ctx.daysSinceLastVisit,
-          'fiscal_season':
-              ctx.fiscalSeason.isNotEmpty ? ctx.fiscalSeason : null,
-          'upcoming_event':
-              ctx.upcomingEvent.isNotEmpty ? ctx.upcomingEvent : null,
-          'check_in_streak': ctx.checkInStreak,
-          'last_milestone':
-              ctx.lastMilestone.isNotEmpty ? ctx.lastMilestone : null,
-          if (ctx.dataReliability.isNotEmpty)
-            'data_reliability': ctx.dataReliability,
-          ...ctx.knownValues.map(
-              (k, v) => MapEntry(k, v.isFinite && v > 0 ? v : null)),
-        },
-        memoryBlock: memoryBlock,
-        language: language,
-        cashLevel: cashLevel,
-      ).timeout(_byokTimeout);
+      final response = await service
+          .chat(
+            message: userMessage,
+            conversationHistory:
+                conversationHistory.isNotEmpty ? conversationHistory : null,
+            profileContext: _buildProfileContext(ctx),
+            memoryBlock: memoryBlock,
+            language: language,
+            cashLevel: cashLevel,
+          )
+          .timeout(_byokTimeout);
 
       // Backend /coach/chat has already run its own ComplianceGuard Python pipeline
       // (banned-term sanitization, hallucination detection, disclaimer injection).
@@ -1456,8 +1435,7 @@ class CoachOrchestrator {
     List<ChatMessage> history,
     String currentMessage,
   ) {
-    final relevant =
-        history.where((m) => m.isUser || m.isAssistant).toList();
+    final relevant = history.where((m) => m.isUser || m.isAssistant).toList();
     if (relevant.length <= 1) return _sanitizeUserInput(currentMessage);
 
     final List<ChatMessage> kept;
@@ -1478,7 +1456,8 @@ class CoachOrchestrator {
 
     final buf = StringBuffer('Contexte de la conversation :\n');
     for (final msg in kept) {
-      final content = msg.isUser ? _sanitizeUserInput(msg.content) : msg.content;
+      final content =
+          msg.isUser ? _sanitizeUserInput(msg.content) : msg.content;
       buf.writeln('${msg.isUser ? "Utilisateur" : "Coach"}: $content');
     }
     buf.writeln('\nNouvelle question :\n${_sanitizeUserInput(currentMessage)}');

@@ -239,7 +239,12 @@ void main() {
 
     test('known error codes match service conventions', () {
       // The service uses these specific error codes
-      const validCodes = ['invalid_key', 'rate_limit', 'server_error', 'status_error'];
+      const validCodes = [
+        'invalid_key',
+        'rate_limit',
+        'server_error',
+        'status_error'
+      ];
       for (final code in validCodes) {
         final e = RagApiException(code: code, message: 'test');
         expect(validCodes, contains(e.code));
@@ -308,7 +313,8 @@ void main() {
         'language': 'fr',
       };
 
-      expect(body.keys, containsAll(['question', 'api_key', 'provider', 'language']));
+      expect(body.keys,
+          containsAll(['question', 'api_key', 'provider', 'language']));
       expect(body.length, equals(4));
     });
 
@@ -351,6 +357,39 @@ void main() {
 
       expect(body.containsKey('profile_context'), isTrue);
       expect(body['profile_context'], equals({'canton': 'VD', 'age': 30}));
+    });
+
+    test('query body keeps coach_context_packet inside profile_context', () {
+      final body = RagService.buildQueryBodyForTest(
+        question: 'Ou en est mon plan?',
+        apiKey: 'key',
+        provider: 'claude',
+        profileContext: {
+          'canton': 'VD',
+          'coach_context_packet': {
+            'facts': [
+              {
+                'id': 'budget.monthly_free',
+                'domain': 'budget',
+                'field_path': 'budget.present.monthlyFree',
+                'value': 1800.0,
+              },
+            ],
+            'trajectory': {
+              'status': 'drifting',
+              'monthly_gap': 600.0,
+            },
+          },
+        },
+      );
+
+      final profileContext = body['profile_context'] as Map<String, dynamic>;
+      expect(
+          profileContext['coach_context_packet'], isA<Map<String, dynamic>>());
+      final packet =
+          profileContext['coach_context_packet'] as Map<String, dynamic>;
+      expect(packet['facts'], isA<List<dynamic>>());
+      expect(packet['trajectory'], isA<Map<String, dynamic>>());
     });
 
     test('default language is fr', () {

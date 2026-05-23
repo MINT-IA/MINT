@@ -1191,6 +1191,41 @@ def _build_context_section(ctx: CoachContext) -> str:
         )
         if contributions_list:
             lines.append(f"- Contributions planifiées : {contributions_list}")
+    if ctx.coach_context_packet:
+        packet = ctx.coach_context_packet
+        facts = packet.get("facts") or []
+        missing = packet.get("missing_fields") or []
+        trajectory = packet.get("trajectory") or {}
+        next_questions = packet.get("next_questions") or []
+        lines.append("- Data Spine : packet structuré disponible")
+        if isinstance(trajectory, dict) and trajectory.get("status"):
+            lines.append(f"  - Trajectoire : {trajectory.get('status')}")
+            if trajectory.get("monthly_gap") is not None:
+                lines.append(f"  - Écart mensuel : {trajectory.get('monthly_gap')}")
+        if isinstance(facts, list) and facts:
+            fact_ids = [
+                str(fact.get("id"))
+                for fact in facts[:8]
+                if isinstance(fact, dict) and fact.get("id")
+            ]
+            if fact_ids:
+                lines.append(f"  - Faits disponibles : {', '.join(fact_ids)}")
+        if isinstance(missing, list) and missing:
+            missing_paths = [
+                str(field.get("field_path"))
+                for field in missing[:6]
+                if isinstance(field, dict) and field.get("field_path")
+            ]
+            if missing_paths:
+                lines.append(f"  - Données manquantes : {', '.join(missing_paths)}")
+        if isinstance(next_questions, list) and next_questions:
+            question_ids = [
+                str(question.get("id"))
+                for question in next_questions[:4]
+                if isinstance(question, dict) and question.get("id")
+            ]
+            if question_ids:
+                lines.append(f"  - Prochaines questions : {', '.join(question_ids)}")
 
     # Append extra known_values not already covered
     extra_keys = {

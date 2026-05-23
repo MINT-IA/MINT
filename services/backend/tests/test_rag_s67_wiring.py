@@ -20,6 +20,7 @@ from fastapi.testclient import TestClient
 # Shared helpers
 # ---------------------------------------------------------------------------
 
+
 def _fake_user():
     """Return a mock user object for auth override."""
     user = mock.MagicMock()
@@ -83,7 +84,9 @@ class TestFaqFallback:
             instance = MockLLM.return_value
             instance.generate = fake_generate
 
-            with mock.patch("app.services.rag.faq_service.FaqService.search") as mock_search:
+            with mock.patch(
+                "app.services.rag.faq_service.FaqService.search"
+            ) as mock_search:
                 from app.services.rag.faq_service import FaqEntry
                 from app.services.rag.knowledge_catalog import KnowledgeCategory
 
@@ -130,7 +133,9 @@ class TestFaqFallback:
             instance = MockLLM.return_value
             instance.generate = fake_generate
 
-            with mock.patch("app.services.rag.faq_service.FaqService.search") as mock_search:
+            with mock.patch(
+                "app.services.rag.faq_service.FaqService.search"
+            ) as mock_search:
                 from app.services.rag.faq_service import FaqEntry
                 from app.services.rag.knowledge_catalog import KnowledgeCategory
 
@@ -178,7 +183,9 @@ class TestFaqFallback:
             instance = MockLLM.return_value
             instance.generate = fake_generate
 
-            with mock.patch("app.services.rag.faq_service.FaqService.search") as mock_search:
+            with mock.patch(
+                "app.services.rag.faq_service.FaqService.search"
+            ) as mock_search:
                 asyncio.run(
                     orchestrator.query(
                         question="LPP question?",
@@ -366,6 +373,54 @@ class TestCantonalEnrichment:
         assert "CONTEXTE CANTONAL" in prompt
         assert "PROFIL FINANCIER" in prompt
         assert "120k" in prompt
+
+    def test_context_packet_summary_injected_without_pii(self):
+        """RAG prompt consumes only strict Data Spine packet summary."""
+        from app.services.rag.guardrails import ComplianceGuardrails
+
+        guardrails = ComplianceGuardrails()
+        prompt = guardrails.build_system_prompt(
+            language="fr",
+            profile_context={
+                "coach_context_packet": {
+                    "first_name": "Julien",
+                    "facts": [
+                        {
+                            "id": "budget.monthly_free",
+                            "domain": "budget",
+                            "field_path": "budget.present.monthlyFree",
+                            "value": 1800.0,
+                            "iban": "CH56 0483 5012 3456 7800 9",
+                        },
+                        {
+                            "id": "secret.salary",
+                            "domain": "profile",
+                            "field_path": "wizard_answers.q_salary",
+                            "value": 8000,
+                        },
+                    ],
+                    "trajectory": {
+                        "status": "drifting",
+                        "monthly_gap": 600.0,
+                    },
+                    "next_questions": [
+                        {
+                            "id": "increase_monthly_capacity",
+                            "domain": "budget",
+                            "field_path": "budget.present.monthlyCapacity",
+                        }
+                    ],
+                },
+            },
+        )
+
+        assert "DATA SPINE MINT" in prompt
+        assert "budget.monthly_free" in prompt
+        assert "drifting" in prompt
+        assert "increase_monthly_capacity" in prompt
+        assert "Julien" not in prompt
+        assert "CH56" not in prompt
+        assert "secret.salary" not in prompt
 
     def test_no_canton_in_profile_no_injection(self):
         """When profile_context has no canton, no cantonal block is added."""

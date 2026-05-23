@@ -13,7 +13,7 @@ Sources:
     - LPD art. 6 (protection des donnees)
 """
 
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from app.services.coach.coach_models import CoachContext
 
@@ -39,6 +39,7 @@ def build_coach_context(
     check_in_streak: int = 0,
     last_milestone: str = "",
     planned_contributions: Optional[List[dict]] = None,
+    coach_context_packet: Optional[dict[str, Any]] = None,
     has_debt: bool = False,
 ) -> CoachContext:
     """Build CoachContext with known_values populated from financial indicators.
@@ -98,5 +99,6 @@ def build_coach_context(
         last_milestone=last_milestone,
         planned_contributions=planned_contributions or [],
         known_values=known,
+        coach_context_packet=coach_context_packet or {},
         has_debt=bool(has_debt),
     )
