@@ -2397,9 +2397,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                           padding: const EdgeInsets.only(left: 42, top: 4),
                           child: Text(
                             S.of(context)!.coachResponseDegradedHint,
-                            style: const TextStyle(
-                              fontSize: 11,
+                            style: MintTextStyles.labelSmall(
                               color: MintColors.textSecondary,
+                            ).copyWith(
                               fontStyle: FontStyle.italic,
                             ),
                           ),
@@ -2455,7 +2455,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                             color: MintColors.textMuted.withValues(alpha: 0.5),
                           ).copyWith(
                             fontStyle: FontStyle.italic,
-                            fontSize: 10,
                           ),
                         ),
                       ),
@@ -2506,16 +2505,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           // Was 'Au fait, tu préfères que je sois plutôt…' — the dangling
           // ellipsis read as a truncation bug and the chips below already
           // list the options, making the long phrasing redundant.
           'Comment je te parle\u00a0?',
-          style: TextStyle(
-            fontSize: 14,
+          style: MintTextStyles.bodyMedium(
             color: MintColors.textSecondary,
-            height: 1.4,
-          ),
+          ).copyWith(height: 1.4),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -2537,11 +2534,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 ),
                 child: Text(
                   entry.value,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    height: 1.3,
+                  style: MintTextStyles.bodySmall(
                     color: MintColors.textPrimary,
+                  ).copyWith(
+                    height: 1.3,
                   ),
                 ),
               ),
@@ -2655,10 +2651,8 @@ class _OpenerChip extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: TextStyle(
-              fontSize: 15,
+            style: MintTextStyles.labelLarge(color: textColor).copyWith(
               fontWeight: subtle ? FontWeight.w400 : FontWeight.w500,
-              color: textColor,
             ),
           ),
         ),

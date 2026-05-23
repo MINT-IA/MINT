@@ -42,7 +42,8 @@ void main() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => withProfile ? buildProfileProvider() : CoachProfileProvider(),
+          create: (_) =>
+              withProfile ? buildProfileProvider() : CoachProfileProvider(),
         ),
         ChangeNotifierProvider(create: (_) => ByokProvider()),
         ChangeNotifierProvider(create: (_) => MintStateProvider()),
@@ -265,7 +266,8 @@ void main() {
       await pumpUntilGreeting(tester);
       // Coach avatar shows "M" typographic mark
       // Avatar 'M' appears on coach messages (may need pump for greeting)
-      expect(find.byType(Container), findsWidgets); // Verify widget tree renders
+      expect(
+          find.byType(Container), findsWidgets); // Verify widget tree renders
     });
 
     testWidgets('shows lightning bolt button for menu', (tester) async {
@@ -275,7 +277,8 @@ void main() {
       expect(find.byIcon(Icons.bolt_rounded), findsOneWidget);
     });
 
-    testWidgets('shows coach response after sending 3a message', (tester) async {
+    testWidgets('shows coach response after sending 3a message',
+        (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await pumpUntilGreeting(tester);
@@ -298,7 +301,8 @@ void main() {
       // SKIPPED — coach tier-3 timer, see sibling skip note.
     }, skip: true);
 
-    testWidgets('shows coach response after sending LPP message', (tester) async {
+    testWidgets('shows coach response after sending LPP message',
+        (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await pumpUntilGreeting(tester);
@@ -414,7 +418,8 @@ void main() {
   });
 
   group('ReturnContract V2 — i18n keys', () {
-    testWidgets('routeReturnCompleted i18n key resolves in French', (tester) async {
+    testWidgets('routeReturnCompleted i18n key resolves in French',
+        (tester) async {
       late String resolved;
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('fr'),
@@ -435,7 +440,8 @@ void main() {
       expect(resolved, isNot(contains('routeReturnCompleted')));
     });
 
-    testWidgets('routeReturnAbandoned i18n key resolves in French', (tester) async {
+    testWidgets('routeReturnAbandoned i18n key resolves in French',
+        (tester) async {
       late String resolved;
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('fr'),
@@ -456,7 +462,8 @@ void main() {
       expect(resolved, isNot(contains('routeReturnAbandoned')));
     });
 
-    testWidgets('routeReturnChanged i18n key resolves in French', (tester) async {
+    testWidgets('routeReturnChanged i18n key resolves in French',
+        (tester) async {
       late String resolved;
       await tester.pumpWidget(MaterialApp(
         locale: const Locale('fr'),
@@ -477,7 +484,8 @@ void main() {
       expect(resolved, isNot(contains('routeReturnChanged')));
     });
 
-    testWidgets('completed i18n string differs from abandoned string', (tester) async {
+    testWidgets('completed i18n string differs from abandoned string',
+        (tester) async {
       String completedMsg = '';
       String abandonedMsg = '';
       await tester.pumpWidget(MaterialApp(
@@ -499,7 +507,8 @@ void main() {
       expect(completedMsg, isNot(abandonedMsg));
     });
 
-    testWidgets('changed i18n string differs from completed string', (tester) async {
+    testWidgets('changed i18n string differs from completed string',
+        (tester) async {
       String completedMsg = '';
       String changedMsg = '';
       await tester.pumpWidget(MaterialApp(
@@ -628,7 +637,7 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (_) => buildProfileProvider()),
           ChangeNotifierProvider(create: (_) => ByokProvider()),
-            ChangeNotifierProvider(create: (_) => MintStateProvider()),
+          ChangeNotifierProvider(create: (_) => MintStateProvider()),
         ],
         child: MaterialApp(
           locale: const Locale('fr'),
@@ -671,8 +680,7 @@ void main() {
       );
     });
 
-    testWidgets(
-        'entry without onboardingIntent source does NOT set the flag',
+    testWidgets('entry without onboardingIntent source does NOT set the flag',
         (tester) async {
       usePhoneViewport(tester);
       expect(
