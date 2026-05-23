@@ -21,6 +21,13 @@ enum PillarFactState {
   missing,
 }
 
+enum TrajectoryStatus {
+  onTrack,
+  drifting,
+  blocked,
+  insufficientData,
+}
+
 class SpineFieldMeta {
   final ProfileDataSource? source;
   final FieldConfidence confidence;
@@ -161,16 +168,40 @@ class PillarPosition {
   });
 }
 
+class TrajectorySummary {
+  final TrajectoryStatus status;
+  final double currentMonthlyFree;
+  final double currentMonthlyCapacity;
+  final double? targetAmount;
+  final int? monthsToTarget;
+  final double? monthlyRequired;
+  final double? monthlyGap;
+  final String nextLeverId;
+
+  const TrajectorySummary({
+    required this.status,
+    required this.currentMonthlyFree,
+    required this.currentMonthlyCapacity,
+    required this.targetAmount,
+    required this.monthsToTarget,
+    required this.monthlyRequired,
+    required this.monthlyGap,
+    required this.nextLeverId,
+  });
+}
+
 class DataSpineSnapshot {
   final FinancialSituation situation;
   final BudgetSnapshot budget;
   final PillarPosition pillars;
+  final TrajectorySummary trajectory;
   final DateTime computedAt;
 
   const DataSpineSnapshot({
     required this.situation,
     required this.budget,
     required this.pillars,
+    required this.trajectory,
     required this.computedAt,
   });
 }

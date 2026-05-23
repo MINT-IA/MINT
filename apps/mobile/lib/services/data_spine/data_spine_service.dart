@@ -1,3 +1,4 @@
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/data_spine_snapshot.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
@@ -7,11 +8,14 @@ abstract final class DataSpineService {
     CoachProfile profile, {
     DateTime? now,
   }) {
+    final computedAt = now ?? DateTime.now();
+    final budget = BudgetLivingEngine.compute(profile);
     return DataSpineSnapshot(
       situation: _situationFromProfile(profile),
-      budget: BudgetLivingEngine.compute(profile),
+      budget: budget,
       pillars: _pillarsFromProfile(profile),
-      computedAt: now ?? DateTime.now(),
+      trajectory: _trajectoryFromProfile(profile, budget, computedAt),
+      computedAt: computedAt,
     );
   }
 
@@ -87,6 +91,64 @@ abstract final class DataSpineService {
     );
   }
 
+  static TrajectorySummary _trajectoryFromProfile(
+    CoachProfile profile,
+    BudgetSnapshot budget,
+    DateTime now,
+  ) {
+    final currentMonthlyFree = budget.monthlyFree;
+    final currentMonthlyCapacity = budget.present.monthlySavings +
+        (currentMonthlyFree > 0 ? currentMonthlyFree : 0);
+    final targetAmount = profile.goalA.targetAmount;
+    final monthsToTarget = _monthsBetween(now, profile.goalA.targetDate);
+
+    if (currentMonthlyFree < 0) {
+      return TrajectorySummary(
+        status: TrajectoryStatus.blocked,
+        currentMonthlyFree: currentMonthlyFree,
+        currentMonthlyCapacity: currentMonthlyCapacity,
+        targetAmount: targetAmount,
+        monthsToTarget: monthsToTarget,
+        monthlyRequired: targetAmount != null && monthsToTarget > 0
+            ? targetAmount / monthsToTarget
+            : null,
+        monthlyGap: null,
+        nextLeverId: 'stabilize_budget',
+      );
+    }
+
+    if (targetAmount == null || targetAmount <= 0 || monthsToTarget <= 0) {
+      return TrajectorySummary(
+        status: TrajectoryStatus.insufficientData,
+        currentMonthlyFree: currentMonthlyFree,
+        currentMonthlyCapacity: currentMonthlyCapacity,
+        targetAmount: targetAmount,
+        monthsToTarget: monthsToTarget > 0 ? monthsToTarget : null,
+        monthlyRequired: null,
+        monthlyGap: null,
+        nextLeverId: 'define_target',
+      );
+    }
+
+    final monthlyRequired = targetAmount / monthsToTarget;
+    final monthlyGap = monthlyRequired - currentMonthlyCapacity;
+    final status =
+        monthlyGap <= 0 ? TrajectoryStatus.onTrack : TrajectoryStatus.drifting;
+
+    return TrajectorySummary(
+      status: status,
+      currentMonthlyFree: currentMonthlyFree,
+      currentMonthlyCapacity: currentMonthlyCapacity,
+      targetAmount: targetAmount,
+      monthsToTarget: monthsToTarget,
+      monthlyRequired: monthlyRequired,
+      monthlyGap: monthlyGap,
+      nextLeverId: status == TrajectoryStatus.onTrack
+          ? 'maintain_plan'
+          : 'increase_monthly_capacity',
+    );
+  }
+
   static SpineValue<T> _value<T>(
     T? value,
     CoachProfile profile,
@@ -159,4 +221,10 @@ abstract final class DataSpineService {
   }
 
   static double? _positiveOrNull(double value) => value > 0 ? value : null;
+
+  static int _monthsBetween(DateTime from, DateTime to) {
+    var months = (to.year - from.year) * 12 + to.month - from.month;
+    if (to.day < from.day) months -= 1;
+    return months;
+  }
 }

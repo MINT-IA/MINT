@@ -26,6 +26,8 @@ void main() {
       'depenses.loyer': ProfileDataSource.userInput,
     },
     Map<String, DateTime> dataTimestamps = const {},
+    GoalA? goal,
+    double loyer = 2100,
   }) {
     return CoachProfile(
       firstName: 'Julien',
@@ -36,8 +38,8 @@ void main() {
       nombreDeMois: 13,
       employmentStatus: 'salarie',
       etatCivil: CoachCivilStatus.celibataire,
-      depenses: const DepensesProfile(
-        loyer: 2100,
+      depenses: DepensesProfile(
+        loyer: loyer,
         assuranceMaladie: 430,
         transport: 120,
         telecom: 80,
@@ -51,11 +53,12 @@ void main() {
         creditConsommation: 3000,
         mensualiteCreditConso: 250,
       ),
-      goalA: GoalA(
-        type: GoalAType.retraite,
-        targetDate: DateTime.utc(2052),
-        label: 'Retraite',
-      ),
+      goalA: goal ??
+          GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime.utc(2052),
+            label: 'Retraite',
+          ),
       dataSources: dataSources,
       dataTimestamps: dataTimestamps,
       createdAt: DateTime.utc(2026, 1, 1),
@@ -138,6 +141,50 @@ void main() {
       expect(meta.confidence, FieldConfidence.known);
       expect(meta.freshness, FieldFreshness.fresh);
       expect(meta.updatedAt, lppUpdatedAt);
+    });
+
+    test('derives on-track trajectory when monthly capacity covers target', () {
+      final spine = DataSpineService.fromProfile(
+        buildProfile(
+          goal: GoalA(
+            type: GoalAType.custom,
+            targetDate: DateTime.utc(2027, 5, 23),
+            targetAmount: 1200,
+            label: 'Coussin',
+          ),
+        ),
+        now: fixedNow,
+      );
+
+      expect(spine.trajectory.status, TrajectoryStatus.onTrack);
+      expect(spine.trajectory.monthlyRequired, closeTo(100, 0.01));
+      expect(spine.trajectory.nextLeverId, 'maintain_plan');
+    });
+
+    test('derives blocked trajectory when current monthly free is negative',
+        () {
+      final spine = DataSpineService.fromProfile(
+        buildProfile(
+          loyer: 12000,
+          goal: GoalA(
+            type: GoalAType.custom,
+            targetDate: DateTime.utc(2027, 5, 23),
+            targetAmount: 1200,
+            label: 'Coussin',
+          ),
+        ),
+        now: fixedNow,
+      );
+
+      expect(spine.trajectory.status, TrajectoryStatus.blocked);
+      expect(spine.trajectory.nextLeverId, 'stabilize_budget');
+    });
+
+    test('derives insufficientData trajectory without target amount', () {
+      final spine = DataSpineService.fromProfile(buildProfile(), now: fixedNow);
+
+      expect(spine.trajectory.status, TrajectoryStatus.insufficientData);
+      expect(spine.trajectory.monthlyRequired, isNull);
     });
   });
 }
