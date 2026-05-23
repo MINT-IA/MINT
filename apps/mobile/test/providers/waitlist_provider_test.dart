@@ -24,6 +24,13 @@ class _TestableWaitlistService extends WaitlistService {
   String get baseUrlOverride => 'https://example.test';
 }
 
+class _ApiV1BaseWaitlistService extends _TestableWaitlistService {
+  _ApiV1BaseWaitlistService({required super.mockClient});
+
+  @override
+  String get baseUrlOverride => 'https://example.test/api/v1';
+}
+
 void main() {
   group('WaitlistProvider initial state', () {
     test('status is initial and errorKey null on construction', () {
@@ -38,6 +45,32 @@ void main() {
   });
 
   group('WaitlistProvider submit transitions', () {
+    test('posts to /waitlist when ApiService.baseUrl already includes /api/v1',
+        () async {
+      Uri? capturedUrl;
+      final svc = _ApiV1BaseWaitlistService(
+        mockClient: MockClient((req) async {
+          capturedUrl = req.url;
+          return http.Response(
+            jsonEncode({'id': 'abc-123', 'createdAt': '2026-05-22T00:00:00Z'}),
+            201,
+          );
+        }),
+      );
+      final provider = WaitlistProvider(service: svc);
+
+      await provider.submit(
+        email: 'test@example.ch',
+        archetype: 'expat_us',
+        locale: 'fr',
+        source: 'onboarding_hard_gate',
+        consentGiven: true,
+      );
+
+      expect(capturedUrl, Uri.parse('https://example.test/api/v1/waitlist'));
+      expect(provider.status, WaitlistStatus.success);
+    });
+
     test('201 → initial → submitting → success', () async {
       final statuses = <WaitlistStatus>[];
       final svc = _TestableWaitlistService(

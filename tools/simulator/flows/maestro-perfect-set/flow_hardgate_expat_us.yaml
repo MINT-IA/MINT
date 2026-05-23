@@ -132,19 +132,41 @@ tags:
       - tapOn: "Je comprends, on y va"
       - waitForAnimationToEnd
 
-# 03 — onboarding entry. Even with a seed, the fresh-user wizard may
-# render the entry/intents screens before the seed-derived archetype is
-# consulted. Tap through if the landing CTA appears. No-op if the seed
-# bypassed onboarding entirely (which can happen when the seed pre-
-# hydrates a CoachProfile + persists answers — verify post-run via the
-# captured screenshot).
-- runFlow:
-    when:
-      visible: ".*(Commencer|Démarrer mon diagnostic|Démarrer|Parle à Mint).*"
-    commands:
-      - tapOn:
-          text: ".*(Commencer|Démarrer mon diagnostic|Démarrer|Parle à Mint).*"
-      - waitForAnimationToEnd
+# 03 — onboarding entry. This G1 gate must exercise the `/onb` path,
+# not the primary `/start → /anonymous/chat` discovery CTA ("Parle à
+# Mint"). The FATCA hard gate lives behind onboarding / coach-entry; the
+# anonymous chat is intentionally public and has no profile context.
+# The landing link can appear after the beta sheet animation has ended
+# from Maestro's point of view. Wait explicitly before moving to `/onb`.
+- extendedWaitUntil:
+    visible:
+      text: ".*Continuer sans compte.*"
+    timeout: 15000
+- tapOn:
+    text: ".*Continuer sans compte.*"
+- waitForAnimationToEnd
+
+# 03b — the current `/onb` storyboard enters through an "Ouvrir" CTA.
+# Wait explicitly: after the beta sheet closes, the first onboarding
+# frame can appear after Maestro has already evaluated instant `when`
+# conditions.
+- extendedWaitUntil:
+    visible:
+      text: ".*Ouvrir.*"
+    timeout: 15000
+- tapOn:
+    text: ".*Ouvrir.*"
+- waitForAnimationToEnd
+
+# 03c — choose the lowest-commitment intent to advance from T2 to the
+# FATCA question (T2.5). The hard gate is independent of the intent.
+- extendedWaitUntil:
+    visible:
+      text: ".*Je regarde d’abord.*"
+    timeout: 10000
+- tapOn:
+    text: ".*Je regarde d’abord.*"
+- waitForAnimationToEnd
 
 # 04 — handle the US-tax-person Q (Plan 01.5-02-03 step T2.5) if it
 # fires. The seed sets `usTaxPerson:true` so the orchestrator's pre-
@@ -155,10 +177,10 @@ tags:
 # seed and the FATCA short-circuit will fire regardless.
 - runFlow:
     when:
-      visible: "Es-tu citoyen ou résident fiscal aux États-Unis"
+      visible: ".*États-Unis.*"
     commands:
       - tapOn:
-          id: "us-tax-person-yes"
+          text: ".*Oui.*"
       - waitForAnimationToEnd
 
 # 05 — bounded continue-through-wizard scan. Same pattern as hero flow
@@ -196,39 +218,37 @@ tags:
 - assertNotVisible:
     text: "Dis-moi"
 
-# 08 — Tier-2 security : assert the UCA opt-in consent checkbox is
-# present BEFORE submit. Plan 01.5-02-02 wired
-# Key('waitlist-consent-checkbox') on the CheckboxListTile
-# (waitlist_form.dart:121) — Codex C7 preferred path (Key-based).
+# 08 — Tier-2 security : assert the UCA opt-in consent checkbox copy is
+# present BEFORE submit. Maestro's iOS hierarchy exposes the visible text
+# for Flutter CheckboxListTile, not the widget Key, on this host.
 - assertVisible:
-    id: "waitlist-consent-checkbox"
+    text: ".*J'accepte d'être contacté.*"
 
 # 09 — tap the email field. No Key wired on MintTextField in Plan
 # 02-02 (Codex C7 fallback), so we match by the « Email » label text
 # (app_fr.arb:12312 waitlistEmailLabel).
 - tapOn:
-    text: "Email"
+    text: ".*ton.email@exemple.ch.*"
 
 # 10 — type the test email. Reserved domain per threat-model T-01.5-81
 # (mint.example.ch is purgeable from staging waitlist table). DO NOT
 # use a real domain — staging waitlist is shared infra and we don't
 # want noise from test runs.
 - inputText: "test+01.5@mint.example.ch"
-- hideKeyboard
+- pressKey: Enter
 
-# 11 — tap the consent checkbox. Plan 01.5-02-02 wired
-# Key('waitlist-consent-checkbox') — Codex C7 preferred (Key-based).
+# 11 — tap the consent checkbox.
 # The CTA is gated on (_emailValid && _consentGiven) per
 # waitlist_form.dart:77, so this tap is REQUIRED before the CTA fires.
 - tapOn:
-    id: "waitlist-consent-checkbox"
+    text: ".*J'accepte d'être contacté.*"
 
 # 12 — tap the submit CTA. Plan 01.5-02-02 wired Key('waitlist-cta')
 # on the FilledButton (waitlist_form.dart:151) — Codex C7 preferred.
 # NOTE : the plan-template name was `waitlist-submit-cta` but the actual
 # wired Key is `waitlist-cta` (verified by reading the source).
 - tapOn:
-    id: "waitlist-cta"
+    text: ".*Préviens-moi.*"
 
 # 13 — wait for the POST /api/v1/waitlist round-trip. Budget = 15s.
 # WaitlistProvider cycles submitting → success on a 201/409 response;
@@ -241,10 +261,9 @@ tags:
 - takeScreenshot: "01.5-hardgate-02-success-state"
 
 # 14 — Tier-2 functional : assert the success-state back-to-home CTA
-# is visible. Plan 01.5-02-02 wired Key('waitlist-success-cta')
-# (waitlist_success.dart:50) — Codex C7 preferred.
+# is visible.
 - assertVisible:
-    id: "waitlist-success-cta"
+    text: ".*Revenir à l'accueil.*"
 
 # 15 — negative assertion : NO LSFin banned-term anywhere on the
 # visible waitlist surface at evaluation time. Same lemma list as the
@@ -259,7 +278,7 @@ tags:
 # decorative button). If the route handler is missing this would either
 # no-op or crash — both are findings worth surfacing.
 - tapOn:
-    id: "waitlist-success-cta"
+    text: ".*Revenir à l'accueil.*"
 - waitForAnimationToEnd:
     timeout: 4000
 - takeScreenshot: "01.5-hardgate-03-back-to-home"

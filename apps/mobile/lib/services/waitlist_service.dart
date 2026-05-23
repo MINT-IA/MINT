@@ -83,9 +83,8 @@ class WaitlistService {
         'consentGiven must be true before calling submit (UCA opt-in).',
       );
     }
-    final normalizedArchetype = _allowedWaitlistArchetypes.contains(archetype)
-        ? archetype
-        : 'other';
+    final normalizedArchetype =
+        _allowedWaitlistArchetypes.contains(archetype) ? archetype : 'other';
 
     final String sessionId;
     try {
@@ -97,7 +96,7 @@ class WaitlistService {
       );
     }
 
-    final uri = Uri.parse('$baseUrlOverride/api/v1/waitlist');
+    final uri = Uri.parse('$baseUrlOverride/waitlist');
     final body = jsonEncode({
       'email': email,
       'archetype': normalizedArchetype,
