@@ -1,0 +1,143 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/data_spine_snapshot.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
+import 'package:mint_mobile/services/data_spine/data_spine_service.dart';
+
+void main() {
+  final fixedNow = DateTime.utc(2026, 5, 23, 12);
+
+  CoachProfile buildProfile({
+    PrevoyanceProfile prevoyance = const PrevoyanceProfile(
+      anneesContribuees: 18,
+      lacunesAVS: 2,
+      renteAVSEstimeeMensuelle: 1800,
+      avoirLppTotal: 50000,
+      avoirLppObligatoire: 32000,
+      avoirLppSurobligatoire: 18000,
+      rachatMaximum: 25000,
+      salaireAssure: 70000,
+      nombre3a: 1,
+      totalEpargne3a: 12000,
+    ),
+    Map<String, ProfileDataSource> dataSources = const {
+      'prevoyance.avoirLppTotal': ProfileDataSource.certificate,
+      'prevoyance.totalEpargne3a': ProfileDataSource.userInput,
+      'depenses.loyer': ProfileDataSource.userInput,
+    },
+    Map<String, DateTime> dataTimestamps = const {},
+  }) {
+    return CoachProfile(
+      firstName: 'Julien',
+      birthYear: 1987,
+      canton: 'VD',
+      commune: 'Lausanne',
+      salaireBrutMensuel: 8000,
+      nombreDeMois: 13,
+      employmentStatus: 'salarie',
+      etatCivil: CoachCivilStatus.celibataire,
+      depenses: const DepensesProfile(
+        loyer: 2100,
+        assuranceMaladie: 430,
+        transport: 120,
+        telecom: 80,
+      ),
+      prevoyance: prevoyance,
+      patrimoine: const PatrimoineProfile(
+        epargneLiquide: 18000,
+        investissements: 7000,
+      ),
+      dettes: const DetteProfile(
+        creditConsommation: 3000,
+        mensualiteCreditConso: 250,
+      ),
+      goalA: GoalA(
+        type: GoalAType.retraite,
+        targetDate: DateTime.utc(2052),
+        label: 'Retraite',
+      ),
+      dataSources: dataSources,
+      dataTimestamps: dataTimestamps,
+      createdAt: DateTime.utc(2026, 1, 1),
+      updatedAt: DateTime.utc(2026, 5, 1),
+    );
+  }
+
+  group('DataSpineService', () {
+    test('derives stable financial situation from CoachProfile', () {
+      final spine = DataSpineService.fromProfile(buildProfile(), now: fixedNow);
+
+      expect(spine.computedAt, fixedNow);
+      expect(spine.situation.firstName.value, 'Julien');
+      expect(spine.situation.birthYear.value, 1987);
+      expect(spine.situation.canton.value, 'VD');
+      expect(spine.situation.commune.value, 'Lausanne');
+      expect(spine.situation.grossAnnualIncome.value, 104000);
+      expect(spine.situation.monthlyHousingCost.value, 2100);
+      expect(spine.situation.lamalPremiumMonthly.value, 430);
+      expect(spine.situation.liquidSavings.value, 18000);
+      expect(spine.situation.investments.value, 7000);
+      expect(spine.situation.totalDebt.value, 3000);
+    });
+
+    test('reuses BudgetLivingEngine snapshot as the budget source', () {
+      final profile = buildProfile();
+      final expectedBudget = BudgetLivingEngine.compute(profile);
+      final spine = DataSpineService.fromProfile(profile, now: fixedNow);
+
+      expect(
+          spine.budget.monthlyFree, closeTo(expectedBudget.monthlyFree, 0.01));
+      expect(spine.budget.stage, expectedBudget.stage);
+      expect(spine.budget.confidenceScore, expectedBudget.confidenceScore);
+    });
+
+    test('derives AVS, LPP, and 3a pillar positions with fact state', () {
+      final spine = DataSpineService.fromProfile(buildProfile(), now: fixedNow);
+
+      expect(spine.pillars.avs.contributionYears.value, 18);
+      expect(spine.pillars.avs.contributionYears.state, PillarFactState.known);
+      expect(spine.pillars.avs.gaps.value, 2);
+      expect(spine.pillars.lpp.totalBalance.value, 50000);
+      expect(spine.pillars.lpp.totalBalance.state, PillarFactState.known);
+      expect(spine.pillars.lpp.totalBalance.meta.source,
+          ProfileDataSource.certificate);
+      expect(spine.pillars.pillar3a.totalBalance.value, 12000);
+      expect(spine.pillars.pillar3a.accountsCount.value, 1);
+    });
+
+    test('marks missing pillar facts as missing instead of estimating them',
+        () {
+      final spine = DataSpineService.fromProfile(
+        buildProfile(prevoyance: const PrevoyanceProfile()),
+        now: fixedNow,
+      );
+
+      expect(
+          spine.pillars.avs.contributionYears.state, PillarFactState.missing);
+      expect(spine.pillars.avs.estimatedMonthlyPension.state,
+          PillarFactState.missing);
+      expect(spine.pillars.lpp.totalBalance.state, PillarFactState.missing);
+      expect(spine.pillars.lpp.insuredSalary.state, PillarFactState.missing);
+      expect(
+          spine.pillars.pillar3a.totalBalance.state, PillarFactState.missing);
+    });
+
+    test('uses field metadata from profile data sources and timestamps', () {
+      final lppUpdatedAt = DateTime.utc(2026, 4, 20);
+      final spine = DataSpineService.fromProfile(
+        buildProfile(
+          dataTimestamps: {
+            'prevoyance.avoirLppTotal': lppUpdatedAt,
+          },
+        ),
+        now: fixedNow,
+      );
+
+      final meta = spine.pillars.lpp.totalBalance.meta;
+      expect(meta.source, ProfileDataSource.certificate);
+      expect(meta.confidence, FieldConfidence.known);
+      expect(meta.freshness, FieldFreshness.fresh);
+      expect(meta.updatedAt, lppUpdatedAt);
+    });
+  });
+}

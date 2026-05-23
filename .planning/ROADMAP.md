@@ -477,5 +477,18 @@ Plans:
 - `tools/simulator/flows/maestro-perfect-set/` — existing Maestro flow inventory
 - `tools/simulator/walker.sh` — sim driver
 
+### Phase mint-data-spine-plan-vivant-v1: Mint Data Spine + Plan Vivant v1
+
+**Goal:** Create a typed mobile data spine that derives `FinancialSituation`, `BudgetSnapshot`, `PillarPosition`, `ProjectionSnapshot`, `Plan`, and `Trajectory` from the existing `wizard_answers_v2 -> CoachProfile` path, then prove one budget/situation vertical slice with tests and Maestro.
+**Requirements**: REQ-DSP-01 canonical typed spine, REQ-DSP-02 budget cashflow snapshot, REQ-DSP-03 Swiss pillar position, REQ-DSP-04 structured coach context, REQ-DSP-05 Maestro persistence proof
+**Depends on:** `docs/superpowers/specs/2026-05-23-mint-data-spine-plan-vivant-v1-design.md`; existing `docs/data-flow.md`; existing `apps/mobile/lib/services/budget_living_engine.dart`; existing `apps/mobile/lib/models/budget_snapshot.dart`
+**Plans:** 4 plans (W1 data spine, W2 budget/pillars, W3 coach context, W4 UI + Maestro proof)
+
+Plans:
+- [ ] mint-data-spine-plan-vivant-v1-01-data-spine-snapshot-PLAN.md — typed `DataSpineSnapshot` + `FinancialSituation` + `PillarPosition` derivation and tests
+- [ ] mint-data-spine-plan-vivant-v1-02-budget-trajectory-plan-PLAN.md — stabilize budget cashflow, projection summary, plan/trajectory derivation
+- [ ] mint-data-spine-plan-vivant-v1-03-coach-context-PLAN.md — structured coach context packet generated from the spine, with no LLM-owned facts
+- [ ] mint-data-spine-plan-vivant-v1-04-ui-maestro-proof-PLAN.md — wire one UI surface and add Maestro proof flow for persistence/relaunch/chat explanation
+
 ---
 *Last updated: 2026-05-21 — Phase 01.1 walkthrough-first-grounding PLANNED (3 plans, W1→W2→W3, Wave 3 autonomous:false with Julien G2 checkpoint ; REQ-AUDIT-01/08/10 locked). Previous: 2026-05-21 — Phase 01 audit-meta opened with panel-synthesized CONTEXT/RESEARCH/VALIDATION ; Phase 01.1 inserted as first executable sub-phase per CONTEXT §8 + §12 directive.*
