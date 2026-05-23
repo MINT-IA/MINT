@@ -59,4 +59,29 @@ class CoachFallbackMessages {
         '• Consultar as fichas educativas\n'
         '• Enriquecer o teu perfil para projeções mais precisas',
   };
+
+  /// Sub-phase 01.5 W02-T03 Task 5 — orchestrator-level refusal copy
+  /// used when the user's archetype is outside the calibrated set
+  /// (defense-in-depth secondary gate, hit only when the route gate
+  /// is bypassed). Anti-shame framing: MINT is « pas encore calibré »,
+  /// the user is never the subject of the unavailability.
+  static String archetypeNotCalibrated(String languageCode) {
+    return _archetypeNotCalibratedBodies[languageCode] ??
+        _archetypeNotCalibratedBodies['fr']!;
+  }
+
+  static const Map<String, String> _archetypeNotCalibratedBodies = {
+    'fr': 'MINT n\'est pas encore calibré pour ton profil. '
+        'On te tient au courant dès qu\'on ouvre à ton parcours.',
+    'en': 'MINT is not yet calibrated for your profile. '
+        'We will let you know as soon as we open the experience for your journey.',
+    'de': 'MINT ist für dein Profil noch nicht ausgelegt. '
+        'Wir melden uns, sobald wir die Erfahrung für deinen Weg öffnen.',
+    'es': 'MINT aún no está adaptado a tu perfil. '
+        'Te avisaremos en cuanto abramos la experiencia para tu trayectoria.',
+    'it': 'MINT non è ancora calibrato per il tuo profilo. '
+        'Ti faremo sapere appena apriremo l\'esperienza al tuo percorso.',
+    'pt': 'MINT ainda não está calibrado para o teu perfil. '
+        'Avisamos-te assim que abrirmos a experiência ao teu percurso.',
+  };
 }

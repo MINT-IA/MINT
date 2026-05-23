@@ -53,6 +53,26 @@ class ProfileBase(BaseModel):
     # ⭐ Genre (AVS21 transitional reference ages — LAVS art. 21 al. 1)
     gender: Optional[str] = None  # 'M', 'F', or None (unknown)
 
+    # ⭐ FATCA / archetype signals (sub-phase 01.5 R6 — Pydantic gap closure)
+    # Tri-state semantics (R4 from 01.5-REVIEWS.md):
+    #   - None  = signal not collected yet (do NOT coerce to False)
+    #   - True  = user self-declared US tax person (FATCA subject → hard gate)
+    #   - False = user self-declared NOT US tax person
+    # Nationality uses ISO 3166-1 alpha-2 (e.g. "CH", "US", "FR"); free-form string
+    # to remain consistent with existing camelCase Optional[str] convention.
+    nationality: Optional[str] = Field(
+        None,
+        max_length=8,
+        description="ISO 3166-1 alpha-2 country code (e.g. 'CH', 'US'). Optional.",
+    )
+    usTaxPerson: Optional[bool] = Field(
+        None,
+        description=(
+            "FATCA self-declaration tri-state. None = not asked yet, "
+            "True = US person (gate to /waitlist), False = explicitly NOT US person."
+        ),
+    )
+
     # ⭐ Nouveaux champs pour AVS
     hasAvsGaps: Optional[bool] = None
     avsContributionYears: Optional[int] = Field(None, ge=0, le=44)
@@ -174,6 +194,23 @@ class ProfileUpdate(BaseModel):
     n5IssuedThisWeek: Optional[int] = Field(None, ge=0)
     fragileModeEnteredAt: Optional[datetime] = None
     recentGravityEvents: Optional[list[dict]] = None
+
+    # ⭐ FATCA / archetype signals (sub-phase 01.5 R6 — Pydantic gap closure).
+    # Mirror of ProfileBase fields with identical tri-state semantics (R4).
+    # ProfileUpdate is a BaseModel (NOT a ProfileBase subclass), so the declaration
+    # must be explicit. None = not asked yet; True = US person; False = explicit non-US.
+    nationality: Optional[str] = Field(
+        None,
+        max_length=8,
+        description="ISO 3166-1 alpha-2 country code (e.g. 'CH', 'US'). Optional.",
+    )
+    usTaxPerson: Optional[bool] = Field(
+        None,
+        description=(
+            "FATCA self-declaration tri-state. None = not asked yet, "
+            "True = US person (gate to /waitlist), False = explicitly NOT US person."
+        ),
+    )
 
 
 class Profile(ProfileBase):

@@ -214,7 +214,8 @@ class _LandingScreenState extends State<LandingScreen>
                       label: l10n.landingV3AnonymousHomeLink,
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: () => context.go('/home'),
+                        // /onb (not /home) so FATCA Q (T2.5) fires before coach chat — otherwise archetype=unknown silently redirects to /waitlist.
+                        onTap: () => context.go('/onb'),
                         child: Text(
                           l10n.landingV3AnonymousHomeLink,
                           textAlign: TextAlign.center,

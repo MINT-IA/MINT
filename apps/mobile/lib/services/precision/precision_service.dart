@@ -9,6 +9,7 @@
 /// - ADR-20260223-unified-financial-engine.md
 library;
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
@@ -90,8 +91,8 @@ class PrecisionService {
     'lpp_total': const FieldHelp(
       fieldName: 'lpp_total',
       whereToFind:
-          'Sur ton certificat de prevoyance, ligne "Avoir de vieillesse" ou "Total des avoirs".',
-      documentName: 'Certificat de prevoyance LPP',
+          'Sur ton certificat de prévoyance, ligne "Avoir de vieillesse" ou "Total des avoirs".',
+      documentName: 'Certificat de prévoyance LPP',
       germanName: 'Altersguthaben (Vorsorgeausweis)',
       fallbackEstimation:
           'On peut estimer depuis ton salaire et ton age, mais la precision sera de +/-30 %.',
@@ -99,8 +100,8 @@ class PrecisionService {
     'lpp_obligatoire': const FieldHelp(
       fieldName: 'lpp_obligatoire',
       whereToFind:
-          'Sur ton certificat de prevoyance, ligne "Part obligatoire" ou "Obligatorisches Altersguthaben".',
-      documentName: 'Certificat de prevoyance LPP',
+          'Sur ton certificat de prévoyance, ligne "Part obligatoire" ou "Obligatorisches Altersguthaben".',
+      documentName: 'Certificat de prévoyance LPP',
       germanName: 'Obligatorisches Altersguthaben (Vorsorgeausweis)',
       fallbackEstimation:
           'Estimation possible depuis le salaire coordonne et les bonifications legales.',
@@ -108,8 +109,8 @@ class PrecisionService {
     'lpp_surobligatoire': const FieldHelp(
       fieldName: 'lpp_surobligatoire',
       whereToFind:
-          'Sur ton certificat de prevoyance, ligne "Part surobligatoire" (= total - obligatoire).',
-      documentName: 'Certificat de prevoyance LPP',
+          'Sur ton certificat de prévoyance, ligne "Part surobligatoire" (= total - obligatoire).',
+      documentName: 'Certificat de prévoyance LPP',
       germanName: 'Ueberobligatorisches Altersguthaben (Vorsorgeausweis)',
       fallbackEstimation:
           'Calculable comme la difference entre LPP total et LPP obligatoire.',
@@ -259,7 +260,7 @@ class PrecisionService {
           severity: 'warning',
           message: 'Ton avoir LPP semble tres eleve.',
           suggestion:
-              'Est-ce que ca inclut bien le surobligatoire? Verifie sur ton certificat de prevoyance.',
+              'Est-ce que ca inclut bien le surobligatoire? Verifie sur ton certificat de prévoyance.',
         ));
       }
     }
@@ -275,7 +276,7 @@ class PrecisionService {
               'La somme obligatoire + surobligatoire (CHF ${_fmt(sum)}) '
               'ne correspond pas au total LPP (CHF ${_fmt(lppTotal)}).',
           suggestion:
-              'Verifie les montants sur ton certificat de prevoyance.',
+              'Verifie les montants sur ton certificat de prévoyance.',
         ));
       }
     }
@@ -710,10 +711,26 @@ class PrecisionService {
         return (age - 25).clamp(0, 40).toDouble();
       case 'returning_swiss':
         return (age - 28).clamp(0, 37).toDouble();
+      case 'unknown':
+        // R2 (Sub-phase 01.5 Wave 02 Plan 01, Gemini "silent killer" fix):
+        // unknown archetype → 0 LPP years. Do NOT default to swiss_native
+        // `(age - 25)` which would surface a non-zero contribution count
+        // for an un-archetyped user. Defense-in-depth — the gate
+        // (Wave 02 plan 03) prevents this call but the string-slug
+        // pathway is reachable from cached state per Codex R4.
+        return 0;
       default:
         return (age - 25).clamp(0, 40).toDouble();
     }
   }
+
+  /// Test wrapper exposing the private `_lppYears` for the R2 regression
+  /// guard `test/services/precision_service_unknown_test.dart`. Do NOT
+  /// invoke this in production code — use the public computation entry
+  /// points which call `_lppYears` internally with a validated archetype.
+  @visibleForTesting
+  static double debugLppYears(String archetype, int age) =>
+      _lppYears(archetype, age);
 
   // _bonificationRate removed — use centralized getLppBonificationRate(age)
   // from social_insurance.dart (LPP art. 16).

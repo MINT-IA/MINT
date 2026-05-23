@@ -17,6 +17,22 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
 
+/// Sentinel value distinguishing "argument omitted" from "argument explicitly
+/// null" in [CoachProfile.copyWith] (and similar tri-state copyWith methods).
+///
+/// Codex C2 HIGH fix (Sub-phase 01.5 Wave 02 Plan 01, REVIEWS.md 2026-05-22):
+/// the standard `??` null-coalescing pattern (`x ?? this.x`) silently BLOCKS
+/// explicit null writes. For tri-state fields where `null` is a meaningful
+/// semantic value (FATCA `usTaxPerson`, signal-absence `nationality` /
+/// `residencePermit` / `employmentStatus` / `arrivalAge`), a caller writing
+/// `profile.copyWith(usTaxPerson: null)` to RESET the signal would otherwise
+/// get the previous value preserved — breaking R4.
+///
+/// Do NOT "simplify" the sentinel-pattern copyWith back to `??` for these
+/// fields. The regression guard is
+/// `apps/mobile/test/models/coach_profile_copywith_tristate_test.dart`.
+const Object _copyWithSentinel = Object();
+
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
 // ════════════════════════════════════════════════════════════════
@@ -75,6 +91,14 @@ enum FinancialArchetype {
 
   /// Suisse de retour apres sejour a l'etranger, libre passage + lacunes.
   returningSwiss,
+
+  /// Profile signals insufficient to determine archetype safely.
+  ///
+  /// Returned by [CoachProfile.archetype] when nationality, residencePermit,
+  /// employmentStatus, arrivalAge, AND usTaxPerson are all null. The gate
+  /// (Wave 02 plan 03) routes these users to /waitlist instead of coach.
+  /// Sub-phase 01.5 R1+R4. Do NOT fall through to swissNative.
+  unknown,
 }
 
 /// Extension that exposes the canonical snake_case backend name for each
@@ -108,6 +132,10 @@ extension FinancialArchetypeBackendName on FinancialArchetype {
         return 'cross_border';
       case FinancialArchetype.returningSwiss:
         return 'returning_swiss';
+      case FinancialArchetype.unknown:
+        // R1+R4 (Wave 02 plan 01): explicit string slug so backend
+        // doctrine_checks refuse instead of defaulting to swiss_native.
+        return 'unknown';
     }
   }
 }
@@ -1400,6 +1428,19 @@ class CoachProfile {
   final String canton;
   final String? commune;
   final String? nationality; // ISO 2-letter code, ex "CH", "US", "FR"
+
+  /// FATCA self-declaration tri-state (sub-phase 01.5 R4).
+  ///
+  /// - null  = not asked yet (do NOT coerce to false)
+  /// - true  = US tax person (FATCA subject → routed to /waitlist)
+  /// - false = explicit non-US declaration
+  ///
+  /// Backend roundtrip preserved by services/backend/app/schemas/profile.py
+  /// (Wave 01 plan 01). Mobile must propagate explicitly through ==, hashCode,
+  /// copyWith (sentinel pattern — Codex C2), fromJson, toJson, defaults() and
+  /// all factory constructors.
+  final bool? usTaxPerson;
+
   final CoachCivilStatus etatCivil;
   final int nombreEnfants;
 
@@ -1531,6 +1572,7 @@ class CoachProfile {
     required this.canton,
     this.commune,
     this.nationality,
+    this.usTaxPerson,
     this.etatCivil = CoachCivilStatus.celibataire,
     this.nombreEnfants = 0,
     this.conjoint,
@@ -1577,6 +1619,8 @@ class CoachProfile {
         birthYear: 0,
         canton: '',
         salaireBrutMensuel: 0,
+        // R4 tri-state: null = signal not yet collected (NOT false).
+        usTaxPerson: null,
         goalA: GoalA(
           type: GoalAType.retraite,
           targetDate: DateTime(2040),
@@ -1660,6 +1704,7 @@ class CoachProfile {
           canton == other.canton &&
           commune == other.commune &&
           nationality == other.nationality &&
+          usTaxPerson == other.usTaxPerson &&
           etatCivil == other.etatCivil &&
           nombreEnfants == other.nombreEnfants &&
           conjoint == other.conjoint &&
@@ -1694,6 +1739,7 @@ class CoachProfile {
   @override
   int get hashCode => Object.hashAll([
         firstName, birthYear, dateOfBirth, canton, commune, nationality,
+        usTaxPerson,
         etatCivil, nombreEnfants, conjoint, salaireBrutMensuel,
         nombreDeMois, bonusPourcentage, employmentStatus,
         depenses, prevoyance, patrimoine, dettes, goalA,
@@ -1853,13 +1899,18 @@ class CoachProfile {
   /// Basee sur nationalite, arrivalAge, employmentStatus, residencePermit.
   /// Voir ADR-20260223-archetype-driven-retirement.md.
   FinancialArchetype get archetype {
+    // R4 tri-state: usTaxPerson is the FATCA signal. If user self-declared
+    // US tax person, route to expatUs REGARDLESS of nationality (US citizens
+    // resident in CH still file FATCA). Sub-phase 01.5 Wave 02 Plan 01.
+    if (usTaxPerson == true) return FinancialArchetype.expatUs;
+
     // Cross-border: permis G. Normalized to handle both canonical 'G'
     // and wizard form 'permit_g' (audit fix 2026-05-09, perimeter STUB
     // at .planning/decisions/2026-05-09-perimeter-archetype-input-normalization/).
     final permitCanonical = normalizeResidencePermit(residencePermit);
     if (permitCanonical == 'G') return FinancialArchetype.crossBorder;
 
-    // US citizen / FATCA
+    // US citizen / FATCA (nationality signal — separate from self-declaration above)
     if (nationality == 'US') return FinancialArchetype.expatUs;
 
     // Independent (check LPP status)
@@ -1871,8 +1922,28 @@ class CoachProfile {
           : FinancialArchetype.independentNoLpp;
     }
 
-    // Swiss native: nationality CH and arrived before 22 (or no arrival age)
-    final isSwiss = nationality == null || nationality == 'CH';
+    // R1+R4 (Sub-phase 01.5 Wave 02 Plan 01): explicit signal absence →
+    // unknown, NOT silent fallback to swissNative. Mapper §3.1 + REVIEWS.md.
+    //
+    // Deviation note (Rule 1 — auto-fix): the PLAN.md Step 1.12 template
+    // included `employmentStatus == null` in this check, but
+    // `CoachProfile.employmentStatus` is structurally non-nullable on this
+    // class (declared `final String employmentStatus = 'salarie'` default).
+    // The default 'salarie' is therefore treated as "not a positive
+    // archetype-discriminating signal" — it's the no-op default. We retain
+    // the four ACTUALLY-nullable archetype signals (nationality,
+    // residencePermit, arrivalAge, usTaxPerson) for the absence check.
+    final allSignalsNull = nationality == null
+        && residencePermit == null
+        && arrivalAge == null
+        && usTaxPerson == null;
+    if (allSignalsNull) return FinancialArchetype.unknown;
+
+    // ONLY treat as Swiss native when nationality is the positive 'CH' signal.
+    // Pre-fix (2026-05-22): the previous `isSwiss = nationality == null ||
+    // nationality == 'CH'` bucketed every null-nationality profile as
+    // swissNative — the primary silent-fallback bug closed by this plan.
+    final isSwiss = nationality == 'CH';
     final arrivedEarly = arrivalAge == null || arrivalAge! < 22;
 
     if (isSwiss && arrivedEarly) return FinancialArchetype.swissNative;
@@ -1991,13 +2062,31 @@ class CoachProfile {
 
   /// Copie le profil avec des champs optionnels mis a jour.
   /// Utilise par le annual refresh pour persister updatedAt, prevoyance, etc.
+  ///
+  /// **Sentinel-pattern parameters** (Codex C2 HIGH fix, Sub-phase 01.5 Wave
+  /// 02 Plan 01, REVIEWS.md 2026-05-22 §C2):
+  /// [usTaxPerson], [nationality], [residencePermit], [arrivalAge] use the
+  /// [_copyWithSentinel] Object default instead of the standard `??`
+  /// null-coalescing pattern. This preserves R4 tri-state semantics — a
+  /// caller writing `copyWith(usTaxPerson: null)` to RESET the FATCA signal
+  /// gets an actual null, not the previous value silently preserved.
+  ///
+  /// Regression guard:
+  /// `apps/mobile/test/models/coach_profile_copywith_tristate_test.dart`.
+  /// Do NOT "simplify" these four parameters back to `Type? = null` + `??`.
+  ///
+  /// All other nullable fields keep the conventional `??` pattern because
+  /// null is not a meaningful semantic value for them (it just means
+  /// "omitted, fall back to previous").
   CoachProfile copyWith({
     String? firstName,
     int? birthYear,
     DateTime? dateOfBirth,
     String? canton,
     String? commune,
-    String? nationality,
+    // Sentinel-typed parameter (tri-state-critical) — see method doc above.
+    Object? nationality = _copyWithSentinel,
+    Object? usTaxPerson = _copyWithSentinel,
     CoachCivilStatus? etatCivil,
     int? nombreEnfants,
     ConjointProfile? conjoint,
@@ -2017,8 +2106,10 @@ class CoachProfile {
     String? riskTolerance,
     String? realEstateProject,
     List<String>? providers3a,
-    int? arrivalAge,
-    String? residencePermit,
+    // Sentinel-typed parameter (tri-state-critical) — see method doc above.
+    Object? arrivalAge = _copyWithSentinel,
+    // Sentinel-typed parameter (tri-state-critical) — see method doc above.
+    Object? residencePermit = _copyWithSentinel,
     String? familyChange,
     String? gender,
     int? targetRetirementAge,
@@ -2041,7 +2132,13 @@ class CoachProfile {
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       canton: canton ?? this.canton,
       commune: commune ?? this.commune,
-      nationality: nationality ?? this.nationality,
+      // Sentinel resolution (Codex C2 HIGH fix) — preserves explicit null.
+      nationality: identical(nationality, _copyWithSentinel)
+          ? this.nationality
+          : nationality as String?,
+      usTaxPerson: identical(usTaxPerson, _copyWithSentinel)
+          ? this.usTaxPerson
+          : usTaxPerson as bool?,
       etatCivil: etatCivil ?? this.etatCivil,
       nombreEnfants: nombreEnfants ?? this.nombreEnfants,
       // FIX-035 LAVS art. 35: clear conjoint when civil status changes
@@ -2068,8 +2165,13 @@ class CoachProfile {
       riskTolerance: riskTolerance ?? this.riskTolerance,
       realEstateProject: realEstateProject ?? this.realEstateProject,
       providers3a: providers3a ?? this.providers3a,
-      arrivalAge: arrivalAge ?? this.arrivalAge,
-      residencePermit: residencePermit ?? this.residencePermit,
+      // Sentinel resolution (Codex C2 HIGH fix) — preserves explicit null.
+      arrivalAge: identical(arrivalAge, _copyWithSentinel)
+          ? this.arrivalAge
+          : arrivalAge as int?,
+      residencePermit: identical(residencePermit, _copyWithSentinel)
+          ? this.residencePermit
+          : residencePermit as String?,
       familyChange: familyChange ?? this.familyChange,
       gender: gender ?? this.gender,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
@@ -2222,6 +2324,10 @@ class CoachProfile {
       canton: (json['canton'] as String?) ?? 'ZH',
       commune: json['commune'] as String?,
       nationality: json['nationality'] as String?,
+      // R4 tri-state (Wave 02 Plan 01): `as bool?` cast preserves null when
+      // the key is absent (legacy payloads written before Wave 01 backend
+      // schema). Do NOT default to false.
+      usTaxPerson: json['usTaxPerson'] as bool?,
       etatCivil: CoachCivilStatus.values.firstWhere(
         (e) => e.name == json['etatCivil'],
         orElse: () => CoachCivilStatus.celibataire,
@@ -2334,6 +2440,8 @@ class CoachProfile {
         'canton': canton,
         'commune': commune,
         'nationality': nationality,
+        // R4 tri-state (Wave 02 Plan 01): emit usTaxPerson (null preserved).
+        'usTaxPerson': usTaxPerson,
         'etatCivil': etatCivil.name,
         'nombreEnfants': nombreEnfants,
         'conjoint': conjoint?.toJson(),
@@ -2952,6 +3060,10 @@ class CoachProfile {
       dateOfBirth: dateOfBirth,
       canton: canton,
       nationality: answers['q_nationality'] as String?,
+      // R4 tri-state (Wave 02 Plan 01): wizard FATCA self-declaration.
+      // null = not yet asked; true/false = explicit declaration. Backend
+      // schema (Wave 01 Plan 01) roundtrips the value without coercion.
+      usTaxPerson: answers['q_us_tax_person'] as bool?,
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
       conjoint: conjoint,
@@ -3238,6 +3350,9 @@ class CoachProfile {
       birthYear: 1977,
       canton: 'VS',
       commune: 'Sion',
+      nationality: 'CH',
+      // R4 tri-state (Wave 02 Plan 01): Julien is Swiss, explicit non-US.
+      usTaxPerson: false,
       etatCivil: CoachCivilStatus.marie,
       nombreEnfants: 0,
       conjoint: const ConjointProfile(

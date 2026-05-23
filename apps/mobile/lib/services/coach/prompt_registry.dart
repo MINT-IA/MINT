@@ -485,6 +485,11 @@ MINT est un outil éducatif. Consulte un·e spécialiste pour toute décision im
       'independent_no_lpp' => 'Indépendant·e sans LPP',
       'cross_border' => 'Frontalier·ère',
       'returning_swiss' => 'Suisse de retour',
+      // R2 (Sub-phase 01.5 Wave 02 Plan 01): explicit handling for the
+      // 'unknown' slug so the LLM context shows a neutral validation
+      // label instead of the raw token. Pre-fix, the `_ => archetype`
+      // default would have echoed 'unknown' verbatim in coach prompts.
+      'unknown' => 'Profil en validation',
       _ => archetype,
     };
   }

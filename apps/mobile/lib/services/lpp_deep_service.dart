@@ -285,7 +285,7 @@ class LibrePassageAdvisor {
   /// Analyse la situation de libre passage et retourne une checklist.
   ///
   /// [statut]              — type de depart
-  /// [avoir]               — avoir de prevoyance (CHF)
+  /// [avoir]               — avoir de prévoyance (CHF)
   /// [age]                 — age de la personne
   /// [hasNewEmployer]      — a un nouvel employeur
   /// [daysSinceDeparture]  — jours depuis le depart (0 si pas encore parti)

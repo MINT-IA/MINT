@@ -65,7 +65,7 @@ extension DocumentTypeLabel on DocumentType {
   String get label {
     switch (this) {
       case DocumentType.lppCertificate:
-        return 'Certificat de prevoyance LPP';
+        return 'Certificat de prévoyance LPP';
       case DocumentType.taxDeclaration:
         return 'Declaration fiscale';
       case DocumentType.avsExtract:

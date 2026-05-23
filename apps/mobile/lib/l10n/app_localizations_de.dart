@@ -23353,4 +23353,69 @@ class SDe extends S {
   @override
   String get narrativeSleeveOpenerCaptionSimulate =>
       'Wähle ein Szenario zur Projektion.';
+
+  @override
+  String get waitlistTitle => 'Noch in Arbeit für dein Profil';
+
+  @override
+  String get waitlistBodyPara1 =>
+      'MINT ist heute auf in der Schweiz wohnhafte Angestellte mit 2. Säule (BVG) ausgerichtet.';
+
+  @override
+  String get waitlistBodyPara2 =>
+      'Dein Profil entspricht einer Situation, die wir bald abdecken werden.';
+
+  @override
+  String get waitlistBodyPara3 =>
+      'Hinterlasse uns deine E-Mail-Adresse und wir benachrichtigen dich, sobald MINT deinen Weg unterstützt.';
+
+  @override
+  String get waitlistEmailLabel => 'E-Mail';
+
+  @override
+  String get waitlistEmailHint => 'deine.email@beispiel.ch';
+
+  @override
+  String get waitlistCta => 'Benachrichtige mich, sobald es so weit ist';
+
+  @override
+  String get waitlistAnnounceRedirect =>
+      'Dein Profil wird von MINT noch nicht unterstützt. Du wirst zur Warteliste weitergeleitet.';
+
+  @override
+  String get waitlistConsentCheckbox =>
+      'Ich willige ein, per E-Mail benachrichtigt zu werden, sobald MINT für mein Profil verfügbar ist. Die MINT SA verwendet deine E-Mail-Adresse ausschliesslich zu diesem Zweck. Du kannst dich jederzeit abmelden.';
+
+  @override
+  String get waitlistConsentFinePrint =>
+      'Mit dem Absenden deiner E-Mail-Adresse stimmst du zu, ausschliesslich für diese Benachrichtigung kontaktiert zu werden. Kein Marketing.';
+
+  @override
+  String get waitlistSuccessMessage =>
+      'Danke, wir melden uns, sobald dein Profil unterstützt wird.';
+
+  @override
+  String get waitlistSuccessCta => 'Zurück zur Startseite';
+
+  @override
+  String get waitlistErrorNetwork =>
+      'Deine E-Mail konnte gerade nicht gesendet werden. Bitte versuche es gleich nochmals.';
+
+  @override
+  String get waitlistErrorBadEmail =>
+      'Diese E-Mail-Adresse scheint nicht gültig zu sein. Bitte prüfe die Schreibweise.';
+
+  @override
+  String get waitlistUsTaxPersonQuestion =>
+      'Bist du US-Staatsbürger·in oder in den USA steuerpflichtig?';
+
+  @override
+  String get waitlistUsTaxPersonTooltip =>
+      'MINT ist derzeit nicht auf US-steuerpflichtige Personen in der Schweiz ausgelegt (FATCA- und FBAR-Meldepflichten). Deine Antwort hilft uns, dich an die passende Erfahrung weiterzuleiten.';
+
+  @override
+  String get waitlistUsTaxPersonYes => 'Ja';
+
+  @override
+  String get waitlistUsTaxPersonNo => 'Nein';
 }

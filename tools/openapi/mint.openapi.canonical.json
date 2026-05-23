@@ -16513,6 +16513,19 @@
             "title": "N5Issuedthisweek",
             "type": "integer"
           },
+          "nationality": {
+            "anyOf": [
+              {
+                "maxLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ISO 3166-1 alpha-2 country code (e.g. 'CH', 'US'). Optional.",
+            "title": "Nationality"
+          },
           "pillar3aAnnual": {
             "anyOf": [
               {
@@ -16624,6 +16637,18 @@
               }
             ],
             "title": "Totalsavings"
+          },
+          "usTaxPerson": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "FATCA self-declaration tri-state. None = not asked yet, True = US person (gate to /waitlist), False = explicitly NOT US person.",
+            "title": "Ustaxperson"
           },
           "voiceCursorPreference": {
             "$ref": "#/components/schemas/VoicePreference",
@@ -16954,6 +16979,19 @@
             "title": "N5Issuedthisweek",
             "type": "integer"
           },
+          "nationality": {
+            "anyOf": [
+              {
+                "maxLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ISO 3166-1 alpha-2 country code (e.g. 'CH', 'US'). Optional.",
+            "title": "Nationality"
+          },
           "pillar3aAnnual": {
             "anyOf": [
               {
@@ -17065,6 +17103,18 @@
               }
             ],
             "title": "Totalsavings"
+          },
+          "usTaxPerson": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "FATCA self-declaration tri-state. None = not asked yet, True = US person (gate to /waitlist), False = explicitly NOT US person.",
+            "title": "Ustaxperson"
           },
           "voiceCursorPreference": {
             "$ref": "#/components/schemas/VoicePreference",
@@ -17371,6 +17421,19 @@
             ],
             "title": "N5Issuedthisweek"
           },
+          "nationality": {
+            "anyOf": [
+              {
+                "maxLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ISO 3166-1 alpha-2 country code (e.g. 'CH', 'US'). Optional.",
+            "title": "Nationality"
+          },
           "pillar3aAnnual": {
             "anyOf": [
               {
@@ -17507,6 +17570,18 @@
               }
             ],
             "title": "Totalsavings"
+          },
+          "usTaxPerson": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "FATCA self-declaration tri-state. None = not asked yet, True = US person (gate to /waitlist), False = explicitly NOT US person.",
+            "title": "Ustaxperson"
           },
           "voiceCursorPreference": {
             "anyOf": [
@@ -22912,6 +22987,110 @@
         ],
         "title": "VoicePreference",
         "type": "string"
+      },
+      "WaitlistRequest": {
+        "description": "Mobile → backend payload for the waitlist opt-in.\n\n`consentGiven` MUST be true. UCA art. 3(1)(o) requires prior consent\nfor commercial email — a false value is a contract violation between\nthe mobile client and the backend, not a recoverable input error.",
+        "properties": {
+          "archetype": {
+            "description": "Detected archetype that triggered the hard gate.",
+            "enum": [
+              "expat_us",
+              "expat_eu",
+              "cross_border",
+              "independent_no_lpp",
+              "couple_one_works",
+              "senior_post_64",
+              "unknown",
+              "other"
+            ],
+            "title": "Archetype",
+            "type": "string"
+          },
+          "consentGiven": {
+            "description": "Explicit opt-in checkbox state. UCA art. 3(1)(o) requires prior consent for commercial email.",
+            "title": "Consentgiven",
+            "type": "boolean"
+          },
+          "email": {
+            "description": "User opt-in email. Validated with Pydantic EmailStr.",
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "locale": {
+            "description": "Locale the screen was rendered in (one of the 6 ARB locales).",
+            "enum": [
+              "fr",
+              "en",
+              "de",
+              "es",
+              "it",
+              "pt"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "source": {
+            "default": "other",
+            "description": "Where the gate fired from (analytics + onboarding tuning).",
+            "enum": [
+              "onboarding_hard_gate",
+              "settings",
+              "other"
+            ],
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "archetype",
+          "locale",
+          "consentGiven"
+        ],
+        "title": "WaitlistRequest",
+        "type": "object"
+      },
+      "WaitlistResponse": {
+        "description": "Backend → mobile success payload.",
+        "properties": {
+          "createdAt": {
+            "description": "UTC timestamp the row was persisted.",
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "id": {
+            "description": "Server-generated UUID for the captured waitlist entry.",
+            "title": "Id",
+            "type": "string"
+          },
+          "legalEntity": {
+            "default": "MINT SA",
+            "description": "Data controller named at the moment of capture.",
+            "title": "Legalentity",
+            "type": "string"
+          },
+          "retentionPurgeAfter": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "nLPD retention bound — server may auto-purge after this date.",
+            "title": "Retentionpurgeafter"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt"
+        ],
+        "title": "WaitlistResponse",
+        "type": "object"
       },
       "WealthTaxComparisonRequest": {
         "description": "Request for 26-canton wealth tax comparison.",
@@ -33932,6 +34111,48 @@
         "summary": "Orp Link",
         "tags": [
           "unemployment"
+        ]
+      }
+    },
+    "/api/v1/waitlist": {
+      "post": {
+        "description": "Capture a waitlist opt-in from the mobile WaitlistScreen.\n\nReturns 201 on success, 400 on validation failure (handled by\nPydantic upstream), 401 on missing/malformed X-Anonymous-Session\nheader, 409 on dedup (same email + archetype already captured).",
+        "operationId": "submit_waitlist_api_v1_waitlist_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WaitlistRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaitlistResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit Waitlist",
+        "tags": [
+          "Waitlist P0 01.5"
         ]
       }
     }

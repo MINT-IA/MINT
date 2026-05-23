@@ -3,7 +3,7 @@
 // ────────────────────────────────────────────────────────────
 //
 //  Extracts structured financial fields from OCR text of a
-//  Swiss LPP pension certificate (Certificat de prevoyance /
+//  Swiss LPP pension certificate (Certificat de prévoyance /
 //  Vorsorgeausweis).
 //
 //  Handles both French and German certificate formats.

@@ -1,0 +1,303 @@
+# tools/simulator/flows/maestro-perfect-set/flow_hardgate_expat_us.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Sub-phase 01.5 Wave 03 Plan 01 — G1 acceptance gate for the archetype
+# HARD GATE (FATCA P0). Asserts that a user with archetype=expat_us is
+# routed to the /waitlist screen (NOT the coach chat), can submit an
+# email + consent, and lands on the success state with a back-to-home
+# CTA.
+#
+# 5-gate contract reference :
+# .planning/phases/01.5-archetype-hard-gate-fatca/01.5-CONTEXT.md §6 G1.
+#
+# Tier-1 (functional) : assertVisible /waitlist title + success state.
+# Tier-2 (security)   : assertVisible UCA opt-in checkbox AND submit CTA
+#                       gated on the checkbox (we tap consent BEFORE the
+#                       CTA — the form gates `canSubmit` on both validity
+#                       AND consent).
+# Tier-3 (regression) : assertNotVisible « Dis-moi » / coach composer hint
+#                       (would indicate the gate failed to fire and we
+#                       landed on the coach surface instead of /waitlist).
+#
+# Negative assertions :
+#   - assertNotVisible LSFin banned-term lemmas (garanti / optimal /
+#     meilleur / sans risque / parfait / assure / certain) on the
+#     waitlist surface — same lemma list as the hero flow per
+#     tools/checks/banned_terms_python.py.
+#
+# ─── ARCHETYPE SCOPE ──────────────────────────────────────────────────
+# REQUIRES walker.sh to launch with `--archetype expat_us` which
+# injects `--dart-define=MINT_E2E_ARCHETYPE=expat_us` (the ARCHETYPE
+# SLUG, per Codex C3 MEDIUM contract — REVIEWS.md 2026-05-22). The slug
+# resolves via `CoachProfileSeeds.byArchetype('expat_us')` (added in
+# Plan 01.5-02-06) to the `julien_expat_us` seed, which carries
+# `usTaxPerson:true + nationality:'US'`. The archetype getter (Plan
+# 01.5-02-01) short-circuits to `FinancialArchetype.expatUs`; the
+# coach-entry gate (Plan 01.5-02-03) routes to /waitlist.
+#
+# Codex C3 contract — the dart-define value MUST be `expat_us`
+# (archetype slug), NOT `julien_expat_us` (seed name). Passing the seed
+# name directly to the walker would bypass `byArchetype()` and silently
+# break the slug→seed contract.
+#
+# ─── KEY VS TEXT ASSERTIONS (Codex C7 MEDIUM, REVIEWS.md 2026-05-22) ──
+# Plan 01.5-02-02 wired THREE stable widget Keys on the WaitlistScreen
+# widget tree (verified by reading the source — apps/mobile/lib/screens/
+# waitlist/widgets/waitlist_form.dart:121,151 + waitlist_success.dart:50):
+#
+#   id: "waitlist-consent-checkbox" → CheckboxListTile (form)
+#   id: "waitlist-cta"              → FilledButton submit (form)
+#   id: "waitlist-success-cta"      → FilledButton back-to-home (success)
+#
+# Plan 02-02 did NOT wire Keys for the title, body, email field, or
+# success message. For those, we fall back to text-match on the locked
+# FR copy strings (app_fr.arb:12296,12312,12336):
+#
+#   « Encore en chantier pour ton profil » → waitlistTitle (title)
+#   « Email »                              → waitlistEmailLabel (field)
+#   « Merci, on revient vers toi »         → waitlistSuccessMessage
+#
+# Future amendment (deferred to 01.6) : add Keys on the WaitlistScreen
+# title (`waitlist-screen-title`) + success state container
+# (`waitlist-success-state`) + email field (`waitlist-email-field`) so
+# this flow upgrades to fully Key-based assertions. Tracking : Plan
+# 01.5-02-08 PANEL-VERDICTS H1 (deferred to 01.6).
+#
+# ─── EXPECTED DURATION ────────────────────────────────────────────────
+# ~30-45s wall-clock (cold launch + seed-driven hydration + gate redirect
+# + email submit + 5xx-tolerant retry budget on the staging POST).
+#
+# ─── PRE-CONDITION ────────────────────────────────────────────────────
+# - iPhone sim booted, app installed via `bash tools/simulator/walker.sh
+#   --archetype expat_us` (the walker handles boot + build + install +
+#   launch with the correct dart-define).
+# - Backend = Railway staging `mint-staging.up.railway.app` per memory
+#   `feedback_app_targets_staging_always`. Never local backend.
+# - The /api/v1/waitlist endpoint is live on staging (PR #671 / sha
+#   be6d7e61 per Plan 01.5-02-02 SUMMARY interfaces section).
+# - Staging build sha pinned in 01.5-03-01-EVIDENCE.md (Codex C8 MEDIUM
+#   contract — pinned BEFORE the flow runs AND re-verified AFTER).
+#
+# ─── REFERENCES ───────────────────────────────────────────────────────
+# Structure diff'd line-by-line against the hero flow precedent
+# `flow_hero_marge_fiscale_3a.yaml` per memory
+# `feedback_diff_against_existing_tool`. Reuses appId + tags + the
+# clearState=true cold-launch pattern.
+#
+# Selector source-of-truth :
+#   - Key('waitlist-consent-checkbox')   → waitlist_form.dart:121
+#   - Key('waitlist-cta')                → waitlist_form.dart:151
+#   - Key('waitlist-success-cta')        → waitlist_success.dart:50
+#   - Key('us-tax-person-yes')           → us_tax_person_screen.dart:157
+#   - Key('us-tax-person-no')            → us_tax_person_screen.dart:180
+#   - « Encore en chantier pour ton profil » → app_fr.arb:12296
+#   - « Email »                          → app_fr.arb:12312 (waitlistEmailLabel)
+#   - « Merci, on revient vers toi »     → app_fr.arb:12336
+#
+# Test email — `test+01.5@mint.example.ch` per threat-model T-01.5-81
+# (reserved test domain, purgeable from staging waitlist table).
+
+appId: ch.mint.app
+tags:
+  - phase-01.5
+  - hard-gate
+  - fatca
+  - expat-us
+  - gate-g1
+  - codex-c3
+  - codex-c7
+  - codex-c8
+---
+
+# 01 — cold launch. clearState=true forces a fresh state so the
+# `julien_expat_us` seed (injected via the walker's dart-define) is the
+# only source of truth for archetype / usTaxPerson / nationality. No
+# cached profile means ProfileMigrationService.grandfatherLegacyProfile
+# returns false (no re-onboarding flag), so the orchestrator routes the
+# fresh seeded user through the standard step machine — which, given
+# usTaxPerson=true on the seed, should short-circuit to the gate at
+# coach entry.
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+
+# 02 — handle the beta disclosure splash if it surfaces (same pattern as
+# hero flow step 01). Conditional — no-op when MINT_DISABLE_BETA_MODAL
+# is set on the build OR when the user previously accepted.
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# 03 — onboarding entry. This G1 gate must exercise the `/onb` path,
+# not the primary `/start → /anonymous/chat` discovery CTA ("Parle à
+# Mint"). The FATCA hard gate lives behind onboarding / coach-entry; the
+# anonymous chat is intentionally public and has no profile context.
+# The landing link can appear after the beta sheet animation has ended
+# from Maestro's point of view. Wait explicitly before moving to `/onb`.
+- extendedWaitUntil:
+    visible:
+      text: ".*Continuer sans compte.*"
+    timeout: 15000
+- tapOn:
+    text: ".*Continuer sans compte.*"
+- waitForAnimationToEnd
+
+# 03b — the current `/onb` storyboard enters through an "Ouvrir" CTA.
+# Wait explicitly: after the beta sheet closes, the first onboarding
+# frame can appear after Maestro has already evaluated instant `when`
+# conditions.
+- extendedWaitUntil:
+    visible:
+      text: ".*Ouvrir.*"
+    timeout: 15000
+- tapOn:
+    text: ".*Ouvrir.*"
+- waitForAnimationToEnd
+
+# 03c — choose the lowest-commitment intent to advance from T2 to the
+# FATCA question (T2.5). The hard gate is independent of the intent.
+- extendedWaitUntil:
+    visible:
+      text: ".*Je regarde d’abord.*"
+    timeout: 10000
+- tapOn:
+    text: ".*Je regarde d’abord.*"
+- waitForAnimationToEnd
+
+# 04 — handle the US-tax-person Q (Plan 01.5-02-03 step T2.5) if it
+# fires. The seed sets `usTaxPerson:true` so the orchestrator's pre-
+# archetype guard SHOULD bypass this screen for the seeded user, BUT
+# the question may still render if the wizard step machine reaches T2.5
+# before consulting the seeded usTaxPerson signal. If so, tap « Oui »
+# (we ARE a US person per the seed) — the answer is consistent with the
+# seed and the FATCA short-circuit will fire regardless.
+- runFlow:
+    when:
+      visible: ".*États-Unis.*"
+    commands:
+      - tapOn:
+          text: ".*Oui.*"
+      - waitForAnimationToEnd
+
+# 05 — bounded continue-through-wizard scan. Same pattern as hero flow
+# step 04 — 5 iterations × ~1s budget. Maestro re-evaluates `visible:`
+# on each repeat so this terminates as soon as no « Suivant » /
+# « Continuer » / « Terminer » button is on screen.
+- repeat:
+    times: 5
+    commands:
+      - runFlow:
+          when:
+            visible: ".*(Suivant|Continuer|Terminer).*"
+          commands:
+            - tapOn:
+                text: ".*(Suivant|Continuer|Terminer).*"
+            - waitForAnimationToEnd
+
+# 06 — assert /waitlist screen reached. The gate at coach entry (Plan
+# 01.5-02-03 Task 4) reads the seeded archetype = expatUs and pushes
+# the user to /waitlist BEFORE building the CoachContext. The title is
+# the ARB-locked FR copy « Encore en chantier pour ton profil »
+# (app_fr.arb:12296). Codex C7 fallback : text-match because Plan 02-02
+# did NOT wire a Key on the title element (verified via source read).
+- extendedWaitUntil:
+    visible:
+      text: "Encore en chantier pour ton profil"
+    timeout: 12000
+- takeScreenshot: "01.5-hardgate-01-waitlist-reached"
+
+# 07 — Tier-3 regression : assert we did NOT land on the coach
+# composer. The coach composer hint (« Dis-moi. ») is the canonical
+# proof-of-coach-surface — if it renders, the gate failed and we're
+# talking to the coach as a FATCA-affected user (the exact bug this
+# whole sub-phase fixes).
+- assertNotVisible:
+    text: "Dis-moi"
+
+# 08 — Tier-2 security : assert the UCA opt-in consent checkbox copy is
+# present BEFORE submit. Maestro's iOS hierarchy exposes the visible text
+# for Flutter CheckboxListTile, not the widget Key, on this host.
+- assertVisible:
+    text: ".*J'accepte d'être contacté.*"
+
+# 09 — tap the email field. No Key wired on MintTextField in Plan
+# 02-02 (Codex C7 fallback), so we match by the « Email » label text
+# (app_fr.arb:12312 waitlistEmailLabel).
+- tapOn:
+    text: ".*ton.email@exemple.ch.*"
+
+# 10 — type the test email. Reserved domain per threat-model T-01.5-81
+# (mint.example.ch is purgeable from staging waitlist table). DO NOT
+# use a real domain — staging waitlist is shared infra and we don't
+# want noise from test runs.
+- inputText: "test+01.5@mint.example.ch"
+- pressKey: Enter
+
+# 11 — tap the consent checkbox.
+# The CTA is gated on (_emailValid && _consentGiven) per
+# waitlist_form.dart:77, so this tap is REQUIRED before the CTA fires.
+- tapOn:
+    text: ".*J'accepte d'être contacté.*"
+
+# 12 — tap the submit CTA. Plan 01.5-02-02 wired Key('waitlist-cta')
+# on the FilledButton (waitlist_form.dart:151) — Codex C7 preferred.
+# NOTE : the plan-template name was `waitlist-submit-cta` but the actual
+# wired Key is `waitlist-cta` (verified by reading the source).
+- tapOn:
+    text: ".*Préviens-moi.*"
+
+# 13 — wait for the POST /api/v1/waitlist round-trip. Budget = 15s.
+# WaitlistProvider cycles submitting → success on a 201/409 response;
+# the screen swaps WaitlistForm → WaitlistSuccess (waitlist_screen.dart:31).
+# The success state shows the message text and the back-to-home CTA.
+- extendedWaitUntil:
+    visible:
+      text: "Merci, on revient vers toi"
+    timeout: 15000
+- takeScreenshot: "01.5-hardgate-02-success-state"
+
+# 14 — Tier-2 functional : assert the success-state back-to-home CTA
+# is visible.
+- assertVisible:
+    text: ".*Revenir à l'accueil.*"
+
+# 15 — negative assertion : NO LSFin banned-term anywhere on the
+# visible waitlist surface at evaluation time. Same lemma list as the
+# hero flow (mirror of tools/checks/banned_terms_python.py top-3
+# critical + 4 extended). Maestro evaluates `assertNotVisible` against
+# the CURRENT view hierarchy at this step.
+- assertNotVisible:
+    text: "(garanti|optimal|meilleur|sans risque|parfait|assuré|certain)"
+
+# 16 — optional Tier-3 : tap back-to-home and capture the landing
+# state. Validates the success CTA actually navigates (vs being a
+# decorative button). If the route handler is missing this would either
+# no-op or crash — both are findings worth surfacing.
+- tapOn:
+    text: ".*Revenir à l'accueil.*"
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: "01.5-hardgate-03-back-to-home"
+
+# ─── EXPECTED OUTPUT (Plan 03-02 live run) ────────────────────────────
+# Screenshots:
+#   .planning/walker/maestro-flows/hardgate-expat-us/<run-id>/
+#     ├── 01.5-hardgate-01-waitlist-reached.png
+#     ├── 01.5-hardgate-02-success-state.png
+#     └── 01.5-hardgate-03-back-to-home.png
+#
+# Run command (Plan 01.5-03-02 — orchestrator-driven, NOT this Plan 03-01) :
+#   bash tools/simulator/walker.sh --archetype expat_us
+#   maestro test tools/simulator/flows/maestro-perfect-set/flow_hardgate_expat_us.yaml
+#
+# Exit codes (Maestro convention) :
+#   0   — all assertions PASS, gate fires correctly
+#   1   — at least one assertion FAIL (gate didn't fire OR success
+#         state didn't appear OR consent checkbox absent)
+#   2   — Maestro itself failed (driver disconnect, sim crashed)
+#   124 — step timeout (e.g. waitlist screen didn't render within 12s
+#         OR POST /api/v1/waitlist didn't complete within 15s)

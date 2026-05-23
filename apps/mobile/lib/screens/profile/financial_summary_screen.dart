@@ -550,9 +550,16 @@ class FinancialSummaryScreen extends StatelessWidget {
               ],
               const SizedBox(height: 8),
               FilledButton(
-                onPressed: () {
-                  _applyEdits(context, controllers);
-                  ctx.pop();
+                // Fix 2026-05-22 (data-race): the previous code fired
+                // _applyEdits() unawaited, then immediately popped the
+                // sheet. updateInline()'s ReportPersistenceService.saveAnswers
+                // write would be cancelled if the user backgrounded the app
+                // before SharedPreferences flushed — silent data loss.
+                // Now await the write before popping; UX gets a 50ms-200ms
+                // pause but persistence is guaranteed.
+                onPressed: () async {
+                  await _applyEdits(context, controllers);
+                  if (context.mounted) ctx.pop();
                 },
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
@@ -579,17 +586,20 @@ class FinancialSummaryScreen extends StatelessWidget {
     });
   }
 
-  void _applyEdits(
+  // Returns Future<void> so the caller (the bottom-sheet Save button) can
+  // await the SharedPreferences write before popping. See call site comment
+  // on the FilledButton onPressed — fix for unawaited write race.
+  Future<void> _applyEdits(
     BuildContext context,
     Map<String, TextEditingController> controllers,
-  ) {
+  ) async {
     double? parseVal(String key) {
       final raw = controllers[key]?.text.replaceAll(RegExp(r'[^0-9.,]'), '');
       if (raw == null || raw.isEmpty) return null;
       return double.tryParse(raw.replaceAll("'", '').replaceAll(',', '.'));
     }
 
-    context.read<CoachProfileProvider>().updateInline(
+    await context.read<CoachProfileProvider>().updateInline(
           // Tiroir 1 — Patrimoine
           epargneLiquide: parseVal('epargneLiquide'),
           investissements: parseVal('investissements'),

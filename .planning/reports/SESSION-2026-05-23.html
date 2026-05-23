@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>GSD Session 2026-05-23 — Onboarding /onb fix + 4-panel verdict + push</title>
+<style>
+body { font: 14px/1.55 -apple-system, system-ui, sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; color: #1a2520; }
+h1, h2, h3 { color: #003B2F; }
+h1 { border-bottom: 3px solid #003B2F; padding-bottom: .3em; }
+h2 { margin-top: 1.8em; border-bottom: 1px solid #d0d6d4; padding-bottom: .2em; }
+h3 { margin-top: 1.2em; }
+table { border-collapse: collapse; width: 100%; margin: .6em 0; }
+th, td { border: 1px solid #ccc; padding: 6px 9px; text-align: left; font-size: 13px; vertical-align: top; }
+th { background: #f4faf7; }
+.pass { color: #0a7a4f; font-weight: 600; }
+.partial { color: #b58b00; font-weight: 600; }
+.fail { color: #b3261e; font-weight: 600; }
+.unknown { color: #555; font-weight: 600; font-style: italic; }
+.deferred { color: #888; font-style: italic; }
+code, pre { font: 12px/1.45 ui-monospace, Menlo, monospace; background: #f4f4f4; padding: 1px 4px; border-radius: 3px; }
+pre { padding: 8px 12px; overflow-x: auto; }
+blockquote { border-left: 3px solid #d0d6d4; padding: .2em .8em; color: #555; margin: .5em 0; }
+.meta { color: #666; font-size: 12px; }
+.caveat { background: #fff8e6; border-left: 4px solid #b58b00; padding: 8px 12px; margin: .5em 0; }
+.sha { font-family: ui-monospace, Menlo, monospace; color: #555; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>GSD Session 2026-05-23 — Onboarding /onb fix + 4-panel verdict + push</h1>
+<p class="meta">Session-delta: <code>71246d37..915807b5</code> · 8 session commits + 62 prior Phase 01.5 commits · 70 commits pushed to <code>origin/dev</code> · 4-agent composite panel ran · Pushed at ~08:40 UTC</p>
+
+<h2>1. Session commits (8 atomic)</h2>
+<table>
+<thead><tr><th>SHA</th><th>Type</th><th>Subject</th><th>Verification</th></tr></thead>
+<tbody>
+<tr><td><span class="sha">5542ab27</span></td><td>fix(mcp)</td><td>auto-healing mint-tools launcher (start-server.sh)</td><td><span class="pass">PASS</span> (arch: MED net improvement)</td></tr>
+<tr><td><span class="sha">7f41df64</span></td><td>fix(profile)</td><td>await updateInline() before popping financial summary sheet</td><td><span class="pass">PASS</span> (code-review: await pattern correct)</td></tr>
+<tr><td><span class="sha">0c67b707</span></td><td>fix(ux)</td><td>keyboard dismiss on tap-outside for 5 critical entry screens</td><td><span class="pass">PASS</span> (canonical onTapOutside pattern)</td></tr>
+<tr><td><span class="sha">09aef3b4</span></td><td>fix(i18n)</td><td>correct 'prevoyance' → 'prévoyance' accent in 15 hardcoded Dart strings</td><td><span class="pass">PASS</span> (display strings only, ARB placeholders + provider fields stay ASCII)</td></tr>
+<tr><td><span class="sha">a7a2619c</span></td><td>fix(ux)</td><td>scanner debug-example button height 50→56 — text rognage repaired</td><td><span class="pass">PASS</span> (sim-verified: screenshot 43)</td></tr>
+<tr><td><span class="sha">517774aa</span></td><td>fix(onboarding)</td><td>route 'Continuer sans compte' to /onb so FATCA Q fires</td><td><span class="pass">PASS</span> (structural — no bypass path exists; sim-verified: T2 intents → T2.5 FATCA → T3 age)</td></tr>
+<tr><td><span class="sha">58052037</span></td><td>fix(i18n)</td><td>'prevoyance' → 'prévoyance' in 2 source comments (follow-up)</td><td><span class="pass">PASS</span></td></tr>
+<tr><td><span class="sha">df0e9e67</span></td><td>test</td><td>align 3 regression tests (S005→/onb, prévoyance assertion ×2)</td><td><span class="pass">PASS</span></td></tr>
+<tr><td><span class="sha">915807b5</span></td><td>test(coverage)</td><td>align 2 more cross_validation prevoyance filters (qa-expert panel finding)</td><td><span class="pass">PASS</span> (post-panel coverage gap closed)</td></tr>
+</tbody>
+</table>
+
+<h2>2. Mechanical gates (G3 / G4 / G5)</h2>
+<table>
+<thead><tr><th>Gate</th><th>Tool</th><th>Result</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><td>G5.1 accent_lint_fr</td><td><code>tools/checks/accent_lint_fr.py</code></td><td><span class="pass">PASS</span> on session-changed paths (283 pre-existing baseline unchanged)</td><td>0 new violations on the 17 modified Dart/Python files</td></tr>
+<tr><td>G5.2 ARB parity</td><td><code>tools/checks/arb_parity.py</code></td><td><span class="pass">PASS</span></td><td>6 locales × 6795 keys each, no drift</td></tr>
+<tr><td>G5.3 banned_terms ARB</td><td><code>tools/checks/banned_terms_arb.py</code></td><td><span class="pass">PASS</span></td><td>6 locales clean, no positive LSFin uses</td></tr>
+<tr><td>G5.4 banned_terms_python</td><td><code>tools/checks/banned_terms_python.py</code></td><td><span class="pass">PASS</span> on globbed scope</td><td>Lefthook scope = <code>services/backend/app/services/coach/bundles/*.py</code> + Phase-95 W2 modules only. Test fixture false-positive at <code>test_minimal_profile.py:39</code> is out-of-scope.</td></tr>
+<tr><td>G4.1 flutter analyze</td><td><code>flutter analyze</code></td><td><span class="pass">PASS</span></td><td>0 errors, 0 warnings, 229 infos (style hints, non-blocking)</td></tr>
+<tr><td>G4.2 flutter test</td><td><code>flutter test --machine</code></td><td><span class="pass">PASS</span> after 3 alignments</td><td>8613 tests; 7 initial failures triaged: 3 session-introduced regressions FIXED (S005 landing, Rule 6 LPP, Coach LLM system prompt); 4 landing-goldens are LOCAL-ONLY and CI-excluded per <code>test/goldens/README.md</code>.</td></tr>
+<tr><td>G4.3 backend pytest</td><td><code>python3 -m pytest tests/ -q</code></td><td><span class="pass">PASS</span></td><td>7558 passed, 67 skipped, 4 xfailed, 0 failures (133s)</td></tr>
+<tr><td>G3 iOS sim build</td><td><code>flutter build ios --debug --simulator --no-codesign</code></td><td><span class="pass">PASS</span> after <code>xattr -cr</code> strip</td><td>Built <code>build/ios/iphonesimulator/Runner.app</code> 8.8s</td></tr>
+</tbody>
+</table>
+
+<h2>3. Composite panel verdicts (4 parallel agents)</h2>
+<table>
+<thead><tr><th>Agent</th><th>Verdict</th><th>Top finding</th></tr></thead>
+<tbody>
+<tr>
+<td><strong>code-reviewer</strong></td>
+<td><span class="pass">PASS</span> (1 LOW NIT)</td>
+<td>NIT @ <code>financial_summary_screen.dart:562</code>: <code>if (context.mounted) ctx.pop()</code> guards <em>context</em> but pops <em>ctx</em>. Cosmetic; modal+screen co-exist so no live bug. Not blocking.</td>
+</tr>
+<tr>
+<td><strong>architect-review</strong></td>
+<td><span class="pass">PASS</span></td>
+<td>FATCA gate integrity verified: <code>/onb → OnboardingShellScreen</code> → <code>OnboardingProvider.advance()</code> walks <code>OnboardingStep.values</code> in declaration order (entry→intents→<strong>usTaxPerson</strong>→age…) with no skip branch, no conditional bypass. financial_core boundary intact. MCP launcher is a net portability improvement.</td>
+</tr>
+<tr>
+<td><strong>security-auditor</strong></td>
+<td><span class="pass">PASS</span> (2 LOW NITs)</td>
+<td>NIT @ <code>register_screen.dart:649</code>: another non-/onb path to /home exists, but the coach-entry gate at <code>evaluateCoachArchetypeGate</code> is a hard stop independent of routing → FATCA Q still fires. NIT @ <code>tools/mcp/mint-tools/start-server.sh:70</code>: PYTHONPATH includes repo backend (supply-chain observation). Neither blocks push.</td>
+</tr>
+<tr>
+<td><strong>qa-expert</strong></td>
+<td><span class="partial">NIT</span> (1 MED coverage gap — <strong>fixed in 915807b5</strong>)</td>
+<td>Caught 2 stale ASCII <code>'prevoyance'</code> filters at <code>cross_validation_service_test.dart:479,536</code> in <code>expect(coherenceAlerts, isEmpty)</code> tests. Filter mismatch made them pass for the wrong reason after accent fix. Closed in 915807b5: 28/28 Rule 6 tests pass post-fix.</td>
+</tr>
+</tbody>
+</table>
+
+<p>No BLOCK across 4 verdicts. The single MED coverage gap was fixed before push.</p>
+
+<h2>4. Push state</h2>
+<table>
+<tbody>
+<tr><th>Before push</th><td>origin/dev = <code>71246d37</code></td></tr>
+<tr><th>After push</th><td>origin/dev = <code>915807b5</code> (70 commits ahead, 0 behind)</td></tr>
+<tr><th>Push time</th><td>~08:40 UTC, 2026-05-23</td></tr>
+<tr><th>Pre-push hooks</th><td><span class="pass">PASS</span> — <code>doctrine-atomicity</code> + <code>doctrine-consistency</code> green (lefthook)</td></tr>
+<tr><th>Local force/no-verify?</th><td>No force. <code>--no-verify</code> NOT used on any commit (lefthook ran).</td></tr>
+</tbody>
+</table>
+
+<h2>5. CI state — UNKNOWN (not session-caused)</h2>
+<div class="caveat">
+<strong>0-TRUST DISCLOSURE (CLAUDE.md §9.1)</strong> — Cannot claim "green" without deterministic citation. At T+6min post-push, the GitHub Actions workflow runs for <code>915807b5</code> have not yet been registered. This is <em>not specific to this push</em>: the entire repository has had <strong>0 workflow runs in the last hour</strong> (latest CI run anywhere on the repo was <code>71246d37</code> at 2026-05-22 15:34 UTC, ~17h before this push). GitHub Actions component status reports "operational". Repo is <code>public</code>, not archived, workflows all active, branch protection has no required-checks blockers. Most likely a GitHub-side runner backlog or org-level Actions setting outside Claude's visibility.
+<br><br>
+<strong>What this means</strong>: PR <em>opened</em> stage of the 4-stage ship pipeline only (per CLAUDE.md §9.5). Cannot claim "merged", "works", "shipped", "green" until CI completes.
+</div>
+
+<h2>6. Deferred / next session</h2>
+<ul>
+<li><strong>Landing goldens drift</strong> — 4 LOCAL-ONLY goldens (<code>landing_iphone14pro_fr</code>, <code>landing_galaxya14_fr</code>, ± reduced_motion) show 8.5% / 7.75% pixel diff vs masters dated 2026-05-12. No landing-affecting file changed in the 70-commit range (theme/colors, fonts, ARB landing keys all untouched). Root cause unclear — recommend regen via <code>flutter test --update-goldens</code> + Julien visual review next session. <em>Not CI-blocking.</em></li>
+<li><strong>Sim full-flow walkthrough through /onb → FATCA "Yes" → /waitlist</strong> — Maestro flow <code>flow_hardgate_expat_us.yaml</code> exists (commit 2311acf8) but I only walked through T2 intent → T2.5 FATCA → T3 age. The "Yes" → /waitlist branch was not re-verified end-to-end this session.</li>
+<li><strong>9 remaining keyboard-dismiss screens</strong> — Plan 0c67b707 closed 5 critical entry screens; 9 others (auth, byok, simulator, arbitrage, sheets) still pending per session commit body.</li>
+<li><strong>2 security NITs</strong> from panel — defense-in-depth observations, not bugs. Can be folded into a follow-up "hardening" perimeter.</li>
+</ul>
+
+<h2>7. Files referenced</h2>
+<ul>
+<li><code>apps/mobile/lib/screens/landing_screen.dart:218</code> — /onb routing fix</li>
+<li><code>apps/mobile/lib/screens/document_scan/document_scan_screen.dart:368</code> — pill height 50→56</li>
+<li><code>apps/mobile/lib/services/cross_validation_service.dart:116</code> — prévoyance accent in alert message</li>
+<li><code>apps/mobile/lib/services/coach_llm_service.dart:568</code> — Prévoyance in system prompt</li>
+<li><code>apps/mobile/lib/screens/onboarding/mvp_wedge/onboarding_provider.dart:40-62</code> — step enum (FATCA at T2.5)</li>
+<li><code>apps/mobile/test/screens/landing_screen_test.dart:47-150</code> — S005 → /onb (ONB_STUB)</li>
+<li><code>apps/mobile/test/services/cross_validation_service_test.dart:461,479,536</code> — 3 prévoyance filter alignments</li>
+<li><code>apps/mobile/test/services/coach_llm_service_test.dart:214</code> — Prévoyance contains</li>
+<li><code>tools/mcp/mint-tools/start-server.sh</code> — auto-healing launcher</li>
+</ul>
+
+</body>
+</html>

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -14,8 +15,12 @@ import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/screens/coach/coach_archetype_guard.dart';
+import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/telemetry/gate_decision_telemetry.dart';
 import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -853,7 +858,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: MintColors.transparent,
       builder: (_) => LightningMenu(
         profile: _profile,
         capMemory: capMem,
@@ -1644,6 +1649,79 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   CoachContext _buildCoachContext(CoachProfile profile) {
+    // Sub-phase 01.5 W02-T03 HARD GATE (Mapper §7.2 primary site).
+    //
+    // The coach is calibrated for swissNative only. Any other archetype
+    // (expat_us via FATCA self-declaration, expat_eu, cross_border,
+    // independent_no_lpp, etc.) is routed to /waitlist BEFORE we even
+    // construct a CoachContext. The route navigation is deferred via
+    // addPostFrameCallback because this method runs during the build /
+    // chat-send synchronous path; navigating in-flight would re-enter
+    // the widget tree and trigger setState-during-build assertions.
+    //
+    // The orchestrator carries the secondary refusal layer (Task 5)
+    // in case a deep-link / notification handler bypasses this gate.
+    //
+    // Sub-phase 01.5 W02-T04 Task 2 (Codex R5) — gate wrapped by
+    // FeatureFlags.enableCoachHardGate (default true). When the flag
+    // is set to false via server override (emergency rollback only),
+    // the redirect AND the refusal placeholder are bypassed; the
+    // coach renders normally to all archetypes. Flipping to false
+    // re-opens the FATCA / LSFin compliance window — see
+    // feature_flags.dart doc-comment for the contract.
+    final gate = evaluateCoachArchetypeGate(profile);
+    // Sub-phase 01.5 W02-T05 Task 2 (Codex R4) — observability counter.
+    // Fire-and-forget telemetry BEFORE the kill-switch check so we always
+    // record gate evaluations including kill-switch-bypassed ones. The
+    // `gate_fired` attribute tracks the actual redirect (not the policy
+    // decision) so dashboards can distinguish « gate would have fired but
+    // kill switch is off » via the `kill_switch_enabled` tag. The await
+    // is intentionally NOT chained — telemetry must NEVER block a gate
+    // evaluation (T-01.5-54 mitigation). The PII contract is enforced
+    // inside `recordDecision` (only boolean-shaped strings + archetype
+    // slug + cohort marker — no email / salary / canton).
+    unawaited(GateDecisionTelemetry.recordDecision(
+      profile: profile,
+      computedArchetype: profile.archetype,
+      // `gateFired` reflects the actual outcome: a redirect happens only
+      // when BOTH shouldBlock is true AND the kill switch is on.
+      gateFired: gate.shouldBlock && FeatureFlags.enableCoachHardGate,
+      killSwitchEnabled: FeatureFlags.enableCoachHardGate,
+    ));
+    if (gate.shouldBlock && FeatureFlags.enableCoachHardGate) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          // Sub-phase 01.5 W02-NN-PATCH-A11Y (H3, WCAG 1.3.2 / 4.1.3):
+          // Announce the redirect so screen reader users hear that the
+          // coach is being skipped in favour of the waitlist screen.
+          // Without this, the navigation is silent for assistive tech.
+          final l10n = S.of(context);
+          if (l10n != null) {
+            SemanticsService.announce(
+              l10n.waitlistAnnounceRedirect,
+              Directionality.of(context),
+            );
+          }
+          context.go(
+            '/waitlist',
+            extra: WaitlistArgs(archetype: gate.archetypeSlug),
+          );
+        }
+      });
+      // Return a refusal-marked placeholder CoachContext. The
+      // orchestrator-level guard (Task 5) recognises archetype='unknown'
+      // and refuses to invoke the LLM, so even if the post-frame
+      // callback hasn't navigated yet the LLM is never reached.
+      return CoachContext(
+        firstName: '',
+        age: profile.age,
+        canton: profile.canton,
+        archetype: 'unknown',
+        knownValues: const {},
+        hasDebt: false,
+      );
+    }
+
     final knownValues = <String, double>{};
 
     try {
@@ -1736,6 +1814,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         return 'cross_border';
       case FinancialArchetype.returningSwiss:
         return 'returning_swiss';
+      case FinancialArchetype.unknown:
+        // R1+R4 (Sub-phase 01.5 Wave 02 Plan 01): archetype unknown reaches
+        // the LLM context only if the gate (Wave 02 plan 03) is bypassed.
+        // Return literal 'unknown' so backend doctrine_checks refuse instead
+        // of defaulting to swiss_native semantics (FATCA / PFIC / frontalier
+        // guards would silently fail).
+        return 'unknown';
     }
   }
 

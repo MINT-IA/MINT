@@ -262,7 +262,7 @@ class RetirementProjectionService {
       indexedProjection: indexedProjection,
       disclaimer: l?.retirementProjectionDisclaimer ??
           'Projection educative basee sur les baremes AVS/LPP 2025. '
-          'Ne constitue pas un conseil financier ou en prevoyance. '
+          'Ne constitue pas un conseil financier ou en prévoyance. '
           'Les montants sont des estimations qui peuvent varier selon '
           'l\'evolution legale et ta situation personnelle. '
           'Consulte un·e specialiste pour un plan personnalise. LSFin.',
@@ -1102,7 +1102,7 @@ class RetirementProjectionService {
     if (solde < 0) {
       alertes.add(
         'Deficit mensuel estime de ${formatChfWithPrefix(solde.abs())}. '
-        'Des ajustements de budget ou de prevoyance pourraient etre envisages.',
+        'Des ajustements de budget ou de prévoyance pourraient etre envisages.',
       );
     }
     if (tauxRemplacement < 60) {

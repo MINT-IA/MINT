@@ -110,6 +110,9 @@ import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 // annual_refresh_screen.dart + cockpit_detail_screen.dart DELETED (deep-audit 2026-04-17)
+import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
+import 'package:mint_mobile/screens/waitlist/waitlist_screen.dart';
+import 'package:mint_mobile/providers/waitlist_provider.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
@@ -150,6 +153,8 @@ import 'package:mint_mobile/screens/admin/admin_shell.dart';
 import 'package:mint_mobile/screens/admin/routes_registry_screen.dart';
 // Phase 32 MAP-05 — legacy redirect hit breadcrumb (wired at 43 call-sites below).
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
+// Sub-phase 01.5 W02-T05 — R7 legacy-user flag-based grandfather migration.
+import 'package:mint_mobile/services/profile_migration_service.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -363,6 +368,35 @@ final _router = GoRouter(
       builder: (context, state) {
         final intent = state.uri.queryParameters['intent'];
         return AnonymousChatScreen(intent: intent);
+      },
+    ),
+    // ── Sub-phase 01.5 W02-T03 — Hard-gate waitlist destination ──
+    // Public scope: unauthenticated users coming through the onboarding
+    // US-tax-person Q (Yes) or any non-calibrated archetype hit /waitlist
+    // BEFORE any coach context is built (per coach_chat_screen gate at
+    // Task 4). WaitlistArgs carries the archetype slug for the consent
+    // payload (or null when archetype is unknown/not yet computable).
+    //
+    // Task 6 — onGateSuccess invokes CoachProfileProvider.clearAll()
+    // AFTER waitlist submit succeeds (nLPD art. 6 minimization,
+    // Security §6 Q5). The callback is read off the route's BuildContext
+    // (rather than the WaitlistProvider's own context) so the provider
+    // does NOT depend directly on CoachProfileProvider (no cyclic
+    // import) and remains test-instantiable in isolation.
+    ScopedGoRoute(
+      path: '/waitlist',
+      scope: RouteScope.public,
+      builder: (context, state) {
+        final args = state.extra is WaitlistArgs
+            ? state.extra as WaitlistArgs
+            : const WaitlistArgs();
+        return ChangeNotifierProvider<WaitlistProvider>(
+          create: (ctx) => WaitlistProvider(
+            onGateSuccess: () =>
+                ctx.read<CoachProfileProvider>().clearAll(),
+          ),
+          child: WaitlistScreen(args: args),
+        );
       },
     ),
     // ── Chat-as-verb demo (Phase 96 W1 T4 wired surface) ─────────
@@ -1477,7 +1511,23 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = CoachProfileProvider();
-          provider.loadFromWizard();
+          // Sub-phase 01.5 W02-T05 Task 1 (R7) — flag-based legacy
+          // grandfather migration. Chains the one-shot, idempotent
+          // SharedPreferences write AFTER loadFromWizard so the
+          // archetype-getter null-fallback (plan 02-01) does NOT
+          // mass-evict cached users to /waitlist. Fire-and-forget:
+          // failures are tolerated (the orchestrator's pre-archetype
+          // guard re-reads the flag each session). Codex C1 HIGH
+          // (REVIEWS.md 2026-05-22): the migration is flag-only —
+          // it NEVER writes any value to `nationality`. See
+          // profile_migration_service.dart class doc + the
+          // `legacy_grandfathered_profile_nationality_remains_null`
+          // regression test.
+          provider.loadFromWizard().then((_) {
+            ProfileMigrationService().grandfatherLegacyProfile(
+              provider: provider,
+            );
+          });
           return provider;
         }),
         ChangeNotifierProvider(create: (_) {

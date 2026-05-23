@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Sub-phase 01.5 archetype HARD GATE (FATCA) — Verification Report</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; max-width: 1180px; margin: 32px auto; padding: 0 24px; color: #1a1a1a; line-height: 1.5; }
+  h1 { color: #003b2f; border-bottom: 2px solid #003b2f; padding-bottom: 8px; }
+  h2 { color: #003b2f; margin-top: 36px; border-bottom: 1px solid #d0d0d0; padding-bottom: 4px; }
+  h3 { color: #1a1a1a; margin-top: 24px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0 24px 0; font-size: 14px; }
+  th, td { border: 1px solid #c0c0c0; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #003b2f; color: #fff; font-weight: 600; }
+  tr:nth-child(even) { background: #f6f6f6; }
+  .pass { background: #d4f4dd; color: #006e2a; font-weight: 600; padding: 2px 8px; border-radius: 3px; display: inline-block; }
+  .pending { background: #fff3c4; color: #8a6500; font-weight: 600; padding: 2px 8px; border-radius: 3px; display: inline-block; }
+  .block { background: #fcd9d9; color: #b00020; font-weight: 600; padding: 2px 8px; border-radius: 3px; display: inline-block; }
+  .patched { background: #d4e8fc; color: #1a4f9e; font-weight: 600; padding: 2px 8px; border-radius: 3px; display: inline-block; }
+  .deferred { background: #ece6ff; color: #5a3fa0; font-weight: 600; padding: 2px 8px; border-radius: 3px; display: inline-block; }
+  code { background: #f0f0f0; padding: 1px 6px; border-radius: 3px; font-size: 13px; font-family: "SF Mono", Monaco, Menlo, Consolas, monospace; }
+  .meta { color: #555; font-size: 13px; margin: 4px 0; }
+  .severity-high { color: #b00020; font-weight: 600; }
+  .severity-medium { color: #8a6500; font-weight: 600; }
+  .severity-low { color: #555; }
+  .footnote { font-size: 12px; color: #555; border-top: 1px solid #d0d0d0; padding-top: 12px; margin-top: 32px; }
+  .key-fact { background: #eef7f4; border-left: 4px solid #003b2f; padding: 10px 14px; margin: 12px 0; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<h1>Sub-phase 01.5 — Archetype HARD GATE (FATCA)</h1>
+<p class="meta"><strong>Phase identity :</strong> P0 legal blocker — route non-supported archetypes (expat_us FATCA + 5 others) to a « pas encore supporté » waitlist screen instead of silently falling back to swiss_native.</p>
+<p class="meta"><strong>Phase start sha :</strong> <code>71246d37</code> &nbsp;|&nbsp; <strong>Phase HEAD sha :</strong> <code>a150bbd4</code> &nbsp;|&nbsp; <strong>Commits :</strong> 55</p>
+<p class="meta"><strong>Compiled :</strong> 2026-05-22 (Plan 01.5-03-02 close-out, in worktree).</p>
+<p class="meta"><strong>Status :</strong> code-complete on disk &mdash; <span class="pending">3 gates PENDING</span> (G1 + G2 PENDING-SIM-SESSION, G3 PENDING-PUSH) &mdash; <span class="pass">G4 + G5 GREEN</span></p>
+
+<div class="key-fact">
+Per CLAUDE.md &sect;9 0-TRUST protocol &mdash; no &laquo; shipped &raquo; / &laquo; closed &raquo; / &laquo; ready &raquo; claim is made about the phase as a whole until G1 + G2 + G3 evidence lands. The 5-gate matrix below distinguishes deterministic-citation-on-disk (GREEN) from execution-pending (PENDING).
+</div>
+
+<h2>5-gate matrix</h2>
+<table>
+  <tr>
+    <th>Gate</th>
+    <th>Definition</th>
+    <th>Status</th>
+    <th>Evidence citation</th>
+  </tr>
+  <tr>
+    <td><strong>G1</strong> &mdash; Sim walker</td>
+    <td><code>flow_hardgate_expat_us.yaml</code> exits 0 against staging Railway with archetype=expat_us, reaches /waitlist, submits email.</td>
+    <td><span class="pending">PENDING-SIM-SESSION</span></td>
+    <td>YAML on disk (<code>2311acf8</code>, 301 lines); 8-step execution script in <code>01.5-VERIFICATION.md</code> &sect; G1; idb capture deferred to booted sim session.</td>
+  </tr>
+  <tr>
+    <td><strong>G2</strong> &mdash; Device walkthrough by Claude</td>
+    <td>Maestro + idb describe-all driven by Claude end-to-end (per memory <code>feedback_device_gates</code>).</td>
+    <td><span class="pending">PENDING-SIM-SESSION</span></td>
+    <td>Same script as G1; identical sim-session unblock; evidence file <code>01.5-G1-evidence-&lt;ts&gt;.json</code> to produce.</td>
+  </tr>
+  <tr>
+    <td><strong>G3</strong> &mdash; Dev CI green on merge sha</td>
+    <td>Full backend + flutter test suites + lints green on the merge sha pushed to origin/dev.</td>
+    <td><span class="pending">PENDING-PUSH</span></td>
+    <td>HEAD <code>a150bbd4</code> not yet pushed to origin/dev. <code>gh run list --branch dev</code> + <code>gh run view &lt;RUN_ID&gt;</code> citation to produce post-push.</td>
+  </tr>
+  <tr>
+    <td><strong>G4</strong> &mdash; Regression (tests)</td>
+    <td>Backend pytest + Flutter test full suite + hero Maestro flow regression.</td>
+    <td><span class="pass">GREEN</span> (unit suites) &nbsp;|&nbsp; <span class="pending">PENDING</span> (Maestro hero)</td>
+    <td>Backend pytest <strong>7558 passed</strong> (<code>01.5-02-08-PRECHECK.md</code> row 1); Flutter test <strong>8613 passed</strong> post-W02-NN-PATCH (row 3); A11Y patch re-run <strong>33/33 + 12/12 PASSED</strong> (<code>01.5-02-08-PANEL-VERDICTS.md</code> &sect; Post-patch verification). Hero Maestro flow execution deferred to G1/G2 sim session.</td>
+  </tr>
+  <tr>
+    <td><strong>G5</strong> &mdash; LSFin + accent + ARB lint</td>
+    <td><code>accent_lint_fr</code> + <code>banned_terms</code> &times; 6 locales + <code>arb_parity</code> all exit 0.</td>
+    <td><span class="pass">GREEN</span></td>
+    <td><code>accent_lint_fr</code> exit 0; <code>banned_terms</code> 6 locales exit 0; <code>arb_parity</code> <strong>6 locales &times; 6795 keys identical</strong> post-A11Y; <strong>18 waitlist ARB keys</strong> per locale (verified at compile time).</td>
+  </tr>
+</table>
+
+<h2>7 risks (R1-R7) mitigation status</h2>
+<table>
+  <tr>
+    <th>Risk</th>
+    <th>Mitigation</th>
+    <th>Plan</th>
+    <th>Commit(s)</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td><strong>R1</strong> &mdash; Exhaustiveness sweep</td>
+    <td><code>case FinancialArchetype.unknown</code> in coach_chat_screen + lifecycle_phase_service</td>
+    <td>01.5-02-01 task 2</td>
+    <td><code>d961ed75</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td><strong>R2</strong> &mdash; String-slug defense-in-depth</td>
+    <td>'unknown' arm in precision_service + prompt_registry + fri_computation</td>
+    <td>01.5-02-01 task 3</td>
+    <td><code>f382e54f</code></td>
+    <td><span class="pass">PASS</span></td>
+  </tr>
+  <tr>
+    <td><strong>R3</strong> &mdash; Read-site regression tests</td>
+    <td>Integration test (4) + legacy JSON tri-state test (5) + i18n + goldens</td>
+    <td>01.5-02-07 tasks 1+2</td>
+    <td><code>1ac2cc29</code> + <code>17643ef4</code> + <code>b1e61419</code> + <code>0bf07f55</code></td>
+    <td><span class="pass">PASS</span> (17/17)</td>
+  </tr>
+  <tr>
+    <td><strong>R4</strong> &mdash; Mobile cache tri-state</td>
+    <td>Tri-state usTaxPerson propagation + Codex C2 sentinel copyWith + telemetry</td>
+    <td>01.5-02-01 + 01.5-02-05 task 2</td>
+    <td><code>adb7b6e6</code> + <code>cb4cb429</code></td>
+    <td><span class="pass">PASS</span> (10 _copyWithSentinel hits)</td>
+  </tr>
+  <tr>
+    <td><strong>R5</strong> &mdash; Runtime kill switch</td>
+    <td><code>FeatureFlags.enableCoachHardGate</code> default true + 2 gate sites wrapped</td>
+    <td>01.5-02-04</td>
+    <td><code>fb46dc8b</code> + <code>2da1ef8f</code></td>
+    <td><span class="pass">PASS</span> (63/63)</td>
+  </tr>
+  <tr>
+    <td><strong>R6</strong> &mdash; Backend Pydantic schema gap</td>
+    <td>ProfileBase + ProfileUpdate carry usTaxPerson + nationality (tri-state)</td>
+    <td>01.5-01-01</td>
+    <td><code>fde9e478</code> + <code>b20d8c98</code></td>
+    <td><span class="pass">PASS</span> (10/10 roundtrip + 7539 backend)</td>
+  </tr>
+  <tr>
+    <td><strong>R7</strong> &mdash; Legacy user lockout</td>
+    <td><code>ProfileMigrationService</code> flag-only (NO nationality rewrite, Codex C1 HIGH)</td>
+    <td>01.5-02-05 task 1</td>
+    <td><code>f6eb5066</code> + <code>c6a5cb7b</code></td>
+    <td><span class="pass">PASS</span> (Codex C1 exit gate: grep "'CH'" = 0)</td>
+  </tr>
+</table>
+
+<h2>Plans + commits shipped (chronological per wave)</h2>
+<table>
+  <tr>
+    <th>Wave</th>
+    <th>Plan</th>
+    <th>Subject</th>
+    <th>SUMMARY commit</th>
+    <th>Tests added</th>
+  </tr>
+  <tr>
+    <td>0 (pre-phase)</td><td>&mdash;</td><td>POST /api/v1/waitlist + WaitlistEntry model (PR #671)</td><td><code>be6d7e61</code></td><td>&mdash;</td>
+  </tr>
+  <tr>
+    <td>1</td><td>01.5-01-01</td><td>R6 profile.py Pydantic schema gap closure</td><td>(bundled in <code>fde9e478</code> + <code>b20d8c98</code>)</td><td>+10 backend roundtrip</td>
+  </tr>
+  <tr>
+    <td>2</td><td>01.5-02-01</td><td>FinancialArchetype.unknown + usTaxPerson tri-state + Codex C2 sentinel + Gemini C4 parity</td><td>(commits <code>7b46990d</code>..<code>30948f8f</code>)</td><td>+29</td>
+  </tr>
+  <tr>
+    <td>2</td><td>01.5-02-02</td><td>WaitlistScreen + Provider + Service + 6-locale ARB (13 keys) + B1 + B3 (UCA opt-in)</td><td><code>10699dd8</code></td><td>+21</td>
+  </tr>
+  <tr>
+    <td>2</td><td>01.5-02-03</td><td>UsTaxPersonScreen (T2.5) + GoRouter /waitlist + gate at coach entry + orchestrator defense-in-depth + clearAll</td><td><code>22b127fe</code></td><td>+31</td>
+  </tr>
+  <tr>
+    <td>2</td><td>01.5-02-04</td><td>R5 runtime kill switch (Codex release-blocker)</td><td><code>fc4b0ac9</code></td><td>+63 (13 NEW + 50 regression)</td>
+  </tr>
+  <tr>
+    <td>2</td><td>01.5-02-05</td><td>R7 legacy grandfather (Codex C1 HIGH) + R4 telemetry GateDecisionTelemetry</td><td><code>05f7dd23</code></td><td>+47 (13 NEW + 34 regression)</td>
+  </tr>
+  <tr>
+    <td>2</td><td>01.5-02-06</td><td>julien_expat_us walker seed + byArchetype slug-seed contract (Codex C3)</td><td><code>208b91ee</code></td><td>+8</td>
+  </tr>
+  <tr>
+    <td>2</td><td>01.5-02-07</td><td>R3 read-site regression + R4 rounded-out coverage (integration + golden + i18n)</td><td><code>aa15cc09</code></td><td>+17</td>
+  </tr>
+  <tr>
+    <td>2 (patch 1)</td><td>W02-NN-PATCH</td><td>Close 3 Wave 02 contract-drift regressions (F1 + F6 + F7)</td><td><code>48666a5c</code></td><td>regressions closed</td>
+  </tr>
+  <tr>
+    <td>2 (panel gate)</td><td>01.5-02-08</td><td>PRECHECK + composite panel verdicts (7 reviewers)</td><td><code>af865554</code> + <code>dd6d9ec2</code></td><td>&mdash;</td>
+  </tr>
+  <tr>
+    <td>2 (patch 2)</td><td>W02-NN-PATCH-A11Y</td><td>Close 3 phase-introduced HIGH WCAG findings (H2 + H3 + H4)</td><td><code>be32948e</code> + <code>5c5967bb</code></td><td>+1 ARB key &times; 6 (waitlistAnnounceRedirect)</td>
+  </tr>
+  <tr>
+    <td>3</td><td>01.5-03-01</td><td>Maestro flow_hardgate_expat_us.yaml + hero T2.5 tap (Codex C3 + C7 + C8)</td><td><code>a150bbd4</code></td><td>0 (Maestro YAML only)</td>
+  </tr>
+  <tr>
+    <td>3</td><td>01.5-03-02</td><td>5-gate close-out audit log + HTML report + HANDOFF (this plan)</td><td>(this commit)</td><td>0 (docs only)</td>
+  </tr>
+</table>
+
+<h2>Composite panel verdicts (7 internal reviewers, Plan 01.5-02-08)</h2>
+<p class="meta">Run on Wave 02 final integrated diff <code>71246d37..af865554</code> (66 files, +5564/-31) per REVIEWS.md Recommended Execution Path step 2 + B5 merge-blocker policy. Initial composite outcome 2026-05-22T20:32:33+02:00: BLOCKED on 4 HIGH WCAG findings. Resolution by W02-NN-PATCH-A11Y commit <code>be32948e</code>: final outcome <strong>PASS (gated)</strong>.</p>
+<table>
+  <tr>
+    <th>#</th><th>Panel member</th><th>Verdict</th><th>HIGH</th><th>MEDIUM</th><th>LOW</th><th>Engram obs</th>
+  </tr>
+  <tr><td>1</td><td>code-reviewer (wshobson)</td><td><span class="pass">PASS</span></td><td>0</td><td>2</td><td>3</td><td>#315</td></tr>
+  <tr><td>2</td><td>architect-review (wshobson)</td><td><span class="pass">PASS</span></td><td>0</td><td>3</td><td>2</td><td>#312</td></tr>
+  <tr><td>3</td><td>security-auditor (wshobson)</td><td><span class="pass">PASS</span></td><td>0</td><td>0</td><td>1</td><td>#310</td></tr>
+  <tr><td>4</td><td>qa-expert (VoltAgent)</td><td><span class="pass">PASS</span></td><td>0</td><td>1</td><td>3</td><td>#316</td></tr>
+  <tr><td>5</td><td>flutter-expert (VoltAgent)</td><td><span class="pass">PASS</span></td><td>0</td><td>1</td><td>2</td><td>#311</td></tr>
+  <tr><td>6</td><td>accessibility-expert (wshobson)</td><td><span class="block">BLOCK</span> &rarr; <span class="patched">PATCHED</span></td><td>4 (3 PHASE + 1 PRE-EXISTING)</td><td>1</td><td>0</td><td>#313</td></tr>
+  <tr><td>7</td><td>design-system-architect (wshobson)</td><td><span class="pass">PASS</span> (with MEDIUM)</td><td>0</td><td>3</td><td>0</td><td>#314</td></tr>
+  <tr><td>8</td><td>/codex review (external)</td><td><span class="deferred">DEFERRED</span> &mdash; Julien-driven if requested</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>n/a</td></tr>
+</table>
+
+<h3>HIGH findings resolution (W02-NN-PATCH-A11Y <code>be32948e</code>)</h3>
+<table>
+  <tr>
+    <th>ID</th><th>Finding</th><th>File:Line</th><th>Action</th><th>Mechanism</th>
+  </tr>
+  <tr>
+    <td>H2</td>
+    <td>Error text insertion silent (no SemanticsService.announce) <span class="severity-high">HIGH WCAG 3.3.1 / 4.1.3</span></td>
+    <td><code>waitlist_form.dart:2038-2044</code></td>
+    <td><span class="patched">PATCHED</span></td>
+    <td><code>Semantics(liveRegion: true, container: true, label: errorMsg)</code> wraps the error Text</td>
+  </tr>
+  <tr>
+    <td>H3</td>
+    <td>Gate-redirect via context.go silent (no post-frame announce) <span class="severity-high">HIGH WCAG 1.3.2 / 4.1.3</span></td>
+    <td><code>coach_chat_screen.dart:1437-1445</code></td>
+    <td><span class="patched">PATCHED</span></td>
+    <td><code>SemanticsService.announce(l10n.waitlistAnnounceRedirect, ...)</code> before <code>context.go('/waitlist')</code>; new ARB key &times; 6 locales</td>
+  </tr>
+  <tr>
+    <td>H4</td>
+    <td>Yes/No FilledButtons lack radio group semantics + position hint <span class="severity-high">HIGH WCAG 1.3.1 / 4.1.2</span></td>
+    <td><code>us_tax_person_screen.dart:1779-1811</code></td>
+    <td><span class="patched">PATCHED</span></td>
+    <td><code>Semantics(container: true, label: question)</code> + per-button <code>Semantics(inMutuallyExclusiveGroup: true, button: true, hint: '1 / 2' | '2 / 2')</code></td>
+  </tr>
+  <tr>
+    <td>H1</td>
+    <td>MintTextField label not programmatically associated <span class="severity-high">HIGH WCAG 1.3.1 / 4.1.2</span></td>
+    <td><code>mint_text_field.dart:61-83</code> (shared widget, pre-existing)</td>
+    <td><span class="deferred">DEFERRED</span></td>
+    <td>Pre-existing root cause in shared MintTextField; tracked in <code>01.5-DEFERRED-TO-01.6.md</code></td>
+  </tr>
+</table>
+
+<h2>Deferred items (rolled into 01.6)</h2>
+<p class="meta">Per Codex C6 escalation policy + Julien explicit decision: H1 (pre-existing root cause) + 12 Soft-BLOCK NITs DEFERRED. Source-of-truth: <code>.planning/phases/01.5-archetype-hard-gate-fatca/01.5-DEFERRED-TO-01.6.md</code>.</p>
+<table>
+  <tr>
+    <th>#</th><th>Source</th><th>Severity</th><th>Finding (1-line)</th>
+  </tr>
+  <tr><td>H1</td><td>accessibility-expert</td><td class="severity-high">HIGH (pre-existing)</td><td>MintTextField label not programmatically associated &mdash; shared widget root cause</td></tr>
+  <tr><td>N01</td><td>code-reviewer</td><td class="severity-medium">MEDIUM</td><td>Orchestrator narrative refusal hardcodes 'fr' (i18n contract break for EN/DE/ES/IT/PT)</td></tr>
+  <tr><td>N02</td><td>code-reviewer</td><td class="severity-medium">MEDIUM</td><td>Migration race on first cold start (unchained <code>.then()</code> on grandfatherLegacyProfile)</td></tr>
+  <tr><td>N03</td><td>code-reviewer</td><td class="severity-low">LOW</td><td><code>_allowedWaitlistArchetypes</code> incomplete (loses analytics granularity)</td></tr>
+  <tr><td>N04</td><td>code-reviewer</td><td class="severity-low">LOW</td><td><code>waitlist_provider.submit</code> no in-flight guard</td></tr>
+  <tr><td>N05</td><td>code-reviewer</td><td class="severity-low">LOW</td><td>coach_chat_screen re-evaluates gate on every chat send for already-gated users</td></tr>
+  <tr><td>N06</td><td>architect-review</td><td class="severity-medium">MEDIUM</td><td>CoachContext-builder duplication (4 sites) + lefthook lint recommended</td></tr>
+  <tr><td>N07</td><td>architect-review</td><td class="severity-medium">MEDIUM</td><td>Dual archetype dispatchers (delete private <code>_archetypeToBackendName</code>)</td></tr>
+  <tr><td>N08</td><td>architect-review</td><td class="severity-medium">MEDIUM</td><td>Detection-logic duplication (typed getter vs string detector)</td></tr>
+  <tr><td>N09</td><td>qa-expert</td><td class="severity-medium">MEDIUM</td><td>F6 regression test missing (CoachContext.archetype propagation)</td></tr>
+  <tr><td>N10</td><td>flutter-expert</td><td class="severity-medium">MEDIUM&rarr;docs</td><td>WaitlistForm listener context.read doc comment</td></tr>
+  <tr><td>N11</td><td>design-system-architect</td><td class="severity-medium">MEDIUM</td><td>Inline TextStyle in us_tax_person_screen + 4 mvp_wedge peer scenes</td></tr>
+  <tr><td>N12</td><td>accessibility-expert</td><td class="severity-medium">MEDIUM</td><td><code>_UsTaxPersonStep</code> PopScope/WillPopScope</td></tr>
+  <tr><td>F2-F5</td><td>pre-existing</td><td class="severity-low">LOW</td><td>4 landing_golden pixel diffs (no landing surface touched this phase; out of scope)</td></tr>
+</table>
+
+<h2>What ships when the 3 pending gates unblock</h2>
+<p class="meta">8-step Maestro Run Command from <code>01.5-03-01-SUMMARY.md</code> &sect; Maestro Run Command (verbatim in <code>01.5-VERIFICATION.md</code> &sect; G1):</p>
+<ol>
+  <li>Codex C8 staging-sha pin: <code>curl /api/v1/health</code> &rarr; write to <code>01.5-03-01-EVIDENCE.md</code></li>
+  <li>Boot sim: <code>xcrun simctl shutdown all &amp;&amp; xcrun simctl boot "iPhone 17 Pro"</code> (per memory <code>feedback_sim_crash_mitigation</code>)</li>
+  <li>Build + install: <code>bash tools/simulator/walker.sh --archetype expat_us</code> (Codex C3 slug, never seed name)</li>
+  <li>Execute hard-gate flow: <code>maestro test tools/simulator/flows/maestro-perfect-set/flow_hardgate_expat_us.yaml</code> &rarr; expected exit 0 (G1)</li>
+  <li>Capture: <code>idb ui describe-all --json &gt; 01.5-G1-evidence-&lt;ts&gt;.json</code> per CLAUDE.md &sect;9.1 (G2)</li>
+  <li>Rebuild with swiss seed: <code>bash tools/simulator/walker.sh --archetype swiss_native</code></li>
+  <li>Hero regression: <code>maestro test ... flow_hero_marge_fiscale_3a.yaml</code> &rarr; expected exit 0 (G4.5)</li>
+  <li>Codex C8 post-pin re-verify: append final staging sha to EVIDENCE.md</li>
+</ol>
+<p class="meta">Plus origin/dev push + <code>gh run view &lt;RUN_ID&gt;</code> with all jobs ne fail and ne pending (G3).</p>
+
+<h2>Cross-citation integrity</h2>
+<p class="meta">Both <code>01.5-VERIFICATION.md</code> and this HTML report cite the same phase HEAD sha (<code>a150bbd4</code>), the same 7-reviewer panel verdicts (with the same engram obs IDs #310-#316), the same W02-NN-PATCH-A11Y commit (<code>be32948e</code>) closing the 3 phase-introduced HIGHs, and the same deferred backlog in <code>01.5-DEFERRED-TO-01.6.md</code>.</p>
+
+<p class="footnote">
+HEAD at compile time: <code>a150bbd4f29de02326ca9373d59b743f188cba64</code><br>
+Compiled by: Plan 01.5-03-02 close-out agent (worktree <code>worktree-01.5-03-02</code>)<br>
+Compiled on: 2026-05-22<br>
+Source artifacts: <code>01.5-VERIFICATION.md</code>, <code>01.5-02-08-PRECHECK.md</code>, <code>01.5-02-08-PANEL-VERDICTS.md</code>, <code>01.5-DEFERRED-TO-01.6.md</code>, <code>01.5-03-01-SUMMARY.md</code>, all wave SUMMARY files 01.5-01-01 through 01.5-02-07.<br>
+Per memory <code>feedback_html_evidence_report</code>: this file lives at <code>.planning/phases/01.5-archetype-hard-gate-fatca/01.5-VERIFICATION-REPORT.html</code> &mdash; never in <code>/tmp</code>.
+</p>
+
+</body>
+</html>

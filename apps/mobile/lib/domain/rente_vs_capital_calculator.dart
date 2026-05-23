@@ -5,7 +5,7 @@
 //
 // Sources:
 // - LPP art. 14 al. 2 (taux de conversion minimum 6.8%)
-// - LIFD art. 38 (imposition du capital de prevoyance)
+// - LIFD art. 38 (imposition du capital de prévoyance)
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';

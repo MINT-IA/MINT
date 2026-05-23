@@ -567,7 +567,7 @@ class FinancialFitnessService {
         return 'Tu es en avance sur ta trajectoire. Continue comme ca !';
       case FitnessLevel.bon:
         if (weakest.key == 'prevoyance') {
-          return 'Bonne base ! Pour progresser, concentre-toi sur ta prevoyance (3a, LPP).';
+          return 'Bonne base ! Pour progresser, concentre-toi sur ta prévoyance (3a, LPP).';
         } else if (weakest.key == 'budget') {
           return 'Bonne base ! Ameliorer ton budget et fonds d\'urgence te ferait passer au niveau superieur.';
         }

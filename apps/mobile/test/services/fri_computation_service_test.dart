@@ -302,9 +302,15 @@ void main() {
       expect(FriComputationService.detectArchetype(profile), 'expat_non_eu');
     });
 
-    test('swiss_native for foreign national arrived young (< 20)', () {
+    // Sub-phase 01.5 W02-01 contract change: foreign-young no longer
+    // assimilates to swiss_native (R1 silent-fallback closure). The EU
+    // expat branch only fires for arrivalAge > 20; foreign nationals
+    // who arrived young AND aren't independent/cross-border/US route
+    // to 'unknown' so the FATCA hard-gate at coach entry routes them to
+    // /waitlist instead of silently impersonating swiss_native.
+    test('unknown for EU national arrived young (< 20) — no silent assimilation', () {
       final profile = buildProfile(nationality: 'de', arrivalAge: 15);
-      expect(FriComputationService.detectArchetype(profile), 'swiss_native');
+      expect(FriComputationService.detectArchetype(profile), 'unknown');
     });
 
     test('independant overrides nationality check', () {

@@ -434,7 +434,7 @@ class EnhancedConfidenceService {
     if (!_isFilled(profile['lpp_obligatoire'])) {
       prompts.add(EnrichmentPrompt(
         fieldName: 'lpp_obligatoire',
-        action: 'Scanne ton certificat de prevoyance LPP',
+        action: 'Scanne ton certificat de prévoyance LPP',
         impactPoints: 27,
         method: 'documentScan',
         priority: priority++,

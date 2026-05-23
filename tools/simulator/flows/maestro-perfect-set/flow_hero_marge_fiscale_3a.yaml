@@ -100,6 +100,23 @@ tags:
           text: ".*(Commencer|Démarrer mon diagnostic|Démarrer).*"
       - waitForAnimationToEnd
 
+# 02.5 — Sub-phase 01.5 Wave 02 Plan 03 introduced a new mandatory
+# onboarding step T2.5 « Es-tu citoyen ou résident fiscal aux États-
+# Unis ? » (UsTaxPersonScreen, FATCA gate). For the hero swiss_native
+# path the answer is « Non » — tap the Key-stable button so the
+# orchestrator advances to T3 (age) and the rest of the wizard
+# proceeds unchanged. Conditional `runFlow` keeps the flow re-entrant
+# on builds where the Q is skipped (legacy / pre-fix flag absent).
+# Surgical addition per Plan 01.5-03-01 task 1.2 — preserves every
+# existing assertion on the hero coach grounding path verbatim.
+- runFlow:
+    when:
+      visible: "Es-tu citoyen ou résident fiscal aux États-Unis"
+    commands:
+      - tapOn:
+          id: "us-tax-person-no"
+      - waitForAnimationToEnd
+
 # 03 — onboarding salary input (single-input, swiss_native default).
 # Triggered ONLY if the wizard surfaces a salary field at this gate.
 # The selector is a regex over the visible field label ; if the wizard

@@ -752,6 +752,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
                     child: TextField(
                       controller: controller,
                       keyboardType: TextInputType.number,
+                      onTapOutside: (_) => FocusScope.of(context).unfocus(),
                       autofocus: true,
                       textAlign: TextAlign.center,
                       style: MintTextStyles.displayMedium(color: MintColors.textPrimary),

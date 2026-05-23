@@ -23,6 +23,9 @@ import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_provider.dar
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_3a_levier.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_capacite_achat.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_rente_trouee.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart';
+import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
+import 'package:mint_mobile/services/profile_migration_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 class OnboardingShellScreen extends StatelessWidget {
@@ -30,9 +33,35 @@ class OnboardingShellScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => OnboardingProvider(),
-      child: const _OnboardingShellBody(),
+    // Sub-phase 01.5 W02-T05 Task 1 (R7) — pre-archetype guard.
+    //
+    // Resolve the legacy `needsUsTaxPersonReOnboarding` flag BEFORE
+    // constructing OnboardingProvider so the step machine starts on
+    // the US-tax-person Q for grandfathered users. New users (flag
+    // absent) keep the standard entry → intents → … flow.
+    //
+    // The future resolves quickly (one SharedPreferences read); we
+    // hide the underlying scaffold during the await to avoid a
+    // single-frame flash of the entry step for legacy users.
+    return FutureBuilder<bool>(
+      future: ProfileMigrationService().needsUsTaxPersonReOnboarding(),
+      builder: (context, snapshot) {
+        // While the flag is loading, show a minimal Scaffold (same
+        // background as the entry step) so there is no visible flash.
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            backgroundColor: MintColors.warmWhite,
+            body: SizedBox.shrink(),
+          );
+        }
+        final needsReOnboarding = snapshot.data ?? false;
+        return ChangeNotifierProvider(
+          create: (_) => OnboardingProvider.legacyReOnboarding(
+            needsUsTaxPersonReOnboarding: needsReOnboarding,
+          ),
+          child: const _OnboardingShellBody(),
+        );
+      },
     );
   }
 }
@@ -70,6 +99,8 @@ class _OnboardingShellBody extends StatelessWidget {
         return const _EntryStep();
       case OnboardingStep.intents:
         return const _IntentsStep();
+      case OnboardingStep.usTaxPerson:
+        return const _UsTaxPersonStep();
       case OnboardingStep.age:
         return const _AgeStep();
       case OnboardingStep.canton:
@@ -83,6 +114,36 @@ class _OnboardingShellBody extends StatelessWidget {
       case OnboardingStep.bifurcation:
         return const _BifurcationStep();
     }
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────
+// T2.5 — US-tax-person hard-gate (Sub-phase 01.5 W02-T03)
+// ────────────────────────────────────────────────────────────────────
+
+/// Thin wrapper that connects [UsTaxPersonScreen] to the onboarding
+/// step machine. The screen writes `q_us_tax_person` to
+/// [CoachProfileProvider]; on answer the orchestrator advances to T3
+/// (age). No additional dossier-strip entry — the FATCA flag is
+/// invisible to the user post-answer, surfaced only by the route gate.
+class _UsTaxPersonStep extends StatelessWidget {
+  const _UsTaxPersonStep();
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.read<OnboardingProvider>();
+    return UsTaxPersonScreen(
+      onAnswered: (isUsTaxPerson) {
+        if (isUsTaxPerson) {
+          context.go(
+            '/waitlist',
+            extra: const WaitlistArgs(archetype: 'expat_us'),
+          );
+          return;
+        }
+        provider.advance();
+      },
+    );
   }
 }
 
@@ -104,7 +165,7 @@ class _StepScaffold extends StatelessWidget {
         children: [
           Text(
             prompt,
-            style: TextStyle(fontFamily: 'Supreme', 
+            style: TextStyle(fontFamily: 'Supreme',
               fontSize: 24,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -120,7 +181,11 @@ class _StepScaffold extends StatelessWidget {
 }
 
 class _PrimaryButton extends StatelessWidget {
-  const _PrimaryButton({required this.onPressed, required this.label});
+  const _PrimaryButton({
+    super.key,
+    required this.onPressed,
+    required this.label,
+  });
   final VoidCallback? onPressed;
   final String label;
 
@@ -141,10 +206,10 @@ class _PrimaryButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(fontFamily: 'Supreme', 
+          style: TextStyle(fontFamily: 'Supreme',
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
       ),
@@ -170,7 +235,7 @@ class _EntryStep extends StatelessWidget {
           Text(
             'Il est temps que tu comprennes.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontFamily: 'Supreme', 
+            style: TextStyle(fontFamily: 'Supreme',
               fontSize: 28,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -178,7 +243,11 @@ class _EntryStep extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          _PrimaryButton(label: 'Ouvrir', onPressed: () => provider.advance()),
+          _PrimaryButton(
+            key: const ValueKey('onboarding-entry-open'),
+            label: 'Ouvrir',
+            onPressed: () => provider.advance(),
+          ),
           const SizedBox(height: 8),
         ],
       ),
@@ -274,7 +343,7 @@ class _IntentCard extends StatelessWidget {
           children: [
             Text(
               eyebrow,
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1.2,
@@ -284,7 +353,7 @@ class _IntentCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               phrase,
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 17,
                 fontWeight: FontWeight.w500,
                 color: MintColors.textPrimary,
@@ -367,7 +436,7 @@ class _AgePicker extends StatelessWidget {
             return Center(
               child: Text(
                 '$year',
-                style: TextStyle(fontFamily: 'Supreme', 
+                style: TextStyle(fontFamily: 'Supreme',
                   fontSize: isSelected ? 36 : 22,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color: isSelected
@@ -450,7 +519,7 @@ class _CantonStep extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 code,
-                style: TextStyle(fontFamily: 'Supreme', 
+                style: TextStyle(fontFamily: 'Supreme',
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: MintColors.textPrimary,
@@ -512,7 +581,7 @@ class _RevenueStepState extends State<_RevenueStep> {
           if (!_exactMode) ...[
             Text(
               '${_fmt(range.low)} – ${_fmt(range.high)} CHF',
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textPrimary,
@@ -521,7 +590,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             const SizedBox(height: 4),
             Text(
               'tu ajusteras quand tu scanneras ta fiche',
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 13,
                 color: MintColors.textSecondary,
                 fontStyle: FontStyle.italic,
@@ -547,14 +616,14 @@ class _RevenueStepState extends State<_RevenueStep> {
               children: [
                 Text(
                   '${_fmt(_kMinNet.toDouble())} CHF',
-                  style: TextStyle(fontFamily: 'Supreme', 
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 12,
                     color: MintColors.textSecondary,
                   ),
                 ),
                 Text(
                   '${_fmt(_kMaxNet.toDouble())} CHF',
-                  style: TextStyle(fontFamily: 'Supreme', 
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 12,
                     color: MintColors.textSecondary,
                   ),
@@ -567,7 +636,7 @@ class _RevenueStepState extends State<_RevenueStep> {
                 onPressed: () => setState(() => _exactMode = true),
                 child: Text(
                   'Je sais le chiffre exact',
-                  style: TextStyle(fontFamily: 'Supreme', 
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: MintColors.textSecondary,
@@ -588,18 +657,19 @@ class _RevenueStepState extends State<_RevenueStep> {
             TextField(
               controller: _exactController,
               keyboardType: TextInputType.number,
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r"[0-9 ']")),
               ],
               autofocus: true,
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textPrimary,
               ),
               decoration: InputDecoration(
                 hintText: '7\u2019600',
-                hintStyle: TextStyle(fontFamily: 'Supreme', 
+                hintStyle: TextStyle(fontFamily: 'Supreme',
                   fontSize: 32,
                   fontWeight: FontWeight.w600,
                   color:
@@ -621,7 +691,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             const SizedBox(height: 8),
             Text(
               'Avant impôt, après cotisations (le chiffre que tu vois tomber).',
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 13,
                 color: MintColors.textSecondary,
               ),
@@ -632,7 +702,7 @@ class _RevenueStepState extends State<_RevenueStep> {
                 onPressed: () => setState(() => _exactMode = false),
                 child: Text(
                   'Revenir à la fourchette',
-                  style: TextStyle(fontFamily: 'Supreme', 
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 14,
                     color: MintColors.textSecondary,
                     decoration: TextDecoration.underline,
@@ -718,7 +788,7 @@ class _InsightStep extends StatelessWidget {
               children: [
                 Text(
                   eyebrow,
-                  style: TextStyle(fontFamily: 'Supreme', 
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.2,
@@ -728,7 +798,7 @@ class _InsightStep extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   phrase,
-                  style: TextStyle(fontFamily: 'Supreme', 
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 19,
                     fontWeight: FontWeight.w500,
                     color: MintColors.textPrimary,
@@ -904,7 +974,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
             onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
             child: Text(
               'Plus tard',
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 15,
                 color: MintColors.textSecondary,
               ),
@@ -915,4 +985,3 @@ class _BifurcationStepState extends State<_BifurcationStep> {
     );
   }
 }
-

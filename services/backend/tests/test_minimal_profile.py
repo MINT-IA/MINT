@@ -413,3 +413,25 @@ class TestReplacementRatio:
         r = minimal_result_30_80k_vd
         expected = r.projected_avs_monthly + r.projected_lpp_monthly
         assert abs(r.estimated_monthly_retirement - expected) < 0.01
+
+
+# ===========================================================================
+# Sub-phase 01.5 R6 contract pin — archetype signals default to None
+# ===========================================================================
+
+def test_minimal_profile_archetype_signals_default_none():
+    """Pin contract: ProfileUpdate / Profile default usTaxPerson + nationality to None.
+
+    This pins the R4 tri-state default at the Pydantic schema layer (Profile /
+    ProfileUpdate) alongside the onboarding minimal-profile suite above.
+    The full roundtrip suite lives in test_profile_archetype_signal_roundtrip.py.
+    """
+    from app.schemas.profile import ProfileUpdate
+
+    u = ProfileUpdate()
+    assert u.usTaxPerson is None, (
+        "R4 tri-state default broken: ProfileUpdate().usTaxPerson must be None, "
+        "never False. If this fails, a model_validator was added that coerces "
+        "None to False — that breaks the FATCA hard gate."
+    )
+    assert u.nationality is None

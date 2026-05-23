@@ -23358,4 +23358,69 @@ class SIt extends S {
   @override
   String get narrativeSleeveOpenerCaptionSimulate =>
       'Scegli uno scenario da proiettare.';
+
+  @override
+  String get waitlistTitle => 'Encore en chantier pour ton profil';
+
+  @override
+  String get waitlistBodyPara1 =>
+      'MINT est calibré aujourd\'hui pour les personnes résidentes en Suisse, salariées et affiliées à un 2e pilier (LPP).';
+
+  @override
+  String get waitlistBodyPara2 =>
+      'Ton profil correspond à une situation que nous couvrirons prochainement.';
+
+  @override
+  String get waitlistBodyPara3 =>
+      'Laisse-nous ton email et nous te préviendrons dès qu\'on ouvre MINT à ton parcours.';
+
+  @override
+  String get waitlistEmailLabel => 'Email';
+
+  @override
+  String get waitlistEmailHint => 'ton.email@exemple.ch';
+
+  @override
+  String get waitlistCta => 'Préviens-moi quand c\'est prêt';
+
+  @override
+  String get waitlistAnnounceRedirect =>
+      'Ton profil n\'est pas encore couvert par MINT. Tu es redirigé·e vers la liste d\'attente.';
+
+  @override
+  String get waitlistConsentCheckbox =>
+      'J\'accepte d\'être contacté·e par email lorsque MINT sera disponible pour mon profil. MINT SA utilisera ton adresse email uniquement à cette fin. Tu peux te désabonner à tout moment.';
+
+  @override
+  String get waitlistConsentFinePrint =>
+      'En soumettant ton email, tu acceptes d\'être contacté·e uniquement pour cette notification. Pas de marketing.';
+
+  @override
+  String get waitlistSuccessMessage =>
+      'Merci, on revient vers toi dès que ton profil est pris en charge.';
+
+  @override
+  String get waitlistSuccessCta => 'Revenir à l\'accueil';
+
+  @override
+  String get waitlistErrorNetwork =>
+      'Impossible d\'envoyer ton email pour le moment. Réessaie dans un instant.';
+
+  @override
+  String get waitlistErrorBadEmail =>
+      'Cette adresse email ne semble pas valide. Vérifie la syntaxe.';
+
+  @override
+  String get waitlistUsTaxPersonQuestion =>
+      'Es-tu citoyen ou résident fiscal aux États-Unis ?';
+
+  @override
+  String get waitlistUsTaxPersonTooltip =>
+      'MINT n\'est pas encore calibré pour les contribuables américains en Suisse (obligations FATCA et FBAR). Ta réponse nous aide à t\'orienter vers une expérience adaptée.';
+
+  @override
+  String get waitlistUsTaxPersonYes => 'Oui';
+
+  @override
+  String get waitlistUsTaxPersonNo => 'Non';
 }

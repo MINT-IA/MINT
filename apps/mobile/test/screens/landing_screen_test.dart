@@ -44,11 +44,11 @@ GoRouter _buildRouter() {
           body: Center(child: Text('LOGIN_STUB')),
         ),
       ),
-      // S005 (Phase 97 W7 iter#4) — anonymous local-mode /home target.
+      // Anonymous CTA target post-fix 517774aa: /onb (not /home) so FATCA Q fires.
       GoRoute(
-        path: '/home',
+        path: '/onb',
         builder: (_, __) => const Scaffold(
-          body: Center(child: Text('AUJOURDHUI_STUB')),
+          body: Center(child: Text('ONB_STUB')),
         ),
       ),
     ],
@@ -134,24 +134,20 @@ void main() {
       expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
     });
 
-    // S005 (Phase 97 W7 iter#4) — anonymous local-mode /home entry point.
-    // Asserts the « Continuer sans compte » link renders AND navigates to
-    // /home (Aujourd'hui). Closes the cold-launch reachability gap : the
-    // app.dart:417 gate (isLoggedIn || isLocalMode) accepts anonymous
-    // users since AuthProvider defaults isLocalMode=true on fresh installs.
-    testWidgets('S005 — « Continuer sans compte » link renders + routes to /home',
+    // S005 (Phase 97 W7 iter#4 + fix 517774aa) — anonymous CTA routes to /onb
+    // (not /home) so FATCA Q (T2.5) fires before coach chat — otherwise
+    // archetype=unknown silently redirects to /waitlist on first message.
+    testWidgets('S005 — « Continuer sans compte » link renders + routes to /onb',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
 
-      // The S005 link is present below the login link.
       expect(find.text('Continuer sans compte'), findsOneWidget);
 
-      // Tapping it routes to /home (AUJOURDHUI_STUB).
       await tester.tap(find.text('Continuer sans compte'));
       await tester.pumpAndSettle();
 
-      expect(find.text('AUJOURDHUI_STUB'), findsOneWidget);
+      expect(find.text('ONB_STUB'), findsOneWidget);
     });
 
     testWidgets('reduced-motion: content visible on first pump', (tester) async {

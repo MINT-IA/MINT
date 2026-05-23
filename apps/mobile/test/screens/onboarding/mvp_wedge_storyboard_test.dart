@@ -24,6 +24,17 @@ class _FakeCoachProfileProvider extends CoachProfileProvider {
 
   @override
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+    // Sub-phase 01.5 W02-T03: the us-tax-person hard-gate writes
+    // {'q_us_tax_person': bool} via the same mergeAnswers entry-point.
+    // It is NOT the T8 dossier flush — exclude it from throw + log,
+    // so the existing throwOnMerge tests still target the flush.
+    final isUsTaxPersonGateOnly =
+        partial.length == 1 && partial.containsKey('q_us_tax_person');
+    if (isUsTaxPersonGateOnly) {
+      // Gate writes succeed unconditionally — they are not the
+      // failure-under-test for the T8 SnackBar story.
+      return;
+    }
     if (throwOnMerge) {
       throw StateError('test: mergeAnswers failed');
     }
@@ -53,6 +64,14 @@ Future<void> _pumpShell(
         path: '/coach/chat',
         builder: (_, __) => const Scaffold(body: Text('coach-chat-landed')),
       ),
+      GoRoute(
+        path: '/waitlist',
+        builder: (_, state) => Scaffold(
+          body: Text(
+            'waitlist-landed:${state.extra}',
+          ),
+        ),
+      ),
     ],
   );
   await tester.pumpWidget(
@@ -76,10 +95,23 @@ Future<void> _commonEntry(
   // T1 → T2
   await tester.tap(find.text('Ouvrir'));
   await tester.pumpAndSettle();
-  expect(find.textContaining('Qu\u2019est-ce qui t\u2019amène'), findsOneWidget);
+  expect(
+      find.textContaining('Qu\u2019est-ce qui t\u2019amène'), findsOneWidget);
 
-  // T2 → T3 (tap intent card)
+  // T2 → T2.5 (tap intent card)
+  // Sub-phase 01.5 W02-T03 inserted a us-tax-person gate between
+  // intents and age (Security §4 nLPD art. 6 pre-financial-data).
   await tester.tap(find.text(intentLabel));
+  await tester.pumpAndSettle();
+  expect(
+    find.text('Es-tu citoyen ou résident fiscal aux États-Unis ?'),
+    findsOneWidget,
+  );
+
+  // T2.5 → T3 : tap "Non" (storyboard tests default to non-US users so
+  // they reach the financial-data steps; gate semantics are covered in
+  // coach_route_archetype_guard_test.dart).
+  await tester.tap(find.byKey(const ValueKey('us-tax-person-no')));
   await tester.pumpAndSettle();
   expect(find.text('Quel âge tu as ?'), findsOneWidget);
 }
@@ -116,7 +148,30 @@ void main() {
     await _pumpShell(tester, fake);
     expect(find.text('Il est temps que tu comprennes.'), findsOneWidget);
     expect(find.text('Ouvrir'), findsOneWidget);
+    expect(find.byKey(const ValueKey('onboarding-entry-open')), findsOneWidget);
     expect(find.text('TON DOSSIER'), findsNothing);
+  });
+
+  testWidgets('US tax person answer routes to waitlist before age/canton',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake);
+
+    await tester.tap(find.byKey(const ValueKey('onboarding-entry-open')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Je regarde d’abord.'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Es-tu citoyen ou résident fiscal aux États-Unis ?'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('us-tax-person-yes')));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('waitlist-landed'), findsOneWidget);
+    expect(find.text('Quel âge tu as ?'), findsNothing);
+    expect(find.text('Où tu vis ?'), findsNothing);
   });
 
   testWidgets('Intent retraite: dossier gains one line per tour',
@@ -270,8 +325,7 @@ void main() {
     expect(fake.mergedCalls, isEmpty);
   });
 
-  testWidgets(
-      'T8 Creuser: flushes wantsDeeper=true + navigates to /coach/chat',
+  testWidgets('T8 Creuser: flushes wantsDeeper=true + navigates to /coach/chat',
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);

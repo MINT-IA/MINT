@@ -134,6 +134,14 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     killFlag: 'enableMvpWedgeOnboarding',
     description: 'MVP wedge onboarding v2 — 9-step intent-led dossier flow',
   ),
+  '/waitlist': RouteMeta(
+    path: '/waitlist',
+    category: RouteCategory.destination,
+    owner: RouteOwner.anonymous,
+    requiresAuth: false,
+    killFlag: 'enableCoachHardGate',
+    description: 'Sub-phase 01.5 FATCA hard-gate destination — non-calibrated archetypes (expat_us, frontalier, etc.) land here with UCA opt-in form',
+  ),
 
   // ── Auth flows (public) ────────────────────────────────────────
   '/auth/login': RouteMeta(

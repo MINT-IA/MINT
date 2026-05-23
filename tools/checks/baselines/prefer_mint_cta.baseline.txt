@@ -1,5 +1,5 @@
-lib/app.dart:1871: FilledButton(
-lib/app.dart:1876: TextButton(
+lib/app.dart:1921: FilledButton(
+lib/app.dart:1926: TextButton(
 lib/screens/admin_observability_screen.dart:185: FilledButton(
 lib/screens/arbitrage/allocation_annuelle_screen.dart:421: FilledButton(
 lib/screens/arbitrage/arbitrage_bilan_screen.dart:52: FilledButton(
@@ -29,8 +29,8 @@ lib/screens/byok_settings_screen.dart:519: TextButton(
 lib/screens/byok_settings_screen.dart:523: FilledButton(
 lib/screens/coach/retirement_dashboard_screen.dart:1038: OutlinedButton(
 lib/screens/coach/retirement_dashboard_screen.dart:917: FilledButton(
-lib/screens/debt_prevention/debt_ratio_screen.dart:777: FilledButton(
-lib/screens/debt_prevention/repayment_screen.dart:563: FilledButton(
+lib/screens/debt_prevention/debt_ratio_screen.dart:778: FilledButton(
+lib/screens/debt_prevention/repayment_screen.dart:565: FilledButton(
 lib/screens/debt_risk_check_screen.dart:126: FilledButton(
 lib/screens/debt_risk_check_screen.dart:292: OutlinedButton(
 lib/screens/debt_risk_check_screen.dart:347: OutlinedButton(
@@ -38,8 +38,8 @@ lib/screens/disability/disability_gap_screen.dart:457: OutlinedButton(
 lib/screens/document_detail_screen.dart:275: FilledButton(
 lib/screens/document_detail_screen.dart:510: TextButton(
 lib/screens/document_detail_screen.dart:514: FilledButton(
-lib/screens/document_scan/document_scan_screen.dart:920: OutlinedButton(
-lib/screens/document_scan/document_scan_screen.dart:927: FilledButton(
+lib/screens/document_scan/document_scan_screen.dart:924: OutlinedButton(
+lib/screens/document_scan/document_scan_screen.dart:931: FilledButton(
 lib/screens/document_scan/extraction_review_screen.dart:573: TextButton(
 lib/screens/document_scan/extraction_review_screen.dart:580: FilledButton(
 lib/screens/document_scan/extraction_review_screen.dart:625: TextButton(
@@ -63,10 +63,11 @@ lib/screens/landing_screen.dart:163: FilledButton(
 lib/screens/lpp_deep/rachat_echelonne_screen.dart:643: TextButton(
 lib/screens/mortgage/affordability_screen.dart:758: OutlinedButton(
 lib/screens/onboarding/data_block_enrichment_screen.dart:152: FilledButton(
-lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:132: FilledButton(
-lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:566: TextButton(
-lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:631: TextButton(
-lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:903: TextButton(
+lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:197: FilledButton(
+lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:635: TextButton(
+lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:701: TextButton(
+lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:973: TextButton(
+lib/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart:76: TextButton(
 lib/screens/open_banking/consent_screen.dart:476: TextButton(
 lib/screens/open_banking/consent_screen.dart:701: OutlinedButton(
 lib/screens/open_banking/consent_screen.dart:714: FilledButton(
@@ -84,6 +85,8 @@ lib/screens/slm_settings_screen.dart:524: TextButton(
 lib/screens/slm_settings_screen.dart:528: FilledButton(
 lib/screens/slm_settings_screen.dart:574: TextButton(
 lib/screens/slm_settings_screen.dart:578: TextButton(
+lib/screens/waitlist/widgets/waitlist_form.dart:150: FilledButton(
+lib/screens/waitlist/widgets/waitlist_success.dart:49: FilledButton(
 lib/services/slm/slm_auto_prompt_service.dart:226: FilledButton(
 lib/services/slm/slm_auto_prompt_service.dart:282: OutlinedButton(
 lib/widgets/analytics_consent_banner.dart:174: OutlinedButton(

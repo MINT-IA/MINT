@@ -314,7 +314,7 @@ class ArbitrageSummaryService {
       title: 'Calendrier de retraits',
       verdict:
           'Echelonner tes retraits pourrait economiser ~${formatChfWithPrefix(saving)} d\'impot',
-      keyInsight: 'En Suisse, les retraits de prevoyance sont taxes '
+      keyInsight: 'En Suisse, les retraits de prévoyance sont taxes '
           'progressivement — retirer tout la meme annee coute significativement plus.',
       monthlyImpactChf: saving / (profile.anneesAvantRetraite * 12).clamp(1, 999),
       confidenceScore: result.confidenceScore,

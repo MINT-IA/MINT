@@ -52,12 +52,16 @@ def test_pg_fixture_spins_postgres_and_alembic_upgrade_head_idempotent(pg_engine
     #   (e) ORM-orphan safety net applied : {p122_orm_orphan_safety_net}
     #       (canonical post-2026-05-20 hotfix that backfills the 4
     #       ORM-orphan tables — closes Sentry MINT-BACKEND-3 + MINT-BACKEND-A).
+    #   (f) Sub-phase 01.5 waitlist endpoint applied : {p123_waitlist_entry}
+    #       (canonical post-2026-05-21 archetype HARD GATE backend slice
+    #       — POST /api/v1/waitlist + WaitlistEntry model).
     expected_heads = {
         "p112_audit_event_user_hash",
         "p86_eclairage_delivered",
         "p98_merge_p86_eclairage",
         "p119_phase02_parity_cont",
         "p122_orm_orphan_safety_net",
+        "p123_waitlist_entry",
     }
     assert heads_in_db & expected_heads, (
         f"alembic_version table missing expected heads. "

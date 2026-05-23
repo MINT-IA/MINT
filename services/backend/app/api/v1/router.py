@@ -60,6 +60,7 @@ from app.api.v1.endpoints import (
     overview,
     lucidity,
     audit_mobile,
+    waitlist,
 )
 
 api_router = APIRouter()
@@ -233,4 +234,9 @@ api_router.include_router(
 # iter-3 iA2 replay-ordering).
 api_router.include_router(
     audit_mobile.router, prefix="/audit", tags=["Mobile L1 Audit D-12"]
+)
+# Sub-phase 01.5 archetype HARD GATE — waitlist opt-in for users whose
+# archetype is NOT in the calibrated set (expat_us FATCA + 5 others).
+api_router.include_router(
+    waitlist.router, prefix="/waitlist", tags=["Waitlist P0 01.5"]
 )

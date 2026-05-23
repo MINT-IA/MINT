@@ -52,6 +52,7 @@
 /debt/help | authenticated
 /debt/ratio | authenticated
 /debt/repayment | authenticated
+/debug/chat-as-verb | public
 /decaissement | authenticated
 /disability/gap | authenticated
 /disability/insurance | authenticated
@@ -153,6 +154,7 @@
 /timeline | authenticated
 /tools | authenticated
 /unemployment | authenticated
+/waitlist | public
 admin-analytics | authenticated
 admin-observability | authenticated
 bilan | authenticated

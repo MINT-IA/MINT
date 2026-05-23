@@ -40802,6 +40802,114 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Choisis un scénario à projeter.'**
   String get narrativeSleeveOpenerCaptionSimulate;
+
+  /// Phase 01.5 W02-T02 — Waitlist screen H1. Hard-gate destination for non-supported archetypes (expat_us FATCA + 5 others).
+  ///
+  /// In fr, this message translates to:
+  /// **'Encore en chantier pour ton profil'**
+  String get waitlistTitle;
+
+  /// Phase 01.5 W02-T02 — Waitlist body paragraph 1: current scope statement.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT est calibré aujourd\'hui pour les personnes résidentes en Suisse, salariées et affiliées à un 2e pilier (LPP).'**
+  String get waitlistBodyPara1;
+
+  /// Phase 01.5 W02-T02 — Waitlist body paragraph 2: future-coverage promise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil correspond à une situation que nous couvrirons prochainement.'**
+  String get waitlistBodyPara2;
+
+  /// Phase 01.5 W02-T02 — Waitlist body paragraph 3: email CTA framing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Laisse-nous ton email et nous te préviendrons dès qu\'on ouvre MINT à ton parcours.'**
+  String get waitlistBodyPara3;
+
+  /// Phase 01.5 W02-T02 — Waitlist email field label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Email'**
+  String get waitlistEmailLabel;
+
+  /// Phase 01.5 W02-T02 — Waitlist email field placeholder.
+  ///
+  /// In fr, this message translates to:
+  /// **'ton.email@exemple.ch'**
+  String get waitlistEmailHint;
+
+  /// Phase 01.5 W02-T02 — Waitlist submit CTA label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préviens-moi quand c\'est prêt'**
+  String get waitlistCta;
+
+  /// Phase 01.5 W02-NN-PATCH-A11Y (H3, WCAG 1.3.2 / 4.1.3) — SemanticsService.announce text fired when the coach archetype gate redirects an unsupported profile to /waitlist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil n\'est pas encore couvert par MINT. Tu es redirigé·e vers la liste d\'attente.'**
+  String get waitlistAnnounceRedirect;
+
+  /// Phase 01.5 W02-T02 — Explicit UCA opt-in checkbox label. Required per Security §5 guardrail #1 + CONTEXT.md §0 (override of UI-SPEC §11 Q3).
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'accepte d\'être contacté·e par email lorsque MINT sera disponible pour mon profil. MINT SA utilisera ton adresse email uniquement à cette fin. Tu peux te désabonner à tout moment.'**
+  String get waitlistConsentCheckbox;
+
+  /// Phase 01.5 W02-T02 — Fine-print reassurance below CTA. No-marketing reminder.
+  ///
+  /// In fr, this message translates to:
+  /// **'En soumettant ton email, tu acceptes d\'être contacté·e uniquement pour cette notification. Pas de marketing.'**
+  String get waitlistConsentFinePrint;
+
+  /// Phase 01.5 W02-T02 — Post-submit confirmation copy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Merci, on revient vers toi dès que ton profil est pris en charge.'**
+  String get waitlistSuccessMessage;
+
+  /// Phase 01.5 W02-T02 — Back-to-home CTA shown alongside success message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir à l\'accueil'**
+  String get waitlistSuccessCta;
+
+  /// Phase 01.5 W02-T02 — Inline error for network failure (5xx / offline / timeout).
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'envoyer ton email pour le moment. Réessaie dans un instant.'**
+  String get waitlistErrorNetwork;
+
+  /// Phase 01.5 W02-T02 — Inline error for 400 bad-email response.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette adresse email ne semble pas valide. Vérifie la syntaxe.'**
+  String get waitlistErrorBadEmail;
+
+  /// Phase 01.5 W02-T03 — Onboarding US-tax-person hard-gate question. Asked BEFORE any financial data collection per Security §4 (nLPD art. 6 minimization).
+  ///
+  /// In fr, this message translates to:
+  /// **'Es-tu citoyen ou résident fiscal aux États-Unis ?'**
+  String get waitlistUsTaxPersonQuestion;
+
+  /// Phase 01.5 W02-T03 — Info-icon tooltip explaining why MINT asks the US-tax-person question (FATCA + FBAR exposure).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT n\'est pas encore calibré pour les contribuables américains en Suisse (obligations FATCA et FBAR). Ta réponse nous aide à t\'orienter vers une expérience adaptée.'**
+  String get waitlistUsTaxPersonTooltip;
+
+  /// Phase 01.5 W02-T03 — US-tax-person Yes answer button.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get waitlistUsTaxPersonYes;
+
+  /// Phase 01.5 W02-T03 — US-tax-person No answer button.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get waitlistUsTaxPersonNo;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

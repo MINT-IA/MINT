@@ -196,11 +196,36 @@ class FriComputationService {
 
   /// Detect archetype from CoachProfile fields.
   /// See ADR-20260223-archetype-driven-retirement.md.
-  /// All 8 archetypes from CLAUDE.md are handled.
+  /// All 8 archetypes from CLAUDE.md are handled, plus the new
+  /// [FinancialArchetype.unknown] slug (Sub-phase 01.5 Wave 02 Plan 01).
+  ///
+  /// Mirrors the typed getter in `coach_profile.dart:archetype`:
+  /// - FATCA short-circuit at top (usTaxPerson == true → expat_us).
+  /// - allSignalsAbsent → 'unknown' (Gemini C4 fix: null and empty
+  ///   strings are handled IDENTICALLY as "no signal").
+  /// - 'CH' → swiss_native / returning_swiss.
+  /// - Cross-border (permit G), US, EU/EFTA, non-EU branches preserved.
+  /// - Final fallback changed from 'swiss_native' to 'unknown' (R1+R4
+  ///   silent-fallback closure).
   static String detectArchetype(CoachProfile profile) {
-    final nat = profile.nationality?.toLowerCase() ?? '';
+    // R4 FATCA short-circuit (mirrors typed getter Task 1 logic): if the
+    // user self-declared US tax person, route to expat_us REGARDLESS of
+    // nationality. US citizens resident in CH still file FATCA.
+    if (profile.usTaxPerson == true) return 'expat_us';
+
+    final natRaw = profile.nationality;
+    final permitRaw = profile.residencePermit;
     final emp = profile.employmentStatus;
-    final permit = profile.residencePermit?.toUpperCase() ?? '';
+
+    // Gemini C4 (REVIEWS.md 2026-05-22): null and empty string both count
+    // as "no signal" — `?.isEmpty ?? true` returns true for both. Matches
+    // the typed getter (which tests `nationality == null`) at the contract
+    // level: an empty string is semantically equivalent to absent here.
+    final natAbsent = natRaw?.isEmpty ?? true;
+    final permitAbsent = permitRaw?.isEmpty ?? true;
+
+    final nat = natRaw?.toLowerCase() ?? '';
+    final permit = permitRaw?.toUpperCase() ?? '';
 
     // 1. Independent (check first — overrides nationality)
     if (emp == 'independant') {
@@ -210,22 +235,36 @@ class FriComputationService {
     }
 
     // 2. Cross-border (permit G)
-    if (permit == 'G') return 'cross_border';
+    if (!permitAbsent && permit == 'G') return 'cross_border';
 
-    // 3. US/FATCA
-    if (nat == 'us' || nat == 'usa') return 'expat_us';
+    // 3. US/FATCA (nationality-only signal — separate from self-declaration above)
+    if (!natAbsent && (nat == 'us' || nat == 'usa')) return 'expat_us';
 
     // 4. Swiss national
-    if (nat == 'ch' || nat == 'suisse' || nat == 'schweiz') {
-      // Returning Swiss: CH national who lived abroad (arrivalAge set + libre passage)
+    if (!natAbsent &&
+        (nat == 'ch' || nat == 'suisse' || nat == 'schweiz')) {
+      // Returning Swiss: CH national who lived abroad (arrivalAge > 20).
       if (profile.arrivalAge != null && profile.arrivalAge! > 20) {
         return 'returning_swiss';
       }
       return 'swiss_native';
     }
 
+    // R1+R4 (Sub-phase 01.5 Wave 02 Plan 01): explicit signal absence →
+    // 'unknown', NOT silent fallback. Gemini C4: null and empty handled
+    // identically here. Note `employmentStatus` is non-nullable on
+    // CoachProfile (defaults to 'salarie') so we cannot check it for
+    // null; the default is treated as "not a positive archetype signal"
+    // — same deviation as the typed getter (see coach_profile.dart).
+    final allSignalsAbsent = natAbsent
+        && permitAbsent
+        && profile.arrivalAge == null
+        && profile.usTaxPerson == null;
+    if (allSignalsAbsent) return 'unknown';
+
     // 5. Foreign national with late arrival
-    if (profile.arrivalAge != null && profile.arrivalAge! > 20) {
+    if (!natAbsent &&
+        profile.arrivalAge != null && profile.arrivalAge! > 20) {
       // EU/EFTA → bilateral conventions apply (totalisation periods)
       if (_euEftaCodes.contains(nat)) {
         return 'expat_eu';
@@ -234,8 +273,11 @@ class FriComputationService {
       return 'expat_non_eu';
     }
 
-    // 6. Foreign national arrived young (< 20) → treated as swiss_native
-    return 'swiss_native';
+    // 6. Final fallback: if we reach here with partial signals that don't
+    // resolve to any positive archetype, prefer 'unknown' over silent
+    // swiss_native fallback (R1+R4 closure of the second silent-killer
+    // site flagged at fri_computation_service.dart:237-238).
+    return 'unknown';
   }
 
 }

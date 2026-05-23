@@ -4,6 +4,9 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
@@ -100,6 +103,41 @@ class FeatureFlags {
   /// Kill-switch: backend set to false, no app redeploy needed.
   static bool enableMvpWedgeOnboarding = false;
 
+  /// Sub-phase 01.5 archetype HARD GATE kill switch (Codex R5 release-blocker).
+  ///
+  /// **Default: `true`** — gate is active. Non-supported archetypes
+  /// (expat_us via FATCA self-declaration, expat_eu, cross_border,
+  /// independent_no_lpp, etc.) are routed to `/waitlist` at the coach
+  /// entry (coach_chat_screen.dart `_buildCoachContext` primary site,
+  /// Mapper §7.2) AND refused at the orchestrator layer
+  /// (coach_orchestrator.dart `_calibratedArchetypes` defense-in-depth,
+  /// Mapper §7.4).
+  ///
+  /// Set to `false` server-side via GET `/api/v1/config/feature-flags`
+  /// ONLY in emergency rollback scenarios (e.g. mass false-positive
+  /// routing of swiss_native users to /waitlist due to a detection
+  /// bug). Flipping to false re-opens the FATCA / LSFin compliance
+  /// window documented in 01.5-SECURITY-fatca-scope.md — use with
+  /// caution. The true → false transition emits a Sentry warning so
+  /// on-call can detect rollback activations (T-01.5-42 mitigation).
+  ///
+  /// Shipping with default=false would defeat the entire phase per
+  /// plan 02-04 objective; the test
+  /// `feature_flags_coach_hard_gate_test.dart::default is true` pins
+  /// this invariant.
+  static bool enableCoachHardGate = true;
+
+  /// Test-only observable hook for the `enableCoachHardGate` true → false
+  /// transition. When set, it replaces the production Sentry warning
+  /// path (`Sentry.captureMessage`) so widget / unit tests can assert
+  /// the rollback was logged without mocking sentry_flutter.
+  ///
+  /// Production code path is unchanged (hook null → Sentry call as
+  /// designed). The hook is only set by tests in
+  /// `feature_flags_coach_hard_gate_test.dart`.
+  @visibleForTesting
+  static void Function(String message)? debugCoachHardGateWarningHook;
+
   /// Phase 96 D-01 — chat tab visibility in MintShell.NavigationBar.
   ///
   /// Per 96-CONTEXT.md D-21: Phase 96 ships the kill-switch via feature flag;
@@ -161,6 +199,25 @@ class FeatureFlags {
     // Phase 96 D-01 — chat tab visibility server override.
     if (data.containsKey('chatTabVisible')) {
       chatTabVisible = data['chatTabVisible'] == true;
+    }
+    // Sub-phase 01.5 W02-T04 R5 — archetype HARD GATE kill switch.
+    // Emit a Sentry warning on the true → false transition so on-call
+    // can detect when the FATCA / LSFin gate is bypassed via server
+    // override (T-01.5-42 — repudiation mitigation).
+    if (data.containsKey('enableCoachHardGate')) {
+      final newValue = data['enableCoachHardGate'] == true;
+      if (enableCoachHardGate == true && newValue == false) {
+        const warning =
+            'enableCoachHardGate disabled via server feature-flags override — '
+            'FATCA / LSFin archetype gate is OFF';
+        final hook = debugCoachHardGateWarningHook;
+        if (hook != null) {
+          hook(warning);
+        } else {
+          Sentry.captureMessage(warning, level: SentryLevel.warning);
+        }
+      }
+      enableCoachHardGate = newValue;
     }
   }
 

@@ -23182,4 +23182,69 @@ class SEn extends S {
   @override
   String get narrativeSleeveOpenerCaptionSimulate =>
       'Pick a scenario to project.';
+
+  @override
+  String get waitlistTitle => 'Still being built for your profile';
+
+  @override
+  String get waitlistBodyPara1 =>
+      'MINT is currently calibrated for Swiss residents who are salaried and enrolled in a 2nd-pillar pension (LPP).';
+
+  @override
+  String get waitlistBodyPara2 =>
+      'Your profile matches a situation we will cover in an upcoming release.';
+
+  @override
+  String get waitlistBodyPara3 =>
+      'Leave us your email and we will let you know as soon as MINT supports your journey.';
+
+  @override
+  String get waitlistEmailLabel => 'Email';
+
+  @override
+  String get waitlistEmailHint => 'your.email@example.ch';
+
+  @override
+  String get waitlistCta => 'Notify me when it\'s ready';
+
+  @override
+  String get waitlistAnnounceRedirect =>
+      'Your profile isn\'t covered by MINT yet. You\'re being redirected to the waitlist.';
+
+  @override
+  String get waitlistConsentCheckbox =>
+      'I agree to be contacted by email when MINT becomes available for my profile. MINT SA will use your email address solely for this purpose. You can unsubscribe at any time.';
+
+  @override
+  String get waitlistConsentFinePrint =>
+      'By submitting your email, you agree to be contacted only for this notification. No marketing.';
+
+  @override
+  String get waitlistSuccessMessage =>
+      'Thanks, we\'ll come back to you as soon as your profile is supported.';
+
+  @override
+  String get waitlistSuccessCta => 'Back to home';
+
+  @override
+  String get waitlistErrorNetwork =>
+      'We couldn\'t send your email right now. Please try again in a moment.';
+
+  @override
+  String get waitlistErrorBadEmail =>
+      'This email address doesn\'t look valid. Please check the syntax.';
+
+  @override
+  String get waitlistUsTaxPersonQuestion =>
+      'Are you a US citizen or US tax resident?';
+
+  @override
+  String get waitlistUsTaxPersonTooltip =>
+      'MINT is not yet calibrated for US tax persons in Switzerland (FATCA and FBAR reporting). Your answer helps us route you to a suitable experience.';
+
+  @override
+  String get waitlistUsTaxPersonYes => 'Yes';
+
+  @override
+  String get waitlistUsTaxPersonNo => 'No';
 }

@@ -29,7 +29,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 //
 // Design System: MintTextStyles + MintSpacing tokens.
 // AppBar: white standard (Life Event screen).
-// Ne constitue pas un conseil en prevoyance (LSFin).
+// Ne constitue pas un conseil en prévoyance (LSFin).
 // ────────────────────────────────────────────────────────────
 
 class NaissanceScreen extends StatefulWidget {

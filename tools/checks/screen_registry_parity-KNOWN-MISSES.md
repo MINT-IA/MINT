@@ -20,6 +20,7 @@ surfaces, or the chat itself (you don't route INTO the chat from the chat).
 | `/` | Root landing — pre-auth, no chat surface yet |
 | `/start` | Anonymous wedge entry — pre-chat |
 | `/onb` | Onboarding root — pre-chat |
+| `/waitlist` | Sub-phase 01.5 FATCA hard-gate destination — non-calibrated archetypes (expat_us, frontalier, etc.). Coach is BLOCKED for these users, so the LLM has no chat surface to suggest /waitlist |
 | `/auth/login` | Auth flow — never surfaced from chat |
 | `/auth/register` | Same |
 | `/auth/forgot-password` | Same |

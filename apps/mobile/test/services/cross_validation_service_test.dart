@@ -458,7 +458,7 @@ void main() {
           .where(
             (a) =>
                 a.block == 'lpp' && a.message.contains('salarie') &&
-                a.message.contains('prevoyance'),
+                a.message.contains('prévoyance'),
           )
           .toList();
       expect(coherenceAlerts, isNotEmpty);
@@ -476,7 +476,7 @@ void main() {
         (a) =>
             a.block == 'lpp' &&
             a.message.contains('salarie') &&
-            a.message.contains('prevoyance'),
+            a.message.contains('prévoyance'),
       );
       expect(coherenceAlerts, isEmpty,
           reason: 'Below LPP threshold, no LPP expected');
@@ -533,7 +533,7 @@ void main() {
         (a) =>
             a.block == 'lpp' &&
             a.message.contains('salarie') &&
-            a.message.contains('prevoyance'),
+            a.message.contains('prévoyance'),
       );
       expect(coherenceAlerts, isEmpty,
           reason: 'Employee under 25 not required to have LPP avoir');
