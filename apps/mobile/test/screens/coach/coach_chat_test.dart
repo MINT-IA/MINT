@@ -146,6 +146,15 @@ void main() {
       expect(find.byType(Text), findsWidgets);
     });
 
+    testWidgets('first-contact opener does not show question label',
+        (tester) async {
+      usePhoneViewport(tester);
+      await tester.pumpWidget(buildTestWidget());
+      await pumpUntilGreeting(tester);
+
+      expect(find.text('Par quoi on commence ?'), findsNothing);
+    });
+
     testWidgets('shows input field with placeholder', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
@@ -646,10 +655,10 @@ void main() {
       );
 
       // No userMessage → no _sendMessage call → no streaming timers.
-      final payload = CoachEntryPayload(
+      const payload = CoachEntryPayload(
         source: CoachEntrySource.onboardingIntent,
         topic: 'pillar3a',
-        data: const {'fromOnboarding': true},
+        data: {'fromOnboarding': true},
       );
 
       await tester.pumpWidget(buildWithPayload(payload));
@@ -673,7 +682,7 @@ void main() {
 
       // Simulate a home-chip entry (not onboarding). No userMessage
       // to avoid spawning streaming timers in the test env.
-      final payload = CoachEntryPayload(
+      const payload = CoachEntryPayload(
         source: CoachEntrySource.homeChip,
         topic: 'pillar3a',
       );

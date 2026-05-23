@@ -2274,8 +2274,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   // ════════════════════════════════════════════════════════════
 
   /// Opener widget shown on the very first Parle-à-Mint tap for users with
-  /// no profile data and no message history. Combines a 3-line identity +
-  /// promise + question with 4 starter chips that route to the right flow.
+  /// no profile data and no message history. Combines identity + promise
+  /// with 4 starter chips that route to the right flow.
   /// Disappears as soon as the user types or taps a chip — respects the
   /// « silent chat » doctrine (no widgets hanging around unused).
   Widget _buildFirstContactOpener(S s) {
@@ -2303,15 +2303,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          Text(
-            s.coachOpenerQuestion,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 16),
           _OpenerChip(
             label: s.coachStarterPaper,
             onTap: () => _handleOpenerChip(_OpenerIntent.paper),
