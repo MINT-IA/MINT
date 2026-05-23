@@ -36,6 +36,27 @@ class LightningMenuItem {
   });
 }
 
+abstract final class LightningMenuReadinessResolver {
+  static List<LightningMenuItem> prioritize({
+    required Map<String, dynamic>? readiness,
+    required Map<String, LightningMenuItem> itemsByActionId,
+    required List<LightningMenuItem> fallbackItems,
+  }) {
+    final nextActionId = readiness?['next_action_id'];
+    if (nextActionId is! String || nextActionId.isEmpty) {
+      return fallbackItems;
+    }
+
+    final first = itemsByActionId[nextActionId];
+    if (first == null) return fallbackItems;
+
+    return [
+      first,
+      ...fallbackItems.where((item) => item.action != first.action),
+    ];
+  }
+}
+
 /// Premium bottom sheet triggered by the bolt button in the chat input bar.
 ///
 /// Items adapt dynamically based on 3 axes:
@@ -49,6 +70,7 @@ class LightningMenuItem {
 class LightningMenu extends StatelessWidget {
   final CoachProfile? profile;
   final CapMemory capMemory;
+  final Map<String, dynamic>? readiness;
   final void Function(String message) onSendMessage;
   final void Function(String route) onNavigate;
 
@@ -56,6 +78,7 @@ class LightningMenu extends StatelessWidget {
     super.key,
     required this.profile,
     required this.capMemory,
+    this.readiness,
     required this.onSendMessage,
     required this.onNavigate,
   });
@@ -237,6 +260,64 @@ class LightningMenu extends StatelessWidget {
     return items;
   }
 
+  Map<String, LightningMenuItem> _readinessItems(S s) => {
+        'stabilize_budget': LightningMenuItem(
+          title: s.lightningMenuBudgetTitle,
+          subtitle: s.lightningMenuBudgetSubtitle,
+          icon: Icons.receipt_long_outlined,
+          action: '/budget/setup',
+          tone: MintSurfaceTone.peche,
+          isRoute: true,
+        ),
+        'define_target': LightningMenuItem(
+          title: s.lightningMenuCompleteProfileTitle,
+          subtitle: s.lightningMenuCompleteProfileSubtitle,
+          icon: Icons.flag_outlined,
+          action: '/profile/bilan',
+          tone: MintSurfaceTone.sauge,
+          isRoute: true,
+        ),
+        'complete_situation': LightningMenuItem(
+          title: s.lightningMenuCompleteProfileTitle,
+          subtitle: s.lightningMenuCompleteProfileSubtitle,
+          icon: Icons.person_add_alt_1_outlined,
+          action: '/profile/bilan',
+          tone: MintSurfaceTone.sauge,
+          isRoute: true,
+        ),
+        'complete_pillar_avs': LightningMenuItem(
+          title: s.lightningMenuScanDocTitle,
+          subtitle: s.lightningMenuScanDocSubtitle,
+          icon: Icons.account_balance_outlined,
+          action: '/scan/avs-guide',
+          tone: MintSurfaceTone.peche,
+          isRoute: true,
+        ),
+        'complete_pillar_lpp': LightningMenuItem(
+          title: s.lightningMenuScanDocTitle,
+          subtitle: s.lightningMenuScanDocSubtitle,
+          icon: Icons.document_scanner_outlined,
+          action: '/scan',
+          tone: MintSurfaceTone.peche,
+          isRoute: true,
+        ),
+        'complete_pillar_3a': LightningMenuItem(
+          title: s.lightningMenuScanDocTitle,
+          subtitle: s.lightningMenuScanDocSubtitle,
+          icon: Icons.document_scanner_outlined,
+          action: '/scan',
+          tone: MintSurfaceTone.peche,
+          isRoute: true,
+        ),
+        'maintain_plan': LightningMenuItem(
+          title: s.lightningMenuLivingBudgetTitle,
+          subtitle: s.lightningMenuLivingBudgetSubtitle,
+          icon: Icons.receipt_long_outlined,
+          action: s.lightningMenuLivingBudgetAction,
+          tone: MintSurfaceTone.bleu,
+        ),
+      };
+
   // ──────────────────────────────────────────────────────────
   //  ITEM ASSEMBLY
   // ──────────────────────────────────────────────────────────
@@ -266,7 +347,12 @@ class LightningMenu extends StatelessWidget {
 
     // Always show at least 2 items — if filtering removed too many,
     // fall back to the unfiltered list.
-    return filtered.length >= 2 ? filtered : raw.take(4).toList();
+    final fallback = filtered.length >= 2 ? filtered : raw.take(4).toList();
+    return LightningMenuReadinessResolver.prioritize(
+      readiness: readiness,
+      itemsByActionId: _readinessItems(s),
+      fallbackItems: fallback,
+    );
   }
 
   // ──────────────────────────────────────────────────────────

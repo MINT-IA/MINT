@@ -876,6 +876,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       builder: (_) => LightningMenu(
         profile: _profile,
         capMemory: capMem,
+        readiness: _readinessForLightningMenu(),
         onSendMessage: (message) {
           if (mounted) _sendMessage(message);
         },
@@ -893,6 +894,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         },
       ),
     );
+  }
+
+  Map<String, dynamic>? _readinessForLightningMenu() {
+    final profile = _profile;
+    if (profile == null) return null;
+    final packet = CoachContextPacketAdapter.fromProfile(profile);
+    final readiness = packet['readiness'];
+    return readiness is Map<String, dynamic> ? readiness : null;
   }
 
   /// Regex patterns for voice intensity adjustment commands.
