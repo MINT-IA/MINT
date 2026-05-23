@@ -63,10 +63,10 @@ lib/screens/landing_screen.dart:163: FilledButton(
 lib/screens/lpp_deep/rachat_echelonne_screen.dart:643: TextButton(
 lib/screens/mortgage/affordability_screen.dart:758: OutlinedButton(
 lib/screens/onboarding/data_block_enrichment_screen.dart:152: FilledButton(
-lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:183: FilledButton(
-lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:617: TextButton(
-lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:683: TextButton(
-lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:955: TextButton(
+lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:197: FilledButton(
+lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:635: TextButton(
+lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:701: TextButton(
+lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:973: TextButton(
 lib/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart:76: TextButton(
 lib/screens/open_banking/consent_screen.dart:476: TextButton(
 lib/screens/open_banking/consent_screen.dart:701: OutlinedButton(

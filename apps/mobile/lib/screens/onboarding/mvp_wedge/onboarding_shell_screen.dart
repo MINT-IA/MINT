@@ -165,8 +165,7 @@ class _StepScaffold extends StatelessWidget {
         children: [
           Text(
             prompt,
-            style: const TextStyle(
-              fontFamily: 'Supreme',
+            style: TextStyle(fontFamily: 'Supreme',
               fontSize: 24,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -207,8 +206,7 @@ class _PrimaryButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: const TextStyle(
-            fontFamily: 'Supreme',
+          style: TextStyle(fontFamily: 'Supreme',
             fontSize: 15,
             fontWeight: FontWeight.w600,
             color: MintColors.white,
@@ -234,11 +232,10 @@ class _EntryStep extends StatelessWidget {
       child: Column(
         children: [
           const Spacer(),
-          const Text(
+          Text(
             'Il est temps que tu comprennes.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: 'Supreme',
+            style: TextStyle(fontFamily: 'Supreme',
               fontSize: 28,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -346,8 +343,7 @@ class _IntentCard extends StatelessWidget {
           children: [
             Text(
               eyebrow,
-              style: const TextStyle(
-                fontFamily: 'Supreme',
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1.2,
@@ -357,8 +353,7 @@ class _IntentCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               phrase,
-              style: const TextStyle(
-                fontFamily: 'Supreme',
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 17,
                 fontWeight: FontWeight.w500,
                 color: MintColors.textPrimary,
@@ -441,8 +436,7 @@ class _AgePicker extends StatelessWidget {
             return Center(
               child: Text(
                 '$year',
-                style: TextStyle(
-                  fontFamily: 'Supreme',
+                style: TextStyle(fontFamily: 'Supreme',
                   fontSize: isSelected ? 36 : 22,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color: isSelected
@@ -525,8 +519,7 @@ class _CantonStep extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 code,
-                style: const TextStyle(
-                  fontFamily: 'Supreme',
+                style: TextStyle(fontFamily: 'Supreme',
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: MintColors.textPrimary,
@@ -588,18 +581,16 @@ class _RevenueStepState extends State<_RevenueStep> {
           if (!_exactMode) ...[
             Text(
               '${_fmt(range.low)} – ${_fmt(range.high)} CHF',
-              style: const TextStyle(
-                fontFamily: 'Supreme',
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textPrimary,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'tu ajusteras quand tu scanneras ta fiche',
-              style: TextStyle(
-                fontFamily: 'Supreme',
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 13,
                 color: MintColors.textSecondary,
                 fontStyle: FontStyle.italic,
@@ -613,7 +604,8 @@ class _RevenueStepState extends State<_RevenueStep> {
               divisions: (_kMaxNet - _kMinNet) ~/ _kStep,
               label: '${_fmt(range.low)} – ${_fmt(range.high)}',
               activeColor: MintColors.textPrimary,
-              inactiveColor: MintColors.textSecondary.withValues(alpha: 0.25),
+              inactiveColor:
+                  MintColors.textSecondary.withValues(alpha: 0.25),
               onChanged: (v) {
                 setState(() => _value = (v / _kStep).round() * _kStep);
                 HapticFeedback.selectionClick();
@@ -624,16 +616,14 @@ class _RevenueStepState extends State<_RevenueStep> {
               children: [
                 Text(
                   '${_fmt(_kMinNet.toDouble())} CHF',
-                  style: const TextStyle(
-                    fontFamily: 'Supreme',
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 12,
                     color: MintColors.textSecondary,
                   ),
                 ),
                 Text(
                   '${_fmt(_kMaxNet.toDouble())} CHF',
-                  style: const TextStyle(
-                    fontFamily: 'Supreme',
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 12,
                     color: MintColors.textSecondary,
                   ),
@@ -644,10 +634,9 @@ class _RevenueStepState extends State<_RevenueStep> {
             Center(
               child: TextButton(
                 onPressed: () => setState(() => _exactMode = true),
-                child: const Text(
+                child: Text(
                   'Je sais le chiffre exact',
-                  style: TextStyle(
-                    fontFamily: 'Supreme',
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: MintColors.textSecondary,
@@ -673,19 +662,18 @@ class _RevenueStepState extends State<_RevenueStep> {
                 FilteringTextInputFormatter.allow(RegExp(r"[0-9 ']")),
               ],
               autofocus: true,
-              style: const TextStyle(
-                fontFamily: 'Supreme',
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textPrimary,
               ),
               decoration: InputDecoration(
                 hintText: '7\u2019600',
-                hintStyle: TextStyle(
-                  fontFamily: 'Supreme',
+                hintStyle: TextStyle(fontFamily: 'Supreme',
                   fontSize: 32,
                   fontWeight: FontWeight.w600,
-                  color: MintColors.textSecondary.withValues(alpha: 0.35),
+                  color:
+                      MintColors.textSecondary.withValues(alpha: 0.35),
                 ),
                 suffixText: 'CHF',
                 border: const UnderlineInputBorder(),
@@ -696,15 +684,14 @@ class _RevenueStepState extends State<_RevenueStep> {
                     .replaceAll(' ', '')
                     .replaceAll('\u2019', '');
                 final n = double.tryParse(cleaned);
-                setState(() => _exactValue =
-                    (n != null && n >= 500 && n < 30000) ? n : null);
+                setState(() =>
+                    _exactValue = (n != null && n >= 500 && n < 30000) ? n : null);
               },
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Avant impôt, après cotisations (le chiffre que tu vois tomber).',
-              style: TextStyle(
-                fontFamily: 'Supreme',
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 13,
                 color: MintColors.textSecondary,
               ),
@@ -713,10 +700,9 @@ class _RevenueStepState extends State<_RevenueStep> {
             Center(
               child: TextButton(
                 onPressed: () => setState(() => _exactMode = false),
-                child: const Text(
+                child: Text(
                   'Revenir à la fourchette',
-                  style: TextStyle(
-                    fontFamily: 'Supreme',
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 14,
                     color: MintColors.textSecondary,
                     decoration: TextDecoration.underline,
@@ -802,8 +788,7 @@ class _InsightStep extends StatelessWidget {
               children: [
                 Text(
                   eyebrow,
-                  style: const TextStyle(
-                    fontFamily: 'Supreme',
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.2,
@@ -813,8 +798,7 @@ class _InsightStep extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   phrase,
-                  style: const TextStyle(
-                    fontFamily: 'Supreme',
+                  style: TextStyle(fontFamily: 'Supreme',
                     fontSize: 19,
                     fontWeight: FontWeight.w500,
                     color: MintColors.textPrimary,
@@ -946,8 +930,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
           backgroundColor: MintColors.textPrimary,
           content: Text(
             l10n.onboardingSealError,
-            style: const TextStyle(
-                fontFamily: 'Supreme', color: MintColors.background),
+            style: TextStyle(fontFamily: 'Supreme', color: MintColors.background),
           ),
           action: SnackBarAction(
             label: l10n.onboardingSealRetry,
@@ -973,8 +956,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
         'On chiffrera les frais notaire et l\u2019IFD quand tu veux.',
       OnboardingIntent.impots =>
         'Je peux chiffrer un rachat LPP aussi, quand tu veux.',
-      OnboardingIntent.explorer ||
-      null =>
+      OnboardingIntent.explorer || null =>
         'On peut continuer ensemble quand tu veux.',
     };
     return _StepScaffold(
@@ -990,10 +972,9 @@ class _BifurcationStepState extends State<_BifurcationStep> {
           const SizedBox(height: 10),
           TextButton(
             onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
-            child: const Text(
+            child: Text(
               'Plus tard',
-              style: TextStyle(
-                fontFamily: 'Supreme',
+              style: TextStyle(fontFamily: 'Supreme',
                 fontSize: 15,
                 color: MintColors.textSecondary,
               ),
