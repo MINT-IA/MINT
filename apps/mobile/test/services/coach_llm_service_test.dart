@@ -211,7 +211,7 @@ void main() {
 
       expect(prompt, contains('Score Fitness'));
       expect(prompt, contains('Budget'));
-      expect(prompt, contains('Prevoyance'));
+      expect(prompt, contains('Prévoyance'));
       expect(prompt, contains('Patrimoine'));
     });
 

@@ -458,7 +458,7 @@ void main() {
           .where(
             (a) =>
                 a.block == 'lpp' && a.message.contains('salarie') &&
-                a.message.contains('prevoyance'),
+                a.message.contains('prévoyance'),
           )
           .toList();
       expect(coherenceAlerts, isNotEmpty);
