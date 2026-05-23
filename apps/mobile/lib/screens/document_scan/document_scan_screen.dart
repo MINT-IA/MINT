@@ -363,7 +363,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Widget _buildDebugExampleButton() {
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      // Fix 2026-05-23 (UX): bumped from 50 → 56 to align with sibling
+      // Gallery button. At height 50, MintTextStyles.bodyMedium with
+      // FontWeight.w600 + icon clipped ascenders/descenders ("Utiliser
+      // un exemple de test" text rogné in screenshot).
+      height: 56,
       child: OutlinedButton.icon(
         onPressed: _isProcessing ? null : _onUseExamplePressed,
         icon: const Icon(Icons.science_outlined, size: 20),
