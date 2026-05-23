@@ -63,6 +63,11 @@ apps/mobile/ios/DerivedData/
 # Claude Code worktrees
 .claude/worktrees/
 
+# Codex Desktop / local agent tooling generated in this workspace.
+# Keep already tracked project skills versioned; ignore generated local copies.
+.agents/skills/*
+.codex/
+
 # Claude Code persistent agent memory (vibe-coding infra Phase 1, per design doc 2026-05-14)
 # memory: project scope (would be checked-in by default — overridden for MINT public-repo discipline)
 .claude/agent-memory/
