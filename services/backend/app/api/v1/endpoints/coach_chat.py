@@ -5270,7 +5270,10 @@ async def coach_chat(
     )
     _gate_allowlist = (
         list(_compiled_bundle.citation_allowlist)
-        if (settings.COACH_BUNDLE_COMPILER_ENABLED and _compiled_bundle is not None)
+        if (
+            settings.COACH_BUNDLE_COMPILER_ENABLED
+            and _compiled_bundle is not None
+        )
         else None
     )
 
