@@ -76,6 +76,7 @@ def client():
 def _mock_entitlements_premium():
     """Patch recompute_entitlements to grant premium access (all features)."""
     from app.services.billing_service import ALL_FEATURES
+
     return patch(
         "app.api.v1.endpoints.coach_chat.recompute_entitlements",
         return_value=("premium", ALL_FEATURES),
@@ -134,8 +135,10 @@ class TestDocumentUploadConsentGuard:
         from tests.test_documents import _make_mock_parser, _make_mock_extractor
         from tests.test_documents import PARSER_PATCH, LPP_EXTRACTOR_PATCH
 
-        with _patch(LPP_EXTRACTOR_PATCH, return_value=_make_mock_extractor()), \
-             _patch(PARSER_PATCH, return_value=_make_mock_parser()):
+        with (
+            _patch(LPP_EXTRACTOR_PATCH, return_value=_make_mock_extractor()),
+            _patch(PARSER_PATCH, return_value=_make_mock_parser()),
+        ):
             response = client.post(
                 "/api/v1/documents/upload",
                 files={"file": ("cert.pdf", b"%PDF-1.4 mock", "application/pdf")},
@@ -153,8 +156,10 @@ class TestDocumentUploadConsentGuard:
         from tests.test_documents import _make_mock_parser, _make_mock_extractor
         from tests.test_documents import PARSER_PATCH, LPP_EXTRACTOR_PATCH
 
-        with _patch(LPP_EXTRACTOR_PATCH, return_value=_make_mock_extractor()), \
-             _patch(PARSER_PATCH, return_value=_make_mock_parser()):
+        with (
+            _patch(LPP_EXTRACTOR_PATCH, return_value=_make_mock_extractor()),
+            _patch(PARSER_PATCH, return_value=_make_mock_parser()),
+        ):
             response = client.post(
                 "/api/v1/documents/upload",
                 files={"file": ("cert.pdf", b"%PDF-1.4 mock", "application/pdf")},
@@ -170,8 +175,10 @@ class TestDocumentUploadConsentGuard:
         from tests.test_documents import _make_mock_parser, _make_mock_extractor
         from tests.test_documents import PARSER_PATCH, LPP_EXTRACTOR_PATCH
 
-        with _patch(LPP_EXTRACTOR_PATCH, return_value=_make_mock_extractor()), \
-             _patch(PARSER_PATCH, return_value=_make_mock_parser()):
+        with (
+            _patch(LPP_EXTRACTOR_PATCH, return_value=_make_mock_extractor()),
+            _patch(PARSER_PATCH, return_value=_make_mock_parser()),
+        ):
             response = client.post(
                 "/api/v1/documents/upload",
                 files={"file": ("cert.pdf", b"%PDF-1.4 mock", "application/pdf")},
@@ -277,6 +284,67 @@ class TestRAGConsentGuard:
         assert captured_kwargs.get("profile_context") is not None
         assert captured_kwargs["profile_context"]["canton"] == "VD"
 
+    def test_rag_query_with_byok_consent_includes_context_packet(self, client):
+        """RAG endpoint forwards sanitized coach_context_packet with consent."""
+        _grant_consent(ConsentType.byok_data_sharing)
+
+        captured_kwargs = {}
+
+        async def _capturing_orchestrator():
+            mock_orch = MagicMock()
+
+            async def _capture_query(**kwargs):
+                captured_kwargs.update(kwargs)
+                return _RAG_OK_RESULT
+
+            mock_orch.query = _capture_query
+            return mock_orch
+
+        packet = {
+            "facts": [
+                {
+                    "id": "budget.monthly_free",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyFree",
+                    "value": 1800.0,
+                    "iban": "CH56 0483 5012 3456 7800 9",
+                }
+            ],
+            "trajectory": {"status": "drifting", "monthly_gap": 600.0},
+            "next_questions": [
+                {
+                    "id": "increase_monthly_capacity",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyCapacity",
+                }
+            ],
+        }
+
+        with patch(
+            "app.api.v1.endpoints.rag._get_orchestrator_safe",
+            new_callable=AsyncMock,
+            side_effect=_capturing_orchestrator,
+        ):
+            response = client.post(
+                "/api/v1/rag/query",
+                json={
+                    "question": "Ou en est mon plan?",
+                    "api_key": "sk-test-12345",
+                    "provider": "claude",
+                    "profile_context": {
+                        "canton": "VD",
+                        "age": 45,
+                        "coach_context_packet": packet,
+                    },
+                },
+            )
+
+        assert response.status_code == 200
+        safe_packet = captured_kwargs["profile_context"]["coach_context_packet"]
+        assert safe_packet["facts"][0]["id"] == "budget.monthly_free"
+        assert "iban" not in safe_packet["facts"][0]
+        assert safe_packet["trajectory"]["status"] == "drifting"
+
 
 # ===========================================================================
 # 1c. coach_chat.py — stateless without conversation_memory consent
@@ -310,7 +378,10 @@ class TestCoachChatMemoryConsentGuard:
         captured_memory = {"value": "SENTINEL"}
 
         try:
-            from app.services.coach.structured_reasoning_service import StructuredReasoningService
+            from app.services.coach.structured_reasoning_service import (
+                StructuredReasoningService,
+            )
+
             _ = StructuredReasoningService.reason  # verify import works
         except ImportError:
             pass
@@ -322,11 +393,13 @@ class TestCoachChatMemoryConsentGuard:
             result.as_system_prompt_block.return_value = ""
             return result
 
-        with _mock_coach_orchestrator(_COACH_OK_RESULT), \
-             patch(
-                 "app.api.v1.endpoints.coach_chat.StructuredReasoningService.reason",
-                 side_effect=_capture_reason,
-             ):
+        with (
+            _mock_coach_orchestrator(_COACH_OK_RESULT),
+            patch(
+                "app.api.v1.endpoints.coach_chat.StructuredReasoningService.reason",
+                side_effect=_capture_reason,
+            ),
+        ):
             response = client.post(
                 "/api/v1/coach/chat", json=self._COACH_BODY_WITH_MEMORY
             )
@@ -347,11 +420,13 @@ class TestCoachChatMemoryConsentGuard:
             result.as_system_prompt_block.return_value = ""
             return result
 
-        with _mock_coach_orchestrator(_COACH_OK_RESULT), \
-             patch(
-                 "app.api.v1.endpoints.coach_chat.StructuredReasoningService.reason",
-                 side_effect=_capture_reason,
-             ):
+        with (
+            _mock_coach_orchestrator(_COACH_OK_RESULT),
+            patch(
+                "app.api.v1.endpoints.coach_chat.StructuredReasoningService.reason",
+                side_effect=_capture_reason,
+            ),
+        ):
             response = client.post(
                 "/api/v1/coach/chat", json=self._COACH_BODY_WITH_MEMORY
             )
@@ -374,11 +449,13 @@ class TestCoachChatMemoryConsentGuard:
             result.as_system_prompt_block.return_value = ""
             return result
 
-        with _mock_coach_orchestrator(_COACH_OK_RESULT), \
-             patch(
-                 "app.api.v1.endpoints.coach_chat.StructuredReasoningService.reason",
-                 side_effect=_capture_reason,
-             ):
+        with (
+            _mock_coach_orchestrator(_COACH_OK_RESULT),
+            patch(
+                "app.api.v1.endpoints.coach_chat.StructuredReasoningService.reason",
+                side_effect=_capture_reason,
+            ),
+        ):
             response = client.post(
                 "/api/v1/coach/chat", json=self._COACH_BODY_WITH_MEMORY
             )

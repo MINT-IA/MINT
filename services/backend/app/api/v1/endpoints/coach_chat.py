@@ -62,6 +62,7 @@ from app.services.coach.claude_coach_service import (
     build_system_prompt,
 )
 from app.services.coach.coach_context_builder import build_coach_context
+
 # Phase mint-calc-engine-v1 Plan 15 — D-CE-13 BackgroundTasks pre-compute.
 # Imported here (not lazily) so the wire-test grep finds the symbol in source.
 from app.services.coach.pre_compute import precompute_after_fact_save
@@ -70,6 +71,7 @@ from app.services.coach.citation_parser import (
     GatedResponse,
     gate as _citation_gate,
 )
+
 # Phase mint-calc-engine-v1 Plan 18 — D-CE-16(c) runtime banned-verb gate.
 # Wired UPSTREAM of `_citation_gate` (Q5 = before) so paraphrase verbs are
 # caught BEFORE citation substitution to avoid double-template fallback chains.
@@ -90,6 +92,7 @@ from app.services.coach.coach_tools import (
     get_llm_tools,
     get_narrator_llm_tools,
 )
+
 # Phase 96 W2 D-08..D-11 — 3-turn cap module.
 from app.services.coach.turn_cap import (
     TURN_COUNTER,
@@ -131,6 +134,7 @@ def _scrub_pii(text: str) -> str:
     """
     try:
         from app.services.privacy.pii_scrubber import scrub
+
         return scrub(text, mode="mask")
     except Exception:  # pragma: no cover — should never trigger in prod
         for pattern in _LEGACY_PII_PATTERNS:
@@ -208,7 +212,11 @@ class _NoRagOrchestrator:
             answer_text = ""
             disclaimers_out = []
 
-        tokens_used = actual_usage_tokens if actual_usage_tokens is not None else len(question) // 4
+        tokens_used = (
+            actual_usage_tokens
+            if actual_usage_tokens is not None
+            else len(question) // 4
+        )
 
         result = {
             "answer": answer_text,
@@ -245,9 +253,7 @@ def _get_vector_store():
         from app.services.rag.vector_store import MintVectorStore
 
         backend_dir = os.path.dirname(
-            os.path.dirname(
-                os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            )
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
         )
         persist_dir = os.path.join(backend_dir, "data", "chromadb")
         _vector_store = MintVectorStore(persist_directory=persist_dir)
@@ -278,6 +284,7 @@ def _get_hybrid_search():
         return None
     try:
         from app.services.rag.hybrid_search_service import HybridSearchService
+
         _hybrid_search = HybridSearchService(db_url=db_url)
         return _hybrid_search
     except Exception as exc:
@@ -318,14 +325,17 @@ async def _get_orchestrator():
 
             _orchestrator = RAGOrchestrator(vector_store=vs, hybrid_search=hybrid)
             if hybrid:
-                logger.info("RAG orchestrator initialized with pgvector (hybrid search)")
+                logger.info(
+                    "RAG orchestrator initialized with pgvector (hybrid search)"
+                )
             else:
                 logger.info("RAG orchestrator initialized with ChromaDB only (dev/CI)")
         except Exception as exc:
             # FIX (2026-04-12): Catch ALL exceptions instead of just ImportError.
             # RAG is optional — never 503 the entire chat because of RAG init failure.
             logger.warning(
-                "RAG orchestrator init failed (coach will use fallback templates): %s", exc
+                "RAG orchestrator init failed (coach will use fallback templates): %s",
+                exc,
             )
             _orchestrator = _NoRagOrchestrator()
     return _orchestrator
@@ -337,39 +347,59 @@ async def _get_orchestrator():
 
 # Patterns that indicate PII in memory_block content.
 _PII_PATTERNS = [
-    re.compile(r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1,2}", re.IGNORECASE),  # IBAN (CH + 19 digits, with optional spaces)
+    re.compile(
+        r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1,2}", re.IGNORECASE
+    ),  # IBAN (CH + 19 digits, with optional spaces)
     re.compile(r"CH\d{19}", re.IGNORECASE),  # IBAN compact format (no spaces)
-    re.compile(r"\b[1-9]\d{3}\b(?=\s+[A-Za-zÀ-ÿ]{2})"),  # NPA (Swiss postal code 1000-9999 before city name, incl. accented)
+    re.compile(
+        r"\b[1-9]\d{3}\b(?=\s+[A-Za-zÀ-ÿ]{2})"
+    ),  # NPA (Swiss postal code 1000-9999 before city name, incl. accented)
     re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"),  # email
-    re.compile(r"(?:\+41|0)[\s.\-]?(?:76|77|78|79|[1-4]\d)[\s.\-]?\d{3}[\s.\-]?\d{2}[\s.\-]?\d{2}"),  # Swiss phone numbers (FIX-W12: stricter format)
-    re.compile(r"\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b"),  # Swiss AHV/AVS numbers (FIX-W12)
+    re.compile(
+        r"(?:\+41|0)[\s.\-]?(?:76|77|78|79|[1-4]\d)[\s.\-]?\d{3}[\s.\-]?\d{2}[\s.\-]?\d{2}"
+    ),  # Swiss phone numbers (FIX-W12: stricter format)
+    re.compile(
+        r"\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b"
+    ),  # Swiss AHV/AVS numbers (FIX-W12)
 ]
 
 # Prompt injection patterns — reused by memory, profile context, and user input sanitizers.
 _INJECTION_PATTERNS = [
     # English patterns
-    re.compile(r'\[?\s*SYSTEM\s*(OVERRIDE|PROMPT|MESSAGE)\s*\]?', re.IGNORECASE),
-    re.compile(r'ignore\s+(all\s+)?(previous\s+)?(rules|instructions|constraints)', re.IGNORECASE),
-    re.compile(r'new\s+(directive|instruction|rule|system\s+prompt)', re.IGNORECASE),
-    re.compile(r'you\s+are\s+now\s+', re.IGNORECASE),
-    re.compile(r'disregard\s+(all|previous|above)', re.IGNORECASE),
-    re.compile(r'forget\s+(everything|all|your\s+instructions)', re.IGNORECASE),
-    re.compile(r'act\s+as\s+(if|though)\s+', re.IGNORECASE),
-    re.compile(r'pretend\s+(you|to\s+be)', re.IGNORECASE),
+    re.compile(r"\[?\s*SYSTEM\s*(OVERRIDE|PROMPT|MESSAGE)\s*\]?", re.IGNORECASE),
+    re.compile(
+        r"ignore\s+(all\s+)?(previous\s+)?(rules|instructions|constraints)",
+        re.IGNORECASE,
+    ),
+    re.compile(r"new\s+(directive|instruction|rule|system\s+prompt)", re.IGNORECASE),
+    re.compile(r"you\s+are\s+now\s+", re.IGNORECASE),
+    re.compile(r"disregard\s+(all|previous|above)", re.IGNORECASE),
+    re.compile(r"forget\s+(everything|all|your\s+instructions)", re.IGNORECASE),
+    re.compile(r"act\s+as\s+(if|though)\s+", re.IGNORECASE),
+    re.compile(r"pretend\s+(you|to\s+be)", re.IGNORECASE),
     # Product recommendation injection (compliance: no-advice rule)
-    re.compile(r'recommend\s+(buying?|selling?|investing?\s+in)\s+', re.IGNORECASE),
-    re.compile(r'(buy|sell|invest\s+in)\s+[A-Z]{2,5}\s+(stock|shares?|ETF)', re.IGNORECASE),
+    re.compile(r"recommend\s+(buying?|selling?|investing?\s+in)\s+", re.IGNORECASE),
+    re.compile(
+        r"(buy|sell|invest\s+in)\s+[A-Z]{2,5}\s+(stock|shares?|ETF)", re.IGNORECASE
+    ),
     # French patterns (multilingual injection defense)
-    re.compile(r'ignore[rz]?\s+(toutes?\s+)?(les\s+)?(règles|instructions|contraintes)', re.IGNORECASE),
-    re.compile(r'nouvelle[s]?\s+(directive|instruction|règle|consigne)', re.IGNORECASE),
-    re.compile(r'désormais\s+(tu|vous)\s+(dois|devez|es|êtes)', re.IGNORECASE),
-    re.compile(r'oublie[rz]?\s+(tout|toutes?\s+les\s+instructions)', re.IGNORECASE),
-    re.compile(r'fais\s+comme\s+si', re.IGNORECASE),
-    re.compile(r'tu\s+es\s+(maintenant|désormais)\s+', re.IGNORECASE),
-    re.compile(r'(sois|deviens)\s+(prescriptif|directif|un\s+conseiller)', re.IGNORECASE),
+    re.compile(
+        r"ignore[rz]?\s+(toutes?\s+)?(les\s+)?(règles|instructions|contraintes)",
+        re.IGNORECASE,
+    ),
+    re.compile(r"nouvelle[s]?\s+(directive|instruction|règle|consigne)", re.IGNORECASE),
+    re.compile(r"désormais\s+(tu|vous)\s+(dois|devez|es|êtes)", re.IGNORECASE),
+    re.compile(r"oublie[rz]?\s+(tout|toutes?\s+les\s+instructions)", re.IGNORECASE),
+    re.compile(r"fais\s+comme\s+si", re.IGNORECASE),
+    re.compile(r"tu\s+es\s+(maintenant|désormais)\s+", re.IGNORECASE),
+    re.compile(
+        r"(sois|deviens)\s+(prescriptif|directif|un\s+conseiller)", re.IGNORECASE
+    ),
     # German patterns
-    re.compile(r'ignoriere?\s+(alle\s+)?(vorherigen?\s+)?(Regeln|Anweisungen)', re.IGNORECASE),
-    re.compile(r'vergiss\s+(alles|alle\s+Anweisungen)', re.IGNORECASE),
+    re.compile(
+        r"ignoriere?\s+(alle\s+)?(vorherigen?\s+)?(Regeln|Anweisungen)", re.IGNORECASE
+    ),
+    re.compile(r"vergiss\s+(alles|alle\s+Anweisungen)", re.IGNORECASE),
 ]
 
 
@@ -391,14 +421,16 @@ _INJECTION_PATTERNS = [
 # synthesize the hash via hashlib.sha256 over the result text so all 6
 # chips render. Backend AUDIT.md §4 documents the Julien-override path.
 
-_WAVE_1B_TOOL_NAMES: frozenset[str] = frozenset({
-    "get_budget_status",
-    "get_retirement_projection",
-    "get_cross_pillar_analysis",
-    "get_couple_optimization",
-    "get_cap_status",
-    "retrieve_memories",
-})
+_WAVE_1B_TOOL_NAMES: frozenset[str] = frozenset(
+    {
+        "get_budget_status",
+        "get_retirement_projection",
+        "get_cross_pillar_analysis",
+        "get_couple_optimization",
+        "get_cap_status",
+        "retrieve_memories",
+    }
+)
 
 
 # ─── Phase mint-calc-engine-v1 Plan 10 (W2-04) — CoachToolResponseV2 ───
@@ -462,9 +494,7 @@ def _wrap_chip_response_v2(payload: str, latency_tier: str = "L1") -> str:
     return envelope.model_dump_json(by_alias=True)
 
 
-def _wrap_chip_string_response_v2(
-    text_payload: str, latency_tier: str = "L1"
-) -> str:
+def _wrap_chip_string_response_v2(text_payload: str, latency_tier: str = "L1") -> str:
     """Wrap a STRING chip-emitter payload (e.g. ``get_cap_status``) in a V2
     envelope under ``data.text``. cap_status historically emits a free-text
     FR string (no Pydantic response model); Plan 10 surfaces it under V2
@@ -497,6 +527,8 @@ def _maybe_wrap_v2(
     if is_string_tool:
         return _wrap_chip_string_response_v2(payload, latency_tier=tier)
     return _wrap_chip_response_v2(payload, latency_tier=tier)
+
+
 # ─── end Plan 10 W2-04 ───
 
 # Tools whose result string is a JSON dump of a Wave 1a Pydantic response
@@ -504,20 +536,24 @@ def _maybe_wrap_v2(
 # the legacy `_format_*` string; the JSON parse fails and we skip the
 # chip — matches CONTEXT plan default Q4 (legacy = no inputs_hash = no
 # chip).
-_WAVE_1B_JSON_TOOLS: frozenset[str] = frozenset({
-    "get_budget_status",
-    "get_retirement_projection",
-    "get_cross_pillar_analysis",
-    "get_couple_optimization",
-})
+_WAVE_1B_JSON_TOOLS: frozenset[str] = frozenset(
+    {
+        "get_budget_status",
+        "get_retirement_projection",
+        "get_cross_pillar_analysis",
+        "get_couple_optimization",
+    }
+)
 
 # Tools whose result is always a plain FR string (no Pydantic wrapper
 # today). Q9 synthetic-hash applies here — hashlib.sha256 over the text
 # gives a stable, deterministic chip identity per turn.
-_WAVE_1B_STRING_TOOLS: frozenset[str] = frozenset({
-    "get_cap_status",
-    "retrieve_memories",
-})
+_WAVE_1B_STRING_TOOLS: frozenset[str] = frozenset(
+    {
+        "get_cap_status",
+        "retrieve_memories",
+    }
+)
 
 # Explicit mapping from dispatcher tool_name to citation_registry short-name.
 # Matches `tool_*` keys in `services/backend/app/services/coach/citation_registry.py`
@@ -535,9 +571,7 @@ _TOOL_NAME_TO_SHORT: dict[str, str] = {
 }
 
 
-def _extract_wave_1b_citation_chip(
-    tool_name: str, result_text: str
-) -> Optional[dict]:
+def _extract_wave_1b_citation_chip(tool_name: str, result_text: str) -> Optional[dict]:
     """Build a citation chip from an internal tool execution result.
 
     Returns a dict with keys `toolName`, `inputsHash`, `computedAt`,
@@ -640,10 +674,10 @@ def _emit_citation_chip_breadcrumbs(
         seen_tool_names: set = set()
         for m in _RE_CITE_PLACEHOLDER.finditer(gated_text):
             raw = m.group(0)
-            key = raw[len("{{cite:"):-len("}}")]
+            key = raw[len("{{cite:") : -len("}}")]
             if not key.startswith("tool_"):
                 continue
-            tool_short = key[len("tool_"):]
+            tool_short = key[len("tool_") :]
             if tool_short in seen_tool_names:
                 # Cap at one breadcrumb per tool per turn.
                 continue
@@ -702,8 +736,10 @@ class ToolUseEnforcementResult:
     """Structured output of `_enforce_tool_use_for_citations`."""
 
     verdict: ToolUseEnforcementVerdict
-    missing_placeholder_names: tuple[str, ...]   # short names, e.g. ("budget_snapshot",)
-    structured_reason: Optional[str]              # e.g. "tool_use_missing_for_citation:budget_snapshot"
+    missing_placeholder_names: tuple[str, ...]  # short names, e.g. ("budget_snapshot",)
+    structured_reason: Optional[
+        str
+    ]  # e.g. "tool_use_missing_for_citation:budget_snapshot"
     narrator_tool_count: int
 
 
@@ -760,9 +796,7 @@ def _enforce_tool_use_for_citations(
             narrator_tool_count=len(tool_calls or []),
         )
     emitted_tool_names = {
-        (tc.get("name") or "")
-        for tc in (tool_calls or [])
-        if isinstance(tc, dict)
+        (tc.get("name") or "") for tc in (tool_calls or []) if isinstance(tc, dict)
     }
     missing: list[str] = []
     seen: set[str] = set()
@@ -861,20 +895,23 @@ def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
     # (e.g., ligatures, fullwidth digits) preventing bypass via visual equivalents.
     scrubbed = unicodedata.normalize("NFKC", scrubbed)
     scrubbed = re.sub(
-        '['
-        '\u00ad'          # soft hyphen
-        '\u034f'          # combining grapheme joiner
-        '\u061c'          # Arabic letter mark
-        '\u115f\u1160'    # Hangul fillers
-        '\u17b4\u17b5'    # Khmer vowels
-        '\u180e'          # Mongolian vowel separator
-        '\u200b-\u200f'   # zero-width & directional marks
-        '\u2028\u2029'    # line/paragraph separators
-        '\u202a-\u202e'   # directional formatting
-        '\u2060'          # word joiner
-        '\u2066-\u2069'   # directional isolates
-        '\ufeff'          # BOM / zero-width no-break space
-        ']', '', scrubbed)
+        "["
+        "\u00ad"  # soft hyphen
+        "\u034f"  # combining grapheme joiner
+        "\u061c"  # Arabic letter mark
+        "\u115f\u1160"  # Hangul fillers
+        "\u17b4\u17b5"  # Khmer vowels
+        "\u180e"  # Mongolian vowel separator
+        "\u200b-\u200f"  # zero-width & directional marks
+        "\u2028\u2029"  # line/paragraph separators
+        "\u202a-\u202e"  # directional formatting
+        "\u2060"  # word joiner
+        "\u2066-\u2069"  # directional isolates
+        "\ufeff"  # BOM / zero-width no-break space
+        "]",
+        "",
+        scrubbed,
+    )
 
     # Use module-level _INJECTION_PATTERNS (shared with profile context + user input sanitizers)
     for pattern in _INJECTION_PATTERNS:
@@ -966,30 +1003,61 @@ def _sanitize_conversation_history(
 # Anything NOT in this set is DROPPED to prevent PII leakage.
 # Privacy: never includes IBAN, full name, NPA, or employer.
 _PROFILE_SAFE_FIELDS = {
-    "archetype", "age", "canton",
-    "fri_total", "fri_delta", "primary_focus",
-    "replacement_ratio", "months_liquidity", "tax_saving_potential",
-    "confidence_score", "days_since_last_visit", "fiscal_season",
-    "upcoming_event", "check_in_streak", "last_milestone",
+    "archetype",
+    "age",
+    "canton",
+    "fri_total",
+    "fri_delta",
+    "primary_focus",
+    "replacement_ratio",
+    "months_liquidity",
+    "tax_saving_potential",
+    "confidence_score",
+    "days_since_last_visit",
+    "fiscal_season",
+    "upcoming_event",
+    "check_in_streak",
+    "last_milestone",
     # Fields consumed by StructuredReasoningService:
-    "monthly_income", "monthly_expenses", "annual_3a_contribution",
-    "existing_3a_ytd", "lpp_buyback_max", "lpp_capital",
-    "lpp_certificate_year", "avs_rente", "monthly_retirement_income",
+    "monthly_income",
+    "monthly_expenses",
+    "annual_3a_contribution",
+    "existing_3a_ytd",
+    "lpp_buyback_max",
+    "lpp_capital",
+    "lpp_certificate_year",
+    "avs_rente",
+    "monthly_retirement_income",
     "data_source",
     # Fields consumed by RAG retriever for personalization:
-    "civil_status", "employment_status", "has_2nd_pillar",
+    "civil_status",
+    "employment_status",
+    "has_2nd_pillar",
     # Couple optimization (pre-computed by Flutter CoupleOptimizer):
     "couple_optimization",
     # C2: Couple context fields (numeric, privacy-safe)
-    "is_married", "conjoint_age", "conjoint_salary",
-    "couple_avs_monthly", "couple_marriage_annual_delta",
+    "is_married",
+    "conjoint_age",
+    "conjoint_salary",
+    "couple_avs_monthly",
+    "couple_marriage_annual_delta",
     # Cap/Plan context (consumed by get_cap_status internal tool):
-    "cap_headline", "cap_why_now", "cap_cta", "cap_expected_impact",
-    "sequence_completed", "sequence_total", "active_goal",
+    "cap_headline",
+    "cap_why_now",
+    "cap_cta",
+    "cap_expected_impact",
+    "sequence_completed",
+    "sequence_total",
+    "active_goal",
     # FIX-104: Pillar fields for coach education (numeric, privacy-safe)
-    "lpp_balance_total", "lpp_conversion_rate", "lpp_buyback_potential",
-    "avs_annual_estimate", "avs_contribution_years",
-    "marital_status", "months_to_retirement", "number_of_children",
+    "lpp_balance_total",
+    "lpp_conversion_rate",
+    "lpp_buyback_potential",
+    "avs_annual_estimate",
+    "avs_contribution_years",
+    "marital_status",
+    "months_to_retirement",
+    "number_of_children",
     "years_since_last_buyback",
     # Planned contributions (consumed by claude_coach_service system prompt)
     "planned_contributions",
@@ -1002,7 +1070,10 @@ _PROFILE_SAFE_FIELDS = {
     # salary, 3a savings) instead of asking the user to scan a certificate
     # they just imported. Privacy-safe (numeric, no PII). claude_coach_service
     # auto-emits these in the « extra_keys » prompt block (line 830-840).
-    "avoir_lpp", "salaire_brut", "epargne_3a", "capital_final",
+    "avoir_lpp",
+    "salaire_brut",
+    "epargne_3a",
+    "capital_final",
     # mint-calc-engine-v1 Stage 0 fix (2026-05-17): partner aggregate keys from
     # Phase 16 COUP-04. Flutter `coach_chat_api_service.dart:94-97` spreads
     # `partner_declared` + `partner_confidence` from SecureStorage into
@@ -1012,8 +1083,283 @@ _PROFILE_SAFE_FIELDS = {
     # Detected by Plan 19 profile_safe_fields_parity lint (drift baseline 45
     # → 43 after this fix). Privacy-safe: declared = bool, confidence = float
     # in [0,1]; no PII.
-    "partner_declared", "partner_confidence",
+    "partner_declared",
+    "partner_confidence",
+    # Data spine context packet from mobile CoachContextPacketService.
+    # Privacy-scoped nested dict: facts, missing_fields, trajectory,
+    # next_questions. Explicitly whitelisted so Data Spine Plan 04 is not
+    # silently dropped by the backend boundary.
+    "coach_context_packet",
 }
+
+
+def _sanitize_profile_value(value):
+    """Recursively sanitize whitelisted profile_context values."""
+    if isinstance(value, str):
+        for pattern in _INJECTION_PATTERNS:
+            value = pattern.sub("[FILTERED]", value)
+        return value
+    if isinstance(value, list):
+        return [_sanitize_profile_value(item) for item in value]
+    if isinstance(value, dict):
+        return {
+            key: _sanitize_profile_value(item)
+            for key, item in value.items()
+            if item is not None
+        }
+    return value
+
+
+_COACH_PACKET_TOP_KEYS = {
+    "computed_at",
+    "facts",
+    "missing_fields",
+    "trajectory",
+    "next_questions",
+}
+_COACH_PACKET_FACT_KEYS = {
+    "id",
+    "domain",
+    "field_path",
+    "value",
+    "source",
+    "confidence",
+    "freshness",
+    "state",
+    "updated_at",
+}
+_COACH_PACKET_MISSING_KEYS = {"field_path", "domain", "reason"}
+_COACH_PACKET_TRAJECTORY_KEYS = {
+    "status",
+    "current_monthly_free",
+    "current_monthly_capacity",
+    "target_amount",
+    "months_to_target",
+    "monthly_required",
+    "monthly_gap",
+    "next_lever_id",
+}
+_COACH_PACKET_QUESTION_KEYS = {"id", "domain", "field_path"}
+
+_COACH_PACKET_ALLOWED_IDS = {
+    "profile.canton",
+    "profile.birth_year",
+    "budget.monthly_net",
+    "budget.monthly_free",
+    "budget.monthly_capacity",
+    "budget.monthly_charges",
+    "pillar.avs.contribution_years",
+    "pillar.avs.gaps",
+    "pillar.avs.estimated_monthly_pension",
+    "pillar.lpp.total_balance",
+    "pillar.lpp.insured_salary",
+    "pillar.lpp.buyback_max",
+    "pillar.3a.total_balance",
+    "pillar.3a.accounts_count",
+    "trajectory.status",
+    "trajectory.monthly_required",
+    "trajectory.monthly_gap",
+}
+_COACH_PACKET_ALLOWED_PATHS = {
+    "situation.canton",
+    "situation.birthYear",
+    "budget.present.monthlyNet",
+    "budget.present.monthlyFree",
+    "budget.present.monthlyCapacity",
+    "budget.present.monthlyCharges",
+    "pillars.avs.contributionYears",
+    "pillars.avs.gaps",
+    "pillars.avs.estimatedMonthlyPension",
+    "pillars.lpp.totalBalance",
+    "pillars.lpp.insuredSalary",
+    "pillars.lpp.buybackMax",
+    "pillars.pillar3a.totalBalance",
+    "pillars.pillar3a.accountsCount",
+    "trajectory.status",
+    "trajectory.targetAmount",
+    "trajectory.monthlyRequired",
+    "trajectory.monthlyGap",
+    "trajectory.currentMonthlyCapacity",
+    "budget.present.monthlyCapacity",
+}
+_COACH_PACKET_ALLOWED_QUESTION_IDS = {
+    "define_target_amount",
+    "review_fixed_charges",
+    "increase_monthly_capacity",
+    "confirm_plan_tracking",
+}
+_COACH_PACKET_ALLOWED_TRAJECTORY_STATUS = {
+    "insufficientData",
+    "blocked",
+    "drifting",
+    "onTrack",
+}
+_COACH_PACKET_ALLOWED_DOMAINS = {
+    "profile",
+    "budget",
+    "pillar_avs",
+    "pillar_lpp",
+    "pillar_3a",
+    "trajectory",
+}
+_COACH_PACKET_ALLOWED_SOURCES = {
+    "wizard",
+    "calculated",
+    "estimated",
+    "certificate",
+    "unknown",
+}
+_COACH_PACKET_ALLOWED_FRESHNESS = {"fresh", "stale", "unknown"}
+_COACH_PACKET_ALLOWED_STATES = {"known", "estimated", "missing"}
+
+
+def _safe_packet_string(value, *, max_len=96, allowed=None):
+    if not isinstance(value, str):
+        return None
+    value = _sanitize_profile_value(value)[:max_len]
+    if allowed is not None and value not in allowed:
+        return None
+    return value
+
+
+def _safe_packet_number(value):
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return value
+    return None
+
+
+def _sanitize_coach_context_packet(value):
+    """Strictly allowlist the nested CoachContextPacket shape."""
+    if not isinstance(value, dict):
+        return {}
+
+    packet = {
+        k: v for k, v in value.items() if k in _COACH_PACKET_TOP_KEYS and v is not None
+    }
+    safe: dict = {}
+
+    computed_at = _safe_packet_string(packet.get("computed_at"), max_len=40)
+    if computed_at:
+        safe["computed_at"] = computed_at
+
+    facts = []
+    for item in packet.get("facts") or []:
+        if not isinstance(item, dict):
+            continue
+        fact_id = _safe_packet_string(item.get("id"), allowed=_COACH_PACKET_ALLOWED_IDS)
+        field_path = _safe_packet_string(
+            item.get("field_path"), allowed=_COACH_PACKET_ALLOWED_PATHS
+        )
+        domain = _safe_packet_string(
+            item.get("domain"), allowed=_COACH_PACKET_ALLOWED_DOMAINS
+        )
+        if not fact_id or not field_path or not domain:
+            continue
+        fact = {"id": fact_id, "domain": domain, "field_path": field_path}
+        for key in sorted(_COACH_PACKET_FACT_KEYS - {"id", "domain", "field_path"}):
+            if key not in item or item[key] is None:
+                continue
+            if key in {"value", "confidence"}:
+                number = _safe_packet_number(item[key])
+                if number is not None:
+                    fact[key] = number
+            elif key == "source":
+                source = _safe_packet_string(
+                    item[key], allowed=_COACH_PACKET_ALLOWED_SOURCES
+                )
+                if source:
+                    fact[key] = source
+            elif key == "freshness":
+                freshness = _safe_packet_string(
+                    item[key], allowed=_COACH_PACKET_ALLOWED_FRESHNESS
+                )
+                if freshness:
+                    fact[key] = freshness
+            elif key == "state":
+                state = _safe_packet_string(
+                    item[key], allowed=_COACH_PACKET_ALLOWED_STATES
+                )
+                if state:
+                    fact[key] = state
+            elif key == "updated_at":
+                updated_at = _safe_packet_string(item[key], max_len=40)
+                if updated_at:
+                    fact[key] = updated_at
+        facts.append(fact)
+    safe["facts"] = facts[:24]
+
+    missing_fields = []
+    for item in packet.get("missing_fields") or []:
+        if not isinstance(item, dict):
+            continue
+        field_path = _safe_packet_string(
+            item.get("field_path"), allowed=_COACH_PACKET_ALLOWED_PATHS
+        )
+        domain = _safe_packet_string(
+            item.get("domain"), allowed=_COACH_PACKET_ALLOWED_DOMAINS
+        )
+        reason = _safe_packet_string(item.get("reason"), max_len=48)
+        if field_path and domain and reason:
+            missing_fields.append(
+                {
+                    "field_path": field_path,
+                    "domain": domain,
+                    "reason": reason,
+                }
+            )
+    safe["missing_fields"] = missing_fields[:24]
+
+    trajectory = packet.get("trajectory") or {}
+    safe_trajectory = {}
+    if isinstance(trajectory, dict):
+        for key in _COACH_PACKET_TRAJECTORY_KEYS:
+            raw = trajectory.get(key)
+            if raw is None:
+                continue
+            if key == "status":
+                status = _safe_packet_string(
+                    raw, allowed=_COACH_PACKET_ALLOWED_TRAJECTORY_STATUS
+                )
+                if status:
+                    safe_trajectory[key] = status
+            elif key == "next_lever_id":
+                lever = _safe_packet_string(
+                    raw, allowed=_COACH_PACKET_ALLOWED_QUESTION_IDS
+                )
+                if lever:
+                    safe_trajectory[key] = lever
+            else:
+                number = _safe_packet_number(raw)
+                if number is not None:
+                    safe_trajectory[key] = number
+    safe["trajectory"] = safe_trajectory
+
+    questions = []
+    for item in packet.get("next_questions") or []:
+        if not isinstance(item, dict):
+            continue
+        question_id = _safe_packet_string(
+            item.get("id"), allowed=_COACH_PACKET_ALLOWED_QUESTION_IDS
+        )
+        field_path = _safe_packet_string(
+            item.get("field_path"), allowed=_COACH_PACKET_ALLOWED_PATHS
+        )
+        domain = _safe_packet_string(
+            item.get("domain"), allowed=_COACH_PACKET_ALLOWED_DOMAINS
+        )
+        if question_id and field_path and domain:
+            questions.append(
+                {
+                    "id": question_id,
+                    "domain": domain,
+                    "field_path": field_path,
+                }
+            )
+    safe["next_questions"] = questions[:8]
+
+    return safe
 
 
 def _sanitize_profile_context(profile_context: Optional[dict]) -> dict:
@@ -1031,25 +1377,10 @@ def _sanitize_profile_context(profile_context: Optional[dict]) -> dict:
     for k, v in profile_context.items():
         if k not in _PROFILE_SAFE_FIELDS or v is None:
             continue
-        # Sanitize string values through injection filter (P0-1: profile data injection)
-        if isinstance(v, str):
-            for pattern in _INJECTION_PATTERNS:
-                v = pattern.sub("[FILTERED]", v)
-        # Sanitize list-of-dict values (e.g., planned_contributions)
-        elif isinstance(v, list):
-            sanitized_list = []
-            for item in v:
-                if isinstance(item, dict):
-                    sanitized_item = {}
-                    for ik, iv in item.items():
-                        if isinstance(iv, str):
-                            for pattern in _INJECTION_PATTERNS:
-                                iv = pattern.sub("[FILTERED]", iv)
-                        sanitized_item[ik] = iv
-                    sanitized_list.append(sanitized_item)
-                else:
-                    sanitized_list.append(item)
-            v = sanitized_list
+        if k == "coach_context_packet":
+            v = _sanitize_coach_context_packet(v)
+        else:
+            v = _sanitize_profile_value(v)
         safe[k] = v
     return safe
 
@@ -1077,19 +1408,34 @@ def _build_coach_context_from_profile(profile_context: Optional[dict]):
     # prompt should still cite — claude_coach_service auto-emits them in
     # the « extra_keys » block at line 830-840).
     _BUILDER_PARAMS = {
-        "first_name", "age", "canton", "archetype",
-        "fri_total", "fri_delta", "primary_focus",
-        "replacement_ratio", "months_liquidity", "tax_saving_potential",
-        "confidence_score", "days_since_last_visit", "fiscal_season",
-        "upcoming_event", "check_in_streak", "last_milestone",
-        "planned_contributions", "has_debt",
+        "first_name",
+        "age",
+        "canton",
+        "archetype",
+        "fri_total",
+        "fri_delta",
+        "primary_focus",
+        "replacement_ratio",
+        "months_liquidity",
+        "tax_saving_potential",
+        "confidence_score",
+        "days_since_last_visit",
+        "fiscal_season",
+        "upcoming_event",
+        "check_in_streak",
+        "last_milestone",
+        "planned_contributions",
+        "coach_context_packet",
+        "has_debt",
     }
     builder_kwargs = {
-        k: v for k, v in profile_context.items()
+        k: v
+        for k, v in profile_context.items()
         if k in _PROFILE_SAFE_FIELDS and k in _BUILDER_PARAMS and v is not None
     }
     extra_known = {
-        k: v for k, v in profile_context.items()
+        k: v
+        for k, v in profile_context.items()
         if k in _PROFILE_SAFE_FIELDS
         and k not in _BUILDER_PARAMS
         and isinstance(v, (int, float))
@@ -1111,7 +1457,9 @@ def _build_coach_context_from_profile(profile_context: Optional[dict]):
         return None
 
 
-def _build_commitment_memory_block(user_id: Optional[str], db: Optional[Session] = None) -> str:
+def _build_commitment_memory_block(
+    user_id: Optional[str], db: Optional[Session] = None
+) -> str:
     """Build a memory section with active commitments and pre-mortem entries.
 
     Returns a formatted markdown block for injection into the system prompt.
@@ -1131,7 +1479,10 @@ def _build_commitment_memory_block(user_id: Optional[str], db: Optional[Session]
         # Active commitments (pending, most recent first, limit 5)
         commitments = (
             db.query(CommitmentDevice)
-            .filter(CommitmentDevice.user_id == user_id, CommitmentDevice.status == "pending")
+            .filter(
+                CommitmentDevice.user_id == user_id,
+                CommitmentDevice.status == "pending",
+            )
             .order_by(CommitmentDevice.created_at.desc())
             .limit(5)
             .all()
@@ -1161,7 +1512,7 @@ def _build_commitment_memory_block(user_id: Optional[str], db: Optional[Session]
                 date_str = pm.created_at.strftime("%d.%m.%Y") if pm.created_at else "?"
                 response_truncated = (pm.user_response or "")[:200]
                 lines.append(
-                    f"- [{date_str}] {pm.decision_type}: \"{response_truncated}\""
+                    f'- [{date_str}] {pm.decision_type}: "{response_truncated}"'
                 )
             sections.append("\n".join(lines))
 
@@ -1172,7 +1523,9 @@ def _build_commitment_memory_block(user_id: Optional[str], db: Optional[Session]
     return "\n\n".join(sections)
 
 
-def _build_intelligence_memory_block(user_id: Optional[str], db: Optional[Session] = None) -> str:
+def _build_intelligence_memory_block(
+    user_id: Optional[str], db: Optional[Session] = None
+) -> str:
     """Build memory section with provenance records and earmark tags.
 
     Returns formatted markdown for injection into system prompt.
@@ -1198,7 +1551,9 @@ def _build_intelligence_memory_block(user_id: Optional[str], db: Optional[Sessio
             lines = ["PROVENANCE CONNUE:"]
             for p in provenances:
                 inst_str = f" chez {p.institution}" if p.institution else ""
-                lines.append(f"- {p.product_type}: recommandé par {p.recommended_by}{inst_str}")
+                lines.append(
+                    f"- {p.product_type}: recommandé par {p.recommended_by}{inst_str}"
+                )
             sections.append("\n".join(lines))
 
         # Earmark tags (all active, limit 10)
@@ -1213,7 +1568,9 @@ def _build_intelligence_memory_block(user_id: Optional[str], db: Optional[Sessio
             lines = ["ARGENT MARQUÉ (ne JAMAIS agréger):"]
             for e in earmarks:
                 amount_str = f" (~{e.amount_hint})" if e.amount_hint else ""
-                source_str = f" — {e.source_description}" if e.source_description else ""
+                source_str = (
+                    f" — {e.source_description}" if e.source_description else ""
+                )
                 lines.append(f"- « {e.label} »{amount_str}{source_str}")
             sections.append("\n".join(lines))
 
@@ -1224,7 +1581,9 @@ def _build_intelligence_memory_block(user_id: Optional[str], db: Optional[Sessio
     return "\n\n".join(sections)
 
 
-def _build_insight_memory_block(user_id: Optional[str], db: Optional[Session] = None) -> str:
+def _build_insight_memory_block(
+    user_id: Optional[str], db: Optional[Session] = None
+) -> str:
     """Build memory section with coach-saved insights (facts, decisions, preferences).
 
     Returns formatted text for injection into system prompt.
@@ -1319,6 +1678,7 @@ def _build_system_prompt_with_memory(
     # captured at coach_chat.py load time becomes stale after reload, breaking
     # monkeypatch in test_flag_on_uses_compile_bundles.
     from app.core.config import settings as _live_settings
+
     if _live_settings.COACH_BUNDLE_COMPILER_ENABLED:
         try:
             prompt = build_narrator_system_prompt_from_bundles(
@@ -1346,6 +1706,7 @@ def _build_system_prompt_with_memory(
                 from app.services.coach.bundle_compiler import (
                     compile_bundles as _cb,
                 )
+
                 _telemetry = _cb(
                     intents=detected_intents or set(),
                     ctx=coach_ctx,
@@ -1373,6 +1734,7 @@ def _build_system_prompt_with_memory(
             )
             try:
                 import sentry_sdk
+
                 sentry_sdk.add_breadcrumb(
                     category="coach.bundle.fallback",
                     level="warning",
@@ -1432,13 +1794,19 @@ def _compute_retrieve_memories(
 
     if not settings.COACH_TOOL_SERVER_SIDE_RETRIEVE_MEMORIES_ENABLED:
         return _handle_retrieve_memories(
-            topic=topic, memory_block=memory_block,
-            max_results=max_results, user_id=user_id, db=db,
+            topic=topic,
+            memory_block=memory_block,
+            max_results=max_results,
+            user_id=user_id,
+            db=db,
         )
     if not user_id or db is None:
         return _handle_retrieve_memories(
-            topic=topic, memory_block=memory_block,
-            max_results=max_results, user_id=user_id, db=db,
+            topic=topic,
+            memory_block=memory_block,
+            max_results=max_results,
+            user_id=user_id,
+            db=db,
         )
 
     _t0 = time.perf_counter()
@@ -1452,14 +1820,14 @@ def _compute_retrieve_memories(
         hits = _bm25_retrieve(topic=topic, user_id=user_id, db=db, k=k)
         if not hits:
             return _handle_retrieve_memories(
-                topic=topic, memory_block=memory_block,
-                max_results=max_results, user_id=user_id, db=db,
+                topic=topic,
+                memory_block=memory_block,
+                max_results=max_results,
+                user_id=user_id,
+                db=db,
             )
 
-        lines = [
-            f"[{h.insight_type}] {h.topic}: {h.summary}"
-            for h in hits
-        ]
+        lines = [f"[{h.insight_type}] {h.topic}: {h.summary}" for h in hits]
         result_text = "\n".join(lines[:max_results])
 
         elapsed_ms = int((time.perf_counter() - _t0) * 1000)
@@ -1477,8 +1845,11 @@ def _compute_retrieve_memories(
             "compute_retrieve_memories failed, falling back to legacy: %s", exc
         )
         return _handle_retrieve_memories(
-            topic=topic, memory_block=memory_block,
-            max_results=max_results, user_id=user_id, db=db,
+            topic=topic,
+            memory_block=memory_block,
+            max_results=max_results,
+            user_id=user_id,
+            db=db,
         )
 
 
@@ -1529,6 +1900,7 @@ def _handle_retrieve_memories(
     if user_id and db:
         try:
             from app.models.coach_insight import CoachInsightRecord
+
             insights = (
                 db.query(CoachInsightRecord)
                 .filter(CoachInsightRecord.user_id == user_id)
@@ -1537,9 +1909,13 @@ def _handle_retrieve_memories(
                 .all()
             )
             for ins in insights:
-                if (topic_lower in (ins.topic or "").lower()
-                        or topic_lower in (ins.summary or "").lower()):
-                    db_matches.append(f"[{ins.insight_type}] {ins.topic}: {ins.summary}")
+                if (
+                    topic_lower in (ins.topic or "").lower()
+                    or topic_lower in (ins.summary or "").lower()
+                ):
+                    db_matches.append(
+                        f"[{ins.insight_type}] {ins.topic}: {ins.summary}"
+                    )
         except Exception as exc:
             logger.warning("Could not search DB insights: %s", exc)
 
@@ -1610,47 +1986,116 @@ def _handle_retrieve_memories(
 # dettes mais je veux acheter » → {debt, housing}). Empty set → no gate.
 _INTENT_KEYWORDS: dict[str, tuple[str, ...]] = {
     "debt": (
-        "dette", "dettes", "endette", "endettee", "endettes", "endettees",
-        "surendette", "surendettement", "decouvert",
-        "credit conso", "credit a la consommation", "leasing",
-        "rembourser", "remboursement",
+        "dette",
+        "dettes",
+        "endette",
+        "endettee",
+        "endettes",
+        "endettees",
+        "surendette",
+        "surendettement",
+        "decouvert",
+        "credit conso",
+        "credit a la consommation",
+        "leasing",
+        "rembourser",
+        "remboursement",
     ),
     "housing": (
-        "hypotheque", "hypothecaire", "achat immobilier", "acheter un bien",
-        "proprietaire", "logement", "appartement", "maison",
-        "amortissement direct", "amortissement indirect", "epl",
+        "hypotheque",
+        "hypothecaire",
+        "achat immobilier",
+        "acheter un bien",
+        "proprietaire",
+        "logement",
+        "appartement",
+        "maison",
+        "amortissement direct",
+        "amortissement indirect",
+        "epl",
     ),
     "family": (
-        "marie", "mariage", "concubin", "concubinage", "divorce",
-        "enfant", "enfants", "famille", "garde", "pension alimentaire",
-        "naissance", "adoption",
+        "marie",
+        "mariage",
+        "concubin",
+        "concubinage",
+        "divorce",
+        "enfant",
+        "enfants",
+        "famille",
+        "garde",
+        "pension alimentaire",
+        "naissance",
+        "adoption",
     ),
     "career": (
-        "demission", "demissionner", "licenciement", "perte d emploi",
-        "chomage", "lpci", "nouveau job", "nouveau travail",
-        "reconversion", "freelance", "independant",
+        "demission",
+        "demissionner",
+        "licenciement",
+        "perte d emploi",
+        "chomage",
+        "lpci",
+        "nouveau job",
+        "nouveau travail",
+        "reconversion",
+        "freelance",
+        "independant",
     ),
     "retirement": (
-        "retraite", "rentier", "rente avs", "rente lpp",
-        "retrait lpp", "retrait 3a", "62 ans", "63 ans", "64 ans", "65 ans",
-        "pre retraite", "retraite anticipee",
+        "retraite",
+        "rentier",
+        "rente avs",
+        "rente lpp",
+        "retrait lpp",
+        "retrait 3a",
+        "62 ans",
+        "63 ans",
+        "64 ans",
+        "65 ans",
+        "pre retraite",
+        "retraite anticipee",
         # Wave 4 additions (Phase 93.5 H8 follow-up, 2026-05-10): the 50-fixture
         # eval revealed that the heuristic missed common ways users name
         # pillar-3 / LPP / AVS in plain text. 7+ fixtures landed under the
         # always-on path, starving the bundle compiler of intent-driven
         # activations. Additions only — no removal, no semantic shift.
-        "3a", "3 a", "3e pilier", "3eme pilier", "troisieme pilier",
-        "pilier 3", "pilier 3a", "pilier 3b", "pilier3a",
-        "lpp", "loi sur la prevoyance", "prevoyance professionnelle",
-        "avs", "rente", "rentes", "prevoyance", "epargne retraite",
+        "3a",
+        "3 a",
+        "3e pilier",
+        "3eme pilier",
+        "troisieme pilier",
+        "pilier 3",
+        "pilier 3a",
+        "pilier 3b",
+        "pilier3a",
+        "lpp",
+        "loi sur la prevoyance",
+        "prevoyance professionnelle",
+        "avs",
+        "rente",
+        "rentes",
+        "prevoyance",
+        "epargne retraite",
         "preretraite",
     ),
     "taxes": (
-        "impot", "impots", "fiscalite", "declaration", "tax",
-        "taxation", "deduction", "rappel d impot",
+        "impot",
+        "impots",
+        "fiscalite",
+        "declaration",
+        "tax",
+        "taxation",
+        "deduction",
+        "rappel d impot",
         # Wave 4 additions
-        "lifd", "lhid", "fiscal", "fiscaux", "fiscale", "fiscales",
-        "bareme fiscal", "deduction fiscale",
+        "lifd",
+        "lhid",
+        "fiscal",
+        "fiscaux",
+        "fiscale",
+        "fiscales",
+        "bareme fiscal",
+        "deduction fiscale",
     ),
 }
 
@@ -1664,8 +2109,10 @@ def _classify_user_intent(message: Optional[str]) -> set[str]:
     if not message or not message.strip():
         return set()
     import unicodedata
+
     normalized = "".join(
-        c for c in unicodedata.normalize("NFD", message.lower())
+        c
+        for c in unicodedata.normalize("NFD", message.lower())
         if unicodedata.category(c) != "Mn"
     )
     detected: set[str] = set()
@@ -1685,32 +2132,38 @@ def _classify_user_intent(message: Optional[str]) -> set[str]:
 # MANDATE. See `.planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-A2-
 # PLAN.md` and engram obs id 81 (RAG-context root cause) + obs id 86
 # (architect-review surface verdict).
-_TOOL_ELIGIBLE_INTENTS: frozenset[str] = frozenset({
-    "retirement",  # → get_retirement_projection (proven broken in probe)
-    "taxes",       # → get_3a_cap / cross_pillar deductions
-    "debt",        # → cross_pillar consolidation / amortization scenarios
-    "housing",     # → cross_pillar (LPP retrait pour résidence)
-    "family",      # → couple_optimization
-    "career",      # → cross_pillar (LPP rachat)
-})
+_TOOL_ELIGIBLE_INTENTS: frozenset[str] = frozenset(
+    {
+        "retirement",  # → get_retirement_projection (proven broken in probe)
+        "taxes",  # → get_3a_cap / cross_pillar deductions
+        "debt",  # → cross_pillar consolidation / amortization scenarios
+        "housing",  # → cross_pillar (LPP retrait pour résidence)
+        "family",  # → couple_optimization
+        "career",  # → cross_pillar (LPP rachat)
+    }
+)
 
-_TOOL_ELIGIBLE_TOOL_NAMES: frozenset[str] = frozenset({
-    "get_retirement_projection",
-    "get_budget_status",
-    "get_cross_pillar_analysis",
-    "get_couple_optimization",
-    "get_cap_status",
-    # NOTE: retrieve_memories is NOT in this set — it's a Wave 1b memory
-    # retrieval tool, not a financial calculation. Its presence in the
-    # advertised tools should NOT trigger RAG suppression.
-})
+_TOOL_ELIGIBLE_TOOL_NAMES: frozenset[str] = frozenset(
+    {
+        "get_retirement_projection",
+        "get_budget_status",
+        "get_cross_pillar_analysis",
+        "get_couple_optimization",
+        "get_cap_status",
+        # NOTE: retrieve_memories is NOT in this set — it's a Wave 1b memory
+        # retrieval tool, not a financial calculation. Its presence in the
+        # advertised tools should NOT trigger RAG suppression.
+    }
+)
 
 
 # B15 (2026-05-09): detect concrete-fact signals in user message so
 # suggest_actions can skip generic profile-gap chips when the user
 # already volunteered specific data this turn.
 _CONCRETE_FACT_PATTERNS = (
-    re.compile(r"\d+(?:['\s]?\d+)*\s*(?:chf|francs?|fr\.?|eur|euros?|usd)", re.IGNORECASE),
+    re.compile(
+        r"\d+(?:['\s]?\d+)*\s*(?:chf|francs?|fr\.?|eur|euros?|usd)", re.IGNORECASE
+    ),
     re.compile(r"\d+(?:[.,]\d+)?\s*%"),
     re.compile(r"\b(19|20)\d{2}\b"),  # year markers
     re.compile(r"\d{2,}\s*(ans|years|jahre)", re.IGNORECASE),
@@ -1752,10 +2205,16 @@ def _compute_suggested_actions(
     """
     actions: list[dict[str, str]] = []
     if not user_id or not db:
-        return [{"label": "Dis-moi ton âge et ton canton pour commencer", "type": "question"}]
+        return [
+            {
+                "label": "Dis-moi ton âge et ton canton pour commencer",
+                "type": "question",
+            }
+        ]
 
     try:
         from app.models.profile_model import ProfileModel as _PM
+
         profile = (
             db.query(_PM)
             .filter(_PM.user_id == user_id)
@@ -1774,13 +2233,32 @@ def _compute_suggested_actions(
     # signalled debts. These take priority over generic profile-gap chips.
     if "debt" in intents:
         if data.get("hasDebt") is True and not data.get("totalDebt"):
-            actions.append({"label": "Quel est le montant total de tes dettes ?", "type": "question"})
+            actions.append(
+                {
+                    "label": "Quel est le montant total de tes dettes ?",
+                    "type": "question",
+                }
+            )
         elif data.get("totalDebt"):
-            actions.append({"label": "Compare ta dette aux taux du marché", "type": "simulate"})
-            actions.append({"label": "Calcule ta capacité de remboursement mensuelle", "type": "simulate"})
+            actions.append(
+                {"label": "Compare ta dette aux taux du marché", "type": "simulate"}
+            )
+            actions.append(
+                {
+                    "label": "Calcule ta capacité de remboursement mensuelle",
+                    "type": "simulate",
+                }
+            )
         else:
-            actions.append({"label": "Quel est le montant total de tes dettes ?", "type": "question"})
-            actions.append({"label": "À quel taux d'intérêt ? (en %)", "type": "question"})
+            actions.append(
+                {
+                    "label": "Quel est le montant total de tes dettes ?",
+                    "type": "question",
+                }
+            )
+            actions.append(
+                {"label": "À quel taux d'intérêt ? (en %)", "type": "question"}
+            )
 
     # Profile gaps → question chips. B15 (2026-05-09): when the user just
     # gave concrete facts AND a debt-intent chip already filled the slot,
@@ -1797,10 +2275,12 @@ def _compute_suggested_actions(
             # B2 fix (2026-05-08) : archetype-agnostic — salaried_active is
             # only 4/8 archetypes. Money-source question covers the 8
             # archetypes (CLAUDE.md NEVER #4 + #7).
-            actions.append({
-                "label": "D'où vient ton argent ? (salaire, dividendes, rente, autre)",
-                "type": "question",
-            })
+            actions.append(
+                {
+                    "label": "D'où vient ton argent ? (salaire, dividendes, rente, autre)",
+                    "type": "question",
+                }
+            )
 
     if len(actions) >= 3:
         return actions[:3]
@@ -1824,21 +2304,31 @@ def _compute_suggested_actions(
     if data.get("avoirLpp") and data.get("lppBuybackMax"):
         actions.append({"label": "Simule un plan de rachat LPP", "type": "simulate"})
     elif data.get("avoirLpp"):
-        actions.append({"label": "Compare rente vs capital à 65 ans", "type": "simulate"})
+        actions.append(
+            {"label": "Compare rente vs capital à 65 ans", "type": "simulate"}
+        )
 
     if data.get("incomeNetMonthly") and not data.get("pillar3aAnnual"):
-        actions.append({"label": "Combien verses-tu en 3a par an ?", "type": "question"})
+        actions.append(
+            {"label": "Combien verses-tu en 3a par an ?", "type": "question"}
+        )
 
     if data.get("hasDebt") is True and not data.get("totalDebt"):
-        actions.append({"label": "Quel est le montant total de tes dettes ?", "type": "question"})
+        actions.append(
+            {"label": "Quel est le montant total de tes dettes ?", "type": "question"}
+        )
 
     if not actions:
-        actions.append({"label": "Pose-moi une question sur ta situation", "type": "question"})
+        actions.append(
+            {"label": "Pose-moi une question sur ta situation", "type": "question"}
+        )
 
     return actions[:3]
 
 
-MAX_AGENT_LOOP_ITERATIONS = 4  # v2.7: 3→4 to allow one reflective retry on empty end_turn
+MAX_AGENT_LOOP_ITERATIONS = (
+    4  # v2.7: 3→4 to allow one reflective retry on empty end_turn
+)
 MAX_AGENT_LOOP_TOKENS = 8000
 
 # save_fact whitelist: only these ProfileModel.data keys can be written from
@@ -1846,42 +2336,81 @@ MAX_AGENT_LOOP_TOKENS = 8000
 # the two stay in lockstep. Any key not in this set is rejected.
 _SAVE_FACT_ALLOWED_KEYS: set[str] = {
     # Identity / location
-    "birthYear", "dateOfBirth", "canton", "commune",
-    "householdType", "employmentStatus", "has2ndPillar",
-    "goal", "targetRetirementAge", "gender",
+    "birthYear",
+    "dateOfBirth",
+    "canton",
+    "commune",
+    "householdType",
+    "employmentStatus",
+    "has2ndPillar",
+    "goal",
+    "targetRetirementAge",
+    "gender",
     # Income
-    "incomeNetMonthly", "incomeGrossMonthly",
-    "incomeNetYearly", "incomeGrossYearly",
-    "selfEmployedNetIncome", "employmentRate", "annualBonus",
+    "incomeNetMonthly",
+    "incomeGrossMonthly",
+    "incomeNetYearly",
+    "incomeGrossYearly",
+    "selfEmployedNetIncome",
+    "employmentRate",
+    "annualBonus",
     # LPP
-    "lppInsuredSalary", "avoirLpp", "avoirLppObligatoire",
-    "avoirLppSurobligatoire", "lppBuybackMax", "hasVoluntaryLpp",
+    "lppInsuredSalary",
+    "avoirLpp",
+    "avoirLppObligatoire",
+    "avoirLppSurobligatoire",
+    "lppBuybackMax",
+    "hasVoluntaryLpp",
     # 3a
-    "pillar3aAnnual", "pillar3aBalance",
+    "pillar3aAnnual",
+    "pillar3aBalance",
     # Savings / wealth / debt
-    "savingsMonthly", "totalSavings", "wealthEstimate",
-    "hasDebt", "totalDebt",
+    "savingsMonthly",
+    "totalSavings",
+    "wealthEstimate",
+    "hasDebt",
+    "totalDebt",
     # Spouse
-    "spouseBirthYear", "spouseIncomeNetMonthly",
+    "spouseBirthYear",
+    "spouseIncomeNetMonthly",
     "spouseAvsContributionYears",
     # AVS
-    "hasAvsGaps", "avsContributionYears",
+    "hasAvsGaps",
+    "avsContributionYears",
 }
 
 _SAVE_FACT_NUMERIC_KEYS: set[str] = {
-    "birthYear", "targetRetirementAge", "incomeNetMonthly",
-    "incomeGrossMonthly", "incomeNetYearly", "incomeGrossYearly",
-    "selfEmployedNetIncome", "employmentRate", "annualBonus",
-    "lppInsuredSalary", "avoirLpp", "avoirLppObligatoire",
-    "avoirLppSurobligatoire", "lppBuybackMax",
-    "pillar3aAnnual", "pillar3aBalance", "savingsMonthly",
-    "totalSavings", "wealthEstimate", "totalDebt",
-    "spouseBirthYear", "spouseIncomeNetMonthly",
-    "spouseAvsContributionYears", "avsContributionYears",
+    "birthYear",
+    "targetRetirementAge",
+    "incomeNetMonthly",
+    "incomeGrossMonthly",
+    "incomeNetYearly",
+    "incomeGrossYearly",
+    "selfEmployedNetIncome",
+    "employmentRate",
+    "annualBonus",
+    "lppInsuredSalary",
+    "avoirLpp",
+    "avoirLppObligatoire",
+    "avoirLppSurobligatoire",
+    "lppBuybackMax",
+    "pillar3aAnnual",
+    "pillar3aBalance",
+    "savingsMonthly",
+    "totalSavings",
+    "wealthEstimate",
+    "totalDebt",
+    "spouseBirthYear",
+    "spouseIncomeNetMonthly",
+    "spouseAvsContributionYears",
+    "avsContributionYears",
 }
 
 _SAVE_FACT_BOOL_KEYS: set[str] = {
-    "has2ndPillar", "hasVoluntaryLpp", "hasDebt", "hasAvsGaps",
+    "has2ndPillar",
+    "hasVoluntaryLpp",
+    "hasDebt",
+    "hasAvsGaps",
 }
 
 # Enum constraints for string-valued keys. Keys NOT in this dict accept
@@ -1891,16 +2420,45 @@ _SAVE_FACT_BOOL_KEYS: set[str] = {
 _SAVE_FACT_ENUM_VALUES: dict[str, set[str]] = {
     "householdType": {"single", "couple", "concubine", "family"},
     "employmentStatus": {
-        "salarie", "independant", "retraite",
-        "employee", "self_employed", "retired",
-        "mixed", "unemployed", "student",
+        "salarie",
+        "independant",
+        "retraite",
+        "employee",
+        "self_employed",
+        "retired",
+        "mixed",
+        "unemployed",
+        "student",
     },
     "goal": {"house", "retire", "emergency", "invest", "optimize_taxes", "other"},
     "gender": {"M", "F"},
     "canton": {
-        "AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR",
-        "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG",
-        "TI", "UR", "VD", "VS", "ZG", "ZH",
+        "AG",
+        "AI",
+        "AR",
+        "BE",
+        "BL",
+        "BS",
+        "FR",
+        "GE",
+        "GL",
+        "GR",
+        "JU",
+        "LU",
+        "NE",
+        "NW",
+        "OW",
+        "SG",
+        "SH",
+        "SO",
+        "SZ",
+        "TG",
+        "TI",
+        "UR",
+        "VD",
+        "VS",
+        "ZG",
+        "ZH",
     },
 }
 
@@ -2031,6 +2589,7 @@ def _persist_extracted_fact(
     if user_id is not None and db is not None:
         try:
             from app.models.profile_model import ProfileModel as _PM
+
             profile = (
                 db.query(_PM)
                 .filter(_PM.user_id == user_id)
@@ -2097,6 +2656,7 @@ _EXTRACTOR_CACHE_TTL_SECONDS = 30.0
 def _extractor_cache_get(key: str) -> Optional[list[dict]]:
     """Return the cached canonical fact list, or None on miss/expiry."""
     import time as _time
+
     entry = _EXTRACTOR_CACHE.get(key)
     if entry is None:
         return None
@@ -2112,14 +2672,14 @@ def _extractor_cache_set(
 ) -> None:
     """Store canonical fact list under key for `ttl` seconds (D-10)."""
     import time as _time
+
     _EXTRACTOR_CACHE[key] = (_time.time() + ttl, payload)
 
 
-def _extractor_cache_key(
-    user_id_or_anon: str, sanitized_message: str
-) -> str:
+def _extractor_cache_key(user_id_or_anon: str, sanitized_message: str) -> str:
     """Build a deterministic cache key with sha256-hashed message slice."""
     import hashlib
+
     digest = hashlib.sha256(
         (sanitized_message or "").encode("utf-8", errors="ignore")
     ).hexdigest()[:16]
@@ -2228,8 +2788,7 @@ async def _run_extractor_stage(
                 # CONTEXT D-12: 6-turn history symmetric for both LLMs.
                 conversation_history=(safe_history or [])[-6:],
                 profile_snapshot={
-                    k: v for k, v in (safe_profile or {}).items()
-                    if v is not None
+                    k: v for k, v in (safe_profile or {}).items() if v is not None
                 },
                 api_key=api_key,
                 provider=provider,
@@ -2238,9 +2797,7 @@ async def _run_extractor_stage(
             timeout=10.0,
         )
     except (asyncio.TimeoutError, Exception) as exc:  # noqa: BLE001
-        logger.warning(
-            "llm_extractor failed (non-fatal): %s", type(exc).__name__
-        )
+        logger.warning("llm_extractor failed (non-fatal): %s", type(exc).__name__)
         extractor_output = ExtractorOutput()
 
     merged = _merge_extracted(regex_covered_keys, extractor_output.facts)
@@ -2269,8 +2826,12 @@ async def _run_extractor_stage(
     }
 
 
-AGENT_LOOP_DEADLINE_SECONDS = 55  # Total wall-clock cap — leaves margin before Gunicorn's 120s
-AGENT_ITERATION_TIMEOUT_SECONDS = 25  # Per-iteration cap — one hung API call doesn't consume all time
+AGENT_LOOP_DEADLINE_SECONDS = (
+    55  # Total wall-clock cap — leaves margin before Gunicorn's 120s
+)
+AGENT_ITERATION_TIMEOUT_SECONDS = (
+    25  # Per-iteration cap — one hung API call doesn't consume all time
+)
 MAX_REQUEST_TOKENS = 4000  # Per-request budget
 
 # v2.7 STAB-02 Task 3: Graceful model fallback chain.
@@ -2343,10 +2904,7 @@ async def _call_with_fallback(
     from app.services.rag.llm_client import CoachUpstreamError
 
     primary_model = model or PRIMARY_MODEL_DEFAULT
-    can_fallback = (
-        provider == "claude"
-        and primary_model != FALLBACK_MODEL_HAIKU
-    )
+    can_fallback = provider == "claude" and primary_model != FALLBACK_MODEL_HAIKU
 
     async def _do_query(q_model: str, q_history):
         return await orchestrator.query(
@@ -2377,14 +2935,17 @@ async def _call_with_fallback(
             raise
         logger.warning(
             "coach_chat model fallback Sonnet→Haiku user=%s reason=%s",
-            user_id, type(exc).__name__,
+            user_id,
+            type(exc).__name__,
         )
         truncated = (
             conversation_history[-FALLBACK_HISTORY_MAX_TURNS:]
-            if conversation_history else None
+            if conversation_history
+            else None
         )
         result = await _do_query(FALLBACK_MODEL_HAIKU, truncated)
         return result, {"degraded": True, "model_used": FALLBACK_MODEL_HAIKU}
+
 
 # v2.7 STAB-01: Re-prompt strings for content-block edge cases.
 # Anthropic Sonnet 4.5 (oct 2025+) occasionally returns stop_reason=end_turn with
@@ -2432,13 +2993,15 @@ _REPROMPT_EMPTY_END_TURN = (
 # .planning/decisions/2026-05-03-chat-under-cloud-sync-off.md and the
 # verified surface inventory at
 # .planning/phases/52.1-cloud-sync-actual-gating/BACKEND-WRITE-SURFACE.md.
-_WRITE_TIER_TOOLS: frozenset[str] = frozenset({
-    "save_fact",
-    "save_insight",
-    "save_provenance",
-    "save_earmark",
-    "remove_earmark",
-})
+_WRITE_TIER_TOOLS: frozenset[str] = frozenset(
+    {
+        "save_fact",
+        "save_insight",
+        "save_provenance",
+        "save_earmark",
+        "remove_earmark",
+    }
+)
 
 _PERSISTENCE_OFF_MARKER = (
     "[persistence_off: write skipped — sync disabled. The user has cloud "
@@ -2493,7 +3056,9 @@ def _execute_internal_tool(
     # P0-4: Validate tool arguments — type check and length limit.
     # LLM-generated arguments could be malformed or adversarially large.
     if not isinstance(raw_input, dict):
-        logger.warning("Tool %s received non-dict input: %s", name, type(raw_input).__name__)
+        logger.warning(
+            "Tool %s received non-dict input: %s", name, type(raw_input).__name__
+        )
         return "Erreur : arguments invalides (dict attendu)."
 
     # Enforce length limits on all string values in tool input
@@ -2520,10 +3085,13 @@ def _execute_internal_tool(
     # >>> dispatch: retrieve_memories
     if name == "retrieve_memories":
         import re
+
         raw_topic = tool_input.get("topic", "")
         # BUG-B fix: sanitize topic to prevent prompt injection via LLM tool_use.
         # Only allow word chars, spaces, hyphens, dots (Unicode-aware).
-        safe_topic = raw_topic if re.match(r'^[\w\s\-\.]{1,100}$', raw_topic, re.UNICODE) else ""
+        safe_topic = (
+            raw_topic if re.match(r"^[\w\s\-\.]{1,100}$", raw_topic, re.UNICODE) else ""
+        )
         return _compute_retrieve_memories(
             topic=safe_topic,
             user_id=user_id,
@@ -2577,7 +3145,11 @@ def _execute_internal_tool(
     if name == "mark_step_completed":
         step = tool_input.get("step") or tool_input.get("step_id") or ""
         logger.info("mark_step_completed ack (non-persisted): %s", step[:100])
-        return f"Étape marquée comme terminée : {step}" if step else "Étape marquée comme terminée."
+        return (
+            f"Étape marquée comme terminée : {step}"
+            if step
+            else "Étape marquée comme terminée."
+        )
 
     if name == "save_insight":
         summary = tool_input.get("summary") or tool_input.get("insight") or ""
@@ -2587,11 +3159,14 @@ def _execute_internal_tool(
         # tool_use params sous le nom exact du schema — donc tous les events
         # Wave A A0 (event type) étaient silencieusement downgradés à "fact".
         # Fallback sur l'ancien nom pour compat tests.
-        insight_type = tool_input.get("type") or tool_input.get("insight_type") or "fact"
+        insight_type = (
+            tool_input.get("type") or tool_input.get("insight_type") or "fact"
+        )
         logger.info("save_insight: topic=%s, summary=%s", topic[:50], summary[:100])
         if user_id and db:
             try:
                 from app.models.coach_insight import CoachInsightRecord
+
                 # Dedup by user_id + topic: update existing or create new
                 existing = (
                     db.query(CoachInsightRecord)
@@ -2637,6 +3212,7 @@ def _execute_internal_tool(
             # CoachInsightRecord, the profile mirror is a convenience cache.
             try:
                 from app.models.profile_model import ProfileModel
+
                 profile = (
                     db.query(ProfileModel)
                     .filter(ProfileModel.user_id == user_id)
@@ -2676,6 +3252,7 @@ def _execute_internal_tool(
         if background_tasks is not None and user_id and db:
             try:
                 from app.models.profile_model import ProfileModel as _PMIns
+
                 _prof = (
                     db.query(_PMIns)
                     .filter(_PMIns.user_id == user_id)
@@ -2691,7 +3268,9 @@ def _execute_internal_tool(
                         db=db,
                     )
             except Exception as _pre_exc:  # pragma: no cover — pre-compute fail-open
-                logger.warning("precompute_after_fact_save(save_insight) skipped: %s", _pre_exc)
+                logger.warning(
+                    "precompute_after_fact_save(save_insight) skipped: %s", _pre_exc
+                )
         return f"Insight enregistré : {summary}" if summary else "Insight enregistré."
 
     # ─────────────────────────────────────────────────────────────────
@@ -2731,9 +3310,7 @@ def _execute_internal_tool(
                 # Claude; booleans as true/false; strings untouched.
                 coerced = _coerce_fact_value(fact_key, fact_value)
                 if coerced is None:
-                    return (
-                        f"[save_fact ÉCHEC: valeur invalide pour '{fact_key}']"
-                    )
+                    return f"[save_fact ÉCHEC: valeur invalide pour '{fact_key}']"
                 data[fact_key] = coerced
                 profile.data = data
                 profile.updated_at = datetime.now(timezone.utc)
@@ -2751,6 +3328,7 @@ def _execute_internal_tool(
                 from app.services.privacy.fact_key_allowlist import (
                     is_safe_to_log,
                 )
+
                 log_value = coerced if is_safe_to_log(fact_key) else "[REDACTED]"
                 logger.info(
                     "save_fact: user=%s key=%s value=%r conf=%s",
@@ -2773,8 +3351,13 @@ def _execute_internal_tool(
                             profile_id=str(profile.id),
                             db=db,
                         )
-                    except Exception as _pre_exc:  # pragma: no cover — pre-compute fail-open
-                        logger.warning("precompute_after_fact_save(save_fact) skipped: %s", _pre_exc)
+                    except (
+                        Exception
+                    ) as _pre_exc:  # pragma: no cover — pre-compute fail-open
+                        logger.warning(
+                            "precompute_after_fact_save(save_fact) skipped: %s",
+                            _pre_exc,
+                        )
                 if is_safe_to_log(fact_key):
                     return f"Fait enregistré : {fact_key} = {coerced}"
                 return f"Fait enregistré : {fact_key}"
@@ -2784,6 +3367,7 @@ def _execute_internal_tool(
                 return f"[save_fact ÉCHEC: {type(exc).__name__}]"
         # Hors-DB path: same redaction contract applies.
         from app.services.privacy.fact_key_allowlist import is_safe_to_log
+
         if is_safe_to_log(fact_key):
             return f"Fait noté (hors DB) : {fact_key} = {fact_value}"
         return f"Fait noté (hors DB) : {fact_key}"
@@ -2801,6 +3385,7 @@ def _execute_internal_tool(
             fact_keys_saved_this_turn=fact_keys_saved_this_turn,
         )
         import json as _json
+
         return _json.dumps(suggestions, ensure_ascii=False)
 
     # P14 commitment devices — ack-only handlers (CMIT-01, CMIT-05)
@@ -2823,10 +3408,13 @@ def _execute_internal_tool(
         product_type = tool_input.get("product_type", "")
         recommended_by = tool_input.get("recommended_by", "")
         institution = tool_input.get("institution", "")
-        logger.info("save_provenance: product=%s, by=%s", product_type[:50], recommended_by[:50])
+        logger.info(
+            "save_provenance: product=%s, by=%s", product_type[:50], recommended_by[:50]
+        )
         if user_id and db:
             try:
                 from app.models.earmark import ProvenanceRecord
+
                 record = ProvenanceRecord(
                     user_id=user_id,
                     product_type=product_type,
@@ -2848,6 +3436,7 @@ def _execute_internal_tool(
         if user_id and db:
             try:
                 from app.models.earmark import EarmarkTag
+
                 tag = EarmarkTag(
                     user_id=user_id,
                     label=label,
@@ -2868,10 +3457,15 @@ def _execute_internal_tool(
         if user_id and db:
             try:
                 from app.models.earmark import EarmarkTag
-                tag = db.query(EarmarkTag).filter(
-                    EarmarkTag.user_id == user_id,
-                    EarmarkTag.label == label,
-                ).first()
+
+                tag = (
+                    db.query(EarmarkTag)
+                    .filter(
+                        EarmarkTag.user_id == user_id,
+                        EarmarkTag.label == label,
+                    )
+                    .first()
+                )
                 if tag:
                     db.delete(tag)
                     db.commit()
@@ -3298,10 +3892,13 @@ def _format_cross_pillar_analysis(ctx: dict) -> str:
     lines = ["Analyse inter-piliers :"]
     if annual_3a is not None:
         ceiling = get_3a_ceiling(
-            ctx.get("employment_status"), ctx.get("has_2nd_pillar"),
+            ctx.get("employment_status"),
+            ctx.get("has_2nd_pillar"),
         )
         remaining = max(0, ceiling - float(annual_3a))
-        lines.append(f"- 3a versé cette année : {_fmt_chf(annual_3a)} / {_fmt_chf(ceiling)}")
+        lines.append(
+            f"- 3a versé cette année : {_fmt_chf(annual_3a)} / {_fmt_chf(ceiling)}"
+        )
         if remaining > 0:
             lines.append(f"- 3a restant à verser : {_fmt_chf(remaining)}")
     if lpp_buyback is not None and float(lpp_buyback) > 0:
@@ -3334,6 +3931,7 @@ def _validate_cap_response(rendered: str) -> str:
     ``__all__`` at citation_parser.py:721-734).
     """
     from app.core.config import settings
+
     if not settings.COACH_CAP_CHF_GARDE_ENABLED:
         return rendered
     # Inline import to avoid module-import-time circular dep (the
@@ -3355,6 +3953,7 @@ def _validate_cap_response(rendered: str) -> str:
         offset += len(replacement) - (e - s)
         try:
             import sentry_sdk
+
             sentry_sdk.add_breadcrumb(
                 category="coach.cap.cap_chf_uncited",
                 message="CHF token rejected",
@@ -3681,7 +4280,10 @@ async def _run_agent_loop(
         if iteration > 0 and total_tokens >= MAX_AGENT_LOOP_TOKENS:
             logger.warning(
                 "Agent loop token budget exhausted (%d/%d) at iteration %d for user %s",
-                total_tokens, MAX_AGENT_LOOP_TOKENS, iteration, user_id,
+                total_tokens,
+                MAX_AGENT_LOOP_TOKENS,
+                iteration,
+                user_id,
             )
             # Append a completion note to the last answer
             if answer_text:
@@ -3704,9 +4306,7 @@ async def _run_agent_loop(
             # passthrough — the user message reaches the LLM unaugmented.
             # See `.planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c
             # -A2-PLAN.md`.
-            _intent_match = bool(
-                (detected_intents or set()) & _TOOL_ELIGIBLE_INTENTS
-            )
+            _intent_match = bool((detected_intents or set()) & _TOOL_ELIGIBLE_INTENTS)
             _tool_match = any(
                 (t.get("name") if isinstance(t, dict) else None)
                 in _TOOL_ELIGIBLE_TOOL_NAMES
@@ -3718,14 +4318,15 @@ async def _run_agent_loop(
                     "wave1c_a2: RAG suppressed for tool-eligible intent — "
                     "user=%s intents=%s tools=%s",
                     (str(user_id)[:8] + "...") if user_id else "anon",
+                    sorted((detected_intents or set()) & _TOOL_ELIGIBLE_INTENTS),
                     sorted(
-                        (detected_intents or set()) & _TOOL_ELIGIBLE_INTENTS
+                        [
+                            t.get("name")
+                            for t in (stripped_tools or [])
+                            if isinstance(t, dict)
+                            and t.get("name") in _TOOL_ELIGIBLE_TOOL_NAMES
+                        ]
                     ),
-                    sorted([
-                        t.get("name") for t in (stripped_tools or [])
-                        if isinstance(t, dict)
-                        and t.get("name") in _TOOL_ELIGIBLE_TOOL_NAMES
-                    ]),
                 )
 
             # v2.7 Task 3: route through graceful model fallback (Sonnet→Haiku).
@@ -3755,7 +4356,9 @@ async def _run_agent_loop(
         except asyncio.TimeoutError:
             logger.warning(
                 "Agent iteration %d timed out after %ds for user %s",
-                iteration, AGENT_ITERATION_TIMEOUT_SECONDS, user_id,
+                iteration,
+                AGENT_ITERATION_TIMEOUT_SECONDS,
+                user_id,
             )
             break  # Exit loop — use whatever partial answer we have
 
@@ -3785,13 +4388,16 @@ async def _run_agent_loop(
             t for t in raw_tool_calls if t.get("name", "") in INTERNAL_TOOL_NAMES
         ]
         external_calls = [
-            t for t in raw_tool_calls if t.get("name", "") not in INTERNAL_TOOL_NAMES
+            t
+            for t in raw_tool_calls
+            if t.get("name", "") not in INTERNAL_TOOL_NAMES
             and t.get("name", "") in all_known_names
         ]
 
         # P0-5: Count unknown tool calls — stop loop after threshold
         unknown_calls = [
-            t for t in raw_tool_calls
+            t
+            for t in raw_tool_calls
             if t.get("name", "") and t.get("name", "") not in all_known_names
         ]
         if unknown_calls:
@@ -3799,7 +4405,9 @@ async def _run_agent_loop(
                 unknown_tool_count += 1
                 logger.warning(
                     "Unknown tool call '%s' (count: %d/%d)",
-                    uc.get("name"), unknown_tool_count, _MAX_UNKNOWN_TOOL_CALLS,
+                    uc.get("name"),
+                    unknown_tool_count,
+                    _MAX_UNKNOWN_TOOL_CALLS,
                 )
             if unknown_tool_count >= _MAX_UNKNOWN_TOOL_CALLS:
                 logger.error(
@@ -3816,7 +4424,9 @@ async def _run_agent_loop(
                     inp["summary"] = pattern.sub("[***]", inp["summary"])
             if tc.get("name") == "route_to_screen" and "context_message" in inp:
                 for pattern in _PII_PATTERNS:
-                    inp["context_message"] = pattern.sub("[***]", inp["context_message"])
+                    inp["context_message"] = pattern.sub(
+                        "[***]", inp["context_message"]
+                    )
         flutter_tool_calls.extend(external_calls)
 
         # If no internal tools to execute, we're done — but only if Claude
@@ -3837,7 +4447,8 @@ async def _run_agent_loop(
                 # (b) empty end_turn with no tools → reflective retry
                 logger.warning(
                     "Agent loop iter %d: empty end_turn with no tool_use (user=%s) — reflective retry",
-                    iteration, user_id,
+                    iteration,
+                    user_id,
                 )
                 current_question = _REPROMPT_EMPTY_END_TURN
             continue
@@ -3873,9 +4484,7 @@ async def _run_agent_loop(
             # injection sanitization so the JSON parse sees the full
             # Pydantic dump. Helper returns None for non-Wave-1b tools
             # and for flag-OFF (no inputs_hash) — silent skip is correct.
-            _chip = _extract_wave_1b_citation_chip(
-                call.get("name", ""), result_text
-            )
+            _chip = _extract_wave_1b_citation_chip(call.get("name", ""), result_text)
             if _chip is not None:
                 citation_chips.append(_chip)
             # FIX-W12: Truncate tool results to prevent context explosion
@@ -3886,9 +4495,7 @@ async def _run_agent_loop(
             # contain user-controlled data (e.g., memory content).
             for pattern in _INJECTION_PATTERNS:
                 result_text = pattern.sub("[FILTERED]", result_text)
-            tool_results.append(
-                f"[{call.get('name', 'unknown')}] {result_text}"
-            )
+            tool_results.append(f"[{call.get('name', 'unknown')}] {result_text}")
             logger.debug(
                 "Agent loop iter %d: %s -> %d chars",
                 iteration,
@@ -3989,6 +4596,7 @@ async def coach_chat(
     """
     # v2.7 Task 6: latency timer for SLO monitor.
     import time as _time
+
     _req_start_ms = _time.monotonic() * 1000.0
 
     # Entitlement gate: coachLlm requires Premium or higher.
@@ -4015,6 +4623,7 @@ async def coach_chat(
     # ------------------------------------------------------------------
     from app.services.consent.consent_service import consent_service as _consent_svc
     from app.schemas.consent_receipt import ConsentPurpose as _ConsentPurpose
+
     _consent_check = _consent_svc.check_or_log(
         db,
         user_id=str(_user.id),
@@ -4026,8 +4635,10 @@ async def coach_chat(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=_consent_check.deny_pointer
-            or {"action": "POST /api/v1/consents/grant",
-                "purpose": _ConsentPurpose.TRANSFER_US_ANTHROPIC.value},
+            or {
+                "action": "POST /api/v1/consents/grant",
+                "purpose": _ConsentPurpose.TRANSFER_US_ANTHROPIC.value,
+            },
         )
 
     # nLPD art. 6 al. 7: Check conversation_memory consent.
@@ -4072,6 +4683,7 @@ async def coach_chat(
     if (not safe_profile) and _user and db:
         try:
             from app.models.profile_model import ProfileModel as _PM
+
             _db_prof = (
                 db.query(_PM)
                 .filter(_PM.user_id == _user.id)
@@ -4084,16 +4696,19 @@ async def coach_chat(
                 # field is filtered out and Claude sees an empty context.
                 _d = _db_prof.data
                 import datetime as _dt
+
                 _mapped: dict = {}
                 # Identity
                 if _d.get("birthYear"):
-                    _mapped["age"] = _dt.datetime.now(_dt.timezone.utc).year - int(_d["birthYear"])
+                    _mapped["age"] = _dt.datetime.now(_dt.timezone.utc).year - int(
+                        _d["birthYear"]
+                    )
                 if _d.get("canton"):
                     _mapped["canton"] = _d["canton"]
                 if _d.get("householdType"):
                     hh = _d["householdType"]
                     _mapped["marital_status"] = hh
-                    _mapped["is_married"] = (hh == "couple")
+                    _mapped["is_married"] = hh == "couple"
                     _mapped["civil_status"] = hh
                 if _d.get("gender"):
                     _mapped["gender"] = _d["gender"]
@@ -4123,7 +4738,8 @@ async def coach_chat(
                 safe_profile = _sanitize_profile_context(_mapped)
                 logger.info(
                     "coach_chat hydrated profile from DB (user=%s, keys=%d)",
-                    str(_user.id)[:8] + "...", len(safe_profile),
+                    str(_user.id)[:8] + "...",
+                    len(safe_profile),
                 )
         except Exception as exc:
             logger.warning("coach_chat profile hydration failed: %s", exc)
@@ -4180,7 +4796,9 @@ async def coach_chat(
             )
             from app.models.coach_insight import CoachInsightRecord
 
-            extracted_facts = extract_profile_facts(sanitized_message, safe_profile or {})
+            extracted_facts = extract_profile_facts(
+                sanitized_message, safe_profile or {}
+            )
         if extracted_facts and _user and _user.id:
             now_extract = datetime.now(timezone.utc)
             for row in facts_to_insight_rows(extracted_facts, user_id=str(_user.id)):
@@ -4204,7 +4822,10 @@ async def coach_chat(
                 len(extracted_facts),
                 _user.id,
                 [f.topic for f in extracted_facts],
-                [getattr(f, "summary", None) or getattr(f, "text", None) for f in extracted_facts],
+                [
+                    getattr(f, "summary", None) or getattr(f, "text", None)
+                    for f in extracted_facts
+                ],
             )
         elif extracted_facts and not (_user and _user.id):
             # Facts extracted but no user context to persist against — this
@@ -4241,7 +4862,7 @@ async def coach_chat(
     # anonymous handling.
     _regex_covered_keys: set[str] = set()
     try:
-        for _f in (locals().get("extracted_facts") or []):
+        for _f in locals().get("extracted_facts") or []:
             _regex_covered_keys |= _REGEX_TOPIC_TO_CANONICAL_KEYS.get(
                 getattr(_f, "topic", ""), set()
             )
@@ -4277,7 +4898,16 @@ async def coach_chat(
     commitment_block = _build_commitment_memory_block(str(_user.id), db)
     intelligence_block = _build_intelligence_memory_block(str(_user.id), db)
     insight_block = _build_insight_memory_block(str(_user.id), db)
-    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level, commitment_block=commitment_block, intelligence_block=intelligence_block, insight_block=insight_block, detected_intents=detected_intents)
+    system_prompt = _build_system_prompt_with_memory(
+        coach_ctx,
+        effective_memory_block,
+        language=body.language,
+        cash_level=body.cash_level,
+        commitment_block=commitment_block,
+        intelligence_block=intelligence_block,
+        insight_block=insight_block,
+        detected_intents=detected_intents,
+    )
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
@@ -4292,6 +4922,7 @@ async def coach_chat(
         from app.services.coach.claude_coach_service import (
             _render_source_card_block,
         )
+
         system_prompt = (
             system_prompt + "\n\n" + _render_source_card_block(body.source_card)
         )
@@ -4305,6 +4936,7 @@ async def coach_chat(
     if _user and db:
         try:
             from app.models.profile_model import ProfileModel as _PM_PROF
+
             _db_prof = (
                 db.query(_PM_PROF)
                 .filter(_PM_PROF.user_id == _user.id)
@@ -4314,9 +4946,12 @@ async def coach_chat(
             if _db_prof and _db_prof.data:
                 _d = _db_prof.data
                 import datetime as _dt_now
+
                 _age = None
                 if _d.get("birthYear"):
-                    _age = _dt_now.datetime.now(_dt_now.timezone.utc).year - int(_d["birthYear"])
+                    _age = _dt_now.datetime.now(_dt_now.timezone.utc).year - int(
+                        _d["birthYear"]
+                    )
                 _facts = []
                 if _age is not None:
                     _facts.append(f"- Age: {_age} ans (ne en {_d.get('birthYear')})")
@@ -4325,26 +4960,59 @@ async def coach_chat(
                 if _d.get("commune"):
                     _facts.append(f"- Commune: {_d['commune']}")
                 if _d.get("householdType"):
-                    _hh_map = {"single": "celibataire", "couple": "marie", "concubine": "concubinage", "family": "famille"}
-                    _facts.append(f"- Statut civil: {_hh_map.get(_d['householdType'], _d['householdType'])}")
+                    _hh_map = {
+                        "single": "celibataire",
+                        "couple": "marie",
+                        "concubine": "concubinage",
+                        "family": "famille",
+                    }
+                    _facts.append(
+                        f"- Statut civil: {_hh_map.get(_d['householdType'], _d['householdType'])}"
+                    )
                 if _d.get("gender"):
                     _facts.append(f"- Genre: {_d['gender']}")
                 if _d.get("employmentStatus"):
                     _facts.append(f"- Statut emploi: {_d['employmentStatus']}")
                 if _d.get("incomeGrossYearly"):
-                    _facts.append(f"- Salaire brut annuel: {int(_d['incomeGrossYearly']):,} CHF".replace(",", "'"))
+                    _facts.append(
+                        f"- Salaire brut annuel: {int(_d['incomeGrossYearly']):,} CHF".replace(
+                            ",", "'"
+                        )
+                    )
                 if _d.get("incomeNetMonthly"):
-                    _facts.append(f"- Salaire net mensuel: {int(_d['incomeNetMonthly']):,} CHF".replace(",", "'"))
+                    _facts.append(
+                        f"- Salaire net mensuel: {int(_d['incomeNetMonthly']):,} CHF".replace(
+                            ",", "'"
+                        )
+                    )
                 if _d.get("avoirLpp"):
-                    _facts.append(f"- Avoir LPP actuel: {int(_d['avoirLpp']):,} CHF".replace(",", "'"))
+                    _facts.append(
+                        f"- Avoir LPP actuel: {int(_d['avoirLpp']):,} CHF".replace(
+                            ",", "'"
+                        )
+                    )
                 if _d.get("lppInsuredSalary"):
-                    _facts.append(f"- Salaire assuré LPP: {int(_d['lppInsuredSalary']):,} CHF".replace(",", "'"))
+                    _facts.append(
+                        f"- Salaire assuré LPP: {int(_d['lppInsuredSalary']):,} CHF".replace(
+                            ",", "'"
+                        )
+                    )
                 if _d.get("lppBuybackMax"):
-                    _facts.append(f"- Rachat LPP maximum: {int(_d['lppBuybackMax']):,} CHF".replace(",", "'"))
+                    _facts.append(
+                        f"- Rachat LPP maximum: {int(_d['lppBuybackMax']):,} CHF".replace(
+                            ",", "'"
+                        )
+                    )
                 if _d.get("pillar3aBalance"):
-                    _facts.append(f"- Avoir 3a: {int(_d['pillar3aBalance']):,} CHF".replace(",", "'"))
+                    _facts.append(
+                        f"- Avoir 3a: {int(_d['pillar3aBalance']):,} CHF".replace(
+                            ",", "'"
+                        )
+                    )
                 if _d.get("avsContributionYears"):
-                    _facts.append(f"- Annees cotisation AVS: {_d['avsContributionYears']}")
+                    _facts.append(
+                        f"- Annees cotisation AVS: {_d['avsContributionYears']}"
+                    )
                 if _facts:
                     profile_block = (
                         "\n\n## PROFIL UTILISATEUR (donnees reelles, NE PAS INVENTER) :\n"
@@ -4356,7 +5024,8 @@ async def coach_chat(
                     system_prompt = system_prompt + profile_block
                     logger.info(
                         "coach_chat injected profile block (user=%s, facts=%d)",
-                        str(_user.id)[:8] + "...", len(_facts),
+                        str(_user.id)[:8] + "...",
+                        len(_facts),
                     )
         except Exception as _pf_exc:
             logger.warning("profile block injection failed: %s", _pf_exc)
@@ -4377,16 +5046,23 @@ async def coach_chat(
             _anon_facts.append(f"- Commune: {_ds['commune']}")
         if _ds.get("incomeGrossYearly"):
             _anon_facts.append(
-                f"- Salaire brut annuel: {int(_ds['incomeGrossYearly']):,} CHF".replace(",", "'")
+                f"- Salaire brut annuel: {int(_ds['incomeGrossYearly']):,} CHF".replace(
+                    ",", "'"
+                )
             )
         if _ds.get("incomeNetMonthly"):
             _anon_facts.append(
-                f"- Salaire net mensuel: {int(_ds['incomeNetMonthly']):,} CHF".replace(",", "'")
+                f"- Salaire net mensuel: {int(_ds['incomeNetMonthly']):,} CHF".replace(
+                    ",", "'"
+                )
             )
         # Include any other simple key=value pairs for completeness.
         _surfaced_keys = {
-            "birthYear", "canton", "commune",
-            "incomeGrossYearly", "incomeNetMonthly",
+            "birthYear",
+            "canton",
+            "commune",
+            "incomeGrossYearly",
+            "incomeNetMonthly",
         }
         for _k, _v in _ds.items():
             if _k in _surfaced_keys or _v is None:
@@ -4463,12 +5139,15 @@ async def coach_chat(
     # Fail-open: on Redis error, budget.current_state() returns tier=normal.
     # ------------------------------------------------------------------
     from app.services.coach.token_budget import TokenBudget
+
     budget = TokenBudget()
     budget_state = await budget.current_state(str(_user.id)) if _user else None
     if budget_state and budget_state.tier == "hard_cap":
         logger.info(
             "coach_chat hard_cap user=%s used=%d/%d",
-            _user.id, budget_state.used, budget_state.limit,
+            _user.id,
+            budget_state.used,
+            budget_state.limit,
         )
         return CoachChatResponse(
             message=budget_state.hard_cap_message or HARD_CAP_MESSAGE_FR_FALLBACK,
@@ -4490,7 +5169,9 @@ async def coach_chat(
         effective_model = budget_state.recommended_model
         logger.info(
             "coach_chat budget tier=%s user=%s switching to %s",
-            budget_state.tier, _user.id, effective_model,
+            budget_state.tier,
+            _user.id,
+            effective_model,
         )
 
     # ------------------------------------------------------------------
@@ -4525,6 +5206,7 @@ async def coach_chat(
             from app.services.coach.bundle_compiler import (
                 compile_bundles as _cb,
             )
+
             _compiled_bundle = _cb(
                 intents=detected_intents or set(),
                 ctx=coach_ctx,
@@ -4532,8 +5214,7 @@ async def coach_chat(
             )
             _allowed_names = set(_compiled_bundle.allowed_tools)
             _narrator_tools = [
-                t for t in get_narrator_llm_tools()
-                if t["name"] in _allowed_names
+                t for t in get_narrator_llm_tools() if t["name"] in _allowed_names
             ]
         except (KeyError, ValueError):
             _narrator_tools = get_narrator_llm_tools()
@@ -4589,10 +5270,7 @@ async def coach_chat(
     )
     _gate_allowlist = (
         list(_compiled_bundle.citation_allowlist)
-        if (
-            settings.COACH_BUNDLE_COMPILER_ENABLED
-            and _compiled_bundle is not None
-        )
+        if (settings.COACH_BUNDLE_COMPILER_ENABLED and _compiled_bundle is not None)
         else None
     )
 
@@ -4609,17 +5287,17 @@ async def coach_chat(
     )
 
     def _emit_gate_breadcrumb(
-        gated: GatedResponse, retries: int,
+        gated: GatedResponse,
+        retries: int,
     ) -> None:
         """D-18 hygiene — counts/labels only, NEVER user message content."""
         try:
             import sentry_sdk  # local import (already used elsewhere in file)
+
             sentry_sdk.add_breadcrumb(
                 category="coach.citation_gate",
                 message=f"verdict={gated.verdict.value}",
-                level=(
-                    "info" if gated.verdict == GateVerdict.PASS else "warning"
-                ),
+                level=("info" if gated.verdict == GateVerdict.PASS else "warning"),
                 data={
                     "verdict": gated.verdict.value,
                     "retries": int(retries),
@@ -4651,6 +5329,7 @@ async def coach_chat(
             return
         try:
             import sentry_sdk
+
             sentry_sdk.add_breadcrumb(
                 category="coach.citation.tool_use_missing",
                 message=result.structured_reason or "tool_use_missing_for_citation",
@@ -4694,6 +5373,7 @@ async def coach_chat(
         if not _vg_passed:
             try:
                 import sentry_sdk  # type: ignore
+
                 sentry_sdk.add_breadcrumb(  # type: ignore[union-attr]
                     category="coach.verb_gate.fired",
                     message="runtime banned-verb gate fired",
@@ -4726,6 +5406,7 @@ async def coach_chat(
         if not _fg_passed:
             try:
                 import sentry_sdk  # type: ignore
+
                 sentry_sdk.add_breadcrumb(  # type: ignore[union-attr]
                     category="coach.freshness_gate.fired",
                     message="runtime regulatory-value freshness gate fired",
@@ -4749,7 +5430,7 @@ async def coach_chat(
             ctx=coach_ctx,
             citation_allowlist=_gate_allowlist,
             is_retry=False,
-            pack=pack,   # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
+            pack=pack,  # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
             user_input_numbers=_user_input_numbers,  # P003
         )
         _emit_gate_breadcrumb(gated, retries=0)
@@ -4785,7 +5466,9 @@ async def coach_chat(
                     tool_calls=loop_result.get("tool_calls") or [],
                 )
                 _emit_tool_use_enforcement_breadcrumb(enforcement, retry_count=0)
-                if enforcement.verdict == ToolUseEnforcementVerdict.REJECTED:  # pragma: no cover — Wave B harness covers retry path
+                if (
+                    enforcement.verdict == ToolUseEnforcementVerdict.REJECTED
+                ):  # pragma: no cover — Wave B harness covers retry path
                     # Retry once with the WRONG/RIGHT mandate inlined.
                     retry_message_w1c = (
                         body.message + REPROMPT_ADDENDUM_TOOL_USE_MISSING
@@ -4812,18 +5495,17 @@ async def coach_chat(
                         tool_calls=retry_result_w1c.get("tool_calls") or [],
                     )
                     _emit_tool_use_enforcement_breadcrumb(
-                        retry_enforcement, retry_count=1,
+                        retry_enforcement,
+                        retry_count=1,
                     )
                     if retry_enforcement.verdict == ToolUseEnforcementVerdict.REJECTED:
                         # 2nd-REJECT exhaustion — strip the offending
                         # {{cite:tool_*}} placeholders so the user does
                         # NOT see them as bare prose. Do NOT crash, do
                         # NOT raise.
-                        retry_result_w1c["answer"] = (
-                            _RE_TOOL_CITE_PLACEHOLDER.sub(
-                                "", retry_gated_w1c.gated_text
-                            ).strip()
-                        )
+                        retry_result_w1c["answer"] = _RE_TOOL_CITE_PLACEHOLDER.sub(
+                            "", retry_gated_w1c.gated_text
+                        ).strip()
                     if retry_gated_w1c.verdict == GateVerdict.PASS:
                         _emit_citation_chip_breadcrumbs(
                             retry_gated_w1c.gated_text,
@@ -4846,7 +5528,7 @@ async def coach_chat(
             ctx=coach_ctx,
             citation_allowlist=_gate_allowlist,
             is_retry=True,
-            pack=pack,   # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
+            pack=pack,  # Phase 95 W2 plumbing — None during Phase 95; Phase 96 W2 populates
             user_input_numbers=_user_input_numbers,  # P003
         )
         _emit_gate_breadcrumb(retry_gated, retries=1)
@@ -4931,7 +5613,7 @@ async def coach_chat(
         )
         loop_result = {
             "answer": "Je n'ai pas pu terminer ma recherche dans le temps imparti. "
-                      "Repose ta question, je serai plus rapide.",
+            "Repose ta question, je serai plus rapide.",
             "tool_calls": [],
             "citation_chips": None,
             "sources": [],
@@ -4985,12 +5667,15 @@ async def coach_chat(
     # v2.7 Task 6: SLO metrics (fire-and-forget, fail-open).
     try:
         from app.services.slo_monitor import record_response
+
         _latency_ms = int(_time.monotonic() * 1000.0 - _req_start_ms)
-        asyncio.create_task(record_response(
-            degraded=bool(loop_result.get("degraded", False)),
-            fallback=not bool(loop_result.get("answer", "").strip()),
-            latency_ms=_latency_ms,
-        ))
+        asyncio.create_task(
+            record_response(
+                degraded=bool(loop_result.get("degraded", False)),
+                fallback=not bool(loop_result.get("answer", "").strip()),
+                latency_ms=_latency_ms,
+            )
+        )
     except Exception:
         pass
 
@@ -5021,8 +5706,10 @@ async def coach_chat(
 #  INSIGHT SYNC — Mobile → Backend → pgvector
 # ════════════════════════════════════════════════════════════
 
+
 class _InsightSyncRequest(_BaseModel):
     """Payload to embed a CoachInsight into the RAG vector store."""
+
     insight_id: str
     topic: str
     summary: str
@@ -5080,7 +5767,9 @@ async def sync_insight(
 
     return _InsightSyncResponse(
         embedded=success,
-        message="Insight embedded in RAG" if success else "Embedding skipped (no vector store)",
+        message="Insight embedded in RAG"
+        if success
+        else "Embedding skipped (no vector store)",
     )
 
 
@@ -5104,5 +5793,7 @@ async def delete_insight(
     success = await remove_insight(insight_id)
     return {
         "removed": success,
-        "message": "Insight removed from RAG" if success else "Removal skipped (not found or no vector store)",
+        "message": "Insight removed from RAG"
+        if success
+        else "Removal skipped (not found or no vector store)",
     }

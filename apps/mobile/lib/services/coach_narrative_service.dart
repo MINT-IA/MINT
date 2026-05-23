@@ -208,8 +208,9 @@ class CoachNarrativeService {
     final monthsLiquidity = depenses > 0 ? liquide / depenses : 0.0;
 
     // Tax saving potential (3a margin × estimated marginal rate)
-    final plafond3a =
-        profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final plafond3a = profile.employmentStatus == 'independant'
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final verse3a = profile.total3aMensuel * 12;
     final marge3a = (plafond3a - verse3a).clamp(0, plafond3a);
     final taxSaving = marge3a * 0.30; // ~30% marginal estimate
@@ -236,7 +237,8 @@ class CoachNarrativeService {
     int daysSinceLastVisit = 30; // default: assume a month
     if (profile.checkIns.isNotEmpty) {
       final lastCheckIn = profile.checkIns.last;
-      final lastDate = DateTime(lastCheckIn.month.year, lastCheckIn.month.month);
+      final lastDate =
+          DateTime(lastCheckIn.month.year, lastCheckIn.month.month);
       daysSinceLastVisit = now.difference(lastDate).inDays;
     }
 
@@ -259,7 +261,8 @@ class CoachNarrativeService {
     double replacementRatio = 0;
     try {
       final salary = profile.revenuBrutAnnuel;
-      final refAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+      final refAge =
+          reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
       if (salary > 0 && profile.age < refAge) {
         final avsMonthly = AvsCalculator.renteFromRAMD(salary);
         final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
@@ -288,7 +291,9 @@ class CoachNarrativeService {
     final upcomingEvent = profile.familyChange ?? '';
 
     return CoachContextBuilder.build(
-      firstName: profile.firstName?.trim().isNotEmpty == true ? profile.firstName! : '',
+      firstName: profile.firstName?.trim().isNotEmpty == true
+          ? profile.firstName!
+          : '',
       age: profile.age,
       canton: profile.canton,
       archetype: archetype,
@@ -497,8 +502,9 @@ class CoachNarrativeService {
     // Oct-Dec: deadline 3a avant le 31 decembre (OPP3 art. 7)
     // Enhanced with personalized tax savings estimate (M6C)
     if (now.month >= 10 && now.month <= 12) {
-      final plafond =
-          profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+      final plafond = profile.employmentStatus == 'independant'
+          ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+          : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
       final verseAnnuel = profile.total3aMensuel * 12;
       final marge = plafond - verseAnnuel;
       if (marge > 0) {
@@ -519,7 +525,10 @@ class CoachNarrativeService {
     // Suppressed if coaching tips already contain a 'tax_deadline' card
     // (avoids triple repetition: greeting + urgentAlert + curated card).
     final hasTaxDeadlineTip = tips.any((t) => t.id == 'tax_deadline');
-    if (urgentAlert == null && now.month >= 2 && now.month <= 3 && !hasTaxDeadlineTip) {
+    if (urgentAlert == null &&
+        now.month >= 2 &&
+        now.month <= 3 &&
+        !hasTaxDeadlineTip) {
       final deadline = DateTime(now.year, 3, 31);
       final joursRestants = deadline.difference(now).inDays;
       if (joursRestants >= 0) {
@@ -531,7 +540,8 @@ class CoachNarrativeService {
 
     // ── premierEclairageNarration + retirementCountdown (static fallback) ──
     // Chiffre choc — confidence-aware via FallbackTemplates
-    final premierEclairageNarration = FallbackTemplates.premierEclairageReframe(ctx);
+    final premierEclairageNarration =
+        FallbackTemplates.premierEclairageReframe(ctx);
     String? retirementCountdown;
     if (profile.age >= 45) {
       final yearsLeft = profile.anneesAvantRetraite;
@@ -545,7 +555,9 @@ class CoachNarrativeService {
           profile.dateOfBirth!.month,
           profile.dateOfBirth!.day,
         );
-        final monthsLeft = ((retirementDate.difference(now).inDays) / 30.44).round().clamp(0, 999);
+        final monthsLeft = ((retirementDate.difference(now).inDays) / 30.44)
+            .round()
+            .clamp(0, 999);
         if (monthsLeft > 0) {
           retirementCountdown = 'Plus que $monthsLeft mois avant ta retraite '
               '\u00e0 $retAge ans.';
@@ -795,8 +807,9 @@ class CoachNarrativeService {
 
     // Prevoyance
     final montant3a = profile.prevoyance.totalEpargne3a;
-    final plafond3a =
-        profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final plafond3a = profile.employmentStatus == 'independant'
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final nombre3a = profile.prevoyance.nombre3a;
     final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
@@ -869,11 +882,13 @@ class CoachNarrativeService {
     // Grounding values for hallucination detection (CoachContext)
     final ctx = _buildCoachContext(profile);
     if (ctx.knownValues.isNotEmpty) {
-      buffer.writeln('VALEURS DE REFERENCE (ne pas inventer de chiffres differents) :');
+      buffer.writeln(
+          'VALEURS DE REFERENCE (ne pas inventer de chiffres differents) :');
       for (final entry in ctx.knownValues.entries) {
         buffer.writeln('- ${entry.key}: ${formatChf(entry.value)}');
       }
-      buffer.writeln('Tolerance : ±5% pour les CHF, ±2 points pour les scores/pourcentages.');
+      buffer.writeln(
+          'Tolerance : ±5% pour les CHF, ±2 points pour les scores/pourcentages.');
       buffer.writeln();
     }
 
@@ -927,7 +942,8 @@ class CoachNarrativeService {
     double replacementRate = 0;
     try {
       final salary = profile.revenuBrutAnnuel;
-      final refAge2 = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+      final refAge2 =
+          reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
       if (salary > 0 && profile.age < refAge2) {
         final avsMonthly = AvsCalculator.renteFromRAMD(salary);
         final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
@@ -954,7 +970,8 @@ class CoachNarrativeService {
       buffer.writeln(
           '- Taux de remplacement estime : ~${(replacementRate * 100).toStringAsFixed(0)}%');
     }
-    final refAgeEarly = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final refAgeEarly =
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     if (retirementAge < refAgeEarly) {
       buffer.writeln(
           '- Retraite anticipee : penalite AVS de ${((refAgeEarly - retirementAge) * 6.8).toStringAsFixed(1)}% '
@@ -974,12 +991,13 @@ class CoachNarrativeService {
 
     // 3a not maxed out
     final cotisation3a = profile.total3aMensuel * 12;
-    final plafond3aSnippet = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final plafond3aSnippet =
+        reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     if (cotisation3a < plafond3aSnippet && profile.prevoyance.canContribute3a) {
       final marge = plafond3aSnippet - cotisation3a;
-      snippets.add(
-          'SNIPPET 3A: Il reste ${formatChfWithPrefix(marge)} de marge 3a '
-          'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
+      snippets
+          .add('SNIPPET 3A: Il reste ${formatChfWithPrefix(marge)} de marge 3a '
+              'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
     }
 
     // LPP buyback available
@@ -1167,6 +1185,13 @@ class CoachNarrativeService {
     return _buildProfileContextImpl(profile);
   }
 
+  // Legacy-only narrative/RAG profile context.
+  //
+  // Data Spine Plan 04 wires CoachContextPacket into the live chat path through
+  // CoachContext -> CoachOrchestrator -> profile_context.coach_context_packet.
+  // This older map remains scoped to CoachNarrativeService until the narrative
+  // migration has its own tests; do not use it for new chat grounding.
+  //
   /// Phase mint-data-architecture-v1-02 W0 Plan 02-01 (D-10 PR-A2) — test hook.
   /// Public alias for `_buildProfileContextImpl`, used by
   /// `test/services/coach_narrative_profile_context_test.dart`.
@@ -1202,7 +1227,8 @@ class CoachNarrativeService {
       parts.add('Patrimoine : ${pat0.totalPatrimoine.toStringAsFixed(0)} CHF');
     }
     if (profile.dettes.totalDettes > 0) {
-      parts.add('Dettes : ${profile.dettes.totalDettes.toStringAsFixed(0)} CHF');
+      parts
+          .add('Dettes : ${profile.dettes.totalDettes.toStringAsFixed(0)} CHF');
     }
     try {
       final score = FinancialFitnessService.calculate(profile: profile);

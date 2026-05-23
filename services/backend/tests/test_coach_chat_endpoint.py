@@ -102,6 +102,7 @@ def client_no_auth():
 def _mock_entitlements_premium():
     """Patch recompute_entitlements to grant premium access (all features)."""
     from app.services.billing_service import ALL_FEATURES
+
     return patch(
         "app.api.v1.endpoints.coach_chat.recompute_entitlements",
         return_value=("premium", ALL_FEATURES),
@@ -292,12 +293,21 @@ class TestCoachChatResponse:
             response = client_with_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
         data = response.json()
         expected_camel = {
-            "message", "toolCalls", "sources", "cashLevel", "disclaimers",
-            "tokensUsed", "systemPromptUsed", "responseMeta",
+            "message",
+            "toolCalls",
+            "sources",
+            "cashLevel",
+            "disclaimers",
+            "tokensUsed",
+            "systemPromptUsed",
+            "responseMeta",
         }
         forbidden_snake = {
-            "tool_calls", "cash_level", "tokens_used",
-            "system_prompt_used", "response_meta",
+            "tool_calls",
+            "cash_level",
+            "tokens_used",
+            "system_prompt_used",
+            "response_meta",
         }
         missing = expected_camel - data.keys()
         leaked = forbidden_snake & data.keys()
@@ -460,7 +470,10 @@ class TestCoachChatSystemPrompt:
         prompt = build_system_prompt(ctx=None)
         assert "ARCHETYPES" in prompt
         for archetype in (
-            "swiss_native", "expat_us", "cross_border", "returning_swiss"
+            "swiss_native",
+            "expat_us",
+            "cross_border",
+            "returning_swiss",
         ):
             assert archetype in prompt, f"archetype {archetype!r} missing"
 
@@ -484,11 +497,15 @@ class TestCoachChatSystemPrompt:
             "show_score_gauge",
             "ask_user_input",
         ]:
-            assert tool_name in prompt, f"Tool '{tool_name}' not referenced in system prompt"
+            assert tool_name in prompt, (
+                f"Tool '{tool_name}' not referenced in system prompt"
+            )
 
     def test_memory_block_appended_to_system_prompt(self, client_with_auth):
         """When memory_block is provided, it must be appended to the system prompt."""
-        memory_block = "CONTEXTE CYCLE DE VIE : consolidation\nNUDGES ACTIFS : rachat_lpp"
+        memory_block = (
+            "CONTEXTE CYCLE DE VIE : consolidation\nNUDGES ACTIFS : rachat_lpp"
+        )
 
         # Capture the system_prompt that reaches the orchestrator
         captured = {}
@@ -548,6 +565,66 @@ class TestCoachChatProfileContext:
         assert call_kwargs["profile_context"].get("age") == 49
         assert call_kwargs["profile_context"].get("canton") == "VS"
 
+    def test_context_packet_survives_endpoint_sanitizer(self, client_with_auth):
+        """POST /coach/chat forwards sanitized coach_context_packet."""
+        mock_orch = MagicMock()
+        mock_orch.query = AsyncMock(return_value=_ORCHESTRATOR_OK_RESULT)
+        packet = {
+            "facts": [
+                {
+                    "id": "budget.monthly_free",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyFree",
+                    "value": 1800.0,
+                    "source": "calculated",
+                    "iban": "CH56 0483 5012 3456 7800 9",
+                }
+            ],
+            "trajectory": {
+                "status": "drifting",
+                "monthly_gap": 600.0,
+                "unexpected": "Julien",
+            },
+            "next_questions": [
+                {
+                    "id": "increase_monthly_capacity",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyCapacity",
+                },
+                {
+                    "id": "ask_first_name",
+                    "domain": "profile",
+                    "field_path": "profile.first_name",
+                },
+            ],
+        }
+
+        body = {
+            **_VALID_BODY,
+            "profileContext": {
+                "age": 49,
+                "canton": "VS",
+                "coach_context_packet": packet,
+                "wizard_answers": {"q_salary": 8000},
+            },
+        }
+
+        with patch(
+            "app.api.v1.endpoints.coach_chat._get_orchestrator",
+            return_value=mock_orch,
+        ):
+            response = client_with_auth.post("/api/v1/coach/chat", json=body)
+
+        assert response.status_code == 200
+        call_kwargs = mock_orch.query.call_args.kwargs
+        safe_packet = call_kwargs["profile_context"]["coach_context_packet"]
+        assert safe_packet["facts"][0]["id"] == "budget.monthly_free"
+        assert "iban" not in safe_packet["facts"][0]
+        assert safe_packet["trajectory"]["status"] == "drifting"
+        assert "unexpected" not in safe_packet["trajectory"]
+        assert len(safe_packet["next_questions"]) == 1
+        assert "wizard_answers" not in call_kwargs["profile_context"]
+
     def test_no_profile_context_sends_empty_dict(self, client_with_auth):
         """When profile_context is absent, an empty dict is sent to the orchestrator."""
         mock_orch = MagicMock()
@@ -602,12 +679,14 @@ class TestCoachChatRouterRegistration:
         from app.schemas.coach_chat import CoachChatRequest
 
         # Mobile sends camelCase
-        instance = CoachChatRequest.model_validate({
-            "message": "Bonjour",
-            "apiKey": "sk-test",
-            "provider": "claude",
-            "memoryBlock": "CONTEXTE : consolidation",
-        })
+        instance = CoachChatRequest.model_validate(
+            {
+                "message": "Bonjour",
+                "apiKey": "sk-test",
+                "provider": "claude",
+                "memoryBlock": "CONTEXTE : consolidation",
+            }
+        )
         assert instance.api_key == "sk-test"
         assert instance.memory_block == "CONTEXTE : consolidation"
 
@@ -679,8 +758,10 @@ class TestCoachChatRAGDegradation:
 
         mod._orchestrator = None
 
-        with patch.object(mod, "_get_vector_store", return_value=None), \
-             patch.object(mod, "_get_hybrid_search", return_value=None):
+        with (
+            patch.object(mod, "_get_vector_store", return_value=None),
+            patch.object(mod, "_get_hybrid_search", return_value=None),
+        ):
             result = await mod._get_orchestrator()
 
         assert isinstance(result, mod._NoRagOrchestrator), (
