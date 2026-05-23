@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -106,7 +109,7 @@ void main() {
     Future<String?> pumpMenuForAction(
       WidgetTester tester,
       String nextActionId,
-      String label,
+      Finder target,
     ) async {
       String? capturedRoute;
       await tester.pumpWidget(
@@ -131,7 +134,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text(label).first);
+      await tester.tap(target);
       await tester.pump();
       return capturedRoute;
     }
@@ -141,7 +144,7 @@ void main() {
       final capturedRoute = await pumpMenuForAction(
         tester,
         'complete_pillar_avs',
-        'Scanner un document',
+        find.text('Scanner un document').first,
       );
 
       expect(capturedRoute, '/scan/avs-guide');
@@ -151,10 +154,26 @@ void main() {
       final capturedRoute = await pumpMenuForAction(
         tester,
         'stabilize_budget',
-        'Mon budget',
+        find.byIcon(Icons.receipt_long_outlined).first,
       );
 
       expect(capturedRoute, '/budget/setup');
+    });
+
+    test('keeps French ARB titles action-first, not possessive', () {
+      final arb = jsonDecode(File('lib/l10n/app_fr.arb').readAsStringSync())
+          as Map<String, dynamic>;
+      final titles = arb.entries.where(
+        (entry) =>
+            entry.key.startsWith('lightningMenu') &&
+            entry.key.endsWith('Title'),
+      );
+      for (final prefix in ['Mon ', 'Ma ', 'Mes ', 'Notre ', 'Nos ']) {
+        expect(
+          titles.where((entry) => (entry.value as String).startsWith(prefix)),
+          isEmpty,
+        );
+      }
     });
   });
 }
