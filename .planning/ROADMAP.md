@@ -487,7 +487,7 @@ Plans:
 Plans:
 - [x] mint-data-spine-plan-vivant-v1-01-data-spine-snapshot-PLAN.md — typed `DataSpineSnapshot` + `FinancialSituation` + `PillarPosition` derivation and tests
 - [x] mint-data-spine-plan-vivant-v1-02-budget-trajectory-plan-PLAN.md — stabilize budget cashflow, projection summary, plan/trajectory derivation
-- [ ] mint-data-spine-plan-vivant-v1-03-coach-context-PLAN.md — structured coach context packet generated from the spine, with no LLM-owned facts
+- [x] mint-data-spine-plan-vivant-v1-03-coach-context-PLAN.md — structured coach context packet generated from the spine, with no LLM-owned facts
 - [ ] mint-data-spine-plan-vivant-v1-04-ui-maestro-proof-PLAN.md — wire one UI surface and add Maestro proof flow for persistence/relaunch/chat explanation
 
 ---
