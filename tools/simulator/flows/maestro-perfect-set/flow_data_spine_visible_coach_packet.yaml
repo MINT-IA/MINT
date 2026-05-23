@@ -1,0 +1,81 @@
+# tools/simulator/flows/maestro-perfect-set/flow_data_spine_visible_coach_packet.yaml
+#
+# PURPOSE
+# Phase mint-data-spine-plan-vivant-v1 / Plan 05 — runtime proof that
+# the coach surface renders a structured, safe data-spine packet before
+# the user sends a message. This catches the exact drift class where
+# profile/budget values exist somewhere in storage but the chat cannot
+# see or use them.
+#
+# PRE-CONDITION
+# - App ch.mint.app installed on a booted iPhone sim.
+# - Recommended harness:
+#     bash tools/simulator/walker.sh --archetype swiss_native --scenario retraite
+#   or any equivalent build using:
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+# - The flow deep-links to /coach/chat via mintapp:///coach/chat.
+#
+# ASSERTION STRATEGY
+# - "Dis-moi." proves the coach composer is mounted.
+# - "Point de départ" proves the visible packet-backed context panel
+#   rendered.
+# - "Déjà clair" + "Prochaine pièce" prove the screen exposes one known
+#   fact and one next missing planning field without relying on an LLM
+#   response.
+# - Relaunch with clearState=false proves the same visible packet can be
+#   rebuilt after an app restart.
+
+appId: ch.mint.app
+tags:
+  - data-spine
+  - coach
+  - packet
+  - maestro-proof
+  - phase-plan-vivant
+---
+
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+- openLink: "mintapp:///coach/chat"
+
+- extendedWaitUntil:
+    visible:
+      text: "Dis-moi."
+    timeout: 12000
+
+- extendedWaitUntil:
+    visible:
+      text: "Point de départ"
+    timeout: 12000
+- assertVisible:
+    text: "Déjà clair"
+- assertVisible:
+    text: "Prochaine pièce"
+- takeScreenshot: "data-spine-coach-packet-01-visible"
+
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 6000
+- openLink: "mintapp:///coach/chat"
+
+- extendedWaitUntil:
+    visible:
+      text: "Point de départ"
+    timeout: 12000
+- assertVisible:
+    text: "Déjà clair"
+- assertVisible:
+    text: "Prochaine pièce"
+- takeScreenshot: "data-spine-coach-packet-02-relaunch"

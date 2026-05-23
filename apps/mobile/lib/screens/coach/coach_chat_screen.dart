@@ -32,6 +32,7 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/data_spine/coach_context_packet_adapter.dart';
+import 'package:mint_mobile/services/data_spine/coach_packet_insight_presenter.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -46,6 +47,7 @@ import 'package:mint_mobile/widgets/coach/coach_app_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_input_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_loading_indicator.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
+import 'package:mint_mobile/widgets/coach/coach_packet_insight_card.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart'
     show ResponseCardStrip;
 import 'package:mint_mobile/models/coach_insight.dart';
@@ -1714,7 +1716,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           // Without this, the navigation is silent for assistive tech.
           final l10n = S.of(context);
           if (l10n != null) {
-            SemanticsService.announce(
+            SemanticsService.sendAnnouncement(
+              View.of(context),
               l10n.waitlistAnnounceRedirect,
               Directionality.of(context),
             );
@@ -2174,6 +2177,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     final keyData = _computeKeyNumber();
+    final packetInsight = _profile == null
+        ? null
+        : CoachPacketInsightPresenter.fromSafeMap(
+            CoachContextPacketAdapter.fromProfile(_profile!),
+          );
 
     // If no financial data available, show the first-contact opener +
     // 4 conversation starter chips. Gated on BOTH « no conversation yet »
@@ -2182,6 +2190,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // scan+confirm the user was thrown back into the opener (deep walk
     // crack #8). Now: once the profile has LPP / 3a / fitness data,
     // the silent opener takes over, never the first-contact one.
+    if (keyData == null && packetInsight != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+          child: CoachPacketInsightCard(insight: packetInsight),
+        ),
+      );
+    }
     if (keyData == null && _messages.isEmpty) {
       return _buildFirstContactOpener(s);
     }
@@ -2225,6 +2241,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               ),
               textAlign: TextAlign.center,
             ),
+            if (packetInsight != null) ...[
+              const SizedBox(height: 20),
+              CoachPacketInsightCard(insight: packetInsight),
+            ],
             // Handoff 2 « scènes inline » applied to the silent opener:
             // a single contextual scene card surfaces alongside the key
             // number so the screen feels like a coach who already opened

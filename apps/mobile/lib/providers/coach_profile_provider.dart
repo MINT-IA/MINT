@@ -14,6 +14,7 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
@@ -232,19 +233,17 @@ class CoachProfileProvider extends ChangeNotifier {
       final isLoggedIn = await AuthService.isLoggedIn();
       if (!isLoggedIn) return;
       final remoteData = await ApiService.get('/profiles/me');
-      if (remoteData is Map<String, dynamic>) {
-        mergeFromRemoteProfile(remoteData);
-        // Also merge financial fields that the basic merge doesn't cover.
-        _mergeFinancialFieldsFromRemote(remoteData);
-        // OBS-05 — save_fact success proxy breadcrumb (D-03 4-level).
-        // factKind is the coarse 'profile_sync' enum; the finer-grained
-        // per-field attribution is deferred to Phase 31-02 (backend can
-        // echo `facts_saved: [...]` in /profiles/me response).
-        MintBreadcrumbs.saveFact(
-          success: true,
-          factKind: 'profile_sync',
-        );
-      }
+      mergeFromRemoteProfile(remoteData);
+      // Also merge financial fields that the basic merge doesn't cover.
+      _mergeFinancialFieldsFromRemote(remoteData);
+      // OBS-05 — save_fact success proxy breadcrumb (D-03 4-level).
+      // factKind is the coarse 'profile_sync' enum; the finer-grained
+      // per-field attribution is deferred to Phase 31-02 (backend can
+      // echo `facts_saved: [...]` in /profiles/me response).
+      MintBreadcrumbs.saveFact(
+        success: true,
+        factKind: 'profile_sync',
+      );
     } catch (e) {
       debugPrint('[CoachProfile] syncFromBackend failed (non-fatal): $e');
       // OBS-05 — save_fact failure proxy breadcrumb. Error code is an
@@ -288,7 +287,7 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     // 3a balance
     final remote3a = (remote['pillar3aBalance'] as num?)?.toDouble();
-    if ((p.totalEpargne3a ?? 0) <= 0 && remote3a != null && remote3a > 0) {
+    if (p.totalEpargne3a <= 0 && remote3a != null && remote3a > 0) {
       partial['_coach_total_3a'] = remote3a;
     }
 
@@ -466,6 +465,19 @@ class CoachProfileProvider extends ChangeNotifier {
         _profile = CoachProfile.fromWizardAnswers(answers);
         _isPartialProfile = true;
         await _mergePersistedData();
+        _isLoading = false;
+        _isLoaded = true;
+        _profileUpdatedSinceBudget = true;
+        notifyListeners();
+        return;
+      }
+
+      final debugSeed = CoachProfileSeeds.activeSeed;
+      if (debugSeed != null) {
+        final seedAnswers = debugSeed.toWizardAnswers();
+        _lastAnswers = seedAnswers;
+        _profile = CoachProfile.fromWizardAnswers(seedAnswers);
+        _isPartialProfile = true;
         _isLoading = false;
         _isLoaded = true;
         _profileUpdatedSinceBudget = true;

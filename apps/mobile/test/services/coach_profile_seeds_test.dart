@@ -20,7 +20,9 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
+import 'package:mint_mobile/services/data_spine/coach_context_packet_adapter.dart';
 
 void main() {
   group('CoachProfileSeeds — julien_expat_us (Wave 02 plan 06)', () {
@@ -131,6 +133,27 @@ void main() {
       // with an unmapped slug.
       expect(CoachProfileSeeds.byArchetype('not_a_real_archetype'), isNull);
       expect(CoachProfileSeeds.byArchetype(''), isNull);
+    });
+  });
+
+  group('CoachProfileSeed.toWizardAnswers — data spine sim contract', () {
+    test('julien_swiss seed hydrates a packet-visible coach profile', () {
+      final seed = CoachProfileSeeds.registry['julien_swiss']!;
+
+      final profile = CoachProfile.fromWizardAnswers(seed.toWizardAnswers());
+      final packet = CoachContextPacketAdapter.fromProfile(profile);
+      final factIds = (packet['facts'] as List)
+          .whereType<Map>()
+          .map((fact) => fact['id'])
+          .toSet();
+
+      expect(profile.firstName, 'Julien');
+      expect(profile.canton, 'VD');
+      expect(profile.age, seed.age);
+      expect(profile.archetype, FinancialArchetype.swissNative);
+      expect(factIds, contains('budget.monthly_capacity'));
+      expect(factIds, contains('pillar.lpp.total_balance'));
+      expect(packet['next_questions'], isNotEmpty);
     });
   });
 }

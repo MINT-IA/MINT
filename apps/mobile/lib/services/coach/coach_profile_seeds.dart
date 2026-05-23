@@ -93,6 +93,53 @@ class CoachProfileSeed {
       },
     );
   }
+
+  /// Build enough wizard answers to hydrate [CoachProfileProvider] during
+  /// simulator runs pinned with `MINT_E2E_ARCHETYPE`.
+  ///
+  /// This is intentionally a debug/e2e bridge: production persistence stays
+  /// owned by ReportPersistenceService and user-entered wizard answers.
+  Map<String, dynamic> toWizardAnswers({DateTime? now}) {
+    final year = (now ?? DateTime.now()).year;
+    final birthYear = year - age;
+    final netMonthlySalary = (grossMonthlySalary * 0.78).roundToDouble();
+    final hasLpp = usTaxPerson != true;
+    final annual3a = hasLpp ? 7056.0 : 0.0;
+
+    return <String, dynamic>{
+      'q_firstname': firstName,
+      'q_birth_year': birthYear,
+      'q_canton': canton,
+      'q_pay_frequency': 'monthly',
+      'q_gross_salary_annual': grossMonthlySalary * 12,
+      'q_net_income_period_chf': netMonthlySalary,
+      'q_employment_status': 'employed',
+      'q_household_type': 'single',
+      'q_housing_cost_period_chf': (netMonthlySalary * 0.26).roundToDouble(),
+      'q_tax_provision_monthly_chf':
+          (grossMonthlySalary * 0.15).roundToDouble(),
+      'q_lamal_premium_monthly_chf': 420.0,
+      'q_other_fixed_costs_monthly_chf': 850.0,
+      'q_savings_monthly': (netMonthlySalary * 0.16).roundToDouble(),
+      'q_savings_allocation': const <String>[
+        '3a',
+        'investissement',
+        'epargne_libre',
+      ],
+      'q_has_pension_fund': hasLpp,
+      'q_has_3a': hasLpp,
+      'q_3a_annual_contribution': annual3a,
+      'q_3a_accounts_count': hasLpp ? 1 : 0,
+      'q_has_investments': true,
+      'q_cash_total': netMonthlySalary * 3,
+      'q_investments_total': netMonthlySalary * 6,
+      'q_avs_lacunes_status': 'unknown',
+      'q_has_consumer_debt': false,
+      'q_nationality':
+          nationality ?? (archetype == 'swiss_native' ? 'CH' : null),
+      if (usTaxPerson != null) 'q_us_tax_person': usTaxPerson,
+    };
+  }
 }
 
 /// Static registry of the 4 v2.10 walker archetype seeds.
