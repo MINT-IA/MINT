@@ -192,10 +192,10 @@ class _PrimaryButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(fontFamily: 'Supreme', 
+          style: TextStyle(fontFamily: 'Supreme',
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: MintColors.white,
           ),
         ),
       ),

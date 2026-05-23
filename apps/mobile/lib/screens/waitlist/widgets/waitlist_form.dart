@@ -152,7 +152,7 @@ class _WaitlistFormState extends State<WaitlistForm> {
               onPressed: canSubmit ? _onSubmit : null,
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.inkPrimary,
-                foregroundColor: Colors.white,
+                foregroundColor: MintColors.white,
                 padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
               ),
               child: isSubmitting

@@ -858,7 +858,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: MintColors.transparent,
       builder: (_) => LightningMenu(
         profile: _profile,
         capMemory: capMem,

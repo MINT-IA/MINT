@@ -51,7 +51,7 @@ class _WaitlistSuccessState extends State<WaitlistSuccess> {
               onPressed: () => context.go('/'),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.inkPrimary,
-                foregroundColor: Colors.white,
+                foregroundColor: MintColors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: MintSpacing.xl,
                   vertical: MintSpacing.md,
