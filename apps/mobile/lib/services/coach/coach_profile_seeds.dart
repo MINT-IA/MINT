@@ -207,9 +207,12 @@ class CoachProfileSeeds {
     ),
   };
 
-  /// Return the slug forced via `MINT_E2E_ARCHETYPE`, or null when:
+  /// Return the seed slug forced via `MINT_E2E_ARCHETYPE`, or null when:
   ///   - we are in a release build ([kReleaseMode] = true), OR
   ///   - the dart-define is empty / unknown.
+  ///
+  /// The dart-define accepts both historical seed slugs (`julien_swiss`) and
+  /// archetype slugs (`swiss_native`, `expat_us`) used by Maestro/walker.
   ///
   /// Release-build short-circuit keeps the codepath dead in production
   /// (defense-in-depth alongside the dart-define being absent on prod).
@@ -217,8 +220,8 @@ class CoachProfileSeeds {
     if (kReleaseMode) return null;
     final slug = _archetypeDartDefine.trim();
     if (slug.isEmpty) return null;
-    if (!registry.containsKey(slug)) return null;
-    return slug;
+    if (registry.containsKey(slug)) return slug;
+    return byArchetype(slug)?.slug;
   }
 
   /// Active seed for the current build, or null when not pinned.

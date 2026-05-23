@@ -77,9 +77,12 @@ void main() {
     if (expectedSlug.isEmpty) {
       expect(active, isNull);
     } else {
+      final expectedSeed = CoachProfileSeeds.bySlug(expectedSlug) ??
+          CoachProfileSeeds.byArchetype(expectedSlug);
       expect(active, isNotNull,
           reason: 'MINT_E2E_ARCHETYPE=$expectedSlug should hydrate a seed');
-      expect(active!.slug, expectedSlug);
+      expect(active, same(expectedSeed),
+          reason: 'MINT_E2E_ARCHETYPE accepts seed slugs and archetype slugs');
     }
   });
 
