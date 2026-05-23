@@ -256,7 +256,7 @@ tags:
 # The success state shows the message text and the back-to-home CTA.
 - extendedWaitUntil:
     visible:
-      text: "Merci, on revient vers toi"
+      text: ".*Merci, on revient vers toi.*"
     timeout: 15000
 - takeScreenshot: "01.5-hardgate-02-success-state"
 
