@@ -22,6 +22,8 @@
 /// time).
 library;
 
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -103,5 +105,9 @@ void main() {
         matchesGoldenFile('goldens/lauren_expat_us_waitlist.png'),
       );
     },
+    // macOS-only: golden master generated on macOS; Linux CI font hinting
+    // drifts ~1% pixels (same policy as apps/mobile/test/goldens/README.md).
+    // Re-run locally via `flutter test --update-goldens`.
+    skip: !Platform.isMacOS,
   );
 }

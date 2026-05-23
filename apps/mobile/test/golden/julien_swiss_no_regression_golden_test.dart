@@ -22,6 +22,8 @@
 /// touched-widget call site — verified via grep at Task 3 design time.
 library;
 
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -87,5 +89,10 @@ void main() {
         matchesGoldenFile('goldens/julien_swiss_us_tax_person.png'),
       );
     },
+    // macOS-only: golden masters were generated on macOS; Linux CI font
+    // hinting + glyph rasterization drifts ~1% pixels (same policy as
+    // apps/mobile/test/goldens/README.md). Re-run locally via:
+    //   flutter test --update-goldens test/golden/julien_swiss_no_regression_golden_test.dart
+    skip: !Platform.isMacOS,
   );
 }
