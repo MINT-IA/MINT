@@ -111,12 +111,59 @@ class CoachNextQuestion {
   }
 }
 
+class CoachReadinessSection {
+  final String id;
+  final String status;
+  final int knownCount;
+  final int missingCount;
+
+  const CoachReadinessSection({
+    required this.id,
+    required this.status,
+    required this.knownCount,
+    required this.missingCount,
+  });
+
+  Map<String, dynamic> toSafeMap() {
+    return {
+      'id': id,
+      'status': status,
+      'known_count': knownCount,
+      'missing_count': missingCount,
+    };
+  }
+}
+
+class CoachReadinessContext {
+  final String overallStatus;
+  final List<CoachReadinessSection> sections;
+  final List<String> missingDomains;
+  final String nextActionId;
+
+  const CoachReadinessContext({
+    required this.overallStatus,
+    required this.sections,
+    required this.missingDomains,
+    required this.nextActionId,
+  });
+
+  Map<String, dynamic> toSafeMap() {
+    return {
+      'overall_status': overallStatus,
+      'sections': sections.map((s) => s.toSafeMap()).toList(growable: false),
+      'missing_domains': missingDomains,
+      'next_action_id': nextActionId,
+    };
+  }
+}
+
 class CoachContextPacket {
   final DateTime computedAt;
   final List<CoachContextFact> facts;
   final List<CoachMissingField> missingFields;
   final CoachTrajectoryContext trajectory;
   final List<CoachNextQuestion> nextQuestions;
+  final CoachReadinessContext readiness;
 
   const CoachContextPacket({
     required this.computedAt,
@@ -124,6 +171,7 @@ class CoachContextPacket {
     required this.missingFields,
     required this.trajectory,
     required this.nextQuestions,
+    required this.readiness,
   });
 
   Map<String, dynamic> toSafeMap() {
@@ -135,6 +183,7 @@ class CoachContextPacket {
       'trajectory': trajectory.toSafeMap(),
       'next_questions':
           nextQuestions.map((q) => q.toSafeMap()).toList(growable: false),
+      'readiness': readiness.toSafeMap(),
     };
   }
 }

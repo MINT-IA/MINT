@@ -289,6 +289,7 @@ void main() {
             'missing_fields',
             'trajectory',
             'next_questions',
+            'readiness',
           ]));
       expect(safe.containsKey('wizard_answers_v2'), isFalse);
       expect(safe.containsKey('profile'), isFalse);
@@ -316,6 +317,78 @@ void main() {
           'next_lever_id',
         ]),
       );
+
+      final readiness = safe['readiness'] as Map<String, dynamic>;
+      expect(
+        readiness.keys,
+        containsAll([
+          'overall_status',
+          'sections',
+          'missing_domains',
+          'next_action_id',
+        ]),
+      );
+    });
+
+    test(
+        'readiness summarizes missing domains and next action for partial data',
+        () {
+      final packet = buildPacket(
+        profile: buildProfile(
+          prevoyance: const PrevoyanceProfile(),
+          goal: GoalA(
+            type: GoalAType.custom,
+            targetDate: DateTime.utc(2027, 5, 23),
+            label: 'Coussin',
+          ),
+        ),
+      );
+
+      final readiness = packet.toSafeMap()['readiness'] as Map<String, dynamic>;
+
+      expect(readiness['overall_status'], 'partial');
+      expect(readiness['next_action_id'], 'define_target');
+      expect(
+        readiness['missing_domains'],
+        containsAll(<String>[
+          'pillar_avs',
+          'pillar_lpp',
+          'pillar_3a',
+          'trajectory',
+        ]),
+      );
+      expect(readiness.toString(), isNot(contains('Julien')));
+      expect(readiness.toString(), isNot(contains('Lausanne')));
+    });
+
+    test('readiness prioritizes budget stabilization when budget is blocked',
+        () {
+      final base = syntheticSpine();
+      final packet = CoachContextPacketService.fromSpine(
+        DataSpineSnapshot(
+          situation: base.situation,
+          budget: const BudgetSnapshot(
+            present: PresentBudget(
+              monthlyNet: 6100,
+              monthlyCharges: 6200,
+              monthlySavings: 0,
+              monthlyFree: -100,
+            ),
+            capImpacts: [],
+            stage: BudgetStage.presentOnly,
+            confidenceScore: 71,
+          ),
+          pillars: base.pillars,
+          trajectory: base.trajectory,
+          computedAt: base.computedAt,
+        ),
+      );
+
+      final readiness = packet.toSafeMap()['readiness'] as Map<String, dynamic>;
+
+      expect(readiness['overall_status'], 'blocked');
+      expect(readiness['next_action_id'], 'stabilize_budget');
+      expect(readiness['missing_domains'], contains('budget'));
     });
 
     test('toSafeMap does not expose excluded PII or raw profile fields', () {

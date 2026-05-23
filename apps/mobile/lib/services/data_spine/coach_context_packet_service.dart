@@ -1,5 +1,6 @@
 import 'package:mint_mobile/models/coach_context_packet.dart';
 import 'package:mint_mobile/models/data_spine_snapshot.dart';
+import 'package:mint_mobile/services/data_spine/data_spine_readiness_digest_service.dart';
 
 abstract final class CoachContextPacketService {
   static const allowedFactIds = <String>{
@@ -36,6 +37,7 @@ abstract final class CoachContextPacketService {
       missingFields: _missingFields(spine),
       trajectory: _trajectoryContext(spine.trajectory),
       nextQuestions: _nextQuestions(spine),
+      readiness: _readinessContext(spine),
     );
   }
 
@@ -265,6 +267,25 @@ abstract final class CoachContextPacketService {
           ),
         ],
     };
+  }
+
+  static CoachReadinessContext _readinessContext(DataSpineSnapshot spine) {
+    final digest = DataSpineReadinessDigestService.fromSpine(spine);
+    return CoachReadinessContext(
+      overallStatus: digest.overallStatus.name,
+      sections: digest.sections
+          .map(
+            (section) => CoachReadinessSection(
+              id: section.id,
+              status: section.status.name,
+              knownCount: section.knownCount,
+              missingCount: section.missingCount,
+            ),
+          )
+          .toList(growable: false),
+      missingDomains: digest.missingDomains,
+      nextActionId: digest.nextActionId,
+    );
   }
 
   static List<CoachContextFact> _pillarFact<T extends Object>({

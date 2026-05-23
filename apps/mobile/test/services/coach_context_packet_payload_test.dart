@@ -41,6 +41,19 @@ void main() {
             'field_path': 'budget.present.monthlyCapacity',
           },
         ],
+        'readiness': {
+          'overall_status': 'partial',
+          'sections': [
+            {
+              'id': 'budget',
+              'status': 'ready',
+              'known_count': 4,
+              'missing_count': 0,
+            },
+          ],
+          'missing_domains': ['pillar_lpp'],
+          'next_action_id': 'complete_pillar_lpp',
+        },
       };
 
       final ctx = CoachContext(
@@ -61,6 +74,7 @@ void main() {
       expect(emittedPacket['missing_fields'], isA<List<dynamic>>());
       expect(emittedPacket['trajectory'], isA<Map<String, dynamic>>());
       expect(emittedPacket['next_questions'], isA<List<dynamic>>());
+      expect(emittedPacket['readiness'], isA<Map<String, dynamic>>());
 
       expect(emittedPacket.containsKey('first_name'), isFalse);
       expect(emittedPacket.containsKey('commune'), isFalse);
@@ -139,6 +153,11 @@ void main() {
       expect(packet, isNotEmpty);
       expect(packet!['facts'], isA<List<dynamic>>());
       expect(packet['trajectory'], isA<Map<String, dynamic>>());
+      expect(packet['readiness'], isA<Map<String, dynamic>>());
+      expect(
+        (packet['readiness'] as Map<String, dynamic>)['next_action_id'],
+        isA<String>(),
+      );
       expect(packet.containsKey('wizard_answers'), isFalse);
       expect(packet.containsKey('first_name'), isFalse);
     });
@@ -172,6 +191,7 @@ void main() {
       expect(packet['missing_fields'], isA<List<dynamic>>());
       expect(packet['trajectory'], isA<Map<String, dynamic>>());
       expect(packet['next_questions'], isA<List<dynamic>>());
+      expect(packet['readiness'], isA<Map<String, dynamic>>());
       expect(packet.containsKey('wizard_answers'), isFalse);
       expect(packet.containsKey('first_name'), isFalse);
     });
