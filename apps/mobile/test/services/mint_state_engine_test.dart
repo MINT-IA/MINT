@@ -217,8 +217,8 @@ void main() {
       // With full profile, confidence >= 30 → projection fields non-null
       if (state.confidenceScore >= 30.0) {
         // replacementRate or budgetGap should be available
-        final hasAnyProjection = state.replacementRate != null ||
-            state.budgetGap != null;
+        final hasAnyProjection =
+            state.replacementRate != null || state.budgetGap != null;
         expect(hasAnyProjection, isTrue);
       }
     });
@@ -233,6 +233,26 @@ void main() {
       );
       // Julien has salary + age → BudgetLivingEngine should produce a snapshot.
       expect(state.budgetSnapshot, isNotNull);
+    });
+
+    test('Julien dataSpineSnapshot reuses the central budget snapshot',
+        () async {
+      final prefs = await SharedPreferences.getInstance();
+      final state = await MintStateEngine.compute(
+        profile: julien,
+        prefs: prefs,
+        now: DateTime(2026, 3, 21),
+      );
+
+      expect(state.dataSpineSnapshot, isNotNull);
+      expect(state.hasDataSpineSnapshot, isTrue);
+      expect(
+        identical(state.dataSpineSnapshot!.budget, state.budgetSnapshot),
+        isTrue,
+      );
+      expect(state.dataSpineSnapshot!.situation.birthYear.value, 1977);
+      expect(
+          state.dataSpineSnapshot!.pillars.lpp.totalBalance.value, isNotNull);
     });
 
     test('Julien hasBudgetSnapshot is true', () async {

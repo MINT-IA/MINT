@@ -7,14 +7,15 @@ abstract final class DataSpineService {
   static DataSpineSnapshot fromProfile(
     CoachProfile profile, {
     DateTime? now,
+    BudgetSnapshot? budget,
   }) {
     final computedAt = now ?? DateTime.now();
-    final budget = BudgetLivingEngine.compute(profile);
+    final resolvedBudget = budget ?? BudgetLivingEngine.compute(profile);
     return DataSpineSnapshot(
       situation: _situationFromProfile(profile),
-      budget: budget,
+      budget: resolvedBudget,
       pillars: _pillarsFromProfile(profile),
-      trajectory: _trajectoryFromProfile(profile, budget, computedAt),
+      trajectory: _trajectoryFromProfile(profile, resolvedBudget, computedAt),
       computedAt: computedAt,
     );
   }

@@ -29,6 +29,7 @@ import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/data_spine_snapshot.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
@@ -36,6 +37,7 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
 import 'package:mint_mobile/services/goal_selection_service.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
+import 'package:mint_mobile/services/data_spine/data_spine_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/fri_computation_service.dart';
@@ -157,6 +159,7 @@ class MintStateEngine {
     double? replacementRate;
     RetirementBudgetGap? budgetGap;
     BudgetSnapshot? budgetSnapshot;
+    DataSpineSnapshot? dataSpineSnapshot;
 
     if (confidenceScore >= _kMinConfidenceForProjections) {
       // 6a. Forecaster projection (for FRI)
@@ -193,7 +196,6 @@ class MintStateEngine {
       } catch (_) {
         budgetGap = null;
       }
-
     }
 
     // 6e. BudgetSnapshot — ALWAYS computed, even with low confidence.
@@ -203,8 +205,14 @@ class MintStateEngine {
     // for retirement projections.
     try {
       budgetSnapshot = BudgetLivingEngine.compute(profile);
+      dataSpineSnapshot = DataSpineService.fromProfile(
+        profile,
+        now: currentTime,
+        budget: budgetSnapshot,
+      );
     } catch (_) {
       budgetSnapshot = null;
+      dataSpineSnapshot = null;
     }
 
     // ── 7. Active nudges ───────────────────────────────────────────────────
@@ -249,8 +257,7 @@ class MintStateEngine {
       if (previousSnapshot != null) {
         // Monthly retirement income from budgetGap (total revenus at retirement).
         // Falls back to 0 when projections are not yet available.
-        final currentRetirementIncome =
-            budgetGap?.totalRevenusMensuel ?? 0.0;
+        final currentRetirementIncome = budgetGap?.totalRevenusMensuel ?? 0.0;
         final currentFhs = friScore ?? 0.0;
 
         sessionDelta = SessionSnapshotService.computeDelta(
@@ -271,6 +278,7 @@ class MintStateEngine {
       archetype: profile.archetype,
       budgetGap: budgetGap,
       budgetSnapshot: budgetSnapshot,
+      dataSpineSnapshot: dataSpineSnapshot,
       currentCap: currentCap,
       capSequencePlan: capSequencePlan,
       activeGoalIntentTag: activeGoalIntentTag,

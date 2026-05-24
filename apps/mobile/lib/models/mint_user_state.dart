@@ -21,6 +21,7 @@ import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/data_spine_snapshot.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
@@ -60,6 +61,14 @@ class MintUserState {
   /// any widget displaying budget/gap figures. Null when profile lacks
   /// sufficient data (e.g. no salary).
   final BudgetSnapshot? budgetSnapshot;
+
+  /// Full data-spine snapshot — situation + budget + pillars + trajectory.
+  ///
+  /// This is the canonical read model for surfaces that need structured
+  /// financial facts. It reuses [budgetSnapshot] when available, so screens,
+  /// coach context, visual scenes, and arbitrage widgets can converge on the
+  /// same present-budget numbers.
+  final DataSpineSnapshot? dataSpineSnapshot;
 
   // ── Plan ─────────────────────────────────────────────────────────────────
 
@@ -139,6 +148,7 @@ class MintUserState {
     required this.archetype,
     this.budgetGap,
     this.budgetSnapshot,
+    this.dataSpineSnapshot,
     this.currentCap,
     this.capSequencePlan,
     this.activeGoalIntentTag,
@@ -156,6 +166,9 @@ class MintUserState {
 
   /// True when a full [BudgetSnapshot] has been computed.
   bool get hasBudgetSnapshot => budgetSnapshot != null;
+
+  /// True when the unified data-spine read model has been computed.
+  bool get hasDataSpineSnapshot => dataSpineSnapshot != null;
 
   /// Convenience: monthly free margin from [BudgetSnapshot.present.monthlyFree].
   ///
@@ -185,7 +198,8 @@ class MintUserState {
   bool get hasPendingTrigger => pendingTrigger != null;
 
   /// True when there's a significant delta from the last session.
-  bool get hasSessionDelta => sessionDelta != null && sessionDelta!.isSignificant;
+  bool get hasSessionDelta =>
+      sessionDelta != null && sessionDelta!.isSignificant;
 
   /// True when confidence is high enough for projections to be meaningful.
   ///
@@ -215,6 +229,7 @@ class MintUserState {
     FinancialArchetype? archetype,
     Object? budgetGap = _undefined,
     Object? budgetSnapshot = _undefined,
+    Object? dataSpineSnapshot = _undefined,
     Object? currentCap = _undefined,
     Object? capSequencePlan = _undefined,
     Object? activeGoalIntentTag = _undefined,
@@ -237,6 +252,9 @@ class MintUserState {
       budgetSnapshot: budgetSnapshot == _undefined
           ? this.budgetSnapshot
           : budgetSnapshot as BudgetSnapshot?,
+      dataSpineSnapshot: dataSpineSnapshot == _undefined
+          ? this.dataSpineSnapshot
+          : dataSpineSnapshot as DataSpineSnapshot?,
       currentCap: currentCap == _undefined
           ? this.currentCap
           : currentCap as CapDecision?,
@@ -247,9 +265,7 @@ class MintUserState {
           ? this.activeGoalIntentTag
           : activeGoalIntentTag as String?,
       confidenceScore: confidenceScore ?? this.confidenceScore,
-      friScore: friScore == _undefined
-          ? this.friScore
-          : friScore as double?,
+      friScore: friScore == _undefined ? this.friScore : friScore as double?,
       replacementRate: replacementRate == _undefined
           ? this.replacementRate
           : replacementRate as double?,
