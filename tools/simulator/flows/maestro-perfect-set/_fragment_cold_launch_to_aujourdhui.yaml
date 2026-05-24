@@ -106,6 +106,64 @@ tags:
     text: ".*Continuer sans compte.*"
 - waitForAnimationToEnd
 
+# ── Step 5b — Current onboarding storyboard bridge ────────────────────
+# Recent onboarding builds insert an "Ouvrir" frame, then an intent choice,
+# before the anonymous local-mode home route. Older builds skipped this
+# frame, so both handlers are conditional.
+- runFlow:
+    when:
+      visible: ".*Ouvrir.*"
+    commands:
+      - tapOn:
+          text: ".*Ouvrir.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*Je regarde d’abord.*"
+    commands:
+      - tapOn:
+          text: ".*Je regarde d’abord.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*États-Unis.*"
+    commands:
+      - tapOn:
+          text: ".*Non.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*Où tu vis.*"
+    commands:
+      - tapOn:
+          text: "VD"
+      - waitForAnimationToEnd
+- repeat:
+    times: 8
+    commands:
+      - runFlow:
+          when:
+            visible: ".*Où tu vis.*"
+          commands:
+            - tapOn:
+                text: "VD"
+            - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible: ".*(Suivant|Continuer|Terminer|Voir).*"
+          commands:
+            - tapOn:
+                text: ".*(Suivant|Continuer|Terminer|Voir).*"
+            - waitForAnimationToEnd
+
+# The fragment is a setup primitive for flows that need the shell, not an
+# onboarding acceptance test. Once local mode has been activated by the
+# anonymous CTA above, deep-link to /home to avoid coupling every regression
+# flow to onboarding storyboard copy.
+- openLink: "mintapp:///home"
+- waitForAnimationToEnd:
+    timeout: 6000
+
 # ── Step 6 — Aujourd'hui visible (3-tab nav header) ───────────────────
 # context.go('/home') → AuthProvider isLocalMode=true → app.dart:417
 # gate passes (isLoggedIn || isLocalMode) → AujourdhuiScreen renders.
