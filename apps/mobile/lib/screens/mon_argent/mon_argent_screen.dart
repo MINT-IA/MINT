@@ -125,6 +125,14 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                         ),
                       ),
                       const SizedBox(height: MintSpacing.lg),
+                      MintEntrance(
+                        delay: const Duration(milliseconds: 120),
+                        child: _MonArgentTrajectoryMap(
+                          trajectory: dataSpine.trajectory,
+                          l10n: l10n,
+                        ),
+                      ),
+                      const SizedBox(height: MintSpacing.lg),
                     ],
 
                     // Card 1: Budget
@@ -284,6 +292,104 @@ class _MonArgentDataSpineSummary extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _MonArgentTrajectoryMap extends StatelessWidget {
+  final TrajectorySummary trajectory;
+  final S l10n;
+
+  const _MonArgentTrajectoryMap({
+    required this.trajectory,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final monthlyRequired = trajectory.monthlyRequired;
+    final targetAmount = trajectory.targetAmount;
+    final monthlyGap = trajectory.monthlyGap;
+    final progress = monthlyRequired == null || monthlyRequired <= 0
+        ? 0.0
+        : (trajectory.currentMonthlyCapacity / monthlyRequired).clamp(0.0, 1.0);
+
+    return Semantics(
+      label: l10n.trajectoryTitle,
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.trajectoryTitle,
+              style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 8,
+                color: _trajectoryColor(trajectory.status),
+                backgroundColor: MintColors.borderSubtle,
+              ),
+            ),
+            const SizedBox(height: MintSpacing.lg),
+            Row(
+              children: [
+                Expanded(
+                  child: _SummaryMetric(
+                    label: l10n.trajectoryGoalLabel,
+                    value: targetAmount == null
+                        ? l10n.dataBlockStatusMissing
+                        : _formatChf(targetAmount),
+                    detail: monthlyRequired == null
+                        ? null
+                        : _formatChf(monthlyRequired),
+                  ),
+                ),
+                const SizedBox(width: MintSpacing.md),
+                Expanded(
+                  child: _SummaryMetric(
+                    label: l10n.budgetSnapshotPresentLabel,
+                    value: _formatChf(trajectory.currentMonthlyFree),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: MintSpacing.lg),
+            _SituationValueRow(
+              label: l10n.pulseLabelMonthlyGap,
+              value: monthlyGap == null
+                  ? l10n.dataBlockStatusMissing
+                  : _formatChf(monthlyGap > 0 ? monthlyGap : 0),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: MintSpacing.md),
+              child: Divider(color: MintColors.border),
+            ),
+            Text(
+              l10n.trajectoryNextStepSectionTitle,
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              l10n.trajectoryNextStepBody,
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _trajectoryColor(TrajectoryStatus status) {
+    return switch (status) {
+      TrajectoryStatus.onTrack => MintColors.success,
+      TrajectoryStatus.drifting => MintColors.warning,
+      TrajectoryStatus.blocked => MintColors.error,
+      TrajectoryStatus.insufficientData => MintColors.info,
+    };
   }
 }
 
