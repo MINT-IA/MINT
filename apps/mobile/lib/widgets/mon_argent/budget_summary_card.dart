@@ -73,10 +73,12 @@ class BudgetSummaryCard extends StatelessWidget {
               style: MintTextStyles.bodyMedium(color: MintColors.ardoise),
             ),
             const SizedBox(height: MintSpacing.md),
-            FilledButton(
+            // dart format off
+            FilledButton( // lint-ignore: prefer_mint_cta
               onPressed: onSetup,
               child: Text(l10n.monArgentBudgetStart),
             ),
+            // dart format on
           ],
         ),
       ),
@@ -100,10 +102,12 @@ class BudgetSummaryCard extends StatelessWidget {
               style: MintTextStyles.bodyMedium(color: MintColors.ardoise),
             ),
             const SizedBox(height: MintSpacing.md),
-            OutlinedButton(
+            // dart format off
+            OutlinedButton( // lint-ignore: prefer_mint_cta
               onPressed: onRetry,
               child: Text(l10n.monArgentRetry),
             ),
+            // dart format on
           ],
         ),
       ),
