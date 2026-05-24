@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
+import 'package:mint_mobile/models/data_spine_snapshot.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -112,6 +113,14 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                         child: _MonArgentDataSpineSummary(
                           snapshot: budgetSnapshot,
                           patrimoineNet: patrimoine.net,
+                          l10n: l10n,
+                        ),
+                      ),
+                      const SizedBox(height: MintSpacing.lg),
+                      MintEntrance(
+                        delay: const Duration(milliseconds: 80),
+                        child: _MonArgentSituationMap(
+                          spine: dataSpine,
                           l10n: l10n,
                         ),
                       ),
@@ -276,13 +285,184 @@ class _MonArgentDataSpineSummary extends StatelessWidget {
       ),
     );
   }
+}
 
-  String _formatChf(double amount) {
-    final formatted = amount.toStringAsFixed(0).replaceAllMapped(
-          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-          (match) => "${match[1]}'",
-        );
-    return "$formatted\u00a0CHF";
+class _MonArgentSituationMap extends StatelessWidget {
+  final DataSpineSnapshot spine;
+  final S l10n;
+
+  const _MonArgentSituationMap({
+    required this.spine,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final situation = spine.situation;
+    final pillars = spine.pillars;
+
+    return Semantics(
+      label: l10n.dataBlockSituationTitle,
+      child: MintSurface(
+        tone: MintSurfaceTone.craie,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.dataBlockSituationTitle,
+              style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            _SituationValueRow(
+              label: l10n.affordabilityGrossIncome,
+              value: _valueOrMissing(situation.grossAnnualIncome),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _SituationValueRow(
+              label: l10n.dataBlockSituationCashLabel,
+              value: _valueOrMissing(situation.liquidSavings),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _SituationValueRow(
+              label: l10n.patrimoineDettes,
+              value: _valueOrMissing(situation.totalDebt),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: MintSpacing.md),
+              child: Divider(color: MintColors.border),
+            ),
+            _PillarValueRow(
+              label: l10n.dataBlockAvsTitle,
+              value: _pillarMoneyOrMissing(
+                pillars.avs.estimatedMonthlyPension,
+              ),
+              state: pillars.avs.estimatedMonthlyPension.state,
+              color: MintColors.info,
+              l10n: l10n,
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _PillarValueRow(
+              label: l10n.dataBlockLppTitle,
+              value: _pillarMoneyOrMissing(pillars.lpp.totalBalance),
+              state: pillars.lpp.totalBalance.state,
+              color: MintColors.pillarLpp,
+              l10n: l10n,
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _PillarValueRow(
+              label: l10n.dataBlock3aTitle,
+              value: _pillarMoneyOrMissing(pillars.pillar3a.totalBalance),
+              state: pillars.pillar3a.totalBalance.state,
+              color: MintColors.success,
+              l10n: l10n,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _valueOrMissing(SpineValue<double> value) {
+    final amount = value.value;
+    return amount == null ? l10n.dataBlockStatusMissing : _formatChf(amount);
+  }
+
+  String _pillarMoneyOrMissing(PillarFact<double> fact) {
+    final amount = fact.value;
+    return amount == null ? l10n.dataBlockStatusMissing : _formatChf(amount);
+  }
+}
+
+class _SituationValueRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _SituationValueRow({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          ),
+        ),
+        Text(
+          value,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w700),
+        ),
+      ],
+    );
+  }
+}
+
+class _PillarValueRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final PillarFactState state;
+  final Color color;
+  final S l10n;
+
+  const _PillarValueRow({
+    required this.label,
+    required this.value,
+    required this.state,
+    required this.color,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 32,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(999),
+          ),
+        ),
+        const SizedBox(width: MintSpacing.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textPrimary,
+                ).copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: MintSpacing.xs),
+              Text(
+                _stateLabel(state),
+                style: MintTextStyles.micro(color: MintColors.textMuted),
+              ),
+            ],
+          ),
+        ),
+        Text(
+          value,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w700),
+        ),
+      ],
+    );
+  }
+
+  String _stateLabel(PillarFactState state) {
+    return switch (state) {
+      PillarFactState.known => l10n.dataBlockStatusComplete,
+      PillarFactState.estimated => l10n.dataBlockStatusPartial,
+      PillarFactState.missing => l10n.dataBlockStatusMissing,
+    };
   }
 }
 
@@ -321,4 +501,12 @@ class _SummaryMetric extends StatelessWidget {
       ],
     );
   }
+}
+
+String _formatChf(double amount) {
+  final formatted = amount.toStringAsFixed(0).replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+        (match) => "${match[1]}'",
+      );
+  return "$formatted\u00a0CHF";
 }
