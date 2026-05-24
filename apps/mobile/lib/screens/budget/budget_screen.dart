@@ -103,8 +103,9 @@ class _BudgetScreenState extends State<BudgetScreen>
       // BudgetLivingEngine.compute(). Fall back to direct computation only
       // when MintStateProvider is not in the widget tree (e.g. tests).
       try {
+        final mintState = context.read<MintStateProvider>().state;
         final mintSnap =
-            context.read<MintStateProvider>().state?.budgetSnapshot;
+            mintState?.dataSpineSnapshot?.budget ?? mintState?.budgetSnapshot;
         if (mintSnap != null) {
           if (mounted) setState(() => _snapshot = mintSnap);
           return;
@@ -325,6 +326,14 @@ class _BudgetScreenState extends State<BudgetScreen>
                 _staggeredEntry(
                     index: 0, child: _buildHeader(plan, l, heroFree)),
                 const SizedBox(height: MintSpacing.md),
+
+                if (_snapshot != null) ...[
+                  _staggeredEntry(
+                    index: 1,
+                    child: _BudgetFlowMap(snapshot: _snapshot!, l: l),
+                  ),
+                  const SizedBox(height: MintSpacing.xxl),
+                ],
 
                 // ── ABOVE FOLD: Section 2b — Action insight ──
                 _staggeredEntry(
@@ -942,7 +951,7 @@ class _BudgetScreenState extends State<BudgetScreen>
       child: Semantics(
         button: true,
         label: label,
-        child: OutlinedButton(
+        child: OutlinedButton( // lint-ignore: prefer_mint_cta
           onPressed: () => context.push(route),
           child: Text(label),
         ),
@@ -969,6 +978,173 @@ class _BudgetScreenState extends State<BudgetScreen>
         Text(
           l.budgetDisclaimerFormula,
           style: MintTextStyles.micro(),
+        ),
+      ],
+    );
+  }
+}
+
+class _BudgetFlowMap extends StatelessWidget {
+  final BudgetSnapshot snapshot;
+  final S l;
+
+  const _BudgetFlowMap({
+    required this.snapshot,
+    required this.l,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final present = snapshot.present;
+    final free = present.monthlyFree > 0 ? present.monthlyFree : 0.0;
+    final total = present.monthlyNet > 0
+        ? present.monthlyNet
+        : present.monthlyCharges + present.monthlySavings + free;
+    final denominator = total > 0 ? total : 1.0;
+
+    return Semantics(
+      label: '${l.budgetNetIncome} ${formatChfWithPrefix(present.monthlyNet)}. '
+          '${l.pulseBudgetCharges} '
+          '${formatChfWithPrefix(present.monthlyCharges)}. '
+          '${l.budgetFuture} '
+          '${formatChfWithPrefix(present.monthlySavings)}. '
+          '${l.budgetAvailable} ${formatChfWithPrefix(present.monthlyFree)}.',
+      child: MintSurface(
+        tone: MintSurfaceTone.craie,
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        radius: 16,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _BudgetFlowAmountRow(
+              label: l.budgetNetIncome,
+              amount: present.monthlyNet,
+              color: MintColors.textPrimary,
+            ),
+            const SizedBox(height: MintSpacing.md),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: SizedBox(
+                height: 14,
+                child: Row(
+                  children: [
+                    if (present.monthlyCharges > 0)
+                      _BudgetFlowSegment(
+                        flex: _segmentFlex(
+                          present.monthlyCharges,
+                          denominator,
+                        ),
+                        color: MintColors.terracotta,
+                      ),
+                    if (present.monthlySavings > 0)
+                      _BudgetFlowSegment(
+                        flex: _segmentFlex(
+                          present.monthlySavings,
+                          denominator,
+                        ),
+                        color: MintColors.info,
+                      ),
+                    if (free > 0)
+                      _BudgetFlowSegment(
+                        flex: _segmentFlex(free, denominator),
+                        color: MintColors.success,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            _BudgetFlowAmountRow(
+              label: l.pulseBudgetCharges,
+              amount: present.monthlyCharges,
+              color: MintColors.terracotta,
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _BudgetFlowAmountRow(
+              label: l.budgetFuture,
+              amount: present.monthlySavings,
+              color: MintColors.info,
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _BudgetFlowAmountRow(
+              label: l.budgetAvailable,
+              amount: present.monthlyFree,
+              color: present.isDeficit ? MintColors.error : MintColors.success,
+              isStrong: true,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  int _segmentFlex(double amount, double denominator) {
+    final ratio = amount / denominator;
+    return (ratio * 1000).round().clamp(1, 1000).toInt();
+  }
+}
+
+class _BudgetFlowSegment extends StatelessWidget {
+  final int flex;
+  final Color color;
+
+  const _BudgetFlowSegment({
+    required this.flex,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      flex: flex,
+      child: ColoredBox(color: color),
+    );
+  }
+}
+
+class _BudgetFlowAmountRow extends StatelessWidget {
+  final String label;
+  final double amount;
+  final Color color;
+  final bool isStrong;
+
+  const _BudgetFlowAmountRow({
+    required this.label,
+    required this.amount,
+    required this.color,
+    this.isStrong = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: MintSpacing.sm),
+        Expanded(
+          child: Text(
+            label,
+            style: MintTextStyles.bodySmall(
+              color: MintColors.textSecondary,
+            ).copyWith(
+              fontWeight: isStrong ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+        ),
+        Text(
+          formatChfWithPrefix(amount),
+          style: MintTextStyles.bodyMedium(
+            color: isStrong ? color : MintColors.textPrimary,
+          ).copyWith(
+            fontWeight: isStrong ? FontWeight.w800 : FontWeight.w600,
+          ),
         ),
       ],
     );
