@@ -7,7 +7,10 @@ abstract final class CoachContextPacketService {
     'profile.canton',
     'profile.birth_year',
     'situation.gross_annual_income',
+    'situation.monthly_housing_cost',
+    'situation.lamal_premium_monthly',
     'situation.liquid_savings',
+    'situation.investments',
     'situation.total_debt',
     'budget.monthly_net',
     'budget.monthly_free',
@@ -67,12 +70,33 @@ abstract final class CoachContextPacketService {
           fieldPath: 'situation.grossAnnualIncome',
           value: situation.grossAnnualIncome,
         ),
+      if (situation.monthlyHousingCost.hasValue)
+        _factFromValue(
+          id: 'situation.monthly_housing_cost',
+          domain: 'situation',
+          fieldPath: 'situation.monthlyHousingCost',
+          value: situation.monthlyHousingCost,
+        ),
+      if (situation.lamalPremiumMonthly.hasValue)
+        _factFromValue(
+          id: 'situation.lamal_premium_monthly',
+          domain: 'situation',
+          fieldPath: 'situation.lamalPremiumMonthly',
+          value: situation.lamalPremiumMonthly,
+        ),
       if (situation.liquidSavings.hasValue)
         _factFromValue(
           id: 'situation.liquid_savings',
           domain: 'situation',
           fieldPath: 'situation.liquidSavings',
           value: situation.liquidSavings,
+        ),
+      if (situation.investments.hasValue)
+        _factFromValue(
+          id: 'situation.investments',
+          domain: 'situation',
+          fieldPath: 'situation.investments',
+          value: situation.investments,
         ),
       if (situation.totalDebt.hasValue)
         _factFromValue(
