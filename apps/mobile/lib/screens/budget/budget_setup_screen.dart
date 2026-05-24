@@ -280,7 +280,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2, color: MintColors.white),
                       )
                     : Text(s.budgetSetupSave),
               ),
