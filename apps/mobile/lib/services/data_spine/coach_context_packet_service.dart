@@ -6,6 +6,9 @@ abstract final class CoachContextPacketService {
   static const allowedFactIds = <String>{
     'profile.canton',
     'profile.birth_year',
+    'situation.gross_annual_income',
+    'situation.liquid_savings',
+    'situation.total_debt',
     'budget.monthly_net',
     'budget.monthly_free',
     'budget.monthly_capacity',
@@ -56,6 +59,27 @@ abstract final class CoachContextPacketService {
           domain: 'profile',
           fieldPath: 'situation.birthYear',
           value: situation.birthYear,
+        ),
+      if (situation.grossAnnualIncome.hasValue)
+        _factFromValue(
+          id: 'situation.gross_annual_income',
+          domain: 'situation',
+          fieldPath: 'situation.grossAnnualIncome',
+          value: situation.grossAnnualIncome,
+        ),
+      if (situation.liquidSavings.hasValue)
+        _factFromValue(
+          id: 'situation.liquid_savings',
+          domain: 'situation',
+          fieldPath: 'situation.liquidSavings',
+          value: situation.liquidSavings,
+        ),
+      if (situation.totalDebt.hasValue)
+        _factFromValue(
+          id: 'situation.total_debt',
+          domain: 'situation',
+          fieldPath: 'situation.totalDebt',
+          value: situation.totalDebt,
         ),
     ];
   }

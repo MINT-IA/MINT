@@ -175,6 +175,9 @@ void main() {
 
       expect(fact(packet, 'profile.canton').value, 'VD');
       expect(fact(packet, 'profile.birth_year').value, 1987);
+      expect(fact(packet, 'situation.gross_annual_income').value, 104000);
+      expect(fact(packet, 'situation.liquid_savings').value, 18000);
+      expect(fact(packet, 'situation.total_debt').value, 3000);
       expect(fact(packet, 'budget.monthly_net').value, isA<double>());
       expect(fact(packet, 'budget.monthly_free').value, isA<double>());
       expect(fact(packet, 'budget.monthly_capacity').value, isA<double>());
