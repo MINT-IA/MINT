@@ -1,4 +1,5 @@
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/data_spine_snapshot.dart';
 
 /// Aggregated patrimoine snapshot with source tracking.
 ///
@@ -22,7 +23,8 @@ class PatrimoineSummary {
   final PatrimoineField? epargneLiquide;
   final PatrimoineField? dettes;
 
-  const PatrimoineSummary({this.lpp, this.pillar3a, this.epargneLiquide, this.dettes});
+  const PatrimoineSummary(
+      {this.lpp, this.pillar3a, this.epargneLiquide, this.dettes});
 
   double get totalActifs =>
       (lpp?.value ?? 0) + (pillar3a?.value ?? 0) + (epargneLiquide?.value ?? 0);
@@ -34,8 +36,7 @@ class PatrimoineSummary {
   bool get isEmpty => lpp == null && pillar3a == null && epargneLiquide == null;
 
   bool get isPartial =>
-      !isEmpty &&
-      (lpp == null || pillar3a == null || epargneLiquide == null);
+      !isEmpty && (lpp == null || pillar3a == null || epargneLiquide == null);
 
   /// Ratio of known fields (0.0 to 1.0) for the pulse circle.
   double get completionRatio {
@@ -91,9 +92,8 @@ class PatrimoineAggregator {
     final dettes = profile.dettes;
 
     // LPP: certificate data (avoirLppObligatoire present) wins over total
-    final lppSource = prevoyance.avoirLppObligatoire != null
-        ? 'certificate'
-        : 'userInput';
+    final lppSource =
+        prevoyance.avoirLppObligatoire != null ? 'certificate' : 'userInput';
 
     return PatrimoineSummary(
       lpp: _fieldOrNull(prevoyance.avoirLppTotal, lppSource),
@@ -118,8 +118,53 @@ class PatrimoineAggregator {
     );
   }
 
+  /// Compute a PatrimoineSummary from the unified data spine read model.
+  static PatrimoineSummary computeFromDataSpine(DataSpineSnapshot? spine) {
+    if (spine == null) return const PatrimoineSummary();
+
+    return PatrimoineSummary(
+      lpp: _pillarFieldOrNull(spine.pillars.lpp.totalBalance),
+      pillar3a: _pillarFieldOrNull(spine.pillars.pillar3a.totalBalance),
+      epargneLiquide: _spineFieldOrNull(spine.situation.liquidSavings),
+      dettes: _spineFieldOrNull(spine.situation.totalDebt),
+    );
+  }
+
   static PatrimoineField? _fieldOrNull(double? value, String source) {
     if (value == null || value <= 0) return null;
     return PatrimoineField(value: value, source: source);
+  }
+
+  static PatrimoineField? _pillarFieldOrNull(PillarFact<double> fact) {
+    final value = fact.value;
+    if (value == null || value <= 0 || fact.state == PillarFactState.missing) {
+      return null;
+    }
+    return PatrimoineField(
+      value: value,
+      source: _sourceName(fact.meta.source),
+      lastUpdated: fact.meta.updatedAt,
+    );
+  }
+
+  static PatrimoineField? _spineFieldOrNull(SpineValue<double> field) {
+    final value = field.value;
+    if (value == null || value <= 0) return null;
+    return PatrimoineField(
+      value: value,
+      source: _sourceName(field.meta.source),
+      lastUpdated: field.meta.updatedAt,
+    );
+  }
+
+  static String _sourceName(ProfileDataSource? source) {
+    return switch (source) {
+      ProfileDataSource.certificate => 'certificate',
+      ProfileDataSource.openBanking => 'openBanking',
+      ProfileDataSource.crossValidated => 'crossValidated',
+      ProfileDataSource.userInput => 'userInput',
+      ProfileDataSource.estimated => 'estimated',
+      null => 'dataSpine',
+    };
   }
 }

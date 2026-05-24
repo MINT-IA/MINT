@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/mon_argent/patrimoine_aggregator.dart';
 import 'package:mint_mobile/services/mon_argent/coach_whisper_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -63,7 +64,12 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
     final l10n = S.of(context)!;
     final budgetProvider = context.watch<BudgetProvider>();
     final coachProfile = context.watch<CoachProfileProvider>().profile;
-    final patrimoine = PatrimoineAggregator.compute(coachProfile);
+    final mintState = context.watch<MintStateProvider>().state;
+    final dataSpine = mintState?.dataSpineSnapshot;
+    final budgetSnapshot = dataSpine?.budget ?? mintState?.budgetSnapshot;
+    final patrimoine = dataSpine != null
+        ? PatrimoineAggregator.computeFromDataSpine(dataSpine)
+        : PatrimoineAggregator.compute(coachProfile);
     final whisper = CoachWhisperService.evaluate(
       budgetInputs: budgetProvider.inputs,
       budgetPlan: budgetProvider.plan,
@@ -102,9 +108,10 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                     // Card 1: Budget
                     MintEntrance(
                       child: BudgetSummaryCard(
+                        snapshot: budgetSnapshot,
                         inputs: budgetProvider.inputs,
                         plan: budgetProvider.plan,
-                        isLoading: _budgetLoading,
+                        isLoading: budgetSnapshot == null && _budgetLoading,
                         hasError: _budgetError,
                         onTap: () => context.push('/budget'),
                         onRetry: _loadBudget,
@@ -135,8 +142,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                       MintEntrance(
                         delay: const Duration(milliseconds: 200),
                         child: GestureDetector(
-                          onTap: () =>
-                              context.go('/coach/chat?topic=budget'),
+                          onTap: () => context.go('/coach/chat?topic=budget'),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: MintSpacing.sm,

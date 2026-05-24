@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -14,6 +15,7 @@ import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 /// 4 states: loading, empty, error, data.
 /// StatelessWidget — parent passes data, no internal context.watch.
 class BudgetSummaryCard extends StatelessWidget {
+  final BudgetSnapshot? snapshot;
   final BudgetInputs? inputs;
   final BudgetPlan? plan;
   final bool isLoading;
@@ -24,6 +26,7 @@ class BudgetSummaryCard extends StatelessWidget {
 
   const BudgetSummaryCard({
     super.key,
+    this.snapshot,
     this.inputs,
     this.plan,
     this.isLoading = false,
@@ -39,6 +42,7 @@ class BudgetSummaryCard extends StatelessWidget {
 
     if (isLoading) return _buildLoading();
     if (hasError) return _buildError(l10n);
+    if (snapshot != null) return _buildSnapshotData(l10n, snapshot!);
     if (inputs == null) return _buildEmpty(l10n);
     return _buildData(l10n);
   }
@@ -111,6 +115,30 @@ class BudgetSummaryCard extends StatelessWidget {
     final available = plan?.available ?? 0;
     final spent = monthlyIncome - available;
 
+    return _buildRows(
+      l10n: l10n,
+      monthlyIncome: monthlyIncome,
+      spent: spent,
+      available: available,
+    );
+  }
+
+  Widget _buildSnapshotData(S l10n, BudgetSnapshot snapshot) {
+    final present = snapshot.present;
+    return _buildRows(
+      l10n: l10n,
+      monthlyIncome: present.monthlyNet,
+      spent: present.monthlyCharges + present.monthlySavings,
+      available: present.monthlyFree,
+    );
+  }
+
+  Widget _buildRows({
+    required S l10n,
+    required double monthlyIncome,
+    required double spent,
+    required double available,
+  }) {
     return Semantics(
       label: '${l10n.monArgentBudgetTitle}. '
           '${l10n.monArgentBudgetIncome} ${_formatChf(monthlyIncome)}. '
@@ -165,11 +193,13 @@ class BudgetSummaryCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: style ?? MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+          style: style ??
+              MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
         Text(
           _formatChf(amount),
-          style: style ?? MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+          style:
+              style ?? MintTextStyles.bodyMedium(color: MintColors.textPrimary),
         ),
       ],
     );
@@ -177,9 +207,9 @@ class BudgetSummaryCard extends StatelessWidget {
 
   String _formatChf(double amount) {
     final formatted = amount.toStringAsFixed(0).replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (match) => "${match[1]}'",
-    );
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (match) => "${match[1]}'",
+        );
     return "$formatted\u00a0CHF";
   }
 }
