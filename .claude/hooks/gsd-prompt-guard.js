@@ -1,8 +1,5 @@
 #!/usr/bin/env node
-// gsd-hook-version: 1.33.0
-// 1.33.0: CTX-02 metric (b) context_hits.jsonl append. Additive — advisory injection warning unchanged.
-//         Never-throw extension: wraps all new logic in try/catch with process.exit(0) fallback.
-//         stderr output routes to /tmp/gsd-prompt-guard-error.log, never bubbles to runtime.
+// gsd-hook-version: 1.42.3
 // GSD Prompt Injection Guard — PreToolUse hook
 // Scans file content being written to .planning/ for prompt injection patterns.
 // Defense-in-depth: catches injected instructions before they enter agent context.
@@ -25,6 +22,7 @@ const INJECTION_PATTERNS = [
   /forget\s+(all\s+)?(your\s+)?instructions/i,
   /override\s+(system|previous)\s+(prompt|instructions)/i,
   /you\s+are\s+now\s+(?:a|an|the)\s+/i,
+  /act\s+as\s+(?:a|an|the)\s+(?!plan|phase|wave)/i,
   /pretend\s+(?:you(?:'re| are)\s+|to\s+be\s+)/i,
   /from\s+now\s+on,?\s+you\s+(?:are|will|should|must)/i,
   /(?:print|output|reveal|show|display|repeat)\s+(?:your\s+)?(?:system\s+)?(?:prompt|instructions)/i,
@@ -34,8 +32,8 @@ const INJECTION_PATTERNS = [
   /<<\s*SYS\s*>>/i,
 ];
 
-// CTX-02 metric (b) — append-only log path (resolved relative to repo root)
-// __dirname is `.claude/hooks` → repo root is two levels up.
+// MINT drift telemetry. Keep this hook advisory-only, but persist detections so
+// agent-drift can track context hygiene regressions across sessions.
 const HITS_LOG = path.join(
   __dirname,
   '..',
@@ -47,28 +45,24 @@ const HITS_LOG = path.join(
 const ERROR_LOG = '/tmp/gsd-prompt-guard-error.log';
 
 function logHit(sessionId, findings) {
-  // CTX-02 metric (b): append JSON line per detection. Silent on any error.
   try {
     fs.mkdirSync(path.dirname(HITS_LOG), { recursive: true });
     const row = {
       session_id: sessionId || 'unknown',
       hit_type: 'rule_violation_pre_tool_use',
       rule_id: (findings || []).slice(0, 3).join('|'),
-      // PreToolUse fires at tool boundary. tool_use_index=0 approximates
-      // "first tool_use of the session" for the context_hit_rate metric.
       tool_use_index: 0,
       detected_at: Math.floor(Date.now() / 1000),
     };
     fs.appendFileSync(HITS_LOG, JSON.stringify(row) + '\n');
   } catch (err) {
-    // Never surface an error to the runtime. Route to /tmp log for dev inspect.
     try {
       fs.appendFileSync(
         ERROR_LOG,
         `[${new Date().toISOString()}] gsd-prompt-guard logHit: ${err && err.message}\n`
       );
     } catch {
-      /* silent — never block */
+      // Never block Claude/Codex hook execution because telemetry failed.
     }
   }
 }
@@ -118,7 +112,6 @@ process.stdin.on('end', () => {
       process.exit(0);
     }
 
-    // CTX-02 metric (b) — log the hit BEFORE emitting the advisory warning
     logHit(data.session_id, findings);
 
     // Advisory warning — does not block the operation
