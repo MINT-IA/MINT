@@ -53,9 +53,13 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
+    expect(find.text('Ton libre mensuel'), findsOneWidget);
+    expect(find.text('Fiabilité'), findsOneWidget);
+    expect(find.text('64%'), findsOneWidget);
+    expect(find.text('Estimation crédible.'), findsOneWidget);
     expect(find.text("8'000\u00a0CHF"), findsOneWidget);
-    expect(find.text("2'100\u00a0CHF"), findsOneWidget);
-    expect(find.text("172'000\u00a0CHF"), findsOneWidget);
+    expect(find.text("2'100\u00a0CHF"), findsNWidgets(2));
+    expect(find.text("172'000\u00a0CHF"), findsNWidgets(2));
   });
 }
 

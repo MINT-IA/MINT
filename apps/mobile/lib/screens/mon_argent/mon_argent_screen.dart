@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -16,6 +17,7 @@ import 'package:mint_mobile/widgets/mint_shell.dart';
 import 'package:mint_mobile/widgets/mon_argent/budget_summary_card.dart';
 import 'package:mint_mobile/widgets/mon_argent/patrimoine_summary_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Mon argent tab — financial state at a glance.
 ///
@@ -105,6 +107,17 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (dataSpine != null && budgetSnapshot != null) ...[
+                      MintEntrance(
+                        child: _MonArgentDataSpineSummary(
+                          snapshot: budgetSnapshot,
+                          patrimoineNet: patrimoine.net,
+                          l10n: l10n,
+                        ),
+                      ),
+                      const SizedBox(height: MintSpacing.lg),
+                    ],
+
                     // Card 1: Budget
                     MintEntrance(
                       child: BudgetSummaryCard(
@@ -194,6 +207,118 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _MonArgentDataSpineSummary extends StatelessWidget {
+  final BudgetSnapshot snapshot;
+  final double patrimoineNet;
+  final S l10n;
+
+  const _MonArgentDataSpineSummary({
+    required this.snapshot,
+    required this.patrimoineNet,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final confidence = snapshot.confidenceScore.round().clamp(0, 100);
+    final confidenceDetail = confidence >= 60
+        ? l10n.budgetSnapshotConfidenceOk
+        : l10n.budgetSnapshotConfidenceLow;
+
+    return Semantics(
+      label: '${l10n.budgetSnapshotFreeLabel}. '
+          '${_formatChf(snapshot.present.monthlyFree)}. '
+          '${l10n.budgetSnapshotConfidenceLabel} $confidence%.',
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
+        elevated: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.budgetSnapshotFreeLabel,
+              style: MintTextStyles.labelLarge(color: MintColors.ardoise),
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              _formatChf(snapshot.present.monthlyFree),
+              style: MintTextStyles.displayMedium(
+                color: snapshot.present.isDeficit
+                    ? MintColors.error
+                    : MintColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: MintSpacing.lg),
+            Row(
+              children: [
+                Expanded(
+                  child: _SummaryMetric(
+                    label: l10n.budgetSnapshotConfidenceLabel,
+                    value: '$confidence%',
+                    detail: confidenceDetail,
+                  ),
+                ),
+                const SizedBox(width: MintSpacing.md),
+                Expanded(
+                  child: _SummaryMetric(
+                    label: l10n.monArgentPatrimoineNet,
+                    value: _formatChf(patrimoineNet),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatChf(double amount) {
+    final formatted = amount.toStringAsFixed(0).replaceAllMapped(
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (match) => "${match[1]}'",
+        );
+    return "$formatted\u00a0CHF";
+  }
+}
+
+class _SummaryMetric extends StatelessWidget {
+  final String label;
+  final String value;
+  final String? detail;
+
+  const _SummaryMetric({
+    required this.label,
+    required this.value,
+    this.detail,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: MintTextStyles.labelMedium(color: MintColors.textMuted),
+        ),
+        const SizedBox(height: MintSpacing.xs),
+        Text(
+          value,
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
+        ),
+        if (detail != null) ...[
+          const SizedBox(height: MintSpacing.xs),
+          Text(
+            detail!,
+            style: MintTextStyles.bodySmall(color: MintColors.ardoise),
+          ),
+        ],
+      ],
     );
   }
 }
