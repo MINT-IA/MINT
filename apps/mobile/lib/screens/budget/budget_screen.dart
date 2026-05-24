@@ -1019,6 +1019,7 @@ class _BudgetFlowMap extends StatelessWidget {
             _BudgetFlowAmountRow(
               label: l.budgetNetIncome,
               amount: present.monthlyNet,
+              shareLabel: '100%',
               color: MintColors.textPrimary,
             ),
             const SizedBox(height: MintSpacing.md),
@@ -1057,18 +1058,21 @@ class _BudgetFlowMap extends StatelessWidget {
             _BudgetFlowAmountRow(
               label: l.pulseBudgetCharges,
               amount: present.monthlyCharges,
+              shareLabel: _formatShare(present.monthlyCharges, denominator),
               color: MintColors.terracotta,
             ),
             const SizedBox(height: MintSpacing.sm),
             _BudgetFlowAmountRow(
               label: l.budgetFuture,
               amount: present.monthlySavings,
+              shareLabel: _formatShare(present.monthlySavings, denominator),
               color: MintColors.info,
             ),
             const SizedBox(height: MintSpacing.sm),
             _BudgetFlowAmountRow(
               label: l.budgetAvailable,
               amount: present.monthlyFree,
+              shareLabel: _formatShare(free, denominator),
               color: present.isDeficit ? MintColors.error : MintColors.success,
               isStrong: true,
             ),
@@ -1081,6 +1085,11 @@ class _BudgetFlowMap extends StatelessWidget {
   int _segmentFlex(double amount, double denominator) {
     final ratio = amount / denominator;
     return (ratio * 1000).round().clamp(1, 1000).toInt();
+  }
+
+  String _formatShare(double amount, double denominator) {
+    if (denominator <= 0) return '0%';
+    return '${((amount / denominator) * 100).round()}%';
   }
 }
 
@@ -1105,12 +1114,14 @@ class _BudgetFlowSegment extends StatelessWidget {
 class _BudgetFlowAmountRow extends StatelessWidget {
   final String label;
   final double amount;
+  final String shareLabel;
   final Color color;
   final bool isStrong;
 
   const _BudgetFlowAmountRow({
     required this.label,
     required this.amount,
+    required this.shareLabel,
     required this.color,
     this.isStrong = false,
   });
@@ -1138,6 +1149,12 @@ class _BudgetFlowAmountRow extends StatelessWidget {
             ),
           ),
         ),
+        Text(
+          shareLabel,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+              .copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(width: MintSpacing.sm),
         Text(
           formatChfWithPrefix(amount),
           style: MintTextStyles.bodyMedium(

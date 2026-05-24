@@ -144,6 +144,9 @@ void main() {
     expect(find.text("CHF\u00a05'200"), findsOneWidget);
     expect(find.text("CHF\u00a0700"), findsWidgets);
     expect(find.text("CHF\u00a02'100"), findsOneWidget);
+    expect(find.text('65%'), findsOneWidget);
+    expect(find.text('9%'), findsOneWidget);
+    expect(find.text('26%'), findsOneWidget);
   });
 }
 
