@@ -60,6 +60,7 @@ void main() {
     expect(find.text('Situation financière'), findsOneWidget);
     expect(find.text('Revenu brut annuel'), findsOneWidget);
     expect(find.text('Liquidités disponibles'), findsOneWidget);
+    expect(find.text('Investissements'), findsOneWidget);
     expect(find.text('Extrait AVS'), findsOneWidget);
     expect(find.text('Prévoyance LPP'), findsOneWidget);
     expect(find.text('3e pilier (3a)'), findsOneWidget);
@@ -75,6 +76,7 @@ void main() {
     expect(find.text("0\u00a0CHF"), findsOneWidget);
     expect(find.text("108'000\u00a0CHF"), findsOneWidget);
     expect(find.text("30'000\u00a0CHF"), findsWidgets);
+    expect(find.text("12'000\u00a0CHF"), findsOneWidget);
     expect(find.text("32'000\u00a0CHF"), findsWidgets);
     expect(find.text('Manquant'), findsWidgets);
     expect(find.text("172'000\u00a0CHF"), findsNWidgets(2));

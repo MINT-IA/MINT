@@ -430,6 +430,11 @@ class _MonArgentSituationMap extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.sm),
             _SituationValueRow(
+              label: l10n.financialSummaryInvestissements,
+              value: _valueOrMissing(situation.investments),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _SituationValueRow(
               label: l10n.patrimoineDettes,
               value: _valueOrMissing(situation.totalDebt),
             ),
