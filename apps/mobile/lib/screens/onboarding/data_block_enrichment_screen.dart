@@ -10,6 +10,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/cross_validation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -25,6 +26,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 class DataBlockEnrichmentScreen extends StatefulWidget {
   final String blockType;
   static const Set<String> _supportedBlockTypes = {
+    'situation',
     'revenu',
     'lpp',
     'avs',
@@ -45,13 +47,36 @@ class DataBlockEnrichmentScreen extends StatefulWidget {
       _DataBlockEnrichmentScreenState();
 }
 
-class _DataBlockEnrichmentScreenState
-    extends State<DataBlockEnrichmentScreen> {
+class _DataBlockEnrichmentScreenState extends State<DataBlockEnrichmentScreen> {
   bool _showCoachMode = false;
+  final _birthYearController = TextEditingController();
+  final _cantonController = TextEditingController();
+  final _netIncomeController = TextEditingController();
+  final _cashController = TextEditingController();
+  final _debtPaymentController = TextEditingController();
+  bool _situationPrefilled = false;
 
   /// Cached cross-validation alerts to avoid recomputing on every build.
   List<ValidationAlert>? _cachedAlerts;
   CoachProfile? _cachedAlertsProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_canonicalBlockType(widget.blockType) == 'situation') {
+      _prefillSituation();
+    }
+  }
+
+  @override
+  void dispose() {
+    _birthYearController.dispose();
+    _cantonController.dispose();
+    _netIncomeController.dispose();
+    _cashController.dispose();
+    _debtPaymentController.dispose();
+    super.dispose();
+  }
 
   List<ValidationAlert> _getAlertsForBlock(
       CoachProfile profile, String blockType) {
@@ -67,8 +92,8 @@ class _DataBlockEnrichmentScreenState
   Widget build(BuildContext context) {
     final profile = context.watch<CoachProfileProvider>().profile;
     final canonicalBlockType = _canonicalBlockType(widget.blockType);
-    final isKnownBlock =
-        DataBlockEnrichmentScreen._supportedBlockTypes.contains(canonicalBlockType);
+    final isKnownBlock = DataBlockEnrichmentScreen._supportedBlockTypes
+        .contains(canonicalBlockType);
     final blocs = profile != null
         ? ConfidenceScorer.scoreAsBlocs(profile)
         : <String, BlockScore>{};
@@ -92,102 +117,274 @@ class _DataBlockEnrichmentScreenState
         ),
         title: Text(
           meta.title,
-          style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w700),
         ),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 16),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 16),
 
-              // ── Block score indicator ────────────────────────────
-              if (bloc != null) MintEntrance(child: _BlockScoreBar(bloc: bloc)),
-              const SizedBox(height: 24),
+                      // ── Block score indicator ────────────────────────────
+                      if (bloc != null)
+                        MintEntrance(child: _BlockScoreBar(bloc: bloc)),
+                      const SizedBox(height: 24),
 
-              // ── Coach mode toggle ───────────────────────────────
-              MintEntrance(delay: const Duration(milliseconds: 100), child: _CoachModeToggle(
-                isCoachMode: _showCoachMode,
-                coachAvailable: coachAvailable,
-                onToggle: (value) {
-                  if (value) {
-                    // Navigate to coach chat with structured topic
-                    context.go('/coach/chat?topic=${Uri.encodeComponent(canonicalBlockType)}');
-                  } else {
-                    setState(() => _showCoachMode = false);
-                  }
-                },
-              )),
-              const SizedBox(height: 16),
+                      // ── Coach mode toggle ───────────────────────────────
+                      MintEntrance(
+                          delay: const Duration(milliseconds: 100),
+                          child: _CoachModeToggle(
+                            isCoachMode: _showCoachMode,
+                            coachAvailable: coachAvailable,
+                            onToggle: (value) {
+                              if (value) {
+                                // Navigate to coach chat with structured topic
+                                context.go(
+                                    '/coach/chat?topic=${Uri.encodeComponent(canonicalBlockType)}');
+                              } else {
+                                setState(() => _showCoachMode = false);
+                              }
+                            },
+                          )),
+                      const SizedBox(height: 16),
 
-              // ── Description ─────────────────────────────────────
-              ...[
-                MintEntrance(delay: const Duration(milliseconds: 150), child: Text(
-                  meta.description,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
-                )),
-                const SizedBox(height: 24),
-              ],
+                      // ── Description ─────────────────────────────────────
+                      ...[
+                        MintEntrance(
+                            delay: const Duration(milliseconds: 150),
+                            child: Text(
+                              meta.description,
+                              style: MintTextStyles.bodyMedium(
+                                      color: MintColors.textSecondary)
+                                  .copyWith(height: 1.5),
+                            )),
+                        const SizedBox(height: 24),
+                      ],
 
-              // ── Enrichment prompts for this block ────────────────
-              if (profile != null) ...[
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrompts(profile, canonicalBlockType, bloc)),
-              ],
+                      if (canonicalBlockType == 'situation') ...[
+                        MintEntrance(
+                          delay: const Duration(milliseconds: 200),
+                          child: _buildSituationForm(l),
+                        ),
+                      ] else ...[
+                        // ── Enrichment prompts for this block ────────────────
+                        if (profile != null) ...[
+                          MintEntrance(
+                              delay: const Duration(milliseconds: 200),
+                              child: _buildPrompts(
+                                  profile, canonicalBlockType, bloc)),
+                        ],
 
-              // ── Cross-validation alerts ────────────────────────────
-              if (profile != null) ...[
-                _buildValidationAlerts(profile, canonicalBlockType),
-              ],
+                        // ── Cross-validation alerts ────────────────────────────
+                        if (profile != null) ...[
+                          _buildValidationAlerts(profile, canonicalBlockType),
+                        ],
+                      ],
 
-              const SizedBox(height: 32),
+                      const SizedBox(height: 32),
 
-              // ── CTA ──────────────────────────────────────────────
-              Semantics(
-                button: true,
-                label: meta.ctaLabel,
-                child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    // Navigate to the appropriate enrichment flow
-                    final route = _enrichmentRoute(canonicalBlockType);
-                    if (route != null) {
-                      context.push(route);
-                    } else {
-                      safePop(context);
-                    }
-                  },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: MintColors.primary,
-                    foregroundColor: MintColors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: Text(
-                    meta.ctaLabel,
-                    style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
+                      // ── CTA ──────────────────────────────────────────────
+                      if (canonicalBlockType != 'situation') ...[
+                        Semantics(
+                            button: true,
+                            label: meta.ctaLabel,
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: FilledButton( /* // lint-ignore: prefer_mint_cta */
+                                onPressed: () {
+                                  HapticFeedback.lightImpact();
+                                  // Navigate to the appropriate enrichment flow
+                                  final route =
+                                      _enrichmentRoute(canonicalBlockType);
+                                  if (route != null) {
+                                    context.push(route);
+                                  } else {
+                                    safePop(context);
+                                  }
+                                },
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: MintColors.primary,
+                                  foregroundColor: MintColors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 18),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: Text(
+                                  meta.ctaLabel,
+                                  style: MintTextStyles.titleMedium()
+                                      .copyWith(fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            )),
+                      ],
+                      const SizedBox(height: 16),
+
+                      // ── Disclaimer ───────────────────────────────────────
+                      MintEntrance(
+                          child: Text(
+                        S.of(context)!.dataBlockDisclaimer,
+                        style: MintTextStyles.micro(color: MintColors.textMuted)
+                            .copyWith(height: 1.4),
+                        textAlign: TextAlign.center,
+                      )),
+                      const SizedBox(height: 16),
+                    ],
                   ),
                 ),
-              )),
-              const SizedBox(height: 16),
+              ))),
+    );
+  }
 
-              // ── Disclaimer ───────────────────────────────────────
-              MintEntrance(child: Text(
-                S.of(context)!.dataBlockDisclaimer,
-                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.4),
-                textAlign: TextAlign.center,
-              )),
-              const SizedBox(height: 16),
-            ],
+  Future<void> _prefillSituation() async {
+    if (_situationPrefilled) return;
+    _situationPrefilled = true;
+    final answers = await ReportPersistenceService.loadAnswers();
+    if (!mounted) return;
+    _birthYearController.text = _answerText(answers['q_birth_year']) ?? '';
+    _cantonController.text = _answerText(answers['q_canton']) ?? '';
+    _netIncomeController.text =
+        _answerText(answers['q_net_income_period_chf']) ?? '';
+    _cashController.text = _answerText(answers['q_cash_total']) ?? '';
+    _debtPaymentController.text =
+        _answerText(answers['q_debt_payments_period_chf']) ?? '';
+  }
+
+  String? _answerText(dynamic value) {
+    if (value == null) return null;
+    if (value is String && value.trim().isEmpty) return null;
+    if (value is num) return _formatAmount(value.toDouble());
+    return value.toString();
+  }
+
+  String _formatAmount(double value) {
+    if (value == value.roundToDouble()) return value.round().toString();
+    return value.toString();
+  }
+
+  Widget _buildSituationForm(S l) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _situationTextField(
+          key: const ValueKey('situationBirthYearField'),
+          controller: _birthYearController,
+          label: l.dataBlockSituationBirthYearLabel,
+          keyboardType: TextInputType.number,
+        ),
+        const SizedBox(height: 12),
+        _situationTextField(
+          key: const ValueKey('situationCantonField'),
+          controller: _cantonController,
+          label: l.dataBlockSituationCantonLabel,
+          textCapitalization: TextCapitalization.characters,
+        ),
+        const SizedBox(height: 12),
+        _situationTextField(
+          key: const ValueKey('situationNetIncomeField'),
+          controller: _netIncomeController,
+          label: l.dataBlockSituationNetIncomeLabel,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        ),
+        const SizedBox(height: 12),
+        _situationTextField(
+          key: const ValueKey('situationCashField'),
+          controller: _cashController,
+          label: l.dataBlockSituationCashLabel,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        ),
+        const SizedBox(height: 12),
+        _situationTextField(
+          key: const ValueKey('situationDebtPaymentField'),
+          controller: _debtPaymentController,
+          label: l.dataBlockSituationDebtPaymentLabel,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        ),
+        const SizedBox(height: 16),
+        FilledButton( /* // lint-ignore: prefer_mint_cta */
+          key: const ValueKey('situationSaveButton'),
+          onPressed: _saveSituation,
+          style: FilledButton.styleFrom(
+            backgroundColor: MintColors.primary,
+            foregroundColor: MintColors.white,
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          child: Text(
+            l.dataBlockSituationSaveCta,
+            style: MintTextStyles.titleMedium()
+                .copyWith(fontWeight: FontWeight.w600),
           ),
         ),
-      ))),
+      ],
     );
+  }
+
+  Widget _situationTextField({
+    required Key key,
+    required TextEditingController controller,
+    required String label,
+    TextInputType? keyboardType,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+  }) {
+    return TextField(
+      key: key,
+      controller: controller,
+      keyboardType: keyboardType,
+      textCapitalization: textCapitalization,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: MintColors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: MintColors.lightBorder),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveSituation() async {
+    HapticFeedback.lightImpact();
+    final debtPayment = _parseAmount(_debtPaymentController.text) ?? 0.0;
+    final answers = <String, dynamic>{
+      if (_parseInt(_birthYearController.text) != null)
+        'q_birth_year': _parseInt(_birthYearController.text),
+      if (_cantonController.text.trim().isNotEmpty)
+        'q_canton': _cantonController.text.trim().toUpperCase(),
+      if (_parseAmount(_netIncomeController.text) != null)
+        'q_net_income_period_chf': _parseAmount(_netIncomeController.text),
+      'q_pay_frequency': 'monthly',
+      if (_parseAmount(_cashController.text) != null)
+        'q_cash_total': _parseAmount(_cashController.text),
+      'q_has_consumer_debt': debtPayment > 0 ? 'yes' : 'no',
+      'q_debt_payments_period_chf': debtPayment,
+    };
+    await context.read<CoachProfileProvider>().mergeAnswers(answers);
+    if (!mounted) return;
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/coach/chat');
+    }
+  }
+
+  int? _parseInt(String value) => int.tryParse(value.trim());
+
+  double? _parseAmount(String value) {
+    final normalized = value.trim().replaceAll("'", '').replaceAll(',', '.');
+    if (normalized.isEmpty) return null;
+    return double.tryParse(normalized);
   }
 
   Widget _buildPrompts(CoachProfile profile, String type, BlockScore? bloc) {
@@ -210,7 +407,9 @@ class _DataBlockEnrichmentScreenState
               Expanded(
                 child: Text(
                   S.of(context)!.dataBlockIncomplete,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                          .copyWith(height: 1.4),
                 ),
               ),
             ],
@@ -255,7 +454,9 @@ class _DataBlockEnrichmentScreenState
                   child: Center(
                     child: Text(
                       '+${prompt.impact}',
-                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
+                      style:
+                          MintTextStyles.labelSmall(color: MintColors.primary)
+                              .copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -266,12 +467,15 @@ class _DataBlockEnrichmentScreenState
                     children: [
                       Text(
                         prompt.label,
-                        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                        style: MintTextStyles.bodyMedium(
+                                color: MintColors.textPrimary)
+                            .copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: MintSpacing.xs),
                       Text(
                         prompt.action,
-                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                        style: MintTextStyles.labelSmall(
+                            color: MintColors.textSecondary),
                       ),
                     ],
                   ),
@@ -324,7 +528,9 @@ class _DataBlockEnrichmentScreenState
                       Expanded(
                         child: Text(
                           alert.message,
-                          style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
+                          style: MintTextStyles.bodySmall(
+                                  color: MintColors.textPrimary)
+                              .copyWith(height: 1.4),
                         ),
                       ),
                     ],
@@ -335,7 +541,9 @@ class _DataBlockEnrichmentScreenState
                       padding: const EdgeInsets.only(left: 32),
                       child: Text(
                         alert.suggestion!,
-                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+                        style: MintTextStyles.labelSmall(
+                                color: MintColors.textSecondary)
+                            .copyWith(height: 1.4),
                       ),
                     ),
                   ],
@@ -358,24 +566,11 @@ class _DataBlockEnrichmentScreenState
       'fiscalite': ['fiscalite', 'tax', 'commune'],
       'objectifRetraite': ['objectif_retraite', 'retirement_urgency'],
       'compositionMenage': ['menage'],
+      'situation': ['income', 'patrimoine'],
       'foreign_pension': ['foreign_pension'],
     };
     final categories = mapping[blockType] ?? [];
     return categories.contains(category);
-  }
-
-  String _coachPromptForBlock(String type) {
-    return switch (type) {
-      '3a' => 'Je veux comprendre mon 3e pilier : combien de comptes ouvrir, chez quel provider, et comment maximiser mon avantage fiscal.',
-      'lpp' => 'Explique-moi mon 2e pilier LPP : mon avoir actuel, la lacune de rachat, et ce que je peux faire pour améliorer ma situation.',
-      'avs' => 'Parle-moi de ma rente AVS : est-ce que j\'ai des lacunes de cotisation et comment les combler ?',
-      'patrimoine' => 'Je veux faire le point sur mon patrimoine global et comprendre comment le structurer.',
-      'fiscalite' => 'Aide-moi a comprendre ma situation fiscale et les leviers d\'optimisation possibles.',
-      'revenu' => 'Je veux comprendre l\'impact de mon revenu sur ma prevoyance et mes impots.',
-      'objectifRetraite' => 'Quel serait l\'impact si je partais a la retraite plus tot ou plus tard ?',
-      'compositionMenage' => 'Comment la situation de couple influence mes projections de retraite ?',
-      _ => 'Aide-moi a completer mon profil financier.',
-    };
   }
 
   String? _enrichmentRoute(String type) {
@@ -395,14 +590,17 @@ class _DataBlockEnrichmentScreenState
   String _canonicalBlockType(String rawType) {
     final normalized = _normalizeTypeToken(rawType);
     return switch (normalized) {
-      'situation' ||
+      'revenu' ||
       'income' ||
       'salary' ||
-      'revenu' ||
       'salaire' ||
       'base' ||
       'age_canton' =>
-        'revenu',
+        'situation',
+      'situation' ||
+      'current_situation' ||
+      'financial_situation' =>
+        'situation',
       'couple' ||
       'menage' ||
       'household' ||
@@ -475,6 +673,11 @@ class _DataBlockEnrichmentScreenState
 
   _BlockMeta _blockMeta(String type, S l) {
     return switch (type) {
+      'situation' => _BlockMeta(
+          title: l.dataBlockSituationTitle,
+          description: l.dataBlockSituationDesc,
+          ctaLabel: l.dataBlockSituationSaveCta,
+        ),
       'revenu' => _BlockMeta(
           title: l.dataBlockRevenuTitle,
           description: l.dataBlockRevenuDesc,
@@ -563,7 +766,8 @@ class _BlockScoreBar extends StatelessWidget {
           children: [
             Text(
               '${bloc.score.round()} / ${bloc.maxScore.round()} pts',
-              style: MintTextStyles.titleMedium(color: color).copyWith(fontWeight: FontWeight.w700),
+              style: MintTextStyles.titleMedium(color: color)
+                  .copyWith(fontWeight: FontWeight.w700),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -577,7 +781,8 @@ class _BlockScoreBar extends StatelessWidget {
                   'partial' => S.of(context)!.dataBlockStatusPartial,
                   _ => S.of(context)!.dataBlockStatusMissing,
                 },
-                style: MintTextStyles.labelSmall(color: color).copyWith(fontWeight: FontWeight.w600),
+                style: MintTextStyles.labelSmall(color: color)
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -671,9 +876,8 @@ class _ModeChip extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected
-                ? MintColors.primary.withAlpha(15)
-                : MintColors.card,
+            color:
+                isSelected ? MintColors.primary.withAlpha(15) : MintColors.card,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
@@ -688,7 +892,8 @@ class _ModeChip extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500),
+                style: MintTextStyles.bodySmall(color: color).copyWith(
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500),
               ),
             ],
           ),

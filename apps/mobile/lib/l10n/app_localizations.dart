@@ -10602,6 +10602,54 @@ abstract class S {
   /// **'Manquant'**
   String get dataBlockStatusMissing;
 
+  /// No description provided for @dataBlockSituationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation financière'**
+  String get dataBlockSituationTitle;
+
+  /// No description provided for @dataBlockSituationDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces données posent le socle de Mint : âge, canton, revenu, liquidités et dette mensuelle. Elles alimentent le budget, la trajectoire et les prochains éclairages.'**
+  String get dataBlockSituationDesc;
+
+  /// No description provided for @dataBlockSituationBirthYearLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année de naissance'**
+  String get dataBlockSituationBirthYearLabel;
+
+  /// No description provided for @dataBlockSituationCantonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get dataBlockSituationCantonLabel;
+
+  /// No description provided for @dataBlockSituationNetIncomeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu net mensuel'**
+  String get dataBlockSituationNetIncomeLabel;
+
+  /// No description provided for @dataBlockSituationCashLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liquidités disponibles'**
+  String get dataBlockSituationCashLabel;
+
+  /// No description provided for @dataBlockSituationDebtPaymentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dette mensuelle'**
+  String get dataBlockSituationDebtPaymentLabel;
+
+  /// No description provided for @dataBlockSituationSaveCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer ma situation'**
+  String get dataBlockSituationSaveCta;
+
   /// No description provided for @dataBlockRevenuTitle.
   ///
   /// In fr, this message translates to:
@@ -22870,19 +22918,19 @@ abstract class S {
   /// No description provided for @lightningMenuTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Que veux-tu explorer ?'**
+  /// **'Prochaine action'**
   String get lightningMenuTitle;
 
   /// No description provided for @lightningMenuSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'MINT calcule, tu décides.'**
+  /// **'Choisis ce que MINT doit clarifier maintenant.'**
   String get lightningMenuSubtitle;
 
   /// No description provided for @lightningMenuRetirementTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Mon aperçu retraite'**
+  /// **'Aperçu retraite'**
   String get lightningMenuRetirementTitle;
 
   /// No description provided for @lightningMenuRetirementSubtitle.
@@ -22900,7 +22948,7 @@ abstract class S {
   /// No description provided for @lightningMenuBudgetTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Mon budget'**
+  /// **'Budget'**
   String get lightningMenuBudgetTitle;
 
   /// No description provided for @lightningMenuBudgetSubtitle.
@@ -22936,7 +22984,7 @@ abstract class S {
   /// No description provided for @lightningMenuScoreTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Mon score fitness'**
+  /// **'Score financier'**
   String get lightningMenuScoreTitle;
 
   /// No description provided for @lightningMenuScoreSubtitle.
@@ -22954,7 +23002,7 @@ abstract class S {
   /// No description provided for @lightningMenuCoupleTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Notre situation à deux'**
+  /// **'Situation à deux'**
   String get lightningMenuCoupleTitle;
 
   /// No description provided for @lightningMenuCoupleSubtitle.
@@ -22990,7 +23038,7 @@ abstract class S {
   /// No description provided for @lightningMenuIndependantTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Mon filet indépendant'**
+  /// **'Filet indépendant'**
   String get lightningMenuIndependantTitle;
 
   /// No description provided for @lightningMenuIndependantSubtitle.
@@ -30249,7 +30297,7 @@ abstract class S {
   /// No description provided for @lightningMenuCompleteProfileTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Compléter mon profil'**
+  /// **'Compléter le profil'**
   String get lightningMenuCompleteProfileTitle;
 
   /// No description provided for @lightningMenuFirstBudgetAction.
@@ -30267,7 +30315,7 @@ abstract class S {
   /// No description provided for @lightningMenuFirstBudgetTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Mon premier budget'**
+  /// **'Premier budget'**
   String get lightningMenuFirstBudgetTitle;
 
   /// No description provided for @lightningMenuLivingBudgetAction.
@@ -30285,7 +30333,7 @@ abstract class S {
   /// No description provided for @lightningMenuLivingBudgetTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Mon budget vivant'**
+  /// **'Budget vivant'**
   String get lightningMenuLivingBudgetTitle;
 
   /// No description provided for @lightningMenuLppBuybackAction.
