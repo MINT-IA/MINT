@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/data_spine_snapshot.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
+import 'package:mint_mobile/services/data_spine/data_spine_readiness_digest_service.dart';
 import 'package:mint_mobile/services/data_spine/data_spine_service.dart';
 
 void main() {
@@ -81,6 +82,43 @@ void main() {
       expect(spine.situation.liquidSavings.value, 18000);
       expect(spine.situation.investments.value, 7000);
       expect(spine.situation.totalDebt.value, 3000);
+    });
+
+    test('canonical situation answers clear the readiness situation gap', () {
+      final beforeProfile = CoachProfile.fromWizardAnswers({
+        'q_net_income_period_chf': 7200,
+        'q_pay_frequency': 'monthly',
+        'q_housing_cost_period_chf': 2200,
+        'q_lamal_premium_monthly_chf': 420,
+      });
+      final beforeDigest = DataSpineReadinessDigestService.fromSpine(
+        DataSpineService.fromProfile(beforeProfile, now: fixedNow),
+      );
+
+      expect(beforeDigest.missingDomains, contains('situation'));
+
+      final afterProfile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1988,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7200,
+        'q_pay_frequency': 'monthly',
+        'q_cash_total': 25000,
+        'q_has_consumer_debt': 'yes',
+        'q_debt_payments_period_chf': 350,
+        'q_housing_cost_period_chf': 2200,
+        'q_lamal_premium_monthly_chf': 420,
+      });
+      final afterSpine = DataSpineService.fromProfile(
+        afterProfile,
+        now: fixedNow,
+      );
+      final afterDigest = DataSpineReadinessDigestService.fromSpine(afterSpine);
+
+      expect(afterSpine.situation.birthYear.value, 1988);
+      expect(afterSpine.situation.canton.value, 'VD');
+      expect(afterSpine.situation.liquidSavings.value, 25000);
+      expect(afterSpine.situation.totalDebt.value, 8400);
+      expect(afterDigest.missingDomains, isNot(contains('situation')));
     });
 
     test('reuses BudgetLivingEngine snapshot as the budget source', () {

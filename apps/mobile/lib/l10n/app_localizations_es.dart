@@ -5882,6 +5882,31 @@ class SEs extends S {
   String get dataBlockStatusMissing => 'Faltante';
 
   @override
+  String get dataBlockSituationTitle => 'Situación financiera';
+
+  @override
+  String get dataBlockSituationDesc =>
+      'Estos datos son la base de Mint: edad, cantón, ingresos, liquidez y deuda mensual. Alimentan el presupuesto, la trayectoria y las próximas lecturas.';
+
+  @override
+  String get dataBlockSituationBirthYearLabel => 'Año de nacimiento';
+
+  @override
+  String get dataBlockSituationCantonLabel => 'Cantón';
+
+  @override
+  String get dataBlockSituationNetIncomeLabel => 'Ingreso neto mensual';
+
+  @override
+  String get dataBlockSituationCashLabel => 'Liquidez disponible';
+
+  @override
+  String get dataBlockSituationDebtPaymentLabel => 'Pago mensual de deuda';
+
+  @override
+  String get dataBlockSituationSaveCta => 'Guardar mi situación';
+
+  @override
   String get dataBlockRevenuTitle => 'Ingresos';
 
   @override
@@ -12920,13 +12945,13 @@ class SEs extends S {
   String get quickStartCtaExplore => 'Explorar primero';
 
   @override
-  String get lightningMenuTitle => '¿Qué quieres explorar?';
+  String get lightningMenuTitle => 'Siguiente acción';
 
   @override
-  String get lightningMenuSubtitle => 'MINT calcula, tú decides.';
+  String get lightningMenuSubtitle => 'Elige qué debe aclarar MINT ahora.';
 
   @override
-  String get lightningMenuRetirementTitle => 'Mi visión de jubilación';
+  String get lightningMenuRetirementTitle => 'Visión de jubilación';
 
   @override
   String get lightningMenuRetirementSubtitle =>
@@ -12936,7 +12961,7 @@ class SEs extends S {
   String get lightningMenuRetirementAction => '¿Cuánto a la jubilación?';
 
   @override
-  String get lightningMenuBudgetTitle => 'Mi presupuesto';
+  String get lightningMenuBudgetTitle => 'Presupuesto';
 
   @override
   String get lightningMenuBudgetSubtitle => 'A dónde va tu dinero este mes';
@@ -12954,7 +12979,7 @@ class SEs extends S {
   String get lightningMenuRenteCapitalAction => '¿Renta o capital?';
 
   @override
-  String get lightningMenuScoreTitle => 'Mi puntuación fitness';
+  String get lightningMenuScoreTitle => 'Puntuación financiera';
 
   @override
   String get lightningMenuScoreSubtitle => 'Tu salud financiera de un vistazo';
@@ -12963,7 +12988,7 @@ class SEs extends S {
   String get lightningMenuScoreAction => 'Mi puntuación financiera';
 
   @override
-  String get lightningMenuCoupleTitle => 'Nuestra situación en pareja';
+  String get lightningMenuCoupleTitle => 'Situación en pareja';
 
   @override
   String get lightningMenuCoupleSubtitle => 'Previsión y patrimonio en pareja';
@@ -12981,7 +13006,7 @@ class SEs extends S {
   String get lightningMenuDebtAction => '¿Cómo reducir mi deuda?';
 
   @override
-  String get lightningMenuIndependantTitle => 'Mi red de seguridad';
+  String get lightningMenuIndependantTitle => 'Red de seguridad';
 
   @override
   String get lightningMenuIndependantSubtitle =>
@@ -17162,7 +17187,7 @@ class SEs extends S {
       'Cuanto más preciso, más justo MINT';
 
   @override
-  String get lightningMenuCompleteProfileTitle => 'Completar mi perfil';
+  String get lightningMenuCompleteProfileTitle => 'Completar perfil';
 
   @override
   String get lightningMenuFirstBudgetAction => 'Ayúdame a hacer mi presupuesto';
@@ -17172,7 +17197,7 @@ class SEs extends S {
       'Saber a dónde va tu dinero cada mes';
 
   @override
-  String get lightningMenuFirstBudgetTitle => 'Mi primer presupuesto';
+  String get lightningMenuFirstBudgetTitle => 'Primer presupuesto';
 
   @override
   String get lightningMenuLivingBudgetAction => '¿Dónde estoy?';
@@ -17182,7 +17207,7 @@ class SEs extends S {
       'Tu equilibrio este mes, actualizado';
 
   @override
-  String get lightningMenuLivingBudgetTitle => 'Mi presupuesto vivo';
+  String get lightningMenuLivingBudgetTitle => 'Presupuesto vivo';
 
   @override
   String get lightningMenuLppBuybackAction => '¿Vale la pena una recompra LPP?';

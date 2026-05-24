@@ -5879,6 +5879,31 @@ class SPt extends S {
   String get dataBlockStatusMissing => 'Em falta';
 
   @override
+  String get dataBlockSituationTitle => 'Situação financeira';
+
+  @override
+  String get dataBlockSituationDesc =>
+      'Estes dados são a base da Mint: idade, cantão, rendimento, liquidez e dívida mensal. Alimentam o orçamento, a trajetória e as próximas leituras.';
+
+  @override
+  String get dataBlockSituationBirthYearLabel => 'Ano de nascimento';
+
+  @override
+  String get dataBlockSituationCantonLabel => 'Cantão';
+
+  @override
+  String get dataBlockSituationNetIncomeLabel => 'Rendimento líquido mensal';
+
+  @override
+  String get dataBlockSituationCashLabel => 'Liquidez disponível';
+
+  @override
+  String get dataBlockSituationDebtPaymentLabel => 'Pagamento mensal da dívida';
+
+  @override
+  String get dataBlockSituationSaveCta => 'Guardar a minha situação';
+
+  @override
   String get dataBlockRevenuTitle => 'Rendimento';
 
   @override
@@ -12913,13 +12938,14 @@ class SPt extends S {
   String get quickStartCtaExplore => 'Explorar primeiro';
 
   @override
-  String get lightningMenuTitle => 'O que queres explorar?';
+  String get lightningMenuTitle => 'Próxima ação';
 
   @override
-  String get lightningMenuSubtitle => 'MINT calcula, tu decides.';
+  String get lightningMenuSubtitle =>
+      'Escolhe o que a MINT deve clarificar agora.';
 
   @override
-  String get lightningMenuRetirementTitle => 'A minha visão da reforma';
+  String get lightningMenuRetirementTitle => 'Visão da reforma';
 
   @override
   String get lightningMenuRetirementSubtitle => 'Quanto vais manter na reforma';
@@ -12928,7 +12954,7 @@ class SPt extends S {
   String get lightningMenuRetirementAction => 'Quanto na reforma?';
 
   @override
-  String get lightningMenuBudgetTitle => 'O meu orçamento';
+  String get lightningMenuBudgetTitle => 'Orçamento';
 
   @override
   String get lightningMenuBudgetSubtitle =>
@@ -12947,7 +12973,7 @@ class SPt extends S {
   String get lightningMenuRenteCapitalAction => 'Renda ou capital?';
 
   @override
-  String get lightningMenuScoreTitle => 'A minha pontuação fitness';
+  String get lightningMenuScoreTitle => 'Pontuação financeira';
 
   @override
   String get lightningMenuScoreSubtitle => 'A tua saúde financeira de relance';
@@ -12956,7 +12982,7 @@ class SPt extends S {
   String get lightningMenuScoreAction => 'A minha pontuação financeira';
 
   @override
-  String get lightningMenuCoupleTitle => 'A nossa situação a dois';
+  String get lightningMenuCoupleTitle => 'Situação a dois';
 
   @override
   String get lightningMenuCoupleSubtitle => 'Previdência e património em casal';
@@ -12975,7 +13001,7 @@ class SPt extends S {
   String get lightningMenuDebtAction => 'Como reduzir a minha dívida?';
 
   @override
-  String get lightningMenuIndependantTitle => 'A minha rede de segurança';
+  String get lightningMenuIndependantTitle => 'Rede de segurança';
 
   @override
   String get lightningMenuIndependantSubtitle =>
@@ -17157,7 +17183,7 @@ class SPt extends S {
       'Quanto mais preciso, mais justo é o MINT';
 
   @override
-  String get lightningMenuCompleteProfileTitle => 'Completar o perfil';
+  String get lightningMenuCompleteProfileTitle => 'Completar perfil';
 
   @override
   String get lightningMenuFirstBudgetAction =>
@@ -17168,7 +17194,7 @@ class SPt extends S {
       'Saber para onde vai o teu dinheiro cada mês';
 
   @override
-  String get lightningMenuFirstBudgetTitle => 'O meu primeiro orçamento';
+  String get lightningMenuFirstBudgetTitle => 'Primeiro orçamento';
 
   @override
   String get lightningMenuLivingBudgetAction => 'Onde estou?';
@@ -17178,7 +17204,7 @@ class SPt extends S {
       'O teu equilíbrio este mês, atualizado';
 
   @override
-  String get lightningMenuLivingBudgetTitle => 'O meu orçamento vivo';
+  String get lightningMenuLivingBudgetTitle => 'Orçamento vivo';
 
   @override
   String get lightningMenuLppBuybackAction => 'Vale a pena um resgate LPP?';

@@ -160,6 +160,28 @@ void main() {
       expect(capturedRoute, '/budget/setup');
     });
 
+    testWidgets('routes complete_situation to deterministic data capture',
+        (tester) async {
+      final capturedRoute = await pumpMenuForAction(
+        tester,
+        'complete_situation',
+        find.byIcon(Icons.person_add_alt_1_outlined).first,
+      );
+
+      expect(capturedRoute, '/data-block/situation');
+    });
+
+    testWidgets('routes define_target to the retirement objective block',
+        (tester) async {
+      final capturedRoute = await pumpMenuForAction(
+        tester,
+        'define_target',
+        find.byIcon(Icons.flag_outlined).first,
+      );
+
+      expect(capturedRoute, '/data-block/objectifRetraite');
+    });
+
     test('keeps French ARB titles action-first, not possessive', () {
       final arb = jsonDecode(File('lib/l10n/app_fr.arb').readAsStringSync())
           as Map<String, dynamic>;
