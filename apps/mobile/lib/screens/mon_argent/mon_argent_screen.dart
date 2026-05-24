@@ -80,7 +80,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
     return Scaffold(
       backgroundColor: MintColors.craie,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: MintColors.white,
         title: Text(
           l10n.monArgentTabTitle,
           style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
