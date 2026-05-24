@@ -27,7 +27,7 @@ appId: ch.mint.app
 # 01 — landing screen visible (same brand line as julien_swiss)
 # 3-part preamble per sweep #5 evidence — see julien_swiss.yaml for full
 # rationale. Summary : (a) clearState forces fresh anon, (b) conditional
-# bêta dismiss, (c) extendedWaitUntil + regex.
+# bêta dismiss, (c) extendedWaitUntil for the landing animation.
 - launchApp:
     clearState: true
 - runFlow:
@@ -38,7 +38,7 @@ appId: ch.mint.app
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      text: ".*Voir clair.*décider seul.*"
+      text: "Voir clair, décider seul."
     timeout: 10000
 
 # 02 — tap landing CTA → anonymous chat opener

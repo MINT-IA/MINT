@@ -66,69 +66,47 @@ tags:
   - anon
 ---
 
-# 00 — bootstrap to /explore (MintShell tab 4) via cold-launch fragment
-# + bottom-tab tap.
+# 00 — cold-launch and deep-link to /explore.
 #
-# Pre-fix : the original preamble (clearState:false + optional bêta tap
-# + assertVisible "Explorer") assumed the harness pre-deep-linked to
-# /explore via `xcrun simctl openurl booted ch.mint.app://explore`. The
-# canonical sweep doesn't do this — Maestro just runs the YAML against
-# the booted sim's current state. Result : cold launch lands on
-# LandingScreen, never on /explore, assertion times out.
-#
-# Per the file header documentation (« RECOMMENDED HARNESS WIRING »
-# section), the alternative is to wire `MINT_E2E_INITIAL_ROUTE=/explore`
-# dart-define in lib/main.dart. That's a Flutter code change (broader
-# scope). This commit chooses the test-side fix : self-bootstrap to
-# /explore using the canonical S005 cold-launch fragment + a bottom-tab
-# Explorer tap. Portable across all canonical-sweep contexts.
-#
-# Path walked :
-#   1. Cold-launch fragment → lands on Aujourd'hui (MintShell tab 1)
-#   2. Tap Explorer bottom tab (MintShell tab 4 per mint_shell.dart:97)
-#   3. Confirm /explore via the « ouvrir-profil-drawer » Semantics anchor
-#      (set on the AppBar profile icon per explorer_screen.dart:24-33)
-- runFlow: _fragment_cold_launch_to_aujourdhui.yaml
-# iOS bridge concatenates NavigationDestination Semantics label with
-# the Text child as « Explorer\nOnglet 4 sur 4 » (or similar). The
-# exact-text matcher fails on the doubled form ; regex `.*Explorer.*`
-# matches reliably. Same pattern as the cold-launch fragment's
-# « .*Continuer sans compte.* » tap.
-- tapOn:
-    text: ".*Explorer.*"
-- extendedWaitUntil:
-    visible:
-      text: "ouvrir-profil-drawer"
-    timeout: 5000
-# Tap landing CTA to enter shell ; the anon path lands us on
-# /anonymous/chat which is OUTSIDE MintShell. We need the shell, so
-# instead we go via /explore directly via the bottom tab bar after
-# entering the shell. Path : tap « J'ai déjà un compte » → cancel →
-# back to landing → bypass via `MINT_DISABLE_BETA_MODAL` is not
-# enough. Simpler : skip the anon path and use the bottom tab bar
-# directly from any shell-mounted screen.
-#
-# REALITY CHECK : MintShell is only mounted on /home, /mon-argent,
-# /coach/chat, /explore (per app.dart:379-455). All four are auth-
-# gated except /explore which is `RouteScope.public`. Cleanest entry
-# from cold-launched anon is: tap landing CTA → anon chat (no shell)
-# → ❌ no drawer there. So this flow REQUIRES the user to already be
-# inside the shell.
-#
-# RECOMMENDED HARNESS WIRING :
-#   The harness passes `MINT_E2E_INITIAL_ROUTE=/explore` dart-define
-#   (NOT YET WIRED in lib/main.dart — verified 2026-05-08 grep). Until
-#   that lands, this flow expects the harness to deep-link via :
-#     `xcrun simctl openurl booted ch.mint.app://explore`
-#   before invoking maestro test. If the deep-link is not wired either,
-#   the flow as-written below will fail at step 01 with « Explorer »
-#   not found, which is the correct loud signal.
+# The old bootstrap reused `_fragment_cold_launch_to_aujourdhui.yaml`,
+# but that fragment is now stale for this flow: the landing CTA
+# « Continuer sans compte » intentionally routes to /onb so the FATCA
+# gate runs before financial data capture. Drawer smoke does not need
+# onboarding data; it only needs a shell-mounted public route. Use the
+# registered custom scheme instead, matching the data-spine Maestro flow.
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///explore"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
 
 # 01 — assert we're on /explore (harness pre-conditioned) + drawer icon present
 - extendedWaitUntil:
     visible:
       text: "Explorer"
     timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: "ouvrir-profil-drawer"
+    timeout: 5000
 - takeScreenshot: "01-explore-home"
 
 # 02 — open drawer via person icon
@@ -147,10 +125,14 @@ tags:
     text: "Mon bilan"
 - extendedWaitUntil:
     visible:
-      text: "Aucun profil renseigné"  # financialSummaryNoProfile (anon = empty)
+      text: "MON PROFIL"  # stable route AppBar, seeded or empty profile
     timeout: 6000
 - takeScreenshot: "03-mon-bilan"
-- back
+- openLink: "mintapp:///explore"
+- extendedWaitUntil:
+    visible:
+      text: "ouvrir-profil-drawer"
+    timeout: 5000
 
 # 04 — re-open drawer + Mes documents → /documents
 - tapOn:
@@ -159,10 +141,14 @@ tags:
     text: "Mes documents"
 - extendedWaitUntil:
     visible:
-      text: "Mes documents"            # documents screen AppBar
+      text: "Coffre-fort"              # documents screen AppBar
     timeout: 6000
 - takeScreenshot: "04-documents"
-- back
+- openLink: "mintapp:///explore"
+- extendedWaitUntil:
+    visible:
+      text: "ouvrir-profil-drawer"
+    timeout: 5000
 
 # 05 — re-open drawer + Historique coach → /coach/history
 - tapOn:
@@ -173,7 +159,11 @@ tags:
     visible:
       text: "Historique"
     timeout: 6000
-- back
+- openLink: "mintapp:///explore"
+- extendedWaitUntil:
+    visible:
+      text: "ouvrir-profil-drawer"
+    timeout: 5000
 
 # 06 — re-open drawer + Langue → /settings/langue
 - tapOn:
@@ -184,7 +174,11 @@ tags:
     visible:
       text: "Langue"
     timeout: 6000
-- back
+- openLink: "mintapp:///explore"
+- extendedWaitUntil:
+    visible:
+      text: "ouvrir-profil-drawer"
+    timeout: 5000
 
 # 07 — re-open drawer + Ce que MINT sait de toi → /profile/privacy-control
 - tapOn:
@@ -196,7 +190,6 @@ tags:
       text: "Ce que MINT sait de toi"
     timeout: 6000
 - takeScreenshot: "05-privacy-control"
-- back
 
 # ─── PIXEL FALLBACK REMOVED (2026-05-09) ───────────────────────────────
 # The previous version of this flow used `point: "95%, 8%"` to tap the
@@ -210,18 +203,15 @@ tags:
 #   so the locator is now `text: "ouvrir-profil-drawer"` (Maestro reads
 #   Flutter Semantics labels via the accessibility-text matcher).
 #
-# ─── KNOWN PRECONDITION GAP (REMAINING) ────────────────────────────────
-# This flow asserts `text: "Explorer"` (step 01) which only renders
-# inside MintShell. Cold-launch on anon brings the user to the LandingScreen
-# (`/`), NOT to the shell, so the assertion fails before reaching the
-# drawer. Fix-forward needs ONE of :
-#   (a) Wire `MINT_E2E_INITIAL_ROUTE=/explore` dart-define into lib/main.dart
-#       and have the harness pass it on `flutter build` for E2E runs.
-#   (b) Pre-deep-link via `xcrun simctl openurl booted ch.mint.app://explore`
-#       BUT this depends on `/explore` being publicly accessible, which is
-#       a `RouteScope` decision still pending Julien's call (see
-#       .planning/decisions/2026-05-09-maestro-paroxysm-panel/SYNTHESIS.md
-#       Tier 2 #1).
-#   (c) Rewrite the flow to register/login first so the shell mounts.
-# Until one of (a)/(b)/(c) lands, this flow ONLY runs successfully on
-# already-authed devices. The CI gate must pre-condition appropriately.
+# ─── BOOTSTRAP CONTRACT (2026-05-24) ──────────────────────────────────
+# This flow is now self-bootstrapping:
+#   1. cold launch with cleared state,
+#   2. dismiss optional beta modal,
+#   3. deep-link via `mintapp:///explore`,
+#   4. dismiss the optional iOS scheme confirmation dialog,
+#   5. assert the Explorer AppBar and drawer semantics anchor.
+#
+# Do not rewire this through the landing CTA. That CTA intentionally
+# routes to /onb so the FATCA hard gate runs before financial data
+# capture; drawer navigation smoke should stay independent from the
+# onboarding step machine.

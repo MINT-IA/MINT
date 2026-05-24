@@ -6,7 +6,7 @@ Built 2026-05-08 against Maestro 2.5.1 / Java 21 / iPhone 17 Pro sim
 These flows were designed to be the **canonical regression gate** for
 the 5 highest-blast-radius journeys in MINT. They follow the
 « semantic locators only » contract from
-`.planning/phases/74-walker-premier-eclairage/PANEL-VERDICT.md` and
+the phase 74 walker panel verdict and
 budget at most 4-5 screenshots per run (no auto-Read in agent
 sessions per `feedback_screenshot_budget`).
 
@@ -17,14 +17,14 @@ sessions per `feedback_screenshot_budget`).
 | Flow file                          | Journey                                   | Duration | Pre-cond | Reliability |
 |-----------------------------------|-------------------------------------------|----------|----------|-------------|
 | `flow_landing_to_register.yaml`    | Anon → register screen visible            | ~25s     | clean state | HIGH    |
-| `flow_drawer_navigation_smoke.yaml`| Drawer routing × 6 entries                | ~45s     | on /explore (deep-link) | MEDIUM (pixel fallback) |
+| `flow_drawer_navigation_smoke.yaml`| Drawer routing × 6 entries                | ~45s     | self deep-links to /explore | HIGH |
 | `flow_3a_calculator.yaml`          | /pilier-3a renders + LSFin compliance     | ~20s     | deep-link to /pilier-3a | HIGH    |
 | `flow_lpp_scan_review.yaml`        | Scan → extraction-review → confirm        | ~30s     | DEBUG build + deep-link to /scan | MEDIUM (debug-only) |
 | `flow_empty_state_cascade.yaml`    | Anon empty state → coach greeting (B1+B7) | ~30s     | fresh install + on /explore | HIGH    |
 
 Reliability = how flake-resistant the flow is on a clean cold launch.
 HIGH = 100 % deterministic on stable network. MEDIUM = depends on a
-debug-only feature OR a `point:` pixel fallback we couldn't avoid.
+debug-only feature.
 
 ---
 
@@ -54,7 +54,7 @@ for flow in \
 do
   # Some flows need a deep-link before maestro starts.
   case "$flow" in
-    flow_drawer_navigation_smoke|flow_empty_state_cascade)
+    flow_empty_state_cascade)
       xcrun simctl openurl booted ch.mint.app://explore ;;
     flow_3a_calculator)
       xcrun simctl openurl booted ch.mint.app://pilier-3a ;;
@@ -112,7 +112,7 @@ inline bash above is the supported entry point.
 | Flow | Extra pre-condition |
 |------|---------------------|
 | `flow_landing_to_register`  | Logged-out state. If a previous run logged in, uninstall + reinstall (Maestro has no keychain wipe). |
-| `flow_drawer_navigation_smoke` | Harness deep-links to `/explore` before maestro starts. Drawer entry point lives on shell screens only. |
+| `flow_drawer_navigation_smoke` | Self-bootstraps from cold launch and deep-links to `/explore`; no harness deep-link precondition. |
 | `flow_3a_calculator` | Harness deep-links to `/pilier-3a`. Optional `MINT_E2E_ARCHETYPE=julien_swiss` to seed a non-zero salaireBrutMensuel. |
 | `flow_lpp_scan_review` | **DEBUG build mandatory** (debug example button). Harness deep-links to `/scan`. |
 | `flow_empty_state_cascade` | **Fresh install mandatory** (an existing CoachProfile masks the empty state). PROHIBITED to set `MINT_E2E_ARCHETYPE`. |
@@ -135,10 +135,11 @@ Per-flow notes :
 - `flow_landing_to_register` : exit 1 with assertion « Créer un compte »
   not visible likely means the anon free-turn cap changed and the auth
   gate didn't fire. Inspect anonymous_chat_screen.dart `_isAuthGateLocked`.
-- `flow_drawer_navigation_smoke` : exit 1 with « Mon profil » not visible
-  after the icon tap means the `point:` fallback missed. Either the
-  AppBar profile icon moved or the icon stack changed. Run with
-  `--debug-output` to capture the view-hierarchy.
+- `flow_drawer_navigation_smoke` : exit 1 with « ouvrir-profil-drawer »
+  not visible means the `/explore` deep-link did not land on the shell
+  screen or the Explorer AppBar semantics anchor drifted. Exit 1 with
+  « Mon profil » not visible after the icon tap means ProfileDrawer did
+  not open. Run with `--debug-output` to capture the view-hierarchy.
 - `flow_3a_calculator` : exit 1 with « Gain fiscal annuel » not visible
   is a financial_core regression — the simulator failed to compute the
   3a tax saving. Check Simulator3aScreen build path.
@@ -184,13 +185,10 @@ about these flows :
    first run and budget time to fix them via Maestro's view-hierarchy
    inspector.
 
-2. **`flow_drawer_navigation_smoke` and `flow_empty_state_cascade` use
-   a `point: "95%, 8%"` pixel fallback** for tapping the AppBar profile
-   icon. This violates the « semantic locators only » rule. The fix-
-   forward (`Semantics(label: 'open-profile-drawer', …)` on
-   explorer_screen.dart:24-27) is NOT done in this design pass — it's
-   one to two lines of Dart that should ship before declaring the
-   flow set release-grade.
+2. **`flow_empty_state_cascade` still depends on its own /explore
+   precondition.** `flow_drawer_navigation_smoke` no longer has this
+   gap as of 2026-05-24: it cold-launches, deep-links to `/explore`,
+   and taps the semantic `ouvrir-profil-drawer` anchor.
 
 3. **`flow_lpp_scan_review` step 5 (Confirmer)** has two `optional:`
    tap variants because we did not verify the exact label by reading
@@ -233,7 +231,7 @@ about these flows :
   `tools/simulator/flows/auth_coach_post_hotfix.yaml` (auth path,
   blocked by missing auth-seed scaffolding — see its header)
 
-- Locator rule : `.planning/phases/74-walker-premier-eclairage/PANEL-VERDICT.md`
+- Locator rule : phase 74 walker panel verdict
 
 - Lint enforcement : `tools/checks/maestro_locator_audit.py` —
   ensure these 5 YAMLs pass before promotion to the gate set.

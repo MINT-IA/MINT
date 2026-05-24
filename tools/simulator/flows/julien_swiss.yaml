@@ -40,8 +40,7 @@ appId: ch.mint.app
 #       dart-define preamble assumes the harness sets this flag, but the
 #       canonical sweep doesn't rebuild — so this conditional makes the
 #       flow tolerant of both builds.
-#   (c) extendedWaitUntil + regex matcher tolerates landing FadeTransition
-#       (~2.5s) + iOS doubled accessibilityText.
+#   (c) extendedWaitUntil tolerates landing FadeTransition (~2.5s).
 - launchApp:
     clearState: true
 - runFlow:
@@ -52,7 +51,7 @@ appId: ch.mint.app
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      text: ".*Voir clair.*décider seul.*"
+      text: "Voir clair, décider seul."
     timeout: 10000
 
 # 02 — tap landing CTA → anonymous chat opener
