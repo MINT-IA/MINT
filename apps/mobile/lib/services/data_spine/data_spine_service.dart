@@ -36,16 +36,44 @@ abstract final class DataSpineService {
           profile.employmentStatus, profile, 'employmentStatus',
           sensitive: false),
       monthlyHousingCost: _value(
-          _positiveOrNull(profile.depenses.loyer), profile, 'depenses.loyer'),
+          _explicitAmount(
+            profile.depenses.loyer,
+            profile,
+            'housingCost',
+            'depenses.loyer',
+          ),
+          profile,
+          'depenses.loyer'),
       lamalPremiumMonthly: _value(
-          _positiveOrNull(profile.depenses.assuranceMaladie),
+          _explicitAmount(
+            profile.depenses.assuranceMaladie,
+            profile,
+            'lamalPremium',
+            'depenses.assuranceMaladie',
+          ),
           profile,
           'depenses.assuranceMaladie'),
-      liquidSavings: _value(_positiveOrNull(profile.patrimoine.epargneLiquide),
-          profile, 'patrimoine.epargneLiquide'),
+      liquidSavings: _value(
+          _explicitAmount(
+            profile.patrimoine.epargneLiquide,
+            profile,
+            'liquidSavings',
+            'patrimoine.epargneLiquide',
+            allowZero: true,
+          ),
+          profile,
+          'patrimoine.epargneLiquide'),
       investments: _value(_positiveOrNull(profile.patrimoine.investissements),
           profile, 'patrimoine.investissements'),
-      totalDebt: _value(_positiveOrNull(profile.dettes.totalDettes), profile,
+      totalDebt: _value(
+          _explicitAmount(
+            profile.dettes.totalDettes,
+            profile,
+            'debt',
+            'dettes.totalDettes',
+            allowZero: true,
+          ),
+          profile,
           'dettes.totalDettes'),
       housingStatus: _value(profile.housingStatus, profile, 'housingStatus',
           sensitive: false),
@@ -221,6 +249,25 @@ abstract final class DataSpineService {
   }
 
   static double? _positiveOrNull(double value) => value > 0 ? value : null;
+
+  static double? _explicitAmount(
+    double value,
+    CoachProfile profile,
+    String providedField,
+    String fieldPath, {
+    bool allowZero = false,
+  }) {
+    final amount =
+        allowZero ? (value >= 0 ? value : null) : _positiveOrNull(value);
+    if (amount == null) return null;
+    if (profile.userProvidedFields.isEmpty) return amount;
+    if (profile.userProvidedFields.contains(providedField)) return amount;
+    final source = profile.dataSources[fieldPath];
+    if (source != null && source != ProfileDataSource.estimated) {
+      return amount;
+    }
+    return null;
+  }
 
   static int _monthsBetween(DateTime from, DateTime to) {
     var months = (to.year - from.year) * 12 + to.month - from.month;

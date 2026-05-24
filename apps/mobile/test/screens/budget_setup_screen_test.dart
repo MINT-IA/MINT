@@ -1,0 +1,114 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/screens/budget/budget_setup_screen.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+Widget _wrap(Widget child) {
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => CoachProfileProvider()),
+      ChangeNotifierProvider(create: (_) => BudgetProvider()),
+    ],
+    child: MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      initialRoute: '/budget/setup',
+      routes: {
+        '/': (_) => const Scaffold(body: Text('home')),
+        '/budget/setup': (_) => child,
+      },
+    ),
+  );
+}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  final secureStorage = <String, String>{};
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    secureStorage.clear();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (MethodCall call) async {
+        switch (call.method) {
+          case 'write':
+            final key = call.arguments['key'] as String;
+            final value = call.arguments['value'] as String?;
+            if (value != null) secureStorage[key] = value;
+            return null;
+          case 'read':
+            final key = call.arguments['key'] as String;
+            return secureStorage[key];
+          case 'delete':
+            final key = call.arguments['key'] as String;
+            secureStorage.remove(key);
+            return null;
+          case 'deleteAll':
+            secureStorage.clear();
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      null,
+    );
+  });
+
+  testWidgets('persists canonical budget keys', (tester) async {
+    await tester.pumpWidget(_wrap(const BudgetSetupScreen()));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetHousingField')), '2200');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetLamalField')), '420');
+    await tester.tap(find.text("Ajouter d'autres postes"));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetTransportField')), '120');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetTelecomField')), '80');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetElectricityField')), '90');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetMedicalField')), '110');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetOtherField')), '250');
+    await tester.ensureVisible(find.text('Enregistrer'));
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_housing_cost_period_chf'], 2200.0);
+    expect(answers['q_lamal_premium_monthly_chf'], 420.0);
+    expect(answers['q_pay_frequency'], 'monthly');
+    expect(answers['_coach_depenses_transport'], 120.0);
+    expect(answers['_coach_depenses_telecom'], 80.0);
+    expect(answers['_coach_depenses_electricite'], 90.0);
+    expect(answers['_coach_depenses_frais_medicaux'], 110.0);
+    expect(answers['_coach_depenses_autres'], 250.0);
+  });
+}

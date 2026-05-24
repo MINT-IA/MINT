@@ -121,6 +121,49 @@ void main() {
       expect(afterDigest.missingDomains, isNot(contains('situation')));
     });
 
+    test(
+        'does not treat CoachProfile budget defaults as explicit situation data',
+        () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1988,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7200,
+        'q_pay_frequency': 'monthly',
+        'q_cash_total': 25000,
+        'q_has_consumer_debt': 'no',
+        'q_debt_payments_period_chf': 0,
+      });
+
+      final spine = DataSpineService.fromProfile(profile, now: fixedNow);
+      final digest = DataSpineReadinessDigestService.fromSpine(spine);
+
+      expect(spine.situation.monthlyHousingCost.hasValue, isFalse);
+      expect(spine.situation.lamalPremiumMonthly.hasValue, isFalse);
+      expect(digest.missingDomains, contains('situation'));
+    });
+
+    test('explicit budget keys and zero debt clear the situation gap', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1988,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7200,
+        'q_pay_frequency': 'monthly',
+        'q_cash_total': 25000,
+        'q_has_consumer_debt': 'no',
+        'q_debt_payments_period_chf': 0,
+        'q_housing_cost_period_chf': 2200,
+        'q_lamal_premium_monthly_chf': 420,
+      });
+
+      final spine = DataSpineService.fromProfile(profile, now: fixedNow);
+      final digest = DataSpineReadinessDigestService.fromSpine(spine);
+
+      expect(spine.situation.monthlyHousingCost.value, 2200);
+      expect(spine.situation.lamalPremiumMonthly.value, 420);
+      expect(spine.situation.totalDebt.value, 0);
+      expect(digest.missingDomains, isNot(contains('situation')));
+    });
+
     test('reuses BudgetLivingEngine snapshot as the budget source', () {
       final profile = buildProfile();
       final expectedBudget = BudgetLivingEngine.compute(profile);

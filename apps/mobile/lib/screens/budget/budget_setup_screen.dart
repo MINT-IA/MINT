@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -75,13 +76,14 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       final profile = context.read<CoachProfileProvider>().profile;
       if (profile == null) return;
       final d = profile.depenses;
-      _housing.text = _formatAmount(d.loyer);
-      _lamal.text = _formatAmount(d.assuranceMaladie);
-      _transport.text = _formatAmount(d.transport);
-      _telecom.text = _formatAmount(d.telecom);
-      _electricity.text = _formatAmount(d.electricite);
-      _medical.text = _formatAmount(d.fraisMedicaux);
-      _other.text = _formatAmount(d.autresDepensesFixes);
+      _housing.text = _prefillAmount(profile, 'housingCost', d.loyer);
+      _lamal.text = _prefillAmount(profile, 'lamalPremium', d.assuranceMaladie);
+      _transport.text = _prefillAmount(profile, 'transport', d.transport);
+      _telecom.text = _prefillAmount(profile, 'telecom', d.telecom);
+      _electricity.text = _prefillAmount(profile, 'electricity', d.electricite);
+      _medical.text = _prefillAmount(profile, 'medicalCosts', d.fraisMedicaux);
+      _other.text =
+          _prefillAmount(profile, 'otherFixedCosts', d.autresDepensesFixes);
     });
 
     // Live total ticker — rebuild on every field change so the user sees
@@ -138,6 +140,14 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
 
   String _formatAmount(double? value) =>
       (value == null || value == 0) ? '' : value.toStringAsFixed(0);
+
+  String _prefillAmount(CoachProfile profile, String field, double? value) {
+    if (profile.userProvidedFields.isEmpty ||
+        profile.userProvidedFields.contains(field)) {
+      return _formatAmount(value);
+    }
+    return '';
+  }
 
   double? _parseAmount(String raw) {
     final cleaned = raw.trim().replaceAll(RegExp(r"[' ]"), '');
@@ -206,24 +216,33 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
             children: [
               Text(
                 s.budgetSetupSubtitle,
-                style: MintTextStyles.bodyMedium(
-                    color: MintColors.textSecondary),
+                style:
+                    MintTextStyles.bodyMedium(color: MintColors.textSecondary),
               ),
               const SizedBox(height: MintSpacing.lg),
               _field(s.budgetSetupHousing, _housing,
-                  required: true, placeholder: _placeholderHousing),
+                  key: const ValueKey('budgetHousingField'),
+                  required: true,
+                  placeholder: _placeholderHousing),
               _field(s.budgetSetupLamal, _lamal,
-                  required: true, placeholder: _placeholderLamal),
+                  key: const ValueKey('budgetLamalField'),
+                  required: true,
+                  placeholder: _placeholderLamal),
               if (_showOptional) ...[
                 _field(s.budgetSetupTransport, _transport,
+                    key: const ValueKey('budgetTransportField'),
                     placeholder: _placeholderTransport),
                 _field(s.budgetSetupTelecom, _telecom,
+                    key: const ValueKey('budgetTelecomField'),
                     placeholder: _placeholderTelecom),
                 _field(s.budgetSetupElectricity, _electricity,
+                    key: const ValueKey('budgetElectricityField'),
                     placeholder: _placeholderElectricity),
                 _field(s.budgetSetupMedical, _medical,
+                    key: const ValueKey('budgetMedicalField'),
                     placeholder: _placeholderMedical),
                 _field(s.budgetSetupOther, _other,
+                    key: const ValueKey('budgetOtherField'),
                     placeholder: _placeholderOther),
               ] else
                 TextButton.icon(
@@ -234,8 +253,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
               if (_liveTotal > 0) ...[
                 const SizedBox(height: MintSpacing.md),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     color: MintColors.craie,
                     borderRadius: BorderRadius.circular(10),
@@ -248,7 +267,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                 ),
               ],
               const SizedBox(height: MintSpacing.lg),
-              FilledButton(
+              /* // lint-ignore: prefer_mint_cta */ FilledButton(
                 onPressed: _saving ? null : _save,
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
@@ -267,9 +286,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
               ),
               const SizedBox(height: MintSpacing.md),
               Center(
-                child: TextButton(
-                  onPressed: () =>
-                      context.push('/coach/chat?topic=budget'),
+                child: /* // lint-ignore: prefer_mint_cta */ TextButton(
+                  onPressed: () => context.push('/coach/chat?topic=budget'),
                   child: Text(
                     s.budgetSetupChatFallback,
                     style: MintTextStyles.bodyMedium(
@@ -287,6 +305,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   Widget _field(
     String label,
     TextEditingController c, {
+    Key? key,
     bool required = false,
     String? placeholder,
   }) {
@@ -299,8 +318,8 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           Row(
             children: [
               Text(label,
-                  style: MintTextStyles.labelLarge(
-                      color: MintColors.textPrimary)),
+                  style:
+                      MintTextStyles.labelLarge(color: MintColors.textPrimary)),
               if (required) ...[
                 const SizedBox(width: 6),
                 Text('*',
@@ -310,6 +329,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
           ),
           const SizedBox(height: 6),
           TextField(
+            key: key,
             controller: c,
             keyboardType: const TextInputType.numberWithOptions(decimal: false),
             onTapOutside: (_) => FocusScope.of(context).unfocus(),
@@ -318,10 +338,10 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
             ],
             decoration: InputDecoration(
               hintText: placeholder ?? s.budgetSetupFieldPlaceholder,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 12),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             ),
           ),
         ],

@@ -3050,9 +3050,56 @@ class CoachProfile {
     if (answers.containsKey('q_net_income_period_chf') ||
         answers.containsKey('q_gross_salary_annual')) {
       provided.add('salary');
+      restoredDataSources['revenuBrutAnnuel'] = ProfileDataSource.userInput;
     }
     if (answers.containsKey('q_civil_status')) provided.add('civilStatus');
     if (answers.containsKey('q_nationality')) provided.add('nationality');
+    if (answers.containsKey('q_housing_cost_period_chf')) {
+      provided.add('housingCost');
+      restoredDataSources['depenses.loyer'] = ProfileDataSource.userInput;
+    }
+    if (answers.containsKey('q_lamal_premium_monthly_chf')) {
+      provided.add('lamalPremium');
+      restoredDataSources['depenses.assuranceMaladie'] =
+          ProfileDataSource.userInput;
+    }
+    if (answers.containsKey('q_cash_total') ||
+        answers.containsKey('q_epargne_liquide')) {
+      provided.add('liquidSavings');
+      restoredDataSources['patrimoine.epargneLiquide'] =
+          ProfileDataSource.userInput;
+    }
+    if (answers.containsKey('q_has_consumer_debt') ||
+        answers.containsKey('q_debt_payments_period_chf') ||
+        answers.containsKey('_coach_dettes_credit') ||
+        answers.containsKey('_coach_dettes_leasing') ||
+        answers.containsKey('_coach_dettes_autres')) {
+      provided.add('debt');
+      restoredDataSources['dettes.totalDettes'] = ProfileDataSource.userInput;
+    }
+    if (answers.containsKey('_coach_depenses_transport')) {
+      provided.add('transport');
+      restoredDataSources['depenses.transport'] = ProfileDataSource.userInput;
+    }
+    if (answers.containsKey('_coach_depenses_telecom')) {
+      provided.add('telecom');
+      restoredDataSources['depenses.telecom'] = ProfileDataSource.userInput;
+    }
+    if (answers.containsKey('_coach_depenses_electricite')) {
+      provided.add('electricity');
+      restoredDataSources['depenses.electricite'] =
+          ProfileDataSource.userInput;
+    }
+    if (answers.containsKey('_coach_depenses_frais_medicaux')) {
+      provided.add('medicalCosts');
+      restoredDataSources['depenses.fraisMedicaux'] =
+          ProfileDataSource.userInput;
+    }
+    if (answers.containsKey('_coach_depenses_autres')) {
+      provided.add('otherFixedCosts');
+      restoredDataSources['depenses.autresDepensesFixes'] =
+          ProfileDataSource.userInput;
+    }
 
     return CoachProfile(
       firstName: firstName,
