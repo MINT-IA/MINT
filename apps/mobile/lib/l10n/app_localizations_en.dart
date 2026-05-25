@@ -9421,16 +9421,16 @@ class SEn extends S {
   }
 
   @override
-  String get sim3aAnnualTaxSaved => 'Annual tax saved';
+  String get sim3aAnnualTaxSaved => 'Estimated tax impact';
 
   @override
   String get sim3aFinalCapital => 'Capital at maturity';
 
   @override
-  String get sim3aCumulativeTaxSaved => 'Cumulative tax saved';
+  String get sim3aCumulativeTaxSaved => 'Estimated cumulative tax impact';
 
   @override
-  String get sim3aStrategyHeader => 'Winning strategy';
+  String get sim3aStrategyHeader => 'Scenarios to compare';
 
   @override
   String get sim3aStratBankTitle => 'Bank > Insurance';
@@ -9447,11 +9447,11 @@ class SEn extends S {
       'Open multiple accounts to stagger withdrawals and reduce tax progression.';
 
   @override
-  String get sim3aStrat100ActionsTitle => '100% Equities';
+  String get sim3aStrat100ActionsTitle => 'Equity share';
 
   @override
   String get sim3aStrat100ActionsBody =>
-      'If retirement is 15+ years away, an equity strategy could maximise your capital.';
+      'With a 15+ year horizon, a higher equity share can increase expected return, with more fluctuation.';
 
   @override
   String get sim3aExploreAlso => 'Also explore';

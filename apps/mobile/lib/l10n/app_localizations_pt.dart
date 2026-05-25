@@ -9466,16 +9466,16 @@ class SPt extends S {
   }
 
   @override
-  String get sim3aAnnualTaxSaved => 'Poupança fiscal anual';
+  String get sim3aAnnualTaxSaved => 'Impacto fiscal estimado';
 
   @override
   String get sim3aFinalCapital => 'Capital no vencimento';
 
   @override
-  String get sim3aCumulativeTaxSaved => 'Poupança fiscal acumulada';
+  String get sim3aCumulativeTaxSaved => 'Impacto fiscal acumulado estimado';
 
   @override
-  String get sim3aStrategyHeader => 'Estratégia vencedora';
+  String get sim3aStrategyHeader => 'Cenários para comparar';
 
   @override
   String get sim3aStratBankTitle => 'Banco > Seguro';
@@ -9492,11 +9492,11 @@ class SPt extends S {
       'Abre várias contas para levantar de forma escalonada e reduzir a progressão fiscal.';
 
   @override
-  String get sim3aStrat100ActionsTitle => '100 % Ações';
+  String get sim3aStrat100ActionsTitle => 'Percentagem em ações';
 
   @override
   String get sim3aStrat100ActionsBody =>
-      'Se a reforma está a mais de 15 anos, uma estratégia de ações poderá maximizar o teu capital.';
+      'Com um horizonte superior a 15 anos, uma percentagem mais elevada em ações pode aumentar o rendimento esperado, com mais oscilações.';
 
   @override
   String get sim3aExploreAlso => 'Explorar também';

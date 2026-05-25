@@ -7,7 +7,7 @@
 #
 # This is a CORE financial-core gate. Simulator3aScreen reads
 # CoachProfile.salaireBrutMensuel, applies the 3a contribution and
-# 30 % marginal rate (slider-driven), and renders « Gain fiscal annuel »
+# 30 % marginal rate (slider-driven), and renders « Impact fiscal estimé »
 # via the financial_core/avs_calculator path.
 #
 # Catches :
@@ -19,7 +19,7 @@
 # ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
 # Best run with `MINT_E2E_ARCHETYPE=julien_swiss` so the seeded profile
 # has salaireBrutMensuel > 0, otherwise the simulator falls back to
-# placeholder default and the « Gain fiscal annuel » value is 0.
+# placeholder default and the « Impact fiscal estimé » value is 0.
 # Seed dart-define is OPTIONAL ; flow assertions tolerate the placeholder
 # state (see assertions below).
 #
@@ -37,8 +37,8 @@
 # All literal FR strings from app_fr.arb :
 #   sim3aTitle              = "Ton 3e pilier"
 #   sim3aParamsHeader       = "Tes paramètres"
-#   sim3aAnnualTaxSaved     = "Gain fiscal annuel"
-#   sim3aStrategyHeader     = "Stratégie gagnante"
+#   sim3aAnnualTaxSaved     = "Impact fiscal estimé"
+#   sim3aStrategyHeader     = "Scénarios à comparer"
 #   sim3aExploreAlso        = "Explorer aussi"
 #
 # LSFin compliance :
@@ -98,29 +98,29 @@ tags:
     timeout: 4000
 - takeScreenshot: "02-params-section"
 
-# 03 — scroll to result section + assert « Gain fiscal annuel » chip
+# 03 — scroll to result section + assert estimated tax impact chip
 # The chip is wrapped in Semantics (simulator_3a_screen.dart:588) so
 # it surfaces to Maestro as plain text.
 - scrollUntilVisible:
     element:
-      text: "Gain fiscal annuel"
+      text: "Impact fiscal estimé"
     direction: DOWN
     timeout: 8000
 - extendedWaitUntil:
     visible:
-      text: "Gain fiscal annuel"
+      text: "Impact fiscal estimé"
     timeout: 4000
 - takeScreenshot: "03-result-chip"
 
 # 04 — scroll to strategy section
 - scrollUntilVisible:
     element:
-      text: "Stratégie gagnante"
+      text: "Scénarios à comparer"
     direction: DOWN
     timeout: 8000
 - extendedWaitUntil:
     visible:
-      text: "Stratégie gagnante"
+      text: "Scénarios à comparer"
     timeout: 4000
 
 # 05 — explore-also section (cross-link to comparator + retroactif + …)

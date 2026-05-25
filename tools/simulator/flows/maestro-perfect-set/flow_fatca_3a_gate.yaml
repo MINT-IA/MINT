@@ -83,7 +83,7 @@ tags:
 # 04 — REGRESSION GUARD : the simulator slider / inputs must NOT
 # appear in the body when isFatcaBlocked == true.
 - assertNotVisible:
-    text: "Gain fiscal annuel"
+    text: "Impact fiscal estimé"
 
 # 05 — tap FATCA CTA → routes to coach with intent=fatca_3a_alternatives
 - tapOn:

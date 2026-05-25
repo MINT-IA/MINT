@@ -9491,16 +9491,16 @@ class SDe extends S {
   }
 
   @override
-  String get sim3aAnnualTaxSaved => 'Jährliche Steuerersparnis';
+  String get sim3aAnnualTaxSaved => 'Geschätzte Steuerwirkung';
 
   @override
   String get sim3aFinalCapital => 'Kapital am Ende';
 
   @override
-  String get sim3aCumulativeTaxSaved => 'Kumulierte Steuerersparnis';
+  String get sim3aCumulativeTaxSaved => 'Geschätzte kumulierte Steuerwirkung';
 
   @override
-  String get sim3aStrategyHeader => 'Gewinnstrategie';
+  String get sim3aStrategyHeader => 'Szenarien vergleichen';
 
   @override
   String get sim3aStratBankTitle => 'Bank > Versicherung';
@@ -9517,11 +9517,11 @@ class SDe extends S {
       'Eröffne mehrere Konten für gestaffelte Bezüge und reduziere die Steuerprogression.';
 
   @override
-  String get sim3aStrat100ActionsTitle => '100 % Aktien';
+  String get sim3aStrat100ActionsTitle => 'Aktienanteil';
 
   @override
   String get sim3aStrat100ActionsBody =>
-      'Falls die Pensionierung mehr als 15 Jahre entfernt ist, könnte eine Aktienstrategie dein Kapital maximieren.';
+      'Bei einem Horizont von mehr als 15 Jahren kann ein höherer Aktienanteil die erwartete Rendite erhöhen, mit stärkeren Schwankungen.';
 
   @override
   String get sim3aExploreAlso => 'Auch entdecken';

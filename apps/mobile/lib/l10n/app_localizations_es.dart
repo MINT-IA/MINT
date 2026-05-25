@@ -9469,16 +9469,16 @@ class SEs extends S {
   }
 
   @override
-  String get sim3aAnnualTaxSaved => 'Ahorro fiscal anual';
+  String get sim3aAnnualTaxSaved => 'Impacto fiscal estimado';
 
   @override
   String get sim3aFinalCapital => 'Capital al vencimiento';
 
   @override
-  String get sim3aCumulativeTaxSaved => 'Ahorro fiscal acumulado';
+  String get sim3aCumulativeTaxSaved => 'Impacto fiscal acumulado estimado';
 
   @override
-  String get sim3aStrategyHeader => 'Estrategia ganadora';
+  String get sim3aStrategyHeader => 'Escenarios para comparar';
 
   @override
   String get sim3aStratBankTitle => 'Banco > Seguro';
@@ -9495,11 +9495,11 @@ class SEs extends S {
       'Abre varias cuentas para retirar de forma escalonada y reducir la progresión fiscal.';
 
   @override
-  String get sim3aStrat100ActionsTitle => '100 % Acciones';
+  String get sim3aStrat100ActionsTitle => 'Parte en acciones';
 
   @override
   String get sim3aStrat100ActionsBody =>
-      'Si tu jubilación está a más de 15 años, una estrategia de acciones podría maximizar tu capital.';
+      'Con un horizonte de más de 15 años, una mayor parte en acciones puede aumentar la rentabilidad esperada, con más variaciones.';
 
   @override
   String get sim3aExploreAlso => 'Explorar también';

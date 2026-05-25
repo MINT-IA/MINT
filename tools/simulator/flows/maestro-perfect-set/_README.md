@@ -140,7 +140,7 @@ Per-flow notes :
   screen or the Explorer AppBar semantics anchor drifted. Exit 1 with
   « Mon profil » not visible after the icon tap means ProfileDrawer did
   not open. Run with `--debug-output` to capture the view-hierarchy.
-- `flow_3a_calculator` : exit 1 with « Gain fiscal annuel » not visible
+- `flow_3a_calculator` : exit 1 with « Impact fiscal estimé » not visible
   is a financial_core regression — the simulator failed to compute the
   3a tax saving. Check Simulator3aScreen build path.
 - `flow_lpp_scan_review` : exit 1 with « VÉRIFICATION » not visible

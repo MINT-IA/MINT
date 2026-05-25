@@ -82,13 +82,22 @@ void main() {
       expect(find.textContaining('retraite'), findsWidgets);
     });
 
-    testWidgets('displays result section with Gain Fiscal', (tester) async {
+    testWidgets('displays result section with estimated tax impact', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // i18n: sim3aAnnualTaxSaved = "Gain fiscal annuel"
-      expect(find.textContaining('ain fiscal'), findsWidgets);
+      // i18n: sim3aAnnualTaxSaved = "Impact fiscal estimé"
+      expect(find.textContaining('mpact fiscal'), findsWidgets);
       // i18n: sim3aFinalCapital = "Capital au terme"
       expect(find.textContaining('apital au terme'), findsWidgets);
+    });
+
+    testWidgets('uses estimate-first language for 3a impact', (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+
+      expect(find.text('Impact fiscal estimé'), findsWidgets);
+      expect(find.text('Gain fiscal annuel'), findsNothing);
+      expect(find.text('Stratégie gagnante'), findsNothing);
     });
 
     testWidgets('displays disclaimer text', (tester) async {

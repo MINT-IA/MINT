@@ -9447,7 +9447,7 @@ class SFr extends S {
 
   @override
   String get sim3aCoachBody =>
-      'Le 3a est l\'un des outils les plus efficaces d\'optimisation en Suisse. L\'économie fiscale immédiate est un avantage concret.';
+      'Le 3a peut réduire ton revenu imposable. Mint chiffre l\'impact fiscal estimé avec tes paramètres, puis te laisse comparer les scénarios.';
 
   @override
   String get sim3aParamsHeader => 'Tes paramètres';
@@ -9474,16 +9474,16 @@ class SFr extends S {
   }
 
   @override
-  String get sim3aAnnualTaxSaved => 'Gain fiscal annuel';
+  String get sim3aAnnualTaxSaved => 'Impact fiscal estimé';
 
   @override
   String get sim3aFinalCapital => 'Capital au terme';
 
   @override
-  String get sim3aCumulativeTaxSaved => 'Économie fiscale cumulée';
+  String get sim3aCumulativeTaxSaved => 'Impact fiscal cumulé estimé';
 
   @override
-  String get sim3aStrategyHeader => 'Stratégie gagnante';
+  String get sim3aStrategyHeader => 'Scénarios à comparer';
 
   @override
   String get sim3aStratBankTitle => 'Bancaire > Assurance';
@@ -9500,11 +9500,11 @@ class SFr extends S {
       'Ouvre plusieurs comptes pour retirer de manière échelonnée et réduire la progression fiscale au retrait.';
 
   @override
-  String get sim3aStrat100ActionsTitle => '100 % Actions';
+  String get sim3aStrat100ActionsTitle => 'Part actions';
 
   @override
   String get sim3aStrat100ActionsBody =>
-      'Si ta retraite est dans plus de 15 ans, une stratégie actions pourrait maximiser ton capital.';
+      'Avec un horizon de plus de 15 ans, une part actions plus élevée peut augmenter le rendement attendu, avec plus de variations.';
 
   @override
   String get sim3aExploreAlso => 'Explorer aussi';

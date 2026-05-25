@@ -9486,16 +9486,16 @@ class SIt extends S {
   }
 
   @override
-  String get sim3aAnnualTaxSaved => 'Risparmio fiscale annuale';
+  String get sim3aAnnualTaxSaved => 'Impatto fiscale stimato';
 
   @override
   String get sim3aFinalCapital => 'Capitale a scadenza';
 
   @override
-  String get sim3aCumulativeTaxSaved => 'Risparmio fiscale cumulato';
+  String get sim3aCumulativeTaxSaved => 'Impatto fiscale cumulato stimato';
 
   @override
-  String get sim3aStrategyHeader => 'Strategia vincente';
+  String get sim3aStrategyHeader => 'Scenari da confrontare';
 
   @override
   String get sim3aStratBankTitle => 'Banca > Assicurazione';
@@ -9512,11 +9512,11 @@ class SIt extends S {
       'Apri più conti per prelevare in modo scaglionato e ridurre la progressione fiscale.';
 
   @override
-  String get sim3aStrat100ActionsTitle => '100 % Azioni';
+  String get sim3aStrat100ActionsTitle => 'Quota azionaria';
 
   @override
   String get sim3aStrat100ActionsBody =>
-      'Se il pensionamento è tra più di 15 anni, una strategia azionaria potrebbe massimizzare il tuo capitale.';
+      'Con un orizzonte superiore a 15 anni, una quota azionaria più alta può aumentare il rendimento atteso, con più oscillazioni.';
 
   @override
   String get sim3aExploreAlso => 'Esplora anche';

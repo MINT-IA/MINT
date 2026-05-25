@@ -16678,7 +16678,7 @@ abstract class S {
   /// No description provided for @sim3aCoachBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le 3a est l\'un des outils les plus efficaces d\'optimisation en Suisse. L\'économie fiscale immédiate est un avantage concret.'**
+  /// **'Le 3a peut réduire ton revenu imposable. Mint chiffre l\'impact fiscal estimé avec tes paramètres, puis te laisse comparer les scénarios.'**
   String get sim3aCoachBody;
 
   /// No description provided for @sim3aParamsHeader.
@@ -16726,7 +16726,7 @@ abstract class S {
   /// No description provided for @sim3aAnnualTaxSaved.
   ///
   /// In fr, this message translates to:
-  /// **'Gain fiscal annuel'**
+  /// **'Impact fiscal estimé'**
   String get sim3aAnnualTaxSaved;
 
   /// No description provided for @sim3aFinalCapital.
@@ -16738,13 +16738,13 @@ abstract class S {
   /// No description provided for @sim3aCumulativeTaxSaved.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale cumulée'**
+  /// **'Impact fiscal cumulé estimé'**
   String get sim3aCumulativeTaxSaved;
 
   /// No description provided for @sim3aStrategyHeader.
   ///
   /// In fr, this message translates to:
-  /// **'Stratégie gagnante'**
+  /// **'Scénarios à comparer'**
   String get sim3aStrategyHeader;
 
   /// No description provided for @sim3aStratBankTitle.
@@ -16774,13 +16774,13 @@ abstract class S {
   /// No description provided for @sim3aStrat100ActionsTitle.
   ///
   /// In fr, this message translates to:
-  /// **'100 % Actions'**
+  /// **'Part actions'**
   String get sim3aStrat100ActionsTitle;
 
   /// No description provided for @sim3aStrat100ActionsBody.
   ///
   /// In fr, this message translates to:
-  /// **'Si ta retraite est dans plus de 15 ans, une stratégie actions pourrait maximiser ton capital.'**
+  /// **'Avec un horizon de plus de 15 ans, une part actions plus élevée peut augmenter le rendement attendu, avec plus de variations.'**
   String get sim3aStrat100ActionsBody;
 
   /// No description provided for @sim3aExploreAlso.
