@@ -140,6 +140,80 @@ void main() {
     expect(answers['_coach_depenses_autres'], 250.0);
   });
 
+  test('budget-first answers hydrate a partial profile on restart', () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_housing_cost_period_chf': 2200.0,
+      'q_pay_frequency': 'monthly',
+      'q_lamal_premium_monthly_chf': 420.0,
+    });
+
+    final provider = CoachProfileProvider();
+    await provider.loadFromWizard();
+
+    expect(provider.profile, isNotNull);
+    expect(provider.profile!.depenses.loyer, 2200);
+    expect(provider.profile!.depenses.assuranceMaladie, 420);
+  });
+
+  test('completed wizard with budget keys stays a full profile', () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_birth_year': 1988,
+      'q_canton': 'VD',
+      'q_net_income_period_chf': 6000.0,
+      'q_pay_frequency': 'monthly',
+      'q_housing_cost_period_chf': 2200.0,
+      'q_lamal_premium_monthly_chf': 420.0,
+    });
+    await ReportPersistenceService.setCompleted(true);
+
+    final provider = CoachProfileProvider();
+    await provider.loadFromWizard();
+
+    expect(provider.profile, isNotNull);
+    expect(provider.isPartialProfile, isFalse);
+    expect(provider.profile!.depenses.loyer, 2200);
+    expect(provider.profile!.depenses.assuranceMaladie, 420);
+  });
+
+  testWidgets('manual budget edit after completed wizard survives restart',
+      (tester) async {
+    await ReportPersistenceService.saveAnswers({
+      'q_birth_year': 1988,
+      'q_canton': 'VD',
+      'q_net_income_period_chf': 6000.0,
+      'q_pay_frequency': 'monthly',
+      'q_housing_cost_period_chf': 1100.0,
+      'q_lamal_premium_monthly_chf': 390.0,
+    });
+    await ReportPersistenceService.setCompleted(true);
+
+    final coachProvider = CoachProfileProvider();
+    await coachProvider.loadFromWizard();
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(_wrapWithProviders(
+      child: const BudgetSetupScreen(),
+      coachProvider: coachProvider,
+      budgetProvider: budgetProvider,
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetHousingField')), '2200');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetLamalField')), '420');
+    await tester.ensureVisible(find.text('Enregistrer'));
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+
+    final reloaded = CoachProfileProvider();
+    await reloaded.loadFromWizard();
+
+    expect(reloaded.isPartialProfile, isFalse);
+    expect(reloaded.profile!.depenses.loyer, 2200);
+    expect(reloaded.profile!.depenses.assuranceMaladie, 420);
+  });
+
   testWidgets('refreshes BudgetProvider after save', (tester) async {
     final coachProvider = CoachProfileProvider();
     final budgetProvider = BudgetProvider();

@@ -803,7 +803,9 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/budget',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const BudgetContainerScreen(),
+      builder: (context, state) => BudgetContainerScreen(
+        routeExtra: state.extra,
+      ),
     ),
     ScopedGoRoute(
       path: '/budget/setup',
@@ -1675,7 +1677,7 @@ ThemeData _buildPremiumTheme() {
   // helpers (displayLarge / headlineLarge / headlineMedium) reuse the same
   // bundled family.
   final baseLight = ThemeData.light().textTheme;
-  final textTheme = baseLight.apply(fontFamily: 'Supreme');
+  final textTheme = baseLight.apply(fontFamily: 'Supreme'); // lint-ignore: prefer_mint_fonts
 
   return ThemeData(
     useMaterial3: true,
@@ -1693,19 +1695,19 @@ ThemeData _buildPremiumTheme() {
     ),
     textTheme: textTheme.copyWith(
       displayLarge: textTheme.displayLarge?.copyWith(
-        fontFamily: 'Supreme',
+        fontFamily: 'Supreme', // lint-ignore: prefer_mint_fonts
         fontWeight: FontWeight.w700,
         letterSpacing: -1.5,
         color: MintColors.textPrimary,
       ),
       headlineLarge: textTheme.headlineLarge?.copyWith(
-        fontFamily: 'Supreme',
+        fontFamily: 'Supreme', // lint-ignore: prefer_mint_fonts
         fontWeight: FontWeight.w700,
         letterSpacing: -1.0,
         color: MintColors.textPrimary,
       ),
       headlineMedium: textTheme.headlineMedium?.copyWith(
-        fontFamily: 'Supreme',
+        fontFamily: 'Supreme', // lint-ignore: prefer_mint_fonts
         fontWeight: FontWeight.w600,
         letterSpacing: -0.5,
         color: MintColors.textPrimary,
@@ -1732,7 +1734,7 @@ ThemeData _buildPremiumTheme() {
       centerTitle: false,
       titleTextStyle: TextStyle(
         fontWeight: FontWeight.w700,
-        fontFamily: 'Supreme',
+        fontFamily: 'Supreme', // lint-ignore: prefer_mint_fonts
         color: MintColors.textPrimary,
         fontSize: MintTextStyles.headlineSmall().fontSize,
         letterSpacing: -0.5,
@@ -1918,12 +1920,12 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
                           color: Colors.black87),
                     ),
                     const SizedBox(height: 24),
-                    FilledButton(
+                    FilledButton( // lint-ignore: prefer_mint_cta
                       onPressed: () => _verifyToken(),
                       child: const Text('Réessayer'),
                     ),
                     const SizedBox(height: 12),
-                    TextButton(
+                    TextButton( // lint-ignore: prefer_mint_cta
                       onPressed: () => context.go('/auth/login'),
                       child: const Text('Retour à la connexion'),
                     ),

@@ -456,12 +456,11 @@ class CoachProfileProvider extends ChangeNotifier {
         return;
       }
 
-      // Scan-first onboarding: if a document scan has written fields to
-      // answers (via updateFrom*Extraction persisting `_coach_*` keys)
-      // without any wizard being completed, hydrate from those so the
-      // enriched profile survives app restart instead of being lost.
-      final hasScanData = answers.keys.any((k) => k.startsWith('_coach_'));
-      if (hasScanData && answers.isNotEmpty) {
+      // Scan-first / budget-first onboarding: if a deterministic data entry
+      // path has written fields to answers before the wizard is complete,
+      // hydrate a partial profile so the user's values survive restart and
+      // E2E debug seeds do not overwrite them on the next app launch.
+      if (_hasPartialProfileData(answers)) {
         _profile = CoachProfile.fromWizardAnswers(answers);
         _isPartialProfile = true;
         await _mergePersistedData();
@@ -499,6 +498,19 @@ class CoachProfileProvider extends ChangeNotifier {
     _isLoading = false;
     _isLoaded = true;
     notifyListeners();
+  }
+
+  bool _hasPartialProfileData(Map<String, dynamic> answers) {
+    if (answers.isEmpty) return false;
+    if (answers.keys.any((k) => k.startsWith('_coach_'))) return true;
+    const budgetFirstKeys = <String>{
+      'q_housing_cost_period_chf',
+      'q_lamal_premium_monthly_chf',
+      'q_tax_provision_monthly_chf',
+      'q_other_fixed_costs_monthly_chf',
+      'q_debt_payments_period_chf',
+    };
+    return budgetFirstKeys.any(answers.containsKey);
   }
 
   /// Fusionne les donnees persistees (check-ins, contributions, score)
