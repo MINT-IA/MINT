@@ -115,6 +115,14 @@ void main() {
       final p = makeProfile(epargneLiquide: 15000, totalMensuelDepenses: 3000);
       expect(p.isInDebtCrisis, isFalse);
     });
+
+    test('implausible monthly expense capture does not trigger crisis', () {
+      final p = makeProfile(
+        epargneLiquide: 30000,
+        totalMensuelDepenses: 19272200,
+      );
+      expect(p.isInDebtCrisis, isFalse);
+    });
   });
 
   // ── Edge cases ────────────────────────────────────────────────────────────────

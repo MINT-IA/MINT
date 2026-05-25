@@ -168,4 +168,18 @@ void main() {
       expect(coaching.chargesFixesMensuelles, profile.depenses.totalMensuel);
     });
   });
+
+  group('CoachProfile.toBudgetInputs()', () {
+    test('uses budget plausibility guards for stale monthly captures', () {
+      final profile = makeProfile(
+        loyer: 19272200,
+        epargne: 30000,
+      );
+
+      final inputs = profile.toBudgetInputs();
+
+      expect(inputs.housingCost, 0);
+      expect(inputs.emergencyFundMonths, greaterThan(1));
+    });
+  });
 }

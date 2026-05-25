@@ -77,12 +77,12 @@ class BudgetInputs {
     final monthlyNet = ownNet + partnerNet;
     final monthlyDebt =
         profile.dettes.totalDettes > 0 ? profile.dettes.totalDettes / 36 : 0.0;
-    final housingCost = _plausibleMonthlyAmount(
+    final housingCost = plausibleMonthlyAmount(
           profile.depenses.loyer,
           max: maxMonthlyHousingCost,
         ) ??
         0.0;
-    final healthInsurance = _plausibleMonthlyAmount(
+    final healthInsurance = plausibleMonthlyAmount(
           profile.depenses.assuranceMaladie,
           max: maxMonthlyHealthInsurance,
         ) ??
@@ -91,7 +91,7 @@ class BudgetInputs {
     final otherFixed = profile.depenses.totalMensuel -
         profile.depenses.loyer -
         profile.depenses.assuranceMaladie;
-    final plausibleOtherFixed = _plausibleMonthlyAmount(
+    final plausibleOtherFixed = plausibleMonthlyAmount(
           otherFixed,
           max: maxMonthlyFixedCharge,
         ) ??
@@ -175,7 +175,7 @@ class BudgetInputs {
         (map['q_net_income_period_chf'] as num?)?.toDouble() ?? 0.0;
     final housingCostRaw =
         (map['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0.0;
-    final housingCost = _plausibleMonthlyAmount(
+    final housingCost = plausibleMonthlyAmount(
           housingCostRaw,
           max: maxMonthlyHousingCost,
         ) ??
@@ -186,11 +186,11 @@ class BudgetInputs {
     final normalizedMonthlyIncome = _toMonthly(netIncome, payFrequency);
     final taxProvisionRaw =
         (map['q_tax_provision_monthly_chf'] as num?)?.toDouble();
-    final lamalRaw = _plausibleMonthlyAmount(
+    final lamalRaw = plausibleMonthlyAmount(
       (map['q_lamal_premium_monthly_chf'] as num?)?.toDouble(),
       max: maxMonthlyHealthInsurance,
     );
-    final otherFixedRaw = _plausibleMonthlyAmount(
+    final otherFixedRaw = plausibleMonthlyAmount(
       (map['q_other_fixed_costs_monthly_chf'] as num?)?.toDouble(),
       max: maxMonthlyFixedCharge,
     );
@@ -269,7 +269,7 @@ class BudgetInputs {
     }
   }
 
-  static double? _plausibleMonthlyAmount(double? value, {required double max}) {
+  static double? plausibleMonthlyAmount(double? value, {required double max}) {
     if (value == null || value < 0 || value > max) return null;
     return value;
   }

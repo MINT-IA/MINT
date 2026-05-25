@@ -2049,8 +2049,28 @@ class CoachProfile {
     }
 
     // ── Signal C — emergency fund shortfall (< 3 months) ────────────────────
-    final monthlyExpenses = depenses.totalMensuel > 0
-        ? depenses.totalMensuel
+    final housingCost = BudgetInputs.plausibleMonthlyAmount(
+          depenses.loyer,
+          max: BudgetInputs.maxMonthlyHousingCost,
+        ) ??
+        0.0;
+    final healthInsurance = BudgetInputs.plausibleMonthlyAmount(
+          depenses.assuranceMaladie,
+          max: BudgetInputs.maxMonthlyHealthInsurance,
+        ) ??
+        0.0;
+    final otherFixed = depenses.totalMensuel -
+        depenses.loyer -
+        depenses.assuranceMaladie;
+    final plausibleOtherFixed = BudgetInputs.plausibleMonthlyAmount(
+          otherFixed,
+          max: BudgetInputs.maxMonthlyFixedCharge,
+        ) ??
+        0.0;
+    final plausibleMonthlyExpenses =
+        housingCost + healthInsurance + plausibleOtherFixed;
+    final monthlyExpenses = plausibleMonthlyExpenses > 0
+        ? plausibleMonthlyExpenses
         : (netMensuel > 0 ? netMensuel * 0.6 : 0.0);
     if (monthlyExpenses > 0) {
       final monthsLiquidity = patrimoine.epargneLiquide / monthlyExpenses;
@@ -2217,31 +2237,8 @@ class CoachProfile {
   /// Convertit le CoachProfile en BudgetInputs.
   ///
   /// Utile quand on a un CoachProfile mais pas les réponses wizard brutes.
-  /// Le revenu net utilise NetIncomeBreakdown (canton + age).
-  /// Les dettes mensuelles sont estimées sur 36 mois de remboursement.
-  BudgetInputs toBudgetInputs() {
-    final breakdown = NetIncomeBreakdown.compute(
-      grossSalary: salaireBrutMensuel * 12,
-      canton: canton,
-      age: age,
-    );
-    final netMensuel = breakdown.monthlyNetPayslip;
-    final monthlyDebt = dettes.totalDettes > 0 ? dettes.totalDettes / 36 : 0.0;
-    // Estimer les mois de fonds d'urgence
-    final monthlyExpenses = depenses.totalMensuel > 0
-        ? depenses.totalMensuel
-        : netMensuel * 0.6; // fallback: 60% du net
-    final emergencyMonths =
-        monthlyExpenses > 0 ? patrimoine.epargneLiquide / monthlyExpenses : 0.0;
-
-    return BudgetInputs(
-      payFrequency: PayFrequency.monthly,
-      netIncome: netMensuel,
-      housingCost: depenses.loyer,
-      debtPayments: monthlyDebt,
-      emergencyFundMonths: emergencyMonths,
-    );
-  }
+  /// La dérivation canonique vit dans [BudgetInputs.fromCoachProfile].
+  BudgetInputs toBudgetInputs() => BudgetInputs.fromCoachProfile(this);
 
   // ════════════════════════════════════════════════════════════════
   //  BRIDGE — CoachingService
