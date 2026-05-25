@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 
 // ────────────────────────────────────────────────────────────────
 //  BUDGET DOMAIN — Unit Tests
@@ -710,6 +711,31 @@ void main() {
       expect(inputs.isHealthEstimated, isTrue);
       expect(inputs.otherFixedCosts, 0);
       expect(inputs.isOtherFixedMissing, isTrue);
+    });
+
+    test('fromCoachProfile excludes implausible charges from emergency fund',
+        () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VS',
+        salaireBrutMensuel: 6000,
+        depenses: const DepensesProfile(
+          loyer: 19272200,
+          assuranceMaladie: 420420,
+        ),
+        patrimoine: const PatrimoineProfile(epargneLiquide: 12000),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.housingCost, 0);
+      expect(inputs.healthInsurance, 0);
+      expect(inputs.emergencyFundMonths, greaterThan(1));
     });
 
     test('toMap roundtrip preserves core values', () {

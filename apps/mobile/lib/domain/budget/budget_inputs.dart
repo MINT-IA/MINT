@@ -110,9 +110,11 @@ class BudgetInputs {
         healthSource == ProfileDataSource.certificate ||
         healthSource == ProfileDataSource.openBanking;
 
-    // Emergency fund: months of expenses covered by liquid savings
-    final monthlyExpenses = profile.depenses.totalMensuel > 0
-        ? profile.depenses.totalMensuel
+    // Emergency fund: months of plausible expenses covered by liquid savings.
+    final plausibleMonthlyExpenses =
+        housingCost + healthInsurance + plausibleOtherFixed;
+    final monthlyExpenses = plausibleMonthlyExpenses > 0
+        ? plausibleMonthlyExpenses
         : monthlyNet * 0.70; // fallback: 70% of net income
     final emergencyMonths = monthlyExpenses > 0
         ? profile.patrimoine.epargneLiquide / monthlyExpenses
