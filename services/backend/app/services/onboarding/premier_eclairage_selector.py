@@ -214,15 +214,18 @@ def _build_retirement_gap_choc(profile: MinimalProfileResult) -> PremierEclairag
 def _build_tax_saving_choc(profile: MinimalProfileResult) -> PremierEclairage:
     """Build premier éclairage for tax saving opportunity via 3a."""
     tax_saving = profile.tax_saving_3a
+    marginal_rate_pct = round(profile.marginal_tax_rate * 100)
+    canton = profile.canton.upper()
 
     display_text = (
-        f"En ouvrant un 3e pilier, tu pourrais économiser environ "
-        f"CHF {tax_saving:,.0f} d'impôts chaque année."
+        f"Un versement 3e pilier pourrait réduire l'impôt d'environ "
+        f"CHF {tax_saving:,.0f} par an."
     )
     explanation_text = (
-        "Le versement au 3e pilier est déductible du revenu imposable. "
-        "Avec un plafond de CHF 7'258 par an (salarié·e affilié·e LPP), "
-        "l'économie fiscale dépend de ton taux marginal d'imposition."
+        "Estimation basée sur ton salaire déclaré, "
+        f"un taux marginal estimé de {marginal_rate_pct}% "
+        f"et le canton {canton}. Le versement 3e pilier est déductible "
+        "du revenu imposable jusqu'au plafond OPP3."
     )
     action_text = "Explore les options 3a et leur impact fiscal \u2192"
 
@@ -235,7 +238,26 @@ def _build_tax_saving_choc(profile: MinimalProfileResult) -> PremierEclairage:
         disclaimer=_DISCLAIMER,
         sources=list(_SOURCES_TAX),
         confidence_score=profile.confidence_score,
-        confidence_mode="factual",  # Derived from salary + canton, both provided
+        confidence_mode="pedagogical",
+    )
+
+
+def _has_trustworthy_3a_tax_saving(
+    profile: MinimalProfileResult,
+    *,
+    threshold: float,
+) -> bool:
+    """Gate 3a tax displays on the inputs needed for an auditable estimate."""
+    return (
+        profile.existing_3a <= 0.0
+        and profile.tax_saving_3a > threshold
+        and profile.gross_annual_salary > 0
+        and profile.marginal_tax_rate > 0
+        and profile.canton.upper() in {
+            "AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR",
+            "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG",
+            "TI", "UR", "VD", "VS", "ZG", "ZH",
+        }
     )
 
 
@@ -368,7 +390,7 @@ def _select_by_stress(
         return None
 
     if stress_type == "stress_impots":
-        if profile.tax_saving_3a > 500:
+        if _has_trustworthy_3a_tax_saving(profile, threshold=500):
             return _build_tax_saving_choc(profile)
         return None
 
@@ -396,7 +418,7 @@ def _select_by_lifecycle(profile: MinimalProfileResult) -> PremierEclairage:
         return _build_compound_growth_choc(profile)
 
     if age < 38:
-        if profile.existing_3a <= 0 and profile.tax_saving_3a > 1500:
+        if _has_trustworthy_3a_tax_saving(profile, threshold=1500):
             return _build_tax_saving_choc(profile)
         return _build_compound_growth_choc(profile)
 
@@ -452,8 +474,7 @@ def select_premier_eclairage(
         return _build_retirement_gap_choc(profile)
 
     # Tax saving 3a
-    has_no_3a = profile.existing_3a <= 0.0
-    if has_no_3a and profile.tax_saving_3a > 1500:
+    if _has_trustworthy_3a_tax_saving(profile, threshold=1500):
         return _build_tax_saving_choc(profile)
 
     # Phase 4: Lifecycle-aware fallback

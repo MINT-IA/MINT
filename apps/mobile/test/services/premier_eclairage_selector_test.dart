@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 
 /// Tests for PremierEclairageSelector (Sprint S31).
@@ -177,9 +179,15 @@ void main() {
     // ── Priority 3: Tax saving 3a ────────────────────────────
 
     test('no existing 3a and saving > 1500 triggers tax saving', () {
+      final taxImpact = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: 150000,
+        canton: 'VD',
+      );
       final profile = profile0(
         existing3a: 0,
-        taxSaving3a: 2000,
+        taxSaving3a: taxImpact.estimatedTaxSaving,
+        marginalTaxRate: taxImpact.marginalRate,
+        grossAnnualSalary: 150000,
         replacementRate: 0.60, // No retirement gap
         liquidityMonths: 6,
         nationalityGroup: 'CH',
@@ -190,6 +198,46 @@ void main() {
       expect(result.type, PremierEclairageType.taxSaving3a);
       expect(result.colorKey, 'success');
       expect(result.value, contains('/an'));
+      expect(result.subtitle, contains('taux marginal estimé'));
+      expect(
+        result.subtitle,
+        contains('${(taxImpact.marginalRate * 100).round()}%'),
+      );
+      expect(result.subtitle, contains('canton VD'));
+      expect(result.confidenceMode, PremierEclairageConfidence.pedagogical);
+    });
+
+    test('incoherent raw tax saving is not shown as 3a opportunity', () {
+      final profile = profile0(
+        existing3a: 0,
+        taxSaving3a: 2000,
+        marginalTaxRate: 0.10,
+        plafond3a: 7258,
+        replacementRate: 0.60,
+        liquidityMonths: 6,
+        nationalityGroup: 'CH',
+      );
+
+      final result = PremierEclairageSelector.select(profile);
+
+      expect(result.type, isNot(PremierEclairageType.taxSaving3a));
+    });
+
+    test('compute to selector keeps canonical 3a tax opportunity coherent', () {
+      final profile = MinimalProfileService.compute(
+        age: 25,
+        grossSalary: 150000,
+        canton: 'VD',
+        employmentStatus: 'salarie',
+        currentSavings: 100000,
+        existing3a: 0,
+      );
+
+      final result = PremierEclairageSelector.select(profile);
+
+      expect(result.type, PremierEclairageType.taxSaving3a);
+      expect(result.confidenceMode, PremierEclairageConfidence.pedagogical);
+      expect(result.subtitle, contains('canton VD'));
     });
 
     test('existing 3a > 0 skips tax saving, falls to retirement income', () {
@@ -204,6 +252,22 @@ void main() {
       final result = PremierEclairageSelector.select(profile);
 
       expect(result.type, PremierEclairageType.retirementIncome);
+    });
+
+    test('invalid canton skips tax saving even when raw saving is high', () {
+      final profile = profile0(
+        existing3a: 0,
+        taxSaving3a: 2000,
+        canton: 'ZZ',
+        replacementRate: 0.60,
+        liquidityMonths: 6,
+        nationalityGroup: 'CH',
+      );
+
+      final result = PremierEclairageSelector.select(profile);
+
+      expect(result.type, isNot(PremierEclairageType.taxSaving3a));
+      expect(result.subtitle, isNot(contains('canton ZZ')));
     });
 
     // ── Fallback: Retirement income ──────────────────────────
@@ -289,21 +353,29 @@ void main() {
         liquidityMonths: 6,
         nationalityGroup: 'CH',
       );
-      final result = PremierEclairageSelector.select(profile, stressType: 'stress_budget');
+      final result =
+          PremierEclairageSelector.select(profile, stressType: 'stress_budget');
       expect(result.type, PremierEclairageType.hourlyRate);
       expect(result.confidenceMode, PremierEclairageConfidence.factual);
     });
 
     test('stress_impots produces taxSaving3a', () {
+      final taxImpact = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: 100000,
+        canton: 'VD',
+      );
       final profile = profile0(
         age: 30,
-        taxSaving3a: 2000,
+        taxSaving3a: taxImpact.estimatedTaxSaving,
+        marginalTaxRate: taxImpact.marginalRate,
         replacementRate: 0.65,
         liquidityMonths: 6,
         nationalityGroup: 'CH',
       );
-      final result = PremierEclairageSelector.select(profile, stressType: 'stress_impots');
+      final result =
+          PremierEclairageSelector.select(profile, stressType: 'stress_impots');
       expect(result.type, PremierEclairageType.taxSaving3a);
+      expect(result.confidenceMode, PremierEclairageConfidence.pedagogical);
     });
 
     test('stress_retraite produces retirementGap when ratio low', () {
@@ -313,7 +385,8 @@ void main() {
         liquidityMonths: 6,
         nationalityGroup: 'CH',
       );
-      final result = PremierEclairageSelector.select(profile, stressType: 'stress_retraite');
+      final result = PremierEclairageSelector.select(profile,
+          stressType: 'stress_retraite');
       expect(result.type, PremierEclairageType.retirementGap);
     });
   });
@@ -336,19 +409,27 @@ void main() {
     });
 
     test('age 32 with no 3a gets taxSaving3a', () {
+      final taxImpact = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: 150000,
+        canton: 'VD',
+      );
       final profile = profile0(
         age: 32,
         existing3a: 0,
-        taxSaving3a: 2000,
+        taxSaving3a: taxImpact.estimatedTaxSaving,
+        marginalTaxRate: taxImpact.marginalRate,
+        grossAnnualSalary: 150000,
         replacementRate: 0.65,
         liquidityMonths: 6,
         nationalityGroup: 'CH',
       );
       final result = PremierEclairageSelector.select(profile);
       expect(result.type, PremierEclairageType.taxSaving3a);
+      expect(result.confidenceMode, PremierEclairageConfidence.pedagogical);
     });
 
-    test('age < 30 with low ratio still gets lifecycle (no retirement gap)', () {
+    test('age < 30 with low ratio still gets lifecycle (no retirement gap)',
+        () {
       final profile = profile0(
         age: 25,
         replacementRate: 0.40,

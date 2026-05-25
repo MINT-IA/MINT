@@ -44,6 +44,7 @@ from app.constants.social_insurance import (
     LPP_TAUX_CONVERSION_MIN,
     LPP_TAUX_INTERET_MIN,
     PILIER_3A_PLAFOND_AVEC_LPP,
+    PILIER_3A_PLAFOND_SANS_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     LPP_CONVERSION_RATE_COMPLEMENTAIRE,
     get_lpp_bonification_rate,
@@ -326,52 +327,116 @@ def _estimate_lpp_from_age_25(
 
 
 def _compute_marginal_tax_rate(gross_salary: float, canton: str) -> float:
-    """Approximate marginal income tax rate using cantonal rate table + income brackets.
+    """Approximate marginal income tax rate using the mobile canonical curve.
 
-    Uses a lookup table of approximate marginal income tax rates per canton
-    (federal + cantonal + communal combined, for a single person in the capital).
-    Source: AFC 2024 data, rounded to nearest 0.5%.
+    Mirrors apps/mobile/lib/services/financial_core/tax_calculator.dart:
+    effective AFC 2024 cantonal rates at 100k, income interpolation, then
+    ×1.3 to approximate a marginal deduction rate.
+    """
+    effective_rates_100k = {
+        "ZG": 0.0823, "NW": 0.0891, "OW": 0.0934, "AI": 0.0956,
+        "AR": 0.1012, "SZ": 0.1034, "UR": 0.1067, "LU": 0.1089,
+        "GL": 0.1102, "TG": 0.1145, "SH": 0.1167, "AG": 0.1189,
+        "GR": 0.1203, "BL": 0.1256, "SG": 0.1278, "ZH": 0.1290,
+        "FR": 0.1312, "SO": 0.1334, "TI": 0.1356, "BE": 0.1389,
+        "NE": 0.1423, "VS": 0.1456, "VD": 0.1489, "JU": 0.1512,
+        "GE": 0.1545, "BS": 0.1578,
+    }
+    income_adjustment = {
+        50_000: 0.75,
+        80_000: 0.90,
+        100_000: 1.00,
+        150_000: 1.10,
+        200_000: 1.18,
+        300_000: 1.25,
+        500_000: 1.32,
+    }
 
-    Accuracy: +/-3% for CHF 50k-200k salaries (educational use).
-    For final displays, the mobile RetirementTaxCalculator.estimateMarginalRate()
-    uses full AFC 2024 progressive brackets.
+    base_rate = effective_rates_100k.get(canton.upper(), 0.13)
+    brackets = sorted(income_adjustment)
+    if gross_salary <= brackets[0]:
+        income_adj = income_adjustment[brackets[0]]
+    elif gross_salary >= brackets[-1]:
+        income_adj = income_adjustment[brackets[-1]]
+    else:
+        income_adj = 1.0
+        for lower, upper in zip(brackets, brackets[1:]):
+            if lower <= gross_salary <= upper:
+                ratio = (gross_salary - lower) / (upper - lower)
+                lower_adj = income_adjustment[lower]
+                upper_adj = income_adjustment[upper]
+                income_adj = lower_adj + (upper_adj - lower_adj) * ratio
+                break
 
-    Args:
-        gross_salary: Annual gross salary.
-        canton: Canton code (2 letters).
+    marginal_rate = base_rate * income_adj * 1.3
+    return min(max(marginal_rate, 0.05), 0.45)
+
+
+def _estimate_tax_saving(
+    *,
+    income: float,
+    deduction: float,
+    canton: str,
+    steps: int = 10,
+) -> float:
+    """Estimate deduction value via the same 10-step integration as mobile."""
+    if deduction <= 0 or steps <= 0:
+        return 0.0
+
+    step_size = deduction / steps
+    current_income = income
+    total_saved = 0.0
+    for _ in range(steps):
+        midpoint = current_income - step_size / 2
+        rate = _compute_marginal_tax_rate(midpoint, canton)
+        total_saved += step_size * rate
+        current_income -= step_size
+    return total_saved
+
+
+def _estimate_3a_tax_impact(
+    gross_salary: float,
+    canton: str,
+    *,
+    has_lpp: bool,
+) -> tuple[float, float, float]:
+    """Estimate 3a tax impact for onboarding.
+
+    Source: OPP3 art. 7 (deductible 3a ceiling).
+    Hypotheses: educational marginal-rate estimate from canton + gross salary.
 
     Returns:
-        Estimated marginal tax rate (0.10 - 0.45).
+        (tax_saving_3a, marginal_tax_rate, annual_ceiling).
     """
-    # Approximate combined marginal income tax rates by canton (federal + cantonal + communal)
-    # at ~CHF 100k gross salary, single, chief-lieu. Source: AFC 2024.
-    # Brackets: <50k → ×0.70, 50-80k → ×0.85, 80-120k → ×1.00, 120-200k → ×1.15, 200k+ → ×1.30
-    _CANTONAL_MARGINAL_RATES = {
-        "ZH": 0.265, "BE": 0.305, "LU": 0.235, "UR": 0.225, "SZ": 0.195,
-        "OW": 0.210, "NW": 0.195, "GL": 0.250, "ZG": 0.175, "FR": 0.285,
-        "SO": 0.280, "BS": 0.290, "BL": 0.275, "SH": 0.260, "AR": 0.260,
-        "AI": 0.225, "SG": 0.265, "GR": 0.255, "AG": 0.255, "TG": 0.250,
-        "TI": 0.275, "VD": 0.305, "VS": 0.260, "NE": 0.310, "GE": 0.300,
-        "JU": 0.310,
-    }
-    _DEFAULT_MARGINAL = 0.270  # Swiss average fallback
+    if gross_salary <= 0 or canton.upper() not in TAUX_IMPOT_RETRAIT_CAPITAL:
+        ceiling = (
+            PILIER_3A_PLAFOND_AVEC_LPP
+            if has_lpp
+            else min(gross_salary * 0.20, PILIER_3A_PLAFOND_SANS_LPP)
+        )
+        return 0.0, 0.0, round(max(0.0, ceiling), 2)
 
-    base_rate = _CANTONAL_MARGINAL_RATES.get(canton.upper(), _DEFAULT_MARGINAL)
-
-    # Adjust for income level (bracket scaling)
-    if gross_salary < 50_000:
-        income_factor = base_rate * 0.70
-    elif gross_salary < 80_000:
-        income_factor = base_rate * 0.85
-    elif gross_salary < 120_000:
-        income_factor = base_rate * 1.00
-    elif gross_salary < 200_000:
-        income_factor = base_rate * 1.15
-    else:
-        income_factor = base_rate * 1.30
-
-    # Clamp to reasonable range
-    return round(min(max(income_factor, 0.10), 0.45), 4)
+    annual_ceiling = (
+        PILIER_3A_PLAFOND_AVEC_LPP
+        if has_lpp
+        else min(gross_salary * 0.20, PILIER_3A_PLAFOND_SANS_LPP)
+    )
+    marginal_tax_rate = _compute_marginal_tax_rate(
+        gross_salary - annual_ceiling / 2,
+        canton,
+    )
+    return (
+        round(
+            _estimate_tax_saving(
+                income=gross_salary,
+                deduction=annual_ceiling,
+                canton=canton,
+            ),
+            2,
+        ),
+        marginal_tax_rate,
+        round(annual_ceiling, 2),
+    )
 
 
 def _compute_confidence_score(estimated_fields: List[str]) -> float:
@@ -620,8 +685,13 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
     )
 
     # ── Tax saving 3a ───────────────────────────────────────────────────────
-    marginal_tax_rate = _compute_marginal_tax_rate(input.gross_salary, canton)
-    tax_saving_3a = round(marginal_tax_rate * PILIER_3A_PLAFOND_AVEC_LPP, 2)
+    archetype = _detect_archetype(input)
+    has_lpp_for_3a = archetype != "independent_no_lpp"
+    tax_saving_3a, marginal_tax_rate, _ = _estimate_3a_tax_impact(
+        input.gross_salary,
+        canton,
+        has_lpp=has_lpp_for_3a,
+    )
 
     # ── Liquidity ───────────────────────────────────────────────────────────
     if estimated_monthly_expenses > 0:
@@ -649,10 +719,11 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         monthly_debt_impact=monthly_debt_impact,
         confidence_score=confidence_score,
         estimated_fields=estimated_fields,
-        archetype=_detect_archetype(input),
+        archetype=archetype,
         disclaimer=_DISCLAIMER,
         sources=list(_SOURCES),
         enrichment_prompts=enrichment_prompts,
         age=input.age,
         gross_annual_salary=input.gross_salary,
+        canton=canton,
     )

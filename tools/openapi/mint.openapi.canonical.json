@@ -16718,6 +16718,19 @@
             "description": "Civil status (single, married, etc.)",
             "title": "Civil Status"
           },
+          "coach_context_packet": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Privacy-scoped Data Spine packet from mobile: facts, missing fields, trajectory, and next questions. Never raw wizard answers.",
+            "title": "Coach Context Packet"
+          },
           "employment_status": {
             "anyOf": [
               {

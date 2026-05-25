@@ -81,6 +81,7 @@ class MinimalProfileResult:
     enrichment_prompts: List[str]
     age: int = 30  # user's age — used by lifecycle-aware premier éclairage selector
     gross_annual_salary: float = 0.0  # gross salary — used by hourly rate choc + archetype alerts
+    canton: str = ""  # canton used for tax-estimate trust gating
 
 
 @dataclass

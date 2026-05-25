@@ -64,6 +64,7 @@ def _make_profile(**overrides) -> MinimalProfileResult:
         enrichment_prompts=[],
         age=45,  # Default age where retirement gap is relevant
         gross_annual_salary=100_000.0,  # Required for hourly_rate and stress guards
+        canton="VD",
     )
     defaults.update(overrides)
     return MinimalProfileResult(**defaults)
@@ -297,19 +298,36 @@ class TestConfidenceGating:
         assert choc.category == "compound_growth"
         assert choc.confidence_mode == "factual"
 
-    def test_tax_saving_always_factual(self):
-        """Tax saving derived from salary + canton (both provided) → factual."""
+    def test_tax_saving_is_pedagogical(self):
+        """Tax saving uses an estimated marginal rate → pedagogical."""
         profile = _make_profile(
             age=32,
             existing_3a=0.0,
             tax_saving_3a=2_000.0,
+            marginal_tax_rate=2_000.0 / 7_258.0,
             estimated_replacement_ratio=0.65,
             months_liquidity=6.0,
             estimated_fields=["existing_lpp", "current_savings"],
         )
         choc = select_premier_eclairage(profile)
         assert choc.category == "tax_saving"
-        assert choc.confidence_mode == "factual"
+        assert choc.confidence_mode == "pedagogical"
+        assert "taux marginal estimé" in choc.explanation_text
+        assert "canton VD" in choc.explanation_text
+
+    def test_invalid_canton_skips_tax_saving(self):
+        """Tax saving is not displayed if the canton cannot support the estimate."""
+        profile = _make_profile(
+            age=32,
+            existing_3a=0.0,
+            tax_saving_3a=2_000.0,
+            marginal_tax_rate=2_000.0 / 7_258.0,
+            canton="ZZ",
+            estimated_replacement_ratio=0.65,
+            months_liquidity=6.0,
+        )
+        choc = select_premier_eclairage(profile)
+        assert choc.category != "tax_saving"
 
 
 # ===========================================================================

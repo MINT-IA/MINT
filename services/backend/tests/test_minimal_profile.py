@@ -26,12 +26,10 @@ from app.services.onboarding.minimal_profile_service import (
     _project_lpp_capital,
     _estimate_lpp_from_age_25,
     _compute_confidence_score,
+    _estimate_3a_tax_impact,
 )
 from app.services.onboarding.onboarding_models import MinimalProfileInput
-from app.constants.social_insurance import (
-    AVS_RENTE_MAX_MENSUELLE,
-    AVS_RENTE_MIN_MENSUELLE,
-)
+from app.constants.social_insurance import AVS_RENTE_MAX_MENSUELLE, AVS_RENTE_MIN_MENSUELLE
 
 
 # Banned terms that must NEVER appear in user-facing text
@@ -100,6 +98,26 @@ class TestMinimalInputs:
         assert r.tax_saving_3a > 0
         assert r.marginal_tax_rate > 0
         assert r.months_liquidity >= 0
+
+    def test_tax_saving_3a_uses_marginal_rate_and_ceiling(self):
+        """3a tax saving follows the onboarding tax-impact gate."""
+        inp = MinimalProfileInput(age=40, gross_salary=80_000.0, canton="VD")
+        r = compute_minimal_profile(inp)
+        expected, marginal_rate, _ = _estimate_3a_tax_impact(
+            80_000.0,
+            "VD",
+            has_lpp=True,
+        )
+        assert r.tax_saving_3a == expected
+        assert r.marginal_tax_rate == marginal_rate
+        assert r.canton == "VD"
+
+    def test_zero_salary_suppresses_tax_saving_3a(self):
+        """No salary means no trustworthy 3a fiscal impact."""
+        inp = MinimalProfileInput(age=40, gross_salary=0.0, canton="VD")
+        r = compute_minimal_profile(inp)
+        assert r.tax_saving_3a == 0.0
+        assert r.marginal_tax_rate == 0.0
 
     def test_low_salary_20k(self):
         """Low salary (20k): below LPP threshold, minimal AVS."""
