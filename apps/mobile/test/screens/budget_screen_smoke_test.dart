@@ -103,13 +103,15 @@ void main() {
   });
 
   testWidgets(
-      'BudgetScreen renders monthly flow from MintState budget snapshot',
+      'BudgetScreen monthly flow uses explicit inputs, not stale MintState',
       (tester) async {
     const inputs = BudgetInputs(
       payFrequency: PayFrequency.monthly,
-      netIncome: 5000,
-      housingCost: 1500,
+      netIncome: 5379,
+      housingCost: 2200,
       debtPayments: 0,
+      taxProvision: 519.6,
+      healthInsurance: 420,
       isOtherFixedMissing: true,
       style: BudgetStyle.envelopes3,
     );
@@ -144,13 +146,15 @@ void main() {
     expect(find.text('Charges'), findsOneWidget);
     expect(find.text('Futur'), findsWidgets);
     expect(find.text('Disponible'), findsWidgets);
-    expect(find.text("CHF\u00a08'000"), findsOneWidget);
-    expect(find.text("CHF\u00a05'200"), findsOneWidget);
-    expect(find.text("CHF\u00a0700"), findsWidgets);
-    expect(find.text("CHF\u00a02'100"), findsOneWidget);
-    expect(find.text('65%'), findsOneWidget);
-    expect(find.text('9%'), findsOneWidget);
-    expect(find.text('26%'), findsOneWidget);
+    expect(find.text("CHF\u00a05'379"), findsWidgets);
+    expect(find.text("CHF\u00a03'140"), findsWidgets);
+    expect(find.text("CHF\u00a02'239"), findsWidgets);
+    expect(find.text("CHF\u00a08'000"), findsNothing);
+    expect(find.text("CHF\u00a05'200"), findsNothing);
+    expect(find.text("CHF\u00a02'100"), findsNothing);
+    expect(find.text("CHF\u00a02'240"), findsNothing);
+    expect(find.text('58%'), findsOneWidget);
+    expect(find.text('42%'), findsOneWidget);
   });
 
   testWidgets('BudgetScreen exposes Maestro semantics anchors', (tester) async {
@@ -256,7 +260,7 @@ void main() {
           .identifier,
       'budget_data_quality_banner',
     );
-    expect(find.text("CHF\u00a08'000"), findsOneWidget);
+    expect(find.text("CHF\u00a08'000"), findsWidgets);
   });
 }
 

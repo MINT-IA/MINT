@@ -122,6 +122,12 @@ tags:
     timeout: 12000
 - assertVisible:
     id: "budget_data_quality_banner"
+- assertVisible:
+    text: ".*2'200.*"
+- assertVisible:
+    text: ".*420.*"
+- assertNotVisible: "19'272'200"
+- assertNotVisible: "420'420"
 - takeScreenshot: "mon-argent-03-budget-direct-relaunch"
 
 - openLink: "mintapp:///coach/chat"

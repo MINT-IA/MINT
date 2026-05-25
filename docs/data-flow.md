@@ -282,6 +282,11 @@ budgetProvider.refreshFromProfile(updatedProfile)
 Pop back to Mon argent → BudgetSummaryCard now has data → « Il te reste Y CHF »
 ```
 
+`BudgetScreen` treats the `BudgetInputs` passed by `BudgetContainerScreen` as
+the local source of truth for its hero number, breakdown, and flow map. It must
+not reuse a stale global `BudgetSnapshot` when the user has just saved or
+restored direct budget inputs.
+
 Chat fallback (« J'en parle plutôt au coach ») remains available on the
 setup screen, respecting `feedback_chat_is_everything` (chat *can* do it,
 but doesn't *have* to).

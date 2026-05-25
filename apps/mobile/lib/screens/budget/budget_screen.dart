@@ -2,9 +2,8 @@
 // Primary budget display is now in PulseScreen via BudgetSnapshot.
 // This screen provides the detailed envelope editing.
 //
-// Hero number sourced from BudgetSnapshot.present.monthlyFree (via
-// BudgetLivingEngine) when a CoachProfile is available, ensuring
-// consistency with PulseScreen. Falls back to plan.available when not.
+// Hero number and flow map are sourced from the BudgetInputs passed to this
+// screen. This keeps the detailed budget coherent after direct setup/relaunch.
 
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
@@ -20,8 +19,6 @@ import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/providers/mint_state_provider.dart';
-import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -65,11 +62,6 @@ class _BudgetScreenState extends State<BudgetScreen>
   String? _seqStepId;
   bool _finalReturnEmitted = false;
 
-  /// BudgetSnapshot from BudgetLivingEngine — provides the authoritative
-  /// hero number (monthlyFree) consistent with PulseScreen.
-  /// Null when CoachProfile is unavailable (graceful degradation to plan.available).
-  BudgetSnapshot? _snapshot;
-
   @override
   void initState() {
     super.initState();
@@ -97,30 +89,6 @@ class _BudgetScreenState extends State<BudgetScreen>
         });
       } catch (_) {
         if (mounted) setState(() => _hasError = true);
-      }
-      // Resolve BudgetSnapshot — prefer the pre-computed value from
-      // MintStateProvider (single computation source) to avoid duplicating
-      // BudgetLivingEngine.compute(). Fall back to direct computation only
-      // when MintStateProvider is not in the widget tree (e.g. tests).
-      try {
-        final mintState = context.read<MintStateProvider>().state;
-        final mintSnap =
-            mintState?.dataSpineSnapshot?.budget ?? mintState?.budgetSnapshot;
-        if (mintSnap != null) {
-          if (mounted) setState(() => _snapshot = mintSnap);
-          return;
-        }
-      } catch (_) {
-        // MintStateProvider not in tree — fall through to direct computation.
-      }
-      try {
-        final profileProvider = context.read<CoachProfileProvider>();
-        if (profileProvider.hasProfile) {
-          final snap = BudgetLivingEngine.compute(profileProvider.profile!);
-          if (mounted) setState(() => _snapshot = snap);
-        }
-      } catch (_) {
-        // Graceful degradation: keep _snapshot null, fall back to plan.available.
       }
     });
   }
@@ -316,11 +284,8 @@ class _BudgetScreenState extends State<BudgetScreen>
                                 return const MintLoadingSkeleton();
                               }
 
-                              // Hero number: BudgetSnapshot.present.monthlyFree when available,
-                              // guaranteeing consistency with PulseScreen.
-                              // Falls back to plan.available when snapshot is not yet computed.
-                              final heroFree = _snapshot?.present.monthlyFree ??
-                                  plan.available;
+                              final flowPresent =
+                                  _presentBudgetFromInputs(plan);
 
                               return SingleChildScrollView(
                                 padding: const EdgeInsets.symmetric(
@@ -342,17 +307,16 @@ class _BudgetScreenState extends State<BudgetScreen>
                                     // ── ABOVE FOLD: Section 2 — Hero: budget libre (result FIRST) ──
                                     _staggeredEntry(
                                         index: 0,
-                                        child: _buildHeader(plan, l, heroFree)),
+                                        child: _buildHeader(
+                                            plan, l, flowPresent.monthlyFree)),
                                     const SizedBox(height: MintSpacing.md),
 
-                                    if (_snapshot != null) ...[
-                                      _staggeredEntry(
-                                        index: 1,
-                                        child: _BudgetFlowMap(
-                                            snapshot: _snapshot!, l: l),
-                                      ),
-                                      const SizedBox(height: MintSpacing.xxl),
-                                    ],
+                                    _staggeredEntry(
+                                      index: 1,
+                                      child: _BudgetFlowMap(
+                                          present: flowPresent, l: l),
+                                    ),
+                                    const SizedBox(height: MintSpacing.xxl),
 
                                     // ── ABOVE FOLD: Section 2b — Action insight ──
                                     _staggeredEntry(
@@ -584,6 +548,25 @@ class _BudgetScreenState extends State<BudgetScreen>
         ));
   }
 
+  PresentBudget _presentBudgetFromInputs(BudgetPlan plan) {
+    final monthlyNet = _displayChf(widget.inputs.netIncome);
+    final monthlyCharges = _displayChf(widget.inputs.housingCost) +
+        _displayChf(widget.inputs.debtPayments) +
+        _displayChf(widget.inputs.taxProvision) +
+        _displayChf(widget.inputs.healthInsurance) +
+        _displayChf(widget.inputs.otherFixedCosts);
+    final monthlySavings = _displayChf(plan.future);
+    final monthlyFree = monthlyNet - monthlyCharges - monthlySavings;
+    return PresentBudget(
+      monthlyNet: monthlyNet,
+      monthlyCharges: monthlyCharges,
+      monthlySavings: monthlySavings,
+      monthlyFree: monthlyFree > 0 ? monthlyFree : 0,
+    );
+  }
+
+  double _displayChf(double value) => value.isFinite ? value.roundToDouble() : 0;
+
   Widget _buildHeader(BudgetPlan plan, S l, double heroFree) {
     final isPositive = heroFree >= 0;
     final heroColor = isPositive ? MintColors.success : MintColors.warning;
@@ -594,8 +577,8 @@ class _BudgetScreenState extends State<BudgetScreen>
       child: Column(
         children: [
           // Hero: budget libre — MintHeroNumber (consequence, not output)
-          // Uses BudgetSnapshot.present.monthlyFree when available for
-          // consistency with PulseScreen, falls back to plan.available.
+          // Uses the same BudgetInputs/BudgetPlan values as the breakdown and
+          // flow map below.
           MintCountUp(
             value: heroFree,
             prefix: 'CHF\u00a0',
@@ -615,12 +598,12 @@ class _BudgetScreenState extends State<BudgetScreen>
   }
 
   Widget _buildBreakdown(S l) {
-    final income = widget.inputs.netIncome;
-    final housing = widget.inputs.housingCost;
-    final debt = widget.inputs.debtPayments;
-    final taxes = widget.inputs.taxProvision;
-    final health = widget.inputs.healthInsurance;
-    final otherFixed = widget.inputs.otherFixedCosts;
+    final income = _displayChf(widget.inputs.netIncome);
+    final housing = _displayChf(widget.inputs.housingCost);
+    final debt = _displayChf(widget.inputs.debtPayments);
+    final taxes = _displayChf(widget.inputs.taxProvision);
+    final health = _displayChf(widget.inputs.healthInsurance);
+    final otherFixed = _displayChf(widget.inputs.otherFixedCosts);
     final available = income - housing - debt - taxes - health - otherFixed;
 
     return MintSurface(
@@ -1037,17 +1020,16 @@ class _BudgetScreenState extends State<BudgetScreen>
 }
 
 class _BudgetFlowMap extends StatelessWidget {
-  final BudgetSnapshot snapshot;
+  final PresentBudget present;
   final S l;
 
   const _BudgetFlowMap({
-    required this.snapshot,
+    required this.present,
     required this.l,
   });
 
   @override
   Widget build(BuildContext context) {
-    final present = snapshot.present;
     final free = present.monthlyFree > 0 ? present.monthlyFree : 0.0;
     final total = present.monthlyNet > 0
         ? present.monthlyNet
