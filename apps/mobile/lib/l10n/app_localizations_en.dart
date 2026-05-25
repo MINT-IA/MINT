@@ -21797,7 +21797,7 @@ class SEn extends S {
 
   @override
   String get capStepFirstJob04Desc =>
-      '7,258 CHF/year in tax savings — from your very first job';
+      'Up to 7,258 CHF/year deductible — from your very first job';
 
   @override
   String get capStepFirstJob05Title => 'Talk to a specialist';

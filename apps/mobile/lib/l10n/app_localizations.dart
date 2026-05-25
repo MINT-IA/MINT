@@ -38406,7 +38406,7 @@ abstract class S {
   /// No description provided for @capStepFirstJob04Desc.
   ///
   /// In fr, this message translates to:
-  /// **'7 258 CHF/an d’économies d’impôts — dès ton premier emploi'**
+  /// **'Jusqu’à 7 258 CHF/an déductibles — dès ton premier emploi'**
   String get capStepFirstJob04Desc;
 
   /// No description provided for @capStepFirstJob05Title.

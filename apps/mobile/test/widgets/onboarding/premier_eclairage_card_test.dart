@@ -17,7 +17,7 @@ const _snapshotKey = 'premier_eclairage_snapshot_v1';
 
 Map<String, dynamic> _normalSnapshot({String? confidenceMode}) => {
       'value': '7\'258 CHF',
-      'title': 'Ton économie 3a annuelle',
+      'title': 'Ton montant 3a déductible',
       'subtitle': 'Montant déductible maximum pilier 3a.',
       'suggestedRoute': '/pilier-3a',
       'colorKey': 'success',
@@ -79,7 +79,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("7'258 CHF"), findsOneWidget);
-      expect(find.text('Ton économie 3a annuelle'), findsOneWidget);
+      expect(find.text('Ton montant 3a déductible'), findsOneWidget);
+      expect(find.text('Ton économie 3a annuelle'), findsNothing);
     });
 
     testWidgets('shows subtitle from snapshot', (tester) async {

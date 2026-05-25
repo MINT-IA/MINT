@@ -21968,7 +21968,7 @@ class SIt extends S {
 
   @override
   String get capStepFirstJob04Desc =>
-      '7\'258 CHF/anno di risparmio fiscale — dal tuo primo impiego';
+      'Fino a 7\'258 CHF/anno deducibili — dal tuo primo impiego';
 
   @override
   String get capStepFirstJob05Title => 'Parla con uno specialista';

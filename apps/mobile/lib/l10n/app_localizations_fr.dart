@@ -21907,7 +21907,7 @@ class SFr extends S {
 
   @override
   String get capStepFirstJob04Desc =>
-      '7 258 CHF/an d’économies d’impôts — dès ton premier emploi';
+      'Jusqu’à 7 258 CHF/an déductibles — dès ton premier emploi';
 
   @override
   String get capStepFirstJob05Title => 'Parle à un·e spécialiste';

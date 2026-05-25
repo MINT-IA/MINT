@@ -21909,7 +21909,7 @@ class SEs extends S {
 
   @override
   String get capStepFirstJob04Desc =>
-      '7.258 CHF/año en ahorro fiscal — desde tu primer empleo';
+      'Hasta 7.258 CHF/año deducibles — desde tu primer empleo';
 
   @override
   String get capStepFirstJob05Title => 'Habla con un especialista';

@@ -21959,7 +21959,7 @@ class SDe extends S {
 
   @override
   String get capStepFirstJob04Desc =>
-      '7\'258 CHF/Jahr Steuerersparnis — ab deinem ersten Job';
+      'Bis zu 7\'258 CHF/Jahr abzugsfähig — ab deinem ersten Job';
 
   @override
   String get capStepFirstJob05Title => 'Sprich mit einem Spezialisten';

@@ -702,6 +702,13 @@ void main() {
             reason: 'Step ${step.id} has titleKey: ${step.titleKey}');
       }
     });
+
+    test('firstJob 3a step labels 7258 as deductible room, not tax saving', () {
+      expect(_l.capStepFirstJob04Desc, contains('7 258'));
+      expect(_l.capStepFirstJob04Desc, contains('déductibles'));
+      expect(_l.capStepFirstJob04Desc, isNot(contains('économies')));
+      expect(_l.capStepFirstJob04Desc, isNot(contains('impôts')));
+    });
   });
 
   // ── NEW JOB SEQUENCE ──────────────────────────────────────────

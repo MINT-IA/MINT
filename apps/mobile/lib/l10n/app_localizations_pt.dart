@@ -21915,7 +21915,7 @@ class SPt extends S {
 
   @override
   String get capStepFirstJob04Desc =>
-      '7.258 CHF/ano em poupança fiscal — desde o teu primeiro emprego';
+      'Até 7.258 CHF/ano dedutíveis — desde o teu primeiro emprego';
 
   @override
   String get capStepFirstJob05Title => 'Fala com um especialista';
