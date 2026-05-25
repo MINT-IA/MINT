@@ -21,7 +21,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/models/cap_decision.dart';
-import 'package:mint_mobile/models/coach_profile.dart' show FinancialArchetypeBackendName;
+import 'package:mint_mobile/models/coach_profile.dart'
+    show FinancialArchetypeBackendName;
 import 'package:mint_mobile/models/serialized_card_context.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -48,38 +49,40 @@ class CapDuJourBanner extends StatelessWidget {
     // state management. The action bar is `expanded: true` (always
     // visible) because the banner itself does not own a press-state
     // (Phase 96 W1 punted persistent press-state to a later iteration).
-    final Widget body = cap == null
-        ? const _CapBannerFallback()
-        : _CapBannerCard(cap: cap);
+    final Widget body =
+        cap == null ? const _CapBannerFallback() : _CapBannerCard(cap: cap);
 
-    return Container(
-      key: const Key('card_$_kCardId'),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          body,
-          MintCardActionBar(
-            // Phase 97 W7 — Key allows Maestro `assertVisible: { id }` to
-            // resolve the action-bar surface from cold-launch reachability
-            // flows (bug__S001__cap_du_jour_action_bar_reachable.yaml).
-            key: const Key('mint_card_action_bar'),
-            sourceCard: _buildCardContext(context, cap),
-            expanded: true,
-            onExplain: () => MintChatOverlay.show(
-              context,
+    return Semantics(
+      identifier: 'card_$_kCardId',
+      container: true,
+      child: Container(
+        key: const Key('card_$_kCardId'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            body,
+            MintCardActionBar(
+              // Phase 97 W7 — Key allows Maestro `assertVisible: { id }` to
+              // resolve the action-bar surface from cold-launch reachability
+              // flows (bug__S001__cap_du_jour_action_bar_reachable.yaml).
+              key: const Key('mint_card_action_bar'),
               sourceCard: _buildCardContext(context, cap),
-              intent: 'explain',
+              expanded: true,
+              onExplain: () => MintChatOverlay.show(
+                context,
+                sourceCard: _buildCardContext(context, cap),
+                intent: 'explain',
+              ),
+              onSimulate: () => context.push('/explorer?simulate=$_kCardId'),
+              onReassure: () => MintChatOverlay.show(
+                context,
+                sourceCard: _buildCardContext(context, cap),
+                intent: 'reassure',
+              ),
             ),
-            onSimulate: () =>
-                context.push('/explorer?simulate=$_kCardId'),
-            onReassure: () => MintChatOverlay.show(
-              context,
-              sourceCard: _buildCardContext(context, cap),
-              intent: 'reassure',
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

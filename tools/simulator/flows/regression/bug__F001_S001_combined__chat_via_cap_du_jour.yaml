@@ -46,43 +46,8 @@ tags:
   - archetype:all
 ---
 
-# ── Step 1 — Cold launch with clean state ─────────────────────────────
-- launchApp:
-    clearState: true
-
-# ── Step 2 — Dismiss bêta modal if present ────────────────────────────
-- runFlow:
-    when:
-      visible: "Je comprends, on y va"
-    commands:
-      - tapOn: "Je comprends, on y va"
-      - waitForAnimationToEnd
-
-# ── Step 2-bis — Wait for LandingScreen FadeTransitions to settle ─────
-- extendedWaitUntil:
-    visible:
-      text: "Parle à Mint"
-    timeout: 10000
-- waitForAnimationToEnd
-
-# ── Step 2-ter — S005 BRIDGE : tap « Continuer sans compte » → /home ──
-# Closes the cold-launch precondition (S005, Phase 97 W7 iter#4). The
-# anonymous local-mode default (auth_provider.dart:90) + the new
-# LandingScreen link opens AujourdhuiScreen for the rest of the flow.
-# Regex wrap mandatory : Flutter's iOS bridge concatenates the Semantics
-# label with the Text child as "Continuer sans compte\nContinuer sans
-# compte" ; the exact-text matcher fails on the doubled form.
-- tapOn:
-    text: ".*Continuer sans compte.*"
-- waitForAnimationToEnd
-
-# ── Step 3 — Aujourd'hui visible (S005 precondition closed) ───────────
-# Same regex wrap : BottomNavigationBar tab carries
-# accessibilityText="Aujourd'hui\nOnglet 1 sur 4".
-- extendedWaitUntil:
-    visible:
-      text: ".*Aujourd'hui.*"
-    timeout: 10000
+# ── Step 1-3 — Cold launch → Aujourd'hui ──────────────────────────────
+- runFlow: ../maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml
 
 # ── META-BUG NOTE (surfaced 2026-05-11T19:35Z, W7 iter#4 close-out) ───
 # Flutter Keys do NOT propagate to Maestro's iOS hierarchy as queryable
@@ -103,19 +68,18 @@ tags:
 # Explique-moi → MintChatOverlay opens with input + counter ».
 
 # ── Step 4 — S001 ASSERTION 1 : CapDuJourBanner visible ───────────────
-# Pre-S001-fix : CapDuJourBanner had no action-bar wiring → tapping the
-# card did nothing. Post-fix : the banner renders « Parle-moi de toi »
-# headline + « Ouvrir le coach » CTA, indicating the wired surface.
-- extendedWaitUntil:
-    visible:
-      text: ".*Parle-moi de toi.*"
-    timeout: 8000
+# Uses the iOS Semantics.identifier anchor so the flow works both for
+# fallback and populated CapEngine states.
+- assertVisible:
+    id: "card_cap_du_jour"
 
 # ── Step 5 — S001 ASSERTION 2 : MintCardActionBar 3 verbs visible ─────
 # Post-fix : the action-bar is appended in the banner Column ; the 3
 # verbs render below the banner content. No tap-to-reveal needed in the
 # current implementation — action-bar is permanently visible on the
 # wired banner per PHASE97_AUJOURDHUI_CARD_INVENTORY.md.
+- assertVisible:
+    id: "mint_card_action_bar"
 - assertVisible:
     text: ".*Explique-moi.*"
 - assertVisible:

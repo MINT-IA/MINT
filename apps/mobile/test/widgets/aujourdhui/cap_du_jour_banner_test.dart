@@ -67,8 +67,7 @@ Widget _harness({required _SimulateRecorder recorder}) {
       GoRoute(
         path: '/explorer',
         builder: (_, state) {
-          recorder.lastSimulatePath =
-              '/explorer?${state.uri.query}';
+          recorder.lastSimulatePath = '/explorer?${state.uri.query}';
           return const Scaffold(body: SizedBox.shrink());
         },
       ),
@@ -111,6 +110,18 @@ void main() {
       expect(find.byKey(const Key('card_cap_du_jour')), findsOneWidget);
     });
 
+    testWidgets('card root carries Semantics(identifier: card_cap_du_jour)',
+        (tester) async {
+      final recorder = _SimulateRecorder();
+      await tester.pumpWidget(_harness(recorder: recorder));
+      await tester.pumpAndSettle();
+
+      final semantics = tester.getSemantics(
+        find.byKey(const Key('card_cap_du_jour')),
+      );
+      expect(semantics.identifier, 'card_cap_du_jour');
+    });
+
     testWidgets('MintCardActionBar is a descendant of CapDuJourBanner',
         (tester) async {
       final recorder = _SimulateRecorder();
@@ -132,6 +143,19 @@ void main() {
       expect(find.byKey(const Key('mint_card_action_bar')), findsOneWidget);
     });
 
+    testWidgets(
+        'action bar carries Semantics(identifier: mint_card_action_bar)',
+        (tester) async {
+      final recorder = _SimulateRecorder();
+      await tester.pumpWidget(_harness(recorder: recorder));
+      await tester.pumpAndSettle();
+
+      final semantics = tester.getSemantics(
+        find.byKey(const Key('mint_card_action_bar')),
+      );
+      expect(semantics.identifier, 'mint_card_action_bar');
+    });
+
     testWidgets('renders 3 verb labels (Explique-moi, Simule, Rassure-moi)',
         (tester) async {
       final recorder = _SimulateRecorder();
@@ -143,7 +167,8 @@ void main() {
       expect(find.text('Rassure-moi'), findsOneWidget);
     });
 
-    testWidgets('tapping « Simule » navigates to /explorer?simulate=cap_du_jour',
+    testWidgets(
+        'tapping « Simule » navigates to /explorer?simulate=cap_du_jour',
         (tester) async {
       final recorder = _SimulateRecorder();
       await tester.pumpWidget(_harness(recorder: recorder));

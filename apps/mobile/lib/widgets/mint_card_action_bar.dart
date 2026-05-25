@@ -56,6 +56,7 @@ class MintCardActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = S.of(context)!;
     return Semantics(
+      identifier: 'mint_card_action_bar',
       container: true,
       label: 'Actions sur cette carte',
       child: AnimatedSize(

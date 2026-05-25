@@ -10,24 +10,20 @@
 # testIDs `chat_input_field`, `chat_send_button`, `mint_chat_overlay`
 # that did not exist anywhere in Dart code (grep returns 0).
 #
-# This flow asserts the 4 testIDs are present in the rendered overlay :
+# This flow asserts the 4 iOS Semantics identifiers are present in the
+# rendered overlay :
 #   - Key('mint_chat_overlay')       — overlay root
 #   - Key('chat_input_field')        — TextField for user message
 #   - Key('chat_send_button')        — send IconButton
 #   - Key('chat_turn_counter')       — Text widget rendering « 0 / 3 »
 #
 # ─── SCOPE LIMITATION ──────────────────────────────────────────────────
-# This flow exercises the OVERLAY-OPEN path only. It assumes a card on
-# Aujourd'hui carries the testID `card_mon_3a_2026` AND that the user
-# is auth'd. Both preconditions belong to OTHER bugs :
-#   • S001 (no UI button reaches /debug/chat-as-verb)
-#   • F012 (Aujourd'hui cards have no stable Key('card_<id>'))
-#   • F013/F014 (cold-launch precondition / auth fragment)
-#   • F028 (custom URL scheme + Universal Links not configured)
+# This flow exercises the OVERLAY-OPEN path only. It uses the current
+# canonical Aujourd'hui card: `card_cap_du_jour`, which is always present
+# on the home surface and exposes the action bar directly.
 #
-# Until S001/F012/F013/F014/F028 land, this flow CANNOT run end-to-end
-# on a cold simulator. The deterministic gate for the F001 widget fix
-# is :
+# If simulator preconditions regress, the deterministic Dart gate for
+# the F001 widget contract remains:
 #   cd apps/mobile && flutter test test/widgets/mint_chat_overlay_test.dart
 #
 # Per CONTEXT D-37 the no-regression guarantee comes from the Maestro
@@ -46,8 +42,8 @@
 # Expected RED today (any of) :
 #   (a) Step 2 fails — `Aujourd'hui` not visible because cold-launch
 #       routes anonymous user to LandingScreen, not the shell.
-#   (b) Step 3 fails — `id: card_mon_3a_2026` not findable because no
-#       Aujourd'hui card carries that Key (F012).
+#   (b) Step 3 fails — `id: card_cap_du_jour` not findable because no
+#       Aujourd'hui card carries its Semantics.identifier.
 #   (c) IF reached, step 5 fails — `id: mint_chat_overlay` not findable
 #       (F001 root-cause : the overlay has no root Key today).
 #   (d) IF (c) bypassed, step 6 fails — `id: chat_input_field` not in
@@ -72,8 +68,7 @@
 # ─── PRE-CONDITION ─────────────────────────────────────────────────────
 # - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
 # - Backend = Railway staging mint-staging.up.railway.app
-# - Phase 97 W5 reachability fixes landed (S001/F012/F013/F014/F028)
-# - User auth'd OR local-mode bypass active (F013/F014 fragment)
+# - User auth'd OR local-mode bypass active via cold-launch fragment
 
 appId: ch.mint.app
 tags:
@@ -98,15 +93,15 @@ tags:
 # this commit) S001 + F001.
 - runFlow: ../maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml
 
-# ── Step 4 — Open the « Mon 3a 2026 » card (Phase 96 G1 entry-point) ───
-# Today this fails — F012 (no Aujourd'hui card carries
-# Key('card_mon_3a_2026')). W5 reachability sweep wires every card.
-- tapOn:
-    id: "card_mon_3a_2026"
-- waitForAnimationToEnd
+# ── Step 4 — Assert the canonical Aujourd'hui card/action bar anchors ──
+- assertVisible:
+    id: "card_cap_du_jour"
+- assertVisible:
+    id: "mint_card_action_bar"
 
 # ── Step 5 — Tap « Explique-moi » → MintChatOverlay opens ─────────────
-- tapOn: "Explique-moi"
+- tapOn:
+    text: ".*Explique-moi.*"
 - waitForAnimationToEnd
 
 # ── Step 6 — F001 ASSERTION 1/4 : overlay root has Key('mint_chat_overlay') ─
@@ -164,9 +159,7 @@ tags:
 # Acceptance : steps 6, 7, 8, 9 (the 4 F001 assertions) all pass.
 # Per CLAUDE.md §9.6, the run output IS the deterministic citation.
 #
-# Today (2026-05-11) this flow CANNOT run end-to-end due to S001/F012/
-# F013/F014/F028 preconditions. The deterministic F001 gate is the
-# Flutter widget test :
+# The deterministic Dart gate remains:
 #   cd apps/mobile && flutter test \
 #     test/widgets/mint_chat_overlay_test.dart
 #

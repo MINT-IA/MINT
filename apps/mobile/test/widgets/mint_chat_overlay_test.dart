@@ -113,7 +113,8 @@ void main() {
 
   // ─── Phase 97 W7 F001 ── ChatInputBar + turn counter ─────────────────
   group('MintChatOverlay — F001 ChatInputBar + turn counter', () {
-    testWidgets('exposes the 4 F001 testIDs (mint_chat_overlay, '
+    testWidgets(
+        'exposes the 4 F001 testIDs (mint_chat_overlay, '
         'chat_input_field, chat_send_button, chat_turn_counter)',
         (tester) async {
       await tester.pumpWidget(_harness(
@@ -132,6 +133,42 @@ void main() {
           reason: 'F001 — ChatInputBar send button must be keyed');
       expect(find.byKey(const Key('chat_turn_counter')), findsOneWidget,
           reason: 'F001 — turn counter Text widget must be keyed');
+    });
+
+    testWidgets('exposes iOS semantics identifiers for Maestro anchors',
+        (tester) async {
+      await tester.pumpWidget(_harness(
+        child: const MintChatOverlay(
+          sourceCard: _fixture,
+          intent: 'explain',
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester
+            .getSemantics(find.byKey(const Key('mint_chat_overlay')))
+            .identifier,
+        'mint_chat_overlay',
+      );
+      expect(
+        tester
+            .getSemantics(find.byKey(const Key('chat_turn_counter')))
+            .identifier,
+        'chat_turn_counter',
+      );
+      expect(
+        tester
+            .getSemantics(find.byKey(const Key('chat_input_field')))
+            .identifier,
+        'chat_input_field',
+      );
+      expect(
+        tester
+            .getSemantics(find.byKey(const Key('chat_send_button_semantics')))
+            .identifier,
+        'chat_send_button',
+      );
     });
 
     testWidgets('turn counter renders « 0 / 3 » initially', (tester) async {
@@ -308,8 +345,7 @@ void main() {
         find.byKey(const Key('chat_turn_counter')),
       );
       expect(counter2.data, '0 / 3',
-          reason:
-              'Counter must reset to 0/3 on re-mount (local state, no '
+          reason: 'Counter must reset to 0/3 on re-mount (local state, no '
               'persistence — backend turn_cap is the canonical gate).');
     });
   });

@@ -171,7 +171,8 @@ class _MintChatOverlayState extends State<MintChatOverlay> {
       // Generic phrasing (no archetype assumption, no LSFin banned terms
       // per CLAUDE.md rule 1 — no « garanti / optimal / parfait »).
       _chatMessages.add(const _ChatTurn(
-        text: 'Réponse coach (simulée — backend wiring en attente backlog 999.X).',
+        text:
+            'Réponse coach (simulée — backend wiring en attente backlog 999.X).',
         fromUser: false,
       ));
       _turnCount += 1;
@@ -190,84 +191,93 @@ class _MintChatOverlayState extends State<MintChatOverlay> {
       expand: false,
       builder: (ctx, scrollController) {
         return FocusScope(
-          child: Container(
-            // F001 — root Key for Maestro `assertVisible: { id: mint_chat_overlay }`.
-            key: const Key('mint_chat_overlay'),
-            child: Column(
-              children: [
-                // Drag handle 40×4dp — DESIGN_SYSTEM.md §4.6 + UI-SPEC.
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 12,
-                    bottom: MintSpacing.sm,
-                  ),
-                  child: Semantics(
-                    button: true,
-                    label: 'Fermer le coach',
-                    child: Container(
-                      key: const Key('chat_overlay_drag_handle'),
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: MintColors.border,
-                        borderRadius: BorderRadius.circular(2),
+          child: Semantics(
+            identifier: 'mint_chat_overlay',
+            container: true,
+            explicitChildNodes: true,
+            child: Container(
+              // F001 — root Key for Maestro `assertVisible: { id: mint_chat_overlay }`.
+              key: const Key('mint_chat_overlay'),
+              child: Column(
+                children: [
+                  // Drag handle 40×4dp — DESIGN_SYSTEM.md §4.6 + UI-SPEC.
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 12,
+                      bottom: MintSpacing.sm,
+                    ),
+                    child: Semantics(
+                      button: true,
+                      label: 'Fermer le coach',
+                      child: Container(
+                        key: const Key('chat_overlay_drag_handle'),
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: MintColors.border,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // Header — intent label + turn counter. Two slots in a Row
-                // per UI-SPEC §Component Anatomy Summary.
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: MintSpacing.lg,
-                    vertical: MintSpacing.md,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        // Phase 97.5 W2-T3 — D2 fix : replace raw
-                        // enum 'explain' with FR human label per
-                        // VOICE_SYSTEM + i18n. Reachable intents are
-                        // 'explain' and 'reassure' ; 'simulate' is
-                        // forward-compat (deep-links to Explorer today,
-                        // never opens this overlay per D-06).
-                        _intentLabel(widget.intent, l),
-                        key: const Key('chat_overlay_intent_label'),
-                        style: MintTextStyles.labelSmall(
-                          color: MintColors.textMuted,
-                        ),
-                      ),
-                      Text(
-                        '$_turnCount / $kChatMaxTurns',
-                        key: const Key('chat_turn_counter'),
-                        style: MintTextStyles.labelSmall(
-                          color: MintColors.textMuted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Body — chat message list.
-                Expanded(
-                  child: ListView.builder(
-                    controller: scrollController,
+                  // Header — intent label + turn counter. Two slots in a Row
+                  // per UI-SPEC §Component Anatomy Summary.
+                  Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.lg,
+                      vertical: MintSpacing.md,
                     ),
-                    itemCount: _chatMessages.length,
-                    itemBuilder: (_, i) => _ChatBubble(turn: _chatMessages[i]),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          // Phase 97.5 W2-T3 — D2 fix : replace raw
+                          // enum 'explain' with FR human label per
+                          // VOICE_SYSTEM + i18n. Reachable intents are
+                          // 'explain' and 'reassure' ; 'simulate' is
+                          // forward-compat (deep-links to Explorer today,
+                          // never opens this overlay per D-06).
+                          _intentLabel(widget.intent, l),
+                          key: const Key('chat_overlay_intent_label'),
+                          style: MintTextStyles.labelSmall(
+                            color: MintColors.textMuted,
+                          ),
+                        ),
+                        Semantics(
+                          identifier: 'chat_turn_counter',
+                          child: Text(
+                            '$_turnCount / $kChatMaxTurns',
+                            key: const Key('chat_turn_counter'),
+                            style: MintTextStyles.labelSmall(
+                              color: MintColors.textMuted,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                // ChatInputBar — TextField + send button. F001 testIDs live here.
-                _ChatInputBar(
-                  controller: _inputController,
-                  hint: l.chatInputHint,
-                  enabled: _turnCount < kChatMaxTurns,
-                  sendEnabled: _hasInput && _turnCount < kChatMaxTurns,
-                  onSend: _onSendPressed,
-                ),
-              ],
+                  // Body — chat message list.
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: MintSpacing.lg,
+                      ),
+                      itemCount: _chatMessages.length,
+                      itemBuilder: (_, i) =>
+                          _ChatBubble(turn: _chatMessages[i]),
+                    ),
+                  ),
+                  // ChatInputBar — TextField + send button. F001 testIDs live here.
+                  _ChatInputBar(
+                    controller: _inputController,
+                    hint: l.chatInputHint,
+                    enabled: _turnCount < kChatMaxTurns,
+                    sendEnabled: _hasInput && _turnCount < kChatMaxTurns,
+                    onSend: _onSendPressed,
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -313,16 +323,16 @@ class _ChatBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
       child: Align(
-        alignment:
-            turn.fromUser ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: turn.fromUser ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: MintSpacing.md,
             vertical: MintSpacing.sm,
           ),
           decoration: BoxDecoration(
-            color:
-                turn.fromUser ? MintColors.mentheVive12 : MintColors.craieHandoff,
+            color: turn.fromUser
+                ? MintColors.mentheVive12
+                : MintColors.craieHandoff,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -495,9 +505,8 @@ String _humaniseKey(String key) {
 String _formatSwissNumber(num n) {
   final isInt = n == n.truncateToDouble();
   final absStr = isInt ? n.abs().toInt().toString() : n.abs().toString();
-  final intPart = absStr.contains('.')
-      ? absStr.substring(0, absStr.indexOf('.'))
-      : absStr;
+  final intPart =
+      absStr.contains('.') ? absStr.substring(0, absStr.indexOf('.')) : absStr;
   final fracPart =
       absStr.contains('.') ? absStr.substring(absStr.indexOf('.')) : '';
   final buf = StringBuffer();
@@ -542,55 +551,58 @@ class _ChatInputBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
-            child: TextField(
-              key: const Key('chat_input_field'),
-              controller: controller,
-              enabled: enabled,
-              maxLines: 4,
-              minLines: 1,
-              textInputAction: TextInputAction.send,
-              onSubmitted: (_) {
-                if (sendEnabled) onSend();
-              },
-              style: MintTextStyles.bodyMedium(
-                color: MintColors.textPrimary,
-              ),
-              decoration: InputDecoration(
-                hintText: hint,
-                hintStyle: MintTextStyles.bodyMedium(
-                  color: MintColors.textMuted,
+            child: Semantics(
+              identifier: 'chat_input_field',
+              child: TextField(
+                key: const Key('chat_input_field'),
+                controller: controller,
+                enabled: enabled,
+                maxLines: 4,
+                minLines: 1,
+                textInputAction: TextInputAction.send,
+                onSubmitted: (_) {
+                  if (sendEnabled) onSend();
+                },
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textPrimary,
                 ),
-                filled: true,
-                fillColor: MintColors.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: MintColors.border),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: MintColors.border),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: MintColors.mintForest),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: MintSpacing.md,
-                  vertical: MintSpacing.sm,
+                decoration: InputDecoration(
+                  hintText: hint,
+                  hintStyle: MintTextStyles.bodyMedium(
+                    color: MintColors.textMuted,
+                  ),
+                  filled: true,
+                  fillColor: MintColors.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: MintColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: MintColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: MintColors.mintForest),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: MintSpacing.md,
+                    vertical: MintSpacing.sm,
+                  ),
                 ),
               ),
             ),
           ),
           const SizedBox(width: MintSpacing.sm),
           Semantics(
+            key: const Key('chat_send_button_semantics'),
+            identifier: 'chat_send_button',
             button: true,
             label: 'Envoyer le message',
             child: IconButton(
               key: const Key('chat_send_button'),
               icon: const Icon(Icons.send),
-              color: sendEnabled
-                  ? MintColors.mintForest
-                  : MintColors.textMuted,
+              color: sendEnabled ? MintColors.mintForest : MintColors.textMuted,
               onPressed: sendEnabled ? onSend : null,
             ),
           ),

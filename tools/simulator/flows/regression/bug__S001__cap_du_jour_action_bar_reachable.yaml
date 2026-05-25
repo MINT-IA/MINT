@@ -16,7 +16,7 @@
 #   → bêta modal dismissed (optional, warm-start tolerant)
 #   → Aujourd'hui tab visible
 #   → card_cap_du_jour visible (either populated banner OR fallback)
-#   → tap card → MintCardActionBar reveals
+#   → MintCardActionBar visible below the card
 #   → assertVisible mint_card_action_bar
 #   → assertVisible 3 verb labels
 #   → tap « Explique-moi » → MintChatOverlay opens
@@ -115,27 +115,26 @@ tags:
 - assertVisible:
     id: "card_cap_du_jour"
 
-# ── Step 5 — Tap card to reveal the MintCardActionBar ─────────────────
-- tapOn:
-    id: "card_cap_du_jour"
-- waitForAnimationToEnd
-
-# ── Step 6 — S001 ASSERTION 2/4 : mint_card_action_bar visible ────────
+# ── Step 5 — S001 ASSERTION 2/4 : mint_card_action_bar visible ────────
 # Pre-fix : action bar wired nowhere on Aujourd'hui.
 # Post-fix : MintCardActionBar appended in CapDuJourBanner Column.
 - assertVisible:
     id: "mint_card_action_bar"
 
-# ── Step 7 — S001 ASSERTION 3/4 : 3 verb labels visible ───────────────
-- assertVisible: "Explique-moi"
-- assertVisible: "Simule"
-- assertVisible: "Rassure-moi"
+# ── Step 6 — S001 ASSERTION 3/4 : 3 verb labels visible ───────────────
+- assertVisible:
+    text: ".*Explique-moi.*"
+- assertVisible:
+    text: ".*Simule.*"
+- assertVisible:
+    text: ".*Rassure-moi.*"
 
-# ── Step 8 — Tap « Explique-moi » → MintChatOverlay opens ─────────────
-- tapOn: "Explique-moi"
+# ── Step 7 — Tap « Explique-moi » → MintChatOverlay opens ─────────────
+- tapOn:
+    text: ".*Explique-moi.*"
 - waitForAnimationToEnd
 
-# ── Step 9 — S001 ASSERTION 4/4 : chat overlay reachable end-to-end ───
+# ── Step 8 — S001 ASSERTION 4/4 : chat overlay reachable end-to-end ───
 # F001-chained gate : if F001 widget is wired correctly, mint_chat_overlay
 # + chat_input_field render. This is the FIRST end-to-end proof that the
 # S001 → F001 reachability chain works on device.
