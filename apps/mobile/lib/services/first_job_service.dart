@@ -59,6 +59,7 @@ class FirstJobResult {
   final bool eligible3a;
   final double plafondAnnuel3a;
   final double montantMensuelSuggere3a;
+  final Pillar3aTaxImpactEstimate impactFiscal3a;
   final double economieFiscaleEstimee3a;
   final String alerte3a;
 
@@ -87,6 +88,7 @@ class FirstJobResult {
     required this.eligible3a,
     required this.plafondAnnuel3a,
     required this.montantMensuelSuggere3a,
+    required this.impactFiscal3a,
     required this.economieFiscaleEstimee3a,
     required this.alerte3a,
     required this.franchiseOptions,
@@ -131,7 +133,8 @@ class FirstJobService {
 
   /// LPP maximum coordinated salary.
   /// Uses centralized constant from social_insurance.dart.
-  static double get _lppMaxCoordinated => reg('lpp.max_coordinated_salary', lppSalaireCoordMax);
+  static double get _lppMaxCoordinated =>
+      reg('lpp.max_coordinated_salary', lppSalaireCoordMax);
 
   /// LAMal franchise options.
   static const List<int> _lamalFranchises = [300, 500, 1000, 1500, 2000, 2500];
@@ -160,16 +163,16 @@ class FirstJobService {
     final acEmpRate = reg('ac.employee_rate', acCotisationSalarie);
     final ac = annuel <= acCeil
         ? brut * acEmpRate
-        : (acCeil * acEmpRate +
-              (annuel - acCeil) * 0.005) /
-            12;
+        : (acCeil * acEmpRate + (annuel - acCeil) * 0.005) / 12;
     final aanp = brut * _aanpRate;
 
     // LPP
     double lppEmploye = 0;
     if (annuel >= reg('lpp.entry_threshold', lppSeuilEntree) && age >= 25) {
-      double coordinated = annuel - reg('lpp.coordination_deduction', lppDeductionCoordination);
-      coordinated = max(coordinated, reg('lpp.min_coordinated_salary', lppSalaireCoordMin));
+      double coordinated =
+          annuel - reg('lpp.coordination_deduction', lppDeductionCoordination);
+      coordinated = max(
+          coordinated, reg('lpp.min_coordinated_salary', lppSalaireCoordMin));
       coordinated = min(coordinated, _lppMaxCoordinated);
       final lppRate = getLppBonificationRate(age);
       lppEmploye = (coordinated * lppRate) / 12 / 2; // employee half
@@ -213,8 +216,8 @@ class FirstJobService {
         ),
     ];
 
-    // 3a recommendation — canton-aware marginal rate
-    final economie3a = RetirementTaxCalculator.estimate3aTaxSaving(
+    // 3a recommendation — keep ceiling and tax impact separate.
+    final impactFiscal3a = RetirementTaxCalculator.estimate3aTaxImpact(
       grossAnnualSalary: annuel,
       canton: canton,
     );
@@ -238,9 +241,10 @@ class FirstJobService {
       cotisationsEmployeur: employeurTotal,
       deductionItems: deductionItems,
       eligible3a: true,
-      plafondAnnuel3a: reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
-      montantMensuelSuggere3a: reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12,
-      economieFiscaleEstimee3a: economie3a,
+      plafondAnnuel3a: impactFiscal3a.annualCeiling,
+      montantMensuelSuggere3a: impactFiscal3a.annualCeiling / 12,
+      impactFiscal3a: impactFiscal3a,
+      economieFiscaleEstimee3a: impactFiscal3a.estimatedTaxSaving,
       alerte3a: 'Évite les 3a liés à une assurance-vie\u00a0! '
           'Privilégie un 3a fintech avec frais < 0,5\u00a0%.',
       franchiseOptions: franchiseData.$1,

@@ -76,11 +76,16 @@ void main() {
         canton: 'ZH',
       );
 
-      final expectedNet =
-          result.brut - result.avsAiApg - result.ac - result.aanp - result.lppEmploye;
+      final expectedNet = result.brut -
+          result.avsAiApg -
+          result.ac -
+          result.aanp -
+          result.lppEmploye;
       expect(result.netEstime, closeTo(expectedNet, 0.01));
-      expect(result.totalDeductions,
-          closeTo(result.avsAiApg + result.ac + result.aanp + result.lppEmploye, 0.01));
+      expect(
+          result.totalDeductions,
+          closeTo(result.avsAiApg + result.ac + result.aanp + result.lppEmploye,
+              0.01));
     });
 
     test('deduction items list includes AVS, AC, AANP', () {
@@ -294,14 +299,20 @@ void main() {
       );
 
       // Should match RetirementTaxCalculator.estimate3aTaxSaving
-      final expected = RetirementTaxCalculator.estimate3aTaxSaving(
+      final expected = RetirementTaxCalculator.estimate3aTaxImpact(
         grossAnnualSalary: 6000 * 12,
         canton: 'ZH',
       );
-      expect(result.economieFiscaleEstimee3a, closeTo(expected, 0.01));
+      expect(result.impactFiscal3a.annualCeiling, result.plafondAnnuel3a);
+      expect(result.impactFiscal3a.deductibleContribution,
+          isNot(result.impactFiscal3a.estimatedTaxSaving));
+      expect(result.economieFiscaleEstimee3a,
+          closeTo(expected.estimatedTaxSaving, 0.01));
       // Reasonable range: 10-40% of 3a max (varies by canton + income)
-      expect(result.economieFiscaleEstimee3a, greaterThan(pilier3aPlafondAvecLpp * 0.10));
-      expect(result.economieFiscaleEstimee3a, lessThan(pilier3aPlafondAvecLpp * 0.40));
+      expect(result.economieFiscaleEstimee3a,
+          greaterThan(pilier3aPlafondAvecLpp * 0.10));
+      expect(result.economieFiscaleEstimee3a,
+          lessThan(pilier3aPlafondAvecLpp * 0.40));
     });
 
     test('3a alerte warns against insurance-linked 3a', () {
@@ -329,7 +340,8 @@ void main() {
       );
 
       expect(result.franchiseOptions.length, 6);
-      final franchises = result.franchiseOptions.map((f) => f.franchise).toList();
+      final franchises =
+          result.franchiseOptions.map((f) => f.franchise).toList();
       expect(franchises, [300, 500, 1000, 1500, 2000, 2500]);
     });
 
@@ -340,11 +352,13 @@ void main() {
         canton: 'ZH',
       );
 
-      final premiums = result.franchiseOptions.map((f) => f.primeMensuelle).toList();
+      final premiums =
+          result.franchiseOptions.map((f) => f.primeMensuelle).toList();
       // Each successive franchise should have a lower premium
       for (int i = 1; i < premiums.length; i++) {
         expect(premiums[i], lessThan(premiums[i - 1]),
-            reason: 'Franchise ${result.franchiseOptions[i].franchise} should have '
+            reason:
+                'Franchise ${result.franchiseOptions[i].franchise} should have '
                 'lower premium than ${result.franchiseOptions[i - 1].franchise}');
       }
     });
