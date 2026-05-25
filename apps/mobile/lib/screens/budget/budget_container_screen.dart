@@ -27,8 +27,11 @@ class _BudgetContainerScreenState extends State<BudgetContainerScreen> {
   }
 
   Future<void> _loadSavedBudget() async {
-    await context.read<BudgetProvider>().loadFromStorage();
-    if (mounted) setState(() => _isLoading = false);
+    try {
+      await context.read<BudgetProvider>().loadFromStorage();
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override

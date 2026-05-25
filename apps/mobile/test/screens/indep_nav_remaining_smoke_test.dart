@@ -19,6 +19,7 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -27,14 +28,15 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 /// Simple wrapper for screens without provider dependencies.
 Widget buildTestable(Widget child) {
   return MaterialApp(
-locale: const Locale('fr'),
-localizationsDelegates: const [
-  S.delegate,
-  GlobalMaterialLocalizations.delegate,
-  GlobalWidgetsLocalizations.delegate,
-  GlobalCupertinoLocalizations.delegate,
-],
-supportedLocales: S.supportedLocales,home: child);
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      home: child);
 }
 
 /// Wrapper that provides ProfileProvider + ByokProvider (needed by ExploreTab).
@@ -101,6 +103,10 @@ void main() {
       }
       originalOnError?.call(details);
     };
+  });
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
   });
 
   tearDownAll(() {
@@ -250,7 +256,8 @@ void main() {
       );
     });
 
-    testWidgets('has amount field and premium slider (revenu and taux)', (tester) async {
+    testWidgets('has amount field and premium slider (revenu and taux)',
+        (tester) async {
       await tester.pumpWidget(buildTestable(const Pillar3aIndepScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
