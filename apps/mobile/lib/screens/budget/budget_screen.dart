@@ -1091,6 +1091,8 @@ class _BudgetFlowMap extends StatelessWidget {
               ),
             ),
             const SizedBox(height: MintSpacing.md),
+            _BudgetFormulaProof(present: present, l: l),
+            const SizedBox(height: MintSpacing.md),
             _BudgetFlowAmountRow(
               label: l.pulseBudgetCharges,
               amount: present.monthlyCharges,
@@ -1126,6 +1128,116 @@ class _BudgetFlowMap extends StatelessWidget {
   String _formatShare(double amount, double denominator) {
     if (denominator <= 0) return '0%';
     return '${((amount / denominator) * 100).round()}%';
+  }
+}
+
+class _BudgetFormulaProof extends StatelessWidget {
+  final PresentBudget present;
+  final S l;
+
+  const _BudgetFormulaProof({
+    required this.present,
+    required this.l,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      key: const Key('budget_formula_proof'),
+      container: true,
+      identifier: 'budget_formula_proof',
+      label: '${l.budgetNetIncome} ${formatChfWithPrefix(present.monthlyNet)} '
+          '- ${l.pulseBudgetCharges} '
+          '${formatChfWithPrefix(present.monthlyCharges)} '
+          '- ${l.budgetFuture} '
+          '${formatChfWithPrefix(present.monthlySavings)} '
+          '= ${l.budgetAvailable} '
+          '${formatChfWithPrefix(present.monthlyFree)}.',
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: MintColors.background,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: MintColors.border),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: MintSpacing.sm,
+            vertical: MintSpacing.sm,
+          ),
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              _BudgetFormulaTerm(
+                label: l.budgetNetIncome,
+                amount: present.monthlyNet,
+                color: MintColors.textPrimary,
+              ),
+              const _BudgetFormulaOperator('-'),
+              _BudgetFormulaTerm(
+                label: l.pulseBudgetCharges,
+                amount: present.monthlyCharges,
+                color: MintColors.terracotta,
+              ),
+              const _BudgetFormulaOperator('-'),
+              _BudgetFormulaTerm(
+                label: l.budgetFuture,
+                amount: present.monthlySavings,
+                color: MintColors.info,
+              ),
+              const _BudgetFormulaOperator('='),
+              _BudgetFormulaTerm(
+                label: l.budgetAvailable,
+                amount: present.monthlyFree,
+                color:
+                    present.isDeficit ? MintColors.error : MintColors.success,
+                isStrong: true,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BudgetFormulaTerm extends StatelessWidget {
+  final String label;
+  final double amount;
+  final Color color;
+  final bool isStrong;
+
+  const _BudgetFormulaTerm({
+    required this.label,
+    required this.amount,
+    required this.color,
+    this.isStrong = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '$label ${formatChfWithPrefix(amount)}',
+      style: MintTextStyles.labelSmall(
+        color: color,
+      ).copyWith(fontWeight: isStrong ? FontWeight.w800 : FontWeight.w600),
+    );
+  }
+}
+
+class _BudgetFormulaOperator extends StatelessWidget {
+  final String value;
+
+  const _BudgetFormulaOperator(this.value);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      value,
+      style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+          .copyWith(fontWeight: FontWeight.w800),
+    );
   }
 }
 

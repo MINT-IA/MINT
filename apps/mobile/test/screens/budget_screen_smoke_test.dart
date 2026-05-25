@@ -213,6 +213,12 @@ void main() {
       tester.getSemantics(find.byKey(const Key('budget_flow_map'))).identifier,
       'budget_flow_map',
     );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_formula_proof')))
+          .identifier,
+      'budget_formula_proof',
+    );
   });
 
   testWidgets('BudgetContainerScreen restores saved inputs on direct open',

@@ -123,6 +123,8 @@ tags:
 - assertVisible:
     id: "budget_data_quality_banner"
 - assertVisible:
+    id: "budget_formula_proof"
+- assertVisible:
     text: ".*2'200.*"
 - assertVisible:
     text: ".*420.*"
