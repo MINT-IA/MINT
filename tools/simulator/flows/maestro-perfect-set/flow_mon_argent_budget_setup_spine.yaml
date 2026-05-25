@@ -140,11 +140,7 @@ tags:
 - assertVisible:
     id: "budget_data_quality_banner"
 - assertVisible:
-    text: "Détail du calcul"
-- tapOn:
-    text: "Détail du calcul"
-- waitForAnimationToEnd:
-    timeout: 3000
+    id: "budget_calculation_detail_toggle"
 - assertVisible:
     id: "budget_formula_proof"
 - assertVisible:

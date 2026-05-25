@@ -143,9 +143,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
-    await tester.ensureVisible(find.text('Détail du calcul'));
-    await tester.tap(find.text('Détail du calcul'));
-    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
 
     expect(find.text('Revenu net'), findsWidgets);
     expect(find.text('Charges'), findsWidgets);
@@ -197,9 +195,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
-    await tester.ensureVisible(find.text('Détail du calcul'));
-    await tester.tap(find.text('Détail du calcul'));
-    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
 
     expect(find.text('Disponible'), findsWidgets);
     expect(find.text("CHF\u00a0-1'120"), findsWidgets);
@@ -241,9 +237,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
-    await tester.ensureVisible(find.text('Détail du calcul'));
-    await tester.tap(find.text('Détail du calcul'));
-    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
 
     expect(
       tester.getSemantics(find.byKey(const Key('budget_screen'))).identifier,
@@ -264,6 +258,14 @@ void main() {
     expect(
       tester.getSemantics(find.byKey(const Key('budget_flow_map'))).identifier,
       'budget_flow_map',
+    );
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(const Key('budget_calculation_detail_toggle')),
+          )
+          .identifier,
+      'budget_calculation_detail_toggle',
     );
     expect(
       tester

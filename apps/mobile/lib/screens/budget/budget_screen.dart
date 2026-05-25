@@ -311,12 +311,20 @@ class _BudgetScreenState extends State<BudgetScreen>
 
                                     _staggeredEntry(
                                       index: 1,
-                                      child: CollapsibleSection(
-                                        title: l.affordabilityCalculationDetail,
-                                        icon: Icons.functions,
-                                        child: _BudgetFlowMap(
-                                          present: flowPresent,
-                                          l: l,
+                                      child: Semantics(
+                                        key: const Key(
+                                            'budget_calculation_detail_toggle'),
+                                        identifier:
+                                            'budget_calculation_detail_toggle',
+                                        child: CollapsibleSection(
+                                          title:
+                                              l.affordabilityCalculationDetail,
+                                          icon: Icons.functions,
+                                          initiallyExpanded: true,
+                                          child: _BudgetFlowMap(
+                                            present: flowPresent,
+                                            l: l,
+                                          ),
                                         ),
                                       ),
                                     ),
