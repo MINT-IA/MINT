@@ -803,7 +803,9 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/budget',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const BudgetContainerScreen(),
+      builder: (context, state) => BudgetContainerScreen(
+        routeExtra: state.extra,
+      ),
     ),
     ScopedGoRoute(
       path: '/budget/setup',

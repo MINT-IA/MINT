@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/budget/budget_screen.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -11,7 +12,9 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 
 class BudgetContainerScreen extends StatefulWidget {
-  const BudgetContainerScreen({super.key});
+  final Object? routeExtra;
+
+  const BudgetContainerScreen({super.key, this.routeExtra});
 
   @override
   State<BudgetContainerScreen> createState() => _BudgetContainerScreenState();
@@ -28,9 +31,29 @@ class _BudgetContainerScreenState extends State<BudgetContainerScreen> {
 
   Future<void> _loadSavedBudget() async {
     try {
-      await context.read<BudgetProvider>().loadFromStorage();
+      final budgetProvider = context.read<BudgetProvider>();
+      final profileProvider = _readCoachProfileProviderIfAvailable();
+      final profile = profileProvider?.profile;
+      if (profile == null) {
+        await budgetProvider.loadFromStorage();
+      } else if (profileProvider!.isPartialProfile) {
+        final restored = await budgetProvider.loadFromStorage();
+        if (!restored) await budgetProvider.refreshFromProfile(profile);
+      } else {
+        await budgetProvider.refreshFromProfile(profile);
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  /// Prefer a complete canonical profile. Partial profiles are useful when no
+  /// budget cache exists, but must not overwrite a fuller saved budget.
+  CoachProfileProvider? _readCoachProfileProviderIfAvailable() {
+    try {
+      return context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
     }
   }
 
@@ -54,7 +77,7 @@ class _BudgetContainerScreenState extends State<BudgetContainerScreen> {
       return _buildEmptyState(context);
     }
 
-    return BudgetScreen(inputs: inputs);
+    return BudgetScreen(inputs: inputs, routeExtra: widget.routeExtra);
   }
 
   Widget _buildEmptyState(BuildContext context) {

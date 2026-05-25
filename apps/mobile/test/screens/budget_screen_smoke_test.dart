@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart'; // Ensure correct imports
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/data/budget/budget_local_store.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
@@ -142,6 +143,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
+    await tester.ensureVisible(find.text('Détail du calcul'));
+    await tester.tap(find.text('Détail du calcul'));
+    await tester.pumpAndSettle();
+
     expect(find.text('Revenu net'), findsWidgets);
     expect(find.text('Charges'), findsWidgets);
     expect(find.text('Futur'), findsWidgets);
@@ -192,6 +197,10 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
+
+    await tester.ensureVisible(find.text('Détail du calcul'));
+    await tester.tap(find.text('Détail du calcul'));
+    await tester.pumpAndSettle();
 
     expect(
       tester.getSemantics(find.byKey(const Key('budget_screen'))).identifier,
@@ -267,6 +276,130 @@ void main() {
       'budget_data_quality_banner',
     );
     expect(find.text("CHF\u00a08'000"), findsWidgets);
+  });
+
+  testWidgets('BudgetContainerScreen prefers CoachProfile over stale cache',
+      (tester) async {
+    await BudgetLocalStore().saveInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 8000,
+        housingCost: 2200,
+        debtPayments: 0,
+        taxProvision: 950,
+        healthInsurance: 420,
+        isTaxEstimated: true,
+        isOtherFixedMissing: true,
+      ),
+    );
+
+    final profileProvider = CoachProfileProvider()
+      ..updateProfile(
+        CoachProfile(
+          birthYear: 1988,
+          canton: 'VD',
+          salaireBrutMensuel: 6000,
+          depenses: const DepensesProfile(
+            loyer: 1100,
+            assuranceMaladie: 390,
+          ),
+          goalA: GoalA(
+            type: GoalAType.achatImmo,
+            targetDate: DateTime(2030),
+            label: 'Logement',
+          ),
+        ),
+      );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: profileProvider,
+          ),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetContainerScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.byType(BudgetScreen), findsOneWidget);
+    final budgetProvider = Provider.of<BudgetProvider>(
+      tester.element(find.byType(BudgetContainerScreen)),
+      listen: false,
+    );
+    expect(budgetProvider.inputs?.housingCost, 1100);
+    expect(budgetProvider.inputs?.healthInsurance, 390);
+    expect(find.text("CHF\u00a08'000"), findsNothing);
+    expect(find.text("CHF\u00a02'200"), findsNothing);
+  });
+
+  testWidgets('BudgetContainerScreen keeps full cache over partial profile',
+      (tester) async {
+    await BudgetLocalStore().saveInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 8000,
+        housingCost: 2200,
+        debtPayments: 0,
+        taxProvision: 950,
+        healthInsurance: 420,
+      ),
+    );
+
+    final profileProvider = CoachProfileProvider()
+      ..updateFromMiniOnboarding({
+        'q_housing_cost_period_chf': 1100.0,
+      });
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: profileProvider,
+          ),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetContainerScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    final budgetProvider = Provider.of<BudgetProvider>(
+      tester.element(find.byType(BudgetContainerScreen)),
+      listen: false,
+    );
+    expect(profileProvider.isPartialProfile, isTrue);
+    expect(budgetProvider.inputs?.netIncome, 8000);
+    expect(budgetProvider.inputs?.housingCost, 2200);
+    expect(budgetProvider.inputs?.healthInsurance, 420);
   });
 }
 

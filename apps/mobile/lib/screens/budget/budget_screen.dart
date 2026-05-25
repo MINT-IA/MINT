@@ -40,10 +40,12 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class BudgetScreen extends StatefulWidget {
   final BudgetInputs inputs;
+  final Object? routeExtra;
 
   const BudgetScreen({
     super.key,
     required this.inputs,
+    this.routeExtra,
   });
 
   @override
@@ -94,14 +96,10 @@ class _BudgetScreenState extends State<BudgetScreen>
   }
 
   void _readSequenceContext() {
-    try {
-      final extra = GoRouterState.of(context).extra;
-      if (extra is Map<String, dynamic>) {
-        _seqRunId = extra['runId'] as String?;
-        _seqStepId = extra['stepId'] as String?;
-      }
-    } catch (_) {
-      // GoRouterState unavailable (no active match) — no sequence context, fine.
+    final extra = widget.routeExtra;
+    if (extra is Map<String, dynamic>) {
+      _seqRunId = extra['runId'] as String?;
+      _seqStepId = extra['stepId'] as String?;
     }
   }
 
@@ -313,15 +311,14 @@ class _BudgetScreenState extends State<BudgetScreen>
 
                                     _staggeredEntry(
                                       index: 1,
-                                      child: _BudgetFlowMap(
-                                          present: flowPresent, l: l),
-                                    ),
-                                    const SizedBox(height: MintSpacing.xxl),
-
-                                    // ── ABOVE FOLD: Section 2b — Action insight ──
-                                    _staggeredEntry(
-                                      index: 0,
-                                      child: _buildActionInsight(l),
+                                      child: CollapsibleSection(
+                                        title: l.affordabilityCalculationDetail,
+                                        icon: Icons.functions,
+                                        child: _BudgetFlowMap(
+                                          present: flowPresent,
+                                          l: l,
+                                        ),
+                                      ),
                                     ),
                                     const SizedBox(height: MintSpacing.xxl),
 
@@ -333,6 +330,13 @@ class _BudgetScreenState extends State<BudgetScreen>
                                         futureAmount: plan.future,
                                         totalAvailable: plan.available,
                                       ),
+                                    ),
+                                    const SizedBox(height: MintSpacing.xxl),
+
+                                    // ── Secondary: next action ──
+                                    _staggeredEntry(
+                                      index: 2,
+                                      child: _buildActionInsight(l),
                                     ),
                                     const SizedBox(height: MintSpacing.xxl),
 
@@ -565,7 +569,8 @@ class _BudgetScreenState extends State<BudgetScreen>
     );
   }
 
-  double _displayChf(double value) => value.isFinite ? value.roundToDouble() : 0;
+  double _displayChf(double value) =>
+      value.isFinite ? value.roundToDouble() : 0;
 
   Widget _buildHeader(BudgetPlan plan, S l, double heroFree) {
     final isPositive = heroFree >= 0;
@@ -986,7 +991,8 @@ class _BudgetScreenState extends State<BudgetScreen>
       child: Semantics(
         button: true,
         label: label,
-        child: OutlinedButton( // lint-ignore: prefer_mint_cta
+        child: OutlinedButton(
+          // lint-ignore: prefer_mint_cta
           onPressed: () => context.push(route),
           child: Text(label),
         ),
