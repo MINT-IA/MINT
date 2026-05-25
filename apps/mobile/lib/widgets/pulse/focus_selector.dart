@@ -68,7 +68,8 @@ class _FocusSelectorState extends State<FocusSelector> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
             "Qu'est-ce qui t'occupe ?",
-            style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(height: 1.3),
+            style: MintTextStyles.titleLarge(color: MintColors.textPrimary)
+                .copyWith(height: 1.3),
           ),
         ),
         const SizedBox(height: 12),
@@ -117,55 +118,56 @@ class _FocusSelectorState extends State<FocusSelector> {
           });
         },
         child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isExpanded
-              ? cat.color.withValues(alpha: 0.08)
-              : MintColors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
             color: isExpanded
-                ? cat.color.withValues(alpha: 0.4)
-                : MintColors.border.withValues(alpha: 0.5),
-            width: isExpanded ? 1.5 : 1,
+                ? cat.color.withValues(alpha: 0.08)
+                : MintColors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isExpanded
+                  ? cat.color.withValues(alpha: 0.4)
+                  : MintColors.border.withValues(alpha: 0.5),
+              width: isExpanded ? 1.5 : 1,
+            ),
+            boxShadow: [
+              if (!isExpanded)
+                BoxShadow(
+                  color: MintColors.black.withValues(alpha: 0.03),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+            ],
           ),
-          boxShadow: [
-            if (!isExpanded)
-              BoxShadow(
-                color: MintColors.black.withValues(alpha: 0.03),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: cat.color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(cat.icon, size: 18, color: cat.color),
               ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: cat.color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
+              const SizedBox(height: 8),
+              Text(
+                cat.label,
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
-              child: Icon(cat.icon, size: 18, color: cat.color),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              cat.label,
-              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
-            ),
-            Text(
-              cat.subtitle,
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
-            ),
-          ],
+              Text(
+                cat.subtitle,
+                style:
+                    MintTextStyles.labelSmall(color: MintColors.textSecondary),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
-
 
   // _buildCategoryCard removed — replaced by _buildGridTile
 
@@ -283,10 +285,13 @@ class _FocusSelectorState extends State<FocusSelector> {
     // Max 3 options
     if (options.length > 3) options = options.sublist(0, 3);
 
-    return options.map((opt) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20).copyWith(top: 6),
-      child: _buildSubOptionCard(opt),
-    )).toList();
+    return options
+        .map((opt) => Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20).copyWith(top: 6),
+              child: _buildSubOptionCard(opt),
+            ))
+        .toList();
   }
 
   Widget _buildSubOptionCard(_SubOption opt) {
@@ -311,11 +316,14 @@ class _FocusSelectorState extends State<FocusSelector> {
                 children: [
                   Text(
                     opt.label,
-                    style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                    style:
+                        MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                            .copyWith(fontWeight: FontWeight.w600),
                   ),
                   Text(
                     opt.apercu,
-                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
+                    style: MintTextStyles.labelMedium(
+                        color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -346,11 +354,12 @@ class _FocusSelectorState extends State<FocusSelector> {
     if (p.salaireBrutMensuel <= 0) return 'Économies potentielles';
     final grossAnnual = p.salaireBrutMensuel * 12;
     final canton = p.canton.isNotEmpty ? p.canton : 'ZH';
-    final saving3a = RetirementTaxCalculator.estimate3aTaxSaving(
+    final estimate = RetirementTaxCalculator.estimate3aTaxImpact(
       grossAnnualSalary: grossAnnual,
       canton: canton,
-    ).round();
-    return '~CHF $saving3a/an récupérables';
+    );
+    final saving3a = estimate.estimatedTaxSaving.round();
+    return '~CHF $saving3a/an d\'impôt estimés';
   }
 
   String _patrimoineApercu(CoachProfile p) {
