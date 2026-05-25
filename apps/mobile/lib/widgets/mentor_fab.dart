@@ -26,7 +26,7 @@ class MentorFAB extends StatelessWidget {
   void _showCoachSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: false,
+      isScrollControlled: true,
       backgroundColor: MintColors.transparent,
       builder: (context) => _CoachQuickSheet(currentTabIndex: currentTabIndex),
     );
@@ -56,8 +56,8 @@ class _CoachQuickSheet extends StatelessWidget {
     );
     const simuler = _CoachAction(
       icon: Icons.calculate_outlined,
-      title: 'Simuler un scenario',
-      subtitle: '3a, rachat LPP, hypotheque...',
+      title: 'Simuler un scénario',
+      subtitle: '3a, rachat LPP, hypothèque...',
       color: MintColors.warning,
       route: '/tools',
     );
@@ -71,7 +71,7 @@ class _CoachQuickSheet extends StatelessWidget {
     const enrichir = _CoachAction(
       icon: Icons.tune_outlined,
       title: 'Affiner mon profil',
-      subtitle: 'Plus de donnees = projections fiables',
+      subtitle: 'Données complètes, projections plus solides',
       color: MintColors.primary,
       route: '/profile/bilan',
     );

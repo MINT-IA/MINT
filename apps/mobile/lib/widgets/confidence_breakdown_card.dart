@@ -30,8 +30,8 @@ class ConfidenceBreakdownCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Precision des donnees',
-            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15),
+            'Qualité des données',
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
           ),
           const SizedBox(height: 14),
           ConfidenceBreakdownChart(
