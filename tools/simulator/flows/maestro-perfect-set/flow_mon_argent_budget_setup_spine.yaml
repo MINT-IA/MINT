@@ -6,6 +6,7 @@
 #   budget card, and patrimoine card.
 # - Budget setup exposes deterministic entry anchors, accepts fixed-charge
 #   input, and renders the live fixed-charge total.
+# - Direct /budget relaunch restores saved budget inputs.
 #
 # PRE-CONDITION
 # - App ch.mint.app installed on a booted iPhone simulator.
@@ -101,3 +102,23 @@ tags:
 - assertVisible:
     id: "budget_setup_chat_fallback"
 - takeScreenshot: "mon-argent-02-budget-setup"
+
+- tapOn:
+    id: "budget_setup_save_button"
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- openLink: "mintapp:///budget"
+- extendedWaitUntil:
+    visible:
+      id: "budget_screen"
+    timeout: 12000
+- assertVisible:
+    id: "budget_data_quality_banner"
+- takeScreenshot: "mon-argent-03-budget-direct-relaunch"
