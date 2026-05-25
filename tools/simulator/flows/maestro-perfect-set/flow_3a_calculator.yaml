@@ -24,15 +24,11 @@
 # state (see assertions below).
 #
 # ─── EXPECTED DURATION ─────────────────────────────────────────────────
-# < 20s wall-clock (cold launch + 1 deep-link + 2 scrolls + 4 shots).
+# < 20s wall-clock (cold launch + 1 deep-link + anchored scrolls + 4 shots).
 #
 # ─── PRE-CONDITION ─────────────────────────────────────────────────────
 # - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
-# - Harness deep-links to /pilier-3a via :
-#     `xcrun simctl openurl booted ch.mint.app://pilier-3a`
-#   before invoking maestro test. (Same caveat as flow_drawer_navigation
-#   _smoke.yaml — deep-link IS wired in app.dart:686 ScopedGoRoute, so
-#   this is the supported path.)
+# - The flow self-launches and deep-links to /pilier-3a via `mintapp:///pilier-3a`.
 # - Recommended dart-defines :
 #     MINT_E2E_ARCHETYPE=julien_swiss
 #     MINT_DISABLE_BETA_MODAL=true
@@ -69,7 +65,25 @@ tags:
   - regression-guard
 ---
 
-# 01 — assert we're on the 3a simulator (harness pre-deep-linked)
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 6000
+- openLink: "mintapp:///pilier-3a"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+# 01 — assert we're on the 3a simulator
 # Tolerates 8s for cold launch + financial_core init.
 - extendedWaitUntil:
     visible:
@@ -87,7 +101,11 @@ tags:
 # 03 — scroll to result section + assert « Gain fiscal annuel » chip
 # The chip is wrapped in Semantics (simulator_3a_screen.dart:588) so
 # it surfaces to Maestro as plain text.
-- scroll
+- scrollUntilVisible:
+    element:
+      text: "Gain fiscal annuel"
+    direction: DOWN
+    timeout: 8000
 - extendedWaitUntil:
     visible:
       text: "Gain fiscal annuel"
@@ -95,14 +113,22 @@ tags:
 - takeScreenshot: "03-result-chip"
 
 # 04 — scroll to strategy section
-- scroll
+- scrollUntilVisible:
+    element:
+      text: "Stratégie gagnante"
+    direction: DOWN
+    timeout: 8000
 - extendedWaitUntil:
     visible:
       text: "Stratégie gagnante"
     timeout: 4000
 
 # 05 — explore-also section (cross-link to comparator + retroactif + …)
-- scroll
+- scrollUntilVisible:
+    element:
+      text: "Explorer aussi"
+    direction: DOWN
+    timeout: 8000
 - extendedWaitUntil:
     visible:
       text: "Explorer aussi"
