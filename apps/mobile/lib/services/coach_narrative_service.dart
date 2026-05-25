@@ -14,6 +14,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
@@ -208,13 +209,8 @@ class CoachNarrativeService {
     final liquide = profile.patrimoine.epargneLiquide;
     final monthsLiquidity = depenses > 0 ? liquide / depenses : 0.0;
 
-    // Tax saving potential (3a margin × estimated marginal rate)
-    final plafond3a = profile.employmentStatus == 'independant'
-        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
-        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
-    final verse3a = profile.total3aMensuel * 12;
-    final marge3a = (plafond3a - verse3a).clamp(0, plafond3a);
-    final taxSaving = marge3a * 0.30; // ~30% marginal estimate
+    final taxImpact = _estimateRemaining3aTaxImpact(profile);
+    final taxSaving = taxImpact.estimatedTaxSaving;
 
     // Confidence score
     double confidence = 0;
@@ -506,23 +502,7 @@ class CoachNarrativeService {
     // Oct-Dec: deadline 3a avant le 31 decembre (OPP3 art. 7)
     // Enhanced with personalized tax savings estimate (M6C)
     if (now.month >= 10 && now.month <= 12) {
-      final plafond = profile.employmentStatus == 'independant'
-          ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
-          : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
-      final verseAnnuel = profile.total3aMensuel * 12;
-      final marge = plafond - verseAnnuel;
-      if (marge > 0) {
-        final deadline = DateTime(now.year, 12, 31);
-        final joursRestants = deadline.difference(now).inDays;
-        // Estimate tax savings from the remaining 3a margin
-        final tauxEstime = profile.canton.isNotEmpty ? 0.30 : 0.28;
-        final economie = marge * tauxEstime;
-        urgentAlert = 'Il te reste $joursRestants jours pour verser '
-            '${formatChfWithPrefix(marge)} en 3a et economiser '
-            '~${formatChfWithPrefix(economie)} d\'impots '
-            '(canton ${profile.canton.isNotEmpty ? profile.canton : "CH"}). '
-            '\u2014 OPP3 art. 7';
-      }
+      urgentAlert = _build3aDeadlineAlert(profile: profile, now: now);
     }
 
     // Feb-Mar: declaration fiscale avant le 31 mars (LIFD / LHID).
@@ -1402,6 +1382,76 @@ class CoachNarrativeService {
       if (RegExp(pattern, caseSensitive: false).hasMatch(text)) return true;
     }
     return false;
+  }
+
+  @visibleForTesting
+  static String? build3aDeadlineAlertForTest({
+    required CoachProfile profile,
+    required DateTime now,
+  }) =>
+      _build3aDeadlineAlert(profile: profile, now: now);
+
+  static String? _build3aDeadlineAlert({
+    required CoachProfile profile,
+    required DateTime now,
+  }) {
+    final estimate = _estimateRemaining3aTaxImpact(profile);
+    if (estimate.confidence == Pillar3aTaxImpactConfidence.unavailable ||
+        estimate.estimatedTaxSaving <= 0) {
+      return null;
+    }
+
+    final deadline = DateTime(now.year, 12, 31);
+    final joursRestants = deadline.difference(now).inDays;
+    final cantonCode = resolveCanton(profile.canton).code;
+    final rateLabel =
+        estimate.confidence == Pillar3aTaxImpactConfidence.actualRate
+            ? 'taux marginal saisi'
+            : 'taux marginal estimé';
+
+    return 'Il te reste $joursRestants jours pour verser '
+        '${formatChfWithPrefix(estimate.deductibleContribution)} en 3a. '
+        'Impact fiscal estimé: '
+        '~${formatChfWithPrefix(estimate.estimatedTaxSaving)} '
+        '($rateLabel, canton $cantonCode). '
+        '\u2014 OPP3 art. 7';
+  }
+
+  static Pillar3aTaxImpactEstimate _estimateRemaining3aTaxImpact(
+    CoachProfile profile,
+  ) {
+    final resolvedCanton = resolveCanton(profile.canton);
+    if (resolvedCanton.isFallback || profile.revenuBrutAnnuel <= 0) {
+      return Pillar3aTaxImpactEstimate.unavailable;
+    }
+    final maxImpact = RetirementTaxCalculator.estimate3aTaxImpact(
+      grossAnnualSalary: profile.revenuBrutAnnuel,
+      canton: resolvedCanton.code,
+      isMarried: profile.etatCivil == CoachCivilStatus.marie,
+      children: profile.nombreEnfants,
+      hasLpp: profile.employmentStatus != 'independant',
+    );
+    if (maxImpact.confidence == Pillar3aTaxImpactConfidence.unavailable ||
+        maxImpact.deductibleContribution <= 0) {
+      return Pillar3aTaxImpactEstimate.unavailable;
+    }
+
+    final alreadyPaid = profile.total3aMensuel * 12;
+    final remainingDeductible = (maxImpact.deductibleContribution - alreadyPaid)
+        .clamp(0.0, maxImpact.deductibleContribution)
+        .toDouble();
+    if (remainingDeductible <= 0) {
+      return Pillar3aTaxImpactEstimate.unavailable;
+    }
+
+    return RetirementTaxCalculator.estimate3aTaxImpact(
+      grossAnnualSalary: profile.revenuBrutAnnuel,
+      canton: resolvedCanton.code,
+      isMarried: profile.etatCivil == CoachCivilStatus.marie,
+      children: profile.nombreEnfants,
+      hasLpp: profile.employmentStatus != 'independant',
+      contribution: remainingDeductible,
+    );
   }
 
   // ════════════════════════════════════════════════════════════════

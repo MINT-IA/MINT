@@ -8,6 +8,7 @@
 /// References: LSFin, LAVS, LPP, OPP3, LIFD.
 library;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 import 'coach_models.dart';
@@ -95,9 +96,11 @@ class FallbackTemplates {
     final replacement = ctx.knownValues['replacement_ratio'] ?? 60;
 
     // Tax optimization lever (> CHF 1000 potential)
-    if (taxSaving > 1000) {
+    final resolvedCanton = resolveCanton(ctx.canton);
+    if (taxSaving > 1000 && resolvedCanton.isResolved) {
       return '${ctx.firstName}, un versement 3a pourrait réduire ton impôt '
           'd\'environ ${formatChfWithPrefix(taxSaving)} cette année. '
+          'Estimation basée sur un taux marginal estimé, canton ${resolvedCanton.code}. '
           'Simule l\'impact sur ton profil.';
     }
 

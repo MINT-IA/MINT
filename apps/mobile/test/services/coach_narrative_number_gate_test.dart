@@ -1,0 +1,151 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/coach/fallback_templates.dart';
+import 'package:mint_mobile/services/coach/coach_models.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/coach_narrative_service.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
+
+CoachProfile _profileWithOpen3aMargin({
+  String canton = 'VD',
+  double salaireBrutMensuel = 7000,
+  String employmentStatus = 'salarie',
+  double monthly3a = 300,
+}) {
+  return CoachProfile(
+    firstName: 'Julien',
+    birthYear: 1990,
+    canton: canton,
+    salaireBrutMensuel: salaireBrutMensuel,
+    employmentStatus: employmentStatus,
+    goalA: GoalA(
+      type: GoalAType.retraite,
+      targetDate: DateTime(2055, 12, 31),
+      label: 'Retraite a 65 ans',
+    ),
+    prevoyance: const PrevoyanceProfile(
+      nombre3a: 1,
+      totalEpargne3a: 15000,
+      avoirLppTotal: 80000,
+    ),
+    depenses: const DepensesProfile(
+      loyer: 1500,
+      assuranceMaladie: 400,
+    ),
+    plannedContributions: [
+      PlannedMonthlyContribution(
+        id: '3a_user',
+        label: '3a Julien',
+        amount: monthly3a,
+        category: '3a',
+      ),
+    ],
+  );
+}
+
+void main() {
+  group('CoachNarrativeService number gate', () {
+    test('3a deadline alert exposes structured tax-impact assumptions', () {
+      final profile = _profileWithOpen3aMargin();
+      final remaining = RetirementTaxCalculator.estimate3aTaxImpact(
+            grossAnnualSalary: profile.revenuBrutAnnuel,
+            canton: profile.canton,
+            contribution: null,
+          ).deductibleContribution -
+          profile.total3aMensuel * 12;
+      final expectedImpact = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: profile.revenuBrutAnnuel,
+        canton: profile.canton,
+        contribution: remaining,
+      );
+
+      final alert = CoachNarrativeService.build3aDeadlineAlertForTest(
+        profile: profile,
+        now: DateTime(2026, 12),
+      );
+
+      expect(alert, isNotNull);
+      expect(alert, contains('3a'));
+      expect(alert, contains('Impact fiscal estimé'));
+      expect(
+        alert,
+        contains(formatChfWithPrefix(expectedImpact.deductibleContribution)),
+      );
+      expect(
+        alert,
+        contains(formatChfWithPrefix(expectedImpact.estimatedTaxSaving)),
+      );
+      expect(alert, contains('taux marginal estimé'));
+      expect(alert, contains('canton VD'));
+      expect(alert, contains('OPP3'));
+      expect(alert, isNot(contains('economiser')));
+      expect(alert, isNot(contains("d'impots")));
+    });
+
+    test('3a deadline alert is suppressed when assumptions are incomplete', () {
+      for (final canton in ['', 'CH', 'ZZ']) {
+        expect(
+          CoachNarrativeService.build3aDeadlineAlertForTest(
+            profile: _profileWithOpen3aMargin(canton: canton),
+            now: DateTime(2026, 12),
+          ),
+          isNull,
+        );
+      }
+      expect(
+        CoachNarrativeService.build3aDeadlineAlertForTest(
+          profile: _profileWithOpen3aMargin(salaireBrutMensuel: 0),
+          now: DateTime(2026, 12),
+        ),
+        isNull,
+      );
+    });
+
+    test('no-LPP remaining 3a margin subtracts already-paid contributions', () {
+      final profile = _profileWithOpen3aMargin(
+        salaireBrutMensuel: 50000 / 12,
+        employmentStatus: 'independant',
+        monthly3a: 8000 / 12,
+      );
+
+      final alert = CoachNarrativeService.build3aDeadlineAlertForTest(
+        profile: profile,
+        now: DateTime(2026, 12),
+      );
+
+      expect(alert, isNotNull);
+      expect(alert, contains(formatChfWithPrefix(2000)));
+      expect(alert, isNot(contains(formatChfWithPrefix(10000))));
+    });
+
+    test('fallback tax tip states canton and estimated-rate assumption', () {
+      final text = FallbackTemplates.tipNarrative(
+        const CoachContext(
+          firstName: 'Julien',
+          canton: 'VD',
+          knownValues: {'tax_saving': 2500},
+        ),
+      );
+
+      expect(text, contains('3a'));
+      expect(text, contains("2'500"));
+      expect(text, contains('taux marginal estimé'));
+      expect(text, contains('canton VD'));
+    });
+
+    test('fallback tax tip is not used without a valid canton assumption', () {
+      for (final canton in ['', 'CH', 'ZZ']) {
+        final text = FallbackTemplates.tipNarrative(
+          CoachContext(
+            firstName: 'Julien',
+            canton: canton,
+            knownValues: const {'tax_saving': 2500},
+          ),
+        );
+
+        expect(text, isNot(contains("2'500")));
+        expect(text, isNot(contains('réduire ton impôt')));
+      }
+    });
+  });
+}
