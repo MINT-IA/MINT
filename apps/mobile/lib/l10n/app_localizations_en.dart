@@ -22958,6 +22958,34 @@ class SEn extends S {
   String get monArgentPatrimoinePartial => 'Add your data for a complete view.';
 
   @override
+  String monArgentPatrimoineKnownDataLabel(int percent) {
+    return '$percent % of data known';
+  }
+
+  @override
+  String monArgentPatrimoineLastUpdated(int day, String month, String source) {
+    return 'Updated on $day $month · $source';
+  }
+
+  @override
+  String get monArgentSourceUserInput => 'provided';
+
+  @override
+  String get monArgentSourceEstimated => 'estimated';
+
+  @override
+  String get monArgentSourceCertificate => 'certificate';
+
+  @override
+  String get monArgentSourceOpenBanking => 'Open Banking';
+
+  @override
+  String get monArgentSourceCrossValidated => 'checked';
+
+  @override
+  String get monArgentSourceDataSpine => 'profile';
+
+  @override
   String get monArgentLpp => 'Pillar 2';
 
   @override

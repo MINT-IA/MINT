@@ -23077,6 +23077,34 @@ class SPt extends S {
       'Adiciona os teus dados para uma vista completa.';
 
   @override
+  String monArgentPatrimoineKnownDataLabel(int percent) {
+    return '$percent % dos dados conhecidos';
+  }
+
+  @override
+  String monArgentPatrimoineLastUpdated(int day, String month, String source) {
+    return 'Atualizado em $day $month · $source';
+  }
+
+  @override
+  String get monArgentSourceUserInput => 'inserido';
+
+  @override
+  String get monArgentSourceEstimated => 'estimado';
+
+  @override
+  String get monArgentSourceCertificate => 'certificado';
+
+  @override
+  String get monArgentSourceOpenBanking => 'Open Banking';
+
+  @override
+  String get monArgentSourceCrossValidated => 'conferido';
+
+  @override
+  String get monArgentSourceDataSpine => 'perfil';
+
+  @override
   String get monArgentLpp => '2.º pilar';
 
   @override

@@ -11129,6 +11129,34 @@
   "monArgentPatrimoineError": "Unable to load your data.",
   "monArgentPatrimoineNet": "Net",
   "monArgentPatrimoinePartial": "Add your data for a complete view.",
+  "monArgentPatrimoineKnownDataLabel": "{percent} % of data known",
+  "@monArgentPatrimoineKnownDataLabel": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "monArgentPatrimoineLastUpdated": "Updated on {day} {month} · {source}",
+  "@monArgentPatrimoineLastUpdated": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "monArgentSourceUserInput": "provided",
+  "monArgentSourceEstimated": "estimated",
+  "monArgentSourceCertificate": "certificate",
+  "monArgentSourceOpenBanking": "Open Banking",
+  "monArgentSourceCrossValidated": "checked",
+  "monArgentSourceDataSpine": "profile",
   "monArgentLpp": "Pillar 2",
   "monArgentPillar3a": "Pillar 3a",
   "monArgentEpargne": "Savings",

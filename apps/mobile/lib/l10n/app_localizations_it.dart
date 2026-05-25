@@ -23130,6 +23130,34 @@ class SIt extends S {
       'Aggiungi i tuoi dati per una vista completa.';
 
   @override
+  String monArgentPatrimoineKnownDataLabel(int percent) {
+    return '$percent % dei dati noti';
+  }
+
+  @override
+  String monArgentPatrimoineLastUpdated(int day, String month, String source) {
+    return 'Aggiornato il $day $month · $source';
+  }
+
+  @override
+  String get monArgentSourceUserInput => 'inserito';
+
+  @override
+  String get monArgentSourceEstimated => 'stimato';
+
+  @override
+  String get monArgentSourceCertificate => 'certificato';
+
+  @override
+  String get monArgentSourceOpenBanking => 'Open Banking';
+
+  @override
+  String get monArgentSourceCrossValidated => 'verificato';
+
+  @override
+  String get monArgentSourceDataSpine => 'profilo';
+
+  @override
   String get monArgentLpp => '2º pilastro';
 
   @override

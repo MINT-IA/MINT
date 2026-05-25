@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/mon_argent/patrimoine_aggregator.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -243,27 +244,20 @@ class PatrimoineSummaryCard extends StatelessWidget {
     final date = s.lastUpdated;
     if (date == null) return '';
     final day = date.day;
-    final month = _monthAbbr(date.month);
-    final source = s.lastUpdateSource ?? '';
-    return 'MaJ $day $month · $source';
+    final month = DateFormat.MMM(l10n.localeName).format(date);
+    final source = _sourceLabel(l10n, s.lastUpdateSource);
+    return l10n.monArgentPatrimoineLastUpdated(day, month, source);
   }
 
-  String _monthAbbr(int m) {
-    const months = [
-      'jan',
-      'fev',
-      'mar',
-      'avr',
-      'mai',
-      'juin',
-      'juil',
-      'aout',
-      'sep',
-      'oct',
-      'nov',
-      'dec',
-    ];
-    return months[m - 1];
+  String _sourceLabel(S l10n, String? source) {
+    return switch (source) {
+      'userInput' => l10n.monArgentSourceUserInput,
+      'estimated' => l10n.monArgentSourceEstimated,
+      'certificate' => l10n.monArgentSourceCertificate,
+      'openBanking' => l10n.monArgentSourceOpenBanking,
+      'crossValidated' => l10n.monArgentSourceCrossValidated,
+      _ => l10n.monArgentSourceDataSpine,
+    };
   }
 }
 
@@ -306,8 +300,11 @@ class _PulseCircleState extends State<_PulseCircle>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     return Semantics(
-      label: '${(widget.ratio * 100).round()}\u00a0% des donnees connues',
+      label: l10n.monArgentPatrimoineKnownDataLabel(
+        (widget.ratio * 100).round(),
+      ),
       child: AnimatedBuilder(
         animation: _animation,
         builder: (context, child) {

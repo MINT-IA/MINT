@@ -23069,6 +23069,34 @@ class SEs extends S {
       'Añade tus datos para una vista completa.';
 
   @override
+  String monArgentPatrimoineKnownDataLabel(int percent) {
+    return '$percent % de datos conocidos';
+  }
+
+  @override
+  String monArgentPatrimoineLastUpdated(int day, String month, String source) {
+    return 'Actualizado el $day $month · $source';
+  }
+
+  @override
+  String get monArgentSourceUserInput => 'ingresado';
+
+  @override
+  String get monArgentSourceEstimated => 'estimado';
+
+  @override
+  String get monArgentSourceCertificate => 'certificado';
+
+  @override
+  String get monArgentSourceOpenBanking => 'Open Banking';
+
+  @override
+  String get monArgentSourceCrossValidated => 'contrastado';
+
+  @override
+  String get monArgentSourceDataSpine => 'perfil';
+
+  @override
   String get monArgentLpp => '2.º pilar';
 
   @override

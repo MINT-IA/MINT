@@ -23071,6 +23071,34 @@ class SFr extends S {
       'Ajoute tes données pour une vue complète.';
 
   @override
+  String monArgentPatrimoineKnownDataLabel(int percent) {
+    return '$percent % des données connues';
+  }
+
+  @override
+  String monArgentPatrimoineLastUpdated(int day, String month, String source) {
+    return 'Mis à jour le $day $month · $source';
+  }
+
+  @override
+  String get monArgentSourceUserInput => 'saisi';
+
+  @override
+  String get monArgentSourceEstimated => 'estimé';
+
+  @override
+  String get monArgentSourceCertificate => 'certificat';
+
+  @override
+  String get monArgentSourceOpenBanking => 'Open Banking';
+
+  @override
+  String get monArgentSourceCrossValidated => 'recoupé';
+
+  @override
+  String get monArgentSourceDataSpine => 'dossier';
+
+  @override
   String get monArgentLpp => '2e pilier';
 
   @override

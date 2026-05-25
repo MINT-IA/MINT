@@ -40401,6 +40401,54 @@ abstract class S {
   /// **'Ajoute tes données pour une vue complète.'**
   String get monArgentPatrimoinePartial;
 
+  /// Nav V11 — patrimoine known data semantics label
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} % des données connues'**
+  String monArgentPatrimoineKnownDataLabel(int percent);
+
+  /// Nav V11 — patrimoine latest update label
+  ///
+  /// In fr, this message translates to:
+  /// **'Mis à jour le {day} {month} · {source}'**
+  String monArgentPatrimoineLastUpdated(int day, String month, String source);
+
+  /// Nav V11 — user-entered data source label
+  ///
+  /// In fr, this message translates to:
+  /// **'saisi'**
+  String get monArgentSourceUserInput;
+
+  /// Nav V11 — estimated data source label
+  ///
+  /// In fr, this message translates to:
+  /// **'estimé'**
+  String get monArgentSourceEstimated;
+
+  /// Nav V11 — certificate data source label
+  ///
+  /// In fr, this message translates to:
+  /// **'certificat'**
+  String get monArgentSourceCertificate;
+
+  /// Nav V11 — Open Banking data source label
+  ///
+  /// In fr, this message translates to:
+  /// **'Open Banking'**
+  String get monArgentSourceOpenBanking;
+
+  /// Nav V11 — cross-checked data source label
+  ///
+  /// In fr, this message translates to:
+  /// **'recoupé'**
+  String get monArgentSourceCrossValidated;
+
+  /// Nav V11 — profile data source label
+  ///
+  /// In fr, this message translates to:
+  /// **'dossier'**
+  String get monArgentSourceDataSpine;
+
   /// Nav V11 — LPP label
   ///
   /// In fr, this message translates to:

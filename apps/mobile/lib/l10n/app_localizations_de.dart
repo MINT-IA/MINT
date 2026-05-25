@@ -23124,6 +23124,34 @@ class SDe extends S {
       'Ergänze deine Daten für eine vollständige Übersicht.';
 
   @override
+  String monArgentPatrimoineKnownDataLabel(int percent) {
+    return '$percent % der Daten bekannt';
+  }
+
+  @override
+  String monArgentPatrimoineLastUpdated(int day, String month, String source) {
+    return 'Aktualisiert am $day. $month · $source';
+  }
+
+  @override
+  String get monArgentSourceUserInput => 'eingegeben';
+
+  @override
+  String get monArgentSourceEstimated => 'geschätzt';
+
+  @override
+  String get monArgentSourceCertificate => 'Zertifikat';
+
+  @override
+  String get monArgentSourceOpenBanking => 'Open Banking';
+
+  @override
+  String get monArgentSourceCrossValidated => 'abgeglichen';
+
+  @override
+  String get monArgentSourceDataSpine => 'Profil';
+
+  @override
   String get monArgentLpp => '2. Säule';
 
   @override

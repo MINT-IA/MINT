@@ -12028,6 +12028,54 @@
   "@monArgentPatrimoinePartial": {
     "description": "Nav V11 — patrimoine partial state hint"
   },
+  "monArgentPatrimoineKnownDataLabel": "{percent} % des données connues",
+  "@monArgentPatrimoineKnownDataLabel": {
+    "description": "Nav V11 — patrimoine known data semantics label",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "monArgentPatrimoineLastUpdated": "Mis à jour le {day} {month} · {source}",
+  "@monArgentPatrimoineLastUpdated": {
+    "description": "Nav V11 — patrimoine latest update label",
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      },
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "monArgentSourceUserInput": "saisi",
+  "@monArgentSourceUserInput": {
+    "description": "Nav V11 — user-entered data source label"
+  },
+  "monArgentSourceEstimated": "estimé",
+  "@monArgentSourceEstimated": {
+    "description": "Nav V11 — estimated data source label"
+  },
+  "monArgentSourceCertificate": "certificat",
+  "@monArgentSourceCertificate": {
+    "description": "Nav V11 — certificate data source label"
+  },
+  "monArgentSourceOpenBanking": "Open Banking",
+  "@monArgentSourceOpenBanking": {
+    "description": "Nav V11 — Open Banking data source label"
+  },
+  "monArgentSourceCrossValidated": "recoupé",
+  "@monArgentSourceCrossValidated": {
+    "description": "Nav V11 — cross-checked data source label"
+  },
+  "monArgentSourceDataSpine": "dossier",
+  "@monArgentSourceDataSpine": {
+    "description": "Nav V11 — profile data source label"
+  },
   "monArgentLpp": "2e pilier",
   "@monArgentLpp": {
     "description": "Nav V11 — LPP label"
