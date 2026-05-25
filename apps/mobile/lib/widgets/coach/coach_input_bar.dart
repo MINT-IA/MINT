@@ -44,26 +44,33 @@ class CoachInputBar extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // Lightning menu trigger
-              GestureDetector(
-                onTap: isStreaming ? null : onLightningMenu,
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: MintColors.porcelaine,
-                    borderRadius: BorderRadius.circular(19),
+              Semantics(
+                key: const Key('coach_lightning_menu_button'),
+                identifier: 'coach_lightning_menu_button',
+                button: true,
+                label: s.lightningMenuTitle,
+                child: GestureDetector(
+                  onTap: isStreaming ? null : onLightningMenu,
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: MintColors.porcelaine,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(Icons.bolt_rounded,
+                        color: isStreaming
+                            ? MintColors.textMuted.withValues(alpha: 0.3)
+                            : MintColors.textSecondary,
+                        size: 18),
                   ),
-                  child: Icon(Icons.bolt_rounded,
-                      color: isStreaming
-                          ? MintColors.textMuted.withValues(alpha: 0.3)
-                          : MintColors.textSecondary,
-                      size: 18),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Semantics(
+                  key: const Key('coach_input_field'),
+                  identifier: 'coach_input_field',
                   textField: true,
                   label: s.coachInputHint,
                   child: TextField(
@@ -77,8 +84,7 @@ class CoachInputBar extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: s.coachInputHint,
                       hintStyle: MintTextStyles.bodyMedium(
-                          color:
-                              MintColors.textMuted.withValues(alpha: 0.4)),
+                          color: MintColors.textMuted.withValues(alpha: 0.4)),
                       filled: true,
                       fillColor: MintColors.porcelaine,
                       contentPadding: const EdgeInsets.symmetric(
@@ -105,6 +111,8 @@ class CoachInputBar extends StatelessWidget {
               const SizedBox(width: 10),
               // Send button
               Semantics(
+                key: const Key('coach_send_button'),
+                identifier: 'coach_send_button',
                 button: true,
                 label: s.coachSendButton,
                 child: GestureDetector(
@@ -116,7 +124,7 @@ class CoachInputBar extends StatelessWidget {
                       color: isStreaming
                           ? MintColors.textMuted.withValues(alpha: 0.15)
                           : MintColors.primary,
-                      borderRadius: BorderRadius.circular(19),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Icon(Icons.arrow_upward_rounded,
                         color: MintColors.white, size: 18),

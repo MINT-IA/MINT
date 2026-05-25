@@ -2059,47 +2059,53 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   Widget build(BuildContext context) {
     // CoachEmptyState deleted (KILL-02). Chat always renders — coach speaks first.
 
-    return Scaffold(
-      backgroundColor: MintColors.craie,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            CoachAppBar(
-              isEmbeddedInTab: widget.isEmbeddedInTab,
-              hasUserMessages: _messages.any((m) => m.isUser),
-              onBack: () => safePop(context),
-              onHistory: () async {
-                final router = GoRouter.of(context);
-                await _autoSaveConversation();
-                if (mounted) router.push('/coach/history');
-              },
-              onExport: _exportConversation,
-              onSettings: () => context.push('/profile/byok'),
-            ),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => FocusScope.of(context).unfocus(),
-                child: _showSilentOpener
-                    ? _buildSilentOpenerWithTone()
-                    : _buildMessageList(),
+    return Semantics(
+      key: const Key('coach_chat_screen'),
+      identifier: 'coach_chat_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
+        backgroundColor: MintColors.craie,
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              CoachAppBar(
+                isEmbeddedInTab: widget.isEmbeddedInTab,
+                hasUserMessages: _messages.any((m) => m.isUser),
+                onBack: () => safePop(context),
+                onHistory: () async {
+                  final router = GoRouter.of(context);
+                  await _autoSaveConversation();
+                  if (mounted) router.push('/coach/history');
+                },
+                onExport: _exportConversation,
+                onSettings: () => context.push('/profile/byok'),
               ),
-            ),
-            if (_isLoading) const CoachLoadingIndicator(),
-            Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewPadding.bottom,
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: _showSilentOpener
+                      ? _buildSilentOpenerWithTone()
+                      : _buildMessageList(),
+                ),
               ),
-              child: CoachInputBar(
-                controller: _controller,
-                focusNode: _focusNode,
-                isStreaming: _isStreaming,
-                onSend: () => _sendMessage(_controller.text),
-                onLightningMenu: _showLightningMenu,
+              if (_isLoading) const CoachLoadingIndicator(),
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewPadding.bottom,
+                ),
+                child: CoachInputBar(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  isStreaming: _isStreaming,
+                  onSend: () => _sendMessage(_controller.text),
+                  onLightningMenu: _showLightningMenu,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -2154,7 +2160,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               Text(
                 _intentOpenerText!,
                 style: const TextStyle(
-                  fontSize: 17,
+                  fontSize: 17, // lint-ignore: prefer_mint_text_style
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,
                   height: 1.4,
@@ -2165,7 +2171,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               Text(
                 s.coachSilentOpenerQuestion,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 14, // lint-ignore: prefer_mint_text_style
                   fontStyle: FontStyle.italic,
                   color: MintColors.textSecondary.withValues(alpha: 0.6),
                 ),
@@ -2233,7 +2239,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             Text(
               keyData.number,
               style: const TextStyle(
-                fontSize: 48,
+                fontSize: 48, // lint-ignore: prefer_mint_text_style
                 fontWeight: FontWeight.w700,
                 color: MintColors.primary,
                 height: 1.1,
@@ -2244,7 +2250,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             Text(
               keyData.headline,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 15, // lint-ignore: prefer_mint_text_style
                 color: MintColors.textSecondary,
                 fontWeight: FontWeight.w400,
               ),
@@ -2287,7 +2293,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           Text(
             s.coachOpenerIdentity,
             style: const TextStyle(
-              fontSize: 22,
+              fontSize: 22, // lint-ignore: prefer_mint_text_style
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
               height: 1.3,
@@ -2297,7 +2303,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           Text(
             s.coachOpenerPromise,
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 15, // lint-ignore: prefer_mint_text_style
               color: MintColors.textSecondary,
               height: 1.5,
             ),

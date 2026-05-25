@@ -167,6 +167,44 @@ void main() {
       expect(find.textContaining('Dis-moi'), findsWidgets);
     });
 
+    testWidgets('exposes Maestro semantics identifiers', (tester) async {
+      final semantics = tester.ensureSemantics();
+      try {
+        usePhoneViewport(tester);
+
+        await tester.pumpWidget(buildTestWidget(withProfile: true));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(
+          tester
+              .getSemantics(find.byKey(const Key('coach_chat_screen')))
+              .identifier,
+          'coach_chat_screen',
+        );
+        expect(
+          tester
+              .getSemantics(find.byKey(const Key('coach_input_field')))
+              .identifier,
+          'coach_input_field',
+        );
+        expect(
+          tester
+              .getSemantics(
+                  find.byKey(const Key('coach_lightning_menu_button')))
+              .identifier,
+          'coach_lightning_menu_button',
+        );
+        expect(
+          tester
+              .getSemantics(find.byKey(const Key('coach_send_button')))
+              .identifier,
+          'coach_send_button',
+        );
+      } finally {
+        semantics.dispose();
+      }
+    });
+
     testWidgets('shows send button', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));

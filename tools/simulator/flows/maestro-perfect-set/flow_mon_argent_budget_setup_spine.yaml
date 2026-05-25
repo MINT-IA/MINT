@@ -7,6 +7,7 @@
 # - Budget setup exposes deterministic entry anchors, accepts fixed-charge
 #   input, and renders the live fixed-charge total.
 # - Direct /budget relaunch restores saved budget inputs.
+# - The user can return to the coach surface with stable chat anchors.
 #
 # PRE-CONDITION
 # - App ch.mint.app installed on a booted iPhone simulator.
@@ -122,3 +123,16 @@ tags:
 - assertVisible:
     id: "budget_data_quality_banner"
 - takeScreenshot: "mon-argent-03-budget-direct-relaunch"
+
+- openLink: "mintapp:///coach/chat"
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 12000
+- assertVisible:
+    id: "coach_input_field"
+- assertVisible:
+    id: "coach_lightning_menu_button"
+- assertVisible:
+    id: "coach_send_button"
+- takeScreenshot: "mon-argent-04-coach-return"
