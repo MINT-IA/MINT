@@ -201,7 +201,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
         ),
         const SizedBox(width: 4),
         Text(
-          '${sign}CHF ${delta.abs().round()}/mois depuis ta dernière visite',
+          '$sign${formatChfWithPrefix(delta.abs())}/mois depuis ta dernière visite',
           style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w600),
         ),
       ],

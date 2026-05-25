@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/micro_action_engine.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Card widget for a single [MicroAction].
 ///
@@ -119,7 +120,7 @@ class MicroActionCard extends StatelessWidget {
           const Icon(Icons.savings_outlined, size: 12, color: MintColors.success),
           const SizedBox(width: 3),
           Text(
-            '~CHF ${action.estimatedImpactChf!.round()}/an',
+            '~${formatChfWithPrefix(action.estimatedImpactChf!)}/an',
             style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
           ),
         ],

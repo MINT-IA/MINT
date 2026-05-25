@@ -460,7 +460,7 @@ class ContextInjectorService {
       if (topEvi.field != topPrompts.first.category) {
         // EVI suggests a different top priority — add a hint
         lines.add('EVI prioritaire\u00a0: ${topEvi.label} '
-            '(incertitude actuelle\u00a0: \u00b1CHF\u00a0${topEvi.currentUncertainty.round()})');
+            '(incertitude actuelle\u00a0: \u00b1${formatChfWithPrefix(topEvi.currentUncertainty)})');
       }
     }
 

@@ -150,6 +150,26 @@ void main() {
       expect(ctx.memoryBlock, isNot(contains('meilleure action')));
     });
 
+    test('enrichment EVI uncertainty formats CHF values', () async {
+      final profile = makeProfile(
+        birthYear: 1977,
+        canton: 'VD',
+        salaire: 10000,
+      );
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      expect(ctx.memoryBlock, contains('EVI prioritaire'));
+      expect(ctx.memoryBlock, contains(RegExp(r"±CHF\u00a0\d{1,3}'\d{3}")));
+      expect(ctx.memoryBlock, isNot(contains(RegExp(r'±CHF\u00a0\d{4,}'))));
+    });
+
     // ════════════════════════════════════════════════════════════
     //  TEST 2: No profile → lifecycle absent
     // ════════════════════════════════════════════════════════════
