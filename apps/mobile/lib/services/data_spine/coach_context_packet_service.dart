@@ -24,6 +24,7 @@ abstract final class CoachContextPacketService {
     'pillar.lpp.buyback_max',
     'pillar.3a.total_balance',
     'pillar.3a.accounts_count',
+    'pillar.3a.annual_contribution',
     'trajectory.status',
     'trajectory.monthly_required',
     'trajectory.monthly_gap',
@@ -187,6 +188,12 @@ abstract final class CoachContextPacketService {
         domain: 'pillar_3a',
         fieldPath: 'pillars.pillar3a.accountsCount',
         fact: pillars.pillar3a.accountsCount,
+      ),
+      ..._pillarFact(
+        id: 'pillar.3a.annual_contribution',
+        domain: 'pillar_3a',
+        fieldPath: 'pillars.pillar3a.annualContribution',
+        fact: pillars.pillar3a.annualContribution,
       ),
     ];
   }

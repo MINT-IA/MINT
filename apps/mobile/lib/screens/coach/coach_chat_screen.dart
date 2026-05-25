@@ -17,6 +17,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/screens/coach/coach_archetype_guard.dart';
 import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
+import 'package:mint_mobile/services/coach/coach_context_profile_mapper.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -1806,6 +1807,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (monthlyExpenses > 0 && epargneLiquide.isFinite && epargneLiquide > 0) {
       knownValues['months_liquidity'] = epargneLiquide / monthlyExpenses;
     }
+    knownValues.addAll(CoachContextProfileMapper.knownValues(profile));
 
     final coachContextPacket = CoachContextPacketAdapter.fromProfile(profile);
 
@@ -1821,6 +1823,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       archetype: _archetypeToBackendName(profile.archetype),
       knownValues: knownValues,
       coachContextPacket: coachContextPacket,
+      activeGoal: CoachContextProfileMapper.activeGoal(profile),
+      plannedContributions:
+          CoachContextProfileMapper.plannedContributions(profile),
+      dataReliability: CoachContextProfileMapper.dataReliability(profile),
       hasDebt: profile.isInDebtCrisis,
     );
   }

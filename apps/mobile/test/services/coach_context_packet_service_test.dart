@@ -25,6 +25,15 @@ void main() {
       'prevoyance.totalEpargne3a': ProfileDataSource.userInput,
     },
     Map<String, DateTime> dataTimestamps = const {},
+    List<PlannedMonthlyContribution> plannedContributions = const [
+      PlannedMonthlyContribution(
+        id: 'primary_3a',
+        label: '3a',
+        amount: 500,
+        category: '3a',
+        isAutomatic: true,
+      ),
+    ],
     GoalA? goal,
   }) {
     return CoachProfile(
@@ -57,6 +66,7 @@ void main() {
             targetDate: DateTime.utc(2052),
             label: 'Retraite',
           ),
+      plannedContributions: plannedContributions,
       dataSources: dataSources,
       dataTimestamps: dataTimestamps,
       createdAt: DateTime.utc(2026, 1, 1),
@@ -188,6 +198,7 @@ void main() {
       expect(fact(packet, 'pillar.avs.gaps').value, 2);
       expect(fact(packet, 'pillar.lpp.total_balance').value, 50000);
       expect(fact(packet, 'pillar.3a.total_balance').value, 12000);
+      expect(fact(packet, 'pillar.3a.annual_contribution').value, 6000);
     });
 
     test('preserves source and freshness metadata on facts', () {

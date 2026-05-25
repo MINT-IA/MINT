@@ -166,6 +166,15 @@ void main() {
           label: 'Retraite',
           targetAmount: 250000,
         ),
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: 'primary_3a',
+            label: '3a',
+            amount: 500,
+            category: '3a',
+            isAutomatic: true,
+          ),
+        ],
       );
 
       await CoachLlmService.chat(
@@ -178,6 +187,22 @@ void main() {
       final packet = capturedCtx?.coachContextPacket;
       expect(packet, isNotNull);
       expect(packet, isNotEmpty);
+      expect(capturedCtx?.knownValues['annual_3a_contribution'], 6000);
+      expect(capturedCtx?.activeGoal, 'Retraite');
+      expect(capturedCtx?.plannedContributions, hasLength(1));
+
+      final profileContext =
+          CoachOrchestrator.buildProfileContextForTest(capturedCtx!);
+      expect(profileContext['annual_3a_contribution'], 6000);
+      expect(profileContext['active_goal'], 'Retraite');
+      expect(profileContext['planned_contributions'], [
+        {
+          'category': '3a',
+          'monthly_amount': 500.0,
+          'annual_amount': 6000.0,
+          'is_automatic': true,
+        }
+      ]);
       expect(packet!['facts'], isA<List<dynamic>>());
       expect(packet['trajectory'], isA<Map<String, dynamic>>());
       expect(packet['readiness'], isA<Map<String, dynamic>>());

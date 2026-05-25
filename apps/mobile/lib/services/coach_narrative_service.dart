@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/coach_context_builder.dart';
+import 'package:mint_mobile/services/coach/coach_context_profile_mapper.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach/fallback_templates.dart';
@@ -311,6 +312,9 @@ class CoachNarrativeService {
       fiscalSeason: fiscalSeason,
       upcomingEvent: upcomingEvent,
       checkInStreak: checkInStreak,
+      activeGoal: CoachContextProfileMapper.activeGoal(profile),
+      plannedContributions:
+          CoachContextProfileMapper.plannedContributions(profile),
       dataSources: dataSources,
       hasDebt: profile.isInDebtCrisis,
     );

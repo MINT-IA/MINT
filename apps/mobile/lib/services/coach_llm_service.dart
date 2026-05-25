@@ -3,6 +3,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/models/sequence_message_payload.dart';
+import 'package:mint_mobile/services/coach/coach_context_profile_mapper.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 // FIX-P1-7: Removed direct import of coach_orchestrator.dart to break
 // circular dependency (coach_llm ↔ orchestrator). The orchestrator is
@@ -629,6 +630,7 @@ class CoachLlmService {
     }
 
     final coachContextPacket = CoachContextPacketAdapter.fromProfile(profile);
+    knownValues.addAll(CoachContextProfileMapper.knownValues(profile));
 
     return CoachContext(
       firstName: profile.firstName ?? 'utilisateur',
@@ -636,6 +638,10 @@ class CoachLlmService {
       canton: profile.canton,
       knownValues: knownValues,
       coachContextPacket: coachContextPacket,
+      activeGoal: CoachContextProfileMapper.activeGoal(profile),
+      plannedContributions:
+          CoachContextProfileMapper.plannedContributions(profile),
+      dataReliability: CoachContextProfileMapper.dataReliability(profile),
       hasDebt: profile.isInDebtCrisis,
       // Sub-phase 01.5-W02 NN-PATCH (2026-05-22): propagate archetype slug
       // so CoachOrchestrator._calibratedArchetypes check has a real value

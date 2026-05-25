@@ -27,6 +27,15 @@ void main() {
       'depenses.loyer': ProfileDataSource.userInput,
     },
     Map<String, DateTime> dataTimestamps = const {},
+    List<PlannedMonthlyContribution> plannedContributions = const [
+      PlannedMonthlyContribution(
+        id: 'primary_3a',
+        label: '3a',
+        amount: 500,
+        category: '3a',
+        isAutomatic: true,
+      ),
+    ],
     GoalA? goal,
     double loyer = 2100,
   }) {
@@ -60,6 +69,7 @@ void main() {
             targetDate: DateTime.utc(2052),
             label: 'Retraite',
           ),
+      plannedContributions: plannedContributions,
       dataSources: dataSources,
       dataTimestamps: dataTimestamps,
       createdAt: DateTime.utc(2026, 1, 1),
@@ -187,6 +197,7 @@ void main() {
           ProfileDataSource.certificate);
       expect(spine.pillars.pillar3a.totalBalance.value, 12000);
       expect(spine.pillars.pillar3a.accountsCount.value, 1);
+      expect(spine.pillars.pillar3a.annualContribution.value, 6000);
     });
 
     test('marks missing pillar facts as missing instead of estimating them',
