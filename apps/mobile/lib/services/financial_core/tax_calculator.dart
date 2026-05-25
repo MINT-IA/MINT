@@ -79,13 +79,21 @@ class NetIncomeBreakdown {
     }
 
     // 1. Charges sociales (AVS/AI/APG combined + AC) — hors LPP
-    final socialCharges = grossSalary * (reg('avs.contribution_rate_employee', avsCotisationSalarie) + acCotisationSalarie);
+    final socialCharges = grossSalary *
+        (reg('avs.contribution_rate_employee', avsCotisationSalarie) +
+            acCotisationSalarie);
 
     // 2. LPP employe (~50% de la bonification totale sur salaire coordonne)
     double lppEmployee = 0;
-    if (grossSalary >= reg('lpp.entry_threshold', lppSeuilEntree) && age >= 25 && age <= reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) {
-      final salaireCoord = (grossSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
-          .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
+    if (grossSalary >= reg('lpp.entry_threshold', lppSeuilEntree) &&
+        age >= 25 &&
+        age <=
+            reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble())
+                .toInt()) {
+      final salaireCoord = (grossSalary -
+              reg('lpp.coordination_deduction', lppDeductionCoordination))
+          .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin),
+              reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
       final totalBonif = getLppBonificationRate(age);
       lppEmployee =
           salaireCoord * totalBonif / 2; // ~50% part employe (LPP art. 66)
@@ -99,9 +107,20 @@ class NetIncomeBreakdown {
       // Exact rates depend on canton + family situation + bilateral treaty.
       // Educational estimate only — source: Administration fédérale des contributions.
       const baseWithholdingRates = {
-        'GE': 0.145, 'VD': 0.135, 'VS': 0.105, 'NE': 0.125, 'JU': 0.115,
-        'FR': 0.120, 'BS': 0.130, 'BL': 0.125, 'AG': 0.110, 'ZH': 0.115,
-        'TI': 0.100, 'SG': 0.105, 'TG': 0.100, 'GR': 0.095,
+        'GE': 0.145,
+        'VD': 0.135,
+        'VS': 0.105,
+        'NE': 0.125,
+        'JU': 0.115,
+        'FR': 0.120,
+        'BS': 0.130,
+        'BL': 0.125,
+        'AG': 0.110,
+        'ZH': 0.115,
+        'TI': 0.100,
+        'SG': 0.105,
+        'TG': 0.100,
+        'GR': 0.095,
       };
       final baseRate = baseWithholdingRates[canton.toUpperCase()] ?? 0.12;
       // Family adjustment: married -20%, per child -5%
@@ -198,6 +217,35 @@ class NetIncomeBreakdown {
       };
 }
 
+enum Pillar3aTaxImpactConfidence { unavailable, estimated, actualRate }
+
+class Pillar3aTaxImpactEstimate {
+  final double annualCeiling;
+  final double proRatedCeiling;
+  final double deductibleContribution;
+  final double marginalRate;
+  final double estimatedTaxSaving;
+  final Pillar3aTaxImpactConfidence confidence;
+
+  const Pillar3aTaxImpactEstimate({
+    required this.annualCeiling,
+    required this.proRatedCeiling,
+    required this.deductibleContribution,
+    required this.marginalRate,
+    required this.estimatedTaxSaving,
+    required this.confidence,
+  });
+
+  static const unavailable = Pillar3aTaxImpactEstimate(
+    annualCeiling: 0,
+    proRatedCeiling: 0,
+    deductibleContribution: 0,
+    marginalRate: 0,
+    estimatedTaxSaving: 0,
+    confidence: Pillar3aTaxImpactConfidence.unavailable,
+  );
+}
+
 /// Retirement tax calculator — pure static functions.
 ///
 /// Legal basis: LIFD art. 22 (rente taxation), LIFD art. 38 (capital withdrawal).
@@ -274,13 +322,32 @@ class RetirementTaxCalculator {
   /// Source: AFC — Charge fiscale en Suisse 2024.
   /// Mirrors: services/backend/app/services/fiscal/cantonal_comparator.py
   static const Map<String, double> _effectiveRates100k = {
-    'ZG': 0.0823, 'NW': 0.0891, 'OW': 0.0934, 'AI': 0.0956,
-    'AR': 0.1012, 'SZ': 0.1034, 'UR': 0.1067, 'LU': 0.1089,
-    'GL': 0.1102, 'TG': 0.1145, 'SH': 0.1167, 'AG': 0.1189,
-    'GR': 0.1203, 'BL': 0.1256, 'SG': 0.1278, 'ZH': 0.1290,
-    'FR': 0.1312, 'SO': 0.1334, 'TI': 0.1356, 'BE': 0.1389,
-    'NE': 0.1423, 'VS': 0.1456, 'VD': 0.1489, 'JU': 0.1512,
-    'GE': 0.1545, 'BS': 0.1578,
+    'ZG': 0.0823,
+    'NW': 0.0891,
+    'OW': 0.0934,
+    'AI': 0.0956,
+    'AR': 0.1012,
+    'SZ': 0.1034,
+    'UR': 0.1067,
+    'LU': 0.1089,
+    'GL': 0.1102,
+    'TG': 0.1145,
+    'SH': 0.1167,
+    'AG': 0.1189,
+    'GR': 0.1203,
+    'BL': 0.1256,
+    'SG': 0.1278,
+    'ZH': 0.1290,
+    'FR': 0.1312,
+    'SO': 0.1334,
+    'TI': 0.1356,
+    'BE': 0.1389,
+    'NE': 0.1423,
+    'VS': 0.1456,
+    'VD': 0.1489,
+    'JU': 0.1512,
+    'GE': 0.1545,
+    'BS': 0.1578,
   };
 
   /// Income level adjustment factors (relative to 100k baseline).
@@ -288,8 +355,13 @@ class RetirementTaxCalculator {
   /// Source: AFC — Charge fiscale en Suisse 2024.
   /// Mirrors: services/backend/app/services/fiscal/cantonal_comparator.py
   static const Map<int, double> _incomeAdjustment = {
-    50000: 0.75, 80000: 0.90, 100000: 1.00,
-    150000: 1.10, 200000: 1.18, 300000: 1.25, 500000: 1.32,
+    50000: 0.75,
+    80000: 0.90,
+    100000: 1.00,
+    150000: 1.10,
+    200000: 1.18,
+    300000: 1.25,
+    500000: 1.32,
   };
 
   /// Family situation adjustment (splitting + deductions).
@@ -393,6 +465,7 @@ class RetirementTaxCalculator {
     required String canton,
     bool isMarried = false,
     int children = 0,
+    double? actualMarginalRate,
     int steps = 10,
   }) {
     if (deduction <= 0) return 0.0;
@@ -410,6 +483,7 @@ class RetirementTaxCalculator {
         canton,
         isMarried: isMarried,
         children: children,
+        actualRate: actualMarginalRate,
       );
       totallySaved += stepSize * rate;
       currentIncome -= stepSize;
@@ -441,8 +515,31 @@ class RetirementTaxCalculator {
     bool hasLpp = true,
     int contributionMonths = 12,
     double? contribution,
+    double? actualMarginalRate,
   }) {
-    if (grossAnnualSalary <= 0) return 0;
+    return estimate3aTaxImpact(
+      grossAnnualSalary: grossAnnualSalary,
+      canton: canton,
+      isMarried: isMarried,
+      children: children,
+      hasLpp: hasLpp,
+      contributionMonths: contributionMonths,
+      contribution: contribution,
+      actualMarginalRate: actualMarginalRate,
+    ).estimatedTaxSaving;
+  }
+
+  static Pillar3aTaxImpactEstimate estimate3aTaxImpact({
+    required double grossAnnualSalary,
+    required String canton,
+    bool isMarried = false,
+    int children = 0,
+    bool hasLpp = true,
+    int contributionMonths = 12,
+    double? contribution,
+    double? actualMarginalRate,
+  }) {
+    if (grossAnnualSalary <= 0) return Pillar3aTaxImpactEstimate.unavailable;
     final months = contributionMonths.clamp(1, 12);
 
     // Ceiling depends on LPP affiliation (OPP3 art. 7)
@@ -459,12 +556,31 @@ class RetirementTaxCalculator {
         ? contribution.clamp(0.0, proRatedCeiling)
         : proRatedCeiling;
 
-    return estimateTaxSaving(
+    final marginalRate = estimateMarginalRate(
+      grossAnnualSalary - deductible / 2,
+      canton,
+      isMarried: isMarried,
+      children: children,
+      actualRate: actualMarginalRate,
+    );
+    final estimatedTaxSaving = estimateTaxSaving(
       income: grossAnnualSalary,
       deduction: deductible,
       canton: canton,
       isMarried: isMarried,
       children: children,
+      actualMarginalRate: actualMarginalRate,
+    );
+
+    return Pillar3aTaxImpactEstimate(
+      annualCeiling: annualCeiling,
+      proRatedCeiling: proRatedCeiling,
+      deductibleContribution: deductible,
+      marginalRate: marginalRate,
+      estimatedTaxSaving: estimatedTaxSaving,
+      confidence: actualMarginalRate != null
+          ? Pillar3aTaxImpactConfidence.actualRate
+          : Pillar3aTaxImpactConfidence.estimated,
     );
   }
 

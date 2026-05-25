@@ -149,7 +149,10 @@ void main() {
 
     test('VS married 122k → rate ~0.16-0.21 (family splitting)', () {
       final rate = RetirementTaxCalculator.estimateMarginalRate(
-        122000, 'VS', isMarried: true, children: 0,
+        122000,
+        'VS',
+        isMarried: true,
+        children: 0,
       );
       expect(rate, greaterThan(0.15));
       expect(rate, lessThan(0.22));
@@ -166,10 +169,36 @@ void main() {
     });
 
     test('all 26 cantons return valid rate', () {
-      for (final canton in ['ZH','BE','LU','UR','SZ','OW','NW','GL','ZG','FR',
-          'SO','BS','BL','SH','AR','AI','SG','GR','AG','TG','TI','VD','VS',
-          'NE','GE','JU']) {
-        final rate = RetirementTaxCalculator.estimateMarginalRate(100000, canton);
+      for (final canton in [
+        'ZH',
+        'BE',
+        'LU',
+        'UR',
+        'SZ',
+        'OW',
+        'NW',
+        'GL',
+        'ZG',
+        'FR',
+        'SO',
+        'BS',
+        'BL',
+        'SH',
+        'AR',
+        'AI',
+        'SG',
+        'GR',
+        'AG',
+        'TG',
+        'TI',
+        'VD',
+        'VS',
+        'NE',
+        'GE',
+        'JU'
+      ]) {
+        final rate =
+            RetirementTaxCalculator.estimateMarginalRate(100000, canton);
         expect(rate, greaterThan(0.05));
         expect(rate, lessThan(0.35));
       }
@@ -177,10 +206,14 @@ void main() {
 
     test('married with 2 children → lower rate than single', () {
       final rateSingle = RetirementTaxCalculator.estimateMarginalRate(
-        120000, 'ZH',
+        120000,
+        'ZH',
       );
       final rateMarried = RetirementTaxCalculator.estimateMarginalRate(
-        120000, 'ZH', isMarried: true, children: 2,
+        120000,
+        'ZH',
+        isMarried: true,
+        children: 2,
       );
       expect(rateMarried, lessThan(rateSingle));
     });
@@ -235,6 +268,51 @@ void main() {
       // VS marginal ~19.8% at 122k → ~9'900 saved
       expect(saving, greaterThan(7000));
       expect(saving, lessThan(15000));
+    });
+  });
+
+  group('RetirementTaxCalculator.estimate3aTaxImpact', () {
+    test('returns ceiling, deductible amount, rate and estimated saving', () {
+      final estimate = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: 120000,
+        canton: 'ZH',
+        contribution: 7258,
+      );
+
+      expect(estimate.annualCeiling, closeTo(7258, 0.01));
+      expect(estimate.proRatedCeiling, closeTo(7258, 0.01));
+      expect(estimate.deductibleContribution, closeTo(7258, 0.01));
+      expect(estimate.marginalRate, greaterThan(0.10));
+      expect(estimate.estimatedTaxSaving, greaterThan(1000));
+      expect(estimate.estimatedTaxSaving,
+          lessThan(estimate.deductibleContribution));
+      expect(estimate.confidence, Pillar3aTaxImpactConfidence.estimated);
+    });
+
+    test('prorates first-year ceiling and caps contribution', () {
+      final estimate = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: 72000,
+        canton: 'ZH',
+        contributionMonths: 6,
+        contribution: 7258,
+      );
+
+      expect(estimate.annualCeiling, closeTo(7258, 0.01));
+      expect(estimate.proRatedCeiling, closeTo(3629, 0.01));
+      expect(estimate.deductibleContribution, closeTo(3629, 0.01));
+    });
+
+    test('uses scanned marginal rate when provided', () {
+      final estimate = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: 100000,
+        canton: 'ZH',
+        contribution: 1000,
+        actualMarginalRate: 0.30,
+      );
+
+      expect(estimate.marginalRate, closeTo(0.30, 0.001));
+      expect(estimate.estimatedTaxSaving, closeTo(300, 0.01));
+      expect(estimate.confidence, Pillar3aTaxImpactConfidence.actualRate);
     });
   });
 
@@ -302,7 +380,8 @@ void main() {
       );
     });
 
-    test('round-trip: compute net → estimate gross → re-compute net ≈ original', () {
+    test('round-trip: compute net → estimate gross → re-compute net ≈ original',
+        () {
       final original = NetIncomeBreakdown.compute(
         grossSalary: 100000,
         canton: 'ZH',
