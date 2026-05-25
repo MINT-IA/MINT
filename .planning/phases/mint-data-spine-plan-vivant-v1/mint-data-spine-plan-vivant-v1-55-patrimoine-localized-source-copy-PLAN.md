@@ -17,7 +17,7 @@ Both issues make the central money surface feel less reliable, even when the und
 - Localize the pulse semantics label with `monArgentPatrimoineKnownDataLabel`.
 - Localize the latest-update label with `monArgentPatrimoineLastUpdated`.
 - Map raw source codes (`userInput`, `estimated`, `certificate`, `openBanking`, `crossValidated`, fallback) to user-facing labels in all 6 locales.
-- Use `intl` month formatting instead of hand-written month abbreviations.
+- Use locale-aware month labels instead of ASCII-flattened month abbreviations.
 
 ## Non-goals
 

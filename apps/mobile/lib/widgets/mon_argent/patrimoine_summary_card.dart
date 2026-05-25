@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/mon_argent/patrimoine_aggregator.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -244,9 +243,99 @@ class PatrimoineSummaryCard extends StatelessWidget {
     final date = s.lastUpdated;
     if (date == null) return '';
     final day = date.day;
-    final month = DateFormat.MMM(l10n.localeName).format(date);
+    final month = _monthAbbr(l10n, date.month);
     final source = _sourceLabel(l10n, s.lastUpdateSource);
     return l10n.monArgentPatrimoineLastUpdated(day, month, source);
+  }
+
+  String _monthAbbr(S l10n, int month) {
+    final labels = switch (l10n.localeName) {
+      'de' => const [
+          'Jan.',
+          'Feb.',
+          'März',
+          'Apr.',
+          'Mai',
+          'Juni',
+          'Juli',
+          'Aug.',
+          'Sept.',
+          'Okt.',
+          'Nov.',
+          'Dez.',
+        ],
+      'es' => const [
+          'ene',
+          'feb',
+          'mar',
+          'abr',
+          'may',
+          'jun',
+          'jul',
+          'ago',
+          'sept',
+          'oct',
+          'nov',
+          'dic',
+        ],
+      'it' => const [
+          'gen',
+          'feb',
+          'mar',
+          'apr',
+          'mag',
+          'giu',
+          'lug',
+          'ago',
+          'set',
+          'ott',
+          'nov',
+          'dic',
+        ],
+      'pt' => const [
+          'jan',
+          'fev',
+          'mar',
+          'abr',
+          'mai',
+          'jun',
+          'jul',
+          'ago',
+          'set',
+          'out',
+          'nov',
+          'dez',
+        ],
+      'fr' => const [
+          'janv.',
+          'févr.',
+          'mars',
+          'avr.',
+          'mai',
+          'juin',
+          'juil.',
+          'août',
+          'sept.',
+          'oct.',
+          'nov.',
+          'déc.',
+        ],
+      _ => const [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ],
+    };
+    return labels[month - 1];
   }
 
   String _sourceLabel(S l10n, String? source) {

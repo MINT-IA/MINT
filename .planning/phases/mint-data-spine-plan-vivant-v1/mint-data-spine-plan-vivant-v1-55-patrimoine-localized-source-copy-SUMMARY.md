@@ -11,7 +11,7 @@ The Mon Argent patrimoine card no longer exposes raw source codes or ASCII-flatt
 - `apps/mobile/lib/widgets/mon_argent/patrimoine_summary_card.dart`
   - Replaced hardcoded `MaJ ... · estimated` formatting with localized copy.
   - Replaced `donnees` semantics copy with `monArgentPatrimoineKnownDataLabel`.
-  - Uses `DateFormat.MMM(l10n.localeName)` for month labels.
+  - Uses locale-aware month labels for the latest-update line.
 - `apps/mobile/lib/l10n/app_*.arb`
   - Added 8 new Mon Argent patrimoine/source keys across fr/en/de/es/it/pt.
 - `apps/mobile/lib/l10n/app_localizations*.dart`
