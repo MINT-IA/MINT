@@ -143,9 +143,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
-    await tester.ensureVisible(find.text('Détail du calcul'));
-    await tester.tap(find.text('Détail du calcul'));
-    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
 
     expect(find.text('Revenu net'), findsWidgets);
     expect(find.text('Charges'), findsWidgets);
@@ -160,6 +158,47 @@ void main() {
     expect(find.text("CHF\u00a02'240"), findsNothing);
     expect(find.text('58%'), findsOneWidget);
     expect(find.text('42%'), findsOneWidget);
+  });
+
+  testWidgets('BudgetScreen monthly flow preserves deficit instead of clamping',
+      (tester) async {
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 5000,
+      housingCost: 5200,
+      debtPayments: 0,
+      taxProvision: 500,
+      healthInsurance: 420,
+      style: BudgetStyle.envelopes3,
+    );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetScreen(inputs: inputs),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
+
+    expect(find.text('Disponible'), findsWidgets);
+    expect(find.text("CHF\u00a0-1'120"), findsWidgets);
   });
 
   testWidgets('BudgetScreen exposes Maestro semantics anchors', (tester) async {
@@ -198,9 +237,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
-    await tester.ensureVisible(find.text('Détail du calcul'));
-    await tester.tap(find.text('Détail du calcul'));
-    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
 
     expect(
       tester.getSemantics(find.byKey(const Key('budget_screen'))).identifier,
@@ -221,6 +258,14 @@ void main() {
     expect(
       tester.getSemantics(find.byKey(const Key('budget_flow_map'))).identifier,
       'budget_flow_map',
+    );
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(const Key('budget_calculation_detail_toggle')),
+          )
+          .identifier,
+      'budget_calculation_detail_toggle',
     );
     expect(
       tester
