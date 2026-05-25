@@ -143,7 +143,7 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
 
     expect(find.text('Revenu net'), findsWidgets);
-    expect(find.text('Charges'), findsOneWidget);
+    expect(find.text('Charges'), findsWidgets);
     expect(find.text('Futur'), findsWidgets);
     expect(find.text('Disponible'), findsWidgets);
     expect(find.text("CHF\u00a05'379"), findsWidgets);

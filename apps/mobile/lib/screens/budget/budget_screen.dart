@@ -1153,62 +1153,56 @@ class _BudgetFormulaProof extends StatelessWidget {
           '${formatChfWithPrefix(present.monthlySavings)} '
           '= ${l.budgetAvailable} '
           '${formatChfWithPrefix(present.monthlyFree)}.',
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: MintColors.background,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: MintColors.border),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: MintSpacing.sm,
-            vertical: MintSpacing.sm,
-          ),
-          child: Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              _BudgetFormulaTerm(
-                label: l.budgetNetIncome,
-                amount: present.monthlyNet,
-                color: MintColors.textPrimary,
-              ),
-              const _BudgetFormulaOperator('-'),
-              _BudgetFormulaTerm(
-                label: l.pulseBudgetCharges,
-                amount: present.monthlyCharges,
-                color: MintColors.terracotta,
-              ),
-              const _BudgetFormulaOperator('-'),
-              _BudgetFormulaTerm(
-                label: l.budgetFuture,
-                amount: present.monthlySavings,
-                color: MintColors.info,
-              ),
-              const _BudgetFormulaOperator('='),
-              _BudgetFormulaTerm(
-                label: l.budgetAvailable,
-                amount: present.monthlyFree,
-                color:
-                    present.isDeficit ? MintColors.error : MintColors.success,
-                isStrong: true,
-              ),
-            ],
-          ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+        child: Column(
+          children: [
+            _BudgetFormulaLine(
+              label: l.budgetNetIncome,
+              amount: present.monthlyNet,
+              color: MintColors.textPrimary,
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            _BudgetFormulaLine(
+              operator: '-',
+              label: l.pulseBudgetCharges,
+              amount: present.monthlyCharges,
+              color: MintColors.terracotta,
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            _BudgetFormulaLine(
+              operator: '-',
+              label: l.budgetFuture,
+              amount: present.monthlySavings,
+              color: MintColors.info,
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: MintSpacing.xs),
+              child: Divider(height: 1, color: MintColors.border),
+            ),
+            _BudgetFormulaLine(
+              operator: '=',
+              label: l.budgetAvailable,
+              amount: present.monthlyFree,
+              color: present.isDeficit ? MintColors.error : MintColors.success,
+              isStrong: true,
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _BudgetFormulaTerm extends StatelessWidget {
+class _BudgetFormulaLine extends StatelessWidget {
+  final String operator;
   final String label;
   final double amount;
   final Color color;
   final bool isStrong;
 
-  const _BudgetFormulaTerm({
+  const _BudgetFormulaLine({
+    this.operator = '',
     required this.label,
     required this.amount,
     required this.color,
@@ -1217,26 +1211,28 @@ class _BudgetFormulaTerm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      '$label ${formatChfWithPrefix(amount)}',
-      style: MintTextStyles.labelSmall(
-        color: color,
-      ).copyWith(fontWeight: isStrong ? FontWeight.w800 : FontWeight.w600),
+    final labelStyle = MintTextStyles.labelSmall(
+      color: isStrong ? color : MintColors.textSecondary,
+    ).copyWith(fontWeight: isStrong ? FontWeight.w800 : FontWeight.w600);
+    final amountStyle = MintTextStyles.labelSmall(color: color).copyWith(
+      fontWeight: isStrong ? FontWeight.w800 : FontWeight.w700,
     );
-  }
-}
 
-class _BudgetFormulaOperator extends StatelessWidget {
-  final String value;
-
-  const _BudgetFormulaOperator(this.value);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      value,
-      style: MintTextStyles.labelSmall(color: MintColors.textMuted)
-          .copyWith(fontWeight: FontWeight.w800),
+    return Row(
+      children: [
+        SizedBox(
+          width: 14,
+          child: Text(
+            operator,
+            textAlign: TextAlign.center,
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+                .copyWith(fontWeight: FontWeight.w800),
+          ),
+        ),
+        const SizedBox(width: MintSpacing.xs),
+        Expanded(child: Text(label, style: labelStyle)),
+        Text(formatChfWithPrefix(amount), style: amountStyle),
+      ],
     );
   }
 }
