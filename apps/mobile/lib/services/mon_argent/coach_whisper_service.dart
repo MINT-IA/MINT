@@ -37,7 +37,7 @@ class CoachWhisperService {
 
     // Rule 3: Emergency fund low
     if (patrimoine.epargneLiquide != null && profile != null) {
-      final monthlyExpenses = budgetInputs?.netIncome ?? 0;
+      final monthlyExpenses = _essentialMonthlyExpenses(budgetInputs);
       if (monthlyExpenses > 0) {
         final months = patrimoine.epargneLiquide!.value / monthlyExpenses;
         if (months < 3) {
@@ -71,5 +71,15 @@ class CoachWhisperService {
 
     // Default: silence. No noise is better than generic advice.
     return null;
+  }
+
+  static double _essentialMonthlyExpenses(BudgetInputs? inputs) {
+    if (inputs == null) return 0;
+    final fixed = inputs.housingCost +
+        inputs.healthInsurance +
+        inputs.taxProvision +
+        inputs.debtPayments +
+        inputs.otherFixedCosts;
+    return fixed > 0 ? fixed : inputs.netIncome;
   }
 }
