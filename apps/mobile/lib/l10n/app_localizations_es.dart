@@ -18228,7 +18228,7 @@ class SEs extends S {
 
   @override
   String openerSavingsOpportunity(String plafond) {
-    return 'Tu 3a: CHF 0 este año. $plafond CHF de ahorro fiscal en juego.';
+    return 'Tu 3a: CHF 0 este año. Hasta $plafond CHF aún deducibles.';
   }
 
   @override

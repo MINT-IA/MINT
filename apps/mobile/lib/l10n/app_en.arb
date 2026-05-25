@@ -8926,7 +8926,7 @@
   "openerGapWarning": "Your replacement rate: {rate} %. At retirement, you would be missing CHF {gap}/month.",
   "openerPlanProgress": "Step {n}/{total} completed. Next: {next}.",
   "openerProgressCelebration": "Your reliability improved by {delta} points. Your numbers are more accurate.",
-  "openerSavingsOpportunity": "Your 3a: CHF 0 this year. {plafond} CHF in potential tax savings at stake.",
+  "openerSavingsOpportunity": "Your 3a: CHF 0 this year. Up to {plafond} CHF still deductible.",
   "paywallChooseTier": "Choose {tier}",
   "paywallClose": "Close",
   "paywallDisclaimer": "Educational tool — does not constitute financial advice. FinSA. You can cancel at any time from your account settings.",

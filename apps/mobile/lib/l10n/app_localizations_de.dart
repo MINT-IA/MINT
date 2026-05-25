@@ -18265,7 +18265,7 @@ class SDe extends S {
 
   @override
   String openerSavingsOpportunity(String plafond) {
-    return 'Deine Säule 3a: CHF 0 dieses Jahr. $plafond CHF mögliche Steuerersparnis auf dem Spiel.';
+    return 'Deine Säule 3a: CHF 0 dieses Jahr. Bis zu $plafond CHF noch abzugsfähig.';
   }
 
   @override

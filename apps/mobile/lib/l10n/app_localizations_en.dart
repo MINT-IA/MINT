@@ -18135,7 +18135,7 @@ class SEn extends S {
 
   @override
   String openerSavingsOpportunity(String plafond) {
-    return 'Your 3a: CHF 0 this year. $plafond CHF in potential tax savings at stake.';
+    return 'Your 3a: CHF 0 this year. Up to $plafond CHF still deductible.';
   }
 
   @override

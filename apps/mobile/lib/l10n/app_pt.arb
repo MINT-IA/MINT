@@ -8926,7 +8926,7 @@
   "openerGapWarning": "A tua taxa de substituição: {rate} %. Na reforma, faltar-te-iam CHF {gap}/mês.",
   "openerPlanProgress": "Etapa {n}/{total} concluída. Próxima: {next}.",
   "openerProgressCelebration": "A tua fiabilidade ganhou {delta} pontos. Os teus números são mais precisos.",
-  "openerSavingsOpportunity": "O teu 3a: CHF 0 este ano. {plafond} CHF de poupança fiscal em jogo.",
+  "openerSavingsOpportunity": "O teu 3a: CHF 0 este ano. Até {plafond} CHF ainda dedutíveis.",
   "paywallChooseTier": "Escolher {tier}",
   "paywallClose": "Fechar",
   "paywallDisclaimer": "Ferramenta educativa — não constitui aconselhamento financeiro. LSFin. Podes cancelar a qualquer momento nas definições da tua conta.",

@@ -32061,7 +32061,7 @@ abstract class S {
   /// No description provided for @openerSavingsOpportunity.
   ///
   /// In fr, this message translates to:
-  /// **'Ton 3a : CHF 0 cette année. {plafond} CHF d’économie d’impôt en jeu.'**
+  /// **'Ton 3a : CHF 0 cette année. Jusqu’à {plafond} CHF encore déductibles.'**
   String openerSavingsOpportunity(String plafond);
 
   /// No description provided for @paywallChooseTier.

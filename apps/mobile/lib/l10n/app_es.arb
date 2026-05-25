@@ -8926,7 +8926,7 @@
   "openerGapWarning": "Tu tasa de reemplazo: {rate} %. En la jubilación te faltarían CHF {gap}/mes.",
   "openerPlanProgress": "Etapa {n}/{total} completada. Siguiente: {next}.",
   "openerProgressCelebration": "Tu fiabilidad ha ganado {delta} puntos. Tus cifras son más precisas.",
-  "openerSavingsOpportunity": "Tu 3a: CHF 0 este año. {plafond} CHF de ahorro fiscal en juego.",
+  "openerSavingsOpportunity": "Tu 3a: CHF 0 este año. Hasta {plafond} CHF aún deducibles.",
   "paywallChooseTier": "Elegir {tier}",
   "paywallClose": "Cerrar",
   "paywallDisclaimer": "Herramienta educativa — no constituye asesoramiento financiero. LSFin. Puedes cancelar en cualquier momento desde la configuración de tu cuenta.",

@@ -18215,7 +18215,7 @@ class SFr extends S {
 
   @override
   String openerSavingsOpportunity(String plafond) {
-    return 'Ton 3a : CHF 0 cette année. $plafond CHF d’économie d’impôt en jeu.';
+    return 'Ton 3a : CHF 0 cette année. Jusqu’à $plafond CHF encore déductibles.';
   }
 
   @override

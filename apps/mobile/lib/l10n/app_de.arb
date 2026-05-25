@@ -8926,7 +8926,7 @@
   "openerGapWarning": "Deine Ersatzquote: {rate} %. Im Ruhestand würden CHF {gap}/Monat fehlen.",
   "openerPlanProgress": "Schritt {n}/{total} abgeschlossen. Nächster: {next}.",
   "openerProgressCelebration": "Deine Zuverlässigkeit hat sich um {delta} Punkte verbessert. Deine Zahlen sind präziser.",
-  "openerSavingsOpportunity": "Deine Säule 3a: CHF 0 dieses Jahr. {plafond} CHF mögliche Steuerersparnis auf dem Spiel.",
+  "openerSavingsOpportunity": "Deine Säule 3a: CHF 0 dieses Jahr. Bis zu {plafond} CHF noch abzugsfähig.",
   "paywallChooseTier": "{tier} wählen",
   "paywallClose": "Schließen",
   "paywallDisclaimer": "Bildungstool — keine Finanzberatung. FIDLEG. Du kannst jederzeit in deinen Kontoeinstellungen kündigen.",

@@ -338,6 +338,7 @@ void main() {
       expect(opener, isNotNull);
       expect(opener!.type, DataOpenerType.savingsOpportunity);
       expect(opener.message, contains(pilier3aPlafondAvecLpp.round().toString()));
+      expect(opener.message, isNot(contains("d’économie d’impôt")));
       expect(opener.intentTag, equals('/pilier-3a'));
     });
 

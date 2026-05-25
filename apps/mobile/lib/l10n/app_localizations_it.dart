@@ -18275,7 +18275,7 @@ class SIt extends S {
 
   @override
   String openerSavingsOpportunity(String plafond) {
-    return 'Il tuo 3a: CHF 0 quest’anno. $plafond CHF di risparmio fiscale in gioco.';
+    return 'Il tuo 3a: CHF 0 quest’anno. Fino a $plafond CHF ancora deducibili.';
   }
 
   @override

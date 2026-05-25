@@ -18226,7 +18226,7 @@ class SPt extends S {
 
   @override
   String openerSavingsOpportunity(String plafond) {
-    return 'O teu 3a: CHF 0 este ano. $plafond CHF de poupança fiscal em jogo.';
+    return 'O teu 3a: CHF 0 este ano. Até $plafond CHF ainda dedutíveis.';
   }
 
   @override

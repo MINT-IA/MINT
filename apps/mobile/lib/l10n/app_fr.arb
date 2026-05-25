@@ -9441,7 +9441,7 @@
   "openerGapWarning": "Ton taux de remplacement : {rate} %. À la retraite, il te manquerait CHF {gap}/mois.",
   "openerPlanProgress": "Étape {n}/{total} validée. Prochaine : {next}.",
   "openerProgressCelebration": "Ta fiabilité a gagné {delta} points. Tes chiffres sont plus précis.",
-  "openerSavingsOpportunity": "Ton 3a : CHF 0 cette année. {plafond} CHF d’économie d’impôt en jeu.",
+  "openerSavingsOpportunity": "Ton 3a : CHF 0 cette année. Jusqu’à {plafond} CHF encore déductibles.",
   "paywallChooseTier": "Choisir {tier}",
   "paywallClose": "Fermer",
   "paywallDisclaimer": "Outil éducatif — ne constitue pas un conseil financier. LSFin. Tu peux annuler à tout moment depuis les réglages de ton compte.",
