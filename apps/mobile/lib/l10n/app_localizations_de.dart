@@ -23082,6 +23082,21 @@ class SDe extends S {
   String get monArgentTabTitle => 'Mein Geld';
 
   @override
+  String get monArgentSectionToday => 'Heute';
+
+  @override
+  String get monArgentSectionMonth => 'Monat';
+
+  @override
+  String get monArgentSectionWealth => 'Vermögen';
+
+  @override
+  String get monArgentSectionPension => 'Vorsorge';
+
+  @override
+  String get monArgentSectionFuture => 'Zukunft';
+
+  @override
   String get monArgentBudgetTitle => 'Dein Budget diesen Monat';
 
   @override

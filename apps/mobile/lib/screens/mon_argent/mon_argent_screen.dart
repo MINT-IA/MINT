@@ -35,6 +35,7 @@ class MonArgentScreen extends StatefulWidget {
 class _MonArgentScreenState extends State<MonArgentScreen> {
   bool _budgetLoading = true;
   bool _budgetError = false;
+  _MonArgentSection _section = _MonArgentSection.today;
 
   @override
   void initState() {
@@ -48,11 +49,37 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
       _budgetError = false;
     });
     try {
-      await context.read<BudgetProvider>().loadFromStorage();
+      final budgetProvider = context.read<BudgetProvider>();
+      final profileProvider = _readCoachProfileProviderIfAvailable();
+      final profile = profileProvider?.profile;
+      if (profile == null) {
+        await budgetProvider.loadFromStorage();
+      } else if (profileProvider!.isPartialProfile) {
+        final restored = await budgetProvider.loadFromStorage();
+        if (!restored) await budgetProvider.refreshFromProfile(profile);
+      } else {
+        await budgetProvider.refreshFromProfile(profile);
+      }
     } catch (_) {
       if (mounted) setState(() => _budgetError = true);
     } finally {
       if (mounted) setState(() => _budgetLoading = false);
+    }
+  }
+
+  CoachProfileProvider? _readCoachProfileProviderIfAvailable() {
+    try {
+      return context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  CoachProfileProvider? _watchCoachProfileProviderIfAvailable() {
+    try {
+      return context.watch<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      return null;
     }
   }
 
@@ -66,7 +93,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
     final budgetProvider = context.watch<BudgetProvider>();
-    final coachProfile = context.watch<CoachProfileProvider>().profile;
+    final coachProfile = _watchCoachProfileProviderIfAvailable()?.profile;
     final mintState = context.watch<MintStateProvider>().state;
     final dataSpine = mintState?.dataSpineSnapshot;
     final budgetSnapshot = dataSpine?.budget ?? mintState?.budgetSnapshot;
@@ -113,62 +140,28 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (dataSpine != null && budgetSnapshot != null) ...[
-                        MintEntrance(
-                          child: _MonArgentDataSpineSummary(
-                            snapshot: budgetSnapshot,
-                            patrimoineNet: patrimoine.net,
-                            l10n: l10n,
-                          ),
-                        ),
-                        const SizedBox(height: MintSpacing.lg),
-                        MintEntrance(
-                          delay: const Duration(milliseconds: 80),
-                          child: _MonArgentSituationMap(
-                            spine: dataSpine,
-                            l10n: l10n,
-                          ),
-                        ),
-                        const SizedBox(height: MintSpacing.lg),
-                        MintEntrance(
-                          delay: const Duration(milliseconds: 120),
-                          child: _MonArgentTrajectoryMap(
-                            trajectory: dataSpine.trajectory,
-                            l10n: l10n,
-                          ),
-                        ),
-                        const SizedBox(height: MintSpacing.lg),
-                      ],
-
-                      // Card 1: Budget
-                      MintEntrance(
-                        child: BudgetSummaryCard(
-                          snapshot: budgetSnapshot,
-                          inputs: budgetProvider.inputs,
-                          plan: budgetProvider.plan,
-                          isLoading: budgetSnapshot == null && _budgetLoading,
-                          hasError: _budgetError,
-                          onTap: () => context.push('/budget'),
-                          onRetry: _loadBudget,
-                          // Route the empty-state "Commencer" directly to the
-                          // structured setup form rather than /budget (which
-                          // loops back to the coach chat topic=budget path).
-                          // See MVP-PLAN-2026-04-21 § P0-MVP-3.
-                          onSetup: () => context.push('/budget/setup'),
-                        ),
+                      _MonArgentSectionSelector(
+                        selected: _section,
+                        l10n: l10n,
+                        onChanged: (next) => setState(() => _section = next),
                       ),
                       const SizedBox(height: MintSpacing.lg),
-
-                      // Card 2: Patrimoine
-                      MintEntrance(
-                        delay: const Duration(milliseconds: 100),
-                        child: PatrimoineSummaryCard(
-                          summary: patrimoine,
-                          onTap: () => context.push('/profile/bilan'),
-                          onScan: () => context.push('/scan'),
-                          onTapAmount: (topic) =>
-                              context.go('/coach/chat?topic=$topic'),
-                        ),
+                      _MonArgentSectionBody(
+                        section: _section,
+                        dataSpine: dataSpine,
+                        budgetSnapshot: budgetSnapshot,
+                        patrimoine: patrimoine,
+                        budgetProvider: budgetProvider,
+                        budgetLoading: _budgetLoading,
+                        budgetError: _budgetError,
+                        l10n: l10n,
+                        onBudgetTap: () => context.push('/budget'),
+                        onBudgetRetry: _loadBudget,
+                        onBudgetSetup: () => context.push('/budget/setup'),
+                        onPatrimoineTap: () => context.push('/profile/bilan'),
+                        onPatrimoineScan: () => context.push('/scan'),
+                        onPatrimoineAmountTap: (topic) =>
+                            context.go('/coach/chat?topic=$topic'),
                       ),
 
                       // Coach whisper (deterministic, may be null = silence)
@@ -229,6 +222,205 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+enum _MonArgentSection { today, month, wealth, pension, future }
+
+class _MonArgentSectionSelector extends StatelessWidget {
+  final _MonArgentSection selected;
+  final S l10n;
+  final ValueChanged<_MonArgentSection> onChanged;
+
+  const _MonArgentSectionSelector({
+    required this.selected,
+    required this.l10n,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      key: const Key('mon_argent_section_selector'),
+      identifier: 'mon_argent_section_selector',
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SegmentedButton<_MonArgentSection>(
+          showSelectedIcon: false,
+          selected: {selected},
+          onSelectionChanged: (selection) => onChanged(selection.single),
+          style: SegmentedButton.styleFrom(
+            backgroundColor: MintColors.white,
+            selectedBackgroundColor: MintColors.saugeClaire,
+            foregroundColor: MintColors.textSecondary,
+            selectedForegroundColor: MintColors.textPrimary,
+            side: const BorderSide(color: MintColors.borderSubtle),
+            textStyle: MintTextStyles.labelMedium(),
+          ),
+          segments: [
+            ButtonSegment(
+              value: _MonArgentSection.today,
+              label: Text(_label(_MonArgentSection.today)),
+            ),
+            ButtonSegment(
+              value: _MonArgentSection.month,
+              label: Text(_label(_MonArgentSection.month)),
+            ),
+            ButtonSegment(
+              value: _MonArgentSection.wealth,
+              label: Text(_label(_MonArgentSection.wealth)),
+            ),
+            ButtonSegment(
+              value: _MonArgentSection.pension,
+              label: Text(_label(_MonArgentSection.pension)),
+            ),
+            ButtonSegment(
+              value: _MonArgentSection.future,
+              label: Text(_label(_MonArgentSection.future)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _label(_MonArgentSection section) {
+    return switch (section) {
+      _MonArgentSection.today => l10n.monArgentSectionToday,
+      _MonArgentSection.month => l10n.monArgentSectionMonth,
+      _MonArgentSection.wealth => l10n.monArgentSectionWealth,
+      _MonArgentSection.pension => l10n.monArgentSectionPension,
+      _MonArgentSection.future => l10n.monArgentSectionFuture,
+    };
+  }
+}
+
+class _MonArgentSectionBody extends StatelessWidget {
+  final _MonArgentSection section;
+  final DataSpineSnapshot? dataSpine;
+  final BudgetSnapshot? budgetSnapshot;
+  final PatrimoineSummary patrimoine;
+  final BudgetProvider budgetProvider;
+  final bool budgetLoading;
+  final bool budgetError;
+  final S l10n;
+  final VoidCallback onBudgetTap;
+  final VoidCallback onBudgetRetry;
+  final VoidCallback onBudgetSetup;
+  final VoidCallback onPatrimoineTap;
+  final VoidCallback onPatrimoineScan;
+  final ValueChanged<String> onPatrimoineAmountTap;
+
+  const _MonArgentSectionBody({
+    required this.section,
+    required this.dataSpine,
+    required this.budgetSnapshot,
+    required this.patrimoine,
+    required this.budgetProvider,
+    required this.budgetLoading,
+    required this.budgetError,
+    required this.l10n,
+    required this.onBudgetTap,
+    required this.onBudgetRetry,
+    required this.onBudgetSetup,
+    required this.onPatrimoineTap,
+    required this.onPatrimoineScan,
+    required this.onPatrimoineAmountTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      key: Key('mon_argent_section_${section.name}'),
+      identifier: 'mon_argent_section_${section.name}',
+      container: true,
+      explicitChildNodes: true,
+      child: switch (section) {
+        _MonArgentSection.today => _TodaySection(
+            dataSpine: dataSpine,
+            budgetSnapshot: budgetSnapshot,
+            patrimoine: patrimoine,
+            l10n: l10n,
+          ),
+        _MonArgentSection.month => BudgetSummaryCard(
+            snapshot: budgetSnapshot,
+            inputs: budgetProvider.inputs,
+            plan: budgetProvider.plan,
+            isLoading: budgetSnapshot == null && budgetLoading,
+            hasError: budgetError,
+            onTap: onBudgetTap,
+            onRetry: onBudgetRetry,
+            onSetup: onBudgetSetup,
+          ),
+        _MonArgentSection.wealth => PatrimoineSummaryCard(
+            summary: patrimoine,
+            onTap: onPatrimoineTap,
+            onScan: onPatrimoineScan,
+            onTapAmount: onPatrimoineAmountTap,
+          ),
+        _MonArgentSection.pension => dataSpine == null
+            ? _MissingDataSurface(l10n: l10n)
+            : _MonArgentPensionMap(pillars: dataSpine!.pillars, l10n: l10n),
+        _MonArgentSection.future => dataSpine == null
+            ? _MissingDataSurface(l10n: l10n)
+            : _MonArgentTrajectoryMap(
+                trajectory: dataSpine!.trajectory,
+                l10n: l10n,
+              ),
+      },
+    );
+  }
+}
+
+class _TodaySection extends StatelessWidget {
+  final DataSpineSnapshot? dataSpine;
+  final BudgetSnapshot? budgetSnapshot;
+  final PatrimoineSummary patrimoine;
+  final S l10n;
+
+  const _TodaySection({
+    required this.dataSpine,
+    required this.budgetSnapshot,
+    required this.patrimoine,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (dataSpine == null || budgetSnapshot == null) {
+      return _MissingDataSurface(l10n: l10n);
+    }
+    return Column(
+      children: [
+        _MonArgentDataSpineSummary(
+          snapshot: budgetSnapshot!,
+          patrimoineNet: patrimoine.net,
+          l10n: l10n,
+        ),
+        const SizedBox(height: MintSpacing.lg),
+        _MonArgentSituationMap(
+          spine: dataSpine!,
+          l10n: l10n,
+        ),
+      ],
+    );
+  }
+}
+
+class _MissingDataSurface extends StatelessWidget {
+  final S l10n;
+
+  const _MissingDataSurface({required this.l10n});
+
+  @override
+  Widget build(BuildContext context) {
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      child: Text(
+        l10n.dataBlockIncomplete,
+        style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
       ),
     );
   }
@@ -536,6 +728,68 @@ class _MonArgentSituationMap extends StatelessWidget {
       FieldConfidence.stale => MintColors.warning,
       FieldConfidence.missing => MintColors.textMuted,
     };
+  }
+
+  String _pillarMoneyOrMissing(PillarFact<double> fact) {
+    final amount = fact.value;
+    return amount == null ? l10n.dataBlockStatusMissing : _formatChf(amount);
+  }
+}
+
+class _MonArgentPensionMap extends StatelessWidget {
+  final PillarPosition pillars;
+  final S l10n;
+
+  const _MonArgentPensionMap({
+    required this.pillars,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      key: const Key('mon_argent_pension_map'),
+      identifier: 'mon_argent_pension_map',
+      label: l10n.monArgentSectionPension,
+      child: MintSurface(
+        tone: MintSurfaceTone.craie,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.monArgentSectionPension,
+              style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            _PillarValueRow(
+              label: l10n.dataBlockAvsTitle,
+              value: _pillarMoneyOrMissing(
+                pillars.avs.estimatedMonthlyPension,
+              ),
+              state: pillars.avs.estimatedMonthlyPension.state,
+              color: MintColors.info,
+              l10n: l10n,
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _PillarValueRow(
+              label: l10n.dataBlockLppTitle,
+              value: _pillarMoneyOrMissing(pillars.lpp.totalBalance),
+              state: pillars.lpp.totalBalance.state,
+              color: MintColors.pillarLpp,
+              l10n: l10n,
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            _PillarValueRow(
+              label: l10n.dataBlock3aTitle,
+              value: _pillarMoneyOrMissing(pillars.pillar3a.totalBalance),
+              state: pillars.pillar3a.totalBalance.state,
+              color: MintColors.success,
+              l10n: l10n,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   String _pillarMoneyOrMissing(PillarFact<double> fact) {

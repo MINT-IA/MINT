@@ -2,8 +2,7 @@
 #
 # PURPOSE
 # Runtime proof for the central MINT money surfaces:
-# - Mon Argent renders the data-spine summary, situation map, trajectory map,
-#   budget card, and patrimoine card.
+# - Mon Argent renders the money-map tabs and their data-spine backed sections.
 # - Budget setup exposes deterministic entry anchors, accepts fixed-charge
 #   input, and renders the live fixed-charge total.
 # - Direct /budget relaunch restores saved budget inputs.
@@ -60,19 +59,37 @@ tags:
       id: "mon_argent_screen"
     timeout: 12000
 - assertVisible:
+    id: "mon_argent_section_selector"
+- assertVisible:
     id: "mon_argent_data_spine_summary"
 - assertVisible:
     id: "mon_argent_situation_map"
 
-- scroll
-- assertVisible:
-    id: "mon_argent_trajectory_map"
+- tapOn: "Mois"
+- waitForAnimationToEnd:
+    timeout: 2000
 - assertVisible:
     id: "mon_argent_budget_summary"
 - assertVisible:
     id: "mon_argent_budget_flow_bar"
+
+- tapOn: "Patrimoine"
+- waitForAnimationToEnd:
+    timeout: 2000
 - assertVisible:
     id: "mon_argent_patrimoine_summary"
+
+- tapOn: "Prévoyance"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    id: "mon_argent_pension_map"
+
+- tapOn: "Futur"
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    id: "mon_argent_trajectory_map"
 - takeScreenshot: "mon-argent-01-data-spine"
 
 - openLink: "mintapp:///budget/setup"
@@ -123,11 +140,17 @@ tags:
 - assertVisible:
     id: "budget_data_quality_banner"
 - assertVisible:
+    text: "Détail du calcul"
+- tapOn:
+    text: "Détail du calcul"
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible:
     id: "budget_formula_proof"
 - assertVisible:
-    text: ".*2'200.*"
+    text: ".*3'140.*"
 - assertVisible:
-    text: ".*420.*"
+    text: ".*2'239.*"
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
 - takeScreenshot: "mon-argent-03-budget-direct-relaunch"

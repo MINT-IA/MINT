@@ -23027,6 +23027,21 @@ class SEs extends S {
   String get monArgentTabTitle => 'Mi dinero';
 
   @override
+  String get monArgentSectionToday => 'Hoy';
+
+  @override
+  String get monArgentSectionMonth => 'Mes';
+
+  @override
+  String get monArgentSectionWealth => 'Patrimonio';
+
+  @override
+  String get monArgentSectionPension => 'Previsión';
+
+  @override
+  String get monArgentSectionFuture => 'Futuro';
+
+  @override
   String get monArgentBudgetTitle => 'Tu presupuesto este mes';
 
   @override

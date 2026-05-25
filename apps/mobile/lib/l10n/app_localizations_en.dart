@@ -22917,6 +22917,21 @@ class SEn extends S {
   String get monArgentTabTitle => 'My money';
 
   @override
+  String get monArgentSectionToday => 'Today';
+
+  @override
+  String get monArgentSectionMonth => 'Month';
+
+  @override
+  String get monArgentSectionWealth => 'Wealth';
+
+  @override
+  String get monArgentSectionPension => 'Pension';
+
+  @override
+  String get monArgentSectionFuture => 'Future';
+
+  @override
   String get monArgentBudgetTitle => 'Your budget this month';
 
   @override

@@ -40323,6 +40323,36 @@ abstract class S {
   /// **'Mon argent'**
   String get monArgentTabTitle;
 
+  /// Mon argent — segmented control label for the current situation section
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd’hui'**
+  String get monArgentSectionToday;
+
+  /// Mon argent — segmented control label for the monthly budget section
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois'**
+  String get monArgentSectionMonth;
+
+  /// Mon argent — segmented control label for the wealth section
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine'**
+  String get monArgentSectionWealth;
+
+  /// Mon argent — segmented control label for the Swiss pension pillars section
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévoyance'**
+  String get monArgentSectionPension;
+
+  /// Mon argent — segmented control label for the trajectory section
+  ///
+  /// In fr, this message translates to:
+  /// **'Futur'**
+  String get monArgentSectionFuture;
+
   /// Nav V11 — budget card header
   ///
   /// In fr, this message translates to:
