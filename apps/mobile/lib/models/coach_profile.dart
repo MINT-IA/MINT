@@ -2555,8 +2555,11 @@ class CoachProfile {
     final employmentStatus = _parseEmploymentStatus(employmentRaw);
 
     // ── Depenses ────────────────────────────────────────────
-    final housingCost =
-        _parseDouble(answers['q_housing_cost_period_chf']) ?? 1500;
+    final housingCost = _parseMonthlyAmount(
+          answers['q_housing_cost_period_chf'],
+          max: BudgetInputs.maxMonthlyHousingCost,
+        ) ??
+        1500;
     double monthlyHousing;
     if (payFrequency == 'yearly' || payFrequency == 'annuel') {
       monthlyHousing = housingCost / 12;
@@ -2565,8 +2568,10 @@ class CoachProfile {
     }
 
     // Use actual LAMal from onboarding if available, otherwise estimate
-    final lamalFromOnboarding =
-        _parseDouble(answers['q_lamal_premium_monthly_chf']);
+    final lamalFromOnboarding = _parseMonthlyAmount(
+      answers['q_lamal_premium_monthly_chf'],
+      max: BudgetInputs.maxMonthlyHealthInsurance,
+    );
     final assuranceMaladie =
         lamalFromOnboarding ?? _estimateAssuranceMaladie(canton);
 
@@ -2581,11 +2586,26 @@ class CoachProfile {
     final depenses = DepensesProfile(
       loyer: monthlyHousing,
       assuranceMaladie: assuranceMaladie,
-      electricite: _parseDouble(answers['_coach_depenses_electricite']),
-      transport: _parseDouble(answers['_coach_depenses_transport']),
-      telecom: _parseDouble(answers['_coach_depenses_telecom']),
-      fraisMedicaux: _parseDouble(answers['_coach_depenses_frais_medicaux']),
-      autresDepensesFixes: _parseDouble(answers['_coach_depenses_autres']) ??
+      electricite: _parseMonthlyAmount(
+        answers['_coach_depenses_electricite'],
+        max: BudgetInputs.maxMonthlyFixedCharge,
+      ),
+      transport: _parseMonthlyAmount(
+        answers['_coach_depenses_transport'],
+        max: BudgetInputs.maxMonthlyFixedCharge,
+      ),
+      telecom: _parseMonthlyAmount(
+        answers['_coach_depenses_telecom'],
+        max: BudgetInputs.maxMonthlyFixedCharge,
+      ),
+      fraisMedicaux: _parseMonthlyAmount(
+        answers['_coach_depenses_frais_medicaux'],
+        max: BudgetInputs.maxMonthlyFixedCharge,
+      ),
+      autresDepensesFixes: _parseMonthlyAmount(
+            answers['_coach_depenses_autres'],
+            max: BudgetInputs.maxMonthlyFixedCharge,
+          ) ??
           ((taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0) > 0
               ? (taxProvision ?? 0) + (otherFixed ?? 0) + (debtPayments ?? 0)
               : null),
@@ -3167,6 +3187,12 @@ class CoachProfile {
     if (value is int) return value.toDouble();
     if (value is String) return double.tryParse(value);
     return null;
+  }
+
+  static double? _parseMonthlyAmount(dynamic value, {required double max}) {
+    final parsed = _parseDouble(value);
+    if (parsed == null || parsed < 0 || parsed > max) return null;
+    return parsed;
   }
 
   static bool _parseBool(dynamic value) {

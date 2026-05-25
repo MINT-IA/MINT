@@ -64,6 +64,9 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   static const _placeholderElectricity = '90';
   static const _placeholderMedical = '120';
   static const _placeholderOther = '250';
+  static const _maxMonthlyHousing = 20000.0;
+  static const _maxMonthlyLamal = 3000.0;
+  static const _maxMonthlyOtherCharge = 10000.0;
 
   @override
   void initState() {
@@ -142,6 +145,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       (value == null || value == 0) ? '' : value.toStringAsFixed(0);
 
   String _prefillAmount(CoachProfile profile, String field, double? value) {
+    if (value != null && !_isPlausiblePrefill(field, value)) return '';
     if (profile.userProvidedFields.isEmpty ||
         profile.userProvidedFields.contains(field)) {
       return _formatAmount(value);
@@ -149,10 +153,43 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     return '';
   }
 
+  bool _isPlausiblePrefill(String field, double value) {
+    final max = switch (field) {
+      'housingCost' => _maxMonthlyHousing,
+      'lamalPremium' => _maxMonthlyLamal,
+      _ => _maxMonthlyOtherCharge,
+    };
+    return _isPlausibleMonthlyCharge(value, max);
+  }
+
   double? _parseAmount(String raw) {
     final cleaned = raw.trim().replaceAll(RegExp(r"[' ]"), '');
     if (cleaned.isEmpty) return null;
     return double.tryParse(cleaned);
+  }
+
+  bool _isPlausibleMonthlyCharge(double value, double max) {
+    return value >= 0 && value <= max;
+  }
+
+  bool _hasImplausibleMonthlyCharge({
+    required double housing,
+    required double lamal,
+    double? transport,
+    double? telecom,
+    double? electricity,
+    double? medical,
+    double? other,
+  }) {
+    if (!_isPlausibleMonthlyCharge(housing, _maxMonthlyHousing)) return true;
+    if (!_isPlausibleMonthlyCharge(lamal, _maxMonthlyLamal)) return true;
+    for (final value in [transport, telecom, electricity, medical, other]) {
+      if (value != null &&
+          !_isPlausibleMonthlyCharge(value, _maxMonthlyOtherCharge)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   Future<void> _save() async {
@@ -164,6 +201,25 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       );
       return;
     }
+    final transport = _parseAmount(_transport.text);
+    final telecom = _parseAmount(_telecom.text);
+    final electricity = _parseAmount(_electricity.text);
+    final medical = _parseAmount(_medical.text);
+    final other = _parseAmount(_other.text);
+    if (_hasImplausibleMonthlyCharge(
+      housing: housing,
+      lamal: lamal,
+      transport: transport,
+      telecom: telecom,
+      electricity: electricity,
+      medical: medical,
+      other: other,
+    )) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(S.of(context)!.budgetSetupAmountTooHigh)),
+      );
+      return;
+    }
     setState(() => _saving = true);
     final provider = context.read<CoachProfileProvider>();
     final answers = <String, dynamic>{
@@ -171,19 +227,14 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       'q_pay_frequency': 'monthly',
       'q_lamal_premium_monthly_chf': lamal,
     };
-    final transport = _parseAmount(_transport.text);
     if (transport != null) answers['_coach_depenses_transport'] = transport;
-    final telecom = _parseAmount(_telecom.text);
     if (telecom != null) answers['_coach_depenses_telecom'] = telecom;
-    final electricity = _parseAmount(_electricity.text);
     if (electricity != null) {
       answers['_coach_depenses_electricite'] = electricity;
     }
-    final medical = _parseAmount(_medical.text);
     if (medical != null) {
       answers['_coach_depenses_frais_medicaux'] = medical;
     }
-    final other = _parseAmount(_other.text);
     if (other != null) answers['_coach_depenses_autres'] = other;
 
     await provider.mergeAnswers(answers);
@@ -355,6 +406,12 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
             child: TextField(
               key: key,
               controller: c,
+              onTap: () {
+                c.selection = TextSelection(
+                  baseOffset: 0,
+                  extentOffset: c.text.length,
+                );
+              },
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: false),
               onTapOutside: (_) => FocusScope.of(context).unfocus(),

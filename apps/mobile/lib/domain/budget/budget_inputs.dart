@@ -14,6 +14,10 @@ enum BudgetStyle {
 }
 
 class BudgetInputs {
+  static const maxMonthlyHousingCost = 20000.0;
+  static const maxMonthlyHealthInsurance = 3000.0;
+  static const maxMonthlyFixedCharge = 10000.0;
+
   final PayFrequency payFrequency;
   final double netIncome; // Périodique (selon frequency)
   final double housingCost; // Périodique
@@ -73,10 +77,25 @@ class BudgetInputs {
     final monthlyNet = ownNet + partnerNet;
     final monthlyDebt =
         profile.dettes.totalDettes > 0 ? profile.dettes.totalDettes / 36 : 0.0;
+    final housingCost = _plausibleMonthlyAmount(
+          profile.depenses.loyer,
+          max: maxMonthlyHousingCost,
+        ) ??
+        0.0;
+    final healthInsurance = _plausibleMonthlyAmount(
+          profile.depenses.assuranceMaladie,
+          max: maxMonthlyHealthInsurance,
+        ) ??
+        0.0;
     // Charges fixes hors loyer et assurance maladie
     final otherFixed = profile.depenses.totalMensuel -
         profile.depenses.loyer -
         profile.depenses.assuranceMaladie;
+    final plausibleOtherFixed = _plausibleMonthlyAmount(
+          otherFixed,
+          max: maxMonthlyFixedCharge,
+        ) ??
+        0.0;
 
     // Civilite mapping pour TaxEstimatorService
     final civilStatusStr = switch (profile.etatCivil) {
@@ -102,7 +121,7 @@ class BudgetInputs {
     return BudgetInputs(
       payFrequency: PayFrequency.monthly,
       netIncome: monthlyNet,
-      housingCost: profile.depenses.loyer,
+      housingCost: housingCost,
       debtPayments: monthlyDebt,
       taxProvision: TaxEstimatorService.estimateMonthlyProvision(
         TaxEstimatorService.estimateAnnualTax(
@@ -114,11 +133,11 @@ class BudgetInputs {
           isSourceTaxed: false,
         ),
       ),
-      healthInsurance: profile.depenses.assuranceMaladie,
-      otherFixedCosts: otherFixed > 0 ? otherFixed : 0,
+      healthInsurance: healthInsurance,
+      otherFixedCosts: plausibleOtherFixed > 0 ? plausibleOtherFixed : 0,
       isTaxEstimated: true,
       isHealthEstimated: !isHealthFromUser,
-      isOtherFixedMissing: otherFixed <= 0,
+      isOtherFixedMissing: plausibleOtherFixed <= 0,
       emergencyFundMonths: emergencyMonths,
     );
   }
@@ -152,17 +171,27 @@ class BudgetInputs {
     );
     final netIncome =
         (map['q_net_income_period_chf'] as num?)?.toDouble() ?? 0.0;
-    final housingCost =
+    final housingCostRaw =
         (map['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0.0;
+    final housingCost = _plausibleMonthlyAmount(
+          housingCostRaw,
+          max: maxMonthlyHousingCost,
+        ) ??
+        0.0;
     final debtPayments =
         (map['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0.0;
 
     final normalizedMonthlyIncome = _toMonthly(netIncome, payFrequency);
     final taxProvisionRaw =
         (map['q_tax_provision_monthly_chf'] as num?)?.toDouble();
-    final lamalRaw = (map['q_lamal_premium_monthly_chf'] as num?)?.toDouble();
-    final otherFixedRaw =
-        (map['q_other_fixed_costs_monthly_chf'] as num?)?.toDouble();
+    final lamalRaw = _plausibleMonthlyAmount(
+      (map['q_lamal_premium_monthly_chf'] as num?)?.toDouble(),
+      max: maxMonthlyHealthInsurance,
+    );
+    final otherFixedRaw = _plausibleMonthlyAmount(
+      (map['q_other_fixed_costs_monthly_chf'] as num?)?.toDouble(),
+      max: maxMonthlyFixedCharge,
+    );
 
     final civilStatus = map['q_civil_status'] as String? ?? 'single';
     final canton = map['q_canton'] as String? ?? 'CH';
@@ -236,6 +265,11 @@ class BudgetInputs {
       case PayFrequency.monthly:
         return amount;
     }
+  }
+
+  static double? _plausibleMonthlyAmount(double? value, {required double max}) {
+    if (value == null || value < 0 || value > max) return null;
+    return value;
   }
 
   static int _parseChildrenCount(dynamic raw) {

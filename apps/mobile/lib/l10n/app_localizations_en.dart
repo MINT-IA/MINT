@@ -1654,6 +1654,10 @@ class SEn extends S {
   String get budgetSetupRequired => 'Required';
 
   @override
+  String get budgetSetupAmountTooHigh =>
+      'Monthly amount too high. Check that the new value replaces the old one.';
+
+  @override
   String budgetSetupTotalFixed(String amount) {
     return 'Fixed total: $amount CHF / month';
   }

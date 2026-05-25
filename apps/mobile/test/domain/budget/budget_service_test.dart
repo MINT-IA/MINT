@@ -466,14 +466,14 @@ void main() {
     });
 
     test('variables + future == available after override', () {
-      final plan =
-          service.computePlan(_baseInputs, overrides: {'future': 800});
+      final plan = service.computePlan(_baseInputs, overrides: {'future': 800});
       expect(plan.variables + plan.future, closeTo(plan.available, 0.01));
     });
 
     test('stopRuleTriggered when override sets variables to 0', () {
       // Force variables to 0 via future = available
-      final plan = service.computePlan(_baseInputs, overrides: {'future': 2500});
+      final plan =
+          service.computePlan(_baseInputs, overrides: {'future': 2500});
       expect(plan.stopRuleTriggered, isTrue);
     });
   });
@@ -690,6 +690,26 @@ void main() {
       };
       final inputs = BudgetInputs.fromMap(map);
       expect(inputs.style, BudgetStyle.envelopes3);
+    });
+
+    test('fromMap drops implausible monthly capture amounts', () {
+      final map = {
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': 5379.0,
+        'q_housing_cost_period_chf': 19272200.0,
+        'q_lamal_premium_monthly_chf': 420420.0,
+        'q_other_fixed_costs_monthly_chf': 50000.0,
+        'q_canton': 'VS',
+        'q_civil_status': 'single',
+      };
+
+      final inputs = BudgetInputs.fromMap(map);
+
+      expect(inputs.housingCost, 0);
+      expect(inputs.healthInsurance, lessThan(1000));
+      expect(inputs.isHealthEstimated, isTrue);
+      expect(inputs.otherFixedCosts, 0);
+      expect(inputs.isOtherFixedMissing, isTrue);
     });
 
     test('toMap roundtrip preserves core values', () {

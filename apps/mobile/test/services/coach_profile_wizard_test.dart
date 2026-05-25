@@ -268,6 +268,21 @@ void main() {
       expect(profile.riskTolerance, isNull);
       expect(profile.realEstateProject, isNull);
     });
+
+    test('ignore les montants mensuels budget improbables', () {
+      final answers = {
+        ...baseAnswers(),
+        'q_housing_cost_period_chf': 19272200,
+        'q_lamal_premium_monthly_chf': 420420,
+        '_coach_depenses_transport': 120000,
+      };
+
+      final profile = CoachProfile.fromWizardAnswers(answers);
+
+      expect(profile.depenses.loyer, 1500);
+      expect(profile.depenses.assuranceMaladie, lessThan(1000));
+      expect(profile.depenses.transport, isNull);
+    });
   });
 
   // ════════════════════════════════════════════════════════════
@@ -371,7 +386,8 @@ void main() {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_birth_year'] = 1990;
       answers['q_avs_lacunes_status'] = 'arrived_late';
-      answers['q_avs_arrival_year'] = 2018; // Arrive a 28 ans → 28-21 = 7 ans de lacune
+      answers['q_avs_arrival_year'] =
+          2018; // Arrive a 28 ans → 28-21 = 7 ans de lacune
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.prevoyance.lacunesAVS, 7);
     });
@@ -380,7 +396,8 @@ void main() {
       final answers = Map<String, dynamic>.from(baseAnswers());
       answers['q_birth_year'] = 1990;
       answers['q_avs_lacunes_status'] = 'arrived_late';
-      answers['q_avs_arrival_year'] = 2010; // Arrive a 20 ans → 2010-(1990+21)=-1 → clamp 0
+      answers['q_avs_arrival_year'] =
+          2010; // Arrive a 20 ans → 2010-(1990+21)=-1 → clamp 0
       final profile = CoachProfile.fromWizardAnswers(answers);
       expect(profile.prevoyance.lacunesAVS, isNull); // 0 → null (pas de lacune)
     });

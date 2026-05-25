@@ -737,6 +737,10 @@
   "@budgetSetupRequired": {
     "description": "Budget setup label."
   },
+  "budgetSetupAmountTooHigh": "Montant mensuel trop élevé. Vérifie que la nouvelle valeur remplace l'ancienne.",
+  "@budgetSetupAmountTooHigh": {
+    "description": "Budget setup validation shown when a monthly amount is outside the accepted capture range."
+  },
   "budgetSetupTotalFixed": "Total fixe : {amount} CHF / mois",
   "@budgetSetupTotalFixed": {
     "description": "Budget setup label.",

@@ -259,6 +259,7 @@ Mon argent → Ton budget ce mois card → tap Commencer
 BudgetSetupScreen (new, P0-MVP-3)
   ↓ pre-fill fields from coachProfile.depenses
   ↓ user types 2 required + 0..5 optional
+  ↓ validation blocks implausible monthly captures before persistence
   ↓ tap Enregistrer
   ↓
 coachProvider.mergeAnswers({
@@ -284,6 +285,11 @@ Pop back to Mon argent → BudgetSummaryCard now has data → « Il te reste Y C
 Chat fallback (« J'en parle plutôt au coach ») remains available on the
 setup screen, respecting `feedback_chat_is_everything` (chat *can* do it,
 but doesn't *have* to).
+
+**Capture guard.** Budget setup rejects monthly amounts outside the local
+capture range before writing `wizard_answers_v2`. The same guard is applied
+when rebuilding `CoachProfile` and `BudgetInputs` so a stale simulator value
+such as an appended field entry cannot keep rendering as a real monthly charge.
 
 ---
 

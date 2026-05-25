@@ -170,6 +170,25 @@ void main() {
     expect(budgetProvider.plan, isNotNull);
   });
 
+  testWidgets('rejects appended implausible monthly amounts', (tester) async {
+    await tester.pumpWidget(_wrap(const BudgetSetupScreen()));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetHousingField')), '19272200');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetLamalField')), '420420');
+    await tester.ensureVisible(find.text('Enregistrer'));
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Montant mensuel trop élevé'), findsOneWidget);
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.containsKey('q_housing_cost_period_chf'), isFalse);
+    expect(answers.containsKey('q_lamal_premium_monthly_chf'), isFalse);
+  });
+
   testWidgets('exposes Maestro semantics anchors', (tester) async {
     await tester.pumpWidget(_wrap(const BudgetSetupScreen()));
     await tester.pumpAndSettle();

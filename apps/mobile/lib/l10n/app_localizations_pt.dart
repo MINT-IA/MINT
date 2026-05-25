@@ -1657,6 +1657,10 @@ class SPt extends S {
   String get budgetSetupRequired => 'Requis';
 
   @override
+  String get budgetSetupAmountTooHigh =>
+      'Montant mensuel trop élevé. Vérifie que la nouvelle valeur remplace l\'ancienne.';
+
+  @override
   String budgetSetupTotalFixed(String amount) {
     return 'Total fixe : $amount CHF / mois';
   }

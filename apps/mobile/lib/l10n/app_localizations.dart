@@ -3105,6 +3105,12 @@ abstract class S {
   /// **'Requis'**
   String get budgetSetupRequired;
 
+  /// Budget setup validation shown when a monthly amount is outside the accepted capture range.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant mensuel trop élevé. Vérifie que la nouvelle valeur remplace l\'ancienne.'**
+  String get budgetSetupAmountTooHigh;
+
   /// Budget setup label.
   ///
   /// In fr, this message translates to:
