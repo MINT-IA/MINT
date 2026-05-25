@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart'; // Ensure correct imports
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:mint_mobile/data/budget/budget_local_store.dart';
+import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/screens/budget/budget_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -207,6 +209,54 @@ void main() {
       tester.getSemantics(find.byKey(const Key('budget_flow_map'))).identifier,
       'budget_flow_map',
     );
+  });
+
+  testWidgets('BudgetContainerScreen restores saved inputs on direct open',
+      (tester) async {
+    await BudgetLocalStore().saveInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 8000,
+        housingCost: 2200,
+        debtPayments: 0,
+        taxProvision: 950,
+        healthInsurance: 420,
+        isTaxEstimated: true,
+        isOtherFixedMissing: true,
+      ),
+    );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetContainerScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.byType(BudgetScreen), findsOneWidget);
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_data_quality_banner')))
+          .identifier,
+      'budget_data_quality_banner',
+    );
+    expect(find.text("CHF\u00a08'000"), findsOneWidget);
   });
 }
 
