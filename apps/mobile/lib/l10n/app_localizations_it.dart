@@ -23088,6 +23088,21 @@ class SIt extends S {
   String get monArgentTabTitle => 'I miei soldi';
 
   @override
+  String get monArgentSectionToday => 'Oggi';
+
+  @override
+  String get monArgentSectionMonth => 'Mese';
+
+  @override
+  String get monArgentSectionWealth => 'Patrimonio';
+
+  @override
+  String get monArgentSectionPension => 'Previdenza';
+
+  @override
+  String get monArgentSectionFuture => 'Futuro';
+
+  @override
   String get monArgentBudgetTitle => 'Il tuo budget questo mese';
 
   @override

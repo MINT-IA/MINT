@@ -23034,6 +23034,21 @@ class SPt extends S {
   String get monArgentTabTitle => 'Meu dinheiro';
 
   @override
+  String get monArgentSectionToday => 'Hoje';
+
+  @override
+  String get monArgentSectionMonth => 'Mês';
+
+  @override
+  String get monArgentSectionWealth => 'Património';
+
+  @override
+  String get monArgentSectionPension => 'Previdência';
+
+  @override
+  String get monArgentSectionFuture => 'Futuro';
+
+  @override
   String get monArgentBudgetTitle => 'Teu orçamento este mês';
 
   @override

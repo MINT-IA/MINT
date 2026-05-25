@@ -11976,6 +11976,26 @@
   "@monArgentTabTitle": {
     "description": "Nav V11 — Mon argent tab AppBar title"
   },
+  "monArgentSectionToday": "Aujourd’hui",
+  "@monArgentSectionToday": {
+    "description": "Mon argent — segmented control label for the current situation section"
+  },
+  "monArgentSectionMonth": "Mois",
+  "@monArgentSectionMonth": {
+    "description": "Mon argent — segmented control label for the monthly budget section"
+  },
+  "monArgentSectionWealth": "Patrimoine",
+  "@monArgentSectionWealth": {
+    "description": "Mon argent — segmented control label for the wealth section"
+  },
+  "monArgentSectionPension": "Prévoyance",
+  "@monArgentSectionPension": {
+    "description": "Mon argent — segmented control label for the Swiss pension pillars section"
+  },
+  "monArgentSectionFuture": "Futur",
+  "@monArgentSectionFuture": {
+    "description": "Mon argent — segmented control label for the trajectory section"
+  },
   "monArgentBudgetTitle": "Ton budget ce mois",
   "@monArgentBudgetTitle": {
     "description": "Nav V11 — budget card header"

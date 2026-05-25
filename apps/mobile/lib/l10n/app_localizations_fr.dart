@@ -23029,6 +23029,21 @@ class SFr extends S {
   String get monArgentTabTitle => 'Mon argent';
 
   @override
+  String get monArgentSectionToday => 'Aujourd’hui';
+
+  @override
+  String get monArgentSectionMonth => 'Mois';
+
+  @override
+  String get monArgentSectionWealth => 'Patrimoine';
+
+  @override
+  String get monArgentSectionPension => 'Prévoyance';
+
+  @override
+  String get monArgentSectionFuture => 'Futur';
+
+  @override
   String get monArgentBudgetTitle => 'Ton budget ce mois';
 
   @override
