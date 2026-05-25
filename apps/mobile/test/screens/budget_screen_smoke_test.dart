@@ -162,6 +162,49 @@ void main() {
     expect(find.text('42%'), findsOneWidget);
   });
 
+  testWidgets('BudgetScreen monthly flow preserves deficit instead of clamping',
+      (tester) async {
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 5000,
+      housingCost: 5200,
+      debtPayments: 0,
+      taxProvision: 500,
+      healthInsurance: 420,
+      style: BudgetStyle.envelopes3,
+    );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetScreen(inputs: inputs),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    await tester.ensureVisible(find.text('Détail du calcul'));
+    await tester.tap(find.text('Détail du calcul'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Disponible'), findsWidgets);
+    expect(find.text("CHF\u00a0-1'120"), findsWidgets);
+  });
+
   testWidgets('BudgetScreen exposes Maestro semantics anchors', (tester) async {
     const inputs = BudgetInputs(
       payFrequency: PayFrequency.monthly,

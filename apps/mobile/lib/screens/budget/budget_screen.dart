@@ -565,7 +565,7 @@ class _BudgetScreenState extends State<BudgetScreen>
       monthlyNet: monthlyNet,
       monthlyCharges: monthlyCharges,
       monthlySavings: monthlySavings,
-      monthlyFree: monthlyFree > 0 ? monthlyFree : 0,
+      monthlyFree: monthlyFree,
     );
   }
 

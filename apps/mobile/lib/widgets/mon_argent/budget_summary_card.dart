@@ -44,6 +44,7 @@ class BudgetSummaryCard extends StatelessWidget {
 
     if (isLoading) return _buildLoading();
     if (hasError) return _buildError(l10n);
+    if (inputs != null && plan != null) return _buildData(l10n);
     if (snapshot != null) return _buildSnapshotData(l10n, snapshot!);
     if (inputs == null) return _buildEmpty(l10n);
     return _buildData(l10n);
