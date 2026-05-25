@@ -12,7 +12,7 @@
 # Title : « Pilier 3a — accès limité (FATCA) » (l10n.sim3aFatcaGateTitle).
 #
 # ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
-# REQUIRES `MINT_E2E_ARCHETYPE=expat_us_seed` so the seeded
+# REQUIRES `MINT_E2E_ARCHETYPE=expat_us` so the seeded
 # CoachProfile has nationality=US which triggers
 # `archetype == FinancialArchetype.expatUs` and `canContribute3a` returns
 # false. Without the seed, default profile has nationality=null and the
@@ -20,7 +20,7 @@
 # canContribute3a).
 #
 # If the seed key isn't wired yet, the alternative is :
-#   1. Build with `--dart-define=MINT_E2E_ARCHETYPE=expat_us_seed`
+#   1. Build with `--dart-define=MINT_E2E_ARCHETYPE=expat_us`
 #   2. OR use the wizard flow to set nationality=US, then run this
 #      flow with the post-wizard state preserved (`clearState: false`).
 #
@@ -31,10 +31,10 @@
 # - App installed, sim booted, bundle id ch.mint.app
 # - Build dart-defines :
 #     API_BASE_URL=staging
-#     MINT_E2E_ARCHETYPE=expat_us_seed (REQUIRED for this flow)
+#     MINT_E2E_ARCHETYPE=expat_us (REQUIRED for this flow)
 #     MINT_DISABLE_BETA_MODAL=true
 # - Harness deep-links to /pilier-3a via :
-#     `xcrun simctl openurl booted ch.mint.app://pilier-3a`
+#     `xcrun simctl openurl booted mintapp:///pilier-3a`
 #
 # ─── LOCATOR STRATEGY ──────────────────────────────────────────────────
 # - FATCA gate title : « Pilier 3a — accès limité (FATCA) »
@@ -61,15 +61,27 @@ tags:
 # 01 — cold launch (relies on seeded expat_us archetype)
 - launchApp:
     clearState: false
-- extendedWaitUntil:
-    visible:
-      text: "Voir clair, décider seul."
-    timeout: 8000
+- waitForAnimationToEnd:
+    timeout: 6000
 
 # 02 — deep-link to /pilier-3a (or navigate via drawer)
 # Maestro's `openLink` uses the iOS deep-link scheme registered in
 # Info.plist. If deep-linking is not wired, fall back to drawer nav.
-- openLink: "ch.mint.app://pilier-3a"
+- openLink: "mintapp:///pilier-3a"
+- runFlow:
+    when:
+      visible:
+        text: "Ouvrir"
+    commands:
+      - tapOn:
+          text: "Ouvrir"
+- runFlow:
+    when:
+      visible:
+        text: "Open"
+    commands:
+      - tapOn:
+          text: "Open"
 
 # 03 — assert FATCA gate panel renders (NOT the simulator inputs)
 - extendedWaitUntil:
