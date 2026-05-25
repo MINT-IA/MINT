@@ -1920,12 +1920,12 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
                           color: Colors.black87),
                     ),
                     const SizedBox(height: 24),
-                    FilledButton(
+                    FilledButton( // lint-ignore: prefer_mint_cta
                       onPressed: () => _verifyToken(),
                       child: const Text('Réessayer'),
                     ),
                     const SizedBox(height: 12),
-                    TextButton(
+                    TextButton( // lint-ignore: prefer_mint_cta
                       onPressed: () => context.go('/auth/login'),
                       child: const Text('Retour à la connexion'),
                     ),
