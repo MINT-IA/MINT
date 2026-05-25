@@ -27,6 +27,7 @@ void main() {
       netIncome: 5000,
       housingCost: 1500,
       debtPayments: 0,
+      isOtherFixedMissing: true,
       style: BudgetStyle.envelopes3,
     );
 
@@ -107,6 +108,7 @@ void main() {
       netIncome: 5000,
       housingCost: 1500,
       debtPayments: 0,
+      isOtherFixedMissing: true,
       style: BudgetStyle.envelopes3,
     );
     final mintState = MintStateProvider()
@@ -147,6 +149,64 @@ void main() {
     expect(find.text('65%'), findsOneWidget);
     expect(find.text('9%'), findsOneWidget);
     expect(find.text('26%'), findsOneWidget);
+  });
+
+  testWidgets('BudgetScreen exposes Maestro semantics anchors', (tester) async {
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 5000,
+      housingCost: 1500,
+      debtPayments: 0,
+      isOtherFixedMissing: true,
+      style: BudgetStyle.envelopes3,
+    );
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithBudgetSnapshot());
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetScreen(inputs: inputs),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(
+      tester.getSemantics(find.byKey(const Key('budget_screen'))).identifier,
+      'budget_screen',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_data_quality_banner')))
+          .identifier,
+      'budget_data_quality_banner',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_hero_summary')))
+          .identifier,
+      'budget_hero_summary',
+    );
+    expect(
+      tester.getSemantics(find.byKey(const Key('budget_flow_map'))).identifier,
+      'budget_flow_map',
+    );
   });
 }
 

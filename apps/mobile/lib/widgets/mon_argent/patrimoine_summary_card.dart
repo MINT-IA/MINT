@@ -110,6 +110,8 @@ class PatrimoineSummaryCard extends StatelessWidget {
     final s = summary!;
 
     return Semantics(
+      key: const Key('mon_argent_patrimoine_summary'),
+      identifier: 'mon_argent_patrimoine_summary',
       label: '${l10n.monArgentPatrimoineTitle}. '
           '${l10n.monArgentPatrimoineNet} ${_formatChf(s.net)}.',
       child: GestureDetector(
@@ -160,7 +162,8 @@ class PatrimoineSummaryCard extends StatelessWidget {
                     padding: const EdgeInsets.only(top: MintSpacing.xs),
                     child: Text(
                       l10n.monArgentPatrimoinePartial,
-                      style: MintTextStyles.bodySmall(color: MintColors.ardoise),
+                      style:
+                          MintTextStyles.bodySmall(color: MintColors.ardoise),
                     ),
                   ),
                 const Padding(
@@ -189,7 +192,8 @@ class PatrimoineSummaryCard extends StatelessWidget {
                     padding: const EdgeInsets.only(top: MintSpacing.sm),
                     child: Text(
                       _formatTimestamp(l10n, s),
-                      style: MintTextStyles.bodySmall(color: MintColors.ardoise),
+                      style:
+                          MintTextStyles.bodySmall(color: MintColors.ardoise),
                     ),
                   ),
               ],
@@ -229,9 +233,9 @@ class PatrimoineSummaryCard extends StatelessWidget {
 
   String _formatChf(double amount) {
     final formatted = amount.toStringAsFixed(0).replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (match) => "${match[1]}'",
-    );
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (match) => "${match[1]}'",
+        );
     return "$formatted\u00a0CHF";
   }
 
@@ -246,8 +250,18 @@ class PatrimoineSummaryCard extends StatelessWidget {
 
   String _monthAbbr(int m) {
     const months = [
-      'jan', 'fev', 'mar', 'avr', 'mai', 'juin',
-      'juil', 'aout', 'sep', 'oct', 'nov', 'dec',
+      'jan',
+      'fev',
+      'mar',
+      'avr',
+      'mai',
+      'juin',
+      'juil',
+      'aout',
+      'sep',
+      'oct',
+      'nov',
+      'dec',
     ];
     return months[m - 1];
   }

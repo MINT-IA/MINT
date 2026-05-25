@@ -80,144 +80,150 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
       profile: coachProfile,
     );
 
-    return Scaffold(
-      backgroundColor: MintColors.craie,
-      appBar: AppBar(
-        backgroundColor: MintColors.white,
-        title: Text(
-          l10n.monArgentTabTitle,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () => MintShell.openDrawer(context),
+    return Semantics(
+      key: const Key('mon_argent_screen'),
+      identifier: 'mon_argent_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
+        backgroundColor: MintColors.craie,
+        appBar: AppBar(
+          backgroundColor: MintColors.white,
+          title: Text(
+            l10n.monArgentTabTitle,
+            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
           ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _onRefresh,
-        color: MintColors.success,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: Padding(
-                padding: const EdgeInsets.all(MintSpacing.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (dataSpine != null && budgetSnapshot != null) ...[
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.person_outline),
+              onPressed: () => MintShell.openDrawer(context),
+            ),
+          ],
+        ),
+        body: RefreshIndicator(
+          onRefresh: _onRefresh,
+          color: MintColors.success,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Padding(
+                  padding: const EdgeInsets.all(MintSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (dataSpine != null && budgetSnapshot != null) ...[
+                        MintEntrance(
+                          child: _MonArgentDataSpineSummary(
+                            snapshot: budgetSnapshot,
+                            patrimoineNet: patrimoine.net,
+                            l10n: l10n,
+                          ),
+                        ),
+                        const SizedBox(height: MintSpacing.lg),
+                        MintEntrance(
+                          delay: const Duration(milliseconds: 80),
+                          child: _MonArgentSituationMap(
+                            spine: dataSpine,
+                            l10n: l10n,
+                          ),
+                        ),
+                        const SizedBox(height: MintSpacing.lg),
+                        MintEntrance(
+                          delay: const Duration(milliseconds: 120),
+                          child: _MonArgentTrajectoryMap(
+                            trajectory: dataSpine.trajectory,
+                            l10n: l10n,
+                          ),
+                        ),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
+
+                      // Card 1: Budget
                       MintEntrance(
-                        child: _MonArgentDataSpineSummary(
+                        child: BudgetSummaryCard(
                           snapshot: budgetSnapshot,
-                          patrimoineNet: patrimoine.net,
-                          l10n: l10n,
+                          inputs: budgetProvider.inputs,
+                          plan: budgetProvider.plan,
+                          isLoading: budgetSnapshot == null && _budgetLoading,
+                          hasError: _budgetError,
+                          onTap: () => context.push('/budget'),
+                          onRetry: _loadBudget,
+                          // Route the empty-state "Commencer" directly to the
+                          // structured setup form rather than /budget (which
+                          // loops back to the coach chat topic=budget path).
+                          // See MVP-PLAN-2026-04-21 § P0-MVP-3.
+                          onSetup: () => context.push('/budget/setup'),
                         ),
                       ),
                       const SizedBox(height: MintSpacing.lg),
+
+                      // Card 2: Patrimoine
                       MintEntrance(
-                        delay: const Duration(milliseconds: 80),
-                        child: _MonArgentSituationMap(
-                          spine: dataSpine,
-                          l10n: l10n,
+                        delay: const Duration(milliseconds: 100),
+                        child: PatrimoineSummaryCard(
+                          summary: patrimoine,
+                          onTap: () => context.push('/profile/bilan'),
+                          onScan: () => context.push('/scan'),
+                          onTapAmount: (topic) =>
+                              context.go('/coach/chat?topic=$topic'),
                         ),
                       ),
-                      const SizedBox(height: MintSpacing.lg),
-                      MintEntrance(
-                        delay: const Duration(milliseconds: 120),
-                        child: _MonArgentTrajectoryMap(
-                          trajectory: dataSpine.trajectory,
-                          l10n: l10n,
-                        ),
-                      ),
-                      const SizedBox(height: MintSpacing.lg),
-                    ],
 
-                    // Card 1: Budget
-                    MintEntrance(
-                      child: BudgetSummaryCard(
-                        snapshot: budgetSnapshot,
-                        inputs: budgetProvider.inputs,
-                        plan: budgetProvider.plan,
-                        isLoading: budgetSnapshot == null && _budgetLoading,
-                        hasError: _budgetError,
-                        onTap: () => context.push('/budget'),
-                        onRetry: _loadBudget,
-                        // Route the empty-state "Commencer" directly to the
-                        // structured setup form rather than /budget (which
-                        // loops back to the coach chat topic=budget path).
-                        // See MVP-PLAN-2026-04-21 § P0-MVP-3.
-                        onSetup: () => context.push('/budget/setup'),
-                      ),
-                    ),
-                    const SizedBox(height: MintSpacing.lg),
-
-                    // Card 2: Patrimoine
-                    MintEntrance(
-                      delay: const Duration(milliseconds: 100),
-                      child: PatrimoineSummaryCard(
-                        summary: patrimoine,
-                        onTap: () => context.push('/profile/bilan'),
-                        onScan: () => context.push('/scan'),
-                        onTapAmount: (topic) =>
-                            context.go('/coach/chat?topic=$topic'),
-                      ),
-                    ),
-
-                    // Coach whisper (deterministic, may be null = silence)
-                    if (whisper != null) ...[
-                      const SizedBox(height: MintSpacing.lg),
-                      MintEntrance(
-                        delay: const Duration(milliseconds: 200),
-                        child: GestureDetector(
-                          onTap: () => context.go('/coach/chat?topic=budget'),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: MintSpacing.sm,
-                            ),
-                            child: Text(
-                              '\u{1F4A1} $whisper',
-                              style: MintTextStyles.bodyMedium(
-                                color: MintColors.textSecondary,
-                              ).copyWith(fontStyle: FontStyle.italic),
+                      // Coach whisper (deterministic, may be null = silence)
+                      if (whisper != null) ...[
+                        const SizedBox(height: MintSpacing.lg),
+                        MintEntrance(
+                          delay: const Duration(milliseconds: 200),
+                          child: GestureDetector(
+                            onTap: () => context.go('/coach/chat?topic=budget'),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: MintSpacing.sm,
+                              ),
+                              child: Text(
+                                '\u{1F4A1} $whisper',
+                                style: MintTextStyles.bodyMedium(
+                                  color: MintColors.textSecondary,
+                                ).copyWith(fontStyle: FontStyle.italic),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
 
-                    // CTA: Enrich your dossier
-                    const SizedBox(height: MintSpacing.xl),
-                    MintEntrance(
-                      delay: const Duration(milliseconds: 300),
-                      child: GestureDetector(
-                        onTap: () => context.push('/scan'),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                l10n.monArgentEnrichCta,
-                                style: MintTextStyles.bodyMedium(
-                                  color: MintColors.ardoise,
+                      // CTA: Enrich your dossier
+                      const SizedBox(height: MintSpacing.xl),
+                      MintEntrance(
+                        delay: const Duration(milliseconds: 300),
+                        child: GestureDetector(
+                          onTap: () => context.push('/scan'),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  l10n.monArgentEnrichCta,
+                                  style: MintTextStyles.bodyMedium(
+                                    color: MintColors.ardoise,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const Icon(
-                              Icons.add_circle_outline,
-                              color: MintColors.ardoise,
-                              size: 20,
-                            ),
-                          ],
+                              const Icon(
+                                Icons.add_circle_outline,
+                                color: MintColors.ardoise,
+                                size: 20,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
-                    // Phase B slot (commented, not rendered)
-                    // TODO(nav-v11-phase-b): SpendingSynthesisCard goes here
-                    // when Open Banking data is available.
-                  ],
+                      // Phase B slot (commented, not rendered)
+                      // TODO(nav-v11-phase-b): SpendingSynthesisCard goes here
+                      // when Open Banking data is available.
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -247,6 +253,8 @@ class _MonArgentDataSpineSummary extends StatelessWidget {
         : l10n.budgetSnapshotConfidenceLow;
 
     return Semantics(
+      key: const Key('mon_argent_data_spine_summary'),
+      identifier: 'mon_argent_data_spine_summary',
       label: '${l10n.budgetSnapshotFreeLabel}. '
           '${_formatChf(snapshot.present.monthlyFree)}. '
           '${l10n.budgetSnapshotConfidenceLabel} $confidence%.',
@@ -314,6 +322,8 @@ class _MonArgentTrajectoryMap extends StatelessWidget {
         : (trajectory.currentMonthlyCapacity / monthlyRequired).clamp(0.0, 1.0);
 
     return Semantics(
+      key: const Key('mon_argent_trajectory_map'),
+      identifier: 'mon_argent_trajectory_map',
       label: l10n.trajectoryTitle,
       child: MintSurface(
         tone: MintSurfaceTone.porcelaine,
@@ -408,6 +418,8 @@ class _MonArgentSituationMap extends StatelessWidget {
     final pillars = spine.pillars;
 
     return Semantics(
+      key: const Key('mon_argent_situation_map'),
+      identifier: 'mon_argent_situation_map',
       label: l10n.dataBlockSituationTitle,
       child: MintSurface(
         tone: MintSurfaceTone.craie,

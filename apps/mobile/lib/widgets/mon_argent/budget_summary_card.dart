@@ -144,6 +144,8 @@ class BudgetSummaryCard extends StatelessWidget {
     required double available,
   }) {
     return Semantics(
+      key: const Key('mon_argent_budget_summary'),
+      identifier: 'mon_argent_budget_summary',
       label: '${l10n.monArgentBudgetTitle}. '
           '${l10n.monArgentBudgetIncome} ${_formatChf(monthlyIncome)}. '
           '${l10n.monArgentBudgetSpent} ${_formatChf(spent)}. '

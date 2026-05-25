@@ -206,96 +206,116 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
-    return Scaffold(
-      appBar: AppBar(title: Text(s.budgetSetupTitle)),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(MintSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                s.budgetSetupSubtitle,
-                style:
-                    MintTextStyles.bodyMedium(color: MintColors.textSecondary),
-              ),
-              const SizedBox(height: MintSpacing.lg),
-              _field(s.budgetSetupHousing, _housing,
-                  key: const ValueKey('budgetHousingField'),
-                  required: true,
-                  placeholder: _placeholderHousing),
-              _field(s.budgetSetupLamal, _lamal,
-                  key: const ValueKey('budgetLamalField'),
-                  required: true,
-                  placeholder: _placeholderLamal),
-              if (_showOptional) ...[
-                _field(s.budgetSetupTransport, _transport,
-                    key: const ValueKey('budgetTransportField'),
-                    placeholder: _placeholderTransport),
-                _field(s.budgetSetupTelecom, _telecom,
-                    key: const ValueKey('budgetTelecomField'),
-                    placeholder: _placeholderTelecom),
-                _field(s.budgetSetupElectricity, _electricity,
-                    key: const ValueKey('budgetElectricityField'),
-                    placeholder: _placeholderElectricity),
-                _field(s.budgetSetupMedical, _medical,
-                    key: const ValueKey('budgetMedicalField'),
-                    placeholder: _placeholderMedical),
-                _field(s.budgetSetupOther, _other,
-                    key: const ValueKey('budgetOtherField'),
-                    placeholder: _placeholderOther),
-              ] else
-                TextButton.icon(
-                  onPressed: () => setState(() => _showOptional = true),
-                  icon: const Icon(Icons.add, size: 18),
-                  label: Text(s.budgetSetupAddOthers),
+    return Semantics(
+      key: const Key('budget_setup_screen'),
+      identifier: 'budget_setup_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
+        appBar: AppBar(title: Text(s.budgetSetupTitle)),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(MintSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  s.budgetSetupSubtitle,
+                  style: MintTextStyles.bodyMedium(
+                      color: MintColors.textSecondary),
                 ),
-              if (_liveTotal > 0) ...[
-                const SizedBox(height: MintSpacing.md),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: MintColors.craie,
-                    borderRadius: BorderRadius.circular(10),
+                const SizedBox(height: MintSpacing.lg),
+                _field(s.budgetSetupHousing, _housing,
+                    key: const ValueKey('budgetHousingField'),
+                    required: true,
+                    placeholder: _placeholderHousing),
+                _field(s.budgetSetupLamal, _lamal,
+                    key: const ValueKey('budgetLamalField'),
+                    required: true,
+                    placeholder: _placeholderLamal),
+                if (_showOptional) ...[
+                  _field(s.budgetSetupTransport, _transport,
+                      key: const ValueKey('budgetTransportField'),
+                      placeholder: _placeholderTransport),
+                  _field(s.budgetSetupTelecom, _telecom,
+                      key: const ValueKey('budgetTelecomField'),
+                      placeholder: _placeholderTelecom),
+                  _field(s.budgetSetupElectricity, _electricity,
+                      key: const ValueKey('budgetElectricityField'),
+                      placeholder: _placeholderElectricity),
+                  _field(s.budgetSetupMedical, _medical,
+                      key: const ValueKey('budgetMedicalField'),
+                      placeholder: _placeholderMedical),
+                  _field(s.budgetSetupOther, _other,
+                      key: const ValueKey('budgetOtherField'),
+                      placeholder: _placeholderOther),
+                ] else
+                  TextButton.icon(
+                    onPressed: () => setState(() => _showOptional = true),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: Text(s.budgetSetupAddOthers),
                   ),
-                  child: Text(
-                    s.budgetSetupTotalFixed(_formatAmount(_liveTotal)),
-                    style: MintTextStyles.labelLarge(
-                        color: MintColors.textPrimary),
+                if (_liveTotal > 0) ...[
+                  const SizedBox(height: MintSpacing.md),
+                  Semantics(
+                    key: const Key('budget_setup_live_total'),
+                    identifier: 'budget_setup_live_total',
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: MintColors.craie,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        s.budgetSetupTotalFixed(_formatAmount(_liveTotal)),
+                        style: MintTextStyles.labelLarge(
+                            color: MintColors.textPrimary),
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: MintSpacing.lg),
+                Semantics(
+                  key: const Key('budget_setup_save_button'),
+                  identifier: 'budget_setup_save_button',
+                  button: true,
+                  child: /* // lint-ignore: prefer_mint_cta */ FilledButton(
+                    onPressed: _saving ? null : _save,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: MintColors.primary,
+                      minimumSize: const Size.fromHeight(48),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: _saving
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: MintColors.white),
+                          )
+                        : Text(s.budgetSetupSave),
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.md),
+                Center(
+                  child: Semantics(
+                    key: const Key('budget_setup_chat_fallback'),
+                    identifier: 'budget_setup_chat_fallback',
+                    button: true,
+                    child: /* // lint-ignore: prefer_mint_cta */ TextButton(
+                      onPressed: () => context.push('/coach/chat?topic=budget'),
+                      child: Text(
+                        s.budgetSetupChatFallback,
+                        style: MintTextStyles.bodyMedium(
+                            color: MintColors.textSecondary),
+                      ),
+                    ),
                   ),
                 ),
               ],
-              const SizedBox(height: MintSpacing.lg),
-              /* // lint-ignore: prefer_mint_cta */ FilledButton(
-                onPressed: _saving ? null : _save,
-                style: FilledButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                  minimumSize: const Size.fromHeight(48),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: _saving
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: MintColors.white),
-                      )
-                    : Text(s.budgetSetupSave),
-              ),
-              const SizedBox(height: MintSpacing.md),
-              Center(
-                child: /* // lint-ignore: prefer_mint_cta */ TextButton(
-                  onPressed: () => context.push('/coach/chat?topic=budget'),
-                  child: Text(
-                    s.budgetSetupChatFallback,
-                    style: MintTextStyles.bodyMedium(
-                        color: MintColors.textSecondary),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -328,24 +348,55 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
             ],
           ),
           const SizedBox(height: 6),
-          TextField(
-            key: key,
-            controller: c,
-            keyboardType: const TextInputType.numberWithOptions(decimal: false),
-            onTapOutside: (_) => FocusScope.of(context).unfocus(),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]")),
-            ],
-            decoration: InputDecoration(
-              hintText: placeholder ?? s.budgetSetupFieldPlaceholder,
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          Semantics(
+            key: Key('${_fieldSemanticsIdentifier(key, label)}_semantics'),
+            identifier: _fieldSemanticsIdentifier(key, label),
+            textField: true,
+            child: TextField(
+              key: key,
+              controller: c,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: false),
+              onTapOutside: (_) => FocusScope.of(context).unfocus(),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]")),
+              ],
+              decoration: InputDecoration(
+                hintText: placeholder ?? s.budgetSetupFieldPlaceholder,
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _fieldSemanticsIdentifier(Key? key, String label) {
+    if (key == const ValueKey('budgetHousingField')) {
+      return 'budget_housing_field';
+    }
+    if (key == const ValueKey('budgetLamalField')) {
+      return 'budget_lamal_field';
+    }
+    if (key == const ValueKey('budgetTransportField')) {
+      return 'budget_transport_field';
+    }
+    if (key == const ValueKey('budgetTelecomField')) {
+      return 'budget_telecom_field';
+    }
+    if (key == const ValueKey('budgetElectricityField')) {
+      return 'budget_electricity_field';
+    }
+    if (key == const ValueKey('budgetMedicalField')) {
+      return 'budget_medical_field';
+    }
+    if (key == const ValueKey('budgetOtherField')) {
+      return 'budget_other_field';
+    }
+    return label;
   }
 }

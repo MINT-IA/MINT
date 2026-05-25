@@ -1,0 +1,101 @@
+# tools/simulator/flows/maestro-perfect-set/flow_mon_argent_budget_setup_spine.yaml
+#
+# PURPOSE
+# Runtime proof for the central MINT money surfaces:
+# - Mon Argent renders the data-spine summary, situation map, trajectory map,
+#   budget card, and patrimoine card.
+# - Budget setup exposes deterministic entry anchors, accepts fixed-charge
+#   input, and renders the live fixed-charge total.
+#
+# PRE-CONDITION
+# - App ch.mint.app installed on a booted iPhone simulator.
+# - Recommended build:
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+#
+# LOCATOR STRATEGY
+# Uses Flutter Semantics.identifier anchors instead of French copy where the
+# surface is structural. This catches iOS accessibility drift and keeps the
+# flow stable across microcopy changes.
+
+appId: ch.mint.app
+tags:
+  - mon-argent
+  - budget
+  - data-spine
+  - maestro-proof
+  - phase-plan-vivant
+---
+
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+- openLink: "mintapp:///mon-argent"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_screen"
+    timeout: 12000
+- assertVisible:
+    id: "mon_argent_data_spine_summary"
+- assertVisible:
+    id: "mon_argent_situation_map"
+
+- scroll
+- assertVisible:
+    id: "mon_argent_trajectory_map"
+- assertVisible:
+    id: "mon_argent_budget_summary"
+- assertVisible:
+    id: "mon_argent_patrimoine_summary"
+- takeScreenshot: "mon-argent-01-data-spine"
+
+- openLink: "mintapp:///budget/setup"
+- extendedWaitUntil:
+    visible:
+      id: "budget_setup_screen"
+    timeout: 12000
+- assertVisible:
+    id: "budget_housing_field"
+- assertVisible:
+    id: "budget_lamal_field"
+
+- tapOn:
+    id: "budget_housing_field"
+- inputText: "2200"
+- tapOn:
+    id: "budget_lamal_field"
+- inputText: "420"
+- tapOn:
+    text: "Charges fixes"
+
+- extendedWaitUntil:
+    visible:
+      id: "budget_setup_live_total"
+    timeout: 5000
+- assertVisible:
+    id: "budget_setup_save_button"
+- assertVisible:
+    id: "budget_setup_chat_fallback"
+- takeScreenshot: "mon-argent-02-budget-setup"

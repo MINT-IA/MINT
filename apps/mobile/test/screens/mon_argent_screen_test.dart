@@ -85,6 +85,77 @@ void main() {
     expect(find.text('Manquant'), findsWidgets);
     expect(find.text("172'000\u00a0CHF"), findsNWidgets(2));
   });
+
+  testWidgets('exposes Maestro semantics anchors for central money surfaces',
+      (tester) async {
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>(
+            create: (_) => BudgetProvider(),
+          ),
+          ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => CoachProfileProvider(),
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('mon_argent_screen')))
+          .identifier,
+      'mon_argent_screen',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('mon_argent_data_spine_summary')))
+          .identifier,
+      'mon_argent_data_spine_summary',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('mon_argent_situation_map')))
+          .identifier,
+      'mon_argent_situation_map',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('mon_argent_trajectory_map')))
+          .identifier,
+      'mon_argent_trajectory_map',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('mon_argent_budget_summary')))
+          .identifier,
+      'mon_argent_budget_summary',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('mon_argent_patrimoine_summary')))
+          .identifier,
+      'mon_argent_patrimoine_summary',
+    );
+  });
 }
 
 MintUserState _stateWithDataSpine() {

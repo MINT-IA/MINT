@@ -116,8 +116,7 @@ class _BudgetScreenState extends State<BudgetScreen>
       try {
         final profileProvider = context.read<CoachProfileProvider>();
         if (profileProvider.hasProfile) {
-          final snap =
-              BudgetLivingEngine.compute(profileProvider.profile!);
+          final snap = BudgetLivingEngine.compute(profileProvider.profile!);
           if (mounted) setState(() => _snapshot = snap);
         }
       } catch (_) {
@@ -144,18 +143,22 @@ class _BudgetScreenState extends State<BudgetScreen>
     _finalReturnEmitted = true;
 
     final inputs = widget.inputs;
-    final chargesTotal = inputs.housingCost + inputs.healthInsurance +
-        inputs.taxProvision + inputs.otherFixedCosts;
-    ScreenCompletionTracker.markCompletedWithReturn('budget',
-      ScreenReturn.completed(
-        route: '/budget',
-        stepOutputs: {
-          'revenu_net': inputs.netIncome,
-          'charges_totales': chargesTotal,
-        },
-        runId: _seqRunId, stepId: _seqStepId,
-        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
-      ));
+    final chargesTotal = inputs.housingCost +
+        inputs.healthInsurance +
+        inputs.taxProvision +
+        inputs.otherFixedCosts;
+    ScreenCompletionTracker.markCompletedWithReturn(
+        'budget',
+        ScreenReturn.completed(
+          route: '/budget',
+          stepOutputs: {
+            'revenu_net': inputs.netIncome,
+            'charges_totales': chargesTotal,
+          },
+          runId: _seqRunId,
+          stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
   }
 
   @override
@@ -245,326 +248,369 @@ class _BudgetScreenState extends State<BudgetScreen>
         ),
       );
     }
-    return PopScope(
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) _emitFinalReturn();
-      },
-      child: Scaffold(
-      backgroundColor: MintColors.porcelaine,
-      appBar: AppBar(
-        backgroundColor: MintColors.porcelaine,
-        foregroundColor: MintColors.textPrimary,
-        elevation: 0,
-        surfaceTintColor: MintColors.transparent,
-        title: Text(
-          l.budgetMonthlyTitle,
-          style: MintTextStyles.headlineMedium(),
-        ),
-      ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
-        top: false,
-        child: Consumer<BudgetProvider>(
-        builder: (context, provider, child) {
-          if (_hasError) {
-            return Center(
-              child: Container(
-                padding: const EdgeInsets.all(MintSpacing.md),
-                margin: const EdgeInsets.all(MintSpacing.lg),
-                decoration: BoxDecoration(
-                  color: MintColors.error.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: MintColors.error.withValues(alpha: 0.15),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline,
-                        color: MintColors.error, size: 20),
-                    const SizedBox(width: MintSpacing.sm),
-                    Expanded(
-                      child: Text(
-                        l.budgetErrorRetry,
-                        style: MintTextStyles.bodySmall(
-                            color: MintColors.error),
-                      ),
-                    ),
-                  ],
+    return Semantics(
+        key: const Key('budget_screen'),
+        identifier: 'budget_screen',
+        container: true,
+        explicitChildNodes: true,
+        child: PopScope(
+          onPopInvokedWithResult: (didPop, _) {
+            if (didPop) _emitFinalReturn();
+          },
+          child: Scaffold(
+              backgroundColor: MintColors.porcelaine,
+              appBar: AppBar(
+                backgroundColor: MintColors.porcelaine,
+                foregroundColor: MintColors.textPrimary,
+                elevation: 0,
+                surfaceTintColor: MintColors.transparent,
+                title: Text(
+                  l.budgetMonthlyTitle,
+                  style: MintTextStyles.headlineMedium(),
                 ),
               ),
-            );
-          }
+              body: Center(
+                  child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: SafeArea(
+                          top: false,
+                          child: Consumer<BudgetProvider>(
+                            builder: (context, provider, child) {
+                              if (_hasError) {
+                                return Center(
+                                  child: Container(
+                                    padding:
+                                        const EdgeInsets.all(MintSpacing.md),
+                                    margin:
+                                        const EdgeInsets.all(MintSpacing.lg),
+                                    decoration: BoxDecoration(
+                                      color: MintColors.error
+                                          .withValues(alpha: 0.06),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: MintColors.error
+                                            .withValues(alpha: 0.15),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.error_outline,
+                                            color: MintColors.error, size: 20),
+                                        const SizedBox(width: MintSpacing.sm),
+                                        Expanded(
+                                          child: Text(
+                                            l.budgetErrorRetry,
+                                            style: MintTextStyles.bodySmall(
+                                                color: MintColors.error),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
 
-          final plan = provider.plan;
+                              final plan = provider.plan;
 
-          if (plan == null) {
-            return const MintLoadingSkeleton();
-          }
+                              if (plan == null) {
+                                return const MintLoadingSkeleton();
+                              }
 
-          // Hero number: BudgetSnapshot.present.monthlyFree when available,
-          // guaranteeing consistency with PulseScreen.
-          // Falls back to plan.available when snapshot is not yet computed.
-          final heroFree =
-              _snapshot?.present.monthlyFree ?? plan.available;
+                              // Hero number: BudgetSnapshot.present.monthlyFree when available,
+                              // guaranteeing consistency with PulseScreen.
+                              // Falls back to plan.available when snapshot is not yet computed.
+                              final heroFree = _snapshot?.present.monthlyFree ??
+                                  plan.available;
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: MintSpacing.lg,
-              vertical: MintSpacing.md,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // ── ABOVE FOLD: Section 1 — Data quality banner ──
-                _staggeredEntry(
-                  index: 0,
-                  child: _buildDataQualityBanner(widget.inputs, l),
-                ),
-                const SizedBox(height: MintSpacing.md),
+                              return SingleChildScrollView(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: MintSpacing.lg,
+                                  vertical: MintSpacing.md,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    // ── ABOVE FOLD: Section 1 — Data quality banner ──
+                                    _staggeredEntry(
+                                      index: 0,
+                                      child: _buildDataQualityBanner(
+                                          widget.inputs, l),
+                                    ),
+                                    const SizedBox(height: MintSpacing.md),
 
-                // ── ABOVE FOLD: Section 2 — Hero: budget libre (result FIRST) ──
-                _staggeredEntry(
-                    index: 0, child: _buildHeader(plan, l, heroFree)),
-                const SizedBox(height: MintSpacing.md),
+                                    // ── ABOVE FOLD: Section 2 — Hero: budget libre (result FIRST) ──
+                                    _staggeredEntry(
+                                        index: 0,
+                                        child: _buildHeader(plan, l, heroFree)),
+                                    const SizedBox(height: MintSpacing.md),
 
-                if (_snapshot != null) ...[
-                  _staggeredEntry(
-                    index: 1,
-                    child: _BudgetFlowMap(snapshot: _snapshot!, l: l),
-                  ),
-                  const SizedBox(height: MintSpacing.xxl),
-                ],
+                                    if (_snapshot != null) ...[
+                                      _staggeredEntry(
+                                        index: 1,
+                                        child: _BudgetFlowMap(
+                                            snapshot: _snapshot!, l: l),
+                                      ),
+                                      const SizedBox(height: MintSpacing.xxl),
+                                    ],
 
-                // ── ABOVE FOLD: Section 2b — Action insight ──
-                _staggeredEntry(
-                  index: 0,
-                  child: _buildActionInsight(l),
-                ),
-                const SizedBox(height: MintSpacing.xxl),
+                                    // ── ABOVE FOLD: Section 2b — Action insight ──
+                                    _staggeredEntry(
+                                      index: 0,
+                                      child: _buildActionInsight(l),
+                                    ),
+                                    const SizedBox(height: MintSpacing.xxl),
 
-                // ── ABOVE FOLD: Section 3 — Spending meter ──
-                _staggeredEntry(
-                  index: 1,
-                  child: SpendingMeter(
-                    variablesAmount: plan.variables,
-                    futureAmount: plan.future,
-                    totalAvailable: plan.available,
-                  ),
-                ),
-                const SizedBox(height: MintSpacing.xxl),
+                                    // ── ABOVE FOLD: Section 3 — Spending meter ──
+                                    _staggeredEntry(
+                                      index: 1,
+                                      child: SpendingMeter(
+                                        variablesAmount: plan.variables,
+                                        futureAmount: plan.future,
+                                        totalAvailable: plan.available,
+                                      ),
+                                    ),
+                                    const SizedBox(height: MintSpacing.xxl),
 
-                // ── BELOW FOLD: Envelopes sliders (secondary visually) ──
-                if (widget.inputs.style == BudgetStyle.envelopes3) ...[
-                  _staggeredEntry(
-                    index: 2,
-                    child: _buildSliders(context, provider, plan, l),
-                  ),
-                  const SizedBox(height: MintSpacing.xl),
-                ],
-                if (plan.stopRuleTriggered) ...[
-                  _staggeredEntry(
-                    index: 2,
-                    child: const StopRuleCallout(),
-                  ),
-                  const SizedBox(height: MintSpacing.xl),
-                ],
+                                    // ── BELOW FOLD: Envelopes sliders (secondary visually) ──
+                                    if (widget.inputs.style ==
+                                        BudgetStyle.envelopes3) ...[
+                                      _staggeredEntry(
+                                        index: 2,
+                                        child: _buildSliders(
+                                            context, provider, plan, l),
+                                      ),
+                                      const SizedBox(height: MintSpacing.xl),
+                                    ],
+                                    if (plan.stopRuleTriggered) ...[
+                                      _staggeredEntry(
+                                        index: 2,
+                                        child: const StopRuleCallout(),
+                                      ),
+                                      const SizedBox(height: MintSpacing.xl),
+                                    ],
 
-                // ── Educational insert ──
-                _staggeredEntry(
-                  index: 2,
-                  child: _buildEducationalInsert(l),
-                ),
-                const SizedBox(height: MintSpacing.xxl),
+                                    // ── Educational insert ──
+                                    _staggeredEntry(
+                                      index: 2,
+                                      child: _buildEducationalInsert(l),
+                                    ),
+                                    const SizedBox(height: MintSpacing.xxl),
 
-                // ── 50/30/20 Rule ──
-                _staggeredEntry(
-                  index: 3,
-                  child: Budget503020Widget(
-                    netSalary: widget.inputs.netIncome,
-                    premierEclairage: plan.available > 0
-                        ? l.budgetPremierEclairage503020(
-                            formatChf(plan.available * 0.20),
-                            formatChf(plan.available * 0.20 * 120),
-                          )
-                        : null,
-                    categories: [
-                      BudgetCategory(
-                        label: l.budgetNeeds,
-                        emoji: '',
-                        percent: 50,
-                        amount: plan.available * 0.50,
-                        examples: [
-                          l.budgetExampleRent,
-                          l.budgetExampleLamal,
-                          l.budgetExampleTaxes,
-                          l.budgetExampleDebts,
-                        ],
-                      ),
-                      BudgetCategory(
-                        label: l.budgetLife,
-                        emoji: '',
-                        percent: 30,
-                        amount: plan.available * 0.30,
-                        examples: [
-                          l.budgetExampleFood,
-                          l.budgetExampleTransport,
-                          l.budgetExampleLeisure,
-                        ],
-                      ),
-                      BudgetCategory(
-                        label: l.budgetFuture,
-                        emoji: '',
-                        percent: 20,
-                        amount: plan.available * 0.20,
-                        examples: [
-                          l.budgetExampleSavings,
-                          '3a',
-                          l.budgetExampleProjects,
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: MintSpacing.lg),
+                                    // ── 50/30/20 Rule ──
+                                    _staggeredEntry(
+                                      index: 3,
+                                      child: Budget503020Widget(
+                                        netSalary: widget.inputs.netIncome,
+                                        premierEclairage: plan.available > 0
+                                            ? l.budgetPremierEclairage503020(
+                                                formatChf(
+                                                    plan.available * 0.20),
+                                                formatChf(plan.available *
+                                                    0.20 *
+                                                    120),
+                                              )
+                                            : null,
+                                        categories: [
+                                          BudgetCategory(
+                                            label: l.budgetNeeds,
+                                            emoji: '',
+                                            percent: 50,
+                                            amount: plan.available * 0.50,
+                                            examples: [
+                                              l.budgetExampleRent,
+                                              l.budgetExampleLamal,
+                                              l.budgetExampleTaxes,
+                                              l.budgetExampleDebts,
+                                            ],
+                                          ),
+                                          BudgetCategory(
+                                            label: l.budgetLife,
+                                            emoji: '',
+                                            percent: 30,
+                                            amount: plan.available * 0.30,
+                                            examples: [
+                                              l.budgetExampleFood,
+                                              l.budgetExampleTransport,
+                                              l.budgetExampleLeisure,
+                                            ],
+                                          ),
+                                          BudgetCategory(
+                                            label: l.budgetFuture,
+                                            emoji: '',
+                                            percent: 20,
+                                            amount: plan.available * 0.20,
+                                            examples: [
+                                              l.budgetExampleSavings,
+                                              '3a',
+                                              l.budgetExampleProjects,
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: MintSpacing.lg),
 
-                // ── Sandwich chart ──
-                _staggeredEntry(
-                  index: 3,
-                  child: BudgetSandwichChart(
-                    incomes: [
-                      BudgetLineItem(
-                          label: l.budgetNetIncome,
-                          amount: widget.inputs.netIncome),
-                    ],
-                    expenses: [
-                      if (widget.inputs.housingCost > 0)
-                        BudgetLineItem(
-                            label: l.budgetHousing,
-                            amount: widget.inputs.housingCost),
-                      if (widget.inputs.taxProvision > 0)
-                        BudgetLineItem(
-                            label: l.budgetTaxProvision,
-                            amount: widget.inputs.taxProvision),
-                      if (widget.inputs.healthInsurance > 0)
-                        BudgetLineItem(
-                            label: l.budgetHealthInsurance,
-                            amount: widget.inputs.healthInsurance),
-                      if (widget.inputs.debtPayments > 0)
-                        BudgetLineItem(
-                            label: l.budgetDebts,
-                            amount: widget.inputs.debtPayments),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: MintSpacing.lg),
+                                    // ── Sandwich chart ──
+                                    _staggeredEntry(
+                                      index: 3,
+                                      child: BudgetSandwichChart(
+                                        incomes: [
+                                          BudgetLineItem(
+                                              label: l.budgetNetIncome,
+                                              amount: widget.inputs.netIncome),
+                                        ],
+                                        expenses: [
+                                          if (widget.inputs.housingCost > 0)
+                                            BudgetLineItem(
+                                                label: l.budgetHousing,
+                                                amount:
+                                                    widget.inputs.housingCost),
+                                          if (widget.inputs.taxProvision > 0)
+                                            BudgetLineItem(
+                                                label: l.budgetTaxProvision,
+                                                amount:
+                                                    widget.inputs.taxProvision),
+                                          if (widget.inputs.healthInsurance > 0)
+                                            BudgetLineItem(
+                                                label: l.budgetHealthInsurance,
+                                                amount: widget
+                                                    .inputs.healthInsurance),
+                                          if (widget.inputs.debtPayments > 0)
+                                            BudgetLineItem(
+                                                label: l.budgetDebts,
+                                                amount:
+                                                    widget.inputs.debtPayments),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: MintSpacing.lg),
 
-                // ── Emergency fund ──
-                if (plan.emergencyFundMonths > 0 ||
-                    widget.inputs.emergencyFundMonths > 0)
-                  _staggeredEntry(
-                    index: 3,
-                    child: _buildEmergencyFundCard(plan, l),
-                  ),
-                const SizedBox(height: MintSpacing.lg),
+                                    // ── Emergency fund ──
+                                    if (plan.emergencyFundMonths > 0 ||
+                                        widget.inputs.emergencyFundMonths > 0)
+                                      _staggeredEntry(
+                                        index: 3,
+                                        child: _buildEmergencyFundCard(plan, l),
+                                      ),
+                                    const SizedBox(height: MintSpacing.lg),
 
-                // ── Crash test ──
-                _staggeredEntry(
-                  index: 4,
-                  child: CrashTestBudgetWidget(
-                    monthlyIncome: widget.inputs.netIncome,
-                    survivalIncome: widget.inputs.netIncome * 0.70,
-                    reserveMonths: widget.inputs.emergencyFundMonths > 0
-                        ? widget.inputs.emergencyFundMonths.toDouble()
-                        : null,
-                    lines: [
-                      if (widget.inputs.housingCost > 0)
-                        BudgetLine(
-                          label: l.budgetHousing,
-                          emoji: '',
-                          normalAmount: widget.inputs.housingCost,
-                          survivalAmount: widget.inputs.housingCost,
-                          status: BudgetLineStatus.locked,
-                        ),
-                      if (widget.inputs.healthInsurance > 0)
-                        BudgetLine(
-                          label: l.budgetHealthInsurance,
-                          emoji: '',
-                          normalAmount: widget.inputs.healthInsurance,
-                          survivalAmount: widget.inputs.healthInsurance,
-                          status: BudgetLineStatus.locked,
-                        ),
-                      if (widget.inputs.taxProvision > 0)
-                        BudgetLine(
-                          label: l.budgetTaxProvision,
-                          emoji: '',
-                          normalAmount: widget.inputs.taxProvision,
-                          survivalAmount: widget.inputs.taxProvision * 0.80,
-                          status: BudgetLineStatus.paused,
-                        ),
-                      if (widget.inputs.debtPayments > 0)
-                        BudgetLine(
-                          label: l.budgetDebts,
-                          emoji: '',
-                          normalAmount: widget.inputs.debtPayments,
-                          survivalAmount: widget.inputs.debtPayments,
-                          status: BudgetLineStatus.locked,
-                        ),
-                      BudgetLine(
-                        label: l.budgetVariables,
-                        emoji: '',
-                        normalAmount: plan.variables,
-                        survivalAmount: plan.variables * 0.50,
-                        status: BudgetLineStatus.cut,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: MintSpacing.lg),
+                                    // ── Crash test ──
+                                    _staggeredEntry(
+                                      index: 4,
+                                      child: CrashTestBudgetWidget(
+                                        monthlyIncome: widget.inputs.netIncome,
+                                        survivalIncome:
+                                            widget.inputs.netIncome * 0.70,
+                                        reserveMonths: widget.inputs
+                                                    .emergencyFundMonths >
+                                                0
+                                            ? widget.inputs.emergencyFundMonths
+                                                .toDouble()
+                                            : null,
+                                        lines: [
+                                          if (widget.inputs.housingCost > 0)
+                                            BudgetLine(
+                                              label: l.budgetHousing,
+                                              emoji: '',
+                                              normalAmount:
+                                                  widget.inputs.housingCost,
+                                              survivalAmount:
+                                                  widget.inputs.housingCost,
+                                              status: BudgetLineStatus.locked,
+                                            ),
+                                          if (widget.inputs.healthInsurance > 0)
+                                            BudgetLine(
+                                              label: l.budgetHealthInsurance,
+                                              emoji: '',
+                                              normalAmount:
+                                                  widget.inputs.healthInsurance,
+                                              survivalAmount:
+                                                  widget.inputs.healthInsurance,
+                                              status: BudgetLineStatus.locked,
+                                            ),
+                                          if (widget.inputs.taxProvision > 0)
+                                            BudgetLine(
+                                              label: l.budgetTaxProvision,
+                                              emoji: '',
+                                              normalAmount:
+                                                  widget.inputs.taxProvision,
+                                              survivalAmount:
+                                                  widget.inputs.taxProvision *
+                                                      0.80,
+                                              status: BudgetLineStatus.paused,
+                                            ),
+                                          if (widget.inputs.debtPayments > 0)
+                                            BudgetLine(
+                                              label: l.budgetDebts,
+                                              emoji: '',
+                                              normalAmount:
+                                                  widget.inputs.debtPayments,
+                                              survivalAmount:
+                                                  widget.inputs.debtPayments,
+                                              status: BudgetLineStatus.locked,
+                                            ),
+                                          BudgetLine(
+                                            label: l.budgetVariables,
+                                            emoji: '',
+                                            normalAmount: plan.variables,
+                                            survivalAmount:
+                                                plan.variables * 0.50,
+                                            status: BudgetLineStatus.cut,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: MintSpacing.lg),
 
-                // ── Related sections ──
-                _staggeredEntry(
-                  index: 4,
-                  child: _buildRelatedSections(l),
-                ),
-                const SizedBox(height: MintSpacing.lg),
+                                    // ── Related sections ──
+                                    _staggeredEntry(
+                                      index: 4,
+                                      child: _buildRelatedSections(l),
+                                    ),
+                                    const SizedBox(height: MintSpacing.lg),
 
-                // ── Disclaimer ──
-                _staggeredEntry(
-                  index: 5,
-                  child: _buildDisclaimer(l),
-                ),
-                const SizedBox(height: MintSpacing.md),
-              ],
-            ),
-          );
-        },
-      ))))),
-    );
+                                    // ── Disclaimer ──
+                                    _staggeredEntry(
+                                      index: 5,
+                                      child: _buildDisclaimer(l),
+                                    ),
+                                    const SizedBox(height: MintSpacing.md),
+                                  ],
+                                ),
+                              );
+                            },
+                          ))))),
+        ));
   }
 
   Widget _buildHeader(BudgetPlan plan, S l, double heroFree) {
     final isPositive = heroFree >= 0;
     final heroColor = isPositive ? MintColors.success : MintColors.warning;
 
-    return Column(
-      children: [
-        // Hero: budget libre — MintHeroNumber (consequence, not output)
-        // Uses BudgetSnapshot.present.monthlyFree when available for
-        // consistency with PulseScreen, falls back to plan.available.
-        MintCountUp(
-          value: heroFree,
-          prefix: 'CHF\u00a0',
-          color: heroColor,
-          showLigne: false,
-          contextText: l.budgetPremierEclairageCaption,
-          semanticsLabel:
-              '${formatChfWithPrefix(heroFree)} ${l.budgetAvailableThisMonth}',
-        ),
-        const SizedBox(height: MintSpacing.xl),
+    return Semantics(
+      key: const Key('budget_hero_summary'),
+      identifier: 'budget_hero_summary',
+      child: Column(
+        children: [
+          // Hero: budget libre — MintHeroNumber (consequence, not output)
+          // Uses BudgetSnapshot.present.monthlyFree when available for
+          // consistency with PulseScreen, falls back to plan.available.
+          MintCountUp(
+            value: heroFree,
+            prefix: 'CHF\u00a0',
+            color: heroColor,
+            showLigne: false,
+            contextText: l.budgetPremierEclairageCaption,
+            semanticsLabel:
+                '${formatChfWithPrefix(heroFree)} ${l.budgetAvailableThisMonth}',
+          ),
+          const SizedBox(height: MintSpacing.xl),
 
-        // Breakdown in MintSurface (craie — warm, no border)
-        _buildBreakdown(l),
-      ],
+          // Breakdown in MintSurface (craie — warm, no border)
+          _buildBreakdown(l),
+        ],
+      ),
     );
   }
 
@@ -657,8 +703,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           children: [
             if (qualityTag != null && !isBold) ...[
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 margin: const EdgeInsets.only(right: MintSpacing.sm),
                 decoration: BoxDecoration(
                   color: qualityTag == S.of(context)!.budgetQualityProvided
@@ -707,6 +752,8 @@ class _BudgetScreenState extends State<BudgetScreen>
     final message =
         hasMissing ? l.budgetBannerMissing : l.budgetBannerEstimated;
     return Semantics(
+      key: const Key('budget_data_quality_banner'),
+      identifier: 'budget_data_quality_banner',
       label: l.budgetCompleteMyData,
       button: true,
       child: GestureDetector(
@@ -737,8 +784,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                     const SizedBox(height: MintSpacing.xs + 2),
                     Text(
                       l.budgetCompleteMyData,
-                      style: MintTextStyles.bodySmall(
-                              color: MintColors.primary)
+                      style: MintTextStyles.bodySmall(color: MintColors.primary)
                           .copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
@@ -792,8 +838,7 @@ class _BudgetScreenState extends State<BudgetScreen>
         children: [
           Row(
             children: [
-              const Icon(Icons.info_outline,
-                  size: 18, color: MintColors.info),
+              const Icon(Icons.info_outline, size: 18, color: MintColors.info),
               const SizedBox(width: MintSpacing.sm),
               Text(
                 l.budgetMethodTitle,
@@ -918,29 +963,36 @@ class _BudgetScreenState extends State<BudgetScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        MintEntrance(child: Text(
+        MintEntrance(
+            child: Text(
           l.budgetExploreAlso,
           style: MintTextStyles.titleMedium(),
         )),
         const SizedBox(height: MintSpacing.sm),
-        MintEntrance(delay: const Duration(milliseconds: 100), child: CollapsibleSection(
-          title: l.budgetDebtRatio,
-          subtitle: l.budgetDebtRatioSubtitle,
-          icon: Icons.warning_amber_rounded,
-          child: _buildSectionCta(l.budgetCtaEvaluate, '/debt/ratio'),
-        )),
-        MintEntrance(delay: const Duration(milliseconds: 200), child: CollapsibleSection(
-          title: l.budgetRepaymentPlan,
-          subtitle: l.budgetRepaymentPlanSubtitle,
-          icon: Icons.trending_down,
-          child: _buildSectionCta(l.budgetCtaPlan, '/debt/repayment'),
-        )),
-        MintEntrance(delay: const Duration(milliseconds: 300), child: CollapsibleSection(
-          title: l.budgetHelpResources,
-          subtitle: l.budgetHelpResourcesSubtitle,
-          icon: Icons.help_outline,
-          child: _buildSectionCta(l.budgetCtaDiscover, '/debt/help'),
-        )),
+        MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: CollapsibleSection(
+              title: l.budgetDebtRatio,
+              subtitle: l.budgetDebtRatioSubtitle,
+              icon: Icons.warning_amber_rounded,
+              child: _buildSectionCta(l.budgetCtaEvaluate, '/debt/ratio'),
+            )),
+        MintEntrance(
+            delay: const Duration(milliseconds: 200),
+            child: CollapsibleSection(
+              title: l.budgetRepaymentPlan,
+              subtitle: l.budgetRepaymentPlanSubtitle,
+              icon: Icons.trending_down,
+              child: _buildSectionCta(l.budgetCtaPlan, '/debt/repayment'),
+            )),
+        MintEntrance(
+            delay: const Duration(milliseconds: 300),
+            child: CollapsibleSection(
+              title: l.budgetHelpResources,
+              subtitle: l.budgetHelpResourcesSubtitle,
+              icon: Icons.help_outline,
+              child: _buildSectionCta(l.budgetCtaDiscover, '/debt/help'),
+            )),
       ],
     );
   }
@@ -1003,6 +1055,8 @@ class _BudgetFlowMap extends StatelessWidget {
     final denominator = total > 0 ? total : 1.0;
 
     return Semantics(
+      key: const Key('budget_flow_map'),
+      identifier: 'budget_flow_map',
       label: '${l.budgetNetIncome} ${formatChfWithPrefix(present.monthlyNet)}. '
           '${l.pulseBudgetCharges} '
           '${formatChfWithPrefix(present.monthlyCharges)}. '

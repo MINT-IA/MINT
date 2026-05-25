@@ -111,4 +111,53 @@ void main() {
     expect(answers['_coach_depenses_frais_medicaux'], 110.0);
     expect(answers['_coach_depenses_autres'], 250.0);
   });
+
+  testWidgets('exposes Maestro semantics anchors', (tester) async {
+    await tester.pumpWidget(_wrap(const BudgetSetupScreen()));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_setup_screen')))
+          .identifier,
+      'budget_setup_screen',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_housing_field_semantics')))
+          .identifier,
+      'budget_housing_field',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_lamal_field_semantics')))
+          .identifier,
+      'budget_lamal_field',
+    );
+
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetHousingField')), '2200');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetLamalField')), '420');
+    await tester.pumpAndSettle();
+
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_setup_live_total')))
+          .identifier,
+      'budget_setup_live_total',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_setup_save_button')))
+          .identifier,
+      'budget_setup_save_button',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_setup_chat_fallback')))
+          .identifier,
+      'budget_setup_chat_fallback',
+    );
+  });
 }
