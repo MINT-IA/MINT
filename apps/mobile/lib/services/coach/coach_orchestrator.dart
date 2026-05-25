@@ -153,9 +153,13 @@ class CoachOrchestrator {
     return _buildProfileContext(ctx);
   }
 
+  static double? _knownValue(CoachContext ctx, String key) {
+    final value = ctx.knownValues[key];
+    return value != null && value.isFinite && value > 0 ? value : null;
+  }
+
   static Map<String, dynamic> _buildProfileContext(CoachContext ctx) {
     return {
-      'first_name': ctx.firstName,
       'age': ctx.age,
       'canton': ctx.canton,
       'archetype': ctx.archetype,
@@ -174,10 +178,34 @@ class CoachOrchestrator {
       'upcoming_event': ctx.upcomingEvent.isNotEmpty ? ctx.upcomingEvent : null,
       'check_in_streak': ctx.checkInStreak,
       'last_milestone': ctx.lastMilestone.isNotEmpty ? ctx.lastMilestone : null,
-      if (ctx.dataReliability.isNotEmpty)
-        'data_reliability': ctx.dataReliability,
+      'active_goal': ctx.activeGoal.isNotEmpty ? ctx.activeGoal : null,
+      'cap_headline': ctx.capHeadline.isNotEmpty ? ctx.capHeadline : null,
+      'cap_why_now': ctx.capWhyNow.isNotEmpty ? ctx.capWhyNow : null,
+      'cap_cta': ctx.capCta.isNotEmpty ? ctx.capCta : null,
+      'cap_expected_impact':
+          ctx.capExpectedImpact > 0 ? ctx.capExpectedImpact : null,
+      'couple_optimization':
+          ctx.coupleOptimization.isNotEmpty ? ctx.coupleOptimization : null,
+      'data_source': ctx.dataSource.isNotEmpty ? ctx.dataSource : null,
+      'planned_contributions':
+          ctx.plannedContributions.isNotEmpty ? ctx.plannedContributions : null,
       if (ctx.coachContextPacket.isNotEmpty)
         'coach_context_packet': ctx.coachContextPacket,
+      'annual_3a_contribution': _knownValue(ctx, 'annual_3a_contribution'),
+      'existing_3a_ytd': _knownValue(ctx, 'existing_3a_ytd'),
+      'capital_final': _knownValue(ctx, 'capital_final'),
+      'conjoint_age': _knownValue(ctx, 'conjoint_age'),
+      'conjoint_salary': _knownValue(ctx, 'conjoint_salary'),
+      'couple_avs_monthly': _knownValue(ctx, 'couple_avs_monthly'),
+      'couple_marriage_annual_delta':
+          _knownValue(ctx, 'couple_marriage_annual_delta'),
+      'lpp_certificate_year': _knownValue(ctx, 'lpp_certificate_year'),
+      'monthly_retirement_income':
+          _knownValue(ctx, 'monthly_retirement_income'),
+      'months_to_retirement': _knownValue(ctx, 'months_to_retirement'),
+      'sequence_completed': _knownValue(ctx, 'sequence_completed'),
+      'sequence_total': _knownValue(ctx, 'sequence_total'),
+      'years_since_last_buyback': _knownValue(ctx, 'years_since_last_buyback'),
       ...ctx.knownValues.map(
         (k, v) => MapEntry(k, v.isFinite && v > 0 ? v : null),
       ),

@@ -161,6 +161,46 @@ def test_extract_flutter_fields_ignores_keys_outside_profilecontext(tmp_path):
     assert result == {"canton"}
 
 
+def test_extract_flutter_fields_reads_profile_context_helper_return_map(tmp_path):
+    """Keys in helper-returned profileContext maps count as sent fields."""
+    mod = _load_lint_module()
+    fixture = tmp_path / "helper_return.dart"
+    fixture.write_text(
+        "static Map<String, dynamic> _buildProfileContext(CoachContext ctx) {\n"
+        "  return {\n"
+        "    'canton': ctx.canton,\n"
+        "    'age': ctx.age,\n"
+        "    'fri_total': ctx.friTotal,\n"
+        "  };\n"
+        "}\n"
+        "final other = {\n"
+        "  'should_not_match': 1,\n"
+        "};\n"
+    )
+    result = mod.extract_flutter_fields([fixture])
+    assert result == {"canton", "age", "fri_total"}
+
+
+def test_extract_flutter_fields_reads_profile_context_helper_result_map(tmp_path):
+    """Keys in typed result maps inside profileContext helpers count too."""
+    mod = _load_lint_module()
+    fixture = tmp_path / "helper_result.dart"
+    fixture.write_text(
+        "static Map<String, dynamic> _buildProfileContextImpl(Profile p) {\n"
+        "  final result = <String, dynamic>{\n"
+        "    'monthly_income': p.income,\n"
+        "    'lpp_capital': p.lpp,\n"
+        "  };\n"
+        "  return result;\n"
+        "}\n"
+        "Map<String, dynamic> _buildOtherContext(Profile p) {\n"
+        "  return {'should_not_match': p.value};\n"
+        "}\n"
+    )
+    result = mod.extract_flutter_fields([fixture])
+    assert result == {"monthly_income", "lpp_capital"}
+
+
 def test_extract_flutter_fields_real_orchestrator_has_canton():
     """Sanity check against the LIVE Flutter orchestrator — top fields present."""
     mod = _load_lint_module()

@@ -61,7 +61,24 @@ void main() {
         age: 36,
         canton: 'VD',
         archetype: 'swiss_native',
-        knownValues: const {'fri_total': 62},
+        activeGoal: 'Optimiser 3a 2026',
+        capHeadline: 'Compléter le 3a',
+        capWhyNow: 'Fenêtre fiscale annuelle',
+        capCta: 'Planifier un versement',
+        capExpectedImpact: 1200,
+        coupleOptimization: const {
+          'avs_cap': {'cap_applied': true},
+        },
+        dataSource: 'calculated',
+        plannedContributions: const [
+          {'id': '3a', 'label': '3a', 'amount': 300},
+        ],
+        knownValues: const {
+          'fri_total': 62,
+          'annual_3a_contribution': 5000,
+          'monthly_retirement_income': 4200,
+          'capital_final': 850000,
+        },
         coachContextPacket: packet,
       );
 
@@ -82,9 +99,19 @@ void main() {
 
       // Legacy scalar fields remain for backward compatibility; the packet
       // is the new structured spine, not a replacement for auth/gate fields.
-      expect(profileContext['first_name'], 'Julien');
+      expect(profileContext.containsKey('first_name'), isFalse);
       expect(profileContext['canton'], 'VD');
       expect(profileContext['fri_total'], 62);
+      expect(profileContext['annual_3a_contribution'], 5000);
+      expect(profileContext['monthly_retirement_income'], 4200);
+      expect(profileContext['capital_final'], 850000);
+      expect(profileContext['active_goal'], 'Optimiser 3a 2026');
+      expect(profileContext['cap_headline'], 'Compléter le 3a');
+      expect(profileContext['cap_expected_impact'], 1200);
+      expect(
+          profileContext['couple_optimization'], isA<Map<String, dynamic>>());
+      expect(profileContext['data_source'], 'calculated');
+      expect(profileContext['planned_contributions'], isA<List<dynamic>>());
     });
 
     test('orchestrator omits empty packet to avoid hollow facade payloads', () {

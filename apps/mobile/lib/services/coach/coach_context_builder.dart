@@ -63,6 +63,8 @@ class CoachContextBuilder {
   ///   - [fiscalSeason]: Current fiscal season code
   ///   - [checkInStreak]: Consecutive months of check-ins
   ///   - [lastMilestone]: Last achieved milestone label
+  ///   - [activeGoal]: Current plan/goal label, when known
+  ///   - [plannedContributions]: Planned monthly contributions for tracking
   /// [dataSources]: Map from profile field key to source enum name
   ///   (e.g. {'prevoyance.avoirLppTotal': 'certificate'}).
   ///   Passed through as simplified dataReliability map for SLM prompting.
@@ -91,6 +93,14 @@ class CoachContextBuilder {
     String fiscalSeason = '',
     int checkInStreak = 0,
     String lastMilestone = '',
+    String activeGoal = '',
+    String capHeadline = '',
+    String capWhyNow = '',
+    String capCta = '',
+    double capExpectedImpact = 0,
+    List<Map<String, dynamic>> plannedContributions = const [],
+    Map<String, dynamic> coupleOptimization = const {},
+    String dataSource = '',
     String upcomingEvent = '',
     Map<String, String> dataSources = const {},
     Map<String, dynamic> coachContextPacket = const {},
@@ -128,6 +138,14 @@ class CoachContextBuilder {
       upcomingEvent: upcomingEvent,
       checkInStreak: checkInStreak,
       lastMilestone: lastMilestone,
+      activeGoal: activeGoal,
+      capHeadline: capHeadline,
+      capWhyNow: capWhyNow,
+      capCta: capCta,
+      capExpectedImpact: capExpectedImpact,
+      plannedContributions: plannedContributions,
+      coupleOptimization: coupleOptimization,
+      dataSource: dataSource,
       knownValues: knownValues,
       coachContextPacket: coachContextPacket,
       dataReliability: dataSources,

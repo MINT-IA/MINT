@@ -78,6 +78,17 @@ class CoachContext {
   // Behavioral
   final int checkInStreak;
   final String lastMilestone;
+  // Plan / cap context forwarded to backend tool handlers when known.
+  final String activeGoal;
+  final String capHeadline;
+  final String capWhyNow;
+  final String capCta;
+  final double capExpectedImpact;
+  final List<Map<String, dynamic>> plannedContributions;
+  // Optional precomputed couple optimization payload.
+  final Map<String, dynamic> coupleOptimization;
+  // Coarse trust signal for backend reasoning (e.g. user_input, calculated).
+  final String dataSource;
   // Known numerical values for hallucination detection
   final Map<String, double> knownValues;
   // Structured, privacy-scoped data spine packet for chat grounding.
@@ -118,6 +129,14 @@ class CoachContext {
     this.upcomingEvent = '',
     this.checkInStreak = 0,
     this.lastMilestone = '',
+    this.activeGoal = '',
+    this.capHeadline = '',
+    this.capWhyNow = '',
+    this.capCta = '',
+    this.capExpectedImpact = 0,
+    this.plannedContributions = const [],
+    this.coupleOptimization = const {},
+    this.dataSource = '',
     this.knownValues = const {},
     this.coachContextPacket = const {},
     this.dataReliability = const {},
@@ -142,6 +161,14 @@ class CoachContext {
       upcomingEvent: upcomingEvent,
       checkInStreak: checkInStreak,
       lastMilestone: lastMilestone,
+      activeGoal: activeGoal,
+      capHeadline: capHeadline,
+      capWhyNow: capWhyNow,
+      capCta: capCta,
+      capExpectedImpact: capExpectedImpact,
+      plannedContributions: plannedContributions,
+      coupleOptimization: coupleOptimization,
+      dataSource: dataSource,
       knownValues: knownValues,
       coachContextPacket: coachContextPacket,
       dataReliability: dataReliability,

@@ -54,6 +54,20 @@ def test_context_packet_in_safe_fields():
     assert "coach_context_packet" in _PROFILE_SAFE_FIELDS
 
 
+def test_financial_summary_in_safe_fields_without_identity():
+    assert "financial_summary" in _PROFILE_SAFE_FIELDS
+
+    result = _sanitize_profile_context(
+        {
+            "financial_summary": "Age : 36 ans\nCanton : VD\nAvoir LPP : 80000 CHF",
+            "first_name": "Julien",
+        }
+    )
+
+    assert result["financial_summary"].startswith("Age : 36 ans")
+    assert "first_name" not in result
+
+
 def test_sanitize_keeps_context_packet_and_drops_raw_profile_pii():
     payload = {
         "age": 36,

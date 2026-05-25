@@ -204,10 +204,43 @@ _PROFILECONTEXT_MUTATION_RE = re.compile(
     re.MULTILINE,
 )
 
+# Match helpers that construct profile_context maps before passing them to the
+# actual HTTP/RAG call. Several MINT call-sites use
+# `profileContext: _buildProfileContext(ctx)` rather than an inline map.
+_PROFILECONTEXT_HELPER_RE = re.compile(
+    r"(?:static\s+)?Map\s*<\s*String\s*,\s*dynamic\s*>\s+"
+    r"(?:_buildProfileContext\w*|buildProfileContextForTest)\s*\([^)]*\)\s*\{",
+    re.MULTILINE,
+)
+
+# Map literals inside those helpers. Keep this scoped to helper bodies so
+# unrelated API response maps in the same files don't pollute the lint.
+_RETURN_MAP_START_RE = re.compile(r"return\s*\{", re.MULTILINE)
+_TYPED_MAP_START_RE = re.compile(
+    r"(?:final|var)\s+\w+\s*=\s*<\s*String\s*,\s*dynamic\s*>\s*\{",
+    re.MULTILINE,
+)
+
 # Inside a profileContext block, match `'snake_case_key':` or `"snake_case_key":`.
 # Snake-case lowercase only — Dart camelCase variable names like `ctx.canton`
 # (values, RHS) won't match.
 _KEY_IN_BLOCK_RE = re.compile(r"['\"]([a-z][a-z_0-9]*)['\"]\s*:")
+
+
+def _balanced_brace_block(source: str, open_brace_index: int) -> str:
+    """Return source from `{` to its matching `}` using a simple brace walk."""
+    depth = 0
+    end = open_brace_index
+    for i in range(open_brace_index, len(source)):
+        ch = source[i]
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                end = i
+                break
+    return source[open_brace_index : end + 1]
 
 
 def extract_flutter_fields(flutter_files: list[Path]) -> set[str]:
@@ -230,24 +263,24 @@ def extract_flutter_fields(flutter_files: list[Path]) -> set[str]:
         for match in _PROFILECONTEXT_START_RE.finditer(source):
             # Walk braces from the opening `{` to find the matching close.
             start = match.end() - 1  # position of '{'
-            depth = 0
-            end = start
-            for i in range(start, len(source)):
-                ch = source[i]
-                if ch == "{":
-                    depth += 1
-                elif ch == "}":
-                    depth -= 1
-                    if depth == 0:
-                        end = i
-                        break
-            block = source[start : end + 1]
+            block = _balanced_brace_block(source, start)
             for key_match in _KEY_IN_BLOCK_RE.finditer(block):
                 keys.add(key_match.group(1))
 
         # (2) In-place mutations.
         for mut_match in _PROFILECONTEXT_MUTATION_RE.finditer(source):
             keys.add(mut_match.group(1))
+
+        # (3) Helper-built maps passed as `profileContext: _buildProfileContext(...)`.
+        for helper_match in _PROFILECONTEXT_HELPER_RE.finditer(source):
+            helper_start = helper_match.end() - 1
+            helper_block = _balanced_brace_block(source, helper_start)
+            for map_re in (_RETURN_MAP_START_RE, _TYPED_MAP_START_RE):
+                for map_match in map_re.finditer(helper_block):
+                    map_start = map_match.end() - 1
+                    block = _balanced_brace_block(helper_block, map_start)
+                    for key_match in _KEY_IN_BLOCK_RE.finditer(block):
+                        keys.add(key_match.group(1))
 
     return keys
 

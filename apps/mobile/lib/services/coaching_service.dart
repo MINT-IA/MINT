@@ -245,7 +245,7 @@ class CoachingService {
             'age': profile.age,
             'canton': profile.canton,
             'financial_summary':
-                _buildFinancialSummary(profile, firstName),
+                _buildFinancialSummary(profile),
           },
         );
 
@@ -301,9 +301,8 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
 
   static String _buildFinancialSummary(
     CoachingProfile profile,
-    String firstName,
   ) {
-    return '$firstName, ${profile.age} ans, ${profile.canton}, '
+    return '${profile.age} ans, ${profile.canton}, '
         '${profile.employmentStatus.name}, '
         'revenu ${formatChfWithPrefix(profile.revenuAnnuel)}';
   }

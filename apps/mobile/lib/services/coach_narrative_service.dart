@@ -1256,7 +1256,6 @@ class CoachNarrativeService {
       'is_married': profile.etatCivil.name == 'marie',
       'number_of_children': profile.nombreEnfants,
       'has_2nd_pillar': (prev.avoirLppTotal ?? 0) > 0,
-      if (profile.firstName != null) 'first_name': profile.firstName,
       'financial_summary': parts.join('\n'),
       // Income / expense flow ($ + LPP/3a/AVS context).
       'monthly_income': profile.salaireBrutMensuel,

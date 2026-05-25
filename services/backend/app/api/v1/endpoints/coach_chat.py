@@ -1061,6 +1061,9 @@ _PROFILE_SAFE_FIELDS = {
     "years_since_last_buyback",
     # Planned contributions (consumed by claude_coach_service system prompt)
     "planned_contributions",
+    # Legacy RAG/narrative profile summary. Mobile must keep it identity-free
+    # (no first name/full name) ; raw identity keys remain filtered below.
+    "financial_summary",
     # SafeMode signal: consumer debt stress or emergency-fund shortfall (RULES.md §1)
     "has_debt",
     # Walker 2026-05-08 Étape 6 fix: mobile CoachContext.knownValues keys
