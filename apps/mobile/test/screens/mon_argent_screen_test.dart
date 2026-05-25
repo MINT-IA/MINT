@@ -201,6 +201,61 @@ void main() {
     );
   });
 
+  testWidgets('compact section selector exposes Futur without horizontal hunt',
+      (tester) async {
+    tester.view.physicalSize = const Size(320, 760);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>(
+            create: (_) => BudgetProvider(),
+          ),
+          ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => CoachProfileProvider(),
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(
+      find.byKey(const Key('mon_argent_section_chip_future')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('mon_argent_section_chip_future')));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('mon_argent_section_future')))
+          .identifier,
+      'mon_argent_section_future',
+    );
+    expect(find.text('Ta trajectoire'), findsOneWidget);
+  });
+
   testWidgets('prefers CoachProfile budget over stale budget cache',
       (tester) async {
     await BudgetLocalStore().saveInputs(

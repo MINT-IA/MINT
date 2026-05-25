@@ -245,43 +245,40 @@ class _MonArgentSectionSelector extends StatelessWidget {
     return Semantics(
       key: const Key('mon_argent_section_selector'),
       identifier: 'mon_argent_section_selector',
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SegmentedButton<_MonArgentSection>(
-          showSelectedIcon: false,
-          selected: {selected},
-          onSelectionChanged: (selection) => onChanged(selection.single),
-          style: SegmentedButton.styleFrom(
-            backgroundColor: MintColors.white,
-            selectedBackgroundColor: MintColors.saugeClaire,
-            foregroundColor: MintColors.textSecondary,
-            selectedForegroundColor: MintColors.textPrimary,
-            side: const BorderSide(color: MintColors.borderSubtle),
-            textStyle: MintTextStyles.labelMedium(),
-          ),
-          segments: [
-            ButtonSegment(
-              value: _MonArgentSection.today,
-              label: Text(_label(_MonArgentSection.today)),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 360) {
+            return _CompactSectionSelector(
+              selected: selected,
+              labelFor: _label,
+              onChanged: onChanged,
+            );
+          }
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SegmentedButton<_MonArgentSection>(
+              showSelectedIcon: false,
+              selected: {selected},
+              onSelectionChanged: (selection) => onChanged(selection.single),
+              style: SegmentedButton.styleFrom(
+                backgroundColor: MintColors.white,
+                selectedBackgroundColor: MintColors.saugeClaire,
+                foregroundColor: MintColors.textSecondary,
+                selectedForegroundColor: MintColors.textPrimary,
+                side: const BorderSide(color: MintColors.borderSubtle),
+                textStyle: MintTextStyles.labelMedium(),
+              ),
+              segments: _MonArgentSection.values
+                  .map(
+                    (section) => ButtonSegment(
+                      value: section,
+                      label: Text(_label(section)),
+                    ),
+                  )
+                  .toList(growable: false),
             ),
-            ButtonSegment(
-              value: _MonArgentSection.month,
-              label: Text(_label(_MonArgentSection.month)),
-            ),
-            ButtonSegment(
-              value: _MonArgentSection.wealth,
-              label: Text(_label(_MonArgentSection.wealth)),
-            ),
-            ButtonSegment(
-              value: _MonArgentSection.pension,
-              label: Text(_label(_MonArgentSection.pension)),
-            ),
-            ButtonSegment(
-              value: _MonArgentSection.future,
-              label: Text(_label(_MonArgentSection.future)),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -294,6 +291,48 @@ class _MonArgentSectionSelector extends StatelessWidget {
       _MonArgentSection.pension => l10n.monArgentSectionPension,
       _MonArgentSection.future => l10n.monArgentSectionFuture,
     };
+  }
+}
+
+class _CompactSectionSelector extends StatelessWidget {
+  final _MonArgentSection selected;
+  final String Function(_MonArgentSection section) labelFor;
+  final ValueChanged<_MonArgentSection> onChanged;
+
+  const _CompactSectionSelector({
+    required this.selected,
+    required this.labelFor,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: MintSpacing.xs,
+      runSpacing: MintSpacing.xs,
+      children: _MonArgentSection.values.map((section) {
+        final isSelected = selected == section;
+        return ChoiceChip(
+          key: Key('mon_argent_section_chip_${section.name}'),
+          selected: isSelected,
+          showCheckmark: false,
+          label: Text(labelFor(section)),
+          labelStyle: MintTextStyles.labelMedium(
+            color:
+                isSelected ? MintColors.textPrimary : MintColors.textSecondary,
+          ),
+          backgroundColor: MintColors.white,
+          selectedColor: MintColors.saugeClaire,
+          side: const BorderSide(color: MintColors.borderSubtle),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(999),
+          ),
+          onSelected: (_) => onChanged(section),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          visualDensity: VisualDensity.compact,
+        );
+      }).toList(growable: false),
+    );
   }
 }
 
