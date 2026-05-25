@@ -27,6 +27,7 @@ import 'package:mint_mobile/services/biography/anonymized_biography_service.dart
 import 'package:mint_mobile/services/biography/biography_repository.dart';
 import 'package:mint_mobile/services/biography/biography_refresh_detector.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONTEXT INJECTOR SERVICE — S58 / AI Memory
@@ -163,7 +164,8 @@ class ContextInjectorService {
       phaseResult = LifecyclePhaseService.detect(profile, now: currentDate);
       adaptation = ContentAdapterService.adapt(phaseResult, profile);
       // Append literacy level directive so Claude adapts language complexity.
-      final literacyDirective = _literacyDirective(profile.financialLiteracyLevel);
+      final literacyDirective =
+          _literacyDirective(profile.financialLiteracyLevel);
       lifecycleBlock = adaptation.coachSystemPromptAddition +
           (literacyDirective.isNotEmpty ? '\n$literacyDirective' : '');
 
@@ -196,7 +198,8 @@ class ContextInjectorService {
     try {
       final rawInsights = await CoachMemoryService.getInsights(prefs: sp);
       // FIX-W12: Cap cross-session insights to prevent context overflow
-      final recentInsights = rawInsights.take(10).toList(); // Max 10 insights in context
+      final recentInsights =
+          rawInsights.take(10).toList(); // Max 10 insights in context
       if (recentInsights.isNotEmpty) {
         final coachingPref = CoachingPreference.load(sp);
         recentInsightsBlock = _buildRecentInsightsBlock(
@@ -309,24 +312,31 @@ class ContextInjectorService {
     if (mintState?.budgetSnapshot != null) {
       final snap = mintState!.budgetSnapshot!;
       final lines = <String>['BUDGET VIVANT\u00a0:'];
-      lines.add('Marge libre\u00a0: CHF\u00a0${snap.present.monthlyFree.round()}/mois');
-      lines.add('Charges fixes\u00a0: CHF\u00a0${snap.present.monthlyCharges.round()}/mois');
+      lines.add(
+          'Marge libre\u00a0: ${formatChfWithPrefix(snap.present.monthlyFree)}/mois');
+      lines.add(
+          'Charges fixes\u00a0: ${formatChfWithPrefix(snap.present.monthlyCharges)}/mois');
 
       if (snap.hasFullGap) {
         final isEstimated = profile?.prevoyance.isLppEstimated ?? true;
         if (isEstimated) {
-          lines.add('ATTENTION\u00a0: Les projections retraite ci-dessous sont bas\u00e9es sur '
+          lines.add(
+              'ATTENTION\u00a0: Les projections retraite ci-dessous sont bas\u00e9es sur '
               'les minimums l\u00e9gaux LPP (pas le plan de caisse r\u00e9el). '
               'Le taux r\u00e9el pourrait \u00eatre significativement plus \u00e9lev\u00e9. '
               'Propose \u00e0 l\'utilisateur de scanner son certificat LPP pour des chiffres pr\u00e9cis.');
         }
-        lines.add('Revenu retraite estim\u00e9\u00a0: CHF\u00a0${snap.retirement!.monthlyNet.round()}/mois');
-        lines.add('Taux de remplacement\u00a0: ${snap.gap!.replacementRate.round()}\u00a0%');
-        lines.add('\u00c9cart mensuel\u00a0: CHF\u00a0${snap.gap!.monthlyGap.round()}/mois');
+        lines.add(
+            'Revenu retraite estim\u00e9\u00a0: ${formatChfWithPrefix(snap.retirement!.monthlyNet)}/mois');
+        lines.add(
+            'Taux de remplacement\u00a0: ${snap.gap!.replacementRate.round()}\u00a0%');
+        lines.add(
+            '\u00c9cart mensuel\u00a0: ${formatChfWithPrefix(snap.gap!.monthlyGap)}/mois');
       }
       if (snap.capImpacts.isNotEmpty) {
         for (final cap in snap.capImpacts.take(2)) {
-          lines.add('Levier\u00a0: ${cap.capId} \u2192 +CHF\u00a0${cap.monthlyDelta.round()}/mois');
+          lines.add(
+              'Levier\u00a0: ${cap.capId} \u2192 +${formatChfWithPrefix(cap.monthlyDelta)}/mois');
         }
       }
       budgetBlock = lines.join('\n');
@@ -344,8 +354,7 @@ class ContextInjectorService {
         if (facts.isNotEmpty) {
           biographyBlock = AnonymizedBiographySummary.build(facts);
           // Check for stale data needing refresh (BIO-08)
-          final staleFields =
-              BiographyRefreshDetector.detectStaleFields(facts);
+          final staleFields = BiographyRefreshDetector.detectStaleFields(facts);
           if (staleFields.isNotEmpty) {
             biographyBlock +=
                 '\n${BiographyRefreshDetector.buildRefreshNudge(staleFields)}';
@@ -422,13 +431,15 @@ class ContextInjectorService {
   /// - Whether to route to /scan or ask a question
   static String _buildEnrichmentBlock(CoachProfile profile) {
     final confidence = ConfidenceScorer.score(profile);
-    final topPrompts = confidence.prompts.take(_maxEnrichmentInContext).toList();
+    final topPrompts =
+        confidence.prompts.take(_maxEnrichmentInContext).toList();
 
     if (topPrompts.isEmpty) return '';
 
     final lines = <String>['ENRICHISSEMENT PRIORITAIRE\u00a0:'];
-    lines.add('Score de confiance actuel\u00a0: ${confidence.score.round()}/100 '
-        '(${confidence.level})');
+    lines
+        .add('Score de confiance actuel\u00a0: ${confidence.score.round()}/100 '
+            '(${confidence.level})');
 
     if (confidence.score < ConfidenceScorer.minConfidenceForProjection) {
       lines.add('IMPORTANT\u00a0: La confiance est trop basse pour chiffrer '
@@ -740,9 +751,8 @@ class ContextInjectorService {
           .replaceAll(RegExp(r'[\n\r\t\x00-\x1F]'), ' ')
           .replaceAll(RegExp(r' {2,}'), ' ')
           .trim();
-      final safeSum = summary.length > 80
-          ? '${summary.substring(0, 77)}\u2026'
-          : summary;
+      final safeSum =
+          summary.length > 80 ? '${summary.substring(0, 77)}\u2026' : summary;
       lines.add(
         '  - [${insight.type.name}] ${insight.topic}\u00a0: $safeSum ($ageText)',
       );
@@ -790,7 +800,8 @@ class ContextInjectorService {
     parts.add('RAPPEL\u00a0: Ne jamais mentionner de données personnelles '
         '(salaire exact, IBAN, nom, employeur). Utilise des approximations '
         'et des fourchettes.');
-    parts.add('Tu es un outil éducatif\u00a0: ne constitue pas un conseil financier '
+    parts.add(
+        'Tu es un outil éducatif\u00a0: ne constitue pas un conseil financier '
         '(LSFin). Propose toujours des actions concrètes et des étapes '
         'que l\'utilisateur peut entreprendre.');
 

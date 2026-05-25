@@ -2,11 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
 import 'package:mint_mobile/services/coach/conversation_memory_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
+import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart'
+    as lifecycle_v2;
 import 'package:mint_mobile/services/lifecycle_phase_service.dart';
 import 'package:mint_mobile/services/nudge/nudge_trigger.dart';
 import 'package:mint_mobile/services/voice/regional_voice_service.dart';
@@ -697,7 +702,62 @@ void main() {
     });
 
     // ════════════════════════════════════════════════════════════
-    //  TEST 23: PLAN EN COURS contains Prochaine étape when step 1 complete
+    //  TEST 24: Budget Vivant CHF amounts use Swiss formatting
+    // ════════════════════════════════════════════════════════════
+
+    test('Budget Vivant context formats CHF amounts for coach injection',
+        () async {
+      final profile = makeProfile(birthYear: 1988, canton: 'ZH');
+      final mintState = MintUserState(
+        profile: profile,
+        lifecyclePhase: lifecycle_v2.LifecyclePhase.acceleration,
+        archetype: profile.archetype,
+        budgetSnapshot: const BudgetSnapshot(
+          present: PresentBudget(
+            monthlyNet: 12345,
+            monthlyCharges: 9876,
+            monthlySavings: 4321,
+            monthlyFree: 2468,
+          ),
+          retirement: RetirementBudget(
+            monthlyIncome: 7777,
+            monthlyTax: 1111,
+            monthlyNet: 6666,
+          ),
+          gap: BudgetGap(
+            monthlyGap: 5678,
+            replacementRate: 54,
+          ),
+          capImpacts: [
+            BudgetCapImpact(capId: 'pillar_3a', monthlyDelta: 1234),
+          ],
+          stage: BudgetStage.fullGapVisible,
+          confidenceScore: 80,
+        ),
+        confidenceScore: 80,
+        capMemory: const CapMemory(),
+        computedAt: now,
+      );
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+        mintState: mintState,
+      );
+
+      expect(ctx.memoryBlock, contains("CHF\u00a09'876/mois"));
+      expect(ctx.memoryBlock, contains("CHF\u00a02'468/mois"));
+      expect(ctx.memoryBlock, contains("CHF\u00a06'666/mois"));
+      expect(ctx.memoryBlock, contains("CHF\u00a05'678/mois"));
+      expect(ctx.memoryBlock, contains("+CHF\u00a01'234/mois"));
+      expect(ctx.memoryBlock, isNot(contains('CHF\u00a09876/mois')));
+    });
+
+    // ════════════════════════════════════════════════════════════
+    //  TEST 25: PLAN EN COURS contains Prochaine étape when step 1 complete
     // ════════════════════════════════════════════════════════════
 
     test('PLAN EN COURS includes Prochaine étape when step 1 complete',
