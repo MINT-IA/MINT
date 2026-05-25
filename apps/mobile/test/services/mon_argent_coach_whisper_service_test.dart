@@ -1,11 +1,36 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/mon_argent/coach_whisper_service.dart';
 import 'package:mint_mobile/services/mon_argent/patrimoine_aggregator.dart';
 
 void main() {
   group('CoachWhisperService', () {
+    test('detects deficit from signed monthly cashflow', () {
+      final whisper = CoachWhisperService.evaluate(
+        budgetInputs: const BudgetInputs(
+          payFrequency: PayFrequency.monthly,
+          netIncome: 5000,
+          housingCost: 5200,
+          taxProvision: 500,
+          healthInsurance: 420,
+          debtPayments: 0,
+        ),
+        budgetPlan: const BudgetPlan(
+          available: 0,
+          variables: 0,
+          future: 0,
+          stopRuleTriggered: true,
+          emergencyFundMonths: 0,
+        ),
+        patrimoine: const PatrimoineSummary(),
+        profile: null,
+      );
+
+      expect(whisper, 'Mois serré. Regarde tes dépenses fixes.');
+    });
+
     test('uses fixed charges instead of net income for emergency months', () {
       final whisper = CoachWhisperService.evaluate(
         budgetInputs: const BudgetInputs(

@@ -18,8 +18,9 @@ class CoachWhisperService {
     required PatrimoineSummary patrimoine,
     required CoachProfile? profile,
   }) {
-    // Rule 1: Budget deficit — urgent
-    if (budgetPlan != null && budgetPlan.available < 0) {
+    // Rule 1: Budget deficit — urgent. BudgetPlan.available is an allocation
+    // amount and is intentionally non-negative, so use signed cashflow here.
+    if (_signedMonthlyFree(budgetInputs, budgetPlan) < 0) {
       return 'Mois serré. Regarde tes dépenses fixes.';
     }
 
@@ -81,5 +82,15 @@ class CoachWhisperService {
         inputs.debtPayments +
         inputs.otherFixedCosts;
     return fixed > 0 ? fixed : inputs.netIncome;
+  }
+
+  static double _signedMonthlyFree(BudgetInputs? inputs, BudgetPlan? plan) {
+    if (inputs == null) return 0;
+    final fixed = inputs.housingCost +
+        inputs.healthInsurance +
+        inputs.taxProvision +
+        inputs.debtPayments +
+        inputs.otherFixedCosts;
+    return inputs.netIncome - fixed - (plan?.future ?? 0);
   }
 }
