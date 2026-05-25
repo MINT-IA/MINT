@@ -1,0 +1,30 @@
+name: Semantic copy lints
+
+on:
+  push:
+    branches: [dev, staging, main]
+  pull_request:
+    branches: [dev, staging, main]
+    paths:
+      - 'apps/mobile/lib/l10n/*.arb'
+      - 'tools/checks/no_3a_ceiling_as_tax_saving.py'
+      - 'tools/checks/test_no_3a_ceiling_as_tax_saving.py'
+      - '.github/workflows/semantic-copy-lints.yml'
+
+concurrency:
+  group: semantic-copy-lints-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  semantic-copy-lints:
+    name: Semantic financial copy lints
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 3a ceiling is not tax-saving copy
+        run: |
+          python3 tools/checks/test_no_3a_ceiling_as_tax_saving.py
+          python3 tools/checks/no_3a_ceiling_as_tax_saving.py

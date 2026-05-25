@@ -80,6 +80,14 @@ pre-commit:
       glob: "apps/mobile/lib/l10n/*.arb"
       tags: [compliance, lsfin, phase-34-guard-01]
       fail_text: "LSFin banned terms detected in ARB. Rewrite using permitted vocabulary (« vise à fournir », « est conçue pour », …) — CLAUDE.md TOP rule #1."
+    no-3a-ceiling-as-tax-saving-gate:
+      # Trust rule: CHF 7'258 / CHF 36'288 are 3a deductible contribution
+      # ceilings, not the user's tax saving. Tax impact requires a separate
+      # estimate with household/canton/marginal-rate context.
+      run: python3 tools/checks/no_3a_ceiling_as_tax_saving.py
+      glob: "apps/mobile/lib/l10n/*.arb"
+      tags: [compliance, 3a, financial-semantics, phase-43]
+      fail_text: "3a ceiling copy cannot label CHF 7'258 / CHF 36'288 as tax savings. Use deductible-room wording plus a separate estimate."
     arb-parity-gate:
       # CLAUDE.md TOP rule #5 — 6 ARB files (fr/en/de/es/it/pt) must share the
       # same key set. Reference locale = fr. Replay measure 2026-05-10: 0/50
