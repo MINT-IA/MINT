@@ -130,14 +130,27 @@ class MinimalProfileService {
         grossMonthlySalary > 0 ? totalMonthlyRetirement / grossMonthlySalary : 0.0;
     final retirementGapMonthly = max(0.0, grossMonthlySalary - totalMonthlyRetirement);
 
-    // --- Tax saving 3a (financial_core via FiscalService for marginal rate) ---
-    // Indépendant sans LPP: plafond 3a = 20% du revenu net, max 36'288 CHF (OPP3 art. 7)
-    // Salarié avec LPP: plafond 3a = 7'258 CHF
-    final marginalRate = RetirementTaxCalculator.estimateMarginalRate(grossSalary, canton);
-    final plafond3a = isIndependantNoLpp
-        ? min(grossSalary * 0.20, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
-        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
-    final taxSaving3a = marginalRate * plafond3a;
+    // --- Tax saving 3a (financial_core) ---
+    final resolvedCanton = resolveCanton(canton);
+    final taxImpact = resolvedCanton.isResolved && grossSalary > 0
+        ? RetirementTaxCalculator.estimate3aTaxImpact(
+            grossAnnualSalary: grossSalary,
+            canton: resolvedCanton.code,
+            hasLpp: !isIndependantNoLpp,
+          )
+        : Pillar3aTaxImpactEstimate.unavailable;
+    final marginalRate =
+        taxImpact.confidence == Pillar3aTaxImpactConfidence.unavailable
+            ? 0.0
+            : taxImpact.marginalRate;
+    final plafond3a =
+        taxImpact.confidence == Pillar3aTaxImpactConfidence.unavailable
+            ? (isIndependantNoLpp
+                ? min(grossSalary * 0.20,
+                    reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
+                : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp))
+            : taxImpact.annualCeiling;
+    final taxSaving3a = taxImpact.estimatedTaxSaving;
 
     // --- Liquidity analysis ---
     final estimatedMonthlyExpenses = _estimateMonthlyExpenses(
@@ -162,7 +175,7 @@ class MinimalProfileService {
       estimatedMonthlyExpenses: estimatedMonthlyExpenses,
       monthlyDebtImpact: effectiveDebtService,
       liquidityMonths: liquidityMonths,
-      canton: canton,
+      canton: resolvedCanton.isResolved ? resolvedCanton.code : canton,
       age: age,
       grossAnnualSalary: grossSalary,
       householdType: effectiveHousehold,
@@ -181,7 +194,9 @@ class MinimalProfileService {
   /// Applies LPP art. 16 age-dependent bonification rates since age 25.
   /// Returns 0 if below LPP seuil d'entree (LPP art. 7).
   static double _estimateLppBalance(int age, double grossAnnualSalary) {
-    if (grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) return 0.0;
+    if (grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) {
+      return 0.0;
+    }
 
     final salaireCoord = (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
         .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));

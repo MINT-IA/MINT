@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 
 /// Tests for MinimalProfileService (Sprint S31 — Onboarding Redesign).
@@ -153,6 +154,62 @@ void main() {
         employmentStatus: 'salarie',
       );
       expect(result.plafond3a, equals(pilier3aPlafondAvecLpp));
+    });
+
+    test('taxSaving3a uses canonical 3a tax-impact estimate', () {
+      final result = MinimalProfileService.compute(
+        age: 40,
+        grossSalary: 80000,
+        canton: 'VD',
+        employmentStatus: 'salarie',
+      );
+      final expected = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: 80000,
+        canton: 'VD',
+      );
+
+      expect(result.taxSaving3a, closeTo(expected.estimatedTaxSaving, 0.01));
+      expect(result.marginalTaxRate, closeTo(expected.marginalRate, 0.0001));
+    });
+
+    test('taxSaving3a is suppressed when canton or salary is invalid', () {
+      for (final canton in ['', 'CH', 'ZZ']) {
+        final result = MinimalProfileService.compute(
+          age: 40,
+          grossSalary: 80000,
+          canton: canton,
+          employmentStatus: 'salarie',
+        );
+
+        expect(result.taxSaving3a, 0);
+        expect(result.marginalTaxRate, 0);
+      }
+
+      final noSalary = MinimalProfileService.compute(
+        age: 40,
+        grossSalary: 0,
+        canton: 'VD',
+        employmentStatus: 'salarie',
+      );
+      expect(noSalary.taxSaving3a, 0);
+      expect(noSalary.marginalTaxRate, 0);
+    });
+
+    test('independent no-LPP taxSaving3a uses 20% income ceiling', () {
+      final result = MinimalProfileService.compute(
+        age: 45,
+        grossSalary: 50000,
+        canton: 'VD',
+        employmentStatus: 'independant',
+      );
+      final expected = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: 50000,
+        canton: 'VD',
+        hasLpp: false,
+      );
+
+      expect(result.plafond3a, closeTo(10000, 0.01));
+      expect(result.taxSaving3a, closeTo(expected.estimatedTaxSaving, 0.01));
     });
 
     test('sans_emploi: reduced AVS, no LPP contributions', () {

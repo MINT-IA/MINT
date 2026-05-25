@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 /// Selects the most impactful "premier éclairage" to show the user.
@@ -59,7 +61,7 @@ class PremierEclairageSelector {
     }
 
     // Tax saving 3a: always relevant if applicable
-    if (profile.existing3a <= 0 && profile.taxSaving3a > 1500) {
+    if (_hasTrustworthy3aTaxSaving(profile, threshold: 1500)) {
       return _withConfidence(_buildTaxSaving3aChoc(profile), profile);
     }
 
@@ -88,7 +90,7 @@ class PremierEclairageSelector {
 
       case 'stress_impots':
         // Tax: show 3a tax saving if applicable
-        if (profile.taxSaving3a > 500) {
+        if (_hasTrustworthy3aTaxSaving(profile, threshold: 500)) {
           return _buildTaxSaving3aChoc(profile);
         }
         return null;
@@ -114,7 +116,7 @@ class PremierEclairageSelector {
 
       case 'stress_prevoyance':
         // First job / prevoyance: show 3a tax saving or compound growth
-        if (profile.taxSaving3a > 500) {
+        if (_hasTrustworthy3aTaxSaving(profile, threshold: 500)) {
           return _buildTaxSaving3aChoc(profile);
         }
         if (profile.age < 35) {
@@ -146,7 +148,7 @@ class PremierEclairageSelector {
     }
     if (profile.age < 38) {
       // Construction: tax saving 3a is the most actionable lever
-      if (profile.existing3a <= 0 && profile.taxSaving3a > 1500) {
+      if (_hasTrustworthy3aTaxSaving(profile, threshold: 1500)) {
         return _buildTaxSaving3aChoc(profile);
       }
       // Else: compound growth still meaningful
@@ -169,10 +171,10 @@ class PremierEclairageSelector {
     if (profile.employmentStatus == 'independant' &&
         profile.lppMonthlyRente <= 0 &&
         profile.grossMonthlySalary > 0) {
-      final gapFormatted = chf.formatChfWithPrefix(profile.retirementGapMonthly);
-      final plafondStr = profile.plafond3a != null
-          ? chf.formatChf(profile.plafond3a!)
-          : '?';
+      final gapFormatted =
+          chf.formatChfWithPrefix(profile.retirementGapMonthly);
+      final plafondStr =
+          profile.plafond3a != null ? chf.formatChf(profile.plafond3a!) : '?';
       return PremierEclairage(
         type: PremierEclairageType.retirementGap,
         value: '$gapFormatted/mois',
@@ -214,6 +216,32 @@ class PremierEclairageSelector {
     return null;
   }
 
+  static bool _hasTrustworthy3aTaxSaving(
+    MinimalProfileResult profile, {
+    required double threshold,
+  }) {
+    final canton = resolveCanton(profile.canton);
+    final hasLpp = profile.employmentStatus != 'independant';
+    final expected = canton.isResolved && profile.grossAnnualSalary > 0
+        ? RetirementTaxCalculator.estimate3aTaxImpact(
+            grossAnnualSalary: profile.grossAnnualSalary,
+            canton: canton.code,
+            hasLpp: hasLpp,
+          )
+        : Pillar3aTaxImpactEstimate.unavailable;
+    final isCoherentTaxSaving =
+        expected.confidence != Pillar3aTaxImpactConfidence.unavailable &&
+            (profile.taxSaving3a - expected.estimatedTaxSaving).abs() <=
+                (expected.estimatedTaxSaving * 0.02).clamp(5, 80);
+
+    return profile.existing3a <= 0 &&
+        profile.taxSaving3a > threshold &&
+        profile.marginalTaxRate > 0 &&
+        isCoherentTaxSaving &&
+        profile.grossAnnualSalary > 0 &&
+        canton.isResolved;
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Chiffre choc builders
   // ═══════════════════════════════════════════════════════════════════════════
@@ -234,7 +262,8 @@ class PremierEclairageSelector {
     );
   }
 
-  static PremierEclairage _buildRetirementGapChoc(MinimalProfileResult profile) {
+  static PremierEclairage _buildRetirementGapChoc(
+      MinimalProfileResult profile) {
     final gapFormatted = chf.formatChfWithPrefix(profile.retirementGapMonthly);
     final pct = (profile.replacementRate * 100).round();
     final isIndep = profile.employmentStatus == 'independant';
@@ -259,24 +288,30 @@ class PremierEclairageSelector {
 
   static PremierEclairage _buildTaxSaving3aChoc(MinimalProfileResult profile) {
     final savingFormatted = chf.formatChfWithPrefix(profile.taxSaving3a);
-    final plafondText = profile.plafond3a != null
-        ? chf.formatChf(profile.plafond3a!)
-        : '?';
+    final marginalRatePct = (profile.marginalTaxRate * 100).round();
+    final plafondText =
+        profile.plafond3a != null ? chf.formatChf(profile.plafond3a!) : '?';
+    final cantonCode = resolveCanton(profile.canton).code;
     return PremierEclairage(
       type: PremierEclairageType.taxSaving3a,
       value: '$savingFormatted/an',
       rawValue: profile.taxSaving3a,
-      title: 'Ton economie d\'impot potentielle',
-      subtitle: 'En cotisant au 3e pilier (max CHF\u00A0$plafondText/an), '
-          'tu pourrais economiser environ $savingFormatted d\'impots chaque annee. '
-          'Et tu prepares ta retraite en meme temps.',
+      title: 'Ton économie d\'impôt potentielle',
+      subtitle: 'Si ton revenu imposable ressemble au salaire déclaré, '
+          'un versement 3e pilier jusqu\'à CHF\u00A0$plafondText/an pourrait '
+          'réduire l\'impôt d\'environ $savingFormatted/an '
+          '(taux marginal estimé $marginalRatePct%, canton $cantonCode). '
+          'Et tu prépares ta retraite en même temps.',
       iconName: 'savings',
       colorKey: 'success',
+      confidenceMode: PremierEclairageConfidence.pedagogical,
     );
   }
 
-  static PremierEclairage _buildRetirementIncomeChoc(MinimalProfileResult profile) {
-    final retirementFormatted = chf.formatChfWithPrefix(profile.totalMonthlyRetirement);
+  static PremierEclairage _buildRetirementIncomeChoc(
+      MinimalProfileResult profile) {
+    final retirementFormatted =
+        chf.formatChfWithPrefix(profile.totalMonthlyRetirement);
     final pct = (profile.replacementRate * 100).round();
     return PremierEclairage(
       type: PremierEclairageType.retirementIncome,
@@ -294,7 +329,8 @@ class PremierEclairageSelector {
   ///
   /// Pure math: compares starting now vs starting at 35.
   /// Always [PremierEclairageConfidence.factual] — no estimation involved.
-  static PremierEclairage _buildCompoundGrowthChoc(MinimalProfileResult profile) {
+  static PremierEclairage _buildCompoundGrowthChoc(
+      MinimalProfileResult profile) {
     final years = 65 - profile.age;
     const monthlyContrib = 200.0;
     const annualRate = 0.03;
@@ -309,8 +345,8 @@ class PremierEclairageSelector {
     const referenceAge = 35;
     const yearsAt35 = 65 - referenceAge;
     const monthsAt35 = yearsAt35 * 12;
-    final futureAt35 = monthlyContrib *
-        ((pow(1 + monthlyRate, monthsAt35) - 1) / monthlyRate);
+    final futureAt35 =
+        monthlyContrib * ((pow(1 + monthlyRate, monthsAt35) - 1) / monthlyRate);
 
     final advantage = futureValue - futureAt35;
     final advantageFormatted = chf.formatChfWithPrefix(advantage);
@@ -358,7 +394,8 @@ class PremierEclairageSelector {
           'Ton loyer te coute ~$rentHours heures de travail par mois.',
       iconName: 'schedule',
       colorKey: 'info',
-      confidenceMode: PremierEclairageConfidence.factual, // Derived from provided salary
+      confidenceMode:
+          PremierEclairageConfidence.factual, // Derived from provided salary
     );
   }
 
@@ -372,7 +409,7 @@ class PremierEclairageSelector {
   /// - [compoundGrowth] and [hourlyRate] are always factual (pure math)
   /// - [liquidityAlert] is pedagogical if currentSavings is estimated
   /// - [retirementGap] / [retirementIncome] are pedagogical if LPP is estimated
-  /// - [taxSaving3a] is factual (derived from salary + canton, both provided)
+  /// - [taxSaving3a] is pedagogical because marginal tax is estimated
   static PremierEclairage _withConfidence(
     PremierEclairage choc,
     MinimalProfileResult profile,
@@ -386,8 +423,9 @@ class PremierEclairageSelector {
     switch (choc.type) {
       case PremierEclairageType.compoundGrowth:
       case PremierEclairageType.hourlyRate:
-      case PremierEclairageType.taxSaving3a:
         mode = PremierEclairageConfidence.factual;
+      case PremierEclairageType.taxSaving3a:
+        mode = PremierEclairageConfidence.pedagogical;
       case PremierEclairageType.liquidityAlert:
         mode = estimated.contains('currentSavings')
             ? PremierEclairageConfidence.pedagogical
