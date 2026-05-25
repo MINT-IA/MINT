@@ -174,7 +174,8 @@ void main() {
     });
 
     // ── Test 2: computeAndCache + getCachedInsight roundtrip ────────────────
-    test('2. computeAndCache + getCachedInsight roundtrip (budgetAlert)', () async {
+    test('2. computeAndCache + getCachedInsight roundtrip (budgetAlert)',
+        () async {
       final state = _makeState(
         budgetSnapshot: _snapshotWithFree(-350),
       );
@@ -217,7 +218,8 @@ void main() {
     });
 
     // ── Test 4: Fresh insight (< 1 hour) returned ──────────────────────────
-    test('4. Fresh insight (30 min old) returned by getCachedInsight', () async {
+    test('4. Fresh insight (30 min old) returned by getCachedInsight',
+        () async {
       final prefs = await SharedPreferences.getInstance();
 
       final freshInsight = PrecomputedInsight(
@@ -351,7 +353,8 @@ void main() {
       // Resolve with real l10n.
       final opener = cached.resolve(_l);
       expect(opener, isNotNull);
-      expect(opener!.message, contains(pilier3aPlafondAvecLpp.round().toString()));
+      expect(opener!.message, contains("7'258"));
+      expect(opener.message, isNot(contains('7258 CHF')));
     });
 
     // ── Test 9: deadlineUrgency stored and read correctly ───────────────────
@@ -386,11 +389,14 @@ void main() {
       final opener = cached.resolve(_l);
       expect(opener, isNotNull);
       expect(opener!.message, contains(expectedDays.toString()));
+      expect(opener.message, contains("7'258"));
+      expect(opener.message, isNot(contains('7258 CHF')));
     });
 
     // ── Test 10: planProgress stored and read correctly ─────────────────────
     test('10. planProgress type stored and read correctly', () async {
-      final profile = _makeProfile(totalEpargne3a: 5000, salaireBrutMensuel: 8000);
+      final profile =
+          _makeProfile(totalEpargne3a: 5000, salaireBrutMensuel: 8000);
       final snapshot = _snapshotWithFree(800); // surplus
       final sequence = _makeSequence(completed: 2, total: 5);
       final state = _makeState(
@@ -491,7 +497,8 @@ void main() {
     });
 
     // ── Test 13: Malformed JSON → null returned safely ──────────────────────
-    test('13. Malformed JSON in prefs → getCachedInsight returns null', () async {
+    test('13. Malformed JSON in prefs → getCachedInsight returns null',
+        () async {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('mint_precomputed_insight_v1', 'not-valid-json{{{');
 

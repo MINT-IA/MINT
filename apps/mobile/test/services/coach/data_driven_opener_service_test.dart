@@ -223,8 +223,9 @@ void main() {
       // Message must contain the number of days remaining.
       final daysLeft = DateTime(2026, 12, 31).difference(december15).inDays + 1;
       expect(opener.message, contains(daysLeft.toString()));
-      // Message must contain the plafond amount.
-      expect(opener.message, contains(pilier3aPlafondAvecLpp.round().toString()));
+      // Message must contain the Swiss-formatted plafond amount.
+      expect(opener.message, contains("7'258"));
+      expect(opener.message, isNot(contains('7258 CHF')));
       expect(opener.intentTag, equals('/pilier-3a'));
     });
 
@@ -337,14 +338,16 @@ void main() {
       );
       expect(opener, isNotNull);
       expect(opener!.type, DataOpenerType.savingsOpportunity);
-      expect(opener.message, contains(pilier3aPlafondAvecLpp.round().toString()));
+      expect(opener.message, contains("7'258"));
+      expect(opener.message, isNot(contains('7258 CHF')));
       expect(opener.message, isNot(contains("d’économie d’impôt")));
       expect(opener.intentTag, equals('/pilier-3a'));
     });
 
     // ── Test 12: 3a > 0 → no savingsOpportunity ───────────────
     test('12. 3a > 0 → no savingsOpportunity', () {
-      final profile = _makeProfile(totalEpargne3a: 1000, salaireBrutMensuel: 5000);
+      final profile =
+          _makeProfile(totalEpargne3a: 1000, salaireBrutMensuel: 5000);
       final state = _makeState(profile: profile);
       final opener = DataDrivenOpenerService.generate(
         state: state,
@@ -360,7 +363,8 @@ void main() {
       // Use a snapshot with surplus so budgetAlert does not fire.
       // Use march22 (not December) so deadlineUrgency does not fire.
       // replacementRate >= 60 so gapWarning does not fire.
-      final profile = _makeProfile(totalEpargne3a: 5000, salaireBrutMensuel: 8000);
+      final profile =
+          _makeProfile(totalEpargne3a: 5000, salaireBrutMensuel: 8000);
       final snapshot = _snapshotWithFree(800); // surplus
       final state = _makeState(
         profile: profile,
@@ -407,7 +411,8 @@ void main() {
     test('16. CapSequence 2/5 steps → planProgress with n/total/next', () {
       // Use a profile with 3a > 0, surplus snapshot, replacement rate >= 60.
       // This ensures all higher-priority openers are suppressed.
-      final profile = _makeProfile(totalEpargne3a: 5000, salaireBrutMensuel: 8000);
+      final profile =
+          _makeProfile(totalEpargne3a: 5000, salaireBrutMensuel: 8000);
       final snapshot = _snapshotWithFree(800); // surplus
       final sequence = _makeSequence(completed: 2, total: 5);
       final state = _makeState(
@@ -468,7 +473,8 @@ void main() {
           avoirLppTotal: 70377,
           rachatMaximum: 539414,
           anneesContribuees: 24,
-          totalEpargne3a: 0, // 3a empty this year → deadline + savings candidates
+          totalEpargne3a:
+              0, // 3a empty this year → deadline + savings candidates
         ),
         patrimoine: const PatrimoineProfile(epargneLiquide: 50000),
         dettes: const DetteProfile(),

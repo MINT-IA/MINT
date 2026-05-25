@@ -27,6 +27,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
@@ -108,7 +109,8 @@ class DataDrivenOpenerService {
   static const double _minSalaryForSavings = 1.0;
 
   /// 3a plafond for salariés with LPP access (OPP3 2025/2026).
-  static double get _plafond3aSalarie => reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+  static double get _plafond3aSalarie =>
+      reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
   // ── Public API ────────────────────────────────────────────
 
@@ -199,8 +201,7 @@ class DataDrivenOpenerService {
     if (!state.profile.prevoyance.canContribute3a) return null;
 
     // Use plafond based on employment status.
-    final isIndepNoLpp = state.archetype ==
-            FinancialArchetype.independentNoLpp;
+    final isIndepNoLpp = state.archetype == FinancialArchetype.independentNoLpp;
     final plafond = isIndepNoLpp
         ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
         : _plafond3aSalarie;
@@ -219,7 +220,7 @@ class DataDrivenOpenerService {
     return DataDrivenOpener(
       message: l.opener3aDeadline(
         daysLeft.toString(),
-        plafond.round().toString(),
+        formatChf(plafond),
       ),
       intentTag: '/pilier-3a',
       type: DataOpenerType.deadlineUrgency,
@@ -263,14 +264,13 @@ class DataDrivenOpenerService {
 
     if (!state.profile.prevoyance.canContribute3a) return null;
 
-    final isIndepNoLpp = state.archetype ==
-            FinancialArchetype.independentNoLpp;
+    final isIndepNoLpp = state.archetype == FinancialArchetype.independentNoLpp;
     final plafond = isIndepNoLpp
         ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
         : _plafond3aSalarie;
 
     return DataDrivenOpener(
-      message: l.openerSavingsOpportunity(plafond.round().toString()),
+      message: l.openerSavingsOpportunity(formatChf(plafond)),
       intentTag: '/pilier-3a',
       type: DataOpenerType.savingsOpportunity,
     );

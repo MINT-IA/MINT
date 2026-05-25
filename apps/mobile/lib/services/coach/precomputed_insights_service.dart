@@ -36,6 +36,7 @@ import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/services/coach/data_driven_opener_service.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  CONSTANTS
@@ -161,7 +162,7 @@ class PrecomputedInsight {
         final daysLeft = params['daysLeft'];
         final plafond = params['plafond'];
         if (daysLeft == null || plafond == null) return null;
-        return l.opener3aDeadline(daysLeft, plafond);
+        return l.opener3aDeadline(daysLeft, _formatChfParam(plafond));
 
       case DataOpenerType.gapWarning:
         final rate = params['rate'];
@@ -172,7 +173,7 @@ class PrecomputedInsight {
       case DataOpenerType.savingsOpportunity:
         final plafond = params['plafond'];
         if (plafond == null) return null;
-        return l.openerSavingsOpportunity(plafond);
+        return l.openerSavingsOpportunity(_formatChfParam(plafond));
 
       case DataOpenerType.progressCelebration:
         final delta = params['delta'];
@@ -190,6 +191,14 @@ class PrecomputedInsight {
             DataDrivenOpenerService.resolveCapStepTitle(next, l) ?? next;
         return l.openerPlanProgress(completed, total, resolvedNext);
     }
+  }
+
+  static String _formatChfParam(String raw) {
+    final normalized =
+        raw.replaceAll("'", '').replaceAll('\u00a0', '').replaceAll(' ', '');
+    final value = double.tryParse(normalized);
+    if (value == null) return raw;
+    return formatChf(value);
   }
 }
 
@@ -320,13 +329,11 @@ class PrecomputedInsightsService {
         params = {'deficit': deficit.toString()};
 
       case DataOpenerType.deadlineUrgency:
-        final daysLeft =
-            DateTime(now.year, 12, 31).difference(now).inDays + 1;
+        final daysLeft = DateTime(now.year, 12, 31).difference(now).inDays + 1;
         if (daysLeft <= 0) return null;
         final isIndepNoLpp =
             state.archetype == FinancialArchetype.independentNoLpp;
-        final plafond =
-            isIndepNoLpp ? _kPlafondSansLpp : _kPlafondAvecLpp;
+        final plafond = isIndepNoLpp ? _kPlafondSansLpp : _kPlafondAvecLpp;
         params = {
           'daysLeft': daysLeft.toString(),
           'plafond': plafond.round().toString(),
@@ -344,8 +351,7 @@ class PrecomputedInsightsService {
       case DataOpenerType.savingsOpportunity:
         final isIndepNoLpp =
             state.archetype == FinancialArchetype.independentNoLpp;
-        final plafond =
-            isIndepNoLpp ? _kPlafondSansLpp : _kPlafondAvecLpp;
+        final plafond = isIndepNoLpp ? _kPlafondSansLpp : _kPlafondAvecLpp;
         params = {'plafond': plafond.round().toString()};
 
       case DataOpenerType.progressCelebration:
