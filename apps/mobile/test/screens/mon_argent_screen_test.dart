@@ -82,6 +82,8 @@ void main() {
     expect(find.text("30'000\u00a0CHF"), findsWidgets);
     expect(find.text("12'000\u00a0CHF"), findsOneWidget);
     expect(find.text("32'000\u00a0CHF"), findsWidgets);
+    expect(find.text('saisi'), findsWidgets);
+    expect(find.text('estimé'), findsOneWidget);
     expect(find.text('Manquant'), findsWidgets);
     expect(find.text("172'000\u00a0CHF"), findsNWidgets(2));
   });
@@ -188,6 +190,11 @@ DataSpineSnapshot _dataSpine() {
     confidence: FieldConfidence.known,
     freshness: FieldFreshness.fresh,
   );
+  const estimatedMeta = SpineFieldMeta(
+    source: ProfileDataSource.estimated,
+    confidence: FieldConfidence.estimated,
+    freshness: FieldFreshness.fresh,
+  );
 
   return DataSpineSnapshot(
     situation: const FinancialSituation(
@@ -200,7 +207,7 @@ DataSpineSnapshot _dataSpine() {
       monthlyHousingCost: SpineValue(value: 2400, meta: meta),
       lamalPremiumMonthly: SpineValue(value: 390, meta: meta),
       liquidSavings: SpineValue(value: 30000, meta: meta),
-      investments: SpineValue(value: 12000, meta: meta),
+      investments: SpineValue(value: 12000, meta: estimatedMeta),
       totalDebt: SpineValue(value: 10000, meta: meta),
       housingStatus: SpineValue(value: 'locataire', meta: meta),
       activeGoalType: SpineValue(value: GoalAType.achatImmo, meta: meta),

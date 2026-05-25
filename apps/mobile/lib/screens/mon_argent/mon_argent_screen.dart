@@ -434,31 +434,43 @@ class _MonArgentSituationMap extends StatelessWidget {
             _SituationValueRow(
               label: l10n.affordabilityGrossIncome,
               value: _valueOrMissing(situation.grossAnnualIncome),
+              statusLabel: _fieldStatusLabel(situation.grossAnnualIncome),
+              statusColor: _fieldStatusColor(situation.grossAnnualIncome),
             ),
             const SizedBox(height: MintSpacing.sm),
             _SituationValueRow(
               label: l10n.budgetHousing,
               value: _valueOrMissing(situation.monthlyHousingCost),
+              statusLabel: _fieldStatusLabel(situation.monthlyHousingCost),
+              statusColor: _fieldStatusColor(situation.monthlyHousingCost),
             ),
             const SizedBox(height: MintSpacing.sm),
             _SituationValueRow(
               label: l10n.budgetHealthInsurance,
               value: _valueOrMissing(situation.lamalPremiumMonthly),
+              statusLabel: _fieldStatusLabel(situation.lamalPremiumMonthly),
+              statusColor: _fieldStatusColor(situation.lamalPremiumMonthly),
             ),
             const SizedBox(height: MintSpacing.sm),
             _SituationValueRow(
               label: l10n.dataBlockSituationCashLabel,
               value: _valueOrMissing(situation.liquidSavings),
+              statusLabel: _fieldStatusLabel(situation.liquidSavings),
+              statusColor: _fieldStatusColor(situation.liquidSavings),
             ),
             const SizedBox(height: MintSpacing.sm),
             _SituationValueRow(
               label: l10n.financialSummaryInvestissements,
               value: _valueOrMissing(situation.investments),
+              statusLabel: _fieldStatusLabel(situation.investments),
+              statusColor: _fieldStatusColor(situation.investments),
             ),
             const SizedBox(height: MintSpacing.sm),
             _SituationValueRow(
               label: l10n.patrimoineDettes,
               value: _valueOrMissing(situation.totalDebt),
+              statusLabel: _fieldStatusLabel(situation.totalDebt),
+              statusColor: _fieldStatusColor(situation.totalDebt),
             ),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: MintSpacing.md),
@@ -500,6 +512,32 @@ class _MonArgentSituationMap extends StatelessWidget {
     return amount == null ? l10n.dataBlockStatusMissing : _formatChf(amount);
   }
 
+  String _fieldStatusLabel(SpineValue<double> value) {
+    if (!value.hasValue) {
+      return l10n.budgetQualityMissing;
+    }
+    return switch (value.meta.confidence) {
+      FieldConfidence.known => l10n.budgetQualityProvided,
+      FieldConfidence.inferred => l10n.budgetQualityEstimated,
+      FieldConfidence.estimated => l10n.budgetQualityEstimated,
+      FieldConfidence.stale => l10n.budgetQualityEstimated,
+      FieldConfidence.missing => l10n.budgetQualityMissing,
+    };
+  }
+
+  Color _fieldStatusColor(SpineValue<double> value) {
+    if (!value.hasValue) {
+      return MintColors.textMuted;
+    }
+    return switch (value.meta.confidence) {
+      FieldConfidence.known => MintColors.success,
+      FieldConfidence.inferred => MintColors.warning,
+      FieldConfidence.estimated => MintColors.warning,
+      FieldConfidence.stale => MintColors.warning,
+      FieldConfidence.missing => MintColors.textMuted,
+    };
+  }
+
   String _pillarMoneyOrMissing(PillarFact<double> fact) {
     final amount = fact.value;
     return amount == null ? l10n.dataBlockStatusMissing : _formatChf(amount);
@@ -509,28 +547,74 @@ class _MonArgentSituationMap extends StatelessWidget {
 class _SituationValueRow extends StatelessWidget {
   final String label;
   final String value;
+  final String? statusLabel;
+  final Color? statusColor;
 
   const _SituationValueRow({
     required this.label,
     required this.value,
+    this.statusLabel,
+    this.statusColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Text(
-            label,
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 3,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                label,
+                style: MintTextStyles.bodySmall(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              if (statusLabel != null)
+                _FieldStatusChip(
+                  label: statusLabel!,
+                  color: statusColor ?? MintColors.textMuted,
+                ),
+            ],
           ),
         ),
+        const SizedBox(width: MintSpacing.sm),
         Text(
           value,
           style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
               .copyWith(fontWeight: FontWeight.w700),
         ),
       ],
+    );
+  }
+}
+
+class _FieldStatusChip extends StatelessWidget {
+  final String label;
+  final Color color;
+
+  const _FieldStatusChip({
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: MintTextStyles.labelSmall(color: color)
+            .copyWith(fontWeight: FontWeight.w700),
+      ),
     );
   }
 }
