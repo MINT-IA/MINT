@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/data/budget/budget_local_store.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
@@ -72,6 +73,27 @@ void main() {
     expect(find.text("12'000\u00a0CHF"), findsOneWidget);
     expect(find.text('saisi'), findsWidgets);
     expect(find.text('estimé'), findsOneWidget);
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(const Key('figure_trust_chip_gross_income')),
+          )
+          .identifier,
+      'figure_trust_chip_gross_income',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('figure_trust_chip_investments')))
+          .label,
+      'estimé',
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('figure_trust_chip_investments')))
+          .getSemanticsData()
+          .hasAction(SemanticsAction.tap),
+      isFalse,
+    );
 
     await tester.tap(find.text('Mois'));
     await tester.pumpAndSettle();
@@ -91,7 +113,28 @@ void main() {
     expect(find.text('3e pilier (3a)'), findsOneWidget);
     expect(find.text("120'000\u00a0CHF"), findsOneWidget);
     expect(find.text("32'000\u00a0CHF"), findsOneWidget);
-    expect(find.text('Manquant'), findsWidgets);
+    expect(find.text('manquant'), findsWidgets);
+    expect(find.text("0\u00a0CHF"), findsNothing);
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(
+              const Key('figure_trust_chip_avs_estimated_pension_pension'),
+            ),
+          )
+          .label,
+      'manquant',
+    );
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(
+              const Key('figure_trust_chip_lpp_total_balance_pension'),
+            ),
+          )
+          .label,
+      'saisi',
+    );
 
     await tester.ensureVisible(find.text('Futur'));
     await tester.tap(find.text('Futur'));
@@ -254,6 +297,49 @@ void main() {
       'mon_argent_section_future',
     );
     expect(find.text('Ta trajectoire'), findsOneWidget);
+  });
+
+  testWidgets('pillar trust chip exposes estimated state without tap action',
+      (tester) async {
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine(spine: _dataSpineEstimated3a()));
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>(
+            create: (_) => BudgetProvider(),
+          ),
+          ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => CoachProfileProvider(),
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('Prévoyance'));
+    await tester.pumpAndSettle();
+
+    final chip = tester.getSemantics(
+      find.byKey(const Key('figure_trust_chip_pillar3a_total_balance_pension')),
+    );
+    expect(chip.identifier, 'figure_trust_chip_pillar3a_total_balance_pension');
+    expect(chip.label, 'estimé');
+    expect(chip.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
   });
 
   testWidgets('prefers CoachProfile budget over stale budget cache',
@@ -462,7 +548,7 @@ void main() {
   });
 }
 
-MintUserState _stateWithDataSpine() {
+MintUserState _stateWithDataSpine({DataSpineSnapshot? spine}) {
   final profile = CoachProfile(
     birthYear: 1988,
     canton: 'VD',
@@ -473,7 +559,7 @@ MintUserState _stateWithDataSpine() {
       label: 'Logement',
     ),
   );
-  final spine = _dataSpine();
+  spine ??= _dataSpine();
   return MintUserState(
     profile: profile,
     lifecyclePhase: LifecyclePhase.construction,
@@ -483,6 +569,55 @@ MintUserState _stateWithDataSpine() {
     confidenceScore: 64,
     capMemory: const CapMemory(),
     computedAt: DateTime.utc(2026, 5, 24),
+  );
+}
+
+DataSpineSnapshot _dataSpineEstimated3a() {
+  const meta = SpineFieldMeta(
+    source: ProfileDataSource.userInput,
+    confidence: FieldConfidence.known,
+    freshness: FieldFreshness.fresh,
+  );
+  const estimatedMeta = SpineFieldMeta(
+    source: ProfileDataSource.estimated,
+    confidence: FieldConfidence.estimated,
+    freshness: FieldFreshness.fresh,
+  );
+  final base = _dataSpine();
+  return DataSpineSnapshot(
+    situation: base.situation,
+    budget: base.budget,
+    pillars: const PillarPosition(
+      avs: AvsPosition(
+        contributionYears: PillarFact.missing(),
+        gaps: PillarFact.missing(),
+        estimatedMonthlyPension: PillarFact.missing(),
+        ramd: PillarFact.missing(),
+      ),
+      lpp: LppPosition(
+        totalBalance: PillarFact(
+          value: 120000,
+          state: PillarFactState.known,
+          meta: meta,
+        ),
+        mandatoryBalance: PillarFact.missing(),
+        supplementaryBalance: PillarFact.missing(),
+        insuredSalary: PillarFact.missing(),
+        buybackMax: PillarFact.missing(),
+      ),
+      pillar3a: Pillar3aPosition(
+        totalBalance: PillarFact(
+          value: 32000,
+          state: PillarFactState.estimated,
+          meta: estimatedMeta,
+        ),
+        accountsCount: PillarFact.missing(),
+        annualContribution: PillarFact.missing(),
+        canContribute: true,
+      ),
+    ),
+    trajectory: base.trajectory,
+    computedAt: base.computedAt,
   );
 }
 

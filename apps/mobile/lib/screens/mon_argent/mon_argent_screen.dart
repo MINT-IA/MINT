@@ -667,6 +667,7 @@ class _MonArgentSituationMap extends StatelessWidget {
               value: _valueOrMissing(situation.grossAnnualIncome),
               statusLabel: _fieldStatusLabel(situation.grossAnnualIncome),
               statusColor: _fieldStatusColor(situation.grossAnnualIncome),
+              trustId: 'gross_income',
             ),
             const SizedBox(height: MintSpacing.sm),
             _SituationValueRow(
@@ -674,6 +675,7 @@ class _MonArgentSituationMap extends StatelessWidget {
               value: _valueOrMissing(situation.monthlyHousingCost),
               statusLabel: _fieldStatusLabel(situation.monthlyHousingCost),
               statusColor: _fieldStatusColor(situation.monthlyHousingCost),
+              trustId: 'housing_cost',
             ),
             const SizedBox(height: MintSpacing.sm),
             _SituationValueRow(
@@ -681,6 +683,7 @@ class _MonArgentSituationMap extends StatelessWidget {
               value: _valueOrMissing(situation.lamalPremiumMonthly),
               statusLabel: _fieldStatusLabel(situation.lamalPremiumMonthly),
               statusColor: _fieldStatusColor(situation.lamalPremiumMonthly),
+              trustId: 'lamal_premium',
             ),
             const SizedBox(height: MintSpacing.sm),
             _SituationValueRow(
@@ -688,6 +691,7 @@ class _MonArgentSituationMap extends StatelessWidget {
               value: _valueOrMissing(situation.liquidSavings),
               statusLabel: _fieldStatusLabel(situation.liquidSavings),
               statusColor: _fieldStatusColor(situation.liquidSavings),
+              trustId: 'liquid_savings',
             ),
             const SizedBox(height: MintSpacing.sm),
             _SituationValueRow(
@@ -695,6 +699,7 @@ class _MonArgentSituationMap extends StatelessWidget {
               value: _valueOrMissing(situation.investments),
               statusLabel: _fieldStatusLabel(situation.investments),
               statusColor: _fieldStatusColor(situation.investments),
+              trustId: 'investments',
             ),
             const SizedBox(height: MintSpacing.sm),
             _SituationValueRow(
@@ -702,6 +707,7 @@ class _MonArgentSituationMap extends StatelessWidget {
               value: _valueOrMissing(situation.totalDebt),
               statusLabel: _fieldStatusLabel(situation.totalDebt),
               statusColor: _fieldStatusColor(situation.totalDebt),
+              trustId: 'total_debt',
             ),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: MintSpacing.md),
@@ -714,6 +720,7 @@ class _MonArgentSituationMap extends StatelessWidget {
               ),
               state: pillars.avs.estimatedMonthlyPension.state,
               color: MintColors.info,
+              trustId: 'avs_estimated_pension',
               l10n: l10n,
             ),
             const SizedBox(height: MintSpacing.sm),
@@ -722,6 +729,7 @@ class _MonArgentSituationMap extends StatelessWidget {
               value: _pillarMoneyOrMissing(pillars.lpp.totalBalance),
               state: pillars.lpp.totalBalance.state,
               color: MintColors.pillarLpp,
+              trustId: 'lpp_total_balance',
               l10n: l10n,
             ),
             const SizedBox(height: MintSpacing.sm),
@@ -730,6 +738,7 @@ class _MonArgentSituationMap extends StatelessWidget {
               value: _pillarMoneyOrMissing(pillars.pillar3a.totalBalance),
               state: pillars.pillar3a.totalBalance.state,
               color: MintColors.success,
+              trustId: 'pillar3a_total_balance',
               l10n: l10n,
             ),
           ],
@@ -807,6 +816,7 @@ class _MonArgentPensionMap extends StatelessWidget {
               ),
               state: pillars.avs.estimatedMonthlyPension.state,
               color: MintColors.info,
+              trustId: 'avs_estimated_pension_pension',
               l10n: l10n,
             ),
             const SizedBox(height: MintSpacing.sm),
@@ -815,6 +825,7 @@ class _MonArgentPensionMap extends StatelessWidget {
               value: _pillarMoneyOrMissing(pillars.lpp.totalBalance),
               state: pillars.lpp.totalBalance.state,
               color: MintColors.pillarLpp,
+              trustId: 'lpp_total_balance_pension',
               l10n: l10n,
             ),
             const SizedBox(height: MintSpacing.sm),
@@ -823,6 +834,7 @@ class _MonArgentPensionMap extends StatelessWidget {
               value: _pillarMoneyOrMissing(pillars.pillar3a.totalBalance),
               state: pillars.pillar3a.totalBalance.state,
               color: MintColors.success,
+              trustId: 'pillar3a_total_balance_pension',
               l10n: l10n,
             ),
           ],
@@ -842,71 +854,92 @@ class _SituationValueRow extends StatelessWidget {
   final String value;
   final String? statusLabel;
   final Color? statusColor;
+  final String? trustId;
 
   const _SituationValueRow({
     required this.label,
     required this.value,
     this.statusLabel,
     this.statusColor,
+    this.trustId,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Wrap(
-            spacing: 6,
-            runSpacing: 3,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(
-                label,
-                style: MintTextStyles.bodySmall(
-                  color: MintColors.textSecondary,
+    final semanticLabel =
+        statusLabel == null ? '$label, $value' : '$label, $value, $statusLabel';
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      label: semanticLabel,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 3,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  label,
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.textSecondary,
+                  ),
                 ),
-              ),
-              if (statusLabel != null)
-                _FieldStatusChip(
-                  label: statusLabel!,
-                  color: statusColor ?? MintColors.textMuted,
-                ),
-            ],
+                if (statusLabel != null)
+                  _FigureTrustChip(
+                    label: statusLabel!,
+                    color: statusColor ?? MintColors.textMuted,
+                    trustId: trustId,
+                  ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(width: MintSpacing.sm),
-        Text(
-          value,
-          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
-              .copyWith(fontWeight: FontWeight.w700),
-        ),
-      ],
+          const SizedBox(width: MintSpacing.sm),
+          Text(
+            value,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _FieldStatusChip extends StatelessWidget {
+class _FigureTrustChip extends StatelessWidget {
   final String label;
   final Color color;
+  final String? trustId;
 
-  const _FieldStatusChip({
+  const _FigureTrustChip({
     required this.label,
     required this.color,
+    this.trustId,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        style: MintTextStyles.labelSmall(color: color)
-            .copyWith(fontWeight: FontWeight.w700),
+    final identifier = trustId == null ? null : 'figure_trust_chip_$trustId';
+    return Semantics(
+      key: identifier == null ? null : Key(identifier),
+      container: true,
+      identifier: identifier,
+      label: label,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: ExcludeSemantics(
+          child: Text(
+            label,
+            style: MintTextStyles.labelSmall(color: color)
+                .copyWith(fontWeight: FontWeight.w700),
+          ),
+        ),
       ),
     );
   }
@@ -917,6 +950,7 @@ class _PillarValueRow extends StatelessWidget {
   final String value;
   final PillarFactState state;
   final Color color;
+  final String trustId;
   final S l10n;
 
   const _PillarValueRow({
@@ -924,54 +958,70 @@ class _PillarValueRow extends StatelessWidget {
     required this.value,
     required this.state,
     required this.color,
+    required this.trustId,
     required this.l10n,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 32,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(999),
+    final stateLabel = _stateLabel(state);
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      label: '$label, $value, $stateLabel',
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 32,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(999),
+            ),
           ),
-        ),
-        const SizedBox(width: MintSpacing.sm),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: MintTextStyles.bodyMedium(
-                  color: MintColors.textPrimary,
-                ).copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: MintSpacing.xs),
-              Text(
-                _stateLabel(state),
-                style: MintTextStyles.micro(color: MintColors.textMuted),
-              ),
-            ],
+          const SizedBox(width: MintSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textPrimary,
+                  ).copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: MintSpacing.xs),
+                _FigureTrustChip(
+                  label: stateLabel,
+                  color: _stateColor(state),
+                  trustId: trustId,
+                ),
+              ],
+            ),
           ),
-        ),
-        Text(
-          value,
-          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
-              .copyWith(fontWeight: FontWeight.w700),
-        ),
-      ],
+          Text(
+            value,
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
     );
   }
 
   String _stateLabel(PillarFactState state) {
     return switch (state) {
-      PillarFactState.known => l10n.dataBlockStatusComplete,
-      PillarFactState.estimated => l10n.dataBlockStatusPartial,
-      PillarFactState.missing => l10n.dataBlockStatusMissing,
+      PillarFactState.known => l10n.budgetQualityProvided,
+      PillarFactState.estimated => l10n.budgetQualityEstimated,
+      PillarFactState.missing => l10n.budgetQualityMissing,
+    };
+  }
+
+  Color _stateColor(PillarFactState state) {
+    return switch (state) {
+      PillarFactState.known => MintColors.success,
+      PillarFactState.estimated => MintColors.warning,
+      PillarFactState.missing => MintColors.textMuted,
     };
   }
 }
