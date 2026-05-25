@@ -533,7 +533,8 @@ void main() {
       );
 
       expect(
-          narrative.trendMessage, equals('En progression — continue comme ca'));
+          narrative.trendMessage, equals('En progression — continue comme ça'));
+      expect(narrative.trendMessage, isNot(contains('comme ca')));
     });
 
     test('trendMessage "Attention" quand score baisse > 3', () async {
@@ -548,7 +549,8 @@ void main() {
       );
 
       expect(narrative.trendMessage,
-          equals('Attention — ton score baisse. Verifie tes actions.'));
+          equals('Attention — ton score baisse. Vérifie tes actions.'));
+      expect(narrative.trendMessage, isNot(contains('Verifie')));
     });
 
     test('trendMessage "Stable" quand score ne change pas beaucoup', () async {
@@ -577,7 +579,9 @@ void main() {
         byokConfig: null,
       );
 
-      expect(narrative.trendMessage, contains('Pas encore assez de donnees'));
+      expect(narrative.trendMessage,
+          contains('Pas encore assez de données'));
+      expect(narrative.trendMessage, isNot(contains('donnees')));
     });
 
     test('trendMessage fallback quand scoreHistory est null', () async {
@@ -591,7 +595,9 @@ void main() {
         byokConfig: null,
       );
 
-      expect(narrative.trendMessage, contains('Pas encore assez de donnees'));
+      expect(narrative.trendMessage,
+          contains('Pas encore assez de données'));
+      expect(narrative.trendMessage, isNot(contains('donnees')));
     });
   });
 

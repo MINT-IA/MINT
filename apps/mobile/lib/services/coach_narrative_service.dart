@@ -627,7 +627,7 @@ class CoachNarrativeService {
     List<Map<String, dynamic>>? scoreHistory,
   ) {
     if (scoreHistory == null || scoreHistory.length < 2) {
-      return 'Pas encore assez de donnees pour calculer une tendance.';
+      return 'Pas encore assez de données pour calculer une tendance.';
     }
 
     final history = scoreHistory;
@@ -638,9 +638,9 @@ class CoachNarrativeService {
     final trend = lastScore - firstScore;
 
     if (trend > 3) {
-      return 'En progression — continue comme ca';
+      return 'En progression — continue comme ça';
     } else if (trend < -3) {
-      return 'Attention — ton score baisse. Verifie tes actions.';
+      return 'Attention — ton score baisse. Vérifie tes actions.';
     } else {
       return 'Stable — tes efforts maintiennent le cap.';
     }
