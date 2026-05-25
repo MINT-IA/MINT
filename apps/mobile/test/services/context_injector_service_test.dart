@@ -128,6 +128,23 @@ void main() {
       expect(ctx.activeGoalsCount, equals(1));
     });
 
+    test('enrichment block avoids overconfident projection copy', () async {
+      final profile = makeProfile(birthYear: 1990, canton: 'VD', salaire: 0);
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: profile,
+        prefs: prefs,
+        now: now,
+      );
+
+      expect(ctx.memoryBlock, contains('ENRICHISSEMENT PRIORITAIRE'));
+      expect(ctx.memoryBlock, contains('action prioritaire'));
+      expect(ctx.memoryBlock, isNot(contains('projections fiables')));
+      expect(ctx.memoryBlock, isNot(contains('meilleure action')));
+    });
+
     // ════════════════════════════════════════════════════════════
     //  TEST 2: No profile → lifecycle absent
     // ════════════════════════════════════════════════════════════

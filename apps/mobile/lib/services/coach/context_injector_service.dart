@@ -431,8 +431,9 @@ class ContextInjectorService {
         '(${confidence.level})');
 
     if (confidence.score < ConfidenceScorer.minConfidenceForProjection) {
-      lines.add('IMPORTANT\u00a0: La confiance est trop basse pour des projections fiables. '
-          'Propose activement la meilleure action ci-dessous.');
+      lines.add('IMPORTANT\u00a0: La confiance est trop basse pour chiffrer '
+          'une projection solide. Propose activement l\'action prioritaire '
+          'ci-dessous.');
     }
 
     for (final prompt in topPrompts) {
