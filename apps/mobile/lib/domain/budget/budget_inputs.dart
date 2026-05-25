@@ -86,8 +86,7 @@ class BudgetInputs {
     };
 
     // Data source tags — propagate "estimé" vs "saisi" from profile
-    final healthSource =
-        profile.dataSources['depenses.assuranceMaladie'];
+    final healthSource = profile.dataSources['depenses.assuranceMaladie'];
     final isHealthFromUser = healthSource == ProfileDataSource.userInput ||
         healthSource == ProfileDataSource.certificate ||
         healthSource == ProfileDataSource.openBanking;
@@ -128,7 +127,11 @@ class BudgetInputs {
   factory BudgetInputs.fromMap(Map<String, dynamic> map) {
     // Calculer les mois de fonds d'urgence depuis la réponse wizard
     double emergencyMonths = 0;
+    final emergencySaved = map['emergency_fund_months'];
     final emergencyRaw = map['q_emergency_fund'];
+    if (emergencySaved is num) {
+      emergencyMonths = emergencySaved.toDouble();
+    }
     if (emergencyRaw is String) {
       switch (emergencyRaw.toLowerCase()) {
         case 'yes_6months':

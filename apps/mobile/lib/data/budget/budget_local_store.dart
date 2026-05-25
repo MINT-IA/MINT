@@ -36,29 +36,7 @@ class BudgetLocalStore {
     if (raw == null) return null;
     try {
       final map = Map<String, dynamic>.from(json.decode(raw));
-      return BudgetInputs(
-        payFrequency: PayFrequency.values.firstWhere(
-          (e) => e.name == map['q_pay_frequency'],
-          orElse: () => PayFrequency.monthly,
-        ),
-        netIncome: (map['q_net_income_period_chf'] as num?)?.toDouble() ?? 0.0,
-        housingCost:
-            (map['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0.0,
-        debtPayments:
-            (map['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0.0,
-        taxProvision:
-            (map['q_tax_provision_monthly_chf'] as num?)?.toDouble() ?? 0.0,
-        healthInsurance:
-            (map['q_lamal_premium_monthly_chf'] as num?)?.toDouble() ?? 0.0,
-        otherFixedCosts:
-            (map['q_other_fixed_costs_monthly_chf'] as num?)?.toDouble() ?? 0.0,
-        style: BudgetStyle.values.firstWhere(
-          (e) => e.name == map['q_budget_style'],
-          orElse: () => BudgetStyle.envelopes3,
-        ),
-        emergencyFundMonths:
-            (map['emergency_fund_months'] as num?)?.toDouble() ?? 0,
-      );
+      return BudgetInputs.fromMap(map);
     } catch (e) {
       // STAB-16 (07-04): corrupt prefs entry — log so the forensics are
       // visible, return null so the caller re-initialises from defaults.

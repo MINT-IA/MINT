@@ -34,6 +34,34 @@ Widget _wrap(Widget child) {
   );
 }
 
+Widget _wrapWithProviders({
+  required Widget child,
+  required CoachProfileProvider coachProvider,
+  required BudgetProvider budgetProvider,
+}) {
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<CoachProfileProvider>.value(value: coachProvider),
+      ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+    ],
+    child: MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      initialRoute: '/budget/setup',
+      routes: {
+        '/': (_) => const Scaffold(body: Text('home')),
+        '/budget/setup': (_) => child,
+      },
+    ),
+  );
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -110,6 +138,36 @@ void main() {
     expect(answers['_coach_depenses_electricite'], 90.0);
     expect(answers['_coach_depenses_frais_medicaux'], 110.0);
     expect(answers['_coach_depenses_autres'], 250.0);
+  });
+
+  testWidgets('refreshes BudgetProvider after save', (tester) async {
+    final coachProvider = CoachProfileProvider();
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(_wrapWithProviders(
+      child: const BudgetSetupScreen(),
+      coachProvider: coachProvider,
+      budgetProvider: budgetProvider,
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetHousingField')), '2200');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetLamalField')), '420');
+    await tester.tap(find.text("Ajouter d'autres postes"));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetTransportField')), '120');
+    await tester.ensureVisible(find.text('Enregistrer'));
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+
+    expect(budgetProvider.inputs, isNotNull);
+    expect(budgetProvider.inputs!.housingCost, 2200);
+    expect(budgetProvider.inputs!.healthInsurance, 420);
+    expect(budgetProvider.inputs!.otherFixedCosts, greaterThanOrEqualTo(120));
+    expect(budgetProvider.plan, isNotNull);
   });
 
   testWidgets('exposes Maestro semantics anchors', (tester) async {

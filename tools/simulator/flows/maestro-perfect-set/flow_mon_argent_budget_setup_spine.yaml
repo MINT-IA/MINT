@@ -68,6 +68,8 @@ tags:
 - assertVisible:
     id: "mon_argent_budget_summary"
 - assertVisible:
+    id: "mon_argent_budget_flow_bar"
+- assertVisible:
     id: "mon_argent_patrimoine_summary"
 - takeScreenshot: "mon-argent-01-data-spine"
 

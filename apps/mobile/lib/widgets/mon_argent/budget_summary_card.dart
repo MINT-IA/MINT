@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
@@ -168,6 +170,13 @@ class BudgetSummaryCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: MintSpacing.md),
+                _BudgetFlowBar(
+                  monthlyIncome: monthlyIncome,
+                  spent: spent,
+                  available: available,
+                  l10n: l10n,
+                ),
+                const SizedBox(height: MintSpacing.md),
                 _buildRow(l10n.monArgentBudgetIncome, monthlyIncome),
                 const SizedBox(height: MintSpacing.xs),
                 _buildRow(l10n.monArgentBudgetSpent, spent),
@@ -209,6 +218,79 @@ class BudgetSummaryCard extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _formatChf(double amount) {
+    final formatted = amount.toStringAsFixed(0).replaceAllMapped(
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (match) => "${match[1]}'",
+        );
+    return "$formatted\u00a0CHF";
+  }
+}
+
+class _BudgetFlowBar extends StatelessWidget {
+  final double monthlyIncome;
+  final double spent;
+  final double available;
+  final S l10n;
+
+  const _BudgetFlowBar({
+    required this.monthlyIncome,
+    required this.spent,
+    required this.available,
+    required this.l10n,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final safeIncome = monthlyIncome.isFinite ? max(0.0, monthlyIncome) : 0.0;
+    final safeSpent = spent.isFinite ? max(0.0, spent) : 0.0;
+    final safeAvailable = available.isFinite ? max(0.0, available) : 0.0;
+    final total = max(safeIncome, safeSpent + safeAvailable);
+    final spentFlex = _shareFlex(safeSpent, total);
+    final availableFlex = _shareFlex(safeAvailable, total);
+    final reserveFlex = max(0, 100 - spentFlex - availableFlex);
+
+    return Semantics(
+      key: const Key('mon_argent_budget_flow_bar'),
+      identifier: 'mon_argent_budget_flow_bar',
+      container: true,
+      label: '${l10n.monArgentBudgetSpent} ${_formatChf(safeSpent)}. '
+          '${l10n.monArgentBudgetRemaining} ${_formatChf(safeAvailable)}.',
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(999),
+        child: SizedBox(
+          height: 12,
+          child: Row(
+            children: [
+              if (spentFlex > 0)
+                Expanded(
+                  flex: spentFlex,
+                  child: const ColoredBox(color: MintColors.pecheDouce),
+                ),
+              if (availableFlex > 0)
+                Expanded(
+                  flex: availableFlex,
+                  child: ColoredBox(
+                    color: available < 0 ? MintColors.error : MintColors.sauge,
+                  ),
+                ),
+              if (reserveFlex > 0)
+                Expanded(
+                  flex: reserveFlex,
+                  child: const ColoredBox(color: MintColors.borderSubtle),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  int _shareFlex(double value, double total) {
+    if (total <= 0 || value <= 0) return 0;
+    return max(1, (value / total * 100).round());
   }
 
   String _formatChf(double amount) {
