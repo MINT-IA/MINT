@@ -14,8 +14,10 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 
 void main() {
   setUp(() {
@@ -522,6 +524,72 @@ void main() {
       ),
       findsWidgets,
     );
+  });
+
+  testWidgets('BudgetContainerScreen routeExtra emits Tier A return on pop',
+      (tester) async {
+    await ScreenCompletionTracker.clear('budget');
+    await BudgetLocalStore().saveInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 8000,
+        housingCost: 2200,
+        debtPayments: 0,
+        taxProvision: 950,
+        healthInsurance: 420,
+      ),
+    );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const BudgetContainerScreen(
+                    routeExtra: {
+                      'runId': 'run-budget-1',
+                      'stepId': 'step-budget-1',
+                    },
+                  ),
+                ),
+              ),
+              child: const Text('open budget'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('open budget'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+    expect(find.byType(BudgetScreen), findsOneWidget);
+
+    Navigator.of(tester.element(find.byType(BudgetScreen))).pop();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final screenReturn = await ScreenCompletionTracker.lastReturn('budget');
+    expect(screenReturn?.route, '/budget');
+    expect(screenReturn?.outcome, ScreenOutcome.completed);
+    expect(screenReturn?.runId, 'run-budget-1');
+    expect(screenReturn?.stepId, 'step-budget-1');
+    expect(screenReturn?.stepOutputs?['revenu_net'], 8000);
+    expect(screenReturn?.stepOutputs?['charges_totales'], 3570);
   });
 
   testWidgets('BudgetContainerScreen keeps full cache over partial profile',
