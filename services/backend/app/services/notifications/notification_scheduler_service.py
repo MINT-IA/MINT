@@ -69,10 +69,10 @@ class NotificationSchedulerService:
 
         Schedule:
             - Oct 1: "Il reste 92 jours pour verser sur ton 3a."
-            - Nov 1: "Il reste 61 jours. Economie estimee : CHF {tax_saving_3a}."
-            - Dec 1: "Dernier mois pour ton 3a. CHF {tax_saving_3a} d'economie en jeu."
+            - Nov 1: "Il reste 61 jours. Économie fiscale estimée : CHF {tax_saving_3a}."
+            - Dec 1: "Dernier mois pour ton 3a. Économie fiscale estimée : CHF {tax_saving_3a}."
             - Dec 20: "11 jours. Dernier rappel 3a."
-            - Jan 5 (next year): "Nouveaux plafonds {year+1}. Ton economie potentielle a change."
+            - Jan 5 (next year): "Nouveaux plafonds {year+1}. La marge deductible peut changer."
             - Monthly on 1st: "Ton check-in mensuel est disponible."
 
         Args:
@@ -98,10 +98,10 @@ class NotificationSchedulerService:
             ScheduledNotification(
                 category=NotificationCategory.three_a_deadline,
                 tier=NotificationTier.calendar,
-                title="Rappel 3a \u2014 fin d\u2019annee",
+                title="Rappel 3a \u2014 fin d\u2019année",
                 body=(
                     f"Il reste {days_oct1} jours pour ton 3a. "
-                    f"Economie estimee : CHF {chf_saving}."
+                    f"Économie fiscale estimée : CHF {chf_saving}."
                 ),
                 deeplink="/pilier-3a",
                 scheduled_date=oct1,
@@ -120,7 +120,7 @@ class NotificationSchedulerService:
                 title="3a — 2 mois restants",
                 body=(
                     f"Il reste {days_nov1} jours. "
-                    f"Economie estimee : CHF {chf_saving}."
+                    f"Économie fiscale estimée : CHF {chf_saving}."
                 ),
                 deeplink="/pilier-3a",
                 scheduled_date=nov1,
@@ -139,7 +139,7 @@ class NotificationSchedulerService:
                 title="3a — dernier mois",
                 body=(
                     f"Dernier mois pour ton 3a. "
-                    f"CHF {chf_saving} d\u2019economie en jeu. "
+                    f"Économie fiscale estimée : CHF {chf_saving}. "
                     f"{days_dec1} jours restants."
                 ),
                 deeplink="/pilier-3a",
@@ -159,7 +159,7 @@ class NotificationSchedulerService:
                 title="Dernier rappel 3a",
                 body=(
                     f"{days_dec20} jours. Dernier rappel 3a. "
-                    f"CHF {chf_saving} d\u2019economie potentielle."
+                    f"Économie fiscale estimée : CHF {chf_saving}."
                 ),
                 deeplink="/pilier-3a",
                 scheduled_date=dec20,
@@ -177,7 +177,7 @@ class NotificationSchedulerService:
                 title=f"Plafonds {year + 1}",
                 body=(
                     f"Nouveaux plafonds {year + 1}. "
-                    f"Ton economie potentielle a change. "
+                    f"La marge déductible peut changer. "
                     f"Plafond 3a : CHF 7\u2019258."
                 ),
                 deeplink="/pilier-3a",
