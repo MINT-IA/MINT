@@ -43,6 +43,14 @@ void main() {
         loyer: loyer,
         assuranceMaladie: assuranceMaladie,
       ),
+      dataSources: const {
+        'depenses.loyer': ProfileDataSource.userInput,
+        'depenses.assuranceMaladie': ProfileDataSource.userInput,
+      },
+      userProvidedFields: const {
+        'housingCost',
+        'lamalPremium',
+      },
       plannedContributions: contributions,
       goalA: GoalA(
         type: GoalAType.retraite,
@@ -397,8 +405,9 @@ void main() {
 
       if (snapshot.stage != BudgetStage.presentOnly) {
         // Julien has 539'414 CHF lacune — rachat_lpp must be the dominant cap
-        final rachatCap =
-            snapshot.capImpacts.where((c) => c.capId == 'rachat_lpp').firstOrNull;
+        final rachatCap = snapshot.capImpacts
+            .where((c) => c.capId == 'rachat_lpp')
+            .firstOrNull;
         expect(rachatCap, isNotNull,
             reason:
                 'Julien has CHF 539\'414 LPP lacune — rachat_lpp must appear');

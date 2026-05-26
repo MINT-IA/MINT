@@ -51,6 +51,18 @@ void main() {
         creditConsommation: 3000,
         mensualiteCreditConso: 250,
       ),
+      dataSources: const {
+        'depenses.loyer': ProfileDataSource.userInput,
+        'depenses.assuranceMaladie': ProfileDataSource.userInput,
+        'patrimoine.epargneLiquide': ProfileDataSource.userInput,
+        'dettes.totalDettes': ProfileDataSource.userInput,
+      },
+      userProvidedFields: const {
+        'housingCost',
+        'lamalPremium',
+        'liquidSavings',
+        'debt',
+      },
       goalA: goal ??
           GoalA(
             type: GoalAType.custom,
