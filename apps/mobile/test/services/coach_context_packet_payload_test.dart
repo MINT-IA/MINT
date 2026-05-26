@@ -214,6 +214,50 @@ void main() {
       expect(packet.containsKey('first_name'), isFalse);
     });
 
+    test('CoachLlmService.chat forwards monthly consumer debt Safe Mode',
+        () async {
+      CoachContext? capturedCtx;
+      CoachLlmService.registerOrchestrator(({
+        required userMessage,
+        required history,
+        required ctx,
+        byokConfig,
+        memoryBlock,
+        language = 'fr',
+        cashLevel = 3,
+        isLoggedIn = false,
+      }) async {
+        capturedCtx = ctx;
+        return const CoachResponse(
+          message: 'ok',
+          disclaimer: 'Outil educatif.',
+          wasFiltered: false,
+        );
+      });
+
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_canton': 'VD',
+        'q_gross_income_monthly': 6000,
+        'q_has_consumer_debt': 'yes',
+        'q_debt_payments_period_chf': 900,
+        '_coach_dettes_hypotheque': 600000,
+        'q_housing_cost_period_chf': 2200,
+        'q_lamal_premium_monthly_chf': 420,
+        'q_cash_total': 30000,
+      });
+
+      await CoachLlmService.chat(
+        userMessage: 'Je veux optimiser mon 3a',
+        profile: profile,
+        history: const [],
+        config: LlmConfig.defaultOpenAI,
+      );
+
+      expect(capturedCtx?.hasDebt, isTrue);
+      expect(capturedCtx?.knownValues.containsKey('hasDebt'), isFalse);
+    });
+
     test('shared adapter builds the packet used by screen and service paths',
         () {
       final profile = CoachProfile(
