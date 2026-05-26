@@ -621,7 +621,7 @@ class FinancialReportService {
       return ActionItem(
         title: l?.reportActionTitleAvsCheck ?? 'Vérifie ton compte AVS',
         description: l?.reportActionDescAvsCheck ??
-            'Évite de perdre jusqu\'à 38\'000 CHF de rente à vie.',
+            'Vérifie tes années de cotisation pour estimer une éventuelle lacune AVS.',
         priority: ActionPriority.high,
         category: ActionCategory.avs,
         steps: [

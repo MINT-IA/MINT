@@ -19320,7 +19320,7 @@ class SEs extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Evita perder hasta CHF 38’000 de pensión de por vida.';
+      'Comprueba tus años de cotización para estimar una posible laguna AVS.';
 
   @override
   String get reportActionDescDette =>

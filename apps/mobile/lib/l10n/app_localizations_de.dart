@@ -19361,7 +19361,7 @@ class SDe extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Vermeide den Verlust von bis zu CHF 38’000 lebenslanger Rente.';
+      'Prüfe deine Beitragsjahre, um eine mögliche AHV-Lücke einzuschätzen.';
 
   @override
   String get reportActionDescDette =>

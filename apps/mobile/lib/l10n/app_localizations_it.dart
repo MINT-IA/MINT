@@ -19371,7 +19371,7 @@ class SIt extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Evita di perdere fino a CHF 38’000 di rendita a vita.';
+      'Verifica gli anni di contribuzione per stimare un\'eventuale lacuna AVS.';
 
   @override
   String get reportActionDescDette =>

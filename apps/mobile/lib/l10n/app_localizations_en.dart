@@ -19224,7 +19224,7 @@ class SEn extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Avoid losing up to CHF 38’000 of lifetime pension.';
+      'Check your contribution years to estimate any AVS/OASI gap.';
 
   @override
   String get reportActionDescDette =>

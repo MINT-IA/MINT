@@ -33946,7 +33946,7 @@ abstract class S {
   /// No description provided for @reportActionDescAvsCheck.
   ///
   /// In fr, this message translates to:
-  /// **'Évite de perdre jusqu’à 38’000 CHF de rente à vie.'**
+  /// **'Vérifie tes années de cotisation pour estimer une éventuelle lacune AVS.'**
   String get reportActionDescAvsCheck;
 
   /// No description provided for @reportActionDescDette.

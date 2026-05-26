@@ -19320,7 +19320,7 @@ class SPt extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Evita perder até CHF 38’000 de pensão ao longo da vida.';
+      'Verifica os teus anos de contribuição para estimar uma eventual lacuna AVS.';
 
   @override
   String get reportActionDescDette =>

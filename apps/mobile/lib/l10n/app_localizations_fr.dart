@@ -19313,7 +19313,7 @@ class SFr extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Évite de perdre jusqu’à 38’000 CHF de rente à vie.';
+      'Vérifie tes années de cotisation pour estimer une éventuelle lacune AVS.';
 
   @override
   String get reportActionDescDette =>

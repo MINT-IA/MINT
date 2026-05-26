@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/models/financial_report.dart';
@@ -19,6 +22,24 @@ void main() {
 
   setUp(() {
     service = FinancialReportService();
+  });
+
+  group('Localized trust copy', () {
+    test('avs action description does not reintroduce fixed lifetime amount',
+        () {
+      const locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
+      for (final locale in locales) {
+        final file = File('lib/l10n/app_$locale.arb');
+        final json =
+            jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+        final description = json['reportActionDescAvsCheck'] as String;
+
+        expect(description, isNot(contains("38'000")), reason: locale);
+        expect(description, isNot(contains('38’000')), reason: locale);
+        expect(description.toLowerCase(), isNot(contains('lifetime pension')),
+            reason: locale);
+      }
+    });
   });
 
   // ── Helper: minimal answers for a valid report ──────────────────────
@@ -588,6 +609,25 @@ void main() {
       final action = report.priorityActions
           .firstWhere((action) => action.category == ActionCategory.pillar3a);
 
+      expect(action.potentialGainChf, isNull);
+    });
+
+    test('avs action does not claim a fixed lifetime pension amount', () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 2
+        ..['q_3a_annual_contribution'] = pilier3aPlafondAvecLpp
+        ..['q_lpp_buyback_available'] = 0.0
+        ..['q_avs_lacunes_status'] = 'unknown';
+      final report = service.generateReport(answers);
+
+      final action = report.priorityActions
+          .firstWhere((action) => action.category == ActionCategory.avs);
+
+      expect(action.description, isNot(contains("38'000")));
+      expect(action.description, isNot(contains('38’000')));
+      expect(action.description, contains('années'));
       expect(action.potentialGainChf, isNull);
     });
 
