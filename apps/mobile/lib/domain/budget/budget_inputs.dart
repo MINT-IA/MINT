@@ -63,23 +63,7 @@ class BudgetInputs {
   /// Les dettes sont reparties sur 36 mois de remboursement.
   static BudgetInputs fromCoachProfile(CoachProfile profile) {
     // Revenu net du menage (utilisateur + conjoint si couple)
-    final ownBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: profile.salaireBrutMensuel * 12,
-      canton: profile.canton,
-      age: profile.age,
-    );
-    final ownNet = ownBreakdown.monthlyNetPayslip;
-    final conjointBudget = profile.conjoint;
-    final partnerNet = conjointBudget != null &&
-            conjointBudget.salaireBrutMensuel != null &&
-            conjointBudget.age != null
-        ? NetIncomeBreakdown.compute(
-            grossSalary: conjointBudget.salaireBrutMensuel! * 12,
-            canton: profile.canton,
-            age: conjointBudget.age!,
-          ).monthlyNetPayslip
-        : 0.0;
-    final monthlyNet = ownNet + partnerNet;
+    final monthlyNet = monthlyNetFromCoachProfile(profile);
     final monthlyDebt =
         profile.dettes.totalDettes > 0 ? profile.dettes.totalDettes / 36 : 0.0;
     final hasHousingSource = _hasTrustedSource(profile, 'depenses.loyer') ||
@@ -171,6 +155,47 @@ class BudgetInputs {
       isOtherFixedMissing: plausibleOtherFixed <= 0,
       emergencyFundMonths: emergencyMonths,
     );
+  }
+
+  /// Household monthly net income used by budget surfaces.
+  ///
+  /// Salaried income uses the payslip net calculator. Independent income uses
+  /// the same explicit approximation as BudgetLivingEngine: gross annual × 90%
+  /// / 12, because NetIncomeBreakdown models employee social charges.
+  static double monthlyNetFromCoachProfile(CoachProfile profile) {
+    final ownNet = _monthlyNetFromGrossAnnual(
+      grossAnnual: profile.revenuBrutAnnuel,
+      canton: profile.canton,
+      age: profile.age,
+      employmentStatus: profile.employmentStatus,
+    );
+    final conjoint = profile.conjoint;
+    final partnerNet = conjoint != null && conjoint.age != null
+        ? _monthlyNetFromGrossAnnual(
+            grossAnnual: conjoint.revenuBrutAnnuel,
+            canton: profile.canton,
+            age: conjoint.age!,
+            employmentStatus: conjoint.employmentStatus ?? 'salarie',
+          )
+        : 0.0;
+    return ownNet + partnerNet;
+  }
+
+  static double _monthlyNetFromGrossAnnual({
+    required double grossAnnual,
+    required String canton,
+    required int age,
+    required String employmentStatus,
+  }) {
+    if (grossAnnual <= 0 || !grossAnnual.isFinite) return 0;
+    if (employmentStatus == 'independant') {
+      return grossAnnual * 0.90 / 12;
+    }
+    return NetIncomeBreakdown.compute(
+      grossSalary: grossAnnual,
+      canton: canton.isNotEmpty ? canton : 'ZH',
+      age: age,
+    ).monthlyNetPayslip;
   }
 
   // Factory depuis une map (pour deserialization depuis Session.answers)

@@ -3,6 +3,7 @@ import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────────
 //  BUDGET DOMAIN — Unit Tests
@@ -985,6 +986,76 @@ void main() {
       expect(inputs.healthInsurance, 420);
       expect(inputs.isHealthMissing, isFalse);
       expect(inputs.isHealthEstimated, isFalse);
+    });
+
+    test('fromCoachProfile uses independent net-income approximation', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'GE',
+        salaireBrutMensuel: 10000,
+        employmentStatus: 'independant',
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.netIncome, closeTo(9000, 0.01));
+    });
+
+    test('fromCoachProfile uses annual gross for salaried net income', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'GE',
+        salaireBrutMensuel: 10000,
+        nombreDeMois: 13,
+        employmentStatus: 'salarie',
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+      final expected = NetIncomeBreakdown.compute(
+        grossSalary: profile.revenuBrutAnnuel,
+        canton: profile.canton,
+        age: profile.age,
+      ).monthlyNetPayslip;
+
+      expect(inputs.netIncome, closeTo(expected, 0.01));
+    });
+
+    test('fromCoachProfile includes independent partner approximation', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'GE',
+        salaireBrutMensuel: 6000,
+        employmentStatus: 'salarie',
+        conjoint: const ConjointProfile(
+          birthYear: 1988,
+          salaireBrutMensuel: 4000,
+          employmentStatus: 'independant',
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+      final ownNet = NetIncomeBreakdown.compute(
+        grossSalary: profile.revenuBrutAnnuel,
+        canton: profile.canton,
+        age: profile.age,
+      ).monthlyNetPayslip;
+
+      expect(inputs.netIncome, closeTo(ownNet + 3600, 0.01));
     });
 
     test('fromCoachProfile sums only trusted detailed fixed expenses', () {

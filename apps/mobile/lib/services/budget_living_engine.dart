@@ -135,33 +135,8 @@ class BudgetLivingEngine {
   // ══════════════════════════════════════════════════════════
 
   static PresentBudget _computePresent(CoachProfile profile) {
-    // Net income — main user
-    // FIX-100: Use revenuBrutAnnuel which handles independants.
-    // salaireBrutMensuel can be 0 for independants (they use selfEmployedNetIncome).
-    final grossAnnual = profile.revenuBrutAnnuel;
-    final mainBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: grossAnnual,
-      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-      age: profile.age,
-    );
-    // For independants, social charges are different (AVS 10.6% total, no LPP split).
-    // NetIncomeBreakdown uses salarié rates — for independants, use ~90% of gross as net.
-    double monthlyNet = profile.employmentStatus == 'independant' && grossAnnual > 0
-        ? grossAnnual * 0.90 / 12  // ~10% charges sociales pour indépendants
-        : mainBreakdown.monthlyNetPayslip;
-
-    // Partner net income
-    final conj = profile.conjoint;
-    if (conj != null &&
-        (conj.salaireBrutMensuel ?? 0) > 0 &&
-        conj.age != null) {
-      final partnerBreakdown = NetIncomeBreakdown.compute(
-        grossSalary: conj.salaireBrutMensuel! * 12,
-        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-        age: conj.age!,
-      );
-      monthlyNet += partnerBreakdown.monthlyNetPayslip;
-    }
+    // Net income — same household derivation as BudgetInputs.
+    final monthlyNet = BudgetInputs.monthlyNetFromCoachProfile(profile);
 
     // Fixed charges from BudgetInputs (single source of truth for budget calc)
     // BudgetInputs.fromCoachProfile uses the same tax estimator path.

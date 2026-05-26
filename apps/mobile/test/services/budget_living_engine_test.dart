@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
@@ -518,6 +519,29 @@ void main() {
       // No salary means no net income projection possible
       expect(snapshot.present.monthlyNet, equals(0));
       expect(snapshot.stage, equals(BudgetStage.presentOnly));
+    });
+
+    test('independent monthlyNet matches BudgetInputs derivation', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'GE',
+        salaireBrutMensuel: 10000,
+        employmentStatus: 'independant',
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
+        patrimoine: const PatrimoineProfile(),
+        depenses: const DepensesProfile(),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+      final snapshot = BudgetLivingEngine.compute(profile);
+
+      expect(inputs.netIncome, closeTo(9000, 0.01));
+      expect(snapshot.present.monthlyNet, closeTo(inputs.netIncome, 0.01));
     });
   });
 }
