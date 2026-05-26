@@ -348,6 +348,10 @@ void main() {
             loyer: 1100,
             assuranceMaladie: 390,
           ),
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+            'depenses.assuranceMaladie': ProfileDataSource.userInput,
+          },
           goalA: GoalA(
             type: GoalAType.achatImmo,
             targetDate: DateTime(2030),

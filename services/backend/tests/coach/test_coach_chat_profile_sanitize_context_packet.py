@@ -6,6 +6,8 @@ sanitizer or RAG schema drops it, the mobile integration is only a facade.
 """
 
 import json
+import math
+import re
 from pathlib import Path
 
 from app.api.v1.endpoints.coach_chat import (
@@ -15,10 +17,14 @@ from app.api.v1.endpoints.coach_chat import (
     _sanitize_profile_context,
 )
 from app.schemas.rag import ProfileContext
-from app.services.coach.context_packet_sanitizer import sanitize_coach_context_packet
+from app.services.coach.context_packet_sanitizer import (
+    _ALLOWED_IDS,
+    sanitize_coach_context_packet,
+)
 
 
 FIXTURES_DIR = Path(__file__).resolve().parents[1] / "fixtures"
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def _packet() -> dict:
@@ -128,9 +134,11 @@ def test_mobile_packet_fixture_survives_backend_contract_boundary():
     )
 
     safe = sanitize_coach_context_packet(packet)
-    fact_ids = {fact["id"] for fact in safe["facts"]}
+    facts_by_id = {fact["id"]: fact for fact in safe["facts"]}
+    fact_ids = set(facts_by_id)
     missing_paths = {field["field_path"] for field in safe["missing_fields"]}
 
+    assert facts_by_id["profile.canton"]["value"] == "VD"
     assert "budget.monthly_net" in fact_ids
     assert "budget.monthly_charges" in fact_ids
     assert "budget.monthly_free" in fact_ids
@@ -142,6 +150,51 @@ def test_mobile_packet_fixture_survives_backend_contract_boundary():
     assert safe["trajectory"]["current_monthly_capacity"] == 2239.0
     assert safe["next_questions"][0]["id"] == "confirm_plan_tracking"
     assert "readiness" not in safe
+
+
+def test_mobile_allowed_fact_ids_match_backend_sanitizer_allowlist():
+    dart_source = (
+        REPO_ROOT
+        / "apps/mobile/lib/services/data_spine/coach_context_packet_service.dart"
+    ).read_text()
+    match = re.search(
+        r"allowedFactIds\s*=\s*<String>\{(?P<body>.*?)\};",
+        dart_source,
+        flags=re.S,
+    )
+    assert match is not None
+
+    mobile_ids = set(re.findall(r"'([^']+)'", match.group("body")))
+
+    assert len(mobile_ids) >= 10
+    assert mobile_ids == _ALLOWED_IDS
+
+
+def test_sanitizer_drops_non_finite_numeric_fact_values():
+    packet = _packet()
+    packet["facts"] = [
+        {
+            "id": "budget.monthly_net",
+            "domain": "budget",
+            "field_path": "budget.present.monthlyNet",
+            "value": float("nan"),
+        },
+        {
+            "id": "budget.monthly_charges",
+            "domain": "budget",
+            "field_path": "budget.present.monthlyCharges",
+            "value": float("inf"),
+        },
+    ]
+
+    assert math.isnan(packet["facts"][0]["value"])
+    assert math.isinf(packet["facts"][1]["value"])
+
+    safe = sanitize_coach_context_packet(packet)
+    facts_by_id = {fact["id"]: fact for fact in safe["facts"]}
+
+    assert "value" not in facts_by_id["budget.monthly_net"]
+    assert "value" not in facts_by_id["budget.monthly_charges"]
 
 
 def test_sanitize_keeps_mobile_monthly_capacity_fact_shape():

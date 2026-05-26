@@ -7,6 +7,7 @@ trust arbitrary nested dicts just because the top-level key is whitelisted.
 from __future__ import annotations
 
 import re
+import math
 from typing import Any
 
 
@@ -119,6 +120,34 @@ _ALLOWED_DOMAINS = {
 _ALLOWED_SOURCES = {"wizard", "calculated", "estimated", "certificate", "unknown"}
 _ALLOWED_FRESHNESS = {"fresh", "stale", "unknown"}
 _ALLOWED_STATES = {"known", "estimated", "missing"}
+_ALLOWED_CANTONS = {
+    "AG",
+    "AI",
+    "AR",
+    "BE",
+    "BL",
+    "BS",
+    "FR",
+    "GE",
+    "GL",
+    "GR",
+    "JU",
+    "LU",
+    "NE",
+    "NW",
+    "OW",
+    "SG",
+    "SH",
+    "SO",
+    "SZ",
+    "TG",
+    "TI",
+    "UR",
+    "VD",
+    "VS",
+    "ZG",
+    "ZH",
+}
 
 
 def _sanitize_string(value: Any, *, max_len: int = 96, allowed: set[str] | None = None):
@@ -136,7 +165,20 @@ def _number(value: Any):
     if isinstance(value, bool):
         return None
     if isinstance(value, (int, float)):
-        return value
+        number = float(value)
+        if math.isfinite(number):
+            return value
+    return None
+
+
+def _fact_value(fact_id: str, value: Any):
+    number = _number(value)
+    if number is not None:
+        return number
+    if fact_id == "profile.canton":
+        return _sanitize_string(value, max_len=2, allowed=_ALLOWED_CANTONS)
+    if fact_id == "trajectory.status":
+        return _sanitize_string(value, allowed=_ALLOWED_TRAJECTORY_STATUS)
     return None
 
 
@@ -169,10 +211,14 @@ def sanitize_coach_context_packet(value: Any) -> dict[str, Any]:
         for key in sorted(_FACT_KEYS - {"id", "domain", "field_path"}):
             if key not in item or item[key] is None:
                 continue
-            if key in {"value", "confidence"}:
-                number = _number(item[key])
-                if number is not None:
-                    fact[key] = number
+            if key == "value":
+                safe_value = _fact_value(fact_id, item[key])
+                if safe_value is not None:
+                    fact[key] = safe_value
+            elif key == "confidence":
+                confidence = _number(item[key])
+                if confidence is not None:
+                    fact[key] = confidence
             elif key == "source":
                 source = _sanitize_string(item[key], allowed=_ALLOWED_SOURCES)
                 if source:

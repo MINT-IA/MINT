@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import math
 import os
 import re
 from datetime import datetime, timedelta, timezone
@@ -67,6 +68,7 @@ from app.services.coach.coach_context_builder import build_coach_context
 # Imported here (not lazily) so the wire-test grep finds the symbol in source.
 from app.services.coach.pre_compute import precompute_after_fact_save
 from app.services.coach.citation_parser import (
+    FALLBACK_TEMPLATED_TEXT,
     GateVerdict,
     GatedResponse,
     gate as _citation_gate,
@@ -3399,13 +3401,23 @@ def _has_packet_budget_facts(ctx: dict) -> bool:
         "budget.monthly_charges",
         "budget.monthly_free",
     }
-    return any(
-        isinstance(fact, dict)
-        and fact.get("id") in budget_fact_ids
-        and isinstance(fact.get("value"), (int, float))
-        and not isinstance(fact.get("value"), bool)
-        for fact in facts
-    )
+    return any(_packet_budget_number(fact, budget_fact_ids) is not None for fact in facts)
+
+
+def _packet_budget_number(fact: dict, budget_fact_ids: set[str]):
+    if not isinstance(fact, dict):
+        return None
+    if fact.get("id") not in budget_fact_ids:
+        return None
+    if fact.get("freshness") == "stale" or fact.get("state") == "missing":
+        return None
+    value = fact.get("value")
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    number = float(value)
+    if not math.isfinite(number):
+        return None
+    return value
 
 
 def _format_budget_status(ctx: dict) -> str:
@@ -3421,12 +3433,7 @@ def _format_budget_status(ctx: dict) -> str:
             }
 
             def _packet_number(fact_id: str):
-                value = by_id.get(fact_id, {}).get("value")
-                if isinstance(value, bool):
-                    return None
-                if isinstance(value, (int, float)):
-                    return value
-                return None
+                return _packet_budget_number(by_id.get(fact_id, {}), {fact_id})
 
             monthly_income = _packet_number("budget.monthly_net")
             monthly_expenses = _packet_number("budget.monthly_charges")
@@ -5306,7 +5313,7 @@ async def coach_chat(
                 # `_enforce_tool_use_for_citations` is covered by
                 # `tests/test_coach_chat_tool_use_gate.py` (Wave A).
                 enforcement = _enforce_tool_use_for_citations(
-                    answer_text=gated.gated_text,
+                    answer_text=loop_result["answer"],
                     tool_calls=loop_result.get("tool_calls") or [],
                 )
                 _emit_tool_use_enforcement_breadcrumb(enforcement, retry_count=0)
@@ -5324,8 +5331,9 @@ async def coach_chat(
                         ),
                         timeout=AGENT_LOOP_DEADLINE_SECONDS,
                     )
+                    retry_raw_answer_w1c = retry_result_w1c["answer"]
                     retry_gated_w1c = _citation_gate(
-                        response_text=retry_result_w1c["answer"],
+                        response_text=retry_raw_answer_w1c,
                         ctx=coach_ctx,
                         citation_allowlist=_gate_allowlist,
                         is_retry=True,
@@ -5335,7 +5343,7 @@ async def coach_chat(
                     _emit_gate_breadcrumb(retry_gated_w1c, retries=1)
                     retry_result_w1c["answer"] = retry_gated_w1c.gated_text
                     retry_enforcement = _enforce_tool_use_for_citations(
-                        answer_text=retry_gated_w1c.gated_text,
+                        answer_text=retry_raw_answer_w1c,
                         tool_calls=retry_result_w1c.get("tool_calls") or [],
                     )
                     _emit_tool_use_enforcement_breadcrumb(
@@ -5367,8 +5375,9 @@ async def coach_chat(
             _run_agent_loop(question=retry_message, **_initial_loop_kwargs),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )
+        retry_raw_answer = retry_result["answer"]
         retry_gated = _citation_gate(
-            response_text=retry_result["answer"],
+            response_text=retry_raw_answer,
             ctx=coach_ctx,
             citation_allowlist=_gate_allowlist,
             is_retry=True,
@@ -5381,6 +5390,19 @@ async def coach_chat(
         # is_retry=True; FALLBACK text has no tool_* placeholders so the
         # filter inside _emit_citation_chip_breadcrumbs is a no-op there.
         if retry_gated.verdict == GateVerdict.PASS:
+            retry_enforcement = _enforce_tool_use_for_citations(
+                answer_text=retry_raw_answer,
+                tool_calls=retry_result.get("tool_calls") or [],
+            )
+            _emit_tool_use_enforcement_breadcrumb(
+                retry_enforcement,
+                retry_count=1,
+            )
+            if retry_enforcement.verdict == ToolUseEnforcementVerdict.REJECTED:
+                retry_result["answer"] = FALLBACK_TEMPLATED_TEXT
+                retry_result["tool_calls"] = []
+                retry_result["citation_chips"] = None
+                return retry_result
             _emit_citation_chip_breadcrumbs(
                 retry_gated.gated_text,
                 retry_result.get("citation_chips"),

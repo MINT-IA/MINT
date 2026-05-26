@@ -309,6 +309,82 @@ def test_dispatcher_flag_on_preserves_liquidity_with_partial_packet(monkeypatch)
     stale_db.query.assert_not_called()
 
 
+def test_dispatcher_flag_on_ignores_non_finite_packet_budget_values(monkeypatch) -> None:
+    """NaN/inf packet values must not bypass a valid DB budget snapshot."""
+    monkeypatch.setattr(
+        settings, "COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED", True
+    )
+    from app.api.v1.endpoints.coach_chat import _compute_budget_status
+
+    db = _make_mock_db(_PROFILE_DATA_FULL)
+    ctx = {
+        "coach_context_packet": {
+            "facts": [
+                {
+                    "id": "budget.monthly_net",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyNet",
+                    "value": float("nan"),
+                },
+                {
+                    "id": "budget.monthly_charges",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyCharges",
+                    "value": float("inf"),
+                },
+            ]
+        }
+    }
+
+    raw = _compute_budget_status(user_id="user-abc", ctx=ctx, db=db)
+    payload = json.loads(raw)
+
+    assert payload["monthlyIncome"] == "7500.00"
+    assert payload["monthlyExpenses"] == "5200.00"
+    assert "nan" not in raw.lower()
+    assert "inf" not in raw.lower()
+    db.query.assert_called_once()
+
+
+def test_dispatcher_flag_on_ignores_stale_or_missing_packet_budget(monkeypatch) -> None:
+    """Stale/missing packet facts are not trusted over a valid DB snapshot."""
+    monkeypatch.setattr(
+        settings, "COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED", True
+    )
+    from app.api.v1.endpoints.coach_chat import _compute_budget_status
+
+    db = _make_mock_db(_PROFILE_DATA_FULL)
+    ctx = {
+        "coach_context_packet": {
+            "facts": [
+                {
+                    "id": "budget.monthly_net",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyNet",
+                    "value": 999_999.0,
+                    "freshness": "stale",
+                },
+                {
+                    "id": "budget.monthly_charges",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyCharges",
+                    "value": 888_888.0,
+                    "state": "missing",
+                },
+            ]
+        }
+    }
+
+    raw = _compute_budget_status(user_id="user-abc", ctx=ctx, db=db)
+    payload = json.loads(raw)
+
+    assert payload["monthlyIncome"] == "7500.00"
+    assert payload["monthlyExpenses"] == "5200.00"
+    assert "999999" not in raw
+    assert "888888" not in raw
+    db.query.assert_called_once()
+
+
 def test_dispatcher_flag_on_falls_back_when_budget_missing(monkeypatch) -> None:
     """Test 8: flag ON + profile lacks budget keys → legacy fallback."""
     monkeypatch.setattr(
