@@ -157,6 +157,12 @@ class PatrimoineSummaryCard extends StatelessWidget {
                     s.epargneLiquide!.value,
                     'epargne',
                   ),
+                if (s.investissements != null)
+                  _buildTappableRow(
+                    l10n.financialSummaryInvestissements,
+                    s.investissements!.value,
+                    'investissements',
+                  ),
                 if (s.isPartial)
                   Padding(
                     padding: const EdgeInsets.only(top: MintSpacing.xs),

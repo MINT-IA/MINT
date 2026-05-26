@@ -21,30 +21,49 @@ class PatrimoineSummary {
   final PatrimoineField? lpp;
   final PatrimoineField? pillar3a;
   final PatrimoineField? epargneLiquide;
+  final PatrimoineField? investissements;
   final PatrimoineField? dettes;
 
-  const PatrimoineSummary(
-      {this.lpp, this.pillar3a, this.epargneLiquide, this.dettes});
+  const PatrimoineSummary({
+    this.lpp,
+    this.pillar3a,
+    this.epargneLiquide,
+    this.investissements,
+    this.dettes,
+  });
 
   double get totalActifs =>
-      (lpp?.value ?? 0) + (pillar3a?.value ?? 0) + (epargneLiquide?.value ?? 0);
+      (lpp?.value ?? 0) +
+      (pillar3a?.value ?? 0) +
+      (epargneLiquide?.value ?? 0) +
+      (investissements?.value ?? 0);
 
   double get totalDettes => dettes?.value ?? 0;
 
   double get net => totalActifs - totalDettes;
 
-  bool get isEmpty => lpp == null && pillar3a == null && epargneLiquide == null;
+  bool get isEmpty =>
+      lpp == null &&
+      pillar3a == null &&
+      epargneLiquide == null &&
+      investissements == null &&
+      dettes == null;
 
   bool get isPartial =>
-      !isEmpty && (lpp == null || pillar3a == null || epargneLiquide == null);
+      !isEmpty &&
+      (lpp == null ||
+          pillar3a == null ||
+          epargneLiquide == null ||
+          investissements == null);
 
   /// Ratio of known fields (0.0 to 1.0) for the pulse circle.
   double get completionRatio {
     int known = 0;
-    int total = 3; // lpp, 3a, epargne
+    int total = 4; // lpp, 3a, epargne, investissements
     if (lpp != null) known++;
     if (pillar3a != null) known++;
     if (epargneLiquide != null) known++;
+    if (investissements != null) known++;
     return known / total;
   }
 
@@ -54,6 +73,7 @@ class PatrimoineSummary {
       lpp?.lastUpdated,
       pillar3a?.lastUpdated,
       epargneLiquide?.lastUpdated,
+      investissements?.lastUpdated,
       dettes?.lastUpdated,
     ].whereType<DateTime>();
     if (dates.isEmpty) return null;
@@ -64,7 +84,13 @@ class PatrimoineSummary {
   String? get lastUpdateSource {
     final latest = lastUpdated;
     if (latest == null) return null;
-    for (final field in [lpp, pillar3a, epargneLiquide, dettes]) {
+    for (final field in [
+      lpp,
+      pillar3a,
+      epargneLiquide,
+      investissements,
+      dettes,
+    ]) {
       if (field?.lastUpdated == latest) return field?.source;
     }
     return null;
@@ -109,6 +135,12 @@ class PatrimoineAggregator {
               source: 'userInput',
             )
           : null,
+      investissements: patrimoine.investissements > 0
+          ? PatrimoineField(
+              value: patrimoine.investissements,
+              source: 'userInput',
+            )
+          : null,
       dettes: dettes.totalDettes > 0
           ? PatrimoineField(
               value: dettes.totalDettes,
@@ -126,6 +158,7 @@ class PatrimoineAggregator {
       lpp: _pillarFieldOrNull(spine.pillars.lpp.totalBalance),
       pillar3a: _pillarFieldOrNull(spine.pillars.pillar3a.totalBalance),
       epargneLiquide: _spineFieldOrNull(spine.situation.liquidSavings),
+      investissements: _spineFieldOrNull(spine.situation.investments),
       dettes: _spineFieldOrNull(spine.situation.totalDebt),
     );
   }

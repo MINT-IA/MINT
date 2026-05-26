@@ -104,7 +104,7 @@ void main() {
     await tester.tap(find.text('Patrimoine'));
     await tester.pumpAndSettle();
     expect(find.text('Ton point de départ'), findsOneWidget);
-    expect(find.text("172'000\u00a0CHF"), findsWidgets);
+    expect(find.text("184'000\u00a0CHF"), findsWidgets);
 
     await tester.tap(find.text('Prévoyance'));
     await tester.pumpAndSettle();

@@ -41,6 +41,11 @@ void main() {
               source: 'userInput',
               lastUpdated: DateTime(2026, 5, 23),
             ),
+            investissements: PatrimoineField(
+              value: 12000,
+              source: 'estimated',
+              lastUpdated: DateTime(2026, 5, 22),
+            ),
           ),
         ),
       ),
@@ -57,6 +62,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Mis à jour le 25 mai · estimé'), findsOneWidget);
+    expect(find.text('Investissements'), findsOneWidget);
+    expect(find.text("12'000\u00a0CHF"), findsOneWidget);
     expect(find.textContaining('donnees'), findsNothing);
     expect(find.textContaining('estimated'), findsNothing);
   });
