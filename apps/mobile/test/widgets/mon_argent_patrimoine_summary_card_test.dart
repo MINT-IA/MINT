@@ -67,4 +67,45 @@ void main() {
     expect(find.textContaining('donnees'), findsNothing);
     expect(find.textContaining('estimated'), findsNothing);
   });
+
+  testWidgets('shows debts as a visible negative patrimoine line',
+      (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const PatrimoineSummaryCard(
+          summary: PatrimoineSummary(
+            epargneLiquide: PatrimoineField(value: 20000, source: 'userInput'),
+            dettes: PatrimoineField(value: 7000, source: 'userInput'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dettes totales'), findsOneWidget);
+    expect(find.text("-7'000\u00a0CHF"), findsOneWidget);
+    expect(find.text("13'000\u00a0CHF"), findsOneWidget);
+  });
+
+  testWidgets('does not hide a debt-only patrimoine situation',
+      (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const PatrimoineSummaryCard(
+          summary: PatrimoineSummary(
+            dettes: PatrimoineField(value: 7000, source: 'userInput'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ton point de départ'), findsOneWidget);
+    expect(find.text('Dettes totales'), findsOneWidget);
+    expect(find.text("-7'000\u00a0CHF"), findsWidgets);
+    expect(find.text('Scanne un document ou parle au coach pour commencer.'),
+        findsNothing);
+  });
 }

@@ -163,6 +163,13 @@ class PatrimoineSummaryCard extends StatelessWidget {
                     s.investissements!.value,
                     'investissements',
                   ),
+                if (s.dettes != null)
+                  _buildTappableRow(
+                    l10n.financialSummaryDettesTotales,
+                    -s.dettes!.value,
+                    'dettes',
+                    valueColor: MintColors.error,
+                  ),
                 if (s.isPartial)
                   Padding(
                     padding: const EdgeInsets.only(top: MintSpacing.xs),
@@ -210,7 +217,12 @@ class PatrimoineSummaryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTappableRow(String label, double amount, String topic) {
+  Widget _buildTappableRow(
+    String label,
+    double amount,
+    String topic, {
+    Color valueColor = MintColors.textPrimary,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: MintSpacing.xs),
       child: GestureDetector(
@@ -229,7 +241,7 @@ class PatrimoineSummaryCard extends StatelessWidget {
             ),
             Text(
               _formatChf(amount),
-              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+              style: MintTextStyles.bodyMedium(color: valueColor),
             ),
           ],
         ),
