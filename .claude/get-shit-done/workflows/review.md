@@ -200,9 +200,15 @@ fi
 **Claude (separate session):**
 ```bash
 if [ -n "$CLAUDE_MODEL" ] && [ "$CLAUDE_MODEL" != "null" ]; then
-  cat /tmp/gsd-review-prompt-{phase}.md | claude --model "$CLAUDE_MODEL" -p - 2>/dev/null > /tmp/gsd-review-claude-{phase}.md
+  timeout "${CLAUDE_TIMEOUT:-900}" claude -p --model "$CLAUDE_MODEL" --tools "" --no-session-persistence \
+    < /tmp/gsd-review-prompt-{phase}.md \
+    > /tmp/gsd-review-claude-{phase}.md \
+    2> /tmp/gsd-review-claude-{phase}.err
 else
-  cat /tmp/gsd-review-prompt-{phase}.md | claude -p - 2>/dev/null > /tmp/gsd-review-claude-{phase}.md
+  timeout "${CLAUDE_TIMEOUT:-900}" claude -p --tools "" --no-session-persistence \
+    < /tmp/gsd-review-prompt-{phase}.md \
+    > /tmp/gsd-review-claude-{phase}.md \
+    2> /tmp/gsd-review-claude-{phase}.err
 fi
 ```
 
