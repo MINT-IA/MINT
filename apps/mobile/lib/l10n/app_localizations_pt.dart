@@ -19312,7 +19312,7 @@ class SPt extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Deduz até CHF 7’258/ano do rendimento tributável. Poupança imediata.';
+      'Contribuição dedutível; impacto fiscal estimado segundo o teu rendimento e cantão.';
 
   @override
   String get reportActionDesc3aSecond =>

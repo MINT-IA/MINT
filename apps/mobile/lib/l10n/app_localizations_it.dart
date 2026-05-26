@@ -19363,7 +19363,7 @@ class SIt extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Deduci fino a CHF 7’258/anno dal reddito imponibile. Risparmio immediato.';
+      'Versamento deducibile; impatto fiscale stimato in base al tuo reddito e cantone.';
 
   @override
   String get reportActionDesc3aSecond =>

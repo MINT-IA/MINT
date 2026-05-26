@@ -185,6 +185,31 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('priority action omits gain chip when fiscal impact is zero',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_net_income_period_chf'] = 0.0
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_3a_annual_contribution'] = 0.0
+        ..['q_lpp_buyback_available'] = 0.0;
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byType(FinancialReportScreenV2), findsOneWidget);
+      expect(find.textContaining('+CHF'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('retirement card accepts persisted AVS years as strings',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);

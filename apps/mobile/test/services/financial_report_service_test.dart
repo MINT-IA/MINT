@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// Unit tests for FinancialReportService
 ///
@@ -515,6 +516,46 @@ void main() {
       // The scoring service will flag debt and emergency fund issues
       // Priority actions should reflect those concerns
       expect(report.priorityActions, isA<List<ActionItem>>());
+    });
+
+    test('first 3a action estimates fiscal gain from tax simulation', () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_employment_status'] = 'employee';
+      final report = service.generateReport(answers);
+
+      final action = report.priorityActions
+          .firstWhere((action) => action.category == ActionCategory.pillar3a);
+      final grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(
+        6000.0 * 12,
+        age: DateTime.now().year - 1990,
+      );
+      final expectedGain = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: grossAnnualSalary,
+        canton: 'VD',
+        hasLpp: true,
+        contribution: pilier3aPlafondAvecLpp,
+      ).estimatedTaxSaving;
+
+      expect(action.potentialGainChf, closeTo(expectedGain, 1.0));
+      expect(action.potentialGainChf, greaterThan(0));
+    });
+
+    test('first 3a action has no fiscal gain when taxable impact is zero', () {
+      final answers = minimalAnswers()
+        ..['q_net_income_period_chf'] = 0.0
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_employment_status'] = 'employee';
+      final report = service.generateReport(answers);
+
+      final action = report.priorityActions
+          .firstWhere((action) => action.category == ActionCategory.pillar3a);
+
+      expect(action.potentialGainChf, isNull);
     });
 
     test('roadmap has at least one phase', () {

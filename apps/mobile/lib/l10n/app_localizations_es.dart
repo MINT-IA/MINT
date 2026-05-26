@@ -19312,7 +19312,7 @@ class SEs extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Deduce hasta CHF 7’258/año de tu renta gravable. Ahorro inmediato.';
+      'Aportación deducible; impacto fiscal estimado según tus ingresos y cantón.';
 
   @override
   String get reportActionDesc3aSecond =>

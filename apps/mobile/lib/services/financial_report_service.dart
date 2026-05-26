@@ -39,6 +39,7 @@ class FinancialReportService {
     // 7. Actions prioritaires (top 3 from scoring) — enrichies avec gains calculés
     final priorityActions = _buildPriorityActions(
       healthScore,
+      profile: profile,
       taxSim: taxSim,
       lppStrategy: lppStrategy,
       pillar3aAnalysis: pillar3aAnalysis,
@@ -46,7 +47,15 @@ class FinancialReportService {
     );
 
     // 8. Roadmap personnalisée
-    final roadmap = _buildRoadmap(healthScore, answers, profile, l: l);
+    final roadmap = _buildRoadmap(
+      healthScore,
+      answers,
+      profile,
+      taxSim: taxSim,
+      lppStrategy: lppStrategy,
+      pillar3aAnalysis: pillar3aAnalysis,
+      l: l,
+    );
 
     // 9. Sources juridiques par cercle
     final sources = _buildJuridicalSources(healthScore);
@@ -509,6 +518,7 @@ class FinancialReportService {
 
   List<ActionItem> _buildPriorityActions(
     FinancialHealthScore healthScore, {
+    UserProfile? profile,
     TaxSimulation? taxSim,
     LppBuybackStrategy? lppStrategy,
     Pillar3aAnalysis? pillar3aAnalysis,
@@ -520,6 +530,7 @@ class FinancialReportService {
     for (final reco in healthScore.topPriorities) {
       final action = _parseRecommendationToAction(
         reco,
+        profile: profile,
         taxSim: taxSim,
         lppStrategy: lppStrategy,
         pillar3aAnalysis: pillar3aAnalysis,
@@ -533,6 +544,7 @@ class FinancialReportService {
 
   ActionItem? _parseRecommendationToAction(
     String recommendation, {
+    UserProfile? profile,
     TaxSimulation? taxSim,
     LppBuybackStrategy? lppStrategy,
     Pillar3aAnalysis? pillar3aAnalysis,
@@ -541,12 +553,16 @@ class FinancialReportService {
     // Parsing basé sur keywords avec gains calculés à partir des données réelles
     if (recommendation.contains('premier compte 3a') ||
         recommendation.contains('premier 3a')) {
+      final fiscalGain = _estimateFirst3aFiscalGain(
+        profile: profile,
+        taxSim: taxSim,
+      );
       return ActionItem(
         title: l?.reportActionTitle3aFirst ?? 'Ouvre ton premier 3a',
         description: l?.reportActionDesc3aFirst ??
-            'Déduis jusqu\'à CHF 7\'258/an de ton revenu imposable. Économie immédiate.',
+            'Versement déductible ; impact fiscal estimé selon ton revenu et ton canton.',
         priority: ActionPriority.high,
-        potentialGainChf: 1500,
+        potentialGainChf: fiscalGain,
         category: ActionCategory.pillar3a,
         steps: [
           '1. Compare les offres (fintech, banque)',
@@ -654,12 +670,22 @@ class FinancialReportService {
 
   Roadmap _buildRoadmap(FinancialHealthScore healthScore,
       Map<String, dynamic> answers, UserProfile profile,
-      {S? l}) {
+      {TaxSimulation? taxSim,
+      LppBuybackStrategy? lppStrategy,
+      Pillar3aAnalysis? pillar3aAnalysis,
+      S? l}) {
     return Roadmap(phases: [
       RoadmapPhase(
         title: l?.reportRoadmapPhaseImmediat ?? 'Immédiat',
         timeframe: l?.reportRoadmapTimeframeImmediat ?? 'Ce mois',
-        actions: _buildPriorityActions(healthScore, l: l)
+        actions: _buildPriorityActions(
+          healthScore,
+          profile: profile,
+          taxSim: taxSim,
+          lppStrategy: lppStrategy,
+          pillar3aAnalysis: pillar3aAnalysis,
+          l: l,
+        )
             .where((a) =>
                 a.priority == ActionPriority.critical ||
                 a.priority == ActionPriority.high)
@@ -674,6 +700,42 @@ class FinancialReportService {
   }
 
   // ===== HELPERS =====
+
+  double? _estimateFirst3aFiscalGain({
+    required UserProfile? profile,
+    required TaxSimulation? taxSim,
+  }) {
+    if (profile == null ||
+        taxSim == null ||
+        taxSim.taxableIncome <= 0 ||
+        taxSim.totalTax <= 0 ||
+        taxSim.effectiveRate <= 0) {
+      return null;
+    }
+    final grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(
+      profile.monthlyNetIncome * 12,
+      age: profile.age,
+    );
+    final hasLpp = profile.isSalaried &&
+        grossAnnualSalary >= reg('lpp.entry_threshold', lppSeuilEntree);
+    final maxContribution = hasLpp
+        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
+        : (grossAnnualSalary * pilier3aTauxRevenuSansLpp)
+            .clamp(0.0, pilier3aPlafondSansLpp);
+    final current3a = taxSim.deductions['3a'] ?? 0;
+    final remainingDeduction = maxContribution - current3a;
+    if (remainingDeduction <= 0) return null;
+
+    final impact = RetirementTaxCalculator.estimate3aTaxImpact(
+      grossAnnualSalary: grossAnnualSalary,
+      canton: profile.canton,
+      isMarried: profile.isMarried,
+      children: profile.childrenCount,
+      hasLpp: hasLpp,
+      contribution: remainingDeduction,
+    );
+    return impact.estimatedTaxSaving > 0 ? impact.estimatedTaxSaving : null;
+  }
 
   double _estimateEffectiveRate(
       double taxableIncome, String canton, bool isMarried,

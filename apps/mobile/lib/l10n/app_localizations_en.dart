@@ -19216,7 +19216,7 @@ class SEn extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Deduct up to CHF 7’258/year from your taxable income. Immediate savings.';
+      'Deductible contribution; tax impact estimated from your income and canton.';
 
   @override
   String get reportActionDesc3aSecond =>

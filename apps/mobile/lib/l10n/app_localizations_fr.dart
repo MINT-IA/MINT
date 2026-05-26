@@ -19305,7 +19305,7 @@ class SFr extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Déduis jusqu’à CHF 7’258/an de ton revenu imposable. Économie immédiate.';
+      'Versement déductible ; impact fiscal estimé selon ton revenu et ton canton.';
 
   @override
   String get reportActionDesc3aSecond =>

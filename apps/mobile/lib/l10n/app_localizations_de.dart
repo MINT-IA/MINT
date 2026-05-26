@@ -19353,7 +19353,7 @@ class SDe extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Ziehe bis zu CHF 7’258/Jahr von deinem steuerbaren Einkommen ab. Sofortige Einsparung.';
+      'Abziehbare Einzahlung; steuerliche Wirkung anhand deines Einkommens und Kantons geschätzt.';
 
   @override
   String get reportActionDesc3aSecond =>

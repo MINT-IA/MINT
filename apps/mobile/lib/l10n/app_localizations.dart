@@ -33934,7 +33934,7 @@ abstract class S {
   /// No description provided for @reportActionDesc3aFirst.
   ///
   /// In fr, this message translates to:
-  /// **'Déduis jusqu’à CHF 7’258/an de ton revenu imposable. Économie immédiate.'**
+  /// **'Versement déductible ; impact fiscal estimé selon ton revenu et ton canton.'**
   String get reportActionDesc3aFirst;
 
   /// No description provided for @reportActionDesc3aSecond.
