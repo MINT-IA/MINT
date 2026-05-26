@@ -3921,8 +3921,8 @@
   "premierEclairageAvantApresGapNoAct": "Il divario cresce ogni anno. Alla pensione, sarà troppo tardi.",
   "premierEclairageAvantApresLiquidityAct": "Risparmiando 500 CHF/mese, ricostruisci 3 mesi di riserva in 6 mesi.",
   "premierEclairageAvantApresLiquidityNoAct": "Un'emergenza senza riserve significa credito al consumo.",
-  "premierEclairageAvantApresTaxAct": "Ogni anno senza 3a è una deduzione fiscale persa.",
-  "premierEclairageAvantApresTaxNoAct": "Senza 3a, paghi l'aliquota piena e non prepari la pensione.",
+  "premierEclairageAvantApresTaxAct": "Ogni anno, un versamento nel 3a può ridurre il reddito imponibile in base alla tua situazione.",
+  "premierEclairageAvantApresTaxNoAct": "Senza versamento 3a, l’imposta viene calcolata senza questa deduzione.",
   "premierEclairageAvantApresIncomeAct": "Qualche aggiustamento può migliorare la tua proiezione.",
   "premierEclairageAvantApresIncomeNoAct": "La tua situazione resta stabile, ma senza margine di crescita.",
   "premierEclairageConfidenceSimple": "Basato su {count} dati. Aggiungine per affinare.",
@@ -10060,7 +10060,7 @@
   "promiseFooter": "Gratuito. I tuoi dati restano sul tuo telefono.",
   "promiseCtaRegister": "Andiamo",
   "promiseCtaFree": "Solo i numeri",
-  "coachInterrupt3aUnderMax": "Stai lasciando {savings} CHF di risparmio fiscale sul tavolo.",
+  "coachInterrupt3aUnderMax": "Margine 3a residuo da verificare: risparmio fiscale stimato di CHF {savings}.",
   "@coachInterrupt3aUnderMax": {
     "placeholders": {
       "savings": {
@@ -10521,7 +10521,7 @@
   "ctxCoachOpenerProfile": "Qualche dato in più e MINT diventa davvero preciso.",
   "ctxHeroStatLabel": "Il tuo reddito previsto alla pensione",
   "ctxHeroStatNarrative": "Ovvero il {percent} % del tuo reddito attuale.",
-  "ctxHeroStat3aLabel": "Stai lasciando soldi sul tavolo nel pilastro 3a",
+  "ctxHeroStat3aLabel": "Margine 3a residuo da verificare",
   "ctxHeroStat3aNarrative": "Sono {monthly} CHF/mese che potresti dedurre.",
   "ctxProgressTitle": "Il tuo profilo si precisa",
   "ctxProgressBody": "{percent} % dei tuoi dati sono aggiornati.",

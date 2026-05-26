@@ -3921,8 +3921,8 @@
   "premierEclairageAvantApresGapNoAct": "La brecha crece cada año. En la jubilación, será tarde.",
   "premierEclairageAvantApresLiquidityAct": "Ahorrando 500 CHF/mes, reconstruyes 3 meses de reserva en 6 meses.",
   "premierEclairageAvantApresLiquidityNoAct": "Una emergencia sin reservas significa crédito al consumo.",
-  "premierEclairageAvantApresTaxAct": "Cada año sin 3a es una deducción fiscal perdida.",
-  "premierEclairageAvantApresTaxNoAct": "Sin 3a, pagas impuestos completos y no preparas tu jubilación.",
+  "premierEclairageAvantApresTaxAct": "Cada año, una aportación al 3a puede reducir tu renta imponible según tu situación.",
+  "premierEclairageAvantApresTaxNoAct": "Sin aportación 3a, el impuesto se calcula sin esa deducción.",
   "premierEclairageAvantApresIncomeAct": "Unos ajustes pueden mejorar tu proyección.",
   "premierEclairageAvantApresIncomeNoAct": "Tu situación se mantiene estable, pero sin margen de mejora.",
   "premierEclairageConfidenceSimple": "Basado en {count} datos. Añade más para afinar.",
@@ -10060,7 +10060,7 @@
   "promiseFooter": "Gratis. Tus datos se quedan en tu teléfono.",
   "promiseCtaRegister": "Vamos",
   "promiseCtaFree": "Solo los números",
-  "coachInterrupt3aUnderMax": "Estás dejando {savings} CHF de ahorro fiscal sobre la mesa.",
+  "coachInterrupt3aUnderMax": "Margen 3a restante por verificar: ahorro fiscal estimado de CHF {savings}.",
   "@coachInterrupt3aUnderMax": {
     "placeholders": {
       "savings": {
@@ -10521,7 +10521,7 @@
   "ctxCoachOpenerProfile": "Unos datos más y MINT se vuelve realmente preciso.",
   "ctxHeroStatLabel": "Tu ingreso proyectado en la jubilación",
   "ctxHeroStatNarrative": "Es decir, {percent} % de tu ingreso actual.",
-  "ctxHeroStat3aLabel": "Estás dejando dinero sobre la mesa en el pilar 3a",
+  "ctxHeroStat3aLabel": "Margen 3a restante por verificar",
   "ctxHeroStat3aNarrative": "Son {monthly} CHF/mes que podrías deducir.",
   "ctxProgressTitle": "Tu perfil se va precisando",
   "ctxProgressBody": "{percent} % de tus datos están al día.",

@@ -3921,8 +3921,8 @@
   "premierEclairageAvantApresGapNoAct": "The gap widens every year. At retirement, it's too late.",
   "premierEclairageAvantApresLiquidityAct": "Saving CHF 500/month rebuilds 3 months of reserves in 6 months.",
   "premierEclairageAvantApresLiquidityNoAct": "An emergency without reserves means consumer debt.",
-  "premierEclairageAvantApresTaxAct": "Each year without 3a is a tax deduction lost.",
-  "premierEclairageAvantApresTaxNoAct": "Without 3a, you pay full tax rate and don't prepare for retirement.",
+  "premierEclairageAvantApresTaxAct": "Each year, a 3a contribution can reduce taxable income depending on your situation.",
+  "premierEclairageAvantApresTaxNoAct": "Without a 3a contribution, tax is calculated without that deduction.",
   "premierEclairageAvantApresIncomeAct": "A few adjustments can improve your projection.",
   "premierEclairageAvantApresIncomeNoAct": "Your situation stays stable, but without room for growth.",
   "premierEclairageConfidenceSimple": "Based on {count} data points. Add more to refine.",
@@ -10060,7 +10060,7 @@
   "promiseFooter": "Free. Your data stays on your phone.",
   "promiseCtaRegister": "Let's go",
   "promiseCtaFree": "Just the numbers",
-  "coachInterrupt3aUnderMax": "You’re leaving {savings} CHF of tax savings on the table.",
+  "coachInterrupt3aUnderMax": "Remaining 3a room to verify: estimated tax saving of CHF {savings}.",
   "@coachInterrupt3aUnderMax": {
     "placeholders": {
       "savings": {
@@ -10521,7 +10521,7 @@
   "ctxCoachOpenerProfile": "A few more details and MINT becomes truly accurate.",
   "ctxHeroStatLabel": "Your projected retirement income",
   "ctxHeroStatNarrative": "That is {percent} % of your current income.",
-  "ctxHeroStat3aLabel": "You are leaving money on the table in pillar 3a",
+  "ctxHeroStat3aLabel": "Remaining 3a room to verify",
   "ctxHeroStat3aNarrative": "That is {monthly} CHF/month you could deduct.",
   "ctxProgressTitle": "Your profile is getting clearer",
   "ctxProgressBody": "{percent} % of your data is up to date.",

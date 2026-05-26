@@ -8471,11 +8471,11 @@ class SPt extends S {
 
   @override
   String get premierEclairageAvantApresTaxAct =>
-      'Cada ano sem 3a é uma dedução fiscal perdida.';
+      'Todos os anos, uma contribuição 3a pode reduzir o rendimento tributável conforme a tua situação.';
 
   @override
   String get premierEclairageAvantApresTaxNoAct =>
-      'Sem 3a, pagas a taxa completa e não preparas a reforma.';
+      'Sem contribuição 3a, o imposto é calculado sem essa dedução.';
 
   @override
   String get premierEclairageAvantApresIncomeAct =>
@@ -21539,7 +21539,7 @@ class SPt extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'Estás a deixar $savings CHF de poupança fiscal na mesa.';
+    return 'Margem 3a restante a verificar: poupança fiscal estimada de CHF $savings.';
   }
 
   @override
@@ -22331,8 +22331,7 @@ class SPt extends S {
   }
 
   @override
-  String get ctxHeroStat3aLabel =>
-      'Estás a deixar dinheiro na mesa no pilar 3a';
+  String get ctxHeroStat3aLabel => 'Margem 3a restante a verificar';
 
   @override
   String ctxHeroStat3aNarrative(String monthly) {

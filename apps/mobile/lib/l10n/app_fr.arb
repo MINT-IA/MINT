@@ -4289,8 +4289,8 @@
   "premierEclairageAvantApresGapNoAct": "L'écart se creuse chaque année. À la retraite, il sera trop tard.",
   "premierEclairageAvantApresLiquidityAct": "Épargner 500 CHF/mois reconstitue 3 mois de réserve en 6 mois.",
   "premierEclairageAvantApresLiquidityNoAct": "Un imprévu sans réserve, c'est un crédit à la consommation.",
-  "premierEclairageAvantApresTaxAct": "Chaque année sans 3a, c'est une économie d'impôt perdue.",
-  "premierEclairageAvantApresTaxNoAct": "Sans 3a, tu paies le taux plein et tu ne prépares pas ta retraite.",
+  "premierEclairageAvantApresTaxAct": "Chaque année, un 3a peut réduire ton revenu imposable selon ta situation.",
+  "premierEclairageAvantApresTaxNoAct": "Sans versement 3a, l’impôt reste calculé sans cette déduction.",
   "premierEclairageAvantApresIncomeAct": "Quelques ajustements peuvent améliorer ta projection.",
   "premierEclairageAvantApresIncomeNoAct": "Ta situation actuelle reste stable, mais sans marge de progression.",
   "premierEclairageConfidenceSimple": "Basé sur {count} données. Ajoutes-en pour affiner.",
@@ -10700,7 +10700,7 @@
   "promiseFooter": "Gratuit. Tes données restent sur ton téléphone.",
   "promiseCtaRegister": "Allons-y",
   "promiseCtaFree": "Juste les chiffres",
-  "coachInterrupt3aUnderMax": "Tu laisses {savings} CHF d’économie d’impôts sur la table.",
+  "coachInterrupt3aUnderMax": "Marge 3a restante à vérifier : économie fiscale estimée de {savings} CHF.",
   "@coachInterrupt3aUnderMax": {
     "placeholders": {
       "savings": {
@@ -11254,7 +11254,7 @@
       }
     }
   },
-  "ctxHeroStat3aLabel": "Tu laisses de l'argent sur la table en 3a",
+  "ctxHeroStat3aLabel": "Marge 3a restante à vérifier",
   "ctxHeroStat3aNarrative": "Soit {monthly} CHF/mois que tu pourrais déduire.",
   "@ctxHeroStat3aNarrative": {
     "placeholders": {

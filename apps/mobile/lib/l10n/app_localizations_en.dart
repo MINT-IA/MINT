@@ -8427,11 +8427,11 @@ class SEn extends S {
 
   @override
   String get premierEclairageAvantApresTaxAct =>
-      'Each year without 3a is a tax deduction lost.';
+      'Each year, a 3a contribution can reduce taxable income depending on your situation.';
 
   @override
   String get premierEclairageAvantApresTaxNoAct =>
-      'Without 3a, you pay full tax rate and don\'t prepare for retirement.';
+      'Without a 3a contribution, tax is calculated without that deduction.';
 
   @override
   String get premierEclairageAvantApresIncomeAct =>
@@ -21422,7 +21422,7 @@ class SEn extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'You’re leaving $savings CHF of tax savings on the table.';
+    return 'Remaining 3a room to verify: estimated tax saving of CHF $savings.';
   }
 
   @override
@@ -22213,8 +22213,7 @@ class SEn extends S {
   }
 
   @override
-  String get ctxHeroStat3aLabel =>
-      'You are leaving money on the table in pillar 3a';
+  String get ctxHeroStat3aLabel => 'Remaining 3a room to verify';
 
   @override
   String ctxHeroStat3aNarrative(String monthly) {

@@ -3921,8 +3921,8 @@
   "premierEclairageAvantApresGapNoAct": "Die Lücke wächst jedes Jahr. Bei der Pensionierung ist es zu spät.",
   "premierEclairageAvantApresLiquidityAct": "500 CHF/Monat sparen baut in 6 Monaten 3 Monate Reserve auf.",
   "premierEclairageAvantApresLiquidityNoAct": "Ein Notfall ohne Reserven bedeutet Konsumkredit.",
-  "premierEclairageAvantApresTaxAct": "Jedes Jahr ohne 3a ist ein verlorener Steuerabzug.",
-  "premierEclairageAvantApresTaxNoAct": "Ohne 3a zahlst du den vollen Steuersatz und bereitest die Pension nicht vor.",
+  "premierEclairageAvantApresTaxAct": "Jedes Jahr kann eine 3a-Einzahlung dein steuerbares Einkommen je nach Situation senken.",
+  "premierEclairageAvantApresTaxNoAct": "Ohne 3a-Einzahlung wird die Steuer ohne diesen Abzug berechnet.",
   "premierEclairageAvantApresIncomeAct": "Ein paar Anpassungen können deine Prognose verbessern.",
   "premierEclairageAvantApresIncomeNoAct": "Deine Situation bleibt stabil, aber ohne Verbesserungsspielraum.",
   "premierEclairageConfidenceSimple": "Basierend auf {count} Daten. Füge mehr hinzu, um zu verfeinern.",
@@ -10060,7 +10060,7 @@
   "promiseFooter": "Gratis. Deine Daten bleiben auf deinem Handy.",
   "promiseCtaRegister": "Los geht's",
   "promiseCtaFree": "Nur die Zahlen",
-  "coachInterrupt3aUnderMax": "Du verschenkst {savings} CHF Steuerersparnis.",
+  "coachInterrupt3aUnderMax": "Verbleibender 3a-Spielraum zu prüfen: geschätzte Steuerersparnis von CHF {savings}.",
   "@coachInterrupt3aUnderMax": {
     "placeholders": {
       "savings": {
@@ -10521,7 +10521,7 @@
   "ctxCoachOpenerProfile": "Noch ein paar Angaben und MINT wird richtig präzis.",
   "ctxHeroStatLabel": "Dein prognostiziertes Einkommen im Ruhestand",
   "ctxHeroStatNarrative": "Das sind {percent} % deines aktuellen Einkommens.",
-  "ctxHeroStat3aLabel": "Du lässt Geld bei der Säule 3a liegen",
+  "ctxHeroStat3aLabel": "Verbleibenden 3a-Spielraum prüfen",
   "ctxHeroStat3aNarrative": "Das sind {monthly} CHF/Monat, die du abziehen könntest.",
   "ctxProgressTitle": "Dein Profil wird genauer",
   "ctxProgressBody": "{percent} % deiner Daten sind aktuell.",

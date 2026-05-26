@@ -8489,11 +8489,11 @@ class SIt extends S {
 
   @override
   String get premierEclairageAvantApresTaxAct =>
-      'Ogni anno senza 3a è una deduzione fiscale persa.';
+      'Ogni anno, un versamento nel 3a può ridurre il reddito imponibile in base alla tua situazione.';
 
   @override
   String get premierEclairageAvantApresTaxNoAct =>
-      'Senza 3a, paghi l\'aliquota piena e non prepari la pensione.';
+      'Senza versamento 3a, l’imposta viene calcolata senza questa deduzione.';
 
   @override
   String get premierEclairageAvantApresIncomeAct =>
@@ -21592,7 +21592,7 @@ class SIt extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'Stai lasciando $savings CHF di risparmio fiscale sul tavolo.';
+    return 'Margine 3a residuo da verificare: risparmio fiscale stimato di CHF $savings.';
   }
 
   @override
@@ -22385,8 +22385,7 @@ class SIt extends S {
   }
 
   @override
-  String get ctxHeroStat3aLabel =>
-      'Stai lasciando soldi sul tavolo nel pilastro 3a';
+  String get ctxHeroStat3aLabel => 'Margine 3a residuo da verificare';
 
   @override
   String ctxHeroStat3aNarrative(String monthly) {

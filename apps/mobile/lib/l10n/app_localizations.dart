@@ -14992,13 +14992,13 @@ abstract class S {
   /// No description provided for @premierEclairageAvantApresTaxAct.
   ///
   /// In fr, this message translates to:
-  /// **'Chaque année sans 3a, c\'est une économie d\'impôt perdue.'**
+  /// **'Chaque année, un 3a peut réduire ton revenu imposable selon ta situation.'**
   String get premierEclairageAvantApresTaxAct;
 
   /// No description provided for @premierEclairageAvantApresTaxNoAct.
   ///
   /// In fr, this message translates to:
-  /// **'Sans 3a, tu paies le taux plein et tu ne prépares pas ta retraite.'**
+  /// **'Sans versement 3a, l’impôt reste calculé sans cette déduction.'**
   String get premierEclairageAvantApresTaxNoAct;
 
   /// No description provided for @premierEclairageAvantApresIncomeAct.
@@ -37776,7 +37776,7 @@ abstract class S {
   /// No description provided for @coachInterrupt3aUnderMax.
   ///
   /// In fr, this message translates to:
-  /// **'Tu laisses {savings} CHF d’économie d’impôts sur la table.'**
+  /// **'Marge 3a restante à vérifier : économie fiscale estimée de {savings} CHF.'**
   String coachInterrupt3aUnderMax(String savings);
 
   /// No description provided for @coachInterruptMortgageOverThird.
@@ -39114,7 +39114,7 @@ abstract class S {
   /// No description provided for @ctxHeroStat3aLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Tu laisses de l\'argent sur la table en 3a'**
+  /// **'Marge 3a restante à vérifier'**
   String get ctxHeroStat3aLabel;
 
   /// No description provided for @ctxHeroStat3aNarrative.

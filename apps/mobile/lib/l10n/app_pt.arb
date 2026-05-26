@@ -3921,8 +3921,8 @@
   "premierEclairageAvantApresGapNoAct": "A lacuna cresce todos os anos. Na reforma, será tarde demais.",
   "premierEclairageAvantApresLiquidityAct": "Poupar 500 CHF/mês reconstrói 3 meses de reserva em 6 meses.",
   "premierEclairageAvantApresLiquidityNoAct": "Uma emergência sem reservas significa crédito ao consumo.",
-  "premierEclairageAvantApresTaxAct": "Cada ano sem 3a é uma dedução fiscal perdida.",
-  "premierEclairageAvantApresTaxNoAct": "Sem 3a, pagas a taxa completa e não preparas a reforma.",
+  "premierEclairageAvantApresTaxAct": "Todos os anos, uma contribuição 3a pode reduzir o rendimento tributável conforme a tua situação.",
+  "premierEclairageAvantApresTaxNoAct": "Sem contribuição 3a, o imposto é calculado sem essa dedução.",
   "premierEclairageAvantApresIncomeAct": "Alguns ajustes podem melhorar a tua projeção.",
   "premierEclairageAvantApresIncomeNoAct": "A tua situação mantém-se estável, mas sem margem de crescimento.",
   "premierEclairageConfidenceSimple": "Baseado em {count} dados. Adiciona mais para refinar.",
@@ -10060,7 +10060,7 @@
   "promiseFooter": "Grátis. Os teus dados ficam no teu telemóvel.",
   "promiseCtaRegister": "Vamos lá",
   "promiseCtaFree": "Só os números",
-  "coachInterrupt3aUnderMax": "Estás a deixar {savings} CHF de poupança fiscal na mesa.",
+  "coachInterrupt3aUnderMax": "Margem 3a restante a verificar: poupança fiscal estimada de CHF {savings}.",
   "@coachInterrupt3aUnderMax": {
     "placeholders": {
       "savings": {
@@ -10521,7 +10521,7 @@
   "ctxCoachOpenerProfile": "Mais alguns dados e o MINT torna-se realmente preciso.",
   "ctxHeroStatLabel": "O teu rendimento projetado na reforma",
   "ctxHeroStatNarrative": "Ou seja, {percent} % do teu rendimento atual.",
-  "ctxHeroStat3aLabel": "Estás a deixar dinheiro na mesa no pilar 3a",
+  "ctxHeroStat3aLabel": "Margem 3a restante a verificar",
   "ctxHeroStat3aNarrative": "São {monthly} CHF/mês que poderias deduzir.",
   "ctxProgressTitle": "O teu perfil está a ficar mais preciso",
   "ctxProgressBody": "{percent} % dos teus dados estão atualizados.",

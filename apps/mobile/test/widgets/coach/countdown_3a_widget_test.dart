@@ -63,12 +63,16 @@ void main() {
   testWidgets('shows tax savings chiffre-choc', (tester) async {
     await tester.pumpWidget(buildWidget());
     expect(find.textContaining("1'450"), findsWidgets);
+    expect(find.textContaining('économie fiscale estimée'), findsOneWidget);
+    expect(find.textContaining('impôts en moins'), findsNothing);
+    expect(find.textContaining('sur la table'), findsNothing);
   });
 
   testWidgets('shows completion message when ceiling full', (tester) async {
     await tester.pumpWidget(buildWidget(contributed: 7258));
     // V5 voice: "C'est fait !" replaces "Bravo !"
     expect(find.textContaining('fait'), findsOneWidget);
+    expect(find.textContaining('Économie fiscale estimée'), findsOneWidget);
   });
 
   testWidgets('shows disclaimer', (tester) async {

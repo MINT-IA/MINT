@@ -8495,11 +8495,11 @@ class SDe extends S {
 
   @override
   String get premierEclairageAvantApresTaxAct =>
-      'Jedes Jahr ohne 3a ist ein verlorener Steuerabzug.';
+      'Jedes Jahr kann eine 3a-Einzahlung dein steuerbares Einkommen je nach Situation senken.';
 
   @override
   String get premierEclairageAvantApresTaxNoAct =>
-      'Ohne 3a zahlst du den vollen Steuersatz und bereitest die Pension nicht vor.';
+      'Ohne 3a-Einzahlung wird die Steuer ohne diesen Abzug berechnet.';
 
   @override
   String get premierEclairageAvantApresIncomeAct =>
@@ -21582,7 +21582,7 @@ class SDe extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'Du verschenkst $savings CHF Steuerersparnis.';
+    return 'Verbleibender 3a-Spielraum zu prüfen: geschätzte Steuerersparnis von CHF $savings.';
   }
 
   @override
@@ -22378,7 +22378,7 @@ class SDe extends S {
   }
 
   @override
-  String get ctxHeroStat3aLabel => 'Du lässt Geld bei der Säule 3a liegen';
+  String get ctxHeroStat3aLabel => 'Verbleibenden 3a-Spielraum prüfen';
 
   @override
   String ctxHeroStat3aNarrative(String monthly) {

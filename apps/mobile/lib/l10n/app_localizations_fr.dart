@@ -8476,11 +8476,11 @@ class SFr extends S {
 
   @override
   String get premierEclairageAvantApresTaxAct =>
-      'Chaque année sans 3a, c\'est une économie d\'impôt perdue.';
+      'Chaque année, un 3a peut réduire ton revenu imposable selon ta situation.';
 
   @override
   String get premierEclairageAvantApresTaxNoAct =>
-      'Sans 3a, tu paies le taux plein et tu ne prépares pas ta retraite.';
+      'Sans versement 3a, l’impôt reste calculé sans cette déduction.';
 
   @override
   String get premierEclairageAvantApresIncomeAct =>
@@ -21531,7 +21531,7 @@ class SFr extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'Tu laisses $savings CHF d’économie d’impôts sur la table.';
+    return 'Marge 3a restante à vérifier : économie fiscale estimée de $savings CHF.';
   }
 
   @override
@@ -22326,7 +22326,7 @@ class SFr extends S {
   }
 
   @override
-  String get ctxHeroStat3aLabel => 'Tu laisses de l\'argent sur la table en 3a';
+  String get ctxHeroStat3aLabel => 'Marge 3a restante à vérifier';
 
   @override
   String ctxHeroStat3aNarrative(String monthly) {
