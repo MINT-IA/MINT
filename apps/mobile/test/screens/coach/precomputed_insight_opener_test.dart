@@ -122,6 +122,26 @@ void main() {
         findsWidgets,
         reason: 'PrecomputedInsight savings-opportunity opener must surface',
       );
+      expect(
+        find.textContaining("Jusqu’à 7'258\u00a0CHF encore déductibles"),
+        findsWidgets,
+        reason: '3a opener must label 7\'258 as deductible room',
+      );
+      expect(
+        find.textContaining('économie d’impôt'),
+        findsNothing,
+        reason: '3a ceiling must never be presented as tax saving',
+      );
+      expect(
+        find.textContaining('en jeu'),
+        findsNothing,
+        reason: 'Avoid high-pressure fiscal wording in the coach opener',
+      );
+      expect(
+        find.textContaining('7258 CHF'),
+        findsNothing,
+        reason: '3a ceiling should be formatted, not raw/unspaced',
+      );
 
       // Cache must be cleared after consume-once.
       final prefs = await SharedPreferences.getInstance();
