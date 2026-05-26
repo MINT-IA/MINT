@@ -17772,7 +17772,7 @@ class SEn extends S {
 
   @override
   String notifNewYearBody(String year) {
-    return 'New limits $year. Your potential savings have changed.';
+    return 'New limits $year. Your deductible room may change.';
   }
 
   @override
@@ -17837,7 +17837,7 @@ class SEn extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return '61 days left. Estimated savings: CHF $saving.';
+    return '61 days left. Estimated tax saving: CHF $saving.';
   }
 
   @override

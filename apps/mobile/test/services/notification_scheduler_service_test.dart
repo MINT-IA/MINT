@@ -116,6 +116,11 @@ void main() {
       expect(plafonds.first.scheduledDate.day, 5);
       expect(plafonds.first.scheduledDate.year, 2027);
       expect(plafonds.first.body, contains('2027'));
+      expect(plafonds.first.body, contains('marge déductible'));
+      expect(plafonds.first.body.toLowerCase(),
+          isNot(contains('économie potentielle')));
+      expect(plafonds.first.body.toLowerCase(),
+          isNot(contains('economie potentielle')));
     });
 
     test('skips dates in the past', () {
@@ -242,13 +247,19 @@ void main() {
       }
     });
 
-    test('December 3a notification frames tax saving as estimated', () {
+    test('3a tax-saving notifications frame the value as estimated', () {
       final notifications =
           NotificationSchedulerService.generateCalendarNotifications(
         taxSaving3a: 1820,
-        today: DateTime(2026, 11, 15, 8, 0),
+        today: DateTime(2026, 1, 1, 8, 0),
       );
 
+      final nov1 = notifications.firstWhere(
+        (n) =>
+            n.category == NotificationCategory.threeADeadline &&
+            n.scheduledDate.month == 11 &&
+            n.scheduledDate.day == 1,
+      );
       final dec1 = notifications.firstWhere(
         (n) =>
             n.category == NotificationCategory.threeADeadline &&
@@ -256,7 +267,11 @@ void main() {
             n.scheduledDate.day == 1,
       );
 
-      expect(dec1.body, contains('Économie estimée'));
+      expect(nov1.body, contains('Économie fiscale estimée'));
+      expect(nov1.body, isNot(contains('Économie estimée')));
+      expect(nov1.body, isNot(contains('en jeu')));
+      expect(dec1.body, contains('Économie fiscale estimée'));
+      expect(dec1.body, isNot(contains('Économie estimée')));
       expect(dec1.body, isNot(contains('en jeu')));
     });
   });

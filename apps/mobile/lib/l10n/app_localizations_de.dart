@@ -17901,7 +17901,7 @@ class SDe extends S {
 
   @override
   String notifNewYearBody(String year) {
-    return 'Neue Limits $year. Deine potenzielle Einsparung hat sich geändert.';
+    return 'Neue Limits $year. Dein abzugsfähiger Spielraum kann sich ändern.';
   }
 
   @override
@@ -17967,7 +17967,7 @@ class SDe extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return 'Noch 61 Tage. Geschätzte Einsparung: CHF $saving.';
+    return 'Noch 61 Tage. Geschätzte Steuerersparnis: CHF $saving.';
   }
 
   @override

@@ -17910,7 +17910,7 @@ class SIt extends S {
 
   @override
   String notifNewYearBody(String year) {
-    return 'Nuovi limiti $year. Il tuo risparmio potenziale è cambiato.';
+    return 'Nuovi limiti $year. Il tuo margine deducibile può cambiare.';
   }
 
   @override
@@ -17976,7 +17976,7 @@ class SIt extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return 'Restano 61 giorni. Risparmio stimato: CHF $saving.';
+    return 'Restano 61 giorni. Risparmio fiscale stimato: CHF $saving.';
   }
 
   @override

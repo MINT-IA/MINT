@@ -17862,7 +17862,7 @@ class SPt extends S {
 
   @override
   String notifNewYearBody(String year) {
-    return 'Novos limites $year. A tua poupança potencial mudou.';
+    return 'Novos limites $year. A tua margem dedutível pode mudar.';
   }
 
   @override
@@ -17928,7 +17928,7 @@ class SPt extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return 'Restam 61 dias. Poupança estimada: CHF $saving.';
+    return 'Restam 61 dias. Poupança fiscal estimada: CHF $saving.';
   }
 
   @override

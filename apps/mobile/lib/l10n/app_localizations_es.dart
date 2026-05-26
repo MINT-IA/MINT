@@ -17863,7 +17863,7 @@ class SEs extends S {
 
   @override
   String notifNewYearBody(String year) {
-    return 'Nuevos límites $year. Tu ahorro potencial ha cambiado.';
+    return 'Nuevos límites $year. Tu margen deducible puede cambiar.';
   }
 
   @override
@@ -17929,7 +17929,7 @@ class SEs extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return 'Quedan 61 días. Ahorro estimado: CHF $saving.';
+    return 'Quedan 61 días. Ahorro fiscal estimado: CHF $saving.';
   }
 
   @override

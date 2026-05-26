@@ -17851,7 +17851,7 @@ class SFr extends S {
 
   @override
   String notifNewYearBody(String year) {
-    return 'Nouveaux plafonds $year. Ton économie potentielle a changé.';
+    return 'Nouveaux plafonds $year. La marge déductible peut changer.';
   }
 
   @override
@@ -17917,7 +17917,7 @@ class SFr extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return 'Il reste 61 jours. Économie estimée : CHF $saving.';
+    return 'Il reste 61 jours. Économie fiscale estimée : CHF $saving.';
   }
 
   @override
@@ -17925,7 +17925,7 @@ class SFr extends S {
 
   @override
   String notifThreeALastMonth(String saving) {
-    return 'Dernier mois pour ton 3a. Économie estimée : CHF $saving.';
+    return 'Dernier mois pour ton 3a. Économie fiscale estimée : CHF $saving.';
   }
 
   @override

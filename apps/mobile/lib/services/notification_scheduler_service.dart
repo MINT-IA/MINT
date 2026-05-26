@@ -171,7 +171,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: l?.notifThreeATitle ?? 'Deadline 3a',
         body: l?.notifThreeA61Days(savingStr) ??
-            'Il reste 61 jours. Économie estimée : CHF $savingStr.',
+            'Il reste 61 jours. Économie fiscale estimée : CHF $savingStr.',
         deeplink: '/pilier-3a',
         scheduledDate: nov1,
         personalNumber: 'CHF $savingStr',
@@ -187,7 +187,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: l?.notifThreeATitle ?? 'Deadline 3a',
         body: l?.notifThreeALastMonth(savingStr) ??
-            'Dernier mois pour ton 3a. Économie estimée : CHF $savingStr.',
+            'Dernier mois pour ton 3a. Économie fiscale estimée : CHF $savingStr.',
         deeplink: '/pilier-3a',
         scheduledDate: dec1,
         personalNumber: 'CHF $savingStr',
@@ -220,7 +220,7 @@ class NotificationSchedulerService {
         title:
             l?.notifNewYearTitle(nextYear) ?? 'Nouveaux plafonds ${year + 1}',
         body: l?.notifNewYearBody(nextYear) ??
-            'Nouveaux plafonds ${year + 1}. Ton économie potentielle a changé.',
+            'Nouveaux plafonds ${year + 1}. La marge déductible peut changer.',
         deeplink: '/pilier-3a',
         scheduledDate: jan5,
         personalNumber: savingStr,
