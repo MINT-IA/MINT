@@ -1,37 +1,68 @@
-"""Phase 94 anticipation stub — narrator citation gate (skip-marked).
+"""Endpoint-level guard: uncited narrator numbers must not reach the user."""
 
-Phase 91 Wave 2 ships the structural prereq: narrator's tool list no
-longer contains save_fact + save_insight (EXTR-04) and the system
-prompt no longer carries extraction directives (EXTR-03). Phase 94
-will add the runtime parser that REJECTS narrator output containing
-uncited numeric claims.
+from unittest.mock import AsyncMock, MagicMock, patch
 
-Until Phase 94 lands, this test is `skip`-marked. Its presence here
-flags the contract owners (« le narrateur LLM est mathématiquement
-incapable d'émettre un chiffre un-cited » per the milestone doctrine)
-and gives Phase 94 a single placeholder to fill.
+from fastapi.testclient import TestClient
 
-Run:
-    cd services/backend && python3 -m pytest tests/test_narrator_refuses_uncited_numbers.py -v
-"""
-import pytest
+from app.core.auth import get_current_user, require_current_user
+from app.core.config import settings
+from app.main import app
+from app.services.coach.citation_parser import FALLBACK_TEMPLATED_TEXT
+from app.services.billing_service import ALL_FEATURES
 
 
-@pytest.mark.skip(
-    reason=(
-        "Phase 94 CITATION-GATE — runtime parser not implemented yet. "
-        "Phase 91 Wave 2 only ships the structural prereq (narrator tools "
-        "+ prompt narrowed)."
+def _fake_user():
+    user = MagicMock()
+    user.id = "test-user-id"
+    user.email = "test@mint.ch"
+    user.display_name = "Test User"
+    return user
+
+
+def test_endpoint_replaces_repeated_uncited_absurd_budget_number_with_fallback(
+    monkeypatch,
+):
+    """First uncited answer retries; second uncited answer collapses to fallback."""
+    monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", True)
+    app.dependency_overrides[require_current_user] = _fake_user
+    app.dependency_overrides[get_current_user] = _fake_user
+
+    orchestrator = MagicMock()
+    orchestrator.query = AsyncMock(
+        return_value={
+            "answer": "Ton budget montre 19'272'200 CHF de logement mensuel.",
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 42,
+        }
     )
-)
-def test_narrator_refuses_uncited_numbers():
-    """When Phase 94 ships:
 
-    1. Send a turn that should produce a number (e.g. a projection).
-    2. Mock narrator to emit an uncited number (no profile_block source).
-    3. Assert ComplianceGuard rejects with a CITATION-GATE marker.
+    try:
+        with (
+            patch(
+                "app.api.v1.endpoints.coach_chat.recompute_entitlements",
+                return_value=("premium", ALL_FEATURES),
+            ),
+            patch(
+                "app.api.v1.endpoints.coach_chat._get_orchestrator",
+                return_value=orchestrator,
+            ),
+            TestClient(app) as client,
+        ):
+            response = client.post(
+                "/api/v1/coach/chat",
+                json={
+                    "message": "Peux-tu analyser mon budget ?",
+                    "api_key": "sk-test-key-12345",
+                    "provider": "claude",
+                },
+            )
+    finally:
+        app.dependency_overrides.pop(require_current_user, None)
+        app.dependency_overrides.pop(get_current_user, None)
 
-    The gate is the ground-truth invariant for « le narrateur LLM est
-    mathématiquement incapable d'émettre un chiffre un-cited ».
-    """
-    pass
+    assert response.status_code == 200
+    message = response.json()["message"]
+    assert message == FALLBACK_TEMPLATED_TEXT
+    assert "19'272'200" not in message
+    assert orchestrator.query.await_count == 2

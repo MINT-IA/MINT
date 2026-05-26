@@ -1,0 +1,108 @@
+{
+  "computed_at": "2026-05-23T12:00:00.000Z",
+  "facts": [
+    {
+      "id": "profile.canton",
+      "domain": "profile",
+      "field_path": "situation.canton",
+      "value": "VD",
+      "source": "wizard",
+      "confidence": 0.91,
+      "freshness": "fresh",
+      "state": "known"
+    },
+    {
+      "id": "situation.monthly_housing_cost",
+      "domain": "situation",
+      "field_path": "situation.monthlyHousingCost",
+      "value": 2100.0,
+      "source": "wizard",
+      "confidence": 0.91,
+      "freshness": "fresh",
+      "state": "known"
+    },
+    {
+      "id": "situation.lamal_premium_monthly",
+      "domain": "situation",
+      "field_path": "situation.lamalPremiumMonthly",
+      "value": 430.0,
+      "source": "wizard",
+      "confidence": 0.91,
+      "freshness": "fresh",
+      "state": "known"
+    },
+    {
+      "id": "budget.monthly_net",
+      "domain": "budget",
+      "field_path": "budget.present.monthlyNet",
+      "value": 5379.0,
+      "source": "calculated",
+      "confidence": 0.91,
+      "freshness": "fresh",
+      "state": "known"
+    },
+    {
+      "id": "budget.monthly_charges",
+      "domain": "budget",
+      "field_path": "budget.present.monthlyCharges",
+      "value": 3140.0,
+      "source": "calculated",
+      "confidence": 0.91,
+      "freshness": "fresh",
+      "state": "known"
+    },
+    {
+      "id": "budget.monthly_free",
+      "domain": "budget",
+      "field_path": "budget.present.monthlyFree",
+      "value": 2239.0,
+      "source": "calculated",
+      "confidence": 0.91,
+      "freshness": "fresh",
+      "state": "known"
+    },
+    {
+      "id": "pillar.3a.annual_contribution",
+      "domain": "pillar_3a",
+      "field_path": "pillars.pillar3a.annualContribution",
+      "value": 6000.0,
+      "source": "calculated",
+      "confidence": 0.91,
+      "freshness": "fresh",
+      "state": "known"
+    }
+  ],
+  "missing_fields": [
+    {
+      "field_path": "pillars.lpp.totalBalance",
+      "domain": "pillar_lpp",
+      "reason": "missing"
+    },
+    {
+      "field_path": "situation.monthlyHousingCost",
+      "domain": "budget",
+      "reason": "missing_fact"
+    }
+  ],
+  "trajectory": {
+    "status": "onTrack",
+    "current_monthly_free": 2239.0,
+    "current_monthly_capacity": 2239.0,
+    "target_amount": 12000.0,
+    "months_to_target": 6.0,
+    "monthly_required": 2000.0,
+    "monthly_gap": -239.0,
+    "next_lever_id": "confirm_plan_tracking"
+  },
+  "next_questions": [
+    {
+      "id": "confirm_plan_tracking",
+      "domain": "trajectory",
+      "field_path": "trajectory.status"
+    }
+  ],
+  "readiness": {
+    "status": "ready",
+    "missing_domains": []
+  }
+}

@@ -153,6 +153,55 @@ def test_dispatcher_flag_off_returns_legacy_string(monkeypatch) -> None:
     assert "Budget actuel :" in result  # accent + verbatim FR preserved.
 
 
+def test_legacy_formatter_prefers_coach_context_packet_budget_facts() -> None:
+    """Packet values are the trust-aware mobile spine and win over legacy ctx."""
+    from app.api.v1.endpoints.coach_chat import _format_budget_status
+
+    result = _format_budget_status(
+        {
+            "monthly_income": 999_999,
+            "monthly_expenses": 888_888,
+            "months_liquidity": 12,
+            "coach_context_packet": {
+                "facts": [
+                    {
+                        "id": "budget.monthly_net",
+                        "domain": "budget",
+                        "field_path": "budget.present.monthlyNet",
+                        "value": 5379.0,
+                    },
+                    {
+                        "id": "budget.monthly_charges",
+                        "domain": "budget",
+                        "field_path": "budget.present.monthlyCharges",
+                        "value": 3140.0,
+                    },
+                    {
+                        "id": "budget.monthly_free",
+                        "domain": "budget",
+                        "field_path": "budget.present.monthlyFree",
+                        "value": 2239.0,
+                    },
+                ],
+                "missing_fields": [
+                    {
+                        "field_path": "situation.monthlyHousingCost",
+                        "domain": "budget",
+                        "reason": "missing_fact",
+                    }
+                ],
+            },
+        }
+    )
+
+    assert "Revenu net mensuel : CHF 5'379" in result
+    assert "Charges mensuelles : CHF 3'140" in result
+    assert "Marge libre : CHF 2'239" in result
+    assert "Données budget à confirmer : situation.monthlyHousingCost" in result
+    assert "999'999" not in result
+    assert "888'888" not in result
+
+
 def test_dispatcher_flag_on_returns_camel_case_json(monkeypatch) -> None:
     """Test 7: flag ON + profile present → BudgetSnapshotResponse JSON."""
     monkeypatch.setattr(
@@ -172,6 +221,92 @@ def test_dispatcher_flag_on_returns_camel_case_json(monkeypatch) -> None:
     assert len(payload["inputsHash"]) == 64
     # 64-char lowercase hex.
     int(payload["inputsHash"], 16)
+
+
+def test_dispatcher_flag_on_prefers_packet_over_stale_db(monkeypatch) -> None:
+    """Packet budget facts win over stale DB values even when flag is ON."""
+    monkeypatch.setattr(
+        settings, "COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED", True
+    )
+    from app.api.v1.endpoints.coach_chat import _compute_budget_status
+
+    stale_db = _make_mock_db(
+        {
+            "monthly_income": 999_999.0,
+            "monthly_expenses": 888_888.0,
+            "months_liquidity": 12.0,
+        }
+    )
+    ctx = {
+        "coach_context_packet": {
+            "facts": [
+                {
+                    "id": "budget.monthly_net",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyNet",
+                    "value": 5379.0,
+                },
+                {
+                    "id": "budget.monthly_charges",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyCharges",
+                    "value": 3140.0,
+                },
+                {
+                    "id": "budget.monthly_free",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyFree",
+                    "value": 2239.0,
+                },
+            ]
+        }
+    }
+
+    result = _compute_budget_status(user_id="user-abc", ctx=ctx, db=stale_db)
+
+    assert "Revenu net mensuel : CHF 5'379" in result
+    assert "Charges mensuelles : CHF 3'140" in result
+    assert "Marge libre : CHF 2'239" in result
+    assert "999'999" not in result
+    assert "888'888" not in result
+    stale_db.query.assert_not_called()
+
+
+def test_dispatcher_flag_on_preserves_liquidity_with_partial_packet(monkeypatch) -> None:
+    """Partial packet facts still win without dropping safe legacy context."""
+    monkeypatch.setattr(
+        settings, "COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED", True
+    )
+    from app.api.v1.endpoints.coach_chat import _compute_budget_status
+
+    stale_db = _make_mock_db(
+        {
+            "monthly_income": 999_999.0,
+            "monthly_expenses": 888_888.0,
+            "months_liquidity": 99.0,
+        }
+    )
+    ctx = {
+        "months_liquidity": 4.6,
+        "coach_context_packet": {
+            "facts": [
+                {
+                    "id": "budget.monthly_free",
+                    "domain": "budget",
+                    "field_path": "budget.present.monthlyFree",
+                    "value": 2239.0,
+                },
+            ]
+        },
+    }
+
+    result = _compute_budget_status(user_id="user-abc", ctx=ctx, db=stale_db)
+
+    assert "Marge libre : CHF 2'239" in result
+    assert "Réserve de liquidités : 4.6 mois" in result
+    assert "999'999" not in result
+    assert "888'888" not in result
+    stale_db.query.assert_not_called()
 
 
 def test_dispatcher_flag_on_falls_back_when_budget_missing(monkeypatch) -> None:
