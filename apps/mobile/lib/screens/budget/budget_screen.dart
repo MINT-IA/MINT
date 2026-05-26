@@ -16,6 +16,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -306,7 +307,9 @@ class _BudgetScreenState extends State<BudgetScreen>
                                     _staggeredEntry(
                                         index: 0,
                                         child: _buildHeader(
-                                            plan, l, flowPresent.monthlyFree)),
+                                            l: l,
+                                            present: flowPresent,
+                                            plan: plan)),
                                     const SizedBox(height: MintSpacing.md),
 
                                     _staggeredEntry(
@@ -561,26 +564,21 @@ class _BudgetScreenState extends State<BudgetScreen>
   }
 
   PresentBudget _presentBudgetFromInputs(BudgetPlan plan) {
-    final monthlyNet = _displayChf(widget.inputs.netIncome);
-    final monthlyCharges = _displayChf(widget.inputs.housingCost) +
-        _displayChf(widget.inputs.debtPayments) +
-        _displayChf(widget.inputs.taxProvision) +
-        _displayChf(widget.inputs.healthInsurance) +
-        _displayChf(widget.inputs.otherFixedCosts);
-    final monthlySavings = _displayChf(plan.future);
-    final monthlyFree = monthlyNet - monthlyCharges - monthlySavings;
-    return PresentBudget(
-      monthlyNet: monthlyNet,
-      monthlyCharges: monthlyCharges,
-      monthlySavings: monthlySavings,
-      monthlyFree: monthlyFree,
+    return PresentBudgetBuilder.fromInputs(
+      inputs: widget.inputs,
+      plan: plan,
     );
   }
 
   double _displayChf(double value) =>
       value.isFinite ? value.roundToDouble() : 0;
 
-  Widget _buildHeader(BudgetPlan plan, S l, double heroFree) {
+  Widget _buildHeader({
+    required S l,
+    required PresentBudget present,
+    required BudgetPlan plan,
+  }) {
+    final heroFree = present.monthlyFree;
     final isPositive = heroFree >= 0;
     final heroColor = isPositive ? MintColors.success : MintColors.warning;
 
@@ -604,13 +602,13 @@ class _BudgetScreenState extends State<BudgetScreen>
           const SizedBox(height: MintSpacing.xl),
 
           // Breakdown in MintSurface (craie — warm, no border)
-          _buildBreakdown(l, plan),
+          _buildBreakdown(l, plan, present),
         ],
       ),
     );
   }
 
-  Widget _buildBreakdown(S l, BudgetPlan plan) {
+  Widget _buildBreakdown(S l, BudgetPlan plan, PresentBudget present) {
     final income = _displayChf(widget.inputs.netIncome);
     final housing = _displayChf(widget.inputs.housingCost);
     final debt = _displayChf(widget.inputs.debtPayments);
@@ -618,8 +616,7 @@ class _BudgetScreenState extends State<BudgetScreen>
     final health = _displayChf(widget.inputs.healthInsurance);
     final otherFixed = _displayChf(widget.inputs.otherFixedCosts);
     final future = _displayChf(plan.future);
-    final available =
-        income - housing - debt - taxes - health - otherFixed - future;
+    final available = present.monthlyFree;
 
     return MintSurface(
       tone: MintSurfaceTone.craie,
