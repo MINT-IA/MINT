@@ -11,6 +11,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -64,6 +65,27 @@ import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
 import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart' show CapCoachBridge;
 
+typedef CoachContextInjectorBuilder = Future<EnrichedContext> Function({
+  CoachProfile? profile,
+  SharedPreferences? prefs,
+  DateTime? now,
+  MintUserState? mintState,
+});
+
+Future<EnrichedContext> _defaultCoachContextInjectorBuilder({
+  CoachProfile? profile,
+  SharedPreferences? prefs,
+  DateTime? now,
+  MintUserState? mintState,
+}) {
+  return ContextInjectorService.buildContext(
+    profile: profile,
+    prefs: prefs,
+    now: now,
+    mintState: mintState,
+  );
+}
+
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
 //
@@ -111,12 +133,19 @@ class CoachChatScreen extends StatefulWidget {
   /// Wire Spec V2 §3.6 — CoachEntryPayload carries source + topic + data.
   final CoachEntryPayload? entryPayload;
 
+  /// Test seam for the enriched context builder.
+  ///
+  /// Production always uses [ContextInjectorService.buildContext].
+  @visibleForTesting
+  final CoachContextInjectorBuilder? contextBuilder;
+
   const CoachChatScreen({
     super.key,
     this.initialPrompt,
     this.conversationId,
     this.isEmbeddedInTab = false,
     this.entryPayload,
+    this.contextBuilder,
   });
 
   @override
@@ -1008,9 +1037,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // Build enriched context for AI memory injection (S58).
     String? memoryBlock;
     try {
-      final enrichedContext = await ContextInjectorService.buildContext(
+      final mintState = context.read<MintStateProvider>().state;
+      final buildContext =
+          widget.contextBuilder ?? _defaultCoachContextInjectorBuilder;
+      final enrichedContext = await buildContext(
         profile: _profile,
         now: DateTime.now(),
+        mintState: mintState,
       ).timeout(const Duration(seconds: 2));
       if (enrichedContext.memoryBlock.isNotEmpty) {
         memoryBlock = enrichedContext.memoryBlock;

@@ -6,14 +6,22 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
+import 'package:mint_mobile/services/coach/context_injector_service.dart';
+import 'package:mint_mobile/services/coach/conversation_memory_service.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
+import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -38,15 +46,52 @@ void main() {
     return provider;
   }
 
-  Widget buildTestWidget({bool withProfile = false}) {
+  MintUserState buildMintStateForTest(CoachProfile profile) {
+    final now = DateTime(2026, 5, 26, 10);
+    return MintUserState(
+      profile: profile,
+      lifecyclePhase: LifecyclePhase.consolidation,
+      archetype: profile.archetype,
+      budgetSnapshot: const BudgetSnapshot(
+        present: PresentBudget(
+          monthlyNet: 9000,
+          monthlyCharges: 5200,
+          monthlySavings: 1332,
+          monthlyFree: 2468,
+        ),
+        retirement: RetirementBudget(
+          monthlyIncome: 7200,
+          monthlyTax: 900,
+          monthlyNet: 6300,
+        ),
+        gap: BudgetGap(
+          monthlyGap: 1200,
+          replacementRate: 70,
+        ),
+        capImpacts: [
+          BudgetCapImpact(capId: 'debt_safety', monthlyDelta: -300),
+        ],
+        stage: BudgetStage.fullGapVisible,
+        confidenceScore: 82,
+      ),
+      confidenceScore: 82,
+      capMemory: const CapMemory(),
+      computedAt: now,
+    );
+  }
+
+  Widget buildTestWidget({bool withProfile = false, MintUserState? mintState}) {
+    final profileProvider =
+        withProfile ? buildProfileProvider() : CoachProfileProvider();
+    final stateProvider = MintStateProvider();
+    if (mintState != null) {
+      stateProvider.injectStateForTest(mintState);
+    }
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) =>
-              withProfile ? buildProfileProvider() : CoachProfileProvider(),
-        ),
+        ChangeNotifierProvider.value(value: profileProvider),
         ChangeNotifierProvider(create: (_) => ByokProvider()),
-        ChangeNotifierProvider(create: (_) => MintStateProvider()),
+        ChangeNotifierProvider.value(value: stateProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: const MaterialApp(
@@ -90,6 +135,7 @@ void main() {
   // SharedPreferences mock needed for ContextInjectorService (S58 AI memory)
   // and voice intensity level (default to 3 = Direct so greeting tests pass).
   setUp(() {
+    FeatureFlags.slmPluginReady = false;
     SharedPreferences.setMockInitialValues({
       'mint_coach_cash_level': 3,
     });
@@ -242,6 +288,89 @@ void main() {
 
       await tester.enterText(find.byType(TextField), 'Parle-moi du 3a');
       expect(find.text('Parle-moi du 3a'), findsOneWidget);
+    });
+
+    testWidgets('injects Budget Vivant from MintState into coach memory block',
+        (tester) async {
+      usePhoneViewport(tester);
+      final profileProvider = buildProfileProvider();
+      final profile = profileProvider.profile!;
+      final mintState = buildMintStateForTest(profile);
+      MintUserState? capturedMintState;
+      String? capturedMemoryBlock;
+      final previousHardGate = FeatureFlags.enableCoachHardGate;
+      FeatureFlags.enableCoachHardGate = false;
+      addTearDown(() {
+        FeatureFlags.enableCoachHardGate = previousHardGate;
+      });
+
+      CoachLlmService.registerOrchestrator(({
+        required userMessage,
+        required history,
+        required ctx,
+        byokConfig,
+        memoryBlock,
+        language = 'fr',
+        cashLevel = 3,
+        isLoggedIn = false,
+      }) async {
+        capturedMemoryBlock = memoryBlock;
+        return const CoachResponse(
+          message: 'ok',
+          disclaimer: 'Outil educatif.',
+        );
+      });
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: profileProvider),
+            ChangeNotifierProvider(create: (_) => ByokProvider()),
+            ChangeNotifierProvider.value(
+              value: MintStateProvider()..injectStateForTest(mintState),
+            ),
+            ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ],
+          child: MaterialApp(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: CoachChatScreen(
+              contextBuilder: ({
+                profile,
+                prefs,
+                now,
+                mintState,
+              }) async {
+                capturedMintState = mintState;
+                return const EnrichedContext(
+                  memoryBlock:
+                      "BUDGET VIVANT\nMarge libre\u00a0: CHF\u00a02'468/mois",
+                  conversationMemory: ConversationMemory.empty,
+                  activeGoalsCount: 0,
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      await pumpUntilGreeting(tester);
+
+      await tester.enterText(find.byType(TextField), 'Analyse mon budget');
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(capturedMintState, same(mintState));
+      expect(capturedMemoryBlock, isNotNull);
+      expect(capturedMemoryBlock, contains('BUDGET VIVANT'));
+      expect(capturedMemoryBlock, contains("CHF\u00a02'468/mois"));
     });
 
     testWidgets('sends message when pressing send button', (tester) async {
