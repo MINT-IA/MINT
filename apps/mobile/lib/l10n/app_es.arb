@@ -5610,7 +5610,15 @@
   "reportRetirementTitle": "Tu Jubilación",
   "reportRetirementKeyLabel": "Ingreso estimado a los 65 años",
   "reportRetirementSource": "Fuentes: LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "Aún sin 3a — hasta CHF 7’258/año de deducción fiscal posible",
+  "reportRetirement3aNone": "Aún sin 3a — margen deducible a estimar según tu situación LPP",
+  "reportRetirement3aNoneWithRoom": "Aún sin 3a — margen deducible estimado: CHF {amount}/año",
+  "@reportRetirement3aNoneWithRoom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "reportRetirement3aOne": "1 cuenta 3a — abre una 2.a para optimizar el retiro",
   "reportRetirement3aMulti": "{count} cuentas 3a — buena diversificación",
   "@reportRetirement3aMulti": {

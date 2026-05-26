@@ -5605,7 +5605,15 @@
   "reportRetirementTitle": "A tua Reforma",
   "reportRetirementKeyLabel": "Rendimento estimado aos 65 anos",
   "reportRetirementSource": "Fontes: LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "Ainda sem 3a — até CHF 7’258/ano de dedução fiscal possível",
+  "reportRetirement3aNone": "Ainda sem 3a — margem dedutível a estimar segundo o teu estatuto LPP",
+  "reportRetirement3aNoneWithRoom": "Ainda sem 3a — margem dedutível estimada: CHF {amount}/ano",
+  "@reportRetirement3aNoneWithRoom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "reportRetirement3aOne": "1 conta 3a — abre uma 2.ª para otimizar o levantamento",
   "reportRetirement3aMulti": "{count} contas 3a — boa diversificação",
   "@reportRetirement3aMulti": {

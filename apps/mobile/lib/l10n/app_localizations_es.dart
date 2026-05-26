@@ -11761,7 +11761,12 @@ class SEs extends S {
 
   @override
   String get reportRetirement3aNone =>
-      'Aún sin 3a — hasta CHF 7’258/año de deducción fiscal posible';
+      'Aún sin 3a — margen deducible a estimar según tu situación LPP';
+
+  @override
+  String reportRetirement3aNoneWithRoom(String amount) {
+    return 'Aún sin 3a — margen deducible estimado: CHF $amount/año';
+  }
 
   @override
   String get reportRetirement3aOne =>

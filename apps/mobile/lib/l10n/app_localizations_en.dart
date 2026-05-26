@@ -11702,7 +11702,12 @@ class SEn extends S {
 
   @override
   String get reportRetirement3aNone =>
-      'No 3a yet — up to CHF 7’258/year in tax deductions possible';
+      'No 3a yet — deductible room to estimate from your LPP status';
+
+  @override
+  String reportRetirement3aNoneWithRoom(String amount) {
+    return 'No 3a yet — estimated deductible room: CHF $amount/year';
+  }
 
   @override
   String get reportRetirement3aOne =>

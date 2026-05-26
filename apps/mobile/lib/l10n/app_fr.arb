@@ -5987,7 +5987,15 @@
   "reportRetirementTitle": "Ta Retraite",
   "reportRetirementKeyLabel": "Revenu estimé à 65 ans",
   "reportRetirementSource": "Sources : LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "Pas encore de 3a — jusqu'à CHF 7’258/an de déduction fiscale possible",
+  "reportRetirement3aNone": "Pas encore de 3a — marge déductible à estimer selon ton statut LPP",
+  "reportRetirement3aNoneWithRoom": "Pas encore de 3a — marge déductible estimée : CHF {amount}/an",
+  "@reportRetirement3aNoneWithRoom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "reportRetirement3aOne": "1 compte 3a — ouvre un 2e pour optimiser le retrait",
   "reportRetirement3aMulti": "{count} comptes 3a — bonne diversification",
   "@reportRetirement3aMulti": {

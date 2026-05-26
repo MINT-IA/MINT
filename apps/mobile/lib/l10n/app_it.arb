@@ -5605,7 +5605,15 @@
   "reportRetirementTitle": "Il tuo Pensionamento",
   "reportRetirementKeyLabel": "Reddito stimato a 65 anni",
   "reportRetirementSource": "Fonti: LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "Ancora nessun 3a — fino a CHF 7’258/anno di deduzione fiscale possibile",
+  "reportRetirement3aNone": "Ancora nessun 3a — margine deducibile da stimare secondo il tuo stato LPP",
+  "reportRetirement3aNoneWithRoom": "Ancora nessun 3a — margine deducibile stimato: CHF {amount}/anno",
+  "@reportRetirement3aNoneWithRoom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "reportRetirement3aOne": "1 conto 3a — apri un 2° per ottimizzare il prelievo",
   "reportRetirement3aMulti": "{count} conti 3a — buona diversificazione",
   "@reportRetirement3aMulti": {

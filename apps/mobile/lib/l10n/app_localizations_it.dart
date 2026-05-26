@@ -11783,7 +11783,12 @@ class SIt extends S {
 
   @override
   String get reportRetirement3aNone =>
-      'Ancora nessun 3a — fino a CHF 7’258/anno di deduzione fiscale possibile';
+      'Ancora nessun 3a — margine deducibile da stimare secondo il tuo stato LPP';
+
+  @override
+  String reportRetirement3aNoneWithRoom(String amount) {
+    return 'Ancora nessun 3a — margine deducibile stimato: CHF $amount/anno';
+  }
 
   @override
   String get reportRetirement3aOne =>

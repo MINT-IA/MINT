@@ -233,6 +233,30 @@ void main() {
       expect(find.byType(FinancialReportScreenV2), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets('retirement 3a card uses profile-grounded deductible room',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_has_3a'] = 'no'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_3a_annual_contribution'] = 0.0
+        ..['q_gross_salary_annual'] = 84000.0;
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining("CHF 7'258/an"), findsOneWidget);
+      expect(find.textContaining("jusqu'à CHF 7"), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
   });
 
   // ===========================================================================

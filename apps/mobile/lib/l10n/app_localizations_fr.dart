@@ -11763,7 +11763,12 @@ class SFr extends S {
 
   @override
   String get reportRetirement3aNone =>
-      'Pas encore de 3a — jusqu\'à CHF 7’258/an de déduction fiscale possible';
+      'Pas encore de 3a — marge déductible à estimer selon ton statut LPP';
+
+  @override
+  String reportRetirement3aNoneWithRoom(String amount) {
+    return 'Pas encore de 3a — marge déductible estimée : CHF $amount/an';
+  }
 
   @override
   String get reportRetirement3aOne =>

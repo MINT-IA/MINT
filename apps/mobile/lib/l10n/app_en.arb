@@ -5610,7 +5610,15 @@
   "reportRetirementTitle": "Your Retirement",
   "reportRetirementKeyLabel": "Estimated income at 65",
   "reportRetirementSource": "Sources: LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "No 3a yet — up to CHF 7’258/year in tax deductions possible",
+  "reportRetirement3aNone": "No 3a yet — deductible room to estimate from your LPP status",
+  "reportRetirement3aNoneWithRoom": "No 3a yet — estimated deductible room: CHF {amount}/year",
+  "@reportRetirement3aNoneWithRoom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "reportRetirement3aOne": "1 pillar 3a account — open a 2nd to optimise withdrawal",
   "reportRetirement3aMulti": "{count} pillar 3a accounts — good diversification",
   "@reportRetirement3aMulti": {

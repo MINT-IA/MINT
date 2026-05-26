@@ -11785,7 +11785,12 @@ class SDe extends S {
 
   @override
   String get reportRetirement3aNone =>
-      'Noch kein 3a — bis zu CHF 7’258/Jahr Steuerabzug möglich';
+      'Noch kein 3a — abzugsfähiger Spielraum anhand deines LPP-Status zu schätzen';
+
+  @override
+  String reportRetirement3aNoneWithRoom(String amount) {
+    return 'Noch kein 3a — geschätzter abzugsfähiger Spielraum: CHF $amount/Jahr';
+  }
 
   @override
   String get reportRetirement3aOne =>

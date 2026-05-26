@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/widgets/report/thematic_card.dart';
 // Wave E-PRIME (2026-04-18): MintAlertObject + VoiceResolutionContext imports
 // removed — widgets/alert/ cluster deleted with AnticipationProvider (Panel A
@@ -477,7 +479,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
     final String threeAText;
     if (!has3a || nb3a == 0) {
-      threeAText = S.of(context)!.reportRetirement3aNone;
+      final remaining3aDeduction =
+          _estimateRemaining3aDeduction(report, answers);
+      threeAText = remaining3aDeduction > 0
+          ? S.of(context)!
+              .reportRetirement3aNoneWithRoom(formatChf(remaining3aDeduction))
+          : S.of(context)!.reportRetirement3aNone;
     } else if (nb3a == 1) {
       threeAText = S.of(context)!.reportRetirement3aOne;
     } else {
@@ -1036,5 +1043,51 @@ class FinancialReportScreenV2 extends StatelessWidget {
     if (raw is num) return raw.toInt();
     if (raw is String) return int.tryParse(raw.trim());
     return null;
+  }
+
+  double? _parseDoubleAnswer(dynamic raw) {
+    if (raw is num) return raw.toDouble();
+    if (raw is String) return double.tryParse(raw.trim());
+    return null;
+  }
+
+  bool? _parseBoolAnswer(dynamic raw) {
+    if (raw is bool) return raw;
+    if (raw is String) {
+      final normalized = raw.trim().toLowerCase();
+      if (normalized == 'yes' || normalized == 'true') return true;
+      if (normalized == 'no' || normalized == 'false') return false;
+    }
+    return null;
+  }
+
+  double _estimateRemaining3aDeduction(
+    FinancialReport report,
+    Map<String, dynamic> answers,
+  ) {
+    final profile = report.profile;
+    if (profile.monthlyNetIncome <= 0) return 0.0;
+    final declaredAnnualGross =
+        _parseDoubleAnswer(answers['q_gross_salary_annual']);
+    final declaredMonthlyGross =
+        _parseDoubleAnswer(answers['q_gross_income_monthly']);
+    final annualGrossSalary = declaredAnnualGross ??
+        (declaredMonthlyGross != null ? declaredMonthlyGross * 12 : null) ??
+        NetIncomeBreakdown.estimateBrutFromNet(
+          profile.monthlyNetIncome * 12,
+          age: profile.age,
+        );
+    final declaredLpp = _parseBoolAnswer(answers['q_has_pension_fund']);
+    final hasLpp = declaredLpp ??
+        (profile.isSalaried &&
+            annualGrossSalary >= reg('lpp.entry_threshold', lppSeuilEntree));
+    final annualCeiling = hasLpp
+        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
+        : (annualGrossSalary * pilier3aTauxRevenuSansLpp)
+            .clamp(0.0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
+            .toDouble();
+    final currentContribution =
+        _parseDoubleAnswer(answers['q_3a_annual_contribution']) ?? 0.0;
+    return (annualCeiling - currentContribution).clamp(0.0, annualCeiling);
   }
 }

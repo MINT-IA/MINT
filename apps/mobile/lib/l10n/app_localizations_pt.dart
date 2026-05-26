@@ -11755,7 +11755,12 @@ class SPt extends S {
 
   @override
   String get reportRetirement3aNone =>
-      'Ainda sem 3a — até CHF 7’258/ano de dedução fiscal possível';
+      'Ainda sem 3a — margem dedutível a estimar segundo o teu estatuto LPP';
+
+  @override
+  String reportRetirement3aNoneWithRoom(String amount) {
+    return 'Ainda sem 3a — margem dedutível estimada: CHF $amount/ano';
+  }
 
   @override
   String get reportRetirement3aOne =>
