@@ -1,0 +1,153 @@
+# tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml
+#
+# PURPOSE
+# Canonical runtime proof for the MINT money trust chain:
+# Budget setup writes monthly fixed charges, Budget restores them after restart,
+# Mon Argent exposes the same money read model, Rapport reuses it, and Coach
+# remains reachable without absurd captured values leaking into visible surfaces.
+#
+# PRE-CONDITION
+# - App ch.mint.app installed on a booted iPhone simulator.
+# - Recommended build:
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+
+appId: ch.mint.app
+tags:
+  - money-trust-chain
+  - budget
+  - mon-argent
+  - rapport
+  - coach
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+- openLink: "mintapp:///budget/setup"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "budget_setup_screen"
+    timeout: 12000
+- assertVisible:
+    id: "budget_housing_field"
+- assertVisible:
+    id: "budget_lamal_field"
+
+- tapOn:
+    id: "budget_housing_field"
+- inputText: "2200"
+- tapOn:
+    id: "budget_lamal_field"
+- inputText: "420"
+- tapOn:
+    text: "Charges fixes"
+- extendedWaitUntil:
+    visible:
+      id: "budget_setup_live_total"
+    timeout: 5000
+- tapOn:
+    id: "budget_setup_save_button"
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- openLink: "mintapp:///budget"
+- extendedWaitUntil:
+    visible:
+      id: "budget_screen"
+    timeout: 12000
+- assertVisible:
+    id: "budget_formula_proof"
+- assertVisible:
+    text: ".*3'140.*"
+- assertVisible:
+    text: ".*2'239.*"
+- assertNotVisible: "19'272'200"
+- assertNotVisible: "420'420"
+- assertNotVisible: "19M"
+- assertNotVisible: "420k"
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+
+- openLink: "mintapp:///mon-argent?section=month"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_screen"
+    timeout: 12000
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    id: "mon_argent_budget_summary"
+- assertVisible:
+    id: "mon_argent_budget_flow_bar"
+- assertNotVisible: "19'272'200"
+- assertNotVisible: "420'420"
+- assertNotVisible: "19M"
+- assertNotVisible: "420k"
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+
+- openLink: "mintapp:///rapport"
+- extendedWaitUntil:
+    visible: "Ton Plan Mint"
+    timeout: 12000
+- assertVisible: "Ton Budget"
+- assertVisible:
+    text: ".*2'200.*"
+- assertVisible:
+    text: ".*420.*"
+- assertNotVisible: "19'272'200"
+- assertNotVisible: "420'420"
+- assertNotVisible: "19M"
+- assertNotVisible: "420k"
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+- assertNotVisible: "A RenderFlex overflowed"
+- assertNotVisible: "Exception caught"
+- assertNotVisible: "NoSuchMethodError"
+
+- openLink: "mintapp:///coach/chat"
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 12000
+- assertVisible:
+    id: "coach_input_field"
+- assertVisible:
+    id: "coach_send_button"
+- assertNotVisible: "19'272'200"
+- assertNotVisible: "420'420"
+- assertNotVisible: "19M"
+- assertNotVisible: "420k"
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+- takeScreenshot: "money-trust-chain-budget-mon-argent-rapport-coach"
