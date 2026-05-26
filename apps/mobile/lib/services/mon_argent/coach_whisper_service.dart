@@ -1,5 +1,6 @@
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/mon_argent/patrimoine_aggregator.dart';
 
@@ -13,6 +14,7 @@ class CoachWhisperService {
 
   /// Evaluate whisper rules. Returns null if nothing to say.
   static String? evaluate({
+    BudgetSnapshot? budgetSnapshot,
     required BudgetInputs? budgetInputs,
     required BudgetPlan? budgetPlan,
     required PatrimoineSummary patrimoine,
@@ -20,14 +22,15 @@ class CoachWhisperService {
   }) {
     // Rule 1: Budget deficit — urgent. BudgetPlan.available is an allocation
     // amount and is intentionally non-negative, so use signed cashflow here.
-    if (_signedMonthlyFree(budgetInputs, budgetPlan) < 0) {
+    if (_signedMonthlyFree(budgetSnapshot, budgetInputs, budgetPlan) < 0) {
       return 'Mois serré. Regarde tes dépenses fixes.';
     }
 
     // Rule 2: Good month + 3a opportunity
-    if (budgetInputs != null && budgetPlan != null && profile != null) {
+    if ((budgetSnapshot != null || budgetPlan != null) && profile != null) {
       final salary = profile.salaireBrutMensuel;
-      final available = budgetPlan.available;
+      final available =
+          budgetSnapshot?.present.monthlyFree ?? budgetPlan?.available ?? 0;
       if (salary > 0 && available > salary * 0.15) {
         final suggestion = (available * 0.25).round();
         if (suggestion >= 100) {
@@ -38,7 +41,8 @@ class CoachWhisperService {
 
     // Rule 3: Emergency fund low
     if (patrimoine.epargneLiquide != null && profile != null) {
-      final monthlyExpenses = _essentialMonthlyExpenses(budgetInputs);
+      final monthlyExpenses =
+          _essentialMonthlyExpenses(budgetSnapshot, budgetInputs);
       if (monthlyExpenses > 0) {
         final months = patrimoine.epargneLiquide!.value / monthlyExpenses;
         if (months < 3) {
@@ -74,7 +78,11 @@ class CoachWhisperService {
     return null;
   }
 
-  static double _essentialMonthlyExpenses(BudgetInputs? inputs) {
+  static double _essentialMonthlyExpenses(
+    BudgetSnapshot? snapshot,
+    BudgetInputs? inputs,
+  ) {
+    if (snapshot != null) return snapshot.present.monthlyCharges;
     if (inputs == null) return 0;
     final fixed = inputs.housingCost +
         inputs.healthInsurance +
@@ -84,7 +92,12 @@ class CoachWhisperService {
     return fixed > 0 ? fixed : inputs.netIncome;
   }
 
-  static double _signedMonthlyFree(BudgetInputs? inputs, BudgetPlan? plan) {
+  static double _signedMonthlyFree(
+    BudgetSnapshot? snapshot,
+    BudgetInputs? inputs,
+    BudgetPlan? plan,
+  ) {
+    if (snapshot != null) return snapshot.present.monthlyFree;
     if (inputs == null) return 0;
     final fixed = inputs.housingCost +
         inputs.healthInsurance +
