@@ -513,9 +513,42 @@ void main() {
       answers['q_emergency_fund'] = 'no';
       final report = service.generateReport(answers);
 
-      // The scoring service will flag debt and emergency fund issues
-      // Priority actions should reflect those concerns
-      expect(report.priorityActions, isA<List<ActionItem>>());
+      final debtAction = report.priorityActions.firstWhere(
+          (action) => action.title.toLowerCase().contains('dettes'));
+      expect(debtAction.title, contains('dettes'));
+      expect(debtAction.potentialGainChf, isNull);
+    });
+
+    test('second 3a action uses computed provider and withdrawal gain only',
+        () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 1
+        ..['q_3a_annual_contribution'] = 7258.0
+        ..['q_employment_status'] = 'employee';
+      final report = service.generateReport(answers);
+
+      final action = report.priorityActions
+          .firstWhere((action) => action.category == ActionCategory.pillar3a);
+      final expectedGain = report.pillar3aAnalysis!.potentialGainVsBank +
+          (report.pillar3aAnalysis!.withdrawalOptimizationSavings ?? 0);
+
+      expect(action.potentialGainChf, closeTo(expectedGain, 1.0));
+      expect(action.potentialGainChf, isNot(12000));
+    });
+
+    test('lpp action uses computed buyback tax saving only', () {
+      final report = service.generateReport(fullAnswers());
+
+      final action = report.priorityActions
+          .firstWhere((action) => action.category == ActionCategory.lpp);
+
+      expect(
+        action.potentialGainChf,
+        closeTo(report.lppBuybackStrategy!.totalTaxSavings, 1.0),
+      );
+      expect(action.potentialGainChf, isNot(60000));
     });
 
     test('first 3a action estimates fiscal gain from tax simulation', () {

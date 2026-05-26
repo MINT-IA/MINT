@@ -578,14 +578,13 @@ class FinancialReportService {
       final gainVsBank = pillar3aAnalysis?.potentialGainVsBank;
       final withdrawalSavings = pillar3aAnalysis?.withdrawalOptimizationSavings;
       final totalGain = (gainVsBank ?? 0) + (withdrawalSavings ?? 0);
-      final computedGain = totalGain > 0 ? totalGain : 12000.0;
 
       return ActionItem(
         title: l?.reportActionTitle3aSecond ?? 'Ouvre un 2e compte 3a fintech',
         description: l?.reportActionDesc3aSecond ??
             'Optimise ta fiscalité au retrait et diversifie tes placements.',
         priority: ActionPriority.high,
-        potentialGainChf: computedGain,
+        potentialGainChf: totalGain > 0 ? totalGain : null,
         category: ActionCategory.pillar3a,
         steps: const [
           '1. Compare les prestataires 3a en ligne',
@@ -599,15 +598,15 @@ class FinancialReportService {
     if (recommendation.contains('rachat LPP')) {
       // Gain réel : économie fiscale totale calculée par la stratégie LPP
       final computedGain = lppStrategy?.totalTaxSavings ?? 0;
-      final displayGain = computedGain > 0 ? computedGain : 60000.0;
       final nbYears = lppStrategy?.yearlyPlan.length ?? 4;
 
       return ActionItem(
         title: 'Planifie ton rachat LPP échelonné',
-        description:
-            'Économise jusqu\'à ${formatChfWithPrefix(displayGain)} d\'impôts sur $nbYears ans.',
+        description: computedGain > 0
+            ? 'Impact fiscal estimé : ${formatChfWithPrefix(computedGain)} sur $nbYears ans.'
+            : 'Planifie le calendrier et vérifie le montant exact auprès de ta caisse.',
         priority: ActionPriority.critical,
-        potentialGainChf: displayGain,
+        potentialGainChf: computedGain > 0 ? computedGain : null,
         category: ActionCategory.lpp,
         steps: const [
           '1. Demande certificat LPP à ta caisse',
@@ -640,7 +639,6 @@ class FinancialReportService {
         description: l?.reportActionDescDette ??
             'Chaque CHF remboursé te fait économiser l\'équivalent du taux d\'intérêt de la dette (souvent 6-10 % par an).',
         priority: ActionPriority.critical,
-        potentialGainChf: 2000,
         category: ActionCategory.protection,
         steps: [
           '1. Liste toutes tes dettes (montant, taux)',
