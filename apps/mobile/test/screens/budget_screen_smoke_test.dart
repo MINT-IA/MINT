@@ -441,6 +441,89 @@ void main() {
     expect(find.text("CHF\u00a02'200"), findsNothing);
   });
 
+  testWidgets('BudgetContainerScreen hydrates debts from CoachProfile',
+      (tester) async {
+    await BudgetLocalStore().saveInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 8000,
+        housingCost: 2200,
+        debtPayments: 0,
+        taxProvision: 950,
+        healthInsurance: 420,
+      ),
+    );
+
+    final profileProvider = CoachProfileProvider()
+      ..updateProfile(
+        CoachProfile(
+          birthYear: 1988,
+          canton: 'VD',
+          salaireBrutMensuel: 6000,
+          depenses: const DepensesProfile(
+            loyer: 1100,
+            assuranceMaladie: 390,
+          ),
+          dettes: const DetteProfile(
+            creditConsommation: 12000,
+          ),
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+            'depenses.assuranceMaladie': ProfileDataSource.userInput,
+            'dettes.totalDettes': ProfileDataSource.userInput,
+          },
+          goalA: GoalA(
+            type: GoalAType.achatImmo,
+            targetDate: DateTime(2030),
+            label: 'Logement',
+          ),
+        ),
+      );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: profileProvider,
+          ),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetContainerScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    final budgetProvider = Provider.of<BudgetProvider>(
+      tester.element(find.byType(BudgetContainerScreen)),
+      listen: false,
+    );
+    // BudgetInputs.fromCoachProfile currently spreads total debts over 36 months.
+    expect(budgetProvider.inputs?.debtPayments, closeTo(333.33, 0.01));
+    expect(find.text('Remboursement dettes'), findsWidgets);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Text &&
+            (widget.data?.contains('CHF') ?? false) &&
+            (widget.data?.contains('333') ?? false),
+      ),
+      findsWidgets,
+    );
+  });
+
   testWidgets('BudgetContainerScreen keeps full cache over partial profile',
       (tester) async {
     await BudgetLocalStore().saveInputs(
