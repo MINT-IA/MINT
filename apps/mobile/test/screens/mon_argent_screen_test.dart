@@ -205,6 +205,30 @@ void main() {
           .identifier,
       'mon_argent_situation_map',
     );
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(const Key('mon_argent_situation_group_month')),
+          )
+          .identifier,
+      'mon_argent_situation_group_month',
+    );
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(const Key('mon_argent_situation_group_wealth')),
+          )
+          .identifier,
+      'mon_argent_situation_group_wealth',
+    );
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(const Key('mon_argent_situation_group_pension')),
+          )
+          .identifier,
+      'mon_argent_situation_group_pension',
+    );
 
     await tester.tap(find.text('Mois'));
     await tester.pumpAndSettle();

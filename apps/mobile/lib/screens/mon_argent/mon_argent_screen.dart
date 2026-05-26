@@ -688,84 +688,93 @@ class _MonArgentSituationMap extends StatelessWidget {
               style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
             ),
             const SizedBox(height: MintSpacing.md),
-            _SituationValueRow(
-              label: l10n.affordabilityGrossIncome,
-              value: _valueOrMissing(situation.grossAnnualIncome),
-              statusLabel: _fieldStatusLabel(situation.grossAnnualIncome),
-              statusColor: _fieldStatusColor(situation.grossAnnualIncome),
-              trustId: 'gross_income',
+            _SituationGroup(
+              identifier: 'mon_argent_situation_group_month',
+              title: l10n.monArgentBudgetTitle,
+              children: [
+                _SituationValueRow(
+                  label: l10n.affordabilityGrossIncome,
+                  value: _valueOrMissing(situation.grossAnnualIncome),
+                  statusLabel: _fieldStatusLabel(situation.grossAnnualIncome),
+                  statusColor: _fieldStatusColor(situation.grossAnnualIncome),
+                  trustId: 'gross_income',
+                ),
+                _SituationValueRow(
+                  label: l10n.budgetHousing,
+                  value: _valueOrMissing(situation.monthlyHousingCost),
+                  statusLabel: _fieldStatusLabel(situation.monthlyHousingCost),
+                  statusColor: _fieldStatusColor(situation.monthlyHousingCost),
+                  trustId: 'housing_cost',
+                ),
+                _SituationValueRow(
+                  label: l10n.budgetHealthInsurance,
+                  value: _valueOrMissing(situation.lamalPremiumMonthly),
+                  statusLabel: _fieldStatusLabel(situation.lamalPremiumMonthly),
+                  statusColor: _fieldStatusColor(situation.lamalPremiumMonthly),
+                  trustId: 'lamal_premium',
+                ),
+              ],
             ),
-            const SizedBox(height: MintSpacing.sm),
-            _SituationValueRow(
-              label: l10n.budgetHousing,
-              value: _valueOrMissing(situation.monthlyHousingCost),
-              statusLabel: _fieldStatusLabel(situation.monthlyHousingCost),
-              statusColor: _fieldStatusColor(situation.monthlyHousingCost),
-              trustId: 'housing_cost',
+            const SizedBox(height: MintSpacing.lg),
+            _SituationGroup(
+              identifier: 'mon_argent_situation_group_wealth',
+              title: l10n.monArgentPatrimoineTitle,
+              children: [
+                _SituationValueRow(
+                  label: l10n.dataBlockSituationCashLabel,
+                  value: _valueOrMissing(situation.liquidSavings),
+                  statusLabel: _fieldStatusLabel(situation.liquidSavings),
+                  statusColor: _fieldStatusColor(situation.liquidSavings),
+                  trustId: 'liquid_savings',
+                ),
+                _SituationValueRow(
+                  label: l10n.financialSummaryInvestissements,
+                  value: _valueOrMissing(situation.investments),
+                  statusLabel: _fieldStatusLabel(situation.investments),
+                  statusColor: _fieldStatusColor(situation.investments),
+                  trustId: 'investments',
+                ),
+                _SituationValueRow(
+                  label: l10n.patrimoineDettes,
+                  value: _valueOrMissing(situation.totalDebt),
+                  statusLabel: _fieldStatusLabel(situation.totalDebt),
+                  statusColor: _fieldStatusColor(situation.totalDebt),
+                  trustId: 'total_debt',
+                ),
+              ],
             ),
-            const SizedBox(height: MintSpacing.sm),
-            _SituationValueRow(
-              label: l10n.budgetHealthInsurance,
-              value: _valueOrMissing(situation.lamalPremiumMonthly),
-              statusLabel: _fieldStatusLabel(situation.lamalPremiumMonthly),
-              statusColor: _fieldStatusColor(situation.lamalPremiumMonthly),
-              trustId: 'lamal_premium',
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            _SituationValueRow(
-              label: l10n.dataBlockSituationCashLabel,
-              value: _valueOrMissing(situation.liquidSavings),
-              statusLabel: _fieldStatusLabel(situation.liquidSavings),
-              statusColor: _fieldStatusColor(situation.liquidSavings),
-              trustId: 'liquid_savings',
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            _SituationValueRow(
-              label: l10n.financialSummaryInvestissements,
-              value: _valueOrMissing(situation.investments),
-              statusLabel: _fieldStatusLabel(situation.investments),
-              statusColor: _fieldStatusColor(situation.investments),
-              trustId: 'investments',
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            _SituationValueRow(
-              label: l10n.patrimoineDettes,
-              value: _valueOrMissing(situation.totalDebt),
-              statusLabel: _fieldStatusLabel(situation.totalDebt),
-              statusColor: _fieldStatusColor(situation.totalDebt),
-              trustId: 'total_debt',
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: MintSpacing.md),
-              child: Divider(color: MintColors.border),
-            ),
-            _PillarValueRow(
-              label: l10n.dataBlockAvsTitle,
-              value: _pillarMoneyOrMissing(
-                pillars.avs.estimatedMonthlyPension,
-              ),
-              state: pillars.avs.estimatedMonthlyPension.state,
-              color: MintColors.info,
-              trustId: 'avs_estimated_pension',
-              l10n: l10n,
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            _PillarValueRow(
-              label: l10n.dataBlockLppTitle,
-              value: _pillarMoneyOrMissing(pillars.lpp.totalBalance),
-              state: pillars.lpp.totalBalance.state,
-              color: MintColors.pillarLpp,
-              trustId: 'lpp_total_balance',
-              l10n: l10n,
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            _PillarValueRow(
-              label: l10n.dataBlock3aTitle,
-              value: _pillarMoneyOrMissing(pillars.pillar3a.totalBalance),
-              state: pillars.pillar3a.totalBalance.state,
-              color: MintColors.success,
-              trustId: 'pillar3a_total_balance',
-              l10n: l10n,
+            const SizedBox(height: MintSpacing.lg),
+            _SituationGroup(
+              identifier: 'mon_argent_situation_group_pension',
+              title: l10n.dashboardGoalRetirement,
+              children: [
+                _PillarValueRow(
+                  label: l10n.dataBlockAvsTitle,
+                  value: _pillarMoneyOrMissing(
+                    pillars.avs.estimatedMonthlyPension,
+                  ),
+                  state: pillars.avs.estimatedMonthlyPension.state,
+                  color: MintColors.info,
+                  trustId: 'avs_estimated_pension',
+                  l10n: l10n,
+                ),
+                _PillarValueRow(
+                  label: l10n.dataBlockLppTitle,
+                  value: _pillarMoneyOrMissing(pillars.lpp.totalBalance),
+                  state: pillars.lpp.totalBalance.state,
+                  color: MintColors.pillarLpp,
+                  trustId: 'lpp_total_balance',
+                  l10n: l10n,
+                ),
+                _PillarValueRow(
+                  label: l10n.dataBlock3aTitle,
+                  value: _pillarMoneyOrMissing(pillars.pillar3a.totalBalance),
+                  state: pillars.pillar3a.totalBalance.state,
+                  color: MintColors.success,
+                  trustId: 'pillar3a_total_balance',
+                  l10n: l10n,
+                ),
+              ],
             ),
           ],
         ),
@@ -872,6 +881,42 @@ class _MonArgentPensionMap extends StatelessWidget {
   String _pillarMoneyOrMissing(PillarFact<double> fact) {
     final amount = fact.value;
     return amount == null ? l10n.dataBlockStatusMissing : _formatChf(amount);
+  }
+}
+
+class _SituationGroup extends StatelessWidget {
+  final String identifier;
+  final String title;
+  final List<Widget> children;
+
+  const _SituationGroup({
+    required this.identifier,
+    required this.title,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      key: Key(identifier),
+      identifier: identifier,
+      container: true,
+      explicitChildNodes: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: MintTextStyles.labelMedium(color: MintColors.textMuted),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          for (final child in children) ...[
+            child,
+            if (child != children.last) const SizedBox(height: MintSpacing.sm),
+          ],
+        ],
+      ),
+    );
   }
 }
 
