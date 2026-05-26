@@ -37,6 +37,7 @@ ou conseil peut rendre Mint moins lisible.
 | Coach - openers/insights | Budget snapshot | `DataDrivenOpenerService`, `PrecomputedInsightsService` | Lit `MintUserState.budgetSnapshot` | Plus robuste que l'injection principale |
 | Backend tool budget | `BudgetSnapshotResponse` + `inputs_hash` | `services/backend/app/api/v1/endpoints/coach_chat.py` | Cite et hash cote backend | Parite mobile/backend a contractualiser |
 | Patrimoine / piliers | Patrimoine + 3 piliers | `DataSpineService._pillarsFromProfile` et agregateurs Mon Argent | Bon debut | Le statut connu/estime/manquant doit etre visible partout |
+| Dette / surendettement | Ratio dette, plan de remboursement, aide | `DebtPreventionService`, routes `/debt/*`, Safe Mode docs | Pieces déjà presentes | Doit devenir un garde-fou P0 avant les arbitrages prevoyance/fiscalite |
 | Arbitrages | Opportunites et routes | `ArbitrageEngine`, `CrossPillarCalculator`, `CapEngine`, backend cross-pillar | Morcele mais riche | Risque de facade et de messages non coherents |
 
 ## Findings
@@ -90,6 +91,35 @@ Deux options acceptables:
 
 Ce choix doit etre explicite, sinon les agents suivants recreeront une deuxieme
 implementation.
+
+### P0 - Dette et surendettement doivent preceder l'optimisation
+
+L'audit initial sous-pondere un cas central: l'utilisateur endette ou
+surendette. Mint ne doit pas suggerer une optimisation fiscale ou prevoyance
+comme premiere action quand la marge mensuelle, les retards ou le ratio dette
+montrent une situation fragile.
+
+Le repo contient déjà des pieces utiles:
+
+- `apps/mobile/lib/services/debt_prevention_service.dart`
+- routes `/debt/ratio`, `/debt/repayment`, `/debt/help`, `/check/debt`
+- docs Safe Mode: dette toxique -> desactiver les optimisations 3a/LPP,
+  priorite au remboursement et a l'aide specialisee.
+
+Regle produit: avant toute opportunite d'arbitrage 3a/LPP/investissement, le
+moteur doit evaluer un `DebtSafetyGate`:
+
+- ratio charges de dette / revenu net;
+- retards de paiement;
+- cashflow mensuel signe;
+- fonds d'urgence;
+- type de dette: carte, credit conso, leasing, impot, hypothese;
+- cout et urgence de chaque dette;
+- exposition a une saisie, poursuite ou spirale de frais.
+
+Si le gate est rouge, Mint bascule en mode protection: clarifier la situation,
+prioriser le plan de remboursement, montrer les ressources d'aide, suspendre les
+arbitrages d'optimisation sauf s'ils ameliorent directement le risque de dette.
 
 ### P1 - Arbitrage déjà riche, mais sans couche canonique
 
@@ -153,6 +183,8 @@ class ArbitrageOpportunity {
 
 - cash maintenant;
 - marge mensuelle;
+- ratio dette;
+- cout de dette evite;
 - estimation fiscale;
 - ecart retraite;
 - liquidite bloquee;
@@ -186,6 +218,8 @@ Le ranking ne doit pas etre "plus gros gain fiscal". Il doit ponderer:
 
 | Arbitrage | Pourquoi il compte | Donnees necessaires | Sortie utile |
 |---|---|---|---|
+| Desendettement vs 3a/LPP/investissement | Une dette chere ou urgente peut dominer les gains fiscaux | Type de dette, taux, mensualite, retards, marge libre, fonds d'urgence | Mode protection, ordre de remboursement, ressources d'aide |
+| Avalanche vs boule de neige | Le plan financier doit aussi etre humainement tenable | Soldes, taux, mensualites, stress utilisateur | Plan de remboursement lisible et suivi mensuel |
 | 3a maintenant vs marge de sécurité | Une cotisation peut aider fiscalement mais fragiliser le cashflow | Revenu, impot estime, marge libre, dettes, plafond 3a | Montant prudent, impact fiscal estime, reste mensuel |
 | Rachat LPP vs 3a vs investissement libre | Effets fiscaux, blocage, horizon et caisse LPP differents | Lacune LPP, taux marginal, horizon retrait, liquidite | Comparaison multi-annee avec hypotheses |
 | Amortissement hypothese vs 3a/LPP | Fiscalite, interets, liquidite et solvabilite se croisent | Dette, taux, valeur logement, revenu, canton | Trajectoire dette + cash + retraite |
@@ -195,8 +229,10 @@ Le ranking ne doit pas etre "plus gros gain fiscal". Il doit ponderer:
 
 Les archetypes doivent etre inclus dans les tests d'eligibilite: salarie suisse,
 independant sans LPP, couple, expat UE, expat US/FATCA, frontalier, proprietaire,
-locataire, famille avec enfants, proche retraite. Exemple: un flux 3a/LPP ne
-doit pas se comporter comme un flux standard quand le profil est `expat_us`.
+locataire, famille avec enfants, proche retraite, utilisateur endette,
+utilisateur en surendettement. Exemple: un flux 3a/LPP ne doit pas se comporter
+comme un flux standard quand le profil est `expat_us` ou quand le Safe Mode
+dette est actif.
 
 ## UX cible
 
@@ -206,6 +242,8 @@ comme une couche de decision progressive:
 - un rail "Decisions a clarifier" avec 1 a 3 opportunites maximum;
 - chaque opportunite montre "pourquoi je la vois", les donnees utilisees et les
   donnees manquantes;
+- si dette fragile: remplacer le rail d'optimisation par un rail protection
+  dette, avec ton sobre, actionnable et non culpabilisant;
 - le coach peut ouvrir l'arbitrage, mais ne doit pas inventer une conclusion si
   les donnees sont faibles;
 - Explorer peut contenir la vue complete avec scenarios, hypotheses modifiables
@@ -228,6 +266,8 @@ comme une couche de decision progressive:
    3a partiel, scenario rachat LPP bloque par donnees manquantes.
 6. `16G-arbitrage-l1-l2-adr`: decider backend-canonical vs mobile-local par
    famille d'arbitrage avant toute extension UI.
+7. `16H-debt-safety-gate`: brancher dette/surendettement dans le ranking
+   d'arbitrage, avec tests Safe Mode avant toute suggestion 3a/LPP.
 
 ## Claude CLI note
 
@@ -257,3 +297,7 @@ Claude Opus 4.7 review: 7.5/10 avant integration de ses remarques. Points
 integres: boundary L1/L2 de l'arbitrage, confiance multi-axes, archetypes
 d'eligibilite, definition du hash, feature flag/kill switch et ARB/compliance
 pour les nouvelles strings.
+
+User review 2026-05-26: l'audit sous-ponderait les profils endettes ou
+surendettes. Correction integree: `DebtSafetyGate`, mode protection, arbitrages
+desendettement vs 3a/LPP/investissement, archetypes dette, et phase 16H.
