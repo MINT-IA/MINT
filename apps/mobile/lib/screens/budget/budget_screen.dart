@@ -604,20 +604,22 @@ class _BudgetScreenState extends State<BudgetScreen>
           const SizedBox(height: MintSpacing.xl),
 
           // Breakdown in MintSurface (craie — warm, no border)
-          _buildBreakdown(l),
+          _buildBreakdown(l, plan),
         ],
       ),
     );
   }
 
-  Widget _buildBreakdown(S l) {
+  Widget _buildBreakdown(S l, BudgetPlan plan) {
     final income = _displayChf(widget.inputs.netIncome);
     final housing = _displayChf(widget.inputs.housingCost);
     final debt = _displayChf(widget.inputs.debtPayments);
     final taxes = _displayChf(widget.inputs.taxProvision);
     final health = _displayChf(widget.inputs.healthInsurance);
     final otherFixed = _displayChf(widget.inputs.otherFixedCosts);
-    final available = income - housing - debt - taxes - health - otherFixed;
+    final future = _displayChf(plan.future);
+    final available =
+        income - housing - debt - taxes - health - otherFixed - future;
 
     return MintSurface(
       tone: MintSurfaceTone.craie,
@@ -664,15 +666,21 @@ class _BudgetScreenState extends State<BudgetScreen>
                 ? l.budgetQualityMissing
                 : l.budgetQualityProvided,
           ),
+          if (future > 0) ...[
+            const SizedBox(height: MintSpacing.sm),
+            _breakdownRow(l.budgetFuture, future),
+          ],
           const Padding(
             padding: EdgeInsets.symmetric(vertical: MintSpacing.sm),
             child: Divider(height: 1),
           ),
           _breakdownRow(
             l.budgetAvailable,
-            available.clamp(0, double.infinity),
+            available,
             isPositive: true,
             isBold: true,
+            valueColor:
+                available < 0 ? MintColors.error : MintColors.primary,
           ),
         ],
       ),
@@ -680,7 +688,10 @@ class _BudgetScreenState extends State<BudgetScreen>
   }
 
   Widget _breakdownRow(String label, double amount,
-      {bool isPositive = false, bool isBold = false, String? qualityTag}) {
+      {bool isPositive = false,
+      bool isBold = false,
+      String? qualityTag,
+      Color? valueColor}) {
     final sign = isPositive ? '' : '– ';
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -726,11 +737,12 @@ class _BudgetScreenState extends State<BudgetScreen>
             Text(
               '$sign ${formatChfWithPrefix(amount)}',
               style: MintTextStyles.bodySmall(
-                color: isBold
-                    ? MintColors.primary
-                    : isPositive
-                        ? MintColors.textPrimary
-                        : MintColors.error,
+                color: valueColor ??
+                    (isBold
+                        ? MintColors.primary
+                        : isPositive
+                            ? MintColors.textPrimary
+                            : MintColors.error),
               ).copyWith(
                 fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
               ),
@@ -1001,8 +1013,7 @@ class _BudgetScreenState extends State<BudgetScreen>
       child: Semantics(
         button: true,
         label: label,
-        child: OutlinedButton(
-          // lint-ignore: prefer_mint_cta
+        child: OutlinedButton( // lint-ignore: prefer_mint_cta
           onPressed: () => context.push(route),
           child: Text(label),
         ),

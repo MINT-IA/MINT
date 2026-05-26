@@ -201,6 +201,50 @@ void main() {
     expect(find.text("CHF\u00a0-1'120"), findsWidgets);
   });
 
+  testWidgets(
+      'BudgetScreen top breakdown subtracts future envelope from available',
+      (tester) async {
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 5379,
+      housingCost: 2200,
+      debtPayments: 0,
+      taxProvision: 520,
+      healthInsurance: 420,
+      style: BudgetStyle.envelopes3,
+    );
+    await BudgetLocalStore().saveOverride('future', 700);
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetScreen(inputs: inputs),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.text('Futur'), findsWidgets);
+    expect(find.text("CHF\u00a0700"), findsWidgets);
+    expect(find.text("CHF\u00a01'539"), findsWidgets);
+    expect(find.text("CHF\u00a02'939"), findsNothing);
+    expect(find.text("CHF\u00a02'239"), findsNothing);
+  });
+
   testWidgets('BudgetScreen exposes Maestro semantics anchors', (tester) async {
     const inputs = BudgetInputs(
       payFrequency: PayFrequency.monthly,

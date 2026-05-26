@@ -268,6 +268,98 @@ void main() {
     );
   });
 
+  testWidgets(
+      'direct month section uses canonical BudgetSnapshot over stale budget cache',
+      (tester) async {
+    await BudgetLocalStore().saveInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 12345,
+        housingCost: 2222,
+        debtPayments: 0,
+        taxProvision: 111,
+        healthInsurance: 333,
+      ),
+    );
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>(
+            create: (_) => BudgetProvider(),
+          ),
+          ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => CoachProfileProvider(),
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(initialSection: 'month'),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Ton budget ce mois'), findsOneWidget);
+    expect(find.text("8'000\u00a0CHF"), findsOneWidget);
+    expect(find.text("5'900\u00a0CHF"), findsOneWidget);
+    expect(find.text("2'100\u00a0CHF"), findsOneWidget);
+    expect(find.text("12'345\u00a0CHF"), findsNothing);
+  });
+
+  testWidgets('direct patrimoine section shows investments and debts in net',
+      (tester) async {
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>(
+            create: (_) => BudgetProvider(),
+          ),
+          ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => CoachProfileProvider(),
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(initialSection: 'wealth'),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Ton point de départ'), findsOneWidget);
+    expect(find.text('Investissements'), findsOneWidget);
+    expect(find.text('Dettes totales'), findsOneWidget);
+    expect(find.text("12'000\u00a0CHF"), findsOneWidget);
+    expect(find.text("-10'000\u00a0CHF"), findsOneWidget);
+    expect(find.text("184'000\u00a0CHF"), findsWidgets);
+  });
+
   testWidgets('compact section selector exposes Futur without horizontal hunt',
       (tester) async {
     tester.view.physicalSize = const Size(320, 760);
