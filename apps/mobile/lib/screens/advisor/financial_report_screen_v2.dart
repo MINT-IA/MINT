@@ -686,11 +686,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   ),
                   child: Text(
                     '+${formatChfWithPrefix(action.potentialGainChf!)}',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: MintColors.greenDark,
-                    ),
+                    style:
+                        MintTextStyles.labelMedium(color: MintColors.greenDark)
+                            .copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
             ],

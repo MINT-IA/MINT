@@ -84,8 +84,8 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                     ),
                     Text(
                       S.of(context)!.pillar3aProjection(yearsUntilRetirement),
-                      style: const TextStyle(
-                          fontSize: 12, color: MintColors.textMuted),
+                      style: MintTextStyles.labelMedium(
+                          color: MintColors.textMuted),
                     ),
                   ],
                 ),
@@ -116,11 +116,12 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(S.of(context)!.pillar3aPaymentPerYear,
-                        style: const TextStyle(fontSize: 12)),
+                        style: MintTextStyles.labelMedium()),
                     Text(
                       formatChfWithPrefix(maxAnnual),
-                      style: const TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.bold),
+                      style: MintTextStyles.labelMedium(
+                              color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -128,13 +129,14 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(S.of(context)!.pillar3aDuration,
-                        style: const TextStyle(fontSize: 12)),
+                        style: MintTextStyles.labelMedium()),
                     Text(
                       S
                           .of(context)!
                           .pillar3aDurationYears(yearsUntilRetirement),
-                      style: const TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.bold),
+                      style: MintTextStyles.labelMedium(
+                              color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -220,13 +222,11 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Scénario titres 60% au lieu d’une banque :',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: MintColors.success,
-                              ),
+                              style: MintTextStyles.bodySmall(
+                                      color: MintColors.success)
+                                  .copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -234,10 +234,10 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                               style: MintTextStyles.displaySmall(
                                   color: MintColors.success),
                             ),
-                            const Text(
+                            Text(
                               'd’écart estimé à la retraite',
-                              style: TextStyle(
-                                  fontSize: 12, color: MintColors.success),
+                              style: MintTextStyles.labelMedium(
+                                  color: MintColors.success),
                             ),
                           ],
                         ),
@@ -282,8 +282,7 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     S.of(context)!.pillar3aDisclaimer,
-                    style: const TextStyle(
-                        fontSize: 11, color: MintColors.warning),
+                    style: MintTextStyles.labelSmall(color: MintColors.warning),
                   ),
                 ),
               ],
@@ -354,25 +353,28 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 flex: 2,
                 child: Text(
                   S.of(context)!.pillar3aYearLabel,
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.bold),
+                  style:
+                      MintTextStyles.labelMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
               Expanded(
                 flex: 3,
                 child: Text(
                   S.of(context)!.pillar3aBank15,
-                  style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.bold),
+                  style:
+                      MintTextStyles.labelMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.right,
                 ),
               ),
-              const Expanded(
+              Expanded(
                 flex: 3,
                 child: Text(
                   'Titres 4.5 %',
-                  style: TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.bold),
+                  style:
+                      MintTextStyles.labelMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.right,
                 ),
               ),
@@ -392,14 +394,14 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                     flex: 2,
                     child: Text(
                       S.of(context)!.pillar3aYearN(year),
-                      style: const TextStyle(fontSize: 11),
+                      style: MintTextStyles.labelSmall(),
                     ),
                   ),
                   Expanded(
                     flex: 3,
                     child: Text(
                       formatChfWithPrefix(bankCapital),
-                      style: const TextStyle(fontSize: 11),
+                      style: MintTextStyles.labelSmall(),
                       textAlign: TextAlign.right,
                     ),
                   ),
@@ -407,11 +409,9 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                     flex: 3,
                     child: Text(
                       formatChfWithPrefix(securitiesCapital),
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: MintColors.success,
-                      ),
+                      style:
+                          MintTextStyles.labelSmall(color: MintColors.success)
+                              .copyWith(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.right,
                     ),
                   ),
@@ -424,11 +424,8 @@ class Pillar3aComparatorWidget extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8),
             child: Text(
               '💡 ${S.of(context)!.pillar3aCompoundTip}',
-              style: const TextStyle(
-                fontSize: 11,
-                color: MintColors.info,
-                fontStyle: FontStyle.italic,
-              ),
+              style: MintTextStyles.labelSmall(color: MintColors.info)
+                  .copyWith(fontStyle: FontStyle.italic),
             ),
           ),
         ],
@@ -495,8 +492,8 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                     ),
                     Text(
                       subtitle,
-                      style: const TextStyle(
-                          fontSize: 11, color: MintColors.textMuted),
+                      style: MintTextStyles.labelSmall(
+                          color: MintColors.textMuted),
                     ),
                   ],
                 ),
@@ -511,34 +508,33 @@ class Pillar3aComparatorWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(S.of(context)!.pillar3aFees,
-                      style: const TextStyle(
-                          fontSize: 10, color: MintColors.textMuted)),
+                      style: MintTextStyles.micro(color: MintColors.textMuted)),
                   Text(fees,
-                      style: const TextStyle(
-                          fontSize: 11, fontWeight: FontWeight.w600)),
+                      style: MintTextStyles.labelSmall(
+                              color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w600)),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(S.of(context)!.pillar3aReturn,
-                      style: const TextStyle(
-                          fontSize: 10, color: MintColors.textMuted)),
+                      style: MintTextStyles.micro(color: MintColors.textMuted)),
                   Text(returnRate,
-                      style: const TextStyle(
-                          fontSize: 11, fontWeight: FontWeight.w600)),
+                      style: MintTextStyles.labelSmall(
+                              color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w600)),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(S.of(context)!.pillar3aAt65,
-                      style: const TextStyle(
-                          fontSize: 10, color: MintColors.textMuted)),
+                      style: MintTextStyles.micro(color: MintColors.textMuted)),
                   Text(
                     formatChfWithPrefix(capital),
-                    style:
-                        MintTextStyles.labelLarge(color: MintColors.textPrimary),
+                    style: MintTextStyles.labelLarge(
+                        color: MintColors.textPrimary),
                   ),
                 ],
               ),
@@ -557,11 +553,9 @@ class Pillar3aComparatorWidget extends StatelessWidget {
               child: Text(
                 S.of(context)!.pillar3aVsBank(
                     '${gain > 0 ? '+' : ''}${formatChfWithPrefix(gain)}'),
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                style: MintTextStyles.labelSmall(
                   color: gain > 0 ? MintColors.success : MintColors.error,
-                ),
+                ).copyWith(fontWeight: FontWeight.bold),
               ),
             ),
           ],

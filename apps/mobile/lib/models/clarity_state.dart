@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Modèle de progression de clarté (pas gamification)
 /// Respecte les invariants : rapport central, neutralité, simplicité
@@ -452,18 +453,14 @@ class ClarityProgressHeader extends StatelessWidget {
                 children: [
                   Text(
                     'Précision : ${state.precisionIndex.toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                    style: MintTextStyles.titleLarge(
                       color: state.precisionColor,
-                    ),
+                    ).copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
                     state.precisionLabel,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: state.precisionColor,
-                    ),
+                    style:
+                        MintTextStyles.bodyMedium(color: state.precisionColor),
                   ),
                 ],
               ),
@@ -476,17 +473,16 @@ class ClarityProgressHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: MintColors.warning),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.shield, size: 16, color: MintColors.warning),
-                      SizedBox(width: 4),
+                      const Icon(Icons.shield,
+                          size: 16, color: MintColors.warning),
+                      const SizedBox(width: 4),
                       Text(
                         'Mode Protection',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: MintColors.warning,
-                        ),
+                        style: MintTextStyles.labelMedium(
+                                color: MintColors.warning)
+                            .copyWith(fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -521,11 +517,9 @@ class ClarityProgressHeader extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Prochaine info la plus rentable : ${state.nextMostValuableInfo}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.stressScenario,
-                      ),
+                      style: MintTextStyles.labelMedium(
+                              color: MintColors.stressScenario)
+                          .copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -535,10 +529,8 @@ class ClarityProgressHeader extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'Actions prêtes : ${state.actionsReady}/${state.totalActions}',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),

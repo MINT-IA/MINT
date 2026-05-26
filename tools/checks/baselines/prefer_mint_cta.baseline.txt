@@ -1,5 +1,5 @@
-lib/app.dart:1921: FilledButton(
-lib/app.dart:1926: TextButton(
+lib/app.dart:2165: FilledButton(
+lib/app.dart:2171: TextButton(
 lib/screens/admin_observability_screen.dart:185: FilledButton(
 lib/screens/arbitrage/allocation_annuelle_screen.dart:421: FilledButton(
 lib/screens/arbitrage/arbitrage_bilan_screen.dart:52: FilledButton(
@@ -21,9 +21,7 @@ lib/screens/auth/register_screen.dart:664: TextButton(
 lib/screens/auth/register_screen.dart:679: TextButton(
 lib/screens/auth/verify_email_screen.dart:175: FilledButton(
 lib/screens/bank_import_screen.dart:727: FilledButton(
-lib/screens/budget/budget_screen.dart:945: OutlinedButton(
-lib/screens/budget/budget_setup_screen.dart:251: FilledButton(
-lib/screens/budget/budget_setup_screen.dart:270: TextButton(
+lib/screens/budget/budget_screen.dart:1004: OutlinedButton(
 lib/screens/byok_settings_screen.dart:346: FilledButton(
 lib/screens/byok_settings_screen.dart:519: TextButton(
 lib/screens/byok_settings_screen.dart:523: FilledButton(
@@ -62,7 +60,6 @@ lib/screens/household/household_screen.dart:97: FilledButton(
 lib/screens/landing_screen.dart:163: FilledButton(
 lib/screens/lpp_deep/rachat_echelonne_screen.dart:643: TextButton(
 lib/screens/mortgage/affordability_screen.dart:758: OutlinedButton(
-lib/screens/onboarding/data_block_enrichment_screen.dart:152: FilledButton(
 lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:197: FilledButton(
 lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:635: TextButton(
 lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:701: TextButton(
@@ -124,8 +121,6 @@ lib/widgets/document/third_party_declaration_sheet.dart:100: ElevatedButton(
 lib/widgets/document/third_party_declaration_sheet.dart:121: TextButton(
 lib/widgets/home/financial_plan_card.dart:245: TextButton(
 lib/widgets/home/financial_plan_card.dart:261: TextButton(
-lib/widgets/mon_argent/budget_summary_card.dart:72: FilledButton(
-lib/widgets/mon_argent/budget_summary_card.dart:99: OutlinedButton(
 lib/widgets/mon_argent/patrimoine_summary_card.dart:99: OutlinedButton(
 lib/widgets/onboarding/onboarding_widgets.dart:294: FilledButton(
 lib/widgets/onboarding/onboarding_widgets.dart:395: OutlinedButton(
