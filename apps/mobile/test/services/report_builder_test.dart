@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/report/report_builder.dart';
 
 void main() {
@@ -108,6 +110,83 @@ void main() {
           .singleWhere((item) => item.label == 'Score Protection');
       expect(protection.value, 'Faible');
       expect(protection.note, 'Dettes actives');
+    });
+
+    test('grounds first 3a recommendation impact in tax calculator', () {
+      final report = ReportBuilder({
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+        'q_children': '0',
+        'q_employment_status': 'employee',
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': '6000',
+        'q_housing_cost_period_chf': '1800',
+        'q_lamal_premium_monthly_chf': '420',
+        'q_tax_provision_monthly_chf': '650',
+        'q_debt_payments_period_chf': '0',
+        'q_has_3a': 'no',
+      }).build();
+
+      final recommendation = report.recommendations.singleWhere(
+          (recommendation) => recommendation.id == 'reco_3a_generic');
+      final grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(
+        6000.0 * 12,
+        canton: 'VD',
+      );
+      final expected = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: grossAnnualSalary,
+        canton: 'VD',
+        isMarried: false,
+        children: 0,
+        hasLpp: true,
+        contribution: pilier3aPlafondAvecLpp,
+      ).estimatedTaxSaving;
+
+      expect(recommendation.summary, isNot(contains('dès maintenant')));
+      expect(recommendation.why.join(' '), isNot(contains('2000')));
+      expect(recommendation.impact.amountCHF, closeTo(expected, 1.0));
+      expect(recommendation.impact.amountCHF, isNot(1500));
+    });
+
+    test('does not show fixed 3a gain when tax impact is unavailable', () {
+      final report = ReportBuilder({
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+        'q_children': '0',
+        'q_employment_status': 'employee',
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': '0',
+        'q_housing_cost_period_chf': '0',
+        'q_lamal_premium_monthly_chf': '420',
+        'q_debt_payments_period_chf': '0',
+        'q_has_3a': 'no',
+      }).build();
+
+      final recommendation = report.recommendations.singleWhere(
+          (recommendation) => recommendation.id == 'reco_3a_generic');
+
+      expect(recommendation.impact.amountCHF, 0);
+      expect(recommendation.why.join(' '), isNot(contains('2000')));
+    });
+
+    test('does not invent a fixed optimization gain for an existing 3a', () {
+      final report = ReportBuilder({
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': '6000',
+        'q_housing_cost_period_chf': '1800',
+        'q_lamal_premium_monthly_chf': '420',
+        'q_tax_provision_monthly_chf': '650',
+        'q_debt_payments_period_chf': '0',
+        'q_has_3a': 'yes',
+      }).build();
+
+      final recommendation = report.recommendations
+          .singleWhere((recommendation) => recommendation.id == 'reco_3a_opt');
+
+      expect(recommendation.impact.amountCHF, 0);
+      expect(recommendation.impact.amountCHF, isNot(500));
     });
   });
 }

@@ -1,8 +1,10 @@
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
 import 'package:mint_mobile/models/goal_template.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/models/session.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/wizard_service.dart';
 import 'package:mint_mobile/data/cantonal_data.dart';
 
@@ -27,6 +29,10 @@ class ReportBuilder {
     // === EXPERTISE SUISSE : CALCUL FISCAL ===
     final cantonCode = answers['q_canton'] ?? 'CH';
     final estimatedTaxMonthly = budgetInputs.taxProvision;
+    final first3aTaxImpact = _estimateRemaining3aTaxImpact(
+      budgetInputs: budgetInputs,
+      cantonCode: cantonCode.toString(),
+    );
 
     // === RECOMMANDATIONS ===
     final recommendations = <Recommendation>[];
@@ -88,10 +94,14 @@ class ReportBuilder {
           id: 'reco_3a_generic',
           kind: 'tax_optimization',
           title: 'Ouvrir un 3e pilier',
-          summary: 'Réduis tes impôts dès maintenant.',
-          why: ['Économie d\'impôts immédiate (jusqu\'à 2000 CHF/an).'],
-          assumptions: ['Revenu imposable suffisant'],
-          impact: const Impact(amountCHF: 1500, period: Period.yearly),
+          summary: 'Estime ta marge 3a avec ton revenu et ton canton.',
+          why: [
+            first3aTaxImpact > 0
+                ? 'Impact fiscal estimé avec le calculateur fiscal Mint.'
+                : 'Impact fiscal à confirmer quand le revenu imposable est disponible.'
+          ],
+          assumptions: ['Revenu imposable et affiliation LPP à vérifier'],
+          impact: Impact(amountCHF: first3aTaxImpact, period: Period.yearly),
           risks: ['Argent bloqué jusqu\'à la retraite'],
           alternatives: ['Compte épargne (fiscalisé)', 'Assurance vie 3b'],
           evidenceLinks: [],
@@ -107,10 +117,10 @@ class ReportBuilder {
           id: 'reco_3a_opt',
           kind: 'tax_optimization',
           title: 'Optimiser ton 3a',
-          summary: 'Vérifie tes frais et rendements.',
+          summary: 'Vérifie tes frais, ton risque et ta marge déductible.',
           why: ['Les frais mangent la performance sur le long terme.'],
           assumptions: [],
-          impact: const Impact(amountCHF: 500, period: Period.yearly),
+          impact: const Impact(amountCHF: 0, period: Period.yearly),
           risks: ['Volatilité des marchés'],
           alternatives: [],
           evidenceLinks: [],
@@ -247,5 +257,96 @@ class ReportBuilder {
       ],
       generatedAt: now,
     );
+  }
+
+  double _estimateRemaining3aTaxImpact({
+    required BudgetInputs budgetInputs,
+    required String cantonCode,
+  }) {
+    if (budgetInputs.netIncome <= 0) return 0;
+
+    final children = _parseInt(answers['q_children']) ?? 0;
+    final civilStatus =
+        (answers['q_civil_status']?.toString() ?? 'single').toLowerCase();
+    final isMarried = civilStatus == 'married' ||
+        civilStatus == 'marie' ||
+        civilStatus == 'marié';
+    final age = _ageFromBirthYear(answers['q_birth_year']) ?? 45;
+    final employmentStatus =
+        answers['q_employment_status']?.toString().toLowerCase() ?? 'employee';
+    final isIndependent = {
+      'independant',
+      'independent',
+      'self_employed',
+      'self-employed',
+    }.contains(employmentStatus);
+
+    final grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(
+      budgetInputs.netIncome * 12,
+      age: age,
+      canton: cantonCode.isNotEmpty ? cantonCode : 'ZH',
+      etatCivil: isMarried ? 'marie' : 'celibataire',
+      nombreEnfants: children,
+    );
+    if (grossAnnualSalary <= 0) return 0;
+
+    final hasLpp = !isIndependent &&
+        grossAnnualSalary >= reg('lpp.entry_threshold', lppSeuilEntree);
+    final annualCeiling = hasLpp
+        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
+        : (grossAnnualSalary * pilier3aTauxRevenuSansLpp)
+            .clamp(0.0, pilier3aPlafondSansLpp);
+    final alreadyContributed = _current3aContribution();
+    final remainingContribution = annualCeiling - alreadyContributed;
+    if (remainingContribution <= 0) return 0;
+
+    final impact = RetirementTaxCalculator.estimate3aTaxImpact(
+      grossAnnualSalary: grossAnnualSalary,
+      canton: cantonCode.isNotEmpty ? cantonCode : 'ZH',
+      isMarried: isMarried,
+      children: children,
+      hasLpp: hasLpp,
+      contribution: remainingContribution,
+    );
+    return impact.estimatedTaxSaving > 0 ? impact.estimatedTaxSaving : 0;
+  }
+
+  double _current3aContribution() {
+    const keys = [
+      'q_3a_annual_contribution',
+      'q_3a_annual_amount',
+      'q_3a_current_year_paid_chf',
+      'pillar3aAnnual',
+    ];
+    for (final key in keys) {
+      final parsed = _parseDouble(answers[key]);
+      if (parsed != null && parsed > 0) return parsed;
+    }
+    return 0;
+  }
+
+  int? _ageFromBirthYear(dynamic raw) {
+    final birthYear = _parseInt(raw);
+    if (birthYear == null || birthYear <= 1900) return null;
+    return DateTime.now().year - birthYear;
+  }
+
+  int? _parseInt(dynamic raw) {
+    if (raw is int) return raw;
+    if (raw is num) return raw.toInt();
+    if (raw is String) {
+      return int.tryParse(raw.trim().replaceAll('+', ''));
+    }
+    return null;
+  }
+
+  double? _parseDouble(dynamic raw) {
+    if (raw is num) return raw.toDouble();
+    if (raw is String) {
+      return double.tryParse(
+        raw.trim().replaceAll("'", '').replaceAll(',', '.'),
+      );
+    }
+    return null;
   }
 }
