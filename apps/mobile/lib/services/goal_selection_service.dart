@@ -69,6 +69,7 @@ class GoalSelectionService {
     final isSalarie = profile.employmentStatus == 'salarie' ||
         profile.employmentStatus == 'employe';
     final hasDebt = profile.dettes.hasDette;
+    final hasMaterialConsumerDebt = profile.hasMaterialConsumerDebtForPriority;
 
     return [
       // ── Retirement: always if age > 25 ───────────────────────────────────
@@ -89,13 +90,13 @@ class GoalSelectionService {
         isRelevant: true,
       ),
 
-      // ── Tax optimisation: always available ───────────────────────────────
-      const SelectableGoal(
+      // ── Tax optimisation: hidden while consumer debt is active ────────────
+      SelectableGoal(
         intentTag: 'tax_optimization_3a',
         titleKey: 'goalTaxTitle',
         descriptionKey: 'goalTaxDesc',
         iconName: 'savings_outlined',
-        isRelevant: true,
+        isRelevant: !hasMaterialConsumerDebt,
       ),
 
       // ── Housing: if no property and age < 55 ─────────────────────────────

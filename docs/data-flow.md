@@ -126,6 +126,14 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_investments_total`, `q_emergency_fund`, `q_debt_payments_period_chf`,
   `_coach_dettes_hypotheque`, `_coach_dettes_credit`, `_coach_dettes_leasing`,
   `_coach_dettes_autres`
+- Debt key semantics are intentionally split:
+  `q_debt_payments_period_chf` is a monthly cashflow payment. It must not be
+  converted into synthetic capital. `_coach_dettes_credit`,
+  `_coach_dettes_leasing`, and `_coach_dettes_autres` are remaining capital
+  amounts. `_coach_dettes_hypotheque` is structural mortgage capital and must
+  not trigger consumer-debt Safe Mode by itself. If mortgage capital and
+  `q_debt_payments_period_chf` coexist, preserve both: mortgage as capital,
+  debt payment as monthly cashflow.
 
 **Fiscal**
 - `_coach_tax_revenu_imposable`, `_coach_tax_fortune_imposable`,

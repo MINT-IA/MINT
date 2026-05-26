@@ -79,7 +79,7 @@ class CapEngine {
     }
 
     // ── 2. Critical: debt ──
-    if (profile.dettes.hasDette && profile.dettes.totalDettes > 10000) {
+    if (_shouldPrioritizeDebtCap(profile)) {
       candidates.add(CapDecision(
         id: 'debt_correct',
         kind: CapKind.correct,
@@ -545,6 +545,10 @@ class CapEngine {
       isHonestyCap: winner.isHonestyCap,
       acquiredAssets: winner.acquiredAssets,
     );
+  }
+
+  static bool _shouldPrioritizeDebtCap(CoachProfile profile) {
+    return profile.hasMaterialConsumerDebtForPriority;
   }
 
   // ── TOP 10 SWISS CORE JOURNEYS — TIER 1 URGENCY ─────────

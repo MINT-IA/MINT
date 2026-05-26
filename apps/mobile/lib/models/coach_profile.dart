@@ -980,6 +980,10 @@ class DetteProfile {
   /// Dettes "toxiques" (consommation) — priorité de remboursement.
   double get detteConsommation => (creditConsommation ?? 0) + (leasing ?? 0);
 
+  /// Charge mensuelle conso/leasing, hors hypothèque structurelle.
+  double get mensualiteConsommation =>
+      (mensualiteCreditConso ?? 0) + (mensualiteLeasing ?? 0);
+
   /// Dettes structurelles (hypothèque) — adossées à un actif.
   double get detteStructurelle => hypotheque ?? 0;
 
@@ -2048,8 +2052,9 @@ class CoachProfile {
   ///
   /// Authoritative rule: RULES.md §1 (2026-04-18). Threshold = 0.33 (ASB 2014).
   ///
-  /// Signal A — Consumer debt stress (binary wizard keys stored in dettes):
-  ///   hasDette on creditConsommation/leasing > 0 (proxy for consumer debt).
+  /// Signal A — Consumer debt stress:
+  ///   consumer/leasing/other debt capital > 0, or material consumer/leasing
+  ///   monthly payment known even when remaining capital is unknown.
   /// Signal B — Consumer debt-to-income ratio > 0.33 (ASB affordability).
   ///   Mortgage excess (above 0.33 × brut) also contributes if it pushes the
   ///   combined consumer ratio past 0.33.
@@ -2061,11 +2066,12 @@ class CoachProfile {
   ///   E4: student (zero income, no debt, no housing) → false (vacuous).
   bool get isInDebtCrisis {
     // ── Signal A — consumer debt present (structural proxy) ──────────────────
-    final hasConsumerDebt =
-        (dettes.creditConsommation != null && dettes.creditConsommation! > 0) ||
-            (dettes.leasing != null && dettes.leasing! > 0) ||
-            (dettes.autresDettes != null && dettes.autresDettes! > 0);
-    if (hasConsumerDebt) return true;
+    final consumerMonthly = dettes.mensualiteConsommation;
+    final hasConsumerDebtCapital =
+        dettes.detteConsommation > 0 || (dettes.autresDettes ?? 0) > 0;
+    if (hasConsumerDebtCapital || hasMaterialConsumerDebtForPriority) {
+      return true;
+    }
 
     // ── Net monthly income (E1: retiree, E4: student guard) ─────────────────
     double netMensuel;
@@ -2091,9 +2097,6 @@ class CoachProfile {
 
     // ── Signal B — consumer ratio > 0.33 (ASB 2014) ─────────────────────────
     if (netMensuel > 0) {
-      final consumerMonthly = (dettes.mensualiteCreditConso ?? 0.0) +
-          (dettes.mensualiteLeasing ?? 0.0);
-
       // Mortgage excess: only the portion above 0.33 × brut counts
       double mortgageExcess = 0.0;
       final brutMonthly = salaireBrutMensuel;
@@ -2136,6 +2139,33 @@ class CoachProfile {
     }
 
     return false;
+  }
+
+  /// Consumer/leasing debt that should be treated before 3a/LPP optimization.
+  ///
+  /// This deliberately excludes mortgage debt. For monthly-only consumer debt,
+  /// require both a meaningful CHF amount and meaningful income weight, so a
+  /// small leasing payment does not suppress fiscal planning for high earners.
+  bool get hasMaterialConsumerDebtForPriority {
+    final debtCapital = (dettes.creditConsommation ?? 0) +
+        (dettes.leasing ?? 0) +
+        (dettes.autresDettes ?? 0);
+    if (debtCapital > 10000) return true;
+
+    final monthlyPayment = dettes.mensualiteConsommation;
+    if (monthlyPayment < 300) return false;
+
+    if (salaireBrutMensuel <= 0) return true;
+    final monthlyNet = employmentStatus == 'independant'
+        ? salaireBrutMensuel * 0.90
+        : NetIncomeBreakdown.compute(
+            grossSalary: salaireBrutMensuel * nombreDeMois,
+            canton: canton.isNotEmpty ? canton : 'ZH',
+            age: ageOrNull ?? 40,
+          ).monthlyNetPayslip;
+    if (monthlyNet <= 0) return true;
+
+    return monthlyPayment / monthlyNet >= 0.10;
   }
 
   /// Copie le profil avec des champs optionnels mis a jour.
@@ -2832,6 +2862,8 @@ class CoachProfile {
           creditConsommation: inlineCreditConso,
           leasing: inlineLeasing,
           autresDettes: inlineAutresDettes,
+          mensualiteCreditConso:
+              debtPaymentsMonthly > 0 ? debtPaymentsMonthly : null,
         );
       }
       if (debtPaymentsMonthly > 0) {

@@ -94,6 +94,48 @@ void main() {
 
       expect(cap.kind, isNot(CapKind.correct));
     });
+
+    test('monthly debt payment without known principal beats optimize caps',
+        () {
+      final profile = profile0(
+        salaireBrutMensuel: 6000,
+        dettes: const DetteProfile(mensualiteCreditConso: 900),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 30000,
+          rachatMaximum: 80000,
+        ),
+      );
+      final cap = CapEngine.compute(
+        profile: profile,
+        now: DateTime(2026, 11, 1),
+        l: _l,
+      );
+
+      expect(cap.id, 'debt_correct');
+      expect(cap.kind, CapKind.correct);
+      expect(cap.ctaRoute, '/debt/repayment');
+      expect(cap.id, isNot('lpp_buyback'));
+      expect(cap.id, isNot('pillar_3a'));
+    });
+
+    test('small leasing payment for high income does not beat optimize caps',
+        () {
+      final profile = profile0(
+        salaireBrutMensuel: 12000,
+        dettes: const DetteProfile(mensualiteLeasing: 350),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 30000,
+          rachatMaximum: 80000,
+        ),
+      );
+      final cap = CapEngine.compute(
+        profile: profile,
+        now: DateTime(2026, 11, 1),
+        l: _l,
+      );
+
+      expect(cap.id, isNot('debt_correct'));
+    });
   });
 
   group('CapEngine — independent without LPP', () {
