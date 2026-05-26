@@ -60,12 +60,11 @@ class BudgetInputs {
   /// Utilise pour synchroniser le budget quand le profil change
   /// (wizard, annual refresh, mini-onboarding).
   /// Le revenu net utilise NetIncomeBreakdown (canton + age).
-  /// Les dettes sont reparties sur 36 mois de remboursement.
+  /// Les mensualites de dettes saisies priment; le proxy total/36 ne sert
+  /// que si aucun paiement mensuel explicite n'existe.
   static BudgetInputs fromCoachProfile(CoachProfile profile) {
     // Revenu net du menage (utilisateur + conjoint si couple)
     final monthlyNet = monthlyNetFromCoachProfile(profile);
-    final monthlyDebt =
-        profile.dettes.totalDettes > 0 ? profile.dettes.totalDettes / 36 : 0.0;
     final hasHousingSource = _hasTrustedSource(profile, 'depenses.loyer') ||
         _hasEstimatedSource(profile, 'depenses.loyer') ||
         profile.userProvidedFields.contains('housingCost');
@@ -105,6 +104,7 @@ class BudgetInputs {
             ) ??
             0.0
         : 0.0;
+    final monthlyDebt = _monthlyDebtPayment(profile.dettes);
     final otherFixed =
         hasOtherFixedSource ? _trustedOtherFixedCosts(profile) : 0.0;
     final plausibleOtherFixed = plausibleMonthlyAmount(
@@ -196,6 +196,28 @@ class BudgetInputs {
       canton: canton.isNotEmpty ? canton : 'ZH',
       age: age,
     ).monthlyNetPayslip;
+  }
+
+  static double _monthlyDebtPayment(DetteProfile dettes) {
+    final explicitMonthly = _positiveFinite(dettes.mensualiteCreditConso) +
+        _positiveFinite(dettes.mensualiteLeasing);
+    if (explicitMonthly.isFinite && explicitMonthly > 0) {
+      return explicitMonthly;
+    }
+
+    final totalDebt = _positiveFinite(dettes.creditConsommation) +
+        _positiveFinite(dettes.leasing) +
+        _positiveFinite(dettes.autresDettes);
+    if (totalDebt.isFinite && totalDebt > 0) {
+      return totalDebt / 36;
+    }
+
+    return 0.0;
+  }
+
+  static double _positiveFinite(double? value) {
+    if (value == null || !value.isFinite || value <= 0) return 0.0;
+    return value;
   }
 
   // Factory depuis une map (pour deserialization depuis Session.answers)

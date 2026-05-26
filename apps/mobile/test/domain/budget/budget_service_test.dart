@@ -612,6 +612,142 @@ void main() {
       expect(inputs.emergencyFundMonths, 0);
     });
 
+    test('fromCoachProfile prefers explicit debt monthly payment over proxy',
+        () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        dettes: const DetteProfile(
+          creditConsommation: 24000,
+          mensualiteCreditConso: 1200,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.debtPayments, 1200);
+    });
+
+    test('fromCoachProfile sums explicit consumer and leasing payments', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        dettes: const DetteProfile(
+          creditConsommation: 24000,
+          leasing: 12000,
+          mensualiteCreditConso: 600,
+          mensualiteLeasing: 350,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.debtPayments, 950);
+    });
+
+    test('fromCoachProfile keeps mortgage out of debt payments', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        dettes: const DetteProfile(
+          hypotheque: 500000,
+          creditConsommation: 24000,
+          leasing: 12000,
+          mensualiteHypotheque: 1800,
+          mensualiteCreditConso: 600,
+          mensualiteLeasing: 350,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.debtPayments, 950);
+    });
+
+    test('fromCoachProfile counts housing separately from consumer debt', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        depenses: const DepensesProfile(loyer: 2200),
+        dettes: const DetteProfile(
+          hypotheque: 500000,
+          creditConsommation: 24000,
+          leasing: 12000,
+          mensualiteHypotheque: 1800,
+          mensualiteCreditConso: 600,
+          mensualiteLeasing: 350,
+        ),
+        dataSources: const {
+          'depenses.loyer': ProfileDataSource.userInput,
+        },
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.housingCost, 2200);
+      expect(inputs.debtPayments, 950);
+    });
+
+    test('fromCoachProfile uses total debt proxy only without monthly payments',
+        () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        dettes: const DetteProfile(creditConsommation: 21600),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.debtPayments, 600);
+    });
+
+    test('fromWizardAnswers preserves declared monthly debt payment', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_canton': 'VD',
+        'q_gross_salary_annual': 84000,
+        'q_has_consumer_debt': true,
+        'q_debt_payments_period_chf': 900,
+      });
+
+      expect(profile.dettes.totalDettes, 0);
+      expect(profile.dettes.totalMensualite, 900);
+      expect(profile.dettes.hasDette, isTrue);
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+      expect(inputs.debtPayments, 900);
+    });
+
     test('PayFrequency enum has three values', () {
       expect(PayFrequency.values, hasLength(3));
       expect(PayFrequency.values, contains(PayFrequency.monthly));
