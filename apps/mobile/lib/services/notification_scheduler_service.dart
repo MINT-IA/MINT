@@ -154,7 +154,8 @@ class NotificationSchedulerService {
         category: NotificationCategory.threeADeadline,
         tier: NotificationTier.calendar,
         title: l?.notifThreeATitle ?? 'Deadline 3a',
-        body: l?.notifThreeA92Days ?? 'Il reste 92 jours pour verser sur ton 3a.',
+        body:
+            l?.notifThreeA92Days ?? 'Il reste 92 jours pour verser sur ton 3a.',
         deeplink: '/pilier-3a',
         scheduledDate: oct1,
         personalNumber: savingStr,
@@ -186,7 +187,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: l?.notifThreeATitle ?? 'Deadline 3a',
         body: l?.notifThreeALastMonth(savingStr) ??
-            'Dernier mois pour ton 3a. CHF $savingStr d\'économie en jeu.',
+            'Dernier mois pour ton 3a. Économie estimée : CHF $savingStr.',
         deeplink: '/pilier-3a',
         scheduledDate: dec1,
         personalNumber: 'CHF $savingStr',
@@ -216,8 +217,8 @@ class NotificationSchedulerService {
       notifications.add(ScheduledNotification(
         category: NotificationCategory.newYearPlafonds,
         tier: NotificationTier.calendar,
-        title: l?.notifNewYearTitle(nextYear) ??
-            'Nouveaux plafonds ${year + 1}',
+        title:
+            l?.notifNewYearTitle(nextYear) ?? 'Nouveaux plafonds ${year + 1}',
         body: l?.notifNewYearBody(nextYear) ??
             'Nouveaux plafonds ${year + 1}. Ton économie potentielle a changé.',
         deeplink: '/pilier-3a',
@@ -403,7 +404,7 @@ class NotificationSchedulerService {
         title: l?.notifOffTrackTitle ?? "Tu t’\u00e9loignes de ton plan",
         body: l?.notifOffTrackBody(adherence, total, impact) ??
             "Adh\u00e9rence \u00e0 $adherence% sur $total actions. "
-            "Indication lin\u00e9aire (hors rendement/fiscalit\u00e9)\u00a0: ~CHF $impact.",
+                "Indication lin\u00e9aire (hors rendement/fiscalit\u00e9)\u00a0: ~CHF $impact.",
         deeplink: "/coach/checkin",
         scheduledDate: now,
         personalNumber: "$adherence%",

@@ -26,12 +26,10 @@ void main() {
         taxSaving3a: 1500,
       );
 
-      expect(messages.any((m) => m.trigger == ReengagementTrigger.taxPrep),
-          true);
-      // No quarterly FRI in February
       expect(
-          messages
-              .any((m) => m.trigger == ReengagementTrigger.quarterlyFri),
+          messages.any((m) => m.trigger == ReengagementTrigger.taxPrep), true);
+      // No quarterly FRI in February
+      expect(messages.any((m) => m.trigger == ReengagementTrigger.quarterlyFri),
           false);
     });
 
@@ -90,12 +88,13 @@ void main() {
         taxSaving3a: 1820,
       );
 
-      expect(
-          messages.any((m) => m.trigger == ReengagementTrigger.threeAFinal),
+      expect(messages.any((m) => m.trigger == ReengagementTrigger.threeAFinal),
           true);
       final finalMsg = messages
           .firstWhere((m) => m.trigger == ReengagementTrigger.threeAFinal);
       expect(finalMsg.timeConstraint, 'Dernier mois');
+      expect(finalMsg.body, contains('Économie estimée'));
+      expect(finalMsg.body, isNot(contains('en jeu')));
     });
 
     test('April generates only quarterlyFri', () {
@@ -128,8 +127,8 @@ void main() {
         taxSaving3a: 1820,
       );
 
-      final newYear = messages
-          .firstWhere((m) => m.trigger == ReengagementTrigger.newYear);
+      final newYear =
+          messages.firstWhere((m) => m.trigger == ReengagementTrigger.newYear);
       expect(newYear.personalNumber, contains('1\'820'));
     });
 
@@ -164,8 +163,8 @@ void main() {
         taxSaving3a: 7258,
       );
 
-      final newYear = messages
-          .firstWhere((m) => m.trigger == ReengagementTrigger.newYear);
+      final newYear =
+          messages.firstWhere((m) => m.trigger == ReengagementTrigger.newYear);
       expect(newYear.personalNumber, contains("7'258"));
     });
 
@@ -175,8 +174,8 @@ void main() {
         taxSaving3a: 0,
       );
 
-      final newYear = messages
-          .firstWhere((m) => m.trigger == ReengagementTrigger.newYear);
+      final newYear =
+          messages.firstWhere((m) => m.trigger == ReengagementTrigger.newYear);
       expect(newYear.personalNumber, contains('0'));
     });
   });
@@ -198,8 +197,8 @@ void main() {
         today: DateTime(2026, 2, 1),
       );
 
-      final taxPrep = messages
-          .firstWhere((m) => m.trigger == ReengagementTrigger.taxPrep);
+      final taxPrep =
+          messages.firstWhere((m) => m.trigger == ReengagementTrigger.taxPrep);
       expect(taxPrep.deeplink, '/tools');
     });
 

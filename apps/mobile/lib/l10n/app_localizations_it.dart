@@ -5116,9 +5116,6 @@ class SIt extends S {
   String get pillar3aDuration => 'Durata:';
 
   @override
-  String get pillar3aOpenViac => 'Apri il mio conto VIAC';
-
-  @override
   String get pillar3aFees => 'Commissioni';
 
   @override
@@ -5144,12 +5141,6 @@ class SIt extends S {
   }
 
   @override
-  String get pillar3aViacGainLabel => 'Con VIAC invece di una banca:';
-
-  @override
-  String get pillar3aMoreAtRetirement => 'in più alla pensione!';
-
-  @override
   String get pillar3aDisclaimer =>
       'Ipotesi pedagogiche basate su rendimenti storici medi. I rendimenti passati non costituiscono una garanzia di risultati futuri.';
 
@@ -5163,9 +5154,6 @@ class SIt extends S {
   String get pillar3aBank15 => 'Banca 1.5%';
 
   @override
-  String get pillar3aViac45 => 'VIAC 4.5%';
-
-  @override
   String pillar3aYearN(int n) {
     return 'Anno $n';
   }
@@ -5173,9 +5161,6 @@ class SIt extends S {
   @override
   String get pillar3aCompoundTip =>
       'Gli ultimi anni rappresentano +50% del guadagno totale grazie all\'interesse composto!';
-
-  @override
-  String get pillar3aRecommended => 'RACCOMANDATO';
 
   @override
   String pillar3aVsBank(String amount) {
@@ -17999,7 +17984,7 @@ class SIt extends S {
 
   @override
   String notifThreeALastMonth(String saving) {
-    return 'Ultimo mese per il tuo 3a. CHF $saving di risparmio in gioco.';
+    return 'Ultimo mese per il tuo 3a. Risparmio fiscale stimato: CHF $saving.';
   }
 
   @override

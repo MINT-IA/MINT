@@ -5075,9 +5075,6 @@ class SEn extends S {
   String get pillar3aDuration => 'Duration:';
 
   @override
-  String get pillar3aOpenViac => 'Open my VIAC account';
-
-  @override
   String get pillar3aFees => 'Fees';
 
   @override
@@ -5103,12 +5100,6 @@ class SEn extends S {
   }
 
   @override
-  String get pillar3aViacGainLabel => 'With VIAC instead of a bank:';
-
-  @override
-  String get pillar3aMoreAtRetirement => 'more at retirement!';
-
-  @override
   String get pillar3aDisclaimer =>
       'Educational assumptions based on historical average returns. Past returns do not guarantee future returns.';
 
@@ -5122,9 +5113,6 @@ class SEn extends S {
   String get pillar3aBank15 => 'Bank 1.5%';
 
   @override
-  String get pillar3aViac45 => 'VIAC 4.5%';
-
-  @override
   String pillar3aYearN(int n) {
     return 'Year $n';
   }
@@ -5132,9 +5120,6 @@ class SEn extends S {
   @override
   String get pillar3aCompoundTip =>
       'The last years account for +50% of the total gain thanks to compound interest!';
-
-  @override
-  String get pillar3aRecommended => 'RECOMMENDED';
 
   @override
   String pillar3aVsBank(String amount) {
@@ -17860,7 +17845,7 @@ class SEn extends S {
 
   @override
   String notifThreeALastMonth(String saving) {
-    return 'Last month for your 3a. CHF $saving in savings at stake.';
+    return 'Last month for your 3a. Estimated tax saving: CHF $saving.';
   }
 
   @override

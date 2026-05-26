@@ -9256,12 +9256,6 @@ abstract class S {
   /// **'Durée :'**
   String get pillar3aDuration;
 
-  /// No description provided for @pillar3aOpenViac.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ouvrir mon compte VIAC'**
-  String get pillar3aOpenViac;
-
   /// No description provided for @pillar3aFees.
   ///
   /// In fr, this message translates to:
@@ -9304,18 +9298,6 @@ abstract class S {
   /// **'{years} ans (jusqu\'à 65 ans)'**
   String pillar3aDurationYears(int years);
 
-  /// No description provided for @pillar3aViacGainLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Avec VIAC au lieu d\'une banque :'**
-  String get pillar3aViacGainLabel;
-
-  /// No description provided for @pillar3aMoreAtRetirement.
-  ///
-  /// In fr, this message translates to:
-  /// **'de plus à la retraite !'**
-  String get pillar3aMoreAtRetirement;
-
   /// No description provided for @pillar3aDisclaimer.
   ///
   /// In fr, this message translates to:
@@ -9340,12 +9322,6 @@ abstract class S {
   /// **'Banque 1.5 %'**
   String get pillar3aBank15;
 
-  /// No description provided for @pillar3aViac45.
-  ///
-  /// In fr, this message translates to:
-  /// **'VIAC 4.5 %'**
-  String get pillar3aViac45;
-
   /// No description provided for @pillar3aYearN.
   ///
   /// In fr, this message translates to:
@@ -9357,12 +9333,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Les dernières années font +50 % du gain total grâce aux intérêts composés !'**
   String get pillar3aCompoundTip;
-
-  /// No description provided for @pillar3aRecommended.
-  ///
-  /// In fr, this message translates to:
-  /// **'RECOMMANDÉ'**
-  String get pillar3aRecommended;
 
   /// No description provided for @pillar3aVsBank.
   ///
@@ -31587,7 +31557,7 @@ abstract class S {
   /// No description provided for @notifThreeALastMonth.
   ///
   /// In fr, this message translates to:
-  /// **'Dernier mois pour ton 3a. CHF {saving} d\'économie en jeu.'**
+  /// **'Dernier mois pour ton 3a. Économie estimée : CHF {saving}.'**
   String notifThreeALastMonth(String saving);
 
   /// No description provided for @notifThreeATitle.

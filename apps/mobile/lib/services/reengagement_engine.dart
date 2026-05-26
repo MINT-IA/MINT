@@ -210,7 +210,7 @@ class ReengagementEngine {
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.threeAFinal,
         title: l?.reengagementTitleThreeAFinal ?? 'Dernier mois 3a',
-        body: 'Dernier mois. CHF $savingStr d\'économie en jeu.',
+        body: 'Dernier mois. Économie estimée : CHF $savingStr.',
         deeplink: '/pilier-3a',
         personalNumber: 'CHF $savingStr',
         timeConstraint: 'Dernier mois',
