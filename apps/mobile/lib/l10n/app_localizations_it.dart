@@ -7885,7 +7885,8 @@ class SIt extends S {
   String get coachSuggestDeductions => 'Quanto potrei recuperare quest\'anno?';
 
   @override
-  String get coachSuggestTaxImpact => 'Quante tasse in meno con un riscatto?';
+  String get coachSuggestTaxImpact =>
+      'Stimare l’impatto fiscale di un riscatto';
 
   @override
   String get coachSuggestFitness =>
@@ -21306,11 +21307,11 @@ class SIt extends S {
       'Apri MINT — abbiamo trovato qualcosa di interessante sulle tue tasse.';
 
   @override
-  String get day7NotifTitle => 'Stai lasciando soldi al fisco';
+  String get day7NotifTitle => 'Margine 3a da verificare';
 
   @override
   String day7NotifBody(String amount) {
-    return 'Ogni mese senza 3a, lasci CHF $amount al fisco. Ne parliamo?';
+    return 'La tua stima indica circa CHF $amount/mese di margine 3a. Lo verifichiamo?';
   }
 
   @override
@@ -21464,7 +21465,7 @@ class SIt extends S {
 
   @override
   String chocQuestionTaxSaving(String amount) {
-    return 'CHF $amount di tasse in meno. Vale 10 minuti?';
+    return 'Risparmio fiscale stimato: CHF $amount. Verificare lo scenario?';
   }
 
   @override
@@ -22784,7 +22785,7 @@ class SIt extends S {
 
   @override
   String get coachGreetingRandom17 =>
-      'Potresti riscattare anni nel tuo 2° pilastro e pagare migliaia di franchi in meno di tasse. Ma dovresti aprire il certificato.';
+      'Un riscatto LPP può modificare imposte e proiezione pensionistica. Il certificato permette di quantificarlo.';
 
   @override
   String get coachGreetingRandom18 =>

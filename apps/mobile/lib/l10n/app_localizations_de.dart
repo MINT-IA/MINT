@@ -7892,7 +7892,7 @@ class SDe extends S {
 
   @override
   String get coachSuggestTaxImpact =>
-      'Wie viel weniger Steuern mit einem Einkauf?';
+      'Steuerliche Wirkung eines Einkaufs schätzen';
 
   @override
   String get coachSuggestFitness =>
@@ -21295,11 +21295,11 @@ class SDe extends S {
       'Öffne MINT — wir haben etwas Interessantes zu deinen Steuern gefunden.';
 
   @override
-  String get day7NotifTitle => 'Du lässt Geld beim Finanzamt liegen';
+  String get day7NotifTitle => '3a-Spielraum prüfen';
 
   @override
   String day7NotifBody(String amount) {
-    return 'Jeden Monat ohne 3a lässt du CHF $amount beim Finanzamt. Sollen wir reden?';
+    return 'Deine Schätzung zeigt rund CHF $amount/Monat 3a-Spielraum. Prüfen wir das?';
   }
 
   @override
@@ -21454,7 +21454,7 @@ class SDe extends S {
 
   @override
   String chocQuestionTaxSaving(String amount) {
-    return 'CHF $amount weniger Steuern. Lohnen sich 10 Minuten?';
+    return 'Geschätzte Steuerersparnis: CHF $amount. Szenario prüfen?';
   }
 
   @override
@@ -22778,7 +22778,7 @@ class SDe extends S {
 
   @override
   String get coachGreetingRandom17 =>
-      'Du chönntisch Jahre i dini Pensionskasse iikaufe und tuusigi a Stüüre spare. Aber du müesstisch de Uuswiis ufmache.';
+      'Ein LPP-Einkauf kann deine Steuern und deine Vorsorgeprojektion verändern. Mit dem Ausweis lässt es sich beziffern.';
 
   @override
   String get coachGreetingRandom18 =>

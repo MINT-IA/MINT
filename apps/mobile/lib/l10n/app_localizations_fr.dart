@@ -7874,8 +7874,7 @@ class SFr extends S {
       'Combien je pourrais récupérer cette année ?';
 
   @override
-  String get coachSuggestTaxImpact =>
-      'Combien d’impôts en moins avec un rachat ?';
+  String get coachSuggestTaxImpact => 'Estimer l’impact fiscal d’un rachat';
 
   @override
   String get coachSuggestFitness =>
@@ -21245,11 +21244,11 @@ class SFr extends S {
       'Ouvre MINT — on a trouvé quelque chose d\'intéressant sur tes impôts.';
 
   @override
-  String get day7NotifTitle => 'Tu laisses de l\'argent au fisc';
+  String get day7NotifTitle => 'Marge 3a à vérifier';
 
   @override
   String day7NotifBody(String amount) {
-    return 'Chaque mois sans 3a, tu laisses CHF $amount au fisc. On en parle ?';
+    return 'Ton estimation indique une marge 3a d’environ CHF $amount/mois. On vérifie ?';
   }
 
   @override
@@ -21403,7 +21402,7 @@ class SFr extends S {
 
   @override
   String chocQuestionTaxSaving(String amount) {
-    return 'CHF $amount d\'impôts en moins. Ça vaut 10 minutes ?';
+    return 'Économie fiscale estimée : CHF $amount. Vérifier le scénario ?';
   }
 
   @override
@@ -22727,7 +22726,7 @@ class SFr extends S {
 
   @override
   String get coachGreetingRandom17 =>
-      'Tu pourrais racheter des années dans ton 2e pilier et payer des milliers de francs d\'impôts en moins. Mais faudrait ouvrir le certificat.';
+      'Un rachat LPP peut modifier ton impôt et ta retraite. Ton certificat permet de le chiffrer.';
 
   @override
   String get coachGreetingRandom18 =>

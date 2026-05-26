@@ -149,9 +149,9 @@ class NotificationStrings {
     day1NotifTitle: 'On a calculé quelque chose',
     day1NotifBody:
         'Ouvre MINT — on a trouvé quelque chose d\'intéressant sur tes impôts.',
-    day7NotifTitle: 'Tu laisses de l\'argent au fisc',
+    day7NotifTitle: 'Marge 3a à vérifier',
     day7NotifBody:
-        'Chaque mois sans 3a, tu laisses CHF {amount} au fisc. On en parle\u00a0?',
+        'Ton estimation indique une marge 3a d\u2019environ CHF {amount}/mois. On v\u00e9rifie\u00a0?',
     day30NotifTitle: 'Ta projection peut être 25\u00a0% plus précise',
     day30NotifBody:
         'Scanne ton certificat LPP — ça prend 30 secondes et ça change tout.',

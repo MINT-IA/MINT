@@ -3653,7 +3653,7 @@
       "phase": "11-01"
     }
   },
-  "coachSuggestTaxImpact": "¿Cuántos impuestos menos con un rescate?",
+  "coachSuggestTaxImpact": "Estimar el impacto fiscal de un rescate",
   "coachSuggestFitness": "¿Dónde estoy, en comparación con lo que me había dicho?",
   "@coachSuggestFitness": {
     "x-mint-meta": {
@@ -9967,8 +9967,8 @@
   },
   "day1NotifTitle": "Hemos calculado algo",
   "day1NotifBody": "Abre MINT — encontramos algo interesante sobre tus impuestos.",
-  "day7NotifTitle": "Estás dejando dinero al fisco",
-  "day7NotifBody": "Cada mes sin 3a, dejas CHF {amount} al fisco. ¿Hablamos?",
+  "day7NotifTitle": "Margen 3a por verificar",
+  "day7NotifBody": "Tu estimación muestra unos CHF {amount}/mes de margen 3a. ¿Lo verificamos?",
   "@day7NotifBody": {
     "placeholders": {
       "amount": {
@@ -10023,7 +10023,7 @@
   "dataTransparencyThirdParty": "Terceros (con tu consentimiento)",
   "retraiteHubYoungDisclaimer": "Está bien interesarse temprano. Las herramientas avanzadas aparecerán cuando sean relevantes para ti.",
   "chocQuestionCompoundGrowth": "¿Sabías que el tiempo importaba tanto?",
-  "chocQuestionTaxSaving": "CHF {amount} menos de impuestos. ¿Vale 10 minutos?",
+  "chocQuestionTaxSaving": "Ahorro fiscal estimado: CHF {amount}. ¿Verificar el escenario?",
   "chocQuestionRetirementGap": "CHF {amount} menos al mes. ¿Lo habías pensado?",
   "chocQuestionRetirementIncome": "{percent} %, ¿te basta?",
   "chocQuestionLiquidity": "Menos de {months} meses de reserva. ¿Hablamos?",
@@ -10867,7 +10867,7 @@
   "@coachGreetingRandom16": {
     "description": "Coach chat random greeting message 16 of 20."
   },
-  "coachGreetingRandom17": "Podrías recomprar años en tu 2° pilar y pagar miles de francos menos en impuestos. Pero habría que abrir el certificado.",
+  "coachGreetingRandom17": "Un rescate LPP puede modificar tu impuesto y tu proyección de jubilación. Tu certificado permite cuantificarlo.",
   "@coachGreetingRandom17": {
     "description": "Coach chat random greeting message 17 of 20."
   },

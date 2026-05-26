@@ -3653,7 +3653,7 @@
       "phase": "11-01"
     }
   },
-  "coachSuggestTaxImpact": "Quantos impostos a menos com um resgate?",
+  "coachSuggestTaxImpact": "Estimar o impacto fiscal de um resgate",
   "coachSuggestFitness": "Onde estou, em relação ao que tinha dito a mim mesmo?",
   "@coachSuggestFitness": {
     "x-mint-meta": {
@@ -9967,8 +9967,8 @@
   },
   "day1NotifTitle": "Calculámos algo",
   "day1NotifBody": "Abre o MINT — encontrámos algo interessante sobre os teus impostos.",
-  "day7NotifTitle": "Estás a deixar dinheiro ao fisco",
-  "day7NotifBody": "Cada mês sem 3a, deixas CHF {amount} ao fisco. Falamos?",
+  "day7NotifTitle": "Margem 3a a verificar",
+  "day7NotifBody": "A tua estimativa mostra cerca de CHF {amount}/mês de margem 3a. Verificamos?",
   "@day7NotifBody": {
     "placeholders": {
       "amount": {
@@ -10023,7 +10023,7 @@
   "dataTransparencyThirdParty": "Terceiros (com o teu consentimento)",
   "retraiteHubYoungDisclaimer": "É bom interessar-se cedo. As ferramentas avançadas aparecerão quando forem relevantes para ti.",
   "chocQuestionCompoundGrowth": "Sabias que o tempo importava tanto?",
-  "chocQuestionTaxSaving": "CHF {amount} menos de impostos. Vale 10 minutos?",
+  "chocQuestionTaxSaving": "Poupança fiscal estimada: CHF {amount}. Verificar o cenário?",
   "chocQuestionRetirementGap": "CHF {amount} a menos por mês. Já tinhas pensado nisso?",
   "chocQuestionRetirementIncome": "{percent} %, chega-te?",
   "chocQuestionLiquidity": "Menos de {months} meses de reserva. Falamos disso?",
@@ -10867,7 +10867,7 @@
   "@coachGreetingRandom16": {
     "description": "Coach chat random greeting message 16 of 20."
   },
-  "coachGreetingRandom17": "Podias resgatar anos no teu 2° pilar e pagar milhares de francos a menos em impostos. Mas terias de abrir o certificado.",
+  "coachGreetingRandom17": "Um resgate LPP pode alterar o teu imposto e a projeção de reforma. O certificado permite quantificar.",
   "@coachGreetingRandom17": {
     "description": "Coach chat random greeting message 17 of 20."
   },

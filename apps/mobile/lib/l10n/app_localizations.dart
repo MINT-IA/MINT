@@ -13983,7 +13983,7 @@ abstract class S {
   /// No description provided for @coachSuggestTaxImpact.
   ///
   /// In fr, this message translates to:
-  /// **'Combien d’impôts en moins avec un rachat ?'**
+  /// **'Estimer l’impact fiscal d’un rachat'**
   String get coachSuggestTaxImpact;
 
   /// No description provided for @coachSuggestFitness.
@@ -37302,13 +37302,13 @@ abstract class S {
   /// No description provided for @day7NotifTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Tu laisses de l\'argent au fisc'**
+  /// **'Marge 3a à vérifier'**
   String get day7NotifTitle;
 
   /// No description provided for @day7NotifBody.
   ///
   /// In fr, this message translates to:
-  /// **'Chaque mois sans 3a, tu laisses CHF {amount} au fisc. On en parle ?'**
+  /// **'Ton estimation indique une marge 3a d’environ CHF {amount}/mois. On vérifie ?'**
   String day7NotifBody(String amount);
 
   /// No description provided for @day30NotifTitle.
@@ -37554,7 +37554,7 @@ abstract class S {
   /// No description provided for @chocQuestionTaxSaving.
   ///
   /// In fr, this message translates to:
-  /// **'CHF {amount} d\'impôts en moins. Ça vaut 10 minutes ?'**
+  /// **'Économie fiscale estimée : CHF {amount}. Vérifier le scénario ?'**
   String chocQuestionTaxSaving(String amount);
 
   /// No description provided for @chocQuestionRetirementGap.
@@ -39810,7 +39810,7 @@ abstract class S {
   /// Coach chat random greeting message 17 of 20.
   ///
   /// In fr, this message translates to:
-  /// **'Tu pourrais racheter des années dans ton 2e pilier et payer des milliers de francs d\'impôts en moins. Mais faudrait ouvrir le certificat.'**
+  /// **'Un rachat LPP peut modifier ton impôt et ta retraite. Ton certificat permet de le chiffrer.'**
   String get coachGreetingRandom17;
 
   /// Coach chat random greeting message 18 of 20.

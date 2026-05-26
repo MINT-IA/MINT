@@ -7825,7 +7825,7 @@ class SEn extends S {
   String get coachSuggestDeductions => 'How much could I get back this year?';
 
   @override
-  String get coachSuggestTaxImpact => 'How much less tax with a buyback?';
+  String get coachSuggestTaxImpact => 'Estimate the tax impact of a buyback';
 
   @override
   String get coachSuggestFitness =>
@@ -21136,11 +21136,11 @@ class SEn extends S {
       'Open MINT — we found something interesting about your taxes.';
 
   @override
-  String get day7NotifTitle => 'You\'re leaving money with the taxman';
+  String get day7NotifTitle => '3a room to verify';
 
   @override
   String day7NotifBody(String amount) {
-    return 'Every month without 3a, you leave CHF $amount with the taxman. Shall we talk?';
+    return 'Your estimate shows about CHF $amount/month of 3a room. Shall we verify it?';
   }
 
   @override
@@ -21294,7 +21294,7 @@ class SEn extends S {
 
   @override
   String chocQuestionTaxSaving(String amount) {
-    return 'CHF $amount less in taxes. Worth 10 minutes?';
+    return 'Estimated tax saving: CHF $amount. Verify the scenario?';
   }
 
   @override
@@ -22614,7 +22614,7 @@ class SEn extends S {
 
   @override
   String get coachGreetingRandom17 =>
-      'You could buy back years in your pension fund and pay thousands less in tax. But you\'d have to open the certificate.';
+      'An LPP buyback can affect your tax and retirement projection. Your certificate lets us quantify it.';
 
   @override
   String get coachGreetingRandom18 =>

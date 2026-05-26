@@ -3653,7 +3653,7 @@
       "phase": "11-01"
     }
   },
-  "coachSuggestTaxImpact": "How much less tax with a buyback?",
+  "coachSuggestTaxImpact": "Estimate the tax impact of a buyback",
   "coachSuggestFitness": "Where am I, compared to what I'd told myself?",
   "@coachSuggestFitness": {
     "x-mint-meta": {
@@ -9967,8 +9967,8 @@
   },
   "day1NotifTitle": "We calculated something",
   "day1NotifBody": "Open MINT — we found something interesting about your taxes.",
-  "day7NotifTitle": "You're leaving money with the taxman",
-  "day7NotifBody": "Every month without 3a, you leave CHF {amount} with the taxman. Shall we talk?",
+  "day7NotifTitle": "3a room to verify",
+  "day7NotifBody": "Your estimate shows about CHF {amount}/month of 3a room. Shall we verify it?",
   "@day7NotifBody": {
     "placeholders": {
       "amount": {
@@ -10023,7 +10023,7 @@
   "dataTransparencyThirdParty": "Third party (with your consent)",
   "retraiteHubYoungDisclaimer": "Good thinking to look into this early. Advanced tools will appear when they become relevant for you.",
   "chocQuestionCompoundGrowth": "Did you know time mattered this much?",
-  "chocQuestionTaxSaving": "CHF {amount} less in taxes. Worth 10 minutes?",
+  "chocQuestionTaxSaving": "Estimated tax saving: CHF {amount}. Verify the scenario?",
   "chocQuestionRetirementGap": "CHF {amount} less per month. Had you thought about it?",
   "chocQuestionRetirementIncome": "{percent}% — is that enough for you?",
   "chocQuestionLiquidity": "Less than {months} months of reserves. Shall we talk about it?",
@@ -10867,7 +10867,7 @@
   "@coachGreetingRandom16": {
     "description": "Coach chat random greeting message 16 of 20."
   },
-  "coachGreetingRandom17": "You could buy back years in your pension fund and pay thousands less in tax. But you'd have to open the certificate.",
+  "coachGreetingRandom17": "An LPP buyback can affect your tax and retirement projection. Your certificate lets us quantify it.",
   "@coachGreetingRandom17": {
     "description": "Coach chat random greeting message 17 of 20."
   },

@@ -3653,7 +3653,7 @@
       "phase": "11-01"
     }
   },
-  "coachSuggestTaxImpact": "Quante tasse in meno con un riscatto?",
+  "coachSuggestTaxImpact": "Stimare l’impatto fiscale di un riscatto",
   "coachSuggestFitness": "A che punto sono, rispetto a quello che mi ero detto?",
   "@coachSuggestFitness": {
     "x-mint-meta": {
@@ -9967,8 +9967,8 @@
   },
   "day1NotifTitle": "Abbiamo calcolato qualcosa",
   "day1NotifBody": "Apri MINT — abbiamo trovato qualcosa di interessante sulle tue tasse.",
-  "day7NotifTitle": "Stai lasciando soldi al fisco",
-  "day7NotifBody": "Ogni mese senza 3a, lasci CHF {amount} al fisco. Ne parliamo?",
+  "day7NotifTitle": "Margine 3a da verificare",
+  "day7NotifBody": "La tua stima indica circa CHF {amount}/mese di margine 3a. Lo verifichiamo?",
   "@day7NotifBody": {
     "placeholders": {
       "amount": {
@@ -10023,7 +10023,7 @@
   "dataTransparencyThirdParty": "Terze parti (con il tuo consenso)",
   "retraiteHubYoungDisclaimer": "È un bene interessarsene presto. Gli strumenti avanzati appariranno quando saranno rilevanti per te.",
   "chocQuestionCompoundGrowth": "Sapevi che il tempo contava così tanto?",
-  "chocQuestionTaxSaving": "CHF {amount} di tasse in meno. Vale 10 minuti?",
+  "chocQuestionTaxSaving": "Risparmio fiscale stimato: CHF {amount}. Verificare lo scenario?",
   "chocQuestionRetirementGap": "CHF {amount} in meno al mese. Ci avevi pensato?",
   "chocQuestionRetirementIncome": "{percent} %, ti basta?",
   "chocQuestionLiquidity": "Meno di {months} mesi di riserva. Ne parliamo?",
@@ -10867,7 +10867,7 @@
   "@coachGreetingRandom16": {
     "description": "Coach chat random greeting message 16 of 20."
   },
-  "coachGreetingRandom17": "Potresti riscattare anni nel tuo 2° pilastro e pagare migliaia di franchi in meno di tasse. Ma dovresti aprire il certificato.",
+  "coachGreetingRandom17": "Un riscatto LPP può modificare imposte e proiezione pensionistica. Il certificato permette di quantificarlo.",
   "@coachGreetingRandom17": {
     "description": "Coach chat random greeting message 17 of 20."
   },

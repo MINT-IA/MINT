@@ -7867,8 +7867,7 @@ class SPt extends S {
   String get coachSuggestDeductions => 'Quanto poderia recuperar este ano?';
 
   @override
-  String get coachSuggestTaxImpact =>
-      'Quantos impostos a menos com um resgate?';
+  String get coachSuggestTaxImpact => 'Estimar o impacto fiscal de um resgate';
 
   @override
   String get coachSuggestFitness =>
@@ -21252,11 +21251,11 @@ class SPt extends S {
       'Abre o MINT — encontrámos algo interessante sobre os teus impostos.';
 
   @override
-  String get day7NotifTitle => 'Estás a deixar dinheiro ao fisco';
+  String get day7NotifTitle => 'Margem 3a a verificar';
 
   @override
   String day7NotifBody(String amount) {
-    return 'Cada mês sem 3a, deixas CHF $amount ao fisco. Falamos?';
+    return 'A tua estimativa mostra cerca de CHF $amount/mês de margem 3a. Verificamos?';
   }
 
   @override
@@ -21411,7 +21410,7 @@ class SPt extends S {
 
   @override
   String chocQuestionTaxSaving(String amount) {
-    return 'CHF $amount menos de impostos. Vale 10 minutos?';
+    return 'Poupança fiscal estimada: CHF $amount. Verificar o cenário?';
   }
 
   @override
@@ -22731,7 +22730,7 @@ class SPt extends S {
 
   @override
   String get coachGreetingRandom17 =>
-      'Podias resgatar anos no teu 2° pilar e pagar milhares de francos a menos em impostos. Mas terias de abrir o certificado.';
+      'Um resgate LPP pode alterar o teu imposto e a projeção de reforma. O certificado permite quantificar.';
 
   @override
   String get coachGreetingRandom18 =>

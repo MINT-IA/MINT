@@ -3653,7 +3653,7 @@
       "phase": "11-01"
     }
   },
-  "coachSuggestTaxImpact": "Wie viel weniger Steuern mit einem Einkauf?",
+  "coachSuggestTaxImpact": "Steuerliche Wirkung eines Einkaufs schätzen",
   "coachSuggestFitness": "Wo stehe ich im Vergleich zu dem, was ich mir vorgenommen hatte?",
   "@coachSuggestFitness": {
     "x-mint-meta": {
@@ -9967,8 +9967,8 @@
   },
   "day1NotifTitle": "Wir haben etwas berechnet",
   "day1NotifBody": "Öffne MINT — wir haben etwas Interessantes zu deinen Steuern gefunden.",
-  "day7NotifTitle": "Du lässt Geld beim Finanzamt liegen",
-  "day7NotifBody": "Jeden Monat ohne 3a lässt du CHF {amount} beim Finanzamt. Sollen wir reden?",
+  "day7NotifTitle": "3a-Spielraum prüfen",
+  "day7NotifBody": "Deine Schätzung zeigt rund CHF {amount}/Monat 3a-Spielraum. Prüfen wir das?",
   "@day7NotifBody": {
     "placeholders": {
       "amount": {
@@ -10023,7 +10023,7 @@
   "dataTransparencyThirdParty": "Drittanbieter (mit deiner Zustimmung)",
   "retraiteHubYoungDisclaimer": "Gut, dass du dich früh damit beschäftigst. Die erweiterten Tools erscheinen, wenn sie für dich relevant werden.",
   "chocQuestionCompoundGrowth": "Wusstest du, dass Zeit so viel ausmacht?",
-  "chocQuestionTaxSaving": "CHF {amount} weniger Steuern. Lohnen sich 10 Minuten?",
+  "chocQuestionTaxSaving": "Geschätzte Steuerersparnis: CHF {amount}. Szenario prüfen?",
   "chocQuestionRetirementGap": "CHF {amount} weniger pro Monat. Hattest du daran gedacht?",
   "chocQuestionRetirementIncome": "{percent} % — reicht dir das?",
   "chocQuestionLiquidity": "Weniger als {months} Monate Reserve. Reden wir darüber?",
@@ -10867,7 +10867,7 @@
   "@coachGreetingRandom16": {
     "description": "Coach chat random greeting message 16 of 20."
   },
-  "coachGreetingRandom17": "Du chönntisch Jahre i dini Pensionskasse iikaufe und tuusigi a Stüüre spare. Aber du müesstisch de Uuswiis ufmache.",
+  "coachGreetingRandom17": "Ein LPP-Einkauf kann deine Steuern und deine Vorsorgeprojektion verändern. Mit dem Ausweis lässt es sich beziffern.",
   "@coachGreetingRandom17": {
     "description": "Coach chat random greeting message 17 of 20."
   },
