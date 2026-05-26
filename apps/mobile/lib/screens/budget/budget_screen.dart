@@ -648,9 +648,11 @@ class _BudgetScreenState extends State<BudgetScreen>
                 ? l.budgetHealthInsurance
                 : l.budgetHealthInsuranceNotProvided,
             health,
-            qualityTag: widget.inputs.isHealthEstimated
-                ? l.budgetQualityEstimated
-                : l.budgetQualityProvided,
+            qualityTag: widget.inputs.isHealthMissing
+                ? l.budgetQualityMissing
+                : widget.inputs.isHealthEstimated
+                    ? l.budgetQualityEstimated
+                    : l.budgetQualityProvided,
           ),
           const SizedBox(height: MintSpacing.sm),
           _breakdownRow(
@@ -999,7 +1001,8 @@ class _BudgetScreenState extends State<BudgetScreen>
       child: Semantics(
         button: true,
         label: label,
-        child: OutlinedButton( // lint-ignore: prefer_mint_cta
+        child: OutlinedButton(
+          // lint-ignore: prefer_mint_cta
           onPressed: () => context.push(route),
           child: Text(label),
         ),

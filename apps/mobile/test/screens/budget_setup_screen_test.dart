@@ -244,6 +244,52 @@ void main() {
     expect(budgetProvider.plan, isNotNull);
   });
 
+  testWidgets('save converges profile provider budget provider and storage',
+      (tester) async {
+    await ReportPersistenceService.saveAnswers({
+      'q_birth_year': 1988,
+      'q_canton': 'VD',
+      'q_net_income_period_chf': 5379.0,
+      'q_pay_frequency': 'monthly',
+    });
+    await ReportPersistenceService.setCompleted(true);
+
+    final coachProvider = CoachProfileProvider();
+    await coachProvider.loadFromWizard();
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(_wrapWithProviders(
+      child: const BudgetSetupScreen(),
+      coachProvider: coachProvider,
+      budgetProvider: budgetProvider,
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetHousingField')), '2200');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetLamalField')), '420');
+    await tester.ensureVisible(find.text('Enregistrer'));
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_net_income_period_chf'], 5379.0);
+    expect(answers['q_housing_cost_period_chf'], 2200.0);
+    expect(answers['q_lamal_premium_monthly_chf'], 420.0);
+    expect(answers.values, isNot(contains(19272200.0)));
+    expect(answers.values, isNot(contains(420420.0)));
+
+    expect(coachProvider.profile!.depenses.loyer, 2200);
+    expect(coachProvider.profile!.depenses.assuranceMaladie, 420);
+    expect(budgetProvider.inputs, isNotNull);
+    expect(budgetProvider.inputs!.housingCost, 2200);
+    expect(budgetProvider.inputs!.healthInsurance, 420);
+    expect(budgetProvider.inputs!.isTaxEstimated, isTrue);
+    expect(budgetProvider.plan, isNotNull);
+    expect(budgetProvider.plan!.available, greaterThan(0));
+  });
+
   testWidgets('rejects appended implausible monthly amounts', (tester) async {
     await tester.pumpWidget(_wrap(const BudgetSetupScreen()));
     await tester.pumpAndSettle();

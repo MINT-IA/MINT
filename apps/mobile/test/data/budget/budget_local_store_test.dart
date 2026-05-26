@@ -20,6 +20,8 @@ void main() {
       otherFixedCosts: 0,
       isTaxEstimated: true,
       isHealthEstimated: false,
+      isHousingMissing: true,
+      isHealthMissing: true,
       isOtherFixedMissing: true,
       emergencyFundMonths: 3,
     );
@@ -30,6 +32,8 @@ void main() {
     expect(restored, isNotNull);
     expect(restored!.isTaxEstimated, isTrue);
     expect(restored.isHealthEstimated, isFalse);
+    expect(restored.isHousingMissing, isTrue);
+    expect(restored.isHealthMissing, isTrue);
     expect(restored.isOtherFixedMissing, isTrue);
     expect(restored.emergencyFundMonths, 3);
   });

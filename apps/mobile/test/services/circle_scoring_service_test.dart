@@ -163,6 +163,26 @@ void main() {
       expect(c1.percentage, greaterThan(50));
     });
 
+    test('persisted string income is treated as known income', () {
+      final answers = <String, dynamic>{
+        'q_emergency_fund': 'yes_6months',
+        'q_has_consumer_debt': 'no',
+        'q_net_income_period_chf': "5'000",
+        'q_3a_accounts_count': 0,
+        'q_employment_status': 'employee',
+        'q_avs_lacunes_status': null,
+        'q_has_investments': 'no',
+        'q_housing_status': 'renter',
+      };
+
+      final score = service.calculateScore(answers);
+      final incomeItem = score.circle1Protection.items
+          .singleWhere((item) => item.label == 'Revenu');
+
+      expect(incomeItem.status, ItemStatus.perfect);
+      expect(incomeItem.detail, "CHF\u00A05'000/mois");
+    });
+
     test('generates debt priority recommendation when debt exists', () {
       final answers = <String, dynamic>{
         'q_emergency_fund': 'no',
@@ -178,7 +198,8 @@ void main() {
       final c1 = score.circle1Protection;
       // Should recommend paying off debt first
       expect(
-        c1.recommendations.any((r) => r.contains('dette') || r.contains('PRIORIT')),
+        c1.recommendations
+            .any((r) => r.contains('dette') || r.contains('PRIORIT')),
         true,
       );
     });
@@ -343,7 +364,8 @@ void main() {
       final score = service.calculateScore(answers);
       final c2 = score.circle2Prevoyance;
       expect(
-        c2.recommendations.any((r) => r.contains('2e compte 3a') || r.contains('VIAC')),
+        c2.recommendations
+            .any((r) => r.contains('2e compte 3a') || r.contains('VIAC')),
         true,
       );
     });
@@ -445,7 +467,8 @@ void main() {
       final score = service.calculateScore(answers);
       // Circle 4 is fixed at 20%, so overall can't be excellent
       // But C1, C2, C3 should be high
-      expect(score.circle1Protection.level, isIn([ScoreLevel.good, ScoreLevel.excellent]));
+      expect(score.circle1Protection.level,
+          isIn([ScoreLevel.good, ScoreLevel.excellent]));
     });
   });
 

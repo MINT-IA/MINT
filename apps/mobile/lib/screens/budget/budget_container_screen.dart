@@ -33,15 +33,10 @@ class _BudgetContainerScreenState extends State<BudgetContainerScreen> {
     try {
       final budgetProvider = context.read<BudgetProvider>();
       final profileProvider = _readCoachProfileProviderIfAvailable();
-      final profile = profileProvider?.profile;
-      if (profile == null) {
-        await budgetProvider.loadFromStorage();
-      } else if (profileProvider!.isPartialProfile) {
-        final restored = await budgetProvider.loadFromStorage();
-        if (!restored) await budgetProvider.refreshFromProfile(profile);
-      } else {
-        await budgetProvider.refreshFromProfile(profile);
-      }
+      await budgetProvider.hydrateFromProfileState(
+        profile: profileProvider?.profile,
+        isPartialProfile: profileProvider?.isPartialProfile ?? false,
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

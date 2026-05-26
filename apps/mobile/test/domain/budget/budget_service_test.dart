@@ -693,6 +693,181 @@ void main() {
       expect(inputs.style, BudgetStyle.envelopes3);
     });
 
+    test('fromMap reads legacy q_net_income_monthly when canonical is absent',
+        () {
+      final inputs = BudgetInputs.fromMap({
+        'q_net_income_monthly': 6000.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.netIncome, 6000);
+    });
+
+    test('fromMap prefers canonical income when both income keys exist', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_net_income_monthly': 4000.0,
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': 5379.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.netIncome, 5379);
+    });
+
+    test('fromMap lets explicit zero canonical income override legacy income',
+        () {
+      final inputs = BudgetInputs.fromMap({
+        'q_net_income_monthly': 5379.0,
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': 0.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.netIncome, 0);
+    });
+
+    test('fromMap accepts persisted numeric strings', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_net_income_period_chf': '5379',
+        'q_housing_cost_period_chf': '2200',
+        'q_lamal_premium_monthly_chf': '420',
+        'q_other_fixed_costs_monthly_chf': '180',
+        'q_tax_provision_monthly_chf': '520',
+        'q_debt_payments_period_chf': '0',
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.netIncome, 5379);
+      expect(inputs.housingCost, 2200);
+      expect(inputs.healthInsurance, 420);
+      expect(inputs.otherFixedCosts, 180);
+      expect(inputs.taxProvision, 520);
+    });
+
+    test('fromMap sums detailed coach fixed expenses when canonical is absent',
+        () {
+      final inputs = BudgetInputs.fromMap({
+        'q_net_income_period_chf': '5379',
+        'q_housing_cost_period_chf': '2200',
+        'q_lamal_premium_monthly_chf': '420',
+        'q_tax_provision_monthly_chf': '520',
+        'q_debt_payments_period_chf': '0',
+        '_coach_depenses_transport': '120',
+        '_coach_depenses_telecom': '80',
+        '_coach_depenses_electricite': '60',
+        '_coach_depenses_frais_medicaux': '40',
+        '_coach_depenses_autres': '100',
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.otherFixedCosts, 400);
+      expect(inputs.isOtherFixedMissing, isFalse);
+    });
+
+    test('fromMap accepts Swiss apostrophe numeric strings', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_net_income_period_chf': "5'379",
+        'q_housing_cost_period_chf': "2'200",
+        'q_lamal_premium_monthly_chf': '420',
+        'q_debt_payments_period_chf': '0',
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.netIncome, 5379);
+      expect(inputs.housingCost, 2200);
+      expect(inputs.healthInsurance, 420);
+    });
+
+    test('fromMap normalizes weekly income to monthly', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_pay_frequency': 'weekly',
+        'q_net_income_period_chf': 1000.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.netIncome, closeTo(4333, 1));
+    });
+
+    test('fromMap estimates tax from normalized non-monthly income', () {
+      final weekly = BudgetInputs.fromMap({
+        'q_pay_frequency': 'weekly',
+        'q_net_income_period_chf': 1000.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+      final monthlyEquivalent = BudgetInputs.fromMap({
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': 4333.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(weekly.netIncome, closeTo(monthlyEquivalent.netIncome, 1));
+      expect(weekly.taxProvision, closeTo(monthlyEquivalent.taxProvision, 1));
+      expect(weekly.isTaxEstimated, isTrue);
+    });
+
+    test('fromMap treats housing and debt amounts as monthly', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_pay_frequency': 'weekly',
+        'q_net_income_period_chf': 1000.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 100.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.netIncome, closeTo(4333, 1));
+      expect(inputs.housingCost, 1500);
+      expect(inputs.debtPayments, 100);
+    });
+
+    test('fromMap keeps biweekly budget debt monthly', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_pay_frequency': 'biweekly',
+        'q_net_income_period_chf': 2500.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 1200.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.netIncome, closeTo(5415, 1));
+      expect(inputs.debtPayments, 1200);
+    });
+
+    test('fromMap normalizes biweekly income to monthly', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_pay_frequency': 'biweekly',
+        'q_net_income_period_chf': 2500.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_debt_payments_period_chf': 0.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.netIncome, closeTo(5415, 1));
+    });
+
     test('fromMap drops implausible monthly capture amounts', () {
       final map = {
         'q_pay_frequency': 'monthly',
@@ -711,6 +886,134 @@ void main() {
       expect(inputs.isHealthEstimated, isTrue);
       expect(inputs.otherFixedCosts, 0);
       expect(inputs.isOtherFixedMissing, isTrue);
+    });
+
+    test('fromMap marks absent housing as missing for legacy budgets', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': 5379.0,
+        'q_lamal_premium_monthly_chf': 420.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.housingCost, 0);
+      expect(inputs.isHousingMissing, isTrue);
+      expect(inputs.hasMissingValues, isTrue);
+    });
+
+    test('fromMap marks absent LAMal as missing for legacy budgets', () {
+      final inputs = BudgetInputs.fromMap({
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': 5379.0,
+        'q_housing_cost_period_chf': 1500.0,
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+      });
+
+      expect(inputs.healthInsurance, greaterThan(0));
+      expect(inputs.isHealthEstimated, isTrue);
+      expect(inputs.isHealthMissing, isTrue);
+      expect(inputs.hasMissingValues, isTrue);
+    });
+
+    test('fromCoachProfile marks absent housing and LAMal as missing', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 6000,
+        depenses: const DepensesProfile(
+          loyer: 1500,
+          assuranceMaladie: 520,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.housingCost, 0);
+      expect(inputs.healthInsurance, 0);
+      expect(inputs.isHousingMissing, isTrue);
+      expect(inputs.isHealthMissing, isTrue);
+      expect(inputs.isHealthEstimated, isFalse);
+      expect(inputs.hasMissingValues, isTrue);
+    });
+
+    test('fromCoachProfile preserves estimated LAMal source as estimated', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 6000,
+        depenses: const DepensesProfile(assuranceMaladie: 520),
+        dataSources: const {
+          'depenses.assuranceMaladie': ProfileDataSource.estimated,
+        },
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.healthInsurance, 520);
+      expect(inputs.isHealthMissing, isFalse);
+      expect(inputs.isHealthEstimated, isTrue);
+    });
+
+    test('fromCoachProfile treats userProvided LAMal as provided', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 6000,
+        depenses: const DepensesProfile(assuranceMaladie: 420),
+        userProvidedFields: const {'lamalPremium'},
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.healthInsurance, 420);
+      expect(inputs.isHealthMissing, isFalse);
+      expect(inputs.isHealthEstimated, isFalse);
+    });
+
+    test('fromCoachProfile sums only trusted detailed fixed expenses', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 6000,
+        depenses: const DepensesProfile(
+          electricite: 80,
+          transport: 120,
+          telecom: 90,
+          fraisMedicaux: 60,
+          autresDepensesFixes: 700,
+        ),
+        dataSources: const {
+          'depenses.transport': ProfileDataSource.userInput,
+          'depenses.telecom': ProfileDataSource.userInput,
+        },
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.otherFixedCosts, 210);
+      expect(inputs.isOtherFixedMissing, isFalse);
     });
 
     test('fromCoachProfile excludes implausible charges from emergency fund',
@@ -749,6 +1052,8 @@ void main() {
         otherFixedCosts: 100,
         isTaxEstimated: true,
         isHealthEstimated: false,
+        isHousingMissing: false,
+        isHealthMissing: false,
         isOtherFixedMissing: false,
         style: BudgetStyle.envelopes3,
         emergencyFundMonths: 3,
@@ -763,6 +1068,8 @@ void main() {
       expect(map['q_other_fixed_costs_monthly_chf'], 100);
       expect(map['meta_tax_estimated'], isTrue);
       expect(map['meta_health_estimated'], isFalse);
+      expect(map['meta_housing_missing'], isFalse);
+      expect(map['meta_health_missing'], isFalse);
       expect(map['meta_other_fixed_missing'], isFalse);
       expect(map['q_budget_style'], 'envelopes3');
     });

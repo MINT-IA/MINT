@@ -27,6 +27,8 @@ class BudgetInputs {
   final double otherFixedCosts; // Mensuel (assurances/autres charges fixes)
   final bool isTaxEstimated;
   final bool isHealthEstimated;
+  final bool isHousingMissing;
+  final bool isHealthMissing;
   final bool isOtherFixedMissing;
   final BudgetStyle style;
   final double
@@ -42,13 +44,16 @@ class BudgetInputs {
     this.otherFixedCosts = 0,
     this.isTaxEstimated = false,
     this.isHealthEstimated = false,
+    this.isHousingMissing = false,
+    this.isHealthMissing = false,
     this.isOtherFixedMissing = false,
     this.style = BudgetStyle.envelopes3,
     this.emergencyFundMonths = 0,
   });
 
   bool get hasEstimatedValues => isTaxEstimated || isHealthEstimated;
-  bool get hasMissingValues => isOtherFixedMissing;
+  bool get hasMissingValues =>
+      isHousingMissing || isHealthMissing || isOtherFixedMissing;
 
   /// Construit des BudgetInputs a partir d'un CoachProfile.
   ///
@@ -77,20 +82,47 @@ class BudgetInputs {
     final monthlyNet = ownNet + partnerNet;
     final monthlyDebt =
         profile.dettes.totalDettes > 0 ? profile.dettes.totalDettes / 36 : 0.0;
-    final housingCost = plausibleMonthlyAmount(
-          profile.depenses.loyer,
-          max: maxMonthlyHousingCost,
-        ) ??
-        0.0;
-    final healthInsurance = plausibleMonthlyAmount(
-          profile.depenses.assuranceMaladie,
-          max: maxMonthlyHealthInsurance,
-        ) ??
-        0.0;
-    // Charges fixes hors loyer et assurance maladie
-    final otherFixed = profile.depenses.totalMensuel -
-        profile.depenses.loyer -
-        profile.depenses.assuranceMaladie;
+    final hasHousingSource = _hasTrustedSource(profile, 'depenses.loyer') ||
+        _hasEstimatedSource(profile, 'depenses.loyer') ||
+        profile.userProvidedFields.contains('housingCost');
+    final hasTrustedHealthSource =
+        _hasTrustedSource(profile, 'depenses.assuranceMaladie');
+    final hasEstimatedHealthSource =
+        _hasEstimatedSource(profile, 'depenses.assuranceMaladie');
+    final hasUserProvidedHealthSource =
+        profile.userProvidedFields.contains('lamalPremium');
+    final hasHealthSource = hasTrustedHealthSource ||
+        hasEstimatedHealthSource ||
+        hasUserProvidedHealthSource;
+    final hasOtherFixedSource = _hasAnyTrustedSource(profile, const [
+          'depenses.electricite',
+          'depenses.transport',
+          'depenses.telecom',
+          'depenses.fraisMedicaux',
+          'depenses.autresDepensesFixes',
+        ]) ||
+        profile.userProvidedFields.contains('electricity') ||
+        profile.userProvidedFields.contains('transport') ||
+        profile.userProvidedFields.contains('telecom') ||
+        profile.userProvidedFields.contains('medicalCosts') ||
+        profile.userProvidedFields.contains('otherFixedCosts');
+
+    final housingCost = hasHousingSource
+        ? plausibleMonthlyAmount(
+              profile.depenses.loyer,
+              max: maxMonthlyHousingCost,
+            ) ??
+            0.0
+        : 0.0;
+    final healthInsurance = hasHealthSource
+        ? plausibleMonthlyAmount(
+              profile.depenses.assuranceMaladie,
+              max: maxMonthlyHealthInsurance,
+            ) ??
+            0.0
+        : 0.0;
+    final otherFixed =
+        hasOtherFixedSource ? _trustedOtherFixedCosts(profile) : 0.0;
     final plausibleOtherFixed = plausibleMonthlyAmount(
           otherFixed,
           max: maxMonthlyFixedCharge,
@@ -105,11 +137,6 @@ class BudgetInputs {
     };
 
     // Data source tags — propagate "estimé" vs "saisi" from profile
-    final healthSource = profile.dataSources['depenses.assuranceMaladie'];
-    final isHealthFromUser = healthSource == ProfileDataSource.userInput ||
-        healthSource == ProfileDataSource.certificate ||
-        healthSource == ProfileDataSource.openBanking;
-
     // Emergency fund: months of plausible expenses covered by liquid savings.
     final plausibleMonthlyExpenses =
         housingCost + healthInsurance + plausibleOtherFixed;
@@ -138,7 +165,9 @@ class BudgetInputs {
       healthInsurance: healthInsurance,
       otherFixedCosts: plausibleOtherFixed > 0 ? plausibleOtherFixed : 0,
       isTaxEstimated: true,
-      isHealthEstimated: !isHealthFromUser,
+      isHealthEstimated: hasHealthSource ? hasEstimatedHealthSource : false,
+      isHousingMissing: !hasHousingSource,
+      isHealthMissing: !hasHealthSource,
       isOtherFixedMissing: plausibleOtherFixed <= 0,
       emergencyFundMonths: emergencyMonths,
     );
@@ -171,27 +200,33 @@ class BudgetInputs {
       (e) => e.name == map['q_pay_frequency'],
       orElse: () => PayFrequency.monthly,
     );
-    final netIncome =
-        (map['q_net_income_period_chf'] as num?)?.toDouble() ?? 0.0;
-    final housingCostRaw =
-        (map['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0.0;
+    final legacyMonthlyIncome = _parseDouble(map['q_net_income_monthly']);
+    final periodicNetIncome = _parseDouble(map['q_net_income_period_chf']);
+    final netIncome = periodicNetIncome != null
+        ? _toMonthly(periodicNetIncome, payFrequency)
+        : legacyMonthlyIncome ?? 0.0;
+
+    // Despite the historical "period" key names, these values are monthly
+    // in current budget setup and wizard V2 flows. Do not multiply them by
+    // pay frequency unless the storage contract changes.
+    final hasHousingKey = map.containsKey('q_housing_cost_period_chf');
+    final parsedHousingCost = _parseDouble(map['q_housing_cost_period_chf']);
+    final housingCostRaw = parsedHousingCost ?? 0.0;
     final housingCost = plausibleMonthlyAmount(
           housingCostRaw,
           max: maxMonthlyHousingCost,
         ) ??
         0.0;
-    final debtPayments =
-        (map['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0.0;
+    final debtPayments = _parseDouble(map['q_debt_payments_period_chf']) ?? 0.0;
 
-    final normalizedMonthlyIncome = _toMonthly(netIncome, payFrequency);
-    final taxProvisionRaw =
-        (map['q_tax_provision_monthly_chf'] as num?)?.toDouble();
+    final taxProvisionRaw = _parseDouble(map['q_tax_provision_monthly_chf']);
     final lamalRaw = plausibleMonthlyAmount(
-      (map['q_lamal_premium_monthly_chf'] as num?)?.toDouble(),
+      _parseDouble(map['q_lamal_premium_monthly_chf']),
       max: maxMonthlyHealthInsurance,
     );
     final otherFixedRaw = plausibleMonthlyAmount(
-      (map['q_other_fixed_costs_monthly_chf'] as num?)?.toDouble(),
+      _parseDouble(map['q_other_fixed_costs_monthly_chf']) ??
+          _sumDetailedFixedCosts(map),
       max: maxMonthlyFixedCharge,
     );
 
@@ -202,7 +237,7 @@ class BudgetInputs {
     final estimatedTax = taxProvisionRaw ??
         TaxEstimatorService.estimateMonthlyProvision(
           TaxEstimatorService.estimateAnnualTax(
-            netMonthlyIncome: normalizedMonthlyIncome,
+            netMonthlyIncome: netIncome,
             cantonCode: canton,
             civilStatus: civilStatus,
             childrenCount: children,
@@ -216,6 +251,8 @@ class BudgetInputs {
 
     final metaTaxEstimated = map['meta_tax_estimated'];
     final metaHealthEstimated = map['meta_health_estimated'];
+    final metaHousingMissing = map['meta_housing_missing'];
+    final metaHealthMissing = map['meta_health_missing'];
     final metaOtherFixedMissing = map['meta_other_fixed_missing'];
 
     return BudgetInputs(
@@ -230,6 +267,11 @@ class BudgetInputs {
           metaTaxEstimated is bool ? metaTaxEstimated : taxProvisionRaw == null,
       isHealthEstimated:
           metaHealthEstimated is bool ? metaHealthEstimated : lamalRaw == null,
+      isHousingMissing: metaHousingMissing is bool
+          ? metaHousingMissing
+          : !hasHousingKey || parsedHousingCost == null || housingCost == 0,
+      isHealthMissing:
+          metaHealthMissing is bool ? metaHealthMissing : lamalRaw == null,
       isOtherFixedMissing: metaOtherFixedMissing is bool
           ? metaOtherFixedMissing
           : otherFixedRaw == null,
@@ -252,6 +294,8 @@ class BudgetInputs {
       'q_other_fixed_costs_monthly_chf': otherFixedCosts,
       'meta_tax_estimated': isTaxEstimated,
       'meta_health_estimated': isHealthEstimated,
+      'meta_housing_missing': isHousingMissing,
+      'meta_health_missing': isHealthMissing,
       'meta_other_fixed_missing': isOtherFixedMissing,
       'q_budget_style': style.name,
       'emergency_fund_months': emergencyFundMonths,
@@ -272,6 +316,98 @@ class BudgetInputs {
   static double? plausibleMonthlyAmount(double? value, {required double max}) {
     if (value == null || value < 0 || value > max) return null;
     return value;
+  }
+
+  static bool _hasAnyTrustedSource(CoachProfile profile, List<String> keys) {
+    return keys.any((key) => _hasTrustedSource(profile, key));
+  }
+
+  static bool _hasTrustedSource(CoachProfile profile, String key) {
+    return switch (profile.dataSources[key]) {
+      ProfileDataSource.userInput ||
+      ProfileDataSource.crossValidated ||
+      ProfileDataSource.certificate ||
+      ProfileDataSource.openBanking =>
+        true,
+      _ => false,
+    };
+  }
+
+  static bool _hasEstimatedSource(CoachProfile profile, String key) {
+    return profile.dataSources[key] == ProfileDataSource.estimated;
+  }
+
+  static double _trustedOtherFixedCosts(CoachProfile profile) {
+    return _trustedExpense(
+          profile,
+          'depenses.electricite',
+          'electricity',
+          profile.depenses.electricite,
+        ) +
+        _trustedExpense(
+          profile,
+          'depenses.transport',
+          'transport',
+          profile.depenses.transport,
+        ) +
+        _trustedExpense(
+          profile,
+          'depenses.telecom',
+          'telecom',
+          profile.depenses.telecom,
+        ) +
+        _trustedExpense(
+          profile,
+          'depenses.fraisMedicaux',
+          'medicalCosts',
+          profile.depenses.fraisMedicaux,
+        ) +
+        _trustedExpense(
+          profile,
+          'depenses.autresDepensesFixes',
+          'otherFixedCosts',
+          profile.depenses.autresDepensesFixes,
+        );
+  }
+
+  static double _trustedExpense(
+    CoachProfile profile,
+    String dataSourceKey,
+    String userProvidedKey,
+    double? value,
+  ) {
+    final trusted = _hasTrustedSource(profile, dataSourceKey) ||
+        profile.userProvidedFields.contains(userProvidedKey);
+    return trusted ? value ?? 0.0 : 0.0;
+  }
+
+  static double? _parseDouble(dynamic raw) {
+    if (raw is num) return raw.toDouble();
+    if (raw is String) {
+      return double.tryParse(
+          raw.trim().replaceAll("'", '').replaceAll(',', '.'));
+    }
+    return null;
+  }
+
+  static double? _sumDetailedFixedCosts(Map<String, dynamic> map) {
+    const keys = [
+      '_coach_depenses_transport',
+      '_coach_depenses_telecom',
+      '_coach_depenses_electricite',
+      '_coach_depenses_frais_medicaux',
+      '_coach_depenses_autres',
+    ];
+
+    var hasAny = false;
+    var total = 0.0;
+    for (final key in keys) {
+      if (!map.containsKey(key)) continue;
+      hasAny = true;
+      total += _parseDouble(map[key]) ?? 0.0;
+    }
+
+    return hasAny ? total : null;
   }
 
   static int _parseChildrenCount(dynamic raw) {

@@ -161,14 +161,80 @@ void main() {
       // But q_has_consumer_credit == 'yes' triggers hasDebtStress anyway
       expect(WizardService.isSafeModeActive(answers), true);
     });
+
+    test('budget debt remains monthly even when income is weekly', () {
+      final answers = <String, dynamic>{
+        'q_emergency_fund': 'yes_6months',
+        'q_late_payments_6m': 'no',
+        'q_creditcard_minimum_or_overdraft': 'never',
+        'q_has_consumer_credit': 'no',
+        'q_has_consumer_debt': 'no',
+        'q_net_income_period_chf': 1000.0,
+        'q_pay_frequency': 'weekly',
+        'q_debt_payments_period_chf': 350.0,
+      };
+
+      expect(WizardService.isSafeModeActive(answers), isFalse);
+    });
+
+    test('budget debt remains monthly even when income is biweekly', () {
+      final answers = <String, dynamic>{
+        'q_emergency_fund': 'yes_6months',
+        'q_late_payments_6m': 'no',
+        'q_creditcard_minimum_or_overdraft': 'never',
+        'q_has_consumer_credit': 'no',
+        'q_has_consumer_debt': 'no',
+        'q_net_income_period_chf': 2500.0,
+        'q_pay_frequency': 'biweekly',
+        'q_debt_payments_period_chf': 1200.0,
+      };
+
+      expect(WizardService.isSafeModeActive(answers), isFalse);
+    });
   });
 
   group('WizardService.getMonthlyIncome', () {
-    test('returns legacy monthly income when q_net_income_monthly exists', () {
+    test('returns legacy monthly income when canonical income is absent', () {
       final answers = <String, dynamic>{
         'q_net_income_monthly': 6000.0,
       };
       expect(WizardService.getMonthlyIncome(answers), 6000.0);
+    });
+
+    test('does not re-normalize legacy monthly income with weekly frequency',
+        () {
+      final answers = <String, dynamic>{
+        'q_net_income_monthly': 6000.0,
+        'q_pay_frequency': 'weekly',
+      };
+      expect(WizardService.getMonthlyIncome(answers), 6000.0);
+    });
+
+    test('prefers canonical period income when both income keys exist', () {
+      final answers = <String, dynamic>{
+        'q_net_income_monthly': 4000.0,
+        'q_net_income_period_chf': 5379.0,
+        'q_pay_frequency': 'monthly',
+      };
+      expect(WizardService.getMonthlyIncome(answers), 5379.0);
+    });
+
+    test('normalizes canonical income before stale legacy monthly income', () {
+      final answers = <String, dynamic>{
+        'q_net_income_monthly': 9000.0,
+        'q_net_income_period_chf': 1000.0,
+        'q_pay_frequency': 'weekly',
+      };
+      expect(WizardService.getMonthlyIncome(answers), closeTo(4333.0, 1.0));
+    });
+
+    test('explicit zero canonical income overrides stale legacy income', () {
+      final answers = <String, dynamic>{
+        'q_net_income_monthly': 4000.0,
+        'q_net_income_period_chf': 0.0,
+        'q_pay_frequency': 'monthly',
+      };
+      expect(WizardService.getMonthlyIncome(answers), 0.0);
     });
 
     test('returns period income directly for monthly frequency', () {
@@ -388,9 +454,8 @@ void main() {
     });
 
     test('returns q_birth_year when q_canton already answered', () {
-      final questions = buildTestQuestions()
-          .where((q) => q.id != 'q_canton')
-          .toList();
+      final questions =
+          buildTestQuestions().where((q) => q.id != 'q_canton').toList();
 
       final next = WizardService.getNextMostValuableQuestion(questions, {
         'q_canton': 'VD',
@@ -469,5 +534,4 @@ void main() {
       expect(summary, isEmpty);
     });
   });
-
 }

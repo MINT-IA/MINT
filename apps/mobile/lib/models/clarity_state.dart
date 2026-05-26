@@ -112,7 +112,9 @@ class ClarityState {
 
   Color get precisionColor {
     if (precisionIndex < 40) return MintColors.warning;
-    if (precisionIndex < 70) return MintColors.centralScenarioLight; // Vert clair
+    if (precisionIndex < 70) {
+      return MintColors.centralScenarioLight; // Vert clair
+    }
     if (precisionIndex < 90) return MintColors.centralScenario; // Vert
     return MintColors.stressScenario; // Vert foncé
   }
@@ -212,22 +214,21 @@ class ClarityState {
 
   static double _calculateDebtRatio(Map<String, dynamic> answers) {
     // Support V1 and V2 income keys
-    double income = (answers['income_net_monthly'] as num?)?.toDouble() ??
-        (answers['q_net_income_monthly'] as num?)?.toDouble() ??
+    double income = _parseDouble(answers['income_net_monthly']) ??
+        _parseDouble(answers['q_net_income_monthly']) ??
         0;
 
     if (income == 0) {
       // Try V2 period income
-      final periodIncome =
-          (answers['q_net_income_period_chf'] as num?)?.toDouble();
+      final periodIncome = _parseDouble(answers['q_net_income_period_chf']);
       if (periodIncome != null) {
         final freq = answers['q_pay_frequency'];
         if (freq == 'monthly') {
           income = periodIncome;
         } else if (freq == 'weekly') {
-          income = periodIncome * 4.33;
+          income = periodIncome * 4.333;
         } else if (freq == 'biweekly') {
-          income = periodIncome * 2.16;
+          income = periodIncome * 2.166;
         } else {
           income = periodIncome;
         }
@@ -238,24 +239,32 @@ class ClarityState {
 
     double totalDebt = 0;
     if (answers['has_leasing'] == true || answers['q_has_leasing'] == 'yes') {
-      totalDebt += (answers['leasing_monthly'] as num?)?.toDouble() ??
-          (answers['q_leasing_monthly'] as num?)?.toDouble() ??
+      totalDebt += _parseDouble(answers['leasing_monthly']) ??
+          _parseDouble(answers['q_leasing_monthly']) ??
           0;
     }
     if (answers['has_consumer_credit'] == true ||
         answers['q_has_consumer_credit'] == 'yes') {
-      totalDebt += (answers['consumer_credit_monthly'] as num?)?.toDouble() ??
-          (answers['q_credit_monthly'] as num?)?.toDouble() ??
+      totalDebt += _parseDouble(answers['consumer_credit_monthly']) ??
+          _parseDouble(answers['q_credit_monthly']) ??
           0;
     }
 
     // V2 debt
     if (answers['q_debt_payments_period_chf'] != null) {
-      totalDebt +=
-          (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
+      totalDebt += _parseDouble(answers['q_debt_payments_period_chf']) ?? 0;
     }
 
     return totalDebt / income;
+  }
+
+  static double? _parseDouble(dynamic raw) {
+    if (raw is num) return raw.toDouble();
+    if (raw is String) {
+      return double.tryParse(
+          raw.trim().replaceAll("'", '').replaceAll(',', '.'));
+    }
+    return null;
   }
 
   static List<ClarityAction> _generateActions(
@@ -501,8 +510,8 @@ class ClarityProgressHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 color: MintColors.greenBgLight,
                 borderRadius: BorderRadius.circular(8),
-                border:
-                    Border.all(color: MintColors.stressScenario.withValues(alpha: 0.3)),
+                border: Border.all(
+                    color: MintColors.stressScenario.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [

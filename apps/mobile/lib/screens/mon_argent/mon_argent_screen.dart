@@ -26,7 +26,12 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 /// Two calm numbers: budget remaining + patrimoine net.
 /// Architecture A→B: ready for spending synthesis card (Phase B).
 class MonArgentScreen extends StatefulWidget {
-  const MonArgentScreen({super.key});
+  const MonArgentScreen({
+    super.key,
+    this.initialSection,
+  });
+
+  final String? initialSection;
 
   @override
   State<MonArgentScreen> createState() => _MonArgentScreenState();
@@ -35,12 +40,31 @@ class MonArgentScreen extends StatefulWidget {
 class _MonArgentScreenState extends State<MonArgentScreen> {
   bool _budgetLoading = true;
   bool _budgetError = false;
-  _MonArgentSection _section = _MonArgentSection.today;
+  late _MonArgentSection _section;
 
   @override
   void initState() {
     super.initState();
+    _section = _sectionFromName(widget.initialSection);
     _loadBudget();
+  }
+
+  @override
+  void didUpdateWidget(covariant MonArgentScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialSection != oldWidget.initialSection) {
+      _section = _sectionFromName(widget.initialSection);
+    }
+  }
+
+  _MonArgentSection _sectionFromName(String? name) {
+    return switch (name) {
+      'month' || 'mois' => _MonArgentSection.month,
+      'wealth' || 'patrimoine' => _MonArgentSection.wealth,
+      'pension' || 'prevoyance' || 'prévoyance' => _MonArgentSection.pension,
+      'future' || 'futur' => _MonArgentSection.future,
+      _ => _MonArgentSection.today,
+    };
   }
 
   Future<void> _loadBudget() async {
@@ -51,15 +75,10 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
     try {
       final budgetProvider = context.read<BudgetProvider>();
       final profileProvider = _readCoachProfileProviderIfAvailable();
-      final profile = profileProvider?.profile;
-      if (profile == null) {
-        await budgetProvider.loadFromStorage();
-      } else if (profileProvider!.isPartialProfile) {
-        final restored = await budgetProvider.loadFromStorage();
-        if (!restored) await budgetProvider.refreshFromProfile(profile);
-      } else {
-        await budgetProvider.refreshFromProfile(profile);
-      }
+      await budgetProvider.hydrateFromProfileState(
+        profile: profileProvider?.profile,
+        isPartialProfile: profileProvider?.isPartialProfile ?? false,
+      );
     } catch (_) {
       if (mounted) setState(() => _budgetError = true);
     } finally {
@@ -312,24 +331,31 @@ class _CompactSectionSelector extends StatelessWidget {
       runSpacing: MintSpacing.xs,
       children: _MonArgentSection.values.map((section) {
         final isSelected = selected == section;
-        return ChoiceChip(
-          key: Key('mon_argent_section_chip_${section.name}'),
+        final identifier = 'mon_argent_section_chip_${section.name}';
+        return Semantics(
+          key: Key(identifier),
+          identifier: identifier,
           selected: isSelected,
-          showCheckmark: false,
-          label: Text(labelFor(section)),
-          labelStyle: MintTextStyles.labelMedium(
-            color:
-                isSelected ? MintColors.textPrimary : MintColors.textSecondary,
+          button: true,
+          child: ChoiceChip(
+            selected: isSelected,
+            showCheckmark: false,
+            label: Text(labelFor(section)),
+            labelStyle: MintTextStyles.labelMedium(
+              color: isSelected
+                  ? MintColors.textPrimary
+                  : MintColors.textSecondary,
+            ),
+            backgroundColor: MintColors.white,
+            selectedColor: MintColors.saugeClaire,
+            side: const BorderSide(color: MintColors.borderSubtle),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(999),
+            ),
+            onSelected: (_) => onChanged(section),
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            visualDensity: VisualDensity.compact,
           ),
-          backgroundColor: MintColors.white,
-          selectedColor: MintColors.saugeClaire,
-          side: const BorderSide(color: MintColors.borderSubtle),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(999),
-          ),
-          onSelected: (_) => onChanged(section),
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: VisualDensity.compact,
         );
       }).toList(growable: false),
     );

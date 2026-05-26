@@ -286,6 +286,12 @@ void main() {
       find.byKey(const Key('mon_argent_section_chip_future')),
       findsOneWidget,
     );
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('mon_argent_section_chip_future')))
+          .identifier,
+      'mon_argent_section_chip_future',
+    );
 
     await tester.tap(find.byKey(const Key('mon_argent_section_chip_future')));
     await tester.pumpAndSettle();
@@ -370,6 +376,10 @@ void main() {
             loyer: 1100,
             assuranceMaladie: 390,
           ),
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+            'depenses.assuranceMaladie': ProfileDataSource.userInput,
+          },
         ),
       );
     final budgetProvider = BudgetProvider();
@@ -502,6 +512,48 @@ void main() {
 
     expect(find.byType(MonArgentScreen), findsOneWidget);
     expect(budgetProvider.inputs?.housingCost, 2100);
+  });
+
+  testWidgets('can open directly on monthly budget section', (tester) async {
+    await BudgetLocalStore().saveInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 8000,
+        housingCost: 2100,
+        debtPayments: 0,
+        healthInsurance: 390,
+      ),
+    );
+
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+          ChangeNotifierProvider<MintStateProvider>(
+            create: (_) => MintStateProvider(),
+          ),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(initialSection: 'month'),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Ton budget ce mois'), findsOneWidget);
+    expect(find.byKey(const Key('mon_argent_budget_summary')), findsOneWidget);
   });
 
   testWidgets('renders missing-data surface for pension without data spine',

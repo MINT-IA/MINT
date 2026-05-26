@@ -92,8 +92,12 @@ void main() {
       final report = service.generateReport(minimalAnswers());
       final after = DateTime.now();
 
-      expect(report.generatedAt.isAfter(before.subtract(const Duration(seconds: 1))), isTrue);
-      expect(report.generatedAt.isBefore(after.add(const Duration(seconds: 1))), isTrue);
+      expect(
+          report.generatedAt
+              .isAfter(before.subtract(const Duration(seconds: 1))),
+          isTrue);
+      expect(report.generatedAt.isBefore(after.add(const Duration(seconds: 1))),
+          isTrue);
     });
   });
 
@@ -183,13 +187,15 @@ void main() {
 
     test('cantonal + federal equals total tax', () {
       final report = service.generateReport(minimalAnswers());
-      final sum = report.taxSimulation.cantonalTax + report.taxSimulation.federalTax;
+      final sum =
+          report.taxSimulation.cantonalTax + report.taxSimulation.federalTax;
       expect(sum, closeTo(report.taxSimulation.totalTax, 0.01));
     });
 
     test('cantonal tax is approximately 75% of total', () {
       final report = service.generateReport(minimalAnswers());
-      final ratio = report.taxSimulation.cantonalTax / report.taxSimulation.totalTax;
+      final ratio =
+          report.taxSimulation.cantonalTax / report.taxSimulation.totalTax;
       expect(ratio, closeTo(0.75, 0.001));
     });
 
@@ -214,7 +220,9 @@ void main() {
       expect(report.taxSimulation.deductions['3a'], equals(7258.0));
     });
 
-    test('children deduction = federal + cantonal per child (LIFD art. 35 + LHID art. 9)', () {
+    test(
+        'children deduction = federal + cantonal per child (LIFD art. 35 + LHID art. 9)',
+        () {
       final answers = minimalAnswers(); // q_canton = 'VD'
       answers['q_children'] = '2';
       final report = service.generateReport(answers);
@@ -302,13 +310,15 @@ void main() {
     });
 
     test('married couple AVS rent includes both spouse parts', () {
-      final answers = fullAnswers(); // married, both spouses have contribution years
+      final answers =
+          fullAnswers(); // married, both spouses have contribution years
       final report = service.generateReport(answers);
       // Married couple: each gets 1890 * reductionFactor
       expect(report.retirementProjection!.monthlyAvsRent, greaterThan(0));
     });
 
-    test('replacement rate uses actual monthly income, not hardcoded value', () {
+    test('replacement rate uses actual monthly income, not hardcoded value',
+        () {
       // Regression: replacementRate was dividing by hardcoded 7800 CHF
       // instead of the user's actual monthly income.
       // User at 10k/month with projected 6.5k retirement => 65%, NOT 83%.
@@ -352,7 +362,9 @@ void main() {
       expect(projZero.replacementRate, equals(0.0));
     });
 
-    test('replacement rate defaults to 7800 when currentMonthlyIncome not provided', () {
+    test(
+        'replacement rate defaults to 7800 when currentMonthlyIncome not provided',
+        () {
       // Backward compatibility: default currentMonthlyIncome = 7800
       const projection = RetirementProjection(
         yearsUntilRetirement: 20,
@@ -373,10 +385,12 @@ void main() {
       answers['q_net_income_period_chf'] = 10000.0; // 10k/month
       final report = service.generateReport(answers);
       expect(report.retirementProjection, isNotNull);
-      expect(report.retirementProjection!.currentMonthlyIncome, equals(10000.0));
+      expect(
+          report.retirementProjection!.currentMonthlyIncome, equals(10000.0));
       // The replacement rate should reflect 10k income, not 7800
       expect(report.retirementProjection!.replacementRate, greaterThan(0));
-      expect(report.retirementProjection!.replacementRate, lessThanOrEqualTo(150.0));
+      expect(report.retirementProjection!.replacementRate,
+          lessThanOrEqualTo(150.0));
     });
   });
 
@@ -399,7 +413,8 @@ void main() {
       answers['q_employment_status'] = 'employee';
       final report = service.generateReport(answers);
       expect(report.pillar3aAnalysis, isNotNull);
-      expect(report.pillar3aAnalysis!.maxContribution, equals(pilier3aPlafondAvecLpp));
+      expect(report.pillar3aAnalysis!.maxContribution,
+          equals(pilier3aPlafondAvecLpp));
     });
 
     test('returns higher max contribution for self-employed without LPP', () {
@@ -408,7 +423,8 @@ void main() {
       answers['q_3a_annual_contribution'] = 5000.0;
       answers['q_employment_status'] = 'self_employed';
       final report = service.generateReport(answers);
-      expect(report.pillar3aAnalysis!.maxContribution, equals(pilier3aPlafondSansLpp));
+      expect(report.pillar3aAnalysis!.maxContribution,
+          equals(pilier3aPlafondSansLpp));
     });
 
     test('projections include bank, viac, finpension, insurance', () {
@@ -561,6 +577,22 @@ void main() {
       answers['q_net_income_period_chf'] = 6000;
       final report = service.generateReport(answers);
       expect(report.profile.monthlyNetIncome, equals(6000.0));
+    });
+
+    test('Swiss persisted numeric strings are parsed without fallbacks', () {
+      final answers = minimalAnswers()
+        ..['q_birth_year'] = '1985.0'
+        ..['q_net_income_period_chf'] = "5'379"
+        ..['q_3a_accounts_count'] = '1'
+        ..['q_3a_annual_contribution'] = "7'258";
+
+      final report = service.generateReport(answers);
+
+      expect(report.profile.birthYear, 1985);
+      expect(report.profile.monthlyNetIncome, 5379.0);
+      expect(report.taxSimulation.deductions['3a'], 7258.0);
+      expect(report.pillar3aAnalysis, isNotNull);
+      expect(report.pillar3aAnalysis!.annualContribution, 7258.0);
     });
   });
 

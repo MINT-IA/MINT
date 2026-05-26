@@ -21,6 +21,7 @@ class CircleScoringService {
     'LAVS art. 29 (Durée de cotisation AVS — Cercle 2)',
     'LAMal art. 61 (Primes et franchise — Cercle 1)',
   ];
+
   /// Calcule le score global à partir des réponses du wizard.
   /// [l] — optional localizations; when null (e.g. in tests) French fallbacks are used.
   FinancialHealthScore calculateScore(Map<String, dynamic> answers, {S? l}) {
@@ -79,21 +80,25 @@ class CircleScoringService {
     items.add(ScoreItem(
       label: l?.circleLabelDettes ?? 'Dettes',
       status: debtStatus,
-      detail: hasDebt ? 'Crédits en cours' : 'Aucune dette', // Internal detail — not extracted
+      detail: hasDebt
+          ? 'Crédits en cours'
+          : 'Aucune dette', // Internal detail — not extracted
       weight: 1.5,
     ));
     totalWeight += 1.5;
     totalScore += debtStatus.scoreValue * 1.5;
 
     // 3. Revenu stable
-    final income = answers['q_net_income_period_chf'] as num?;
+    final income = _parseDouble(answers['q_net_income_period_chf']);
     final incomeStatus = (income != null && income > 0)
         ? ItemStatus.perfect
         : ItemStatus.unknown;
     items.add(ScoreItem(
       label: l?.circleLabelRevenu ?? 'Revenu',
       status: incomeStatus,
-      detail: income != null ? '${formatChfWithPrefix(income.toDouble())}/mois' : null, // Formatted number — not extracted
+      detail: income != null
+          ? '${formatChfWithPrefix(income)}/mois'
+          : null, // Formatted number — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
@@ -153,7 +158,9 @@ class CircleScoringService {
     // 2. 3a - Versement maximum
     final contribution3a = _parseDouble(answers['q_3a_annual_contribution']);
     final isSalaried = answers['q_employment_status'] == 'employee';
-    final maxContribution = isSalaried ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
+    final maxContribution = isSalaried
+        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
+        : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
     ItemStatus contributionStatus;
     if (contribution3a != null && contribution3a >= maxContribution * 0.9) {
@@ -203,7 +210,8 @@ class CircleScoringService {
     // CHAOS-78: Never default to 1990 — unknown birthYear = null, skip AVS gap calc.
     final birthYear = _parseInt(answers['q_birth_year']);
     final civilStatus = answers['q_civil_status'];
-    final avsGapYears = birthYear != null ? _calculateAvsGaps(answers, birthYear) : null;
+    final avsGapYears =
+        birthYear != null ? _calculateAvsGaps(answers, birthYear) : null;
 
     // Fallback vers les réponses legacy (q_first_employment_year, q_avs_gaps)
     final legacyFirstEmployment = _parseInt(answers['q_first_employment_year']);
@@ -223,15 +231,18 @@ class CircleScoringService {
         avsDetail = 'Cotisation complète ($contributionYears ans)';
       } else if (gap <= 2) {
         avsStatus = ItemStatus.good;
-        avsDetail = 'Lacune mineure ($gap ans — rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
+        avsDetail =
+            'Lacune mineure ($gap ans — rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
       } else {
         avsStatus = ItemStatus.warning;
-        avsDetail = 'Lacune de $gap ans (rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
+        avsDetail =
+            'Lacune de $gap ans (rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
       }
     } else if (legacyFirstEmployment != null) {
       // Fallback legacy : q_first_employment_year
       final startYear = birthYear != null
-          ? [legacyFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b)
+          ? [legacyFirstEmployment, birthYear + 21]
+              .reduce((a, b) => a > b ? a : b)
           : legacyFirstEmployment;
       final years = (DateTime.now().year - startYear).clamp(0, 44);
       final gap = 44 - years;
@@ -243,7 +254,8 @@ class CircleScoringService {
         avsDetail = 'Lacune mineure ($gap ans)';
       } else {
         avsStatus = ItemStatus.warning;
-        avsDetail = 'Lacune de $gap ans (rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
+        avsDetail =
+            'Lacune de $gap ans (rente -${AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1)}%)';
       }
     } else if (legacyAvsYears != null) {
       final gap = 44 - legacyAvsYears;
@@ -259,7 +271,8 @@ class CircleScoringService {
       avsDetail = 'Aucune lacune déclarée';
     } else if (legacyHasGaps == 'yes' || legacyHasGaps == 'maybe') {
       avsStatus = ItemStatus.warning;
-      avsDetail = legacyHasGaps == 'yes' ? 'Lacunes confirmées' : 'Lacunes possibles';
+      avsDetail =
+          legacyHasGaps == 'yes' ? 'Lacunes confirmées' : 'Lacunes possibles';
     } else if (answers['q_avs_lacunes_status'] == 'unknown') {
       avsStatus = ItemStatus.warning;
       avsDetail = 'Lacunes possibles — commande ton extrait CI';
@@ -270,18 +283,23 @@ class CircleScoringService {
 
     // Conjoint — même logique experte
     if (civilStatus == 'married') {
-      final spouseGapYears = birthYear != null ? _calculateSpouseAvsGaps(answers, birthYear) : null;
+      final spouseGapYears = birthYear != null
+          ? _calculateSpouseAvsGaps(answers, birthYear)
+          : null;
 
       // Fallback legacy conjoint
-      final legacySpouseFirstEmployment = _parseInt(answers['q_spouse_first_employment_year']);
-      final legacySpouseAvsYears = _parseInt(answers['q_spouse_avs_contribution_years']);
+      final legacySpouseFirstEmployment =
+          _parseInt(answers['q_spouse_first_employment_year']);
+      final legacySpouseAvsYears =
+          _parseInt(answers['q_spouse_avs_contribution_years']);
 
       int? spouseGap;
       if (spouseGapYears != null) {
         spouseGap = spouseGapYears;
       } else if (legacySpouseFirstEmployment != null) {
         final spouseStart = birthYear != null
-            ? [legacySpouseFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b)
+            ? [legacySpouseFirstEmployment, birthYear + 21]
+                .reduce((a, b) => a > b ? a : b)
             : legacySpouseFirstEmployment;
         final years = (DateTime.now().year - spouseStart).clamp(0, 44);
         spouseGap = 44 - years;
@@ -330,7 +348,9 @@ class CircleScoringService {
     items.add(ScoreItem(
       label: l?.circleLabelInvestissements ?? 'Investissements',
       status: investStatus,
-      detail: hasInvestments ? 'Actif' : 'Non diversifié', // Internal detail — not extracted
+      detail: hasInvestments
+          ? 'Actif'
+          : 'Non diversifié', // Internal detail — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
@@ -342,7 +362,9 @@ class CircleScoringService {
     items.add(ScoreItem(
       label: l?.circleLabelPatrimoineImmobilier ?? 'Patrimoine immobilier',
       status: ownerStatus,
-      detail: isOwner ? 'Propriétaire' : 'Locataire', // Internal detail — not extracted
+      detail: isOwner
+          ? 'Propriétaire'
+          : 'Locataire', // Internal detail — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
@@ -369,7 +391,9 @@ class CircleScoringService {
       percentage: 20,
       level: ScoreLevel.needsImprovement,
       items: const [],
-      recommendations: const ['Cercles 1-3 à compléter en priorité'], // Internal — not extracted
+      recommendations: const [
+        'Cercles 1-3 à compléter en priorité'
+      ], // Internal — not extracted
     );
   }
 
@@ -436,7 +460,8 @@ class CircleScoringService {
     }
     // CHAOS-78: Never default to 1990 — skip AVS gap calc if birth year unknown.
     final birthYear = _parseInt(answers['q_birth_year']);
-    final gapYears = birthYear != null ? _calculateAvsGaps(answers, birthYear) : null;
+    final gapYears =
+        birthYear != null ? _calculateAvsGaps(answers, birthYear) : null;
     if (gapYears != null && gapYears > 0) {
       reco.add(
           'Tu peux racheter les 5 dernières années de lacune AVS auprès de ta caisse cantonale (LAVS art. 16)');
@@ -475,7 +500,10 @@ class CircleScoringService {
     if (value == null) return null;
     if (value is double) return value;
     if (value is int) return value.toDouble();
-    if (value is String) return double.tryParse(value);
+    if (value is String) {
+      return double.tryParse(
+          value.trim().replaceAll("'", '').replaceAll(',', '.'));
+    }
     return null;
   }
 

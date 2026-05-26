@@ -26,6 +26,8 @@ import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/domain/budget/budget_service.dart';
 // ProfileProvider removed — hasDebt now derived from wizardAnswers directly
 
 /// Ecran d'affichage du rapport financier exhaustif V2
@@ -60,8 +62,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         backgroundColor: MintColors.surface,
         appBar: AppBar(
           title: Text(S.of(context)!.reportTonPlanMint,
-              style: MintTextStyles.titleMedium(
-                  color: MintColors.textPrimary)),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
           backgroundColor: MintColors.white,
           foregroundColor: MintColors.textPrimary,
           elevation: 0,
@@ -89,7 +90,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
     return Scaffold(
       backgroundColor: MintColors.surface,
       appBar: AppBar(
-        title: Text(S.of(context)!.reportTonPlanMint, style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
+        title: Text(S.of(context)!.reportTonPlanMint,
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
         backgroundColor: MintColors.white,
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
@@ -106,128 +108,150 @@ class FinancialReportScreenV2 extends StatelessWidget {
           ),
         ],
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header personnalisé (greeting + status summary)
-            MintEntrance(child: _buildHeader(context, report.profile, report.healthScore)),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header personnalisé (greeting + status summary)
+                    MintEntrance(
+                        child: _buildHeader(
+                            context, report.profile, report.healthScore)),
 
-            const SizedBox(height: MintSpacing.lg),
+                    const SizedBox(height: MintSpacing.lg),
 
-            // Wave E-PRIME (2026-04-18): Debt alert block removed.
-            // The screen is already wrapped by SafeModeGate at the caller
-            // level (widgets/common/safe_mode_gate.dart, imported L20), which
-            // handles toxic-debt state globally. The redundant inline alert
-            // relied on MintAlertObject (widgets/alert/, deleted in Phase 2c
-            // cascade with AnticipationProvider Panel A P0-3).
+                    // Wave E-PRIME (2026-04-18): Debt alert block removed.
+                    // The screen is already wrapped by SafeModeGate at the caller
+                    // level (widgets/common/safe_mode_gate.dart, imported L20), which
+                    // handles toxic-debt state globally. The redundant inline alert
+                    // relied on MintAlertObject (widgets/alert/, deleted in Phase 2c
+                    // cascade with AnticipationProvider Panel A P0-3).
 
-            // ── Budget thematic card ──
-            MintEntrance(delay: const Duration(milliseconds: 100), child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-              child: _buildBudgetSection(context, wizardAnswers),
-            )),
+                    // ── Budget thematic card ──
+                    MintEntrance(
+                        delay: const Duration(milliseconds: 100),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: MintSpacing.md),
+                          child: _buildBudgetSection(context, wizardAnswers),
+                        )),
 
-            // ── Protection thematic card ──
-            MintEntrance(delay: const Duration(milliseconds: 200), child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-              child: _buildProtectionSection(
-                  context, wizardAnswers, report.healthScore),
-            )),
+                    // ── Protection thematic card ──
+                    MintEntrance(
+                        delay: const Duration(milliseconds: 200),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: MintSpacing.md),
+                          child: _buildProtectionSection(
+                              context, wizardAnswers, report.healthScore),
+                        )),
 
-            // ── Retirement thematic card ──
-            if (report.retirementProjection != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-                child: _buildRetirementThematicSection(
-                    context, report, wizardAnswers),
-              ),
+                    // ── Retirement thematic card ──
+                    if (report.retirementProjection != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.md),
+                        child: _buildRetirementThematicSection(
+                            context, report, wizardAnswers),
+                      ),
 
-            // ── Tax thematic card ──
-            MintEntrance(delay: const Duration(milliseconds: 300), child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-              child: _buildTaxThematicSection(context, report),
-            )),
+                    // ── Tax thematic card ──
+                    MintEntrance(
+                        delay: const Duration(milliseconds: 300),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: MintSpacing.md),
+                          child: _buildTaxThematicSection(context, report),
+                        )),
 
-            const SizedBox(height: MintSpacing.lg),
+                    const SizedBox(height: MintSpacing.lg),
 
-            // ── Top 3 Priorities ──
-            MintEntrance(delay: const Duration(milliseconds: 400), child: SafeModeGate(
-              hasDebt: hasDebt,
-              lockedTitle: S.of(context)!.reportSafeModePriority,
-              lockedMessage: S.of(context)!.reportSafeModeActions,
-              reasons: safeModeReasons,
-              child: _buildTopPriorities(context, report.priorityActions),
-            )),
+                    // ── Top 3 Priorities ──
+                    MintEntrance(
+                        delay: const Duration(milliseconds: 400),
+                        child: SafeModeGate(
+                          hasDebt: hasDebt,
+                          lockedTitle: S.of(context)!.reportSafeModePriority,
+                          lockedMessage: S.of(context)!.reportSafeModeActions,
+                          reasons: safeModeReasons,
+                          child: _buildTopPriorities(
+                              context, report.priorityActions),
+                        )),
 
-            const SizedBox(height: MintSpacing.lg),
+                    const SizedBox(height: MintSpacing.lg),
 
-            // ── Comparateur 3a (si applicable) ──
-            if (report.pillar3aAnalysis != null) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-                child: Text(
-                  S.of(context)!.reportOptimise3a,
-                  style: MintTextStyles.headlineMedium(),
+                    // ── Comparateur 3a (si applicable) ──
+                    if (report.pillar3aAnalysis != null) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.md),
+                        child: Text(
+                          S.of(context)!.reportOptimise3a,
+                          style: MintTextStyles.headlineMedium(),
+                        ),
+                      ),
+                      const SizedBox(height: MintSpacing.md),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.md),
+                        child: SafeModeGate(
+                          hasDebt: hasDebt,
+                          lockedTitle: S.of(context)!.reportSafeModePriority,
+                          lockedMessage: S.of(context)!.reportSafeMode3a,
+                          reasons: safeModeReasons,
+                          child: Pillar3aComparatorWidget(
+                            monthlyIncome: report.profile.monthlyNetIncome,
+                            yearsUntilRetirement:
+                                report.profile.yearsToRetirement,
+                            hasPensionFund: report.profile.isSalaried,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: MintSpacing.lg),
+                    ],
+
+                    // ── Strat\u00e9gie rachat LPP ──
+                    if (report.lppBuybackStrategy != null)
+                      SafeModeGate(
+                        hasDebt: hasDebt,
+                        lockedTitle: S.of(context)!.reportSafeModeLpp,
+                        lockedMessage: S.of(context)!.reportSafeModeLppMessage,
+                        reasons: safeModeReasons,
+                        child: _buildLppBuybackSection(context,
+                            report.lppBuybackStrategy!, report.profile),
+                      ),
+
+                    const SizedBox(height: MintSpacing.lg),
+
+                    // ── Life event suggestions based on profile ──
+                    LifeEventSuggestionsSection(
+                      suggestions: buildLifeEventSuggestions(
+                        age: report.profile.age,
+                        civilStatus: report.profile.civilStatus,
+                        childrenCount: report.profile.childrenCount,
+                        employmentStatus: report.profile.employmentStatus,
+                        monthlyNetIncome: report.profile.monthlyNetIncome,
+                        canton: report.profile.canton,
+                        s: S.of(context)!,
+                      ),
+                    ),
+
+                    const SizedBox(height: MintSpacing.xl),
+
+                    // ── SoA Compliance Section ──
+                    _buildSoaComplianceSection(context, report),
+
+                    const SizedBox(height: MintSpacing.lg),
+
+                    // ── Disclaimer Footer ──
+                    _buildDisclaimerFooter(context),
+
+                    const SizedBox(height: MintSpacing.xxl),
+                  ],
                 ),
-              ),
-              const SizedBox(height: MintSpacing.md),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-                child: SafeModeGate(
-                  hasDebt: hasDebt,
-                  lockedTitle: S.of(context)!.reportSafeModePriority,
-                  lockedMessage: S.of(context)!.reportSafeMode3a,
-                  reasons: safeModeReasons,
-                  child: Pillar3aComparatorWidget(
-                    monthlyIncome: report.profile.monthlyNetIncome,
-                    yearsUntilRetirement: report.profile.yearsToRetirement,
-                    hasPensionFund: report.profile.isSalaried,
-                  ),
-                ),
-              ),
-              const SizedBox(height: MintSpacing.lg),
-            ],
-
-            // ── Strat\u00e9gie rachat LPP ──
-            if (report.lppBuybackStrategy != null)
-              SafeModeGate(
-                hasDebt: hasDebt,
-                lockedTitle: S.of(context)!.reportSafeModeLpp,
-                lockedMessage: S.of(context)!.reportSafeModeLppMessage,
-                reasons: safeModeReasons,
-                child: _buildLppBuybackSection(context, report.lppBuybackStrategy!, report.profile),
-              ),
-
-            const SizedBox(height: MintSpacing.lg),
-
-            // ── Life event suggestions based on profile ──
-            LifeEventSuggestionsSection(
-              suggestions: buildLifeEventSuggestions(
-                age: report.profile.age,
-                civilStatus: report.profile.civilStatus,
-                childrenCount: report.profile.childrenCount,
-                employmentStatus: report.profile.employmentStatus,
-                monthlyNetIncome: report.profile.monthlyNetIncome,
-                canton: report.profile.canton,
-                s: S.of(context)!,
-              ),
-            ),
-
-            const SizedBox(height: MintSpacing.xl),
-
-            // ── SoA Compliance Section ──
-            _buildSoaComplianceSection(context, report),
-
-            const SizedBox(height: MintSpacing.lg),
-
-            // ── Disclaimer Footer ──
-            _buildDisclaimerFooter(context),
-
-            const SizedBox(height: MintSpacing.xxl),
-          ],
-        ),
-      ))),
+              ))),
     );
   }
 
@@ -235,7 +259,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  HEADER — Greeting + contextual status (replaces numeric score)
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildHeader(BuildContext context, UserProfile profile, FinancialHealthScore healthScore) {
+  Widget _buildHeader(BuildContext context, UserProfile profile,
+      FinancialHealthScore healthScore) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(MintSpacing.lg),
@@ -260,7 +285,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              S.of(context)!.reportProfileSummary(profile.age, profile.canton, profile.civilStatus),
+              S.of(context)!.reportProfileSummary(
+                  profile.age, profile.canton, profile.civilStatus),
               style: MintTextStyles.bodyMedium(color: MintColors.white70),
             ),
             const SizedBox(height: 20),
@@ -272,7 +298,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusSummary(BuildContext context, FinancialHealthScore healthScore) {
+  Widget _buildStatusSummary(
+      BuildContext context, FinancialHealthScore healthScore) {
     final level = healthScore.overallScore;
     String message;
     String emoji;
@@ -290,7 +317,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
       label: message,
       child: Text(
         '$emoji $message',
-        style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
+        style: MintTextStyles.bodyLarge(color: MintColors.white)
+            .copyWith(fontWeight: FontWeight.w600),
         textAlign: TextAlign.center,
       ),
     );
@@ -302,36 +330,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   Widget _buildBudgetSection(
       BuildContext context, Map<String, dynamic> answers) {
-    final income = WizardService.getMonthlyIncome(answers);
-    final housing =
-        (answers['q_housing_cost_period_chf'] as num?)?.toDouble() ?? 0;
-    final debt =
-        (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
-    final civilStatus = answers['q_civil_status'] as String? ?? 'single';
-    final childrenCount = _parseChildren(answers['q_children']);
-    final canton = answers['q_canton'] as String? ?? 'CH';
-
-    final taxProvision =
-        (answers['q_tax_provision_monthly_chf'] as num?)?.toDouble() ??
-            TaxEstimatorService.estimateMonthlyProvision(
-              TaxEstimatorService.estimateAnnualTax(
-                netMonthlyIncome: income,
-                cantonCode: canton,
-                civilStatus: civilStatus,
-                childrenCount: childrenCount,
-                age: 35,
-                isSourceTaxed: false,
-              ),
-            );
-    final healthInsurance = (answers['q_lamal_premium_monthly_chf'] as num?)
-            ?.toDouble() ??
-        _estimateLamalMonthly(canton, answers['q_household_type'] as String?);
-    final otherFixed =
-        (answers['q_other_fixed_costs_monthly_chf'] as num?)?.toDouble() ?? 0;
-
-    final available =
-        income - housing - debt - taxProvision - healthInsurance - otherFixed;
-    final ratio = income > 0 ? available / income : 0.0;
+    final inputs = BudgetInputs.fromMap(answers);
+    final plan = BudgetService().computePlan(inputs);
+    final ratio =
+        inputs.netIncome > 0 ? plan.available / inputs.netIncome : 0.0;
 
     final status = ratio > 0.3
         ? CardStatus.serein
@@ -343,46 +345,25 @@ class FinancialReportScreenV2 extends StatelessWidget {
       emoji: '\ud83d\udcb0', // money bag
       title: S.of(context)!.reportBudgetTitle,
       status: status,
-      keyNumber:
-          formatChfWithPrefix(available.clamp(0, double.infinity).toDouble()),
+      keyNumber: formatChfWithPrefix(plan.available),
       keyNumberLabel: S.of(context)!.reportBudgetKeyLabel,
       actionLabel: S.of(context)!.reportBudgetAction,
       onActionTap: () => context.push('/budget'),
       children: [
         BudgetWaterfall(
-          income: income,
-          housing: housing,
-          debt: debt,
-          taxes: taxProvision,
-          healthInsurance: healthInsurance,
-          otherFixed: otherFixed,
+          income: inputs.netIncome,
+          housing: inputs.housingCost,
+          debt: inputs.debtPayments,
+          taxes: inputs.taxProvision,
+          healthInsurance: inputs.healthInsurance,
+          otherFixed: inputs.otherFixedCosts,
         ),
       ],
     );
   }
 
-  int _parseChildren(dynamic raw) {
-    if (raw == null) return 0;
-    final text = raw.toString().replaceAll('+', '');
-    return int.tryParse(text) ?? 0;
-  }
-
-  double _estimateLamalMonthly(String cantonCode, String? householdType) {
-    const highCantons = {'GE', 'VD', 'BS', 'NE'};
-    const lowCantons = {'ZG', 'AI', 'UR', 'OW', 'NW'};
-    final adults =
-        householdType == 'couple' || householdType == 'family' ? 2 : 1;
-
-    final baseAdult = highCantons.contains(cantonCode)
-        ? 520.0
-        : lowCantons.contains(cantonCode)
-            ? 350.0
-            : 430.0;
-
-    return baseAdult * adults;
-  }
-
-  List<String> _buildSafeModeReasons(BuildContext context, Map<String, dynamic> answers) {
+  List<String> _buildSafeModeReasons(
+      BuildContext context, Map<String, dynamic> answers) {
     final reasons = <String>[];
 
     if (answers['q_has_consumer_credit'] == 'yes' ||
@@ -393,8 +374,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       reasons.add(S.of(context)!.reportReasonLeasing);
     }
 
-    final debtPayment =
-        (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
+    final debtPayment = BudgetInputs.fromMap(answers).debtPayments;
     if (debtPayment > 0) {
       reasons.add(S.of(context)!.reportReasonPayments(formatChf(debtPayment)));
     }
@@ -461,7 +441,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             : CardStatus.alerte;
 
     // Calculate contribution years from new AVS gap questions or legacy fallback
-    final birthYear = (answers['q_birth_year'] as num?)?.toInt();
+    final birthYear = _parseIntAnswer(answers['q_birth_year']);
     int? contributionYears;
     if (birthYear != null) {
       final theoretical = (DateTime.now().year - (birthYear + 21)).clamp(0, 44);
@@ -469,20 +449,19 @@ class FinancialReportScreenV2 extends StatelessWidget {
       if (avsStatus == 'no_gaps') {
         contributionYears = theoretical;
       } else if (avsStatus == 'arrived_late') {
-        final arrivalYear = (answers['q_avs_arrival_year'] as num?)?.toInt();
+        final arrivalYear = _parseIntAnswer(answers['q_avs_arrival_year']);
         if (arrivalYear != null) {
           final gaps = (arrivalYear - (birthYear + 21)).clamp(0, 44);
           contributionYears = (theoretical - gaps).clamp(0, 44);
         }
       } else if (avsStatus == 'lived_abroad') {
-        final yearsAbroad =
-            (answers['q_avs_years_abroad'] as num?)?.toInt() ?? 0;
+        final yearsAbroad = _parseIntAnswer(answers['q_avs_years_abroad']) ?? 0;
         contributionYears = (theoretical - yearsAbroad).clamp(0, 44);
       }
       // Fallback legacy: q_first_employment_year
       if (contributionYears == null) {
         final firstEmploymentYear =
-            (answers['q_first_employment_year'] as num?)?.toInt();
+            _parseIntAnswer(answers['q_first_employment_year']);
         if (firstEmploymentYear != null) {
           final startYear = [firstEmploymentYear, birthYear + 21]
               .reduce((a, b) => a > b ? a : b);
@@ -510,9 +489,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
     String? lppText;
     if (lppBuyback != null) {
       lppText = S.of(context)!.reportRetirementLppText(
-        formatChf(lppBuyback.totalBuybackAvailable),
-        formatChf(lppBuyback.totalTaxSavings),
-      );
+            formatChf(lppBuyback.totalBuybackAvailable),
+            formatChf(lppBuyback.totalTaxSavings),
+          );
     }
 
     return ThematicCard(
@@ -561,12 +540,15 @@ class FinancialReportScreenV2 extends StatelessWidget {
       title: S.of(context)!.reportTaxTitle,
       status: status,
       keyNumber: '${formatChfWithPrefix(tax.totalTax)}/an',
-      keyNumberLabel: S.of(context)!.reportTaxKeyLabel((tax.effectiveRate * 100).toStringAsFixed(1)),
+      keyNumberLabel: S
+          .of(context)!
+          .reportTaxKeyLabel((tax.effectiveRate * 100).toStringAsFixed(1)),
       actionLabel: S.of(context)!.reportTaxAction,
       onActionTap: () => context.push('/fiscal'),
       source: S.of(context)!.reportTaxSource,
       children: [
-        _taxRow(S.of(context)!.reportTaxIncome, formatChfWithPrefix(tax.taxableIncome)),
+        _taxRow(S.of(context)!.reportTaxIncome,
+            formatChfWithPrefix(tax.taxableIncome)),
         if (tax.totalDeductions > 0) ...[
           const SizedBox(height: 4),
           _taxRow(S.of(context)!.reportTaxDeductions,
@@ -581,7 +563,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
           const SizedBox(height: 8),
           _buildInfoChip(
             Icons.lightbulb_outline,
-            S.of(context)!.reportTaxSavings(formatChf(tax.taxSavingsFromBuyback!)),
+            S
+                .of(context)!
+                .reportTaxSavings(formatChf(tax.taxSavingsFromBuyback!)),
             MintColors.success,
           ),
         ],
@@ -757,15 +741,17 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  LPP BUYBACK SECTION (kept from original)
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildLppBuybackSection(BuildContext context, LppBuybackStrategy strategy, UserProfile profile) {
+  Widget _buildLppBuybackSection(
+      BuildContext context, LppBuybackStrategy strategy, UserProfile profile) {
     // Taux marginal estimé selon canton + revenu (LIFD + ICC)
-    final double marginalRate = profile.canton.isNotEmpty && profile.canton != 'CH'
-        ? TaxEstimatorService.estimateMarginalTaxRate(
-            netMonthlyIncome: profile.monthlyNetIncome,
-            cantonCode: profile.canton,
-            civilStatus: profile.civilStatus,
-          ).clamp(0.10, 0.50)
-        : 0.30; // Fallback conservateur si canton inconnu
+    final double marginalRate =
+        profile.canton.isNotEmpty && profile.canton != 'CH'
+            ? TaxEstimatorService.estimateMarginalTaxRate(
+                netMonthlyIncome: profile.monthlyNetIncome,
+                cantonCode: profile.canton,
+                civilStatus: profile.civilStatus,
+              ).clamp(0.10, 0.50)
+            : 0.30; // Fallback conservateur si canton inconnu
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
       child: Container(
@@ -786,7 +772,9 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              S.of(context)!.reportLppEconomie(formatChf(strategy.totalTaxSavings)),
+              S
+                  .of(context)!
+                  .reportLppEconomie(formatChf(strategy.totalTaxSavings)),
               style: MintTextStyles.bodyMedium(color: MintColors.greenDark)
                   .copyWith(fontWeight: FontWeight.bold),
             ),
@@ -802,11 +790,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         children: [
                           Text(
                             S.of(context)!.reportLppYear(buyback.year),
-                            style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                            style: MintTextStyles.bodySmall(
+                                    color: MintColors.textPrimary)
                                 .copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            S.of(context)!.reportLppBuyback(formatChf(buyback.amount)),
+                            S
+                                .of(context)!
+                                .reportLppBuyback(formatChf(buyback.amount)),
                             style: MintTextStyles.labelSmall(),
                           ),
                         ],
@@ -819,8 +810,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          S.of(context)!.reportLppSaving(formatChf(buyback.estimatedTaxSavings)),
-                          style: MintTextStyles.labelSmall(color: MintColors.greenDark)
+                          S.of(context)!.reportLppSaving(
+                              formatChf(buyback.estimatedTaxSavings)),
+                          style: MintTextStyles.labelSmall(
+                                  color: MintColors.greenDark)
                               .copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -848,7 +841,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  SOA COMPLIANCE SECTION — Transparence reglementaire
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildSoaComplianceSection(BuildContext context, FinancialReport report) {
+  Widget _buildSoaComplianceSection(
+      BuildContext context, FinancialReport report) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
       child: Container(
@@ -863,9 +857,11 @@ class FinancialReportScreenV2 extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.verified_outlined, size: 20, color: MintColors.info),
+                const Icon(Icons.verified_outlined,
+                    size: 20, color: MintColors.info),
                 const SizedBox(width: 8),
-                Flexible(child: Text(
+                Flexible(
+                    child: Text(
                   S.of(context)!.reportSoaTitle,
                   style: MintTextStyles.headlineMedium(),
                   overflow: TextOverflow.ellipsis,
@@ -878,7 +874,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
             _buildSoaRow(
               S.of(context)!.reportSoaNature,
               report.personalizedRoadmap.phases.isNotEmpty
-                  ? S.of(context)!.reportSoaEduPhases(report.personalizedRoadmap.phases.length)
+                  ? S.of(context)!.reportSoaEduPhases(
+                      report.personalizedRoadmap.phases.length)
                   : S.of(context)!.reportSoaEduSimple,
             ),
             const SizedBox(height: 12),
@@ -986,7 +983,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
                   Expanded(
                     child: Text(
                       item,
-                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                      style: MintTextStyles.labelSmall(
+                          color: MintColors.textSecondary),
                     ),
                   ),
                 ],
@@ -1019,7 +1017,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   S.of(context)!.reportMentionLegale,
-                  style: MintTextStyles.labelSmall().copyWith(fontWeight: FontWeight.w600),
+                  style: MintTextStyles.labelSmall()
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -1032,5 +1031,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  int? _parseIntAnswer(dynamic raw) {
+    if (raw is int) return raw;
+    if (raw is num) return raw.toInt();
+    if (raw is String) return int.tryParse(raw.trim());
+    return null;
   }
 }
