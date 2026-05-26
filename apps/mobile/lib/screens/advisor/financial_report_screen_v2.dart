@@ -28,7 +28,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
-// ProfileProvider removed — hasDebt now derived from wizardAnswers directly
+// ProfileProvider removed — Safe Mode now derived from wizardAnswers directly
 
 /// Ecran d'affichage du rapport financier exhaustif V2
 /// Refonte : cartes thématiques (Budget, Protection, Retraite, Impôts)
@@ -84,7 +84,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     }
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
-    final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
+    final safeModeActive = WizardService.isSafeModeActive(wizardAnswers);
     final safeModeReasons = _buildSafeModeReasons(context, wizardAnswers);
 
     return Scaffold(
@@ -172,7 +172,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     MintEntrance(
                         delay: const Duration(milliseconds: 400),
                         child: SafeModeGate(
-                          hasDebt: hasDebt,
+                          hasDebt: safeModeActive,
                           lockedTitle: S.of(context)!.reportSafeModePriority,
                           lockedMessage: S.of(context)!.reportSafeModeActions,
                           reasons: safeModeReasons,
@@ -197,7 +197,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: MintSpacing.md),
                         child: SafeModeGate(
-                          hasDebt: hasDebt,
+                          hasDebt: safeModeActive,
                           lockedTitle: S.of(context)!.reportSafeModePriority,
                           lockedMessage: S.of(context)!.reportSafeMode3a,
                           reasons: safeModeReasons,
@@ -215,7 +215,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     // ── Strat\u00e9gie rachat LPP ──
                     if (report.lppBuybackStrategy != null)
                       SafeModeGate(
-                        hasDebt: hasDebt,
+                        hasDebt: safeModeActive,
                         lockedTitle: S.of(context)!.reportSafeModeLpp,
                         lockedMessage: S.of(context)!.reportSafeModeLppMessage,
                         reasons: safeModeReasons,

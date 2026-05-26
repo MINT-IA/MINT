@@ -18,9 +18,9 @@ class ReportBuilder {
     final budgetPlan = budgetService.computePlan(budgetInputs);
 
     final hasDebt = (answers['q_has_consumer_credit'] == 'yes') ||
+        (answers['q_has_consumer_debt'] == 'yes') ||
         (answers['q_has_leasing'] == 'yes') ||
-        budgetInputs.debtPayments > 0 ||
-        WizardService.isSafeModeActive(answers);
+        budgetInputs.debtPayments > 0;
 
     final isSafeModeActive = WizardService.isSafeModeActive(answers);
 
@@ -206,7 +206,11 @@ class ReportBuilder {
       ScoreboardItem(
         label: "Score Protection",
         value: isSafeModeActive ? "Faible" : "Bon",
-        note: hasDebt ? "Dettes actives" : "Serein",
+        note: hasDebt
+            ? "Dettes actives"
+            : isSafeModeActive
+                ? "Réserve à renforcer"
+                : "Serein",
       ),
     ];
 
