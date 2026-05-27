@@ -150,6 +150,14 @@ pytest -q              # Tests
 pytest -q -x           # Stop at first failure
 ```
 
+## Staging Promotion Authority
+
+When Julien asks to promote a verified integration branch, backend agents may
+help push to `staging` under CLAUDE.md §4.1: clean worktree, fetch + divergence
+check, cited source verification, normal merge or fast-forward only, then plain
+`git push origin staging`. Never force-push or rewrite `staging`, `dev`, or
+`main`; if branch protection rejects direct push, open a PR into `staging`.
+
 <!-- mint-data-architecture-v1-01-canonical:start -->
 ## Calc-engine ownership — L2-L4 backend-canonical (D-01..D-04, D-11)
 

@@ -156,3 +156,12 @@ Phase 30.6 (cette phase) exposera via MCP tool `get_swiss_constants(category)`.
 - `tools/openapi/mint.openapi.canonical.json` — API contract canonique.
 - Subagents `backend-architect` / `fastapi-pro` / `python-pro` — délégation auto par description matching pour chantiers/patterns concrets.
 - `LEGAL_RELEASE_CHECK.md` — pre-release compliance gate.
+
+## 14. Staging promotion authority
+
+Backend agents may participate in a `staging` promotion when Julien asks or
+when a verified integration branch is being advanced. Follow CLAUDE.md §4.1:
+clean worktree, fetch + divergence check, cited source verification, normal
+merge or fast-forward only, then plain `git push origin staging`. Never
+force-push or rewrite `staging`, `dev`, or `main`; if branch protection rejects
+direct push, open a PR into `staging`.
