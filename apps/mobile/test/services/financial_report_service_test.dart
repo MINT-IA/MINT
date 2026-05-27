@@ -227,6 +227,34 @@ void main() {
         }
       }
     });
+
+    test('lpp report copy says tax impact, not tax saving', () {
+      const anchors = {
+        'fr': 'impact fiscal estimé',
+        'en': 'estimated tax impact',
+        'de': 'steuerwirkung',
+        'es': 'impacto fiscal estimado',
+        'it': 'impatto fiscale stimato',
+        'pt': 'impacto fiscal estimado',
+      };
+      const bannedFragments = [
+        'économie fiscale',
+        'tax saving',
+        'steuerersparnis',
+        'ahorro fiscal',
+        'risparmio fiscale',
+        'poupança fiscal',
+      ];
+
+      for (final locale in anchors.keys) {
+        final value =
+            (arb(locale)['reportRetirementLppText'] as String).toLowerCase();
+        expect(value, contains(anchors[locale]), reason: locale);
+        for (final fragment in bannedFragments) {
+          expect(value, isNot(contains(fragment)), reason: locale);
+        }
+      }
+    });
   });
 
   // ── Helper: minimal answers for a valid report ──────────────────────

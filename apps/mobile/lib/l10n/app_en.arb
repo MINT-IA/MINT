@@ -5628,7 +5628,7 @@
       }
     }
   },
-  "reportRetirementLppText": "LPP buyback available: CHF {available} — estimated tax saving: CHF {savings}",
+  "reportRetirementLppText": "LPP buyback available: CHF {available} — estimated tax impact: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
       "available": {

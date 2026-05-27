@@ -11780,7 +11780,7 @@ class SEs extends S {
 
   @override
   String reportRetirementLppText(String available, String savings) {
-    return 'Rescate LPP disponible: CHF $available — ahorro fiscal estimado: CHF $savings';
+    return 'Rescate LPP disponible: CHF $available — impacto fiscal estimado: CHF $savings';
   }
 
   @override

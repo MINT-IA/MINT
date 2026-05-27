@@ -11781,7 +11781,7 @@ class SFr extends S {
 
   @override
   String reportRetirementLppText(String available, String savings) {
-    return 'Rachat LPP disponible : CHF $available — économie fiscale estimée : CHF $savings';
+    return 'Rachat LPP disponible : CHF $available — impact fiscal estimé : CHF $savings';
   }
 
   @override

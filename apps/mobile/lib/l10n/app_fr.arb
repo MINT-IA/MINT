@@ -6005,7 +6005,7 @@
       }
     }
   },
-  "reportRetirementLppText": "Rachat LPP disponible : CHF {available} — économie fiscale estimée : CHF {savings}",
+  "reportRetirementLppText": "Rachat LPP disponible : CHF {available} — impact fiscal estimé : CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
       "available": {

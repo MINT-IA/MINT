@@ -11720,7 +11720,7 @@ class SEn extends S {
 
   @override
   String reportRetirementLppText(String available, String savings) {
-    return 'LPP buyback available: CHF $available — estimated tax saving: CHF $savings';
+    return 'LPP buyback available: CHF $available — estimated tax impact: CHF $savings';
   }
 
   @override

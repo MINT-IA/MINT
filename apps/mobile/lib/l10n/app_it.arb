@@ -5623,7 +5623,7 @@
       }
     }
   },
-  "reportRetirementLppText": "Riscatto LPP disponibile: CHF {available} — risparmio fiscale stimato: CHF {savings}",
+  "reportRetirementLppText": "Riscatto LPP disponibile: CHF {available} — impatto fiscale stimato: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
       "available": {

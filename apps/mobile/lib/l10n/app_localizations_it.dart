@@ -11803,7 +11803,7 @@ class SIt extends S {
 
   @override
   String reportRetirementLppText(String available, String savings) {
-    return 'Riscatto LPP disponibile: CHF $available — risparmio fiscale stimato: CHF $savings';
+    return 'Riscatto LPP disponibile: CHF $available — impatto fiscale stimato: CHF $savings';
   }
 
   @override

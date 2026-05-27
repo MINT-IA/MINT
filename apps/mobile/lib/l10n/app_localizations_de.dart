@@ -11805,7 +11805,7 @@ class SDe extends S {
 
   @override
   String reportRetirementLppText(String available, String savings) {
-    return 'BVG-Einkauf verfügbar: CHF $available — geschätzte Steuerersparnis: CHF $savings';
+    return 'BVG-Einkauf verfügbar: CHF $available — geschätzte Steuerwirkung: CHF $savings';
   }
 
   @override

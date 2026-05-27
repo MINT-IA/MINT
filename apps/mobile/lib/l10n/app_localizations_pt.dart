@@ -11773,7 +11773,7 @@ class SPt extends S {
 
   @override
   String reportRetirementLppText(String available, String savings) {
-    return 'Resgate LPP disponível: CHF $available — poupança fiscal estimada: CHF $savings';
+    return 'Resgate LPP disponível: CHF $available — impacto fiscal estimado: CHF $savings';
   }
 
   @override

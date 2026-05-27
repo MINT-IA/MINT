@@ -5628,7 +5628,7 @@
       }
     }
   },
-  "reportRetirementLppText": "BVG-Einkauf verfügbar: CHF {available} — geschätzte Steuerersparnis: CHF {savings}",
+  "reportRetirementLppText": "BVG-Einkauf verfügbar: CHF {available} — geschätzte Steuerwirkung: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
       "available": {

@@ -20848,7 +20848,7 @@ abstract class S {
   /// No description provided for @reportRetirementLppText.
   ///
   /// In fr, this message translates to:
-  /// **'Rachat LPP disponible : CHF {available} — économie fiscale estimée : CHF {savings}'**
+  /// **'Rachat LPP disponible : CHF {available} — impact fiscal estimé : CHF {savings}'**
   String reportRetirementLppText(String available, String savings);
 
   /// No description provided for @reportTaxTitle.
