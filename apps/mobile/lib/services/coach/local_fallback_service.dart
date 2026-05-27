@@ -89,10 +89,10 @@ class LocalFallbackService {
 
   static const Map<String, String> _templates = {
     '3a': 'Le 3e pilier (pilier 3a) est un outil d\'épargne-retraite '
-        'avec avantage fiscal. En 2025, le plafond annuel est de '
-        '7\u00a0258\u00a0CHF pour les salarié\u00b7e\u00b7s affilié\u00b7e\u00b7s '
-        'à une caisse de pension (LPP). Pour les indépendant\u00b7e\u00b7s '
-        'sans LPP, le plafond est de 20\u00a0% du revenu net, '
+        'qui peut ouvrir une marge déductible. Le plafond OPP3 courant '
+        'est de 7\u00a0258\u00a0CHF/an pour les salarié\u00b7e\u00b7s affilié\u00b7e\u00b7s '
+        'à une caisse de pension (LPP). Pour les indépendant\u00b7e\u00b7s sans '
+        'LPP, le plafond applicable est de 20\u00a0% du revenu net, '
         'max. 36\u00a0288\u00a0CHF/an.\n\n'
         'Un versement 3a est déductible du revenu imposable '
         '(OPP3 art. 7). Tu pourrais explorer le simulateur 3a '
@@ -109,7 +109,6 @@ class LocalFallbackService {
         '(LPP art. 79b). Attention au blocage de 3 ans '
         'si tu retires ensuite en capital.\n\n'
         'Réf.\u00a0: LPP art. 14, 79b\u00a0; OPP2 art. 5.',
-
     'avs': 'L\'AVS (1er pilier) est la base de la prévoyance suisse. '
         'La rente maximale individuelle est de 2\u00a0520\u00a0CHF/mois '
         '(30\u00a0240\u00a0CHF/an). Pour les couples mariés, le plafond '
@@ -119,7 +118,6 @@ class LocalFallbackService {
         'Tu pourrais demander un extrait de compte AVS gratuit '
         'pour vérifier tes lacunes.\n\n'
         'Réf.\u00a0: LAVS art. 21-40, art. 35.',
-
     'impots': 'En Suisse, l\'imposition varie selon le canton et la commune. '
         'Les déductions courantes incluent\u00a0: versements 3a (OPP3 art. 7), '
         'rachats LPP (LPP art. 79b), frais professionnels, '
@@ -130,7 +128,6 @@ class LocalFallbackService {
         'Tu pourrais utiliser le simulateur fiscal dans l\'app '
         'pour estimer ton économie d\'impôt.\n\n'
         'Réf.\u00a0: LIFD art. 33, 38\u00a0; LHID.',
-
     'budget': 'Un budget solide est la base de la santé financière. '
         'La règle 50/30/20 suggère\u00a0: 50\u00a0% pour les besoins '
         'essentiels, 30\u00a0% pour les envies, 20\u00a0% pour l\'épargne.\n\n'
@@ -141,7 +138,6 @@ class LocalFallbackService {
         'Tu pourrais utiliser l\'outil budget dans l\'app '
         'pour analyser tes flux.\n\n'
         'Réf.\u00a0: recommandations Budget-conseil Suisse.',
-
     'immobilier': 'Pour l\'achat immobilier en Suisse, les règles FINMA/ASB '
         'prévoient\u00a0: taux théorique de 5\u00a0%, amortissement 1\u00a0%/an, '
         'frais 1\u00a0%/an. Les charges ne doivent pas dépasser '
@@ -153,7 +149,6 @@ class LocalFallbackService {
         'Tu pourrais utiliser le simulateur hypothécaire '
         'pour évaluer ta capacité d\'emprunt.\n\n'
         'Réf.\u00a0: LPP art. 30c\u00a0; OPP2 art. 5\u00a0; FINMA.',
-
     'retraite': 'La retraite en Suisse repose sur 3 piliers\u00a0: '
         'AVS (1er), LPP (2e) et épargne privée (3e). '
         'L\'âge de référence est de 65 ans.\n\n'
@@ -165,7 +160,6 @@ class LocalFallbackService {
         'rente vs capital. Les hypothèses (rendement, inflation, '
         'espérance de vie) sont déterminantes.\n\n'
         'Réf.\u00a0: LPP art. 37\u00a0; LAVS art. 21.',
-
     'assurances': 'En Suisse, l\'assurance maladie de base (LAMal) '
         'est obligatoire. Les primes varient selon le canton, '
         'le modèle et la franchise choisie (300 à 2\u00a0500\u00a0CHF).\n\n'
@@ -176,7 +170,6 @@ class LocalFallbackService {
         'Tu pourrais comparer les primes sur priminfo.admin.ch '
         'pour ta commune.\n\n'
         'Réf.\u00a0: LAMal art. 3, 65\u00a0; OAMal.',
-
     'succession': 'Le droit successoral suisse (CC art. 457 ss.) '
         'prévoit des réserves héréditaires pour le conjoint '
         'et les descendants. La quotité disponible dépend '
@@ -187,7 +180,6 @@ class LocalFallbackService {
         'Un testament ou un pacte successoral pourrait permettre '
         'd\'organiser la transmission selon tes souhaits.\n\n'
         'Réf.\u00a0: CC art. 457 ss.\u00a0; LPP art. 20a\u00a0; OPP3 art. 2.',
-
     'dette': 'Si tu as des dettes, la priorité est de stabiliser '
         'la situation avant toute optimisation (3a, rachat LPP).\n\n'
         'Les étapes possibles\u00a0:\n'
