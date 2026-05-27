@@ -120,6 +120,20 @@ void main() {
       expect(alert, isNot(contains(formatChfWithPrefix(10000))));
     });
 
+    test('system prompt grounds 3a ceiling from profile archetype', () {
+      final prompt = CoachNarrativeService.buildSystemPromptForTest(
+        profile: _profileWithOpen3aMargin(
+          salaireBrutMensuel: 300000 / 12,
+          employmentStatus: 'independant',
+          avoirLppTotal: null,
+        ),
+      );
+
+      expect(prompt, contains('Plafond 3a applicable au profil'));
+      expect(prompt, contains(formatChfWithPrefix(36288)));
+      expect(prompt, isNot(contains('Plafond 3a salarie : 7')));
+    });
+
     test('fallback tax tip states canton and estimated-rate assumption', () {
       final text = FallbackTemplates.tipNarrative(
         const CoachContext(

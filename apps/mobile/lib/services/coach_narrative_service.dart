@@ -795,6 +795,7 @@ class CoachNarrativeService {
     final annual3aPlanned =
         Pillar3aRoomCalculator.plannedAnnualContribution(profile);
     final remaining3aRoom = Pillar3aRoomCalculator.remainingAnnualRoom(profile);
+    final annual3aCeiling = Pillar3aRoomCalculator.annualCeiling(profile);
     final nombre3a = profile.prevoyance.nombre3a;
     final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
@@ -861,7 +862,9 @@ class CoachNarrativeService {
     buffer.writeln('- Taux conversion LPP min : 6.8% (LPP art. 14)');
     buffer.writeln(
         '- Reduction taux conversion par annee anticipee : ~0.2% (LPP art. 13 al. 2)');
-    buffer.writeln('- Plafond 3a salarie : 7\'258 CHF/an (OPP3 art. 7)');
+    buffer.writeln(
+        '- Plafond 3a applicable au profil : ${formatChfWithPrefix(annual3aCeiling)}/an '
+        '(OPP3 art. 7, selon statut LPP)');
     buffer.writeln('- Seuil LPP : 22\'680 CHF/an (LPP art. 7)');
     buffer.writeln('- Reduction AVS par annee anticipee : 6.8% (LAVS art. 40)');
     buffer.writeln();
@@ -905,6 +908,19 @@ class CoachNarrativeService {
         '11. Utilise UNIQUEMENT les valeurs de reference ci-dessus — ne pas halluciner de montants');
 
     return buffer.toString();
+  }
+
+  @visibleForTesting
+  static String buildSystemPromptForTest({
+    required CoachProfile profile,
+    List<Map<String, dynamic>>? scoreHistory,
+    List<CoachingTip> tips = const [],
+  }) {
+    return _buildSystemPrompt(
+      profile: profile,
+      scoreHistory: scoreHistory,
+      tips: tips,
+    );
   }
 
   /// Build retirement context block for the SLM prompt.
