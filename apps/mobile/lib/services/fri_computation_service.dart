@@ -1,6 +1,7 @@
 import 'dart:math' show max;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -84,8 +85,10 @@ class FriComputationService {
     final liquidAssets = profile.patrimoine.epargneLiquide;
     final monthlyGross = profile.salaireBrutMensuel;
     // Approximate monthly fixed costs from depenses or estimated from gross
-    final monthlyFixedCosts = profile.depenses.totalMensuel > 0
-        ? profile.depenses.totalMensuel
+    final plausibleMonthlyFixedCosts =
+        BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
+    final monthlyFixedCosts = plausibleMonthlyFixedCosts > 0
+        ? plausibleMonthlyFixedCosts
         : monthlyGross * kFriDefaultExpenseRatioGross;
     final totalDebt = profile.dettes.totalDettes;
     final annualIncome = monthlyGross * profile.nombreDeMois;

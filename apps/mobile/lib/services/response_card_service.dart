@@ -1,4 +1,5 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
@@ -938,8 +939,10 @@ class ResponseCardService {
     if (total <= 0) return null;
 
     // Coussin securite: 3-6 mois de charges
-    final chargesMensuelles = profile.depenses.totalMensuel > 0
-        ? profile.depenses.totalMensuel
+    final plausibleChargesMensuelles =
+        BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
+    final chargesMensuelles = plausibleChargesMensuelles > 0
+        ? plausibleChargesMensuelles
         : profile.salaireBrutMensuel * 0.65; // estimation
     final coussinMin = chargesMensuelles * 3;
 
