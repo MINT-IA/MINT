@@ -245,8 +245,8 @@ class FirstJobService {
       montantMensuelSuggere3a: impactFiscal3a.annualCeiling / 12,
       impactFiscal3a: impactFiscal3a,
       economieFiscaleEstimee3a: impactFiscal3a.estimatedTaxSaving,
-      alerte3a: 'Évite les 3a liés à une assurance-vie\u00a0! '
-          'Privilégie un 3a fintech avec frais < 0,5\u00a0%.',
+      alerte3a: 'Compare les types de 3a\u00a0: banque, titres, assurance-vie. '
+          'Vérifie les frais, les primes et les conditions de sortie avant de signer.',
       franchiseOptions: franchiseData.$1,
       franchiseRecommandee: franchiseData.$2,
       economieAnnuelleVs300: franchiseData.$3,
@@ -293,7 +293,7 @@ class FirstJobService {
   /// Build the first job checklist.
   static List<String> _buildChecklist() {
     return const [
-      'Ouvrir un compte 3a fintech (pas une assurance-vie !)',
+      'Comparer les types de 3a avant de signer (banque, titres, assurance-vie)',
       'Choisir ta franchise LAMal sur priminfo.admin.ch',
       'Souscrire une RC privee (~CHF 5/mois)',
       'Verifier ton certificat de prévoyance LPP',
