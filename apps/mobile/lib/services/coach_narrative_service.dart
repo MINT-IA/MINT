@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/coach_context_builder.dart';
 import 'package:mint_mobile/services/coach/coach_context_profile_mapper.dart';
@@ -206,7 +207,7 @@ class CoachNarrativeService {
     const double friDelta = 0;
 
     // Months of liquidity
-    final depenses = profile.totalDepensesMensuelles;
+    final depenses = _plausibleMonthlyExpenses(profile);
     final liquide = profile.patrimoine.epargneLiquide;
     final monthsLiquidity = depenses > 0 ? liquide / depenses : 0.0;
 
@@ -802,7 +803,7 @@ class CoachNarrativeService {
 
     // Patrimoine
     final patrimoine = profile.patrimoine.totalPatrimoine;
-    final depensesMensuelles = profile.totalDepensesMensuelles;
+    final depensesMensuelles = _plausibleMonthlyExpenses(profile);
     final epargneLiquide = profile.patrimoine.epargneLiquide;
     final moisCouverts =
         depensesMensuelles > 0 ? epargneLiquide / depensesMensuelles : 0.0;
@@ -1262,7 +1263,7 @@ class CoachNarrativeService {
       'financial_summary': parts.join('\n'),
       // Income / expense flow ($ + LPP/3a/AVS context).
       'monthly_income': profile.salaireBrutMensuel,
-      'monthly_expenses': profile.depenses.totalMensuel,
+      'monthly_expenses': _plausibleMonthlyExpenses(profile),
       'salaire_brut': profile.salaireBrutMensuel,
       'avoir_lpp': prev.avoirLppTotal ?? 0,
       'lpp_balance_total': prev.avoirLppTotal ?? 0,
@@ -1278,6 +1279,28 @@ class CoachNarrativeService {
       if (profile.primaryFocus != null) 'primary_focus': profile.primaryFocus,
     };
     return result;
+  }
+
+  static double _plausibleMonthlyExpenses(CoachProfile profile) {
+    final depenses = profile.depenses;
+    final housing = BudgetInputs.plausibleMonthlyAmount(
+          depenses.loyer,
+          max: BudgetInputs.maxMonthlyHousingCost,
+        ) ??
+        0.0;
+    final health = BudgetInputs.plausibleMonthlyAmount(
+          depenses.assuranceMaladie,
+          max: BudgetInputs.maxMonthlyHealthInsurance,
+        ) ??
+        0.0;
+    final otherFixed =
+        depenses.totalMensuel - depenses.loyer - depenses.assuranceMaladie;
+    final other = BudgetInputs.plausibleMonthlyAmount(
+          otherFixed,
+          max: BudgetInputs.maxMonthlyFixedCharge,
+        ) ??
+        0.0;
+    return housing + health + other;
   }
 
   /// Parse la reponse JSON du LLM en CoachNarrative.
