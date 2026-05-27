@@ -78,8 +78,7 @@ class BudgetSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.md),
             // dart format off
-            FilledButton(
-              // lint-ignore: prefer_mint_cta
+            FilledButton( // lint-ignore: prefer_mint_cta
               onPressed: onSetup,
               child: Text(l10n.monArgentBudgetStart),
             ),
@@ -108,8 +107,7 @@ class BudgetSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.md),
             // dart format off
-            OutlinedButton(
-              // lint-ignore: prefer_mint_cta
+            OutlinedButton( // lint-ignore: prefer_mint_cta
               onPressed: onRetry,
               child: Text(l10n.monArgentRetry),
             ),
