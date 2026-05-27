@@ -333,6 +333,32 @@ void main() {
       expect(mEmergency.isReached, false);
     });
 
+    test('emergency fund ignores implausible housing expense', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055, 12, 31),
+          label: 'Retraite',
+        ),
+        depenses: const DepensesProfile(
+          loyer: 19272200,
+          assuranceMaladie: 420,
+        ),
+        patrimoine: const PatrimoineProfile(
+          epargneLiquide: 3000,
+        ),
+      );
+
+      final milestones = StreakService.computeMilestones(profile);
+      final mEmergency = milestones.firstWhere((m) => m.id == 'emergency_fund');
+
+      expect(mEmergency.threshold, 420 * 6);
+      expect(mEmergency.isReached, true);
+    });
+
     test('milestone labels are in French', () {
       final profile = _profileWithCheckIns([]);
       final milestones = StreakService.computeMilestones(profile);

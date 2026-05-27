@@ -265,6 +265,27 @@ void main() {
       );
       expect(comparison!.metrics.length, 5);
     });
+
+    test('charges fixes ignore implausible housing', () {
+      final benchmark = CantonalBenchmarkService.getBenchmark(
+        canton: 'VS',
+        age: 45,
+      )!;
+      final profile = _buildProfile(
+        loyer: 19272200,
+        assuranceMaladie: 420,
+      );
+
+      final comparison = CantonalBenchmarkService.compareToProfile(
+        profile: profile,
+        benchmark: benchmark,
+      );
+      final chargesMetric = comparison!.metrics
+          .firstWhere((m) => m.label == benchmark.chargesFixes.label);
+
+      expect(chargesMetric.userValue, 420);
+      expect(chargesMetric.userValue, lessThan(10000));
+    });
   });
 
   group('formatComparisonText — compliance', () {
