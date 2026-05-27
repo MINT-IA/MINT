@@ -163,6 +163,12 @@ class BudgetInputs {
   /// the same explicit approximation as BudgetLivingEngine: gross annual × 90%
   /// / 12, because NetIncomeBreakdown models employee social charges.
   static double monthlyNetFromCoachProfile(CoachProfile profile) {
+    final explicitOwnNet = profile.explicitMonthlyNetIncome;
+    if (explicitOwnNet != null &&
+        explicitOwnNet.isFinite &&
+        explicitOwnNet > 0) {
+      return explicitOwnNet;
+    }
     final ownNet = _monthlyNetFromGrossAnnual(
       grossAnnual: profile.revenuBrutAnnuel,
       canton: profile.canton,

@@ -1461,6 +1461,11 @@ class CoachProfile {
 
   // === REVENUS ===
   final double salaireBrutMensuel;
+
+  /// Net mensuel explicite saisi pour le budget du menage.
+  /// Quand present, les surfaces budget l'utilisent comme source de verite
+  /// au lieu de reconstruire un net approximatif depuis le salaire brut.
+  final double? explicitMonthlyNetIncome;
   final double nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
   final String
@@ -1589,6 +1594,7 @@ class CoachProfile {
     this.nombreEnfants = 0,
     this.conjoint,
     required this.salaireBrutMensuel,
+    this.explicitMonthlyNetIncome,
     this.nombreDeMois = 12.0,
     this.bonusPourcentage,
     this.employmentStatus = 'salarie',
@@ -1721,6 +1727,7 @@ class CoachProfile {
           nombreEnfants == other.nombreEnfants &&
           conjoint == other.conjoint &&
           salaireBrutMensuel == other.salaireBrutMensuel &&
+          explicitMonthlyNetIncome == other.explicitMonthlyNetIncome &&
           nombreDeMois == other.nombreDeMois &&
           bonusPourcentage == other.bonusPourcentage &&
           employmentStatus == other.employmentStatus &&
@@ -1761,6 +1768,7 @@ class CoachProfile {
         nombreEnfants,
         conjoint,
         salaireBrutMensuel,
+        explicitMonthlyNetIncome,
         nombreDeMois,
         bonusPourcentage,
         employmentStatus,
@@ -2199,6 +2207,7 @@ class CoachProfile {
     int? nombreEnfants,
     ConjointProfile? conjoint,
     double? salaireBrutMensuel,
+    double? explicitMonthlyNetIncome,
     double? nombreDeMois,
     double? bonusPourcentage,
     String? employmentStatus,
@@ -2258,6 +2267,8 @@ class CoachProfile {
           ? null
           : (conjoint ?? this.conjoint),
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
+      explicitMonthlyNetIncome:
+          explicitMonthlyNetIncome ?? this.explicitMonthlyNetIncome,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
       employmentStatus: employmentStatus ?? this.employmentStatus,
@@ -2422,6 +2433,8 @@ class CoachProfile {
           ? ConjointProfile.fromJson(json['conjoint'])
           : null,
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble() ?? 0,
+      explicitMonthlyNetIncome:
+          (json['explicitMonthlyNetIncome'] as num?)?.toDouble(),
       nombreDeMois: (json['nombreDeMois'] as num?)?.toDouble() ?? 12.0,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
       employmentStatus: json['employmentStatus'] ?? 'salarie',
@@ -2535,6 +2548,7 @@ class CoachProfile {
         'nombreEnfants': nombreEnfants,
         'conjoint': conjoint?.toJson(),
         'salaireBrutMensuel': salaireBrutMensuel,
+        'explicitMonthlyNetIncome': explicitMonthlyNetIncome,
         'nombreDeMois': nombreDeMois,
         'bonusPourcentage': bonusPourcentage,
         'employmentStatus': employmentStatus,
@@ -3224,6 +3238,10 @@ class CoachProfile {
       nombreEnfants: nombreEnfants,
       conjoint: conjoint,
       salaireBrutMensuel: salaireBrutMensuel,
+      explicitMonthlyNetIncome:
+          monthlyNetIncome.isFinite && monthlyNetIncome > 0
+              ? monthlyNetIncome
+              : null,
       employmentStatus: employmentStatus,
       depenses: depenses,
       prevoyance: prevoyance,
