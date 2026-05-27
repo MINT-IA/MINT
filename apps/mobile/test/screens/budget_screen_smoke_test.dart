@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart'; // Ensure correct imports
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -587,15 +588,18 @@ void main() {
   testWidgets('BudgetContainerScreen routeExtra emits Tier A return on pop',
       (tester) async {
     await ScreenCompletionTracker.clear('budget');
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 8000,
+      housingCost: 2200,
+      debtPayments: 333,
+      taxProvision: 950,
+      healthInsurance: 420,
+    );
+    final expectedCharges = PresentBudgetBuilder.fixedChargesFromInputs(inputs);
+    expect(expectedCharges, 3903);
     await BudgetLocalStore().saveInputs(
-      const BudgetInputs(
-        payFrequency: PayFrequency.monthly,
-        netIncome: 8000,
-        housingCost: 2200,
-        debtPayments: 0,
-        taxProvision: 950,
-        healthInsurance: 420,
-      ),
+      inputs,
     );
 
     await tester.pumpWidget(
@@ -647,7 +651,7 @@ void main() {
     expect(screenReturn?.runId, 'run-budget-1');
     expect(screenReturn?.stepId, 'step-budget-1');
     expect(screenReturn?.stepOutputs?['revenu_net'], 8000);
-    expect(screenReturn?.stepOutputs?['charges_totales'], 3570);
+    expect(screenReturn?.stepOutputs?['charges_totales'], expectedCharges);
   });
 
   testWidgets('BudgetContainerScreen keeps full cache over partial profile',

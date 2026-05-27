@@ -110,10 +110,7 @@ class _BudgetScreenState extends State<BudgetScreen>
     _finalReturnEmitted = true;
 
     final inputs = widget.inputs;
-    final chargesTotal = inputs.housingCost +
-        inputs.healthInsurance +
-        inputs.taxProvision +
-        inputs.otherFixedCosts;
+    final chargesTotal = PresentBudgetBuilder.fixedChargesFromInputs(inputs);
     ScreenCompletionTracker.markCompletedWithReturn(
         'budget',
         ScreenReturn.completed(
