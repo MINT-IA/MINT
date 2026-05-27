@@ -1644,7 +1644,7 @@ abstract class S {
   /// No description provided for @coachingAge55Message.
   ///
   /// In fr, this message translates to:
-  /// **'À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut représenter une économie significative.'**
+  /// **'À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut modifier l\'impact fiscal.'**
   String get coachingAge55Message;
 
   /// No description provided for @coachingAge58Title.
@@ -4218,7 +4218,7 @@ abstract class S {
   /// No description provided for @naissanceTaxSavings.
   ///
   /// In fr, this message translates to:
-  /// **'Économies fiscales'**
+  /// **'Impacts fiscaux'**
   String get naissanceTaxSavings;
 
   /// No description provided for @naissanceDeductionPerChild.
@@ -4236,7 +4236,7 @@ abstract class S {
   /// No description provided for @naissanceEstimatedTaxSaving.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale estimée'**
+  /// **'Impact fiscal estimé'**
   String get naissanceEstimatedTaxSaving;
 
   /// No description provided for @naissanceAllowanceIncome.
@@ -4290,7 +4290,7 @@ abstract class S {
   /// No description provided for @naissanceNetFormula.
   ///
   /// In fr, this message translates to:
-  /// **'Économies fiscales + allocations - coût estimé'**
+  /// **'Impacts fiscaux + allocations - coût estimé'**
   String get naissanceNetFormula;
 
   /// No description provided for @naissanceWaterfallRevenu.
@@ -7279,7 +7279,7 @@ abstract class S {
   /// No description provided for @fiscalEduRentBody.
   ///
   /// In fr, this message translates to:
-  /// **'N\'oublie pas que les économies fiscales peuvent être compensées par des différences de loyer et de coût de la vie. Compare le budget global, pas seulement les impôts.'**
+  /// **'N\'oublie pas que l\'impact fiscal peut être compensé par des différences de loyer et de coût de la vie. Compare le budget global, pas seulement les impôts.'**
   String get fiscalEduRentBody;
 
   /// No description provided for @fiscalCommune.
@@ -9871,7 +9871,7 @@ abstract class S {
   /// No description provided for @simLppBuybackDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Simulation incluant l\'intérêt de la caisse ({fundRate} %) et l\'économie d\'impôt lissée sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.'**
+  /// **'Simulation incluant l\'intérêt de la caisse ({fundRate} %) et l\'impact fiscal indicatif lissé sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.'**
   String simLppBuybackDisclaimer(
       String fundRate, int staggeringYears, String taxableIncome);
 
@@ -9884,7 +9884,7 @@ abstract class S {
   /// No description provided for @simRealInterestSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Capital + Économie d\'impôt réinvestie (Virtuel)'**
+  /// **'Capital + impact fiscal réinvesti (virtuel)'**
   String get simRealInterestSubtitle;
 
   /// No description provided for @simRealInterestAmount.
@@ -12513,7 +12513,7 @@ abstract class S {
   /// No description provided for @demenagementEconomieFiscale.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale estimée'**
+  /// **'Impact fiscal estimé'**
   String get demenagementEconomieFiscale;
 
   /// No description provided for @demenagementLamalTitre.
@@ -15442,7 +15442,7 @@ abstract class S {
   /// No description provided for @rachatEchelonneEconomieFiscale.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale'**
+  /// **'Impact fiscal'**
   String get rachatEchelonneEconomieFiscale;
 
   /// No description provided for @rachatEchelonneImpactTranche.
@@ -16102,7 +16102,7 @@ abstract class S {
   /// No description provided for @demenagementTitreV2.
   ///
   /// In fr, this message translates to:
-  /// **'Déménager, ça rapporte combien ?'**
+  /// **'Déménager : quel impact sur ton budget ?'**
   String get demenagementTitreV2;
 
   /// No description provided for @demenagementInsightPositif.
@@ -18676,7 +18676,7 @@ abstract class S {
   /// No description provided for @pillar3aIndepDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Les économies fiscales sont calculées sur la base du taux marginal indiqué. Le taux réel dépend de ton canton, de ta commune et de ta situation familiale. Consulte un·e spécialiste pour un calcul personnalisé.'**
+  /// **'L’impact fiscal est estimé sur la base du taux marginal indiqué. Le taux réel dépend de ton canton, de ta commune et de ta situation familiale. Consulte un·e spécialiste pour un calcul personnalisé.'**
   String get pillar3aIndepDisclaimer;
 
   /// No description provided for @dividendeVsSalaireTitle.
@@ -19804,7 +19804,7 @@ abstract class S {
   /// No description provided for @retroactive3aEconomiesFiscales.
   ///
   /// In fr, this message translates to:
-  /// **'Économies fiscales estimées'**
+  /// **'Impacts fiscaux estimés'**
   String get retroactive3aEconomiesFiscales;
 
   /// No description provided for @retroactive3aDetailParAnnee.
@@ -19870,7 +19870,7 @@ abstract class S {
   /// No description provided for @retroactive3aEconomieFiscale.
   ///
   /// In fr, this message translates to:
-  /// **'d’économie fiscale'**
+  /// **'d’impact fiscal'**
   String get retroactive3aEconomieFiscale;
 
   /// No description provided for @retroactive3aProchainesEtapes.
@@ -22240,7 +22240,7 @@ abstract class S {
   /// No description provided for @lppVolontaireEconomieFiscaleLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale /an'**
+  /// **'Impact fiscal /an'**
   String get lppVolontaireEconomieFiscaleLabel;
 
   /// No description provided for @lppVolontaireTrancheAgeLabel.
@@ -22276,7 +22276,7 @@ abstract class S {
   /// No description provided for @pillar3aIndepEconomieFiscaleAnLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale /an'**
+  /// **'Impact fiscal /an'**
   String get pillar3aIndepEconomieFiscaleAnLabel;
 
   /// No description provided for @pillar3aIndepPlafondSalarieLabel.
@@ -29439,7 +29439,7 @@ abstract class S {
   /// No description provided for @imputedRentalSavingsLabel.
   ///
   /// In fr, this message translates to:
-  /// **'d’économie fiscale nette'**
+  /// **'d’impact fiscal net'**
   String get imputedRentalSavingsLabel;
 
   /// No description provided for @imputedRentalTaxLabel.
@@ -32241,7 +32241,7 @@ abstract class S {
   /// No description provided for @pillar3aRealReturnDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’économie fiscale dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une spécialiste avant toute décision.'**
+  /// **'Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’impact fiscal dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une spécialiste avant toute décision.'**
   String get pillar3aRealReturnDisclaimer;
 
   /// No description provided for @pillar3aStaggeredDisclaimer.
@@ -33369,7 +33369,7 @@ abstract class S {
   /// No description provided for @rcLppBuybackExplanation.
   ///
   /// In fr, this message translates to:
-  /// **'Rachat possible. Économie fiscale estimée de {taxSaving} CHF sur {rachatSimule} CHF'**
+  /// **'Rachat possible. Impact fiscal estimé de {taxSaving} CHF sur {rachatSimule} CHF'**
   String rcLppBuybackExplanation(String taxSaving, String rachatSimule);
 
   /// No description provided for @rcLppBuybackSubtitle.
@@ -37560,7 +37560,7 @@ abstract class S {
   /// No description provided for @chocQuestionTaxSaving.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale estimée : CHF {amount}. Vérifier le scénario ?'**
+  /// **'Impact fiscal estimé : CHF {amount}. Vérifier le scénario ?'**
   String chocQuestionTaxSaving(String amount);
 
   /// No description provided for @chocQuestionRetirementGap.

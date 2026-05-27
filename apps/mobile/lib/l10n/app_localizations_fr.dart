@@ -831,7 +831,7 @@ class SFr extends S {
 
   @override
   String get coachingAge55Message =>
-      'À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut représenter une économie significative.';
+      'À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut modifier l\'impact fiscal.';
 
   @override
   String get coachingAge58Title => '58 ans : retraite anticipée possible';
@@ -2258,7 +2258,7 @@ class SFr extends S {
   String get naissanceFraisGarde => 'Frais de garde mensuel/enfant';
 
   @override
-  String get naissanceTaxSavings => 'Économies fiscales';
+  String get naissanceTaxSavings => 'Impacts fiscaux';
 
   @override
   String get naissanceDeductionPerChild => 'Déduction par enfant';
@@ -2267,7 +2267,7 @@ class SFr extends S {
   String get naissanceDeductionChildcare => 'Déduction frais de garde';
 
   @override
-  String get naissanceEstimatedTaxSaving => 'Économie fiscale estimée';
+  String get naissanceEstimatedTaxSaving => 'Impact fiscal estimé';
 
   @override
   String get naissanceAllowanceIncome => 'Revenu allocations';
@@ -2298,7 +2298,7 @@ class SFr extends S {
 
   @override
   String get naissanceNetFormula =>
-      'Économies fiscales + allocations - coût estimé';
+      'Impacts fiscaux + allocations - coût estimé';
 
   @override
   String get naissanceWaterfallRevenu => 'Revenu brut annuel';
@@ -3970,7 +3970,7 @@ class SFr extends S {
 
   @override
   String get fiscalEduRentBody =>
-      'N\'oublie pas que les économies fiscales peuvent être compensées par des différences de loyer et de coût de la vie. Compare le budget global, pas seulement les impôts.';
+      'N\'oublie pas que l\'impact fiscal peut être compensé par des différences de loyer et de coût de la vie. Compare le budget global, pas seulement les impôts.';
 
   @override
   String get fiscalCommune => 'Commune';
@@ -5447,7 +5447,7 @@ class SFr extends S {
   @override
   String simLppBuybackDisclaimer(
       String fundRate, int staggeringYears, String taxableIncome) {
-    return 'Simulation incluant l\'intérêt de la caisse ($fundRate %) et l\'économie d\'impôt lissée sur $staggeringYears ans pour un revenu imposable de CHF $taxableIncome. Le rendement réel est calculé sur ton effort net réel.';
+    return 'Simulation incluant l\'intérêt de la caisse ($fundRate %) et l\'impact fiscal indicatif lissé sur $staggeringYears ans pour un revenu imposable de CHF $taxableIncome. Le rendement réel est calculé sur ton effort net réel.';
   }
 
   @override
@@ -5455,7 +5455,7 @@ class SFr extends S {
 
   @override
   String get simRealInterestSubtitle =>
-      'Capital + Économie d\'impôt réinvestie (Virtuel)';
+      'Capital + impact fiscal réinvesti (virtuel)';
 
   @override
   String get simRealInterestAmount => 'Montant Investi';
@@ -6988,7 +6988,7 @@ class SFr extends S {
   String get demenagementFiscalTitre => 'Comparaison fiscale';
 
   @override
-  String get demenagementEconomieFiscale => 'Économie fiscale estimée';
+  String get demenagementEconomieFiscale => 'Impact fiscal estimé';
 
   @override
   String get demenagementLamalTitre => 'Primes LAMal';
@@ -8736,7 +8736,7 @@ class SFr extends S {
   String get rachatEchelonnePlusAdapte => 'Le plus adapté';
 
   @override
-  String get rachatEchelonneEconomieFiscale => 'Économie fiscale';
+  String get rachatEchelonneEconomieFiscale => 'Impact fiscal';
 
   @override
   String get rachatEchelonneImpactTranche => 'Impact par tranche fiscale';
@@ -9108,7 +9108,7 @@ class SFr extends S {
   String get affordabilityAdvancedParams => 'Plus d\'hypothèses';
 
   @override
-  String get demenagementTitreV2 => 'Déménager, ça rapporte combien ?';
+  String get demenagementTitreV2 => 'Déménager : quel impact sur ton budget ?';
 
   @override
   String demenagementInsightPositif(String mois) {
@@ -10588,7 +10588,7 @@ class SFr extends S {
 
   @override
   String get pillar3aIndepDisclaimer =>
-      'Les économies fiscales sont calculées sur la base du taux marginal indiqué. Le taux réel dépend de ton canton, de ta commune et de ta situation familiale. Consulte un·e spécialiste pour un calcul personnalisé.';
+      'L’impact fiscal est estimé sur la base du taux marginal indiqué. Le taux réel dépend de ton canton, de ta commune et de ta situation familiale. Consulte un·e spécialiste pour un calcul personnalisé.';
 
   @override
   String get dividendeVsSalaireTitle => 'Dividende vs Salaire';
@@ -11197,7 +11197,7 @@ class SFr extends S {
       'Grand 3a : 20 % du revenu net, max CHF 36’288/an';
 
   @override
-  String get retroactive3aEconomiesFiscales => 'Économies fiscales estimées';
+  String get retroactive3aEconomiesFiscales => 'Impacts fiscaux estimés';
 
   @override
   String get retroactive3aDetailParAnnee => 'Détail par année';
@@ -11230,7 +11230,7 @@ class SFr extends S {
   String get retroactive3aAvecRattrapage => 'Avec rattrapage';
 
   @override
-  String get retroactive3aEconomieFiscale => 'd’économie fiscale';
+  String get retroactive3aEconomieFiscale => 'd’impact fiscal';
 
   @override
   String get retroactive3aProchainesEtapes => 'Prochaines étapes';
@@ -12571,7 +12571,7 @@ class SFr extends S {
   String get lppVolontaireCotisationLabel => 'Cotisation /an';
 
   @override
-  String get lppVolontaireEconomieFiscaleLabel => 'Économie fiscale /an';
+  String get lppVolontaireEconomieFiscaleLabel => 'Impact fiscal /an';
 
   @override
   String get lppVolontaireTrancheAgeLabel => 'Tranche d’âge';
@@ -12589,7 +12589,7 @@ class SFr extends S {
   String get pillar3aIndepPlafondApplicableLabel => 'Plafond applicable';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAnLabel => 'Économie fiscale /an';
+  String get pillar3aIndepEconomieFiscaleAnLabel => 'Impact fiscal /an';
 
   @override
   String get pillar3aIndepPlafondSalarieLabel => 'Plafond salarié·e';
@@ -16692,7 +16692,7 @@ class SFr extends S {
   String get imputedRentalEyebrow => 'Valeur locative';
 
   @override
-  String get imputedRentalSavingsLabel => 'd’économie fiscale nette';
+  String get imputedRentalSavingsLabel => 'd’impact fiscal net';
 
   @override
   String get imputedRentalTaxLabel => 'd’impôt supplémentaire';
@@ -18329,7 +18329,7 @@ class SFr extends S {
 
   @override
   String get pillar3aRealReturnDisclaimer =>
-      'Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’économie fiscale dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une spécialiste avant toute décision.';
+      'Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’impact fiscal dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une spécialiste avant toute décision.';
 
   @override
   String get pillar3aStaggeredDisclaimer =>
@@ -18969,7 +18969,7 @@ class SFr extends S {
 
   @override
   String rcLppBuybackExplanation(String taxSaving, String rachatSimule) {
-    return 'Rachat possible. Économie fiscale estimée de $taxSaving CHF sur $rachatSimule CHF';
+    return 'Rachat possible. Impact fiscal estimé de $taxSaving CHF sur $rachatSimule CHF';
   }
 
   @override
@@ -21408,7 +21408,7 @@ class SFr extends S {
 
   @override
   String chocQuestionTaxSaving(String amount) {
-    return 'Économie fiscale estimée : CHF $amount. Vérifier le scénario ?';
+    return 'Impact fiscal estimé : CHF $amount. Vérifier le scénario ?';
   }
 
   @override

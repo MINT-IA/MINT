@@ -834,7 +834,7 @@ class SDe extends S {
 
   @override
   String get coachingAge55Message =>
-      'Mit 55 wird die steuerliche Planung des Bezugs entscheidend. Staffeln Sie die 3a-Bezüge für eine höhere Steuerersparnis.';
+      'Mit 55 wird die steuerliche Planung des Bezugs entscheidend. Gestaffelte 3a-Bezüge können den Steuereffekt verändern.';
 
   @override
   String get coachingAge58Title => '58 Jahre: Frühpensionierung möglich';
@@ -2272,7 +2272,7 @@ class SDe extends S {
   String get naissanceFraisGarde => 'Monatliche Betreuungskosten/Kind';
 
   @override
-  String get naissanceTaxSavings => 'Steuerersparnisse';
+  String get naissanceTaxSavings => 'Steuereffekte';
 
   @override
   String get naissanceDeductionPerChild => 'Abzug pro Kind';
@@ -2281,7 +2281,7 @@ class SDe extends S {
   String get naissanceDeductionChildcare => 'Abzug Betreuungskosten';
 
   @override
-  String get naissanceEstimatedTaxSaving => 'Geschätzte Steuerersparnis';
+  String get naissanceEstimatedTaxSaving => 'Geschätzter Steuereffekt';
 
   @override
   String get naissanceAllowanceIncome => 'Zulageneinkommen';
@@ -2312,7 +2312,7 @@ class SDe extends S {
 
   @override
   String get naissanceNetFormula =>
-      'Steuerersparnisse + Zulagen - geschätzte Kosten';
+      'Steuereffekte + Zulagen - geschätzte Kosten';
 
   @override
   String get naissanceWaterfallRevenu => 'Jährliches Bruttoeinkommen';
@@ -3980,7 +3980,7 @@ class SDe extends S {
 
   @override
   String get fiscalEduRentBody =>
-      'Vergiss nicht, dass Steuerersparnisse durch Miet- und Lebenshaltungsunterschiede ausgeglichen werden können. Vergleiche das Gesamtbudget, nicht nur die Steuern.';
+      'Vergiss nicht, dass der Steuereffekt durch Miet- und Lebenshaltungsunterschiede ausgeglichen werden kann. Vergleiche das Gesamtbudget, nicht nur die Steuern.';
 
   @override
   String get fiscalCommune => 'Gemeinde';
@@ -5456,7 +5456,7 @@ class SDe extends S {
   @override
   String simLppBuybackDisclaimer(
       String fundRate, int staggeringYears, String taxableIncome) {
-    return 'Simulation inklusive Kassenzins ($fundRate %) und Steuerersparnis, geglättet über $staggeringYears Jahre für ein steuerbares Einkommen von CHF $taxableIncome. Die reale Rendite wird auf deinen tatsächlichen Nettoaufwand berechnet.';
+    return 'Simulation inklusive Kassenzins ($fundRate %) und indikativem Steuereffekt, geglättet über $staggeringYears Jahre für ein steuerbares Einkommen von CHF $taxableIncome. Die reale Rendite wird auf deinen tatsächlichen Nettoaufwand berechnet.';
   }
 
   @override
@@ -5464,7 +5464,7 @@ class SDe extends S {
 
   @override
   String get simRealInterestSubtitle =>
-      'Kapital + Reinvestierte Steuerersparnis (Virtuell)';
+      'Kapital + reinvestierter Steuereffekt (virtuell)';
 
   @override
   String get simRealInterestAmount => 'Montant Investi';
@@ -7005,7 +7005,7 @@ class SDe extends S {
   String get demenagementFiscalTitre => 'Steuervergleich';
 
   @override
-  String get demenagementEconomieFiscale => 'Geschätzte Steuerersparnis';
+  String get demenagementEconomieFiscale => 'Geschätzter Steuereffekt';
 
   @override
   String get demenagementLamalTitre => 'Krankenkassenprämien';
@@ -8759,7 +8759,7 @@ class SDe extends S {
   String get rachatEchelonnePlusAdapte => 'Am besten geeignet';
 
   @override
-  String get rachatEchelonneEconomieFiscale => 'Steuerersparnis';
+  String get rachatEchelonneEconomieFiscale => 'Steuereffekt';
 
   @override
   String get rachatEchelonneImpactTranche => 'Auswirkung pro Steuerstufe';
@@ -9127,7 +9127,7 @@ class SDe extends S {
   String get affordabilityAdvancedParams => 'Weitere Annahmen';
 
   @override
-  String get demenagementTitreV2 => 'Umzug — wie viel sparst du?';
+  String get demenagementTitreV2 => 'Umzug — wie wirkt er auf dein Budget?';
 
   @override
   String demenagementInsightPositif(String mois) {
@@ -10545,7 +10545,7 @@ class SDe extends S {
   String get pillar3aIndepPlafondApplicable => 'Anwendbare Obergrenze';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAn => 'Steuerersparnis /Jahr';
+  String get pillar3aIndepEconomieFiscaleAn => 'Steuereffekt /Jahr';
 
   @override
   String get pillar3aIndepPlafondSalarie => 'Angestellten-Obergrenze';
@@ -10610,7 +10610,7 @@ class SDe extends S {
 
   @override
   String get pillar3aIndepDisclaimer =>
-      'Die Steuerersparnisse basieren auf dem angegebenen Grenzsteuersatz. Der tatsächliche Satz hängt von Kanton, Gemeinde und Familiensituation ab.';
+      'Der Steuereffekt basiert auf dem angegebenen Grenzsteuersatz. Der tatsächliche Satz hängt von Kanton, Gemeinde und Familiensituation ab.';
 
   @override
   String get dividendeVsSalaireTitle => 'Dividende vs Gehalt';
@@ -11221,7 +11221,7 @@ class SDe extends S {
       'Großes 3a : 20 % des Nettoeinkommens, max. CHF 36’288/Jahr';
 
   @override
-  String get retroactive3aEconomiesFiscales => 'Geschätzte Steuereinsparungen';
+  String get retroactive3aEconomiesFiscales => 'Geschätzte Steuereffekte';
 
   @override
   String get retroactive3aDetailParAnnee => 'Aufschlüsselung nach Jahr';
@@ -11254,7 +11254,7 @@ class SDe extends S {
   String get retroactive3aAvecRattrapage => 'Mit Nachholung';
 
   @override
-  String get retroactive3aEconomieFiscale => 'Steuereinsparung';
+  String get retroactive3aEconomieFiscale => 'Steuereffekt';
 
   @override
   String get retroactive3aProchainesEtapes => 'Nächste Schritte';
@@ -12595,7 +12595,7 @@ class SDe extends S {
   String get lppVolontaireCotisationLabel => 'Cotisation /an';
 
   @override
-  String get lppVolontaireEconomieFiscaleLabel => 'Steuerersparnis /Jahr';
+  String get lppVolontaireEconomieFiscaleLabel => 'Steuereffekt /Jahr';
 
   @override
   String get lppVolontaireTrancheAgeLabel => 'Tranche d’âge';
@@ -12613,7 +12613,7 @@ class SDe extends S {
   String get pillar3aIndepPlafondApplicableLabel => 'Anwendbare Obergrenze';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAnLabel => 'Steuerersparnis /Jahr';
+  String get pillar3aIndepEconomieFiscaleAnLabel => 'Steuereffekt /Jahr';
 
   @override
   String get pillar3aIndepPlafondSalarieLabel => 'Obergrenze Angestellte·r';
@@ -16738,7 +16738,7 @@ class SDe extends S {
   String get imputedRentalEyebrow => 'Eigenmietwert';
 
   @override
-  String get imputedRentalSavingsLabel => 'Nettosteuerersparnis';
+  String get imputedRentalSavingsLabel => 'Netto-Steuereffekt';
 
   @override
   String get imputedRentalTaxLabel => 'zusätzliche Steuern';
@@ -18382,7 +18382,7 @@ class SDe extends S {
 
   @override
   String get pillar3aRealReturnDisclaimer =>
-      'Pädagogische Simulation auf Basis konstanter Renditeannahmen. Vergangene Renditen sind kein Indikator für zukünftige Renditen. Gebühren und Renditen variieren je nach Anbieter. Die Steuerersparnis hängt von Ihrem tatsächlichen Grenzsteuersatz ab. Rechtsgrundlage: BVV3, DBG Art. 33 Abs. 1 Bst. e. Konsultieren Sie einen Spezialisten.';
+      'Pädagogische Simulation auf Basis konstanter Renditeannahmen. Vergangene Renditen sind kein Indikator für zukünftige Renditen. Gebühren und Renditen variieren je nach Anbieter. Der Steuereffekt hängt von Ihrem tatsächlichen Grenzsteuersatz ab. Rechtsgrundlage: BVV3, DBG Art. 33 Abs. 1 Bst. e. Konsultieren Sie einen Spezialisten.';
 
   @override
   String get pillar3aStaggeredDisclaimer =>
@@ -19023,7 +19023,7 @@ class SDe extends S {
 
   @override
   String rcLppBuybackExplanation(String taxSaving, String rachatSimule) {
-    return 'Einkauf möglich. Geschätzte Steuereinsparung von $taxSaving CHF auf $rachatSimule CHF';
+    return 'Einkauf möglich. Geschätzter Steuereffekt von $taxSaving CHF auf $rachatSimule CHF';
   }
 
   @override
@@ -21462,7 +21462,7 @@ class SDe extends S {
 
   @override
   String chocQuestionTaxSaving(String amount) {
-    return 'Geschätzte Steuerersparnis: CHF $amount. Szenario prüfen?';
+    return 'Geschätzter Steuereffekt: CHF $amount. Szenario prüfen?';
   }
 
   @override

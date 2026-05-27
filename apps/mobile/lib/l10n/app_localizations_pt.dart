@@ -830,7 +830,7 @@ class SPt extends S {
 
   @override
   String get coachingAge55Message =>
-      'Aos 55 anos, o planeamento fiscal do levantamento torna-se crucial. Escalonar os levantamentos 3a pode representar uma poupanca significativa.';
+      'Aos 55 anos, o planeamento fiscal do levantamento torna-se crucial. Escalonar os levantamentos 3a pode alterar o impacto fiscal.';
 
   @override
   String get coachingAge58Title => '58 anos: reforma antecipada possível';
@@ -2258,7 +2258,7 @@ class SPt extends S {
   String get naissanceFraisGarde => 'Custos de guarda mensal/criança';
 
   @override
-  String get naissanceTaxSavings => 'Poupanças fiscais';
+  String get naissanceTaxSavings => 'Impactos fiscais';
 
   @override
   String get naissanceDeductionPerChild => 'Dedução por filho';
@@ -2267,7 +2267,7 @@ class SPt extends S {
   String get naissanceDeductionChildcare => 'Dedução custos de guarda';
 
   @override
-  String get naissanceEstimatedTaxSaving => 'Poupança fiscal estimada';
+  String get naissanceEstimatedTaxSaving => 'Impacto fiscal estimado';
 
   @override
   String get naissanceAllowanceIncome => 'Rendimento de abonos';
@@ -2298,7 +2298,7 @@ class SPt extends S {
 
   @override
   String get naissanceNetFormula =>
-      'Poupanças fiscais + abonos - custo estimado';
+      'Impactos fiscais + abonos - custo estimado';
 
   @override
   String get naissanceWaterfallRevenu => 'Rendimento bruto anual';
@@ -3968,7 +3968,7 @@ class SPt extends S {
 
   @override
   String get fiscalEduRentBody =>
-      'Não te esqueças que as poupanças fiscais podem ser compensadas por diferenças de renda e custo de vida. Compara o orçamento global, não apenas os impostos.';
+      'Não te esqueças que o impacto fiscal pode ser compensado por diferenças de renda e custo de vida. Compara o orçamento global, não apenas os impostos.';
 
   @override
   String get fiscalCommune => 'Município';
@@ -5441,7 +5441,7 @@ class SPt extends S {
   @override
   String simLppBuybackDisclaimer(
       String fundRate, int staggeringYears, String taxableIncome) {
-    return 'Simulação incluindo o juro da caixa ($fundRate %) e a poupança fiscal distribuída ao longo de $staggeringYears anos para um rendimento tributável de CHF $taxableIncome. O rendimento real é calculado sobre o teu esforço líquido real.';
+    return 'Simulação incluindo o juro da caixa ($fundRate %) e o impacto fiscal indicativo distribuído ao longo de $staggeringYears anos para um rendimento tributável de CHF $taxableIncome. O rendimento real é calculado sobre o teu esforço líquido real.';
   }
 
   @override
@@ -5449,7 +5449,7 @@ class SPt extends S {
 
   @override
   String get simRealInterestSubtitle =>
-      'Capital + Poupança fiscal reinvestida (Virtual)';
+      'Capital + impacto fiscal reinvestido (virtual)';
 
   @override
   String get simRealInterestAmount => 'Montant Investi';
@@ -6983,7 +6983,7 @@ class SPt extends S {
   String get demenagementFiscalTitre => 'Comparação fiscal';
 
   @override
-  String get demenagementEconomieFiscale => 'Economia fiscal estimada';
+  String get demenagementEconomieFiscale => 'Impacto fiscal estimado';
 
   @override
   String get demenagementLamalTitre => 'Prémios de seguro de saúde';
@@ -8730,7 +8730,7 @@ class SPt extends S {
   String get rachatEchelonnePlusAdapte => 'O mais adequado';
 
   @override
-  String get rachatEchelonneEconomieFiscale => 'Poupança fiscal';
+  String get rachatEchelonneEconomieFiscale => 'Impacto fiscal';
 
   @override
   String get rachatEchelonneImpactTranche => 'Impacto por escalão';
@@ -9098,7 +9098,8 @@ class SPt extends S {
   String get affordabilityAdvancedParams => 'Mais hipóteses';
 
   @override
-  String get demenagementTitreV2 => 'Mudar de cantão, quanto poupas?';
+  String get demenagementTitreV2 =>
+      'Mudar de cantão: que impacto no orçamento?';
 
   @override
   String demenagementInsightPositif(String mois) {
@@ -10512,7 +10513,7 @@ class SPt extends S {
   String get pillar3aIndepPlafondApplicable => 'Teto aplicável';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAn => 'Poupança fiscal /ano';
+  String get pillar3aIndepEconomieFiscaleAn => 'Impacto fiscal /ano';
 
   @override
   String get pillar3aIndepPlafondSalarie => 'Teto empregado';
@@ -10577,7 +10578,7 @@ class SPt extends S {
 
   @override
   String get pillar3aIndepDisclaimer =>
-      'As poupanças fiscais baseiam-se na taxa marginal indicada. Consulta um especialista.';
+      'O impacto fiscal é estimado com base na taxa marginal indicada. Consulta um especialista.';
 
   @override
   String get dividendeVsSalaireTitle => 'Dividendo vs Salário';
@@ -11186,7 +11187,7 @@ class SPt extends S {
       'Grande 3a : 20 % do rendimento líquido, máx. CHF 36’288/ano';
 
   @override
-  String get retroactive3aEconomiesFiscales => 'Poupanças fiscais estimadas';
+  String get retroactive3aEconomiesFiscales => 'Impactos fiscais estimados';
 
   @override
   String get retroactive3aDetailParAnnee => 'Detalhe por ano';
@@ -11219,7 +11220,7 @@ class SPt extends S {
   String get retroactive3aAvecRattrapage => 'Com recuperação';
 
   @override
-  String get retroactive3aEconomieFiscale => 'de poupança fiscal';
+  String get retroactive3aEconomieFiscale => 'de impacto fiscal';
 
   @override
   String get retroactive3aProchainesEtapes => 'Próximos passos';
@@ -12562,7 +12563,7 @@ class SPt extends S {
   String get lppVolontaireCotisationLabel => 'Cotisation /an';
 
   @override
-  String get lppVolontaireEconomieFiscaleLabel => 'Poupança fiscal /ano';
+  String get lppVolontaireEconomieFiscaleLabel => 'Impacto fiscal /ano';
 
   @override
   String get lppVolontaireTrancheAgeLabel => 'Tranche d’âge';
@@ -12580,7 +12581,7 @@ class SPt extends S {
   String get pillar3aIndepPlafondApplicableLabel => 'Teto aplicável';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAnLabel => 'Poupança fiscal /ano';
+  String get pillar3aIndepEconomieFiscaleAnLabel => 'Impacto fiscal /ano';
 
   @override
   String get pillar3aIndepPlafondSalarieLabel => 'Teto para assalariado/a';
@@ -16699,7 +16700,7 @@ class SPt extends S {
   String get imputedRentalEyebrow => 'Valor de aluguer imputado';
 
   @override
-  String get imputedRentalSavingsLabel => 'de poupança fiscal líquida';
+  String get imputedRentalSavingsLabel => 'de impacto fiscal líquido';
 
   @override
   String get imputedRentalTaxLabel => 'de imposto adicional';
@@ -18339,7 +18340,7 @@ class SPt extends S {
 
   @override
   String get pillar3aRealReturnDisclaimer =>
-      'Simulação educativa baseada em pressupostos de rendimento constante. Os rendimentos passados não predizem os futuros. Comissões e rendimentos variam consoante o prestador. A poupança fiscal depende da taxa marginal real. Base legal: OPP3, LIFD art. 33 al. 1 let. e. Consulte um especialista antes de qualquer decisão.';
+      'Simulação educativa baseada em pressupostos de rendimento constante. Os rendimentos passados não predizem os futuros. Comissões e rendimentos variam consoante o prestador. O impacto fiscal depende da taxa marginal real. Base legal: OPP3, LIFD art. 33 al. 1 let. e. Consulte um especialista antes de qualquer decisão.';
 
   @override
   String get pillar3aStaggeredDisclaimer =>
@@ -18979,7 +18980,7 @@ class SPt extends S {
 
   @override
   String rcLppBuybackExplanation(String taxSaving, String rachatSimule) {
-    return 'Recompra possível. Poupança fiscal estimada de $taxSaving CHF em $rachatSimule CHF';
+    return 'Recompra possível. Impacto fiscal estimado de $taxSaving CHF em $rachatSimule CHF';
   }
 
   @override
@@ -21416,7 +21417,7 @@ class SPt extends S {
 
   @override
   String chocQuestionTaxSaving(String amount) {
-    return 'Poupança fiscal estimada: CHF $amount. Verificar o cenário?';
+    return 'Impacto fiscal estimado: CHF $amount. Verificar o cenário?';
   }
 
   @override

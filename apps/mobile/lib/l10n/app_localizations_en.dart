@@ -829,7 +829,7 @@ class SEn extends S {
 
   @override
   String get coachingAge55Message =>
-      'At 55, tax planning for withdrawals becomes crucial. Staggering 3a withdrawals across tax years can mean significant savings.';
+      'At 55, tax planning for withdrawals becomes crucial. Staggering 3a withdrawals can change the tax impact.';
 
   @override
   String get coachingAge58Title => '58: Early retirement possible';
@@ -2248,7 +2248,7 @@ class SEn extends S {
   String get naissanceFraisGarde => 'Monthly childcare costs/child';
 
   @override
-  String get naissanceTaxSavings => 'Tax savings';
+  String get naissanceTaxSavings => 'Tax impacts';
 
   @override
   String get naissanceDeductionPerChild => 'Deduction per child';
@@ -2257,7 +2257,7 @@ class SEn extends S {
   String get naissanceDeductionChildcare => 'Childcare cost deduction';
 
   @override
-  String get naissanceEstimatedTaxSaving => 'Estimated tax saving';
+  String get naissanceEstimatedTaxSaving => 'Estimated tax impact';
 
   @override
   String get naissanceAllowanceIncome => 'Allowance income';
@@ -2287,7 +2287,7 @@ class SEn extends S {
   String get naissanceNetAnnualImpact => 'Estimated annual net impact';
 
   @override
-  String get naissanceNetFormula => 'Tax savings + allowances - estimated cost';
+  String get naissanceNetFormula => 'Tax impacts + allowances - estimated cost';
 
   @override
   String get naissanceWaterfallRevenu => 'Gross annual income';
@@ -3948,7 +3948,7 @@ class SEn extends S {
 
   @override
   String get fiscalEduRentBody =>
-      'Don\'t forget that tax savings can be offset by differences in rent and cost of living. Compare the overall budget, not just taxes.';
+      'Don\'t forget that the tax impact can be offset by differences in rent and cost of living. Compare the overall budget, not just taxes.';
 
   @override
   String get fiscalCommune => 'Municipality';
@@ -5411,7 +5411,7 @@ class SEn extends S {
   @override
   String simLppBuybackDisclaimer(
       String fundRate, int staggeringYears, String taxableIncome) {
-    return 'Simulation including fund interest ($fundRate%) and tax savings staggered over $staggeringYears years for a taxable income of CHF $taxableIncome. Real return is calculated on your actual net effort.';
+    return 'Simulation including fund interest ($fundRate%) and indicative tax impact spread over $staggeringYears years for a taxable income of CHF $taxableIncome. Real return is calculated on your actual net effort.';
   }
 
   @override
@@ -5419,7 +5419,7 @@ class SEn extends S {
 
   @override
   String get simRealInterestSubtitle =>
-      'Capital + Reinvested tax savings (Virtual)';
+      'Capital + reinvested tax impact (virtual)';
 
   @override
   String get simRealInterestAmount => 'Amount Invested';
@@ -6945,7 +6945,7 @@ class SEn extends S {
   String get demenagementFiscalTitre => 'Tax comparison';
 
   @override
-  String get demenagementEconomieFiscale => 'Estimated tax savings';
+  String get demenagementEconomieFiscale => 'Estimated tax impact';
 
   @override
   String get demenagementLamalTitre => 'Health insurance premiums';
@@ -8688,7 +8688,7 @@ class SEn extends S {
   String get rachatEchelonnePlusAdapte => 'Best fit';
 
   @override
-  String get rachatEchelonneEconomieFiscale => 'Tax savings';
+  String get rachatEchelonneEconomieFiscale => 'Tax impact';
 
   @override
   String get rachatEchelonneImpactTranche => 'Impact by tax bracket';
@@ -9056,7 +9056,8 @@ class SEn extends S {
   String get affordabilityAdvancedParams => 'More assumptions';
 
   @override
-  String get demenagementTitreV2 => 'Moving cantons — how much do you save?';
+  String get demenagementTitreV2 =>
+      'Moving cantons — what is the budget impact?';
 
   @override
   String demenagementInsightPositif(String mois) {
@@ -10462,7 +10463,7 @@ class SEn extends S {
   String get pillar3aIndepPlafondApplicable => 'Applicable cap';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAn => 'Tax savings /yr';
+  String get pillar3aIndepEconomieFiscaleAn => 'Tax impact /yr';
 
   @override
   String get pillar3aIndepPlafondSalarie => 'Employee cap';
@@ -10527,7 +10528,7 @@ class SEn extends S {
 
   @override
   String get pillar3aIndepDisclaimer =>
-      'Tax savings are calculated based on the indicated marginal rate. The actual rate depends on your canton, municipality, and family situation. Consult a specialist for a personalized calculation.';
+      'The tax impact is estimated based on the indicated marginal rate. The actual rate depends on your canton, municipality, and family situation. Consult a specialist for a personalized calculation.';
 
   @override
   String get dividendeVsSalaireTitle => 'Dividend vs Salary';
@@ -11137,7 +11138,7 @@ class SEn extends S {
       'Large 3a : 20 % of net income, max CHF 36’288/year';
 
   @override
-  String get retroactive3aEconomiesFiscales => 'Estimated tax savings';
+  String get retroactive3aEconomiesFiscales => 'Estimated tax impacts';
 
   @override
   String get retroactive3aDetailParAnnee => 'Breakdown by year';
@@ -11170,7 +11171,7 @@ class SEn extends S {
   String get retroactive3aAvecRattrapage => 'With catch-up';
 
   @override
-  String get retroactive3aEconomieFiscale => 'in tax savings';
+  String get retroactive3aEconomieFiscale => 'in tax impact';
 
   @override
   String get retroactive3aProchainesEtapes => 'Next steps';
@@ -12508,7 +12509,7 @@ class SEn extends S {
   String get lppVolontaireCotisationLabel => 'Cotisation /an';
 
   @override
-  String get lppVolontaireEconomieFiscaleLabel => 'Tax savings /year';
+  String get lppVolontaireEconomieFiscaleLabel => 'Tax impact /year';
 
   @override
   String get lppVolontaireTrancheAgeLabel => 'Tranche d’âge';
@@ -12526,7 +12527,7 @@ class SEn extends S {
   String get pillar3aIndepPlafondApplicableLabel => 'Applicable ceiling';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAnLabel => 'Tax savings /year';
+  String get pillar3aIndepEconomieFiscaleAnLabel => 'Tax impact /year';
 
   @override
   String get pillar3aIndepPlafondSalarieLabel => 'Employee ceiling';
@@ -16619,7 +16620,7 @@ class SEn extends S {
   String get imputedRentalEyebrow => 'Imputed rental value';
 
   @override
-  String get imputedRentalSavingsLabel => 'net tax savings';
+  String get imputedRentalSavingsLabel => 'net tax impact';
 
   @override
   String get imputedRentalTaxLabel => 'additional tax';
@@ -18251,7 +18252,7 @@ class SEn extends S {
 
   @override
   String get pillar3aRealReturnDisclaimer =>
-      'Educational simulation based on constant return assumptions. Past returns do not predict future returns. Fees and returns vary by provider. Tax savings depend on your actual marginal rate. Legal basis: OPP3, LTAF art. 33 al. 1 let. e. Consult a specialist before any decision.';
+      'Educational simulation based on constant return assumptions. Past returns do not predict future returns. Fees and returns vary by provider. Tax impact depends on your actual marginal rate. Legal basis: OPP3, LTAF art. 33 al. 1 let. e. Consult a specialist before any decision.';
 
   @override
   String get pillar3aStaggeredDisclaimer =>
@@ -18887,7 +18888,7 @@ class SEn extends S {
 
   @override
   String rcLppBuybackExplanation(String taxSaving, String rachatSimule) {
-    return 'Buyback available. Estimated tax saving of $taxSaving CHF on $rachatSimule CHF';
+    return 'Buyback available. Estimated tax impact of $taxSaving CHF on $rachatSimule CHF';
   }
 
   @override
@@ -21302,7 +21303,7 @@ class SEn extends S {
 
   @override
   String chocQuestionTaxSaving(String amount) {
-    return 'Estimated tax saving: CHF $amount. Verify the scenario?';
+    return 'Estimated tax impact: CHF $amount. Verify the scenario?';
   }
 
   @override
