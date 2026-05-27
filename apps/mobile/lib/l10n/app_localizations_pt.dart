@@ -14512,7 +14512,7 @@ class SPt extends S {
 
   @override
   String get capStepRetirement05Desc =>
-      'Deduzir até CHF 7.258 e reforçar a reforma.';
+      'Verifica a tua margem 3a dedutível e o impacto indicativo na trajetória.';
 
   @override
   String get capStepRetirement05Title => 'Simular uma contribuição 3a';

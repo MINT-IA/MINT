@@ -25658,7 +25658,7 @@ abstract class S {
   /// No description provided for @capStepRetirement05Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Déduire jusqu’à 7’258 CHF et booster ta retraite.'**
+  /// **'Vérifier ta marge 3a déductible et son impact indicatif sur ta trajectoire.'**
   String get capStepRetirement05Desc;
 
   /// No description provided for @capStepRetirement05Title.

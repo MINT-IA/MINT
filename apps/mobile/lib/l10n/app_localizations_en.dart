@@ -14446,7 +14446,7 @@ class SEn extends S {
 
   @override
   String get capStepRetirement05Desc =>
-      'Deduct up to CHF 7,258 and boost your retirement.';
+      'Verify your deductible 3a room and its indicative impact on your trajectory.';
 
   @override
   String get capStepRetirement05Title => 'Simulate a 3a contribution';

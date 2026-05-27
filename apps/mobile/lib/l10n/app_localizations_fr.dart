@@ -14515,7 +14515,7 @@ class SFr extends S {
 
   @override
   String get capStepRetirement05Desc =>
-      'Déduire jusqu’à 7’258 CHF et booster ta retraite.';
+      'Vérifier ta marge 3a déductible et son impact indicatif sur ta trajectoire.';
 
   @override
   String get capStepRetirement05Title => 'Simuler un versement 3a';

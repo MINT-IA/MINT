@@ -14550,7 +14550,7 @@ class SDe extends S {
 
   @override
   String get capStepRetirement05Desc =>
-      'Bis zu CHF 7\'258 abziehen und die Rente stärken.';
+      'Deinen abzugsfähigen 3a-Spielraum und die indikative Wirkung auf deine Trajektorie prüfen.';
 
   @override
   String get capStepRetirement05Title => 'Säule-3a-Einzahlung simulieren';

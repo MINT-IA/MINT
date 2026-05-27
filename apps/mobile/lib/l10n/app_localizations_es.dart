@@ -14520,7 +14520,7 @@ class SEs extends S {
 
   @override
   String get capStepRetirement05Desc =>
-      'Deducir hasta CHF 7.258 y reforzar tu jubilación.';
+      'Verifica tu margen 3a deducible y su impacto indicativo en tu trayectoria.';
 
   @override
   String get capStepRetirement05Title => 'Simular una aportación 3a';

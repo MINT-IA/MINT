@@ -14553,7 +14553,7 @@ class SIt extends S {
 
   @override
   String get capStepRetirement05Desc =>
-      'Dedurre fino a CHF 7\'258 e rafforzare la pensione.';
+      'Verifica il tuo margine 3a deducibile e l\'impatto indicativo sulla traiettoria.';
 
   @override
   String get capStepRetirement05Title => 'Simulare un versamento 3a';
