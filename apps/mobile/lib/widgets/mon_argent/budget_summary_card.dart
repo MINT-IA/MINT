@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -77,7 +78,8 @@ class BudgetSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.md),
             // dart format off
-            FilledButton( // lint-ignore: prefer_mint_cta
+            FilledButton(
+              // lint-ignore: prefer_mint_cta
               onPressed: onSetup,
               child: Text(l10n.monArgentBudgetStart),
             ),
@@ -106,7 +108,8 @@ class BudgetSummaryCard extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.md),
             // dart format off
-            OutlinedButton( // lint-ignore: prefer_mint_cta
+            OutlinedButton(
+              // lint-ignore: prefer_mint_cta
               onPressed: onRetry,
               child: Text(l10n.monArgentRetry),
             ),
@@ -118,15 +121,23 @@ class BudgetSummaryCard extends StatelessWidget {
   }
 
   Widget _buildData(S l10n) {
-    final monthlyIncome = inputs!.netIncome;
-    final available = plan?.available ?? 0;
-    final spent = monthlyIncome - available;
+    final present = PresentBudgetBuilder.fromInputs(
+      inputs: inputs!,
+      plan: plan ??
+          const BudgetPlan(
+            available: 0,
+            variables: 0,
+            future: 0,
+            stopRuleTriggered: false,
+            emergencyFundMonths: 0,
+          ),
+    );
 
     return _buildRows(
       l10n: l10n,
-      monthlyIncome: monthlyIncome,
-      spent: spent,
-      available: available,
+      monthlyIncome: present.monthlyNet,
+      spent: present.monthlyCharges + present.monthlySavings,
+      available: present.monthlyFree,
     );
   }
 

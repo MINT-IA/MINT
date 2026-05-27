@@ -226,16 +226,12 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       'q_housing_cost_period_chf': housing,
       'q_pay_frequency': 'monthly',
       'q_lamal_premium_monthly_chf': lamal,
+      '_coach_depenses_transport': transport,
+      '_coach_depenses_telecom': telecom,
+      '_coach_depenses_electricite': electricity,
+      '_coach_depenses_frais_medicaux': medical,
+      '_coach_depenses_autres': other,
     };
-    if (transport != null) answers['_coach_depenses_transport'] = transport;
-    if (telecom != null) answers['_coach_depenses_telecom'] = telecom;
-    if (electricity != null) {
-      answers['_coach_depenses_electricite'] = electricity;
-    }
-    if (medical != null) {
-      answers['_coach_depenses_frais_medicaux'] = medical;
-    }
-    if (other != null) answers['_coach_depenses_autres'] = other;
 
     await provider.mergeAnswers(answers);
     if (!mounted) return;

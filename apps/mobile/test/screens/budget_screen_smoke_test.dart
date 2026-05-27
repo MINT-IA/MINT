@@ -24,6 +24,13 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
+  Future<void> openCalculationDetail(WidgetTester tester) async {
+    final toggle = find.byKey(const Key('budget_calculation_detail_toggle'));
+    await tester.ensureVisible(toggle);
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('BudgetScreen smoke test - renders correctly',
       (WidgetTester tester) async {
     // 1. Setup Inputs
@@ -145,6 +152,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
+    await openCalculationDetail(tester);
     await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
 
     expect(find.text('Revenu net'), findsWidgets);
@@ -197,6 +205,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
+    await openCalculationDetail(tester);
     await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
 
     expect(find.text('Disponible'), findsWidgets);
@@ -241,7 +250,7 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
 
     expect(find.text('Futur'), findsWidgets);
-    expect(find.text("CHF\u00a0700"), findsWidgets);
+    expect(find.text("– CHF\u00a0700"), findsWidgets);
     expect(find.text("CHF\u00a01'539"), findsWidgets);
     expect(find.text("CHF\u00a02'939"), findsNothing);
     expect(find.text("CHF\u00a02'239"), findsNothing);
@@ -283,6 +292,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
+    expect(find.byKey(const Key('budget_flow_map')), findsNothing);
+    expect(find.byKey(const Key('budget_formula_proof')), findsNothing);
+
+    await openCalculationDetail(tester);
     await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
 
     expect(

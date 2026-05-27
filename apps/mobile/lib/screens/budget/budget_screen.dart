@@ -323,7 +323,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                                           title:
                                               l.affordabilityCalculationDetail,
                                           icon: Icons.functions,
-                                          initiallyExpanded: true,
+                                          initiallyExpanded: false,
                                           child: _BudgetFlowMap(
                                             present: flowPresent,
                                             l: l,
@@ -676,8 +676,7 @@ class _BudgetScreenState extends State<BudgetScreen>
             available,
             isPositive: true,
             isBold: true,
-            valueColor:
-                available < 0 ? MintColors.error : MintColors.primary,
+            valueColor: available < 0 ? MintColors.error : MintColors.primary,
           ),
         ],
       ),
@@ -732,7 +731,7 @@ class _BudgetScreenState extends State<BudgetScreen>
               ),
             ],
             Text(
-              '$sign ${formatChfWithPrefix(amount)}',
+              '$sign${formatChfWithPrefix(amount)}',
               style: MintTextStyles.bodySmall(
                 color: valueColor ??
                     (isBold
@@ -1010,7 +1009,8 @@ class _BudgetScreenState extends State<BudgetScreen>
       child: Semantics(
         button: true,
         label: label,
-        child: OutlinedButton( // lint-ignore: prefer_mint_cta
+        child: OutlinedButton(
+          // lint-ignore: prefer_mint_cta
           onPressed: () => context.push(route),
           child: Text(label),
         ),

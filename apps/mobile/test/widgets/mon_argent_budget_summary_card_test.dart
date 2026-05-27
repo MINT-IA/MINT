@@ -96,4 +96,34 @@ void main() {
     expect(find.text("3'140\u00a0CHF"), findsNothing);
     expect(find.text("2'239\u00a0CHF"), findsNothing);
   });
+
+  testWidgets('fallback budget data preserves deficits', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const BudgetSummaryCard(
+          inputs: BudgetInputs(
+            payFrequency: PayFrequency.monthly,
+            netIncome: 3000,
+            housingCost: 2600,
+            debtPayments: 0,
+            taxProvision: 500,
+            healthInsurance: 420,
+            style: BudgetStyle.envelopes3,
+          ),
+          plan: BudgetPlan(
+            available: 0,
+            variables: 0,
+            future: 0,
+            stopRuleTriggered: true,
+            emergencyFundMonths: 0,
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text("-520\u00a0CHF"), findsOneWidget);
+    expect(find.text("0\u00a0CHF"), findsNothing);
+  });
 }
