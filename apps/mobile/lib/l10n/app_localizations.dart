@@ -1620,7 +1620,7 @@ abstract class S {
   /// No description provided for @coachingAge45Message.
   ///
   /// In fr, this message translates to:
-  /// **'À 45 ans, il reste 20 ans avant la retraite. C\'est le moment d\'optimiser : maximiser le 3a, envisager des rachats LPP.'**
+  /// **'À 45 ans, il reste 20 ans avant la retraite. C\'est le moment de vérifier tes marges 3a, tes éventuels rachats LPP et ta trajectoire.'**
   String get coachingAge45Message;
 
   /// No description provided for @coachingAge50Title.
@@ -9811,7 +9811,7 @@ abstract class S {
   /// No description provided for @simLppBuybackTaxSavings.
   ///
   /// In fr, this message translates to:
-  /// **'Économie Impôts'**
+  /// **'Impact fiscal'**
   String get simLppBuybackTaxSavings;
 
   /// No description provided for @simLppBuybackNetEffort.
@@ -10028,7 +10028,7 @@ abstract class S {
   /// No description provided for @simBuybackMarginalRateTip.
   ///
   /// In fr, this message translates to:
-  /// **'En lissant tes rachats, tu restes dans des tranches d\'imposition plus basses chaque année, ce qui augmente ton économie fiscale totale.'**
+  /// **'En lissant tes rachats, tu compares l\'impact fiscal indicatif année par année selon ton revenu et ton canton.'**
   String get simBuybackMarginalRateTip;
 
   /// No description provided for @simBuybackLockedTitle.
@@ -11001,7 +11001,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalFiscalCapitalSaves.
   ///
   /// In fr, this message translates to:
-  /// **'Sur 30 ans, le capital te fait économiser ~{amount} d\'impôts.'**
+  /// **'Sur 30 ans, le scénario capital change l\'impôt estimé d\'environ {amount}.'**
   String renteVsCapitalFiscalCapitalSaves(String amount);
 
   /// No description provided for @renteVsCapitalFiscalRenteSaves.
@@ -13281,7 +13281,7 @@ abstract class S {
   /// No description provided for @firstSalaryTask5.
   ///
   /// In fr, this message translates to:
-  /// **'Verser le maximum 3a avant le 31 décembre'**
+  /// **'Planifier une contribution 3a adaptée avant le 31 décembre'**
   String get firstSalaryTask5;
 
   /// No description provided for @firstSalaryBadgeTitle.
@@ -15304,7 +15304,7 @@ abstract class S {
   /// No description provided for @rachatEchelonneIntroBody.
   ///
   /// In fr, this message translates to:
-  /// **'L\'impôt suisse étant progressif, répartir un rachat LPP sur plusieurs années permet de rester dans des tranches marginales plus élevées chaque année, maximisant ainsi l\'économie fiscale totale. Ce simulateur compare les deux approches.'**
+  /// **'L\'impôt suisse étant progressif, répartir un rachat LPP sur plusieurs années peut modifier l\'impact fiscal année par année. Ce simulateur compare les deux approches.'**
   String get rachatEchelonneIntroBody;
 
   /// No description provided for @rachatEchelonneSavingsCaption.
@@ -15508,7 +15508,7 @@ abstract class S {
   /// No description provided for @rachatEchelonneTauxMarginalBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le taux marginal est le pourcentage d\'impôt sur ton dernier franc gagné. Avec un taux de 32 %, chaque CHF 1\'000 déduit te fait économiser CHF 320. Plus ton revenu est élevé, plus ce taux augmente (progressivité de l\'impôt suisse).'**
+  /// **'Le taux marginal est le pourcentage d\'impôt sur ton dernier franc gagné. Avec un taux de 32 %, une déduction de CHF 1\'000 correspond à un impact fiscal indicatif de CHF 320. Plus ton revenu est élevé, plus ce taux peut augmenter.'**
   String get rachatEchelonneTauxMarginalBody;
 
   /// No description provided for @rachatEchelonneTauxMarginalTip.
@@ -16960,7 +16960,7 @@ abstract class S {
   /// No description provided for @realReturnFiscalDetail.
   ///
   /// In fr, this message translates to:
-  /// **'Détail économie fiscale'**
+  /// **'Détail impact fiscal'**
   String get realReturnFiscalDetail;
 
   /// No description provided for @realReturnTotalPayments.
@@ -16978,7 +16978,7 @@ abstract class S {
   /// No description provided for @realReturnCumulativeFiscal.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale cumulée'**
+  /// **'Impact fiscal cumulé'**
   String get realReturnCumulativeFiscal;
 
   /// No description provided for @realReturnTotalWithFiscal.
@@ -17416,7 +17416,7 @@ abstract class S {
   /// No description provided for @firstJobFiscalSavings.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale estimée : ~{amount}/an'**
+  /// **'Impact fiscal indicatif : ~{amount}/an'**
   String firstJobFiscalSavings(String amount);
 
   /// No description provided for @firstJobFranchiseSavings.
@@ -18502,7 +18502,7 @@ abstract class S {
   /// No description provided for @pillar3aIndepHeaderInfo.
   ///
   /// In fr, this message translates to:
-  /// **'En tant qu’indépendant·e sans LPP, tu as accès au «grand 3a» : tu peux déduire jusqu’à 20 % de ton revenu net (max CHF 36’288/an), au lieu de CHF 7’258 pour un·e salarié·e. C’est un avantage fiscal majeur.'**
+  /// **'En tant qu’indépendant·e sans LPP, tu as accès au «grand 3a» : tu peux déduire jusqu’à 20 % de ton revenu net (max CHF 36’288/an), au lieu de CHF 7’258 pour un·e salarié·e. L’impact dépend de ton revenu, de ton canton et de ta liquidité.'**
   String get pillar3aIndepHeaderInfo;
 
   /// No description provided for @pillar3aIndepLppToggle.
@@ -18544,13 +18544,13 @@ abstract class S {
   /// No description provided for @pillar3aIndepPremierEclairageCaption.
   ///
   /// In fr, this message translates to:
-  /// **'d’économie fiscale annuelle grâce au 3e pilier'**
+  /// **'d’impact fiscal indicatif avec le 3e pilier'**
   String get pillar3aIndepPremierEclairageCaption;
 
   /// No description provided for @pillar3aIndepPremierEclairageAvantageSalarie.
   ///
   /// In fr, this message translates to:
-  /// **'Tu économises {amount}/an d’impôts de plus qu’un·e salarié·e grâce au grand 3a'**
+  /// **'Impact fiscal indicatif du grand 3a : jusqu’à {amount}/an selon revenu, canton et statut LPP'**
   String pillar3aIndepPremierEclairageAvantageSalarie(String amount);
 
   /// No description provided for @pillar3aIndepPlafondApplicable.
@@ -18562,7 +18562,7 @@ abstract class S {
   /// No description provided for @pillar3aIndepEconomieFiscaleAn.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale /an'**
+  /// **'Impact fiscal indicatif /an'**
   String get pillar3aIndepEconomieFiscaleAn;
 
   /// No description provided for @pillar3aIndepPlafondSalarie.
@@ -20938,7 +20938,7 @@ abstract class S {
   /// No description provided for @reportLppEconomie.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale totale : CHF {amount}'**
+  /// **'Impact fiscal indicatif total : CHF {amount}'**
   String reportLppEconomie(String amount);
 
   /// No description provided for @reportLppYear.
@@ -20968,7 +20968,7 @@ abstract class S {
   /// No description provided for @reportLppHowBody.
   ///
   /// In fr, this message translates to:
-  /// **'Comprends pourquoi échelonner tes rachats LPP te fait économiser des milliers de francs supplémentaires.'**
+  /// **'Comprends comment échelonner tes rachats LPP peut modifier l’impact fiscal et ta liquidité.'**
   String get reportLppHowBody;
 
   /// No description provided for @reportSoaTitle.
@@ -24806,7 +24806,7 @@ abstract class S {
   /// No description provided for @capCoupleLppBuybackWhyNow.
   ///
   /// In fr, this message translates to:
-  /// **'Ton·ta conjoint·e dispose d’un rachat possible de {amount}. Prioriser le TMI le plus élevé maximise la déduction.'**
+  /// **'Ton·ta conjoint·e dispose d’un rachat possible de {amount}. Comparez le TMI, la liquidité et l’impact fiscal indicatif avant de prioriser.'**
   String capCoupleLppBuybackWhyNow(String amount);
 
   /// No description provided for @capCoverageCheckCtaLabel.
@@ -26072,19 +26072,19 @@ abstract class S {
   /// No description provided for @challengeFiscalite01Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Chaque franc versé en 3a est déductible. Calcule combien tu économises en impôts cette année.'**
+  /// **'Chaque franc versé en 3a est déductible. Estime l’impact indicatif sur tes impôts cette année.'**
   String get challengeFiscalite01Desc;
 
   /// No description provided for @challengeFiscalite01Title.
   ///
   /// In fr, this message translates to:
-  /// **'Estime ton économie fiscale 3a'**
+  /// **'Estime l’impact fiscal 3a'**
   String get challengeFiscalite01Title;
 
   /// No description provided for @challengeFiscalite02Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Les rachats LPP sont déductibles du revenu imposable. Vérifie ton potentiel de rachat et l’économie fiscale.'**
+  /// **'Les rachats LPP sont déductibles du revenu imposable. Vérifie ton potentiel de rachat et l’impact fiscal indicatif.'**
   String get challengeFiscalite02Desc;
 
   /// No description provided for @challengeFiscalite02Title.
@@ -31287,7 +31287,7 @@ abstract class S {
   /// No description provided for @narrativeRealReturnBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le rendement affiché ne dit pas tout. Après frais de gestion et inflation, le gain réel peut différer. L’économie fiscale du 3a (LIFD art. 33) améliore considérablement le rendement effectif.'**
+  /// **'Le rendement affiché ne dit pas tout. Après frais de gestion et inflation, le gain réel peut différer. L’impact fiscal du 3a (LIFD art. 33) peut modifier le rendement effectif.'**
   String get narrativeRealReturnBody;
 
   /// No description provided for @narrativeRealReturnHeadline.
@@ -31413,7 +31413,7 @@ abstract class S {
   /// No description provided for @notifDeadline3aBody46Days.
   ///
   /// In fr, this message translates to:
-  /// **'Il reste 46 jours pour maximiser ton 3a (CHF {remaining} de marge)'**
+  /// **'Il reste 46 jours pour vérifier ta marge 3a (CHF {remaining} restants)'**
   String notifDeadline3aBody46Days(String remaining);
 
   /// No description provided for @notifDeadline3aBodyLastDays.
@@ -34108,7 +34108,7 @@ abstract class S {
   /// No description provided for @retroactive3aEmptySubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Renseigne ton revenu pour calculer ton économie fiscale'**
+  /// **'Renseigne ton revenu pour estimer l’impact fiscal'**
   String get retroactive3aEmptySubtitle;
 
   /// No description provided for @retroactive3aEmptyTitle.
@@ -34120,7 +34120,7 @@ abstract class S {
   /// No description provided for @retroactive3aSavingsLabel.
   ///
   /// In fr, this message translates to:
-  /// **'d’économie fiscale avec le rattrapage 3a'**
+  /// **'d’impact fiscal indicatif avec le rattrapage 3a'**
   String get retroactive3aSavingsLabel;
 
   /// No description provided for @retroactive3aYearsChipsLabel.
@@ -34313,7 +34313,7 @@ abstract class S {
   /// No description provided for @seasonal3aCountdownDesc.
   ///
   /// In fr, this message translates to:
-  /// **'La deadline du 31 décembre approche pour les versements 3a. Vérifie ton solde et planifie ton versement pour maximiser ta déduction fiscale.'**
+  /// **'La deadline du 31 décembre approche pour les versements 3a. Vérifie ton solde et planifie ton versement selon ta marge déductible.'**
   String get seasonal3aCountdownDesc;
 
   /// No description provided for @seasonal3aCountdownTitle.
@@ -34397,7 +34397,7 @@ abstract class S {
   /// No description provided for @semantics3aEconomieFiscale.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale : {amount} francs'**
+  /// **'Impact fiscal indicatif : {amount} francs'**
   String semantics3aEconomieFiscale(String amount);
 
   /// No description provided for @semantics3aLppToggle.
@@ -35316,13 +35316,13 @@ abstract class S {
   /// No description provided for @stepJitTax3aCond.
   ///
   /// In fr, this message translates to:
-  /// **'tu ne verses pas le maximum dans ton 3e pilier chaque année'**
+  /// **'tu n\'utilises pas toute ta marge déductible 3a chaque année'**
   String get stepJitTax3aCond;
 
   /// No description provided for @stepJitTax3aCons.
   ///
   /// In fr, this message translates to:
-  /// **'tu passes à côté d’une économie fiscale et d’un capital retraite supplémentaire.'**
+  /// **'tu passes à côté d’une marge déductible et d’un capital retraite supplémentaire.'**
   String get stepJitTax3aCons;
 
   /// No description provided for @stepJitTax3aInsight.
@@ -35850,7 +35850,7 @@ abstract class S {
   /// No description provided for @summaryEconomieFiscale.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale annuelle'**
+  /// **'Impact fiscal indicatif annuel'**
   String get summaryEconomieFiscale;
 
   /// No description provided for @summaryEconomieRachat.

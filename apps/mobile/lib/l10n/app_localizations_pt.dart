@@ -816,7 +816,7 @@ class SPt extends S {
 
   @override
   String get coachingAge45Message =>
-      'Aos 45 anos, faltam 20 anos para a reforma. E o momento de otimizar: maximizar o 3a, considerar resgates LPP.';
+      'Aos 45 anos, faltam 20 anos para a reforma. É o momento de verificar a tua margem 3a, possíveis recompras LPP e a tua trajetória.';
 
   @override
   String get coachingAge50Title => '50 anos: preparar a reforma';
@@ -5406,7 +5406,7 @@ class SPt extends S {
   }
 
   @override
-  String get simLppBuybackTaxSavings => 'Économie Impôts';
+  String get simLppBuybackTaxSavings => 'Impacto fiscal';
 
   @override
   String get simLppBuybackNetEffort => 'Effort Net';
@@ -5535,7 +5535,7 @@ class SPt extends S {
 
   @override
   String get simBuybackMarginalRateTip =>
-      'Ao escalonar os teus resgates, ficas em escalões de imposição mais baixos a cada ano — o ganho acumulado pode ser considerável.';
+      'Ao escalonar as tuas recompras, comparas o impacto fiscal indicativo ano a ano segundo o rendimento e o cantão.';
 
   @override
   String get simBuybackLockedTitle => 'Rachat LPP bloqué';
@@ -6104,7 +6104,7 @@ class SPt extends S {
 
   @override
   String renteVsCapitalFiscalCapitalSaves(String amount) {
-    return 'Em 30 anos, o capital poupa-te ~$amount de impostos.';
+    return 'Em 30 anos, o cenário de capital altera o imposto estimado em cerca de $amount.';
   }
 
   @override
@@ -7459,7 +7459,7 @@ class SPt extends S {
 
   @override
   String get firstSalaryTask5 =>
-      'Depositar o máximo 3a antes de 31 de dezembro';
+      'Planear uma contribuição 3a adequada antes de 31 de dezembro';
 
   @override
   String get firstSalaryBadgeTitle => 'Primeiro passo financeiro';
@@ -8659,7 +8659,7 @@ class SPt extends S {
 
   @override
   String get rachatEchelonneIntroBody =>
-      'O imposto suíço é progressivo: distribuir um resgate LPP por vários anos maximiza a poupança fiscal total.';
+      'O imposto suíço é progressivo: distribuir uma recompra LPP por vários anos pode alterar o impacto fiscal ano a ano. Este simulador compara as duas abordagens.';
 
   @override
   String get rachatEchelonneSavingsCaption =>
@@ -8767,7 +8767,7 @@ class SPt extends S {
 
   @override
   String get rachatEchelonneTauxMarginalBody =>
-      'A taxa marginal é a percentagem sobre o teu último franco ganho.';
+      'A taxa marginal é a percentagem de imposto sobre o teu último franco ganho. Com uma taxa de 32 %, uma dedução de CHF 1\'000 corresponde a um impacto fiscal indicativo de CHF 320. Quanto maior o rendimento, mais esta taxa pode subir.';
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
@@ -9423,7 +9423,7 @@ class SPt extends S {
 
   @override
   String get sim3aCoachBody =>
-      'O 3a é uma das ferramentas de otimização mais eficazes na Suíça. A poupança fiscal imediata é uma vantagem concreta.';
+      'O 3a pode reduzir o rendimento tributável. Mint estima o impacto fiscal com os teus parâmetros e deixa-te comparar cenários.';
 
   @override
   String get sim3aParamsHeader => 'Os teus parâmetros';
@@ -9599,7 +9599,7 @@ class SPt extends S {
   }
 
   @override
-  String get realReturnFiscalDetail => 'Detalhe poupança fiscal';
+  String get realReturnFiscalDetail => 'Detalhe impacto fiscal';
 
   @override
   String get realReturnTotalPayments => 'Total contribuições';
@@ -9608,7 +9608,7 @@ class SPt extends S {
   String get realReturnFinalCapital3a => 'Capital final 3a (sem fiscal)';
 
   @override
-  String get realReturnCumulativeFiscal => 'Poupança fiscal acumulada';
+  String get realReturnCumulativeFiscal => 'Impacto fiscal acumulado';
 
   @override
   String get realReturnTotalWithFiscal => 'Total com vantagem fiscal';
@@ -9859,7 +9859,7 @@ class SPt extends S {
 
   @override
   String firstJobFiscalSavings(String amount) {
-    return 'Poupança fiscal estimada: ~$amount/ano';
+    return 'Impacto fiscal indicativo: ~$amount/ano';
   }
 
   @override
@@ -10478,7 +10478,7 @@ class SPt extends S {
 
   @override
   String get pillar3aIndepHeaderInfo =>
-      'Como independente sem LPP, acedes ao «grande 3a»: deduz até 20% do rendimento líquido (máx CHF 36’288/ano).';
+      'Como independente sem LPP, acedes ao «grande 3a»: deduz até 20% do rendimento líquido (máx CHF 36’288/ano). O impacto depende do rendimento, do cantão e da liquidez.';
 
   @override
   String get pillar3aIndepLppToggle => 'Afiliado a LPP voluntária?';
@@ -10501,11 +10501,11 @@ class SPt extends S {
 
   @override
   String get pillar3aIndepPremierEclairageCaption =>
-      'de poupança fiscal anual graças ao 3º pilar';
+      'de impacto fiscal indicativo com o 3º pilar';
 
   @override
   String pillar3aIndepPremierEclairageAvantageSalarie(String amount) {
-    return 'Poupas $amount/ano a mais que um empregado graças ao grande 3a';
+    return 'Impacto fiscal indicativo do grande 3a: até $amount/ano segundo rendimento, cantão e estatuto LPP';
   }
 
   @override
@@ -11827,7 +11827,7 @@ class SPt extends S {
 
   @override
   String reportLppEconomie(String amount) {
-    return 'Poupança fiscal total: CHF $amount';
+    return 'Impacto fiscal indicativo total: CHF $amount';
   }
 
   @override
@@ -11850,7 +11850,7 @@ class SPt extends S {
 
   @override
   String get reportLppHowBody =>
-      'Percebe porque escalonar os teus resgates LPP te faz poupar milhares de francos adicionais.';
+      'Percebe como escalonar as tuas recompras LPP pode alterar o impacto fiscal e a tua liquidez.';
 
   @override
   String get reportSoaTitle => 'Transparência e conformidade';
@@ -14025,7 +14025,7 @@ class SPt extends S {
 
   @override
   String capCoupleLppBuybackWhyNow(String amount) {
-    return 'O teu parceiro tem um resgate possível de $amount. Priorizar a taxa marginal mais alta maximiza a dedução.';
+    return 'O teu parceiro tem uma recompra possível de $amount. Comparem taxa marginal, liquidez e impacto fiscal indicativo antes de priorizar.';
   }
 
   @override
@@ -14773,14 +14773,14 @@ class SPt extends S {
 
   @override
   String get challengeFiscalite01Desc =>
-      'Cada franco depositado no 3a é dedutível. Calcula quanto poupes em impostos este ano.';
+      'Cada franco depositado no 3a é dedutível. Estima o impacto indicativo nos teus impostos este ano.';
 
   @override
-  String get challengeFiscalite01Title => 'Estima a tua poupança fiscal do 3a';
+  String get challengeFiscalite01Title => 'Estima o teu impacto fiscal 3a';
 
   @override
   String get challengeFiscalite02Desc =>
-      'As recompras LPP são dedutíveis do rendimento tributável. Verifica o teu potencial de recompra e a poupança fiscal.';
+      'As recompras LPP são dedutíveis do rendimento tributável. Verifica o teu potencial de recompra e o impacto fiscal indicativo.';
 
   @override
   String get challengeFiscalite02Title =>
@@ -17770,7 +17770,7 @@ class SPt extends S {
 
   @override
   String get narrativeRealReturnBody =>
-      'O rendimento apresentado não diz tudo. Após comissões de gestão e inflação, o ganho real pode diferir. A poupança fiscal do 3a (LIFD art. 33) melhora consideravelmente o rendimento efetivo.';
+      'O rendimento apresentado não diz tudo. Após comissões de gestão e inflação, o ganho real pode diferir. O impacto fiscal do 3a (LIFD art. 33) pode alterar o rendimento efetivo.';
 
   @override
   String get narrativeRealReturnHeadline => 'Rendimento real após inflação';
@@ -17842,7 +17842,7 @@ class SPt extends S {
 
   @override
   String notifDeadline3aBody46Days(String remaining) {
-    return 'Restam 46 dias para maximizar o teu 3a (CHF $remaining de margem)';
+    return 'Restam 46 dias para verificar a tua margem 3a (CHF $remaining restantes)';
   }
 
   @override
@@ -19414,14 +19414,14 @@ class SPt extends S {
 
   @override
   String get retroactive3aEmptySubtitle =>
-      'Insere o teu rendimento para calcular a tua poupança fiscal';
+      'Insere o teu rendimento para estimar o impacto fiscal';
 
   @override
   String get retroactive3aEmptyTitle => 'Recuperação 3a';
 
   @override
   String get retroactive3aSavingsLabel =>
-      'de poupança fiscal com a recuperação 3a';
+      'de impacto fiscal indicativo com a recuperação 3a';
 
   @override
   String get retroactive3aYearsChipsLabel => 'Anos a recuperar';
@@ -19528,7 +19528,7 @@ class SPt extends S {
 
   @override
   String get seasonal3aCountdownDesc =>
-      'O prazo de 31 de dezembro para contribuições ao pilar 3a está a aproximar-se. Verifica o teu saldo e planeia a contribuição para maximizar a dedução fiscal.';
+      'O prazo de 31 de dezembro para contribuições ao pilar 3a está a aproximar-se. Verifica o teu saldo e planeia a contribuição segundo a tua margem dedutível.';
 
   @override
   String get seasonal3aCountdownTitle => 'Contagem decrescente 3.º pilar';
@@ -19578,7 +19578,7 @@ class SPt extends S {
 
   @override
   String semantics3aEconomieFiscale(String amount) {
-    return 'Poupança fiscal: $amount francos';
+    return 'Impacto fiscal indicativo: $amount francos';
   }
 
   @override
@@ -20117,11 +20117,11 @@ class SPt extends S {
 
   @override
   String get stepJitTax3aCond =>
-      'não contribuís o máximo para o teu 3º pilar todos os anos';
+      'não usas toda a tua margem dedutível 3a todos os anos';
 
   @override
   String get stepJitTax3aCons =>
-      'estás a perder uma poupança fiscal e um capital de reforma adicional.';
+      'estás a deixar margem dedutível sem uso e capital de reforma adicional.';
 
   @override
   String get stepJitTax3aInsight =>
@@ -20426,7 +20426,7 @@ class SPt extends S {
   String get summaryEcartMensuel => 'Diferença mensal estimada';
 
   @override
-  String get summaryEconomieFiscale => 'Poupança fiscal anual';
+  String get summaryEconomieFiscale => 'Impacto fiscal indicativo anual';
 
   @override
   String get summaryEconomieRachat => 'Poupança com recompra escalonada';

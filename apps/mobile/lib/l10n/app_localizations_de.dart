@@ -820,7 +820,7 @@ class SDe extends S {
 
   @override
   String get coachingAge45Message =>
-      'Mit 45 bleiben 20 Jahre bis zur Rente. Jetzt optimieren: 3a maximieren, BVG-Einkäufe prüfen.';
+      'Mit 45 bleiben 20 Jahre bis zur Rente. Jetzt ist der Moment, deinen 3a-Spielraum, mögliche BVG-Einkäufe und deine Trajektorie zu prüfen.';
 
   @override
   String get coachingAge50Title => '50 Jahre: Rente vorbereiten';
@@ -5421,7 +5421,7 @@ class SDe extends S {
   }
 
   @override
-  String get simLppBuybackTaxSavings => 'Économie Impôts';
+  String get simLppBuybackTaxSavings => 'Steuereffekt';
 
   @override
   String get simLppBuybackNetEffort => 'Effort Net';
@@ -5549,7 +5549,7 @@ class SDe extends S {
 
   @override
   String get simBuybackMarginalRateTip =>
-      'Durch die Staffelung deiner Einkäufe bleibst du jedes Jahr in tieferen Steuerklassen — der kumulative Gewinn kann erheblich sein.';
+      'Durch die Staffelung deiner Einkäufe vergleichst du den indikativen Steuereffekt Jahr für Jahr nach Einkommen und Kanton.';
 
   @override
   String get simBuybackLockedTitle => 'Rachat LPP bloqué';
@@ -6118,7 +6118,7 @@ class SDe extends S {
 
   @override
   String renteVsCapitalFiscalCapitalSaves(String amount) {
-    return 'Über 30 Jahre spart dir das Kapital ~$amount an Steuern.';
+    return 'Über 30 Jahre verändert das Kapitalszenario die geschätzte Steuer um etwa $amount.';
   }
 
   @override
@@ -7481,7 +7481,8 @@ class SDe extends S {
       'Private Haftpflicht prüfen (ca. CHF 100/Jahr)';
 
   @override
-  String get firstSalaryTask5 => 'Maximum 3a vor dem 31. Dezember einzahlen';
+  String get firstSalaryTask5 =>
+      'Passende 3a-Einzahlung vor dem 31. Dezember planen';
 
   @override
   String get firstSalaryBadgeTitle => 'Erster finanzieller Schritt';
@@ -8687,7 +8688,7 @@ class SDe extends S {
 
   @override
   String get rachatEchelonneIntroBody =>
-      'Die Schweizer Steuer ist progressiv: Verteilst du einen BVG-Einkauf über mehrere Jahre, bleibt jeder Abzug in einer höheren Grenzsteuerklasse.';
+      'Die Schweizer Steuer ist progressiv: Verteilst du einen BVG-Einkauf über mehrere Jahre, kann sich der Steuereffekt Jahr für Jahr verändern. Dieser Simulator vergleicht beide Ansätze.';
 
   @override
   String get rachatEchelonneSavingsCaption =>
@@ -8794,7 +8795,7 @@ class SDe extends S {
 
   @override
   String get rachatEchelonneTauxMarginalBody =>
-      'Der Grenzsteuersatz ist der Steuerprozentsatz auf deinen letzten verdienten Franken.';
+      'Der Grenzsteuersatz ist der Steuerprozentsatz auf deinen letzten verdienten Franken. Bei 32 % entspricht ein Abzug von CHF 1\'000 einem indikativen Steuereffekt von CHF 320. Je höher dein Einkommen, desto stärker kann dieser Satz steigen.';
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
@@ -9451,7 +9452,7 @@ class SDe extends S {
 
   @override
   String get sim3aCoachBody =>
-      'Die Säule 3a ist eines der effektivsten Steueroptimierungs-Instrumente in der Schweiz. Die sofortige Steuerersparnis ist ein konkreter Vorteil.';
+      'Die Säule 3a kann das steuerbare Einkommen senken. Mint schätzt den Steuereffekt mit deinen Parametern und lässt dich Szenarien vergleichen.';
 
   @override
   String get sim3aParamsHeader => 'Deine Parameter';
@@ -9627,7 +9628,7 @@ class SDe extends S {
   }
 
   @override
-  String get realReturnFiscalDetail => 'Details Steuerersparnis';
+  String get realReturnFiscalDetail => 'Details Steuereffekt';
 
   @override
   String get realReturnTotalPayments => 'Einzahlungen total';
@@ -9636,7 +9637,7 @@ class SDe extends S {
   String get realReturnFinalCapital3a => 'Endkapital 3a (ohne Steuer)';
 
   @override
-  String get realReturnCumulativeFiscal => 'Kumulierte Steuerersparnis';
+  String get realReturnCumulativeFiscal => 'Kumulierter Steuereffekt';
 
   @override
   String get realReturnTotalWithFiscal => 'Total mit Steuervorteil';
@@ -9888,7 +9889,7 @@ class SDe extends S {
 
   @override
   String firstJobFiscalSavings(String amount) {
-    return 'Geschätzte Steuerersparnis: ~$amount/Jahr';
+    return 'Indikativer Steuereffekt: ~$amount/Jahr';
   }
 
   @override
@@ -10509,7 +10510,7 @@ class SDe extends S {
 
   @override
   String get pillar3aIndepHeaderInfo =>
-      'Als Selbstständige·r ohne BVG hast du Zugang zur «grossen 3a»: bis zu 20 % des Nettoeinkommens abziehbar (max CHF 36’288/Jahr), statt CHF 7’258 für Angestellte.';
+      'Als Selbstständige·r ohne BVG hast du Zugang zur «grossen 3a»: bis zu 20 % des Nettoeinkommens abziehbar (max CHF 36’288/Jahr), statt CHF 7’258 für Angestellte. Die Wirkung hängt von Einkommen, Kanton und Liquidität ab.';
 
   @override
   String get pillar3aIndepLppToggle => 'Freiwillig BVG-versichert?';
@@ -10533,11 +10534,11 @@ class SDe extends S {
 
   @override
   String get pillar3aIndepPremierEclairageCaption =>
-      'jährliche Steuerersparnis dank der 3. Säule';
+      'indikativer Steuereffekt mit der 3. Säule';
 
   @override
   String pillar3aIndepPremierEclairageAvantageSalarie(String amount) {
-    return 'Du sparst $amount/Jahr mehr Steuern als Angestellte dank der grossen 3a';
+    return 'Indikativer Steuereffekt der grossen 3a: bis zu $amount/Jahr je nach Einkommen, Kanton und BVG-Status';
   }
 
   @override
@@ -11859,7 +11860,7 @@ class SDe extends S {
 
   @override
   String reportLppEconomie(String amount) {
-    return 'Gesamte Steuerersparnis: CHF $amount';
+    return 'Indikativer Steuereffekt total: CHF $amount';
   }
 
   @override
@@ -11882,7 +11883,7 @@ class SDe extends S {
 
   @override
   String get reportLppHowBody =>
-      'Verstehe, warum das Staffeln deiner BVG-Einkäufe dir zusätzlich Tausende von Franken spart.';
+      'Verstehe, wie das Staffeln deiner BVG-Einkäufe den Steuereffekt und deine Liquidität verändern kann.';
 
   @override
   String get reportSoaTitle => 'Transparenz und Konformität';
@@ -14063,7 +14064,7 @@ class SDe extends S {
 
   @override
   String capCoupleLppBuybackWhyNow(String amount) {
-    return 'Dein Partner hat einen möglichen Einkauf von $amount. Den höheren Grenzsteuersatz zu priorisieren maximiert den Abzug.';
+    return 'Dein Partner hat einen möglichen Einkauf von $amount. Vergleicht Grenzsteuersatz, Liquidität und indikativen Steuereffekt, bevor ihr priorisiert.';
   }
 
   @override
@@ -14813,14 +14814,14 @@ class SDe extends S {
 
   @override
   String get challengeFiscalite01Desc =>
-      'Jeder ins 3a eingezahlte Franken ist abzugsfähig. Berechne, wie viel du dieses Jahr an Steuern sparst.';
+      'Jeder ins 3a eingezahlte Franken ist abzugsfähig. Schätze den indikativen Effekt auf deine Steuern dieses Jahr.';
 
   @override
-  String get challengeFiscalite01Title => 'Schätze deine 3a-Steuerersparnis';
+  String get challengeFiscalite01Title => 'Schätze deinen 3a-Steuereffekt';
 
   @override
   String get challengeFiscalite02Desc =>
-      'BVG-Einkäufe sind vom steuerbaren Einkommen abzugsfähig. Prüfe dein Einkaufspotenzial und die Steuerersparnis.';
+      'BVG-Einkäufe sind vom steuerbaren Einkommen abzugsfähig. Prüfe dein Einkaufspotenzial und den indikativen Steuereffekt.';
 
   @override
   String get challengeFiscalite02Title =>
@@ -17810,7 +17811,7 @@ class SDe extends S {
 
   @override
   String get narrativeRealReturnBody =>
-      'Die angezeigte Rendite sagt nicht alles. Nach Verwaltungskosten und Inflation kann der reale Gewinn abweichen. Die Steuerersparnis der Säule 3a (DBG Art. 33) verbessert die effektive Rendite erheblich.';
+      'Die angezeigte Rendite sagt nicht alles. Nach Verwaltungskosten und Inflation kann der reale Gewinn abweichen. Der Steuereffekt der Säule 3a (DBG Art. 33) kann die effektive Rendite verändern.';
 
   @override
   String get narrativeRealReturnHeadline => 'Reale Rendite nach Inflation';
@@ -17883,7 +17884,7 @@ class SDe extends S {
 
   @override
   String notifDeadline3aBody46Days(String remaining) {
-    return 'Noch 46 Tage, um deine 3a zu maximieren (CHF $remaining Spielraum)';
+    return 'Noch 46 Tage, um deinen 3a-Spielraum zu prüfen (CHF $remaining verbleibend)';
   }
 
   @override
@@ -19456,14 +19457,14 @@ class SDe extends S {
 
   @override
   String get retroactive3aEmptySubtitle =>
-      'Gib dein Einkommen ein, um deine Steuerersparnis zu berechnen';
+      'Gib dein Einkommen ein, um den Steuereffekt zu schätzen';
 
   @override
   String get retroactive3aEmptyTitle => 'Säule-3a-Nachzahlung';
 
   @override
   String get retroactive3aSavingsLabel =>
-      'Steuerersparnis mit Säule-3a-Nachzahlung';
+      'indikativer Steuereffekt mit Säule-3a-Nachzahlung';
 
   @override
   String get retroactive3aYearsChipsLabel => 'Nachzuholende Jahre';
@@ -19570,7 +19571,7 @@ class SDe extends S {
 
   @override
   String get seasonal3aCountdownDesc =>
-      'Die Frist vom 31. Dezember für 3a-Einzahlungen naht. Prüfe dein Guthaben und plane deine Einzahlung für den maximalen Steuerabzug.';
+      'Die Frist vom 31. Dezember für 3a-Einzahlungen naht. Prüfe dein Guthaben und plane deine Einzahlung nach deinem abzugsfähigen Spielraum.';
 
   @override
   String get seasonal3aCountdownTitle => '3. Säule Countdown';
@@ -19620,7 +19621,7 @@ class SDe extends S {
 
   @override
   String semantics3aEconomieFiscale(String amount) {
-    return 'Steuerersparnis: $amount Franken';
+    return 'Indikativer Steuereffekt: $amount Franken';
   }
 
   @override
@@ -20161,11 +20162,11 @@ class SDe extends S {
 
   @override
   String get stepJitTax3aCond =>
-      'du nicht den Maximalbetrag in deine 3. Säule einzahlst';
+      'du deinen abzugsfähigen 3a-Spielraum nicht vollständig nutzt';
 
   @override
   String get stepJitTax3aCons =>
-      'du verpasst eine Steuerersparnis und zusätzliches Alterskapital.';
+      'du verpasst abzugsfähigen Spielraum und zusätzliches Alterskapital.';
 
   @override
   String get stepJitTax3aInsight =>
@@ -20468,7 +20469,7 @@ class SDe extends S {
   String get summaryEcartMensuel => 'Geschätzte monatliche Lücke';
 
   @override
-  String get summaryEconomieFiscale => 'Jährliche Steuerersparnis';
+  String get summaryEconomieFiscale => 'Jährlicher indikativer Steuereffekt';
 
   @override
   String get summaryEconomieRachat => 'Ersparnis durch gestaffelten Einkauf';
