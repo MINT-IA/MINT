@@ -371,6 +371,30 @@ class BudgetInputs {
     return value;
   }
 
+  static double plausibleMonthlyFixedExpensesFromProfile(
+    CoachProfile profile,
+  ) {
+    final depenses = profile.depenses;
+    final housing = plausibleMonthlyAmount(
+          depenses.loyer,
+          max: maxMonthlyHousingCost,
+        ) ??
+        0.0;
+    final health = plausibleMonthlyAmount(
+          depenses.assuranceMaladie,
+          max: maxMonthlyHealthInsurance,
+        ) ??
+        0.0;
+    final otherFixed =
+        depenses.totalMensuel - depenses.loyer - depenses.assuranceMaladie;
+    final other = plausibleMonthlyAmount(
+          otherFixed,
+          max: maxMonthlyFixedCharge,
+        ) ??
+        0.0;
+    return housing + health + other;
+  }
+
   static bool _hasAnyTrustedSource(CoachProfile profile, List<String> keys) {
     return keys.any((key) => _hasTrustedSource(profile, key));
   }

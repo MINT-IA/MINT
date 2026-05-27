@@ -544,30 +544,9 @@ class CapEngine {
   static _CapBudgetSignal _budgetSignal(CoachProfile profile) {
     return _CapBudgetSignal(
       monthlyNet: BudgetInputs.monthlyNetFromCoachProfile(profile),
-      monthlyFixedCharges: _plausibleProfileFixedCharges(profile),
+      monthlyFixedCharges:
+          BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile),
     );
-  }
-
-  static double _plausibleProfileFixedCharges(CoachProfile profile) {
-    final depenses = profile.depenses;
-    final housing = BudgetInputs.plausibleMonthlyAmount(
-          depenses.loyer,
-          max: BudgetInputs.maxMonthlyHousingCost,
-        ) ??
-        0.0;
-    final health = BudgetInputs.plausibleMonthlyAmount(
-          depenses.assuranceMaladie,
-          max: BudgetInputs.maxMonthlyHealthInsurance,
-        ) ??
-        0.0;
-    final otherFixed =
-        depenses.totalMensuel - depenses.loyer - depenses.assuranceMaladie;
-    final other = BudgetInputs.plausibleMonthlyAmount(
-          otherFixed,
-          max: BudgetInputs.maxMonthlyFixedCharge,
-        ) ??
-        0.0;
-    return housing + health + other;
   }
 
   // ── TOP 10 SWISS CORE JOURNEYS — TIER 1 URGENCY ─────────

@@ -680,6 +680,30 @@ void main() {
       expect(inputs.emergencyFundMonths, 0);
     });
 
+    test('plausibleMonthlyFixedExpensesFromProfile ignores impossible housing',
+        () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        depenses: const DepensesProfile(
+          loyer: 19272200,
+          assuranceMaladie: 420,
+          transport: 200,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final expenses =
+          BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
+
+      expect(expenses, 620);
+    });
+
     test('fromCoachProfile prefers explicit debt monthly payment over proxy',
         () {
       final profile = CoachProfile(
