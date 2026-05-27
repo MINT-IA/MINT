@@ -38,6 +38,8 @@ void main() {
       expect(tip.source, isNotEmpty);
       expect(tip.estimatedImpactChf, isNotNull);
       expect(tip.estimatedImpactChf!, greaterThan(0));
+      expect(tip.message, contains('impact fiscal indicatif'));
+      expect(tip.message, isNot(contains('économie fiscale estimée')));
     });
 
     test('user with 3a does not trigger missing_3a tip', () {
@@ -893,6 +895,13 @@ void main() {
       for (final tip in filtered) {
         expect(tip.category, 'fiscalite');
       }
+    });
+
+    test('3a fiscalité tip frames impact as indicative', () {
+      final tip = allTips.firstWhere((t) => t.id == '3a_not_maxed');
+
+      expect(tip.message, contains('impact fiscal indicatif'));
+      expect(tip.message, isNot(contains('économie fiscale')));
     });
 
     test('stress_budget filters to budget', () {

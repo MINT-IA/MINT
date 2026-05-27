@@ -403,7 +403,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       message:
           'Ouvrir un 3e pilier te permettrait de déduire jusqu\'à '
           '${formatChfWithPrefix(plafond)} de ton revenu imposable chaque année. '
-          'L\'économie fiscale estimée est de ${formatChfWithPrefix(impact)} par an '
+          'L\'impact fiscal indicatif est de ${formatChfWithPrefix(impact)} par an '
           'dans le canton de ${profile.canton}.',
       action: 'Découvrir le 3e pilier',
       estimatedImpactChf: impact,
@@ -729,7 +729,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       message:
           'Ton versement 3a actuel est de ${formatChfWithPrefix(profile.montant3a)} '
           'sur un plafond de ${formatChfWithPrefix(plafond)}. Verser le solde de '
-          '${formatChfWithPrefix(restant)} pourrait représenter une économie fiscale '
+          '${formatChfWithPrefix(restant)} pourrait représenter un impact fiscal indicatif '
           'd\'environ ${formatChfWithPrefix(impact)}.',
       action: 'Simuler mon 3a',
       estimatedImpactChf: impact,
