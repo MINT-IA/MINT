@@ -13,6 +13,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/models/response_card.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -1814,16 +1815,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (epargne3a.isFinite && epargne3a > 0) {
       knownValues['epargne_3a'] = epargne3a;
     }
-    // Mirrors CoachProfile.isInDebtCrisis (line 1902) heuristic:
-    // prefer logged expenses, fall back to 60% of net monthly.
-    final loggedExpenses = profile.depenses.totalMensuel;
-    final netMensuel = profile.salaireBrutMensuel * profile.nombreDeMois / 12;
-    final monthlyExpenses = loggedExpenses > 0
-        ? loggedExpenses
-        : (netMensuel > 0 ? netMensuel * 0.6 : 0.0);
-    final epargneLiquide = profile.patrimoine.epargneLiquide;
-    if (monthlyExpenses > 0 && epargneLiquide.isFinite && epargneLiquide > 0) {
-      knownValues['months_liquidity'] = epargneLiquide / monthlyExpenses;
+    final monthsLiquidity = coachContextMonthsLiquidity(profile);
+    if (monthsLiquidity != null && monthsLiquidity > 0) {
+      knownValues['months_liquidity'] = monthsLiquidity;
     }
     knownValues.addAll(CoachContextProfileMapper.knownValues(profile));
 
@@ -2518,6 +2512,20 @@ String? resolveIntentOpener(String chipKey, S l10n) {
     'intentChipAutre': l10n.coachOpenerIntentAutre,
   };
   return openers[chipKey];
+}
+
+double? coachContextMonthsLiquidity(CoachProfile profile) {
+  final epargneLiquide = profile.patrimoine.epargneLiquide;
+  if (!epargneLiquide.isFinite || epargneLiquide <= 0) return null;
+
+  final plausibleExpenses =
+      BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
+  final netMensuel = profile.salaireBrutMensuel * profile.nombreDeMois / 12;
+  final monthlyExpenses = plausibleExpenses > 0
+      ? plausibleExpenses
+      : (netMensuel > 0 ? netMensuel * 0.6 : 0.0);
+
+  return monthlyExpenses > 0 ? epargneLiquide / monthlyExpenses : null;
 }
 
 /// Intent emitted when the user taps one of the 4 first-contact opener
