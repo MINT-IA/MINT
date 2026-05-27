@@ -126,7 +126,7 @@ class LocalFallbackService {
         'à un taux réduit (LIFD art. 38). Les retraits SWR '
         '(consommation de patrimoine) ne sont pas imposables.\n\n'
         'Tu pourrais utiliser le simulateur fiscal dans l\'app '
-        'pour estimer ton économie d\'impôt.\n\n'
+        'pour estimer l\'impact indicatif sur tes impôts.\n\n'
         'Réf.\u00a0: LIFD art. 33, 38\u00a0; LHID.',
     'budget': 'Un budget solide est la base de la santé financière. '
         'La règle 50/30/20 suggère\u00a0: 50\u00a0% pour les besoins '

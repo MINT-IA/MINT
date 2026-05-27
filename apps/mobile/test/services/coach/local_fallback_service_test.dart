@@ -38,6 +38,11 @@ void main() {
       );
       expect(response, contains('LIFD'));
       expect(response, contains('déductions'));
+      expect(response, contains('impact indicatif'));
+      expect(response, isNot(contains('économie d\'impôt')));
+      expect(response, isNot(contains('économie fiscale')));
+      expect(response, isNot(contains('avantage fiscal')));
+      expect(response, isNot(contains('tax saving')));
     });
 
     test('matches budget topic from "épargne" keyword', () {
