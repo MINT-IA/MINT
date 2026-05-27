@@ -168,6 +168,28 @@ void main() {
       expect(lockedIds, isNot(contains('allocation_annuelle')));
     });
 
+    test('missing canton suppresses arbitrages and asks for canton', () {
+      final profile = _buildProfile(
+        canton: '',
+        salaireBrutMensuel: 10000,
+        avoirLppTotal: 300000,
+        totalEpargne3a: 50000,
+        rachatMaximum: 100000,
+        loyer: 2000,
+        epargneLiquide: 100000,
+        investissements: 50000,
+      );
+
+      final summary = ArbitrageSummaryService.compute(profile);
+
+      expect(summary.items, isEmpty);
+      expect(summary.lockedItems.map((i) => i.id), contains('canton'));
+      expect(
+        summary.lockedItems.firstWhere((i) => i.id == 'canton').missingDataPrompt,
+        contains('canton'),
+      );
+    });
+
     // ── Test 7: Location vs Propriete for locataire ───────────
     test('location_vs_propriete attempted when loyer > 0 and not proprietaire',
         () {

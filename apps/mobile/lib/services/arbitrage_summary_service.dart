@@ -112,7 +112,26 @@ class ArbitrageSummaryService {
       ));
     }
 
-    final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
+    final resolvedCanton = resolveCanton(profile.canton);
+    if (!resolvedCanton.isResolved) {
+      locked.add(const ArbitrageLocked(
+        id: 'canton',
+        title: 'Canton fiscal',
+        missingDataPrompt:
+            'Ajoute ton canton pour fiabiliser les arbitrages fiscaux.',
+        enrichmentRoute: '/profile/bilan',
+      ));
+
+      return ArbitrageSummary(
+        items: const [],
+        lockedItems: locked,
+        protectionItems: protections,
+        aggregateMonthlyImpact: 0,
+        computedAt: DateTime.now(),
+      );
+    }
+
+    final canton = resolvedCanton.code;
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
     final total3a = profile.prevoyance.totalEpargne3a;
