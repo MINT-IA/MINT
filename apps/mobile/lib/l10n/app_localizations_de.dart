@@ -17973,7 +17973,7 @@ class SDe extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return 'Noch 61 Tage. Geschätzte Steuerersparnis: CHF $saving.';
+    return 'Noch 61 Tage. Indikative Steuerwirkung: CHF $saving.';
   }
 
   @override
@@ -17981,7 +17981,7 @@ class SDe extends S {
 
   @override
   String notifThreeALastMonth(String saving) {
-    return 'Letzter Monat für deine Säule 3a. Geschätzte Steuerersparnis: CHF $saving.';
+    return 'Letzter Monat für deine Säule 3a. Indikative Steuerwirkung: CHF $saving.';
   }
 
   @override

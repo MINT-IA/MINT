@@ -17983,7 +17983,7 @@ class SIt extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return 'Restano 61 giorni. Risparmio fiscale stimato: CHF $saving.';
+    return 'Restano 61 giorni. Impatto fiscale indicativo: CHF $saving.';
   }
 
   @override
@@ -17991,7 +17991,7 @@ class SIt extends S {
 
   @override
   String notifThreeALastMonth(String saving) {
-    return 'Ultimo mese per il tuo 3a. Risparmio fiscale stimato: CHF $saving.';
+    return 'Ultimo mese per il tuo 3a. Impatto fiscale indicativo: CHF $saving.';
   }
 
   @override

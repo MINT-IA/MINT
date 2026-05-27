@@ -93,7 +93,8 @@ void main() {
       final finalMsg = messages
           .firstWhere((m) => m.trigger == ReengagementTrigger.threeAFinal);
       expect(finalMsg.timeConstraint, 'Dernier mois');
-      expect(finalMsg.body, contains('Économie fiscale estimée'));
+      expect(finalMsg.body, contains('Impact fiscal indicatif'));
+      expect(finalMsg.body, isNot(contains('Économie fiscale estimée')));
       expect(finalMsg.body, isNot(contains('en jeu')));
     });
 
@@ -131,8 +132,10 @@ void main() {
           messages.firstWhere((m) => m.trigger == ReengagementTrigger.newYear);
       expect(newYear.personalNumber, contains('7\'258'));
       expect(newYear.body, contains('marge déductible'));
-      expect(newYear.body.toLowerCase(), isNot(contains('économie potentielle')));
-      expect(newYear.body.toLowerCase(), isNot(contains('economie potentielle')));
+      expect(
+          newYear.body.toLowerCase(), isNot(contains('économie potentielle')));
+      expect(
+          newYear.body.toLowerCase(), isNot(contains('economie potentielle')));
     });
 
     test('quarterly FRI shows score and delta', () {
@@ -204,7 +207,8 @@ void main() {
           expect(msg.body, contains('marge déductible'));
           expect(msg.body, contains('7\'258'));
         } else {
-          expect(msg.body, contains('Économie fiscale estimée'));
+          expect(msg.body, contains('Impact fiscal indicatif'));
+          expect(msg.body, isNot(contains('Économie fiscale estimée')));
           expect(msg.body, contains('1\'820'));
         }
       }

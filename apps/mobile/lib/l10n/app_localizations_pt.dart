@@ -17933,7 +17933,7 @@ class SPt extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return 'Restam 61 dias. Poupança fiscal estimada: CHF $saving.';
+    return 'Restam 61 dias. Impacto fiscal indicativo: CHF $saving.';
   }
 
   @override
@@ -17941,7 +17941,7 @@ class SPt extends S {
 
   @override
   String notifThreeALastMonth(String saving) {
-    return 'Último mês para o teu 3a. Poupança fiscal estimada: CHF $saving.';
+    return 'Último mês para o teu 3a. Impacto fiscal indicativo: CHF $saving.';
   }
 
   @override

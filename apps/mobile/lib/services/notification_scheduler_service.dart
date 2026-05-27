@@ -122,7 +122,7 @@ class NotificationSchedulerService {
 
   /// Generate Tier 1 calendar notifications for the year.
   ///
-  /// [taxSaving3a] — estimated annual tax saving from 3a contributions (CHF).
+  /// [taxSaving3a] — indicative annual tax impact from 3a contributions (CHF).
   /// [today] — override for testing (defaults to DateTime.now()).
   /// [l] — localizations instance; when provided all user-facing strings are
   ///        i18n'd. When null (unit tests without BuildContext) falls back to
@@ -171,7 +171,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: l?.notifThreeATitle ?? 'Deadline 3a',
         body: l?.notifThreeA61Days(savingStr) ??
-            'Il reste 61 jours. Économie fiscale estimée : CHF $savingStr.',
+            'Il reste 61 jours. Impact fiscal indicatif : CHF $savingStr.',
         deeplink: '/pilier-3a',
         scheduledDate: nov1,
         personalNumber: 'CHF $savingStr',
@@ -187,7 +187,7 @@ class NotificationSchedulerService {
         tier: NotificationTier.calendar,
         title: l?.notifThreeATitle ?? 'Deadline 3a',
         body: l?.notifThreeALastMonth(savingStr) ??
-            'Dernier mois pour ton 3a. Économie fiscale estimée : CHF $savingStr.',
+            'Dernier mois pour ton 3a. Impact fiscal indicatif : CHF $savingStr.',
         deeplink: '/pilier-3a',
         scheduledDate: dec1,
         personalNumber: 'CHF $savingStr',

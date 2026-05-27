@@ -247,7 +247,7 @@ void main() {
       }
     });
 
-    test('3a tax-saving notifications frame the value as estimated', () {
+    test('3a notifications frame the value as indicative tax impact', () {
       final notifications =
           NotificationSchedulerService.generateCalendarNotifications(
         taxSaving3a: 1820,
@@ -267,10 +267,12 @@ void main() {
             n.scheduledDate.day == 1,
       );
 
-      expect(nov1.body, contains('Économie fiscale estimée'));
+      expect(nov1.body, contains('Impact fiscal indicatif'));
+      expect(nov1.body, isNot(contains('Économie fiscale estimée')));
       expect(nov1.body, isNot(contains('Économie estimée')));
       expect(nov1.body, isNot(contains('en jeu')));
-      expect(dec1.body, contains('Économie fiscale estimée'));
+      expect(dec1.body, contains('Impact fiscal indicatif'));
+      expect(dec1.body, isNot(contains('Économie fiscale estimée')));
       expect(dec1.body, isNot(contains('Économie estimée')));
       expect(dec1.body, isNot(contains('en jeu')));
     });

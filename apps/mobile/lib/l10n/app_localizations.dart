@@ -31551,7 +31551,7 @@ abstract class S {
   /// No description provided for @notifThreeA61Days.
   ///
   /// In fr, this message translates to:
-  /// **'Il reste 61 jours. Économie fiscale estimée : CHF {saving}.'**
+  /// **'Il reste 61 jours. Impact fiscal indicatif : CHF {saving}.'**
   String notifThreeA61Days(String saving);
 
   /// No description provided for @notifThreeA92Days.
@@ -31563,7 +31563,7 @@ abstract class S {
   /// No description provided for @notifThreeALastMonth.
   ///
   /// In fr, this message translates to:
-  /// **'Dernier mois pour ton 3a. Économie fiscale estimée : CHF {saving}.'**
+  /// **'Dernier mois pour ton 3a. Impact fiscal indicatif : CHF {saving}.'**
   String notifThreeALastMonth(String saving);
 
   /// No description provided for @notifThreeATitle.

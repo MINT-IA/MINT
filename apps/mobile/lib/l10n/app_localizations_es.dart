@@ -17934,7 +17934,7 @@ class SEs extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return 'Quedan 61 días. Ahorro fiscal estimado: CHF $saving.';
+    return 'Quedan 61 días. Impacto fiscal indicativo: CHF $saving.';
   }
 
   @override
@@ -17942,7 +17942,7 @@ class SEs extends S {
 
   @override
   String notifThreeALastMonth(String saving) {
-    return 'Último mes para tu 3a. Ahorro fiscal estimado: CHF $saving.';
+    return 'Último mes para tu 3a. Impacto fiscal indicativo: CHF $saving.';
   }
 
   @override
