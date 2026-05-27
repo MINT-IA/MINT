@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -7,6 +8,13 @@ import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class PdfService {
+  @visibleForTesting
+  static String formatLppBuybackTaxReductionLineForTest(TaxSimulation tax) =>
+      _formatLppBuybackTaxReductionLine(tax);
+
+  static String _formatLppBuybackTaxReductionLine(TaxSimulation tax) =>
+      'Avec rachat LPP : ${formatChfPreciseWithPrefix(tax.taxWithLppBuyback!)} (réduction d’impôt estimée : ${formatChfPreciseWithPrefix(tax.taxSavingsFromBuyback!)})';
+
   static Future<void> generateSessionReportPdf(SessionReport report) async {
     final pdf = pw.Document();
 
@@ -670,7 +678,7 @@ class PdfService {
                   pw.Divider(thickness: 0.5, color: PdfColors.green200),
                   pw.SizedBox(height: 4),
                   pw.Text(
-                    'Avec rachat LPP : ${formatChfPreciseWithPrefix(tax.taxWithLppBuyback!)} (économie : ${formatChfPreciseWithPrefix(tax.taxSavingsFromBuyback!)})',
+                    _formatLppBuybackTaxReductionLine(tax),
                     style: pw.TextStyle(
                         fontSize: 9,
                         fontWeight: pw.FontWeight.bold,

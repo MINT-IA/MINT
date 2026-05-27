@@ -36,6 +36,28 @@ void main() {
     test('PdfService has generateFinancialReportPdf static method', () {
       expect(PdfService.generateFinancialReportPdf, isA<Function>());
     });
+
+    test('financial PDF LPP buyback copy says estimated tax reduction, not saving', () {
+      final line = PdfService.formatLppBuybackTaxReductionLineForTest(
+        const TaxSimulation(
+          taxableIncome: 120000,
+          deductions: {},
+          cantonalTax: 12000,
+          federalTax: 3000,
+          totalTax: 15000,
+          effectiveRate: 0.125,
+          taxWithLppBuyback: 13200,
+          taxSavingsFromBuyback: 1800,
+        ),
+      );
+
+      expect(
+        line,
+        "Avec rachat LPP : CHF\u00a013'200.00 (réduction d’impôt estimée : CHF\u00a01'800.00)",
+      );
+      expect(line, isNot(contains('économie')));
+      expect(line, isNot(contains('épargne')));
+    });
   });
 
   // ──────────────────────────────────────────────────────────
