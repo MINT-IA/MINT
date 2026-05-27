@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
@@ -78,7 +79,9 @@ class ArbitrageTeaserSection extends StatelessWidget {
   static List<_TeaserData> _computeTeasers(CoachProfile profile) {
     final teasers = <_TeaserData>[];
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
-    final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
+    final resolvedCanton = resolveCanton(profile.canton);
+    if (!resolvedCanton.isResolved) return teasers;
+    final canton = resolvedCanton.code;
 
     // 1. Rente vs Capital
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;

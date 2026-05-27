@@ -45,4 +45,35 @@ void main() {
     expect(find.textContaining('réduire ton impôt'), findsNothing);
     expect(find.textContaining('économie fiscale'), findsNothing);
   });
+
+  testWidgets('arbitrage teasers stay hidden without a confirmed canton',
+      (tester) async {
+    final profile = CoachProfile(
+      birthYear: 1976,
+      canton: '',
+      salaireBrutMensuel: 11000,
+      prevoyance: const PrevoyanceProfile(
+        avoirLppTotal: 300000,
+        totalEpargne3a: 80000,
+        rachatMaximum: 40000,
+      ),
+      goalA: GoalA(
+        type: GoalAType.retraite,
+        targetDate: DateTime(2041),
+        label: 'Retraite',
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ArbitrageTeaserSection(profile: profile),
+        ),
+      ),
+    );
+
+    expect(find.text('Pistes d’arbitrage'), findsNothing);
+    expect(find.text('Calendrier de retraits'), findsNothing);
+    expect(find.text('Rachat LPP'), findsNothing);
+  });
 }
