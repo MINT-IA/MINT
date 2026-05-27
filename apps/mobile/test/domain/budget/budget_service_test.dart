@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -218,6 +219,46 @@ void main() {
       expect(msg, contains('Safe Mode'));
     });
 
+    test('thresholds use displayed CHF values, not raw cents', () {
+      const fragileInputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 1000.49,
+        housingCost: 699.51,
+        debtPayments: 0,
+      );
+      final fragileMsg = BudgetService.premierEclairage(fragileInputs);
+      final fragilePlan = BudgetService().computePlan(fragileInputs);
+
+      expect(fragileMsg, contains('70 %'));
+      expect(fragileMsg, contains('Situation fragile'));
+      expect(fragilePlan.distress, BudgetDistressLevel.fragile);
+
+      const criticalInputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 1000.49,
+        housingCost: 999.51,
+        debtPayments: 0,
+      );
+      final criticalMsg = BudgetService.premierEclairage(criticalInputs);
+      final criticalPlan = BudgetService().computePlan(criticalInputs);
+
+      expect(criticalMsg, contains('100 %'));
+      expect(criticalMsg, contains('atteignent ou dépassent'));
+      expect(criticalMsg, contains('Safe Mode'));
+      expect(criticalPlan.distress, BudgetDistressLevel.critical);
+
+      const neutralInputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 1000.49,
+        housingCost: 599.51,
+        debtPayments: 0,
+      );
+      final neutralPlan = BudgetService().computePlan(neutralInputs);
+
+      expect(BudgetService.premierEclairage(neutralInputs), contains('60 %'));
+      expect(neutralPlan.distress, BudgetDistressLevel.none);
+    });
+
     test('golden couple Julien — typical household budget', () {
       // Julien: net income ~8100 CHF/month (from 122'207 CHF gross, VS canton)
       // Loyer typical VS: ~1800, LAMal: ~450, tax: ~900, dettes: 0
@@ -371,6 +412,33 @@ void main() {
       expect(plan.available, closeTo(2500, 0.01));
       expect(plan.variables, closeTo(2500, 0.01));
       expect(plan.future, closeTo(0, 0.01));
+    });
+
+    test('available matches canonical displayed monthly free when future is 0',
+        () {
+      const inputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 5000.4,
+        housingCost: 1200.5,
+        healthInsurance: 400.5,
+        taxProvision: 300.5,
+        debtPayments: 200.5,
+        otherFixedCosts: 100.5,
+        style: BudgetStyle.envelopes3,
+      );
+
+      final plan = service.computePlan(inputs);
+      final present = PresentBudgetBuilder.fromInputs(
+        inputs: inputs,
+        plan: plan,
+      );
+
+      expect(plan.available, 2795);
+      expect(plan.available, present.monthlyFree);
+      expect(
+        plan.available + PresentBudgetBuilder.fixedChargesFromInputs(inputs),
+        PresentBudgetBuilder.displayChf(inputs.netIncome),
+      );
     });
 
     test('variables + future == available', () {

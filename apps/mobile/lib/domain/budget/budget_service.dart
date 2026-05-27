@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'budget_inputs.dart';
 import 'budget_plan.dart';
+import 'present_budget_builder.dart';
 
 class BudgetService {
   static const String disclaimer =
@@ -27,17 +28,18 @@ class BudgetService {
   /// vers le Safe Mode protection-désendettement (CLAUDE.md §7).
   /// Sources : LP art. 93 (minimum vital), normes CSIAS 2025.
   static String premierEclairage(BudgetInputs inputs) {
-    if (inputs.netIncome <= 0 || !inputs.netIncome.isFinite) {
+    final monthlyNet = _monthlyNet(inputs);
+    if (monthlyNet <= 0) {
       return 'Déclare ton revenu net pour voir la part de tes charges fixes';
     }
     final totalCharges = _totalFixedCharges(inputs);
     if (!totalCharges.isFinite) {
       return 'Complète tes charges fixes pour voir ton éclairage';
     }
-    final ratio = totalCharges / inputs.netIncome;
+    final ratio = totalCharges / monthlyNet;
     final pct = (ratio * 100).round();
     if (ratio >= BudgetPlan.criticalThreshold) {
-      return '$pct % — tes charges fixes dépassent ton revenu. '
+      return '$pct % — tes charges fixes atteignent ou dépassent ton revenu. '
           'Safe Mode recommandé (LP art. 93).';
     }
     if (ratio >= BudgetPlan.fragileThreshold) {
@@ -48,30 +50,35 @@ class BudgetService {
   }
 
   static double _totalFixedCharges(BudgetInputs inputs) =>
-      inputs.housingCost +
-      inputs.debtPayments +
-      inputs.taxProvision +
-      inputs.healthInsurance +
-      inputs.otherFixedCosts;
+      PresentBudgetBuilder.fixedChargesFromInputs(inputs);
+
+  static double _monthlyNet(BudgetInputs inputs) =>
+      PresentBudgetBuilder.displayChf(inputs.netIncome);
 
   /// Classe le niveau de détresse budgétaire — alimente `BudgetPlan.distress`.
   static BudgetDistressLevel _distressOf(BudgetInputs inputs) {
-    if (inputs.netIncome <= 0 || !inputs.netIncome.isFinite) {
+    final monthlyNet = _monthlyNet(inputs);
+    if (monthlyNet <= 0) {
       return BudgetDistressLevel.unknown;
     }
     final charges = _totalFixedCharges(inputs);
     if (!charges.isFinite) return BudgetDistressLevel.unknown;
-    final ratio = charges / inputs.netIncome;
-    if (ratio >= BudgetPlan.criticalThreshold) return BudgetDistressLevel.critical;
-    if (ratio >= BudgetPlan.fragileThreshold) return BudgetDistressLevel.fragile;
+    final ratio = charges / monthlyNet;
+    if (ratio >= BudgetPlan.criticalThreshold) {
+      return BudgetDistressLevel.critical;
+    }
+    if (ratio >= BudgetPlan.fragileThreshold) {
+      return BudgetDistressLevel.fragile;
+    }
     return BudgetDistressLevel.none;
   }
 
   static double? _chargesRatioOf(BudgetInputs inputs) {
-    if (inputs.netIncome <= 0 || !inputs.netIncome.isFinite) return null;
+    final monthlyNet = _monthlyNet(inputs);
+    if (monthlyNet <= 0) return null;
     final charges = _totalFixedCharges(inputs);
     if (!charges.isFinite) return null;
-    return charges / inputs.netIncome;
+    return charges / monthlyNet;
   }
 
   /// Calcule le plan budgétaire en fonction des inputs et des overrides optionnels (sliders).
@@ -82,12 +89,7 @@ class BudgetService {
     // available = income - charges fixes (logement + dettes + impots + sante + autres)
     // On s'assure de ne pas descendre sous 0 logiquement pour le "disponible à répartir"
     // (même si techniquement un déficit est possible, ici on parle de l'allocation).
-    final rawAvailable = inputs.netIncome -
-        inputs.housingCost -
-        inputs.debtPayments -
-        inputs.taxProvision -
-        inputs.healthInsurance -
-        inputs.otherFixedCosts;
+    final rawAvailable = _monthlyNet(inputs) - _totalFixedCharges(inputs);
     final available = max(0.0, rawAvailable);
 
     final distress = _distressOf(inputs);
