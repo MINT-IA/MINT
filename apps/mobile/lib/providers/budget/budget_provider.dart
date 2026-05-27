@@ -86,14 +86,21 @@ class BudgetProvider with ChangeNotifier {
   /// Recalcule le budget a partir d'un CoachProfile mis a jour.
   ///
   /// Appele automatiquement quand le profil change (wizard, annual refresh).
-  /// Reconstruit les BudgetInputs depuis le profil et persiste.
+  /// Reconstruit les BudgetInputs depuis le profil sans dupliquer la source
+  /// canonique `wizard_answers_v2` dans `budget_inputs_v1`.
   Future<void> refreshFromProfile(CoachProfile profile) async {
     final inputs = BudgetInputs.fromCoachProfile(profile);
+    final storedInputs = await _store.loadInputs();
+    final storedOrigin = await _store.loadInputsOrigin();
     await _applyInputs(
       inputs,
       source: BudgetDataSource.profile,
-      persist: true,
+      persist: false,
     );
+    if (storedOrigin == StoredBudgetInputsOrigin.profileDerived ||
+        (storedOrigin == null && _sameBudgetInputs(storedInputs, inputs))) {
+      await _store.clearInputs();
+    }
   }
 
   /// Efface le budget (Reset / Supprimer mes données)
@@ -129,5 +136,10 @@ class BudgetProvider with ChangeNotifier {
     if (_lastInputs == null) return;
     _currentPlan = _service.computePlan(_lastInputs!, overrides: _overrides);
     notifyListeners();
+  }
+
+  bool _sameBudgetInputs(BudgetInputs? a, BudgetInputs b) {
+    if (a == null) return false;
+    return mapEquals(a.toMap(), b.toMap());
   }
 }

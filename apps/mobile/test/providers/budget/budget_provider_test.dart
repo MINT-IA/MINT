@@ -46,13 +46,18 @@ void main() {
     expect(provider.hasFreshInputs, isFalse);
   });
 
-  test('full profile replaces stale stored budget', () async {
-    await BudgetLocalStore().saveInputs(_storedBudgetInputs);
+  test('full profile replaces profile-derived cache and clears fallback cache',
+      () async {
+    final profile = _profileWithBudget(housingCost: 1100, healthInsurance: 390);
+    await BudgetLocalStore().saveInputs(
+      BudgetInputs.fromCoachProfile(profile),
+      origin: StoredBudgetInputsOrigin.profileDerived,
+    );
 
     final provider = BudgetProvider();
 
     await provider.hydrateFromProfileState(
-      profile: _profileWithBudget(housingCost: 1100, healthInsurance: 390),
+      profile: profile,
       isPartialProfile: false,
     );
 
@@ -62,6 +67,47 @@ void main() {
     expect(provider.inputs!.netIncome, isNot(8000));
     expect(provider.source, BudgetDataSource.profile);
     expect(provider.hasFreshInputs, isTrue);
+    expect(await BudgetLocalStore().loadInputs(), isNull);
+  });
+
+  test('full profile leaves direct-input fallback cache intact', () async {
+    await BudgetLocalStore().saveInputs(_storedBudgetInputs);
+
+    final provider = BudgetProvider();
+
+    await provider.hydrateFromProfileState(
+      profile: _profileWithBudget(housingCost: 1100, healthInsurance: 390),
+      isPartialProfile: false,
+    );
+
+    final stored = await BudgetLocalStore().loadInputs();
+    expect(provider.source, BudgetDataSource.profile);
+    expect(stored, isNotNull);
+    expect(stored!.netIncome, 8000);
+    expect(stored.housingCost, 2200);
+    expect(await BudgetLocalStore().loadInputsOrigin(),
+        StoredBudgetInputsOrigin.directInput);
+  });
+
+  test('full profile keeps direct-input cache even when values match',
+      () async {
+    final profile = _profileWithBudget(housingCost: 1100, healthInsurance: 390);
+    final matchingDirectInputs = BudgetInputs.fromCoachProfile(profile);
+    await BudgetLocalStore().saveInputs(matchingDirectInputs);
+
+    final provider = BudgetProvider();
+
+    await provider.hydrateFromProfileState(
+      profile: profile,
+      isPartialProfile: false,
+    );
+
+    final stored = await BudgetLocalStore().loadInputs();
+    expect(provider.source, BudgetDataSource.profile);
+    expect(stored, isNotNull);
+    expect(stored!.housingCost, matchingDirectInputs.housingCost);
+    expect(await BudgetLocalStore().loadInputsOrigin(),
+        StoredBudgetInputsOrigin.directInput);
   });
 
   test('full profile does not persist phantom default expenses', () async {

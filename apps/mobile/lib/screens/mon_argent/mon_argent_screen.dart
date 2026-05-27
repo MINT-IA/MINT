@@ -119,11 +119,14 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
     final mintState = context.watch<MintStateProvider>().state;
     final dataSpine = mintState?.dataSpineSnapshot;
     final budgetSnapshot = dataSpine?.budget ?? mintState?.budgetSnapshot;
-    final preferBudgetProvider = budgetProvider.hasFreshInputs;
+    final preferProfileBudgetProvider =
+        budgetProvider.source == BudgetDataSource.profile &&
+            budgetProvider.hasFreshInputs;
     final budgetSnapshotForBudgetCard =
-        preferBudgetProvider ? null : budgetSnapshot;
-    final budgetConfidenceScore =
-        preferBudgetProvider ? 80.0 : budgetSnapshot?.confidenceScore ?? 0.0;
+        preferProfileBudgetProvider ? null : budgetSnapshot;
+    final budgetConfidenceScore = preferProfileBudgetProvider
+        ? 80.0
+        : budgetSnapshot?.confidenceScore ?? 0.0;
     final patrimoine = dataSpine != null
         ? PatrimoineAggregator.computeFromDataSpine(dataSpine)
         : PatrimoineAggregator.compute(coachProfile);

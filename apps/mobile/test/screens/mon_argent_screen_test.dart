@@ -28,13 +28,21 @@ void main() {
       (tester) async {
     final mintState = MintStateProvider()
       ..injectStateForTest(_stateWithDataSpine());
+    final budgetProvider = BudgetProvider();
+    await budgetProvider.setInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 14000,
+        housingCost: 5100,
+        debtPayments: 0,
+        healthInsurance: 880,
+      ),
+    );
 
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider<BudgetProvider>(
-            create: (_) => BudgetProvider(),
-          ),
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
           ChangeNotifierProvider<CoachProfileProvider>(
             create: (_) => CoachProfileProvider(),
           ),
@@ -101,6 +109,9 @@ void main() {
     expect(find.text('Ton budget ce mois'), findsOneWidget);
     expect(find.text("8'000\u00a0CHF"), findsOneWidget);
     expect(find.text("2'100\u00a0CHF"), findsWidgets);
+    expect(find.text("14'000\u00a0CHF"), findsNothing);
+    expect(find.text("5'100\u00a0CHF"), findsNothing);
+    expect(find.text("880\u00a0CHF"), findsNothing);
 
     await tester.tap(find.text('Patrimoine'));
     await tester.pumpAndSettle();
@@ -322,7 +333,7 @@ void main() {
     expect(find.text("12'345\u00a0CHF"), findsNothing);
   });
 
-  testWidgets('fresh profile budget overrides stale data spine snapshot',
+  testWidgets('refreshed profile budget overrides stale data spine snapshot',
       (tester) async {
     final mintState = MintStateProvider()
       ..injectStateForTest(_stateWithDataSpine());
@@ -384,7 +395,7 @@ void main() {
   });
 
   testWidgets(
-      'today section aligns budget detail rows with fresh profile budget',
+      'today section aligns budget detail rows with refreshed profile budget',
       (tester) async {
     final mintState = MintStateProvider()
       ..injectStateForTest(_stateWithDataSpine());
@@ -446,7 +457,7 @@ void main() {
     expect(find.text("390\u00a0CHF"), findsNothing);
   });
 
-  testWidgets('fresh profile budget also grounds coach whisper over stale spine',
+  testWidgets('refreshed profile budget also grounds coach whisper over spine',
       (tester) async {
     final mintState = MintStateProvider()
       ..injectStateForTest(_stateWithDataSpine(
@@ -516,6 +527,7 @@ void main() {
     expect(budgetProvider.hasFreshInputs, isTrue);
     expect(find.text(_formatChf(_presentBudgetFree(budgetProvider))),
         findsOneWidget);
+    expect(find.text("-1'500\u00a0CHF"), findsNothing);
     expect(find.textContaining('Mois serré.'), findsNothing);
   });
 

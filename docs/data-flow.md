@@ -285,7 +285,7 @@ coachProvider.mergeAnswers({
 budgetProvider.refreshFromProfile(updatedProfile)
   ↓ BudgetInputs.fromCoachProfile(profile) re-derives
   ↓ BudgetService.computePlan(inputs, overrides)
-  ↓ _store.saveInputs(inputs)
+  ↓ profile-derived budget_inputs_v1 duplicates are cleared; direct-input fallback stays available
   ↓
 Pop back to Mon argent → BudgetSummaryCard now has data → « Il te reste Y CHF »
 ```
@@ -294,6 +294,12 @@ Pop back to Mon argent → BudgetSummaryCard now has data → « Il te reste Y C
 the local source of truth for its hero number, breakdown, and flow map. It must
 not reuse a stale global `BudgetSnapshot` when the user has just saved or
 restored direct budget inputs.
+
+`MonArgentScreen` prefers a budget freshly re-derived from the current
+`CoachProfile`, then `MintState.dataSpineSnapshot.budget`, then
+`budget_inputs_v1` fallback data. Direct-input budgets, such as bank-import
+previews that are not yet written into `wizard_answers_v2`, remain stored as
+fallback data but must not mask a current Data Spine budget.
 
 Chat fallback (« J'en parle plutôt au coach ») remains available on the
 setup screen, respecting `feedback_chat_is_everything` (chat *can* do it,
