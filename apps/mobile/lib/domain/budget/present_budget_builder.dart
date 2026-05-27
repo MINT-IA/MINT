@@ -35,6 +35,8 @@ class PresentBudgetBuilder {
       displayChf(inputs.healthInsurance) +
       displayChf(inputs.otherFixedCosts);
 
+  /// Display contract: rounded to the nearest CHF using Dart's `round()`
+  /// semantics (`.5` away from zero), then exposed as a double for JSON maps.
   static double displayChf(double value) =>
       value.isFinite ? value.roundToDouble() : 0;
 }

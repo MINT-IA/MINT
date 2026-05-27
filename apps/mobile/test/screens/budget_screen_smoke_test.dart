@@ -590,14 +590,14 @@ void main() {
     await ScreenCompletionTracker.clear('budget');
     const inputs = BudgetInputs(
       payFrequency: PayFrequency.monthly,
-      netIncome: 8000,
-      housingCost: 2200,
-      debtPayments: 333,
-      taxProvision: 950,
-      healthInsurance: 420,
+      netIncome: 8000.4,
+      housingCost: 2200.5,
+      debtPayments: 333.5,
+      taxProvision: 950.5,
+      healthInsurance: 420.5,
     );
     final expectedCharges = PresentBudgetBuilder.fixedChargesFromInputs(inputs);
-    expect(expectedCharges, 3903);
+    expect(expectedCharges, 3907);
     await BudgetLocalStore().saveInputs(
       inputs,
     );
@@ -650,7 +650,10 @@ void main() {
     expect(screenReturn?.outcome, ScreenOutcome.completed);
     expect(screenReturn?.runId, 'run-budget-1');
     expect(screenReturn?.stepId, 'step-budget-1');
-    expect(screenReturn?.stepOutputs?['revenu_net'], 8000);
+    expect(
+      screenReturn?.stepOutputs?['revenu_net'],
+      PresentBudgetBuilder.displayChf(inputs.netIncome),
+    );
     expect(screenReturn?.stepOutputs?['charges_totales'], expectedCharges);
   });
 

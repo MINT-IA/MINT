@@ -116,7 +116,7 @@ class _BudgetScreenState extends State<BudgetScreen>
         ScreenReturn.completed(
           route: '/budget',
           stepOutputs: {
-            'revenu_net': inputs.netIncome,
+            'revenu_net': PresentBudgetBuilder.displayChf(inputs.netIncome),
             'charges_totales': chargesTotal,
           },
           runId: _seqRunId,
