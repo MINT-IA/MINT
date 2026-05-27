@@ -7,6 +7,9 @@
 #   input, and renders the live fixed-charge total.
 # - Direct /budget relaunch restores saved budget inputs.
 # - The user can return to the coach surface with stable chat anchors.
+# The flow only enters logement + LAMal on a fresh local profile. Therefore the
+# expected proof numbers are derived from the app's default CHF 5'000 net-income
+# fallback, not from a richer completed profile.
 #
 # PRE-CONDITION
 # - App ch.mint.app installed on a booted iPhone simulator.
@@ -155,9 +158,9 @@ tags:
 - assertVisible:
     id: "budget_formula_proof"
 - assertVisible:
-    text: ".*3'140.*"
+    text: ".*3'078.*"
 - assertVisible:
-    text: ".*2'239.*"
+    text: ".*1'922.*"
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
 - takeScreenshot: "mon-argent-03-budget-direct-relaunch"

@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
@@ -98,6 +100,36 @@ void main() {
         closeTo(p.monthlyNet - p.monthlyCharges - p.monthlySavings, 0.01),
         reason: 'monthlyFree must equal net - charges - savings exactly',
       );
+    });
+
+    test('uses the same displayed remainder as the budget screen read model',
+        () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1988,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 5379.0,
+        'q_pay_frequency': 'monthly',
+        'q_housing_cost_period_chf': 2200.0,
+        'q_lamal_premium_monthly_chf': 420.0,
+        'q_debt_payments_period_chf': 0.0,
+      });
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+      final budgetScreenPresent = PresentBudgetBuilder.fromInputs(
+        inputs: inputs,
+        plan: const BudgetPlan(
+          available: 0,
+          variables: 0,
+          future: 0,
+          stopRuleTriggered: false,
+          emergencyFundMonths: 0,
+        ),
+      );
+
+      final livingPresent = BudgetLivingEngine.compute(profile).present;
+
+      expect(livingPresent.monthlyNet, budgetScreenPresent.monthlyNet);
+      expect(livingPresent.monthlyCharges, budgetScreenPresent.monthlyCharges);
+      expect(livingPresent.monthlyFree, budgetScreenPresent.monthlyFree);
     });
 
     test('chargesRatio is between 0 and 200 percent', () {

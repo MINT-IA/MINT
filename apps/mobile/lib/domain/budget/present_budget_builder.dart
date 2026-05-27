@@ -15,9 +15,9 @@ class PresentBudgetBuilder {
     required BudgetInputs inputs,
     required BudgetPlan plan,
   }) {
-    final monthlyNet = _displayChf(inputs.netIncome);
+    final monthlyNet = displayChf(inputs.netIncome);
     final monthlyCharges = fixedChargesFromInputs(inputs);
-    final monthlySavings = _displayChf(plan.future);
+    final monthlySavings = displayChf(plan.future);
     final monthlyFree = monthlyNet - monthlyCharges - monthlySavings;
 
     return PresentBudget(
@@ -29,12 +29,12 @@ class PresentBudgetBuilder {
   }
 
   static double fixedChargesFromInputs(BudgetInputs inputs) =>
-      _displayChf(inputs.housingCost) +
-      _displayChf(inputs.debtPayments) +
-      _displayChf(inputs.taxProvision) +
-      _displayChf(inputs.healthInsurance) +
-      _displayChf(inputs.otherFixedCosts);
+      displayChf(inputs.housingCost) +
+      displayChf(inputs.debtPayments) +
+      displayChf(inputs.taxProvision) +
+      displayChf(inputs.healthInsurance) +
+      displayChf(inputs.otherFixedCosts);
 
-  static double _displayChf(double value) =>
+  static double displayChf(double value) =>
       value.isFinite ? value.roundToDouble() : 0;
 }
