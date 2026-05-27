@@ -99,6 +99,91 @@ void main() {
       expect(whisper, contains('2.5 mois'));
     });
 
+    test('uses canonical rounded charges for emergency months', () {
+      final whisper = CoachWhisperService.evaluate(
+        budgetInputs: const BudgetInputs(
+          payFrequency: PayFrequency.monthly,
+          netIncome: 8000,
+          housingCost: 1200.5,
+          healthInsurance: 400.5,
+          taxProvision: 300.5,
+          debtPayments: 200.5,
+          otherFixedCosts: 100.5,
+        ),
+        budgetPlan: null,
+        patrimoine: const PatrimoineSummary(
+          epargneLiquide: PatrimoineField(
+            value: 5397,
+            source: 'userInput',
+          ),
+        ),
+        profile: CoachProfile(
+          birthYear: 1988,
+          canton: 'VD',
+          salaireBrutMensuel: 9000,
+          goalA: GoalA(
+            type: GoalAType.custom,
+            targetDate: DateTime.utc(2027),
+            label: 'Coussin',
+          ),
+        ),
+      );
+
+      expect(whisper, contains('2.4 mois'));
+    });
+
+    test('detects deficit from canonical rounded budget read model', () {
+      final whisper = CoachWhisperService.evaluate(
+        budgetInputs: const BudgetInputs(
+          payFrequency: PayFrequency.monthly,
+          netIncome: 3004.4,
+          housingCost: 1200.5,
+          healthInsurance: 400.5,
+          taxProvision: 1100.5,
+          debtPayments: 200.5,
+          otherFixedCosts: 100.5,
+        ),
+        budgetPlan: null,
+        patrimoine: const PatrimoineSummary(),
+        profile: null,
+      );
+
+      expect(whisper, 'Mois serré. Regarde tes dépenses fixes.');
+    });
+
+    test('uses canonical rounded income when charges are still missing', () {
+      final whisper = CoachWhisperService.evaluate(
+        budgetInputs: const BudgetInputs(
+          payFrequency: PayFrequency.monthly,
+          netIncome: 8000.4,
+          housingCost: 0,
+          healthInsurance: 0,
+          taxProvision: 0,
+          debtPayments: 0,
+          otherFixedCosts: 0,
+        ),
+        budgetPlan: null,
+        patrimoine: const PatrimoineSummary(
+          epargneLiquide: PatrimoineField(
+            value: 19600.5,
+            source: 'userInput',
+          ),
+        ),
+        profile: CoachProfile(
+          birthYear: 1988,
+          canton: 'VD',
+          salaireBrutMensuel: 9000,
+          goalA: GoalA(
+            type: GoalAType.custom,
+            targetDate: DateTime.utc(2027),
+            label: 'Coussin',
+          ),
+        ),
+      );
+
+      expect(whisper, contains('2.5 mois'));
+    });
+
     test('uses canonical monthly free for 3a suggestion without budget inputs',
         () {
       final whisper = CoachWhisperService.evaluate(

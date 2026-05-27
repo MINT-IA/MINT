@@ -1,5 +1,6 @@
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/mon_argent/patrimoine_aggregator.dart';
@@ -84,12 +85,10 @@ class CoachWhisperService {
   ) {
     if (snapshot != null) return snapshot.present.monthlyCharges;
     if (inputs == null) return 0;
-    final fixed = inputs.housingCost +
-        inputs.healthInsurance +
-        inputs.taxProvision +
-        inputs.debtPayments +
-        inputs.otherFixedCosts;
-    return fixed > 0 ? fixed : inputs.netIncome;
+    final fixed = PresentBudgetBuilder.fixedChargesFromInputs(inputs);
+    return fixed > 0
+        ? fixed
+        : PresentBudgetBuilder.displayChf(inputs.netIncome);
   }
 
   static double _signedMonthlyFree(
@@ -99,11 +98,9 @@ class CoachWhisperService {
   ) {
     if (snapshot != null) return snapshot.present.monthlyFree;
     if (inputs == null) return 0;
-    final fixed = inputs.housingCost +
-        inputs.healthInsurance +
-        inputs.taxProvision +
-        inputs.debtPayments +
-        inputs.otherFixedCosts;
-    return inputs.netIncome - fixed - (plan?.future ?? 0);
+    final fixed = PresentBudgetBuilder.fixedChargesFromInputs(inputs);
+    return PresentBudgetBuilder.displayChf(inputs.netIncome) -
+        fixed -
+        PresentBudgetBuilder.displayChf(plan?.future ?? 0);
   }
 }
