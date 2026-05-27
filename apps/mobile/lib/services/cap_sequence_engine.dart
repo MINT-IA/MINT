@@ -1,4 +1,5 @@
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -241,8 +242,8 @@ class CapSequenceEngine {
     final done = memory.completedActions;
 
     final hasIncome = profile.salaireBrutMensuel > 0;
-    final hasCharges = profile.depenses.loyer > 0 ||
-        profile.depenses.assuranceMaladie > 0 ||
+    final hasCharges =
+        BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile) > 0 ||
         done.contains('charges_entered');
     final hasBudget = done.contains('budget') ||
         done.contains('budget_computed') ||
@@ -645,7 +646,8 @@ class CapSequenceEngine {
   /// Monthly free margin estimate.
   static double? _estimateFreeMontly(CoachProfile profile) {
     if (profile.salaireBrutMensuel <= 0) return null;
-    final depenses = profile.depenses.totalMensuel;
+    final depenses =
+        BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
     if (depenses <= 0) return null;
     // Rough net = brut * 0.78 (average Swiss tax + social charges)
     final net = profile.salaireBrutMensuel * 0.78;
