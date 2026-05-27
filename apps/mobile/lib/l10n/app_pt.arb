@@ -837,7 +837,7 @@
   "toolsRetirementPlanner": "Planificador de reforma",
   "toolsRetirementPlannerDesc": "Simula a tua reforma AVS + LPP + 3a",
   "toolsSimulator3a": "Simulador 3a",
-  "toolsSimulator3aDesc": "Calcula a tua poupança fiscal anual",
+  "toolsSimulator3aDesc": "Estima o impacto fiscal indicativo do 3a",
   "toolsComparator3a": "Comparador 3a",
   "toolsComparator3aDesc": "Compara provedores (banco vs seguro)",
   "toolsRealReturn3a": "Rendimento real 3a",
@@ -10068,7 +10068,7 @@
   "promiseFooter": "Grátis. Os teus dados ficam no teu telemóvel.",
   "promiseCtaRegister": "Vamos lá",
   "promiseCtaFree": "Só os números",
-  "coachInterrupt3aUnderMax": "Margem 3a restante a verificar: poupança fiscal estimada de CHF {savings}.",
+  "coachInterrupt3aUnderMax": "Margem 3a restante a verificar: impacto fiscal indicativo de CHF {savings}.",
   "@coachInterrupt3aUnderMax": {
     "placeholders": {
       "savings": {

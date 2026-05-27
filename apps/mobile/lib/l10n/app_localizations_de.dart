@@ -1826,7 +1826,8 @@ class SDe extends S {
   String get toolsSimulator3a => '3a Simulator';
 
   @override
-  String get toolsSimulator3aDesc => 'Berechne deine jährliche Steuerersparnis';
+  String get toolsSimulator3aDesc =>
+      'Indikative Steuerwirkung von 3a schaetzen';
 
   @override
   String get toolsComparator3a => '3a Vergleich';
@@ -21588,7 +21589,7 @@ class SDe extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'Verbleibender 3a-Spielraum zu prüfen: geschätzte Steuerersparnis von CHF $savings.';
+    return 'Verbleibender 3a-Spielraum zu prüfen: indikative Steuerwirkung von CHF $savings.';
   }
 
   @override

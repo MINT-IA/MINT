@@ -191,6 +191,42 @@ void main() {
         }
       }
     });
+
+    test('3a simulator and coach interrupt copy use indicative tax impact', () {
+      const locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
+      const keys = [
+        'toolsSimulator3aDesc',
+        'coachInterrupt3aUnderMax',
+      ];
+      const anchors = {
+        'fr': 'impact fiscal indicatif',
+        'en': 'indicative',
+        'de': 'indikative',
+        'es': 'impacto fiscal indicativo',
+        'it': 'impatto fiscale indicativo',
+        'pt': 'impacto fiscal indicativo',
+      };
+      const bannedFragments = [
+        'économie fiscale',
+        'tax saving',
+        'tax savings',
+        'steuerersparnis',
+        'ahorro fiscal',
+        'risparmio fiscale',
+        'poupança fiscal',
+      ];
+
+      for (final locale in locales) {
+        final json = arb(locale);
+        for (final key in keys) {
+          final value = (json[key] as String).toLowerCase();
+          expect(value, contains(anchors[locale]), reason: '$locale:$key');
+          for (final fragment in bannedFragments) {
+            expect(value, isNot(contains(fragment)), reason: '$locale:$key');
+          }
+        }
+      }
+    });
   });
 
   // ── Helper: minimal answers for a valid report ──────────────────────

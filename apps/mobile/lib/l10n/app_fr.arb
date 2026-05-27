@@ -837,7 +837,7 @@
   "toolsRetirementPlanner": "Planificateur retraite",
   "toolsRetirementPlannerDesc": "Simule ta retraite AVS + LPP + 3a",
   "toolsSimulator3a": "Simulateur 3a",
-  "toolsSimulator3aDesc": "Calcule ton économie fiscale annuelle",
+  "toolsSimulator3aDesc": "Estime l'impact fiscal indicatif du 3a",
   "toolsComparator3a": "Comparateur 3a",
   "toolsComparator3aDesc": "Compare les providers (banque vs assurance)",
   "toolsRealReturn3a": "Rendement réel 3a",
@@ -10708,7 +10708,7 @@
   "promiseFooter": "Gratuit. Tes données restent sur ton téléphone.",
   "promiseCtaRegister": "Allons-y",
   "promiseCtaFree": "Juste les chiffres",
-  "coachInterrupt3aUnderMax": "Marge 3a restante à vérifier : économie fiscale estimée de {savings} CHF.",
+  "coachInterrupt3aUnderMax": "Marge 3a restante à vérifier : impact fiscal indicatif de {savings} CHF.",
   "@coachInterrupt3aUnderMax": {
     "placeholders": {
       "savings": {

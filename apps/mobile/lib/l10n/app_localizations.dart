@@ -3396,7 +3396,7 @@ abstract class S {
   /// No description provided for @toolsSimulator3aDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Calcule ton économie fiscale annuelle'**
+  /// **'Estime l\'impact fiscal indicatif du 3a'**
   String get toolsSimulator3aDesc;
 
   /// No description provided for @toolsComparator3a.
@@ -37782,7 +37782,7 @@ abstract class S {
   /// No description provided for @coachInterrupt3aUnderMax.
   ///
   /// In fr, this message translates to:
-  /// **'Marge 3a restante à vérifier : économie fiscale estimée de {savings} CHF.'**
+  /// **'Marge 3a restante à vérifier : impact fiscal indicatif de {savings} CHF.'**
   String coachInterrupt3aUnderMax(String savings);
 
   /// No description provided for @coachInterruptMortgageOverThird.

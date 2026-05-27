@@ -1820,7 +1820,7 @@ class SFr extends S {
   String get toolsSimulator3a => 'Simulateur 3a';
 
   @override
-  String get toolsSimulator3aDesc => 'Calcule ton économie fiscale annuelle';
+  String get toolsSimulator3aDesc => 'Estime l\'impact fiscal indicatif du 3a';
 
   @override
   String get toolsComparator3a => 'Comparateur 3a';
@@ -21535,7 +21535,7 @@ class SFr extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'Marge 3a restante à vérifier : économie fiscale estimée de $savings CHF.';
+    return 'Marge 3a restante à vérifier : impact fiscal indicatif de $savings CHF.';
   }
 
   @override

@@ -837,7 +837,7 @@
   "toolsRetirementPlanner": "Retirement planner",
   "toolsRetirementPlannerDesc": "Simulate your AVS + LPP + 3a retirement",
   "toolsSimulator3a": "3a Simulator",
-  "toolsSimulator3aDesc": "Calculate your annual tax savings",
+  "toolsSimulator3aDesc": "Estimate indicative 3a tax impact",
   "toolsComparator3a": "3a Comparator",
   "toolsComparator3aDesc": "Compare providers (bank vs insurance)",
   "toolsRealReturn3a": "3a real return",
@@ -10068,7 +10068,7 @@
   "promiseFooter": "Free. Your data stays on your phone.",
   "promiseCtaRegister": "Let's go",
   "promiseCtaFree": "Just the numbers",
-  "coachInterrupt3aUnderMax": "Remaining 3a room to verify: estimated tax saving of CHF {savings}.",
+  "coachInterrupt3aUnderMax": "Remaining 3a room to verify: indicative tax impact of CHF {savings}.",
   "@coachInterrupt3aUnderMax": {
     "placeholders": {
       "savings": {

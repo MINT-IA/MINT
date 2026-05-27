@@ -1815,7 +1815,7 @@ class SPt extends S {
   String get toolsSimulator3a => 'Simulador 3a';
 
   @override
-  String get toolsSimulator3aDesc => 'Calcula a tua poupança fiscal anual';
+  String get toolsSimulator3aDesc => 'Estima o impacto fiscal indicativo do 3a';
 
   @override
   String get toolsComparator3a => 'Comparador 3a';
@@ -21544,7 +21544,7 @@ class SPt extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'Margem 3a restante a verificar: poupança fiscal estimada de CHF $savings.';
+    return 'Margem 3a restante a verificar: impacto fiscal indicativo de CHF $savings.';
   }
 
   @override

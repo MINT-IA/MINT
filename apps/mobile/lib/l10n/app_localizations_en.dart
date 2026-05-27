@@ -1812,7 +1812,7 @@ class SEn extends S {
   String get toolsSimulator3a => '3a Simulator';
 
   @override
-  String get toolsSimulator3aDesc => 'Calculate your annual tax savings';
+  String get toolsSimulator3aDesc => 'Estimate indicative 3a tax impact';
 
   @override
   String get toolsComparator3a => '3a Comparator';
@@ -21428,7 +21428,7 @@ class SEn extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'Remaining 3a room to verify: estimated tax saving of CHF $savings.';
+    return 'Remaining 3a room to verify: indicative tax impact of CHF $savings.';
   }
 
   @override

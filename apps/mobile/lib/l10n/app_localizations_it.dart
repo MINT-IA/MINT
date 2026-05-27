@@ -1820,7 +1820,8 @@ class SIt extends S {
   String get toolsSimulator3a => 'Simulatore 3a';
 
   @override
-  String get toolsSimulator3aDesc => 'Calcola il tuo risparmio fiscale annuale';
+  String get toolsSimulator3aDesc =>
+      'Stima l\'impatto fiscale indicativo del 3a';
 
   @override
   String get toolsComparator3a => 'Comparatore 3a';
@@ -21599,7 +21600,7 @@ class SIt extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'Margine 3a residuo da verificare: risparmio fiscale stimato di CHF $savings.';
+    return 'Margine 3a residuo da verificare: impatto fiscale indicativo di CHF $savings.';
   }
 
   @override

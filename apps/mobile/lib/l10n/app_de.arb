@@ -837,7 +837,7 @@
   "toolsRetirementPlanner": "Pensionsplaner",
   "toolsRetirementPlannerDesc": "Simuliere deine AHV + BVG + 3a Pension",
   "toolsSimulator3a": "3a Simulator",
-  "toolsSimulator3aDesc": "Berechne deine jährliche Steuerersparnis",
+  "toolsSimulator3aDesc": "Indikative Steuerwirkung von 3a schaetzen",
   "toolsComparator3a": "3a Vergleich",
   "toolsComparator3aDesc": "Vergleiche Anbieter (Bank vs Versicherung)",
   "toolsRealReturn3a": "3a Realrendite",
@@ -10068,7 +10068,7 @@
   "promiseFooter": "Gratis. Deine Daten bleiben auf deinem Handy.",
   "promiseCtaRegister": "Los geht's",
   "promiseCtaFree": "Nur die Zahlen",
-  "coachInterrupt3aUnderMax": "Verbleibender 3a-Spielraum zu prüfen: geschätzte Steuerersparnis von CHF {savings}.",
+  "coachInterrupt3aUnderMax": "Verbleibender 3a-Spielraum zu prüfen: indikative Steuerwirkung von CHF {savings}.",
   "@coachInterrupt3aUnderMax": {
     "placeholders": {
       "savings": {
