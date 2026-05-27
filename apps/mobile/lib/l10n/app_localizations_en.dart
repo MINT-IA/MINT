@@ -1361,7 +1361,7 @@ class SEn extends S {
 
   @override
   String get vaultGuidanceLamalBody =>
-      'You can change your LAMal deductible every year by November 30 (higher deductible) or December 31 (lower deductible). A healthy adult can save up to CHF 1,500/year with a CHF 2,500 deductible vs CHF 300.';
+      'You can change your LAMal deductible every year by November 30 (higher deductible) or December 31 (lower deductible). Compare total cost: premium + deductible + coinsurance based on your estimated health expenses.';
 
   @override
   String get vaultGuidanceLamalSource => 'HIA art. 62, HIO art. 93-94';
@@ -7353,7 +7353,7 @@ class SEn extends S {
 
   @override
   String get firstSalary3aInfo =>
-      '💰 2026 ceiling: CHF 7\'258/year · Direct tax deduction · OPP3 art. 7';
+      '💰 2026 ceiling: CHF 7\'258/year · Deductible from taxable income depending on your situation · OPP3 art. 7';
 
   @override
   String get firstSalaryAct4Title => 'The health insurance trap';
@@ -7364,14 +7364,15 @@ class SEn extends S {
 
   @override
   String get firstSalaryFranchise300Advice =>
-      'Recommended if chronic conditions';
+      'Higher premium · Lower out-of-pocket exposure';
 
   @override
-  String get firstSalaryFranchise1500Advice => 'Good compromise · Recommended';
+  String get firstSalaryFranchise1500Advice =>
+      'Middle option · Compare with your health costs';
 
   @override
   String get firstSalaryFranchise2500Advice =>
-      'Save on premium · If you\'re healthy';
+      'Lower premium · Higher out-of-pocket risk';
 
   @override
   String firstSalaryFranchiseLabel(String label) {
@@ -7410,7 +7411,7 @@ class SEn extends S {
 
   @override
   String get firstSalaryTask3 =>
-      'Choose your health insurance franchise (recommended: CHF 1\'500)';
+      'Compare LAMal deductibles with your estimated health expenses';
 
   @override
   String get firstSalaryTask4 =>
@@ -20028,7 +20029,7 @@ class SEn extends S {
 
   @override
   String get stepJitTax3aInsight =>
-      'Every franc paid into 3a is tax-deductible. Over 20 years, the difference between contributing 0 and the maximum (CHF 7,258) can exceed CHF 200,000.';
+      'Every franc paid into 3a is deductible from taxable income depending on your situation. Over 20 years, the difference depends on contributions, return, fees, and withdrawal tax.';
 
   @override
   String get stepJitTax3aSource => 'BVV3 art. 7 / DBG art. 33';
@@ -21224,7 +21225,7 @@ class SEn extends S {
 
   @override
   String get landingCoupleGeneric =>
-      'Married couples lose up to CHF 8,000/year in missed optimizations.';
+      'Some couple decisions can change taxes, AVS, and withdrawals. MINT helps compare scenarios.';
 
   @override
   String get landingTransparency =>

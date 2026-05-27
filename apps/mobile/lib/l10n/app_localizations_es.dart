@@ -1364,7 +1364,7 @@ class SEs extends S {
 
   @override
   String get vaultGuidanceLamalBody =>
-      'Puedes cambiar de franquicia LAMal cada año antes del 30 de noviembre (franquicia más alta) o del 31 de diciembre (franquicia más baja). Compara según tu consumo médico real.';
+      'Puedes cambiar de franquicia LAMal cada año antes del 30 de noviembre (franquicia más alta) o del 31 de diciembre (franquicia más baja). Compara el coste total: prima + franquicia + copago según tus gastos de salud estimados.';
 
   @override
   String get vaultGuidanceLamalSource => 'LAMal art. 62, OAMal art. 93-94';
@@ -7399,7 +7399,7 @@ class SEs extends S {
 
   @override
   String get firstSalary3aInfo =>
-      '💰 Tope 2026: CHF 7\'258/año · Deducción fiscal directa · OPP3 art. 7';
+      '💰 Tope 2026: CHF 7\'258/año · Deducible de la renta imponible según tu situación · OPP3 art. 7';
 
   @override
   String get firstSalaryAct4Title => 'La trampa LAMal';
@@ -7410,14 +7410,15 @@ class SEs extends S {
 
   @override
   String get firstSalaryFranchise300Advice =>
-      'Recomendado si enfermedades crónicas';
+      'Prima más alta · Menor exposición a gastos';
 
   @override
-  String get firstSalaryFranchise1500Advice => 'Buen compromiso · Recomendado';
+  String get firstSalaryFranchise1500Advice =>
+      'Opción intermedia · Comparar con tus costes de salud';
 
   @override
   String get firstSalaryFranchise2500Advice =>
-      'Ahorra en prima · Si tienes buena salud';
+      'Prima más baja · Mayor riesgo de gastos propios';
 
   @override
   String firstSalaryFranchiseLabel(String label) {
@@ -7458,7 +7459,7 @@ class SEs extends S {
 
   @override
   String get firstSalaryTask3 =>
-      'Elegir tu franquicia LAMal (recomendado: CHF 1\'500)';
+      'Comparar las franquicias LAMal con tus gastos de salud estimados';
 
   @override
   String get firstSalaryTask4 => 'Verificar tu RC privada (aprox. CHF 100/año)';
@@ -20124,7 +20125,7 @@ class SEs extends S {
 
   @override
   String get stepJitTax3aInsight =>
-      'Cada franco aportado al 3a es deducible del ingreso imponible. En 20 años, la diferencia entre aportar 0 y el máximo (CHF 7\'258) puede superar los CHF 200\'000.';
+      'Cada franco aportado al 3a es deducible del ingreso imponible según tu situación. En 20 años, la diferencia depende de aportes, rendimiento, comisiones e impuesto al retiro.';
 
   @override
   String get stepJitTax3aSource => 'OPP3 art. 7 / LIFD art. 33';
@@ -21334,7 +21335,7 @@ class SEs extends S {
 
   @override
   String get landingCoupleGeneric =>
-      'Las parejas casadas pierden hasta CHF 8.000/año en optimizaciones perdidas.';
+      'Algunas decisiones de pareja pueden cambiar impuestos, AVS y retiros. MINT ayuda a comparar escenarios.';
 
   @override
   String get landingTransparency =>

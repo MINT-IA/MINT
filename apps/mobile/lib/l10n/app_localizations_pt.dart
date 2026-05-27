@@ -1363,7 +1363,7 @@ class SPt extends S {
 
   @override
   String get vaultGuidanceLamalBody =>
-      'Podes mudar de franquia LAMal todos os anos antes de 30 de novembro (franquia mais alta) ou 31 de dezembro (franquia mais baixa). Compara com base no teu consumo médico real.';
+      'Podes mudar de franquia LAMal todos os anos antes de 30 de novembro (franquia mais alta) ou 31 de dezembro (franquia mais baixa). Compara o custo total: prémio + franquia + coparticipação segundo as tuas despesas de saúde estimadas.';
 
   @override
   String get vaultGuidanceLamalSource => 'LAMal art. 62, OAMal art. 93-94';
@@ -7394,7 +7394,7 @@ class SPt extends S {
 
   @override
   String get firstSalary3aInfo =>
-      '💰 Teto 2026: CHF 7\'258/ano · Dedução fiscal direta · OPP3 art. 7';
+      '💰 Teto 2026: CHF 7\'258/ano · Dedutível do rendimento tributável segundo a tua situação · OPP3 art. 7';
 
   @override
   String get firstSalaryAct4Title => 'A armadilha LAMal';
@@ -7404,14 +7404,16 @@ class SPt extends S {
       'A franquia barata pode custar-te caro se ficares doente.';
 
   @override
-  String get firstSalaryFranchise300Advice => 'Recomendado se doenças crónicas';
+  String get firstSalaryFranchise300Advice =>
+      'Prémio mais alto · Menor exposição a custos';
 
   @override
-  String get firstSalaryFranchise1500Advice => 'Bom compromisso · Recomendado';
+  String get firstSalaryFranchise1500Advice =>
+      'Opção intermédia · Comparar com os teus custos de saúde';
 
   @override
   String get firstSalaryFranchise2500Advice =>
-      'Poupa no prémio · Se tens boa saúde';
+      'Prémio mais baixo · Maior risco de despesas próprias';
 
   @override
   String firstSalaryFranchiseLabel(String label) {
@@ -7451,7 +7453,7 @@ class SPt extends S {
 
   @override
   String get firstSalaryTask3 =>
-      'Escolher a franquia LAMal (recomendado: CHF 1\'500)';
+      'Comparar franquias LAMal com as tuas despesas de saúde estimadas';
 
   @override
   String get firstSalaryTask4 =>
@@ -20126,7 +20128,7 @@ class SPt extends S {
 
   @override
   String get stepJitTax3aInsight =>
-      'Cada franco contribuído para o 3a é dedutível do rendimento tributável. Em 20 anos, a diferença entre contribuir 0 e o máximo (CHF 7\'258) pode ultrapassar CHF 200\'000.';
+      'Cada franco contribuído para o 3a é dedutível do rendimento tributável segundo a tua situação. Em 20 anos, a diferença depende das contribuições, rendimento, custos e imposto no levantamento.';
 
   @override
   String get stepJitTax3aSource => 'OPP3 art. 7 / LIFD art. 33';
@@ -21337,7 +21339,7 @@ class SPt extends S {
 
   @override
   String get landingCoupleGeneric =>
-      'Os casais casados perdem até CHF 8.000/ano em otimizações perdidas.';
+      'Algumas decisões de casal podem alterar impostos, AVS e levantamentos. A MINT ajuda a comparar cenários.';
 
   @override
   String get landingTransparency =>

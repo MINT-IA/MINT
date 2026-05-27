@@ -1369,7 +1369,7 @@ class SFr extends S {
 
   @override
   String get vaultGuidanceLamalBody =>
-      'Tu peux changer de franchise LAMal chaque année au 30 novembre (franchise plus haute) ou au 31 décembre (franchise plus basse). Un·e adulte en bonne santé peut économiser jusqu\'à 1\'500 CHF/an avec une franchise de 2\'500 CHF vs 300 CHF.';
+      'Tu peux changer de franchise LAMal chaque année au 30 novembre (franchise plus haute) ou au 31 décembre (franchise plus basse). Compare le coût total prime + franchise + quote-part selon tes dépenses de santé estimées.';
 
   @override
   String get vaultGuidanceLamalSource => 'LAMal art. 62, OAMal art. 93-94';
@@ -7399,7 +7399,7 @@ class SFr extends S {
 
   @override
   String get firstSalary3aInfo =>
-      '💰 Plafond 2026 : CHF 7\'258/an · Déduction fiscale directe · OPP3 art. 7';
+      '💰 Plafond 2026 : CHF 7\'258/an · Déductible du revenu imposable selon ta situation · OPP3 art. 7';
 
   @override
   String get firstSalaryAct4Title => 'Le piège LAMal';
@@ -7410,14 +7410,15 @@ class SFr extends S {
 
   @override
   String get firstSalaryFranchise300Advice =>
-      'Conseillé si maladies chroniques';
+      'Prime plus haute · Exposition aux frais plus basse';
 
   @override
-  String get firstSalaryFranchise1500Advice => 'Bon compromis · Recommandé';
+  String get firstSalaryFranchise1500Advice =>
+      'Option intermédiaire · À comparer selon tes frais de santé';
 
   @override
   String get firstSalaryFranchise2500Advice =>
-      'Économise la prime · Si tu es en bonne santé';
+      'Prime plus basse · Risque de frais plus élevés';
 
   @override
   String firstSalaryFranchiseLabel(String label) {
@@ -7458,7 +7459,7 @@ class SFr extends S {
 
   @override
   String get firstSalaryTask3 =>
-      'Choisir ta franchise LAMal (recommandé : CHF 1\'500)';
+      'Comparer les franchises LAMal avec tes dépenses de santé estimées';
 
   @override
   String get firstSalaryTask4 => 'Vérifier ta RC privée (env. CHF 100/an)';
@@ -20120,7 +20121,7 @@ class SFr extends S {
 
   @override
   String get stepJitTax3aInsight =>
-      'Chaque franc versé en 3a est déductible du revenu imposable. Sur 20 ans, la différence entre verser 0 et le plafond (7’258 CHF) peut représenter plus de 200’000 CHF.';
+      'Chaque franc versé en 3a est déductible du revenu imposable selon ta situation. Sur 20 ans, l’écart dépend des versements, du rendement, des frais et de l’impôt au retrait.';
 
   @override
   String get stepJitTax3aSource => 'OPP3 art. 7 / LIFD art. 33';
@@ -21329,7 +21330,7 @@ class SFr extends S {
 
   @override
   String get landingCoupleGeneric =>
-      'Les couples mariés perdent jusqu\'à CHF 8\'000/an en optimisations manquées.';
+      'Certaines décisions de couple peuvent modifier l’impôt, l’AVS et les retraits. MINT aide à comparer les scénarios.';
 
   @override
   String get landingTransparency =>

@@ -1367,7 +1367,7 @@ class SIt extends S {
 
   @override
   String get vaultGuidanceLamalBody =>
-      'Puoi cambiare franchigia LAMal ogni anno entro il 30 novembre (franchigia più alta) o il 31 dicembre (franchigia più bassa). Confronta in base al tuo consumo medico reale.';
+      'Puoi cambiare franchigia LAMal ogni anno entro il 30 novembre (franchigia più alta) o il 31 dicembre (franchigia più bassa). Confronta il costo totale: premio + franchigia + aliquota secondo le tue spese sanitarie stimate.';
 
   @override
   String get vaultGuidanceLamalSource => 'LAMal art. 62, OAMal art. 93-94';
@@ -7412,7 +7412,7 @@ class SIt extends S {
 
   @override
   String get firstSalary3aInfo =>
-      '💰 Tetto 2026: CHF 7\'258/anno · Deduzione fiscale diretta · OPP3 art. 7';
+      '💰 Tetto 2026: CHF 7\'258/anno · Deducibile dal reddito imponibile secondo la tua situazione · OPP3 art. 7';
 
   @override
   String get firstSalaryAct4Title => 'La trappola LAMal';
@@ -7423,14 +7423,15 @@ class SIt extends S {
 
   @override
   String get firstSalaryFranchise300Advice =>
-      'Consigliato se malattie croniche';
+      'Premio più alto · Minore esposizione ai costi';
 
   @override
-  String get firstSalaryFranchise1500Advice => 'Buon compromesso · Consigliato';
+  String get firstSalaryFranchise1500Advice =>
+      'Opzione intermedia · Da confrontare con i tuoi costi sanitari';
 
   @override
   String get firstSalaryFranchise2500Advice =>
-      'Risparmia sul premio · Se sei in buona salute';
+      'Premio più basso · Maggior rischio di spese proprie';
 
   @override
   String firstSalaryFranchiseLabel(String label) {
@@ -7470,7 +7471,7 @@ class SIt extends S {
 
   @override
   String get firstSalaryTask3 =>
-      'Scegliere la franchigia LAMal (consigliato: CHF 1\'500)';
+      'Confrontare le franchigie LAMal con le tue spese sanitarie stimate';
 
   @override
   String get firstSalaryTask4 =>
@@ -20177,7 +20178,7 @@ class SIt extends S {
 
   @override
   String get stepJitTax3aInsight =>
-      'Ogni franco versato nel 3a è deducibile dal reddito imponibile. In 20 anni, la differenza tra versare 0 e il massimo (CHF 7\'258) può superare CHF 200\'000.';
+      'Ogni franco versato nel 3a è deducibile dal reddito imponibile secondo la tua situazione. In 20 anni, la differenza dipende da versamenti, rendimento, costi e imposta al prelievo.';
 
   @override
   String get stepJitTax3aSource => 'OPP3 art. 7 / LIFD art. 33';
@@ -21393,7 +21394,7 @@ class SIt extends S {
 
   @override
   String get landingCoupleGeneric =>
-      'Le coppie sposate perdono fino a CHF 8\'000/anno in ottimizzazioni mancate.';
+      'Alcune decisioni di coppia possono cambiare imposte, AVS e prelievi. MINT aiuta a confrontare gli scenari.';
 
   @override
   String get landingTransparency =>

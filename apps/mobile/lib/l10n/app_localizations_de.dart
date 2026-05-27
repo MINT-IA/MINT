@@ -1372,7 +1372,7 @@ class SDe extends S {
 
   @override
   String get vaultGuidanceLamalBody =>
-      'Du kannst deine KVG-Franchise jedes Jahr bis zum 30. November (höhere Franchise) oder 31. Dezember (tiefere Franchise) ändern. Ein·e gesunde·r Erwachsene·r kann mit einer Franchise von 2\'500 CHF vs. 300 CHF bis zu 1\'500 CHF/Jahr sparen.';
+      'Du kannst deine KVG-Franchise jedes Jahr bis zum 30. November (höhere Franchise) oder 31. Dezember (tiefere Franchise) ändern. Vergleiche die Gesamtkosten: Prämie + Franchise + Selbstbehalt nach deinen geschätzten Gesundheitskosten.';
 
   @override
   String get vaultGuidanceLamalSource => 'KVG Art. 62, KVV Art. 93-94';
@@ -7416,7 +7416,7 @@ class SDe extends S {
 
   @override
   String get firstSalary3aInfo =>
-      '💰 Plafond 2026: CHF 7\'258/Jahr · Direkter Steuerabzug · BVV3 Art. 7';
+      '💰 Plafond 2026: CHF 7\'258/Jahr · Je nach Situation vom steuerbaren Einkommen abziehbar · BVV3 Art. 7';
 
   @override
   String get firstSalaryAct4Title => 'Die KVG-Falle';
@@ -7427,14 +7427,15 @@ class SDe extends S {
 
   @override
   String get firstSalaryFranchise300Advice =>
-      'Empfohlen bei chronischen Krankheiten';
+      'Höhere Prämie · Tiefere Kostenexposition';
 
   @override
-  String get firstSalaryFranchise1500Advice => 'Guter Kompromiss · Empfohlen';
+  String get firstSalaryFranchise1500Advice =>
+      'Mittlere Option · Mit deinen Gesundheitskosten vergleichen';
 
   @override
   String get firstSalaryFranchise2500Advice =>
-      'Prämie sparen · Wenn du gesund bist';
+      'Tiefere Prämie · Höheres Kostenrisiko';
 
   @override
   String firstSalaryFranchiseLabel(String label) {
@@ -7474,7 +7475,8 @@ class SDe extends S {
       'Einen automatischen monatlichen Dauerauftrag einrichten';
 
   @override
-  String get firstSalaryTask3 => 'KVG-Franchise wählen (empfohlen: CHF 1\'500)';
+  String get firstSalaryTask3 =>
+      'KVG-Franchisen mit deinen geschätzten Gesundheitskosten vergleichen';
 
   @override
   String get firstSalaryTask4 =>
@@ -20170,7 +20172,7 @@ class SDe extends S {
 
   @override
   String get stepJitTax3aInsight =>
-      'Jeder in die Säule 3a eingezahlte Franken ist steuerlich absetzbar. Über 20 Jahre kann der Unterschied zwischen 0 und dem Maximum (CHF 7\'258) mehr als CHF 200\'000 betragen.';
+      'Jeder in die Säule 3a eingezahlte Franken ist je nach Situation vom steuerbaren Einkommen abziehbar. Über 20 Jahre hängt der Unterschied von Einzahlungen, Rendite, Gebühren und Auszahlungssteuer ab.';
 
   @override
   String get stepJitTax3aSource => 'BVV3 Art. 7 / DBG Art. 33';
@@ -21382,7 +21384,7 @@ class SDe extends S {
 
   @override
   String get landingCoupleGeneric =>
-      'Verheiratete Paare verlieren bis zu CHF 8\'000/Jahr an verpassten Optimierungen.';
+      'Manche Paar-Entscheidungen können Steuern, AHV und Bezüge verändern. MINT hilft, Szenarien zu vergleichen.';
 
   @override
   String get landingTransparency =>
