@@ -112,6 +112,21 @@ BudgetSnapshot _snapshotWithFree(double monthlyFree) {
   );
 }
 
+/// Build a present-only budget snapshot with no retirement gap.
+BudgetSnapshot _presentOnlySnapshotWithFree(double monthlyFree) {
+  return BudgetSnapshot(
+    present: PresentBudget(
+      monthlyNet: 5000,
+      monthlyCharges: 3078,
+      monthlySavings: 0,
+      monthlyFree: monthlyFree,
+    ),
+    stage: BudgetStage.presentOnly,
+    capImpacts: const [],
+    confidenceScore: 45.0,
+  );
+}
+
 /// Build a [BudgetSnapshot] with a specific gap and replacement rate.
 BudgetSnapshot _snapshotWithGap({
   required double monthlyFree,
@@ -187,16 +202,33 @@ void main() {
     // ── Test 2: Budget surplus → no budgetAlert ───────────────
     test('2. Monthly surplus → no budgetAlert', () {
       final state = _makeState(
-        budgetSnapshot: _snapshotWithFree(500),
+        budgetSnapshot: _presentOnlySnapshotWithFree(1922),
       );
       final opener = DataDrivenOpenerService.generate(
         state: state,
         l: _l,
         now: march22,
       );
-      // No deficit — should not fire budgetAlert.
-      // (May fire another opener for other reasons, but not budgetAlert)
-      expect(opener?.type, isNot(DataOpenerType.budgetAlert));
+      expect(opener, isNotNull);
+      expect(opener!.type, DataOpenerType.budgetRoom);
+      expect(opener.message, contains("1'922"));
+      expect(opener.intentTag, equals('/budget'));
+    });
+
+    test('2b. Monthly surplus with full gap keeps gap warning priority', () {
+      final state = _makeState(
+        budgetSnapshot: _snapshotWithFree(1922),
+        replacementRate: 55,
+      );
+      final opener = DataDrivenOpenerService.generate(
+        state: state,
+        l: _l,
+        now: march22,
+      );
+      expect(opener, isNotNull);
+      expect(opener!.type, DataOpenerType.gapWarning);
+      expect(opener.type, isNot(DataOpenerType.budgetAlert));
+      expect(opener.type, isNot(DataOpenerType.budgetRoom));
     });
 
     // ── Test 3: No budget snapshot → no budgetAlert ───────────

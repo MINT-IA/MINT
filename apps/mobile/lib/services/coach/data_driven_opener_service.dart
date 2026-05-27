@@ -10,7 +10,7 @@
 //  - Pure function — no side effects, deterministic, testable.
 //  - Returns null when no interesting data point is found.
 //  - Always surfaces a REAL CHF number from the user's profile.
-//  - Priority: deficit > deadline > gap > savings > celebration > plan.
+//  - Priority: deficit > budget room > deadline > gap > savings > celebration > plan.
 //
 // Compliance:
 //  - No banned terms (garanti, certain, assuré, sans risque,
@@ -36,6 +36,9 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 enum DataOpenerType {
   /// Monthly spending deficit detected.
   budgetAlert,
+
+  /// Positive monthly budget margin detected.
+  budgetRoom,
 
   /// December and 3a has not been maxed this year.
   deadlineUrgency,
@@ -84,11 +87,12 @@ class DataDrivenOpener {
 ///
 /// Priority order (highest first):
 ///  1. [DataOpenerType.budgetAlert]       — monthly deficit
-///  2. [DataOpenerType.deadlineUrgency]   — December, 3a not maxed
-///  3. [DataOpenerType.gapWarning]        — replacement rate < 60%
-///  4. [DataOpenerType.savingsOpportunity]— 3a = 0 and salary > 0
-///  5. [DataOpenerType.progressCelebration] — confidence +5 pts
-///  6. [DataOpenerType.planProgress]      — CapSequence step completed
+///  2. [DataOpenerType.budgetRoom]        — positive monthly margin
+///  3. [DataOpenerType.deadlineUrgency]   — December, 3a not maxed
+///  4. [DataOpenerType.gapWarning]        — replacement rate < 60%
+///  5. [DataOpenerType.savingsOpportunity]— 3a = 0 and salary > 0
+///  6. [DataOpenerType.progressCelebration] — confidence +5 pts
+///  7. [DataOpenerType.planProgress]      — CapSequence step completed
 ///
 /// Returns null when no condition produces a meaningful data point.
 ///
@@ -129,24 +133,29 @@ class DataDrivenOpenerService {
     final deficitOpener = _checkBudgetDeficit(state, l);
     if (deficitOpener != null) return deficitOpener;
 
-    // Priority 2: 3a deadline (December)
+    // Priority 2: Positive budget room. If the user just gave us budget facts,
+    // acknowledge that concrete monthly margin before generic 3a opportunities.
+    final budgetRoomOpener = _checkBudgetRoom(state, l);
+    if (budgetRoomOpener != null) return budgetRoomOpener;
+
+    // Priority 3: 3a deadline (December)
     final deadlineOpener = _checkDeadlineUrgency(state, l, currentDate);
     if (deadlineOpener != null) return deadlineOpener;
 
-    // Priority 3: Gap warning
+    // Priority 4: Gap warning
     final gapOpener = _checkGapWarning(state, l);
     if (gapOpener != null) return gapOpener;
 
-    // Priority 4: Savings opportunity (3a = 0)
+    // Priority 5: Savings opportunity (3a = 0)
     final savingsOpener = _checkSavingsOpportunity(state, l);
     if (savingsOpener != null) return savingsOpener;
 
-    // Priority 5: Progress celebration
+    // Priority 6: Progress celebration
     final celebrationOpener =
         _checkProgressCelebration(state, l, previousConfidenceScore);
     if (celebrationOpener != null) return celebrationOpener;
 
-    // Priority 6: Plan progress
+    // Priority 7: Plan progress
     final planOpener = _checkPlanProgress(state, l);
     if (planOpener != null) return planOpener;
 
@@ -173,7 +182,30 @@ class DataDrivenOpenerService {
     );
   }
 
-  // ── Priority 2: 3a deadline (December) ────────────────────
+  // ── Priority 2: Positive budget room ──────────────────────
+
+  static DataDrivenOpener? _checkBudgetRoom(
+    MintUserState state,
+    S l,
+  ) {
+    final snapshot = state.budgetSnapshot;
+    if (snapshot == null) return null;
+    if (snapshot.gap != null) return null;
+    // A positive room opener is only trustworthy once actual charges exist.
+    // Salary-only snapshots should keep asking for budget facts instead.
+    if (snapshot.present.monthlyCharges <= 0) return null;
+    if (snapshot.present.monthlyFree <= 0) return null;
+
+    return DataDrivenOpener(
+      message: l.budgetSetupResteAfterCharges(
+        formatChf(snapshot.present.monthlyFree),
+      ),
+      intentTag: '/budget',
+      type: DataOpenerType.budgetRoom,
+    );
+  }
+
+  // ── Priority 3: 3a deadline (December) ────────────────────
 
   static DataDrivenOpener? _checkDeadlineUrgency(
     MintUserState state,

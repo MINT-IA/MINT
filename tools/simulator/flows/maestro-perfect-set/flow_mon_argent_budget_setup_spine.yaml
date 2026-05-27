@@ -114,9 +114,11 @@ tags:
 
 - tapOn:
     id: "budget_housing_field"
+- eraseText: 20
 - inputText: "2200"
 - tapOn:
     id: "budget_lamal_field"
+- eraseText: 20
 - inputText: "420"
 - tapOn:
     text: "Charges fixes"

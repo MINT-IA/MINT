@@ -158,6 +158,11 @@ class PrecomputedInsight {
         if (deficit == null) return null;
         return l.openerBudgetDeficit(deficit);
 
+      case DataOpenerType.budgetRoom:
+        final amount = params['amount'];
+        if (amount == null) return null;
+        return l.budgetSetupResteAfterCharges(_formatChfParam(amount));
+
       case DataOpenerType.deadlineUrgency:
         final daysLeft = params['daysLeft'];
         final plafond = params['plafond'];
@@ -327,6 +332,11 @@ class PrecomputedInsightsService {
         if (snapshot == null || !snapshot.present.isDeficit) return null;
         final deficit = snapshot.present.monthlyFree.abs().round();
         params = {'deficit': deficit.toString()};
+
+      case DataOpenerType.budgetRoom:
+        final snapshot = state.budgetSnapshot;
+        if (snapshot == null || snapshot.present.monthlyFree <= 0) return null;
+        params = {'amount': snapshot.present.monthlyFree.round().toString()};
 
       case DataOpenerType.deadlineUrgency:
         final daysLeft = DateTime(now.year, 12, 31).difference(now).inDays + 1;

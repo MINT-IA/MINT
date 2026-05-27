@@ -111,6 +111,20 @@ BudgetSnapshot _snapshotWithFree(double monthlyFree) {
   );
 }
 
+BudgetSnapshot _presentOnlySnapshotWithFree(double monthlyFree) {
+  return BudgetSnapshot(
+    present: PresentBudget(
+      monthlyNet: 5000,
+      monthlyCharges: 3078,
+      monthlySavings: 0,
+      monthlyFree: monthlyFree,
+    ),
+    stage: BudgetStage.presentOnly,
+    capImpacts: const [],
+    confidenceScore: 45.0,
+  );
+}
+
 BudgetSnapshot _snapshotWithGap({
   required double monthlyFree,
   required double replacementRate,
@@ -194,6 +208,34 @@ void main() {
       );
       expect(cached, isNotNull);
       expect(cached!.type, DataOpenerType.budgetAlert);
+    });
+
+    test('2b. computeAndCache + getCachedInsight roundtrip (budgetRoom)',
+        () async {
+      final state = _makeState(
+        budgetSnapshot: _presentOnlySnapshotWithFree(1922),
+      );
+      final prefs = await SharedPreferences.getInstance();
+
+      await PrecomputedInsightsService.computeAndCache(
+        state: state,
+        prefs: prefs,
+        now: march22,
+      );
+
+      final cached = await PrecomputedInsightsService.getCachedInsight(
+        prefs: prefs,
+        now: march22,
+      );
+      expect(cached, isNotNull);
+      expect(cached!.type, DataOpenerType.budgetRoom);
+      expect(cached.params['amount'], equals('1922'));
+      expect(cached.intentTag, equals('/budget'));
+
+      final opener = cached.resolve(_l);
+      expect(opener, isNotNull);
+      expect(opener!.message, contains("1'922"));
+      expect(opener.message, contains('après tes charges'));
     });
 
     // ── Test 3: Stale insight (> 1 hour) not returned ──────────────────────

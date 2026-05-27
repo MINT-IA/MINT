@@ -62,9 +62,11 @@ tags:
 
 - tapOn:
     id: "budget_housing_field"
+- eraseText: 20
 - inputText: "2200"
 - tapOn:
     id: "budget_lamal_field"
+- eraseText: 20
 - inputText: "420"
 - tapOn:
     text: "Charges fixes"
@@ -156,7 +158,10 @@ tags:
 - assertVisible:
     id: "coach_send_button"
 - assertVisible:
-    text: ".*déductibles.*"
+    text: ".*1'922.*"
+- assertVisible:
+    text: ".*après tes charges.*"
+- assertNotVisible: "Ton 3a.*déductibles"
 - assertNotVisible: "économie d'impôt en jeu"
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
