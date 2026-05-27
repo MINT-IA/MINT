@@ -11132,10 +11132,10 @@
   "monArgentBudgetSpent": "Expenses",
   "monArgentBudgetRemaining": "Remaining",
   "monArgentRetry": "Retry",
-  "monArgentPatrimoineTitle": "Your starting point",
+  "monArgentPatrimoineTitle": "Free assets",
   "monArgentPatrimoineEmpty": "Scan a document or talk to the coach to get started.",
   "monArgentPatrimoineError": "Unable to load your data.",
-  "monArgentPatrimoineNet": "Net",
+  "monArgentPatrimoineNet": "Free net",
   "monArgentPatrimoinePartial": "Add your data for a complete view.",
   "monArgentPatrimoineKnownDataLabel": "{percent} % of data known",
   "@monArgentPatrimoineKnownDataLabel": {

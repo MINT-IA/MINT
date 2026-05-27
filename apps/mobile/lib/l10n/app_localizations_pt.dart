@@ -23064,7 +23064,7 @@ class SPt extends S {
   String get monArgentRetry => 'Tentar novamente';
 
   @override
-  String get monArgentPatrimoineTitle => 'O teu ponto de partida';
+  String get monArgentPatrimoineTitle => 'Património livre';
 
   @override
   String get monArgentPatrimoineEmpty =>
@@ -23075,7 +23075,7 @@ class SPt extends S {
       'Não foi possível carregar os teus dados.';
 
   @override
-  String get monArgentPatrimoineNet => 'Líquido';
+  String get monArgentPatrimoineNet => 'Livre líquido';
 
   @override
   String get monArgentPatrimoinePartial =>

@@ -23059,7 +23059,7 @@ class SEs extends S {
   String get monArgentRetry => 'Reintentar';
 
   @override
-  String get monArgentPatrimoineTitle => 'Tu punto de partida';
+  String get monArgentPatrimoineTitle => 'Patrimonio libre';
 
   @override
   String get monArgentPatrimoineEmpty =>
@@ -23069,7 +23069,7 @@ class SEs extends S {
   String get monArgentPatrimoineError => 'No se pudieron cargar tus datos.';
 
   @override
-  String get monArgentPatrimoineNet => 'Neto';
+  String get monArgentPatrimoineNet => 'Libre neto';
 
   @override
   String get monArgentPatrimoinePartial =>

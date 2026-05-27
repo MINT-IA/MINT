@@ -22950,7 +22950,7 @@ class SEn extends S {
   String get monArgentRetry => 'Retry';
 
   @override
-  String get monArgentPatrimoineTitle => 'Your starting point';
+  String get monArgentPatrimoineTitle => 'Free assets';
 
   @override
   String get monArgentPatrimoineEmpty =>
@@ -22960,7 +22960,7 @@ class SEn extends S {
   String get monArgentPatrimoineError => 'Unable to load your data.';
 
   @override
-  String get monArgentPatrimoineNet => 'Net';
+  String get monArgentPatrimoineNet => 'Free net';
 
   @override
   String get monArgentPatrimoinePartial => 'Add your data for a complete view.';

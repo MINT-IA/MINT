@@ -40380,7 +40380,7 @@ abstract class S {
   /// Nav V11 — patrimoine card header
   ///
   /// In fr, this message translates to:
-  /// **'Ton point de départ'**
+  /// **'Patrimoine libre'**
   String get monArgentPatrimoineTitle;
 
   /// Nav V11 — patrimoine card empty state
@@ -40398,7 +40398,7 @@ abstract class S {
   /// Nav V11 — patrimoine net label
   ///
   /// In fr, this message translates to:
-  /// **'Net'**
+  /// **'Libre net'**
   String get monArgentPatrimoineNet;
 
   /// Nav V11 — patrimoine partial state hint

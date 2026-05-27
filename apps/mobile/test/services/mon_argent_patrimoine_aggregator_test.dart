@@ -31,7 +31,23 @@ void main() {
 
       expect(summary.investissements?.value, 12000);
       expect(summary.totalActifs, 194000);
-      expect(summary.net, 184000);
+      expect(summary.totalActifsLibres, 42000);
+      expect(summary.totalPrevoyance, 152000);
+      expect(summary.net, 32000);
+      expect(summary.completionRatio, 1);
+    });
+
+    test('free wealth can be complete without pension balances', () {
+      const summary = PatrimoineSummary(
+        epargneLiquide: PatrimoineField(value: 30000, source: 'userInput'),
+        investissements: PatrimoineField(value: 12000, source: 'userInput'),
+        dettes: PatrimoineField(value: 10000, source: 'userInput'),
+      );
+
+      expect(summary.totalActifsLibres, 42000);
+      expect(summary.totalPrevoyance, 0);
+      expect(summary.net, 32000);
+      expect(summary.isPartial, isFalse);
       expect(summary.completionRatio, 1);
     });
 
@@ -42,7 +58,9 @@ void main() {
 
       expect(summary.investissements?.value, 12000);
       expect(summary.totalActifs, 194000);
-      expect(summary.net, 184000);
+      expect(summary.totalActifsLibres, 42000);
+      expect(summary.totalPrevoyance, 152000);
+      expect(summary.net, 32000);
       expect(summary.lastUpdateSource, 'estimated');
     });
   });

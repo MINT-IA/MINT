@@ -12031,7 +12031,7 @@
   "@monArgentRetry": {
     "description": "Nav V11 — retry button"
   },
-  "monArgentPatrimoineTitle": "Ton point de départ",
+  "monArgentPatrimoineTitle": "Patrimoine libre",
   "@monArgentPatrimoineTitle": {
     "description": "Nav V11 — patrimoine card header"
   },
@@ -12043,7 +12043,7 @@
   "@monArgentPatrimoineError": {
     "description": "Nav V11 — patrimoine card error state"
   },
-  "monArgentPatrimoineNet": "Net",
+  "monArgentPatrimoineNet": "Libre net",
   "@monArgentPatrimoineNet": {
     "description": "Nav V11 — patrimoine net label"
   },

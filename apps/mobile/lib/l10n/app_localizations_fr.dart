@@ -23059,7 +23059,7 @@ class SFr extends S {
   String get monArgentRetry => 'Réessayer';
 
   @override
-  String get monArgentPatrimoineTitle => 'Ton point de départ';
+  String get monArgentPatrimoineTitle => 'Patrimoine libre';
 
   @override
   String get monArgentPatrimoineEmpty =>
@@ -23069,7 +23069,7 @@ class SFr extends S {
   String get monArgentPatrimoineError => 'Impossible de charger tes données.';
 
   @override
-  String get monArgentPatrimoineNet => 'Net';
+  String get monArgentPatrimoineNet => 'Libre net';
 
   @override
   String get monArgentPatrimoinePartial =>

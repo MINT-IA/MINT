@@ -103,10 +103,12 @@ void main() {
 
     await tester.tap(find.text('Patrimoine'));
     await tester.pumpAndSettle();
-    expect(find.text('Ton point de départ'), findsOneWidget);
-    expect(find.text("184'000\u00a0CHF"), findsWidgets);
+    expect(find.text('Patrimoine libre'), findsOneWidget);
+    expect(find.text('Prévoyance'), findsWidgets);
+    expect(find.text("32'000\u00a0CHF"), findsWidgets);
+    expect(find.text("184'000\u00a0CHF"), findsNothing);
 
-    await tester.tap(find.text('Prévoyance'));
+    await tester.tap(find.text('Prévoyance').first);
     await tester.pumpAndSettle();
     expect(find.text('Extrait AVS'), findsOneWidget);
     expect(find.text('Prévoyance LPP'), findsOneWidget);
@@ -248,7 +250,7 @@ void main() {
       'mon_argent_patrimoine_summary',
     );
 
-    await tester.tap(find.text('Prévoyance'));
+    await tester.tap(find.text('Prévoyance').first);
     await tester.pumpAndSettle();
     expect(
       tester
@@ -352,12 +354,13 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Ton point de départ'), findsOneWidget);
+    expect(find.text('Patrimoine libre'), findsOneWidget);
     expect(find.text('Investissements'), findsOneWidget);
     expect(find.text('Dettes totales'), findsOneWidget);
     expect(find.text("12'000\u00a0CHF"), findsOneWidget);
     expect(find.text("-10'000\u00a0CHF"), findsOneWidget);
-    expect(find.text("184'000\u00a0CHF"), findsWidgets);
+    expect(find.text("32'000\u00a0CHF"), findsWidgets);
+    expect(find.text("184'000\u00a0CHF"), findsNothing);
   });
 
   testWidgets('compact section selector exposes Futur without horizontal hunt',
@@ -453,7 +456,7 @@ void main() {
 
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.text('Prévoyance'));
+    await tester.tap(find.text('Prévoyance').first);
     await tester.pumpAndSettle();
 
     final chip = tester.getSemantics(
@@ -703,7 +706,7 @@ void main() {
 
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.text('Prévoyance'));
+    await tester.tap(find.text('Prévoyance').first);
     await tester.pumpAndSettle();
 
     expect(

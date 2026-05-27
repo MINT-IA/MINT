@@ -23115,7 +23115,7 @@ class SDe extends S {
   String get monArgentRetry => 'Erneut versuchen';
 
   @override
-  String get monArgentPatrimoineTitle => 'Dein Ausgangspunkt';
+  String get monArgentPatrimoineTitle => 'Freies Vermögen';
 
   @override
   String get monArgentPatrimoineEmpty =>
@@ -23125,7 +23125,7 @@ class SDe extends S {
   String get monArgentPatrimoineError => 'Daten konnten nicht geladen werden.';
 
   @override
-  String get monArgentPatrimoineNet => 'Netto';
+  String get monArgentPatrimoineNet => 'Frei netto';
 
   @override
   String get monArgentPatrimoinePartial =>

@@ -38,9 +38,14 @@ class PatrimoineSummary {
       (epargneLiquide?.value ?? 0) +
       (investissements?.value ?? 0);
 
+  double get totalActifsLibres =>
+      (epargneLiquide?.value ?? 0) + (investissements?.value ?? 0);
+
+  double get totalPrevoyance => (lpp?.value ?? 0) + (pillar3a?.value ?? 0);
+
   double get totalDettes => dettes?.value ?? 0;
 
-  double get net => totalActifs - totalDettes;
+  double get net => totalActifsLibres - totalDettes;
 
   bool get isEmpty =>
       lpp == null &&
@@ -51,19 +56,15 @@ class PatrimoineSummary {
 
   bool get isPartial =>
       !isEmpty &&
-      (lpp == null ||
-          pillar3a == null ||
-          epargneLiquide == null ||
-          investissements == null);
+      (epargneLiquide == null || investissements == null || dettes == null);
 
-  /// Ratio of known fields (0.0 to 1.0) for the pulse circle.
+  /// Ratio of known free-wealth fields (0.0 to 1.0) for the pulse circle.
   double get completionRatio {
     int known = 0;
-    int total = 4; // lpp, 3a, epargne, investissements
-    if (lpp != null) known++;
-    if (pillar3a != null) known++;
+    int total = 3; // epargne, investissements, dettes
     if (epargneLiquide != null) known++;
     if (investissements != null) known++;
+    if (dettes != null) known++;
     return known / total;
   }
 

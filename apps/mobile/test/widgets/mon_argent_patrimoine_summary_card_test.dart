@@ -46,6 +46,11 @@ void main() {
               source: 'estimated',
               lastUpdated: DateTime(2026, 5, 22),
             ),
+            dettes: PatrimoineField(
+              value: 7000,
+              source: 'userInput',
+              lastUpdated: DateTime(2026, 5, 21),
+            ),
           ),
         ),
       ),
@@ -64,8 +69,40 @@ void main() {
     expect(find.text('Mis à jour le 25 mai · estimé'), findsOneWidget);
     expect(find.text('Investissements'), findsOneWidget);
     expect(find.text("12'000\u00a0CHF"), findsOneWidget);
+    expect(find.text('Prévoyance'), findsOneWidget);
+    expect(find.text("27'230\u00a0CHF"), findsOneWidget);
+    expect(find.text("171'367\u00a0CHF"), findsNothing);
     expect(find.textContaining('donnees'), findsNothing);
     expect(find.textContaining('estimated'), findsNothing);
+  });
+
+  testWidgets('does not mark free assets partial when pension is missing',
+      (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const PatrimoineSummaryCard(
+          summary: PatrimoineSummary(
+            epargneLiquide: PatrimoineField(value: 30000, source: 'userInput'),
+            investissements: PatrimoineField(value: 12000, source: 'userInput'),
+            dettes: PatrimoineField(value: 10000, source: 'userInput'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            widget.properties.label == '100\u00a0% des données connues',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text("32'000\u00a0CHF"), findsOneWidget);
+    expect(find.text('Prévoyance'), findsNothing);
+    expect(find.text('Ajoute tes données pour une vue complète.'), findsNothing);
   });
 
   testWidgets('shows debts as a visible negative patrimoine line',
@@ -102,7 +139,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Ton point de départ'), findsOneWidget);
+    expect(find.text('Patrimoine libre'), findsOneWidget);
     expect(find.text('Dettes totales'), findsOneWidget);
     expect(find.text("-7'000\u00a0CHF"), findsWidgets);
     expect(find.text('Scanne un document ou parle au coach pour commencer.'),

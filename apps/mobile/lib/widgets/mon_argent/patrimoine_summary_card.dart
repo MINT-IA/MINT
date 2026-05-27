@@ -139,18 +139,6 @@ class PatrimoineSummaryCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: MintSpacing.md),
-                if (s.lpp != null)
-                  _buildTappableRow(
-                    l10n.monArgentLpp,
-                    s.lpp!.value,
-                    'lpp',
-                  ),
-                if (s.pillar3a != null)
-                  _buildTappableRow(
-                    l10n.monArgentPillar3a,
-                    s.pillar3a!.value,
-                    '3a',
-                  ),
                 if (s.epargneLiquide != null)
                   _buildTappableRow(
                     l10n.monArgentEpargne,
@@ -200,6 +188,31 @@ class PatrimoineSummaryCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (s.totalPrevoyance > 0) ...[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: MintSpacing.sm),
+                    child: Divider(height: 1, color: MintColors.lightBorder),
+                  ),
+                  Text(
+                    l10n.monArgentSectionPension,
+                    style: MintTextStyles.labelMedium(
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                  const SizedBox(height: MintSpacing.xs),
+                  if (s.lpp != null)
+                    _buildTappableRow(
+                      l10n.monArgentLpp,
+                      s.lpp!.value,
+                      'lpp',
+                    ),
+                  if (s.pillar3a != null)
+                    _buildTappableRow(
+                      l10n.monArgentPillar3a,
+                      s.pillar3a!.value,
+                      '3a',
+                    ),
+                ],
                 if (s.lastUpdated != null)
                   Padding(
                     padding: const EdgeInsets.only(top: MintSpacing.sm),

@@ -23120,7 +23120,7 @@ class SIt extends S {
   String get monArgentRetry => 'Riprova';
 
   @override
-  String get monArgentPatrimoineTitle => 'Il tuo punto di partenza';
+  String get monArgentPatrimoineTitle => 'Patrimonio libero';
 
   @override
   String get monArgentPatrimoineEmpty =>
@@ -23130,7 +23130,7 @@ class SIt extends S {
   String get monArgentPatrimoineError => 'Impossibile caricare i tuoi dati.';
 
   @override
-  String get monArgentPatrimoineNet => 'Netto';
+  String get monArgentPatrimoineNet => 'Netto libero';
 
   @override
   String get monArgentPatrimoinePartial =>
