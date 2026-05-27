@@ -4847,7 +4847,8 @@ class SIt extends S {
   String get pulseComprendre3a => 'Esplora il mio 3a';
 
   @override
-  String get pulseComprendre3aSub => 'Scopri il tuo risparmio fiscale annuale';
+  String get pulseComprendre3aSub =>
+      'Comprendi il tuo margine deducibile annuale';
 
   @override
   String get pulseComprendre_budget => 'Il mio budget mensile';
@@ -5940,7 +5941,7 @@ class SIt extends S {
 
   @override
   String get dataBlock3aDesc =>
-      'I tuoi conti 3a si aggiungono alla tua previdenza e offrono un vantaggio fiscale. Inserisci i saldi attuali per una visione completa.';
+      'I tuoi conti 3a si aggiungono alla tua previdenza. Inserisci i saldi attuali per calcolare il margine deducibile e proiettare l\'insieme.';
 
   @override
   String get dataBlock3aCta => 'Simulare il mio 3a';
@@ -14559,7 +14560,7 @@ class SIt extends S {
 
   @override
   String get capStepRetirement06Desc =>
-      'Colmare le lacune e ridurre le imposte.';
+      'Colmare le lacune LPP e verificare l\'impatto fiscale indicativo.';
 
   @override
   String get capStepRetirement06Title => 'Valutare un riscatto LPP';
@@ -19103,11 +19104,11 @@ class SIt extends S {
 
   @override
   String rcPillar3aExplanation(String plafond) {
-    return 'Risparmio fiscale stimato versando il massimale di $plafond CHF';
+    return 'Impatto fiscale indicativo versando fino a $plafond CHF';
   }
 
   @override
-  String get rcPillar3aSubtitle => 'Risparmio fiscale stimato';
+  String get rcPillar3aSubtitle => 'Impatto fiscale indicativo';
 
   @override
   String rcPillar3aTitle(String year) {
@@ -19233,11 +19234,11 @@ class SIt extends S {
 
   @override
   String rcTaxOptExplanation(String plafond3a) {
-    return 'Risparmio fiscale stimato tramite 3a ($plafond3a CHF) + riscatto LPP';
+    return 'Impatto fiscale indicativo tramite 3a ($plafond3a CHF) + riscatto LPP';
   }
 
   @override
-  String get rcTaxOptSubtitle => 'Deduzioni stimate disponibili';
+  String get rcTaxOptSubtitle => 'Deduzioni indicative da verificare';
 
   @override
   String get rcTaxOptTitle => 'Ottimizzazione fiscale';
@@ -21123,7 +21124,7 @@ class SIt extends S {
 
   @override
   String get jargon3aTooltip =>
-      'Il pilastro 3a è un risparmio pensionistico volontario con vantaggi fiscali. Il tetto è di CHF 7\'258/anno (dipendenti con LPP).';
+      'Il pilastro 3a è un risparmio pensionistico volontario. I versamenti possono essere deducibili dal reddito imponibile secondo il tuo stato LPP.';
 
   @override
   String get jargonAvsTooltip =>
@@ -21340,7 +21341,7 @@ class SIt extends S {
 
   @override
   String get glossary3a =>
-      'Il 3° pilastro. Il tuo risparmio pensionistico personale, volontario e deducibile dalle tasse. Massimo CHF 7\'258/anno se hai un 2° pilastro.';
+      'Il 3° pilastro. Il tuo risparmio pensionistico personale, volontario, con margine deducibile secondo il tuo stato LPP.';
 
   @override
   String get glossaryRamd =>

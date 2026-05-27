@@ -4814,7 +4814,7 @@ class SEn extends S {
   String get pulseComprendre3a => 'Explore my 3a';
 
   @override
-  String get pulseComprendre3aSub => 'Discover your annual tax saving';
+  String get pulseComprendre3aSub => 'Understand your annual deductible room';
 
   @override
   String get pulseComprendre_budget => 'My monthly budget';
@@ -5893,7 +5893,7 @@ class SEn extends S {
 
   @override
   String get dataBlock3aDesc =>
-      'Your 3a accounts complement your pension and offer a tax advantage. Enter current balances for a complete overview.';
+      'Your 3a accounts complement your pension. Enter current balances to calculate deductible room and project the whole picture.';
 
   @override
   String get dataBlock3aCta => 'Simulate my 3a';
@@ -14452,7 +14452,8 @@ class SEn extends S {
   String get capStepRetirement05Title => 'Simulate a 3a contribution';
 
   @override
-  String get capStepRetirement06Desc => 'Fill gaps and reduce your taxes.';
+  String get capStepRetirement06Desc =>
+      'Fill LPP gaps and verify the indicative tax impact.';
 
   @override
   String get capStepRetirement06Title => 'Evaluate an LPP buyback';
@@ -18960,11 +18961,11 @@ class SEn extends S {
 
   @override
   String rcPillar3aExplanation(String plafond) {
-    return 'Estimated tax saving if you contribute the cap of $plafond CHF';
+    return 'Indicative tax impact if you contribute up to $plafond CHF';
   }
 
   @override
-  String get rcPillar3aSubtitle => 'Estimated tax saving';
+  String get rcPillar3aSubtitle => 'Indicative tax impact';
 
   @override
   String rcPillar3aTitle(String year) {
@@ -19088,11 +19089,11 @@ class SEn extends S {
 
   @override
   String rcTaxOptExplanation(String plafond3a) {
-    return 'Estimated tax saving via 3a ($plafond3a CHF) + LPP buyback';
+    return 'Indicative tax impact via 3a ($plafond3a CHF) + LPP buyback';
   }
 
   @override
-  String get rcTaxOptSubtitle => 'Estimated available deductions';
+  String get rcTaxOptSubtitle => 'Indicative deductions to verify';
 
   @override
   String get rcTaxOptTitle => 'Tax optimisation';
@@ -20955,7 +20956,7 @@ class SEn extends S {
 
   @override
   String get jargon3aTooltip =>
-      'Pillar 3a is voluntary retirement savings with tax benefits. The ceiling is CHF 7,258/year (employed with LPP).';
+      'Pillar 3a is voluntary retirement savings. Contributions may be deductible from taxable income depending on your LPP status.';
 
   @override
   String get jargonAvsTooltip =>
@@ -21169,7 +21170,7 @@ class SEn extends S {
 
   @override
   String get glossary3a =>
-      'The 3rd pillar. Your personal, voluntary retirement savings — tax-deductible. Maximum CHF 7,258/year if you have a 2nd pillar.';
+      'The 3rd pillar. Your personal, voluntary retirement savings, with deductible room depending on your LPP status.';
 
   @override
   String get glossaryRamd =>

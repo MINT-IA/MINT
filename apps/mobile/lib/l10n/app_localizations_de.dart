@@ -4844,7 +4844,8 @@ class SDe extends S {
   String get pulseComprendre3a => 'Meine Säule 3a entdecken';
 
   @override
-  String get pulseComprendre3aSub => 'Entdecke deine jährliche Steuerersparnis';
+  String get pulseComprendre3aSub =>
+      'Verstehe deinen jährlichen abzugsfähigen Spielraum';
 
   @override
   String get pulseComprendre_budget => 'Mein monatliches Budget';
@@ -5938,7 +5939,7 @@ class SDe extends S {
 
   @override
   String get dataBlock3aDesc =>
-      'Deine Säule-3a-Konten ergänzen deine Vorsorge und bieten einen Steuervorteil. Gib die aktuellen Salden ein für eine vollständige Übersicht.';
+      'Deine Säule-3a-Konten ergänzen deine Vorsorge. Gib die aktuellen Salden ein, um den abzugsfähigen Spielraum und das Gesamtbild zu berechnen.';
 
   @override
   String get dataBlock3aCta => 'Mein 3a simulieren';
@@ -14556,7 +14557,7 @@ class SDe extends S {
 
   @override
   String get capStepRetirement06Desc =>
-      'Lücken schliessen und Steuern reduzieren.';
+      'BVG-Lücken schliessen und die indikative Steuerwirkung prüfen.';
 
   @override
   String get capStepRetirement06Title => 'BVG-Einkauf prüfen';
@@ -19095,11 +19096,11 @@ class SDe extends S {
 
   @override
   String rcPillar3aExplanation(String plafond) {
-    return 'Geschätzte Steuereinsparung bei Einzahlung des Höchstbetrags von $plafond CHF';
+    return 'Indikative Steuerwirkung bei Einzahlung bis $plafond CHF';
   }
 
   @override
-  String get rcPillar3aSubtitle => 'Geschätzte Steuereinsparung';
+  String get rcPillar3aSubtitle => 'Indikative Steuerwirkung';
 
   @override
   String rcPillar3aTitle(String year) {
@@ -19224,11 +19225,11 @@ class SDe extends S {
 
   @override
   String rcTaxOptExplanation(String plafond3a) {
-    return 'Geschätzte Steuereinsparung über Säule 3a ($plafond3a CHF) + BVG-Einkauf';
+    return 'Indikative Steuerwirkung über Säule 3a ($plafond3a CHF) + BVG-Einkauf';
   }
 
   @override
-  String get rcTaxOptSubtitle => 'Geschätzte verfügbare Abzüge';
+  String get rcTaxOptSubtitle => 'Indikative Abzüge prüfen';
 
   @override
   String get rcTaxOptTitle => 'Steueroptimierung';
@@ -21110,7 +21111,7 @@ class SDe extends S {
 
   @override
   String get jargon3aTooltip =>
-      'Die Säule 3a ist freiwilliges Alterssparen mit Steuervorteil. Die Obergrenze beträgt CHF 7\'258/Jahr (Angestellte mit BVG).';
+      'Die Säule 3a ist freiwilliges Alterssparen. Einzahlungen können je nach BVG-Status vom steuerbaren Einkommen abziehbar sein.';
 
   @override
   String get jargonAvsTooltip =>
@@ -21328,7 +21329,7 @@ class SDe extends S {
 
   @override
   String get glossary3a =>
-      'Die 3. Säule. Deine persönliche, freiwillige und steuerlich abzugsfähige Altersvorsorge. Maximum CHF 7\'258/Jahr wenn du eine 2. Säule hast.';
+      'Die 3. Säule. Deine persönliche, freiwillige Altersvorsorge mit abzugsfähigem Spielraum je nach BVG-Status.';
 
   @override
   String get glossaryRamd =>

@@ -4837,7 +4837,7 @@ class SPt extends S {
   String get pulseComprendre3a => 'Explorar o meu 3a';
 
   @override
-  String get pulseComprendre3aSub => 'Descobre a tua poupança fiscal anual';
+  String get pulseComprendre3aSub => 'Compreende a tua margem dedutível anual';
 
   @override
   String get pulseComprendre_budget => 'O meu orçamento mensal';
@@ -5927,7 +5927,7 @@ class SPt extends S {
 
   @override
   String get dataBlock3aDesc =>
-      'As tuas contas 3a complementam a tua previdência e oferecem uma vantagem fiscal. Introduz os saldos atuais para uma visão completa.';
+      'As tuas contas 3a complementam a tua previdência. Introduz os saldos atuais para calcular a margem dedutível e projetar o conjunto.';
 
   @override
   String get dataBlock3aCta => 'Simular o meu 3a';
@@ -14518,7 +14518,8 @@ class SPt extends S {
   String get capStepRetirement05Title => 'Simular uma contribuição 3a';
 
   @override
-  String get capStepRetirement06Desc => 'Cobrir lacunas e reduzir impostos.';
+  String get capStepRetirement06Desc =>
+      'Cobrir lacunas LPP e verificar o impacto fiscal indicativo.';
 
   @override
   String get capStepRetirement06Title => 'Avaliar uma recompra LPP';
@@ -19053,11 +19054,11 @@ class SPt extends S {
 
   @override
   String rcPillar3aExplanation(String plafond) {
-    return 'Poupança fiscal estimada ao contribuir com o máximo de $plafond CHF';
+    return 'Impacto fiscal indicativo ao contribuir até $plafond CHF';
   }
 
   @override
-  String get rcPillar3aSubtitle => 'Poupança fiscal estimada';
+  String get rcPillar3aSubtitle => 'Impacto fiscal indicativo';
 
   @override
   String rcPillar3aTitle(String year) {
@@ -19182,11 +19183,11 @@ class SPt extends S {
 
   @override
   String rcTaxOptExplanation(String plafond3a) {
-    return 'Poupança fiscal estimada via 3a ($plafond3a CHF) + recompra LPP';
+    return 'Impacto fiscal indicativo via 3a ($plafond3a CHF) + recompra LPP';
   }
 
   @override
-  String get rcTaxOptSubtitle => 'Deduções estimadas disponíveis';
+  String get rcTaxOptSubtitle => 'Deduções indicativas a verificar';
 
   @override
   String get rcTaxOptTitle => 'Otimização fiscal';
@@ -21067,7 +21068,7 @@ class SPt extends S {
 
   @override
   String get jargon3aTooltip =>
-      'O pilar 3a é uma poupança voluntária para a reforma com vantagens fiscais. O limite é de CHF 7\'258/ano (assalariados com LPP).';
+      'O pilar 3a é uma poupança voluntária para a reforma. As contribuições podem ser dedutíveis do rendimento tributável segundo o teu estatuto LPP.';
 
   @override
   String get jargonAvsTooltip =>
@@ -21284,7 +21285,7 @@ class SPt extends S {
 
   @override
   String get glossary3a =>
-      'O 3° pilar. A tua poupança pessoal para a reforma, voluntária e dedutível nos impostos. Máximo CHF 7.258/ano se tiveres um 2° pilar.';
+      'O 3° pilar. A tua poupança pessoal para a reforma, voluntária, com margem dedutível segundo o teu estatuto LPP.';
 
   @override
   String get glossaryRamd =>

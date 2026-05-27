@@ -4839,7 +4839,7 @@ class SEs extends S {
   String get pulseComprendre3a => 'Explorar mi 3a';
 
   @override
-  String get pulseComprendre3aSub => 'Descubre tu ahorro fiscal anual';
+  String get pulseComprendre3aSub => 'Comprende tu margen deducible anual';
 
   @override
   String get pulseComprendre_budget => 'Mi presupuesto mensual';
@@ -5930,7 +5930,7 @@ class SEs extends S {
 
   @override
   String get dataBlock3aDesc =>
-      'Tus cuentas 3a complementan tu previsión y ofrecen una ventaja fiscal. Introduce los saldos actuales para una visión completa.';
+      'Tus cuentas 3a complementan tu previsión. Introduce los saldos actuales para calcular tu margen deducible y proyectar el conjunto.';
 
   @override
   String get dataBlock3aCta => 'Simular mi 3a';
@@ -14526,7 +14526,8 @@ class SEs extends S {
   String get capStepRetirement05Title => 'Simular una aportación 3a';
 
   @override
-  String get capStepRetirement06Desc => 'Cubrir lagunas y reducir impuestos.';
+  String get capStepRetirement06Desc =>
+      'Cubrir lagunas LPP y verificar el impacto fiscal indicativo.';
 
   @override
   String get capStepRetirement06Title => 'Evaluar una recompra LPP';
@@ -19055,11 +19056,11 @@ class SEs extends S {
 
   @override
   String rcPillar3aExplanation(String plafond) {
-    return 'Ahorro fiscal estimado si aportas el límite de $plafond CHF';
+    return 'Impacto fiscal indicativo si aportas hasta $plafond CHF';
   }
 
   @override
-  String get rcPillar3aSubtitle => 'Ahorro fiscal estimado';
+  String get rcPillar3aSubtitle => 'Impacto fiscal indicativo';
 
   @override
   String rcPillar3aTitle(String year) {
@@ -19182,11 +19183,11 @@ class SEs extends S {
 
   @override
   String rcTaxOptExplanation(String plafond3a) {
-    return 'Ahorro fiscal estimado vía 3a ($plafond3a CHF) + recompra LPP';
+    return 'Impacto fiscal indicativo vía 3a ($plafond3a CHF) + recompra LPP';
   }
 
   @override
-  String get rcTaxOptSubtitle => 'Deducciones estimadas disponibles';
+  String get rcTaxOptSubtitle => 'Deducciones indicativas a verificar';
 
   @override
   String get rcTaxOptTitle => 'Optimización fiscal';
@@ -21062,7 +21063,7 @@ class SEs extends S {
 
   @override
   String get jargon3aTooltip =>
-      'El pilar 3a es un ahorro voluntario para la jubilación con ventajas fiscales. El límite es de CHF 7.258/año (asalariados con LPP).';
+      'El pilar 3a es un ahorro voluntario para la jubilación. Las aportaciones pueden ser deducibles de la renta imponible según tu situación LPP.';
 
   @override
   String get jargonAvsTooltip =>
@@ -21279,7 +21280,7 @@ class SEs extends S {
 
   @override
   String get glossary3a =>
-      'El 3er pilar. Tu ahorro personal para la jubilación, voluntario y deducible de impuestos. Máximo CHF 7.258/año si tienes un 2° pilar.';
+      'El 3er pilar. Tu ahorro personal para la jubilación, voluntario, con margen deducible según tu situación LPP.';
 
   @override
   String get glossaryRamd =>

@@ -8791,7 +8791,7 @@ abstract class S {
   /// No description provided for @pulseComprendre3aSub.
   ///
   /// In fr, this message translates to:
-  /// **'Découvre l\'économie d\'impôt annuelle'**
+  /// **'Comprends ta marge déductible annuelle'**
   String get pulseComprendre3aSub;
 
   /// No description provided for @pulseComprendre_budget.
@@ -10689,7 +10689,7 @@ abstract class S {
   /// No description provided for @dataBlock3aDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Tes comptes 3a s\'ajoutent à ta prévoyance et offrent un avantage fiscal. Renseigne les soldes actuels pour une vue complète.'**
+  /// **'Tes comptes 3a s\'ajoutent à ta prévoyance. Renseigne les soldes actuels pour calculer ta marge déductible et projeter l\'ensemble.'**
   String get dataBlock3aDesc;
 
   /// No description provided for @dataBlock3aCta.
@@ -25670,7 +25670,7 @@ abstract class S {
   /// No description provided for @capStepRetirement06Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Combler les lacunes et réduire tes impôts.'**
+  /// **'Combler les lacunes LPP et vérifier l\'impact fiscal indicatif.'**
   String get capStepRetirement06Desc;
 
   /// No description provided for @capStepRetirement06Title.
@@ -26858,7 +26858,7 @@ abstract class S {
   /// No description provided for @communityChallenge12Desc.
   ///
   /// In fr, this message translates to:
-  /// **'La deadline 3a approche. Verse jusqu’à CHF 7’258 (salarié avec LPP) avant le 31 décembre pour bénéficier de la déduction fiscale de cette année.'**
+  /// **'La deadline 3a approche. Vérifie ta marge déductible et planifie un versement adapté avant le 31 décembre.'**
   String get communityChallenge12Desc;
 
   /// No description provided for @communityChallenge12Title.
@@ -31587,7 +31587,7 @@ abstract class S {
   /// No description provided for @nudge3aDeadlineBody.
   ///
   /// In fr, this message translates to:
-  /// **'Il reste {days} jour(s) pour verser jusqu\'à {limit} CHF et réduire tes impôts {year}.'**
+  /// **'Il reste {days} jour(s) pour planifier ta marge déductible 3a jusqu’à {limit} CHF avant la fin {year}.'**
   String nudge3aDeadlineBody(String days, String limit, String year);
 
   /// No description provided for @nudge3aDeadlineTitle.
@@ -32007,7 +32007,7 @@ abstract class S {
   /// No description provided for @opener3aDeadline.
   ///
   /// In fr, this message translates to:
-  /// **'Il reste {days} jours pour verser jusqu’à {plafond} CHF dans ton 3a.'**
+  /// **'Marge déductible 3a disponible : jusqu’à {plafond} CHF pendant encore {days} jours.'**
   String opener3aDeadline(String days, String plafond);
 
   /// No description provided for @openerBudgetDeficit.
@@ -33495,13 +33495,13 @@ abstract class S {
   /// No description provided for @rcPillar3aExplanation.
   ///
   /// In fr, this message translates to:
-  /// **'Économie d’impôt estimée si tu verses le plafond de {plafond} CHF'**
+  /// **'Impact fiscal indicatif si tu verses jusqu’à {plafond} CHF'**
   String rcPillar3aExplanation(String plafond);
 
   /// No description provided for @rcPillar3aSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Économie fiscale estimée'**
+  /// **'Impact fiscal indicatif'**
   String get rcPillar3aSubtitle;
 
   /// No description provided for @rcPillar3aTitle.
@@ -33706,13 +33706,13 @@ abstract class S {
   /// No description provided for @rcTaxOptExplanation.
   ///
   /// In fr, this message translates to:
-  /// **'Économie d’impôt estimée via 3a ({plafond3a} CHF) + rachat LPP'**
+  /// **'Impact fiscal indicatif via 3a ({plafond3a} CHF) + rachat LPP'**
   String rcTaxOptExplanation(String plafond3a);
 
   /// No description provided for @rcTaxOptSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Déductions estimées disponibles'**
+  /// **'Déductions indicatives à vérifier'**
   String get rcTaxOptSubtitle;
 
   /// No description provided for @rcTaxOptTitle.
@@ -36990,7 +36990,7 @@ abstract class S {
   /// No description provided for @jargon3aTooltip.
   ///
   /// In fr, this message translates to:
-  /// **'Le pilier 3a est une épargne retraite volontaire avec avantage fiscal. Le plafond est de 7 258 CHF/an (salarié avec LPP).'**
+  /// **'Le pilier 3a est une épargne retraite volontaire. Les versements peuvent être déductibles du revenu imposable selon ton statut LPP.'**
   String get jargon3aTooltip;
 
   /// No description provided for @jargonAvsTooltip.
@@ -37350,7 +37350,7 @@ abstract class S {
   /// No description provided for @glossary3a.
   ///
   /// In fr, this message translates to:
-  /// **'Le 3e pilier. Ton épargne retraite personnelle, volontaire et déductible des impôts. Maximum CHF 7\'258/an si tu as un 2e pilier.'**
+  /// **'Le 3e pilier. Ton épargne retraite personnelle, volontaire, avec marge déductible selon ton statut LPP.'**
   String get glossary3a;
 
   /// No description provided for @glossaryRamd.
@@ -39000,7 +39000,7 @@ abstract class S {
   /// No description provided for @anticipation3aDeadlineFact.
   ///
   /// In fr, this message translates to:
-  /// **'Tu peux encore verser jusqu\'à {limit} CHF sur ton 3e pilier avant le 31 décembre {year}. Chaque année non utilisée est perdue.'**
+  /// **'Tu peux encore planifier un versement 3a jusqu’à {limit} CHF avant le 31 décembre {year}. Vérifie le montant adapté à ton statut LPP.'**
   String anticipation3aDeadlineFact(String limit, String year);
 
   /// No description provided for @anticipationTaxDeadlineTitle.

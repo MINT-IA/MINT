@@ -4841,7 +4841,7 @@ class SFr extends S {
   String get pulseComprendre3a => 'Explorer mon 3a';
 
   @override
-  String get pulseComprendre3aSub => 'Découvre l\'économie d\'impôt annuelle';
+  String get pulseComprendre3aSub => 'Comprends ta marge déductible annuelle';
 
   @override
   String get pulseComprendre_budget => 'Mon budget mensuel';
@@ -5934,7 +5934,7 @@ class SFr extends S {
 
   @override
   String get dataBlock3aDesc =>
-      'Tes comptes 3a s\'ajoutent à ta prévoyance et offrent un avantage fiscal. Renseigne les soldes actuels pour une vue complète.';
+      'Tes comptes 3a s\'ajoutent à ta prévoyance. Renseigne les soldes actuels pour calculer ta marge déductible et projeter l\'ensemble.';
 
   @override
   String get dataBlock3aCta => 'Simuler mon 3a';
@@ -14522,7 +14522,7 @@ class SFr extends S {
 
   @override
   String get capStepRetirement06Desc =>
-      'Combler les lacunes et réduire tes impôts.';
+      'Combler les lacunes LPP et vérifier l\'impact fiscal indicatif.';
 
   @override
   String get capStepRetirement06Title => 'Évaluer un rachat LPP';
@@ -19043,11 +19043,11 @@ class SFr extends S {
 
   @override
   String rcPillar3aExplanation(String plafond) {
-    return 'Économie d’impôt estimée si tu verses le plafond de $plafond CHF';
+    return 'Impact fiscal indicatif si tu verses jusqu’à $plafond CHF';
   }
 
   @override
-  String get rcPillar3aSubtitle => 'Économie fiscale estimée';
+  String get rcPillar3aSubtitle => 'Impact fiscal indicatif';
 
   @override
   String rcPillar3aTitle(String year) {
@@ -19175,11 +19175,11 @@ class SFr extends S {
 
   @override
   String rcTaxOptExplanation(String plafond3a) {
-    return 'Économie d’impôt estimée via 3a ($plafond3a CHF) + rachat LPP';
+    return 'Impact fiscal indicatif via 3a ($plafond3a CHF) + rachat LPP';
   }
 
   @override
-  String get rcTaxOptSubtitle => 'Déductions estimées disponibles';
+  String get rcTaxOptSubtitle => 'Déductions indicatives à vérifier';
 
   @override
   String get rcTaxOptTitle => 'Optimisation fiscale';
@@ -21060,7 +21060,7 @@ class SFr extends S {
 
   @override
   String get jargon3aTooltip =>
-      'Le pilier 3a est une épargne retraite volontaire avec avantage fiscal. Le plafond est de 7 258 CHF/an (salarié avec LPP).';
+      'Le pilier 3a est une épargne retraite volontaire. Les versements peuvent être déductibles du revenu imposable selon ton statut LPP.';
 
   @override
   String get jargonAvsTooltip =>
@@ -21277,7 +21277,7 @@ class SFr extends S {
 
   @override
   String get glossary3a =>
-      'Le 3e pilier. Ton épargne retraite personnelle, volontaire et déductible des impôts. Maximum CHF 7\'258/an si tu as un 2e pilier.';
+      'Le 3e pilier. Ton épargne retraite personnelle, volontaire, avec marge déductible selon ton statut LPP.';
 
   @override
   String get glossaryRamd =>

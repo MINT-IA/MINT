@@ -98,6 +98,66 @@ void main() {
         }
       }
     });
+
+    test('3a response-card copy frames tax impact as indicative', () {
+      const locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
+      const keys = [
+        'pulseComprendre3aSub',
+        'dataBlock3aDesc',
+        'capStepRetirement06Desc',
+        'rcPillar3aExplanation',
+        'rcPillar3aSubtitle',
+        'rcTaxOptExplanation',
+        'rcTaxOptSubtitle',
+        'jargon3aTooltip',
+        'glossary3a',
+      ];
+      const bannedFragments = [
+        'économie d’impôt',
+        'économie d\'impôt',
+        'économie fiscale',
+        'avantage fiscal',
+        'tax saving',
+        'tax advantage',
+        'reduce your taxes',
+        'steuereinspar',
+        'steuerersparnis',
+        'steuervorteil',
+        'steuern reduzieren',
+        'ahorro fiscal',
+        'ventaja fiscal',
+        'reducir impuestos',
+        'risparmio fiscale',
+        'vantaggio fiscale',
+        'ridurre le imposte',
+        'poupança fiscal',
+        'vantagem fiscal',
+        'reduzir impostos',
+      ];
+      const requiredAnchors = {
+        'fr': ['indicati', 'déductible', 'marge'],
+        'en': ['indicative', 'deductible', 'potential'],
+        'de': ['indikativ', 'abzugsfähig', 'abziehbar', 'mögliche'],
+        'es': ['indicativ', 'deducib', 'potenciales'],
+        'it': ['indicativ', 'deducib', 'potenziali'],
+        'pt': ['indicativ', 'dedut', 'potenciais'],
+      };
+
+      for (final locale in locales) {
+        final json = arb(locale);
+        for (final key in keys) {
+          final value = (json[key] as String).toLowerCase();
+          for (final fragment in bannedFragments) {
+            expect(value, isNot(contains(fragment)), reason: '$locale:$key');
+          }
+          expect(
+            requiredAnchors[locale]!.any(value.contains),
+            isTrue,
+            reason: '$locale:$key should remain indicative or deductible',
+          );
+        }
+      }
+    });
   });
 
   // ── Helper: minimal answers for a valid report ──────────────────────
