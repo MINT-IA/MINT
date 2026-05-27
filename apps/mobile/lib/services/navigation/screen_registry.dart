@@ -11,6 +11,7 @@
 /// Pure data — no Flutter/widget imports. Safe to use in tests and services.
 library;
 
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/navigation/readiness_result.dart';
 
@@ -257,11 +258,12 @@ ReadinessResult gateFrontalier(CoachProfile profile) {
 
 /// Gate: /debt/ratio — budget sous tension / debt ratio calculator.
 ///
-/// Requires [netIncome] AND at least one charge entered (totalMensuel > 0).
+/// Requires [netIncome] AND at least one plausible charge entered.
 /// If no charges have been entered, open in partial mode with enrichment CTA.
 ReadinessResult gateBudgetSousTension(CoachProfile profile) {
   final hasIncome = profile.salaireBrutMensuel > 0;
-  final hasCharges = profile.depenses.totalMensuel > 0;
+  final hasCharges =
+      BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile) > 0;
 
   if (!hasIncome) {
     return const ReadinessResult.blocked(

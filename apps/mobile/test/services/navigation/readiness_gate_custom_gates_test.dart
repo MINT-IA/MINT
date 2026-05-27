@@ -375,6 +375,16 @@ void main() {
       expect(result.level, ReadinessLevel.ready);
     });
 
+    test('income + only implausible charges → partial', () {
+      final profile = _incomeNoChargesProfile().copyWith(
+        depenses: const DepensesProfile(loyer: 19272200),
+      );
+      final result = ReadinessGate.check(entry, profile);
+
+      expect(result.level, ReadinessLevel.partial);
+      expect(result.missingFields, contains('totalCharges'));
+    });
+
     test('partial profile (salary but no depenses) → partial', () {
       final result = ReadinessGate.check(entry, _partialProfile());
       expect(result.level, ReadinessLevel.partial);
