@@ -11815,7 +11815,7 @@ class SDe extends S {
 
   @override
   String reportTaxSavings(String amount) {
-    return 'Mögliche Ersparnis mit BVG-Einkauf: CHF $amount/Jahr';
+    return 'Geschätzte Steuerwirkung mit BVG-Einkauf: CHF $amount/Jahr';
   }
 
   @override

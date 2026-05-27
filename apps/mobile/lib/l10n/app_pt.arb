@@ -5635,7 +5635,7 @@
   "reportTaxIncome": "Rendimento tributável",
   "reportTaxDeductions": "Deduções",
   "reportTaxEstimated": "Impostos estimados",
-  "reportTaxSavings": "Poupança possível com resgate LPP: CHF {amount}/ano",
+  "reportTaxSavings": "Impacto fiscal estimado com resgate LPP: CHF {amount}/ano",
   "@reportTaxSavings": {
     "placeholders": {
       "amount": {

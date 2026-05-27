@@ -5640,7 +5640,7 @@
   "reportTaxIncome": "Taxable income",
   "reportTaxDeductions": "Deductions",
   "reportTaxEstimated": "Estimated taxes",
-  "reportTaxSavings": "Potential saving with LPP buyback: CHF {amount}/year",
+  "reportTaxSavings": "Estimated tax impact with LPP buyback: CHF {amount}/year",
   "@reportTaxSavings": {
     "placeholders": {
       "amount": {

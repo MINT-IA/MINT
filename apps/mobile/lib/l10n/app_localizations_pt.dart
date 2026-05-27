@@ -11783,7 +11783,7 @@ class SPt extends S {
 
   @override
   String reportTaxSavings(String amount) {
-    return 'Poupança possível com resgate LPP: CHF $amount/ano';
+    return 'Impacto fiscal estimado com resgate LPP: CHF $amount/ano';
   }
 
   @override

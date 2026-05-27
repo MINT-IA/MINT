@@ -6017,7 +6017,7 @@
   "reportTaxIncome": "Revenu imposable",
   "reportTaxDeductions": "Déductions",
   "reportTaxEstimated": "Impôts estimés",
-  "reportTaxSavings": "Économie possible avec rachat LPP : CHF {amount}/an",
+  "reportTaxSavings": "Impact fiscal estimé avec rachat LPP : CHF {amount}/an",
   "@reportTaxSavings": {
     "placeholders": {
       "amount": {

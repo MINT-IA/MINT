@@ -5635,7 +5635,7 @@
   "reportTaxIncome": "Reddito imponibile",
   "reportTaxDeductions": "Deduzioni",
   "reportTaxEstimated": "Tasse stimate",
-  "reportTaxSavings": "Risparmio possibile con riscatto LPP: CHF {amount}/anno",
+  "reportTaxSavings": "Impatto fiscale stimato con riscatto LPP: CHF {amount}/anno",
   "@reportTaxSavings": {
     "placeholders": {
       "amount": {

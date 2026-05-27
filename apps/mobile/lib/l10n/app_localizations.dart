@@ -20860,7 +20860,7 @@ abstract class S {
   /// No description provided for @reportTaxSavings.
   ///
   /// In fr, this message translates to:
-  /// **'Économie possible avec rachat LPP : CHF {amount}/an'**
+  /// **'Impact fiscal estimé avec rachat LPP : CHF {amount}/an'**
   String reportTaxSavings(String amount);
 
   /// No description provided for @reportSafeModePriority.

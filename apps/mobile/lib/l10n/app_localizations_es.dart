@@ -11789,7 +11789,7 @@ class SEs extends S {
 
   @override
   String reportTaxSavings(String amount) {
-    return 'Ahorro posible con rescate LPP: CHF $amount/año';
+    return 'Impacto fiscal estimado con rescate LPP: CHF $amount/año';
   }
 
   @override

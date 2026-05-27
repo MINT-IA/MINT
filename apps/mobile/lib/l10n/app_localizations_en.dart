@@ -11730,7 +11730,7 @@ class SEn extends S {
 
   @override
   String reportTaxSavings(String amount) {
-    return 'Potential saving with LPP buyback: CHF $amount/year';
+    return 'Estimated tax impact with LPP buyback: CHF $amount/year';
   }
 
   @override

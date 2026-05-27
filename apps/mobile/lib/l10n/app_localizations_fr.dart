@@ -11790,7 +11790,7 @@ class SFr extends S {
 
   @override
   String reportTaxSavings(String amount) {
-    return 'Économie possible avec rachat LPP : CHF $amount/an';
+    return 'Impact fiscal estimé avec rachat LPP : CHF $amount/an';
   }
 
   @override

@@ -5640,7 +5640,7 @@
   "reportTaxIncome": "Steuerbares Einkommen",
   "reportTaxDeductions": "Abzüge",
   "reportTaxEstimated": "Geschätzte Steuern",
-  "reportTaxSavings": "Mögliche Ersparnis mit BVG-Einkauf: CHF {amount}/Jahr",
+  "reportTaxSavings": "Geschätzte Steuerwirkung mit BVG-Einkauf: CHF {amount}/Jahr",
   "@reportTaxSavings": {
     "placeholders": {
       "amount": {

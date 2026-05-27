@@ -11811,7 +11811,7 @@ class SIt extends S {
 
   @override
   String reportTaxSavings(String amount) {
-    return 'Risparmio possibile con riscatto LPP: CHF $amount/anno';
+    return 'Impatto fiscale stimato con riscatto LPP: CHF $amount/anno';
   }
 
   @override

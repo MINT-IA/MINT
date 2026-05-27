@@ -255,6 +255,37 @@ void main() {
         }
       }
     });
+
+    test('lpp buyback visible gain label remains an estimated tax impact', () {
+      const anchors = {
+        'fr': 'impact fiscal estimé',
+        'en': 'estimated tax impact',
+        'de': 'steuerwirkung',
+        'es': 'impacto fiscal estimado',
+        'it': 'impatto fiscale stimato',
+        'pt': 'impacto fiscal estimado',
+      };
+      const bannedFragments = [
+        'économie possible',
+        'économie fiscale',
+        'potential saving',
+        'tax saving',
+        'ersparnis',
+        'ahorro',
+        'risparmio',
+        'poupança',
+      ];
+
+      for (final locale in anchors.keys) {
+        final value =
+            (arb(locale)['reportTaxSavings'] as String).toLowerCase();
+        expect(value, contains(anchors[locale]), reason: locale);
+        expect(value, contains('{amount}'), reason: locale);
+        for (final fragment in bannedFragments) {
+          expect(value, isNot(contains(fragment)), reason: locale);
+        }
+      }
+    });
   });
 
   // ── Helper: minimal answers for a valid report ──────────────────────

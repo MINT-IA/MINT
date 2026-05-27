@@ -5640,7 +5640,7 @@
   "reportTaxIncome": "Renta imponible",
   "reportTaxDeductions": "Deducciones",
   "reportTaxEstimated": "Impuestos estimados",
-  "reportTaxSavings": "Ahorro posible con rescate LPP: CHF {amount}/año",
+  "reportTaxSavings": "Impacto fiscal estimado con rescate LPP: CHF {amount}/año",
   "@reportTaxSavings": {
     "placeholders": {
       "amount": {
