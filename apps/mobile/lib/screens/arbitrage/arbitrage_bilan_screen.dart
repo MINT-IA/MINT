@@ -61,6 +61,10 @@ class ArbitrageBilanScreen extends StatelessWidget {
     }
 
     final summary = ArbitrageSummaryService.compute(profile, l: S.of(context));
+    final protectionItems =
+        summary.lockedItems.where((item) => item.id == 'debt_protection');
+    final lockedItems =
+        summary.lockedItems.where((item) => item.id != 'debt_protection');
 
     return Scaffold(
       backgroundColor: MintColors.white,
@@ -120,6 +124,12 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 if (summary.items.length > 1)
                   _buildCaveat(context),
 
+                // Protection items
+                ...protectionItems.map((locked) => Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: _ProtectionItemCard(locked: locked),
+                    )),
+
                 // Computed items
                 ...summary.items.map((item) => Padding(
                       padding: const EdgeInsets.only(bottom: 14),
@@ -127,14 +137,14 @@ class ArbitrageBilanScreen extends StatelessWidget {
                     )),
 
                 // Locked items
-                if (summary.lockedItems.isNotEmpty) ...[
+                if (lockedItems.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(
                     S.of(context)!.arbitrageBilanDebloquer,
                     style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 10),
-                  ...summary.lockedItems.map((locked) => Padding(
+                  ...lockedItems.map((locked) => Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: _LockedItemCard(locked: locked),
                       )),
@@ -239,6 +249,77 @@ class ArbitrageBilanScreen extends StatelessWidget {
                   ),
                 )),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  PROTECTION ITEM CARD — debt/safe-mode priority
+// ════════════════════════════════════════════════════════════
+
+class _ProtectionItemCard extends StatelessWidget {
+  final ArbitrageLocked locked;
+
+  const _ProtectionItemCard({required this.locked});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Protection : ${locked.title}',
+      button: true,
+      child: InkWell(
+        onTap: () => context.push(locked.enrichmentRoute),
+        borderRadius: BorderRadius.circular(14),
+        child: MintSurface(
+          tone: MintSurfaceTone.porcelaine,
+          padding: const EdgeInsets.all(16),
+          radius: 14,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: MintColors.warning.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.shield_outlined,
+                  size: 18,
+                  color: MintColors.warning,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      locked.title,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      locked.missingDataPrompt,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 20,
+                color: MintColors.warning.withValues(alpha: 0.55),
+              ),
+            ],
+          ),
         ),
       ),
     );
