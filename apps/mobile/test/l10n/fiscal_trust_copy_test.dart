@@ -54,6 +54,7 @@ const _trustSensitiveKeys = [
   'stepJitTax3aCons',
   'summaryEconomieFiscale',
   'chocQuestionTaxSaving',
+  'reportActionDescDette',
 ];
 
 const _bannedFragments = [
@@ -102,6 +103,15 @@ const _bannedFragments = [
   'maximizar',
 ];
 
+const _reportDebtRequiredFragments = {
+  'fr': ['peut', 'selon le taux'],
+  'en': ['can', 'depending on the rate'],
+  'de': ['kann', 'je nach zinssatz'],
+  'es': ['puede', 'según la tasa'],
+  'it': ['può', 'a seconda del tasso'],
+  'pt': ['pode', 'consoante a taxa'],
+};
+
 void main() {
   group('Fiscal trust copy', () {
     for (final locale in _locales) {
@@ -120,6 +130,17 @@ void main() {
               isNot(contains(banned)),
               reason: '$locale:$key must not promise deterministic tax gains',
             );
+          }
+
+          if (key == 'reportActionDescDette') {
+            for (final required
+                in _reportDebtRequiredFragments[locale] ?? const <String>[]) {
+              expect(
+                normalized,
+                contains(required),
+                reason: '$locale:$key must keep conditional debt-rate framing',
+              );
+            }
           }
         }
       });

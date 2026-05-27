@@ -19332,7 +19332,7 @@ class SEs extends S {
 
   @override
   String get reportActionDescDette =>
-      'Es la inversión más rentable: ahorras 6-10 % al año en intereses.';
+      'Reducir esta deuda puede bajar los intereses futuros un 6-10 % al año, según la tasa.';
 
   @override
   String get reportActionDescUrgence =>

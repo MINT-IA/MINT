@@ -33958,7 +33958,7 @@ abstract class S {
   /// No description provided for @reportActionDescDette.
   ///
   /// In fr, this message translates to:
-  /// **'C’est le placement le plus rentable : tu économises 6-10 % par an sur les intérêts.'**
+  /// **'Réduire cette dette peut alléger les intérêts futurs de 6-10 % par an, selon le taux.'**
   String get reportActionDescDette;
 
   /// No description provided for @reportActionDescUrgence.

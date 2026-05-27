@@ -19382,7 +19382,7 @@ class SIt extends S {
 
   @override
   String get reportActionDescDette =>
-      'È l’investimento più redditizio: risparmi il 6-10 % all’anno sugli interessi.';
+      'Ridurre questo debito può diminuire gli interessi futuri del 6-10 % all’anno, a seconda del tasso.';
 
   @override
   String get reportActionDescUrgence =>

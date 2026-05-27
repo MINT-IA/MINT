@@ -19323,7 +19323,7 @@ class SFr extends S {
 
   @override
   String get reportActionDescDette =>
-      'C’est le placement le plus rentable : tu économises 6-10 % par an sur les intérêts.';
+      'Réduire cette dette peut alléger les intérêts futurs de 6-10 % par an, selon le taux.';
 
   @override
   String get reportActionDescUrgence =>

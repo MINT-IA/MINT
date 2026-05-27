@@ -19331,7 +19331,7 @@ class SPt extends S {
 
   @override
   String get reportActionDescDette =>
-      'É o investimento mais rentável: poupes 6-10 % ao ano em juros.';
+      'Reduzir esta dívida pode baixar os juros futuros em 6-10 % ao ano, consoante a taxa.';
 
   @override
   String get reportActionDescUrgence =>

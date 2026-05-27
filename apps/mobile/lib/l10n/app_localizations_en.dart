@@ -19236,7 +19236,7 @@ class SEn extends S {
 
   @override
   String get reportActionDescDette =>
-      'It’s a highly effective step: you save 6-10 % per year on interest.';
+      'Reducing this debt can lower future interest costs by 6-10 % per year, depending on the rate.';
 
   @override
   String get reportActionDescUrgence =>

@@ -19373,7 +19373,7 @@ class SDe extends S {
 
   @override
   String get reportActionDescDette =>
-      'Das ist die rentabelste Investition: Du sparst 6-10 % pro Jahr an Zinsen.';
+      'Der Schuldenabbau kann künftige Zinskosten je nach Zinssatz um 6-10 % pro Jahr senken.';
 
   @override
   String get reportActionDescUrgence =>
