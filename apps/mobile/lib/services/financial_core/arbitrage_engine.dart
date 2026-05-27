@@ -400,7 +400,7 @@ class ArbitrageEngine {
         renteTotalValue > capitalCumulativeWithdrawals ? 'rente' : 'capital';
 
     // CLAUDE.md §6.4 No-Ranking: describe the trade-off neutrally, never
-    // name a "meilleur" option. Each side states its concrete consequence
+    // name one option as superior. Each side states its concrete consequence
     // so the user can weigh them against personal constraints.
     String premierEclairage;
     if (capitalResidual > 10000 && moreIncome == 'rente') {
@@ -1042,16 +1042,17 @@ class ArbitrageEngine {
         prixBien * 0.05 + prixBien * 0.01 + prixBien * 0.01;
     // We can't know gross income here, but flag the theoretical charge
     alertes.add(
-      'Charge theorique FINMA : ${chf.formatChfWithPrefix(chargesTheorique)}/an '
-      '(taux theorique 5 % + amortissement 1 % + entretien 1 %). '
-      'Verifie que cela ne depasse pas 1/3 de ton revenu brut.',
+      'Charge théorique FINMA : ${chf.formatChfWithPrefix(chargesTheorique)}/an '
+      '(taux théorique 5 % + amortissement 1 % + entretien 1 %). '
+      'Vérifie que cela ne dépasse pas 1/3 de ton revenu brut.',
     );
 
     final displaySummary = breakevenYear != null
         ? 'Les trajectoires se croisent vers ${startYear + breakevenYear}. '
-            'Avant ce point, une option domine ; apres, l\'autre prend le relais.'
+            'Avant et après ce point, les contraintes de liquidité, de flexibilité '
+            'et de frais changent le compromis.'
         : 'Sur l\'horizon de $horizonAnnees ans, les trajectoires ne se croisent pas. '
-            'L\'ecart final est de ${chf.formatChfWithPrefix(delta)}.';
+            'L\'écart final est de ${chf.formatChfWithPrefix(delta)}.';
 
     final sensitivity = <String, double>{};
     final baseSpread = _terminalSpreadFromOptions(options);
@@ -1115,24 +1116,24 @@ class ArbitrageEngine {
       premierEclairage: premierEclairage,
       displaySummary: displaySummary,
       hypotheses: [
-        'Rendement marche : ${(rendementMarche * 100).toStringAsFixed(1)} % par an',
-        'Appreciation immobiliere : ${(appreciationImmo * 100).toStringAsFixed(1)} % par an',
-        'Taux hypothecaire : ${(tauxHypotheque * 100).toStringAsFixed(1)} %',
+        'Rendement marché : ${(rendementMarche * 100).toStringAsFixed(1)} % par an',
+        'Appréciation immobilière : ${(appreciationImmo * 100).toStringAsFixed(1)} % par an',
+        'Taux hypothécaire : ${(tauxHypotheque * 100).toStringAsFixed(1)} %',
         'Entretien : ${(tauxEntretien * 100).toStringAsFixed(1)} % du prix par an',
         'Horizon : $horizonAnnees ans',
         'Canton : $canton',
         'Fonds propres : ${(capitalDisponible / prixBien * 100).toStringAsFixed(0)} %',
-        if (isMarried) 'Splitting marie',
+        if (isMarried) 'Splitting marié',
         ...alertes,
       ],
       disclaimer:
-          'Outil educatif — ne constitue pas un conseil financier (LSFin). '
-          'Les projections reposent sur des hypotheses simplifiees. '
-          'Les rendements passes ne presagent pas des rendements futurs.',
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
+          'Les projections reposent sur des hypothèses simplifiées. '
+          'Les rendements passés ne présagent pas des rendements futurs.',
       sources: [
-        'FINMA (Tragbarkeitsrechnung, taux theorique 5 %)',
+        'FINMA (Tragbarkeitsrechnung, taux théorique 5 %)',
         'LIFD art. 21 (valeur locative)',
-        'LIFD art. 33 (deduction des interets hypothecaires)',
+        'LIFD art. 33 (déduction des intérêts hypothécaires)',
       ],
       confidenceScore: _computeArbitrageConfidence(
         ['capitalDisponible', 'loyerMensuel', 'prixBien', 'canton'],
