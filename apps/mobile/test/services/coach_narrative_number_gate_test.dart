@@ -11,6 +11,7 @@ CoachProfile _profileWithOpen3aMargin({
   double salaireBrutMensuel = 7000,
   String employmentStatus = 'salarie',
   double monthly3a = 300,
+  double? avoirLppTotal = 80000,
 }) {
   return CoachProfile(
     firstName: 'Julien',
@@ -23,10 +24,10 @@ CoachProfile _profileWithOpen3aMargin({
       targetDate: DateTime(2055, 12, 31),
       label: 'Retraite a 65 ans',
     ),
-    prevoyance: const PrevoyanceProfile(
+    prevoyance: PrevoyanceProfile(
       nombre3a: 1,
       totalEpargne3a: 15000,
-      avoirLppTotal: 80000,
+      avoirLppTotal: avoirLppTotal,
     ),
     depenses: const DepensesProfile(
       loyer: 1500,
@@ -106,6 +107,7 @@ void main() {
         salaireBrutMensuel: 50000 / 12,
         employmentStatus: 'independant',
         monthly3a: 8000 / 12,
+        avoirLppTotal: null,
       );
 
       final alert = CoachNarrativeService.build3aDeadlineAlertForTest(
