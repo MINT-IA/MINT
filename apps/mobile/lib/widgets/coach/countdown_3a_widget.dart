@@ -21,7 +21,7 @@ class Countdown3aWidget extends StatelessWidget {
   /// Amount already contributed this year.
   final double amountContributed;
 
-  /// Estimated tax savings if ceiling is filled.
+  /// Indicative tax impact if ceiling is filled.
   final double taxSavingsIfFull;
 
   /// Days remaining until Dec 31.
@@ -127,11 +127,11 @@ class Countdown3aWidget extends StatelessWidget {
               ),
               child: Text(
                 _remaining > 0
-                    ? 'Si tu compl\u00e8tes\u00a0: \u00e9conomie fiscale estim\u00e9e '
+                    ? 'Si tu compl\u00e8tes\u00a0: impact fiscal indicatif '
                         '${formatChfWithPrefix(taxSavingsIfFull)}.\n'
                         'Ta marge restante peut encore \u00eatre v\u00e9rifi\u00e9e avant la fin d\u2019ann\u00e9e.'
                     : 'C\u2019est fait\u00a0! Ton 3a $year est rempli. '
-                        '\u00c9conomie fiscale estim\u00e9e\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)}.',
+                        'Impact fiscal indicatif\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)}.',
                 style: MintTextStyles.labelMedium(color: _remaining > 0 ? MintColors.info : MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w500, height: 1.4),
                 textAlign: TextAlign.center,
               ),
