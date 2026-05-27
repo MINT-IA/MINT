@@ -59,6 +59,14 @@ void main() {
         canton: profile.canton,
         contribution: remaining,
       );
+      expect(
+        expectedImpact.deductibleContribution,
+        isNot(expectedImpact.estimatedTaxSaving),
+      );
+      expect(
+        formatChfWithPrefix(expectedImpact.deductibleContribution),
+        isNot(formatChfWithPrefix(expectedImpact.estimatedTaxSaving)),
+      );
 
       final alert = CoachNarrativeService.build3aDeadlineAlertForTest(
         profile: profile,
@@ -67,7 +75,30 @@ void main() {
 
       expect(alert, isNotNull);
       expect(alert, contains('3a'));
-      expect(alert, contains('Impact fiscal estimé'));
+      expect(
+        alert,
+        contains(
+          'Il te reste 30 jours pour verser '
+          '${formatChfWithPrefix(expectedImpact.deductibleContribution)} '
+          'en 3a.',
+        ),
+      );
+      expect(
+        alert,
+        isNot(
+          contains(
+            'verser ${formatChfWithPrefix(expectedImpact.estimatedTaxSaving)} '
+            'en 3a',
+          ),
+        ),
+      );
+      expect(
+        alert,
+        contains(
+          'Impact fiscal indicatif: '
+          '~${formatChfWithPrefix(expectedImpact.estimatedTaxSaving)}',
+        ),
+      );
       expect(
         alert,
         contains(formatChfWithPrefix(expectedImpact.deductibleContribution)),
@@ -81,6 +112,31 @@ void main() {
       expect(alert, contains('OPP3'));
       expect(alert, isNot(contains('economiser')));
       expect(alert, isNot(contains("d'impots")));
+      expect(alert, isNot(contains('gain fiscal')));
+      expect(alert, isNot(contains('tu économises')));
+      expect(alert, isNot(contains('tu economises')));
+      expect(alert, isNot(contains('tu gagnes')));
+      expect(alert, isNot(contains('rendement fiscal')));
+      expect(alert, isNot(contains('économie d’impôt en jeu')));
+      expect(alert, isNot(contains("économie d'impôt en jeu")));
+      expect(
+        alert,
+        isNot(
+          contains(
+            '${formatChfWithPrefix(expectedImpact.deductibleContribution)} '
+            'd’économie',
+          ),
+        ),
+      );
+      expect(
+        alert,
+        isNot(
+          contains(
+            '${formatChfWithPrefix(expectedImpact.deductibleContribution)} '
+            "d'économie",
+          ),
+        ),
+      );
     });
 
     test('3a deadline alert is suppressed when assumptions are incomplete', () {

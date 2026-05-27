@@ -1430,7 +1430,7 @@ class CoachNarrativeService {
 
     return 'Il te reste $joursRestants jours pour verser '
         '${formatChfWithPrefix(estimate.deductibleContribution)} en 3a. '
-        'Impact fiscal estimé: '
+        'Impact fiscal indicatif: '
         '~${formatChfWithPrefix(estimate.estimatedTaxSaving)} '
         '($rateLabel, canton $cantonCode). '
         '\u2014 OPP3 art. 7';
