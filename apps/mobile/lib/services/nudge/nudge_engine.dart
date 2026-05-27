@@ -1,5 +1,5 @@
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/pillar3a_room_calculator.dart';
 import 'package:mint_mobile/services/nudge/nudge_trigger.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
@@ -218,7 +218,7 @@ class NudgeEngine {
     if (!profile.canContribute3a) return;
 
     final daysLeft = 31 - now.day;
-    final remainingRoom = _remaining3aRoom(profile);
+    final remainingRoom = Pillar3aRoomCalculator.remainingAnnualRoom(profile);
     if (remainingRoom <= 0) return;
 
     final id = _id(NudgeTrigger.pillar3aDeadline, now);
@@ -236,18 +236,6 @@ class NudgeEngine {
       },
       expiresAt: DateTime(now.year + 1, 1, 1),
     ));
-  }
-
-  static double _remaining3aRoom(CoachProfile profile) {
-    final isIndependentNoLpp =
-        profile.archetype == FinancialArchetype.independentNoLpp;
-    final annualCeiling = isIndependentNoLpp
-        ? (profile.revenuBrutAnnuel * pilier3aTauxRevenuSansLpp)
-            .clamp(0.0, pilier3aPlafondSansLpp)
-            .toDouble()
-        : pilier3aPlafondAvecLpp;
-    final annualPlanned3a = profile.total3aMensuel * 12;
-    return (annualCeiling - annualPlanned3a).clamp(0.0, annualCeiling);
   }
 
   /// Birthday milestone: first 7 days of January, milestone age.

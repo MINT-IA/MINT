@@ -33,9 +33,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations_fr.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/services/coach/data_driven_opener_service.dart';
+import 'package:mint_mobile/services/financial_core/pillar3a_room_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ════════════════════════════════════════════════════════════════
@@ -43,7 +43,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 // ════════════════════════════════════════════════════════════════
 
 /// SharedPreferences key for the cached insight JSON blob.
-const String _kInsightCacheKey = 'mint_precomputed_insight_v1';
+const String _kInsightCacheKey = 'mint_precomputed_insight_v2';
 
 /// Maximum age of a cached insight before it is considered stale.
 const Duration _kStaleDuration = Duration(hours: 1);
@@ -60,7 +60,7 @@ const Duration _kStaleDuration = Duration(hours: 1);
 /// Params keys match the positional argument names used in ARB templates:
 ///
 ///   budgetAlert          → {'deficit': '350'}
-///   deadlineUrgency      → {'daysLeft': '17', 'plafond': '7258'}
+///   deadlineUrgency      → {'daysLeft': '17', 'plafond': '4258'}
 ///   gapWarning           → {'rate': '55', 'gap': '1200'}
 ///   savingsOpportunity   → {'plafond': '7258'}
 ///   progressCelebration  → {'delta': '6'}
@@ -331,12 +331,14 @@ class PrecomputedInsightsService {
       case DataOpenerType.deadlineUrgency:
         final daysLeft = DateTime(now.year, 12, 31).difference(now).inDays + 1;
         if (daysLeft <= 0) return null;
-        final isIndepNoLpp =
-            state.archetype == FinancialArchetype.independentNoLpp;
-        final plafond = isIndepNoLpp ? _kPlafondSansLpp : _kPlafondAvecLpp;
+        final remainingRoom = Pillar3aRoomCalculator.remainingAnnualRoom(
+          state.profile,
+          archetype: state.archetype,
+        );
+        if (remainingRoom <= 0) return null;
         params = {
           'daysLeft': daysLeft.toString(),
-          'plafond': plafond.round().toString(),
+          'plafond': remainingRoom.round().toString(),
         };
 
       case DataOpenerType.gapWarning:
@@ -349,10 +351,12 @@ class PrecomputedInsightsService {
         };
 
       case DataOpenerType.savingsOpportunity:
-        final isIndepNoLpp =
-            state.archetype == FinancialArchetype.independentNoLpp;
-        final plafond = isIndepNoLpp ? _kPlafondSansLpp : _kPlafondAvecLpp;
-        params = {'plafond': plafond.round().toString()};
+        final remainingRoom = Pillar3aRoomCalculator.remainingAnnualRoom(
+          state.profile,
+          archetype: state.archetype,
+        );
+        if (remainingRoom <= 0) return null;
+        params = {'plafond': remainingRoom.round().toString()};
 
       case DataOpenerType.progressCelebration:
         // progressCelebration requires previousConfidenceScore which is not
@@ -381,10 +385,4 @@ class PrecomputedInsightsService {
       computedAt: now,
     );
   }
-
-  /// 3a plafond salarié avec LPP (OPP3 2025/2026).
-  static const double _kPlafondAvecLpp = 7258.0;
-
-  /// 3a plafond indépendant sans LPP (OPP3 2025/2026).
-  static const double _kPlafondSansLpp = 36288.0;
 }

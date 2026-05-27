@@ -22,11 +22,10 @@
 // ────────────────────────────────────────────────────────────
 library;
 
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/services/financial_core/pillar3a_room_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ════════════════════════════════════════════════════════════════
@@ -108,10 +107,6 @@ class DataDrivenOpenerService {
   /// Minimum salary (annual, CHF) to consider 3a savings opportunity.
   static const double _minSalaryForSavings = 1.0;
 
-  /// 3a plafond for salariés with LPP access (OPP3 2025/2026).
-  static double get _plafond3aSalarie =>
-      reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
-
   // ── Public API ────────────────────────────────────────────
 
   /// Generate a data-driven opening line from the user's current state.
@@ -188,31 +183,18 @@ class DataDrivenOpenerService {
     // Only fires in December (days 1–31).
     if (now.month != DateTime.december) return null;
 
-    // Only fires if 3a has not been maxed.
-    final epargne3a = state.profile.prevoyance.totalEpargne3a;
-    // We check yearly contributions rather than total balance.
-    // If total savings < plafond, the user likely has room this year.
-    // (More precise: check YTD contributions, but we use totalEpargne3a as proxy.)
-    // Trigger if user has salary and 3a savings look un-contributed this year.
+    // Trigger only when the user has income and deductible room remains.
     final hasSalary = state.profile.revenuBrutAnnuel > _minSalaryForSavings;
     if (!hasSalary) return null;
 
     // Check canContribute3a flag (FATCA compliance: US persons may be blocked).
     if (!state.profile.prevoyance.canContribute3a) return null;
 
-    // Use plafond based on employment status.
-    final isIndepNoLpp = state.archetype == FinancialArchetype.independentNoLpp;
-    final plafond = isIndepNoLpp
-        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
-        : _plafond3aSalarie;
-
-    // If this year's balance already looks full, skip.
-    // Heuristic: if 3a total is a round multiple of plafond this year is done.
-    // We cannot know YTD contributions precisely without bank data, so we
-    // surface the reminder and let the user confirm.
-    // Always surface if epargne3a == 0 (handled by savings opportunity above).
-    // Here we handle the partial case: 0 < epargne3a < plafond.
-    if (epargne3a >= plafond) return null;
+    final remainingRoom = Pillar3aRoomCalculator.remainingAnnualRoom(
+      state.profile,
+      archetype: state.archetype,
+    );
+    if (remainingRoom <= 0) return null;
 
     final daysLeft = DateTime(now.year, 12, 31).difference(now).inDays + 1;
     if (daysLeft <= 0) return null;
@@ -220,7 +202,7 @@ class DataDrivenOpenerService {
     return DataDrivenOpener(
       message: l.opener3aDeadline(
         daysLeft.toString(),
-        formatChf(plafond),
+        formatChf(remainingRoom),
       ),
       intentTag: '/pilier-3a',
       type: DataOpenerType.deadlineUrgency,
@@ -264,13 +246,14 @@ class DataDrivenOpenerService {
 
     if (!state.profile.prevoyance.canContribute3a) return null;
 
-    final isIndepNoLpp = state.archetype == FinancialArchetype.independentNoLpp;
-    final plafond = isIndepNoLpp
-        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
-        : _plafond3aSalarie;
+    final remainingRoom = Pillar3aRoomCalculator.remainingAnnualRoom(
+      state.profile,
+      archetype: state.archetype,
+    );
+    if (remainingRoom <= 0) return null;
 
     return DataDrivenOpener(
-      message: l.openerSavingsOpportunity(formatChf(plafond)),
+      message: l.openerSavingsOpportunity(formatChf(remainingRoom)),
       intentTag: '/pilier-3a',
       type: DataOpenerType.savingsOpportunity,
     );
