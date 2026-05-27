@@ -24,6 +24,8 @@ void main() {
     expect(provider.inputs!.netIncome, 8000);
     expect(provider.inputs!.housingCost, 2200);
     expect(provider.inputs!.healthInsurance, 420);
+    expect(provider.source, BudgetDataSource.storage);
+    expect(provider.hasFreshInputs, isFalse);
   });
 
   test('keeps stored budget when profile is partial', () async {
@@ -40,6 +42,8 @@ void main() {
     expect(provider.inputs!.netIncome, 8000);
     expect(provider.inputs!.housingCost, 2200);
     expect(provider.inputs!.healthInsurance, 420);
+    expect(provider.source, BudgetDataSource.storage);
+    expect(provider.hasFreshInputs, isFalse);
   });
 
   test('full profile replaces stale stored budget', () async {
@@ -56,6 +60,8 @@ void main() {
     expect(provider.inputs!.housingCost, 1100);
     expect(provider.inputs!.healthInsurance, 390);
     expect(provider.inputs!.netIncome, isNot(8000));
+    expect(provider.source, BudgetDataSource.profile);
+    expect(provider.hasFreshInputs, isTrue);
   });
 
   test('full profile does not persist phantom default expenses', () async {
@@ -77,6 +83,29 @@ void main() {
     expect(provider.inputs, isNotNull);
     expect(provider.inputs!.housingCost, 0);
     expect(provider.inputs!.healthInsurance, 0);
+    expect(provider.source, BudgetDataSource.profile);
+    expect(provider.hasFreshInputs, isFalse);
+  });
+
+  test('setInputs marks direct inputs as fresh', () async {
+    final provider = BudgetProvider();
+
+    await provider.setInputs(_storedBudgetInputs);
+
+    expect(provider.inputs, isNotNull);
+    expect(provider.source, BudgetDataSource.directInput);
+    expect(provider.hasFreshInputs, isTrue);
+  });
+
+  test('clear resets source freshness', () async {
+    final provider = BudgetProvider();
+
+    await provider.setInputs(_storedBudgetInputs);
+    await provider.clear();
+
+    expect(provider.inputs, isNull);
+    expect(provider.source, BudgetDataSource.none);
+    expect(provider.hasFreshInputs, isFalse);
   });
 }
 

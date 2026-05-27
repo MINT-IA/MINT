@@ -4,6 +4,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/data/budget/budget_local_store.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -321,6 +322,130 @@ void main() {
     expect(find.text("12'345\u00a0CHF"), findsNothing);
   });
 
+  testWidgets('fresh profile budget overrides stale data spine snapshot',
+      (tester) async {
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+    final coachProvider = CoachProfileProvider()
+      ..updateProfile(
+        CoachProfile(
+          birthYear: 1990,
+          canton: 'VD',
+          salaireBrutMensuel: 6000,
+          depenses: const DepensesProfile(
+            loyer: 1100,
+            assuranceMaladie: 410,
+          ),
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+            'depenses.assuranceMaladie': ProfileDataSource.userInput,
+          },
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2055),
+            label: 'Retraite',
+          ),
+        ),
+      );
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: coachProvider,
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(initialSection: 'month'),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(budgetProvider.source, BudgetDataSource.profile);
+    expect(budgetProvider.hasFreshInputs, isTrue);
+    expect(find.text(_formatChf(budgetProvider.inputs!.netIncome)),
+        findsOneWidget);
+    expect(find.text("8'000\u00a0CHF"), findsNothing);
+    expect(find.text("2'100\u00a0CHF"), findsNothing);
+  });
+
+  testWidgets(
+      'today section aligns budget detail rows with fresh profile budget',
+      (tester) async {
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+    final coachProvider = CoachProfileProvider()
+      ..updateProfile(
+        CoachProfile(
+          birthYear: 1990,
+          canton: 'VD',
+          salaireBrutMensuel: 6000,
+          depenses: const DepensesProfile(
+            loyer: 1100,
+            assuranceMaladie: 410,
+          ),
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+            'depenses.assuranceMaladie': ProfileDataSource.userInput,
+          },
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2055),
+            label: 'Retraite',
+          ),
+        ),
+      );
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: coachProvider,
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(budgetProvider.hasFreshInputs, isTrue);
+    expect(find.text(_formatChf(_presentBudgetFree(budgetProvider))),
+        findsOneWidget);
+    expect(find.text("1'100\u00a0CHF"), findsOneWidget);
+    expect(find.text("410\u00a0CHF"), findsOneWidget);
+    expect(find.text("2'400\u00a0CHF"), findsNothing);
+    expect(find.text("390\u00a0CHF"), findsNothing);
+  });
+
   testWidgets('direct patrimoine section shows investments and debts in net',
       (tester) async {
     final mintState = MintStateProvider()
@@ -534,6 +659,10 @@ void main() {
     expect(budgetProvider.inputs, isNotNull);
     expect(budgetProvider.inputs!.housingCost, 1100);
     expect(budgetProvider.inputs!.healthInsurance, 390);
+    expect(find.text(_formatChf(_presentBudgetFree(budgetProvider))),
+        findsOneWidget);
+    expect(find.text('Fiabilité'), findsOneWidget);
+    expect(find.text('80%'), findsOneWidget);
     expect(find.text("12'345\u00a0CHF"), findsNothing);
   });
 
@@ -872,4 +1001,19 @@ DataSpineSnapshot _dataSpine() {
     ),
     computedAt: DateTime.utc(2026, 5, 24),
   );
+}
+
+String _formatChf(double amount) {
+  final formatted = amount.toStringAsFixed(0).replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+        (match) => "${match[1]}'",
+      );
+  return "$formatted\u00a0CHF";
+}
+
+double _presentBudgetFree(BudgetProvider provider) {
+  return PresentBudgetBuilder.fromInputs(
+    inputs: provider.inputs!,
+    plan: provider.plan!,
+  ).monthlyFree;
 }
