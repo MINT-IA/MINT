@@ -152,12 +152,13 @@ class CoachReasonerService {
     return Recommendation(
       id: 'rachat_lpp',
       kind: 'rachat_lpp',
-      title: 'Rachat LPP : économie fiscale de ${taxSaving.toStringAsFixed(0)} CHF/an',
+      title:
+          'Rachat LPP : impact fiscal indicatif ${taxSaving.toStringAsFixed(0)} CHF/an',
       summary:
           'Avec une lacune de ${lacune.toStringAsFixed(0)} CHF, un rachat annuel '
-          'de ${annualBuyback.toStringAsFixed(0)} CHF réduit ton impôt de '
-          '${taxSaving.toStringAsFixed(0)} CHF/an et génère un capital supplémentaire '
-          'à la retraite.',
+          'de ${annualBuyback.toStringAsFixed(0)} CHF aurait un impact fiscal '
+          'indicatif de ${taxSaving.toStringAsFixed(0)} CHF/an et augmente le '
+          'capital projeté à la retraite.',
       why: [
         'Déduction fiscale immédiate (LIFD art. 33 al. 1 lit. d)',
         'Le capital racheté est rémunéré au taux de la caisse (${(r * 100).toStringAsFixed(1)}%)',
@@ -244,7 +245,7 @@ class CoachReasonerService {
       title: '3a : ${gap.toStringAsFixed(0)} CHF/an de potentiel non utilisé',
       summary:
           'Tu peux encore verser ${gap.toStringAsFixed(0)} CHF/an dans ton 3a, '
-          'soit une économie fiscale de ${annualTaxSaving.toStringAsFixed(0)} CHF/an.',
+          'avec un impact fiscal indicatif de ${annualTaxSaving.toStringAsFixed(0)} CHF/an.',
       why: [
         'Déduction fiscale intégrale (LIFD art. 33 al. 1 lit. e)',
         'Capital bloqué jusqu\'à 5 ans avant la retraite (OPP3 art. 3)',
@@ -418,10 +419,11 @@ class CoachReasonerService {
       id: 'echelonnement_3a',
       kind: '3a_staggering',
       title:
-          'Échelonner les retraits 3a : économie de ${taxSaving.toStringAsFixed(0)} CHF',
+          'Échelonner les retraits 3a : impact fiscal indicatif ${taxSaving.toStringAsFixed(0)} CHF',
       summary:
           'En retirant tes $nAccounts comptes 3a sur plusieurs années fiscales, '
-          'tu économises ${taxSaving.toStringAsFixed(0)} CHF d\'impôt sur le retrait.',
+          'l\'impôt estimé sur le retrait peut varier d\'environ '
+          '${taxSaving.toStringAsFixed(0)} CHF.',
       why: [
         'Progressivité de l\'impôt sur le retrait (LIFD art. 38)',
         'Chaque retrait est imposé séparément dans l\'année fiscale',

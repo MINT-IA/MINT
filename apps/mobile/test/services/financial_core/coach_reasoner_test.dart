@@ -144,6 +144,18 @@ void main() {
           .firstWhere((r) => r.id == 'rachat_lpp').impact.amountCHF;
       expect(impactHigh, greaterThan(impactLow));
     });
+
+    test('rachat copy frames fiscal amount as indicative', () {
+      final result = CoachReasonerService.analyse(
+          profile(rachatMax: 50000));
+      final rachat = result.recommendations
+          .firstWhere((r) => r.id == 'rachat_lpp');
+      final text = '${rachat.title} ${rachat.summary}';
+
+      expect(text, contains('impact fiscal indicatif'));
+      expect(text, isNot(contains('économie fiscale')));
+      expect(text, isNot(contains('réduit ton impôt')));
+    });
   });
 
   // ── Lever 2: 3a non-maxé ───────────────────────────────────
@@ -176,6 +188,8 @@ void main() {
         reco.assumptions.any((a) => a.contains('heuristique')),
         isTrue,
       );
+      expect(reco.summary, contains('impact fiscal indicatif'));
+      expect(reco.summary, isNot(contains('économie fiscale')));
     });
   });
 
@@ -268,6 +282,10 @@ void main() {
       final reco = result.recommendations
           .firstWhere((r) => r.id == 'echelonnement_3a');
       expect(reco.impact.period, Period.oneoff);
+      final text = '${reco.title} ${reco.summary}';
+      expect(text, contains('impact fiscal indicatif'));
+      expect(text, isNot(contains('économie de')));
+      expect(text, isNot(contains('tu économises')));
     });
   });
 
