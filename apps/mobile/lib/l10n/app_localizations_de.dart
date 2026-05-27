@@ -5671,27 +5671,6 @@ class SDe extends S {
   }
 
   @override
-  String get budgetReportTitle => 'Dein berechnetes Budget';
-
-  @override
-  String get budgetReportDisponible => 'Verfügbar';
-
-  @override
-  String get budgetReportVariables => 'Variable (Leben)';
-
-  @override
-  String get budgetReportFutur => 'Zukunft (Sparen)';
-
-  @override
-  String budgetReportChfAmount(String amount) {
-    return 'CHF $amount';
-  }
-
-  @override
-  String get budgetReportStopWarning =>
-      'Achtung: Kein Spielraum für variable Ausgaben.';
-
-  @override
   String get ninetyDayGaugeTitle => '90-Tage-Regel';
 
   @override

@@ -5657,27 +5657,6 @@ class SPt extends S {
   }
 
   @override
-  String get budgetReportTitle => 'Ton Budget Calculé';
-
-  @override
-  String get budgetReportDisponible => 'Disponible';
-
-  @override
-  String get budgetReportVariables => 'Variables (Vivre)';
-
-  @override
-  String get budgetReportFutur => 'Futur (Épargne)';
-
-  @override
-  String budgetReportChfAmount(String amount) {
-    return 'CHF $amount';
-  }
-
-  @override
-  String get budgetReportStopWarning =>
-      'Atenção: Sem margem de manobra para as despesas variáveis.';
-
-  @override
   String get ninetyDayGaugeTitle => 'Règle des 90 jours';
 
   @override

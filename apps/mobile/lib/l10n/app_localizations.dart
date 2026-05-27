@@ -2598,7 +2598,7 @@ abstract class S {
   /// No description provided for @vaultGuidanceLamalBody.
   ///
   /// In fr, this message translates to:
-  /// **'Tu peux changer de franchise LAMal chaque année au 30 novembre (franchise plus haute) ou au 31 décembre (franchise plus basse). Un·e adulte en bonne santé peut économiser jusqu\'à 1\'500 CHF/an avec une franchise de 2\'500 CHF vs 300 CHF.'**
+  /// **'Tu peux changer de franchise LAMal chaque année au 30 novembre (franchise plus haute) ou au 31 décembre (franchise plus basse). Compare le coût total prime + franchise + quote-part selon tes dépenses de santé estimées.'**
   String get vaultGuidanceLamalBody;
 
   /// No description provided for @vaultGuidanceLamalSource.
@@ -10223,42 +10223,6 @@ abstract class S {
   /// **'Simulateur de départ à la retraite. Âge sélectionné : {age} ans.'**
   String earlyRetirementSemanticsLabel(int age);
 
-  /// No description provided for @budgetReportTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton Budget Calculé'**
-  String get budgetReportTitle;
-
-  /// No description provided for @budgetReportDisponible.
-  ///
-  /// In fr, this message translates to:
-  /// **'Disponible'**
-  String get budgetReportDisponible;
-
-  /// No description provided for @budgetReportVariables.
-  ///
-  /// In fr, this message translates to:
-  /// **'Variables (Vivre)'**
-  String get budgetReportVariables;
-
-  /// No description provided for @budgetReportFutur.
-  ///
-  /// In fr, this message translates to:
-  /// **'Futur (Épargne)'**
-  String get budgetReportFutur;
-
-  /// No description provided for @budgetReportChfAmount.
-  ///
-  /// In fr, this message translates to:
-  /// **'CHF {amount}'**
-  String budgetReportChfAmount(String amount);
-
-  /// No description provided for @budgetReportStopWarning.
-  ///
-  /// In fr, this message translates to:
-  /// **'Attention : Aucune marge de manœuvre pour les dépenses variables.'**
-  String get budgetReportStopWarning;
-
   /// No description provided for @ninetyDayGaugeTitle.
   ///
   /// In fr, this message translates to:
@@ -13173,7 +13137,7 @@ abstract class S {
   /// No description provided for @firstSalary3aInfo.
   ///
   /// In fr, this message translates to:
-  /// **'💰 Plafond 2026 : CHF 7\'258/an · Déduction fiscale directe · OPP3 art. 7'**
+  /// **'💰 Plafond 2026 : CHF 7\'258/an · Déductible du revenu imposable selon ta situation · OPP3 art. 7'**
   String get firstSalary3aInfo;
 
   /// No description provided for @firstSalaryAct4Title.
@@ -13191,19 +13155,19 @@ abstract class S {
   /// No description provided for @firstSalaryFranchise300Advice.
   ///
   /// In fr, this message translates to:
-  /// **'Conseillé si maladies chroniques'**
+  /// **'Prime plus haute · Exposition aux frais plus basse'**
   String get firstSalaryFranchise300Advice;
 
   /// No description provided for @firstSalaryFranchise1500Advice.
   ///
   /// In fr, this message translates to:
-  /// **'Bon compromis · Recommandé'**
+  /// **'Option intermédiaire · À comparer selon tes frais de santé'**
   String get firstSalaryFranchise1500Advice;
 
   /// No description provided for @firstSalaryFranchise2500Advice.
   ///
   /// In fr, this message translates to:
-  /// **'Économise la prime · Si tu es en bonne santé'**
+  /// **'Prime plus basse · Risque de frais plus élevés'**
   String get firstSalaryFranchise2500Advice;
 
   /// No description provided for @firstSalaryFranchiseLabel.
@@ -13269,7 +13233,7 @@ abstract class S {
   /// No description provided for @firstSalaryTask3.
   ///
   /// In fr, this message translates to:
-  /// **'Choisir ta franchise LAMal (recommandé : CHF 1\'500)'**
+  /// **'Comparer les franchises LAMal avec tes dépenses de santé estimées'**
   String get firstSalaryTask3;
 
   /// No description provided for @firstSalaryTask4.
@@ -35328,7 +35292,7 @@ abstract class S {
   /// No description provided for @stepJitTax3aInsight.
   ///
   /// In fr, this message translates to:
-  /// **'Chaque franc versé en 3a est déductible du revenu imposable. Sur 20 ans, la différence entre verser 0 et le plafond (7’258 CHF) peut représenter plus de 200’000 CHF.'**
+  /// **'Chaque franc versé en 3a est déductible du revenu imposable selon ta situation. Sur 20 ans, l’écart dépend des versements, du rendement, des frais et de l’impôt au retrait.'**
   String get stepJitTax3aInsight;
 
   /// No description provided for @stepJitTax3aSource.
@@ -37428,7 +37392,7 @@ abstract class S {
   /// No description provided for @landingCoupleGeneric.
   ///
   /// In fr, this message translates to:
-  /// **'Les couples mariés perdent jusqu\'à CHF 8\'000/an en optimisations manquées.'**
+  /// **'Certaines décisions de couple peuvent modifier l’impôt, l’AVS et les retraits. MINT aide à comparer les scénarios.'**
   String get landingCoupleGeneric;
 
   /// No description provided for @landingTransparency.

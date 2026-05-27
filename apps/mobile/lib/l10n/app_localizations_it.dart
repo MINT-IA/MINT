@@ -5671,27 +5671,6 @@ class SIt extends S {
   }
 
   @override
-  String get budgetReportTitle => 'Ton Budget Calculé';
-
-  @override
-  String get budgetReportDisponible => 'Disponible';
-
-  @override
-  String get budgetReportVariables => 'Variables (Vivre)';
-
-  @override
-  String get budgetReportFutur => 'Futur (Épargne)';
-
-  @override
-  String budgetReportChfAmount(String amount) {
-    return 'CHF $amount';
-  }
-
-  @override
-  String get budgetReportStopWarning =>
-      'Attenzione: Nessun margine di manovra per le spese variabili.';
-
-  @override
   String get ninetyDayGaugeTitle => 'Règle des 90 jours';
 
   @override

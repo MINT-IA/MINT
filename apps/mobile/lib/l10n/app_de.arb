@@ -2695,19 +2695,6 @@
       }
     }
   },
-  "budgetReportTitle": "Dein berechnetes Budget",
-  "budgetReportDisponible": "Verfügbar",
-  "budgetReportVariables": "Variable (Leben)",
-  "budgetReportFutur": "Zukunft (Sparen)",
-  "budgetReportChfAmount": "CHF {amount}",
-  "@budgetReportChfAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "budgetReportStopWarning": "Achtung: Kein Spielraum für variable Ausgaben.",
   "ninetyDayGaugeTitle": "90-Tage-Regel",
   "ninetyDayGaugeSubtitle": "Grenzgänger  ·  Steuerschwelle",
   "ninetyDayGaugeDaysOf90": "/ 90 Tage",

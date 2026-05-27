@@ -2743,19 +2743,6 @@
       }
     }
   },
-  "budgetReportTitle": "Ton Budget Calculé",
-  "budgetReportDisponible": "Disponible",
-  "budgetReportVariables": "Variables (Vivre)",
-  "budgetReportFutur": "Futur (Épargne)",
-  "budgetReportChfAmount": "CHF {amount}",
-  "@budgetReportChfAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "budgetReportStopWarning": "Attention : Aucune marge de manœuvre pour les dépenses variables.",
   "ninetyDayGaugeTitle": "Règle des 90 jours",
   "ninetyDayGaugeSubtitle": "Frontaliers  ·  Seuil fiscal",
   "ninetyDayGaugeDaysOf90": "/ 90 jours",

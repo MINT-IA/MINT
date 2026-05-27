@@ -5625,27 +5625,6 @@ class SEn extends S {
   }
 
   @override
-  String get budgetReportTitle => 'Your Calculated Budget';
-
-  @override
-  String get budgetReportDisponible => 'Available';
-
-  @override
-  String get budgetReportVariables => 'Variable (Living)';
-
-  @override
-  String get budgetReportFutur => 'Future (Savings)';
-
-  @override
-  String budgetReportChfAmount(String amount) {
-    return 'CHF $amount';
-  }
-
-  @override
-  String get budgetReportStopWarning =>
-      'Warning: No room for variable expenses.';
-
-  @override
   String get ninetyDayGaugeTitle => '90-Day Rule';
 
   @override

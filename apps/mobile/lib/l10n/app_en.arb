@@ -2695,19 +2695,6 @@
       }
     }
   },
-  "budgetReportTitle": "Your Calculated Budget",
-  "budgetReportDisponible": "Available",
-  "budgetReportVariables": "Variable (Living)",
-  "budgetReportFutur": "Future (Savings)",
-  "budgetReportChfAmount": "CHF {amount}",
-  "@budgetReportChfAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "budgetReportStopWarning": "Warning: No room for variable expenses.",
   "ninetyDayGaugeTitle": "90-Day Rule",
   "ninetyDayGaugeSubtitle": "Cross-border  ·  Tax threshold",
   "ninetyDayGaugeDaysOf90": "/ 90 days",

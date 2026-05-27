@@ -2695,19 +2695,6 @@
   "simBuybackMarginalRateTip": "Al escalonar tus compras, comparas el impacto fiscal indicativo año por año según tus ingresos y tu cantón.",
   "simBuybackLockedTitle": "Rachat LPP bloqué",
   "simBuybackLockedMessage": "La compra LPP está desactivada en modo protección. Una compra bloquea tu liquidez durante 3 años (LPP art. 79b). Prioriza primero el desendeudamiento.",
-  "budgetReportTitle": "Ton Budget Calculé",
-  "budgetReportDisponible": "Disponible",
-  "budgetReportVariables": "Variables (Vivre)",
-  "budgetReportFutur": "Futur (Épargne)",
-  "budgetReportChfAmount": "CHF {amount}",
-  "@budgetReportChfAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "budgetReportStopWarning": "Atención: No hay margen de maniobra para los gastos variables.",
   "ninetyDayGaugeTitle": "Règle des 90 jours",
   "ninetyDayGaugeSubtitle": "Fronterizos · Umbral fiscal",
   "ninetyDayGaugeDaysOf90": "/ 90 jours",

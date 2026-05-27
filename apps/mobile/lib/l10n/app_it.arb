@@ -2695,19 +2695,6 @@
   "simBuybackMarginalRateTip": "Scaglionando i tuoi riscatti, confronti l'impatto fiscale indicativo anno per anno secondo reddito e cantone.",
   "simBuybackLockedTitle": "Rachat LPP bloqué",
   "simBuybackLockedMessage": "Il riscatto LPP è disattivato in modalità protezione. Un riscatto blocca la tua liquidità per 3 anni (LPP art. 79b). Dai prima la priorità al disdebitamento.",
-  "budgetReportTitle": "Ton Budget Calculé",
-  "budgetReportDisponible": "Disponible",
-  "budgetReportVariables": "Variables (Vivre)",
-  "budgetReportFutur": "Futur (Épargne)",
-  "budgetReportChfAmount": "CHF {amount}",
-  "@budgetReportChfAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "budgetReportStopWarning": "Attenzione: Nessun margine di manovra per le spese variabili.",
   "ninetyDayGaugeTitle": "Règle des 90 jours",
   "ninetyDayGaugeSubtitle": "Frontalieri · Soglia fiscale",
   "ninetyDayGaugeDaysOf90": "/ 90 jours",

@@ -2695,19 +2695,6 @@
   "simBuybackMarginalRateTip": "Ao escalonar as tuas recompras, comparas o impacto fiscal indicativo ano a ano segundo o rendimento e o cantão.",
   "simBuybackLockedTitle": "Rachat LPP bloqué",
   "simBuybackLockedMessage": "O resgate LPP está desativado em modo proteção. Um resgate bloqueia a tua liquidez durante 3 anos (LPP art. 79b). Dá primeiro prioridade ao desendividamento.",
-  "budgetReportTitle": "Ton Budget Calculé",
-  "budgetReportDisponible": "Disponible",
-  "budgetReportVariables": "Variables (Vivre)",
-  "budgetReportFutur": "Futur (Épargne)",
-  "budgetReportChfAmount": "CHF {amount}",
-  "@budgetReportChfAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "budgetReportStopWarning": "Atenção: Sem margem de manobra para as despesas variáveis.",
   "ninetyDayGaugeTitle": "Règle des 90 jours",
   "ninetyDayGaugeSubtitle": "Fronteiriços · Limiar fiscal",
   "ninetyDayGaugeDaysOf90": "/ 90 jours",

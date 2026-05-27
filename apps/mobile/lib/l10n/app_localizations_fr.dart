@@ -5664,27 +5664,6 @@ class SFr extends S {
   }
 
   @override
-  String get budgetReportTitle => 'Ton Budget Calculé';
-
-  @override
-  String get budgetReportDisponible => 'Disponible';
-
-  @override
-  String get budgetReportVariables => 'Variables (Vivre)';
-
-  @override
-  String get budgetReportFutur => 'Futur (Épargne)';
-
-  @override
-  String budgetReportChfAmount(String amount) {
-    return 'CHF $amount';
-  }
-
-  @override
-  String get budgetReportStopWarning =>
-      'Attention : Aucune marge de manœuvre pour les dépenses variables.';
-
-  @override
   String get ninetyDayGaugeTitle => 'Règle des 90 jours';
 
   @override
