@@ -282,6 +282,31 @@ class _BudgetScreenState extends State<BudgetScreen>
 
                               final flowPresent =
                                   _presentBudgetFromInputs(plan);
+                              final displayNet = flowPresent.monthlyNet;
+                              final displayHousing =
+                                  _displayChf(widget.inputs.housingCost);
+                              final displayDebt =
+                                  _displayChf(widget.inputs.debtPayments);
+                              final displayTax =
+                                  _displayChf(widget.inputs.taxProvision);
+                              final displayHealth =
+                                  _displayChf(widget.inputs.healthInsurance);
+                              final displayOtherFixed =
+                                  _displayChf(widget.inputs.otherFixedCosts);
+                              final displayVariables =
+                                  _displayChf(plan.variables);
+                              final displayAllocatable =
+                                  flowPresent.monthlyNet -
+                                      flowPresent.monthlyCharges;
+                              final displayEnvelopeBase = displayAllocatable > 0
+                                  ? displayAllocatable
+                                  : 0.0;
+                              final displayNeedsTarget =
+                                  _displayChf(displayEnvelopeBase * 0.50);
+                              final displayLifeTarget =
+                                  _displayChf(displayEnvelopeBase * 0.30);
+                              final displayFutureTarget =
+                                  _displayChf(displayEnvelopeBase * 0.20);
 
                               return SingleChildScrollView(
                                 padding: const EdgeInsets.symmetric(
@@ -381,14 +406,13 @@ class _BudgetScreenState extends State<BudgetScreen>
                                     _staggeredEntry(
                                       index: 3,
                                       child: Budget503020Widget(
-                                        netSalary: widget.inputs.netIncome,
-                                        premierEclairage: plan.available > 0
+                                        netSalary: displayNet,
+                                        premierEclairage: displayEnvelopeBase >
+                                                0
                                             ? l.budgetPremierEclairage503020(
+                                                formatChf(displayFutureTarget),
                                                 formatChf(
-                                                    plan.available * 0.20),
-                                                formatChf(plan.available *
-                                                    0.20 *
-                                                    120),
+                                                    displayFutureTarget * 120),
                                               )
                                             : null,
                                         categories: [
@@ -396,7 +420,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                                             label: l.budgetNeeds,
                                             emoji: '',
                                             percent: 50,
-                                            amount: plan.available * 0.50,
+                                            amount: displayNeedsTarget,
                                             examples: [
                                               l.budgetExampleRent,
                                               l.budgetExampleLamal,
@@ -408,7 +432,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                                             label: l.budgetLife,
                                             emoji: '',
                                             percent: 30,
-                                            amount: plan.available * 0.30,
+                                            amount: displayLifeTarget,
                                             examples: [
                                               l.budgetExampleFood,
                                               l.budgetExampleTransport,
@@ -419,7 +443,7 @@ class _BudgetScreenState extends State<BudgetScreen>
                                             label: l.budgetFuture,
                                             emoji: '',
                                             percent: 20,
-                                            amount: plan.available * 0.20,
+                                            amount: displayFutureTarget,
                                             examples: [
                                               l.budgetExampleSavings,
                                               '3a',
@@ -438,29 +462,29 @@ class _BudgetScreenState extends State<BudgetScreen>
                                         incomes: [
                                           BudgetLineItem(
                                               label: l.budgetNetIncome,
-                                              amount: widget.inputs.netIncome),
+                                              amount: displayNet),
                                         ],
                                         expenses: [
-                                          if (widget.inputs.housingCost > 0)
+                                          if (displayHousing > 0)
                                             BudgetLineItem(
                                                 label: l.budgetHousing,
-                                                amount:
-                                                    widget.inputs.housingCost),
-                                          if (widget.inputs.taxProvision > 0)
+                                                amount: displayHousing),
+                                          if (displayTax > 0)
                                             BudgetLineItem(
                                                 label: l.budgetTaxProvision,
-                                                amount:
-                                                    widget.inputs.taxProvision),
-                                          if (widget.inputs.healthInsurance > 0)
+                                                amount: displayTax),
+                                          if (displayHealth > 0)
                                             BudgetLineItem(
                                                 label: l.budgetHealthInsurance,
-                                                amount: widget
-                                                    .inputs.healthInsurance),
-                                          if (widget.inputs.debtPayments > 0)
+                                                amount: displayHealth),
+                                          if (displayDebt > 0)
                                             BudgetLineItem(
                                                 label: l.budgetDebts,
-                                                amount:
-                                                    widget.inputs.debtPayments),
+                                                amount: displayDebt),
+                                          if (displayOtherFixed > 0)
+                                            BudgetLineItem(
+                                                label: l.budgetOtherFixed,
+                                                amount: displayOtherFixed),
                                         ],
                                       ),
                                     ),
@@ -479,9 +503,9 @@ class _BudgetScreenState extends State<BudgetScreen>
                                     _staggeredEntry(
                                       index: 4,
                                       child: CrashTestBudgetWidget(
-                                        monthlyIncome: widget.inputs.netIncome,
+                                        monthlyIncome: displayNet,
                                         survivalIncome:
-                                            widget.inputs.netIncome * 0.70,
+                                            _displayChf(displayNet * 0.70),
                                         reserveMonths: widget.inputs
                                                     .emergencyFundMonths >
                                                 0
@@ -489,53 +513,53 @@ class _BudgetScreenState extends State<BudgetScreen>
                                                 .toDouble()
                                             : null,
                                         lines: [
-                                          if (widget.inputs.housingCost > 0)
+                                          if (displayHousing > 0)
                                             BudgetLine(
                                               label: l.budgetHousing,
                                               emoji: '',
-                                              normalAmount:
-                                                  widget.inputs.housingCost,
-                                              survivalAmount:
-                                                  widget.inputs.housingCost,
+                                              normalAmount: displayHousing,
+                                              survivalAmount: displayHousing,
                                               status: BudgetLineStatus.locked,
                                             ),
-                                          if (widget.inputs.healthInsurance > 0)
+                                          if (displayHealth > 0)
                                             BudgetLine(
                                               label: l.budgetHealthInsurance,
                                               emoji: '',
-                                              normalAmount:
-                                                  widget.inputs.healthInsurance,
-                                              survivalAmount:
-                                                  widget.inputs.healthInsurance,
+                                              normalAmount: displayHealth,
+                                              survivalAmount: displayHealth,
                                               status: BudgetLineStatus.locked,
                                             ),
-                                          if (widget.inputs.taxProvision > 0)
+                                          if (displayTax > 0)
                                             BudgetLine(
                                               label: l.budgetTaxProvision,
                                               emoji: '',
-                                              normalAmount:
-                                                  widget.inputs.taxProvision,
-                                              survivalAmount:
-                                                  widget.inputs.taxProvision *
-                                                      0.80,
+                                              normalAmount: displayTax,
+                                              survivalAmount: _displayChf(
+                                                  displayTax * 0.80),
                                               status: BudgetLineStatus.paused,
                                             ),
-                                          if (widget.inputs.debtPayments > 0)
+                                          if (displayDebt > 0)
                                             BudgetLine(
                                               label: l.budgetDebts,
                                               emoji: '',
-                                              normalAmount:
-                                                  widget.inputs.debtPayments,
-                                              survivalAmount:
-                                                  widget.inputs.debtPayments,
+                                              normalAmount: displayDebt,
+                                              survivalAmount: displayDebt,
+                                              status: BudgetLineStatus.locked,
+                                            ),
+                                          if (displayOtherFixed > 0)
+                                            BudgetLine(
+                                              label: l.budgetOtherFixed,
+                                              emoji: '',
+                                              normalAmount: displayOtherFixed,
+                                              survivalAmount: displayOtherFixed,
                                               status: BudgetLineStatus.locked,
                                             ),
                                           BudgetLine(
                                             label: l.budgetVariables,
                                             emoji: '',
-                                            normalAmount: plan.variables,
-                                            survivalAmount:
-                                                plan.variables * 0.50,
+                                            normalAmount: displayVariables,
+                                            survivalAmount: _displayChf(
+                                                displayVariables * 0.50),
                                             status: BudgetLineStatus.cut,
                                           ),
                                         ],
@@ -570,6 +594,8 @@ class _BudgetScreenState extends State<BudgetScreen>
       plan: plan,
     );
   }
+
+  double _displayChf(double value) => PresentBudgetBuilder.displayChf(value);
 
   Widget _buildHeader({
     required S l,
@@ -637,7 +663,7 @@ class _BudgetScreenState extends State<BudgetScreen>
 
   Widget _buildDebtDisclosure(S l) {
     final label =
-        '${l.budgetDebtRepayment}: ${formatChfWithPrefix(widget.inputs.debtPayments)}';
+        '${l.budgetDebtRepayment}: ${formatChfWithPrefix(_displayChf(widget.inputs.debtPayments))}';
     return Semantics(
       key: const Key('budget_debt_disclosure'),
       container: true,

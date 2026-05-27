@@ -30,6 +30,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 // ProfileProvider removed — Safe Mode now derived from wizardAnswers directly
 
 /// Ecran d'affichage du rapport financier exhaustif V2
@@ -334,8 +335,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
       BuildContext context, Map<String, dynamic> answers) {
     final inputs = BudgetInputs.fromMap(answers);
     final plan = BudgetService().computePlan(inputs);
+    final present = PresentBudgetBuilder.fromInputs(
+      inputs: inputs,
+      plan: plan,
+    );
     final ratio =
-        inputs.netIncome > 0 ? plan.available / inputs.netIncome : 0.0;
+        present.monthlyNet > 0 ? present.monthlyFree / present.monthlyNet : 0.0;
 
     final status = ratio > 0.3
         ? CardStatus.serein
@@ -347,18 +352,19 @@ class FinancialReportScreenV2 extends StatelessWidget {
       emoji: '\ud83d\udcb0', // money bag
       title: S.of(context)!.reportBudgetTitle,
       status: status,
-      keyNumber: formatChfWithPrefix(plan.available),
+      keyNumber: formatChfWithPrefix(present.monthlyFree),
       keyNumberLabel: S.of(context)!.reportBudgetKeyLabel,
       actionLabel: S.of(context)!.reportBudgetAction,
       onActionTap: () => context.push('/budget'),
       children: [
         BudgetWaterfall(
-          income: inputs.netIncome,
-          housing: inputs.housingCost,
-          debt: inputs.debtPayments,
-          taxes: inputs.taxProvision,
-          healthInsurance: inputs.healthInsurance,
-          otherFixed: inputs.otherFixedCosts,
+          income: present.monthlyNet,
+          housing: PresentBudgetBuilder.displayChf(inputs.housingCost),
+          debt: PresentBudgetBuilder.displayChf(inputs.debtPayments),
+          taxes: PresentBudgetBuilder.displayChf(inputs.taxProvision),
+          healthInsurance:
+              PresentBudgetBuilder.displayChf(inputs.healthInsurance),
+          otherFixed: PresentBudgetBuilder.displayChf(inputs.otherFixedCosts),
         ),
       ],
     );
@@ -482,7 +488,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
       final remaining3aDeduction =
           _estimateRemaining3aDeduction(report, answers);
       threeAText = remaining3aDeduction > 0
-          ? S.of(context)!
+          ? S
+              .of(context)!
               .reportRetirement3aNoneWithRoom(formatChf(remaining3aDeduction))
           : S.of(context)!.reportRetirement3aNone;
     } else if (nb3a == 1) {

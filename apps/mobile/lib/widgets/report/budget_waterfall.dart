@@ -22,8 +22,7 @@ class BudgetWaterfall extends StatelessWidget {
   });
 
   double get available =>
-      (income - housing - debt - taxes - healthInsurance - otherFixed)
-          .clamp(0, double.infinity);
+      income - housing - debt - taxes - healthInsurance - otherFixed;
 
   @override
   Widget build(BuildContext context) {
@@ -84,13 +83,19 @@ class BudgetWaterfall extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: MintTextStyles.bodySmall(color: isBold ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w400),
+              style: MintTextStyles.bodySmall(
+                      color: isBold
+                          ? MintColors.textPrimary
+                          : MintColors.textSecondary)
+                  .copyWith(
+                      fontWeight: isBold ? FontWeight.w700 : FontWeight.w400),
             ),
           ],
         ),
         Text(
           '$sign ${formatChfWithPrefix(amount)}',
-          style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w500),
+          style: MintTextStyles.bodySmall(color: color)
+              .copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w500),
         ),
       ],
     );

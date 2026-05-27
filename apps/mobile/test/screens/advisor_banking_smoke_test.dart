@@ -164,6 +164,32 @@ void main() {
       expect(find.textContaining("5'379"), findsWidgets);
     });
 
+    testWidgets('budget card preserves signed monthly deficit', (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_net_income_period_chf'] = 3000.0
+        ..['q_housing_cost_period_chf'] = 2500.0
+        ..['q_tax_provision_monthly_chf'] = 600.0
+        ..['q_lamal_premium_monthly_chf'] = 420.0
+        ..['q_debt_payments_period_chf'] = 0.0
+        ..['q_other_fixed_costs_monthly_chf'] = 0.0;
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining('Ton Budget'), findsOneWidget);
+      expect(find.textContaining("CHF\u00a0-520"), findsWidgets);
+      expect(find.textContaining("CHF\u00a00"), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('safe-mode reasons accept persisted debt as numeric string',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);

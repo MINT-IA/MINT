@@ -19,6 +19,9 @@ import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
+import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
+import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 
 void main() {
   setUp(() {
@@ -169,6 +172,110 @@ void main() {
     expect(find.text("CHF\u00a02'240"), findsNothing);
     expect(find.text('58%'), findsOneWidget);
     expect(find.text('42%'), findsOneWidget);
+  });
+
+  testWidgets(
+      'BudgetScreen secondary visuals use displayed charges including other fixed',
+      (tester) async {
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 5000.4,
+      housingCost: 1200.5,
+      debtPayments: 200.49,
+      taxProvision: 300.5,
+      healthInsurance: 410.49,
+      otherFixedCosts: 100.5,
+      style: BudgetStyle.envelopes3,
+    );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetScreen(inputs: inputs),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    await tester.drag(
+      find.byType(SingleChildScrollView),
+      const Offset(0, -1500),
+    );
+    await tester.pumpAndSettle();
+
+    final sandwich = find.byType(BudgetSandwichChart);
+    final rule503020 = find.byType(Budget503020Widget);
+    final crashTest = find.byType(CrashTestBudgetWidget);
+
+    expect(
+      find.descendant(
+        of: sandwich,
+        matching: find.textContaining('Autres charges fixes'),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: sandwich,
+        matching: find.textContaining("CHF\u00a02'213"),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: rule503020,
+        matching: find.textContaining("1'394"),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: rule503020,
+        matching: find.textContaining('836'),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: rule503020,
+        matching: find.textContaining('557'),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: crashTest,
+        matching: find.textContaining('Autres charges fixes'),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: crashTest,
+        matching: find.text('101'),
+      ),
+      findsWidgets,
+    );
+    expect(find.textContaining("CHF\u00a02'112"), findsNothing);
+
+    expect(
+      PresentBudgetBuilder.fixedChargesFromInputs(inputs),
+      2213,
+    );
   });
 
   testWidgets('BudgetScreen monthly flow preserves deficit instead of clamping',

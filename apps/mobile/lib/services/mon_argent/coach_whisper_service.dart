@@ -29,11 +29,14 @@ class CoachWhisperService {
 
     // Rule 2: Good month + 3a opportunity
     if ((budgetSnapshot != null || budgetPlan != null) && profile != null) {
-      final salary = profile.salaireBrutMensuel;
-      final available =
-          budgetSnapshot?.present.monthlyFree ?? budgetPlan?.available ?? 0;
-      if (salary > 0 && available > salary * 0.15) {
-        final suggestion = (available * 0.25).round();
+      final monthlyNet = budgetSnapshot?.present.monthlyNet ??
+          (budgetInputs != null
+              ? PresentBudgetBuilder.displayChf(budgetInputs.netIncome)
+              : profile.salaireBrutMensuel);
+      final monthlyFree = budgetSnapshot?.present.monthlyFree ??
+          _signedMonthlyFree(budgetSnapshot, budgetInputs, budgetPlan);
+      if (monthlyNet > 0 && monthlyFree > monthlyNet * 0.15) {
+        final suggestion = (monthlyFree * 0.25).round();
         if (suggestion >= 100) {
           return 'Bon mois. Tu pourrais verser $suggestion\u00a0CHF en 3a.';
         }
