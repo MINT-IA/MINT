@@ -360,10 +360,10 @@ class EducationContentData {
           'deductions legales pour reduire ta facture fiscale.',
       keyFacts: [
         'L\'impot federal est le meme partout (max ~11.5%), mais cantonal et communal varient enormement',
-        'Le versement 3a est la deduction la plus rentable : jusqu\'a 7\'258 CHF deductibles (2025/2026)',
+        'Le versement 3a est une deduction plafonnee : jusqu\'a 7\'258 CHF deductibles (2025/2026)',
         'Le rachat LPP est 100% deductible du revenu imposable (LPP art. 79b)',
         'Les frais effectifs (trajets, repas, formation) peuvent depasser le forfait',
-        'Un demenagement dans un canton fiscalement avantageux peut faire economiser des milliers de CHF/an',
+        'Un demenagement peut modifier la charge fiscale de plusieurs milliers de CHF/an selon le canton et la commune',
       ],
       quiz: QuizQuestion(
         question:
@@ -377,8 +377,8 @@ class EducationContentData {
         correctIndex: 2,
         explanation:
             'Le plafond 3a pour un salarie avec LPP est de 7\'258 CHF en 2025/2026 '
-            '(OPP3 art. 7). C\'est la deduction fiscale la plus simple et la '
-            'plus efficace a mettre en place.',
+            '(OPP3 art. 7). C\'est une deduction fiscale simple a documenter '
+            'quand tu peux bloquer l\'argent jusqu\'aux conditions de retrait.',
       ),
       funFact:
           'Un couple avec deux revenus a Zoug paie environ 4 fois moins d\'impots '
