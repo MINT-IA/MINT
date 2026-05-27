@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/domain/budget/budget_service.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 
@@ -348,11 +350,16 @@ class MicroActionEngine {
       ));
     }
 
-    // Emergency fund check (if depenses available but low liquidity)
-    final depMensuelles = profile.totalDepensesMensuelles;
-    final liquide = profile.patrimoine.epargneLiquide;
-    if (depMensuelles > 0) {
-      final moisReserve = liquide / depMensuelles;
+    // Emergency fund check (if budget facts are available but low liquidity)
+    final budgetInputs = BudgetInputs.fromCoachProfile(profile);
+    final budgetPlan = BudgetService().computePlan(budgetInputs);
+    final moisReserve = budgetPlan.emergencyFundMonths;
+    final hasBudgetBasis = budgetInputs.netIncome > 0 ||
+        budgetInputs.housingCost > 0 ||
+        budgetInputs.healthInsurance > 0 ||
+        budgetInputs.otherFixedCosts > 0 ||
+        budgetInputs.debtPayments > 0;
+    if (hasBudgetBasis) {
       if (moisReserve < 3) {
         actions.add(MicroAction(
           id: 'build_emergency_fund',
