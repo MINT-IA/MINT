@@ -128,7 +128,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
         ? PatrimoineAggregator.computeFromDataSpine(dataSpine)
         : PatrimoineAggregator.compute(coachProfile);
     final whisper = CoachWhisperService.evaluate(
-      budgetSnapshot: budgetSnapshot,
+      budgetSnapshot: budgetSnapshotForBudgetCard,
       budgetInputs: budgetProvider.inputs,
       budgetPlan: budgetProvider.plan,
       patrimoine: patrimoine,
