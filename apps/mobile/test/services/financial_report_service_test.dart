@@ -25,19 +25,77 @@ void main() {
   });
 
   group('Localized trust copy', () {
+    Map<String, dynamic> arb(String locale) {
+      final file = File('lib/l10n/app_$locale.arb');
+      return jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+    }
+
     test('avs action description does not reintroduce fixed lifetime amount',
         () {
       const locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
       for (final locale in locales) {
-        final file = File('lib/l10n/app_$locale.arb');
-        final json =
-            jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+        final json = arb(locale);
         final description = json['reportActionDescAvsCheck'] as String;
 
         expect(description, isNot(contains("38'000")), reason: locale);
         expect(description, isNot(contains('38’000')), reason: locale);
         expect(description.toLowerCase(), isNot(contains('lifetime pension')),
             reason: locale);
+      }
+    });
+
+    test('3a deadline nudges do not promise tax reduction or lost money', () {
+      const locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
+      const keys = [
+        'communityChallenge12Desc',
+        'nudge3aDeadlineBody',
+        'opener3aDeadline',
+        'anticipation3aDeadlineFact',
+      ];
+      const bannedFragments = [
+        'réduire tes impôts',
+        'reduce your',
+        'taxes',
+        'steuerabzug',
+        'steuern zu senken',
+        'reducir tus impuestos',
+        'ridurre le tasse',
+        'reduzir os teus impostos',
+        'bénéficier',
+        'benefit',
+        'beneficiarte',
+        'beneficiare',
+        'beneficiar',
+        'perdue',
+        'perdu',
+        'lost',
+        'verloren',
+        'pierde',
+        'perso',
+        'perdido',
+      ];
+      const requiredAnchors = {
+        'fr': ['déductible', 'statut lpp'],
+        'en': ['deductible room', 'lpp status'],
+        'de': ['abzugsfähig', 'bvg-status'],
+        'es': ['deducible', 'situación lpp'],
+        'it': ['deducibile', 'stato lpp'],
+        'pt': ['dedutível', 'estatuto lpp'],
+      };
+
+      for (final locale in locales) {
+        final json = arb(locale);
+        for (final key in keys) {
+          final value = (json[key] as String).toLowerCase();
+          for (final fragment in bannedFragments) {
+            expect(value, isNot(contains(fragment)), reason: '$locale:$key');
+          }
+          expect(
+            requiredAnchors[locale]!.any(value.contains),
+            isTrue,
+            reason: '$locale:$key should keep deductible-room grounding',
+          );
+        }
       }
     });
   });

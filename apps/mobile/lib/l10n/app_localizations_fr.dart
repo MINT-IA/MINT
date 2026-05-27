@@ -15250,7 +15250,7 @@ class SFr extends S {
 
   @override
   String get communityChallenge12Desc =>
-      'La deadline 3a approche. Verse jusqu’à CHF 7’258 (salarié avec LPP) avant le 31 décembre pour bénéficier de la déduction fiscale de cette année.';
+      'La deadline 3a approche. Vérifie ta marge déductible et planifie un versement adapté avant le 31 décembre.';
 
   @override
   String get communityChallenge12Title => 'Verse ton 3a avant le 31 décembre';
@@ -17944,7 +17944,7 @@ class SFr extends S {
 
   @override
   String nudge3aDeadlineBody(String days, String limit, String year) {
-    return 'Il reste $days jour(s) pour verser jusqu\'à $limit CHF et réduire tes impôts $year.';
+    return 'Il reste $days jour(s) pour planifier ta marge déductible 3a jusqu’à $limit CHF avant la fin $year.';
   }
 
   @override
@@ -18179,7 +18179,7 @@ class SFr extends S {
 
   @override
   String opener3aDeadline(String days, String plafond) {
-    return 'Il reste $days jours pour verser jusqu’à $plafond CHF dans ton 3a.';
+    return 'Marge déductible 3a disponible : jusqu’à $plafond CHF pendant encore $days jours.';
   }
 
   @override
@@ -22247,7 +22247,7 @@ class SFr extends S {
 
   @override
   String anticipation3aDeadlineFact(String limit, String year) {
-    return 'Tu peux encore verser jusqu\'à $limit CHF sur ton 3e pilier avant le 31 décembre $year. Chaque année non utilisée est perdue.';
+    return 'Tu peux encore planifier un versement 3a jusqu’à $limit CHF avant le 31 décembre $year. Vérifie le montant adapté à ton statut LPP.';
   }
 
   @override

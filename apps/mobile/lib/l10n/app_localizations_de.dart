@@ -15286,7 +15286,7 @@ class SDe extends S {
 
   @override
   String get communityChallenge12Desc =>
-      'Die 3a-Frist naht. Zahle bis CHF 7’258 (Angestellte mit BVG) vor dem 31. Dezember ein, um den Steuerabzug dieses Jahres zu nutzen.';
+      'Die 3a-Frist naht. Prüfe deinen abzugsfähigen Spielraum und plane vor dem 31. Dezember eine passende Einzahlung.';
 
   @override
   String get communityChallenge12Title =>
@@ -17995,7 +17995,7 @@ class SDe extends S {
 
   @override
   String nudge3aDeadlineBody(String days, String limit, String year) {
-    return 'Noch $days Tag(e), um bis zu $limit CHF einzuzahlen und deine $year-Steuern zu senken.';
+    return 'Noch $days Tag(e), um deinen abzugsfähigen 3a-Spielraum bis $limit CHF vor Ende $year zu planen.';
   }
 
   @override
@@ -18230,7 +18230,7 @@ class SDe extends S {
 
   @override
   String opener3aDeadline(String days, String plafond) {
-    return 'Noch $days Tage, um bis zu $plafond CHF in die Säule 3a einzuzahlen.';
+    return 'Verfügbarer abzugsfähiger 3a-Spielraum: bis $plafond CHF für weitere $days Tage.';
   }
 
   @override
@@ -22299,7 +22299,7 @@ class SDe extends S {
 
   @override
   String anticipation3aDeadlineFact(String limit, String year) {
-    return 'Du kannst noch bis zu $limit CHF in deine Säule 3a einzahlen, bevor der 31. Dezember $year kommt. Jedes ungenutzte Jahr ist verloren.';
+    return 'Du kannst noch eine 3a-Einzahlung bis $limit CHF vor dem 31. Dezember $year planen. Prüfe den Betrag, der zu deinem BVG-Status passt.';
   }
 
   @override

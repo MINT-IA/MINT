@@ -32,6 +32,7 @@ CoachProfile _makeProfile({
   DateTime? createdAt,
   String employmentStatus = 'salarie',
   bool independentNoLpp = false,
+  List<PlannedMonthlyContribution> plannedContributions = const [],
 }) {
   return CoachProfile(
     birthYear: birthYear,
@@ -51,7 +52,7 @@ CoachProfile _makeProfile({
       label: 'Retraite',
     ),
     goalsB: const [],
-    plannedContributions: const [],
+    plannedContributions: plannedContributions,
     checkIns: const [],
     createdAt: createdAt ?? DateTime(2024, 1, 1),
     updatedAt: DateTime(2026, 3, 1),
@@ -136,8 +137,10 @@ void main() {
         dismissedNudgeIds: [],
       );
 
-      final threeA = nudges.where((n) => n.trigger == NudgeTrigger.pillar3aDeadline);
-      expect(threeA.isNotEmpty, isTrue, reason: 'pillar3aDeadline fires in December');
+      final threeA =
+          nudges.where((n) => n.trigger == NudgeTrigger.pillar3aDeadline);
+      expect(threeA.isNotEmpty, isTrue,
+          reason: 'pillar3aDeadline fires in December');
       expect(threeA.first.params!['days'], equals('16'),
           reason: '31 - 15 = 16 days left');
     });
@@ -152,7 +155,8 @@ void main() {
         dismissedNudgeIds: [],
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.lppBuybackWindow), isTrue,
+      expect(
+          nudges.any((n) => n.trigger == NudgeTrigger.lppBuybackWindow), isTrue,
           reason: 'lppBuybackWindow fires Q4 for users with LPP');
     });
 
@@ -166,7 +170,8 @@ void main() {
         dismissedNudgeIds: [],
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.taxDeadlineApproach), isTrue,
+      expect(nudges.any((n) => n.trigger == NudgeTrigger.taxDeadlineApproach),
+          isTrue,
           reason: 'taxDeadlineApproach fires in March');
     });
 
@@ -180,7 +185,8 @@ void main() {
         dismissedNudgeIds: [],
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.taxDeadlineApproach), isFalse,
+      expect(nudges.any((n) => n.trigger == NudgeTrigger.taxDeadlineApproach),
+          isFalse,
           reason: 'taxDeadlineApproach should not fire in April');
     });
 
@@ -194,7 +200,8 @@ void main() {
         dismissedNudgeIds: [],
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.taxDeadlineApproach), isTrue,
+      expect(nudges.any((n) => n.trigger == NudgeTrigger.taxDeadlineApproach),
+          isTrue,
           reason: 'taxDeadlineApproach fires in September (Sept 30 deadline)');
     });
 
@@ -210,7 +217,8 @@ void main() {
         dismissedNudgeIds: [],
       );
 
-      final birthday = nudges.where((n) => n.trigger == NudgeTrigger.birthdayMilestone);
+      final birthday =
+          nudges.where((n) => n.trigger == NudgeTrigger.birthdayMilestone);
       expect(birthday.isNotEmpty, isTrue,
           reason: 'birthdayMilestone fires at age 50');
       expect(birthday.first.params!['age'], equals('50'));
@@ -228,7 +236,8 @@ void main() {
         dismissedNudgeIds: [],
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.birthdayMilestone), isFalse,
+      expect(nudges.any((n) => n.trigger == NudgeTrigger.birthdayMilestone),
+          isFalse,
           reason: '42 is not a milestone age');
     });
 
@@ -245,7 +254,8 @@ void main() {
         lastActivityTime: lastActivity,
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.noActivityWeek), isTrue,
+      expect(
+          nudges.any((n) => n.trigger == NudgeTrigger.noActivityWeek), isTrue,
           reason: '10 days without activity triggers noActivityWeek');
     });
 
@@ -262,7 +272,8 @@ void main() {
         lastActivityTime: lastActivity,
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.noActivityWeek), isFalse,
+      expect(
+          nudges.any((n) => n.trigger == NudgeTrigger.noActivityWeek), isFalse,
           reason: 'Activity 3 days ago is within the 7-day window');
     });
 
@@ -279,7 +290,8 @@ void main() {
         dismissedNudgeIds: [taxId],
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.taxDeadlineApproach), isFalse,
+      expect(nudges.any((n) => n.trigger == NudgeTrigger.taxDeadlineApproach),
+          isFalse,
           reason: 'Dismissed nudge should not be returned');
     });
 
@@ -302,7 +314,8 @@ void main() {
 
     // ── 14. Golden couple: Julien in December ─────────────────
 
-    test('Julien (49 ans, VS, salarié LPP) in December gets 3a + LPP nudges', () {
+    test('Julien (49 ans, VS, salarié LPP) in December gets 3a + LPP nudges',
+        () {
       final now = DateTime(2026, 12, 10);
       final nudges = NudgeEngine.evaluate(
         profile: _julienProfile(),
@@ -316,14 +329,65 @@ void main() {
       expect(triggers.contains(NudgeTrigger.lppBuybackWindow), isTrue,
           reason: 'Julien with LPP should get LPP buyback nudge Q4');
       // 3a message shows salarié plafond
-      final threeA = nudges.firstWhere((n) => n.trigger == NudgeTrigger.pillar3aDeadline);
+      final threeA =
+          nudges.firstWhere((n) => n.trigger == NudgeTrigger.pillar3aDeadline);
       expect(threeA.params!['limit'], equals("7'258"),
-          reason: 'Salarié should see 7\'258 CHF plafond');
+          reason: 'Salarié should see remaining deductible room');
     });
 
-    // ── 15. Independent without LPP — correct 3a plafond ─────
+    test('3a deadline uses remaining room after planned contributions', () {
+      final now = DateTime(2026, 12, 15);
+      final profile = _makeProfile(
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_user',
+            label: '3a',
+            amount: 250,
+            category: '3a',
+          ),
+        ],
+      );
 
-    test('independent without LPP gets 36\'288 CHF plafond in December', () {
+      final nudges = NudgeEngine.evaluate(
+        profile: profile,
+        now: now,
+        dismissedNudgeIds: [],
+      );
+
+      final threeA =
+          nudges.firstWhere((n) => n.trigger == NudgeTrigger.pillar3aDeadline);
+      expect(threeA.params!['limit'], equals("4'258"),
+          reason: "7'258 - (250 × 12) = 4'258");
+    });
+
+    test('3a deadline is skipped when planned contributions fill the room', () {
+      final now = DateTime(2026, 12, 15);
+      final profile = _makeProfile(
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_user',
+            label: '3a',
+            amount: 605,
+            category: '3a',
+          ),
+        ],
+      );
+
+      final nudges = NudgeEngine.evaluate(
+        profile: profile,
+        now: now,
+        dismissedNudgeIds: [],
+      );
+
+      expect(
+        nudges.any((n) => n.trigger == NudgeTrigger.pillar3aDeadline),
+        isFalse,
+      );
+    });
+
+    // ── 15. Independent without LPP — correct 3a room ─────
+
+    test('independent without LPP gets income-based 3a room in December', () {
       final profile = CoachProfile(
         birthYear: 1985,
         canton: 'ZH',
@@ -356,9 +420,11 @@ void main() {
         dismissedNudgeIds: [],
       );
 
-      final threeA = nudges.firstWhere((n) => n.trigger == NudgeTrigger.pillar3aDeadline);
-      expect(threeA.params!['limit'], equals("36'288"),
-          reason: 'Independent without LPP should see 36\'288 CHF plafond');
+      final threeA =
+          nudges.firstWhere((n) => n.trigger == NudgeTrigger.pillar3aDeadline);
+      expect(threeA.params!['limit'], equals("19'200"),
+          reason:
+              'Independent without LPP gets 20% of CHF 96k, capped at legal max');
     });
 
     // ── 16. Profile incomplete after 7+ days ─────────────────
@@ -377,8 +443,10 @@ void main() {
         confidenceScore: 30.0, // below 40%
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.profileIncomplete), isTrue,
-          reason: 'profileIncomplete should fire when confidence < 40% after 7+ days');
+      expect(nudges.any((n) => n.trigger == NudgeTrigger.profileIncomplete),
+          isTrue,
+          reason:
+              'profileIncomplete should fire when confidence < 40% after 7+ days');
     });
 
     // ── 17. Profile too new → no profileIncomplete ────────────
@@ -396,8 +464,10 @@ void main() {
         confidenceScore: 20.0,
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.profileIncomplete), isFalse,
-          reason: 'profileIncomplete should not fire for profiles < 7 days old');
+      expect(nudges.any((n) => n.trigger == NudgeTrigger.profileIncomplete),
+          isFalse,
+          reason:
+              'profileIncomplete should not fire for profiles < 7 days old');
     });
 
     // ── 18. Goal progress 50% → nudge ────────────────────────
@@ -462,7 +532,8 @@ void main() {
         lifeEventDate: lifeEvent,
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.lifeEventAnniversary), isTrue,
+      expect(nudges.any((n) => n.trigger == NudgeTrigger.lifeEventAnniversary),
+          isTrue,
           reason: 'lifeEventAnniversary fires at 365 days ± 3');
     });
 
@@ -472,7 +543,8 @@ void main() {
       // March 25: taxDeadlineApproach (high) + possibly salary (medium)
       final now = DateTime(2026, 3, 25);
       final nudges = NudgeEngine.evaluate(
-        profile: _makeProfile(createdAt: now.subtract(const Duration(days: 30))),
+        profile:
+            _makeProfile(createdAt: now.subtract(const Duration(days: 30))),
         now: now,
         dismissedNudgeIds: [],
         confidenceScore: 25.0, // triggers profileIncomplete (medium)
@@ -482,7 +554,8 @@ void main() {
         expect(
           nudges[i].priority.index,
           lessThanOrEqualTo(nudges[i + 1].priority.index),
-          reason: 'Nudge ${nudges[i].trigger} (${nudges[i].priority}) should come before '
+          reason:
+              'Nudge ${nudges[i].trigger} (${nudges[i].priority}) should come before '
               '${nudges[i + 1].trigger} (${nudges[i + 1].priority})',
         );
       }
@@ -541,7 +614,8 @@ void main() {
         dismissedNudgeIds: [],
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.lppBuybackWindow), isFalse,
+      expect(nudges.any((n) => n.trigger == NudgeTrigger.lppBuybackWindow),
+          isFalse,
           reason: 'independentNoLpp has no LPP — no buyback nudge');
     });
 
@@ -557,7 +631,8 @@ void main() {
 
       for (final nudge in nudges) {
         expect(nudge.expiresAt.isAfter(now), isTrue,
-            reason: '${nudge.trigger} expiresAt ${nudge.expiresAt} should be after $now');
+            reason:
+                '${nudge.trigger} expiresAt ${nudge.expiresAt} should be after $now');
       }
     });
 
@@ -602,7 +677,8 @@ void main() {
           dismissedNudgeIds: [],
         );
 
-        expect(nudges.any((n) => n.trigger == NudgeTrigger.birthdayMilestone), isTrue,
+        expect(nudges.any((n) => n.trigger == NudgeTrigger.birthdayMilestone),
+            isTrue,
             reason: 'Age $age should trigger birthdayMilestone');
       }
     });
@@ -622,9 +698,11 @@ void main() {
       for (final nudge in nudges) {
         for (final banned in bannedKeywords) {
           expect(nudge.titleKey.toLowerCase().contains(banned), isFalse,
-              reason: 'titleKey ${nudge.titleKey} contains banned keyword "$banned"');
+              reason:
+                  'titleKey ${nudge.titleKey} contains banned keyword "$banned"');
           expect(nudge.bodyKey.toLowerCase().contains(banned), isFalse,
-              reason: 'bodyKey ${nudge.bodyKey} contains banned keyword "$banned"');
+              reason:
+                  'bodyKey ${nudge.bodyKey} contains banned keyword "$banned"');
         }
       }
     });
@@ -639,7 +717,8 @@ void main() {
         dismissedNudgeIds: [],
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.salaryReceived), isFalse,
+      expect(
+          nudges.any((n) => n.trigger == NudgeTrigger.salaryReceived), isFalse,
           reason: 'salaryReceived only fires on days 1-5 of month');
     });
 
@@ -659,8 +738,10 @@ void main() {
         dismissedNudgeIds: dismissed,
       );
 
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.newYearReset), isFalse);
-      expect(nudges.any((n) => n.trigger == NudgeTrigger.salaryReceived), isFalse);
+      expect(
+          nudges.any((n) => n.trigger == NudgeTrigger.newYearReset), isFalse);
+      expect(
+          nudges.any((n) => n.trigger == NudgeTrigger.salaryReceived), isFalse);
     });
   });
 }

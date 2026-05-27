@@ -8575,7 +8575,7 @@
   "communityChallenge10Title": "Célèbre le mois de la prévoyance",
   "communityChallenge11Desc": "Il reste quelques semaines pour agir : versement 3a, don à une association, déclaration de frais. Identifie ce que tu peux encore faire avant le 31 décembre.",
   "communityChallenge11Title": "Planifie tes dernières optimisations de fin d’année",
-  "communityChallenge12Desc": "La deadline 3a approche. Verse jusqu’à CHF 7’258 (salarié avec LPP) avant le 31 décembre pour bénéficier de la déduction fiscale de cette année.",
+  "communityChallenge12Desc": "La deadline 3a approche. Vérifie ta marge déductible et planifie un versement adapté avant le 31 décembre.",
   "communityChallenge12Title": "Verse ton 3a avant le 31 décembre",
   "communityChallengeCta": "Relever le défi",
   "compoundDisclaimerInflation": "Hypothèses pédagogiques (inflation {inflation} %). Les rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.",
@@ -9369,7 +9369,7 @@
   "notifThreeATitle": "Deadline 3a",
   "notifWeeklyRecapBody": "Budget, progrès, prochaine étape — tout est prêt.",
   "notifWeeklyRecapTitle": "Ton récap de la semaine",
-  "nudge3aDeadlineBody": "Il reste {days} jour(s) pour verser jusqu'à {limit} CHF et réduire tes impôts {year}.",
+  "nudge3aDeadlineBody": "Il reste {days} jour(s) pour planifier ta marge déductible 3a jusqu’à {limit} CHF avant la fin {year}.",
   "nudge3aDeadlineTitle": "Dernière ligne droite pour ton 3a",
   "nudgeAnniversaryBody": "Tu utilises MINT depuis un an. C’est le moment idéal pour actualiser ton profil et mesurer tes progrès.",
   "nudgeBirthdayBody": "Une étape qui peut marquer un tournant pour ta prévoyance. As-tu simulé l’impact de cette année ?",
@@ -9439,7 +9439,7 @@
   "onboardingSmartSeeResult": "Calculer ma retraite",
   "onboardingSmartSubtitle": "Quelques infos suffisent pour un premier aperçu personnalisé.",
   "onboardingSmartTitle": "Découvre ta situation retraite en 30 secondes",
-  "opener3aDeadline": "Il reste {days} jours pour verser jusqu’à {plafond} CHF dans ton 3a.",
+  "opener3aDeadline": "Marge déductible 3a disponible : jusqu’à {plafond} CHF pendant encore {days} jours.",
   "openerBudgetDeficit": "CHF {deficit}/mois de déficit. On regarde où ça coince ?",
   "openerGapWarning": "Ton taux de remplacement : {rate} %. À la retraite, il te manquerait CHF {gap}/mois.",
   "openerPlanProgress": "Étape {n}/{total} validée. Prochaine : {next}.",
@@ -11156,7 +11156,7 @@
       }
     }
   },
-  "anticipation3aDeadlineFact": "Tu peux encore verser jusqu'à {limit} CHF sur ton 3e pilier avant le 31 décembre {year}. Chaque année non utilisée est perdue.",
+  "anticipation3aDeadlineFact": "Tu peux encore planifier un versement 3a jusqu’à {limit} CHF avant le 31 décembre {year}. Vérifie le montant adapté à ton statut LPP.",
   "@anticipation3aDeadlineFact": {
     "placeholders": {
       "limit": {

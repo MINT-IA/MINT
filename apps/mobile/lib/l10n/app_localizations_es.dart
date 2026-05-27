@@ -15257,7 +15257,7 @@ class SEs extends S {
 
   @override
   String get communityChallenge12Desc =>
-      'Se acerca el plazo del 3a. Aporta hasta CHF 7’258 (asalariado con LPP) antes del 31 de diciembre para beneficiarte de la deducción fiscal de este año.';
+      'Se acerca el plazo del 3a. Comprueba tu margen deducible y planifica una aportación adecuada antes del 31 de diciembre.';
 
   @override
   String get communityChallenge12Title =>
@@ -17956,7 +17956,7 @@ class SEs extends S {
 
   @override
   String nudge3aDeadlineBody(String days, String limit, String year) {
-    return 'Quedan $days día(s) para aportar hasta $limit CHF y reducir tus impuestos de $year.';
+    return 'Quedan $days día(s) para planificar tu margen deducible 3a de hasta $limit CHF antes de que termine $year.';
   }
 
   @override
@@ -18192,7 +18192,7 @@ class SEs extends S {
 
   @override
   String opener3aDeadline(String days, String plafond) {
-    return 'Quedan $days días para ingresar hasta $plafond CHF en tu 3a.';
+    return 'Margen deducible 3a disponible: hasta $plafond CHF durante $days días más.';
   }
 
   @override
@@ -22245,7 +22245,7 @@ class SEs extends S {
 
   @override
   String anticipation3aDeadlineFact(String limit, String year) {
-    return 'Aún puedes aportar hasta $limit CHF a tu 3er pilar antes del 31 de diciembre de $year. Cada año no utilizado se pierde.';
+    return 'Aún puedes planificar una aportación 3a de hasta $limit CHF antes del 31 de diciembre de $year. Comprueba el importe adecuado para tu situación LPP.';
   }
 
   @override

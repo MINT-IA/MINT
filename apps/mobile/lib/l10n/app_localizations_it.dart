@@ -15295,7 +15295,7 @@ class SIt extends S {
 
   @override
   String get communityChallenge12Desc =>
-      'La scadenza del 3a si avvicina. Versa fino a CHF 7’258 (dipendente con LPP) entro il 31 dicembre per beneficiare della deduzione fiscale di quest\'anno.';
+      'La scadenza del 3a si avvicina. Verifica il tuo margine deducibile e pianifica un versamento adeguato entro il 31 dicembre.';
 
   @override
   String get communityChallenge12Title =>
@@ -18005,7 +18005,7 @@ class SIt extends S {
 
   @override
   String nudge3aDeadlineBody(String days, String limit, String year) {
-    return 'Mancano $days giorno/i per versare fino a $limit CHF e ridurre le tasse del $year.';
+    return 'Mancano $days giorno/i per pianificare il tuo margine deducibile 3a fino a $limit CHF entro la fine del $year.';
   }
 
   @override
@@ -18241,7 +18241,7 @@ class SIt extends S {
 
   @override
   String opener3aDeadline(String days, String plafond) {
-    return 'Restano $days giorni per versare fino a $plafond CHF nel tuo 3a.';
+    return 'Margine deducibile 3a disponibile: fino a $plafond CHF per altri $days giorni.';
   }
 
   @override
@@ -22307,7 +22307,7 @@ class SIt extends S {
 
   @override
   String anticipation3aDeadlineFact(String limit, String year) {
-    return 'Puoi ancora versare fino a $limit CHF nel tuo 3° pilastro prima del 31 dicembre $year. Ogni anno non utilizzato è perso.';
+    return 'Puoi ancora pianificare un versamento 3a fino a $limit CHF prima del 31 dicembre $year. Verifica l’importo adatto al tuo stato LPP.';
   }
 
   @override

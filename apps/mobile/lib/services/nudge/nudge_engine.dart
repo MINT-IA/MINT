@@ -1,5 +1,7 @@
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/nudge/nudge_trigger.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NUDGE ENGINE — S61 / JITAI Proactive Nudges
@@ -213,14 +215,11 @@ class NudgeEngine {
     CoachProfile profile,
   ) {
     if (now.month != 12) return;
-    // FATCA residents: most 3a providers refuse US persons.
-    if (profile.conjoint?.isFatcaResident == true && profile.archetype == FinancialArchetype.expatUs) return;
-    if (profile.archetype == FinancialArchetype.expatUs) return;
+    if (!profile.canContribute3a) return;
 
     final daysLeft = 31 - now.day;
-    final isIndependentNoLpp =
-        profile.archetype == FinancialArchetype.independentNoLpp;
-    final plafond = isIndependentNoLpp ? "36'288" : "7'258";
+    final remainingRoom = _remaining3aRoom(profile);
+    if (remainingRoom <= 0) return;
 
     final id = _id(NudgeTrigger.pillar3aDeadline, now);
     nudges.add(Nudge(
@@ -232,11 +231,23 @@ class NudgeEngine {
       bodyKey: 'nudge3aDeadlineBody',
       params: {
         'days': daysLeft.toString(),
-        'limit': plafond,
+        'limit': formatChf(remainingRoom),
         'year': now.year.toString(),
       },
       expiresAt: DateTime(now.year + 1, 1, 1),
     ));
+  }
+
+  static double _remaining3aRoom(CoachProfile profile) {
+    final isIndependentNoLpp =
+        profile.archetype == FinancialArchetype.independentNoLpp;
+    final annualCeiling = isIndependentNoLpp
+        ? (profile.revenuBrutAnnuel * pilier3aTauxRevenuSansLpp)
+            .clamp(0.0, pilier3aPlafondSansLpp)
+            .toDouble()
+        : pilier3aPlafondAvecLpp;
+    final annualPlanned3a = profile.total3aMensuel * 12;
+    return (annualCeiling - annualPlanned3a).clamp(0.0, annualCeiling);
   }
 
   /// Birthday milestone: first 7 days of January, milestone age.
@@ -326,9 +337,8 @@ class NudgeEngine {
     nudges.add(Nudge(
       id: id,
       trigger: NudgeTrigger.goalProgress,
-      priority: goalProgressPct == 100
-          ? NudgePriority.high
-          : NudgePriority.medium,
+      priority:
+          goalProgressPct == 100 ? NudgePriority.high : NudgePriority.medium,
       intentTag: '/coach/chat',
       titleKey: 'nudgeGoalProgressTitle',
       bodyKey: 'nudgeGoalProgressBody',

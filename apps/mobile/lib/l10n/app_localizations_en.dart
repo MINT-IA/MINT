@@ -15176,7 +15176,7 @@ class SEn extends S {
 
   @override
   String get communityChallenge12Desc =>
-      'The 3a deadline is approaching. Contribute up to CHF 7’258 (employed with LPP) before 31 December to benefit from this year’s tax deduction.';
+      'The 3a deadline is approaching. Check your deductible room and plan a suitable contribution before 31 December.';
 
   @override
   String get communityChallenge12Title =>
@@ -17865,7 +17865,7 @@ class SEn extends S {
 
   @override
   String nudge3aDeadlineBody(String days, String limit, String year) {
-    return '$days day(s) left to contribute up to $limit CHF and reduce your $year taxes.';
+    return '$days day(s) left to plan your 3a deductible room of up to $limit CHF before the end of $year.';
   }
 
   @override
@@ -18100,7 +18100,7 @@ class SEn extends S {
 
   @override
   String opener3aDeadline(String days, String plafond) {
-    return '$days days left to contribute up to $plafond CHF to your 3a.';
+    return 'Remaining 3a deductible room: up to $plafond CHF for $days more days.';
   }
 
   @override
@@ -22134,7 +22134,7 @@ class SEn extends S {
 
   @override
   String anticipation3aDeadlineFact(String limit, String year) {
-    return 'You can still contribute up to $limit CHF to your 3rd pillar before December 31, $year. Each unused year is lost.';
+    return 'You can still plan a 3a contribution of up to $limit CHF before December 31, $year. Check the amount that fits your LPP status.';
   }
 
   @override

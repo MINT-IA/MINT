@@ -15250,7 +15250,7 @@ class SPt extends S {
 
   @override
   String get communityChallenge12Desc =>
-      'O prazo do 3a aproxima-se. Contribui até CHF 7’258 (trabalhador por conta de outrem com LPP) antes de 31 de dezembro para beneficiar da dedução fiscal deste ano.';
+      'O prazo do 3a aproxima-se. Verifica a tua margem dedutível e planeia uma contribuição adequada antes de 31 de dezembro.';
 
   @override
   String get communityChallenge12Title =>
@@ -17955,7 +17955,7 @@ class SPt extends S {
 
   @override
   String nudge3aDeadlineBody(String days, String limit, String year) {
-    return 'Faltam $days dia(s) para contribuir até $limit CHF e reduzir os teus impostos de $year.';
+    return 'Faltam $days dia(s) para planear a tua margem dedutível 3a até $limit CHF antes do fim de $year.';
   }
 
   @override
@@ -18190,7 +18190,7 @@ class SPt extends S {
 
   @override
   String opener3aDeadline(String days, String plafond) {
-    return 'Restam $days dias para depositar até $plafond CHF no teu 3a.';
+    return 'Margem dedutível 3a disponível: até $plafond CHF durante mais $days dias.';
   }
 
   @override
@@ -22251,7 +22251,7 @@ class SPt extends S {
 
   @override
   String anticipation3aDeadlineFact(String limit, String year) {
-    return 'Ainda podes contribuir até $limit CHF para o teu 3º pilar antes de 31 de dezembro de $year. Cada ano não utilizado é perdido.';
+    return 'Ainda podes planear uma contribuição 3a até $limit CHF antes de 31 de dezembro de $year. Verifica o montante adequado ao teu estatuto LPP.';
   }
 
   @override
