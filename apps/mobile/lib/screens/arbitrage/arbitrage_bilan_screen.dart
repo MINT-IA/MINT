@@ -60,7 +60,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
       );
     }
 
-    final summary = ArbitrageSummaryService.compute(profile);
+    final summary = ArbitrageSummaryService.compute(profile, l: S.of(context));
 
     return Scaffold(
       backgroundColor: MintColors.white,

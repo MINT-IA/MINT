@@ -82,6 +82,17 @@ class ArbitrageSummaryService {
   static ArbitrageSummary compute(CoachProfile profile, {S? l}) {
     final items = <ArbitrageSummaryItem>[];
     final locked = <ArbitrageLocked>[];
+    final hasDebtPriority = profile.hasMaterialConsumerDebtForPriority;
+
+    if (hasDebtPriority) {
+      locked.add(ArbitrageLocked(
+        id: 'debt_protection',
+        title: l?.reportSafeModePriority ?? 'Priorité au désendettement',
+        missingDataPrompt: l?.reportSafeModeActions ??
+            'Stabilise ta situation avant les optimisations 3a/LPP.',
+        enrichmentRoute: '/debt/ratio',
+      ));
+    }
 
     final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
@@ -93,7 +104,7 @@ class ArbitrageSummaryService {
     final anneesRetraite = profile.anneesAvantRetraite;
 
     // ── 1. Rente vs Capital ──
-    if (lppAvoir > 0) {
+    if (!hasDebtPriority && lppAvoir > 0) {
       final item = _computeRenteVsCapital(
         profile: profile,
         canton: canton,
@@ -101,7 +112,7 @@ class ArbitrageSummaryService {
         lppAvoir: lppAvoir,
       );
       if (item != null) items.add(item);
-    } else {
+    } else if (!hasDebtPriority) {
       locked.add(ArbitrageLocked(
         id: 'rente_vs_capital',
         title: l?.arbitrageTitleRenteVsCapital ?? 'Rente vs Capital',
@@ -112,7 +123,7 @@ class ArbitrageSummaryService {
     }
 
     // ── 2. Calendrier retraits ──
-    if (lppAvoir > 0 && total3a > 0) {
+    if (!hasDebtPriority && lppAvoir > 0 && total3a > 0) {
       final item = _computeCalendrierRetraits(
         profile: profile,
         canton: canton,
@@ -121,7 +132,7 @@ class ArbitrageSummaryService {
         total3a: total3a,
       );
       if (item != null) items.add(item);
-    } else if (lppAvoir <= 0 || total3a <= 0) {
+    } else if (!hasDebtPriority && (lppAvoir <= 0 || total3a <= 0)) {
       locked.add(ArbitrageLocked(
         id: 'calendrier_retraits',
         title: l?.arbitrageTitleCalendrierRetraits ?? 'Calendrier de retraits',
@@ -132,7 +143,7 @@ class ArbitrageSummaryService {
     }
 
     // ── 3. Rachat LPP vs Marche ──
-    if (lacune > 1000 && salary > 0) {
+    if (!hasDebtPriority && lacune > 1000 && salary > 0) {
       final item = _computeRachatVsMarche(
         profile: profile,
         canton: canton,
@@ -142,9 +153,9 @@ class ArbitrageSummaryService {
         anneesRetraite: anneesRetraite,
       );
       if (item != null) items.add(item);
-    } else if (lppAvoir > 0 && lacune <= 1000) {
+    } else if (!hasDebtPriority && lppAvoir > 0 && lacune <= 1000) {
       // No locked card — no buyback gap, that's fine
-    } else {
+    } else if (!hasDebtPriority) {
       locked.add(ArbitrageLocked(
         id: 'rachat_vs_marche',
         title: l?.arbitrageTitleRachatVsMarche ?? 'Rachat LPP vs March\u00e9',
@@ -155,7 +166,7 @@ class ArbitrageSummaryService {
     }
 
     // ── 4. Allocation annuelle ──
-    if (salary > 0) {
+    if (!hasDebtPriority && salary > 0) {
       final item = _computeAllocationAnnuelle(
         profile: profile,
         canton: canton,
@@ -178,7 +189,10 @@ class ArbitrageSummaryService {
     }
 
     // ── 6. Échelonnement couple ──
-    if (profile.isCouple && profile.conjoint != null && lppAvoir > 0) {
+    if (!hasDebtPriority &&
+        profile.isCouple &&
+        profile.conjoint != null &&
+        lppAvoir > 0) {
       final conjLpp = profile.conjoint!.prevoyance?.avoirLppTotal ?? 0;
       if (conjLpp > 0) {
         final item = _computeCoupleSequencing(

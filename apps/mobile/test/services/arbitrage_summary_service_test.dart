@@ -37,6 +37,7 @@ CoachProfile _buildProfile({
   String? housingStatus,
   double epargneLiquide = 0,
   double investissements = 0,
+  DetteProfile dettes = const DetteProfile(),
   ConjointProfile? conjoint,
 }) {
   return CoachProfile(
@@ -55,6 +56,7 @@ CoachProfile _buildProfile({
       epargneLiquide: epargneLiquide,
       investissements: investissements,
     ),
+    dettes: dettes,
     prevoyance: PrevoyanceProfile(
       avoirLppTotal: avoirLppTotal,
       totalEpargne3a: totalEpargne3a,
@@ -138,6 +140,30 @@ void main() {
           .toList();
       expect(allocItem, isNotEmpty);
       expect(allocItem.first.route, '/arbitrage/allocation-annuelle');
+    });
+
+    test('debt crisis suppresses optimization arbitrages', () {
+      final profile = _buildProfile(
+        salaireBrutMensuel: 8000,
+        avoirLppTotal: 300000,
+        totalEpargne3a: 50000,
+        rachatMaximum: 100000,
+        dettes: const DetteProfile(
+          creditConsommation: 25000,
+          mensualiteCreditConso: 900,
+        ),
+      );
+
+      expect(profile.hasMaterialConsumerDebtForPriority, isTrue);
+
+      final summary = ArbitrageSummaryService.compute(profile);
+      final itemIds = summary.items.map((i) => i.id).toSet();
+      final lockedIds = summary.lockedItems.map((i) => i.id).toSet();
+
+      expect(itemIds, isEmpty);
+      expect(lockedIds, contains('debt_protection'));
+      expect(lockedIds, isNot(contains('rachat_vs_marche')));
+      expect(lockedIds, isNot(contains('allocation_annuelle')));
     });
 
     // ── Test 7: Location vs Propriete for locataire ───────────
