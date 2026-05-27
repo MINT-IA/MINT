@@ -19,6 +19,7 @@
 library;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -673,7 +674,8 @@ class BayesianProfileEnricher {
   /// - Family 2 kids: ~9500 CHF/month
   /// Adjusted by canton cost index.
   static PosteriorEstimate _posteriorMonthlyExpenses(CoachProfile profile) {
-    final declared = profile.depenses.totalMensuel;
+    final declared =
+        BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
 
     // If user declared meaningful expenses (loyer + assurance > 0)
     if (declared > 0) {
