@@ -337,9 +337,13 @@ class _BudgetScreenState extends State<BudgetScreen>
                                     _staggeredEntry(
                                       index: 1,
                                       child: SpendingMeter(
-                                        variablesAmount: plan.variables,
-                                        futureAmount: plan.future,
-                                        totalAvailable: plan.available,
+                                        variablesAmount:
+                                            flowPresent.monthlyFree,
+                                        futureAmount:
+                                            flowPresent.monthlySavings,
+                                        totalAvailable:
+                                            flowPresent.monthlyFree +
+                                                flowPresent.monthlySavings,
                                       ),
                                     ),
                                     const SizedBox(height: MintSpacing.xxl),

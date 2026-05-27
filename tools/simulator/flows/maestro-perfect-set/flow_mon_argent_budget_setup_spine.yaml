@@ -148,6 +148,10 @@ tags:
     id: "budget_data_quality_banner"
 - assertVisible:
     id: "budget_calculation_detail_toggle"
+- tapOn:
+    id: "budget_calculation_detail_toggle"
+- waitForAnimationToEnd:
+    timeout: 2000
 - assertVisible:
     id: "budget_formula_proof"
 - assertVisible:
