@@ -1,6 +1,8 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/domain/budget/budget_service.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 // ────────────────────────────────────────────────────────────
@@ -220,18 +222,23 @@ class FinancialFitnessService {
 
   static SubScore _calculateBudget(CoachProfile profile) {
     final criteria = <ScoreCriterion>[];
+    final budgetInputs = BudgetInputs.fromCoachProfile(profile);
+    final budgetPlan = BudgetService().computePlan(budgetInputs);
+    final presentBudget = PresentBudgetBuilder.fromInputs(
+      inputs: budgetInputs,
+      plan: budgetPlan,
+    );
+    final revenuNet = presentBudget.monthlyNet;
+    final plannedSavings =
+        PresentBudgetBuilder.displayChf(profile.totalContributionsMensuelles);
 
     // 1. Reste a vivre > 20% du revenu (0-25 points)
-    final resteAVivre = profile.resteAVivreMensuel;
-    final revenuNet = NetIncomeBreakdown.compute(
-      grossSalary: profile.salaireBrutMensuel * 12,
-      canton: profile.canton,
-      age: profile.age,
-    ).monthlyNetPayslip;
+    final resteAVivre = presentBudget.monthlyFree - plannedSavings;
     final ratioResteAVivre = revenuNet > 0 ? resteAVivre / revenuNet : 0.0;
-    final pointsResteAVivre = ratioResteAVivre >= 0.20
+    final scoringRatio = ratioResteAVivre.clamp(0.0, 1.0).toDouble();
+    final pointsResteAVivre = scoringRatio >= 0.20
         ? 25
-        : (ratioResteAVivre / 0.20 * 25).round().clamp(0, 25);
+        : (scoringRatio / 0.20 * 25).round().clamp(0, 25);
     criteria.add(ScoreCriterion(
       id: 'reste_a_vivre',
       label: 'Reste a vivre',
@@ -243,10 +250,7 @@ class FinancialFitnessService {
     ));
 
     // 2. Fonds d'urgence >= 3 mois (0-25 points)
-    final depensesMensuelles = profile.totalDepensesMensuelles;
-    final epargneLiquide = profile.patrimoine.epargneLiquide;
-    final moisCouverts =
-        depensesMensuelles > 0 ? epargneLiquide / depensesMensuelles : 0.0;
+    final moisCouverts = budgetPlan.emergencyFundMonths;
     final pointsFondsUrgence = moisCouverts >= 6
         ? 25
         : moisCouverts >= 3
