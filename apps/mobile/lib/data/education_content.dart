@@ -402,13 +402,13 @@ class EducationContentData {
           'L\'assurance maladie (LAMal) est obligatoire en Suisse, mais les '
           'primes varient du simple au double selon le canton et la caisse. '
           'Choisir la bonne franchise et vérifier ton droit aux subsides '
-          'peut te faire économiser des centaines de francs par an.',
+          'peut réduire tes primes de plusieurs centaines de francs par an.',
       keyFacts: [
         'Les primes varient énormément selon le canton (GE et BS sont les plus chers)',
-        'Franchise 300 vs 2\'500 : économie de prime d\'environ 1\'500 CHF/an, mais risque accru',
+        'Franchise 300 vs 2\'500 : prime souvent plus basse d\'environ 1\'500 CHF/an selon la caisse, mais risque accru',
         'Subsides disponibles dans tous les cantons — critères de revenu variables',
         'Délai pour changer de caisse : 30 novembre de chaque année',
-        'Les modèles alternatifs (médecin de famille, HMO, télmed) offrent 10-20% de réduction',
+        'Les modèles alternatifs (médecin de famille, HMO, télémédecine) peuvent offrir environ 10 à 20% de réduction selon la caisse',
       ],
       quiz: QuizQuestion(
         question:
@@ -426,10 +426,10 @@ class EducationContentData {
             'sont annoncees fin septembre — compare des octobre.',
       ),
       funFact:
-          'En passant de la franchise 300 a 2\'500, tu economises '
-          'environ 1\'500 CHF/an de primes. Mais une seule hospitalisation '
-          'peut te couter 2\'200 CHF de plus. Le bon choix depend de ta '
-          'sante et de ton epargne disponible.',
+          'En passant de la franchise 300 à 2\'500, la prime peut baisser '
+          'd\'environ 1\'500 CHF/an selon la caisse et le canton. Mais une '
+          'seule hospitalisation peut te coûter 2\'200 CHF de plus. Le bon '
+          'choix dépend de ta santé et de ton épargne disponible.',
       sources: [
         'LAMal art. 61-65 (Primes et subsides)',
         'LAMal art. 62 (Participation aux couts, franchises)',
