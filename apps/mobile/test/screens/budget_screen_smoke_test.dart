@@ -213,7 +213,7 @@ void main() {
   });
 
   testWidgets(
-      'BudgetScreen top breakdown subtracts future envelope from available',
+      'BudgetScreen hero formula subtracts future envelope from available',
       (tester) async {
     const inputs = BudgetInputs(
       payFrequency: PayFrequency.monthly,
@@ -249,11 +249,59 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
-    expect(find.text('Futur'), findsWidgets);
-    expect(find.text("– CHF\u00a0700"), findsWidgets);
-    expect(find.text("CHF\u00a01'539"), findsWidgets);
+    expect(find.byKey(const Key('budget_hero_formula')), findsOneWidget);
+    expect(
+      find.text(
+          "CHF\u00a05'379 − CHF\u00a03'140 − CHF\u00a0700 = CHF\u00a01'539"),
+      findsOneWidget,
+    );
+    expect(find.text("– CHF\u00a0700"), findsNothing);
     expect(find.text("CHF\u00a02'939"), findsNothing);
     expect(find.text("CHF\u00a02'239"), findsNothing);
+  });
+
+  testWidgets('BudgetScreen hero formula omits zero future envelope',
+      (tester) async {
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 5379,
+      housingCost: 2200,
+      debtPayments: 0,
+      taxProvision: 520,
+      healthInsurance: 420,
+      style: BudgetStyle.envelopes3,
+    );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetScreen(inputs: inputs),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.byKey(const Key('budget_hero_formula')), findsOneWidget);
+    expect(
+      find.text("CHF\u00a05'379 − CHF\u00a03'140 = CHF\u00a02'239"),
+      findsOneWidget,
+    );
+    expect(find.textContaining("− CHF\u00a00"), findsNothing);
+    expect(find.byKey(const Key('budget_debt_disclosure')), findsNothing);
   });
 
   testWidgets('BudgetScreen exposes Maestro semantics anchors', (tester) async {
@@ -527,15 +575,12 @@ void main() {
     );
     // BudgetInputs.fromCoachProfile currently spreads total debts over 36 months.
     expect(budgetProvider.inputs?.debtPayments, closeTo(333.33, 0.01));
-    expect(find.text('Remboursement dettes'), findsWidgets);
+    expect(find.text('Remboursement dettes: CHF\u00a0333'), findsWidgets);
     expect(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is Text &&
-            (widget.data?.contains('CHF') ?? false) &&
-            (widget.data?.contains('333') ?? false),
-      ),
-      findsWidgets,
+      tester
+          .getSemantics(find.byKey(const Key('budget_debt_disclosure')))
+          .identifier,
+      'budget_debt_disclosure',
     );
   });
 

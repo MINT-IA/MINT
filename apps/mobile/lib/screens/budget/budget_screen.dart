@@ -307,9 +307,9 @@ class _BudgetScreenState extends State<BudgetScreen>
                                     _staggeredEntry(
                                         index: 0,
                                         child: _buildHeader(
-                                            l: l,
-                                            present: flowPresent,
-                                            plan: plan)),
+                                          l: l,
+                                          present: flowPresent,
+                                        )),
                                     const SizedBox(height: MintSpacing.md),
 
                                     _staggeredEntry(
@@ -574,13 +574,9 @@ class _BudgetScreenState extends State<BudgetScreen>
     );
   }
 
-  double _displayChf(double value) =>
-      value.isFinite ? value.roundToDouble() : 0;
-
   Widget _buildHeader({
     required S l,
     required PresentBudget present,
-    required BudgetPlan plan,
   }) {
     final heroFree = present.monthlyFree;
     final isPositive = heroFree >= 0;
@@ -603,153 +599,60 @@ class _BudgetScreenState extends State<BudgetScreen>
             semanticsLabel:
                 '${formatChfWithPrefix(heroFree)} ${l.budgetAvailableThisMonth}',
           ),
-          const SizedBox(height: MintSpacing.xl),
-
-          // Breakdown in MintSurface (craie — warm, no border)
-          _buildBreakdown(l, plan, present),
+          const SizedBox(height: MintSpacing.sm),
+          _buildHeroFormula(l: l, present: present),
+          if (widget.inputs.debtPayments > 0) ...[
+            const SizedBox(height: MintSpacing.xs),
+            _buildDebtDisclosure(l),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildBreakdown(S l, BudgetPlan plan, PresentBudget present) {
-    final income = _displayChf(widget.inputs.netIncome);
-    final housing = _displayChf(widget.inputs.housingCost);
-    final debt = _displayChf(widget.inputs.debtPayments);
-    final taxes = _displayChf(widget.inputs.taxProvision);
-    final health = _displayChf(widget.inputs.healthInsurance);
-    final otherFixed = _displayChf(widget.inputs.otherFixedCosts);
-    final future = _displayChf(plan.future);
-    final available = present.monthlyFree;
+  Widget _buildHeroFormula({
+    required S l,
+    required PresentBudget present,
+  }) {
+    final formula = present.monthlySavings > 0
+        ? '${formatChfWithPrefix(present.monthlyNet)} − '
+            '${formatChfWithPrefix(present.monthlyCharges)} − '
+            '${formatChfWithPrefix(present.monthlySavings)} = '
+            '${formatChfWithPrefix(present.monthlyFree)}'
+        : '${formatChfWithPrefix(present.monthlyNet)} − '
+            '${formatChfWithPrefix(present.monthlyCharges)} = '
+            '${formatChfWithPrefix(present.monthlyFree)}';
 
-    return MintSurface(
-      tone: MintSurfaceTone.craie,
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      radius: 16,
-      child: Column(
-        children: [
-          _breakdownRow(l.budgetNetIncome, income, isPositive: true),
-          if (housing > 0) ...[
-            const SizedBox(height: MintSpacing.sm),
-            _breakdownRow(l.budgetHousing, housing),
-          ],
-          if (debt > 0) ...[
-            const SizedBox(height: MintSpacing.sm),
-            _breakdownRow(l.budgetDebtRepayment, debt),
-          ],
-          const SizedBox(height: MintSpacing.sm),
-          _breakdownRow(
-            taxes > 0 ? l.budgetTaxProvision : l.budgetTaxProvisionNotProvided,
-            taxes,
-            qualityTag: widget.inputs.isTaxEstimated
-                ? l.budgetQualityEstimated
-                : l.budgetQualityProvided,
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          _breakdownRow(
-            health > 0
-                ? l.budgetHealthInsurance
-                : l.budgetHealthInsuranceNotProvided,
-            health,
-            qualityTag: widget.inputs.isHealthMissing
-                ? l.budgetQualityMissing
-                : widget.inputs.isHealthEstimated
-                    ? l.budgetQualityEstimated
-                    : l.budgetQualityProvided,
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          _breakdownRow(
-            otherFixed > 0
-                ? l.budgetOtherFixedCosts
-                : l.budgetOtherFixedCostsNotProvided,
-            otherFixed,
-            qualityTag: widget.inputs.isOtherFixedMissing
-                ? l.budgetQualityMissing
-                : l.budgetQualityProvided,
-          ),
-          if (future > 0) ...[
-            const SizedBox(height: MintSpacing.sm),
-            _breakdownRow(l.budgetFuture, future),
-          ],
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: MintSpacing.sm),
-            child: Divider(height: 1),
-          ),
-          _breakdownRow(
-            l.budgetAvailable,
-            available,
-            isPositive: true,
-            isBold: true,
-            valueColor: available < 0 ? MintColors.error : MintColors.primary,
-          ),
-        ],
+    return Semantics(
+      key: const Key('budget_hero_formula'),
+      container: true,
+      identifier: 'budget_hero_formula',
+      excludeSemantics: true,
+      label: '${l.budgetAvailableThisMonth}: '
+          '${formatChfWithPrefix(present.monthlyFree)}. $formula',
+      child: Text(
+        formula,
+        textAlign: TextAlign.center,
+        style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
       ),
     );
   }
 
-  Widget _breakdownRow(String label, double amount,
-      {bool isPositive = false,
-      bool isBold = false,
-      String? qualityTag,
-      Color? valueColor}) {
-    final sign = isPositive ? '' : '– ';
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-          child: Text(
-            label,
-            style: MintTextStyles.bodySmall(
-              color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
-            ).copyWith(
-              fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (qualityTag != null && !isBold) ...[
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                margin: const EdgeInsets.only(right: MintSpacing.sm),
-                decoration: BoxDecoration(
-                  color: qualityTag == S.of(context)!.budgetQualityProvided
-                      ? MintColors.success.withValues(alpha: 0.12)
-                      : qualityTag == S.of(context)!.budgetQualityEstimated
-                          ? MintColors.warning.withValues(alpha: 0.12)
-                          : MintColors.textMuted.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  qualityTag,
-                  style: MintTextStyles.labelSmall(
-                    color: qualityTag == S.of(context)!.budgetQualityProvided
-                        ? MintColors.success
-                        : qualityTag == S.of(context)!.budgetQualityEstimated
-                            ? MintColors.warning
-                            : MintColors.textSecondary,
-                  ).copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-            Text(
-              '$sign${formatChfWithPrefix(amount)}',
-              style: MintTextStyles.bodySmall(
-                color: valueColor ??
-                    (isBold
-                        ? MintColors.primary
-                        : isPositive
-                            ? MintColors.textPrimary
-                            : MintColors.error),
-              ).copyWith(
-                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ],
+  Widget _buildDebtDisclosure(S l) {
+    final label =
+        '${l.budgetDebtRepayment}: ${formatChfWithPrefix(widget.inputs.debtPayments)}';
+    return Semantics(
+      key: const Key('budget_debt_disclosure'),
+      container: true,
+      identifier: 'budget_debt_disclosure',
+      excludeSemantics: true,
+      label: label,
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: MintTextStyles.labelSmall(color: MintColors.terracotta)
+            .copyWith(fontWeight: FontWeight.w700),
+      ),
     );
   }
 
@@ -1013,8 +916,7 @@ class _BudgetScreenState extends State<BudgetScreen>
       child: Semantics(
         button: true,
         label: label,
-        child: OutlinedButton(
-          // lint-ignore: prefer_mint_cta
+        child: OutlinedButton( // lint-ignore: prefer_mint_cta
           onPressed: () => context.push(route),
           child: Text(label),
         ),
