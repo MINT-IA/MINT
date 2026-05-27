@@ -268,18 +268,15 @@ class ArbitrageSummaryService {
         (result.capitalRetraitMensuel - result.renteNetMensuelle).abs();
     if (diff < 10) return null;
 
-    final betterLabel = result.capitalRetraitMensuel > result.renteNetMensuelle
-        ? 'retrait en capital'
-        : 'rente viagere';
-
     return ArbitrageSummaryItem(
       id: 'rente_vs_capital',
       title: 'Rente vs Capital',
       verdict:
-          'L\'option $betterLabel pourrait donner +${formatChfWithPrefix(diff)}/mois nets',
+          'Écart de flux net simulé : ${formatChfWithPrefix(diff)}/mois '
+          'entre rente viagère et retrait en capital',
       keyInsight:
-          'Le taux de conversion de 6.8% sur la part obligatoire equivaut '
-          'a un rendement implicite d\'environ 5%.',
+          'Le taux de conversion de 6.8% sur la part obligatoire équivaut '
+          'à un rendement implicite d\'environ 5%.',
       monthlyImpactChf: diff,
       confidenceScore: result.confidenceScore,
       route: '/rente-vs-capital',
@@ -347,9 +344,9 @@ class ArbitrageSummaryService {
       id: 'calendrier_retraits',
       title: 'Calendrier de retraits',
       verdict:
-          'Echelonner tes retraits pourrait economiser ~${formatChfWithPrefix(saving)} d\'impot',
-      keyInsight: 'En Suisse, les retraits de prévoyance sont taxes '
-          'progressivement — retirer tout la meme annee coute significativement plus.',
+          'Impact fiscal indicatif de l\'échelonnement : ~${formatChfWithPrefix(saving)}',
+      keyInsight: 'En Suisse, les retraits de prévoyance sont taxés '
+          'progressivement ; le regroupement sur une même année change le taux effectif.',
       monthlyImpactChf:
           saving / (profile.anneesAvantRetraite * 12).clamp(1, 999),
       confidenceScore: result.confidenceScore,
@@ -407,9 +404,9 @@ class ArbitrageSummaryService {
       id: 'rachat_vs_marche',
       title: 'Rachat LPP vs Marche',
       verdict:
-          'Un rachat de ${formatChfWithPrefix(montant)} pourrait reduire ton impot de ~${formatChfWithPrefix(taxSaving)}',
-      keyInsight: 'L\'economie fiscale du rachat est immediate, mais ton '
-          'capital est bloque jusqu\'a la retraite (LPP art. 79b).',
+          'Impact fiscal indicatif d\'un rachat de ${formatChfWithPrefix(montant)} : ~${formatChfWithPrefix(taxSaving)}',
+      keyInsight: 'Le rachat LPP crée une déduction fiscale immédiate, avec '
+          'un capital bloqué jusqu\'à la retraite (LPP art. 79b).',
       monthlyImpactChf: taxSaving / 12,
       confidenceScore: result.confidenceScore,
       route: '/rachat-lpp',
@@ -451,8 +448,8 @@ class ArbitrageSummaryService {
       verdict:
           '${formatChfWithPrefix(reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp))} a placer — 3a, rachat LPP ou libre, les trajectoires divergent',
       keyInsight:
-          'Le 3e pilier offre une deduction fiscale immediate et un rendement '
-          'net apres impot souvent superieur.',
+          'Le 3e pilier combine déduction fiscale et horizon bloqué ; '
+          'le résultat dépend du taux marginal, du rendement et du besoin de liquidité.',
       monthlyImpactChf: impact3a,
       confidenceScore: result.confidenceScore,
       route: '/arbitrage/allocation-annuelle',
@@ -490,15 +487,13 @@ class ArbitrageSummaryService {
     final deltaMonthly = delta / (20 * 12);
     if (deltaMonthly < 50) return null;
 
-    final betterLabel = proprio > locataire ? 'acheter' : 'rester locataire';
-
     return ArbitrageSummaryItem(
       id: 'location_vs_propriete',
       title: 'Location vs Propriete',
       verdict:
-          'Sur 20 ans, $betterLabel pourrait generer ~${formatChfWithPrefix(delta)} de patrimoine net en plus',
-      keyInsight: 'La propriete bloque 20% de fonds propres a rendement nul — '
-          'un cout d\'opportunite rarement mesure.',
+          'Écart de patrimoine net simulé sur 20 ans : ~${formatChfWithPrefix(delta)} entre location et propriété',
+      keyInsight: 'La propriété bloque 20% de fonds propres hors marché ; '
+          'c\'est un coût d\'opportunité à mesurer avec les frais et la flexibilité.',
       monthlyImpactChf: deltaMonthly,
       confidenceScore: result.confidenceScore,
       route: '/arbitrage/location-vs-propriete',
@@ -525,6 +520,9 @@ class ArbitrageSummaryService {
     final monthlyImpact =
         result.taxSaving / (profile.anneesAvantRetraite * 12).clamp(1, 999);
 
+    final summaryCopy =
+        'Impact fiscal indicatif de l\'échelonnement : ${formatChfWithPrefix(result.taxSaving)}.';
+
     // Build a minimal ArbitrageResult to satisfy the fullResult field
     final fullResult = ArbitrageResult(
       options: [
@@ -544,9 +542,8 @@ class ArbitrageSummaryService {
         ),
       ],
       breakevenYear: null,
-      premierEclairage:
-          '${formatChfWithPrefix(result.taxSaving)} d\'impot en moins en echelonnant les retraits',
-      displaySummary: result.recommendation,
+      premierEclairage: summaryCopy,
+      displaySummary: summaryCopy,
       hypotheses: const [
         'Taux cantonal applique au capital LPP retire',
         'Retraits en 2 annees fiscales distinctes',
@@ -561,9 +558,9 @@ class ArbitrageSummaryService {
     return ArbitrageSummaryItem(
       id: 'couple_sequencing',
       title: 'Echelonnement couple',
-      verdict: result.recommendation,
-      keyInsight: 'Retirer le capital LPP en 2 annees fiscales distinctes '
-          'reduit la progressivite de l\'impot (LIFD art. 38).',
+      verdict: summaryCopy,
+      keyInsight: 'Retirer le capital LPP en 2 années fiscales distinctes '
+          'modifie la progressivité de l\'impôt (LIFD art. 38).',
       monthlyImpactChf: monthlyImpact,
       confidenceScore: 60.0,
       route: '/decaissement',

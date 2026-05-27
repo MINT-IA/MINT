@@ -241,7 +241,7 @@ void main() {
     });
 
     // ── Test 11: No ranking — compliance rule ─────────────────
-    test('no item verdict contains banned ranking terms', () {
+    test('no item visible copy contains ranking or tax-promise phrases', () {
       final profile = _buildProfile(
         avoirLppTotal: 300000,
         totalEpargne3a: 50000,
@@ -253,15 +253,45 @@ void main() {
       );
       final summary = ArbitrageSummaryService.compute(profile);
 
+      final offenders = <String>[];
+      const bannedFragments = [
+        'meilleur',
+        'optimal',
+        'garanti',
+        "l'option",
+        'l’option',
+        'pourrait donner',
+        'pourrait economiser',
+        'pourrait réduire',
+        'pourrait reduire',
+        'pourrait generer',
+        'pourrait générer',
+        'economie fiscale',
+        'économie fiscale',
+        'superieur',
+        'supérieur',
+      ];
+
       for (final item in summary.items) {
-        final lower = item.verdict.toLowerCase();
-        expect(lower.contains('meilleur'), false,
-            reason: 'Verdict should not contain "meilleur" (no-ranking rule)');
-        expect(lower.contains('optimal'), false,
-            reason: 'Verdict should not contain "optimal" (no-ranking rule)');
-        expect(lower.contains('garanti'), false,
-            reason: 'Verdict should not contain "garanti" (banned term)');
+        final lower = [
+          item.title,
+          item.verdict,
+          item.keyInsight,
+          item.fullResult.premierEclairage,
+          item.fullResult.displaySummary,
+          ...item.fullResult.hypotheses,
+          ...item.fullResult.alertes,
+          item.fullResult.disclaimer,
+        ].join(' ').toLowerCase();
+
+        for (final fragment in bannedFragments) {
+          if (lower.contains(fragment)) {
+            offenders.add('${item.id}: $fragment -> $lower');
+          }
+        }
       }
+
+      expect(offenders, isEmpty);
     });
 
     // ── Test 12: Single person — no couple_sequencing ─────────

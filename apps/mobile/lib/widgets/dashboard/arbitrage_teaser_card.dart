@@ -111,15 +111,12 @@ class ArbitrageTeaserSection extends StatelessWidget {
 
       final diff = (monthlyMixed - monthlyFullRente).abs();
       if (diff > 50) {
-        final betterOption = monthlyMixed > monthlyFullRente
-            ? '60% rente + 40% capital'
-            : '100% rente';
         teasers.add(_TeaserData(
           icon: Icons.compare_arrows_rounded,
           color: MintColors.purple,
           title: 'Rente vs Capital',
           premierEclairage:
-              'L\u2019option $betterOption pourrait donner +CHF\u00a0${_fmt(diff)}/mois nets',
+              'Écart de flux net simulé : CHF\u00a0${_fmt(diff)}/mois entre les variantes',
           route: '/rente-vs-capital',
         ));
       }

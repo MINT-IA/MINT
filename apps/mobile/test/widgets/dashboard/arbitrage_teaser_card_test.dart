@@ -39,6 +39,8 @@ void main() {
     expect(find.text('Calendrier de retraits'), findsOneWidget);
     expect(find.text('Rachat LPP'), findsOneWidget);
     expect(find.textContaining('impact fiscal indicatif'), findsWidgets);
+    expect(find.textContaining('L’option'), findsNothing);
+    expect(find.textContaining('pourrait donner'), findsNothing);
     expect(find.textContaining('pourrait économiser'), findsNothing);
     expect(find.textContaining('réduire ton impôt'), findsNothing);
     expect(find.textContaining('économie fiscale'), findsNothing);
