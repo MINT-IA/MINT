@@ -944,7 +944,7 @@ class SEs extends S {
       '¿Qué es el 3a y por qué todo el mundo habla de ello?';
 
   @override
-  String get eduTheme3aAction => 'Estimar mi ahorro fiscal';
+  String get eduTheme3aAction => 'Estimar el impacto fiscal';
 
   @override
   String get eduTheme3aReminder =>

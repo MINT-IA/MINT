@@ -946,7 +946,7 @@ class SDe extends S {
   String get eduTheme3aQuestion => 'Was ist 3a und warum reden alle darueber?';
 
   @override
-  String get eduTheme3aAction => 'Meine Steuerersparnis schaetzen';
+  String get eduTheme3aAction => 'Steuerwirkung schaetzen';
 
   @override
   String get eduTheme3aReminder =>

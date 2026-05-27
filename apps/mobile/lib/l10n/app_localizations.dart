@@ -1860,7 +1860,7 @@ abstract class S {
   /// No description provided for @eduTheme3aAction.
   ///
   /// In fr, this message translates to:
-  /// **'Estimer mon économie fiscale'**
+  /// **'Estimer l\'impact fiscal'**
   String get eduTheme3aAction;
 
   /// No description provided for @eduTheme3aReminder.

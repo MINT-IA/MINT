@@ -942,7 +942,7 @@ class SEn extends S {
       'What is 3a and why does everyone talk about it?';
 
   @override
-  String get eduTheme3aAction => 'Estimate my tax savings';
+  String get eduTheme3aAction => 'Estimate tax impact';
 
   @override
   String get eduTheme3aReminder =>

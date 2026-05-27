@@ -943,7 +943,7 @@ class SPt extends S {
       'O que é o 3a e porque é que todos falam dele?';
 
   @override
-  String get eduTheme3aAction => 'Estimar a minha poupança fiscal';
+  String get eduTheme3aAction => 'Estimar o impacto fiscal';
 
   @override
   String get eduTheme3aReminder =>

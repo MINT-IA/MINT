@@ -164,6 +164,33 @@ void main() {
         }
       }
     });
+
+    test('3a education action label says tax impact, not tax savings', () {
+      const expectedAnchors = {
+        'fr': 'impact fiscal',
+        'en': 'tax impact',
+        'de': 'steuerwirkung',
+        'es': 'impacto fiscal',
+        'it': 'impatto fiscale',
+        'pt': 'impacto fiscal',
+      };
+      const bannedFragments = [
+        'économie fiscale',
+        'tax savings',
+        'steuerersparnis',
+        'ahorro fiscal',
+        'risparmio fiscale',
+        'poupança fiscal',
+      ];
+
+      for (final locale in expectedAnchors.keys) {
+        final value = (arb(locale)['eduTheme3aAction'] as String).toLowerCase();
+        expect(value, contains(expectedAnchors[locale]), reason: locale);
+        for (final fragment in bannedFragments) {
+          expect(value, isNot(contains(fragment)), reason: locale);
+        }
+      }
+    });
   });
 
   // ── Helper: minimal answers for a valid report ──────────────────────

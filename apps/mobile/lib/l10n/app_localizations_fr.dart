@@ -945,7 +945,7 @@ class SFr extends S {
       'C\'est quoi le 3a et pourquoi tout le monde en parle ?';
 
   @override
-  String get eduTheme3aAction => 'Estimer mon économie fiscale';
+  String get eduTheme3aAction => 'Estimer l\'impact fiscal';
 
   @override
   String get eduTheme3aReminder =>

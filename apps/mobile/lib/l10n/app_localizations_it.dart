@@ -947,7 +947,7 @@ class SIt extends S {
   String get eduTheme3aQuestion => 'Cos\'è il 3a e perché tutti ne parlano?';
 
   @override
-  String get eduTheme3aAction => 'Stimare il mio risparmio fiscale';
+  String get eduTheme3aAction => 'Stimare l\'impatto fiscale';
 
   @override
   String get eduTheme3aReminder =>
