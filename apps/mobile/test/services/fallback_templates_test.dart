@@ -207,7 +207,8 @@ void main() {
       );
       expect(result, contains('3a'));
       expect(result, contains("2'500"));
-      expect(result, contains('imp\u00f4t'));
+      expect(result, contains('Impact fiscal indicatif'));
+      expect(result, isNot(contains('réduire ton impôt')));
     });
 
     test('liquidity alert (< 3 months)', () {
@@ -247,7 +248,9 @@ void main() {
       // Should contain enrichment action or contextual fallback
       expect(result, isNotEmpty);
       expect(
-        result.contains('LPP') || result.contains('AVS') || result.contains('projections'),
+        result.contains('LPP') ||
+            result.contains('AVS') ||
+            result.contains('projections'),
         isTrue,
       );
     });
@@ -283,7 +286,9 @@ void main() {
       expect(result, contains('40'));
       // Should suggest enrichment
       expect(
-        result.contains('profil') || result.contains('LPP') || result.contains('pr\u00e9cise'),
+        result.contains('profil') ||
+            result.contains('LPP') ||
+            result.contains('pr\u00e9cise'),
         isTrue,
       );
     });
@@ -309,6 +314,8 @@ void main() {
     test('3a block type mentions 3a', () {
       final result = FallbackTemplates.enrichmentGuide(_ctx(), '3a');
       expect(result, contains('3a'));
+      expect(result, contains('marge déductible'));
+      expect(result, isNot(contains('avantage fiscal')));
     });
 
     test('patrimoine block type mentions patrimoine', () {
@@ -334,8 +341,7 @@ void main() {
     });
 
     test('unknown block type returns generic message', () {
-      final result =
-          FallbackTemplates.enrichmentGuide(_ctx(), 'unknownBlock');
+      final result = FallbackTemplates.enrichmentGuide(_ctx(), 'unknownBlock');
       expect(result, contains('projections'));
     });
 
@@ -392,8 +398,7 @@ void main() {
     });
 
     test('handles empty canton gracefully', () {
-      final result =
-          FallbackTemplates.successionPlanning(_ctx(canton: ''));
+      final result = FallbackTemplates.successionPlanning(_ctx(canton: ''));
       // Should not crash or show "canton de "
       expect(result, isNotEmpty);
     });
@@ -433,6 +438,24 @@ void main() {
       final result = FallbackTemplates.disabilityBridge(_ctx());
       expect(result, contains('LAI art. 28'));
       expect(result, contains('LPP art. 23'));
+    });
+  });
+
+  group('FallbackTemplates life-stage guidance', () {
+    test('firstJobGuidance frames 3a as deductible room, not tax promise', () {
+      final result = FallbackTemplates.firstJobGuidance(_ctx());
+
+      expect(result, contains('marge maximale salarié LPP'));
+      expect(result, contains("CHF\u00a07'258"));
+      expect(result, isNot(contains('réduire tes impôts')));
+    });
+
+    test('selfEmploymentGuidance uses formatted 3a ceiling', () {
+      final result = FallbackTemplates.selfEmploymentGuidance(_ctx());
+
+      expect(result, contains('20\u00a0% du revenu net'));
+      expect(result, contains("CHF\u00a036'288"));
+      expect(result, isNot(contains('36\u00a0288')));
     });
   });
 
@@ -504,10 +527,27 @@ void main() {
       );
     });
 
+    test('life-stage guidance contains no banned terms', () {
+      _assertNoBannedTerms(
+        FallbackTemplates.firstJobGuidance(baseCtx),
+        'firstJobGuidance',
+      );
+      _assertNoBannedTerms(
+        FallbackTemplates.selfEmploymentGuidance(baseCtx),
+        'selfEmploymentGuidance',
+      );
+    });
+
     test('enrichmentGuide all blocks contain no banned terms', () {
       for (final block in [
-        'lpp', 'avs', '3a', 'patrimoine', 'fiscalite',
-        'objectifRetraite', 'compositionMenage', 'unknown',
+        'lpp',
+        'avs',
+        '3a',
+        'patrimoine',
+        'fiscalite',
+        'objectifRetraite',
+        'compositionMenage',
+        'unknown',
       ]) {
         _assertNoBannedTerms(
           FallbackTemplates.enrichmentGuide(baseCtx, block),
