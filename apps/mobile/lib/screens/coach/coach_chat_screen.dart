@@ -60,8 +60,6 @@ import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 import 'package:mint_mobile/models/screen_return.dart';
-import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
-    show VoicePreference;
 import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart' show CapCoachBridge;
 
@@ -214,12 +212,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// this flag prevents re-showing within a single screen lifetime.
   bool _proactiveTriggerShownThisSession = false;
 
-  /// Whether the user has already chosen an intensity (hides picker chips).
-  bool _intensityChosen = false;
-
-  /// Whether the cash level has been loaded from SharedPreferences.
-  bool _cashLevelLoaded = false;
-
   /// SharedPreferences key for voice intensity level.
   static const String _cashLevelKey = 'mint_coach_cash_level';
 
@@ -274,18 +266,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final level = prefs.getInt(_cashLevelKey);
       if (mounted) {
         setState(() {
-          _cashLevelLoaded = true;
-          if (level != null) {
-            _cashLevel = level.clamp(1, 5);
-            _intensityChosen = true;
-          }
+          _cashLevel = (level ?? 3).clamp(1, 5);
         });
       }
     } catch (e) {
-      // Graceful degradation: default level 3, show picker.
-      if (mounted) {
-        setState(() => _cashLevelLoaded = true);
-      }
+      // Graceful degradation: keep default direct level.
     }
   }
 
@@ -2151,14 +2136,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   // ════════════════════════════════════════════════════════════
-  //  SILENT OPENER WITH TONE CHIPS (CHAT-05)
+  //  SILENT OPENER
   // ════════════════════════════════════════════════════════════
 
-  /// Silent opener + optional intensity chips. One visual anchor at a time:
-  /// if the profile carries a key number or intent override, show that;
-  /// otherwise the SilentOpener's own minimal empty state renders — no
-  /// piquant random greeting (deprecated 2026-04-18 — performative voice
-  /// was fatiguing users who open the app daily; calm minimalism wins).
+  /// Silent opener. One visual anchor at a time: if the profile carries a key
+  /// number or intent override, show that; otherwise the SilentOpener's own
+  /// minimal empty state renders — no tone chips and no random greeting.
   Widget _buildSilentOpenerWithTone() {
     final Widget hero = _buildSilentOpener();
 
@@ -2166,19 +2149,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       child: SingleChildScrollView(child: hero),
     );
 
-    if (_intensityChosen || !_cashLevelLoaded) {
-      return Column(children: [body]);
-    }
-
-    return Column(
-      children: [
-        body,
-        Padding(
-          padding: const EdgeInsets.only(left: 42, right: 24, bottom: 16),
-          child: _buildIntensityChips(),
-        ),
-      ],
-    );
+    return Column(children: [body]);
   }
 
   // ════════════════════════════════════════════════════════════
@@ -2455,20 +2426,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             );
           }
 
-          // Wrap with intensity picker for first assistant message if needed.
-          final bool showIntensity = _cashLevelLoaded &&
-              !_intensityChosen &&
-              index == 0 &&
-              msg.isAssistant &&
-              !(_isStreaming && msg == _messages.last);
-
           // Show transparency badge under the first assistant response in session.
           final bool isFirstAssistantInSession = msg.isAssistant &&
               !(_isStreaming && msg == _messages.last) &&
               index == _messages.indexWhere((m) => m.isAssistant);
 
-          final Widget wrappedChild = (showIntensity ||
-                  isFirstAssistantInSession)
+          final Widget wrappedChild = isFirstAssistantInSession
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -2504,13 +2467,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                         ),
                       ),
                     ],
-                    if (showIntensity) ...[
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 42),
-                        child: _buildIntensityChips(),
-                      ),
-                    ],
                   ],
                 )
               : child;
@@ -2534,97 +2490,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         },
       ),
     );
-  }
-
-  /// CHAT-05: Build tone preference chips (Doux / Direct / Sans filtre).
-  ///
-  /// Shown once in the first conversation after the first assistant message.
-  /// Maps to VoicePreference enum and persists via CoachProfileProvider.
-  Widget _buildIntensityChips() {
-    final chips = <MapEntry<VoicePreference, String>>[
-      const MapEntry(VoicePreference.soft, 'Doux'),
-      const MapEntry(VoicePreference.direct, 'Direct'),
-      const MapEntry(VoicePreference.unfiltered, 'Sans filtre'),
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          // Was 'Au fait, tu préfères que je sois plutôt…' — the dangling
-          // ellipsis read as a truncation bug and the chips below already
-          // list the options, making the long phrasing redundant.
-          'Comment je te parle\u00a0?',
-          style: MintTextStyles.bodyMedium(
-            color: MintColors.textSecondary,
-          ).copyWith(height: 1.4),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 10,
-          children: chips.map((entry) {
-            return GestureDetector(
-              onTap: () => _onTonePreferenceSelected(entry.key),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: MintColors.porcelaine,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: MintColors.border.withValues(alpha: 0.3),
-                    width: 0.5,
-                  ),
-                ),
-                child: Text(
-                  entry.value,
-                  style: MintTextStyles.bodySmall(
-                    color: MintColors.textPrimary,
-                  ).copyWith(
-                    height: 1.3,
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  /// CHAT-05: Handle tone preference chip selection.
-  void _onTonePreferenceSelected(VoicePreference pref) {
-    final int level;
-    final String confirmation;
-    switch (pref) {
-      case VoicePreference.soft:
-        level = 1;
-        confirmation = 'Not\u00e9. Je serai tout en douceur.';
-      case VoicePreference.direct:
-        level = 3;
-        confirmation = 'Compris. Je vais droit au but.';
-      case VoicePreference.unfiltered:
-        level = 5;
-        confirmation = 'OK. Accroche-toi, je ne filtre rien.';
-    }
-
-    final provider = context.read<CoachProfileProvider>();
-    provider.setVoiceCursorPreference(pref);
-
-    setState(() {
-      _cashLevel = level;
-      _intensityChosen = true;
-      _showSilentOpener = false;
-      _messages.add(ChatMessage(
-        role: 'assistant',
-        content: confirmation,
-        timestamp: DateTime.now(),
-        tier: ChatTier.none,
-      ));
-    });
-    _saveCashLevel(level);
-    _scrollToBottom();
   }
 }
 

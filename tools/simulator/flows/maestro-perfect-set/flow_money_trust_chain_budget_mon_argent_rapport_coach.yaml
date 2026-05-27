@@ -161,6 +161,12 @@ tags:
     text: ".*1'922.*"
 - assertVisible:
     text: ".*après tes charges.*"
+- assertNotVisible: "Comment je te parle"
+# Do not assert "Direct" globally: valid Coach copy may use direct-tone words.
+- assertNotVisible:
+    text: "^Doux$"
+- assertNotVisible:
+    text: "^Sans filtre$"
 - assertNotVisible: "Ton 3a.*déductibles"
 - assertNotVisible: "économie d'impôt en jeu"
 - assertNotVisible: "19'272'200"
