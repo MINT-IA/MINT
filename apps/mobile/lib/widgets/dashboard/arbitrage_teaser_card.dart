@@ -12,8 +12,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 //
 //  3 cartes teaser affichant des chiffres chocs rapides :
 //    1. Rente vs Capital — blendedMonthly comparison
-//    2. Calendrier retraits — staggering tax saving estimate
-//    3. Rachat LPP — tax saving from buyback
+//    2. Calendrier retraits — indicative tax impact from staggering
+//    3. Rachat LPP — indicative tax impact from buyback
 //
 //  Visible uniquement si age >= 45 (State A).
 //  Estimations rapides depuis financial_core, pas de calcul lourd.
@@ -125,7 +125,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
       }
     }
 
-    // 2. Calendrier retraits — estimate staggering tax saving
+    // 2. Calendrier retraits — estimate indicative staggering impact
     final total3a = profile.prevoyance.totalEpargne3a;
     if (lppAvoir > 0 && total3a > 0) {
       // Rough estimate: unstaggered = all in one year → higher progressive rate
@@ -150,7 +150,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
           color: MintColors.info,
           title: 'Calendrier de retraits',
           premierEclairage:
-              '\u00c9chelonner tes retraits pourrait \u00e9conomiser ~CHF\u00a0${_fmt(saving)} d\u2019imp\u00f4t',
+              '\u00c9chelonner tes retraits\u00a0: impact fiscal indicatif ~CHF\u00a0${_fmt(saving)}',
           route: '/decaissement',
         ));
       }
@@ -173,7 +173,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
         color: MintColors.success,
         title: 'Rachat LPP',
         premierEclairage:
-            'Un rachat de CHF\u00a0${_fmt(lacune)} pourrait r\u00e9duire ton imp\u00f4t de ~CHF\u00a0${_fmt(saving)}',
+            'Un rachat de CHF\u00a0${_fmt(lacune)}\u00a0: impact fiscal indicatif ~CHF\u00a0${_fmt(saving)}',
         route: '/rachat-lpp',
       ));
     }
