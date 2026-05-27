@@ -57,16 +57,33 @@ class ArbitrageLocked {
   });
 }
 
+/// A protective state that intentionally suppresses optimization arbitrages.
+class ArbitrageProtection {
+  final String id;
+  final String title;
+  final String actionPrompt;
+  final String route;
+
+  const ArbitrageProtection({
+    required this.id,
+    required this.title,
+    required this.actionPrompt,
+    required this.route,
+  });
+}
+
 /// Full summary of all arbitrages for a given profile.
 class ArbitrageSummary {
   final List<ArbitrageSummaryItem> items;
   final List<ArbitrageLocked> lockedItems;
+  final List<ArbitrageProtection> protectionItems;
   final double aggregateMonthlyImpact;
   final DateTime computedAt;
 
   const ArbitrageSummary({
     required this.items,
     required this.lockedItems,
+    required this.protectionItems,
     required this.aggregateMonthlyImpact,
     required this.computedAt,
   });
@@ -82,15 +99,16 @@ class ArbitrageSummaryService {
   static ArbitrageSummary compute(CoachProfile profile, {S? l}) {
     final items = <ArbitrageSummaryItem>[];
     final locked = <ArbitrageLocked>[];
+    final protections = <ArbitrageProtection>[];
     final hasDebtPriority = profile.hasMaterialConsumerDebtForPriority;
 
     if (hasDebtPriority) {
-      locked.add(ArbitrageLocked(
+      protections.add(ArbitrageProtection(
         id: 'debt_protection',
         title: l?.reportSafeModePriority ?? 'Priorité au désendettement',
-        missingDataPrompt: l?.reportSafeModeActions ??
+        actionPrompt: l?.reportSafeModeActions ??
             'Stabilise ta situation avant les optimisations 3a/LPP.',
-        enrichmentRoute: '/debt/ratio',
+        route: '/debt/ratio',
       ));
     }
 
@@ -116,8 +134,8 @@ class ArbitrageSummaryService {
       locked.add(ArbitrageLocked(
         id: 'rente_vs_capital',
         title: l?.arbitrageTitleRenteVsCapital ?? 'Rente vs Capital',
-        missingDataPrompt:
-            l?.arbitrageMissingLpp ?? 'Ajoute ton avoir LPP pour voir cette comparaison',
+        missingDataPrompt: l?.arbitrageMissingLpp ??
+            'Ajoute ton avoir LPP pour voir cette comparaison',
         enrichmentRoute: '/scan',
       ));
     }
@@ -136,8 +154,8 @@ class ArbitrageSummaryService {
       locked.add(ArbitrageLocked(
         id: 'calendrier_retraits',
         title: l?.arbitrageTitleCalendrierRetraits ?? 'Calendrier de retraits',
-        missingDataPrompt:
-            l?.arbitrageMissingLppAnd3a ?? 'Ajoute ton avoir LPP et 3a pour voir le calendrier',
+        missingDataPrompt: l?.arbitrageMissingLppAnd3a ??
+            'Ajoute ton avoir LPP et 3a pour voir le calendrier',
         enrichmentRoute: '/scan',
       ));
     }
@@ -159,8 +177,8 @@ class ArbitrageSummaryService {
       locked.add(ArbitrageLocked(
         id: 'rachat_vs_marche',
         title: l?.arbitrageTitleRachatVsMarche ?? 'Rachat LPP vs March\u00e9',
-        missingDataPrompt:
-            l?.arbitrageMissingLppCertificat ?? 'Scanne ton certificat LPP pour conna\u00eetre ta lacune de rachat',
+        missingDataPrompt: l?.arbitrageMissingLppCertificat ??
+            'Scanne ton certificat LPP pour conna\u00eetre ta lacune de rachat',
         enrichmentRoute: '/scan',
       ));
     }
@@ -215,6 +233,7 @@ class ArbitrageSummaryService {
     return ArbitrageSummary(
       items: items,
       lockedItems: locked,
+      protectionItems: protections,
       aggregateMonthlyImpact: aggregate,
       computedAt: DateTime.now(),
     );
@@ -234,7 +253,8 @@ class ArbitrageSummaryService {
       capitalObligatoire: lppAvoir * 0.6,
       capitalSurobligatoire: lppAvoir * 0.4,
       renteAnnuelleProposee: lppAvoir * convRate,
-      tauxConversionObligatoire: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+      tauxConversionObligatoire:
+          reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
       tauxConversionSurobligatoire: convRate,
       canton: canton,
       isMarried: isMarried,
@@ -330,7 +350,8 @@ class ArbitrageSummaryService {
           'Echelonner tes retraits pourrait economiser ~${formatChfWithPrefix(saving)} d\'impot',
       keyInsight: 'En Suisse, les retraits de prévoyance sont taxes '
           'progressivement — retirer tout la meme annee coute significativement plus.',
-      monthlyImpactChf: saving / (profile.anneesAvantRetraite * 12).clamp(1, 999),
+      monthlyImpactChf:
+          saving / (profile.anneesAvantRetraite * 12).clamp(1, 999),
       confidenceScore: result.confidenceScore,
       route: '/decaissement',
       fullResult: result,
@@ -420,7 +441,9 @@ class ArbitrageSummaryService {
 
     // The premierEclairage tells the story — extract monthly impact
     // 3a deduction gives immediate tax savings
-    final impact3a = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) * tauxMarginal / 12;
+    final impact3a = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) *
+        tauxMarginal /
+        12;
 
     return ArbitrageSummaryItem(
       id: 'allocation_annuelle',
@@ -443,8 +466,8 @@ class ArbitrageSummaryService {
     required bool isMarried,
     required double loyer,
   }) {
-    final capitalDispo = profile.patrimoine.epargneLiquide +
-        profile.patrimoine.investissements;
+    final capitalDispo =
+        profile.patrimoine.epargneLiquide + profile.patrimoine.investissements;
     if (capitalDispo < 50000) return null;
 
     // Estimate property price from rent: ~3.5% gross yield
@@ -474,8 +497,7 @@ class ArbitrageSummaryService {
       title: 'Location vs Propriete',
       verdict:
           'Sur 20 ans, $betterLabel pourrait generer ~${formatChfWithPrefix(delta)} de patrimoine net en plus',
-      keyInsight:
-          'La propriete bloque 20% de fonds propres a rendement nul — '
+      keyInsight: 'La propriete bloque 20% de fonds propres a rendement nul — '
           'un cout d\'opportunite rarement mesure.',
       monthlyImpactChf: deltaMonthly,
       confidenceScore: result.confidenceScore,
@@ -540,8 +562,7 @@ class ArbitrageSummaryService {
       id: 'couple_sequencing',
       title: 'Echelonnement couple',
       verdict: result.recommendation,
-      keyInsight:
-          'Retirer le capital LPP en 2 annees fiscales distinctes '
+      keyInsight: 'Retirer le capital LPP en 2 annees fiscales distinctes '
           'reduit la progressivite de l\'impot (LIFD art. 38).',
       monthlyImpactChf: monthlyImpact,
       confidenceScore: 60.0,

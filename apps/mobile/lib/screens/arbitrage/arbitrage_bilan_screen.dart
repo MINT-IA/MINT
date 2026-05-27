@@ -61,10 +61,6 @@ class ArbitrageBilanScreen extends StatelessWidget {
     }
 
     final summary = ArbitrageSummaryService.compute(profile, l: S.of(context));
-    final protectionItems =
-        summary.lockedItems.where((item) => item.id == 'debt_protection');
-    final lockedItems =
-        summary.lockedItems.where((item) => item.id != 'debt_protection');
 
     return Scaffold(
       backgroundColor: MintColors.white,
@@ -125,9 +121,9 @@ class ArbitrageBilanScreen extends StatelessWidget {
                   _buildCaveat(context),
 
                 // Protection items
-                ...protectionItems.map((locked) => Padding(
+                ...summary.protectionItems.map((protection) => Padding(
                       padding: const EdgeInsets.only(bottom: 14),
-                      child: _ProtectionItemCard(locked: locked),
+                      child: _ProtectionItemCard(protection: protection),
                     )),
 
                 // Computed items
@@ -137,14 +133,14 @@ class ArbitrageBilanScreen extends StatelessWidget {
                     )),
 
                 // Locked items
-                if (lockedItems.isNotEmpty) ...[
+                if (summary.lockedItems.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(
                     S.of(context)!.arbitrageBilanDebloquer,
                     style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 10),
-                  ...lockedItems.map((locked) => Padding(
+                  ...summary.lockedItems.map((locked) => Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: _LockedItemCard(locked: locked),
                       )),
@@ -260,17 +256,17 @@ class ArbitrageBilanScreen extends StatelessWidget {
 // ════════════════════════════════════════════════════════════
 
 class _ProtectionItemCard extends StatelessWidget {
-  final ArbitrageLocked locked;
+  final ArbitrageProtection protection;
 
-  const _ProtectionItemCard({required this.locked});
+  const _ProtectionItemCard({required this.protection});
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Protection : ${locked.title}',
+      label: protection.title,
       button: true,
       child: InkWell(
-        onTap: () => context.push(locked.enrichmentRoute),
+        onTap: () => context.push(protection.route),
         borderRadius: BorderRadius.circular(14),
         child: MintSurface(
           tone: MintSurfaceTone.porcelaine,
@@ -298,14 +294,14 @@ class _ProtectionItemCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      locked.title,
+                      protection.title,
                       style: MintTextStyles.bodySmall(
                         color: MintColors.textPrimary,
                       ).copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: MintSpacing.xs),
                     Text(
-                      locked.missingDataPrompt,
+                      protection.actionPrompt,
                       style: MintTextStyles.bodySmall(
                         color: MintColors.textSecondary,
                       ),

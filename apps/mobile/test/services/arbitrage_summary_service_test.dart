@@ -159,9 +159,11 @@ void main() {
       final summary = ArbitrageSummaryService.compute(profile);
       final itemIds = summary.items.map((i) => i.id).toSet();
       final lockedIds = summary.lockedItems.map((i) => i.id).toSet();
+      final protectionIds = summary.protectionItems.map((i) => i.id).toSet();
 
       expect(itemIds, isEmpty);
-      expect(lockedIds, contains('debt_protection'));
+      expect(protectionIds, contains('debt_protection'));
+      expect(lockedIds, isNot(contains('debt_protection')));
       expect(lockedIds, isNot(contains('rachat_vs_marche')));
       expect(lockedIds, isNot(contains('allocation_annuelle')));
     });
