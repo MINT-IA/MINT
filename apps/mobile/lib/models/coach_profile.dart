@@ -1881,8 +1881,9 @@ class CoachProfile {
   /// via [normalizeResidencePermit].
   bool get isCrossBorder => normalizeResidencePermit(residencePermit) == 'G';
 
-  /// Total depenses fixes mensuelles
-  double get totalDepensesMensuelles => depenses.totalMensuel;
+  /// Total depenses fixes mensuelles utilisables par les surfaces produit.
+  double get totalDepensesMensuelles =>
+      BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(this);
 
   /// Reste a vivre mensuel estime (brut - depenses - cotisations sociales)
   double get resteAVivreMensuel {
@@ -2119,25 +2120,7 @@ class CoachProfile {
     }
 
     // ── Signal C — emergency fund shortfall (< 3 months) ────────────────────
-    final housingCost = BudgetInputs.plausibleMonthlyAmount(
-          depenses.loyer,
-          max: BudgetInputs.maxMonthlyHousingCost,
-        ) ??
-        0.0;
-    final healthInsurance = BudgetInputs.plausibleMonthlyAmount(
-          depenses.assuranceMaladie,
-          max: BudgetInputs.maxMonthlyHealthInsurance,
-        ) ??
-        0.0;
-    final otherFixed =
-        depenses.totalMensuel - depenses.loyer - depenses.assuranceMaladie;
-    final plausibleOtherFixed = BudgetInputs.plausibleMonthlyAmount(
-          otherFixed,
-          max: BudgetInputs.maxMonthlyFixedCharge,
-        ) ??
-        0.0;
-    final plausibleMonthlyExpenses =
-        housingCost + healthInsurance + plausibleOtherFixed;
+    final plausibleMonthlyExpenses = totalDepensesMensuelles;
     final monthlyExpenses = plausibleMonthlyExpenses > 0
         ? plausibleMonthlyExpenses
         : (netMensuel > 0 ? netMensuel * 0.6 : 0.0);
@@ -2389,7 +2372,7 @@ class CoachProfile {
       avoirLpp: prevoyance.avoirLppTotal ?? 0,
       lacuneLpp: prevoyance.lacuneRachatRestante,
       tauxActivite: 100,
-      chargesFixesMensuelles: depenses.totalMensuel,
+      chargesFixesMensuelles: totalDepensesMensuelles,
       epargneDispo: patrimoine.epargneLiquide,
       detteTotale: dettes.totalDettes,
       hasBudget: plannedContributions.isNotEmpty,

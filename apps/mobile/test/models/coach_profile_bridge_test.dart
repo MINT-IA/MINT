@@ -161,11 +161,19 @@ void main() {
       expect(coaching.detteTotale, 15000);
     });
 
-    test('chargesFixesMensuelles matches depenses.totalMensuel', () {
+    test('chargesFixesMensuelles uses plausible fixed expenses', () {
       final profile = makeProfile(loyer: 2000);
       final coaching = profile.toCoachingProfile();
 
-      expect(coaching.chargesFixesMensuelles, profile.depenses.totalMensuel);
+      expect(coaching.chargesFixesMensuelles, 2350);
+    });
+
+    test('chargesFixesMensuelles ignores implausible housing', () {
+      final profile = makeProfile(loyer: 19272200);
+      final coaching = profile.toCoachingProfile();
+
+      expect(profile.totalDepensesMensuelles, 350);
+      expect(coaching.chargesFixesMensuelles, 350);
     });
   });
 
