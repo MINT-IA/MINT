@@ -28,7 +28,9 @@ class CoachWhisperService {
     }
 
     // Rule 2: Good month + 3a opportunity
-    if ((budgetSnapshot != null || budgetPlan != null) && profile != null) {
+    if ((budgetSnapshot != null || budgetPlan != null) &&
+        profile != null &&
+        !profile.hasMaterialConsumerDebtForPriority) {
       final monthlyNet = budgetSnapshot?.present.monthlyNet ??
           (budgetInputs != null
               ? PresentBudgetBuilder.displayChf(budgetInputs.netIncome)
