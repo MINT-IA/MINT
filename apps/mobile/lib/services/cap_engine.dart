@@ -1191,7 +1191,8 @@ class CapEngine {
     final age = profile.ageOrNull;
     final lpp = profile.prevoyance.avoirLppTotal ?? 0;
     final revenuAnnuel = profile.revenuBrutAnnuel;
-    final totalDettes = profile.dettes.totalDettes;
+    final consumerDebtTotal =
+        profile.dettes.detteConsommation + (profile.dettes.autresDettes ?? 0);
     final archetype = profile.archetype;
 
     // Case 1: 60+ with negligible LPP (salarié or retraité)
@@ -1204,7 +1205,7 @@ class CapEngine {
     // Case 2: Debt exceeds 200% of annual income (debt spiral)
     // (age-independent — stays active even when age is unknown)
     final isDebtOverwhelmed =
-        revenuAnnuel > 0 && totalDettes > revenuAnnuel * 2;
+        revenuAnnuel > 0 && consumerDebtTotal > revenuAnnuel * 2;
 
     // Case 3: Cross-border 62+ with zero LPP
     // B6-minimal: unknown age → skip case (archetype alone is not enough).

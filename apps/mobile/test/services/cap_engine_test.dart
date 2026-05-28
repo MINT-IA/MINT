@@ -584,6 +584,50 @@ void main() {
       expect(cap.isHonestyCap, isFalse);
     });
 
+    test('mortgage-only debt does not trigger consumer debt spiral honesty',
+        () {
+      final profile = profile0(
+        birthYear: 1985,
+        salaireBrutMensuel: 8000, // 96k/year
+        dettes: const DetteProfile(
+          hypotheque: 520000,
+          mensualiteHypotheque: 1800,
+        ),
+      );
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
+
+      expect(cap.id, isNot('debt_correct'));
+      expect(cap.isHonestyCap, isFalse);
+    });
+
+    test('consumer debt still has priority when mortgage also exists', () {
+      final profile = profile0(
+        birthYear: 1985,
+        salaireBrutMensuel: 8000, // 96k/year
+        dettes: const DetteProfile(
+          hypotheque: 520000,
+          mensualiteHypotheque: 1800,
+          creditConsommation: 220000,
+        ),
+      );
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
+
+      expect(['debt_correct', 'honesty_no_lever'], contains(cap.id));
+      expect(cap.id, isNot('pillar_3a'));
+    });
+
+    test('other debts alone still count as consumer debt priority', () {
+      final profile = profile0(
+        birthYear: 1985,
+        salaireBrutMensuel: 8000, // 96k/year
+        dettes: const DetteProfile(autresDettes: 220000),
+      );
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
+
+      expect(['debt_correct', 'honesty_no_lever'], contains(cap.id));
+      expect(cap.id, isNot('pillar_3a'));
+    });
+
     test('cross-border 62+ with zero LPP triggers honesty', () {
       // Cross-border requires residencePermit = 'G'
       final profile = CoachProfile(
