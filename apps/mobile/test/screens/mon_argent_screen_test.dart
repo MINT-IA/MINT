@@ -405,6 +405,81 @@ void main() {
   });
 
   testWidgets(
+      'refreshed profile budget keeps pension and future spine sections',
+      (tester) async {
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+    final coachProvider = CoachProfileProvider()
+      ..updateProfile(
+        CoachProfile(
+          birthYear: 1990,
+          canton: 'VD',
+          salaireBrutMensuel: 6000,
+          depenses: const DepensesProfile(
+            loyer: 1100,
+            assuranceMaladie: 410,
+          ),
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+            'depenses.assuranceMaladie': ProfileDataSource.userInput,
+          },
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2055),
+            label: 'Retraite',
+          ),
+        ),
+      );
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: coachProvider,
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(budgetProvider.hasFreshInputs, isTrue);
+
+    await tester.tap(find.text('Prévoyance').first);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('mon_argent_pension_map')), findsOneWidget);
+    expect(find.text('Prévoyance LPP'), findsOneWidget);
+    expect(find.text('3e pilier (3a)'), findsOneWidget);
+    expect(find.text("120'000\u00a0CHF"), findsOneWidget);
+    expect(find.text("32'000\u00a0CHF"), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Futur'));
+    await tester.tap(find.text('Futur'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('mon_argent_trajectory_map')), findsOneWidget);
+    expect(find.text('Ta trajectoire'), findsOneWidget);
+    expect(find.text('Libre aujourd’hui'), findsOneWidget);
+    expect(find.text("2'000\u00a0CHF"), findsOneWidget);
+  });
+
+  testWidgets(
       'today section aligns budget detail rows with refreshed profile budget',
       (tester) async {
     final mintState = MintStateProvider()
