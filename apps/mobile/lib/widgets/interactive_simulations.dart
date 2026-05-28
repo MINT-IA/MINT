@@ -196,9 +196,9 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
           ),
           const SizedBox(height: 16),
           _buildMetric(
-            'Économie d\'impôts (estimée)',
+            'Réduction d’impôt estimée',
             '${formatChfWithPrefix(_taxSavings)}/an',
-            Icons.savings,
+            Icons.calculate,
             MintColors.success,
           ),
           const SizedBox(height: 16),
@@ -229,9 +229,9 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
 
           const SizedBox(height: 16),
           _buildMetric(
-            'Économies fiscales cumulées ($_years ans)',
+            'Réduction d’impôt estimée ($_years ans)',
             formatChfWithPrefix(totalTaxSavings),
-            Icons.star,
+            Icons.calculate,
             MintColors.amber,
           ),
 
@@ -444,9 +444,9 @@ class _InteractiveLppBuybackSimulationState
           ),
           const SizedBox(height: 16),
           _buildMetric(
-            'Économie d\'impôts (estimée)',
+            'Réduction d’impôt estimée',
             formatChfWithPrefix(_taxSavings),
-            Icons.savings,
+            Icons.calculate,
             MintColors.success,
           ),
           const SizedBox(height: 16),
