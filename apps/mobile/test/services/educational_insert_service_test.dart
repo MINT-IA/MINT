@@ -150,6 +150,31 @@ void main() {
       expect(widget, isNotNull);
     });
 
+    testWidgets('3a tax insert frames fiscal impact as indicative',
+        (tester) async {
+      final widget = EducationalInsertService.getInsertWidget(
+        questionId: 'q_has_3a',
+        answers: {
+          'q_employment_status': 'employee',
+          'q_net_income_period_chf': 6000.0,
+        },
+      )!;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: widget),
+          ),
+        ),
+      );
+
+      expect(find.text('Réduction d’impôt indicative'), findsOneWidget);
+      expect(find.textContaining('Impact indicatif:'), findsOneWidget);
+      expect(find.textContaining('Économie d’impôts'), findsNothing);
+      expect(find.textContaining("Économie d'impôts"), findsNothing);
+      expect(find.textContaining('de plus par mois'), findsNothing);
+    });
+
     test('returns non-null widget for q_3a_annual_amount', () {
       final widget = EducationalInsertService.getInsertWidget(
         questionId: 'q_3a_annual_amount',

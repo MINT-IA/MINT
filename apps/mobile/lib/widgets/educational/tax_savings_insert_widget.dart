@@ -5,7 +5,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Insert didactique pour q_has_3a
-/// Mini-simulateur d'économie fiscale 3a avec sliders
+/// Mini-simulateur d'impact fiscal 3a avec sliders
 class TaxSavingsInsertWidget extends StatefulWidget {
   final double? initialIncome;
   final bool hasPensionFund;
@@ -240,7 +240,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       const SizedBox(height: 20),
                       const Divider(height: 1),
                       const SizedBox(height: 20),
-                      Text('Économie d\'impôts annuelle',
+                      Text('Réduction d’impôt indicative',
                           style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
                       const SizedBox(height: 8),
                       // Hero Number - Clean Anthracite
@@ -250,7 +250,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Soit ${formatChf(((_taxSavingsMin + _taxSavingsMax) / 2) / 12)} CHF de plus par mois',
+                        'Impact indicatif: ${formatChf(((_taxSavingsMin + _taxSavingsMax) / 2) / 12)} CHF par mois',
                         style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ],
