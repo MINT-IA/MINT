@@ -336,21 +336,9 @@ class _BudgetScreenState extends State<BudgetScreen>
 
                                     _staggeredEntry(
                                       index: 1,
-                                      child: Semantics(
-                                        key: const Key(
-                                            'budget_calculation_detail_toggle'),
-                                        identifier:
-                                            'budget_calculation_detail_toggle',
-                                        child: CollapsibleSection(
-                                          title:
-                                              l.affordabilityCalculationDetail,
-                                          icon: Icons.functions,
-                                          initiallyExpanded: false,
-                                          child: _BudgetFlowMap(
-                                            present: flowPresent,
-                                            l: l,
-                                          ),
-                                        ),
+                                      child: _BudgetCalculationDetailSection(
+                                        present: flowPresent,
+                                        l: l,
                                       ),
                                     ),
                                     const SizedBox(height: MintSpacing.xxl),
@@ -1081,6 +1069,100 @@ class _BudgetFlowMap extends StatelessWidget {
   String _formatShare(double amount, double denominator) {
     if (denominator <= 0) return '0%';
     return '${((amount / denominator) * 100).round()}%';
+  }
+}
+
+class _BudgetCalculationDetailSection extends StatefulWidget {
+  final PresentBudget present;
+  final S l;
+
+  // Local disclosure instead of CollapsibleSection because Maestro iOS can
+  // resolve the wrapped ExpansionTile semantics id but does not dispatch the
+  // tap to Flutter reliably. Keep this widget scoped to Budget until the
+  // shared disclosure supports stable simulator tap semantics.
+  const _BudgetCalculationDetailSection({
+    required this.present,
+    required this.l,
+  });
+
+  @override
+  State<_BudgetCalculationDetailSection> createState() =>
+      _BudgetCalculationDetailSectionState();
+}
+
+class _BudgetCalculationDetailSectionState
+    extends State<_BudgetCalculationDetailSection> {
+  bool _expanded = false;
+
+  void _toggle() => setState(() => _expanded = !_expanded);
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      key: const Key('budget_calculation_detail_toggle'),
+      identifier: 'budget_calculation_detail_toggle',
+      container: true,
+      explicitChildNodes: true,
+      button: true,
+      enabled: true,
+      expanded: _expanded,
+      onTap: _toggle,
+      label: widget.l.affordabilityCalculationDetail,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: MintColors.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.lightBorder),
+        ),
+        child: Column(
+          children: [
+            Material(
+              color: MintColors.transparent,
+              borderRadius: BorderRadius.circular(16),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                excludeFromSemantics: true,
+                onTap: _toggle,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.functions,
+                          color: MintColors.primary, size: 20),
+                      const SizedBox(width: MintSpacing.md),
+                      Expanded(
+                        child: Text(
+                          widget.l.affordabilityCalculationDetail,
+                          style: MintTextStyles.bodyMedium(
+                                  color: MintColors.textPrimary)
+                              .copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Icon(
+                        _expanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        color: MintColors.textPrimary,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (_expanded)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: _BudgetFlowMap(
+                  present: widget.present,
+                  l: widget.l,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

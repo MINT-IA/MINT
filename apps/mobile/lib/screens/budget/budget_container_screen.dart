@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -22,6 +24,8 @@ class BudgetContainerScreen extends StatefulWidget {
 
 class _BudgetContainerScreenState extends State<BudgetContainerScreen> {
   bool _isLoading = true;
+  bool _isHydratingBudget = false;
+  CoachProfileProvider? _profileProvider;
 
   @override
   void initState() {
@@ -29,15 +33,78 @@ class _BudgetContainerScreenState extends State<BudgetContainerScreen> {
     _loadSavedBudget();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final nextProfileProvider = _readCoachProfileProviderIfAvailable();
+    if (identical(_profileProvider, nextProfileProvider)) return;
+
+    _profileProvider?.removeListener(_handleProfileProviderChanged);
+    _profileProvider = nextProfileProvider;
+    _profileProvider?.addListener(_handleProfileProviderChanged);
+
+    if (_hasUsableProfileState(nextProfileProvider)) {
+      _handleProfileProviderChanged();
+    }
+  }
+
+  @override
+  void dispose() {
+    _profileProvider?.removeListener(_handleProfileProviderChanged);
+    super.dispose();
+  }
+
   Future<void> _loadSavedBudget() async {
+    final budgetProvider = context.read<BudgetProvider>();
+    final profileProvider = _readCoachProfileProviderIfAvailable();
+
+    if (profileProvider != null && !_hasUsableProfileState(profileProvider)) {
+      final restored = await budgetProvider.loadFromStorage();
+      if (!mounted) return;
+      if (restored) {
+        setState(() => _isLoading = false);
+        return;
+      }
+      if (!_hasUsableProfileState(profileProvider)) {
+        if (!profileProvider.isLoading) {
+          setState(() => _isLoading = false);
+        }
+        return;
+      }
+    }
+
+    await _hydrateFromProfileProvider(profileProvider);
+  }
+
+  void _handleProfileProviderChanged() {
+    final profileProvider = _profileProvider;
+    if (!_hasUsableProfileState(profileProvider)) {
+      if (profileProvider != null && !profileProvider.isLoading && _isLoading) {
+        setState(() => _isLoading = false);
+      }
+      return;
+    }
+    unawaited(_hydrateFromProfileProvider(profileProvider));
+  }
+
+  bool _hasUsableProfileState(CoachProfileProvider? profileProvider) {
+    return profileProvider != null &&
+        (profileProvider.isLoaded || profileProvider.profile != null);
+  }
+
+  Future<void> _hydrateFromProfileProvider(
+    CoachProfileProvider? profileProvider,
+  ) async {
+    if (_isHydratingBudget) return;
+    _isHydratingBudget = true;
     try {
       final budgetProvider = context.read<BudgetProvider>();
-      final profileProvider = _readCoachProfileProviderIfAvailable();
       await budgetProvider.hydrateFromProfileState(
         profile: profileProvider?.profile,
         isPartialProfile: profileProvider?.isPartialProfile ?? false,
       );
     } finally {
+      _isHydratingBudget = false;
       if (mounted) setState(() => _isLoading = false);
     }
   }

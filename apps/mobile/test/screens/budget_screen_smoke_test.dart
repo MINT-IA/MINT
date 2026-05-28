@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsAction;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart'; // Ensure correct imports
@@ -450,6 +452,15 @@ void main() {
 
     expect(find.byKey(const Key('budget_flow_map')), findsNothing);
     expect(find.byKey(const Key('budget_formula_proof')), findsNothing);
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(const Key('budget_calculation_detail_toggle')),
+          )
+          .getSemanticsData()
+          .hasAction(SemanticsAction.tap),
+      isTrue,
+    );
 
     await openCalculationDetail(tester);
     await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
@@ -814,6 +825,53 @@ void main() {
     );
     expect(profileProvider.isPartialProfile, isTrue);
     expect(budgetProvider.inputs?.netIncome, 8000);
+    expect(budgetProvider.inputs?.housingCost, 2200);
+    expect(budgetProvider.inputs?.healthInsurance, 420);
+  });
+
+  testWidgets(
+      'BudgetContainerScreen hydrates budget-first wizard answers after profile load',
+      (tester) async {
+    final profileProvider = CoachProfileProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: profileProvider,
+          ),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetContainerScreen(),
+        ),
+      ),
+    );
+
+    profileProvider.updateFromMiniOnboarding({
+      'q_gross_salary_annual': 90000.0,
+      'q_housing_cost_period_chf': 2200.0,
+      'q_lamal_premium_monthly_chf': 420.0,
+      'q_pay_frequency': 'monthly',
+    });
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    final budgetProvider = Provider.of<BudgetProvider>(
+      tester.element(find.byType(BudgetContainerScreen)),
+      listen: false,
+    );
+    expect(profileProvider.isPartialProfile, isTrue);
+    expect(find.byType(BudgetScreen), findsOneWidget);
     expect(budgetProvider.inputs?.housingCost, 2200);
     expect(budgetProvider.inputs?.healthInsurance, 420);
   });
