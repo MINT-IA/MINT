@@ -136,19 +136,19 @@ class MoveSavingsCard extends StatelessWidget {
               Divider(color: MintColors.border.withValues(alpha: 0.5)),
               const SizedBox(height: 16),
 
-              // Savings breakdown
+              // Estimated difference breakdown
               _buildSavingsRow(
-                'Économie mensuelle',
+                'Écart mensuel estimé',
                 economieMensuelle,
               ),
               const SizedBox(height: 8),
               _buildSavingsRow(
-                'Économie annuelle',
+                'Écart annuel estimé',
                 economieAnnuelle,
               ),
               const SizedBox(height: 8),
               _buildSavingsRow(
-                'Économie sur 10 ans',
+                'Écart estimé sur 10 ans',
                 economie10Ans,
                 isBold: true,
               ),
