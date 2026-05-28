@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cantonal_benchmark_service.dart';
 
@@ -285,6 +286,89 @@ void main() {
 
       expect(chargesMetric.userValue, 420);
       expect(chargesMetric.userValue, lessThan(10000));
+    });
+
+    test('charges fixes accept housing at plausibility ceiling', () {
+      final benchmark = CantonalBenchmarkService.getBenchmark(
+        canton: 'VS',
+        age: 45,
+      )!;
+      final profile = _buildProfile(
+        loyer: BudgetInputs.maxMonthlyHousingCost,
+        assuranceMaladie: 420,
+      );
+
+      final comparison = CantonalBenchmarkService.compareToProfile(
+        profile: profile,
+        benchmark: benchmark,
+      );
+      final chargesMetric = comparison!.metrics
+          .firstWhere((m) => m.label == benchmark.chargesFixes.label);
+
+      expect(chargesMetric.userValue, 20420);
+    });
+
+    test('charges fixes reject housing above plausibility ceiling', () {
+      final benchmark = CantonalBenchmarkService.getBenchmark(
+        canton: 'VS',
+        age: 45,
+      )!;
+      final profile = _buildProfile(
+        loyer: BudgetInputs.maxMonthlyHousingCost + 0.01,
+        assuranceMaladie: 420,
+      );
+
+      final comparison = CantonalBenchmarkService.compareToProfile(
+        profile: profile,
+        benchmark: benchmark,
+      );
+      final chargesMetric = comparison!.metrics
+          .firstWhere((m) => m.label == benchmark.chargesFixes.label);
+
+      expect(chargesMetric.userValue, 420);
+    });
+
+    test('charges fixes reject health premium above plausibility ceiling', () {
+      final benchmark = CantonalBenchmarkService.getBenchmark(
+        canton: 'VS',
+        age: 45,
+      )!;
+      final profile = _buildProfile(
+        loyer: 5000,
+        assuranceMaladie: BudgetInputs.maxMonthlyHealthInsurance + 0.01,
+      );
+
+      final comparison = CantonalBenchmarkService.compareToProfile(
+        profile: profile,
+        benchmark: benchmark,
+      );
+      final chargesMetric = comparison!.metrics
+          .firstWhere((m) => m.label == benchmark.chargesFixes.label);
+
+      expect(chargesMetric.userValue, 5000);
+    });
+
+    test('charges fixes accept health premium at plausibility ceiling', () {
+      final benchmark = CantonalBenchmarkService.getBenchmark(
+        canton: 'VS',
+        age: 45,
+      )!;
+      final profile = _buildProfile(
+        loyer: 0,
+        assuranceMaladie: BudgetInputs.maxMonthlyHealthInsurance,
+      );
+
+      final comparison = CantonalBenchmarkService.compareToProfile(
+        profile: profile,
+        benchmark: benchmark,
+      );
+      final chargesMetric = comparison!.metrics
+          .firstWhere((m) => m.label == benchmark.chargesFixes.label);
+
+      expect(
+        chargesMetric.userValue,
+        BudgetInputs.maxMonthlyHealthInsurance,
+      );
     });
   });
 

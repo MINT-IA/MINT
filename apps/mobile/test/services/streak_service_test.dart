@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 
@@ -357,6 +358,34 @@ void main() {
 
       expect(mEmergency.threshold, 420 * 6);
       expect(mEmergency.isReached, true);
+    });
+
+    test('emergency fund threshold accepts plausible expenses boundary', () {
+      const monthlyExpenses = BudgetInputs.maxMonthlyHousingCost +
+          BudgetInputs.maxMonthlyHealthInsurance;
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055, 12, 31),
+          label: 'Retraite',
+        ),
+        depenses: const DepensesProfile(
+          loyer: BudgetInputs.maxMonthlyHousingCost,
+          assuranceMaladie: BudgetInputs.maxMonthlyHealthInsurance,
+        ),
+        patrimoine: const PatrimoineProfile(
+          epargneLiquide: monthlyExpenses * 6 - 1,
+        ),
+      );
+
+      final milestones = StreakService.computeMilestones(profile);
+      final mEmergency = milestones.firstWhere((m) => m.id == 'emergency_fund');
+
+      expect(mEmergency.threshold, monthlyExpenses * 6);
+      expect(mEmergency.isReached, false);
     });
 
     test('milestone labels are in French', () {
