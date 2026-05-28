@@ -70,6 +70,11 @@ void main() {
     expect(find.text('64%'), findsOneWidget);
     expect(find.text('Estimation crédible.'), findsOneWidget);
     expect(find.text('Situation financière'), findsOneWidget);
+    expect(find.text('Revenu brut annuel'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('mon_argent_situation_expand')));
+    await tester.pumpAndSettle();
+
     expect(find.text('Revenu brut annuel'), findsOneWidget);
     expect(find.text('Logement'), findsOneWidget);
     expect(find.text('Primes maladie (LAMal)'), findsOneWidget);
@@ -213,6 +218,11 @@ void main() {
           .identifier,
       'mon_argent_data_spine_summary',
     );
+    expect(find.byKey(const Key('mon_argent_situation_map')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('mon_argent_situation_expand')));
+    await tester.pumpAndSettle();
+
     expect(
       tester
           .getSemantics(find.byKey(const Key('mon_argent_situation_map')))
@@ -451,6 +461,11 @@ void main() {
     expect(budgetProvider.hasFreshInputs, isTrue);
     expect(find.text(_formatChf(_presentBudgetFree(budgetProvider))),
         findsOneWidget);
+    expect(find.text("1'100\u00a0CHF"), findsNothing);
+
+    await tester.tap(find.byKey(const Key('mon_argent_situation_expand')));
+    await tester.pumpAndSettle();
+
     expect(find.text("1'100\u00a0CHF"), findsOneWidget);
     expect(find.text("410\u00a0CHF"), findsOneWidget);
     expect(find.text("2'400\u00a0CHF"), findsNothing);
