@@ -328,7 +328,7 @@ class RealReturnCalculator {
           'Simulation pédagogique basée sur des hypothèses de rendement '
           'constant. Les rendements passés ne préjugent pas des rendements '
           'futurs. Les frais et rendements varient selon le prestataire. '
-          'L\'économie fiscale dépend de ton taux marginal réel. '
+          'La réduction d’impôt estimée dépend de ton taux marginal réel. '
           'Base légale : OPP3, LIFD art. 33 al. 1 let. e. '
           'Consultez un ou une spécialiste avant toute décision.',
     );

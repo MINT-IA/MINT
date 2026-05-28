@@ -456,6 +456,8 @@ void main() {
       );
       expect(result.disclaimer, contains('OPP3'));
       expect(result.disclaimer, contains('spécialiste'));
+      expect(result.disclaimer, contains('réduction d’impôt estimée'));
+      expect(result.disclaimer, isNot(contains('économie fiscale')));
     });
 
     test('premier éclairage positif quand gain vs epargne > 0', () {
