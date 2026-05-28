@@ -27,6 +27,7 @@ void main() {
     double loyer = 1800,
     double assuranceMaladie = 430,
     List<PlannedMonthlyContribution> contributions = const [],
+    DetteProfile dettes = const DetteProfile(),
   }) {
     return CoachProfile(
       birthYear: birthYear,
@@ -42,6 +43,7 @@ void main() {
         epargneLiquide: 20000,
         investissements: 0,
       ),
+      dettes: dettes,
       depenses: DepensesProfile(
         loyer: loyer,
         assuranceMaladie: assuranceMaladie,
@@ -100,6 +102,20 @@ void main() {
         closeTo(p.monthlyNet - p.monthlyCharges - p.monthlySavings, 0.01),
         reason: 'monthlyFree must equal net - charges - savings exactly',
       );
+    });
+
+    test('monthly debt increases charges and reduces free cash exactly', () {
+      final base = BudgetLivingEngine.compute(buildProfile()).present;
+      final withDebt = BudgetLivingEngine.compute(
+        buildProfile(
+          dettes: const DetteProfile(mensualiteCreditConso: 900),
+        ),
+      ).present;
+
+      expect(withDebt.monthlyNet, base.monthlyNet);
+      expect(withDebt.monthlyDebt, 900);
+      expect(withDebt.monthlyCharges - base.monthlyCharges, 900);
+      expect(base.monthlyFree - withDebt.monthlyFree, 900);
     });
 
     test('uses the same displayed remainder as the budget screen read model',
