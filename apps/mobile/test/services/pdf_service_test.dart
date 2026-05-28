@@ -58,6 +58,25 @@ void main() {
       expect(line, isNot(contains('économie')));
       expect(line, isNot(contains('épargne')));
     });
+
+    test('financial PDF LPP buyback labels say estimated tax reduction', () {
+      expect(
+        PdfService.lppBuybackTotalTaxReductionLabel,
+        'Réduction d’impôt totale estimée',
+      );
+      expect(
+        PdfService.lppBuybackYearlyTaxReductionLabel,
+        'Réduction d’impôt estimée',
+      );
+      expect(
+        PdfService.lppBuybackTotalTaxReductionLabel.toLowerCase(),
+        isNot(contains('économie fiscale')),
+      );
+      expect(
+        PdfService.lppBuybackYearlyTaxReductionLabel.toLowerCase(),
+        isNot(contains('économie fiscale')),
+      );
+    });
   });
 
   // ──────────────────────────────────────────────────────────

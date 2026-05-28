@@ -9,6 +9,14 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class PdfService {
   @visibleForTesting
+  static const String lppBuybackTotalTaxReductionLabel =
+      'Réduction d’impôt totale estimée';
+
+  @visibleForTesting
+  static const String lppBuybackYearlyTaxReductionLabel =
+      'Réduction d’impôt estimée';
+
+  @visibleForTesting
   static String formatLppBuybackTaxReductionLineForTest(TaxSimulation tax) =>
       _formatLppBuybackTaxReductionLine(tax);
 
@@ -786,7 +794,7 @@ class PdfService {
                 children: [
                   _pdfKeyValue('Montant rachetable total',
                       formatChfWithPrefix(lpp.totalBuybackAvailable)),
-                  _pdfKeyValue('Économie fiscale totale estimée',
+                  _pdfKeyValue(lppBuybackTotalTaxReductionLabel,
                       formatChfWithPrefix(lpp.totalTaxSavings),
                       bold: true),
                   pw.SizedBox(height: 8),
@@ -817,7 +825,7 @@ class PdfService {
                                     fontWeight: pw.FontWeight.bold))),
                         pw.Expanded(
                             flex: 3,
-                            child: pw.Text('Économie fiscale',
+                            child: pw.Text(lppBuybackYearlyTaxReductionLabel,
                                 style: pw.TextStyle(
                                     fontSize: 8,
                                     fontWeight: pw.FontWeight.bold))),
