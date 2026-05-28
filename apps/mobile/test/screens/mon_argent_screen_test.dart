@@ -979,6 +979,72 @@ void main() {
     expect(find.byKey(const Key('mon_argent_budget_summary')), findsOneWidget);
   });
 
+  testWidgets('direct section aliases route to stable Mon Argent sections',
+      (tester) async {
+    Future<void> pumpSection(String? initialSection) async {
+      SharedPreferences.setMockInitialValues({});
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<BudgetProvider>(
+              create: (_) => BudgetProvider(),
+            ),
+            ChangeNotifierProvider<CoachProfileProvider>(
+              create: (_) => CoachProfileProvider(),
+            ),
+            ChangeNotifierProvider<MintStateProvider>(
+              create: (_) => MintStateProvider()
+                ..injectStateForTest(_stateWithDataSpine()),
+            ),
+          ],
+          child: MaterialApp(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: MonArgentScreen(initialSection: initialSection),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    await pumpSection('mois');
+    expect(find.byKey(const Key('mon_argent_section_month')), findsOneWidget);
+    expect(find.byKey(const Key('mon_argent_budget_summary')), findsOneWidget);
+
+    await pumpSection('patrimoine');
+    expect(find.byKey(const Key('mon_argent_section_wealth')), findsOneWidget);
+    expect(
+      find.byKey(const Key('mon_argent_patrimoine_summary')),
+      findsOneWidget,
+    );
+
+    await pumpSection('prevoyance');
+    expect(find.byKey(const Key('mon_argent_section_pension')), findsOneWidget);
+    expect(find.byKey(const Key('mon_argent_pension_map')), findsOneWidget);
+
+    await pumpSection('prévoyance');
+    expect(find.byKey(const Key('mon_argent_section_pension')), findsOneWidget);
+    expect(find.byKey(const Key('mon_argent_pension_map')), findsOneWidget);
+
+    await pumpSection('futur');
+    expect(find.byKey(const Key('mon_argent_section_future')), findsOneWidget);
+    expect(find.byKey(const Key('mon_argent_trajectory_map')), findsOneWidget);
+
+    await pumpSection('unknown');
+    expect(find.byKey(const Key('mon_argent_section_today')), findsOneWidget);
+    expect(
+      find.byKey(const Key('mon_argent_data_spine_summary')),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('renders missing-data surface for pension without data spine',
       (tester) async {
     await tester.pumpWidget(
