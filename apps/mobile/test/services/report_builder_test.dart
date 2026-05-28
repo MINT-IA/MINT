@@ -27,6 +27,28 @@ void main() {
       expect(tax.value, 'CHF 520');
     });
 
+    test('preserves signed monthly deficit in scoreboard', () {
+      final report = ReportBuilder({
+        'q_canton': 'VD',
+        'q_civil_status': 'single',
+        'q_pay_frequency': 'monthly',
+        'q_net_income_period_chf': '3000',
+        'q_housing_cost_period_chf': '2500',
+        'q_lamal_premium_monthly_chf': '420',
+        'q_tax_provision_monthly_chf': '600',
+        'q_debt_payments_period_chf': '0',
+      }).build();
+
+      final available = report.scoreboard
+          .singleWhere((item) => item.label == 'Disponible / mois');
+      final savingsRate = report.scoreboard
+          .singleWhere((item) => item.label == "Taux d'épargne");
+
+      expect(available.value, 'CHF -520');
+      expect(available.value, isNot('CHF 0'));
+      expect(savingsRate.value, '0%');
+    });
+
     test('falls back to estimated tax when no tax provision is declared', () {
       final report = ReportBuilder({
         'q_canton': 'VD',

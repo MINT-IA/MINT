@@ -1,6 +1,7 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/goal_template.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/models/session.dart';
@@ -18,6 +19,10 @@ class ReportBuilder {
     final budgetInputs = BudgetInputs.fromMap(answers);
     final budgetService = BudgetService();
     final budgetPlan = budgetService.computePlan(budgetInputs);
+    final presentBudget = PresentBudgetBuilder.fromInputs(
+      inputs: budgetInputs,
+      plan: budgetPlan,
+    );
 
     final hasDebt = (answers['q_has_consumer_credit'] == 'yes') ||
         (answers['q_has_consumer_debt'] == 'yes') ||
@@ -199,7 +204,7 @@ class ReportBuilder {
     final scoreboard = [
       ScoreboardItem(
         label: "Disponible / mois",
-        value: "CHF ${budgetPlan.available.toStringAsFixed(0)}",
+        value: "CHF ${presentBudget.monthlyFree.toStringAsFixed(0)}",
         note: "Reste à vivre",
       ),
       ScoreboardItem(
@@ -209,8 +214,11 @@ class ReportBuilder {
       ),
       ScoreboardItem(
         label: "Taux d'épargne",
-        value:
-            "${((budgetPlan.future / (budgetPlan.available > 0 ? budgetPlan.available : 1)) * 100).toStringAsFixed(0)}%",
+        // Savings rate is conventionally monthly savings over net income.
+        // Do not divide by BudgetPlan.available: it is clamped allocation room.
+        value: presentBudget.monthlyNet > 0
+            ? "${((presentBudget.monthlySavings / presentBudget.monthlyNet) * 100).toStringAsFixed(0)}%"
+            : "0%",
         note: "Objectif: 20%",
       ),
       ScoreboardItem(
