@@ -138,6 +138,10 @@ tags:
     text: ".*2'200.*"
 - assertVisible:
     text: ".*420.*"
+- assertVisible:
+    text: ".*3'078.*"
+- assertVisible:
+    text: ".*1'922.*"
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
 - assertNotVisible: "19M"

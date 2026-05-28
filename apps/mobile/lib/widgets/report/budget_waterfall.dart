@@ -10,6 +10,7 @@ class BudgetWaterfall extends StatelessWidget {
   final double taxes;
   final double healthInsurance;
   final double otherFixed;
+  final String fixedChargesLabel;
 
   const BudgetWaterfall({
     super.key,
@@ -19,10 +20,13 @@ class BudgetWaterfall extends StatelessWidget {
     this.taxes = 0,
     this.healthInsurance = 0,
     this.otherFixed = 0,
+    required this.fixedChargesLabel,
   });
 
   double get available =>
       income - housing - debt - taxes - healthInsurance - otherFixed;
+  double get fixedCharges =>
+      housing + debt + taxes + healthInsurance + otherFixed;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +52,11 @@ class BudgetWaterfall extends StatelessWidget {
         ],
         if (otherFixed > 0) ...[
           _row('Autres fixes', otherFixed, MintColors.textSecondary),
+          const SizedBox(height: 8),
+        ],
+        if (fixedCharges > 0) ...[
+          _row(fixedChargesLabel, fixedCharges, MintColors.textSecondary,
+              isBold: true),
           const SizedBox(height: 8),
         ],
         const Divider(height: 1),

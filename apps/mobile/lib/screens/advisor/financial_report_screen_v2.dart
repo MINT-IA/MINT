@@ -31,6 +31,8 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
 import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
+import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:provider/provider.dart';
 // ProfileProvider removed — Safe Mode now derived from wizardAnswers directly
 
 /// Ecran d'affichage du rapport financier exhaustif V2
@@ -138,7 +140,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: MintSpacing.md),
-                          child: _buildBudgetSection(context, wizardAnswers),
+                          child: _buildBudgetSection(
+                              context, wizardAnswers, report),
                         )),
 
                     // ── Protection thematic card ──
@@ -331,10 +334,19 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  THEMATIC CARD: BUDGET
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildBudgetSection(
-      BuildContext context, Map<String, dynamic> answers) {
-    final inputs = BudgetInputs.fromMap(answers);
-    final plan = BudgetService().computePlan(inputs);
+  Widget _buildBudgetSection(BuildContext context, Map<String, dynamic> answers,
+      FinancialReport report) {
+    final budgetProvider = _readBudgetProviderIfAvailable(context);
+    final useProviderFallback = _answersNeedBudgetProviderFallback(answers) &&
+        budgetProvider?.inputs != null;
+    final inputs = useProviderFallback
+        ? budgetProvider!.inputs!
+        : BudgetInputs.fromMap(
+            _answersWithReportBudgetFallbacks(answers, report),
+          );
+    final plan = useProviderFallback && budgetProvider!.plan != null
+        ? budgetProvider.plan!
+        : BudgetService().computePlan(inputs);
     final present = PresentBudgetBuilder.fromInputs(
       inputs: inputs,
       plan: plan,
@@ -365,9 +377,42 @@ class FinancialReportScreenV2 extends StatelessWidget {
           healthInsurance:
               PresentBudgetBuilder.displayChf(inputs.healthInsurance),
           otherFixed: PresentBudgetBuilder.displayChf(inputs.otherFixedCosts),
+          fixedChargesLabel: S.of(context)!.summaryChargesFixes,
         ),
       ],
     );
+  }
+
+  BudgetProvider? _readBudgetProviderIfAvailable(BuildContext context) {
+    try {
+      return context.read<BudgetProvider>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  bool _answersNeedBudgetProviderFallback(Map<String, dynamic> answers) {
+    final inputs = BudgetInputs.fromMap(answers);
+    return !inputs.netIncome.isFinite ||
+        inputs.netIncome <= 0 ||
+        !answers.containsKey('q_canton') ||
+        (!answers.containsKey('q_tax_provision_monthly_chf') &&
+            inputs.isTaxEstimated);
+  }
+
+  Map<String, dynamic> _answersWithReportBudgetFallbacks(
+    Map<String, dynamic> answers,
+    FinancialReport report,
+  ) {
+    final budgetAnswers = Map<String, dynamic>.from(answers);
+    final netIncome = BudgetInputs.fromMap(budgetAnswers).netIncome;
+    final needsProfileFallback = !netIncome.isFinite || netIncome <= 0;
+    if (needsProfileFallback && report.profile.monthlyNetIncome > 0) {
+      budgetAnswers['q_net_income_period_chf'] =
+          report.profile.monthlyNetIncome;
+      budgetAnswers['q_pay_frequency'] = 'monthly';
+    }
+    return budgetAnswers;
   }
 
   List<String> _buildSafeModeReasons(
