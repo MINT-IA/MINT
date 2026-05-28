@@ -5,6 +5,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
@@ -32,6 +33,7 @@ import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
 import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:provider/provider.dart';
 // ProfileProvider removed — Safe Mode now derived from wizardAnswers directly
 
@@ -40,10 +42,12 @@ import 'package:provider/provider.dart';
 /// remplaçant les cercles abstraits (Protection, Prévoyance, Croissance, Optimisation).
 class FinancialReportScreenV2 extends StatelessWidget {
   final Map<String, dynamic> wizardAnswers;
+  final BudgetSnapshot? budgetSnapshot;
 
   const FinancialReportScreenV2({
     super.key,
     required this.wizardAnswers,
+    this.budgetSnapshot,
   });
 
   // ── Route mapping by ActionCategory (replaces fragile keyword matching) ──
@@ -336,6 +340,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   Widget _buildBudgetSection(BuildContext context, Map<String, dynamic> answers,
       FinancialReport report) {
+    final canonicalBudget =
+        budgetSnapshot ?? _readMintStateBudgetIfAvailable(context);
+    if (canonicalBudget != null) {
+      return _buildBudgetCardFromPresent(context, canonicalBudget.present);
+    }
+
     final budgetProvider = _readBudgetProviderIfAvailable(context);
     final useProviderFallback = _answersNeedBudgetProviderFallback(answers) &&
         budgetProvider?.inputs != null;
@@ -381,6 +391,47 @@ class FinancialReportScreenV2 extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildBudgetCardFromPresent(
+      BuildContext context, PresentBudget present) {
+    final ratio =
+        present.monthlyNet > 0 ? present.monthlyFree / present.monthlyNet : 0.0;
+    final status = ratio > 0.3
+        ? CardStatus.serein
+        : ratio > 0.1
+            ? CardStatus.aRenforcer
+            : CardStatus.alerte;
+
+    return ThematicCard(
+      emoji: '\ud83d\udcb0',
+      title: S.of(context)!.reportBudgetTitle,
+      status: status,
+      keyNumber: formatChfWithPrefix(present.monthlyFree),
+      keyNumberLabel: S.of(context)!.reportBudgetKeyLabel,
+      actionLabel: S.of(context)!.reportBudgetAction,
+      onActionTap: () => context.push('/budget'),
+      children: [
+        BudgetWaterfall(
+          income: present.monthlyNet,
+          housing: present.monthlyHousing,
+          debt: present.monthlyDebt,
+          taxes: present.monthlyTax,
+          healthInsurance: present.monthlyHealth,
+          otherFixed: present.monthlyOtherFixed,
+          fixedChargesLabel: S.of(context)!.summaryChargesFixes,
+        ),
+      ],
+    );
+  }
+
+  BudgetSnapshot? _readMintStateBudgetIfAvailable(BuildContext context) {
+    try {
+      final state = context.read<MintStateProvider>().state;
+      return state?.dataSpineSnapshot?.budget ?? state?.budgetSnapshot;
+    } on ProviderNotFoundException {
+      return null;
+    }
   }
 
   BudgetProvider? _readBudgetProviderIfAvailable(BuildContext context) {

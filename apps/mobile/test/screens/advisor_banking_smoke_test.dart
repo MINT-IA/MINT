@@ -13,6 +13,7 @@ import 'package:mint_mobile/screens/open_banking/consent_screen.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -246,6 +247,47 @@ void main() {
       expect(find.textContaining("1'922"), findsWidgets);
       expect(find.textContaining("3'267"), findsNothing);
       expect(find.textContaining("1'733"), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('budget card can render canonical BudgetSnapshot',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      const snapshot = BudgetSnapshot(
+        present: PresentBudget(
+          monthlyNet: 5000.0,
+          monthlyHousing: 2200.0,
+          monthlyDebt: 0.0,
+          monthlyTax: 458.0,
+          monthlyHealth: 420.0,
+          monthlyOtherFixed: 0.0,
+          monthlyCharges: 3078.0,
+          monthlySavings: 0.0,
+          monthlyFree: 1922.0,
+        ),
+        capImpacts: [],
+        stage: BudgetStage.presentOnly,
+        confidenceScore: 80,
+      );
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(
+            wizardAnswers: testAnswersV2,
+            budgetSnapshot: snapshot,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining('Ton Budget'), findsOneWidget);
+      expect(find.textContaining('Charges fixes totales'), findsOneWidget);
+      expect(find.textContaining("5'000"), findsWidgets);
+      expect(find.textContaining("3'078"), findsWidgets);
+      expect(find.textContaining("1'922"), findsWidgets);
       expect(tester.takeException(), isNull);
     });
 

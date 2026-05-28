@@ -155,6 +155,12 @@ class BudgetLivingEngine {
 
     return PresentBudget(
       monthlyNet: monthlyNet,
+      monthlyHousing: PresentBudgetBuilder.displayChf(inputs.housingCost),
+      monthlyDebt: PresentBudgetBuilder.displayChf(inputs.debtPayments),
+      monthlyTax: PresentBudgetBuilder.displayChf(inputs.taxProvision),
+      monthlyHealth: PresentBudgetBuilder.displayChf(inputs.healthInsurance),
+      monthlyOtherFixed:
+          PresentBudgetBuilder.displayChf(inputs.otherFixedCosts),
       monthlyCharges: monthlyCharges,
       monthlySavings: monthlySavings,
       monthlyFree: monthlyFree,
