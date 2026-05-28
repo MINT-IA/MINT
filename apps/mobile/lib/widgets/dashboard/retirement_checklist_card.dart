@@ -233,7 +233,7 @@ class RetirementChecklistCard extends StatelessWidget {
         color: MintColors.success,
         title: '\u00c9valuer un rachat LPP',
         subtitle:
-            '\u00c9conomie d\u2019imp\u00f4t estim\u00e9e\u00a0: ~CHF\u00a0${_fmt(economie)}. '
+            'R\u00e9duction d\u2019imp\u00f4t estim\u00e9e\u00a0: ~CHF\u00a0${_fmt(economie)}. '
             'Lacune restante\u00a0: CHF\u00a0${_fmt(lacune)}.',
         timeline: 'Avant $retirementYear (LPP art. 79b)',
         route: '/rachat-lpp',
