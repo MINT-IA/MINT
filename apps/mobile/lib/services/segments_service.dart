@@ -958,9 +958,9 @@ class IndependantService {
 
     if (!input.has3a) {
       recs.add(
-        'Ouvrir un 3e pilier et verser le maximum annuel de '
-        '${formatChf(plafond3a)}. L\'économie fiscale est '
-        'significative.',
+        'Évaluer un versement 3e pilier jusqu\'au plafond annuel de '
+        '${formatChf(plafond3a)}. Impact fiscal indicatif selon '
+        'ton taux marginal.',
       );
     }
 

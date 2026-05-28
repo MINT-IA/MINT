@@ -612,6 +612,26 @@ void main() {
       expect(result.recommendations.any((r) => r.contains('budget')), isTrue);
     });
 
+    test('3a recommendation frames fiscal impact as indicative', () {
+      final result = IndependantService.analyse(
+        input: const IndependantInput(
+          revenuNet: 80000,
+          age: 35,
+          has3a: false,
+          canton: 'VD',
+        ),
+      );
+
+      final recommendation = result.recommendations.firstWhere(
+        (r) => r.contains('3e pilier'),
+      );
+
+      expect(recommendation, contains('Impact fiscal indicatif'));
+      expect(recommendation, contains('taux marginal'));
+      expect(recommendation, isNot(contains('économie fiscale')));
+      expect(recommendation, isNot(contains('maximum annuel')));
+    });
+
     test('all coverage gaps have legal sources', () {
       final result = IndependantService.analyse(
         input: const IndependantInput(
