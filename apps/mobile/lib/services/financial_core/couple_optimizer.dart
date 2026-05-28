@@ -226,10 +226,10 @@ class CoupleOptimizer {
       reason = 'Taux marginaux similaires — pas de préférence.';
     } else if (userSaving > conjointSaving) {
       winner = CoupleWinner.mainUser;
-      reason = 'Taux marginal plus élevé → économie fiscale supérieure par CHF racheté.';
+      reason = 'Taux marginal estimé plus élevé : réduction d’impôt indicative à comparer par CHF racheté.';
     } else {
       winner = CoupleWinner.conjoint;
-      reason = 'Taux marginal plus élevé → économie fiscale supérieure par CHF racheté.';
+      reason = 'Taux marginal estimé plus élevé : réduction d’impôt indicative à comparer par CHF racheté.';
     }
 
     return CoupleAnalysisResult(

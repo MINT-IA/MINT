@@ -59,7 +59,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Top cantons déménagement économies fiscales comparaison',
+      label: 'Comparaison indicative de cantons pour déménagement',
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -108,7 +108,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Ton top cantons',
+                  'Cantons à simuler',
                   style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
@@ -117,7 +117,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
           const SizedBox(height: 8),
           if (top != null)
             Text(
-              'Ton n°1 : ${top.canton}. Tu économises ${formatChfWithPrefix(top.annualTaxSaving)}/an vs ${widget.currentCanton}.',
+              'Premier scénario : ${top.canton}. Écart fiscal estimé ${formatChfWithPrefix(top.annualTaxSaving)}/an vs ${widget.currentCanton}.',
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
             ),
         ],
@@ -200,7 +200,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '− ${formatChfWithPrefix(r.annualTaxSaving)}/an',
+                      'Écart estimé ${formatChfWithPrefix(r.annualTaxSaving)}/an',
                       style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
                     ),
                     Text(
@@ -232,7 +232,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Le canton le moins cher est parfois à 30 minutes. '
+              'Cet écart fiscal reste un scénario. '
               'Compare aussi la qualité des écoles, transports et prix de l\'immobilier.',
               style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
             ),

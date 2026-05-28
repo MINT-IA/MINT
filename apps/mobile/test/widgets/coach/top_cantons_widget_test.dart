@@ -54,7 +54,7 @@ void main() {
 
   testWidgets('renders title', (tester) async {
     await tester.pumpWidget(buildWidget());
-    expect(find.textContaining('cantons'), findsWidgets);
+    expect(find.text('Cantons à simuler'), findsOneWidget);
   });
 
   testWidgets('shows top canton', (tester) async {
@@ -62,8 +62,10 @@ void main() {
     expect(find.textContaining('Zoug'), findsWidgets);
   });
 
-  testWidgets('shows savings amounts', (tester) async {
+  testWidgets('shows estimated difference amounts', (tester) async {
     await tester.pumpWidget(buildWidget());
+    expect(find.textContaining('Écart fiscal estimé'), findsOneWidget);
+    expect(find.textContaining('Écart estimé'), findsWidgets);
     expect(find.textContaining("12'800"), findsWidgets);
   });
 
@@ -85,6 +87,24 @@ void main() {
 
   testWidgets('has Semantics label', (tester) async {
     await tester.pumpWidget(buildWidget());
-    expect(find.bySemanticsLabel(RegExp('cantons', caseSensitive: false)), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            widget.properties.label ==
+                'Comparaison indicative de cantons pour déménagement',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('does not promise fiscal savings', (tester) async {
+    await tester.pumpWidget(buildWidget());
+    expect(find.textContaining('Ton top'), findsNothing);
+    expect(find.textContaining('Ton n°1'), findsNothing);
+    expect(find.textContaining('meilleur'), findsNothing);
+    expect(find.textContaining('Tu économises'), findsNothing);
+    expect(find.textContaining('économies fiscales'), findsNothing);
+    expect(find.textContaining('moins cher'), findsNothing);
   });
 }
