@@ -57,7 +57,7 @@ Branch: `fix/budget-read-model-convergence-v1` (PR #681). Atomic commits (hooks 
 | `662714e62` | onb-01 Option-B non-evidence comment + Écart accent + de/es/it/pt translation + gen-l10n | done |
 | `229ce418f` | SC-3 compile fix: add missing `BudgetInputs` import in readiness_gate | done |
 | `093eb9d70` | SC-2 part 2 (compile repair): finish computeMonthlySavings rename, budget_screen signature + valid PMC literals; SC-2 GREEN | done |
-| `9bf63ff7e` | Regression fix: defensive `try/catch` profile read in budget_screen (the hard `context.read` broke 13 widget tests) + dedupe imports | done |
+| `5917ab377` | Regression fix: defensive `try/catch` profile read in budget_screen (the hard `context.read` broke 13 widget tests) + dedupe imports | done |
 | (this) | docs: SUMMARY | done |
 
 Note: `229ce418f`'s message says "SC-3" but it was the readiness_gate import fix; the SC-4 seed actually landed earlier in the session — see Self-Check for the verified slug presence.
@@ -94,7 +94,7 @@ Gate Fix 2 is **compute-side only**: it changes how `monthlySavings` is derived 
 
 A first parallelized edit batch landed several broken/incomplete intermediates that were caught and repaired before plan close:
 1. `0cee045a3` (SC-2 part 1) captured a broken state: engine still private `_computeMonthlySavings`, undefined `profileProvider` at call-site, invalid `PlannedMonthlyContribution` literals. Caught by full `flutter analyze` (8 errors). Repaired in `093eb9d70`: public helper, builder signature + valid literals (`id`/`label` + `lpp_buyback` category).
-2. The `context.read<CoachProfileProvider>()` builder wiring broke 13 widget tests (`Could not find the correct Provider`). Fixed in `9bf63ff7e` with a defensive `try/catch` → null profile → `plan.future` fallback (mirrors the existing `_buildActionInsight` defensive pattern). Also deduped imports.
+2. The `context.read<CoachProfileProvider>()` builder wiring broke 13 widget tests (`Could not find the correct Provider`). Fixed in `5917ab377` with a defensive `try/catch` → null profile → `plan.future` fallback (mirrors the existing `_buildActionInsight` defensive pattern). Also deduped imports.
 3. **The SC-4 seed never actually committed in the first batch** — `git log -S cadre_3a_contributing` found zero source commits; the `229ce418f` commit (mislabeled "SC-4") only held the readiness_gate import fix. Landed for real in `5f6d06680` (verified by `git log -S`).
 
 Net end state is correct and all targeted/smoke tests are green. Broken intermediates are superseded but left in history (no force-rewrite per worktree rules). One process incident: an accidental `git stash` was immediately popped back (`Dropped stash@{0}`) — no work lost; a sibling worktree-agent's pre-existing stash was left untouched.
@@ -130,4 +130,4 @@ Tasks 1 and 2 are `tdd="true"` and inherit the Wave-1 RED gate (Plan 01). This w
 - `apps/mobile/lib/domain/budget/budget_inputs.dart` (hasTrustedCharges) — FOUND
 - `apps/mobile/lib/services/budget_living_engine.dart` (public computeMonthlySavings) — FOUND
 - `apps/mobile/lib/services/coach/coach_profile_seeds.dart` (cadre_3a_contributing) — FOUND
-- Commits `80402e799`, `efcdba339`, `662714e62`, `229ce418f`, `9c8b1ed26` — all FOUND in `git log`
+- Commits `80402e799`, `efcdba339`, `662714e62`, `093eb9d70`, `5917ab377`, `5f6d06680` — all FOUND in `git log` (verified via `git cat-file -t`)
