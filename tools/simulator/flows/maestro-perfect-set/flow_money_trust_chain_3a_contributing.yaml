@@ -112,13 +112,16 @@ tags:
 - assertNotVisible: "NaN"
 - assertNotVisible: "Infinity"
 # The leading budget fact rendered in the chat-open "Point de départ" packet.
-# NOTE (SC-4 finding): the packet prioritises budget.monthly_capacity over
-# budget.monthly_free (CoachPacketInsightPresenter._factPriority), so the
-# coach text reads "Capacité mensuelle: CHF <capacity>". The comparator will
-# therefore FAIL if capacity != monthlyFree — that divergence IS the honest
-# SC-4 verdict for the coach surface, not a flow bug.
+# POST-FIX (SALVAGE-00 SC-4): CoachPacketInsightPresenter._factPriority now
+# lists budget.monthly_free BEFORE budget.monthly_capacity, so the leading
+# coach fact reads "Marge libre: CHF <monthlyFree>" (the converged Disponible),
+# not "Capacité mensuelle: CHF <capacity>". The comparator extracts the CHF
+# token after "CHF" regardless of the label, so a true convergence => PASS and
+# any residual divergence => FAIL (honest verdict, not a flow bug).
+- assertVisible:
+    text: "Marge libre.*"
 - copyTextFrom:
-    text: "Capacité mensuelle.*"
+    text: "Marge libre.*"
 - evalScript: ${output.sc4_coach = maestro.copiedText}
 - takeScreenshot: "sc4-coach-surface"
 
