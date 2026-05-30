@@ -83,6 +83,17 @@ var summary =
   'coach="' + coach + '" => ' + output.sc4_converged;
 output.sc4_summary = summary;
 
+// Surface the captured tokens + raw strings deterministically into the log so
+// the rerun evidence shows the exact CHF value seen on each surface, not just
+// a pass/fail bit. (json output below makes the values greppable from disk.)
+output.sc4_evidence_json = JSON.stringify({
+  budget_token: budget, mon_argent_token: monArgent, coach_token: coach,
+  verdict: output.sc4_converged,
+  budget_raw: budgetRaw, mon_argent_raw: monArgentRaw, coach_raw: coachRaw,
+});
+console.log('SC4_EVIDENCE ' + output.sc4_evidence_json);
+console.log(summary);
+
 if (!allEqual) {
   throw new Error(
     'SC-4 FAIL — Disponible/mois (monthlyFree) DIVERGES across surfaces. ' + summary +
