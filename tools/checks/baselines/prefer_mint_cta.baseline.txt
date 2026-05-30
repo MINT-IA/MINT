@@ -1,7 +1,7 @@
 lib/app.dart:2165: FilledButton(
 lib/app.dart:2171: TextButton(
 lib/screens/admin_observability_screen.dart:185: FilledButton(
-lib/screens/arbitrage/allocation_annuelle_screen.dart:421: FilledButton(
+lib/screens/arbitrage/allocation_annuelle_screen.dart:423: FilledButton(
 lib/screens/arbitrage/arbitrage_bilan_screen.dart:52: FilledButton(
 lib/screens/arbitrage/location_vs_propriete_screen.dart:429: FilledButton(
 lib/screens/aujourdhui/aujourdhui_screen.dart:381: TextButton(
@@ -32,7 +32,7 @@ lib/screens/debt_prevention/repayment_screen.dart:565: FilledButton(
 lib/screens/debt_risk_check_screen.dart:126: FilledButton(
 lib/screens/debt_risk_check_screen.dart:292: OutlinedButton(
 lib/screens/debt_risk_check_screen.dart:347: OutlinedButton(
-lib/screens/disability/disability_gap_screen.dart:457: OutlinedButton(
+lib/screens/disability/disability_gap_screen.dart:462: OutlinedButton(
 lib/screens/document_detail_screen.dart:275: FilledButton(
 lib/screens/document_detail_screen.dart:510: TextButton(
 lib/screens/document_detail_screen.dart:514: FilledButton(
@@ -77,7 +77,7 @@ lib/screens/profile/privacy_center_screen.dart:52: FilledButton(
 lib/screens/profile/privacy_control_screen.dart:277: TextButton(
 lib/screens/profile/privacy_control_screen.dart:281: TextButton(
 lib/screens/profile/privacy_control_screen.dart:90: TextButton(
-lib/screens/simulator_3a_screen.dart:775: OutlinedButton(
+lib/screens/simulator_3a_screen.dart:784: OutlinedButton(
 lib/screens/slm_settings_screen.dart:524: TextButton(
 lib/screens/slm_settings_screen.dart:528: FilledButton(
 lib/screens/slm_settings_screen.dart:574: TextButton(
