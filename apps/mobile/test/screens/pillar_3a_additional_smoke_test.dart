@@ -96,8 +96,9 @@ void main() {
       await tester.pump();
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pump();
-      // i18n: retroactive3aEconomiesFiscales = "Économies fiscales estimées"
-      expect(find.textContaining('conomies'), findsWidgets);
+      // i18n: retroactive3aEconomiesFiscales = "Impacts fiscaux estimés"
+      // (LSFin no-promise rewording: "Économies fiscales" -> "Impacts fiscaux").
+      expect(find.textContaining('Impacts fiscaux'), findsWidgets);
     });
 
     testWidgets('displays CHF amounts in results', (tester) async {

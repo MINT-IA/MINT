@@ -1,6 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/educational_insert_service.dart';
+
+/// Wraps [child] in a MaterialApp with French localization delegates so
+/// AppLocalizations.of(context) (S) resolves for now-i18n'd insert widgets.
+Widget _l10nApp(Widget child) {
+  return MaterialApp(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
+    home: child,
+  );
+}
 
 /// Unit tests for EducationalInsertService
 ///
@@ -161,8 +179,8 @@ void main() {
       )!;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
+        _l10nApp(
+          Scaffold(
             body: SingleChildScrollView(child: widget),
           ),
         ),
@@ -231,8 +249,8 @@ void main() {
       )!;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
+        _l10nApp(
+          Scaffold(
             body: SingleChildScrollView(child: widget),
           ),
         ),
@@ -261,8 +279,8 @@ void main() {
       )!;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
+        _l10nApp(
+          Scaffold(
             body: SingleChildScrollView(child: widget),
           ),
         ),
