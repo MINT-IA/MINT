@@ -80,6 +80,13 @@ class LPPPlanInput {
 
   /// Estimated net monthly salary (gross - social charges - LPP employee).
   double get salaireNetMensuel {
+    // NOTE (onb-02): this rate is DISTINCT from IncomeConverter's bundled
+    // net↔gross factor and must NOT be routed through it. IncomeConverter
+    // folds AVS+AC+LAA+LPP into a single ~15% factor for the hero/estimator
+    // round-trip. Here we itemise: this 6.4% covers ONLY the AVS/AI/APG (5.3%)
+    // + AC (1.1%) employee shares, and the LPP employee contribution is
+    // subtracted separately below via cotisationEmployeAnnuelle. Folding in
+    // IncomeConverter's factor would double-count LPP.
     // AVS/AI/APG: 5.3% employee share
     // AC: 1.1% employee share (up to 148'200)
     // AANP: ~0% for employee (paid by employer for occupational)

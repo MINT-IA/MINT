@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/job_comparison_service.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -84,6 +87,62 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
 
   // Checklist state (local only)
   List<bool> _checklistState = [];
+
+  // SALVAGE-01-03 (def-04): seed the "current job" side once from the real
+  // CoachProfile so it reflects the user's actual situation, not the
+  // 35/85000/5.2/120000 fixtures. Guarded so it runs at most once.
+  bool _didSeedFromProfile = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_didSeedFromProfile) {
+      _didSeedFromProfile = true;
+      _seedCurrentJobFromProfile();
+    }
+  }
+
+  /// Seeds the current-job inputs from the persisted CoachProfile when the
+  /// corresponding field is present. Each field falls back to its static
+  /// default when the profile (or that field) is absent — never fabricated.
+  void _seedCurrentJobFromProfile() {
+    CoachProfile? profile;
+    try {
+      profile = context.read<CoachProfileProvider>().profile;
+    } catch (_) {
+      // Provider not in the tree (e.g. some tests) — keep all defaults.
+      return;
+    }
+    if (profile == null) return;
+
+    // Age: use the null-safe getter — NEVER fabricate from raw birthYear
+    // (def-03 anti-pattern). Null age keeps the existing default.
+    final age = profile.ageOrNull;
+    // Annual gross: revenuBrutAnnuel returns 0 when salaireBrutMensuel is null.
+    final annualGross = profile.revenuBrutAnnuel;
+    // Prevoyance fields are optional; seed only when present.
+    final prevoyance = profile.prevoyance;
+    final avoir = prevoyance.avoirLppTotal;
+    final tauxSuroblig = prevoyance.tauxConversionSuroblig;
+
+    setState(() {
+      if (age != null) _age = age;
+      if (annualGross > 0) _currentSalaireBrut = annualGross;
+      if (avoir != null && avoir > 0) _currentAvoirVieillesse = avoir;
+      // tauxConversionSuroblig is a decimal (e.g. 0.058); the field is a
+      // percent (5.8). Only seed when the rate was actually captured.
+      if (tauxSuroblig != null) _currentTauxConversion = tauxSuroblig * 100;
+    });
+  }
+
+  @visibleForTesting
+  int get debugAge => _age;
+  @visibleForTesting
+  double get debugCurrentSalaireBrut => _currentSalaireBrut;
+  @visibleForTesting
+  double get debugCurrentAvoirVieillesse => _currentAvoirVieillesse;
+  @visibleForTesting
+  double get debugCurrentTauxConversion => _currentTauxConversion;
 
   @override
   void dispose() {

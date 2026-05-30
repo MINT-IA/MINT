@@ -14,6 +14,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
 
@@ -2635,21 +2636,25 @@ class CoachProfile {
     } else {
       monthlyNetIncome = netIncome;
     }
+    // Employment status mapping (parsed before the net→gross fallback so the
+    // salaried vs independant IncomeConverter factor can be selected).
+    final employmentRaw = answers['q_employment_status'] as String?;
+    final employmentStatus = _parseEmploymentStatus(employmentRaw);
+
     // Prefer direct gross salary when stored by updateFromSmartFlow
     // (avoids net→gross roundtrip rounding: 120'000 → net → 113'793 brut).
-    // Fallback: net → brut via Swiss social charges ≈ 13%.
-    // (AVS 5.3% + LPP ~5% + AC ~1.1% + AANP ~1% ≈ 12.5%, arrondi 13%)
-    // Source: OFAS barème cotisations 2025. Ceci est une estimation;
-    // le taux réel dépend du plan LPP et du canton.
-    const double socialChargesRate = 0.13;
+    // Fallback: net → brut via the canonical IncomeConverter factor
+    // (single source — onb-02). The onboarding hero figure and this persisted
+    // estimator MUST agree, so we consume IncomeConverter.factorFor instead of
+    // a divergent hardcoded charges rate. Salaried → 1.17, independant → 1.10
+    // (see income_converter.dart for the LAVS/LPP rationale).
     final grossSalaryDirect = _parseDouble(answers['q_gross_salary_annual']);
     final salaireBrutMensuel = grossSalaryDirect != null
         ? grossSalaryDirect / 12
-        : monthlyNetIncome / (1 - socialChargesRate);
-
-    // Employment status mapping
-    final employmentRaw = answers['q_employment_status'] as String?;
-    final employmentStatus = _parseEmploymentStatus(employmentRaw);
+        : monthlyNetIncome *
+            IncomeConverter.factorFor(
+              isSalaried: employmentStatus != 'independant',
+            );
 
     // ── Depenses ────────────────────────────────────────────
     final housingCost = _parseMonthlyAmount(
@@ -3008,10 +3013,14 @@ class CoachProfile {
     ConjointProfile? conjoint;
     final partnerIncome = _parseDouble(answers['q_partner_net_income_chf']);
     if (partnerIncome != null && partnerIncome > 0) {
-      // Net -> Brut estimation: same social charges rate as main user
-      final partnerBrut = partnerIncome / (1 - socialChargesRate);
       final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
       final conjEmployment = answers['q_partner_employment_status'] as String?;
+      // Net -> Brut estimation via the SAME canonical IncomeConverter factor
+      // as the main user (single source — onb-02). No divergent charges rate.
+      final partnerBrut = partnerIncome *
+          IncomeConverter.factorFor(
+            isSalaried: conjEmployment != 'independant',
+          );
 
       // === Conjoint arrivalAge ===
       // First check for spouse-specific AVS arrival data, then fall back
