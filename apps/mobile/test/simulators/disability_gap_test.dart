@@ -1,7 +1,52 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/domain/disability_gap_calculator.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/screens/disability/disability_gap_screen.dart';
 
 void main() {
+  // SALVAGE-01-02 / def-03/mlf-03: the screen used to seed _age from the raw
+  // `now.year - profile.birthYear`, which on the birthYear==0 sentinel
+  // produced 2026 -> clamp(18,64) = 64. Now it routes through ageOrNull and
+  // skips seeding when age is unknown, leaving the editable default (45).
+  group('DisabilityGapScreen — sentinel-age skip (def-03/mlf-03)', () {
+    Widget buildScreen(CoachProfileProvider coach) {
+      return ChangeNotifierProvider<CoachProfileProvider>.value(
+        value: coach,
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: DisabilityGapScreen(),
+        ),
+      );
+    }
+
+    testWidgets('no-age profile (birthYear==0) does not seed age 64',
+        (tester) async {
+      final coach = CoachProfileProvider();
+      // No q_birth_year -> birthYear==0 -> ageOrNull == null -> skip seeding.
+      coach.updateFromAnswers(<String, dynamic>{
+        'q_canton': 'VD',
+        'q_monthly_gross': 6000,
+      });
+      await tester.pumpWidget(buildScreen(coach));
+      await tester.pump();
+      // The fabricated near-retirement age (64 ans) must NOT appear; the
+      // editable default (45 ans) is shown instead.
+      expect(find.textContaining('64 ans'), findsNothing);
+      expect(find.textContaining('45 ans'), findsWidgets);
+    });
+  });
+
   group('DisabilityGapCalculator', () {
     test('Marc: ZH employee, 3y seniority, 8000 CHF, IJM, 100% disability', () {
       final result = computeDisabilityGap(

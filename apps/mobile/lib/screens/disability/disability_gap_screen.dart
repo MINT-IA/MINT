@@ -50,8 +50,13 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
       setState(() {
         final salary = profile.salaireBrutMensuel;
         if (salary > 0) _grossMonthly = salary.clamp(2000.0, 25000.0);
-        final age = DateTime.now().year - profile.birthYear;
-        _age = age.clamp(18, 64);
+        // SALVAGE-01-02 / def-03/mlf-03: route age through ageOrNull instead
+        // of the raw `now.year - birthYear`, which on the birthYear==0
+        // sentinel yielded 2026 -> clamp(18,64) = 64 (a fabricated near-
+        // retirement age). When age is unknown, leave the editable _age
+        // slider at its default so the user supplies it (prompt, not 64).
+        final age = profile.ageOrNull;
+        if (age != null) _age = age.clamp(18, 64);
         final savings = profile.patrimoine.epargneLiquide;
         if (savings > 0) _savings = savings.clamp(0.0, 500000.0);
       });
