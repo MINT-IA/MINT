@@ -545,8 +545,18 @@ void main() {
       final profile = buildProfile(
         salaireBrutMensuel: 8000,
         contributions: const [
-          PlannedMonthlyContribution(category: '3a', amount: 564.55),
-          PlannedMonthlyContribution(category: 'lppBuyback', amount: 500.0),
+          PlannedMonthlyContribution(
+            id: '3a_test',
+            label: '3a test',
+            category: '3a',
+            amount: 564.55,
+          ),
+          PlannedMonthlyContribution(
+            id: 'lpp_buyback_test',
+            label: 'LPP buyback test',
+            category: 'lpp_buyback',
+            amount: 500.0,
+          ),
         ],
       );
       final engineSnap = BudgetLivingEngine.compute(profile);
