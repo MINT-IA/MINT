@@ -105,6 +105,25 @@ void main() {
       },
     );
   });
+
+  // SALVAGE-01-02 / math-02: the retirement-horizon getter must return
+  // null (NOT a fabricated 65) when age is unknown, mirroring the
+  // already-correct PrevoyanceProfile.anneesAvantRetraite twin.
+  group('CoachProfile.anneesAvantRetraite — math-02 null-skip', () {
+    final currentYear = DateTime.now().year;
+
+    test('birthYear=0 (unset) returns null, not a fabricated 65', () {
+      final profile = _buildProfile(birthYear: 0);
+      expect(profile.anneesAvantRetraite, isNull);
+    });
+
+    test('valid birthYear returns (effectiveRetirementAge - age).clamp', () {
+      final profile = _buildProfile(birthYear: 1996);
+      final age = currentYear - 1996;
+      final expected = (profile.effectiveRetirementAge - age).clamp(0, 99);
+      expect(profile.anneesAvantRetraite, equals(expected));
+    });
+  });
 }
 
 /// Helper that builds a minimal [CoachProfile] with only the fields
