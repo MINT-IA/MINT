@@ -55,6 +55,44 @@ class BudgetInputs {
   bool get hasMissingValues =>
       isHousingMissing || isHealthMissing || isOtherFixedMissing;
 
+  /// Source-trust charges predicate shared by the readiness gate and the
+  /// budget render path (SALVAGE-00 SC-3 / Gate Fix 1).
+  ///
+  /// Returns true IFF [fromCoachProfile] would yield a NON-ZERO monthly
+  /// charges total — i.e. at least one user-facing expense (loyer / LAMal /
+  /// autres charges fixes) carries a trusted or estimated data source, OR was
+  /// explicitly user-provided. This is the SAME per-expense source gate the
+  /// budget screen renders against (see [fromCoachProfile] :85-108), so the
+  /// readiness gate is gate-ready IFF the screen would render a non-zero
+  /// charge. An untagged loyer (no `dataSources['depenses.loyer']` entry, not
+  /// in `userProvidedFields`) renders 0 and therefore must NOT pass the gate.
+  ///
+  /// Do NOT loosen this to a raw `profile.depenses.totalMensuel > 0` check:
+  /// that would pass the gate while the screen still renders 0 (the P1
+  /// pass-gate-but-render-zero trust collapse this fix kills).
+  static bool hasTrustedCharges(CoachProfile profile) {
+    final hasHousingSource = _hasTrustedSource(profile, 'depenses.loyer') ||
+        _hasEstimatedSource(profile, 'depenses.loyer') ||
+        profile.userProvidedFields.contains('housingCost');
+    final hasHealthSource =
+        _hasTrustedSource(profile, 'depenses.assuranceMaladie') ||
+            _hasEstimatedSource(profile, 'depenses.assuranceMaladie') ||
+            profile.userProvidedFields.contains('lamalPremium');
+    final hasOtherFixedSource = _hasAnyTrustedSource(profile, const [
+          'depenses.electricite',
+          'depenses.transport',
+          'depenses.telecom',
+          'depenses.fraisMedicaux',
+          'depenses.autresDepensesFixes',
+        ]) ||
+        profile.userProvidedFields.contains('electricity') ||
+        profile.userProvidedFields.contains('transport') ||
+        profile.userProvidedFields.contains('telecom') ||
+        profile.userProvidedFields.contains('medicalCosts') ||
+        profile.userProvidedFields.contains('otherFixedCosts');
+    return hasHousingSource || hasHealthSource || hasOtherFixedSource;
+  }
+
   /// Construit des BudgetInputs a partir d'un CoachProfile.
   ///
   /// Utilise pour synchroniser le budget quand le profil change
