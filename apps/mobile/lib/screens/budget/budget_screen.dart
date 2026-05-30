@@ -19,8 +19,6 @@ import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -286,9 +284,21 @@ class _BudgetScreenState extends State<BudgetScreen>
                                 return const MintLoadingSkeleton();
                               }
 
-                              final flowPresent = _presentBudgetFromInputs(
-                                  plan,
-                                  context.read<CoachProfileProvider>().profile);
+                              // SALVAGE-00 SC-2: read the profile defensively —
+                              // when the CoachProfileProvider is absent from the
+                              // tree (widget tests that pump BudgetScreen in
+                              // isolation), fall back to plan.future via a null
+                              // profile instead of throwing.
+                              CoachProfile? flowProfile;
+                              try {
+                                flowProfile = context
+                                    .read<CoachProfileProvider>()
+                                    .profile;
+                              } catch (_) {
+                                flowProfile = null;
+                              }
+                              final flowPresent =
+                                  _presentBudgetFromInputs(plan, flowProfile);
 
                               return SingleChildScrollView(
                                 padding: const EdgeInsets.symmetric(
