@@ -291,10 +291,13 @@ void main() {
       await tester.pumpAndSettle();
 
       // Subtitles with correct French accents (é, è, ô, etc.)
-      expect(find.textContaining('D\u00e9couvre'), findsNWidgets(2));
+      // 3a subtitle reworded for LSFin no-promise compliance:
+      // "D\u00e9couvre l'\u00e9conomie d'imp\u00f4t" -> "Comprends ta marge d\u00e9ductible".
+      expect(find.textContaining('D\u00e9couvre'), findsOneWidget);
+      expect(find.textContaining('Comprends'), findsOneWidget);
       expect(find.textContaining('capacit\u00e9'), findsOneWidget);
       expect(find.textContaining('d\u00e9penses'), findsOneWidget);
-      expect(find.textContaining('\u00e9conomie'), findsOneWidget);
+      expect(find.textContaining('d\u00e9ductible'), findsOneWidget);
     });
 
     testWidgets('each item navigates to the correct route when tapped',
@@ -405,7 +408,8 @@ void main() {
 
       // Educational verbs: "Compare", "Découvre", "Visualise", "Estime"
       expect(find.textContaining('Compare'), findsOneWidget);
-      expect(find.textContaining('D\u00e9couvre'), findsNWidgets(2));
+      expect(find.textContaining('D\u00e9couvre'), findsOneWidget);
+      expect(find.textContaining('Comprends'), findsOneWidget);
       expect(find.textContaining('Visualise'), findsOneWidget);
       expect(find.textContaining('Estime'), findsOneWidget);
     });

@@ -29682,6 +29682,204 @@ abstract class S {
   /// **'Hypothèses pédagogiques. Les rendements passés ne constituent pas une assurance de résultat.'**
   String get interactive3aDisclaimer;
 
+  /// PR #682 — TaxSavingsInsertWidget header title (3a tax optimisation mini-simulator).
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimisation 3a'**
+  String get taxInsertTitle;
+
+  /// PR #682 — TaxSavingsInsertWidget header subtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton allié fiscal'**
+  String get taxInsertSubtitle;
+
+  /// PR #682 — TaxSavingsInsertWidget net monthly income slider label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu mensuel net'**
+  String get taxInsertMonthlyIncomeLabel;
+
+  /// PR #682 — TaxSavingsInsertWidget 3a contribution capacity label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capacité 3a'**
+  String get taxInsertCapacity3a;
+
+  /// PR #682 — TaxSavingsInsertWidget indicative tax reduction label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduction d’impôt indicative'**
+  String get taxInsertIndicativeReduction;
+
+  /// PR #682 — TaxSavingsInsertWidget indicative per-month tax impact. {amount} is a preformatted CHF value.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact indicatif: {amount} CHF par mois'**
+  String taxInsertMonthlyImpact(String amount);
+
+  /// PR #682 — TaxSavingsInsertWidget marginal tax rate footnote (range).
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation basée sur taux marginal {minRate}-{maxRate}%'**
+  String taxInsertMarginalRateNote(int minRate, int maxRate);
+
+  /// PR #682 — Interactive3aSimulation employee-with-LPP header.
+  ///
+  /// In fr, this message translates to:
+  /// **'👤 EMPLOYÉ avec LPP'**
+  String get taxSim3aEmployeeTitle;
+
+  /// PR #682 — Interactive3aSimulation self-employed-without-LPP header.
+  ///
+  /// In fr, this message translates to:
+  /// **'💼 INDÉPENDANT sans LPP'**
+  String get taxSim3aSelfEmployedTitle;
+
+  /// PR #682 — Interactive3aSimulation 2026 annual 3a ceiling. {ceiling} is a preformatted CHF value.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond 2026 : {ceiling}/an'**
+  String taxSim3aCeiling2026(String ceiling);
+
+  /// PR #682 — Interactive3aSimulation monthly contribution slider label. {amount} is a preformatted CHF value.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versement mensuel : {amount}'**
+  String taxSim3aMonthlyContribution(String amount);
+
+  /// PR #682 — Interactive3aSimulation warning when annual contribution exceeds the ceiling. Both values are preformatted CHF strings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versement annuel ({contribution}) dépasse le plafond ({ceiling})'**
+  String taxSim3aExceedsLimit(String contribution, String ceiling);
+
+  /// PR #682 — Interactive3aSimulation duration slider label in years.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée : {years} ans'**
+  String taxSim3aDuration(int years);
+
+  /// PR #682 — Marginal tax rate slider label (3a + LPP buyback simulators). {rate} is a preformatted integer-percent string.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux marginal d’imposition : {rate}%'**
+  String taxSimMarginalRate(String rate);
+
+  /// PR #682 — Interactive3aSimulation marginal-rate hint (range 15-45%).
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimé selon canton/revenu (varie de 15% à 45%)'**
+  String get taxSim3aMarginalRateHint;
+
+  /// PR #682 — Interactive3aSimulation annual contribution result label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versement annuel'**
+  String get taxSim3aAnnualContribution;
+
+  /// PR #682 — Estimated tax reduction result label (3a + LPP buyback simulators).
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduction d’impôt estimée'**
+  String get taxSimTaxReductionEstimated;
+
+  /// PR #682 — Real cost result label (3a + LPP buyback simulators).
+  ///
+  /// In fr, this message translates to:
+  /// **'Coût réel'**
+  String get taxSimRealCost;
+
+  /// PR #682 — Interactive3aSimulation projection section title over N years.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection {years} ans (scénarios pédagogiques)'**
+  String taxSim3aProjectionTitle(int years);
+
+  /// PR #682 — Interactive3aSimulation prudent (1%) educational scenario label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prudence (1%)'**
+  String get taxSim3aScenarioPrudent;
+
+  /// PR #682 — Interactive3aSimulation central (3%) educational scenario label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Central (3%)'**
+  String get taxSim3aScenarioCentral;
+
+  /// PR #682 — Interactive3aSimulation stress (5%) educational scenario label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stress (5%)'**
+  String get taxSim3aScenarioStress;
+
+  /// PR #682 — Estimated total tax reduction over N years.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduction d’impôt estimée ({years} ans)'**
+  String taxSimTaxReductionOverYears(int years);
+
+  /// PR #682 — InteractiveLppBuybackSimulation header title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simulation Rachat LPP'**
+  String get lppBuybackTitle;
+
+  /// PR #682 — InteractiveLppBuybackSimulation buyback amount slider label. {amount} is a preformatted CHF value.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant rachat : {amount}'**
+  String lppBuybackAmountLabel(String amount);
+
+  /// PR #682 — Short marginal-rate hint (LPP buyback simulator).
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimé selon canton/revenu'**
+  String get taxSimMarginalRateHintShort;
+
+  /// PR #682 — InteractiveLppBuybackSimulation buyback amount result label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rachat'**
+  String get lppBuybackAmount;
+
+  /// PR #682 — InteractiveLppBuybackSimulation pension impact section title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact retraite (scénarios pédagogiques)'**
+  String get lppBuybackPensionImpactTitle;
+
+  /// PR #682 — InteractiveLppBuybackSimulation prudent conversion-rate scenario. {rate} is a preformatted one-decimal percent string.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prudence (taux {rate}%)'**
+  String lppBuybackScenarioPrudent(String rate);
+
+  /// PR #682 — InteractiveLppBuybackSimulation central conversion-rate scenario. {rate} is a preformatted one-decimal percent string.
+  ///
+  /// In fr, this message translates to:
+  /// **'Central (taux {rate}%)'**
+  String lppBuybackScenarioCentral(String rate);
+
+  /// PR #682 — InteractiveLppBuybackSimulation stress conversion-rate scenario. {rate} is a preformatted one-decimal percent string.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stress (taux {rate}%)'**
+  String lppBuybackScenarioStress(String rate);
+
+  /// PR #682 — InteractiveLppBuybackSimulation assumptions-and-limits disclaimer title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses et limites :'**
+  String get lppBuybackAssumptionsTitle;
+
+  /// PR #682 — InteractiveLppBuybackSimulation assumptions-and-limits disclaimer bullet list.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Déduction fiscale selon règles applicables\n• Taux de conversion : hypothèse actuelle, peut baisser\n• Vérifier avec certificat LPP et un·e spécialiste en fiscalité'**
+  String get lppBuybackAssumptionsBody;
+
   /// No description provided for @jobChangeChecklistAlertBody.
   ///
   /// In fr, this message translates to:

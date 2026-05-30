@@ -33,7 +33,7 @@ import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 
-const _kInsightCacheKey = 'mint_precomputed_insight_v1';
+const _kInsightCacheKey = 'mint_precomputed_insight_v2';
 
 CoachProfileProvider _buildProfileProvider() {
   final provider = CoachProfileProvider();

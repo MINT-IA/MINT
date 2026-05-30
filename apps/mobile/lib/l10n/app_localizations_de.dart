@@ -16871,6 +16871,134 @@ class SDe extends S {
       'Pädagogische Annahmen. Vergangene Renditen sind keine Zusicherung künftiger Ergebnisse.';
 
   @override
+  String get taxInsertTitle => '3a-Optimierung';
+
+  @override
+  String get taxInsertSubtitle => 'Dein Steuerverbündeter';
+
+  @override
+  String get taxInsertMonthlyIncomeLabel => 'Dein monatliches Nettoeinkommen';
+
+  @override
+  String get taxInsertCapacity3a => '3a-Kapazität';
+
+  @override
+  String get taxInsertIndicativeReduction => 'Indikative Steuerreduktion';
+
+  @override
+  String taxInsertMonthlyImpact(String amount) {
+    return 'Indikative Wirkung: $amount CHF pro Monat';
+  }
+
+  @override
+  String taxInsertMarginalRateNote(int minRate, int maxRate) {
+    return 'Schätzung auf Basis eines Grenzsteuersatzes von $minRate-$maxRate%';
+  }
+
+  @override
+  String get taxSim3aEmployeeTitle => '👤 ANGESTELLT mit BVG';
+
+  @override
+  String get taxSim3aSelfEmployedTitle => '💼 SELBSTSTÄNDIG ohne BVG';
+
+  @override
+  String taxSim3aCeiling2026(String ceiling) {
+    return 'Höchstbetrag 2026: $ceiling/Jahr';
+  }
+
+  @override
+  String taxSim3aMonthlyContribution(String amount) {
+    return 'Monatlicher Beitrag: $amount';
+  }
+
+  @override
+  String taxSim3aExceedsLimit(String contribution, String ceiling) {
+    return 'Jahresbeitrag ($contribution) überschreitet den Höchstbetrag ($ceiling)';
+  }
+
+  @override
+  String taxSim3aDuration(int years) {
+    return 'Dauer: $years Jahre';
+  }
+
+  @override
+  String taxSimMarginalRate(String rate) {
+    return 'Grenzsteuersatz: $rate%';
+  }
+
+  @override
+  String get taxSim3aMarginalRateHint =>
+      'Geschätzt nach Kanton/Einkommen (zwischen 15% und 45%)';
+
+  @override
+  String get taxSim3aAnnualContribution => 'Jahresbeitrag';
+
+  @override
+  String get taxSimTaxReductionEstimated => 'Geschätzte Steuerreduktion';
+
+  @override
+  String get taxSimRealCost => 'Tatsächliche Kosten';
+
+  @override
+  String taxSim3aProjectionTitle(int years) {
+    return 'Projektion über $years Jahre (pädagogische Szenarien)';
+  }
+
+  @override
+  String get taxSim3aScenarioPrudent => 'Vorsichtig (1%)';
+
+  @override
+  String get taxSim3aScenarioCentral => 'Zentral (3%)';
+
+  @override
+  String get taxSim3aScenarioStress => 'Stress (5%)';
+
+  @override
+  String taxSimTaxReductionOverYears(int years) {
+    return 'Geschätzte Steuerreduktion ($years Jahre)';
+  }
+
+  @override
+  String get lppBuybackTitle => 'BVG-Einkauf-Simulation';
+
+  @override
+  String lppBuybackAmountLabel(String amount) {
+    return 'Einkaufsbetrag: $amount';
+  }
+
+  @override
+  String get taxSimMarginalRateHintShort => 'Geschätzt nach Kanton/Einkommen';
+
+  @override
+  String get lppBuybackAmount => 'Einkauf';
+
+  @override
+  String get lppBuybackPensionImpactTitle =>
+      'Auswirkung auf die Rente (pädagogische Szenarien)';
+
+  @override
+  String lppBuybackScenarioPrudent(String rate) {
+    return 'Vorsichtig (Satz $rate%)';
+  }
+
+  @override
+  String lppBuybackScenarioCentral(String rate) {
+    return 'Zentral (Satz $rate%)';
+  }
+
+  @override
+  String lppBuybackScenarioStress(String rate) {
+    return 'Stress (Satz $rate%)';
+  }
+
+  @override
+  String get lppBuybackAssumptionsTitle => 'Annahmen und Grenzen:';
+
+  @override
+  String get lppBuybackAssumptionsBody =>
+      '• Steuerabzug gemäss anwendbaren Regeln\n• Umwandlungssatz: aktuelle Annahme, kann sinken\n• Mit BVG-Ausweis und einer Steuerfachperson überprüfen';
+
+  @override
   String get jobChangeChecklistAlertBody =>
       'Ohne Freizügigkeitsübertragung innerhalb der Frist kann dein BVG-Kapital bei der Auffangeinrichtung zu 0.05 % landen.';
 

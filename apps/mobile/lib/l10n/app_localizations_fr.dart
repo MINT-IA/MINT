@@ -16823,6 +16823,134 @@ class SFr extends S {
       'Hypothèses pédagogiques. Les rendements passés ne constituent pas une assurance de résultat.';
 
   @override
+  String get taxInsertTitle => 'Optimisation 3a';
+
+  @override
+  String get taxInsertSubtitle => 'Ton allié fiscal';
+
+  @override
+  String get taxInsertMonthlyIncomeLabel => 'Ton revenu mensuel net';
+
+  @override
+  String get taxInsertCapacity3a => 'Capacité 3a';
+
+  @override
+  String get taxInsertIndicativeReduction => 'Réduction d’impôt indicative';
+
+  @override
+  String taxInsertMonthlyImpact(String amount) {
+    return 'Impact indicatif: $amount CHF par mois';
+  }
+
+  @override
+  String taxInsertMarginalRateNote(int minRate, int maxRate) {
+    return 'Estimation basée sur taux marginal $minRate-$maxRate%';
+  }
+
+  @override
+  String get taxSim3aEmployeeTitle => '👤 EMPLOYÉ avec LPP';
+
+  @override
+  String get taxSim3aSelfEmployedTitle => '💼 INDÉPENDANT sans LPP';
+
+  @override
+  String taxSim3aCeiling2026(String ceiling) {
+    return 'Plafond 2026 : $ceiling/an';
+  }
+
+  @override
+  String taxSim3aMonthlyContribution(String amount) {
+    return 'Versement mensuel : $amount';
+  }
+
+  @override
+  String taxSim3aExceedsLimit(String contribution, String ceiling) {
+    return 'Versement annuel ($contribution) dépasse le plafond ($ceiling)';
+  }
+
+  @override
+  String taxSim3aDuration(int years) {
+    return 'Durée : $years ans';
+  }
+
+  @override
+  String taxSimMarginalRate(String rate) {
+    return 'Taux marginal d’imposition : $rate%';
+  }
+
+  @override
+  String get taxSim3aMarginalRateHint =>
+      'Estimé selon canton/revenu (varie de 15% à 45%)';
+
+  @override
+  String get taxSim3aAnnualContribution => 'Versement annuel';
+
+  @override
+  String get taxSimTaxReductionEstimated => 'Réduction d’impôt estimée';
+
+  @override
+  String get taxSimRealCost => 'Coût réel';
+
+  @override
+  String taxSim3aProjectionTitle(int years) {
+    return 'Projection $years ans (scénarios pédagogiques)';
+  }
+
+  @override
+  String get taxSim3aScenarioPrudent => 'Prudence (1%)';
+
+  @override
+  String get taxSim3aScenarioCentral => 'Central (3%)';
+
+  @override
+  String get taxSim3aScenarioStress => 'Stress (5%)';
+
+  @override
+  String taxSimTaxReductionOverYears(int years) {
+    return 'Réduction d’impôt estimée ($years ans)';
+  }
+
+  @override
+  String get lppBuybackTitle => 'Simulation Rachat LPP';
+
+  @override
+  String lppBuybackAmountLabel(String amount) {
+    return 'Montant rachat : $amount';
+  }
+
+  @override
+  String get taxSimMarginalRateHintShort => 'Estimé selon canton/revenu';
+
+  @override
+  String get lppBuybackAmount => 'Rachat';
+
+  @override
+  String get lppBuybackPensionImpactTitle =>
+      'Impact retraite (scénarios pédagogiques)';
+
+  @override
+  String lppBuybackScenarioPrudent(String rate) {
+    return 'Prudence (taux $rate%)';
+  }
+
+  @override
+  String lppBuybackScenarioCentral(String rate) {
+    return 'Central (taux $rate%)';
+  }
+
+  @override
+  String lppBuybackScenarioStress(String rate) {
+    return 'Stress (taux $rate%)';
+  }
+
+  @override
+  String get lppBuybackAssumptionsTitle => 'Hypothèses et limites :';
+
+  @override
+  String get lppBuybackAssumptionsBody =>
+      '• Déduction fiscale selon règles applicables\n• Taux de conversion : hypothèse actuelle, peut baisser\n• Vérifier avec certificat LPP et un·e spécialiste en fiscalité';
+
+  @override
   String get jobChangeChecklistAlertBody =>
       'Sans transfert du libre passage dans les délais, ton capital LPP peut finir à la Fondation supplétive à 0.05 %.';
 

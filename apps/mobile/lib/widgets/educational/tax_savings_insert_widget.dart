@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -67,6 +68,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -118,11 +120,11 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Optimisation 3a',
+                        l.taxInsertTitle,
                         style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        'Ton allié fiscal',
+                        l.taxInsertSubtitle,
                         style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
                       ),
                     ],
@@ -145,7 +147,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
               children: [
                 // Input Section
                 Text(
-                  'Ton revenu mensuel net',
+                  l.taxInsertMonthlyIncomeLabel,
                   style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 12),
@@ -222,7 +224,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Capacité 3a',
+                          Text(l.taxInsertCapacity3a,
                               style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)),
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -240,7 +242,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       const SizedBox(height: 20),
                       const Divider(height: 1),
                       const SizedBox(height: 20),
-                      Text('Réduction d’impôt indicative',
+                      Text(l.taxInsertIndicativeReduction,
                           style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
                       const SizedBox(height: 8),
                       // Hero Number - Clean Anthracite
@@ -250,7 +252,8 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Impact indicatif: ${formatChf(((_taxSavingsMin + _taxSavingsMax) / 2) / 12)} CHF par mois',
+                        l.taxInsertMonthlyImpact(
+                            formatChf(((_taxSavingsMin + _taxSavingsMax) / 2) / 12)),
                         style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ],
@@ -260,7 +263,8 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                 const SizedBox(height: 16),
                 Center(
                   child: Text(
-                    'Estimation basée sur taux marginal ${(_taxRateMin * 100).toInt()}-${(_taxRateMax * 100).toInt()}%',
+                    l.taxInsertMarginalRateNote(
+                        (_taxRateMin * 100).toInt(), (_taxRateMax * 100).toInt()),
                     style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                   ),
                 ),

@@ -7165,6 +7165,176 @@
       }
     }
   },
+  "@taxInsertTitle": {
+    "description": "PR #682 — TaxSavingsInsertWidget header title (3a tax optimisation mini-simulator)."
+  },
+  "@taxInsertSubtitle": {
+    "description": "PR #682 — TaxSavingsInsertWidget header subtitle."
+  },
+  "@taxInsertMonthlyIncomeLabel": {
+    "description": "PR #682 — TaxSavingsInsertWidget net monthly income slider label."
+  },
+  "@taxInsertCapacity3a": {
+    "description": "PR #682 — TaxSavingsInsertWidget 3a contribution capacity label."
+  },
+  "@taxInsertIndicativeReduction": {
+    "description": "PR #682 — TaxSavingsInsertWidget indicative tax reduction label."
+  },
+  "@taxInsertMonthlyImpact": {
+    "description": "PR #682 — TaxSavingsInsertWidget indicative per-month tax impact. {amount} is a preformatted CHF value.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxInsertMarginalRateNote": {
+    "description": "PR #682 — TaxSavingsInsertWidget marginal tax rate footnote (range).",
+    "placeholders": {
+      "minRate": {
+        "type": "int"
+      },
+      "maxRate": {
+        "type": "int"
+      }
+    }
+  },
+  "@taxSim3aEmployeeTitle": {
+    "description": "PR #682 — Interactive3aSimulation employee-with-LPP header."
+  },
+  "@taxSim3aSelfEmployedTitle": {
+    "description": "PR #682 — Interactive3aSimulation self-employed-without-LPP header."
+  },
+  "@taxSim3aCeiling2026": {
+    "description": "PR #682 — Interactive3aSimulation 2026 annual 3a ceiling. {ceiling} is a preformatted CHF value.",
+    "placeholders": {
+      "ceiling": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxSim3aMonthlyContribution": {
+    "description": "PR #682 — Interactive3aSimulation monthly contribution slider label. {amount} is a preformatted CHF value.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxSim3aExceedsLimit": {
+    "description": "PR #682 — Interactive3aSimulation warning when annual contribution exceeds the ceiling. Both values are preformatted CHF strings.",
+    "placeholders": {
+      "contribution": {
+        "type": "String"
+      },
+      "ceiling": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxSim3aDuration": {
+    "description": "PR #682 — Interactive3aSimulation duration slider label in years.",
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "@taxSimMarginalRate": {
+    "description": "PR #682 — Marginal tax rate slider label (3a + LPP buyback simulators). {rate} is a preformatted integer-percent string.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxSim3aMarginalRateHint": {
+    "description": "PR #682 — Interactive3aSimulation marginal-rate hint (range 15-45%)."
+  },
+  "@taxSim3aAnnualContribution": {
+    "description": "PR #682 — Interactive3aSimulation annual contribution result label."
+  },
+  "@taxSimTaxReductionEstimated": {
+    "description": "PR #682 — Estimated tax reduction result label (3a + LPP buyback simulators)."
+  },
+  "@taxSimRealCost": {
+    "description": "PR #682 — Real cost result label (3a + LPP buyback simulators)."
+  },
+  "@taxSim3aProjectionTitle": {
+    "description": "PR #682 — Interactive3aSimulation projection section title over N years.",
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "@taxSim3aScenarioPrudent": {
+    "description": "PR #682 — Interactive3aSimulation prudent (1%) educational scenario label."
+  },
+  "@taxSim3aScenarioCentral": {
+    "description": "PR #682 — Interactive3aSimulation central (3%) educational scenario label."
+  },
+  "@taxSim3aScenarioStress": {
+    "description": "PR #682 — Interactive3aSimulation stress (5%) educational scenario label."
+  },
+  "@taxSimTaxReductionOverYears": {
+    "description": "PR #682 — Estimated total tax reduction over N years.",
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "@lppBuybackTitle": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation header title."
+  },
+  "@lppBuybackAmountLabel": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation buyback amount slider label. {amount} is a preformatted CHF value.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxSimMarginalRateHintShort": {
+    "description": "PR #682 — Short marginal-rate hint (LPP buyback simulator)."
+  },
+  "@lppBuybackAmount": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation buyback amount result label."
+  },
+  "@lppBuybackPensionImpactTitle": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation pension impact section title."
+  },
+  "@lppBuybackScenarioPrudent": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation prudent conversion-rate scenario. {rate} is a preformatted one-decimal percent string.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "@lppBuybackScenarioCentral": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation central conversion-rate scenario. {rate} is a preformatted one-decimal percent string.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "@lppBuybackScenarioStress": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation stress conversion-rate scenario. {rate} is a preformatted one-decimal percent string.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "@lppBuybackAssumptionsTitle": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation assumptions-and-limits disclaimer title."
+  },
+  "@lppBuybackAssumptionsBody": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation assumptions-and-limits disclaimer bullet list."
+  },
   "@jobChangeChecklistProgress": {
     "placeholders": {
       "completed": {
@@ -9045,6 +9215,39 @@
   "indicativeBannerCta": "Préciser",
   "indicativeBannerTitle": "Résultat indicatif ({pct} % de fiabilité)",
   "interactive3aDisclaimer": "Hypothèses pédagogiques. Les rendements passés ne constituent pas une assurance de résultat.",
+  "taxInsertTitle": "Optimisation 3a",
+  "taxInsertSubtitle": "Ton allié fiscal",
+  "taxInsertMonthlyIncomeLabel": "Ton revenu mensuel net",
+  "taxInsertCapacity3a": "Capacité 3a",
+  "taxInsertIndicativeReduction": "Réduction d’impôt indicative",
+  "taxInsertMonthlyImpact": "Impact indicatif: {amount} CHF par mois",
+  "taxInsertMarginalRateNote": "Estimation basée sur taux marginal {minRate}-{maxRate}%",
+  "taxSim3aEmployeeTitle": "👤 EMPLOYÉ avec LPP",
+  "taxSim3aSelfEmployedTitle": "💼 INDÉPENDANT sans LPP",
+  "taxSim3aCeiling2026": "Plafond 2026 : {ceiling}/an",
+  "taxSim3aMonthlyContribution": "Versement mensuel : {amount}",
+  "taxSim3aExceedsLimit": "Versement annuel ({contribution}) dépasse le plafond ({ceiling})",
+  "taxSim3aDuration": "Durée : {years} ans",
+  "taxSimMarginalRate": "Taux marginal d’imposition : {rate}%",
+  "taxSim3aMarginalRateHint": "Estimé selon canton/revenu (varie de 15% à 45%)",
+  "taxSim3aAnnualContribution": "Versement annuel",
+  "taxSimTaxReductionEstimated": "Réduction d’impôt estimée",
+  "taxSimRealCost": "Coût réel",
+  "taxSim3aProjectionTitle": "Projection {years} ans (scénarios pédagogiques)",
+  "taxSim3aScenarioPrudent": "Prudence (1%)",
+  "taxSim3aScenarioCentral": "Central (3%)",
+  "taxSim3aScenarioStress": "Stress (5%)",
+  "taxSimTaxReductionOverYears": "Réduction d’impôt estimée ({years} ans)",
+  "lppBuybackTitle": "Simulation Rachat LPP",
+  "lppBuybackAmountLabel": "Montant rachat : {amount}",
+  "taxSimMarginalRateHintShort": "Estimé selon canton/revenu",
+  "lppBuybackAmount": "Rachat",
+  "lppBuybackPensionImpactTitle": "Impact retraite (scénarios pédagogiques)",
+  "lppBuybackScenarioPrudent": "Prudence (taux {rate}%)",
+  "lppBuybackScenarioCentral": "Central (taux {rate}%)",
+  "lppBuybackScenarioStress": "Stress (taux {rate}%)",
+  "lppBuybackAssumptionsTitle": "Hypothèses et limites :",
+  "lppBuybackAssumptionsBody": "• Déduction fiscale selon règles applicables\n• Taux de conversion : hypothèse actuelle, peut baisser\n• Vérifier avec certificat LPP et un·e spécialiste en fiscalité",
   "jobChangeChecklistAlertBody": "Sans transfert du libre passage dans les délais, ton capital LPP peut finir à la Fondation supplétive à 0.05 %.",
   "jobChangeChecklistAlertTitle": "Demande TOUJOURS le certificat LPP avant de signer",
   "jobChangeChecklistDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 3 (libre passage), OLP art. 1-3.",

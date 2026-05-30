@@ -16752,6 +16752,134 @@ class SEn extends S {
       'Educational assumptions. Past performance does not guarantee future results.';
 
   @override
+  String get taxInsertTitle => '3a optimisation';
+
+  @override
+  String get taxInsertSubtitle => 'Your tax ally';
+
+  @override
+  String get taxInsertMonthlyIncomeLabel => 'Your net monthly income';
+
+  @override
+  String get taxInsertCapacity3a => '3a capacity';
+
+  @override
+  String get taxInsertIndicativeReduction => 'Indicative tax reduction';
+
+  @override
+  String taxInsertMonthlyImpact(String amount) {
+    return 'Indicative impact: $amount CHF per month';
+  }
+
+  @override
+  String taxInsertMarginalRateNote(int minRate, int maxRate) {
+    return 'Estimate based on a $minRate-$maxRate% marginal rate';
+  }
+
+  @override
+  String get taxSim3aEmployeeTitle => '👤 EMPLOYEE with LPP';
+
+  @override
+  String get taxSim3aSelfEmployedTitle => '💼 SELF-EMPLOYED without LPP';
+
+  @override
+  String taxSim3aCeiling2026(String ceiling) {
+    return '2026 cap: $ceiling/year';
+  }
+
+  @override
+  String taxSim3aMonthlyContribution(String amount) {
+    return 'Monthly contribution: $amount';
+  }
+
+  @override
+  String taxSim3aExceedsLimit(String contribution, String ceiling) {
+    return 'Annual contribution ($contribution) exceeds the cap ($ceiling)';
+  }
+
+  @override
+  String taxSim3aDuration(int years) {
+    return 'Duration: $years years';
+  }
+
+  @override
+  String taxSimMarginalRate(String rate) {
+    return 'Marginal tax rate: $rate%';
+  }
+
+  @override
+  String get taxSim3aMarginalRateHint =>
+      'Estimated by canton/income (ranges from 15% to 45%)';
+
+  @override
+  String get taxSim3aAnnualContribution => 'Annual contribution';
+
+  @override
+  String get taxSimTaxReductionEstimated => 'Estimated tax reduction';
+
+  @override
+  String get taxSimRealCost => 'Real cost';
+
+  @override
+  String taxSim3aProjectionTitle(int years) {
+    return '$years-year projection (educational scenarios)';
+  }
+
+  @override
+  String get taxSim3aScenarioPrudent => 'Cautious (1%)';
+
+  @override
+  String get taxSim3aScenarioCentral => 'Central (3%)';
+
+  @override
+  String get taxSim3aScenarioStress => 'Stress (5%)';
+
+  @override
+  String taxSimTaxReductionOverYears(int years) {
+    return 'Estimated tax reduction ($years years)';
+  }
+
+  @override
+  String get lppBuybackTitle => 'LPP buyback simulation';
+
+  @override
+  String lppBuybackAmountLabel(String amount) {
+    return 'Buyback amount: $amount';
+  }
+
+  @override
+  String get taxSimMarginalRateHintShort => 'Estimated by canton/income';
+
+  @override
+  String get lppBuybackAmount => 'Buyback';
+
+  @override
+  String get lppBuybackPensionImpactTitle =>
+      'Retirement impact (educational scenarios)';
+
+  @override
+  String lppBuybackScenarioPrudent(String rate) {
+    return 'Cautious (rate $rate%)';
+  }
+
+  @override
+  String lppBuybackScenarioCentral(String rate) {
+    return 'Central (rate $rate%)';
+  }
+
+  @override
+  String lppBuybackScenarioStress(String rate) {
+    return 'Stress (rate $rate%)';
+  }
+
+  @override
+  String get lppBuybackAssumptionsTitle => 'Assumptions and limits:';
+
+  @override
+  String get lppBuybackAssumptionsBody =>
+      '• Tax deduction subject to applicable rules\n• Conversion rate: current assumption, may decrease\n• Verify with your LPP certificate and a tax specialist';
+
+  @override
   String get jobChangeChecklistAlertBody =>
       'Without a vested benefits transfer within the deadline, your LPP capital may end up at the Substitute Foundation at 0.05 %.';
 
