@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -8,21 +7,6 @@ import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class PdfService {
-  @visibleForTesting
-  static const String lppBuybackTotalTaxReductionLabel =
-      'Réduction d’impôt totale estimée';
-
-  @visibleForTesting
-  static const String lppBuybackYearlyTaxReductionLabel =
-      'Réduction d’impôt estimée';
-
-  @visibleForTesting
-  static String formatLppBuybackTaxReductionLineForTest(TaxSimulation tax) =>
-      _formatLppBuybackTaxReductionLine(tax);
-
-  static String _formatLppBuybackTaxReductionLine(TaxSimulation tax) =>
-      'Avec rachat LPP : ${formatChfPreciseWithPrefix(tax.taxWithLppBuyback!)} (réduction d’impôt estimée : ${formatChfPreciseWithPrefix(tax.taxSavingsFromBuyback!)})';
-
   static Future<void> generateSessionReportPdf(SessionReport report) async {
     final pdf = pw.Document();
 
@@ -686,7 +670,7 @@ class PdfService {
                   pw.Divider(thickness: 0.5, color: PdfColors.green200),
                   pw.SizedBox(height: 4),
                   pw.Text(
-                    _formatLppBuybackTaxReductionLine(tax),
+                    'Avec rachat LPP : ${formatChfPreciseWithPrefix(tax.taxWithLppBuyback!)} (économie : ${formatChfPreciseWithPrefix(tax.taxSavingsFromBuyback!)})',
                     style: pw.TextStyle(
                         fontSize: 9,
                         fontWeight: pw.FontWeight.bold,
@@ -794,7 +778,7 @@ class PdfService {
                 children: [
                   _pdfKeyValue('Montant rachetable total',
                       formatChfWithPrefix(lpp.totalBuybackAvailable)),
-                  _pdfKeyValue(lppBuybackTotalTaxReductionLabel,
+                  _pdfKeyValue('Économie fiscale totale estimée',
                       formatChfWithPrefix(lpp.totalTaxSavings),
                       bold: true),
                   pw.SizedBox(height: 8),
@@ -825,7 +809,7 @@ class PdfService {
                                     fontWeight: pw.FontWeight.bold))),
                         pw.Expanded(
                             flex: 3,
-                            child: pw.Text(lppBuybackYearlyTaxReductionLabel,
+                            child: pw.Text('Économie fiscale',
                                 style: pw.TextStyle(
                                     fontSize: 8,
                                     fontWeight: pw.FontWeight.bold))),

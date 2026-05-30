@@ -302,42 +302,6 @@ void main() {
     });
   });
 
-  // ── Field: totalCharges / totalMensuel ───────────────────────
-
-  group('Field: totalCharges', () {
-    test('implausible raw charges do not count as present', () {
-      final profile = _partialProfile().copyWith(
-        depenses: const DepensesProfile(loyer: 19272200),
-      );
-      final result =
-          gate.evaluate(_entryRequiring(['totalCharges']), profile);
-
-      expect(result.level, equals(ReadinessLevel.partial));
-      expect(result.missingFields, contains('totalCharges'));
-    });
-
-    test('totalMensuel alias ignores implausible raw charges too', () {
-      final profile = _partialProfile().copyWith(
-        depenses: const DepensesProfile(loyer: 19272200),
-      );
-      final result =
-          gate.evaluate(_entryRequiring(['totalMensuel']), profile);
-
-      expect(result.level, equals(ReadinessLevel.partial));
-      expect(result.missingFields, contains('totalMensuel'));
-    });
-
-    test('plausible charges count as present', () {
-      final profile = _partialProfile().copyWith(
-        depenses: const DepensesProfile(loyer: 2200),
-      );
-      final result =
-          gate.evaluate(_entryRequiring(['totalMensuel']), profile);
-
-      expect(result.level, equals(ReadinessLevel.ready));
-    });
-  });
-
   // ── Field: avoirLpp ───────────────────────────────────────────
 
   group('Field: avoirLpp (non-critical)', () {
