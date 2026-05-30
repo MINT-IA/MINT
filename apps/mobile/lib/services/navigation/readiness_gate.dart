@@ -4,6 +4,7 @@
 /// See docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md §5
 library;
 
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/navigation/readiness_result.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
