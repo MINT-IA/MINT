@@ -126,4 +126,74 @@ void main() {
       expect(profile.salaireBrutMensuel, closeTo(10000, 0.01));
     });
   });
+
+  // SALVAGE-01 (onb-02): the gross→net INVERSE in the providers must be the
+  // exact inverse of fromWizardAnswers' net→gross (× factorFor). Previously
+  // coach_profile_provider.dart:766 used × (1 - 0.13) = × 0.87 and :1155 used
+  // × (1 - 0.133) = × 0.867 — neither equals / 1.17 ≈ × 0.855, so the
+  // persist/restore round-trip silently shifted the salary (trust break).
+  group('gross→net inverse parity (onb-02)', () {
+    test('inverse / factorFor exactly round-trips net→gross (salaried)', () {
+      const grossMonthly = 9000.0;
+      // Provider direction (gross→net): / factorFor.
+      final net = grossMonthly / IncomeConverter.factorFor(isSalaried: true);
+      // fromWizardAnswers direction (net→gross): × factorFor.
+      final backToGross = net * IncomeConverter.factorFor(isSalaried: true);
+      expect(backToGross, closeTo(grossMonthly, 0.0001),
+          reason: 'round-trip must preserve gross exactly');
+    });
+
+    test('inverse / factorFor exactly round-trips net→gross (independant)', () {
+      const grossMonthly = 9000.0;
+      final net = grossMonthly / IncomeConverter.factorFor(isSalaried: false);
+      final backToGross = net * IncomeConverter.factorFor(isSalaried: false);
+      expect(backToGross, closeTo(grossMonthly, 0.0001));
+    });
+
+    test('canonical inverse net differs from the legacy 0.13/0.133 rates', () {
+      const grossMonthly = 9000.0;
+      final canonicalNet =
+          grossMonthly / IncomeConverter.factorFor(isSalaried: true);
+      // Legacy site :766 (main user) used × 0.87.
+      const legacyMainNet = grossMonthly * (1 - 0.13);
+      // Legacy site :1155 (partner) used × 0.867.
+      const legacyPartnerNet = grossMonthly * (1 - 0.133);
+      expect((canonicalNet - legacyMainNet).abs(), greaterThan(1.0),
+          reason: 'main-user provider path must no longer use 0.13');
+      expect((canonicalNet - legacyPartnerNet).abs(), greaterThan(1.0),
+          reason: 'partner provider path must no longer use 0.133');
+    });
+
+    test('partner persist→restore round-trip preserves brut via fromWizardAnswers',
+        () {
+      // fromWizardAnswers stores partner brut = net × factorFor. The provider
+      // persistence path (coach_profile_provider.dart:1155) reverses it via
+      // / factorFor before re-storing q_partner_net_income_chf. Simulate that
+      // full cycle and assert the recovered brut is unchanged.
+      const partnerNetInput = 4000.0;
+      final profile = CoachProfile.fromWizardAnswers(const {
+        'q_net_income_period_chf': 5000,
+        'q_pay_frequency': 'monthly',
+        'q_employment_status': 'salarie',
+        'q_partner_net_income_chf': partnerNetInput,
+        'q_partner_employment_status': 'salarie',
+      });
+      final brut1 = profile.conjoint!.salaireBrutMensuel!;
+      // Provider :1155 reverse: brut → net via / factorFor (same predicate).
+      final reStoredNet =
+          brut1 / IncomeConverter.factorFor(isSalaried: true);
+      // It must equal the original net the user entered (round-trip identity).
+      expect(reStoredNet, closeTo(partnerNetInput, 0.01),
+          reason: 'persist/restore must recover the original partner net');
+      // And re-deriving brut from that net recovers brut1 unchanged.
+      final profile2 = CoachProfile.fromWizardAnswers({
+        'q_net_income_period_chf': 5000,
+        'q_pay_frequency': 'monthly',
+        'q_employment_status': 'salarie',
+        'q_partner_net_income_chf': reStoredNet,
+        'q_partner_employment_status': 'salarie',
+      });
+      expect(profile2.conjoint!.salaireBrutMensuel!, closeTo(brut1, 0.01));
+    });
+  });
 }

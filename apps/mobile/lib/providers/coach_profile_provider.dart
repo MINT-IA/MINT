@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
@@ -759,14 +760,18 @@ class CoachProfileProvider extends ChangeNotifier {
     // P0-9: Clamp salary to valid bounds before any computation.
     final clampedGrossSalary = grossSalary.clamp(0, 10000000).toDouble();
 
-    // Convert gross annual → net monthly
-    // Net monthly = (grossSalary / 12) × (1 - 0.13) (charges sociales ~13%)
-    // fromWizardAnswers() reconvertit net → brut via / (1 - 0.13),
-    // ce qui préserve le salaire brut original.
-    const double socialChargesRate = 0.13;
-    final netMonthly = (clampedGrossSalary / 12) * (1 - socialChargesRate);
     final birthYear = DateTime.now().year - age;
     final effectiveEmployment = employmentStatus ?? 'salarie';
+
+    // Convert gross annual → net monthly via the canonical IncomeConverter
+    // factor (single source — onb-02). fromWizardAnswers() reconvertit
+    // net → brut via × factorFor(...), donc l'inverse ici DOIT être
+    // / factorFor(...) avec le même prédicat salarié/indépendant, sinon le
+    // round-trip diverge et le chiffre héros ne correspond plus à l'estimateur.
+    final netMonthly = (clampedGrossSalary / 12) /
+        IncomeConverter.factorFor(
+          isSalaried: effectiveEmployment != 'independant',
+        );
 
     // Derive q_nationality for archetype detection (CLAUDE.md archetype table).
     // 'CH' → swissNative/returningSwiss; 'EU' → expatEu (use 'FR' placeholder);
@@ -1151,10 +1156,14 @@ class CoachProfileProvider extends ChangeNotifier {
     if (profile.conjoint != null) {
       final c = profile.conjoint!;
       if (c.salaireBrutMensuel != null) {
-        // Store as net (reverse the brut→net from fromWizardAnswers)
-        const socialChargesRate = 0.133; // AVS+AI+APG+AC standard rate
-        answers['q_partner_net_income_chf'] =
-            c.salaireBrutMensuel! * (1 - socialChargesRate);
+        // Store as net — inverse of the net→brut conversion fromWizardAnswers()
+        // applies to the partner (× IncomeConverter.factorFor). Use / factorFor
+        // with the SAME isSalaried predicate (single source — onb-02) so the
+        // persist/restore round-trip preserves salaireBrutMensuel exactly.
+        answers['q_partner_net_income_chf'] = c.salaireBrutMensuel! /
+            IncomeConverter.factorFor(
+              isSalaried: c.employmentStatus != 'independant',
+            );
       }
       if (c.birthYear != null) {
         answers['q_partner_birth_year'] = c.birthYear;
