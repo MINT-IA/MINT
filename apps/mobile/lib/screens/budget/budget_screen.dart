@@ -1024,8 +1024,7 @@ class _BudgetScreenState extends State<BudgetScreen>
       child: Semantics(
         button: true,
         label: label,
-        child: OutlinedButton(
-          // lint-ignore: prefer_mint_cta
+        child: OutlinedButton( // lint-ignore: prefer_mint_cta
           onPressed: () => context.push(route),
           child: Text(label),
         ),
