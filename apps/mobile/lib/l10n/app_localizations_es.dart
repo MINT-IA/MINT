@@ -1669,7 +1669,7 @@ class SEs extends S {
 
   @override
   String budgetSetupResteAfterCharges(String amount) {
-    return 'Il te reste $amount CHF après tes charges.';
+    return 'Te quedan $amount CHF después de tus gastos.';
   }
 
   @override

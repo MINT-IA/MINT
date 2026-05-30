@@ -1667,7 +1667,7 @@ class SPt extends S {
 
   @override
   String budgetSetupResteAfterCharges(String amount) {
-    return 'Il te reste $amount CHF après tes charges.';
+    return 'Sobram $amount CHF depois das tuas despesas.';
   }
 
   @override

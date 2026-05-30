@@ -1672,7 +1672,7 @@ class SIt extends S {
 
   @override
   String budgetSetupResteAfterCharges(String amount) {
-    return 'Il te reste $amount CHF après tes charges.';
+    return 'Ti restano $amount CHF dopo le tue spese.';
   }
 
   @override

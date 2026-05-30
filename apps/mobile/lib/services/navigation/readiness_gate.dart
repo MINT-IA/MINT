@@ -145,10 +145,12 @@ class ReadinessGate {
       // Depenses
       case 'totalCharges':
       case 'totalMensuel':
-        final totalCharges =
-            BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
-        return totalCharges > 0
-            ? totalCharges
+        // SALVAGE-00 SC-3 / Gate Fix 1: route through the SAME source-trust
+        // predicate the budget screen renders against, instead of a raw
+        // `totalMensuel > 0`. Gate-ready IFF the screen would render a
+        // non-zero charge (an untagged loyer renders 0 -> must NOT pass).
+        return BudgetInputs.hasTrustedCharges(profile)
+            ? profile.depenses.totalMensuel
             : null;
       case 'loyer':
         return profile.depenses.loyer > 0 ? profile.depenses.loyer : null;

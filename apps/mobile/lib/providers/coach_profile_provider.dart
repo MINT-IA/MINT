@@ -471,6 +471,15 @@ class CoachProfileProvider extends ChangeNotifier {
         return;
       }
 
+      // SALVAGE-00 onb-01 NON-EVIDENCE (Option B): a seeded profile is injected
+      // directly here and BYPASSES the wizard answer flush + persistence path.
+      // Therefore a walker-green run via MINT_E2E_ARCHETYPE is NOT evidence that
+      // the real onboarding contract (onb-01 — wizard answers -> persisted
+      // profile) works. See onb-01 / SALVAGE-01 and the Plan 01 seed-bridge
+      // guard test (the standing sentinel). The mechanism is intentionally kept
+      // intact (the FATCA / expat_us / money-trust gate-test flows depend on it;
+      // it is kReleaseMode-guarded in coach_profile_seeds.dart so it never leaks
+      // to production). Do NOT treat seed-driven walker passes as onb-01 proof.
       final debugSeed = CoachProfileSeeds.activeSeed;
       if (debugSeed != null) {
         final seedAnswers = debugSeed.toWizardAnswers();

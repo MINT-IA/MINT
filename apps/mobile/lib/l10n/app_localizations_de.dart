@@ -1678,7 +1678,7 @@ class SDe extends S {
 
   @override
   String budgetSetupResteAfterCharges(String amount) {
-    return 'Il te reste $amount CHF après tes charges.';
+    return 'Dir bleiben $amount CHF nach deinen Ausgaben.';
   }
 
   @override

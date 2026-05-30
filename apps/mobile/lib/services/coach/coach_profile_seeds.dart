@@ -205,6 +205,21 @@ class CoachProfileSeeds {
       usTaxPerson: true,
       nationality: 'US',
     ),
+    // SALVAGE-00 SC-4 device persona: the device-layer twin of the SC-2
+    // cross-path unit fixture (budget_living_engine_test.dart). A swiss_native
+    // seed: toWizardAnswers sets hasLpp => q_3a_annual_contribution > 0, so the
+    // hydrated profile has total3aMensuel > 0 and a positive Futur (savings) —
+    // the budget hero renders Futur > 0. Load-bearing input for the SC-4 device
+    // gate (Plan 04); lands pre-merge on #681 with the gate fixes.
+    // kReleaseMode-guarded via forcedArchetypeSlug (no production leak).
+    'cadre_3a_contributing': CoachProfileSeed(
+      slug: 'cadre_3a_contributing',
+      firstName: 'Sophie',
+      age: 42,
+      canton: 'VD',
+      archetype: 'swiss_native',
+      grossMonthlySalary: 9000,
+    ),
   };
 
   /// Return the seed slug forced via `MINT_E2E_ARCHETYPE`, or null when:

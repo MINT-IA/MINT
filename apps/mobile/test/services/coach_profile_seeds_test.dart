@@ -156,4 +156,26 @@ void main() {
       expect(packet['next_questions'], isNotEmpty);
     });
   });
+
+  group('CoachProfileSeeds — cadre_3a_contributing (SALVAGE-00 SC-4)', () {
+    // The device-layer twin of the SC-2 cross-path unit fixture. Pins the
+    // load-bearing persona contract: a 3a-contributing seed must hydrate a
+    // profile with total3aMensuel > 0 so the SC-4 device gate (Plan 04)
+    // exercises a Futur>0 budget hero, not a flat persona.
+    test('seed exists and is swiss_native', () {
+      final seed = CoachProfileSeeds.registry['cadre_3a_contributing'];
+      expect(seed, isNotNull,
+          reason: 'cadre_3a_contributing is the SC-4 device persona referenced '
+              'by flow_money_trust_chain_3a_contributing.yaml');
+      expect(seed!.archetype, 'swiss_native');
+    });
+
+    test('hydrated profile yields total3aMensuel > 0 (Futur>0 budget hero)', () {
+      final seed = CoachProfileSeeds.registry['cadre_3a_contributing']!;
+      final profile = CoachProfile.fromWizardAnswers(seed.toWizardAnswers());
+      expect(profile.total3aMensuel, greaterThan(0),
+          reason: 'a 3a-contributing persona must produce planned 3a savings '
+              'so the budget hero renders Futur > 0');
+    });
+  });
 }

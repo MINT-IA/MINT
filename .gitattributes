@@ -1,0 +1,16 @@
+# Normalize line endings to LF across the repo.
+# Without this, whole-file CRLF->LF churn pollutes diffs (e.g. PR #681, SC-5),
+# hiding the real change behind hundreds of phantom line-ending edits.
+* text=auto eol=lf
+
+# Binary assets: never normalize (would corrupt them).
+*.png  -text
+*.jpg  -text
+*.jpeg -text
+*.gif  -text
+*.ico  -text
+*.woff  -text
+*.woff2 -text
+*.ttf  -text
+*.otf  -text
+*.pdf  -text

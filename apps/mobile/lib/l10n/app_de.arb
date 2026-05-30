@@ -750,7 +750,7 @@
       }
     }
   },
-  "budgetSetupResteAfterCharges": "Il te reste {amount} CHF après tes charges.",
+  "budgetSetupResteAfterCharges": "Dir bleiben {amount} CHF nach deinen Ausgaben.",
   "@budgetSetupResteAfterCharges": {
     "description": "Budget setup label.",
     "placeholders": {

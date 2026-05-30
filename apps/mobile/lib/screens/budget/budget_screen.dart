@@ -18,6 +18,8 @@ import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -280,8 +282,21 @@ class _BudgetScreenState extends State<BudgetScreen>
                                 return const MintLoadingSkeleton();
                               }
 
+                              // SALVAGE-00 SC-2: read the profile defensively —
+                              // when the CoachProfileProvider is absent from the
+                              // tree (widget tests that pump BudgetScreen in
+                              // isolation), fall back to plan.future via a null
+                              // profile instead of throwing.
+                              CoachProfile? flowProfile;
+                              try {
+                                flowProfile = context
+                                    .read<CoachProfileProvider>()
+                                    .profile;
+                              } catch (_) {
+                                flowProfile = null;
+                              }
                               final flowPresent =
-                                  _presentBudgetFromInputs(plan);
+                                  _presentBudgetFromInputs(plan, flowProfile);
                               final displayNet = flowPresent.monthlyNet;
                               final displayHousing =
                                   _displayChf(widget.inputs.housingCost);
@@ -576,10 +591,28 @@ class _BudgetScreenState extends State<BudgetScreen>
         ));
   }
 
-  PresentBudget _presentBudgetFromInputs(BudgetPlan plan) {
-    return PresentBudgetBuilder.fromInputs(
-      inputs: widget.inputs,
-      plan: plan,
+  PresentBudget _presentBudgetFromInputs(BudgetPlan plan,
+      [CoachProfile? profile]) {
+    final monthlyNet = _displayChf(widget.inputs.netIncome);
+    final monthlyCharges = _displayChf(widget.inputs.housingCost) +
+        _displayChf(widget.inputs.debtPayments) +
+        _displayChf(widget.inputs.taxProvision) +
+        _displayChf(widget.inputs.healthInsurance) +
+        _displayChf(widget.inputs.otherFixedCosts);
+    // SALVAGE-00 SC-2 / Gate Fix 2 (arch-03): source planned savings from the
+    // SAME shared helper the engine uses (3a + LPP buyback) instead of
+    // plan.future (which is 0 until the user sets a target). This converges the
+    // builder path with the engine path — a 3a-contributing user sees the SAME
+    // Disponible everywhere. Falls back to plan.future when no profile.
+    final monthlySavings = profile != null
+        ? BudgetLivingEngine.computeMonthlySavings(profile)
+        : _displayChf(plan.future);
+    final monthlyFree = monthlyNet - monthlyCharges - monthlySavings;
+    return PresentBudget(
+      monthlyNet: monthlyNet,
+      monthlyCharges: monthlyCharges,
+      monthlySavings: monthlySavings,
+      monthlyFree: monthlyFree,
     );
   }
 
