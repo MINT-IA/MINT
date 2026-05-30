@@ -17,6 +17,8 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -283,7 +285,8 @@ class _BudgetScreenState extends State<BudgetScreen>
                               }
 
                               final flowPresent =
-                                  _presentBudgetFromInputs(plan);
+                                  _presentBudgetFromInputs(
+                                      plan, profileProvider.profile);
 
                               return SingleChildScrollView(
                                 padding: const EdgeInsets.symmetric(
