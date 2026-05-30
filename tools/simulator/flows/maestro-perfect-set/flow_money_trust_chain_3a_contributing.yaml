@@ -1,0 +1,23 @@
+appId: com.mint.app
+# Device-flow proof for the 3a-contributing money-trust chain (SC-4).
+# Walks: onboarding -> budget -> 3a contribution -> monthlyFree ("Argent libre").
+# NOTE: the seed slug `cadre_3a_contributing` is created in Plan 02 (02-T*).
+#       Until then this flow references it by name and will only resolve once the
+#       seed lands. Keeps SC-4 staged without blocking Wave 1.
+env:
+  MINT_E2E_ARCHETYPE: cadre_3a_contributing
+---
+- launchApp:
+    clearState: true
+    arguments:
+      MINT_E2E_ARCHETYPE: ${MINT_E2E_ARCHETYPE}
+# Onboarding lands the seeded 3a-contributing profile.
+- assertVisible: "Budget"
+- tapOn: "Budget"
+# Budget surface shows the 3a contribution and the resulting free cash.
+- assertVisible: "Argent libre"
+# Trust chain: the free-cash figure must reflect the 3a contribution
+# (engine path), not the builder path that omits it (SC-2 / SC-4).
+- assertVisible: "Coach"
+- tapOn: "Coach"
+- assertVisible: "Coach"
