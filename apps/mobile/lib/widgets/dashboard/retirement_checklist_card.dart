@@ -180,7 +180,11 @@ class RetirementChecklistCard extends StatelessWidget {
 
   static List<_ChecklistItem> _buildChecklistItems(CoachProfile profile) {
     final items = <_ChecklistItem>[];
-    final yearsToRetirement = profile.anneesAvantRetraite;
+    // SALVAGE-01-02: anneesAvantRetraite is nullable. Coalesce to a large
+    // sentinel (999) so the near-retirement checklist items (`<= 5`, `<= 10`)
+    // are NOT shown for a no-age profile — they would be misleading without a
+    // real horizon. This mirrors the `?? 99` idiom used in couple_action_plan.
+    final yearsToRetirement = profile.anneesAvantRetraite ?? 999;
     final retirementYear = profile.birthYear + 65;
     final now = DateTime.now();
 

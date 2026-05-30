@@ -1116,7 +1116,8 @@ class RetirementProjectionService {
       alertes.add(
         'Taux de remplacement de ${tauxRemplacement.toStringAsFixed(0)}% — '
         'ce chiffre semble eleve et repose sur des hypotheses de rendement '
-        'a long terme. Les projections sur ${(profile.anneesAvantRetraite)} ans '
+        'a long terme. Les projections sur '
+        '${profile.anneesAvantRetraite ?? '—'} ans '
         'sont necessairement imprecises.',
       );
     }

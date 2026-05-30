@@ -219,7 +219,10 @@ class CoupleActionPlan extends StatelessWidget {
     final userName = profile.firstName ?? 'Toi';
     final conjName = conj.firstName ?? 'Conjoint\u00b7e';
     final now = DateTime.now();
-    final userYearsToRetirement = profile.anneesAvantRetraite;
+    // SALVAGE-01-02: CoachProfile.anneesAvantRetraite is now nullable too.
+    // Apply the same `?? 99` idiom already used for the conjoint below so a
+    // no-age profile does not trigger the near-retirement (`<= 7`) action.
+    final userYearsToRetirement = profile.anneesAvantRetraite ?? 99;
     final conjYearsToRetirement = conj.anneesAvantRetraite ?? 99;
 
     // ── 1. Staggered withdrawal coordination (household) ──

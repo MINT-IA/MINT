@@ -46,8 +46,14 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       if (!provider.hasProfile) return;
       final profile = provider.profile!;
       setState(() {
-        _age = profile.age;
-        _duree = profile.anneesAvantRetraite.clamp(5, 45);
+        // SALVAGE-01-02: route through ageOrNull / nullable anneesAvantRetraite.
+        // When age is unknown, keep the editable slider defaults (_age=30,
+        // _duree=35) so the user supplies them — never seed a fabricated
+        // sentinel-derived age (0) or a 45yr horizon.
+        final knownAge = profile.ageOrNull;
+        final annees = profile.anneesAvantRetraite;
+        if (knownAge != null) _age = knownAge;
+        if (annees != null) _duree = annees.clamp(5, 45);
         // Map riskTolerance string to ProfilRisque enum
         final risk = profile.riskTolerance;
         if (risk != null) {

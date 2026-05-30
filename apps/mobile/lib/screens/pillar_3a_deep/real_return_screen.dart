@@ -107,8 +107,12 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         ).clamp(0.0, 0.50);
         changed = true;
       }
+      // SALVAGE-01-02: nullable horizon — skip seeding _dureeAnnees when age
+      // is unknown (keep the editable default) rather than crashing on null.
       final yearsToRetirement = profile.anneesAvantRetraite;
-      if (yearsToRetirement >= 5 && yearsToRetirement <= 40) {
+      if (yearsToRetirement != null &&
+          yearsToRetirement >= 5 &&
+          yearsToRetirement <= 40) {
         _dureeAnnees = yearsToRetirement;
         changed = true;
       }

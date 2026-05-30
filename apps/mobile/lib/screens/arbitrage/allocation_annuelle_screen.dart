@@ -121,7 +121,9 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       _hasRachatLpp = false;
     }
 
-    _anneesAvantRetraite = profile.anneesAvantRetraite;
+    // SALVAGE-01-02: nullable horizon. When age is unknown, keep the editable
+    // slider default (20) rather than crashing — the user can adjust it.
+    _anneesAvantRetraite = profile.anneesAvantRetraite ?? _anneesAvantRetraite;
     _dataSources = profile.dataSources;
     _recalculate();
   }
