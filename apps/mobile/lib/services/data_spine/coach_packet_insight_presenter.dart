@@ -15,9 +15,14 @@ class CoachPacketInsight {
 }
 
 abstract final class CoachPacketInsightPresenter {
+  // SALVAGE-00 SC-4: lead with monthly_free (the converged "Disponible/mois"
+  // shown on Budget + Mon Argent) so the coach surface shows the SAME number
+  // the user sees everywhere — not monthly_capacity (pre-3a), which diverges
+  // and breaks the money-trust-chain. Mirrors coach_context_packet_service's
+  // ordering (monthly_free first).
   static const _factPriority = <String>[
-    'budget.monthly_capacity',
     'budget.monthly_free',
+    'budget.monthly_capacity',
     'budget.monthly_net',
     'pillar.lpp.total_balance',
     'pillar.3a.total_balance',
