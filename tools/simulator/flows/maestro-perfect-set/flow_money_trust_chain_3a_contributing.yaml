@@ -1,23 +1,126 @@
-appId: com.mint.app
-# Device-flow proof for the 3a-contributing money-trust chain (SC-4).
-# Walks: onboarding -> budget -> 3a contribution -> monthlyFree ("Argent libre").
-# NOTE: the seed slug `cadre_3a_contributing` is created in Plan 02 (02-T*).
-#       Until then this flow references it by name and will only resolve once the
-#       seed lands. Keeps SC-4 staged without blocking Wave 1.
+appId: ch.mint.app
+# SALVAGE-00 SC-4 — Device-flow proof for the 3a-contributing money-trust chain.
+#
+# GOAL (the heart of SC-4)
+# Prove that the SAME "Disponible/mois" (argent libre / present.monthlyFree)
+# value renders IDENTICALLY across the THREE money surfaces for the
+# `cadre_3a_contributing` persona (swiss_native seed, gross 9000, hasLpp =>
+# q_3a_annual_contribution > 0 => total3aMensuel > 0 => Futur > 0):
+#   1. Mon Argent  — mon_argent_data_spine_summary  (Text _formatChf:  "<n> CHF")
+#   2. /budget     — budget_hero_formula            (formula: "... = CHF <n>")
+#   3. Coach       — chat-open insight surface       (whisper carrying monthlyFree)
+#
+# The #681/#682 trust-chain fix converges the builder path onto the engine
+# path (monthlyFree subtracts the 3a savings, not the builder path that omits
+# it — SC-2/SC-4). This device gate proves the convergence reaches the user.
+#
+# STRENGTHENED (was: visibility-only assertVisible "Argent libre"/"Coach").
+# Now CAPTURES the actual CHF VALUE on each surface (copyTextFrom) and asserts
+# all three numeric tokens are byte-identical via sc4_assert_value_convergence.js.
+# A divergence => the JS throws => this flow FAILS (the truthful SC-4 result).
+#
+# PRE-CONDITION
+# - App ch.mint.app built --debug --simulator with:
+#     --dart-define=MINT_E2E_ARCHETYPE=cadre_3a_contributing
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1
+#   installed on a booted iPhone simulator. Staging only (never local backend).
+# - kReleaseMode-guarded seed: forcedArchetypeSlug() returns null in release.
+#
+# LOCATOR STRATEGY
+# Flutter Semantics.identifier anchors for structural surfaces; CHF-number
+# regex for the value tokens. Deep-links bypass the anonymous onboarding so
+# the seeded profile drives all three surfaces directly.
 env:
   MINT_E2E_ARCHETYPE: cadre_3a_contributing
+tags:
+  - money-trust-chain
+  - salvage-00-sc4
+  - budget
+  - mon-argent
+  - coach
+  - maestro-proof
 ---
+
 - launchApp:
     clearState: true
     arguments:
       MINT_E2E_ARCHETYPE: ${MINT_E2E_ARCHETYPE}
-# Onboarding lands the seeded 3a-contributing profile.
-- assertVisible: "Budget"
-- tapOn: "Budget"
-# Budget surface shows the 3a contribution and the resulting free cash.
-- assertVisible: "Argent libre"
-# Trust chain: the free-cash figure must reflect the 3a contribution
-# (engine path), not the builder path that omits it (SC-2 / SC-4).
-- assertVisible: "Coach"
-- tapOn: "Coach"
-- assertVisible: "Coach"
+- waitForAnimationToEnd:
+    timeout: 6000
+
+# Dismiss the anonymous landing's deep-link confirmation if it appears.
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+# ─── Surface 1: /budget — monthlyFree via the hero formula ────────────
+- openLink: "mintapp:///budget"
+- extendedWaitUntil:
+    visible:
+      id: "budget_screen"
+    timeout: 12000
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible:
+    id: "budget_hero_formula"
+# Guard against the absurd-value leaks the trust-chain fix removed.
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+- copyTextFrom:
+    id: "budget_hero_formula"
+- evalScript: ${output.sc4_budget = maestro.copiedText}
+
+# ─── Surface 2: Mon Argent — monthlyFree via the data-spine summary ───
+- openLink: "mintapp:///mon-argent?section=month"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_screen"
+    timeout: 12000
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible:
+    id: "mon_argent_budget_summary"
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+# "Ton budget ce mois. Revenus <net> CHF. Dépenses <chg> CHF. Reste <free> CHF."
+# The convergence comparator extracts the CHF token adjacent to "Reste".
+- copyTextFrom:
+    id: "mon_argent_budget_summary"
+- evalScript: ${output.sc4_mon_argent = maestro.copiedText}
+
+# ─── Surface 3: Coach — the money figure the user sees on chat-open ───
+# The coach chat-open surface carries the budget money figure. We copy the
+# coach-context "Point de départ" packet (coach-context-point-de-depart),
+# which renders the leading budget fact. SC-4 asserts this equals monthlyFree.
+- openLink: "mintapp:///coach/chat"
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 12000
+- waitForAnimationToEnd:
+    timeout: 4000
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
+# The leading budget fact rendered in the chat-open "Point de départ" packet.
+# NOTE (SC-4 finding): the packet prioritises budget.monthly_capacity over
+# budget.monthly_free (CoachPacketInsightPresenter._factPriority), so the
+# coach text reads "Capacité mensuelle: CHF <capacity>". The comparator will
+# therefore FAIL if capacity != monthlyFree — that divergence IS the honest
+# SC-4 verdict for the coach surface, not a flow bug.
+- copyTextFrom:
+    text: "Capacité mensuelle.*"
+- evalScript: ${output.sc4_coach = maestro.copiedText}
+- takeScreenshot: "sc4-coach-surface"
+
+# ─── THE SC-4 ASSERTION: all three numeric tokens must be identical ───
+- runScript: "sc4_assert_value_convergence.js"

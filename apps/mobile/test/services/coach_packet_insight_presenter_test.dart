@@ -34,6 +34,46 @@ void main() {
       expect(insight.nextText, 'Objectif à atteindre');
     });
 
+    test(
+        'SALVAGE-00 SC-4: leads with monthly_free (Disponible) over '
+        'monthly_capacity when both are present', () {
+      final insight = CoachPacketInsightPresenter.fromSafeMap({
+        'facts': [
+          {
+            'id': 'budget.monthly_capacity',
+            'domain': 'budget',
+            'field_path': 'trajectory.currentMonthlyCapacity',
+            'value': 3740.0,
+          },
+          {
+            'id': 'budget.monthly_free',
+            'domain': 'budget',
+            'field_path': 'budget.present.monthlyFree',
+            'value': 3152.0,
+          },
+        ],
+        'missing_fields': [
+          {
+            'field_path': 'trajectory.targetAmount',
+            'domain': 'trajectory',
+            'reason': 'missing_target_amount',
+          },
+        ],
+        'next_questions': [
+          {
+            'id': 'define_target_amount',
+            'domain': 'trajectory',
+            'field_path': 'trajectory.targetAmount',
+          },
+        ],
+      });
+
+      expect(insight, isNotNull);
+      // Must show the SAME Disponible/mois the user sees on Budget + Mon Argent
+      // (monthlyFree 3'152), NOT monthly_capacity (3'740) — money-trust-chain.
+      expect(insight!.knownText, 'Marge libre: CHF 3\'152');
+    });
+
     test('falls back to the first missing field when no next question exists',
         () {
       final insight = CoachPacketInsightPresenter.fromSafeMap({
