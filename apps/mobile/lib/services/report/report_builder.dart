@@ -5,7 +5,6 @@ import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/services/wizard_service.dart';
 import 'package:mint_mobile/data/cantonal_data.dart';
-import 'package:mint_mobile/services/tax_estimator_service.dart';
 
 class ReportBuilder {
   final Map<String, dynamic> answers;
@@ -20,32 +19,14 @@ class ReportBuilder {
 
     final hasDebt = (answers['q_has_consumer_credit'] == 'yes') ||
         (answers['q_has_leasing'] == 'yes') ||
-        ((answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0) >
-            0 ||
+        budgetInputs.debtPayments > 0 ||
         WizardService.isSafeModeActive(answers);
 
     final isSafeModeActive = WizardService.isSafeModeActive(answers);
 
     // === EXPERTISE SUISSE : CALCUL FISCAL ===
     final cantonCode = answers['q_canton'] ?? 'CH';
-    final netIncome = WizardService.getMonthlyIncome(answers);
-    final civilStatus = answers['q_civil_status'] ?? 'single';
-
-    int childrenCount = 0;
-    try {
-      final childrenStr = answers['q_children'] as String? ?? '0';
-      childrenCount = int.parse(childrenStr.replaceAll('+', ''));
-    } catch (_) {}
-
-    final estimatedTaxMonthly = TaxEstimatorService.estimateMonthlyProvision(
-        TaxEstimatorService.estimateAnnualTax(
-      netMonthlyIncome: netIncome,
-      cantonCode: cantonCode,
-      civilStatus: civilStatus,
-      childrenCount: childrenCount,
-      age: 35,
-      isSourceTaxed: false,
-    ));
+    final estimatedTaxMonthly = budgetInputs.taxProvision;
 
     // === RECOMMANDATIONS ===
     final recommendations = <Recommendation>[];

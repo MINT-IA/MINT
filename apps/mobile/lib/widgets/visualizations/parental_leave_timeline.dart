@@ -466,7 +466,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                     size: 14, color: MintColors.warning),
                 const SizedBox(width: 6),
                 Text(
-                  'Ecart: ${_formatChf(gap)}/jour',
+                  'Écart: ${_formatChf(gap)}/jour',
                   style: MintTextStyles.bodyMedium(color: MintColors.warning).copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,

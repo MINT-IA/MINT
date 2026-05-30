@@ -5109,9 +5109,6 @@ class SFr extends S {
   String get pillar3aDuration => 'Durée :';
 
   @override
-  String get pillar3aOpenViac => 'Ouvrir mon compte VIAC';
-
-  @override
   String get pillar3aFees => 'Frais';
 
   @override
@@ -5137,12 +5134,6 @@ class SFr extends S {
   }
 
   @override
-  String get pillar3aViacGainLabel => 'Avec VIAC au lieu d\'une banque :';
-
-  @override
-  String get pillar3aMoreAtRetirement => 'de plus à la retraite !';
-
-  @override
   String get pillar3aDisclaimer =>
       'Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.';
 
@@ -5156,9 +5147,6 @@ class SFr extends S {
   String get pillar3aBank15 => 'Banque 1.5 %';
 
   @override
-  String get pillar3aViac45 => 'VIAC 4.5 %';
-
-  @override
   String pillar3aYearN(int n) {
     return 'Année $n';
   }
@@ -5166,9 +5154,6 @@ class SFr extends S {
   @override
   String get pillar3aCompoundTip =>
       'Les dernières années font +50 % du gain total grâce aux intérêts composés !';
-
-  @override
-  String get pillar3aRecommended => 'RECOMMANDÉ';
 
   @override
   String pillar3aVsBank(String amount) {
@@ -17940,7 +17925,7 @@ class SFr extends S {
 
   @override
   String notifThreeALastMonth(String saving) {
-    return 'Dernier mois pour ton 3a. CHF $saving d\'économie en jeu.';
+    return 'Dernier mois pour ton 3a. Économie estimée : CHF $saving.';
   }
 
   @override

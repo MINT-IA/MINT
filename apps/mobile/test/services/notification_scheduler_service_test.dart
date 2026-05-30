@@ -48,8 +48,9 @@ void main() {
       expect(threeANotifs.length, 4);
 
       // Verify dates
-      final dates =
-          threeANotifs.map((n) => '${n.scheduledDate.month}-${n.scheduledDate.day}').toSet();
+      final dates = threeANotifs
+          .map((n) => '${n.scheduledDate.month}-${n.scheduledDate.day}')
+          .toSet();
       expect(dates, contains('10-1'));
       expect(dates, contains('11-1'));
       expect(dates, contains('12-1'));
@@ -91,8 +92,9 @@ void main() {
       // Should have Feb 15, Mar 15, Mar 25 = 3 reminders
       expect(taxNotifs.length, 3);
 
-      final dates =
-          taxNotifs.map((n) => '${n.scheduledDate.month}-${n.scheduledDate.day}').toSet();
+      final dates = taxNotifs
+          .map((n) => '${n.scheduledDate.month}-${n.scheduledDate.day}')
+          .toSet();
       expect(dates, contains('2-15'));
       expect(dates, contains('3-15'));
       expect(dates, contains('3-25'));
@@ -231,11 +233,31 @@ void main() {
       // Within each category, dates should be unique
       const categories = NotificationCategory.values;
       for (final cat in categories) {
-        final catNotifs = notifications.where((n) => n.category == cat).toList();
-        final dates = catNotifs.map((n) => n.scheduledDate.toIso8601String()).toSet();
+        final catNotifs =
+            notifications.where((n) => n.category == cat).toList();
+        final dates =
+            catNotifs.map((n) => n.scheduledDate.toIso8601String()).toSet();
         expect(dates.length, catNotifs.length,
             reason: 'Duplicate dates found in category $cat');
       }
+    });
+
+    test('December 3a notification frames tax saving as estimated', () {
+      final notifications =
+          NotificationSchedulerService.generateCalendarNotifications(
+        taxSaving3a: 1820,
+        today: DateTime(2026, 11, 15, 8, 0),
+      );
+
+      final dec1 = notifications.firstWhere(
+        (n) =>
+            n.category == NotificationCategory.threeADeadline &&
+            n.scheduledDate.month == 12 &&
+            n.scheduledDate.day == 1,
+      );
+
+      expect(dec1.body, contains('Économie estimée'));
+      expect(dec1.body, isNot(contains('en jeu')));
     });
   });
 

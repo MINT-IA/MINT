@@ -225,6 +225,14 @@ abstract final class CoachContextPacketService {
 
   static List<CoachMissingField> _missingFields(DataSpineSnapshot spine) {
     final missing = <CoachMissingField>[
+      ..._missingSituationField(
+        value: spine.situation.monthlyHousingCost,
+        fieldPath: 'situation.monthlyHousingCost',
+      ),
+      ..._missingSituationField(
+        value: spine.situation.lamalPremiumMonthly,
+        fieldPath: 'situation.lamalPremiumMonthly',
+      ),
       ..._missingPillarField(
         fact: spine.pillars.avs.contributionYears,
         fieldPath: 'pillars.avs.contributionYears',
@@ -374,6 +382,20 @@ abstract final class CoachContextPacketService {
       CoachMissingField(
         fieldPath: fieldPath,
         domain: domain,
+        reason: 'missing_fact',
+      ),
+    ];
+  }
+
+  static List<CoachMissingField> _missingSituationField<T extends Object>({
+    required SpineValue<T> value,
+    required String fieldPath,
+  }) {
+    if (value.hasValue) return const [];
+    return [
+      CoachMissingField(
+        fieldPath: fieldPath,
+        domain: 'budget',
         reason: 'missing_fact',
       ),
     ];

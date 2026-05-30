@@ -22,6 +22,7 @@ Duration: ~10-20 min for 20 prompts at ~30-60s each via `claude -p`.
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -172,7 +173,7 @@ def run_one(prompt_obj: dict, timeout_sec: int = 120) -> dict:
 
     try:
         proc = subprocess.run(
-            ["claude", "-p"],
+            ["claude", "-p", "--tools", "", "--no-session-persistence"],
             input=prompt,
             capture_output=True,
             text=True,
@@ -259,7 +260,8 @@ def main() -> int:
         for i, p in enumerate(prompts, 1):
             start = time.time()
             print(f"[{i}/{len(prompts)}] domain={p['domain']} id={p['id']}...", flush=True)
-            result = run_one(p, timeout_sec=120)
+            timeout_sec = int(os.environ.get("CLAUDE_GOLDEN_TIMEOUT", "600"))
+            result = run_one(p, timeout_sec=timeout_sec)
             out.write(json.dumps(result, ensure_ascii=False) + "\n")
             out.flush()
             elapsed = time.time() - start

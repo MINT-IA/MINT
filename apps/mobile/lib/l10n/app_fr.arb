@@ -2407,7 +2407,6 @@
   "consentLegalSources": "Sources légales",
   "pillar3aPaymentPerYear": "Versement/an :",
   "pillar3aDuration": "Durée :",
-  "pillar3aOpenViac": "Ouvrir mon compte VIAC",
   "pillar3aFees": "Frais",
   "pillar3aReturn": "Rendement",
   "pillar3aAt65": "À 65 ans",
@@ -2429,13 +2428,10 @@
       }
     }
   },
-  "pillar3aViacGainLabel": "Avec VIAC au lieu d'une banque :",
-  "pillar3aMoreAtRetirement": "de plus à la retraite !",
   "pillar3aDisclaimer": "Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.",
   "pillar3aCapitalEvolution": "Évolution de ton capital 3a",
   "pillar3aYearLabel": "Année",
   "pillar3aBank15": "Banque 1.5 %",
-  "pillar3aViac45": "VIAC 4.5 %",
   "pillar3aYearN": "Année {n}",
   "@pillar3aYearN": {
     "placeholders": {
@@ -2445,7 +2441,6 @@
     }
   },
   "pillar3aCompoundTip": "Les dernières années font +50 % du gain total grâce aux intérêts composés !",
-  "pillar3aRecommended": "RECOMMANDÉ",
   "pillar3aVsBank": "{amount} vs Banque",
   "@pillar3aVsBank": {
     "placeholders": {
@@ -9362,7 +9357,7 @@
   "notifThreeA11Days": "11 jours. Dernier rappel 3a.",
   "notifThreeA61Days": "Il reste 61 jours. Économie estimée : CHF {saving}.",
   "notifThreeA92Days": "Il reste 92 jours pour verser sur ton 3a.",
-  "notifThreeALastMonth": "Dernier mois pour ton 3a. CHF {saving} d'économie en jeu.",
+  "notifThreeALastMonth": "Dernier mois pour ton 3a. Économie estimée : CHF {saving}.",
   "notifThreeATitle": "Deadline 3a",
   "notifWeeklyRecapBody": "Budget, progrès, prochaine étape — tout est prêt.",
   "notifWeeklyRecapTitle": "Ton récap de la semaine",

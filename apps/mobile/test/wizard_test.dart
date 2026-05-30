@@ -81,6 +81,20 @@ void main() {
       // We check if it produces A result, exact value depends on ClarityState implementation details
       expect(state.precisionIndex, greaterThan(0));
     });
+
+    test('accepts persisted numeric strings for income and debt', () {
+      final answers = {
+        'q_net_income_period_chf': "5'000",
+        'q_pay_frequency': 'monthly',
+        'q_debt_payments_period_chf': '500',
+        'q_has_consumer_debt': 'no',
+        'q_emergency_fund': 'yes_6months',
+      };
+
+      final state = ClarityState.calculate(answers, {});
+
+      expect(state.safeMode, isFalse);
+    });
   });
 
   group('Validation Tests', () {

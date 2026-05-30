@@ -8,7 +8,11 @@ version = "0.1.0"
 description = "Mint Backend Services"
 requires-python = ">=3.10"
 dependencies = [
-    "fastapi>=0.109.0,<1.0.0",
+    # CI supply-chain gate: fastapi 0.136.3 is flagged by pip-audit
+    # MAL-2026-4750 for an undocumented `fastar` standard-extra dependency.
+    # Keep the upper bound tight until FastAPI publishes an audited release
+    # beyond the affected wheel.
+    "fastapi>=0.109.0,<0.136.3",
     "uvicorn[standard]>=0.27.0,<1.0.0",
     "pydantic>=2.6.0,<3.0.0",
     "pydantic-settings>=2.1.0,<3.0.0",

@@ -173,7 +173,7 @@ class BudgetLivingEngine {
         inputs.otherFixedCosts;
 
     // Planned savings out-flows: 3a contributions + LPP buybacks
-    final monthlySavings = _computeMonthlySavings(profile);
+    final monthlySavings = computeMonthlySavings(profile);
 
     final monthlyFree = monthlyNet - monthlyCharges - monthlySavings;
 
@@ -190,7 +190,13 @@ class BudgetLivingEngine {
   /// These are not "expenses" but capital formation.
   /// We separate them so the UI can show both the full libre
   /// and what is earmarked for the future.
-  static double _computeMonthlySavings(CoachProfile profile) {
+  ///
+  /// SALVAGE-00 SC-2 / Gate Fix 2 (arch-03): exposed as a public static so it
+  /// is the ONE shared savings helper BOTH budget producers call (this engine +
+  /// budget_screen._presentBudgetFromInputs). A 3a-contributing user must see
+  /// the SAME Disponible everywhere. Do NOT add a second savings formula
+  /// (CLAUDE.md NEVER #3 — single source of truth).
+  static double computeMonthlySavings(CoachProfile profile) {
     double savings = 0;
 
     // 3a contributions

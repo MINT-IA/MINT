@@ -641,6 +641,132 @@ class TestCoachChatProfileContext:
         assert call_kwargs.get("profile_context") is not None or True
 
 
+class TestCoachChatCitationGate:
+    """Verify endpoint-level citation gate behavior, not only parser units."""
+
+    def test_endpoint_blocks_uncited_absurd_budget_numbers(
+        self, client_with_auth, monkeypatch
+    ):
+        """Two uncited absurd CHF answers collapse to safe fallback text."""
+        from app.core.config import settings
+
+        monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", True)
+        absurd_result = {
+            "answer": (
+                "Ton loyer est de 19'272'200 CHF et ta prime LAMal "
+                "de 420'420 CHF."
+            ),
+            "tool_calls": [],
+            "citation_chips": None,
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 123,
+            "degraded": False,
+            "model_used": "test-model",
+        }
+        loop = AsyncMock(side_effect=[absurd_result.copy(), absurd_result.copy()])
+
+        body = {
+            **_VALID_BODY,
+            "message": "Analyse mon budget mensuel.",
+        }
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post("/api/v1/coach/chat", json=body)
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert "19'272'200" not in payload["message"]
+        assert "420'420" not in payload["message"]
+        assert loop.await_count == 2
+
+    def test_endpoint_retries_uncited_absurd_budget_then_emits_cited_tool_answer(
+        self, client_with_auth, monkeypatch
+    ):
+        """An initially absurd uncited answer can be repaired with tool citation."""
+        from app.core.config import settings
+
+        monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", True)
+        first = {
+            "answer": "Ton loyer est de 19'272'200 CHF.",
+            "tool_calls": [],
+            "citation_chips": None,
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 123,
+            "degraded": False,
+            "model_used": "test-model",
+        }
+        repaired = {
+            "answer": "Ta marge libre est de 2'239 CHF {{cite:tool_budget_snapshot}}.",
+            "tool_calls": [{"name": "get_budget_status", "input": {}}],
+            "citation_chips": [
+                {
+                    "toolName": "budget_snapshot",
+                    "inputsHash": "a" * 64,
+                    "computedAt": "2026-05-23T12:00:00Z",
+                    "rawResponse": {"monthlySurplus": "2239.00"},
+                }
+            ],
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 123,
+            "degraded": False,
+            "model_used": "test-model",
+        }
+        loop = AsyncMock(side_effect=[first, repaired])
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert "2'239" in payload["message"]
+        assert "19'272'200" not in payload["message"]
+        assert "{{cite:" not in payload["message"]
+        assert payload["citationChips"][0]["toolName"] == "budget_snapshot"
+        assert loop.await_count == 2
+
+    def test_endpoint_falls_back_when_retry_cites_tool_without_tool_use(
+        self, client_with_auth, monkeypatch
+    ):
+        """A retry with a tool citation but no matching tool call is unsafe."""
+        from app.core.config import settings
+
+        monkeypatch.setattr(settings, "COACH_CITATION_GATE_ENABLED", True)
+        first = {
+            "answer": "Ton loyer est de 19'272'200 CHF.",
+            "tool_calls": [],
+            "citation_chips": None,
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 123,
+            "degraded": False,
+            "model_used": "test-model",
+        }
+        missing_tool = {
+            "answer": "Ta marge libre est de 1'234 CHF {{cite:tool_budget_snapshot}}.",
+            "tool_calls": [],
+            "citation_chips": [],
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 123,
+            "degraded": False,
+            "model_used": "test-model",
+        }
+        loop = AsyncMock(side_effect=[first, missing_tool])
+
+        with patch("app.api.v1.endpoints.coach_chat._run_agent_loop", loop):
+            response = client_with_auth.post("/api/v1/coach/chat", json=_VALID_BODY)
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert "19'272'200" not in payload["message"]
+        assert "1'234" not in payload["message"]
+        assert "{{cite:" not in payload["message"]
+        assert loop.await_count == 2
+
+
 # ===========================================================================
 # TestCoachChatRouterRegistration — verify route is registered
 # ===========================================================================

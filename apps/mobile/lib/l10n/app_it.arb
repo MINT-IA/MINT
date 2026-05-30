@@ -750,7 +750,7 @@
       }
     }
   },
-  "budgetSetupResteAfterCharges": "Il te reste {amount} CHF après tes charges.",
+  "budgetSetupResteAfterCharges": "Ti restano {amount} CHF dopo le tue spese.",
   "@budgetSetupResteAfterCharges": {
     "description": "Budget setup label.",
     "placeholders": {
@@ -2407,7 +2407,6 @@
   "consentLegalSources": "Fonti legali",
   "pillar3aPaymentPerYear": "Versamento/anno:",
   "pillar3aDuration": "Durata:",
-  "pillar3aOpenViac": "Apri il mio conto VIAC",
   "pillar3aFees": "Commissioni",
   "pillar3aReturn": "Rendimento",
   "pillar3aAt65": "A 65 anni",
@@ -2429,13 +2428,10 @@
       }
     }
   },
-  "pillar3aViacGainLabel": "Con VIAC invece di una banca:",
-  "pillar3aMoreAtRetirement": "in più alla pensione!",
   "pillar3aDisclaimer": "Ipotesi pedagogiche basate su rendimenti storici medi. I rendimenti passati non costituiscono una garanzia di risultati futuri.",
   "pillar3aCapitalEvolution": "Evoluzione del tuo capitale 3a",
   "pillar3aYearLabel": "Anno",
   "pillar3aBank15": "Banca 1.5%",
-  "pillar3aViac45": "VIAC 4.5%",
   "pillar3aYearN": "Anno {n}",
   "@pillar3aYearN": {
     "placeholders": {
@@ -2445,7 +2441,6 @@
     }
   },
   "pillar3aCompoundTip": "Gli ultimi anni rappresentano +50% del guadagno totale grazie all'interesse composto!",
-  "pillar3aRecommended": "RACCOMANDATO",
   "pillar3aVsBank": "{amount} vs Banca",
   "@pillar3aVsBank": {
     "placeholders": {
@@ -8847,7 +8842,7 @@
   "notifThreeA11Days": "11 giorni. Ultimo promemoria 3a.",
   "notifThreeA61Days": "Restano 61 giorni. Risparmio stimato: CHF {saving}.",
   "notifThreeA92Days": "Restano 92 giorni per versare sul tuo 3a.",
-  "notifThreeALastMonth": "Ultimo mese per il tuo 3a. CHF {saving} di risparmio in gioco.",
+  "notifThreeALastMonth": "Ultimo mese per il tuo 3a. Risparmio fiscale stimato: CHF {saving}.",
   "notifThreeATitle": "Scadenza 3a",
   "notifWeeklyRecapBody": "Budget, progressi, prossimo passo — tutto pronto.",
   "notifWeeklyRecapTitle": "Il tuo riepilogo settimanale",

@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 const double _kPlafond3aSalarie2026 = 7258;
 
@@ -69,8 +70,7 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
   double _versement = 3000;
 
   ({double low, double high}) _computeSavingsRange() {
-    final tauxMarginal =
-        _kTauxMarginalMoyen[widget.cantonCode] ?? 0.30;
+    final tauxMarginal = _kTauxMarginalMoyen[widget.cantonCode] ?? 0.30;
     // Modulation par revenu : sous 60k brut tauxMarg -15%, sur 180k +10%.
     final grossAnnual =
         IncomeConverter.netMonthlyToGrossAnnual(widget.netMonthly);
@@ -102,40 +102,25 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
       children: [
         Text(
           'SCENE · TON LEVIER DIRECT',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 10.5,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.4,
-            color: MintColors.corailDiscret,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.corailDiscret)
+              .copyWith(fontWeight: FontWeight.w600, letterSpacing: 1.4),
         ),
         const SizedBox(height: 14),
         Text(
-          'Ce montant retombe sur ton compte\u00a0chaque année, si tu le fais.',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 17,
-            fontWeight: FontWeight.w500,
-            color: MintColors.textPrimary,
-            height: 1.35,
-          ),
+          'Ce versement peut réduire ton impôt, selon ton canton et ton revenu.',
+          style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w500, height: 1.35),
         ),
         const SizedBox(height: 28),
         Text(
           'CHF ${_fmt(r.low)} \u2013 ${_fmt(r.high)}',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 36,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-            height: 1.1,
-          ),
+          style: MintTextStyles.displayMedium(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w600, height: 1.1),
         ),
         const SizedBox(height: 4),
         Text(
-          'économie fiscale annuelle',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 14,
-            color: MintColors.textSecondary,
-          ),
+          'économie fiscale estimée',
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 28),
         Container(
@@ -149,11 +134,11 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
             children: [
               Text(
                 'VERSEMENT 3A · CHF ${_fmt(_versement)}',
-                style: TextStyle(fontFamily: 'Supreme', 
-                  fontSize: 10.5,
+                style:
+                    MintTextStyles.labelSmall(color: MintColors.corailDiscret)
+                        .copyWith(
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.2,
-                  color: MintColors.corailDiscret,
                 ),
               ),
               const SizedBox(height: 4),
@@ -164,8 +149,7 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
                 divisions: (_kPlafond3aSalarie2026 / 250).round(),
                 label: 'CHF ${_fmt(_versement)}',
                 activeColor: MintColors.textPrimary,
-                inactiveColor:
-                    MintColors.textSecondary.withValues(alpha: 0.25),
+                inactiveColor: MintColors.textSecondary.withValues(alpha: 0.25),
                 onChanged: (v) {
                   setState(() => _versement = (v / 250).round() * 250.0);
                   HapticFeedback.selectionClick();
@@ -174,11 +158,8 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
               Text(
                 'Plafond 2026 salarié\u202fLPP\u00a0: CHF 7\u2019258 '
                 '(OPP3 art. 7 al. 1 lit. a).',
-                style: TextStyle(fontFamily: 'Supreme', 
-                  fontSize: 13,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
-                ),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                    .copyWith(height: 1.4),
               ),
             ],
           ),
@@ -187,12 +168,8 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
         Text(
           'Hypothèse\u00a0: taux marginal moyen canton \u00b7 revenu.\u00a0'
           'Le chiffrage précis canton-par-canton sera donné dans le canvas.',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 11,
-            color: MintColors.textSecondary,
-            fontStyle: FontStyle.italic,
-            height: 1.4,
-          ),
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary)
+              .copyWith(fontStyle: FontStyle.italic, height: 1.4),
         ),
       ],
     );

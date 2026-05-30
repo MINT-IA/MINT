@@ -68,32 +68,16 @@ class WizardService {
     double totalDebt = 0;
 
     if (answers['q_has_leasing'] == 'yes') {
-      totalDebt += (answers['q_leasing_monthly'] as num?)?.toDouble() ?? 0.0;
+      totalDebt += _parseDouble(answers['q_leasing_monthly']) ?? 0.0;
     }
 
     if (answers['q_has_consumer_credit'] == 'yes') {
-      totalDebt += (answers['q_credit_monthly'] as num?)?.toDouble() ?? 0.0;
+      totalDebt += _parseDouble(answers['q_credit_monthly']) ?? 0.0;
     }
 
-    // Ajout: dette périodique du budget aussi ?
-    // Le prompt dit "q_debt_payments_period_chf: double (0 OK)"
-    // Si on a cette réponse, on devrait l'ajouter, mais attention aux doublons avec leasing/credit_monthly existants.
-    // Le prompt dit "Offline, read-only...".
-    // Si l'utilisateur remplit le budget wizard, il remplit q_debt_payments_period_chf.
-    // Si c'est le wizard classic, il remplit q_leasing/q_credit.
-    // Pour l'instant, je garde l'existant + le nouveau si présent (en assumant qu'ils sont exclusifs ou complémentaires).
-
     if (answers.containsKey('q_debt_payments_period_chf')) {
-      // Normaliser la dette périodique en mensuel
-      final rawDebt =
-          (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0.0;
-      final frequency = answers['q_pay_frequency'] as String? ?? 'monthly';
-      // Mêmes facteurs que l'income
-      double factor = 1.0;
-      if (frequency == 'biweekly') factor = 2.166; // 26 / 12
-      if (frequency == 'weekly') factor = 4.333; // 52 / 12
-
-      totalDebt += rawDebt * factor;
+      // Current budget setup and wizard V2 store this debt amount monthly.
+      totalDebt += _parseDouble(answers['q_debt_payments_period_chf']) ?? 0.0;
     }
 
     return totalDebt / income;
@@ -101,23 +85,26 @@ class WizardService {
 
   /// Calcule le revenu net mensuel normalisé
   static double getMonthlyIncome(Map<String, dynamic> answers) {
-    if (answers.containsKey('q_net_income_monthly')) {
-      return (answers['q_net_income_monthly'] as num?)?.toDouble() ?? 0.0;
-    }
-
-    final rawIncome =
-        (answers['q_net_income_period_chf'] as num?)?.toDouble() ?? 0.0;
+    final rawIncome = _parseDouble(answers['q_net_income_period_chf']);
     final frequency = answers['q_pay_frequency'] as String? ?? 'monthly';
 
-    switch (frequency) {
-      case 'weekly':
-        return rawIncome * 4.333; // 52 semaines / 12
-      case 'biweekly':
-        return rawIncome * 2.166; // 26 paiements / 12
-      case 'monthly':
-      default:
-        return rawIncome;
+    final canonicalMonthly = switch (frequency) {
+      'weekly' => rawIncome != null ? rawIncome * 4.333 : null,
+      'biweekly' => rawIncome != null ? rawIncome * 2.166 : null,
+      _ => rawIncome,
+    };
+    if (canonicalMonthly != null) return canonicalMonthly;
+
+    return _parseDouble(answers['q_net_income_monthly']) ?? 0.0;
+  }
+
+  static double? _parseDouble(dynamic raw) {
+    if (raw is num) return raw.toDouble();
+    if (raw is String) {
+      return double.tryParse(
+          raw.trim().replaceAll("'", '').replaceAll(',', '.'));
     }
+    return null;
   }
 
   /// Retourne la prochaine question la plus pertinente
@@ -196,8 +183,7 @@ class WizardService {
     return summary;
   }
 
-  static String _formatAnswer(dynamic value, WizardQuestion question,
-      {S? l}) {
+  static String _formatAnswer(dynamic value, WizardQuestion question, {S? l}) {
     if (value == null) return l?.wizardAnswerNotProvided ?? 'Non renseigné';
 
     if (question.type == QuestionType.choice) {

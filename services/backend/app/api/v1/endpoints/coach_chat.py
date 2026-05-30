@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import math
 import os
 import re
 from datetime import datetime, timedelta, timezone
@@ -67,6 +68,7 @@ from app.services.coach.coach_context_builder import build_coach_context
 # Imported here (not lazily) so the wire-test grep finds the symbol in source.
 from app.services.coach.pre_compute import precompute_after_fact_save
 from app.services.coach.citation_parser import (
+    FALLBACK_TEMPLATED_TEXT,
     GateVerdict,
     GatedResponse,
     gate as _citation_gate,
@@ -91,6 +93,9 @@ from app.services.coach.coach_tools import (
     INTERNAL_TOOL_NAMES,
     get_llm_tools,
     get_narrator_llm_tools,
+)
+from app.services.coach.context_packet_sanitizer import (
+    sanitize_coach_context_packet,
 )
 
 # Phase 96 W2 D-08..D-11 — 3-turn cap module.
@@ -1113,256 +1118,9 @@ def _sanitize_profile_value(value):
     return value
 
 
-_COACH_PACKET_TOP_KEYS = {
-    "computed_at",
-    "facts",
-    "missing_fields",
-    "trajectory",
-    "next_questions",
-}
-_COACH_PACKET_FACT_KEYS = {
-    "id",
-    "domain",
-    "field_path",
-    "value",
-    "source",
-    "confidence",
-    "freshness",
-    "state",
-    "updated_at",
-}
-_COACH_PACKET_MISSING_KEYS = {"field_path", "domain", "reason"}
-_COACH_PACKET_TRAJECTORY_KEYS = {
-    "status",
-    "current_monthly_free",
-    "current_monthly_capacity",
-    "target_amount",
-    "months_to_target",
-    "monthly_required",
-    "monthly_gap",
-    "next_lever_id",
-}
-_COACH_PACKET_QUESTION_KEYS = {"id", "domain", "field_path"}
-
-_COACH_PACKET_ALLOWED_IDS = {
-    "profile.canton",
-    "profile.birth_year",
-    "budget.monthly_net",
-    "budget.monthly_free",
-    "budget.monthly_capacity",
-    "budget.monthly_charges",
-    "pillar.avs.contribution_years",
-    "pillar.avs.gaps",
-    "pillar.avs.estimated_monthly_pension",
-    "pillar.lpp.total_balance",
-    "pillar.lpp.insured_salary",
-    "pillar.lpp.buyback_max",
-    "pillar.3a.total_balance",
-    "pillar.3a.accounts_count",
-    "trajectory.status",
-    "trajectory.monthly_required",
-    "trajectory.monthly_gap",
-}
-_COACH_PACKET_ALLOWED_PATHS = {
-    "situation.canton",
-    "situation.birthYear",
-    "budget.present.monthlyNet",
-    "budget.present.monthlyFree",
-    "budget.present.monthlyCapacity",
-    "budget.present.monthlyCharges",
-    "pillars.avs.contributionYears",
-    "pillars.avs.gaps",
-    "pillars.avs.estimatedMonthlyPension",
-    "pillars.lpp.totalBalance",
-    "pillars.lpp.insuredSalary",
-    "pillars.lpp.buybackMax",
-    "pillars.pillar3a.totalBalance",
-    "pillars.pillar3a.accountsCount",
-    "trajectory.status",
-    "trajectory.targetAmount",
-    "trajectory.monthlyRequired",
-    "trajectory.monthlyGap",
-    "trajectory.currentMonthlyCapacity",
-    "budget.present.monthlyCapacity",
-}
-_COACH_PACKET_ALLOWED_QUESTION_IDS = {
-    "define_target_amount",
-    "review_fixed_charges",
-    "increase_monthly_capacity",
-    "confirm_plan_tracking",
-}
-_COACH_PACKET_ALLOWED_TRAJECTORY_STATUS = {
-    "insufficientData",
-    "blocked",
-    "drifting",
-    "onTrack",
-}
-_COACH_PACKET_ALLOWED_DOMAINS = {
-    "profile",
-    "budget",
-    "pillar_avs",
-    "pillar_lpp",
-    "pillar_3a",
-    "trajectory",
-}
-_COACH_PACKET_ALLOWED_SOURCES = {
-    "wizard",
-    "calculated",
-    "estimated",
-    "certificate",
-    "unknown",
-}
-_COACH_PACKET_ALLOWED_FRESHNESS = {"fresh", "stale", "unknown"}
-_COACH_PACKET_ALLOWED_STATES = {"known", "estimated", "missing"}
-
-
-def _safe_packet_string(value, *, max_len=96, allowed=None):
-    if not isinstance(value, str):
-        return None
-    value = _sanitize_profile_value(value)[:max_len]
-    if allowed is not None and value not in allowed:
-        return None
-    return value
-
-
-def _safe_packet_number(value):
-    if isinstance(value, bool):
-        return None
-    if isinstance(value, (int, float)):
-        return value
-    return None
-
-
 def _sanitize_coach_context_packet(value):
     """Strictly allowlist the nested CoachContextPacket shape."""
-    if not isinstance(value, dict):
-        return {}
-
-    packet = {
-        k: v for k, v in value.items() if k in _COACH_PACKET_TOP_KEYS and v is not None
-    }
-    safe: dict = {}
-
-    computed_at = _safe_packet_string(packet.get("computed_at"), max_len=40)
-    if computed_at:
-        safe["computed_at"] = computed_at
-
-    facts = []
-    for item in packet.get("facts") or []:
-        if not isinstance(item, dict):
-            continue
-        fact_id = _safe_packet_string(item.get("id"), allowed=_COACH_PACKET_ALLOWED_IDS)
-        field_path = _safe_packet_string(
-            item.get("field_path"), allowed=_COACH_PACKET_ALLOWED_PATHS
-        )
-        domain = _safe_packet_string(
-            item.get("domain"), allowed=_COACH_PACKET_ALLOWED_DOMAINS
-        )
-        if not fact_id or not field_path or not domain:
-            continue
-        fact = {"id": fact_id, "domain": domain, "field_path": field_path}
-        for key in sorted(_COACH_PACKET_FACT_KEYS - {"id", "domain", "field_path"}):
-            if key not in item or item[key] is None:
-                continue
-            if key in {"value", "confidence"}:
-                number = _safe_packet_number(item[key])
-                if number is not None:
-                    fact[key] = number
-            elif key == "source":
-                source = _safe_packet_string(
-                    item[key], allowed=_COACH_PACKET_ALLOWED_SOURCES
-                )
-                if source:
-                    fact[key] = source
-            elif key == "freshness":
-                freshness = _safe_packet_string(
-                    item[key], allowed=_COACH_PACKET_ALLOWED_FRESHNESS
-                )
-                if freshness:
-                    fact[key] = freshness
-            elif key == "state":
-                state = _safe_packet_string(
-                    item[key], allowed=_COACH_PACKET_ALLOWED_STATES
-                )
-                if state:
-                    fact[key] = state
-            elif key == "updated_at":
-                updated_at = _safe_packet_string(item[key], max_len=40)
-                if updated_at:
-                    fact[key] = updated_at
-        facts.append(fact)
-    safe["facts"] = facts[:24]
-
-    missing_fields = []
-    for item in packet.get("missing_fields") or []:
-        if not isinstance(item, dict):
-            continue
-        field_path = _safe_packet_string(
-            item.get("field_path"), allowed=_COACH_PACKET_ALLOWED_PATHS
-        )
-        domain = _safe_packet_string(
-            item.get("domain"), allowed=_COACH_PACKET_ALLOWED_DOMAINS
-        )
-        reason = _safe_packet_string(item.get("reason"), max_len=48)
-        if field_path and domain and reason:
-            missing_fields.append(
-                {
-                    "field_path": field_path,
-                    "domain": domain,
-                    "reason": reason,
-                }
-            )
-    safe["missing_fields"] = missing_fields[:24]
-
-    trajectory = packet.get("trajectory") or {}
-    safe_trajectory = {}
-    if isinstance(trajectory, dict):
-        for key in _COACH_PACKET_TRAJECTORY_KEYS:
-            raw = trajectory.get(key)
-            if raw is None:
-                continue
-            if key == "status":
-                status = _safe_packet_string(
-                    raw, allowed=_COACH_PACKET_ALLOWED_TRAJECTORY_STATUS
-                )
-                if status:
-                    safe_trajectory[key] = status
-            elif key == "next_lever_id":
-                lever = _safe_packet_string(
-                    raw, allowed=_COACH_PACKET_ALLOWED_QUESTION_IDS
-                )
-                if lever:
-                    safe_trajectory[key] = lever
-            else:
-                number = _safe_packet_number(raw)
-                if number is not None:
-                    safe_trajectory[key] = number
-    safe["trajectory"] = safe_trajectory
-
-    questions = []
-    for item in packet.get("next_questions") or []:
-        if not isinstance(item, dict):
-            continue
-        question_id = _safe_packet_string(
-            item.get("id"), allowed=_COACH_PACKET_ALLOWED_QUESTION_IDS
-        )
-        field_path = _safe_packet_string(
-            item.get("field_path"), allowed=_COACH_PACKET_ALLOWED_PATHS
-        )
-        domain = _safe_packet_string(
-            item.get("domain"), allowed=_COACH_PACKET_ALLOWED_DOMAINS
-        )
-        if question_id and field_path and domain:
-            questions.append(
-                {
-                    "id": question_id,
-                    "domain": domain,
-                    "field_path": field_path,
-                }
-            )
-    safe["next_questions"] = questions[:8]
-
-    return safe
+    return sanitize_coach_context_packet(value)
 
 
 def _sanitize_profile_context(profile_context: Optional[dict]) -> dict:
@@ -3568,6 +3326,8 @@ def _compute_budget_status(user_id: str | None, ctx: dict, db) -> str:
 
     if not settings.COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED:
         return _format_budget_status(ctx)
+    if _has_packet_budget_facts(ctx):
+        return _format_budget_status(ctx)
     if not user_id or db is None:
         return _format_budget_status(ctx)
 
@@ -3629,8 +3389,93 @@ def _compute_budget_status(user_id: str | None, ctx: dict, db) -> str:
         return _format_budget_status(ctx)
 
 
+def _has_packet_budget_facts(ctx: dict) -> bool:
+    packet = ctx.get("coach_context_packet")
+    if not isinstance(packet, dict):
+        return False
+    facts = packet.get("facts") or []
+    if not isinstance(facts, list):
+        return False
+    budget_fact_ids = {
+        "budget.monthly_net",
+        "budget.monthly_charges",
+        "budget.monthly_free",
+    }
+    return any(_packet_budget_number(fact, budget_fact_ids) is not None for fact in facts)
+
+
+def _packet_budget_number(fact: dict, budget_fact_ids: set[str]):
+    if not isinstance(fact, dict):
+        return None
+    if fact.get("id") not in budget_fact_ids:
+        return None
+    if fact.get("freshness") == "stale" or fact.get("state") == "missing":
+        return None
+    value = fact.get("value")
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    number = float(value)
+    if not math.isfinite(number):
+        return None
+    return value
+
+
 def _format_budget_status(ctx: dict) -> str:
     """Format budget data from profile_context as readable text."""
+    packet = ctx.get("coach_context_packet")
+    if isinstance(packet, dict):
+        facts = packet.get("facts") or []
+        if isinstance(facts, list):
+            by_id = {
+                fact.get("id"): fact
+                for fact in facts
+                if isinstance(fact, dict) and fact.get("id")
+            }
+
+            def _packet_number(fact_id: str):
+                return _packet_budget_number(by_id.get(fact_id, {}), {fact_id})
+
+            monthly_income = _packet_number("budget.monthly_net")
+            monthly_expenses = _packet_number("budget.monthly_charges")
+            monthly_free = _packet_number("budget.monthly_free")
+            if (
+                monthly_income is not None
+                or monthly_expenses is not None
+                or monthly_free is not None
+            ):
+                lines = ["Budget actuel :"]
+                if monthly_income is not None:
+                    lines.append(
+                        f"- Revenu net mensuel : {_fmt_chf(monthly_income)}"
+                    )
+                if monthly_expenses is not None:
+                    lines.append(
+                        f"- Charges mensuelles : {_fmt_chf(monthly_expenses)}"
+                    )
+                if monthly_free is not None:
+                    lines.append(f"- Marge libre : {_fmt_chf(monthly_free)}")
+                months_liquidity = ctx.get("months_liquidity")
+                if months_liquidity is not None:
+                    lines.append(
+                        f"- Réserve de liquidités : {float(months_liquidity):.1f} mois"
+                    )
+
+                missing = packet.get("missing_fields") or []
+                if isinstance(missing, list):
+                    missing_paths = [
+                        item.get("field_path")
+                        for item in missing
+                        if isinstance(item, dict)
+                        and item.get("domain") == "budget"
+                        and isinstance(item.get("field_path"), str)
+                    ]
+                    if missing_paths:
+                        lines.append(
+                            "- Données budget à confirmer : "
+                            + ", ".join(missing_paths[:4])
+                        )
+                return "\n".join(lines)
+
     monthly_income = ctx.get("monthly_income")
     monthly_expenses = ctx.get("monthly_expenses")
     months_liquidity = ctx.get("months_liquidity")
@@ -5468,7 +5313,7 @@ async def coach_chat(
                 # `_enforce_tool_use_for_citations` is covered by
                 # `tests/test_coach_chat_tool_use_gate.py` (Wave A).
                 enforcement = _enforce_tool_use_for_citations(
-                    answer_text=gated.gated_text,
+                    answer_text=loop_result["answer"],
                     tool_calls=loop_result.get("tool_calls") or [],
                 )
                 _emit_tool_use_enforcement_breadcrumb(enforcement, retry_count=0)
@@ -5486,8 +5331,9 @@ async def coach_chat(
                         ),
                         timeout=AGENT_LOOP_DEADLINE_SECONDS,
                     )
+                    retry_raw_answer_w1c = retry_result_w1c["answer"]
                     retry_gated_w1c = _citation_gate(
-                        response_text=retry_result_w1c["answer"],
+                        response_text=retry_raw_answer_w1c,
                         ctx=coach_ctx,
                         citation_allowlist=_gate_allowlist,
                         is_retry=True,
@@ -5497,7 +5343,7 @@ async def coach_chat(
                     _emit_gate_breadcrumb(retry_gated_w1c, retries=1)
                     retry_result_w1c["answer"] = retry_gated_w1c.gated_text
                     retry_enforcement = _enforce_tool_use_for_citations(
-                        answer_text=retry_gated_w1c.gated_text,
+                        answer_text=retry_raw_answer_w1c,
                         tool_calls=retry_result_w1c.get("tool_calls") or [],
                     )
                     _emit_tool_use_enforcement_breadcrumb(
@@ -5529,8 +5375,9 @@ async def coach_chat(
             _run_agent_loop(question=retry_message, **_initial_loop_kwargs),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )
+        retry_raw_answer = retry_result["answer"]
         retry_gated = _citation_gate(
-            response_text=retry_result["answer"],
+            response_text=retry_raw_answer,
             ctx=coach_ctx,
             citation_allowlist=_gate_allowlist,
             is_retry=True,
@@ -5543,6 +5390,19 @@ async def coach_chat(
         # is_retry=True; FALLBACK text has no tool_* placeholders so the
         # filter inside _emit_citation_chip_breadcrumbs is a no-op there.
         if retry_gated.verdict == GateVerdict.PASS:
+            retry_enforcement = _enforce_tool_use_for_citations(
+                answer_text=retry_raw_answer,
+                tool_calls=retry_result.get("tool_calls") or [],
+            )
+            _emit_tool_use_enforcement_breadcrumb(
+                retry_enforcement,
+                retry_count=1,
+            )
+            if retry_enforcement.verdict == ToolUseEnforcementVerdict.REJECTED:
+                retry_result["answer"] = FALLBACK_TEMPLATED_TEXT
+                retry_result["tool_calls"] = []
+                retry_result["citation_chips"] = None
+                return retry_result
             _emit_citation_chip_breadcrumbs(
                 retry_gated.gated_text,
                 retry_result.get("citation_chips"),

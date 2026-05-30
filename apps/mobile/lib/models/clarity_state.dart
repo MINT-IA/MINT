@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Modèle de progression de clarté (pas gamification)
 /// Respecte les invariants : rapport central, neutralité, simplicité
@@ -112,7 +113,9 @@ class ClarityState {
 
   Color get precisionColor {
     if (precisionIndex < 40) return MintColors.warning;
-    if (precisionIndex < 70) return MintColors.centralScenarioLight; // Vert clair
+    if (precisionIndex < 70) {
+      return MintColors.centralScenarioLight; // Vert clair
+    }
     if (precisionIndex < 90) return MintColors.centralScenario; // Vert
     return MintColors.stressScenario; // Vert foncé
   }
@@ -212,22 +215,21 @@ class ClarityState {
 
   static double _calculateDebtRatio(Map<String, dynamic> answers) {
     // Support V1 and V2 income keys
-    double income = (answers['income_net_monthly'] as num?)?.toDouble() ??
-        (answers['q_net_income_monthly'] as num?)?.toDouble() ??
+    double income = _parseDouble(answers['income_net_monthly']) ??
+        _parseDouble(answers['q_net_income_monthly']) ??
         0;
 
     if (income == 0) {
       // Try V2 period income
-      final periodIncome =
-          (answers['q_net_income_period_chf'] as num?)?.toDouble();
+      final periodIncome = _parseDouble(answers['q_net_income_period_chf']);
       if (periodIncome != null) {
         final freq = answers['q_pay_frequency'];
         if (freq == 'monthly') {
           income = periodIncome;
         } else if (freq == 'weekly') {
-          income = periodIncome * 4.33;
+          income = periodIncome * 4.333;
         } else if (freq == 'biweekly') {
-          income = periodIncome * 2.16;
+          income = periodIncome * 2.166;
         } else {
           income = periodIncome;
         }
@@ -238,24 +240,32 @@ class ClarityState {
 
     double totalDebt = 0;
     if (answers['has_leasing'] == true || answers['q_has_leasing'] == 'yes') {
-      totalDebt += (answers['leasing_monthly'] as num?)?.toDouble() ??
-          (answers['q_leasing_monthly'] as num?)?.toDouble() ??
+      totalDebt += _parseDouble(answers['leasing_monthly']) ??
+          _parseDouble(answers['q_leasing_monthly']) ??
           0;
     }
     if (answers['has_consumer_credit'] == true ||
         answers['q_has_consumer_credit'] == 'yes') {
-      totalDebt += (answers['consumer_credit_monthly'] as num?)?.toDouble() ??
-          (answers['q_credit_monthly'] as num?)?.toDouble() ??
+      totalDebt += _parseDouble(answers['consumer_credit_monthly']) ??
+          _parseDouble(answers['q_credit_monthly']) ??
           0;
     }
 
     // V2 debt
     if (answers['q_debt_payments_period_chf'] != null) {
-      totalDebt +=
-          (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
+      totalDebt += _parseDouble(answers['q_debt_payments_period_chf']) ?? 0;
     }
 
     return totalDebt / income;
+  }
+
+  static double? _parseDouble(dynamic raw) {
+    if (raw is num) return raw.toDouble();
+    if (raw is String) {
+      return double.tryParse(
+          raw.trim().replaceAll("'", '').replaceAll(',', '.'));
+    }
+    return null;
   }
 
   static List<ClarityAction> _generateActions(
@@ -443,18 +453,14 @@ class ClarityProgressHeader extends StatelessWidget {
                 children: [
                   Text(
                     'Précision : ${state.precisionIndex.toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                    style: MintTextStyles.titleLarge(
                       color: state.precisionColor,
-                    ),
+                    ).copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
                     state.precisionLabel,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: state.precisionColor,
-                    ),
+                    style:
+                        MintTextStyles.bodyMedium(color: state.precisionColor),
                   ),
                 ],
               ),
@@ -467,17 +473,16 @@ class ClarityProgressHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: MintColors.warning),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.shield, size: 16, color: MintColors.warning),
-                      SizedBox(width: 4),
+                      const Icon(Icons.shield,
+                          size: 16, color: MintColors.warning),
+                      const SizedBox(width: 4),
                       Text(
                         'Mode Protection',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: MintColors.warning,
-                        ),
+                        style: MintTextStyles.labelMedium(
+                                color: MintColors.warning)
+                            .copyWith(fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -501,8 +506,8 @@ class ClarityProgressHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 color: MintColors.greenBgLight,
                 borderRadius: BorderRadius.circular(8),
-                border:
-                    Border.all(color: MintColors.stressScenario.withValues(alpha: 0.3)),
+                border: Border.all(
+                    color: MintColors.stressScenario.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -512,11 +517,9 @@ class ClarityProgressHeader extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Prochaine info la plus rentable : ${state.nextMostValuableInfo}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.stressScenario,
-                      ),
+                      style: MintTextStyles.labelMedium(
+                              color: MintColors.stressScenario)
+                          .copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -526,10 +529,8 @@ class ClarityProgressHeader extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'Actions prêtes : ${state.actionsReady}/${state.totalActions}',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),

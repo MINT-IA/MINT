@@ -5,12 +5,26 @@ Mobile emits `coach_context_packet` from DataSpineSnapshot. If the backend
 sanitizer or RAG schema drops it, the mobile integration is only a facade.
 """
 
+import json
+import math
+import re
+from pathlib import Path
+
 from app.api.v1.endpoints.coach_chat import (
     _PROFILE_SAFE_FIELDS,
     _build_coach_context_from_profile,
+    _sanitize_coach_context_packet,
     _sanitize_profile_context,
 )
 from app.schemas.rag import ProfileContext
+from app.services.coach.context_packet_sanitizer import (
+    _ALLOWED_IDS,
+    sanitize_coach_context_packet,
+)
+
+
+FIXTURES_DIR = Path(__file__).resolve().parents[1] / "fixtures"
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def _packet() -> dict:
@@ -90,6 +104,99 @@ def test_sanitize_keeps_context_packet_and_drops_raw_profile_pii():
     assert "iban" not in result
 
 
+def test_endpoint_packet_sanitizer_delegates_to_shared_sanitizer():
+    packet = _packet()
+    packet["first_name"] = "Julien"
+    packet["facts"].append(
+        {
+            "id": "situation.monthly_housing_cost",
+            "domain": "situation",
+            "field_path": "situation.monthlyHousingCost",
+            "value": 2200.0,
+            "source": "wizard",
+            "confidence": 0.91,
+            "freshness": "fresh",
+            "state": "known",
+        }
+    )
+
+    assert _sanitize_coach_context_packet(packet) == sanitize_coach_context_packet(
+        packet
+    )
+    assert _sanitize_profile_context({"coach_context_packet": packet})[
+        "coach_context_packet"
+    ] == sanitize_coach_context_packet(packet)
+
+
+def test_mobile_packet_fixture_survives_backend_contract_boundary():
+    packet = json.loads(
+        (FIXTURES_DIR / "mobile_coach_context_packet_v1.json").read_text()
+    )
+
+    safe = sanitize_coach_context_packet(packet)
+    facts_by_id = {fact["id"]: fact for fact in safe["facts"]}
+    fact_ids = set(facts_by_id)
+    missing_paths = {field["field_path"] for field in safe["missing_fields"]}
+
+    assert facts_by_id["profile.canton"]["value"] == "VD"
+    assert "budget.monthly_net" in fact_ids
+    assert "budget.monthly_charges" in fact_ids
+    assert "budget.monthly_free" in fact_ids
+    assert "situation.monthly_housing_cost" in fact_ids
+    assert "situation.lamal_premium_monthly" in fact_ids
+    assert "pillar.3a.annual_contribution" in fact_ids
+    assert "pillars.lpp.totalBalance" in missing_paths
+    assert safe["trajectory"]["status"] == "onTrack"
+    assert safe["trajectory"]["current_monthly_capacity"] == 2239.0
+    assert safe["next_questions"][0]["id"] == "confirm_plan_tracking"
+    assert "readiness" not in safe
+
+
+def test_mobile_allowed_fact_ids_match_backend_sanitizer_allowlist():
+    dart_source = (
+        REPO_ROOT
+        / "apps/mobile/lib/services/data_spine/coach_context_packet_service.dart"
+    ).read_text()
+    match = re.search(
+        r"allowedFactIds\s*=\s*<String>\{(?P<body>.*?)\};",
+        dart_source,
+        flags=re.S,
+    )
+    assert match is not None
+
+    mobile_ids = set(re.findall(r"'([^']+)'", match.group("body")))
+
+    assert len(mobile_ids) >= 10
+    assert mobile_ids == _ALLOWED_IDS
+
+
+def test_sanitizer_drops_non_finite_numeric_fact_values():
+    packet = _packet()
+    packet["facts"] = [
+        {
+            "id": "budget.monthly_net",
+            "domain": "budget",
+            "field_path": "budget.present.monthlyNet",
+            "value": float("nan"),
+        },
+        {
+            "id": "budget.monthly_charges",
+            "domain": "budget",
+            "field_path": "budget.present.monthlyCharges",
+            "value": float("inf"),
+        },
+    ]
+
+    assert math.isnan(packet["facts"][0]["value"])
+    assert math.isinf(packet["facts"][1]["value"])
+
+    safe = sanitize_coach_context_packet(packet)
+    facts_by_id = {fact["id"]: fact for fact in safe["facts"]}
+
+    assert "value" not in facts_by_id["budget.monthly_net"]
+    assert "value" not in facts_by_id["budget.monthly_charges"]
+
+
 def test_sanitize_keeps_mobile_monthly_capacity_fact_shape():
     packet = _packet()
     packet["facts"].append(
@@ -111,6 +218,68 @@ def test_sanitize_keeps_mobile_monthly_capacity_fact_shape():
     )
     assert capacity_fact["field_path"] == "trajectory.currentMonthlyCapacity"
     assert capacity_fact["value"] == 1200.0
+
+
+def test_sanitize_keeps_mobile_situation_facts_and_missing_budget_fields():
+    packet = _packet()
+    packet["facts"].extend(
+        [
+            {
+                "id": "situation.monthly_housing_cost",
+                "domain": "situation",
+                "field_path": "situation.monthlyHousingCost",
+                "value": 2200.0,
+                "source": "wizard",
+                "confidence": 0.91,
+                "freshness": "fresh",
+                "state": "known",
+            },
+            {
+                "id": "situation.lamal_premium_monthly",
+                "domain": "situation",
+                "field_path": "situation.lamalPremiumMonthly",
+                "value": 420.0,
+                "source": "wizard",
+                "confidence": 0.91,
+                "freshness": "fresh",
+                "state": "known",
+            },
+            {
+                "id": "pillar.3a.annual_contribution",
+                "domain": "pillar_3a",
+                "field_path": "pillars.pillar3a.annualContribution",
+                "value": 6000.0,
+                "source": "calculated",
+                "confidence": 0.91,
+                "freshness": "fresh",
+            },
+        ]
+    )
+    packet["missing_fields"].extend(
+        [
+            {
+                "field_path": "situation.monthlyHousingCost",
+                "domain": "budget",
+                "reason": "missing_fact",
+            },
+            {
+                "field_path": "situation.lamalPremiumMonthly",
+                "domain": "budget",
+                "reason": "missing_fact",
+            },
+        ]
+    )
+
+    result = _sanitize_profile_context({"coach_context_packet": packet})
+    safe = result["coach_context_packet"]
+    fact_ids = {fact["id"] for fact in safe["facts"]}
+    missing_paths = {field["field_path"] for field in safe["missing_fields"]}
+
+    assert "situation.monthly_housing_cost" in fact_ids
+    assert "situation.lamal_premium_monthly" in fact_ids
+    assert "pillar.3a.annual_contribution" in fact_ids
+    assert "situation.monthlyHousingCost" in missing_paths
+    assert "situation.lamalPremiumMonthly" in missing_paths
 
 
 def test_sanitize_filters_nested_packet_strings():

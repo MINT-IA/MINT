@@ -11,6 +11,7 @@
 /// Pure data — no Flutter/widget imports. Safe to use in tests and services.
 library;
 
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/navigation/readiness_result.dart';
 
@@ -261,7 +262,11 @@ ReadinessResult gateFrontalier(CoachProfile profile) {
 /// If no charges have been entered, open in partial mode with enrichment CTA.
 ReadinessResult gateBudgetSousTension(CoachProfile profile) {
   final hasIncome = profile.salaireBrutMensuel > 0;
-  final hasCharges = profile.depenses.totalMensuel > 0;
+  // SALVAGE-00 SC-3 / Gate Fix 1: route through the SAME source-trust predicate
+  // the budget screen renders against, instead of a raw `totalMensuel > 0`.
+  // An untagged loyer (no trusted dataSource) renders 0 and must NOT count as
+  // "has charges" — otherwise the gate passes while the screen shows zero.
+  final hasCharges = BudgetInputs.hasTrustedCharges(profile);
 
   if (!hasIncome) {
     return const ReadinessResult.blocked(

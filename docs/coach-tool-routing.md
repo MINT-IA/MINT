@@ -139,6 +139,15 @@ count increments; above `_MAX_UNKNOWN_TOOL_CALLS`, the loop aborts and
 returns a generic error. Per-tool unknown names are logged via
 `logger.warning`. Monitor those — they indicate prompt drift.
 
+**Citation gate.** Coach copy may cite backend tool facts with
+`{{cite:tool_*}}`, but those citations are only trustworthy when the
+response also contains matching executed tool calls. The endpoint enforces
+this after the retry path as well as the first model turn: if the text cites
+tool-backed facts without corresponding tool evidence, the response is
+repaired or degraded instead of sending an unsupported citation to Flutter.
+This is a trust boundary, not a formatting detail; tests must cover both the
+happy path and the retry path.
+
 ---
 
 ## Anonymous chat endpoint (`/api/v1/anonymous/chat`)

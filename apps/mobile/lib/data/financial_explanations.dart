@@ -32,7 +32,7 @@ class FinancialExplanations {
             isPositive: false,
           ),
           const KeyPoint(
-            'Rachat échelonné : Tu restes dans ta tranche adaptee, taux marginal constant',
+            'Rachat échelonné : Tu restes dans ta tranche adaptée, taux marginal constant',
           ),
           KeyPoint(
             'Gain supplémentaire : +CHF ${saving.toStringAsFixed(0)} juste en échelonnant !',
@@ -102,18 +102,18 @@ class FinancialExplanations {
 
     return [
       const ExplanationSection(
-        title: '🎁 Le secret du 3a : Double rendement',
+        title: '🎁 Le mécanisme du 3a : fiscalité + placement',
         content:
-            'Le 3a n\'est pas juste un compte d\'épargne. C\'est un LEVIER FISCAL qui te donne un rendement bien supérieur à ce que tu vois.',
+            'Le 3a combine une déduction fiscale potentielle et un placement de prévoyance. L\'impact exact dépend de ton revenu, de ton canton et du support choisi.',
       ),
       ExplanationSection(
-        title: '💰 Rendement réel (avec fiscal)',
+        title: '💰 Rendement équivalent estimé',
         content:
-            'Chaque année, tu ne payes réellement que CHF ${realCost.toStringAsFixed(0)} (après déduction fiscale) pour investir CHF ${annualContribution.toStringAsFixed(0)}.',
+            'Avec cette hypothèse fiscale, le coût net estimé du versement serait CHF ${realCost.toStringAsFixed(0)} pour CHF ${annualContribution.toStringAsFixed(0)} investis.',
         example:
-            'Coût réel = ${annualContribution.toStringAsFixed(0)} - ${taxSavings.toStringAsFixed(0)} = CHF ${realCost.toStringAsFixed(0)}\n\n'
+            'Coût net estimé = ${annualContribution.toStringAsFixed(0)} - ${taxSavings.toStringAsFixed(0)} = CHF ${realCost.toStringAsFixed(0)}\n\n'
             'Rendement investissement : ${(investmentReturn * 100).toStringAsFixed(1)}%\n'
-            '→ Rendement réel total : ~${(effectiveYield * 100).toStringAsFixed(1)}% !\n\n'
+            '→ Rendement équivalent estimé : ~${(effectiveYield * 100).toStringAsFixed(1)}%\n\n'
             'C\'est le taux qu\'il te faudrait sur un placement non-déductible pour arriver au même capital final.',
       ),
       const ExplanationSection(
@@ -125,14 +125,14 @@ class FinancialExplanations {
             'Bonus Indexation : Ton économie fiscale grandit tous les 2 ans',
           ),
           KeyPoint(
-            'Protection Inflation : Investir en actions (via VIAC) protège ton pouvoir d\'achat',
+            'Protection Inflation : un 3a investi en titres peut mieux protéger le pouvoir d\'achat, avec les risques de marché correspondants',
           ),
         ],
       ),
       ExplanationSection(
-        title: '✨ Impossible à battre',
+        title: '✨ Comparaison avec une épargne taxable',
         content:
-            'Aucun autre placement (sauf immobilier avec EPL) ne te donne un rendement aussi élevé avec si peu de risque.',
+            'Le 3a peut être très efficace fiscalement, mais il reste illiquide et le rendement dépend du support choisi.',
         keyPoints: [
           const KeyPoint(
             'Compte épargne : 0.5-1% de rendement',
@@ -143,7 +143,7 @@ class FinancialExplanations {
             isPositive: false,
           ),
           KeyPoint(
-            '3a VIAC : ${(effectiveYield * 100).toStringAsFixed(1)}% de rendement RÉEL (avec fiscal)',
+            '3a titres : ${(effectiveYield * 100).toStringAsFixed(1)}% de rendement équivalent estimé (avec fiscal)',
           ),
         ],
       ),
@@ -212,7 +212,8 @@ class FinancialExplanations {
     int? spouseYears,
   ) {
     final gap = 44 - contributionYears;
-    final reductionPct = AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1);
+    final reductionPct =
+        AvsCalculator.reductionPercentageFromGap(gap).toStringAsFixed(1);
 
     final sections = [
       ExplanationSection(
@@ -253,7 +254,9 @@ class FinancialExplanations {
     if (isMarried && spouseYears != null) {
       final spouseGap = 44 - spouseYears;
       if (spouseGap > 0) {
-        final spouseReduction = AvsCalculator.reductionPercentageFromGap(spouseGap).toStringAsFixed(1);
+        final spouseReduction =
+            AvsCalculator.reductionPercentageFromGap(spouseGap)
+                .toStringAsFixed(1);
         sections.add(ExplanationSection(
           title: '💍 Impact sur le couple',
           content:

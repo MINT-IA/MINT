@@ -66,16 +66,16 @@ class FinancialReportService {
       final coachProfile = CoachProfile.fromWizardAnswers(answers);
       final confidenceResult = ConfidenceScorer.score(coachProfile);
       confidenceScore = confidenceResult.score;
-      enrichmentPrompts = confidenceResult.prompts
-          .map((p) => p.label)
-          .toList();
+      enrichmentPrompts = confidenceResult.prompts.map((p) => p.label).toList();
     } catch (_) {
       // Fallback: confidence remains 0 if profile cannot be built
     }
 
     // FIX-W11-4: Snapshot current constants for report traceability
     final simulationAssumptions = <String, dynamic>{
-      'constants_version': RegulatorySyncService.lastSyncAt?.toIso8601String() ?? 'offline_fallback',
+      'constants_version':
+          RegulatorySyncService.lastSyncAt?.toIso8601String() ??
+              'offline_fallback',
       'lpp_conversion_rate': lppTauxConversionMinDecimal,
       'avs_max_monthly': avsRenteMaxMensuelle,
       'pillar3a_max': pilier3aPlafondAvecLpp,
@@ -147,29 +147,35 @@ class FinancialReportService {
     S? l,
   }) {
     final disclaimers = <String>[
-      l?.reportDisclaimerBase1 ?? 'Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin.',
-      l?.reportDisclaimerBase2 ?? 'Les montants sont des estimations basées sur les données déclarées.',
-      l?.reportDisclaimerBase3 ?? 'Les performances passées ne préjugent pas des performances futures.',
+      l?.reportDisclaimerBase1 ??
+          'Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin.',
+      l?.reportDisclaimerBase2 ??
+          'Les montants sont des estimations basées sur les données déclarées.',
+      l?.reportDisclaimerBase3 ??
+          'Les performances passées ne préjugent pas des performances futures.',
     ];
 
     // Disclaimer fiscal (toujours présent car taxSim est required)
     if (taxSim.totalTax > 0) {
       disclaimers.add(
-        l?.reportDisclaimerFiscal ?? 'L\'estimation fiscale est approximative et ne remplace pas une déclaration d\'impôts.',
+        l?.reportDisclaimerFiscal ??
+            'L\'estimation fiscale est approximative et ne remplace pas une déclaration d\'impôts.',
       );
     }
 
     // Disclaimer retraite
     if (retirementProj != null) {
       disclaimers.add(
-        l?.reportDisclaimerRetraite ?? 'La projection retraite est indicative et dépend de l\'évolution législative (réformes AVS/LPP).',
+        l?.reportDisclaimerRetraite ??
+            'La projection retraite est indicative et dépend de l\'évolution législative (réformes AVS/LPP).',
       );
     }
 
     // Disclaimer rachat LPP
     if (lppStrategy != null) {
       disclaimers.add(
-        l?.reportDisclaimerRachatLpp ?? 'Le rachat LPP est soumis à un blocage de 3 ans pour les retraits EPL (LPP art. 79b al. 3).',
+        l?.reportDisclaimerRachatLpp ??
+            'Le rachat LPP est soumis à un blocage de 3 ans pour les retraits EPL (LPP art. 79b al. 3).',
       );
     }
 
@@ -177,7 +183,8 @@ class FinancialReportService {
   }
 
   UserProfile _buildUserProfile(Map<String, dynamic> answers) {
-    final birthYear = _parseInt(answers['q_birth_year']) ?? DateTime.now().year - 40;
+    final birthYear =
+        _parseInt(answers['q_birth_year']) ?? DateTime.now().year - 40;
     return UserProfile(
       firstName: answers['q_firstname'] as String?,
       birthYear: birthYear,
@@ -191,8 +198,7 @@ class FinancialReportService {
       spouseGender: answers['q_spouse_gender'] as String?,
       // FIX-W11-3: Spouse birth year and income for accurate couple AVS
       spouseBirthYear: _parseInt(answers['q_partner_birth_year']),
-      spouseMonthlyNetIncome:
-          _parseDouble(answers['q_partner_net_income_chf']),
+      spouseMonthlyNetIncome: _parseDouble(answers['q_partner_net_income_chf']),
       // Nouvelle logique AVS (triage lacunes)
       avsGapYears: _calculateAvsGaps(answers, birthYear),
       spouseAvsGapYears: _calculateSpouseAvsGaps(answers, birthYear),
@@ -308,10 +314,13 @@ class FinancialReportService {
     if (annualGrossApprox < reg('lpp.entry_threshold', lppSeuilEntree)) {
       coordinatedSalary = 0.0; // Not eligible for LPP
     } else {
-      coordinatedSalary = (annualGrossApprox - reg('lpp.coordination_deduction', lppDeductionCoordination))
-          .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
+      coordinatedSalary = (annualGrossApprox -
+              reg('lpp.coordination_deduction', lppDeductionCoordination))
+          .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin),
+              reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
     }
-    final refAgeReport = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final refAgeReport =
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     for (int year = 0; year < profile.yearsToRetirement; year++) {
       final ageThisYear = profile.age + year;
       if (ageThisYear >= 25 && ageThisYear <= refAgeReport) {
@@ -332,7 +341,8 @@ class FinancialReportService {
     // FIX-047: Use legal minimum 6.8% (same as dashboard) to avoid
     // confusing users with different CHF amounts. Was 5.8% (surobligatoire)
     // which understated rente by 18.6% vs dashboard.
-    final convRate = reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+    final convRate =
+        reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
     final monthlyLppRent = (lppCapital * convRate) / 12;
 
     return RetirementProjection(
@@ -357,7 +367,9 @@ class FinancialReportService {
         (answers['q_3a_providers'] as List?)?.cast<String>() ?? ['bank'];
 
     final contribution = _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
-    final maxContribution = profile.isSalaried ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
+    final maxContribution = profile.isSalaried
+        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
+        : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
     // Projections par provider (simplifié)
     final projections = <String, double>{
@@ -527,10 +539,12 @@ class FinancialReportService {
     S? l,
   }) {
     // Parsing basé sur keywords avec gains calculés à partir des données réelles
-    if (recommendation.contains('premier compte 3a') || recommendation.contains('premier 3a')) {
+    if (recommendation.contains('premier compte 3a') ||
+        recommendation.contains('premier 3a')) {
       return ActionItem(
         title: l?.reportActionTitle3aFirst ?? 'Ouvre ton premier 3a',
-        description: l?.reportActionDesc3aFirst ?? 'Déduis jusqu\'à CHF 7\'258/an de ton revenu imposable. Économie immédiate.',
+        description: l?.reportActionDesc3aFirst ??
+            'Déduis jusqu\'à CHF 7\'258/an de ton revenu imposable. Économie immédiate.',
         priority: ActionPriority.high,
         potentialGainChf: 1500,
         category: ActionCategory.pillar3a,
@@ -591,7 +605,8 @@ class FinancialReportService {
     if (recommendation.contains('AVS')) {
       return ActionItem(
         title: l?.reportActionTitleAvsCheck ?? 'Vérifie ton compte AVS',
-        description: l?.reportActionDescAvsCheck ?? 'Évite de perdre jusqu\'à 38\'000 CHF de rente à vie.',
+        description: l?.reportActionDescAvsCheck ??
+            'Évite de perdre jusqu\'à 38\'000 CHF de rente à vie.',
         priority: ActionPriority.high,
         category: ActionCategory.avs,
         steps: [
@@ -604,7 +619,8 @@ class FinancialReportService {
 
     if (recommendation.contains('dette') || recommendation.contains('crédit')) {
       return ActionItem(
-        title: l?.reportActionTitleDette ?? 'Rembourse tes dettes de consommation',
+        title:
+            l?.reportActionTitleDette ?? 'Rembourse tes dettes de consommation',
         description: l?.reportActionDescDette ??
             'Chaque CHF remboursé te fait économiser l\'équivalent du taux d\'intérêt de la dette (souvent 6-10 % par an).',
         priority: ActionPriority.critical,
@@ -621,7 +637,8 @@ class FinancialReportService {
     if (recommendation.toLowerCase().contains('urgence')) {
       return ActionItem(
         title: l?.reportActionTitleUrgence ?? 'Constitue ton fonds d\'urgence',
-        description: l?.reportActionDescUrgence ?? 'Vise 3 mois de charges sur un compte épargne séparé.',
+        description: l?.reportActionDescUrgence ??
+            'Vise 3 mois de charges sur un compte épargne séparé.',
         priority: ActionPriority.critical,
         category: ActionCategory.protection,
         steps: [
@@ -636,7 +653,8 @@ class FinancialReportService {
   }
 
   Roadmap _buildRoadmap(FinancialHealthScore healthScore,
-      Map<String, dynamic> answers, UserProfile profile, {S? l}) {
+      Map<String, dynamic> answers, UserProfile profile,
+      {S? l}) {
     return Roadmap(phases: [
       RoadmapPhase(
         title: l?.reportRoadmapPhaseImmediat ?? 'Immédiat',
@@ -709,8 +727,10 @@ class FinancialReportService {
       final spouseBirthYear = profile.spouseBirthYear ?? profile.birthYear;
       final spouseAge = profile.spouseAge ?? profile.age;
       final spouseRefAge = hasSpouseGender
-          ? avsReferenceAge(birthYear: spouseBirthYear, isFemale: spouseIsFemale)
-          : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+          ? avsReferenceAge(
+              birthYear: spouseBirthYear, isFemale: spouseIsFemale)
+          : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble())
+              .toInt();
       // Use spouse's income when available; fall back to user's salary
       final spouseGrossAnnual = profile.spouseMonthlyNetIncome != null
           ? NetIncomeBreakdown.estimateBrutFromNet(
@@ -748,7 +768,11 @@ class FinancialReportService {
   int? _parseInt(dynamic value) {
     if (value == null) return null;
     if (value is int) return value;
-    if (value is String) return int.tryParse(value);
+    if (value is num) return value.toInt();
+    if (value is String) {
+      final normalized = value.trim().replaceAll("'", '').replaceAll(',', '.');
+      return int.tryParse(normalized) ?? double.tryParse(normalized)?.toInt();
+    }
     return null;
   }
 
@@ -756,7 +780,11 @@ class FinancialReportService {
     if (value == null) return null;
     if (value is double) return value;
     if (value is int) return value.toDouble();
-    if (value is String) return double.tryParse(value);
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(
+          value.trim().replaceAll("'", '').replaceAll(',', '.'));
+    }
     return null;
   }
 }

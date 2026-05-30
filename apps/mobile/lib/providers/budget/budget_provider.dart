@@ -45,6 +45,28 @@ class BudgetProvider with ChangeNotifier {
     return false;
   }
 
+  /// Hydrate the read model from the freshest reliable budget source.
+  ///
+  /// A complete profile is canonical. A partial profile can seed a budget only
+  /// when there is no richer locally saved budget yet.
+  Future<void> hydrateFromProfileState({
+    required CoachProfile? profile,
+    required bool isPartialProfile,
+  }) async {
+    if (profile == null) {
+      await loadFromStorage();
+      return;
+    }
+
+    if (isPartialProfile) {
+      final restored = await loadFromStorage();
+      if (!restored) await refreshFromProfile(profile);
+      return;
+    }
+
+    await refreshFromProfile(profile);
+  }
+
   void updateOverride(String key, double value) {
     _overrides[key] = value;
     _recalculate();

@@ -52,6 +52,9 @@ CoachProfile _julienProfile() => CoachProfile(
       ),
       patrimoine: const PatrimoineProfile(epargneLiquide: 50000),
       depenses: const DepensesProfile(loyer: 2200, assuranceMaladie: 320),
+      dataSources: const {
+        'depenses.loyer': ProfileDataSource.userInput,
+      },
       goalA: _goal(),
     );
 
@@ -71,6 +74,9 @@ CoachProfile _laurenProfile() => CoachProfile(
       ),
       patrimoine: const PatrimoineProfile(epargneLiquide: 20000),
       depenses: const DepensesProfile(loyer: 1800, assuranceMaladie: 280),
+      dataSources: const {
+        'depenses.loyer': ProfileDataSource.userInput,
+      },
       goalA: _goal(),
     );
 
@@ -120,13 +126,34 @@ CoachProfile _incomeNoChargesProfile() => CoachProfile(
       goalA: _goal(),
     );
 
-/// Profile with income AND charges.
+/// Profile with income AND charges, with a TRUSTED loyer source tag.
+///
+/// SALVAGE-00 SC-3: the budget screen only renders a non-zero charge when the
+/// expense carries a trusted dataSource. A "has charges -> ready" fixture must
+/// therefore tag its loyer so the gate (now routed through
+/// BudgetInputs.hasTrustedCharges) and the render agree.
 CoachProfile _incomeWithChargesProfile() => CoachProfile(
       birthYear: 1980,
       canton: 'ZH',
       salaireBrutMensuel: 5000,
       employmentStatus: 'salarie',
       depenses: const DepensesProfile(loyer: 1500, assuranceMaladie: 300),
+      dataSources: const {
+        'depenses.loyer': ProfileDataSource.userInput,
+      },
+      goalA: _goal(),
+    );
+
+/// SALVAGE-00 SC-3: income present, charges present in the raw model BUT with
+/// NO dataSources tag (untagged loyer). The screen renders this as 0, so the
+/// gate must NOT report "has charges".
+CoachProfile _incomeUntaggedChargesProfile() => CoachProfile(
+      birthYear: 1980,
+      canton: 'ZH',
+      salaireBrutMensuel: 5000,
+      employmentStatus: 'salarie',
+      depenses: const DepensesProfile(loyer: 1500, assuranceMaladie: 300),
+      // No dataSources tag and no userProvidedFields -> untrusted -> renders 0.
       goalA: _goal(),
     );
 
@@ -373,6 +400,24 @@ void main() {
     test('income + charges present → ready', () {
       final result = ReadinessGate.check(entry, _incomeWithChargesProfile());
       expect(result.level, ReadinessLevel.ready);
+    });
+
+    // ── SALVAGE-00 SC-3: gate-vs-render source-trust agreement ──
+    test('SC-3: tagged loyer (trusted dataSource) → ready', () {
+      // Twin of the untagged case below. A trusted loyer renders non-zero, so
+      // the gate (routed through BudgetInputs.hasTrustedCharges) reports ready.
+      final result = ReadinessGate.check(entry, _incomeWithChargesProfile());
+      expect(result.level, ReadinessLevel.ready);
+    });
+
+    test('SC-3: untagged loyer (no dataSource) does NOT reach ready', () {
+      // The screen renders an untagged loyer as 0; the gate must agree and NOT
+      // pass it as "has charges" (kills the pass-gate-but-render-zero collapse).
+      final result =
+          ReadinessGate.check(entry, _incomeUntaggedChargesProfile());
+      expect(result.level, isNot(ReadinessLevel.ready));
+      expect(result.level, ReadinessLevel.partial);
+      expect(result.missingFields, contains('totalCharges'));
     });
 
     test('partial profile (salary but no depenses) → partial', () {

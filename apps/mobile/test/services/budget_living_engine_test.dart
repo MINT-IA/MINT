@@ -43,6 +43,14 @@ void main() {
         loyer: loyer,
         assuranceMaladie: assuranceMaladie,
       ),
+      dataSources: const {
+        'depenses.loyer': ProfileDataSource.userInput,
+        'depenses.assuranceMaladie': ProfileDataSource.userInput,
+      },
+      userProvidedFields: const {
+        'housingCost',
+        'lamalPremium',
+      },
       plannedContributions: contributions,
       goalA: GoalA(
         type: GoalAType.retraite,
@@ -397,8 +405,9 @@ void main() {
 
       if (snapshot.stage != BudgetStage.presentOnly) {
         // Julien has 539'414 CHF lacune — rachat_lpp must be the dominant cap
-        final rachatCap =
-            snapshot.capImpacts.where((c) => c.capId == 'rachat_lpp').firstOrNull;
+        final rachatCap = snapshot.capImpacts
+            .where((c) => c.capId == 'rachat_lpp')
+            .firstOrNull;
         expect(rachatCap, isNotNull,
             reason:
                 'Julien has CHF 539\'414 LPP lacune — rachat_lpp must appear');
@@ -509,6 +518,58 @@ void main() {
       // No salary means no net income projection possible
       expect(snapshot.present.monthlyNet, equals(0));
       expect(snapshot.stage, equals(BudgetStage.presentOnly));
+    });
+  });
+
+  // ── SALVAGE-00 SC-2: cross-path monthlyFree convergence (3a-contributing) ──
+  //
+  // Gate Fix 2 (arch-03): the engine-path and the builder-from-inputs path MUST
+  // compute the SAME monthlyFree for a 3a-contributing profile, because both
+  // now source planned savings from the ONE shared helper
+  // BudgetLivingEngine.computeMonthlySavings (3a + LPP buyback). Before the fix
+  // the builder defaulted savings to 0 (plan.future), diverging from the engine
+  // by exactly total3aMensuel + totalLppBuybackMensuel.
+  group('SALVAGE-00 SC-2: cross-path monthlyFree convergence (3a-contributing)',
+      () {
+    // Mirrors budget_screen._presentBudgetFromInputs offline fallback, post-fix:
+    // savings sourced from the same shared helper the engine uses.
+    double builderMonthlyFree(CoachProfile profile, BudgetSnapshot engineSnap) {
+      final monthlyNet = engineSnap.present.monthlyNet;
+      final monthlyCharges = engineSnap.present.monthlyCharges;
+      final monthlySavings = BudgetLivingEngine.computeMonthlySavings(profile);
+      return monthlyNet - monthlyCharges - monthlySavings;
+    }
+
+    test('engine and builder agree on monthlyFree for a 3a-contributing profile',
+        () {
+      final profile = buildProfile(
+        salaireBrutMensuel: 8000,
+        contributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_test',
+            label: '3a test',
+            category: '3a',
+            amount: 564.55,
+          ),
+          PlannedMonthlyContribution(
+            id: 'lpp_buyback_test',
+            label: 'LPP buyback test',
+            category: 'lpp_buyback',
+            amount: 500.0,
+          ),
+        ],
+      );
+      final engineSnap = BudgetLivingEngine.compute(profile);
+      final builder = builderMonthlyFree(profile, engineSnap);
+
+      // Both paths subtract the SAME real planned 3a/LPP via ONE helper.
+      expect(builder, closeTo(engineSnap.present.monthlyFree, 0.01),
+          reason: 'builder monthlyFree must equal engine monthlyFree when both '
+              'use computeMonthlySavings (no plan.future=0 divergence)');
+      // Sanity: savings actually non-zero for this 3a-contributing fixture.
+      expect(BudgetLivingEngine.computeMonthlySavings(profile),
+          closeTo(1064.55, 0.01),
+          reason: '3a (564.55) + LPP buyback (500) = 1064.55/mo');
     });
   });
 }

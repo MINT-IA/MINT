@@ -750,7 +750,7 @@
       }
     }
   },
-  "budgetSetupResteAfterCharges": "Il te reste {amount} CHF après tes charges.",
+  "budgetSetupResteAfterCharges": "Dir bleiben {amount} CHF nach deinen Ausgaben.",
   "@budgetSetupResteAfterCharges": {
     "description": "Budget setup label.",
     "placeholders": {
@@ -2407,7 +2407,6 @@
   "consentLegalSources": "Rechtsquellen",
   "pillar3aPaymentPerYear": "Einzahlung/Jahr:",
   "pillar3aDuration": "Dauer:",
-  "pillar3aOpenViac": "Mein VIAC-Konto eröffnen",
   "pillar3aFees": "Gebühren",
   "pillar3aReturn": "Rendite",
   "pillar3aAt65": "Mit 65",
@@ -2429,13 +2428,10 @@
       }
     }
   },
-  "pillar3aViacGainLabel": "Mit VIAC statt einer Bank:",
-  "pillar3aMoreAtRetirement": "mehr bei der Pensionierung!",
   "pillar3aDisclaimer": "Pädagogische Annahmen basierend auf historischen Durchschnittsrenditen. Vergangene Renditen sind keine Zusicherung künftiger Ergebnisse.",
   "pillar3aCapitalEvolution": "Entwicklung deines 3a-Kapitals",
   "pillar3aYearLabel": "Jahr",
   "pillar3aBank15": "Bank 1.5%",
-  "pillar3aViac45": "VIAC 4.5%",
   "pillar3aYearN": "Jahr {n}",
   "@pillar3aYearN": {
     "placeholders": {
@@ -2445,7 +2441,6 @@
     }
   },
   "pillar3aCompoundTip": "Die letzten Jahre machen +50% des Gesamtgewinns dank Zinseszins!",
-  "pillar3aRecommended": "EMPFOHLEN",
   "pillar3aVsBank": "{amount} vs Bank",
   "@pillar3aVsBank": {
     "placeholders": {
@@ -8847,7 +8842,7 @@
   "notifThreeA11Days": "11 Tage. Letzte Erinnerung Säule 3a.",
   "notifThreeA61Days": "Noch 61 Tage. Geschätzte Einsparung: CHF {saving}.",
   "notifThreeA92Days": "Noch 92 Tage für deine Säule-3a-Einzahlung.",
-  "notifThreeALastMonth": "Letzter Monat für deine Säule 3a. CHF {saving} Einsparung auf dem Spiel.",
+  "notifThreeALastMonth": "Letzter Monat für deine Säule 3a. Geschätzte Steuerersparnis: CHF {saving}.",
   "notifThreeATitle": "Säule 3a Frist",
   "notifWeeklyRecapBody": "Budget, Fortschritt, nächster Schritt — alles bereit.",
   "notifWeeklyRecapTitle": "Dein Wochenrückblick",

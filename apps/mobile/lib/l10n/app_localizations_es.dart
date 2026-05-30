@@ -1669,7 +1669,7 @@ class SEs extends S {
 
   @override
   String budgetSetupResteAfterCharges(String amount) {
-    return 'Il te reste $amount CHF après tes charges.';
+    return 'Te quedan $amount CHF después de tus gastos.';
   }
 
   @override
@@ -5107,9 +5107,6 @@ class SEs extends S {
   String get pillar3aDuration => 'Duración:';
 
   @override
-  String get pillar3aOpenViac => 'Abrir mi cuenta VIAC';
-
-  @override
   String get pillar3aFees => 'Comisiones';
 
   @override
@@ -5135,12 +5132,6 @@ class SEs extends S {
   }
 
   @override
-  String get pillar3aViacGainLabel => 'Con VIAC en lugar de un banco:';
-
-  @override
-  String get pillar3aMoreAtRetirement => '¡más en la jubilación!';
-
-  @override
   String get pillar3aDisclaimer =>
       'Hipótesis pedagógicas basadas en rendimientos históricos medios. Los rendimientos pasados no constituyen una garantía de resultados futuros.';
 
@@ -5154,9 +5145,6 @@ class SEs extends S {
   String get pillar3aBank15 => 'Banco 1.5%';
 
   @override
-  String get pillar3aViac45 => 'VIAC 4.5%';
-
-  @override
   String pillar3aYearN(int n) {
     return 'Año $n';
   }
@@ -5164,9 +5152,6 @@ class SEs extends S {
   @override
   String get pillar3aCompoundTip =>
       '¡Los últimos años representan +50% de la ganancia total gracias al interés compuesto!';
-
-  @override
-  String get pillar3aRecommended => 'RECOMENDADO';
 
   @override
   String pillar3aVsBank(String amount) {
@@ -17952,7 +17937,7 @@ class SEs extends S {
 
   @override
   String notifThreeALastMonth(String saving) {
-    return 'Último mes para tu 3a. CHF $saving de ahorro en juego.';
+    return 'Último mes para tu 3a. Ahorro fiscal estimado: CHF $saving.';
   }
 
   @override

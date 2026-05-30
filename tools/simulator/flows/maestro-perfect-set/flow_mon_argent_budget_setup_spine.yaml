@@ -64,8 +64,15 @@ tags:
     id: "mon_argent_data_spine_summary"
 - assertVisible:
     id: "mon_argent_situation_map"
+- assertVisible:
+    id: "mon_argent_situation_group_month"
+- assertVisible:
+    id: "mon_argent_situation_group_wealth"
+- scroll
+- assertVisible:
+    id: "mon_argent_situation_group_pension"
 
-- tapOn: "Mois"
+- openLink: "mintapp:///mon-argent?section=month"
 - waitForAnimationToEnd:
     timeout: 2000
 - assertVisible:
@@ -73,19 +80,19 @@ tags:
 - assertVisible:
     id: "mon_argent_budget_flow_bar"
 
-- tapOn: "Patrimoine"
+- openLink: "mintapp:///mon-argent?section=wealth"
 - waitForAnimationToEnd:
     timeout: 2000
 - assertVisible:
     id: "mon_argent_patrimoine_summary"
 
-- tapOn: "Prévoyance"
+- openLink: "mintapp:///mon-argent?section=pension"
 - waitForAnimationToEnd:
     timeout: 2000
 - assertVisible:
     id: "mon_argent_pension_map"
 
-- tapOn: "Futur"
+- openLink: "mintapp:///mon-argent?section=future"
 - waitForAnimationToEnd:
     timeout: 2000
 - assertVisible:

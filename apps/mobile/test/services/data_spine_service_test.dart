@@ -25,6 +25,9 @@ void main() {
       'prevoyance.avoirLppTotal': ProfileDataSource.certificate,
       'prevoyance.totalEpargne3a': ProfileDataSource.userInput,
       'depenses.loyer': ProfileDataSource.userInput,
+      'depenses.assuranceMaladie': ProfileDataSource.userInput,
+      'patrimoine.epargneLiquide': ProfileDataSource.userInput,
+      'dettes.totalDettes': ProfileDataSource.userInput,
     },
     Map<String, DateTime> dataTimestamps = const {},
     List<PlannedMonthlyContribution> plannedContributions = const [
@@ -92,6 +95,33 @@ void main() {
       expect(spine.situation.liquidSavings.value, 18000);
       expect(spine.situation.investments.value, 7000);
       expect(spine.situation.totalDebt.value, 3000);
+    });
+
+    test('does not promote untrusted profile defaults into situation facts',
+        () {
+      final profile = CoachProfile(
+        birthYear: 1987,
+        canton: 'VD',
+        salaireBrutMensuel: 8000,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime.utc(2052),
+          label: 'Retraite',
+        ),
+        depenses: const DepensesProfile(
+          loyer: 1500,
+          assuranceMaladie: 420,
+        ),
+        patrimoine: const PatrimoineProfile(epargneLiquide: 12000),
+        dettes: const DetteProfile(creditConsommation: 3000),
+      );
+
+      final spine = DataSpineService.fromProfile(profile, now: fixedNow);
+
+      expect(spine.situation.monthlyHousingCost.hasValue, isFalse);
+      expect(spine.situation.lamalPremiumMonthly.hasValue, isFalse);
+      expect(spine.situation.liquidSavings.hasValue, isFalse);
+      expect(spine.situation.totalDebt.hasValue, isFalse);
     });
 
     test('canonical situation answers clear the readiness situation gap', () {

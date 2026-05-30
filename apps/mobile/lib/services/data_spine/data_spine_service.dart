@@ -261,7 +261,6 @@ abstract final class DataSpineService {
     final amount =
         allowZero ? (value >= 0 ? value : null) : _positiveOrNull(value);
     if (amount == null) return null;
-    if (profile.userProvidedFields.isEmpty) return amount;
     if (profile.userProvidedFields.contains(providedField)) return amount;
     final source = profile.dataSources[fieldPath];
     if (source != null && source != ProfileDataSource.estimated) {

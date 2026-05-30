@@ -51,7 +51,7 @@ void main() {
     );
   });
 
-  testWidgets('prefers fresh budget inputs over stale snapshot',
+  testWidgets('prefers canonical snapshot over provider plan duplicates',
       (tester) async {
     await tester.pumpWidget(
       _wrap(
@@ -89,11 +89,11 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text("5'379\u00a0CHF"), findsOneWidget);
-    expect(find.text("3'140\u00a0CHF"), findsOneWidget);
-    expect(find.text("2'239\u00a0CHF"), findsOneWidget);
-    expect(find.text("8'000\u00a0CHF"), findsNothing);
-    expect(find.text("5'900\u00a0CHF"), findsNothing);
-    expect(find.text("2'100\u00a0CHF"), findsNothing);
+    expect(find.text("8'000\u00a0CHF"), findsOneWidget);
+    expect(find.text("5'900\u00a0CHF"), findsOneWidget);
+    expect(find.text("2'100\u00a0CHF"), findsOneWidget);
+    expect(find.text("5'379\u00a0CHF"), findsNothing);
+    expect(find.text("3'140\u00a0CHF"), findsNothing);
+    expect(find.text("2'239\u00a0CHF"), findsNothing);
   });
 }

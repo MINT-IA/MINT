@@ -140,6 +140,74 @@ void main() {
       // Thematic cards replaced circles — check for a thematic card title
       expect(find.textContaining('Ton Budget'), findsOneWidget);
     });
+
+    testWidgets('budget card rejects implausible captured monthly amounts',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_net_income_period_chf'] = 5379.0
+        ..['q_housing_cost_period_chf'] = 19272200.0
+        ..['q_lamal_premium_monthly_chf'] = 420420.0;
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining("19'272'200"), findsNothing);
+      expect(find.textContaining("420'420"), findsNothing);
+      expect(find.textContaining("5'379"), findsWidgets);
+    });
+
+    testWidgets('safe-mode reasons accept persisted debt as numeric string',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_debt_payments_period_chf'] = '150'
+        ..['q_emergency_fund'] = 'yes_6months';
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byType(FinancialReportScreenV2), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('retirement card accepts persisted AVS years as strings',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_birth_year'] = '1990'
+        ..['q_avs_lacunes_status'] = 'arrived_late'
+        ..['q_avs_arrival_year'] = '2015'
+        ..['q_avs_years_abroad'] = '3'
+        ..['q_first_employment_year'] = '2012';
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byType(FinancialReportScreenV2), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   });
 
   // ===========================================================================
