@@ -71,7 +71,7 @@ void main() {
           5000 * IncomeConverter.factorFor(isSalaried: true);
       expect(profile.salaireBrutMensuel, closeTo(expectedGrossMonthly, 0.01));
       // And it must NOT equal the legacy 0.13-derived value (5000/0.87≈5747).
-      final legacyGrossMonthly = 5000 / (1 - 0.13);
+      const legacyGrossMonthly = 5000 / (1 - 0.13);
       expect(
         (profile.salaireBrutMensuel - legacyGrossMonthly).abs(),
         greaterThan(1.0),
@@ -107,7 +107,7 @@ void main() {
       final expectedPartnerGrossMonthly =
           4000 * IncomeConverter.factorFor(isSalaried: true);
       expect(partnerGross, closeTo(expectedPartnerGrossMonthly, 0.01));
-      final legacyPartnerGross = 4000 / (1 - 0.13);
+      const legacyPartnerGross = 4000 / (1 - 0.13);
       expect(
         (partnerGross! - legacyPartnerGross).abs(),
         greaterThan(1.0),
