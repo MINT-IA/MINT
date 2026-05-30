@@ -53,17 +53,24 @@ class PremierEclairageSection extends StatelessWidget {
       );
       final economieAnnuelle =
           (plafond3a - cotisation3aAnnuelle) * tauxMarginal;
+      // SALVAGE-01-02: anneesAvantRetraite is nullable. The ANNUAL saving is
+      // age-independent (always shown). Only build the cumulative-over-years
+      // sentence when the horizon is known -- never fabricate a horizon for a
+      // no-age profile (LSFin no-promise: skip, don't invent).
       final anneesRestantes = profile.anneesAvantRetraite;
-      final economieCumulee = economieAnnuelle * anneesRestantes;
-      // Show ANNUAL savings as the headline number — honest and actionable.
-      // Mention cumulative in the message for motivation.
+      final economieCumulee =
+          anneesRestantes != null ? economieAnnuelle * anneesRestantes : 0.0;
+      final cumulativeSentence = anneesRestantes != null
+          ? 'Sur $anneesRestantes ans, cela représente '
+              '~CHF ${formatChf(economieCumulee)}.'
+          : '';
       if (economieAnnuelle > 500) {
         cards.add(PremierEclairageCoachCard(
           value: economieAnnuelle,
           suffix: '/an',
           message: '\u00c9conomie d\'imp\u00f4ts potentielle chaque ann\u00e9e en '
               'maximisant ton 3a. '
-              'Sur $anneesRestantes ans, cela repr\u00e9sente ~CHF\u00A0${formatChf(economieCumulee)}.',
+              '$cumulativeSentence',
           narrativeMessage: narratives['fiscalite'],
           source: 'OPP3 art. 7 \u00b7 LIFD',
           ctaLabel: 'Simuler mon 3a',

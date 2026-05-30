@@ -157,10 +157,19 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       final coachProfile = coachProvider.profile;
       if (coachProfile != null) {
         filled = true;
-        _isPreFilled = true;
 
-        // Age + years to retirement
-        _years = coachProfile.anneesAvantRetraite.clamp(1, 45);
+        // Age + years to retirement.
+        // SALVAGE-01-02 / def-02: anneesAvantRetraite is now nullable. When
+        // age is unknown (birthYear==0 sentinel) we must NOT fabricate a
+        // 45yr horizon — skip the years pre-fill and leave the editable
+        // default so the user supplies their own horizon (prompt, not
+        // projection). _isPreFilled stays true only when we genuinely
+        // derived a horizon from a known age.
+        final annees = coachProfile.anneesAvantRetraite;
+        if (annees != null) {
+          _years = annees.clamp(1, 45);
+          _isPreFilled = true;
+        }
 
         // Canton
         _profileCanton = coachProfile.canton.isNotEmpty

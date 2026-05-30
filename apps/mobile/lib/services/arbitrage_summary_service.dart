@@ -138,7 +138,11 @@ class ArbitrageSummaryService {
     final lacune = profile.prevoyance.lacuneRachatRestante;
     final loyer = profile.depenses.loyer;
     final salary = profile.revenuBrutAnnuel;
-    final anneesRetraite = profile.anneesAvantRetraite;
+    // SALVAGE-01-02: anneesAvantRetraite is now nullable. Fall back to the
+    // arbitrage engine's own default horizon (20) when age is unknown — a
+    // numeric horizon is semantically safe here (the engine param defaults
+    // to 20), unlike the projection screens which must skip on null.
+    final anneesRetraite = profile.anneesAvantRetraite ?? 20;
 
     // ── 1. Rente vs Capital ──
     if (!hasDebtPriority && lppAvoir > 0) {
@@ -367,7 +371,7 @@ class ArbitrageSummaryService {
       keyInsight: 'En Suisse, les retraits de prévoyance sont taxés '
           'progressivement ; le regroupement sur une même année change le taux effectif.',
       monthlyImpactChf:
-          saving / (profile.anneesAvantRetraite * 12).clamp(1, 999),
+          saving / ((profile.anneesAvantRetraite ?? 20) * 12).clamp(1, 999),
       confidenceScore: result.confidenceScore,
       route: '/decaissement',
       fullResult: result,
@@ -536,8 +540,9 @@ class ArbitrageSummaryService {
 
     if (result.taxSaving < 500) return null;
 
-    final monthlyImpact =
-        result.taxSaving / (profile.anneesAvantRetraite * 12).clamp(1, 999);
+    // SALVAGE-01-02: nullable horizon -> engine default (20) on unknown age.
+    final monthlyImpact = result.taxSaving /
+        ((profile.anneesAvantRetraite ?? 20) * 12).clamp(1, 999);
 
     final summaryCopy =
         'Impact fiscal indicatif de l\'échelonnement : ${formatChfWithPrefix(result.taxSaving)}.';

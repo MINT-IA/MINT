@@ -55,19 +55,17 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
     }
   }
 
-  /// M8: Extracted for testability. In production, uses DateTime.now().
-  /// For widget tests, this could be overridden via a clock dependency.
-  static int _computeAge(int birthYear) => DateTime.now().year - birthYear;
-
   @override
   Widget build(BuildContext context) {
     final profileProvider = context.watch<CoachProfileProvider>();
     final profile = profileProvider.profile;
-    // M8: Age calculation uses DateTime.now() — not testable in widget tests.
-    // Extracting to a method for future injection. Known limitation.
-    final age = profile != null
-        ? _computeAge(profile.birthYear)
-        : null;
+    // SALVAGE-01-02 / mlf-04: route age through CoachProfile.ageOrNull
+    // instead of a raw `now.year - birthYear`, which on the birthYear==0
+    // sentinel produced 2026 -> a bogus "65+" peer bucket. ageOrNull
+    // returns null on the sentinel, so peer-bucketing is skipped (the
+    // `age == null` branch at the build below shows the no-data state)
+    // rather than benchmarking the user against a fabricated cohort.
+    final age = profile?.ageOrNull;
 
     return Scaffold(
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(

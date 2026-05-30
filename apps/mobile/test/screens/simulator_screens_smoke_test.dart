@@ -27,7 +27,7 @@ void main() {
   // ===========================================================================
 
   group('Simulator3aScreen', () {
-    Widget buildScreen({Profile? profile}) {
+    Widget buildScreen({Profile? profile, CoachProfileProvider? coach}) {
       final provider = ProfileProvider();
       if (profile != null) {
         provider.setProfile(profile);
@@ -35,8 +35,8 @@ void main() {
       return MultiProvider(
         providers: [
           ChangeNotifierProvider<ProfileProvider>.value(value: provider),
-          ChangeNotifierProvider<CoachProfileProvider>(
-            create: (_) => CoachProfileProvider(),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: coach ?? CoachProfileProvider(),
           ),
         ],
         child: const MaterialApp(
@@ -122,6 +122,29 @@ void main() {
       // Sliders replaced: tax rate chips + return rate chips + contribution text field
       expect(find.byType(ChoiceChip), findsWidgets);
       expect(find.byType(TextField), findsWidgets);
+    });
+
+    // SALVAGE-01-02 / def-02: a CoachProfile with birthYear==0 (sentinel,
+    // unknown age) must NOT pre-fill a fabricated 45yr horizon. The screen
+    // renders without crash and the "profile pre-filled" indicator is NOT
+    // shown (years stays editable / prompted, not projected).
+    testWidgets('no-age profile (birthYear==0) does not pre-fill a horizon',
+        (tester) async {
+      final coach = CoachProfileProvider();
+      // Minimal answers WITHOUT q_birth_year -> birthYear==0 sentinel,
+      // so anneesAvantRetraite returns null and the pre-fill is skipped.
+      coach.updateFromAnswers(<String, dynamic>{
+        'q_canton': 'VD',
+        'q_monthly_gross': 6000,
+      });
+      await tester.pumpWidget(buildScreen(coach: coach));
+      await tester.pump();
+      // Did not crash on null.clamp.
+      expect(find.byType(Scaffold), findsOneWidget);
+      // The "Prérempli depuis ton profil" success indicator must be absent
+      // because no horizon was derived from an unknown age (def-02 skip,
+      // not a fabricated 45yr projection).
+      expect(find.textContaining('Prérempli'), findsNothing);
     });
   });
 

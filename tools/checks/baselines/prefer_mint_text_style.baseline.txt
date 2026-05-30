@@ -173,10 +173,10 @@ lib/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart:163: fontSize:
 lib/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart:186: fontSize: 15
 lib/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart:70: fontSize: 15
 lib/screens/onboarding/mvp_wedge/scenes/us_tax_person_screen.dart:82: fontSize: 14
-lib/screens/pillar_3a_deep/provider_comparator_screen.dart:263: fontSize: 12
-lib/screens/pillar_3a_deep/provider_comparator_screen.dart:368: fontSize: 9
-lib/screens/pillar_3a_deep/provider_comparator_screen.dart:386: fontSize: 12
-lib/screens/pillar_3a_deep/provider_comparator_screen.dart:396: fontSize: 12
+lib/screens/pillar_3a_deep/provider_comparator_screen.dart:269: fontSize: 12
+lib/screens/pillar_3a_deep/provider_comparator_screen.dart:374: fontSize: 9
+lib/screens/pillar_3a_deep/provider_comparator_screen.dart:392: fontSize: 12
+lib/screens/pillar_3a_deep/provider_comparator_screen.dart:402: fontSize: 12
 lib/screens/profile/privacy_center_screen.dart:115: fontSize: 14
 lib/screens/profile/privacy_center_screen.dart:155: fontSize: 14
 lib/screens/profile/privacy_center_screen.dart:195: fontSize: 15

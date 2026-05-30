@@ -1855,7 +1855,17 @@ class CoachProfile {
   int get effectiveRetirementAge => targetRetirementAge ?? 65;
 
   /// Annees restantes avant retraite.
-  int get anneesAvantRetraite => (effectiveRetirementAge - age).clamp(0, 99);
+  ///
+  /// SALVAGE-01-02 / math-02: nullable via [ageOrNull] so a no-age profile
+  /// (birthYear==0 sentinel) returns `null` instead of a fabricated 65yr
+  /// horizon. Mirrors the already-correct [PrevoyanceProfile.anneesAvantRetraite]
+  /// twin. Callers MUST null-skip or prompt rather than project a fictional
+  /// retirement horizon (LSFin no-promise alignment).
+  int? get anneesAvantRetraite {
+    final a = ageOrNull;
+    if (a == null) return null;
+    return (effectiveRetirementAge - a).clamp(0, 99);
+  }
 
   /// Revenu brut annuel estime
   double get revenuBrutAnnuel {

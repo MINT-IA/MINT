@@ -262,12 +262,16 @@ class CoachNarrativeService {
       final salary = profile.revenuBrutAnnuel;
       final refAge =
           reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-      if (salary > 0 && profile.age < refAge) {
+      // SALVAGE-01-02: route the age gate through ageOrNull so a no-age
+      // profile (sentinel 0) SKIPS the replacement-ratio projection rather
+      // than feeding currentAge: 0 into LppCalculator.
+      final ratioAge = profile.ageOrNull;
+      if (salary > 0 && ratioAge != null && ratioAge < refAge) {
         final avsMonthly = AvsCalculator.renteFromRAMD(salary);
         final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
         final lppAnnual = LppCalculator.projectToRetirement(
           currentBalance: lppBalance,
-          currentAge: profile.age,
+          currentAge: ratioAge,
           retirementAge: refAge,
           grossAnnualSalary: salary,
           caisseReturn: 0.01,
@@ -529,8 +533,13 @@ class CoachNarrativeService {
     final premierEclairageNarration =
         FallbackTemplates.premierEclairageReframe(ctx);
     String? retirementCountdown;
-    if (profile.age >= 45) {
-      final yearsLeft = profile.anneesAvantRetraite;
+    // SALVAGE-01-02: gate on ageOrNull (skip on unknown age) and null-guard
+    // the now-nullable anneesAvantRetraite. yearsLeft is non-null inside this
+    // branch because ageOrNull != null implies anneesAvantRetraite != null.
+    final retirementAge = profile.ageOrNull;
+    final yearsLeftOrNull = profile.anneesAvantRetraite;
+    if (retirementAge != null && retirementAge >= 45 && yearsLeftOrNull != null) {
+      final yearsLeft = yearsLeftOrNull;
       final retAge = profile.effectiveRetirementAge;
       // When less than 2 years away, show months for precision.
       // Integer year truncation can mislead (e.g. 64.9 → "12 mois" instead of "1 mois").
@@ -929,11 +938,19 @@ class CoachNarrativeService {
   /// Injects countdown, urgency level, and replacement rate estimate
   /// for users aged 45+. Returns empty string for younger users.
   static String _buildRetirementContext(CoachProfile profile) {
-    if (profile.age < 45) return '';
+    // SALVAGE-01-02: gate on ageOrNull (skip on unknown age) instead of the
+    // legacy non-null age sentinel, and null-guard the now-nullable
+    // anneesAvantRetraite. A no-age profile returns '' (skip), never a
+    // fabricated countdown.
+    final currentAge = profile.ageOrNull;
+    final yearsLeftOrNull = profile.anneesAvantRetraite;
+    if (currentAge == null || currentAge < 45 || yearsLeftOrNull == null) {
+      return '';
+    }
 
     final buffer = StringBuffer();
     final retirementAge = profile.effectiveRetirementAge;
-    final yearsLeft = profile.anneesAvantRetraite;
+    final yearsLeft = yearsLeftOrNull;
     final monthsLeft = yearsLeft * 12;
 
     final urgency = yearsLeft <= 5
@@ -1020,17 +1037,28 @@ class CoachNarrativeService {
               'manquante reduit la rente de 1/44 (LAVS art. 29ter).');
     }
 
-    // Close to retirement — coordination reminder
-    if (profile.age >= 55 && profile.anneesAvantRetraite <= 10) {
+    // Close to retirement — coordination reminder.
+    // SALVAGE-01-02: route the >=55 gate through ageOrNull (NOT the legacy
+    // non-null `age`, whose 0-sentinel would silently classify a no-age user
+    // as `0 >= 55 == false` rather than skipping). null-guard the nullable
+    // anneesAvantRetraite so the whole branch skips on unknown age.
+    final snippetAge = profile.ageOrNull;
+    final snippetYearsLeft = profile.anneesAvantRetraite;
+    if (snippetAge != null &&
+        snippetAge >= 55 &&
+        snippetYearsLeft != null &&
+        snippetYearsLeft <= 10) {
       snippets.add(
-          'SNIPPET COORDINATION: A ${profile.anneesAvantRetraite} ans de la '
+          'SNIPPET COORDINATION: A $snippetYearsLeft ans de la '
           'retraite, la coordination des retraits (3a echelonne, LPP '
           'rente/capital, AVS anticipation/ajournement) peut avoir un '
           'impact fiscal significatif.');
     }
 
-    // Time Machine insight (M6A) — regret + hope
-    if (profile.age >= 45) {
+    // Time Machine insight (M6A) — regret + hope.
+    // SALVAGE-01-02: gate on ageOrNull so the time-machine insight is skipped
+    // for a no-age profile rather than triggered via the 0-sentinel.
+    if (snippetAge != null && snippetAge >= 45) {
       final timeMachine = _buildTimeMachineInsight(profile);
       if (timeMachine != null) snippets.add(timeMachine);
     }

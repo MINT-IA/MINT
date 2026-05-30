@@ -469,6 +469,28 @@ void main() {
     });
   });
 
+  // SALVAGE-01-02 / mlf-04: the cantonal benchmark screen used to compute age
+  // via a raw `now.year - birthYear`, which on the birthYear==0 sentinel
+  // produced 2026 -> a bogus "65+" peer bucket. The screen now routes age
+  // through CoachProfile.ageOrNull and skips peer-bucketing when it is null.
+  // This guards the contract the screen depends on: a no-age profile yields
+  // ageOrNull == null (so the screen takes its `age == null` no-data branch
+  // rather than benchmarking against a fabricated 65+ cohort).
+  group('sentinel-age skip (mlf-04)', () {
+    test('birthYear==0 profile -> ageOrNull is null (peer-bucket skipped)', () {
+      final profile = _buildProfile(birthYear: 0, canton: 'VS');
+      expect(profile.ageOrNull, isNull);
+    });
+
+    test('a valid age 65+ profile still buckets to 65+ (no regression)', () {
+      // Sanity: the skip is driven by null, not by the 65+ value itself.
+      final benchmark =
+          CantonalBenchmarkService.getBenchmark(canton: 'VS', age: 70);
+      expect(benchmark, isNotNull);
+      expect(benchmark!.ageGroup, '65+');
+    });
+  });
+
   group('golden couple', () {
     test('Julien (VS, 49) → correct benchmark returned', () {
       // Julien: born 1977-01-12, canton VS, age 49 in 2026
