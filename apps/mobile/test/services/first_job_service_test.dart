@@ -323,7 +323,11 @@ void main() {
       );
 
       expect(result.alerte3a, contains('assurance-vie'));
-      expect(result.alerte3a, contains('fintech'));
+      expect(result.alerte3a, contains('Compare'));
+      expect(result.alerte3a, contains('frais'));
+      expect(result.alerte3a, isNot(contains('Évite')));
+      expect(result.alerte3a, isNot(contains('Privilégie')));
+      expect(result.alerte3a, isNot(contains('fintech')));
     });
   });
 

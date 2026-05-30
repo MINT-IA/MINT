@@ -266,16 +266,16 @@ class EducationalInsertService {
 
       case 'q_lpp_buyback_available':
         return GenericInfoInsertWidget(
-          title: 'Rachat LPP : ton levier fiscal',
-          subtitle: 'Rendement immédiat de 25 à 40%',
+          title: 'Rachat LPP : impact fiscal indicatif',
+          subtitle: 'À comparer avec liquidité, horizon et règle des 3 ans',
           premierEclairage:
-              'Un rachat LPP de 20\'000 CHF peut te faire économiser entre '
-              '5\'000 et 8\'000 CHF d\'impôts l\'année même — c\'est un rendement '
-              'fiscal immédiat de 25 à 40%.',
+              'Un rachat LPP de 20\'000 CHF peut avoir un impact fiscal '
+              'indicatif entre 5\'000 et 8\'000 CHF selon le canton, le revenu '
+              'et l\'année du rachat.',
           learningGoals: const [
             'Le rachat LPP est déductible à 100% du revenu imposable (LPP art. 79b).',
             'Le montant maximum de rachat figure sur le certificat de prévoyance (demande à ta caisse de pension).',
-            'La stratégie d\'échelonnement : répartir les rachats sur 3-5 ans pour maximiser l\'économie grâce à la progressivité.',
+            'La stratégie d\'échelonnement : répartir les rachats sur 3-5 ans pour comparer l\'effet de la progressivité.',
             'Le blocage EPL : après un rachat, tu ne peux pas retirer de l\'EPL pendant 3 ans (LPP art. 79b al. 3).',
             'Le rachat augmente aussi ta rente future (ou ton capital de retrait).',
           ],
@@ -288,19 +288,19 @@ class EducationalInsertService {
             'LIFD art. 33 al. 1 let. d (Déduction des cotisations LPP)',
             'OPP2 art. 60a (Calcul du potentiel de rachat)',
           ],
-          actionLabel: 'Simuler l\'économie fiscale de mon rachat',
+          actionLabel: 'Simuler l\'impact fiscal de mon rachat',
           actionRoute: '/rachat-lpp',
           onLearnMore: onLearnMore,
         );
 
       case 'q_3a_accounts_count':
         return GenericInfoInsertWidget(
-          title: 'Nombre de comptes 3a : la stratégie',
-          subtitle: 'Échelonner pour payer moins d\'impôts',
+          title: 'Nombre de comptes 3a : planifier les retraits',
+          subtitle: 'Échelonner pour comparer l\'impôt au retrait',
           premierEclairage:
               'Avec 5 comptes 3a retirés sur 5 ans au lieu d\'un seul, '
-              'tu peux économiser entre 8\'000 et 25\'000 CHF d\'impôts sur '
-              'le retrait — car chaque retrait est imposé séparément et à un taux plus bas.',
+              'l\'impôt estimé sur le retrait peut varier entre 8\'000 et '
+              '25\'000 CHF selon le canton, les montants et le calendrier.',
           learningGoals: const [
             'Le retrait du 3a est imposé comme un revenu (taux progressif, LIFD art. 38).',
             'Les retraits de la même année sont additionnés pour le calcul du taux (impôt progressif).',

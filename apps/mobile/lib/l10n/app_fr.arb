@@ -300,11 +300,11 @@
   "coachingAge35Title": "35 ans : faire le point prévoyance",
   "coachingAge35Message": "À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?",
   "coachingAge45Title": "45 ans : optimiser sa stratégie",
-  "coachingAge45Message": "À 45 ans, il reste 20 ans avant la retraite. C'est le moment d'optimiser : maximiser le 3a, envisager des rachats LPP.",
+  "coachingAge45Message": "À 45 ans, il reste 20 ans avant la retraite. C'est le moment de vérifier tes marges 3a, tes éventuels rachats LPP et ta trajectoire.",
   "coachingAge50Title": "50 ans : préparer sa retraite",
   "coachingAge50Message": "À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.",
   "coachingAge55Title": "55 ans : dernière ligne droite",
-  "coachingAge55Message": "À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut représenter une économie significative.",
+  "coachingAge55Message": "À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut modifier l'impact fiscal.",
   "coachingAge58Title": "58 ans : retraite anticipée possible",
   "coachingAge58Message": "Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.",
   "coachingAge63Title": "63 ans : derniers ajustements",
@@ -340,7 +340,7 @@
   "coachTrajectory": "Ta trajectoire",
   "eduTheme3aTitle": "Le 3e pilier (3a)",
   "eduTheme3aQuestion": "C'est quoi le 3a et pourquoi tout le monde en parle ?",
-  "eduTheme3aAction": "Estimer mon économie fiscale",
+  "eduTheme3aAction": "Estimer l'impact fiscal",
   "eduTheme3aReminder": "Décembre → Dernier moment pour verser cette année",
   "eduThemeLppTitle": "La caisse de pension (LPP)",
   "eduThemeLppQuestion": "Est-ce que j'ai une caisse de pension ?",
@@ -554,7 +554,7 @@
   "vaultGuidanceInsuranceBody": "La RC privée et l'assurance ménage ne sont pas obligatoires en Suisse, mais fortement recommandées. Vérifie que ta somme assurée ménage couvre la valeur réelle de tes biens. La sous-assurance peut réduire l'indemnisation proportionnellement (LCA art. 69).",
   "vaultGuidanceInsuranceSource": "LCA art. 69, CGA assureurs",
   "vaultGuidanceLamalTitle": "LAMal — Optimisation franchise",
-  "vaultGuidanceLamalBody": "Tu peux changer de franchise LAMal chaque année au 30 novembre (franchise plus haute) ou au 31 décembre (franchise plus basse). Un·e adulte en bonne santé peut économiser jusqu'à 1'500 CHF/an avec une franchise de 2'500 CHF vs 300 CHF.",
+  "vaultGuidanceLamalBody": "Tu peux changer de franchise LAMal chaque année au 30 novembre (franchise plus haute) ou au 31 décembre (franchise plus basse). Compare le coût total prime + franchise + quote-part selon tes dépenses de santé estimées.",
   "vaultGuidanceLamalSource": "LAMal art. 62, OAMal art. 93-94",
   "vaultGuidanceSalaryTitle": "Salaire — Vérification du certificat",
   "vaultGuidanceSalaryBody": "Ton certificat de salaire (Lohnausweis) est le document clé pour ta déclaration fiscale. Vérifie que les cotisations LPP, AVS et allocations familiales correspondent à tes fiches de paie. Toute erreur peut impacter tes impôts et ta prévoyance.",
@@ -837,7 +837,7 @@
   "toolsRetirementPlanner": "Planificateur retraite",
   "toolsRetirementPlannerDesc": "Simule ta retraite AVS + LPP + 3a",
   "toolsSimulator3a": "Simulateur 3a",
-  "toolsSimulator3aDesc": "Calcule ton économie fiscale annuelle",
+  "toolsSimulator3aDesc": "Estime l'impact fiscal indicatif du 3a",
   "toolsComparator3a": "Comparateur 3a",
   "toolsComparator3aDesc": "Compare les providers (banque vs assurance)",
   "toolsRealReturn3a": "Rendement réel 3a",
@@ -1035,10 +1035,10 @@
   },
   "naissanceRevenuAnnuel": "Revenu annuel brut",
   "naissanceFraisGarde": "Frais de garde mensuel/enfant",
-  "naissanceTaxSavings": "Économies fiscales",
+  "naissanceTaxSavings": "Impacts fiscaux",
   "naissanceDeductionPerChild": "Déduction par enfant",
   "naissanceDeductionChildcare": "Déduction frais de garde",
-  "naissanceEstimatedTaxSaving": "Économie fiscale estimée",
+  "naissanceEstimatedTaxSaving": "Impact fiscal estimé",
   "naissanceAllowanceIncome": "Revenu allocations",
   "naissanceAnnualAllowances": "Allocations annuelles",
   "naissanceCareerImpact": "Impact carrière (LPP)",
@@ -1054,7 +1054,7 @@
   "naissanceLppLossEstimated": "Perte LPP estimée",
   "naissanceLppLessContributions": "Moins de cotisations LPP = moins de capital à la retraite",
   "naissanceNetAnnualImpact": "Impact net annuel estimé",
-  "naissanceNetFormula": "Économies fiscales + allocations - coût estimé",
+  "naissanceNetFormula": "Impacts fiscaux + allocations - coût estimé",
   "naissanceWaterfallRevenu": "Revenu brut annuel",
   "naissanceWaterfallAlloc": "Allocations familiales",
   "naissanceWaterfallCosts": "Coûts de base (est.)",
@@ -1773,7 +1773,7 @@
   "fiscalEduProrataTitle": "Prorata temporis",
   "fiscalEduProrataBody": "L'impôt fédéral est toujours le même. Seuls les impôts cantonaux et communaux changent. Le prorata s'applique l'année du déménagement.",
   "fiscalEduRentTitle": "Loyers et coût de la vie",
-  "fiscalEduRentBody": "N'oublie pas que les économies fiscales peuvent être compensées par des différences de loyer et de coût de la vie. Compare le budget global, pas seulement les impôts.",
+  "fiscalEduRentBody": "N'oublie pas que l'impact fiscal peut être compensé par des différences de loyer et de coût de la vie. Compare le budget global, pas seulement les impôts.",
   "fiscalCommune": "Commune",
   "fiscalCapitalDefault": "Chef-lieu (par défaut)",
   "fiscalDisclaimer": "Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal. Les taux effectifs dépendent de nombreux facteurs (déductions, fortune, commune, etc.). Consulte un·e spécialiste fiscal·e pour un calcul personnalisé.",
@@ -2298,7 +2298,7 @@
   "pulseComprendreRachatLpp": "Simuler un rachat LPP",
   "pulseComprendreRachatLppSub": "Découvre l'impact fiscal d'un rachat",
   "pulseComprendre3a": "Explorer mon 3a",
-  "pulseComprendre3aSub": "Découvre l'économie d'impôt annuelle",
+  "pulseComprendre3aSub": "Comprends ta marge déductible annuelle",
   "pulseComprendre_budget": "Mon budget mensuel",
   "pulseComprendre_budgetSub": "Visualise tes revenus et dépenses",
   "pulseComprendreAchat": "Acheter un bien ?",
@@ -2569,7 +2569,7 @@
       }
     }
   },
-  "simLppBuybackTaxSavings": "Économie Impôts",
+  "simLppBuybackTaxSavings": "Impact fiscal",
   "simLppBuybackNetEffort": "Effort Net",
   "simLppBuybackTotalGain": "Gain Total de l'opération",
   "simLppBuybackCapitalMinusEffort": "Capital - Effort Net",
@@ -2579,7 +2579,7 @@
   "simLppBuybackBonASavoirItem1": "Le rachat LPP est l'un des rares outils de planification fiscale accessibles à tous les salarié·e·s en Suisse.",
   "simLppBuybackBonASavoirItem2": "Chaque franc racheté est déductible de ton revenu imposable (LIFD art. 33 al. 1 let. d).",
   "simLppBuybackBonASavoirItem3": "Attention : tout retrait EPL est bloqué pendant 3 ans après un rachat (LPP art. 79b al. 3).",
-  "simLppBuybackDisclaimer": "Simulation incluant l'intérêt de la caisse ({fundRate} %) et l'économie d'impôt lissée sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.",
+  "simLppBuybackDisclaimer": "Simulation incluant l'intérêt de la caisse ({fundRate} %) et l'impact fiscal indicatif lissé sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.",
   "@simLppBuybackDisclaimer": {
     "placeholders": {
       "fundRate": {
@@ -2594,7 +2594,7 @@
     }
   },
   "simRealInterestTitle": "Simulateur d'Intérêt Réel",
-  "simRealInterestSubtitle": "Capital + Économie d'impôt réinvestie (Virtuel)",
+  "simRealInterestSubtitle": "Capital + impact fiscal réinvesti (virtuel)",
   "simRealInterestAmount": "Montant Investi",
   "simRealInterestDuration": "Durée",
   "simRealInterestPessimistic": "Pessimiste",
@@ -2646,7 +2646,7 @@
   "simBuybackMarginalRateQuestion": "Qu'est-ce que le taux marginal d'imposition ?",
   "simBuybackMarginalRateTitle": "Taux marginal d'imposition",
   "simBuybackMarginalRateExplanation": "Le taux marginal est le pourcentage d'impôt sur ton dernier franc gagné. Plus ton revenu est élevé, plus ce taux est fort.",
-  "simBuybackMarginalRateTip": "En lissant tes rachats, tu restes dans des tranches d'imposition plus basses chaque année, ce qui augmente ton économie fiscale totale.",
+  "simBuybackMarginalRateTip": "En lissant tes rachats, tu compares l'impact fiscal indicatif année par année selon ton revenu et ton canton.",
   "simBuybackLockedTitle": "Rachat LPP bloqué",
   "simBuybackLockedMessage": "Le rachat LPP est désactivé en mode protection. Un rachat bloque ta liquidité pendant 3 ans (LPP art. 79b al. 3). Rembourse d'abord tes dettes avant d'immobiliser du capital.",
   "pcWidgetTitle": "Droits aux Prestations (PC)",
@@ -2743,19 +2743,6 @@
       }
     }
   },
-  "budgetReportTitle": "Ton Budget Calculé",
-  "budgetReportDisponible": "Disponible",
-  "budgetReportVariables": "Variables (Vivre)",
-  "budgetReportFutur": "Futur (Épargne)",
-  "budgetReportChfAmount": "CHF {amount}",
-  "@budgetReportChfAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "budgetReportStopWarning": "Attention : Aucune marge de manœuvre pour les dépenses variables.",
   "ninetyDayGaugeTitle": "Règle des 90 jours",
   "ninetyDayGaugeSubtitle": "Frontaliers  ·  Seuil fiscal",
   "ninetyDayGaugeDaysOf90": "/ 90 jours",
@@ -2898,7 +2885,7 @@
   "dataBlockAvsDesc": "L'extrait AVS confirme tes années de cotisation effectives. Des lacunes (séjour à l'étranger, années manquantes) réduisent ta rente AVS.",
   "dataBlockAvsCta": "Commander mon extrait AVS",
   "dataBlock3aTitle": "3e pilier (3a)",
-  "dataBlock3aDesc": "Tes comptes 3a s'ajoutent à ta prévoyance et offrent un avantage fiscal. Renseigne les soldes actuels pour une vue complète.",
+  "dataBlock3aDesc": "Tes comptes 3a s'ajoutent à ta prévoyance. Renseigne les soldes actuels pour calculer ta marge déductible et projeter l'ensemble.",
   "dataBlock3aCta": "Simuler mon 3a",
   "dataBlockPatrimoineTitle": "Patrimoine",
   "dataBlockPatrimoineDesc": "Épargne libre, investissements, immobilier : ces données complètent ta projection et permettent de calculer ton Financial Resilience Index.",
@@ -2978,7 +2965,7 @@
   "renteVsCapitalFiscalRightSubtitle": "Taxé une seule fois",
   "renteVsCapitalFiscalOver30years": "sur 30 ans",
   "renteVsCapitalFiscalAtRetrait": "au retrait (LIFD art. 38)",
-  "renteVsCapitalFiscalCapitalSaves": "Sur 30 ans, le capital te fait économiser ~{amount} d'impôts.",
+  "renteVsCapitalFiscalCapitalSaves": "Sur 30 ans, le scénario capital change l'impôt estimé d'environ {amount}.",
   "@renteVsCapitalFiscalCapitalSaves": {
     "placeholders": {
       "amount": {
@@ -3410,7 +3397,7 @@
   "demenagementCelibataire": "Célibataire",
   "demenagementMarie": "Marié·e",
   "demenagementFiscalTitre": "Comparaison fiscale",
-  "demenagementEconomieFiscale": "Économie fiscale estimée",
+  "demenagementEconomieFiscale": "Impact fiscal estimé",
   "demenagementLamalTitre": "Primes LAMal",
   "demenagementChecklistTitre": "Checklist déménagement",
   "demenagementChecklist1": "Annoncer le départ à la commune d'origine (8 jours avant)",
@@ -3714,12 +3701,12 @@
   "firstSalaryAt30": "À 30 ans",
   "firstSalaryAt40": "À 40 ans",
   "firstSalaryAt65": "À 65 ans",
-  "firstSalary3aInfo": "💰 Plafond 2026 : CHF 7'258/an · Déduction fiscale directe · OPP3 art. 7",
+  "firstSalary3aInfo": "💰 Plafond 2026 : CHF 7'258/an · Déductible du revenu imposable selon ta situation · OPP3 art. 7",
   "firstSalaryAct4Title": "Le piège LAMal",
   "firstSalaryAct4Quote": "La franchise pas chère peut te coûter cher si tu tombes malade.",
-  "firstSalaryFranchise300Advice": "Conseillé si maladies chroniques",
-  "firstSalaryFranchise1500Advice": "Bon compromis · Recommandé",
-  "firstSalaryFranchise2500Advice": "Économise la prime · Si tu es en bonne santé",
+  "firstSalaryFranchise300Advice": "Prime plus haute · Exposition aux frais plus basse",
+  "firstSalaryFranchise1500Advice": "Option intermédiaire · À comparer selon tes frais de santé",
+  "firstSalaryFranchise2500Advice": "Prime plus basse · Risque de frais plus élevés",
   "firstSalaryFranchiseLabel": "Franchise {label}",
   "@firstSalaryFranchiseLabel": {
     "placeholders": {
@@ -3744,9 +3731,9 @@
   "firstSalaryBefore31Dec": "Avant 31.12",
   "firstSalaryTask1": "Ouvrir un compte 3a (banque ou fintech)",
   "firstSalaryTask2": "Mettre en place un virement automatique mensuel",
-  "firstSalaryTask3": "Choisir ta franchise LAMal (recommandé : CHF 1'500)",
+  "firstSalaryTask3": "Comparer les franchises LAMal avec tes dépenses de santé estimées",
   "firstSalaryTask4": "Vérifier ta RC privée (env. CHF 100/an)",
-  "firstSalaryTask5": "Verser le maximum 3a avant le 31 décembre",
+  "firstSalaryTask5": "Planifier une contribution 3a adaptée avant le 31 décembre",
   "firstSalaryBadgeTitle": "Premier pas financier",
   "firstSalaryBadgeSubtitle": "Tu sais maintenant ce que 90 % des gens ne savent jamais.",
   "firstSalaryDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LAVS art. 3, LPP art. 7, LACI art. 3, OPP3 art. 7 (3a 7'258 CHF/an). Taux cotisations indicatifs 2026. Projection 3a : rendement hypothétique 4 %/an.",
@@ -3946,7 +3933,7 @@
       "phase": "11-01"
     }
   },
-  "coachSuggestTaxImpact": "Combien d’impôts en moins avec un rachat ?",
+  "coachSuggestTaxImpact": "Estimer l’impact fiscal d’un rachat",
   "coachSuggestFitness": "Je suis où, par rapport à ce que je m'étais dit ?",
   "@coachSuggestFitness": {
     "x-mint-meta": {
@@ -4289,8 +4276,8 @@
   "premierEclairageAvantApresGapNoAct": "L'écart se creuse chaque année. À la retraite, il sera trop tard.",
   "premierEclairageAvantApresLiquidityAct": "Épargner 500 CHF/mois reconstitue 3 mois de réserve en 6 mois.",
   "premierEclairageAvantApresLiquidityNoAct": "Un imprévu sans réserve, c'est un crédit à la consommation.",
-  "premierEclairageAvantApresTaxAct": "Chaque année sans 3a, c'est une économie d'impôt perdue.",
-  "premierEclairageAvantApresTaxNoAct": "Sans 3a, tu paies le taux plein et tu ne prépares pas ta retraite.",
+  "premierEclairageAvantApresTaxAct": "Chaque année, un 3a peut réduire ton revenu imposable selon ta situation.",
+  "premierEclairageAvantApresTaxNoAct": "Sans versement 3a, l’impôt reste calculé sans cette déduction.",
   "premierEclairageAvantApresIncomeAct": "Quelques ajustements peuvent améliorer ta projection.",
   "premierEclairageAvantApresIncomeNoAct": "Ta situation actuelle reste stable, mais sans marge de progression.",
   "premierEclairageConfidenceSimple": "Basé sur {count} données. Ajoutes-en pour affiner.",
@@ -4427,7 +4414,7 @@
   "renteVsCapitalErrorRetry": "Le calcul a buté. Réessaie plus tard.",
   "rachatEchelonneTitle": "Rachat LPP échelonné",
   "rachatEchelonneIntroTitle": "Pourquoi échelonner ses rachats ?",
-  "rachatEchelonneIntroBody": "L'impôt suisse étant progressif, répartir un rachat LPP sur plusieurs années permet de rester dans des tranches marginales plus élevées chaque année, maximisant ainsi l'économie fiscale totale. Ce simulateur compare les deux approches.",
+  "rachatEchelonneIntroBody": "L'impôt suisse étant progressif, répartir un rachat LPP sur plusieurs années peut modifier l'impact fiscal année par année. Ce simulateur compare les deux approches.",
   "rachatEchelonneSavingsCaption": "d'économie supplémentaire en échelonnant",
   "rachatEchelonneBlocBetter": "Rachat en bloc plus avantageux dans ce cas",
   "rachatEchelonneSituationLpp": "Situation LPP",
@@ -4450,7 +4437,7 @@
   "rachatEchelonneBlocSubtitle": "Rachat bloc",
   "rachatEchelonneEchelonneSubtitle": "Rachat réparti",
   "rachatEchelonnePlusAdapte": "Le plus adapté",
-  "rachatEchelonneEconomieFiscale": "Économie fiscale",
+  "rachatEchelonneEconomieFiscale": "Impact fiscal",
   "rachatEchelonneImpactTranche": "Impact par tranche fiscale",
   "rachatEchelonneImpactBlocExplain": "En bloc, la déduction traverse plusieurs tranches (taux moyen plus bas). En échelonnant, chaque déduction reste dans la tranche la plus haute.",
   "rachatEchelonneBloc": "Bloc",
@@ -4461,7 +4448,7 @@
   "rachatEchelonneBlockageTitle": "LPP art. 79b al. 3 — Blocage EPL",
   "rachatEchelonneBlockageBody": "Après chaque rachat, tout retrait EPL (encouragement à la propriété du logement) est bloqué pendant 3 ans. Planifie en conséquence si un achat immobilier est prévu.",
   "rachatEchelonneTauxMarginalTitle": "Taux marginal d'imposition",
-  "rachatEchelonneTauxMarginalBody": "Le taux marginal est le pourcentage d'impôt sur ton dernier franc gagné. Avec un taux de 32 %, chaque CHF 1'000 déduit te fait économiser CHF 320. Plus ton revenu est élevé, plus ce taux augmente (progressivité de l'impôt suisse).",
+  "rachatEchelonneTauxMarginalBody": "Le taux marginal est le pourcentage d'impôt sur ton dernier franc gagné. Avec un taux de 32 %, une déduction de CHF 1'000 correspond à un impact fiscal indicatif de CHF 320. Plus ton revenu est élevé, plus ce taux peut augmenter.",
   "rachatEchelonneTauxMarginalTip": "C'est pour ça qu'échelonner tes rachats est malin : chaque tranche reste dans un taux marginal élevé.",
   "rachatEchelonneTauxMarginalSemantics": "Information sur le taux marginal",
   "staggered3aTitle": "Retrait 3a échelonné",
@@ -4586,7 +4573,7 @@
   "affordabilityRelatedCompare": "Comparer",
   "affordabilityRelatedCalculate": "Calculer",
   "affordabilityAdvancedParams": "Plus d'hypothèses",
-  "demenagementTitreV2": "Déménager, ça rapporte combien ?",
+  "demenagementTitreV2": "Déménager : quel impact sur ton budget ?",
   "demenagementInsightPositif": "Ce déménagement te fait gagner du pouvoir d'achat. L'économie couvre environ {mois} mois de loyer moyen.",
   "@demenagementInsightPositif": {
     "placeholders": {
@@ -4926,10 +4913,10 @@
       }
     }
   },
-  "realReturnFiscalDetail": "Détail économie fiscale",
+  "realReturnFiscalDetail": "Détail impact fiscal",
   "realReturnTotalPayments": "Total versements",
   "realReturnFinalCapital3a": "Capital final 3a (hors fiscal)",
-  "realReturnCumulativeFiscal": "Économie fiscale cumulée",
+  "realReturnCumulativeFiscal": "Impact fiscal cumulé",
   "realReturnTotalWithFiscal": "Total avec avantage fiscal",
   "realReturnAhaMoment": "Ton effort réel : {netAmount}/an. Le fisc finance la différence — c'est un levier rare en Suisse.",
   "@realReturnAhaMoment": {
@@ -5074,7 +5061,7 @@
   "firstJobSalaryMax": "CHF 15'000",
   "firstJobActivityMin": "10 %",
   "firstJobActivityMax": "100 %",
-  "firstJobFiscalSavings": "Économie fiscale estimée : ~{amount}/an",
+  "firstJobFiscalSavings": "Impact fiscal indicatif : ~{amount}/an",
   "@firstJobFiscalSavings": {
     "placeholders": {
       "amount": {
@@ -5420,15 +5407,15 @@
     }
   },
   "pillar3aIndepTitle": "3e pilier indépendant",
-  "pillar3aIndepHeaderInfo": "En tant qu’indépendant·e sans LPP, tu as accès au «grand 3a» : tu peux déduire jusqu’à 20 % de ton revenu net (max CHF 36’288/an), au lieu de CHF 7’258 pour un·e salarié·e. C’est un avantage fiscal majeur.",
+  "pillar3aIndepHeaderInfo": "En tant qu’indépendant·e sans LPP, tu as accès au «grand 3a» : tu peux déduire jusqu’à 20 % de ton revenu net (max CHF 36’288/an), au lieu de CHF 7’258 pour un·e salarié·e. L’impact dépend de ton revenu, de ton canton et de ta liquidité.",
   "pillar3aIndepLppToggle": "Affilié·e à une LPP volontaire ?",
   "pillar3aIndepPlafondPetit": "Plafond 3a : CHF 7’258 (petit 3a)",
   "pillar3aIndepPlafondGrand": "Plafond 3a : 20 % du revenu, max CHF 36’288 (grand 3a)",
   "pillar3aIndepRevenuLabel": "Revenu net annuel",
   "pillar3aIndepSliderMax300k": "CHF 300’000",
   "pillar3aIndepTauxLabel": "Taux marginal d’imposition",
-  "pillar3aIndepPremierEclairageCaption": "d’économie fiscale annuelle grâce au 3e pilier",
-  "pillar3aIndepPremierEclairageAvantageSalarie": "Tu économises {amount}/an d’impôts de plus qu’un·e salarié·e grâce au grand 3a",
+  "pillar3aIndepPremierEclairageCaption": "d’impact fiscal indicatif avec le 3e pilier",
+  "pillar3aIndepPremierEclairageAvantageSalarie": "Impact fiscal indicatif du grand 3a : jusqu’à {amount}/an selon revenu, canton et statut LPP",
   "@pillar3aIndepPremierEclairageAvantageSalarie": {
     "placeholders": {
       "amount": {
@@ -5437,7 +5424,7 @@
     }
   },
   "pillar3aIndepPlafondApplicable": "Plafond applicable",
-  "pillar3aIndepEconomieFiscaleAn": "Économie fiscale /an",
+  "pillar3aIndepEconomieFiscaleAn": "Impact fiscal indicatif /an",
   "pillar3aIndepPlafondSalarie": "Plafond salarié·e",
   "pillar3aIndepEconomieSalarie": "Économie salarié·e",
   "pillar3aIndepPlafondsCompares": "Plafonds comparés",
@@ -5470,7 +5457,7 @@
   "pillar3aIndepEduConditionBody": "Le grand 3a (20 % du revenu, max 36’288) n’est accessible que si tu n’es pas affilié·e à une LPP volontaire. Avec LPP, le plafond tombe à 7’258.",
   "pillar3aIndepEduInvestirTitle": "Investir plutôt qu’épargner",
   "pillar3aIndepEduInvestirBody": "Pour un horizon long (>10 ans), un 3a investi en actions peut offrir un rendement bien supérieur à un compte d’épargne 3a classique.",
-  "pillar3aIndepDisclaimer": "Les économies fiscales sont calculées sur la base du taux marginal indiqué. Le taux réel dépend de ton canton, de ta commune et de ta situation familiale. Consulte un·e spécialiste pour un calcul personnalisé.",
+  "pillar3aIndepDisclaimer": "L’impact fiscal est estimé sur la base du taux marginal indiqué. Le taux réel dépend de ton canton, de ta commune et de ta situation familiale. Consulte un·e spécialiste pour un calcul personnalisé.",
   "dividendeVsSalaireTitle": "Dividende vs Salaire",
   "dividendeVsSalaireChargeSalaire": "Charge sur salaire",
   "dividendeVsSalaireCharge100Salaire": "Charge si 100 % salaire",
@@ -5734,7 +5721,7 @@
   "retroactive3aAffilieLpp": "Affilié·e à une caisse LPP",
   "retroactive3aPetit3a": "Petit 3a : CHF 7’258/an",
   "retroactive3aGrand3a": "Grand 3a : 20 % du revenu net, max CHF 36’288/an",
-  "retroactive3aEconomiesFiscales": "Économies fiscales estimées",
+  "retroactive3aEconomiesFiscales": "Impacts fiscaux estimés",
   "retroactive3aDetailParAnnee": "Détail par année",
   "retroactive3aHeaderAnnee": "Année",
   "retroactive3aHeaderPlafond": "Plafond",
@@ -5745,7 +5732,7 @@
   "retroactive3aSansRattrapage": "Sans rattrapage",
   "retroactive3aAnneeCouranteSeule": "Année courante seule",
   "retroactive3aAvecRattrapage": "Avec rattrapage",
-  "retroactive3aEconomieFiscale": "d’économie fiscale",
+  "retroactive3aEconomieFiscale": "d’impact fiscal",
   "retroactive3aProchainesEtapes": "Prochaines étapes",
   "retroactive3aOuvrirCompte": "Ouvrir un compte 3a",
   "retroactive3aOuvrirCompteSubtitle": "Compare les prestataires et ouvre un compte dédié au rattrapage.",
@@ -5987,7 +5974,15 @@
   "reportRetirementTitle": "Ta Retraite",
   "reportRetirementKeyLabel": "Revenu estimé à 65 ans",
   "reportRetirementSource": "Sources : LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "Pas encore de 3a — jusqu'à CHF 7’258/an de déduction fiscale possible",
+  "reportRetirement3aNone": "Pas encore de 3a — marge déductible à estimer selon ton statut LPP",
+  "reportRetirement3aNoneWithRoom": "Pas encore de 3a — marge déductible estimée : CHF {amount}/an",
+  "@reportRetirement3aNoneWithRoom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "reportRetirement3aOne": "1 compte 3a — ouvre un 2e pour optimiser le retrait",
   "reportRetirement3aMulti": "{count} comptes 3a — bonne diversification",
   "@reportRetirement3aMulti": {
@@ -5997,7 +5992,7 @@
       }
     }
   },
-  "reportRetirementLppText": "Rachat LPP disponible : CHF {available} — économie fiscale estimée : CHF {savings}",
+  "reportRetirementLppText": "Rachat LPP disponible : CHF {available} — impact fiscal estimé : CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
       "available": {
@@ -6022,7 +6017,7 @@
   "reportTaxIncome": "Revenu imposable",
   "reportTaxDeductions": "Déductions",
   "reportTaxEstimated": "Impôts estimés",
-  "reportTaxSavings": "Économie possible avec rachat LPP : CHF {amount}/an",
+  "reportTaxSavings": "Impact fiscal estimé avec rachat LPP : CHF {amount}/an",
   "@reportTaxSavings": {
     "placeholders": {
       "amount": {
@@ -6036,7 +6031,7 @@
   "reportSafeModeLpp": "Rachat LPP en pause",
   "reportSafeModeLppMessage": "Le rachat LPP est en pause en mode protection. L'ordre recommandé : rembourser les dettes avant de bloquer de la liquidité dans la prévoyance.",
   "reportLppTitle": "💰 Stratégie Rachat LPP",
-  "reportLppEconomie": "Économie fiscale totale : CHF {amount}",
+  "reportLppEconomie": "Impact fiscal indicatif total : CHF {amount}",
   "@reportLppEconomie": {
     "placeholders": {
       "amount": {
@@ -6069,7 +6064,7 @@
     }
   },
   "reportLppHowTitle": "Comment ça marche ?",
-  "reportLppHowBody": "Comprends pourquoi échelonner tes rachats LPP te fait économiser des milliers de francs supplémentaires.",
+  "reportLppHowBody": "Comprends comment échelonner tes rachats LPP peut modifier l’impact fiscal et ta liquidité.",
   "reportSoaTitle": "Transparence et conformité",
   "reportSoaNature": "Nature du service",
   "reportSoaEduPhases": "Éducation financière — {count} phases identifiées",
@@ -6385,13 +6380,13 @@
   "lppVolontaireSalaireCoordLabel": "Salaire coordonné",
   "lppVolontaireTauxBonifLabel": "Taux bonification",
   "lppVolontaireCotisationLabel": "Cotisation /an",
-  "lppVolontaireEconomieFiscaleLabel": "Économie fiscale /an",
+  "lppVolontaireEconomieFiscaleLabel": "Impact fiscal /an",
   "lppVolontaireTrancheAgeLabel": "Tranche d’âge",
   "lppVolontaireCHF0": "CHF 0",
   "lppVolontaireTaux10": "10 %",
   "lppVolontaireTaux45": "45 %",
   "pillar3aIndepPlafondApplicableLabel": "Plafond applicable",
-  "pillar3aIndepEconomieFiscaleAnLabel": "Économie fiscale /an",
+  "pillar3aIndepEconomieFiscaleAnLabel": "Impact fiscal /an",
   "pillar3aIndepPlafondSalarieLabel": "Plafond salarié·e",
   "pillar3aIndepEconomieSalarieLabel": "Économie salarié·e",
   "pillar3aIndepCHF0": "CHF 0",
@@ -7169,6 +7164,176 @@
         "type": "String"
       }
     }
+  },
+  "@taxInsertTitle": {
+    "description": "PR #682 — TaxSavingsInsertWidget header title (3a tax optimisation mini-simulator)."
+  },
+  "@taxInsertSubtitle": {
+    "description": "PR #682 — TaxSavingsInsertWidget header subtitle."
+  },
+  "@taxInsertMonthlyIncomeLabel": {
+    "description": "PR #682 — TaxSavingsInsertWidget net monthly income slider label."
+  },
+  "@taxInsertCapacity3a": {
+    "description": "PR #682 — TaxSavingsInsertWidget 3a contribution capacity label."
+  },
+  "@taxInsertIndicativeReduction": {
+    "description": "PR #682 — TaxSavingsInsertWidget indicative tax reduction label."
+  },
+  "@taxInsertMonthlyImpact": {
+    "description": "PR #682 — TaxSavingsInsertWidget indicative per-month tax impact. {amount} is a preformatted CHF value.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxInsertMarginalRateNote": {
+    "description": "PR #682 — TaxSavingsInsertWidget marginal tax rate footnote (range).",
+    "placeholders": {
+      "minRate": {
+        "type": "int"
+      },
+      "maxRate": {
+        "type": "int"
+      }
+    }
+  },
+  "@taxSim3aEmployeeTitle": {
+    "description": "PR #682 — Interactive3aSimulation employee-with-LPP header."
+  },
+  "@taxSim3aSelfEmployedTitle": {
+    "description": "PR #682 — Interactive3aSimulation self-employed-without-LPP header."
+  },
+  "@taxSim3aCeiling2026": {
+    "description": "PR #682 — Interactive3aSimulation 2026 annual 3a ceiling. {ceiling} is a preformatted CHF value.",
+    "placeholders": {
+      "ceiling": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxSim3aMonthlyContribution": {
+    "description": "PR #682 — Interactive3aSimulation monthly contribution slider label. {amount} is a preformatted CHF value.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxSim3aExceedsLimit": {
+    "description": "PR #682 — Interactive3aSimulation warning when annual contribution exceeds the ceiling. Both values are preformatted CHF strings.",
+    "placeholders": {
+      "contribution": {
+        "type": "String"
+      },
+      "ceiling": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxSim3aDuration": {
+    "description": "PR #682 — Interactive3aSimulation duration slider label in years.",
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "@taxSimMarginalRate": {
+    "description": "PR #682 — Marginal tax rate slider label (3a + LPP buyback simulators). {rate} is a preformatted integer-percent string.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxSim3aMarginalRateHint": {
+    "description": "PR #682 — Interactive3aSimulation marginal-rate hint (range 15-45%)."
+  },
+  "@taxSim3aAnnualContribution": {
+    "description": "PR #682 — Interactive3aSimulation annual contribution result label."
+  },
+  "@taxSimTaxReductionEstimated": {
+    "description": "PR #682 — Estimated tax reduction result label (3a + LPP buyback simulators)."
+  },
+  "@taxSimRealCost": {
+    "description": "PR #682 — Real cost result label (3a + LPP buyback simulators)."
+  },
+  "@taxSim3aProjectionTitle": {
+    "description": "PR #682 — Interactive3aSimulation projection section title over N years.",
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "@taxSim3aScenarioPrudent": {
+    "description": "PR #682 — Interactive3aSimulation prudent (1%) educational scenario label."
+  },
+  "@taxSim3aScenarioCentral": {
+    "description": "PR #682 — Interactive3aSimulation central (3%) educational scenario label."
+  },
+  "@taxSim3aScenarioStress": {
+    "description": "PR #682 — Interactive3aSimulation stress (5%) educational scenario label."
+  },
+  "@taxSimTaxReductionOverYears": {
+    "description": "PR #682 — Estimated total tax reduction over N years.",
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "@lppBuybackTitle": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation header title."
+  },
+  "@lppBuybackAmountLabel": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation buyback amount slider label. {amount} is a preformatted CHF value.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@taxSimMarginalRateHintShort": {
+    "description": "PR #682 — Short marginal-rate hint (LPP buyback simulator)."
+  },
+  "@lppBuybackAmount": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation buyback amount result label."
+  },
+  "@lppBuybackPensionImpactTitle": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation pension impact section title."
+  },
+  "@lppBuybackScenarioPrudent": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation prudent conversion-rate scenario. {rate} is a preformatted one-decimal percent string.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "@lppBuybackScenarioCentral": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation central conversion-rate scenario. {rate} is a preformatted one-decimal percent string.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "@lppBuybackScenarioStress": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation stress conversion-rate scenario. {rate} is a preformatted one-decimal percent string.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "@lppBuybackAssumptionsTitle": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation assumptions-and-limits disclaimer title."
+  },
+  "@lppBuybackAssumptionsBody": {
+    "description": "PR #682 — InteractiveLppBuybackSimulation assumptions-and-limits disclaimer bullet list."
   },
   "@jobChangeChecklistProgress": {
     "placeholders": {
@@ -8201,7 +8366,7 @@
   "capCoupleLppBuybackCtaLabel": "Comparer les rachats",
   "capCoupleLppBuybackExpectedImpact": "optimisation fiscale ménage",
   "capCoupleLppBuybackHeadline": "Rachat LPP : le levier conjoint",
-  "capCoupleLppBuybackWhyNow": "Ton·ta conjoint·e dispose d’un rachat possible de {amount}. Prioriser le TMI le plus élevé maximise la déduction.",
+  "capCoupleLppBuybackWhyNow": "Ton·ta conjoint·e dispose d’un rachat possible de {amount}. Comparez le TMI, la liquidité et l’impact fiscal indicatif avant de prioriser.",
   "capCoverageCheckCtaLabel": "Vérifier",
   "capCoverageCheckHeadline": "Ta couverture mérite un check",
   "capCoverageCheckSeniorHeadline": "Invalidité après 50 ans : un angle mort ?",
@@ -8343,9 +8508,9 @@
   "capStepRetirement03Title": "Vérifier ton avoir LPP",
   "capStepRetirement04Desc": "Combien de ton salaire tu toucheras à la retraite.",
   "capStepRetirement04Title": "Calculer ton taux de remplacement",
-  "capStepRetirement05Desc": "Déduire jusqu’à 7’258 CHF et booster ta retraite.",
+  "capStepRetirement05Desc": "Vérifier ta marge 3a déductible et son impact indicatif sur ta trajectoire.",
   "capStepRetirement05Title": "Simuler un versement 3a",
-  "capStepRetirement06Desc": "Combler les lacunes et réduire tes impôts.",
+  "capStepRetirement06Desc": "Combler les lacunes LPP et vérifier l'impact fiscal indicatif.",
   "capStepRetirement06Title": "Évaluer un rachat LPP",
   "capStepRetirement07Desc": "Toucher une rente mensuelle ou retirer le capital ?",
   "capStepRetirement07Title": "Comparer rente vs capital",
@@ -8412,9 +8577,9 @@
   "challengeEpargne08Title": "Vérifie si tu peux cotiser rétroactivement au 3a",
   "challengeEpargne09Desc": "Lors d’un changement d’emploi, ton capital LPP est transféré sur un compte de libre passage. Vérifie que rien n’a été oublié.",
   "challengeEpargne09Title": "Vérifie ton libre passage si tu as changé d’employeur",
-  "challengeFiscalite01Desc": "Chaque franc versé en 3a est déductible. Calcule combien tu économises en impôts cette année.",
-  "challengeFiscalite01Title": "Estime ton économie fiscale 3a",
-  "challengeFiscalite02Desc": "Les rachats LPP sont déductibles du revenu imposable. Vérifie ton potentiel de rachat et l’économie fiscale.",
+  "challengeFiscalite01Desc": "Chaque franc versé en 3a est déductible. Estime l’impact indicatif sur tes impôts cette année.",
+  "challengeFiscalite01Title": "Estime l’impact fiscal 3a",
+  "challengeFiscalite02Desc": "Les rachats LPP sont déductibles du revenu imposable. Vérifie ton potentiel de rachat et l’impact fiscal indicatif.",
   "challengeFiscalite02Title": "Vérifie si un rachat LPP serait déductible cette année",
   "challengeFiscalite03Desc": "Le retrait de capital (LPP/3a) est taxé séparément à un taux réduit. Simule l’impôt pour différents montants.",
   "challengeFiscalite03Title": "Simule l’impôt sur un retrait de capital",
@@ -8567,7 +8732,7 @@
   "communityChallenge10Title": "Célèbre le mois de la prévoyance",
   "communityChallenge11Desc": "Il reste quelques semaines pour agir : versement 3a, don à une association, déclaration de frais. Identifie ce que tu peux encore faire avant le 31 décembre.",
   "communityChallenge11Title": "Planifie tes dernières optimisations de fin d’année",
-  "communityChallenge12Desc": "La deadline 3a approche. Verse jusqu’à CHF 7’258 (salarié avec LPP) avant le 31 décembre pour bénéficier de la déduction fiscale de cette année.",
+  "communityChallenge12Desc": "La deadline 3a approche. Vérifie ta marge déductible et planifie un versement adapté avant le 31 décembre.",
   "communityChallenge12Title": "Verse ton 3a avant le 31 décembre",
   "communityChallengeCta": "Relever le défi",
   "compoundDisclaimerInflation": "Hypothèses pédagogiques (inflation {inflation} %). Les rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.",
@@ -9003,7 +9168,7 @@
   "hypothesisEditorSubtitle": "Ajuste les paramètres pour voir l’impact sur les trajectoires.",
   "hypothesisEditorTitle": "Hypothèses de simulation",
   "imputedRentalEyebrow": "Valeur locative",
-  "imputedRentalSavingsLabel": "d’économie fiscale nette",
+  "imputedRentalSavingsLabel": "d’impact fiscal net",
   "imputedRentalTaxLabel": "d’impôt supplémentaire",
   "indepChargeAc": "Chômage (AC)",
   "indepChargeAcNote": "Pas d'AC pour indépendant (LACI art. 2)",
@@ -9050,6 +9215,39 @@
   "indicativeBannerCta": "Préciser",
   "indicativeBannerTitle": "Résultat indicatif ({pct} % de fiabilité)",
   "interactive3aDisclaimer": "Hypothèses pédagogiques. Les rendements passés ne constituent pas une assurance de résultat.",
+  "taxInsertTitle": "Optimisation 3a",
+  "taxInsertSubtitle": "Ton allié fiscal",
+  "taxInsertMonthlyIncomeLabel": "Ton revenu mensuel net",
+  "taxInsertCapacity3a": "Capacité 3a",
+  "taxInsertIndicativeReduction": "Réduction d’impôt indicative",
+  "taxInsertMonthlyImpact": "Impact indicatif: {amount} CHF par mois",
+  "taxInsertMarginalRateNote": "Estimation basée sur taux marginal {minRate}-{maxRate}%",
+  "taxSim3aEmployeeTitle": "👤 EMPLOYÉ avec LPP",
+  "taxSim3aSelfEmployedTitle": "💼 INDÉPENDANT sans LPP",
+  "taxSim3aCeiling2026": "Plafond 2026 : {ceiling}/an",
+  "taxSim3aMonthlyContribution": "Versement mensuel : {amount}",
+  "taxSim3aExceedsLimit": "Versement annuel ({contribution}) dépasse le plafond ({ceiling})",
+  "taxSim3aDuration": "Durée : {years} ans",
+  "taxSimMarginalRate": "Taux marginal d’imposition : {rate}%",
+  "taxSim3aMarginalRateHint": "Estimé selon canton/revenu (varie de 15% à 45%)",
+  "taxSim3aAnnualContribution": "Versement annuel",
+  "taxSimTaxReductionEstimated": "Réduction d’impôt estimée",
+  "taxSimRealCost": "Coût réel",
+  "taxSim3aProjectionTitle": "Projection {years} ans (scénarios pédagogiques)",
+  "taxSim3aScenarioPrudent": "Prudence (1%)",
+  "taxSim3aScenarioCentral": "Central (3%)",
+  "taxSim3aScenarioStress": "Stress (5%)",
+  "taxSimTaxReductionOverYears": "Réduction d’impôt estimée ({years} ans)",
+  "lppBuybackTitle": "Simulation Rachat LPP",
+  "lppBuybackAmountLabel": "Montant rachat : {amount}",
+  "taxSimMarginalRateHintShort": "Estimé selon canton/revenu",
+  "lppBuybackAmount": "Rachat",
+  "lppBuybackPensionImpactTitle": "Impact retraite (scénarios pédagogiques)",
+  "lppBuybackScenarioPrudent": "Prudence (taux {rate}%)",
+  "lppBuybackScenarioCentral": "Central (taux {rate}%)",
+  "lppBuybackScenarioStress": "Stress (taux {rate}%)",
+  "lppBuybackAssumptionsTitle": "Hypothèses et limites :",
+  "lppBuybackAssumptionsBody": "• Déduction fiscale selon règles applicables\n• Taux de conversion : hypothèse actuelle, peut baisser\n• Vérifier avec certificat LPP et un·e spécialiste en fiscalité",
   "jobChangeChecklistAlertBody": "Sans transfert du libre passage dans les délais, ton capital LPP peut finir à la Fondation supplétive à 0.05 %.",
   "jobChangeChecklistAlertTitle": "Demande TOUJOURS le certificat LPP avant de signer",
   "jobChangeChecklistDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 3 (libre passage), OLP art. 1-3.",
@@ -9311,7 +9509,7 @@
   "narrativeRachatBody": "Répartir un rachat LPP sur plusieurs années permet de déduire chaque tranche du revenu imposable (LPP art. 79b). La progressivité fiscale rend cette stratégie souvent plus avantageuse qu’un versement unique.",
   "narrativeRachatHeadline": "Échelonner pour économiser",
   "narrativeRealReturnBadge": "3e pilier",
-  "narrativeRealReturnBody": "Le rendement affiché ne dit pas tout. Après frais de gestion et inflation, le gain réel peut différer. L’économie fiscale du 3a (LIFD art. 33) améliore considérablement le rendement effectif.",
+  "narrativeRealReturnBody": "Le rendement affiché ne dit pas tout. Après frais de gestion et inflation, le gain réel peut différer. L’impact fiscal du 3a (LIFD art. 33) peut modifier le rendement effectif.",
   "narrativeRealReturnHeadline": "Rendement réel après inflation",
   "narrativeRetroactive3aBadge": "3e pilier",
   "narrativeRetroactive3aBody": "Dès 2026, l’OPP3 art. 7 permet de verser rétroactivement les années de cotisation 3a manquées. Chaque versement est déductible du revenu imposable (LIFD art. 33).",
@@ -9332,13 +9530,13 @@
   "notifCheckinTitle": "Check-in mensuel",
   "notifDeadline3aBody16Days": "Il reste 16 jours pour verser sur ton 3a",
   "notifDeadline3aBody3Months": "Il reste 3 mois pour verser sur ton 3a (CHF {remaining} de marge)",
-  "notifDeadline3aBody46Days": "Il reste 46 jours pour maximiser ton 3a (CHF {remaining} de marge)",
+  "notifDeadline3aBody46Days": "Il reste 46 jours pour vérifier ta marge 3a (CHF {remaining} restants)",
   "notifDeadline3aBodyLastDays": "Derniers jours ! Verse sur ton 3a avant le 31 décembre",
   "notifDeadline3aTitle": "Deadline 3a",
   "notifFriCheckIn": "Depuis ton dernier check-in : {delta} points.",
   "notifFriImproved": "Ta solidité a progressé de {delta} points.",
   "notifFriTitle": "Score de solidité",
-  "notifNewYearBody": "Nouveaux plafonds {year}. Ton économie potentielle a changé.",
+  "notifNewYearBody": "Nouveaux plafonds {year}. La marge déductible peut changer.",
   "notifNewYearTitle": "Nouveaux plafonds {year}",
   "notifOffTrackBody": "Adhérence à {adherence} % sur {total} actions. Indication linéaire (hors rendement/fiscalité) : ~CHF {impact}.",
   "notifOffTrackTitle": "Tu t'éloignes de ton plan",
@@ -9355,13 +9553,13 @@
   "notifTaxLastWeek": "Déclaration à rendre avant le 31 mars. Dernière semaine.",
   "notifTaxTitle": "Déclaration fiscale",
   "notifThreeA11Days": "11 jours. Dernier rappel 3a.",
-  "notifThreeA61Days": "Il reste 61 jours. Économie estimée : CHF {saving}.",
+  "notifThreeA61Days": "Il reste 61 jours. Impact fiscal indicatif : CHF {saving}.",
   "notifThreeA92Days": "Il reste 92 jours pour verser sur ton 3a.",
-  "notifThreeALastMonth": "Dernier mois pour ton 3a. Économie estimée : CHF {saving}.",
+  "notifThreeALastMonth": "Dernier mois pour ton 3a. Impact fiscal indicatif : CHF {saving}.",
   "notifThreeATitle": "Deadline 3a",
   "notifWeeklyRecapBody": "Budget, progrès, prochaine étape — tout est prêt.",
   "notifWeeklyRecapTitle": "Ton récap de la semaine",
-  "nudge3aDeadlineBody": "Il reste {days} jour(s) pour verser jusqu'à {limit} CHF et réduire tes impôts {year}.",
+  "nudge3aDeadlineBody": "Il reste {days} jour(s) pour planifier ta marge déductible 3a jusqu’à {limit} CHF avant la fin {year}.",
   "nudge3aDeadlineTitle": "Dernière ligne droite pour ton 3a",
   "nudgeAnniversaryBody": "Tu utilises MINT depuis un an. C’est le moment idéal pour actualiser ton profil et mesurer tes progrès.",
   "nudgeBirthdayBody": "Une étape qui peut marquer un tournant pour ta prévoyance. As-tu simulé l’impact de cette année ?",
@@ -9431,7 +9629,7 @@
   "onboardingSmartSeeResult": "Calculer ma retraite",
   "onboardingSmartSubtitle": "Quelques infos suffisent pour un premier aperçu personnalisé.",
   "onboardingSmartTitle": "Découvre ta situation retraite en 30 secondes",
-  "opener3aDeadline": "Il reste {days} jours pour verser jusqu’à {plafond} CHF dans ton 3a.",
+  "opener3aDeadline": "Marge déductible 3a disponible : jusqu’à {plafond} CHF pendant encore {days} jours.",
   "openerBudgetDeficit": "CHF {deficit}/mois de déficit. On regarde où ça coince ?",
   "openerGapWarning": "Ton taux de remplacement : {rate} %. À la retraite, il te manquerait CHF {gap}/mois.",
   "openerPlanProgress": "Étape {n}/{total} validée. Prochaine : {next}.",
@@ -9470,7 +9668,7 @@
   "pensionFundSyncDate": "Synchro {date}",
   "pensionFundTitle": "Données certifiées",
   "pillar3aProviderDisclaimer": "Rendements passés ne préjugent pas des rendements futurs. Les frais et rendements moyens sont basés sur des données historiques simplifiées à titre pédagogique. Le choix d’un prestataire 3a dépend de ta situation personnelle, de ton profil de risque et de ton horizon de placement. MINT n’est pas un intermédiaire financier et ne fournit aucun conseil en placement. Consultez un ou une spécialiste.",
-  "pillar3aRealReturnDisclaimer": "Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’économie fiscale dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une spécialiste avant toute décision.",
+  "pillar3aRealReturnDisclaimer": "Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’impact fiscal dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une spécialiste avant toute décision.",
   "pillar3aStaggeredDisclaimer": "Simulation pédagogique à titre indicatif. L’impôt sur le retrait en capital dépend du canton, de la commune, de la situation personnelle et du montant total retiré dans l’année fiscale. Les taux utilisés sont des moyennes cantonales simplifiées. Base légale : OPP3, LIFD art. 38. Consultez un ou une spécialiste en prévoyance avant toute décision.",
   "portfolioAppBarTitle": "Mon patrimoine",
   "portfolioCompleteProfile": "Complète ton profil pour débloquer ton indice de préparation.",
@@ -9658,7 +9856,7 @@
   "rcLibrePassageSubtitle": "Que faire de ton avoir de libre passage ?",
   "rcLibrePassageTitle": "Libre passage",
   "rcLppBuybackCtaLabel": "Simuler un rachat",
-  "rcLppBuybackExplanation": "Rachat possible. Économie fiscale estimée de {taxSaving} CHF sur {rachatSimule} CHF",
+  "rcLppBuybackExplanation": "Rachat possible. Impact fiscal estimé de {taxSaving} CHF sur {rachatSimule} CHF",
   "rcLppBuybackSubtitle": "Potentiel de rachat disponible",
   "rcLppBuybackTitle": "Rachat LPP",
   "rcLppLabel": "Tes données LPP",
@@ -9679,8 +9877,8 @@
   "rcPatrimoineSubtitleOk": "Vue d’ensemble",
   "rcPatrimoineTitle": "Patrimoine",
   "rcPillar3aCtaLabel": "Simuler mon 3a",
-  "rcPillar3aExplanation": "Économie d’impôt estimée si tu verses le plafond de {plafond} CHF",
-  "rcPillar3aSubtitle": "Économie fiscale estimée",
+  "rcPillar3aExplanation": "Impact fiscal indicatif si tu verses jusqu’à {plafond} CHF",
+  "rcPillar3aSubtitle": "Impact fiscal indicatif",
   "rcPillar3aTitle": "Versement 3a {year}",
   "rcRealReturn3aSubtitle": "Rendement après frais, inflation et fiscal",
   "rcRealReturn3aTitle": "Rendement réel 3a",
@@ -9714,8 +9912,8 @@
   "rcSuggestedPromptSuccession": "Comment organiser ma succession en Suisse ?",
   "rcSuggestedPromptVersement3a": "Combien verser en 3a cette année ?",
   "rcTaxOptCtaLabel": "Découvrir mes déductions",
-  "rcTaxOptExplanation": "Économie d’impôt estimée via 3a ({plafond3a} CHF) + rachat LPP",
-  "rcTaxOptSubtitle": "Déductions estimées disponibles",
+  "rcTaxOptExplanation": "Impact fiscal indicatif via 3a ({plafond3a} CHF) + rachat LPP",
+  "rcTaxOptSubtitle": "Déductions indicatives à vérifier",
   "rcTaxOptTitle": "Optimisation fiscale",
   "rcUnemploymentSubtitle": "Indemnités, durée, démarches",
   "rcUnemploymentTitle": "Perte d’emploi",
@@ -9753,10 +9951,10 @@
   "reengagementTitleThreeAFinal": "Dernier mois 3a",
   "renteVsCapitalLifeExpectancyChips": "Espérance de vie",
   "renteVsCapitalRetirementAgeChips": "Âge de départ à la retraite",
-  "reportActionDesc3aFirst": "Déduis jusqu’à CHF 7’258/an de ton revenu imposable. Économie immédiate.",
+  "reportActionDesc3aFirst": "Versement déductible ; impact fiscal estimé selon ton revenu et ton canton.",
   "reportActionDesc3aSecond": "Optimise ta fiscalité au retrait et diversifie tes placements.",
-  "reportActionDescAvsCheck": "Évite de perdre jusqu’à 38’000 CHF de rente à vie.",
-  "reportActionDescDette": "C’est le placement le plus rentable : tu économises 6-10 % par an sur les intérêts.",
+  "reportActionDescAvsCheck": "Vérifie tes années de cotisation pour estimer une éventuelle lacune AVS.",
+  "reportActionDescDette": "Réduire cette dette peut alléger les intérêts futurs de 6-10 % par an, selon le taux.",
   "reportActionDescUrgence": "Vise 3 mois de charges sur un compte épargne séparé.",
   "reportActionTitle3aFirst": "Ouvre ton premier 3a",
   "reportActionTitle3aSecond": "Ouvre un 2e compte 3a fintech",
@@ -9781,9 +9979,9 @@
   "retirementPhaseLabelRetraite": "Retraite",
   "retirementProjectionDisclaimer": "Projection éducative basée sur les barèmes AVS/LPP 2025. Ne constitue pas un conseil financier ou en prévoyance. Les montants sont des estimations qui peuvent varier selon l’évolution légale et ta situation personnelle. Consulte un·e spécialiste pour un plan personnalisé. LSFin.",
   "retroactive3aEmptyCta": "Ajouter mon revenu",
-  "retroactive3aEmptySubtitle": "Renseigne ton revenu pour calculer ton économie fiscale",
+  "retroactive3aEmptySubtitle": "Renseigne ton revenu pour estimer l’impact fiscal",
   "retroactive3aEmptyTitle": "Rattrapage 3a",
-  "retroactive3aSavingsLabel": "d’économie fiscale avec le rattrapage 3a",
+  "retroactive3aSavingsLabel": "d’impact fiscal indicatif avec le rattrapage 3a",
   "retroactive3aYearsChipsLabel": "Années à rattraper",
   "routeReturnAbandoned": "Pas de souci — on y reviendra quand tu veux.",
   "routeReturnAcknowledge": "Tu es de retour ! Si tu as ajusté des données, je recalcule dès que tu m’en parles.",
@@ -9815,7 +10013,7 @@
   "scoreGaugeSemanticsLabel": "Score de forme financière. {score} sur 100. Niveau {level}. Budget {budget}, Prévoyance {prevoyance}, Patrimoine {patrimoine}.",
   "scoreGaugeSubtitle": "Score composite · 3 piliers",
   "scoreGaugeTitle": "Forme financière",
-  "seasonal3aCountdownDesc": "La deadline du 31 décembre approche pour les versements 3a. Vérifie ton solde et planifie ton versement pour maximiser ta déduction fiscale.",
+  "seasonal3aCountdownDesc": "La deadline du 31 décembre approche pour les versements 3a. Vérifie ton solde et planifie ton versement selon ta marge déductible.",
   "seasonal3aCountdownTitle": "Compte à rebours 3e pilier",
   "seasonalEventCta": "En parler au coach",
   "seasonalLamalDesc": "Les primes 2027 sont publiées. Vérifie si ta franchise est toujours adaptée à ta situation.",
@@ -9829,7 +10027,7 @@
   "seasonalTaxSeasonDesc": "Février-mars : c’est le moment de préparer ta déclaration d’impôts. Rassemble tes justificatifs et identifie tes déductions.",
   "seasonalTaxSeasonTitle": "Saison des impôts",
   "semantics3aAvantageSalarie": "Avantage sur salarié : {amount} francs",
-  "semantics3aEconomieFiscale": "Économie fiscale : {amount} francs",
+  "semantics3aEconomieFiscale": "Impact fiscal indicatif : {amount} francs",
   "semantics3aLppToggle": "Affilié LPP",
   "semanticsActive": "actif",
   "semanticsAvsDifference": "Différence annuelle : {amount} francs",
@@ -9982,9 +10180,9 @@
   "stepJitRetirementInsight": "En Suisse, l’AVS et la LPP couvrent en moyenne 60 % du dernier salaire. Le 3e pilier et l’épargne libre comblent le reste. Plus tu commences tôt, moins l’effort mensuel est important.",
   "stepJitRetirementSource": "LAVS art. 34 / LPP art. 14",
   "stepJitSi": "SI",
-  "stepJitTax3aCond": "tu ne verses pas le maximum dans ton 3e pilier chaque année",
-  "stepJitTax3aCons": "tu passes à côté d’une économie fiscale et d’un capital retraite supplémentaire.",
-  "stepJitTax3aInsight": "Chaque franc versé en 3a est déductible du revenu imposable. Sur 20 ans, la différence entre verser 0 et le plafond (7’258 CHF) peut représenter plus de 200’000 CHF.",
+  "stepJitTax3aCond": "tu n'utilises pas toute ta marge déductible 3a chaque année",
+  "stepJitTax3aCons": "tu passes à côté d’une marge déductible et d’un capital retraite supplémentaire.",
+  "stepJitTax3aInsight": "Chaque franc versé en 3a est déductible du revenu imposable selon ta situation. Sur 20 ans, l’écart dépend des versements, du rendement, des frais et de l’impôt au retrait.",
   "stepJitTax3aSource": "OPP3 art. 7 / LIFD art. 33",
   "stepJitTitle": "Comprendre en 30 secondes",
   "stepNextCheckin": "Faire mon premier check-in",
@@ -10071,7 +10269,7 @@
   "summaryChoixRenteCapital": "Choix rente/capital",
   "summaryDonneesLpp": "Données certificat LPP",
   "summaryEcartMensuel": "Écart mensuel estimé",
-  "summaryEconomieFiscale": "Économie fiscale annuelle",
+  "summaryEconomieFiscale": "Impact fiscal indicatif annuel",
   "summaryEconomieRachat": "Économie via rachat échelonné",
   "summaryEstimationSansCertificat": "Estimation sans certificat",
   "summaryFondsPropres": "Fonds propres nécessaires",
@@ -10398,7 +10596,7 @@
   "jargonRamd": "RAMD (revenu annuel moyen déterminant)",
   "jargonReplacementRateTooltip": "Le taux de remplacement mesure la part de ton revenu actuel que tu conserveras à la retraite. Exemple : 65 % signifie que tu toucheras 65 % de ton salaire actuel.",
   "jargonLppTooltip": "La LPP (Loi sur la prévoyance professionnelle) est le 2e pilier. Ton employeur et toi cotisez ensemble pour ta retraite.",
-  "jargon3aTooltip": "Le pilier 3a est une épargne retraite volontaire avec avantage fiscal. Le plafond est de 7 258 CHF/an (salarié avec LPP).",
+  "jargon3aTooltip": "Le pilier 3a est une épargne retraite volontaire. Les versements peuvent être déductibles du revenu imposable selon ton statut LPP.",
   "jargonAvsTooltip": "L’AVS (assurance-vieillesse et survivants) est le 1er pilier. Elle vise à fournir un revenu de base à la retraite.",
   "jargonRamdTooltip": "Le RAMD détermine le montant de ta rente AVS. Il est calculé à partir de tes revenus soumis à cotisation.",
   "confidenceDetailsTooltip": "Basé sur : âge, revenu, canton, statut civil, nationalité, LPP et 3a déclarés. Plus tu fournis de données, plus la projection est fiable.",
@@ -10550,8 +10748,8 @@
   },
   "day1NotifTitle": "On a calculé quelque chose",
   "day1NotifBody": "Ouvre MINT — on a trouvé quelque chose d'intéressant sur tes impôts.",
-  "day7NotifTitle": "Tu laisses de l'argent au fisc",
-  "day7NotifBody": "Chaque mois sans 3a, tu laisses CHF {amount} au fisc. On en parle ?",
+  "day7NotifTitle": "Marge 3a à vérifier",
+  "day7NotifBody": "Ton estimation indique une marge 3a d’environ CHF {amount}/mois. On vérifie ?",
   "@day7NotifBody": {
     "placeholders": {
       "amount": {
@@ -10564,7 +10762,7 @@
   "actionInsightFallback": "Complète ton profil pour voir l'impact exact",
   "glossaryLpp": "Le 2e pilier. L'argent que ton employeur et toi mettez de côté chaque mois pour ta retraite. C'est obligatoire dès CHF 22'680 de salaire.",
   "glossaryAvs": "Le 1er pilier. La rente de base que tout le monde touche à la retraite en Suisse. Maximum CHF 2'520/mois pour une personne seule.",
-  "glossary3a": "Le 3e pilier. Ton épargne retraite personnelle, volontaire et déductible des impôts. Maximum CHF 7'258/an si tu as un 2e pilier.",
+  "glossary3a": "Le 3e pilier. Ton épargne retraite personnelle, volontaire, avec marge déductible selon ton statut LPP.",
   "glossaryRamd": "Revenu Annuel Moyen Déterminant. La moyenne de tes salaires annuels sur toute ta carrière. C'est ce chiffre qui détermine ta rente AVS.",
   "glossaryTauxConversion": "Le pourcentage appliqué à ton capital LPP pour calculer ta rente annuelle. Taux minimum légal : 6.8 %. Plus il est haut, plus ta rente est élevée.",
   "glossaryRachat": "Un versement volontaire dans ton 2e pilier pour combler une lacune. Entièrement déductible des impôts. Limite : ta lacune maximale.",
@@ -10584,7 +10782,7 @@
     }
   },
   "landingCoupleAction": "Voir le mode couple",
-  "landingCoupleGeneric": "Les couples mariés perdent jusqu'à CHF 8'000/an en optimisations manquées.",
+  "landingCoupleGeneric": "Certaines décisions de couple peuvent modifier l’impôt, l’AVS et les retraits. MINT aide à comparer les scénarios.",
   "landingTransparency": "Ce qui se passe quand tu tapes ton salaire : le calcul est fait sur ton téléphone. Rien n'est envoyé. Rien n'est stocké. Quand tu fermes cette page, les chiffres disparaissent.",
   "bankImportTransparency": "Ton relevé est envoyé à notre serveur suisse de manière chiffrée pour analyse. Les transactions sont catégorisées, puis le fichier brut est supprimé. Seuls les résumés par catégorie sont conservés dans ton profil.",
   "coachTransparencySLM": "Réponse générée sur ton téléphone. Rien n'est envoyé à un serveur.",
@@ -10611,7 +10809,7 @@
   "dataTransparencyThirdParty": "Tiers (avec ton accord)",
   "retraiteHubYoungDisclaimer": "C'est bien de s'y intéresser tôt. Les outils avancés apparaîtront quand ils seront pertinents pour toi.",
   "chocQuestionCompoundGrowth": "Tu savais que le temps comptait autant ?",
-  "chocQuestionTaxSaving": "CHF {amount} d'impôts en moins. Ça vaut 10 minutes ?",
+  "chocQuestionTaxSaving": "Impact fiscal estimé : CHF {amount}. Vérifier le scénario ?",
   "@chocQuestionTaxSaving": {
     "placeholders": {
       "amount": {
@@ -10700,7 +10898,7 @@
   "promiseFooter": "Gratuit. Tes données restent sur ton téléphone.",
   "promiseCtaRegister": "Allons-y",
   "promiseCtaFree": "Juste les chiffres",
-  "coachInterrupt3aUnderMax": "Tu laisses {savings} CHF d’économie d’impôts sur la table.",
+  "coachInterrupt3aUnderMax": "Marge 3a restante à vérifier : impact fiscal indicatif de {savings} CHF.",
   "@coachInterrupt3aUnderMax": {
     "placeholders": {
       "savings": {
@@ -11148,7 +11346,7 @@
       }
     }
   },
-  "anticipation3aDeadlineFact": "Tu peux encore verser jusqu'à {limit} CHF sur ton 3e pilier avant le 31 décembre {year}. Chaque année non utilisée est perdue.",
+  "anticipation3aDeadlineFact": "Tu peux encore planifier un versement 3a jusqu’à {limit} CHF avant le 31 décembre {year}. Vérifie le montant adapté à ton statut LPP.",
   "@anticipation3aDeadlineFact": {
     "placeholders": {
       "limit": {
@@ -11254,7 +11452,7 @@
       }
     }
   },
-  "ctxHeroStat3aLabel": "Tu laisses de l'argent sur la table en 3a",
+  "ctxHeroStat3aLabel": "Marge 3a restante à vérifier",
   "ctxHeroStat3aNarrative": "Soit {monthly} CHF/mois que tu pourrais déduire.",
   "@ctxHeroStat3aNarrative": {
     "placeholders": {
@@ -11700,7 +11898,7 @@
   "@coachGreetingRandom16": {
     "description": "Coach chat random greeting message 16 of 20."
   },
-  "coachGreetingRandom17": "Tu pourrais racheter des années dans ton 2e pilier et payer des milliers de francs d'impôts en moins. Mais faudrait ouvrir le certificat.",
+  "coachGreetingRandom17": "Un rachat LPP peut modifier ton impôt et ta retraite. Ton certificat permet de le chiffrer.",
   "@coachGreetingRandom17": {
     "description": "Coach chat random greeting message 17 of 20."
   },
@@ -12023,7 +12221,7 @@
   "@monArgentRetry": {
     "description": "Nav V11 — retry button"
   },
-  "monArgentPatrimoineTitle": "Ton point de départ",
+  "monArgentPatrimoineTitle": "Patrimoine libre",
   "@monArgentPatrimoineTitle": {
     "description": "Nav V11 — patrimoine card header"
   },
@@ -12035,7 +12233,7 @@
   "@monArgentPatrimoineError": {
     "description": "Nav V11 — patrimoine card error state"
   },
-  "monArgentPatrimoineNet": "Net",
+  "monArgentPatrimoineNet": "Libre net",
   "@monArgentPatrimoineNet": {
     "description": "Nav V11 — patrimoine net label"
   },

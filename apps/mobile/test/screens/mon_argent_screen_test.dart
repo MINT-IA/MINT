@@ -4,6 +4,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/data/budget/budget_local_store.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -27,13 +28,21 @@ void main() {
       (tester) async {
     final mintState = MintStateProvider()
       ..injectStateForTest(_stateWithDataSpine());
+    final budgetProvider = BudgetProvider();
+    await budgetProvider.setInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 14000,
+        housingCost: 5100,
+        debtPayments: 0,
+        healthInsurance: 880,
+      ),
+    );
 
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider<BudgetProvider>(
-            create: (_) => BudgetProvider(),
-          ),
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
           ChangeNotifierProvider<CoachProfileProvider>(
             create: (_) => CoachProfileProvider(),
           ),
@@ -61,6 +70,11 @@ void main() {
     expect(find.text('64%'), findsOneWidget);
     expect(find.text('Estimation crédible.'), findsOneWidget);
     expect(find.text('Situation financière'), findsOneWidget);
+    expect(find.text('Revenu brut annuel'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('mon_argent_situation_expand')));
+    await tester.pumpAndSettle();
+
     expect(find.text('Revenu brut annuel'), findsOneWidget);
     expect(find.text('Logement'), findsOneWidget);
     expect(find.text('Primes maladie (LAMal)'), findsOneWidget);
@@ -100,13 +114,18 @@ void main() {
     expect(find.text('Ton budget ce mois'), findsOneWidget);
     expect(find.text("8'000\u00a0CHF"), findsOneWidget);
     expect(find.text("2'100\u00a0CHF"), findsWidgets);
+    expect(find.text("14'000\u00a0CHF"), findsNothing);
+    expect(find.text("5'100\u00a0CHF"), findsNothing);
+    expect(find.text("880\u00a0CHF"), findsNothing);
 
     await tester.tap(find.text('Patrimoine'));
     await tester.pumpAndSettle();
-    expect(find.text('Ton point de départ'), findsOneWidget);
-    expect(find.text("172'000\u00a0CHF"), findsWidgets);
+    expect(find.text('Patrimoine libre'), findsOneWidget);
+    expect(find.text('Prévoyance'), findsWidgets);
+    expect(find.text("32'000\u00a0CHF"), findsWidgets);
+    expect(find.text("184'000\u00a0CHF"), findsNothing);
 
-    await tester.tap(find.text('Prévoyance'));
+    await tester.tap(find.text('Prévoyance').first);
     await tester.pumpAndSettle();
     expect(find.text('Extrait AVS'), findsOneWidget);
     expect(find.text('Prévoyance LPP'), findsOneWidget);
@@ -199,6 +218,11 @@ void main() {
           .identifier,
       'mon_argent_data_spine_summary',
     );
+    expect(find.byKey(const Key('mon_argent_situation_map')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('mon_argent_situation_expand')));
+    await tester.pumpAndSettle();
+
     expect(
       tester
           .getSemantics(find.byKey(const Key('mon_argent_situation_map')))
@@ -248,7 +272,7 @@ void main() {
       'mon_argent_patrimoine_summary',
     );
 
-    await tester.tap(find.text('Prévoyance'));
+    await tester.tap(find.text('Prévoyance').first);
     await tester.pumpAndSettle();
     expect(
       tester
@@ -266,6 +290,377 @@ void main() {
           .identifier,
       'mon_argent_trajectory_map',
     );
+  });
+
+  testWidgets(
+      'direct month section uses canonical BudgetSnapshot over stale budget cache',
+      (tester) async {
+    await BudgetLocalStore().saveInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 12345,
+        housingCost: 2222,
+        debtPayments: 0,
+        taxProvision: 111,
+        healthInsurance: 333,
+      ),
+    );
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>(
+            create: (_) => BudgetProvider(),
+          ),
+          ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => CoachProfileProvider(),
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(initialSection: 'month'),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Ton budget ce mois'), findsOneWidget);
+    expect(find.text("8'000\u00a0CHF"), findsOneWidget);
+    expect(find.text("5'900\u00a0CHF"), findsOneWidget);
+    expect(find.text("2'100\u00a0CHF"), findsOneWidget);
+    expect(find.text("12'345\u00a0CHF"), findsNothing);
+  });
+
+  testWidgets('refreshed profile budget overrides stale data spine snapshot',
+      (tester) async {
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+    final coachProvider = CoachProfileProvider()
+      ..updateProfile(
+        CoachProfile(
+          birthYear: 1990,
+          canton: 'VD',
+          salaireBrutMensuel: 6000,
+          depenses: const DepensesProfile(
+            loyer: 1100,
+            assuranceMaladie: 410,
+          ),
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+            'depenses.assuranceMaladie': ProfileDataSource.userInput,
+          },
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2055),
+            label: 'Retraite',
+          ),
+        ),
+      );
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: coachProvider,
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(initialSection: 'month'),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(budgetProvider.source, BudgetDataSource.profile);
+    expect(budgetProvider.hasFreshInputs, isTrue);
+    expect(find.text(_formatChf(budgetProvider.inputs!.netIncome)),
+        findsOneWidget);
+    expect(find.text("8'000\u00a0CHF"), findsNothing);
+    expect(find.text("2'100\u00a0CHF"), findsNothing);
+  });
+
+  testWidgets(
+      'refreshed profile budget keeps pension and future spine sections',
+      (tester) async {
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+    final coachProvider = CoachProfileProvider()
+      ..updateProfile(
+        CoachProfile(
+          birthYear: 1990,
+          canton: 'VD',
+          salaireBrutMensuel: 6000,
+          depenses: const DepensesProfile(
+            loyer: 1100,
+            assuranceMaladie: 410,
+          ),
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+            'depenses.assuranceMaladie': ProfileDataSource.userInput,
+          },
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2055),
+            label: 'Retraite',
+          ),
+        ),
+      );
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: coachProvider,
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(budgetProvider.hasFreshInputs, isTrue);
+
+    await tester.tap(find.text('Prévoyance').first);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('mon_argent_pension_map')), findsOneWidget);
+    expect(find.text('Prévoyance LPP'), findsOneWidget);
+    expect(find.text('3e pilier (3a)'), findsOneWidget);
+    expect(find.text("120'000\u00a0CHF"), findsOneWidget);
+    expect(find.text("32'000\u00a0CHF"), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Futur'));
+    await tester.tap(find.text('Futur'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('mon_argent_trajectory_map')), findsOneWidget);
+    expect(find.text('Ta trajectoire'), findsOneWidget);
+    expect(find.text('Libre aujourd’hui'), findsOneWidget);
+    expect(find.text("2'000\u00a0CHF"), findsOneWidget);
+  });
+
+  testWidgets(
+      'today section aligns budget detail rows with refreshed profile budget',
+      (tester) async {
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+    final coachProvider = CoachProfileProvider()
+      ..updateProfile(
+        CoachProfile(
+          birthYear: 1990,
+          canton: 'VD',
+          salaireBrutMensuel: 6000,
+          depenses: const DepensesProfile(
+            loyer: 1100,
+            assuranceMaladie: 410,
+          ),
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+            'depenses.assuranceMaladie': ProfileDataSource.userInput,
+          },
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2055),
+            label: 'Retraite',
+          ),
+        ),
+      );
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: coachProvider,
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(budgetProvider.hasFreshInputs, isTrue);
+    expect(find.text(_formatChf(_presentBudgetFree(budgetProvider))),
+        findsOneWidget);
+    expect(find.text("1'100\u00a0CHF"), findsNothing);
+
+    await tester.tap(find.byKey(const Key('mon_argent_situation_expand')));
+    await tester.pumpAndSettle();
+
+    expect(find.text("1'100\u00a0CHF"), findsOneWidget);
+    expect(find.text("410\u00a0CHF"), findsOneWidget);
+    expect(find.text("2'400\u00a0CHF"), findsNothing);
+    expect(find.text("390\u00a0CHF"), findsNothing);
+  });
+
+  testWidgets('refreshed profile budget also grounds coach whisper over spine',
+      (tester) async {
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine(
+        spine: _dataSpineWithBudget(
+          const BudgetSnapshot(
+            present: PresentBudget(
+              monthlyNet: 5000,
+              monthlyCharges: 6500,
+              monthlySavings: 0,
+              monthlyFree: -1500,
+            ),
+            capImpacts: [],
+            stage: BudgetStage.presentOnly,
+            confidenceScore: 30,
+          ),
+        ),
+      ));
+    final coachProvider = CoachProfileProvider()
+      ..updateProfile(
+        CoachProfile(
+          birthYear: 1990,
+          canton: 'VD',
+          salaireBrutMensuel: 9000,
+          depenses: const DepensesProfile(
+            loyer: 1100,
+            assuranceMaladie: 410,
+          ),
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+            'depenses.assuranceMaladie': ProfileDataSource.userInput,
+          },
+          goalA: GoalA(
+            type: GoalAType.retraite,
+            targetDate: DateTime(2055),
+            label: 'Retraite',
+          ),
+        ),
+      );
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: coachProvider,
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(budgetProvider.hasFreshInputs, isTrue);
+    expect(find.text(_formatChf(_presentBudgetFree(budgetProvider))),
+        findsOneWidget);
+    expect(find.text("-1'500\u00a0CHF"), findsNothing);
+    expect(find.textContaining('Mois serré.'), findsNothing);
+  });
+
+  testWidgets('direct patrimoine section shows investments and debts in net',
+      (tester) async {
+    final mintState = MintStateProvider()
+      ..injectStateForTest(_stateWithDataSpine());
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>(
+            create: (_) => BudgetProvider(),
+          ),
+          ChangeNotifierProvider<CoachProfileProvider>(
+            create: (_) => CoachProfileProvider(),
+          ),
+          ChangeNotifierProvider<MintStateProvider>.value(value: mintState),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: MonArgentScreen(initialSection: 'wealth'),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Patrimoine libre'), findsOneWidget);
+    expect(find.text('Investissements'), findsOneWidget);
+    expect(find.text('Dettes totales'), findsOneWidget);
+    expect(find.text("12'000\u00a0CHF"), findsOneWidget);
+    expect(find.text("-10'000\u00a0CHF"), findsOneWidget);
+    expect(find.text("32'000\u00a0CHF"), findsWidgets);
+    expect(find.text("184'000\u00a0CHF"), findsNothing);
   });
 
   testWidgets('compact section selector exposes Futur without horizontal hunt',
@@ -361,7 +756,7 @@ void main() {
 
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.text('Prévoyance'));
+    await tester.tap(find.text('Prévoyance').first);
     await tester.pumpAndSettle();
 
     final chip = tester.getSemantics(
@@ -439,6 +834,10 @@ void main() {
     expect(budgetProvider.inputs, isNotNull);
     expect(budgetProvider.inputs!.housingCost, 1100);
     expect(budgetProvider.inputs!.healthInsurance, 390);
+    expect(find.text(_formatChf(_presentBudgetFree(budgetProvider))),
+        findsOneWidget);
+    expect(find.text('Fiabilité'), findsOneWidget);
+    expect(find.text('80%'), findsOneWidget);
     expect(find.text("12'345\u00a0CHF"), findsNothing);
   });
 
@@ -580,6 +979,72 @@ void main() {
     expect(find.byKey(const Key('mon_argent_budget_summary')), findsOneWidget);
   });
 
+  testWidgets('direct section aliases route to stable Mon Argent sections',
+      (tester) async {
+    Future<void> pumpSection(String? initialSection) async {
+      SharedPreferences.setMockInitialValues({});
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<BudgetProvider>(
+              create: (_) => BudgetProvider(),
+            ),
+            ChangeNotifierProvider<CoachProfileProvider>(
+              create: (_) => CoachProfileProvider(),
+            ),
+            ChangeNotifierProvider<MintStateProvider>(
+              create: (_) => MintStateProvider()
+                ..injectStateForTest(_stateWithDataSpine()),
+            ),
+          ],
+          child: MaterialApp(
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: MonArgentScreen(initialSection: initialSection),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    await pumpSection('mois');
+    expect(find.byKey(const Key('mon_argent_section_month')), findsOneWidget);
+    expect(find.byKey(const Key('mon_argent_budget_summary')), findsOneWidget);
+
+    await pumpSection('patrimoine');
+    expect(find.byKey(const Key('mon_argent_section_wealth')), findsOneWidget);
+    expect(
+      find.byKey(const Key('mon_argent_patrimoine_summary')),
+      findsOneWidget,
+    );
+
+    await pumpSection('prevoyance');
+    expect(find.byKey(const Key('mon_argent_section_pension')), findsOneWidget);
+    expect(find.byKey(const Key('mon_argent_pension_map')), findsOneWidget);
+
+    await pumpSection('prévoyance');
+    expect(find.byKey(const Key('mon_argent_section_pension')), findsOneWidget);
+    expect(find.byKey(const Key('mon_argent_pension_map')), findsOneWidget);
+
+    await pumpSection('futur');
+    expect(find.byKey(const Key('mon_argent_section_future')), findsOneWidget);
+    expect(find.byKey(const Key('mon_argent_trajectory_map')), findsOneWidget);
+
+    await pumpSection('unknown');
+    expect(find.byKey(const Key('mon_argent_section_today')), findsOneWidget);
+    expect(
+      find.byKey(const Key('mon_argent_data_spine_summary')),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('renders missing-data surface for pension without data spine',
       (tester) async {
     await tester.pumpWidget(
@@ -611,7 +1076,7 @@ void main() {
 
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.text('Prévoyance'));
+    await tester.tap(find.text('Prévoyance').first);
     await tester.pumpAndSettle();
 
     expect(
@@ -697,6 +1162,17 @@ DataSpineSnapshot _dataSpineEstimated3a() {
   );
 }
 
+DataSpineSnapshot _dataSpineWithBudget(BudgetSnapshot budget) {
+  final base = _dataSpine();
+  return DataSpineSnapshot(
+    situation: base.situation,
+    budget: budget,
+    pillars: base.pillars,
+    trajectory: base.trajectory,
+    computedAt: base.computedAt,
+  );
+}
+
 DataSpineSnapshot _dataSpine() {
   const meta = SpineFieldMeta(
     source: ProfileDataSource.userInput,
@@ -777,4 +1253,19 @@ DataSpineSnapshot _dataSpine() {
     ),
     computedAt: DateTime.utc(2026, 5, 24),
   );
+}
+
+String _formatChf(double amount) {
+  final formatted = amount.toStringAsFixed(0).replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+        (match) => "${match[1]}'",
+      );
+  return "$formatted\u00a0CHF";
+}
+
+double _presentBudgetFree(BudgetProvider provider) {
+  return PresentBudgetBuilder.fromInputs(
+    inputs: provider.inputs!,
+    plan: provider.plan!,
+  ).monthlyFree;
 }

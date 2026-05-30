@@ -15,6 +15,7 @@
 // Opt-in only (default: false).
 
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -180,7 +181,8 @@ class CantonalBenchmarkService {
 
     final revenuAnnuel = profile.revenuBrutAnnuel;
     final epargneMensuelle = profile.totalContributionsMensuelles;
-    final chargesFixes = profile.depenses.totalMensuel;
+    final chargesFixes =
+        BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
     final tauxEpargne = revenuAnnuel > 0
         ? (epargneMensuelle * 12 / revenuAnnuel * 100)
         : 0.0;

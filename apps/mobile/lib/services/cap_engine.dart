@@ -1,10 +1,10 @@
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
-import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/product_cohort_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 
@@ -72,14 +72,15 @@ class CapEngine {
         captureType: top.category,
         coachPrompt: l.capCoachPromptMissingData(top.category),
         expectedImpact: l.capMissingPieceExpectedImpact(top.impact.toString()),
-        confidenceLabel: l.capMissingPieceConfidenceLabel(confidence.score.round().toString()),
+        confidenceLabel: l.capMissingPieceConfidenceLabel(
+            confidence.score.round().toString()),
         blockingData: [top.category],
         sourceCards: const [],
       ));
     }
 
     // ── 2. Critical: debt ──
-    if (profile.dettes.hasDette && profile.dettes.totalDettes > 10000) {
+    if (_shouldPrioritizeDebtCap(profile)) {
       candidates.add(CapDecision(
         id: 'debt_correct',
         kind: CapKind.correct,
@@ -157,10 +158,9 @@ class CapEngine {
     // 3a contributions are only possible while actively employed.
     // B6-minimal: if age unknown, defer to employmentStatus alone — safer
     // than assuming non-retired and pushing 3a to a possibly-retired user.
-    final isRetired = (age != null && age >= 65) ||
-        profile.employmentStatus == 'retraite';
-    final daysToYearEnd =
-        DateTime(now.year, 12, 31).difference(now).inDays;
+    final isRetired =
+        (age != null && age >= 65) || profile.employmentStatus == 'retraite';
+    final daysToYearEnd = DateTime(now.year, 12, 31).difference(now).inDays;
     // FATCA: US persons CAN contribute to 3a (Swiss law allows it),
     // but some providers refuse US persons due to PFIC/FATCA reporting.
     // We show the cap but the FATCA guidance in fallback_templates warns about restrictions.
@@ -168,7 +168,7 @@ class CapEngine {
       final cards3a =
           ResponseCardService.generateForPulse(profile, l: l, limit: 5)
               .where((c) => c.type == ResponseCardType.pillar3a)
-          .toList();
+              .toList();
       if (cards3a.isNotEmpty) {
         final card = cards3a.first;
         candidates.add(CapDecision(
@@ -230,24 +230,9 @@ class CapEngine {
     }
 
     // ── 6. Budget deficit → reframing rule ──
-    // FIX-100: Use revenuBrutAnnuel (handles independants).
-    final grossAnnualForBudget = profile.revenuBrutAnnuel;
-    if (profile.totalDepensesMensuelles > 0 && grossAnnualForBudget > 0) {
-      final netMensuel = profile.employmentStatus == 'independant'
-          ? grossAnnualForBudget * 0.90 / 12
-          : NetIncomeBreakdown.compute(
-              grossSalary: grossAnnualForBudget,
-              canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-              // B6-minimal: NetIncomeBreakdown expects non-nullable age for
-              // AVS rate selection (65+ no longer contributes). Fallback 40
-              // is a neutral working-age assumption when age is unknown;
-              // the caller is flagged via the returned breakdown's
-              // accuracy notes (downstream consumers can surface "âge
-              // inconnu, net estimé"). Full nullable propagation is
-              // deferred to Wave E.
-              age: age ?? 40,
-            ).monthlyNetPayslip;
-      final libre = netMensuel - profile.totalDepensesMensuelles;
+    final budgetSignal = _budgetSignal(profile);
+    if (budgetSignal.monthlyFixedCharges > 0 && budgetSignal.monthlyNet > 0) {
+      final libre = budgetSignal.monthlyNet - budgetSignal.monthlyFixedCharges;
       if (libre < 0) {
         candidates.add(CapDecision(
           id: 'budget_deficit',
@@ -401,9 +386,8 @@ class CapEngine {
           recency: _recencyModifier('estate_planning', memory, now),
         ),
         headline: l.capEstatePlanningHeadline,
-        whyNow: isVeuf
-            ? l.capEstatePlanningWhyNowVeuf
-            : l.capEstatePlanningWhyNow,
+        whyNow:
+            isVeuf ? l.capEstatePlanningWhyNowVeuf : l.capEstatePlanningWhyNow,
         ctaLabel: l.capEstatePlanningCtaLabel,
         ctaMode: CtaMode.route,
         ctaRoute: '/life-event/deces-proche',
@@ -415,7 +399,8 @@ class CapEngine {
     }
 
     // ── 9. Life event preparation ──
-    final lifeEventCap = _tryLifeEventCap(profile, confidence.score, memory, now, l);
+    final lifeEventCap =
+        _tryLifeEventCap(profile, confidence.score, memory, now, l);
     if (lifeEventCap != null) candidates.add(lifeEventCap);
 
     // ── 9b. Couple caps (ménage) ──
@@ -442,7 +427,8 @@ class CapEngine {
 
     // ── 11. Honesty clause (spec §7) ──
     // If profile has no realistic lever, acknowledge it with tact.
-    final honestyCap = _tryHonestyCap(profile, confidence.score, memory, now, l);
+    final honestyCap =
+        _tryHonestyCap(profile, confidence.score, memory, now, l);
     if (honestyCap != null) {
       // Honesty cap overrides weaker candidates — return immediately.
       // Only real critical caps (debt, missing data) should beat it,
@@ -474,7 +460,8 @@ class CapEngine {
         ctaLabel: l.capFallbackCtaLabel,
         ctaMode: CtaMode.capture,
         captureType: 'profile',
-        confidenceLabel: l.capMissingPieceConfidenceLabel(confidence.score.round().toString()),
+        confidenceLabel: l.capMissingPieceConfidenceLabel(
+            confidence.score.round().toString()),
       );
     }
 
@@ -484,7 +471,8 @@ class CapEngine {
     if (cohortResult.suppressedTopics.isNotEmpty) {
       candidates.removeWhere((c) {
         final semantic = _capSemanticTopic(c.id);
-        return semantic != null && cohortResult.suppressedTopics.contains(semantic);
+        return semantic != null &&
+            cohortResult.suppressedTopics.contains(semantic);
       });
     }
 
@@ -507,7 +495,9 @@ class CapEngine {
     // P0-14: Deterministic tie-breaking — use id hashCode as secondary sort
     candidates.sort((a, b) {
       final cmp = b.priorityScore.compareTo(a.priorityScore);
-      return cmp != 0 ? cmp : a.id.compareTo(b.id); // Lexicographic — stable across versions
+      return cmp != 0
+          ? cmp
+          : a.id.compareTo(b.id); // Lexicographic — stable across versions
     });
 
     // Enrich the winner with supporting signals from other candidates.
@@ -547,6 +537,18 @@ class CapEngine {
     );
   }
 
+  static bool _shouldPrioritizeDebtCap(CoachProfile profile) {
+    return profile.hasMaterialConsumerDebtForPriority;
+  }
+
+  static _CapBudgetSignal _budgetSignal(CoachProfile profile) {
+    return _CapBudgetSignal(
+      monthlyNet: BudgetInputs.monthlyNetFromCoachProfile(profile),
+      monthlyFixedCharges:
+          BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile),
+    );
+  }
+
   // ── TOP 10 SWISS CORE JOURNEYS — TIER 1 URGENCY ─────────
   //
   //  Tier 1 = life disruption. These situations ALWAYS outrank
@@ -572,17 +574,25 @@ class CapEngine {
   /// - 0   → No Tier 1 signal
   static int _top10UrgencyBoost(CoachProfile profile, CapMemory memory) {
     // Chômage: immediate income disruption, highest urgency
-    if (profile.employmentStatus == 'chomage') { return 100; }
+    if (profile.employmentStatus == 'chomage') {
+      return 100;
+    }
 
     // Debt crisis: spending exceeds net income OR debtCrisis life event
-    if (_hasDebtCrisis(profile)) { return 90; }
+    if (_hasDebtCrisis(profile)) {
+      return 90;
+    }
 
     // Divorce: LPP split, alimony, housing urgency
     if (profile.etatCivil == CoachCivilStatus.divorce ||
-        profile.familyChange == 'divorce') { return 80; }
+        profile.familyChange == 'divorce') {
+      return 80;
+    }
 
     // Disability life event declared
-    if (profile.familyChange == 'disability') { return 70; }
+    if (profile.familyChange == 'disability') {
+      return 70;
+    }
 
     return 0;
   }
@@ -593,20 +603,11 @@ class CapEngine {
   static bool _hasDebtCrisis(CoachProfile profile) {
     if (profile.familyChange == 'debtCrisis') return true;
 
-    // Budget crisis: total expenses > net income
-    if (profile.totalDepensesMensuelles > 0 &&
-        profile.salaireBrutMensuel > 0) {
-      final netMensuel = NetIncomeBreakdown.compute(
-        grossSalary: profile.salaireBrutMensuel * 12,
-        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-        // B6-minimal: NetIncomeBreakdown needs non-nullable age for AVS
-        // contribution rate (65+ threshold). Fallback 40 is a neutral
-        // working-age default when birthYear is missing; this debt-crisis
-        // check errs on the side of detecting the crisis (better to
-        // trigger Safe Mode on uncertain age than to miss it).
-        age: profile.ageOrNull ?? 40,
-      ).monthlyNetPayslip;
-      if (profile.totalDepensesMensuelles > netMensuel) return true;
+    final budgetSignal = _budgetSignal(profile);
+    if (budgetSignal.monthlyFixedCharges > 0 &&
+        budgetSignal.monthlyNet > 0 &&
+        budgetSignal.monthlyFixedCharges > budgetSignal.monthlyNet) {
+      return true;
     }
 
     return false;
@@ -708,17 +709,20 @@ class CapEngine {
     final Set<String> alignedIds = {};
 
     if (profile.employmentStatus == 'chomage') {
-      alignedIds.addAll(const {'chomage_urgency', 'debt_correct', 'budget_deficit'});
+      alignedIds
+          .addAll(const {'chomage_urgency', 'debt_correct', 'budget_deficit'});
     }
     if (_hasDebtCrisis(profile)) {
-      alignedIds.addAll(const {'debt_correct', 'budget_deficit', 'honesty_no_lever'});
+      alignedIds
+          .addAll(const {'debt_correct', 'budget_deficit', 'honesty_no_lever'});
     }
     if (profile.etatCivil == CoachCivilStatus.divorce ||
         profile.familyChange == 'divorce') {
       alignedIds.addAll(const {'divorce_urgency', 'life_event_divorce'});
     }
     if (profile.familyChange == 'disability') {
-      alignedIds.addAll(const {'disability_gap', 'coverage_check', 'life_event_disability'});
+      alignedIds.addAll(
+          const {'disability_gap', 'coverage_check', 'life_event_disability'});
     }
 
     if (alignedIds.isEmpty) return;
@@ -964,9 +968,7 @@ class CapEngine {
   /// escalate coverage urgency without reliable age info).
   static bool _isSeniorSalarie(CoachProfile profile) {
     final age = profile.ageOrNull;
-    return age != null &&
-        age >= 50 &&
-        profile.employmentStatus == 'salarie';
+    return age != null && age >= 50 && profile.employmentStatus == 'salarie';
   }
 
   /// Generate household-level caps when conjoint data is available.
@@ -995,8 +997,8 @@ class CapEngine {
     final conjoint3a = conjoint.prevoyance?.totalEpargne3a ?? 0;
     final conjointCan3a = conjoint.canContribute3a;
     final conjointAge = conjoint.age ?? 99;
-    final conjointIsRetired = conjointAge >= 65 ||
-        conjoint.employmentStatus == 'retraite';
+    final conjointIsRetired =
+        conjointAge >= 65 || conjoint.employmentStatus == 'retraite';
     if (conjoint3a == 0 && conjointCan3a && !conjointIsRetired) {
       caps.add(CapDecision(
         id: 'couple_3a',
@@ -1094,8 +1096,7 @@ class CapEngine {
 
   /// Recency modifier: avoid re-serving the same cap.
   /// Uses injected [now] for determinism (pure function contract).
-  static double _recencyModifier(
-      String capId, CapMemory memory, DateTime now) {
+  static double _recencyModifier(String capId, CapMemory memory, DateTime now) {
     if (memory.lastCapServed != capId) return 1.0;
     if (memory.lastCapDate == null) return 1.0;
 
@@ -1190,7 +1191,8 @@ class CapEngine {
     final age = profile.ageOrNull;
     final lpp = profile.prevoyance.avoirLppTotal ?? 0;
     final revenuAnnuel = profile.revenuBrutAnnuel;
-    final totalDettes = profile.dettes.totalDettes;
+    final consumerDebtTotal =
+        profile.dettes.detteConsommation + (profile.dettes.autresDettes ?? 0);
     final archetype = profile.archetype;
 
     // Case 1: 60+ with negligible LPP (salarié or retraité)
@@ -1203,7 +1205,7 @@ class CapEngine {
     // Case 2: Debt exceeds 200% of annual income (debt spiral)
     // (age-independent — stays active even when age is unknown)
     final isDebtOverwhelmed =
-        revenuAnnuel > 0 && totalDettes > revenuAnnuel * 2;
+        revenuAnnuel > 0 && consumerDebtTotal > revenuAnnuel * 2;
 
     // Case 3: Cross-border 62+ with zero LPP
     // B6-minimal: unknown age → skip case (archetype alone is not enough).
@@ -1311,6 +1313,16 @@ class CapEngine {
   }
 }
 
+class _CapBudgetSignal {
+  const _CapBudgetSignal({
+    required this.monthlyNet,
+    required this.monthlyFixedCharges,
+  });
+
+  final double monthlyNet;
+  final double monthlyFixedCharges;
+}
+
 /// Internal mapping for life event → cap content.
 class _LifeEventMapping {
   final String headline;
@@ -1333,13 +1345,17 @@ String? _capSemanticTopic(String capId) {
   final lower = capId.toLowerCase();
 
   // Retirement-related
-  if (lower.contains('retirement') || lower.contains('retraite') ||
-      lower.contains('rente') || lower.contains('decaissement')) {
+  if (lower.contains('retirement') ||
+      lower.contains('retraite') ||
+      lower.contains('rente') ||
+      lower.contains('decaissement')) {
     return 'retirement_deep';
   }
   // Succession / estate
-  if (lower.contains('succession') || lower.contains('estate') ||
-      lower.contains('testament') || lower.contains('donation') ||
+  if (lower.contains('succession') ||
+      lower.contains('estate') ||
+      lower.contains('testament') ||
+      lower.contains('donation') ||
       lower.contains('heritage')) {
     return 'succession';
   }
@@ -1356,12 +1372,15 @@ String? _capSemanticTopic(String capId) {
     return 'rente_vs_capital';
   }
   // Housing
-  if (lower.contains('housing') || lower.contains('logement') ||
-      lower.contains('hypotheque') || lower.contains('immobilier')) {
+  if (lower.contains('housing') ||
+      lower.contains('logement') ||
+      lower.contains('hypotheque') ||
+      lower.contains('immobilier')) {
     return 'housing_purchase';
   }
   // First job
-  if (lower.contains('first_job') || lower.contains('premier_emploi') ||
+  if (lower.contains('first_job') ||
+      lower.contains('premier_emploi') ||
       lower.contains('firstjob')) {
     return 'first_job';
   }
@@ -1370,13 +1389,16 @@ String? _capSemanticTopic(String capId) {
     return 'unemployment_basics';
   }
   // Birth / family young
-  if (lower.contains('birth') || lower.contains('naissance') ||
+  if (lower.contains('birth') ||
+      lower.contains('naissance') ||
       lower.contains('bebe')) {
     return 'birth_costs';
   }
   // Job comparison — includes life_event newJob caps
-  if (lower.contains('job_comparison') || lower.contains('comparaison_offre') ||
-      lower.contains('newjob') || lower.contains('new_job') ||
+  if (lower.contains('job_comparison') ||
+      lower.contains('comparaison_offre') ||
+      lower.contains('newjob') ||
+      lower.contains('new_job') ||
       lower.contains('life_event_newjob')) {
     return 'job_comparison';
   }

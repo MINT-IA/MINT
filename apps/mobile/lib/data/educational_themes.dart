@@ -44,7 +44,8 @@ class EducationalTheme {
     );
   }
 
-  static final Map<String, Map<String, String? Function(S)>> _localizedStrings = {
+  static final Map<String, Map<String, String? Function(S)>> _localizedStrings =
+      {
     '3a': {
       'title': (l) => l.eduTheme3aTitle,
       'question': (l) => l.eduTheme3aQuestion,
@@ -108,7 +109,7 @@ class EducationData {
       id: '3a',
       title: 'Le 3e pilier (3a)',
       question: "C'est quoi le 3a et pourquoi tout le monde en parle ?",
-      actionLabel: "Estimer mon économie fiscale",
+      actionLabel: "Estimer l'impact fiscal",
       route: '/pilier-3a',
       reminderText: "Décembre → Dernier moment pour verser cette année",
       icon: Icons.savings_outlined,
@@ -125,7 +126,7 @@ class EducationData {
       color: MintColors.info,
       estimatedMinutes: 4,
     ),
-     EducationalTheme(
+    EducationalTheme(
       id: 'avs',
       title: 'Les lacunes AVS',
       question: "Ai-je des années de cotisation manquantes ?",

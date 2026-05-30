@@ -258,7 +258,7 @@ ReadinessResult gateFrontalier(CoachProfile profile) {
 
 /// Gate: /debt/ratio — budget sous tension / debt ratio calculator.
 ///
-/// Requires [netIncome] AND at least one charge entered (totalMensuel > 0).
+/// Requires [netIncome] AND at least one plausible charge entered.
 /// If no charges have been entered, open in partial mode with enrichment CTA.
 ReadinessResult gateBudgetSousTension(CoachProfile profile) {
   final hasIncome = profile.salaireBrutMensuel > 0;

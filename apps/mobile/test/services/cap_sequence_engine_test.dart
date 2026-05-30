@@ -407,6 +407,44 @@ void main() {
       final step3 = seq.steps.firstWhere((s) => s.id == 'bud_03_margin');
       expect(step3.status, equals(CapStepStatus.blocked));
     });
+
+    test('implausible housing alone does not complete charges step', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(
+          salaireBrutMensuel: 5000,
+          depenses: const DepensesProfile(loyer: 19272200),
+        ),
+        memory: emptyMemory,
+        goalIntentTag: 'budget_overview',
+        l: _l,
+      );
+
+      final step2 = seq.steps.firstWhere((s) => s.id == 'bud_02_charges');
+      final step3 = seq.steps.firstWhere((s) => s.id == 'bud_03_margin');
+
+      expect(step2.status, equals(CapStepStatus.current));
+      expect(step3.status, equals(CapStepStatus.blocked));
+      expect(step3.impactEstimate, isNull);
+    });
+
+    test('budget margin estimate ignores implausible housing', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(
+          salaireBrutMensuel: 5000,
+          depenses: const DepensesProfile(
+            loyer: 19272200,
+            assuranceMaladie: 420,
+          ),
+        ),
+        memory: emptyMemory,
+        goalIntentTag: 'budget_overview',
+        l: _l,
+      );
+
+      final step3 = seq.steps.firstWhere((s) => s.id == 'bud_03_margin');
+
+      expect(step3.impactEstimate, closeTo(3480, 0.01));
+    });
   });
 
   // ── HOUSING SEQUENCE ─────────────────────────────────────────

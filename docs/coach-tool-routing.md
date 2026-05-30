@@ -58,7 +58,7 @@ INTERNAL_TOOL_NAMES: list[str] = [
 | Tool | Authenticated user (`user_id` set) | Anonymous user (`user_id = None`) | Flutter receives it? |
 |---|---|---|---|
 | `retrieve_memories` | Backend searches memory_block, returns result to Claude | Same (no DB write) | No |
-| `get_budget_status` | Backend queries BudgetProvider equivalent → tool_result | Empty snapshot | No |
+| `get_budget_status` | Prefers valid `coach_context_packet` budget facts; if absent, reads newest `ProfileModel.data["budget"]` read model, then legacy flat budget keys → tool_result | Empty snapshot | No |
 | `get_retirement_projection` | FriComputation + LppCalculator → tool_result | Same (profile-only, no DB) | No |
 | `get_cross_pillar_analysis` | Cross-pillar calculator → tool_result | Same | No |
 | `get_cap_status` | Reads CapMemoryStore → tool_result | Defaults | No |

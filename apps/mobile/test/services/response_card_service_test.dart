@@ -431,6 +431,31 @@ void main() {
       expect(
           cards.any((c) => c.type == ResponseCardType.coupleAlert), isFalse);
     });
+
+    test('patrimoine card ignores implausible housing for safety cushion', () {
+      final profile = _makeProfile(
+        salaire: 8000,
+        canton: 'VD',
+        patrimoine: const PatrimoineProfile(
+          epargneLiquide: 10000,
+          investissements: 1000,
+        ),
+        depenses: const DepensesProfile(
+          loyer: 19272200,
+          assuranceMaladie: 420,
+          transport: 200,
+        ),
+      );
+
+      final cards =
+          ResponseCardService.generateForPulse(profile, l: _l, limit: 10);
+      final patrimoine =
+          cards.firstWhere((c) => c.type == ResponseCardType.patrimoine);
+
+      expect(patrimoine.subtitle, _l.rcPatrimoineSubtitleOk);
+      expect(patrimoine.alertes, isEmpty);
+      expect(patrimoine.cta.route, '/profile/bilan');
+    });
   });
 
   // ════════════════════════════════════════════════════════════

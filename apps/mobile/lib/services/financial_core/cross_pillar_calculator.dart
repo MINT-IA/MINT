@@ -1,6 +1,7 @@
 import 'dart:math' show max, min;
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
@@ -387,7 +388,8 @@ class CrossPillarCalculator {
     final monthlyNet = breakdown.monthlyNetPayslip;
 
     // All fixed monthly outflows
-    final fixedCosts = profile.depenses.totalMensuel;
+    final fixedCosts =
+        BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
     final debtPayments = profile.dettes.totalMensualite;
     final alreadySaving = profile.totalContributionsMensuelles;
 

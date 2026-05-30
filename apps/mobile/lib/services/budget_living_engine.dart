@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
@@ -49,7 +50,8 @@ class BudgetLivingEngine {
     //    a) Retired (age >= targetRetirementAge): budget based on actual rentes.
     //    b) Pre-retirement (has salary + valid age): full projection + gap.
     //    c) No usable data (zero salary and not retired): present-only.
-    final targetRetirementAge = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final targetRetirementAge = profile.targetRetirementAge ??
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final isRetired = profile.age > 0 && profile.age >= targetRetirementAge;
 
     // Case a: user is already in retirement — show rente income, no gap.
@@ -59,7 +61,8 @@ class BudgetLivingEngine {
           profile: profile,
           retirementAgeUser: targetRetirementAge,
         );
-        final retirementBudget = _wrapRetirementResult(retirementResult, profile);
+        final retirementBudget =
+            _wrapRetirementResult(retirementResult, profile);
         return BudgetSnapshot(
           present: present,
           retirement: retirementBudget,
@@ -135,42 +138,14 @@ class BudgetLivingEngine {
   // ══════════════════════════════════════════════════════════
 
   static PresentBudget _computePresent(CoachProfile profile) {
-    // Net income — main user
-    // FIX-100: Use revenuBrutAnnuel which handles independants.
-    // salaireBrutMensuel can be 0 for independants (they use selfEmployedNetIncome).
-    final grossAnnual = profile.revenuBrutAnnuel;
-    final mainBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: grossAnnual,
-      canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-      age: profile.age,
-    );
-    // For independants, social charges are different (AVS 10.6% total, no LPP split).
-    // NetIncomeBreakdown uses salarié rates — for independants, use ~90% of gross as net.
-    double monthlyNet = profile.employmentStatus == 'independant' && grossAnnual > 0
-        ? grossAnnual * 0.90 / 12  // ~10% charges sociales pour indépendants
-        : mainBreakdown.monthlyNetPayslip;
-
-    // Partner net income
-    final conj = profile.conjoint;
-    if (conj != null &&
-        (conj.salaireBrutMensuel ?? 0) > 0 &&
-        conj.age != null) {
-      final partnerBreakdown = NetIncomeBreakdown.compute(
-        grossSalary: conj.salaireBrutMensuel! * 12,
-        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-        age: conj.age!,
-      );
-      monthlyNet += partnerBreakdown.monthlyNetPayslip;
-    }
-
-    // Fixed charges from BudgetInputs (single source of truth for budget calc)
-    // BudgetInputs.fromCoachProfile uses the same tax estimator path.
+    // Net income — same household derivation as BudgetInputs.
     final inputs = BudgetInputs.fromCoachProfile(profile);
-    final monthlyCharges = inputs.housingCost +
-        inputs.debtPayments +
-        inputs.taxProvision +
-        inputs.healthInsurance +
-        inputs.otherFixedCosts;
+    final monthlyNet = PresentBudgetBuilder.displayChf(inputs.netIncome);
+
+    // Fixed charges from BudgetInputs (single source of truth for budget calc).
+    // Use the same display read model as BudgetScreen so Mon Argent and Coach
+    // do not show a one-franc drift from different rounding boundaries.
+    final monthlyCharges = PresentBudgetBuilder.fixedChargesFromInputs(inputs);
 
     // Planned savings out-flows: 3a contributions + LPP buybacks
     final monthlySavings = computeMonthlySavings(profile);
@@ -179,6 +154,12 @@ class BudgetLivingEngine {
 
     return PresentBudget(
       monthlyNet: monthlyNet,
+      monthlyHousing: PresentBudgetBuilder.displayChf(inputs.housingCost),
+      monthlyDebt: PresentBudgetBuilder.displayChf(inputs.debtPayments),
+      monthlyTax: PresentBudgetBuilder.displayChf(inputs.taxProvision),
+      monthlyHealth: PresentBudgetBuilder.displayChf(inputs.healthInsurance),
+      monthlyOtherFixed:
+          PresentBudgetBuilder.displayChf(inputs.otherFixedCosts),
       monthlyCharges: monthlyCharges,
       monthlySavings: monthlySavings,
       monthlyFree: monthlyFree,
@@ -318,7 +299,8 @@ class BudgetLivingEngine {
 
     // Cap 2: 3a max — if not already maxing out.
     final current3aMensuel = profile.total3aMensuel;
-    final plafondMensuel = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12;
+    final plafondMensuel =
+        reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12;
     final has3aGap = current3aMensuel < plafondMensuel * 0.95;
     if (has3aGap) {
       final additional3aMonthly = plafondMensuel - current3aMensuel;

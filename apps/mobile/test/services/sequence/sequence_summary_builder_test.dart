@@ -85,7 +85,7 @@ void main() {
 
       expect(items.length, 3);
       expect(items[0].label, contains('Versement'));
-      expect(items[1].label, contains('Économie fiscale'));
+      expect(items[1].label, contains('Impact fiscal indicatif'));
       expect(items[2].label, contains('Gain'));
     });
   });
@@ -206,7 +206,7 @@ void main() {
       );
       expect(items.length, 2);
       expect(items[0].label, contains('Revenu'));
-      expect(items[1].label, contains('fiscale'));
+      expect(items[1].label, contains('fiscal'));
     });
   });
 

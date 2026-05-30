@@ -66,16 +66,7 @@ abstract final class DataSpineService {
           'patrimoine.epargneLiquide'),
       investments: _value(_positiveOrNull(profile.patrimoine.investissements),
           profile, 'patrimoine.investissements'),
-      totalDebt: _value(
-          _explicitAmount(
-            profile.dettes.totalDettes,
-            profile,
-            'debt',
-            'dettes.totalDettes',
-            allowZero: true,
-          ),
-          profile,
-          'dettes.totalDettes'),
+      totalDebt: _debtExposureValue(profile),
       housingStatus: _value(profile.housingStatus, profile, 'housingStatus',
           sensitive: false),
       activeGoalType:
@@ -250,6 +241,53 @@ abstract final class DataSpineService {
   }
 
   static double? _positiveOrNull(double value) => value > 0 ? value : null;
+
+  // Monthly-only debt is a budget signal, not a certified principal.
+  // Use a 24-month exposure proxy so Coach can reason about debt pressure
+  // without pretending the remaining capital is known.
+  static const _consumerDebtExposureHorizonMonths = 24;
+
+  static SpineValue<double> _debtExposureValue(CoachProfile profile) {
+    final totalDebt = profile.dettes.totalDettes;
+    if (totalDebt > 0) {
+      return _value(
+        _explicitAmount(
+          totalDebt,
+          profile,
+          'debt',
+          'dettes.totalDettes',
+          allowZero: true,
+        ),
+        profile,
+        'dettes.totalDettes',
+      );
+    }
+
+    final monthlyPayment = profile.dettes.totalMensualite;
+    if (monthlyPayment > 0) {
+      final updatedAt =
+          profile.dataTimestamps['dettes.totalDettes'] ?? profile.updatedAt;
+      return SpineValue<double>(
+        value: monthlyPayment * _consumerDebtExposureHorizonMonths,
+        meta: SpineFieldMeta(
+          source: ProfileDataSource.estimated,
+          confidence: FieldConfidence.estimated,
+          freshness: _freshnessFor(updatedAt),
+          updatedAt: updatedAt,
+        ),
+      );
+    }
+
+    if (profile.userProvidedFields.contains('debt')) {
+      return _value(
+        0,
+        profile,
+        'dettes.totalDettes',
+      );
+    }
+    return const SpineValue<double>(
+        value: null, meta: SpineFieldMeta.missing());
+  }
 
   static double? _explicitAmount(
     double value,

@@ -146,3 +146,4 @@ tools/mcp/mint-tools/.venv/
 # at root only — leaves intentional design assets in subdirs alone.
 /[0-9][0-9]-*.png
 test_anonymous_chat_eclairage.db
+apps/mobile/test/golden/failures/

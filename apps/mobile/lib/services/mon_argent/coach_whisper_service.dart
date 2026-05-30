@@ -1,5 +1,7 @@
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/mon_argent/patrimoine_aggregator.dart';
 
@@ -13,6 +15,7 @@ class CoachWhisperService {
 
   /// Evaluate whisper rules. Returns null if nothing to say.
   static String? evaluate({
+    BudgetSnapshot? budgetSnapshot,
     required BudgetInputs? budgetInputs,
     required BudgetPlan? budgetPlan,
     required PatrimoineSummary patrimoine,
@@ -20,16 +23,22 @@ class CoachWhisperService {
   }) {
     // Rule 1: Budget deficit — urgent. BudgetPlan.available is an allocation
     // amount and is intentionally non-negative, so use signed cashflow here.
-    if (_signedMonthlyFree(budgetInputs, budgetPlan) < 0) {
+    if (_signedMonthlyFree(budgetSnapshot, budgetInputs, budgetPlan) < 0) {
       return 'Mois serré. Regarde tes dépenses fixes.';
     }
 
     // Rule 2: Good month + 3a opportunity
-    if (budgetInputs != null && budgetPlan != null && profile != null) {
-      final salary = profile.salaireBrutMensuel;
-      final available = budgetPlan.available;
-      if (salary > 0 && available > salary * 0.15) {
-        final suggestion = (available * 0.25).round();
+    if ((budgetSnapshot != null || budgetPlan != null) &&
+        profile != null &&
+        !profile.hasMaterialConsumerDebtForPriority) {
+      final monthlyNet = budgetSnapshot?.present.monthlyNet ??
+          (budgetInputs != null
+              ? PresentBudgetBuilder.displayChf(budgetInputs.netIncome)
+              : profile.salaireBrutMensuel);
+      final monthlyFree = budgetSnapshot?.present.monthlyFree ??
+          _signedMonthlyFree(budgetSnapshot, budgetInputs, budgetPlan);
+      if (monthlyNet > 0 && monthlyFree > monthlyNet * 0.15) {
+        final suggestion = (monthlyFree * 0.25).round();
         if (suggestion >= 100) {
           return 'Bon mois. Tu pourrais verser $suggestion\u00a0CHF en 3a.';
         }
@@ -38,7 +47,8 @@ class CoachWhisperService {
 
     // Rule 3: Emergency fund low
     if (patrimoine.epargneLiquide != null && profile != null) {
-      final monthlyExpenses = _essentialMonthlyExpenses(budgetInputs);
+      final monthlyExpenses =
+          _essentialMonthlyExpenses(budgetSnapshot, budgetInputs);
       if (monthlyExpenses > 0) {
         final months = patrimoine.epargneLiquide!.value / monthlyExpenses;
         if (months < 3) {
@@ -74,23 +84,28 @@ class CoachWhisperService {
     return null;
   }
 
-  static double _essentialMonthlyExpenses(BudgetInputs? inputs) {
+  static double _essentialMonthlyExpenses(
+    BudgetSnapshot? snapshot,
+    BudgetInputs? inputs,
+  ) {
+    if (snapshot != null) return snapshot.present.monthlyCharges;
     if (inputs == null) return 0;
-    final fixed = inputs.housingCost +
-        inputs.healthInsurance +
-        inputs.taxProvision +
-        inputs.debtPayments +
-        inputs.otherFixedCosts;
-    return fixed > 0 ? fixed : inputs.netIncome;
+    final fixed = PresentBudgetBuilder.fixedChargesFromInputs(inputs);
+    return fixed > 0
+        ? fixed
+        : PresentBudgetBuilder.displayChf(inputs.netIncome);
   }
 
-  static double _signedMonthlyFree(BudgetInputs? inputs, BudgetPlan? plan) {
+  static double _signedMonthlyFree(
+    BudgetSnapshot? snapshot,
+    BudgetInputs? inputs,
+    BudgetPlan? plan,
+  ) {
+    if (snapshot != null) return snapshot.present.monthlyFree;
     if (inputs == null) return 0;
-    final fixed = inputs.housingCost +
-        inputs.healthInsurance +
-        inputs.taxProvision +
-        inputs.debtPayments +
-        inputs.otherFixedCosts;
-    return inputs.netIncome - fixed - (plan?.future ?? 0);
+    final fixed = PresentBudgetBuilder.fixedChargesFromInputs(inputs);
+    return PresentBudgetBuilder.displayChf(inputs.netIncome) -
+        fixed -
+        PresentBudgetBuilder.displayChf(plan?.future ?? 0);
   }
 }

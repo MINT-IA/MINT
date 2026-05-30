@@ -1,4 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
@@ -24,6 +27,7 @@ void main() {
     double loyer = 1800,
     double assuranceMaladie = 430,
     List<PlannedMonthlyContribution> contributions = const [],
+    DetteProfile dettes = const DetteProfile(),
   }) {
     return CoachProfile(
       birthYear: birthYear,
@@ -39,6 +43,7 @@ void main() {
         epargneLiquide: 20000,
         investissements: 0,
       ),
+      dettes: dettes,
       depenses: DepensesProfile(
         loyer: loyer,
         assuranceMaladie: assuranceMaladie,
@@ -97,6 +102,50 @@ void main() {
         closeTo(p.monthlyNet - p.monthlyCharges - p.monthlySavings, 0.01),
         reason: 'monthlyFree must equal net - charges - savings exactly',
       );
+    });
+
+    test('monthly debt increases charges and reduces free cash exactly', () {
+      final base = BudgetLivingEngine.compute(buildProfile()).present;
+      final withDebt = BudgetLivingEngine.compute(
+        buildProfile(
+          dettes: const DetteProfile(mensualiteCreditConso: 900),
+        ),
+      ).present;
+
+      expect(withDebt.monthlyNet, base.monthlyNet);
+      expect(withDebt.monthlyDebt, 900);
+      expect(withDebt.monthlyCharges - base.monthlyCharges, 900);
+      expect(base.monthlyFree - withDebt.monthlyFree, 900);
+    });
+
+    test('uses the same displayed remainder as the budget screen read model',
+        () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1988,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 5379.0,
+        'q_pay_frequency': 'monthly',
+        'q_housing_cost_period_chf': 2200.0,
+        'q_lamal_premium_monthly_chf': 420.0,
+        'q_debt_payments_period_chf': 0.0,
+      });
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+      final budgetScreenPresent = PresentBudgetBuilder.fromInputs(
+        inputs: inputs,
+        plan: const BudgetPlan(
+          available: 0,
+          variables: 0,
+          future: 0,
+          stopRuleTriggered: false,
+          emergencyFundMonths: 0,
+        ),
+      );
+
+      final livingPresent = BudgetLivingEngine.compute(profile).present;
+
+      expect(livingPresent.monthlyNet, budgetScreenPresent.monthlyNet);
+      expect(livingPresent.monthlyCharges, budgetScreenPresent.monthlyCharges);
+      expect(livingPresent.monthlyFree, budgetScreenPresent.monthlyFree);
     });
 
     test('chargesRatio is between 0 and 200 percent', () {
@@ -518,6 +567,29 @@ void main() {
       // No salary means no net income projection possible
       expect(snapshot.present.monthlyNet, equals(0));
       expect(snapshot.stage, equals(BudgetStage.presentOnly));
+    });
+
+    test('independent monthlyNet matches BudgetInputs derivation', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'GE',
+        salaireBrutMensuel: 10000,
+        employmentStatus: 'independant',
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
+        patrimoine: const PatrimoineProfile(),
+        depenses: const DepensesProfile(),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+      final snapshot = BudgetLivingEngine.compute(profile);
+
+      expect(inputs.netIncome, closeTo(9000, 0.01));
+      expect(snapshot.present.monthlyNet, closeTo(inputs.netIncome, 0.01));
     });
   });
 

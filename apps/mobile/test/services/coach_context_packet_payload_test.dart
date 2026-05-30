@@ -1,11 +1,57 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/data_spine/coach_context_packet_adapter.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  final secureStorage = <String, String>{};
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    secureStorage.clear();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (MethodCall call) async {
+        switch (call.method) {
+          case 'write':
+            final key = call.arguments['key'] as String;
+            final value = call.arguments['value'] as String?;
+            if (value != null) secureStorage[key] = value;
+            return null;
+          case 'read':
+            final key = call.arguments['key'] as String;
+            return secureStorage[key];
+          case 'delete':
+            final key = call.arguments['key'] as String;
+            secureStorage.remove(key);
+            return null;
+          case 'deleteAll':
+            secureStorage.clear();
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      null,
+    );
+  });
+
   group('CoachContextPacket payload wiring', () {
     test('orchestrator profile context carries the safe packet', () {
       final packet = <String, dynamic>{
@@ -212,6 +258,126 @@ void main() {
       );
       expect(packet.containsKey('wizard_answers'), isFalse);
       expect(packet.containsKey('first_name'), isFalse);
+    });
+
+    test('CoachLlmService.chat forwards monthly consumer debt Safe Mode',
+        () async {
+      CoachContext? capturedCtx;
+      CoachLlmService.registerOrchestrator(({
+        required userMessage,
+        required history,
+        required ctx,
+        byokConfig,
+        memoryBlock,
+        language = 'fr',
+        cashLevel = 3,
+        isLoggedIn = false,
+      }) async {
+        capturedCtx = ctx;
+        return const CoachResponse(
+          message: 'ok',
+          disclaimer: 'Outil educatif.',
+          wasFiltered: false,
+        );
+      });
+
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_canton': 'VD',
+        'q_gross_income_monthly': 6000,
+        'q_has_consumer_debt': 'yes',
+        'q_debt_payments_period_chf': 900,
+        '_coach_dettes_hypotheque': 600000,
+        'q_housing_cost_period_chf': 2200,
+        'q_lamal_premium_monthly_chf': 420,
+        'q_cash_total': 30000,
+      });
+
+      await CoachLlmService.chat(
+        userMessage: 'Je veux optimiser mon 3a',
+        profile: profile,
+        history: const [],
+        config: LlmConfig.defaultOpenAI,
+      );
+
+      expect(capturedCtx?.hasDebt, isTrue);
+      expect(capturedCtx?.knownValues.containsKey('hasDebt'), isFalse);
+    });
+
+    test(
+        'persisted budget answers reach Coach semantic packet after wizard reload',
+        () async {
+      CoachContext? capturedCtx;
+      CoachLlmService.registerOrchestrator(({
+        required userMessage,
+        required history,
+        required ctx,
+        byokConfig,
+        memoryBlock,
+        language = 'fr',
+        cashLevel = 3,
+        isLoggedIn = false,
+      }) async {
+        capturedCtx = ctx;
+        return const CoachResponse(
+          message: 'ok',
+          disclaimer: 'Outil educatif.',
+          wasFiltered: false,
+        );
+      });
+
+      await ReportPersistenceService.saveAnswers({
+        'q_birth_year': 1988,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 5379.0,
+        'q_pay_frequency': 'monthly',
+        'q_housing_cost_period_chf': 2200.0,
+        'q_lamal_premium_monthly_chf': 420.0,
+        'q_has_consumer_debt': 'yes',
+        'q_debt_payments_period_chf': 900.0,
+        'q_cash_total': 25000.0,
+      });
+      await ReportPersistenceService.setCompleted(true);
+
+      final provider = CoachProfileProvider();
+      await provider.loadFromWizard();
+      expect(provider.profile, isNotNull);
+
+      await CoachLlmService.chat(
+        userMessage: 'Combien me reste-t-il ce mois?',
+        profile: provider.profile!,
+        history: const [],
+        config: LlmConfig.defaultOpenAI,
+      );
+
+      expect(capturedCtx, isNotNull);
+      expect(capturedCtx!.hasDebt, isTrue);
+      expect(capturedCtx!.knownValues.containsKey('hasDebt'), isFalse);
+
+      final packet = capturedCtx!.coachContextPacket;
+      expect(packet, isNotEmpty);
+      final facts =
+          (packet['facts'] as List<dynamic>).cast<Map<dynamic, dynamic>>();
+      final factValues = <String, Object?>{
+        for (final fact in facts) fact['id'] as String: fact['value'],
+      };
+
+      expect(factValues['situation.monthly_housing_cost'], 2200.0);
+      expect(factValues['situation.lamal_premium_monthly'], 420.0);
+      expect(factValues['budget.monthly_net'], closeTo(5379.0, 0.01));
+      expect(factValues['budget.monthly_charges'], isA<num>());
+      expect(
+        factValues['budget.monthly_charges'] as num,
+        greaterThanOrEqualTo(2200 + 420 + 900),
+      );
+      expect(factValues['budget.monthly_free'], isA<num>());
+      expect((factValues['budget.monthly_free'] as num).isFinite, isTrue);
+
+      for (final value in factValues.values.whereType<num>()) {
+        expect(value.isFinite, isTrue);
+        expect(value, isNot(19272200));
+        expect(value, isNot(420420));
+      }
     });
 
     test('shared adapter builds the packet used by screen and service paths',

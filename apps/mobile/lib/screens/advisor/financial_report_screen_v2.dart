@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/widgets/report/thematic_card.dart';
 // Wave E-PRIME (2026-04-18): MintAlertObject + VoiceResolutionContext imports
 // removed — widgets/alert/ cluster deleted with AnticipationProvider (Panel A
@@ -28,17 +31,23 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
-// ProfileProvider removed — hasDebt now derived from wizardAnswers directly
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
+import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:provider/provider.dart';
+// ProfileProvider removed — Safe Mode now derived from wizardAnswers directly
 
 /// Ecran d'affichage du rapport financier exhaustif V2
 /// Refonte : cartes thématiques (Budget, Protection, Retraite, Impôts)
 /// remplaçant les cercles abstraits (Protection, Prévoyance, Croissance, Optimisation).
 class FinancialReportScreenV2 extends StatelessWidget {
   final Map<String, dynamic> wizardAnswers;
+  final BudgetSnapshot? budgetSnapshot;
 
   const FinancialReportScreenV2({
     super.key,
     required this.wizardAnswers,
+    this.budgetSnapshot,
   });
 
   // ── Route mapping by ActionCategory (replaces fragile keyword matching) ──
@@ -84,7 +93,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     }
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
-    final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
+    final safeModeActive = WizardService.isSafeModeActive(wizardAnswers);
     final safeModeReasons = _buildSafeModeReasons(context, wizardAnswers);
 
     return Scaffold(
@@ -135,7 +144,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: MintSpacing.md),
-                          child: _buildBudgetSection(context, wizardAnswers),
+                          child: _buildBudgetSection(
+                              context, wizardAnswers, report),
                         )),
 
                     // ── Protection thematic card ──
@@ -172,7 +182,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     MintEntrance(
                         delay: const Duration(milliseconds: 400),
                         child: SafeModeGate(
-                          hasDebt: hasDebt,
+                          hasDebt: safeModeActive,
                           lockedTitle: S.of(context)!.reportSafeModePriority,
                           lockedMessage: S.of(context)!.reportSafeModeActions,
                           reasons: safeModeReasons,
@@ -197,7 +207,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: MintSpacing.md),
                         child: SafeModeGate(
-                          hasDebt: hasDebt,
+                          hasDebt: safeModeActive,
                           lockedTitle: S.of(context)!.reportSafeModePriority,
                           lockedMessage: S.of(context)!.reportSafeMode3a,
                           reasons: safeModeReasons,
@@ -215,7 +225,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     // ── Strat\u00e9gie rachat LPP ──
                     if (report.lppBuybackStrategy != null)
                       SafeModeGate(
-                        hasDebt: hasDebt,
+                        hasDebt: safeModeActive,
                         lockedTitle: S.of(context)!.reportSafeModeLpp,
                         lockedMessage: S.of(context)!.reportSafeModeLppMessage,
                         reasons: safeModeReasons,
@@ -328,12 +338,31 @@ class FinancialReportScreenV2 extends StatelessWidget {
   //  THEMATIC CARD: BUDGET
   // ════════════════════════════════════════════════════════════════
 
-  Widget _buildBudgetSection(
-      BuildContext context, Map<String, dynamic> answers) {
-    final inputs = BudgetInputs.fromMap(answers);
-    final plan = BudgetService().computePlan(inputs);
+  Widget _buildBudgetSection(BuildContext context, Map<String, dynamic> answers,
+      FinancialReport report) {
+    final canonicalBudget =
+        budgetSnapshot ?? _readMintStateBudgetIfAvailable(context);
+    if (canonicalBudget != null) {
+      return _buildBudgetCardFromPresent(context, canonicalBudget.present);
+    }
+
+    final budgetProvider = _readBudgetProviderIfAvailable(context);
+    final useProviderFallback = _answersNeedBudgetProviderFallback(answers) &&
+        budgetProvider?.inputs != null;
+    final inputs = useProviderFallback
+        ? budgetProvider!.inputs!
+        : BudgetInputs.fromMap(
+            _answersWithReportBudgetFallbacks(answers, report),
+          );
+    final plan = useProviderFallback && budgetProvider!.plan != null
+        ? budgetProvider.plan!
+        : BudgetService().computePlan(inputs);
+    final present = PresentBudgetBuilder.fromInputs(
+      inputs: inputs,
+      plan: plan,
+    );
     final ratio =
-        inputs.netIncome > 0 ? plan.available / inputs.netIncome : 0.0;
+        present.monthlyNet > 0 ? present.monthlyFree / present.monthlyNet : 0.0;
 
     final status = ratio > 0.3
         ? CardStatus.serein
@@ -345,21 +374,96 @@ class FinancialReportScreenV2 extends StatelessWidget {
       emoji: '\ud83d\udcb0', // money bag
       title: S.of(context)!.reportBudgetTitle,
       status: status,
-      keyNumber: formatChfWithPrefix(plan.available),
+      keyNumber: formatChfWithPrefix(present.monthlyFree),
       keyNumberLabel: S.of(context)!.reportBudgetKeyLabel,
       actionLabel: S.of(context)!.reportBudgetAction,
       onActionTap: () => context.push('/budget'),
       children: [
         BudgetWaterfall(
-          income: inputs.netIncome,
-          housing: inputs.housingCost,
-          debt: inputs.debtPayments,
-          taxes: inputs.taxProvision,
-          healthInsurance: inputs.healthInsurance,
-          otherFixed: inputs.otherFixedCosts,
+          income: present.monthlyNet,
+          housing: PresentBudgetBuilder.displayChf(inputs.housingCost),
+          debt: PresentBudgetBuilder.displayChf(inputs.debtPayments),
+          taxes: PresentBudgetBuilder.displayChf(inputs.taxProvision),
+          healthInsurance:
+              PresentBudgetBuilder.displayChf(inputs.healthInsurance),
+          otherFixed: PresentBudgetBuilder.displayChf(inputs.otherFixedCosts),
+          fixedChargesLabel: S.of(context)!.summaryChargesFixes,
         ),
       ],
     );
+  }
+
+  Widget _buildBudgetCardFromPresent(
+      BuildContext context, PresentBudget present) {
+    final ratio =
+        present.monthlyNet > 0 ? present.monthlyFree / present.monthlyNet : 0.0;
+    final status = ratio > 0.3
+        ? CardStatus.serein
+        : ratio > 0.1
+            ? CardStatus.aRenforcer
+            : CardStatus.alerte;
+
+    return ThematicCard(
+      emoji: '\ud83d\udcb0',
+      title: S.of(context)!.reportBudgetTitle,
+      status: status,
+      keyNumber: formatChfWithPrefix(present.monthlyFree),
+      keyNumberLabel: S.of(context)!.reportBudgetKeyLabel,
+      actionLabel: S.of(context)!.reportBudgetAction,
+      onActionTap: () => context.push('/budget'),
+      children: [
+        BudgetWaterfall(
+          income: present.monthlyNet,
+          housing: present.monthlyHousing,
+          debt: present.monthlyDebt,
+          taxes: present.monthlyTax,
+          healthInsurance: present.monthlyHealth,
+          otherFixed: present.monthlyOtherFixed,
+          fixedChargesLabel: S.of(context)!.summaryChargesFixes,
+        ),
+      ],
+    );
+  }
+
+  BudgetSnapshot? _readMintStateBudgetIfAvailable(BuildContext context) {
+    try {
+      final state = context.read<MintStateProvider>().state;
+      return state?.dataSpineSnapshot?.budget ?? state?.budgetSnapshot;
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  BudgetProvider? _readBudgetProviderIfAvailable(BuildContext context) {
+    try {
+      return context.read<BudgetProvider>();
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+
+  bool _answersNeedBudgetProviderFallback(Map<String, dynamic> answers) {
+    final inputs = BudgetInputs.fromMap(answers);
+    return !inputs.netIncome.isFinite ||
+        inputs.netIncome <= 0 ||
+        !answers.containsKey('q_canton') ||
+        (!answers.containsKey('q_tax_provision_monthly_chf') &&
+            inputs.isTaxEstimated);
+  }
+
+  Map<String, dynamic> _answersWithReportBudgetFallbacks(
+    Map<String, dynamic> answers,
+    FinancialReport report,
+  ) {
+    final budgetAnswers = Map<String, dynamic>.from(answers);
+    final netIncome = BudgetInputs.fromMap(budgetAnswers).netIncome;
+    final needsProfileFallback = !netIncome.isFinite || netIncome <= 0;
+    if (needsProfileFallback && report.profile.monthlyNetIncome > 0) {
+      budgetAnswers['q_net_income_period_chf'] =
+          report.profile.monthlyNetIncome;
+      budgetAnswers['q_pay_frequency'] = 'monthly';
+    }
+    return budgetAnswers;
   }
 
   List<String> _buildSafeModeReasons(
@@ -477,7 +581,13 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
     final String threeAText;
     if (!has3a || nb3a == 0) {
-      threeAText = S.of(context)!.reportRetirement3aNone;
+      final remaining3aDeduction =
+          _estimateRemaining3aDeduction(report, answers);
+      threeAText = remaining3aDeduction > 0
+          ? S
+              .of(context)!
+              .reportRetirement3aNoneWithRoom(formatChf(remaining3aDeduction))
+          : S.of(context)!.reportRetirement3aNone;
     } else if (nb3a == 1) {
       threeAText = S.of(context)!.reportRetirement3aOne;
     } else {
@@ -1036,5 +1146,51 @@ class FinancialReportScreenV2 extends StatelessWidget {
     if (raw is num) return raw.toInt();
     if (raw is String) return int.tryParse(raw.trim());
     return null;
+  }
+
+  double? _parseDoubleAnswer(dynamic raw) {
+    if (raw is num) return raw.toDouble();
+    if (raw is String) return double.tryParse(raw.trim());
+    return null;
+  }
+
+  bool? _parseBoolAnswer(dynamic raw) {
+    if (raw is bool) return raw;
+    if (raw is String) {
+      final normalized = raw.trim().toLowerCase();
+      if (normalized == 'yes' || normalized == 'true') return true;
+      if (normalized == 'no' || normalized == 'false') return false;
+    }
+    return null;
+  }
+
+  double _estimateRemaining3aDeduction(
+    FinancialReport report,
+    Map<String, dynamic> answers,
+  ) {
+    final profile = report.profile;
+    if (profile.monthlyNetIncome <= 0) return 0.0;
+    final declaredAnnualGross =
+        _parseDoubleAnswer(answers['q_gross_salary_annual']);
+    final declaredMonthlyGross =
+        _parseDoubleAnswer(answers['q_gross_income_monthly']);
+    final annualGrossSalary = declaredAnnualGross ??
+        (declaredMonthlyGross != null ? declaredMonthlyGross * 12 : null) ??
+        NetIncomeBreakdown.estimateBrutFromNet(
+          profile.monthlyNetIncome * 12,
+          age: profile.age,
+        );
+    final declaredLpp = _parseBoolAnswer(answers['q_has_pension_fund']);
+    final hasLpp = declaredLpp ??
+        (profile.isSalaried &&
+            annualGrossSalary >= reg('lpp.entry_threshold', lppSeuilEntree));
+    final annualCeiling = hasLpp
+        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
+        : (annualGrossSalary * pilier3aTauxRevenuSansLpp)
+            .clamp(0.0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
+            .toDouble();
+    final currentContribution =
+        _parseDoubleAnswer(answers['q_3a_annual_contribution']) ?? 0.0;
+    return (annualCeiling - currentContribution).clamp(0.0, annualCeiling);
   }
 }

@@ -57,7 +57,7 @@ void main() {
       expect(tags, contains('budget_overview'));
     });
 
-    test('tax_optimization_3a always present', () {
+    test('tax_optimization_3a present when no consumer debt priority', () {
       final profile = _makeProfile();
       final goals = GoalSelectionService.availableGoals(profile, l);
       final tags = goals.map((g) => g.intentTag).toList();
@@ -151,6 +151,32 @@ void main() {
       final goals = GoalSelectionService.availableGoals(profile, l);
       final tags = goals.map((g) => g.intentTag).toList();
       expect(tags, isNot(contains('debt_check')));
+    });
+
+    test('active monthly consumer debt hides tax_optimization_3a', () {
+      final profile = _makeProfile(
+        salary: 6000,
+        dettes: const DetteProfile(mensualiteCreditConso: 900),
+      );
+
+      final goals = GoalSelectionService.availableGoals(profile, l);
+      final tags = goals.map((g) => g.intentTag).toList();
+
+      expect(tags, contains('debt_check'));
+      expect(tags, isNot(contains('tax_optimization_3a')));
+    });
+
+    test('small leasing payment for high income keeps tax_optimization_3a', () {
+      final profile = _makeProfile(
+        salary: 12000,
+        dettes: const DetteProfile(mensualiteLeasing: 350),
+      );
+
+      final goals = GoalSelectionService.availableGoals(profile, l);
+      final tags = goals.map((g) => g.intentTag).toList();
+
+      expect(tags, contains('debt_check'));
+      expect(tags, contains('tax_optimization_3a'));
     });
   });
 

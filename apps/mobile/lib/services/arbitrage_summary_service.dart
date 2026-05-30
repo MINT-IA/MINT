@@ -57,16 +57,33 @@ class ArbitrageLocked {
   });
 }
 
+/// A protective state that intentionally suppresses optimization arbitrages.
+class ArbitrageProtection {
+  final String id;
+  final String title;
+  final String actionPrompt;
+  final String route;
+
+  const ArbitrageProtection({
+    required this.id,
+    required this.title,
+    required this.actionPrompt,
+    required this.route,
+  });
+}
+
 /// Full summary of all arbitrages for a given profile.
 class ArbitrageSummary {
   final List<ArbitrageSummaryItem> items;
   final List<ArbitrageLocked> lockedItems;
+  final List<ArbitrageProtection> protectionItems;
   final double aggregateMonthlyImpact;
   final DateTime computedAt;
 
   const ArbitrageSummary({
     required this.items,
     required this.lockedItems,
+    required this.protectionItems,
     required this.aggregateMonthlyImpact,
     required this.computedAt,
   });
@@ -82,8 +99,39 @@ class ArbitrageSummaryService {
   static ArbitrageSummary compute(CoachProfile profile, {S? l}) {
     final items = <ArbitrageSummaryItem>[];
     final locked = <ArbitrageLocked>[];
+    final protections = <ArbitrageProtection>[];
+    final hasDebtPriority = profile.hasMaterialConsumerDebtForPriority;
 
-    final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
+    if (hasDebtPriority) {
+      protections.add(ArbitrageProtection(
+        id: 'debt_protection',
+        title: l?.reportSafeModePriority ?? 'Priorité au désendettement',
+        actionPrompt: l?.reportSafeModeActions ??
+            'Stabilise ta situation avant les optimisations 3a/LPP.',
+        route: '/debt/ratio',
+      ));
+    }
+
+    final resolvedCanton = resolveCanton(profile.canton);
+    if (!resolvedCanton.isResolved) {
+      locked.add(const ArbitrageLocked(
+        id: 'canton',
+        title: 'Canton fiscal',
+        missingDataPrompt:
+            'Ajoute ton canton pour fiabiliser les arbitrages fiscaux.',
+        enrichmentRoute: '/profile/bilan',
+      ));
+
+      return ArbitrageSummary(
+        items: const [],
+        lockedItems: locked,
+        protectionItems: protections,
+        aggregateMonthlyImpact: 0,
+        computedAt: DateTime.now(),
+      );
+    }
+
+    final canton = resolvedCanton.code;
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
     final total3a = profile.prevoyance.totalEpargne3a;
@@ -93,7 +141,7 @@ class ArbitrageSummaryService {
     final anneesRetraite = profile.anneesAvantRetraite;
 
     // ── 1. Rente vs Capital ──
-    if (lppAvoir > 0) {
+    if (!hasDebtPriority && lppAvoir > 0) {
       final item = _computeRenteVsCapital(
         profile: profile,
         canton: canton,
@@ -101,18 +149,18 @@ class ArbitrageSummaryService {
         lppAvoir: lppAvoir,
       );
       if (item != null) items.add(item);
-    } else {
+    } else if (!hasDebtPriority) {
       locked.add(ArbitrageLocked(
         id: 'rente_vs_capital',
         title: l?.arbitrageTitleRenteVsCapital ?? 'Rente vs Capital',
-        missingDataPrompt:
-            l?.arbitrageMissingLpp ?? 'Ajoute ton avoir LPP pour voir cette comparaison',
+        missingDataPrompt: l?.arbitrageMissingLpp ??
+            'Ajoute ton avoir LPP pour voir cette comparaison',
         enrichmentRoute: '/scan',
       ));
     }
 
     // ── 2. Calendrier retraits ──
-    if (lppAvoir > 0 && total3a > 0) {
+    if (!hasDebtPriority && lppAvoir > 0 && total3a > 0) {
       final item = _computeCalendrierRetraits(
         profile: profile,
         canton: canton,
@@ -121,18 +169,18 @@ class ArbitrageSummaryService {
         total3a: total3a,
       );
       if (item != null) items.add(item);
-    } else if (lppAvoir <= 0 || total3a <= 0) {
+    } else if (!hasDebtPriority && (lppAvoir <= 0 || total3a <= 0)) {
       locked.add(ArbitrageLocked(
         id: 'calendrier_retraits',
         title: l?.arbitrageTitleCalendrierRetraits ?? 'Calendrier de retraits',
-        missingDataPrompt:
-            l?.arbitrageMissingLppAnd3a ?? 'Ajoute ton avoir LPP et 3a pour voir le calendrier',
+        missingDataPrompt: l?.arbitrageMissingLppAnd3a ??
+            'Ajoute ton avoir LPP et 3a pour voir le calendrier',
         enrichmentRoute: '/scan',
       ));
     }
 
     // ── 3. Rachat LPP vs Marche ──
-    if (lacune > 1000 && salary > 0) {
+    if (!hasDebtPriority && lacune > 1000 && salary > 0) {
       final item = _computeRachatVsMarche(
         profile: profile,
         canton: canton,
@@ -142,20 +190,20 @@ class ArbitrageSummaryService {
         anneesRetraite: anneesRetraite,
       );
       if (item != null) items.add(item);
-    } else if (lppAvoir > 0 && lacune <= 1000) {
+    } else if (!hasDebtPriority && lppAvoir > 0 && lacune <= 1000) {
       // No locked card — no buyback gap, that's fine
-    } else {
+    } else if (!hasDebtPriority) {
       locked.add(ArbitrageLocked(
         id: 'rachat_vs_marche',
         title: l?.arbitrageTitleRachatVsMarche ?? 'Rachat LPP vs March\u00e9',
-        missingDataPrompt:
-            l?.arbitrageMissingLppCertificat ?? 'Scanne ton certificat LPP pour conna\u00eetre ta lacune de rachat',
+        missingDataPrompt: l?.arbitrageMissingLppCertificat ??
+            'Scanne ton certificat LPP pour conna\u00eetre ta lacune de rachat',
         enrichmentRoute: '/scan',
       ));
     }
 
     // ── 4. Allocation annuelle ──
-    if (salary > 0) {
+    if (!hasDebtPriority && salary > 0) {
       final item = _computeAllocationAnnuelle(
         profile: profile,
         canton: canton,
@@ -178,7 +226,10 @@ class ArbitrageSummaryService {
     }
 
     // ── 6. Échelonnement couple ──
-    if (profile.isCouple && profile.conjoint != null && lppAvoir > 0) {
+    if (!hasDebtPriority &&
+        profile.isCouple &&
+        profile.conjoint != null &&
+        lppAvoir > 0) {
       final conjLpp = profile.conjoint!.prevoyance?.avoirLppTotal ?? 0;
       if (conjLpp > 0) {
         final item = _computeCoupleSequencing(
@@ -201,6 +252,7 @@ class ArbitrageSummaryService {
     return ArbitrageSummary(
       items: items,
       lockedItems: locked,
+      protectionItems: protections,
       aggregateMonthlyImpact: aggregate,
       computedAt: DateTime.now(),
     );
@@ -220,7 +272,8 @@ class ArbitrageSummaryService {
       capitalObligatoire: lppAvoir * 0.6,
       capitalSurobligatoire: lppAvoir * 0.4,
       renteAnnuelleProposee: lppAvoir * convRate,
-      tauxConversionObligatoire: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+      tauxConversionObligatoire:
+          reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
       tauxConversionSurobligatoire: convRate,
       canton: canton,
       isMarried: isMarried,
@@ -234,18 +287,15 @@ class ArbitrageSummaryService {
         (result.capitalRetraitMensuel - result.renteNetMensuelle).abs();
     if (diff < 10) return null;
 
-    final betterLabel = result.capitalRetraitMensuel > result.renteNetMensuelle
-        ? 'retrait en capital'
-        : 'rente viagere';
-
     return ArbitrageSummaryItem(
       id: 'rente_vs_capital',
       title: 'Rente vs Capital',
       verdict:
-          'L\'option $betterLabel pourrait donner +${formatChfWithPrefix(diff)}/mois nets',
+          'Écart de flux net simulé : ${formatChfWithPrefix(diff)}/mois '
+          'entre rente viagère et retrait en capital',
       keyInsight:
-          'Le taux de conversion de 6.8% sur la part obligatoire equivaut '
-          'a un rendement implicite d\'environ 5%.',
+          'Le taux de conversion de 6.8% sur la part obligatoire équivaut '
+          'à un rendement implicite d\'environ 5%.',
       monthlyImpactChf: diff,
       confidenceScore: result.confidenceScore,
       route: '/rente-vs-capital',
@@ -313,10 +363,11 @@ class ArbitrageSummaryService {
       id: 'calendrier_retraits',
       title: 'Calendrier de retraits',
       verdict:
-          'Echelonner tes retraits pourrait economiser ~${formatChfWithPrefix(saving)} d\'impot',
-      keyInsight: 'En Suisse, les retraits de prévoyance sont taxes '
-          'progressivement — retirer tout la meme annee coute significativement plus.',
-      monthlyImpactChf: saving / (profile.anneesAvantRetraite * 12).clamp(1, 999),
+          'Impact fiscal indicatif de l\'échelonnement : ~${formatChfWithPrefix(saving)}',
+      keyInsight: 'En Suisse, les retraits de prévoyance sont taxés '
+          'progressivement ; le regroupement sur une même année change le taux effectif.',
+      monthlyImpactChf:
+          saving / (profile.anneesAvantRetraite * 12).clamp(1, 999),
       confidenceScore: result.confidenceScore,
       route: '/decaissement',
       fullResult: result,
@@ -372,9 +423,9 @@ class ArbitrageSummaryService {
       id: 'rachat_vs_marche',
       title: 'Rachat LPP vs Marche',
       verdict:
-          'Un rachat de ${formatChfWithPrefix(montant)} pourrait reduire ton impot de ~${formatChfWithPrefix(taxSaving)}',
-      keyInsight: 'L\'economie fiscale du rachat est immediate, mais ton '
-          'capital est bloque jusqu\'a la retraite (LPP art. 79b).',
+          'Impact fiscal indicatif d\'un rachat de ${formatChfWithPrefix(montant)} : ~${formatChfWithPrefix(taxSaving)}',
+      keyInsight: 'Le rachat LPP crée une déduction fiscale immédiate, avec '
+          'un capital bloqué jusqu\'à la retraite (LPP art. 79b).',
       monthlyImpactChf: taxSaving / 12,
       confidenceScore: result.confidenceScore,
       route: '/rachat-lpp',
@@ -406,7 +457,9 @@ class ArbitrageSummaryService {
 
     // The premierEclairage tells the story — extract monthly impact
     // 3a deduction gives immediate tax savings
-    final impact3a = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) * tauxMarginal / 12;
+    final impact3a = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) *
+        tauxMarginal /
+        12;
 
     return ArbitrageSummaryItem(
       id: 'allocation_annuelle',
@@ -414,8 +467,8 @@ class ArbitrageSummaryService {
       verdict:
           '${formatChfWithPrefix(reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp))} a placer — 3a, rachat LPP ou libre, les trajectoires divergent',
       keyInsight:
-          'Le 3e pilier offre une deduction fiscale immediate et un rendement '
-          'net apres impot souvent superieur.',
+          'Le 3e pilier combine déduction fiscale et horizon bloqué ; '
+          'le résultat dépend du taux marginal, du rendement et du besoin de liquidité.',
       monthlyImpactChf: impact3a,
       confidenceScore: result.confidenceScore,
       route: '/arbitrage/allocation-annuelle',
@@ -429,8 +482,8 @@ class ArbitrageSummaryService {
     required bool isMarried,
     required double loyer,
   }) {
-    final capitalDispo = profile.patrimoine.epargneLiquide +
-        profile.patrimoine.investissements;
+    final capitalDispo =
+        profile.patrimoine.epargneLiquide + profile.patrimoine.investissements;
     if (capitalDispo < 50000) return null;
 
     // Estimate property price from rent: ~3.5% gross yield
@@ -453,16 +506,13 @@ class ArbitrageSummaryService {
     final deltaMonthly = delta / (20 * 12);
     if (deltaMonthly < 50) return null;
 
-    final betterLabel = proprio > locataire ? 'acheter' : 'rester locataire';
-
     return ArbitrageSummaryItem(
       id: 'location_vs_propriete',
       title: 'Location vs Propriete',
       verdict:
-          'Sur 20 ans, $betterLabel pourrait generer ~${formatChfWithPrefix(delta)} de patrimoine net en plus',
-      keyInsight:
-          'La propriete bloque 20% de fonds propres a rendement nul — '
-          'un cout d\'opportunite rarement mesure.',
+          'Écart de patrimoine net simulé sur 20 ans : ~${formatChfWithPrefix(delta)} entre location et propriété',
+      keyInsight: 'La propriété bloque 20% de fonds propres hors marché ; '
+          'c\'est un coût d\'opportunité à mesurer avec les frais et la flexibilité.',
       monthlyImpactChf: deltaMonthly,
       confidenceScore: result.confidenceScore,
       route: '/arbitrage/location-vs-propriete',
@@ -489,6 +539,9 @@ class ArbitrageSummaryService {
     final monthlyImpact =
         result.taxSaving / (profile.anneesAvantRetraite * 12).clamp(1, 999);
 
+    final summaryCopy =
+        'Impact fiscal indicatif de l\'échelonnement : ${formatChfWithPrefix(result.taxSaving)}.';
+
     // Build a minimal ArbitrageResult to satisfy the fullResult field
     final fullResult = ArbitrageResult(
       options: [
@@ -508,9 +561,8 @@ class ArbitrageSummaryService {
         ),
       ],
       breakevenYear: null,
-      premierEclairage:
-          '${formatChfWithPrefix(result.taxSaving)} d\'impot en moins en echelonnant les retraits',
-      displaySummary: result.recommendation,
+      premierEclairage: summaryCopy,
+      displaySummary: summaryCopy,
       hypotheses: const [
         'Taux cantonal applique au capital LPP retire',
         'Retraits en 2 annees fiscales distinctes',
@@ -525,10 +577,9 @@ class ArbitrageSummaryService {
     return ArbitrageSummaryItem(
       id: 'couple_sequencing',
       title: 'Echelonnement couple',
-      verdict: result.recommendation,
-      keyInsight:
-          'Retirer le capital LPP en 2 annees fiscales distinctes '
-          'reduit la progressivite de l\'impot (LIFD art. 38).',
+      verdict: summaryCopy,
+      keyInsight: 'Retirer le capital LPP en 2 années fiscales distinctes '
+          'modifie la progressivité de l\'impôt (LIFD art. 38).',
       monthlyImpactChf: monthlyImpact,
       confidenceScore: 60.0,
       route: '/decaissement',

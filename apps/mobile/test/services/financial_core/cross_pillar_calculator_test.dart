@@ -325,8 +325,8 @@ void main() {
     test('18. high expenses → no budget reallocation', () {
       // Force expenses very high so no margin remains
       final profile = _julienProfile(
-        depensesMensuel: 8000, // massive expenses
-        depensesLoyer: 3000,
+        depensesMensuel: 2000, // high but plausible assurance/health costs
+        depensesLoyer: 8000,
       );
       final result = CrossPillarCalculator.analyze(profile: profile);
       final hasRealloc = result.insights

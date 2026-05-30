@@ -113,6 +113,9 @@ class TestCalendarNotifications:
         n = jan5_notifs[0]
         assert "2027" in n.body
         assert "7\u2019258" in n.body
+        assert "marge déductible" in n.body
+        assert "économie potentielle" not in n.body.lower()
+        assert "economie potentielle" not in n.body.lower()
 
     def test_monthly_check_ins_all_12_months(self):
         """Should have exactly 12 monthly check-in notifications."""
@@ -167,6 +170,19 @@ class TestCalendarNotifications:
             and n.category == NotificationCategory.three_a_deadline
         ][0]
         assert "12\u2019345" in oct_notif.body
+
+    def test_3a_calendar_copy_avoids_pressure_fiscal_wording(self):
+        """3a reminders should not frame estimated tax savings as money at stake."""
+        result = self.svc.generate_calendar_notifications(
+            tax_saving_3a=1820.0, today=date(2026, 1, 1)
+        )
+
+        for n in result:
+            if n.category != NotificationCategory.three_a_deadline:
+                continue
+            lower = n.body.lower()
+            assert "en jeu" not in lower
+            assert "économie fiscale estimée" in lower
 
 
 # ===========================================================================

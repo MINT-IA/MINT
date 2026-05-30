@@ -21,7 +21,7 @@ class Countdown3aWidget extends StatelessWidget {
   /// Amount already contributed this year.
   final double amountContributed;
 
-  /// Estimated tax savings if ceiling is filled.
+  /// Indicative tax impact if ceiling is filled.
   final double taxSavingsIfFull;
 
   /// Days remaining until Dec 31.
@@ -121,19 +121,18 @@ class Countdown3aWidget extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: _remaining > 0
-                    ? MintColors.scoreCritique.withValues(alpha: 0.08)
+                    ? MintColors.info.withValues(alpha: 0.08)
                     : MintColors.scoreExcellent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
                 _remaining > 0
-                    ? 'Si tu compl\u00e8tes\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)} '
-                        'd\u2019imp\u00f4ts en moins.\n'
-                        'Si tu ne fais rien\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)} '
-                        'laiss\u00e9s sur la table. Chaque ann\u00e9e.'
+                    ? 'Si tu compl\u00e8tes\u00a0: impact fiscal indicatif '
+                        '${formatChfWithPrefix(taxSavingsIfFull)}.\n'
+                        'Ta marge restante peut encore \u00eatre v\u00e9rifi\u00e9e avant la fin d\u2019ann\u00e9e.'
                     : 'C\u2019est fait\u00a0! Ton 3a $year est rempli. '
-                        '\u00c9conomie fiscale\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)}.',
-                style: MintTextStyles.labelMedium(color: _remaining > 0 ? MintColors.scoreCritique : MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w500, height: 1.4),
+                        'Impact fiscal indicatif\u00a0: ${formatChfWithPrefix(taxSavingsIfFull)}.',
+                style: MintTextStyles.labelMedium(color: _remaining > 0 ? MintColors.info : MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w500, height: 1.4),
                 textAlign: TextAlign.center,
               ),
             ),

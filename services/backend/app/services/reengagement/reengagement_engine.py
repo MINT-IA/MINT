@@ -111,12 +111,12 @@ class ReengagementEngine:
                 trigger=ReengagementTrigger.new_year,
                 title=f"Nouveaux plafonds 3a: CHF {plafond_3a_str}",
                 body=(
-                    f"Nouveaux plafonds 3a: CHF {plafond_3a_str}. "
-                    f"Ton economie potentielle : CHF {saving_str}."
+                    f"Nouveaux plafonds 3a : CHF {plafond_3a_str}. "
+                    "La marge déductible peut changer."
                 ),
                 deeplink="/pilier-3a",
-                personal_number=f"CHF {saving_str}",
-                time_constraint="Annee fiscale 2026",
+                personal_number=f"CHF {plafond_3a_str}",
+                time_constraint="Année fiscale 2026",
                 month=1,
             ))
 
@@ -127,7 +127,7 @@ class ReengagementEngine:
                 title="Prepare ta declaration fiscale",
                 body=(
                     f"Prepare ta declaration: tes chiffres cles sont disponibles. "
-                    f"Economie 3a estimee : CHF {saving_str}."
+                    f"Économie fiscale estimée : CHF {saving_str}."
                 ),
                 deeplink="/fiscal",
                 personal_number=f"CHF {saving_str}",
@@ -143,7 +143,7 @@ class ReengagementEngine:
                 body=(
                     f"Deadline canton de {canton}: bientot. "
                     f"Tes chiffres sont prets. "
-                    f"Economie 3a estimee : CHF {saving_str}."
+                    f"Économie fiscale estimée : CHF {saving_str}."
                 ),
                 deeplink="/fiscal",
                 personal_number=f"CHF {saving_str}",
@@ -158,7 +158,7 @@ class ReengagementEngine:
                 title=f"Il reste {days_left} jours pour ton 3a",
                 body=(
                     f"Il reste {days_left} jours pour verser ton 3a. "
-                    f"Economie estimee : CHF {saving_str}."
+                    f"Économie fiscale estimée : CHF {saving_str}."
                 ),
                 deeplink="/pilier-3a",
                 personal_number=f"CHF {saving_str}",
@@ -173,7 +173,7 @@ class ReengagementEngine:
                 title=f"Plus que {days_left} jours pour ton 3a",
                 body=(
                     f"Il reste {days_left} jours. "
-                    f"Economie estimee : CHF {saving_str}."
+                    f"Économie fiscale estimée : CHF {saving_str}."
                 ),
                 deeplink="/pilier-3a",
                 personal_number=f"CHF {saving_str}",
@@ -188,7 +188,7 @@ class ReengagementEngine:
                 title="Dernier mois pour ton versement 3a",
                 body=(
                     f"Dernier mois. "
-                    f"CHF {saving_str} d'economie en jeu."
+                    f"Économie fiscale estimée : CHF {saving_str}."
                 ),
                 deeplink="/pilier-3a",
                 personal_number=f"CHF {saving_str}",

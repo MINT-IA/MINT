@@ -37,6 +37,7 @@ CoachProfile _buildProfile({
   String? housingStatus,
   double epargneLiquide = 0,
   double investissements = 0,
+  DetteProfile dettes = const DetteProfile(),
   ConjointProfile? conjoint,
 }) {
   return CoachProfile(
@@ -55,6 +56,7 @@ CoachProfile _buildProfile({
       epargneLiquide: epargneLiquide,
       investissements: investissements,
     ),
+    dettes: dettes,
     prevoyance: PrevoyanceProfile(
       avoirLppTotal: avoirLppTotal,
       totalEpargne3a: totalEpargne3a,
@@ -140,6 +142,54 @@ void main() {
       expect(allocItem.first.route, '/arbitrage/allocation-annuelle');
     });
 
+    test('debt crisis suppresses optimization arbitrages', () {
+      final profile = _buildProfile(
+        salaireBrutMensuel: 8000,
+        avoirLppTotal: 300000,
+        totalEpargne3a: 50000,
+        rachatMaximum: 100000,
+        dettes: const DetteProfile(
+          creditConsommation: 25000,
+          mensualiteCreditConso: 900,
+        ),
+      );
+
+      expect(profile.hasMaterialConsumerDebtForPriority, isTrue);
+
+      final summary = ArbitrageSummaryService.compute(profile);
+      final itemIds = summary.items.map((i) => i.id).toSet();
+      final lockedIds = summary.lockedItems.map((i) => i.id).toSet();
+      final protectionIds = summary.protectionItems.map((i) => i.id).toSet();
+
+      expect(itemIds, isEmpty);
+      expect(protectionIds, contains('debt_protection'));
+      expect(lockedIds, isNot(contains('debt_protection')));
+      expect(lockedIds, isNot(contains('rachat_vs_marche')));
+      expect(lockedIds, isNot(contains('allocation_annuelle')));
+    });
+
+    test('missing canton suppresses arbitrages and asks for canton', () {
+      final profile = _buildProfile(
+        canton: '',
+        salaireBrutMensuel: 10000,
+        avoirLppTotal: 300000,
+        totalEpargne3a: 50000,
+        rachatMaximum: 100000,
+        loyer: 2000,
+        epargneLiquide: 100000,
+        investissements: 50000,
+      );
+
+      final summary = ArbitrageSummaryService.compute(profile);
+
+      expect(summary.items, isEmpty);
+      expect(summary.lockedItems.map((i) => i.id), contains('canton'));
+      expect(
+        summary.lockedItems.firstWhere((i) => i.id == 'canton').missingDataPrompt,
+        contains('canton'),
+      );
+    });
+
     // ── Test 7: Location vs Propriete for locataire ───────────
     test('location_vs_propriete attempted when loyer > 0 and not proprietaire',
         () {
@@ -213,7 +263,7 @@ void main() {
     });
 
     // ── Test 11: No ranking — compliance rule ─────────────────
-    test('no item verdict contains banned ranking terms', () {
+    test('no item visible copy contains ranking or tax-promise phrases', () {
       final profile = _buildProfile(
         avoirLppTotal: 300000,
         totalEpargne3a: 50000,
@@ -225,15 +275,45 @@ void main() {
       );
       final summary = ArbitrageSummaryService.compute(profile);
 
+      final offenders = <String>[];
+      const bannedFragments = [
+        'meilleur',
+        'optimal',
+        'garanti',
+        "l'option",
+        'l’option',
+        'pourrait donner',
+        'pourrait economiser',
+        'pourrait réduire',
+        'pourrait reduire',
+        'pourrait generer',
+        'pourrait générer',
+        'economie fiscale',
+        'économie fiscale',
+        'superieur',
+        'supérieur',
+      ];
+
       for (final item in summary.items) {
-        final lower = item.verdict.toLowerCase();
-        expect(lower.contains('meilleur'), false,
-            reason: 'Verdict should not contain "meilleur" (no-ranking rule)');
-        expect(lower.contains('optimal'), false,
-            reason: 'Verdict should not contain "optimal" (no-ranking rule)');
-        expect(lower.contains('garanti'), false,
-            reason: 'Verdict should not contain "garanti" (banned term)');
+        final lower = [
+          item.title,
+          item.verdict,
+          item.keyInsight,
+          item.fullResult.premierEclairage,
+          item.fullResult.displaySummary,
+          ...item.fullResult.hypotheses,
+          ...item.fullResult.alertes,
+          item.fullResult.disclaimer,
+        ].join(' ').toLowerCase();
+
+        for (final fragment in bannedFragments) {
+          if (lower.contains(fragment)) {
+            offenders.add('${item.id}: $fragment -> $lower');
+          }
+        }
       }
+
+      expect(offenders, isEmpty);
     });
 
     // ── Test 12: Single person — no couple_sequencing ─────────

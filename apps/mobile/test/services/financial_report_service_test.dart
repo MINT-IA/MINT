@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// Unit tests for FinancialReportService
 ///
@@ -18,6 +22,270 @@ void main() {
 
   setUp(() {
     service = FinancialReportService();
+  });
+
+  group('Localized trust copy', () {
+    Map<String, dynamic> arb(String locale) {
+      final file = File('lib/l10n/app_$locale.arb');
+      return jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+    }
+
+    test('avs action description does not reintroduce fixed lifetime amount',
+        () {
+      const locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
+      for (final locale in locales) {
+        final json = arb(locale);
+        final description = json['reportActionDescAvsCheck'] as String;
+
+        expect(description, isNot(contains("38'000")), reason: locale);
+        expect(description, isNot(contains('38’000')), reason: locale);
+        expect(description.toLowerCase(), isNot(contains('lifetime pension')),
+            reason: locale);
+      }
+    });
+
+    test('3a deadline nudges do not promise tax reduction or lost money', () {
+      const locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
+      const keys = [
+        'communityChallenge12Desc',
+        'nudge3aDeadlineBody',
+        'opener3aDeadline',
+        'anticipation3aDeadlineFact',
+      ];
+      const bannedFragments = [
+        'réduire tes impôts',
+        'reduce your',
+        'taxes',
+        'steuerabzug',
+        'steuern zu senken',
+        'reducir tus impuestos',
+        'ridurre le tasse',
+        'reduzir os teus impostos',
+        'bénéficier',
+        'benefit',
+        'beneficiarte',
+        'beneficiare',
+        'beneficiar',
+        'perdue',
+        'perdu',
+        'lost',
+        'verloren',
+        'pierde',
+        'perso',
+        'perdido',
+      ];
+      const requiredAnchors = {
+        'fr': ['déductible', 'statut lpp'],
+        'en': ['deductible room', 'lpp status'],
+        'de': ['abzugsfähig', 'bvg-status'],
+        'es': ['deducible', 'situación lpp'],
+        'it': ['deducibile', 'stato lpp'],
+        'pt': ['dedutível', 'estatuto lpp'],
+      };
+
+      for (final locale in locales) {
+        final json = arb(locale);
+        for (final key in keys) {
+          final value = (json[key] as String).toLowerCase();
+          for (final fragment in bannedFragments) {
+            expect(value, isNot(contains(fragment)), reason: '$locale:$key');
+          }
+          expect(
+            requiredAnchors[locale]!.any(value.contains),
+            isTrue,
+            reason: '$locale:$key should keep deductible-room grounding',
+          );
+        }
+      }
+    });
+
+    test('3a response-card copy frames tax impact as indicative', () {
+      const locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
+      const keys = [
+        'pulseComprendre3aSub',
+        'dataBlock3aDesc',
+        'capStepRetirement05Desc',
+        'capStepRetirement06Desc',
+        'rcPillar3aExplanation',
+        'rcPillar3aSubtitle',
+        'rcTaxOptExplanation',
+        'rcTaxOptSubtitle',
+        'jargon3aTooltip',
+        'glossary3a',
+      ];
+      const bannedFragments = [
+        'économie d’impôt',
+        'économie d\'impôt',
+        'économie fiscale',
+        'avantage fiscal',
+        'tax saving',
+        'tax advantage',
+        '7’258',
+        '7\'258',
+        '7,258',
+        '7.258',
+        'boost',
+        'reduce your taxes',
+        'steuereinspar',
+        'steuerersparnis',
+        'steuervorteil',
+        'steuern reduzieren',
+        'ahorro fiscal',
+        'ventaja fiscal',
+        'reducir impuestos',
+        'risparmio fiscale',
+        'vantaggio fiscale',
+        'ridurre le imposte',
+        'poupança fiscal',
+        'vantagem fiscal',
+        'reduzir impostos',
+      ];
+      const requiredAnchors = {
+        'fr': ['indicati', 'déductible', 'marge'],
+        'en': ['indicative', 'deductible', 'potential'],
+        'de': ['indikativ', 'abzugsfähig', 'abziehbar', 'mögliche'],
+        'es': ['indicativ', 'deducib', 'potenciales'],
+        'it': ['indicativ', 'deducib', 'potenziali'],
+        'pt': ['indicativ', 'dedut', 'potenciais'],
+      };
+
+      for (final locale in locales) {
+        final json = arb(locale);
+        for (final key in keys) {
+          final value = (json[key] as String).toLowerCase();
+          for (final fragment in bannedFragments) {
+            expect(value, isNot(contains(fragment)), reason: '$locale:$key');
+          }
+          expect(
+            requiredAnchors[locale]!.any(value.contains),
+            isTrue,
+            reason: '$locale:$key should remain indicative or deductible',
+          );
+        }
+      }
+    });
+
+    test('3a education action label says tax impact, not tax savings', () {
+      const expectedAnchors = {
+        'fr': 'impact fiscal',
+        'en': 'tax impact',
+        'de': 'steuerwirkung',
+        'es': 'impacto fiscal',
+        'it': 'impatto fiscale',
+        'pt': 'impacto fiscal',
+      };
+      const bannedFragments = [
+        'économie fiscale',
+        'tax savings',
+        'steuerersparnis',
+        'ahorro fiscal',
+        'risparmio fiscale',
+        'poupança fiscal',
+      ];
+
+      for (final locale in expectedAnchors.keys) {
+        final value = (arb(locale)['eduTheme3aAction'] as String).toLowerCase();
+        expect(value, contains(expectedAnchors[locale]), reason: locale);
+        for (final fragment in bannedFragments) {
+          expect(value, isNot(contains(fragment)), reason: locale);
+        }
+      }
+    });
+
+    test('3a simulator and coach interrupt copy use indicative tax impact', () {
+      const locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
+      const keys = [
+        'toolsSimulator3aDesc',
+        'coachInterrupt3aUnderMax',
+      ];
+      const anchors = {
+        'fr': 'impact fiscal indicatif',
+        'en': 'indicative',
+        'de': 'indikative',
+        'es': 'impacto fiscal indicativo',
+        'it': 'impatto fiscale indicativo',
+        'pt': 'impacto fiscal indicativo',
+      };
+      const bannedFragments = [
+        'économie fiscale',
+        'tax saving',
+        'tax savings',
+        'steuerersparnis',
+        'ahorro fiscal',
+        'risparmio fiscale',
+        'poupança fiscal',
+      ];
+
+      for (final locale in locales) {
+        final json = arb(locale);
+        for (final key in keys) {
+          final value = (json[key] as String).toLowerCase();
+          expect(value, contains(anchors[locale]), reason: '$locale:$key');
+          for (final fragment in bannedFragments) {
+            expect(value, isNot(contains(fragment)), reason: '$locale:$key');
+          }
+        }
+      }
+    });
+
+    test('lpp report copy says tax impact, not tax saving', () {
+      const anchors = {
+        'fr': 'impact fiscal estimé',
+        'en': 'estimated tax impact',
+        'de': 'steuerwirkung',
+        'es': 'impacto fiscal estimado',
+        'it': 'impatto fiscale stimato',
+        'pt': 'impacto fiscal estimado',
+      };
+      const bannedFragments = [
+        'économie fiscale',
+        'tax saving',
+        'steuerersparnis',
+        'ahorro fiscal',
+        'risparmio fiscale',
+        'poupança fiscal',
+      ];
+
+      for (final locale in anchors.keys) {
+        final value =
+            (arb(locale)['reportRetirementLppText'] as String).toLowerCase();
+        expect(value, contains(anchors[locale]), reason: locale);
+        for (final fragment in bannedFragments) {
+          expect(value, isNot(contains(fragment)), reason: locale);
+        }
+      }
+    });
+
+    test('lpp buyback visible gain label remains an estimated tax impact', () {
+      const anchors = {
+        'fr': 'impact fiscal estimé',
+        'en': 'estimated tax impact',
+        'de': 'steuerwirkung',
+        'es': 'impacto fiscal estimado',
+        'it': 'impatto fiscale stimato',
+        'pt': 'impacto fiscal estimado',
+      };
+      const bannedFragments = [
+        'économie possible',
+        'économie fiscale',
+        'potential saving',
+        'tax saving',
+        'ersparnis',
+        'ahorro',
+        'risparmio',
+        'poupança',
+      ];
+
+      for (final locale in anchors.keys) {
+        final value =
+            (arb(locale)['reportTaxSavings'] as String).toLowerCase();
+        expect(value, contains(anchors[locale]), reason: locale);
+        expect(value, contains('{amount}'), reason: locale);
+        for (final fragment in bannedFragments) {
+          expect(value, isNot(contains(fragment)), reason: locale);
+        }
+      }
+    });
   });
 
   // ── Helper: minimal answers for a valid report ──────────────────────
@@ -512,9 +780,101 @@ void main() {
       answers['q_emergency_fund'] = 'no';
       final report = service.generateReport(answers);
 
-      // The scoring service will flag debt and emergency fund issues
-      // Priority actions should reflect those concerns
-      expect(report.priorityActions, isA<List<ActionItem>>());
+      final debtAction = report.priorityActions.firstWhere(
+          (action) => action.title.toLowerCase().contains('dettes'));
+      expect(debtAction.title, contains('dettes'));
+      expect(debtAction.potentialGainChf, isNull);
+    });
+
+    test('second 3a action uses computed provider and withdrawal gain only',
+        () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 1
+        ..['q_3a_annual_contribution'] = 7258.0
+        ..['q_employment_status'] = 'employee';
+      final report = service.generateReport(answers);
+
+      final action = report.priorityActions
+          .firstWhere((action) => action.category == ActionCategory.pillar3a);
+      final expectedGain = report.pillar3aAnalysis!.potentialGainVsBank +
+          (report.pillar3aAnalysis!.withdrawalOptimizationSavings ?? 0);
+
+      expect(action.potentialGainChf, closeTo(expectedGain, 1.0));
+      expect(action.potentialGainChf, isNot(12000));
+    });
+
+    test('lpp action uses computed buyback tax saving only', () {
+      final report = service.generateReport(fullAnswers());
+
+      final action = report.priorityActions
+          .firstWhere((action) => action.category == ActionCategory.lpp);
+
+      expect(
+        action.potentialGainChf,
+        closeTo(report.lppBuybackStrategy!.totalTaxSavings, 1.0),
+      );
+      expect(action.potentialGainChf, isNot(60000));
+    });
+
+    test('first 3a action estimates fiscal gain from tax simulation', () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_employment_status'] = 'employee';
+      final report = service.generateReport(answers);
+
+      final action = report.priorityActions
+          .firstWhere((action) => action.category == ActionCategory.pillar3a);
+      final grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(
+        6000.0 * 12,
+        age: DateTime.now().year - 1990,
+      );
+      final expectedGain = RetirementTaxCalculator.estimate3aTaxImpact(
+        grossAnnualSalary: grossAnnualSalary,
+        canton: 'VD',
+        hasLpp: true,
+        contribution: pilier3aPlafondAvecLpp,
+      ).estimatedTaxSaving;
+
+      expect(action.potentialGainChf, closeTo(expectedGain, 1.0));
+      expect(action.potentialGainChf, greaterThan(0));
+    });
+
+    test('first 3a action has no fiscal gain when taxable impact is zero', () {
+      final answers = minimalAnswers()
+        ..['q_net_income_period_chf'] = 0.0
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_employment_status'] = 'employee';
+      final report = service.generateReport(answers);
+
+      final action = report.priorityActions
+          .firstWhere((action) => action.category == ActionCategory.pillar3a);
+
+      expect(action.potentialGainChf, isNull);
+    });
+
+    test('avs action does not claim a fixed lifetime pension amount', () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 2
+        ..['q_3a_annual_contribution'] = pilier3aPlafondAvecLpp
+        ..['q_lpp_buyback_available'] = 0.0
+        ..['q_avs_lacunes_status'] = 'unknown';
+      final report = service.generateReport(answers);
+
+      final action = report.priorityActions
+          .firstWhere((action) => action.category == ActionCategory.avs);
+
+      expect(action.description, isNot(contains("38'000")));
+      expect(action.description, isNot(contains('38’000')));
+      expect(action.description, contains('années'));
+      expect(action.potentialGainChf, isNull);
     });
 
     test('roadmap has at least one phase', () {

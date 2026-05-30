@@ -5,6 +5,9 @@
 # Budget setup writes monthly fixed charges, Budget restores them after restart,
 # Mon Argent exposes the same money read model, Rapport reuses it, and Coach
 # remains reachable without absurd captured values leaking into visible surfaces.
+# The flow only enters logement + LAMal on a fresh local profile. Therefore the
+# expected proof numbers are derived from the app's default CHF 5'000 net-income
+# fallback, not from a richer completed profile.
 #
 # PRE-CONDITION
 # - App ch.mint.app installed on a booted iPhone simulator.
@@ -59,9 +62,11 @@ tags:
 
 - tapOn:
     id: "budget_housing_field"
+- eraseText: 20
 - inputText: "2200"
 - tapOn:
     id: "budget_lamal_field"
+- eraseText: 20
 - inputText: "420"
 - tapOn:
     text: "Charges fixes"
@@ -85,12 +90,16 @@ tags:
     visible:
       id: "budget_screen"
     timeout: 12000
+- tapOn:
+    id: "budget_calculation_detail_toggle"
+- waitForAnimationToEnd:
+    timeout: 2000
 - assertVisible:
     id: "budget_formula_proof"
 - assertVisible:
-    text: ".*3'140.*"
+    text: ".*3'078.*"
 - assertVisible:
-    text: ".*2'239.*"
+    text: ".*1'922.*"
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
 - assertNotVisible: "19M"
@@ -109,6 +118,10 @@ tags:
     id: "mon_argent_budget_summary"
 - assertVisible:
     id: "mon_argent_budget_flow_bar"
+- assertVisible:
+    text: ".*3'078.*"
+- assertVisible:
+    text: ".*1'922.*"
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
 - assertNotVisible: "19M"
@@ -125,6 +138,10 @@ tags:
     text: ".*2'200.*"
 - assertVisible:
     text: ".*420.*"
+- assertVisible:
+    text: ".*3'078.*"
+- assertVisible:
+    text: ".*1'922.*"
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
 - assertNotVisible: "19M"
@@ -144,6 +161,18 @@ tags:
     id: "coach_input_field"
 - assertVisible:
     id: "coach_send_button"
+- assertVisible:
+    text: ".*1'922.*"
+- assertVisible:
+    text: ".*après tes charges.*"
+- assertNotVisible: "Comment je te parle"
+# Do not assert "Direct" globally: valid Coach copy may use direct-tone words.
+- assertNotVisible:
+    text: "^Doux$"
+- assertNotVisible:
+    text: "^Sans filtre$"
+- assertNotVisible: "Ton 3a.*déductibles"
+- assertNotVisible: "économie d'impôt en jeu"
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
 - assertNotVisible: "19M"

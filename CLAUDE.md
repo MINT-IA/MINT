@@ -109,6 +109,25 @@ Each subagent with `memory: local` writes to `.claude/agent-memory-local/<name>/
 
 Git : `feature/S{XX}-<slug>` depuis `dev` ; PRs feature→dev squash, dev→staging+staging→main merge ; never force push ; `--rebase` on pull ; `git status` clean avant mod. Tests : ≥10 unit/service, Julien+Lauren golden, `flutter analyze` + `pytest -q` green (tests green ≠ app functional, device Gate 0 obligatoire).
 
+### 4.1 Staging Push Authority
+
+Codex/Claude agents are authorized to push to `staging` when Julien asks for it or when the explicit goal is to advance a verified integration branch to staging.
+
+Allowed path:
+1. Verify clean worktree: `git status --short` empty.
+2. Verify branch hygiene: `git fetch origin`, `git status -sb`, no unexpected divergence.
+3. Verify latest integration source: PR checks or cited local gates green for the exact head being promoted.
+4. Update local `staging` from `origin/staging` without rewriting history.
+5. Merge the verified source branch into `staging` with a normal merge or fast-forward.
+6. Push with plain `git push origin staging`.
+
+Forbidden:
+- `git push --force`, `git push --force-with-lease`, or any history rewrite on `staging`, `dev`, or `main`.
+- Pushing `staging` with a dirty worktree, unresolved conflicts, unknown CI status, or unreviewed local-only changes.
+- Claiming staging works before a post-push sim/device or staging health check is cited per §9.
+
+If GitHub branch protection rejects direct push to `staging`, open a PR into `staging` instead of bypassing protection.
+
 ## 5. 10 TRIPLETS {bad → good → why} (D-07)
 
 ### NEVER #1 — Hardcode user-facing strings

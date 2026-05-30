@@ -11,6 +11,9 @@ void main() {
       );
       expect(response, contains('3e pilier'));
       expect(response, contains('7\u00a0258'));
+      expect(response, contains('marge déductible'));
+      expect(response, isNot(contains('avec avantage fiscal')));
+      expect(response, isNot(contains('En 2025')));
     });
 
     test('matches lpp topic from "2e pilier" keyword', () {
@@ -35,6 +38,11 @@ void main() {
       );
       expect(response, contains('LIFD'));
       expect(response, contains('déductions'));
+      expect(response, contains('impact indicatif'));
+      expect(response, isNot(contains('économie d\'impôt')));
+      expect(response, isNot(contains('économie fiscale')));
+      expect(response, isNot(contains('avantage fiscal')));
+      expect(response, isNot(contains('tax saving')));
     });
 
     test('matches budget topic from "épargne" keyword', () {

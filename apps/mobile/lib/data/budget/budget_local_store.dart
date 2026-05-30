@@ -3,13 +3,16 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/budget/budget_inputs.dart';
 
+enum StoredBudgetInputsOrigin { directInput, profileDerived }
+
 /// Persistance locale du budget via SharedPreferences.
 ///
 /// Stocke les overrides des sliders (future/variables) et les BudgetInputs
-/// pour que le budget survive au redemarrage de l'app.
+/// directs pour que le budget survive au redemarrage sans profil canonique.
 class BudgetLocalStore {
   static const String _overridePrefix = 'budget_override_';
   static const String _inputsKey = 'budget_inputs_v1';
+  static const String _inputsOriginKey = 'budget_inputs_v1_origin';
 
   // ── Overrides (sliders) ─────────────────────────────────────
 
@@ -25,9 +28,13 @@ class BudgetLocalStore {
 
   // ── BudgetInputs ───────────────────────────────────────────
 
-  Future<void> saveInputs(BudgetInputs inputs) async {
+  Future<void> saveInputs(
+    BudgetInputs inputs, {
+    StoredBudgetInputsOrigin origin = StoredBudgetInputsOrigin.directInput,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_inputsKey, json.encode(inputs.toMap()));
+    await prefs.setString(_inputsOriginKey, origin.name);
   }
 
   Future<BudgetInputs?> loadInputs() async {
@@ -45,6 +52,22 @@ class BudgetLocalStore {
     }
   }
 
+  Future<StoredBudgetInputsOrigin?> loadInputsOrigin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_inputsOriginKey);
+    if (raw == null) return null;
+    for (final origin in StoredBudgetInputsOrigin.values) {
+      if (origin.name == raw) return origin;
+    }
+    return null;
+  }
+
+  Future<void> clearInputs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_inputsKey);
+    await prefs.remove(_inputsOriginKey);
+  }
+
   // ── Clear ──────────────────────────────────────────────────
 
   Future<void> clear() async {
@@ -52,5 +75,6 @@ class BudgetLocalStore {
     await prefs.remove('${_overridePrefix}future');
     await prefs.remove('${_overridePrefix}variables');
     await prefs.remove(_inputsKey);
+    await prefs.remove(_inputsOriginKey);
   }
 }

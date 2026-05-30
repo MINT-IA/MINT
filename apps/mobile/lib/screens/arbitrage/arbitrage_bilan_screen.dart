@@ -60,7 +60,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
       );
     }
 
-    final summary = ArbitrageSummaryService.compute(profile);
+    final summary = ArbitrageSummaryService.compute(profile, l: S.of(context));
 
     return Scaffold(
       backgroundColor: MintColors.white,
@@ -119,6 +119,12 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 // Caveat
                 if (summary.items.length > 1)
                   _buildCaveat(context),
+
+                // Protection items
+                ...summary.protectionItems.map((protection) => Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: _ProtectionItemCard(protection: protection),
+                    )),
 
                 // Computed items
                 ...summary.items.map((item) => Padding(
@@ -239,6 +245,77 @@ class ArbitrageBilanScreen extends StatelessWidget {
                   ),
                 )),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  PROTECTION ITEM CARD — debt/safe-mode priority
+// ════════════════════════════════════════════════════════════
+
+class _ProtectionItemCard extends StatelessWidget {
+  final ArbitrageProtection protection;
+
+  const _ProtectionItemCard({required this.protection});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: protection.title,
+      button: true,
+      child: InkWell(
+        onTap: () => context.push(protection.route),
+        borderRadius: BorderRadius.circular(14),
+        child: MintSurface(
+          tone: MintSurfaceTone.porcelaine,
+          padding: const EdgeInsets.all(16),
+          radius: 14,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: MintColors.warning.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.shield_outlined,
+                  size: 18,
+                  color: MintColors.warning,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      protection.title,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      protection.actionPrompt,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 20,
+                color: MintColors.warning.withValues(alpha: 0.55),
+              ),
+            ],
+          ),
         ),
       ),
     );

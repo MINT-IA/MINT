@@ -815,7 +815,7 @@ class SEn extends S {
 
   @override
   String get coachingAge45Message =>
-      'At 45, there are 20 years until retirement. Time to optimise: maximise 3a, consider pension fund buybacks.';
+      'At 45, there are 20 years until retirement. Time to check your 3a room, possible pension fund buybacks and trajectory.';
 
   @override
   String get coachingAge50Title => '50: Prepare for retirement';
@@ -829,7 +829,7 @@ class SEn extends S {
 
   @override
   String get coachingAge55Message =>
-      'At 55, tax planning for withdrawals becomes crucial. Staggering 3a withdrawals across tax years can mean significant savings.';
+      'At 55, tax planning for withdrawals becomes crucial. Staggering 3a withdrawals can change the tax impact.';
 
   @override
   String get coachingAge58Title => '58: Early retirement possible';
@@ -942,7 +942,7 @@ class SEn extends S {
       'What is 3a and why does everyone talk about it?';
 
   @override
-  String get eduTheme3aAction => 'Estimate my tax savings';
+  String get eduTheme3aAction => 'Estimate tax impact';
 
   @override
   String get eduTheme3aReminder =>
@@ -1361,7 +1361,7 @@ class SEn extends S {
 
   @override
   String get vaultGuidanceLamalBody =>
-      'You can change your LAMal deductible every year by November 30 (higher deductible) or December 31 (lower deductible). A healthy adult can save up to CHF 1,500/year with a CHF 2,500 deductible vs CHF 300.';
+      'You can change your LAMal deductible every year by November 30 (higher deductible) or December 31 (lower deductible). Compare total cost: premium + deductible + coinsurance based on your estimated health expenses.';
 
   @override
   String get vaultGuidanceLamalSource => 'HIA art. 62, HIO art. 93-94';
@@ -1812,7 +1812,7 @@ class SEn extends S {
   String get toolsSimulator3a => '3a Simulator';
 
   @override
-  String get toolsSimulator3aDesc => 'Calculate your annual tax savings';
+  String get toolsSimulator3aDesc => 'Estimate indicative 3a tax impact';
 
   @override
   String get toolsComparator3a => '3a Comparator';
@@ -2248,7 +2248,7 @@ class SEn extends S {
   String get naissanceFraisGarde => 'Monthly childcare costs/child';
 
   @override
-  String get naissanceTaxSavings => 'Tax savings';
+  String get naissanceTaxSavings => 'Tax impacts';
 
   @override
   String get naissanceDeductionPerChild => 'Deduction per child';
@@ -2257,7 +2257,7 @@ class SEn extends S {
   String get naissanceDeductionChildcare => 'Childcare cost deduction';
 
   @override
-  String get naissanceEstimatedTaxSaving => 'Estimated tax saving';
+  String get naissanceEstimatedTaxSaving => 'Estimated tax impact';
 
   @override
   String get naissanceAllowanceIncome => 'Allowance income';
@@ -2287,7 +2287,7 @@ class SEn extends S {
   String get naissanceNetAnnualImpact => 'Estimated annual net impact';
 
   @override
-  String get naissanceNetFormula => 'Tax savings + allowances - estimated cost';
+  String get naissanceNetFormula => 'Tax impacts + allowances - estimated cost';
 
   @override
   String get naissanceWaterfallRevenu => 'Gross annual income';
@@ -3948,7 +3948,7 @@ class SEn extends S {
 
   @override
   String get fiscalEduRentBody =>
-      'Don\'t forget that tax savings can be offset by differences in rent and cost of living. Compare the overall budget, not just taxes.';
+      'Don\'t forget that the tax impact can be offset by differences in rent and cost of living. Compare the overall budget, not just taxes.';
 
   @override
   String get fiscalCommune => 'Municipality';
@@ -4814,7 +4814,7 @@ class SEn extends S {
   String get pulseComprendre3a => 'Explore my 3a';
 
   @override
-  String get pulseComprendre3aSub => 'Discover your annual tax saving';
+  String get pulseComprendre3aSub => 'Understand your annual deductible room';
 
   @override
   String get pulseComprendre_budget => 'My monthly budget';
@@ -5376,7 +5376,7 @@ class SEn extends S {
   }
 
   @override
-  String get simLppBuybackTaxSavings => 'Tax Savings';
+  String get simLppBuybackTaxSavings => 'Tax Impact';
 
   @override
   String get simLppBuybackNetEffort => 'Net Effort';
@@ -5411,7 +5411,7 @@ class SEn extends S {
   @override
   String simLppBuybackDisclaimer(
       String fundRate, int staggeringYears, String taxableIncome) {
-    return 'Simulation including fund interest ($fundRate%) and tax savings staggered over $staggeringYears years for a taxable income of CHF $taxableIncome. Real return is calculated on your actual net effort.';
+    return 'Simulation including fund interest ($fundRate%) and indicative tax impact spread over $staggeringYears years for a taxable income of CHF $taxableIncome. Real return is calculated on your actual net effort.';
   }
 
   @override
@@ -5419,7 +5419,7 @@ class SEn extends S {
 
   @override
   String get simRealInterestSubtitle =>
-      'Capital + Reinvested tax savings (Virtual)';
+      'Capital + reinvested tax impact (virtual)';
 
   @override
   String get simRealInterestAmount => 'Amount Invested';
@@ -5504,7 +5504,7 @@ class SEn extends S {
 
   @override
   String get simBuybackMarginalRateTip =>
-      'By staggering your buybacks, you stay in lower tax brackets each year, which increases your total tax savings.';
+      'By staggering your buybacks, you compare the indicative tax impact year by year based on your income and canton.';
 
   @override
   String get simBuybackLockedTitle => 'LPP Buyback locked';
@@ -5623,27 +5623,6 @@ class SEn extends S {
   String earlyRetirementSemanticsLabel(int age) {
     return 'Retirement age simulator. Selected age : $age years.';
   }
-
-  @override
-  String get budgetReportTitle => 'Your Calculated Budget';
-
-  @override
-  String get budgetReportDisponible => 'Available';
-
-  @override
-  String get budgetReportVariables => 'Variable (Living)';
-
-  @override
-  String get budgetReportFutur => 'Future (Savings)';
-
-  @override
-  String budgetReportChfAmount(String amount) {
-    return 'CHF $amount';
-  }
-
-  @override
-  String get budgetReportStopWarning =>
-      'Warning: No room for variable expenses.';
 
   @override
   String get ninetyDayGaugeTitle => '90-Day Rule';
@@ -5893,7 +5872,7 @@ class SEn extends S {
 
   @override
   String get dataBlock3aDesc =>
-      'Your 3a accounts complement your pension and offer a tax advantage. Enter current balances for a complete overview.';
+      'Your 3a accounts complement your pension. Enter current balances to calculate deductible room and project the whole picture.';
 
   @override
   String get dataBlock3aCta => 'Simulate my 3a';
@@ -6069,7 +6048,7 @@ class SEn extends S {
 
   @override
   String renteVsCapitalFiscalCapitalSaves(String amount) {
-    return 'Over 30 years, the capital saves you ~$amount in taxes.';
+    return 'Over 30 years, the capital scenario changes estimated tax by about $amount.';
   }
 
   @override
@@ -6945,7 +6924,7 @@ class SEn extends S {
   String get demenagementFiscalTitre => 'Tax comparison';
 
   @override
-  String get demenagementEconomieFiscale => 'Estimated tax savings';
+  String get demenagementEconomieFiscale => 'Estimated tax impact';
 
   @override
   String get demenagementLamalTitre => 'Health insurance premiums';
@@ -7353,7 +7332,7 @@ class SEn extends S {
 
   @override
   String get firstSalary3aInfo =>
-      '💰 2026 ceiling: CHF 7\'258/year · Direct tax deduction · OPP3 art. 7';
+      '💰 2026 ceiling: CHF 7\'258/year · Deductible from taxable income depending on your situation · OPP3 art. 7';
 
   @override
   String get firstSalaryAct4Title => 'The health insurance trap';
@@ -7364,14 +7343,15 @@ class SEn extends S {
 
   @override
   String get firstSalaryFranchise300Advice =>
-      'Recommended if chronic conditions';
+      'Higher premium · Lower out-of-pocket exposure';
 
   @override
-  String get firstSalaryFranchise1500Advice => 'Good compromise · Recommended';
+  String get firstSalaryFranchise1500Advice =>
+      'Middle option · Compare with your health costs';
 
   @override
   String get firstSalaryFranchise2500Advice =>
-      'Save on premium · If you\'re healthy';
+      'Lower premium · Higher out-of-pocket risk';
 
   @override
   String firstSalaryFranchiseLabel(String label) {
@@ -7410,14 +7390,15 @@ class SEn extends S {
 
   @override
   String get firstSalaryTask3 =>
-      'Choose your health insurance franchise (recommended: CHF 1\'500)';
+      'Compare LAMal deductibles with your estimated health expenses';
 
   @override
   String get firstSalaryTask4 =>
       'Check your private liability insurance (approx. CHF 100/year)';
 
   @override
-  String get firstSalaryTask5 => 'Pay the maximum 3a before December 31';
+  String get firstSalaryTask5 =>
+      'Plan a suitable 3a contribution before December 31';
 
   @override
   String get firstSalaryBadgeTitle => 'First financial step';
@@ -7825,7 +7806,7 @@ class SEn extends S {
   String get coachSuggestDeductions => 'How much could I get back this year?';
 
   @override
-  String get coachSuggestTaxImpact => 'How much less tax with a buyback?';
+  String get coachSuggestTaxImpact => 'Estimate the tax impact of a buyback';
 
   @override
   String get coachSuggestFitness =>
@@ -8427,11 +8408,11 @@ class SEn extends S {
 
   @override
   String get premierEclairageAvantApresTaxAct =>
-      'Each year without 3a is a tax deduction lost.';
+      'Each year, a 3a contribution can reduce taxable income depending on your situation.';
 
   @override
   String get premierEclairageAvantApresTaxNoAct =>
-      'Without 3a, you pay full tax rate and don\'t prepare for retirement.';
+      'Without a 3a contribution, tax is calculated without that deduction.';
 
   @override
   String get premierEclairageAvantApresIncomeAct =>
@@ -8616,7 +8597,7 @@ class SEn extends S {
 
   @override
   String get rachatEchelonneIntroBody =>
-      'Swiss tax is progressive: spreading an LPP buyback over several years keeps each deduction in a higher marginal bracket, maximising total tax savings. This simulator compares both approaches.';
+      'Swiss tax is progressive: spreading an LPP buyback over several years can change the tax impact year by year. This simulator compares both approaches.';
 
   @override
   String get rachatEchelonneSavingsCaption =>
@@ -8687,7 +8668,7 @@ class SEn extends S {
   String get rachatEchelonnePlusAdapte => 'Best fit';
 
   @override
-  String get rachatEchelonneEconomieFiscale => 'Tax savings';
+  String get rachatEchelonneEconomieFiscale => 'Tax impact';
 
   @override
   String get rachatEchelonneImpactTranche => 'Impact by tax bracket';
@@ -8723,7 +8704,7 @@ class SEn extends S {
 
   @override
   String get rachatEchelonneTauxMarginalBody =>
-      'The marginal rate is the tax percentage on your last franc earned. At 32%, every CHF 1,000 deducted saves you CHF 320. The higher your income, the higher this rate.';
+      'The marginal rate is the tax percentage on your last franc earned. At 32%, a CHF 1,000 deduction corresponds to an indicative tax impact of CHF 320. The higher your income, the more this rate can rise.';
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
@@ -9055,7 +9036,8 @@ class SEn extends S {
   String get affordabilityAdvancedParams => 'More assumptions';
 
   @override
-  String get demenagementTitreV2 => 'Moving cantons — how much do you save?';
+  String get demenagementTitreV2 =>
+      'Moving cantons — what is the budget impact?';
 
   @override
   String demenagementInsightPositif(String mois) {
@@ -9379,7 +9361,7 @@ class SEn extends S {
 
   @override
   String get sim3aCoachBody =>
-      'The 3a is one of the most effective optimisation tools in Switzerland. The immediate tax saving is a tangible advantage.';
+      'The 3a can reduce taxable income. Mint estimates the tax impact with your parameters, then lets you compare scenarios.';
 
   @override
   String get sim3aParamsHeader => 'Your parameters';
@@ -9553,7 +9535,7 @@ class SEn extends S {
   }
 
   @override
-  String get realReturnFiscalDetail => 'Tax saving details';
+  String get realReturnFiscalDetail => 'Tax impact details';
 
   @override
   String get realReturnTotalPayments => 'Total contributions';
@@ -9562,7 +9544,7 @@ class SEn extends S {
   String get realReturnFinalCapital3a => 'Final 3a capital (excl. tax)';
 
   @override
-  String get realReturnCumulativeFiscal => 'Cumulative tax saved';
+  String get realReturnCumulativeFiscal => 'Cumulative tax impact';
 
   @override
   String get realReturnTotalWithFiscal => 'Total with tax benefit';
@@ -9814,7 +9796,7 @@ class SEn extends S {
 
   @override
   String firstJobFiscalSavings(String amount) {
-    return 'Estimated tax savings: ~$amount/yr';
+    return 'Indicative tax impact: ~$amount/yr';
   }
 
   @override
@@ -10427,7 +10409,7 @@ class SEn extends S {
 
   @override
   String get pillar3aIndepHeaderInfo =>
-      'As self-employed without LPP, you can access the \"big 3a\": deduct up to 20% of net income (max CHF 36,288/yr), instead of CHF 7,258 for employees. A major tax advantage.';
+      'As self-employed without LPP, you can access the \"big 3a\": deduct up to 20% of net income (max CHF 36,288/yr), instead of CHF 7,258 for employees. The impact depends on your income, canton and liquidity.';
 
   @override
   String get pillar3aIndepLppToggle => 'Affiliated to voluntary LPP?';
@@ -10450,18 +10432,18 @@ class SEn extends S {
 
   @override
   String get pillar3aIndepPremierEclairageCaption =>
-      'annual tax savings thanks to the 3rd pillar';
+      'indicative tax impact with the 3rd pillar';
 
   @override
   String pillar3aIndepPremierEclairageAvantageSalarie(String amount) {
-    return 'You save $amount/yr more in taxes than an employee thanks to the big 3a';
+    return 'Indicative tax impact of the big 3a: up to $amount/yr depending on income, canton and LPP status';
   }
 
   @override
   String get pillar3aIndepPlafondApplicable => 'Applicable cap';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAn => 'Tax savings /yr';
+  String get pillar3aIndepEconomieFiscaleAn => 'Tax impact /yr';
 
   @override
   String get pillar3aIndepPlafondSalarie => 'Employee cap';
@@ -10526,7 +10508,7 @@ class SEn extends S {
 
   @override
   String get pillar3aIndepDisclaimer =>
-      'Tax savings are calculated based on the indicated marginal rate. The actual rate depends on your canton, municipality, and family situation. Consult a specialist for a personalized calculation.';
+      'The tax impact is estimated based on the indicated marginal rate. The actual rate depends on your canton, municipality, and family situation. Consult a specialist for a personalized calculation.';
 
   @override
   String get dividendeVsSalaireTitle => 'Dividend vs Salary';
@@ -11136,7 +11118,7 @@ class SEn extends S {
       'Large 3a : 20 % of net income, max CHF 36’288/year';
 
   @override
-  String get retroactive3aEconomiesFiscales => 'Estimated tax savings';
+  String get retroactive3aEconomiesFiscales => 'Estimated tax impacts';
 
   @override
   String get retroactive3aDetailParAnnee => 'Breakdown by year';
@@ -11169,7 +11151,7 @@ class SEn extends S {
   String get retroactive3aAvecRattrapage => 'With catch-up';
 
   @override
-  String get retroactive3aEconomieFiscale => 'in tax savings';
+  String get retroactive3aEconomieFiscale => 'in tax impact';
 
   @override
   String get retroactive3aProchainesEtapes => 'Next steps';
@@ -11702,7 +11684,12 @@ class SEn extends S {
 
   @override
   String get reportRetirement3aNone =>
-      'No 3a yet — up to CHF 7’258/year in tax deductions possible';
+      'No 3a yet — deductible room to estimate from your LPP status';
+
+  @override
+  String reportRetirement3aNoneWithRoom(String amount) {
+    return 'No 3a yet — estimated deductible room: CHF $amount/year';
+  }
 
   @override
   String get reportRetirement3aOne =>
@@ -11715,7 +11702,7 @@ class SEn extends S {
 
   @override
   String reportRetirementLppText(String available, String savings) {
-    return 'LPP buyback available: CHF $available — estimated tax saving: CHF $savings';
+    return 'LPP buyback available: CHF $available — estimated tax impact: CHF $savings';
   }
 
   @override
@@ -11743,7 +11730,7 @@ class SEn extends S {
 
   @override
   String reportTaxSavings(String amount) {
-    return 'Potential saving with LPP buyback: CHF $amount/year';
+    return 'Estimated tax impact with LPP buyback: CHF $amount/year';
   }
 
   @override
@@ -11769,7 +11756,7 @@ class SEn extends S {
 
   @override
   String reportLppEconomie(String amount) {
-    return 'Total tax saving: CHF $amount';
+    return 'Total indicative tax impact: CHF $amount';
   }
 
   @override
@@ -11792,7 +11779,7 @@ class SEn extends S {
 
   @override
   String get reportLppHowBody =>
-      'Understand why spreading your LPP buybacks saves you thousands of additional francs.';
+      'Understand how spreading your LPP buybacks can change the tax impact and your liquidity.';
 
   @override
   String get reportSoaTitle => 'Transparency and compliance';
@@ -12502,7 +12489,7 @@ class SEn extends S {
   String get lppVolontaireCotisationLabel => 'Cotisation /an';
 
   @override
-  String get lppVolontaireEconomieFiscaleLabel => 'Tax savings /year';
+  String get lppVolontaireEconomieFiscaleLabel => 'Tax impact /year';
 
   @override
   String get lppVolontaireTrancheAgeLabel => 'Tranche d’âge';
@@ -12520,7 +12507,7 @@ class SEn extends S {
   String get pillar3aIndepPlafondApplicableLabel => 'Applicable ceiling';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAnLabel => 'Tax savings /year';
+  String get pillar3aIndepEconomieFiscaleAnLabel => 'Tax impact /year';
 
   @override
   String get pillar3aIndepPlafondSalarieLabel => 'Employee ceiling';
@@ -13954,7 +13941,7 @@ class SEn extends S {
 
   @override
   String capCoupleLppBuybackWhyNow(String amount) {
-    return 'Your partner has a possible buyback of $amount. Prioritising the higher marginal rate maximises the deduction.';
+    return 'Your partner has a possible buyback of $amount. Compare the marginal rate, liquidity and indicative tax impact before prioritising.';
   }
 
   @override
@@ -14441,13 +14428,14 @@ class SEn extends S {
 
   @override
   String get capStepRetirement05Desc =>
-      'Deduct up to CHF 7,258 and boost your retirement.';
+      'Verify your deductible 3a room and its indicative impact on your trajectory.';
 
   @override
   String get capStepRetirement05Title => 'Simulate a 3a contribution';
 
   @override
-  String get capStepRetirement06Desc => 'Fill gaps and reduce your taxes.';
+  String get capStepRetirement06Desc =>
+      'Fill LPP gaps and verify the indicative tax impact.';
 
   @override
   String get capStepRetirement06Title => 'Evaluate an LPP buyback';
@@ -14701,14 +14689,14 @@ class SEn extends S {
 
   @override
   String get challengeFiscalite01Desc =>
-      'Every franc contributed to 3a is deductible. Calculate how much you save in taxes this year.';
+      'Every franc contributed to 3a is deductible. Estimate the indicative impact on your taxes this year.';
 
   @override
-  String get challengeFiscalite01Title => 'Estimate your 3a tax saving';
+  String get challengeFiscalite01Title => 'Estimate your 3a tax impact';
 
   @override
   String get challengeFiscalite02Desc =>
-      'LPP buybacks are deductible from taxable income. Check your buyback potential and the tax saving.';
+      'LPP buybacks are deductible from taxable income. Check your buyback potential and the indicative tax impact.';
 
   @override
   String get challengeFiscalite02Title =>
@@ -15171,7 +15159,7 @@ class SEn extends S {
 
   @override
   String get communityChallenge12Desc =>
-      'The 3a deadline is approaching. Contribute up to CHF 7’258 (employed with LPP) before 31 December to benefit from this year’s tax deduction.';
+      'The 3a deadline is approaching. Check your deductible room and plan a suitable contribution before 31 December.';
 
   @override
   String get communityChallenge12Title =>
@@ -16612,7 +16600,7 @@ class SEn extends S {
   String get imputedRentalEyebrow => 'Imputed rental value';
 
   @override
-  String get imputedRentalSavingsLabel => 'net tax savings';
+  String get imputedRentalSavingsLabel => 'net tax impact';
 
   @override
   String get imputedRentalTaxLabel => 'additional tax';
@@ -16762,6 +16750,134 @@ class SEn extends S {
   @override
   String get interactive3aDisclaimer =>
       'Educational assumptions. Past performance does not guarantee future results.';
+
+  @override
+  String get taxInsertTitle => '3a optimisation';
+
+  @override
+  String get taxInsertSubtitle => 'Your tax ally';
+
+  @override
+  String get taxInsertMonthlyIncomeLabel => 'Your net monthly income';
+
+  @override
+  String get taxInsertCapacity3a => '3a capacity';
+
+  @override
+  String get taxInsertIndicativeReduction => 'Indicative tax reduction';
+
+  @override
+  String taxInsertMonthlyImpact(String amount) {
+    return 'Indicative impact: $amount CHF per month';
+  }
+
+  @override
+  String taxInsertMarginalRateNote(int minRate, int maxRate) {
+    return 'Estimate based on a $minRate-$maxRate% marginal rate';
+  }
+
+  @override
+  String get taxSim3aEmployeeTitle => '👤 EMPLOYEE with LPP';
+
+  @override
+  String get taxSim3aSelfEmployedTitle => '💼 SELF-EMPLOYED without LPP';
+
+  @override
+  String taxSim3aCeiling2026(String ceiling) {
+    return '2026 cap: $ceiling/year';
+  }
+
+  @override
+  String taxSim3aMonthlyContribution(String amount) {
+    return 'Monthly contribution: $amount';
+  }
+
+  @override
+  String taxSim3aExceedsLimit(String contribution, String ceiling) {
+    return 'Annual contribution ($contribution) exceeds the cap ($ceiling)';
+  }
+
+  @override
+  String taxSim3aDuration(int years) {
+    return 'Duration: $years years';
+  }
+
+  @override
+  String taxSimMarginalRate(String rate) {
+    return 'Marginal tax rate: $rate%';
+  }
+
+  @override
+  String get taxSim3aMarginalRateHint =>
+      'Estimated by canton/income (ranges from 15% to 45%)';
+
+  @override
+  String get taxSim3aAnnualContribution => 'Annual contribution';
+
+  @override
+  String get taxSimTaxReductionEstimated => 'Estimated tax reduction';
+
+  @override
+  String get taxSimRealCost => 'Real cost';
+
+  @override
+  String taxSim3aProjectionTitle(int years) {
+    return '$years-year projection (educational scenarios)';
+  }
+
+  @override
+  String get taxSim3aScenarioPrudent => 'Cautious (1%)';
+
+  @override
+  String get taxSim3aScenarioCentral => 'Central (3%)';
+
+  @override
+  String get taxSim3aScenarioStress => 'Stress (5%)';
+
+  @override
+  String taxSimTaxReductionOverYears(int years) {
+    return 'Estimated tax reduction ($years years)';
+  }
+
+  @override
+  String get lppBuybackTitle => 'LPP buyback simulation';
+
+  @override
+  String lppBuybackAmountLabel(String amount) {
+    return 'Buyback amount: $amount';
+  }
+
+  @override
+  String get taxSimMarginalRateHintShort => 'Estimated by canton/income';
+
+  @override
+  String get lppBuybackAmount => 'Buyback';
+
+  @override
+  String get lppBuybackPensionImpactTitle =>
+      'Retirement impact (educational scenarios)';
+
+  @override
+  String lppBuybackScenarioPrudent(String rate) {
+    return 'Cautious (rate $rate%)';
+  }
+
+  @override
+  String lppBuybackScenarioCentral(String rate) {
+    return 'Central (rate $rate%)';
+  }
+
+  @override
+  String lppBuybackScenarioStress(String rate) {
+    return 'Stress (rate $rate%)';
+  }
+
+  @override
+  String get lppBuybackAssumptionsTitle => 'Assumptions and limits:';
+
+  @override
+  String get lppBuybackAssumptionsBody =>
+      '• Tax deduction subject to applicable rules\n• Conversion rate: current assumption, may decrease\n• Verify with your LPP certificate and a tax specialist';
 
   @override
   String get jobChangeChecklistAlertBody =>
@@ -17675,7 +17791,7 @@ class SEn extends S {
 
   @override
   String get narrativeRealReturnBody =>
-      'The displayed return doesn’t tell the whole story. After management fees and inflation, the real gain may differ. The 3a tax saving (LIFD art. 33) significantly improves the effective return.';
+      'The displayed return doesn’t tell the whole story. After management fees and inflation, the real gain may differ. The 3a tax impact (LIFD art. 33) can change the effective return.';
 
   @override
   String get narrativeRealReturnHeadline => 'Real return after inflation';
@@ -17747,7 +17863,7 @@ class SEn extends S {
 
   @override
   String notifDeadline3aBody46Days(String remaining) {
-    return '46 days left to maximise your 3a (CHF $remaining remaining)';
+    return '46 days left to check your 3a room (CHF $remaining remaining)';
   }
 
   @override
@@ -17772,7 +17888,7 @@ class SEn extends S {
 
   @override
   String notifNewYearBody(String year) {
-    return 'New limits $year. Your potential savings have changed.';
+    return 'New limits $year. Your deductible room may change.';
   }
 
   @override
@@ -17837,7 +17953,7 @@ class SEn extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return '61 days left. Estimated savings: CHF $saving.';
+    return '61 days left. Indicative tax impact: CHF $saving.';
   }
 
   @override
@@ -17845,7 +17961,7 @@ class SEn extends S {
 
   @override
   String notifThreeALastMonth(String saving) {
-    return 'Last month for your 3a. Estimated tax saving: CHF $saving.';
+    return 'Last month for your 3a. Indicative tax impact: CHF $saving.';
   }
 
   @override
@@ -17860,7 +17976,7 @@ class SEn extends S {
 
   @override
   String nudge3aDeadlineBody(String days, String limit, String year) {
-    return '$days day(s) left to contribute up to $limit CHF and reduce your $year taxes.';
+    return '$days day(s) left to plan your 3a deductible room of up to $limit CHF before the end of $year.';
   }
 
   @override
@@ -18095,7 +18211,7 @@ class SEn extends S {
 
   @override
   String opener3aDeadline(String days, String plafond) {
-    return '$days days left to contribute up to $plafond CHF to your 3a.';
+    return 'Remaining 3a deductible room: up to $plafond CHF for $days more days.';
   }
 
   @override
@@ -18244,7 +18360,7 @@ class SEn extends S {
 
   @override
   String get pillar3aRealReturnDisclaimer =>
-      'Educational simulation based on constant return assumptions. Past returns do not predict future returns. Fees and returns vary by provider. Tax savings depend on your actual marginal rate. Legal basis: OPP3, LTAF art. 33 al. 1 let. e. Consult a specialist before any decision.';
+      'Educational simulation based on constant return assumptions. Past returns do not predict future returns. Fees and returns vary by provider. Tax impact depends on your actual marginal rate. Legal basis: OPP3, LTAF art. 33 al. 1 let. e. Consult a specialist before any decision.';
 
   @override
   String get pillar3aStaggeredDisclaimer =>
@@ -18880,7 +18996,7 @@ class SEn extends S {
 
   @override
   String rcLppBuybackExplanation(String taxSaving, String rachatSimule) {
-    return 'Buyback available. Estimated tax saving of $taxSaving CHF on $rachatSimule CHF';
+    return 'Buyback available. Estimated tax impact of $taxSaving CHF on $rachatSimule CHF';
   }
 
   @override
@@ -18955,11 +19071,11 @@ class SEn extends S {
 
   @override
   String rcPillar3aExplanation(String plafond) {
-    return 'Estimated tax saving if you contribute the cap of $plafond CHF';
+    return 'Indicative tax impact if you contribute up to $plafond CHF';
   }
 
   @override
-  String get rcPillar3aSubtitle => 'Estimated tax saving';
+  String get rcPillar3aSubtitle => 'Indicative tax impact';
 
   @override
   String rcPillar3aTitle(String year) {
@@ -19083,11 +19199,11 @@ class SEn extends S {
 
   @override
   String rcTaxOptExplanation(String plafond3a) {
-    return 'Estimated tax saving via 3a ($plafond3a CHF) + LPP buyback';
+    return 'Indicative tax impact via 3a ($plafond3a CHF) + LPP buyback';
   }
 
   @override
-  String get rcTaxOptSubtitle => 'Estimated available deductions';
+  String get rcTaxOptSubtitle => 'Indicative deductions to verify';
 
   @override
   String get rcTaxOptTitle => 'Tax optimisation';
@@ -19216,7 +19332,7 @@ class SEn extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Deduct up to CHF 7’258/year from your taxable income. Immediate savings.';
+      'Deductible contribution; tax impact estimated from your income and canton.';
 
   @override
   String get reportActionDesc3aSecond =>
@@ -19224,11 +19340,11 @@ class SEn extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Avoid losing up to CHF 38’000 of lifetime pension.';
+      'Check your contribution years to estimate any AVS/OASI gap.';
 
   @override
   String get reportActionDescDette =>
-      'It’s a highly effective step: you save 6-10 % per year on interest.';
+      'Reducing this debt can lower future interest costs by 6-10 % per year, depending on the rate.';
 
   @override
   String get reportActionDescUrgence =>
@@ -19312,13 +19428,14 @@ class SEn extends S {
 
   @override
   String get retroactive3aEmptySubtitle =>
-      'Enter your income to calculate your tax savings';
+      'Enter your income to estimate the tax impact';
 
   @override
   String get retroactive3aEmptyTitle => '3a catch-up';
 
   @override
-  String get retroactive3aSavingsLabel => 'tax savings with 3a catch-up';
+  String get retroactive3aSavingsLabel =>
+      'indicative tax impact with 3a catch-up';
 
   @override
   String get retroactive3aYearsChipsLabel => 'Years to catch up';
@@ -19425,7 +19542,7 @@ class SEn extends S {
 
   @override
   String get seasonal3aCountdownDesc =>
-      'The 31 December deadline for pillar 3a contributions is approaching. Check your balance and plan your contribution to maximise your tax deduction.';
+      'The 31 December deadline for pillar 3a contributions is approaching. Check your balance and plan your contribution based on your deductible room.';
 
   @override
   String get seasonal3aCountdownTitle => 'Pillar 3a countdown';
@@ -19475,7 +19592,7 @@ class SEn extends S {
 
   @override
   String semantics3aEconomieFiscale(String amount) {
-    return 'Tax savings: $amount francs';
+    return 'Indicative tax impact: $amount francs';
   }
 
   @override
@@ -20011,15 +20128,15 @@ class SEn extends S {
 
   @override
   String get stepJitTax3aCond =>
-      'you are not contributing the maximum to your 3rd pillar each year';
+      'you are not using your full deductible 3a room each year';
 
   @override
   String get stepJitTax3aCons =>
-      'you are missing out on a tax saving and additional retirement capital.';
+      'you are missing deductible room and additional retirement capital.';
 
   @override
   String get stepJitTax3aInsight =>
-      'Every franc paid into 3a is tax-deductible. Over 20 years, the difference between contributing 0 and the maximum (CHF 7,258) can exceed CHF 200,000.';
+      'Every franc paid into 3a is deductible from taxable income depending on your situation. Over 20 years, the difference depends on contributions, return, fees, and withdrawal tax.';
 
   @override
   String get stepJitTax3aSource => 'BVV3 art. 7 / DBG art. 33';
@@ -20316,7 +20433,7 @@ class SEn extends S {
   String get summaryEcartMensuel => 'Estimated monthly gap';
 
   @override
-  String get summaryEconomieFiscale => 'Annual tax savings';
+  String get summaryEconomieFiscale => 'Annual indicative tax impact';
 
   @override
   String get summaryEconomieRachat => 'Savings from staggered buyback';
@@ -20950,7 +21067,7 @@ class SEn extends S {
 
   @override
   String get jargon3aTooltip =>
-      'Pillar 3a is voluntary retirement savings with tax benefits. The ceiling is CHF 7,258/year (employed with LPP).';
+      'Pillar 3a is voluntary retirement savings. Contributions may be deductible from taxable income depending on your LPP status.';
 
   @override
   String get jargonAvsTooltip =>
@@ -21136,11 +21253,11 @@ class SEn extends S {
       'Open MINT — we found something interesting about your taxes.';
 
   @override
-  String get day7NotifTitle => 'You\'re leaving money with the taxman';
+  String get day7NotifTitle => '3a room to verify';
 
   @override
   String day7NotifBody(String amount) {
-    return 'Every month without 3a, you leave CHF $amount with the taxman. Shall we talk?';
+    return 'Your estimate shows about CHF $amount/month of 3a room. Shall we verify it?';
   }
 
   @override
@@ -21164,7 +21281,7 @@ class SEn extends S {
 
   @override
   String get glossary3a =>
-      'The 3rd pillar. Your personal, voluntary retirement savings — tax-deductible. Maximum CHF 7,258/year if you have a 2nd pillar.';
+      'The 3rd pillar. Your personal, voluntary retirement savings, with deductible room depending on your LPP status.';
 
   @override
   String get glossaryRamd =>
@@ -21215,7 +21332,7 @@ class SEn extends S {
 
   @override
   String get landingCoupleGeneric =>
-      'Married couples lose up to CHF 8,000/year in missed optimizations.';
+      'Some couple decisions can change taxes, AVS, and withdrawals. MINT helps compare scenarios.';
 
   @override
   String get landingTransparency =>
@@ -21294,7 +21411,7 @@ class SEn extends S {
 
   @override
   String chocQuestionTaxSaving(String amount) {
-    return 'CHF $amount less in taxes. Worth 10 minutes?';
+    return 'Estimated tax impact: CHF $amount. Verify the scenario?';
   }
 
   @override
@@ -21422,7 +21539,7 @@ class SEn extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'You’re leaving $savings CHF of tax savings on the table.';
+    return 'Remaining 3a room to verify: indicative tax impact of CHF $savings.';
   }
 
   @override
@@ -22129,7 +22246,7 @@ class SEn extends S {
 
   @override
   String anticipation3aDeadlineFact(String limit, String year) {
-    return 'You can still contribute up to $limit CHF to your 3rd pillar before December 31, $year. Each unused year is lost.';
+    return 'You can still plan a 3a contribution of up to $limit CHF before December 31, $year. Check the amount that fits your LPP status.';
   }
 
   @override
@@ -22213,8 +22330,7 @@ class SEn extends S {
   }
 
   @override
-  String get ctxHeroStat3aLabel =>
-      'You are leaving money on the table in pillar 3a';
+  String get ctxHeroStat3aLabel => 'Remaining 3a room to verify';
 
   @override
   String ctxHeroStat3aNarrative(String monthly) {
@@ -22615,7 +22731,7 @@ class SEn extends S {
 
   @override
   String get coachGreetingRandom17 =>
-      'You could buy back years in your pension fund and pay thousands less in tax. But you\'d have to open the certificate.';
+      'An LPP buyback can affect your tax and retirement projection. Your certificate lets us quantify it.';
 
   @override
   String get coachGreetingRandom18 =>
@@ -22942,7 +23058,7 @@ class SEn extends S {
   String get monArgentRetry => 'Retry';
 
   @override
-  String get monArgentPatrimoineTitle => 'Your starting point';
+  String get monArgentPatrimoineTitle => 'Free assets';
 
   @override
   String get monArgentPatrimoineEmpty =>
@@ -22952,7 +23068,7 @@ class SEn extends S {
   String get monArgentPatrimoineError => 'Unable to load your data.';
 
   @override
-  String get monArgentPatrimoineNet => 'Net';
+  String get monArgentPatrimoineNet => 'Free net';
 
   @override
   String get monArgentPatrimoinePartial => 'Add your data for a complete view.';

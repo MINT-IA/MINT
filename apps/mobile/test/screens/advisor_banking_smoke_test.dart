@@ -11,12 +11,19 @@ import 'package:mint_mobile/screens/open_banking/consent_screen.dart';
 
 // Dependencies
 import 'package:mint_mobile/providers/profile_provider.dart';
+import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 /// Helper to wrap a widget with ProfileProvider.
-Widget buildWithProfileProvider(Widget child, {bool hasDebt = false}) {
+Widget buildWithProfileProvider(
+  Widget child, {
+  bool hasDebt = false,
+  BudgetProvider? budgetProvider,
+}) {
   final provider = ProfileProvider();
   provider.setProfile(Profile(
     id: 'test-profile-001',
@@ -37,8 +44,12 @@ Widget buildWithProfileProvider(Widget child, {bool hasDebt = false}) {
       GlobalCupertinoLocalizations.delegate,
     ],
     supportedLocales: S.supportedLocales,
-    home: ChangeNotifierProvider<ProfileProvider>.value(
-      value: provider,
+    home: MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ProfileProvider>.value(value: provider),
+        if (budgetProvider != null)
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+      ],
       child: child,
     ),
   );
@@ -164,6 +175,148 @@ void main() {
       expect(find.textContaining("5'379"), findsWidgets);
     });
 
+    testWidgets('budget card falls back to report profile income when omitted',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_net_income_period_chf'] = null
+        ..['q_pay_frequency'] = 'yearly'
+        ..['q_housing_cost_period_chf'] = 2200.0
+        ..['q_tax_provision_monthly_chf'] = 458.0
+        ..['q_lamal_premium_monthly_chf'] = 420.0
+        ..['q_debt_payments_period_chf'] = 0.0
+        ..['q_other_fixed_costs_monthly_chf'] = 0.0;
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining('Ton Budget'), findsOneWidget);
+      expect(find.textContaining('Charges fixes totales'), findsOneWidget);
+      expect(find.textContaining("5'000"), findsWidgets);
+      expect(find.textContaining("3'078"), findsWidgets);
+      expect(find.textContaining("1'922"), findsWidgets);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('budget card reuses BudgetProvider when report answers partial',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final budgetProvider = BudgetProvider();
+      await budgetProvider.setInputs(
+        const BudgetInputs(
+          payFrequency: PayFrequency.monthly,
+          netIncome: 5000.0,
+          housingCost: 2200.0,
+          debtPayments: 0.0,
+          taxProvision: 458.0,
+          healthInsurance: 420.0,
+        ),
+      );
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..remove('q_canton')
+        ..remove('q_tax_provision_monthly_chf')
+        ..['q_net_income_period_chf'] = null
+        ..['q_pay_frequency'] = 'yearly'
+        ..['q_housing_cost_period_chf'] = 2200.0
+        ..['q_lamal_premium_monthly_chf'] = 420.0
+        ..['q_debt_payments_period_chf'] = 0.0
+        ..['q_other_fixed_costs_monthly_chf'] = 0.0;
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+          budgetProvider: budgetProvider,
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining('Ton Budget'), findsOneWidget);
+      expect(find.textContaining('Charges fixes totales'), findsOneWidget);
+      expect(find.textContaining("5'000"), findsWidgets);
+      expect(find.textContaining("3'078"), findsWidgets);
+      expect(find.textContaining("1'922"), findsWidgets);
+      expect(find.textContaining("3'267"), findsNothing);
+      expect(find.textContaining("1'733"), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('budget card can render canonical BudgetSnapshot',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      const snapshot = BudgetSnapshot(
+        present: PresentBudget(
+          monthlyNet: 5000.0,
+          monthlyHousing: 2200.0,
+          monthlyDebt: 0.0,
+          monthlyTax: 458.0,
+          monthlyHealth: 420.0,
+          monthlyOtherFixed: 0.0,
+          monthlyCharges: 3078.0,
+          monthlySavings: 0.0,
+          monthlyFree: 1922.0,
+        ),
+        capImpacts: [],
+        stage: BudgetStage.presentOnly,
+        confidenceScore: 80,
+      );
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(
+            wizardAnswers: testAnswersV2,
+            budgetSnapshot: snapshot,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining('Ton Budget'), findsOneWidget);
+      expect(find.textContaining('Charges fixes totales'), findsOneWidget);
+      expect(find.textContaining("5'000"), findsWidgets);
+      expect(find.textContaining("3'078"), findsWidgets);
+      expect(find.textContaining("1'922"), findsWidgets);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('budget card preserves signed monthly deficit', (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_net_income_period_chf'] = 3000.0
+        ..['q_housing_cost_period_chf'] = 2500.0
+        ..['q_tax_provision_monthly_chf'] = 600.0
+        ..['q_lamal_premium_monthly_chf'] = 420.0
+        ..['q_debt_payments_period_chf'] = 0.0
+        ..['q_other_fixed_costs_monthly_chf'] = 0.0;
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining('Ton Budget'), findsOneWidget);
+      expect(find.textContaining("CHF\u00a0-520"), findsWidgets);
+      expect(find.textContaining("CHF\u00a00"), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('safe-mode reasons accept persisted debt as numeric string',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
@@ -182,6 +335,31 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.byType(FinancialReportScreenV2), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('priority action omits gain chip when fiscal impact is zero',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_net_income_period_chf'] = 0.0
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_3a_annual_contribution'] = 0.0
+        ..['q_lpp_buyback_available'] = 0.0;
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.byType(FinancialReportScreenV2), findsOneWidget);
+      expect(find.textContaining('+CHF'), findsNothing);
       expect(tester.takeException(), isNull);
     });
 
@@ -206,6 +384,30 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.byType(FinancialReportScreenV2), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('retirement 3a card uses profile-grounded deductible room',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_has_3a'] = 'no'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_3a_annual_contribution'] = 0.0
+        ..['q_gross_salary_annual'] = 84000.0;
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(find.textContaining("CHF 7'258/an"), findsOneWidget);
+      expect(find.textContaining("jusqu'à CHF 7"), findsNothing);
       expect(tester.takeException(), isNull);
     });
   });

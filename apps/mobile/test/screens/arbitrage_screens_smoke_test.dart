@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
@@ -23,9 +24,15 @@ import 'package:mint_mobile/screens/arbitrage/location_vs_propriete_screen.dart'
 // ---------------------------------------------------------------------------
 //  Shared helper — wraps a screen with Provider + French i18n
 // ---------------------------------------------------------------------------
-Widget _buildWrapped(Widget screen) {
+Widget _buildWrapped(Widget screen, {CoachProfile? profile}) {
   return ChangeNotifierProvider<CoachProfileProvider>(
-    create: (_) => CoachProfileProvider(),
+    create: (_) {
+      final provider = CoachProfileProvider();
+      if (profile != null) {
+        provider.updateProfile(profile);
+      }
+      return provider;
+    },
     child: MaterialApp(
       locale: const Locale('fr'),
       localizationsDelegates: const [
@@ -36,6 +43,29 @@ Widget _buildWrapped(Widget screen) {
       ],
       supportedLocales: S.supportedLocales,
       home: screen,
+    ),
+  );
+}
+
+CoachProfile _debtPriorityProfile() {
+  return CoachProfile(
+    birthYear: 1985,
+    canton: 'VD',
+    salaireBrutMensuel: 8000,
+    etatCivil: CoachCivilStatus.celibataire,
+    dettes: const DetteProfile(
+      creditConsommation: 25000,
+      mensualiteCreditConso: 900,
+    ),
+    prevoyance: const PrevoyanceProfile(
+      avoirLppTotal: 300000,
+      totalEpargne3a: 50000,
+      rachatMaximum: 100000,
+    ),
+    goalA: GoalA(
+      type: GoalAType.retraite,
+      targetDate: DateTime(2045),
+      label: 'Retraite',
     ),
   );
 }
@@ -187,6 +217,22 @@ void main() {
       await tester.pump();
       final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
       expect(scaffold.body, isNotNull);
+    });
+
+    testWidgets('shows debt protection as a protection card, not a locked item',
+        (tester) async {
+      await tester.pumpWidget(
+        _buildWrapped(
+          const ArbitrageBilanScreen(),
+          profile: _debtPriorityProfile(),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Priorité au désendettement'), findsOneWidget);
+      expect(find.textContaining('Débloque'), findsNothing);
+      expect(find.textContaining('Rachat LPP'), findsNothing);
+      expect(find.textContaining('Allocation annuelle'), findsNothing);
     });
   });
 

@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
@@ -45,6 +44,7 @@ CoachProfile _makeProfile({
   double salaireBrutMensuel = 8000,
   double totalEpargne3a = 0,
   bool canContribute3a = true,
+  List<PlannedMonthlyContribution> plannedContributions = const [],
 }) {
   return CoachProfile(
     birthYear: birthYear,
@@ -67,7 +67,7 @@ CoachProfile _makeProfile({
       label: 'Retraite',
     ),
     goalsB: const [],
-    plannedContributions: const [],
+    plannedContributions: plannedContributions,
     checkIns: const [],
     createdAt: DateTime(2025, 1, 1),
     updatedAt: DateTime(2026, 3, 1),
@@ -81,11 +81,12 @@ MintUserState _makeState({
   double? replacementRate,
   CapSequence? capSequencePlan,
   double confidenceScore = 50.0,
+  FinancialArchetype archetype = FinancialArchetype.swissNative,
 }) {
   return MintUserState(
     profile: profile ?? _makeProfile(),
     lifecyclePhase: LifecyclePhase.consolidation,
-    archetype: FinancialArchetype.swissNative,
+    archetype: archetype,
     budgetSnapshot: budgetSnapshot,
     replacementRate: replacementRate,
     capSequencePlan: capSequencePlan,
@@ -108,6 +109,21 @@ BudgetSnapshot _snapshotWithFree(double monthlyFree) {
     gap: const BudgetGap(monthlyGap: 1500, replacementRate: 55.0),
     capImpacts: const [],
     confidenceScore: 65.0,
+  );
+}
+
+/// Build a present-only budget snapshot with no retirement gap.
+BudgetSnapshot _presentOnlySnapshotWithFree(double monthlyFree) {
+  return BudgetSnapshot(
+    present: PresentBudget(
+      monthlyNet: 5000,
+      monthlyCharges: 3078,
+      monthlySavings: 0,
+      monthlyFree: monthlyFree,
+    ),
+    stage: BudgetStage.presentOnly,
+    capImpacts: const [],
+    confidenceScore: 45.0,
   );
 }
 
@@ -186,16 +202,33 @@ void main() {
     // ── Test 2: Budget surplus → no budgetAlert ───────────────
     test('2. Monthly surplus → no budgetAlert', () {
       final state = _makeState(
-        budgetSnapshot: _snapshotWithFree(500),
+        budgetSnapshot: _presentOnlySnapshotWithFree(1922),
       );
       final opener = DataDrivenOpenerService.generate(
         state: state,
         l: _l,
         now: march22,
       );
-      // No deficit — should not fire budgetAlert.
-      // (May fire another opener for other reasons, but not budgetAlert)
-      expect(opener?.type, isNot(DataOpenerType.budgetAlert));
+      expect(opener, isNotNull);
+      expect(opener!.type, DataOpenerType.budgetRoom);
+      expect(opener.message, contains("1'922"));
+      expect(opener.intentTag, equals('/budget'));
+    });
+
+    test('2b. Monthly surplus with full gap keeps gap warning priority', () {
+      final state = _makeState(
+        budgetSnapshot: _snapshotWithFree(1922),
+        replacementRate: 55,
+      );
+      final opener = DataDrivenOpenerService.generate(
+        state: state,
+        l: _l,
+        now: march22,
+      );
+      expect(opener, isNotNull);
+      expect(opener!.type, DataOpenerType.gapWarning);
+      expect(opener.type, isNot(DataOpenerType.budgetAlert));
+      expect(opener.type, isNot(DataOpenerType.budgetRoom));
     });
 
     // ── Test 3: No budget snapshot → no budgetAlert ───────────
@@ -229,11 +262,44 @@ void main() {
       expect(opener.intentTag, equals('/pilier-3a'));
     });
 
-    // ── Test 5: December + 3a full → no deadlineUrgency ───────
-    test('5. December + 3a full (>= plafond) → no deadlineUrgency', () {
+    test('4b. December deadline shows remaining room after planned 3a', () {
       final profile = _makeProfile(
-        totalEpargne3a: pilier3aPlafondAvecLpp,
+        totalEpargne3a: 12000,
         salaireBrutMensuel: 8000,
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_monthly',
+            label: '3a mensuel',
+            amount: 250,
+            category: '3a',
+          ),
+        ],
+      );
+      final state = _makeState(profile: profile);
+      final opener = DataDrivenOpenerService.generate(
+        state: state,
+        l: _l,
+        now: december15,
+      );
+
+      expect(opener, isNotNull);
+      expect(opener!.type, DataOpenerType.deadlineUrgency);
+      expect(opener.message, contains("4'258"));
+      expect(opener.message, isNot(contains("7'258")));
+    });
+
+    // ── Test 5: December + 3a full → no deadlineUrgency ───────
+    test('5. December + 3a planned full → no deadlineUrgency', () {
+      final profile = _makeProfile(
+        salaireBrutMensuel: 8000,
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_full',
+            label: '3a complet',
+            amount: 605,
+            category: '3a',
+          ),
+        ],
       );
       final state = _makeState(profile: profile);
       final opener = DataDrivenOpenerService.generate(
@@ -327,7 +393,7 @@ void main() {
     });
 
     // ── Test 11: 3a = 0 + salary > 0 → savingsOpportunity ─────
-    test('11. 3a = 0 + salary > 0 → savingsOpportunity with plafond', () {
+    test('11. 3a = 0 + salary > 0 → savingsOpportunity with room', () {
       final profile = _makeProfile(totalEpargne3a: 0, salaireBrutMensuel: 5000);
       final state = _makeState(profile: profile);
       // Use a month that is not December to avoid deadlineUrgency taking priority.
@@ -342,6 +408,56 @@ void main() {
       expect(opener.message, isNot(contains('7258 CHF')));
       expect(opener.message, isNot(contains("d’économie d’impôt")));
       expect(opener.intentTag, equals('/pilier-3a'));
+    });
+
+    test('11b. savingsOpportunity uses planned-contribution remaining room',
+        () {
+      final profile = _makeProfile(
+        totalEpargne3a: 0,
+        salaireBrutMensuel: 5000,
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_monthly',
+            label: '3a mensuel',
+            amount: 250,
+            category: '3a',
+          ),
+        ],
+      );
+      final state = _makeState(profile: profile);
+
+      final opener = DataDrivenOpenerService.generate(
+        state: state,
+        l: _l,
+        now: march22,
+      );
+
+      expect(opener, isNotNull);
+      expect(opener!.type, DataOpenerType.savingsOpportunity);
+      expect(opener.message, contains("4'258"));
+      expect(opener.message, isNot(contains("7'258")));
+    });
+
+    test('11c. independent without LPP uses income-based 3a room', () {
+      final profile = _makeProfile(
+        totalEpargne3a: 0,
+        salaireBrutMensuel: 8000,
+      );
+      final state = _makeState(
+        profile: profile,
+        archetype: FinancialArchetype.independentNoLpp,
+      );
+
+      final opener = DataDrivenOpenerService.generate(
+        state: state,
+        l: _l,
+        now: march22,
+      );
+
+      expect(opener, isNotNull);
+      expect(opener!.type, DataOpenerType.savingsOpportunity);
+      expect(opener.message, contains("19'200"));
+      expect(opener.message, isNot(contains("36'288")));
     });
 
     // ── Test 12: 3a > 0 → no savingsOpportunity ───────────────

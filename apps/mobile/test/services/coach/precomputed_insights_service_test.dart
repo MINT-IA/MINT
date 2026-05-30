@@ -45,6 +45,7 @@ CoachProfile _makeProfile({
   double salaireBrutMensuel = 8000,
   double totalEpargne3a = 0,
   bool canContribute3a = true,
+  List<PlannedMonthlyContribution> plannedContributions = const [],
 }) {
   return CoachProfile(
     birthYear: 1985,
@@ -67,7 +68,7 @@ CoachProfile _makeProfile({
       label: 'Retraite',
     ),
     goalsB: const [],
-    plannedContributions: const [],
+    plannedContributions: plannedContributions,
     checkIns: const [],
     createdAt: DateTime(2025, 1, 1),
     updatedAt: DateTime(2026, 3, 1),
@@ -107,6 +108,20 @@ BudgetSnapshot _snapshotWithFree(double monthlyFree) {
     gap: const BudgetGap(monthlyGap: 1500, replacementRate: 55.0),
     capImpacts: const [],
     confidenceScore: 65.0,
+  );
+}
+
+BudgetSnapshot _presentOnlySnapshotWithFree(double monthlyFree) {
+  return BudgetSnapshot(
+    present: PresentBudget(
+      monthlyNet: 5000,
+      monthlyCharges: 3078,
+      monthlySavings: 0,
+      monthlyFree: monthlyFree,
+    ),
+    stage: BudgetStage.presentOnly,
+    capImpacts: const [],
+    confidenceScore: 45.0,
   );
 }
 
@@ -195,6 +210,34 @@ void main() {
       expect(cached!.type, DataOpenerType.budgetAlert);
     });
 
+    test('2b. computeAndCache + getCachedInsight roundtrip (budgetRoom)',
+        () async {
+      final state = _makeState(
+        budgetSnapshot: _presentOnlySnapshotWithFree(1922),
+      );
+      final prefs = await SharedPreferences.getInstance();
+
+      await PrecomputedInsightsService.computeAndCache(
+        state: state,
+        prefs: prefs,
+        now: march22,
+      );
+
+      final cached = await PrecomputedInsightsService.getCachedInsight(
+        prefs: prefs,
+        now: march22,
+      );
+      expect(cached, isNotNull);
+      expect(cached!.type, DataOpenerType.budgetRoom);
+      expect(cached.params['amount'], equals('1922'));
+      expect(cached.intentTag, equals('/budget'));
+
+      final opener = cached.resolve(_l);
+      expect(opener, isNotNull);
+      expect(opener!.message, contains("1'922"));
+      expect(opener.message, contains('après tes charges'));
+    });
+
     // ── Test 3: Stale insight (> 1 hour) not returned ──────────────────────
     test('3. Stale insight (> 1 hour) returns null', () async {
       final prefs = await SharedPreferences.getInstance();
@@ -207,7 +250,7 @@ void main() {
         computedAt: DateTime.now().subtract(const Duration(hours: 2)),
       );
       await prefs.setString(
-        'mint_precomputed_insight_v1',
+        'mint_precomputed_insight_v2',
         jsonEncode(staleInsight.toJson()),
       );
 
@@ -229,7 +272,7 @@ void main() {
         computedAt: DateTime.now().subtract(const Duration(minutes: 30)),
       );
       await prefs.setString(
-        'mint_precomputed_insight_v1',
+        'mint_precomputed_insight_v2',
         jsonEncode(freshInsight.toJson()),
       );
 
@@ -357,6 +400,68 @@ void main() {
       expect(opener.message, isNot(contains('7258 CHF')));
     });
 
+    test('8b. savingsOpportunity cache stores remaining 3a room', () async {
+      final profile = _makeProfile(
+        totalEpargne3a: 0,
+        salaireBrutMensuel: 5000,
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_monthly',
+            label: '3a mensuel',
+            amount: 250,
+            category: '3a',
+          ),
+        ],
+      );
+      final state = _makeState(profile: profile);
+      final prefs = await SharedPreferences.getInstance();
+
+      await PrecomputedInsightsService.computeAndCache(
+        state: state,
+        prefs: prefs,
+        now: march22,
+      );
+
+      final cached = await PrecomputedInsightsService.getCachedInsight(
+        prefs: prefs,
+        now: march22,
+      );
+
+      expect(cached, isNotNull);
+      expect(cached!.type, DataOpenerType.savingsOpportunity);
+      expect(cached.params['plafond'], equals('4258'));
+      expect(cached.resolve(_l)!.message, contains("4'258"));
+    });
+
+    test('8c. savingsOpportunity cache stores independent income-based room',
+        () async {
+      final profile = _makeProfile(
+        totalEpargne3a: 0,
+        salaireBrutMensuel: 8000,
+      );
+      final state = _makeState(
+        profile: profile,
+        archetype: FinancialArchetype.independentNoLpp,
+      );
+      final prefs = await SharedPreferences.getInstance();
+
+      await PrecomputedInsightsService.computeAndCache(
+        state: state,
+        prefs: prefs,
+        now: march22,
+      );
+
+      final cached = await PrecomputedInsightsService.getCachedInsight(
+        prefs: prefs,
+        now: march22,
+      );
+
+      expect(cached, isNotNull);
+      expect(cached!.type, DataOpenerType.savingsOpportunity);
+      expect(cached.params['plafond'], equals('19200'));
+      expect(cached.resolve(_l)!.message, contains("19'200"));
+    });
+
     // ── Test 9: deadlineUrgency stored and read correctly ───────────────────
     test('9. deadlineUrgency stored and read correctly (December)', () async {
       final profile = _makeProfile(totalEpargne3a: 0, salaireBrutMensuel: 8000);
@@ -391,6 +496,39 @@ void main() {
       expect(opener!.message, contains(expectedDays.toString()));
       expect(opener.message, contains("7'258"));
       expect(opener.message, isNot(contains('7258 CHF')));
+    });
+
+    test('9b. deadlineUrgency cache stores remaining 3a room', () async {
+      final profile = _makeProfile(
+        totalEpargne3a: 12000,
+        salaireBrutMensuel: 8000,
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a_monthly',
+            label: '3a mensuel',
+            amount: 250,
+            category: '3a',
+          ),
+        ],
+      );
+      final state = _makeState(profile: profile);
+      final prefs = await SharedPreferences.getInstance();
+
+      await PrecomputedInsightsService.computeAndCache(
+        state: state,
+        prefs: prefs,
+        now: december15,
+      );
+
+      final cached = await PrecomputedInsightsService.getCachedInsight(
+        prefs: prefs,
+        now: december15,
+      );
+
+      expect(cached, isNotNull);
+      expect(cached!.type, DataOpenerType.deadlineUrgency);
+      expect(cached.params['plafond'], equals('4258'));
+      expect(cached.resolve(_l)!.message, contains("4'258"));
     });
 
     // ── Test 10: planProgress stored and read correctly ─────────────────────
@@ -483,7 +621,7 @@ void main() {
 
       // Pre-seed a stale value to verify it gets cleared.
       await prefs.setString(
-        'mint_precomputed_insight_v1',
+        'mint_precomputed_insight_v2',
         '{"type":"budgetAlert","params":{"deficit":"100"},"computedAt":"2020-01-01T00:00:00.000"}',
       );
 
@@ -493,14 +631,14 @@ void main() {
         now: march22,
       );
 
-      expect(prefs.containsKey('mint_precomputed_insight_v1'), isFalse);
+      expect(prefs.containsKey('mint_precomputed_insight_v2'), isFalse);
     });
 
     // ── Test 13: Malformed JSON → null returned safely ──────────────────────
     test('13. Malformed JSON in prefs → getCachedInsight returns null',
         () async {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('mint_precomputed_insight_v1', 'not-valid-json{{{');
+      await prefs.setString('mint_precomputed_insight_v2', 'not-valid-json{{{');
 
       final result = await PrecomputedInsightsService.getCachedInsight(
         prefs: prefs,

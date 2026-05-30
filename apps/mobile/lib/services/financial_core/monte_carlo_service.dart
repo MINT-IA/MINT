@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
@@ -602,7 +603,8 @@ class MonteCarloProjectionService {
       salaireBrutMensuel: profile.salaireBrutMensuel,
       conjointSalaireBrutMensuel:
           profile.conjoint?.salaireBrutMensuel ?? 0,
-      currentExpenses: profile.depenses.totalMensuel,
+      currentExpenses:
+          BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile),
       housingStatus: profile.housingStatus,
       canton: profile.canton.isNotEmpty
           ? profile.canton.toUpperCase()

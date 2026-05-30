@@ -10,7 +10,7 @@
 //  - Pure function — no side effects, deterministic, testable.
 //  - Returns null when no interesting data point is found.
 //  - Always surfaces a REAL CHF number from the user's profile.
-//  - Priority: deficit > deadline > gap > savings > celebration > plan.
+//  - Priority: deficit > budget room > deadline > gap > savings > celebration > plan.
 //
 // Compliance:
 //  - No banned terms (garanti, certain, assuré, sans risque,
@@ -22,11 +22,10 @@
 // ────────────────────────────────────────────────────────────
 library;
 
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/cap_sequence.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/services/financial_core/pillar3a_room_calculator.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ════════════════════════════════════════════════════════════════
@@ -37,6 +36,9 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 enum DataOpenerType {
   /// Monthly spending deficit detected.
   budgetAlert,
+
+  /// Positive monthly budget margin detected.
+  budgetRoom,
 
   /// December and 3a has not been maxed this year.
   deadlineUrgency,
@@ -85,11 +87,12 @@ class DataDrivenOpener {
 ///
 /// Priority order (highest first):
 ///  1. [DataOpenerType.budgetAlert]       — monthly deficit
-///  2. [DataOpenerType.deadlineUrgency]   — December, 3a not maxed
-///  3. [DataOpenerType.gapWarning]        — replacement rate < 60%
-///  4. [DataOpenerType.savingsOpportunity]— 3a = 0 and salary > 0
-///  5. [DataOpenerType.progressCelebration] — confidence +5 pts
-///  6. [DataOpenerType.planProgress]      — CapSequence step completed
+///  2. [DataOpenerType.budgetRoom]        — positive monthly margin
+///  3. [DataOpenerType.deadlineUrgency]   — December, 3a not maxed
+///  4. [DataOpenerType.gapWarning]        — replacement rate < 60%
+///  5. [DataOpenerType.savingsOpportunity]— 3a = 0 and salary > 0
+///  6. [DataOpenerType.progressCelebration] — confidence +5 pts
+///  7. [DataOpenerType.planProgress]      — CapSequence step completed
 ///
 /// Returns null when no condition produces a meaningful data point.
 ///
@@ -107,10 +110,6 @@ class DataDrivenOpenerService {
 
   /// Minimum salary (annual, CHF) to consider 3a savings opportunity.
   static const double _minSalaryForSavings = 1.0;
-
-  /// 3a plafond for salariés with LPP access (OPP3 2025/2026).
-  static double get _plafond3aSalarie =>
-      reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
   // ── Public API ────────────────────────────────────────────
 
@@ -134,24 +133,29 @@ class DataDrivenOpenerService {
     final deficitOpener = _checkBudgetDeficit(state, l);
     if (deficitOpener != null) return deficitOpener;
 
-    // Priority 2: 3a deadline (December)
+    // Priority 2: Positive budget room. If the user just gave us budget facts,
+    // acknowledge that concrete monthly margin before generic 3a opportunities.
+    final budgetRoomOpener = _checkBudgetRoom(state, l);
+    if (budgetRoomOpener != null) return budgetRoomOpener;
+
+    // Priority 3: 3a deadline (December)
     final deadlineOpener = _checkDeadlineUrgency(state, l, currentDate);
     if (deadlineOpener != null) return deadlineOpener;
 
-    // Priority 3: Gap warning
+    // Priority 4: Gap warning
     final gapOpener = _checkGapWarning(state, l);
     if (gapOpener != null) return gapOpener;
 
-    // Priority 4: Savings opportunity (3a = 0)
+    // Priority 5: Savings opportunity (3a = 0)
     final savingsOpener = _checkSavingsOpportunity(state, l);
     if (savingsOpener != null) return savingsOpener;
 
-    // Priority 5: Progress celebration
+    // Priority 6: Progress celebration
     final celebrationOpener =
         _checkProgressCelebration(state, l, previousConfidenceScore);
     if (celebrationOpener != null) return celebrationOpener;
 
-    // Priority 6: Plan progress
+    // Priority 7: Plan progress
     final planOpener = _checkPlanProgress(state, l);
     if (planOpener != null) return planOpener;
 
@@ -178,7 +182,30 @@ class DataDrivenOpenerService {
     );
   }
 
-  // ── Priority 2: 3a deadline (December) ────────────────────
+  // ── Priority 2: Positive budget room ──────────────────────
+
+  static DataDrivenOpener? _checkBudgetRoom(
+    MintUserState state,
+    S l,
+  ) {
+    final snapshot = state.budgetSnapshot;
+    if (snapshot == null) return null;
+    if (snapshot.gap != null) return null;
+    // A positive room opener is only trustworthy once actual charges exist.
+    // Salary-only snapshots should keep asking for budget facts instead.
+    if (snapshot.present.monthlyCharges <= 0) return null;
+    if (snapshot.present.monthlyFree <= 0) return null;
+
+    return DataDrivenOpener(
+      message: l.budgetSetupResteAfterCharges(
+        formatChf(snapshot.present.monthlyFree),
+      ),
+      intentTag: '/budget',
+      type: DataOpenerType.budgetRoom,
+    );
+  }
+
+  // ── Priority 3: 3a deadline (December) ────────────────────
 
   static DataDrivenOpener? _checkDeadlineUrgency(
     MintUserState state,
@@ -188,31 +215,18 @@ class DataDrivenOpenerService {
     // Only fires in December (days 1–31).
     if (now.month != DateTime.december) return null;
 
-    // Only fires if 3a has not been maxed.
-    final epargne3a = state.profile.prevoyance.totalEpargne3a;
-    // We check yearly contributions rather than total balance.
-    // If total savings < plafond, the user likely has room this year.
-    // (More precise: check YTD contributions, but we use totalEpargne3a as proxy.)
-    // Trigger if user has salary and 3a savings look un-contributed this year.
+    // Trigger only when the user has income and deductible room remains.
     final hasSalary = state.profile.revenuBrutAnnuel > _minSalaryForSavings;
     if (!hasSalary) return null;
 
     // Check canContribute3a flag (FATCA compliance: US persons may be blocked).
     if (!state.profile.prevoyance.canContribute3a) return null;
 
-    // Use plafond based on employment status.
-    final isIndepNoLpp = state.archetype == FinancialArchetype.independentNoLpp;
-    final plafond = isIndepNoLpp
-        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
-        : _plafond3aSalarie;
-
-    // If this year's balance already looks full, skip.
-    // Heuristic: if 3a total is a round multiple of plafond this year is done.
-    // We cannot know YTD contributions precisely without bank data, so we
-    // surface the reminder and let the user confirm.
-    // Always surface if epargne3a == 0 (handled by savings opportunity above).
-    // Here we handle the partial case: 0 < epargne3a < plafond.
-    if (epargne3a >= plafond) return null;
+    final remainingRoom = Pillar3aRoomCalculator.remainingAnnualRoom(
+      state.profile,
+      archetype: state.archetype,
+    );
+    if (remainingRoom <= 0) return null;
 
     final daysLeft = DateTime(now.year, 12, 31).difference(now).inDays + 1;
     if (daysLeft <= 0) return null;
@@ -220,7 +234,7 @@ class DataDrivenOpenerService {
     return DataDrivenOpener(
       message: l.opener3aDeadline(
         daysLeft.toString(),
-        formatChf(plafond),
+        formatChf(remainingRoom),
       ),
       intentTag: '/pilier-3a',
       type: DataOpenerType.deadlineUrgency,
@@ -264,13 +278,14 @@ class DataDrivenOpenerService {
 
     if (!state.profile.prevoyance.canContribute3a) return null;
 
-    final isIndepNoLpp = state.archetype == FinancialArchetype.independentNoLpp;
-    final plafond = isIndepNoLpp
-        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
-        : _plafond3aSalarie;
+    final remainingRoom = Pillar3aRoomCalculator.remainingAnnualRoom(
+      state.profile,
+      archetype: state.archetype,
+    );
+    if (remainingRoom <= 0) return null;
 
     return DataDrivenOpener(
-      message: l.openerSavingsOpportunity(formatChf(plafond)),
+      message: l.openerSavingsOpportunity(formatChf(remainingRoom)),
       intentTag: '/pilier-3a',
       type: DataOpenerType.savingsOpportunity,
     );

@@ -35,7 +35,9 @@ class FallbackTemplates {
 
     // Recent visit (< 7 days)
     if (ctx.daysSinceLastVisit < 7) {
-      return hasName ? 'Content de te revoir, ${ctx.firstName}.' : 'Content de te revoir.';
+      return hasName
+          ? 'Content de te revoir, ${ctx.firstName}.'
+          : 'Content de te revoir.';
     }
 
     // Fiscal season: 3a deadline (Oct-Dec)
@@ -98,8 +100,9 @@ class FallbackTemplates {
     // Tax optimization lever (> CHF 1000 potential)
     final resolvedCanton = resolveCanton(ctx.canton);
     if (taxSaving > 1000 && resolvedCanton.isResolved) {
-      return '${ctx.firstName}, un versement 3a pourrait réduire ton impôt '
-          'd\'environ ${formatChfWithPrefix(taxSaving)} cette année. '
+      return '${ctx.firstName}, un versement 3a pourrait diminuer ton revenu '
+          'imposable. Impact fiscal indicatif: environ '
+          '${formatChfWithPrefix(taxSaving)} cette année. '
           'Estimation basée sur un taux marginal estimé, canton ${resolvedCanton.code}. '
           'Simule l\'impact sur ton profil.';
     }
@@ -135,8 +138,8 @@ class FallbackTemplates {
   /// encourages profile enrichment based on data reliability.
   static String premierEclairageReframe(CoachContext ctx) {
     final confidence = ctx.knownValues['confidence_score'] ?? 30;
-    final hasCertifiedData = ctx.dataReliability.values
-        .any((v) => v == 'certificate');
+    final hasCertifiedData =
+        ctx.dataReliability.values.any((v) => v == 'certificate');
 
     if (hasCertifiedData) {
       return 'Données certifiées — confiance ${confidence.toStringAsFixed(0)}\u00a0%. '
@@ -156,42 +159,35 @@ class FallbackTemplates {
   static String enrichmentGuide(CoachContext ctx, String blockType) {
     final name = ctx.firstName;
     return switch (blockType) {
-      'lpp' =>
-        '$name, connais-tu ton avoir LPP actuel ? '
-        'Ton certificat de prévoyance (2e pilier) indique le montant exact. '
-        'Avec ton salaire et ton âge, l\'estimation pourrait varier '
-        'significativement du réel. Un scan du certificat affinerait '
-        'tes projections de +18 points de confiance.',
-      'avs' =>
-        '$name, as-tu déjà demandé ton extrait de compte AVS ? '
-        'Il confirme tes années de cotisation effectives. '
-        '${ctx.archetype.contains('expat') ? 'En tant qu\'expatrié, des lacunes sont probables. ' : ''}'
-        'Commander un extrait est gratuit sur le site de ta caisse de compensation.',
-      '3a' =>
-        '$name, combien de comptes 3a as-tu et chez quel provider ? '
-        'Connaître les soldes exacts permet de calculer ton avantage fiscal '
-        'et de projeter ta prévoyance complète.',
-      'patrimoine' =>
-        '$name, as-tu de l\'épargne en dehors de la prévoyance ? '
-        'Comptes courants, investissements, immobilier — ces données '
-        'complètent ton Financial Resilience Index.',
-      'fiscalite' =>
-        '$name, dans quelle commune habites-tu ? '
-        'Le coefficient communal varie de 60% à 130% et impacte '
-        'directement ton taux d\'imposition réel. '
-        'Une déclaration fiscale ou un avis de taxation donnerait un calcul précis.',
+      'lpp' => '$name, connais-tu ton avoir LPP actuel ? '
+          'Ton certificat de prévoyance (2e pilier) indique le montant exact. '
+          'Avec ton salaire et ton âge, l\'estimation pourrait varier '
+          'significativement du réel. Un scan du certificat affinerait '
+          'tes projections de +18 points de confiance.',
+      'avs' => '$name, as-tu déjà demandé ton extrait de compte AVS ? '
+          'Il confirme tes années de cotisation effectives. '
+          '${ctx.archetype.contains('expat') ? 'En tant qu\'expatrié, des lacunes sont probables. ' : ''}'
+          'Commander un extrait est gratuit sur le site de ta caisse de compensation.',
+      '3a' => '$name, combien de comptes 3a as-tu et chez quel provider ? '
+          'Connaître les soldes exacts permet de calculer ta marge déductible '
+          'et de projeter ta prévoyance complète.',
+      'patrimoine' => '$name, as-tu de l\'épargne en dehors de la prévoyance ? '
+          'Comptes courants, investissements, immobilier — ces données '
+          'complètent ton Financial Resilience Index.',
+      'fiscalite' => '$name, dans quelle commune habites-tu ? '
+          'Le coefficient communal varie de 60% à 130% et impacte '
+          'directement ton taux d\'imposition réel. '
+          'Une déclaration fiscale ou un avis de taxation donnerait un calcul précis.',
       'objectifRetraite' =>
         '$name, à quel âge souhaiterais-tu arrêter de travailler ? '
-        'Entre 58 et 70 ans, chaque année change la donne : '
-        'rente réduite avant 65 ans, majorée après.',
-      'compositionMenage' =>
-        '$name, es-tu en couple ? '
-        'Si oui, les projections changent significativement : '
-        'AVS plafonnée pour les mariés, rente de survivant LPP, '
-        'et possibilités d\'optimisation fiscale à deux.',
-      _ =>
-        '$name, chaque donnée ajoutée affine tes projections '
-        'et révèle des leviers concrets.',
+            'Entre 58 et 70 ans, chaque année change la donne : '
+            'rente réduite avant 65 ans, majorée après.',
+      'compositionMenage' => '$name, es-tu en couple ? '
+          'Si oui, les projections changent significativement : '
+          'AVS plafonnée pour les mariés, rente de survivant LPP, '
+          'et possibilités d\'optimisation fiscale à deux.',
+      _ => '$name, chaque donnée ajoutée affine tes projections '
+          'et révèle des leviers concrets.',
     };
   }
 
@@ -421,16 +417,18 @@ class FallbackTemplates {
       '${ctx.firstName}, ton premier emploi lance ta prévoyance. '
       'Tu cotises à l\'AVS dès le 1er janvier après tes 17 ans '
       '(LAVS art. 3). La LPP commence dès 22\u00a0680\u00a0CHF/an '
-      '(LPP art. 7). Tu peux ouvrir un 3a (max 7\u00a0258\u00a0CHF/an) '
-      'pour réduire tes impôts dès la première année.\n\n'
+      '(LPP art. 7). Tu peux ouvrir un 3a; marge maximale salarié LPP: '
+      '${formatChfWithPrefix(pilier3aPlafondAvecLpp)}/an '
+      '(OPP3 art. 7).\n\n'
       '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
 
   /// Self-employment: LPP optional, 3a max higher.
   static String selfEmploymentGuidance(CoachContext ctx) =>
       '${ctx.firstName}, en tant qu\'indépendant·e, la LPP est '
       'facultative mais tu peux t\'affilier (LPP art. 4). Sans LPP, '
-      'ton plafond 3a monte à 36\u00a0288\u00a0CHF/an (20\u00a0% du '
-      'revenu net). La cotisation AVS est à ta charge (min. '
+      'ta marge maximale 3a dépend du revenu: 20\u00a0% du revenu net, '
+      'jusqu\'à ${formatChfWithPrefix(pilier3aPlafondSansLpp)}/an. '
+      'La cotisation AVS est à ta charge (min. '
       '530\u00a0CHF/an, LAVS art. 8).\n\n'
       '_Outil éducatif — ne constitue pas un conseil financier (LSFin)._';
 
@@ -456,8 +454,8 @@ class FallbackTemplates {
     // Value string matches ProfileDataSource enum name — `'certificate'`,
     // NOT `'certified'`. The typo made every greeting say "Scanne ton
     // certificat LPP" even right after the user scanned one.
-    final hasLpp = rel.entries.any(
-        (e) => e.key.contains('avoirLpp') && e.value == 'certificate');
+    final hasLpp = rel.entries
+        .any((e) => e.key.contains('avoirLpp') && e.value == 'certificate');
     if (!hasLpp) {
       return 'Scanne ton certificat LPP pour des projections plus fiables.';
     }

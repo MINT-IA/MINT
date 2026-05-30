@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────────
 //  BUDGET DOMAIN — Unit Tests
@@ -217,6 +219,46 @@ void main() {
       expect(msg, contains('Safe Mode'));
     });
 
+    test('thresholds use displayed CHF values, not raw cents', () {
+      const fragileInputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 1000.49,
+        housingCost: 699.51,
+        debtPayments: 0,
+      );
+      final fragileMsg = BudgetService.premierEclairage(fragileInputs);
+      final fragilePlan = BudgetService().computePlan(fragileInputs);
+
+      expect(fragileMsg, contains('70 %'));
+      expect(fragileMsg, contains('Situation fragile'));
+      expect(fragilePlan.distress, BudgetDistressLevel.fragile);
+
+      const criticalInputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 1000.49,
+        housingCost: 999.51,
+        debtPayments: 0,
+      );
+      final criticalMsg = BudgetService.premierEclairage(criticalInputs);
+      final criticalPlan = BudgetService().computePlan(criticalInputs);
+
+      expect(criticalMsg, contains('100 %'));
+      expect(criticalMsg, contains('atteignent ou dépassent'));
+      expect(criticalMsg, contains('Safe Mode'));
+      expect(criticalPlan.distress, BudgetDistressLevel.critical);
+
+      const neutralInputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 1000.49,
+        housingCost: 599.51,
+        debtPayments: 0,
+      );
+      final neutralPlan = BudgetService().computePlan(neutralInputs);
+
+      expect(BudgetService.premierEclairage(neutralInputs), contains('60 %'));
+      expect(neutralPlan.distress, BudgetDistressLevel.none);
+    });
+
     test('golden couple Julien — typical household budget', () {
       // Julien: net income ~8100 CHF/month (from 122'207 CHF gross, VS canton)
       // Loyer typical VS: ~1800, LAMal: ~450, tax: ~900, dettes: 0
@@ -370,6 +412,33 @@ void main() {
       expect(plan.available, closeTo(2500, 0.01));
       expect(plan.variables, closeTo(2500, 0.01));
       expect(plan.future, closeTo(0, 0.01));
+    });
+
+    test('available matches canonical displayed monthly free when future is 0',
+        () {
+      const inputs = BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 5000.4,
+        housingCost: 1200.5,
+        healthInsurance: 400.5,
+        taxProvision: 300.5,
+        debtPayments: 200.5,
+        otherFixedCosts: 100.5,
+        style: BudgetStyle.envelopes3,
+      );
+
+      final plan = service.computePlan(inputs);
+      final present = PresentBudgetBuilder.fromInputs(
+        inputs: inputs,
+        plan: plan,
+      );
+
+      expect(plan.available, 2795);
+      expect(plan.available, present.monthlyFree);
+      expect(
+        plan.available + PresentBudgetBuilder.fixedChargesFromInputs(inputs),
+        PresentBudgetBuilder.displayChf(inputs.netIncome),
+      );
     });
 
     test('variables + future == available', () {
@@ -609,6 +678,166 @@ void main() {
         debtPayments: 0,
       );
       expect(inputs.emergencyFundMonths, 0);
+    });
+
+    test('plausibleMonthlyFixedExpensesFromProfile ignores impossible housing',
+        () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        depenses: const DepensesProfile(
+          loyer: 19272200,
+          assuranceMaladie: 420,
+          transport: 200,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final expenses =
+          BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
+
+      expect(expenses, 620);
+    });
+
+    test('fromCoachProfile prefers explicit debt monthly payment over proxy',
+        () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        dettes: const DetteProfile(
+          creditConsommation: 24000,
+          mensualiteCreditConso: 1200,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.debtPayments, 1200);
+    });
+
+    test('fromCoachProfile sums explicit consumer and leasing payments', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        dettes: const DetteProfile(
+          creditConsommation: 24000,
+          leasing: 12000,
+          mensualiteCreditConso: 600,
+          mensualiteLeasing: 350,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.debtPayments, 950);
+    });
+
+    test('fromCoachProfile keeps mortgage out of debt payments', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        dettes: const DetteProfile(
+          hypotheque: 500000,
+          creditConsommation: 24000,
+          leasing: 12000,
+          mensualiteHypotheque: 1800,
+          mensualiteCreditConso: 600,
+          mensualiteLeasing: 350,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.debtPayments, 950);
+    });
+
+    test('fromCoachProfile counts housing separately from consumer debt', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        depenses: const DepensesProfile(loyer: 2200),
+        dettes: const DetteProfile(
+          hypotheque: 500000,
+          creditConsommation: 24000,
+          leasing: 12000,
+          mensualiteHypotheque: 1800,
+          mensualiteCreditConso: 600,
+          mensualiteLeasing: 350,
+        ),
+        dataSources: const {
+          'depenses.loyer': ProfileDataSource.userInput,
+        },
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.housingCost, 2200);
+      expect(inputs.debtPayments, 950);
+    });
+
+    test('fromCoachProfile uses total debt proxy only without monthly payments',
+        () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 7000,
+        dettes: const DetteProfile(creditConsommation: 21600),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.debtPayments, 600);
+    });
+
+    test('fromWizardAnswers preserves declared monthly debt payment', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_canton': 'VD',
+        'q_gross_salary_annual': 84000,
+        'q_has_consumer_debt': true,
+        'q_debt_payments_period_chf': 900,
+      });
+
+      expect(profile.dettes.totalDettes, 0);
+      expect(profile.dettes.totalMensualite, 900);
+      expect(profile.dettes.hasDette, isTrue);
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+      expect(inputs.debtPayments, 900);
     });
 
     test('PayFrequency enum has three values', () {
@@ -985,6 +1214,76 @@ void main() {
       expect(inputs.healthInsurance, 420);
       expect(inputs.isHealthMissing, isFalse);
       expect(inputs.isHealthEstimated, isFalse);
+    });
+
+    test('fromCoachProfile uses independent net-income approximation', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'GE',
+        salaireBrutMensuel: 10000,
+        employmentStatus: 'independant',
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+
+      expect(inputs.netIncome, closeTo(9000, 0.01));
+    });
+
+    test('fromCoachProfile uses annual gross for salaried net income', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'GE',
+        salaireBrutMensuel: 10000,
+        nombreDeMois: 13,
+        employmentStatus: 'salarie',
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+      final expected = NetIncomeBreakdown.compute(
+        grossSalary: profile.revenuBrutAnnuel,
+        canton: profile.canton,
+        age: profile.age,
+      ).monthlyNetPayslip;
+
+      expect(inputs.netIncome, closeTo(expected, 0.01));
+    });
+
+    test('fromCoachProfile includes independent partner approximation', () {
+      final profile = CoachProfile(
+        birthYear: 1985,
+        canton: 'GE',
+        salaireBrutMensuel: 6000,
+        employmentStatus: 'salarie',
+        conjoint: const ConjointProfile(
+          birthYear: 1988,
+          salaireBrutMensuel: 4000,
+          employmentStatus: 'independant',
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+      final ownNet = NetIncomeBreakdown.compute(
+        grossSalary: profile.revenuBrutAnnuel,
+        canton: profile.canton,
+        age: profile.age,
+      ).monthlyNetPayslip;
+
+      expect(inputs.netIncome, closeTo(ownNet + 3600, 0.01));
     });
 
     test('fromCoachProfile sums only trusted detailed fixed expenses', () {

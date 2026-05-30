@@ -820,7 +820,7 @@ class SDe extends S {
 
   @override
   String get coachingAge45Message =>
-      'Mit 45 bleiben 20 Jahre bis zur Rente. Jetzt optimieren: 3a maximieren, BVG-Einkäufe prüfen.';
+      'Mit 45 bleiben 20 Jahre bis zur Rente. Jetzt ist der Moment, deinen 3a-Spielraum, mögliche BVG-Einkäufe und deine Trajektorie zu prüfen.';
 
   @override
   String get coachingAge50Title => '50 Jahre: Rente vorbereiten';
@@ -834,7 +834,7 @@ class SDe extends S {
 
   @override
   String get coachingAge55Message =>
-      'Mit 55 wird die steuerliche Planung des Bezugs entscheidend. Staffeln Sie die 3a-Bezüge für eine höhere Steuerersparnis.';
+      'Mit 55 wird die steuerliche Planung des Bezugs entscheidend. Gestaffelte 3a-Bezüge können den Steuereffekt verändern.';
 
   @override
   String get coachingAge58Title => '58 Jahre: Frühpensionierung möglich';
@@ -946,7 +946,7 @@ class SDe extends S {
   String get eduTheme3aQuestion => 'Was ist 3a und warum reden alle darueber?';
 
   @override
-  String get eduTheme3aAction => 'Meine Steuerersparnis schaetzen';
+  String get eduTheme3aAction => 'Steuerwirkung schaetzen';
 
   @override
   String get eduTheme3aReminder =>
@@ -1372,7 +1372,7 @@ class SDe extends S {
 
   @override
   String get vaultGuidanceLamalBody =>
-      'Du kannst deine KVG-Franchise jedes Jahr bis zum 30. November (höhere Franchise) oder 31. Dezember (tiefere Franchise) ändern. Ein·e gesunde·r Erwachsene·r kann mit einer Franchise von 2\'500 CHF vs. 300 CHF bis zu 1\'500 CHF/Jahr sparen.';
+      'Du kannst deine KVG-Franchise jedes Jahr bis zum 30. November (höhere Franchise) oder 31. Dezember (tiefere Franchise) ändern. Vergleiche die Gesamtkosten: Prämie + Franchise + Selbstbehalt nach deinen geschätzten Gesundheitskosten.';
 
   @override
   String get vaultGuidanceLamalSource => 'KVG Art. 62, KVV Art. 93-94';
@@ -1826,7 +1826,8 @@ class SDe extends S {
   String get toolsSimulator3a => '3a Simulator';
 
   @override
-  String get toolsSimulator3aDesc => 'Berechne deine jährliche Steuerersparnis';
+  String get toolsSimulator3aDesc =>
+      'Indikative Steuerwirkung von 3a schaetzen';
 
   @override
   String get toolsComparator3a => '3a Vergleich';
@@ -2271,7 +2272,7 @@ class SDe extends S {
   String get naissanceFraisGarde => 'Monatliche Betreuungskosten/Kind';
 
   @override
-  String get naissanceTaxSavings => 'Steuerersparnisse';
+  String get naissanceTaxSavings => 'Steuereffekte';
 
   @override
   String get naissanceDeductionPerChild => 'Abzug pro Kind';
@@ -2280,7 +2281,7 @@ class SDe extends S {
   String get naissanceDeductionChildcare => 'Abzug Betreuungskosten';
 
   @override
-  String get naissanceEstimatedTaxSaving => 'Geschätzte Steuerersparnis';
+  String get naissanceEstimatedTaxSaving => 'Geschätzter Steuereffekt';
 
   @override
   String get naissanceAllowanceIncome => 'Zulageneinkommen';
@@ -2311,7 +2312,7 @@ class SDe extends S {
 
   @override
   String get naissanceNetFormula =>
-      'Steuerersparnisse + Zulagen - geschätzte Kosten';
+      'Steuereffekte + Zulagen - geschätzte Kosten';
 
   @override
   String get naissanceWaterfallRevenu => 'Jährliches Bruttoeinkommen';
@@ -3979,7 +3980,7 @@ class SDe extends S {
 
   @override
   String get fiscalEduRentBody =>
-      'Vergiss nicht, dass Steuerersparnisse durch Miet- und Lebenshaltungsunterschiede ausgeglichen werden können. Vergleiche das Gesamtbudget, nicht nur die Steuern.';
+      'Vergiss nicht, dass der Steuereffekt durch Miet- und Lebenshaltungsunterschiede ausgeglichen werden kann. Vergleiche das Gesamtbudget, nicht nur die Steuern.';
 
   @override
   String get fiscalCommune => 'Gemeinde';
@@ -4844,7 +4845,8 @@ class SDe extends S {
   String get pulseComprendre3a => 'Meine Säule 3a entdecken';
 
   @override
-  String get pulseComprendre3aSub => 'Entdecke deine jährliche Steuerersparnis';
+  String get pulseComprendre3aSub =>
+      'Verstehe deinen jährlichen abzugsfähigen Spielraum';
 
   @override
   String get pulseComprendre_budget => 'Mein monatliches Budget';
@@ -5419,7 +5421,7 @@ class SDe extends S {
   }
 
   @override
-  String get simLppBuybackTaxSavings => 'Économie Impôts';
+  String get simLppBuybackTaxSavings => 'Steuereffekt';
 
   @override
   String get simLppBuybackNetEffort => 'Effort Net';
@@ -5454,7 +5456,7 @@ class SDe extends S {
   @override
   String simLppBuybackDisclaimer(
       String fundRate, int staggeringYears, String taxableIncome) {
-    return 'Simulation inklusive Kassenzins ($fundRate %) und Steuerersparnis, geglättet über $staggeringYears Jahre für ein steuerbares Einkommen von CHF $taxableIncome. Die reale Rendite wird auf deinen tatsächlichen Nettoaufwand berechnet.';
+    return 'Simulation inklusive Kassenzins ($fundRate %) und indikativem Steuereffekt, geglättet über $staggeringYears Jahre für ein steuerbares Einkommen von CHF $taxableIncome. Die reale Rendite wird auf deinen tatsächlichen Nettoaufwand berechnet.';
   }
 
   @override
@@ -5462,7 +5464,7 @@ class SDe extends S {
 
   @override
   String get simRealInterestSubtitle =>
-      'Kapital + Reinvestierte Steuerersparnis (Virtuell)';
+      'Kapital + reinvestierter Steuereffekt (virtuell)';
 
   @override
   String get simRealInterestAmount => 'Montant Investi';
@@ -5547,7 +5549,7 @@ class SDe extends S {
 
   @override
   String get simBuybackMarginalRateTip =>
-      'Durch die Staffelung deiner Einkäufe bleibst du jedes Jahr in tieferen Steuerklassen — der kumulative Gewinn kann erheblich sein.';
+      'Durch die Staffelung deiner Einkäufe vergleichst du den indikativen Steuereffekt Jahr für Jahr nach Einkommen und Kanton.';
 
   @override
   String get simBuybackLockedTitle => 'Rachat LPP bloqué';
@@ -5667,27 +5669,6 @@ class SDe extends S {
   String earlyRetirementSemanticsLabel(int age) {
     return 'Pensionierungsalter-Simulator. Gewähltes Alter : $age Jahre.';
   }
-
-  @override
-  String get budgetReportTitle => 'Dein berechnetes Budget';
-
-  @override
-  String get budgetReportDisponible => 'Verfügbar';
-
-  @override
-  String get budgetReportVariables => 'Variable (Leben)';
-
-  @override
-  String get budgetReportFutur => 'Zukunft (Sparen)';
-
-  @override
-  String budgetReportChfAmount(String amount) {
-    return 'CHF $amount';
-  }
-
-  @override
-  String get budgetReportStopWarning =>
-      'Achtung: Kein Spielraum für variable Ausgaben.';
 
   @override
   String get ninetyDayGaugeTitle => '90-Tage-Regel';
@@ -5938,7 +5919,7 @@ class SDe extends S {
 
   @override
   String get dataBlock3aDesc =>
-      'Deine Säule-3a-Konten ergänzen deine Vorsorge und bieten einen Steuervorteil. Gib die aktuellen Salden ein für eine vollständige Übersicht.';
+      'Deine Säule-3a-Konten ergänzen deine Vorsorge. Gib die aktuellen Salden ein, um den abzugsfähigen Spielraum und das Gesamtbild zu berechnen.';
 
   @override
   String get dataBlock3aCta => 'Mein 3a simulieren';
@@ -6116,7 +6097,7 @@ class SDe extends S {
 
   @override
   String renteVsCapitalFiscalCapitalSaves(String amount) {
-    return 'Über 30 Jahre spart dir das Kapital ~$amount an Steuern.';
+    return 'Über 30 Jahre verändert das Kapitalszenario die geschätzte Steuer um etwa $amount.';
   }
 
   @override
@@ -7003,7 +6984,7 @@ class SDe extends S {
   String get demenagementFiscalTitre => 'Steuervergleich';
 
   @override
-  String get demenagementEconomieFiscale => 'Geschätzte Steuerersparnis';
+  String get demenagementEconomieFiscale => 'Geschätzter Steuereffekt';
 
   @override
   String get demenagementLamalTitre => 'Krankenkassenprämien';
@@ -7414,7 +7395,7 @@ class SDe extends S {
 
   @override
   String get firstSalary3aInfo =>
-      '💰 Plafond 2026: CHF 7\'258/Jahr · Direkter Steuerabzug · BVV3 Art. 7';
+      '💰 Plafond 2026: CHF 7\'258/Jahr · Je nach Situation vom steuerbaren Einkommen abziehbar · BVV3 Art. 7';
 
   @override
   String get firstSalaryAct4Title => 'Die KVG-Falle';
@@ -7425,14 +7406,15 @@ class SDe extends S {
 
   @override
   String get firstSalaryFranchise300Advice =>
-      'Empfohlen bei chronischen Krankheiten';
+      'Höhere Prämie · Tiefere Kostenexposition';
 
   @override
-  String get firstSalaryFranchise1500Advice => 'Guter Kompromiss · Empfohlen';
+  String get firstSalaryFranchise1500Advice =>
+      'Mittlere Option · Mit deinen Gesundheitskosten vergleichen';
 
   @override
   String get firstSalaryFranchise2500Advice =>
-      'Prämie sparen · Wenn du gesund bist';
+      'Tiefere Prämie · Höheres Kostenrisiko';
 
   @override
   String firstSalaryFranchiseLabel(String label) {
@@ -7472,14 +7454,16 @@ class SDe extends S {
       'Einen automatischen monatlichen Dauerauftrag einrichten';
 
   @override
-  String get firstSalaryTask3 => 'KVG-Franchise wählen (empfohlen: CHF 1\'500)';
+  String get firstSalaryTask3 =>
+      'KVG-Franchisen mit deinen geschätzten Gesundheitskosten vergleichen';
 
   @override
   String get firstSalaryTask4 =>
       'Private Haftpflicht prüfen (ca. CHF 100/Jahr)';
 
   @override
-  String get firstSalaryTask5 => 'Maximum 3a vor dem 31. Dezember einzahlen';
+  String get firstSalaryTask5 =>
+      'Passende 3a-Einzahlung vor dem 31. Dezember planen';
 
   @override
   String get firstSalaryBadgeTitle => 'Erster finanzieller Schritt';
@@ -7892,7 +7876,7 @@ class SDe extends S {
 
   @override
   String get coachSuggestTaxImpact =>
-      'Wie viel weniger Steuern mit einem Einkauf?';
+      'Steuerliche Wirkung eines Einkaufs schätzen';
 
   @override
   String get coachSuggestFitness =>
@@ -8495,11 +8479,11 @@ class SDe extends S {
 
   @override
   String get premierEclairageAvantApresTaxAct =>
-      'Jedes Jahr ohne 3a ist ein verlorener Steuerabzug.';
+      'Jedes Jahr kann eine 3a-Einzahlung dein steuerbares Einkommen je nach Situation senken.';
 
   @override
   String get premierEclairageAvantApresTaxNoAct =>
-      'Ohne 3a zahlst du den vollen Steuersatz und bereitest die Pension nicht vor.';
+      'Ohne 3a-Einzahlung wird die Steuer ohne diesen Abzug berechnet.';
 
   @override
   String get premierEclairageAvantApresIncomeAct =>
@@ -8685,7 +8669,7 @@ class SDe extends S {
 
   @override
   String get rachatEchelonneIntroBody =>
-      'Die Schweizer Steuer ist progressiv: Verteilst du einen BVG-Einkauf über mehrere Jahre, bleibt jeder Abzug in einer höheren Grenzsteuerklasse.';
+      'Die Schweizer Steuer ist progressiv: Verteilst du einen BVG-Einkauf über mehrere Jahre, kann sich der Steuereffekt Jahr für Jahr verändern. Dieser Simulator vergleicht beide Ansätze.';
 
   @override
   String get rachatEchelonneSavingsCaption =>
@@ -8756,7 +8740,7 @@ class SDe extends S {
   String get rachatEchelonnePlusAdapte => 'Am besten geeignet';
 
   @override
-  String get rachatEchelonneEconomieFiscale => 'Steuerersparnis';
+  String get rachatEchelonneEconomieFiscale => 'Steuereffekt';
 
   @override
   String get rachatEchelonneImpactTranche => 'Auswirkung pro Steuerstufe';
@@ -8792,7 +8776,7 @@ class SDe extends S {
 
   @override
   String get rachatEchelonneTauxMarginalBody =>
-      'Der Grenzsteuersatz ist der Steuerprozentsatz auf deinen letzten verdienten Franken.';
+      'Der Grenzsteuersatz ist der Steuerprozentsatz auf deinen letzten verdienten Franken. Bei 32 % entspricht ein Abzug von CHF 1\'000 einem indikativen Steuereffekt von CHF 320. Je höher dein Einkommen, desto stärker kann dieser Satz steigen.';
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
@@ -9124,7 +9108,7 @@ class SDe extends S {
   String get affordabilityAdvancedParams => 'Weitere Annahmen';
 
   @override
-  String get demenagementTitreV2 => 'Umzug — wie viel sparst du?';
+  String get demenagementTitreV2 => 'Umzug — wie wirkt er auf dein Budget?';
 
   @override
   String demenagementInsightPositif(String mois) {
@@ -9449,7 +9433,7 @@ class SDe extends S {
 
   @override
   String get sim3aCoachBody =>
-      'Die Säule 3a ist eines der effektivsten Steueroptimierungs-Instrumente in der Schweiz. Die sofortige Steuerersparnis ist ein konkreter Vorteil.';
+      'Die Säule 3a kann das steuerbare Einkommen senken. Mint schätzt den Steuereffekt mit deinen Parametern und lässt dich Szenarien vergleichen.';
 
   @override
   String get sim3aParamsHeader => 'Deine Parameter';
@@ -9625,7 +9609,7 @@ class SDe extends S {
   }
 
   @override
-  String get realReturnFiscalDetail => 'Details Steuerersparnis';
+  String get realReturnFiscalDetail => 'Details Steuereffekt';
 
   @override
   String get realReturnTotalPayments => 'Einzahlungen total';
@@ -9634,7 +9618,7 @@ class SDe extends S {
   String get realReturnFinalCapital3a => 'Endkapital 3a (ohne Steuer)';
 
   @override
-  String get realReturnCumulativeFiscal => 'Kumulierte Steuerersparnis';
+  String get realReturnCumulativeFiscal => 'Kumulierter Steuereffekt';
 
   @override
   String get realReturnTotalWithFiscal => 'Total mit Steuervorteil';
@@ -9886,7 +9870,7 @@ class SDe extends S {
 
   @override
   String firstJobFiscalSavings(String amount) {
-    return 'Geschätzte Steuerersparnis: ~$amount/Jahr';
+    return 'Indikativer Steuereffekt: ~$amount/Jahr';
   }
 
   @override
@@ -10507,7 +10491,7 @@ class SDe extends S {
 
   @override
   String get pillar3aIndepHeaderInfo =>
-      'Als Selbstständige·r ohne BVG hast du Zugang zur «grossen 3a»: bis zu 20 % des Nettoeinkommens abziehbar (max CHF 36’288/Jahr), statt CHF 7’258 für Angestellte.';
+      'Als Selbstständige·r ohne BVG hast du Zugang zur «grossen 3a»: bis zu 20 % des Nettoeinkommens abziehbar (max CHF 36’288/Jahr), statt CHF 7’258 für Angestellte. Die Wirkung hängt von Einkommen, Kanton und Liquidität ab.';
 
   @override
   String get pillar3aIndepLppToggle => 'Freiwillig BVG-versichert?';
@@ -10531,18 +10515,18 @@ class SDe extends S {
 
   @override
   String get pillar3aIndepPremierEclairageCaption =>
-      'jährliche Steuerersparnis dank der 3. Säule';
+      'indikativer Steuereffekt mit der 3. Säule';
 
   @override
   String pillar3aIndepPremierEclairageAvantageSalarie(String amount) {
-    return 'Du sparst $amount/Jahr mehr Steuern als Angestellte dank der grossen 3a';
+    return 'Indikativer Steuereffekt der grossen 3a: bis zu $amount/Jahr je nach Einkommen, Kanton und BVG-Status';
   }
 
   @override
   String get pillar3aIndepPlafondApplicable => 'Anwendbare Obergrenze';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAn => 'Steuerersparnis /Jahr';
+  String get pillar3aIndepEconomieFiscaleAn => 'Steuereffekt /Jahr';
 
   @override
   String get pillar3aIndepPlafondSalarie => 'Angestellten-Obergrenze';
@@ -10607,7 +10591,7 @@ class SDe extends S {
 
   @override
   String get pillar3aIndepDisclaimer =>
-      'Die Steuerersparnisse basieren auf dem angegebenen Grenzsteuersatz. Der tatsächliche Satz hängt von Kanton, Gemeinde und Familiensituation ab.';
+      'Der Steuereffekt basiert auf dem angegebenen Grenzsteuersatz. Der tatsächliche Satz hängt von Kanton, Gemeinde und Familiensituation ab.';
 
   @override
   String get dividendeVsSalaireTitle => 'Dividende vs Gehalt';
@@ -11218,7 +11202,7 @@ class SDe extends S {
       'Großes 3a : 20 % des Nettoeinkommens, max. CHF 36’288/Jahr';
 
   @override
-  String get retroactive3aEconomiesFiscales => 'Geschätzte Steuereinsparungen';
+  String get retroactive3aEconomiesFiscales => 'Geschätzte Steuereffekte';
 
   @override
   String get retroactive3aDetailParAnnee => 'Aufschlüsselung nach Jahr';
@@ -11251,7 +11235,7 @@ class SDe extends S {
   String get retroactive3aAvecRattrapage => 'Mit Nachholung';
 
   @override
-  String get retroactive3aEconomieFiscale => 'Steuereinsparung';
+  String get retroactive3aEconomieFiscale => 'Steuereffekt';
 
   @override
   String get retroactive3aProchainesEtapes => 'Nächste Schritte';
@@ -11785,7 +11769,12 @@ class SDe extends S {
 
   @override
   String get reportRetirement3aNone =>
-      'Noch kein 3a — bis zu CHF 7’258/Jahr Steuerabzug möglich';
+      'Noch kein 3a — abzugsfähiger Spielraum anhand deines LPP-Status zu schätzen';
+
+  @override
+  String reportRetirement3aNoneWithRoom(String amount) {
+    return 'Noch kein 3a — geschätzter abzugsfähiger Spielraum: CHF $amount/Jahr';
+  }
 
   @override
   String get reportRetirement3aOne =>
@@ -11798,7 +11787,7 @@ class SDe extends S {
 
   @override
   String reportRetirementLppText(String available, String savings) {
-    return 'BVG-Einkauf verfügbar: CHF $available — geschätzte Steuerersparnis: CHF $savings';
+    return 'BVG-Einkauf verfügbar: CHF $available — geschätzte Steuerwirkung: CHF $savings';
   }
 
   @override
@@ -11826,7 +11815,7 @@ class SDe extends S {
 
   @override
   String reportTaxSavings(String amount) {
-    return 'Mögliche Ersparnis mit BVG-Einkauf: CHF $amount/Jahr';
+    return 'Geschätzte Steuerwirkung mit BVG-Einkauf: CHF $amount/Jahr';
   }
 
   @override
@@ -11852,7 +11841,7 @@ class SDe extends S {
 
   @override
   String reportLppEconomie(String amount) {
-    return 'Gesamte Steuerersparnis: CHF $amount';
+    return 'Indikativer Steuereffekt total: CHF $amount';
   }
 
   @override
@@ -11875,7 +11864,7 @@ class SDe extends S {
 
   @override
   String get reportLppHowBody =>
-      'Verstehe, warum das Staffeln deiner BVG-Einkäufe dir zusätzlich Tausende von Franken spart.';
+      'Verstehe, wie das Staffeln deiner BVG-Einkäufe den Steuereffekt und deine Liquidität verändern kann.';
 
   @override
   String get reportSoaTitle => 'Transparenz und Konformität';
@@ -12587,7 +12576,7 @@ class SDe extends S {
   String get lppVolontaireCotisationLabel => 'Cotisation /an';
 
   @override
-  String get lppVolontaireEconomieFiscaleLabel => 'Steuerersparnis /Jahr';
+  String get lppVolontaireEconomieFiscaleLabel => 'Steuereffekt /Jahr';
 
   @override
   String get lppVolontaireTrancheAgeLabel => 'Tranche d’âge';
@@ -12605,7 +12594,7 @@ class SDe extends S {
   String get pillar3aIndepPlafondApplicableLabel => 'Anwendbare Obergrenze';
 
   @override
-  String get pillar3aIndepEconomieFiscaleAnLabel => 'Steuerersparnis /Jahr';
+  String get pillar3aIndepEconomieFiscaleAnLabel => 'Steuereffekt /Jahr';
 
   @override
   String get pillar3aIndepPlafondSalarieLabel => 'Obergrenze Angestellte·r';
@@ -14056,7 +14045,7 @@ class SDe extends S {
 
   @override
   String capCoupleLppBuybackWhyNow(String amount) {
-    return 'Dein Partner hat einen möglichen Einkauf von $amount. Den höheren Grenzsteuersatz zu priorisieren maximiert den Abzug.';
+    return 'Dein Partner hat einen möglichen Einkauf von $amount. Vergleicht Grenzsteuersatz, Liquidität und indikativen Steuereffekt, bevor ihr priorisiert.';
   }
 
   @override
@@ -14544,14 +14533,14 @@ class SDe extends S {
 
   @override
   String get capStepRetirement05Desc =>
-      'Bis zu CHF 7\'258 abziehen und die Rente stärken.';
+      'Deinen abzugsfähigen 3a-Spielraum und die indikative Wirkung auf deine Trajektorie prüfen.';
 
   @override
   String get capStepRetirement05Title => 'Säule-3a-Einzahlung simulieren';
 
   @override
   String get capStepRetirement06Desc =>
-      'Lücken schliessen und Steuern reduzieren.';
+      'BVG-Lücken schliessen und die indikative Steuerwirkung prüfen.';
 
   @override
   String get capStepRetirement06Title => 'BVG-Einkauf prüfen';
@@ -14806,14 +14795,14 @@ class SDe extends S {
 
   @override
   String get challengeFiscalite01Desc =>
-      'Jeder ins 3a eingezahlte Franken ist abzugsfähig. Berechne, wie viel du dieses Jahr an Steuern sparst.';
+      'Jeder ins 3a eingezahlte Franken ist abzugsfähig. Schätze den indikativen Effekt auf deine Steuern dieses Jahr.';
 
   @override
-  String get challengeFiscalite01Title => 'Schätze deine 3a-Steuerersparnis';
+  String get challengeFiscalite01Title => 'Schätze deinen 3a-Steuereffekt';
 
   @override
   String get challengeFiscalite02Desc =>
-      'BVG-Einkäufe sind vom steuerbaren Einkommen abzugsfähig. Prüfe dein Einkaufspotenzial und die Steuerersparnis.';
+      'BVG-Einkäufe sind vom steuerbaren Einkommen abzugsfähig. Prüfe dein Einkaufspotenzial und den indikativen Steuereffekt.';
 
   @override
   String get challengeFiscalite02Title =>
@@ -15281,7 +15270,7 @@ class SDe extends S {
 
   @override
   String get communityChallenge12Desc =>
-      'Die 3a-Frist naht. Zahle bis CHF 7’258 (Angestellte mit BVG) vor dem 31. Dezember ein, um den Steuerabzug dieses Jahres zu nutzen.';
+      'Die 3a-Frist naht. Prüfe deinen abzugsfähigen Spielraum und plane vor dem 31. Dezember eine passende Einzahlung.';
 
   @override
   String get communityChallenge12Title =>
@@ -16730,7 +16719,7 @@ class SDe extends S {
   String get imputedRentalEyebrow => 'Eigenmietwert';
 
   @override
-  String get imputedRentalSavingsLabel => 'Nettosteuerersparnis';
+  String get imputedRentalSavingsLabel => 'Netto-Steuereffekt';
 
   @override
   String get imputedRentalTaxLabel => 'zusätzliche Steuern';
@@ -16880,6 +16869,134 @@ class SDe extends S {
   @override
   String get interactive3aDisclaimer =>
       'Pädagogische Annahmen. Vergangene Renditen sind keine Zusicherung künftiger Ergebnisse.';
+
+  @override
+  String get taxInsertTitle => '3a-Optimierung';
+
+  @override
+  String get taxInsertSubtitle => 'Dein Steuerverbündeter';
+
+  @override
+  String get taxInsertMonthlyIncomeLabel => 'Dein monatliches Nettoeinkommen';
+
+  @override
+  String get taxInsertCapacity3a => '3a-Kapazität';
+
+  @override
+  String get taxInsertIndicativeReduction => 'Indikative Steuerreduktion';
+
+  @override
+  String taxInsertMonthlyImpact(String amount) {
+    return 'Indikative Wirkung: $amount CHF pro Monat';
+  }
+
+  @override
+  String taxInsertMarginalRateNote(int minRate, int maxRate) {
+    return 'Schätzung auf Basis eines Grenzsteuersatzes von $minRate-$maxRate%';
+  }
+
+  @override
+  String get taxSim3aEmployeeTitle => '👤 ANGESTELLT mit BVG';
+
+  @override
+  String get taxSim3aSelfEmployedTitle => '💼 SELBSTSTÄNDIG ohne BVG';
+
+  @override
+  String taxSim3aCeiling2026(String ceiling) {
+    return 'Höchstbetrag 2026: $ceiling/Jahr';
+  }
+
+  @override
+  String taxSim3aMonthlyContribution(String amount) {
+    return 'Monatlicher Beitrag: $amount';
+  }
+
+  @override
+  String taxSim3aExceedsLimit(String contribution, String ceiling) {
+    return 'Jahresbeitrag ($contribution) überschreitet den Höchstbetrag ($ceiling)';
+  }
+
+  @override
+  String taxSim3aDuration(int years) {
+    return 'Dauer: $years Jahre';
+  }
+
+  @override
+  String taxSimMarginalRate(String rate) {
+    return 'Grenzsteuersatz: $rate%';
+  }
+
+  @override
+  String get taxSim3aMarginalRateHint =>
+      'Geschätzt nach Kanton/Einkommen (zwischen 15% und 45%)';
+
+  @override
+  String get taxSim3aAnnualContribution => 'Jahresbeitrag';
+
+  @override
+  String get taxSimTaxReductionEstimated => 'Geschätzte Steuerreduktion';
+
+  @override
+  String get taxSimRealCost => 'Tatsächliche Kosten';
+
+  @override
+  String taxSim3aProjectionTitle(int years) {
+    return 'Projektion über $years Jahre (pädagogische Szenarien)';
+  }
+
+  @override
+  String get taxSim3aScenarioPrudent => 'Vorsichtig (1%)';
+
+  @override
+  String get taxSim3aScenarioCentral => 'Zentral (3%)';
+
+  @override
+  String get taxSim3aScenarioStress => 'Stress (5%)';
+
+  @override
+  String taxSimTaxReductionOverYears(int years) {
+    return 'Geschätzte Steuerreduktion ($years Jahre)';
+  }
+
+  @override
+  String get lppBuybackTitle => 'BVG-Einkauf-Simulation';
+
+  @override
+  String lppBuybackAmountLabel(String amount) {
+    return 'Einkaufsbetrag: $amount';
+  }
+
+  @override
+  String get taxSimMarginalRateHintShort => 'Geschätzt nach Kanton/Einkommen';
+
+  @override
+  String get lppBuybackAmount => 'Einkauf';
+
+  @override
+  String get lppBuybackPensionImpactTitle =>
+      'Auswirkung auf die Rente (pädagogische Szenarien)';
+
+  @override
+  String lppBuybackScenarioPrudent(String rate) {
+    return 'Vorsichtig (Satz $rate%)';
+  }
+
+  @override
+  String lppBuybackScenarioCentral(String rate) {
+    return 'Zentral (Satz $rate%)';
+  }
+
+  @override
+  String lppBuybackScenarioStress(String rate) {
+    return 'Stress (Satz $rate%)';
+  }
+
+  @override
+  String get lppBuybackAssumptionsTitle => 'Annahmen und Grenzen:';
+
+  @override
+  String get lppBuybackAssumptionsBody =>
+      '• Steuerabzug gemäss anwendbaren Regeln\n• Umwandlungssatz: aktuelle Annahme, kann sinken\n• Mit BVG-Ausweis und einer Steuerfachperson überprüfen';
 
   @override
   String get jobChangeChecklistAlertBody =>
@@ -17803,7 +17920,7 @@ class SDe extends S {
 
   @override
   String get narrativeRealReturnBody =>
-      'Die angezeigte Rendite sagt nicht alles. Nach Verwaltungskosten und Inflation kann der reale Gewinn abweichen. Die Steuerersparnis der Säule 3a (DBG Art. 33) verbessert die effektive Rendite erheblich.';
+      'Die angezeigte Rendite sagt nicht alles. Nach Verwaltungskosten und Inflation kann der reale Gewinn abweichen. Der Steuereffekt der Säule 3a (DBG Art. 33) kann die effektive Rendite verändern.';
 
   @override
   String get narrativeRealReturnHeadline => 'Reale Rendite nach Inflation';
@@ -17876,7 +17993,7 @@ class SDe extends S {
 
   @override
   String notifDeadline3aBody46Days(String remaining) {
-    return 'Noch 46 Tage, um deine 3a zu maximieren (CHF $remaining Spielraum)';
+    return 'Noch 46 Tage, um deinen 3a-Spielraum zu prüfen (CHF $remaining verbleibend)';
   }
 
   @override
@@ -17901,7 +18018,7 @@ class SDe extends S {
 
   @override
   String notifNewYearBody(String year) {
-    return 'Neue Limits $year. Deine potenzielle Einsparung hat sich geändert.';
+    return 'Neue Limits $year. Dein abzugsfähiger Spielraum kann sich ändern.';
   }
 
   @override
@@ -17967,7 +18084,7 @@ class SDe extends S {
 
   @override
   String notifThreeA61Days(String saving) {
-    return 'Noch 61 Tage. Geschätzte Einsparung: CHF $saving.';
+    return 'Noch 61 Tage. Indikative Steuerwirkung: CHF $saving.';
   }
 
   @override
@@ -17975,7 +18092,7 @@ class SDe extends S {
 
   @override
   String notifThreeALastMonth(String saving) {
-    return 'Letzter Monat für deine Säule 3a. Geschätzte Steuerersparnis: CHF $saving.';
+    return 'Letzter Monat für deine Säule 3a. Indikative Steuerwirkung: CHF $saving.';
   }
 
   @override
@@ -17990,7 +18107,7 @@ class SDe extends S {
 
   @override
   String nudge3aDeadlineBody(String days, String limit, String year) {
-    return 'Noch $days Tag(e), um bis zu $limit CHF einzuzahlen und deine $year-Steuern zu senken.';
+    return 'Noch $days Tag(e), um deinen abzugsfähigen 3a-Spielraum bis $limit CHF vor Ende $year zu planen.';
   }
 
   @override
@@ -18225,7 +18342,7 @@ class SDe extends S {
 
   @override
   String opener3aDeadline(String days, String plafond) {
-    return 'Noch $days Tage, um bis zu $plafond CHF in die Säule 3a einzuzahlen.';
+    return 'Verfügbarer abzugsfähiger 3a-Spielraum: bis $plafond CHF für weitere $days Tage.';
   }
 
   @override
@@ -18374,7 +18491,7 @@ class SDe extends S {
 
   @override
   String get pillar3aRealReturnDisclaimer =>
-      'Pädagogische Simulation auf Basis konstanter Renditeannahmen. Vergangene Renditen sind kein Indikator für zukünftige Renditen. Gebühren und Renditen variieren je nach Anbieter. Die Steuerersparnis hängt von Ihrem tatsächlichen Grenzsteuersatz ab. Rechtsgrundlage: BVV3, DBG Art. 33 Abs. 1 Bst. e. Konsultieren Sie einen Spezialisten.';
+      'Pädagogische Simulation auf Basis konstanter Renditeannahmen. Vergangene Renditen sind kein Indikator für zukünftige Renditen. Gebühren und Renditen variieren je nach Anbieter. Der Steuereffekt hängt von Ihrem tatsächlichen Grenzsteuersatz ab. Rechtsgrundlage: BVV3, DBG Art. 33 Abs. 1 Bst. e. Konsultieren Sie einen Spezialisten.';
 
   @override
   String get pillar3aStaggeredDisclaimer =>
@@ -19015,7 +19132,7 @@ class SDe extends S {
 
   @override
   String rcLppBuybackExplanation(String taxSaving, String rachatSimule) {
-    return 'Einkauf möglich. Geschätzte Steuereinsparung von $taxSaving CHF auf $rachatSimule CHF';
+    return 'Einkauf möglich. Geschätzter Steuereffekt von $taxSaving CHF auf $rachatSimule CHF';
   }
 
   @override
@@ -19090,11 +19207,11 @@ class SDe extends S {
 
   @override
   String rcPillar3aExplanation(String plafond) {
-    return 'Geschätzte Steuereinsparung bei Einzahlung des Höchstbetrags von $plafond CHF';
+    return 'Indikative Steuerwirkung bei Einzahlung bis $plafond CHF';
   }
 
   @override
-  String get rcPillar3aSubtitle => 'Geschätzte Steuereinsparung';
+  String get rcPillar3aSubtitle => 'Indikative Steuerwirkung';
 
   @override
   String rcPillar3aTitle(String year) {
@@ -19219,11 +19336,11 @@ class SDe extends S {
 
   @override
   String rcTaxOptExplanation(String plafond3a) {
-    return 'Geschätzte Steuereinsparung über Säule 3a ($plafond3a CHF) + BVG-Einkauf';
+    return 'Indikative Steuerwirkung über Säule 3a ($plafond3a CHF) + BVG-Einkauf';
   }
 
   @override
-  String get rcTaxOptSubtitle => 'Geschätzte verfügbare Abzüge';
+  String get rcTaxOptSubtitle => 'Indikative Abzüge prüfen';
 
   @override
   String get rcTaxOptTitle => 'Steueroptimierung';
@@ -19353,7 +19470,7 @@ class SDe extends S {
 
   @override
   String get reportActionDesc3aFirst =>
-      'Ziehe bis zu CHF 7’258/Jahr von deinem steuerbaren Einkommen ab. Sofortige Einsparung.';
+      'Abziehbare Einzahlung; steuerliche Wirkung anhand deines Einkommens und Kantons geschätzt.';
 
   @override
   String get reportActionDesc3aSecond =>
@@ -19361,11 +19478,11 @@ class SDe extends S {
 
   @override
   String get reportActionDescAvsCheck =>
-      'Vermeide den Verlust von bis zu CHF 38’000 lebenslanger Rente.';
+      'Prüfe deine Beitragsjahre, um eine mögliche AHV-Lücke einzuschätzen.';
 
   @override
   String get reportActionDescDette =>
-      'Das ist die rentabelste Investition: Du sparst 6-10 % pro Jahr an Zinsen.';
+      'Der Schuldenabbau kann künftige Zinskosten je nach Zinssatz um 6-10 % pro Jahr senken.';
 
   @override
   String get reportActionDescUrgence =>
@@ -19449,14 +19566,14 @@ class SDe extends S {
 
   @override
   String get retroactive3aEmptySubtitle =>
-      'Gib dein Einkommen ein, um deine Steuerersparnis zu berechnen';
+      'Gib dein Einkommen ein, um den Steuereffekt zu schätzen';
 
   @override
   String get retroactive3aEmptyTitle => 'Säule-3a-Nachzahlung';
 
   @override
   String get retroactive3aSavingsLabel =>
-      'Steuerersparnis mit Säule-3a-Nachzahlung';
+      'indikativer Steuereffekt mit Säule-3a-Nachzahlung';
 
   @override
   String get retroactive3aYearsChipsLabel => 'Nachzuholende Jahre';
@@ -19563,7 +19680,7 @@ class SDe extends S {
 
   @override
   String get seasonal3aCountdownDesc =>
-      'Die Frist vom 31. Dezember für 3a-Einzahlungen naht. Prüfe dein Guthaben und plane deine Einzahlung für den maximalen Steuerabzug.';
+      'Die Frist vom 31. Dezember für 3a-Einzahlungen naht. Prüfe dein Guthaben und plane deine Einzahlung nach deinem abzugsfähigen Spielraum.';
 
   @override
   String get seasonal3aCountdownTitle => '3. Säule Countdown';
@@ -19613,7 +19730,7 @@ class SDe extends S {
 
   @override
   String semantics3aEconomieFiscale(String amount) {
-    return 'Steuerersparnis: $amount Franken';
+    return 'Indikativer Steuereffekt: $amount Franken';
   }
 
   @override
@@ -20154,15 +20271,15 @@ class SDe extends S {
 
   @override
   String get stepJitTax3aCond =>
-      'du nicht den Maximalbetrag in deine 3. Säule einzahlst';
+      'du deinen abzugsfähigen 3a-Spielraum nicht vollständig nutzt';
 
   @override
   String get stepJitTax3aCons =>
-      'du verpasst eine Steuerersparnis und zusätzliches Alterskapital.';
+      'du verpasst abzugsfähigen Spielraum und zusätzliches Alterskapital.';
 
   @override
   String get stepJitTax3aInsight =>
-      'Jeder in die Säule 3a eingezahlte Franken ist steuerlich absetzbar. Über 20 Jahre kann der Unterschied zwischen 0 und dem Maximum (CHF 7\'258) mehr als CHF 200\'000 betragen.';
+      'Jeder in die Säule 3a eingezahlte Franken ist je nach Situation vom steuerbaren Einkommen abziehbar. Über 20 Jahre hängt der Unterschied von Einzahlungen, Rendite, Gebühren und Auszahlungssteuer ab.';
 
   @override
   String get stepJitTax3aSource => 'BVV3 Art. 7 / DBG Art. 33';
@@ -20461,7 +20578,7 @@ class SDe extends S {
   String get summaryEcartMensuel => 'Geschätzte monatliche Lücke';
 
   @override
-  String get summaryEconomieFiscale => 'Jährliche Steuerersparnis';
+  String get summaryEconomieFiscale => 'Jährlicher indikativer Steuereffekt';
 
   @override
   String get summaryEconomieRachat => 'Ersparnis durch gestaffelten Einkauf';
@@ -21105,7 +21222,7 @@ class SDe extends S {
 
   @override
   String get jargon3aTooltip =>
-      'Die Säule 3a ist freiwilliges Alterssparen mit Steuervorteil. Die Obergrenze beträgt CHF 7\'258/Jahr (Angestellte mit BVG).';
+      'Die Säule 3a ist freiwilliges Alterssparen. Einzahlungen können je nach BVG-Status vom steuerbaren Einkommen abziehbar sein.';
 
   @override
   String get jargonAvsTooltip =>
@@ -21295,11 +21412,11 @@ class SDe extends S {
       'Öffne MINT — wir haben etwas Interessantes zu deinen Steuern gefunden.';
 
   @override
-  String get day7NotifTitle => 'Du lässt Geld beim Finanzamt liegen';
+  String get day7NotifTitle => '3a-Spielraum prüfen';
 
   @override
   String day7NotifBody(String amount) {
-    return 'Jeden Monat ohne 3a lässt du CHF $amount beim Finanzamt. Sollen wir reden?';
+    return 'Deine Schätzung zeigt rund CHF $amount/Monat 3a-Spielraum. Prüfen wir das?';
   }
 
   @override
@@ -21323,7 +21440,7 @@ class SDe extends S {
 
   @override
   String get glossary3a =>
-      'Die 3. Säule. Deine persönliche, freiwillige und steuerlich abzugsfähige Altersvorsorge. Maximum CHF 7\'258/Jahr wenn du eine 2. Säule hast.';
+      'Die 3. Säule. Deine persönliche, freiwillige Altersvorsorge mit abzugsfähigem Spielraum je nach BVG-Status.';
 
   @override
   String get glossaryRamd =>
@@ -21374,7 +21491,7 @@ class SDe extends S {
 
   @override
   String get landingCoupleGeneric =>
-      'Verheiratete Paare verlieren bis zu CHF 8\'000/Jahr an verpassten Optimierungen.';
+      'Manche Paar-Entscheidungen können Steuern, AHV und Bezüge verändern. MINT hilft, Szenarien zu vergleichen.';
 
   @override
   String get landingTransparency =>
@@ -21454,7 +21571,7 @@ class SDe extends S {
 
   @override
   String chocQuestionTaxSaving(String amount) {
-    return 'CHF $amount weniger Steuern. Lohnen sich 10 Minuten?';
+    return 'Geschätzter Steuereffekt: CHF $amount. Szenario prüfen?';
   }
 
   @override
@@ -21582,7 +21699,7 @@ class SDe extends S {
 
   @override
   String coachInterrupt3aUnderMax(String savings) {
-    return 'Du verschenkst $savings CHF Steuerersparnis.';
+    return 'Verbleibender 3a-Spielraum zu prüfen: indikative Steuerwirkung von CHF $savings.';
   }
 
   @override
@@ -22294,7 +22411,7 @@ class SDe extends S {
 
   @override
   String anticipation3aDeadlineFact(String limit, String year) {
-    return 'Du kannst noch bis zu $limit CHF in deine Säule 3a einzahlen, bevor der 31. Dezember $year kommt. Jedes ungenutzte Jahr ist verloren.';
+    return 'Du kannst noch eine 3a-Einzahlung bis $limit CHF vor dem 31. Dezember $year planen. Prüfe den Betrag, der zu deinem BVG-Status passt.';
   }
 
   @override
@@ -22378,7 +22495,7 @@ class SDe extends S {
   }
 
   @override
-  String get ctxHeroStat3aLabel => 'Du lässt Geld bei der Säule 3a liegen';
+  String get ctxHeroStat3aLabel => 'Verbleibenden 3a-Spielraum prüfen';
 
   @override
   String ctxHeroStat3aNarrative(String monthly) {
@@ -22778,7 +22895,7 @@ class SDe extends S {
 
   @override
   String get coachGreetingRandom17 =>
-      'Du chönntisch Jahre i dini Pensionskasse iikaufe und tuusigi a Stüüre spare. Aber du müesstisch de Uuswiis ufmache.';
+      'Ein LPP-Einkauf kann deine Steuern und deine Vorsorgeprojektion verändern. Mit dem Ausweis lässt es sich beziffern.';
 
   @override
   String get coachGreetingRandom18 =>
@@ -23107,7 +23224,7 @@ class SDe extends S {
   String get monArgentRetry => 'Erneut versuchen';
 
   @override
-  String get monArgentPatrimoineTitle => 'Dein Ausgangspunkt';
+  String get monArgentPatrimoineTitle => 'Freies Vermögen';
 
   @override
   String get monArgentPatrimoineEmpty =>
@@ -23117,7 +23234,7 @@ class SDe extends S {
   String get monArgentPatrimoineError => 'Daten konnten nicht geladen werden.';
 
   @override
-  String get monArgentPatrimoineNet => 'Netto';
+  String get monArgentPatrimoineNet => 'Frei netto';
 
   @override
   String get monArgentPatrimoinePartial =>

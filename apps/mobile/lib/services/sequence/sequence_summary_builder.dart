@@ -192,7 +192,7 @@ class _FallbackLabels implements S {
   @override String get summaryImpotRetrait => 'Impôt sur le retrait';
   @override String get summaryMontantNet => 'Montant net après impôt';
   @override String get summaryVersementAnnuel => 'Versement annuel';
-  @override String get summaryEconomieFiscale => 'Économie fiscale annuelle';
+  @override String get summaryEconomieFiscale => 'Impact fiscal indicatif annuel';
   @override String get summaryGainEchelonnement => 'Gain à échelonner les retraits';
   @override String get summaryTauxRemplacement => 'Taux de remplacement';
   @override String get summaryEcartMensuel => 'Écart mensuel estimé';

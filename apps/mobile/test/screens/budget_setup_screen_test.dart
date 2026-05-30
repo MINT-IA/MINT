@@ -214,6 +214,46 @@ void main() {
     expect(reloaded.profile!.depenses.assuranceMaladie, 420);
   });
 
+  testWidgets('cleared optional budget fields are removed from storage',
+      (tester) async {
+    await ReportPersistenceService.saveAnswers({
+      'q_birth_year': 1988,
+      'q_canton': 'VD',
+      'q_net_income_period_chf': 6000.0,
+      'q_pay_frequency': 'monthly',
+      'q_housing_cost_period_chf': 2200.0,
+      'q_lamal_premium_monthly_chf': 420.0,
+      '_coach_depenses_transport': 180.0,
+      '_coach_depenses_telecom': 90.0,
+    });
+    await ReportPersistenceService.setCompleted(true);
+
+    final coachProvider = CoachProfileProvider();
+    await coachProvider.loadFromWizard();
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(_wrapWithProviders(
+      child: const BudgetSetupScreen(),
+      coachProvider: coachProvider,
+      budgetProvider: budgetProvider,
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("Ajouter d'autres postes"));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('budgetTransportField')),
+      '',
+    );
+    await tester.ensureVisible(find.text('Enregistrer'));
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.containsKey('_coach_depenses_transport'), isFalse);
+    expect(answers['_coach_depenses_telecom'], 90.0);
+  });
+
   testWidgets('refreshes BudgetProvider after save', (tester) async {
     final coachProvider = CoachProfileProvider();
     final budgetProvider = BudgetProvider();

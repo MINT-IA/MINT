@@ -87,6 +87,17 @@ void main() {
       expect(lpp.savingDelta, greaterThan(0));
     });
 
+    test('winner reason frames tax effect as estimated reduction', () {
+      final result = CoupleOptimizer.optimize(
+        mainUser: _julien(),
+        conjoint: _lauren(),
+      );
+      final reason = result.lppBuybackOrder!.reason;
+      expect(reason, contains('réduction d’impôt indicative'));
+      expect(reason, isNot(contains('économie fiscale')));
+      expect(reason, isNot(contains('supérieure')));
+    });
+
     test('tradeOff mentions 3 year lock-in', () {
       final result = CoupleOptimizer.optimize(
         mainUser: _julien(),

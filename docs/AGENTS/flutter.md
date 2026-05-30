@@ -140,6 +140,15 @@ tester.view.devicePixelRatio = 2.0;
 - `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` — UX 7 laws + 75 propositions.
 - Subagents : `frontend-developer`, `mobile-developer`, `ui-designer`, `accessibility-expert` (cf. CLAUDE.md §3.5 routing).
 
+## 11.1 Staging promotion authority
+
+Flutter agents may participate in a `staging` promotion when Julien asks or
+when a verified integration branch is being advanced. Follow CLAUDE.md §4.1:
+clean worktree, fetch + divergence check, cited source verification, normal
+merge or fast-forward only, then plain `git push origin staging`. Never
+force-push or rewrite `staging`, `dev`, or `main`; if branch protection rejects
+direct push, open a PR into `staging`.
+
 ## 12. Calc-engine ownership — L1 mobile-canonical
 
 <!-- mint-data-architecture-v1-01-canonical:start -->

@@ -389,6 +389,10 @@ void main() {
         c2.recommendations.any((r) => r.contains('rachat LPP')),
         true,
       );
+      final recommendation =
+          c2.recommendations.firstWhere((r) => r.contains('rachat LPP'));
+      expect(recommendation, contains('impact fiscal à estimer'));
+      expect(recommendation, isNot(contains('économie fiscale majeure')));
     });
   });
 

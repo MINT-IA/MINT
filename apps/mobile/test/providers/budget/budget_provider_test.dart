@@ -24,6 +24,8 @@ void main() {
     expect(provider.inputs!.netIncome, 8000);
     expect(provider.inputs!.housingCost, 2200);
     expect(provider.inputs!.healthInsurance, 420);
+    expect(provider.source, BudgetDataSource.storage);
+    expect(provider.hasFreshInputs, isFalse);
   });
 
   test('keeps stored budget when profile is partial', () async {
@@ -40,9 +42,35 @@ void main() {
     expect(provider.inputs!.netIncome, 8000);
     expect(provider.inputs!.housingCost, 2200);
     expect(provider.inputs!.healthInsurance, 420);
+    expect(provider.source, BudgetDataSource.storage);
+    expect(provider.hasFreshInputs, isFalse);
   });
 
-  test('full profile replaces stale stored budget', () async {
+  test('full profile replaces profile-derived cache and clears fallback cache',
+      () async {
+    final profile = _profileWithBudget(housingCost: 1100, healthInsurance: 390);
+    await BudgetLocalStore().saveInputs(
+      BudgetInputs.fromCoachProfile(profile),
+      origin: StoredBudgetInputsOrigin.profileDerived,
+    );
+
+    final provider = BudgetProvider();
+
+    await provider.hydrateFromProfileState(
+      profile: profile,
+      isPartialProfile: false,
+    );
+
+    expect(provider.inputs, isNotNull);
+    expect(provider.inputs!.housingCost, 1100);
+    expect(provider.inputs!.healthInsurance, 390);
+    expect(provider.inputs!.netIncome, isNot(8000));
+    expect(provider.source, BudgetDataSource.profile);
+    expect(provider.hasFreshInputs, isTrue);
+    expect(await BudgetLocalStore().loadInputs(), isNull);
+  });
+
+  test('full profile leaves direct-input fallback cache intact', () async {
     await BudgetLocalStore().saveInputs(_storedBudgetInputs);
 
     final provider = BudgetProvider();
@@ -52,10 +80,34 @@ void main() {
       isPartialProfile: false,
     );
 
-    expect(provider.inputs, isNotNull);
-    expect(provider.inputs!.housingCost, 1100);
-    expect(provider.inputs!.healthInsurance, 390);
-    expect(provider.inputs!.netIncome, isNot(8000));
+    final stored = await BudgetLocalStore().loadInputs();
+    expect(provider.source, BudgetDataSource.profile);
+    expect(stored, isNotNull);
+    expect(stored!.netIncome, 8000);
+    expect(stored.housingCost, 2200);
+    expect(await BudgetLocalStore().loadInputsOrigin(),
+        StoredBudgetInputsOrigin.directInput);
+  });
+
+  test('full profile keeps direct-input cache even when values match',
+      () async {
+    final profile = _profileWithBudget(housingCost: 1100, healthInsurance: 390);
+    final matchingDirectInputs = BudgetInputs.fromCoachProfile(profile);
+    await BudgetLocalStore().saveInputs(matchingDirectInputs);
+
+    final provider = BudgetProvider();
+
+    await provider.hydrateFromProfileState(
+      profile: profile,
+      isPartialProfile: false,
+    );
+
+    final stored = await BudgetLocalStore().loadInputs();
+    expect(provider.source, BudgetDataSource.profile);
+    expect(stored, isNotNull);
+    expect(stored!.housingCost, matchingDirectInputs.housingCost);
+    expect(await BudgetLocalStore().loadInputsOrigin(),
+        StoredBudgetInputsOrigin.directInput);
   });
 
   test('full profile does not persist phantom default expenses', () async {
@@ -77,6 +129,29 @@ void main() {
     expect(provider.inputs, isNotNull);
     expect(provider.inputs!.housingCost, 0);
     expect(provider.inputs!.healthInsurance, 0);
+    expect(provider.source, BudgetDataSource.profile);
+    expect(provider.hasFreshInputs, isFalse);
+  });
+
+  test('setInputs marks direct inputs as fresh', () async {
+    final provider = BudgetProvider();
+
+    await provider.setInputs(_storedBudgetInputs);
+
+    expect(provider.inputs, isNotNull);
+    expect(provider.source, BudgetDataSource.directInput);
+    expect(provider.hasFreshInputs, isTrue);
+  });
+
+  test('clear resets source freshness', () async {
+    final provider = BudgetProvider();
+
+    await provider.setInputs(_storedBudgetInputs);
+    await provider.clear();
+
+    expect(provider.inputs, isNull);
+    expect(provider.source, BudgetDataSource.none);
+    expect(provider.hasFreshInputs, isFalse);
   });
 }
 

@@ -18,9 +18,9 @@ class FinancialExplanations {
       ExplanationSection(
         title: '💡 Comment ça marche ?',
         content:
-            'Quand tu rachètes ta LPP, tu DÉDUIS ce montant de ton revenu imposable. Plus ton revenu est élevé, plus tu économises (taux marginal).',
+            'Quand tu rachètes ta LPP, tu déduis ce montant de ton revenu imposable. Plus ton taux marginal est élevé, plus l\'impact fiscal potentiel peut être important.',
         example:
-            'Revenu : CHF 93\'600\nRachat : CHF 50\'000\n→ Nouveau revenu imposable : CHF 43\'600\nTaux marginal : ${(marginalRate * 100).toStringAsFixed(0)}%\n→ Économie : 50\'000 × ${(marginalRate * 100).toStringAsFixed(0)}% = CHF ${(50000 * marginalRate).toStringAsFixed(0)}',
+            'Revenu : CHF 93\'600\nRachat : CHF 50\'000\n→ Nouveau revenu imposable : CHF 43\'600\nTaux marginal : ${(marginalRate * 100).toStringAsFixed(0)}%\n→ Impact fiscal indicatif : 50\'000 × ${(marginalRate * 100).toStringAsFixed(0)}% = CHF ${(50000 * marginalRate).toStringAsFixed(0)}',
       ),
       ExplanationSection(
         title: '📌 Pourquoi échelonner ?',
@@ -35,7 +35,7 @@ class FinancialExplanations {
             'Rachat échelonné : Tu restes dans ta tranche adaptée, taux marginal constant',
           ),
           KeyPoint(
-            'Gain supplémentaire : +CHF ${saving.toStringAsFixed(0)} juste en échelonnant !',
+            'Effet d\'échelonnement indicatif : +CHF ${saving.toStringAsFixed(0)} selon ces hypothèses',
           ),
         ],
       ),
@@ -56,13 +56,13 @@ class FinancialExplanations {
       const ExplanationSection(
         title: '🎯 Stratégie adaptée',
         content:
-            'Pour maximiser l\'économie fiscale, il faut racheter dans les dernières années pré-retraite (quand ton salaire est au plus haut).',
+            'Pour estimer le bon timing, compare l\'impact fiscal, la liquidité et la règle des 3 ans avant chaque rachat.',
         keyPoints: [
           KeyPoint(
-            'Timing idéal : 3-5 ans avant la retraite',
+            'Timing fréquent à comparer : 3-5 ans avant la retraite',
           ),
           KeyPoint(
-            'Salaire au maximum = taux marginal au maximum = économie maximum',
+            'Salaire élevé = taux marginal souvent plus élevé = impact fiscal potentiel plus important',
           ),
           KeyPoint(
             'Respecter la règle des 3 ans si retrait capital prévu',
@@ -72,7 +72,7 @@ class FinancialExplanations {
     ];
   }
 
-  /// Explication du rendement 3a réel (avec économie fiscale)
+  /// Explication du rendement 3a réel (avec impact fiscal)
   static List<ExplanationSection> pillar3aRealReturnExplanation(
     double annualContribution,
     double taxSavings,
@@ -122,7 +122,7 @@ class FinancialExplanations {
             'Le plafond du 3a est lié à l\'AVS et est généralement indexé tous les 2 ans. Cela signifie que ta capacité d\'épargne fiscale augmente avec le temps !',
         keyPoints: [
           KeyPoint(
-            'Bonus Indexation : Ton économie fiscale grandit tous les 2 ans',
+            'Bonus Indexation : ton espace de déduction peut évoluer avec le plafond 3a',
           ),
           KeyPoint(
             'Protection Inflation : un 3a investi en titres peut mieux protéger le pouvoir d\'achat, avec les risques de marché correspondants',

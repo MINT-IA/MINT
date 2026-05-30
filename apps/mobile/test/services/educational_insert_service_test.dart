@@ -1,6 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/educational_insert_service.dart';
+
+/// Wraps [child] in a MaterialApp with French localization delegates so
+/// AppLocalizations.of(context) (S) resolves for now-i18n'd insert widgets.
+Widget _l10nApp(Widget child) {
+  return MaterialApp(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
+    home: child,
+  );
+}
 
 /// Unit tests for EducationalInsertService
 ///
@@ -150,6 +168,31 @@ void main() {
       expect(widget, isNotNull);
     });
 
+    testWidgets('3a tax insert frames fiscal impact as indicative',
+        (tester) async {
+      final widget = EducationalInsertService.getInsertWidget(
+        questionId: 'q_has_3a',
+        answers: {
+          'q_employment_status': 'employee',
+          'q_net_income_period_chf': 6000.0,
+        },
+      )!;
+
+      await tester.pumpWidget(
+        _l10nApp(
+          Scaffold(
+            body: SingleChildScrollView(child: widget),
+          ),
+        ),
+      );
+
+      expect(find.text('Réduction d’impôt indicative'), findsOneWidget);
+      expect(find.textContaining('Impact indicatif:'), findsOneWidget);
+      expect(find.textContaining('Économie d’impôts'), findsNothing);
+      expect(find.textContaining("Économie d'impôts"), findsNothing);
+      expect(find.textContaining('de plus par mois'), findsNothing);
+    });
+
     test('returns non-null widget for q_3a_annual_amount', () {
       final widget = EducationalInsertService.getInsertWidget(
         questionId: 'q_3a_annual_amount',
@@ -198,12 +241,55 @@ void main() {
       expect(widget, isNotNull);
     });
 
+    testWidgets('LPP buyback insert frames fiscal figures as indicative',
+        (tester) async {
+      final widget = EducationalInsertService.getInsertWidget(
+        questionId: 'q_lpp_buyback_available',
+        answers: {},
+      )!;
+
+      await tester.pumpWidget(
+        _l10nApp(
+          Scaffold(
+            body: SingleChildScrollView(child: widget),
+          ),
+        ),
+      );
+
+      expect(find.textContaining('impact fiscal indicatif'), findsWidgets);
+      expect(find.textContaining('Simuler l\'impact fiscal'), findsOneWidget);
+      expect(find.textContaining('rendement fiscal immédiat'), findsNothing);
+      expect(find.textContaining('économie fiscale'), findsNothing);
+      expect(find.textContaining('maximiser l\'économie'), findsNothing);
+    });
+
     test('returns non-null widget for q_3a_accounts_count', () {
       final widget = EducationalInsertService.getInsertWidget(
         questionId: 'q_3a_accounts_count',
         answers: {},
       );
       expect(widget, isNotNull);
+    });
+
+    testWidgets('3a accounts insert avoids guaranteed savings copy',
+        (tester) async {
+      final widget = EducationalInsertService.getInsertWidget(
+        questionId: 'q_3a_accounts_count',
+        answers: {},
+      )!;
+
+      await tester.pumpWidget(
+        _l10nApp(
+          Scaffold(
+            body: SingleChildScrollView(child: widget),
+          ),
+        ),
+      );
+
+      expect(find.textContaining('planifier les retraits'), findsOneWidget);
+      expect(find.textContaining('impôt estimé'), findsOneWidget);
+      expect(find.textContaining('tu peux économiser'), findsNothing);
+      expect(find.textContaining('payer moins d\'impôts'), findsNothing);
     });
 
     test('returns non-null widget for q_has_investments', () {

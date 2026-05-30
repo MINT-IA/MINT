@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/data_spine_snapshot.dart';
@@ -116,10 +119,19 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
     final mintState = context.watch<MintStateProvider>().state;
     final dataSpine = mintState?.dataSpineSnapshot;
     final budgetSnapshot = dataSpine?.budget ?? mintState?.budgetSnapshot;
+    final preferProfileBudgetProvider =
+        budgetProvider.source == BudgetDataSource.profile &&
+            budgetProvider.hasFreshInputs;
+    final budgetSnapshotForBudgetCard =
+        preferProfileBudgetProvider ? null : budgetSnapshot;
+    final budgetConfidenceScore = preferProfileBudgetProvider
+        ? 80.0
+        : budgetSnapshot?.confidenceScore ?? 0.0;
     final patrimoine = dataSpine != null
         ? PatrimoineAggregator.computeFromDataSpine(dataSpine)
         : PatrimoineAggregator.compute(coachProfile);
     final whisper = CoachWhisperService.evaluate(
+      budgetSnapshot: budgetSnapshotForBudgetCard,
       budgetInputs: budgetProvider.inputs,
       budgetPlan: budgetProvider.plan,
       patrimoine: patrimoine,
@@ -168,7 +180,8 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                       _MonArgentSectionBody(
                         section: _section,
                         dataSpine: dataSpine,
-                        budgetSnapshot: budgetSnapshot,
+                        budgetSnapshot: budgetSnapshotForBudgetCard,
+                        budgetConfidenceScore: budgetConfidenceScore,
                         patrimoine: patrimoine,
                         budgetProvider: budgetProvider,
                         budgetLoading: _budgetLoading,
@@ -366,6 +379,7 @@ class _MonArgentSectionBody extends StatelessWidget {
   final _MonArgentSection section;
   final DataSpineSnapshot? dataSpine;
   final BudgetSnapshot? budgetSnapshot;
+  final double budgetConfidenceScore;
   final PatrimoineSummary patrimoine;
   final BudgetProvider budgetProvider;
   final bool budgetLoading;
@@ -382,6 +396,7 @@ class _MonArgentSectionBody extends StatelessWidget {
     required this.section,
     required this.dataSpine,
     required this.budgetSnapshot,
+    required this.budgetConfidenceScore,
     required this.patrimoine,
     required this.budgetProvider,
     required this.budgetLoading,
@@ -406,6 +421,9 @@ class _MonArgentSectionBody extends StatelessWidget {
         _MonArgentSection.today => _TodaySection(
             dataSpine: dataSpine,
             budgetSnapshot: budgetSnapshot,
+            budgetConfidenceScore: budgetConfidenceScore,
+            budgetInputs: budgetProvider.inputs,
+            budgetPlan: budgetProvider.plan,
             patrimoine: patrimoine,
             l10n: l10n,
           ),
@@ -442,34 +460,69 @@ class _MonArgentSectionBody extends StatelessWidget {
 class _TodaySection extends StatelessWidget {
   final DataSpineSnapshot? dataSpine;
   final BudgetSnapshot? budgetSnapshot;
+  final double budgetConfidenceScore;
+  final BudgetInputs? budgetInputs;
+  final BudgetPlan? budgetPlan;
   final PatrimoineSummary patrimoine;
   final S l10n;
 
   const _TodaySection({
     required this.dataSpine,
     required this.budgetSnapshot,
+    required this.budgetConfidenceScore,
+    required this.budgetInputs,
+    required this.budgetPlan,
     required this.patrimoine,
     required this.l10n,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (dataSpine == null || budgetSnapshot == null) {
+    final presentBudget = _presentBudget();
+    if (presentBudget == null) {
       return _MissingDataSurface(l10n: l10n);
     }
     return Column(
       children: [
         _MonArgentDataSpineSummary(
-          snapshot: budgetSnapshot!,
+          present: presentBudget,
+          confidenceScore: budgetConfidenceScore,
           patrimoineNet: patrimoine.net,
           l10n: l10n,
         ),
-        const SizedBox(height: MintSpacing.lg),
-        _MonArgentSituationMap(
-          spine: dataSpine!,
-          l10n: l10n,
-        ),
+        if (dataSpine != null) ...[
+          const SizedBox(height: MintSpacing.md),
+          _MonArgentDetailsExpansion(
+            title: l10n.dataBlockSituationTitle,
+            child: _MonArgentSituationMap(
+              spine: dataSpine!,
+              budgetInputsOverride:
+                  budgetSnapshot == null ? budgetInputs : null,
+              l10n: l10n,
+              includeSurface: false,
+              includeTitle: false,
+            ),
+          ),
+        ],
       ],
+    );
+  }
+
+  PresentBudget? _presentBudget() {
+    final snapshotPresent = budgetSnapshot?.present;
+    if (snapshotPresent != null) return snapshotPresent;
+    final inputs = budgetInputs;
+    if (inputs == null) return null;
+    return PresentBudgetBuilder.fromInputs(
+      inputs: inputs,
+      plan: budgetPlan ??
+          const BudgetPlan(
+            available: 0,
+            variables: 0,
+            future: 0,
+            stopRuleTriggered: false,
+            emergencyFundMonths: 0,
+          ),
     );
   }
 }
@@ -491,20 +544,67 @@ class _MissingDataSurface extends StatelessWidget {
   }
 }
 
+class _MonArgentDetailsExpansion extends StatelessWidget {
+  final String title;
+  final Widget child;
+
+  const _MonArgentDetailsExpansion({
+    required this.title,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      key: const Key('mon_argent_situation_expand'),
+      identifier: 'mon_argent_situation_expand',
+      button: true,
+      label: title,
+      container: true,
+      explicitChildNodes: true,
+      child: MintSurface(
+        tone: MintSurfaceTone.craie,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            dividerColor: MintColors.transparent,
+            splashColor: MintColors.transparent,
+            highlightColor: MintColors.transparent,
+          ),
+          child: ExpansionTile(
+            tilePadding: EdgeInsets.zero,
+            childrenPadding: const EdgeInsets.only(top: MintSpacing.sm),
+            iconColor: MintColors.ardoise,
+            collapsedIconColor: MintColors.textMuted,
+            title: Text(
+              title,
+              style: MintTextStyles.titleMedium(
+                color: MintColors.textPrimary,
+              ),
+            ),
+            children: [child],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _MonArgentDataSpineSummary extends StatelessWidget {
-  final BudgetSnapshot snapshot;
+  final PresentBudget present;
+  final double confidenceScore;
   final double patrimoineNet;
   final S l10n;
 
   const _MonArgentDataSpineSummary({
-    required this.snapshot,
+    required this.present,
+    required this.confidenceScore,
     required this.patrimoineNet,
     required this.l10n,
   });
 
   @override
   Widget build(BuildContext context) {
-    final confidence = snapshot.confidenceScore.round().clamp(0, 100);
+    final confidence = confidenceScore.round().clamp(0, 100);
     final confidenceDetail = confidence >= 60
         ? l10n.budgetSnapshotConfidenceOk
         : l10n.budgetSnapshotConfidenceLow;
@@ -513,7 +613,7 @@ class _MonArgentDataSpineSummary extends StatelessWidget {
       key: const Key('mon_argent_data_spine_summary'),
       identifier: 'mon_argent_data_spine_summary',
       label: '${l10n.budgetSnapshotFreeLabel}. '
-          '${_formatChf(snapshot.present.monthlyFree)}. '
+          '${_formatChf(present.monthlyFree)}. '
           '${l10n.budgetSnapshotConfidenceLabel} $confidence%.',
       child: MintSurface(
         tone: MintSurfaceTone.porcelaine,
@@ -527,9 +627,9 @@ class _MonArgentDataSpineSummary extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.xs),
             Text(
-              _formatChf(snapshot.present.monthlyFree),
+              _formatChf(present.monthlyFree),
               style: MintTextStyles.displayMedium(
-                color: snapshot.present.isDeficit
+                color: present.isDeficit
                     ? MintColors.error
                     : MintColors.textPrimary,
               ),
@@ -662,129 +762,179 @@ class _MonArgentTrajectoryMap extends StatelessWidget {
 
 class _MonArgentSituationMap extends StatelessWidget {
   final DataSpineSnapshot spine;
+  final BudgetInputs? budgetInputsOverride;
   final S l10n;
+  final bool includeSurface;
+  final bool includeTitle;
 
   const _MonArgentSituationMap({
     required this.spine,
+    this.budgetInputsOverride,
     required this.l10n,
+    this.includeSurface = true,
+    this.includeTitle = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final situation = spine.situation;
     final pillars = spine.pillars;
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (includeTitle) ...[
+          Text(
+            l10n.dataBlockSituationTitle,
+            style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
+          ),
+          const SizedBox(height: MintSpacing.md),
+        ],
+        _SituationGroup(
+          identifier: 'mon_argent_situation_group_month',
+          title: l10n.monArgentBudgetTitle,
+          children: [
+            _SituationValueRow(
+              label: l10n.affordabilityGrossIncome,
+              value: _valueOrMissing(situation.grossAnnualIncome),
+              statusLabel: _fieldStatusLabel(situation.grossAnnualIncome),
+              statusColor: _fieldStatusColor(situation.grossAnnualIncome),
+              trustId: 'gross_income',
+            ),
+            _SituationValueRow(
+              label: l10n.budgetHousing,
+              value: _budgetInputValueOrSpine(
+                budgetInputsOverride?.housingCost,
+                situation.monthlyHousingCost,
+              ),
+              statusLabel: _budgetInputStatusOrSpine(
+                budgetInputsOverride?.housingCost,
+                situation.monthlyHousingCost,
+              ),
+              statusColor: _budgetInputStatusColorOrSpine(
+                budgetInputsOverride?.housingCost,
+                situation.monthlyHousingCost,
+              ),
+              trustId: 'housing_cost',
+            ),
+            _SituationValueRow(
+              label: l10n.budgetHealthInsurance,
+              value: _budgetInputValueOrSpine(
+                budgetInputsOverride?.healthInsurance,
+                situation.lamalPremiumMonthly,
+              ),
+              statusLabel: _budgetInputStatusOrSpine(
+                budgetInputsOverride?.healthInsurance,
+                situation.lamalPremiumMonthly,
+              ),
+              statusColor: _budgetInputStatusColorOrSpine(
+                budgetInputsOverride?.healthInsurance,
+                situation.lamalPremiumMonthly,
+              ),
+              trustId: 'lamal_premium',
+            ),
+          ],
+        ),
+        const SizedBox(height: MintSpacing.lg),
+        _SituationGroup(
+          identifier: 'mon_argent_situation_group_wealth',
+          title: l10n.monArgentPatrimoineTitle,
+          children: [
+            _SituationValueRow(
+              label: l10n.dataBlockSituationCashLabel,
+              value: _valueOrMissing(situation.liquidSavings),
+              statusLabel: _fieldStatusLabel(situation.liquidSavings),
+              statusColor: _fieldStatusColor(situation.liquidSavings),
+              trustId: 'liquid_savings',
+            ),
+            _SituationValueRow(
+              label: l10n.financialSummaryInvestissements,
+              value: _valueOrMissing(situation.investments),
+              statusLabel: _fieldStatusLabel(situation.investments),
+              statusColor: _fieldStatusColor(situation.investments),
+              trustId: 'investments',
+            ),
+            _SituationValueRow(
+              label: l10n.patrimoineDettes,
+              value: _valueOrMissing(situation.totalDebt),
+              statusLabel: _fieldStatusLabel(situation.totalDebt),
+              statusColor: _fieldStatusColor(situation.totalDebt),
+              trustId: 'total_debt',
+            ),
+          ],
+        ),
+        const SizedBox(height: MintSpacing.lg),
+        _SituationGroup(
+          identifier: 'mon_argent_situation_group_pension',
+          title: l10n.dashboardGoalRetirement,
+          children: [
+            _PillarValueRow(
+              label: l10n.dataBlockAvsTitle,
+              value: _pillarMoneyOrMissing(
+                pillars.avs.estimatedMonthlyPension,
+              ),
+              state: pillars.avs.estimatedMonthlyPension.state,
+              color: MintColors.info,
+              trustId: 'avs_estimated_pension',
+              l10n: l10n,
+            ),
+            _PillarValueRow(
+              label: l10n.dataBlockLppTitle,
+              value: _pillarMoneyOrMissing(pillars.lpp.totalBalance),
+              state: pillars.lpp.totalBalance.state,
+              color: MintColors.pillarLpp,
+              trustId: 'lpp_total_balance',
+              l10n: l10n,
+            ),
+            _PillarValueRow(
+              label: l10n.dataBlock3aTitle,
+              value: _pillarMoneyOrMissing(pillars.pillar3a.totalBalance),
+              state: pillars.pillar3a.totalBalance.state,
+              color: MintColors.success,
+              trustId: 'pillar3a_total_balance',
+              l10n: l10n,
+            ),
+          ],
+        ),
+      ],
+    );
 
     return Semantics(
       key: const Key('mon_argent_situation_map'),
       identifier: 'mon_argent_situation_map',
       label: l10n.dataBlockSituationTitle,
-      child: MintSurface(
-        tone: MintSurfaceTone.craie,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.dataBlockSituationTitle,
-              style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
-            ),
-            const SizedBox(height: MintSpacing.md),
-            _SituationGroup(
-              identifier: 'mon_argent_situation_group_month',
-              title: l10n.monArgentBudgetTitle,
-              children: [
-                _SituationValueRow(
-                  label: l10n.affordabilityGrossIncome,
-                  value: _valueOrMissing(situation.grossAnnualIncome),
-                  statusLabel: _fieldStatusLabel(situation.grossAnnualIncome),
-                  statusColor: _fieldStatusColor(situation.grossAnnualIncome),
-                  trustId: 'gross_income',
-                ),
-                _SituationValueRow(
-                  label: l10n.budgetHousing,
-                  value: _valueOrMissing(situation.monthlyHousingCost),
-                  statusLabel: _fieldStatusLabel(situation.monthlyHousingCost),
-                  statusColor: _fieldStatusColor(situation.monthlyHousingCost),
-                  trustId: 'housing_cost',
-                ),
-                _SituationValueRow(
-                  label: l10n.budgetHealthInsurance,
-                  value: _valueOrMissing(situation.lamalPremiumMonthly),
-                  statusLabel: _fieldStatusLabel(situation.lamalPremiumMonthly),
-                  statusColor: _fieldStatusColor(situation.lamalPremiumMonthly),
-                  trustId: 'lamal_premium',
-                ),
-              ],
-            ),
-            const SizedBox(height: MintSpacing.lg),
-            _SituationGroup(
-              identifier: 'mon_argent_situation_group_wealth',
-              title: l10n.monArgentPatrimoineTitle,
-              children: [
-                _SituationValueRow(
-                  label: l10n.dataBlockSituationCashLabel,
-                  value: _valueOrMissing(situation.liquidSavings),
-                  statusLabel: _fieldStatusLabel(situation.liquidSavings),
-                  statusColor: _fieldStatusColor(situation.liquidSavings),
-                  trustId: 'liquid_savings',
-                ),
-                _SituationValueRow(
-                  label: l10n.financialSummaryInvestissements,
-                  value: _valueOrMissing(situation.investments),
-                  statusLabel: _fieldStatusLabel(situation.investments),
-                  statusColor: _fieldStatusColor(situation.investments),
-                  trustId: 'investments',
-                ),
-                _SituationValueRow(
-                  label: l10n.patrimoineDettes,
-                  value: _valueOrMissing(situation.totalDebt),
-                  statusLabel: _fieldStatusLabel(situation.totalDebt),
-                  statusColor: _fieldStatusColor(situation.totalDebt),
-                  trustId: 'total_debt',
-                ),
-              ],
-            ),
-            const SizedBox(height: MintSpacing.lg),
-            _SituationGroup(
-              identifier: 'mon_argent_situation_group_pension',
-              title: l10n.dashboardGoalRetirement,
-              children: [
-                _PillarValueRow(
-                  label: l10n.dataBlockAvsTitle,
-                  value: _pillarMoneyOrMissing(
-                    pillars.avs.estimatedMonthlyPension,
-                  ),
-                  state: pillars.avs.estimatedMonthlyPension.state,
-                  color: MintColors.info,
-                  trustId: 'avs_estimated_pension',
-                  l10n: l10n,
-                ),
-                _PillarValueRow(
-                  label: l10n.dataBlockLppTitle,
-                  value: _pillarMoneyOrMissing(pillars.lpp.totalBalance),
-                  state: pillars.lpp.totalBalance.state,
-                  color: MintColors.pillarLpp,
-                  trustId: 'lpp_total_balance',
-                  l10n: l10n,
-                ),
-                _PillarValueRow(
-                  label: l10n.dataBlock3aTitle,
-                  value: _pillarMoneyOrMissing(pillars.pillar3a.totalBalance),
-                  state: pillars.pillar3a.totalBalance.state,
-                  color: MintColors.success,
-                  trustId: 'pillar3a_total_balance',
-                  l10n: l10n,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+      child: includeSurface
+          ? MintSurface(tone: MintSurfaceTone.craie, child: content)
+          : content,
     );
   }
 
   String _valueOrMissing(SpineValue<double> value) {
     final amount = value.value;
     return amount == null ? l10n.dataBlockStatusMissing : _formatChf(amount);
+  }
+
+  String _budgetInputValueOrSpine(
+    double? inputValue,
+    SpineValue<double> spineValue,
+  ) {
+    if (inputValue != null && inputValue > 0) return _formatChf(inputValue);
+    return _valueOrMissing(spineValue);
+  }
+
+  String _budgetInputStatusOrSpine(
+    double? inputValue,
+    SpineValue<double> spineValue,
+  ) {
+    if (inputValue != null && inputValue > 0) return l10n.budgetQualityProvided;
+    return _fieldStatusLabel(spineValue);
+  }
+
+  Color _budgetInputStatusColorOrSpine(
+    double? inputValue,
+    SpineValue<double> spineValue,
+  ) {
+    if (inputValue != null && inputValue > 0) return MintColors.success;
+    return _fieldStatusColor(spineValue);
   }
 
   String _fieldStatusLabel(SpineValue<double> value) {

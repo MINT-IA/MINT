@@ -233,8 +233,8 @@ void main() {
       await tester.pump();
       await tester.drag(find.byType(ListView), const Offset(0, -300));
       await tester.pump();
-      // i18n: realReturnFiscalDetail = "Detail economie fiscale"
-      expect(find.textContaining('conomie fiscale'), findsWidgets);
+      // i18n: realReturnFiscalDetail = "Détail impact fiscal"
+      expect(find.textContaining('impact fiscal'), findsWidgets);
     });
 
     testWidgets('displays disclaimer after scrolling', (tester) async {

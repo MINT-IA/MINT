@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 
 /// Badge earned by consistent check-in behavior.
@@ -180,8 +181,9 @@ class StreakService {
     // Annual 3a contribution from planned monthly contributions
     final annual3a = profile.total3aMensuel * 12;
 
-    // Monthly expenses from depenses profile
-    final monthlyExpenses = profile.depenses.totalMensuel;
+    // Monthly expenses from the canonical plausible budget read model.
+    final monthlyExpenses =
+        BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
 
     // Liquid savings (available for emergency fund)
     final liquidSavings = profile.patrimoine.epargneLiquide;

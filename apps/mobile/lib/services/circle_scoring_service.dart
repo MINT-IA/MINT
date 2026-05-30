@@ -448,8 +448,7 @@ class CircleScoringService {
 
     final lppBuyback = _parseDouble(answers['q_lpp_buyback_available']);
     if (lppBuyback != null && lppBuyback > 50000) {
-      reco.add(
-          '💰 Planifie un rachat LPP échelonné (économie fiscale majeure)');
+      reco.add('💰 Planifie un rachat LPP échelonné (impact fiscal à estimer)');
     }
 
     // Recommandations AVS basées sur la nouvelle logique de lacunes

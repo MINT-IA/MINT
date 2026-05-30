@@ -158,6 +158,10 @@ void main() {
       expect(afterSpine.situation.canton.value, 'VD');
       expect(afterSpine.situation.liquidSavings.value, 25000);
       expect(afterSpine.situation.totalDebt.value, 8400);
+      expect(afterSpine.situation.totalDebt.meta.source,
+          ProfileDataSource.estimated);
+      expect(afterSpine.situation.totalDebt.meta.confidence,
+          FieldConfidence.estimated);
       expect(afterDigest.missingDomains, isNot(contains('situation')));
     });
 

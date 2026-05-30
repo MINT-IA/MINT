@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
@@ -12,8 +13,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 //
 //  3 cartes teaser affichant des chiffres chocs rapides :
 //    1. Rente vs Capital — blendedMonthly comparison
-//    2. Calendrier retraits — staggering tax saving estimate
-//    3. Rachat LPP — tax saving from buyback
+//    2. Calendrier retraits — indicative tax impact from staggering
+//    3. Rachat LPP — indicative tax impact from buyback
 //
 //  Visible uniquement si age >= 45 (State A).
 //  Estimations rapides depuis financial_core, pas de calcul lourd.
@@ -78,7 +79,9 @@ class ArbitrageTeaserSection extends StatelessWidget {
   static List<_TeaserData> _computeTeasers(CoachProfile profile) {
     final teasers = <_TeaserData>[];
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
-    final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
+    final resolvedCanton = resolveCanton(profile.canton);
+    if (!resolvedCanton.isResolved) return teasers;
+    final canton = resolvedCanton.code;
 
     // 1. Rente vs Capital
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
@@ -111,21 +114,18 @@ class ArbitrageTeaserSection extends StatelessWidget {
 
       final diff = (monthlyMixed - monthlyFullRente).abs();
       if (diff > 50) {
-        final betterOption = monthlyMixed > monthlyFullRente
-            ? '60% rente + 40% capital'
-            : '100% rente';
         teasers.add(_TeaserData(
           icon: Icons.compare_arrows_rounded,
           color: MintColors.purple,
           title: 'Rente vs Capital',
           premierEclairage:
-              'L\u2019option $betterOption pourrait donner +CHF\u00a0${_fmt(diff)}/mois nets',
+              'Écart de flux net simulé : CHF\u00a0${_fmt(diff)}/mois entre les variantes',
           route: '/rente-vs-capital',
         ));
       }
     }
 
-    // 2. Calendrier retraits — estimate staggering tax saving
+    // 2. Calendrier retraits — estimate indicative staggering impact
     final total3a = profile.prevoyance.totalEpargne3a;
     if (lppAvoir > 0 && total3a > 0) {
       // Rough estimate: unstaggered = all in one year → higher progressive rate
@@ -150,7 +150,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
           color: MintColors.info,
           title: 'Calendrier de retraits',
           premierEclairage:
-              '\u00c9chelonner tes retraits pourrait \u00e9conomiser ~CHF\u00a0${_fmt(saving)} d\u2019imp\u00f4t',
+              '\u00c9chelonner tes retraits\u00a0: impact fiscal indicatif ~CHF\u00a0${_fmt(saving)}',
           route: '/decaissement',
         ));
       }
@@ -173,7 +173,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
         color: MintColors.success,
         title: 'Rachat LPP',
         premierEclairage:
-            'Un rachat de CHF\u00a0${_fmt(lacune)} pourrait r\u00e9duire ton imp\u00f4t de ~CHF\u00a0${_fmt(saving)}',
+            'Un rachat de CHF\u00a0${_fmt(lacune)}\u00a0: impact fiscal indicatif ~CHF\u00a0${_fmt(saving)}',
         route: '/rachat-lpp',
       ));
     }

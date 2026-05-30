@@ -74,6 +74,42 @@ void main() {
       final p = makeProfile(epargneLiquide: 30000, totalMensuelDepenses: 3000);
       expect(p.isInDebtCrisis, isFalse);
     });
+
+    test('wizard monthly consumer debt without known capital → true', () {
+      final p = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_canton': 'VD',
+        'q_gross_income_monthly': 6000,
+        'q_has_consumer_debt': 'yes',
+        'q_debt_payments_period_chf': 900,
+        'q_housing_cost_period_chf': 1800,
+        'q_lamal_premium_monthly_chf': 420,
+        'q_cash_total': 30000,
+      });
+
+      expect(p.dettes.creditConsommation, isNull);
+      expect(p.dettes.mensualiteCreditConso, 900);
+      expect(p.isInDebtCrisis, isTrue);
+    });
+
+    test('wizard monthly consumer debt survives inline mortgage capital', () {
+      final p = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1985,
+        'q_canton': 'VD',
+        'q_gross_income_monthly': 6000,
+        'q_has_consumer_debt': 'yes',
+        'q_debt_payments_period_chf': 900,
+        '_coach_dettes_hypotheque': 600000,
+        'q_housing_cost_period_chf': 2200,
+        'q_lamal_premium_monthly_chf': 420,
+        'q_cash_total': 30000,
+      });
+
+      expect(p.dettes.hypotheque, 600000);
+      expect(p.dettes.mensualiteCreditConso, 900);
+      expect(p.dettes.creditConsommation, isNull);
+      expect(p.isInDebtCrisis, isTrue);
+    });
   });
 
   // ── Signal B ─────────────────────────────────────────────────────────────────
@@ -90,13 +126,24 @@ void main() {
       expect(p.isInDebtCrisis, isTrue);
     });
 
-    test('conso mensualite / net <= 0.33 → false (B alone)', () {
-      // Salary 6000, net ≈ 5426/month. Conso monthly = 800 → ratio ≈ 0.15
+    test('material conso mensualite / net <= 0.33 → true (Signal A)', () {
+      // Salary 6000, net ≈ 5426/month. Conso monthly = 800 → material
+      // consumer debt exists, even though Signal B ratio remains below 0.33.
       final p = makeProfile(
         salaire: 6000,
         mensualiteCreditConso: 800,
         epargneLiquide: 30000,
         totalMensuelDepenses: 3000,
+      );
+      expect(p.isInDebtCrisis, isTrue);
+    });
+
+    test('small leasing payment for high income is not debt crisis', () {
+      final p = makeProfile(
+        salaire: 12000,
+        mensualiteLeasing: 350,
+        epargneLiquide: 50000,
+        totalMensuelDepenses: 4000,
       );
       expect(p.isInDebtCrisis, isFalse);
     });

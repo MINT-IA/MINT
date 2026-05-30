@@ -77,7 +77,9 @@ class TestCalendarMessages:
             m for m in msgs if m.trigger == ReengagementTrigger.new_year
         )
         assert "7'258" in new_year_msg.body
-        assert "1'500" in new_year_msg.body
+        assert "marge déductible" in new_year_msg.body.lower()
+        assert "economie potentielle" not in new_year_msg.body.lower()
+        assert "économie potentielle" not in new_year_msg.body.lower()
         assert new_year_msg.month == 1
 
     def test_february_tax_prep(self, engine):
@@ -155,6 +157,8 @@ class TestCalendarMessages:
         )
         assert "Dernier mois" in final_msg.body
         assert "3'000" in final_msg.body
+        assert "Économie fiscale estimée" in final_msg.body
+        assert "en jeu" not in final_msg.body.lower()
         assert final_msg.month == 12
 
     def test_quarterly_fri_april(self, engine):
@@ -350,6 +354,34 @@ class TestCompliance:
             "At least 2 legal sources required"
         )
 
+    def test_3a_reengagement_copy_is_trustworthy(self, engine):
+        """3a reengagement must not confuse deductible room and tax saving."""
+        by_month = {
+            1: ReengagementTrigger.new_year,
+            10: ReengagementTrigger.three_a_countdown,
+            11: ReengagementTrigger.three_a_urgency,
+            12: ReengagementTrigger.three_a_final,
+        }
+        for month, trigger in by_month.items():
+            msg = next(
+                m for m in engine.generate_messages(
+                    today=date(2026, month, 15),
+                    tax_saving_3a=1820.0,
+                    fri_total=50.0,
+                )
+                if m.trigger == trigger
+            )
+            body_lower = msg.body.lower()
+            assert "economie potentielle" not in body_lower
+            assert "économie potentielle" not in body_lower
+            assert "en jeu" not in body_lower
+            if trigger == ReengagementTrigger.new_year:
+                assert "marge déductible" in body_lower
+                assert "7'258" in msg.body
+            else:
+                assert "économie fiscale estimée" in body_lower
+                assert "1'820" in msg.body
+
 
 # ===================================================================
 # 6. Additional edge case tests
@@ -396,13 +428,14 @@ class TestEdgeCases:
     def test_chf_formatting_with_apostrophe(self, engine):
         """CHF amounts must use Swiss apostrophe formatting."""
         msgs = engine.generate_messages(
-            today=date(2026, 1, 15),
+            today=date(2026, 10, 15),
             tax_saving_3a=12345.0,
         )
-        new_year_msg = next(
-            m for m in msgs if m.trigger == ReengagementTrigger.new_year
+        three_a_msg = next(
+            m for m in msgs
+            if m.trigger == ReengagementTrigger.three_a_countdown
         )
-        assert "12'345" in new_year_msg.body
+        assert "12'345" in three_a_msg.body
 
     def test_negative_fri_delta(self, engine):
         """Negative FRI delta is displayed without + sign."""

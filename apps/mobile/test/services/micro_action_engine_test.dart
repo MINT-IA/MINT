@@ -178,6 +178,52 @@ void main() {
   });
 
   // ════════════════════════════════════════════════════════
+  //  FINANCIAL ACTIONS
+  // ════════════════════════════════════════════════════════
+
+  group('Financial actions', () {
+    test('emergency fund action ignores implausible housing via budget model',
+        () {
+      final profile = CoachProfile(
+        firstName: 'Julien',
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 9000,
+        explicitMonthlyNetIncome: 6000,
+        depenses: const DepensesProfile(
+          loyer: 19272200,
+          assuranceMaladie: 400,
+        ),
+        dataSources: const {
+          'depenses.loyer': ProfileDataSource.userInput,
+          'depenses.assuranceMaladie': ProfileDataSource.userInput,
+        },
+        userProvidedFields: const {
+          'housingCost',
+          'lamalPremium',
+        },
+        patrimoine: const PatrimoineProfile(epargneLiquide: 30000),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 500000,
+          totalEpargne3a: 50000,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final actions = MicroActionEngine.suggest(profile: profile, limit: 10);
+
+      expect(
+        actions.where((a) => a.id == 'build_emergency_fund'),
+        isEmpty,
+      );
+    });
+  });
+
+  // ════════════════════════════════════════════════════════
   //  URGENCY LEVELS
   // ════════════════════════════════════════════════════════
 

@@ -34,7 +34,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 //   Feb  → Preparation declaration fiscale
 //   Mar  → Deadline declaration (canton-dependent)
 //   Oct  → Countdown 3a (jours restants)
-//   Nov  → Countdown 3a + economie estimee
+//   Nov  → Countdown 3a + impact fiscal indicatif
 //   Dec  → Dernier mois 3a
 //   Q    → Score FRI trimestriel
 //
@@ -115,7 +115,7 @@ class ReengagementEngine {
   ///
   /// [today] — override for testing (defaults to DateTime.now()).
   /// [canton] — user's canton for tax deadline (default 'VD').
-  /// [taxSaving3a] — estimated annual tax saving from 3a (CHF).
+  /// [taxSaving3a] — indicative annual tax impact from 3a (CHF).
   /// [friTotal] — current FRI score (0-100).
   /// [friDelta] — FRI score change since last quarter.
   ///
@@ -132,6 +132,7 @@ class ReengagementEngine {
     final now = today ?? DateTime.now();
     final month = now.month;
     final savingStr = chf.formatChf(taxSaving3a);
+    final plafond3aStr = chf.formatChf(7258);
     final messages = <ReengagementMessage>[];
 
     // ── January: Nouveaux plafonds 3a ────────────────────────
@@ -139,11 +140,11 @@ class ReengagementEngine {
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.newYear,
         title: l?.reengagementTitleNewYear ?? 'Nouveaux plafonds 3a',
-        body: 'Nouveaux plafonds 3a : CHF 7\'258. '
-            'Ton economie potentielle : CHF $savingStr.',
+        body: 'Nouveaux plafonds 3a : CHF $plafond3aStr. '
+            'La marge déductible peut changer.',
         deeplink: '/pilier-3a',
-        personalNumber: 'CHF $savingStr',
-        timeConstraint: 'Annee ${now.year}',
+        personalNumber: 'CHF $plafond3aStr',
+        timeConstraint: 'Année ${now.year}',
         month: 1,
       ));
     }
@@ -182,7 +183,8 @@ class ReengagementEngine {
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.threeACountdown,
         title: l?.reengagementTitleThreeA ?? 'Deadline 3a',
-        body: 'Il reste $daysLeft jours pour verser ton 3a.',
+        body: 'Il reste $daysLeft jours pour verser ton 3a. '
+            'Impact fiscal indicatif : CHF $savingStr.',
         deeplink: '/pilier-3a',
         personalNumber: 'CHF $savingStr',
         timeConstraint: '$daysLeft jours',
@@ -197,7 +199,7 @@ class ReengagementEngine {
         trigger: ReengagementTrigger.threeAUrgency,
         title: l?.reengagementTitleThreeA ?? 'Deadline 3a',
         body: 'Il reste $daysLeft jours. '
-            'Economie estimee : CHF $savingStr.',
+            'Impact fiscal indicatif : CHF $savingStr.',
         deeplink: '/pilier-3a',
         personalNumber: 'CHF $savingStr',
         timeConstraint: '$daysLeft jours',
@@ -210,7 +212,7 @@ class ReengagementEngine {
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.threeAFinal,
         title: l?.reengagementTitleThreeAFinal ?? 'Dernier mois 3a',
-        body: 'Dernier mois. Économie estimée : CHF $savingStr.',
+        body: 'Dernier mois. Impact fiscal indicatif : CHF $savingStr.',
         deeplink: '/pilier-3a',
         personalNumber: 'CHF $savingStr',
         timeConstraint: 'Dernier mois',

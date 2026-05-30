@@ -566,7 +566,8 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// Merge individual fields into the existing profile (incremental update).
   /// Used by chat inline pickers to update one field at a time without
-  /// overwriting the rest of the profile.
+  /// overwriting the rest of the profile. A null value deletes the key, which
+  /// lets edit screens clear optional values instead of preserving stale data.
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
     if (partial.isEmpty) return;
     // Deep-walk crack #15: always re-read the on-disk answers before
@@ -579,7 +580,14 @@ class CoachProfileProvider extends ChangeNotifier {
     // after the card Budget populated. Read-then-merge-then-save is the
     // only crash-safe discipline.
     final current = await ReportPersistenceService.loadAnswers();
-    final merged = Map<String, dynamic>.from(current)..addAll(partial);
+    final merged = Map<String, dynamic>.from(current);
+    for (final entry in partial.entries) {
+      if (entry.value == null) {
+        merged.remove(entry.key);
+      } else {
+        merged[entry.key] = entry.value;
+      }
+    }
     _lastAnswers = merged;
     _profile = CoachProfile.fromWizardAnswers(merged);
     _isLoaded = true;
@@ -2424,10 +2432,14 @@ class CoachProfileProvider extends ChangeNotifier {
     try {
       final answers = await ReportPersistenceService.loadAnswers();
       if (epargneLiquide > 0) answers['q_cash_total'] = epargneLiquide;
-      if (investissements > 0) answers['_coach_investissements'] = investissements;
+      if (investissements > 0) {
+        answers['q_investments_total'] = investissements;
+      }
       if (epargne3a > 0) answers['_coach_total_3a'] = epargne3a;
-      if (loyer != null) answers['_coach_depenses_loyer'] = loyer;
-      if (assurance != null) answers['_coach_depenses_assurance'] = assurance;
+      if (loyer != null) answers['q_housing_cost_period_chf'] = loyer;
+      if (assurance != null) {
+        answers['q_lamal_premium_monthly_chf'] = assurance;
+      }
       if (electricite != null) answers['_coach_depenses_electricite'] = electricite;
       if (transport != null) answers['_coach_depenses_transport'] = transport;
       if (telecom != null) answers['_coach_depenses_telecom'] = telecom;

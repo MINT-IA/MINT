@@ -39,6 +39,7 @@ class FinancialReportService {
     // 7. Actions prioritaires (top 3 from scoring) — enrichies avec gains calculés
     final priorityActions = _buildPriorityActions(
       healthScore,
+      profile: profile,
       taxSim: taxSim,
       lppStrategy: lppStrategy,
       pillar3aAnalysis: pillar3aAnalysis,
@@ -46,7 +47,15 @@ class FinancialReportService {
     );
 
     // 8. Roadmap personnalisée
-    final roadmap = _buildRoadmap(healthScore, answers, profile, l: l);
+    final roadmap = _buildRoadmap(
+      healthScore,
+      answers,
+      profile,
+      taxSim: taxSim,
+      lppStrategy: lppStrategy,
+      pillar3aAnalysis: pillar3aAnalysis,
+      l: l,
+    );
 
     // 9. Sources juridiques par cercle
     final sources = _buildJuridicalSources(healthScore);
@@ -509,6 +518,7 @@ class FinancialReportService {
 
   List<ActionItem> _buildPriorityActions(
     FinancialHealthScore healthScore, {
+    UserProfile? profile,
     TaxSimulation? taxSim,
     LppBuybackStrategy? lppStrategy,
     Pillar3aAnalysis? pillar3aAnalysis,
@@ -520,6 +530,7 @@ class FinancialReportService {
     for (final reco in healthScore.topPriorities) {
       final action = _parseRecommendationToAction(
         reco,
+        profile: profile,
         taxSim: taxSim,
         lppStrategy: lppStrategy,
         pillar3aAnalysis: pillar3aAnalysis,
@@ -533,6 +544,7 @@ class FinancialReportService {
 
   ActionItem? _parseRecommendationToAction(
     String recommendation, {
+    UserProfile? profile,
     TaxSimulation? taxSim,
     LppBuybackStrategy? lppStrategy,
     Pillar3aAnalysis? pillar3aAnalysis,
@@ -541,12 +553,16 @@ class FinancialReportService {
     // Parsing basé sur keywords avec gains calculés à partir des données réelles
     if (recommendation.contains('premier compte 3a') ||
         recommendation.contains('premier 3a')) {
+      final fiscalGain = _estimateFirst3aFiscalGain(
+        profile: profile,
+        taxSim: taxSim,
+      );
       return ActionItem(
         title: l?.reportActionTitle3aFirst ?? 'Ouvre ton premier 3a',
         description: l?.reportActionDesc3aFirst ??
-            'Déduis jusqu\'à CHF 7\'258/an de ton revenu imposable. Économie immédiate.',
+            'Versement déductible ; impact fiscal estimé selon ton revenu et ton canton.',
         priority: ActionPriority.high,
-        potentialGainChf: 1500,
+        potentialGainChf: fiscalGain,
         category: ActionCategory.pillar3a,
         steps: [
           '1. Compare les offres (fintech, banque)',
@@ -562,14 +578,13 @@ class FinancialReportService {
       final gainVsBank = pillar3aAnalysis?.potentialGainVsBank;
       final withdrawalSavings = pillar3aAnalysis?.withdrawalOptimizationSavings;
       final totalGain = (gainVsBank ?? 0) + (withdrawalSavings ?? 0);
-      final computedGain = totalGain > 0 ? totalGain : 12000.0;
 
       return ActionItem(
         title: l?.reportActionTitle3aSecond ?? 'Ouvre un 2e compte 3a fintech',
         description: l?.reportActionDesc3aSecond ??
             'Optimise ta fiscalité au retrait et diversifie tes placements.',
         priority: ActionPriority.high,
-        potentialGainChf: computedGain,
+        potentialGainChf: totalGain > 0 ? totalGain : null,
         category: ActionCategory.pillar3a,
         steps: const [
           '1. Compare les prestataires 3a en ligne',
@@ -583,15 +598,15 @@ class FinancialReportService {
     if (recommendation.contains('rachat LPP')) {
       // Gain réel : économie fiscale totale calculée par la stratégie LPP
       final computedGain = lppStrategy?.totalTaxSavings ?? 0;
-      final displayGain = computedGain > 0 ? computedGain : 60000.0;
       final nbYears = lppStrategy?.yearlyPlan.length ?? 4;
 
       return ActionItem(
         title: 'Planifie ton rachat LPP échelonné',
-        description:
-            'Économise jusqu\'à ${formatChfWithPrefix(displayGain)} d\'impôts sur $nbYears ans.',
+        description: computedGain > 0
+            ? 'Impact fiscal estimé : ${formatChfWithPrefix(computedGain)} sur $nbYears ans.'
+            : 'Planifie le calendrier et vérifie le montant exact auprès de ta caisse.',
         priority: ActionPriority.critical,
-        potentialGainChf: displayGain,
+        potentialGainChf: computedGain > 0 ? computedGain : null,
         category: ActionCategory.lpp,
         steps: const [
           '1. Demande certificat LPP à ta caisse',
@@ -606,7 +621,7 @@ class FinancialReportService {
       return ActionItem(
         title: l?.reportActionTitleAvsCheck ?? 'Vérifie ton compte AVS',
         description: l?.reportActionDescAvsCheck ??
-            'Évite de perdre jusqu\'à 38\'000 CHF de rente à vie.',
+            'Vérifie tes années de cotisation pour estimer une éventuelle lacune AVS.',
         priority: ActionPriority.high,
         category: ActionCategory.avs,
         steps: [
@@ -624,7 +639,6 @@ class FinancialReportService {
         description: l?.reportActionDescDette ??
             'Chaque CHF remboursé te fait économiser l\'équivalent du taux d\'intérêt de la dette (souvent 6-10 % par an).',
         priority: ActionPriority.critical,
-        potentialGainChf: 2000,
         category: ActionCategory.protection,
         steps: [
           '1. Liste toutes tes dettes (montant, taux)',
@@ -654,12 +668,22 @@ class FinancialReportService {
 
   Roadmap _buildRoadmap(FinancialHealthScore healthScore,
       Map<String, dynamic> answers, UserProfile profile,
-      {S? l}) {
+      {TaxSimulation? taxSim,
+      LppBuybackStrategy? lppStrategy,
+      Pillar3aAnalysis? pillar3aAnalysis,
+      S? l}) {
     return Roadmap(phases: [
       RoadmapPhase(
         title: l?.reportRoadmapPhaseImmediat ?? 'Immédiat',
         timeframe: l?.reportRoadmapTimeframeImmediat ?? 'Ce mois',
-        actions: _buildPriorityActions(healthScore, l: l)
+        actions: _buildPriorityActions(
+          healthScore,
+          profile: profile,
+          taxSim: taxSim,
+          lppStrategy: lppStrategy,
+          pillar3aAnalysis: pillar3aAnalysis,
+          l: l,
+        )
             .where((a) =>
                 a.priority == ActionPriority.critical ||
                 a.priority == ActionPriority.high)
@@ -674,6 +698,42 @@ class FinancialReportService {
   }
 
   // ===== HELPERS =====
+
+  double? _estimateFirst3aFiscalGain({
+    required UserProfile? profile,
+    required TaxSimulation? taxSim,
+  }) {
+    if (profile == null ||
+        taxSim == null ||
+        taxSim.taxableIncome <= 0 ||
+        taxSim.totalTax <= 0 ||
+        taxSim.effectiveRate <= 0) {
+      return null;
+    }
+    final grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(
+      profile.monthlyNetIncome * 12,
+      age: profile.age,
+    );
+    final hasLpp = profile.isSalaried &&
+        grossAnnualSalary >= reg('lpp.entry_threshold', lppSeuilEntree);
+    final maxContribution = hasLpp
+        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
+        : (grossAnnualSalary * pilier3aTauxRevenuSansLpp)
+            .clamp(0.0, pilier3aPlafondSansLpp);
+    final current3a = taxSim.deductions['3a'] ?? 0;
+    final remainingDeduction = maxContribution - current3a;
+    if (remainingDeduction <= 0) return null;
+
+    final impact = RetirementTaxCalculator.estimate3aTaxImpact(
+      grossAnnualSalary: grossAnnualSalary,
+      canton: profile.canton,
+      isMarried: profile.isMarried,
+      children: profile.childrenCount,
+      hasLpp: hasLpp,
+      contribution: remainingDeduction,
+    );
+    return impact.estimatedTaxSaving > 0 ? impact.estimatedTaxSaving : null;
+  }
 
   double _estimateEffectiveRate(
       double taxableIncome, String canton, bool isMarried,

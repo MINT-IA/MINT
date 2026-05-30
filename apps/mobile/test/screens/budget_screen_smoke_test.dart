@@ -1,6 +1,9 @@
+import 'dart:ui' show SemanticsAction;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart'; // Ensure correct imports
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -14,13 +17,25 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
+import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
+import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });
+
+  Future<void> openCalculationDetail(WidgetTester tester) async {
+    final toggle = find.byKey(const Key('budget_calculation_detail_toggle'));
+    await tester.ensureVisible(toggle);
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+  }
 
   testWidgets('BudgetScreen smoke test - renders correctly',
       (WidgetTester tester) async {
@@ -143,6 +158,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
+    await openCalculationDetail(tester);
     await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
 
     expect(find.text('Revenu net'), findsWidgets);
@@ -158,6 +174,110 @@ void main() {
     expect(find.text("CHF\u00a02'240"), findsNothing);
     expect(find.text('58%'), findsOneWidget);
     expect(find.text('42%'), findsOneWidget);
+  });
+
+  testWidgets(
+      'BudgetScreen secondary visuals use displayed charges including other fixed',
+      (tester) async {
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 5000.4,
+      housingCost: 1200.5,
+      debtPayments: 200.49,
+      taxProvision: 300.5,
+      healthInsurance: 410.49,
+      otherFixedCosts: 100.5,
+      style: BudgetStyle.envelopes3,
+    );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetScreen(inputs: inputs),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    await tester.drag(
+      find.byType(SingleChildScrollView),
+      const Offset(0, -1500),
+    );
+    await tester.pumpAndSettle();
+
+    final sandwich = find.byType(BudgetSandwichChart);
+    final rule503020 = find.byType(Budget503020Widget);
+    final crashTest = find.byType(CrashTestBudgetWidget);
+
+    expect(
+      find.descendant(
+        of: sandwich,
+        matching: find.textContaining('Autres charges fixes'),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: sandwich,
+        matching: find.textContaining("CHF\u00a02'213"),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: rule503020,
+        matching: find.textContaining("1'394"),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: rule503020,
+        matching: find.textContaining('836'),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: rule503020,
+        matching: find.textContaining('557'),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: crashTest,
+        matching: find.textContaining('Autres charges fixes'),
+      ),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: crashTest,
+        matching: find.text('101'),
+      ),
+      findsWidgets,
+    );
+    expect(find.textContaining("CHF\u00a02'112"), findsNothing);
+
+    expect(
+      PresentBudgetBuilder.fixedChargesFromInputs(inputs),
+      2213,
+    );
   });
 
   testWidgets('BudgetScreen monthly flow preserves deficit instead of clamping',
@@ -195,10 +315,103 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
+    await openCalculationDetail(tester);
     await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
 
     expect(find.text('Disponible'), findsWidgets);
     expect(find.text("CHF\u00a0-1'120"), findsWidgets);
+  });
+
+  testWidgets(
+      'BudgetScreen hero formula subtracts future envelope from available',
+      (tester) async {
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 5379,
+      housingCost: 2200,
+      debtPayments: 0,
+      taxProvision: 520,
+      healthInsurance: 420,
+      style: BudgetStyle.envelopes3,
+    );
+    await BudgetLocalStore().saveOverride('future', 700);
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetScreen(inputs: inputs),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.byKey(const Key('budget_hero_formula')), findsOneWidget);
+    expect(
+      find.text(
+          "CHF\u00a05'379 − CHF\u00a03'140 − CHF\u00a0700 = CHF\u00a01'539"),
+      findsOneWidget,
+    );
+    expect(find.text("– CHF\u00a0700"), findsNothing);
+    expect(find.text("CHF\u00a02'939"), findsNothing);
+    expect(find.text("CHF\u00a02'239"), findsNothing);
+  });
+
+  testWidgets('BudgetScreen hero formula omits zero future envelope',
+      (tester) async {
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 5379,
+      housingCost: 2200,
+      debtPayments: 0,
+      taxProvision: 520,
+      healthInsurance: 420,
+      style: BudgetStyle.envelopes3,
+    );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetScreen(inputs: inputs),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.byKey(const Key('budget_hero_formula')), findsOneWidget);
+    expect(
+      find.text("CHF\u00a05'379 − CHF\u00a03'140 = CHF\u00a02'239"),
+      findsOneWidget,
+    );
+    expect(find.textContaining("− CHF\u00a00"), findsNothing);
+    expect(find.byKey(const Key('budget_debt_disclosure')), findsNothing);
   });
 
   testWidgets('BudgetScreen exposes Maestro semantics anchors', (tester) async {
@@ -237,6 +450,19 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(seconds: 2));
 
+    expect(find.byKey(const Key('budget_flow_map')), findsNothing);
+    expect(find.byKey(const Key('budget_formula_proof')), findsNothing);
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(const Key('budget_calculation_detail_toggle')),
+          )
+          .getSemanticsData()
+          .hasAction(SemanticsAction.tap),
+      isTrue,
+    );
+
+    await openCalculationDetail(tester);
     await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
 
     expect(
@@ -397,6 +623,158 @@ void main() {
     expect(find.text("CHF\u00a02'200"), findsNothing);
   });
 
+  testWidgets('BudgetContainerScreen hydrates debts from CoachProfile',
+      (tester) async {
+    await BudgetLocalStore().saveInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 8000,
+        housingCost: 2200,
+        debtPayments: 0,
+        taxProvision: 950,
+        healthInsurance: 420,
+      ),
+    );
+
+    final profileProvider = CoachProfileProvider()
+      ..updateProfile(
+        CoachProfile(
+          birthYear: 1988,
+          canton: 'VD',
+          salaireBrutMensuel: 6000,
+          depenses: const DepensesProfile(
+            loyer: 1100,
+            assuranceMaladie: 390,
+          ),
+          dettes: const DetteProfile(
+            creditConsommation: 12000,
+          ),
+          dataSources: const {
+            'depenses.loyer': ProfileDataSource.userInput,
+            'depenses.assuranceMaladie': ProfileDataSource.userInput,
+            'dettes.totalDettes': ProfileDataSource.userInput,
+          },
+          goalA: GoalA(
+            type: GoalAType.achatImmo,
+            targetDate: DateTime(2030),
+            label: 'Logement',
+          ),
+        ),
+      );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: profileProvider,
+          ),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetContainerScreen(),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    final budgetProvider = Provider.of<BudgetProvider>(
+      tester.element(find.byType(BudgetContainerScreen)),
+      listen: false,
+    );
+    // BudgetInputs.fromCoachProfile currently spreads total debts over 36 months.
+    expect(budgetProvider.inputs?.debtPayments, closeTo(333.33, 0.01));
+    expect(find.text('Remboursement dettes: CHF\u00a0333'), findsWidgets);
+    expect(
+      tester
+          .getSemantics(find.byKey(const Key('budget_debt_disclosure')))
+          .identifier,
+      'budget_debt_disclosure',
+    );
+  });
+
+  testWidgets('BudgetContainerScreen routeExtra emits Tier A return on pop',
+      (tester) async {
+    await ScreenCompletionTracker.clear('budget');
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 8000.4,
+      housingCost: 2200.5,
+      debtPayments: 333.5,
+      taxProvision: 950.5,
+      healthInsurance: 420.5,
+    );
+    final expectedCharges = PresentBudgetBuilder.fixedChargesFromInputs(inputs);
+    expect(expectedCharges, 3907);
+    await BudgetLocalStore().saveInputs(
+      inputs,
+    );
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+        ],
+        child: MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const BudgetContainerScreen(
+                    routeExtra: {
+                      'runId': 'run-budget-1',
+                      'stepId': 'step-budget-1',
+                    },
+                  ),
+                ),
+              ),
+              child: const Text('open budget'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('open budget'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+    expect(find.byType(BudgetScreen), findsOneWidget);
+
+    Navigator.of(tester.element(find.byType(BudgetScreen))).pop();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final screenReturn = await ScreenCompletionTracker.lastReturn('budget');
+    expect(screenReturn?.route, '/budget');
+    expect(screenReturn?.outcome, ScreenOutcome.completed);
+    expect(screenReturn?.runId, 'run-budget-1');
+    expect(screenReturn?.stepId, 'step-budget-1');
+    expect(
+      screenReturn?.stepOutputs?['revenu_net'],
+      PresentBudgetBuilder.displayChf(inputs.netIncome),
+    );
+    expect(screenReturn?.stepOutputs?['charges_totales'], expectedCharges);
+  });
+
   testWidgets('BudgetContainerScreen keeps full cache over partial profile',
       (tester) async {
     await BudgetLocalStore().saveInputs(
@@ -447,6 +825,53 @@ void main() {
     );
     expect(profileProvider.isPartialProfile, isTrue);
     expect(budgetProvider.inputs?.netIncome, 8000);
+    expect(budgetProvider.inputs?.housingCost, 2200);
+    expect(budgetProvider.inputs?.healthInsurance, 420);
+  });
+
+  testWidgets(
+      'BudgetContainerScreen hydrates budget-first wizard answers after profile load',
+      (tester) async {
+    final profileProvider = CoachProfileProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => BudgetProvider()),
+          ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: profileProvider,
+          ),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: BudgetContainerScreen(),
+        ),
+      ),
+    );
+
+    profileProvider.updateFromMiniOnboarding({
+      'q_gross_salary_annual': 90000.0,
+      'q_housing_cost_period_chf': 2200.0,
+      'q_lamal_premium_monthly_chf': 420.0,
+      'q_pay_frequency': 'monthly',
+    });
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 2));
+
+    final budgetProvider = Provider.of<BudgetProvider>(
+      tester.element(find.byType(BudgetContainerScreen)),
+      listen: false,
+    );
+    expect(profileProvider.isPartialProfile, isTrue);
+    expect(find.byType(BudgetScreen), findsOneWidget);
     expect(budgetProvider.inputs?.housingCost, 2200);
     expect(budgetProvider.inputs?.healthInsurance, 420);
   });

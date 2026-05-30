@@ -1,8 +1,9 @@
 // Phase 32 MAP-01 — RouteMeta schema + enum integrity + kRouteRegistry.
 //
 // Baseline contract (from .planning/phases/32-cartographier/32-00-RECONCILE-REPORT.md):
-// - kRouteRegistry.length == 151 (was 147 in Phase 32 ; 4 routes added since,
-//   count refreshed 2026-05-10 in MVP-GOOGLEFONTS-PURGE-V1 cleanup pass)
+// - kRouteRegistry.length == 152 (was 147 in Phase 32 ; 5 routes added since,
+//   count refreshed 2026-05-30 in SALVAGE-00 #682 — registered the existing
+//   debt_ratio_screen route '/debt/ratio')
 // - RouteOwner enum has 15 values (11 flag-groups + auth/admin/system/explore)
 // - RouteCategory enum has 4 values (destination, flow, tool, alias)
 // - Owner ambiguity rule (D-01 v4): /explore/retraite -> owner=explore (first-segment-wins)
@@ -102,10 +103,11 @@ void main() {
   });
 
   group('kRouteRegistry (MAP-01)', () {
-    test('has exactly 151 entries', () {
-      // 147 in Phase 32 ; 4 routes added since. Refresh count when adding /
-      // removing routes (intentional gate, not auto-updated).
-      expect(kRouteRegistry.length, 151);
+    test('has exactly 152 entries', () {
+      // 147 in Phase 32 ; 5 routes added since (SALVAGE-00 #682 registered the
+      // existing debt_ratio_screen route '/debt/ratio'). Refresh count when
+      // adding / removing routes (intentional gate, not auto-updated).
+      expect(kRouteRegistry.length, 152);
     });
 
     test('every entry path matches its key', () {

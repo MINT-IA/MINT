@@ -11,6 +11,7 @@ CoachProfile _profileWithOpen3aMargin({
   double salaireBrutMensuel = 7000,
   String employmentStatus = 'salarie',
   double monthly3a = 300,
+  double? avoirLppTotal = 80000,
 }) {
   return CoachProfile(
     firstName: 'Julien',
@@ -23,10 +24,10 @@ CoachProfile _profileWithOpen3aMargin({
       targetDate: DateTime(2055, 12, 31),
       label: 'Retraite a 65 ans',
     ),
-    prevoyance: const PrevoyanceProfile(
+    prevoyance: PrevoyanceProfile(
       nombre3a: 1,
       totalEpargne3a: 15000,
-      avoirLppTotal: 80000,
+      avoirLppTotal: avoirLppTotal,
     ),
     depenses: const DepensesProfile(
       loyer: 1500,
@@ -58,6 +59,14 @@ void main() {
         canton: profile.canton,
         contribution: remaining,
       );
+      expect(
+        expectedImpact.deductibleContribution,
+        isNot(expectedImpact.estimatedTaxSaving),
+      );
+      expect(
+        formatChfWithPrefix(expectedImpact.deductibleContribution),
+        isNot(formatChfWithPrefix(expectedImpact.estimatedTaxSaving)),
+      );
 
       final alert = CoachNarrativeService.build3aDeadlineAlertForTest(
         profile: profile,
@@ -66,7 +75,30 @@ void main() {
 
       expect(alert, isNotNull);
       expect(alert, contains('3a'));
-      expect(alert, contains('Impact fiscal estimé'));
+      expect(
+        alert,
+        contains(
+          'Il te reste 30 jours pour verser '
+          '${formatChfWithPrefix(expectedImpact.deductibleContribution)} '
+          'en 3a.',
+        ),
+      );
+      expect(
+        alert,
+        isNot(
+          contains(
+            'verser ${formatChfWithPrefix(expectedImpact.estimatedTaxSaving)} '
+            'en 3a',
+          ),
+        ),
+      );
+      expect(
+        alert,
+        contains(
+          'Impact fiscal indicatif: '
+          '~${formatChfWithPrefix(expectedImpact.estimatedTaxSaving)}',
+        ),
+      );
       expect(
         alert,
         contains(formatChfWithPrefix(expectedImpact.deductibleContribution)),
@@ -80,6 +112,31 @@ void main() {
       expect(alert, contains('OPP3'));
       expect(alert, isNot(contains('economiser')));
       expect(alert, isNot(contains("d'impots")));
+      expect(alert, isNot(contains('gain fiscal')));
+      expect(alert, isNot(contains('tu économises')));
+      expect(alert, isNot(contains('tu economises')));
+      expect(alert, isNot(contains('tu gagnes')));
+      expect(alert, isNot(contains('rendement fiscal')));
+      expect(alert, isNot(contains('économie d’impôt en jeu')));
+      expect(alert, isNot(contains("économie d'impôt en jeu")));
+      expect(
+        alert,
+        isNot(
+          contains(
+            '${formatChfWithPrefix(expectedImpact.deductibleContribution)} '
+            'd’économie',
+          ),
+        ),
+      );
+      expect(
+        alert,
+        isNot(
+          contains(
+            '${formatChfWithPrefix(expectedImpact.deductibleContribution)} '
+            "d'économie",
+          ),
+        ),
+      );
     });
 
     test('3a deadline alert is suppressed when assumptions are incomplete', () {
@@ -106,6 +163,7 @@ void main() {
         salaireBrutMensuel: 50000 / 12,
         employmentStatus: 'independant',
         monthly3a: 8000 / 12,
+        avoirLppTotal: null,
       );
 
       final alert = CoachNarrativeService.build3aDeadlineAlertForTest(
@@ -116,6 +174,20 @@ void main() {
       expect(alert, isNotNull);
       expect(alert, contains(formatChfWithPrefix(2000)));
       expect(alert, isNot(contains(formatChfWithPrefix(10000))));
+    });
+
+    test('system prompt grounds 3a ceiling from profile archetype', () {
+      final prompt = CoachNarrativeService.buildSystemPromptForTest(
+        profile: _profileWithOpen3aMargin(
+          salaireBrutMensuel: 300000 / 12,
+          employmentStatus: 'independant',
+          avoirLppTotal: null,
+        ),
+      );
+
+      expect(prompt, contains('Plafond 3a applicable au profil'));
+      expect(prompt, contains(formatChfWithPrefix(36288)));
+      expect(prompt, isNot(contains('Plafond 3a salarie : 7')));
     });
 
     test('fallback tax tip states canton and estimated-rate assumption', () {

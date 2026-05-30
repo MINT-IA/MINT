@@ -17,7 +17,11 @@ void main() {
     );
 
     expect(find.textContaining('retombe sur ton compte'), findsNothing);
-    expect(find.textContaining('peut réduire ton impôt'), findsOneWidget);
-    expect(find.textContaining('économie fiscale estimée'), findsOneWidget);
+    expect(find.textContaining('peut réduire ton impôt'), findsNothing);
+    expect(find.textContaining('économie fiscale estimée'), findsNothing);
+    expect(
+        find.textContaining('diminuer ton revenu imposable'), findsOneWidget);
+    expect(find.textContaining('impact fiscal indicatif'), findsOneWidget);
+    expect(find.textContaining("CHF\u00a07'258"), findsOneWidget);
   });
 }

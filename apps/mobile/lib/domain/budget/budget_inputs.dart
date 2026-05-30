@@ -98,28 +98,11 @@ class BudgetInputs {
   /// Utilise pour synchroniser le budget quand le profil change
   /// (wizard, annual refresh, mini-onboarding).
   /// Le revenu net utilise NetIncomeBreakdown (canton + age).
-  /// Les dettes sont reparties sur 36 mois de remboursement.
+  /// Les mensualites de dettes saisies priment; le proxy total/36 ne sert
+  /// que si aucun paiement mensuel explicite n'existe.
   static BudgetInputs fromCoachProfile(CoachProfile profile) {
     // Revenu net du menage (utilisateur + conjoint si couple)
-    final ownBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: profile.salaireBrutMensuel * 12,
-      canton: profile.canton,
-      age: profile.age,
-    );
-    final ownNet = ownBreakdown.monthlyNetPayslip;
-    final conjointBudget = profile.conjoint;
-    final partnerNet = conjointBudget != null &&
-            conjointBudget.salaireBrutMensuel != null &&
-            conjointBudget.age != null
-        ? NetIncomeBreakdown.compute(
-            grossSalary: conjointBudget.salaireBrutMensuel! * 12,
-            canton: profile.canton,
-            age: conjointBudget.age!,
-          ).monthlyNetPayslip
-        : 0.0;
-    final monthlyNet = ownNet + partnerNet;
-    final monthlyDebt =
-        profile.dettes.totalDettes > 0 ? profile.dettes.totalDettes / 36 : 0.0;
+    final monthlyNet = monthlyNetFromCoachProfile(profile);
     final hasHousingSource = _hasTrustedSource(profile, 'depenses.loyer') ||
         _hasEstimatedSource(profile, 'depenses.loyer') ||
         profile.userProvidedFields.contains('housingCost');
@@ -159,6 +142,7 @@ class BudgetInputs {
             ) ??
             0.0
         : 0.0;
+    final monthlyDebt = _monthlyDebtPayment(profile.dettes);
     final otherFixed =
         hasOtherFixedSource ? _trustedOtherFixedCosts(profile) : 0.0;
     final plausibleOtherFixed = plausibleMonthlyAmount(
@@ -209,6 +193,75 @@ class BudgetInputs {
       isOtherFixedMissing: plausibleOtherFixed <= 0,
       emergencyFundMonths: emergencyMonths,
     );
+  }
+
+  /// Household monthly net income used by budget surfaces.
+  ///
+  /// Salaried income uses the payslip net calculator. Independent income uses
+  /// the same explicit approximation as BudgetLivingEngine: gross annual × 90%
+  /// / 12, because NetIncomeBreakdown models employee social charges.
+  static double monthlyNetFromCoachProfile(CoachProfile profile) {
+    final explicitOwnNet = profile.explicitMonthlyNetIncome;
+    if (explicitOwnNet != null &&
+        explicitOwnNet.isFinite &&
+        explicitOwnNet > 0) {
+      return explicitOwnNet;
+    }
+    final ownNet = _monthlyNetFromGrossAnnual(
+      grossAnnual: profile.revenuBrutAnnuel,
+      canton: profile.canton,
+      age: profile.age,
+      employmentStatus: profile.employmentStatus,
+    );
+    final conjoint = profile.conjoint;
+    final partnerNet = conjoint != null && conjoint.age != null
+        ? _monthlyNetFromGrossAnnual(
+            grossAnnual: conjoint.revenuBrutAnnuel,
+            canton: profile.canton,
+            age: conjoint.age!,
+            employmentStatus: conjoint.employmentStatus ?? 'salarie',
+          )
+        : 0.0;
+    return ownNet + partnerNet;
+  }
+
+  static double _monthlyNetFromGrossAnnual({
+    required double grossAnnual,
+    required String canton,
+    required int age,
+    required String employmentStatus,
+  }) {
+    if (grossAnnual <= 0 || !grossAnnual.isFinite) return 0;
+    if (employmentStatus == 'independant') {
+      return grossAnnual * 0.90 / 12;
+    }
+    return NetIncomeBreakdown.compute(
+      grossSalary: grossAnnual,
+      canton: canton.isNotEmpty ? canton : 'ZH',
+      age: age,
+    ).monthlyNetPayslip;
+  }
+
+  static double _monthlyDebtPayment(DetteProfile dettes) {
+    final explicitMonthly = _positiveFinite(dettes.mensualiteCreditConso) +
+        _positiveFinite(dettes.mensualiteLeasing);
+    if (explicitMonthly.isFinite && explicitMonthly > 0) {
+      return explicitMonthly;
+    }
+
+    final totalDebt = _positiveFinite(dettes.creditConsommation) +
+        _positiveFinite(dettes.leasing) +
+        _positiveFinite(dettes.autresDettes);
+    if (totalDebt.isFinite && totalDebt > 0) {
+      return totalDebt / 36;
+    }
+
+    return 0.0;
+  }
+
+  static double _positiveFinite(double? value) {
+    if (value == null || !value.isFinite || value <= 0) return 0.0;
+    return value;
   }
 
   // Factory depuis une map (pour deserialization depuis Session.answers)
@@ -354,6 +407,30 @@ class BudgetInputs {
   static double? plausibleMonthlyAmount(double? value, {required double max}) {
     if (value == null || value < 0 || value > max) return null;
     return value;
+  }
+
+  static double plausibleMonthlyFixedExpensesFromProfile(
+    CoachProfile profile,
+  ) {
+    final depenses = profile.depenses;
+    final housing = plausibleMonthlyAmount(
+          depenses.loyer,
+          max: maxMonthlyHousingCost,
+        ) ??
+        0.0;
+    final health = plausibleMonthlyAmount(
+          depenses.assuranceMaladie,
+          max: maxMonthlyHealthInsurance,
+        ) ??
+        0.0;
+    final otherFixed =
+        depenses.totalMensuel - depenses.loyer - depenses.assuranceMaladie;
+    final other = plausibleMonthlyAmount(
+          otherFixed,
+          max: maxMonthlyFixedCharge,
+        ) ??
+        0.0;
+    return housing + health + other;
   }
 
   static bool _hasAnyTrustedSource(CoachProfile profile, List<String> keys) {

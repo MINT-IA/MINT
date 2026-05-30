@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/coach_context_builder.dart';
 import 'package:mint_mobile/services/coach/coach_context_profile_mapper.dart';
@@ -12,6 +13,7 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+import 'package:mint_mobile/services/financial_core/pillar3a_room_calculator.dart';
 import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -205,7 +207,7 @@ class CoachNarrativeService {
     const double friDelta = 0;
 
     // Months of liquidity
-    final depenses = profile.totalDepensesMensuelles;
+    final depenses = _plausibleMonthlyExpenses(profile);
     final liquide = profile.patrimoine.epargneLiquide;
     final monthsLiquidity = depenses > 0 ? liquide / depenses : 0.0;
 
@@ -791,16 +793,17 @@ class CoachNarrativeService {
 
     // Prevoyance
     final montant3a = profile.prevoyance.totalEpargne3a;
-    final plafond3a = profile.employmentStatus == 'independant'
-        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
-        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final annual3aPlanned =
+        Pillar3aRoomCalculator.plannedAnnualContribution(profile);
+    final remaining3aRoom = Pillar3aRoomCalculator.remainingAnnualRoom(profile);
+    final annual3aCeiling = Pillar3aRoomCalculator.annualCeiling(profile);
     final nombre3a = profile.prevoyance.nombre3a;
     final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
 
     // Patrimoine
     final patrimoine = profile.patrimoine.totalPatrimoine;
-    final depensesMensuelles = profile.totalDepensesMensuelles;
+    final depensesMensuelles = _plausibleMonthlyExpenses(profile);
     final epargneLiquide = profile.patrimoine.epargneLiquide;
     final moisCouverts =
         depensesMensuelles > 0 ? epargneLiquide / depensesMensuelles : 0.0;
@@ -831,8 +834,10 @@ class CoachNarrativeService {
         '- Score Financial Fitness : $scoreValue/100 (tendance : $trendText)');
     buffer.writeln(
         '- Revenu brut annuel : CHF ~${_salaryRange(profile.revenuBrutAnnuel)} (estimation arrondie, confidentiel)');
-    buffer.writeln(
-        '- 3a : ${formatChf(montant3a)}/${formatChf(plafond3a)} CHF (nombre comptes : $nombre3a)');
+    buffer.writeln('- 3a : solde ${formatChfWithPrefix(montant3a)}, '
+        'versement annuel planifie ${formatChfWithPrefix(annual3aPlanned)}, '
+        'marge deductible restante ${formatChfWithPrefix(remaining3aRoom)} '
+        '(nombre comptes : $nombre3a)');
     buffer.writeln(
         '- LPP : avoir ${formatChfWithPrefix(avoirLpp)}, lacune rachat ${formatChfWithPrefix(lacuneLpp)}');
     buffer.writeln('- Patrimoine total : ${formatChfWithPrefix(patrimoine)}');
@@ -858,7 +863,9 @@ class CoachNarrativeService {
     buffer.writeln('- Taux conversion LPP min : 6.8% (LPP art. 14)');
     buffer.writeln(
         '- Reduction taux conversion par annee anticipee : ~0.2% (LPP art. 13 al. 2)');
-    buffer.writeln('- Plafond 3a salarie : 7\'258 CHF/an (OPP3 art. 7)');
+    buffer.writeln(
+        '- Plafond 3a applicable au profil : ${formatChfWithPrefix(annual3aCeiling)}/an '
+        '(OPP3 art. 7, selon statut LPP)');
     buffer.writeln('- Seuil LPP : 22\'680 CHF/an (LPP art. 7)');
     buffer.writeln('- Reduction AVS par annee anticipee : 6.8% (LAVS art. 40)');
     buffer.writeln();
@@ -902,6 +909,19 @@ class CoachNarrativeService {
         '11. Utilise UNIQUEMENT les valeurs de reference ci-dessus — ne pas halluciner de montants');
 
     return buffer.toString();
+  }
+
+  @visibleForTesting
+  static String buildSystemPromptForTest({
+    required CoachProfile profile,
+    List<Map<String, dynamic>>? scoreHistory,
+    List<CoachingTip> tips = const [],
+  }) {
+    return _buildSystemPrompt(
+      profile: profile,
+      scoreHistory: scoreHistory,
+      tips: tips,
+    );
   }
 
   /// Build retirement context block for the SLM prompt.
@@ -973,15 +993,14 @@ class CoachNarrativeService {
   static String _buildEducationalSnippets(CoachProfile profile) {
     final snippets = <String>[];
 
-    // 3a not maxed out
-    final cotisation3a = profile.total3aMensuel * 12;
-    final plafond3aSnippet =
-        reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
-    if (cotisation3a < plafond3aSnippet && profile.prevoyance.canContribute3a) {
-      final marge = plafond3aSnippet - cotisation3a;
-      snippets
-          .add('SNIPPET 3A: Il reste ${formatChfWithPrefix(marge)} de marge 3a '
-              'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
+    // 3a deductible room still open.
+    final remaining3aRoom = Pillar3aRoomCalculator.remainingAnnualRoom(profile);
+    final annual3aCeiling = Pillar3aRoomCalculator.annualCeiling(profile);
+    if (remaining3aRoom > 0 && profile.prevoyance.canContribute3a) {
+      snippets.add('SNIPPET 3A: Il reste '
+          '${formatChfWithPrefix(remaining3aRoom)} de marge deductible 3a '
+          'cette annee (plafond applicable '
+          '${formatChfWithPrefix(annual3aCeiling)}, OPP3 art. 7).');
     }
 
     // LPP buyback available
@@ -1030,9 +1049,9 @@ class CoachNarrativeService {
   /// Time Machine insight: backward (regret) + forward (hope) 3a projection.
   ///
   /// "If you had started at 30 → +X CHF. But contributing Y more years → +Z CHF."
-  /// Pure compound interest: annual 7258 CHF at 2% average return.
+  /// Pure compound interest: annual applicable 3a ceiling at 2% average return.
   static String? _buildTimeMachineInsight(CoachProfile profile) {
-    final plafond = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final annual3aCeiling = Pillar3aRoomCalculator.annualCeiling(profile);
     const avgReturn = 0.02; // Conservative 3a average
 
     final retAge = profile.effectiveRetirementAge;
@@ -1042,21 +1061,22 @@ class CoachNarrativeService {
     final yearsIfStarted30 = (age - 30).clamp(0, 40);
     double regretBalance = 0;
     for (int i = 0; i < yearsIfStarted30; i++) {
-      regretBalance = (regretBalance + plafond) * (1 + avgReturn);
+      regretBalance = (regretBalance + annual3aCeiling) * (1 + avgReturn);
     }
 
     // Forward: from now to retirement
     final yearsForward = (retAge - age).clamp(0, 40);
     double hopeBalance = 0;
     for (int i = 0; i < yearsForward; i++) {
-      hopeBalance = (hopeBalance + plafond) * (1 + avgReturn);
+      hopeBalance = (hopeBalance + annual3aCeiling) * (1 + avgReturn);
     }
 
     if (regretBalance <= 0 && hopeBalance <= 0) return null;
 
     final buffer = StringBuffer('TIME MACHINE 3A: ');
     if (yearsIfStarted30 > 0 && regretBalance > 10000) {
-      buffer.write('Si tu avais verse 7\'258 CHF/an depuis 30 ans → '
+      buffer.write('Si tu avais verse ${formatChf(annual3aCeiling)} CHF/an '
+          'depuis 30 ans → '
           '${formatChfWithPrefix(regretBalance)} aujourd\'hui. ');
     }
     if (yearsForward > 0) {
@@ -1243,7 +1263,7 @@ class CoachNarrativeService {
       'financial_summary': parts.join('\n'),
       // Income / expense flow ($ + LPP/3a/AVS context).
       'monthly_income': profile.salaireBrutMensuel,
-      'monthly_expenses': profile.depenses.totalMensuel,
+      'monthly_expenses': _plausibleMonthlyExpenses(profile),
       'salaire_brut': profile.salaireBrutMensuel,
       'avoir_lpp': prev.avoirLppTotal ?? 0,
       'lpp_balance_total': prev.avoirLppTotal ?? 0,
@@ -1259,6 +1279,10 @@ class CoachNarrativeService {
       if (profile.primaryFocus != null) 'primary_focus': profile.primaryFocus,
     };
     return result;
+  }
+
+  static double _plausibleMonthlyExpenses(CoachProfile profile) {
+    return BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile);
   }
 
   /// Parse la reponse JSON du LLM en CoachNarrative.
@@ -1411,7 +1435,7 @@ class CoachNarrativeService {
 
     return 'Il te reste $joursRestants jours pour verser '
         '${formatChfWithPrefix(estimate.deductibleContribution)} en 3a. '
-        'Impact fiscal estimé: '
+        'Impact fiscal indicatif: '
         '~${formatChfWithPrefix(estimate.estimatedTaxSaving)} '
         '($rateLabel, canton $cantonCode). '
         '\u2014 OPP3 art. 7';
@@ -1424,22 +1448,8 @@ class CoachNarrativeService {
     if (resolvedCanton.isFallback || profile.revenuBrutAnnuel <= 0) {
       return Pillar3aTaxImpactEstimate.unavailable;
     }
-    final maxImpact = RetirementTaxCalculator.estimate3aTaxImpact(
-      grossAnnualSalary: profile.revenuBrutAnnuel,
-      canton: resolvedCanton.code,
-      isMarried: profile.etatCivil == CoachCivilStatus.marie,
-      children: profile.nombreEnfants,
-      hasLpp: profile.employmentStatus != 'independant',
-    );
-    if (maxImpact.confidence == Pillar3aTaxImpactConfidence.unavailable ||
-        maxImpact.deductibleContribution <= 0) {
-      return Pillar3aTaxImpactEstimate.unavailable;
-    }
-
-    final alreadyPaid = profile.total3aMensuel * 12;
-    final remainingDeductible = (maxImpact.deductibleContribution - alreadyPaid)
-        .clamp(0.0, maxImpact.deductibleContribution)
-        .toDouble();
+    final remainingDeductible =
+        Pillar3aRoomCalculator.remainingAnnualRoom(profile);
     if (remainingDeductible <= 0) {
       return Pillar3aTaxImpactEstimate.unavailable;
     }
@@ -1449,7 +1459,7 @@ class CoachNarrativeService {
       canton: resolvedCanton.code,
       isMarried: profile.etatCivil == CoachCivilStatus.marie,
       children: profile.nombreEnfants,
-      hasLpp: profile.employmentStatus != 'independant',
+      hasLpp: profile.archetype != FinancialArchetype.independentNoLpp,
       contribution: remainingDeductible,
     );
   }

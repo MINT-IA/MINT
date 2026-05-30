@@ -24,7 +24,8 @@ Ethical requirements:
 
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from math import isfinite
 from typing import List, Optional
 
 from app.constants.social_insurance import (
@@ -105,15 +106,61 @@ class CoachingEngine:
         """Read budget fields from ProfileModel.data and compute the snapshot.
 
         Wave 1a D-02 — server-side recompute path for get_budget_status.
-        Reads the SAME keys the legacy _format_budget_status reads from ctx
-        (monthly_income, monthly_expenses, months_liquidity), preserving
-        byte-identity at the formatter boundary.
+        Prefer the backend budget read model stored under
+        ``ProfileModel.data["budget"]`` (same source as /api/v1/budget/me),
+        then fall back to the older flat keys read by the legacy
+        _format_budget_status formatter.
 
         Raises:
             ValueError: if both monthly_income and monthly_expenses are
                 missing from `profile_data`. Dispatcher catches and falls
                 through to legacy formatter.
         """
+        def _q(v):
+            return Decimal(str(v)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+        def _number(v):
+            if isinstance(v, bool):
+                return None
+            if isinstance(v, (int, float, Decimal)):
+                number = float(v)
+                return number if isfinite(number) else None
+            if isinstance(v, str):
+                try:
+                    number = float(Decimal(v.strip().replace("'", "")))
+                except (InvalidOperation, ValueError):
+                    return None
+                return number if isfinite(number) else None
+            return None
+
+        budget = profile_data.get("budget")
+        if isinstance(budget, dict):
+            income = _number(budget.get("income_monthly"))
+            if income is None:
+                income = _number(profile_data.get("incomeNetMonthly"))
+
+            fixed_total = 0.0
+            for line in budget.get("fixed_lines") or []:
+                if not isinstance(line, dict):
+                    continue
+                amount = _number(line.get("amount"))
+                if amount is not None and amount > 0:
+                    fixed_total += amount
+
+            variable_target = _number(budget.get("variable_target_monthly")) or 0.0
+            savings_target = _number(budget.get("savings_target_monthly")) or 0.0
+            expenses = fixed_total + variable_target + savings_target
+
+            if income is not None or expenses > 0:
+                mi_d = _q(income or 0.0)
+                me_d = _q(expenses)
+                return BudgetSnapshot(
+                    monthly_income=mi_d,
+                    monthly_expenses=me_d,
+                    monthly_surplus=mi_d - me_d,
+                    months_liquidity=float(profile_data.get("months_liquidity") or 0.0),
+                )
+
         mi = profile_data.get("monthly_income")
         me = profile_data.get("monthly_expenses")
         ml = profile_data.get("months_liquidity")
@@ -121,9 +168,6 @@ class CoachingEngine:
             raise ValueError("budget data missing")
 
         # Decimal quantization mirrors inputs_hash._quantize_floats convention.
-        def _q(v):
-            return Decimal(str(v)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-
         mi_d = _q(mi) if mi is not None else Decimal("0.00")
         me_d = _q(me) if me is not None else Decimal("0.00")
         return BudgetSnapshot(

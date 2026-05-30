@@ -126,6 +126,14 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `q_investments_total`, `q_emergency_fund`, `q_debt_payments_period_chf`,
   `_coach_dettes_hypotheque`, `_coach_dettes_credit`, `_coach_dettes_leasing`,
   `_coach_dettes_autres`
+- Debt key semantics are intentionally split:
+  `q_debt_payments_period_chf` is a monthly cashflow payment. It must not be
+  converted into synthetic capital. `_coach_dettes_credit`,
+  `_coach_dettes_leasing`, and `_coach_dettes_autres` are remaining capital
+  amounts. `_coach_dettes_hypotheque` is structural mortgage capital and must
+  not trigger consumer-debt Safe Mode by itself. If mortgage capital and
+  `q_debt_payments_period_chf` coexist, preserve both: mortgage as capital,
+  debt payment as monthly cashflow.
 
 **Fiscal**
 - `_coach_tax_revenu_imposable`, `_coach_tax_fortune_imposable`,
@@ -277,7 +285,7 @@ coachProvider.mergeAnswers({
 budgetProvider.refreshFromProfile(updatedProfile)
   ↓ BudgetInputs.fromCoachProfile(profile) re-derives
   ↓ BudgetService.computePlan(inputs, overrides)
-  ↓ _store.saveInputs(inputs)
+  ↓ profile-derived budget_inputs_v1 duplicates are cleared; direct-input fallback stays available
   ↓
 Pop back to Mon argent → BudgetSummaryCard now has data → « Il te reste Y CHF »
 ```
@@ -286,6 +294,12 @@ Pop back to Mon argent → BudgetSummaryCard now has data → « Il te reste Y C
 the local source of truth for its hero number, breakdown, and flow map. It must
 not reuse a stale global `BudgetSnapshot` when the user has just saved or
 restored direct budget inputs.
+
+`MonArgentScreen` prefers a budget freshly re-derived from the current
+`CoachProfile`, then `MintState.dataSpineSnapshot.budget`, then
+`budget_inputs_v1` fallback data. Direct-input budgets, such as bank-import
+previews that are not yet written into `wizard_answers_v2`, remain stored as
+fallback data but must not mask a current Data Spine budget.
 
 Chat fallback (« J'en parle plutôt au coach ») remains available on the
 setup screen, respecting `feedback_chat_is_everything` (chat *can* do it,

@@ -205,6 +205,34 @@ void main() {
       expect(fact(packet, 'pillar.3a.annual_contribution').value, 6000);
     });
 
+    test('emits displayed budget facts from the Data Spine snapshot', () {
+      final profile = buildProfile(
+        plannedContributions: const [],
+      ).copyWith(
+        explicitMonthlyNetIncome: 5000.4,
+        depenses: const DepensesProfile(
+          loyer: 1200.5,
+          assuranceMaladie: 400.5,
+        ),
+        dettes: const DetteProfile(mensualiteCreditConso: 200.5),
+      );
+      final spine = DataSpineService.fromProfile(profile, now: fixedNow);
+      final packet = CoachContextPacketService.fromSpine(spine);
+
+      final monthlyNet = fact(packet, 'budget.monthly_net').value as double;
+      final monthlyCharges =
+          fact(packet, 'budget.monthly_charges').value as double;
+      final monthlyFree = fact(packet, 'budget.monthly_free').value as double;
+
+      expect(monthlyNet, spine.budget.present.monthlyNet);
+      expect(monthlyCharges, spine.budget.present.monthlyCharges);
+      expect(monthlyFree, spine.budget.present.monthlyFree);
+      expect(monthlyNet, 5000);
+      expect(monthlyNet, isNot(5000.4));
+      expect(monthlyCharges, monthlyCharges.roundToDouble());
+      expect(monthlyFree, monthlyFree.roundToDouble());
+    });
+
     test('preserves source and freshness metadata on facts', () {
       final updatedAt = DateTime.utc(2026, 4, 20);
       final packet = buildPacket(

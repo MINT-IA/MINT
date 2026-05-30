@@ -258,5 +258,40 @@ void main() {
       final r = certResult();
       expect(r.premierEclairage, isNotEmpty);
     });
+
+    test('location comparison copy does not rank one option as dominant', () {
+      final offenders = <String>[];
+
+      for (final capital in [50000.0, 100000.0, 180000.0, 300000.0]) {
+        for (final rent in [1200.0, 2000.0, 3200.0, 4500.0]) {
+          for (final price in [500000.0, 800000.0, 1100000.0]) {
+            final r = ArbitrageEngine.compareLocationVsPropriete(
+              capitalDisponible: capital,
+              loyerMensuelActuel: rent,
+              prixBien: price,
+              canton: 'VD',
+              horizonAnnees: 20,
+            );
+
+            final visibleText = [
+              r.premierEclairage,
+              r.displaySummary,
+              ...r.hypotheses,
+              ...r.alertes,
+            ].join(' ').toLowerCase();
+
+            if (visibleText.contains('domine') ||
+                visibleText.contains('meilleur') ||
+                visibleText.contains('optimal')) {
+              offenders.add(
+                'capital=$capital rent=$rent price=$price: $visibleText',
+              );
+            }
+          }
+        }
+      }
+
+      expect(offenders, isEmpty);
+    });
   });
 }

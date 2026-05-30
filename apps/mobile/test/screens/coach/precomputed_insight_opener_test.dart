@@ -33,7 +33,7 @@ import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 
-const _kInsightCacheKey = 'mint_precomputed_insight_v1';
+const _kInsightCacheKey = 'mint_precomputed_insight_v2';
 
 CoachProfileProvider _buildProfileProvider() {
   final provider = CoachProfileProvider();
@@ -121,6 +121,26 @@ void main() {
         find.textContaining('Ton 3a'),
         findsWidgets,
         reason: 'PrecomputedInsight savings-opportunity opener must surface',
+      );
+      expect(
+        find.textContaining("Jusqu’à 7'258\u00a0CHF encore déductibles"),
+        findsWidgets,
+        reason: '3a opener must label 7\'258 as deductible room',
+      );
+      expect(
+        find.textContaining('économie d’impôt'),
+        findsNothing,
+        reason: '3a ceiling must never be presented as tax saving',
+      );
+      expect(
+        find.textContaining('en jeu'),
+        findsNothing,
+        reason: 'Avoid high-pressure fiscal wording in the coach opener',
+      );
+      expect(
+        find.textContaining('7258 CHF'),
+        findsNothing,
+        reason: '3a ceiling should be formatted, not raw/unspaced',
       );
 
       // Cache must be cleared after consume-once.

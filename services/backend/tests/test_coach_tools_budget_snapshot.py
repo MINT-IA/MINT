@@ -39,6 +39,51 @@ def test_compute_budget_snapshot_happy_path() -> None:
     assert snap.months_liquidity == pytest.approx(4.6)
 
 
+def test_compute_budget_snapshot_reads_budget_read_model_first() -> None:
+    """Backend budget CRUD data must win over stale legacy flat fields."""
+    profile_data = {
+        "incomeNetMonthly": 5379.0,
+        "monthly_income": 999_999.0,
+        "monthly_expenses": 888_888.0,
+        "budget": {
+            "fixed_lines": [
+                {"id": "rent", "label": "Loyer", "amount": 2200.0},
+                {"id": "lamal", "label": "LAMal", "amount": 420.0},
+            ],
+            "variable_target_monthly": 520.0,
+            "savings_target_monthly": 0.0,
+        },
+    }
+
+    snap = CoachingEngine.compute_budget_snapshot(profile_data)
+
+    assert snap.monthly_income == Decimal("5379.00")
+    assert snap.monthly_expenses == Decimal("3140.00")
+    assert snap.monthly_surplus == Decimal("2239.00")
+
+
+def test_compute_budget_snapshot_accepts_numeric_strings_in_budget_model() -> None:
+    """Budget data serialized as strings must not silently drop amounts."""
+    profile_data = {
+        "incomeNetMonthly": "5'379",
+        "budget": {
+            "fixed_lines": [
+                {"id": "rent", "label": "Loyer", "amount": "2'200"},
+                {"id": "lamal", "label": "LAMal", "amount": "420"},
+                {"id": "bad", "label": "Ignore", "amount": "n/a"},
+            ],
+            "variable_target_monthly": "520",
+            "savings_target_monthly": "0",
+        },
+    }
+
+    snap = CoachingEngine.compute_budget_snapshot(profile_data)
+
+    assert snap.monthly_income == Decimal("5379.00")
+    assert snap.monthly_expenses == Decimal("3140.00")
+    assert snap.monthly_surplus == Decimal("2239.00")
+
+
 def test_compute_budget_snapshot_raises_when_both_missing() -> None:
     """Test 2: both income AND expenses None → ValueError."""
     profile_data = {"months_liquidity": 3.0}
@@ -270,6 +315,41 @@ def test_dispatcher_flag_on_prefers_packet_over_stale_db(monkeypatch) -> None:
     assert "999'999" not in result
     assert "888'888" not in result
     stale_db.query.assert_not_called()
+
+
+def test_dispatcher_flag_on_reads_budget_read_model_when_packet_absent(
+    monkeypatch,
+) -> None:
+    """Without a packet, DB fallback must align with /budget/me shape."""
+    monkeypatch.setattr(
+        settings, "COACH_TOOL_SERVER_SIDE_BUDGET_ENABLED", True
+    )
+    from app.api.v1.endpoints.coach_chat import _compute_budget_status
+
+    db = _make_mock_db(
+        {
+            "incomeNetMonthly": 5379.0,
+            "monthly_income": 999_999.0,
+            "monthly_expenses": 888_888.0,
+            "budget": {
+                "fixed_lines": [
+                    {"id": "rent", "label": "Loyer", "amount": 2200.0},
+                    {"id": "lamal", "label": "LAMal", "amount": 420.0},
+                ],
+                "variable_target_monthly": 520.0,
+                "savings_target_monthly": 0.0,
+            },
+        }
+    )
+
+    raw = _compute_budget_status(user_id="user-abc", ctx={}, db=db)
+    payload = json.loads(raw)
+
+    assert payload["monthlyIncome"] == "5379.00"
+    assert payload["monthlyExpenses"] == "3140.00"
+    assert payload["monthlySurplus"] == "2239.00"
+    assert "999999" not in raw
+    assert "888888" not in raw
 
 
 def test_dispatcher_flag_on_preserves_liquidity_with_partial_packet(monkeypatch) -> None:

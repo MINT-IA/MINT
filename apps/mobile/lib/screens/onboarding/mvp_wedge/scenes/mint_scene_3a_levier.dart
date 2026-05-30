@@ -1,20 +1,18 @@
 /// MintScene3aLevier — scène N2 intent IMPOTS.
 ///
-/// Économie fiscale annuelle d'un versement 3a. Taux marginal estimé
+/// Impact fiscal indicatif d'un versement 3a. Taux marginal estimé
 /// par canton + revenu brut (approximation pragmatique — pour un
 /// chiffrage précis le simulateur canvas N3 appelle tax_calculator).
-///
-/// Plafond 3a 2026 salarié LPP\u00a0: CHF 7\u2019258 (OPP3 art. 7 al. 1).
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
-
-const double _kPlafond3aSalarie2026 = 7258;
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Approximation du taux marginal moyen par canton (source : barèmes
 /// cantonaux harmonisés 2024, moyenne pour un célibataire sans enfant
@@ -107,19 +105,20 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
         ),
         const SizedBox(height: 14),
         Text(
-          'Ce versement peut réduire ton impôt, selon ton canton et ton revenu.',
+          'Ce versement peut diminuer ton revenu imposable. '
+          'L’impact réel dépend du canton, du revenu et de ton statut LPP.',
           style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
               .copyWith(fontWeight: FontWeight.w500, height: 1.35),
         ),
         const SizedBox(height: 28),
         Text(
-          'CHF ${_fmt(r.low)} \u2013 ${_fmt(r.high)}',
+          'CHF ${formatChf(r.low)} \u2013 ${formatChf(r.high)}',
           style: MintTextStyles.displayMedium(color: MintColors.textPrimary)
               .copyWith(fontWeight: FontWeight.w600, height: 1.1),
         ),
         const SizedBox(height: 4),
         Text(
-          'économie fiscale estimée',
+          'impact fiscal indicatif',
           style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 28),
@@ -133,7 +132,7 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'VERSEMENT 3A · CHF ${_fmt(_versement)}',
+                'VERSEMENT 3A · CHF ${formatChf(_versement)}',
                 style:
                     MintTextStyles.labelSmall(color: MintColors.corailDiscret)
                         .copyWith(
@@ -145,9 +144,9 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
               Slider(
                 value: _versement,
                 min: 0,
-                max: _kPlafond3aSalarie2026,
-                divisions: (_kPlafond3aSalarie2026 / 250).round(),
-                label: 'CHF ${_fmt(_versement)}',
+                max: pilier3aPlafondAvecLpp,
+                divisions: (pilier3aPlafondAvecLpp / 250).round(),
+                label: 'CHF ${formatChf(_versement)}',
                 activeColor: MintColors.textPrimary,
                 inactiveColor: MintColors.textSecondary.withValues(alpha: 0.25),
                 onChanged: (v) {
@@ -156,7 +155,8 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
                 },
               ),
               Text(
-                'Plafond 2026 salarié\u202fLPP\u00a0: CHF 7\u2019258 '
+                'Marge maximale salarié\u202fLPP\u00a0: '
+                '${formatChfWithPrefix(pilier3aPlafondAvecLpp)} '
                 '(OPP3 art. 7 al. 1 lit. a).',
                 style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
                     .copyWith(height: 1.4),
@@ -173,15 +173,5 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
         ),
       ],
     );
-  }
-
-  static String _fmt(double v) {
-    final s = v.round().toString();
-    final buf = StringBuffer();
-    for (var i = 0; i < s.length; i++) {
-      if (i > 0 && (s.length - i) % 3 == 0) buf.write("\u2019");
-      buf.write(s[i]);
-    }
-    return buf.toString();
   }
 }

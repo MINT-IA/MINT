@@ -34,12 +34,22 @@ enum BudgetStage { presentOnly, emergingRetirement, fullGapVisible }
 ///                    Can be negative (deficit mode).
 class PresentBudget {
   final double monthlyNet;
+  final double monthlyHousing;
+  final double monthlyDebt;
+  final double monthlyTax;
+  final double monthlyHealth;
+  final double monthlyOtherFixed;
   final double monthlyCharges;
   final double monthlySavings;
   final double monthlyFree;
 
   const PresentBudget({
     required this.monthlyNet,
+    this.monthlyHousing = 0,
+    this.monthlyDebt = 0,
+    this.monthlyTax = 0,
+    this.monthlyHealth = 0,
+    this.monthlyOtherFixed = 0,
     required this.monthlyCharges,
     required this.monthlySavings,
     required this.monthlyFree,

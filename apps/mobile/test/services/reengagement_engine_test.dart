@@ -93,7 +93,8 @@ void main() {
       final finalMsg = messages
           .firstWhere((m) => m.trigger == ReengagementTrigger.threeAFinal);
       expect(finalMsg.timeConstraint, 'Dernier mois');
-      expect(finalMsg.body, contains('Économie estimée'));
+      expect(finalMsg.body, contains('Impact fiscal indicatif'));
+      expect(finalMsg.body, isNot(contains('Économie fiscale estimée')));
       expect(finalMsg.body, isNot(contains('en jeu')));
     });
 
@@ -129,7 +130,12 @@ void main() {
 
       final newYear =
           messages.firstWhere((m) => m.trigger == ReengagementTrigger.newYear);
-      expect(newYear.personalNumber, contains('1\'820'));
+      expect(newYear.personalNumber, contains('7\'258'));
+      expect(newYear.body, contains('marge déductible'));
+      expect(
+          newYear.body.toLowerCase(), isNot(contains('économie potentielle')));
+      expect(
+          newYear.body.toLowerCase(), isNot(contains('economie potentielle')));
     });
 
     test('quarterly FRI shows score and delta', () {
@@ -170,13 +176,42 @@ void main() {
 
     test('formats zero correctly', () {
       final messages = ReengagementEngine.generateMessages(
-        today: DateTime(2026, 1, 15),
+        today: DateTime(2026, 11, 15),
         taxSaving3a: 0,
       );
 
-      final newYear =
-          messages.firstWhere((m) => m.trigger == ReengagementTrigger.newYear);
-      expect(newYear.personalNumber, contains('0'));
+      final urgency = messages
+          .firstWhere((m) => m.trigger == ReengagementTrigger.threeAUrgency);
+      expect(urgency.personalNumber, contains('0'));
+    });
+
+    test('3a messages do not confuse deductible room and tax saving', () {
+      final expectations = <DateTime, ReengagementTrigger>{
+        DateTime(2026, 1, 15): ReengagementTrigger.newYear,
+        DateTime(2026, 10, 1): ReengagementTrigger.threeACountdown,
+        DateTime(2026, 11, 15): ReengagementTrigger.threeAUrgency,
+        DateTime(2026, 12, 5): ReengagementTrigger.threeAFinal,
+      };
+
+      for (final entry in expectations.entries) {
+        final msg = ReengagementEngine.generateMessages(
+          today: entry.key,
+          taxSaving3a: 1820,
+        ).firstWhere((m) => m.trigger == entry.value);
+        final lower = msg.body.toLowerCase();
+
+        expect(lower, isNot(contains('économie potentielle')));
+        expect(lower, isNot(contains('economie potentielle')));
+        expect(lower, isNot(contains('en jeu')));
+        if (entry.value == ReengagementTrigger.newYear) {
+          expect(msg.body, contains('marge déductible'));
+          expect(msg.body, contains('7\'258'));
+        } else {
+          expect(msg.body, contains('Impact fiscal indicatif'));
+          expect(msg.body, isNot(contains('Économie fiscale estimée')));
+          expect(msg.body, contains('1\'820'));
+        }
+      }
     });
   });
 

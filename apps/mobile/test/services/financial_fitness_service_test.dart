@@ -1,4 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/domain/budget/budget_service.dart';
+import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 
@@ -179,6 +182,98 @@ void main() {
       final fondsCrit = score.budget.criteria
           .firstWhere((c) => c.id == 'fonds_urgence');
       expect(fondsCrit.points, 0);
+    });
+
+    test('emergency fund follows budget read model plausibility filters', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 9000,
+        explicitMonthlyNetIncome: 6000,
+        depenses: const DepensesProfile(
+          loyer: 19272200,
+          assuranceMaladie: 400,
+        ),
+        dataSources: const {
+          'depenses.loyer': ProfileDataSource.userInput,
+          'depenses.assuranceMaladie': ProfileDataSource.userInput,
+        },
+        userProvidedFields: const {
+          'housingCost',
+          'lamalPremium',
+        },
+        patrimoine: const PatrimoineProfile(epargneLiquide: 30000),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final score = FinancialFitnessService.calculate(profile: profile);
+      final fondsCrit = score.budget.criteria
+          .firstWhere((c) => c.id == 'fonds_urgence');
+
+      expect(fondsCrit.points, 25);
+      expect(fondsCrit.detail, contains('mois couverts'));
+    });
+
+    test('reste a vivre follows budget read model after planned savings', () {
+      final profile = CoachProfile(
+        birthYear: 1990,
+        canton: 'VD',
+        salaireBrutMensuel: 9000,
+        explicitMonthlyNetIncome: 6000,
+        depenses: const DepensesProfile(
+          loyer: 2000,
+          assuranceMaladie: 400,
+        ),
+        dataSources: const {
+          'depenses.loyer': ProfileDataSource.userInput,
+          'depenses.assuranceMaladie': ProfileDataSource.userInput,
+        },
+        userProvidedFields: const {
+          'housingCost',
+          'lamalPremium',
+        },
+        patrimoine: const PatrimoineProfile(epargneLiquide: 30000),
+        plannedContributions: const [
+          PlannedMonthlyContribution(
+            id: '3a',
+            label: '3a',
+            amount: 3400,
+            category: '3a',
+          ),
+        ],
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2055),
+          label: 'Retraite',
+        ),
+      );
+
+      final score = FinancialFitnessService.calculate(profile: profile);
+      final resteCrit = score.budget.criteria
+          .firstWhere((c) => c.id == 'reste_a_vivre');
+      final inputs = BudgetInputs.fromCoachProfile(profile);
+      final plan = BudgetService().computePlan(inputs);
+      final presentBudget =
+          PresentBudgetBuilder.fromInputs(inputs: inputs, plan: plan);
+      final plannedSavings =
+          PresentBudgetBuilder.displayChf(profile.totalContributionsMensuelles);
+      final expectedReste = presentBudget.monthlyFree - plannedSavings;
+      final expectedRatio = presentBudget.monthlyNet > 0
+          ? expectedReste / presentBudget.monthlyNet
+          : 0.0;
+      final expectedPoints = expectedRatio >= 0.20
+          ? 25
+          : (expectedRatio / 0.20 * 25).round().clamp(0, 25);
+
+      expect(presentBudget.monthlyFree, greaterThan(0));
+      expect(expectedReste, lessThan(0));
+      expect(resteCrit.points, expectedPoints);
+      expect(expectedPoints, 0);
+      expect(resteCrit.detail, startsWith('-'));
     });
   });
 

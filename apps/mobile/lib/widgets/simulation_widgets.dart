@@ -326,10 +326,10 @@ class LppBuybackSimulation extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildMetric(
-            'Économie fiscale immédiate',
+            'Impact fiscal indicatif',
             'CHF ${taxSavings.toStringAsFixed(0)}',
-            Icons.savings,
-            MintColors.success,
+            Icons.calculate,
+            MintColors.primary,
           ),
           const SizedBox(height: 16),
           _buildMetric(
