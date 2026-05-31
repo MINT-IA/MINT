@@ -41,8 +41,15 @@ appId: ch.mint.app
 # `assertVisible` / `assertNotVisible` use Maestro's default assertion window.
 
 # ─── T1 entry → T2 intents ──────────────────────────────────────────────
+# Cold launch lands on the chat-first LANDING screen (app.dart:326 — /start
+# redirects to /anonymous/chat; idb describe-all at gate time confirmed
+# "MINT / Voir clair, décider seul. / Parle à Mint / …"). The MVP wedge
+# storyboard is a DECOUPLED public route at `/onb` (app.dart:331-334,
+# "decoupled from /start"). The SALVAGE-01 contract is the WEDGE
+# onboarding→coach path, so we deeplink straight into it.
 - launchApp:
     clearState: true
+- openLink: "mintapp:///onb"
 - extendedWaitUntil:
     visible:
       text: "Il est temps que tu comprennes."
@@ -51,28 +58,47 @@ appId: ch.mint.app
     text: "Ouvrir"
 
 # ─── T2 intents:RETRAITE ────────────────────────────────────────────────
+# The RETRAITE _IntentCard is a bare InkWell wrapping two Text widgets
+# (eyebrow "RETRAITE" + phrase "Ce que je toucherai, vraiment."). Unlike the
+# FilledButton CTAs elsewhere, this InkWell does NOT expose a single tappable
+# Semantics node carrying the label, so `tapOn: text:` (on either the eyebrow
+# or the phrase) cannot resolve a tappable element. We tap by relative point:
+# the RETRAITE card is the first of four, top of the list. The text assertion
+# below confirms we are on the right screen before the positional tap, so the
+# point is well-defined. (A Semantics(button,label) on _IntentCard would let
+# us go back to a pure text locator, but that is product code outside this
+# device-gate plan's scope.)
 - extendedWaitUntil:
     visible:
       text: "Qu’est-ce qui t’amène ?"
     timeout: 5000
 - tapOn:
-    text: "Ce que je toucherai, vraiment."
+    point: "50%,24%"
 
 # ─── T2.5 usTaxPerson:NO ────────────────────────────────────────────────
+# The NO button is a labelled FilledButton ("Non" = waitlistUsTaxPersonNo).
+# Maestro's `id:` matcher does not resolve Flutter's ValueKey('us-tax-person-no')
+# to an iOS accessibility identifier here, so we tap the button label, which
+# (being a FilledButton, unlike the bare-InkWell cards) exposes a tappable
+# Semantics node. "Non" is unambiguous on this 2-button screen.
 - extendedWaitUntil:
     visible:
       text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
     timeout: 5000
 - tapOn:
-    id: "us-tax-person-no"
+    text: "Non"
 
 # ─── T2.6 nationality:Suisse (NEW SALVAGE-01 step) ──────────────────────
+# The CH option is a FilledButton.tonal with child Text("Suisse" =
+# nationalitySuisse) and a ValueKey('onboarding-nationality-ch'). As with the
+# usTax button, the ValueKey is not resolved by Maestro's `id:` matcher on
+# iOS; tap the button label instead (exposed as a tappable Semantics node).
 - extendedWaitUntil:
     visible:
       text: "Quelle est ta nationalité ?"
     timeout: 5000
 - tapOn:
-    id: "onboarding-nationality-ch"
+    text: "Suisse"
 
 # ─── T3 age:30 ──────────────────────────────────────────────────────────
 - extendedWaitUntil:
@@ -86,28 +112,45 @@ appId: ch.mint.app
     text: "Continuer"
 
 # ─── T4 canton:VD ───────────────────────────────────────────────────────
+# Canton chips are bare InkWell + Text(code) in a 3-col GridView (same
+# not-tappable-Semantics issue as the intent cards). VD is index 0 →
+# top-left cell of the grid, just under the "Où tu vis ?" prompt. Tap by
+# relative point; assert the prompt first to anchor the screen.
 - extendedWaitUntil:
     visible:
       text: "Où tu vis ?"
     timeout: 5000
 - tapOn:
-    text: "VD"
+    point: "17%,20%"
 
 # ─── T5 revenue (default fourchette) ────────────────────────────────────
+# The revenue step has TWO _PrimaryButton("Continuer") in the widget tree —
+# one for fourchette mode, one for exact mode (only one is visually rendered,
+# but both surface in the a11y hierarchy: the trace shows 3 "Continuer"
+# matches). `tapOn: text:"Continuer"` resolves to the first match, which can
+# be the offstage exact-mode button (disabled when _exactValue == null), so
+# the tap is a no-op and the screen never advances. Tap the visible bottom
+# CTA by relative point instead (fixed-position button above the dossier
+# strip). Keep default fourchette (7'000–7'500 CHF); no slider interaction.
 - extendedWaitUntil:
     visible:
       text: "Combien te tombe net par mois ?"
     timeout: 5000
 - tapOn:
-    text: "Continuer"
+    point: "50%,74%"
 
 # ─── T6 insight ─────────────────────────────────────────────────────────
+# Give the revenue→insight transition a generous window: the revenue
+# "Continuer" tap triggers a provider.advance() + rebuild, and the insight
+# scene computes its copy from the dossier, so first paint can lag a beat.
 - extendedWaitUntil:
     visible:
       text: "Avant de te montrer…"
-    timeout: 5000
+    timeout: 12000
+# "Voir" is the fixed bottom CTA. Tap by relative point (consistent with the
+# revenue CTA) — text-tap proved unreliable here in Maestro 2.5.1.
 - tapOn:
-    text: "Voir"
+    point: "50%,71%"
 
 # ─── T7 scene (MintSceneRenteTrouee — renders the user's REAL currentAge) ─
 # The scene receives provider.ageYears, which is derived from q_birth_year
@@ -120,12 +163,18 @@ appId: ch.mint.app
     text: "Continuer"
 
 # ─── T8 bifurcation:Creuser → /coach/chat ───────────────────────────────
+# "Creuser" is the bottom primary CTA (with "Plus tard" below it). Tap by
+# relative point — text-tap on these full-width MVP-wedge CTAs is unreliable
+# in Maestro 2.5.1 (the FilledButton label node intermittently fails to
+# resolve as the tappable). This is the terminal step: Creuser flushes the
+# dossier to CoachProfile and routes to /coach/chat (onboarding_shell_screen
+# .dart:1049).
 - extendedWaitUntil:
     visible:
       text: "Creuser"
     timeout: 5000
 - tapOn:
-    text: "Creuser"
+    point: "50%,63%"
 
 # ─── SC-3: lands on /coach/chat, NOT /waitlist ──────────────────────────
 - extendedWaitUntil:
