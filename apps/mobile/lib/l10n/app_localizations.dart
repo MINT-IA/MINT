@@ -31521,8 +31521,14 @@ abstract class S {
   /// No description provided for @nationalityEuAele.
   ///
   /// In fr, this message translates to:
-  /// **'EU/AELE'**
+  /// **'UE/AELE'**
   String get nationalityEuAele;
+
+  /// No description provided for @nationalityPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle est ta nationalité ?'**
+  String get nationalityPrompt;
 
   /// No description provided for @nationalitySuisse.
   ///

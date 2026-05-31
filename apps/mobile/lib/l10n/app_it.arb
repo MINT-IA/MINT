@@ -8837,6 +8837,7 @@
   "narrativeUnemploymentHeadline": "I tuoi diritti di disoccupazione",
   "nationalityAutre": "Altro",
   "nationalityEuAele": "UE/AELS",
+  "nationalityPrompt": "Qual è la tua nazionalità?",
   "nationalitySuisse": "Svizzera",
   "notifChannelDescription": "Promemoria check-in, scadenze 3a e notifiche di coaching",
   "notifCheckInBody": "Il tuo check-in mensile è disponibile.",

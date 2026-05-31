@@ -17963,6 +17963,9 @@ class SDe extends S {
   String get nationalityEuAele => 'EU/EFTA';
 
   @override
+  String get nationalityPrompt => 'Was ist deine Nationalität?';
+
+  @override
   String get nationalitySuisse => 'Schweiz';
 
   @override

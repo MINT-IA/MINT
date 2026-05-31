@@ -17922,6 +17922,9 @@ class SPt extends S {
   String get nationalityEuAele => 'UE/EFTA';
 
   @override
+  String get nationalityPrompt => 'Qual é a tua nacionalidade?';
+
+  @override
   String get nationalitySuisse => 'Suíça';
 
   @override

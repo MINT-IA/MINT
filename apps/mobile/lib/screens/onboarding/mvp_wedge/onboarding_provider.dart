@@ -18,6 +18,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 // don't import it here so the provider stays SharedPreferences-free + sync
 // constructable in unit tests. See OnboardingProvider.legacyReOnboarding
 // below.
+import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Une ligne visible du dossier, affichée dans la bande en bas d'écran.
@@ -48,6 +49,16 @@ enum OnboardingStep {
   // coach-entry gate (plan 02-03 Task 4) routes to /waitlist before
   // CoachContext is built.
   usTaxPerson, // T2.5
+  // T2.6 — SALVAGE-01: nationality capture. Placed AFTER usTaxPerson and
+  // BEFORE age because nationality is an archetype signal that pairs with
+  // the FATCA Q (both precede financial-data collection per nLPD art. 6
+  // data-minimization). `advance()` walks OnboardingStep.values via
+  // indexOf, so inserting mid-enum is ordinal-safe — no `.index` is
+  // persisted or used in analytics (grep-confirmed 2026-05-31).
+  // The captured group (CH/EU/OTHER) is mapped to a nationality string at
+  // the flush so CoachProfile.fromWizardAnswers reaches the swissNative /
+  // expatEu / expatNonEu archetype branches. NEVER coerced null→'CH'.
+  nationality, // T2.6
   age,         // T3
   canton,      // T4
   revenue,     // T5 — slider fourchette + lien exact
@@ -107,6 +118,10 @@ class OnboardingProvider extends ChangeNotifier {
   // Captures — source of truth for the mapper au tour 9.
   OnboardingIntent? _intent;
   int? _ageYears;
+  /// Captured nationality GROUP from the T2.6 step: 'CH', 'EU', or 'OTHER'.
+  /// Mapped to a nationality string at the flush (mirrors
+  /// CoachProfileProvider.updateFromSmartFlow). null until the user picks.
+  String? _nationalityGroup;
   String? _cantonCode;
   ({double low, double high})? _netMonthlyRange;
   double? _netMonthlyExact;
@@ -119,6 +134,7 @@ class OnboardingProvider extends ChangeNotifier {
   OnboardingStep get step => _step;
   OnboardingIntent? get intent => _intent;
   int? get ageYears => _ageYears;
+  String? get nationalityGroup => _nationalityGroup;
   String? get cantonCode => _cantonCode;
   ({double low, double high})? get netMonthlyRange => _netMonthlyRange;
   double? get netMonthlyExact => _netMonthlyExact;
@@ -167,6 +183,25 @@ class OnboardingProvider extends ChangeNotifier {
     _ageYears = years;
     _confidenceByField['age'] = OnboardingConfidence.high;
     _setDossier('age', 'Âge', '$years ans', 1);
+    notifyListeners();
+  }
+
+  /// Capture the nationality GROUP at T2.6. [group] ∈ {'CH','EU','OTHER'}.
+  ///
+  /// SALVAGE-01: plain field setter, NO DossierEntry side-effect — the
+  /// nationality is an archetype signal that stays invisible to the user
+  /// post-answer (mirrors the FATCA us-tax-person Q), surfaced only by the
+  /// coach-entry gate. It is NOT routed through a standalone mergeAnswers
+  /// call; it flows ONLY through the final completeAndFlushToProfile map.
+  ///
+  /// NOTE (documented known gap): the CH/EU/OTHER signal is a HINT for
+  /// archetype detection, refined later by canton/permit signals. A
+  /// naturalized-Swiss frontalier picking 'CH' resolves to swissNative
+  /// because the wedge captures no permit-G — frontalier disambiguation is
+  /// out of scope for this plan (no permit question at this boundary).
+  void setNationality(String group) {
+    _nationalityGroup = group;
+    _confidenceByField['nationality'] = OnboardingConfidence.high;
     notifyListeners();
   }
 
@@ -243,7 +278,17 @@ class OnboardingProvider extends ChangeNotifier {
   ) async {
     final answers = <String, dynamic>{};
     if (_intent != null) answers['onb_intent'] = _intent!.name;
-    if (_ageYears != null) answers['q_age'] = _ageYears;
+    // SALVAGE-01 (onb-01): the wedge captures an AGE in years, but every
+    // consumer (CoachProfile.fromWizardAnswers, clarity_state, …) reads
+    // q_birth_year. The previous age-key write left birthYear=0 (sentinel).
+    // Convert at flush exactly as CoachProfileProvider.updateFromSmartFlow
+    // does (`birthYear = DateTime.now().year - age`). Guarded by the
+    // existing non-null check so a skipped age step yields q_birth_year
+    // ABSENT — never 0, never the legacy age key (Plan 02's ageOrNull
+    // consumer protects that degraded path).
+    if (_ageYears != null) {
+      answers['q_birth_year'] = DateTime.now().year - _ageYears!;
+    }
     if (_cantonCode != null) answers['q_canton'] = _cantonCode;
     if (_netMonthlyExact != null) {
       answers['q_net_income_period_chf'] = _netMonthlyExact;
@@ -256,6 +301,36 @@ class OnboardingProvider extends ChangeNotifier {
       answers['q_net_income_range_high'] = _netMonthlyRange!.high;
       answers['q_net_income_confidence'] = 'medium';
     }
+    // SALVAGE-01 (archetype-waitlist): derive q_nationality from the
+    // captured group, mirroring updateFromSmartFlow's CH/EU/OTHER mapping.
+    // 'CH' → 'CH' (swissNative); 'EU' → 'FR' (generic EU/AELE → expatEu);
+    // 'OTHER' → null here (no country sub-capture in the wedge) → archetype
+    // falls through to expatNonEu. Write q_nationality ONLY when non-null —
+    // NEVER coerce null→'CH' (silent-fallback bug closed 2026-05-22; only a
+    // POSITIVE 'CH' capture may yield swissNative).
+    final String? nationality = switch (_nationalityGroup) {
+      'CH' => 'CH',
+      'EU' => 'FR',
+      _ => null, // 'OTHER' or null group → no positive nationality signal
+    };
+    if (nationality != null) answers['q_nationality'] = nationality;
+
+    // SALVAGE-01 (onb-03): derive employment + LPP affiliation at flush
+    // (no second question). The wedge captures no employment signal, so the
+    // default is 'salarie' (→ isSalaried: true). q_has_pension_fund mirrors
+    // updateFromSmartFlow's rule (gross-annual >= LPP-entry seuil 22 680 AND
+    // salaried). Gross is derived from the captured net via the canonical
+    // IncomeConverter (NOT net×12, NOT an inlined factor). Written ONLY when
+    // net income is non-null — omit the key entirely otherwise.
+    const String employmentStatus = 'salarie';
+    answers['q_employment_status'] = employmentStatus;
+    final double? net = netMonthlyEffective;
+    if (net != null) {
+      final double grossAnnual =
+          IncomeConverter.netMonthlyToGrossAnnual(net, isSalaried: true);
+      answers['q_has_pension_fund'] = grossAnnual >= 22680;
+    }
+
     answers['q_wants_deeper'] = _wantsDeeper;
 
     await ReportPersistenceService.saveAnswers(answers);
