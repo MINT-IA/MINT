@@ -1627,7 +1627,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         answers['q_canton'] = value;
       case 'civil_status':
         final mapped = _mapCivilStatus(value);
-        answers['q_civil_status_choice'] = mapped;
+        answers['q_civil_status'] = mapped;
       case 'employment_status':
         final mapped = _mapEmploymentStatus(value);
         answers['q_employment_status'] = mapped;

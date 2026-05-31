@@ -1,6 +1,35 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class _AuthProviderStub extends AuthProvider {
+  bool loggedIn = false;
+  bool loading = false;
+
+  @override
+  bool get isLoggedIn => loggedIn;
+
+  @override
+  bool get isLoading => loading;
+
+  void setAuthState({required bool isLoggedIn, required bool isLoading}) {
+    loggedIn = isLoggedIn;
+    loading = isLoading;
+    notifyListeners();
+  }
+}
+
+class _ReloadTrackingCoachProfileProvider extends CoachProfileProvider {
+  int reloadCalls = 0;
+
+  @override
+  Future<void> reloadAfterAuthBackendHydration() async {
+    reloadCalls += 1;
+  }
+}
 
 /// Integration tests for F7-1: Profile hydration race condition fix.
 ///
@@ -160,6 +189,40 @@ void main() {
       // Router should redirect to onboarding (hydration done, no profile).
       final shouldRedirect = !provider.hasProfile && !provider.isHydrating;
       expect(shouldRedirect, isTrue);
+    });
+
+    testWidgets(
+        'auth completion triggers active coach profile reload through provider tree',
+        (tester) async {
+      final auth = _AuthProviderStub();
+      final coach = _ReloadTrackingCoachProfileProvider();
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthProvider>.value(value: auth),
+            ChangeNotifierProxyProvider<AuthProvider, CoachProfileProvider>(
+              lazy: false,
+              create: (_) => coach,
+              update: (_, auth, provider) {
+                final coachProvider = provider ?? CoachProfileProvider();
+                if (auth.isLoggedIn && !auth.isLoading) {
+                  coachProvider.reloadAfterAuthBackendHydration();
+                }
+                return coachProvider;
+              },
+            ),
+          ],
+          child: const MaterialApp(home: SizedBox.shrink()),
+        ),
+      );
+
+      expect(coach.reloadCalls, 0);
+
+      auth.setAuthState(isLoggedIn: true, isLoading: false);
+      await tester.pump();
+
+      expect(coach.reloadCalls, 1);
     });
   });
 }

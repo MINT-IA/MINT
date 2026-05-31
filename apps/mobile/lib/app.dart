@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/auth/migration_notice_listener.dart';
@@ -1750,27 +1752,37 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
-        ChangeNotifierProvider(create: (_) {
-          final provider = CoachProfileProvider();
-          // Sub-phase 01.5 W02-T05 Task 1 (R7) — flag-based legacy
-          // grandfather migration. Chains the one-shot, idempotent
-          // SharedPreferences write AFTER loadFromWizard so the
-          // archetype-getter null-fallback (plan 02-01) does NOT
-          // mass-evict cached users to /waitlist. Fire-and-forget:
-          // failures are tolerated (the orchestrator's pre-archetype
-          // guard re-reads the flag each session). Codex C1 HIGH
-          // (REVIEWS.md 2026-05-22): the migration is flag-only —
-          // it NEVER writes any value to `nationality`. See
-          // profile_migration_service.dart class doc + the
-          // `legacy_grandfathered_profile_nationality_remains_null`
-          // regression test.
-          provider.loadFromWizard().then((_) {
-            ProfileMigrationService().grandfatherLegacyProfile(
-              provider: provider,
-            );
-          });
-          return provider;
-        }),
+        ChangeNotifierProxyProvider<AuthProvider, CoachProfileProvider>(
+          lazy: false,
+          create: (_) {
+            final provider = CoachProfileProvider();
+            // Sub-phase 01.5 W02-T05 Task 1 (R7) — flag-based legacy
+            // grandfather migration. Chains the one-shot, idempotent
+            // SharedPreferences write AFTER loadFromWizard so the
+            // archetype-getter null-fallback (plan 02-01) does NOT
+            // mass-evict cached users to /waitlist. Fire-and-forget:
+            // failures are tolerated (the orchestrator's pre-archetype
+            // guard re-reads the flag each session). Codex C1 HIGH
+            // (REVIEWS.md 2026-05-22): the migration is flag-only —
+            // it NEVER writes any value to `nationality`. See
+            // profile_migration_service.dart class doc + the
+            // `legacy_grandfathered_profile_nationality_remains_null`
+            // regression test.
+            provider.loadFromWizard().then((_) {
+              ProfileMigrationService().grandfatherLegacyProfile(
+                provider: provider,
+              );
+            });
+            return provider;
+          },
+          update: (_, auth, provider) {
+            final coachProvider = provider ?? CoachProfileProvider();
+            if (auth.isLoggedIn && !auth.isLoading) {
+              unawaited(coachProvider.reloadAfterAuthBackendHydration());
+            }
+            return coachProvider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) {
           final provider = LocaleProvider();
           provider.load();

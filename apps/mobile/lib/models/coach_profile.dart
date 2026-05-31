@@ -2606,7 +2606,7 @@ class CoachProfile {
             ? DateTime.tryParse(dobRaw)
             : null;
     final birthYear = dateOfBirth?.year ?? rawBirthYear;
-    final canton = (answers['q_canton'] as String?) ?? 'ZH';
+    final canton = (answers['q_canton'] as String?) ?? '';
     // Use precise age from dateOfBirth if available
     final int age;
     if (dateOfBirth != null) {
@@ -2625,7 +2625,8 @@ class CoachProfile {
     }
 
     // Civil status mapping
-    final civilStatusRaw = answers['q_civil_status'] as String?;
+    final civilStatusRaw = answers['q_civil_status'] as String? ??
+        answers['q_civil_status_choice'] as String?;
     final etatCivil = _parseCivilStatus(civilStatusRaw);
 
     // Children
@@ -3193,7 +3194,10 @@ class CoachProfile {
       provided.add('salary');
       restoredDataSources['revenuBrutAnnuel'] = ProfileDataSource.userInput;
     }
-    if (answers.containsKey('q_civil_status')) provided.add('civilStatus');
+    if (answers.containsKey('q_civil_status') ||
+        answers.containsKey('q_civil_status_choice')) {
+      provided.add('civilStatus');
+    }
     if (answers.containsKey('q_nationality')) provided.add('nationality');
     if (answers.containsKey('q_housing_cost_period_chf')) {
       provided.add('housingCost');

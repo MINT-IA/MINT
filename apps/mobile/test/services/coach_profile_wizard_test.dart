@@ -342,16 +342,27 @@ void main() {
       expect(profile.providers3a, ['bank', 'insurance']);
     });
 
-    test('profil minimal fonctionne avec valeurs par defaut', () {
+    test('profil minimal ne fabrique pas un canton par défaut', () {
       final answers = <String, dynamic>{
         'q_net_income_period_chf': 5000,
       };
       final profile = CoachProfile.fromWizardAnswers(answers);
       // CHAOS-78: birthYear no longer defaults to 1990 — stays 0 if unknown
       expect(profile.birthYear, 0);
-      expect(profile.canton, 'ZH');
+      expect(profile.canton, isEmpty);
+      expect(profile.userProvidedFields.contains('canton'), isFalse);
       expect(profile.salaireBrutMensuel, greaterThan(0));
       expect(profile.goalA.type, GoalAType.retraite);
+    });
+
+    test('legacy inline civil-status alias hydrates canonical civil status',
+        () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_civil_status_choice': 'married',
+      });
+
+      expect(profile.etatCivil, CoachCivilStatus.marie);
+      expect(profile.userProvidedFields.contains('civilStatus'), isTrue);
     });
 
     test('unresolved secure income placeholder is not treated as user salary',

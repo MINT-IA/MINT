@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -171,5 +174,90 @@ void main() {
     expect(provider.profile!.dateOfBirth, DateTime(1981, 6, 15));
     expect(provider.profile!.canton, 'VD');
     expect(provider.profile!.salaireBrutMensuel, 10000);
+  });
+
+  test('backend profile hydration survives cold start from secure prefs',
+      () async {
+    final secureStorage = <String, String>{};
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (MethodCall call) async {
+        final key = call.arguments['key'] as String?;
+        switch (call.method) {
+          case 'write':
+            final value = call.arguments['value'] as String?;
+            if (key != null && value != null) secureStorage[key] = value;
+            return null;
+          case 'read':
+            return key == null ? null : secureStorage[key];
+          case 'delete':
+            if (key != null) secureStorage.remove(key);
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+    final merged = AuthProvider.mergeBackendProfileDataForTest({}, {
+      'dateOfBirth': '1981-06-15',
+      'birthYear': 1990,
+      'canton': 'VD',
+      'incomeGrossYearly': 120000,
+      'householdType': 'concubine',
+    });
+
+    final saved = await ReportPersistenceService.saveAnswers(merged);
+    final prefs = await SharedPreferences.getInstance();
+    final raw = json.decode(prefs.getString('wizard_answers_v2')!)
+        as Map<String, dynamic>;
+    final provider = CoachProfileProvider();
+    await provider.loadFromWizard();
+
+    expect(saved, isTrue);
+    expect(merged['q_birth_year'], 1981);
+    expect(merged['q_household_type'], 'concubine');
+    expect(merged.containsKey('q_civil_status'), isFalse);
+    expect(raw['q_canton'], 'VD');
+    expect(raw['q_date_of_birth'], '__secure__');
+    expect(raw['q_birth_year'], '__secure__');
+    expect(raw['q_gross_salary_annual'], '__secure__');
+    expect(raw['q_household_type'], '__secure__');
+    expect(raw.containsValue('1981-06-15'), isFalse);
+    expect(raw.containsValue(120000), isFalse);
+    expect(provider.profile, isNotNull);
+    expect(provider.profile!.dateOfBirth, DateTime(1981, 6, 15));
+    expect(provider.profile!.birthYear, 1981);
+    expect(provider.profile!.ageOrNull, isNotNull);
+    expect(provider.profile!.canton, 'VD');
+    expect(provider.profile!.salaireBrutMensuel, 10000);
+    expect(
+        provider.profile!.userProvidedFields.contains('civilStatus'), isFalse);
+  });
+
+  test('recommended wizard section accepts canonical and legacy civil status',
+      () {
+    Map<String, dynamic> coupleAnswers(String civilKey) => {
+          'q_date_of_birth': '1981-06-15',
+          'q_canton': 'VD',
+          'q_net_income_period_chf': 7000,
+          'q_employment_status': 'salarie',
+          'q_household_type': 'couple',
+          civilKey: 'married',
+          'q_partner_net_income_chf': 5000,
+          'q_partner_birth_year': 1982,
+          'q_partner_employment_status': 'salarie',
+          'q_has_pension_fund': 'yes',
+          'q_has_3a': 'yes',
+        };
+
+    final canonical = CoachProfileProvider();
+    canonical.updateFromAnswers(coupleAnswers('q_civil_status'));
+
+    final legacy = CoachProfileProvider();
+    legacy.updateFromAnswers(coupleAnswers('q_civil_status_choice'));
+
+    expect(canonical.recommendedWizardSection, 'property');
+    expect(legacy.recommendedWizardSection, 'property');
   });
 }

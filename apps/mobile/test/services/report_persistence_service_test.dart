@@ -222,6 +222,7 @@ void main() {
         'q_date_of_birth': '1981-06-15',
         'q_birth_year': 1981,
         'q_civil_status': 'marie',
+        'q_civil_status_choice': 'married',
         'q_household_type': 'marie',
         'q_commune': 'Lausanne',
         'q_gender': 'male',
@@ -241,6 +242,7 @@ void main() {
         'q_date_of_birth',
         'q_birth_year',
         'q_civil_status',
+        'q_civil_status_choice',
         'q_household_type',
         'q_commune',
         'q_gender',
@@ -262,6 +264,7 @@ void main() {
       expect(loaded['q_date_of_birth'], '1981-06-15');
       expect(loaded['q_birth_year'], 1981);
       expect(loaded['q_civil_status'], 'marie');
+      expect(loaded['q_civil_status_choice'], 'married');
       expect(loaded['q_household_type'], 'marie');
       expect(loaded['q_commune'], 'Lausanne');
       expect(loaded['q_gender'], 'male');

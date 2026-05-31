@@ -53,6 +53,7 @@ class CoachProfileProvider extends ChangeNotifier {
   bool _profileUpdatedSinceBudget = false;
   Map<String, dynamic> _lastAnswers = const {};
   Future<void> _profilePersistTail = Future<void>.value();
+  Future<void>? _authHydrationReload;
 
   /// Le profil Coach construit a partir des reponses wizard.
   /// Null si le wizard n'a pas ete complete.
@@ -338,7 +339,7 @@ class CoachProfileProvider extends ChangeNotifier {
     ];
     if (personaKey == 'couple' || personaKey == 'family') {
       keys.addAll([
-        'q_civil_status_choice',
+        'q_civil_status',
         'q_partner_net_income_chf',
         'q_partner_birth_year',
         'q_partner_employment_status',
@@ -396,11 +397,11 @@ class CoachProfileProvider extends ChangeNotifier {
     if (!baseIncomeComplete) return 'income';
 
     if (household == 'couple' || household == 'family') {
-      final partnerComplete =
-          _isAnswered(_lastAnswers['q_civil_status_choice']) &&
-              _isAnswered(_lastAnswers['q_partner_net_income_chf']) &&
-              _isAnswered(_lastAnswers['q_partner_birth_year']) &&
-              _isAnswered(_lastAnswers['q_partner_employment_status']);
+      final partnerComplete = (_isAnswered(_lastAnswers['q_civil_status']) ||
+              _isAnswered(_lastAnswers['q_civil_status_choice'])) &&
+          _isAnswered(_lastAnswers['q_partner_net_income_chf']) &&
+          _isAnswered(_lastAnswers['q_partner_birth_year']) &&
+          _isAnswered(_lastAnswers['q_partner_employment_status']);
       if (!partnerComplete) return 'income';
     }
 
@@ -523,6 +524,16 @@ class CoachProfileProvider extends ChangeNotifier {
     _isLoading = false;
     _isLoaded = true;
     notifyListeners();
+  }
+
+  Future<void> reloadAfterAuthBackendHydration() {
+    final inFlight = _authHydrationReload;
+    if (inFlight != null) return inFlight;
+    final reload = loadFromWizard().whenComplete(() {
+      _authHydrationReload = null;
+    });
+    _authHydrationReload = reload;
+    return reload;
   }
 
   bool _hasPartialProfileData(Map<String, dynamic> answers) {

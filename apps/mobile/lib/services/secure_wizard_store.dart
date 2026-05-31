@@ -37,6 +37,7 @@ class SecureWizardStore {
     'q_date_of_birth',
     'q_birth_year',
     'q_civil_status',
+    'q_civil_status_choice',
     'q_household_type',
     'q_commune',
     'q_gender',
