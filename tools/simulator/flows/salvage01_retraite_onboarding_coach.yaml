@@ -191,14 +191,35 @@ appId: ch.mint.app
     text: "Encore en chantier pour ton profil"
 - takeScreenshot: "01-coach-reachable-not-waitlist"
 
-# Coach answers a real message (substantive engagement, not waitlist).
-# Staging coach LLM verified live (POST /api/v1/anonymous/chat -> 200, ~7s,
-# real reply) at gate time, so a miss here is a routing/product failure, not
-# infra. 30s window covers LLM latency.
+# Coach answers a REAL message (substantive engagement, not waitlist).
+# The wedge→coach handoff lands on the coach surface with the dossier
+# summary (e.g. "Avoir LPP", "Point de départ" / "Marge libre") + an EMPTY
+# "Dis-moi." input — it does NOT auto-inject an assistant greeting, so we
+# must actually send a message and wait for the reply (mirrors the proven
+# auth_coach_post_hotfix.yaml pattern). Coach replies render inside a
+# Semantics(label: "Réponse du coach" = coachCoachMessage, app_fr.arb:3993).
+# Staging coach LLM verified live at gate time (POST /api/v1/anonymous/chat
+# -> 200, ~6s, real reply), so a miss here is a routing/product failure,
+# not infra.
+# Tap input, type, submit. (Two "Dis-moi." nodes exist — the hint label and
+# the field; tapping the text focuses the field.)
+- tapOn:
+    text: "Dis-moi."
+- inputText: "Je devrais sortir mon LPP en rente ou en capital ?"
+- pressKey: Enter
+# The coach reply streams in over ~10-40s. Its Semantics label is a single
+# MULTI-LINE node: "Réponse du coach\nOutil éducatif — voir le disclaimer\n…"
+# (verified via idb describe-all). Match it with a regex prefix so the
+# newline-joined label resolves; assert the user's own sent message too as a
+# secondary proof the round-trip happened.
+# A rendered "Réponse du coach" bubble IS the round-trip proof: the coach
+# cannot answer without a message having been sent (we just typed + submitted
+# one). The reply node is multi-line; the regex prefix resolves it.
 - extendedWaitUntil:
     visible:
-      text: "Réponse du coach"
-    timeout: 30000
+      text: "Réponse du coach.*"
+    timeout: 60000
+- takeScreenshot: "01b-coach-real-reply"
 
 # ─── SC-4: navigate /pilier-3a, assert a REAL age (never sentinel) ──────
 # Deeplink form proven by the passing maestro-perfect-set flows:
@@ -230,10 +251,22 @@ appId: ch.mint.app
 # stub used the underscore intentTag `rente_vs_capital`, which is NOT a
 # route and would not resolve.
 - openLink: "mintapp:///rente-vs-capital"
+# Anchor on the screen title (contiguous node). The "Ton âge" label is joined
+# into a multi-line section node ("Estimer pour moi\nTon âge\nÂge de départ…",
+# verified via describe-all), so it is not directly matchable; the title is.
 - extendedWaitUntil:
     visible:
-      text: "Ton âge"
+      text: "Rente ou capital.*"
     timeout: 10000
+# Real-age proof: age = currentYear - profile.birthYear
+# (rente_vs_capital_screen.dart:195). With the q_birth_year flush fix +
+# default picker age 34, this yields "34" (a discrete a11y node). An
+# UNFLUSHED birthYear (0) would render 2026 (the sentinel). Assert the real
+# age node IS present and the sentinel 2026 is NOT.
+- assertVisible:
+    text: "34"
+- assertNotVisible:
+    text: "2026"
 - assertNotVisible:
     text: "Ton âge: 2026"
 - assertNotVisible:
