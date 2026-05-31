@@ -32,9 +32,26 @@ class SecureWizardStore {
   static bool isSensitive(String key) => _sensitiveKeys.contains(key);
 
   /// Write a sensitive value to encrypted storage.
+  ///
+  /// On iOS simulator without a valid keychain-access-groups entitlement
+  /// (the usual case during dev sim builds — PlatformException `-34018`),
+  /// swallowing the failure keeps the wizard seal (`saveAnswers` →
+  /// `secureSensitiveKeys`) from hard-failing at the flush. Without this
+  /// guard a fresh onboarding run on the sim throws at the seal, shows
+  /// « Impossible de sceller ton dossier », and never reaches the coach —
+  /// even though the same flow succeeds on a provisioned device (where the
+  /// keychain write does not throw). Symmetric with [read]'s guard.
+  ///
+  /// SEC-10 is preserved: a swallowed write means the value is simply not
+  /// sealed (a later [read] returns null, the already-accepted degraded
+  /// path) — the PII is NEVER demoted to plain SharedPreferences.
   static Future<void> write(String key, String value) async {
-    if (_sensitiveKeys.contains(key)) {
+    if (!_sensitiveKeys.contains(key)) return;
+    try {
       await _storage.write(key: key, value: value);
+    } on Exception {
+      // Secure storage unavailable (sim entitlement / locked keychain):
+      // degrade gracefully rather than aborting the seal.
     }
   }
 
