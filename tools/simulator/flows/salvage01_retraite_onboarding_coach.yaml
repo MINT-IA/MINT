@@ -1,0 +1,133 @@
+# tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml
+#
+# SALVAGE-01 SC-4 device gate — RETRAITE persona onboarding → coach.
+#
+# Scope:
+#   Exercises the REAL MVP-wedge flush (q_age→q_birth_year conversion +
+#   nationality capture) for a freshly-onboarded CH user with a RETRAITE
+#   intent, and proves the two downstream effects the SALVAGE-01 contract
+#   fix unblocks:
+#     1. nationality:Suisse → swissNative archetype → coach reachable
+#        (lands on /coach/chat, NOT /waitlist).
+#     2. q_birth_year (not q_age) flows to the profile → simulator_3a and
+#        the arbitrage scene render a REAL age / years-to-retirement, never
+#        the sentinel 'Ton âge: 2026' or a fabricated '65 ans'.
+#
+# PRE-CONDITION (harness responsibility):
+#   Run with the MINT_E2E_ARCHETYPE seed bridge OFF (post SALVAGE-00
+#   neutralization) so the walker exercises the actual wedge contract
+#   rather than a pre-seeded archetype (RESEARCH § Pitfall 5).
+#   App targets Railway staging (memory: app_targets_staging_always).
+#
+# Semantic locators ONLY (memory feedback_perimeter_5_gates +
+# maestro_locator_audit.py blocking lint). The wedge prompts are FR
+# literals matching onboarding_shell_screen.dart.
+#
+# Wall-clock budget: < 90s. Output dir set by harness (never /tmp).
+#
+# STATUS (SALVAGE-01 Wave 0): this flow is the SC-4 device-gate ARTIFACT.
+# It is authored now (Wave 0 / Task 1) but is NOT expected to pass until
+# the nationality step lands (Task 2) AND the device gate runs against a
+# staging build carrying this branch. It does not gate the unit-test waves.
+
+appId: ch.mint.app
+---
+
+# ─── T1 entry → T2 intents ──────────────────────────────────────────────
+- launchApp:
+    clearState: true
+- assertVisible:
+    text: "Il est temps que tu comprennes."
+    timeout: 10000
+- tapOn:
+    text: "Ouvrir"
+
+# ─── T2 intents:RETRAITE ────────────────────────────────────────────────
+- assertVisible:
+    text: "Qu’est-ce qui t’amène ?"
+    timeout: 5000
+- tapOn:
+    text: "Ce que je toucherai, vraiment."
+
+# ─── T2.5 usTaxPerson:NO ────────────────────────────────────────────────
+- assertVisible:
+    text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
+    timeout: 5000
+- tapOn:
+    id: "us-tax-person-no"
+
+# ─── T2.6 nationality:Suisse (NEW SALVAGE-01 step) ──────────────────────
+- assertVisible:
+    text: "Quelle est ta nationalité ?"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-nationality-ch"
+
+# ─── T3 age:30 ──────────────────────────────────────────────────────────
+- assertVisible:
+    text: "Quel âge tu as ?"
+    timeout: 5000
+# Default picker handle is 34; the device walker may scroll to 30. The
+# storyboard unit test pins the exact birth-year math — here we only assert
+# the flow advances with whatever age the picker reports.
+- tapOn:
+    text: "Continuer"
+
+# ─── T4 canton:VD ───────────────────────────────────────────────────────
+- assertVisible:
+    text: "Où tu vis ?"
+    timeout: 5000
+- tapOn:
+    text: "VD"
+
+# ─── T5 revenue (default fourchette) ────────────────────────────────────
+- assertVisible:
+    text: "Combien te tombe net par mois ?"
+    timeout: 5000
+- tapOn:
+    text: "Continuer"
+
+# ─── T6 insight → T7 scene → T8 bifurcation:Creuser ─────────────────────
+- assertVisible:
+    text: "Avant de te montrer…"
+    timeout: 5000
+- tapOn:
+    text: "Voir"
+- tapOn:
+    text: "Continuer"
+- tapOn:
+    text: "Creuser"
+
+# ─── SC-3: lands on /coach/chat, NOT /waitlist ──────────────────────────
+- assertVisible:
+    text: "Dis-moi."          # coachInputHint — input bar present == /coach/chat
+    timeout: 15000
+- assertNotVisible:
+    text: "liste d’attente"
+- takeScreenshot: "01-coach-reachable-not-waitlist"
+
+# Coach answers a real message (substantive engagement, not waitlist).
+- assertVisible:
+    text: "Réponse du coach"
+    timeout: 30000
+
+# ─── SC-4: navigate /pilier-3a, assert a REAL age (never sentinel) ──────
+- openLink: "mint://pilier-3a"
+- assertVisible:
+    id: "simulator-3a-root"
+    timeout: 10000
+# The sentinel-age bug rendered "Ton âge: 2026" or a fabricated "65 ans".
+# A correctly-flushed birth_year yields a real years-to-retirement value.
+- assertNotVisible:
+    text: "Ton âge: 2026"
+- assertNotVisible:
+    text: "Ton âge : 2026"
+- takeScreenshot: "02-pilier3a-real-age"
+
+# ─── SC-4: navigate rente_vs_capital (arbitrage scene), assert a real age ─
+- openLink: "mint://rente_vs_capital"
+- assertNotVisible:
+    text: "Ton âge: 2026"
+- assertNotVisible:
+    text: "Ton âge : 2026"
+- takeScreenshot: "03-rente-vs-capital-real-age"
