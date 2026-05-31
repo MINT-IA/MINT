@@ -33,6 +33,17 @@ class SecureWizardStore {
   /// Keys containing sensitive financial PII that must not be stored
   /// in plain SharedPreferences.
   static const _sensitiveKeys = {
+    'q_firstname',
+    'q_date_of_birth',
+    'q_birth_year',
+    'q_civil_status',
+    'q_household_type',
+    'q_commune',
+    'q_gender',
+    'q_nationality',
+    'q_residence_permit',
+    'q_us_tax_person',
+    'q_employment_status',
     'q_gross_salary',
     'q_gross_salary_annual',
     'q_gross_income',
@@ -143,9 +154,18 @@ class SecureWizardStore {
   /// path) — the PII is NEVER demoted to plain SharedPreferences.
   static Future<bool> write(String key, String value) async {
     if (!isSensitive(key)) return false;
+    final isStaticKey = _sensitiveKeys.contains(key);
     try {
       await _storage.write(key: key, value: value);
-      await _rememberKey(key);
+      final remembered = await _rememberKey(key);
+      if (!isStaticKey && !remembered) {
+        try {
+          await _storage.delete(key: key);
+        } on Exception {
+          // Best-effort rollback; caller still treats the seal as failed.
+        }
+        return false;
+      }
       return true;
     } on Exception {
       // Secure storage unavailable (sim entitlement / locked keychain):
@@ -185,16 +205,18 @@ class SecureWizardStore {
     }
   }
 
-  static Future<void> _rememberKey(String key) async {
+  static Future<bool> _rememberKey(String key) async {
     try {
       final keys = await _readManifest();
       if (keys.add(key)) {
         await _storage.write(
             key: _manifestKey, value: json.encode(keys.toList()));
       }
+      return true;
     } on Exception {
       // Best-effort manifest. The static sensitive key list still covers all
       // canonical keys, and dynamic prefixes are cleaned when the manifest works.
+      return false;
     }
   }
 
@@ -223,14 +245,23 @@ class SecureWizardStore {
   ) async {
     final cleaned = Map<String, dynamic>.from(answers);
     var allSensitiveSealed = true;
-    for (final key in cleaned.keys.where(isSensitive).toList()) {
+    final sensitiveKeys = cleaned.keys.where(isSensitive).toList();
+    final previousSecureValues = <String, String?>{};
+    final touchedKeys = <String>[];
+    for (final key in sensitiveKeys) {
       if (cleaned.containsKey(key) && cleaned[key] != null) {
+        previousSecureValues[key] = await read(key);
         final sealed = await write(key, cleaned[key].toString());
         if (sealed) {
+          touchedKeys.add(key);
           cleaned[key] = '__secure__';
         } else {
           allSensitiveSealed = false;
-          cleaned.remove(key);
+          await _rollbackWrites(previousSecureValues, touchedKeys);
+          for (final sensitiveKey in sensitiveKeys) {
+            cleaned.remove(sensitiveKey);
+          }
+          break;
         }
       }
     }
@@ -238,6 +269,25 @@ class SecureWizardStore {
       cleaned: cleaned,
       allSensitiveSealed: allSensitiveSealed,
     );
+  }
+
+  static Future<void> _rollbackWrites(
+    Map<String, String?> previousValues,
+    List<String> touchedKeys,
+  ) async {
+    for (final key in touchedKeys.reversed) {
+      try {
+        final previous = previousValues[key];
+        if (previous == null) {
+          await _storage.delete(key: key);
+        } else {
+          await _storage.write(key: key, value: previous);
+        }
+      } on Exception {
+        // Best-effort rollback. saveAnswers still fails closed and keeps the
+        // previous SharedPreferences truth instead of publishing a partial map.
+      }
+    }
   }
 
   /// Extract sensitive values from an answers map and store them securely.
@@ -259,6 +309,10 @@ class SecureWizardStore {
       if (!isSensitive(key)) continue;
       final value = await read(key);
       if (value != null) {
+        if (value == 'true' || value == 'false') {
+          restored[key] = value == 'true';
+          continue;
+        }
         // Try to parse as number if it looks like one
         final asNum = num.tryParse(value);
         restored[key] = asNum ?? value;

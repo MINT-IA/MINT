@@ -124,7 +124,7 @@ void main() {
       expect(loaded.containsValue('__secure__'), isFalse);
     });
 
-    test('secure write failure persists non-sensitive answers only', () async {
+    test('secure write failure keeps previous persisted truth', () async {
       await ReportPersistenceService.saveAnswers({
         'q_canton': 'VD',
         'q_net_income_period_chf': 7000,
@@ -157,8 +157,116 @@ void main() {
       final loaded = await ReportPersistenceService.loadAnswers();
 
       expect(saved, isFalse);
-      expect(loaded['q_canton'], 'GE');
-      expect(loaded.containsKey('q_net_income_period_chf'), isFalse);
+      expect(loaded['q_canton'], 'VD');
+      expect(loaded['q_net_income_period_chf'], 7000);
+    });
+
+    test('partial secure write failure rolls back touched secure keys',
+        () async {
+      await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7000,
+        '_coach_avoir_lpp': 100000,
+      });
+      expect(mockSecureStorage['q_net_income_period_chf'], '7000');
+      expect(mockSecureStorage['_coach_avoir_lpp'], '100000');
+
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          final key = call.arguments['key'] as String;
+          switch (call.method) {
+            case 'write':
+              if (key == '_coach_avoir_lpp') {
+                throw PlatformException(
+                  code: '-34018',
+                  message: 'errSecMissingEntitlement',
+                );
+              }
+              final value = call.arguments['value'] as String?;
+              if (value != null) {
+                mockSecureStorage[key] = value;
+              }
+              return null;
+            case 'read':
+              return mockSecureStorage[key];
+            case 'delete':
+              mockSecureStorage.remove(key);
+              return null;
+            default:
+              return null;
+          }
+        },
+      );
+
+      final saved = await ReportPersistenceService.saveAnswers({
+        'q_canton': 'GE',
+        'q_net_income_period_chf': 9000,
+        '_coach_avoir_lpp': 200000,
+      });
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(saved, isFalse);
+      expect(loaded['q_canton'], 'VD');
+      expect(loaded['q_net_income_period_chf'], 7000);
+      expect(loaded['_coach_avoir_lpp'], 100000);
+      expect(mockSecureStorage['q_net_income_period_chf'], '7000');
+      expect(mockSecureStorage['_coach_avoir_lpp'], '100000');
+    });
+
+    test('stores identity keys only in secure storage', () async {
+      final saved = await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_firstname': 'Julien',
+        'q_date_of_birth': '1981-06-15',
+        'q_birth_year': 1981,
+        'q_civil_status': 'marie',
+        'q_household_type': 'marie',
+        'q_commune': 'Lausanne',
+        'q_gender': 'male',
+        'q_us_tax_person': false,
+        'q_employment_status': 'salarie',
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      final raw = json.decode(prefs.getString('wizard_answers_v2')!)
+          as Map<String, dynamic>;
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(saved, isTrue);
+      expect(raw['q_canton'], 'VD');
+      for (final key in <String>[
+        'q_firstname',
+        'q_date_of_birth',
+        'q_birth_year',
+        'q_civil_status',
+        'q_household_type',
+        'q_commune',
+        'q_gender',
+        'q_us_tax_person',
+        'q_employment_status',
+      ]) {
+        expect(raw[key], '__secure__', reason: key);
+        expect(mockSecureStorage[key], isNotNull, reason: key);
+      }
+      expect(raw.containsValue('Julien'), isFalse);
+      expect(raw.containsValue('1981-06-15'), isFalse);
+      expect(raw.containsValue(1981), isFalse);
+      expect(raw.containsValue('marie'), isFalse);
+      expect(raw.containsValue('Lausanne'), isFalse);
+      expect(raw.containsValue('male'), isFalse);
+      expect(raw.containsValue(false), isFalse);
+      expect(raw.containsValue('salarie'), isFalse);
+      expect(loaded['q_firstname'], 'Julien');
+      expect(loaded['q_date_of_birth'], '1981-06-15');
+      expect(loaded['q_birth_year'], 1981);
+      expect(loaded['q_civil_status'], 'marie');
+      expect(loaded['q_household_type'], 'marie');
+      expect(loaded['q_commune'], 'Lausanne');
+      expect(loaded['q_gender'], 'male');
+      expect(loaded['q_us_tax_person'], isFalse);
+      expect(loaded['q_employment_status'], 'salarie');
     });
 
     test('stores canonical financial keys only in secure storage', () async {
@@ -343,8 +451,7 @@ void main() {
       expect(raw.containsValue(10), isFalse);
     });
 
-    test(
-        'secure write failure without existing answers writes non-sensitive only',
+    test('secure write failure without existing answers writes nothing',
         () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
@@ -370,8 +477,49 @@ void main() {
       });
 
       final loaded = await ReportPersistenceService.loadAnswers();
+      final prefs = await SharedPreferences.getInstance();
 
       expect(saved, isFalse);
+      expect(loaded, isEmpty);
+      expect(prefs.getString('wizard_answers_v2'), isNull);
+    });
+
+    test('secure write failure scrubs legacy plaintext sensitive answers',
+        () async {
+      SharedPreferences.setMockInitialValues({
+        'wizard_answers_v2': json.encode({
+          'q_canton': 'VD',
+          'q_date_of_birth': '1981-06-15',
+          'q_birth_year': 1981,
+          'q_net_income_period_chf': 7000,
+          'q_civil_status': 'marie',
+        }),
+      });
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          if (call.method == 'write') {
+            throw PlatformException(
+              code: '-34018',
+              message: 'errSecMissingEntitlement',
+            );
+          }
+          return null;
+        },
+      );
+
+      final saved = await ReportPersistenceService.saveAnswers({
+        'q_canton': 'GE',
+        'q_date_of_birth': '1982-07-16',
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final raw = json.decode(prefs.getString('wizard_answers_v2')!)
+          as Map<String, dynamic>;
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(saved, isFalse);
+      expect(raw, {'q_canton': 'VD'});
       expect(loaded, {'q_canton': 'VD'});
     });
 

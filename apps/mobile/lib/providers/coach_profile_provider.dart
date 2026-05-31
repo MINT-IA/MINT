@@ -528,6 +528,18 @@ class CoachProfileProvider extends ChangeNotifier {
   bool _hasPartialProfileData(Map<String, dynamic> answers) {
     if (answers.isEmpty) return false;
     if (answers.keys.any((k) => k.startsWith('_coach_'))) return true;
+    const backendHydrationKeys = <String>{
+      'q_date_of_birth',
+      'q_birth_year',
+      'q_gross_salary_annual',
+      'q_net_income_period_chf',
+      'q_employment_status',
+      'q_nationality',
+      'q_residence_permit',
+    };
+    if (backendHydrationKeys.any((key) => _isAnswered(answers[key]))) {
+      return true;
+    }
     const budgetFirstKeys = <String>{
       'q_housing_cost_period_chf',
       'q_lamal_premium_monthly_chf',
@@ -535,7 +547,7 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_other_fixed_costs_monthly_chf',
       'q_debt_payments_period_chf',
     };
-    return budgetFirstKeys.any(answers.containsKey);
+    return budgetFirstKeys.any((key) => _isAnswered(answers[key]));
   }
 
   /// Fusionne les donnees persistees (check-ins, contributions, score)
@@ -607,7 +619,8 @@ class CoachProfileProvider extends ChangeNotifier {
     }
     final persisted = await _saveAnswersReturningPersisted(merged);
     _lastAnswers = persisted;
-    _profile = CoachProfile.fromWizardAnswers(persisted);
+    _profile =
+        persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
     CoachNarrativeService.invalidateCache(profile: _profile);
@@ -632,7 +645,8 @@ class CoachProfileProvider extends ChangeNotifier {
       return true;
     }
     _lastAnswers = persisted;
-    _profile = CoachProfile.fromWizardAnswers(persisted);
+    _profile =
+        persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
     _profileUpdatedSinceBudget = true;
     CoachNarrativeService.invalidateCache(profile: _profile);
     return false;
@@ -687,7 +701,7 @@ class CoachProfileProvider extends ChangeNotifier {
       case 'commune':
         return {'q_commune': value};
       case 'householdType':
-        return {'q_civil_status': value};
+        return {'q_household_type': value};
       case 'employmentStatus':
         return {'q_employment_status': value};
       case 'gender':
@@ -967,14 +981,20 @@ class CoachProfileProvider extends ChangeNotifier {
     final persisted = await _saveAnswersReturningPersisted(answers);
     if (!identical(persisted, answers)) {
       _lastAnswers = persisted;
-      _profile = CoachProfile.fromWizardAnswers(persisted);
-      if (firstName != null && firstName.isNotEmpty) {
+      _profile =
+          persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
+      if (_profile != null && firstName != null && firstName.isNotEmpty) {
         _profile = _profile!.copyWith(firstName: firstName);
       }
     }
-    await ReportPersistenceService.setMiniOnboardingCompleted(true);
+    _isPartialProfile = _profile != null && persisted.isNotEmpty;
+    if (persisted.isNotEmpty) {
+      await ReportPersistenceService.setMiniOnboardingCompleted(true);
+    }
     notifyListeners();
-    _syncToBackend(); // Fire-and-forget, does not block UI
+    if (persisted.isNotEmpty) {
+      _syncToBackend(); // Fire-and-forget, does not block UI
+    }
   }
 
   /// Create a NEW local CoachProfile from backend data when no local profile

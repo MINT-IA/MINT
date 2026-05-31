@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -275,6 +276,98 @@ void main() {
       expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
       expect(secureStorage.containsKey('mint_biography_key'), isFalse);
       expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
+    });
+
+    test('backend profile merge accepts flat profile payload', () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {'q_canton': 'VD'},
+        {
+          'firstName': 'Julien',
+          'dateOfBirth': '1981-06-15',
+          'incomeGrossYearly': 120000,
+          'incomeNetMonthly': 7600,
+          'householdType': 'concubine',
+          'employmentStatus': 'employee',
+          'commune': 'Lausanne',
+          'gender': 'male',
+          'nationality': 'CH',
+          'usTaxPerson': false,
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_canton'], 'VD');
+      expect(merged['q_firstname'], 'Julien');
+      expect(merged['q_date_of_birth'], '1981-06-15');
+      expect(merged['q_birth_year'], 1981);
+      expect(merged['q_gross_salary_annual'], 120000.0);
+      expect(merged['q_net_income_period_chf'], 7600.0);
+      expect(merged.containsKey('q_civil_status'), isFalse);
+      expect(merged['q_household_type'], 'concubine');
+      expect(merged['q_employment_status'], 'salarie');
+      expect(merged['q_commune'], 'Lausanne');
+      expect(merged['q_gender'], 'male');
+      expect(merged['q_nationality'], 'CH');
+      expect(merged['q_us_tax_person'], isFalse);
+      expect(profile.salaireBrutMensuel, 10000);
+      expect(profile.etatCivil, CoachCivilStatus.celibataire);
+      expect(profile.employmentStatus, 'salarie');
+      expect(profile.usTaxPerson, isFalse);
+    });
+
+    test('backend profile merge accepts legacy nested data payload', () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {},
+        {
+          'data': {
+            'birthYear': 1990,
+            'incomeGrossYearly': 90000,
+            'householdType': 'family',
+          },
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_birth_year'], 1990);
+      expect(merged['q_gross_salary_annual'], 90000.0);
+      expect(merged.containsKey('q_civil_status'), isFalse);
+      expect(merged['q_household_type'], 'family');
+      expect(profile.salaireBrutMensuel, 7500);
+      expect(profile.etatCivil, CoachCivilStatus.celibataire);
+    });
+
+    test('backend profile merge never overwrites local truth', () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {
+          'q_canton': 'VD',
+          'q_date_of_birth': '1981-06-15',
+          'q_birth_year': 1981,
+          'q_gross_salary_annual': 120000,
+          'q_civil_status': 'marie',
+          'q_household_type': 'couple',
+          'q_employment_status': 'independant',
+        },
+        {
+          'dateOfBirth': '1995-01-01',
+          'birthYear': 1995,
+          'canton': 'GE',
+          'incomeGrossYearly': 90000,
+          'householdType': 'single',
+          'employmentStatus': 'employee',
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_canton'], 'VD');
+      expect(merged['q_date_of_birth'], '1981-06-15');
+      expect(merged['q_birth_year'], 1981);
+      expect(merged['q_gross_salary_annual'], 120000);
+      expect(merged['q_civil_status'], 'marie');
+      expect(merged['q_household_type'], 'couple');
+      expect(merged['q_employment_status'], 'independant');
+      expect(profile.salaireBrutMensuel, 10000);
+      expect(profile.etatCivil, CoachCivilStatus.marie);
+      expect(profile.employmentStatus, 'independant');
     });
   });
 

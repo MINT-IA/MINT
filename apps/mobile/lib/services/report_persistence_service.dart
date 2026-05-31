@@ -15,9 +15,13 @@ class ReportPersistenceService {
     final prefs = await SharedPreferences.getInstance();
     await _retryPendingSecureDelete(prefs);
     final sealed = await SecureWizardStore.sealSensitiveKeys(answers);
+    if (!sealed.allSensitiveSealed) {
+      await _scrubLegacyPlainSensitiveAnswers(prefs);
+      return false;
+    }
     final jsonString = json.encode(sealed.cleaned);
     await prefs.setString(_wizardKey, jsonString);
-    return sealed.allSensitiveSealed;
+    return true;
   }
 
   /// Charge les réponses existantes.
@@ -38,6 +42,39 @@ class ReportPersistenceService {
       dev.log('Failed to decode wizard answers',
           error: e, stackTrace: stack, name: 'Persistence');
       return {};
+    }
+  }
+
+  static Future<void> _scrubLegacyPlainSensitiveAnswers(
+    SharedPreferences prefs,
+  ) async {
+    final existing = prefs.getString(_wizardKey);
+    if (existing == null) return;
+
+    try {
+      final decoded = json.decode(existing);
+      if (decoded is! Map) return;
+
+      final scrubbed = Map<String, dynamic>.from(decoded);
+      var removedPlainSensitiveValue = false;
+      for (final key in scrubbed.keys.toList()) {
+        final value = scrubbed[key];
+        if (SecureWizardStore.isSensitive(key) &&
+            value != null &&
+            value != '__secure__') {
+          scrubbed.remove(key);
+          removedPlainSensitiveValue = true;
+        }
+      }
+
+      if (!removedPlainSensitiveValue) return;
+      if (scrubbed.isEmpty) {
+        await prefs.remove(_wizardKey);
+      } else {
+        await prefs.setString(_wizardKey, json.encode(scrubbed));
+      }
+    } catch (_) {
+      await prefs.remove(_wizardKey);
     }
   }
 

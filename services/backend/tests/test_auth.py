@@ -202,6 +202,48 @@ def test_create_profile_with_auth(client: TestClient):
     assert profile["canton"] == "VD"
 
 
+def test_profiles_me_roundtrips_identity_archetype_signals(client: TestClient):
+    register_response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "profileme-signals@example.com",
+            "password": "profilepass123",
+        },
+    )
+    token = register_response.json()["access_token"]
+
+    response = client.post(
+        "/api/v1/profiles",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "householdType": "single",
+            "birthYear": 1981,
+            "dateOfBirth": "1981-06-15",
+            "canton": "VD",
+            "nationality": "US",
+            "usTaxPerson": True,
+            "employmentStatus": "self_employed",
+        },
+    )
+    assert response.status_code == 200
+    created = response.json()
+    assert created["dateOfBirth"] == "1981-06-15"
+    assert created["nationality"] == "US"
+    assert created["usTaxPerson"] is True
+
+    me_response = client.get(
+        "/api/v1/profiles/me",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert me_response.status_code == 200
+    me = me_response.json()
+    assert me["dateOfBirth"] == "1981-06-15"
+    assert me["nationality"] == "US"
+    assert me["usTaxPerson"] is True
+    assert me["employmentStatus"] == "self_employed"
+
+
 def test_access_other_user_profile(auth_client: TestClient):
     """Test 8: Access other user's profile returns 403."""
     # Register first user and create profile

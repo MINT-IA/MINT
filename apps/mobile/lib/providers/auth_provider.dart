@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
@@ -98,6 +99,96 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   AuthError? get error => _error;
   bool get requiresEmailVerification => _requiresEmailVerification;
+
+  @visibleForTesting
+  static Map<String, dynamic> mergeBackendProfileDataForTest(
+    Map<String, dynamic> currentAnswers,
+    Map<String, dynamic> profilePayload,
+  ) {
+    return _mergeBackendProfileData(currentAnswers, profilePayload);
+  }
+
+  static Map<String, dynamic> _mergeBackendProfileData(
+    Map<String, dynamic> currentAnswers,
+    Map<String, dynamic> profilePayload,
+  ) {
+    final nestedData = profilePayload['data'];
+    final data = nestedData is Map
+        ? Map<String, dynamic>.from(nestedData)
+        : Map<String, dynamic>.from(profilePayload);
+    if (data.isEmpty) return currentAnswers;
+
+    final answers = Map<String, dynamic>.from(currentAnswers);
+    void fillIfMissing(String key, dynamic value) {
+      if (value == null || _isAnswered(answers[key])) return;
+      answers[key] = value;
+    }
+
+    fillIfMissing('q_firstname', data['firstName']);
+    if (data['dateOfBirth'] != null) {
+      final rawDateOfBirth = data['dateOfBirth'] as String;
+      fillIfMissing('q_date_of_birth', rawDateOfBirth);
+      if (!_isAnswered(answers['q_birth_year'])) {
+        final parsedDateOfBirth = DateTime.tryParse(rawDateOfBirth);
+        if (parsedDateOfBirth != null) {
+          answers['q_birth_year'] = parsedDateOfBirth.year;
+        }
+      }
+    }
+    if (data['birthYear'] != null) {
+      fillIfMissing('q_birth_year', data['birthYear'] as int);
+    }
+    if (data['canton'] != null) {
+      fillIfMissing('q_canton', data['canton'] as String);
+    }
+    if (data['commune'] != null) {
+      fillIfMissing('q_commune', data['commune'] as String);
+    }
+    if (data['gender'] != null) {
+      fillIfMissing('q_gender', data['gender'] as String);
+    }
+    if (data['nationality'] != null) {
+      fillIfMissing('q_nationality', data['nationality'] as String);
+    }
+    if (data['usTaxPerson'] != null) {
+      fillIfMissing('q_us_tax_person', data['usTaxPerson'] as bool);
+    }
+    if (data['residencePermit'] != null) {
+      fillIfMissing('q_residence_permit', data['residencePermit'] as String);
+    }
+    if (data['employmentStatus'] != null) {
+      fillIfMissing(
+        'q_employment_status',
+        CoachProfile.employmentStatusFromCanonical(
+          data['employmentStatus'] as String,
+        ),
+      );
+    }
+    if (data['incomeGrossYearly'] != null) {
+      fillIfMissing(
+        'q_gross_salary_annual',
+        (data['incomeGrossYearly'] as num).toDouble(),
+      );
+    }
+    if (data['incomeNetMonthly'] != null) {
+      fillIfMissing(
+        'q_net_income_period_chf',
+        (data['incomeNetMonthly'] as num).toDouble(),
+      );
+    }
+    if (data['householdType'] != null) {
+      fillIfMissing('q_household_type', data['householdType'] as String);
+    }
+    return answers;
+  }
+
+  static bool _isAnswered(dynamic value) {
+    if (value == null) return false;
+    if (value is String) return value.trim().isNotEmpty;
+    if (value is num) return value != 0;
+    return true;
+  }
+
   bool get isLocalMode => _isLocalMode;
 
   /// Phase 52: cloud-sync state from the user's perspective.
@@ -750,29 +841,10 @@ class AuthProvider extends ChangeNotifier {
     try {
       final profileData = await ApiService.get('/profiles/me');
       if (profileData.isEmpty) return;
-      final data = profileData['data'] as Map<String, dynamic>?;
-      if (data == null) return;
-
       final answers = await ReportPersistenceService.loadAnswers();
-      if (data['birthYear'] != null) {
-        answers['q_birth_year'] = data['birthYear'] as int;
-      }
-      if (data['canton'] != null) {
-        answers['q_canton'] = data['canton'] as String;
-      }
-      if (data['incomeGrossYearly'] != null) {
-        answers['q_gross_salary'] =
-            (data['incomeGrossYearly'] as num).toDouble() / 12;
-      }
-      if (data['incomeNetMonthly'] != null) {
-        answers['q_net_income_period_chf'] =
-            (data['incomeNetMonthly'] as num).toDouble();
-      }
-      if (data['householdType'] != null) {
-        answers['q_household_type'] = data['householdType'] as String;
-      }
-      if (answers.isNotEmpty) {
-        await ReportPersistenceService.saveAnswers(answers);
+      final merged = _mergeBackendProfileData(answers, profileData);
+      if (merged.isNotEmpty && !mapEquals(merged, answers)) {
+        await ReportPersistenceService.saveAnswers(merged);
       }
     } catch (e) {
       // Hydration is best-effort — never block login flow

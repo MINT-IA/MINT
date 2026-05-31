@@ -64,6 +64,7 @@ def get_my_profile(
     return Profile(
         id=data["id"],
         birthYear=data.get("birthYear"),
+        dateOfBirth=data.get("dateOfBirth"),
         canton=data.get("canton"),
         householdType=data["householdType"],
         incomeNetMonthly=data.get("incomeNetMonthly"),
@@ -91,6 +92,8 @@ def get_my_profile(
         pillar3aAnnual=data.get("pillar3aAnnual"),
         wealthEstimate=data.get("wealthEstimate"),
         gender=data.get("gender"),
+        nationality=data.get("nationality"),
+        usTaxPerson=data.get("usTaxPerson"),
         targetRetirementAge=data.get("targetRetirementAge"),
         createdAt=datetime.fromisoformat(data["createdAt"]),
     )
@@ -158,6 +161,8 @@ def create_profile(
         pillar3aAnnual=profile_create.pillar3aAnnual,
         wealthEstimate=profile_create.wealthEstimate,
         gender=profile_create.gender,
+        nationality=profile_create.nationality,
+        usTaxPerson=profile_create.usTaxPerson,
         targetRetirementAge=profile_create.targetRetirementAge,
         createdAt=now,
     )
@@ -219,6 +224,8 @@ def get_profile(
         pillar3aAnnual=data.get("pillar3aAnnual"),
         wealthEstimate=data.get("wealthEstimate"),
         gender=data.get("gender"),
+        nationality=data.get("nationality"),
+        usTaxPerson=data.get("usTaxPerson"),
         targetRetirementAge=data.get("targetRetirementAge"),
         createdAt=datetime.fromisoformat(data["createdAt"]),
     )
@@ -303,6 +310,8 @@ def update_profile(
         pillar3aAnnual=data.get("pillar3aAnnual"),
         wealthEstimate=data.get("wealthEstimate"),
         gender=data.get("gender"),
+        nationality=data.get("nationality"),
+        usTaxPerson=data.get("usTaxPerson"),
         targetRetirementAge=data.get("targetRetirementAge"),
         createdAt=datetime.fromisoformat(data["createdAt"]),
     )

@@ -12,6 +12,7 @@
 /// - `.planning/wave-b-home-orchestrateur/PLAN.md` B6-minimal
 library;
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -156,6 +157,30 @@ void main() {
 
     test('loadFromWizard preserves DOB-only profile after persistence reload',
         () async {
+      final secureStorage = <String, String>{};
+      const secureStorageChannel =
+          MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(secureStorageChannel, (call) async {
+        final key = call.arguments['key'] as String?;
+        switch (call.method) {
+          case 'write':
+            final value = call.arguments['value'] as String?;
+            if (key != null && value != null) secureStorage[key] = value;
+            return null;
+          case 'read':
+            return key == null ? null : secureStorage[key];
+          case 'delete':
+            if (key != null) secureStorage.remove(key);
+            return null;
+          default:
+            return null;
+        }
+      });
+      addTearDown(() {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureStorageChannel, null);
+      });
       SharedPreferences.setMockInitialValues({});
       await ReportPersistenceService.saveAnswers({
         'q_date_of_birth': '1977-06-15',
