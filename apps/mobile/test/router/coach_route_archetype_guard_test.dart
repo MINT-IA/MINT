@@ -79,4 +79,48 @@ void main() {
       expect(verdict.archetypeSlug, 'independent_no_lpp');
     });
   });
+
+  // ══════════════════════════════════════════════════════════════════
+  //  SALVAGE-01 — freshly-onboarded round-trip through the WIZARD path.
+  //
+  //  These exercise CoachProfile.fromWizardAnswers (the actual wedge
+  //  flush output), not copyWith — proving the q_nationality the wedge
+  //  now writes survives into the archetype and reaches the coach.
+  // ══════════════════════════════════════════════════════════════════
+  group('SALVAGE-01 fresh-onboarding archetype reachability', () {
+    test(
+        'fresh CH user (q_nationality=CH, q_birth_year set) → swissNative → '
+        'coach reachable (shouldBlock=false)', () {
+      final profile = CoachProfile.fromWizardAnswers(<String, dynamic>{
+        'q_birth_year': 1996,
+        'q_nationality': 'CH',
+        'q_canton': 'VD',
+        'q_employment_status': 'salarie',
+        'q_has_pension_fund': true,
+      });
+      expect(profile.nationality, 'CH',
+          reason: 'q_nationality must round-trip into the model field');
+      expect(profile.archetype, FinancialArchetype.swissNative);
+      final verdict = evaluateCoachArchetypeGate(profile);
+      expect(verdict.shouldBlock, isFalse,
+          reason: 'a freshly-onboarded CH user must reach the coach');
+    });
+
+    test(
+        'fresh user with NO q_nationality → NOT swissNative → still gated '
+        '(no silent CH fallback — regression guard, closed 2026-05-22)', () {
+      final profile = CoachProfile.fromWizardAnswers(<String, dynamic>{
+        'q_birth_year': 1996,
+        'q_canton': 'VD',
+        'q_employment_status': 'salarie',
+        'q_has_pension_fund': true,
+      });
+      expect(profile.nationality, isNull,
+          reason: 'absent q_nationality must NOT coerce to CH');
+      expect(profile.archetype, isNot(FinancialArchetype.swissNative));
+      final verdict = evaluateCoachArchetypeGate(profile);
+      expect(verdict.shouldBlock, isTrue,
+          reason: 'null nationality stays gated, never silent swissNative');
+    });
+  });
 }

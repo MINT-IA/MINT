@@ -108,10 +108,18 @@ Future<void> _commonEntry(
     findsOneWidget,
   );
 
-  // T2.5 → T3 : tap "Non" (storyboard tests default to non-US users so
+  // T2.5 → T2.6 : tap "Non" (storyboard tests default to non-US users so
   // they reach the financial-data steps; gate semantics are covered in
   // coach_route_archetype_guard_test.dart).
   await tester.tap(find.byKey(const ValueKey('us-tax-person-no')));
+  await tester.pumpAndSettle();
+
+  // T2.6 → T3 : nationality step (SALVAGE-01). Storyboard tests select
+  // Suisse so the freshly-onboarded profile resolves to swissNative and
+  // the coach is reachable; cross-border/expat archetypes are covered in
+  // coach_route_archetype_guard_test.dart.
+  expect(find.text('Quelle est ta nationalité ?'), findsOneWidget);
+  await tester.tap(find.byKey(const ValueKey('onboarding-nationality-ch')));
   await tester.pumpAndSettle();
   expect(find.text('Quel âge tu as ?'), findsOneWidget);
 }
@@ -229,7 +237,11 @@ void main() {
     expect(fake.mergedCalls, hasLength(1));
     final merged = fake.mergedCalls.single;
     expect(merged['onb_intent'], 'impots');
-    expect(merged['q_age'], 34);
+    // SALVAGE-01 (onb-01): flush writes q_birth_year (year), not q_age.
+    // The age picker defaults to 34, so birthYear == now.year - 34.
+    expect(merged.containsKey('q_age'), isFalse,
+        reason: 'onb-01: q_age has zero readers; flush must write q_birth_year');
+    expect(merged['q_birth_year'], DateTime.now().year - 34);
     expect(merged['q_canton'], 'VD');
     expect(merged.containsKey('q_email'), isFalse,
         reason: 'email-demain scene killed 2026-04-24, no email captured');
@@ -237,6 +249,58 @@ void main() {
     expect(merged['q_net_income_range_low'], 7000);
     expect(merged['q_net_income_range_high'], 7500);
     expect(merged['q_wants_deeper'], false);
+  });
+
+  testWidgets(
+      'SALVAGE-01: RETRAITE branch flush writes the canonical key contract '
+      '(q_birth_year + q_nationality + q_employment_status + q_has_pension_fund)',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake);
+    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonData(tester);
+
+    // T6 insight → T7 scene → T8 bifurcation → Plus tard flushes to /home.
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Plus tard'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('home-landed'), findsOneWidget);
+
+    final merged = fake.mergedCalls.single;
+    // onb-01: birth year, not age.
+    expect(merged.containsKey('q_age'), isFalse);
+    expect(merged['q_birth_year'], DateTime.now().year - 34);
+    // archetype-waitlist: nationality Suisse → 'CH' so the profile reaches
+    // swissNative and the coach-entry gate passes.
+    expect(merged['q_nationality'], 'CH');
+    // onb-03: employment + LPP affiliation derived at flush, no 2nd question.
+    expect(merged['q_employment_status'], 'salarie');
+    expect(merged.containsKey('q_has_pension_fund'), isTrue);
+    expect(merged['q_has_pension_fund'], isA<bool>());
+  });
+
+  testWidgets(
+      'SALVAGE-01: q_has_pension_fund true for a 7000-7500 net fourchette '
+      '(gross ≈ 7250×12×1.17 ≈ 101 790 ≥ 22 680)', (tester) async {
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake);
+    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Plus tard'));
+    await tester.pumpAndSettle();
+
+    final merged = fake.mergedCalls.single;
+    expect(merged['q_has_pension_fund'], isTrue,
+        reason: 'net ≈ 7250/mo → gross-annual well above the LPP seuil 22 680');
   });
 
   testWidgets('Intent achat: scene N2 affiche chiffre héros intervalle',

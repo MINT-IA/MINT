@@ -101,6 +101,8 @@ class _OnboardingShellBody extends StatelessWidget {
         return const _IntentsStep();
       case OnboardingStep.usTaxPerson:
         return const _UsTaxPersonStep();
+      case OnboardingStep.nationality:
+        return const _NationalityStep();
       case OnboardingStep.age:
         return const _AgeStep();
       case OnboardingStep.canton:
@@ -143,6 +145,108 @@ class _UsTaxPersonStep extends StatelessWidget {
         }
         provider.advance();
       },
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────
+// T2.6 — Nationality (SALVAGE-01 archetype signal)
+// ────────────────────────────────────────────────────────────────────
+
+/// Nationality capture step. Three mutually-exclusive options
+/// (Suisse / UE-AELE / Autre) mapped to the CH/EU/OTHER provider group.
+///
+/// WCAG remediation inherited from `UsTaxPersonScreen` (the sibling FATCA
+/// gate): the prompt is a `Semantics(header: true)`, the options live in a
+/// labelled radio-group container, each option announces a meaningful
+/// position-in-set Semantics label and has a 48px tap target. Colors are
+/// MintColors tokens only (no hardcoded Color()).
+///
+/// Like the FATCA Q, this step writes NO dossier-strip line — nationality
+/// is invisible to the user post-answer, surfaced only by the coach gate.
+class _NationalityStep extends StatelessWidget {
+  const _NationalityStep();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    final provider = context.read<OnboardingProvider>();
+
+    void pick(String group) {
+      provider.setNationality(group);
+      provider.advance();
+    }
+
+    // (group, label, key, semantics position hint)
+    final options = <(String, String, String, String)>[
+      ('CH', l.nationalitySuisse, 'onboarding-nationality-ch', '1 / 3'),
+      ('EU', l.nationalityEuAele, 'onboarding-nationality-eu', '2 / 3'),
+      ('OTHER', l.nationalityAutre, 'onboarding-nationality-other', '3 / 3'),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            header: true,
+            child: Text(
+              l.nationalityPrompt,
+              style: TextStyle(
+                fontFamily: 'Supreme',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: MintColors.textPrimary,
+                height: 1.25,
+              ),
+            ),
+          ),
+          const Spacer(),
+          Semantics(
+            container: true,
+            label: l.nationalityPrompt,
+            child: Column(
+              children: [
+                for (final (group, label, key, hint) in options) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: Semantics(
+                      inMutuallyExclusiveGroup: true,
+                      button: true,
+                      label: label,
+                      hint: hint,
+                      child: FilledButton.tonal(
+                        key: ValueKey(key),
+                        onPressed: () => pick(group),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: MintColors.craie,
+                          foregroundColor: MintColors.textPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            fontFamily: 'Supreme',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: MintColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+      ),
     );
   }
 }

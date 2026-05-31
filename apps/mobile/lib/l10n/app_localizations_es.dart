@@ -17925,6 +17925,9 @@ class SEs extends S {
   String get nationalityEuAele => 'UE/AELC';
 
   @override
+  String get nationalityPrompt => '¿Cuál es tu nacionalidad?';
+
+  @override
   String get nationalitySuisse => 'Suiza';
 
   @override

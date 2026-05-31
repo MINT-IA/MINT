@@ -647,4 +647,46 @@ void main() {
       expect(profile.totalEpargneLibreMensuel, 0);
     });
   });
+
+  // ══════════════════════════════════════════════════════════════════
+  //  SALVAGE-01 — fromWizardAnswers contract round-trip
+  // ══════════════════════════════════════════════════════════════════
+  group('SALVAGE-01 fromWizardAnswers contract', () {
+    test('q_nationality=CH survives into profile.nationality', () {
+      final profile = CoachProfile.fromWizardAnswers(<String, dynamic>{
+        'q_birth_year': 1996,
+        'q_nationality': 'CH',
+        'q_canton': 'VD',
+      });
+      expect(profile.nationality, 'CH');
+    });
+
+    test(
+        'q_birth_year round-trips to a real birthYear (not the 0 sentinel)',
+        () {
+      final profile = CoachProfile.fromWizardAnswers(<String, dynamic>{
+        'q_birth_year': 1996,
+        'q_canton': 'VD',
+      });
+      expect(profile.birthYear, 1996);
+      // age getter derives from birthYear (not the 0-sentinel "data missing").
+      expect(profile.age, DateTime.now().year - 1996);
+    });
+
+    test(
+        'absent q_birth_year → birthYear stays 0 sentinel, no age-key fallback',
+        () {
+      // Mirrors the legacyReOnboarding degraded path where the age step is
+      // skipped: the flushed map carries neither q_birth_year nor any age
+      // key, so birthYear is the documented 0 sentinel. Plan 02 ageOrNull
+      // is the consumer-side protection for this state (it returns null
+      // rather than fabricating a horizon).
+      final profile = CoachProfile.fromWizardAnswers(<String, dynamic>{
+        'q_canton': 'VD',
+        'q_nationality': 'CH',
+      });
+      expect(profile.birthYear, 0,
+          reason: 'absent q_birth_year → 0 sentinel (never an age value)');
+    });
+  });
 }

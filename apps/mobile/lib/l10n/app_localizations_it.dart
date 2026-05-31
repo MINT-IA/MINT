@@ -17972,6 +17972,9 @@ class SIt extends S {
   String get nationalityEuAele => 'UE/AELS';
 
   @override
+  String get nationalityPrompt => 'Qual è la tua nazionalità?';
+
+  @override
   String get nationalitySuisse => 'Svizzera';
 
   @override

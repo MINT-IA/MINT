@@ -17907,7 +17907,10 @@ class SFr extends S {
   String get nationalityAutre => 'Autre';
 
   @override
-  String get nationalityEuAele => 'EU/AELE';
+  String get nationalityEuAele => 'UE/AELE';
+
+  @override
+  String get nationalityPrompt => 'Quelle est ta nationalité ?';
 
   @override
   String get nationalitySuisse => 'Suisse';
