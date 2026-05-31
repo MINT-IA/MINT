@@ -33,39 +33,51 @@
 appId: ch.mint.app
 ---
 
+# NOTE (Maestro 2.5.1): `timeout` is NOT a valid property on `assertVisible`
+# in this CLI version (it raises « Unknown Property: timeout » — verified
+# against the formerly-passing coach_tools_server_side_smoke.yaml too). The
+# wait-with-timeout primitive is `extendedWaitUntil: { visible: {…}, timeout }`
+# (proven by the passing flow_data_spine_visible_coach_packet.yaml). Bare
+# `assertVisible` / `assertNotVisible` use Maestro's default assertion window.
+
 # ─── T1 entry → T2 intents ──────────────────────────────────────────────
 - launchApp:
     clearState: true
-- assertVisible:
-    text: "Il est temps que tu comprennes."
+- extendedWaitUntil:
+    visible:
+      text: "Il est temps que tu comprennes."
     timeout: 10000
 - tapOn:
     text: "Ouvrir"
 
 # ─── T2 intents:RETRAITE ────────────────────────────────────────────────
-- assertVisible:
-    text: "Qu’est-ce qui t’amène ?"
+- extendedWaitUntil:
+    visible:
+      text: "Qu’est-ce qui t’amène ?"
     timeout: 5000
 - tapOn:
     text: "Ce que je toucherai, vraiment."
 
 # ─── T2.5 usTaxPerson:NO ────────────────────────────────────────────────
-- assertVisible:
-    text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
+- extendedWaitUntil:
+    visible:
+      text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
     timeout: 5000
 - tapOn:
     id: "us-tax-person-no"
 
 # ─── T2.6 nationality:Suisse (NEW SALVAGE-01 step) ──────────────────────
-- assertVisible:
-    text: "Quelle est ta nationalité ?"
+- extendedWaitUntil:
+    visible:
+      text: "Quelle est ta nationalité ?"
     timeout: 5000
 - tapOn:
     id: "onboarding-nationality-ch"
 
 # ─── T3 age:30 ──────────────────────────────────────────────────────────
-- assertVisible:
-    text: "Quel âge tu as ?"
+- extendedWaitUntil:
+    visible:
+      text: "Quel âge tu as ?"
     timeout: 5000
 # Default picker handle is 34; the device walker may scroll to 30. The
 # storyboard unit test pins the exact birth-year math — here we only assert
@@ -74,22 +86,25 @@ appId: ch.mint.app
     text: "Continuer"
 
 # ─── T4 canton:VD ───────────────────────────────────────────────────────
-- assertVisible:
-    text: "Où tu vis ?"
+- extendedWaitUntil:
+    visible:
+      text: "Où tu vis ?"
     timeout: 5000
 - tapOn:
     text: "VD"
 
 # ─── T5 revenue (default fourchette) ────────────────────────────────────
-- assertVisible:
-    text: "Combien te tombe net par mois ?"
+- extendedWaitUntil:
+    visible:
+      text: "Combien te tombe net par mois ?"
     timeout: 5000
 - tapOn:
     text: "Continuer"
 
 # ─── T6 insight ─────────────────────────────────────────────────────────
-- assertVisible:
-    text: "Avant de te montrer…"
+- extendedWaitUntil:
+    visible:
+      text: "Avant de te montrer…"
     timeout: 5000
 - tapOn:
     text: "Voir"
@@ -97,22 +112,25 @@ appId: ch.mint.app
 # ─── T7 scene (MintSceneRenteTrouee — renders the user's REAL currentAge) ─
 # The scene receives provider.ageYears, which is derived from q_birth_year
 # (the SALVAGE-01 flush fix). It must show a real age, not the sentinel.
-- assertVisible:
-    text: "Continuer"
+- extendedWaitUntil:
+    visible:
+      text: "Continuer"
     timeout: 8000
 - tapOn:
     text: "Continuer"
 
 # ─── T8 bifurcation:Creuser → /coach/chat ───────────────────────────────
-- assertVisible:
-    text: "Creuser"
+- extendedWaitUntil:
+    visible:
+      text: "Creuser"
     timeout: 5000
 - tapOn:
     text: "Creuser"
 
 # ─── SC-3: lands on /coach/chat, NOT /waitlist ──────────────────────────
-- assertVisible:
-    text: "Dis-moi."          # coachInputHint — input bar present == /coach/chat
+- extendedWaitUntil:
+    visible:
+      text: "Dis-moi."          # coachInputHint — input bar present == /coach/chat
     timeout: 15000
 # Waitlist guard: the waitlist screen title is `waitlistTitle` ==
 # "Encore en chantier pour ton profil" (app_fr.arb:12570). The prior stub
@@ -125,8 +143,12 @@ appId: ch.mint.app
 - takeScreenshot: "01-coach-reachable-not-waitlist"
 
 # Coach answers a real message (substantive engagement, not waitlist).
-- assertVisible:
-    text: "Réponse du coach"
+# Staging coach LLM verified live (POST /api/v1/anonymous/chat -> 200, ~7s,
+# real reply) at gate time, so a miss here is a routing/product failure, not
+# infra. 30s window covers LLM latency.
+- extendedWaitUntil:
+    visible:
+      text: "Réponse du coach"
     timeout: 30000
 
 # ─── SC-4: navigate /pilier-3a, assert a REAL age (never sentinel) ──────
@@ -138,8 +160,9 @@ appId: ch.mint.app
 # AppBar title `sim3aTitle` == "Ton 3e pilier" (app_fr.arb:4827) — stable
 # semantic locator. The prior stub asserted id:"simulator-3a-root", a key
 # that does not exist in simulator_3a_screen.dart.
-- assertVisible:
-    text: "Ton 3e pilier"
+- extendedWaitUntil:
+    visible:
+      text: "Ton 3e pilier"
     timeout: 10000
 # Sentinel-age guard. age = currentYear - profile.birthYear
 # (rente_vs_capital_screen.dart:195). An UNFLUSHED birthYear (0) yields
@@ -158,8 +181,9 @@ appId: ch.mint.app
 # stub used the underscore intentTag `rente_vs_capital`, which is NOT a
 # route and would not resolve.
 - openLink: "mintapp:///rente-vs-capital"
-- assertVisible:
-    text: "Ton âge"
+- extendedWaitUntil:
+    visible:
+      text: "Ton âge"
     timeout: 10000
 - assertNotVisible:
     text: "Ton âge: 2026"
