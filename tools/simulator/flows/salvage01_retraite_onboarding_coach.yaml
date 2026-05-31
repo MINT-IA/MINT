@@ -87,14 +87,26 @@ appId: ch.mint.app
 - tapOn:
     text: "Continuer"
 
-# ─── T6 insight → T7 scene → T8 bifurcation:Creuser ─────────────────────
+# ─── T6 insight ─────────────────────────────────────────────────────────
 - assertVisible:
     text: "Avant de te montrer…"
     timeout: 5000
 - tapOn:
     text: "Voir"
+
+# ─── T7 scene (MintSceneRenteTrouee — renders the user's REAL currentAge) ─
+# The scene receives provider.ageYears, which is derived from q_birth_year
+# (the SALVAGE-01 flush fix). It must show a real age, not the sentinel.
+- assertVisible:
+    text: "Continuer"
+    timeout: 8000
 - tapOn:
     text: "Continuer"
+
+# ─── T8 bifurcation:Creuser → /coach/chat ───────────────────────────────
+- assertVisible:
+    text: "Creuser"
+    timeout: 5000
 - tapOn:
     text: "Creuser"
 
@@ -102,8 +114,14 @@ appId: ch.mint.app
 - assertVisible:
     text: "Dis-moi."          # coachInputHint — input bar present == /coach/chat
     timeout: 15000
+# Waitlist guard: the waitlist screen title is `waitlistTitle` ==
+# "Encore en chantier pour ton profil" (app_fr.arb:12570). The prior stub
+# asserted against "liste d’attente" (curly apostrophe) which is a SUBSTRING
+# of waitlistAnnounceRedirect using a STRAIGHT apostrophe — the mismatch made
+# the guard trivially pass (false-green). The title is apostrophe-free and is
+# the screen's own header, so it is the robust not-waitlist signal.
 - assertNotVisible:
-    text: "liste d’attente"
+    text: "Encore en chantier pour ton profil"
 - takeScreenshot: "01-coach-reachable-not-waitlist"
 
 # Coach answers a real message (substantive engagement, not waitlist).
@@ -112,20 +130,37 @@ appId: ch.mint.app
     timeout: 30000
 
 # ─── SC-4: navigate /pilier-3a, assert a REAL age (never sentinel) ──────
-- openLink: "mint://pilier-3a"
+# Deeplink form proven by the passing maestro-perfect-set flows:
+#   scheme = `mintapp` (Info.plist CFBundleURLSchemes), then `:///<GoRouter path>`.
+#   The GoRouter route is `/pilier-3a` (app.dart:900). `mint://pilier-3a`
+#   (the prior stub) does NOT resolve — wrong scheme + no host→path map.
+- openLink: "mintapp:///pilier-3a"
+# AppBar title `sim3aTitle` == "Ton 3e pilier" (app_fr.arb:4827) — stable
+# semantic locator. The prior stub asserted id:"simulator-3a-root", a key
+# that does not exist in simulator_3a_screen.dart.
 - assertVisible:
-    id: "simulator-3a-root"
+    text: "Ton 3e pilier"
     timeout: 10000
-# The sentinel-age bug rendered "Ton âge: 2026" or a fabricated "65 ans".
-# A correctly-flushed birth_year yields a real years-to-retirement value.
+# Sentinel-age guard. age = currentYear - profile.birthYear
+# (rente_vs_capital_screen.dart:195). An UNFLUSHED birthYear (0) yields
+# age == 2026 (this calendar year) — the sentinel. A correctly-flushed
+# q_birth_year yields a real age. We assert the raw sentinel value 2026
+# does not surface as an age. (Label "Ton âge" is legitimate i18n and is
+# expected to be present — we never assert against the label itself.)
 - assertNotVisible:
     text: "Ton âge: 2026"
 - assertNotVisible:
     text: "Ton âge : 2026"
 - takeScreenshot: "02-pilier3a-real-age"
 
-# ─── SC-4: navigate rente_vs_capital (arbitrage scene), assert a real age ─
-- openLink: "mint://rente_vs_capital"
+# ─── SC-4: navigate rente-vs-capital (arbitrage scene), assert a real age ─
+# GoRouter route is `/rente-vs-capital` (app.dart:766, hyphen). The prior
+# stub used the underscore intentTag `rente_vs_capital`, which is NOT a
+# route and would not resolve.
+- openLink: "mintapp:///rente-vs-capital"
+- assertVisible:
+    text: "Ton âge"
+    timeout: 10000
 - assertNotVisible:
     text: "Ton âge: 2026"
 - assertNotVisible:
