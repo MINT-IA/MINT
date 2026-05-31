@@ -92,7 +92,7 @@ class MicroActionEngine {
   }) {
     final candidates = <MicroAction>[];
     final now = DateTime.now();
-    final age = now.year - profile.birthYear;
+    final age = profile.ageOrNull;
 
     // ── 1. Temporal urgency ──────────────────────────
     candidates.addAll(_temporalActions(profile, now));
@@ -101,7 +101,9 @@ class MicroActionEngine {
     candidates.addAll(_profileGapActions(profile));
 
     // ── 3. Financial optimization ────────────────────
-    candidates.addAll(_financialActions(profile, age));
+    if (age != null) {
+      candidates.addAll(_financialActions(profile, age));
+    }
 
     // ── 4. Check-in anomalies ────────────────────────
     if (currentCheckIn != null) {
@@ -134,8 +136,9 @@ class MicroActionEngine {
     final actions = <MicroAction>[];
 
     // ── Compute personalized 3a data for TemporalPriority ──
-    final plafond =
-        profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final plafond = profile.employmentStatus == 'independant'
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final verse3a = profile.total3aMensuel * 12;
     final marge3a = (plafond - verse3a).clamp(0.0, plafond);
     final taxSaving3a = marge3a * 0.30; // ~30% marginal estimate
@@ -449,8 +452,7 @@ class MicroActionEngine {
       actions.add(MicroAction(
         id: 'fatca_couple_check',
         title: 'Verifie vos obligations FATCA',
-        description:
-            '$conjName est resident·e US. Vos comptes 3a et LPP '
+        description: '$conjName est resident·e US. Vos comptes 3a et LPP '
             'peuvent etre impactes.',
         category: 'couple',
         estimatedMinutes: 10,
@@ -467,8 +469,7 @@ class MicroActionEngine {
       actions.add(MicroAction(
         id: 'complete_conjoint_profile',
         title: 'Complete le profil de $conjName',
-        description:
-            'Ajoute son salaire pour des projections couple precises.',
+        description: 'Ajoute son salaire pour des projections couple precises.',
         category: 'couple',
         estimatedMinutes: 3,
         deeplink: '/profile/bilan',

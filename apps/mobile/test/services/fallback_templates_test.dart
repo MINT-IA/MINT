@@ -434,6 +434,12 @@ void main() {
       expect(result, contains('LAI art. 28'));
     });
 
+    test('unknown age does not render 0 ans', () {
+      final result = FallbackTemplates.disabilityBridge(_ctx(age: 0));
+      expect(result, isNot(contains('À 0 ans')));
+      expect(result, isNot(contains('0 ans')));
+    });
+
     test('includes LPP and AI references', () {
       final result = FallbackTemplates.disabilityBridge(_ctx());
       expect(result, contains('LAI art. 28'));

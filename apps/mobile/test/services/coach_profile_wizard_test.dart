@@ -354,6 +354,27 @@ void main() {
       expect(profile.goalA.type, GoalAType.retraite);
     });
 
+    test('unresolved secure income placeholder is not treated as user salary',
+        () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_net_income_period_chf': '__secure__',
+      });
+
+      expect(profile.explicitMonthlyNetIncome, isNull);
+      expect(profile.userProvidedFields.contains('salary'), isFalse);
+      expect(profile.salaireBrutMensuel, 0);
+    });
+
+    test('secure income tombstone is not treated as default salary', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_net_income_period_chf': null,
+      });
+
+      expect(profile.explicitMonthlyNetIncome, isNull);
+      expect(profile.userProvidedFields.contains('salary'), isFalse);
+      expect(profile.salaireBrutMensuel, 0);
+    });
+
     test('profil complet avec AVS no_gaps', () {
       final answers = baseAnswers();
       answers['q_avs_lacunes_status'] = 'no_gaps';

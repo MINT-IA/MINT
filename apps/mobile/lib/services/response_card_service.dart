@@ -635,8 +635,9 @@ class ResponseCardService {
 
     final isIndep = profile.employmentStatus == 'independant';
     final hasLpp = (profile.prevoyance.avoirLppTotal ?? 0) > 0;
-    final plafond =
-        isIndep && !hasLpp ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final plafond = isIndep && !hasLpp
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
@@ -722,23 +723,28 @@ class ResponseCardService {
   }
 
   static ResponseCard? _tryReplacementRate(CoachProfile profile, S l) {
-    if (profile.age < 45) return null;
-    if (profile.age >= profile.effectiveRetirementAge) return null;
+    final age = profile.ageOrNull;
+    if (age == null || age < 45) return null;
+    if (age >= profile.effectiveRetirementAge) return null;
     if (profile.salaireBrutMensuel <= 0) return null;
 
     // Use ForecasterService-style projection
     final monthlyAvs = AvsCalculator.computeMonthlyRente(
-      currentAge: profile.age,
+      currentAge: age,
       retirementAge: profile.effectiveRetirementAge,
       arrivalAge: profile.arrivalAge,
       grossAnnualSalary: profile.revenuBrutAnnuel,
-      isFemale: profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null),
+      isFemale:
+          profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null),
       birthYear: profile.birthYear,
     );
 
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
     final lppMonthly = lppAvoir > 0
-        ? (lppAvoir * reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal) / 12) // conservative 5.4% (suroblig estimate)
+        ? (lppAvoir *
+            reg('lpp.conversion_rate_suroblig',
+                lppTauxConversionSurobligDecimal) /
+            12) // conservative 5.4% (suroblig estimate)
         : 0.0;
 
     final totalMonthly = monthlyAvs + lppMonthly;
@@ -746,7 +752,7 @@ class ResponseCardService {
     final currentMonthly = NetIncomeBreakdown.compute(
       grossSalary: profile.revenuBrutAnnuel,
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-      age: profile.age,
+      age: age,
     ).monthlyNetPayslip;
     final replacementRate =
         currentMonthly > 0 ? (totalMonthly / currentMonthly * 100) : 0.0;
@@ -755,8 +761,8 @@ class ResponseCardService {
       id: 'replacement_rate',
       type: ResponseCardType.replacementRate,
       title: l.rcReplacementRateTitle,
-      subtitle: l.rcReplacementRateSubtitle(
-          profile.effectiveRetirementAge.toString()),
+      subtitle: l
+          .rcReplacementRateSubtitle(profile.effectiveRetirementAge.toString()),
       premierEclairage: PremierEclairage(
         value: replacementRate,
         unit: '%',
@@ -770,7 +776,7 @@ class ResponseCardService {
         route: '/rente-vs-capital',
         icon: 'trending_up',
       ),
-      urgency: profile.age >= 58 ? CardUrgency.high : CardUrgency.medium,
+      urgency: age >= 58 ? CardUrgency.high : CardUrgency.medium,
       disclaimer: l.rcDisclaimer,
       sources: const ['LAVS art. 29-40', 'LPP art. 14'],
       alertes: [
@@ -788,7 +794,8 @@ class ResponseCardService {
     final lacunes = (profile.arrivalAge! - 20).clamp(0, 44);
     if (lacunes <= 0) return null;
 
-    final fullRenteMonthly = reg('avs.max_annual_pension', avsRenteMaxAnnuelle) / 12;
+    final fullRenteMonthly =
+        reg('avs.max_annual_pension', avsRenteMaxAnnuelle) / 12;
     final reductionPerYear = fullRenteMonthly / 44;
     final monthlyLoss = reductionPerYear * lacunes;
 
@@ -888,7 +895,8 @@ class ResponseCardService {
 
   static ResponseCard? _tryTaxOptimization(CoachProfile profile, S l) {
     if (profile.salaireBrutMensuel <= 0) return null;
-    if (profile.age < 25) return null;
+    final age = profile.ageOrNull;
+    if (age == null || age < 25) return null;
 
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
@@ -952,9 +960,8 @@ class ResponseCardService {
       id: 'patrimoine_overview',
       type: ResponseCardType.patrimoine,
       title: l.rcPatrimoineTitle,
-      subtitle: isUnderCushion
-          ? l.rcPatrimoineSubtitleLow
-          : l.rcPatrimoineSubtitleOk,
+      subtitle:
+          isUnderCushion ? l.rcPatrimoineSubtitleLow : l.rcPatrimoineSubtitleOk,
       premierEclairage: PremierEclairage(
         value: total,
         unit: 'CHF',
@@ -979,8 +986,7 @@ class ResponseCardService {
       disclaimer: l.rcDisclaimer,
       sources: const [],
       alertes: [
-        if (isUnderCushion)
-          l.rcPatrimoineAlerte(coussinMin.round().toString()),
+        if (isUnderCushion) l.rcPatrimoineAlerte(coussinMin.round().toString()),
       ],
       impactPoints: 12,
     );
@@ -1035,8 +1041,7 @@ class ResponseCardService {
       premierEclairage: PremierEclairage(
         value: mortgage,
         unit: 'CHF',
-        explanation:
-            l.rcMortgageExplanation(propertyValue.round().toString()),
+        explanation: l.rcMortgageExplanation(propertyValue.round().toString()),
       ),
       cta: CardCta(
         label: l.rcMortgageCtaLabel,

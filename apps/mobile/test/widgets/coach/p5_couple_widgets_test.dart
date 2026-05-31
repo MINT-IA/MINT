@@ -648,8 +648,7 @@ void main() {
       // since FATCA action has no route
     });
 
-    testWidgets(
-        'canContribute3a: UI reads same source as engines (prevoyance)',
+    testWidgets('canContribute3a: UI reads same source as engines (prevoyance)',
         (tester) async {
       // Regression test: top-level conj.canContribute3a can diverge
       // from prevoyance.canContribute3a. Only prevoyance is canonical.
@@ -718,6 +717,53 @@ void main() {
       ));
 
       expect(find.textContaining('Plan d\u2019action'), findsNothing);
+    });
+
+    testWidgets('returns shrink when user age is unknown', (tester) async {
+      final profile = _buildCoupleProfile().copyWith(birthYear: 0);
+
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: Scaffold(
+          body: CoupleActionPlan(profile: profile),
+        ),
+      ));
+
+      expect(find.textContaining('Plan d\u2019action'), findsNothing);
+      expect(find.textContaining('retraits sur'), findsNothing);
+    });
+
+    testWidgets('DOB-only user age can drive couple actions', (tester) async {
+      final profile = _buildCoupleProfile().copyWith(
+        birthYear: 0,
+        dateOfBirth: DateTime(DateTime.now().year - 50, 6, 15),
+      );
+
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: CoupleActionPlan(profile: profile),
+          ),
+        ),
+      ));
+
+      expect(find.textContaining('Plan d\u2019action'), findsOneWidget);
+      expect(find.textContaining('retraits sur'), findsOneWidget);
     });
   });
 

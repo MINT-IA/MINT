@@ -14,8 +14,7 @@ import 'package:mint_mobile/services/secure_wizard_store.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const channel =
-      MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
@@ -45,9 +44,9 @@ void main() {
       // The seal degrades gracefully instead of aborting the flush.
       expect(cleaned['q_canton'], 'VD');
       // SEC-10: the sensitive value is sealed-or-dropped, NEVER left as raw
-      // PII in the (plain-SharedPreferences-bound) answer map.
+      // PII or as a dangling secure placeholder in the plain answer map.
       expect(cleaned['q_net_income_period_chf'], isNot('7000'));
-      expect(cleaned['q_net_income_period_chf'], '__secure__');
+      expect(cleaned['q_net_income_period_chf'], isNull);
     });
   });
 
@@ -65,6 +64,24 @@ void main() {
       final restored = await SecureWizardStore.restoreSensitiveKeys(cleaned);
       expect(restored['q_net_income_period_chf'], 7000);
       expect(restored['q_canton'], 'VD');
+    });
+
+    test('deleteAll deletes only wizard-owned keys', () async {
+      FlutterSecureStorage.setMockInitialValues({
+        'auth_token': 'keep-me',
+        'q_net_income_period_chf': '7000',
+        '_coach_depenses_custom': '120',
+      });
+
+      await SecureWizardStore.write('_coach_depenses_custom', '120');
+
+      final deleted = await SecureWizardStore.deleteAll();
+
+      expect(deleted, isTrue);
+      const storage = FlutterSecureStorage();
+      expect(await storage.read(key: 'auth_token'), 'keep-me');
+      expect(await storage.read(key: 'q_net_income_period_chf'), isNull);
+      expect(await storage.read(key: '_coach_depenses_custom'), isNull);
     });
   });
 }

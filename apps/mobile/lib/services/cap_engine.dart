@@ -996,9 +996,10 @@ class CapEngine {
     // P1-7: Also suppress for retired conjoint (age >= 65 or status retraite).
     final conjoint3a = conjoint.prevoyance?.totalEpargne3a ?? 0;
     final conjointCan3a = conjoint.canContribute3a;
-    final conjointAge = conjoint.age ?? 99;
-    final conjointIsRetired =
-        conjointAge >= 65 || conjoint.employmentStatus == 'retraite';
+    final conjointAge = conjoint.age;
+    final conjointIsRetired = conjointAge == null ||
+        conjointAge >= 65 ||
+        conjoint.employmentStatus == 'retraite';
     if (conjoint3a == 0 && conjointCan3a && !conjointIsRetired) {
       caps.add(CapDecision(
         id: 'couple_3a',

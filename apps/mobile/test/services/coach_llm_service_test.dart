@@ -162,8 +162,15 @@ void main() {
     test('mock responses do not contain banned terms', () async {
       // Test all keyword paths
       final keywords = [
-        '3a', 'lpp', 'rachat', 'retraite', 'impot',
-        'fiscal', 'lauren', 'conjoint', 'bonjour',
+        '3a',
+        'lpp',
+        'rachat',
+        'retraite',
+        'impot',
+        'fiscal',
+        'lauren',
+        'conjoint',
+        'bonjour',
       ];
 
       // Use French-aware word-boundary patterns matching ComplianceGuard logic,
@@ -285,6 +292,14 @@ void main() {
       expect(prompt, contains('garanti'));
       expect(prompt, contains('sans risque'));
       expect(prompt, contains('NE dis JAMAIS'));
+    });
+
+    test('system prompt omits age when birth data is unknown', () {
+      final prompt = CoachLlmService.buildSystemPrompt(CoachProfile.defaults());
+
+      expect(prompt, contains('Prenom : utilisateur'));
+      expect(prompt, isNot(contains('Age : 0')));
+      expect(prompt, isNot(contains('0 ans')));
     });
   });
 

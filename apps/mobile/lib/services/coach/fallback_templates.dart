@@ -281,7 +281,7 @@ class FallbackTemplates {
   /// Generates educational content about disability insurance (AI),
   /// LPP disability benefits, and prevoyance gaps.
   static String disabilityBridge(CoachContext ctx) {
-    final ageNote = ctx.age < 55
+    final ageNote = ctx.age > 0 && ctx.age < 55
         ? 'À ${ctx.age} ans, une lacune de prévoyance en cas '
             'd\'invalidité pourrait être significative. '
         : '';

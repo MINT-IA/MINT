@@ -111,17 +111,14 @@ tags:
     timeout: 4000
 - assertNotVisible: "NaN"
 - assertNotVisible: "Infinity"
-# The leading budget fact rendered in the chat-open "Point de départ" packet.
-# POST-FIX (SALVAGE-00 SC-4): CoachPacketInsightPresenter._factPriority now
-# lists budget.monthly_free BEFORE budget.monthly_capacity, so the leading
-# coach fact reads "Marge libre: CHF <monthlyFree>" (the converged Disponible),
-# not "Capacité mensuelle: CHF <capacity>". The comparator extracts the CHF
-# token after "CHF" regardless of the label, so a true convergence => PASS and
-# any residual divergence => FAIL (honest verdict, not a flow bug).
+# The primary coach-open number, not the secondary "Point de départ" packet.
+# SALVAGE-00 closure requires the large visible number to use the same
+# monthlyFree as Budget + Mon Argent; copying only "Marge libre.*" from the
+# packet can pass while the primary number still shows LPP/3a.
 - assertVisible:
-    text: "Marge libre.*"
+    id: "coach_silent_opener_primary_number"
 - copyTextFrom:
-    text: "Marge libre.*"
+    id: "coach_silent_opener_primary_number"
 - evalScript: ${output.sc4_coach = maestro.copiedText}
 - takeScreenshot: "sc4-coach-surface"
 

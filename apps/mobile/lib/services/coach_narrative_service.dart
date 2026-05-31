@@ -297,7 +297,7 @@ class CoachNarrativeService {
       firstName: profile.firstName?.trim().isNotEmpty == true
           ? profile.firstName!
           : '',
-      age: profile.age,
+      age: profile.ageOrNull ?? 0,
       canton: profile.canton,
       archetype: archetype,
       primaryFocus: primaryFocus,
@@ -538,7 +538,9 @@ class CoachNarrativeService {
     // branch because ageOrNull != null implies anneesAvantRetraite != null.
     final retirementAge = profile.ageOrNull;
     final yearsLeftOrNull = profile.anneesAvantRetraite;
-    if (retirementAge != null && retirementAge >= 45 && yearsLeftOrNull != null) {
+    if (retirementAge != null &&
+        retirementAge >= 45 &&
+        yearsLeftOrNull != null) {
       final yearsLeft = yearsLeftOrNull;
       final retAge = profile.effectiveRetirementAge;
       // When less than 2 years away, show months for precision.
@@ -785,7 +787,7 @@ class CoachNarrativeService {
         (profile.firstName != null && profile.firstName!.isNotEmpty)
             ? profile.firstName!
             : 'toi';
-    final age = profile.age;
+    final age = profile.ageOrNull;
     final etatCivil = profile.etatCivil.name;
     final employmentStatus = profile.employmentStatus;
     final canton = profile.canton;
@@ -834,8 +836,9 @@ class CoachNarrativeService {
     }).join('\n');
 
     final buffer = StringBuffer();
+    final ageSegment = age == null ? '' : ', $age ans';
     buffer.writeln(
-        'Tu es le coach financier MINT. Tu parles a $firstName, $age ans, $etatCivil,');
+        'Tu es le coach financier MINT. Tu parles a $firstName$ageSegment, $etatCivil,');
     buffer.writeln('$employmentStatus dans le canton de $canton.');
     buffer.writeln();
     buffer.writeln('DONNEES FINANCIERES :');
@@ -965,12 +968,12 @@ class CoachNarrativeService {
       final salary = profile.revenuBrutAnnuel;
       final refAge2 =
           reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-      if (salary > 0 && profile.age < refAge2) {
+      if (salary > 0 && currentAge < refAge2) {
         final avsMonthly = AvsCalculator.renteFromRAMD(salary);
         final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
         final lppAnnual = LppCalculator.projectToRetirement(
           currentBalance: lppBalance,
-          currentAge: profile.age,
+          currentAge: currentAge,
           retirementAge: refAge2,
           grossAnnualSalary: salary,
           caisseReturn: 0.01,
@@ -1048,8 +1051,7 @@ class CoachNarrativeService {
         snippetAge >= 55 &&
         snippetYearsLeft != null &&
         snippetYearsLeft <= 10) {
-      snippets.add(
-          'SNIPPET COORDINATION: A $snippetYearsLeft ans de la '
+      snippets.add('SNIPPET COORDINATION: A $snippetYearsLeft ans de la '
           'retraite, la coordination des retraits (3a echelonne, LPP '
           'rente/capital, AVS anticipation/ajournement) peut avoir un '
           'impact fiscal significatif.');
@@ -1083,7 +1085,8 @@ class CoachNarrativeService {
     const avgReturn = 0.02; // Conservative 3a average
 
     final retAge = profile.effectiveRetirementAge;
-    final age = profile.age;
+    final age = profile.ageOrNull;
+    if (age == null) return null;
 
     // Backward: if started maxing 3a at age 30
     final yearsIfStarted30 = (age - 30).clamp(0, 40);
@@ -1237,7 +1240,10 @@ class CoachNarrativeService {
     // Recompute the `parts` summary inside the impl so the test hook stays
     // self-contained.
     final parts = <String>[];
-    parts.add('Age : ${profile.age} ans');
+    final age = profile.ageOrNull;
+    if (age != null) {
+      parts.add('Age : $age ans');
+    }
     parts.add('Canton : ${profile.canton}');
     parts.add('Statut : ${profile.etatCivil.name}');
     if (profile.salaireBrutMensuel > 0) {
@@ -1281,7 +1287,6 @@ class CoachNarrativeService {
     final prev = profile.prevoyance;
     final result = <String, dynamic>{
       'canton': profile.canton,
-      'age': profile.age,
       'civil_status': profile.etatCivil.name,
       'marital_status': profile.etatCivil.name,
       'employment_status': profile.employmentStatus,
@@ -1306,6 +1311,9 @@ class CoachNarrativeService {
       // Adaptive Pulse / Goal context.
       if (profile.primaryFocus != null) 'primary_focus': profile.primaryFocus,
     };
+    if (age != null) {
+      result['age'] = age;
+    }
     return result;
   }
 

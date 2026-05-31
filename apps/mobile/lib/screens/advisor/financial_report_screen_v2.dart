@@ -236,17 +236,18 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     const SizedBox(height: MintSpacing.lg),
 
                     // ── Life event suggestions based on profile ──
-                    LifeEventSuggestionsSection(
-                      suggestions: buildLifeEventSuggestions(
-                        age: report.profile.age,
-                        civilStatus: report.profile.civilStatus,
-                        childrenCount: report.profile.childrenCount,
-                        employmentStatus: report.profile.employmentStatus,
-                        monthlyNetIncome: report.profile.monthlyNetIncome,
-                        canton: report.profile.canton,
-                        s: S.of(context)!,
+                    if (report.profile.ageOrNull != null)
+                      LifeEventSuggestionsSection(
+                        suggestions: buildLifeEventSuggestions(
+                          age: report.profile.ageOrNull!,
+                          civilStatus: report.profile.civilStatus,
+                          childrenCount: report.profile.childrenCount,
+                          employmentStatus: report.profile.employmentStatus,
+                          monthlyNetIncome: report.profile.monthlyNetIncome,
+                          canton: report.profile.canton,
+                          s: S.of(context)!,
+                        ),
                       ),
-                    ),
 
                     const SizedBox(height: MintSpacing.xl),
 
@@ -294,11 +295,17 @@ class FinancialReportScreenV2 extends StatelessWidget {
               style: MintTextStyles.headlineLarge(color: MintColors.white),
             ),
             const SizedBox(height: MintSpacing.sm),
-            Text(
-              S.of(context)!.reportProfileSummary(
-                  profile.age, profile.canton, profile.civilStatus),
-              style: MintTextStyles.bodyMedium(color: MintColors.white70),
-            ),
+            if (profile.ageOrNull != null)
+              Text(
+                S.of(context)!.reportProfileSummary(
+                    profile.ageOrNull!, profile.canton, profile.civilStatus),
+                style: MintTextStyles.bodyMedium(color: MintColors.white70),
+              )
+            else
+              Text(
+                '${profile.canton} · ${profile.civilStatus}',
+                style: MintTextStyles.bodyMedium(color: MintColors.white70),
+              ),
             const SizedBox(height: 20),
             // Contextual status phrase (replaces XX/100 score)
             _buildStatusSummary(context, healthScore),
@@ -1174,12 +1181,15 @@ class FinancialReportScreenV2 extends StatelessWidget {
         _parseDoubleAnswer(answers['q_gross_salary_annual']);
     final declaredMonthlyGross =
         _parseDoubleAnswer(answers['q_gross_income_monthly']);
+    final age = profile.ageOrNull;
     final annualGrossSalary = declaredAnnualGross ??
         (declaredMonthlyGross != null ? declaredMonthlyGross * 12 : null) ??
-        NetIncomeBreakdown.estimateBrutFromNet(
-          profile.monthlyNetIncome * 12,
-          age: profile.age,
-        );
+        (age == null
+            ? profile.monthlyNetIncome * 12
+            : NetIncomeBreakdown.estimateBrutFromNet(
+                profile.monthlyNetIncome * 12,
+                age: age,
+              ));
     final declaredLpp = _parseBoolAnswer(answers['q_has_pension_fund']);
     final hasLpp = declaredLpp ??
         (profile.isSalaried &&

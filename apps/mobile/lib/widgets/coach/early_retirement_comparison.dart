@@ -28,27 +28,32 @@ class EarlyRetirementComparison extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (profile.age < 45) return const SizedBox.shrink();
+    final currentAge = profile.ageOrNull;
+    if (currentAge == null || currentAge < 45) {
+      return const SizedBox.shrink();
+    }
 
     final grossMonthlySalary = profile.revenuBrutAnnuel / 12;
     if (grossMonthlySalary <= 0) return const SizedBox.shrink();
 
     final isCouple = profile.isCouple &&
         profile.conjoint?.birthYear != null &&
+        profile.conjoint?.age != null &&
         (profile.conjoint?.salaireBrutMensuel ?? 0) > 0;
 
     final ages = [63, 64, 65, 67, 70];
     final rows = <_ComparisonRow>[];
 
     // F3-3: Gender-aware AVS21 reference age for early retirement comparison.
-    final ercIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
+    final ercIsFemale =
+        profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
 
     for (final retAge in ages) {
-      if (retAge <= profile.age) continue;
+      if (retAge <= currentAge) continue;
 
       // ── User AVS (with lacunes + arrivalAge — LAVS art. 29) ──
       double avsUserMonthly = AvsCalculator.computeMonthlyRente(
-        currentAge: profile.age,
+        currentAge: currentAge,
         retirementAge: retAge,
         grossAnnualSalary: profile.revenuBrutAnnuel,
         lacunes: profile.prevoyance.lacunesAVS ?? 0,
@@ -62,7 +67,7 @@ class EarlyRetirementComparison extends StatelessWidget {
       final lppBalance = profile.prevoyance.avoirLppTotal ?? 0;
       final lppRente = LppCalculator.projectToRetirement(
         currentBalance: lppBalance,
-        currentAge: profile.age,
+        currentAge: currentAge,
         retirementAge: retAge,
         grossAnnualSalary: profile.revenuBrutAnnuel,
         caisseReturn: profile.prevoyance.rendementCaisse,
@@ -75,12 +80,13 @@ class EarlyRetirementComparison extends StatelessWidget {
       double lppConjMonthly = 0;
       if (isCouple) {
         final conj = profile.conjoint!;
-        final conjAge = conj.age ?? profile.age;
+        final conjAge = conj.age!;
         // Conjoint retires at their own effective age; project at same retAge
         // only if it's above their current age
         if (retAge > conjAge) {
           // F6-2: Pass conjoint gender/birthYear for AVS21 transitional age.
-          final conjIsFemale = conj.gender == 'F' ? true : (conj.gender == 'M' ? false : null);
+          final conjIsFemale =
+              conj.gender == 'F' ? true : (conj.gender == 'M' ? false : null);
           avsConjMonthly = AvsCalculator.computeMonthlyRente(
             currentAge: conjAge,
             retirementAge: retAge.clamp(conjAge + 1, 70),
@@ -99,7 +105,8 @@ class EarlyRetirementComparison extends StatelessWidget {
               retirementAge: retAge.clamp(conjAge + 1, 70),
               grossAnnualSalary: (conj.salaireBrutMensuel ?? 0) * 12,
               caisseReturn: conj.prevoyance?.rendementCaisse ?? 0.02,
-              conversionRate: conj.prevoyance?.tauxConversion ?? lppTauxConversionMinDecimal,
+              conversionRate: conj.prevoyance?.tauxConversion ??
+                  lppTauxConversionMinDecimal,
             );
             lppConjMonthly = conjLppRente / 12;
           }
@@ -118,21 +125,24 @@ class EarlyRetirementComparison extends StatelessWidget {
         avsConjMonthly = capped.conjoint;
       }
 
-      final totalMonthly = avsUserMonthly + lppUserMonthly +
-          avsConjMonthly + lppConjMonthly +
-          baseThreeAMonthly + baseLibreMonthly;
+      final totalMonthly = avsUserMonthly +
+          lppUserMonthly +
+          avsConjMonthly +
+          lppConjMonthly +
+          baseThreeAMonthly +
+          baseLibreMonthly;
 
       // Replacement rate on household NET salary
       final userNet = NetIncomeBreakdown.compute(
         grossSalary: profile.revenuBrutAnnuel,
         canton: profile.canton,
-        age: profile.age,
+        age: currentAge,
       ).monthlyNetPayslip;
       final conjNet = isCouple
           ? NetIncomeBreakdown.compute(
               grossSalary: (profile.conjoint!.salaireBrutMensuel ?? 0) * 12,
               canton: profile.canton,
-              age: profile.conjoint!.age ?? profile.age,
+              age: profile.conjoint!.age!,
             ).monthlyNetPayslip
           : 0.0;
       final householdNet = userNet + conjNet;
@@ -162,7 +172,8 @@ class EarlyRetirementComparison extends StatelessWidget {
         children: [
           Text(
             'Comparaison retraite anticip\u00e9e',
-            style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+            style: MintTextStyles.labelLarge(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
@@ -178,17 +189,23 @@ class EarlyRetirementComparison extends StatelessWidget {
               SizedBox(
                 width: 50,
                 child: Text('Age',
-                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
+                    style:
+                        MintTextStyles.labelSmall(color: MintColors.textMuted)
+                            .copyWith(fontWeight: FontWeight.w600)),
               ),
               Expanded(
                 child: Text('Revenu mensuel',
-                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
+                    style:
+                        MintTextStyles.labelSmall(color: MintColors.textMuted)
+                            .copyWith(fontWeight: FontWeight.w600)),
               ),
               SizedBox(
                 width: 70,
                 child: Text('Taux',
                     textAlign: TextAlign.right,
-                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w600)),
+                    style:
+                        MintTextStyles.labelSmall(color: MintColors.textMuted)
+                            .copyWith(fontWeight: FontWeight.w600)),
               ),
             ],
           ),
@@ -201,18 +218,19 @@ class EarlyRetirementComparison extends StatelessWidget {
             child: InkWell(
               onTap: () => context.push('/coach/cockpit'),
               child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Simuler ta retraite anticip\u00e9e',
-                  style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(width: 4),
-                const Icon(Icons.arrow_forward,
-                    size: 16, color: MintColors.primary),
-              ],
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Simuler ta retraite anticip\u00e9e',
+                    style: MintTextStyles.bodySmall(color: MintColors.primary)
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_forward,
+                      size: 16, color: MintColors.primary),
+                ],
+              ),
             ),
-          ),
           ),
           const SizedBox(height: 6),
           Text(
@@ -244,13 +262,15 @@ class EarlyRetirementComparison extends StatelessWidget {
               children: [
                 Text(
                   '${r.age}',
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: textWeight),
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+                          .copyWith(fontWeight: textWeight),
                 ),
                 if (r.isTarget)
                   const Padding(
                     padding: EdgeInsets.only(left: 4),
-                    child: Icon(Icons.star,
-                        size: 12, color: MintColors.primary),
+                    child:
+                        Icon(Icons.star, size: 12, color: MintColors.primary),
                   ),
               ],
             ),
@@ -258,7 +278,8 @@ class EarlyRetirementComparison extends StatelessWidget {
           Expanded(
             child: Text(
               formatChfWithPrefix(r.totalMonthly),
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: textWeight),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                  .copyWith(fontWeight: textWeight),
             ),
           ),
           SizedBox(
@@ -266,11 +287,13 @@ class EarlyRetirementComparison extends StatelessWidget {
             child: Text(
               '${(r.replacementRate * 100).toStringAsFixed(0)}%',
               textAlign: TextAlign.right,
-              style: MintTextStyles.bodyMedium(color: r.replacementRate >= 0.60
-                    ? MintColors.scoreGreen
-                    : r.replacementRate >= 0.45
-                        ? MintColors.scoreAttention
-                        : MintColors.scoreRed).copyWith(fontWeight: textWeight),
+              style: MintTextStyles.bodyMedium(
+                      color: r.replacementRate >= 0.60
+                          ? MintColors.scoreGreen
+                          : r.replacementRate >= 0.45
+                              ? MintColors.scoreAttention
+                              : MintColors.scoreRed)
+                  .copyWith(fontWeight: textWeight),
             ),
           ),
         ],

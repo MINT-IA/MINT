@@ -91,6 +91,8 @@ class CoachingProfile {
     this.etatCivil = EtatCivil.celibataire,
     this.lastCheckInDepensesExceptionnelles,
   });
+
+  int? get ageOrNull => age > 0 ? age : null;
 }
 
 /// A single coaching tip.
@@ -130,13 +132,16 @@ class CoachingService {
   // ──────────────────────────────────────────────────────────
 
   /// 3a ceiling for salaried employees (2025/2026, OPP3 art. 7).
-  static double get _plafond3aSalarie => reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+  static double get _plafond3aSalarie =>
+      reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
   /// 3a ceiling for self-employed without LPP (2025/2026, OPP3 art. 7).
-  static double get _plafond3aIndependant => reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
+  static double get _plafond3aIndependant =>
+      reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
   /// Swiss legal retirement age (post-AVS21 reform, unified at 65).
-  static int get _ageRetraite => reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+  static int get _ageRetraite =>
+      reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
 
   // Cantonal marginal tax rates removed — replaced by
   // RetirementTaxCalculator.estimateMarginalRate(income, canton)
@@ -242,10 +247,9 @@ class CoachingService {
           provider: provider ?? 'openai',
           model: model,
           profileContext: {
-            'age': profile.age,
+            if (profile.ageOrNull != null) 'age': profile.ageOrNull,
             'canton': profile.canton,
-            'financial_summary':
-                _buildFinancialSummary(profile),
+            'financial_summary': _buildFinancialSummary(profile),
           },
         );
 
@@ -284,8 +288,7 @@ TIP :
 - Source : ${tip.source}
 
 PROFIL :
-- Age : ${profile.age} ans
-- Canton : ${profile.canton}
+${profile.ageOrNull == null ? '' : '- Age : ${profile.ageOrNull} ans\n'}- Canton : ${profile.canton}
 - Statut civil : ${profile.etatCivil.name}
 - Emploi : ${profile.employmentStatus.name} (${profile.tauxActivite}%)
 - Revenu annuel : ${formatChfWithPrefix(profile.revenuAnnuel)}
@@ -302,8 +305,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   static String _buildFinancialSummary(
     CoachingProfile profile,
   ) {
-    return '${profile.age} ans, ${profile.canton}, '
-        '${profile.employmentStatus.name}, '
+    final agePrefix =
+        profile.ageOrNull == null ? '' : '${profile.ageOrNull} ans, ';
+    return '$agePrefix${profile.canton}, ${profile.employmentStatus.name}, '
         'revenu ${formatChfWithPrefix(profile.revenuAnnuel)}';
   }
 
@@ -358,7 +362,8 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     final restant = plafond - profile.montant3a;
     if (restant <= 0) return;
 
-    final tauxMarginal = _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
+    final tauxMarginal =
+        _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
     final impact = restant * tauxMarginal;
 
     tips.add(CoachingTip(
@@ -392,7 +397,8 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     final plafond = profile.employmentStatus == EmploymentStatus.independant
         ? _plafond3aIndependant
         : _plafond3aSalarie;
-    final tauxMarginal = _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
+    final tauxMarginal =
+        _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
     final impact = plafond * tauxMarginal;
 
     tips.add(CoachingTip(
@@ -400,8 +406,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       category: 'prevoyance',
       priority: CoachingPriority.haute,
       title: 'Tu n\'as pas de 3e pilier',
-      message:
-          'Ouvrir un 3e pilier te permettrait de déduire jusqu\'à '
+      message: 'Ouvrir un 3e pilier te permettrait de déduire jusqu\'à '
           '${formatChfWithPrefix(plafond)} de ton revenu imposable chaque année. '
           'L\'impact fiscal indicatif est de ${formatChfWithPrefix(impact)} par an '
           'dans le canton de ${profile.canton}.',
@@ -420,7 +425,8 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     if (!profile.hasLpp) return;
     if (profile.lacuneLpp <= 0) return;
 
-    final tauxMarginal = _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
+    final tauxMarginal =
+        _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
     // Recommend max 20% of income or available lacune, whichever is smaller
     final double rachatRecommande =
         (profile.lacuneLpp).clamp(0.0, profile.revenuAnnuel * 0.2);
@@ -464,12 +470,10 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     tips.add(CoachingTip(
       id: 'tax_deadline',
       category: 'fiscalite',
-      priority: daysLeft <= 14
-          ? CoachingPriority.haute
-          : CoachingPriority.moyenne,
+      priority:
+          daysLeft <= 14 ? CoachingPriority.haute : CoachingPriority.moyenne,
       title: 'Déclaration d\'impôts à rendre',
-      message:
-          'Le délai pour ta déclaration fiscale dans le canton de '
+      message: 'Le délai pour ta déclaration fiscale dans le canton de '
           '${profile.canton} est le 31 mars. Il reste $daysLeft jours. '
           'Pense à rassembler tes attestations 3a, certificats LPP, '
           'frais effectifs et dons déductibles.',
@@ -485,9 +489,10 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     CoachingProfile profile,
     List<CoachingTip> tips,
   ) {
-    if (profile.age < 50) return;
+    final age = profile.ageOrNull;
+    if (age == null || age < 50) return;
 
-    final yearsLeft = _ageRetraite - profile.age;
+    final yearsLeft = _ageRetraite - age;
     if (yearsLeft <= 0) return;
 
     final priority =
@@ -498,8 +503,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       category: 'retraite',
       priority: priority,
       title: 'Retraite dans $yearsLeft ans',
-      message:
-          'À $yearsLeft ans de la retraite, il est important de vérifier '
+      message: 'À $yearsLeft ans de la retraite, il est important de vérifier '
           'ta stratégie de prévoyance. As-tu optimisé tes rachats '
           'LPP ? Tes comptes 3a sont-ils diversifiés ? Rente ou capital : '
           'as-tu fait ton choix ?',
@@ -522,15 +526,13 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     final monthsCovered = profile.epargneDispo / profile.chargesFixesMensuelles;
     if (monthsCovered >= 3) return;
 
-    final deficit =
-        (3 * profile.chargesFixesMensuelles) - profile.epargneDispo;
+    final deficit = (3 * profile.chargesFixesMensuelles) - profile.epargneDispo;
 
     tips.add(CoachingTip(
       id: 'emergency_fund',
       category: 'budget',
-      priority: monthsCovered < 1
-          ? CoachingPriority.haute
-          : CoachingPriority.moyenne,
+      priority:
+          monthsCovered < 1 ? CoachingPriority.haute : CoachingPriority.moyenne,
       title: 'Réserve d\'urgence insuffisante',
       message:
           'Ton épargne disponible couvre ${monthsCovered.toStringAsFixed(1)} '
@@ -564,12 +566,10 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     tips.add(CoachingTip(
       id: 'debt_ratio',
       category: 'budget',
-      priority: ratio > 0.50
-          ? CoachingPriority.haute
-          : CoachingPriority.moyenne,
+      priority:
+          ratio > 0.50 ? CoachingPriority.haute : CoachingPriority.moyenne,
       title: 'Taux d\'endettement élevé ($ratioPct%)',
-      message:
-          'Ton taux d\'endettement estimé est de $ratioPct%, '
+      message: 'Ton taux d\'endettement estimé est de $ratioPct%, '
           'au-dessus du seuil de 33% recommandé par les banques suisses. '
           'Réduire tes dettes améliore ta capacité d\'emprunt et '
           'ta tranquillité financière.',
@@ -585,17 +585,16 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     CoachingProfile profile,
     List<CoachingTip> tips,
   ) {
-    if (!_ageMilestones.contains(profile.age)) return;
+    final age = profile.ageOrNull;
+    if (age == null || !_ageMilestones.contains(age)) return;
 
-    final milestone = _getMilestoneMessage(profile.age);
+    final milestone = _getMilestoneMessage(age);
     if (milestone == null) return;
 
     tips.add(CoachingTip(
-      id: 'age_milestone_${profile.age}',
+      id: 'age_milestone_$age',
       category: 'prevoyance',
-      priority: profile.age >= 50
-          ? CoachingPriority.moyenne
-          : CoachingPriority.basse,
+      priority: age >= 50 ? CoachingPriority.moyenne : CoachingPriority.basse,
       title: milestone.title,
       message: milestone.message,
       action: milestone.action,
@@ -618,10 +617,14 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     final reductionPct = (100 - profile.tauxActivite).toStringAsFixed(0);
 
     // Rough estimate: LPP contribution gap using age-based bonification (LPP art. 16)
-    final lppRate = getLppBonificationRate(profile.age);
-    final deductionCoord = reg('lpp.coordination_deduction', lppDeductionCoordination);
+    final age = profile.ageOrNull;
+    if (age == null) return;
+    final lppRate = getLppBonificationRate(age);
+    final deductionCoord =
+        reg('lpp.coordination_deduction', lppDeductionCoordination);
     final maxCoord = reg('lpp.max_coordinated_salary', lppSalaireCoordMax);
-    final salaireCoordonne = (profile.revenuAnnuel - deductionCoord).clamp(0, maxCoord);
+    final salaireCoordonne =
+        (profile.revenuAnnuel - deductionCoord).clamp(0, maxCoord);
     final cotisLppAnnuelle = salaireCoordonne * lppRate;
     final cotisPleinTemps =
         (profile.revenuAnnuel / (profile.tauxActivite / 100) - deductionCoord)
@@ -636,8 +639,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
           ? CoachingPriority.haute
           : CoachingPriority.moyenne,
       title: 'Temps partiel : lacune de prévoyance',
-      message:
-          'À $tauxPct% d\'activité, ta prévoyance professionnelle est '
+      message: 'À $tauxPct% d\'activité, ta prévoyance professionnelle est '
           'réduite d\'environ $reductionPct%. La déduction de coordination '
           'de CHF 26\'460 pénalise davantage les temps partiels. '
           'Envisage un rachat LPP ou un versement 3a supplémentaire '
@@ -657,7 +659,8 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     if (profile.employmentStatus != EmploymentStatus.independant) return;
 
     final plafond3a = _plafond3aIndependant;
-    final tauxMarginal = _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
+    final tauxMarginal =
+        _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
     final impact = plafond3a * tauxMarginal;
 
     tips.add(CoachingTip(
@@ -665,8 +668,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       category: 'prevoyance',
       priority: CoachingPriority.haute,
       title: 'Indépendant : pas de LPP obligatoire',
-      message:
-          'En tant qu\'indépendant, tu n\'es pas soumis à la LPP '
+      message: 'En tant qu\'indépendant, tu n\'es pas soumis à la LPP '
           'obligatoire. Ta prévoyance repose sur l\'AVS et ton 3e '
           'pilier (plafond ${formatChfWithPrefix(plafond3a)}). Pense à une '
           'affiliation volontaire à une caisse de pension ou à maximiser '
@@ -690,8 +692,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       category: 'budget',
       priority: CoachingPriority.moyenne,
       title: 'Pas encore de budget',
-      message:
-          'Un budget structuré est la base de toute stratégie financière. '
+      message: 'Un budget structuré est la base de toute stratégie financière. '
           'Il permet d\'identifier ta capacité d\'épargne réelle et '
           'de fixer des objectifs concrets. MINT peut t\'aider à en '
           'créer un en quelques minutes.',
@@ -718,7 +719,8 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     final restant = plafond - profile.montant3a;
     if (restant <= 0) return;
 
-    final tauxMarginal = _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
+    final tauxMarginal =
+        _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
     final impact = restant * tauxMarginal;
 
     tips.add(CoachingTip(
@@ -757,9 +759,8 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     tips.add(CoachingTip(
       id: 'budget_drift',
       category: 'budget',
-      priority: ratio > 0.40
-          ? CoachingPriority.haute
-          : CoachingPriority.moyenne,
+      priority:
+          ratio > 0.40 ? CoachingPriority.haute : CoachingPriority.moyenne,
       title: 'D\u00e9penses exceptionnelles \u00e9lev\u00e9es',
       message:
           'Tes d\u00e9penses exceptionnelles du dernier mois repr\u00e9sentent '
@@ -782,8 +783,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       case 25:
         return const _MilestoneInfo(
           title: '25 ans : démarrer son 3e pilier',
-          message:
-              'À 25 ans, c\'est le moment idéal pour ouvrir un 3e pilier. '
+          message: 'À 25 ans, c\'est le moment idéal pour ouvrir un 3e pilier. '
               'Grâce aux intérêts composés, chaque année compte. '
               'Même un petit versement mensuel fait une grande différence '
               'sur 40 ans.',
@@ -793,8 +793,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       case 35:
         return const _MilestoneInfo(
           title: '35 ans : faire le point prévoyance',
-          message:
-              'À 35 ans, vérifie que ta prévoyance est sur la bonne '
+          message: 'À 35 ans, vérifie que ta prévoyance est sur la bonne '
               'trajectoire. As-tu un 3a ? Ta LPP est-elle '
               'suffisante ? C\'est aussi l\'âge où un rachat LPP '
               'commence à devenir intéressant fiscalement.',
@@ -804,8 +803,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       case 45:
         return const _MilestoneInfo(
           title: '45 ans : optimiser sa stratégie',
-          message:
-              'À 45 ans, il reste 20 ans avant la retraite. C\'est le '
+          message: 'À 45 ans, il reste 20 ans avant la retraite. C\'est le '
               'moment d\'optimiser : maximiser le 3a, envisager des '
               'rachats LPP, et diversifier. Chaque franc investi '
               'aujourd\'hui a encore du temps pour fructifier.',
@@ -815,8 +813,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       case 50:
         return const _MilestoneInfo(
           title: '50 ans : préparer sa retraite',
-          message:
-              'À 50 ans, la retraite se rapproche. Vérifie ton avoir '
+          message: 'À 50 ans, la retraite se rapproche. Vérifie ton avoir '
               'LPP, planifie tes derniers rachats, et commence à '
               'réfléchir au choix rente vs capital. Anticipe aussi '
               'l\'impact fiscal du retrait.',
@@ -826,8 +823,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       case 55:
         return const _MilestoneInfo(
           title: '55 ans : dernière ligne droite',
-          message:
-              'À 55 ans, la planification fiscale du retrait devient '
+          message: 'À 55 ans, la planification fiscale du retrait devient '
               'cruciale. Échelonner les retraits 3a sur plusieurs années '
               'fiscales peut représenter une économie significative. '
               'Prépare ta stratégie de décumulation.',
@@ -837,8 +833,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       case 58:
         return const _MilestoneInfo(
           title: '58 ans : retraite anticipée possible',
-          message:
-              'Dès 58 ans, tu peux envisager un retrait anticipé de '
+          message: 'Dès 58 ans, tu peux envisager un retrait anticipé de '
               'ton 2e pilier dans certaines caisses. Attention : la '
               'rente sera réduite (environ 6% par année d\'anticipation). '
               'Évalue l\'impact sur ton budget.',
@@ -848,8 +843,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       case 63:
         return const _MilestoneInfo(
           title: '63 ans : derniers ajustements',
-          message:
-              'À 2 ans de la retraite légale, finalise ta stratégie. '
+          message: 'À 2 ans de la retraite légale, finalise ta stratégie. '
               'Dernier rachat LPP (attention au délai de 3 ans avant '
               'retrait), choix rente/capital, et organisation du '
               'budget post-retraite.',
@@ -890,8 +884,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   /// Get the estimated marginal tax rate for a given income and canton.
   /// Delegates to RetirementTaxCalculator.estimateMarginalRate (financial_core).
   static double _getTauxMarginal(String canton, {double revenuAnnuel = 80000}) {
-    return RetirementTaxCalculator.estimateMarginalRate(
-        revenuAnnuel, canton);
+    return RetirementTaxCalculator.estimateMarginalRate(revenuAnnuel, canton);
   }
 
   /// Format a CHF amount with Swiss apostrophe separator.

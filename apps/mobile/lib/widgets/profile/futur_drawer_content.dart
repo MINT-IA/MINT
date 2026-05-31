@@ -58,13 +58,14 @@ class FuturDrawerContent extends StatelessWidget {
     // Conjoint disposable income (couple only)
     double? disposableCouple;
     if (p.isCouple && conjoint != null) {
-      final conjointExtra = conjoint.revenuBrutAnnuel > 0
+      final conjointAge = conjoint.age;
+      final conjointExtra = conjoint.revenuBrutAnnuel > 0 && conjointAge != null
           ? NetIncomeBreakdown.compute(
-              grossSalary: conjoint.revenuBrutAnnuel,
-              canton: p.canton,
-              age: conjoint.age ?? 45,
-            ).disposableIncome /
-            12
+                grossSalary: conjoint.revenuBrutAnnuel,
+                canton: p.canton,
+                age: conjointAge,
+              ).disposableIncome /
+              12
           : 0.0;
       disposableCouple = breakdown.disposableIncome / 12 + conjointExtra;
     }
@@ -75,8 +76,7 @@ class FuturDrawerContent extends StatelessWidget {
       ageRetraite: p.effectiveRetirementAge,
       conjointAgeRetraite: conjoint?.effectiveRetirementAge,
       renteAvsUser: prev.renteAVSEstimeeMensuelle ?? 0,
-      renteAvsConjoint:
-          p.isCouple ? (cp?.renteAVSEstimeeMensuelle ?? 0) : null,
+      renteAvsConjoint: p.isCouple ? (cp?.renteAVSEstimeeMensuelle ?? 0) : null,
       renteLppUser: (prev.avoirLppTotal ?? 0) * prev.tauxConversion / 12,
       renteLppConjoint: p.isCouple
           ? (cp?.avoirLppTotal ?? 0) *

@@ -1361,7 +1361,7 @@ class CoachOrchestrator {
     // Disability: flag coverage gaps for working-age users
     final hasDisabilityData =
         ctx.dataReliability.keys.any((k) => k.contains('invalidit'));
-    if (ctx.age < 55 && !hasDisabilityData) {
+    if (ctx.age > 0 && ctx.age < 55 && !hasDisabilityData) {
       return FallbackTemplates.disabilityBridge(ctx);
     }
 

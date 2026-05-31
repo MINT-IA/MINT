@@ -25,6 +25,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 
@@ -120,6 +121,95 @@ Widget _buildTestAppWithProfile(
 void main() {
   setUpAll(() {
     SharedPreferences.setMockInitialValues({});
+  });
+
+  group('WidgetRenderer.build — ask_user_input identity capture', () {
+    testWidgets('legacy age field renders date-of-birth picker',
+        (tester) async {
+      late Widget? rendered;
+      await tester.pumpWidget(_buildTestApp((context) {
+        rendered = WidgetRenderer.build(
+          context,
+          const RagToolCall(
+            name: 'ask_user_input',
+            input: {
+              'field': 'age',
+              'message': 'Quelle est ta date de naissance ?',
+            },
+          ),
+        );
+        return rendered ?? const SizedBox();
+      }));
+      await tester.pump();
+
+      expect(find.byType(ChatDateOfBirthPicker), findsOneWidget);
+      expect(find.text('Quelle est ta date de naissance ?'), findsOneWidget);
+      expect(find.text('Choisir ma date'), findsOneWidget);
+    });
+
+    testWidgets('date picker emits q_date_of_birth-compatible value',
+        (tester) async {
+      String? submittedField;
+      String? submittedValue;
+
+      await tester.pumpWidget(_buildTestApp((context) {
+        final rendered = WidgetRenderer.build(
+          context,
+          const RagToolCall(
+            name: 'ask_user_input',
+            input: {'field': 'dateOfBirth'},
+          ),
+          onInputSubmitted: (field, value) {
+            submittedField = field;
+            submittedValue = value;
+          },
+        );
+        return rendered ?? const SizedBox();
+      }));
+      await tester.pump();
+
+      await tester.tap(find.text('Choisir ma date'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('15').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      expect(submittedField, 'date_of_birth');
+      expect(submittedValue, contains('${DateTime.now().year - 34}-07-15'));
+    });
+
+    testWidgets('date picker does not submit unchanged initial date',
+        (tester) async {
+      String? submittedField;
+
+      await tester.pumpWidget(_buildTestApp((context) {
+        final rendered = WidgetRenderer.build(
+          context,
+          const RagToolCall(
+            name: 'ask_user_input',
+            input: {'field': 'dateOfBirth'},
+          ),
+          onInputSubmitted: (field, value) {
+            submittedField = field;
+          },
+        );
+        return rendered ?? const SizedBox();
+      }));
+      await tester.pump();
+
+      await tester.tap(find.text('Choisir ma date'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK').last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Choisir ma date'), findsOneWidget);
+      expect(tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+          isNull);
+      expect(submittedField, isNull);
+    });
   });
 
   group('WidgetRenderer.build — route_to_screen', () {
@@ -380,8 +470,7 @@ void main() {
       expect(card.prefill, isA<Map<String, dynamic>>());
     });
 
-    testWidgets(
-        'backend prefill wins over RoutePlanner prefill on same key',
+    testWidgets('backend prefill wins over RoutePlanner prefill on same key',
         (tester) async {
       // Backend sends avoirLpp = 99999 — should override RoutePlanner's value.
       final profile = CoachProfile(

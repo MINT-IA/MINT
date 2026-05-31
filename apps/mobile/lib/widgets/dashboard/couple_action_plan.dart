@@ -28,7 +28,10 @@ class CoupleActionPlan extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!profile.isCouple || profile.conjoint == null || profile.conjoint?.birthYear == null) {
+    if (!profile.isCouple ||
+        profile.conjoint == null ||
+        profile.ageOrNull == null ||
+        profile.conjoint?.age == null) {
       return const SizedBox.shrink();
     }
 
@@ -90,11 +93,13 @@ class CoupleActionPlan extends StatelessWidget {
             children: [
               Text(
                 'Plan d\u2019action couple',
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 '$userName & $conjName',
-                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
+                style:
+                    MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -114,7 +119,8 @@ class CoupleActionPlan extends StatelessWidget {
         label: action.title,
         button: true,
         child: InkWell(
-          onTap: action.route != null ? () => context.push(action.route!) : null,
+          onTap:
+              action.route != null ? () => context.push(action.route!) : null,
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.all(12),
@@ -122,73 +128,81 @@ class CoupleActionPlan extends StatelessWidget {
               color: MintColors.surface,
               borderRadius: BorderRadius.circular(12),
             ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Owner tag
-              Container(
-                width: 28,
-                height: 28,
-                margin: const EdgeInsets.only(top: 2),
-                decoration: BoxDecoration(
-                  color: action.ownerColor.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Owner tag
+                Container(
+                  width: 28,
+                  height: 28,
+                  margin: const EdgeInsets.only(top: 2),
+                  decoration: BoxDecoration(
+                    color: action.ownerColor.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(action.icon, size: 14, color: action.ownerColor),
                 ),
-                child: Icon(action.icon, size: 14, color: action.ownerColor),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        _buildOwnerChip(action),
-                        const SizedBox(width: 6),
-                        Expanded(
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          _buildOwnerChip(action),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              action.title,
+                              style: MintTextStyles.bodySmall(
+                                      color: MintColors.textPrimary)
+                                  .copyWith(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (action.subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          action.subtitle!,
+                          style: MintTextStyles.labelSmall(
+                                  color: MintColors.textSecondary)
+                              .copyWith(height: 1.3),
+                        ),
+                      ],
+                      if (action.impactLabel != null) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: MintColors.success.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                           child: Text(
-                            action.title,
-                            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                            action.impactLabel!,
+                            style:
+                                MintTextStyles.micro(color: MintColors.success)
+                                    .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        fontStyle: FontStyle.normal),
                           ),
                         ),
                       ],
-                    ),
-                    if (action.subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        action.subtitle!,
-                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.3),
-                      ),
                     ],
-                    if (action.impactLabel != null) ...[
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: MintColors.success.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          action.impactLabel!,
-                          style: MintTextStyles.micro(color: MintColors.success).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
-                        ),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
-              ),
-              if (action.route != null)
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: MintColors.textMuted,
-                  size: 18,
-                ),
-            ],
+                if (action.route != null)
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: MintColors.textMuted,
+                    size: 18,
+                  ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -201,7 +215,8 @@ class CoupleActionPlan extends StatelessWidget {
       ),
       child: Text(
         action.ownerLabel,
-        style: MintTextStyles.labelTiny(color: action.ownerColor).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
+        style: MintTextStyles.labelTiny(color: action.ownerColor)
+            .copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
       ),
     );
   }
@@ -209,7 +224,8 @@ class CoupleActionPlan extends StatelessWidget {
   Widget _buildDisclaimer() {
     return Text(
       'Actions \u00e9ducatives. Ne constituent pas un conseil financier (LSFin).',
-      style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
+      style: MintTextStyles.micro(color: MintColors.textMuted)
+          .copyWith(fontStyle: FontStyle.italic),
     );
   }
 
@@ -226,8 +242,8 @@ class CoupleActionPlan extends StatelessWidget {
     final conjYearsToRetirement = conj.anneesAvantRetraite ?? 99;
 
     // ── 1. Staggered withdrawal coordination (household) ──
-    final userRetYear = profile.birthYear + profile.effectiveRetirementAge;
-    final conjRetYear = conj.birthYear! + conj.effectiveRetirementAge;
+    final userRetYear = now.year + userYearsToRetirement;
+    final conjRetYear = now.year + conjYearsToRetirement;
     if (userRetYear != conjRetYear && FeatureFlags.enableDecisionScaffold) {
       final firstRetires = userRetYear < conjRetYear ? userName : conjName;
       final gap = (userRetYear - conjRetYear).abs();
@@ -237,10 +253,10 @@ class CoupleActionPlan extends StatelessWidget {
         ownerColor: MintColors.primary,
         icon: Icons.calendar_month_outlined,
         title: '\u00c9chelonner les retraits sur $gap ans',
-        subtitle:
-            '$firstRetires prend sa retraite en premier. '
+        subtitle: '$firstRetires prend sa retraite en premier. '
             '\u00c9chelonner 3a/LPP peut r\u00e9duire la charge fiscale.',
-        impactLabel: 'Jusqu\u2019\u00e0 CHF\u00a015\u2019000\u201340\u2019000 d\u2019\u00e9conomie (estimation)',
+        impactLabel:
+            'Jusqu\u2019\u00e0 CHF\u00a015\u2019000\u201340\u2019000 d\u2019\u00e9conomie (estimation)',
         route: '/decaissement',
       ));
     }
@@ -257,28 +273,26 @@ class CoupleActionPlan extends StatelessWidget {
       // Naming convention: onboarding → '3a_user', golden → '3a_julien'.
       final conjNameLower = conj.firstName?.toLowerCase() ?? '';
       final userNameLower = (profile.firstName ?? '').toLowerCase();
-      final user3aMensuel = profile.plannedContributions
-          .where((c) {
-            if (c.category != '3a') return false;
-            final idLow = c.id.toLowerCase();
-            final labelLow = c.label.toLowerCase();
-            // Positive match: explicitly user-owned
-            if (userNameLower.isNotEmpty &&
-                (idLow.contains(userNameLower) ||
-                    labelLow.contains(userNameLower))) {
-              return true;
-            }
-            if (idLow.contains('_user')) return true;
-            // Negative match: exclude conjoint-owned
-            if (conjNameLower.isNotEmpty &&
-                (idLow.contains(conjNameLower) ||
-                    labelLow.contains(conjNameLower))) {
-              return false;
-            }
-            // Ambiguous: no name match either way → include (conservative)
-            return true;
-          })
-          .fold(0.0, (sum, c) => sum + c.amount);
+      final user3aMensuel = profile.plannedContributions.where((c) {
+        if (c.category != '3a') return false;
+        final idLow = c.id.toLowerCase();
+        final labelLow = c.label.toLowerCase();
+        // Positive match: explicitly user-owned
+        if (userNameLower.isNotEmpty &&
+            (idLow.contains(userNameLower) ||
+                labelLow.contains(userNameLower))) {
+          return true;
+        }
+        if (idLow.contains('_user')) return true;
+        // Negative match: exclude conjoint-owned
+        if (conjNameLower.isNotEmpty &&
+            (idLow.contains(conjNameLower) ||
+                labelLow.contains(conjNameLower))) {
+          return false;
+        }
+        // Ambiguous: no name match either way → include (conservative)
+        return true;
+      }).fold(0.0, (sum, c) => sum + c.amount);
       final annual3a = user3aMensuel * 12;
       final remaining = (plafond - annual3a).clamp(0.0, plafond);
       if (remaining > 100) {
@@ -299,8 +313,7 @@ class CoupleActionPlan extends StatelessWidget {
     // ── 3. Conjoint 3a action ──
     // Use prevoyance.canContribute3a (same source as ForecasterService,
     // RetirementProjectionService, MonteCarloService).
-    final conjCanContribute3a =
-        conj.prevoyance?.canContribute3a ?? true;
+    final conjCanContribute3a = conj.prevoyance?.canContribute3a ?? true;
     if (conjCanContribute3a) {
       final conjHasLpp = (conj.prevoyance?.avoirLppTotal ?? 0) > 0;
       final conjPlafond = conj.employmentStatus == 'independant' && !conjHasLpp
@@ -325,8 +338,7 @@ class CoupleActionPlan extends StatelessWidget {
         ownerColor: MintColors.purple,
         icon: Icons.block_outlined,
         title: '3a non disponible ($conjName)',
-        subtitle:
-            'Les r\u00e9sidents fiscaux US (FATCA) ne peuvent '
+        subtitle: 'Les r\u00e9sidents fiscaux US (FATCA) ne peuvent '
             'g\u00e9n\u00e9ralement pas ouvrir un 3a en Suisse.',
         impactLabel: null,
         route: null,
@@ -342,8 +354,7 @@ class CoupleActionPlan extends StatelessWidget {
         ownerColor: MintColors.primary,
         icon: Icons.compare_arrows_rounded,
         title: 'Rente vs capital : coordonner \u00e0 deux',
-        subtitle:
-            'La strat\u00e9gie mixte (rente oblig. + capital suroblig.) '
+        subtitle: 'La strat\u00e9gie mixte (rente oblig. + capital suroblig.) '
             'peut \u00eatre diff\u00e9rente pour chaque partenaire.',
         impactLabel: null,
         route: '/rente-vs-capital',

@@ -18,6 +18,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 // don't import it here so the provider stays SharedPreferences-free + sync
 // constructable in unit tests. See OnboardingProvider.legacyReOnboarding
 // below.
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
@@ -39,8 +40,8 @@ class DossierEntry {
 
 /// Les 9 tours du flow storyboard final.
 enum OnboardingStep {
-  entry,       // T1 — opener
-  intents,     // T2 — 4 cartes d'intent
+  entry, // T1 — opener
+  intents, // T2 — 4 cartes d'intent
   // T2.5 — Sub-phase 01.5 W02-T03 hard-gate US-tax-person Q.
   // Placed BEFORE age/canton/revenue because Security §4 (nLPD art. 6
   // data minimization) requires the FATCA self-declaration to be asked
@@ -59,11 +60,11 @@ enum OnboardingStep {
   // the flush so CoachProfile.fromWizardAnswers reaches the swissNative /
   // expatEu / expatNonEu archetype branches. NEVER coerced null→'CH'.
   nationality, // T2.6
-  age,         // T3
-  canton,      // T4
-  revenue,     // T5 — slider fourchette + lien exact
-  insight,     // T6 — N1 inline contextuel à l'intent
-  scene,       // T7 — scène N2 interactive
+  age, // T3
+  canton, // T4
+  revenue, // T5 — slider fourchette + lien exact
+  insight, // T6 — N1 inline contextuel à l'intent
+  scene, // T7 — scène N2 interactive
   bifurcation, // T8 — [Creuser] / [Plus tard] → flush + navigate
   // T9 "magicLink" removed 2026-04-24 per design panel : user-eject
   // pattern ("Laisse-moi un email, je te retrouve demain") violated
@@ -118,6 +119,8 @@ class OnboardingProvider extends ChangeNotifier {
   // Captures — source of truth for the mapper au tour 9.
   OnboardingIntent? _intent;
   int? _ageYears;
+  DateTime? _dateOfBirth;
+
   /// Captured nationality GROUP from the T2.6 step: 'CH', 'EU', or 'OTHER'.
   /// Mapped to a nationality string at the flush (mirrors
   /// CoachProfileProvider.updateFromSmartFlow). null until the user picks.
@@ -133,7 +136,13 @@ class OnboardingProvider extends ChangeNotifier {
   // ── Read accessors ──────────────────────────────────────────────
   OnboardingStep get step => _step;
   OnboardingIntent? get intent => _intent;
-  int? get ageYears => _ageYears;
+  int? get ageYears {
+    final dob = _dateOfBirth;
+    if (dob == null) return _ageYears;
+    return _ageFromDateOfBirth(dob);
+  }
+
+  DateTime? get dateOfBirth => _dateOfBirth;
   String? get nationalityGroup => _nationalityGroup;
   String? get cantonCode => _cantonCode;
   ({double low, double high})? get netMonthlyRange => _netMonthlyRange;
@@ -181,8 +190,23 @@ class OnboardingProvider extends ChangeNotifier {
 
   void setAge(int years) {
     _ageYears = years;
+    _dateOfBirth = null;
     _confidenceByField['age'] = OnboardingConfidence.high;
     _setDossier('age', 'Âge', '$years ans', 1);
+    notifyListeners();
+  }
+
+  void setDateOfBirth(DateTime value) {
+    final normalized = DateTime(value.year, value.month, value.day);
+    _dateOfBirth = normalized;
+    _ageYears = _ageFromDateOfBirth(normalized);
+    _confidenceByField['dateOfBirth'] = OnboardingConfidence.high;
+    _setDossier(
+      'date_of_birth',
+      'Date de naissance',
+      _formatDateOfBirth(normalized),
+      1,
+    );
     notifyListeners();
   }
 
@@ -278,15 +302,10 @@ class OnboardingProvider extends ChangeNotifier {
   ) async {
     final answers = <String, dynamic>{};
     if (_intent != null) answers['onb_intent'] = _intent!.name;
-    // SALVAGE-01 (onb-01): the wedge captures an AGE in years, but every
-    // consumer (CoachProfile.fromWizardAnswers, clarity_state, …) reads
-    // q_birth_year. The previous age-key write left birthYear=0 (sentinel).
-    // Convert at flush exactly as CoachProfileProvider.updateFromSmartFlow
-    // does (`birthYear = DateTime.now().year - age`). Guarded by the
-    // existing non-null check so a skipped age step yields q_birth_year
-    // ABSENT — never 0, never the legacy age key (Plan 02's ageOrNull
-    // consumer protects that degraded path).
-    if (_ageYears != null) {
+    if (_dateOfBirth != null) {
+      answers['q_date_of_birth'] = _dateOfBirth!.toIso8601String();
+      answers['q_birth_year'] = _dateOfBirth!.year;
+    } else if (_ageYears != null) {
       answers['q_birth_year'] = DateTime.now().year - _ageYears!;
     }
     if (_cantonCode != null) answers['q_canton'] = _cantonCode;
@@ -328,7 +347,8 @@ class OnboardingProvider extends ChangeNotifier {
     if (net != null) {
       final double grossAnnual =
           IncomeConverter.netMonthlyToGrossAnnual(net, isSalaried: true);
-      answers['q_has_pension_fund'] = grossAnnual >= 22680;
+      answers['q_has_pension_fund'] =
+          grossAnnual >= reg('lpp.entry_threshold', lppSeuilEntree);
     }
 
     answers['q_wants_deeper'] = _wantsDeeper;
@@ -351,5 +371,21 @@ class OnboardingProvider extends ChangeNotifier {
       buf.write(s[i]);
     }
     return buf.toString();
+  }
+
+  static int _ageFromDateOfBirth(DateTime value) {
+    final now = DateTime.now();
+    var years = now.year - value.year;
+    if (now.month < value.month ||
+        (now.month == value.month && now.day < value.day)) {
+      years--;
+    }
+    return years;
+  }
+
+  static String _formatDateOfBirth(DateTime value) {
+    final day = value.day.toString().padLeft(2, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    return '$day.$month.${value.year}';
   }
 }

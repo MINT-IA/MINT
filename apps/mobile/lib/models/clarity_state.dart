@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -331,8 +332,7 @@ class ClarityState {
     }
 
     // Action 3 : Rachat LPP (si 35+ ans et pas en Safe Mode)
-    final age = DateTime.now().year -
-        (answers['birthYear'] ?? answers['q_birth_year'] ?? 2000);
+    final age = CoachProfile.fromWizardAnswers(answers).ageOrNull;
     // V2: q_lpp_buyback_available logic handled in questions?
     // Here logic for action card.
 
@@ -344,6 +344,15 @@ class ClarityState {
         status: ActionStatus.blocked,
         blockingReason: 'Constitue d\'abord ton fonds d\'urgence',
         impactOnPrecision: 0,
+      ));
+    } else if (age == null) {
+      actions.add(const ClarityAction(
+        id: 'lpp_buyback',
+        label: 'Rachat LPP',
+        description: 'À évaluer après date de naissance',
+        status: ActionStatus.pending,
+        blockingReason: 'Ajoute ta date de naissance pour situer le rachat LPP',
+        impactOnPrecision: 5,
       ));
     } else if (age < 35) {
       actions.add(const ClarityAction(

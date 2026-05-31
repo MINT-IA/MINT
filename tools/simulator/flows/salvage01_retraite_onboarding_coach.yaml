@@ -244,6 +244,8 @@ appId: ch.mint.app
     text: "Ton âge: 2026"
 - assertNotVisible:
     text: "Ton âge : 2026"
+- assertVisible:
+    text: "31 ans.*"
 - takeScreenshot: "02-pilier3a-real-age"
 
 # ─── SC-4: navigate rente-vs-capital (arbitrage scene), assert a real age ─

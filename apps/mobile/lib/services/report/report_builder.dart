@@ -3,6 +3,7 @@ import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
 import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/models/goal_template.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
@@ -279,7 +280,8 @@ class ReportBuilder {
     final isMarried = civilStatus == 'married' ||
         civilStatus == 'marie' ||
         civilStatus == 'marié';
-    final age = _ageFromBirthYear(answers['q_birth_year']) ?? 45;
+    final age = CoachProfile.fromWizardAnswers(answers).ageOrNull;
+    if (age == null) return 0;
     final employmentStatus =
         answers['q_employment_status']?.toString().toLowerCase() ?? 'employee';
     final isIndependent = {
@@ -331,12 +333,6 @@ class ReportBuilder {
       if (parsed != null && parsed > 0) return parsed;
     }
     return 0;
-  }
-
-  int? _ageFromBirthYear(dynamic raw) {
-    final birthYear = _parseInt(raw);
-    if (birthYear == null || birthYear <= 1900) return null;
-    return DateTime.now().year - birthYear;
   }
 
   int? _parseInt(dynamic raw) {

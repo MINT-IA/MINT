@@ -120,8 +120,7 @@ class BiographyRepository {
   }
 
   /// Create a repository with an injected database (for testing).
-  static Future<BiographyRepository> withDatabase(
-      BiographyDatabase db) async {
+  static Future<BiographyRepository> withDatabase(BiographyDatabase db) async {
     final repo = BiographyRepository._(db);
     await repo._createTables();
     _instance = repo;
@@ -131,6 +130,21 @@ class BiographyRepository {
   /// Reset the singleton (for testing).
   static void resetInstance() {
     _instance = null;
+  }
+
+  /// Delete the local biography encryption key without using keychain-wide
+  /// deletion. Existing encrypted rows become unreadable, matching the old
+  /// logout purge behavior while preserving non-MINT secure storage entries.
+  static Future<void> clearEncryptionKey({
+    FlutterSecureStorage? secureStorage,
+  }) async {
+    final storage = secureStorage ?? const FlutterSecureStorage();
+    try {
+      await storage.delete(key: _keyAlias);
+      resetInstance();
+    } on PlatformException catch (e) {
+      debugPrint('[Biography] Keychain delete failed during purge: $e');
+    }
   }
 
   /// Generate a 32-byte hex encryption key using cryptographic RNG.

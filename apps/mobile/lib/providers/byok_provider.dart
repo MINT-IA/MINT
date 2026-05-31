@@ -47,6 +47,20 @@ class ByokProvider extends ChangeNotifier {
   })  : _storage = storage ?? const FlutterSecureStorage(),
         _ragService = ragService ?? RagService();
 
+  /// Clear persisted BYOK credentials without requiring a Provider instance.
+  ///
+  /// Used by logout/account purge flows that must remove MINT-owned secure
+  /// storage keys without calling FlutterSecureStorage.deleteAll().
+  static Future<void> clearStoredKey({FlutterSecureStorage? storage}) async {
+    final secureStorage = storage ?? const FlutterSecureStorage();
+    try {
+      await secureStorage.delete(key: _providerKey);
+    } catch (_) {
+      // Best effort: still attempt to remove the API key below.
+    }
+    await secureStorage.delete(key: _apiKeyKey);
+  }
+
   // Getters
   String? get provider => _provider;
   String? get apiKey => _apiKey;
@@ -87,7 +101,8 @@ class ByokProvider extends ChangeNotifier {
     try {
       _provider = await _storage.read(key: _providerKey);
       _apiKey = await _storage.read(key: _apiKeyKey);
-      _isConfigured = _provider != null && _apiKey != null && _apiKey!.isNotEmpty;
+      _isConfigured =
+          _provider != null && _apiKey != null && _apiKey!.isNotEmpty;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('ByokProvider: Error loading saved key: $e');
@@ -129,8 +144,7 @@ class ByokProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _storage.delete(key: _providerKey);
-      await _storage.delete(key: _apiKeyKey);
+      await clearStoredKey(storage: _storage);
       _provider = null;
       _apiKey = null;
       _isConfigured = false;

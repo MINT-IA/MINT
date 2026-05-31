@@ -171,7 +171,8 @@ void main() {
       expect(result.phase, equals(LifecyclePhase.demarrage));
     });
 
-    test('age 25 → Construction (boundary, aligned with LifecycleDetector)', () {
+    test('age 25 → Construction (boundary, aligned with LifecycleDetector)',
+        () {
       final profile = makeProfile(birthYear: 2001);
       final result = LifecyclePhaseService.detect(profile, now: now);
       expect(result.phase, equals(LifecyclePhase.construction));
@@ -220,6 +221,18 @@ void main() {
     });
   });
 
+  group('LifecyclePhaseService — Unknown age', () {
+    test('missing birth date does not produce lifecycle priorities', () {
+      final profile = makeProfile(birthYear: 0);
+      final result = LifecyclePhaseService.detect(profile, now: now);
+
+      expect(result.age, 0);
+      expect(result.yearsToRetirement, 0);
+      expect(result.phaseKey, 'unknown');
+      expect(result.priorities, isEmpty);
+    });
+  });
+
   group('LifecyclePhaseService — Overrides', () {
     test('retired user at age 60 → Retraite (not Transition)', () {
       final profile = makeProfile(
@@ -249,7 +262,8 @@ void main() {
       expect(result.phase, equals(LifecyclePhase.transition));
     });
 
-    test('early retirement target (58) at age 45 → no override (Consolidation)', () {
+    test('early retirement target (58) at age 45 → no override (Consolidation)',
+        () {
       final profile = makeProfile(
         birthYear: 1981,
         targetRetirementAge: 58,
@@ -411,7 +425,8 @@ void main() {
 
       expect(adaptation.coachSystemPromptAddition, contains('consolidation'));
       expect(adaptation.coachSystemPromptAddition, contains('49'));
-      expect(adaptation.coachSystemPromptAddition, contains('plan_retirement_scenario'));
+      expect(adaptation.coachSystemPromptAddition,
+          contains('plan_retirement_scenario'));
     });
 
     test('greeting key follows naming convention', () {

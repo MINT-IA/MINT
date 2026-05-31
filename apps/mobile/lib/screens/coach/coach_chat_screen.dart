@@ -27,6 +27,7 @@ import 'package:mint_mobile/services/telemetry/gate_decision_telemetry.dart';
 import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
@@ -796,7 +797,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (_profile == null) return null;
     final s = S.of(context)!;
 
-    // Priority 1: most recent enrichment fact (LPP avoir or 3a épargne) —
+    if (BudgetInputs.hasTrustedCharges(_profile!)) {
+      final monthlyFree =
+          BudgetLivingEngine.compute(_profile!).present.monthlyFree;
+      if (monthlyFree.isFinite) {
+        return (
+          number: _formatChf(monthlyFree),
+          headline: s.pulseLabelMonthlyFree,
+        );
+      }
+    }
+
+    // Priority 2: most recent enrichment fact (LPP avoir or 3a épargne) —
     // surfaces a raw number the user JUST added to their profile, so the
     // coach acknowledges the upload instead of opening silent. Factual,
     // not projected (anti-shame: fact of the world, not judgment of user).
@@ -815,7 +827,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       );
     }
 
-    // Priority 2: financial fitness score — neutral, life-event-agnostic.
+    // Priority 3: financial fitness score — neutral, life-event-agnostic.
     try {
       final score = FinancialFitnessService.calculate(profile: _profile!);
       final g = score.global;
@@ -829,7 +841,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       debugPrint("[CoachChat] best-effort: $e");
     }
 
-    // Priority 3: replacement rate (retirement-framed — only surfaces when
+    // Priority 4: replacement rate (retirement-framed — only surfaces when
     // nothing neutral above is available and the user has enough data for
     // a projection; headline now neutralized to "taux de remplacement
     // projeté" without the "à la retraite" qualifier).
@@ -849,7 +861,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       debugPrint("[CoachChat] best-effort: $e");
     }
 
-    // Priority 4: projected capital (same neutralization rationale).
+    // Priority 5: projected capital (same neutralization rationale).
     try {
       final proj = ForecasterService.project(
         profile: _profile!,
@@ -1596,7 +1608,15 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       case 'age':
         final age = int.tryParse(value);
         if (age != null) {
+          // Legacy tool compatibility only. New UI requests date_of_birth.
           answers['q_birth_year'] = DateTime.now().year - age;
+        }
+      case 'date_of_birth':
+      case 'dateOfBirth':
+        final dateOfBirth = DateTime.tryParse(value);
+        if (dateOfBirth != null) {
+          answers['q_date_of_birth'] = dateOfBirth.toIso8601String();
+          answers['q_birth_year'] = dateOfBirth.year;
         }
       case 'salary':
         final salary = double.tryParse(value.replaceAll("'", ''));
@@ -1643,6 +1663,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     switch (field) {
       case 'age':
         return 'J\u2019ai $value ans';
+      case 'date_of_birth':
+      case 'dateOfBirth':
+        return 'Date de naissance enregistr\u00e9e';
       case 'salary':
         final formatted = _formatForDisplay(value);
         return 'CHF $formatted';
@@ -1763,7 +1786,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // callback hasn't navigated yet the LLM is never reached.
       return CoachContext(
         firstName: '',
-        age: profile.age,
+        age: profile.ageOrNull ?? 0,
         canton: profile.canton,
         archetype: 'unknown',
         knownValues: const {},
@@ -1825,7 +1848,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     return CoachContext(
       firstName: profile.firstName ?? 'utilisateur',
-      age: profile.age,
+      age: profile.ageOrNull ?? 0,
       canton: profile.canton,
       // B6 fix (2026-05-08) : pass archetype to the LLM context. Adversarial
       // QA audit (panel 2026-05-08) flagged that the previous build dropped
@@ -2240,14 +2263,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             // the input bar at the bottom already invites the user in, so
             // we drop the faded "Tu veux en parler ?" prompt (60% opacity
             // italic undermined the calm of the frame and the adult tone).
-            Text(
-              keyData.number,
-              style: const TextStyle(
-                fontSize: 48, // lint-ignore: prefer_mint_text_style
-                fontWeight: FontWeight.w700,
-                color: MintColors.primary,
-                height: 1.1,
-                letterSpacing: -1,
+            Semantics(
+              identifier: 'coach_silent_opener_primary_number',
+              child: Text(
+                keyData.number,
+                style: const TextStyle(
+                  fontSize: 48, // lint-ignore: prefer_mint_text_style
+                  fontWeight: FontWeight.w700,
+                  color: MintColors.primary,
+                  height: 1.1,
+                  letterSpacing: -1,
+                ),
               ),
             ),
             const SizedBox(height: 16),

@@ -102,4 +102,69 @@ void main() {
     expect(reloaded.profile!.depenses.assuranceMaladie, 450.0);
     expect(reloaded.profile!.depenses.transport, 180.0);
   });
+
+  test('updateProfile persists salary through canonical reload keys', () async {
+    final provider = CoachProfileProvider();
+    provider.updateProfile(
+      CoachProfile(
+        birthYear: 1988,
+        canton: 'VD',
+        salaireBrutMensuel: 10000,
+        nombreDeMois: 12,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2053),
+          label: 'Retraite',
+        ),
+      ),
+    );
+    await provider.mergeAnswers({'_noop': null});
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_gross_salary_annual'], 120000.0);
+    expect(answers.containsKey('q_salaire'), isFalse);
+    await ReportPersistenceService.setCompleted(true);
+
+    final reloaded = CoachProfileProvider();
+    await reloaded.loadFromWizard();
+
+    expect(reloaded.profile!.salaireBrutMensuel, 10000.0);
+    expect(reloaded.profile!.userProvidedFields.contains('salary'), isTrue);
+  });
+
+  test('updateProfile removes stale partner answers from persisted JSON',
+      () async {
+    await ReportPersistenceService.saveAnswers({
+      'q_birth_year': 1988,
+      'q_canton': 'VD',
+      'q_net_income_period_chf': 8000.0,
+      'q_civil_status': 'marie',
+      'q_partner_net_income_chf': 5000.0,
+      'q_partner_birth_year': 1989,
+    });
+
+    final provider = CoachProfileProvider();
+    provider.updateProfile(
+      CoachProfile(
+        birthYear: 1988,
+        canton: 'VD',
+        salaireBrutMensuel: 10000,
+        etatCivil: CoachCivilStatus.celibataire,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2053),
+          label: 'Retraite',
+        ),
+      ),
+    );
+    await provider.mergeAnswers({'_noop': null});
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers.keys.any((key) => key.startsWith('q_partner_')), isFalse);
+    await ReportPersistenceService.setCompleted(true);
+
+    final reloaded = CoachProfileProvider();
+    await reloaded.loadFromWizard();
+    expect(reloaded.profile!.conjoint, isNull);
+  });
 }

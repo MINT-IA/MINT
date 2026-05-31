@@ -71,10 +71,10 @@ class PlanGenerationService {
         goalAmount ?? _defaultGoalAmounts[goalCategory] ?? 50000.0;
 
     // ── 2. Months remaining (minimum 1 to avoid divide-by-zero) ─────────
-    final monthsRemaining = ((targetDate.year - now.year) * 12 +
-            (targetDate.month - now.month))
-        .clamp(1, 9999)
-        .toDouble();
+    final monthsRemaining =
+        ((targetDate.year - now.year) * 12 + (targetDate.month - now.month))
+            .clamp(1, 9999)
+            .toDouble();
 
     // ── 3. Confidence level (D-07: 5-field count, 20% each) ──────────────
     final confidenceLevel = _computeSimplifiedConfidence(profile);
@@ -193,21 +193,13 @@ class PlanGenerationService {
     required double effectiveGoalAmount,
     required double monthsRemaining,
   }) {
-    final now = DateTime.now();
-    final age = profile.dateOfBirth != null
-        ? now.year -
-            profile.dateOfBirth!.year -
-            (now.month < profile.dateOfBirth!.month ||
-                    (now.month == profile.dateOfBirth!.month &&
-                        now.day < profile.dateOfBirth!.day)
-                ? 1
-                : 0)
-        : now.year - profile.birthYear;
+    final age = profile.ageOrNull;
+    if (age == null) return effectiveGoalAmount / monthsRemaining;
 
     final lppTotal = profile.prevoyance.avoirLppTotal ?? 0.0;
     final lppOblig = profile.prevoyance.avoirLppObligatoire ?? lppTotal * 0.6;
-    final lppSurob = profile.prevoyance.avoirLppSurobligatoire ??
-        lppTotal - lppOblig;
+    final lppSurob =
+        profile.prevoyance.avoirLppSurobligatoire ?? lppTotal - lppOblig;
 
     // Estimate annual salary from monthly
     final grossAnnual = profile.salaireBrutMensuel * profile.nombreDeMois;
@@ -228,11 +220,13 @@ class PlanGenerationService {
 
     // Use the projected capital-at-retirement from the arbitrage result
     // to determine the monthly savings gap
-    final projectedCapital =
-        result.options.isNotEmpty ? result.options.first.terminalValue : lppTotal;
+    final projectedCapital = result.options.isNotEmpty
+        ? result.options.first.terminalValue
+        : lppTotal;
 
     // Gap between goal and projected LPP capital
-    final gap = (effectiveGoalAmount - projectedCapital).clamp(0.0, double.infinity);
+    final gap =
+        (effectiveGoalAmount - projectedCapital).clamp(0.0, double.infinity);
     if (gap == 0) {
       // Already on track — minimal monthly target
       return (effectiveGoalAmount * 0.01).clamp(100.0, 1000.0);
@@ -323,8 +317,7 @@ class PlanGenerationService {
     DateTime targetDate,
   ) async {
     final goal = UserGoal(
-      id:
-          '${DateTime.now().millisecondsSinceEpoch}_${category.hashCode.abs()}',
+      id: '${DateTime.now().millisecondsSinceEpoch}_${category.hashCode.abs()}',
       description: description,
       category: _mapCategoryToGoalTrackerCategory(category),
       createdAt: DateTime.now(),

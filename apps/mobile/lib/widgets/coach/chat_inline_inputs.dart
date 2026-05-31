@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -15,6 +16,127 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 //
 //  These replace traditional forms with conversational input.
 // ────────────────────────────────────────────────────────────
+
+/// Date of birth picker — exact source of truth for age-sensitive flows.
+class ChatDateOfBirthPicker extends StatefulWidget {
+  final DateTime? initialDate;
+  final ValueChanged<DateTime> onSelected;
+  final String? label;
+
+  const ChatDateOfBirthPicker({
+    super.key,
+    this.initialDate,
+    required this.onSelected,
+    this.label,
+  });
+
+  @override
+  State<ChatDateOfBirthPicker> createState() => _ChatDateOfBirthPickerState();
+}
+
+class _ChatDateOfBirthPickerState extends State<ChatDateOfBirthPicker> {
+  DateTime? _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.initialDate;
+  }
+
+  String get _displayDate {
+    final value = _selected;
+    if (value == null) return 'Choisir ma date';
+    final day = value.day.toString().padLeft(2, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    return '$day.$month.${value.year}';
+  }
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final initial = _selected ?? DateTime(now.year - 34, 7, 1);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(now.year - 18, now.month, now.day),
+    );
+    if (picked != null) {
+      if (!mounted) return;
+      if (_selected == null && DateUtils.isSameDay(picked, initial)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Choisis ta vraie date de naissance.')),
+        );
+        return;
+      }
+      setState(() => _selected = picked);
+      HapticFeedback.selectionClick();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: MintSpacing.sm),
+      padding: const EdgeInsets.all(MintSpacing.md),
+      decoration: BoxDecoration(
+        color: MintColors.porcelaine.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: MintColors.border.withValues(alpha: 0.15),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (widget.label != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+              child: Text(
+                widget.label!,
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+              ),
+            ),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: _pickDate,
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, 56),
+                side: const BorderSide(color: MintColors.textPrimary),
+                shape: const StadiumBorder(),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              child: Text(
+                _displayDate,
+                style: MintTextStyles.titleMedium(
+                  color: MintColors.textPrimary,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: MintSpacing.md),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _selected == null
+                  ? null
+                  : () => widget.onSelected(_selected!),
+              style: FilledButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                shape: const StadiumBorder(),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              child: Text(
+                MaterialLocalizations.of(context).okButtonLabel,
+                style: MintTextStyles.titleMedium(color: MintColors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 /// Age picker — CupertinoPicker wheel inline in chat.
 /// Smooth, tactile, modern. Replaces sliders for age input.
@@ -117,7 +239,8 @@ class _ChatAgePickerState extends State<ChatAgePicker> {
                             : MintColors.textMuted,
                       ).copyWith(
                         fontSize: isSelected ? 24 : 18,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w400,
                       ),
                     ),
                   );
@@ -192,8 +315,9 @@ class _ChatAmountInputState extends State<ChatAmountInput> {
   }
 
   String _formatSwiss(int value) {
-    return value.toString().replaceAllMapped(
-        RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
+    return value
+        .toString()
+        .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
   }
 
   void _onChanged(String text) {
@@ -248,8 +372,7 @@ class _ChatAmountInputState extends State<ChatAmountInput> {
                   controller: _controller,
                   keyboardType: TextInputType.number,
                   onChanged: _onChanged,
-                  style: MintTextStyles.displaySmall()
-                      ,
+                  style: MintTextStyles.displaySmall(),
                   decoration: InputDecoration(
                     hintText: widget.hint ?? "0",
                     hintStyle: MintTextStyles.headlineLarge(
@@ -298,9 +421,32 @@ class ChatCantonPicker extends StatelessWidget {
   });
 
   static const _cantons = [
-    'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR',
-    'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
-    'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
+    'AG',
+    'AI',
+    'AR',
+    'BE',
+    'BL',
+    'BS',
+    'FR',
+    'GE',
+    'GL',
+    'GR',
+    'JU',
+    'LU',
+    'NE',
+    'NW',
+    'OW',
+    'SG',
+    'SH',
+    'SO',
+    'SZ',
+    'TG',
+    'TI',
+    'UR',
+    'VD',
+    'VS',
+    'ZG',
+    'ZH',
   ];
 
   @override
@@ -327,7 +473,6 @@ class ChatCantonPicker extends StatelessWidget {
                 style: MintTextStyles.bodySmall(color: MintColors.textMuted),
               ),
             ),
-
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -396,32 +541,31 @@ class ChatChoiceButtons extends StatelessWidget {
                 style: MintTextStyles.bodySmall(color: MintColors.textMuted),
               ),
             ),
-
           ...choices.map((choice) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => onSelected(choice),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: MintColors.textPrimary,
-                  side: BorderSide(
-                    color: MintColors.border.withValues(alpha: 0.3),
+                padding: const EdgeInsets.only(bottom: 8),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => onSelected(choice),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: MintColors.textPrimary,
+                      side: BorderSide(
+                        color: MintColors.border.withValues(alpha: 0.3),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: MintColors.craie,
+                    ),
+                    child: Text(
+                      choice,
+                      style: MintTextStyles.titleMedium()
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: MintColors.craie,
                 ),
-                child: Text(
-                  choice,
-                  style: MintTextStyles.titleMedium()
-                      .copyWith(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-          )),
+              )),
         ],
       ),
     );

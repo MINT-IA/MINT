@@ -210,6 +210,40 @@ void main() {
   // ── GROUP 3: EDGE CASES ────────────────────────────────────
 
   group('MonteCarloProjectionService — edge cases', () {
+    test('missing birth date suspends simulation instead of using age zero',
+        () async {
+      final result = await MonteCarloProjectionService.simulate(
+        profile: CoachProfile.defaults(),
+        numSimulations: 5,
+        seed: 42,
+      );
+
+      expect(result.projection, isEmpty);
+      expect(result.medianAt65, isZero);
+      expect(result.p10At65, isZero);
+      expect(result.p90At65, isZero);
+      expect(result.ruinProbability, isZero);
+      expect(result.numSimulations, isZero);
+      expect(result.alertes.single, contains('Date de naissance manquante'));
+    });
+
+    test('DOB-only profile runs simulation with derived age', () async {
+      final profile = _buildSingleProfile().copyWith(
+        birthYear: 0,
+        dateOfBirth: DateTime(DateTime.now().year - 45, 6, 15),
+      );
+
+      final result = await MonteCarloProjectionService.simulate(
+        profile: profile,
+        numSimulations: 10,
+        seed: 42,
+      );
+
+      expect(result.projection, isNotEmpty);
+      expect(result.numSimulations, 10);
+      expect(result.medianAt65, greaterThan(0));
+    });
+
     test('very high capital (5M) does not crash and produces income', () async {
       final profile = _buildSingleProfile().copyWith(
         prevoyance: const PrevoyanceProfile(
@@ -241,7 +275,8 @@ void main() {
       );
     });
 
-    test('0 years to retirement (age == retirementAge) does not crash', () async {
+    test('0 years to retirement (age == retirementAge) does not crash',
+        () async {
       // Profile with age = 65 and retirementAge = 65 → 0 accumulation years
       final profile = CoachProfile(
         firstName: 'Senior',
@@ -436,7 +471,8 @@ void main() {
   // ── GROUP 5: LPP CAPITAL STRATEGY ─────────────────────────
 
   group('MonteCarloProjectionService — lppCapitalPct variations', () {
-    test('0% capital (full rente) vs 100% capital produce different results', () async {
+    test('0% capital (full rente) vs 100% capital produce different results',
+        () async {
       final profile = _buildSingleProfile();
 
       final resultRente = await MonteCarloProjectionService.simulate(
@@ -500,7 +536,8 @@ void main() {
   // ── GROUP 6: CONVERGENCE & STATISTICAL PROPERTIES ──────────
 
   group('MonteCarloProjectionService — convergence', () {
-    test('two runs with different seeds produce similar medians (within 25%)', () async {
+    test('two runs with different seeds produce similar medians (within 25%)',
+        () async {
       final profile = _buildSingleProfile();
 
       final result1 = await MonteCarloProjectionService.simulate(
@@ -524,7 +561,8 @@ void main() {
       );
     });
 
-    test('P10/P50/P90 at retirement maintain correct ordering across seeds', () async {
+    test('P10/P50/P90 at retirement maintain correct ordering across seeds',
+        () async {
       final profile = _buildSingleProfile();
 
       for (final seed in [1, 42, 100, 12345, 99999]) {
@@ -573,7 +611,8 @@ void main() {
   // ── GROUP 7: RETIREMENT AGE VARIATIONS ─────────────────────
 
   group('MonteCarloProjectionService — retirement age', () {
-    test('later retirement produces higher median (more accumulation)', () async {
+    test('later retirement produces higher median (more accumulation)',
+        () async {
       final profile = _buildSingleProfile();
 
       final result60 = await MonteCarloProjectionService.simulate(

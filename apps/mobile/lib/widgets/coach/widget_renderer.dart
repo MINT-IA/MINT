@@ -33,7 +33,7 @@ import 'package:provider/provider.dart';
 //  Flutter calls WidgetRenderer.build() → Rich widget in chat.
 //
 //  Also handles `ask_user_input` tool calls from Claude, which
-//  display inline pickers (age, salary, canton, etc.) in the chat.
+//  display inline pickers (date of birth, salary, canton, etc.) in the chat.
 //  When the user answers, the onInputSubmitted callback fires to
 //  update the profile and continue the conversation.
 // ────────────────────────────────────────────────────────────
@@ -108,17 +108,16 @@ class WidgetRenderer {
     // MintScreenRegistry as the canonical intent→route map) before falling
     // back to the legacy `route` key.
     final explicitRoute = p['route'] as String? ?? '';
-    final resolvedRoute = explicitRoute.isNotEmpty &&
-            ToolCallParser.isValidRoute(explicitRoute)
-        ? explicitRoute
-        : ChatToolDispatcher.resolveRoute(p);
+    final resolvedRoute =
+        explicitRoute.isNotEmpty && ToolCallParser.isValidRoute(explicitRoute)
+            ? explicitRoute
+            : ChatToolDispatcher.resolveRoute(p);
     if (resolvedRoute == null || resolvedRoute.isEmpty) {
       return const SizedBox.shrink();
     }
     final route = resolvedRoute;
-    final contextMessage = p['context_message'] as String? ??
-        p['narrative'] as String? ??
-        '';
+    final contextMessage =
+        p['context_message'] as String? ?? p['narrative'] as String? ?? '';
     final backendPrefill = p['prefill'] as Map<String, dynamic>?;
 
     // Flutter-side prefill fallback via RoutePlanner
@@ -164,8 +163,7 @@ class WidgetRenderer {
     );
   }
 
-  static Widget _buildScoreGauge(
-      BuildContext context, Map<String, dynamic> p) {
+  static Widget _buildScoreGauge(BuildContext context, Map<String, dynamic> p) {
     return ChatGaugeCard(
       title: p['title'] as String? ?? 'Score',
       value: (p['value'] as num?)?.toDouble() ?? 0,
@@ -175,12 +173,12 @@ class WidgetRenderer {
     );
   }
 
-  static Widget _buildFactCard(
-      BuildContext context, Map<String, dynamic> p) {
+  static Widget _buildFactCard(BuildContext context, Map<String, dynamic> p) {
     final route = p['route'] as String?;
     return ChatFactCard(
       eyebrow: p['eyebrow'] as String? ?? p['title'] as String? ?? '',
-      value: p['value'] as String? ?? p['highlight_value'] as String? ?? '\u2014',
+      value:
+          p['value'] as String? ?? p['highlight_value'] as String? ?? '\u2014',
       description: p['description'] as String? ?? p['content'] as String? ?? '',
       onTap: route != null ? () => context.push(route) : null,
     );
@@ -273,11 +271,15 @@ class WidgetRenderer {
         return null;
 
       case 'age':
-        return ChatAgePicker(
-          label: message,
-          initialAge: 35,
-          onSelected: (age) {
-            onInputSubmitted?.call('age', '$age');
+      case 'dateOfBirth':
+      case 'date_of_birth':
+        return ChatDateOfBirthPicker(
+          label: message ?? 'Quelle est ta date de naissance ?',
+          onSelected: (dateOfBirth) {
+            onInputSubmitted?.call(
+              'date_of_birth',
+              dateOfBirth.toIso8601String(),
+            );
           },
         );
 
@@ -351,9 +353,8 @@ class WidgetRenderer {
         );
 
       case 'choice':
-        final choices = (p['choices'] as List<dynamic>?)
-            ?.map((c) => c.toString())
-            .toList();
+        final choices =
+            (p['choices'] as List<dynamic>?)?.map((c) => c.toString()).toList();
         if (choices == null || choices.isEmpty) return null;
         return ChatChoiceButtons(
           label: message,
@@ -372,8 +373,9 @@ class WidgetRenderer {
     if (n == null) return '\u2014';
     final num value = n is num ? n : 0;
     final rounded = value.round();
-    return rounded.toString().replaceAllMapped(
-        RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
+    return rounded
+        .toString()
+        .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
   }
 
   // ────────────────────────────────────────────────────────────
@@ -413,8 +415,7 @@ class WidgetRenderer {
     final goal = p['goal'] as String? ?? p['goal_description'] as String? ?? '';
     final narrative =
         p['narrative'] as String? ?? 'Plan en cours de calcul\u2026';
-    final monthlyAmount =
-        (p['monthly_amount'] as num?)?.toDouble() ??
+    final monthlyAmount = (p['monthly_amount'] as num?)?.toDouble() ??
         (p['monthly_target'] as num?)?.toDouble() ??
         0.0;
 
@@ -530,9 +531,8 @@ class WidgetRenderer {
     Map<String, dynamic> p,
   ) {
     final documentType = p['document_type'] as String? ?? '';
-    final contextMessage = p['context'] as String? ??
-        p['narrative'] as String? ??
-        '';
+    final contextMessage =
+        p['context'] as String? ?? p['narrative'] as String? ?? '';
 
     final label = _documentTypeLabel(documentType);
 
@@ -580,8 +580,7 @@ class WidgetRenderer {
             borderRadius: BorderRadius.circular(12),
             onTap: () => context.push('/documents'),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: MintColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
@@ -700,8 +699,7 @@ class WidgetRenderer {
             }
           }
 
-          debugPrint(
-              '[widget_renderer] commitment saved: ${response['id']}');
+          debugPrint('[widget_renderer] commitment saved: ${response['id']}');
         }).catchError((e) {
           debugPrint('[widget_renderer] commitment save failed: $e');
         });

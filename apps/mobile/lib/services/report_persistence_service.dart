@@ -11,11 +11,13 @@ class ReportPersistenceService {
 
   /// Sauvegarde les réponses du wizard (incremental off).
   /// SEC-10: Sensitive financial keys are stored in encrypted storage.
-  static Future<void> saveAnswers(Map<String, dynamic> answers) async {
+  static Future<bool> saveAnswers(Map<String, dynamic> answers) async {
     final prefs = await SharedPreferences.getInstance();
-    final cleaned = await SecureWizardStore.secureSensitiveKeys(answers);
-    final jsonString = json.encode(cleaned);
+    await _retryPendingSecureDelete(prefs);
+    final sealed = await SecureWizardStore.sealSensitiveKeys(answers);
+    final jsonString = json.encode(sealed.cleaned);
     await prefs.setString(_wizardKey, jsonString);
+    return sealed.allSensitiveSealed;
   }
 
   /// Charge les réponses existantes.
@@ -24,7 +26,10 @@ class ReportPersistenceService {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString(_wizardKey);
 
-    if (jsonString == null) return {};
+    if (jsonString == null) {
+      await _retryPendingSecureDelete(prefs);
+      return {};
+    }
 
     try {
       final answers = Map<String, dynamic>.from(json.decode(jsonString));
@@ -33,6 +38,14 @@ class ReportPersistenceService {
       dev.log('Failed to decode wizard answers',
           error: e, stackTrace: stack, name: 'Persistence');
       return {};
+    }
+  }
+
+  static Future<void> _retryPendingSecureDelete(SharedPreferences prefs) async {
+    if (prefs.getBool(_secureDeletePendingKey) != true) return;
+    final secureDeleted = await SecureWizardStore.deleteAll();
+    if (secureDeleted) {
+      await prefs.remove(_secureDeletePendingKey);
     }
   }
 
@@ -62,6 +75,7 @@ class ReportPersistenceService {
   static const String _onboardingCohortMetricsKey =
       'mini_onboarding_cohort_metrics_v1';
   static const String _selectedIntentKey = 'selected_onboarding_intent_v1';
+  static const String _secureDeletePendingKey = 'secure_delete_pending_v1';
 
   // ── Premier Eclairage persistence keys (D-09) ──
   static const String _hasSeenPremierEclairageKey =
@@ -714,5 +728,11 @@ class ReportPersistenceService {
     await prefs.remove(_coachNarrativeModeKey);
     await prefs.remove(_hasSeenPremierEclairageKey);
     await prefs.remove(_premierEclairageSnapshotKey);
+    final secureDeleted = await SecureWizardStore.deleteAll();
+    if (secureDeleted) {
+      await prefs.remove(_secureDeletePendingKey);
+    } else {
+      await prefs.setBool(_secureDeletePendingKey, true);
+    }
   }
 }

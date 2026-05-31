@@ -44,18 +44,22 @@ class CoachReasonerService {
     final confidence = ConfidenceScorer.score(profile);
     final results = <Recommendation>[];
 
-    final age = DateTime.now().year - profile.birthYear;
-    final yearsToRetirement =
-        ((profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) - age).clamp(0, 45);
+    final age = profile.ageOrNull;
+    if (age == null) {
+      return ReasonerResult(recommendations: results, confidence: confidence);
+    }
+    final yearsToRetirement = ((profile.targetRetirementAge ??
+                reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble())
+                    .toInt()) -
+            age)
+        .clamp(0, 45);
     if (yearsToRetirement <= 0) {
-      return ReasonerResult(
-          recommendations: results, confidence: confidence);
+      return ReasonerResult(recommendations: results, confidence: confidence);
     }
 
     final revenuBrut = profile.salaireBrutMensuel * profile.nombreDeMois;
     if (revenuBrut <= 0) {
-      return ReasonerResult(
-          recommendations: results, confidence: confidence);
+      return ReasonerResult(recommendations: results, confidence: confidence);
     }
 
     // --- 1. Rachat LPP ---
@@ -89,8 +93,7 @@ class CoachReasonerService {
 
     results.sort((a, b) => annualized(b).compareTo(annualized(a)));
 
-    return ReasonerResult(
-        recommendations: results, confidence: confidence);
+    return ReasonerResult(recommendations: results, confidence: confidence);
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -116,9 +119,8 @@ class CoachReasonerService {
     );
 
     // Suggested annual buyback: spread over remaining years, min 5k, max 50k
-    final annualBuyback = (lacune / yearsToRetirement)
-        .clamp(5000, 50000)
-        .toDouble();
+    final annualBuyback =
+        (lacune / yearsToRetirement).clamp(5000, 50000).toDouble();
     final taxSaving = annualBuyback * marginalRate;
 
     // Compound growth of buyback at fund rate
@@ -174,7 +176,8 @@ class CoachReasonerService {
       evidenceLinks: const [
         EvidenceLink(
           label: 'LPP art. 79b — Rachat',
-          url: 'https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/fr#art_79_b',
+          url:
+              'https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/fr#art_79_b',
         ),
       ],
       nextActions: [
@@ -205,11 +208,11 @@ class CoachReasonerService {
     if (!prev.canContribute3a) return null; // FATCA block
 
     // Determine max annual contribution
-    final isIndepNoLpp =
-        profile.employmentStatus == 'independant' &&
+    final isIndepNoLpp = profile.employmentStatus == 'independant' &&
         (prev.avoirLppTotal == null || prev.avoirLppTotal == 0);
-    final maxAnnual =
-        isIndepNoLpp ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final maxAnnual = isIndepNoLpp
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
     // Estimate current annual contribution from existing accounts
     // If no contribution data, assume user contributes 0
@@ -299,11 +302,11 @@ class CoachReasonerService {
     if (!prev.canContribute3a) return null; // FATCA block
 
     // Check if 3a is already maxed — if so, no room for indirect
-    final isIndepNoLpp =
-        profile.employmentStatus == 'independant' &&
+    final isIndepNoLpp = profile.employmentStatus == 'independant' &&
         (prev.avoirLppTotal == null || prev.avoirLppTotal == 0);
-    final maxAnnual =
-        isIndepNoLpp ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    final maxAnnual = isIndepNoLpp
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
     // Estimate annual amortization: 1% of mortgage balance
     final annualAmorti = hypotheque * 0.01;
@@ -332,8 +335,7 @@ class CoachReasonerService {
       kind: 'mortgage_indirect',
       title:
           'Amortissement indirect : économie de ${annualAdvantage.toStringAsFixed(0)} CHF/an',
-      summary:
-          'En passant à l\'amortissement indirect via le 3a, tu conserves '
+      summary: 'En passant à l\'amortissement indirect via le 3a, tu conserves '
           'la déduction des intérêts hypothécaires ET bénéficies de la '
           'déduction 3a.',
       why: [
@@ -360,7 +362,8 @@ class CoachReasonerService {
       evidenceLinks: const [
         EvidenceLink(
           label: 'LIFD art. 33 — Déductions',
-          url: 'https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/fr#art_33',
+          url:
+              'https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/fr#art_33',
         ),
       ],
       nextActions: [
@@ -385,7 +388,8 @@ class CoachReasonerService {
     if (prev.nombre3a < 2) return null; // need >= 2 accounts to stagger
     if (prev.totalEpargne3a < 20000) return null; // trivial amounts
 
-    final retirementAge = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final retirementAge = profile.targetRetirementAge ??
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsToRetirement = (retirementAge - age).clamp(0, 45);
     if (yearsToRetirement > 10) return null; // only relevant near retirement
 
@@ -447,7 +451,8 @@ class CoachReasonerService {
       evidenceLinks: const [
         EvidenceLink(
           label: 'LIFD art. 38 — Imposition du capital',
-          url: 'https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/fr#art_38',
+          url:
+              'https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/fr#art_38',
         ),
       ],
       nextActions: [
@@ -473,7 +478,8 @@ class CoachReasonerService {
     if (totalLP < 20000) return null; // too small
     if (prev.librePassage.length >= 2) return null; // already split
 
-    final retirementAge = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final retirementAge = profile.targetRetirementAge ??
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsToRetirement = (retirementAge - age).clamp(0, 45);
     if (yearsToRetirement > 15) return null; // not urgent yet
 
@@ -526,7 +532,8 @@ class CoachReasonerService {
       evidenceLinks: const [
         EvidenceLink(
           label: 'LFLP art. 10 — Libre passage',
-          url: 'https://www.fedlex.admin.ch/eli/cc/1994/2386_2386_2386/fr#art_10',
+          url:
+              'https://www.fedlex.admin.ch/eli/cc/1994/2386_2386_2386/fr#art_10',
         ),
       ],
       nextActions: [

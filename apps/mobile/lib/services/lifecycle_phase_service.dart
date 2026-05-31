@@ -22,28 +22,28 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Lifecycle phase enum (7 phases covering full adult life).
 enum LifecyclePhase {
-  demarrage,      // <25: First job, habits, 3a
-  construction,   // 25-34: Career, family, property
-  acceleration,   // 35-45: Peak earning, optimization
-  consolidation,  // 45-55: Secure position, LPP buyback
-  transition,     // 55-65: Pre-retirement planning
-  retraite,       // 65-80: Living off retirement income
-  transmission,   // 75-99+: Legacy and estate planning
+  demarrage, // <25: First job, habits, 3a
+  construction, // 25-34: Career, family, property
+  acceleration, // 35-45: Peak earning, optimization
+  consolidation, // 45-55: Secure position, LPP buyback
+  transition, // 55-65: Pre-retirement planning
+  retraite, // 65-80: Living off retirement income
+  transmission, // 75-99+: Legacy and estate planning
 }
 
 /// Tone of communication adapted per phase.
 enum LifecycleTone {
-  encouraging,  // Démarrage, Construction — motivating, simple
-  empowering,   // Accélération — confident, action-oriented
-  reassuring,   // Consolidation, Transition — calm, methodical
-  simple,       // Retraite, Transmission — clear, no jargon
+  encouraging, // Démarrage, Construction — motivating, simple
+  empowering, // Accélération — confident, action-oriented
+  reassuring, // Consolidation, Transition — calm, methodical
+  simple, // Retraite, Transmission — clear, no jargon
 }
 
 /// Complexity level for content display.
 enum LifecycleComplexity {
-  basic,        // Essential concepts only
+  basic, // Essential concepts only
   intermediate, // Details + some technical terms
-  advanced,     // Full projections, Monte Carlo, tax optimization
+  advanced, // Full projections, Monte Carlo, tax optimization
 }
 
 /// Result of lifecycle phase detection.
@@ -113,15 +113,22 @@ class LifecyclePhaseService {
     CoachProfile profile, {
     DateTime? now,
   }) {
-    final currentDate = now ?? DateTime.now();
-    // NOTE: CoachProfile only has birthYear (int), not a full birthDate.
-    // This means age = currentDate.year - birthYear, which may overestimate
-    // by up to 11 months (e.g. born June 1982, in March 2026 → computed 44,
-    // actual 43). This is a known limitation — see CoachProfile model.
-    // Phase boundaries use wide bands (10+ years), so the ±1 year error
-    // does not cause phase misclassification in practice.
-    final age = currentDate.year - profile.birthYear;
-    final targetRetirement = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final ageOrNull = profile.ageOrNull;
+    if (ageOrNull == null) {
+      return const LifecyclePhaseResult(
+        phase: LifecyclePhase.construction,
+        age: 0,
+        yearsToRetirement: 0,
+        tone: LifecycleTone.encouraging,
+        complexity: LifecycleComplexity.basic,
+        priorities: [],
+        phaseKey: 'unknown',
+      );
+    }
+
+    final age = ageOrNull;
+    final targetRetirement = profile.targetRetirementAge ??
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsToRetirement = targetRetirement - age;
 
     final phase = _detectPhase(age, profile);
@@ -157,7 +164,8 @@ class LifecyclePhaseService {
 
     // Override: early retirement — if target retirement is within 10 years
     // and user is 50+, shift to transition (only if not yet past target)
-    final targetRetirement = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final targetRetirement = profile.targetRetirementAge ??
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsLeft = targetRetirement - age;
     if (age >= 50 && yearsLeft > 0 && yearsLeft <= 10) {
       return LifecyclePhase.transition;
@@ -168,7 +176,10 @@ class LifecyclePhaseService {
     if (age < 35) return LifecyclePhase.construction;
     if (age < 45) return LifecyclePhase.acceleration;
     if (age < 55) return LifecyclePhase.consolidation;
-    if (age < reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) return LifecyclePhase.transition;
+    if (age <
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) {
+      return LifecyclePhase.transition;
+    }
     if (age < 75) return LifecyclePhase.retraite;
     return LifecyclePhase.transmission;
   }
@@ -196,14 +207,20 @@ class LifecyclePhaseService {
     CoachProfile profile,
   ) {
     // Financial literacy level overrides phase default if higher
-    final isAdvanced = profile.financialLiteracyLevel == FinancialLiteracyLevel.advanced;
-    final isIntermediate = profile.financialLiteracyLevel == FinancialLiteracyLevel.intermediate;
+    final isAdvanced =
+        profile.financialLiteracyLevel == FinancialLiteracyLevel.advanced;
+    final isIntermediate =
+        profile.financialLiteracyLevel == FinancialLiteracyLevel.intermediate;
 
     switch (phase) {
       case LifecyclePhase.demarrage:
-        return isAdvanced ? LifecycleComplexity.intermediate : LifecycleComplexity.basic;
+        return isAdvanced
+            ? LifecycleComplexity.intermediate
+            : LifecycleComplexity.basic;
       case LifecyclePhase.construction:
-        return isAdvanced ? LifecycleComplexity.advanced : LifecycleComplexity.intermediate;
+        return isAdvanced
+            ? LifecycleComplexity.advanced
+            : LifecycleComplexity.intermediate;
       case LifecyclePhase.acceleration:
       case LifecyclePhase.consolidation:
       case LifecyclePhase.transition:
@@ -211,9 +228,13 @@ class LifecyclePhaseService {
             ? LifecycleComplexity.advanced
             : LifecycleComplexity.intermediate;
       case LifecyclePhase.retraite:
-        return isAdvanced ? LifecycleComplexity.advanced : LifecycleComplexity.intermediate;
+        return isAdvanced
+            ? LifecycleComplexity.advanced
+            : LifecycleComplexity.intermediate;
       case LifecyclePhase.transmission:
-        return isAdvanced ? LifecycleComplexity.intermediate : LifecycleComplexity.basic;
+        return isAdvanced
+            ? LifecycleComplexity.intermediate
+            : LifecycleComplexity.basic;
     }
   }
 
@@ -234,7 +255,8 @@ class LifecyclePhaseService {
     switch (phase) {
       case LifecyclePhase.demarrage:
         priorities.addAll([
-          const LifecyclePriority(key: 'open_3a', weight: 1.0, relatedLifeEvent: 'firstJob'),
+          const LifecyclePriority(
+              key: 'open_3a', weight: 1.0, relatedLifeEvent: 'firstJob'),
           const LifecyclePriority(key: 'build_emergency_fund', weight: 0.9),
           const LifecyclePriority(key: 'understand_payslip', weight: 0.8),
           const LifecyclePriority(key: 'start_budget', weight: 0.7),
@@ -243,7 +265,10 @@ class LifecyclePhaseService {
       case LifecyclePhase.construction:
         priorities.addAll([
           const LifecyclePriority(key: 'max_3a', weight: 1.0),
-          const LifecyclePriority(key: 'evaluate_housing', weight: 0.9, relatedLifeEvent: 'housingPurchase'),
+          const LifecyclePriority(
+              key: 'evaluate_housing',
+              weight: 0.9,
+              relatedLifeEvent: 'housingPurchase'),
           const LifecyclePriority(key: 'grow_patrimoine', weight: 0.8),
           const LifecyclePriority(key: 'check_insurance_coverage', weight: 0.6),
         ]);
@@ -253,12 +278,16 @@ class LifecyclePhaseService {
           const LifecyclePriority(key: 'lpp_buyback', weight: 1.0),
           const LifecyclePriority(key: 'optimize_taxes', weight: 0.9),
           const LifecyclePriority(key: 'diversify_assets', weight: 0.8),
-          const LifecyclePriority(key: 'review_retirement_projection', weight: 0.7),
+          const LifecyclePriority(
+              key: 'review_retirement_projection', weight: 0.7),
         ]);
 
       case LifecyclePhase.consolidation:
         priorities.addAll([
-          const LifecyclePriority(key: 'plan_retirement_scenario', weight: 1.0, relatedLifeEvent: 'retirement'),
+          const LifecyclePriority(
+              key: 'plan_retirement_scenario',
+              weight: 1.0,
+              relatedLifeEvent: 'retirement'),
           const LifecyclePriority(key: 'maximize_lpp_buyback', weight: 0.9),
           const LifecyclePriority(key: 'rente_vs_capital', weight: 0.8),
           const LifecyclePriority(key: 'estate_planning_start', weight: 0.6),
@@ -266,7 +295,10 @@ class LifecyclePhaseService {
 
       case LifecyclePhase.transition:
         priorities.addAll([
-          const LifecyclePriority(key: 'finalize_retirement_plan', weight: 1.0, relatedLifeEvent: 'retirement'),
+          const LifecyclePriority(
+              key: 'finalize_retirement_plan',
+              weight: 1.0,
+              relatedLifeEvent: 'retirement'),
           const LifecyclePriority(key: 'withdrawal_sequencing', weight: 0.9),
           const LifecyclePriority(key: 'rente_vs_capital_final', weight: 0.9),
           const LifecyclePriority(key: 'bridge_income_gap', weight: 0.7),
@@ -277,13 +309,22 @@ class LifecyclePhaseService {
           const LifecyclePriority(key: 'optimize_withdrawal_rate', weight: 1.0),
           const LifecyclePriority(key: 'review_budget_retirement', weight: 0.8),
           const LifecyclePriority(key: 'lamal_subsidy_check', weight: 0.7),
-          const LifecyclePriority(key: 'estate_planning', weight: 0.6, relatedLifeEvent: 'donation'),
+          const LifecyclePriority(
+              key: 'estate_planning',
+              weight: 0.6,
+              relatedLifeEvent: 'donation'),
         ]);
 
       case LifecyclePhase.transmission:
         priorities.addAll([
-          const LifecyclePriority(key: 'estate_planning_complete', weight: 1.0, relatedLifeEvent: 'donation'),
-          const LifecyclePriority(key: 'advance_directive', weight: 0.9, relatedLifeEvent: 'deathOfRelative'),
+          const LifecyclePriority(
+              key: 'estate_planning_complete',
+              weight: 1.0,
+              relatedLifeEvent: 'donation'),
+          const LifecyclePriority(
+              key: 'advance_directive',
+              weight: 0.9,
+              relatedLifeEvent: 'deathOfRelative'),
           const LifecyclePriority(key: 'simplify_patrimoine', weight: 0.8),
           const LifecyclePriority(key: 'review_beneficiaries', weight: 0.7),
         ]);

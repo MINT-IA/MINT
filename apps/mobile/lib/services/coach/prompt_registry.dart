@@ -28,6 +28,12 @@ class PromptRegistry {
 
   static const String version = '1.2.0';
 
+  static String _ageLine(CoachContext ctx, {String label = 'Âge'}) =>
+      ctx.age > 0 ? '- $label : ${ctx.age} ans\n' : '';
+
+  static String _ageValue(CoachContext ctx) =>
+      ctx.age > 0 ? '${ctx.age} ans' : 'inconnu';
+
   /// Privacy-safe financial keys that should be ranged when sent to LLM.
   static const _financialKeys = {
     'salaire_brut',
@@ -203,7 +209,7 @@ $baseSystemPrompt
 
 CONTEXTE UTILISATEUR :
 - Prénom : ${ctx.firstName}
-- Âge : ${ctx.age} ans
+${_ageLine(ctx).trimRight()}
 - Canton : ${ctx.canton}
 - Archetype : ${ctx.archetype}
 - Score de confiance : ${ctx.confidenceScore.toStringAsFixed(0)}%
@@ -255,10 +261,11 @@ TÂCHE : Guide l'utilisateur pour compléter le bloc "$blockType".
           'OBJECTIF : Obtenir la commune (coefficient 60%-130%), le revenu imposable\n'
           'réel et la fortune imposable. Impact sur confiance : +15 pts.',
       'objectifRetraite' => 'DONNÉES CONNUES :\n'
-          '- Âge actuel : ${ctx.age} ans\n'
+          '- Âge actuel : ${_ageValue(ctx)}\n'
           '- Âge retraite cible : ${ctx.knownValues['target_retirement_age']?.toInt() ?? '?'}\n'
           '\n'
           'OBJECTIF : Définir un âge de retraite souhaité (58-70 ans).\n'
+          'Si l\'âge actuel est inconnu, DEMANDE la date de naissance avant de projeter.\n'
           'Si l\'âge retraite cible est "?", DEMANDE-le, ne suppose pas 65 par défaut.\n'
           'Avant 63 ans : seule la LPP est disponible (pas d\'AVS).\n'
           'Impact sur confiance : +10 pts.',
@@ -294,7 +301,7 @@ IDENTITÉ :
 
 PROFIL UTILISATEUR :
 - Prénom : ${ctx.firstName}
-- Âge : ${ctx.age} ans
+${_ageLine(ctx).trimRight()}
 - Canton : ${ctx.canton}
 - Archétype : ${_archetypeLabel(ctx.archetype)}
 - Score FRI : ${ctx.friTotal.toStringAsFixed(0)}/100
@@ -343,7 +350,7 @@ MODE BIENVEILLANT ACTIVÉ — L'utilisateur traverse une période financière di
 
 PROFIL :
 - Prénom : ${ctx.firstName}
-- Âge : ${ctx.age} ans
+${_ageLine(ctx).trimRight()}
 - Canton : ${ctx.canton}
 
 RÈGLES SPÉCIALES (priorité absolue) :
@@ -377,7 +384,7 @@ L'utilisateur pose une question de suivi. Réfère-toi au contexte précédent.
 
 PROFIL :
 - Prénom : ${ctx.firstName}
-- Âge : ${ctx.age} ans
+${_ageLine(ctx).trimRight()}
 - Canton : ${ctx.canton}
 - Archétype : ${_archetypeLabel(ctx.archetype)}
 - Score FRI : ${ctx.friTotal.toStringAsFixed(0)}/100
@@ -402,7 +409,7 @@ L'utilisateur veut simuler un scénario. Utilise les chiffres du profil.
 
 PROFIL :
 - Prénom : ${ctx.firstName}
-- Âge : ${ctx.age} ans
+${_ageLine(ctx).trimRight()}
 - Canton : ${ctx.canton}
 - Archétype : ${_archetypeLabel(ctx.archetype)}
 - Score FRI : ${ctx.friTotal.toStringAsFixed(0)}/100
@@ -441,7 +448,7 @@ Tu es un accompagnant bienveillant et patient.
 
 PROFIL :
 - Prénom : ${ctx.firstName}
-- Âge : ${ctx.age} ans
+${_ageLine(ctx).trimRight()}
 - Canton : ${ctx.canton}
 - Score FRI : ${ctx.friTotal.toStringAsFixed(0)}/100
 - Confiance données : ${ctx.confidenceScore.toStringAsFixed(0)}%

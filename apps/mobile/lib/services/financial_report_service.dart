@@ -192,8 +192,10 @@ class FinancialReportService {
   }
 
   UserProfile _buildUserProfile(Map<String, dynamic> answers) {
-    final birthYear =
-        _parseInt(answers['q_birth_year']) ?? DateTime.now().year - 40;
+    final birthYear = _birthYearFromAnswers(answers);
+    final parsedMonthlyNetIncome =
+        _parseDouble(answers['q_net_income_period_chf']);
+    final monthlyNetIncome = parsedMonthlyNetIncome ?? 0.0;
     return UserProfile(
       firstName: answers['q_firstname'] as String?,
       birthYear: birthYear,
@@ -201,16 +203,18 @@ class FinancialReportService {
       civilStatus: answers['q_civil_status'] as String? ?? 'single',
       childrenCount: _parseInt(answers['q_children']) ?? 0,
       employmentStatus: answers['q_employment_status'] as String? ?? 'employee',
-      monthlyNetIncome:
-          _parseDouble(answers['q_net_income_period_chf']) ?? 5000,
+      monthlyNetIncome: monthlyNetIncome,
       gender: answers['q_gender'] as String?,
       spouseGender: answers['q_spouse_gender'] as String?,
       // FIX-W11-3: Spouse birth year and income for accurate couple AVS
       spouseBirthYear: _parseInt(answers['q_partner_birth_year']),
       spouseMonthlyNetIncome: _parseDouble(answers['q_partner_net_income_chf']),
       // Nouvelle logique AVS (triage lacunes)
-      avsGapYears: _calculateAvsGaps(answers, birthYear),
-      spouseAvsGapYears: _calculateSpouseAvsGaps(answers, birthYear),
+      avsGapYears:
+          birthYear >= 1900 ? _calculateAvsGaps(answers, birthYear) : null,
+      spouseAvsGapYears: birthYear >= 1900
+          ? _calculateSpouseAvsGaps(answers, birthYear)
+          : null,
       // Legacy fallback
       contributionYears: _parseInt(answers['q_avs_contribution_years']),
       spouseContributionYears:
@@ -228,6 +232,15 @@ class FinancialReportService {
   int? _calculateSpouseAvsGaps(Map<String, dynamic> answers, int birthYear) =>
       CircleScoringService.calculateSpouseAvsGapsFromAnswers(
           answers, birthYear);
+
+  int _birthYearFromAnswers(Map<String, dynamic> answers) {
+    final dobRaw = answers['q_date_of_birth'];
+    if (dobRaw is String) {
+      final dob = DateTime.tryParse(dobRaw);
+      if (dob != null) return dob.year;
+    }
+    return _parseInt(answers['q_birth_year']) ?? 0;
+  }
 
   TaxSimulation _buildTaxSimulation(
       Map<String, dynamic> answers, UserProfile profile) {
@@ -303,7 +316,11 @@ class FinancialReportService {
 
   RetirementProjection? _buildRetirementProjection(
       Map<String, dynamic> answers, UserProfile profile) {
-    if (profile.yearsToRetirement <= 0) return null;
+    final age = profile.ageOrNull;
+    final yearsToRetirement = profile.yearsToRetirementOrNull;
+    if (age == null || yearsToRetirement == null || yearsToRetirement <= 0) {
+      return null;
+    }
 
     // Capital LPP estimé (simplifié - à raffiner)
     final currentLppCapital =
@@ -315,7 +332,7 @@ class FinancialReportService {
     // Inverse: net → gross via NetIncomeBreakdown.estimateBrutFromNet
     final annualGrossApprox = NetIncomeBreakdown.estimateBrutFromNet(
       profile.monthlyNetIncome * 12,
-      age: profile.age,
+      age: age,
     );
     // Use LPP constants for coordinated salary (LPP art. 8)
     // Guard: if gross < seuil d'accès LPP (22'680), no LPP coverage
@@ -330,8 +347,8 @@ class FinancialReportService {
     }
     final refAgeReport =
         reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-    for (int year = 0; year < profile.yearsToRetirement; year++) {
-      final ageThisYear = profile.age + year;
+    for (int year = 0; year < yearsToRetirement; year++) {
+      final ageThisYear = age + year;
       if (ageThisYear >= 25 && ageThisYear <= refAgeReport) {
         final rate = getLppBonificationRate(ageThisYear);
         estimatedLppGrowth += coordinatedSalary * rate;
@@ -343,7 +360,7 @@ class FinancialReportService {
     final contribution3a =
         _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
     final pillar3aCapital =
-        _futureValue(contribution3a, 0.03, profile.yearsToRetirement);
+        _futureValue(contribution3a, 0.03, yearsToRetirement);
 
     // Rentes
     final monthlyAvsRent = _estimateAvsRent(profile);
@@ -355,7 +372,7 @@ class FinancialReportService {
     final monthlyLppRent = (lppCapital * convRate) / 12;
 
     return RetirementProjection(
-      yearsUntilRetirement: profile.yearsToRetirement,
+      yearsUntilRetirement: yearsToRetirement,
       lppCapital: lppCapital,
       pillar3aCapital: pillar3aCapital,
       monthlyAvsRent: monthlyAvsRent,
@@ -376,20 +393,19 @@ class FinancialReportService {
         (answers['q_3a_providers'] as List?)?.cast<String>() ?? ['bank'];
 
     final contribution = _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
+    final yearsToRetirement = profile.yearsToRetirementOrNull;
+    if (yearsToRetirement == null) return null;
     final maxContribution = profile.isSalaried
         ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
         : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
     // Projections par provider (simplifié)
     final projections = <String, double>{
-      'bank':
-          _futureValue(contribution, 0.015, profile.yearsToRetirement), // 1.5%
-      'fintech':
-          _futureValue(contribution, 0.045, profile.yearsToRetirement), // 4.5%
+      'bank': _futureValue(contribution, 0.015, yearsToRetirement), // 1.5%
+      'fintech': _futureValue(contribution, 0.045, yearsToRetirement), // 4.5%
       'fintech_low_fee':
-          _futureValue(contribution, 0.055, profile.yearsToRetirement), // 5.5%
-      'insurance':
-          _futureValue(contribution, 0.01, profile.yearsToRetirement), // 1%
+          _futureValue(contribution, 0.055, yearsToRetirement), // 5.5%
+      'insurance': _futureValue(contribution, 0.01, yearsToRetirement), // 1%
     };
 
     final potentialGain = projections['fintech']! - projections['bank']!;
@@ -441,7 +457,8 @@ class FinancialReportService {
         _parseDouble(answers['q_lpp_buyback_available']) ?? 0;
     if (buybackAvailable < 10000) return null;
 
-    final yearsToRetirement = profile.yearsToRetirement;
+    final yearsToRetirement = profile.yearsToRetirementOrNull;
+    if (yearsToRetirement == null) return null;
     final isMarried = profile.civilStatus == 'marie';
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(
         profile.annualIncome, profile.canton,
@@ -710,9 +727,12 @@ class FinancialReportService {
         taxSim.effectiveRate <= 0) {
       return null;
     }
+    final age = profile.ageOrNull;
+    if (age == null) return null;
+
     final grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(
       profile.monthlyNetIncome * 12,
-      age: profile.age,
+      age: age,
     );
     final hasLpp = profile.isSalaried &&
         grossAnnualSalary >= reg('lpp.entry_threshold', lppSeuilEntree);
@@ -754,11 +774,14 @@ class FinancialReportService {
   }
 
   double _estimateAvsRent(UserProfile profile) {
+    final age = profile.ageOrNull;
+    if (age == null) return 0;
+
     // Delegate to AvsCalculator for centralized AVS rente logic (LAVS art. 29, 34, 35).
     // Inverse: net → gross via NetIncomeBreakdown.estimateBrutFromNet
     final grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(
       profile.monthlyNetIncome * 12,
-      age: profile.age,
+      age: age,
     );
 
     // F7-2: Pass gender and birthYear so AvsCalculator uses the correct
@@ -768,7 +791,7 @@ class FinancialReportService {
         ? avsReferenceAge(birthYear: profile.birthYear, isFemale: isFemale)
         : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final userRente = AvsCalculator.computeMonthlyRente(
-      currentAge: profile.age,
+      currentAge: age,
       retirementAge: refAgeAvs,
       lacunes: profile.avsGapYears ?? 0,
       anneesContribuees: profile.contributionYears,
@@ -785,7 +808,7 @@ class FinancialReportService {
       final spouseIsFemale = profile.spouseGender == 'F';
       final hasSpouseGender = profile.spouseGender != null;
       final spouseBirthYear = profile.spouseBirthYear ?? profile.birthYear;
-      final spouseAge = profile.spouseAge ?? profile.age;
+      final spouseAge = profile.spouseAge ?? age;
       final spouseRefAge = hasSpouseGender
           ? avsReferenceAge(
               birthYear: spouseBirthYear, isFemale: spouseIsFemale)

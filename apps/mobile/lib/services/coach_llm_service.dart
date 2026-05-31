@@ -459,7 +459,7 @@ class CoachLlmService {
   /// CRIT #6: wrapped in try-catch to prevent crash on incomplete profiles.
   static String buildSystemPrompt(CoachProfile profile) {
     final firstName = profile.firstName ?? 'utilisateur';
-    final age = profile.age;
+    final age = profile.ageOrNull;
     final canton = profile.canton;
 
     // Calculate score and projection — may fail on incomplete profiles.
@@ -567,7 +567,8 @@ class CoachLlmService {
         '- Termine par un disclaimer : "Ceci est un outil educatif, ne constitue pas un conseil financier."');
     buffer.writeln();
     buffer.writeln('CONTEXTE UTILISATEUR :');
-    buffer.writeln('- Prenom : $firstName, Age : $age, Canton : $canton');
+    final ageSegment = age == null ? '' : ', Age : $age';
+    buffer.writeln('- Prenom : $firstName$ageSegment, Canton : $canton');
     buffer.writeln(
         '- Score Fitness : $globalScore/100 (Budget: $budgetScore, Prévoyance: $prevoyanceScore, Patrimoine: $patrimoineScore)');
     buffer.writeln('- Capital projete base : $capitalBase');
@@ -577,8 +578,9 @@ class CoachLlmService {
     if (profile.isCouple && profile.conjoint != null) {
       final conj = profile.conjoint!;
       final conjFirstName = conj.firstName ?? 'conjoint·e';
-      final conjAge = conj.age ?? 0;
-      buffer.writeln('- Conjoint·e : $conjFirstName, $conjAge ans');
+      final conjAge = conj.age;
+      final conjAgeSegment = conjAge == null ? '' : ', $conjAge ans';
+      buffer.writeln('- Conjoint·e : $conjFirstName$conjAgeSegment');
       if (conj.nationality != null) {
         buffer.write('- Nationalite conjoint·e : ${conj.nationality}');
         if (conj.isFatcaResident) {
@@ -634,7 +636,7 @@ class CoachLlmService {
 
     return CoachContext(
       firstName: profile.firstName ?? 'utilisateur',
-      age: profile.age,
+      age: profile.ageOrNull ?? 0,
       canton: profile.canton,
       knownValues: knownValues,
       coachContextPacket: coachContextPacket,

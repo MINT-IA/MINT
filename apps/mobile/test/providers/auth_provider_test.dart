@@ -1,7 +1,58 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  const secureStorageChannel =
+      MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  final secureStorage = <String, String>{};
+  var deleteAllCalls = 0;
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    AuthService.resetMemoryCacheForTest();
+    secureStorage.clear();
+    deleteAllCalls = 0;
+
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      secureStorageChannel,
+      (call) async {
+        final key = call.arguments['key'] as String?;
+        switch (call.method) {
+          case 'write':
+            final value = call.arguments['value'] as String?;
+            if (key != null && value != null) {
+              secureStorage[key] = value;
+            }
+            return null;
+          case 'read':
+            return key == null ? null : secureStorage[key];
+          case 'delete':
+            if (key != null) {
+              secureStorage.remove(key);
+            }
+            return null;
+          case 'deleteAll':
+            deleteAllCalls += 1;
+            secureStorage.clear();
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(secureStorageChannel, null);
+  });
+
   group('AuthProvider', () {
     late AuthProvider provider;
 
@@ -139,6 +190,91 @@ void main() {
 
     test('dispose does not throw on fresh provider', () {
       expect(() => provider.dispose(), returnsNormally);
+    });
+
+    test('logout purges only MINT-owned secure storage keys', () async {
+      secureStorage.addAll({
+        'jwt_token': 'jwt',
+        'refresh_token': 'refresh',
+        'user_id': 'u1',
+        'user_email': 'u1@example.ch',
+        'display_name': 'User One',
+        'byok_provider': 'openai',
+        'byok_api_key': 'sk-test-key',
+        'mint_partner_estimate': '{"estimated_salary":100000}',
+        'anonymous_session_id': 'anon-1',
+        'anonymous_message_count': '1',
+        'mint_biography_key': 'bio-key',
+        '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
+        'q_net_income_period_chf': '8000',
+        'foreign_app_key': 'must-stay',
+      });
+
+      await provider.logout();
+
+      expect(deleteAllCalls, 0);
+      expect(secureStorage['foreign_app_key'], 'must-stay');
+      expect(secureStorage.containsKey('jwt_token'), isFalse);
+      expect(secureStorage.containsKey('refresh_token'), isFalse);
+      expect(secureStorage.containsKey('byok_provider'), isFalse);
+      expect(secureStorage.containsKey('byok_api_key'), isFalse);
+      expect(secureStorage.containsKey('mint_partner_estimate'), isFalse);
+      expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
+      expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
+      expect(secureStorage.containsKey('mint_biography_key'), isFalse);
+      expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
+    });
+
+    test('logout continues scoped secure purges when one key delete fails',
+        () async {
+      secureStorage.addAll({
+        'byok_provider': 'openai',
+        'byok_api_key': 'sk-delete-fails',
+        'mint_partner_estimate': '{"estimated_salary":100000}',
+        'anonymous_session_id': 'anon-1',
+        'anonymous_message_count': '1',
+        'mint_biography_key': 'bio-key',
+        '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
+        'q_net_income_period_chf': '8000',
+        'foreign_app_key': 'must-stay',
+      });
+
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        secureStorageChannel,
+        (call) async {
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'read':
+              return key == null ? null : secureStorage[key];
+            case 'delete':
+              if (key == 'byok_api_key') {
+                throw PlatformException(code: '-34018');
+              }
+              if (key != null) {
+                secureStorage.remove(key);
+              }
+              return null;
+            case 'deleteAll':
+              deleteAllCalls += 1;
+              secureStorage.clear();
+              return null;
+            default:
+              return null;
+          }
+        },
+      );
+
+      await provider.logout();
+
+      expect(deleteAllCalls, 0);
+      expect(secureStorage['foreign_app_key'], 'must-stay');
+      expect(secureStorage['byok_api_key'], 'sk-delete-fails');
+      expect(secureStorage.containsKey('mint_partner_estimate'), isFalse);
+      expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
+      expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
+      expect(secureStorage.containsKey('mint_biography_key'), isFalse);
+      expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
     });
   });
 

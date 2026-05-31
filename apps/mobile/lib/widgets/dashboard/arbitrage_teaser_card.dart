@@ -46,7 +46,8 @@ class ArbitrageTeaserSection extends StatelessWidget {
             Expanded(
               child: Text(
                 'Pistes d\u2019arbitrage',
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
             ),
             Semantics(
@@ -55,9 +56,10 @@ class ArbitrageTeaserSection extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => context.push('/arbitrage/bilan'),
                 child: Text(
-                'Voir tout \u2192',
-                style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
-              ),
+                  'Voir tout \u2192',
+                  style: MintTextStyles.labelMedium(color: MintColors.primary)
+                      .copyWith(fontWeight: FontWeight.w600),
+                ),
               ),
             ),
           ],
@@ -82,14 +84,15 @@ class ArbitrageTeaserSection extends StatelessWidget {
     final resolvedCanton = resolveCanton(profile.canton);
     if (!resolvedCanton.isResolved) return teasers;
     final canton = resolvedCanton.code;
+    final age = profile.ageOrNull;
 
     // 1. Rente vs Capital
     final lppAvoir = profile.prevoyance.avoirLppTotal ?? 0;
-    if (lppAvoir > 0) {
+    if (lppAvoir > 0 && age != null) {
       final convRate = profile.prevoyance.tauxConversion;
       final annualRente = LppCalculator.projectToRetirement(
         currentBalance: lppAvoir,
-        currentAge: profile.age,
+        currentAge: age,
         retirementAge: 65,
         grossAnnualSalary: profile.revenuBrutAnnuel,
         caisseReturn: profile.prevoyance.rendementCaisse,
@@ -225,54 +228,59 @@ class _ArbitrageTeaserTile extends StatelessWidget {
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: teaser.color.withValues(alpha: 0.04),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: teaser.color.withValues(alpha: 0.12)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: teaser.color.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(12),
+          decoration: BoxDecoration(
+            color: teaser.color.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: teaser.color.withValues(alpha: 0.12)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: teaser.color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(teaser.icon, size: 20, color: teaser.color),
               ),
-              child: Icon(teaser.icon, size: 20, color: teaser.color),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    teaser.title,
-                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    teaser.premierEclairage,
-                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.3),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Dans ce sc\u00e9nario simul\u00e9 \u2014 \u00e0 explorer en d\u00e9tail',
-                    style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
-                  ),
-                ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      teaser.title,
+                      style: MintTextStyles.bodySmall(
+                              color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      teaser.premierEclairage,
+                      style: MintTextStyles.labelMedium(
+                              color: MintColors.textSecondary)
+                          .copyWith(height: 1.3),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Dans ce sc\u00e9nario simul\u00e9 \u2014 \u00e0 explorer en d\u00e9tail',
+                      style: MintTextStyles.micro(color: MintColors.textMuted)
+                          .copyWith(fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: teaser.color.withValues(alpha: 0.5),
-              size: 20,
-            ),
-          ],
+              const SizedBox(width: 8),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: teaser.color.withValues(alpha: 0.5),
+                size: 20,
+              ),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }

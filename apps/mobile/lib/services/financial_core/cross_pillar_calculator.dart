@@ -222,8 +222,7 @@ class CrossPillarCalculator {
     if (grossAnnual <= 0) return null;
 
     // Determine applicable plafond (OPP3 art. 7)
-    final isIndependantSansLpp =
-        profile.employmentStatus == 'independant' &&
+    final isIndependantSansLpp = profile.employmentStatus == 'independant' &&
         (profile.prevoyance.avoirLppTotal == null ||
             profile.prevoyance.avoirLppTotal! <= 0);
 
@@ -265,8 +264,8 @@ class CrossPillarCalculator {
     if (fiscalSaving < 50) return null;
 
     // Confidence: higher if we have salary from certificate, lower if estimated
-    final salarySource =
-        profile.dataSources['salaireBrutMensuel'] ?? ProfileDataSource.estimated;
+    final salarySource = profile.dataSources['salaireBrutMensuel'] ??
+        ProfileDataSource.estimated;
     final confidence = _sourceConfidence(salarySource);
 
     return CrossPillarInsight(
@@ -373,15 +372,16 @@ class CrossPillarCalculator {
   static CrossPillarInsight? _budgetReallocation(CoachProfile profile) {
     final grossAnnual = profile.revenuBrutAnnuel;
     if (grossAnnual <= 0) return null;
+    final age = profile.ageOrNull;
+    if (age == null) return null;
 
     // Net income from payslip via financial_core (no hardcoded rate)
     final breakdown = NetIncomeBreakdown.compute(
       grossSalary: grossAnnual,
       canton: profile.canton,
-      age: profile.age,
-      etatCivil: profile.etatCivil == CoachCivilStatus.marie
-          ? 'marie'
-          : 'celibataire',
+      age: age,
+      etatCivil:
+          profile.etatCivil == CoachCivilStatus.marie ? 'marie' : 'celibataire',
       nombreEnfants: profile.nombreEnfants,
     );
 
@@ -393,8 +393,7 @@ class CrossPillarCalculator {
     final debtPayments = profile.dettes.totalMensualite;
     final alreadySaving = profile.totalContributionsMensuelles;
 
-    final monthlyFree =
-        monthlyNet - fixedCosts - debtPayments - alreadySaving;
+    final monthlyFree = monthlyNet - fixedCosts - debtPayments - alreadySaving;
 
     if (monthlyFree <= _minMarginForReallocation) return null;
 
@@ -408,8 +407,7 @@ class CrossPillarCalculator {
     if (profile.canContribute3a) {
       const plafond = pilier3aPlafondAvecLpp;
       final current3aMonthly = profile.total3aMensuel;
-      final missing3aMonthly =
-          max(0.0, plafond / 12 - current3aMonthly);
+      final missing3aMonthly = max(0.0, plafond / 12 - current3aMonthly);
       optimal3aMonthly = min(excess, missing3aMonthly);
       if (optimal3aMonthly > 0) {
         final isMarriedC = profile.etatCivil == CoachCivilStatus.marie;
@@ -506,21 +504,19 @@ class CrossPillarCalculator {
     if (taxDiff < _minCantonalDiffForArbitrage) return null;
 
     // Confidence: income data quality
-    final salarySource =
-        profile.dataSources['salaireBrutMensuel'] ?? ProfileDataSource.estimated;
-    final confidence = _sourceConfidence(salarySource) * 0.7; // partial: many life factors
+    final salarySource = profile.dataSources['salaireBrutMensuel'] ??
+        ProfileDataSource.estimated;
+    final confidence =
+        _sourceConfidence(salarySource) * 0.7; // partial: many life factors
 
-    final bestCantonName =
-        FiscalService.cantonNames[bestCanton] ?? bestCanton;
-    final currentCantonName =
-        FiscalService.cantonNames[canton] ?? canton;
+    final bestCantonName = FiscalService.cantonNames[bestCanton] ?? bestCanton;
+    final currentCantonName = FiscalService.cantonNames[canton] ?? canton;
 
     return CrossPillarInsight(
       type: CrossPillarType.cantonalArbitrage,
       impactChfAnnual: taxDiff,
       confidence: confidence,
-      tradeOff:
-          'Déménagement de $currentCantonName à $bestCantonName\u00a0: '
+      tradeOff: 'Déménagement de $currentCantonName à $bestCantonName\u00a0: '
           'impact emploi, logement, coût du déménagement',
       intentTag: 'fiscal_comparateur_cantons',
       details: {
@@ -588,8 +584,7 @@ class CrossPillarCalculator {
         : 'Amortissement direct\u00a0: réduit la dette mais supprime '
             'la déduction de CHF\u00a0${annualInterest.round()} d\'intérêts';
 
-    final confidence =
-        _sourceConfidence(ProfileDataSource.userInput) * 0.85;
+    final confidence = _sourceConfidence(ProfileDataSource.userInput) * 0.85;
 
     return CrossPillarInsight(
       type: CrossPillarType.mortgageTaxDeduction,
@@ -629,7 +624,8 @@ class CrossPillarCalculator {
     if (grossAnnual <= 0) return null;
 
     final retirementAge = profile.effectiveRetirementAge;
-    final currentAge = profile.age;
+    final currentAge = profile.ageOrNull;
+    if (currentAge == null) return null;
     final yearsLeft = (retirementAge - currentAge).clamp(0, 50);
 
     // Projected retirement income
@@ -671,9 +667,8 @@ class CrossPillarCalculator {
       grossSalary: grossAnnual,
       canton: profile.canton,
       age: currentAge,
-      etatCivil: profile.etatCivil == CoachCivilStatus.marie
-          ? 'marie'
-          : 'celibataire',
+      etatCivil:
+          profile.etatCivil == CoachCivilStatus.marie ? 'marie' : 'celibataire',
       nombreEnfants: profile.nombreEnfants,
     );
     final currentMonthlyNet = breakdown.monthlyNetPayslip;
@@ -709,13 +704,13 @@ class CrossPillarCalculator {
 
     // Action 2: LPP buyback (annual rente boost)
     final lacune = profile.prevoyance.lacuneRachatRestante;
-    final rente3aBoostAnnual = lacune > 0
-        ? lacune * profile.prevoyance.tauxConversion
-        : 0.0;
+    final rente3aBoostAnnual =
+        lacune > 0 ? lacune * profile.prevoyance.tauxConversion : 0.0;
 
     // Action 3: +1 year of work (AVS deferral bonus)
     // F3-3: Use gender-aware avsReferenceAge instead of hardcoded 65/66.
-    final cpIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
+    final cpIsFemale =
+        profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
     final refAge = (cpIsFemale != null)
         ? avsReferenceAge(birthYear: profile.birthYear, isFemale: cpIsFemale)
         : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
@@ -747,16 +742,16 @@ class CrossPillarCalculator {
     if (totalActionImpact <= 0 && gapAnnual <= 0) return null;
 
     final confidence = _sourceConfidence(
-      profile.dataSources['prevoyance.avoirLppTotal'] ??
-          ProfileDataSource.estimated,
-    ) * 0.8;
+          profile.dataSources['prevoyance.avoirLppTotal'] ??
+              ProfileDataSource.estimated,
+        ) *
+        0.8;
 
     return CrossPillarInsight(
       type: CrossPillarType.retirementGapAction,
       impactChfAnnual: totalActionImpact > 0 ? totalActionImpact : gapAnnual,
       confidence: confidence,
-      tradeOff:
-          'Réduire la liquidité aujourd\'hui ou prolonger l\'activité '
+      tradeOff: 'Réduire la liquidité aujourd\'hui ou prolonger l\'activité '
           '(chaque option a un coût de vie ou d\'opportunité)',
       intentTag: 'retraite_projection_detail',
       details: {
@@ -807,8 +802,12 @@ class CrossPillarCalculator {
   ///                     Zéro si aucun retrait 3a prévu cette année.
   /// [canton]          : canton de domicile (ex : 'VS').
   /// [isMarried]       : pour l'application du coefficient couple.
-  static ({bool hasRisk, double cumulTaxChf, double deltaVsSplitChf, String sourceLegale})
-      detectCumulAnnuelRisk({
+  static ({
+    bool hasRisk,
+    double cumulTaxChf,
+    double deltaVsSplitChf,
+    String sourceLegale
+  }) detectCumulAnnuelRisk({
     required double capitalLppAnnee,
     required double capital3aAnnee,
     required String canton,
@@ -838,10 +837,10 @@ class CrossPillarCalculator {
 
     // Impôt scenario étalement sur 2 années fiscales (N et N+1).
     final splitTax = RetirementTaxCalculator.capitalWithdrawalTax(
-      capitalBrut: capitalLppAnnee,
-      canton: canton,
-      isMarried: isMarried,
-    ) +
+          capitalBrut: capitalLppAnnee,
+          canton: canton,
+          isMarried: isMarried,
+        ) +
         RetirementTaxCalculator.capitalWithdrawalTax(
           capitalBrut: capital3aAnnee,
           canton: canton,

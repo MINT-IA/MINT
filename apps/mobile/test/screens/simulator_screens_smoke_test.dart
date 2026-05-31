@@ -82,7 +82,8 @@ void main() {
       expect(find.textContaining('retraite'), findsWidgets);
     });
 
-    testWidgets('displays result section with estimated tax impact', (tester) async {
+    testWidgets('displays result section with estimated tax impact',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // i18n: sim3aAnnualTaxSaved = "Impact fiscal estimé"
@@ -116,7 +117,8 @@ void main() {
       expect(find.textContaining('5 comptes'), findsOneWidget);
     });
 
-    testWidgets('has modern inputs (chips + text field) for parameters', (tester) async {
+    testWidgets('has modern inputs (chips + text field) for parameters',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // Sliders replaced: tax rate chips + return rate chips + contribution text field
@@ -145,6 +147,23 @@ void main() {
       // because no horizon was derived from an unknown age (def-02 skip,
       // not a fabricated 45yr projection).
       expect(find.textContaining('Prérempli'), findsNothing);
+    });
+
+    testWidgets('valid-age profile pre-fills horizon from real age',
+        (tester) async {
+      final coach = CoachProfileProvider();
+      coach.updateFromAnswers(<String, dynamic>{
+        'q_birth_year': DateTime.now().year - 34,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7000,
+      });
+
+      await tester.pumpWidget(buildScreen(coach: coach));
+      await tester.pump();
+
+      expect(find.textContaining('Prérempli'), findsWidgets);
+      expect(find.textContaining('31 ans'), findsWidgets);
+      expect(find.textContaining('30 ans'), findsNothing);
     });
   });
 
@@ -194,7 +213,8 @@ void main() {
       expect(find.textContaining('leasing'), findsWidgets);
     });
 
-    testWidgets('displays result section with opportunity cost', (tester) async {
+    testWidgets('displays result section with opportunity cost',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       expect(find.textContaining('opportunit'), findsWidgets);
@@ -505,9 +525,11 @@ void main() {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // GenderGapScreen uses SingleChildScrollView — scroll to OFS section
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -1000));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -1000));
       await tester.pump();
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -500));
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -500));
       await tester.pump();
       expect(find.textContaining('OFS'), findsWidgets);
     });
@@ -536,8 +558,7 @@ void main() {
       expect(find.textContaining('LPP art.'), findsWidgets);
     });
 
-    testWidgets('displays demo mode indicator after scrolling',
-        (tester) async {
+    testWidgets('displays demo mode indicator after scrolling', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       await tester.scrollUntilVisible(

@@ -74,11 +74,14 @@ class RetirementChecklistCard extends StatelessWidget {
                   children: [
                     Text(
                       'Prochaines \u00e9tapes',
-                      style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                      style: MintTextStyles.titleMedium(
+                              color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w700),
                     ),
                     Text(
                       'Actions personnalis\u00e9es pour ta situation',
-                      style: MintTextStyles.labelMedium(color: MintColors.textMuted),
+                      style: MintTextStyles.labelMedium(
+                          color: MintColors.textMuted),
                     ),
                   ],
                 ),
@@ -114,67 +117,74 @@ class RetirementChecklistCard extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: MintColors.surface,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Priority indicator
-              Container(
-                width: 28,
-                height: 28,
-                margin: const EdgeInsets.only(top: 2),
-                decoration: BoxDecoration(
-                  color: item.color.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Priority indicator
+                Container(
+                  width: 28,
+                  height: 28,
+                  margin: const EdgeInsets.only(top: 2),
+                  decoration: BoxDecoration(
+                    color: item.color.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(item.icon, size: 14, color: item.color),
                 ),
-                child: Icon(item.icon, size: 14, color: item.color),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.title,
-                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
-                    ),
-                    if (item.subtitle != null) ...[
-                      const SizedBox(height: 2),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        item.subtitle!,
-                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(height: 1.3),
+                        item.title,
+                        style: MintTextStyles.bodySmall(
+                                color: MintColors.textPrimary)
+                            .copyWith(fontWeight: FontWeight.w600),
                       ),
-                    ],
-                    if (item.timeline != null) ...[
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: item.color.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(4),
+                      if (item.subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          item.subtitle!,
+                          style: MintTextStyles.labelSmall(
+                                  color: MintColors.textSecondary)
+                              .copyWith(height: 1.3),
                         ),
-                        child: Text(
-                          item.timeline!,
-                          style: MintTextStyles.micro(color: item.color).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+                      ],
+                      if (item.timeline != null) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: item.color.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            item.timeline!,
+                            style: MintTextStyles.micro(color: item.color)
+                                .copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    fontStyle: FontStyle.normal),
+                          ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              if (item.route != null)
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: MintColors.textMuted,
-                  size: 18,
-                ),
-            ],
+                if (item.route != null)
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: MintColors.textMuted,
+                    size: 18,
+                  ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -185,7 +195,9 @@ class RetirementChecklistCard extends StatelessWidget {
     // are NOT shown for a no-age profile — they would be misleading without a
     // real horizon. This mirrors the `?? 99` idiom used in couple_action_plan.
     final yearsToRetirement = profile.anneesAvantRetraite ?? 999;
-    final retirementYear = profile.birthYear + 65;
+    final retirementYear = profile.ageOrNull == null
+        ? null
+        : profile.birthYear + profile.effectiveRetirementAge;
     final now = DateTime.now();
 
     // 1. AVS extract
@@ -214,8 +226,7 @@ class RetirementChecklistCard extends StatelessWidget {
         icon: Icons.savings_outlined,
         color: MintColors.retirement3a,
         title: 'Verser ton 3a avant le 31 d\u00e9cembre',
-        subtitle:
-            'CHF\u00a0${_fmt(remaining3a)} restant avant le plafond '
+        subtitle: 'CHF\u00a0${_fmt(remaining3a)} restant avant le plafond '
             '${now.year}.',
         timeline: 'Avant le 31.12.${now.year}',
         route: '/3a-deep/comparator',
@@ -239,13 +250,16 @@ class RetirementChecklistCard extends StatelessWidget {
         subtitle:
             'R\u00e9duction d\u2019imp\u00f4t estim\u00e9e\u00a0: ~CHF\u00a0${_fmt(economie)}. '
             'Lacune restante\u00a0: CHF\u00a0${_fmt(lacune)}.',
-        timeline: 'Avant $retirementYear (LPP art. 79b)',
+        timeline: retirementYear == null
+            ? 'Avant la retraite (LPP art. 79b)'
+            : 'Avant $retirementYear (LPP art. 79b)',
         route: '/rachat-lpp',
       ));
     }
 
     // 4. Rente vs Capital decision (5 years before retirement)
-    if (yearsToRetirement <= 5 && yearsToRetirement > 0 &&
+    if (yearsToRetirement <= 5 &&
+        yearsToRetirement > 0 &&
         FeatureFlags.enableDecisionScaffold) {
       items.add(_ChecklistItem(
         icon: Icons.compare_arrows_rounded,
@@ -253,15 +267,17 @@ class RetirementChecklistCard extends StatelessWidget {
         title: 'Planifier rente vs capital',
         subtitle:
             'D\u00e9cision irr\u00e9versible \u2014 prends le temps de simuler les sc\u00e9narios.',
-        timeline: 'Avant ${retirementYear - 1}',
+        timeline: retirementYear == null
+            ? 'Avant la retraite'
+            : 'Avant ${retirementYear - 1}',
         route: '/rente-vs-capital',
       ));
     }
 
     // 5. Couple coordination
-    final hasConjoint =
-        profile.isCouple && profile.conjoint?.birthYear != null;
-    if (hasConjoint && yearsToRetirement <= 10 &&
+    final hasConjoint = profile.isCouple && profile.conjoint?.birthYear != null;
+    if (hasConjoint &&
+        yearsToRetirement <= 10 &&
         FeatureFlags.enableDecisionScaffold) {
       final conjName = profile.conjoint!.firstName ?? 'ton/ta partenaire';
       items.add(_ChecklistItem(

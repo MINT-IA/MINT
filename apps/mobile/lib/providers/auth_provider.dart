@@ -1,10 +1,11 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/biography/biography_repository.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -12,6 +13,7 @@ import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/fresh_start_service.dart';
+import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Error codes for authentication operations.
@@ -126,7 +128,9 @@ class AuthProvider extends ChangeNotifier {
         await _hydrateProfileFromBackend();
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
-        } catch (e) { debugPrint('[Auth] best-effort failed: $e'); }
+        } catch (e) {
+          debugPrint('[Auth] best-effort failed: $e');
+        }
       }
       // F3-2: Restore email verification state from SharedPreferences.
       // Survives cold start so the verify-email screen is shown again.
@@ -212,7 +216,9 @@ class AuthProvider extends ChangeNotifier {
         // Best-effort: schedule fresh-start notifications
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
-        } catch (e) { debugPrint('[Auth] best-effort failed: $e'); }
+        } catch (e) {
+          debugPrint('[Auth] best-effort failed: $e');
+        }
       }
 
       notifyListeners();
@@ -385,7 +391,8 @@ class AuthProvider extends ChangeNotifier {
       final response = await ApiService.verifyMagicLink(token);
 
       // Backend returns camelCase: { accessToken, tokenType }
-      final accessToken = (response['accessToken'] ?? response['access_token']) as String;
+      final accessToken =
+          (response['accessToken'] ?? response['access_token']) as String;
 
       // Get user info from the JWT to populate auth state.
       // For now, store the token and fetch user info separately.
@@ -587,9 +594,6 @@ class AuthProvider extends ChangeNotifier {
       await CapMemoryStore.clear();
       // Purge analytics queue
       await AnalyticsService().clearLocalQueue();
-      // F2: Purge BYOK API keys from secure storage (prevents cross-account key bleed)
-      const secureStorage = FlutterSecureStorage();
-      await secureStorage.deleteAll();
       // Clear account-specific SharedPreferences while preserving device prefs.
       // Save device-level prefs, clear everything, then restore them.
       // This is safer than selective removal (new keys are auto-cleared).
@@ -611,10 +615,36 @@ class AuthProvider extends ChangeNotifier {
       if (preservedWhiteLabel != null) {
         await prefs.setString('_white_label_config', preservedWhiteLabel);
       }
+      // Purge MINT-owned secure storage explicitly. Never call
+      // FlutterSecureStorage.deleteAll(): the keychain may contain
+      // non-MINT entries from extensions or shared app groups.
+      await _bestEffortPurge('wizard diagnostic', () {
+        return ReportPersistenceService.clearDiagnostic();
+      });
+      await _bestEffortPurge('BYOK key', () => ByokProvider.clearStoredKey());
+      await _bestEffortPurge(
+          'partner estimate', () => PartnerEstimateService.clear());
+      await _bestEffortPurge(
+          'anonymous session', () => AnonymousSessionService.clearSession());
+      await _bestEffortPurge(
+          'biography key', () => BiographyRepository.clearEncryptionKey());
     } catch (e) {
       // Purge is best-effort — never block auth flow
       if (kDebugMode) {
         debugPrint('[AuthProvider] Local data purge failed: $e');
+      }
+    }
+  }
+
+  Future<void> _bestEffortPurge(
+    String label,
+    Future<void> Function() action,
+  ) async {
+    try {
+      await action();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Local $label purge failed: $e');
       }
     }
   }
@@ -664,7 +694,8 @@ class AuthProvider extends ChangeNotifier {
         await AnonymousSessionService.clearSession();
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('[AuthProvider] Anonymous conversation migration failed: $e');
+          debugPrint(
+              '[AuthProvider] Anonymous conversation migration failed: $e');
         }
       }
 
@@ -704,7 +735,9 @@ class AuthProvider extends ChangeNotifier {
       await prefs.setBool('local_data_migrated_$currentUserId', true);
     } catch (e) {
       // Migration is best-effort — never block auth flow
-      if (kDebugMode) debugPrint('[AuthProvider] Local data migration failed: $e');
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Local data migration failed: $e');
+      }
     }
   }
 
@@ -720,30 +753,26 @@ class AuthProvider extends ChangeNotifier {
       final data = profileData['data'] as Map<String, dynamic>?;
       if (data == null) return;
 
-      final prefs = await SharedPreferences.getInstance();
+      final answers = await ReportPersistenceService.loadAnswers();
       if (data['birthYear'] != null) {
-        await prefs.setInt('q_birth_year', data['birthYear'] as int);
+        answers['q_birth_year'] = data['birthYear'] as int;
       }
       if (data['canton'] != null) {
-        await prefs.setString('q_canton', data['canton'] as String);
+        answers['q_canton'] = data['canton'] as String;
       }
       if (data['incomeGrossYearly'] != null) {
-        await prefs.setDouble(
-          'q_gross_salary',
-          (data['incomeGrossYearly'] as num).toDouble() / 12,
-        );
+        answers['q_gross_salary'] =
+            (data['incomeGrossYearly'] as num).toDouble() / 12;
       }
       if (data['incomeNetMonthly'] != null) {
-        await prefs.setDouble(
-          'q_net_income_period_chf',
-          (data['incomeNetMonthly'] as num).toDouble(),
-        );
+        answers['q_net_income_period_chf'] =
+            (data['incomeNetMonthly'] as num).toDouble();
       }
       if (data['householdType'] != null) {
-        await prefs.setString(
-          'q_household_type',
-          data['householdType'] as String,
-        );
+        answers['q_household_type'] = data['householdType'] as String;
+      }
+      if (answers.isNotEmpty) {
+        await ReportPersistenceService.saveAnswers(answers);
       }
     } catch (e) {
       // Hydration is best-effort — never block login flow

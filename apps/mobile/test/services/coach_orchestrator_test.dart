@@ -32,18 +32,20 @@ import 'package:mint_mobile/services/feature_flags.dart';
 /// Minimal CoachContext for tests — SLM and BYOK disabled by default.
 CoachContext _ctx({
   String firstName = 'Julien',
+  int age = 50,
   double friTotal = 62,
   double friDelta = 5,
   Map<String, double>? knownValues,
 }) {
   return CoachContext(
     firstName: firstName,
-    age: 50,
+    age: age,
     canton: 'ZH',
     archetype: 'swiss_native',
     friTotal: friTotal,
     friDelta: friDelta,
-    knownValues: knownValues ?? const {'fri_total': 62, 'capital_final': 850000},
+    knownValues:
+        knownValues ?? const {'fri_total': 62, 'capital_final': 850000},
   );
 }
 
@@ -324,6 +326,17 @@ void main() {
     );
 
     expect(out.text, contains('Laurent'));
+  });
+
+  test('12b. Unknown age does not enter disability age branch', () async {
+    _resetFlags();
+    final out = await CoachOrchestrator.generateNarrativeComponent(
+      componentType: ComponentType.tip,
+      ctx: _ctx(age: 0),
+    );
+
+    expect(out.text, isNot(contains('À 0 ans')));
+    expect(out.text, isNot(contains('0 ans')));
   });
 
   // ═══════════════════════════════════════════════════════════════

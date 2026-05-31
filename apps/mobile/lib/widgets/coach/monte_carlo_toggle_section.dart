@@ -69,10 +69,10 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
               children: [
                 Expanded(
                   child: Text(
-                    _showMonteCarlo
-                        ? 'Probabilit\u00e9s'
-                        : '3 Sc\u00e9narios',
-                    style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                    _showMonteCarlo ? 'Probabilit\u00e9s' : '3 Sc\u00e9narios',
+                    style: MintTextStyles.titleMedium(
+                            color: MintColors.textPrimary)
+                        .copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 _buildToggle(),
@@ -145,11 +145,13 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
             ),
             child: Text(
               label,
-              style: MintTextStyles.labelSmall(color: isSelected
-                    ? MintColors.white
-                    : enabled
-                        ? MintColors.textSecondary
-                        : MintColors.textMuted).copyWith(fontWeight: FontWeight.w600),
+              style: MintTextStyles.labelSmall(
+                      color: isSelected
+                          ? MintColors.white
+                          : enabled
+                              ? MintColors.textSecondary
+                              : MintColors.textMuted)
+                  .copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -159,11 +161,23 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
 
   Widget _buildMonteCarloView() {
     final result = widget.monteCarloResult;
-    if (result == null || result.projection.isEmpty) {
+    if (result == null) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Text(
           'Simulation en cours\u2026',
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+        ),
+      );
+    }
+    if (result.projection.isEmpty) {
+      final message = result.alertes.isNotEmpty
+          ? result.alertes.first
+          : 'Simulation indisponible avec les donnees actuelles.';
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Text(
+          message,
           style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
         ),
       );
@@ -238,7 +252,8 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
           const SizedBox(width: 6),
           Text(
             '$label\u00a0: $pct\u00a0%',
-            style: MintTextStyles.labelMedium(color: badgeColor).copyWith(fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelMedium(color: badgeColor)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -280,7 +295,8 @@ class MonteCarloTeaser extends StatelessWidget {
           children: [
             Text(
               'Probabilit\u00e9s Monte Carlo',
-              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
+                  .copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
 
@@ -301,7 +317,8 @@ class MonteCarloTeaser extends StatelessWidget {
             Text(
               'Les probabilit\u00e9s Monte Carlo te montrent '
               'l\'\u00e9ventail de tes futurs possibles.',
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                  .copyWith(height: 1.4),
             ),
             // ── Missing category chips (categories only, no values) ──
             if (missingCategories.isNotEmpty) ...[
@@ -326,7 +343,9 @@ class MonteCarloTeaser extends StatelessWidget {
                     ),
                     child: Text(
                       displayName,
-                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
+                      style:
+                          MintTextStyles.labelSmall(color: MintColors.primary)
+                              .copyWith(fontWeight: FontWeight.w600),
                     ),
                   );
                 }).toList(),
@@ -355,7 +374,8 @@ class MonteCarloTeaser extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     'Compl\u00e8te ton profil pour d\u00e9bloquer',
-                    style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
+                    style: MintTextStyles.labelMedium(color: MintColors.primary)
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),

@@ -54,7 +54,8 @@ void main() {
   }
 
   group('RetirementProjectionService.project — single person', () {
-    test('produces positive retirement income for standard salaried worker', () {
+    test('produces positive retirement income for standard salaried worker',
+        () {
       final profile = buildProfile();
       final result = RetirementProjectionService.project(profile: profile);
 
@@ -122,8 +123,14 @@ void main() {
       final gap = result.budgetGap;
       expect(gap.avsMensuel, greaterThan(0));
       expect(gap.lppMensuel, greaterThan(0));
-      expect(gap.totalRevenusMensuel,
-          closeTo(gap.avsMensuel + gap.lppMensuel + gap.troisAMensuel + gap.libreMensuel, 1));
+      expect(
+          gap.totalRevenusMensuel,
+          closeTo(
+              gap.avsMensuel +
+                  gap.lppMensuel +
+                  gap.troisAMensuel +
+                  gap.libreMensuel,
+              1));
     });
 
     test('indexed projection covers 26 points (years 0-25)', () {
@@ -185,6 +192,29 @@ void main() {
           reason: 'Age gap → transition phase + both retired phase');
     });
 
+    test('couple with missing conjoint DOB does not fabricate age 45', () {
+      const conjoint = ConjointProfile(
+        firstName: 'Lauren',
+        salaireBrutMensuel: 5500,
+      );
+      final result = RetirementProjectionService.project(
+        profile: buildProfile(
+          firstName: 'Julien',
+          birthYear: 1977,
+          etatCivil: CoachCivilStatus.marie,
+          conjoint: conjoint,
+        ),
+      );
+
+      final sourceIds = result.phases
+          .expand((phase) => phase.sources)
+          .map((source) => source.id)
+          .toSet();
+      expect(result.phases.length, equals(1));
+      expect(sourceIds.where((id) => id.contains('conjoint')), isEmpty);
+      expect(sourceIds, isNot(contains('salary_conjoint')));
+    });
+
     test('isCouple=false when single despite celibataire', () {
       final result = RetirementProjectionService.project(
         profile: buildProfile(etatCivil: CoachCivilStatus.celibataire),
@@ -213,11 +243,42 @@ void main() {
         lppCapitalPct: 0.5,
       );
       // Mixed should differ from full rente
-      expect(resultMixed.revenuMensuelAt65, isNot(equals(resultFull.revenuMensuelAt65)));
+      expect(resultMixed.revenuMensuelAt65,
+          isNot(equals(resultFull.revenuMensuelAt65)));
     });
   });
 
   group('RetirementProjectionService.project — edge cases', () {
+    test('missing birth date suspends projection instead of using age zero',
+        () {
+      final result = RetirementProjectionService.project(
+        profile: buildProfile(birthYear: 0),
+      );
+
+      expect(result.revenuMensuelAt65, isZero);
+      expect(result.earlyRetirementComparisons, isEmpty);
+      expect(result.indexedProjection, isEmpty);
+      expect(result.phases, isEmpty);
+      expect(
+        result.budgetGap.alertes.single,
+        contains('Date de naissance manquante'),
+      );
+    });
+
+    test('DOB-only profile uses date of birth for projection years', () {
+      final profile = buildProfile(birthYear: 0).copyWith(
+        dateOfBirth: DateTime(1977, 6, 15),
+      );
+
+      final result = RetirementProjectionService.project(profile: profile);
+
+      expect(result.revenuMensuelAt65, greaterThan(0));
+      expect(result.phases, isNotEmpty);
+      expect(result.phases.first.startYear, equals(2042));
+      expect(result.indexedProjection.first.year, equals(2042));
+      expect(result.indexedProjection.first.age, equals(65));
+    });
+
     test('independant without LPP still has AVS and 3a', () {
       final result = RetirementProjectionService.project(
         profile: buildProfile(
@@ -242,12 +303,10 @@ void main() {
     });
 
     test('formatChf formats with Swiss apostrophe', () {
-      expect(RetirementProjectionService.formatChf(1234),
-          contains("1'234"));
+      expect(RetirementProjectionService.formatChf(1234), contains("1'234"));
       expect(RetirementProjectionService.formatChf(1000000),
           contains("1'000'000"));
-      expect(RetirementProjectionService.formatChf(0),
-          contains('0'));
+      expect(RetirementProjectionService.formatChf(0), contains('0'));
     });
 
     test('formatChf handles negative values', () {
@@ -274,9 +333,15 @@ void main() {
         startYear: 2042,
         sources: [
           RetirementIncomeSource(
-            id: 'avs', label: 'AVS', monthlyAmount: 2000, color: Color(0xFF000000)),
+              id: 'avs',
+              label: 'AVS',
+              monthlyAmount: 2000,
+              color: Color(0xFF000000)),
           RetirementIncomeSource(
-            id: 'lpp', label: 'LPP', monthlyAmount: 1500, color: Color(0xFF000000)),
+              id: 'lpp',
+              label: 'LPP',
+              monthlyAmount: 1500,
+              color: Color(0xFF000000)),
         ],
       );
       expect(phase.totalMonthly, equals(3500));

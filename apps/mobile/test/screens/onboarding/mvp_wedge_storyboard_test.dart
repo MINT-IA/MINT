@@ -121,11 +121,21 @@ Future<void> _commonEntry(
   expect(find.text('Quelle est ta nationalité ?'), findsOneWidget);
   await tester.tap(find.byKey(const ValueKey('onboarding-nationality-ch')));
   await tester.pumpAndSettle();
-  expect(find.text('Quel âge tu as ?'), findsOneWidget);
+  expect(find.text('Quelle est ta date de naissance ?'), findsOneWidget);
+}
+
+Future<void> _selectExplicitDateOfBirth(WidgetTester tester) async {
+  await tester.tap(find.text('Choisir ma date'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('15').last);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('OK').last);
+  await tester.pumpAndSettle();
 }
 
 Future<void> _commonData(WidgetTester tester) async {
-  // T3 age → T4 : défaut 34, just Continuer
+  // T3 date de naissance → T4 : choisir explicitement une date.
+  await _selectExplicitDateOfBirth(tester);
   await tester.tap(find.text('Continuer'));
   await tester.pumpAndSettle();
   expect(find.text('Où tu vis ?'), findsOneWidget);
@@ -178,7 +188,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('waitlist-landed'), findsOneWidget);
-    expect(find.text('Quel âge tu as ?'), findsNothing);
+    expect(find.text('Quelle est ta date de naissance ?'), findsNothing);
     expect(find.text('Où tu vis ?'), findsNothing);
   });
 
@@ -194,8 +204,8 @@ void main() {
     expect(find.text('Ma retraite'), findsOneWidget);
 
     await _commonData(tester);
-    // After T5, dossier holds 4 lines: intent, age, canton, revenue.
-    expect(find.text('Âge'), findsOneWidget);
+    // After T5, dossier holds 4 lines: intent, date of birth, canton, revenue.
+    expect(find.text('Date de naissance'), findsOneWidget);
     expect(find.text('Canton'), findsOneWidget);
     expect(find.text('Revenu net mensuel'), findsOneWidget);
 
@@ -237,11 +247,14 @@ void main() {
     expect(fake.mergedCalls, hasLength(1));
     final merged = fake.mergedCalls.single;
     expect(merged['onb_intent'], 'impots');
-    // SALVAGE-01 (onb-01): flush writes q_birth_year (year), not q_age.
-    // The age picker defaults to 34, so birthYear == now.year - 34.
+    // SALVAGE-01/02: flush writes q_date_of_birth as the source of truth,
+    // with q_birth_year only as legacy compatibility.
     expect(merged.containsKey('q_age'), isFalse,
-        reason: 'onb-01: q_age has zero readers; flush must write q_birth_year');
+        reason:
+            'onb-01: q_age has zero readers; flush must write q_birth_year');
     expect(merged['q_birth_year'], DateTime.now().year - 34);
+    expect(merged['q_date_of_birth'],
+        contains('${DateTime.now().year - 34}-07-15'));
     expect(merged['q_canton'], 'VD');
     expect(merged.containsKey('q_email'), isFalse,
         reason: 'email-demain scene killed 2026-04-24, no email captured');
@@ -253,7 +266,7 @@ void main() {
 
   testWidgets(
       'SALVAGE-01: RETRAITE branch flush writes the canonical key contract '
-      '(q_birth_year + q_nationality + q_employment_status + q_has_pension_fund)',
+      '(q_date_of_birth + q_birth_year + q_nationality + q_employment_status + q_has_pension_fund)',
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
@@ -271,9 +284,11 @@ void main() {
     expect(find.text('home-landed'), findsOneWidget);
 
     final merged = fake.mergedCalls.single;
-    // onb-01: birth year, not age.
+    // onb-01: date of birth + birth year compatibility, not age.
     expect(merged.containsKey('q_age'), isFalse);
     expect(merged['q_birth_year'], DateTime.now().year - 34);
+    expect(merged['q_date_of_birth'],
+        contains('${DateTime.now().year - 34}-07-15'));
     // archetype-waitlist: nationality Suisse → 'CH' so the profile reaches
     // swissNative and the coach-entry gate passes.
     expect(merged['q_nationality'], 'CH');
@@ -325,7 +340,8 @@ void main() {
     await _pumpShell(tester, fake);
     await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
 
-    // T3 age default 34, advance
+    // T3 date of birth default, advance
+    await _selectExplicitDateOfBirth(tester);
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
 

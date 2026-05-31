@@ -170,7 +170,11 @@ class _KnownDataSection extends StatelessWidget {
             children: [
               MintSignalRow(
                 label: s.trajectoryFieldAge,
-                value: '${profile.age}\u00a0${s.trajectoryFieldAgeUnit}',
+                value: profile.ageOrNull != null
+                    ? '${profile.ageOrNull}\u00a0${s.trajectoryFieldAgeUnit}'
+                    : s.trajectoryFieldIncomplete,
+                valueColor:
+                    profile.ageOrNull != null ? null : MintColors.textMuted,
               ),
               MintSignalRow(
                 label: s.trajectoryFieldRevenu,
@@ -186,9 +190,8 @@ class _KnownDataSection extends StatelessWidget {
                 value: profile.canton.isNotEmpty
                     ? profile.canton.toUpperCase()
                     : s.trajectoryFieldIncomplete,
-                valueColor: profile.canton.isNotEmpty
-                    ? null
-                    : MintColors.textMuted,
+                valueColor:
+                    profile.canton.isNotEmpty ? null : MintColors.textMuted,
               ),
               MintSignalRow(
                 label: s.trajectoryFieldLpp,
@@ -214,8 +217,7 @@ class _KnownDataSection extends StatelessWidget {
                     ? (profile.conjoint?.firstName ??
                         s.trajectoryFieldConjointYes)
                     : s.trajectoryFieldConjointNo,
-                valueColor:
-                    profile.isCouple ? null : MintColors.textMuted,
+                valueColor: profile.isCouple ? null : MintColors.textMuted,
               ),
             ],
           ),
@@ -284,9 +286,7 @@ class _DecisionsSection extends StatelessWidget {
 
   /// Convert a raw action ID (e.g. "pillar_3a_2026") into a human-readable label.
   String _humanizeAction(String actionId) {
-    return actionId
-        .replaceAll('_', ' ')
-        .replaceFirst(
+    return actionId.replaceAll('_', ' ').replaceFirst(
           actionId[0],
           actionId[0].toUpperCase(),
         );

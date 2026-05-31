@@ -9,6 +9,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
 import 'package:mint_mobile/services/coach/conversation_memory_service.dart';
@@ -44,6 +45,30 @@ void main() {
       'q_goal': 'retraite',
     });
     return provider;
+  }
+
+  CoachProfileProvider build3aBudgetProfileProvider() {
+    final provider = CoachProfileProvider();
+    provider.updateFromAnswers({
+      'q_firstname': 'Julien',
+      'q_birth_year': 1990,
+      'q_canton': 'VD',
+      'q_net_income_period_chf': 9000,
+      'q_pay_frequency': 'monthly',
+      'q_housing_cost_period_chf': 2200,
+      'q_lamal_premium_monthly_chf': 420,
+      'q_3a_total': 12000,
+      'q_3a_annual_contribution': 7056,
+    });
+    return provider;
+  }
+
+  String formatPlainChf(double amount) {
+    final digits = amount.round().toString();
+    return digits.replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+$)'),
+      (match) => "${match[1]}'",
+    );
   }
 
   MintUserState buildMintStateForTest(CoachProfile profile) {
@@ -191,6 +216,42 @@ void main() {
       await pumpUntilGreeting(tester);
       // Should show Text widgets (either key number or at minimum the question).
       expect(find.byType(Text), findsWidgets);
+    });
+
+    testWidgets(
+        'silent opener primary number uses budget monthlyFree when budget data is trusted',
+        (tester) async {
+      usePhoneViewport(tester);
+      final provider = build3aBudgetProfileProvider();
+      final profile = provider.profile!;
+      final expectedMonthlyFree =
+          BudgetLivingEngine.compute(profile).present.monthlyFree;
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: provider),
+            ChangeNotifierProvider(create: (_) => ByokProvider()),
+            ChangeNotifierProvider.value(value: MintStateProvider()),
+            ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ],
+          child: const MaterialApp(
+            locale: Locale('fr'),
+            localizationsDelegates: [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: CoachChatScreen(),
+          ),
+        ),
+      );
+      await pumpUntilGreeting(tester);
+
+      expect(find.text(formatPlainChf(expectedMonthlyFree)), findsOneWidget);
+      expect(find.text("12'000"), findsNothing);
     });
 
     testWidgets('first-contact opener does not show question label',

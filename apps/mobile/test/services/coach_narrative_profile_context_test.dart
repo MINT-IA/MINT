@@ -119,5 +119,16 @@ void main() {
       expect(ctx['avs_rente'], 0);
       expect(ctx['epargne_3a'], 0);
     });
+
+    test('unknown birth data does not emit fake age', () {
+      final ctx = CoachNarrativeService.buildProfileContextForTest(
+          CoachProfile.defaults());
+
+      expect(ctx.containsKey('age'), isFalse);
+      expect(ctx['financial_summary'], isNot(contains('Age : 0 ans')));
+      expect(ctx['financial_summary'], isNot(contains('0 ans')));
+      expect(ctx['financial_summary'], isNot(contains('45 ans')));
+      expect(ctx['financial_summary'], isNot(contains('1980')));
+    });
   });
 }

@@ -437,6 +437,21 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('CoachingService - Part-Time Gap', () {
+    test('unknown age does not trigger age-dependent part-time gap', () {
+      final tips = CoachingService.generateTips(
+        profile: const CoachingProfile(
+          age: 0,
+          canton: 'VD',
+          revenuAnnuel: 80000,
+          tauxActivite: 50,
+          employmentStatus: EmploymentStatus.salarie,
+        ),
+      );
+
+      final partTime = tips.where((t) => t.id == 'part_time_gap');
+      expect(partTime, isEmpty);
+    });
+
     test('part-time < 60% triggers haute priority', () {
       final tips = CoachingService.generateTips(
         profile: const CoachingProfile(
@@ -500,6 +515,19 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('CoachingService - Age Milestones', () {
+    test('unknown age does not trigger age milestone', () {
+      final tips = CoachingService.generateTips(
+        profile: const CoachingProfile(
+          age: 0,
+          canton: 'VD',
+          revenuAnnuel: 80000,
+        ),
+      );
+
+      final milestones = tips.where((t) => t.id.startsWith('age_milestone_'));
+      expect(milestones, isEmpty);
+    });
+
     test('age 25 triggers milestone tip', () {
       final tips = CoachingService.generateTips(
         profile: const CoachingProfile(
@@ -666,7 +694,8 @@ void main() {
 
       // Verify sorted by priority: haute (0) < moyenne (1) < basse (2)
       for (int i = 0; i < tips.length - 1; i++) {
-        expect(tips[i].priority.index, lessThanOrEqualTo(tips[i + 1].priority.index));
+        expect(tips[i].priority.index,
+            lessThanOrEqualTo(tips[i + 1].priority.index));
       }
     });
 
@@ -688,12 +717,16 @@ void main() {
 
       for (final tip in tips) {
         expect(tip.id, isNotEmpty, reason: 'Every tip must have an id');
-        expect(tip.category, isNotEmpty, reason: 'Every tip must have a category');
+        expect(tip.category, isNotEmpty,
+            reason: 'Every tip must have a category');
         expect(tip.title, isNotEmpty, reason: 'Every tip must have a title');
-        expect(tip.message, isNotEmpty, reason: 'Every tip must have a message');
+        expect(tip.message, isNotEmpty,
+            reason: 'Every tip must have a message');
         expect(tip.action, isNotEmpty, reason: 'Every tip must have an action');
-        expect(tip.source, isNotEmpty, reason: 'Every tip must have a legal source');
-        expect(tip.icon, isA<IconData>(), reason: 'Every tip must have an icon');
+        expect(tip.source, isNotEmpty,
+            reason: 'Every tip must have a legal source');
+        expect(tip.icon, isA<IconData>(),
+            reason: 'Every tip must have an icon');
       }
     });
 
@@ -870,12 +903,12 @@ void main() {
           age: 50,
           canton: 'VD',
           revenuAnnuel: 100000,
-          has3a: true,        // Triggers 3a_not_maxed (fiscalite) year-round
+          has3a: true, // Triggers 3a_not_maxed (fiscalite) year-round
           has3aAnswered: true,
-          montant3a: 2000,    // Below 7258 ceiling → 3a_not_maxed fires
+          montant3a: 2000, // Below 7258 ceiling → 3a_not_maxed fires
           hasLpp: true,
           avoirLpp: 50000,
-          lacuneLpp: 80000,   // Triggers lpp_buyback (prevoyance)
+          lacuneLpp: 80000, // Triggers lpp_buyback (prevoyance)
           employmentStatus: EmploymentStatus.salarie,
         ),
       );
@@ -920,12 +953,13 @@ void main() {
       }
     });
 
-    test('stress_couple filters to retraite + prevoyance + fiscalite + budget', () {
+    test('stress_couple filters to retraite + prevoyance + fiscalite + budget',
+        () {
       final filtered =
           CoachingService.filterByStressType(allTips, 'stress_couple');
       for (final tip in filtered) {
-        expect(
-            ['retraite', 'prevoyance', 'fiscalite', 'budget'], contains(tip.category));
+        expect(['retraite', 'prevoyance', 'fiscalite', 'budget'],
+            contains(tip.category));
       }
     });
 

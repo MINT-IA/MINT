@@ -177,12 +177,17 @@ class RetirementProjectionService {
   static const Color colorSalary = MintColors.amber;
 
   // ── Constantes ──────────────────────────────────────────
-  static double get _avsIndexationRate => reg('projection.avs_indexation_rate', avsIndexationRate);
-  static double get _inflationRate => reg('projection.inflation_rate', defaultInflationRate);
+  static double get _avsIndexationRate =>
+      reg('projection.avs_indexation_rate', avsIndexationRate);
+  static double get _inflationRate =>
+      reg('projection.inflation_rate', defaultInflationRate);
   static const int _projectionYears = 25;
-  static int get _lifeExpectancy => reg('projection.life_expectancy', defaultLifeExpectancy.toDouble()).toInt();
+  static int get _lifeExpectancy =>
+      reg('projection.life_expectancy', defaultLifeExpectancy.toDouble())
+          .toInt();
   static const double _pillar3aAnnualizationYears = 20.0;
-  static double get _safeWithdrawalRate => reg('projection.safe_withdrawal_rate', defaultSafeWithdrawalRate);
+  static double get _safeWithdrawalRate =>
+      reg('projection.safe_withdrawal_rate', defaultSafeWithdrawalRate);
 
   // ════════════════════════════════════════════════════════════
   //  PUBLIC API
@@ -197,9 +202,13 @@ class RetirementProjectionService {
     double lppCapitalPct = 0.0,
     S? l,
   }) {
-    final conjAge = retirementAgeConjoint ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
-    final expenses =
-        depensesMensuelles ?? _estimateRetirementExpenses(profile);
+    if (profile.ageOrNull == null) {
+      return _incompleteBirthDateResult(profile: profile, l: l);
+    }
+
+    final conjAge = retirementAgeConjoint ??
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final expenses = depensesMensuelles ?? _estimateRetirementExpenses(profile);
 
     // 1. Income at user's chosen retirement age
     final incomes = _computeIncomes(
@@ -209,8 +218,7 @@ class RetirementProjectionService {
       lppCapitalPct: lppCapitalPct,
       l: l,
     );
-    final revenuMensuel =
-        incomes.fold(0.0, (sum, s) => sum + s.monthlyAmount);
+    final revenuMensuel = incomes.fold(0.0, (sum, s) => sum + s.monthlyAmount);
 
     // FIX-074: Use GROSS income for taux de remplacement (standard suisse).
     // FIX-P1-3: Delegate to ForecasterService.safeReplacementRate (canonical).
@@ -263,11 +271,54 @@ class RetirementProjectionService {
       indexedProjection: indexedProjection,
       disclaimer: l?.retirementProjectionDisclaimer ??
           'Projection educative basee sur les baremes AVS/LPP 2025. '
-          'Ne constitue pas un conseil financier ou en prévoyance. '
-          'Les montants sont des estimations qui peuvent varier selon '
-          'l\'evolution legale et ta situation personnelle. '
-          'Consulte un·e specialiste pour un plan personnalise. LSFin.',
+              'Ne constitue pas un conseil financier ou en prévoyance. '
+              'Les montants sont des estimations qui peuvent varier selon '
+              'l\'evolution legale et ta situation personnelle. '
+              'Consulte un·e specialiste pour un plan personnalise. LSFin.',
       sources: [
+        'LAVS art. 21-29 (rente AVS, anticipation, ajournement)',
+        'LPP art. 14 (taux de conversion minimum 6.8%)',
+        'LIFD art. 38 (imposition des prestations en capital)',
+        'OPC (prestations complementaires)',
+        'LAVS art. 33ter (indexation indice mixte)',
+      ],
+    );
+  }
+
+  static RetirementProjectionResult _incompleteBirthDateResult({
+    required CoachProfile profile,
+    S? l,
+  }) {
+    return RetirementProjectionResult(
+      revenuMensuelAt65: 0,
+      tauxRemplacement: 0,
+      revenuPreRetraiteMensuel: profile.revenuBrutAnnuel / 12 +
+          (profile.conjoint?.revenuBrutAnnuel ?? 0) / 12,
+      isCouple: profile.isCouple && profile.conjoint != null,
+      phases: const [],
+      earlyRetirementComparisons: const [],
+      budgetGap: const RetirementBudgetGap(
+        totalRevenusMensuel: 0,
+        avsMensuel: 0,
+        lppMensuel: 0,
+        troisAMensuel: 0,
+        libreMensuel: 0,
+        impotEstimeMensuel: 0,
+        depensesMensuelles: 0,
+        soldeMensuel: 0,
+        tauxRemplacement: 0,
+        alertes: [
+          'Date de naissance manquante : projection retraite suspendue.',
+        ],
+      ),
+      indexedProjection: const [],
+      disclaimer: l?.retirementProjectionDisclaimer ??
+          'Projection educative basee sur les baremes AVS/LPP 2025. '
+              'Ne constitue pas un conseil financier ou en prévoyance. '
+              'Les montants sont des estimations qui peuvent varier selon '
+              'l\'evolution legale et ta situation personnelle. '
+              'Consulte un·e specialiste pour un plan personnalise. LSFin.',
+      sources: const [
         'LAVS art. 21-29 (rente AVS, anticipation, ajournement)',
         'LPP art. 14 (taux de conversion minimum 6.8%)',
         'LIFD art. 38 (imposition des prestations en capital)',
@@ -281,6 +332,19 @@ class RetirementProjectionService {
   //  INCOME COMPUTATION (both retired)
   // ════════════════════════════════════════════════════════════
 
+  static int _birthYearForProjection(CoachProfile profile) =>
+      profile.dateOfBirth?.year ?? profile.birthYear;
+
+  static int? _conjointBirthYearForProjection(ConjointProfile? conjoint) {
+    if (conjoint == null) return null;
+    final year = conjoint.dateOfBirth?.year ?? conjoint.birthYear;
+    if (year == null || year < 1900) return null;
+    return year;
+  }
+
+  static int _retirementCalendarYear(CoachProfile profile, int retirementAge) =>
+      _birthYearForProjection(profile) + retirementAge;
+
   static List<RetirementIncomeSource> _computeIncomes({
     required CoachProfile profile,
     required int ageUser,
@@ -290,12 +354,16 @@ class RetirementProjectionService {
   }) {
     final sources = <RetirementIncomeSource>[];
     final userName = profile.firstName ?? 'Toi';
-    final hasConjoint = profile.isCouple && profile.conjoint != null;
+    final currentConjointAge = profile.conjoint?.age;
+    final hasConjoint = profile.isCouple &&
+        profile.conjoint != null &&
+        currentConjointAge != null;
     final conjName = profile.conjoint?.firstName ?? 'Conjoint·e';
 
     // ── AVS ──────────────────────────────────────────────
     // F3-3: Pass gender + birthYear for AVS21 gender-aware reference age.
-    final userIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
+    final userIsFemale =
+        profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
     final avsUserRaw = AvsCalculator.computeMonthlyRente(
       currentAge: profile.age,
       retirementAge: ageUser,
@@ -304,23 +372,25 @@ class RetirementProjectionService {
       arrivalAge: profile.arrivalAge,
       grossAnnualSalary: profile.revenuBrutAnnuel,
       isFemale: userIsFemale,
-      birthYear: profile.birthYear,
+      birthYear: _birthYearForProjection(profile),
     );
     // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
     final avsUser = AvsCalculator.annualRente(avsUserRaw) / 12;
 
     double avsConj = 0;
     if (hasConjoint) {
-      final conjIsFemale = profile.conjoint!.gender == 'F' ? true : (profile.conjoint!.gender == 'M' ? false : null);
+      final conjIsFemale = profile.conjoint!.gender == 'F'
+          ? true
+          : (profile.conjoint!.gender == 'M' ? false : null);
       final avsConjRaw = AvsCalculator.computeMonthlyRente(
-        currentAge: profile.conjoint!.age ?? 45,
+        currentAge: currentConjointAge,
         retirementAge: ageConjoint,
         lacunes: profile.conjoint?.prevoyance?.lacunesAVS ?? 0,
         anneesContribuees: profile.conjoint?.prevoyance?.anneesContribuees,
         arrivalAge: profile.conjoint!.arrivalAge,
         grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
         isFemale: conjIsFemale,
-        birthYear: profile.conjoint!.birthYear,
+        birthYear: _conjointBirthYearForProjection(profile.conjoint),
       );
       avsConj = AvsCalculator.annualRente(avsConjRaw) / 12;
     }
@@ -330,18 +400,20 @@ class RetirementProjectionService {
     // Note: computeCouple operates on raw monthly values, then we apply 13th rente.
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     if (hasConjoint && isMarried) {
-      final conjIsFemaleForCap = profile.conjoint!.gender == 'F' ? true : (profile.conjoint!.gender == 'M' ? false : null);
+      final conjIsFemaleForCap = profile.conjoint!.gender == 'F'
+          ? true
+          : (profile.conjoint!.gender == 'M' ? false : null);
       final couple = AvsCalculator.computeCouple(
         avsUser: avsUserRaw,
         avsConjoint: AvsCalculator.computeMonthlyRente(
-          currentAge: profile.conjoint!.age ?? 45,
+          currentAge: currentConjointAge,
           retirementAge: ageConjoint,
           lacunes: profile.conjoint?.prevoyance?.lacunesAVS ?? 0,
           anneesContribuees: profile.conjoint?.prevoyance?.anneesContribuees,
           arrivalAge: profile.conjoint!.arrivalAge,
           grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
           isFemale: conjIsFemaleForCap,
-          birthYear: profile.conjoint!.birthYear,
+          birthYear: _conjointBirthYearForProjection(profile.conjoint),
         ),
         isMarried: true,
       );
@@ -422,8 +494,7 @@ class RetirementProjectionService {
         : lppCapitalPct > 0
             ? ' (mixte)'
             : '';
-    final isMarriedForTax =
-        profile.etatCivil == CoachCivilStatus.marie;
+    final isMarriedForTax = profile.etatCivil == CoachCivilStatus.marie;
     final lppUserMonthly = LppCalculator.blendedMonthly(
       annualRente: lppUserRente,
       conversionRate: userAdjustedConvRate,
@@ -446,7 +517,8 @@ class RetirementProjectionService {
       final conjPrev = profile.conjoint!.prevoyance;
       final conjBuyback = _conjointLppBuyback(profile);
       final conjAdjustedConvRate = LppCalculator.adjustedConversionRate(
-        baseRate: conjPrev?.tauxConversion ?? reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+        baseRate: conjPrev?.tauxConversion ??
+            reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
         retirementAge: ageConjoint,
       );
       final conjGrossAnnualForLpp =
@@ -455,11 +527,12 @@ class RetirementProjectionService {
               : profile.conjoint!.revenuBrutAnnuel;
       final lppConjRente = LppCalculator.projectToRetirement(
         currentBalance: conjPrev?.avoirLppTotal ?? 0,
-        currentAge: profile.conjoint!.age ?? 45,
+        currentAge: currentConjointAge,
         retirementAge: ageConjoint,
         grossAnnualSalary: conjGrossAnnualForLpp,
         caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
-        conversionRate: conjPrev?.tauxConversion ?? reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+        conversionRate: conjPrev?.tauxConversion ??
+            reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
         monthlyBuyback: conjBuyback,
         buybackCap: conjPrev?.lacuneRachatRestante ?? 0,
       );
@@ -551,14 +624,16 @@ class RetirementProjectionService {
     final plafondIndividuel = isIndependantSansLpp
         ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
         : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
-    final plafondMenage =
-        (isCouple && conjointCanContribute3a) ? plafondIndividuel * 2 : plafondIndividuel;
+    final plafondMenage = (isCouple && conjointCanContribute3a)
+        ? plafondIndividuel * 2
+        : plafondIndividuel;
     final annual3a = (monthly3a * 12).clamp(0.0, plafondMenage);
 
     for (int y = 0; y < yearsToRetirement; y++) {
       // Horizon dampening: starting year 21, contributions taper by 2.5%/yr
       // (career changes, family expenses, etc.). Floor 50%.
-      final contributionFactor = y < 20 ? 1.0 : max(0.5, 1.0 - (y - 20) * 0.025);
+      final contributionFactor =
+          y < 20 ? 1.0 : max(0.5, 1.0 - (y - 20) * 0.025);
       balance *= (1 + averageReturn);
       balance += annual3a * contributionFactor;
     }
@@ -591,7 +666,8 @@ class RetirementProjectionService {
       // Horizon dampening: starting year 21, contributions taper by 2.5%/yr
       // (career interruptions, life events, inflation eroding real capacity).
       // Floor 50%. Investment return drops 5%→4% after year 15.
-      final contributionFactor = y < 20 ? 1.0 : max(0.5, 1.0 - (y - 20) * 0.025);
+      final contributionFactor =
+          y < 20 ? 1.0 : max(0.5, 1.0 - (y - 20) * 0.025);
       final investReturn = y < 15 ? 0.05 : 0.04;
       invest *= (1 + investReturn);
       invest += monthlyInvestment * 12 * contributionFactor;
@@ -611,23 +687,28 @@ class RetirementProjectionService {
     double lppCapitalPct = 0.0,
     S? l,
   }) {
-    final hasConjoint =
-        profile.isCouple && profile.conjoint?.birthYear != null;
+    final hasConjoint = profile.isCouple &&
+        _conjointBirthYearForProjection(profile.conjoint) != null;
     final userName = profile.firstName ?? 'Toi';
 
     if (!hasConjoint) {
       return [
         RetirementPhase(
           label: l?.retirementPhaseLabelRetraite ?? 'Retraite',
-          startYear: profile.birthYear + ageUser,
-          sources: _computeIncomes(profile: profile, ageUser: ageUser, lppCapitalPct: lppCapitalPct, l: l),
+          startYear: _retirementCalendarYear(profile, ageUser),
+          sources: _computeIncomes(
+              profile: profile,
+              ageUser: ageUser,
+              lppCapitalPct: lppCapitalPct,
+              l: l),
         ),
       ];
     }
 
     final conjName = profile.conjoint!.firstName ?? 'Conjoint·e';
-    final retireYearUser = profile.birthYear + ageUser;
-    final retireYearConj = profile.conjoint!.birthYear! + ageConjoint;
+    final retireYearUser = _retirementCalendarYear(profile, ageUser);
+    final retireYearConj =
+        _conjointBirthYearForProjection(profile.conjoint)! + ageConjoint;
 
     if (retireYearUser == retireYearConj) {
       return [
@@ -635,7 +716,11 @@ class RetirementProjectionService {
           label: l?.retirementPhaseLabelBothRetired ?? 'Les deux a la retraite',
           startYear: retireYearUser,
           sources: _computeIncomes(
-              profile: profile, ageUser: ageUser, ageConjoint: ageConjoint, lppCapitalPct: lppCapitalPct, l: l),
+              profile: profile,
+              ageUser: ageUser,
+              ageConjoint: ageConjoint,
+              lppCapitalPct: lppCapitalPct,
+              l: l),
         ),
       ];
     }
@@ -679,7 +764,8 @@ class RetirementProjectionService {
           // Remaining 3a capital = original - consumed, re-annualized
           final original3aMonthly =
               src.monthlyAmount * _pillar3aAnnualizationYears * 12;
-          final remaining = (original3aMonthly - consumed).clamp(0.0, double.infinity);
+          final remaining =
+              (original3aMonthly - consumed).clamp(0.0, double.infinity);
           phase2Sources[i] = RetirementIncomeSource(
             id: src.id,
             label: src.label,
@@ -722,25 +808,29 @@ class RetirementProjectionService {
     final sources = <RetirementIncomeSource>[];
     final userName = profile.firstName ?? 'Toi';
     final conjName = profile.conjoint?.firstName ?? 'Conjoint·e';
+    final currentConjointAge = profile.conjoint?.age;
 
     // F3-3: Gender-aware AVS21 reference age for staggered retirement.
-    final tpIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
+    final tpIsFemale =
+        profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
 
     if (userRetiresFirst) {
       // User AVS — no couple cap during transition (LAVS art. 35 al. 1).
       // The cap (150%) applies only when BOTH spouses receive a pension.
       // During transition, only the retired spouse receives → individual rente.
       // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
-      final avsUser = AvsCalculator.annualRente(AvsCalculator.computeMonthlyRente(
-        currentAge: profile.age,
-        retirementAge: ageUser,
-        lacunes: profile.prevoyance.lacunesAVS ?? 0,
-        anneesContribuees: profile.prevoyance.anneesContribuees,
-        arrivalAge: profile.arrivalAge,
-        grossAnnualSalary: profile.revenuBrutAnnuel,
-        isFemale: tpIsFemale,
-        birthYear: profile.birthYear,
-      )) / 12;
+      final avsUser =
+          AvsCalculator.annualRente(AvsCalculator.computeMonthlyRente(
+                currentAge: profile.age,
+                retirementAge: ageUser,
+                lacunes: profile.prevoyance.lacunesAVS ?? 0,
+                anneesContribuees: profile.prevoyance.anneesContribuees,
+                arrivalAge: profile.arrivalAge,
+                grossAnnualSalary: profile.revenuBrutAnnuel,
+                isFemale: tpIsFemale,
+                birthYear: _birthYearForProjection(profile),
+              )) /
+              12;
       sources.add(RetirementIncomeSource(
         id: 'avs_user',
         label: 'AVS $userName',
@@ -771,8 +861,7 @@ class RetirementProjectionService {
           : lppCapitalPct > 0
               ? ' (mixte)'
               : '';
-      final isMarriedForTax =
-          profile.etatCivil == CoachCivilStatus.marie;
+      final isMarriedForTax = profile.etatCivil == CoachCivilStatus.marie;
       // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
       final userAdjustedConvRate = LppCalculator.adjustedConversionRate(
         baseRate: profile.prevoyance.tauxConversion,
@@ -797,7 +886,7 @@ class RetirementProjectionService {
       final conjNet = NetIncomeBreakdown.compute(
         grossSalary: profile.conjoint!.revenuBrutAnnuel,
         canton: profile.canton,
-        age: profile.conjoint!.age ?? 45,
+        age: currentConjointAge!,
       ).monthlyNetPayslip;
       if (conjNet > 0) {
         sources.add(RetirementIncomeSource(
@@ -810,17 +899,22 @@ class RetirementProjectionService {
     } else {
       // Conjoint AVS (no couple cap — only conjoint receives)
       // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
-      final tpConjIsFemale = profile.conjoint!.gender == 'F' ? true : (profile.conjoint!.gender == 'M' ? false : null);
-      final avsConj = AvsCalculator.annualRente(AvsCalculator.computeMonthlyRente(
-        currentAge: profile.conjoint!.age ?? 45,
-        retirementAge: ageConjoint,
-        lacunes: profile.conjoint?.prevoyance?.lacunesAVS ?? 0,
-        anneesContribuees: profile.conjoint?.prevoyance?.anneesContribuees,
-        arrivalAge: profile.conjoint!.arrivalAge,
-        grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
-        isFemale: tpConjIsFemale,
-        birthYear: profile.conjoint!.birthYear,
-      )) / 12;
+      final tpConjIsFemale = profile.conjoint!.gender == 'F'
+          ? true
+          : (profile.conjoint!.gender == 'M' ? false : null);
+      final avsConj =
+          AvsCalculator.annualRente(AvsCalculator.computeMonthlyRente(
+                currentAge: currentConjointAge!,
+                retirementAge: ageConjoint,
+                lacunes: profile.conjoint?.prevoyance?.lacunesAVS ?? 0,
+                anneesContribuees:
+                    profile.conjoint?.prevoyance?.anneesContribuees,
+                arrivalAge: profile.conjoint!.arrivalAge,
+                grossAnnualSalary: profile.conjoint!.revenuBrutAnnuel,
+                isFemale: tpConjIsFemale,
+                birthYear: _conjointBirthYearForProjection(profile.conjoint),
+              )) /
+              12;
       sources.add(RetirementIncomeSource(
         id: 'avs_conjoint',
         label: 'AVS $conjName',
@@ -837,11 +931,12 @@ class RetirementProjectionService {
               : profile.conjoint!.revenuBrutAnnuel;
       final lppConj = LppCalculator.projectToRetirement(
         currentBalance: conjPrev?.avoirLppTotal ?? 0,
-        currentAge: profile.conjoint!.age ?? 45,
+        currentAge: currentConjointAge,
         retirementAge: ageConjoint,
         grossAnnualSalary: conjGrossAnnualForLpp,
         caisseReturn: conjPrev?.rendementCaisse ?? 0.02,
-        conversionRate: conjPrev?.tauxConversion ?? reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+        conversionRate: conjPrev?.tauxConversion ??
+            reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
         monthlyBuyback: _conjointLppBuyback(profile),
         buybackCap: conjPrev?.lacuneRachatRestante ?? 0,
       );
@@ -851,11 +946,11 @@ class RetirementProjectionService {
             : lppCapitalPct > 0
                 ? ' (mixte)'
                 : '';
-        final isMarriedForTax =
-            profile.etatCivil == CoachCivilStatus.marie;
+        final isMarriedForTax = profile.etatCivil == CoachCivilStatus.marie;
         // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
         final conjAdjustedConvRate = LppCalculator.adjustedConversionRate(
-          baseRate: conjPrev?.tauxConversion ?? reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
+          baseRate: conjPrev?.tauxConversion ??
+              reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
           retirementAge: ageConjoint,
         );
         final lppConjMonthly = LppCalculator.blendedMonthly(
@@ -892,13 +987,11 @@ class RetirementProjectionService {
 
     // 3a + libre — project to the FIRST retiree's horizon, not always user's.
     // If conjoint retires first, capital stops accumulating at that date.
-    final firstRetirementAge = userRetiresFirst
-        ? ageUser
-        : ageConjoint;
-    final conjAge = profile.conjoint?.age ?? 45;
+    final firstRetirementAge = userRetiresFirst ? ageUser : ageConjoint;
+    final conjAge = profile.conjoint?.age;
     final yearsToFirstRetirement = userRetiresFirst
         ? (firstRetirementAge - profile.age).clamp(0, 50)
-        : (firstRetirementAge - conjAge).clamp(0, 50);
+        : (conjAge == null ? 0 : (firstRetirementAge - conjAge).clamp(0, 50));
 
     final isIndepSansLpp = profile.employmentStatus == 'independant' &&
         profile.revenuBrutAnnuel < reg('lpp.entry_threshold', lppSeuilEntree);
@@ -915,8 +1008,7 @@ class RetirementProjectionService {
     );
     // Apply capital withdrawal tax (LIFD art. 38) before annualizing
     final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
-    final isMarriedForCapitalTax =
-        profile.etatCivil == CoachCivilStatus.marie;
+    final isMarriedForCapitalTax = profile.etatCivil == CoachCivilStatus.marie;
     final threeACapital = threeACapitalBrut -
         RetirementTaxCalculator.capitalWithdrawalTax(
           capitalBrut: threeACapitalBrut,
@@ -960,18 +1052,23 @@ class RetirementProjectionService {
     double lppCapitalPct = 0.0,
     S? l,
   }) {
-    final hasConjoint =
-        profile.isCouple && profile.conjoint?.birthYear != null;
+    final hasConjoint = profile.isCouple &&
+        _conjointBirthYearForProjection(profile.conjoint) != null;
 
     // Helper: for a given user retirement age, compute the correct income
     // sources respecting whether the conjoint is also retired at that point.
     List<RetirementIncomeSource> sourcesForAge(int userAge) {
       if (!hasConjoint) {
-        return _computeIncomes(profile: profile, ageUser: userAge, lppCapitalPct: lppCapitalPct, l: l);
+        return _computeIncomes(
+            profile: profile,
+            ageUser: userAge,
+            lppCapitalPct: lppCapitalPct,
+            l: l);
       }
       // Year the user reaches userAge
-      final yearUser = profile.birthYear + userAge;
-      final yearConj = profile.conjoint!.birthYear! + ageConjoint;
+      final yearUser = _retirementCalendarYear(profile, userAge);
+      final yearConj =
+          _conjointBirthYearForProjection(profile.conjoint)! + ageConjoint;
 
       if (yearUser >= yearConj) {
         // Both retired → use full _computeIncomes (couple AVS cap if married)
@@ -995,7 +1092,8 @@ class RetirementProjectionService {
       }
     }
 
-    final refAgeScen = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final refAgeScen =
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final ref = sourcesForAge(refAgeScen);
     final refTotal = ref.fold(0.0, (sum, s) => sum + s.monthlyAmount);
     final scenarios = <EarlyRetirementScenario>[];
@@ -1006,17 +1104,18 @@ class RetirementProjectionService {
 
       double adjustmentPct = 0;
       if (age < refAgeScen) {
-        adjustmentPct = -(reg('avs.early_retirement_reduction', avsReductionAnticipation) * (refAgeScen - age) * 100);
+        adjustmentPct =
+            -(reg('avs.early_retirement_reduction', avsReductionAnticipation) *
+                (refAgeScen - age) *
+                100);
       } else if (age > refAgeScen) {
-        final bonus =
-            avsDeferralBonus[(age - refAgeScen).clamp(1, 5)];
+        final bonus = avsDeferralBonus[(age - refAgeScen).clamp(1, 5)];
         adjustmentPct = (bonus ?? 0) * 100;
       }
 
       final yearsThis = _lifeExpectancy - age;
       final yearsRef = _lifeExpectancy - refAgeScen;
-      final cumulative =
-          (total * 12 * yearsThis) - (refTotal * 12 * yearsRef);
+      final cumulative = (total * 12 * yearsThis) - (refTotal * 12 * yearsRef);
 
       scenarios.add(EarlyRetirementScenario(
         retirementAge: age,
@@ -1039,8 +1138,7 @@ class RetirementProjectionService {
     required List<RetirementIncomeSource> incomes,
     required double depensesMensuelles,
   }) {
-    final totalRevenus =
-        incomes.fold(0.0, (sum, s) => sum + s.monthlyAmount);
+    final totalRevenus = incomes.fold(0.0, (sum, s) => sum + s.monthlyAmount);
 
     double avs = 0, lpp = 0, troisA = 0, libre = 0;
     for (final s in incomes) {
@@ -1065,9 +1163,8 @@ class RetirementProjectionService {
     final impotMensuel = RetirementTaxCalculator.estimateMonthlyIncomeTax(
       revenuAnnuelImposable: revenuImposableMensuel * 12,
       canton: profile.canton,
-      etatCivil: profile.etatCivil == CoachCivilStatus.marie
-          ? 'marie'
-          : 'celibataire',
+      etatCivil:
+          profile.etatCivil == CoachCivilStatus.marie ? 'marie' : 'celibataire',
     );
 
     final userBkdn = NetIncomeBreakdown.compute(
@@ -1075,11 +1172,12 @@ class RetirementProjectionService {
       canton: profile.canton,
       age: profile.age,
     );
-    final conjBkdn = profile.conjoint != null
+    final conjointCurrentAge = profile.conjoint?.age;
+    final conjBkdn = profile.conjoint != null && conjointCurrentAge != null
         ? NetIncomeBreakdown.compute(
             grossSalary: profile.conjoint!.revenuBrutAnnuel,
             canton: profile.canton,
-            age: profile.conjoint!.age ?? 45,
+            age: conjointCurrentAge,
           )
         : null;
     final revenuPreRetraite =
@@ -1146,16 +1244,14 @@ class RetirementProjectionService {
   static double _estimateRetirementExpenses(CoachProfile profile) {
     return HousingCostCalculator.estimateRetirementExpenses(
       salaireBrutMensuel: profile.salaireBrutMensuel,
-      conjointSalaireBrutMensuel:
-          profile.conjoint?.salaireBrutMensuel ?? 0,
+      conjointSalaireBrutMensuel: profile.conjoint?.salaireBrutMensuel ?? 0,
       currentExpenses:
           BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile),
       housingStatus: profile.housingStatus,
-      canton: profile.canton.isNotEmpty
-          ? profile.canton.toUpperCase()
-          : 'ZH',
+      canton: profile.canton.isNotEmpty ? profile.canton.toUpperCase() : 'ZH',
       currentAge: profile.age,
-      targetRetirementAge: profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt(),
+      targetRetirementAge: profile.targetRetirementAge ??
+          reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt(),
       propertyMarketValue: profile.patrimoine.propertyMarketValue,
       mortgageBalance: profile.patrimoine.mortgageBalance,
       mortgageRate: profile.patrimoine.mortgageRate,
@@ -1172,7 +1268,7 @@ class RetirementProjectionService {
     required int retirementAge,
     required List<RetirementIncomeSource> incomeSources,
   }) {
-    final startYear = profile.birthYear + retirementAge;
+    final startYear = _retirementCalendarYear(profile, retirementAge);
 
     double indexedMonthly = 0;
     double nonIndexedMonthly = 0;

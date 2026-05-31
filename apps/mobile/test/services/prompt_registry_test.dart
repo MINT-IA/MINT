@@ -227,6 +227,21 @@ void main() {
       expect(prompt, contains('confiance'));
     });
 
+    test('unknown age is not exposed as 0 ans in prompts', () {
+      final ctx = _ctx(age: 0);
+
+      expect(
+        PromptRegistry.chatSystemPrompt(ctx),
+        isNot(contains('- Âge : 0 ans')),
+      );
+
+      final retirementGuide =
+          PromptRegistry.enrichmentGuide(ctx, 'objectifRetraite');
+      expect(retirementGuide, contains('- Âge actuel : inconnu'));
+      expect(retirementGuide, isNot(contains('- Âge actuel : 0 ans')));
+      expect(retirementGuide, contains('date de naissance'));
+    });
+
     // ═══════════════════════════════════════════════════════════
     // getPrompt() DISPATCH
     // ═══════════════════════════════════════════════════════════

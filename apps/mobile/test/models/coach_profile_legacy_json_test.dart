@@ -36,6 +36,15 @@ void main() {
           reason: 'absent key MUST preserve null (R4 silent-coercion guard)');
     });
 
+    test('legacy_json_no_birth_data_keeps_age_unknown', () {
+      final profile = CoachProfile.fromJson(<String, dynamic>{});
+
+      expect(profile.birthYear, 0,
+          reason: 'absent birthYear must not fabricate the legacy 1980 value');
+      expect(profile.ageOrNull, isNull);
+      expect(profile.anneesAvantRetraite, isNull);
+    });
+
     test(
         'legacy_json_no_us_tax_person_with_nationality_preserves_null_for_us_tax: '
         'CoachProfile.fromJson({"nationality": "CH"}) → usTaxPerson stays null '

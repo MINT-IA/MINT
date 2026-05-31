@@ -108,6 +108,54 @@ void main() {
       // Should show child (scenarios), not MC view
       expect(find.text('child'), findsOneWidget);
     });
+
+    testWidgets('shows suspended reason instead of endless loading',
+        (tester) async {
+      const suspendedResult = MonteCarloResult(
+        projection: [],
+        medianAt65: 0,
+        p10At65: 0,
+        p90At65: 0,
+        ruinProbability: 0,
+        numSimulations: 0,
+        disclaimer: 'Outil \u00e9ducatif (LSFin).',
+        retirementAge: 65,
+        sources: [],
+        alertes: [
+          'Date de naissance manquante : simulation retraite suspendue.',
+        ],
+      );
+
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: Scaffold(
+          body: MonteCarloToggleSection(
+            monteCarloResult: suspendedResult,
+            scenariosChild: Text('child'),
+            monteCarloAvailable: true,
+          ),
+        ),
+      ));
+
+      await tester.tap(find.text('Probabilit\u00e9s'));
+      await tester.pump();
+
+      expect(
+        find.text(
+          'Date de naissance manquante : simulation retraite suspendue.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Simulation en cours'), findsNothing);
+      expect(find.textContaining('Risque d\'\u00e9puisement'), findsNothing);
+    });
   });
 
   group('MonteCarloTeaser', () {
@@ -374,7 +422,13 @@ MonteCarloResult _buildMockResult() {
   return const MonteCarloResult(
     projection: [
       MonteCarloPoint(
-          year: 2040, age: 65, p10: 2000, p25: 2500, p50: 3000, p75: 3500, p90: 4000),
+          year: 2040,
+          age: 65,
+          p10: 2000,
+          p25: 2500,
+          p50: 3000,
+          p75: 3500,
+          p90: 4000),
     ],
     medianAt65: 3000,
     p10At65: 2000,

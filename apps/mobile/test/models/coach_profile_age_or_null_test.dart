@@ -14,8 +14,13 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('CoachProfile.ageOrNull — B6-minimal contract', () {
     final currentYear = DateTime.now().year;
 
@@ -72,11 +77,9 @@ void main() {
         birthYear: 0,
         dateOfBirth: DateTime(1977, 1, 12),
       );
-      final expected = currentYear - 1977 -
-          (DateTime.now().isBefore(
-                  DateTime(currentYear, 1, 12))
-              ? 1
-              : 0);
+      final expected = currentYear -
+          1977 -
+          (DateTime.now().isBefore(DateTime(currentYear, 1, 12)) ? 1 : 0);
       expect(profile.ageOrNull, equals(expected));
     });
 
@@ -122,6 +125,51 @@ void main() {
       final age = currentYear - 1996;
       final expected = (profile.effectiveRetirementAge - age).clamp(0, 99);
       expect(profile.anneesAvantRetraite, equals(expected));
+    });
+  });
+
+  group('CoachProfile.fromWizardAnswers — date of birth truth', () {
+    test('DOB-only wizard answers derive birthYear and retirement target', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_date_of_birth': '1977-06-15',
+        'q_canton': 'VD',
+        'q_main_goal': 'retirement',
+        'q_target_retirement_age': 63,
+      });
+
+      expect(profile.birthYear, 1977);
+      expect(profile.dateOfBirth, DateTime(1977, 6, 15));
+      expect(profile.ageOrNull, isNotNull);
+      expect(profile.goalA.targetDate, DateTime(2040, 12, 31));
+    });
+
+    test('DOB wins over stale birthYear in wizard answers', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_birth_year': 1980,
+        'q_date_of_birth': '1977-06-15',
+        'q_canton': 'VD',
+      });
+
+      expect(profile.birthYear, 1977);
+      expect(profile.ageOrNull, closeTo(DateTime.now().year - 1977, 1));
+    });
+
+    test('loadFromWizard preserves DOB-only profile after persistence reload',
+        () async {
+      SharedPreferences.setMockInitialValues({});
+      await ReportPersistenceService.saveAnswers({
+        'q_date_of_birth': '1977-06-15',
+        'q_canton': 'VD',
+      });
+      await ReportPersistenceService.setMiniOnboardingCompleted(true);
+
+      final provider = CoachProfileProvider();
+      await provider.loadFromWizard();
+
+      expect(provider.profile, isNotNull);
+      expect(provider.profile!.birthYear, 1977);
+      expect(provider.profile!.dateOfBirth, DateTime(1977, 6, 15));
+      expect(provider.profile!.ageOrNull, isNotNull);
     });
   });
 }

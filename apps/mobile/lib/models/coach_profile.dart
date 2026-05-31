@@ -2158,12 +2158,14 @@ class CoachProfile {
     if (monthlyPayment < 300) return false;
 
     if (salaireBrutMensuel <= 0) return true;
+    final knownAge = ageOrNull;
+    if (knownAge == null) return true;
     final monthlyNet = employmentStatus == 'independant'
         ? salaireBrutMensuel * 0.90
         : NetIncomeBreakdown.compute(
             grossSalary: salaireBrutMensuel * nombreDeMois,
             canton: canton.isNotEmpty ? canton : 'ZH',
-            age: ageOrNull ?? 40,
+            age: knownAge,
           ).monthlyNetPayslip;
     if (monthlyNet <= 0) return true;
 
@@ -2405,12 +2407,15 @@ class CoachProfile {
     // Future migrations: if (version < 2) { ... migrate fields ... }
     assert(version <= schemaVersion,
         'CoachProfile schema version $version is newer than supported $schemaVersion');
+    final parsedDateOfBirth = json['dateOfBirth'] != null
+        ? DateTime.tryParse(json['dateOfBirth'] as String)
+        : null;
+    final parsedBirthYear = json['birthYear'] as int?;
+
     return CoachProfile(
       firstName: json['firstName'] as String?,
-      birthYear: (json['birthYear'] as int?) ?? 1980,
-      dateOfBirth: json['dateOfBirth'] != null
-          ? DateTime.tryParse(json['dateOfBirth'] as String)
-          : null,
+      birthYear: parsedBirthYear ?? parsedDateOfBirth?.year ?? 0,
+      dateOfBirth: parsedDateOfBirth,
       canton: (json['canton'] as String?) ?? 'ZH',
       commune: json['commune'] as String?,
       nationality: json['nationality'] as String?,
@@ -2593,9 +2598,14 @@ class CoachProfile {
     final firstName = answers['q_firstname'] as String?;
     // CHAOS-78: Never default to 1990 — unknown birthYear stays 0
     // (age getter returns 0 for invalid birthYear, signaling "data missing").
-    final birthYear = _parseInt(answers['q_birth_year']) ?? 0;
+    final rawBirthYear = _parseInt(answers['q_birth_year']) ?? 0;
     final dobRaw = answers['q_date_of_birth'];
-    final dateOfBirth = dobRaw is String ? DateTime.tryParse(dobRaw) : null;
+    final dateOfBirth = dobRaw is DateTime
+        ? dobRaw
+        : dobRaw is String
+            ? DateTime.tryParse(dobRaw)
+            : null;
+    final birthYear = dateOfBirth?.year ?? rawBirthYear;
     final canton = (answers['q_canton'] as String?) ?? 'ZH';
     // Use precise age from dateOfBirth if available
     final int age;
@@ -2627,7 +2637,11 @@ class CoachProfile {
     // recognized, causing annual salary to be treated as monthly.
     final payFrequency =
         (answers['q_pay_frequency'] as String?)?.toLowerCase() ?? 'monthly';
-    final netIncome = _parseDouble(answers['q_net_income_period_chf']) ?? 5000;
+    final parsedNetIncome = _parseDouble(answers['q_net_income_period_chf']);
+    final hasExplicitNetIncome = parsedNetIncome != null &&
+        parsedNetIncome.isFinite &&
+        parsedNetIncome > 0;
+    final netIncome = hasExplicitNetIncome ? parsedNetIncome : 0.0;
 
     // Convert to monthly net income based on pay frequency
     double monthlyNetIncome;
@@ -2720,8 +2734,9 @@ class CoachProfile {
     final has3a = _parseBool(answers['q_has_3a']);
     final contribution3a =
         _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
-    final nombre3a =
-        _parseInt(answers['q_3a_accounts_count']) ?? (has3a ? 1 : 0);
+    final nombre3a = _parseInt(answers['q_3a_accounts_count']) ??
+        _parseInt(answers['q_nombre_3a']) ??
+        (has3a ? 1 : 0);
     final avsLacunesStatus = answers['q_avs_lacunes_status'] as String?;
     // Compute arrivalAge for expats who arrived late in Switzerland.
     // Used by _estimateLppAvoir() to start LPP bonification loop at
@@ -2784,7 +2799,8 @@ class CoachProfile {
 
     // Estimate 3a total from contribution and age
     // Si une valeur reelle a ete saisie via annual refresh, on la prefere
-    final reported3aTotal = _parseDouble(answers['q_3a_total']);
+    final reported3aTotal = _parseDouble(answers['q_3a_total']) ??
+        _parseDouble(answers['q_total_3a']);
     final coachTotal3a = _parseDouble(answers['_coach_total_3a']);
     final estimated3aTotal = reported3aTotal ??
         coachTotal3a ??
@@ -3173,8 +3189,7 @@ class CoachProfile {
       provided.add('age');
     }
     if (answers.containsKey('q_canton')) provided.add('canton');
-    if (answers.containsKey('q_net_income_period_chf') ||
-        answers.containsKey('q_gross_salary_annual')) {
+    if (hasExplicitNetIncome || answers.containsKey('q_gross_salary_annual')) {
       provided.add('salary');
       restoredDataSources['revenuBrutAnnuel'] = ProfileDataSource.userInput;
     }
@@ -3387,9 +3402,12 @@ class CoachProfile {
   static GoalA _parseGoalA(String? raw, int birthYear,
       {int? targetRetirementAge}) {
     final effectiveAge = targetRetirementAge ?? 65;
-    final retirementYear = birthYear + effectiveAge;
-    final retirementDate = DateTime(retirementYear, 12, 31);
-    final retirementLabel = 'Retraite a $effectiveAge ans';
+    final hasBirthYear = birthYear >= 1900;
+    final retirementDate = hasBirthYear
+        ? DateTime(birthYear + effectiveAge, 12, 31)
+        : DateTime(2040, 12, 31);
+    final retirementLabel =
+        hasBirthYear ? 'Retraite a $effectiveAge ans' : 'Retraite';
 
     if (raw == null) {
       return GoalA(

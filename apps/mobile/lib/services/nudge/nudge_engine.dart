@@ -246,7 +246,8 @@ class NudgeEngine {
   ) {
     if (now.month != 1 || now.day > 7) return;
 
-    final age = now.year - profile.birthYear;
+    final age = profile.ageOrNull;
+    if (age == null) return;
     if (!_milestoneAges.contains(age)) return;
 
     final id = _id(NudgeTrigger.birthdayMilestone, now);

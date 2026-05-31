@@ -277,8 +277,7 @@ void main() {
       ];
 
       for (final locale in anchors.keys) {
-        final value =
-            (arb(locale)['reportTaxSavings'] as String).toLowerCase();
+        final value = (arb(locale)['reportTaxSavings'] as String).toLowerCase();
         expect(value, contains(anchors[locale]), reason: locale);
         expect(value, contains('{amount}'), reason: locale);
         for (final fragment in bannedFragments) {
@@ -405,11 +404,49 @@ void main() {
       expect(report.profile.annualIncome, equals(72000.0));
     });
 
-    test('defaults monthly income to 5000 when missing', () {
+    test('does not fabricate monthly income when missing', () {
       final answers = minimalAnswers();
       answers.remove('q_net_income_period_chf');
       final report = service.generateReport(answers);
-      expect(report.profile.monthlyNetIncome, equals(5000.0));
+      expect(report.profile.monthlyNetIncome, isZero);
+    });
+
+    test('missing birth data stays unknown and skips retirement projection',
+        () {
+      final answers = minimalAnswers();
+      answers.remove('q_birth_year');
+
+      final report = service.generateReport(answers);
+
+      expect(report.profile.birthYear, 0,
+          reason: 'report generation must not fabricate a 40-year-old user');
+      expect(report.profile.ageOrNull, isNull);
+      expect(report.profile.yearsToRetirementOrNull, isNull);
+      expect(report.retirementProjection, isNull);
+    });
+
+    test('missing birth data skips 3a analysis and AVS gap calculation', () {
+      final answers = minimalAnswers()
+        ..remove('q_birth_year')
+        ..['q_3a_accounts_count'] = 1
+        ..['q_3a_annual_contribution'] = 7258.0
+        ..['q_avs_lacunes_status'] = 'arrived_late'
+        ..['q_avs_arrival_year'] = 2020;
+
+      final report = service.generateReport(answers);
+
+      expect(report.profile.ageOrNull, isNull);
+      expect(report.pillar3aAnalysis, isNull);
+      expect(report.profile.avsGapYears, isNull);
+    });
+
+    test('present unparsable income does not default to 5000', () {
+      for (final value in [null, '__secure__', 'not-a-number']) {
+        final answers = minimalAnswers();
+        answers['q_net_income_period_chf'] = value;
+        final report = service.generateReport(answers);
+        expect(report.profile.monthlyNetIncome, equals(0.0), reason: '$value');
+      }
     });
 
     test('parses children count from string', () {
@@ -630,10 +667,7 @@ void main() {
       expect(projZero.replacementRate, equals(0.0));
     });
 
-    test(
-        'replacement rate defaults to 7800 when currentMonthlyIncome not provided',
-        () {
-      // Backward compatibility: default currentMonthlyIncome = 7800
+    test('replacement rate is zero when currentMonthlyIncome is unknown', () {
       const projection = RetirementProjection(
         yearsUntilRetirement: 20,
         lppCapital: 300000,
@@ -641,10 +675,8 @@ void main() {
         monthlyAvsRent: 2520,
         monthlyLppRent: 1500,
       );
-      // totalMonthlyIncome = 2520 + 1500 = 4020
-      // replacementRate = (4020 / 7800) * 100 ≈ 51.54%
-      expect(projection.currentMonthlyIncome, equals(7800.0));
-      expect(projection.replacementRate, closeTo(51.54, 0.1));
+      expect(projection.currentMonthlyIncome, equals(0.0));
+      expect(projection.replacementRate, equals(0.0));
     });
 
     test('replacement rate uses profile income via service (integration)', () {
@@ -906,8 +938,10 @@ void main() {
       final report = service.generateReport({});
       expect(report.profile.canton, equals('ZH'));
       expect(report.profile.civilStatus, equals('single'));
-      expect(report.profile.monthlyNetIncome, equals(5000.0));
+      expect(report.profile.monthlyNetIncome, isZero);
       expect(report.profile.childrenCount, equals(0));
+      expect(report.profile.birthYear, equals(0));
+      expect(report.profile.ageOrNull, isNull);
     });
 
     test('zero income produces valid report', () {
@@ -930,6 +964,31 @@ void main() {
       answers['q_birth_year'] = '1990';
       final report = service.generateReport(answers);
       expect(report.profile.birthYear, equals(1990));
+    });
+
+    test('date of birth is accepted as canonical birth data', () {
+      final answers = minimalAnswers()
+        ..remove('q_birth_year')
+        ..['q_date_of_birth'] = '1981-06-15';
+
+      final report = service.generateReport(answers);
+
+      expect(report.profile.birthYear, equals(1981));
+      expect(report.profile.ageOrNull, isNotNull);
+      expect(report.retirementProjection, isNotNull);
+    });
+
+    test('date of birth wins over stale birth year', () {
+      final answers = minimalAnswers()
+        ..['q_birth_year'] = 1980
+        ..['q_date_of_birth'] = '1977-06-15';
+
+      final report = service.generateReport(answers);
+
+      expect(report.profile.birthYear, equals(1977));
+      expect(report.profile.ageOrNull, equals(DateTime.now().year - 1977));
+      expect(
+          report.profile.ageOrNull, isNot(equals(DateTime.now().year - 1980)));
     });
 
     test('income as int is handled correctly', () {

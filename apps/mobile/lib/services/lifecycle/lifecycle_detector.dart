@@ -36,11 +36,8 @@ class LifecycleDetector {
   ///
   /// [now] parameter enables deterministic testing. Defaults to [DateTime.now()].
   static LifecyclePhase detect(CoachProfile profile, {DateTime? now}) {
-    // Delegate to LifecyclePhaseService-compatible detection logic.
-    // birthYear is non-nullable on CoachProfile (has a default via required
-    // constructor), but the nullable ConjointProfile wrapper version may differ.
-    final currentYear = (now ?? DateTime.now()).year;
-    final age = currentYear - profile.birthYear;
+    final age = profile.ageOrNull;
+    if (age == null) return LifecyclePhase.construction;
 
     // Override: already retired
     if (profile.employmentStatus == 'retraite') {
@@ -48,8 +45,8 @@ class LifecycleDetector {
     }
 
     // Override: early retirement target approaching
-    final targetRetirement =
-        profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final targetRetirement = profile.targetRetirementAge ??
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsLeft = targetRetirement - age;
     if (age >= 50 && yearsLeft > 0 && yearsLeft <= 10) {
       return LifecyclePhase.transition;
@@ -72,6 +69,7 @@ class LifecycleDetector {
     if (birthYear == null) return LifecyclePhase.construction;
 
     final currentYear = (now ?? DateTime.now()).year;
+    if (birthYear <= 0) return LifecyclePhase.construction;
     final age = currentYear - birthYear;
 
     // Override: already retired
@@ -80,7 +78,8 @@ class LifecycleDetector {
     }
 
     // Override: early retirement target approaching
-    final targetRetirement = targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final targetRetirement = targetRetirementAge ??
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsLeft = targetRetirement - age;
     if (age >= 50 && yearsLeft > 0 && yearsLeft <= 10) {
       return LifecyclePhase.transition;
@@ -112,7 +111,10 @@ class LifecycleDetector {
     if (age < 35) return LifecyclePhase.construction;
     if (age < 45) return LifecyclePhase.acceleration;
     if (age < 55) return LifecyclePhase.consolidation;
-    if (age < reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) return LifecyclePhase.transition;
+    if (age <
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) {
+      return LifecyclePhase.transition;
+    }
     if (age < 75) return LifecyclePhase.retraite;
     return LifecyclePhase.transmission;
   }

@@ -9,27 +9,123 @@
 ///   - FINMA circular 2023/1 (operational risk)
 library;
 
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class SecureWizardSealResult {
+  final Map<String, dynamic> cleaned;
+  final bool allSensitiveSealed;
+
+  const SecureWizardSealResult({
+    required this.cleaned,
+    required this.allSensitiveSealed,
+  });
+}
 
 class SecureWizardStore {
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
 
+  static const _manifestKey = '_mint_wizard_secure_keys_v1';
+
   /// Keys containing sensitive financial PII that must not be stored
   /// in plain SharedPreferences.
   static const _sensitiveKeys = {
     'q_gross_salary',
+    'q_gross_salary_annual',
+    'q_gross_income',
+    'q_gross_income_monthly',
+    'q_monthly_gross_salary_chf',
+    'q_salary_months',
+    'q_annual_bonus',
+    'q_avs_contribution_years',
     'q_net_income_period_chf',
+    'q_net_income_monthly',
+    'q_net_income_range_low',
+    'q_net_income_range_high',
+    'q_salaire',
     'q_lpp_avoir',
+    'q_avoir_lpp',
+    'q_lpp_current_capital',
+    'q_lpp_buyback_available',
+    '_coach_avoir_lpp',
+    '_coach_avoir_lpp_oblig',
+    '_coach_avoir_lpp_suroblig',
+    '_coach_salaire_assure',
+    '_coach_rachat_maximum',
+    '_coach_rachat_lpp_mensuel',
+    '_coach_rendement_caisse',
     'q_3a_capital',
+    'q_3a_total',
+    'q_total_3a',
+    'q_3a_accounts_count',
+    'q_3a_annual_contribution',
+    '_coach_total_3a',
     'q_partner_salary',
+    'q_partner_net_income_chf',
+    'q_partner_birth_year',
+    'q_partner_employment_status',
+    'q_partner_firstname',
+    'q_partner_gender',
+    'q_partner_nationality',
+    'q_partner_canton',
+    'q_partner_enfants',
+    'q_spouse_birth_year',
+    'q_spouse_employment_status',
+    'q_spouse_firstname',
+    'q_spouse_gender',
+    'q_spouse_nationality',
+    'q_spouse_canton',
+    'q_spouse_enfants',
     'q_patrimoine_liquide',
+    'q_epargne_liquide',
+    'q_savings_monthly',
+    'q_investissements',
+    'q_cash_total',
+    'q_investments_total',
     'q_dettes_total',
+    'q_property_value',
+    'q_property_market_value',
+    'q_mortgage_balance',
+    'q_monthly_rent',
+    'q_housing_cost_period_chf',
+    'q_lamal_premium_monthly_chf',
+    'q_tax_provision_monthly_chf',
+    'q_other_fixed_costs_monthly_chf',
+    'q_debt_payments_period_chf',
+    'q_bonus_percentage',
+    '_coach_depenses_electricite',
+    '_coach_depenses_transport',
+    '_coach_depenses_telecom',
+    '_coach_depenses_frais_medicaux',
+    '_coach_depenses_autres',
+    '_coach_dettes_hypotheque',
+    '_coach_dettes_credit',
+    '_coach_dettes_leasing',
+    '_coach_dettes_autres',
+    '_coach_conjoint_avoir_lpp',
+    '_coach_conjoint_taux_conversion',
+    '_coach_tax_revenu_imposable',
+    '_coach_tax_fortune_imposable',
+    '_coach_tax_deductions',
+    '_coach_tax_impot_cantonal',
+    '_coach_tax_impot_federal',
+    '_coach_tax_taux_marginal',
   };
 
   /// Whether a key should be stored in secure storage.
-  static bool isSensitive(String key) => _sensitiveKeys.contains(key);
+  static bool isSensitive(String key) =>
+      _sensitiveKeys.contains(key) ||
+      key.startsWith('_coach_depenses_') ||
+      key.startsWith('_coach_dettes_') ||
+      key.startsWith('_coach_conjoint_') ||
+      key.startsWith('_coach_avs_') ||
+      key.startsWith('q_avs_') ||
+      key.startsWith('q_partner_') ||
+      key.startsWith('q_spouse_') ||
+      (key.startsWith('_coach_tax_') && key != '_coach_tax_source');
 
   /// Write a sensitive value to encrypted storage.
   ///
@@ -45,13 +141,16 @@ class SecureWizardStore {
   /// SEC-10 is preserved: a swallowed write means the value is simply not
   /// sealed (a later [read] returns null, the already-accepted degraded
   /// path) — the PII is NEVER demoted to plain SharedPreferences.
-  static Future<void> write(String key, String value) async {
-    if (!_sensitiveKeys.contains(key)) return;
+  static Future<bool> write(String key, String value) async {
+    if (!isSensitive(key)) return false;
     try {
       await _storage.write(key: key, value: value);
+      await _rememberKey(key);
+      return true;
     } on Exception {
       // Secure storage unavailable (sim entitlement / locked keychain):
       // degrade gracefully rather than aborting the seal.
+      return false;
     }
   }
 
@@ -66,7 +165,7 @@ class SecureWizardStore {
   /// hydrated the profile at app launch (deep-walk root cause for the
   /// « opener re-appears after scan » regression).
   static Future<String?> read(String key) async {
-    if (!_sensitiveKeys.contains(key)) return null;
+    if (!isSensitive(key)) return null;
     try {
       return await _storage.read(key: key);
     } on Exception {
@@ -74,11 +173,71 @@ class SecureWizardStore {
     }
   }
 
-  /// Delete all sensitive keys from encrypted storage.
-  static Future<void> deleteAll() async {
-    for (final key in _sensitiveKeys) {
-      await _storage.delete(key: key);
+  static Future<Set<String>> _readManifest() async {
+    try {
+      final raw = await _storage.read(key: _manifestKey);
+      if (raw == null || raw.isEmpty) return {};
+      final decoded = json.decode(raw);
+      if (decoded is! List) return {};
+      return decoded.whereType<String>().toSet();
+    } on Exception {
+      return {};
     }
+  }
+
+  static Future<void> _rememberKey(String key) async {
+    try {
+      final keys = await _readManifest();
+      if (keys.add(key)) {
+        await _storage.write(
+            key: _manifestKey, value: json.encode(keys.toList()));
+      }
+    } on Exception {
+      // Best-effort manifest. The static sensitive key list still covers all
+      // canonical keys, and dynamic prefixes are cleaned when the manifest works.
+    }
+  }
+
+  /// Delete all sensitive keys from encrypted storage.
+  static Future<bool> deleteAll() async {
+    var deletedAll = true;
+    final keys = {..._sensitiveKeys, ...await _readManifest()};
+    for (final key in keys) {
+      try {
+        await _storage.delete(key: key);
+      } on Exception {
+        deletedAll = false;
+        // Best-effort cleanup: do not block logout/reset on keychain state.
+      }
+    }
+    try {
+      await _storage.delete(key: _manifestKey);
+    } on Exception {
+      deletedAll = false;
+    }
+    return deletedAll;
+  }
+
+  static Future<SecureWizardSealResult> sealSensitiveKeys(
+    Map<String, dynamic> answers,
+  ) async {
+    final cleaned = Map<String, dynamic>.from(answers);
+    var allSensitiveSealed = true;
+    for (final key in cleaned.keys.where(isSensitive).toList()) {
+      if (cleaned.containsKey(key) && cleaned[key] != null) {
+        final sealed = await write(key, cleaned[key].toString());
+        if (sealed) {
+          cleaned[key] = '__secure__';
+        } else {
+          allSensitiveSealed = false;
+          cleaned.remove(key);
+        }
+      }
+    }
+    return SecureWizardSealResult(
+      cleaned: cleaned,
+      allSensitiveSealed: allSensitiveSealed,
+    );
   }
 
   /// Extract sensitive values from an answers map and store them securely.
@@ -86,14 +245,7 @@ class SecureWizardStore {
   static Future<Map<String, dynamic>> secureSensitiveKeys(
     Map<String, dynamic> answers,
   ) async {
-    final cleaned = Map<String, dynamic>.from(answers);
-    for (final key in _sensitiveKeys) {
-      if (cleaned.containsKey(key) && cleaned[key] != null) {
-        await write(key, cleaned[key].toString());
-        cleaned[key] = '__secure__';
-      }
-    }
-    return cleaned;
+    return (await sealSensitiveKeys(answers)).cleaned;
   }
 
   /// Restore sensitive values from secure storage into an answers map.
@@ -101,12 +253,17 @@ class SecureWizardStore {
     Map<String, dynamic> answers,
   ) async {
     final restored = Map<String, dynamic>.from(answers);
-    for (final key in _sensitiveKeys) {
+    for (final key in restored.keys
+        .where((key) => restored[key] == '__secure__')
+        .toList()) {
+      if (!isSensitive(key)) continue;
       final value = await read(key);
       if (value != null) {
         // Try to parse as number if it looks like one
         final asNum = num.tryParse(value);
         restored[key] = asNum ?? value;
+      } else {
+        restored[key] = null;
       }
     }
     return restored;

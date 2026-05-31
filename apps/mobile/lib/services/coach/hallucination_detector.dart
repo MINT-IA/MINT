@@ -14,16 +14,21 @@
 ///   - LSFin art. 8 (quality of financial information)
 library;
 
+import 'package:mint_mobile/constants/social_insurance.dart';
+
 import 'coach_models.dart';
 
 class HallucinationDetector {
   HallucinationDetector._();
 
-  static final _chfPattern = RegExp(r'CHF\s*([\d' "'" r']+(?:[.,]\d+)?)', caseSensitive: false);
+  static final _chfPattern =
+      RegExp(r'CHF\s*([\d' "'" r']+(?:[.,]\d+)?)', caseSensitive: false);
   // CRIT #4 fix: capture integer percentages (e.g. "85%") in addition to decimals.
   static final _pctPattern = RegExp(r'(\d+(?:[.,]\d+)?)\s*%');
-  static final _durationPattern = RegExp(r'(\d+)\s*(?:mois|ans|semaines|jours)');
-  static final _scorePattern = RegExp(r'(\d[\d' "'" r']*(?:[.,]\d+)?)\s*/\s*100');
+  static final _durationPattern =
+      RegExp(r'(\d+)\s*(?:mois|ans|semaines|jours)');
+  static final _scorePattern =
+      RegExp(r'(\d[\d' "'" r']*(?:[.,]\d+)?)\s*/\s*100');
 
   /// Swiss legal constants that the LLM is allowed to cite.
   ///
@@ -34,50 +39,57 @@ class HallucinationDetector {
   /// Sources: LAVS art. 34, LPP art. 7/8/14/16, OPP3 art. 7
   static final Set<double> _legalConstantsChf = {
     // Pilier 3a (OPP3 art. 7)
-    7258.0,   // Plafond 3a salarié affilié LPP
-    36288.0,  // Plafond 3a indépendant sans LPP
+    pilier3aPlafondAvecLpp,
+    pilier3aPlafondSansLpp,
     // LPP (art. 7, 8)
-    22680.0,  // Seuil d'entrée LPP
-    26460.0,  // Déduction de coordination
-    3780.0,   // Salaire coordonné minimum / Rente couple max mensuelle
-    64260.0,  // Salaire coordonné maximum
-    90720.0,  // Salaire maximum assuré LPP
+    lppSeuilEntree,
+    lppDeductionCoordination,
+    lppSalaireCoordMin,
+    lppSalaireCoordMax,
+    lppSalaireMax,
     // AVS (LAVS art. 34)
-    2520.0,   // Rente AVS max mensuelle
-    1260.0,   // Rente AVS min mensuelle
-    30240.0,  // Rente AVS max annuelle
-    530.0,    // Cotisation min indépendant
+    avsRenteMaxMensuelle,
+    avsRenteMinMensuelle,
+    avsRenteMaxAnnuelle,
+    avsCotisationMinIndependant,
     // EPL (OPP2 art. 5)
-    20000.0,  // EPL minimum
+    eplMontantMinimum,
     // AC / AVS extended
-    148200.0, // AC plafond salaire assuré
-    14700.0,  // AVS RAMD min
-    88200.0,  // AVS RAMD max
-    1400.0,   // AVS franchise retraite mensuelle
-    514.0,    // AVS volontaire cotisation min
-    25700.0,  // AVS volontaire cotisation max
+    acPlafondSalaireAssure,
+    avsRAMDMin,
+    avsRAMDMax,
+    avsFranchiseRetraiteMensuelle,
+    avsVolontaireCotisationMin,
+    avsVolontaireCotisationMax,
   };
 
   /// Legal percentage constants.
   static final Set<double> _legalConstantsPct = {
-    6.8,    // Taux de conversion LPP minimum (LPP art. 14)
-    1.25,   // Taux d'intérêt minimum LPP
-    5.3,    // Cotisation AVS salarié
-    10.6,   // Cotisation AVS totale
-    5.0,    // Taux théorique hypothécaire (FINMA/ASB)
-    7.0,    // Bonification LPP 25-34
-    10.0,   // Bonification LPP 35-44
-    15.0,   // Bonification LPP 45-54
-    18.0,   // Bonification LPP 55-65
-    20.0,   // Part revenu 3a sans LPP
-    60.0,   // Taux de remplacement cible minimum retraite
-    70.0,   // Taux indemnité chômage standard
-    80.0,   // Taux indemnité chômage avec charges
-    100.0,  // Reference: "100% de ton capital" (completeness)
+    lppTauxConversionMin,
+    lppTauxInteretMin,
+    avsCotisationSalarie * 100,
+    avsCotisationTotal * 100,
+    5.0, // Taux théorique hypothécaire (FINMA/ASB)
+    lppBonificationsVieillesse['25-34']! * 100,
+    lppBonificationsVieillesse['35-44']! * 100,
+    lppBonificationsVieillesse['45-54']! * 100,
+    lppBonificationsVieillesse['55-65']! * 100,
+    pilier3aTauxRevenuSansLpp * 100,
+    60.0, // Taux de remplacement cible minimum retraite
+    acIndemniteTaux * 100,
+    acIndemniteTauxChargeFamille * 100,
+    100.0, // Reference: "100% de ton capital" (completeness)
     // AVS deferral bonuses (LAVS art. 39)
-    5.2, 16.4, 22.7, 31.5,
+    avsDeferralBonus[1]! * 100,
+    avsDeferralBonus[3]! * 100,
+    avsDeferralBonus[4]! * 100,
+    avsDeferralBonus[5]! * 100,
     // AI/APG/AC cotisation rates
-    0.7, 0.25, 1.1, 0.5, 0.2,
+    aiCotisationSalarie * 100,
+    apgCotisationSalarie * 100,
+    acCotisationSalarie * 100,
+    acCotisationSolidariteSalarie * 100,
+    0.2,
   };
 
   /// Tolerance for matching legal constants (±1%).
@@ -99,7 +111,8 @@ class HallucinationDetector {
 
   /// Parse a Swiss-formatted number (e.g., 1'820 or 1,820.50).
   static double _parseSwissNumber(String text) {
-    final cleaned = text.replaceAll("'", '').replaceAll(' ', '').replaceAll(',', '.');
+    final cleaned =
+        text.replaceAll("'", '').replaceAll(' ', '').replaceAll(',', '.');
     return double.tryParse(cleaned) ?? 0.0;
   }
 

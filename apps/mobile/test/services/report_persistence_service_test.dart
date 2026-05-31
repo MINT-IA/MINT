@@ -81,6 +81,300 @@ void main() {
       expect(loaded['q_has_3a'], 'yes');
     });
 
+    test('drops unresolved secure placeholders on load', () async {
+      SharedPreferences.setMockInitialValues({
+        'wizard_answers_v2': json.encode({
+          'q_canton': 'VD',
+          'q_net_income_period_chf': '__secure__',
+        }),
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(loaded['q_canton'], 'VD');
+      expect(loaded['q_net_income_period_chf'], isNull);
+      expect(loaded.containsValue('__secure__'), isFalse);
+    });
+
+    test('secure read failure preserves non-sensitive answers', () async {
+      SharedPreferences.setMockInitialValues({
+        'wizard_answers_v2': json.encode({
+          'q_canton': 'VD',
+          'q_net_income_period_chf': '__secure__',
+        }),
+      });
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          if (call.method == 'read') {
+            throw PlatformException(
+              code: '-34018',
+              message: 'errSecMissingEntitlement',
+            );
+          }
+          return null;
+        },
+      );
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(loaded['q_canton'], 'VD');
+      expect(loaded['q_net_income_period_chf'], isNull);
+      expect(loaded.containsValue('__secure__'), isFalse);
+    });
+
+    test('secure write failure persists non-sensitive answers only', () async {
+      await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7000,
+      });
+      expect(await ReportPersistenceService.loadAnswers(),
+          containsPair('q_canton', 'VD'));
+
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          if (call.method == 'write') {
+            throw PlatformException(
+              code: '-34018',
+              message: 'errSecMissingEntitlement',
+            );
+          }
+          if (call.method == 'read') {
+            final key = call.arguments['key'] as String;
+            return mockSecureStorage[key];
+          }
+          return null;
+        },
+      );
+
+      final saved = await ReportPersistenceService.saveAnswers({
+        'q_canton': 'GE',
+        'q_net_income_period_chf': 9000,
+      });
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(saved, isFalse);
+      expect(loaded['q_canton'], 'GE');
+      expect(loaded.containsKey('q_net_income_period_chf'), isFalse);
+    });
+
+    test('stores canonical financial keys only in secure storage', () async {
+      await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_gross_salary_annual': 120000,
+        'q_annual_bonus': 12000,
+        'q_avs_contribution_years': 42,
+        'q_net_income_period_chf': 7000,
+        '_coach_avoir_lpp': 143288,
+        '_coach_avoir_lpp_oblig': 100000,
+        '_coach_salaire_assure': 64260,
+        '_coach_rachat_maximum': 22000,
+        '_coach_rendement_caisse': 0.021,
+        'q_3a_total': 15000,
+        'q_total_3a': 50000,
+        'q_3a_accounts_count': 2,
+        'q_3a_annual_contribution': 7258,
+        'q_savings_monthly': 1200,
+        'q_epargne_liquide': 30000,
+        'q_investissements': 45000,
+        'q_cash_total': 31000,
+        'q_investments_total': 46000,
+        'q_property_value': 1000000,
+        'q_property_market_value': 1100000,
+        'q_mortgage_balance': 600000,
+        'q_monthly_rent': 2400,
+        'q_housing_cost_period_chf': 2400,
+        'q_lamal_premium_monthly_chf': 450,
+        'q_tax_provision_monthly_chf': 1800,
+        'q_other_fixed_costs_monthly_chf': 900,
+        'q_debt_payments_period_chf': 1200,
+        'q_bonus_percentage': 10,
+        '_coach_depenses_electricite': 95,
+        '_coach_depenses_transport': 180,
+        '_coach_depenses_telecom': 80,
+        '_coach_depenses_frais_medicaux': 120,
+        '_coach_depenses_autres': 300,
+        '_coach_dettes_hypotheque': 600000,
+        'q_partner_net_income_chf': 5000,
+        'q_partner_birth_year': 1988,
+        'q_partner_employment_status': 'employed',
+        'q_partner_firstname': 'Alex',
+        'q_partner_gender': 'female',
+        'q_partner_nationality': 'CH',
+        'q_partner_canton': 'GE',
+        'q_partner_enfants': 1,
+        'q_spouse_avs_contribution_years': 18,
+        '_coach_conjoint_avoir_lpp': 45000,
+        '_coach_conjoint_taux_conversion': 0.061,
+        '_coach_avs_lacunes': 2,
+        '_coach_avs_rente_estimee': 2200,
+        '_coach_avs_ramd': 0.85,
+        '_coach_tax_revenu_imposable': 104000,
+        '_coach_tax_fortune_imposable': 250000,
+        '_coach_tax_deductions': 12000,
+        '_coach_tax_impot_cantonal': 14000,
+        '_coach_tax_impot_federal': 5200,
+        '_coach_tax_taux_marginal': 0.31,
+        '_coach_tax_source': 'document_scan',
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      final raw = json.decode(prefs.getString('wizard_answers_v2')!)
+          as Map<String, dynamic>;
+
+      expect(raw['q_canton'], 'VD');
+      for (final key in <String>[
+        'q_gross_salary_annual',
+        'q_annual_bonus',
+        'q_avs_contribution_years',
+        'q_net_income_period_chf',
+        '_coach_avoir_lpp',
+        '_coach_avoir_lpp_oblig',
+        '_coach_salaire_assure',
+        '_coach_rachat_maximum',
+        '_coach_rendement_caisse',
+        'q_3a_total',
+        'q_total_3a',
+        'q_3a_accounts_count',
+        'q_3a_annual_contribution',
+        'q_savings_monthly',
+        'q_epargne_liquide',
+        'q_investissements',
+        'q_cash_total',
+        'q_investments_total',
+        'q_property_value',
+        'q_property_market_value',
+        'q_mortgage_balance',
+        'q_monthly_rent',
+        'q_housing_cost_period_chf',
+        'q_lamal_premium_monthly_chf',
+        'q_tax_provision_monthly_chf',
+        'q_other_fixed_costs_monthly_chf',
+        'q_debt_payments_period_chf',
+        'q_bonus_percentage',
+        '_coach_depenses_electricite',
+        '_coach_depenses_transport',
+        '_coach_depenses_telecom',
+        '_coach_depenses_frais_medicaux',
+        '_coach_depenses_autres',
+        '_coach_dettes_hypotheque',
+        'q_partner_net_income_chf',
+        'q_partner_birth_year',
+        'q_partner_employment_status',
+        'q_partner_firstname',
+        'q_partner_gender',
+        'q_partner_nationality',
+        'q_partner_canton',
+        'q_partner_enfants',
+        'q_spouse_avs_contribution_years',
+        '_coach_conjoint_avoir_lpp',
+        '_coach_conjoint_taux_conversion',
+        '_coach_avs_lacunes',
+        '_coach_avs_rente_estimee',
+        '_coach_avs_ramd',
+        '_coach_tax_revenu_imposable',
+        '_coach_tax_fortune_imposable',
+        '_coach_tax_deductions',
+        '_coach_tax_impot_cantonal',
+        '_coach_tax_impot_federal',
+        '_coach_tax_taux_marginal',
+      ]) {
+        expect(raw[key], '__secure__', reason: key);
+        expect(mockSecureStorage[key], isNotNull, reason: key);
+      }
+      expect(raw['_coach_tax_source'], 'document_scan');
+      expect(raw.containsValue(120000), isFalse);
+      expect(raw.containsValue(12000), isFalse);
+      expect(raw.containsValue(143288), isFalse);
+      expect(raw.containsValue(15000), isFalse);
+      expect(raw.containsValue(5000), isFalse);
+      expect(raw.containsValue(45000), isFalse);
+      expect(raw.containsValue(1988), isFalse);
+      expect(raw.containsValue('Alex'), isFalse);
+      expect(raw.containsValue('female'), isFalse);
+      expect(raw.containsValue('CH'), isFalse);
+      expect(raw.containsValue('GE'), isFalse);
+      expect(raw.containsValue(18), isFalse);
+      expect(raw.containsValue(31000), isFalse);
+      expect(raw.containsValue(2400), isFalse);
+      expect(raw.containsValue(104000), isFalse);
+      expect(raw.containsValue(600000), isFalse);
+      expect(raw.containsValue(1000000), isFalse);
+      expect(raw.containsValue(1100000), isFalse);
+      expect(raw.containsValue(10), isFalse);
+    });
+
+    test('extended financial keys are sealed or dropped', () async {
+      final saved = await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_mortgage_balance': 600000,
+        'q_property_value': 1000000,
+        'q_property_market_value': 1100000,
+        'q_monthly_rent': 2400,
+        'q_total_3a': 50000,
+        'q_bonus_percentage': 10,
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      final raw = json.decode(prefs.getString('wizard_answers_v2')!)
+          as Map<String, dynamic>;
+
+      expect(saved, isTrue);
+      expect(raw['q_canton'], 'VD');
+      for (final key in <String>[
+        'q_mortgage_balance',
+        'q_property_value',
+        'q_property_market_value',
+        'q_monthly_rent',
+        'q_total_3a',
+        'q_bonus_percentage',
+      ]) {
+        expect(raw[key], '__secure__', reason: key);
+        expect(mockSecureStorage[key], isNotNull, reason: key);
+      }
+      expect(raw.containsValue(600000), isFalse);
+      expect(raw.containsValue(1000000), isFalse);
+      expect(raw.containsValue(1100000), isFalse);
+      expect(raw.containsValue(2400), isFalse);
+      expect(raw.containsValue(50000), isFalse);
+      expect(raw.containsValue(10), isFalse);
+    });
+
+    test(
+        'secure write failure without existing answers writes non-sensitive only',
+        () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          if (call.method == 'write') {
+            throw PlatformException(
+              code: '-34018',
+              message: 'errSecMissingEntitlement',
+            );
+          }
+          return null;
+        },
+      );
+
+      final saved = await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7000,
+        'q_mortgage_balance': 600000,
+        'q_property_value': 1000000,
+        'q_total_3a': 50000,
+        'q_bonus_percentage': 10,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(saved, isFalse);
+      expect(loaded, {'q_canton': 'VD'});
+    });
+
     test('returns empty map when nothing has been saved', () async {
       final loaded = await ReportPersistenceService.loadAnswers();
       expect(loaded, isEmpty);
@@ -509,6 +803,95 @@ void main() {
       final planState =
           await ReportPersistenceService.loadOnboarding30PlanState();
       expect(planState, isEmpty);
+    });
+
+    test('clearDiagnostic removes sealed sensitive wizard values', () async {
+      await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7000,
+      });
+      expect(mockSecureStorage['q_net_income_period_chf'], '7000');
+
+      await ReportPersistenceService.clearDiagnostic();
+
+      expect(mockSecureStorage.containsKey('q_net_income_period_chf'), isFalse);
+      expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+    });
+
+    test('clearDiagnostic marks pending secure deletion on delete failure',
+        () async {
+      await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7000,
+      });
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          if (call.method == 'delete' || call.method == 'deleteAll') {
+            throw PlatformException(
+              code: '-34018',
+              message: 'errSecMissingEntitlement',
+            );
+          }
+          return null;
+        },
+      );
+
+      await ReportPersistenceService.clearDiagnostic();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('secure_delete_pending_v1'), isTrue);
+    });
+
+    test('loadAnswers retries pending secure deletion and clears marker',
+        () async {
+      await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 7000,
+      });
+      expect(mockSecureStorage['q_net_income_period_chf'], '7000');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          if (call.method == 'delete' || call.method == 'deleteAll') {
+            throw PlatformException(
+              code: '-34018',
+              message: 'errSecMissingEntitlement',
+            );
+          }
+          return null;
+        },
+      );
+      await ReportPersistenceService.clearDiagnostic();
+
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          switch (call.method) {
+            case 'deleteAll':
+              mockSecureStorage.clear();
+              return null;
+            case 'delete':
+              final key = call.arguments['key'] as String;
+              mockSecureStorage.remove(key);
+              return null;
+            default:
+              return null;
+          }
+        },
+      );
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('secure_delete_pending_v1'), isTrue);
+      expect(mockSecureStorage['q_net_income_period_chf'], '7000');
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(loaded, isEmpty);
+      expect(mockSecureStorage.containsKey('q_net_income_period_chf'), isFalse);
+      expect(prefs.getBool('secure_delete_pending_v1'), isNull);
     });
   });
 

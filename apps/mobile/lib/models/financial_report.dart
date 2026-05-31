@@ -118,19 +118,33 @@ class UserProfile {
     this.spouseMonthlyNetIncome,
   });
 
-  int get age => DateTime.now().year - birthYear;
-  int? get spouseAge => spouseBirthYear != null
-      ? DateTime.now().year - spouseBirthYear!
-      : null;
-  int get yearsToRetirement => 65 - age;
+  int? get ageOrNull {
+    final currentYear = DateTime.now().year;
+    if (birthYear < 1900 || birthYear > currentYear + 1) return null;
+    final age = currentYear - birthYear;
+    if (age < 0 || age > 150) return null;
+    return age;
+  }
+
+  int get age => ageOrNull ?? 0;
+  int? get spouseAge =>
+      spouseBirthYear != null ? DateTime.now().year - spouseBirthYear! : null;
+  int? get yearsToRetirementOrNull {
+    final a = ageOrNull;
+    if (a == null) return null;
+    return 65 - a;
+  }
+
+  int get yearsToRetirement => yearsToRetirementOrNull ?? 0;
   bool get isMarried => civilStatus == 'married';
   bool get hasChildren => childrenCount > 0;
   bool get isSalaried => employmentStatus == 'employee';
   double get annualIncome => monthlyNetIncome * 12;
 
   /// Années théoriques de cotisation AVS (depuis 21 ans, max 44)
-  int get theoreticalAvsYears =>
-      (DateTime.now().year - (birthYear + 21)).clamp(0, 44);
+  int get theoreticalAvsYears => ageOrNull == null
+      ? 0
+      : (DateTime.now().year - (birthYear + 21)).clamp(0, 44);
 
   /// Facteur de réduction AVS (1/44 par année manquante)
   /// Priorité : avsGapYears (nouvelles questions) > firstEmploymentYear > contributionYears
@@ -140,7 +154,8 @@ class UserProfile {
       return (years / 44).clamp(0.0, 1.0);
     }
     if (firstEmploymentYear != null) {
-      final startYear = [firstEmploymentYear!, birthYear + 21].reduce((a, b) => a > b ? a : b);
+      final startYear = [firstEmploymentYear!, birthYear + 21]
+          .reduce((a, b) => a > b ? a : b);
       final years = (DateTime.now().year - startYear).clamp(0, 44);
       return (years / 44).clamp(0.0, 1.0);
     }
@@ -157,7 +172,8 @@ class UserProfile {
       return (years / 44).clamp(0.0, 1.0);
     }
     if (spouseFirstEmploymentYear != null) {
-      final startYear = [spouseFirstEmploymentYear!, birthYear + 21].reduce((a, b) => a > b ? a : b);
+      final startYear = [spouseFirstEmploymentYear!, birthYear + 21]
+          .reduce((a, b) => a > b ? a : b);
       final years = (DateTime.now().year - startYear).clamp(0, 44);
       return (years / 44).clamp(0.0, 1.0);
     }
@@ -213,8 +229,8 @@ class RetirementProjection {
   final double spouseAvsReductionFactor;
 
   /// Revenu mensuel net actuel de l'utilisateur, utilisé pour calculer le
-  /// taux de remplacement. Défaut conservateur de 7800 CHF (revenu médian
-  /// suisse) si non fourni, pour rétrocompatibilité.
+  /// taux de remplacement. `0` signifie inconnu: aucun taux de remplacement
+  /// ne doit être inventé sans revenu fourni par l'utilisateur.
   final double currentMonthlyIncome;
 
   // Total
@@ -231,7 +247,7 @@ class RetirementProjection {
     required this.monthlyLppRent,
     this.avsReductionFactor = 1.0,
     this.spouseAvsReductionFactor = 1.0,
-    this.currentMonthlyIncome = 7800.0,
+    this.currentMonthlyIncome = 0.0,
   })  : totalCapital = lppCapital + pillar3aCapital + (otherAssets ?? 0),
         totalMonthlyIncome = monthlyAvsRent + monthlyLppRent;
 

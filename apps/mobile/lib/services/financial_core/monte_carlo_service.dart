@@ -70,6 +70,10 @@ class MonteCarloProjectionService {
     int numSimulations = 1000,
     int? seed,
   }) async {
+    if (profile.ageOrNull == null) {
+      return _incompleteBirthDateResult(retirementAgeUser: retirementAgeUser);
+    }
+
     return Isolate.run(() => _simulateSync(
           profile: profile,
           retirementAgeUser: retirementAgeUser,
@@ -89,6 +93,10 @@ class MonteCarloProjectionService {
     int numSimulations = 1000,
     int? seed,
   }) {
+    if (profile.ageOrNull == null) {
+      return _incompleteBirthDateResult(retirementAgeUser: retirementAgeUser);
+    }
+
     final random = Random(seed);
     final results = <List<double>>[];
     int ruinCount = 0;
@@ -107,7 +115,8 @@ class MonteCarloProjectionService {
     final conjoint = profile.conjoint;
     final conjointAge = conjoint?.age;
     // Default conjoint retirement age: avsAgeReferenceHomme (could differ but we simplify)
-    final conjointRetirementAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final conjointRetirementAge =
+        reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
 
     // ── Early retirement: AVS deferred start (LAVS art. 40) ─
     // AVS anticipation only possible from age 63. If retirement < 63,
@@ -130,8 +139,8 @@ class MonteCarloProjectionService {
       // Source : SNB 2010-2024 μ≈1.0 %, σ≈0.7 %.
       final inflationPath = List<double>.generate(
         _projectionYears,
-        (_) => _normalRandom(random, mean: 0.010, sd: 0.007)
-            .clamp(-0.005, 0.05),
+        (_) =>
+            _normalRandom(random, mean: 0.010, sd: 0.007).clamp(-0.005, 0.05),
       );
       // Cumulative deflator : `cpiFactor[y]` = Π(1 + inflation_i) for i ≤ y.
       // Used everywhere we previously wrote `pow(1 + inflationRate, y)`.
@@ -145,8 +154,7 @@ class MonteCarloProjectionService {
       }
       final avsIndexationPath = List<double>.generate(
         _projectionYears,
-        (_) =>
-            _normalRandom(random, mean: 0.010, sd: 0.005).clamp(0.0, 0.03),
+        (_) => _normalRandom(random, mean: 0.010, sd: 0.005).clamp(0.0, 0.03),
       );
       final avsFactor = List<double>.filled(_projectionYears, 1.0);
       {
@@ -182,7 +190,9 @@ class MonteCarloProjectionService {
           anneesContribuees: conjoint.prevoyance?.anneesContribuees,
           arrivalAge: conjoint.arrivalAge,
           grossAnnualSalary: conjoint.revenuBrutAnnuel,
-          isFemale: conjoint.gender == 'F' ? true : (conjoint.gender == 'M' ? false : null),
+          isFemale: conjoint.gender == 'F'
+              ? true
+              : (conjoint.gender == 'M' ? false : null),
           birthYear: conjoint.birthYear,
         );
       }
@@ -220,8 +230,7 @@ class MonteCarloProjectionService {
         // historical σ ≈ 6.5 %, Credit Suisse PK Index ≈ 7.1 % 2000-2024).
         // Mean revu à 1.5 % pour refléter taux technique 2.0-3.0 net
         // des frais de gestion (moyenne prevoyance suisse 2020-2024).
-        final lppReturnYear =
-            _normalRandom(random, mean: 0.015, sd: 0.065);
+        final lppReturnYear = _normalRandom(random, mean: 0.015, sd: 0.065);
         final salaryGrowthYear =
             _normalRandom(random, mean: 0.01, sd: 0.015).clamp(-0.02, 0.05);
         lppBalance *= (1 + lppReturnYear);
@@ -249,8 +258,9 @@ class MonteCarloProjectionService {
         retirementAge: retirementAgeUser,
       );
       final convRateSurob = LppCalculator.adjustedConversionRate(
-        baseRate: profile.prevoyance.tauxConversionSuroblig
-            ?? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal),
+        baseRate: profile.prevoyance.tauxConversionSuroblig ??
+            reg('lpp.conversion_rate_suroblig',
+                lppTauxConversionSurobligDecimal),
         retirementAge: retirementAgeUser,
       );
       final userOblig = profile.prevoyance.avoirLppObligatoire;
@@ -265,9 +275,13 @@ class MonteCarloProjectionService {
         }
         // No certificate split: use conservative rate when profile has default 6.8%
         final profileRate = profile.prevoyance.tauxConversion;
-        final isDefault = (profileRate - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() < 0.001;
+        final isDefault = (profileRate -
+                    reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal))
+                .abs() <
+            0.001;
         final baseRate = isDefault
-            ? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
+            ? reg('lpp.conversion_rate_suroblig',
+                lppTauxConversionSurobligDecimal)
             : profileRate;
         final envRate = LppCalculator.adjustedConversionRate(
           baseRate: baseRate,
@@ -294,12 +308,13 @@ class MonteCarloProjectionService {
       double conjointLppMonthly = 0;
       if (hasConjoint && conjointAge != null) {
         double conjLppBalance = conjoint!.prevoyance?.avoirLppTotal ?? 0;
-        final conjHasLpp = conjLppBalance > 0 ||
-            conjoint.employmentStatus != 'independant';
+        final conjHasLpp =
+            conjLppBalance > 0 || conjoint.employmentStatus != 'independant';
         final conjSalary = conjoint.revenuBrutAnnuel;
         // Adjusted conversion rate for early retirement (LPP art. 13 al. 2)
         final conjConvRate = LppCalculator.adjustedConversionRate(
-          baseRate: conjoint.prevoyance?.tauxConversion ?? lppTauxConversionMinDecimal,
+          baseRate: conjoint.prevoyance?.tauxConversion ??
+              lppTauxConversionMinDecimal,
           retirementAge: conjointRetirementAge,
         );
         // Rachats LPP conjoint: contributions dont l'id/label contient
@@ -311,28 +326,26 @@ class MonteCarloProjectionService {
           conjAnnualBuyback = 0;
         } else {
           conjAnnualBuyback = profile.plannedContributions
-              .where((c) =>
-                  c.category == 'lpp_buyback' &&
-                  (c.id.toLowerCase().contains(conjName) ||
-                      c.label.toLowerCase().contains(conjName)))
-              .fold(0.0, (sum, c) => sum + c.amount) * 12;
+                  .where((c) =>
+                      c.category == 'lpp_buyback' &&
+                      (c.id.toLowerCase().contains(conjName) ||
+                          c.label.toLowerCase().contains(conjName)))
+                  .fold(0.0, (sum, c) => sum + c.amount) *
+              12;
         }
-        final conjMaxBuyback =
-            conjoint.prevoyance?.lacuneRachatRestante ?? 0;
+        final conjMaxBuyback = conjoint.prevoyance?.lacuneRachatRestante ?? 0;
         double conjCumulBuyback = 0;
 
         for (int a = conjointAge; a < conjointRetirementAge && a < 70; a++) {
           // Same Pictet BVG-25 calibration as user path — see P0-M1 note above.
-          final lppReturnYear =
-              _normalRandom(random, mean: 0.015, sd: 0.065);
+          final lppReturnYear = _normalRandom(random, mean: 0.015, sd: 0.065);
           final salaryGrowthYear =
               _normalRandom(random, mean: 0.01, sd: 0.015).clamp(-0.02, 0.05);
           conjLppBalance *= (1 + lppReturnYear);
           if (conjHasLpp && conjSalary > 0) {
             final salary = conjSalary *
                 pow(1 + salaryGrowthYear, (a - conjointAge).toDouble());
-            final salaireCoord =
-                LppCalculator.computeSalaireCoordonne(salary);
+            final salaireCoord = LppCalculator.computeSalaireCoordonne(salary);
             conjLppBalance += salaireCoord * getLppBonificationRate(a);
           }
           // Rachats LPP conjoint, plafonnes a la lacune
@@ -373,8 +386,7 @@ class MonteCarloProjectionService {
       // ── 3a conjoint : projection avec rendement propre + contributions ─
       // Skip if conjoint cannot contribute to 3a (e.g. FATCA US persons)
       double conjointThreeAMonthly = 0;
-      final conjointCan3a =
-          conjoint?.prevoyance?.canContribute3a ?? true;
+      final conjointCan3a = conjoint?.prevoyance?.canContribute3a ?? true;
       if (hasConjoint && conjointAge != null && conjointCan3a) {
         final conjPrev = conjoint!.prevoyance;
         double conj3aBalance = conjPrev?.totalEpargne3a ?? 0;
@@ -426,8 +438,7 @@ class MonteCarloProjectionService {
         // balanced (SPI σ ≈ 14-16 %, MSCI World CHF-hedged σ ≈ 12-14 %).
         // σ=12 % correspond à un 60/40 equity/bonds global — élargit
         // honnêtement la bande p10-p90 (protection-first, §6).
-        final libreReturnYear =
-            _normalRandom(random, mean: 0.04, sd: 0.12);
+        final libreReturnYear = _normalRandom(random, mean: 0.04, sd: 0.12);
         libreBalance *= (1 + libreReturnYear);
         libreBalance += monthlyLibre * 12;
       }
@@ -442,14 +453,12 @@ class MonteCarloProjectionService {
         // balanced (SPI σ ≈ 14-16 %, MSCI World CHF-hedged σ ≈ 12-14 %).
         // σ=12 % correspond à un 60/40 equity/bonds global — élargit
         // honnêtement la bande p10-p90 (protection-first, §6).
-        final libreReturnYear =
-            _normalRandom(random, mean: 0.04, sd: 0.12);
+        final libreReturnYear = _normalRandom(random, mean: 0.04, sd: 0.12);
 
         // FIX-005: AVS indexation starts from the year AVS begins paying,
         // not from year 0. Was over-indexing by 1-5% in early retirement.
         final avsUserThisYear = y >= yearsUntilAvsUser
-            ? avsUserMonthly *
-                (avsFactor[y] / avsFactor[yearsUntilAvsUser])
+            ? avsUserMonthly * (avsFactor[y] / avsFactor[yearsUntilAvsUser])
             : 0.0;
         // Conjoint AVS: indexation from year 0 (conjoint already retired)
         final avsConjointThisYear =
@@ -567,6 +576,25 @@ class MonteCarloProjectionService {
     );
   }
 
+  static MonteCarloResult _incompleteBirthDateResult({
+    required int retirementAgeUser,
+  }) {
+    return MonteCarloResult(
+      projection: const [],
+      medianAt65: 0,
+      p10At65: 0,
+      p90At65: 0,
+      ruinProbability: 0,
+      numSimulations: 0,
+      disclaimer: _disclaimer,
+      retirementAge: retirementAgeUser,
+      sources: _sources,
+      alertes: const [
+        'Date de naissance manquante : simulation retraite suspendue.',
+      ],
+    );
+  }
+
   // ════════════════════════════════════════════════════════════
   //  HELPERS
   // ════════════════════════════════════════════════════════════
@@ -601,17 +629,15 @@ class MonteCarloProjectionService {
   }) {
     return HousingCostCalculator.estimateRetirementExpenses(
       salaireBrutMensuel: profile.salaireBrutMensuel,
-      conjointSalaireBrutMensuel:
-          profile.conjoint?.salaireBrutMensuel ?? 0,
+      conjointSalaireBrutMensuel: profile.conjoint?.salaireBrutMensuel ?? 0,
       currentExpenses:
           BudgetInputs.plausibleMonthlyFixedExpensesFromProfile(profile),
       housingStatus: profile.housingStatus,
-      canton: profile.canton.isNotEmpty
-          ? profile.canton.toUpperCase()
-          : 'ZH',
+      canton: profile.canton.isNotEmpty ? profile.canton.toUpperCase() : 'ZH',
       currentAge: profile.age,
-      targetRetirementAge:
-          retirementAge ?? profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt(),
+      targetRetirementAge: retirementAge ??
+          profile.targetRetirementAge ??
+          reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt(),
       propertyMarketValue: profile.patrimoine.propertyMarketValue,
       mortgageBalance: profile.patrimoine.mortgageBalance,
       mortgageRate: profile.patrimoine.mortgageRate,
