@@ -30,6 +30,8 @@
 # on the production card list — they DO exist on the demo screen built
 # in Plan 96-01 T4 (chat_as_verb_demo_screen.dart). The G2 Julien
 # walkthrough is the authoritative end-to-end gate per CLAUDE.md §9.
+# maestro_locator_audit: skip — candidate/demo flow, not an active
+# production sweep gate until those stable production anchors exist.
 #
 # ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
 # Authenticated user, profile-empty or profile-populated — the 3-turn

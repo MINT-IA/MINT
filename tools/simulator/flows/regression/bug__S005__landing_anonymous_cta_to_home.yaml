@@ -97,6 +97,45 @@ tags:
     text: ".*Continuer sans compte.*"
 - waitForAnimationToEnd
 
+# Current onboarding builds route the anonymous CTA through the public
+# MVP wedge before the shell. Keep this regression focused on the real
+# CTA path: complete the public storyboard and let the app route itself
+# to /home. Do not deep-link here, otherwise this flow can pass while
+# the anonymous CTA path is broken.
+- runFlow:
+    when:
+      visible: ".*Ouvrir.*"
+    commands:
+      - tapOn:
+          text: ".*Ouvrir.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*Je regarde d’abord.*"
+    commands:
+      - tapOn:
+          text: ".*Je regarde d’abord.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*États-Unis.*"
+    commands:
+      - tapOn:
+          text: ".*Non.*"
+      - waitForAnimationToEnd
+- repeat:
+    times: 8
+    commands:
+      - runFlow:
+          when:
+            visible: ".*(Suivant|Continuer|Terminer|Voir).*"
+          commands:
+            - tapOn:
+                text: ".*(Suivant|Continuer|Terminer|Voir).*"
+            - waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 6000
+
 # ── Step 6 — S005 ASSERTION 2/2 : « Aujourd'hui » visible ─────────────
 # Post-fix : context.go('/home') routes through the app.dart:417 gate
 # (isLoggedIn || isLocalMode) — isLocalMode defaults true → AujourdhuiScreen

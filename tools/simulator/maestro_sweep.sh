@@ -22,8 +22,10 @@
 #           deeplink   — opt-in deeplink/Universal Link flows (sim-unreliable,
 #                        crashes SafariViewService on long-booted sims —
 #                        per memory `feedback_sim_crash_mitigation`)
-#           all        — e2e + regression + perfect + personas (no deeplink)
-#           default    — e2e + regression + perfect (no personas, no deeplink)
+#           all        — e2e + regression + perfect + FATCA + personas
+#                        (no deeplink; FATCA requires expat_us build/seed)
+#           default    — e2e + regression + perfect + FATCA
+#                        (no personas, no deeplink)
 #
 # Env (forwarded to the watchdog) :
 #   MAESTRO_STALL_THRESHOLD, MAESTRO_HARD_LIMIT, MINT_DEBUG_PORT, MINT_BUNDLE_ID
@@ -99,27 +101,29 @@ FLOWS_PERFECT=(
   #     (Phase 94 G1). Requires COACH_CITATION_GATE_ENABLED=true on
   #     Railway staging. Without this, the coach can fabricate CHF / %
   #     / duration in production = LSFin breach.
-  #   - flow_fatca_3a_gate — archetype expat_us : 3a simulator must
-  #     show « accès limité » for FATCA-affected users (PR #537).
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_extractor_captures_age_canton.yaml"
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_lpp_scan_review.yaml"
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_narrator_refuses_uncited_numbers.yaml"
+)
+FLOWS_FATCA=(
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_fatca_3a_gate.yaml"
 )
 FLOWS_PERSONAS=(
   "$REPO_ROOT/tools/simulator/flows/julien_swiss.yaml"
   "$REPO_ROOT/tools/simulator/flows/lauren_expat_us.yaml"
 )
-
 case "$TIER" in
   e2e)        FLOWS=("${FLOWS_E2E[@]}") ;;
   regression) FLOWS=("${FLOWS_REGRESSION[@]}") ;;
-  perfect)    FLOWS=("${FLOWS_PERFECT[@]}") ;;
+  perfect)
+    FLOWS=("${FLOWS_PERFECT[@]}" "${FLOWS_FATCA[@]}")
+    ;;
+  fatca)      FLOWS=("${FLOWS_FATCA[@]}") ;;
   personas)   FLOWS=("${FLOWS_PERSONAS[@]}") ;;
   deeplink)   FLOWS=("${FLOWS_DEEPLINK[@]}") ;;
-  all)        FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_PERSONAS[@]}") ;;
-  default)    FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}") ;;
-  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | personas | deeplink | all | default)" >&2; exit 1 ;;
+  all)        FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_FATCA[@]}" "${FLOWS_PERSONAS[@]}") ;;
+  default)    FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_FATCA[@]}") ;;
+  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | personas | deeplink | all | default)" >&2; exit 1 ;;
 esac
 
 # ── Reboot the booted sim before any flow runs ────────────────────────
@@ -198,14 +202,30 @@ for flow in "${FLOWS[@]}"; do
   flow_dir="$SWEEP_DIR/$slug"
   mkdir -p "$flow_dir"
 
+  extra_maestro_args=()
+  if [ "$slug" = "flow_e2e_new_user_full_journey" ]; then
+    e2e_email="${MINT_E2E_EMAIL:-e2e+${TS}@mint-e2e.ch}"
+    e2e_password="${MINT_E2E_PASSWORD:-TestE2E123!}"
+    printf 'MINT_E2E_EMAIL=%s\n' "$e2e_email" > "$flow_dir/env.txt"
+    extra_maestro_args=(
+      --env "MINT_E2E_EMAIL=$e2e_email"
+      --env "MINT_E2E_PASSWORD=$e2e_password"
+    )
+  fi
+
   # Run via watchdog. `set +e` so a non-zero exit doesn't kill the sweep.
   # Note: NO `--device booted` flag. That's an Android convention ; on
   # iOS Maestro 2.5.1 it raises « Device booted was requested, but it is
   # not connected. » even when a sim IS booted. Maestro auto-discovers
   # the booted iOS sim when --device is omitted.
   set +e
-  MINT_WALKER_ARTIFACTS="$flow_dir" \
-    "$WATCHDOG" test "$flow"
+  if [ "${#extra_maestro_args[@]}" -gt 0 ]; then
+    MINT_WALKER_ARTIFACTS="$flow_dir" \
+      "$WATCHDOG" test "$flow" "${extra_maestro_args[@]}"
+  else
+    MINT_WALKER_ARTIFACTS="$flow_dir" \
+      "$WATCHDOG" test "$flow"
+  fi
   rc=$?
   set -e
   echo "$rc" > "$flow_dir/EXIT_CODE"

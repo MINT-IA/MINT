@@ -20,7 +20,7 @@
 # Reachability path tested :
 #   cold launch (kept warm by runScript subprocess for openurl)
 #   → terminate app
-#   → runScript : xcrun simctl openurl <udid> 'mintapp://debug/chat-as-verb'
+#   → runScript : xcrun simctl openurl <udid> 'mintapp:///debug/chat-as-verb'
 #   → iOS routes `mintapp://` to the MINT app (CFBundleURLTypes present)
 #   → Flutter intercepts via FlutterDeepLinkingEnabled
 #   → GoRouter resolves `/debug/chat-as-verb` → ChatAsVerbDemoScreen
@@ -67,35 +67,21 @@ tags:
 # `mintapp://` scheme is not registered → iOS reports
 # NSOSStatusErrorDomain code=-10814 and the app does NOT foreground
 # (Maestro reports « Unknown error »).
-# Post-fix, iOS routes to MINT — but the FIRST time a foreign scheme
-# is invoked from outside a native-app context, iOS shows a system
-# confirmation dialog « Open in "MINT"? » (Safari-redirected openurl
-# triggers this prompt). We dismiss by tapping « Open ».
-- openLink: "mintapp://debug/chat-as-verb"
+# Post-fix, iOS routes to MINT. Use the triple-slash form: with
+# `mintapp://debug/chat-as-verb`, iOS treats `debug` as the URL host and
+# Flutter receives `/chat-as-verb`, which lands on the app's not-found
+# page. `mintapp:///debug/chat-as-verb` preserves the GoRouter path.
+- openLink: "mintapp:///debug/chat-as-verb"
 
-# ── Step 3 — S003+F006 ASSERTION : iOS « Open in MINT? » dialog ───────
-# The CANONICAL S003+F006 proof is iOS rendering the system-level
-# confirmation dialog « Open in "MINT"? ». iOS only renders this
-# dialog if the URL scheme `mintapp://` is registered to an installed
-# app — pre-fix, the openLink would error with NSOSStatusErrorDomain
-# code=-10814 (« no application registered to handle this URL scheme »)
-# and Maestro reports « Unknown error » (RED-state captured in
-# /tmp/maestro_s003_pre_fix.xml time=1.0s).
-#
-# Post-fix, CFBundleURLTypes makes iOS recognize MINT as a handler.
-# The dialog title contains the substring « Open in » regardless of
-# locale-specific iOS variants (en : « Open in "MINT"? », fr : « Ouvrir
-# dans MINT ? »).
+# ── Step 3 — S003+F006 ASSERTION : MINT deep-link route renders ───────
+# iOS versions differ on whether they show an intermediate "Open in"
+# consent dialog for custom schemes in automation. The stable contract is
+# stronger: the scheme must open MINT and Flutter+GoRouter must resolve
+# the inbound path to ChatAsVerbDemoScreen.
 - extendedWaitUntil:
     visible:
-      text: ".*Open in.*"
-    timeout: 8000
-
-# ── Step 4 — Confirm the open (canonical UX dismissal) ────────────────
-# Tap « Open » — iOS records the consent, dismisses the dialog, and
-# launches MINT. Subsequent same-context invocations skip the dialog.
-- tapOn:
-    text: "Open"
+      text: "Cartes — chat-as-verb (W1)"
+    timeout: 15000
 - waitForAnimationToEnd
 
 # ── Step 5 — Optional capture for HUMAN-UAT evidence ──────────────────

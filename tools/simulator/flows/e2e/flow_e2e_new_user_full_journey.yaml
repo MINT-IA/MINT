@@ -71,7 +71,7 @@
 # uninstall ch.mint.app` if previous run left state).
 #
 # Env vars expected from the harness :
-#   MINT_E2E_EMAIL    : unique per run (e.g. `e2e+$(date +%s)@mint.test`)
+#   MINT_E2E_EMAIL    : unique per run (e.g. `e2e+$(date +%s)@mint-e2e.ch`)
 #   MINT_E2E_PASSWORD : >= 8 chars + uppercase + digit + symbol
 #                       (matches authPasswordHintFull contract)
 #
@@ -89,9 +89,6 @@ tags:
   - phase-97.5-v2.9
   - phase-97.6-v2.10
   - golden-path
-env:
-  MINT_E2E_EMAIL: e2e@mint.test
-  MINT_E2E_PASSWORD: Test1234!
 ---
 
 # ╔══════════════════════════════════════════════════════════════════════╗
@@ -135,11 +132,10 @@ env:
 - assertVisible:
     text: "Information générale, pas un conseil financier personnalisé."
 
-# Send 3 messages to trigger auth-gate (the « Créer un compte » CTA
-# surfaces post-cap, not after a single message — observed
-# empirically run 5 2026-05-13 : 1 message ≠ cap reached).
-# Each iteration : tap input → type → enter → wait for input bar to
-# re-enable (signals previous response complete).
+# Send messages until the auth-gate surfaces. Depending on persisted anonymous
+# quota/session state and backend policy, the sheet can appear after the first
+# reply or after the third; keep the flow adaptive instead of forcing stale
+# quota assumptions.
 - tapOn:
     text: "Écris ce qui te trotte en tête…"
 - inputText: "J'aimerais comprendre comment optimiser mon 3e pilier"
@@ -148,23 +144,33 @@ env:
 
 - extendedWaitUntil:
     visible:
-      text: "Écris ce qui te trotte en tête…"
+      text: ".*(Écris ce qui te trotte en tête|Je peux garder tout.*en mémoire).*"
     timeout: 60000
-- tapOn:
-    text: "Écris ce qui te trotte en tête…"
-- inputText: "Et concrètement, combien je peux mettre cette année ?"
-- pressKey: Enter
-- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        text: "Écris ce qui te trotte en tête…"
+    commands:
+      - tapOn:
+          text: "Écris ce qui te trotte en tête…"
+      - inputText: "Et concrètement, combien je peux mettre cette année ?"
+      - pressKey: Enter
+      - waitForAnimationToEnd
+      - extendedWaitUntil:
+          visible:
+            text: ".*(Écris ce qui te trotte en tête|Je peux garder tout.*en mémoire).*"
+          timeout: 60000
 
-- extendedWaitUntil:
-    visible:
-      text: "Écris ce qui te trotte en tête…"
-    timeout: 60000
-- tapOn:
-    text: "Écris ce qui te trotte en tête…"
-- inputText: "Et si je change d'employeur ?"
-- pressKey: Enter
-- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        text: "Écris ce qui te trotte en tête…"
+    commands:
+      - tapOn:
+          text: "Écris ce qui te trotte en tête…"
+      - inputText: "Et si je change d'employeur ?"
+      - pressKey: Enter
+      - waitForAnimationToEnd
 
 # Post-cap : the auth-gate is a MODAL BOTTOM SHEET (AuthGateBottomSheet)
 # triggered when messagesRemaining == 0. The sheet body carries the
@@ -175,15 +181,33 @@ env:
 # ambiguity with chat text) before tapping the modal's CTA.
 - extendedWaitUntil:
     visible:
-      text: ".*Je peux garder tout.*en mémoire.*"
+      text: ".*(Je peux garder tout.*en mémoire|Je suis toujours là).*"
     timeout: 30000
+- runFlow:
+    when:
+      visible:
+        text: ".*Je suis toujours là.*"
+    commands:
+      - tapOn:
+          point: "50%,88%"
+      - extendedWaitUntil:
+          visible:
+            text: ".*Je peux garder tout.*en mémoire.*"
+          timeout: 8000
 
 # ╔══════════════════════════════════════════════════════════════════════╗
 # ║ Step 08-11 — Register form : open, fill 5 fields, submit             ║
 # ╚══════════════════════════════════════════════════════════════════════╝
 
 - tapOn:
-    text: "Créer un compte"
+    point: "50%,75%"
+- runFlow:
+    when:
+      visible:
+        text: "Connexion"
+    commands:
+      - tapOn:
+          text: "Créer un compte"
 
 # CASSURE #5 (observed run 11 2026-05-13, post cassure #4 fix in PR #594) :
 # the « Créer un compte » CTA inside the AuthGateBottomSheet routes
@@ -202,77 +226,96 @@ env:
 - assertVisible:
     text: "Prénom"
 - assertVisible:
-    text: "Date de naissance"
-- assertVisible:
-    text: "Mot de passe"
-- assertVisible:
-    text: "Confirmer le mot de passe"
+    text: ".*Date de naissance.*"
 
 - tapOn:
     text: "Adresse e-mail"
 - inputText: ${MINT_E2E_EMAIL}
+- hideKeyboard
 
 - tapOn:
     text: "Prénom"
 - inputText: "TestE2E"
+- hideKeyboard
 
 - tapOn:
-    text: "Date de naissance"
-- inputText: "01.01.1990"
+    text: ".*Date de naissance.*"
+- tapOn:
+    text: "Valider"
+
+- scrollUntilVisible:
+    element:
+      text: "Mot de passe"
+    direction: DOWN
+    timeout: 8000
+- assertVisible:
+    text: "Mot de passe"
+- assertVisible:
+    text: "Confirmer le mot de passe"
+
+- tapOn:
+    text: "Confirmer le mot de passe"
+- inputText: ${MINT_E2E_PASSWORD}
 
 - tapOn:
     text: "Mot de passe"
 - inputText: ${MINT_E2E_PASSWORD}
 
 - tapOn:
-    text: "Confirmer le mot de passe"
-- inputText: ${MINT_E2E_PASSWORD}
+    point: "50%,20%"
 
-# Hide keyboard before tapping the submit button (the keyboard may
-# overlay the « Créer un compte » CTA on small viewports).
-- hideKeyboard
-
-# « Créer un compte » appears TWICE on this screen (form title + submit
-# button). The submit is the one nested in the bottom CTA region. If
-# Maestro picks the wrong one, the flow either no-ops or re-opens
-# register. Document as known ambiguity ; first run reveals which.
+- scrollUntilVisible:
+    element:
+      text: ".*Conditions Générales.*"
+    direction: DOWN
+    centerElement: true
+    timeout: 8000
 - tapOn:
-    text: "Créer un compte"
+    text: ".*Conditions Générales.*"
+
+- scrollUntilVisible:
+    element:
+      text: ".*Je confirme avoir 18 ans.*"
+    direction: DOWN
+    centerElement: true
+    timeout: 8000
+- tapOn:
+    text: ".*Je confirme avoir 18 ans.*"
+
+- extendedWaitUntil:
+    visible:
+      text: "Créer mon compte"
+    timeout: 5000
+- tapOn:
+    text: "Créer mon compte"
 
 # ╔══════════════════════════════════════════════════════════════════════╗
-# ║ Step 12 — Email verification (LIKELY FIRST BREAK : H1)               ║
-# ║ Today's contract : « Vérifier mon e-mail » screen with a token       ║
-# ║ field. Without a Maestro-friendly fixture endpoint on Railway        ║
-# ║ staging that returns the token, this step CANNOT pass. Filing as    ║
-# ║ TODO + planning to surface via the first sim run.                    ║
+# ║ Step 12 — Email verification when staging requires it                 ║
+# ║ Railway staging currently returns `requires_email_verification=false` ║
+# ║ for password registration, so the golden path should continue to      ║
+# ║ /home. Keep the guarded branch as a regression tripwire for envs      ║
+# ║ that re-enable mandatory verification without a Maestro fixture.      ║
 # ╚══════════════════════════════════════════════════════════════════════╝
 
-- extendedWaitUntil:
-    visible:
-      text: "Vérifier mon e-mail"
-    timeout: 15000
-
-# TODO[E2E-VERIF-FIXTURE] : Railway staging needs a fixture endpoint
-# `POST /api/test/e2e/last-verification-token` returning the most-
-# recently-issued verification token for MINT_E2E_EMAIL. Without it,
-# Maestro cannot complete register. First break to root-cause.
-- assertVisible:
-    text: "Token de vérification"
-
-# Optimistic continuation : assume the harness reads the token from the
-# fixture endpoint via Maestro's `runScript` (TODO add when fixture
-# exists) and types it here. For v0 we use a placeholder so the
-# assertion bites at this line if the fixture is missing.
-- tapOn:
-    text: "Token de vérification"
-- inputText: "VERIFICATION_TOKEN_PLACEHOLDER_FIXTURE_REQUIRED"
-
-- tapOn:
-    text: "Valider la vérification"
-- extendedWaitUntil:
-    visible:
-      text: "E-mail vérifié. Tu peux te connecter."
-    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        text: "Vérifier mon e-mail"
+    commands:
+      - assertVisible:
+          text: "Token de vérification"
+      # TODO[E2E-VERIF-FIXTURE] : if staging turns verification back on,
+      # Maestro needs a fixture endpoint returning the token for
+      # MINT_E2E_EMAIL. The placeholder deliberately fails until that exists.
+      - tapOn:
+          text: "Token de vérification"
+      - inputText: "VERIFICATION_TOKEN_PLACEHOLDER_FIXTURE_REQUIRED"
+      - tapOn:
+          text: "Valider la vérification"
+      - extendedWaitUntil:
+          visible:
+            text: "E-mail vérifié. Tu peux te connecter."
+          timeout: 10000
 
 # ╔══════════════════════════════════════════════════════════════════════╗
 # ║ Step 13-15 — Land on /aujourdhui post-login + CapDuJourBanner visible║
@@ -283,11 +326,11 @@ env:
 - extendedWaitUntil:
     visible:
       text: ".*Aujourd'hui.*"
-    timeout: 15000
+    timeout: 20000
 
 - extendedWaitUntil:
     visible:
-      text: ".*Parle-moi de toi.*"
+      text: ".*(Parle-moi de toi|Il manque une pièce).*"
     timeout: 8000
 
 - assertVisible:
@@ -323,7 +366,7 @@ env:
 # ╚══════════════════════════════════════════════════════════════════════╝
 
 - tapOn:
-    text: "Pose une question à Mint"
+    text: "Tape ton message..."
 - inputText: "Et concrètement, je verse combien ?"
 - pressKey: Enter
 

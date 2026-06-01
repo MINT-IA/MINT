@@ -108,7 +108,7 @@ tags:
 # screen's hero text.
 - extendedWaitUntil:
     visible:
-      text: ".*Aujourd'hui.*"
+      text: "Cartes — chat-as-verb (W1)"
     timeout: 10000
 
 # ── Step 5 — Optional capture for HUMAN-UAT evidence ──────────────────

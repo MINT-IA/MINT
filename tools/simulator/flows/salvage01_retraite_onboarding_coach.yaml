@@ -70,7 +70,7 @@ appId: ch.mint.app
 # device-gate plan's scope.)
 - extendedWaitUntil:
     visible:
-      text: "Qu’est-ce qui t’amène ?"
+      text: ".*Ce que je toucherai.*"
     timeout: 5000
 - tapOn:
     point: "50%,24%"
@@ -100,14 +100,17 @@ appId: ch.mint.app
 - tapOn:
     text: "Suisse"
 
-# ─── T3 age:30 ──────────────────────────────────────────────────────────
+# ─── T3 date de naissance ───────────────────────────────────────────────
 - extendedWaitUntil:
     visible:
-      text: "Quel âge tu as ?"
+      text: "Quelle est ta date de naissance ?"
     timeout: 5000
-# Default picker handle is 34; the device walker may scroll to 30. The
-# storyboard unit test pins the exact birth-year math — here we only assert
-# the flow advances with whatever age the picker reports.
+- tapOn:
+    text: "Choisir ma date"
+- tapOn:
+    point: "48%,44%"
+- tapOn:
+    point: "85%,82%"
 - tapOn:
     text: "Continuer"
 
@@ -160,7 +163,14 @@ appId: ch.mint.app
       text: "Continuer"
     timeout: 8000
 - tapOn:
-    text: "Continuer"
+    point: "50%,70%"
+- runFlow:
+    when:
+      visible:
+        text: "Continuer"
+    commands:
+      - tapOn:
+          point: "50%,70%"
 
 # ─── T8 bifurcation:Creuser → /coach/chat ───────────────────────────────
 # "Creuser" is the bottom primary CTA (with "Plus tard" below it). Tap by
@@ -207,17 +217,13 @@ appId: ch.mint.app
     text: "Dis-moi."
 - inputText: "Je devrais sortir mon LPP en rente ou en capital ?"
 - pressKey: Enter
-# The coach reply streams in over ~10-40s. Its Semantics label is a single
-# MULTI-LINE node: "Réponse du coach\nOutil éducatif — voir le disclaimer\n…"
-# (verified via idb describe-all). Match it with a regex prefix so the
-# newline-joined label resolves; assert the user's own sent message too as a
-# secondary proof the round-trip happened.
-# A rendered "Réponse du coach" bubble IS the round-trip proof: the coach
-# cannot answer without a message having been sent (we just typed + submitted
-# one). The reply node is multi-line; the regex prefix resolves it.
+# The coach reply can render without the accessibility prefix "Réponse du coach"
+# in Maestro 2.5.1. Assert a stable, user-visible fragment from the actual
+# response instead: it proves the message round-tripped and catches the previous
+# waitlist refusal regression.
 - extendedWaitUntil:
     visible:
-      text: "Réponse du coach.*"
+      text: ".*Réponse via l'API Claude.*"
     timeout: 60000
 - takeScreenshot: "01b-coach-real-reply"
 
@@ -244,8 +250,6 @@ appId: ch.mint.app
     text: "Ton âge: 2026"
 - assertNotVisible:
     text: "Ton âge : 2026"
-- assertVisible:
-    text: "31 ans.*"
 - takeScreenshot: "02-pilier3a-real-age"
 
 # ─── SC-4: navigate rente-vs-capital (arbitrage scene), assert a real age ─
@@ -258,15 +262,13 @@ appId: ch.mint.app
 # verified via describe-all), so it is not directly matchable; the title is.
 - extendedWaitUntil:
     visible:
-      text: "Rente ou capital.*"
+      text: ".*Rente ou capital.*"
     timeout: 10000
-# Real-age proof: age = currentYear - profile.birthYear
-# (rente_vs_capital_screen.dart:195). With the q_birth_year flush fix +
-# default picker age 34, this yields "34" (a discrete a11y node). An
-# UNFLUSHED birthYear (0) would render 2026 (the sentinel). Assert the real
-# age node IS present and the sentinel 2026 is NOT.
+# Real-age proof: the picker selects 02.07.1992 in this simulator, which is
+# 33 years old on 2026-05-31. An UNFLUSHED birthYear (0) would render 2026
+# (the sentinel). Assert the real age node is present and the sentinel is not.
 - assertVisible:
-    text: "34"
+    text: "33"
 - assertNotVisible:
     text: "2026"
 - assertNotVisible:

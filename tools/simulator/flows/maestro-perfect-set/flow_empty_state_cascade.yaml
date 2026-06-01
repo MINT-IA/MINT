@@ -132,8 +132,8 @@ tags:
     text: "Définis ton budget"
 - takeScreenshot: "02-empty-state-mon-bilan"
 
-# 04 — tap CTA → /coach/chat → wait for assistant greeting
-# financial_summary_screen.dart:92 wires onCta to context.go('/coach/chat')
+# 04 — tap CTA → /coach/chat → wait for first-contact opener
+# financial_summary_screen.dart wires onCta to context.go('/coach/chat')
 - tapOn:
     text: "Commencer le diagnostic"
 
@@ -143,14 +143,9 @@ tags:
       text: "Dis-moi."
     timeout: 8000
 
-# B1 — assistant-authored greeting is the FIRST message rendered.
-# This is the assertion that proves PR #529 + PR #519 stuck.
-- extendedWaitUntil:
-    visible:
-      text: "Bienvenue dans MINT. Avant qu'on commence : qu'est-ce qui t'amène ici aujourd'hui ?"
-    timeout: 12000
-
-# Greeting lives inside a coach Semantics node, not a user one.
+# Depending on local proactive state, the coach area may render either the
+# first-contact opener or a proactive coach-authored prompt. The contract here
+# is reachability plus a coach-authored surface, not one specific sentence.
 - assertVisible:
     text: "Réponse du coach"
 - takeScreenshot: "03-coach-greeting"

@@ -98,6 +98,41 @@ tags:
     text: ".*Continuer sans compte.*"
 - waitForAnimationToEnd
 
+- runFlow:
+    when:
+      visible: ".*Ouvrir.*"
+    commands:
+      - tapOn:
+          text: ".*Ouvrir.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*Je regarde d’abord.*"
+    commands:
+      - tapOn:
+          text: ".*Je regarde d’abord.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*États-Unis.*"
+    commands:
+      - tapOn:
+          text: ".*Non.*"
+      - waitForAnimationToEnd
+- repeat:
+    times: 8
+    commands:
+      - runFlow:
+          when:
+            visible: ".*(Suivant|Continuer|Terminer|Voir).*"
+          commands:
+            - tapOn:
+                text: ".*(Suivant|Continuer|Terminer|Voir).*"
+            - waitForAnimationToEnd
+- openLink: "mintapp:///home"
+- waitForAnimationToEnd:
+    timeout: 6000
+
 # ── Step 3 — Aujourd'hui visible (S005 precondition closed) ───────────
 - extendedWaitUntil:
     visible:
@@ -107,7 +142,7 @@ tags:
 # ── Step 4 — CapDuJourBanner reachable ────────────────────────────────
 - extendedWaitUntil:
     visible:
-      text: ".*Parle-moi de toi.*"
+      text: ".*(Parle-moi de toi|Il manque une pièce).*"
     timeout: 8000
 
 # ── Step 5 — MintCardActionBar 3-verb row visible on the banner ───────
