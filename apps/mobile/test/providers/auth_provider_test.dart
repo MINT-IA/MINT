@@ -336,6 +336,137 @@ void main() {
       expect(profile.etatCivil, CoachCivilStatus.celibataire);
     });
 
+    test('backend profile merge hydrates material planning fields', () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {},
+        {
+          'dateOfBirth': '1981-06-15',
+          'incomeGrossYearly': 120000,
+          'avoirLpp': 250000,
+          'lppInsuredSalary': 88000,
+          'lppBuybackMax': 42000,
+          'pillar3aBalance': 36000,
+          'pillar3aAnnual': 7056,
+          'savingsMonthly': 1500,
+          'totalSavings': 18000,
+          'hasDebt': true,
+          'avsContributionYears': 20,
+          'targetRetirementAge': 64,
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['_coach_avoir_lpp'], 250000.0);
+      expect(merged['q_gross_salary_annual'], 120000.0);
+      expect(merged['_coach_salaire_assure'], 88000.0);
+      expect(merged['_coach_rachat_maximum'], 42000.0);
+      expect(merged['q_3a_total'], 36000.0);
+      expect(merged['q_3a_annual_contribution'], 7056.0);
+      expect(merged['q_savings_monthly'], 1500.0);
+      expect(merged['q_cash_total'], 18000.0);
+      expect(merged['q_has_consumer_debt'], isTrue);
+      expect(merged['q_avs_contribution_years'], 20);
+      expect(merged['q_target_retirement_age'], 64);
+      expect(profile.prevoyance.avoirLppTotal, 250000);
+      expect(profile.prevoyance.salaireAssure, 88000);
+      expect(profile.prevoyance.rachatMaximum, 42000);
+      expect(profile.prevoyance.totalEpargne3a, 36000);
+      expect(profile.patrimoine.epargneLiquide, 18000);
+      expect(profile.prevoyance.anneesContribuees, 20);
+      expect(profile.targetRetirementAge, 64);
+      expect(profile.dettes.hasDette, isTrue);
+    });
+
+    test('backend profile merge preserves local financial truth', () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {
+          '_coach_avoir_lpp': 100000,
+          '_coach_salaire_assure': 70000,
+          '_coach_rachat_maximum': 10000,
+          'q_3a_total': 12000,
+          'q_3a_annual_contribution': 3000,
+          'q_savings_monthly': 800,
+          'q_cash_total': 9000,
+          'q_has_consumer_debt': false,
+          'q_target_retirement_age': 63,
+        },
+        {
+          'avoirLpp': 250000,
+          'lppInsuredSalary': 88000,
+          'lppBuybackMax': 42000,
+          'pillar3aBalance': 36000,
+          'pillar3aAnnual': 7056,
+          'savingsMonthly': 1500,
+          'totalSavings': 18000,
+          'hasDebt': true,
+          'targetRetirementAge': 64,
+        },
+      );
+
+      expect(merged['_coach_avoir_lpp'], 100000);
+      expect(merged['_coach_salaire_assure'], 70000);
+      expect(merged['_coach_rachat_maximum'], 10000);
+      expect(merged['q_3a_total'], 12000);
+      expect(merged['q_3a_annual_contribution'], 3000);
+      expect(merged['q_savings_monthly'], 800);
+      expect(merged['q_cash_total'], 9000);
+      expect(merged['q_has_consumer_debt'], isFalse);
+      expect(merged['q_target_retirement_age'], 63);
+    });
+
+    test('backend profile merge keeps net monthly income units coherent', () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {'q_pay_frequency': 'yearly'},
+        {'incomeNetMonthly': 7600},
+      );
+
+      expect(merged['q_net_income_period_chf'], 7600.0);
+      expect(merged['q_pay_frequency'], 'monthly');
+      expect(merged.containsKey('q_gross_salary_annual'), isFalse);
+    });
+
+    test('backend profile merge does not infer LPP balance from partial facts',
+        () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {},
+        {
+          'dateOfBirth': '1981-06-15',
+          'incomeGrossYearly': 120000,
+          'lppInsuredSalary': 88000,
+          'lppBuybackMax': 42000,
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged.containsKey('q_has_pension_fund'), isFalse);
+      expect(merged.containsKey('_coach_avoir_lpp'), isFalse);
+      expect(profile.prevoyance.avoirLppTotal, 0);
+      expect(profile.prevoyance.salaireAssure, 88000);
+      expect(profile.prevoyance.rachatMaximum, 42000);
+    });
+
+    test('backend profile merge preserves explicit local zero values', () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {
+          'q_3a_total': 0,
+          'q_3a_annual_contribution': 0,
+          'q_savings_monthly': 0,
+          'q_cash_total': 0,
+        },
+        {
+          'pillar3aBalance': 36000,
+          'pillar3aAnnual': 7056,
+          'savingsMonthly': 1500,
+          'totalSavings': 18000,
+        },
+      );
+
+      expect(merged['q_3a_total'], 0);
+      expect(merged['q_3a_annual_contribution'], 0);
+      expect(merged['q_savings_monthly'], 0);
+      expect(merged['q_cash_total'], 0);
+    });
+
     test('backend profile merge never overwrites local truth', () {
       final merged = AuthProvider.mergeBackendProfileDataForTest(
         {

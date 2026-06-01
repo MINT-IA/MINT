@@ -119,9 +119,15 @@ class AuthProvider extends ChangeNotifier {
     if (data.isEmpty) return currentAnswers;
 
     final answers = Map<String, dynamic>.from(currentAnswers);
-    void fillIfMissing(String key, dynamic value) {
-      if (value == null || _isAnswered(answers[key])) return;
+    bool fillIfMissing(String key, dynamic value) {
+      if (value == null || answers.containsKey(key)) return false;
       answers[key] = value;
+      return true;
+    }
+
+    bool fillNumIfMissing(String key, dynamic value) {
+      if (value is! num) return false;
+      return fillIfMissing(key, value.toDouble());
     }
 
     fillIfMissing('q_firstname', data['firstName']);
@@ -165,19 +171,45 @@ class AuthProvider extends ChangeNotifier {
       );
     }
     if (data['incomeGrossYearly'] != null) {
-      fillIfMissing(
-        'q_gross_salary_annual',
-        (data['incomeGrossYearly'] as num).toDouble(),
-      );
+      fillNumIfMissing('q_gross_salary_annual', data['incomeGrossYearly']);
     }
     if (data['incomeNetMonthly'] != null) {
-      fillIfMissing(
-        'q_net_income_period_chf',
-        (data['incomeNetMonthly'] as num).toDouble(),
-      );
+      final filledMonthlyIncome =
+          fillNumIfMissing('q_net_income_period_chf', data['incomeNetMonthly']);
+      if (filledMonthlyIncome) {
+        answers['q_pay_frequency'] = 'monthly';
+      }
     }
     if (data['householdType'] != null) {
       fillIfMissing('q_household_type', data['householdType'] as String);
+    }
+    if (data['has2ndPillar'] != null) {
+      fillIfMissing('q_has_pension_fund', data['has2ndPillar'] as bool);
+    }
+    if (data['avoirLpp'] != null) {
+      fillIfMissing('q_has_pension_fund', true);
+    }
+    fillNumIfMissing('_coach_avoir_lpp', data['avoirLpp']);
+    fillNumIfMissing('_coach_salaire_assure', data['lppInsuredSalary']);
+    fillNumIfMissing('_coach_rachat_maximum', data['lppBuybackMax']);
+    fillNumIfMissing('q_3a_total', data['pillar3aBalance']);
+    fillNumIfMissing('q_3a_annual_contribution', data['pillar3aAnnual']);
+    fillNumIfMissing('q_savings_monthly', data['savingsMonthly']);
+    fillNumIfMissing('q_cash_total', data['totalSavings']);
+    if (data['hasDebt'] == true) {
+      fillIfMissing('q_has_consumer_debt', true);
+    }
+    if (data['avsContributionYears'] is num) {
+      fillIfMissing(
+        'q_avs_contribution_years',
+        (data['avsContributionYears'] as num).toInt(),
+      );
+    }
+    if (data['targetRetirementAge'] is num) {
+      fillIfMissing(
+        'q_target_retirement_age',
+        (data['targetRetirementAge'] as num).toInt(),
+      );
     }
     return answers;
   }
