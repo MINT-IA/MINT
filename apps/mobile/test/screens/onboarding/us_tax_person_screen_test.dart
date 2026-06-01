@@ -9,6 +9,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -38,6 +39,7 @@ void main() {
     // and fires `_syncToBackend()` fire-and-forget. The platform channel
     // is unavailable in test mode unless we initialise mock prefs.
     SharedPreferences.setMockInitialValues(const <String, Object>{});
+    FlutterSecureStorage.setMockInitialValues({});
   });
 
   group('UsTaxPersonScreen', () {
@@ -74,7 +76,8 @@ void main() {
       );
     });
 
-    testWidgets('tap Yes writes usTaxPerson=true to provider + invokes onAnswered(true)',
+    testWidgets(
+        'tap Yes writes usTaxPerson=true to provider + invokes onAnswered(true)',
         (tester) async {
       final provider = CoachProfileProvider();
       bool? receivedAnswer;
@@ -98,7 +101,8 @@ void main() {
       expect(provider.profile?.usTaxPerson, isTrue);
     });
 
-    testWidgets('tap No writes usTaxPerson=false to provider + invokes onAnswered(false)',
+    testWidgets(
+        'tap No writes usTaxPerson=false to provider + invokes onAnswered(false)',
         (tester) async {
       final provider = CoachProfileProvider();
       bool? receivedAnswer;

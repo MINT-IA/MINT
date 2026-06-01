@@ -175,7 +175,8 @@ void main() {
       expect(find.textContaining("5'379"), findsWidgets);
     });
 
-    testWidgets('budget card falls back to report profile income when omitted',
+    testWidgets(
+        'budget card falls back to legacy monthly income when period income is omitted',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
@@ -183,6 +184,7 @@ void main() {
 
       final answers = Map<String, dynamic>.from(testAnswersV2)
         ..['q_net_income_period_chf'] = null
+        ..['q_net_income_monthly'] = 5000.0
         ..['q_pay_frequency'] = 'yearly'
         ..['q_housing_cost_period_chf'] = 2200.0
         ..['q_tax_provision_monthly_chf'] = 458.0

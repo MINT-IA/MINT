@@ -3,12 +3,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });
 
   group('ReportPersistenceService — PremierEclairage persistence', () {
-    test('savePremierEclairageSnapshot stores a map and loadPremierEclairageSnapshot retrieves it identically', () async {
+    test(
+        'savePremierEclairageSnapshot stores a map and loadPremierEclairageSnapshot retrieves it identically',
+        () async {
       const snapshot = {
         'value': 'CHF 7\'258',
         'title': 'Économie 3a possible',
@@ -17,7 +21,8 @@ void main() {
         'suggestedRoute': '/pilier-3a',
       };
       await ReportPersistenceService.savePremierEclairageSnapshot(snapshot);
-      final loaded = await ReportPersistenceService.loadPremierEclairageSnapshot();
+      final loaded =
+          await ReportPersistenceService.loadPremierEclairageSnapshot();
       expect(loaded, isNotNull);
       expect(loaded!['value'], equals('CHF 7\'258'));
       expect(loaded['title'], equals('Économie 3a possible'));
@@ -26,8 +31,11 @@ void main() {
       expect(loaded['suggestedRoute'], equals('/pilier-3a'));
     });
 
-    test('loadPremierEclairageSnapshot returns null when nothing has been saved', () async {
-      final loaded = await ReportPersistenceService.loadPremierEclairageSnapshot();
+    test(
+        'loadPremierEclairageSnapshot returns null when nothing has been saved',
+        () async {
+      final loaded =
+          await ReportPersistenceService.loadPremierEclairageSnapshot();
       expect(loaded, isNull);
     });
 
@@ -42,7 +50,9 @@ void main() {
       expect(seen, isTrue);
     });
 
-    test('hasSeenPremierEclairage returns false before markPremierEclairageSeen is called', () async {
+    test(
+        'hasSeenPremierEclairage returns false before markPremierEclairageSeen is called',
+        () async {
       // Confirm default is false
       expect(await ReportPersistenceService.hasSeenPremierEclairage(), isFalse);
       // Mark as seen
@@ -60,7 +70,8 @@ void main() {
         'suggestedRoute': '/test',
       });
       await ReportPersistenceService.clearDiagnostic();
-      final loaded = await ReportPersistenceService.loadPremierEclairageSnapshot();
+      final loaded =
+          await ReportPersistenceService.loadPremierEclairageSnapshot();
       expect(loaded, isNull);
     });
 
@@ -71,25 +82,34 @@ void main() {
       expect(await ReportPersistenceService.hasSeenPremierEclairage(), isFalse);
     });
 
-    test('loadPremierEclairageSnapshot returns null after clearDiagnostic', () async {
-      await ReportPersistenceService.savePremierEclairageSnapshot({'value': 'x'});
+    test('loadPremierEclairageSnapshot returns null after clearDiagnostic',
+        () async {
+      await ReportPersistenceService.savePremierEclairageSnapshot(
+          {'value': 'x'});
       await ReportPersistenceService.clearDiagnostic();
-      expect(await ReportPersistenceService.loadPremierEclairageSnapshot(), isNull);
+      expect(await ReportPersistenceService.loadPremierEclairageSnapshot(),
+          isNull);
     });
 
     test('savePremierEclairageSnapshot overwrites previous snapshot', () async {
-      await ReportPersistenceService.savePremierEclairageSnapshot({'value': 'first'});
-      await ReportPersistenceService.savePremierEclairageSnapshot({'value': 'second'});
-      final loaded = await ReportPersistenceService.loadPremierEclairageSnapshot();
+      await ReportPersistenceService.savePremierEclairageSnapshot(
+          {'value': 'first'});
+      await ReportPersistenceService.savePremierEclairageSnapshot(
+          {'value': 'second'});
+      final loaded =
+          await ReportPersistenceService.loadPremierEclairageSnapshot();
       expect(loaded!['value'], equals('second'));
     });
 
-    test('loadPremierEclairageSnapshot handles malformed JSON gracefully (returns null)', () async {
+    test(
+        'loadPremierEclairageSnapshot handles malformed JSON gracefully (returns null)',
+        () async {
       // Directly set malformed JSON in prefs
       SharedPreferences.setMockInitialValues({
         'premier_eclairage_snapshot_v1': 'not_valid_json{{',
       });
-      final loaded = await ReportPersistenceService.loadPremierEclairageSnapshot();
+      final loaded =
+          await ReportPersistenceService.loadPremierEclairageSnapshot();
       expect(loaded, isNull);
     });
 
@@ -107,12 +127,14 @@ void main() {
       expect(snapshot.containsKey('iban'), isFalse);
       expect(snapshot.containsKey('grossAnnualSalary'), isFalse);
       await ReportPersistenceService.savePremierEclairageSnapshot(snapshot);
-      final loaded = await ReportPersistenceService.loadPremierEclairageSnapshot();
+      final loaded =
+          await ReportPersistenceService.loadPremierEclairageSnapshot();
       expect(loaded!.containsKey('salary'), isFalse);
       expect(loaded.containsKey('iban'), isFalse);
     });
 
-    test('markPremierEclairageSeen is idempotent (calling twice stays true)', () async {
+    test('markPremierEclairageSeen is idempotent (calling twice stays true)',
+        () async {
       await ReportPersistenceService.markPremierEclairageSeen();
       await ReportPersistenceService.markPremierEclairageSeen();
       expect(await ReportPersistenceService.hasSeenPremierEclairage(), isTrue);
