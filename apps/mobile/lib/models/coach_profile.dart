@@ -1886,6 +1886,25 @@ class CoachProfile {
   /// Consumers should show a warning and avoid assuming spouse income/AVS rights.
   bool get isMissingConjointData => isCouple && conjoint == null;
 
+  /// True when the profile contains material financial data.
+  ///
+  /// `CoachProfile.fromWizardAnswers({})` still carries conservative defaults
+  /// for expenses such as housing/LAMal. Product surfaces must not treat those
+  /// defaults as real user data, otherwise an empty profile can look "covered".
+  /// Identity-only answers (DOB/canton/nationality) are also not enough for
+  /// financial summary surfaces; they need a real financial amount or debt.
+  bool get hasMaterialData {
+    return revenuBrutAnnuel > 0 ||
+        salaireBrutMensuel > 0 ||
+        (prevoyance.avoirLppTotal ?? 0) > 0 ||
+        prevoyance.totalEpargne3a > 0 ||
+        prevoyance.totalLibrePassage > 0 ||
+        patrimoine.epargneLiquide > 0 ||
+        patrimoine.investissements > 0 ||
+        patrimoine.immobilierEffectif > 0 ||
+        dettes.hasDette;
+  }
+
   /// FIX-101: Cross-border worker detection (permis G).
   ///
   /// Accepts either canonical (`'G'`) or wizard form (`'permit_g'`)

@@ -353,8 +353,14 @@ class OnboardingProvider extends ChangeNotifier {
 
     answers['q_wants_deeper'] = _wantsDeeper;
 
-    await ReportPersistenceService.saveAnswers(answers);
+    final sealed = await ReportPersistenceService.saveAnswers(answers);
+    if (!sealed) {
+      throw StateError('onboarding_profile_seal_failed');
+    }
     await coachProvider.mergeAnswers(answers);
+    if (!coachProvider.hasProfile) {
+      throw StateError('onboarding_profile_unavailable_after_merge');
+    }
     _sealed = true;
     notifyListeners();
   }

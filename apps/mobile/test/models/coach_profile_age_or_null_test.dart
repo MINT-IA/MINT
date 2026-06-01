@@ -197,6 +197,76 @@ void main() {
       expect(provider.profile!.ageOrNull, isNotNull);
     });
   });
+
+  group('CoachProfile.hasMaterialData', () {
+    test('empty wizard answers are not material despite expense defaults', () {
+      final profile = CoachProfile.fromWizardAnswers({});
+
+      expect(profile.hasMaterialData, isFalse);
+      expect(profile.depenses.loyer, greaterThan(0));
+      expect(profile.depenses.assuranceMaladie, greaterThan(0));
+    });
+
+    test('identity-only DOB/canton profile is not material', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_date_of_birth': '1977-06-15',
+        'q_canton': 'VD',
+      });
+
+      expect(profile.ageOrNull, isNotNull);
+      expect(profile.canton, 'VD');
+      expect(profile.hasMaterialData, isFalse);
+    });
+
+    test('present but empty/zero answers are not material', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_canton': '',
+        'q_date_of_birth': '',
+        'q_housing_cost_period_chf': 0,
+        'q_lamal_premium_monthly_chf': 0,
+        'q_net_income_period_chf': 0,
+        'q_debt_payments_period_chf': 0,
+      });
+
+      expect(profile.userProvidedFields, isNotEmpty);
+      expect(profile.hasMaterialData, isFalse);
+    });
+
+    test('expense-only answers are not material financial summary data', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_housing_cost_period_chf': 2100,
+        'q_lamal_premium_monthly_chf': 390,
+      });
+
+      expect(profile.depenses.loyer, 2100);
+      expect(profile.depenses.assuranceMaladie, 390);
+      expect(profile.hasMaterialData, isFalse);
+    });
+
+    test('financial assets, retirement assets, or debt are material', () {
+      final lppProfile = CoachProfile.fromWizardAnswers({
+        '_coach_avoir_lpp': 42000,
+      });
+      final pillar3aProfile = CoachProfile.fromWizardAnswers({
+        'q_3a_total': 12000,
+      });
+      final debtProfile = CoachProfile.fromWizardAnswers({
+        'q_debt_payments_period_chf': 450,
+      });
+
+      expect(lppProfile.hasMaterialData, isTrue);
+      expect(pillar3aProfile.hasMaterialData, isTrue);
+      expect(debtProfile.hasMaterialData, isTrue);
+    });
+
+    test('salary answers are material', () {
+      final profile = CoachProfile.fromWizardAnswers({
+        'q_net_income_period_chf': 7000,
+      });
+
+      expect(profile.hasMaterialData, isTrue);
+    });
+  });
 }
 
 /// Helper that builds a minimal [CoachProfile] with only the fields

@@ -46,7 +46,7 @@ class FinancialSummaryScreen extends StatelessWidget {
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
-          if (profile == null)
+          if (profile == null || !profile.hasMaterialData)
             _buildEmptyState(context)
           else
             _buildContent(context, profile),

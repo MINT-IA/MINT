@@ -15,12 +15,21 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
 
 class _FakeCoachProfileProvider extends CoachProfileProvider {
   final List<Map<String, dynamic>> mergedCalls = [];
   bool throwOnMerge = false;
+  bool leaveProfileEmptyAfterMerge = false;
+  CoachProfile? _fakeProfile;
+
+  @override
+  CoachProfile? get profile => _fakeProfile;
+
+  @override
+  bool get hasProfile => _fakeProfile != null;
 
   @override
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
@@ -39,6 +48,9 @@ class _FakeCoachProfileProvider extends CoachProfileProvider {
       throw StateError('test: mergeAnswers failed');
     }
     mergedCalls.add(Map<String, dynamic>.from(partial));
+    if (!leaveProfileEmptyAfterMerge) {
+      _fakeProfile = CoachProfile.fromWizardAnswers(partial);
+    }
   }
 
   @override
@@ -403,6 +415,32 @@ void main() {
     // mergeAnswers did throw — no successful merge recorded (fake only
     // appends on success; it throws before appending).
     expect(fake.mergedCalls, isEmpty);
+  });
+
+  testWidgets(
+      'T8 seal failure: successful merge with empty profile stays on bifurcation',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider()..leaveProfileEmptyAfterMerge = true;
+    await _pumpShell(tester, fake);
+    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Creuser'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    expect(
+      find.textContaining('Impossible de sceller ton dossier'),
+      findsOneWidget,
+    );
+    expect(find.text('Creuser'), findsOneWidget);
+    expect(find.text('coach-chat-landed'), findsNothing);
+    expect(fake.mergedCalls, hasLength(1));
   });
 
   testWidgets('T8 Creuser: flushes wantsDeeper=true + navigates to /coach/chat',

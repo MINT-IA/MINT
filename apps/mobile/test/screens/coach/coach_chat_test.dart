@@ -105,9 +105,13 @@ void main() {
     );
   }
 
-  Widget buildTestWidget({bool withProfile = false, MintUserState? mintState}) {
-    final profileProvider =
-        withProfile ? buildProfileProvider() : CoachProfileProvider();
+  Widget buildTestWidget({
+    bool withProfile = false,
+    MintUserState? mintState,
+    CoachProfileProvider? profileProviderOverride,
+  }) {
+    final profileProvider = profileProviderOverride ??
+        (withProfile ? buildProfileProvider() : CoachProfileProvider());
     final stateProvider = MintStateProvider();
     if (mintState != null) {
       stateProvider.injectStateForTest(mintState);
@@ -261,6 +265,21 @@ void main() {
       await pumpUntilGreeting(tester);
 
       expect(find.text('Par quoi on commence ?'), findsNothing);
+    });
+
+    testWidgets('empty material profile keeps first-contact opener',
+        (tester) async {
+      usePhoneViewport(tester);
+      final provider = CoachProfileProvider()
+        ..updateFromAnswers(<String, dynamic>{});
+
+      await tester.pumpWidget(
+        buildTestWidget(profileProviderOverride: provider),
+      );
+      await pumpUntilGreeting(tester);
+
+      expect(find.text("Salut. Moi c'est Mint."), findsOneWidget);
+      expect(find.text('Un papier que je ne comprends pas'), findsOneWidget);
     });
 
     testWidgets('shows input field with placeholder', (tester) async {

@@ -795,6 +795,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Returns (formattedNumber, headline) or null if no data available.
   ({String number, String headline})? _computeKeyNumber() {
     if (_profile == null) return null;
+    if (!_profile!.hasMaterialData) return null;
     final s = S.of(context)!;
 
     if (BudgetInputs.hasTrustedCharges(_profile!)) {
@@ -2219,7 +2220,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     final keyData = _computeKeyNumber();
-    final packetInsight = _profile == null
+    final hasMaterialProfile = _profile != null && _profile!.hasMaterialData;
+    final packetInsight = !hasMaterialProfile
         ? null
         : CoachPacketInsightPresenter.fromSafeMap(
             CoachContextPacketAdapter.fromProfile(_profile!),
