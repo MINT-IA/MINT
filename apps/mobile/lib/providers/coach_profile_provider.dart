@@ -51,6 +51,7 @@ class CoachProfileProvider extends ChangeNotifier {
   int? _previousScore;
   List<Map<String, dynamic>> _scoreHistory = [];
   bool _profileUpdatedSinceBudget = false;
+  bool _hasSessionOnlyProfile = false;
   Map<String, dynamic> _lastAnswers = const {};
   Future<void> _profilePersistTail = Future<void>.value();
   Future<void>? _authHydrationReload;
@@ -452,6 +453,7 @@ class CoachProfileProvider extends ChangeNotifier {
       if (isFullCompleted && answers.isNotEmpty) {
         _profile = CoachProfile.fromWizardAnswers(answers);
         _isPartialProfile = false;
+        _hasSessionOnlyProfile = false;
         await _mergePersistedData();
         _isLoading = false;
         _isLoaded = true;
@@ -466,6 +468,7 @@ class CoachProfileProvider extends ChangeNotifier {
       if (isMiniCompleted && answers.isNotEmpty) {
         _profile = CoachProfile.fromWizardAnswers(answers);
         _isPartialProfile = true;
+        _hasSessionOnlyProfile = false;
         await _mergePersistedData();
         _isLoading = false;
         _isLoaded = true;
@@ -481,10 +484,18 @@ class CoachProfileProvider extends ChangeNotifier {
       if (_hasPartialProfileData(answers)) {
         _profile = CoachProfile.fromWizardAnswers(answers);
         _isPartialProfile = true;
+        _hasSessionOnlyProfile = false;
         await _mergePersistedData();
         _isLoading = false;
         _isLoaded = true;
         _profileUpdatedSinceBudget = true;
+        notifyListeners();
+        return;
+      }
+
+      if (_hasSessionOnlyProfile && _profile != null) {
+        _isLoading = false;
+        _isLoaded = true;
         notifyListeners();
         return;
       }
@@ -504,6 +515,7 @@ class CoachProfileProvider extends ChangeNotifier {
         _lastAnswers = seedAnswers;
         _profile = CoachProfile.fromWizardAnswers(seedAnswers);
         _isPartialProfile = true;
+        _hasSessionOnlyProfile = false;
         _isLoading = false;
         _isLoaded = true;
         _profileUpdatedSinceBudget = true;
@@ -514,12 +526,14 @@ class CoachProfileProvider extends ChangeNotifier {
       // No profile at all
       _profile = null;
       _isPartialProfile = false;
+      _hasSessionOnlyProfile = false;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('Erreur chargement CoachProfile: $e');
       }
       _profile = null;
       _isPartialProfile = false;
+      _hasSessionOnlyProfile = false;
     }
 
     _isLoading = false;
@@ -606,6 +620,7 @@ class CoachProfileProvider extends ChangeNotifier {
     _lastAnswers = answers;
     _profile = CoachProfile.fromWizardAnswers(answers);
     _isPartialProfile = false;
+    _hasSessionOnlyProfile = true;
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
     notifyListeners();
@@ -640,6 +655,7 @@ class CoachProfileProvider extends ChangeNotifier {
       _lastAnswers = persisted;
       _profile =
           persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
+      _hasSessionOnlyProfile = false;
       _isLoaded = true;
       _profileUpdatedSinceBudget = true;
       CoachNarrativeService.invalidateCache(profile: _profile);
@@ -679,6 +695,7 @@ class CoachProfileProvider extends ChangeNotifier {
       _lastAnswers = persisted;
       _profile =
           persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
+      _hasSessionOnlyProfile = false;
       _isLoaded = true;
       _profileUpdatedSinceBudget = true;
       CoachNarrativeService.invalidateCache(profile: _profile);
@@ -709,11 +726,13 @@ class CoachProfileProvider extends ChangeNotifier {
     final persisted = await _saveAnswersReturningPersisted(answers);
     if (identical(persisted, answers)) {
       _lastAnswers = answers;
+      _hasSessionOnlyProfile = false;
       return true;
     }
     _lastAnswers = persisted;
     _profile =
         persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
+    _hasSessionOnlyProfile = false;
     _profileUpdatedSinceBudget = true;
     CoachNarrativeService.invalidateCache(profile: _profile);
     return false;
@@ -2831,6 +2850,7 @@ class CoachProfileProvider extends ChangeNotifier {
     _previousScore = null;
     _scoreHistory = [];
     _lastAnswers = const {};
+    _hasSessionOnlyProfile = false;
     // Fire-and-forget: clear persisted wizard answers + coach history
     // to prevent cross-account bleed. In-memory state is already reset above.
     ReportPersistenceService.clear();

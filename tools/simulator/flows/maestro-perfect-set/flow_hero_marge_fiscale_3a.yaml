@@ -126,18 +126,24 @@ tags:
       - takeScreenshot: "01.1-hero-legacy-age-only-screen"
       - tapOn:
           text: "Continuer"
+- extendedWaitUntil:
+    visible:
+      text: "Choisir ma date"
+    timeout: 5000
+- tapOn: "Choisir ma date"
 - runFlow:
     when:
-      visible: "Quelle est ta date de naissance ?"
+      visible: "Choisir ma date"
     commands:
       - tapOn:
-          text: "Choisir ma date"
-      - tapOn:
-          point: "48%,44%"
-      - tapOn:
-          point: "85%,82%"
-      - tapOn:
-          text: "Continuer"
+          point: "50%,50%"
+- waitForAnimationToEnd
+- tapOn:
+    point: "48%,44%"
+- tapOn:
+    point: "85%,82%"
+- tapOn:
+    text: "Continuer"
 - runFlow:
     when:
       visible: "Quelle est ta nationalité ?"
