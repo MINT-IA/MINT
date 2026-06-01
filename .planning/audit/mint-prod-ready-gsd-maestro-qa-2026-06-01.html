@@ -60,7 +60,7 @@
     <section>
       <h2>Go / No-Go</h2>
       <div class="callout">
-        <strong>Current decision:</strong> mobile QA branch GO. Final evidence is green for global Flutter analyze, full Flutter tests (9055 pass, 24 skipped), normal-user Maestro default (15/15), and expat_us FATCA (1/1). This is not yet a full production release certificate for backend smoke, signed device/TestFlight, deeplink/Associated Domains, or store-signing gates.
+        <strong>Current decision:</strong> QA branch GO after the latest production-readiness cycle. Evidence is green for global Flutter analyze, final full Flutter tests (9056 pass, 24 skipped), backend ruff, final full backend pytest (7596 passed, 66 skipped, 4 xfailed), staging API smoke, normal-user Maestro default (15/15), expat_us FATCA (1/1), and Maestro all after the Coach empty-state fix (17/17). This is not yet a full production release certificate for signed device/TestFlight, deeplink/Associated Domains, or store-signing gates.
       </div>
     </section>
 
@@ -77,9 +77,14 @@
           <tr><td>iOS sim build/install</td><td>Final normal build + final expat_us build</td><td class="pass">PASS</td><td>Before Maestro default/perfect and dedicated fatca</td></tr>
           <tr><td>Maestro default</td><td><code>sweep-20260601T124008</code>: 15/15</td><td class="pass">PASS</td><td>Before merge</td></tr>
           <tr><td>Maestro fatca</td><td><code>sweep-20260601T125134</code>: 1/1</td><td class="pass">PASS</td><td>Before merge with expat_us build</td></tr>
+          <tr><td>Maestro all after Coach fix</td><td><code>sweep-20260601T133918</code>: 17/17</td><td class="pass">PASS</td><td>Before release-candidate cut</td></tr>
+          <tr><td>Backend ruff</td><td><code>cd services/backend &amp;&amp; ruff check .</code></td><td class="pass">PASS</td><td>Before merge</td></tr>
+          <tr><td>Backend full pytest</td><td><code>python3 -m pytest tests -q</code>: 7596 passed, 66 skipped, 4 xfailed</td><td class="pass">PASS</td><td>Before backend-impact merge</td></tr>
+          <tr><td>Staging API smoke</td><td><code>scripts/smoke_staging_api.sh https://mint-staging.up.railway.app/api/v1</code></td><td class="pass">PASS</td><td>Before staging promotion</td></tr>
+          <tr><td>Coach empty-state regression</td><td>Widget test failed before fix, passed after; targeted Maestro green</td><td class="pass">PASS</td><td>Keep in regression set</td></tr>
           <tr><td>Claude Opus review</td><td>Analyzer cleanup diff; one blocker found and fixed</td><td class="pass">PASS after fix</td><td>Before commit</td></tr>
           <tr><td>Global Flutter analyze</td><td>No issues found</td><td class="pass">PASS</td><td>Before merge</td></tr>
-          <tr><td>Global Flutter tests</td><td>9055 pass, 24 skipped, 0 failures</td><td class="pass">PASS</td><td>Before merge</td></tr>
+          <tr><td>Global Flutter tests</td><td>9056 pass, 24 skipped, 0 failures</td><td class="pass">PASS</td><td>Before merge</td></tr>
         </tbody>
       </table>
     </section>
@@ -89,7 +94,7 @@
       <table>
         <thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Status</th><th>Proof required</th></tr></thead>
         <tbody>
-          <tr><td>QA-001</td><td>P1</td><td>Full Flutter suite</td><td class="pass">Fixed</td><td><code>flutter test</code>: 9055 pass, 24 skipped</td></tr>
+          <tr><td>QA-001</td><td>P1</td><td>Full Flutter suite</td><td class="pass">Fixed</td><td><code>flutter test</code>: 9056 pass, 24 skipped</td></tr>
           <tr><td>QA-002</td><td>P1</td><td>Budget -> Rapport</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
           <tr><td>QA-003</td><td>P1</td><td>PremierEclairage persistence</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
           <tr><td>QA-004</td><td>P1</td><td>FATCA answer provider</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
@@ -101,6 +106,7 @@
           <tr><td>QA-010</td><td>P2</td><td>Golden failure artifacts</td><td class="pass">Controlled</td><td><code>apps/mobile/test/goldens/failures</code> restored before commit</td></tr>
           <tr><td>QA-011</td><td>P1</td><td>Onboarding terminal seal</td><td class="pass">Fixed</td><td>Secure-store failure seeds current session only; no raw PII in SharedPreferences; S005 Maestro green</td></tr>
           <tr><td>QA-012</td><td>P1</td><td>Anonymous chat restore fade</td><td class="pass">Fixed</td><td>Claude blocker fixed; restored first bubble opacity locked by widget test</td></tr>
+          <tr><td>QA-013</td><td>P1</td><td>Coach empty-state cascade</td><td class="pass">Fixed</td><td>Proactive/cached openers are gated behind material financial data; targeted Maestro and all sweep green</td></tr>
         </tbody>
       </table>
     </section>
@@ -115,6 +121,7 @@
             <tr><td>targeted empty-state</td><td class="pass">PASS</td></tr>
             <tr><td>default</td><td class="pass">PASS 15/15 - <code>sweep-20260601T124008</code></td></tr>
             <tr><td>fatca</td><td class="pass">PASS 1/1 - <code>sweep-20260601T125134</code></td></tr>
+            <tr><td>all after Coach fix</td><td class="pass">PASS 17/17 - <code>sweep-20260601T133918</code></td></tr>
             <tr><td>deeplink</td><td class="warn">Opt-in; sim instability must be separated from app bugs</td></tr>
           </tbody>
         </table>

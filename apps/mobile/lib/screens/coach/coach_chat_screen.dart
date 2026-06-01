@@ -413,8 +413,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             // not as a user message.
             _entryPayloadContext = payload.toContextInjection();
           }
-        } else if (!_isResumingConversation) {
+        } else if (!_isResumingConversation && _profile!.hasMaterialData) {
           // No entryPayload + authenticated + fresh conversation:
+          // - Empty / identity-only profiles keep the first-contact opener.
+          //   A weekly recap or cached insight before any material financial
+          //   data is collected feels like invented knowledge and breaks the
+          //   empty-state cascade from « Mon bilan ».
           // - Phase 54-02 T-03 — first try to surface a precomputed
           //   insight (Cleo 3.0 pattern: profile-change-time computation
           //   read instantly at greeting time). If the cache is non-empty

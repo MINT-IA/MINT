@@ -23,6 +23,7 @@ import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
+import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -280,6 +281,42 @@ void main() {
 
       expect(find.text("Salut. Moi c'est Mint."), findsOneWidget);
       expect(find.text('Un papier que je ne comprends pas'), findsOneWidget);
+    });
+
+    testWidgets('empty material profile ignores pending proactive trigger',
+        (tester) async {
+      usePhoneViewport(tester);
+      final provider = CoachProfileProvider()
+        ..updateFromAnswers(<String, dynamic>{
+          'q_firstname': 'Julien',
+        });
+      final profile = provider.profile!;
+      final now = DateTime(2026, 6);
+      final mintState = MintUserState(
+        profile: profile,
+        lifecyclePhase: LifecyclePhase.consolidation,
+        archetype: profile.archetype,
+        confidenceScore: 0,
+        capMemory: const CapMemory(),
+        pendingTrigger: ProactiveTrigger(
+          type: ProactiveTriggerType.weeklyRecapAvailable,
+          messageKey: 'proactiveWeeklyRecap',
+          triggeredAt: now,
+        ),
+        computedAt: now,
+      );
+
+      await tester.pumpWidget(
+        buildTestWidget(
+          mintState: mintState,
+          profileProviderOverride: provider,
+        ),
+      );
+      await pumpUntilGreeting(tester);
+
+      expect(find.text("Salut. Moi c'est Mint."), findsOneWidget);
+      expect(find.text('Un papier que je ne comprends pas'), findsOneWidget);
+      expect(find.textContaining('Ton récap de la semaine'), findsNothing);
     });
 
     testWidgets('shows input field with placeholder', (tester) async {

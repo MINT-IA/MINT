@@ -1,6 +1,6 @@
 # MINT QA and Bug Tracking — 2026-06-01
 
-TL;DR: the right approach is not one huge "run everything" pass. The optimized workflow is cyclic: clean generated artifacts, run fast mechanical gates, run targeted regression suites for the touched truth paths, run the full suite to discover wider debt, classify failures into deterministic bugs vs. harness/golden drift, then rerun only the failing slices. This pass now has the mobile QA branch green on static analysis, full Flutter tests, normal-user Maestro default, and the dedicated expat_us FATCA gate. Claude Opus found one hidden behavior regression in the analyzer cleanup (restored anonymous chat first bubble could render at opacity 0); it was fixed with a regression test before final gates. This is a mobile QA branch GO, not a full production release certificate for backend/device signing/deeplink gates.
+TL;DR: the right approach is not one huge "run everything" pass. The optimized workflow is cyclic: clean generated artifacts, run fast mechanical gates, run targeted regression suites for the touched truth paths, run the full suite to discover wider debt, classify failures into deterministic bugs vs. harness/golden drift, then rerun only the failing slices. This pass now has the mobile QA branch green on static analysis, full Flutter tests, normal-user Maestro default, the dedicated expat_us FATCA gate, backend ruff, full backend pytest, staging smoke, and a full Maestro `all` sweep at 17/17 after fixing the empty-state Coach opener regression. Claude Opus found one hidden behavior regression in the analyzer cleanup (restored anonymous chat first bubble could render at opacity 0); it was fixed with a regression test before final gates. Current final rerun counts are Flutter 9056 pass / 24 skipped and backend 7596 pass / 66 skipped / 4 xfailed. This is a stronger QA branch GO, not a full production release certificate for signed device/TestFlight, deeplink/Associated Domains, or store-signing gates.
 
 ## Optimized Workflow
 
@@ -33,8 +33,19 @@ TL;DR: the right approach is not one huge "run everything" pass. The optimized w
 | Global analyze classification | `cd apps/mobile && flutter analyze` | PASS | Final run: no issues found after mechanical cleanup and Claude blocker fix. |
 | Targeted changed-file analyze | `flutter analyze lib/services/nudge/nudge_engine.dart test/app_rapport_route_budget_test.dart test/screens/advisor_banking_smoke_test.dart test/screens/onboarding/us_tax_person_screen_test.dart test/services/coach/report_persistence_premier_eclairage_test.dart test/services/nudge/nudge_engine_test.dart` | PASS | No issues found. |
 | Anonymous restore regression | `flutter test test/screens/anonymous/anonymous_chat_screen_test.dart` | PASS | 8/8. Locks restored conversation first bubble at visible opacity. |
-| Full Flutter tests after final cleanup | `cd apps/mobile && flutter test --reporter=expanded` | PASS | 9055 pass, 24 skipped, 0 failures. |
+| Full Flutter tests after final cleanup | `cd apps/mobile && flutter test --reporter=expanded` | PASS | 9055 pass, 24 skipped, 0 failures. Superseded by final current-worktree compact rerun below. |
 | Global Flutter analyze after fixes | `cd apps/mobile && flutter analyze` | PASS | No issues found. |
+| Backend lint | `cd services/backend && ruff check .` | PASS | `All checks passed!` after safe lint cleanup. |
+| Backend full tests | `cd services/backend && python3 -m pytest tests -q` | PASS | 7551 passed, 116 skipped, 4 xfailed, 6 warnings in 95.34s. Superseded by final current-worktree rerun below. |
+| Staging API smoke | `scripts/smoke_staging_api.sh https://mint-staging.up.railway.app/api/v1` | PASS | `/health`, `/health/ready`, DB readiness, `/retirement/checklist`, `/onboarding/minimal-profile`. |
+| Coach empty-state regression test | `flutter test test/screens/coach/coach_chat_test.dart --plain-name "empty material profile ignores pending proactive trigger"` | PASS | Test failed before the fix, then passed after gating proactive openers behind `hasMaterialData`. |
+| Coach chat screen suite | `cd apps/mobile && flutter test test/screens/coach/coach_chat_test.dart` | PASS | 39 pass, 5 skipped. |
+| Global Flutter analyze after Coach fix | `cd apps/mobile && flutter analyze` | PASS | No issues found. |
+| Targeted Maestro empty-state | `maestro_with_watchdog.sh test tools/simulator/flows/maestro-perfect-set/flow_empty_state_cascade.yaml` | PASS | `.planning/_walker/flow-empty-state-fix-20260601T133822`, first-contact opener visible, stale/fake facts absent. |
+| Maestro all sweep after Coach fix | `MAESTRO_SWEEP_NO_REBOOT=1 ... tools/simulator/maestro_sweep.sh --tier all` | PASS | `.planning/_walker/sweep-20260601T133918/sweep-summary.md`: 17/17 green, 0 red/stalled/hard-limit. |
+| Final current-worktree Flutter full suite | `cd apps/mobile && flutter test --reporter=compact` | PASS | 9056 passed, 24 skipped, 0 failures. |
+| Final current-worktree backend full suite | `cd services/backend && python3 -m pytest tests -q` | PASS | 7596 passed, 66 skipped, 4 xfailed, 1 warning in 191.70s. |
+| Final ARB parity | `validate_arb_parity` | PASS | 6 locales, 6841 keys each. |
 
 ## Bug and Risk Table
 
@@ -52,6 +63,7 @@ TL;DR: the right approach is not one huge "run everything" pass. The optimized w
 | QA-010 | P2 | Test artifacts | `apps/mobile/test/goldens/failures/*` | Full/golden test runs modify tracked failure PNGs. | Controlled | Restored before commit; keep these out unless deliberately updating goldens. |
 | QA-011 | P1 | Onboarding terminal seal | Sequential Maestro S005 previously stopped on the terminal screen with SnackBar `Impossible de sceller ton dossier` | `completeAndFlushToProfile` treated secure-store seal failure as fatal. On iOS simulator/keychain failure, sensitive fields were correctly not persisted in plain prefs, but the user was trapped at T8. | Fixed | `saveAnswers` remains fail-closed for disk; onboarding now seeds `CoachProfileProvider` in memory and routes. Covered by widget test + S005 Maestro pass. |
 | QA-012 | P1 | Anonymous chat restore | Claude Opus review of analyzer cleanup | Dead fade code became live; restored conversations could wrap their first bubble in a `FadeTransition` still at `0.0`. | Fixed | Restore path sets `_openerFadeController.value = 1.0`; regression covered by `anonymous_chat_screen_test.dart`. |
+| QA-013 | P1 | Coach empty-state cascade | Maestro all sweep `sweep-20260601T131849`: `flow_empty_state_cascade` red | Empty/identity-only profiles could surface a Monday weekly recap trigger before material financial data existed, masking the first-contact opener from `Mon bilan` empty state. | Fixed | `CoachChatScreen` only surfaces precomputed/proactive openers when `profile.hasMaterialData`; widget regression added; targeted Maestro and full `all` sweep now green. |
 
 ## Current Push Policy
 
