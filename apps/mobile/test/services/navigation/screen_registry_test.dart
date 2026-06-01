@@ -190,6 +190,30 @@ void main() {
       expect(entry.preferFromChat, isTrue);
     });
 
+    test('financial_report keeps persisted report answers as route source', () {
+      final entry = MintScreenRegistry.findByIntentStatic('financial_report');
+      expect(entry, isNotNull);
+      expect(entry!.route, equals('/rapport'));
+      expect(entry.behavior, equals(ScreenBehavior.decisionCanvas));
+      expect(entry.preferFromChat, isTrue);
+      expect(entry.prefillFromProfile, isFalse);
+    });
+
+    test('legacy report aliases are not chat-routable destinations', () {
+      final report = MintScreenRegistry.findByIntentStatic('report_overview');
+      final reportV2 = MintScreenRegistry.findByIntentStatic('report_v2');
+
+      expect(report, isNotNull);
+      expect(report!.route, equals('/report'));
+      expect(report.preferFromChat, isFalse);
+      expect(report.prefillFromProfile, isFalse);
+
+      expect(reportV2, isNotNull);
+      expect(reportV2!.route, equals('/report/v2'));
+      expect(reportV2.preferFromChat, isFalse);
+      expect(reportV2.prefillFromProfile, isFalse);
+    });
+
     test('confidence_dashboard → /confidence, directAnswer, preferFromChat true', () {
       final entry =
           MintScreenRegistry.findByIntentStatic('confidence_dashboard');

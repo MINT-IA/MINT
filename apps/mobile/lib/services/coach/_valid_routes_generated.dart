@@ -96,8 +96,6 @@ const Set<String> kGeneratedValidRoutes = <String>{
   '/rachat-lpp',
   '/rapport',
   '/rente-vs-capital',
-  '/report',
-  '/report/v2',
   '/retirement',
   '/retirement/projection',
   '/retraite',

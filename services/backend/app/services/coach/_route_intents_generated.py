@@ -105,8 +105,6 @@ GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS: frozenset[str] = frozenset({
     'real_return_3a',
     'rent_vs_buy',
     'rente_vs_capital_arbitrage',
-    'report_overview',
-    'report_v2',
     'retirement_choice',
     'retirement_overview',
     'retirement_projection',

@@ -585,12 +585,12 @@
     {
       "intent": "report_overview",
       "route": "/report",
-      "preferFromChat": true
+      "preferFromChat": false
     },
     {
       "intent": "report_v2",
       "route": "/report/v2",
-      "preferFromChat": true
+      "preferFromChat": false
     },
     {
       "intent": "retirement_overview",

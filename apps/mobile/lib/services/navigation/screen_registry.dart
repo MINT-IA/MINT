@@ -796,7 +796,7 @@ class MintScreenRegistry extends ScreenRegistry {
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['civilStatus', 'avoirLpp', 'epargne3a'],
     preferFromChat: true,
-    prefillFromProfile: true,
+    prefillFromProfile: false,
   );
 
   static const ScreenEntry _timeline = ScreenEntry(
@@ -1720,8 +1720,8 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
     optionalFields: [],
-    preferFromChat: true,
-    prefillFromProfile: true,
+    preferFromChat: false,
+    prefillFromProfile: false,
   );
 
   static const ScreenEntry _reportV2 = ScreenEntry(
@@ -1730,8 +1730,8 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
     optionalFields: [],
-    preferFromChat: true,
-    prefillFromProfile: true,
+    preferFromChat: false,
+    prefillFromProfile: false,
   );
 
   // ─── ROUTABLE — retirement variants ───────────────────────────────
