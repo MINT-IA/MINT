@@ -2172,6 +2172,53 @@ _SAVE_FACT_BOOL_KEYS: set[str] = {
     "hasAvsGaps",
 }
 
+_SAVE_FACT_INT_KEYS: set[str] = {
+    "birthYear",
+    "targetRetirementAge",
+    "avsContributionYears",
+    "spouseBirthYear",
+    "spouseAvsContributionYears",
+}
+
+_SAVE_FACT_NUMERIC_BOUNDS: dict[str, tuple[float | None, float | None]] = {
+    "birthYear": (1900, None),
+    "targetRetirementAge": (58, 70),
+    "incomeNetMonthly": (0, 10_000_000),
+    "incomeGrossMonthly": (0, 10_000_000),
+    "incomeNetYearly": (0, 10_000_000),
+    "incomeGrossYearly": (0, 10_000_000),
+    "selfEmployedNetIncome": (0, 10_000_000),
+    "employmentRate": (0, 100),
+    "annualBonus": (0, 10_000_000),
+    "lppInsuredSalary": (0, 10_000_000),
+    "avoirLpp": (0, 10_000_000),
+    "avoirLppObligatoire": (0, 10_000_000),
+    "avoirLppSurobligatoire": (0, 10_000_000),
+    "lppBuybackMax": (0, 10_000_000),
+    "pillar3aAnnual": (0, 36_288),
+    "pillar3aBalance": (0, 10_000_000),
+    "savingsMonthly": (0, 10_000_000),
+    "totalSavings": (0, 10_000_000),
+    "wealthEstimate": (0, 1_000_000_000),
+    "totalDebt": (0, 1_000_000_000),
+    "spouseBirthYear": (1900, None),
+    "spouseIncomeNetMonthly": (0, 10_000_000),
+    "spouseAvsContributionYears": (0, 44),
+    "avsContributionYears": (0, 44),
+}
+
+_SAVE_FACT_SPOUSE_KEYS: set[str] = {
+    "spouseBirthYear",
+    "spouseIncomeNetMonthly",
+    "spouseAvsContributionYears",
+}
+
+_SAVE_FACT_HOUSEHOLD_TYPES_WITH_SPOUSE: set[str] = {
+    "couple",
+    "concubine",
+    "family",
+}
+
 # Enum constraints for string-valued keys. Keys NOT in this dict accept
 # any non-empty string (commune, dateOfBirth). Keys IN this dict reject
 # values outside the set — prevents Claude from persisting typos like
@@ -2254,6 +2301,15 @@ def _coerce_fact_value(key: str, value):
             # down to 1900 (no living user pre-1900 for our purposes).
             if coerced < 1900 or coerced > current_year + 1:
                 return None
+        lower, upper = _SAVE_FACT_NUMERIC_BOUNDS.get(key, (None, None))
+        if lower is not None and coerced < lower:
+            return None
+        if upper is not None and coerced > upper:
+            return None
+        if key in _SAVE_FACT_INT_KEYS:
+            if not coerced.is_integer():
+                return None
+            return int(coerced)
         return coerced
     if key in _SAVE_FACT_BOOL_KEYS:
         if isinstance(value, bool):
@@ -3070,7 +3126,15 @@ def _execute_internal_tool(
                 coerced = _coerce_fact_value(fact_key, fact_value)
                 if coerced is None:
                     return f"[save_fact ÉCHEC: valeur invalide pour '{fact_key}']"
+                if not _save_fact_spouse_key_allowed(data, fact_key):
+                    return (
+                        "[save_fact ÉCHEC: précise d'abord le type de ménage "
+                        "avant d'enregistrer une donnée conjoint]"
+                    )
                 data[fact_key] = coerced
+                if fact_key == "householdType" and coerced == "single":
+                    for spouse_key in _SAVE_FACT_SPOUSE_KEYS:
+                        data.pop(spouse_key, None)
                 profile.data = data
                 profile.updated_at = datetime.now(timezone.utc)
                 db.add(profile)
@@ -3425,6 +3489,13 @@ def _packet_budget_number(fact: dict, budget_fact_ids: set[str]):
     if not math.isfinite(number):
         return None
     return value
+
+
+def _save_fact_spouse_key_allowed(data: dict, key: str) -> bool:
+    if key not in _SAVE_FACT_SPOUSE_KEYS:
+        return True
+    household_type = data.get("householdType")
+    return household_type in _SAVE_FACT_HOUSEHOLD_TYPES_WITH_SPOUSE
 
 
 def _format_budget_status(ctx: dict) -> str:

@@ -14,6 +14,13 @@ from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.profile_model import ProfileModel
 from app.models.user import User
+from app.schemas.profile import (
+    MAX_AVS_CONTRIBUTION_YEARS,
+    MAX_BIRTH_YEAR,
+    MAX_PILLAR3A_ANNUAL,
+    MAX_PROFILE_MONEY,
+    MIN_BIRTH_YEAR,
+)
 from app.schemas.sync import ClaimLocalDataRequest, ClaimLocalDataResponse
 
 logger = logging.getLogger(__name__)
@@ -78,11 +85,27 @@ def _as_float(value) -> Optional[float]:
     return None
 
 
+def _bounded_float(value, *, minimum: float = 0, maximum: float) -> Optional[float]:
+    number = _as_float(value)
+    if number is None or number < minimum or number > maximum:
+        return None
+    return number
+
+
 def _as_int(value) -> Optional[int]:
     number = _as_float(value)
     if number is None:
         return None
+    if not number.is_integer():
+        return None
     return int(number)
+
+
+def _bounded_int(value, *, minimum: int = 0, maximum: int) -> Optional[int]:
+    number = _as_int(value)
+    if number is None or number < minimum or number > maximum:
+        return None
+    return number
 
 
 def _as_bool(value) -> Optional[bool]:
@@ -178,13 +201,15 @@ def _profile_fields_from_claim(payload: ClaimLocalDataRequest) -> dict:
     fields = {
         "householdType": _pick_household(payload),
         "dateOfBirth": date_of_birth,
-        "birthYear": _as_int(
+        "birthYear": _bounded_int(
             _first_present(
                 mini.get("q_birth_year"),
                 wizard.get("q_birth_year"),
                 wizard.get("birthYear"),
                 _birth_year_from_date(date_of_birth),
-            )
+            ),
+            minimum=MIN_BIRTH_YEAR,
+            maximum=MAX_BIRTH_YEAR,
         ),
         "canton": _first_present(
             mini.get("q_canton"),
@@ -192,24 +217,30 @@ def _profile_fields_from_claim(payload: ClaimLocalDataRequest) -> dict:
             wizard.get("canton"),
         ),
         "commune": _first_present(wizard.get("q_commune"), wizard.get("commune")),
-        "incomeNetMonthly": _net_monthly_income(payload),
-        "incomeGrossYearly": _as_float(
+        "incomeNetMonthly": _bounded_float(
+            _net_monthly_income(payload),
+            maximum=MAX_PROFILE_MONEY,
+        ),
+        "incomeGrossYearly": _bounded_float(
             _first_present(
                 wizard.get("q_gross_salary_annual"),
                 wizard.get("incomeGrossYearly"),
-            )
+            ),
+            maximum=MAX_PROFILE_MONEY,
         ),
-        "savingsMonthly": _as_float(
+        "savingsMonthly": _bounded_float(
             _first_present(
                 wizard.get("q_savings_monthly"), wizard.get("savingsMonthly")
-            )
+            ),
+            maximum=MAX_PROFILE_MONEY,
         ),
-        "totalSavings": _as_float(
+        "totalSavings": _bounded_float(
             _first_present(
                 wizard.get("q_cash_total"),
                 wizard.get("q_epargne_liquide"),
                 wizard.get("totalSavings"),
-            )
+            ),
+            maximum=MAX_PROFILE_MONEY,
         ),
         "goal": _goal(payload),
         "employmentStatus": _first_present(
@@ -217,55 +248,89 @@ def _profile_fields_from_claim(payload: ClaimLocalDataRequest) -> dict:
             wizard.get("employmentStatus"),
         ),
         "gender": _first_present(wizard.get("q_gender"), wizard.get("gender")),
-        "targetRetirementAge": _as_int(
+        "targetRetirementAge": _bounded_int(
             _first_present(
                 wizard.get("q_target_retirement_age"),
                 wizard.get("targetRetirementAge"),
-            )
+            ),
+            minimum=58,
+            maximum=70,
         ),
-        "lppInsuredSalary": _as_float(
+        "lppInsuredSalary": _bounded_float(
             _first_present(
                 wizard.get("_coach_salaire_assure"),
                 wizard.get("lppInsuredSalary"),
-            )
+            ),
+            maximum=MAX_PROFILE_MONEY,
         ),
-        "avoirLpp": _as_float(
+        "avoirLpp": _bounded_float(
             _first_present(
                 wizard.get("_coach_avoir_lpp"),
                 wizard.get("q_avoir_lpp"),
                 wizard.get("avoirLpp"),
-            )
+            ),
+            maximum=MAX_PROFILE_MONEY,
         ),
-        "lppBuybackMax": _as_float(
+        "lppBuybackMax": _bounded_float(
             _first_present(
                 wizard.get("_coach_rachat_maximum"),
                 wizard.get("lppBuybackMax"),
-            )
+            ),
+            maximum=MAX_PROFILE_MONEY,
         ),
-        "pillar3aBalance": _as_float(
+        "pillar3aBalance": _bounded_float(
             _first_present(
                 wizard.get("q_3a_total"),
                 wizard.get("q_total_3a"),
                 wizard.get("_coach_total_3a"),
                 wizard.get("pillar3aBalance"),
-            )
+            ),
+            maximum=MAX_PROFILE_MONEY,
         ),
-        "pillar3aAnnual": _as_float(
+        "pillar3aAnnual": _bounded_float(
             _first_present(
                 wizard.get("q_3a_annual_contribution"),
                 wizard.get("pillar3aAnnual"),
-            )
+            ),
+            maximum=MAX_PILLAR3A_ANNUAL,
         ),
         "hasDebt": explicit_has_debt
         if explicit_has_debt is not None
         else (True if consumer_debt_total > 0 else None),
-        "avsContributionYears": _as_int(
+        "avsContributionYears": _bounded_int(
             _first_present(
                 wizard.get("q_avs_contribution_years"),
                 wizard.get("avsContributionYears"),
-            )
+            ),
+            maximum=MAX_AVS_CONTRIBUTION_YEARS,
+        ),
+        "spouseBirthYear": _bounded_int(
+            _first_present(
+                wizard.get("q_partner_birth_year"),
+                wizard.get("spouseBirthYear"),
+            ),
+            minimum=MIN_BIRTH_YEAR,
+            maximum=MAX_BIRTH_YEAR,
+        ),
+        "spouseIncomeNetMonthly": _bounded_float(
+            _first_present(
+                wizard.get("q_partner_net_income_chf"),
+                wizard.get("spouseIncomeNetMonthly"),
+            ),
+            maximum=MAX_PROFILE_MONEY,
+        ),
+        "spouseAvsContributionYears": _bounded_int(
+            _first_present(
+                wizard.get("q_spouse_avs_contribution_years"),
+                wizard.get("spouseAvsContributionYears"),
+            ),
+            maximum=MAX_AVS_CONTRIBUTION_YEARS,
         ),
     }
+    if fields["householdType"] == "single":
+        fields.pop("spouseBirthYear", None)
+        fields.pop("spouseIncomeNetMonthly", None)
+        fields.pop("spouseAvsContributionYears", None)
     return {key: value for key, value in fields.items() if value is not None}
 
 

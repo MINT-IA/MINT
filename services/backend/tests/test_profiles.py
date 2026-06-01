@@ -3,6 +3,30 @@ Tests for profiles endpoint.
 """
 
 import uuid
+from datetime import datetime, timezone
+
+from app.models.profile_model import ProfileModel
+from tests.conftest import TestingSessionLocal
+
+
+def _insert_legacy_profile(data: dict) -> str:
+    db = TestingSessionLocal()
+    try:
+        profile_id = data.get("id", str(uuid.uuid4()))
+        profile = ProfileModel(
+            id=profile_id,
+            user_id="test-user-id",
+            data={
+                "id": profile_id,
+                "createdAt": datetime.now(timezone.utc).isoformat(),
+                **data,
+            },
+        )
+        db.add(profile)
+        db.commit()
+        return profile_id
+    finally:
+        db.close()
 
 
 def test_create_profile(client):
@@ -20,6 +44,30 @@ def test_create_profile(client):
     assert data["goal"] == "invest"
     assert "id" in data
     assert "createdAt" in data
+
+
+def test_create_profile_rejects_spouse_fields_for_single_household(client):
+    payload = {
+        "householdType": "single",
+        "goal": "invest",
+        "spouseBirthYear": 1982,
+        "spouseIncomeNetMonthly": 5000,
+    }
+
+    response = client.post("/api/v1/profiles", json=payload)
+
+    assert response.status_code == 422
+
+
+def test_create_profile_rejects_invalid_birth_year(client):
+    payload = {
+        "householdType": "single",
+        "birthYear": 2099,
+    }
+
+    response = client.post("/api/v1/profiles", json=payload)
+
+    assert response.status_code == 422
 
 
 def test_get_profile(client):
@@ -45,6 +93,50 @@ def test_get_profile_not_found(client):
     fake_id = str(uuid.uuid4())
     response = client.get(f"/api/v1/profiles/{fake_id}")
     assert response.status_code == 404
+
+
+def test_get_my_profile_tolerates_legacy_single_with_spouse_fields(client):
+    profile_id = _insert_legacy_profile(
+        {
+            "householdType": "single",
+            "goal": "other",
+            "spouseBirthYear": 1982,
+            "spouseIncomeNetMonthly": 5000,
+            "spouseAvsContributionYears": 18,
+        }
+    )
+
+    response = client.get("/api/v1/profiles/me")
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["id"] == profile_id
+    assert body["householdType"] == "single"
+    assert body["spouseBirthYear"] is None
+    assert body["spouseIncomeNetMonthly"] is None
+    assert body["spouseAvsContributionYears"] is None
+
+
+def test_get_profile_tolerates_legacy_single_with_spouse_fields(client):
+    profile_id = _insert_legacy_profile(
+        {
+            "householdType": "single",
+            "goal": "other",
+            "spouseBirthYear": 1982,
+            "spouseIncomeNetMonthly": 5000,
+            "spouseAvsContributionYears": 18,
+        }
+    )
+
+    response = client.get(f"/api/v1/profiles/{profile_id}")
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["id"] == profile_id
+    assert body["householdType"] == "single"
+    assert body["spouseBirthYear"] is None
+    assert body["spouseIncomeNetMonthly"] is None
+    assert body["spouseAvsContributionYears"] is None
 
 
 def test_get_my_profile(client):
@@ -112,3 +204,65 @@ def test_update_profile(client):
     assert data["goal"] == "retire"
     assert data["savingsMonthly"] == 1000.0
     assert data["householdType"] == "single"  # unchanged
+
+
+def test_update_profile_rejects_invalid_numeric_bounds_without_mutating(client):
+    create_response = client.post(
+        "/api/v1/profiles",
+        json={
+            "householdType": "single",
+            "goal": "invest",
+            "savingsMonthly": 1000,
+            "totalSavings": 5000,
+            "lppInsuredSalary": 60000,
+        },
+    )
+    assert create_response.status_code == 200
+    profile_id = create_response.json()["id"]
+
+    for payload in (
+        {"savingsMonthly": -1},
+        {"totalSavings": -1},
+        {"lppInsuredSalary": -1},
+        {"savingsMonthly": 10_000_001},
+        {"totalSavings": 10_000_001},
+        {"lppInsuredSalary": 10_000_001},
+    ):
+        response = client.patch(f"/api/v1/profiles/{profile_id}", json=payload)
+        assert response.status_code == 422, payload
+
+        get_response = client.get(f"/api/v1/profiles/{profile_id}")
+        assert get_response.status_code == 200, get_response.text
+        body = get_response.json()
+        assert body["savingsMonthly"] == 1000
+        assert body["totalSavings"] == 5000
+        assert body["lppInsuredSalary"] == 60000
+
+
+def test_update_profile_clears_spouse_fields_when_switching_to_single(client):
+    create_response = client.post(
+        "/api/v1/profiles",
+        json={
+            "householdType": "couple",
+            "goal": "invest",
+            "spouseBirthYear": 1982,
+            "spouseIncomeNetMonthly": 5000,
+        },
+    )
+    assert create_response.status_code == 200
+    profile_id = create_response.json()["id"]
+
+    response = client.patch(
+        f"/api/v1/profiles/{profile_id}",
+        json={
+            "householdType": "single",
+            "spouseBirthYear": 1982,
+            "spouseIncomeNetMonthly": 5000,
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["householdType"] == "single"
+    assert body["spouseBirthYear"] is None
+    assert body["spouseIncomeNetMonthly"] is None

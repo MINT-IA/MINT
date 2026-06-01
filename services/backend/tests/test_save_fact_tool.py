@@ -38,6 +38,10 @@ def _register(client: TestClient, tag: str) -> tuple[str, str]:
     return email, resp.json()["access_token"]
 
 
+def _auth_headers(token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {token}"}
+
+
 def _user_id_by_email(email: str) -> str:
     from app.models.user import User
 
@@ -167,6 +171,58 @@ def test_save_fact_rejects_garbage_for_numeric_key(client: TestClient):
     )
     assert "invalide" in msg or "ÉCHEC" in msg
     assert _profile_data(user_id).get("lppInsuredSalary") is None
+
+
+def test_save_fact_rejects_values_that_profile_schema_rejects(client: TestClient):
+    email, token = _register(client, "schema")
+    user_id = _user_id_by_email(email)
+
+    for payload in [
+        {"key": "targetRetirementAge", "value": 90, "confidence": "high"},
+        {"key": "avsContributionYears", "value": 45, "confidence": "high"},
+        {"key": "spouseBirthYear", "value": 1982.5, "confidence": "high"},
+    ]:
+        msg = _invoke(payload, user_id)
+        assert "invalide" in msg or "ÉCHEC" in msg, (payload, msg)
+        assert payload["key"] not in _profile_data(user_id)
+
+    response = client.get(
+        "/api/v1/profiles/me",
+        headers=_auth_headers(token),
+    )
+    assert response.status_code == 200, response.text
+
+
+def test_save_fact_rejects_spouse_fields_for_single_profile(client: TestClient):
+    email, _ = _register(client, "single-spouse")
+    user_id = _user_id_by_email(email)
+    assert _profile_data(user_id)["householdType"] == "single"
+
+    msg = _invoke(
+        {"key": "spouseIncomeNetMonthly", "value": 5000, "confidence": "high"},
+        user_id,
+    )
+
+    assert "ménage" in msg or "ÉCHEC" in msg
+    assert "spouseIncomeNetMonthly" not in _profile_data(user_id)
+
+
+def test_save_fact_accepts_spouse_fields_after_couple_status(client: TestClient):
+    email, _ = _register(client, "couple-spouse")
+    user_id = _user_id_by_email(email)
+
+    status_msg = _invoke(
+        {"key": "householdType", "value": "couple", "confidence": "high"},
+        user_id,
+    )
+    spouse_msg = _invoke(
+        {"key": "spouseIncomeNetMonthly", "value": 5000, "confidence": "high"},
+        user_id,
+    )
+
+    assert "Fait enregistré" in status_msg
+    assert "Fait enregistré" in spouse_msg
+    assert _profile_data(user_id)["spouseIncomeNetMonthly"] == 5000.0
 
 
 

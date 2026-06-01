@@ -16303,6 +16303,8 @@
           "birthYear": {
             "anyOf": [
               {
+                "maximum": 2027.0,
+                "minimum": 1900.0,
                 "type": "integer"
               },
               {
@@ -16611,6 +16613,32 @@
             ],
             "title": "Spouseavscontributionyears"
           },
+          "spouseBirthYear": {
+            "anyOf": [
+              {
+                "maximum": 2027.0,
+                "minimum": 1900.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spousebirthyear"
+          },
+          "spouseIncomeNetMonthly": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spouseincomenetmonthly"
+          },
           "targetRetirementAge": {
             "anyOf": [
               {
@@ -16624,6 +16652,19 @@
             ],
             "description": "Age cible de retraite (defaut: age legal)",
             "title": "Targetretirementage"
+          },
+          "totalDebt": {
+            "anyOf": [
+              {
+                "maximum": 1000000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totaldebt"
           },
           "totalSavings": {
             "anyOf": [
@@ -16791,6 +16832,8 @@
           "birthYear": {
             "anyOf": [
               {
+                "maximum": 2027.0,
+                "minimum": 1900.0,
                 "type": "integer"
               },
               {
@@ -17090,6 +17133,32 @@
             ],
             "title": "Spouseavscontributionyears"
           },
+          "spouseBirthYear": {
+            "anyOf": [
+              {
+                "maximum": 2027.0,
+                "minimum": 1900.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spousebirthyear"
+          },
+          "spouseIncomeNetMonthly": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spouseincomenetmonthly"
+          },
           "targetRetirementAge": {
             "anyOf": [
               {
@@ -17103,6 +17172,19 @@
             ],
             "description": "Age cible de retraite (defaut: age legal)",
             "title": "Targetretirementage"
+          },
+          "totalDebt": {
+            "anyOf": [
+              {
+                "maximum": 1000000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totaldebt"
           },
           "totalSavings": {
             "anyOf": [
@@ -17185,7 +17267,7 @@
           "birthYear": {
             "anyOf": [
               {
-                "maximum": 2025.0,
+                "maximum": 2027.0,
                 "minimum": 1900.0,
                 "type": "integer"
               },
@@ -17333,6 +17415,7 @@
           "householdGrossIncome": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
                 "minimum": 0.0,
                 "type": "number"
               },
@@ -17355,6 +17438,7 @@
           "incomeGrossYearly": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
                 "minimum": 0.0,
                 "type": "number"
               },
@@ -17367,6 +17451,7 @@
           "incomeNetMonthly": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
                 "minimum": 0.0,
                 "type": "number"
               },
@@ -17414,6 +17499,8 @@
           "lppInsuredSalary": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -17502,6 +17589,8 @@
           "savingsMonthly": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -17536,6 +17625,19 @@
             ],
             "title": "Spouseavscontributionyears"
           },
+          "spouseBirthYear": {
+            "anyOf": [
+              {
+                "maximum": 2027.0,
+                "minimum": 1900.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spousebirthyear"
+          },
           "spouseEmploymentStatus": {
             "anyOf": [
               {
@@ -17547,9 +17649,23 @@
             ],
             "title": "Spouseemploymentstatus"
           },
+          "spouseIncomeNetMonthly": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spouseincomenetmonthly"
+          },
           "spouseSalaryGrossAnnual": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
                 "minimum": 0.0,
                 "type": "number"
               },
@@ -17573,9 +17689,24 @@
             "description": "Age cible de retraite (defaut: age legal)",
             "title": "Targetretirementage"
           },
+          "totalDebt": {
+            "anyOf": [
+              {
+                "maximum": 1000000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totaldebt"
+          },
           "totalSavings": {
             "anyOf": [
               {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {

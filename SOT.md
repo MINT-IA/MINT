@@ -8,18 +8,24 @@
 
 The backend `Profile` schema is the authoritative contract for API communication.
 
-- `id`: UUID.
+- `id`: string (UUID for normal profiles; legacy/anonymous rows may use string IDs).
 - `birthYear`: int (optional).
+- `dateOfBirth`: ISO date string (optional).
 - `canton`: string (optional, ISO).
 - `householdType`: enum (`single`, `couple`, `concubine`, `family`).
 - `incomeNetMonthly`: double (optional, FactFind).
 - `incomeGrossYearly`: double (optional, FactFind).
 - `savingsMonthly`: double (optional, FactFind).
 - `totalSavings`: double (optional, FactFind).
+- `totalDebt`: double (optional, total debt balance; distinct from monthly debt payments).
 - `lppInsuredSalary`: double (optional, FactFind).
+- `avoirLpp`: double (optional).
+- `lppBuybackMax`: double (optional).
+- `pillar3aBalance`: double (optional).
 - `hasDebt`: boolean (default false).
 - `goal`: enum (house, retire, emergency, invest, optimize_taxes, other).
 - `factfindCompletionIndex`: double (0.0 to 1.0).
+- `gender`: string (optional).
 - `employmentStatus`: string (optional).
 - `has2ndPillar`: boolean (optional).
 - `legalForm`: string (optional).
@@ -28,11 +34,16 @@ The backend `Profile` schema is the authoritative contract for API communication
 - `primaryActivity`: string (optional).
 - `hasAvsGaps`: boolean (optional).
 - `avsContributionYears`: int (optional).
-- `spouseAvsContributionYears`: int (optional).
+- `spouseBirthYear`: int (optional; only valid for `couple`, `concubine`, or `family`).
+- `spouseIncomeNetMonthly`: double (optional; only valid for `couple`, `concubine`, or `family`).
+- `spouseAvsContributionYears`: int (optional; only valid for `couple`, `concubine`, or `family`).
 - `commune`: string (optional, NPA ou nom commune — pour multiplicateur fiscal précis).
 - `isChurchMember`: boolean (default false, impôt ecclésiastique).
 - `pillar3aAnnual`: double (optional, versement annuel 3a — pour déduction fiscale).
 - `wealthEstimate`: double (optional, fortune nette estimée).
+- `nationality`: string (optional, ISO 3166-1 alpha-2).
+- `usTaxPerson`: boolean (optional, tri-state FATCA self-declaration).
+- `targetRetirementAge`: int (optional, 58 to 70).
 
 > **NOTE**: `archetype`, `retirementAge`, `relationshipStatus`, `dataSources`, `dataTimestamps`, and `conjointProfile` do NOT exist on the backend `Profile` schema. See §1b.
 

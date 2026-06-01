@@ -66,7 +66,7 @@ mirrors to SharedPreferences. **This is the only legal write path.**
 | 2 | **Mini-onboarding** | `smart_flow_screen.dart` | Subset of `q_*` (3 questions) | `ReportPersistenceService.setMiniOnboardingCompleted(true)` |
 | 3 | **Scan confirmation** | `extraction_review_screen.dart:659` → `updateFrom{Lpp,Avs,Tax,Salary}Extraction` | `_coach_avoir_lpp*`, `_coach_salaire_assure`, `_coach_rachat_maximum`, `_coach_taux_conversion*`, `_coach_avs_*`, `_coach_tax_*` + `_coach_<type>_source = 'document_scan'` | Post-scan flow |
 | 4 | **Coach chat inline picker** | `coach_chat_screen.dart` → `coachProvider.mergeAnswers()` | Arbitrary `q_*` single field | User taps inline picker in conversation |
-| 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_total_3a`, `_coach_rachat_maximum` (restricted to 1st-person matches) | Every coach chat send |
+| 5 | **Dart regex fact fallback** | `lib/services/chat/fact_extraction_fallback.dart` → `applySaveFact` → `mergeAnswers` | `q_birth_year`, `q_date_of_birth`, `q_net_income_period_chf`, `q_gross_salary_annual`, `_coach_avoir_lpp`, `_coach_salaire_assure`, `q_3a_total`, `_coach_rachat_maximum`, `q_total_debt_balance_chf` (restricted to 1st-person matches) | Every coach chat send |
 | 6 | **Budget setup form** | `budget_setup_screen.dart` → `coachProvider.mergeAnswers` + `budgetProvider.refreshFromProfile` | `q_housing_cost_period_chf`, `q_lamal_premium_monthly_chf`, `q_pay_frequency='monthly'`, `_coach_depenses_{transport,telecom,electricite,frais_medicaux,autres}` | Tap « Enregistrer » |
 | 7 | **Annual refresh** (scheduled) | `updateFromRefresh` (CoachProfileProvider) | Updates `_coach_updated_at` + tax + salary | Annual trigger (currently orphaned, cf façade audit) |
 
@@ -106,8 +106,9 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
 
 **AVS (1st pillar)**
 - `q_avs_lacunes_status`, `q_avs_years_abroad`, `q_avs_contribution_years`,
-  `q_avs_arrival_year`, `_coach_avs_rente_estimee`, `_coach_avs_lacunes`,
-  `_coach_avs_ramd`, `_coach_avs_source`
+  `q_avs_arrival_year`, `q_spouse_avs_contribution_years`,
+  `_coach_avs_rente_estimee`, `_coach_avs_lacunes`, `_coach_avs_ramd`,
+  `_coach_avs_source`
 
 **LPP (2nd pillar)**
 - `q_avoir_lpp` (total legacy), `_coach_avoir_lpp` (scanned total),
@@ -153,7 +154,7 @@ Defined in
 [`services/backend/app/api/v1/endpoints/coach_chat.py:924`](../services/backend/app/api/v1/endpoints/coach_chat.py).
 The LLM (Claude) is only allowed to invoke `save_fact` with these
 canonical keys. The Dart-side `_mapFactKeyToAnswers` in
-[`coach_profile_provider.dart:557-625`](../apps/mobile/lib/providers/coach_profile_provider.dart)
+[`coach_profile_provider.dart`](../apps/mobile/lib/providers/coach_profile_provider.dart)
 translates every LLM canonical key to one or more `q_*` / `_coach_*`
 wizard keys.
 
@@ -176,6 +177,22 @@ wizard keys.
 `spouseAvsContributionYears`
 
 **AVS**: `hasAvsGaps`, `avsContributionYears`
+
+**Safe-mapping rules.**
+
+- `pillar3aBalance` maps to `q_3a_total`; legacy `q_total_3a` is not a
+  writer target.
+- `totalDebt` maps to `q_total_debt_balance_chf`. It is a remaining debt
+  balance, not a monthly debt payment and not a categorized debt bucket.
+- `hasDebt=true` only records that the user has consumer debt; it must not
+  synthesize a debt balance.
+- `wealthEstimate` is intentionally not mapped to `q_cash_total`, because
+  total wealth is not liquid cash.
+- `hasAvsGaps=true` is intentionally not mapped to a numeric gap estimate.
+  `hasAvsGaps=false` can map to `q_avs_lacunes_status=no_gaps`.
+- Spouse facts only carry spouse facts. A spouse profile can exist without
+  spouse income, but backend writes reject spouse fields unless
+  `householdType` is `couple`, `concubine`, or `family`.
 
 **⚠ Trap.** Adding a new canonical key to the backend whitelist without
 also adding a Dart mapping in `_mapFactKeyToAnswers` = the fact is silently

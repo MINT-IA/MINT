@@ -216,7 +216,7 @@ def test_profiles_me_roundtrips_identity_archetype_signals(client: TestClient):
         "/api/v1/profiles",
         headers={"Authorization": f"Bearer {token}"},
         json={
-            "householdType": "single",
+            "householdType": "couple",
             "birthYear": 1981,
             "dateOfBirth": "1981-06-15",
             "canton": "VD",
@@ -488,6 +488,9 @@ def test_claim_local_data_promotes_material_profile_facts(auth_client: TestClien
             "_coach_dettes_leasing": 3000,
             "_coach_dettes_hypotheque": 500000,
             "q_avs_contribution_years": 20,
+            "q_partner_birth_year": 1982,
+            "q_partner_net_income_chf": 5000,
+            "q_spouse_avs_contribution_years": 18,
         },
     }
 
@@ -524,6 +527,86 @@ def test_claim_local_data_promotes_material_profile_facts(auth_client: TestClien
     assert body["pillar3aAnnual"] == 7056
     assert body["hasDebt"] is True
     assert body["avsContributionYears"] == 20
+    assert body["spouseBirthYear"] == 1982
+    assert body["spouseIncomeNetMonthly"] == 5000
+    assert body["spouseAvsContributionYears"] == 18
+
+
+def test_claim_local_data_drops_spouse_facts_for_single_household(
+    auth_client: TestClient,
+):
+    register = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "claim-single-spouse@example.com", "password": "claimpass123"},
+    )
+    token = register.json()["access_token"]
+
+    claim = auth_client.post(
+        "/api/v1/sync/claim-local-data",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "local_data_version": 2,
+            "device_id": "ios-device-single-spouse123",
+            "mini_onboarding": {"q_household_type": "single"},
+            "wizard_answers": {
+                "q_partner_birth_year": 1982,
+                "q_partner_net_income_chf": 5000,
+                "q_spouse_avs_contribution_years": 18,
+            },
+        },
+    )
+
+    assert claim.status_code == 200
+    profile = auth_client.get(
+        "/api/v1/profiles/me",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert profile.status_code == 200
+    body = profile.json()
+    assert body["householdType"] == "single"
+    assert body["spouseBirthYear"] is None
+    assert body["spouseIncomeNetMonthly"] is None
+    assert body["spouseAvsContributionYears"] is None
+
+
+def test_claim_local_data_rejects_out_of_bounds_spouse_facts(
+    auth_client: TestClient,
+):
+    register = auth_client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "claim-invalid-spouse@example.com",
+            "password": "claimpass123",
+        },
+    )
+    token = register.json()["access_token"]
+
+    claim = auth_client.post(
+        "/api/v1/sync/claim-local-data",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "local_data_version": 2,
+            "device_id": "ios-device-invalid-spouse123",
+            "mini_onboarding": {"q_household_type": "couple"},
+            "wizard_answers": {
+                "q_partner_birth_year": 2099,
+                "q_partner_net_income_chf": 5000,
+                "q_spouse_avs_contribution_years": 44.9,
+            },
+        },
+    )
+
+    assert claim.status_code == 200
+    profile = auth_client.get(
+        "/api/v1/profiles/me",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert profile.status_code == 200
+    body = profile.json()
+    assert body["householdType"] == "couple"
+    assert body["spouseBirthYear"] is None
+    assert body["spouseIncomeNetMonthly"] == 5000
+    assert body["spouseAvsContributionYears"] is None
 
 
 def test_claim_local_data_does_not_synthesize_unsafe_profile_facts(

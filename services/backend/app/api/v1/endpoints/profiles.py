@@ -19,6 +19,27 @@ from app.services.profile_bootstrap import ensure_empty_profile
 
 router = APIRouter()
 
+_SPOUSE_PROFILE_KEYS = (
+    "spouseBirthYear",
+    "spouseIncomeNetMonthly",
+    "spouseSalaryGrossAnnual",
+    "spouseEmploymentStatus",
+    "spouseAvsContributionYears",
+    "householdGrossIncome",
+)
+
+
+def _contains_spouse_payload(payload: dict) -> bool:
+    return any(payload.get(key) is not None for key in _SPOUSE_PROFILE_KEYS)
+
+
+def _profile_data_for_response(raw_data: dict) -> dict:
+    data = dict(raw_data)
+    if data.get("householdType") == "single":
+        for spouse_key in _SPOUSE_PROFILE_KEYS:
+            data.pop(spouse_key, None)
+    return data
+
 
 @router.get("/me", response_model=Profile)
 @limiter.limit("30/minute")
@@ -60,7 +81,7 @@ def get_my_profile(
         # on the dict access below.
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    data = db_profile.data
+    data = _profile_data_for_response(db_profile.data)
     return Profile(
         id=data["id"],
         birthYear=data.get("birthYear"),
@@ -201,7 +222,7 @@ def get_profile(
         raise HTTPException(status_code=404, detail="Profile not found")
 
     # Convert from JSON data to Profile model
-    data = db_profile.data
+    data = _profile_data_for_response(db_profile.data)
     profile = Profile(
         id=data["id"],
         birthYear=data.get("birthYear"),
@@ -268,20 +289,24 @@ def update_profile(
         raise HTTPException(status_code=404, detail="Profile not found")
 
     # Update data
-    data = db_profile.data
+    data = dict(db_profile.data)
     update_data = profile_update.model_dump(exclude_unset=True)
+    next_household_type = update_data.get("householdType", data.get("householdType"))
+    if (
+        next_household_type == "single"
+        and update_data.get("householdType") != "single"
+        and _contains_spouse_payload(update_data)
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail="single household cannot include spouse fields",
+        )
 
     # Cascade clear: when household becomes single, remove spouse-specific data
     if "householdType" in update_data and update_data["householdType"] == "single":
-        for spouse_key in [
-            "spouseBirthYear",
-            "spouseIncomeNetMonthly",
-            "spouseSalaryGrossAnnual",
-            "spouseEmploymentStatus",
-            "spouseAvsContributionYears",
-            "householdGrossIncome",
-        ]:
+        for spouse_key in _SPOUSE_PROFILE_KEYS:
             data.pop(spouse_key, None)
+            update_data.pop(spouse_key, None)
 
     for key, value in update_data.items():
         data[key] = value
