@@ -15,7 +15,6 @@ import 'package:mint_mobile/widgets/report/thematic_card.dart';
 // removed — widgets/alert/ cluster deleted with AnticipationProvider (Panel A
 // P0-3/P0-6). Debt state is now surfaced exclusively via SafeModeGate wrapper
 // at screen level, not a dedicated alert widget here.
-import 'package:mint_mobile/widgets/report/budget_waterfall.dart';
 import 'package:mint_mobile/widgets/report/retirement_projection_card.dart';
 import 'package:mint_mobile/widgets/comparators/pillar3a_comparator_widget.dart';
 import 'package:mint_mobile/widgets/educational_explanation_widget.dart';
@@ -391,20 +390,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
       status: status,
       keyNumber: formatChfWithPrefix(present.monthlyFree),
       keyNumberLabel: S.of(context)!.reportBudgetKeyLabel,
-      actionLabel: S.of(context)!.reportBudgetAction,
-      onActionTap: () => context.push('/budget'),
       children: [
-        BudgetWaterfall(
-          income: present.monthlyNet,
-          housing: PresentBudgetBuilder.displayChf(inputs.housingCost),
-          debt: PresentBudgetBuilder.displayChf(inputs.debtPayments),
-          taxes: PresentBudgetBuilder.displayChf(inputs.taxProvision),
-          healthInsurance:
-              PresentBudgetBuilder.displayChf(inputs.healthInsurance),
-          otherFixed: PresentBudgetBuilder.displayChf(inputs.otherFixedCosts),
-          fixedChargesLabel: S.of(context)!.summaryChargesFixes,
-          showAvailableRow: false,
-        ),
+        _buildBudgetProofSummary(context, present),
       ],
     );
   }
@@ -437,18 +424,53 @@ class FinancialReportScreenV2 extends StatelessWidget {
       status: status,
       keyNumber: formatChfWithPrefix(present.monthlyFree),
       keyNumberLabel: S.of(context)!.reportBudgetKeyLabel,
-      actionLabel: S.of(context)!.reportBudgetAction,
-      onActionTap: () => context.push('/budget'),
       children: [
-        BudgetWaterfall(
-          income: present.monthlyNet,
-          housing: present.monthlyHousing,
-          debt: present.monthlyDebt,
-          taxes: present.monthlyTax,
-          healthInsurance: present.monthlyHealth,
-          otherFixed: present.monthlyOtherFixed,
-          fixedChargesLabel: S.of(context)!.summaryChargesFixes,
-          showAvailableRow: false,
+        _buildBudgetProofSummary(context, present),
+      ],
+    );
+  }
+
+  Widget _buildBudgetProofSummary(BuildContext context, PresentBudget present) {
+    return Column(
+      children: [
+        _budgetProofRow(
+          S.of(context)!.budgetNetIncome,
+          formatChfWithPrefix(present.monthlyNet),
+          MintColors.success,
+        ),
+        const SizedBox(height: 8),
+        _budgetProofRow(
+          S.of(context)!.summaryChargesFixes,
+          '\u2013 ${formatChfWithPrefix(present.monthlyCharges)}',
+          MintColors.textSecondary,
+          isBold: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _budgetProofRow(
+    String label,
+    String value,
+    Color color, {
+    bool isBold = false,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: MintTextStyles.bodySmall(
+              color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
+            ).copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w400),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          value,
+          style: MintTextStyles.bodySmall(color: color)
+              .copyWith(fontWeight: isBold ? FontWeight.w700 : FontWeight.w500),
         ),
       ],
     );

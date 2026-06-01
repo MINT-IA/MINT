@@ -43,12 +43,12 @@ MintUserState _stateWithStaleBudgetSnapshot() {
     budgetSnapshot: const BudgetSnapshot(
       present: PresentBudget(
         monthlyNet: 7410,
-        monthlyHousing: 1927,
-        monthlyTax: 1123,
-        monthlyHealth: 420,
-        monthlyCharges: 3470,
-        monthlySavings: 588,
-        monthlyFree: 3352,
+        monthlyHousing: 1600,
+        monthlyTax: 900,
+        monthlyHealth: 500,
+        monthlyCharges: 3000,
+        monthlySavings: 0,
+        monthlyFree: 4410,
       ),
       capImpacts: [],
       stage: BudgetStage.presentOnly,
@@ -173,11 +173,10 @@ void main() {
     expect(find.textContaining('Ton Budget'), findsOneWidget);
     expect(find.textContaining('Charges fixes totales'), findsOneWidget);
     expect(find.textContaining("5'000"), findsWidgets);
-    expect(find.textContaining("2'200"), findsWidgets);
-    expect(find.textContaining('458'), findsWidgets);
-    expect(find.textContaining('420'), findsWidgets);
     expect(find.textContaining("3'078"), findsWidgets);
     expect(find.textContaining("1'922"), findsWidgets);
+    expect(find.textContaining('Logement'), findsNothing);
+    expect(find.textContaining('Primes LAMal'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -218,8 +217,11 @@ void main() {
 
     expect(find.textContaining('Ton Budget'), findsOneWidget);
     expect(find.textContaining("3'352"), findsWidgets);
-    expect(find.textContaining("2'200"), findsWidgets);
-    expect(find.textContaining('420'), findsWidgets);
+    expect(find.textContaining("7'410"), findsWidgets);
+    expect(find.textContaining("3'470"), findsWidgets);
+    expect(find.textContaining('Logement'), findsNothing);
+    expect(find.textContaining('Primes LAMal'), findsNothing);
+    expect(find.textContaining('Configurer mes enveloppes'), findsNothing);
     expect(find.textContaining("Ton bilan financier"), findsNothing);
     expect(tester.takeException(), isNull);
   });
@@ -269,11 +271,9 @@ void main() {
 
     expect(find.textContaining('Ton Budget'), findsOneWidget);
     expect(find.textContaining("3'352"), findsWidgets);
-    expect(find.textContaining("2'200"), findsWidgets);
-    expect(find.textContaining('850'), findsWidgets);
-    expect(find.textContaining('420'), findsWidgets);
-    expect(find.textContaining("1'927"), findsNothing);
-    expect(find.textContaining("1'123"), findsNothing);
+    expect(find.textContaining("3'470"), findsWidgets);
+    expect(find.textContaining("4'410"), findsNothing);
+    expect(find.textContaining("3'000"), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -315,11 +315,11 @@ void main() {
     await _pumpFrames(tester, frames: 20);
 
     expect(find.textContaining('Ton Budget'), findsOneWidget);
-    expect(find.textContaining("2'200"), findsWidgets);
-    expect(find.textContaining('850'), findsWidgets);
-    expect(find.textContaining('420'), findsWidgets);
-    expect(find.textContaining("1'927"), findsNothing);
-    expect(find.textContaining("1'123"), findsNothing);
+    expect(find.textContaining("3'470"), findsWidgets);
+    expect(find.textContaining("4'410"), findsNothing);
+    expect(find.textContaining("3'000"), findsNothing);
+    expect(find.textContaining('Logement'), findsNothing);
+    expect(find.textContaining('Primes LAMal'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

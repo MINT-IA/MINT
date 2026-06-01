@@ -4,11 +4,10 @@
 # Canonical runtime proof for the MINT money trust chain:
 # Budget setup exposes deterministic monthly fixed-charge entry, Budget restores
 # the seeded read model after restart, Mon Argent exposes the same money read
-# model, Rapport reuses it, and Coach remains reachable without absurd captured
-# values leaking into visible surfaces. The recommended E2E build seeds the
-# `julien_swiss` archetype, so post-restart proof numbers below come from that
-# seed's shared Budget/Money/Rapport read model rather than an empty-profile
-# fallback.
+# model, Rapport shows only the executive summary (no Budget-screen duplicate),
+# and Coach remains reachable without absurd captured values leaking into visible
+# surfaces. The recommended E2E build seeds the `julien_swiss` archetype, so
+# post-restart proof numbers below come from that seed's shared read model.
 #
 # PRE-CONDITION
 # - App ch.mint.app installed on a booted iPhone simulator.
@@ -138,15 +137,11 @@ tags:
     timeout: 12000
 - assertVisible: "Ton Budget"
 - assertVisible:
-    text: ".*1'927.*"
-- assertVisible:
-    text: ".*1'123.*"
-- assertVisible:
-    text: ".*420.*"
-- assertVisible:
     text: ".*3'940.*"
 - assertVisible:
     text: ".*3'470.*"
+- assertNotVisible: "Logement"
+- assertNotVisible: "Primes LAMal"
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
 - assertNotVisible: "19M"
