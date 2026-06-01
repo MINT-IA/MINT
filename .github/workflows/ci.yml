@@ -659,6 +659,8 @@ jobs:
           done
           if [ "$FOUND" -ne 0 ]; then exit 1; fi
           echo "[OK] no unsafe release dart-defines in prod build workflows"
+      - name: Scan iOS Release Info.plist for debug keys
+        run: python3 tools/checks/ios_release_info_plist_drift.py
 
   # ─── Phase 32 Plan 32-05 / D-12 §5: .cache/ gitignore (D-09 §3) ──
   # Belt-and-suspenders on the nLPD 7-day retention control. The CLI
