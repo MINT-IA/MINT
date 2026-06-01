@@ -446,6 +446,117 @@ def test_claim_local_data_creates_and_updates_cloud_profile(auth_client: TestCli
     assert second_body["profile_id"] == first_body["profile_id"]
 
 
+def test_claim_local_data_promotes_material_profile_facts(auth_client: TestClient):
+    """Claimed local truth must survive account recovery through /profiles/me."""
+    register = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "claim-rich-profile@example.com", "password": "claimpass123"},
+    )
+    token = register.json()["access_token"]
+
+    payload = {
+        "local_data_version": 2,
+        "device_id": "ios-device-rich123",
+        "mini_onboarding": {
+            "q_canton": "VD",
+            "q_household_type": "couple",
+            "q_goal": "retire",
+        },
+        "wizard_answers": {
+            "q_date_of_birth": "1981-06-15",
+            "q_gross_salary_annual": 120000,
+            "q_pay_frequency": "monthly",
+            "q_net_income_period_chf": 7600,
+            "q_employment_status": "salarie",
+            "q_gender": "M",
+            "q_commune": "Lausanne",
+            "q_target_retirement_age": 64,
+            "q_savings_monthly": 1500,
+            "q_cash_total": 18000,
+            "_coach_avoir_lpp": 250000,
+            "_coach_salaire_assure": 88000,
+            "_coach_rachat_maximum": 42000,
+            "q_3a_total": 36000,
+            "q_3a_annual_contribution": 7056,
+            "_coach_dettes_credit": 12000,
+            "_coach_dettes_leasing": 3000,
+            "_coach_dettes_hypotheque": 500000,
+            "q_avs_contribution_years": 20,
+        },
+    }
+
+    claim = auth_client.post(
+        "/api/v1/sync/claim-local-data",
+        headers={"Authorization": f"Bearer {token}"},
+        json=payload,
+    )
+    assert claim.status_code == 200
+
+    profile = auth_client.get(
+        "/api/v1/profiles/me",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert profile.status_code == 200
+    body = profile.json()
+    assert body["dateOfBirth"] == "1981-06-15"
+    assert body["birthYear"] == 1981
+    assert body["canton"] == "VD"
+    assert body["householdType"] == "couple"
+    assert body["goal"] == "retire"
+    assert body["incomeGrossYearly"] == 120000
+    assert body["incomeNetMonthly"] == 7600
+    assert body["employmentStatus"] == "salarie"
+    assert body["gender"] == "M"
+    assert body["commune"] == "Lausanne"
+    assert body["targetRetirementAge"] == 64
+    assert body["savingsMonthly"] == 1500
+    assert body["totalSavings"] == 18000
+    assert body["avoirLpp"] == 250000
+    assert body["lppInsuredSalary"] == 88000
+    assert body["lppBuybackMax"] == 42000
+    assert body["pillar3aBalance"] == 36000
+    assert body["pillar3aAnnual"] == 7056
+    assert body["hasDebt"] is True
+    assert body["avsContributionYears"] == 20
+
+
+def test_claim_local_data_does_not_synthesize_unsafe_profile_facts(
+    auth_client: TestClient,
+):
+    """Claim promotion must not invent facts from proxies or structural debt."""
+    register = auth_client.post(
+        "/api/v1/auth/register",
+        json={"email": "claim-no-synthesis@example.com", "password": "claimpass123"},
+    )
+    token = register.json()["access_token"]
+
+    claim = auth_client.post(
+        "/api/v1/sync/claim-local-data",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "local_data_version": 2,
+            "device_id": "ios-device-nosynth123",
+            "wizard_answers": {
+                "q_net_income_period_chf": 72000,
+                "q_pay_frequency": "yearly",
+                "_coach_dettes_hypotheque": 500000,
+                "q_debt_payments_period_chf": 2200,
+            },
+        },
+    )
+    assert claim.status_code == 200
+
+    profile = auth_client.get(
+        "/api/v1/profiles/me",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert profile.status_code == 200
+    body = profile.json()
+    assert body["incomeNetMonthly"] == 6000
+    assert body["incomeGrossYearly"] is None
+    assert body["hasDebt"] is False
+
+
 def test_password_reset_flow_and_single_use_token(auth_client: TestClient):
     """Password reset request/confirm should allow login with new password only."""
     register = auth_client.post(

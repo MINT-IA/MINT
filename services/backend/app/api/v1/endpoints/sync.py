@@ -4,6 +4,8 @@ Sync endpoints for local-first data claim into authenticated cloud profile.
 
 import logging
 from datetime import datetime, timezone
+from typing import Optional
+
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
@@ -17,6 +19,22 @@ from app.schemas.sync import ClaimLocalDataRequest, ClaimLocalDataResponse
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+_BOOTSTRAP_PROFILE_KEYS = {
+    "id",
+    "createdAt",
+    "householdType",
+    "hasDebt",
+    "goal",
+    "factfindCompletionIndex",
+    "isChurchMember",
+}
+
+_CONSUMER_DEBT_CAPITAL_KEYS = (
+    "_coach_dettes_credit",
+    "_coach_dettes_leasing",
+    "_coach_dettes_autres",
+)
 
 
 def _pick_household(payload: ClaimLocalDataRequest) -> str:
@@ -32,6 +50,236 @@ def _pick_household(payload: ClaimLocalDataRequest) -> str:
     if household not in {"single", "couple", "concubine", "family"}:
         return "single"
     return household
+
+
+def _first_present(*values):
+    for value in values:
+        if value is None:
+            continue
+        if isinstance(value, str) and not value.strip():
+            continue
+        return value
+    return None
+
+
+def _as_float(value) -> Optional[float]:
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        normalized = value.replace("'", "").replace(" ", "").strip()
+        if not normalized:
+            return None
+        try:
+            return float(normalized)
+        except ValueError:
+            return None
+    return None
+
+
+def _as_int(value) -> Optional[int]:
+    number = _as_float(value)
+    if number is None:
+        return None
+    return int(number)
+
+
+def _as_bool(value) -> Optional[bool]:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "yes", "oui", "1"}:
+            return True
+        if normalized in {"false", "no", "non", "0"}:
+            return False
+    return None
+
+
+def _valid_iso_date(value) -> Optional[str]:
+    if not isinstance(value, str):
+        return None
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError:
+        return None
+    return parsed.date().isoformat()
+
+
+def _birth_year_from_date(date_of_birth: Optional[str]) -> Optional[int]:
+    if not date_of_birth:
+        return None
+    try:
+        return datetime.fromisoformat(date_of_birth).year
+    except ValueError:
+        return None
+
+
+def _net_monthly_income(payload: ClaimLocalDataRequest) -> Optional[float]:
+    mini = payload.mini_onboarding
+    wizard = payload.wizard_answers
+    direct_monthly = _as_float(
+        _first_present(
+            mini.get("q_income_monthly"),
+            wizard.get("incomeNetMonthly"),
+        )
+    )
+    if direct_monthly is not None:
+        return direct_monthly
+
+    period_income = _as_float(wizard.get("q_net_income_period_chf"))
+    if period_income is None:
+        return None
+
+    frequency = str(wizard.get("q_pay_frequency", "monthly")).strip().lower()
+    if frequency in {"yearly", "annual", "annuel"}:
+        return period_income / 12
+    return period_income
+
+
+def _consumer_debt_total(wizard_answers: dict) -> float:
+    total = 0.0
+    for key in _CONSUMER_DEBT_CAPITAL_KEYS:
+        total += _as_float(wizard_answers.get(key)) or 0.0
+    return total
+
+
+def _goal(payload: ClaimLocalDataRequest) -> str:
+    goal = _first_present(
+        payload.mini_onboarding.get("q_goal"),
+        payload.wizard_answers.get("q_goal"),
+        payload.wizard_answers.get("goal"),
+    )
+    if goal in {"house", "retire", "emergency", "invest", "optimize_taxes", "other"}:
+        return goal
+    return "other"
+
+
+def _profile_fields_from_claim(payload: ClaimLocalDataRequest) -> dict:
+    mini = payload.mini_onboarding
+    wizard = payload.wizard_answers
+    date_of_birth = _valid_iso_date(
+        _first_present(
+            wizard.get("q_date_of_birth"),
+            mini.get("q_date_of_birth"),
+            wizard.get("dateOfBirth"),
+        )
+    )
+    consumer_debt_total = _consumer_debt_total(wizard)
+    explicit_has_debt = _as_bool(
+        _first_present(
+            wizard.get("q_has_debt"),
+            wizard.get("q_has_consumer_debt"),
+            wizard.get("hasDebt"),
+        )
+    )
+
+    fields = {
+        "householdType": _pick_household(payload),
+        "dateOfBirth": date_of_birth,
+        "birthYear": _as_int(
+            _first_present(
+                mini.get("q_birth_year"),
+                wizard.get("q_birth_year"),
+                wizard.get("birthYear"),
+                _birth_year_from_date(date_of_birth),
+            )
+        ),
+        "canton": _first_present(
+            mini.get("q_canton"),
+            wizard.get("q_canton"),
+            wizard.get("canton"),
+        ),
+        "commune": _first_present(wizard.get("q_commune"), wizard.get("commune")),
+        "incomeNetMonthly": _net_monthly_income(payload),
+        "incomeGrossYearly": _as_float(
+            _first_present(
+                wizard.get("q_gross_salary_annual"),
+                wizard.get("incomeGrossYearly"),
+            )
+        ),
+        "savingsMonthly": _as_float(
+            _first_present(
+                wizard.get("q_savings_monthly"), wizard.get("savingsMonthly")
+            )
+        ),
+        "totalSavings": _as_float(
+            _first_present(
+                wizard.get("q_cash_total"),
+                wizard.get("q_epargne_liquide"),
+                wizard.get("totalSavings"),
+            )
+        ),
+        "goal": _goal(payload),
+        "employmentStatus": _first_present(
+            wizard.get("q_employment_status"),
+            wizard.get("employmentStatus"),
+        ),
+        "gender": _first_present(wizard.get("q_gender"), wizard.get("gender")),
+        "targetRetirementAge": _as_int(
+            _first_present(
+                wizard.get("q_target_retirement_age"),
+                wizard.get("targetRetirementAge"),
+            )
+        ),
+        "lppInsuredSalary": _as_float(
+            _first_present(
+                wizard.get("_coach_salaire_assure"),
+                wizard.get("lppInsuredSalary"),
+            )
+        ),
+        "avoirLpp": _as_float(
+            _first_present(
+                wizard.get("_coach_avoir_lpp"),
+                wizard.get("q_avoir_lpp"),
+                wizard.get("avoirLpp"),
+            )
+        ),
+        "lppBuybackMax": _as_float(
+            _first_present(
+                wizard.get("_coach_rachat_maximum"),
+                wizard.get("lppBuybackMax"),
+            )
+        ),
+        "pillar3aBalance": _as_float(
+            _first_present(
+                wizard.get("q_3a_total"),
+                wizard.get("q_total_3a"),
+                wizard.get("_coach_total_3a"),
+                wizard.get("pillar3aBalance"),
+            )
+        ),
+        "pillar3aAnnual": _as_float(
+            _first_present(
+                wizard.get("q_3a_annual_contribution"),
+                wizard.get("pillar3aAnnual"),
+            )
+        ),
+        "hasDebt": explicit_has_debt
+        if explicit_has_debt is not None
+        else (True if consumer_debt_total > 0 else None),
+        "avsContributionYears": _as_int(
+            _first_present(
+                wizard.get("q_avs_contribution_years"),
+                wizard.get("avsContributionYears"),
+            )
+        ),
+    }
+    return {key: value for key, value in fields.items() if value is not None}
+
+
+def _is_bootstrap_profile(data: dict) -> bool:
+    return "localDataClaim" not in data and set(data).issubset(_BOOTSTRAP_PROFILE_KEYS)
+
+
+def _merge_claim_fields(existing_data: dict, claim_fields: dict) -> dict:
+    data = dict(existing_data)
+    bootstrap_profile = _is_bootstrap_profile(data)
+    for key, value in claim_fields.items():
+        if key not in data or data[key] is None or bootstrap_profile:
+            data[key] = value
+    return data
 
 
 @router.post("/claim-local-data", response_model=ClaimLocalDataResponse)
@@ -85,8 +333,8 @@ def claim_local_data(
                         current_user.id,
                         body.device_id,
                     )
-                    merged_fields_count = (
-                        len(body.mini_onboarding) + len(body.wizard_answers)
+                    merged_fields_count = len(body.mini_onboarding) + len(
+                        body.wizard_answers
                     )
                     return ClaimLocalDataResponse(
                         status="ok",
@@ -106,9 +354,7 @@ def claim_local_data(
         # Fallback gate: version integer (backward compat for old clients)
         existing_version = existing_meta.get("localDataVersion", 0)
         if not incoming_updated_at and existing_version >= body.local_data_version:
-            merged_fields_count = (
-                len(body.mini_onboarding) + len(body.wizard_answers)
-            )
+            merged_fields_count = len(body.mini_onboarding) + len(body.wizard_answers)
             return ClaimLocalDataResponse(
                 status="ok",
                 profile_id=existing_profile.id,
@@ -128,32 +374,12 @@ def claim_local_data(
         "budgetSnapshot": body.budget_snapshot,
         "checkins": body.checkins,
     }
+    claim_fields = _profile_fields_from_claim(body)
 
     if existing_profile:
-        data = dict(existing_profile.data)
+        data = _merge_claim_fields(existing_profile.data, claim_fields)
         data["localDataClaim"] = claim_blob
-
-        # Fill key top-level profile fields when missing to improve immediate UX.
-        data.setdefault("householdType", _pick_household(body))
         data.setdefault("createdAt", now.isoformat())
-        if "birthYear" not in data:
-            data["birthYear"] = (
-                body.mini_onboarding.get("q_birth_year")
-                or body.wizard_answers.get("q_birth_year")
-                or body.wizard_answers.get("birthYear")
-            )
-        if "canton" not in data:
-            data["canton"] = (
-                body.mini_onboarding.get("q_canton")
-                or body.wizard_answers.get("q_canton")
-                or body.wizard_answers.get("canton")
-            )
-        if "incomeNetMonthly" not in data:
-            data["incomeNetMonthly"] = (
-                body.mini_onboarding.get("q_income_monthly")
-                or body.wizard_answers.get("q_net_income_period_chf")
-                or body.wizard_answers.get("incomeNetMonthly")
-            )
 
         existing_profile.data = data
         existing_profile.updated_at = now
@@ -173,19 +399,7 @@ def claim_local_data(
     profile_data = {
         "id": f"{current_user.id}-claimed",
         "createdAt": now.isoformat(),
-        "householdType": _pick_household(body),
-        "birthYear": body.mini_onboarding.get("q_birth_year")
-        or body.wizard_answers.get("q_birth_year")
-        or body.wizard_answers.get("birthYear"),
-        "canton": body.mini_onboarding.get("q_canton")
-        or body.wizard_answers.get("q_canton")
-        or body.wizard_answers.get("canton"),
-        "incomeNetMonthly": body.mini_onboarding.get("q_income_monthly")
-        or body.wizard_answers.get("q_net_income_period_chf")
-        or body.wizard_answers.get("incomeNetMonthly"),
-        "goal": body.mini_onboarding.get("q_goal")
-        or body.wizard_answers.get("q_goal")
-        or "other",
+        **claim_fields,
         "localDataClaim": claim_blob,
     }
     new_profile = ProfileModel(
