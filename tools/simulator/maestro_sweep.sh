@@ -310,7 +310,13 @@ done
     echo "3. The \`suspect_file\` is the first place to look."
     echo "4. \`oslog-mint.txt\` + \`last-screen.png\` are the second-line evidence."
   else
-    echo "All green. Infrastructure validated end-to-end."
+    echo "Selected tier \`$TIER\` is green."
+    echo ""
+    echo "Scope note: \`default\` and \`all\` intentionally exclude opt-in"
+    echo "deeplink/Universal Link flows, and they exclude FATCA unless"
+    echo "the dedicated \`fatca\` tier is run against an expat_us build."
+    echo "Do not use this summary alone as signed device/TestFlight or"
+    echo "store-signing evidence."
   fi
 } >> "$SUMMARY"
 

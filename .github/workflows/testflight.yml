@@ -24,10 +24,6 @@
 #   STAGING_API_URL                    (e.g. https://mint-staging.up.railway.app/api/v1)
 #   PROD_API_URL                       (e.g. https://api.mint.ch/api/v1)
 #
-# Optional:
-#   HUGGINGFACE_TOKEN                  (required for gated Gemma 3n download)
-#   SLM_MODEL_URL                      (custom model URL override)
-
 name: TestFlight
 
 on:
@@ -163,26 +159,6 @@ jobs:
       - name: Generate l10n
         run: flutter gen-l10n
 
-      - name: Validate SLM download configuration
-        env:
-          HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
-          SLM_MODEL_URL: ${{ secrets.SLM_MODEL_URL }}
-        run: |
-          if [[ -z "$HUGGINGFACE_TOKEN" && -z "$SLM_MODEL_URL" ]]; then
-            echo "::error::Missing SLM download config: set HUGGINGFACE_TOKEN or SLM_MODEL_URL."
-            exit 1
-          fi
-          if [[ -n "$SLM_MODEL_URL" ]]; then
-            case "$SLM_MODEL_URL" in
-              http://*|https://*) ;;
-              *)
-                echo "::error::SLM_MODEL_URL must be an absolute http(s) URL."
-                exit 1
-                ;;
-            esac
-          fi
-          echo "SLM download configuration is valid"
-
       - name: Backend health precheck
         run: |
           API_URL="${{ steps.env-config.outputs.api_url }}"
@@ -197,18 +173,13 @@ jobs:
       # ── Pre-build Flutter iOS (generates Xcode project + runs pod install) ──
       - name: Flutter build iOS (no codesign)
         env:
-          HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
-          SLM_MODEL_URL: ${{ secrets.SLM_MODEL_URL }}
           SENTRY_DSN_MOBILE: ${{ secrets.SENTRY_DSN_MOBILE }}
         run: |
           API_URL="${{ steps.env-config.outputs.api_url }}"
           EXTRA_DEFINES=""
-          # SECURITY (P0-9): HUGGINGFACE_TOKEN removed from dart-define.
-          # Tokens in dart-define are embedded in the binary and extractable.
-          # SLM model download uses runtime token via initializePlugin() instead.
-          if [[ -n "$SLM_MODEL_URL" ]]; then
-            EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SLM_MODEL_URL=$SLM_MODEL_URL"
-          fi
+          # SECURITY (P0-9): third-party model URLs/tokens must not be
+          # passed via dart-define. Dart defines are embedded in the binary.
+          # On-device SLM is stubbed in this release build.
           if [[ -n "$SENTRY_DSN_MOBILE" ]]; then
             EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SENTRY_DSN=$SENTRY_DSN_MOBILE"
           fi
@@ -243,18 +214,9 @@ jobs:
           }
 
       - name: Prepare DART_DEFINES for Xcode/Fastlane
-        env:
-          HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
-          SLM_MODEL_URL: ${{ secrets.SLM_MODEL_URL }}
         run: |
           API_URL="${{ steps.env-config.outputs.api_url }}"
           defines=("API_BASE_URL=$API_URL")
-          if [[ -n "$HUGGINGFACE_TOKEN" ]]; then
-            defines+=("HUGGINGFACE_TOKEN=$HUGGINGFACE_TOKEN")
-          fi
-          if [[ -n "$SLM_MODEL_URL" ]]; then
-            defines+=("SLM_MODEL_URL=$SLM_MODEL_URL")
-          fi
 
           encoded_list=()
           for def in "${defines[@]}"; do

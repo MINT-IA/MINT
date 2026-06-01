@@ -25,10 +25,15 @@
 #   3. The <host> serves /.well-known/apple-app-site-association as
 #      application/json with the matching appID + paths  (S004 fix)
 #
-# (1) + (2) are in the LOCAL build after this commit lands. (3) is
-# in services/backend/app/main.py after this commit lands but is
-# only LIVE on staging when Railway redeploys (typically on dev→
-# staging merge per project_testflight_ship_path memory).
+# Current 2026-06-01 release state :
+#   - (1) is present in Info.plist.
+#   - (3) is implemented by services/backend/app/main.py and must be
+#     verified on the exact host being associated.
+#   - (2) is NOT present in Runner.entitlements. Associated Domains was
+#     removed because the App Store provisioning profile for ch.mint.app
+#     did not include that capability and TestFlight archive failed.
+#     Re-adding it requires Apple Developer portal + fastlane match profile
+#     refresh in an isolated [ios-release] PR before any signed build claim.
 #
 # On the iOS Simulator, signed entitlements are NOT enforced — so
 # the entitlements presence is necessary but not sufficient. The sim
@@ -36,26 +41,11 @@
 # in many iOS versions, which means Universal Links on sim are
 # UNRELIABLE for full E2E validation pre-Railway-deploy.
 #
-# THIS FLOW THEREFORE SERVES 2 USE-CASES :
-#   USE-CASE A (immediate, pre-deploy) — RED state expected. The
-#     flow fails on step 4 because Safari opens, NOT MINT (the AASA
-#     isn't yet served on Railway, OR sim swcd bypass routes URL to
-#     Safari). This is the W7 iter#6 RED-state evidence.
-#   USE-CASE B (post-deploy, post-TestFlight) — GREEN state expected.
-#     After Railway redeploys (AASA live at staging) AND TestFlight
-#     build ships with signed entitlements, this flow GREENs on
-#     real iOS devices. The sim run may still fail due to sim swcd
-#     edge cases — but the canonical Universal Link gate is the
-#     iOS device check via TestFlight build (D-22 7-day soak).
-#
-# THE CANONICAL S004+F007 SIM PROOF for this iteration cycle is the
-# 2-part verification :
-#   (i) backend pytest test_aasa_endpoint.py 6/6 GREEN — proves the
-#       backend serves AASA with correct shape + Content-Type
-#   (ii) entitlements diff visible in Runner.entitlements — proves
-#        com.apple.developer.associated-domains is in the build
-# The Maestro flow LOCKS the regression — once Railway deploys, the
-# flow flips GREEN automatically on the next CI run.
+# This flow is opt-in and must be interpreted as a release gate, not as a
+# normal simulator regression. Backend AASA tests + Info.plist prove only
+# partial configuration. Full closure requires a signed TestFlight build
+# whose entitlements include com.apple.developer.associated-domains and a
+# real iOS device opening the associated HTTPS URL into MINT.
 #
 # ─── MAESTRO 2.5.1 SYNTAX ──────────────────────────────────────────────
 # Per https://docs.maestro.dev/api-reference/commands.
@@ -114,15 +104,17 @@ tags:
 # ── Step 5 — Optional capture for HUMAN-UAT evidence ──────────────────
 - takeScreenshot: /tmp/96_s004_universal_link_opens_app
 
-# ─── S004+F006+F007 RESOLUTION CONTRACT ───────────────────────────────
-# Acceptance : steps 3 + 4 (the 3-bug assertions) pass on iPhone 17 Pro
-# sim. Per CLAUDE.md §9.6, the run output IS the deterministic citation.
+# ─── S004+F006+F007 RELEASE CONTRACT ──────────────────────────────────
+# Simulator steps 3 + 4 are diagnostic only. Passing them does NOT close
+# S004/F007 for release because the simulator does not prove Apple
+# Developer provisioning, App Store match profile state, or real-device
+# Universal Link routing.
 #
 # Production validation requires TestFlight signed-entitlements build
-# (D-22 7-day staging soak). This sim run verifies the CONFIGURATION
-# (Info.plist + entitlements + AASA file served) — Apple's full prod
-# validation of the chain is deferred to the TestFlight gate.
+# (D-22 7-day staging soak). Until Runner.entitlements and the App Store
+# provisioning profile both include Associated Domains, this flow is
+# expected to remain an OPEN release gate, not a closed regression.
 #
-# This flow LIVES in CI : any future PR that removes
-# com.apple.developer.associated-domains, FlutterDeepLinkingEnabled,
-# or breaks the AASA endpoint fails this flow = PR blocked.
+# This flow is deliberately kept out of default/all sweeps. Any future PR
+# that claims Universal Links must run this on a signed build/device and
+# cite the resulting artifact.

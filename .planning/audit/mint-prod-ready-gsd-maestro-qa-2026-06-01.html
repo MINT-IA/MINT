@@ -85,6 +85,10 @@
           <tr><td>Claude Opus review</td><td>Analyzer cleanup diff; one blocker found and fixed</td><td class="pass">PASS after fix</td><td>Before commit</td></tr>
           <tr><td>Global Flutter analyze</td><td>No issues found</td><td class="pass">PASS</td><td>Before merge</td></tr>
           <tr><td>Global Flutter tests</td><td>9056 pass, 24 skipped, 0 failures</td><td class="pass">PASS</td><td>Before merge</td></tr>
+          <tr><td>iOS capability drift</td><td><code>python3 tools/checks/ios_release_capability_drift.py</code></td><td class="pass">PASS</td><td>Before iOS release workflow edits</td></tr>
+          <tr><td>Release model-secret guard</td><td><code>grep</code> for <code>HUGGINGFACE_TOKEN</code>/<code>SLM_MODEL_URL</code> in prod release workflows</td><td class="pass">PASS after fix</td><td>CI release sanity now blocks regression</td></tr>
+          <tr><td>Universal Links release gate</td><td><code>Runner.entitlements</code> has no Associated Domains entitlement; <code>mint.ch</code> AASA has empty details</td><td class="warn">OPEN</td><td>Requires signed TestFlight/device proof before any production claim</td></tr>
+          <tr><td>Maestro sweep scope wording</td><td><code>maestro_sweep.sh</code> footer updated</td><td class="pass">PASS after fix</td><td>Future summaries distinguish selected-tier green from full release evidence</td></tr>
         </tbody>
       </table>
     </section>
@@ -107,6 +111,9 @@
           <tr><td>QA-011</td><td>P1</td><td>Onboarding terminal seal</td><td class="pass">Fixed</td><td>Secure-store failure seeds current session only; no raw PII in SharedPreferences; S005 Maestro green</td></tr>
           <tr><td>QA-012</td><td>P1</td><td>Anonymous chat restore fade</td><td class="pass">Fixed</td><td>Claude blocker fixed; restored first bubble opacity locked by widget test</td></tr>
           <tr><td>QA-013</td><td>P1</td><td>Coach empty-state cascade</td><td class="pass">Fixed</td><td>Proactive/cached openers are gated behind material financial data; targeted Maestro and all sweep green</td></tr>
+          <tr><td>QA-014</td><td>P1</td><td>TestFlight release workflow</td><td class="pass">Fixed in this pass</td><td><code>HUGGINGFACE_TOKEN</code> and <code>SLM_MODEL_URL</code> removed from TestFlight release workflows; CI release sanity blocks reintroduction</td></tr>
+          <tr><td>QA-015</td><td>P1</td><td>Universal Links release evidence</td><td class="warn">Open release gate</td><td>S004 docs corrected: partial AASA/Info.plist proof only; no Associated Domains entitlement or signed-device proof yet</td></tr>
+          <tr><td>QA-016</td><td>P1</td><td>Maestro sweep wording</td><td class="pass">Fixed in generator</td><td><code>all/default</code> summaries no longer imply signed device, deeplink, FATCA, or store-signing coverage</td></tr>
         </tbody>
       </table>
     </section>
@@ -138,6 +145,8 @@
             <tr><td>Coordinate taps in Maestro</td><td class="warn">Replace with stable keys over time</td></tr>
             <tr><td>Tracked golden failure PNGs</td><td class="warn">Restore after every golden run unless intentionally updating</td></tr>
             <tr><td>Large branch diff</td><td class="warn">Keep atomic commits; split before merge if needed</td></tr>
+            <tr><td>Release model-secret embedding</td><td class="pass">Model URL/token no longer enter TestFlight release workflows; CI guard added</td></tr>
+            <tr><td>Universal Links</td><td class="warn">Open until Associated Domains is provisioned and proven on a signed TestFlight device build</td></tr>
           </tbody>
         </table>
       </div>
