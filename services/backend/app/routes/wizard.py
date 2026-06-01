@@ -1,17 +1,17 @@
 import logging
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
-from typing import Dict, Any, List
-from datetime import datetime, timedelta, timezone
-
-logger = logging.getLogger(__name__)
+from app.core.rate_limit import limiter
+from app.core.auth import require_current_user
+from app.database import get_db
 from app.models.session import Session
 from app.models.user import User
-from app.database import get_db
-from app.core.auth import require_current_user
-from app.core.rate_limit import limiter
 from sqlalchemy.orm import Session as DBSession
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/sessions", tags=["wizard"])
 

@@ -25,7 +25,6 @@ import re
 from dataclasses import dataclass
 from typing import Iterable, Optional
 
-from app.core.config import settings
 from app.services.coach.bundles import (
     BundleBase,
     CitationGrammarBundle,

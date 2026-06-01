@@ -381,19 +381,10 @@ async def anonymous_chat(
             detail="Limite atteinte. Cree un compte pour continuer.",
         )
 
-    # --- Step 3: Scrub PII for downstream artifacts only (T-13-02) ---
-    # The scrub redacts IBAN / AVS-AHV / `\d{4,7} CHF` patterns. It is
-    # used for any artefact that persists beyond the live conversation
-    # (audit log hash, future Sentry / Anthropic log surfaces). It is
-    # NOT applied to the LLM input — the user is voluntarily sharing
-    # numbers (salary, savings, project amounts) and the assistant
-    # needs them to give a personalized answer. Pre-LLM scrubbing
-    # was a P0 walker bug: the LLM responded « je ne peux pas voir ton
-    # salaire (il apparaît masqué) » when the user had just stated
-    # « Je gagne 7500 CHF » in plain text. See walkthrough 2026-05-07.
-    clean_message_for_audit = _scrub_pii(body.message)
-
-    # --- Step 4: Build discovery system prompt (T-13-05) ---
+    # --- Step 3: Build discovery system prompt (T-13-05) ---
+    # Do not scrub the live LLM input: the user voluntarily shares numbers
+    # needed for personalized answers. Any future persisted audit artifact
+    # must call `_scrub_pii` at the point where it is stored.
     discovery_prompt = build_discovery_system_prompt(
         intent=body.intent,
         language=body.language,

@@ -38,6 +38,10 @@ Sources:
 from enum import Enum
 from typing import Any
 
+from app.services.coach._route_intents_generated import (
+    GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS,
+)
+
 # ---------------------------------------------------------------------------
 # Tool category — used by backend for access control (never sent to LLM)
 # ---------------------------------------------------------------------------
@@ -110,10 +114,6 @@ INTERNAL_TOOL_NAMES: list[str] = [
 # The CI gate `tools/checks/screen_registry_three_way_parity.py` enforces
 # the contract — drift fails CI with a clear diagnostic. Updating: edit
 # screen_registry.dart, then run the regen script (commits all 3 artifacts).
-
-from app.services.coach._route_intents_generated import (
-    GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS,
-)
 
 # Sorted list form expected by downstream callers (claude_coach_service
 # system-prompt injection consumes this in deterministic order).

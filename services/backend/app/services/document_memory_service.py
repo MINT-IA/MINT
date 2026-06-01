@@ -311,7 +311,6 @@ def persist_fact(
     lifetime).
     """
     from app.services.privacy.fact_key_allowlist import (
-        ALLOWED_FACT_KEYS,
         is_allowed,
         purpose_of,
         ttl_days_of,

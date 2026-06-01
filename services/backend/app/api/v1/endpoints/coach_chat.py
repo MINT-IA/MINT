@@ -36,7 +36,9 @@ import logging
 import math
 import os
 import re
-from datetime import datetime, timedelta, timezone
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
@@ -724,10 +726,6 @@ def _emit_citation_chip_breadcrumbs(
 # the text (no bare-prose `{{cite:tool_*}}` reaches the user) and falls
 # through to the existing `_citation_gate` FALLBACK without crash.
 # ---------------------------------------------------------------------------
-
-from dataclasses import dataclass
-from enum import Enum
-
 
 class ToolUseEnforcementVerdict(str, Enum):
     """Wave 1c D-04 — tool_use enforcement gate verdict."""
@@ -3155,13 +3153,22 @@ def _execute_internal_tool(
         when_t = tool_input.get("when_text", "")
         where_t = tool_input.get("where_text", "")
         if_then_t = tool_input.get("if_then_text", "")
-        logger.info("record_commitment ack: %s / %s", when_t[:50], if_then_t[:50])
+        logger.info(
+            "record_commitment ack: %s / %s / %s",
+            when_t[:50],
+            where_t[:50],
+            if_then_t[:50],
+        )
         return f"Engagement noté : QUAND={when_t} — SI-ALORS={if_then_t}"
 
     if name == "save_pre_mortem":
         decision_type = tool_input.get("decision_type", "")
         user_response = tool_input.get("user_response", "")
-        logger.info("save_pre_mortem ack: type=%s", decision_type[:50])
+        logger.info(
+            "save_pre_mortem ack: type=%s response=%s",
+            decision_type[:50],
+            user_response[:50],
+        )
         return f"Pré-mortem enregistré pour {decision_type}."
 
     # P15 coach intelligence — provenance and earmark handlers (INTL-01, INTL-02, INTL-03, INTL-04)

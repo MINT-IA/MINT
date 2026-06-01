@@ -1,5 +1,5 @@
 import logging
-from pydantic import BaseModel, Field, UUID4, ConfigDict, model_validator
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 from enum import Enum
 from typing import Optional
 from datetime import datetime

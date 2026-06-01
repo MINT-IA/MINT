@@ -15,7 +15,6 @@ to this consumer (see 95-02-PLAN.md frontmatter `deferred:` block).
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any
 
 from app.services.coach.grounding_pack import ParetoPoint
 

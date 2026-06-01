@@ -9,11 +9,54 @@ Pure function pattern — no side effects, deterministic prompt, testable.
 See: MINT_ANTI_BULLSHIT_MANIFESTO.md, MINT_FINAL_EXECUTION_SYSTEM.md §13.11
 """
 
+import asyncio as _asyncio
+import base64 as _b64
 import json
 import logging
 import re
-from typing import Dict, List as TList, Optional
+from typing import Any as _Any, Dict, List as TList, Optional
 
+try:  # pragma: no cover — legacy import for test-patch compatibility
+    from anthropic import Anthropic, AsyncAnthropic  # noqa: F401
+except ImportError:  # pragma: no cover
+    Anthropic = None  # type: ignore[assignment]
+    AsyncAnthropic = None  # type: ignore[assignment]
+
+from app.core.config import settings
+from app.schemas.document_scan import (
+    ConfidenceLevel,
+    DocumentClassificationResult,
+    DocumentType,
+    ExtractedFieldConfirmation,
+    LppPlanType,
+    VisionExtractionResponse,
+)
+from app.schemas.document_understanding import (
+    CoherenceWarning as _CoherenceWarning,
+    CommitmentSuggestion as _CommitmentSuggestion,
+    ConfidenceLevel as _ConfidenceLevel,
+    DocumentClass as _DocumentClass,
+    DocumentUnderstandingResult as _DUR,
+    ExtractedField as _EF,
+    ExtractionStatus as _ES,
+    FieldStatus as _FS,
+    RenderMode as _RM,
+)
+from app.services import idempotency as _idempotency
+from app.services.document_memory_service import (
+    compute_fingerprint as _compute_fingerprint,
+    upsert_and_diff as _upsert_and_diff,
+)
+from app.services.document_pdf_preflight import (
+    preflight_pdf as _preflight_pdf,
+    select_pages_for_vision as _select_pages,
+)
+from app.services.document_render_mode import select_render_mode as _select_render_mode
+from app.services.document_third_party import (
+    detect_third_party as _detect_third_party,
+    load_issuer_signatures as _load_signatures,
+)
+from app.services.llm.router import LLMRequest, get_router
 
 _MARKDOWN_FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
 
@@ -38,16 +81,6 @@ def _strip_markdown_fences(raw_text: str) -> str:
 # still resolve (to keep blast radius minimal). At runtime these names
 # are NOT called by production code paths — every Vision call goes via
 # `_sync_vision_call` / `_async_vision_call` → LLMRouter.
-import asyncio as _asyncio
-
-try:  # pragma: no cover — legacy import for test-patch compatibility
-    from anthropic import Anthropic, AsyncAnthropic  # noqa: F401
-except ImportError:  # pragma: no cover
-    Anthropic = None  # type: ignore[assignment]
-    AsyncAnthropic = None  # type: ignore[assignment]
-
-from app.core.config import settings
-from app.services.llm.router import LLMRequest, get_router
 
 
 def _sync_vision_call(
@@ -175,15 +208,6 @@ async def _async_vision_call(
         tool_choice=tool_choice,
         purpose="document_vision",
     ))
-from app.schemas.document_scan import (
-    DocumentType,
-    DocumentClassificationResult,
-    ExtractedFieldConfirmation,
-    ConfidenceLevel,
-    LppPlanType,
-    VisionExtractionResponse,
-)
-
 logger = logging.getLogger(__name__)
 
 
@@ -804,36 +828,6 @@ def classify_document(image_base64: str) -> DocumentClassificationResult:
 # ═══════════════════════════════════════════════════════════════════════════
 #  v2.7 PHASE 28 — Fused understand_document() (DOC-01..05, DOC-08)
 # ═══════════════════════════════════════════════════════════════════════════
-
-import base64 as _b64
-from typing import Any as _Any
-
-from app.schemas.document_understanding import (
-    CommitmentSuggestion as _CommitmentSuggestion,
-    ConfidenceLevel as _ConfidenceLevel,
-    CoherenceWarning as _CoherenceWarning,
-    DocumentClass as _DocumentClass,
-    DocumentUnderstandingResult as _DUR,
-    ExtractedField as _EF,
-    ExtractionStatus as _ES,
-    FieldStatus as _FS,
-    RenderMode as _RM,
-)
-from app.services import idempotency as _idempotency
-from app.services.document_pdf_preflight import (
-    preflight_pdf as _preflight_pdf,
-    select_pages_for_vision as _select_pages,
-)
-from app.services.document_render_mode import select_render_mode as _select_render_mode
-from app.services.document_third_party import (
-    detect_third_party as _detect_third_party,
-    load_issuer_signatures as _load_signatures,
-)
-from app.services.document_memory_service import (
-    compute_fingerprint as _compute_fingerprint,
-    upsert_and_diff as _upsert_and_diff,
-)
-
 
 # ── tool_use schema (single fused tool) ───────────────────────────────────
 

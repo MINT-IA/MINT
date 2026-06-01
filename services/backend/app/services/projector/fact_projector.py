@@ -54,7 +54,6 @@ from uuid import uuid4
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.models.fact_current import FactCurrent
 from app.models.fact_event import FactEvent
 
 

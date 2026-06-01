@@ -23,7 +23,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Any, Callable
+from typing import Callable
 
 from app.services.coach.grounding_pack import GroundingPackEntry
 

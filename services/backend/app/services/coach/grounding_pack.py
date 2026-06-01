@@ -30,6 +30,8 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
+from app.services.coach.citation_registry import CITATION_REGISTRY as _CITATION_REGISTRY_FOR_KEYS
+
 
 class GroundingPackEntry(BaseModel):
     """One cited value in a ProjectionGroundingPack.
@@ -108,8 +110,6 @@ class ProjectionGroundingPack(BaseModel):
 # silently xfailed because every lookup against the empty frozenset
 # returned False. Now derived from CITATION_REGISTRY.keys() per the
 # docstring contract.
-from app.services.coach.citation_registry import CITATION_REGISTRY as _CITATION_REGISTRY_FOR_KEYS
-
 GROUNDING_PACK_KEYS_REGISTRY: frozenset = frozenset(_CITATION_REGISTRY_FOR_KEYS.keys())
 
 
