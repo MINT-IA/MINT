@@ -6,7 +6,6 @@ text/event-stream) behind the DOCUMENTS_V2_ENABLED flag.
 """
 from __future__ import annotations
 
-import base64
 import json
 from unittest.mock import AsyncMock, patch
 

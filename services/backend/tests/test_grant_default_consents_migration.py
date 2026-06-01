@@ -15,8 +15,6 @@ Run :
 from __future__ import annotations
 
 import importlib.util
-import os
-import sys
 import uuid
 from pathlib import Path
 
@@ -25,7 +23,6 @@ import pytest
 from app.models.consent import ConsentModel
 from app.models.user import User
 from app.schemas.consent_receipt import ConsentPurpose
-from app.services.consent.consent_service import consent_service
 from tests.conftest import TestingSessionLocal
 
 

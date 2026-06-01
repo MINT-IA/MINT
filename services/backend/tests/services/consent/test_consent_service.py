@@ -13,7 +13,6 @@ from sqlalchemy.pool import StaticPool
 from app.core.database import Base
 # Ensure all models registered
 import app.models  # noqa: F401
-from app.models.consent import ConsentModel
 from app.services.consent.consent_service import (
     ConsentNotFoundError,
     ConsentService,

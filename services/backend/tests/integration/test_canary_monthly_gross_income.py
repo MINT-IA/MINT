@@ -38,7 +38,6 @@ Postgres-correctness gate that CI enforces.
 """
 from __future__ import annotations
 
-import os
 from uuid import uuid4
 
 import pytest

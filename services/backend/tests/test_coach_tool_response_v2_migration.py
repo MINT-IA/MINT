@@ -32,7 +32,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from app.core.config import settings
-from app.models.coach_tools import CoachToolOkV2, CoachToolResponseV2
+from app.models.coach_tools import CoachToolResponseV2
 
 
 # ─────────────────────────────────────────────────────────────────────

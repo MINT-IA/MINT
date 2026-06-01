@@ -14,7 +14,6 @@ Codex MEDIUM resolved : NEVER abort on existing dir/file ; always update in plac
 
 from __future__ import annotations
 
-import os
 import subprocess
 import sys
 from pathlib import Path

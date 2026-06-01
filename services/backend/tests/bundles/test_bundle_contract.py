@@ -25,11 +25,6 @@ from app.services.coach.bundles import (
     ALL_BUNDLE_CLASSES,
     BundleBase,
     ComplianceNarratorBundle,
-    LifeEventRouterBundle,
-    LppProjectorBundle,
-    MortgageStressorBundle,
-    Pillar3aOptimizerBundle,
-    TaxExplainerBundle,
 )
 from app.services.coach.coach_tools import get_narrator_llm_tools
 from app.services.coach.grounding_pack import GROUNDING_PACK_KEYS_REGISTRY

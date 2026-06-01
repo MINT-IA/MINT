@@ -13,7 +13,7 @@ Run: cd services/backend && python3 -m pytest tests/test_commitment_devices.py -
 
 from datetime import datetime, timezone
 from typing import Optional
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from app.models.commitment import CommitmentDevice, PreMortemEntry
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES
@@ -86,6 +86,7 @@ class TestPreMortemEntryModel:
             decision_type="capital_withdrawal",
             user_response="test",
         )
+        assert pm.user_id == "user-456"
         assert PreMortemEntry.id.default is not None
         assert PreMortemEntry.created_at.default is not None
 

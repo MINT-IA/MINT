@@ -12,7 +12,6 @@ Run: cd services/backend && python3 -m pytest tests/test_coach_memory_roundtrip.
 """
 
 import pytest
-from datetime import datetime, timedelta, timezone
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

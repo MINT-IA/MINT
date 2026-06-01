@@ -11,7 +11,6 @@ Covers:
 
 from datetime import date, datetime, timezone
 
-import pytest
 
 from app.api.v1.endpoints.fresh_start import (
     apply_rate_limit,

@@ -8,7 +8,6 @@ Tests the real HMAC-SHA256-pepper implementation that gates all audit-PII writes
 from __future__ import annotations
 
 import hashlib
-import os
 
 import pytest
 

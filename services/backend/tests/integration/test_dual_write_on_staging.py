@@ -13,7 +13,6 @@ parity contract end-to-end at the application layer (SQLite path).
 """
 from __future__ import annotations
 
-from decimal import Decimal
 from uuid import uuid4
 
 import pytest
@@ -166,7 +165,6 @@ def test_dual_write_on_second_call_upserts_fact_current_keeps_fact_event_appende
     """Two snapshots for the same user → fact_event appends (2 rows per key),
     fact_current keeps a single row per (user, key) updated to the latest
     valid_from value (UPSERT last-writer-wins by valid_from)."""
-    from datetime import datetime, timedelta, timezone
 
     # First snapshot
     create_snapshot(

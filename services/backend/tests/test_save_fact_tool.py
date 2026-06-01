@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import uuid
 
-import pytest
 from fastapi.testclient import TestClient
 
 from app.core.auth import get_current_user, require_current_user

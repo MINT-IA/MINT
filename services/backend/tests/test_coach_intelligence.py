@@ -15,7 +15,13 @@ from datetime import datetime, timezone
 from typing import Optional
 from unittest.mock import MagicMock
 
+import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from app.core.database import Base
 from app.models.earmark import EarmarkTag, ProvenanceRecord
+from app.models.user import User
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES
 from app.services.coach.claude_coach_service import build_system_prompt
 
@@ -429,14 +435,6 @@ class TestBuildIntelligenceMemoryBlock:
 # ===========================================================================
 # Integration tests: round-trip provenance/earmark flow (Plan 15-02)
 # ===========================================================================
-
-import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-from app.core.database import Base
-from app.models.user import User
-
 
 @pytest.fixture
 def integration_db():

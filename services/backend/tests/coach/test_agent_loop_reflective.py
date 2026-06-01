@@ -8,7 +8,6 @@ Covers the content-block edge cases introduced in v2.7:
 """
 from __future__ import annotations
 
-from unittest.mock import AsyncMock
 
 import pytest
 
@@ -88,10 +87,6 @@ async def test_tool_use_only_still_works():
         },
     ])
 
-    # show_fact_card is a real Flutter tool registered in COACH_TOOLS;
-    # pass it in so external_calls matches it.
-    stripped_tools = [{"name": "show_fact_card", "description": "", "input_schema": {"type": "object"}}]
-
     result = await cc._run_agent_loop(
         orchestrator=orchestrator,
         question="Dis-m'en plus sur le 3a",
@@ -107,7 +102,6 @@ async def test_tool_use_only_still_works():
         conversation_history=None,
     )
 
-    flutter_calls = result.get("tool_calls") or []
     assert result["answer"] == "Voici la carte 3a."
     # show_fact_card may not be in known COACH_TOOLS at test import time,
     # but empty-narration path is covered by orchestrator.calls[1] using

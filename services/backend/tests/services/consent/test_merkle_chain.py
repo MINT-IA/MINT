@@ -12,7 +12,6 @@ from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base
 import app.models  # noqa: F401
-from app.models.consent import ConsentModel
 from app.services.consent.consent_service import ConsentService
 from app.services.consent.merkle_chain import verify_chain
 
@@ -65,7 +64,7 @@ def test_tampered_receipt_json_breaks_chain(db, service):
 
 
 def test_tampered_prev_hash_breaks_chain(db, service):
-    r1 = service.grant(db, user_id="u1", purpose="vision_extraction", policy_version="v2.3.0")
+    service.grant(db, user_id="u1", purpose="vision_extraction", policy_version="v2.3.0")
     r2 = service.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
     r2.prev_hash = "f" * 64
     db.add(r2)
@@ -76,7 +75,7 @@ def test_tampered_prev_hash_breaks_chain(db, service):
 
 
 def test_deleted_middle_row_breaks_chain(db, service):
-    r1 = service.grant(db, user_id="u1", purpose="vision_extraction", policy_version="v2.3.0")
+    service.grant(db, user_id="u1", purpose="vision_extraction", policy_version="v2.3.0")
     r2 = service.grant(db, user_id="u1", purpose="persistence_365d", policy_version="v2.3.0")
     r3 = service.grant(db, user_id="u1", purpose="couple_projection", policy_version="v2.3.0")
 

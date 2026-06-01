@@ -24,7 +24,6 @@ import json
 from typing import Any, Dict, Optional
 from unittest.mock import MagicMock
 
-import pytest
 
 from app.core.config import settings
 

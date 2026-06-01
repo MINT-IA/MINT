@@ -31,7 +31,6 @@ import logging
 from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
 
 from app.api.v1.endpoints.coach_chat import (
     MAX_AGENT_LOOP_ITERATIONS,
@@ -564,7 +563,6 @@ class TestAgentLoopTimeouts:
 
         mock_orch.query = slow_query
 
-        from app.api.v1.endpoints.coach_chat import AGENT_LOOP_DEADLINE_SECONDS  # noqa: F811
 
         import pytest
         with pytest.raises(asyncio.TimeoutError):
@@ -593,7 +591,7 @@ class TestAgentLoopTimeouts:
         chat_module.AGENT_ITERATION_TIMEOUT_SECONDS = 0.5  # 500ms for test speed
 
         try:
-            result = _run(
+            _run(
                 asyncio.wait_for(
                     _run_agent_loop(orchestrator=mock_orch, **_BASE_KWARGS),
                     timeout=5.0,  # Overall test timeout

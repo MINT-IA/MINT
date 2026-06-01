@@ -31,7 +31,6 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-import pytest
 
 from app.services.coach.citation_parser import (
     FALLBACK_TEMPLATED_TEXT,

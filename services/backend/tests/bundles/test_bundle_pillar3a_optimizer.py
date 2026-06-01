@@ -66,8 +66,8 @@ def test_pillar3a_no_optimal_in_fragment():
     bundle = Pillar3aOptimizerBundle()
     text = bundle.prompt_fragment.lower()
     assert "optimal" not in text, (
-        f"banned LSFin term 'optimal' present in prompt_fragment — "
-        f"replace with 'adapté' or 'pertinent'"
+        "banned LSFin term 'optimal' present in prompt_fragment — "
+        "replace with 'adapté' or 'pertinent'"
     )
 
 

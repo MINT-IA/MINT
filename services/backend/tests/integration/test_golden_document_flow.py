@@ -26,7 +26,6 @@ No real Anthropic API call is made. Test runs without ANTHROPIC_API_KEY.
 from __future__ import annotations
 
 import json
-import os
 import time
 from pathlib import Path
 from types import SimpleNamespace
@@ -38,7 +37,6 @@ import pytest
 from app.schemas.document_understanding import (
     DocumentUnderstandingResult,
     FieldStatus,
-    RenderMode,
 )
 from tests.integration.golden_expectations import (
     GOLDEN_EXPECTATIONS,

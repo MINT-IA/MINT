@@ -1,8 +1,6 @@
 """Tests for LLMRouter + ShadowComparator (Phase 29-06 / PRIV-07)."""
 from __future__ import annotations
 
-import asyncio
-import logging
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -235,7 +233,6 @@ async def test_route_mode_resolution():
 @pytest.mark.asyncio
 async def test_injected_anthropic_client_is_not_closed_by_router(monkeypatch):
     """Caller-owned client must survive the invocation — lifetime is not ours."""
-    from app.services.llm import router as router_mod
 
     anthropic_client = AsyncMock()
     anthropic_client.messages.create = AsyncMock(return_value=_make_resp("A"))

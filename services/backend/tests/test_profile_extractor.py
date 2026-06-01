@@ -8,7 +8,6 @@ reliable on the handful of shapes we know matter.
 
 from datetime import date
 
-import pytest
 
 from app.services.coach.profile_extractor import (
     Fact,

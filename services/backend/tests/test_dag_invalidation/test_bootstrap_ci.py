@@ -8,7 +8,7 @@ import pytest
 
 np = pytest.importorskip("numpy")
 
-from app.services.coach.bootstrap_ci import bootstrap_ci_p5_p95
+from app.services.coach.bootstrap_ci import bootstrap_ci_p5_p95  # noqa: E402
 
 
 def test_deterministic_for_same_seed():

@@ -29,12 +29,9 @@ from app.models.coach_tools.couple_optimization import (
     Pillar3aOrderResponse,
 )
 from app.services.couple_optimizer import (
-    AvsCoupleCapResult,
-    CoupleAnalysisResult,
     CoupleOptimizationResult,
     CoupleOptimizer,
     CoupleWinner,
-    MarriagePenaltyResult,
 )
 
 

@@ -11,7 +11,6 @@ into the test output rather than a hard precondition).
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest

@@ -29,7 +29,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _SCRIPT_PATH = _REPO_ROOT / "tools" / "measurement" / "regulatory_snapshot_bundle_size.py"

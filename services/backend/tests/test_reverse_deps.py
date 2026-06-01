@@ -42,7 +42,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
 
 
 # tests/ → services/backend/ → MINT.nosync/
