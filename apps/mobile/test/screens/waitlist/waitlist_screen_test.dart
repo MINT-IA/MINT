@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -153,7 +152,8 @@ void main() {
       );
       await tester.pumpWidget(
         _wrapWithApp(
-          child: const WaitlistScreen(args: WaitlistArgs(archetype: 'expat_us')),
+          child:
+              const WaitlistScreen(args: WaitlistArgs(archetype: 'expat_us')),
           service: svc,
         ),
       );
@@ -169,7 +169,8 @@ void main() {
       // Form is gone; success copy + back-to-home CTA visible.
       expect(find.byType(TextField), findsNothing);
       expect(
-        find.text('Merci, on revient vers toi dès que ton profil est pris en charge.'),
+        find.text(
+            'Merci, on revient vers toi dès que ton profil est pris en charge.'),
         findsOneWidget,
       );
       expect(find.byKey(const Key('waitlist-success-cta')), findsOneWidget);
@@ -188,7 +189,8 @@ void main() {
       );
       await tester.pumpWidget(
         _wrapWithApp(
-          child: const WaitlistScreen(args: WaitlistArgs(archetype: 'expat_us')),
+          child:
+              const WaitlistScreen(args: WaitlistArgs(archetype: 'expat_us')),
           service: svc,
         ),
       );
@@ -203,7 +205,8 @@ void main() {
       // Form still visible (inline error). Bad-email copy shown.
       expect(find.byType(TextField), findsOneWidget);
       expect(
-        find.text('Cette adresse email ne semble pas valide. Vérifie la syntaxe.'),
+        find.text(
+            'Cette adresse email ne semble pas valide. Vérifie la syntaxe.'),
         findsOneWidget,
       );
     });
@@ -219,7 +222,8 @@ void main() {
       );
       await tester.pumpWidget(
         _wrapWithApp(
-          child: const WaitlistScreen(args: WaitlistArgs(archetype: 'expat_us')),
+          child:
+              const WaitlistScreen(args: WaitlistArgs(archetype: 'expat_us')),
           service: svc,
         ),
       );
@@ -270,7 +274,7 @@ void main() {
       final semantics = tester.getSemantics(
         find.text('Encore en chantier pour ton profil'),
       );
-      expect(semantics.hasFlag(SemanticsFlag.isHeader), isTrue);
+      expect(semantics.flagsCollection.isHeader, isTrue);
     });
   });
 }

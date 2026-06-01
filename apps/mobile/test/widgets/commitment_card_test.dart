@@ -37,7 +37,7 @@ void main() {
   group('CommitmentCard widget (CMIT-01)', () {
     testWidgets('renders 3 text fields', (tester) async {
       await tester.pumpWidget(_buildTestApp(
-        child: CommitmentCard(
+        child: const CommitmentCard(
           whenText: '',
           whereText: '',
           ifThenText: '',
@@ -56,7 +56,7 @@ void main() {
 
     testWidgets('pre-fills with provided values', (tester) async {
       await tester.pumpWidget(_buildTestApp(
-        child: CommitmentCard(
+        child: const CommitmentCard(
           whenText: 'Lundi prochain',
           whereText: 'En ligne sur ma banque',
           ifThenText: 'Si je recois mon salaire, alors je verse 500 CHF',
@@ -128,8 +128,7 @@ void main() {
       expect(find.byType(Dismissible), findsOneWidget);
 
       // Verify the Dismissible is configured for horizontal swipe
-      final dismissible =
-          tester.widget<Dismissible>(find.byType(Dismissible));
+      final dismissible = tester.widget<Dismissible>(find.byType(Dismissible));
       expect(dismissible.direction, DismissDirection.horizontal);
 
       // Fling on the header area (above the text fields) to avoid gesture conflicts
@@ -143,7 +142,7 @@ void main() {
 
     testWidgets('uses MintColors (no hardcoded hex)', (tester) async {
       await tester.pumpWidget(_buildTestApp(
-        child: CommitmentCard(
+        child: const CommitmentCard(
           whenText: '',
           whereText: '',
           ifThenText: '',
@@ -162,7 +161,8 @@ void main() {
       bool hasSurfaceColor = false;
       for (final container in containers) {
         final decoration = container.decoration;
-        if (decoration is BoxDecoration && decoration.color == MintColors.surface) {
+        if (decoration is BoxDecoration &&
+            decoration.color == MintColors.surface) {
           hasSurfaceColor = true;
           break;
         }
@@ -172,7 +172,7 @@ void main() {
 
     testWidgets('accept button has i18n label', (tester) async {
       await tester.pumpWidget(_buildTestApp(
-        child: CommitmentCard(
+        child: const CommitmentCard(
           whenText: '',
           whereText: '',
           ifThenText: '',

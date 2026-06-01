@@ -185,7 +185,8 @@ class EclairageCard extends StatelessWidget {
   Widget _buildEyebrow(String text) {
     return Text(
       text.toUpperCase(),
-      style: TextStyle(fontFamily: 'Supreme', 
+      style: const TextStyle(
+        fontFamily: 'Supreme',
         fontSize: 11,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.2,
@@ -197,7 +198,8 @@ class EclairageCard extends StatelessWidget {
   Widget _buildHeadline() {
     return Text(
       _headline,
-      style: TextStyle(fontFamily: 'Gambarino', 
+      style: const TextStyle(
+        fontFamily: 'Gambarino',
         fontSize: 18,
         fontWeight: FontWeight.w500,
         height: 1.3,
@@ -213,7 +215,8 @@ class EclairageCard extends StatelessWidget {
     final low = _chfRangeLow;
     final high = _chfRangeHigh;
 
-    final numberStyle = TextStyle(fontFamily: 'Supreme', 
+    const numberStyle = TextStyle(
+      fontFamily: 'Supreme',
       fontSize: 28,
       fontWeight: FontWeight.w700,
       color: MintColors.inkPrimary,
@@ -221,19 +224,22 @@ class EclairageCard extends StatelessWidget {
       height: 1.0,
     );
 
-    final chfBadgeStyle = TextStyle(fontFamily: 'Supreme', 
+    const chfBadgeStyle = TextStyle(
+      fontFamily: 'Supreme',
       fontSize: 12,
       fontWeight: FontWeight.w600,
       color: MintColors.mintForest,
     );
 
-    final periodStyle = TextStyle(fontFamily: 'Supreme', 
+    const periodStyle = TextStyle(
+      fontFamily: 'Supreme',
       fontSize: 13,
       fontWeight: FontWeight.w500,
       color: MintColors.textSecondaryAaa,
     );
 
-    final prefixStyle = TextStyle(fontFamily: 'Supreme', 
+    const prefixStyle = TextStyle(
+      fontFamily: 'Supreme',
       fontSize: 13,
       fontWeight: FontWeight.w500,
       color: MintColors.textSecondaryAaa,
@@ -246,8 +252,8 @@ class EclairageCard extends StatelessWidget {
       return Wrap(
         crossAxisAlignment: WrapCrossAlignment.end,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 4, bottom: 4),
+          const Padding(
+            padding: EdgeInsets.only(right: 4, bottom: 4),
             child: Text('CHF', style: chfBadgeStyle),
           ),
           Text(formatChf(low), style: numberStyle),
@@ -264,8 +270,8 @@ class EclairageCard extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(formatChf(high), style: numberStyle),
-          Padding(
-            padding: const EdgeInsets.only(left: 6, bottom: 4),
+          const Padding(
+            padding: EdgeInsets.only(left: 6, bottom: 4),
             child: Text(' / an', style: periodStyle),
           ),
         ],
@@ -277,17 +283,17 @@ class EclairageCard extends StatelessWidget {
       return Wrap(
         crossAxisAlignment: WrapCrossAlignment.end,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 6, bottom: 4),
+          const Padding(
+            padding: EdgeInsets.only(right: 6, bottom: 4),
             child: Text("jusqu'à", style: prefixStyle),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 4, bottom: 4),
+          const Padding(
+            padding: EdgeInsets.only(right: 4, bottom: 4),
             child: Text('CHF', style: chfBadgeStyle),
           ),
           Text(formatChf(high), style: numberStyle),
-          Padding(
-            padding: const EdgeInsets.only(left: 6, bottom: 4),
+          const Padding(
+            padding: EdgeInsets.only(left: 6, bottom: 4),
             child: Text(' / an', style: periodStyle),
           ),
         ],
@@ -299,17 +305,17 @@ class EclairageCard extends StatelessWidget {
       return Wrap(
         crossAxisAlignment: WrapCrossAlignment.end,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 6, bottom: 4),
+          const Padding(
+            padding: EdgeInsets.only(right: 6, bottom: 4),
             child: Text('dès', style: prefixStyle),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 4, bottom: 4),
+          const Padding(
+            padding: EdgeInsets.only(right: 4, bottom: 4),
             child: Text('CHF', style: chfBadgeStyle),
           ),
           Text(formatChf(low), style: numberStyle),
-          Padding(
-            padding: const EdgeInsets.only(left: 6, bottom: 4),
+          const Padding(
+            padding: EdgeInsets.only(left: 6, bottom: 4),
             child: Text(' / an', style: periodStyle),
           ),
         ],
@@ -323,7 +329,8 @@ class EclairageCard extends StatelessWidget {
   Widget _buildBody() {
     return Text(
       _body,
-      style: TextStyle(fontFamily: 'Supreme', 
+      style: const TextStyle(
+        fontFamily: 'Supreme',
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.5,
@@ -362,7 +369,8 @@ class EclairageCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         _softAccountHint,
-                        style: TextStyle(fontFamily: 'Supreme', 
+                        style: const TextStyle(
+                          fontFamily: 'Supreme',
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: MintColors.mintForest,

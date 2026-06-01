@@ -5,7 +5,6 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/audit/anonymous_session_id.dart';
-import 'package:mint_mobile/services/audit/audit_buffer_db.dart';
 import 'package:mint_mobile/services/audit/mobile_l1_audit_service.dart';
 
 void main() {
@@ -30,12 +29,14 @@ void main() {
       expect(pending.length, 1);
       expect(pending.first.source, 'mobile_session_start');
       expect(pending.first.appLifecycleState, 'resumed');
-      final decoded = jsonDecode(pending.first.payloadJson) as Map<String, dynamic>;
+      final decoded =
+          jsonDecode(pending.first.payloadJson) as Map<String, dynamic>;
       expect(decoded['source'], 'mobile_session_start');
       expect(decoded['anonymous_session_id'], svc.anonymousSessionId);
     });
 
-    test('resume enqueues a row with source=mobile_session_warm_resume', () async {
+    test('resume enqueues a row with source=mobile_session_warm_resume',
+        () async {
       final svc = MobileL1AuditService.inMemory(
         appVersion: '2.12.3+test',
         constantsVersionHash: 'h1',
@@ -48,7 +49,8 @@ void main() {
   });
 
   group('flush', () {
-    test('drains pending rows through httpPost callback (success path)', () async {
+    test('drains pending rows through httpPost callback (success path)',
+        () async {
       final svc = MobileL1AuditService.inMemory(
         appVersion: '2.12.3+test',
         constantsVersionHash: 'h1',

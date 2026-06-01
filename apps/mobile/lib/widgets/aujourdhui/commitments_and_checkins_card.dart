@@ -212,14 +212,10 @@ class _CommitmentsAndCheckinsCardState
     if (dt == null) return '';
     final diff = DateTime.now().difference(dt);
     if (diff.inDays >= 1) {
-      return diff.inDays == 1
-          ? 'il y a 1 jour'
-          : 'il y a ${diff.inDays} jours';
+      return diff.inDays == 1 ? 'il y a 1 jour' : 'il y a ${diff.inDays} jours';
     }
     if (diff.inHours >= 1) {
-      return diff.inHours == 1
-          ? 'il y a 1 h'
-          : 'il y a ${diff.inHours} h';
+      return diff.inHours == 1 ? 'il y a 1 h' : 'il y a ${diff.inHours} h';
     }
     return 'à l\'instant';
   }
@@ -238,7 +234,8 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: TextStyle(fontFamily: 'Supreme', 
+      style: const TextStyle(
+        fontFamily: 'Supreme',
         fontSize: 13,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.6,
@@ -280,7 +277,8 @@ class _ItemRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   text,
-                  style: TextStyle(fontFamily: 'Supreme', 
+                  style: const TextStyle(
+                    fontFamily: 'Supreme',
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                     color: MintColors.textPrimary,
@@ -293,7 +291,8 @@ class _ItemRow extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   relativeTime,
-                  style: TextStyle(fontFamily: 'Supreme', 
+                  style: const TextStyle(
+                    fontFamily: 'Supreme',
                     fontSize: 11,
                     fontWeight: FontWeight.w400,
                     color: MintColors.textMutedAaa,

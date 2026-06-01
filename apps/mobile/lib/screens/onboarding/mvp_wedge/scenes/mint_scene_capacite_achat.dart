@@ -65,9 +65,10 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'SCENE · CE QUE TU PEUX VISER',
-          style: TextStyle(fontFamily: 'Supreme', 
+          style: TextStyle(
+            fontFamily: 'Supreme',
             fontSize: 10.5,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.4,
@@ -75,9 +76,10 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
           ),
         ),
         const SizedBox(height: 14),
-        Text(
+        const Text(
           'C\u2019est ta marge réelle, avant l\u2019émotion de la visite.',
-          style: TextStyle(fontFamily: 'Supreme', 
+          style: TextStyle(
+            fontFamily: 'Supreme',
             fontSize: 17,
             fontWeight: FontWeight.w500,
             color: MintColors.textPrimary,
@@ -87,7 +89,8 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
         const SizedBox(height: 28),
         Text(
           'CHF ${_fmt(r.low)} \u2013 ${_fmt(r.high)}',
-          style: TextStyle(fontFamily: 'Supreme', 
+          style: const TextStyle(
+            fontFamily: 'Supreme',
             fontSize: 34,
             fontWeight: FontWeight.w600,
             color: MintColors.textPrimary,
@@ -95,9 +98,10 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        const Text(
           'prix du lieu que tu peux viser',
-          style: TextStyle(fontFamily: 'Supreme', 
+          style: TextStyle(
+            fontFamily: 'Supreme',
             fontSize: 14,
             color: MintColors.textSecondary,
           ),
@@ -114,7 +118,8 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
             children: [
               Text(
                 'APPORT · CHF ${_fmt(_apport)}',
-                style: TextStyle(fontFamily: 'Supreme', 
+                style: const TextStyle(
+                  fontFamily: 'Supreme',
                   fontSize: 10.5,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.2,
@@ -129,8 +134,7 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
                 divisions: 48,
                 label: 'CHF ${_fmt(_apport)}',
                 activeColor: MintColors.textPrimary,
-                inactiveColor:
-                    MintColors.textSecondary.withValues(alpha: 0.25),
+                inactiveColor: MintColors.textSecondary.withValues(alpha: 0.25),
                 onChanged: (v) {
                   setState(() => _apport = (v / 10000).round() * 10000);
                   HapticFeedback.selectionClick();
@@ -139,7 +143,8 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
               Text(
                 'Charge mensuelle max\u00a0: environ CHF ${_fmt(chargeMensuelleMax)} '
                 '(intérêts + amortissement + charges).',
-                style: TextStyle(fontFamily: 'Supreme', 
+                style: const TextStyle(
+                  fontFamily: 'Supreme',
                   fontSize: 13,
                   color: MintColors.textSecondary,
                   height: 1.4,
@@ -149,10 +154,11 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
           ),
         ),
         const SizedBox(height: 20),
-        Text(
+        const Text(
           'Hypothèses\u00a0: règle des 33\u202f%, stress test 5\u202f%, apport '
           'minimum 20\u202f%. Source\u00a0: FINMA Circ. 2017/3, ORFP.',
-          style: TextStyle(fontFamily: 'Supreme', 
+          style: TextStyle(
+            fontFamily: 'Supreme',
             fontSize: 11,
             color: MintColors.textSecondary,
             fontStyle: FontStyle.italic,

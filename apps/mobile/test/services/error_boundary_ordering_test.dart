@@ -17,7 +17,6 @@
 // BOTH slots are non-null, AND a fresh install correctly re-wires
 // PlatformDispatcher.onError even when only that slot was cleared
 // (proves it is not a side-effect of FlutterError.onError).
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -68,7 +67,8 @@ void main() {
         // (the documented contract: handled=true lets framework continue).
         final ErrorCallback? handler = PlatformDispatcher.instance.onError;
         expect(handler, isNotNull);
-        final handled = handler!(StateError('ordering-probe'), StackTrace.current);
+        final handled =
+            handler!(StateError('ordering-probe'), StackTrace.current);
         expect(
           handled,
           isTrue,

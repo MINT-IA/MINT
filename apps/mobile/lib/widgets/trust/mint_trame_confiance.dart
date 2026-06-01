@@ -442,10 +442,11 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
     final label = l10n != null
         ? oneLineConfidenceSummary(c, l10n: l10n, audioTone: widget.audioTone)
         : 'mtc-confidence';
-    // Use `SemanticsService.announce` — the stable API on Flutter 3.27.x
-    // pinned by CI. `sendAnnouncement(view, ...)` only exists on newer
-    // Flutter versions and breaks the build under 3.27.4.
-    SemanticsService.announce(label, TextDirection.ltr);
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      label,
+      TextDirection.ltr,
+    );
     MintTrameConfiance.debugAnnounceCount++;
   }
 
@@ -479,7 +480,8 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
         final sc = _scale?.value ?? 1.0;
         Widget w = Opacity(opacity: op, child: child);
         if (_scale != null) {
-          w = Transform.scale(scale: sc, alignment: Alignment.centerLeft, child: w);
+          w = Transform.scale(
+              scale: sc, alignment: Alignment.centerLeft, child: w);
         }
         return w;
       },
@@ -511,7 +513,8 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
                   child: CustomPaint(
                     painter: _TramePainter(
                       density: density,
-                      progress: controller == null ? 1.0 : (_opacity?.value ?? 1.0),
+                      progress:
+                          controller == null ? 1.0 : (_opacity?.value ?? 1.0),
                     ),
                   ),
                 ),

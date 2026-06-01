@@ -213,7 +213,8 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                             children: [
                               Text(
                                 l10n.tensionEmptyWelcome,
-                                style: TextStyle(fontFamily: 'Supreme', 
+                                style: const TextStyle(
+                                  fontFamily: 'Supreme',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: MintColors.textPrimary,
@@ -223,7 +224,8 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 l10n.tensionEmptySubtitle,
-                                style: TextStyle(fontFamily: 'Supreme', 
+                                style: const TextStyle(
+                                  fontFamily: 'Supreme',
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                   color: MintColors.textSecondary,
@@ -254,13 +256,14 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
         child: CustomScrollView(
           slivers: [
             // ── MINT wordmark ──────────────────────────────────
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(top: 24, bottom: 32),
+                padding: EdgeInsets.only(top: 24, bottom: 32),
                 child: Center(
                   child: Text(
                     'MINT',
-                    style: TextStyle(fontFamily: 'Supreme', 
+                    style: TextStyle(
+                      fontFamily: 'Supreme',
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 4,
@@ -284,8 +287,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             // Surfaces FinancialPlan + EnhancedConfidence widgets that
             // existed but were unwired. Hidden when no plan exists —
             // the empty-state CTA further down owns "Parle au coach".
-            if (planSection != null)
-              SliverToBoxAdapter(child: planSection),
+            if (planSection != null) SliverToBoxAdapter(child: planSection),
 
             // ── Tension cards (Phase 17 header) ────────────────
             SliverToBoxAdapter(
@@ -330,7 +332,8 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         l10n.timelineSectionTitle,
-                        style: TextStyle(fontFamily: 'Supreme', 
+                        style: const TextStyle(
+                          fontFamily: 'Supreme',
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1,
@@ -382,7 +385,8 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                       onPressed: provider.loadMore,
                       child: Text(
                         l10n.timelineLoadMore,
-                        style: TextStyle(fontFamily: 'Supreme', 
+                        style: const TextStyle(
+                          fontFamily: 'Supreme',
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: MintColors.textSecondary,
@@ -409,7 +413,8 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                     ),
                     child: Text(
                       l10n.timelineEmpty,
-                      style: TextStyle(fontFamily: 'Supreme', 
+                      style: const TextStyle(
+                        fontFamily: 'Supreme',
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         color: MintColors.textSecondary,

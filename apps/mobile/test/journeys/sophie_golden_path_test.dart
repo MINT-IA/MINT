@@ -14,7 +14,6 @@
 //  - Error recovery (empty canton — expat may not have one yet)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -243,7 +242,8 @@ void main() {
       expect(flavor.region, equals(SwissRegion.unknown));
     });
 
-    test('PremierEclairageSelector handles empty-canton profile gracefully', () {
+    test('PremierEclairageSelector handles empty-canton profile gracefully',
+        () {
       final profile = MinimalProfileService.compute(
         age: sophieAge,
         grossSalary: sophieSalary,

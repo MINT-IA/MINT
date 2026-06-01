@@ -52,7 +52,8 @@ void main() {
         matching: find.byType(Opacity),
       ),
       findsNothing,
-      reason: 'MintEntrance must not wrap its child in Opacity under reduced-motion.',
+      reason:
+          'MintEntrance must not wrap its child in Opacity under reduced-motion.',
     );
     expect(
       find.descendant(
@@ -60,20 +61,22 @@ void main() {
         matching: find.byType(Transform),
       ),
       findsNothing,
-      reason: 'MintEntrance must not wrap its child in Transform.translate under reduced-motion.',
+      reason:
+          'MintEntrance must not wrap its child in Transform.translate under reduced-motion.',
     );
   });
 
-  testWidgets('MintTrameConfiance bloom: settles within 50ms under reduced-motion',
+  testWidgets(
+      'MintTrameConfiance bloom: settles within 50ms under reduced-motion',
       (tester) async {
-    final confidence = EnhancedConfidence(
+    const confidence = EnhancedConfidence(
       completeness: 75,
       accuracy: 80,
       freshness: 70,
       understanding: 72,
       combined: 74,
       level: 'high',
-      baseResult: const ProjectionConfidence(
+      baseResult: ProjectionConfidence(
         score: 75,
         level: 'high',
         prompts: [],

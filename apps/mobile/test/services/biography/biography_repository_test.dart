@@ -43,9 +43,7 @@ class InMemoryBiographyDatabase implements BiographyDatabase {
       final isDeletedIdx = _findParamIndex(sql, 'isDeleted = ?', arguments);
       if (isDeletedIdx != null) {
         final isDeletedVal = arguments![isDeletedIdx];
-        results = results
-            .where((r) => r['isDeleted'] == isDeletedVal)
-            .toList();
+        results = results.where((r) => r['isDeleted'] == isDeletedVal).toList();
       }
     }
 
@@ -69,8 +67,8 @@ class InMemoryBiographyDatabase implements BiographyDatabase {
 
     // Order by updatedAt DESC
     if (sql.contains('ORDER BY updatedAt DESC')) {
-      results.sort((a, b) => (b['updatedAt'] as String)
-          .compareTo(a['updatedAt'] as String));
+      results.sort((a, b) =>
+          (b['updatedAt'] as String).compareTo(a['updatedAt'] as String));
     }
 
     // LIMIT 1
@@ -150,8 +148,7 @@ class InMemoryBiographyDatabase implements BiographyDatabase {
   }
 
   /// Find the parameter index for a given clause in SQL.
-  int? _findParamIndex(
-      String sql, String clause, List<Object?>? arguments) {
+  int? _findParamIndex(String sql, String clause, List<Object?>? arguments) {
     if (arguments == null) return null;
     // Count ? placeholders before the clause
     final clausePos = sql.indexOf(clause);
@@ -240,7 +237,6 @@ void main() {
     });
 
     test('null fieldPath and sourceDate serialize correctly', () {
-      final fact = _makeFact(fieldPath: null, sourceDate: null);
       // Force sourceDate to null by constructing directly
       final factNull = BiographyFact(
         id: 'null-test',
@@ -317,8 +313,7 @@ void main() {
       expect(facts.first.source, FactSource.userEdit);
     });
 
-    test('softDeleteFact sets isDeleted=true (not physical delete)',
-        () async {
+    test('softDeleteFact sets isDeleted=true (not physical delete)', () async {
       final fact = _makeFact();
       await repo.insertFact(fact);
 
@@ -341,12 +336,12 @@ void main() {
     });
 
     test('getFactsByType filters correctly', () async {
-      await repo.insertFact(
-          _makeFact(id: 'salary-1', factType: FactType.salary));
-      await repo.insertFact(
-          _makeFact(id: 'lpp-1', factType: FactType.lppCapital));
-      await repo.insertFact(
-          _makeFact(id: 'salary-2', factType: FactType.salary));
+      await repo
+          .insertFact(_makeFact(id: 'salary-1', factType: FactType.salary));
+      await repo
+          .insertFact(_makeFact(id: 'lpp-1', factType: FactType.lppCapital));
+      await repo
+          .insertFact(_makeFact(id: 'salary-2', factType: FactType.salary));
 
       final salaryFacts = await repo.getFactsByType(FactType.salary);
       expect(salaryFacts, hasLength(2));
@@ -356,20 +351,18 @@ void main() {
     test('getFactsByFieldPath returns matching facts', () async {
       await repo.insertFact(
           _makeFact(id: 'f1', fieldPath: 'prevoyance.avoirLppTotal'));
-      await repo.insertFact(
-          _makeFact(id: 'f2', fieldPath: 'salaire'));
+      await repo.insertFact(_makeFact(id: 'f2', fieldPath: 'salaire'));
       await repo.insertFact(
           _makeFact(id: 'f3', fieldPath: 'prevoyance.avoirLppTotal'));
 
       final lppFacts =
           await repo.getFactsByFieldPath('prevoyance.avoirLppTotal');
       expect(lppFacts, hasLength(2));
-      expect(lppFacts.every(
-          (f) => f.fieldPath == 'prevoyance.avoirLppTotal'), isTrue);
+      expect(lppFacts.every((f) => f.fieldPath == 'prevoyance.avoirLppTotal'),
+          isTrue);
     });
 
-    test('getLatestFactForField returns most recent by updatedAt',
-        () async {
+    test('getLatestFactForField returns most recent by updatedAt', () async {
       await repo.insertFact(_makeFact(
         id: 'old',
         fieldPath: 'salaire',

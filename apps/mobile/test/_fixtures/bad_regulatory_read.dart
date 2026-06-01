@@ -11,7 +11,8 @@ class BadRegulatoryReader {
   Future<dynamic> readRegulatoryConstant(String key) async {
     // VIOLATION : direct read of fact_current(subject_type='regulatory').
     // Should go through codegen-baked regulatoryConstantsVersionHash.
-    final query = "SELECT value_enc FROM fact_current WHERE subject_type = 'regulatory' AND fact_type = ?";
+    const query =
+        "SELECT value_enc FROM fact_current WHERE subject_type = 'regulatory' AND fact_type = ?";
     return query;
   }
 }

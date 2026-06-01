@@ -56,9 +56,10 @@ class _DossierStripState extends State<DossierStrip> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
+          const Text(
             'TON DOSSIER',
-            style: TextStyle(fontFamily: 'Supreme', 
+            style: TextStyle(
+              fontFamily: 'Supreme',
               fontSize: 10.5,
               fontWeight: FontWeight.w600,
               letterSpacing: 1.2,
@@ -67,9 +68,10 @@ class _DossierStripState extends State<DossierStrip> {
           ),
           const SizedBox(height: 8),
           if (entries.isEmpty)
-            Text(
+            const Text(
               'Il se remplit tour par tour.',
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: TextStyle(
+                fontFamily: 'Supreme',
                 fontSize: 13,
                 color: MintColors.textSecondary,
                 fontStyle: FontStyle.italic,
@@ -158,7 +160,8 @@ class _DossierLineState extends State<_DossierLine>
               flex: 4,
               child: Text(
                 widget.entry.label,
-                style: TextStyle(fontFamily: 'Supreme', 
+                style: const TextStyle(
+                  fontFamily: 'Supreme',
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
                   color: MintColors.textSecondary,
@@ -172,7 +175,8 @@ class _DossierLineState extends State<_DossierLine>
                 textAlign: TextAlign.right,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontFamily: 'Supreme', 
+                style: const TextStyle(
+                  fontFamily: 'Supreme',
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   color: MintColors.textPrimary,

@@ -42,9 +42,6 @@ import 'package:flutter_test/flutter_test.dart';
 // import 'package:mint_mobile/services/pillar_3a_calculator.dart';
 // for the full numeric assertion against julien_swiss profile.
 
-const String _archetype = 'julien_swiss';
-const String _expectedKind = 'fiscal_margin_3a';
-
 // Banned-term lexicon (subset, FR ; full library will land in
 // `tools/checks/lsfin_lexicon.py` Phase 91 GROW-03).
 final RegExp _bannedTerms = RegExp(
@@ -54,22 +51,23 @@ final RegExp _bannedTerms = RegExp(
 
 void main() {
   group('PERS-08 julien_swiss × Premier Éclairage post-run assertions', () {
-    test('archetype injected at runtime (dart-define honoured)',
-        () {
+    test('archetype injected at runtime (dart-define honoured)', () {
       // Reads walker run summary.json → asserts profile.archetype
       // resolved to julien_swiss in CoachOrchestrator.
       // Phase 90 scaffolding : structure + skip true.
-    }, skip: 'Phase 90 scaffolding — wiring lands with PERS-02 walker integration');
+    },
+        skip:
+            'Phase 90 scaffolding — wiring lands with PERS-02 walker integration');
 
-    test('narrative invariant — eclairage.card.tap breadcrumb fired',
-        () {
+    test('narrative invariant — eclairage.card.tap breadcrumb fired', () {
       // Reads walker breadcrumb capture → asserts the
       // `mint.coach.eclairage.card.tap` (or panel-tagged equivalent)
       // breadcrumb was emitted within 30s of input submission.
-    }, skip: 'Phase 90 scaffolding — wiring lands with PERS-02 + PERS-05 replay-cache');
+    },
+        skip:
+            'Phase 90 scaffolding — wiring lands with PERS-02 + PERS-05 replay-cache');
 
-    test('LSFin banned-term regex hit-count == 0 across captured response',
-        () {
+    test('LSFin banned-term regex hit-count == 0 across captured response', () {
       // Reads walker assistant-response capture → applies _bannedTerms.
       const sampleResponse =
           'Plafond du 3e pilier 2026 environ 7 056 CHF. Tu pourrais envisager';
@@ -95,13 +93,11 @@ void main() {
       // Phase 91 ARCH-08 will wire Pillar3aCalculator.compute() against
       // a julien_swiss profile fixture for the full numeric assertion.
       expect(mockChfRangeHigh, lessThanOrEqualTo(7056),
-          reason:
-              'chf_range_high cannot exceed the 2026 plafond du 3e pilier '
+          reason: 'chf_range_high cannot exceed the 2026 plafond du 3e pilier '
               '(7056 CHF for salariés).');
     }, skip: 'Phase 90 scaffolding — full wiring reads walker artefact');
 
-    test('walker run-id env var present',
-        () {
+    test('walker run-id env var present', () {
       // Operational gate : surface a clear error if the assertion
       // suite is invoked without a walker run-id (= scaffolding
       // nobody ran the Maestro flow first).

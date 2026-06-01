@@ -234,11 +234,13 @@ void main() {
       for (var v = 0.0; v <= 100.0; v += 1) {
         states.add(densityForWeakest(v));
       }
-      expect(states, equals({
-        TrameDensity.dense,
-        TrameDensity.medium,
-        TrameDensity.sparse,
-      }));
+      expect(
+          states,
+          equals({
+            TrameDensity.dense,
+            TrameDensity.medium,
+            TrameDensity.sparse,
+          }));
     });
     test('source file contains zero Color(0x literals (D-10 grep gate)', () {
       final f = File('lib/widgets/trust/mint_trame_confiance.dart');
@@ -259,31 +261,38 @@ void main() {
   // ==========================================================================
   group('oneLineConfidenceSummary', () {
     test('completeness lowest → mtcSummaryWeakCompleteness key', () {
-      final c = _conf(completeness: 20, accuracy: 90, freshness: 90, understanding: 90);
+      final c = _conf(
+          completeness: 20, accuracy: 90, freshness: 90, understanding: 90);
       expect(oneLineConfidenceSummary(c), 'mtcSummaryWeakCompleteness');
     });
     test('accuracy lowest → mtcSummaryWeakAccuracy key', () {
-      final c = _conf(completeness: 90, accuracy: 20, freshness: 90, understanding: 90);
+      final c = _conf(
+          completeness: 90, accuracy: 20, freshness: 90, understanding: 90);
       expect(oneLineConfidenceSummary(c), 'mtcSummaryWeakAccuracy');
     });
     test('freshness lowest → mtcSummaryWeakFreshness key', () {
-      final c = _conf(completeness: 90, accuracy: 90, freshness: 20, understanding: 90);
+      final c = _conf(
+          completeness: 90, accuracy: 90, freshness: 20, understanding: 90);
       expect(oneLineConfidenceSummary(c), 'mtcSummaryWeakFreshness');
     });
     test('understanding lowest → mtcSummaryWeakUnderstanding key', () {
-      final c = _conf(completeness: 90, accuracy: 90, freshness: 90, understanding: 20);
+      final c = _conf(
+          completeness: 90, accuracy: 90, freshness: 90, understanding: 20);
       expect(oneLineConfidenceSummary(c), 'mtcSummaryWeakUnderstanding');
     });
     test('all-tied → completeness wins (deterministic priority order)', () {
-      final c = _conf(completeness: 50, accuracy: 50, freshness: 50, understanding: 50);
+      final c = _conf(
+          completeness: 50, accuracy: 50, freshness: 50, understanding: 50);
       expect(oneLineConfidenceSummary(c), 'mtcSummaryWeakCompleteness');
     });
     test('completeness/accuracy tied at lowest → completeness wins', () {
-      final c = _conf(completeness: 30, accuracy: 30, freshness: 90, understanding: 90);
+      final c = _conf(
+          completeness: 30, accuracy: 30, freshness: 90, understanding: 90);
       expect(oneLineConfidenceSummary(c), 'mtcSummaryWeakCompleteness');
     });
     test('accuracy/freshness tied at lowest → accuracy wins', () {
-      final c = _conf(completeness: 90, accuracy: 30, freshness: 30, understanding: 90);
+      final c = _conf(
+          completeness: 90, accuracy: 30, freshness: 30, understanding: 90);
       expect(oneLineConfidenceSummary(c), 'mtcSummaryWeakAccuracy');
     });
     test('returns 4 distinct ARB keys (no collision)', () {
@@ -301,7 +310,7 @@ void main() {
   //  GROUP 4 — ARB key resolution across 6 languages (4 tests)
   // ==========================================================================
   group('ARB key resolution', () {
-    Future<void> _expectAllKeys(WidgetTester tester, Locale locale) async {
+    Future<void> expectAllKeys(WidgetTester tester, Locale locale) async {
       late S l10n;
       await tester.pumpWidget(
         MaterialApp(
@@ -323,16 +332,16 @@ void main() {
     }
 
     testWidgets('fr resolves all 4 keys', (t) async {
-      await _expectAllKeys(t, const Locale('fr'));
+      await expectAllKeys(t, const Locale('fr'));
     });
     testWidgets('en resolves all 4 keys', (t) async {
-      await _expectAllKeys(t, const Locale('en'));
+      await expectAllKeys(t, const Locale('en'));
     });
     testWidgets('de resolves all 4 keys', (t) async {
-      await _expectAllKeys(t, const Locale('de'));
+      await expectAllKeys(t, const Locale('de'));
     });
     testWidgets('es resolves all 4 keys', (t) async {
-      await _expectAllKeys(t, const Locale('es'));
+      await expectAllKeys(t, const Locale('es'));
     });
     // it + pt exercised below in semantics tests.
   });
@@ -341,7 +350,8 @@ void main() {
   //  GROUP 5 — Constructors (6 tests)
   // ==========================================================================
   group('constructors', () {
-    testWidgets('inline renders without crash on healthy confidence', (t) async {
+    testWidgets('inline renders without crash on healthy confidence',
+        (t) async {
       await t.pumpWidget(_wrap(MintTrameConfiance.inline(
         confidence: _conf(),
         bloomStrategy: BloomStrategy.firstAppearance,
@@ -350,7 +360,8 @@ void main() {
       expect(find.byType(MintTrameConfiance), findsOneWidget);
     });
 
-    testWidgets('inline factory-redirects to empty when weakest < 0.4', (t) async {
+    testWidgets('inline factory-redirects to empty when weakest < 0.4',
+        (t) async {
       final mtc = MintTrameConfiance.inline(
         confidence: _conf(completeness: 10),
         bloomStrategy: BloomStrategy.firstAppearance,
@@ -412,7 +423,7 @@ void main() {
       )));
       await t.pump(); // first frame
       await t.pump(const Duration(milliseconds: 260));
-      expect(tester_passes(), isTrue); // sentinel — pump did not throw
+      expect(testerPasses(), isTrue); // sentinel — pump did not throw
     });
 
     testWidgets('reduced-motion uses 50ms opacity-only fallback', (t) async {
@@ -428,7 +439,9 @@ void main() {
       expect(find.byType(MintTrameConfiance), findsOneWidget);
     });
 
-    testWidgets('BloomStrategy.never creates no controller (no scheduled frames)', (t) async {
+    testWidgets(
+        'BloomStrategy.never creates no controller (no scheduled frames)',
+        (t) async {
       await t.pumpWidget(_wrap(MintTrameConfiance.inline(
         confidence: _conf(),
         bloomStrategy: BloomStrategy.never,
@@ -439,7 +452,9 @@ void main() {
       expect(find.byType(MintTrameConfiance), findsOneWidget);
     });
 
-    testWidgets('reduced-motion + never strategy → no animation, renders final state', (t) async {
+    testWidgets(
+        'reduced-motion + never strategy → no animation, renders final state',
+        (t) async {
       await t.pumpWidget(_wrap(
         MintTrameConfiance.inline(
           confidence: _conf(),
@@ -466,7 +481,9 @@ void main() {
       expect(MintTrameConfiance.debugAnnounceCount, 1);
     });
 
-    testWidgets('does NOT re-announce on rebuild with SAME confidence reference', (t) async {
+    testWidgets(
+        'does NOT re-announce on rebuild with SAME confidence reference',
+        (t) async {
       MintTrameConfiance.debugReset();
       final c = _conf();
       Widget tree() => _wrap(MintTrameConfiance.inline(
@@ -499,4 +516,4 @@ void main() {
   });
 }
 
-bool tester_passes() => true;
+bool testerPasses() => true;

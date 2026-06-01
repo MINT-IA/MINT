@@ -35,7 +35,7 @@ void main() {
     /// Helper — build a CoachProfile with explicit FATCA signal shape.
     /// Uses [CoachProfile.defaults] + copyWith to avoid hardcoding the full
     /// required-field set (mirrors CoachProfile.fromWizardAnswers behavior).
-    CoachProfile _profile({
+    CoachProfile profile({
       String? nationality,
       bool? usTaxPerson,
       String? residencePermit,
@@ -61,7 +61,7 @@ void main() {
           captured.add(Map<String, String>.from(attrs));
         };
 
-        final p = _profile(nationality: 'CH');
+        final p = profile(nationality: 'CH');
         await GateDecisionTelemetry.recordDecision(
           profile: p,
           computedArchetype: p.archetype,
@@ -87,7 +87,7 @@ void main() {
           captured.add(Map<String, String>.from(attrs));
         };
 
-        final p = _profile(usTaxPerson: true);
+        final p = profile(usTaxPerson: true);
         await GateDecisionTelemetry.recordDecision(
           profile: p,
           computedArchetype: p.archetype,
@@ -111,7 +111,7 @@ void main() {
           captured.add(Map<String, String>.from(attrs));
         };
 
-        final p = _profile();
+        final p = profile();
         await GateDecisionTelemetry.recordDecision(
           profile: p,
           computedArchetype: p.archetype,
@@ -138,7 +138,7 @@ void main() {
           captured.add(Map<String, String>.from(attrs));
         };
 
-        final p = _profile(usTaxPerson: true);
+        final p = profile(usTaxPerson: true);
         await GateDecisionTelemetry.recordDecision(
           profile: p,
           computedArchetype: p.archetype,
@@ -172,7 +172,7 @@ void main() {
         };
 
         // Legacy ambiguous profile (all signals null → unknown).
-        final p = _profile();
+        final p = profile();
         await GateDecisionTelemetry.recordDecision(
           profile: p,
           computedArchetype: p.archetype,

@@ -47,7 +47,7 @@ void main() {
     bool foundLive = false;
     SemanticsNode? cur = node;
     while (cur != null) {
-      if (cur.hasFlag(SemanticsFlag.isLiveRegion)) {
+      if (cur.flagsCollection.isLiveRegion) {
         foundLive = true;
         break;
       }
@@ -72,14 +72,15 @@ void main() {
     bool foundLive = false;
     SemanticsNode? cur = node;
     while (cur != null) {
-      if (cur.hasFlag(SemanticsFlag.isLiveRegion)) {
+      if (cur.flagsCollection.isLiveRegion) {
         foundLive = true;
         break;
       }
       cur = cur.parent;
     }
     expect(foundLive, isFalse,
-        reason: 'User-echo bubble must not announce — only Claude output does.');
+        reason:
+            'User-echo bubble must not announce — only Claude output does.');
     handle.dispose();
   });
 }

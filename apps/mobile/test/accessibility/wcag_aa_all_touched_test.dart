@@ -66,7 +66,7 @@ void main() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Mint te dit ce que personne n\'a interet a te dire.',
                   style: TextStyle(
                     color: MintColors.textPrimary,
@@ -75,7 +75,7 @@ void main() {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(
+                const Text(
                   'Une intelligence calme et fiable, dans ta poche.',
                   style: TextStyle(
                     color: MintColors.textSecondaryAaa,
@@ -109,7 +109,7 @@ void main() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Pourquoi tu es la?',
                   style: TextStyle(
                     color: MintColors.textPrimary,
@@ -129,7 +129,8 @@ void main() {
                     ])
                       ActionChip(
                         label: Text(label),
-                        labelStyle: TextStyle(color: MintColors.textPrimary),
+                        labelStyle:
+                            const TextStyle(color: MintColors.textPrimary),
                         backgroundColor: MintColors.white,
                         onPressed: () {},
                       ),
@@ -161,7 +162,7 @@ void main() {
           body: ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              Text(
+              const Text(
                 'Aujourd\'hui',
                 style: TextStyle(
                   color: MintColors.textPrimary,
@@ -170,7 +171,7 @@ void main() {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
+              const Text(
                 'Trois choses te concernent en ce moment.',
                 style:
                     TextStyle(color: MintColors.textSecondaryAaa, fontSize: 15),
@@ -181,14 +182,14 @@ void main() {
                   contentPadding: EdgeInsets.zero,
                   title: Text(
                     'Carte $i',
-                    style: TextStyle(color: MintColors.textPrimary),
+                    style: const TextStyle(color: MintColors.textPrimary),
                   ),
                   subtitle: Text(
                     'Detail discret pour la carte $i',
-                    style: TextStyle(color: MintColors.textSecondaryAaa),
+                    style: const TextStyle(color: MintColors.textSecondaryAaa),
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.chevron_right,
+                    icon: const Icon(Icons.chevron_right,
                         color: MintColors.textPrimary),
                     onPressed: () {},
                   ),
@@ -216,7 +217,7 @@ void main() {
                 color: MintColors.coachBubble,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Text(
+              child: const Text(
                 'Voici ce que ton 2e pilier implique pour toi.',
                 style: TextStyle(
                   color: MintColors.textPrimary,
@@ -244,7 +245,7 @@ void main() {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Ce qu\'on a appris',
                       style: TextStyle(
                         color: MintColors.textPrimary,
@@ -253,7 +254,7 @@ void main() {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    const Text(
                       'Trois implications discretes pour ta situation.',
                       style: TextStyle(
                         color: MintColors.textSecondaryAaa,
@@ -263,7 +264,7 @@ void main() {
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: () {},
-                      child: Text(
+                      child: const Text(
                         'En savoir plus',
                         style: TextStyle(color: MintColors.accent),
                       ),
@@ -292,10 +293,10 @@ void main() {
                 border: Border.all(color: MintColors.errorAaa, width: 1.5),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(Icons.info_outline, color: MintColors.errorAaa),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Une dette a forte charge demande attention.',
@@ -378,13 +379,14 @@ void main() {
                 ListTile(
                   title: Text(
                     label,
-                    style: TextStyle(color: MintColors.textPrimary),
+                    style: const TextStyle(color: MintColors.textPrimary),
                   ),
-                  trailing: Icon(Icons.chevron_right,
+                  trailing: const Icon(Icons.chevron_right,
                       color: MintColors.textSecondaryAaa),
                   onTap: () {},
                 ),
-                Divider(color: MintColors.textSecondaryAaa.withValues(alpha: 0.2)),
+                Divider(
+                    color: MintColors.textSecondaryAaa.withValues(alpha: 0.2)),
               ],
             ],
           ),
@@ -405,7 +407,7 @@ void main() {
                 color: MintColors.textPrimary,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
+              child: const Text(
                 'Ton non enregistre — on reessaiera.',
                 style: TextStyle(color: MintColors.white, fontSize: 14),
               ),

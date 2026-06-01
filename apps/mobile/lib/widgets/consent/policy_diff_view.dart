@@ -35,7 +35,8 @@ class PolicyDiffView extends StatelessWidget {
         children: [
           Text(
             l.policyDiffTitle,
-            style: TextStyle(fontFamily: 'Supreme', 
+            style: const TextStyle(
+              fontFamily: 'Supreme',
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: MintColors.textPrimary,
@@ -44,7 +45,8 @@ class PolicyDiffView extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '$fromVersion → $toVersion',
-            style: TextStyle(fontFamily: 'Supreme', 
+            style: const TextStyle(
+              fontFamily: 'Supreme',
               fontSize: 13,
               color: MintColors.textSecondary,
             ),
@@ -53,10 +55,8 @@ class PolicyDiffView extends StatelessWidget {
           Expanded(
             child: ListView(
               children: [
-                for (final line in removed)
-                  _DiffLine(text: line, added: false),
-                for (final line in added)
-                  _DiffLine(text: line, added: true),
+                for (final line in removed) _DiffLine(text: line, added: false),
+                for (final line in added) _DiffLine(text: line, added: true),
               ],
             ),
           ),
@@ -96,7 +96,8 @@ class _DiffLine extends StatelessWidget {
       ),
       child: Text(
         '$prefix$text',
-        style: TextStyle(fontFamily: 'Supreme', 
+        style: const TextStyle(
+          fontFamily: 'Supreme',
           fontSize: 13,
           color: MintColors.textPrimary,
           height: 1.4,

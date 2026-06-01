@@ -111,20 +111,22 @@ class _DefaultError extends StatelessWidget {
               color: MintColors.textSecondary,
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               title,
               textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: TextStyle(
+                fontFamily: 'Supreme',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               body,
               textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: TextStyle(
+                fontFamily: 'Supreme',
                 fontSize: 14,
                 color: MintColors.textSecondary,
               ),
@@ -133,7 +135,7 @@ class _DefaultError extends StatelessWidget {
               const SizedBox(height: 20),
               FilledButton.tonal(
                 onPressed: onRetry,
-                child: Text(retryLabel),
+                child: const Text(retryLabel),
               ),
             ],
           ],

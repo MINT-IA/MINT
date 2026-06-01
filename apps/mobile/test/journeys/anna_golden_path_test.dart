@@ -14,7 +14,6 @@
 //  - Error recovery (age=65, retirement age boundary)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';

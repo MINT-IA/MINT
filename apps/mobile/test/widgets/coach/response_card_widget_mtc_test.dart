@@ -154,9 +154,8 @@ void main() {
       ));
       await tester.tap(find.byIcon(Icons.info_outline_rounded).first);
       await tester.pumpAndSettle();
-      final bordered = tester
-          .widgetList<Container>(find.byType(Container))
-          .where((c) {
+      final bordered =
+          tester.widgetList<Container>(find.byType(Container)).where((c) {
         final d = c.decoration;
         if (d is! BoxDecoration) return false;
         return d.color == MintColors.border;
@@ -314,7 +313,7 @@ void main() {
   // ──────────────────────────────────────────────────────────────
 
   group('card.confidence fallback', () {
-    ResponseCard _cardWithConfidence(EnhancedConfidence c) {
+    ResponseCard cardWithConfidence(EnhancedConfidence c) {
       final base = _makeCard();
       return ResponseCard(
         id: base.id,
@@ -334,7 +333,7 @@ void main() {
     testWidgets(
         'renders MTC from card.confidence when confidence param is null',
         (tester) async {
-      final card = _cardWithConfidence(_mockConfidence());
+      final card = cardWithConfidence(_mockConfidence());
       await tester.pumpWidget(_wrap(
         ResponseCardWidget(
           card: card,
@@ -356,7 +355,7 @@ void main() {
         freshness: 90,
         understanding: 90,
       );
-      final card = _cardWithConfidence(cardConf);
+      final card = cardWithConfidence(cardConf);
       await tester.pumpWidget(_wrap(
         ResponseCardWidget(
           card: card,
@@ -376,7 +375,7 @@ void main() {
     testWidgets(
         'ResponseCardStrip forwards isProjection when card has confidence',
         (tester) async {
-      final card = _cardWithConfidence(_mockConfidence());
+      final card = cardWithConfidence(_mockConfidence());
       await tester.pumpWidget(_wrap(
         ResponseCardStrip(cards: [card]),
       ));

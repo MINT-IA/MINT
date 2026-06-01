@@ -78,7 +78,8 @@ class ConsentSheet extends StatelessWidget {
               children: [
                 Text(
                   l.consentSheetTitle,
-                  style: TextStyle(fontFamily: 'Supreme', 
+                  style: const TextStyle(
+                    fontFamily: 'Supreme',
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
                     color: MintColors.textPrimary,
@@ -87,7 +88,8 @@ class ConsentSheet extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   l.consentSheetSubtitle,
-                  style: TextStyle(fontFamily: 'Supreme', 
+                  style: const TextStyle(
+                    fontFamily: 'Supreme',
                     fontSize: 14,
                     color: MintColors.textSecondary,
                   ),
@@ -105,7 +107,8 @@ class ConsentSheet extends StatelessWidget {
                         children: [
                           Text(
                             _titleForPurpose(l, p),
-                            style: TextStyle(fontFamily: 'Supreme', 
+                            style: const TextStyle(
+                              fontFamily: 'Supreme',
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: MintColors.textPrimary,
@@ -114,7 +117,8 @@ class ConsentSheet extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             _whyForPurpose(l, p),
-                            style: TextStyle(fontFamily: 'Supreme', 
+                            style: const TextStyle(
+                              fontFamily: 'Supreme',
                               fontSize: 13,
                               color: MintColors.textSecondary,
                               height: 1.4,

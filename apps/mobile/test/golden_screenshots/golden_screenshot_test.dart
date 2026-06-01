@@ -10,15 +10,12 @@
 // 1.5% pixel diff tolerance enforced via TolerantGoldenFileComparator.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
 // KILL-07: mint_home_screen.dart + 5 unused provider imports deleted (nav-audit-fixes)
 // KILL-01: intent_screen.dart deleted (Phase 2)
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
@@ -50,45 +47,11 @@ void _setViewport(WidgetTester tester, Size logicalSize) {
 /// Builds a localized MaterialApp with the given [locale] and providers.
 Widget _buildLocalizedWidget(
   Widget child, {
-  Locale locale = const Locale('fr'),
   List<SingleChildWidget> extraProviders = const [],
 }) {
   return buildGoldenWidget(
     child,
     extraProviders: extraProviders,
-  );
-}
-
-/// Builds the same widget but with a different locale for DE tests.
-Widget _buildDeWidget(
-  Widget child, {
-  List<SingleChildWidget> extraProviders = const [],
-}) {
-  final providers = <SingleChildWidget>[
-    ChangeNotifierProvider<CoachProfileProvider>(
-      create: (_) => CoachProfileProvider(),
-    ),
-    ...extraProviders,
-  ];
-
-  return MultiProvider(
-    providers: providers,
-    child: MaterialApp(
-      debugShowCheckedModeBanner: false,
-      locale: const Locale('de'),
-      localizationsDelegates: const [
-        S.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: S.supportedLocales,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00382E)),
-        useMaterial3: true,
-      ),
-      home: child,
-    ),
   );
 }
 

@@ -11,7 +11,6 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
-import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 
 CoachContext _ctx({String archetype = 'swiss_native'}) {
@@ -74,8 +73,7 @@ void main() {
     expect(response.message, isNotEmpty);
   });
 
-  test(
-      '4. refusal payload shape: refused=true, refusalReason and message set',
+  test('4. refusal payload shape: refused=true, refusalReason and message set',
       () async {
     final ctx = _ctx(archetype: 'cross_border');
     final response = await CoachOrchestrator.generateChat(

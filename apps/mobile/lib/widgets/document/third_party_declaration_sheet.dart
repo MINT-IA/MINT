@@ -70,7 +70,8 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
           children: [
             Text(
               l.thirdPartyDeclarationTitle,
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: const TextStyle(
+                fontFamily: 'Supreme',
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: MintColors.textPrimary,
@@ -81,7 +82,8 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
               multiple
                   ? l.thirdPartyDeclarationMultipleBody(names)
                   : l.thirdPartyDeclarationBody(names),
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: const TextStyle(
+                fontFamily: 'Supreme',
                 fontSize: 15,
                 color: MintColors.textSecondary,
                 height: 1.45,
@@ -90,7 +92,8 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               l.thirdPartyDeclarationNoticeLink,
-              style: TextStyle(fontFamily: 'Supreme', 
+              style: const TextStyle(
+                fontFamily: 'Supreme',
                 fontSize: 13,
                 color: MintColors.textSecondary,
                 fontStyle: FontStyle.italic,
@@ -111,7 +114,8 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                   .pop(ThirdPartyDeclarationChoice.confirmed),
               child: Text(
                 l.thirdPartyDeclarationConfirm,
-                style: TextStyle(fontFamily: 'Supreme', 
+                style: const TextStyle(
+                  fontFamily: 'Supreme',
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -124,7 +128,8 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                   .pop(ThirdPartyDeclarationChoice.cancelled),
               child: Text(
                 l.thirdPartyDeclarationCancel,
-                style: TextStyle(fontFamily: 'Supreme', 
+                style: const TextStyle(
+                  fontFamily: 'Supreme',
                   fontSize: 14,
                   color: MintColors.textSecondary,
                 ),
@@ -147,11 +152,12 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                 l.thirdPartyInviteCta(
                   subjectNames.isNotEmpty ? subjectNames.first : '',
                 ),
-                style: TextStyle(fontFamily: 'Supreme', fontSize: 13),
+                style: const TextStyle(fontFamily: 'Supreme', fontSize: 13),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: MintColors.primary,
-                side: BorderSide(color: MintColors.primary.withValues(alpha: 0.4)),
+                side: BorderSide(
+                    color: MintColors.primary.withValues(alpha: 0.4)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

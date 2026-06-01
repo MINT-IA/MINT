@@ -193,7 +193,7 @@ class _NationalityStep extends StatelessWidget {
             header: true,
             child: Text(
               l.nationalityPrompt,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Supreme',
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
@@ -229,7 +229,7 @@ class _NationalityStep extends StatelessWidget {
                         ),
                         child: Text(
                           label,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'Supreme',
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -269,7 +269,7 @@ class _StepScaffold extends StatelessWidget {
         children: [
           Text(
             prompt,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Supreme',
               fontSize: 24,
               fontWeight: FontWeight.w600,
@@ -311,7 +311,7 @@ class _PrimaryButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: 'Supreme',
             fontSize: 15,
             fontWeight: FontWeight.w600,
@@ -338,7 +338,7 @@ class _EntryStep extends StatelessWidget {
       child: Column(
         children: [
           const Spacer(),
-          Text(
+          const Text(
             'Il est temps que tu comprennes.',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -450,7 +450,7 @@ class _IntentCard extends StatelessWidget {
           children: [
             Text(
               eyebrow,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Supreme',
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600,
@@ -461,7 +461,7 @@ class _IntentCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               phrase,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Supreme',
                 fontSize: 17,
                 fontWeight: FontWeight.w500,
@@ -635,7 +635,7 @@ class _CantonStep extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 code,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: 'Supreme',
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -698,7 +698,7 @@ class _RevenueStepState extends State<_RevenueStep> {
           if (!_exactMode) ...[
             Text(
               '${_fmt(range.low)} – ${_fmt(range.high)} CHF',
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Supreme',
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
@@ -706,7 +706,7 @@ class _RevenueStepState extends State<_RevenueStep> {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
+            const Text(
               'tu ajusteras quand tu scanneras ta fiche',
               style: TextStyle(
                 fontFamily: 'Supreme',
@@ -734,7 +734,7 @@ class _RevenueStepState extends State<_RevenueStep> {
               children: [
                 Text(
                   '${_fmt(_kMinNet.toDouble())} CHF',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Supreme',
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -742,7 +742,7 @@ class _RevenueStepState extends State<_RevenueStep> {
                 ),
                 Text(
                   '${_fmt(_kMaxNet.toDouble())} CHF',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Supreme',
                     fontSize: 12,
                     color: MintColors.textSecondary,
@@ -754,7 +754,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             Center(
               child: TextButton(
                 onPressed: () => setState(() => _exactMode = true),
-                child: Text(
+                child: const Text(
                   'Je sais le chiffre exact',
                   style: TextStyle(
                     fontFamily: 'Supreme',
@@ -783,7 +783,7 @@ class _RevenueStepState extends State<_RevenueStep> {
                 FilteringTextInputFormatter.allow(RegExp(r"[0-9 ']")),
               ],
               autofocus: true,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Supreme',
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
@@ -811,7 +811,7 @@ class _RevenueStepState extends State<_RevenueStep> {
               },
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Avant impôt, après cotisations (le chiffre que tu vois tomber).',
               style: TextStyle(
                 fontFamily: 'Supreme',
@@ -823,7 +823,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             Center(
               child: TextButton(
                 onPressed: () => setState(() => _exactMode = false),
-                child: Text(
+                child: const Text(
                   'Revenir à la fourchette',
                   style: TextStyle(
                     fontFamily: 'Supreme',
@@ -912,7 +912,7 @@ class _InsightStep extends StatelessWidget {
               children: [
                 Text(
                   eyebrow,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Supreme',
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
@@ -923,7 +923,7 @@ class _InsightStep extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   phrase,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Supreme',
                     fontSize: 19,
                     fontWeight: FontWeight.w500,
@@ -1056,8 +1056,8 @@ class _BifurcationStepState extends State<_BifurcationStep> {
           backgroundColor: MintColors.textPrimary,
           content: Text(
             l10n.onboardingSealError,
-            style:
-                TextStyle(fontFamily: 'Supreme', color: MintColors.background),
+            style: const TextStyle(
+                fontFamily: 'Supreme', color: MintColors.background),
           ),
           action: SnackBarAction(
             label: l10n.onboardingSealRetry,
@@ -1100,7 +1100,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
           const SizedBox(height: 10),
           TextButton(
             onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
-            child: Text(
+            child: const Text(
               'Plus tard',
               style: TextStyle(
                 fontFamily: 'Supreme',
