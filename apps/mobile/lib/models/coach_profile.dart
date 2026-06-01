@@ -2890,7 +2890,6 @@ class CoachProfile {
     );
 
     // ── Dettes ──────────────────────────────────────────────
-    final hasDebt = _parseBool(answers['q_has_consumer_debt']);
     final debtPaymentsMonthly =
         _parseDouble(answers['q_debt_payments_period_chf']) ?? 0;
     // _coach_dettes_* keys are written by updateInline() and survive restarts.
@@ -2899,6 +2898,7 @@ class CoachProfile {
     final inlineCreditConso = _parseDouble(answers['_coach_dettes_credit']);
     final inlineLeasing = _parseDouble(answers['_coach_dettes_leasing']);
     final inlineAutresDettes = _parseDouble(answers['_coach_dettes_autres']);
+    final declaredTotalDebt = _parseDouble(answers['q_total_debt_balance_chf']);
     final hasInlineDettes = inlineHypotheque != null ||
         inlineCreditConso != null ||
         inlineLeasing != null ||
@@ -2914,12 +2914,15 @@ class CoachProfile {
               debtPaymentsMonthly > 0 ? debtPaymentsMonthly : null,
         );
       }
+      if (declaredTotalDebt != null && declaredTotalDebt > 0) {
+        return DetteProfile(
+          autresDettes: declaredTotalDebt,
+          mensualiteCreditConso:
+              debtPaymentsMonthly > 0 ? debtPaymentsMonthly : null,
+        );
+      }
       if (debtPaymentsMonthly > 0) {
         return DetteProfile(mensualiteCreditConso: debtPaymentsMonthly);
-      }
-      if (hasDebt) {
-        // Fallback si uniquement booléen déclaré sans montant.
-        return DetteProfile(creditConsommation: salaireBrutMensuel * 12 * 0.05);
       }
       return const DetteProfile();
     })();
@@ -3048,15 +3051,27 @@ class CoachProfile {
     // ── Conjoint (partner) data from onboarding ────────────
     ConjointProfile? conjoint;
     final partnerIncome = _parseDouble(answers['q_partner_net_income_chf']);
-    if (partnerIncome != null && partnerIncome > 0) {
-      final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
-      final conjEmployment = answers['q_partner_employment_status'] as String?;
+    final partnerBirthYear = _parseInt(answers['q_partner_birth_year']);
+    final conjEmployment = answers['q_partner_employment_status'] as String?;
+    final hasConjointData = (partnerIncome != null && partnerIncome > 0) ||
+        partnerBirthYear != null ||
+        answers.containsKey('q_spouse_avs_contribution_years') ||
+        answers.containsKey('q_spouse_avs_lacunes_status') ||
+        answers.containsKey('q_partner_firstname') ||
+        answers.containsKey('q_partner_employment_status') ||
+        answers.containsKey('q_partner_nationality') ||
+        answers.containsKey('q_partner_gender') ||
+        answers.containsKey('q_partner_canton') ||
+        answers.containsKey('q_partner_enfants');
+    if (hasConjointData) {
       // Net -> Brut estimation via the SAME canonical IncomeConverter factor
       // as the main user (single source — onb-02). No divergent charges rate.
-      final partnerBrut = partnerIncome *
-          IncomeConverter.factorFor(
-            isSalaried: conjEmployment != 'independant',
-          );
+      final partnerBrut = partnerIncome == null
+          ? null
+          : partnerIncome *
+              IncomeConverter.factorFor(
+                isSalaried: conjEmployment != 'independant',
+              );
 
       // === Conjoint arrivalAge ===
       // First check for spouse-specific AVS arrival data, then fall back
@@ -3099,7 +3114,7 @@ class CoachProfile {
           : 35;
       final conjHasLpp =
           conjEmployment != 'independant' && conjEmployment != 'inactive';
-      final conjLppEstimate = conjHasLpp
+      final conjLppEstimate = conjHasLpp && partnerBrut != null
           ? _estimateLppAvoir(conjAge, partnerBrut,
               arrivalAge: conjointArrivalAge)
           : 0.0;
@@ -3111,6 +3126,8 @@ class CoachProfile {
       // === Conjoint prevoyance profile ===
       // FATCA hard block: most providers refuse US persons (LSFin compliance).
       final conjointPrevoyance = PrevoyanceProfile(
+        anneesContribuees:
+            _parseInt(answers['q_spouse_avs_contribution_years']),
         lacunesAVS: spouseAvsGaps > 0 ? spouseAvsGaps : null,
         avoirLppTotal: conjLppEstimate,
         canContribute3a: !conjIsFatca,

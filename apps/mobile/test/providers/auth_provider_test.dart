@@ -350,6 +350,7 @@ void main() {
           'savingsMonthly': 1500,
           'totalSavings': 18000,
           'hasDebt': true,
+          'totalDebt': 9000,
           'avsContributionYears': 20,
           'targetRetirementAge': 64,
         },
@@ -364,7 +365,8 @@ void main() {
       expect(merged['q_3a_annual_contribution'], 7056.0);
       expect(merged['q_savings_monthly'], 1500.0);
       expect(merged['q_cash_total'], 18000.0);
-      expect(merged['q_has_consumer_debt'], isTrue);
+      expect(merged['q_has_consumer_debt'], 'yes');
+      expect(merged['q_total_debt_balance_chf'], 9000.0);
       expect(merged['q_avs_contribution_years'], 20);
       expect(merged['q_target_retirement_age'], 64);
       expect(profile.prevoyance.avoirLppTotal, 250000);
@@ -374,7 +376,7 @@ void main() {
       expect(profile.patrimoine.epargneLiquide, 18000);
       expect(profile.prevoyance.anneesContribuees, 20);
       expect(profile.targetRetirementAge, 64);
-      expect(profile.dettes.hasDette, isTrue);
+      expect(profile.dettes.totalDettes, 9000);
     });
 
     test('backend profile merge preserves local financial truth', () {
@@ -412,6 +414,19 @@ void main() {
       expect(merged['q_cash_total'], 9000);
       expect(merged['q_has_consumer_debt'], isFalse);
       expect(merged['q_target_retirement_age'], 63);
+    });
+
+    test('backend profile merge does not synthesize debt capital from boolean',
+        () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {'q_birth_year': 1981, 'q_gross_salary_annual': 120000},
+        {'hasDebt': true},
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_has_consumer_debt'], 'yes');
+      expect(merged.containsKey('q_total_debt_balance_chf'), isFalse);
+      expect(profile.dettes.totalDettes, 0);
     });
 
     test('backend profile merge keeps net monthly income units coherent', () {

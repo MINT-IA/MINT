@@ -34,6 +34,7 @@ class ProfileBase(BaseModel):
     incomeGrossYearly: Optional[float] = Field(None, ge=0, le=10_000_000)
     savingsMonthly: Optional[float] = Field(None, ge=0, le=10_000_000)
     totalSavings: Optional[float] = Field(None, ge=0, le=10_000_000)
+    totalDebt: Optional[float] = Field(None, ge=0, le=1_000_000_000)
     lppInsuredSalary: Optional[float] = Field(None, ge=0, le=10_000_000)
     avoirLpp: Optional[float] = Field(None, ge=0, le=10_000_000)
     lppBuybackMax: Optional[float] = Field(None, ge=0, le=10_000_000)
@@ -76,6 +77,8 @@ class ProfileBase(BaseModel):
     # ⭐ Nouveaux champs pour AVS
     hasAvsGaps: Optional[bool] = None
     avsContributionYears: Optional[int] = Field(None, ge=0, le=44)
+    spouseBirthYear: Optional[int] = Field(None, ge=1900, le=2025)
+    spouseIncomeNetMonthly: Optional[float] = Field(None, ge=0, le=10_000_000)
     spouseAvsContributionYears: Optional[int] = Field(None, ge=0, le=44)
 
     # ⭐ Nouveaux champs pour modèle fiscal MVP (Chantier 1)
@@ -154,6 +157,7 @@ class ProfileUpdate(BaseModel):
     incomeGrossYearly: Optional[float] = Field(None, ge=0)  # FIX-069
     savingsMonthly: Optional[float] = None
     totalSavings: Optional[float] = None
+    totalDebt: Optional[float] = Field(None, ge=0, le=1_000_000_000)
     lppInsuredSalary: Optional[float] = None
     avoirLpp: Optional[float] = Field(None, ge=0, le=10_000_000)
     lppBuybackMax: Optional[float] = Field(None, ge=0, le=10_000_000)
@@ -176,6 +180,8 @@ class ProfileUpdate(BaseModel):
     primaryActivity: Optional[str] = None
     hasAvsGaps: Optional[bool] = None
     avsContributionYears: Optional[int] = Field(None, ge=0, le=44)
+    spouseBirthYear: Optional[int] = Field(None, ge=1900, le=2025)
+    spouseIncomeNetMonthly: Optional[float] = Field(None, ge=0, le=10_000_000)
     spouseAvsContributionYears: Optional[int] = Field(None, ge=0, le=44)
     # FIX-114: Couple financial fields for household calculations
     spouseSalaryGrossAnnual: Optional[float] = Field(None, ge=0)

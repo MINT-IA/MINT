@@ -197,8 +197,9 @@ class AuthProvider extends ChangeNotifier {
     fillNumIfMissing('q_savings_monthly', data['savingsMonthly']);
     fillNumIfMissing('q_cash_total', data['totalSavings']);
     if (data['hasDebt'] == true) {
-      fillIfMissing('q_has_consumer_debt', true);
+      fillIfMissing('q_has_consumer_debt', 'yes');
     }
+    fillNumIfMissing('q_total_debt_balance_chf', data['totalDebt']);
     if (data['avsContributionYears'] is num) {
       fillIfMissing(
         'q_avs_contribution_years',

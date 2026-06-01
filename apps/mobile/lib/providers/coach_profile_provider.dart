@@ -239,7 +239,7 @@ class CoachProfileProvider extends ChangeNotifier {
       final remoteData = await ApiService.get('/profiles/me');
       mergeFromRemoteProfile(remoteData);
       // Also merge financial fields that the basic merge doesn't cover.
-      _mergeFinancialFieldsFromRemote(remoteData);
+      await _mergeFinancialFieldsFromRemote(remoteData);
       // OBS-05 — save_fact success proxy breadcrumb (D-03 4-level).
       // factKind is the coarse 'profile_sync' enum; the finer-grained
       // per-field attribution is deferred to Phase 31-02 (backend can
@@ -269,40 +269,32 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Maps backend camelCase keys → wizard answer keys understood by
   /// [CoachProfile.fromWizardAnswers], then calls [mergeAnswers] which
   /// handles persistence + notifyListeners.
-  void _mergeFinancialFieldsFromRemote(Map<String, dynamic> remote) {
+  Future<void> _mergeFinancialFieldsFromRemote(
+      Map<String, dynamic> remote) async {
     if (_profile == null) return;
-    final p = _profile!.prevoyance;
+    final current = await ReportPersistenceService.loadAnswers();
     final partial = <String, dynamic>{};
 
-    // LPP avoir
-    final remoteLpp = (remote['avoirLpp'] as num?)?.toDouble();
-    if ((p.avoirLppTotal ?? 0) <= 0 && remoteLpp != null && remoteLpp > 0) {
-      partial['_coach_avoir_lpp'] = remoteLpp;
-    }
-    // LPP salaire assuré
-    final remoteSalaire = (remote['lppInsuredSalary'] as num?)?.toDouble();
-    if ((p.salaireAssure ?? 0) <= 0 &&
-        remoteSalaire != null &&
-        remoteSalaire > 0) {
-      partial['_coach_salaire_assure'] = remoteSalaire;
-    }
-    // LPP rachat max
-    final remoteRachat = (remote['lppBuybackMax'] as num?)?.toDouble();
-    if ((p.rachatMaximum ?? 0) <= 0 &&
-        remoteRachat != null &&
-        remoteRachat > 0) {
-      partial['_coach_rachat_maximum'] = remoteRachat;
-    }
-    // 3a balance
-    final remote3a = (remote['pillar3aBalance'] as num?)?.toDouble();
-    if (p.totalEpargne3a <= 0 && remote3a != null && remote3a > 0) {
-      partial['_coach_total_3a'] = remote3a;
+    for (final entry in remote.entries) {
+      final mapped = _mapFactKeyToAnswers(entry.key, entry.value);
+      for (final mappedEntry in mapped.entries) {
+        if (!current.containsKey(mappedEntry.key)) {
+          partial[mappedEntry.key] = mappedEntry.value;
+        }
+      }
     }
 
     if (partial.isNotEmpty) {
-      mergeAnswers(partial); // handles persist + notifyListeners + backend sync
+      await mergeAnswers(
+          partial); // handles persist + notifyListeners + backend sync
     }
   }
+
+  @visibleForTesting
+  Future<void> mergeFinancialFieldsFromRemoteForTest(
+    Map<String, dynamic> remote,
+  ) =>
+      _mergeFinancialFieldsFromRemote(remote);
 
   String get personaKey {
     final p = _profile;
@@ -547,6 +539,13 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_employment_status',
       'q_nationality',
       'q_residence_permit',
+      'q_cash_total',
+      'q_total_debt_balance_chf',
+      'q_partner_birth_year',
+      'q_partner_net_income_chf',
+      'q_spouse_avs_contribution_years',
+      'q_avs_contribution_years',
+      'q_target_retirement_age',
     };
     if (backendHydrationKeys.any((key) => _isAnswered(answers[key]))) {
       return true;
@@ -715,6 +714,11 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'q_household_type': value};
       case 'employmentStatus':
         return {'q_employment_status': value};
+      case 'has2ndPillar':
+        return {'q_has_pension_fund': value};
+      case 'goal':
+        final mappedGoal = _mapGoalFact(value);
+        return mappedGoal == null ? const {} : {'q_main_goal': mappedGoal};
       case 'gender':
         return {'q_gender': value};
       case 'targetRetirementAge':
@@ -737,6 +741,12 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'q_gross_salary_annual': monthly * 12};
       case 'incomeGrossYearly':
         return {'q_gross_salary_annual': value};
+      case 'selfEmployedNetIncome':
+        return {
+          'q_net_income_period_chf': value,
+          'q_pay_frequency': 'yearly',
+          'q_employment_status': 'independant',
+        };
       case 'employmentRate':
         return {'q_employment_rate': value};
       case 'annualBonus':
@@ -752,6 +762,11 @@ class CoachProfileProvider extends ChangeNotifier {
         return {'_coach_salaire_assure': value};
       case 'lppBuybackMax':
         return {'_coach_rachat_maximum': value};
+      case 'hasVoluntaryLpp':
+        if (!_isIndependentEmployment(_lastAnswers['q_employment_status'])) {
+          return const {};
+        }
+        return {'q_has_pension_fund': value};
       // 3a
       case 'pillar3aAnnual':
         return {'q_3a_annual_contribution': value};
@@ -761,8 +776,23 @@ class CoachProfileProvider extends ChangeNotifier {
       case 'savingsMonthly':
         return {'q_savings_monthly': value};
       case 'totalSavings':
-      case 'wealthEstimate':
-        return {'q_epargne_liquide': value};
+        return {'q_cash_total': value};
+      case 'hasDebt':
+        return {'q_has_consumer_debt': value == true ? 'yes' : 'no'};
+      case 'totalDebt':
+        return {'q_total_debt_balance_chf': value};
+      // Spouse
+      case 'spouseBirthYear':
+        return {'q_partner_birth_year': value};
+      case 'spouseIncomeNetMonthly':
+        return {'q_partner_net_income_chf': value};
+      case 'spouseAvsContributionYears':
+        return {'q_spouse_avs_contribution_years': value};
+      // AVS
+      case 'hasAvsGaps':
+        return value == false ? {'q_avs_lacunes_status': 'no_gaps'} : const {};
+      case 'avsContributionYears':
+        return {'q_avs_contribution_years': value};
       default:
         return const {};
     }
@@ -772,6 +802,24 @@ class CoachProfileProvider extends ChangeNotifier {
     if (v is num) return v;
     if (v is String) return num.tryParse(v);
     return null;
+  }
+
+  static String? _mapGoalFact(dynamic value) {
+    final goal = '$value'.toLowerCase();
+    return switch (goal) {
+      'retire' || 'retirement' => 'retirement',
+      'house' || 'real_estate' => 'real_estate',
+      'invest' || 'independence' => 'independence',
+      'debt_free' || 'debtfree' => 'debt_free',
+      'emergency' || 'optimize_taxes' || 'other' => 'project',
+      _ => null,
+    };
+  }
+
+  static bool _isIndependentEmployment(dynamic value) {
+    if (value is! String) return false;
+    final normalized = value.toLowerCase();
+    return normalized == 'independant' || normalized == 'independent';
   }
 
   /// Met a jour le profil depuis le mini-onboarding (3-4 questions).

@@ -223,6 +223,9 @@ def test_profiles_me_roundtrips_identity_archetype_signals(client: TestClient):
             "nationality": "US",
             "usTaxPerson": True,
             "employmentStatus": "self_employed",
+            "totalDebt": 9000,
+            "spouseBirthYear": 1982,
+            "spouseIncomeNetMonthly": 5000,
         },
     )
     assert response.status_code == 200
@@ -242,6 +245,9 @@ def test_profiles_me_roundtrips_identity_archetype_signals(client: TestClient):
     assert me["nationality"] == "US"
     assert me["usTaxPerson"] is True
     assert me["employmentStatus"] == "self_employed"
+    assert me["totalDebt"] == 9000
+    assert me["spouseBirthYear"] == 1982
+    assert me["spouseIncomeNetMonthly"] == 5000
 
 
 def test_access_other_user_profile(auth_client: TestClient):
