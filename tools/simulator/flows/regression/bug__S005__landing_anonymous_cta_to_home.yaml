@@ -123,16 +123,70 @@ tags:
       - tapOn:
           text: ".*Non.*"
       - waitForAnimationToEnd
-- repeat:
-    times: 8
+- runFlow:
+    when:
+      visible: "Quelle est ta nationalité ?"
     commands:
-      - runFlow:
-          when:
-            visible: ".*(Suivant|Continuer|Terminer|Voir).*"
-          commands:
-            - tapOn:
-                text: ".*(Suivant|Continuer|Terminer|Voir).*"
-            - waitForAnimationToEnd
+      - tapOn:
+          text: "Suisse"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Quelle est ta date de naissance ?"
+    commands:
+      - tapOn:
+          text: "Choisir ma date"
+      - tapOn:
+          point: "48%,44%"
+      - tapOn:
+          point: "85%,82%"
+      - tapOn:
+          text: "Continuer"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Où tu vis ?"
+    commands:
+      # The VD chip is a text-only grid cell; Maestro iOS does not expose
+      # it as a reliable tappable node, so this uses the same anchored point
+      # as the salvage01 onboarding proof after asserting the prompt.
+      - tapOn:
+          point: "17%,20%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Combien te tombe net par mois ?"
+    commands:
+      # The revenue screen exposes multiple "Continuer" nodes including an
+      # offstage exact-mode control. Tap the visible fixed bottom CTA.
+      - tapOn:
+          point: "50%,74%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Avant de te montrer…"
+    commands:
+      - tapOn:
+          point: "50%,71%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continuer"
+    commands:
+      - tapOn:
+          point: "50%,70%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Plus tard"
+    commands:
+      # Terminal anonymous path: Plus tard flushes the dossier and routes
+      # to /home. Text taps on this terminal TextButton can resolve to the
+      # child label without firing onPressed, so tap the visible CTA point.
+      # This preserves the no-deeplink S005 contract.
+      - tapOn:
+          point: "50%,70%"
+      - waitForAnimationToEnd
 - waitForAnimationToEnd:
     timeout: 6000
 

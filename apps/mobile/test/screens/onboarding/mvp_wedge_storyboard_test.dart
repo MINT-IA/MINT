@@ -21,6 +21,7 @@ import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen
 
 class _FakeCoachProfileProvider extends CoachProfileProvider {
   final List<Map<String, dynamic>> mergedCalls = [];
+  final List<Map<String, dynamic>> updateCalls = [];
   bool throwOnMerge = false;
   bool leaveProfileEmptyAfterMerge = false;
   CoachProfile? _fakeProfile;
@@ -54,7 +55,32 @@ class _FakeCoachProfileProvider extends CoachProfileProvider {
   }
 
   @override
+  void updateFromAnswers(Map<String, dynamic> answers) {
+    // Mirrors the production invariant used by the secure-store fallback:
+    // updateFromAnswers seeds the current session only and must stay
+    // persistence-free.
+    updateCalls.add(Map<String, dynamic>.from(answers));
+    _fakeProfile = CoachProfile.fromWizardAnswers(answers);
+  }
+
+  @override
   Future<void> loadFromWizard() async {}
+}
+
+const _secureStorageChannel =
+    MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+
+void _mockSecureStorageUnavailableOnWrite() {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(_secureStorageChannel, (call) async {
+    if (call.method == 'write') {
+      throw PlatformException(
+        code: '-34018',
+        message: 'errSecMissingEntitlement',
+      );
+    }
+    return null;
+  });
 }
 
 Future<void> _pumpShell(
@@ -166,10 +192,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    const channel =
-        MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (call) async => null);
+        .setMockMethodCallHandler(_secureStorageChannel, (call) async => null);
   });
 
   testWidgets('T1 entry: only title + [Ouvrir], no dossier strip yet',
@@ -418,9 +442,36 @@ void main() {
   });
 
   testWidgets(
+      'T8 secure-store seal failure seeds current session without plain PII',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake);
+    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+
+    _mockSecureStorageUnavailableOnWrite();
+    await tester.tap(find.text('Plus tard'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('home-landed'), findsOneWidget);
+    expect(fake.mergedCalls, isEmpty);
+    expect(fake.updateCalls, hasLength(1));
+    expect(fake.hasProfile, isTrue);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('wizard_answers_v2'), isNull);
+  });
+
+  testWidgets(
       'T8 seal failure: successful merge with empty profile stays on bifurcation',
       (tester) async {
-    final fake = _FakeCoachProfileProvider()..leaveProfileEmptyAfterMerge = true;
+    final fake = _FakeCoachProfileProvider()
+      ..leaveProfileEmptyAfterMerge = true;
     await _pumpShell(tester, fake);
     await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
     await _commonData(tester);

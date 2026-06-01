@@ -60,7 +60,7 @@
     <section>
       <h2>Go / No-Go</h2>
       <div class="callout">
-        <strong>Current decision:</strong> no staging/prod release candidate yet. Full Flutter suite still fails on 6 goldens and global analyze still reports 248 issues. Feature-branch QA work is authorized.
+        <strong>Current decision:</strong> no staging/prod release candidate yet. The latest runtime QA is green for normal-user Maestro default (15/15) and expat_us FATCA (1/1), but full Flutter suite still fails on 6 goldens and global analyze still reports 248 issues. Feature-branch QA work is authorized.
       </div>
     </section>
 
@@ -73,8 +73,11 @@
           <tr><td>l10n generation</td><td><code>flutter gen-l10n</code></td><td class="pass">PASS</td><td>Before merge</td></tr>
           <tr><td>Targeted salvage/profile tests</td><td>87 pass, 5 skipped</td><td class="pass">PASS</td><td>After each profile/onboarding edit</td></tr>
           <tr><td>Targeted P1 fixes</td><td>Budget, Rapport, PremierEclairage, FATCA answer, Nudge</td><td class="pass">PASS targeted + full-suite slice</td><td>Keep in regression set</td></tr>
-          <tr><td>Maestro locator audit</td><td>35 flows, 308 locators</td><td class="pass">PASS</td><td>After flow edits</td></tr>
-          <tr><td>iOS sim build/install</td><td>Latest targeted pass</td><td class="pass">PASS</td><td>Before Maestro default/perfect and dedicated fatca</td></tr>
+          <tr><td>Maestro locator audit</td><td>35 flows, 315 locators</td><td class="pass">PASS</td><td>After flow edits</td></tr>
+          <tr><td>iOS sim build/install</td><td>Normal build + expat_us build</td><td class="pass">PASS</td><td>Before Maestro default/perfect and dedicated fatca</td></tr>
+          <tr><td>Maestro default</td><td><code>sweep-20260601T112627</code>: 15/15</td><td class="pass">PASS</td><td>Before merge</td></tr>
+          <tr><td>Maestro fatca</td><td><code>sweep-20260601T113803</code>: 1/1</td><td class="pass">PASS</td><td>Before merge with expat_us build</td></tr>
+          <tr><td>Claude Opus review</td><td>Focused diff, secure fallback + Maestro flows</td><td class="pass">PASS</td><td>Before commit</td></tr>
           <tr><td>Global Flutter analyze</td><td>After fixes: 248 issues</td><td class="fail">FAIL</td><td>Triage static debt separately</td></tr>
           <tr><td>Global Flutter tests</td><td>After fixes: 9047 pass, 24 skipped, 6 golden failures</td><td class="fail">FAIL</td><td>Visual review + golden decision</td></tr>
         </tbody>
@@ -96,6 +99,7 @@
           <tr><td>QA-008</td><td>P1</td><td>Maestro FATCA coverage</td><td class="pass">Fixed as dedicated gate</td><td>FATCA is excluded from normal build sweeps; run <code>--tier fatca</code> on an expat_us build</td></tr>
           <tr><td>QA-009</td><td>P2</td><td>Static analysis</td><td class="fail">Open</td><td>Global analyze green or waiver</td></tr>
           <tr><td>QA-010</td><td>P2</td><td>Golden failure artifacts</td><td class="pass">Controlled</td><td><code>apps/mobile/test/goldens/failures</code> restored before commit</td></tr>
+          <tr><td>QA-011</td><td>P1</td><td>Onboarding terminal seal</td><td class="pass">Fixed</td><td>Secure-store failure seeds current session only; no raw PII in SharedPreferences; S005 Maestro green</td></tr>
         </tbody>
       </table>
     </section>
@@ -106,11 +110,10 @@
         <table>
           <tbody>
             <tr><th>Tier</th><th>Status</th></tr>
+            <tr><td>targeted S005</td><td class="pass">PASS sequential</td></tr>
             <tr><td>targeted empty-state</td><td class="pass">PASS</td></tr>
-            <tr><td>targeted salvage01</td><td class="pass">PASS</td></tr>
-            <tr><td>targeted FATCA</td><td class="pass">PASS</td></tr>
-            <tr><td>default/perfect</td><td class="warn">Needs rerun on normal build</td></tr>
-            <tr><td>fatca</td><td class="warn">Needs rerun on expat_us seeded build</td></tr>
+            <tr><td>default</td><td class="pass">PASS 15/15 - <code>sweep-20260601T112627</code></td></tr>
+            <tr><td>fatca</td><td class="pass">PASS 1/1 - <code>sweep-20260601T113803</code></td></tr>
             <tr><td>deeplink</td><td class="warn">Opt-in; sim instability must be separated from app bugs</td></tr>
           </tbody>
         </table>
@@ -122,6 +125,7 @@
             <tr><th>Risk</th><th>Action</th></tr>
             <tr><td>Forced route false-green</td><td class="pass">S005 deep link removed; home surface asserted beyond tab label</td></tr>
             <tr><td>FATCA in normal sweep</td><td class="pass">Separated into dedicated expat_us tier</td></tr>
+            <tr><td>Secure-store terminal trap</td><td class="pass">Fail-closed persistence preserved; current session gets in-memory profile</td></tr>
             <tr><td>Coordinate taps in Maestro</td><td class="warn">Replace with stable keys over time</td></tr>
             <tr><td>Tracked golden failure PNGs</td><td class="warn">Restore after every golden run unless intentionally updating</td></tr>
             <tr><td>Large branch diff</td><td class="warn">Keep atomic commits; split before merge if needed</td></tr>
