@@ -3154,10 +3154,10 @@ def _execute_internal_tool(
         where_t = tool_input.get("where_text", "")
         if_then_t = tool_input.get("if_then_text", "")
         logger.info(
-            "record_commitment ack: %s / %s / %s",
-            when_t[:50],
-            where_t[:50],
-            if_then_t[:50],
+            "record_commitment ack: when_len=%d where_len=%d if_then_len=%d",
+            len(when_t),
+            len(where_t),
+            len(if_then_t),
         )
         return f"Engagement noté : QUAND={when_t} — SI-ALORS={if_then_t}"
 
@@ -3165,9 +3165,9 @@ def _execute_internal_tool(
         decision_type = tool_input.get("decision_type", "")
         user_response = tool_input.get("user_response", "")
         logger.info(
-            "save_pre_mortem ack: type=%s response=%s",
-            decision_type[:50],
-            user_response[:50],
+            "save_pre_mortem ack: decision_type_len=%d response_len=%d",
+            len(decision_type),
+            len(user_response),
         )
         return f"Pré-mortem enregistré pour {decision_type}."
 
