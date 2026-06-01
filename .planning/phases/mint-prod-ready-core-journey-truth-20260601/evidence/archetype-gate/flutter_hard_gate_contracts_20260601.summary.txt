@@ -1,0 +1,8 @@
+Command:
+cd apps/mobile && flutter test test/router/coach_route_archetype_guard_test.dart test/services/feature_flags_coach_hard_gate_test.dart test/services/coach_hard_gate_killswitch_test.dart test/integration/archetype_hard_gate_integration_test.dart
+
+Result:
+24 passed.
+
+Note:
+The full local log is intentionally ignored by git. It included expected localhost/fallback noise in kill-switch bypass cases; the asserted contract is gate/refusal/bypass behavior.

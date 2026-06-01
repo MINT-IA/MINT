@@ -1,0 +1,8 @@
+Command:
+cd apps/mobile && flutter test test/screens/onboarding/mvp_wedge_storyboard_test.dart
+
+Result:
+12 passed.
+
+Contract covered:
+Onboarding source/widget tests assert q_date_of_birth + q_birth_year compatibility, q_nationality, q_employment_status, q_has_pension_fund, and no q_age flush.
