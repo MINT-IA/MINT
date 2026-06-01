@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MINT NO-GO Readiness Tracker - GSD Maestro QA - 2026-06-01</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211d;
+      --muted: #627069;
+      --line: #d8ded8;
+      --paper: #fbfbf8;
+      --panel: #ffffff;
+      --pass: #126b45;
+      --warn: #8a5a00;
+      --fail: #9f2424;
+      --info: #285d8f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header, main { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    header { display: grid; gap: 12px; border-bottom: 1px solid var(--line); }
+    h1 { margin: 0; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 18px; letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); }
+    section { margin: 18px 0; padding: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { font-size: 12px; text-transform: uppercase; color: var(--muted); letter-spacing: .04em; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    .strip { display: flex; flex-wrap: wrap; gap: 8px; }
+    .badge { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--line); background: #f6f7f4; font-weight: 600; }
+    .pass { color: var(--pass); }
+    .warn { color: var(--warn); }
+    .fail { color: var(--fail); }
+    .info { color: var(--info); }
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .callout { padding: 12px; border-left: 4px solid var(--fail); background: #fff7f5; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MINT NO-GO Readiness Tracker - GSD / Maestro / QA</h1>
+    <div class="strip">
+      <span class="badge">Date: 2026-06-01</span>
+      <span class="badge">Branch: qa/salvage-profile-truth-20260601</span>
+      <span class="badge fail">Verdict: NO-GO release candidate</span>
+      <span class="badge info">Mode: feature branch tracking</span>
+    </div>
+    <p>Purpose: keep salvage closure, Maestro evidence, expert review, and bug tracking in one scan-friendly artifact. Targeted fixes can be green while release gates remain red.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Go / No-Go</h2>
+      <div class="callout">
+        <strong>Current decision:</strong> no staging/prod release candidate yet. Full Flutter suite still fails on 6 goldens and global analyze still reports 248 issues. Feature-branch QA work is authorized.
+      </div>
+    </section>
+
+    <section>
+      <h2>Release Gates</h2>
+      <table>
+        <thead><tr><th>Gate</th><th>Evidence</th><th>Result</th><th>Next rerun</th></tr></thead>
+        <tbody>
+          <tr><td>ARB parity</td><td><code>validate_arb_parity</code></td><td class="pass">PASS</td><td>Before any ARB edit</td></tr>
+          <tr><td>l10n generation</td><td><code>flutter gen-l10n</code></td><td class="pass">PASS</td><td>Before merge</td></tr>
+          <tr><td>Targeted salvage/profile tests</td><td>87 pass, 5 skipped</td><td class="pass">PASS</td><td>After each profile/onboarding edit</td></tr>
+          <tr><td>Targeted P1 fixes</td><td>Budget, Rapport, PremierEclairage, FATCA answer, Nudge</td><td class="pass">PASS targeted + full-suite slice</td><td>Keep in regression set</td></tr>
+          <tr><td>Maestro locator audit</td><td>35 flows, 308 locators</td><td class="pass">PASS</td><td>After flow edits</td></tr>
+          <tr><td>iOS sim build/install</td><td>Latest targeted pass</td><td class="pass">PASS</td><td>Before Maestro default/perfect/fatca</td></tr>
+          <tr><td>Global Flutter analyze</td><td>After fixes: 248 issues</td><td class="fail">FAIL</td><td>Triage static debt separately</td></tr>
+          <tr><td>Global Flutter tests</td><td>After fixes: 9047 pass, 24 skipped, 6 golden failures</td><td class="fail">FAIL</td><td>Visual review + golden decision</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Bug Ledger</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Status</th><th>Proof required</th></tr></thead>
+        <tbody>
+          <tr><td>QA-001</td><td>P1</td><td>Full Flutter suite</td><td class="fail">Open</td><td><code>flutter test</code> green or explicit quarantine ledger</td></tr>
+          <tr><td>QA-002</td><td>P1</td><td>Budget -> Rapport</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
+          <tr><td>QA-003</td><td>P1</td><td>PremierEclairage persistence</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
+          <tr><td>QA-004</td><td>P1</td><td>FATCA answer provider</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
+          <tr><td>QA-005</td><td>P2</td><td>Nudge DOB/age</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
+          <tr><td>QA-006</td><td>P2</td><td>Golden baselines</td><td class="fail">Open</td><td>Visual review before baseline update</td></tr>
+          <tr><td>QA-007</td><td>P1</td><td>Maestro S005 false-green</td><td class="pass">Fixed</td><td>S005 must reach home through app navigation</td></tr>
+          <tr><td>QA-008</td><td>P1</td><td>Maestro FATCA coverage</td><td class="pass">Fixed</td><td>FATCA is included in default/perfect sweep tiers</td></tr>
+          <tr><td>QA-009</td><td>P2</td><td>Static analysis</td><td class="fail">Open</td><td>Global analyze green or waiver</td></tr>
+          <tr><td>QA-010</td><td>P2</td><td>Golden failure artifacts</td><td class="pass">Controlled</td><td><code>apps/mobile/test/goldens/failures</code> restored before commit</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="grid">
+      <div>
+        <h2>Maestro Evidence</h2>
+        <table>
+          <tbody>
+            <tr><th>Tier</th><th>Status</th></tr>
+            <tr><td>targeted empty-state</td><td class="pass">PASS</td></tr>
+            <tr><td>targeted salvage01</td><td class="pass">PASS</td></tr>
+            <tr><td>targeted FATCA</td><td class="pass">PASS</td></tr>
+            <tr><td>default/perfect/fatca</td><td class="warn">Needs rerun after current fixes</td></tr>
+            <tr><td>deeplink</td><td class="warn">Opt-in; sim instability must be separated from app bugs</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h2>Debt Risk</h2>
+        <table>
+          <tbody>
+            <tr><th>Risk</th><th>Action</th></tr>
+            <tr><td>Forced route false-green</td><td class="pass">S005 deep link removed</td></tr>
+            <tr><td>FATCA omitted from normal sweep</td><td class="pass">Included in default/perfect</td></tr>
+            <tr><td>Coordinate taps in Maestro</td><td class="warn">Replace with stable keys over time</td></tr>
+            <tr><td>Tracked golden failure PNGs</td><td class="warn">Restore after every golden run unless intentionally updating</td></tr>
+            <tr><td>Large branch diff</td><td class="warn">Keep atomic commits; split before merge if needed</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Exit Criteria</h2>
+      <table>
+        <tbody>
+          <tr><td>0 open P1</td><td>Bug ledger reviewed after full rerun</td></tr>
+          <tr><td>Flutter full suite</td><td><code>cd apps/mobile &amp;&amp; flutter test</code></td></tr>
+          <tr><td>Static analysis</td><td><code>cd apps/mobile &amp;&amp; flutter analyze</code></td></tr>
+          <tr><td>Maestro</td><td><code>tools/simulator/maestro_sweep.sh --tier default</code>, <code>--tier perfect</code>, <code>--tier fatca</code></td></tr>
+          <tr><td>Clean repo</td><td><code>git status --short --branch</code></td></tr>
+          <tr><td>Expert review</td><td>QA, architecture, i18n/a11y, compliance blockers resolved or dated waiver</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # MINT QA and Bug Tracking — 2026-06-01
 
-TL;DR: the right approach is not one huge "run everything" pass. The optimized workflow is cyclic: clean generated artifacts, run fast mechanical gates, run targeted regression suites for the touched truth paths, run the full suite to discover wider debt, classify failures into deterministic bugs vs. harness/golden drift, then rerun only the failing slices. This pass found the current salvage/profile patch green on targeted tests, but the repository-wide Flutter gates are still red.
+TL;DR: the right approach is not one huge "run everything" pass. The optimized workflow is cyclic: clean generated artifacts, run fast mechanical gates, run targeted regression suites for the touched truth paths, run the full suite to discover wider debt, classify failures into deterministic bugs vs. harness/golden drift, then rerun only the failing slices. This pass found the current salvage/profile patch green on targeted tests, and four non-golden failing slices stayed fixed in the full Flutter suite. Repository-wide release status remains red: full Flutter tests now fail only on 6 goldens, and global analyze still reports 248 existing issues.
 
 ## Optimized Workflow
 
@@ -24,19 +24,20 @@ TL;DR: the right approach is not one huge "run everything" pass. The optimized w
 | Maestro script syntax + diff check | `bash -n tools/simulator/maestro_sweep.sh && git diff --check` | PASS | No syntax or whitespace drift. |
 | iOS sim build/install | `flutter build ios --simulator --debug ... && xcrun simctl install ...` | PASS | Passed after earlier xattr/codesign cleanup. |
 | Targeted Maestro | `flow_empty_state_cascade`, `salvage01_retraite_onboarding_coach`, `flow_fatca_3a_gate` | PASS | FATCA passed after `clearState: true`. |
-| Global Flutter analyze | `cd apps/mobile && flutter analyze` | FAIL | 248 existing issues. Touched-file analyze is clean. |
-| Global Flutter tests | `cd apps/mobile && flutter test` and JSON rerun | FAIL | 9712 done, 9697 success, 24 skipped, 15 errors across 8 files. |
+| Targeted changed-file analyze | `flutter analyze lib/services/nudge/nudge_engine.dart test/app_rapport_route_budget_test.dart test/screens/advisor_banking_smoke_test.dart test/screens/onboarding/us_tax_person_screen_test.dart test/services/coach/report_persistence_premier_eclairage_test.dart test/services/nudge/nudge_engine_test.dart` | PASS | No issues found. |
+| Full Flutter tests after fixes | `cd apps/mobile && flutter test --reporter=expanded` | FAIL | 9047 pass, 24 skipped, 6 failures. All remaining failures are goldens. |
+| Global Flutter analyze after fixes | `cd apps/mobile && flutter analyze` | FAIL | 248 existing issues. Touched-file analyze is clean. |
 
 ## Bug and Risk Table
 
 | ID | Severity | Area | Evidence | Finding | Status | Next action |
 |---|---:|---|---|---|---|---|
-| QA-001 | P1 | Flutter full suite | `flutter test`: 15 errors across 8 files | Repository-wide mobile suite is red. Targeted salvage/profile tests pass, but full-suite release confidence is blocked. | Open | Fix or quarantine each failing slice below, then rerun full suite. |
-| QA-002 | P1 | Budget/report data truth | `test/screens/advisor_banking_smoke_test.dart`, `test/app_rapport_route_budget_test.dart` | Both expect text containing `5'000`; current report path does not render it. This is a data propagation/read-model risk for Budget -> Rapport. | Open | Inspect `FinancialReportScreenV2` budget fallback and `/rapport` persisted budget loading. |
-| QA-003 | P1 | Profile persistence tests | `test/services/coach/report_persistence_premier_eclairage_test.dart` | Three tests fail with `Binding has not yet been initialized` from `ServicesBinding.instance`. | Open | Add proper `TestWidgetsFlutterBinding.ensureInitialized()` or refactor storage test harness. |
-| QA-004 | P1 | Onboarding FATCA answer | `test/screens/onboarding/us_tax_person_screen_test.dart` | Tapping Yes/No leaves provider value `null` instead of true/false. | Open | Verify whether the screen writes the canonical key or if the test targets stale provider shape. |
-| QA-005 | P2 | Nudge age/date logic | `test/services/nudge/nudge_engine_test.dart` | Birthday milestone does not fire for age 50 and all milestone ages. | Open | Audit date-of-birth vs. age-only logic; this connects to the user concern that a birth date is needed, not only age. |
-| QA-006 | P2 | Golden baselines | Golden tests | `julien_swiss_us_tax_person.png`, `lauren_expat_us_waitlist.png`, and landing masters differ. Landing drift is large, persona drift is small. | Open | Visually inspect generated failure images; update baselines only if the UI change is intentional. |
+| QA-001 | P1 | Flutter full suite | Full rerun after fixes: 9047 pass, 24 skipped, 6 failures | Repository-wide mobile suite is still red, but the non-golden failures from QA-002..QA-005 are closed in the full run. | Open | Resolve or explicitly quarantine QA-006 goldens; then rerun full suite. |
+| QA-002 | P1 | Budget/report data truth | `test/screens/advisor_banking_smoke_test.dart`, `test/app_rapport_route_budget_test.dart` | Tests expected `5'000` while fixtures provided no income source. No prod hardcode added; fixtures now use real source fields. | Fixed | Targeted reruns passed and full suite no longer fails here. |
+| QA-003 | P1 | Profile persistence tests | `test/services/coach/report_persistence_premier_eclairage_test.dart` | Three tests failed because `clearDiagnostic()` reaches secure storage without initialized Flutter binding. | Fixed | Targeted file passed 12/12 and full suite no longer fails here. |
+| QA-004 | P1 | Onboarding FATCA answer | `test/screens/onboarding/us_tax_person_screen_test.dart` | `q_us_tax_person` is sensitive; the test did not mock secure storage, so fail-closed persistence rebuilt an empty profile. | Fixed | Targeted file passed 5/5 and full suite no longer fails here. |
+| QA-005 | P2 | Nudge age/date logic | `test/services/nudge/nudge_engine_test.dart` | Birthday milestone used `profile.ageOrNull`, which reads wall-clock time instead of injected `now`. | Fixed | Nudge file passed 33/33 and full suite no longer fails here. |
+| QA-006 | P1 | Golden baselines | Full Flutter suite: 6 golden failures | `julien_swiss_us_tax_person.png`, `lauren_expat_us_waitlist.png`, and landing masters differ. Landing drift is large, persona drift is small. | Open | Visually inspect generated failure images; update baselines only if the UI change is intentional. |
 | QA-007 | P1 | Maestro regression quality | `bug__S005__landing_anonymous_cta_to_home.yaml` | The flow tapped anonymous CTA, then forced `mintapp:///home`; it could pass while the CTA route was broken. | Fixed in this pass | Removed the deep link; the flow must now reach home through the app path. |
 | QA-008 | P1 | Maestro coverage | `tools/simulator/maestro_sweep.sh` | `default`/`perfect` could pass without FATCA coverage. | Fixed in this pass | `default` and `perfect` now include `flow_fatca_3a_gate`. |
 | QA-009 | P2 | Static analysis debt | `flutter analyze`: 248 issues | Global analyzer is red, with examples in anonymous chat and test files. | Open | Triage separately; do not mix with salvage commit unless directly related. |
