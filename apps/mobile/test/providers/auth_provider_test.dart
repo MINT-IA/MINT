@@ -379,6 +379,51 @@ void main() {
       expect(profile.dettes.totalDettes, 9000);
     });
 
+    test('backend profile merge hydrates save_fact parity fields', () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {},
+        {
+          'householdType': 'couple',
+          'selfEmployedNetIncome': 96000,
+          'hasVoluntaryLpp': true,
+          'spouseBirthYear': 1982,
+          'spouseIncomeNetMonthly': 5000,
+          'spouseAvsContributionYears': 18,
+        },
+      );
+      final profile = CoachProfile.fromWizardAnswers(merged);
+
+      expect(merged['q_household_type'], 'couple');
+      expect(merged['q_net_income_period_chf'], 96000.0);
+      expect(merged['q_pay_frequency'], 'yearly');
+      expect(merged['q_employment_status'], 'independant');
+      expect(merged['q_has_pension_fund'], isTrue);
+      expect(merged['q_partner_birth_year'], 1982);
+      expect(merged['q_partner_net_income_chf'], 5000.0);
+      expect(merged['q_spouse_avs_contribution_years'], 18);
+      expect(profile.employmentStatus, 'independant');
+      expect(profile.conjoint!.birthYear, 1982);
+      expect(profile.conjoint!.prevoyance!.anneesContribuees, 18);
+    });
+
+    test('backend profile merge fills null placeholders but preserves zero',
+        () {
+      final merged = AuthProvider.mergeBackendProfileDataForTest(
+        {
+          'q_net_income_period_chf': null,
+          'q_3a_total': 0,
+        },
+        {
+          'incomeNetMonthly': 7600,
+          'pillar3aBalance': 36000,
+        },
+      );
+
+      expect(merged['q_net_income_period_chf'], 7600.0);
+      expect(merged['q_pay_frequency'], 'monthly');
+      expect(merged['q_3a_total'], 0);
+    });
+
     test('backend profile merge preserves local financial truth', () {
       final merged = AuthProvider.mergeBackendProfileDataForTest(
         {

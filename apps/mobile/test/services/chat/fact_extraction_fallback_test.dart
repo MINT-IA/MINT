@@ -263,6 +263,102 @@ void main() {
       expect(p.profile!.conjoint!.prevoyance!.anneesContribuees, 18);
     });
 
+    test('remote profile merge hydrates empty local profile', () async {
+      installSecureStore();
+      final p = CoachProfileProvider();
+
+      await p.mergeFinancialFieldsFromRemoteForTest({
+        'incomeNetMonthly': 7600,
+        'totalDebt': 9000,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_net_income_period_chf'], 7600);
+      expect(loaded['q_pay_frequency'], 'monthly');
+      expect(loaded['q_total_debt_balance_chf'], 9000);
+      expect(p.profile, isNotNull);
+      expect(p.profile!.dettes.totalDettes, 9000);
+    });
+
+    test('missing-only merge preserves fresher local truth', () async {
+      installSecureStore();
+      final p = CoachProfileProvider();
+      await ReportPersistenceService.saveAnswers({'q_cash_total': 18000});
+
+      await p.mergeMissingAnswersForTest({
+        'q_cash_total': 1,
+        'q_savings_monthly': 500,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_cash_total'], 18000);
+      expect(loaded['q_savings_monthly'], 500);
+    });
+
+    test('missing-only merge keeps income amount and frequency coherent',
+        () async {
+      installSecureStore();
+      final p = CoachProfileProvider();
+      await ReportPersistenceService.saveAnswers({'q_pay_frequency': 'yearly'});
+
+      await p.mergeFinancialFieldsFromRemoteForTest({
+        'incomeNetMonthly': 7600,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_net_income_period_chf'], 7600);
+      expect(loaded['q_pay_frequency'], 'monthly');
+    });
+
+    test('missing-only merge does not reinterpret existing income amount',
+        () async {
+      installSecureStore();
+      final p = CoachProfileProvider();
+      await ReportPersistenceService.saveAnswers({
+        'q_net_income_period_chf': 120000,
+      });
+
+      await p.mergeFinancialFieldsFromRemoteForTest({
+        'incomeNetMonthly': 7600,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_net_income_period_chf'], 120000);
+      expect(loaded.containsKey('q_pay_frequency'), isFalse);
+    });
+
+    test('remote merge keeps voluntary LPP when self-employed arrives together',
+        () async {
+      installSecureStore();
+      final p = CoachProfileProvider();
+
+      await p.mergeFinancialFieldsFromRemoteForTest({
+        'selfEmployedNetIncome': 96000,
+        'hasVoluntaryLpp': true,
+      });
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_net_income_period_chf'], 96000);
+      expect(loaded['q_pay_frequency'], 'yearly');
+      expect(loaded['q_employment_status'], 'independant');
+      expect(loaded['q_has_pension_fund'], isTrue);
+    });
+
+    test('concurrent local and remote profile writes preserve both facts',
+        () async {
+      installSecureStore();
+      final p = CoachProfileProvider();
+
+      await Future.wait([
+        p.applySaveFact('totalSavings', 18000),
+        p.mergeFinancialFieldsFromRemoteForTest({'totalDebt': 9000}),
+      ]);
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_cash_total'], 18000);
+      expect(loaded['q_total_debt_balance_chf'], 9000);
+    });
+
     test('loadFromWizard rebuilds profile from total debt only', () async {
       installSecureStore();
       await ReportPersistenceService.saveAnswers({

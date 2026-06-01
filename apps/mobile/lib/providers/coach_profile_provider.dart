@@ -271,22 +271,27 @@ class CoachProfileProvider extends ChangeNotifier {
   /// handles persistence + notifyListeners.
   Future<void> _mergeFinancialFieldsFromRemote(
       Map<String, dynamic> remote) async {
-    if (_profile == null) return;
-    final current = await ReportPersistenceService.loadAnswers();
     final partial = <String, dynamic>{};
 
     for (final entry in remote.entries) {
+      if (entry.key == 'hasVoluntaryLpp') continue;
       final mapped = _mapFactKeyToAnswers(entry.key, entry.value);
       for (final mappedEntry in mapped.entries) {
-        if (!current.containsKey(mappedEntry.key)) {
-          partial[mappedEntry.key] = mappedEntry.value;
-        }
+        partial[mappedEntry.key] = mappedEntry.value;
+      }
+    }
+    if (remote['hasVoluntaryLpp'] == true) {
+      final current = await ReportPersistenceService.loadAnswers();
+      final employment = partial['q_employment_status'] ??
+          current['q_employment_status'] ??
+          _lastAnswers['q_employment_status'];
+      if (_isIndependentEmployment(employment)) {
+        partial['q_has_pension_fund'] = true;
       }
     }
 
     if (partial.isNotEmpty) {
-      await mergeAnswers(
-          partial); // handles persist + notifyListeners + backend sync
+      await mergeMissingAnswers(partial);
     }
   }
 
@@ -295,6 +300,10 @@ class CoachProfileProvider extends ChangeNotifier {
     Map<String, dynamic> remote,
   ) =>
       _mergeFinancialFieldsFromRemote(remote);
+
+  @visibleForTesting
+  Future<void> mergeMissingAnswersForTest(Map<String, dynamic> partial) =>
+      mergeMissingAnswers(partial);
 
   String get personaKey {
     final p = _profile;
@@ -608,34 +617,82 @@ class CoachProfileProvider extends ChangeNotifier {
   /// lets edit screens clear optional values instead of preserving stale data.
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
     if (partial.isEmpty) return;
-    await _awaitProfilePersistence();
-    // Deep-walk crack #15: always re-read the on-disk answers before
-    // merging. `_lastAnswers` is populated at startup by loadFromWizard
-    // but updateFrom*Extraction / budget setup / regex fallback each
-    // load+save independently. If mergeAnswers relied on the stale
-    // in-memory copy, a budget setup that ran after a scan would build
-    // `merged` from {} + {q_housing, q_lamal} and overwrite the persisted
-    // `_coach_avoir_lpp` on disk — card Patrimoine would go empty right
-    // after the card Budget populated. Read-then-merge-then-save is the
-    // only crash-safe discipline.
-    final current = await ReportPersistenceService.loadAnswers();
-    final merged = Map<String, dynamic>.from(current);
-    for (final entry in partial.entries) {
-      if (entry.value == null) {
-        merged.remove(entry.key);
-      } else {
-        merged[entry.key] = entry.value;
+    return _enqueueProfilePersistence(() async {
+      // Deep-walk crack #15: always re-read the on-disk answers before
+      // merging. `_lastAnswers` is populated at startup by loadFromWizard
+      // but updateFrom*Extraction / budget setup / regex fallback each
+      // load+save independently. If mergeAnswers relied on the stale
+      // in-memory copy, a budget setup that ran after a scan would build
+      // `merged` from {} + {q_housing, q_lamal} and overwrite the persisted
+      // `_coach_avoir_lpp` on disk — card Patrimoine would go empty right
+      // after the card Budget populated. Read-then-merge-then-save is the
+      // only crash-safe discipline.
+      final current = await ReportPersistenceService.loadAnswers();
+      final merged = Map<String, dynamic>.from(current);
+      for (final entry in partial.entries) {
+        if (entry.value == null) {
+          merged.remove(entry.key);
+        } else {
+          merged[entry.key] = entry.value;
+        }
       }
-    }
-    final persisted = await _saveAnswersReturningPersisted(merged);
-    _lastAnswers = persisted;
-    _profile =
-        persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
-    _isLoaded = true;
-    _profileUpdatedSinceBudget = true;
-    CoachNarrativeService.invalidateCache(profile: _profile);
-    notifyListeners();
-    _syncToBackend(); // Fire-and-forget, does not block UI
+      final persisted = await _saveAnswersReturningPersisted(merged);
+      _lastAnswers = persisted;
+      _profile =
+          persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
+      _isLoaded = true;
+      _profileUpdatedSinceBudget = true;
+      CoachNarrativeService.invalidateCache(profile: _profile);
+      notifyListeners();
+      _syncToBackend(); // Fire-and-forget, does not block UI
+    });
+  }
+
+  Future<void> mergeMissingAnswers(Map<String, dynamic> partial) async {
+    if (partial.isEmpty) return;
+    return _enqueueProfilePersistence(() async {
+      final current = await ReportPersistenceService.loadAnswers();
+      final merged = Map<String, dynamic>.from(current);
+      var changed = false;
+      if (partial.containsKey('q_net_income_period_chf')) {
+        if (_isMissingAnswer(merged, 'q_net_income_period_chf')) {
+          merged['q_net_income_period_chf'] =
+              partial['q_net_income_period_chf'];
+          if (partial.containsKey('q_pay_frequency')) {
+            merged['q_pay_frequency'] = partial['q_pay_frequency'];
+          }
+          changed = true;
+        }
+        partial = Map<String, dynamic>.from(partial)
+          ..remove('q_net_income_period_chf')
+          ..remove('q_pay_frequency');
+      }
+      for (final entry in partial.entries) {
+        if (entry.value == null) continue;
+        if (_isMissingAnswer(merged, entry.key)) {
+          merged[entry.key] = entry.value;
+          changed = true;
+        }
+      }
+      if (!changed) return;
+      final persisted = await _saveAnswersReturningPersisted(merged);
+      _lastAnswers = persisted;
+      _profile =
+          persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
+      _isLoaded = true;
+      _profileUpdatedSinceBudget = true;
+      CoachNarrativeService.invalidateCache(profile: _profile);
+      notifyListeners();
+      _syncToBackend();
+    });
+  }
+
+  static bool _isMissingAnswer(Map<String, dynamic> answers, String key) {
+    if (!answers.containsKey(key)) return true;
+    final value = answers[key];
+    if (value == null) return true;
+    if (value is String) return value.trim().isEmpty;
+    return false;
   }
 
   Future<Map<String, dynamic>> _saveAnswersReturningPersisted(
@@ -1352,15 +1409,22 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   void _persistFullProfileInBackground(CoachProfile profile) {
-    _profilePersistTail = _profilePersistTail
-        .then((_) => _persistFullProfile(profile))
-        .catchError((Object e) {
+    final queued =
+        _enqueueProfilePersistence(() => _persistFullProfile(profile));
+    unawaited(queued.catchError((Object e) {
       debugPrint('[CoachProfileProvider] Full profile persistence failed: $e');
-    });
-    unawaited(_profilePersistTail);
+    }));
   }
 
   Future<void> _awaitProfilePersistence() => _profilePersistTail;
+
+  Future<void> _enqueueProfilePersistence(Future<void> Function() operation) {
+    final next = _profilePersistTail.then((_) => operation());
+    _profilePersistTail = next.catchError((Object e) {
+      debugPrint('[CoachProfileProvider] Profile persistence queue failed: $e');
+    });
+    return next;
+  }
 
   /// W15: Create a financial snapshot from the current profile state.
   /// Fire-and-forget — errors are logged, never surfaced to the user.

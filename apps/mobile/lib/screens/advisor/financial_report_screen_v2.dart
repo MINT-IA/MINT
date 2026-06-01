@@ -66,7 +66,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (wizardAnswers.isEmpty) {
+    if (wizardAnswers.isEmpty && !_hasReportFallback(context)) {
       return Scaffold(
         backgroundColor: MintColors.surface,
         appBar: AppBar(
@@ -266,6 +266,12 @@ class FinancialReportScreenV2 extends StatelessWidget {
     );
   }
 
+  bool _hasReportFallback(BuildContext context) {
+    return budgetSnapshot != null ||
+        _readMintStateBudgetIfAvailable(context) != null ||
+        _readBudgetProviderIfAvailable(context)?.inputs != null;
+  }
+
   // ════════════════════════════════════════════════════════════════
   //  HEADER — Greeting + contextual status (replaces numeric score)
   // ════════════════════════════════════════════════════════════════
@@ -347,15 +353,17 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   Widget _buildBudgetSection(BuildContext context, Map<String, dynamic> answers,
       FinancialReport report) {
+    final budgetProvider = _readBudgetProviderIfAvailable(context);
+    final useProviderFallback =
+        _shouldUseBudgetProviderFallback(answers, budgetProvider);
+    final useAnswerBudget = !useProviderFallback &&
+        _answersHaveExplicitBudgetInputs(answers);
     final canonicalBudget =
         budgetSnapshot ?? _readMintStateBudgetIfAvailable(context);
-    if (canonicalBudget != null) {
+    if (!useProviderFallback && !useAnswerBudget && canonicalBudget != null) {
       return _buildBudgetCardFromPresent(context, canonicalBudget.present);
     }
 
-    final budgetProvider = _readBudgetProviderIfAvailable(context);
-    final useProviderFallback = _answersNeedBudgetProviderFallback(answers) &&
-        budgetProvider?.inputs != null;
     final inputs = useProviderFallback
         ? budgetProvider!.inputs!
         : BudgetInputs.fromMap(
@@ -398,6 +406,18 @@ class FinancialReportScreenV2 extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  bool _answersHaveExplicitBudgetInputs(Map<String, dynamic> answers) {
+    if (answers.isEmpty) return false;
+    final inputs = BudgetInputs.fromMap(answers);
+    return inputs.netIncome.isFinite &&
+        inputs.netIncome > 0 &&
+        (answers.containsKey('q_housing_cost_period_chf') ||
+            answers.containsKey('q_lamal_premium_monthly_chf') ||
+            answers.containsKey('q_tax_provision_monthly_chf') ||
+            answers.containsKey('q_other_fixed_costs_monthly_chf') ||
+            answers.containsKey('q_debt_payments_period_chf'));
   }
 
   Widget _buildBudgetCardFromPresent(
@@ -456,6 +476,15 @@ class FinancialReportScreenV2 extends StatelessWidget {
         !answers.containsKey('q_canton') ||
         (!answers.containsKey('q_tax_provision_monthly_chf') &&
             inputs.isTaxEstimated);
+  }
+
+  bool _shouldUseBudgetProviderFallback(
+    Map<String, dynamic> answers,
+    BudgetProvider? budgetProvider,
+  ) {
+    if (budgetProvider?.inputs == null) return false;
+    if (budgetProvider!.source == BudgetDataSource.directInput) return true;
+    return _answersNeedBudgetProviderFallback(answers);
   }
 
   Map<String, dynamic> _answersWithReportBudgetFallbacks(

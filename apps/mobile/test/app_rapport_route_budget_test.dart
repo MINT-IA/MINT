@@ -3,9 +3,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _secureStorageChannel =
@@ -15,6 +24,40 @@ Future<void> _pumpFrames(WidgetTester tester, {int frames = 12}) async {
   for (var i = 0; i < frames; i += 1) {
     await tester.pump(const Duration(milliseconds: 100));
   }
+}
+
+MintUserState _stateWithStaleBudgetSnapshot() {
+  return MintUserState(
+    profile: CoachProfile(
+      birthYear: 1977,
+      canton: 'ZH',
+      salaireBrutMensuel: 10000,
+      goalA: GoalA(
+        type: GoalAType.retraite,
+        targetDate: DateTime(2042),
+        label: 'Retraite',
+      ),
+    ),
+    lifecyclePhase: LifecyclePhase.construction,
+    archetype: FinancialArchetype.swissNative,
+    budgetSnapshot: const BudgetSnapshot(
+      present: PresentBudget(
+        monthlyNet: 7410,
+        monthlyHousing: 1927,
+        monthlyTax: 1123,
+        monthlyHealth: 420,
+        monthlyCharges: 3470,
+        monthlySavings: 588,
+        monthlyFree: 3352,
+      ),
+      capImpacts: [],
+      stage: BudgetStage.presentOnly,
+      confidenceScore: 64,
+    ),
+    confidenceScore: 64,
+    capMemory: const CapMemory(),
+    computedAt: DateTime.utc(2026, 6),
+  );
 }
 
 void main() {
@@ -135,6 +178,148 @@ void main() {
     expect(find.textContaining('420'), findsWidgets);
     expect(find.textContaining("3'078"), findsWidgets);
     expect(find.textContaining("1'922"), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('/rapport uses budget provider when wizard answers are empty',
+      (tester) async {
+    final budgetProvider = BudgetProvider();
+    await budgetProvider.setInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 7410,
+        housingCost: 2200,
+        debtPayments: 0,
+        taxProvision: 850,
+        healthInsurance: 420,
+        otherFixedCosts: 0,
+      ),
+    );
+    budgetProvider.updateOverride('future', 588);
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<BudgetProvider>.value(
+        value: budgetProvider,
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: FinancialReportScreenV2(wizardAnswers: {}),
+        ),
+      ),
+    );
+    await tester.pump();
+    await _pumpFrames(tester, frames: 20);
+
+    expect(find.textContaining('Ton Budget'), findsOneWidget);
+    expect(find.textContaining("3'352"), findsWidgets);
+    expect(find.textContaining("2'200"), findsWidgets);
+    expect(find.textContaining('420'), findsWidgets);
+    expect(find.textContaining("Ton bilan financier"), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('/rapport prefers fresh budget inputs over stale MintState',
+      (tester) async {
+    final budgetProvider = BudgetProvider();
+    await budgetProvider.setInputs(
+      const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 7410,
+        housingCost: 2200,
+        debtPayments: 0,
+        taxProvision: 850,
+        healthInsurance: 420,
+        otherFixedCosts: 0,
+      ),
+    );
+    budgetProvider.updateOverride('future', 588);
+
+    final mintStateProvider = MintStateProvider()
+      ..injectStateForTest(_stateWithStaleBudgetSnapshot());
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
+          ChangeNotifierProvider<MintStateProvider>.value(
+            value: mintStateProvider,
+          ),
+        ],
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: FinancialReportScreenV2(wizardAnswers: {}),
+        ),
+      ),
+    );
+    await tester.pump();
+    await _pumpFrames(tester, frames: 20);
+
+    expect(find.textContaining('Ton Budget'), findsOneWidget);
+    expect(find.textContaining("3'352"), findsWidgets);
+    expect(find.textContaining("2'200"), findsWidgets);
+    expect(find.textContaining('850'), findsWidgets);
+    expect(find.textContaining('420'), findsWidgets);
+    expect(find.textContaining("1'927"), findsNothing);
+    expect(find.textContaining("1'123"), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('/rapport prefers explicit wizard budget over stale MintState',
+      (tester) async {
+    final mintStateProvider = MintStateProvider()
+      ..injectStateForTest(_stateWithStaleBudgetSnapshot());
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<MintStateProvider>.value(
+        value: mintStateProvider,
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: FinancialReportScreenV2(
+            wizardAnswers: {
+              'q_birth_year': 1988,
+              'q_canton': 'ZH',
+              'q_civil_status': 'single',
+              'q_children': '0',
+              'q_net_income_period_chf': 7410.0,
+              'q_pay_frequency': 'monthly',
+              'q_housing_cost_period_chf': 2200.0,
+              'q_tax_provision_monthly_chf': 850.0,
+              'q_lamal_premium_monthly_chf': 420.0,
+              'q_employment_status': 'employee',
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await _pumpFrames(tester, frames: 20);
+
+    expect(find.textContaining('Ton Budget'), findsOneWidget);
+    expect(find.textContaining("2'200"), findsWidgets);
+    expect(find.textContaining('850'), findsWidgets);
+    expect(find.textContaining('420'), findsWidgets);
+    expect(find.textContaining("1'927"), findsNothing);
+    expect(find.textContaining("1'123"), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }
