@@ -11,6 +11,7 @@ class BudgetWaterfall extends StatelessWidget {
   final double healthInsurance;
   final double otherFixed;
   final String fixedChargesLabel;
+  final bool showAvailableRow;
 
   const BudgetWaterfall({
     super.key,
@@ -21,6 +22,7 @@ class BudgetWaterfall extends StatelessWidget {
     this.healthInsurance = 0,
     this.otherFixed = 0,
     required this.fixedChargesLabel,
+    this.showAvailableRow = true,
   });
 
   double get available =>
@@ -59,19 +61,21 @@ class BudgetWaterfall extends StatelessWidget {
               isBold: true),
           const SizedBox(height: 8),
         ],
-        const Divider(height: 1),
-        const SizedBox(height: 8),
-        _row(
-          'Disponible',
-          available,
-          available > income * 0.3
-              ? MintColors.success
-              : available > income * 0.1
-                  ? MintColors.warning
-                  : MintColors.error,
-          isPositive: true,
-          isBold: true,
-        ),
+        if (showAvailableRow) ...[
+          const Divider(height: 1),
+          const SizedBox(height: 8),
+          _row(
+            'Disponible',
+            available,
+            available > income * 0.3
+                ? MintColors.success
+                : available > income * 0.1
+                    ? MintColors.warning
+                    : MintColors.error,
+            isPositive: true,
+            isBold: true,
+          ),
+        ],
       ],
     );
   }

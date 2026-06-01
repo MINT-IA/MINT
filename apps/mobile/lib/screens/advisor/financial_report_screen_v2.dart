@@ -403,6 +403,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
               PresentBudgetBuilder.displayChf(inputs.healthInsurance),
           otherFixed: PresentBudgetBuilder.displayChf(inputs.otherFixedCosts),
           fixedChargesLabel: S.of(context)!.summaryChargesFixes,
+          showAvailableRow: false,
         ),
       ],
     );
@@ -447,6 +448,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           healthInsurance: present.monthlyHealth,
           otherFixed: present.monthlyOtherFixed,
           fixedChargesLabel: S.of(context)!.summaryChargesFixes,
+          showAvailableRow: false,
         ),
       ],
     );
