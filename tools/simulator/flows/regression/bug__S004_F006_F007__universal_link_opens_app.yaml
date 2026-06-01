@@ -11,7 +11,7 @@
 #
 # Reachability path tested (sim-bound caveat see §SIM-CAVEAT below) :
 #   stop MINT
-#   → host-side openurl https://mint-staging.up.railway.app/debug/chat-as-verb
+#   → host-side openurl https://mint-staging.up.railway.app/anonymous/chat
 #   → iOS evaluates the Apple-App-Site-Association on the host domain
 #   → IF AASA is reachable + entitlements are present : MINT opens
 #   → ELSE : Safari opens the URL
@@ -82,7 +82,7 @@ tags:
 # Maestro's openLink invokes iOS's URL handler ; iOS checks the AASA
 # at the host's /.well-known/apple-app-site-association endpoint and
 # routes to the MINT app IFF entitlements + AASA match.
-- openLink: "https://mint-staging.up.railway.app/debug/chat-as-verb"
+- openLink: "https://mint-staging.up.railway.app/anonymous/chat"
 
 # ── Step 3 — Wait for MINT to come to the foreground ──────────────────
 - extendedWaitUntil:
@@ -91,14 +91,14 @@ tags:
     timeout: 15000
 - waitForAnimationToEnd
 
-# ── Step 4 — S004+F006+F007 ASSERTION : ChatAsVerbDemoScreen rendered ─
+# ── Step 4 — S004+F006+F007 ASSERTION : public app route rendered ─────
 # Post-fix : iOS validates the AASA file at the host's /.well-known/
 # endpoint, finds the appID + path match, routes the URL to MINT,
-# Flutter+GoRouter resolves /debug/chat-as-verb. We look for the demo
-# screen's hero text.
+# Flutter+GoRouter resolves /anonymous/chat. We look for the anonymous
+# chat input hint instead of a debug/demo surface.
 - extendedWaitUntil:
     visible:
-      text: "Cartes — chat-as-verb (W1)"
+      text: "Écris ce qui te trotte en tête…"
     timeout: 10000
 
 # ── Step 5 — Optional capture for HUMAN-UAT evidence ──────────────────

@@ -383,7 +383,6 @@ _AASA_PAYLOAD = {
             {
                 "appID": "7F5UDGYS5H.ch.mint.app",
                 "paths": [
-                    "/debug/chat-as-verb",
                     "/home",
                     "/aujourd-hui",
                     "/anonymous/chat",

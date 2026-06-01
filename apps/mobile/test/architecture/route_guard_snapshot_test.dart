@@ -200,6 +200,19 @@ void main() {
       }
     });
 
+    test('debug chat-as-verb route is excluded from release builds', () {
+      final debugRouteIndex = appSource.indexOf("path: '/debug/chat-as-verb'");
+      expect(debugRouteIndex, isNonNegative);
+
+      final guardIndex =
+          appSource.lastIndexOf('if (!kReleaseMode)', debugRouteIndex);
+      expect(
+        guardIndex,
+        isNonNegative,
+        reason: 'Debug/demo routes must not be registered in release builds.',
+      );
+    });
+
     test('onboarding routes are explicitly marked', () {
       final onboardingRoutes =
           routeScopes.where((e) => e.value == 'onboarding').toList();

@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/auth/migration_notice_listener.dart';
@@ -407,15 +408,14 @@ final _router = GoRouter(
     // (« Marge fiscale 2026 », « Coût hypothèque mensuel ») in
     // `chat_as_verb_demo_screen.dart`. Route registration was missed
     // in T4 (W14-pattern wiring gap surfaced during G2 sim walkthrough
-    // 2026-05-11). This route exposes the demo so the Maestro G1 flow
-    // + Julien sim can reach the wired surface. Public scope = no auth
-    // gate (the chat backend still requires auth, but the UI surface
-    // itself is reachable).
-    ScopedGoRoute(
-      path: '/debug/chat-as-verb',
-      scope: RouteScope.public,
-      builder: (context, state) => const ChatAsVerbDemoScreen(),
-    ),
+    // 2026-05-11). Keep this surface available to debug/simulator
+    // workflows, but never register it in release builds.
+    if (!kReleaseMode)
+      ScopedGoRoute(
+        path: '/debug/chat-as-verb',
+        scope: RouteScope.public,
+        builder: (context, state) => const ChatAsVerbDemoScreen(),
+      ),
 
     // ── SHELL: 3-tab persistent navigation ───���─────���────────
     StatefulShellRoute.indexedStack(
@@ -2174,14 +2174,12 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
                           color: Colors.black87),
                     ),
                     const SizedBox(height: 24),
-                    FilledButton(
-                      // lint-ignore: prefer_mint_cta
+                    FilledButton( // lint-ignore: prefer_mint_cta
                       onPressed: () => _verifyToken(),
                       child: const Text('Réessayer'),
                     ),
                     const SizedBox(height: 12),
-                    TextButton(
-                      // lint-ignore: prefer_mint_cta
+                    TextButton( // lint-ignore: prefer_mint_cta
                       onPressed: () => context.go('/auth/login'),
                       child: const Text('Retour à la connexion'),
                     ),
