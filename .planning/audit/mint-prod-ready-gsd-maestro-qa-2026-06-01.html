@@ -74,7 +74,7 @@
           <tr><td>Targeted salvage/profile tests</td><td>87 pass, 5 skipped</td><td class="pass">PASS</td><td>After each profile/onboarding edit</td></tr>
           <tr><td>Targeted P1 fixes</td><td>Budget, Rapport, PremierEclairage, FATCA answer, Nudge</td><td class="pass">PASS targeted + full-suite slice</td><td>Keep in regression set</td></tr>
           <tr><td>Maestro locator audit</td><td>35 flows, 308 locators</td><td class="pass">PASS</td><td>After flow edits</td></tr>
-          <tr><td>iOS sim build/install</td><td>Latest targeted pass</td><td class="pass">PASS</td><td>Before Maestro default/perfect/fatca</td></tr>
+          <tr><td>iOS sim build/install</td><td>Latest targeted pass</td><td class="pass">PASS</td><td>Before Maestro default/perfect and dedicated fatca</td></tr>
           <tr><td>Global Flutter analyze</td><td>After fixes: 248 issues</td><td class="fail">FAIL</td><td>Triage static debt separately</td></tr>
           <tr><td>Global Flutter tests</td><td>After fixes: 9047 pass, 24 skipped, 6 golden failures</td><td class="fail">FAIL</td><td>Visual review + golden decision</td></tr>
         </tbody>
@@ -91,9 +91,9 @@
           <tr><td>QA-003</td><td>P1</td><td>PremierEclairage persistence</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
           <tr><td>QA-004</td><td>P1</td><td>FATCA answer provider</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
           <tr><td>QA-005</td><td>P2</td><td>Nudge DOB/age</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
-          <tr><td>QA-006</td><td>P2</td><td>Golden baselines</td><td class="fail">Open</td><td>Visual review before baseline update</td></tr>
+          <tr><td>QA-006</td><td>P1</td><td>Golden baselines</td><td class="fail">Open</td><td>Visual review before baseline update</td></tr>
           <tr><td>QA-007</td><td>P1</td><td>Maestro S005 false-green</td><td class="pass">Fixed</td><td>S005 must reach home through app navigation</td></tr>
-          <tr><td>QA-008</td><td>P1</td><td>Maestro FATCA coverage</td><td class="pass">Fixed</td><td>FATCA is included in default/perfect sweep tiers</td></tr>
+          <tr><td>QA-008</td><td>P1</td><td>Maestro FATCA coverage</td><td class="pass">Fixed as dedicated gate</td><td>FATCA is excluded from normal build sweeps; run <code>--tier fatca</code> on an expat_us build</td></tr>
           <tr><td>QA-009</td><td>P2</td><td>Static analysis</td><td class="fail">Open</td><td>Global analyze green or waiver</td></tr>
           <tr><td>QA-010</td><td>P2</td><td>Golden failure artifacts</td><td class="pass">Controlled</td><td><code>apps/mobile/test/goldens/failures</code> restored before commit</td></tr>
         </tbody>
@@ -109,7 +109,8 @@
             <tr><td>targeted empty-state</td><td class="pass">PASS</td></tr>
             <tr><td>targeted salvage01</td><td class="pass">PASS</td></tr>
             <tr><td>targeted FATCA</td><td class="pass">PASS</td></tr>
-            <tr><td>default/perfect/fatca</td><td class="warn">Needs rerun after current fixes</td></tr>
+            <tr><td>default/perfect</td><td class="warn">Needs rerun on normal build</td></tr>
+            <tr><td>fatca</td><td class="warn">Needs rerun on expat_us seeded build</td></tr>
             <tr><td>deeplink</td><td class="warn">Opt-in; sim instability must be separated from app bugs</td></tr>
           </tbody>
         </table>
@@ -120,7 +121,7 @@
           <tbody>
             <tr><th>Risk</th><th>Action</th></tr>
             <tr><td>Forced route false-green</td><td class="pass">S005 deep link removed</td></tr>
-            <tr><td>FATCA omitted from normal sweep</td><td class="pass">Included in default/perfect</td></tr>
+            <tr><td>FATCA in normal sweep</td><td class="pass">Separated into dedicated expat_us tier</td></tr>
             <tr><td>Coordinate taps in Maestro</td><td class="warn">Replace with stable keys over time</td></tr>
             <tr><td>Tracked golden failure PNGs</td><td class="warn">Restore after every golden run unless intentionally updating</td></tr>
             <tr><td>Large branch diff</td><td class="warn">Keep atomic commits; split before merge if needed</td></tr>
@@ -136,7 +137,7 @@
           <tr><td>0 open P1</td><td>Bug ledger reviewed after full rerun</td></tr>
           <tr><td>Flutter full suite</td><td><code>cd apps/mobile &amp;&amp; flutter test</code></td></tr>
           <tr><td>Static analysis</td><td><code>cd apps/mobile &amp;&amp; flutter analyze</code></td></tr>
-          <tr><td>Maestro</td><td><code>tools/simulator/maestro_sweep.sh --tier default</code>, <code>--tier perfect</code>, <code>--tier fatca</code></td></tr>
+          <tr><td>Maestro</td><td><code>tools/simulator/maestro_sweep.sh --tier default</code> and <code>--tier perfect</code> on a normal build; <code>--tier fatca</code> on an expat_us seeded build</td></tr>
           <tr><td>Clean repo</td><td><code>git status --short --branch</code></td></tr>
           <tr><td>Expert review</td><td>QA, architecture, i18n/a11y, compliance blockers resolved or dated waiver</td></tr>
         </tbody>

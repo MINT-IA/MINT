@@ -17,15 +17,17 @@
 #       — runs one tier. Tiers :
 #           e2e        — the ship-gate journey (1 flow)
 #           regression — bug-XXX regression locks (excl. deeplink)
-#           perfect    — perfect-set flows (workflow E + LSFin + FATCA)
+#           perfect    — perfect-set flows (workflow E + LSFin)
 #           personas   — Premier Éclairage personas (julien_swiss, lauren_expat_us)
+#           fatca      — FATCA 3a gate, requires an expat_us seeded build
 #           deeplink   — opt-in deeplink/Universal Link flows (sim-unreliable,
 #                        crashes SafariViewService on long-booted sims —
 #                        per memory `feedback_sim_crash_mitigation`)
-#           all        — e2e + regression + perfect + FATCA + personas
-#                        (no deeplink; FATCA requires expat_us build/seed)
-#           default    — e2e + regression + perfect + FATCA
-#                        (no personas, no deeplink)
+#           all        — e2e + regression + perfect + personas
+#                        (no deeplink; no FATCA because FATCA needs expat_us)
+#           default    — e2e + regression + perfect (no personas, no deeplink,
+#                        no FATCA because one installed app cannot be both the
+#                        normal user build and the expat_us seeded build)
 #
 # Env (forwarded to the watchdog) :
 #   MAESTRO_STALL_THRESHOLD, MAESTRO_HARD_LIMIT, MINT_DEBUG_PORT, MINT_BUNDLE_ID
@@ -115,14 +117,12 @@ FLOWS_PERSONAS=(
 case "$TIER" in
   e2e)        FLOWS=("${FLOWS_E2E[@]}") ;;
   regression) FLOWS=("${FLOWS_REGRESSION[@]}") ;;
-  perfect)
-    FLOWS=("${FLOWS_PERFECT[@]}" "${FLOWS_FATCA[@]}")
-    ;;
+  perfect)    FLOWS=("${FLOWS_PERFECT[@]}") ;;
   fatca)      FLOWS=("${FLOWS_FATCA[@]}") ;;
   personas)   FLOWS=("${FLOWS_PERSONAS[@]}") ;;
   deeplink)   FLOWS=("${FLOWS_DEEPLINK[@]}") ;;
-  all)        FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_FATCA[@]}" "${FLOWS_PERSONAS[@]}") ;;
-  default)    FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_FATCA[@]}") ;;
+  all)        FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_PERSONAS[@]}") ;;
+  default)    FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}") ;;
   *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | personas | deeplink | all | default)" >&2; exit 1 ;;
 esac
 
