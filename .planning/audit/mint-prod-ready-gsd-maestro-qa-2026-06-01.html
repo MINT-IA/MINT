@@ -60,7 +60,7 @@
     <section>
       <h2>Go / No-Go</h2>
       <div class="callout">
-        <strong>Current decision:</strong> no staging/prod release candidate yet. The latest runtime QA is green for normal-user Maestro default (15/15) and expat_us FATCA (1/1), but full Flutter suite still fails on 6 goldens and global analyze still reports 248 issues. Feature-branch QA work is authorized.
+        <strong>Current decision:</strong> no staging/prod release candidate yet. The latest runtime QA is green for normal-user Maestro default (15/15), expat_us FATCA (1/1), and full Flutter tests (9054 pass, 24 skipped), but global analyze still reports 248 classified issues. Feature-branch QA work is authorized.
       </div>
     </section>
 
@@ -79,7 +79,7 @@
           <tr><td>Maestro fatca</td><td><code>sweep-20260601T113803</code>: 1/1</td><td class="pass">PASS</td><td>Before merge with expat_us build</td></tr>
           <tr><td>Claude Opus review</td><td>Focused diff, secure fallback + Maestro flows</td><td class="pass">PASS</td><td>Before commit</td></tr>
           <tr><td>Global Flutter analyze</td><td>248 issues: 0 errors, 32 warnings, 216 infos</td><td class="fail">FAIL</td><td>Mechanical cleanup slices</td></tr>
-          <tr><td>Global Flutter tests</td><td>After fixes: 9047 pass, 24 skipped, 6 golden failures</td><td class="fail">FAIL</td><td>Visual review + golden decision</td></tr>
+          <tr><td>Global Flutter tests</td><td>9054 pass, 24 skipped, 0 failures</td><td class="pass">PASS</td><td>Before merge</td></tr>
         </tbody>
       </table>
     </section>
@@ -89,12 +89,12 @@
       <table>
         <thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Status</th><th>Proof required</th></tr></thead>
         <tbody>
-          <tr><td>QA-001</td><td>P1</td><td>Full Flutter suite</td><td class="fail">Open</td><td><code>flutter test</code> green or explicit quarantine ledger</td></tr>
+          <tr><td>QA-001</td><td>P1</td><td>Full Flutter suite</td><td class="pass">Fixed</td><td><code>flutter test</code>: 9054 pass, 24 skipped</td></tr>
           <tr><td>QA-002</td><td>P1</td><td>Budget -> Rapport</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
           <tr><td>QA-003</td><td>P1</td><td>PremierEclairage persistence</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
           <tr><td>QA-004</td><td>P1</td><td>FATCA answer provider</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
           <tr><td>QA-005</td><td>P2</td><td>Nudge DOB/age</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
-          <tr><td>QA-006</td><td>P1</td><td>Golden baselines</td><td class="fail">Open - classified</td><td>Julien 14 px, Lauren 24 px; Landing 4 variants 7.76-8.50% expected from anonymous CTA. Needs controlled baseline PR.</td></tr>
+          <tr><td>QA-006</td><td>P1</td><td>Golden baselines</td><td class="pass">Fixed</td><td>Six approved masters refreshed; full Flutter suite green.</td></tr>
           <tr><td>QA-007</td><td>P1</td><td>Maestro S005/e2e false-green</td><td class="pass">Fixed</td><td>S005/e2e now use home-surface assertions and stable register-path locators</td></tr>
           <tr><td>QA-008</td><td>P1</td><td>Maestro FATCA coverage</td><td class="pass">Fixed as dedicated gate</td><td>FATCA is excluded from normal build sweeps; run <code>--tier fatca</code> on an expat_us build</td></tr>
           <tr><td>QA-009</td><td>P2</td><td>Static analysis</td><td class="fail">Open - classified</td><td>No analyzer errors; mostly const/deprecation/import cleanup. Split mechanical commits.</td></tr>
