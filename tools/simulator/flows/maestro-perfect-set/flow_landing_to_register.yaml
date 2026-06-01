@@ -119,8 +119,10 @@ tags:
       visible:
         text: ".*Je suis toujours là.*"
     commands:
+      - assertVisible:
+          text: "Créer un compte"
       - tapOn:
-          point: "50%,88%"
+          text: "Créer un compte"
       - extendedWaitUntil:
           visible:
             text: ".*Je peux garder tout.*en mémoire.*"
@@ -128,7 +130,7 @@ tags:
 
 # 05 — tap register CTA → /auth/register
 - tapOn:
-    point: "50%,75%"
+    text: "Créer un compte"
 - runFlow:
     when:
       visible:

@@ -142,11 +142,17 @@ tags:
 # renders → 3-tab nav header carries « Aujourd'hui » text. Same regex-
 # wrap as step 4 because the BottomNavigationBar tab carries
 # accessibilityText="Aujourd'hui\nOnglet 1 sur 4" (Flutter iOS bridge
-# concatenation of Semantics label + system-emitted tab-index hint).
+# concatenation of Semantics label + system-emitted tab-index hint). Then assert
+# the home-specific Cap du jour surface and action bar so the flow cannot pass
+# on a shell/tab-label-only false green.
 - extendedWaitUntil:
     visible:
       text: ".*Aujourd'hui.*"
     timeout: 10000
+- assertVisible:
+    id: "card_cap_du_jour"
+- assertVisible:
+    id: "mint_card_action_bar"
 
 # ── Step 7 — Optional capture for HUMAN-UAT evidence ──────────────────
 - takeScreenshot: /tmp/96_s005_aujourdhui_landed

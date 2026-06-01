@@ -188,8 +188,10 @@ tags:
       visible:
         text: ".*Je suis toujours là.*"
     commands:
+      - assertVisible:
+          text: "Créer un compte"
       - tapOn:
-          point: "50%,88%"
+          text: "Créer un compte"
       - extendedWaitUntil:
           visible:
             text: ".*Je peux garder tout.*en mémoire.*"
@@ -200,7 +202,7 @@ tags:
 # ╚══════════════════════════════════════════════════════════════════════╝
 
 - tapOn:
-    point: "50%,75%"
+    text: "Créer un compte"
 - runFlow:
     when:
       visible:
@@ -260,9 +262,7 @@ tags:
 - tapOn:
     text: "Mot de passe"
 - inputText: ${MINT_E2E_PASSWORD}
-
-- tapOn:
-    point: "50%,20%"
+- hideKeyboard
 
 - scrollUntilVisible:
     element:
@@ -327,6 +327,10 @@ tags:
     visible:
       text: ".*Aujourd'hui.*"
     timeout: 20000
+- assertVisible:
+    id: "card_cap_du_jour"
+- assertVisible:
+    id: "mint_card_action_bar"
 
 - extendedWaitUntil:
     visible:
