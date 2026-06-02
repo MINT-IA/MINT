@@ -89,6 +89,12 @@ from app.services.coach.runtime_freshness_gate import (
     gate as _runtime_freshness_gate,
 )
 
+# CJT-021 — runtime temporal-anchor gate.
+# Wired AFTER `_runtime_freshness_gate` and BEFORE `_citation_gate`: numeric
+# freshness catches stale regulatory values; temporal freshness catches past
+# month/year examples in current-year answers.
+from app.services.coach.runtime_temporal_gate import gate as _runtime_temporal_gate
+
 from app.services.coach.coach_tools import (
     INTERNAL_TOOL_NAMES,
     get_llm_tools,
@@ -4857,6 +4863,12 @@ async def coach_chat(
                             ",", "'"
                         )
                     )
+                if _d.get("pillar3aAnnual") is not None:
+                    _facts.append(
+                        f"- 3a verse cette annee: {int(_d['pillar3aAnnual']):,} CHF".replace(
+                            ",", "'"
+                        )
+                    )
                 if _d.get("avsContributionYears"):
                     _facts.append(
                         f"- Annees cotisation AVS: {_d['avsContributionYears']}"
@@ -5274,6 +5286,35 @@ async def coach_chat(
             except Exception:  # pragma: no cover — telemetry is fail-open
                 pass
             loop_result["answer"] = _fg_text
+            return loop_result
+
+        # CJT-021 — runtime temporal-anchor gate. Catches outputs such as
+        # "janvier 2025 / décembre 2025" when the user asked a current-year
+        # question ("cette année"). This is distinct from numeric freshness:
+        # the 7'258 ceiling can be correct while the timing example is stale.
+        _tg_passed, _tg_text = _runtime_temporal_gate(
+            loop_result["answer"], user_message=body.message
+        )
+        if not _tg_passed:
+            try:
+                import sentry_sdk  # type: ignore
+
+                sentry_sdk.add_breadcrumb(  # type: ignore[union-attr]
+                    category="coach.temporal_gate.fired",
+                    message="runtime temporal-anchor gate fired",
+                    level="info",
+                    data={
+                        "profile_id_hashed": (
+                            __import__("hashlib")
+                            .sha256(str(_user.id).encode("utf-8") if _user else b"")
+                            .hexdigest()[:16]
+                        ),
+                        "fallback_emitted": True,
+                    },
+                )
+            except Exception:  # pragma: no cover — telemetry is fail-open
+                pass
+            loop_result["answer"] = _tg_text
             return loop_result
 
         gated = _citation_gate(

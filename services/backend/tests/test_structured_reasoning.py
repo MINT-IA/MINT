@@ -172,6 +172,31 @@ class TestDecember3aDeadline:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Group 3b: Non-December 3a fiscal-year wording
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class Test3aNotMaxed:
+    """3a not-maxed prompt block must not prime stale year anchors."""
+
+    @patch("app.services.coach.structured_reasoning.datetime")
+    def test_3a_not_maxed_uses_current_fiscal_year_2026(self, mock_dt):
+        today_2026 = datetime.date(2026, 6, 2)
+        mock_dt.date.today.return_value = today_2026
+        mock_dt.date.side_effect = lambda *a, **kw: datetime.date(*a, **kw)
+
+        output = _reason({
+            "annual_3a_contribution": 1000,
+            "tax_saving_potential": 1800,
+        })
+
+        assert output.fact_tag == "3a_not_maxed"
+        assert "plafond 2026" in output.fact_label
+        assert "2025/2026" not in output.fact_label
+        assert output.supporting_data["annee_fiscale"] == 2026
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Group 4: Gap warning (replacement rate)
 # ─────────────────────────────────────────────────────────────────────────────
 
