@@ -17,13 +17,15 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
+from sqlalchemy import create_engine
 
+from app.core.database import Base
 from app.models.fact_current import FactCurrent
 from app.models.fact_event import FactEvent
 from app.models.snapshot import SnapshotModel
 from app.models.user import User
 from app.services.encryption.encrypted_value_helper import decrypt_value
-from scripts.backfill_snapshot_to_fact_event import backfill_user
+from scripts.backfill_snapshot_to_fact_event import backfill_user, run_backfill
 from tests.conftest import TestingSessionLocal
 
 
@@ -119,6 +121,21 @@ def test_dry_run_doesnt_write(db, snapshot_row):
         FactEvent.source == "snapshot_backfill_v1",
     ).all()
     assert fe_rows == []
+
+
+def test_run_backfill_honors_explicit_database_url(tmp_path):
+    """CLI path must use the explicit target URL, not settings.DATABASE_URL."""
+    db_path = tmp_path / "backfill-empty.sqlite"
+    url = f"sqlite:///{db_path}"
+    engine = create_engine(url)
+    Base.metadata.create_all(engine)
+
+    summary = run_backfill(url=url, dry_run=True)
+
+    assert summary["snapshots_seen"] == 0
+    assert summary["fact_events_written"] == 0
+    assert summary["errors"] == 0
+    assert summary["dry_run"] is True
 
 
 def test_snapshot_with_zero_gross_income_skips(db, user_id):

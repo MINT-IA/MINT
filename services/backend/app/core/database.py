@@ -61,7 +61,7 @@ def get_db():
         db.close()
 
 
-def get_backfill_engine():  # pragma: no cover — exercised only by Plan 02-03 PR-3a
+def get_backfill_engine(database_url: str | None = None):  # pragma: no cover
     """Return a throttled engine for backfill scripts (iter-2 B15).
 
     The main `engine` uses `pool_size=20, max_overflow=20` to serve
@@ -75,10 +75,11 @@ def get_backfill_engine():  # pragma: no cover — exercised only by Plan 02-03 
     batch UPDATE / INSERT operation that would otherwise saturate the
     serving pool.
     """
+    url = database_url or SQLALCHEMY_DATABASE_URL
     backfill_kwargs: dict = {}
-    if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    if url.startswith("sqlite"):
         backfill_kwargs["connect_args"] = {"check_same_thread": False}
-    elif "postgresql" in SQLALCHEMY_DATABASE_URL:
+    elif "postgresql" in url:
         backfill_kwargs["pool_size"] = 2
         backfill_kwargs["max_overflow"] = 0
         backfill_kwargs["pool_recycle"] = 3600
@@ -88,4 +89,4 @@ def get_backfill_engine():  # pragma: no cover — exercised only by Plan 02-03 
             "prepare_threshold": None,
             "options": "-c application_name=mint-backfill",
         }
-    return create_engine(SQLALCHEMY_DATABASE_URL, **backfill_kwargs)
+    return create_engine(url, **backfill_kwargs)
