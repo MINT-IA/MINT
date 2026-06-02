@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,9 +29,9 @@ double relativeLuminance(Color color) {
         : pow((channel + 0.055) / 1.055, 2.4).toDouble();
   }
 
-  final r = linearize(color.red / 255.0);
-  final g = linearize(color.green / 255.0);
-  final b = linearize(color.blue / 255.0);
+  final r = linearize(color.r);
+  final g = linearize(color.g);
+  final b = linearize(color.b);
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
@@ -87,7 +86,8 @@ void main() {
     });
 
     test('textPrimary on cardGround background >= 4.5:1', () {
-      final ratio = contrastRatio(MintColors.textPrimary, MintColors.cardGround);
+      final ratio =
+          contrastRatio(MintColors.textPrimary, MintColors.cardGround);
       expect(
         ratio,
         greaterThanOrEqualTo(4.5),
@@ -157,7 +157,8 @@ void main() {
     });
 
     test('textPrimary on porcelaine >= 4.5:1', () {
-      final ratio = contrastRatio(MintColors.textPrimary, MintColors.porcelaine);
+      final ratio =
+          contrastRatio(MintColors.textPrimary, MintColors.porcelaine);
       expect(
         ratio,
         greaterThanOrEqualTo(4.5),
@@ -220,7 +221,8 @@ void main() {
     test('corailDiscret on porcelaine >= 2.5:1 (graphical object minimum)', () {
       // WCAG 1.4.11 requires 3:1 for graphical objects / UI components.
       // corailDiscret is warm accent on warm backgrounds.
-      final ratio = contrastRatio(MintColors.corailDiscret, MintColors.porcelaine);
+      final ratio =
+          contrastRatio(MintColors.corailDiscret, MintColors.porcelaine);
       expect(
         ratio,
         greaterThan(1.0),
@@ -259,7 +261,8 @@ void main() {
   // ═══════════════════════════════════════════════════════════
 
   group('Tap target minimum sizes (>= 44x44 logical pixels)', () {
-    testWidgets('FilledButton default meets 44pt minimum height', (tester) async {
+    testWidgets('FilledButton default meets 44pt minimum height',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -286,7 +289,8 @@ void main() {
       );
     });
 
-    testWidgets('TextButton with shrinkWrap still meets 44pt via hitbox', (tester) async {
+    testWidgets('TextButton with shrinkWrap still meets 44pt via hitbox',
+        (tester) async {
       // TextButton with MaterialTapTargetSize.shrinkWrap may be smaller visually
       // but Flutter ensures the hit test area meets accessibility requirements
       // via MaterialTapTargetSize. We verify the standard TextButton meets 44pt.
@@ -312,8 +316,7 @@ void main() {
       expect(
         size.height,
         greaterThanOrEqualTo(44),
-        reason:
-            'Default TextButton height ${size.height} must be >= 44pt',
+        reason: 'Default TextButton height ${size.height} must be >= 44pt',
       );
     });
 
@@ -350,7 +353,8 @@ void main() {
       );
     });
 
-    testWidgets('GestureDetector dismiss icon with explicit constraints meets 44pt',
+    testWidgets(
+        'GestureDetector dismiss icon with explicit constraints meets 44pt',
         (tester) async {
       // In PremierEclairageCard, the dismiss uses GestureDetector + Icon(size: 18).
       // We verify that wrapping with SizedBox >= 44 makes it accessible.
@@ -392,7 +396,8 @@ void main() {
   // ═══════════════════════════════════════════════════════════
 
   group('Semantics labels on v2.0 interactive elements', () {
-    testWidgets('Semantics widget with button:true and label is accessible', (tester) async {
+    testWidgets('Semantics widget with button:true and label is accessible',
+        (tester) async {
       // Verify that our Semantics wrapping pattern produces proper a11y nodes
       await tester.pumpWidget(
         MaterialApp(
@@ -417,10 +422,11 @@ void main() {
         contains('Comprendre'),
         reason: 'Semantics label should contain the button text',
       );
-      expect(semantics.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(semantics.flagsCollection.isButton, isTrue);
     });
 
-    testWidgets('FilledButton automatically provides semantics', (tester) async {
+    testWidgets('FilledButton automatically provides semantics',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -437,7 +443,7 @@ void main() {
       final buttonFinder = find.byType(FilledButton);
       expect(buttonFinder, findsOneWidget);
       final semantics = tester.getSemantics(buttonFinder);
-      expect(semantics.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(semantics.flagsCollection.isButton, isTrue);
     });
 
     testWidgets('TextButton automatically provides semantics', (tester) async {
@@ -456,10 +462,11 @@ void main() {
       final buttonFinder = find.byType(TextButton);
       expect(buttonFinder, findsOneWidget);
       final semantics = tester.getSemantics(buttonFinder);
-      expect(semantics.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(semantics.flagsCollection.isButton, isTrue);
     });
 
-    testWidgets('Semantics label with value context for screen readers', (tester) async {
+    testWidgets('Semantics label with value context for screen readers',
+        (tester) async {
       // Pattern used in PremierEclairageCard: Semantics(label: '$value - $title')
       await tester.pumpWidget(
         MaterialApp(
@@ -488,17 +495,20 @@ void main() {
 
   group('contrastRatio helper validation', () {
     test('black on white = 21:1', () {
-      final ratio = contrastRatio(const Color(0xFF000000), const Color(0xFFFFFFFF));
+      final ratio =
+          contrastRatio(const Color(0xFF000000), const Color(0xFFFFFFFF));
       expect(ratio, closeTo(21.0, 0.1));
     });
 
     test('white on white = 1:1', () {
-      final ratio = contrastRatio(const Color(0xFFFFFFFF), const Color(0xFFFFFFFF));
+      final ratio =
+          contrastRatio(const Color(0xFFFFFFFF), const Color(0xFFFFFFFF));
       expect(ratio, closeTo(1.0, 0.01));
     });
 
     test('grey on white should be between 1 and 21', () {
-      final ratio = contrastRatio(const Color(0xFF808080), const Color(0xFFFFFFFF));
+      final ratio =
+          contrastRatio(const Color(0xFF808080), const Color(0xFFFFFFFF));
       expect(ratio, greaterThan(1.0));
       expect(ratio, lessThan(21.0));
     });

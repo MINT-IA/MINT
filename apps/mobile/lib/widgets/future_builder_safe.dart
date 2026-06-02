@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// [FutureBuilder] with first-class error + loading handling.
 ///
@@ -114,26 +115,19 @@ class _DefaultError extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: 'Supreme', 
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
             ),
             const SizedBox(height: 8),
             Text(
               body,
               textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: 'Supreme', 
-                fontSize: 14,
-                color: MintColors.textSecondary,
-              ),
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 20),
               FilledButton.tonal(
                 onPressed: onRetry,
-                child: Text(retryLabel),
+                child: const Text(retryLabel),
               ),
             ],
           ],

@@ -38,8 +38,10 @@ Widget _buildTestApp({
     supportedLocales: const [Locale('fr')],
     home: MultiProvider(
       providers: [
-        ChangeNotifierProvider<CoachProfileProvider>.value(value: coachProvider),
-        ChangeNotifierProvider<FinancialPlanProvider>.value(value: planProvider),
+        ChangeNotifierProvider<CoachProfileProvider>.value(
+            value: coachProvider),
+        ChangeNotifierProvider<FinancialPlanProvider>.value(
+            value: planProvider),
       ],
       child: Builder(
         builder: (ctx) => Scaffold(
@@ -119,8 +121,7 @@ void main() {
   });
 
   group('MintHomeScreen Section 1c — Plan Reality + Streak', () {
-    testWidgets(
-        'hasPlan=true + 0 checkIns → FirstCheckInCtaCard is rendered',
+    testWidgets('hasPlan=true + 0 checkIns → FirstCheckInCtaCard is rendered',
         (tester) async {
       final coachProvider = _providerWithProfile(_profileWithData());
       final planProvider = _planProviderWithPlan(); // hasPlan=true
@@ -183,7 +184,7 @@ void main() {
         versements: {'3a': 500.0},
         completedAt: DateTime(2026, 3, 5),
       );
-      final contribution = PlannedMonthlyContribution(
+      const contribution = PlannedMonthlyContribution(
         id: '3a',
         label: '3a Julien',
         amount: 500.0,

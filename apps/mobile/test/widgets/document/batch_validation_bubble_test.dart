@@ -33,7 +33,7 @@ Widget _wrap(Widget child) => MaterialApp(
 
 void main() {
   group('BatchValidationBubble', () {
-    final fields = const [
+    const fields = [
       ExtractedField(
         fieldName: 'avoirLppTotal',
         value: 70377,
@@ -183,7 +183,8 @@ void main() {
       expect(rejected!.every((f) => f.status == FieldStatus.rejected), isTrue);
     });
 
-    testWidgets('PRIV-08: caller pre-confirmed fields are reset to needs_review',
+    testWidgets(
+        'PRIV-08: caller pre-confirmed fields are reset to needs_review',
         (tester) async {
       final preConfirmed = fields
           .map((f) => f.copyWith(status: FieldStatus.userValidated))

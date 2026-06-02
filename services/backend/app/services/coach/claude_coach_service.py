@@ -28,8 +28,10 @@ Sources:
     - docs/VOICE_SYSTEM.md
 """
 
+import logging as _n5_logging
 import os
 import warnings
+from datetime import datetime as _n5_dt, timedelta as _n5_td, timezone as _n5_tz
 from typing import TYPE_CHECKING, Optional
 
 from app.services.coach.coach_models import CoachContext
@@ -1265,9 +1267,6 @@ def _build_context_section(ctx: CoachContext) -> str:
 # This module exposes pure helpers; the request pipeline (coach API
 # endpoint) is responsible for calling them around its level selection
 # and response-emit phases.
-
-import logging as _n5_logging
-from datetime import datetime as _n5_dt, timedelta as _n5_td, timezone as _n5_tz
 
 _n5_logger = _n5_logging.getLogger(__name__)
 

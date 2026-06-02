@@ -50,10 +50,6 @@ Map<String, Set<String>> buildRouteGraph(String source) {
 void _parseNestedRoutes(String source, Map<String, Set<String>> graph) {
   // Strategy: find ScopedGoRoute with `routes:` parameter that contains
   // child ScopedGoRoute declarations. We use a simplified state machine.
-  final parentPattern = RegExp(
-    r'''ScopedGoRoute\s*\(\s*\n?\s*path:\s*['"]([^'"]+)['"]\s*,''',
-  );
-
   // Find routes that have sub-routes by looking for the `routes: [` pattern
   // within the same ScopedGoRoute block.
   final routeBlockPattern = RegExp(
@@ -66,7 +62,8 @@ void _parseNestedRoutes(String source, Map<String, Set<String>> graph) {
     final childBlock = match.group(2)!;
 
     // Extract child paths from the routes block
-    final childPattern = RegExp(r'''ScopedGoRoute\s*\(\s*(?:\n\s*)?path:\s*['"]([^'"]+)['"]''');
+    final childPattern =
+        RegExp(r'''ScopedGoRoute\s*\(\s*(?:\n\s*)?path:\s*['"]([^'"]+)['"]''');
     for (final childMatch in childPattern.allMatches(childBlock)) {
       final childRelPath = childMatch.group(1)!;
       final childFullPath = childRelPath.startsWith('/')
@@ -134,8 +131,7 @@ void main() {
   setUpAll(() {
     // Read app.dart source to parse the router tree
     final appFile = File('lib/app.dart');
-    expect(appFile.existsSync(), isTrue,
-        reason: 'lib/app.dart must exist');
+    expect(appFile.existsSync(), isTrue, reason: 'lib/app.dart must exist');
     appSource = appFile.readAsStringSync();
   });
 
@@ -151,9 +147,8 @@ void main() {
       final sccs = findStronglyConnectedComponents(graph);
 
       if (sccs.isNotEmpty) {
-        final report = sccs
-            .map((scc) => '  Cycle: ${scc.join(' -> ')}')
-            .join('\n');
+        final report =
+            sccs.map((scc) => '  Cycle: ${scc.join(' -> ')}').join('\n');
         fail('Found ${sccs.length} cycle(s) in the route graph:\n$report');
       }
     });

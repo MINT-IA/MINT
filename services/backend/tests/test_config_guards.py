@@ -4,12 +4,10 @@ Guards run at MODULE IMPORT TIME, so we use subprocess to test RuntimeError
 scenarios (importlib.reload would also re-trigger guards in the current process).
 """
 
-import json
 import os
 import subprocess
 import sys
 
-import pytest
 
 
 PYTHON = sys.executable

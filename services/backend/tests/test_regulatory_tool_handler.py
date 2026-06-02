@@ -12,7 +12,6 @@ from unittest.mock import MagicMock, patch
 from types import SimpleNamespace
 from datetime import date
 
-import pytest
 
 
 def test_shared_module_does_not_import_coach_chat_auth_stack():

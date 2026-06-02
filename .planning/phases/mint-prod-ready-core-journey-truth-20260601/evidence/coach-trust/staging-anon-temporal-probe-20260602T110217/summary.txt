@@ -1,0 +1,7 @@
+Probe: POST https://mint-staging.up.railway.app/api/v1/anonymous/chat
+Date: 2026-06-02 11:02 Europe/Zurich
+Session: 69976C71-E6D5-4897-B86C-D84A114790F6
+Payload: {"message":"Combien je peux mettre sur mon 3a cette année ?","language":"fr","intent":"Je veux comprendre mon 3a"}
+Deployment proof: PR #690 merged into staging at 2026-06-02T08:55:42Z (merge commit 6066001fdda2888aa11813b7cec22af1f04a5572). deploy-backend run 26809352069 passed pre-deploy tests, Railway staging deploy, and staging smoke at 2026-06-02T09:00:15Z.
+Result: HTTP 200. Response refused stale temporal data cleanly with "Je n'ai pas cette donnée à jour pour l'instant." It did not emit "2025", "janvier 2025", "décembre 2025", market-timing guidance, or a stale 3a ceiling anchor.
+Verdict: CJT-021 staging backend blocker closed for the anonymous endpoint. Remaining end-to-end confidence should rerun the Maestro hero flow against the staged backend/app build.

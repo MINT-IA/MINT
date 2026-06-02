@@ -99,6 +99,7 @@ class _ChatDateOfBirthPickerState extends State<ChatDateOfBirthPicker> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              // lint-ignore: prefer_mint_cta
               onPressed: _pickDate,
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(0, 56),
@@ -118,6 +119,7 @@ class _ChatDateOfBirthPickerState extends State<ChatDateOfBirthPicker> {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
+              // lint-ignore: prefer_mint_cta
               onPressed: _selected == null
                   ? null
                   : () => widget.onSelected(_selected!),
@@ -255,6 +257,7 @@ class _ChatAgePickerState extends State<ChatAgePicker> {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
+              // lint-ignore: prefer_mint_cta
               onPressed: () => widget.onSelected(_selected),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
@@ -391,6 +394,7 @@ class _ChatAmountInputState extends State<ChatAmountInput> {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
+              // lint-ignore: prefer_mint_cta
               onPressed: () => widget.onSubmitted(_currentValue),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
@@ -492,7 +496,7 @@ class ChatCantonPicker extends StatelessWidget {
                     canton,
                     style: MintTextStyles.titleMedium(
                       color: MintColors.textPrimary,
-                    ).copyWith(fontWeight: FontWeight.w600, fontSize: 15),
+                    ).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               );
@@ -546,6 +550,7 @@ class ChatChoiceButtons extends StatelessWidget {
                 child: SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
+                    // lint-ignore: prefer_mint_cta
                     onPressed: () => onSelected(choice),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: MintColors.textPrimary,

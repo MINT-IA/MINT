@@ -15,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class MintSceneRenteTrouee extends StatefulWidget {
   const MintSceneRenteTrouee({
@@ -72,48 +73,37 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
   @override
   Widget build(BuildContext context) {
     final r = _computeRenteRange();
-    final cumulTotal =
-        ((r.low + r.high) / 2) * 12 * (_ageEsperance - 65);
+    final cumulTotal = ((r.low + r.high) / 2) * 12 * (_ageEsperance - 65);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'SCENE · TA RETRAITE PROJETEE',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 10.5,
+          style: MintTextStyles.labelSmall(
+            color: MintColors.corailDiscret,
+          ).copyWith(
             fontWeight: FontWeight.w600,
             letterSpacing: 1.4,
-            color: MintColors.corailDiscret,
           ),
         ),
         const SizedBox(height: 14),
         Text(
           'À ton âge et ton revenu, voici ce qui arrive\u00a0si tu ne bouges rien.',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 17,
-            fontWeight: FontWeight.w500,
+          style: MintTextStyles.titleMedium(
             color: MintColors.textPrimary,
-            height: 1.35,
-          ),
+          ).copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 28),
         Text(
           'CHF ${_fmt(r.low)} \u2013 ${_fmt(r.high)}',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 36,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-            height: 1.1,
-          ),
+          style: MintTextStyles.displayMedium(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Text(
           '/ mois, dès 65 ans',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 14,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 28),
         Container(
@@ -127,11 +117,11 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
             children: [
               Text(
                 'ÂGE D\u2019ESPÉRANCE DE VIE · ${_ageEsperance.toInt()} ans',
-                style: TextStyle(fontFamily: 'Supreme', 
-                  fontSize: 10.5,
+                style: MintTextStyles.labelSmall(
+                  color: MintColors.corailDiscret,
+                ).copyWith(
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.2,
-                  color: MintColors.corailDiscret,
                 ),
               ),
               const SizedBox(height: 4),
@@ -142,8 +132,7 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
                 divisions: 30,
                 label: '${_ageEsperance.toInt()} ans',
                 activeColor: MintColors.textPrimary,
-                inactiveColor:
-                    MintColors.textSecondary.withValues(alpha: 0.25),
+                inactiveColor: MintColors.textSecondary.withValues(alpha: 0.25),
                 onChanged: (v) {
                   setState(() => _ageEsperance = v);
                   HapticFeedback.selectionClick();
@@ -152,10 +141,8 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
               Text(
                 'Cumulé entre 65 et ${_ageEsperance.toInt()} ans\u00a0: '
                 'environ CHF ${_fmt(cumulTotal)}.',
-                style: TextStyle(fontFamily: 'Supreme', 
-                  fontSize: 13,
+                style: MintTextStyles.bodySmall(
                   color: MintColors.textSecondary,
-                  height: 1.4,
                 ),
               ),
             ],
@@ -165,12 +152,9 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
         Text(
           'Hypothèse\u00a0: rendement moyen 1,5 à 3,5\u202f%. '
           'Source\u00a0: AVS art. 33ter LAVS, LPP art. 14-16.',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 11,
+          style: MintTextStyles.labelSmall(
             color: MintColors.textSecondary,
-            fontStyle: FontStyle.italic,
-            height: 1.4,
-          ),
+          ).copyWith(fontStyle: FontStyle.italic),
         ),
       ],
     );

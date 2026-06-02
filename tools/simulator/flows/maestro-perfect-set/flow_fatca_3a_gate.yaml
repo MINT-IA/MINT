@@ -58,9 +58,10 @@ tags:
   - p0-4
 ---
 
-# 01 — cold launch (relies on seeded expat_us archetype)
+# 01 — cold launch (clear state so the seeded expat_us archetype is not masked
+# by a profile persisted by a previous Maestro flow)
 - launchApp:
-    clearState: false
+    clearState: true
 - waitForAnimationToEnd:
     timeout: 6000
 

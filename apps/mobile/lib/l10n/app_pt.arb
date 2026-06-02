@@ -11293,5 +11293,17 @@
   "waitlistUsTaxPersonQuestion": "Es-tu citoyen ou résident fiscal aux États-Unis ?",
   "waitlistUsTaxPersonTooltip": "MINT n'est pas encore calibré pour les contribuables américains en Suisse (obligations FATCA et FBAR). Ta réponse nous aide à t'orienter vers une expérience adaptée.",
   "waitlistUsTaxPersonYes": "Oui",
-  "waitlistUsTaxPersonNo": "Non"
+  "waitlistUsTaxPersonNo": "Non",
+  "mentorFabSheetTitle": "Coach MINT",
+  "mentorFabChatTitle": "Falar com o Coach",
+  "mentorFabChatSubtitle": "Faz a tua pergunta sobre finanças suíças",
+  "mentorFabScanTitle": "Digitalizar um documento",
+  "mentorFabScanSubtitle": "LPP, AVS, fiscalidade — completa o perfil",
+  "mentorFabSimulateTitle": "Simular um cenário",
+  "mentorFabSimulateSubtitle": "3a, resgate LPP, hipoteca...",
+  "mentorFabProfileTitle": "Afinar o meu perfil",
+  "mentorFabProfileSubtitle": "Dados completos, projeções mais sólidas",
+  "reportStatusSerein": "Sereno",
+  "reportStatusARenforcer": "A reforçar",
+  "reportStatusAlerte": "Alerta"
 }

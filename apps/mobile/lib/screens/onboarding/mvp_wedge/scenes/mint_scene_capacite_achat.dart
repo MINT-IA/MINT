@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 const double _kChargeMaxPct = 0.33;
 const double _kStressTestRate = 0.05;
@@ -67,40 +68,30 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
       children: [
         Text(
           'SCENE · CE QUE TU PEUX VISER',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 10.5,
+          style: MintTextStyles.labelSmall(
+            color: MintColors.corailDiscret,
+          ).copyWith(
             fontWeight: FontWeight.w600,
             letterSpacing: 1.4,
-            color: MintColors.corailDiscret,
           ),
         ),
         const SizedBox(height: 14),
         Text(
           'C\u2019est ta marge réelle, avant l\u2019émotion de la visite.',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 17,
-            fontWeight: FontWeight.w500,
+          style: MintTextStyles.titleMedium(
             color: MintColors.textPrimary,
-            height: 1.35,
-          ),
+          ).copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 28),
         Text(
           'CHF ${_fmt(r.low)} \u2013 ${_fmt(r.high)}',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 34,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-            height: 1.1,
-          ),
+          style: MintTextStyles.displayMedium(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Text(
           'prix du lieu que tu peux viser',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 14,
-            color: MintColors.textSecondary,
-          ),
+          style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 28),
         Container(
@@ -114,11 +105,11 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
             children: [
               Text(
                 'APPORT · CHF ${_fmt(_apport)}',
-                style: TextStyle(fontFamily: 'Supreme', 
-                  fontSize: 10.5,
+                style: MintTextStyles.labelSmall(
+                  color: MintColors.corailDiscret,
+                ).copyWith(
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.2,
-                  color: MintColors.corailDiscret,
                 ),
               ),
               const SizedBox(height: 4),
@@ -129,8 +120,7 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
                 divisions: 48,
                 label: 'CHF ${_fmt(_apport)}',
                 activeColor: MintColors.textPrimary,
-                inactiveColor:
-                    MintColors.textSecondary.withValues(alpha: 0.25),
+                inactiveColor: MintColors.textSecondary.withValues(alpha: 0.25),
                 onChanged: (v) {
                   setState(() => _apport = (v / 10000).round() * 10000);
                   HapticFeedback.selectionClick();
@@ -139,10 +129,8 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
               Text(
                 'Charge mensuelle max\u00a0: environ CHF ${_fmt(chargeMensuelleMax)} '
                 '(intérêts + amortissement + charges).',
-                style: TextStyle(fontFamily: 'Supreme', 
-                  fontSize: 13,
+                style: MintTextStyles.bodySmall(
                   color: MintColors.textSecondary,
-                  height: 1.4,
                 ),
               ),
             ],
@@ -152,12 +140,9 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
         Text(
           'Hypothèses\u00a0: règle des 33\u202f%, stress test 5\u202f%, apport '
           'minimum 20\u202f%. Source\u00a0: FINMA Circ. 2017/3, ORFP.',
-          style: TextStyle(fontFamily: 'Supreme', 
-            fontSize: 11,
+          style: MintTextStyles.labelSmall(
             color: MintColors.textSecondary,
-            fontStyle: FontStyle.italic,
-            height: 1.4,
-          ),
+          ).copyWith(fontStyle: FontStyle.italic),
         ),
       ],
     );

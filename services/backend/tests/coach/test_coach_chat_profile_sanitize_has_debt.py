@@ -11,7 +11,6 @@ Covers:
 - Int 1 coerced to bool True via bool() in builder
 """
 
-import pytest
 
 from app.api.v1.endpoints.coach_chat import (
     _sanitize_profile_context,

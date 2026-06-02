@@ -25,7 +25,6 @@ import time
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
 
 from app.api.v1.endpoints.coach_chat import (
     _extractor_cache_get,

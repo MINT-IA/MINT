@@ -14,7 +14,6 @@
 //  - Error recovery (double setMiniOnboardingCompleted idempotent, unknown canton)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -204,7 +203,8 @@ void main() {
       expect(flavor.financialCultureNote, isNotEmpty);
       expect(flavor.humorStyle, isNotEmpty);
       // Should reference Italian/Ticino warmth
-      expect(flavor.promptAddition.toLowerCase(), contains('svizzera italiana'));
+      expect(
+          flavor.promptAddition.toLowerCase(), contains('svizzera italiana'));
     });
 
     test('TI canton note mentions Ticino specifics', () {
@@ -220,8 +220,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────
 
   group('Nadia golden path - error recovery', () {
-    test(
-        'setMiniOnboardingCompleted(true) called twice is idempotent',
+    test('setMiniOnboardingCompleted(true) called twice is idempotent',
         () async {
       await ReportPersistenceService.setMiniOnboardingCompleted(true);
       await ReportPersistenceService.setMiniOnboardingCompleted(true);
@@ -255,7 +254,8 @@ void main() {
       expect(flavor.promptAddition, isEmpty);
     });
 
-    test('PremierEclairageSelector handles unknown-canton profile gracefully', () {
+    test('PremierEclairageSelector handles unknown-canton profile gracefully',
+        () {
       final profile = MinimalProfileService.compute(
         age: nadiaAge,
         grossSalary: nadiaSalary,

@@ -14,7 +14,6 @@
 //  - Error recovery (salary=0, late career job loss)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -109,7 +108,8 @@ void main() {
       expect(choc.subtitle, isNotEmpty);
     });
 
-    test('Marc profile has valid retirement projections for high-salary senior', () {
+    test('Marc profile has valid retirement projections for high-salary senior',
+        () {
       final profile = MinimalProfileService.compute(
         age: marcAge,
         grossSalary: marcSalary,

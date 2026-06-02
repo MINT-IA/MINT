@@ -14,10 +14,8 @@ from datetime import datetime, timezone
 import pytest
 
 from app.core import redis_client
-from app.services import slo_monitor as slo_mod
 from app.services.slo_monitor import (
     CONSECUTIVE_BREACHES_TO_ROLLBACK,
-    FALLBACK_RATE_THRESHOLD,
     LATENCY_MS_THRESHOLD,
     SLOMonitor,
     record_response,

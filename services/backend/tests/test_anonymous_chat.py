@@ -17,10 +17,9 @@ Run: cd services/backend && python3 -m pytest tests/test_anonymous_chat.py -v
 """
 
 import os
-import re
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker

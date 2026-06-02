@@ -7,7 +7,6 @@ tool_name → registry short-name mapping so the bug cannot regress.
 """
 
 import json
-from typing import Any
 
 import pytest
 

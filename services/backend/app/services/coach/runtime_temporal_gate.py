@@ -102,8 +102,21 @@ def _years_mentioned(text: str) -> set[int]:
 
 def _is_allowed_historical_year_anchor(text: str, match: re.Match[str]) -> bool:
     """Allow historical rule context, not stale current-year anchoring."""
-    before = text[max(0, match.start() - 24):match.start()]
-    return bool(re.search(r"(?:\bdepuis\s+|\b[aà]\s+partir\s+de\s+)$", before, re.IGNORECASE))
+    before = text[max(0, match.start() - 48):match.start()]
+    after = text[match.end():min(len(text), match.end() + 48)]
+    return bool(
+        re.search(
+            r"(?:\bdepuis\s+|\b[aà]\s+partir\s+de\s+|"
+            r"\bpar\s+rapport\s+[aà]\s+|\bcomme\s+en\s+)$",
+            before,
+            re.IGNORECASE,
+        )
+        or re.search(
+            r"^\s*(?:[;,.]\s*)?(?:[ée]tait\s+)?(?:identique|inchang[ée])\b",
+            after,
+            re.IGNORECASE,
+        )
+    )
 
 
 def _is_current_3a_ceiling_question(user_message: str, current_year: int) -> bool:

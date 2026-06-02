@@ -15,7 +15,6 @@ Run: cd services/backend && python3 -m pytest tests/test_coverage_gaps_diff.py -
 """
 from __future__ import annotations
 
-import uuid
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 

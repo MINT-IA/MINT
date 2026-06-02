@@ -34,8 +34,8 @@ void main() {
   group('isUuidV7', () {
     test('rejects strings of the wrong length', () {
       expect(isUuidV7('too-short'), isFalse);
-      expect(isUuidV7('${'a' * 35}'), isFalse);
-      expect(isUuidV7('${'a' * 37}'), isFalse);
+      expect(isUuidV7('a' * 35), isFalse);
+      expect(isUuidV7('a' * 37), isFalse);
     });
 
     test('rejects strings with the wrong version nibble', () {
@@ -84,7 +84,7 @@ void main() {
       await db.insert(BufferedAuditRow(
         id: 'b',
         anonymousSessionId: sid,
-        observedAt: ts,  // SAME timestamp -> dedup
+        observedAt: ts, // SAME timestamp -> dedup
         appVersion: 'v',
         constantsVersionHash: 'h',
         source: 'mobile_session_warm_resume',

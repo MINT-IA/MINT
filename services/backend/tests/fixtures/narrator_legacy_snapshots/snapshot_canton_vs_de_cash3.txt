@@ -263,7 +263,6 @@ REGISTERED INTENT TAGS (route_to_screen only):
   - explore_hub_sante
   - explore_hub_travail
   - financial_cockpit
-  - financial_report
   - financial_summary
   - gender_gap
   - household_accept_invite
@@ -310,8 +309,6 @@ REGISTERED INTENT TAGS (route_to_screen only):
   - real_return_3a
   - rent_vs_buy
   - rente_vs_capital_arbitrage
-  - report_overview
-  - report_v2
   - retirement_choice
   - retirement_overview
   - retirement_projection

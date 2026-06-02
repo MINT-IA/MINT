@@ -32,7 +32,9 @@ Per CONTEXT D-01..D-13 :
 from __future__ import annotations
 
 import re
+import unicodedata as _unicodedata
 from dataclasses import dataclass, field
+from decimal import Decimal as _Decimal, InvalidOperation as _DecimalInvalid
 from enum import Enum
 from typing import TYPE_CHECKING, Iterable, Optional
 
@@ -153,9 +155,6 @@ REPROMPT_ADDENDUM_UNCITED: str = (
 # `7600`, `7'600`, `7 600 CHF`, `7'600.00`, `7600,00`, `7'600 francs` all
 # normalise to `Decimal("7600")` and match a user-supplied `7600`.
 # ---------------------------------------------------------------------------
-
-import unicodedata as _unicodedata
-from decimal import Decimal as _Decimal, InvalidOperation as _DecimalInvalid
 
 _USER_NUMBER_SUFFIX_RE = re.compile(
     r"\s*(?:CHF|chf|EUR|eur|USD|usd|fr\.?|francs?|%|ans?|mois|jours?|"

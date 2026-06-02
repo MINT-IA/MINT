@@ -15,9 +15,6 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-const String _archetype = 'lauren_expat_us';
-const String _expectedKind = 'fiscal_margin_3a';
-
 // FR LSFin lexicon + US-tax-advice ban (Phase 92 JDEF-04 will extend).
 final RegExp _bannedTerms = RegExp(
   r'\b(garanti[es]?|optimal|le?\s*meilleur|sans\s*risque|parfait[es]?)\b',
@@ -30,16 +27,13 @@ final RegExp _usTaxAdvicePat = RegExp(
 
 void main() {
   group('PERS-08 lauren_expat_us × Premier Éclairage post-run assertions', () {
-    test('archetype injected at runtime',
-        () {},
+    test('archetype injected at runtime', () {},
         skip: 'Phase 90 scaffolding — wiring lands with PERS-02');
 
-    test('narrative invariant — eclairage.card.tap breadcrumb fired',
-        () {},
+    test('narrative invariant — eclairage.card.tap breadcrumb fired', () {},
         skip: 'Phase 90 scaffolding — wiring lands with PERS-02');
 
-    test('LSFin banned-term regex hit-count == 0',
-        () {
+    test('LSFin banned-term regex hit-count == 0', () {
       const sampleResponse =
           'Pour les expats US, le plafond 3a est conditionné par la fiscalité '
           'américaine. Tu pourrais envisager une consultation avec un '
@@ -47,8 +41,7 @@ void main() {
       expect(_bannedTerms.allMatches(sampleResponse), isEmpty);
     });
 
-    test('US-tax-advice regex hit-count == 0 (FATCA archetype safeguard)',
-        () {
+    test('US-tax-advice regex hit-count == 0 (FATCA archetype safeguard)', () {
       const sampleResponse =
           'Pour les expats US, le plafond 3a est conditionné par la fiscalité '
           'américaine. Tu pourrais envisager une consultation avec un '
@@ -58,12 +51,10 @@ void main() {
               'give US tax advice directly');
     });
 
-    test('numeric assertion : chf_range respects 3a annual cap',
-        () {},
+    test('numeric assertion : chf_range respects 3a annual cap', () {},
         skip: 'Phase 90 scaffolding — full wiring reads walker artefact');
 
-    test('walker run-id env var present',
-        () {
+    test('walker run-id env var present', () {
       final runId = Platform.environment['MINT_WALKER_RUN_ID'];
       if (runId == null || runId.isEmpty) {
         markTestSkipped(

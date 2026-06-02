@@ -514,7 +514,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           Text(
             FirstJobService.formatChf(r.cotisationsEmployeur),
             style: MintTextStyles.displayMedium(color: MintColors.white)
-                .copyWith(fontSize: 36),
+                .copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
@@ -712,9 +712,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                       ),
                       child: Text(
                         S.of(context)!.firstJobTopBadge,
-                        style: MintTextStyles.labelSmall(
-                                color: MintColors.white)
-                            .copyWith(fontSize: 9, fontWeight: FontWeight.w700),
+                        style:
+                            MintTextStyles.labelSmall(color: MintColors.white)
+                                .copyWith(fontWeight: FontWeight.w700),
                       ),
                     ),
                   Expanded(

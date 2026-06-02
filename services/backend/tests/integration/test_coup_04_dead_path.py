@@ -17,7 +17,6 @@ The COUP-04 contract :
 """
 from __future__ import annotations
 
-import pytest
 
 
 def test_save_partner_estimate_not_internal():

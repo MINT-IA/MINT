@@ -1,7 +1,6 @@
 """Phase 28-01 / Task 3a: render_mode selector matrix tests."""
 from __future__ import annotations
 
-import pytest
 
 from app.schemas.document_understanding import (
     ConfidenceLevel,

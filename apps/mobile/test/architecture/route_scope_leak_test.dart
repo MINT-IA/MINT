@@ -123,7 +123,7 @@ List<ParsedRoute> parseRoutes(String source) {
 
       // Check if child has explicit scope in the child block
       final childScopePattern = RegExp(
-        '''path:\\s*['\"]${RegExp.escape(childRelPath)}['\"]\\s*,\\s*(?:\\n\\s*)?scope:\\s*RouteScope\\.(\\w+)''',
+        '''path:\\s*['"]${RegExp.escape(childRelPath)}['"]\\s*,\\s*(?:\\n\\s*)?scope:\\s*RouteScope\\.(\\w+)''',
       );
       final scopeMatch = childScopePattern.firstMatch(childBlock);
       final childScope = scopeMatch?.group(1) ?? parentRoute.scope;
@@ -206,8 +206,7 @@ void main() {
     test('no /auth/ route has scope authenticated', () {
       final violations = <String>[];
       for (final route in routes) {
-        if (route.path.startsWith('/auth/') &&
-            route.scope == 'authenticated') {
+        if (route.path.startsWith('/auth/') && route.scope == 'authenticated') {
           violations.add('${route.path} has scope=authenticated '
               'but is an auth route');
         }
@@ -219,7 +218,8 @@ void main() {
       }
     });
 
-    test('redirect-only onboarding routes do not target authenticated-scope '
+    test(
+        'redirect-only onboarding routes do not target authenticated-scope '
         'routes without going through auth guard', () {
       // Redirects from onboarding-scoped routes to authenticated routes
       // are acceptable ONLY if the redirect target is also onboarding/public
@@ -234,7 +234,8 @@ void main() {
         if (route.isRedirect &&
             route.redirectTarget != null &&
             route.path.startsWith('/onboarding/')) {
-          final targetScope = scopeMap[route.redirectTarget!] ?? 'authenticated';
+          final targetScope =
+              scopeMap[route.redirectTarget!] ?? 'authenticated';
           // This is informational — the scope-based guard handles it.
           // But onboarding→authenticated is still a code smell to track.
           if (targetScope == 'authenticated' &&

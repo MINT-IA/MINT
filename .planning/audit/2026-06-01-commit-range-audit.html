@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit multi-agents — 17 commits qa/salvage-profile-truth-20260601</title>
+<style>
+  :root{
+    --bg:#0f1714; --panel:#16211c; --card:#1b2a23; --line:#2a3d33;
+    --ink:#e8f0ec; --muted:#9bb3a8; --accent:#3ddc97; --accent2:#7fd1ff;
+    --pass:#3ddc97; --concern:#f5c451; --block:#ff6b6b; --info:#7fd1ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+  header{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:26px}
+  h1{font-size:23px;margin:0 0 6px;letter-spacing:-.2px}
+  h2{font-size:18px;margin:34px 0 12px;padding-top:10px;border-top:1px solid var(--line)}
+  h3{font-size:15px;margin:20px 0 8px;color:var(--accent2)}
+  .sub{color:var(--muted);font-size:13px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px}
+  code{background:#0c120f;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:#cfe9dd}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+  .stat .n{font-size:26px;font-weight:700}
+  .stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+  tr:last-child td{border-bottom:none}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap}
+  .b-pass{background:rgba(61,220,151,.16);color:var(--pass);border:1px solid rgba(61,220,151,.4)}
+  .b-concern{background:rgba(245,196,81,.14);color:var(--concern);border:1px solid rgba(245,196,81,.4)}
+  .b-block{background:rgba(255,107,107,.14);color:var(--block);border:1px solid rgba(255,107,107,.4)}
+  .b-info{background:rgba(127,209,255,.12);color:var(--info);border:1px solid rgba(127,209,255,.35)}
+  .sev{font-weight:700;font-size:11px;padding:1px 7px;border-radius:4px}
+  .s-block{background:rgba(255,107,107,.18);color:var(--block)}
+  .s-high{background:rgba(255,150,90,.18);color:#ff965a}
+  .s-med{background:rgba(245,196,81,.16);color:var(--concern)}
+  .s-low{background:rgba(127,209,255,.12);color:var(--info)}
+  .s-info{background:rgba(155,179,168,.15);color:var(--muted)}
+  .s-pos{background:rgba(61,220,151,.16);color:var(--pass)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
+  .verdict-hero{background:linear-gradient(135deg,#16211c,#1b2a23);border:1px solid var(--line);
+    border-left:4px solid var(--concern);border-radius:12px;padding:20px 22px;margin:18px 0}
+  .verdict-hero .big{font-size:19px;font-weight:700;margin-bottom:6px}
+  ul{margin:8px 0;padding-left:20px}li{margin:4px 0}
+  .muted{color:var(--muted)}
+  .agentrow{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+  .agent{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 11px;font-size:12.5px}
+  footer{margin-top:50px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+  .cite{color:var(--muted);font-size:12px}
+  .rank{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;
+    background:var(--accent);color:#072;font-weight:700;font-size:12px;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Audit multi-agents — 17 commits</h1>
+  <div class="sub">
+    Branche <code>qa/salvage-profile-truth-20260601</code> ·
+    plage <code>b948e5666~1..ed71fc0c6</code> · 219 fichiers, +2353 / −1404 ·
+    daté 2026-06-01
+  </div>
+  <div class="sub" style="margin-top:8px">Panel (lecture seule, citations <code>commit:file:line</code> exigées) :</div>
+  <div class="agentrow">
+    <span class="agent">🔐 security-auditor</span>
+    <span class="agent">🐍 python-pro</span>
+    <span class="agent">📱 flutter-expert</span>
+    <span class="agent">🧪 qa-expert</span>
+    <span class="agent">🧭 code-reviewer (intégrateur)</span>
+  </div>
+</header>
+
+<!-- ===== EXECUTIVE VERDICT ===== -->
+<div class="verdict-hero">
+  <div class="big">Verdict global : <span class="pill b-concern">SAIN, AVEC RÉSERVES</span></div>
+  <p style="margin:8px 0 0">
+    Les 17 commits sont du <strong>travail réel</strong> : aucun BLOCKER, aucune violation 0-TRUST,
+    aucune assertion supprimée sous couvert de « lint cleanup », aucune façade dans les fix produit.
+    La dette « lint » backend (109 fichiers) est authentiquement behavior-preserving.
+    Le commit sécurité <code>ed71fc0c6</code> est même <strong>security-positive</strong> (retrait de tokens du binaire signé).
+  </p>
+  <p style="margin:10px 0 0">
+    Les réserves sont <strong>structurelles, pas correctives</strong> : (1) une branche fourre-tout mélange ~6 préoccupations
+    et enterre un vrai fix sécurité P0-9 ; (2) le badge « GO » de la doc QA repose en partie sur des preuves
+    <strong>non reproductibles depuis le repo</strong> (pytest backend 7596 = prose seule, sweeps Maestro gitignorés) ;
+    (3) deux flows persona Maestro ont été <strong>affaiblis</strong> sans re-durcissement.
+  </p>
+</div>
+
+<div class="grid">
+  <div class="stat"><div class="n">17</div><div class="l">commits audités</div></div>
+  <div class="stat"><div class="n" style="color:var(--block)">0</div><div class="l">blockers</div></div>
+  <div class="stat"><div class="n" style="color:var(--concern)">1</div><div class="l">medium actif</div></div>
+  <div class="stat"><div class="n" style="color:var(--pass)">0</div><div class="l">violation 0-TRUST</div></div>
+  <div class="stat"><div class="n" style="color:var(--pass)">0</div><div class="l">assertion supprimée</div></div>
+  <div class="stat"><div class="n" style="color:var(--concern)">3</div><div class="l">claims UNVERIFIED</div></div>
+</div>
+
+<!-- ===== VERDICT MATRIX ===== -->
+<h2>Matrice de verdict par commit</h2>
+<table>
+  <thead><tr><th>Commit</th><th>Message</th><th>Domaine</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td><code>ed71fc0c6</code></td><td>Fix release secret and deeplink gates</td><td>Sécurité / CI</td><td><span class="pill b-pass">PASS · security-positive</span></td></tr>
+    <tr><td><code>85f787959</code></td><td>Fix coach empty profile opener</td><td>Flutter</td><td><span class="pill b-pass">LEGIT-FIX</span></td></tr>
+    <tr><td><code>1a72360c8</code></td><td>Clean backend test lint debt (83 f.)</td><td>Backend</td><td><span class="pill b-pass">LEGIT</span></td></tr>
+    <tr><td><code>922430630</code></td><td>Clean backend runtime lint debt (26 f.)</td><td>Backend</td><td><span class="pill b-pass">LEGIT</span></td></tr>
+    <tr><td><code>849f01586</code></td><td>Refresh mobile QA readiness reports</td><td>Doc</td><td><span class="pill b-pass">0-TRUST OK</span></td></tr>
+    <tr><td><code>9b16b9f5f</code></td><td>Clean Flutter analyzer debt (69 f.)</td><td>Flutter</td><td><span class="pill b-concern">LEGIT-CLEANUP · 1 régression auto-corrigée</span></td></tr>
+    <tr><td><code>62b9b68d7</code></td><td>Refresh approved golden baselines</td><td>QA / goldens</td><td><span class="pill b-pass">JUSTIFIÉ</span></td></tr>
+    <tr><td><code>201725ae8</code></td><td>Document analyze QA classification</td><td>Doc</td><td><span class="pill b-pass">0-TRUST OK</span></td></tr>
+    <tr><td><code>2a6e9826a</code></td><td>Document golden QA triage</td><td>Doc</td><td><span class="pill b-pass">0-TRUST OK</span></td></tr>
+    <tr><td><code>124a4c3fc</code></td><td>Fix onboarding secure seal fallback</td><td>Flutter</td><td><span class="pill b-pass">LEGIT-FIX · fail-closed</span></td></tr>
+    <tr><td><code>8fee69463</code></td><td>Harden Maestro S005 e2e assertions</td><td>QA / Maestro</td><td><span class="pill b-pass">HARDENED-REAL</span></td></tr>
+    <tr><td><code>4127aba05</code></td><td>Separate FATCA Maestro sweep tier</td><td>QA / Maestro</td><td><span class="pill b-pass">NEUTRAL · légitime</span></td></tr>
+    <tr><td><code>70d380d03</code></td><td>Document salvage QA release blockers</td><td>Doc</td><td><span class="pill b-pass">0-TRUST OK</span></td></tr>
+    <tr><td><code>2539afc77</code></td><td>Fix remaining Flutter QA slices</td><td>Flutter</td><td><span class="pill b-concern">LEGIT-FIX (nudge) · QA-002 = fixtures only</span></td></tr>
+    <tr><td><code>3dd158657</code></td><td>Document MINT QA bug tracking state</td><td>Doc</td><td><span class="pill b-pass">0-TRUST OK</span></td></tr>
+    <tr><td><code>92152942e</code></td><td>Harden Maestro salvage QA flows (16 f.)</td><td>QA / Maestro</td><td><span class="pill b-concern">MIXED · 2 flows affaiblis</span></td></tr>
+    <tr><td><code>b948e5666</code></td><td>Fix profile material data truth</td><td>Flutter</td><td><span class="pill b-pass">LEGIT-FIX · data-truth réelle</span></td></tr>
+  </tbody>
+</table>
+
+<!-- ===== CROSS-CUTTING RISKS ===== -->
+<h2>Risques transverses (classés)</h2>
+<div class="panel">
+  <p><span class="rank">1</span><strong>Branche fourre-tout — le fix sécurité mérite son propre PR.</strong>
+  ~6 préoccupations dans une branche. <code>ed71fc0c6</code> retire <code>HUGGINGFACE_TOKEN</code>/<code>SLM_MODEL_URL</code>
+  des dart-defines (secret embarqué dans le binaire signé, P0-9) — <span class="cite"><code>ed71fc0c6:.github/workflows/testflight.yml:159-220</code> + garde CI <code>ci.yml:617</code></span>.
+  C'est un vrai fix sécurité qui devrait être isolé per la règle release-isolation de l'équipe, pas noyé dans du QA cleanup.</p>
+
+  <p><span class="rank">2</span><strong>Le badge « GO » repose en partie sur des preuves non reproductibles.</strong>
+  Flutter GO est reproductible depuis les tests commités. Mais : backend <code>pytest 7596 passed</code> = <span class="sev s-med">PROSE SEULE</span>, aucun log commité ;
+  Maestro GO cite <code>.planning/_walker/sweep-20260601T133918/</code> = <span class="sev s-med">GITIGNORÉ</span> (<code>git check-ignore</code> confirme) ;
+  staging smoke <code>scripts/smoke_staging_api.sh</code> sans sortie commitée.
+  <span class="cite"><code>mint-prod-ready-gsd-maestro-qa-2026-06-01.html:63</code> · <code>mint-state-qa-bug-tracking-2026-06-01.md:3,40</code></span></p>
+
+  <p><span class="rank">3</span><strong>QA-002 = écart de vérité dans la suite de test, pas une coquille.</strong>
+  Un test Budget→Rapport alimentait un revenu <code>null</code> et assertait <code>5'000</code> en sortie — et passait la review historiquement.
+  Le fix (<code>2539afc77</code>) corrige les fixtures (<code>app_rapport_route_budget_test.dart:74-75</code>, <code>advisor_banking_smoke_test.dart:187</code>)
+  mais n'ajoute aucun test prouvant la propagation prod end-to-end <code>q_net_income_monthly → Rapport</code>.
+  <strong>À ne pas confondre avec <code>b948e5666</code></strong> (qui, lui, est un vrai fix prod — voir §Flutter).</p>
+
+  <p><span class="rank">4</span><strong>Régression auto-infligée dans un cleanup « mécanique » (QA-012).</strong>
+  <code>9b16b9f5f</code> a rendu vivant du code de fade mort → la première bulle anonymous-chat restaurée pouvait s'afficher à opacité 0
+  (<span class="cite"><code>9b16b9f5f:apps/mobile/lib/screens/anonymous/anonymous_chat_screen.dart:149,361</code></span>).
+  <strong>Attrapée par la review Opus, pas par la suite</strong>, et corrigée dans le même commit. Code mort résiduel <code>_eclairageDelivered</code>
+  (<code>// ignore: unused_field</code>, différé « Phase 71b ») à tracker pour qu'il ne pourrisse pas.</p>
+
+  <p><span class="rank">5</span><strong>Scan fiabilité production = propre.</strong>
+  Secure-seal fail-closed correct (skip disque <em>et</em> sync backend sur PII non scellée).
+  Nudge fix ajoute bornes/année bissextile/<code>now</code> injecté. Aucune exception avalée introduite.</p>
+</div>
+
+<!-- ===== DOMAIN: SECURITY ===== -->
+<h2>🔐 Sécurité — <span class="pill b-pass">PASS</span></h2>
+<p class="muted">Scope : <code>ed71fc0c6</code> + scan transverse copy / PII / banned-terms sur les 17 commits.</p>
+<table>
+  <thead><tr><th>Sév.</th><th>Citation</th><th>Constat</th></tr></thead>
+  <tbody>
+    <tr><td><span class="sev s-pos">FIX</span></td><td><code>ed71fc0c6:testflight.yml:163-219</code></td><td>Retrait de <code>HUGGINGFACE_TOKEN</code>/<code>SLM_MODEL_URL</code> de tous les chemins dart-define — un token modèle en dart-define = credential leaké dans le binaire signé. C'est le fix.</td></tr>
+    <tr><td><span class="sev s-pos">FIX</span></td><td><code>ed71fc0c6:ci.yml:617-660</code></td><td>Job « Release build sanity » greppe les workflows pour le secret (verrou anti-régression). Gate <strong>réellement enforced</strong> : <code>set -euo pipefail</code> + <code>::error</code> + <code>exit 1</code> — pas de <code>exit 0</code> factice.</td></tr>
+    <tr><td><span class="sev s-info">INFO</span></td><td><code>ed71fc0c6:_INDEX.md:37</code></td><td>Ligne S004 Universal Link rétrogradée de « LOCKED-CONFIG (config-green) » trompeur → « OPEN-RELEASE-GATE — Universal Links not release-ready ». Corrige un faux claim de production-readiness antérieur.</td></tr>
+    <tr><td><span class="sev s-low">LOW</span></td><td><code>ios_release_capability_drift.py</code> via <code>lefthook.yml:247</code></td><td>Le drift-checker entitlements est en pre-commit local, pas en job CI server-side — bypassable via <code>--no-verify</code>. Non introduit par ce commit ; entitlements actuellement propres. Recommandation : wirer un step CI.</td></tr>
+  </tbody>
+</table>
+<p><strong>Entitlements / Info.plist :</strong> non touchés (<code>git show --stat -- apps/mobile/ios/</code> vide). Aucun nouveau <code>com.apple.developer.*</code>, <code>CFBundleURLTypes</code>, ni <code>NSExtension*</code> — la règle « Apple portal + match avant bundling » n'est pas engagée. ✓</p>
+<p><strong>Banned-terms / PII :</strong> CLEAN. 3 hits « garanti/optimal » uniquement dans le code <em>détecteur</em> de lint (pas de la copy). Aucun nouveau sink de log financier. Aucun langage légal forensique dans messages/docs.</p>
+
+<!-- ===== DOMAIN: BACKEND ===== -->
+<h2>🐍 Backend lint debt — <span class="pill b-pass">LEGIT × 2</span></h2>
+<p class="muted">Scope : <code>922430630</code> (runtime, 26 f.) + <code>1a72360c8</code> (tests, 83 f.).</p>
+<table>
+  <thead><tr><th>Sév.</th><th>Citation</th><th>Constat</th></tr></thead>
+  <tbody>
+    <tr><td><span class="sev s-pos">+</span></td><td><code>1a72360c8:test_commitment_devices.py:807</code></td><td>Assertion <strong>ajoutée</strong> (<code>assert pm.user_id == "user-456"</code>) — l'inverse du test theater.</td></tr>
+    <tr><td><span class="sev s-info">INFO</span></td><td><code>922430630:anonymous_chat.py:~394</code></td><td>Suppression du local mort <code>clean_message_for_audit = _scrub_pii(...)</code> (jamais lu). Behavior-preserving. <strong>MAIS</strong> surface une dette latente : <code>_scrub_pii()</code> a désormais <strong>0 call-site</strong> — le scrub PII décrit n'a jamais été câblé. Pré-existant, à tracker séparément.</td></tr>
+    <tr><td><span class="sev s-low">LOW</span></td><td><code>922430630:coach_chat.py:3153-3171</code></td><td>Logs <code>record_commitment</code>/<code>save_pre_mortem</code> élargis avec <code>user_response[:50]</code> — PII-in-logs tronquée, conforme au pattern pré-existant du bloc.</td></tr>
+  </tbody>
+</table>
+<p><strong>Scan assertions supprimées :</strong> <span class="sev s-pos">AUCUNE</span>. <code>git show 1a72360c8 | grep '^-.*\bassert\b'</code> → 0 match sur 83 fichiers. Les <code>-N</code> du diffstat = imports inutilisés + locals morts. <code>noqa</code>/<code>type:ignore</code> = relocalisations de suppressions pré-existantes. Aucun <code>pytest.skip</code>/<code>assert True</code>/<code>except: pass</code> ajouté.</p>
+<p><strong>Boundary L1/L2 :</strong> aucune violation. Aucun nouveau <code>_calculate*()</code>, aucune logique calc portée dans le backend. ✓</p>
+
+<!-- ===== DOMAIN: FLUTTER ===== -->
+<h2>📱 Flutter — <span class="pill b-pass">LEGIT-FIX × 4 + cleanup</span></h2>
+<p class="muted">Scope : <code>b948e5666</code>, <code>85f787959</code>, <code>124a4c3fc</code>, <code>2539afc77</code>, <code>9b16b9f5f</code>.</p>
+<table>
+  <thead><tr><th>Sév.</th><th>Citation</th><th>Constat — câblage réel ou façade ?</th></tr></thead>
+  <tbody>
+    <tr><td><span class="sev s-pos">RÉEL</span></td><td><code>b948e5666:coach_profile.dart:1890-1905</code></td><td>Getter <code>hasMaterialData</code> lit les vrais champs profil et <strong>exclut volontairement</strong> les defaults de dépenses semés par <code>fromWizardAnswers({})</code> — discriminateur anti-façade correct.</td></tr>
+    <tr><td><span class="sev s-pos">RÉEL</span></td><td><code>b948e5666:financial_summary_screen.dart:49</code> · <code>coach_chat_screen.dart:798,2223</code></td><td>Gate <code>!profile.hasMaterialData</code> → empty-state. Un profil vide affiche le diagnostic, pas un résumé bâti sur des chiffres fabriqués. Test assure l'absence de « Tu es bien couvert·e ». Conforme NEVER #8/#9.</td></tr>
+    <tr><td><span class="sev s-pos">RÉEL</span></td><td><code>85f787959:coach_chat_screen.dart:~417</code></td><td>Opener proactif/caché gaté derrière <code>hasMaterialData</code> — empêche un « récap de la semaine » de masquer le premier contact avant toute donnée (« invented knowledge »). Test de régression présent.</td></tr>
+    <tr><td><span class="sev s-pos">RÉEL</span></td><td><code>124a4c3fc:onboarding_provider.dart:360-371</code></td><td>Échec secure-seal ne throw plus (trap terminal QA-011). Vérifié <strong>fail-closed</strong> : pas d'écriture disque, pas de sync backend → la PII non scellée ne fuit par aucun chemin. <code>prefs == null</code> asserté.</td></tr>
+    <tr><td><span class="sev s-med">MED→OK</span></td><td><code>9b16b9f5f:anonymous_chat_screen.dart:149,361</code></td><td>Cleanup a rendu vivant un <code>FadeTransition</code> mort → risque opacité-0 au cold-restore. <strong>Attrapé par review Opus, corrigé dans le même commit</strong> (<code>controller.value = 1.0</code> + test de régression).</td></tr>
+    <tr><td><span class="sev s-low">LOW</span></td><td><code>9b16b9f5f:anonymous_chat_screen.dart:101</code></td><td><code>_eclairageDelivered</code> figé en <code>final ... = false</code> + <code>// ignore: unused_field</code> — placeholder Phase 71b non lu. Acceptable, mais à tracker via TODO.</td></tr>
+  </tbody>
+</table>
+<p><strong>Data-truth (b948) :</strong> les valeurs affichées tracent vers une source réelle ; aucun chiffre fabriqué n'est montré. <strong>i18n / MintColors / banned-terms :</strong> aucune violation introduite (scan des lignes <code>+</code> sous <code>lib/</code>).</p>
+
+<!-- ===== DOMAIN: MAESTRO ===== -->
+<h2>🧪 Maestro / goldens — <span class="pill b-concern">HARDENED-REAL, 1 réserve</span></h2>
+<p class="muted">Scope : <code>92152942e</code>, <code>8fee69463</code>, <code>4127aba05</code>, <code>62b9b68d7</code> + <code>maestro_locator_audit.py</code> / <code>maestro_sweep.sh</code>.</p>
+<table>
+  <thead><tr><th>Sév.</th><th>Citation</th><th>Constat — theater ou réel ?</th></tr></thead>
+  <tbody>
+    <tr><td><span class="sev s-med">MED</span></td><td><code>92152942e:julien_swiss.yaml:73-86</code> · <code>lauren_expat_us.yaml:60-73</code></td><td><strong>AFFAIBLI :</strong> <code>assertVisible "Ta marge fiscale 3a"</code> + <code>id:anon-chat-register-cta</code> → regex large <code>.*(7258 CHF|36288 CHF|OPP3).*</code> + taps coordonnées. Le nombre OPP3 asserté est significatif (bon), mais la perte des anchors nommés laisse le flow passer sans rendu de la carte / du CTA. <strong>Non re-durci dans 8fee69463</strong> — à corriger.</td></tr>
+    <tr><td><span class="sev s-low">LOW</span></td><td><code>92152942e:flow_empty_state_cascade.yaml:143-148</code></td><td>Greeting exact retiré → repose sur « Réponse du coach ». Justification plausible mais drop d'un tripwire de régression (PR #529/#519).</td></tr>
+    <tr><td><span class="sev s-low">LOW</span></td><td><code>92152942e:flow_g2_julien_walkthrough.yaml:99-105</code></td><td>SUSPECT : <code>id:"ouvrir-profil-drawer"</code> → <code>text:"..."</code> — asserter un id-string comme texte visible = garde no-op probable. Wrappé en conditionnel donc pas theater, mais poids mort.</td></tr>
+    <tr><td><span class="sev s-pos">RÉEL</span></td><td><code>8fee69463:bug__S005 / flow_e2e / landing</code></td><td>Taps coordonnées → <code>text:"Créer un compte"</code> + <code>assertVisible</code>, home asserté via <code>id:card_cap_du_jour</code>+<code>id:mint_card_action_bar</code>. Vrai fix anti-faux-green — annule le pire affaiblissement de 92152942e.</td></tr>
+    <tr><td><span class="sev s-pos">RÉEL</span></td><td><code>92152942e:maestro_locator_audit.py:313</code></td><td><code>glob → rglob</code> : tous les flows sous <code>maestro-perfect-set/ · e2e/ · regression/</code> n'étaient <strong>pas audités du tout</strong> auparavant. Comble un vrai blind-spot. Matche aussi <code>ValueKey(...)</code>.</td></tr>
+    <tr><td><span class="sev s-info">INFO</span></td><td><code>92152942e:maestro_locator_audit.py:~318</code></td><td>Marqueur opt-out <code># maestro_locator_audit: skip</code> ajouté — escape hatch contrôlée, mais future vector de theater si des flows s'auto-exemptent. Recommander un plafond CI sur le skip-count.</td></tr>
+  </tbody>
+</table>
+<p><strong>FATCA tier :</strong> le sweep par défaut ne saute <strong>aucun</strong> flow qui tournait avant — <code>flow_fatca_3a_gate</code> était commenté (jamais exécuté) ; il est désormais un tier <code>fatca</code> dédié qui tourne (raison structurelle valide : un seul build installé ne peut être à la fois user normal et seed expat_us). <span class="sev s-pos">PAS d'exclusion silencieuse.</span></p>
+<p><strong>Goldens (62b9b68d7) :</strong> 6 refreshs, tous justifiés. 4 landing masters tracent vers un vrai changement de copy in-code (<code>app_fr.arb:11598/11602</code> : « Voir clair, décider seul. » → « Parle à Mint »). 2 deltas quasi-nuls (−3/−9 B) = drift raster. <span class="sev s-pos">Aucun refresh inexpliqué.</span></p>
+
+<!-- ===== DOMAIN: DOCS / 0-TRUST ===== -->
+<h2>🧭 Docs & cohérence 0-TRUST — <span class="pill b-pass">0 violation</span></h2>
+<p class="muted">Scope : 5 commits doc <code>.planning/audit/</code> + cohérence transverse.</p>
+<p>Les deux docs vivants (<code>mint-state-qa-bug-tracking-2026-06-01.md</code>, <code>mint-prod-ready-gsd-maestro-qa-2026-06-01.html</code>) sont des <strong>artefacts 0-TRUST modèles</strong> : chaque mot banni (« green », « PASS », « Fixed », « GO ») porte une citation déterministe in-doc (chemin de sweep, count de test, garde grep). Le snapshot antérieur <code>3dd15865</code> disait honnêtement « still red / do not push » ; l'upgrade « GO » n'a atterri qu'après bascule des gates cités.</p>
+<table>
+  <thead><tr><th>Type</th><th>Citation</th><th>Constat</th></tr></thead>
+  <tbody>
+    <tr><td><span class="sev s-med">UNVERIFIED</span></td><td><code>...html:63</code> · <code>...md:3,40</code></td><td>Backend <code>7596 passed</code> + staging smoke = prose seule, aucun log commité. Maestro GO cite des sweeps <strong>gitignorés</strong>.</td></tr>
+    <tr><td><span class="sev s-low">INCOHÉRENCE</span></td><td>QA-008 : <code>3dd15865:md</code> ↔ <code>2a6e9826a:md</code></td><td>Le fix s'inverse en un commit (default INCLUDE FATCA → EXCLUDE) sans marqueur « superseded ». État final correct.</td></tr>
+    <tr><td><span class="sev s-low">INCOHÉRENCE</span></td><td>QA-006 : P2 → P1</td><td>Sévérité montée silencieusement entre <code>3dd15865</code> et <code>2a6e9826a</code>, sans ligne de rationale.</td></tr>
+  </tbody>
+</table>
+<p><strong>Fix-without-test :</strong> AUCUN. Chaque commit « Fix » embarque ses tests (b948 +179 l. de tests, 2539 +46, 124a +59, 85f7 +37, 9b16 +46). Le garde grep CI de <code>ed71fc0c6</code> <em>est</em> son test déterministe.</p>
+
+<!-- ===== RECOMMENDED GATES ===== -->
+<h2>✅ Gates mécaniques recommandés avant tout claim « ready » / merge</h2>
+<div class="panel">
+  <ol>
+    <li><strong>Rejouer le backend :</strong> <code>cd services/backend && python3 -m pytest tests/ -q</code> — attacher la sortie au doc GO ou retirer le claim « 7596 ».</li>
+    <li><strong>Rejouer Flutter :</strong> <code>cd apps/mobile && flutter test</code> — confirmer 9056 indépendamment.</li>
+    <li><strong>Preuves Maestro/backend dans le repo :</strong> committer un résumé de sweep (ou un lien CI) plutôt que de citer <code>.planning/_walker/</code> gitignoré.</li>
+    <li><strong>Isoler le fix sécurité :</strong> envisager d'extraire <code>ed71fc0c6</code> (retrait token + garde CI) dans son propre PR, per la règle release-isolation.</li>
+    <li><strong>Re-durcir les personas :</strong> restaurer les anchors nommés sur <code>julien_swiss</code> / <code>lauren_expat_us</code> (comme fait pour S005).</li>
+    <li><strong>Tracker la dette latente :</strong> <code>_scrub_pii()</code> 0 call-site (backend) ; <code>_eclairageDelivered</code> Phase 71b (mobile).</li>
+    <li><strong>Test E2E manquant :</strong> QA-002 — un test prouvant la propagation prod <code>q_net_income_monthly → Rapport</code>, pas seulement la correction de fixtures.</li>
+  </ol>
+</div>
+
+<footer>
+  Audit lecture seule par panel de 5 agents (security-auditor, python-pro, flutter-expert, qa-expert, code-reviewer/intégrateur), modèle Opus.
+  Tous les verdicts sont des recommandations basées sur l'inspection statique des diffs ; ils ne constituent pas un gate.
+  <strong>UNVERIFIED par ce panel :</strong> aucune suite de test n'a été rejouée live (backend 7596, Flutter 9056, sweeps Maestro), aucun run device.
+  Per 0-TRUST §9, « tests verts ≠ feature fonctionnelle » — les gates mécaniques ci-dessus restent requis avant tout claim de ship.
+  Généré 2026-06-01.
+</footer>
+
+</div>
+</body>
+</html>

@@ -15,12 +15,22 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
 
 class _FakeCoachProfileProvider extends CoachProfileProvider {
   final List<Map<String, dynamic>> mergedCalls = [];
+  final List<Map<String, dynamic>> updateCalls = [];
   bool throwOnMerge = false;
+  bool leaveProfileEmptyAfterMerge = false;
+  CoachProfile? _fakeProfile;
+
+  @override
+  CoachProfile? get profile => _fakeProfile;
+
+  @override
+  bool get hasProfile => _fakeProfile != null;
 
   @override
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
@@ -39,10 +49,38 @@ class _FakeCoachProfileProvider extends CoachProfileProvider {
       throw StateError('test: mergeAnswers failed');
     }
     mergedCalls.add(Map<String, dynamic>.from(partial));
+    if (!leaveProfileEmptyAfterMerge) {
+      _fakeProfile = CoachProfile.fromWizardAnswers(partial);
+    }
+  }
+
+  @override
+  void updateFromAnswers(Map<String, dynamic> answers) {
+    // Mirrors the production invariant used by the secure-store fallback:
+    // updateFromAnswers seeds the current session only and must stay
+    // persistence-free.
+    updateCalls.add(Map<String, dynamic>.from(answers));
+    _fakeProfile = CoachProfile.fromWizardAnswers(answers);
   }
 
   @override
   Future<void> loadFromWizard() async {}
+}
+
+const _secureStorageChannel =
+    MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+
+void _mockSecureStorageUnavailableOnWrite() {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(_secureStorageChannel, (call) async {
+    if (call.method == 'write') {
+      throw PlatformException(
+        code: '-34018',
+        message: 'errSecMissingEntitlement',
+      );
+    }
+    return null;
+  });
 }
 
 Future<void> _pumpShell(
@@ -154,10 +192,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    const channel =
-        MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (call) async => null);
+        .setMockMethodCallHandler(_secureStorageChannel, (call) async => null);
   });
 
   testWidgets('T1 entry: only title + [Ouvrir], no dossier strip yet',
@@ -403,6 +439,59 @@ void main() {
     // mergeAnswers did throw — no successful merge recorded (fake only
     // appends on success; it throws before appending).
     expect(fake.mergedCalls, isEmpty);
+  });
+
+  testWidgets(
+      'T8 secure-store seal failure seeds current session without plain PII',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake);
+    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+
+    _mockSecureStorageUnavailableOnWrite();
+    await tester.tap(find.text('Plus tard'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('home-landed'), findsOneWidget);
+    expect(fake.mergedCalls, isEmpty);
+    expect(fake.updateCalls, hasLength(1));
+    expect(fake.hasProfile, isTrue);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('wizard_answers_v2'), isNull);
+  });
+
+  testWidgets(
+      'T8 seal failure: successful merge with empty profile stays on bifurcation',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider()
+      ..leaveProfileEmptyAfterMerge = true;
+    await _pumpShell(tester, fake);
+    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Creuser'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    expect(
+      find.textContaining('Impossible de sceller ton dossier'),
+      findsOneWidget,
+    );
+    expect(find.text('Creuser'), findsOneWidget);
+    expect(find.text('coach-chat-landed'), findsNothing);
+    expect(fake.mergedCalls, hasLength(1));
   });
 
   testWidgets('T8 Creuser: flushes wantsDeeper=true + navigates to /coach/chat',

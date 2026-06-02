@@ -11310,5 +11310,17 @@
   "waitlistUsTaxPersonQuestion": "Are you a US citizen or US tax resident?",
   "waitlistUsTaxPersonTooltip": "MINT is not yet calibrated for US tax persons in Switzerland (FATCA and FBAR reporting). Your answer helps us route you to a suitable experience.",
   "waitlistUsTaxPersonYes": "Yes",
-  "waitlistUsTaxPersonNo": "No"
+  "waitlistUsTaxPersonNo": "No",
+  "mentorFabSheetTitle": "MINT Coach",
+  "mentorFabChatTitle": "Talk to the Coach",
+  "mentorFabChatSubtitle": "Ask your Swiss finance question",
+  "mentorFabScanTitle": "Scan a document",
+  "mentorFabScanSubtitle": "LPP, AVS, tax — enrich your profile",
+  "mentorFabSimulateTitle": "Simulate a scenario",
+  "mentorFabSimulateSubtitle": "3a, LPP buyback, mortgage...",
+  "mentorFabProfileTitle": "Refine my profile",
+  "mentorFabProfileSubtitle": "Complete data, stronger projections",
+  "reportStatusSerein": "Calm",
+  "reportStatusARenforcer": "To strengthen",
+  "reportStatusAlerte": "Alert"
 }

@@ -49,33 +49,33 @@ void main() {
 
   group('_parseBool via fromWizardAnswers', () {
     test('accepts "yes" for boolean fields', () {
-      final answers = baseAnswers(hasDebt: 'yes');
+      final answers = baseAnswers()..['q_has_investments'] = 'yes';
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.dettes.hasDette, true);
+      expect(profile.patrimoine.investissements, greaterThan(0));
     });
 
     test('accepts "oui" for boolean fields', () {
-      final answers = baseAnswers(hasDebt: 'oui');
+      final answers = baseAnswers()..['q_has_investments'] = 'oui';
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.dettes.hasDette, true);
+      expect(profile.patrimoine.investissements, greaterThan(0));
     });
 
     test('accepts "true" for boolean fields', () {
-      final answers = baseAnswers(hasDebt: 'true');
+      final answers = baseAnswers()..['q_has_investments'] = 'true';
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.dettes.hasDette, true);
+      expect(profile.patrimoine.investissements, greaterThan(0));
     });
 
     test('rejects "no" for boolean fields', () {
-      final answers = baseAnswers(hasDebt: 'no');
+      final answers = baseAnswers()..['q_has_investments'] = 'no';
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.dettes.hasDette, false);
+      expect(profile.patrimoine.investissements, 0);
     });
 
     test('rejects "false" for boolean fields', () {
-      final answers = baseAnswers(hasDebt: 'false');
+      final answers = baseAnswers()..['q_has_investments'] = 'false';
       final profile = CoachProfile.fromWizardAnswers(answers);
-      expect(profile.dettes.hasDette, false);
+      expect(profile.patrimoine.investissements, 0);
     });
   });
 
@@ -190,31 +190,39 @@ void main() {
   });
 
   // ════════════════════════════════════════════════════════════
-  //  4. Debt estimate scales with income
+  //  4. Debt mapping preserves explicit amounts
   // ════════════════════════════════════════════════════════════
 
-  group('Debt estimate scales with income', () {
-    test('dette plus elevee avec salaire plus eleve', () {
-      final profileHigh = CoachProfile.fromWizardAnswers(
-        baseAnswers(netIncome: 10000, hasDebt: 'yes'),
-      );
-      final profileLow = CoachProfile.fromWizardAnswers(
-        baseAnswers(netIncome: 5000, hasDebt: 'yes'),
-      );
+  group('Debt mapping preserves explicit amounts', () {
+    test('solde explicite plus eleve reste plus eleve', () {
+      final highAnswers = baseAnswers(netIncome: 10000, hasDebt: 'yes')
+        ..['q_total_debt_balance_chf'] = 12000;
+      final lowAnswers = baseAnswers(netIncome: 5000, hasDebt: 'yes')
+        ..['q_total_debt_balance_chf'] = 3000;
+      final profileHigh = CoachProfile.fromWizardAnswers(highAnswers);
+      final profileLow = CoachProfile.fromWizardAnswers(lowAnswers);
       expect(
-        profileHigh.dettes.creditConsommation,
-        greaterThan(profileLow.dettes.creditConsommation!),
+        profileHigh.dettes.autresDettes,
+        greaterThan(profileLow.dettes.autresDettes!),
       );
     });
 
-    test('dette est ~5% du salaire brut annuel', () {
+    test('simple oui ne fabrique pas de capital de dette', () {
       final profile = CoachProfile.fromWizardAnswers(
         baseAnswers(netIncome: 6000, hasDebt: 'yes'),
       );
-      // salaireBrutMensuel ~ 6000 / (1 - 0.13) ≈ 6897
-      // dette = 6897 * 12 * 0.05 ≈ 4138
-      expect(profile.dettes.creditConsommation, greaterThan(3000));
-      expect(profile.dettes.creditConsommation, lessThan(6000));
+      expect(profile.dettes.creditConsommation, isNull);
+      expect(profile.dettes.autresDettes, isNull);
+      expect(profile.dettes.hasDette, false);
+    });
+
+    test('mensualite explicite active la dette sans capital synthetique', () {
+      final answers = baseAnswers(netIncome: 6000, hasDebt: 'yes')
+        ..['q_debt_payments_period_chf'] = 450;
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.dettes.creditConsommation, isNull);
+      expect(profile.dettes.mensualiteCreditConso, 450);
+      expect(profile.dettes.hasDette, true);
     });
 
     test('pas de dette quand hasDebt=no', () {

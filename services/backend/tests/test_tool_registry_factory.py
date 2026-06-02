@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import logging
 
-import pytest
 
 
 def test_default_returns_anthropic_defer_loading(monkeypatch) -> None:

@@ -1,5 +1,4 @@
 """Wave 1b Plan 03 — narrator grammar fragment."""
-import pytest
 
 from app.services.coach.citation_grammar import (
     CITATION_GRAMMAR_FRAGMENT,

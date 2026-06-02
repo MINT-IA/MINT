@@ -34,6 +34,7 @@ import '../../l10n/app_localizations.dart' show S;
 import '../../services/financial_core/confidence_scorer.dart';
 import '../../services/voice/voice_cursor_contract.dart';
 import '../../theme/colors.dart';
+import '../../theme/mint_text_styles.dart';
 
 // ============================================================================
 //  ConfidenceAxis — local enum (D-02 / MTC-02).
@@ -442,10 +443,11 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
     final label = l10n != null
         ? oneLineConfidenceSummary(c, l10n: l10n, audioTone: widget.audioTone)
         : 'mtc-confidence';
-    // Use `SemanticsService.announce` — the stable API on Flutter 3.27.x
-    // pinned by CI. `sendAnnouncement(view, ...)` only exists on newer
-    // Flutter versions and breaks the build under 3.27.4.
-    SemanticsService.announce(label, TextDirection.ltr);
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      label,
+      TextDirection.ltr,
+    );
     MintTrameConfiance.debugAnnounceCount++;
   }
 
@@ -479,7 +481,8 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
         final sc = _scale?.value ?? 1.0;
         Widget w = Opacity(opacity: op, child: child);
         if (_scale != null) {
-          w = Transform.scale(scale: sc, alignment: Alignment.centerLeft, child: w);
+          w = Transform.scale(
+              scale: sc, alignment: Alignment.centerLeft, child: w);
         }
         return w;
       },
@@ -511,7 +514,8 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
                   child: CustomPaint(
                     painter: _TramePainter(
                       density: density,
-                      progress: controller == null ? 1.0 : (_opacity?.value ?? 1.0),
+                      progress:
+                          controller == null ? 1.0 : (_opacity?.value ?? 1.0),
                     ),
                   ),
                 ),
@@ -520,12 +524,9 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
             const SizedBox(height: 6),
             Text(
               summary,
-              style: const TextStyle(
-                fontSize: 12,
-                height: 1.35,
-                letterSpacing: 0.1,
+              style: MintTextStyles.labelMedium(
                 color: MintColors.textSecondaryAaa,
-              ),
+              ).copyWith(letterSpacing: 0.1),
             ),
           ],
         ),
@@ -560,12 +561,9 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
             const SizedBox(height: 6),
             Text(
               summary,
-              style: const TextStyle(
-                fontSize: 12,
-                height: 1.35,
-                letterSpacing: 0.1,
+              style: MintTextStyles.labelMedium(
                 color: MintColors.textSecondaryAaa,
-              ),
+              ).copyWith(letterSpacing: 0.1),
             ),
             if (widget.hypotheses.isNotEmpty) ...[
               const SizedBox(height: 8),
@@ -574,9 +572,7 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(
                     '— $h',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      height: 1.3,
+                    style: MintTextStyles.labelSmall(
                       color: MintColors.textMutedAaa,
                     ),
                   ),
@@ -603,10 +599,7 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
           height: 1,
           child: Text(
             summary,
-            style: const TextStyle(
-              fontSize: 11,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary),
           ),
         ),
       ),
@@ -646,12 +639,9 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Text(
           label,
-          style: const TextStyle(
-            fontSize: 12,
-            height: 1.35,
+          style: MintTextStyles.labelMedium(
             color: MintColors.textMutedAaa,
-            fontStyle: FontStyle.italic,
-          ),
+          ).copyWith(fontStyle: FontStyle.italic),
         ),
       ),
     );

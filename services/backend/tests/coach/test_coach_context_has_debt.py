@@ -9,7 +9,6 @@ Covers:
 - Truthy non-bool values are coerced to bool (string "true", int 1)
 """
 
-import pytest
 
 from app.services.coach.coach_context_builder import build_coach_context
 from app.services.coach.coach_models import CoachContext

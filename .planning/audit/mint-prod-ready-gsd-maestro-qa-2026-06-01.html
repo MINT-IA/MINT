@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MINT Mobile QA Readiness Tracker - GSD Maestro QA - 2026-06-01</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211d;
+      --muted: #627069;
+      --line: #d8ded8;
+      --paper: #fbfbf8;
+      --panel: #ffffff;
+      --pass: #126b45;
+      --warn: #8a5a00;
+      --fail: #9f2424;
+      --info: #285d8f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header, main { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    header { display: grid; gap: 12px; border-bottom: 1px solid var(--line); }
+    h1 { margin: 0; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 18px; letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); }
+    section { margin: 18px 0; padding: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { font-size: 12px; text-transform: uppercase; color: var(--muted); letter-spacing: .04em; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    .strip { display: flex; flex-wrap: wrap; gap: 8px; }
+    .badge { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--line); background: #f6f7f4; font-weight: 600; }
+    .pass { color: var(--pass); }
+    .warn { color: var(--warn); }
+    .fail { color: var(--fail); }
+    .info { color: var(--info); }
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .callout { padding: 12px; border-left: 4px solid var(--fail); background: #fff7f5; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MINT Mobile QA Readiness Tracker - GSD / Maestro / QA</h1>
+    <div class="strip">
+      <span class="badge">Date: 2026-06-01</span>
+      <span class="badge">Branch: qa/salvage-profile-truth-20260601</span>
+      <span class="badge pass">Verdict: mobile QA branch GO</span>
+      <span class="badge info">Mode: feature branch tracking</span>
+    </div>
+    <p>Purpose: keep salvage closure, Maestro evidence, expert review, and bug tracking in one scan-friendly artifact. Mobile QA gates can be green while full production release gates remain separate.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Go / No-Go</h2>
+      <div class="callout">
+        <strong>Current decision:</strong> QA branch GO after the latest production-readiness cycle. Evidence is green for global Flutter analyze, final full Flutter tests (9056 pass, 24 skipped), backend ruff, final full backend pytest (7596 passed, 66 skipped, 4 xfailed), staging API smoke, normal-user Maestro default (15/15), expat_us FATCA (1/1), and Maestro all after the Coach empty-state fix (17/17). This is not yet a full production release certificate for signed device/TestFlight, deeplink/Associated Domains, or store-signing gates.
+      </div>
+    </section>
+
+    <section>
+      <h2>Release Gates</h2>
+      <table>
+        <thead><tr><th>Gate</th><th>Evidence</th><th>Result</th><th>Next rerun</th></tr></thead>
+        <tbody>
+          <tr><td>ARB parity</td><td><code>validate_arb_parity</code></td><td class="pass">PASS</td><td>Before any ARB edit</td></tr>
+          <tr><td>l10n generation</td><td><code>flutter gen-l10n</code></td><td class="pass">PASS</td><td>Before merge</td></tr>
+          <tr><td>Targeted salvage/profile tests</td><td>87 pass, 5 skipped</td><td class="pass">PASS</td><td>After each profile/onboarding edit</td></tr>
+          <tr><td>Targeted P1 fixes</td><td>Budget, Rapport, PremierEclairage, FATCA answer, Nudge</td><td class="pass">PASS targeted + full-suite slice</td><td>Keep in regression set</td></tr>
+          <tr><td>Maestro locator audit</td><td>35 flows, 315 locators</td><td class="pass">PASS</td><td>After flow edits</td></tr>
+          <tr><td>iOS sim build/install</td><td>Final normal build + final expat_us build</td><td class="pass">PASS</td><td>Before Maestro default/perfect and dedicated fatca</td></tr>
+          <tr><td>Maestro default</td><td><code>sweep-20260601T124008</code>: 15/15</td><td class="pass">PASS</td><td>Before merge</td></tr>
+          <tr><td>Maestro fatca</td><td><code>sweep-20260601T125134</code>: 1/1</td><td class="pass">PASS</td><td>Before merge with expat_us build</td></tr>
+          <tr><td>Maestro all after Coach fix</td><td><code>sweep-20260601T133918</code>: 17/17</td><td class="pass">PASS</td><td>Before release-candidate cut</td></tr>
+          <tr><td>Backend ruff</td><td><code>cd services/backend &amp;&amp; ruff check .</code></td><td class="pass">PASS</td><td>Before merge</td></tr>
+          <tr><td>Backend full pytest</td><td><code>python3 -m pytest tests -q</code>: 7596 passed, 66 skipped, 4 xfailed</td><td class="pass">PASS</td><td>Before backend-impact merge</td></tr>
+          <tr><td>Staging API smoke</td><td><code>scripts/smoke_staging_api.sh https://mint-staging.up.railway.app/api/v1</code></td><td class="pass">PASS</td><td>Before staging promotion</td></tr>
+          <tr><td>Coach empty-state regression</td><td>Widget test failed before fix, passed after; targeted Maestro green</td><td class="pass">PASS</td><td>Keep in regression set</td></tr>
+          <tr><td>Claude Opus review</td><td>Analyzer cleanup diff; one blocker found and fixed</td><td class="pass">PASS after fix</td><td>Before commit</td></tr>
+          <tr><td>Global Flutter analyze</td><td>No issues found</td><td class="pass">PASS</td><td>Before merge</td></tr>
+          <tr><td>Global Flutter tests</td><td>9056 pass, 24 skipped, 0 failures</td><td class="pass">PASS</td><td>Before merge</td></tr>
+          <tr><td>iOS capability drift</td><td><code>python3 tools/checks/ios_release_capability_drift.py</code></td><td class="pass">PASS</td><td>Before iOS release workflow edits</td></tr>
+          <tr><td>Release model-secret guard</td><td><code>grep</code> for <code>HUGGINGFACE_TOKEN</code>/<code>SLM_MODEL_URL</code> in prod release workflows</td><td class="pass">PASS after fix</td><td>CI release sanity now blocks regression</td></tr>
+          <tr><td>Universal Links release gate</td><td><code>Runner.entitlements</code> has no Associated Domains entitlement; <code>mint.ch</code> AASA has empty details</td><td class="warn">OPEN</td><td>Requires signed TestFlight/device proof before any production claim</td></tr>
+          <tr><td>Maestro sweep scope wording</td><td><code>maestro_sweep.sh</code> footer updated</td><td class="pass">PASS after fix</td><td>Future summaries distinguish selected-tier green from full release evidence</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Bug Ledger</h2>
+      <table>
+        <thead><tr><th>ID</th><th>Severity</th><th>Area</th><th>Status</th><th>Proof required</th></tr></thead>
+        <tbody>
+          <tr><td>QA-001</td><td>P1</td><td>Full Flutter suite</td><td class="pass">Fixed</td><td><code>flutter test</code>: 9056 pass, 24 skipped</td></tr>
+          <tr><td>QA-002</td><td>P1</td><td>Budget -> Rapport</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
+          <tr><td>QA-003</td><td>P1</td><td>PremierEclairage persistence</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
+          <tr><td>QA-004</td><td>P1</td><td>FATCA answer provider</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
+          <tr><td>QA-005</td><td>P2</td><td>Nudge DOB/age</td><td class="pass">Fixed</td><td>Targeted tests pass; full suite no longer fails here</td></tr>
+          <tr><td>QA-006</td><td>P1</td><td>Golden baselines</td><td class="pass">Fixed</td><td>Six approved masters refreshed; full Flutter suite green.</td></tr>
+          <tr><td>QA-007</td><td>P1</td><td>Maestro S005/e2e false-green</td><td class="pass">Fixed</td><td>S005/e2e now use home-surface assertions and stable register-path locators</td></tr>
+          <tr><td>QA-008</td><td>P1</td><td>Maestro FATCA coverage</td><td class="pass">Fixed as dedicated gate</td><td>FATCA is excluded from normal build sweeps; run <code>--tier fatca</code> on an expat_us build</td></tr>
+          <tr><td>QA-009</td><td>P2</td><td>Static analysis</td><td class="pass">Fixed</td><td><code>flutter analyze</code>: no issues found</td></tr>
+          <tr><td>QA-010</td><td>P2</td><td>Golden failure artifacts</td><td class="pass">Controlled</td><td><code>apps/mobile/test/goldens/failures</code> restored before commit</td></tr>
+          <tr><td>QA-011</td><td>P1</td><td>Onboarding terminal seal</td><td class="pass">Fixed</td><td>Secure-store failure seeds current session only; no raw PII in SharedPreferences; S005 Maestro green</td></tr>
+          <tr><td>QA-012</td><td>P1</td><td>Anonymous chat restore fade</td><td class="pass">Fixed</td><td>Claude blocker fixed; restored first bubble opacity locked by widget test</td></tr>
+          <tr><td>QA-013</td><td>P1</td><td>Coach empty-state cascade</td><td class="pass">Fixed</td><td>Proactive/cached openers are gated behind material financial data; targeted Maestro and all sweep green</td></tr>
+          <tr><td>QA-014</td><td>P1</td><td>TestFlight release workflow</td><td class="pass">Fixed in this pass</td><td><code>HUGGINGFACE_TOKEN</code> and <code>SLM_MODEL_URL</code> removed from TestFlight release workflows; CI release sanity blocks reintroduction</td></tr>
+          <tr><td>QA-015</td><td>P1</td><td>Universal Links release evidence</td><td class="warn">Open release gate</td><td>S004 docs corrected: partial AASA/Info.plist proof only; no Associated Domains entitlement or signed-device proof yet</td></tr>
+          <tr><td>QA-016</td><td>P1</td><td>Maestro sweep wording</td><td class="pass">Fixed in generator</td><td><code>all/default</code> summaries no longer imply signed device, deeplink, FATCA, or store-signing coverage</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="grid">
+      <div>
+        <h2>Maestro Evidence</h2>
+        <table>
+          <tbody>
+            <tr><th>Tier</th><th>Status</th></tr>
+            <tr><td>targeted S005</td><td class="pass">PASS sequential</td></tr>
+            <tr><td>targeted empty-state</td><td class="pass">PASS</td></tr>
+            <tr><td>default</td><td class="pass">PASS 15/15 - <code>sweep-20260601T124008</code></td></tr>
+            <tr><td>fatca</td><td class="pass">PASS 1/1 - <code>sweep-20260601T125134</code></td></tr>
+            <tr><td>all after Coach fix</td><td class="pass">PASS 17/17 - <code>sweep-20260601T133918</code></td></tr>
+            <tr><td>deeplink</td><td class="warn">Opt-in; sim instability must be separated from app bugs</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h2>Debt Risk</h2>
+        <table>
+          <tbody>
+            <tr><th>Risk</th><th>Action</th></tr>
+            <tr><td>Forced route false-green</td><td class="pass">S005 deep link removed; home surface asserted beyond tab label</td></tr>
+            <tr><td>FATCA in normal sweep</td><td class="pass">Separated into dedicated expat_us tier</td></tr>
+            <tr><td>Secure-store terminal trap</td><td class="pass">Fail-closed persistence preserved; current session gets in-memory profile</td></tr>
+            <tr><td>Restored anonymous chat opacity</td><td class="pass">Restore path forces opener fade to visible value</td></tr>
+            <tr><td>Coordinate taps in Maestro</td><td class="warn">Replace with stable keys over time</td></tr>
+            <tr><td>Tracked golden failure PNGs</td><td class="warn">Restore after every golden run unless intentionally updating</td></tr>
+            <tr><td>Large branch diff</td><td class="warn">Keep atomic commits; split before merge if needed</td></tr>
+            <tr><td>Release model-secret embedding</td><td class="pass">Model URL/token no longer enter TestFlight release workflows; CI guard added</td></tr>
+            <tr><td>Universal Links</td><td class="warn">Open until Associated Domains is provisioned and proven on a signed TestFlight device build</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Exit Criteria</h2>
+      <table>
+        <tbody>
+          <tr><td>0 open P1</td><td>Bug ledger reviewed after full rerun</td></tr>
+          <tr><td>Flutter full suite</td><td><code>cd apps/mobile &amp;&amp; flutter test</code></td></tr>
+          <tr><td>Static analysis</td><td><code>cd apps/mobile &amp;&amp; flutter analyze</code></td></tr>
+          <tr><td>Maestro</td><td><code>tools/simulator/maestro_sweep.sh --tier default</code> and <code>--tier perfect</code> on a normal build; <code>--tier fatca</code> on an expat_us seeded build</td></tr>
+          <tr><td>Clean repo</td><td><code>git status --short --branch</code></td></tr>
+          <tr><td>Expert review</td><td>QA, architecture, i18n/a11y, compliance blockers resolved or dated waiver</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import logging
-from pydantic import BaseModel, Field, UUID4, ConfigDict, model_validator
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 from enum import Enum
 from typing import Optional
 from datetime import datetime
@@ -7,6 +7,18 @@ from datetime import datetime
 from app.schemas.voice_cursor import VoicePreference
 
 logger = logging.getLogger(__name__)
+_CURRENT_YEAR = datetime.now().year
+MIN_BIRTH_YEAR = 1900
+MAX_BIRTH_YEAR = _CURRENT_YEAR + 1
+MAX_PROFILE_MONEY = 10_000_000
+MAX_PROFILE_DEBT = 1_000_000_000
+MAX_AVS_CONTRIBUTION_YEARS = 44
+MAX_PILLAR3A_ANNUAL = 36_288
+_SPOUSE_FIELDS = (
+    "spouseBirthYear",
+    "spouseIncomeNetMonthly",
+    "spouseAvsContributionYears",
+)
 
 
 class HouseholdType(str, Enum):
@@ -26,18 +38,19 @@ class Goal(str, Enum):
 
 
 class ProfileBase(BaseModel):
-    birthYear: Optional[int] = None
+    birthYear: Optional[int] = Field(None, ge=MIN_BIRTH_YEAR, le=MAX_BIRTH_YEAR)
     dateOfBirth: Optional[str] = None  # ISO 8601 date string (e.g. "1981-06-15")
     canton: Optional[str] = None
     householdType: HouseholdType
-    incomeNetMonthly: Optional[float] = Field(None, ge=0, le=10_000_000)
-    incomeGrossYearly: Optional[float] = Field(None, ge=0, le=10_000_000)
-    savingsMonthly: Optional[float] = Field(None, ge=0, le=10_000_000)
-    totalSavings: Optional[float] = Field(None, ge=0, le=10_000_000)
-    lppInsuredSalary: Optional[float] = Field(None, ge=0, le=10_000_000)
-    avoirLpp: Optional[float] = Field(None, ge=0, le=10_000_000)
-    lppBuybackMax: Optional[float] = Field(None, ge=0, le=10_000_000)
-    pillar3aBalance: Optional[float] = Field(None, ge=0, le=10_000_000)
+    incomeNetMonthly: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    incomeGrossYearly: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    savingsMonthly: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    totalSavings: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    totalDebt: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_DEBT)
+    lppInsuredSalary: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    avoirLpp: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    lppBuybackMax: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    pillar3aBalance: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
     hasDebt: bool = False
     goal: Goal = Goal.other
     factfindCompletionIndex: float = 0.0
@@ -46,7 +59,7 @@ class ProfileBase(BaseModel):
     employmentStatus: Optional[str] = None
     has2ndPillar: Optional[bool] = None
     legalForm: Optional[str] = None
-    selfEmployedNetIncome: Optional[float] = Field(None, ge=0, le=10_000_000)
+    selfEmployedNetIncome: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
     hasVoluntaryLpp: Optional[bool] = None
     primaryActivity: Optional[str] = None
 
@@ -75,14 +88,16 @@ class ProfileBase(BaseModel):
 
     # ⭐ Nouveaux champs pour AVS
     hasAvsGaps: Optional[bool] = None
-    avsContributionYears: Optional[int] = Field(None, ge=0, le=44)
-    spouseAvsContributionYears: Optional[int] = Field(None, ge=0, le=44)
+    avsContributionYears: Optional[int] = Field(None, ge=0, le=MAX_AVS_CONTRIBUTION_YEARS)
+    spouseBirthYear: Optional[int] = Field(None, ge=MIN_BIRTH_YEAR, le=MAX_BIRTH_YEAR)
+    spouseIncomeNetMonthly: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    spouseAvsContributionYears: Optional[int] = Field(None, ge=0, le=MAX_AVS_CONTRIBUTION_YEARS)
 
     # ⭐ Nouveaux champs pour modèle fiscal MVP (Chantier 1)
     commune: Optional[str] = None  # NPA ou nom commune → multiplicateur précis
     isChurchMember: bool = False  # Impôt ecclésiastique
-    pillar3aAnnual: Optional[float] = Field(None, ge=0, le=36_288)  # Max indépendant sans LPP
-    wealthEstimate: Optional[float] = Field(None, ge=0, le=1_000_000_000)
+    pillar3aAnnual: Optional[float] = Field(None, ge=0, le=MAX_PILLAR3A_ANNUAL)  # Max indépendant sans LPP
+    wealthEstimate: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_DEBT)
 
     # ⭐ Retraite flexible (LAVS art. 40, LPP art. 13)
     targetRetirementAge: Optional[int] = Field(
@@ -136,13 +151,21 @@ class ProfileBase(BaseModel):
             )
         return self
 
+    @model_validator(mode='after')
+    def validate_single_household_has_no_spouse_fields(self):
+        if self.householdType == HouseholdType.single and any(
+            getattr(self, key) is not None for key in _SPOUSE_FIELDS
+        ):
+            raise ValueError("single household cannot include spouse fields")
+        return self
+
 
 class ProfileCreate(ProfileBase):
     pass
 
 
 class ProfileUpdate(BaseModel):
-    birthYear: Optional[int] = Field(None, ge=1900, le=2025)  # FIX-069
+    birthYear: Optional[int] = Field(None, ge=MIN_BIRTH_YEAR, le=MAX_BIRTH_YEAR)
     dateOfBirth: Optional[str] = Field(
         None,
         pattern=r"^\d{4}-\d{2}-\d{2}$",
@@ -150,14 +173,15 @@ class ProfileUpdate(BaseModel):
     )
     canton: Optional[str] = None
     householdType: Optional[HouseholdType] = None
-    incomeNetMonthly: Optional[float] = Field(None, ge=0)  # FIX-069
-    incomeGrossYearly: Optional[float] = Field(None, ge=0)  # FIX-069
-    savingsMonthly: Optional[float] = None
-    totalSavings: Optional[float] = None
-    lppInsuredSalary: Optional[float] = None
-    avoirLpp: Optional[float] = Field(None, ge=0, le=10_000_000)
-    lppBuybackMax: Optional[float] = Field(None, ge=0, le=10_000_000)
-    pillar3aBalance: Optional[float] = Field(None, ge=0, le=10_000_000)
+    incomeNetMonthly: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    incomeGrossYearly: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    savingsMonthly: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    totalSavings: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    totalDebt: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_DEBT)
+    lppInsuredSalary: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    avoirLpp: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    lppBuybackMax: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    pillar3aBalance: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
     hasDebt: Optional[bool] = None
     goal: Optional[Goal] = None
     factfindCompletionIndex: Optional[float] = None
@@ -171,20 +195,22 @@ class ProfileUpdate(BaseModel):
     )
     has2ndPillar: Optional[bool] = None
     legalForm: Optional[str] = None
-    selfEmployedNetIncome: Optional[float] = Field(None, ge=0, le=10_000_000)
+    selfEmployedNetIncome: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
     hasVoluntaryLpp: Optional[bool] = None
     primaryActivity: Optional[str] = None
     hasAvsGaps: Optional[bool] = None
-    avsContributionYears: Optional[int] = Field(None, ge=0, le=44)
-    spouseAvsContributionYears: Optional[int] = Field(None, ge=0, le=44)
+    avsContributionYears: Optional[int] = Field(None, ge=0, le=MAX_AVS_CONTRIBUTION_YEARS)
+    spouseBirthYear: Optional[int] = Field(None, ge=MIN_BIRTH_YEAR, le=MAX_BIRTH_YEAR)
+    spouseIncomeNetMonthly: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
+    spouseAvsContributionYears: Optional[int] = Field(None, ge=0, le=MAX_AVS_CONTRIBUTION_YEARS)
     # FIX-114: Couple financial fields for household calculations
-    spouseSalaryGrossAnnual: Optional[float] = Field(None, ge=0)
+    spouseSalaryGrossAnnual: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
     spouseEmploymentStatus: Optional[str] = None
-    householdGrossIncome: Optional[float] = Field(None, ge=0)
+    householdGrossIncome: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_MONEY)
     commune: Optional[str] = None
     isChurchMember: Optional[bool] = None
-    pillar3aAnnual: Optional[float] = Field(None, ge=0, le=36_288)
-    wealthEstimate: Optional[float] = Field(None, ge=0, le=1_000_000_000)
+    pillar3aAnnual: Optional[float] = Field(None, ge=0, le=MAX_PILLAR3A_ANNUAL)
+    wealthEstimate: Optional[float] = Field(None, ge=0, le=MAX_PROFILE_DEBT)
     targetRetirementAge: Optional[int] = Field(
         None, ge=58, le=70,
         description="Age cible de retraite (defaut: age legal)",

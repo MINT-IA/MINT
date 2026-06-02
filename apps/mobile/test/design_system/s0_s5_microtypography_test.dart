@@ -111,8 +111,7 @@ void main() {
         expect(
           offenders,
           isEmpty,
-          reason:
-              'Non-4pt spacing literals in $path:\n${offenders.join('\n')}',
+          reason: 'Non-4pt spacing literals in $path:\n${offenders.join('\n')}',
         );
       });
     }
@@ -139,16 +138,13 @@ void main() {
   });
 
   group('AESTH-03 · Aesop number demotion on S4 response card', () {
-    test('response_card_widget.dart has no display-tier headline numbers',
-        () {
-      final source =
-          _readFile('lib/widgets/coach/response_card_widget.dart');
+    test('response_card_widget.dart has no display-tier headline numbers', () {
+      final source = _readFile('lib/widgets/coach/response_card_widget.dart');
       for (final forbidden in _aesopForbidden) {
         expect(
           source.contains('MintTextStyles.$forbidden'),
           isFalse,
-          reason:
-              'S4 (response_card_widget.dart) must not shout numbers via '
+          reason: 'S4 (response_card_widget.dart) must not shout numbers via '
               'MintTextStyles.$forbidden — the sentence carries the rhythm '
               '(AESTH-03 / feedback_anti_shame_situated_learning).',
         );
@@ -159,17 +155,17 @@ void main() {
   group('AESTH-07 · MUJI 4-line grammar on S4 sheet body', () {
     testWidgets('ResponseCardWidget.sheet body renders exactly 4 MUJI slots',
         (tester) async {
-      final card = ResponseCard(
+      const card = ResponseCard(
         id: 'test-muji',
         type: ResponseCardType.pillar3a,
         title: 'Pilier 3a',
         subtitle: 'Versement annuel maximal',
-        premierEclairage: const PremierEclairage(
+        premierEclairage: PremierEclairage(
           value: 7258,
           unit: 'CHF',
           explanation: 'Plafond legal salarie LPP',
         ),
-        cta: const CardCta(
+        cta: CardCta(
           label: 'Simuler un versement',
           route: '/pilier-3a',
         ),
@@ -178,7 +174,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: ResponseCardWidget(card: card),
           ),
@@ -190,8 +186,7 @@ void main() {
         expect(
           find.byKey(ValueKey<String>('s4-slot-$i')),
           findsOneWidget,
-          reason:
-              's4 sheet body must render MUJI slot $i of 4 (D-06 — '
+          reason: 's4 sheet body must render MUJI slot $i of 4 (D-06 — '
               'label, current state, without-change, next action).',
         );
       }

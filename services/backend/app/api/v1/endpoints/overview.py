@@ -301,7 +301,7 @@ def _build_budget(data: dict) -> OverviewSection:
     else:
         income = 0.0
     fixed_lines = raw.get("fixed_lines") or []
-    total_fixed = round(sum(float(l.get("amount", 0)) for l in fixed_lines), 2)
+    total_fixed = round(sum(float(line.get("amount", 0)) for line in fixed_lines), 2)
     var_t = float(raw.get("variable_target_monthly") or 0)
     sav_t = float(raw.get("savings_target_monthly") or 0)
     free_margin = round(income - total_fixed - var_t - sav_t, 2)

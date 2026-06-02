@@ -16,7 +16,6 @@ already established in test_token_budget + test_slo_monitor).
 """
 from __future__ import annotations
 
-import asyncio
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional

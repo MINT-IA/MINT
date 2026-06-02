@@ -62,6 +62,26 @@ void main() {
     expect(provider.profile, isNull);
   });
 
+  test('session-only onboarding profile survives a later wizard reload',
+      () async {
+    final provider = CoachProfileProvider();
+
+    provider.updateFromAnswers({
+      'q_date_of_birth': '1981-06-15',
+      'q_birth_year': 1981,
+      'q_canton': 'ZH',
+      'q_nationality': 'CH',
+      'q_employment_status': 'salarie',
+      'q_has_pension_fund': true,
+    });
+    await provider.loadFromWizard();
+
+    final loaded = await ReportPersistenceService.loadAnswers();
+    expect(loaded, isEmpty);
+    expect(provider.profile, isNotNull);
+    expect(provider.profile!.nationality, 'CH');
+  });
+
   test('dateOfBirth save fact does not persist raw DOB on seal failure',
       () async {
     final provider = CoachProfileProvider();

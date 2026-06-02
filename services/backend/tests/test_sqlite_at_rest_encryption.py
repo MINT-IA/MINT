@@ -32,7 +32,6 @@ See : T002 row in `97-BUGS-REGISTRY.md` ; Phase 97 W7 iter#10 SUMMARY.
 """
 from __future__ import annotations
 
-import os
 import re
 from pathlib import Path
 

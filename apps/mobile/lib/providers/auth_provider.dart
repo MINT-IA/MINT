@@ -119,9 +119,16 @@ class AuthProvider extends ChangeNotifier {
     if (data.isEmpty) return currentAnswers;
 
     final answers = Map<String, dynamic>.from(currentAnswers);
-    void fillIfMissing(String key, dynamic value) {
-      if (value == null || _isAnswered(answers[key])) return;
+    bool fillIfMissing(String key, dynamic value) {
+      if (value == null) return false;
+      if (!_isMissingAnswer(answers, key)) return false;
       answers[key] = value;
+      return true;
+    }
+
+    bool fillNumIfMissing(String key, dynamic value) {
+      if (value is! num) return false;
+      return fillIfMissing(key, value.toDouble());
     }
 
     fillIfMissing('q_firstname', data['firstName']);
@@ -164,22 +171,87 @@ class AuthProvider extends ChangeNotifier {
         ),
       );
     }
-    if (data['incomeGrossYearly'] != null) {
-      fillIfMissing(
-        'q_gross_salary_annual',
-        (data['incomeGrossYearly'] as num).toDouble(),
+    if (data['selfEmployedNetIncome'] is num) {
+      final filledIncome = fillNumIfMissing(
+        'q_net_income_period_chf',
+        data['selfEmployedNetIncome'],
       );
+      if (filledIncome) {
+        answers['q_pay_frequency'] = 'yearly';
+      }
+      fillIfMissing('q_employment_status', 'independant');
+    }
+    if (data['incomeGrossYearly'] != null) {
+      fillNumIfMissing('q_gross_salary_annual', data['incomeGrossYearly']);
     }
     if (data['incomeNetMonthly'] != null) {
-      fillIfMissing(
-        'q_net_income_period_chf',
-        (data['incomeNetMonthly'] as num).toDouble(),
-      );
+      final filledMonthlyIncome =
+          fillNumIfMissing('q_net_income_period_chf', data['incomeNetMonthly']);
+      if (filledMonthlyIncome) {
+        answers['q_pay_frequency'] = 'monthly';
+      }
     }
     if (data['householdType'] != null) {
       fillIfMissing('q_household_type', data['householdType'] as String);
     }
+    if (data['has2ndPillar'] != null) {
+      fillIfMissing('q_has_pension_fund', data['has2ndPillar'] as bool);
+    }
+    if (data['avoirLpp'] != null) {
+      fillIfMissing('q_has_pension_fund', true);
+    }
+    fillNumIfMissing('_coach_avoir_lpp', data['avoirLpp']);
+    fillNumIfMissing('_coach_salaire_assure', data['lppInsuredSalary']);
+    fillNumIfMissing('_coach_rachat_maximum', data['lppBuybackMax']);
+    if (data['hasVoluntaryLpp'] == true &&
+        answers['q_employment_status'] == 'independant') {
+      fillIfMissing('q_has_pension_fund', true);
+    }
+    fillNumIfMissing('q_3a_total', data['pillar3aBalance']);
+    fillNumIfMissing('q_3a_annual_contribution', data['pillar3aAnnual']);
+    fillNumIfMissing('q_savings_monthly', data['savingsMonthly']);
+    fillNumIfMissing('q_cash_total', data['totalSavings']);
+    if (data['hasDebt'] == true) {
+      fillIfMissing('q_has_consumer_debt', 'yes');
+    }
+    fillNumIfMissing('q_total_debt_balance_chf', data['totalDebt']);
+    if (data['avsContributionYears'] is num) {
+      fillIfMissing(
+        'q_avs_contribution_years',
+        (data['avsContributionYears'] as num).toInt(),
+      );
+    }
+    if (data['targetRetirementAge'] is num) {
+      fillIfMissing(
+        'q_target_retirement_age',
+        (data['targetRetirementAge'] as num).toInt(),
+      );
+    }
+    if (data['spouseBirthYear'] is num) {
+      fillIfMissing(
+        'q_partner_birth_year',
+        (data['spouseBirthYear'] as num).toInt(),
+      );
+    }
+    fillNumIfMissing(
+      'q_partner_net_income_chf',
+      data['spouseIncomeNetMonthly'],
+    );
+    if (data['spouseAvsContributionYears'] is num) {
+      fillIfMissing(
+        'q_spouse_avs_contribution_years',
+        (data['spouseAvsContributionYears'] as num).toInt(),
+      );
+    }
     return answers;
+  }
+
+  static bool _isMissingAnswer(Map<String, dynamic> answers, String key) {
+    if (!answers.containsKey(key)) return true;
+    final value = answers[key];
+    if (value == null) return true;
+    if (value is String) return value.trim().isEmpty;
+    return false;
   }
 
   static bool _isAnswered(dynamic value) {

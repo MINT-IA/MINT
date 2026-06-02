@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 enum ThirdPartyDeclarationChoice { confirmed, cancelled }
 
@@ -37,7 +38,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
       isScrollControlled: true,
       isDismissible: false,
       enableDrag: false,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -70,38 +71,34 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
           children: [
             Text(
               l.thirdPartyDeclarationTitle,
-              style: TextStyle(fontFamily: 'Supreme', 
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style:
+                  MintTextStyles.headlineSmall(color: MintColors.textPrimary),
             ),
             const SizedBox(height: 12),
             Text(
               multiple
                   ? l.thirdPartyDeclarationMultipleBody(names)
                   : l.thirdPartyDeclarationBody(names),
-              style: TextStyle(fontFamily: 'Supreme', 
-                fontSize: 15,
+              style: const TextStyle(
                 color: MintColors.textSecondary,
                 height: 1.45,
-              ),
+              ).merge(MintTextStyles.labelLarge()),
             ),
             const SizedBox(height: 8),
             Text(
               l.thirdPartyDeclarationNoticeLink,
-              style: TextStyle(fontFamily: 'Supreme', 
-                fontSize: 13,
+              style: const TextStyle(
                 color: MintColors.textSecondary,
                 fontStyle: FontStyle.italic,
-              ),
+              ).merge(MintTextStyles.bodySmall()),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
+              // lint-ignore: prefer_mint_cta
               key: const Key('thirdPartyDeclarationConfirm'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: MintColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: MintColors.background,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -111,21 +108,19 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                   .pop(ThirdPartyDeclarationChoice.confirmed),
               child: Text(
                 l.thirdPartyDeclarationConfirm,
-                style: TextStyle(fontFamily: 'Supreme', 
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: MintTextStyles.labelLarge()
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
             ),
             const SizedBox(height: 8),
             TextButton(
+              // lint-ignore: prefer_mint_cta
               key: const Key('thirdPartyDeclarationCancel'),
               onPressed: () => Navigator.of(context)
                   .pop(ThirdPartyDeclarationChoice.cancelled),
               child: Text(
                 l.thirdPartyDeclarationCancel,
-                style: TextStyle(fontFamily: 'Supreme', 
-                  fontSize: 14,
+                style: MintTextStyles.bodyMedium(
                   color: MintColors.textSecondary,
                 ),
               ),
@@ -147,11 +142,12 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                 l.thirdPartyInviteCta(
                   subjectNames.isNotEmpty ? subjectNames.first : '',
                 ),
-                style: TextStyle(fontFamily: 'Supreme', fontSize: 13),
+                style: MintTextStyles.bodySmall(),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: MintColors.primary,
-                side: BorderSide(color: MintColors.primary.withValues(alpha: 0.4)),
+                side: BorderSide(
+                    color: MintColors.primary.withValues(alpha: 0.4)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

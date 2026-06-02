@@ -70,16 +70,12 @@ def test_aasa_appid_uses_team_id_prefix():
     )
 
 
-def test_aasa_paths_include_chat_as_verb_debug_route():
-    """The /debug/chat-as-verb path must be in the AASA paths list —
-    this is the deep-link target asserted by the Phase 97 W7 iter#6
-    Maestro flow bug__S004_F006_F007__universal_link_opens_app.yaml."""
+def test_aasa_paths_exclude_debug_routes():
+    """Production AASA paths must not associate debug/demo surfaces."""
     response = client.get("/.well-known/apple-app-site-association")
     paths = response.json()["applinks"]["details"][0]["paths"]
-    assert "/debug/chat-as-verb" in paths, (
-        f"AASA paths missing /debug/chat-as-verb — Maestro flow will RED. "
-        f"Got paths={paths}"
-    )
+    assert "/debug/chat-as-verb" not in paths
+    assert all(not path.startswith("/debug") for path in paths)
 
 
 def test_aasa_payload_is_valid_json():

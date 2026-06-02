@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -29,16 +30,16 @@ class ThematicCard extends StatelessWidget {
   });
 
   Color get statusColor => switch (status) {
-    CardStatus.serein => MintColors.success,
-    CardStatus.aRenforcer => MintColors.warning,
-    CardStatus.alerte => MintColors.error,
-  };
+        CardStatus.serein => MintColors.success,
+        CardStatus.aRenforcer => MintColors.warning,
+        CardStatus.alerte => MintColors.error,
+      };
 
-  String get statusLabel => switch (status) {
-    CardStatus.serein => 'Serein',
-    CardStatus.aRenforcer => '\u00c0 renforcer',
-    CardStatus.alerte => 'Alerte',
-  };
+  String statusLabel(BuildContext context) => switch (status) {
+        CardStatus.serein => S.of(context)!.reportStatusSerein,
+        CardStatus.aRenforcer => S.of(context)!.reportStatusARenforcer,
+        CardStatus.alerte => S.of(context)!.reportStatusAlerte,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -64,23 +65,29 @@ class ThematicCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
             child: Row(
               children: [
-                Text(emoji, style: const TextStyle(fontSize: 24)),
+                Text(emoji,
+                    style: const TextStyle(
+                        fontSize: 24)), // lint-ignore: prefer_mint_text_style
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     title,
-                    style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 17),
+                    style: MintTextStyles.headlineMedium(
+                            color: MintColors.textPrimary)
+                        .copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    statusLabel,
-                    style: MintTextStyles.labelMedium(color: statusColor).copyWith(fontWeight: FontWeight.w600),
+                    statusLabel(context),
+                    style: MintTextStyles.labelMedium(color: statusColor)
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -96,11 +103,14 @@ class ThematicCard extends StatelessWidget {
                   if (keyNumberLabel != null)
                     Text(
                       keyNumberLabel!,
-                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
+                      style: MintTextStyles.labelMedium(
+                          color: MintColors.textSecondary),
                     ),
                   Text(
                     keyNumber!,
-                    style: MintTextStyles.displaySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
+                    style: MintTextStyles.displaySmall(
+                            color: MintColors.textPrimary)
+                        .copyWith(fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
@@ -121,7 +131,8 @@ class ThematicCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
               child: Text(
                 source!,
-                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
+                style: MintTextStyles.micro(color: MintColors.textMuted)
+                    .copyWith(fontStyle: FontStyle.italic),
               ),
             ),
           // Action CTA
@@ -131,6 +142,7 @@ class ThematicCard extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
+                  // lint-ignore: prefer_mint_cta
                   onPressed: onActionTap,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: statusColor,
@@ -142,7 +154,8 @@ class ThematicCard extends StatelessWidget {
                   ),
                   child: Text(
                     actionLabel!,
-                    style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
+                    style: MintTextStyles.bodyMedium()
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),

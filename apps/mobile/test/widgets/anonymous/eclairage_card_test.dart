@@ -21,23 +21,24 @@ import 'package:mint_mobile/widgets/anonymous/eclairage_card.dart';
 
 const Map<String, dynamic> _fullPayload = {
   'kind': 'fiscal_margin_3a',
-  'headline': 'Avec ton revenu, ta marge 3a peut alléger ton impôt cette année.',
-  'body':
-      "Verser jusqu'au plafond annuel de 3a réduit ton revenu imposable. "
+  'headline':
+      'Avec ton revenu, ta marge 3a peut alléger ton impôt cette année.',
+  'body': "Verser jusqu'au plafond annuel de 3a réduit ton revenu imposable. "
       "L'effet dépend de ton canton et de ta tranche, mais l'ordre de "
       "grandeur reste significatif sur une vie active.",
   'chfRangeLow': 1500,
   'chfRangeHigh': 2500,
   'chfRangePeriod': 'year',
   'softAccountHint': 'Estime ta marge précise',
-  'lsfinDisclaimer': '', // SKIP per spec (Phase 71a above-input is single source).
+  'lsfinDisclaimer':
+      '', // SKIP per spec (Phase 71a above-input is single source).
 };
 
 const Map<String, dynamic> _noRangePayload = {
   'kind': 'tax_friction',
-  'headline': 'Une zone de marge à explorer plus finement avant l\'année fiscale.',
-  'body':
-      "Un éclairage personnalisé suppose ton revenu net, ton canton et ton "
+  'headline':
+      'Une zone de marge à explorer plus finement avant l\'année fiscale.',
+  'body': "Un éclairage personnalisé suppose ton revenu net, ton canton et ton "
       "âge. On peut le faire ensemble en quelques pas.",
   'chfRangeLow': null,
   'chfRangeHigh': null,
@@ -155,9 +156,7 @@ void main() {
         find.byType(EclairageCard),
         matchesGoldenFile('goldens/eclairage_card_no_range.png'),
       );
-    },
-        skip:
-            true /* Golden generation deferred — same rationale as Test 1. */);
+    }, skip: true /* Golden generation deferred — same rationale as Test 1. */);
   });
 
   group('Phase 72 — EclairageCard widget behavior', () {
@@ -295,7 +294,7 @@ void main() {
   //   3. The localised strings flow through (= 6-lang ARB parity is
   //      respected at the rendered widget level, not just key-count).
   group('Phase 89 STAMP-04 — Semantics contract (VoiceOver static)', () {
-    Widget _wrapForLocale(String localeCode) {
+    Widget wrapForLocale(String localeCode) {
       return MaterialApp(
         localizationsDelegates: const [
           S.delegate,
@@ -305,12 +304,12 @@ void main() {
         ],
         supportedLocales: S.supportedLocales,
         locale: Locale(localeCode),
-        home: Scaffold(
-          backgroundColor: const Color(0xFFF8F5F0),
+        home: const Scaffold(
+          backgroundColor: Color(0xFFF8F5F0),
           body: SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: const EclairageCard(payload: _fullPayload),
+              padding: EdgeInsets.all(16),
+              child: EclairageCard(payload: _fullPayload),
             ),
           ),
         ),
@@ -318,9 +317,10 @@ void main() {
     }
 
     for (final locale in ['fr', 'de', 'en']) {
-      testWidgets('STAMP-04 ($locale) — headline + body + CTA rendered (Semantics derived)',
+      testWidgets(
+          'STAMP-04 ($locale) — headline + body + CTA rendered (Semantics derived)',
           (tester) async {
-        await tester.pumpWidget(_wrapForLocale(locale));
+        await tester.pumpWidget(wrapForLocale(locale));
         await tester.pumpAndSettle();
 
         // Headline rendered as a Text widget → auto-Semantics(label).

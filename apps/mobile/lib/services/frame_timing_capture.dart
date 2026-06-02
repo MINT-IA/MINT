@@ -16,6 +16,7 @@
 /// `[MINT_FRAME_TIMING] window=Xs total=N over_16ms=M pct=P.PP`
 ///
 /// Release builds : the service is a no-op (kReleaseMode short-circuit).
+library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';

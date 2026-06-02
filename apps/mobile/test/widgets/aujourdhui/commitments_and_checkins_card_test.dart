@@ -35,7 +35,7 @@ class _FakeCommitmentService implements CommitmentService {
 class _FakeCoachProfileProvider extends ChangeNotifier
     implements CoachProfileProvider {
   _FakeCoachProfileProvider(this._profile);
-  CoachProfile? _profile;
+  final CoachProfile? _profile;
 
   @override
   CoachProfile? get profile => _profile;

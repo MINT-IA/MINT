@@ -1,7 +1,6 @@
 """Phase 95 — DAG-04 alembic upgrade/downgrade roundtrip on SQLite test DB."""
 from __future__ import annotations
 
-import os
 
 import sqlalchemy as sa
 from alembic import command

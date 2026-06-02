@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import os
 import re
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -266,7 +265,7 @@ def test_lefthook_entry_present() -> None:
 def test_github_workflow_present() -> None:
     workflow = _repo_root() / ".github" / "workflows" / "doctrine-atomicity.yml"
     assert workflow.is_file(), (
-        f".github/workflows/doctrine-atomicity.yml missing — Task 4 not landed."
+        ".github/workflows/doctrine-atomicity.yml missing — Task 4 not landed."
     )
     src = workflow.read_text(encoding="utf-8")
     # Must parse as YAML.

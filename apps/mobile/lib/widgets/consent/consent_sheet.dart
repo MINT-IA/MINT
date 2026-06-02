@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/consent/consent_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class ConsentSheet extends StatelessWidget {
   final List<ConsentPurpose> purposes;
@@ -27,7 +28,7 @@ class ConsentSheet extends StatelessWidget {
       isScrollControlled: true,
       isDismissible: false,
       enableDrag: false,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -78,17 +79,14 @@ class ConsentSheet extends StatelessWidget {
               children: [
                 Text(
                   l.consentSheetTitle,
-                  style: TextStyle(fontFamily: 'Supreme', 
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
+                  style: MintTextStyles.headlineMedium(
                     color: MintColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   l.consentSheetSubtitle,
-                  style: TextStyle(fontFamily: 'Supreme', 
-                    fontSize: 14,
+                  style: MintTextStyles.bodyMedium(
                     color: MintColors.textSecondary,
                   ),
                 ),
@@ -105,19 +103,15 @@ class ConsentSheet extends StatelessWidget {
                         children: [
                           Text(
                             _titleForPurpose(l, p),
-                            style: TextStyle(fontFamily: 'Supreme', 
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                            style: MintTextStyles.titleMedium(
                               color: MintColors.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             _whyForPurpose(l, p),
-                            style: TextStyle(fontFamily: 'Supreme', 
-                              fontSize: 13,
+                            style: MintTextStyles.bodySmall(
                               color: MintColors.textSecondary,
-                              height: 1.4,
                             ),
                           ),
                         ],
@@ -130,6 +124,7 @@ class ConsentSheet extends StatelessWidget {
                   children: [
                     Expanded(
                       child: TextButton(
+                        // lint-ignore: prefer_mint_cta
                         onPressed: () => Navigator.of(context).pop(false),
                         child: Text(l.consentSheetRefuse),
                       ),
@@ -138,6 +133,7 @@ class ConsentSheet extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: FilledButton(
+                        // lint-ignore: prefer_mint_cta
                         onPressed: () => Navigator.of(context).pop(true),
                         style: FilledButton.styleFrom(
                           backgroundColor: MintColors.primary,

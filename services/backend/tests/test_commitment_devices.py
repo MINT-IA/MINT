@@ -12,8 +12,9 @@ Run: cd services/backend && python3 -m pytest tests/test_commitment_devices.py -
 """
 
 from datetime import datetime, timezone
+import logging
 from typing import Optional
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from app.models.commitment import CommitmentDevice, PreMortemEntry
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES
@@ -86,6 +87,7 @@ class TestPreMortemEntryModel:
             decision_type="capital_withdrawal",
             user_response="test",
         )
+        assert pm.user_id == "user-456"
         assert PreMortemEntry.id.default is not None
         assert PreMortemEntry.created_at.default is not None
 
@@ -239,6 +241,43 @@ class TestInternalToolHandlers:
         )
         assert "Pré-mortem enregistré" in result
         assert "epl" in result
+
+    def test_ack_handlers_do_not_log_user_authored_text(self, caplog):
+        """Ack logs keep metadata only; raw user text can contain sensitive data."""
+        from app.api.v1.endpoints.coach_chat import _execute_internal_tool
+
+        raw_commitment = "Si mon bonus UBS de 18000 CHF arrive, verser 2000 CHF"
+        raw_location = "Depuis mon app bancaire personnelle"
+        raw_premortem = "Je crains de perdre mon emploi et mon apport immobilier"
+
+        with caplog.at_level(logging.INFO):
+            _execute_internal_tool(
+                tool_call={
+                    "name": "record_commitment",
+                    "input": {
+                        "when_text": "Vendredi après salaire",
+                        "where_text": raw_location,
+                        "if_then_text": raw_commitment,
+                    },
+                },
+                memory_block=None,
+            )
+            _execute_internal_tool(
+                tool_call={
+                    "name": "save_pre_mortem",
+                    "input": {
+                        "decision_type": "achat immobilier",
+                        "user_response": raw_premortem,
+                    },
+                },
+                memory_block=None,
+            )
+
+        assert raw_commitment not in caplog.text
+        assert raw_location not in caplog.text
+        assert raw_premortem not in caplog.text
+        assert "when_len=" in caplog.text
+        assert "response_len=" in caplog.text
 
 
 # ===========================================================================

@@ -21,6 +21,7 @@ class BannedPattern {
   final String category;
   final RegExp pattern;
   final String description;
+
   /// If true, only match in ARB files (user-facing strings).
   final bool arbOnly;
 
@@ -39,13 +40,15 @@ final bannedPatterns = [
   // and only in value strings, not in keys or metadata
   BannedPattern(
     category: 'compliance-absolute',
-    pattern: RegExp(r'(?<![a-zA-Z])garanti(?:e|s|es|r)?(?![a-zA-Z])', caseSensitive: false),
+    pattern: RegExp(r'(?<![a-zA-Z])garanti(?:e|s|es|r)?(?![a-zA-Z])',
+        caseSensitive: false),
     description: 'Banned term "garanti" — use conditional language instead',
     arbOnly: true,
   ),
   BannedPattern(
     category: 'compliance-absolute',
-    pattern: RegExp(r'(?<![a-zA-Z])sans\s+risque(?![a-zA-Z])', caseSensitive: false),
+    pattern:
+        RegExp(r'(?<![a-zA-Z])sans\s+risque(?![a-zA-Z])', caseSensitive: false),
     description: 'Banned term "sans risque" — no promise of safety',
     arbOnly: true,
   ),
@@ -53,7 +56,8 @@ final bannedPatterns = [
   // Not flagging all occurrences since "certain" is a common French word
   BannedPattern(
     category: 'compliance-absolute',
-    pattern: RegExp(r'(?:rendement|retour|gain|profit)\s+certain', caseSensitive: false),
+    pattern: RegExp(r'(?:rendement|retour|gain|profit)\s+certain',
+        caseSensitive: false),
     description: 'Banned term "certain" used with financial promise',
     arbOnly: true,
   ),
@@ -62,7 +66,8 @@ final bannedPatterns = [
   BannedPattern(
     category: 'raw-legal-reference',
     pattern: RegExp(r'nLPD\s+art\.', caseSensitive: false),
-    description: 'Raw legal reference "nLPD art." — backend metadata leaked to UI',
+    description:
+        'Raw legal reference "nLPD art." — backend metadata leaked to UI',
     arbOnly: true,
   ),
   BannedPattern(
@@ -119,8 +124,10 @@ final dartSourcePatterns = [
   // Gamified completion framing
   BannedPattern(
     category: 'gamified-completion',
-    pattern: RegExp(r'''\d+\s*%.*(?:il\s+manque|compl[eè]t|reste)''', caseSensitive: false),
-    description: 'Gamified completion framing: "X% ... il manque/complete/reste"',
+    pattern: RegExp(r'''\d+\s*%.*(?:il\s+manque|compl[eè]t|reste)''',
+        caseSensitive: false),
+    description:
+        'Gamified completion framing: "X% ... il manque/complete/reste"',
   ),
   BannedPattern(
     category: 'gamified-completion',
@@ -129,18 +136,9 @@ final dartSourcePatterns = [
   ),
 ];
 
-/// ARB key names where legal references are EXPECTED and allowed.
-/// These are disclaimer, source, legal compliance, educational body,
-/// and narrative strings where citing specific law articles is required
-/// by CLAUDE.md compliance rules (section 6: "Required in Every
-/// Calculator/Service Output: sources — Legal references").
-final _allowedLegalKeyPatterns = RegExp(
-  r'(?:disclaimer|source|legal|action|demarche|body|narrative|consent|supplementary|guidance)',
-  caseSensitive: false,
-);
-
 /// Scan a file for banned patterns and return violations.
-List<String> scanFile(String filePath, String content, List<BannedPattern> patterns) {
+List<String> scanFile(
+    String filePath, String content, List<BannedPattern> patterns) {
   final violations = <String>[];
   final lines = content.split('\n');
   final isArb = filePath.endsWith('.arb');
@@ -168,8 +166,10 @@ List<String> scanFile(String filePath, String content, List<BannedPattern> patte
     // Skip Dart comments
     if (isDart &&
         (trimmed.startsWith('//') ||
-         trimmed.startsWith('*') ||
-         trimmed.startsWith('///'))) continue;
+            trimmed.startsWith('*') ||
+            trimmed.startsWith('///'))) {
+      continue;
+    }
 
     for (final pattern in effectivePatterns) {
       if (pattern.pattern.hasMatch(line)) {
@@ -294,7 +294,8 @@ void main() {
           }
         }
         if (otherViolations.isNotEmpty) {
-          report.writeln('\n--- Other violations (${otherViolations.length}) ---');
+          report.writeln(
+              '\n--- Other violations (${otherViolations.length}) ---');
           for (final v in otherViolations) {
             report.writeln(v);
           }

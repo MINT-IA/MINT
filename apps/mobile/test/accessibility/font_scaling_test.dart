@@ -5,7 +5,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
-import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FONT SCALING 200% OVERFLOW TESTS
@@ -41,27 +40,6 @@ Widget _scaledApp({required Widget child}) {
   );
 }
 
-/// Helper to wrap a widget in a MaterialApp at 1.0x scaling (baseline).
-Widget _normalApp({required Widget child}) {
-  return MaterialApp(
-    locale: const Locale('fr'),
-    localizationsDelegates: const [
-      S.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
-    supportedLocales: S.supportedLocales,
-    home: MediaQuery(
-      data: const MediaQueryData(
-        textScaler: TextScaler.linear(1.0),
-        size: Size(375, 812),
-      ),
-      child: Scaffold(body: SafeArea(child: child)),
-    ),
-  );
-}
-
 void main() {
   // ═══════════════════════════════════════════════════════════
   //  GROUP 1 -- 200% font scaling overflow tests
@@ -75,7 +53,8 @@ void main() {
       overflowErrors = [];
     });
 
-    testWidgets('Card-like layout with title + subtitle at 2.0x', (tester) async {
+    testWidgets('Card-like layout with title + subtitle at 2.0x',
+        (tester) async {
       // Simulates the card pattern used across v2.0 (PremierEclairageCard,
       // HeroStatCard, AnticipationSignalCard)
       final oldHandler = FlutterError.onError;
@@ -93,7 +72,7 @@ void main() {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     '3 480 CHF/mois',
                     style: TextStyle(
                       fontSize: 28,
@@ -102,7 +81,7 @@ void main() {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     'Votre rente AVS estimee basee sur vos cotisations actuelles',
                     style: TextStyle(
                       fontSize: 14,
@@ -130,8 +109,7 @@ void main() {
       expect(
         overflowErrors,
         isEmpty,
-        reason:
-            'Card layout should not overflow at 200% text scaling. '
+        reason: 'Card layout should not overflow at 200% text scaling. '
             'Errors: ${overflowErrors.map((e) => e.exception).toList()}',
       );
     });
@@ -147,8 +125,8 @@ void main() {
 
       await tester.pumpWidget(
         _scaledApp(
-          child: Padding(
-            padding: const EdgeInsets.all(MintSpacing.md),
+          child: const Padding(
+            padding: EdgeInsets.all(MintSpacing.md),
             child: Row(
               children: [
                 Icon(
@@ -156,7 +134,7 @@ void main() {
                   size: 20,
                   color: MintColors.primary,
                 ),
-                const SizedBox(width: MintSpacing.sm),
+                SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
                     'Delai 3a -- Plus que 45 jours pour verser',
@@ -225,8 +203,7 @@ void main() {
       expect(
         overflowErrors,
         isEmpty,
-        reason:
-            'Two buttons in a row should not overflow at 200% scaling',
+        reason: 'Two buttons in a row should not overflow at 200% scaling',
       );
     });
 
@@ -257,7 +234,7 @@ void main() {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Qu\'est-ce qui t\'amene ici ?',
                     style: TextStyle(
                       fontSize: 20,
@@ -308,9 +285,9 @@ void main() {
 
       await tester.pumpWidget(
         _scaledApp(
-          child: SingleChildScrollView(
+          child: const SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(MintSpacing.md),
+              padding: EdgeInsets.all(MintSpacing.md),
               child: SizedBox(
                 width: 343, // Card width within a standard phone
                 child: Text(

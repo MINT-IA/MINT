@@ -14,8 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Would-have-fired: GATE-03 payload consumption', () {
-    test('detects short-circuit before payload consumption (v2.2 Bug 2)',
-        () {
+    test('detects short-circuit before payload consumption (v2.2 Bug 2)', () {
       // Simulate the v2.2 coach_chat_screen.dart build() method
       // where !_hasProfile short-circuits BEFORE the payload is used.
       const buggyBuildMethod = '''
@@ -61,8 +60,7 @@ void main() {
       }
     });
 
-    test('passes when payload check is included in guard (fixed version)',
-        () {
+    test('passes when payload check is included in guard (fixed version)', () {
       // The fixed version adds entryPayload and initialPrompt checks
       const fixedBuildMethod = '''
   @override
@@ -115,10 +113,6 @@ void main() {
 ''';
 
       // Check: is there a return statement BEFORE any extra/payload read?
-      final returnBeforeExtra = RegExp(
-        r'return\s+.*?;\s*\n.*?(?:extra|entryPayload)',
-        dotAll: true,
-      );
       final earlyReturn = RegExp(r'if\s*\([^)]*\)\s*\{?\s*\n?\s*return\s');
 
       final hasEarlyReturn = earlyReturn.hasMatch(buggySource);

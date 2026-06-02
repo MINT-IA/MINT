@@ -17,7 +17,6 @@ per-PR primary, Railway-staging replica is supplementary nightly soak.
 
 from __future__ import annotations
 
-import os
 import shutil
 import subprocess
 import sys

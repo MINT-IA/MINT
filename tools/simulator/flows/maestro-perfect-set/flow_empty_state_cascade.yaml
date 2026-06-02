@@ -6,16 +6,16 @@
 #
 # The cascade :
 #   fresh anon → drawer → « Mon bilan » → empty-state CTA visible →
-#   tap CTA → /coach/chat → assistant greeting renders (NOT the legacy
+#   tap CTA → /coach/chat → first-contact opener renders (NOT the legacy
 #   « Définis ton budget » placeholder, NOT « Aucune donnée pour
 #   l'instant » empty splash).
 #
-# The B1 fix (PR #519) requires the FIRST coach message to be the
-# new assistant-authored greeting :
-#   « Bienvenue dans MINT. Avant qu'on commence : qu'est-ce qui
-#     t'amène ici aujourd'hui ? »
-# A regression here means the fix was reverted or the prompt cache
-# poisoned the new greeting. Both are visible in this flow.
+# The current empty-profile coach contract is the localized first-contact
+# opener (« Salut. Moi c'est Mint. » + starter chips). It is not a chat
+# message bubble and therefore does not carry the `coachCoachMessage`
+# Semantics label (« Réponse du coach »). A regression here means the
+# empty-state CTA no longer reaches the first-contact coach surface or the
+# legacy placeholders resurfaced.
 #
 # ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
 # Strictly anonymous (NO archetype seed). The empty-state path is only
@@ -48,12 +48,9 @@
 #   financialSummaryNoProfile           = "Aucun profil renseigné"
 #   financialSummaryStartDiagnostic     = "Commencer le diagnostic"
 #   coachInputHint                      = "Dis-moi."
-#   coachCoachMessage                   = "Réponse du coach"   (Semantics)
-#
-# B1 greeting literal (coach_chat_screen.dart wires this in via the
-# coach orchestrator on first-turn-ever) :
-#   « Bienvenue dans MINT. Avant qu'on commence : qu'est-ce qui
-#     t'amène ici aujourd'hui ? »
+#   coachOpenerIdentity                 = "Salut. Moi c'est Mint."
+#   coachOpenerPromise                  = "Je te connais. Je vois ce qui vient. Je te guide."
+#   coachStarterLurk                    = "Je regarde, je me présente après"
 #
 # Negative assertions guard against regression :
 #   "Aucune donnée pour l'instant"  ← old empty splash, must be GONE
@@ -132,8 +129,8 @@ tags:
     text: "Définis ton budget"
 - takeScreenshot: "02-empty-state-mon-bilan"
 
-# 04 — tap CTA → /coach/chat → wait for assistant greeting
-# financial_summary_screen.dart:92 wires onCta to context.go('/coach/chat')
+# 04 — tap CTA → /coach/chat → wait for first-contact opener
+# financial_summary_screen.dart wires onCta to context.go('/coach/chat')
 - tapOn:
     text: "Commencer le diagnostic"
 
@@ -143,16 +140,15 @@ tags:
       text: "Dis-moi."
     timeout: 8000
 
-# B1 — assistant-authored greeting is the FIRST message rendered.
-# This is the assertion that proves PR #529 + PR #519 stuck.
-- extendedWaitUntil:
-    visible:
-      text: "Bienvenue dans MINT. Avant qu'on commence : qu'est-ce qui t'amène ici aujourd'hui ?"
-    timeout: 12000
-
-# Greeting lives inside a coach Semantics node, not a user one.
+# Empty-profile users land on the first-contact opener. Assert that surface
+# directly instead of the assistant-bubble semantics label, which only exists
+# for message-list coach bubbles after a conversation has started.
 - assertVisible:
-    text: "Réponse du coach"
+    text: "Salut. Moi c'est Mint."
+- assertVisible:
+    text: "Je te connais. Je vois ce qui vient. Je te guide."
+- assertVisible:
+    text: ".*Je regarde, je me présente après.*"
 - takeScreenshot: "03-coach-greeting"
 
 # 05 — Final regression sweep : the legacy placeholder strings must

@@ -617,22 +617,28 @@ jobs:
       - name: Run CLI + parity + redirect breadcrumb tests
         run: pytest tests/tools/test_mint_routes.py tests/tools/test_redirect_breadcrumb_coverage.py tests/checks/test_route_registry_parity.py -q --tb=short
 
-  # ─── Phase 32 Plan 32-05 / D-12 §3: admin build sanity (T-32-05) ─
-  # Defensive scan against the tree-shake contract: the admin shell
+  # ─── Phase 32 Plan 32-05 / D-12 §3: release build sanity ────────
+  # Defensive scans against release-only compile-time leaks.
+  #
+  # T-32-05: the admin shell
   # (/admin/routes + kRouteRegistry exposure) is compile-gated by
   # `--dart-define=ENABLE_ADMIN=0` in every production build workflow.
   # A reviewer miss where `ENABLE_ADMIN=1` leaks into testflight.yml or
   # play-store.yml would ship the 147-route registry + dev descriptions
   # to TestFlight / Play Store review — an nLPD D-09 §1 leak.
   #
+  # P0-9: third-party model URLs/tokens must never be passed into release
+  # workflows. Dart defines are embedded in the app binary and are
+  # extractable from a signed IPA/APK. On-device SLM is stubbed in release.
+  #
   # This grep runs ≤5 s. Fails the PR if any occurrence is found in
   # either prod build workflow.
   admin-build-sanity:
-    name: Admin build sanity (T-32-05)
+    name: Release build sanity
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Scan prod workflows for ENABLE_ADMIN=1
+      - name: Scan prod workflows for unsafe dart-defines
         run: |
           set -euo pipefail
           FOUND=0
@@ -645,9 +651,16 @@ jobs:
               echo "::error file=$wf::ENABLE_ADMIN=1 detected in prod build workflow — D-03 tree-shake contract violated"
               FOUND=1
             fi
+            if grep -nHE "HUGGINGFACE_TOKEN|SLM_MODEL_URL" "$wf" \
+              | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#'; then
+              echo "::error file=$wf::SLM model URL/token detected in release workflow — do not embed model credentials in signed binaries"
+              FOUND=1
+            fi
           done
           if [ "$FOUND" -ne 0 ]; then exit 1; fi
-          echo "[OK] no ENABLE_ADMIN=1 in prod build workflows"
+          echo "[OK] no unsafe release dart-defines in prod build workflows"
+      - name: Scan iOS Release Info.plist for debug keys
+        run: python3 tools/checks/ios_release_info_plist_drift.py
 
   # ─── Phase 32 Plan 32-05 / D-12 §5: .cache/ gitignore (D-09 §3) ──
   # Belt-and-suspenders on the nLPD 7-day retention control. The CLI

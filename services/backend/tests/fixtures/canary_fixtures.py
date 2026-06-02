@@ -21,7 +21,6 @@ subject_type/subject_id/fact_type sketch.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from decimal import Decimal
 from typing import Any, Tuple
 
 from app.services.projector.fact_projector import FactEventInput

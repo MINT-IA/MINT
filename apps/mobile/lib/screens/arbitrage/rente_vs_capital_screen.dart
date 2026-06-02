@@ -827,17 +827,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             const SizedBox(height: MintSpacing.lg),
             Text(
               term,
-              style: MintTextStyles.headlineMedium(color: MintColors.primary)
-                  .copyWith(
-                fontSize: 18,
-              ),
+              style: MintTextStyles.titleLarge(color: MintColors.primary),
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
               text,
-              style: MintTextStyles.bodyLarge(color: MintColors.textPrimary)
+              style: MintTextStyles.labelLarge(color: MintColors.textPrimary)
                   .copyWith(
-                fontSize: 15,
                 height: 1.6,
               ),
             ),
@@ -884,8 +880,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 },
                 style: ButtonStyle(
                   textStyle: WidgetStatePropertyAll(
-                    MintTextStyles.labelSmall()
-                        .copyWith(fontWeight: FontWeight.w600, fontSize: 12),
+                    MintTextStyles.labelMedium()
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -947,10 +943,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                             formatChf(_result!.renteNetMensuelle * 12),
                           ),
                       style: MintTextStyles.labelSmall(
-                              color: MintColors.textSecondary)
-                          .copyWith(
-                        fontSize: 12,
-                      ),
+                          color: MintColors.textSecondary),
                     ),
                     const SizedBox(height: MintSpacing.xs),
                     Row(
@@ -1024,10 +1017,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                         child: Text(
                           S.of(context)!.renteVsCapitalMaxPrecision,
                           style: MintTextStyles.labelSmall(
-                                  color: MintColors.success)
-                              .copyWith(
-                            fontSize: 12,
-                          ),
+                              color: MintColors.success),
                         ),
                       ),
                     ],
@@ -1181,10 +1171,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           inputFormatters: isPercent
               ? [FilteringTextInputFormatter.allow(RegExp(r'[\d.]'))]
               : [FilteringTextInputFormatter.digitsOnly],
-          style:
-              MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
-            fontSize: 15,
-          ),
+          style: MintTextStyles.labelLarge(color: MintColors.textPrimary),
           decoration: InputDecoration(
             filled: true,
             fillColor: MintColors.surface,
@@ -1358,9 +1345,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     const SizedBox(height: MintSpacing.xs),
                     Text(
                       formatChf(capitalMois),
-                      style: MintTextStyles.displayMedium().copyWith(
-                        fontSize: 26,
-                      ),
+                      style: MintTextStyles.headlineLarge(),
                     ),
                     Text(
                       S.of(context)!.renteVsCapitalPerMonth,
@@ -1426,10 +1411,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     child: RichText(
                       text: TextSpan(
                         style: MintTextStyles.labelSmall(
-                                color: MintColors.textSecondary)
-                            .copyWith(
-                          fontSize: 12,
-                        ),
+                            color: MintColors.textSecondary),
                         children: [
                           TextSpan(
                               text: S.of(context)!.renteVsCapitalAvsEstimated),
@@ -1440,7 +1422,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                             style: MintTextStyles.labelSmall(
                                     color: MintColors.textPrimary)
                                 .copyWith(
-                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1536,10 +1517,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.renteVsCapitalChartSubtitle,
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary)
-                .copyWith(
-              fontSize: 12,
-            ),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
           const SizedBox(height: MintSpacing.sm),
           TrajectoryComparisonChart(
@@ -1813,9 +1791,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             ),
             child: Text(
               bottomText,
-              style: MintTextStyles.labelSmall(color: MintColors.textPrimary)
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary)
                   .copyWith(
-                fontSize: 12,
                 height: 1.5,
               ),
             ),
@@ -1840,10 +1817,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         const SizedBox(height: MintSpacing.xs),
         Text(
           S.of(context)!.renteVsCapitalAffinerSubtitle,
-          style: MintTextStyles.labelSmall(color: MintColors.textSecondary)
-              .copyWith(
-            fontSize: 12,
-          ),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: MintSpacing.md),
 
@@ -1930,10 +1904,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         const SizedBox(height: MintSpacing.xs),
         Text(
           S.of(context)!.renteVsCapitalImpactSubtitle,
-          style: MintTextStyles.labelSmall(color: MintColors.textSecondary)
-              .copyWith(
-            fontSize: 12,
-          ),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: MintSpacing.sm),
         for (int i = 0; i < top.length; i++) ...[
@@ -1991,7 +1962,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             label:
                 '${v.label}: ${_formatDelta(lowDelta)} / ${_formatDelta(highDelta)}',
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: barFraction,
                 minHeight: 6,
@@ -2056,10 +2027,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     style: TextStyle(color: MintColors.textMuted)),
                 Expanded(
                   child: Text(h,
-                      style: MintTextStyles.labelSmall(
+                      style: MintTextStyles.labelMedium(
                               color: MintColors.textSecondary)
                           .copyWith(
-                        fontSize: 12,
                         height: 1.4,
                       )),
                 ),
@@ -2090,9 +2060,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               const SizedBox(width: MintSpacing.sm),
               Text(
                 S.of(context)!.renteVsCapitalWarning,
-                style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+                style: MintTextStyles.labelMedium(color: MintColors.textMuted)
                     .copyWith(
-                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),

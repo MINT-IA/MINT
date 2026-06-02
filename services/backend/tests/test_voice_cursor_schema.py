@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 
 from app.schemas.voice_cursor import (  # type: ignore[import-not-found]
     FRAGILE_MODE_CAP_LEVEL,

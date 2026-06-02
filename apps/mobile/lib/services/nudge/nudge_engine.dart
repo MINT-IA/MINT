@@ -238,15 +238,29 @@ class NudgeEngine {
     ));
   }
 
-  /// Birthday milestone: first 7 days of January, milestone age.
+  /// Birthday milestone: exact DOB window when available, otherwise Jan 1-7.
   static void _checkBirthdayMilestone(
     List<Nudge> nudges,
     DateTime now,
     CoachProfile profile,
   ) {
-    if (now.month != 1 || now.day > 7) return;
+    final dob = profile.dateOfBirth;
+    final DateTime expiresAt;
+    final int? age;
 
-    final age = profile.ageOrNull;
+    if (dob != null) {
+      final birthday = _birthdayThisYear(dob, now.year);
+      final today = DateTime(now.year, now.month, now.day);
+      final windowEnd = birthday.add(const Duration(days: 6));
+      if (today.isBefore(birthday) || today.isAfter(windowEnd)) return;
+      age = _ageAt(profile, now);
+      expiresAt = windowEnd.add(const Duration(days: 1));
+    } else {
+      if (now.month != 1 || now.day > 7) return;
+      age = _ageAt(profile, now);
+      expiresAt = DateTime(now.year, 1, 31);
+    }
+
     if (age == null) return;
     if (!_milestoneAges.contains(age)) return;
 
@@ -259,8 +273,37 @@ class NudgeEngine {
       titleKey: 'nudgeBirthdayTitle',
       bodyKey: 'nudgeBirthdayBody',
       params: {'age': age.toString()},
-      expiresAt: DateTime(now.year, 1, 31),
+      expiresAt: expiresAt,
     ));
+  }
+
+  static DateTime _birthdayThisYear(DateTime dob, int year) {
+    final day = dob.day.clamp(1, _daysInMonth(year, dob.month));
+    return DateTime(year, dob.month, day);
+  }
+
+  static int _daysInMonth(int year, int month) {
+    return DateTime(year, month + 1, 0).day;
+  }
+
+  static int? _ageAt(CoachProfile profile, DateTime now) {
+    final dob = profile.dateOfBirth;
+    if (dob != null) {
+      var age = now.year - dob.year;
+      if (now.month < dob.month ||
+          (now.month == dob.month && now.day < dob.day)) {
+        age--;
+      }
+      if (age < 0 || age > 150) return null;
+      return age;
+    }
+
+    final birthYear = profile.birthYear;
+    if (birthYear == 0) return null;
+    if (birthYear < 1900 || birthYear > now.year) return null;
+    final age = now.year - birthYear;
+    if (age < 0 || age > 150) return null;
+    return age;
   }
 
   /// Profile incomplete: confidence < 40% after 7+ days.

@@ -15,7 +15,7 @@ import hashlib
 import json
 import logging
 import re
-from typing import Any, Optional
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 

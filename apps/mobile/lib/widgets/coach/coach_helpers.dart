@@ -90,6 +90,6 @@ String tipRoute(CoachingTip tip) {
       }
       return '/retraite';
     default:
-      return '/rapport';
+      return '/coach/chat';
   }
 }

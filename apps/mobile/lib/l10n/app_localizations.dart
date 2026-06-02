@@ -41186,6 +41186,78 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Non'**
   String get waitlistUsTaxPersonNo;
+
+  /// No description provided for @mentorFabSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coach MINT'**
+  String get mentorFabSheetTitle;
+
+  /// No description provided for @mentorFabChatTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parler au Coach'**
+  String get mentorFabChatTitle;
+
+  /// No description provided for @mentorFabChatSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pose ta question finance suisse'**
+  String get mentorFabChatSubtitle;
+
+  /// No description provided for @mentorFabScanTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner un document'**
+  String get mentorFabScanTitle;
+
+  /// No description provided for @mentorFabScanSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP, AVS, fiscal — enrichis ton profil'**
+  String get mentorFabScanSubtitle;
+
+  /// No description provided for @mentorFabSimulateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler un scénario'**
+  String get mentorFabSimulateTitle;
+
+  /// No description provided for @mentorFabSimulateSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'3a, rachat LPP, hypothèque...'**
+  String get mentorFabSimulateSubtitle;
+
+  /// No description provided for @mentorFabProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Affiner mon profil'**
+  String get mentorFabProfileTitle;
+
+  /// No description provided for @mentorFabProfileSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données complètes, projections plus solides'**
+  String get mentorFabProfileSubtitle;
+
+  /// No description provided for @reportStatusSerein.
+  ///
+  /// In fr, this message translates to:
+  /// **'Serein'**
+  String get reportStatusSerein;
+
+  /// No description provided for @reportStatusARenforcer.
+  ///
+  /// In fr, this message translates to:
+  /// **'À renforcer'**
+  String get reportStatusARenforcer;
+
+  /// No description provided for @reportStatusAlerte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alerte'**
+  String get reportStatusAlerte;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

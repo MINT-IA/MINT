@@ -54,9 +54,11 @@ dynamic _quantize(dynamic v) {
   if (v is bool) return v;
   if (v is int) return v;
   if (v is double) {
-    if (v.isNaN) throw FormatException("NaN not allowed in projection inputs");
+    if (v.isNaN) {
+      throw const FormatException("NaN not allowed in projection inputs");
+    }
     if (!v.isFinite) {
-      throw FormatException("inf/-inf not allowed in projection inputs");
+      throw const FormatException("inf/-inf not allowed in projection inputs");
     }
     // Decimal(0.01) ROUND_HALF_UP : multiply by 100, round half-away-from-zero,
     // divide by 100. Dart's `roundToDouble()` is ROUND_HALF_AWAY_FROM_ZERO
@@ -73,14 +75,10 @@ dynamic _quantize(dynamic v) {
 String canonicalize(dynamic v) {
   if (v is Map) {
     final keys = v.keys.cast<String>().toList()..sort();
-    return '{' +
-        keys
-            .map((k) => '${jsonEncode(k)}:${canonicalize(v[k])}')
-            .join(',') +
-        '}';
+    return '{${keys.map((k) => '${jsonEncode(k)}:${canonicalize(v[k])}').join(',')}}';
   }
   if (v is List) {
-    return '[' + v.map(canonicalize).join(',') + ']';
+    return '[${v.map(canonicalize).join(',')}]';
   }
   if (v is double) {
     if (v.truncateToDouble() == v && v.isFinite) {
@@ -95,7 +93,10 @@ String canonicalize(dynamic v) {
 
 Future<void> main(List<String> args) async {
   final Stream<String> lines = args.isNotEmpty
-      ? File(args.first).openRead().transform(utf8.decoder).transform(const LineSplitter())
+      ? File(args.first)
+          .openRead()
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
       : stdin.transform(utf8.decoder).transform(const LineSplitter());
   await for (final line in lines) {
     if (line.trim().isEmpty) continue;

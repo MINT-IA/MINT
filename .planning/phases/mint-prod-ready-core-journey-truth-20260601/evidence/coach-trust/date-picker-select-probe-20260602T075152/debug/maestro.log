@@ -1,0 +1,93 @@
+07:51:55.570 [ INFO] maestro.cli.report.TestDebugReporter.logSystemInfo: Debug output path: /Users/julienbattaglia/Desktop/MINT.nosync/.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/date-picker-select-probe-20260602T075152/debug
+07:51:55.571 [ INFO] MAESTRO.logSystemInfo: ---- System Info ----
+07:51:55.571 [ INFO] MAESTRO.logSystemInfo: Maestro Version: 2.5.1
+07:51:55.571 [ INFO] MAESTRO.logSystemInfo: CI: Undefined
+07:51:55.571 [ INFO] MAESTRO.logSystemInfo: OS Name: Mac OS X
+07:51:55.571 [ INFO] MAESTRO.logSystemInfo: OS Version: 26.5
+07:51:55.571 [ INFO] MAESTRO.logSystemInfo: Architecture: aarch64
+07:51:55.572 [ INFO] MAESTRO.logSystemInfo: Java Version: 21
+07:51:55.657 [ INFO] MAESTRO.logSystemInfo: Xcode Version: 26.2
+07:51:55.898 [DEBUG] io.micrometer.common.util.internal.logging.InternalLoggerFactory.newDefaultFactory: Using SLF4J as the default logging framework
+07:51:56.073 [ INFO] MAESTRO.logSystemInfo: Flutter Version: 3.41.6
+07:51:56.352 [ INFO] MAESTRO.logSystemInfo: Flutter Channel: stable
+07:51:56.352 [ INFO] MAESTRO.logSystemInfo: ---------------------
+07:51:57.561 [ INFO] maestro.cli.command.TestCommand.runShardSuite: [shard 1] Selected device B03E429D-0422-4357-B754-536637D979F9 using port 7001 with execution plan ExecutionPlan(flowsToRun=[/Users/julienbattaglia/Desktop/MINT.nosync/.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/maestro-date-picker-select-probe.yaml], sequence=FlowSequence(flows=[], continueOnFailure=true), workspaceConfig=WorkspaceConfig(flows=null, includeTags=null, excludeTags=null, executionOrder=null, baselineBranch=null, notifications=null, disableRetries=false, platform=PlatformConfiguration(android=AndroidConfiguration(disableAnimations=false), ios=IOSConfiguration(disableAnimations=false, snapshotKeyHonorModalViews=null)), testOutputDir=null))
+07:51:58.227 [TRACE] ios.xctest.XCTestIOSDevice.open: Opening a connection
+07:51:58.227 [TRACE] xcuitest.XCTestDriverClient.restartXCTestRunner: Restarting XCTest Runner (uninstalling, installing and starting)
+07:51:58.227 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:51:58.228 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:51:58.229 [TRACE] xcuitest.XCTestDriverClient.restartXCTestRunner: XCTest Runner uninstalled, will install and start it
+07:51:58.229 [ INFO] xcuitest.installer.LocalXCTestInstaller.start$lambda$3: start()
+07:51:58.229 [ INFO] xcuitest.installer.LocalXCTestInstaller.start$lambda$3: [Start] Install XCUITest runner on B03E429D-0422-4357-B754-536637D979F9
+07:51:58.229 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:51:58.229 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:51:58.230 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Start] Writing build products
+07:51:58.257 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Done] Writing build products
+07:51:58.257 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Start] Writing maestro-driver-iosUITests-Runner app
+07:51:58.366 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Done] Writing maestro-driver-iosUITests-Runner app
+07:51:58.366 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Start] Writing maestro-driver-ios app
+07:51:58.370 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Done] Writing maestro-driver-ios app
+07:51:58.371 [ INFO] xcuitest.installer.LocalXCTestInstaller.startXCTestRunner: Installing driver with xcodebuild
+07:51:58.372 [ INFO] xcuitest.installer.LocalXCTestInstaller.startXCTestRunner: [Start] Running XcUITest with `xcodebuild test-without-building` with 7001 and config: IOSDriverConfig(prebuiltRunner=false, sourceDirectory=driver-iPhoneSimulator, context=CLI, snapshotKeyHonorModalViews=null)
+07:51:58.372 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcodebuild, test-without-building, -xctestrun, /var/folders/nx/wj0h9jwn6h391ntbhf6h2gm40000gn/T/B03E429D-0422-4357-B754-536637D979F97364719628216832197/maestro-driver-ios-config.xctestrun, -destination, id=B03E429D-0422-4357-B754-536637D979F9, -derivedDataPath, /var/folders/nx/wj0h9jwn6h391ntbhf6h2gm40000gn/T/maestro_xctestrunner_xcodebuild_output1546924800739700986] with {TEST_RUNNER_PORT=7001}
+07:51:58.376 [ INFO] xcuitest.installer.LocalXCTestInstaller.startXCTestRunner: [Done] Running XcUITest with `xcodebuild test-without-building`
+07:51:58.376 [ INFO] xcuitest.installer.LocalXCTestInstaller.start$lambda$3: [Done] Install XCUITest runner on B03E429D-0422-4357-B754-536637D979F9
+07:51:58.376 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:51:58.377 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:51:58.880 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:51:58.881 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:51:59.386 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:51:59.387 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:51:59.888 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:51:59.888 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:52:00.399 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:52:00.399 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:52:00.900 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:52:00.901 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:52:01.403 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:52:01.404 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:52:01.908 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:52:01.910 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:52:02.417 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:52:02.418 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:52:02.923 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:52:03.003 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Done] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:52:03.037 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow:  Running flow maestro-date-picker-select-probe
+07:52:03.044 [ INFO] maestro.Maestro.cachedDeviceInfo_delegate$lambda$0: Getting device info
+07:52:03.104 [ INFO] maestro.Maestro.cachedDeviceInfo_delegate$lambda$0: Got device info: DeviceInfo(platform=IOS, widthPixels=1206, heightPixels=2622, widthGrid=402, heightGrid=874)
+07:52:03.135 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Define variables RUNNING
+07:52:03.136 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Define variables COMPLETED
+07:52:03.137 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Apply configuration RUNNING
+07:52:03.137 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Apply configuration COMPLETED
+07:52:03.137 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "OK" is visible RUNNING
+07:52:03.329 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "OK" is visible COMPLETED
+07:52:03.329 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Take screenshot date-picker-select-before RUNNING
+07:52:03.330 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:52:03.331 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:52:03.401 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Take screenshot date-picker-select-before COMPLETED
+07:52:03.401 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on ".*15.*juillet.*1992.*" RUNNING
+07:52:03.507 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=15, mercredi 15 juillet 1992, title=, value=, text=, hintText=, resource-id=, bounds=[129,483][177,531], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=129, y=483, width=48, height=48))
+07:52:03.509 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:52:03.636 [ INFO] maestro.Maestro.tap-HgV9Ck0: Refreshed element
+07:52:03.637 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (153, 507) using hierarchy based logic for wait
+07:52:03.638 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:52:03.638 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:52:04.118 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:52:04.241 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:52:04.241 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on ".*15.*juillet.*1992.*" COMPLETED
+07:52:04.241 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on "OK" RUNNING
+07:52:04.357 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=OK, title=, value=, text=, hintText=, resource-id=, bounds=[309,685][373,733], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=309, y=685, width=64, height=48))
+07:52:04.357 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:52:04.478 [ INFO] maestro.Maestro.tap-HgV9Ck0: Refreshed element
+07:52:04.479 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (341, 709) using hierarchy based logic for wait
+07:52:04.479 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:52:04.479 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:52:04.905 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:52:05.024 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:52:05.024 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on "OK" COMPLETED
+07:52:05.025 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "15.07.1992" is visible RUNNING
+07:52:05.218 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "15.07.1992" is visible COMPLETED
+07:52:05.218 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Take screenshot date-picker-select-after RUNNING
+07:52:05.218 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:52:05.219 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:52:05.279 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Take screenshot date-picker-select-after COMPLETED

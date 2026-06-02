@@ -289,14 +289,19 @@ class OnboardingProvider extends ChangeNotifier {
   /// `CoachProfileProvider`. Appelé au T8 bifurcation (was T9 avant
   /// 2026-04-24 kill de la scène email-demain).
   ///
-  /// Failure modes (both throw — caller MUST try/catch, never silent-swallow) :
-  /// - `saveAnswers` → disk full, corrupted SharedPreferences, SecureWizardStore
-  ///   KeyChain unavailable. Without this, the dossier answers are lost →
-  ///   user re-onboarded from zero on reopen.
+  /// Failure modes (caller MUST try/catch, never silent-swallow):
   /// - `mergeAnswers` → same SharedPreferences bucket, plus CoachProfile
   ///   derivation errors. Backend sync is already fire-and-forget inside
   ///   `mergeAnswers` (see `_syncToBackend`), so a thrown exception here
   ///   means local seed failed — NOT a backend outage.
+  ///
+  /// If the secure store cannot seal sensitive fields, persistence fails
+  /// closed (PII is not demoted to SharedPreferences) but the current app
+  /// session still receives the freshly captured profile in memory. This
+  /// keeps the terminal onboarding path usable on dev/simulator keychains
+  /// while preserving SEC-10 disk guarantees. The fallback deliberately
+  /// skips backend sync too: unsealed local PII must not leave the device
+  /// through a different path.
   Future<void> completeAndFlushToProfile(
     CoachProfileProvider coachProvider,
   ) async {
@@ -353,8 +358,22 @@ class OnboardingProvider extends ChangeNotifier {
 
     answers['q_wants_deeper'] = _wantsDeeper;
 
-    await ReportPersistenceService.saveAnswers(answers);
+    final sealed = await ReportPersistenceService.saveAnswers(answers);
+    if (!sealed) {
+      coachProvider.updateFromAnswers(answers);
+      if (!coachProvider.hasProfile) {
+        throw StateError(
+          'onboarding_profile_unavailable_after_memory_seed',
+        );
+      }
+      _sealed = true;
+      notifyListeners();
+      return;
+    }
     await coachProvider.mergeAnswers(answers);
+    if (!coachProvider.hasProfile) {
+      throw StateError('onboarding_profile_unavailable_after_merge');
+    }
     _sealed = true;
     notifyListeners();
   }

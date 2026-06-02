@@ -16,7 +16,6 @@ from unittest import mock
 import sentry_sdk
 
 from app.api.v1.endpoints.coach_chat import _validate_cap_response
-from app.core.config import settings
 from app.services.coach.citation_parser import _RE_CURRENCY
 
 

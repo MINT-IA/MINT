@@ -5,7 +5,6 @@ Reversible only with dual-control (master + audit keys).
 """
 from __future__ import annotations
 
-import os
 
 import pytest
 

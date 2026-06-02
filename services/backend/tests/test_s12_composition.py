@@ -10,7 +10,6 @@ Asserts that :
 """
 from __future__ import annotations
 
-import pytest
 
 
 def test_s12_independant_estimate_ijm_correct():

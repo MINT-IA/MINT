@@ -23538,4 +23538,42 @@ class SEs extends S {
 
   @override
   String get waitlistUsTaxPersonNo => 'Non';
+
+  @override
+  String get mentorFabSheetTitle => 'Coach MINT';
+
+  @override
+  String get mentorFabChatTitle => 'Hablar con el Coach';
+
+  @override
+  String get mentorFabChatSubtitle => 'Haz tu pregunta sobre finanzas suizas';
+
+  @override
+  String get mentorFabScanTitle => 'Escanear un documento';
+
+  @override
+  String get mentorFabScanSubtitle =>
+      'LPP, AVS, fiscalidad — completa tu perfil';
+
+  @override
+  String get mentorFabSimulateTitle => 'Simular un escenario';
+
+  @override
+  String get mentorFabSimulateSubtitle => '3a, recompra LPP, hipoteca...';
+
+  @override
+  String get mentorFabProfileTitle => 'Afinar mi perfil';
+
+  @override
+  String get mentorFabProfileSubtitle =>
+      'Datos completos, proyecciones más sólidas';
+
+  @override
+  String get reportStatusSerein => 'Sereno';
+
+  @override
+  String get reportStatusARenforcer => 'A reforzar';
+
+  @override
+  String get reportStatusAlerte => 'Alerta';
 }

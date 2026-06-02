@@ -47,9 +47,9 @@ void main() {
   group('ConfidenceScoreCard', () {
     testWidgets('score=75 renders zone label Bonne estimation', (tester) async {
       await tester.pumpWidget(_buildApp(
-        ConfidenceScoreCard(
+        const ConfidenceScoreCard(
           score: 75,
-          enrichmentPrompts: const [_testPrompt],
+          enrichmentPrompts: [_testPrompt],
         ),
       ));
       await tester.pump();
@@ -58,31 +58,33 @@ void main() {
 
     testWidgets('score=50 renders zone label Estimation large', (tester) async {
       await tester.pumpWidget(_buildApp(
-        ConfidenceScoreCard(
+        const ConfidenceScoreCard(
           score: 50,
-          enrichmentPrompts: const [_testPrompt],
+          enrichmentPrompts: [_testPrompt],
         ),
       ));
       await tester.pump();
       expect(find.text('Estimation large'), findsOneWidget);
     });
 
-    testWidgets('score=30 renders zone label On devine beaucoup', (tester) async {
+    testWidgets('score=30 renders zone label On devine beaucoup',
+        (tester) async {
       await tester.pumpWidget(_buildApp(
-        ConfidenceScoreCard(
+        const ConfidenceScoreCard(
           score: 30,
-          enrichmentPrompts: const [_testPrompt],
+          enrichmentPrompts: [_testPrompt],
         ),
       ));
       await tester.pump();
       expect(find.text('On devine beaucoup'), findsOneWidget);
     });
 
-    testWidgets('renders enrichment action label when prompts non-empty', (tester) async {
+    testWidgets('renders enrichment action label when prompts non-empty',
+        (tester) async {
       await tester.pumpWidget(_buildApp(
-        ConfidenceScoreCard(
+        const ConfidenceScoreCard(
           score: 50,
-          enrichmentPrompts: const [_testPrompt],
+          enrichmentPrompts: [_testPrompt],
         ),
       ));
       await tester.pump();
@@ -104,7 +106,8 @@ void main() {
       );
     });
 
-    testWidgets('hasError=true renders error state with retry button', (tester) async {
+    testWidgets('hasError=true renders error state with retry button',
+        (tester) async {
       bool retryCalled = false;
       await tester.pumpWidget(_buildApp(
         ConfidenceScoreCard(
@@ -137,11 +140,12 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('score=96 with prompts still shows perfect state', (tester) async {
+    testWidgets('score=96 with prompts still shows perfect state',
+        (tester) async {
       await tester.pumpWidget(_buildApp(
-        ConfidenceScoreCard(
+        const ConfidenceScoreCard(
           score: 96,
-          enrichmentPrompts: const [_testPrompt],
+          enrichmentPrompts: [_testPrompt],
         ),
       ));
       await tester.pump();

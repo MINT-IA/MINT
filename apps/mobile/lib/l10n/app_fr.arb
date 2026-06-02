@@ -12638,5 +12638,17 @@
   "waitlistUsTaxPersonNo": "Non",
   "@waitlistUsTaxPersonNo": {
     "description": "Phase 01.5 W02-T03 — US-tax-person No answer button."
-  }
+  },
+  "mentorFabSheetTitle": "Coach MINT",
+  "mentorFabChatTitle": "Parler au Coach",
+  "mentorFabChatSubtitle": "Pose ta question finance suisse",
+  "mentorFabScanTitle": "Scanner un document",
+  "mentorFabScanSubtitle": "LPP, AVS, fiscal — enrichis ton profil",
+  "mentorFabSimulateTitle": "Simuler un scénario",
+  "mentorFabSimulateSubtitle": "3a, rachat LPP, hypothèque...",
+  "mentorFabProfileTitle": "Affiner mon profil",
+  "mentorFabProfileSubtitle": "Données complètes, projections plus solides",
+  "reportStatusSerein": "Serein",
+  "reportStatusARenforcer": "À renforcer",
+  "reportStatusAlerte": "Alerte"
 }

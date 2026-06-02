@@ -8,7 +8,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Post-submit confirmation state for /waitlist. Shows a green check
 /// icon, the success message, and a back-to-home CTA. On mount it
-/// announces the success message via [SemanticsService.announce] so
+/// announces the success message via [SemanticsService.sendAnnouncement] so
 /// screen-reader users get the state change (UI-SPEC §8).
 class WaitlistSuccess extends StatefulWidget {
   const WaitlistSuccess({super.key});
@@ -22,7 +22,11 @@ class _WaitlistSuccessState extends State<WaitlistSuccess> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final l = S.of(context)!;
-    SemanticsService.announce(l.waitlistSuccessMessage, TextDirection.ltr);
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      l.waitlistSuccessMessage,
+      TextDirection.ltr,
+    );
   }
 
   @override
@@ -47,6 +51,7 @@ class _WaitlistSuccessState extends State<WaitlistSuccess> {
             ),
             const SizedBox(height: MintSpacing.xl),
             FilledButton(
+              // lint-ignore: prefer_mint_cta
               key: const Key('waitlist-success-cta'),
               onPressed: () => context.go('/'),
               style: FilledButton.styleFrom(

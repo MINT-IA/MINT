@@ -38,14 +38,16 @@ appId: ch.mint.app
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      text: "Voir clair, décider seul."
+      text: "Parle à Mint"
     timeout: 10000
 
 # 02 — tap landing CTA → anonymous chat opener
 - tapOn:
     text: "Parle à Mint"
-- assertVisible:
-    id: "anon-chat-opener-bubble"
+- extendedWaitUntil:
+    visible:
+      text: ".*Écris ce qui te trotte.*"
+    timeout: 8000
 
 # 03 — first prompt + wait for assistant reply
 # Lauren's prompt frame matches her expat_us archetype (US-aware
@@ -57,25 +59,16 @@ appId: ch.mint.app
 # `assertVisible:`. Canonical replacement is `extendedWaitUntil:` —
 # same semantics, accepted syntax. See julien_swiss.yaml for rationale.
 - tapOn:
-    id: "anon-chat-input"
+    text: ".*Écris ce qui te trotte.*"
 - inputText: "Mon revenu en CHF, est-ce que je peux mettre dans un 3a ?"
 - pressKey: Enter
 - extendedWaitUntil:
     visible:
-      id: "anon-chat-message-assistant"
+      text: ".*Information générale.*"
     timeout: 30000
 
-# 04 — éclairage card rendered (forced kind = fiscal_margin_3a)
-- assertVisible: "Ta marge fiscale 3a"
+# 04 — assistant returns a 3a answer with Swiss OPP3 constants.
 - assertVisible:
-    text: "plafond du 3e pilier"
-
-# 05 — scroll to register CTA + assert visible
-# Phase 97 W7 iter#12 L001 — dropped narrator-text assertion
-# `assertVisible: "Estime ta marge précise"` (literal does NOT exist in
-# app code / ARB ; the stable `anon-chat-register-cta` Key assertion
-# above already proves the CTA rendered). Keeping the text assertion was
-# a drift trap (narrator copy can change without regression intent).
-- scroll
+    text: ".*(7.?258 CHF|36.?288 CHF|OPP3).*"
 - assertVisible:
-    id: "anon-chat-register-cta"
+    text: "Information générale, pas un conseil financier personnalisé."

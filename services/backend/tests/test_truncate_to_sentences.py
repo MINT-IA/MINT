@@ -6,7 +6,6 @@ markers were counted as sentences.
 """
 from __future__ import annotations
 
-import pytest
 
 from app.services.rag.guardrails import ComplianceGuardrails as CG
 

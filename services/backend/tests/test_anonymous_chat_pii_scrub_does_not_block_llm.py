@@ -32,7 +32,6 @@ os.environ.setdefault("ANTHROPIC_API_KEY", "sk-test-anonymous-key")
 
 from unittest.mock import AsyncMock, patch
 
-import pytest
 
 
 _VALID_SESSION_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"

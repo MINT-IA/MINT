@@ -14,10 +14,9 @@ same ground for unit tests on Python 3.9 dev environments.
 """
 from __future__ import annotations
 
-import os
 import re
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 # Presidio is optional. Tests on Python 3.9 cannot install it because
 # spaCy/thinc require ≥3.10. Production runs ≥3.10 and resolves the import.

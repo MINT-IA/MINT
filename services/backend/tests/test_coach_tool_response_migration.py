@@ -24,7 +24,6 @@ Cross-references :
 """
 from __future__ import annotations
 
-import json
 from typing import Union
 from unittest.mock import MagicMock
 
@@ -35,12 +34,9 @@ from app.models.coach_tools import (
     CoachToolIncomplete,
     CoachToolIncompleteV2,
     CoachToolOk,
-    CoachToolOkV2,
     CoachToolPolicyBlocked,
-    CoachToolPolicyBlockedV2,
     CoachToolResponse,
     CoachToolResponseV2,
-    LatencyTier,
 )
 
 

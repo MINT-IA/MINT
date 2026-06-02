@@ -17,7 +17,6 @@ no FR user-facing strings. Safe.
 """
 from __future__ import annotations
 
-import pytest
 from fastapi.testclient import TestClient
 
 
@@ -69,7 +68,6 @@ def test_metrics_endpoint_exposes_all_four_counter_names():
         calc_invoke_total,
         cache_lookup_total,
         calc_warm_total,
-        zero_citation_total,
     )
     from app.main import app
 

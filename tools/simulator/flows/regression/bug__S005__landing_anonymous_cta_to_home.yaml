@@ -97,17 +97,116 @@ tags:
     text: ".*Continuer sans compte.*"
 - waitForAnimationToEnd
 
+# Current onboarding builds route the anonymous CTA through the public
+# MVP wedge before the shell. Keep this regression focused on the real
+# CTA path: complete the public storyboard and let the app route itself
+# to /home. Do not deep-link here, otherwise this flow can pass while
+# the anonymous CTA path is broken.
+- runFlow:
+    when:
+      visible: ".*Ouvrir.*"
+    commands:
+      - tapOn:
+          text: ".*Ouvrir.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*Je regarde d’abord.*"
+    commands:
+      - tapOn:
+          text: ".*Je regarde d’abord.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*États-Unis.*"
+    commands:
+      - tapOn:
+          text: ".*Non.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Quelle est ta nationalité ?"
+    commands:
+      - tapOn:
+          text: "Suisse"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Quelle est ta date de naissance ?"
+    commands:
+      - tapOn:
+          text: "Choisir ma date"
+      - tapOn:
+          point: "48%,44%"
+      - tapOn:
+          point: "85%,82%"
+      - tapOn:
+          text: "Continuer"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Où tu vis ?"
+    commands:
+      # The VD chip is a text-only grid cell; Maestro iOS does not expose
+      # it as a reliable tappable node, so this uses the same anchored point
+      # as the salvage01 onboarding proof after asserting the prompt.
+      - tapOn:
+          point: "17%,20%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Combien te tombe net par mois ?"
+    commands:
+      # The revenue screen exposes multiple "Continuer" nodes including an
+      # offstage exact-mode control. Tap the visible fixed bottom CTA.
+      - tapOn:
+          point: "50%,74%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Avant de te montrer…"
+    commands:
+      - tapOn:
+          point: "50%,71%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continuer"
+    commands:
+      - tapOn:
+          point: "50%,70%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Plus tard"
+    commands:
+      # Terminal anonymous path: Plus tard flushes the dossier and routes
+      # to /home. Text taps on this terminal TextButton can resolve to the
+      # child label without firing onPressed, so tap the visible CTA point.
+      # This preserves the no-deeplink S005 contract.
+      - tapOn:
+          point: "50%,70%"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 6000
+
 # ── Step 6 — S005 ASSERTION 2/2 : « Aujourd'hui » visible ─────────────
 # Post-fix : context.go('/home') routes through the app.dart:417 gate
 # (isLoggedIn || isLocalMode) — isLocalMode defaults true → AujourdhuiScreen
 # renders → 3-tab nav header carries « Aujourd'hui » text. Same regex-
 # wrap as step 4 because the BottomNavigationBar tab carries
 # accessibilityText="Aujourd'hui\nOnglet 1 sur 4" (Flutter iOS bridge
-# concatenation of Semantics label + system-emitted tab-index hint).
+# concatenation of Semantics label + system-emitted tab-index hint). Then assert
+# the home-specific Cap du jour surface and action bar so the flow cannot pass
+# on a shell/tab-label-only false green.
 - extendedWaitUntil:
     visible:
       text: ".*Aujourd'hui.*"
     timeout: 10000
+- assertVisible:
+    id: "card_cap_du_jour"
+- assertVisible:
+    id: "mint_card_action_bar"
 
 # ── Step 7 — Optional capture for HUMAN-UAT evidence ──────────────────
 - takeScreenshot: /tmp/96_s005_aujourdhui_landed

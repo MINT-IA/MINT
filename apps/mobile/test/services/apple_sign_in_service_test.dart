@@ -28,7 +28,7 @@ void main() {
     });
 
     test('sha256OfNonce returns a hex string', () {
-      final nonce = 'test-nonce-value';
+      const nonce = 'test-nonce-value';
       final hash = AppleSignInService.sha256OfNonce(nonce);
       expect(hash, isNotEmpty);
       // SHA-256 hex digest is always 64 characters

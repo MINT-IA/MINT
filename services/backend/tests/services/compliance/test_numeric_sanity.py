@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-import pytest
 
 from app.services.compliance import numeric_sanity as ns
 

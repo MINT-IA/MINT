@@ -23,7 +23,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
-import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 
 CoachContext _ctx({String archetype = 'swiss_native'}) {
@@ -86,8 +85,7 @@ void main() {
           reason: 'Fallback chain still produces a message');
     });
 
-    test(
-        '3. enableCoachHardGate=true + archetype=unknown → refusal fires',
+    test('3. enableCoachHardGate=true + archetype=unknown → refusal fires',
         () async {
       FeatureFlags.enableCoachHardGate = true;
       final ctx = _ctx(archetype: 'unknown');
@@ -100,8 +98,7 @@ void main() {
       expect(response.refusalReason, 'archetype_not_calibrated');
     });
 
-    test(
-        '4. enableCoachHardGate=false + archetype=unknown → guard bypassed',
+    test('4. enableCoachHardGate=false + archetype=unknown → guard bypassed',
         () async {
       FeatureFlags.enableCoachHardGate = false;
       final ctx = _ctx(archetype: 'unknown');

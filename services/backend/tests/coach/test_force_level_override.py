@@ -102,7 +102,6 @@ def test_force_level_does_not_import_compliance_or_gates(runner_module):
     weekly gate, or the fragility detector. If they appear, someone tried to
     smuggle a bypass — fail loud.
     """
-    src = RUNNER_PATH.read_text(encoding="utf-8")
     # The wrapper itself + the function body must not reference these.
     fn_src = inspect.getsource(runner_module.force_level_n4_directive)
     forbidden = [

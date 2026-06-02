@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show HapticFeedback, LengthLimitingTextInputFormatter;
+import 'package:flutter/services.dart'
+    show HapticFeedback, LengthLimitingTextInputFormatter;
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:go_router/go_router.dart';
 
@@ -13,7 +14,6 @@ import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach/eclairage_models.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 // ADR-20260223: financial_core via barrel only — no direct sub-imports.
-import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -97,7 +97,8 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
   /// by the ECL-01 gate (turns ≥ 2). Reset only on cold-restore that
   /// finds an existing eclairage in the persisted conversation (out of
   /// scope for Phase 71a — backend payload lands Phase 71b).
-  bool _eclairageDelivered = false;
+  // ignore: unused_field
+  final bool _eclairageDelivered = false;
 
   /// Number of completed coach responses in the current session. Increments
   /// only after `_messages.add(coach response)` — not on user-send, not
@@ -124,9 +125,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
 
       // Back-compat: if an `intent` arrived as query param, auto-send it.
       // Untouched per panel §8.4.
-      if (widget.intent != null &&
-          widget.intent!.isNotEmpty &&
-          !_intentSent) {
+      if (widget.intent != null && widget.intent!.isNotEmpty && !_intentSent) {
         _intentSent = true;
         _sendMessage(widget.intent!);
       }
@@ -148,6 +147,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       final latestId = convos.first.id;
       final restored = await store.loadConversation(latestId);
       if (restored.isNotEmpty && mounted) {
+        _openerFadeController.value = 1.0;
         setState(() {
           _messages.addAll(restored.map(
             (m) => _ChatMessage(
@@ -159,7 +159,8 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
           // Conversation already had user-coach exchanges; opener should
           // not re-appear. Mark openerShown so chips also stay hidden.
           _openerShown = true;
-          _coachTurnsCompleted = restored.where((m) => m.role == 'assistant').length;
+          _coachTurnsCompleted =
+              restored.where((m) => m.role == 'assistant').length;
         });
         _scrollToBottom();
         return;
@@ -357,8 +358,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         ? raw
         : (raw is Map ? Map<String, dynamic>.from(raw) : null);
 
-    final dispatched =
-        ChatToolDispatcher.dispatchEclairagePayload(rawMap);
+    final dispatched = ChatToolDispatcher.dispatchEclairagePayload(rawMap);
     if (dispatched != null) return dispatched;
 
     // Walker / widget-test fallback: when no backend payload AND no forced
@@ -409,7 +409,11 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       // expat / FATCA / cross-border code path.
       nationalityGroup: null,
       plafond3a: 7258,
-      estimatedFields: const ['currentSavings', 'existingLpp', 'nationalityGroup'],
+      estimatedFields: const [
+        'currentSavings',
+        'existingLpp',
+        'nationalityGroup'
+      ],
     );
   }
 
@@ -442,7 +446,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         .toList();
 
     ConversationStore.setCurrentUserId(null);
-    ConversationStore().saveConversation(_conversationId, chatMessages).catchError((e) {
+    ConversationStore()
+        .saveConversation(_conversationId, chatMessages)
+        .catchError((e) {
       debugPrint('[AnonymousChat] Eager persist failed: $e');
     });
   }
@@ -481,9 +487,8 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
     //   • exactly one bubble in the list (the opener) — once user sends
     //     a message, _messages.length >= 2, chips disappear.
     //   • not locked.
-    final showChips = _openerShown &&
-        _messages.length <= 1 &&
-        !_isAuthGateLocked;
+    final showChips =
+        _openerShown && _messages.length <= 1 && !_isAuthGateLocked;
 
     return Scaffold(
       backgroundColor: MintColors.craieHandoff,
@@ -508,7 +513,8 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: _messages.length + (_isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == _messages.length) {
@@ -567,7 +573,8 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                     const SizedBox(height: 12),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton( // lint-ignore: prefer_mint_cta
+                      child: ElevatedButton(
+                        // lint-ignore: prefer_mint_cta
                         // Phase 97 W7 iter#12 L001 — stable Maestro locator.
                         // julien_swiss.yaml + lauren_expat_us.yaml step 05
                         // assertVisible {id: 'anon-chat-register-cta'}.
@@ -606,7 +613,11 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
 
   /// Chips row (panel §1.3) — 3 outlined chips horizontally scrollable.
   Widget _buildChipsRow(S l) {
-    final chips = [l.anonymousChatChip1, l.anonymousChatChip2, l.anonymousChatChip3];
+    final chips = [
+      l.anonymousChatChip1,
+      l.anonymousChatChip2,
+      l.anonymousChatChip3
+    ];
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -623,10 +634,12 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                 onTap: () => _onChipTap(chips[i]),
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: MintColors.craieHandoff,
-                    border: Border.all(color: MintColors.borderSubtle, width: 1),
+                    border:
+                        Border.all(color: MintColors.borderSubtle, width: 1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -778,7 +791,8 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
                     color: MintColors.inkPrimary,
                   ).copyWith(
                     fontWeight: FontWeight.w600,
-                    fontSize: 15, // lint-ignore: prefer_mint_text_style — h3 markdown needs +1pt above labelLarge (14pt)
+                    fontSize:
+                        15, // lint-ignore: prefer_mint_text_style — h3 markdown needs +1pt above labelLarge (14pt)
                     height: 1.45,
                   ),
                 ),
@@ -804,11 +818,18 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         : isOpener
             ? const Key('anon-chat-opener-bubble')
             : const Key('anon-chat-message-assistant');
+    final renderedBubble = isOpener
+        ? FadeTransition(
+            opacity: _openerFadeController,
+            child: bubble,
+          )
+        : bubble;
+
     if (message.eclairage == null) {
       return Padding(
         key: assistantKey,
         padding: const EdgeInsets.only(bottom: 12),
-        child: bubble,
+        child: renderedBubble,
       );
     }
 
@@ -818,7 +839,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          bubble,
+          renderedBubble,
           // v2.12 Phase 86 integration — convert EclairageCardData →
           // Map<String, dynamic> payload to feed the panel-locked Phase
           // 72 EclairageCard widget (anon path). Phase 80's typed
@@ -837,15 +858,6 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen>
         ],
       ),
     );
-
-    // 400ms fade-in only for the opener (panel §1.2).
-    if (isOpener) {
-      return FadeTransition(
-        opacity: _openerFadeController,
-        child: bubble,
-      );
-    }
-    return bubble;
   }
 
   Widget _buildTypingIndicator() {

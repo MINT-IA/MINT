@@ -20,7 +20,6 @@ from pydantic import ValidationError
 from app.models.lucidity import (
     L1ChiffrePayload,
     L2ComparePayload,
-    L3EclairePayload,
     L4InvariantPayload,
     LucidityLevel,
     LucidityPayload,

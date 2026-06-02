@@ -29,7 +29,7 @@ import enum
 import logging
 import os
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Optional
 
 from app.services.llm.bedrock_client import BedrockClient, BedrockError

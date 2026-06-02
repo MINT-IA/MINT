@@ -107,6 +107,7 @@ class SecureWizardStore {
     'q_tax_provision_monthly_chf',
     'q_other_fixed_costs_monthly_chf',
     'q_debt_payments_period_chf',
+    'q_total_debt_balance_chf',
     'q_bonus_percentage',
     '_coach_depenses_electricite',
     '_coach_depenses_transport',

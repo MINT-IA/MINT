@@ -126,13 +126,15 @@ void main() {
       );
 
       final ids = seq.steps.map((s) => s.id).toList();
-      expect(ids, equals([
-        'nj_01_income',
-        'nj_02_compare',
-        'nj_03_lpp_transfer',
-        'nj_04_3a',
-        'nj_05_specialist',
-      ]));
+      expect(
+          ids,
+          equals([
+            'nj_01_income',
+            'nj_02_compare',
+            'nj_03_lpp_transfer',
+            'nj_04_3a',
+            'nj_05_specialist',
+          ]));
     });
 
     test('Step C — nj_01_income is completed when Julien has salary', () {
@@ -266,7 +268,8 @@ void main() {
       expect(specialist.intentTag, isNull);
     });
 
-    test('lpp_transfer step has non-null impactEstimate (Julien avoirLpp 70377)',
+    test(
+        'lpp_transfer step has non-null impactEstimate (Julien avoirLpp 70377)',
         () {
       final seq = CapSequenceEngine.build(
         profile: _julienProfile(),
@@ -342,10 +345,8 @@ void main() {
   // ─────────────────────────────────────────────────────────────────
 
   group('newJob journey — completedActions drive step progression', () {
-    test(
-        'nj_02_compare is completed when memory contains salary_compared',
-        () {
-      final memory = const CapMemory(
+    test('nj_02_compare is completed when memory contains salary_compared', () {
+      const memory = CapMemory(
         completedActions: ['salary_compared'],
       );
 
@@ -363,7 +364,7 @@ void main() {
     test(
         'nj_03_lpp_transfer is completed when memory contains lpp_transfer_checked',
         () {
-      final memory = const CapMemory(
+      const memory = CapMemory(
         completedActions: ['salary_compared', 'lpp_transfer_checked'],
       );
 
@@ -400,7 +401,7 @@ void main() {
         ),
       );
 
-      final memory = const CapMemory(
+      const memory = CapMemory(
         completedActions: ['salary_compared', 'lpp_transfer_checked'],
       );
 
@@ -418,7 +419,7 @@ void main() {
     });
 
     test('sequence with both completed actions shows 3+ completed steps', () {
-      final memory = const CapMemory(
+      const memory = CapMemory(
         completedActions: ['salary_compared', 'lpp_transfer_checked'],
       );
 

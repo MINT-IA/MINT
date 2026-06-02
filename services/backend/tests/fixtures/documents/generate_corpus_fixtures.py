@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import os
 import sys
-from io import BytesIO
 from typing import Callable
 
 import pymupdf  # type: ignore

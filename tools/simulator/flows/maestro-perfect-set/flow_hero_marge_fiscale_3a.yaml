@@ -3,10 +3,10 @@
 # ─── PURPOSE ───────────────────────────────────────────────────────────
 # Phase 01.1 hero flow — the parent CONTEXT §1 bar measurement vehicle.
 #
-# Asserts : onboarding (swiss_native default, salary 80'000 CHF salaried)
-# → bottom-nav « Coach » tab → composer « Dis-moi. » → ask « Combien je
-# peux mettre sur mon 3a cette annee ? » → coach emits the salaried
-# plafond 3a 2025 CHF figure (7'258 — per OPP3 art. 7 al. 1, staging
+# Asserts : onboarding wedge (swiss_native supported path, retirement
+# intent, local dossier flushed to Coach) → composer « Dis-moi. » → ask
+# « Combien je peux mettre sur mon 3a cette annee ? » → coach emits the
+# salaried plafond 3a 2026 CHF figure (7'258 — per OPP3 art. 7 al. 1, staging
 # /api/v1/regulatory/constants/snapshot.pillar3a.max_with_lpp) with a
 # citation chip (OPP3 art. 7 OR LIFD art. 38) within 3 turns ; no LSFin
 # banned-term ; no app crash.
@@ -22,10 +22,9 @@
 #   on the coach reply surface at evaluation time.
 #
 # ─── ARCHETYPE SCOPE ──────────────────────────────────────────────────
-# Authenticated coach surface (NOT anonymous — citation gate IS wired
-# on the auth path per coach_chat.py D-11 wrapper). Default archetype
-# swiss_native per Phase 01.1 CONTEXT §1. swiss_native_couple deferred
-# to sub-phase 01.10.
+# Coach surface reached through the current onboarding wedge. Default
+# archetype swiss_native per Phase 01.1 CONTEXT §1. swiss_native_couple
+# deferred to sub-phase 01.10.
 #
 # ─── EXPECTED DURATION ────────────────────────────────────────────────
 # ~3-5 min wall-clock (cold launch + onboarding wizard + 1 coach
@@ -57,7 +56,8 @@
 #
 # Plafond 3a CHF source-of-truth :
 #   - 7258 CHF salaried (pillar3a.max_with_lpp, OPP3 art. 7 al. 1,
-#     taxYear 2025) — confirmed staging Check 8 of 01.1-PRECONDITIONS.md.
+#     taxYear 2026) — refreshed by the runtime freshness gate and
+#     regulatory constants registry.
 #   - 36'288 CHF independent (pillar3a.max_without_lpp, OPP3 art. 7 al. 2)
 #     NOT asserted here — the input archetype is salaried.
 
@@ -72,8 +72,9 @@ tags:
   - gate-g1
 ---
 
-# 01 — cold launch + landing (clearState=true forces a fresh state per
-# memory feedback_sim_crash_mitigation : reboot/clean before each sweep).
+# 01 — cold launch, then deterministic entry into the current onboarding
+# wedge. The older landing-path variant could stop on the storyboard
+# "Ouvrir" frame and falsely name it "home reached".
 - launchApp:
     clearState: true
 - runFlow:
@@ -82,87 +83,132 @@ tags:
     commands:
       - tapOn: "Je comprends, on y va"
       - waitForAnimationToEnd
+- openLink: "mintapp:///onb"
 - extendedWaitUntil:
     visible:
-      text: ".*(Commencer|Continuer|Parle à Mint|Démarrer).*"
-    timeout: 15000
-- takeScreenshot: "01.1-hero-01-landing"
-
-# 02 — onboarding entry : tap the most common landing CTA seen on
-# v2.8/v2.10 builds (« Commencer » or « Démarrer mon diagnostic »).
-# If neither is visible, the conditional runFlow no-ops and the next
-# gate falls through to the home shell (re-entrant flow shape).
-- runFlow:
-    when:
-      visible: ".*(Commencer|Démarrer mon diagnostic|Démarrer).*"
-    commands:
-      - tapOn:
-          text: ".*(Commencer|Démarrer mon diagnostic|Démarrer).*"
-      - waitForAnimationToEnd
-
-# 02.5 — Sub-phase 01.5 Wave 02 Plan 03 introduced a new mandatory
-# onboarding step T2.5 « Es-tu citoyen ou résident fiscal aux États-
-# Unis ? » (UsTaxPersonScreen, FATCA gate). For the hero swiss_native
-# path the answer is « Non » — tap the Key-stable button so the
-# orchestrator advances to T3 (age) and the rest of the wizard
-# proceeds unchanged. Conditional `runFlow` keeps the flow re-entrant
-# on builds where the Q is skipped (legacy / pre-fix flag absent).
-# Surgical addition per Plan 01.5-03-01 task 1.2 — preserves every
-# existing assertion on the hero coach grounding path verbatim.
-- runFlow:
-    when:
-      visible: "Es-tu citoyen ou résident fiscal aux États-Unis"
-    commands:
-      - tapOn:
-          id: "us-tax-person-no"
-      - waitForAnimationToEnd
-
-# 03 — onboarding salary input (single-input, swiss_native default).
-# Triggered ONLY if the wizard surfaces a salary field at this gate.
-# The selector is a regex over the visible field label ; if the wizard
-# uses a numeric pad with no label, this no-ops and Plan 01.1-03 will
-# capture the actual onboarding-screen state via idb describe-all.
-- runFlow:
-    when:
-      visible: ".*(salaire|revenu annuel|revenu brut|salaire brut).*"
-    commands:
-      - tapOn:
-          text: ".*(salaire|revenu annuel|revenu brut|salaire brut).*"
-      - inputText: "80000"
-      - hideKeyboard
-- takeScreenshot: "01.1-hero-02-onboarding-salary"
-
-# 04 — continue through the wizard until home is reached. Maestro
-# re-evaluates `visible:` on each repeat iteration so this is a bounded
-# scan, NOT a busy-loop (5 iterations × ~1s = ~5s budget).
-- repeat:
-    times: 5
-    commands:
-      - runFlow:
-          when:
-            visible: ".*(Suivant|Continuer|Terminer).*"
-          commands:
-            - tapOn:
-                text: ".*(Suivant|Continuer|Terminer).*"
-            - waitForAnimationToEnd
-- takeScreenshot: "01.1-hero-03-home-reached"
-
-# 05 — open « Coach » bottom-nav tab (authenticated coach surface —
-# citation gate wired here per coach_chat.py D-11 wrapper).
-# Note : the tab label is the literal « Coach » per app_fr.arb:4154
-# tabCoach — NOT « Mon coach » as the planner template assumed.
-# Selector is permissive (regex) to tolerate icon-only / icon+label
-# rendering variants.
-- extendedWaitUntil:
-    visible:
-      text: ".*\\bCoach\\b.*"
+      text: "Il est temps que tu comprennes."
     timeout: 10000
 - tapOn:
-    text: ".*\\bCoach\\b.*"
+    text: "Ouvrir"
+- takeScreenshot: "01.1-hero-01-onboarding-opened"
+
+# 02 — choose a supported Swiss-native intent. The retirement card is a
+# bare InkWell, so tap by point after anchoring on its visible copy.
+- extendedWaitUntil:
+    visible:
+      text: ".*Ce que je toucherai.*"
+    timeout: 5000
+- tapOn:
+    point: "50%,24%"
+
+# 03 — FATCA / nationality / date-of-birth / canton gates. These are
+# product gates, not test ceremony: the Coach route must only be reached
+# after a coherent supported dossier exists. The source-of-truth path asks
+# for date of birth; a legacy age-only screen is still tolerated here so
+# the runtime test can expose and track that drift instead of blocking
+# before the Coach trust assertion.
+- extendedWaitUntil:
+    visible:
+      text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
+    timeout: 5000
+- tapOn:
+    text: "Non"
+- runFlow:
+    when:
+      visible: "Quelle est ta nationalité ?"
+    commands:
+      - tapOn:
+          text: "Suisse"
+- runFlow:
+    when:
+      visible: "Quel âge tu as ?"
+    commands:
+      - takeScreenshot: "01.1-hero-legacy-age-only-screen"
+      - tapOn:
+          text: "Continuer"
+- extendedWaitUntil:
+    visible:
+      text: "Choisir ma date"
+    timeout: 5000
+- tapOn: "Choisir ma date"
+- runFlow:
+    when:
+      visible: "Choisir ma date"
+    commands:
+      - tapOn:
+          point: "50%,50%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "OK"
+    timeout: 5000
+- takeScreenshot: "01.1-hero-dob-picker-open"
+- tapOn:
+    text: ".*15.*juillet.*1992.*"
+- takeScreenshot: "01.1-hero-dob-day-15-selected"
+- tapOn: "OK"
+- extendedWaitUntil:
+    visible:
+      text: "15.07.1992"
+    timeout: 5000
+- tapOn:
+    text: "Continuer"
+- runFlow:
+    when:
+      visible: "Quelle est ta nationalité ?"
+    commands:
+      - tapOn:
+          text: "Suisse"
+- extendedWaitUntil:
+    visible:
+      text: "Où tu vis ?"
+    timeout: 5000
+- tapOn:
+    point: "17%,20%"
+
+# 04 — keep the default salary band, advance through the insight scene,
+# and take the explicit "Creuser" path that flushes the dossier to Coach.
+- extendedWaitUntil:
+    visible:
+      text: "Combien te tombe net par mois ?"
+    timeout: 5000
+- tapOn:
+    point: "50%,74%"
+- takeScreenshot: "01.1-hero-02-onboarding-income"
+- extendedWaitUntil:
+    visible:
+      text: "Avant de te montrer…"
+    timeout: 12000
+- tapOn:
+    point: "50%,71%"
+- extendedWaitUntil:
+    visible:
+      text: "Continuer"
+    timeout: 8000
+- tapOn:
+    point: "50%,70%"
+- runFlow:
+    when:
+      visible:
+        text: "Continuer"
+    commands:
+      - tapOn:
+          point: "50%,70%"
+- extendedWaitUntil:
+    visible:
+      text: "Creuser"
+    timeout: 5000
+- tapOn:
+    point: "50%,63%"
+- takeScreenshot: "01.1-hero-03-coach-route"
+
+# 05 — verify Coach composer on the supported path.
 - extendedWaitUntil:
     visible:
       text: ".*(Dis-moi|Tape ton message|Pose|Demande|Écris).*"
-    timeout: 10000
+    timeout: 15000
+- assertNotVisible:
+    text: "Encore en chantier pour ton profil"
 - takeScreenshot: "01.1-hero-04-coach-composer"
 
 # 06 — turn 1 : the hero question.
@@ -175,7 +221,9 @@ tags:
     text: ".*(Dis-moi|Tape ton message|Pose|Demande|Écris).*"
 - inputText: "Combien je peux mettre sur mon 3a cette annee ?"
 - pressKey: Enter
-- takeScreenshot: "01.1-hero-05-message-typed"
+- takeScreenshot: "01.1-hero-05-after-send"
+- assertNotVisible:
+    text: "Encore en chantier pour ton profil"
 
 # 07 — wait for user-message bubble to render (confirms send fired).
 # Anchors on the question echo before checking for the response — guards
@@ -199,20 +247,20 @@ tags:
     timeout: 5000
 - takeScreenshot: "01.1-hero-06-coach-response"
 
-# 09 — Tier-1 grounded-values assertion : the salaried plafond 3a 2025
+# 09 — Tier-1 grounded-values assertion : the salaried plafond 3a 2026
 # CHF figure. Regex covers all 3 thousands-separator variants per
 # LIFD/OPP3 doc conventions :
 #   « 7258 » (no separator, Maestro inputText rendering)
 #   « 7'258 » (Swiss apostrophe — canonical UI rendering)
 #   « 7 258 » (narrow no-break space — French typography)
 - assertVisible:
-    text: "(7['\\s ]?258)"
+    text: ".*7['\\s ]?258.*"
 
 # 10 — Tier-1 grounded-values assertion : citation chip presence.
 # Either source (OPP3 art. 7 al. 1 OR LIFD art. 38) satisfies the gate
 # — the bar is « cited number », not « cited from a specific source ».
 - assertVisible:
-    text: "(OPP3|art\\.?\\s*7|art\\.?\\s*38|LIFD)"
+    text: ".*(OPP3|art\\.?\\s*7|art\\.?\\s*38|LIFD).*"
 
 # 11 — negative assertion : NO LSFin banned-term anywhere on the visible
 # coach surface at evaluation time. Lemma list mirrors the canonical
@@ -248,11 +296,11 @@ tags:
 # ─── EXPECTED OUTPUT (Plan 03 live run) ───────────────────────────────
 # Screenshots:
 #   .planning/walker/maestro-flows/hero-marge-fiscale-3a/<run-id>/
-#     ├── 01.1-hero-01-landing.png
-#     ├── 01.1-hero-02-onboarding-salary.png
-#     ├── 01.1-hero-03-home-reached.png
+#     ├── 01.1-hero-01-onboarding-opened.png
+#     ├── 01.1-hero-02-onboarding-income.png
+#     ├── 01.1-hero-03-coach-route.png
 #     ├── 01.1-hero-04-coach-composer.png
-#     ├── 01.1-hero-05-message-typed.png
+#     ├── 01.1-hero-05-after-send.png
 #     ├── 01.1-hero-06-coach-response.png
 #     └── 01.1-hero-07-final.png
 #

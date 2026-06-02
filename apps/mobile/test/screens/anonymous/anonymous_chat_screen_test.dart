@@ -75,17 +75,48 @@ void main() {
       // The intent text should appear as a user message
       expect(find.text('Mon test'), findsOneWidget);
     });
+
+    testWidgets('restored conversation keeps first bubble visible',
+        (tester) async {
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      await store.saveConversation('anonymous_restore_visibility', [
+        ChatMessage(
+          role: 'user',
+          content: 'Message restaure',
+          timestamp: DateTime(2026, 6, 1, 8, 0),
+        ),
+        ChatMessage(
+          role: 'assistant',
+          content: 'Reponse restauree',
+          timestamp: DateTime(2026, 6, 1, 8, 1),
+        ),
+      ]);
+
+      await tester.pumpWidget(_testApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Message restaure'), findsOneWidget);
+      expect(find.text('Reponse restauree'), findsOneWidget);
+
+      final fades = tester.widgetList<FadeTransition>(find.ancestor(
+        of: find.text('Message restaure'),
+        matching: find.byType(FadeTransition),
+      ));
+      expect(fades.map((fade) => fade.opacity.value), everyElement(1.0));
+    });
   });
 
   group('Anonymous conversation eager persistence', () {
-    test('saveConversation stores data under unprefixed keys when userId is null',
+    test(
+        'saveConversation stores data under unprefixed keys when userId is null',
         () async {
       SharedPreferences.setMockInitialValues({});
 
       // Simulate the eager persistence path: null userId = anonymous (unprefixed).
       ConversationStore.setCurrentUserId(null);
       final store = ConversationStore();
-      final conversationId = 'anonymous_1234567890';
+      const conversationId = 'anonymous_1234567890';
 
       final messages = [
         ChatMessage(
@@ -105,7 +136,8 @@ void main() {
       // Verify: SharedPreferences should contain unprefixed conversation data.
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString('_chat_conversations_$conversationId');
-      expect(raw, isNotNull, reason: 'Conversation data should be in SharedPreferences');
+      expect(raw, isNotNull,
+          reason: 'Conversation data should be in SharedPreferences');
 
       final decoded = jsonDecode(raw!) as List<dynamic>;
       expect(decoded.length, 2);
@@ -128,7 +160,7 @@ void main() {
       // each coach response with userId = null).
       ConversationStore.setCurrentUserId(null);
       final store = ConversationStore();
-      final conversationId = 'anonymous_9876543210';
+      const conversationId = 'anonymous_9876543210';
 
       final messages = [
         ChatMessage(
@@ -160,9 +192,11 @@ void main() {
       // Step 4: Verify anonymous (unprefixed) data was cleaned up.
       final prefs = await SharedPreferences.getInstance();
       final anonData = prefs.getString('_chat_conversations_$conversationId');
-      expect(anonData, isNull, reason: 'Anonymous data should be removed after migration');
+      expect(anonData, isNull,
+          reason: 'Anonymous data should be removed after migration');
       final anonIndex = prefs.getString('_chat_conversation_index');
-      expect(anonIndex, isNull, reason: 'Anonymous index should be removed after migration');
+      expect(anonIndex, isNull,
+          reason: 'Anonymous index should be removed after migration');
     });
   });
 }

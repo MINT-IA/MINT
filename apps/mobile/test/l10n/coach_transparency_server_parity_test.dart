@@ -20,10 +20,9 @@ void main() {
 
   // From the test runner cwd (apps/mobile/), ARB files live at
   // lib/l10n/app_<locale>.arb.
-  Map<String, String> _loadArb(String locale) {
+  Map<String, String> loadArb(String locale) {
     final file = File('lib/l10n/app_$locale.arb');
-    expect(file.existsSync(), isTrue,
-        reason: 'ARB file missing: ${file.path}');
+    expect(file.existsSync(), isTrue, reason: 'ARB file missing: ${file.path}');
     final raw = file.readAsStringSync();
     final decoded = jsonDecode(raw);
     expect(decoded, isA<Map<String, dynamic>>());
@@ -38,7 +37,7 @@ void main() {
   group('coachTransparencyServer (P2 walkthrough fix)', () {
     test('exists in all 6 locales', () {
       for (final loc in locales) {
-        final arb = _loadArb(loc);
+        final arb = loadArb(loc);
         expect(
           arb.containsKey('coachTransparencyServer'),
           isTrue,
@@ -52,7 +51,7 @@ void main() {
     });
 
     test('FR copy does not claim « pas envoyé »', () {
-      final arb = _loadArb('fr');
+      final arb = loadArb('fr');
       final copy = arb['coachTransparencyServer']!;
       expect(
         RegExp(r"pas envoy", caseSensitive: false).hasMatch(copy),
@@ -68,13 +67,12 @@ void main() {
     });
 
     test('EN copy does not claim « NOT sent »', () {
-      final arb = _loadArb('en');
+      final arb = loadArb('en');
       final copy = arb['coachTransparencyServer']!;
       expect(
         RegExp(r"not sent", caseSensitive: false).hasMatch(copy),
         isFalse,
-        reason:
-            'EN Server copy must not claim « NOT sent » — the user message '
+        reason: 'EN Server copy must not claim « NOT sent » — the user message '
             'IS shared with Anthropic via the MINT server key.',
       );
       expect(copy.toLowerCase(), contains('mint'));
@@ -82,7 +80,7 @@ void main() {
 
     test('all 6 locales mention the API', () {
       for (final loc in locales) {
-        final arb = _loadArb(loc);
+        final arb = loadArb(loc);
         final copy = arb['coachTransparencyServer']!;
         expect(
           RegExp(r"api", caseSensitive: false).hasMatch(copy),
@@ -97,7 +95,7 @@ void main() {
   group('ARB parity guard', () {
     test('SLM + BYOK + Server keys all present in 6 locales', () {
       for (final loc in locales) {
-        final arb = _loadArb(loc);
+        final arb = loadArb(loc);
         for (final key in const [
           'coachTransparencySLM',
           'coachTransparencyBYOK',

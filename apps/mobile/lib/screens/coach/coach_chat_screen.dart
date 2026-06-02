@@ -413,8 +413,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             // not as a user message.
             _entryPayloadContext = payload.toContextInjection();
           }
-        } else if (!_isResumingConversation) {
+        } else if (!_isResumingConversation && _profile!.hasMaterialData) {
           // No entryPayload + authenticated + fresh conversation:
+          // - Empty / identity-only profiles keep the first-contact opener.
+          //   A weekly recap or cached insight before any material financial
+          //   data is collected feels like invented knowledge and breaks the
+          //   empty-state cascade from « Mon bilan ».
           // - Phase 54-02 T-03 — first try to surface a precomputed
           //   insight (Cleo 3.0 pattern: profile-change-time computation
           //   read instantly at greeting time). If the cache is non-empty
@@ -795,6 +799,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Returns (formattedNumber, headline) or null if no data available.
   ({String number, String headline})? _computeKeyNumber() {
     if (_profile == null) return null;
+    if (!_profile!.hasMaterialData) return null;
     final s = S.of(context)!;
 
     if (BudgetInputs.hasTrustedCharges(_profile!)) {
@@ -2219,7 +2224,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     final keyData = _computeKeyNumber();
-    final packetInsight = _profile == null
+    final hasMaterialProfile = _profile != null && _profile!.hasMaterialData;
+    final packetInsight = !hasMaterialProfile
         ? null
         : CoachPacketInsightPresenter.fromSafeMap(
             CoachContextPacketAdapter.fromProfile(_profile!),

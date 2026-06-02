@@ -28,7 +28,6 @@ def db_session():
     Session = sessionmaker(bind=engine, future=True)
     session = Session()
     # Insert two users so FK constraints (if SQLite enforces them) are satisfied
-    from app.models.user import User
     u1 = User(id="user-julien", email="j@example.com", hashed_password="x")
     u2 = User(id="user-lauren", email="l@example.com", hashed_password="x")
     session.add_all([u1, u2])

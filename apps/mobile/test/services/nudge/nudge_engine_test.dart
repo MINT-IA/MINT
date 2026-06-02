@@ -29,6 +29,7 @@ import 'package:mint_mobile/services/nudge/nudge_trigger.dart';
 /// Create a minimal CoachProfile for testing.
 CoachProfile _makeProfile({
   int birthYear = 1985,
+  DateTime? dateOfBirth,
   DateTime? createdAt,
   String employmentStatus = 'salarie',
   bool independentNoLpp = false,
@@ -36,6 +37,7 @@ CoachProfile _makeProfile({
 }) {
   return CoachProfile(
     birthYear: birthYear,
+    dateOfBirth: dateOfBirth,
     canton: 'VS',
     etatCivil: CoachCivilStatus.celibataire,
     nombreEnfants: 0,
@@ -222,6 +224,50 @@ void main() {
       expect(birthday.isNotEmpty, isTrue,
           reason: 'birthdayMilestone fires at age 50');
       expect(birthday.first.params!['age'], equals('50'));
+    });
+
+    test('dateOfBirth milestone waits for the actual birthday', () {
+      final beforeBirthday = NudgeEngine.evaluate(
+        profile: _makeProfile(
+          birthYear: 2000,
+          dateOfBirth: DateTime(2000, 1, 10),
+        ),
+        now: DateTime(2050, 1, 3),
+        dismissedNudgeIds: [],
+      );
+      expect(
+        beforeBirthday.any((n) => n.trigger == NudgeTrigger.birthdayMilestone),
+        isFalse,
+        reason: 'DOB precision prevents firing before the birthday',
+      );
+
+      final onBirthday = NudgeEngine.evaluate(
+        profile: _makeProfile(
+          birthYear: 2000,
+          dateOfBirth: DateTime(2000, 1, 3),
+        ),
+        now: DateTime(2050, 1, 3),
+        dismissedNudgeIds: [],
+      );
+      expect(
+        onBirthday.any((n) => n.trigger == NudgeTrigger.birthdayMilestone),
+        isTrue,
+        reason: 'DOB precision fires on the milestone birthday',
+      );
+
+      final laterBirthday = NudgeEngine.evaluate(
+        profile: _makeProfile(
+          birthYear: 2000,
+          dateOfBirth: DateTime(2000, 1, 10),
+        ),
+        now: DateTime(2050, 1, 10),
+        dismissedNudgeIds: [],
+      );
+      expect(
+        laterBirthday.any((n) => n.trigger == NudgeTrigger.birthdayMilestone),
+        isTrue,
+        reason: 'DOB precision does not miss birthdays after Jan 7',
+      );
     });
 
     // ── 9. Non-milestone age 42 → no birthdayMilestone ───────

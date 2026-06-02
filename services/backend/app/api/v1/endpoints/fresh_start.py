@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends
@@ -149,7 +149,6 @@ def generate_fresh_start_message(
     Returns dict with message and intent for coach deeplink.
     """
     birth_date = profile_context.get("birth_date")
-    first_employment_year = profile_context.get("first_employment_year")
     pillar_3a_amount = profile_context.get("pillar_3a_capital")
 
     if landmark_type == "birthday":

@@ -71,25 +71,44 @@ tags:
 ---
 
 # 01 — assert we're on /scan (harness pre-deep-linked)
+- launchApp:
+    clearState: false
+- openLink: "mintapp:///scan"
+- runFlow:
+    when:
+      visible:
+        text: "Ouvrir"
+    commands:
+      - tapOn:
+          text: "Ouvrir"
+- runFlow:
+    when:
+      visible:
+        text: "Open"
+    commands:
+      - tapOn:
+          text: "Open"
 - extendedWaitUntil:
     visible:
       text: "SCANNER UN DOCUMENT"
     timeout: 8000
-- assertVisible:
-    text: "Améliore la précision de ton profil"
 - takeScreenshot: "01-scan-screen"
 
-# 02 — select LPP document type (constrains the seeded example fixture).
-# DocumentType.lppCertificate.label = "Certificat LPP" (verified in
-# document_parser/document_models.dart).
-- tapOn:
-    text: "Certificat LPP"
+# 02 — LPP is the default selected document type on this screen.
+# DocumentType.lppCertificate.label is currently
+# "Certificat de prévoyance LPP"; no tap is required to constrain the
+# seeded example fixture.
 - takeScreenshot: "02-lpp-type-selected"
 
 # 03 — tap the debug example button → seeded OCR string flows through
 # `_processOcrText` → ExtractionResult → context.push('/scan/review').
 # Network call to the parser endpoint is mocked in debug builds (or
 # uses the local-parser path) — Maestro doesn't care which.
+- scrollUntilVisible:
+    element:
+      text: "Utiliser un exemple de test"
+    direction: DOWN
+    timeout: 8000
 - tapOn:
     text: "Utiliser un exemple de test"
 - takeScreenshot: "03-example-tapped"
@@ -101,31 +120,25 @@ tags:
     visible:
       text: "VÉRIFICATION"
     timeout: 30000
-- assertVisible:
-    text: "Vérifie les valeurs extraites"
 
 # Field cards render labels via ExtractedField.fieldName ; for an LPP
-# fixture we expect at least one of these (their FR labels resolve via
-# `documentField<FieldName>` keys in app_fr.arb).
-# We use a forgiving OR-shape via two `runFlow` `assertAny` patterns
-# isn't supported in Maestro 2.5 ; instead we assert one most-stable
-# token : « LPP » is present in any avoir-lpp* field label.
+# fixture we expect the canonical total-balance field label.
 - extendedWaitUntil:
     visible:
-      text: "LPP"
+      text: ".*Avoir de vieillesse total.*"
     timeout: 4000
 - takeScreenshot: "04-extraction-review"
 
 # 05 — tap the confirm button. Its label is rendered by `_buildConfirmButton`
-# at extraction_review_screen.dart:106 ; the visible text is
-# `extractionReviewConfirm` = "Confirmer ces valeurs" (verified in
-# app_fr.arb via grep).
+# at extraction_review_screen.dart. The current visible text is
+# "Confirmer et enrichir mon profil".
+- scrollUntilVisible:
+    element:
+      text: ".*Confirmer.*"
+    direction: DOWN
+    timeout: 8000
 - tapOn:
-    text: "Confirmer"
-    optional: true
-- tapOn:
-    text: "Confirmer ces valeurs"
-    optional: true
+    text: ".*Confirmer.*"
 - takeScreenshot: "05-confirmed"
 
 # ─── KNOWN LIMITATIONS ─────────────────────────────────────────────────

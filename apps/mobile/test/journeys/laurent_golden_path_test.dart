@@ -14,7 +14,6 @@
 //  - Error recovery (negative salary — debt scenario)
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
@@ -57,8 +56,7 @@ void main() {
       expect(mapping!.stressType, equals('stress_budget'));
     });
 
-    test('quick_start validation accepts Laurent profile (45, 85000, NE)',
-        () {
+    test('quick_start validation accepts Laurent profile (45, 85000, NE)', () {
       final result = MinimalProfileService.compute(
         age: laurentAge,
         grossSalary: laurentSalary,
@@ -233,7 +231,8 @@ void main() {
       expect(result.grossMonthlySalary, lessThan(0));
     });
 
-    test('PremierEclairageSelector handles negative-salary profile gracefully', () {
+    test('PremierEclairageSelector handles negative-salary profile gracefully',
+        () {
       final profile = MinimalProfileService.compute(
         age: laurentAge,
         grossSalary: -5000,

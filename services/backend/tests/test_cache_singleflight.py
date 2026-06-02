@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import asyncio
 
-import pytest
 
 from app.services.cache.singleflight import AsyncSingleflight
 

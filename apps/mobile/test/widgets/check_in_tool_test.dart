@@ -54,7 +54,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  group('WidgetRenderer record_check_in → addCheckIn persistence (T-05-04)', () {
+  group('WidgetRenderer record_check_in → addCheckIn persistence (T-05-04)',
+      () {
     testWidgets('valid input renders CheckInSummaryCard and persists check-in',
         (tester) async {
       final provider = _providerWithProfile();
@@ -148,7 +149,8 @@ void main() {
       expect(provider.profile!.checkIns, isEmpty);
     });
 
-    testWidgets('missing summary_message returns null — no card, no persistence',
+    testWidgets(
+        'missing summary_message returns null — no card, no persistence',
         (tester) async {
       final provider = _providerWithProfile();
       late Widget? rendered;
@@ -224,16 +226,17 @@ void main() {
               },
             ),
           );
-          return CheckInSummaryCard(
+          return const CheckInSummaryCard(
             summaryMessage: 'Bravo, 700\u00a0CHF vers\u00e9s\u00a0!',
-            versements: const {'3a': 500.0, 'lpp': 200.0},
+            versements: {'3a': 500.0, 'lpp': 200.0},
             month: '2026-03',
           );
         },
       ));
       await tester.pump();
 
-      expect(find.text('Bravo, 700\u00a0CHF vers\u00e9s\u00a0!'), findsOneWidget);
+      expect(
+          find.text('Bravo, 700\u00a0CHF vers\u00e9s\u00a0!'), findsOneWidget);
     });
   });
 }

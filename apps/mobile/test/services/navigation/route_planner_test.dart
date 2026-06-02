@@ -91,6 +91,15 @@ InMemoryScreenRegistry _testRegistry() {
       requiredFields: ['netIncome'],
       fallbackRoute: '/onboarding/quick-start',
     ),
+    ScreenEntry(
+      route: '/rapport',
+      intentTag: 'financial_report',
+      behavior: ScreenBehavior.decisionCanvas,
+      requiredFields: ['salaireBrut', 'age', 'canton'],
+      optionalFields: ['civilStatus', 'avoirLpp', 'epargne3a'],
+      preferFromChat: false,
+      prefillFromProfile: false,
+    ),
     // A — Direct Answer: never opens a screen
     ScreenEntry(
       route: '',
@@ -274,6 +283,14 @@ void main() {
       final decision = planner.plan('budget_overview', confidence: 0.9);
       expect(decision.action, RouteAction.openScreen);
       expect(decision.route, '/budget');
+    });
+
+    test('financial_report stays in conversation from chat', () {
+      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final decision = planner.plan('financial_report', confidence: 0.9);
+      expect(decision.action, RouteAction.conversationOnly);
+      expect(decision.route, isNull);
+      expect(decision.prefill, isNull);
     });
 
     test('disability_gap with salary + employmentStatus → openScreen', () {

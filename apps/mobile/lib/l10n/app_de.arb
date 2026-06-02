@@ -11290,5 +11290,17 @@
   "waitlistUsTaxPersonQuestion": "Bist du US-Staatsbürger·in oder in den USA steuerpflichtig?",
   "waitlistUsTaxPersonTooltip": "MINT ist derzeit nicht auf US-steuerpflichtige Personen in der Schweiz ausgelegt (FATCA- und FBAR-Meldepflichten). Deine Antwort hilft uns, dich an die passende Erfahrung weiterzuleiten.",
   "waitlistUsTaxPersonYes": "Ja",
-  "waitlistUsTaxPersonNo": "Nein"
+  "waitlistUsTaxPersonNo": "Nein",
+  "mentorFabSheetTitle": "MINT Coach",
+  "mentorFabChatTitle": "Mit dem Coach sprechen",
+  "mentorFabChatSubtitle": "Stelle deine Frage zu Schweizer Finanzen",
+  "mentorFabScanTitle": "Dokument scannen",
+  "mentorFabScanSubtitle": "BVG, AHV, Steuern — Profil ergänzen",
+  "mentorFabSimulateTitle": "Szenario simulieren",
+  "mentorFabSimulateSubtitle": "3a, BVG-Einkauf, Hypothek...",
+  "mentorFabProfileTitle": "Profil verfeinern",
+  "mentorFabProfileSubtitle": "Vollständigere Daten, stärkere Projektionen",
+  "reportStatusSerein": "Stabil",
+  "reportStatusARenforcer": "Zu stärken",
+  "reportStatusAlerte": "Warnung"
 }

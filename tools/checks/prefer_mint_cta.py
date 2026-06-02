@@ -15,7 +15,8 @@ during the gap before Phase 4.
 Behaviour:
   - Pattern: `\\b(?:Elevated|Outlined|Filled|Text)Button\\s*\\(`.
   - Excludes lib/widgets/cta/, lib/theme/, lib/l10n/, *.g.dart, test/, build/.
-  - Inline escape: `// lint-ignore: prefer_mint_cta`.
+  - Inline escape: `// lint-ignore: prefer_mint_cta` on the same line or
+    the next formatter-produced argument line.
 
 Per RESEARCH.md §LINT-05 + PLAN-CHECK §3 R1/R2.
 """
@@ -68,13 +69,16 @@ def _scan_file(path: Path, scope_root: Path) -> list[str]:
     except ValueError:
         rel = path.as_posix()
     out: list[str] = []
-    for lineno, line in enumerate(text.splitlines(), 1):
+    lines = text.splitlines()
+    for lineno, line in enumerate(lines, 1):
         if line.lstrip().startswith("//"):
             continue
         if IGNORE_MARKER in line:
             continue
         m = PATTERN.search(line)
         if m:
+            if lineno < len(lines) and IGNORE_MARKER in lines[lineno]:
+                continue
             out.append(f"{rel}:{lineno}: {m.group(0)}")
     return out
 

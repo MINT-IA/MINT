@@ -11,9 +11,8 @@ Mocks the Haiku judge call and verifies:
 """
 from __future__ import annotations
 
-import os
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 

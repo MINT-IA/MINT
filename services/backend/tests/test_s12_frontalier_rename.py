@@ -10,7 +10,6 @@ Locks the contract that :
 """
 from __future__ import annotations
 
-import pytest
 
 
 def test_canonical_name_importable():
