@@ -165,6 +165,10 @@ class _NoRagOrchestrator:
         # regulatory registry tool instead of citing training-data plafonds.
         # Authentication path already wires this via coach_chat.py:88+186.
         # Defense-in-depth couches A+B+C+D per .planning/phases/01.4-coach-runtime-stale-data/01.4-AUDIT.md
+        from app.services.coach.runtime_temporal_gate import (
+            fallback_for_language as _temporal_fallback_for_language,
+            gate as _runtime_temporal_gate,
+        )
         from app.services.rag.guardrails import ComplianceGuardrails
         from app.services.coach.coach_tools import get_llm_tools
 
@@ -312,6 +316,31 @@ class _NoRagOrchestrator:
             )
             if second_text.strip():
                 final_text = second_text
+
+        # CJT-021 — anonymous path must share the authenticated path's
+        # temporal fail-closed invariant: a current-year question must never
+        # return stale timing anchors from a past tax year.
+        _tg_passed, _tg_text = _runtime_temporal_gate(
+            final_text,
+            user_message=question,
+            fallback_text=_temporal_fallback_for_language(language),
+        )
+        if not _tg_passed:
+            try:  # pragma: no cover — telemetry-only
+                import sentry_sdk
+
+                sentry_sdk.add_breadcrumb(
+                    category="coach.temporal_gate.fired",
+                    message="runtime temporal-anchor gate fired",
+                    level="info",
+                    data={
+                        "profile_id_hashed": "anonymous",
+                        "fallback_emitted": True,
+                    },
+                )
+            except Exception:
+                pass
+            final_text = _tg_text
 
         # Compliance filter (banned-term sanitization, accent normalization,
         # disclaimer injection). Same gate as before but applied to the
