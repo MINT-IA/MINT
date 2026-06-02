@@ -360,15 +360,18 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   Widget _buildBudgetSection(BuildContext context, Map<String, dynamic> answers,
       FinancialReport report) {
+    if (budgetSnapshot != null) {
+      return _buildBudgetCardFromPresent(context, budgetSnapshot!.present);
+    }
+
     final budgetProvider = _readBudgetProviderIfAvailable(context);
     final useProviderFallback =
         _shouldUseBudgetProviderFallback(answers, budgetProvider);
     final useAnswerBudget = !useProviderFallback &&
         _answersHaveExplicitBudgetInputs(answers);
-    final canonicalBudget =
-        budgetSnapshot ?? _readMintStateBudgetIfAvailable(context);
-    if (!useProviderFallback && !useAnswerBudget && canonicalBudget != null) {
-      return _buildBudgetCardFromPresent(context, canonicalBudget.present);
+    final persistedBudget = _readMintStateBudgetIfAvailable(context);
+    if (!useProviderFallback && !useAnswerBudget && persistedBudget != null) {
+      return _buildBudgetCardFromPresent(context, persistedBudget.present);
     }
 
     final inputs = useProviderFallback
