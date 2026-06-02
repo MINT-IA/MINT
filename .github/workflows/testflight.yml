@@ -107,10 +107,19 @@ jobs:
         env:
           MATCH_AUTH_B64: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
         run: |
+          set -euo pipefail
+          rm -rf /tmp/test-match
+          trap 'rm -rf /tmp/test-match' EXIT
+
           # GitHub Actions macOS runners have a credential helper that overrides
           # match's Authorization header. Solution: replace it with credential store
           # containing our token, and remove git_basic_authorization from Fastfile
           # so match uses the credential store instead of the header.
+          if [[ -z "${MATCH_AUTH_B64:-}" ]]; then
+            echo "::error::Missing secret MATCH_GIT_BASIC_AUTHORIZATION. Fastlane match cannot clone the certificates repo."
+            exit 1
+          fi
+
           #
           # 1. Replace credential helpers with store
           git config --system credential.helper store 2>/dev/null || sudo git config --system credential.helper store
@@ -118,13 +127,21 @@ jobs:
           # 2. Remove any extraheaders from actions/checkout
           git config --global --unset-all http.https://github.com/.extraheader 2>/dev/null || true
           # 3. Write credentials file
-          TOKEN=$(echo "${MATCH_AUTH_B64}" | base64 -d | cut -d: -f2)
-          echo "https://Julienbatt:${TOKEN}@github.com" > ~/.git-credentials
+          decoded_match_auth="$(printf '%s' "${MATCH_AUTH_B64}" | base64 -d)"
+          TOKEN="${decoded_match_auth#*:}"
+          if [[ "${TOKEN}" = "${decoded_match_auth}" || -z "${TOKEN}" ]]; then
+            echo "::error::MATCH_GIT_BASIC_AUTHORIZATION must be base64-encoded as username:token."
+            exit 1
+          fi
+          printf 'https://Julienbatt:%s@github.com\n' "${TOKEN}" > ~/.git-credentials
           chmod 600 ~/.git-credentials
           # 4. Verify
-          echo "Testing clone..."
-          git clone https://github.com/Julienbatt/mint-certificates.git /tmp/test-match --depth 1 2>&1 && echo "✓ Clone works" || echo "✗ Clone FAILED"
-          rm -rf /tmp/test-match
+          echo "Testing certificates repo clone..."
+          if ! git clone https://github.com/Julienbatt/mint-certificates.git /tmp/test-match --depth 1 2>&1; then
+            echo "::error::Certificates repo clone failed. Rotate MATCH_GIT_BASIC_AUTHORIZATION with read access to Julienbatt/mint-certificates."
+            exit 1
+          fi
+          echo "Certificates repo clone preflight OK"
 
       # ── Xcode / iOS SDK setup (App Store requirement) ──
       - name: Setup latest stable Xcode
