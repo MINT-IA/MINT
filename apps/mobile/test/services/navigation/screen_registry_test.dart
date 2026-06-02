@@ -190,12 +190,12 @@ void main() {
       expect(entry.preferFromChat, isTrue);
     });
 
-    test('financial_report keeps persisted report answers as route source', () {
+    test('financial_report is kept as explicit recap, not chat-routable', () {
       final entry = MintScreenRegistry.findByIntentStatic('financial_report');
       expect(entry, isNotNull);
       expect(entry!.route, equals('/rapport'));
       expect(entry.behavior, equals(ScreenBehavior.decisionCanvas));
-      expect(entry.preferFromChat, isTrue);
+      expect(entry.preferFromChat, isFalse);
       expect(entry.prefillFromProfile, isFalse);
     });
 
@@ -368,6 +368,7 @@ void main() {
       expect(routeSet, isNot(contains('coach_weekly_recap')));
       expect(routeSet, isNot(contains('open_banking_transactions')));
       expect(routeSet, isNot(contains('open_banking_consents')));
+      expect(routeSet, isNot(contains('financial_report')));
     });
 
     test('key B surfaces are routable from chat', () {

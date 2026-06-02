@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -39,39 +40,32 @@ class _CoachQuickSheet extends StatelessWidget {
 
   final int currentTabIndex;
 
-  List<_CoachAction> _actionsForTab() {
-    const chat = _CoachAction(
+  List<_CoachAction> _actionsForTab(S l) {
+    final chat = _CoachAction(
       icon: Icons.chat_bubble_outline,
-      title: 'Parler au Coach',
-      subtitle: 'Pose ta question finance suisse',
+      title: l.mentorFabChatTitle,
+      subtitle: l.mentorFabChatSubtitle,
       color: MintColors.coachAccent,
       route: '/coach/chat',
     );
-    const scan = _CoachAction(
+    final scan = _CoachAction(
       icon: Icons.document_scanner_outlined,
-      title: 'Scanner un document',
-      subtitle: 'LPP, AVS, fiscal — enrichis ton profil',
+      title: l.mentorFabScanTitle,
+      subtitle: l.mentorFabScanSubtitle,
       color: MintColors.primary,
       route: '/scan',
     );
-    const simuler = _CoachAction(
+    final simuler = _CoachAction(
       icon: Icons.calculate_outlined,
-      title: 'Simuler un scénario',
-      subtitle: '3a, rachat LPP, hypothèque...',
+      title: l.mentorFabSimulateTitle,
+      subtitle: l.mentorFabSimulateSubtitle,
       color: MintColors.warning,
       route: '/tools',
     );
-    const rapport = _CoachAction(
-      icon: Icons.assessment_outlined,
-      title: 'Mon bilan financier',
-      subtitle: 'Rapport complet de ta situation',
-      color: MintColors.success,
-      route: '/rapport',
-    );
-    const enrichir = _CoachAction(
+    final enrichir = _CoachAction(
       icon: Icons.tune_outlined,
-      title: 'Affiner mon profil',
-      subtitle: 'Données complètes, projections plus solides',
+      title: l.mentorFabProfileTitle,
+      subtitle: l.mentorFabProfileSubtitle,
       color: MintColors.primary,
       route: '/profile/bilan',
     );
@@ -80,8 +74,8 @@ class _CoachQuickSheet extends StatelessWidget {
       case 0: // Pulse — chat first, then scan to enrich, then simulate
         return [chat, scan, simuler];
       // case 1: Mint tab — FAB is hidden, no actions needed
-      case 2: // Moi — enrich first, then scan, then report
-        return [enrichir, scan, rapport];
+      case 2: // Coach — enrich first, then scan, then simulate
+        return [enrichir, scan, simuler];
       default:
         return [chat, scan, simuler];
     }
@@ -89,7 +83,8 @@ class _CoachQuickSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final actions = _actionsForTab();
+    final l = S.of(context)!;
+    final actions = _actionsForTab(l);
     return Container(
       decoration: const BoxDecoration(
         color: MintColors.white,
@@ -130,13 +125,16 @@ class _CoachQuickSheet extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Coach MINT',
-                      style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17),
+                      l.mentorFabSheetTitle,
+                      style: MintTextStyles.titleMedium(
+                              color: MintColors.textPrimary)
+                          .copyWith(fontSize: 17),
                     ),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.close, size: 20, color: MintColors.textMuted),
+                    child: const Icon(Icons.close,
+                        size: 20, color: MintColors.textMuted),
                   ),
                 ],
               ),
@@ -144,9 +142,9 @@ class _CoachQuickSheet extends StatelessWidget {
 
               // Actions — 3 compact tiles
               ...actions.map((a) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: _buildActionTile(context, action: a),
-              )),
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: _buildActionTile(context, action: a),
+                  )),
             ],
           ),
         ),
@@ -154,7 +152,8 @@ class _CoachQuickSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildActionTile(BuildContext context, {required _CoachAction action}) {
+  Widget _buildActionTile(BuildContext context,
+      {required _CoachAction action}) {
     return Material(
       color: MintColors.transparent,
       child: InkWell(
@@ -187,17 +186,22 @@ class _CoachQuickSheet extends StatelessWidget {
                   children: [
                     Text(
                       action.title,
-                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                      style: MintTextStyles.bodyMedium(
+                              color: MintColors.textPrimary)
+                          .copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       action.subtitle,
-                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                      style: MintTextStyles.bodySmall(
+                              color: MintColors.textSecondary)
+                          .copyWith(fontSize: 12),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, size: 14, color: action.color.withValues(alpha: 0.5)),
+              Icon(Icons.arrow_forward_ios,
+                  size: 14, color: action.color.withValues(alpha: 0.5)),
             ],
           ),
         ),

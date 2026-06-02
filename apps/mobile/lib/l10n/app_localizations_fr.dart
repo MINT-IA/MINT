@@ -23536,4 +23536,32 @@ class SFr extends S {
 
   @override
   String get waitlistUsTaxPersonNo => 'Non';
+
+  @override
+  String get mentorFabSheetTitle => 'Coach MINT';
+
+  @override
+  String get mentorFabChatTitle => 'Parler au Coach';
+
+  @override
+  String get mentorFabChatSubtitle => 'Pose ta question finance suisse';
+
+  @override
+  String get mentorFabScanTitle => 'Scanner un document';
+
+  @override
+  String get mentorFabScanSubtitle => 'LPP, AVS, fiscal — enrichis ton profil';
+
+  @override
+  String get mentorFabSimulateTitle => 'Simuler un scénario';
+
+  @override
+  String get mentorFabSimulateSubtitle => '3a, rachat LPP, hypothèque...';
+
+  @override
+  String get mentorFabProfileTitle => 'Affiner mon profil';
+
+  @override
+  String get mentorFabProfileSubtitle =>
+      'Données complètes, projections plus solides';
 }

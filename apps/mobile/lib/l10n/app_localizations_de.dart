@@ -23595,4 +23595,33 @@ class SDe extends S {
 
   @override
   String get waitlistUsTaxPersonNo => 'Nein';
+
+  @override
+  String get mentorFabSheetTitle => 'MINT Coach';
+
+  @override
+  String get mentorFabChatTitle => 'Mit dem Coach sprechen';
+
+  @override
+  String get mentorFabChatSubtitle =>
+      'Stelle deine Frage zu Schweizer Finanzen';
+
+  @override
+  String get mentorFabScanTitle => 'Dokument scannen';
+
+  @override
+  String get mentorFabScanSubtitle => 'BVG, AHV, Steuern — Profil ergänzen';
+
+  @override
+  String get mentorFabSimulateTitle => 'Szenario simulieren';
+
+  @override
+  String get mentorFabSimulateSubtitle => '3a, BVG-Einkauf, Hypothek...';
+
+  @override
+  String get mentorFabProfileTitle => 'Profil verfeinern';
+
+  @override
+  String get mentorFabProfileSubtitle =>
+      'Vollständigere Daten, stärkere Projektionen';
 }

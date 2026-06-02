@@ -23599,4 +23599,33 @@ class SIt extends S {
 
   @override
   String get waitlistUsTaxPersonNo => 'Non';
+
+  @override
+  String get mentorFabSheetTitle => 'Coach MINT';
+
+  @override
+  String get mentorFabChatTitle => 'Parla con il Coach';
+
+  @override
+  String get mentorFabChatSubtitle =>
+      'Fai la tua domanda sulla finanza svizzera';
+
+  @override
+  String get mentorFabScanTitle => 'Scansiona un documento';
+
+  @override
+  String get mentorFabScanSubtitle =>
+      'LPP, AVS, fiscalità — arricchisci il profilo';
+
+  @override
+  String get mentorFabSimulateTitle => 'Simula uno scenario';
+
+  @override
+  String get mentorFabSimulateSubtitle => '3a, riscatto LPP, ipoteca...';
+
+  @override
+  String get mentorFabProfileTitle => 'Affina il mio profilo';
+
+  @override
+  String get mentorFabProfileSubtitle => 'Dati completi, proiezioni più solide';
 }

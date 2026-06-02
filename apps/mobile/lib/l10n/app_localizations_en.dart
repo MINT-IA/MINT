@@ -23423,4 +23423,31 @@ class SEn extends S {
 
   @override
   String get waitlistUsTaxPersonNo => 'No';
+
+  @override
+  String get mentorFabSheetTitle => 'MINT Coach';
+
+  @override
+  String get mentorFabChatTitle => 'Talk to the Coach';
+
+  @override
+  String get mentorFabChatSubtitle => 'Ask your Swiss finance question';
+
+  @override
+  String get mentorFabScanTitle => 'Scan a document';
+
+  @override
+  String get mentorFabScanSubtitle => 'LPP, AVS, tax — enrich your profile';
+
+  @override
+  String get mentorFabSimulateTitle => 'Simulate a scenario';
+
+  @override
+  String get mentorFabSimulateSubtitle => '3a, LPP buyback, mortgage...';
+
+  @override
+  String get mentorFabProfileTitle => 'Refine my profile';
+
+  @override
+  String get mentorFabProfileSubtitle => 'Complete data, stronger projections';
 }

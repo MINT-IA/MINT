@@ -795,7 +795,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['civilStatus', 'avoirLpp', 'epargne3a'],
-    preferFromChat: true,
+    preferFromChat: false,
     prefillFromProfile: false,
   );
 

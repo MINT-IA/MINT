@@ -575,7 +575,7 @@
     {
       "intent": "financial_report",
       "route": "/rapport",
-      "preferFromChat": true
+      "preferFromChat": false
     },
     {
       "intent": "retirement_choice",

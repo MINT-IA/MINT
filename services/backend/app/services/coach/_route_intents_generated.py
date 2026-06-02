@@ -58,7 +58,6 @@ GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS: frozenset[str] = frozenset({
     'explore_hub_sante',
     'explore_hub_travail',
     'financial_cockpit',
-    'financial_report',
     'financial_summary',
     'gender_gap',
     'household_accept_invite',

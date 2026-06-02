@@ -23546,4 +23546,34 @@ class SPt extends S {
 
   @override
   String get waitlistUsTaxPersonNo => 'Non';
+
+  @override
+  String get mentorFabSheetTitle => 'Coach MINT';
+
+  @override
+  String get mentorFabChatTitle => 'Falar com o Coach';
+
+  @override
+  String get mentorFabChatSubtitle =>
+      'Faz a tua pergunta sobre finanças suíças';
+
+  @override
+  String get mentorFabScanTitle => 'Digitalizar um documento';
+
+  @override
+  String get mentorFabScanSubtitle =>
+      'LPP, AVS, fiscalidade — completa o perfil';
+
+  @override
+  String get mentorFabSimulateTitle => 'Simular um cenário';
+
+  @override
+  String get mentorFabSimulateSubtitle => '3a, resgate LPP, hipoteca...';
+
+  @override
+  String get mentorFabProfileTitle => 'Afinar o meu perfil';
+
+  @override
+  String get mentorFabProfileSubtitle =>
+      'Dados completos, projeções mais sólidas';
 }
