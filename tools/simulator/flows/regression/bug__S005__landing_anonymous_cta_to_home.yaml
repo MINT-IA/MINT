@@ -134,12 +134,22 @@ tags:
     when:
       visible: "Quelle est ta date de naissance ?"
     commands:
+      - extendedWaitUntil:
+          visible:
+            text: "Choisir ma date"
+          timeout: 5000
+      - tapOn: "Choisir ma date"
+      - extendedWaitUntil:
+          visible:
+            text: "OK"
+          timeout: 5000
       - tapOn:
-          text: "Choisir ma date"
-      - tapOn:
-          point: "48%,44%"
-      - tapOn:
-          point: "85%,82%"
+          text: ".*15.*juillet.*1992.*"
+      - tapOn: "OK"
+      - extendedWaitUntil:
+          visible:
+            text: "15.07.1992"
+          timeout: 5000
       - tapOn:
           text: "Continuer"
       - waitForAnimationToEnd
