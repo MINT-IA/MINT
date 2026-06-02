@@ -37,7 +37,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
       isScrollControlled: true,
       isDismissible: false,
       enableDrag: false,
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -104,7 +104,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
               key: const Key('thirdPartyDeclarationConfirm'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: MintColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: MintColors.background,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
