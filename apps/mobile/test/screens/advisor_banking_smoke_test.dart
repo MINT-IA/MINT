@@ -104,7 +104,7 @@ void main() {
       expect(find.byType(Scaffold), findsOneWidget);
     });
 
-    testWidgets('shows app bar with plan title', (tester) async {
+    testWidgets('shows app bar with flash synthesis title', (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -116,10 +116,10 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Ton Plan Mint'), findsOneWidget);
+      expect(find.text('Ton Bilan Flash'), findsWidgets);
     });
 
-    testWidgets('displays health score header', (tester) async {
+    testWidgets('displays synthesis header', (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -131,12 +131,13 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Bonjour'), findsOneWidget);
-      // The header now shows a contextual status phrase (replaces numeric score)
+      expect(find.textContaining('Bonjour'), findsNothing);
+      expect(find.textContaining('Ton Bilan Flash'), findsWidgets);
       expect(find.textContaining('base'), findsWidgets);
     });
 
-    testWidgets('displays circle diagnosis section', (tester) async {
+    testWidgets('renders synthesis instead of duplicated budget dashboard',
+        (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -148,11 +149,36 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Thematic cards replaced circles — check for a thematic card title
-      expect(find.textContaining('Ton Budget'), findsOneWidget);
+      expect(find.textContaining('Ton Bilan Flash'), findsWidgets);
+      expect(find.textContaining('Ton Budget'), findsNothing);
+      expect(find.textContaining('constants_version'), findsNothing);
+      expect(find.textContaining('lpp_conversion_rate'), findsNothing);
+      expect(find.textContaining('avs_max_monthly'), findsNothing);
+      expect(find.textContaining('pillar3a_max'), findsNothing);
     });
 
-    testWidgets('budget card rejects implausible captured monthly amounts',
+    testWidgets('keeps duplicated money sections out of rapport',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: testAnswersV2),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final synthesis = find.textContaining('Ton Bilan Flash').first;
+      final cta = find.text('Commencer');
+      expect(find.textContaining('Tes 3 Actions Prioritaires'), findsNothing);
+      expect(synthesis, findsOneWidget);
+      expect(cta, findsOneWidget);
+      expect(find.textContaining('Ton Budget'), findsNothing);
+    });
+
+    testWidgets('rapport does not surface implausible captured budget amounts',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
@@ -172,11 +198,10 @@ void main() {
 
       expect(find.textContaining("19'272'200"), findsNothing);
       expect(find.textContaining("420'420"), findsNothing);
-      expect(find.textContaining("5'379"), findsWidgets);
+      expect(find.textContaining("5'379"), findsNothing);
     });
 
-    testWidgets(
-        'budget card falls back to legacy monthly income when period income is omitted',
+    testWidgets('rapport leaves legacy budget income details to money screens',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
@@ -199,15 +224,16 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Ton Budget'), findsOneWidget);
-      expect(find.textContaining('Charges fixes totales'), findsOneWidget);
-      expect(find.textContaining("5'000"), findsWidgets);
-      expect(find.textContaining("3'078"), findsWidgets);
-      expect(find.textContaining("1'922"), findsWidgets);
+      expect(find.textContaining('Ton Bilan Flash'), findsWidgets);
+      expect(find.textContaining('Ton Budget'), findsNothing);
+      expect(find.textContaining('Charges fixes totales'), findsNothing);
+      expect(find.textContaining("5'000"), findsNothing);
+      expect(find.textContaining("3'078"), findsNothing);
+      expect(find.textContaining("1'922"), findsNothing);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('budget card reuses BudgetProvider when report answers partial',
+    testWidgets('rapport accepts BudgetProvider fallback without rendering it',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
@@ -242,17 +268,18 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Ton Budget'), findsOneWidget);
-      expect(find.textContaining('Charges fixes totales'), findsOneWidget);
-      expect(find.textContaining("5'000"), findsWidgets);
-      expect(find.textContaining("3'078"), findsWidgets);
-      expect(find.textContaining("1'922"), findsWidgets);
+      expect(find.textContaining('Ton Bilan Flash'), findsWidgets);
+      expect(find.textContaining('Ton Budget'), findsNothing);
+      expect(find.textContaining('Charges fixes totales'), findsNothing);
+      expect(find.textContaining("5'000"), findsNothing);
+      expect(find.textContaining("3'078"), findsNothing);
+      expect(find.textContaining("1'922"), findsNothing);
       expect(find.textContaining("3'267"), findsNothing);
       expect(find.textContaining("1'733"), findsNothing);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('budget card can render canonical BudgetSnapshot',
+    testWidgets('rapport accepts canonical BudgetSnapshot without rendering it',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
@@ -285,15 +312,17 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Ton Budget'), findsOneWidget);
-      expect(find.textContaining('Charges fixes totales'), findsOneWidget);
-      expect(find.textContaining("5'000"), findsWidgets);
-      expect(find.textContaining("3'078"), findsWidgets);
-      expect(find.textContaining("1'922"), findsWidgets);
+      expect(find.textContaining('Ton Bilan Flash'), findsWidgets);
+      expect(find.textContaining('Ton Budget'), findsNothing);
+      expect(find.textContaining('Charges fixes totales'), findsNothing);
+      expect(find.textContaining("5'000"), findsNothing);
+      expect(find.textContaining("3'078"), findsNothing);
+      expect(find.textContaining("1'922"), findsNothing);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('budget card preserves signed monthly deficit', (tester) async {
+    testWidgets('rapport keeps signed monthly deficit out of recap',
+        (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -313,8 +342,8 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('Ton Budget'), findsOneWidget);
-      expect(find.textContaining("CHF\u00a0-520"), findsWidgets);
+      expect(find.textContaining('Ton Budget'), findsNothing);
+      expect(find.textContaining("CHF\u00a0-520"), findsNothing);
       expect(find.textContaining("CHF\u00a00"), findsNothing);
       expect(tester.takeException(), isNull);
     });
@@ -389,7 +418,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('retirement 3a card uses profile-grounded deductible room',
+    testWidgets('rapport leaves detailed 3a deductible room to 3a screens',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);
       tester.view.devicePixelRatio = 1.0;
@@ -408,7 +437,8 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining("CHF 7'258/an"), findsOneWidget);
+      expect(find.textContaining('Ton Bilan Flash'), findsWidgets);
+      expect(find.textContaining("CHF 7'258/an"), findsNothing);
       expect(find.textContaining("jusqu'à CHF 7"), findsNothing);
       expect(tester.takeException(), isNull);
     });

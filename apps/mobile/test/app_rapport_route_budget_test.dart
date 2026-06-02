@@ -173,11 +173,12 @@ void main() {
     await tester.pump();
     await _pumpFrames(tester, frames: 20);
 
-    expect(find.textContaining('Ton Budget'), findsOneWidget);
-    expect(find.textContaining('Charges fixes totales'), findsOneWidget);
-    expect(find.textContaining("5'000"), findsWidgets);
-    expect(find.textContaining("3'078"), findsWidgets);
-    expect(find.textContaining("1'922"), findsWidgets);
+    expect(find.textContaining('Ton Bilan Flash'), findsWidgets);
+    expect(find.textContaining('Ton Budget'), findsNothing);
+    expect(find.textContaining('Charges fixes totales'), findsNothing);
+    expect(find.textContaining("5'000"), findsNothing);
+    expect(find.textContaining("3'078"), findsNothing);
+    expect(find.textContaining("1'922"), findsNothing);
     expect(find.textContaining('Logement'), findsNothing);
     expect(find.textContaining('Primes LAMal'), findsNothing);
     expect(tester.takeException(), isNull);
@@ -290,7 +291,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('/rapport uses budget provider when wizard answers are empty',
+  testWidgets('/rapport accepts budget provider when wizard answers are empty',
       (tester) async {
     final budgetProvider = BudgetProvider();
     await budgetProvider.setInputs(
@@ -325,10 +326,11 @@ void main() {
     await tester.pump();
     await _pumpFrames(tester, frames: 20);
 
-    expect(find.textContaining('Ton Budget'), findsOneWidget);
-    expect(find.textContaining("3'352"), findsWidgets);
-    expect(find.textContaining("7'410"), findsWidgets);
-    expect(find.textContaining("3'470"), findsWidgets);
+    expect(find.textContaining('Ton Bilan Flash'), findsWidgets);
+    expect(find.textContaining('Ton Budget'), findsNothing);
+    expect(find.textContaining("3'352"), findsNothing);
+    expect(find.textContaining("7'410"), findsNothing);
+    expect(find.textContaining("3'470"), findsNothing);
     expect(find.textContaining('Logement'), findsNothing);
     expect(find.textContaining('Primes LAMal'), findsNothing);
     expect(find.textContaining('Configurer mes enveloppes'), findsNothing);
@@ -336,7 +338,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('/rapport prefers fresh budget inputs over stale MintState',
+  testWidgets('/rapport does not render fresh or stale budget figures',
       (tester) async {
     final budgetProvider = BudgetProvider();
     await budgetProvider.setInputs(
@@ -379,15 +381,17 @@ void main() {
     await tester.pump();
     await _pumpFrames(tester, frames: 20);
 
-    expect(find.textContaining('Ton Budget'), findsOneWidget);
-    expect(find.textContaining("3'352"), findsWidgets);
-    expect(find.textContaining("3'470"), findsWidgets);
+    expect(find.textContaining('Ton Bilan Flash'), findsWidgets);
+    expect(find.textContaining('Ton Budget'), findsNothing);
+    expect(find.textContaining("3'352"), findsNothing);
+    expect(find.textContaining("3'470"), findsNothing);
     expect(find.textContaining("4'410"), findsNothing);
     expect(find.textContaining("3'000"), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('/rapport prefers explicit wizard budget over stale MintState',
+  testWidgets(
+      '/rapport keeps explicit wizard budget out of stale fallback view',
       (tester) async {
     final mintStateProvider = MintStateProvider()
       ..injectStateForTest(_stateWithStaleBudgetSnapshot());
@@ -424,8 +428,9 @@ void main() {
     await tester.pump();
     await _pumpFrames(tester, frames: 20);
 
-    expect(find.textContaining('Ton Budget'), findsOneWidget);
-    expect(find.textContaining("3'470"), findsWidgets);
+    expect(find.textContaining('Ton Bilan Flash'), findsWidgets);
+    expect(find.textContaining('Ton Budget'), findsNothing);
+    expect(find.textContaining("3'470"), findsNothing);
     expect(find.textContaining("4'410"), findsNothing);
     expect(find.textContaining("3'000"), findsNothing);
     expect(find.textContaining('Logement'), findsNothing);

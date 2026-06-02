@@ -133,13 +133,10 @@ tags:
 
 - openLink: "mintapp:///rapport"
 - extendedWaitUntil:
-    visible: "Ton Plan Mint"
+    visible: "Ton Bilan Flash"
     timeout: 12000
-- assertVisible: "Ton Budget"
-- assertVisible:
-    text: ".*3'940.*"
-- assertVisible:
-    text: ".*3'470.*"
+- assertVisible: "Commencer"
+- assertNotVisible: "Ton Budget"
 - assertNotVisible: "Logement"
 - assertNotVisible: "Primes LAMal"
 - assertNotVisible: "19'272'200"
@@ -148,9 +145,14 @@ tags:
 - assertNotVisible: "420k"
 - assertNotVisible: "NaN"
 - assertNotVisible: "Infinity"
+- assertNotVisible: "constants_version"
+- assertNotVisible: "lpp_conversion_rate"
+- assertNotVisible: "avs_max_monthly"
+- assertNotVisible: "pillar3a_max"
 - assertNotVisible: "A RenderFlex overflowed"
 - assertNotVisible: "Exception caught"
 - assertNotVisible: "NoSuchMethodError"
+- takeScreenshot: "money-trust-chain-rapport-synthesis"
 
 - openLink: "mintapp:///coach/chat"
 - extendedWaitUntil:
