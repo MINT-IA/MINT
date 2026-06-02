@@ -121,6 +121,21 @@ class ContextInjectorService {
   /// Maximum relevant screens listed in the memory block.
   static const int _maxScreensInContext = 5;
 
+  static const Map<String, String> _lifecycleScreenIntentAliases = {
+    'pillar_3a_intro': 'simulator_3a',
+    'lpp_deep': 'lpp_buyback',
+    'rente_vs_capital': 'retirement_choice',
+    'tax_optimizer': 'tax_optimization_3a',
+    'housing_simulator': 'housing_purchase',
+    'patrimoine_overview': 'succession_patrimoine',
+    'insurance_coverage': 'coverage_check',
+    'retirement_budget': 'budget_overview',
+    'lamal_optimizer': 'lamal_franchise',
+    'estate_planning': 'succession_patrimoine',
+    'succession': 'succession_patrimoine',
+    'donation_simulator': 'life_event_donation',
+  };
+
   /// Build the full enriched context from all sources.
   ///
   /// [profile] — user profile (null if not onboarded).
@@ -577,26 +592,23 @@ class ContextInjectorService {
 
     final screens = <ScreenEntry>[];
     for (final tag in relevantIntentTags) {
-      final entry = MintScreenRegistry.findByIntentStatic(tag);
+      final entry = _findLifecycleScreen(tag);
       if (entry != null && entry.preferFromChat) {
         screens.add(entry);
       }
       if (screens.length >= _maxScreensInContext) break;
     }
 
-    // If the phase adaptation lists fewer than _maxScreensInContext, fill from
-    // the full chat-routable list filtered to decisionCanvas behavior.
-    if (screens.length < _maxScreensInContext) {
-      for (final entry in MintScreenRegistry.entries) {
-        if (!entry.preferFromChat) continue;
-        if (entry.behavior != ScreenBehavior.decisionCanvas) continue;
-        if (screens.any((e) => e.intentTag == entry.intentTag)) continue;
-        screens.add(entry);
-        if (screens.length >= _maxScreensInContext) break;
-      }
-    }
-
     return screens;
+  }
+
+  static ScreenEntry? _findLifecycleScreen(String intentTag) {
+    final direct = MintScreenRegistry.findByIntentStatic(intentTag);
+    if (direct != null) return direct;
+
+    final alias = _lifecycleScreenIntentAliases[intentTag];
+    if (alias == null) return null;
+    return MintScreenRegistry.findByIntentStatic(alias);
   }
 
   static String _buildScreensBlock(List<ScreenEntry> screens) {

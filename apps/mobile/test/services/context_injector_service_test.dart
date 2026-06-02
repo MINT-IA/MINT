@@ -449,6 +449,25 @@ void main() {
       expect(ctx.relevantScreens.length, lessThanOrEqualTo(5));
     });
 
+    test('relevantScreens stay phase-specific when lifecycle tags drift',
+        () async {
+      final elder = makeProfile(birthYear: 1940, canton: 'VS');
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+
+      final ctx = await ContextInjectorService.buildContext(
+        profile: elder,
+        prefs: prefs,
+        now: now,
+      );
+
+      final intentTags = ctx.relevantScreens.map((e) => e.intentTag).toList();
+      expect(intentTags, contains('succession_patrimoine'));
+      expect(intentTags, contains('life_event_donation'));
+      expect(intentTags, isNot(contains('retirement_choice')));
+      expect(intentTags, isNot(contains('retirement_projection')));
+    });
+
     // ════════════════════════════════════════════════════════════
     //  TEST 12: SURFACES PERTINENTES block present in memoryBlock
     // ════════════════════════════════════════════════════════════
