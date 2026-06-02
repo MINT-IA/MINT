@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 enum ThirdPartyDeclarationChoice { confirmed, cancelled }
 
@@ -70,12 +71,8 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
           children: [
             Text(
               l.thirdPartyDeclarationTitle,
-              style: const TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: MintColors.textPrimary,
-              ),
+              style:
+                  MintTextStyles.headlineSmall(color: MintColors.textPrimary),
             ),
             const SizedBox(height: 12),
             Text(
@@ -83,21 +80,17 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                   ? l.thirdPartyDeclarationMultipleBody(names)
                   : l.thirdPartyDeclarationBody(names),
               style: const TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 15,
                 color: MintColors.textSecondary,
                 height: 1.45,
-              ),
+              ).merge(MintTextStyles.labelLarge()),
             ),
             const SizedBox(height: 8),
             Text(
               l.thirdPartyDeclarationNoticeLink,
               style: const TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 13,
                 color: MintColors.textSecondary,
                 fontStyle: FontStyle.italic,
-              ),
+              ).merge(MintTextStyles.bodySmall()),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -114,11 +107,8 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                   .pop(ThirdPartyDeclarationChoice.confirmed),
               child: Text(
                 l.thirdPartyDeclarationConfirm,
-                style: const TextStyle(
-                  fontFamily: 'Supreme',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: MintTextStyles.labelLarge()
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
             ),
             const SizedBox(height: 8),
@@ -128,9 +118,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                   .pop(ThirdPartyDeclarationChoice.cancelled),
               child: Text(
                 l.thirdPartyDeclarationCancel,
-                style: const TextStyle(
-                  fontFamily: 'Supreme',
-                  fontSize: 14,
+                style: MintTextStyles.bodyMedium(
                   color: MintColors.textSecondary,
                 ),
               ),
@@ -152,7 +140,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
                 l.thirdPartyInviteCta(
                   subjectNames.isNotEmpty ? subjectNames.first : '',
                 ),
-                style: const TextStyle(fontFamily: 'Supreme', fontSize: 13),
+                style: MintTextStyles.bodySmall(),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: MintColors.primary,

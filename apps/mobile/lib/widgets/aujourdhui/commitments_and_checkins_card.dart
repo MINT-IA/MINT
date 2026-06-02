@@ -30,6 +30,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/commitment_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class CommitmentsAndCheckinsCard extends StatefulWidget {
   const CommitmentsAndCheckinsCard({
@@ -234,12 +235,9 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: const TextStyle(
-        fontFamily: 'Supreme',
-        fontSize: 13,
+      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
         fontWeight: FontWeight.w600,
         letterSpacing: 0.6,
-        color: MintColors.textPrimary,
       ),
     );
   }
@@ -277,10 +275,7 @@ class _ItemRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   text,
-                  style: const TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
+                  style: MintTextStyles.bodyMedium(
                     color: MintColors.textPrimary,
                   ),
                   maxLines: 2,
@@ -291,12 +286,9 @@ class _ItemRow extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   relativeTime,
-                  style: const TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
+                  style: MintTextStyles.labelSmall(
                     color: MintColors.textMutedAaa,
-                  ),
+                  ).copyWith(fontWeight: FontWeight.w400),
                 ),
               ],
             ],

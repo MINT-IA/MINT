@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class DossierStrip extends StatefulWidget {
   const DossierStrip({super.key});
@@ -56,26 +57,22 @@ class _DossierStripState extends State<DossierStrip> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'TON DOSSIER',
-            style: TextStyle(
-              fontFamily: 'Supreme',
-              fontSize: 10.5,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.corailDiscret,
+            ).copyWith(
               fontWeight: FontWeight.w600,
               letterSpacing: 1.2,
-              color: MintColors.corailDiscret,
             ),
           ),
           const SizedBox(height: 8),
           if (entries.isEmpty)
-            const Text(
+            Text(
               'Il se remplit tour par tour.',
-              style: TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 13,
+              style: MintTextStyles.bodySmall(
                 color: MintColors.textSecondary,
-                fontStyle: FontStyle.italic,
-              ),
+              ).copyWith(fontStyle: FontStyle.italic),
             )
           else
             ConstrainedBox(
@@ -160,12 +157,9 @@ class _DossierLineState extends State<_DossierLine>
               flex: 4,
               child: Text(
                 widget.entry.label,
-                style: const TextStyle(
-                  fontFamily: 'Supreme',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
+                style: MintTextStyles.bodySmall(
                   color: MintColors.textSecondary,
-                ),
+                ).copyWith(fontWeight: FontWeight.w400),
               ),
             ),
             Expanded(
@@ -175,10 +169,7 @@ class _DossierLineState extends State<_DossierLine>
                 textAlign: TextAlign.right,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontFamily: 'Supreme',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
+                style: MintTextStyles.labelLarge(
                   color: MintColors.textPrimary,
                 ),
               ),

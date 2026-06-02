@@ -1304,7 +1304,6 @@ class _ActionCard extends StatelessWidget {
                           style: MintTextStyles.bodySmall(
                             color: MintColors.success,
                           ).copyWith(
-                            fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
                         ),

@@ -27,6 +27,7 @@ import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/us_tax_person_sc
 import 'package:mint_mobile/screens/waitlist/waitlist_args.dart';
 import 'package:mint_mobile/services/profile_migration_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class OnboardingShellScreen extends StatelessWidget {
   const OnboardingShellScreen({super.key});
@@ -193,12 +194,8 @@ class _NationalityStep extends StatelessWidget {
             header: true,
             child: Text(
               l.nationalityPrompt,
-              style: const TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
+              style: MintTextStyles.headlineMedium(
                 color: MintColors.textPrimary,
-                height: 1.25,
               ),
             ),
           ),
@@ -229,12 +226,9 @@ class _NationalityStep extends StatelessWidget {
                         ),
                         child: Text(
                           label,
-                          style: const TextStyle(
-                            fontFamily: 'Supreme',
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                          style: MintTextStyles.labelLarge(
                             color: MintColors.textPrimary,
-                          ),
+                          ).copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -269,12 +263,8 @@ class _StepScaffold extends StatelessWidget {
         children: [
           Text(
             prompt,
-            style: const TextStyle(
-              fontFamily: 'Supreme',
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
+            style: MintTextStyles.headlineMedium(
               color: MintColors.textPrimary,
-              height: 1.25,
             ),
           ),
           const SizedBox(height: 32),
@@ -311,12 +301,8 @@ class _PrimaryButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: const TextStyle(
-            fontFamily: 'Supreme',
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: MintColors.white,
-          ),
+          style: MintTextStyles.labelLarge(color: MintColors.white)
+              .copyWith(fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -338,16 +324,11 @@ class _EntryStep extends StatelessWidget {
       child: Column(
         children: [
           const Spacer(),
-          const Text(
+          Text(
             'Il est temps que tu comprennes.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: 'Supreme',
-              fontSize: 28,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-              height: 1.25,
-            ),
+            style: MintTextStyles.displaySmall(color: MintColors.textPrimary)
+                .copyWith(fontWeight: FontWeight.w600),
           ),
           const Spacer(),
           _PrimaryButton(
@@ -450,24 +431,19 @@ class _IntentCard extends StatelessWidget {
           children: [
             Text(
               eyebrow,
-              style: const TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 10.5,
+              style: MintTextStyles.labelSmall(
+                color: MintColors.corailDiscret,
+              ).copyWith(
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1.2,
-                color: MintColors.corailDiscret,
               ),
             ),
             const SizedBox(height: 6),
             Text(
               phrase,
-              style: const TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 17,
-                fontWeight: FontWeight.w500,
+              style: MintTextStyles.titleMedium(
                 color: MintColors.textPrimary,
-                height: 1.25,
-              ),
+              ).copyWith(fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -543,12 +519,14 @@ class _AgeStepState extends State<_AgeStep> {
                 ),
                 child: Text(
                   _displayDate,
-                  style: TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: _dateOfBirth == null ? 18 : 28,
-                    fontWeight: FontWeight.w600,
-                    color: MintColors.textPrimary,
-                  ),
+                  style: (_dateOfBirth == null
+                          ? MintTextStyles.titleLarge(
+                              color: MintColors.textPrimary,
+                            )
+                          : MintTextStyles.displaySmall(
+                              color: MintColors.textPrimary,
+                            ))
+                      .copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -635,12 +613,9 @@ class _CantonStep extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 code,
-                style: const TextStyle(
-                  fontFamily: 'Supreme',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                style: MintTextStyles.labelLarge(
                   color: MintColors.textPrimary,
-                ),
+                ).copyWith(fontWeight: FontWeight.w600),
               ),
             ),
           );
@@ -698,22 +673,16 @@ class _RevenueStepState extends State<_RevenueStep> {
           if (!_exactMode) ...[
             Text(
               '${_fmt(range.low)} – ${_fmt(range.high)} CHF',
-              style: const TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 32,
-                fontWeight: FontWeight.w600,
+              style: MintTextStyles.displayMedium(
                 color: MintColors.textPrimary,
-              ),
+              ).copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'tu ajusteras quand tu scanneras ta fiche',
-              style: TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 13,
+              style: MintTextStyles.bodySmall(
                 color: MintColors.textSecondary,
-                fontStyle: FontStyle.italic,
-              ),
+              ).copyWith(fontStyle: FontStyle.italic),
             ),
             const SizedBox(height: 24),
             Slider(
@@ -734,17 +703,13 @@ class _RevenueStepState extends State<_RevenueStep> {
               children: [
                 Text(
                   '${_fmt(_kMinNet.toDouble())} CHF',
-                  style: const TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: 12,
+                  style: MintTextStyles.labelMedium(
                     color: MintColors.textSecondary,
                   ),
                 ),
                 Text(
                   '${_fmt(_kMaxNet.toDouble())} CHF',
-                  style: const TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: 12,
+                  style: MintTextStyles.labelMedium(
                     color: MintColors.textSecondary,
                   ),
                 ),
@@ -754,13 +719,12 @@ class _RevenueStepState extends State<_RevenueStep> {
             Center(
               child: TextButton(
                 onPressed: () => setState(() => _exactMode = true),
-                child: const Text(
+                child: Text(
                   'Je sais le chiffre exact',
-                  style: TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                  style: MintTextStyles.bodyMedium(
                     color: MintColors.textSecondary,
+                  ).copyWith(
+                    fontWeight: FontWeight.w500,
                     decoration: TextDecoration.underline,
                   ),
                 ),
@@ -783,20 +747,14 @@ class _RevenueStepState extends State<_RevenueStep> {
                 FilteringTextInputFormatter.allow(RegExp(r"[0-9 ']")),
               ],
               autofocus: true,
-              style: const TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 32,
-                fontWeight: FontWeight.w600,
+              style: MintTextStyles.displayMedium(
                 color: MintColors.textPrimary,
-              ),
+              ).copyWith(fontWeight: FontWeight.w600),
               decoration: InputDecoration(
                 hintText: '7\u2019600',
-                hintStyle: TextStyle(
-                  fontFamily: 'Supreme',
-                  fontSize: 32,
-                  fontWeight: FontWeight.w600,
+                hintStyle: MintTextStyles.displayMedium(
                   color: MintColors.textSecondary.withValues(alpha: 0.35),
-                ),
+                ).copyWith(fontWeight: FontWeight.w600),
                 suffixText: 'CHF',
                 border: const UnderlineInputBorder(),
               ),
@@ -811,11 +769,9 @@ class _RevenueStepState extends State<_RevenueStep> {
               },
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Avant impôt, après cotisations (le chiffre que tu vois tomber).',
-              style: TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 13,
+              style: MintTextStyles.bodySmall(
                 color: MintColors.textSecondary,
               ),
             ),
@@ -823,14 +779,11 @@ class _RevenueStepState extends State<_RevenueStep> {
             Center(
               child: TextButton(
                 onPressed: () => setState(() => _exactMode = false),
-                child: const Text(
+                child: Text(
                   'Revenir à la fourchette',
-                  style: TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: 14,
+                  style: MintTextStyles.bodyMedium(
                     color: MintColors.textSecondary,
-                    decoration: TextDecoration.underline,
-                  ),
+                  ).copyWith(decoration: TextDecoration.underline),
                 ),
               ),
             ),
@@ -912,24 +865,19 @@ class _InsightStep extends StatelessWidget {
               children: [
                 Text(
                   eyebrow,
-                  style: const TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: 10.5,
+                  style: MintTextStyles.labelSmall(
+                    color: MintColors.corailDiscret,
+                  ).copyWith(
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.2,
-                    color: MintColors.corailDiscret,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   phrase,
-                  style: const TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: 19,
-                    fontWeight: FontWeight.w500,
+                  style: MintTextStyles.titleLarge(
                     color: MintColors.textPrimary,
-                    height: 1.35,
-                  ),
+                  ).copyWith(fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -1100,11 +1048,9 @@ class _BifurcationStepState extends State<_BifurcationStep> {
           const SizedBox(height: 10),
           TextButton(
             onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
-            child: const Text(
+            child: Text(
               'Plus tard',
-              style: TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 15,
+              style: MintTextStyles.labelLarge(
                 color: MintColors.textSecondary,
               ),
             ),

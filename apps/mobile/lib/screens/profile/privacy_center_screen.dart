@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/consent/consent_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/future_builder_safe.dart';
 
 class PrivacyCenterScreen extends StatefulWidget {
@@ -86,12 +87,7 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
         elevation: 0,
         title: Text(
           l.privacyCenterTitle,
-          style: const TextStyle(
-            fontFamily: 'Supreme',
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: MintColors.textPrimary,
-          ),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
         ),
         iconTheme: const IconThemeData(color: MintColors.textPrimary),
       ),
@@ -112,9 +108,7 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Text(
                       l.privacyCenterEmpty,
-                      style: const TextStyle(
-                        fontFamily: 'Supreme',
-                        fontSize: 14,
+                      style: MintTextStyles.bodyMedium(
                         color: MintColors.textSecondary,
                       ),
                     ),
@@ -153,11 +147,9 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
-          fontFamily: 'Supreme',
-          fontSize: 14,
+        style:
+            MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(
           fontWeight: FontWeight.w600,
-          color: MintColors.textSecondary,
           letterSpacing: 0.6,
         ),
       ),
@@ -194,10 +186,7 @@ class _ConsentRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
+                  style: MintTextStyles.labelLarge(
                     color: MintColors.textPrimary,
                   ),
                 ),
@@ -207,10 +196,8 @@ class _ConsentRow extends StatelessWidget {
                       ? '${l.privacyCenterGrantedOn} ${_fmt(grantedAt)}'
                       : '${l.privacyCenterRevokedOn} ${_fmt(revokedAt!)}',
                   style: const TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: 12,
                     color: MintColors.textSecondary,
-                  ),
+                  ).merge(MintTextStyles.labelMedium()),
                 ),
               ],
             ),

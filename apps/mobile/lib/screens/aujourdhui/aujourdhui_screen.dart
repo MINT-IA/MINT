@@ -20,6 +20,7 @@ import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 // Wave B-minimal B1 (2026-04-18): Cap du jour banner pulls the
 // highest-priority CapDecision from MintStateProvider and surfaces it
@@ -213,10 +214,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                             children: [
                               Text(
                                 l10n.tensionEmptyWelcome,
-                                style: const TextStyle(
-                                  fontFamily: 'Supreme',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                                style: MintTextStyles.titleMedium(
                                   color: MintColors.textPrimary,
                                 ),
                                 textAlign: TextAlign.center,
@@ -224,10 +222,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 l10n.tensionEmptySubtitle,
-                                style: const TextStyle(
-                                  fontFamily: 'Supreme',
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
+                                style: MintTextStyles.bodyMedium(
                                   color: MintColors.textSecondary,
                                 ),
                                 textAlign: TextAlign.center,
@@ -256,19 +251,15 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
         child: CustomScrollView(
           slivers: [
             // ── MINT wordmark ──────────────────────────────────
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.only(top: 24, bottom: 32),
+                padding: const EdgeInsets.only(top: 24, bottom: 32),
                 child: Center(
                   child: Text(
                     'MINT',
-                    style: TextStyle(
-                      fontFamily: 'Supreme',
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 4,
-                      color: MintColors.textPrimary,
-                    ),
+                    style: MintTextStyles.headlineMedium(
+                            color: MintColors.textPrimary)
+                        .copyWith(letterSpacing: 4),
                   ),
                 ),
               ),
@@ -332,12 +323,11 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         l10n.timelineSectionTitle,
-                        style: const TextStyle(
-                          fontFamily: 'Supreme',
-                          fontSize: 11,
+                        style: MintTextStyles.labelSmall(
+                          color: MintColors.textMutedAaa,
+                        ).copyWith(
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1,
-                          color: MintColors.textMutedAaa,
                         ),
                       ),
                     ),
@@ -385,10 +375,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                       onPressed: provider.loadMore,
                       child: Text(
                         l10n.timelineLoadMore,
-                        style: const TextStyle(
-                          fontFamily: 'Supreme',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
+                        style: MintTextStyles.bodySmall(
                           color: MintColors.textSecondary,
                         ),
                       ),
@@ -413,10 +400,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                     ),
                     child: Text(
                       l10n.timelineEmpty,
-                      style: const TextStyle(
-                        fontFamily: 'Supreme',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
+                      style: MintTextStyles.bodyMedium(
                         color: MintColors.textSecondary,
                       ),
                       textAlign: TextAlign.center,

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class PolicyDiffView extends StatelessWidget {
   final String fromVersion;
@@ -35,21 +36,12 @@ class PolicyDiffView extends StatelessWidget {
         children: [
           Text(
             l.policyDiffTitle,
-            style: const TextStyle(
-              fontFamily: 'Supreme',
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.headlineSmall(color: MintColors.textPrimary),
           ),
           const SizedBox(height: 4),
           Text(
             '$fromVersion → $toVersion',
-            style: const TextStyle(
-              fontFamily: 'Supreme',
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 16),
           Expanded(
@@ -83,9 +75,7 @@ class _DiffLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = added
-        ? const Color(0xFFE8F5E9) // soft green
-        : const Color(0xFFFFEBEE); // soft red
+    final color = added ? MintColors.successBg : MintColors.urgentBg;
     final prefix = added ? '+ ' : '- ';
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2),
@@ -96,12 +86,7 @@ class _DiffLine extends StatelessWidget {
       ),
       child: Text(
         '$prefix$text',
-        style: const TextStyle(
-          fontFamily: 'Supreme',
-          fontSize: 13,
-          color: MintColors.textPrimary,
-          height: 1.4,
-        ),
+        style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
       ),
     );
   }

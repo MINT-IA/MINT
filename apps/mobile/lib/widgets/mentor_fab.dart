@@ -128,7 +128,7 @@ class _CoachQuickSheet extends StatelessWidget {
                       l.mentorFabSheetTitle,
                       style: MintTextStyles.titleMedium(
                               color: MintColors.textPrimary)
-                          .copyWith(fontSize: 17),
+                          .copyWith(fontWeight: FontWeight.w500),
                     ),
                   ),
                   GestureDetector(
@@ -195,7 +195,7 @@ class _CoachQuickSheet extends StatelessWidget {
                       action.subtitle,
                       style: MintTextStyles.bodySmall(
                               color: MintColors.textSecondary)
-                          .copyWith(fontSize: 12),
+                          .copyWith(fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),

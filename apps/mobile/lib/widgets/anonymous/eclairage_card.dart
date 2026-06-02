@@ -14,6 +14,7 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:go_router/go_router.dart';
 
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 /// Premier Éclairage hero card surfaced after the 2nd coach turn in the
 /// anonymous chat flow (gate ECL-01, Phase 71a state-machine).
@@ -185,12 +186,9 @@ class EclairageCard extends StatelessWidget {
   Widget _buildEyebrow(String text) {
     return Text(
       text.toUpperCase(),
-      style: const TextStyle(
-        fontFamily: 'Supreme',
-        fontSize: 11,
+      style: MintTextStyles.labelSmall(color: MintColors.mintForest).copyWith(
         fontWeight: FontWeight.w600,
         letterSpacing: 1.2,
-        color: MintColors.mintForest,
       ),
     );
   }
@@ -198,12 +196,9 @@ class EclairageCard extends StatelessWidget {
   Widget _buildHeadline() {
     return Text(
       _headline,
-      style: const TextStyle(
+      style: MintTextStyles.titleLarge(color: MintColors.inkPrimary).copyWith(
         fontFamily: 'Gambarino',
-        fontSize: 18,
         fontWeight: FontWeight.w500,
-        height: 1.3,
-        color: MintColors.inkPrimary,
         // §7 row 1 — italic OFF.
         fontStyle: FontStyle.normal,
       ),
@@ -215,35 +210,21 @@ class EclairageCard extends StatelessWidget {
     final low = _chfRangeLow;
     final high = _chfRangeHigh;
 
-    const numberStyle = TextStyle(
-      fontFamily: 'Supreme',
-      fontSize: 28,
-      fontWeight: FontWeight.w700,
-      color: MintColors.inkPrimary,
+    final numberStyle =
+        MintTextStyles.displaySmall(color: MintColors.inkPrimary).copyWith(
       letterSpacing: -0.3,
       height: 1.0,
     );
 
-    const chfBadgeStyle = TextStyle(
-      fontFamily: 'Supreme',
-      fontSize: 12,
-      fontWeight: FontWeight.w600,
+    final chfBadgeStyle = MintTextStyles.labelMedium(
       color: MintColors.mintForest,
-    );
+    ).copyWith(fontWeight: FontWeight.w600);
 
-    const periodStyle = TextStyle(
-      fontFamily: 'Supreme',
-      fontSize: 13,
-      fontWeight: FontWeight.w500,
-      color: MintColors.textSecondaryAaa,
-    );
+    final periodStyle =
+        MintTextStyles.bodySmall(color: MintColors.textSecondaryAaa);
 
-    const prefixStyle = TextStyle(
-      fontFamily: 'Supreme',
-      fontSize: 13,
-      fontWeight: FontWeight.w500,
-      color: MintColors.textSecondaryAaa,
-    );
+    final prefixStyle =
+        MintTextStyles.bodySmall(color: MintColors.textSecondaryAaa);
 
     // Fallback A — both bounds present : `[CHF] 1'500 – 2'500 / an`
     // Wrap (instead of Row) so very narrow widths flow to a 2nd line
@@ -252,8 +233,8 @@ class EclairageCard extends StatelessWidget {
       return Wrap(
         crossAxisAlignment: WrapCrossAlignment.end,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(right: 4, bottom: 4),
+          Padding(
+            padding: const EdgeInsets.only(right: 4, bottom: 4),
             child: Text('CHF', style: chfBadgeStyle),
           ),
           Text(formatChf(low), style: numberStyle),
@@ -270,8 +251,8 @@ class EclairageCard extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(formatChf(high), style: numberStyle),
-          const Padding(
-            padding: EdgeInsets.only(left: 6, bottom: 4),
+          Padding(
+            padding: const EdgeInsets.only(left: 6, bottom: 4),
             child: Text(' / an', style: periodStyle),
           ),
         ],
@@ -283,17 +264,17 @@ class EclairageCard extends StatelessWidget {
       return Wrap(
         crossAxisAlignment: WrapCrossAlignment.end,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(right: 6, bottom: 4),
+          Padding(
+            padding: const EdgeInsets.only(right: 6, bottom: 4),
             child: Text("jusqu'à", style: prefixStyle),
           ),
-          const Padding(
-            padding: EdgeInsets.only(right: 4, bottom: 4),
+          Padding(
+            padding: const EdgeInsets.only(right: 4, bottom: 4),
             child: Text('CHF', style: chfBadgeStyle),
           ),
           Text(formatChf(high), style: numberStyle),
-          const Padding(
-            padding: EdgeInsets.only(left: 6, bottom: 4),
+          Padding(
+            padding: const EdgeInsets.only(left: 6, bottom: 4),
             child: Text(' / an', style: periodStyle),
           ),
         ],
@@ -305,17 +286,17 @@ class EclairageCard extends StatelessWidget {
       return Wrap(
         crossAxisAlignment: WrapCrossAlignment.end,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(right: 6, bottom: 4),
+          Padding(
+            padding: const EdgeInsets.only(right: 6, bottom: 4),
             child: Text('dès', style: prefixStyle),
           ),
-          const Padding(
-            padding: EdgeInsets.only(right: 4, bottom: 4),
+          Padding(
+            padding: const EdgeInsets.only(right: 4, bottom: 4),
             child: Text('CHF', style: chfBadgeStyle),
           ),
           Text(formatChf(low), style: numberStyle),
-          const Padding(
-            padding: EdgeInsets.only(left: 6, bottom: 4),
+          Padding(
+            padding: const EdgeInsets.only(left: 6, bottom: 4),
             child: Text(' / an', style: periodStyle),
           ),
         ],
@@ -329,13 +310,7 @@ class EclairageCard extends StatelessWidget {
   Widget _buildBody() {
     return Text(
       _body,
-      style: const TextStyle(
-        fontFamily: 'Supreme',
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        height: 1.5,
-        color: MintColors.inkPrimary,
-      ),
+      style: MintTextStyles.bodyMedium(color: MintColors.inkPrimary),
       // §5 row 1 — NO maxLines, NO ellipsis. Card grows vertically.
     );
   }
@@ -369,12 +344,9 @@ class EclairageCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         _softAccountHint,
-                        style: const TextStyle(
-                          fontFamily: 'Supreme',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                        style: MintTextStyles.bodyMedium(
                           color: MintColors.mintForest,
-                        ),
+                        ).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                     const SizedBox(width: 6),

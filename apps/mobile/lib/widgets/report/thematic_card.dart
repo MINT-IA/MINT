@@ -65,14 +65,16 @@ class ThematicCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
             child: Row(
               children: [
-                Text(emoji, style: const TextStyle(fontSize: 24)),
+                Text(emoji,
+                    style: const TextStyle(
+                        fontSize: 24)), // lint-ignore: prefer_mint_text_style
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     title,
                     style: MintTextStyles.headlineMedium(
                             color: MintColors.textPrimary)
-                        .copyWith(fontSize: 17),
+                        .copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
                 Container(

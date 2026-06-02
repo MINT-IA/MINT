@@ -34,6 +34,7 @@ import '../../l10n/app_localizations.dart' show S;
 import '../../services/financial_core/confidence_scorer.dart';
 import '../../services/voice/voice_cursor_contract.dart';
 import '../../theme/colors.dart';
+import '../../theme/mint_text_styles.dart';
 
 // ============================================================================
 //  ConfidenceAxis — local enum (D-02 / MTC-02).
@@ -523,12 +524,9 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
             const SizedBox(height: 6),
             Text(
               summary,
-              style: const TextStyle(
-                fontSize: 12,
-                height: 1.35,
-                letterSpacing: 0.1,
+              style: MintTextStyles.labelMedium(
                 color: MintColors.textSecondaryAaa,
-              ),
+              ).copyWith(letterSpacing: 0.1),
             ),
           ],
         ),
@@ -563,12 +561,9 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
             const SizedBox(height: 6),
             Text(
               summary,
-              style: const TextStyle(
-                fontSize: 12,
-                height: 1.35,
-                letterSpacing: 0.1,
+              style: MintTextStyles.labelMedium(
                 color: MintColors.textSecondaryAaa,
-              ),
+              ).copyWith(letterSpacing: 0.1),
             ),
             if (widget.hypotheses.isNotEmpty) ...[
               const SizedBox(height: 8),
@@ -577,9 +572,7 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(
                     '— $h',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      height: 1.3,
+                    style: MintTextStyles.labelSmall(
                       color: MintColors.textMutedAaa,
                     ),
                   ),
@@ -606,10 +599,7 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
           height: 1,
           child: Text(
             summary,
-            style: const TextStyle(
-              fontSize: 11,
-              color: MintColors.textPrimary,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textPrimary),
           ),
         ),
       ),
@@ -649,12 +639,9 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Text(
           label,
-          style: const TextStyle(
-            fontSize: 12,
-            height: 1.35,
+          style: MintTextStyles.labelMedium(
             color: MintColors.textMutedAaa,
-            fontStyle: FontStyle.italic,
-          ),
+          ).copyWith(fontStyle: FontStyle.italic),
         ),
       ),
     );

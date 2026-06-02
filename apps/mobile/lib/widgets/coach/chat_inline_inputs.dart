@@ -492,7 +492,7 @@ class ChatCantonPicker extends StatelessWidget {
                     canton,
                     style: MintTextStyles.titleMedium(
                       color: MintColors.textPrimary,
-                    ).copyWith(fontWeight: FontWeight.w600, fontSize: 15),
+                    ).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               );
