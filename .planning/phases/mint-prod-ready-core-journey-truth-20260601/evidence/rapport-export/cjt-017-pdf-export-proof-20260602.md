@@ -1,7 +1,8 @@
 # CJT-017 — Rapport PDF export proof
 
-Date: 2026-06-02  
-Status: verified locally before push  
+Date: 2026-06-02
+Commit: `5ef54edc7`
+Status: verified locally before push
 Scope: `PdfService.generateFinancialReportPdf`
 
 ## Finding
