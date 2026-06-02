@@ -232,6 +232,53 @@ TABLE _phase02_parity_audit_continuous exists=False count=None
 TABLE waitlist_entries exists=False count=None
 ```
 
+## Post-Documentation Staging Redeploy Check
+
+Pushing commit `bfce5a14d6c06374fac47918fe26452646e2573a`
+(`docs: record phase02 production blocker`) triggered a fresh Railway staging
+deployment.
+
+During build, Railway briefly reported a deployment view without
+`rootDirectory`, `configFile`, healthcheck, or start command. The final
+deployment resolved correctly:
+
+```text
+STATUS=SUCCESS
+ID=1aa86ba1-42ae-4ace-9efa-d5d2a6ceb890
+COMMIT=bfce5a14d6c06374fac47918fe26452646e2573a
+ROOT=/services/backend
+CONFIG=/services/backend/railway.json
+HEALTHCHECK=/api/v1/health
+```
+
+Staging health after the redeploy:
+
+```json
+{"status":"ok"}
+```
+
+Post-redeploy DB proof against `pgvector`:
+
+```text
+ALEMBIC_VERSION=p120_fact_event_idempotency
+AUDIT_ROWS=143
+AUDIT_DIFF_ROWS=0
+```
+
+GitHub CI for the same commit completed successfully:
+
+```text
+run=26832099488
+status=completed
+conclusion=success
+```
+
+Railway's current documentation states that watch paths are evaluated from `/`,
+and monorepo config files should be specified as absolute repository paths such
+as `/backend/railway.toml`. This matches the required MINT invariant:
+production and staging deploy details must show `/services/backend` plus
+`/services/backend/railway.json` before a deployment can be treated as proof.
+
 ## Final Interpretation For CJT-013
 
 Staging Phase 02 is proven against the real runtime DB. Production Phase 02 is
@@ -241,3 +288,5 @@ migration/deploy/cutover is explicitly planned and executed, or explicitly
 deferred with a release decision. The low production data volume (`users=2`,
 `snapshots=0`) suggests the eventual migration can be controlled, but it is not
 closed by staging evidence.
+
+Concrete runbook: `production-cutover-runbook-20260602.md`.
