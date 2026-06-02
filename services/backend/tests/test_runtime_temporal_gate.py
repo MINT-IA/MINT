@@ -57,6 +57,29 @@ def test_gate_does_not_block_historical_rule_without_month_anchor():
     assert output == narrator
 
 
+def test_gate_does_not_block_unchanged_biennial_constant_context():
+    user_msg = "Combien je peux mettre sur mon 3a cette annee ?"
+    narrator = (
+        "Pour 2026, le plafond salarie est de 7'258 CHF, "
+        "inchange par rapport a 2025."
+    )
+
+    passed, output = gate(narrator, user_message=user_msg, current_year=2026)
+
+    assert passed is True
+    assert output == narrator
+
+
+def test_gate_does_not_block_identical_prior_year_context():
+    user_msg = "Combien je peux mettre sur mon 3a cette annee ?"
+    narrator = "Le plafond 2026 est de 7'258 CHF; la valeur 2025 etait identique."
+
+    passed, output = gate(narrator, user_message=user_msg, current_year=2026)
+
+    assert passed is True
+    assert output == narrator
+
+
 def test_gate_blocks_past_year_ceiling_anchor_for_current_year_question():
     user_msg = "Combien je peux mettre sur mon 3a cette annee ?"
     narrator = "Tu peux verser jusqu'a 7'258 CHF en 2025 selon l'OPP3 art. 7."
