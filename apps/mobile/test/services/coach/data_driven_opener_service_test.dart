@@ -215,7 +215,7 @@ void main() {
       expect(opener.intentTag, equals('/budget'));
     });
 
-    test('2b. Monthly surplus with full gap keeps gap warning priority', () {
+    test('2b. Monthly surplus with full gap keeps budget room priority', () {
       final state = _makeState(
         budgetSnapshot: _snapshotWithFree(1922),
         replacementRate: 55,
@@ -226,9 +226,11 @@ void main() {
         now: march22,
       );
       expect(opener, isNotNull);
-      expect(opener!.type, DataOpenerType.gapWarning);
+      expect(opener!.type, DataOpenerType.budgetRoom);
       expect(opener.type, isNot(DataOpenerType.budgetAlert));
-      expect(opener.type, isNot(DataOpenerType.budgetRoom));
+      expect(opener.type, isNot(DataOpenerType.gapWarning));
+      expect(opener.message, contains("1'922"));
+      expect(opener.intentTag, equals('/budget'));
     });
 
     // ── Test 3: No budget snapshot → no budgetAlert ───────────
@@ -341,7 +343,7 @@ void main() {
     // ── Test 8: Replacement rate 55% → gapWarning ─────────────
     test('8. Replacement rate 55% → gapWarning with numbers', () {
       final snapshot = _snapshotWithGap(
-        monthlyFree: 500,
+        monthlyFree: 0,
         replacementRate: 55.0,
         monthlyGap: 1200,
       );
@@ -476,15 +478,13 @@ void main() {
     // ── Test 13: Confidence improved 6 pts → progressCelebration
     test('13. Confidence +6 pts → progressCelebration with delta', () {
       // Use a profile with 3a > 0 (above 0) so savingsOpportunity does not fire.
-      // Use a snapshot with surplus so budgetAlert does not fire.
+      // No budget snapshot so budget room does not mask progress.
       // Use march22 (not December) so deadlineUrgency does not fire.
       // replacementRate >= 60 so gapWarning does not fire.
       final profile =
           _makeProfile(totalEpargne3a: 5000, salaireBrutMensuel: 8000);
-      final snapshot = _snapshotWithFree(800); // surplus
       final state = _makeState(
         profile: profile,
-        budgetSnapshot: snapshot,
         replacementRate: 75.0,
         confidenceScore: 66.0,
       );
@@ -525,15 +525,13 @@ void main() {
 
     // ── Test 16: CapSequence step completed → planProgress ─────
     test('16. CapSequence 2/5 steps → planProgress with n/total/next', () {
-      // Use a profile with 3a > 0, surplus snapshot, replacement rate >= 60.
+      // Use a profile with 3a > 0, no budget snapshot, replacement rate >= 60.
       // This ensures all higher-priority openers are suppressed.
       final profile =
           _makeProfile(totalEpargne3a: 5000, salaireBrutMensuel: 8000);
-      final snapshot = _snapshotWithFree(800); // surplus
       final sequence = _makeSequence(completed: 2, total: 5);
       final state = _makeState(
         profile: profile,
-        budgetSnapshot: snapshot,
         replacementRate: 75.0,
         capSequencePlan: sequence,
       );
@@ -551,15 +549,13 @@ void main() {
 
     // ── Test 17: No interesting data → null ───────────────────
     test('17. No interesting data → null', () {
-      // Profile: salary > 0, 3a > 0, no deficit, no gap, no sequence, no delta.
+      // Profile: salary > 0, 3a > 0, no budget snapshot, no sequence, no delta.
       final profile = _makeProfile(
         totalEpargne3a: 5000,
         salaireBrutMensuel: 8000,
       );
-      final snapshot = _snapshotWithFree(800); // surplus, no deficit
       final state = _makeState(
         profile: profile,
-        budgetSnapshot: snapshot,
         replacementRate: 75.0, // above threshold
       );
       final opener = DataDrivenOpenerService.generate(

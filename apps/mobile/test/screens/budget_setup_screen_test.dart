@@ -6,6 +6,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/budget/budget_setup_screen.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -210,6 +211,50 @@ void main() {
     await reloaded.loadFromWizard();
 
     expect(reloaded.isPartialProfile, isFalse);
+    expect(reloaded.profile!.depenses.loyer, 2200);
+    expect(reloaded.profile!.depenses.assuranceMaladie, 420);
+  });
+
+  testWidgets('manual budget edit preserves persisted E2E seed income',
+      (tester) async {
+    final seedAnswers =
+        CoachProfileSeeds.registry['julien_swiss']!.toWizardAnswers();
+    await ReportPersistenceService.saveAnswers(seedAnswers);
+    await ReportPersistenceService.setCompleted(true);
+
+    final coachProvider = CoachProfileProvider();
+    await coachProvider.loadFromWizard();
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(_wrapWithProviders(
+      child: const BudgetSetupScreen(),
+      coachProvider: coachProvider,
+      budgetProvider: budgetProvider,
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetHousingField')), '2200');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetLamalField')), '420');
+    await tester.ensureVisible(find.text('Enregistrer'));
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_net_income_period_chf'],
+        seedAnswers['q_net_income_period_chf']);
+    expect(
+        answers['q_gross_salary_annual'], seedAnswers['q_gross_salary_annual']);
+    expect(answers['q_housing_cost_period_chf'], 2200.0);
+    expect(answers['q_lamal_premium_monthly_chf'], 420.0);
+
+    final reloaded = CoachProfileProvider();
+    await reloaded.loadFromWizard();
+
+    expect(reloaded.profile, isNotNull);
+    expect(reloaded.profile!.explicitMonthlyNetIncome,
+        seedAnswers['q_net_income_period_chf']);
     expect(reloaded.profile!.depenses.loyer, 2200);
     expect(reloaded.profile!.depenses.assuranceMaladie, 420);
   });

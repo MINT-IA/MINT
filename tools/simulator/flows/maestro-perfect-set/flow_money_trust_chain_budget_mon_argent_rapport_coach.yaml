@@ -2,18 +2,18 @@
 #
 # PURPOSE
 # Canonical runtime proof for the MINT money trust chain:
-# Budget setup exposes deterministic monthly fixed-charge entry, Budget restores
-# the seeded read model after restart, Mon Argent exposes the same money read
-# model, Rapport shows only the executive summary (no Budget-screen duplicate),
-# and Coach remains reachable without absurd captured values leaking into visible
-# surfaces. The recommended E2E build seeds the `julien_swiss` archetype, so
-# post-restart proof numbers below come from that seed's shared read model.
+# onboarding persists a supported Swiss-native profile, Budget setup exposes
+# deterministic monthly fixed-charge entry, Budget restores the persisted read
+# model after restart, Mon Argent and Coach expose the same money value, Rapport
+# shows only the executive summary (no Budget-screen duplicate), and no absurd
+# captured values leak into visible surfaces.
 #
 # PRE-CONDITION
 # - App ch.mint.app installed on a booted iPhone simulator.
 # - Recommended build:
-#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss
 #     --dart-define=MINT_DISABLE_BETA_MODAL=true
+# - Do not build this proof with `MINT_E2E_ARCHETYPE`. That seed is in-memory
+#   only and is not a persistence proof. CJT-023 documents the stale contract.
 
 appId: ch.mint.app
 tags:
@@ -27,9 +27,6 @@ tags:
 
 - launchApp:
     clearState: true
-- waitForAnimationToEnd:
-    timeout: 6000
-
 - runFlow:
     when:
       visible: "Je comprends, on y va"
@@ -37,19 +34,109 @@ tags:
       - tapOn: "Je comprends, on y va"
       - waitForAnimationToEnd
 
+# Build the profile through the production onboarding writer, not a debug seed.
+- openLink: "mintapp:///onb"
+- extendedWaitUntil:
+    visible:
+      text: "Il est temps que tu comprennes."
+    timeout: 10000
+- tapOn:
+    text: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      text: ".*Ce que je toucherai.*"
+    timeout: 5000
+- tapOn:
+    point: "50%,24%"
+- extendedWaitUntil:
+    visible:
+      text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
+    timeout: 5000
+- tapOn:
+    text: "Non"
+- runFlow:
+    when:
+      visible: "Quelle est ta nationalité ?"
+    commands:
+      - tapOn:
+          text: "Suisse"
+- runFlow:
+    when:
+      visible: "Quel âge tu as ?"
+    commands:
+      - takeScreenshot: "money-trust-legacy-age-only-screen"
+      - tapOn:
+          text: "Continuer"
+- extendedWaitUntil:
+    visible:
+      text: "Choisir ma date"
+    timeout: 5000
+- tapOn: "Choisir ma date"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "OK"
+    timeout: 5000
+- tapOn:
+    text: ".*15.*juillet.*1992.*"
+- tapOn: "OK"
+- extendedWaitUntil:
+    visible:
+      text: "15.07.1992"
+    timeout: 5000
+- tapOn:
+    text: "Continuer"
+- runFlow:
+    when:
+      visible: "Quelle est ta nationalité ?"
+    commands:
+      - tapOn:
+          text: "Suisse"
+- extendedWaitUntil:
+    visible:
+      text: "Où tu vis ?"
+    timeout: 5000
+- tapOn:
+    point: "17%,20%"
+- extendedWaitUntil:
+    visible:
+      text: "Combien te tombe net par mois ?"
+    timeout: 5000
+- tapOn:
+    point: "50%,74%"
+- extendedWaitUntil:
+    visible:
+      text: "Avant de te montrer…"
+    timeout: 12000
+- tapOn:
+    point: "50%,71%"
+- extendedWaitUntil:
+    visible:
+      text: "Continuer"
+    timeout: 8000
+- tapOn:
+    point: "50%,70%"
+- runFlow:
+    when:
+      visible:
+        text: "Continuer"
+    commands:
+      - tapOn:
+          point: "50%,70%"
+- extendedWaitUntil:
+    visible:
+      text: "Creuser"
+    timeout: 5000
+- tapOn:
+    point: "50%,63%"
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 15000
+- assertVisible:
+    id: "coach_input_field"
+
 - openLink: "mintapp:///budget/setup"
-- runFlow:
-    when:
-      visible: "Ouvrir"
-    commands:
-      - tapOn: "Ouvrir"
-      - waitForAnimationToEnd
-- runFlow:
-    when:
-      visible: "Open"
-    commands:
-      - tapOn: "Open"
-      - waitForAnimationToEnd
 
 - extendedWaitUntil:
     visible:
@@ -98,10 +185,9 @@ tags:
 # reliably. The device flow validates the formula already visible in the hero.
 - assertVisible:
     id: "budget_hero_formula"
-- assertVisible:
-    text: ".*3'352.*"
-- assertVisible:
-    text: ".*3'470.*"
+- copyTextFrom:
+    id: "budget_hero_formula"
+- evalScript: ${output.sc4_budget = maestro.copiedText}
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
 - assertNotVisible: "19M"
@@ -120,10 +206,9 @@ tags:
     id: "mon_argent_budget_summary"
 - assertVisible:
     id: "mon_argent_budget_flow_bar"
-- assertVisible:
-    text: ".*3'352.*"
-- assertVisible:
-    text: ".*4'058.*"
+- copyTextFrom:
+    id: "mon_argent_budget_summary"
+- evalScript: ${output.sc4_mon_argent = maestro.copiedText}
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
 - assertNotVisible: "19M"
@@ -163,6 +248,29 @@ tags:
     id: "coach_input_field"
 - assertVisible:
     id: "coach_send_button"
+- assertNotVisible:
+    text: ".*taux de remplacement.*"
+- assertNotVisible:
+    text: ".*À la retraite.*"
+- assertNotVisible:
+    text: ".*retraite.*manquerait.*"
+- runFlow:
+    when:
+      visible:
+        id: "coach_silent_opener_primary_number"
+    commands:
+      - copyTextFrom:
+          id: "coach_silent_opener_primary_number"
+      - evalScript: ${output.sc4_coach = maestro.copiedText}
+- runFlow:
+    when:
+      visible:
+        text: ".*reste.*CHF.*après tes charges.*"
+    commands:
+      - copyTextFrom:
+          text: ".*reste.*CHF.*après tes charges.*"
+      - evalScript: ${output.sc4_coach = maestro.copiedText}
+- evalScript: ${if (!output.sc4_coach) { throw new Error('Coach money anchor missing'); }}
 - assertNotVisible: "Comment je te parle"
 # Do not assert "Direct" globally: valid Coach copy may use direct-tone words.
 - assertNotVisible:
@@ -177,4 +285,5 @@ tags:
 - assertNotVisible: "420k"
 - assertNotVisible: "NaN"
 - assertNotVisible: "Infinity"
+- runScript: "sc4_assert_value_convergence.js"
 - takeScreenshot: "money-trust-chain-budget-mon-argent-rapport-coach"

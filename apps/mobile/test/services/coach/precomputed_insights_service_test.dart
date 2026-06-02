@@ -343,7 +343,7 @@ void main() {
     // ── Test 7: gapWarning stored and read correctly ────────────────────────
     test('7. gapWarning type stored and read correctly', () async {
       final snapshot = _snapshotWithGap(
-        monthlyFree: 500,
+        monthlyFree: 0,
         replacementRate: 55.0,
         monthlyGap: 1800,
       );
@@ -368,6 +368,35 @@ void main() {
       expect(cached.params['rate'], equals('55'));
       expect(cached.params['gap'], equals('1800'));
       expect(cached.intentTag, equals('/retraite'));
+    });
+
+    test('7b. budgetRoom beats gapWarning when monthly room exists', () async {
+      final snapshot = _snapshotWithGap(
+        monthlyFree: 1922,
+        replacementRate: 55.0,
+        monthlyGap: 1800,
+      );
+      final state = _makeState(
+        budgetSnapshot: snapshot,
+        replacementRate: 55.0,
+      );
+      final prefs = await SharedPreferences.getInstance();
+
+      await PrecomputedInsightsService.computeAndCache(
+        state: state,
+        prefs: prefs,
+        now: march22,
+      );
+
+      final cached = await PrecomputedInsightsService.getCachedInsight(
+        prefs: prefs,
+        now: march22,
+      );
+      expect(cached, isNotNull);
+      expect(cached!.type, DataOpenerType.budgetRoom);
+      expect(cached.params['amount'], equals('1922'));
+      expect(cached.intentTag, equals('/budget'));
+      expect(cached.resolve(_l)!.message, contains("1'922"));
     });
 
     // ── Test 8: savingsOpportunity stored and read correctly ────────────────
@@ -535,11 +564,9 @@ void main() {
     test('10. planProgress type stored and read correctly', () async {
       final profile =
           _makeProfile(totalEpargne3a: 5000, salaireBrutMensuel: 8000);
-      final snapshot = _snapshotWithFree(800); // surplus
       final sequence = _makeSequence(completed: 2, total: 5);
       final state = _makeState(
         profile: profile,
-        budgetSnapshot: snapshot,
         replacementRate: 75.0,
         capSequencePlan: sequence,
       );
@@ -572,16 +599,15 @@ void main() {
     test(
       '11. progressCelebration not cached (session-transient — no cache written)',
       () async {
-        // Force only progressCelebration to fire: salary > 0, 3a > 0, surplus,
+        // Force only progressCelebration to be eligible: salary > 0, 3a > 0,
+        // no budget snapshot, no gap,
         // replacement rate >= 60 (no other conditions met), confidence delta >= 5.
         // But computeAndCache has no previousConfidenceScore, so it won't fire via
         // DataDrivenOpenerService (needs previous score). The result is null opener.
         final profile =
             _makeProfile(totalEpargne3a: 5000, salaireBrutMensuel: 8000);
-        final snapshot = _snapshotWithFree(800);
         final state = _makeState(
           profile: profile,
-          budgetSnapshot: snapshot,
           replacementRate: 75.0,
           confidenceScore: 66.0,
           // No previous confidence → DataDrivenOpenerService returns null for celebration
@@ -611,10 +637,8 @@ void main() {
     test('12. No interesting data → computeAndCache removes key', () async {
       final profile =
           _makeProfile(totalEpargne3a: 5000, salaireBrutMensuel: 8000);
-      final snapshot = _snapshotWithFree(800); // surplus
       final state = _makeState(
         profile: profile,
-        budgetSnapshot: snapshot,
         replacementRate: 75.0, // above 60% threshold
       );
       final prefs = await SharedPreferences.getInstance();

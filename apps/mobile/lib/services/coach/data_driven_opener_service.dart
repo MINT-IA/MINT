@@ -190,7 +190,6 @@ class DataDrivenOpenerService {
   ) {
     final snapshot = state.budgetSnapshot;
     if (snapshot == null) return null;
-    if (snapshot.gap != null) return null;
     // A positive room opener is only trustworthy once actual charges exist.
     // Salary-only snapshots should keep asking for budget facts instead.
     if (snapshot.present.monthlyCharges <= 0) return null;
