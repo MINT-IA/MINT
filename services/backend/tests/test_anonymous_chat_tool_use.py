@@ -208,3 +208,104 @@ async def test_tools_list_is_filtered_to_regulatory_only():
         assert tool_names == ["get_regulatory_constant"], (
             f"anonymous path must expose ONLY get_regulatory_constant ; got {tool_names}"
         )
+
+
+@pytest.mark.asyncio
+async def test_tool_grounded_answer_runs_temporal_gate_before_returning():
+    """Anonymous path must fail closed on stale temporal anchors after tool use."""
+    from app.api.v1.endpoints.anonymous_chat import _NoRagOrchestrator
+    from app.services.coach.runtime_temporal_gate import _FALLBACK_FR
+
+    orchestrator = _NoRagOrchestrator()
+    responses = [
+        _fake_anthropic_tool_use_response(
+            tool_name="get_regulatory_constant",
+            tool_input={"key": "pillar3a.max_with_lpp"},
+            tool_use_id="tu_2026",
+        ),
+        _fake_anthropic_text_response(
+            "Si tu es salarie, tu peux verser 7'258 CHF en 2025 "
+            "(OPP3 art. 7). Verser en janvier ou decembre 2025 reste possible.",
+            input_tokens=15,
+            output_tokens=30,
+        ),
+    ]
+
+    with patch("anthropic.AsyncAnthropic") as MockClient:
+        instance = MockClient.return_value
+        instance.messages.create = AsyncMock(side_effect=responses)
+
+        with patch(
+            "app.services.regulatory.tool_handler.handle_regulatory_constant",
+            return_value="pillar3a.max_with_lpp = 7258 CHF\nSource : OPP3 art. 7",
+        ):
+            result = await orchestrator.query(
+                question="Combien je peux mettre sur mon 3a cette annee ?",
+                system_prompt="System",
+                api_key="sk-test",
+                provider="claude",
+                model="claude-sonnet-4-5-20250929",
+            )
+
+    assert result["answer"] == _FALLBACK_FR
+    assert "2025" not in result["answer"]
+    assert result.get("tool_calls") == [{"name": "get_regulatory_constant"}]
+
+
+@pytest.mark.asyncio
+async def test_text_only_answer_runs_temporal_gate_before_returning():
+    """Temporal gate also protects the first-pass text-only path."""
+    from app.api.v1.endpoints.anonymous_chat import _NoRagOrchestrator
+    from app.services.coach.runtime_temporal_gate import _FALLBACK_FR
+
+    orchestrator = _NoRagOrchestrator()
+
+    with patch("anthropic.AsyncAnthropic") as MockClient:
+        instance = MockClient.return_value
+        instance.messages.create = AsyncMock(
+            return_value=_fake_anthropic_text_response(
+                "Tu peux verser jusqu'a 7'258 CHF en 2025 selon l'OPP3 art. 7."
+            )
+        )
+
+        result = await orchestrator.query(
+            question="Combien je peux mettre sur mon 3a cette annee ?",
+            system_prompt="System",
+            api_key="sk-test",
+            provider="claude",
+            model="claude-sonnet-4-5-20250929",
+            language="fr",
+        )
+
+    assert result["answer"] == _FALLBACK_FR
+    assert "2025" not in result["answer"]
+
+
+@pytest.mark.asyncio
+async def test_german_answer_runs_temporal_gate_with_localized_fallback():
+    """Anonymous temporal gate must not be French-only."""
+    from app.api.v1.endpoints.anonymous_chat import _NoRagOrchestrator
+    from app.services.coach.runtime_temporal_gate import fallback_for_language
+
+    orchestrator = _NoRagOrchestrator()
+    fallback = fallback_for_language("de")
+
+    with patch("anthropic.AsyncAnthropic") as MockClient:
+        instance = MockClient.return_value
+        instance.messages.create = AsyncMock(
+            return_value=_fake_anthropic_text_response(
+                "Du kannst 7'258 CHF im Jahr 2025 in die Säule 3a einzahlen."
+            )
+        )
+
+        result = await orchestrator.query(
+            question="Wie viel kann ich dieses Jahr in die Säule 3a einzahlen?",
+            system_prompt="System",
+            api_key="sk-test",
+            provider="claude",
+            model="claude-sonnet-4-5-20250929",
+            language="de",
+        )
+
+    assert result["answer"] == fallback
+    assert "2025" not in result["answer"]
