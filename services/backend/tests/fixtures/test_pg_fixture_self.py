@@ -55,6 +55,9 @@ def test_pg_fixture_spins_postgres_and_alembic_upgrade_head_idempotent(pg_engine
     #   (f) Sub-phase 01.5 waitlist endpoint applied : {p123_waitlist_entry}
     #       (canonical post-2026-05-21 archetype HARD GATE backend slice
     #       — POST /api/v1/waitlist + WaitlistEntry model).
+    #   (g) Phase 02 event substrate idempotency applied :
+    #       {p120_fact_event_idempotency} (canonical post-2026-06-02
+    #       CJT-013 local substrate hardening).
     expected_heads = {
         "p112_audit_event_user_hash",
         "p86_eclairage_delivered",
@@ -62,6 +65,7 @@ def test_pg_fixture_spins_postgres_and_alembic_upgrade_head_idempotent(pg_engine
         "p119_phase02_parity_cont",
         "p122_orm_orphan_safety_net",
         "p123_waitlist_entry",
+        "p120_fact_event_idempotency",
     }
     assert heads_in_db & expected_heads, (
         f"alembic_version table missing expected heads. "
