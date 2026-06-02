@@ -142,6 +142,8 @@ flutter:
     - assets/config/tax_scales_2024.json
     - assets/config/personas.json
     - assets/config/commune_multipliers.json
+    - assets/fonts/Lato-Regular.ttf
+    - assets/fonts/Lato-Bold.ttf
     # Phase 96 D-17 — metaphor library v1 bootstrap (loaded at app boot
     # by MetaphorLookup.loadFromAssets() ; byte-equal mirror at
     # services/backend/app/data/metaphors.toml, parity enforced by

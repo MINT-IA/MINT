@@ -44,12 +44,18 @@ EXCLUDE_DIRS = (
     "/tools/checks/tests/fixtures/",
 )
 EXCLUDE_SUFFIXES = (".g.dart", ".freezed.dart")
+EXCLUDE_FILES = {
+    "services/pdf_service.dart",  # Relative to apps/mobile/lib.
+    "lib/services/pdf_service.dart",  # package:pdf widgets do not use Flutter text tokens.
+}
 IGNORE_MARKER = f"// lint-ignore: {LINT_NAME}"
 
 
 def _is_excluded(rel_posix: str) -> bool:
     norm = "/" + rel_posix.lstrip("/") + "/"
     if any(ex in norm for ex in EXCLUDE_DIRS):
+        return True
+    if rel_posix in EXCLUDE_FILES:
         return True
     if rel_posix.endswith(EXCLUDE_SUFFIXES):
         return True

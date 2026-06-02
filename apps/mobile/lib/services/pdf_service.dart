@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -7,8 +8,10 @@ import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class PdfService {
+  static Future<pw.ThemeData>? _pdfThemeFuture;
+
   static Future<void> generateSessionReportPdf(SessionReport report) async {
-    final pdf = pw.Document();
+    final pdf = pw.Document(theme: await _mintPdfTheme());
 
     pdf.addPage(
       pw.MultiPage(
@@ -17,13 +20,13 @@ class PdfService {
         header: (pw.Context context) => pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text('MINT — MENTORAT FINANCIER',
+            pw.Text('MINT - MENTORAT FINANCIER',
                 style: pw.TextStyle(
                     fontSize: 8,
                     color: PdfColors.grey700,
                     fontWeight: pw.FontWeight.bold)),
             pw.Text(
-              'MENTORAT ÉDUCATIF — CONFIDENTIEL',
+              'MENTORAT ÉDUCATIF - CONFIDENTIEL',
               style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
             ),
           ],
@@ -272,13 +275,13 @@ class PdfService {
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
                 for (var a in report.mintRoadmap.assumptions)
-                  pw.Text('• $a', style: const pw.TextStyle(fontSize: 8)),
+                  pw.Text('- $a', style: const pw.TextStyle(fontSize: 8)),
                 pw.SizedBox(height: 8),
                 pw.Text('Conflits d\'intérêts & Commissions :',
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
                 for (var c in report.mintRoadmap.conflicts)
-                  pw.Text('• ${c.partner} : ${c.disclosure}',
+                  pw.Text('- ${c.partner} : ${c.disclosure}',
                       style: pw.TextStyle(
                           fontSize: 8, fontStyle: pw.FontStyle.italic)),
               ],
@@ -349,7 +352,7 @@ class PdfService {
               child: pw.Row(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text('• ',
+                  pw.Text('- ',
                       style: pw.TextStyle(
                           color: PdfColors.grey700,
                           fontWeight: pw.FontWeight.bold)),
@@ -374,7 +377,7 @@ class PdfService {
   }
 
   static Future<void> generateFinancialReportPdf(FinancialReport report) async {
-    final pdf = pw.Document();
+    final pdf = pw.Document(theme: await _mintPdfTheme());
     final generatedDate = report.generatedAt.toLocal().toString().split('.')[0];
 
     pdf.addPage(
@@ -385,13 +388,13 @@ class PdfService {
         header: (pw.Context context) => pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text('MINT — MENTORAT FINANCIER',
+            pw.Text('MINT - MENTORAT FINANCIER',
                 style: pw.TextStyle(
                     fontSize: 8,
                     color: PdfColors.grey700,
                     fontWeight: pw.FontWeight.bold)),
             pw.Text(
-              'RAPPORT FINANCIER — CONFIDENTIEL',
+              'RAPPORT FINANCIER - CONFIDENTIEL',
               style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
             ),
           ],
@@ -405,9 +408,9 @@ class PdfService {
             children: [
               pw.Expanded(
                 child: pw.Text(
-                  'Outil éducatif — MINT — ne constitue pas un conseil financier au sens de la LSFin',
-                  style: const pw.TextStyle(
-                      fontSize: 6, color: PdfColors.grey500),
+                  'Outil éducatif - MINT - ne constitue pas un conseil financier au sens de la LSFin',
+                  style:
+                      const pw.TextStyle(fontSize: 6, color: PdfColors.grey500),
                 ),
               ),
               pw.SizedBox(width: 10),
@@ -415,8 +418,7 @@ class PdfService {
                   style: const pw.TextStyle(
                       fontSize: 6, color: PdfColors.grey500)),
               pw.SizedBox(width: 10),
-              pw.Text(
-                  'Page ${context.pageNumber} sur ${context.pagesCount}',
+              pw.Text('Page ${context.pageNumber} sur ${context.pagesCount}',
                   style: const pw.TextStyle(
                       fontSize: 6, color: PdfColors.grey500)),
             ],
@@ -431,7 +433,7 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           children.add(pw.SizedBox(height: 10));
           children.add(pw.Text(
-            'Ton Plan Mint — Rapport Financier',
+            'Ton Plan Mint - Rapport Financier',
             style: pw.TextStyle(
                 fontSize: 22,
                 fontWeight: pw.FontWeight.bold,
@@ -439,7 +441,7 @@ class PdfService {
           ));
           children.add(pw.SizedBox(height: 4));
           children.add(pw.Text(
-            'Bilan personnalisé pour ${report.profile.firstName ?? 'toi'} — ${report.profile.canton.toUpperCase()}',
+            'Bilan personnalisé pour ${report.profile.firstName ?? 'toi'} - ${report.profile.canton.toUpperCase()}',
             style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
           ));
           children.add(pw.SizedBox(height: 4));
@@ -451,7 +453,7 @@ class PdfService {
               borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
             ),
             child: pw.Text(
-              'Score de santé financière : ${report.healthScore.overallScore.toInt()}/100 — ${report.healthScore.overallLevel.label}',
+              'Score de santé financière : ${report.healthScore.overallScore.toInt()}/100 - ${report.healthScore.overallLevel.label}',
               style: pw.TextStyle(
                   fontSize: 9,
                   fontWeight: pw.FontWeight.bold,
@@ -478,14 +480,12 @@ class PdfService {
           final kpis = <Map<String, String>>[
             {
               'label': 'Disponible / mois',
-              'value':
-                  formatChfWithPrefix(monthlyAvailable),
+              'value': formatChfWithPrefix(monthlyAvailable),
               'note': 'Après impôts estimés',
             },
             {
               'label': 'Impôts estimés / an',
-              'value':
-                  formatChfWithPrefix(report.taxSimulation.totalTax),
+              'value': formatChfWithPrefix(report.taxSimulation.totalTax),
               'note':
                   'Taux effectif : ${(report.taxSimulation.effectiveRate * 100).toStringAsFixed(1)}%',
             },
@@ -509,8 +509,7 @@ class PdfService {
               padding: const pw.EdgeInsets.all(8),
               decoration: pw.BoxDecoration(
                 border: pw.Border.all(color: PdfColors.grey300),
-                borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -539,7 +538,7 @@ class PdfService {
           // 3. TOP 3 ACTIONS PRIORITAIRES
           // ═══════════════════════════════════════════════════════
           children.add(pw.SizedBox(height: 30));
-          children.add(_pdfSectionTitle('Top 3 — Actions Prioritaires'));
+          children.add(_pdfSectionTitle('Top 3 - Actions Prioritaires'));
           children.add(pw.SizedBox(height: 10));
 
           for (int i = 0; i < report.priorityActions.length; i++) {
@@ -556,8 +555,7 @@ class PdfService {
                         ? PdfColors.red200
                         : PdfColors.blue200,
                     width: 0.5),
-                borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -579,8 +577,8 @@ class PdfService {
                               horizontal: 6, vertical: 2),
                           decoration: const pw.BoxDecoration(
                             color: PdfColors.green100,
-                            borderRadius: pw.BorderRadius.all(
-                                pw.Radius.circular(4)),
+                            borderRadius:
+                                pw.BorderRadius.all(pw.Radius.circular(4)),
                           ),
                           child: pw.Text(
                             '+${formatChfWithPrefix(action.potentialGainChf!)}',
@@ -623,8 +621,7 @@ class PdfService {
             decoration: pw.BoxDecoration(
               color: PdfColors.grey50,
               border: pw.Border.all(color: PdfColors.grey200),
-              borderRadius:
-                  const pw.BorderRadius.all(pw.Radius.circular(6)),
+              borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
             ),
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -659,8 +656,7 @@ class PdfService {
                     formatChfPreciseWithPrefix(tax.federalTax)),
                 pw.SizedBox(height: 4),
                 _pdfKeyValue(
-                    'TOTAL estimé',
-                    formatChfPreciseWithPrefix(tax.totalTax),
+                    'TOTAL estimé', formatChfPreciseWithPrefix(tax.totalTax),
                     bold: true),
                 _pdfKeyValue('Taux effectif',
                     '${(tax.effectiveRate * 100).toStringAsFixed(1)}%'),
@@ -695,8 +691,7 @@ class PdfService {
               decoration: pw.BoxDecoration(
                 color: PdfColors.grey50,
                 border: pw.Border.all(color: PdfColors.grey200),
-                borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -728,13 +723,13 @@ class PdfService {
                           fontSize: 8,
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.grey600)),
-                  _pdfKeyValue('Capital LPP',
-                      formatChfWithPrefix(ret.lppCapital)),
-                  _pdfKeyValue('Capital 3a',
-                      formatChfWithPrefix(ret.pillar3aCapital)),
+                  _pdfKeyValue(
+                      'Capital LPP', formatChfWithPrefix(ret.lppCapital)),
+                  _pdfKeyValue(
+                      'Capital 3a', formatChfWithPrefix(ret.pillar3aCapital)),
                   if (ret.otherAssets != null && ret.otherAssets! > 0)
-                    _pdfKeyValue('Autres actifs',
-                        formatChfWithPrefix(ret.otherAssets!)),
+                    _pdfKeyValue(
+                        'Autres actifs', formatChfWithPrefix(ret.otherAssets!)),
                   pw.Divider(thickness: 0.5, color: PdfColors.grey300),
                   _pdfKeyValue(
                     'Capital total estimé',
@@ -770,8 +765,7 @@ class PdfService {
               decoration: pw.BoxDecoration(
                 color: PdfColors.grey50,
                 border: pw.Border.all(color: PdfColors.grey200),
-                borderRadius:
-                    const pw.BorderRadius.all(pw.Radius.circular(6)),
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
               ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -833,16 +827,14 @@ class PdfService {
                                   style: const pw.TextStyle(fontSize: 8))),
                           pw.Expanded(
                               flex: 3,
-                              child: pw.Text(
-                                  formatChfWithPrefix(year.amount),
+                              child: pw.Text(formatChfWithPrefix(year.amount),
                                   style: const pw.TextStyle(fontSize: 8))),
                           pw.Expanded(
                               flex: 3,
                               child: pw.Text(
                                   formatChfWithPrefix(year.estimatedTaxSavings),
                                   style: const pw.TextStyle(
-                                      fontSize: 8,
-                                      color: PdfColors.green800))),
+                                      fontSize: 8, color: PdfColors.green800))),
                         ],
                       ),
                     ),
@@ -863,7 +855,7 @@ class PdfService {
           // 7. CONFORMITÉ (Statement of Advice)
           // ═══════════════════════════════════════════════════════
           children.add(pw.SizedBox(height: 25));
-          children.add(_pdfSectionTitle('Conformité — Statement of Advice'));
+          children.add(_pdfSectionTitle('Conformité - Statement of Advice'));
           children.add(pw.SizedBox(height: 10));
 
           children.add(pw.Container(
@@ -872,7 +864,8 @@ class PdfService {
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('Nature du service : Éducation financière (non-régulée)',
+                pw.Text(
+                    'Nature du service : Éducation financière (non-régulée)',
                     style: pw.TextStyle(
                         fontSize: 9, fontWeight: pw.FontWeight.bold)),
                 pw.SizedBox(height: 6),
@@ -880,26 +873,26 @@ class PdfService {
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
                 pw.Text(
-                    '• Les données utilisées sont celles déclarées par l\'utilisateur·trice.',
+                    '- Les données utilisées sont celles déclarées par l\'utilisateur·trice.',
                     style: const pw.TextStyle(fontSize: 8)),
                 pw.Text(
-                    '• Les taux fiscaux sont des estimations simplifiées par canton.',
+                    '- Les taux fiscaux sont des estimations simplifiées par canton.',
                     style: const pw.TextStyle(fontSize: 8)),
                 pw.Text(
-                    '• Les projections de rendement utilisent des hypothèses prudentes (3-5%).',
+                    '- Les projections de rendement utilisent des hypothèses prudentes (3-5%).',
                     style: const pw.TextStyle(fontSize: 8)),
                 pw.Text(
-                    '• Le taux de conversion LPP utilisé est de 6% (hypothèse prudente vs 6.8% légal).',
+                    '- Le taux de conversion LPP utilisé est de 6% (hypothèse prudente vs 6.8% légal).',
                     style: const pw.TextStyle(fontSize: 8)),
                 pw.SizedBox(height: 6),
                 pw.Text('Conflits d\'intérêts :',
                     style: pw.TextStyle(
                         fontSize: 8, fontWeight: pw.FontWeight.bold)),
                 pw.Text(
-                    '• MINT ne perçoit aucune commission des fournisseurs de 3a mentionnés.',
+                    '- MINT ne perçoit aucune commission des fournisseurs de 3a mentionnés.',
                     style: const pw.TextStyle(fontSize: 8)),
                 pw.Text(
-                    '• Les comparaisons de fournisseurs sont basées sur des données publiques de frais et rendements.',
+                    '- Les comparaisons de fournisseurs sont basées sur des données publiques de frais et rendements.',
                     style: const pw.TextStyle(fontSize: 8)),
               ],
             ),
@@ -919,7 +912,7 @@ class PdfService {
                 child: pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('• ',
+                    pw.Text('- ',
                         style: pw.TextStyle(
                             color: PdfColors.grey700,
                             fontWeight: pw.FontWeight.bold)),
@@ -949,7 +942,7 @@ class PdfService {
                 child: pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('• ',
+                    pw.Text('- ',
                         style: pw.TextStyle(
                             color: PdfColors.grey600,
                             fontWeight: pw.FontWeight.bold)),
@@ -993,8 +986,7 @@ class PdfService {
   }
 
   /// Ligne clé-valeur pour le PDF V2
-  static pw.Widget _pdfKeyValue(String key, String value,
-      {bool bold = false}) {
+  static pw.Widget _pdfKeyValue(String key, String value, {bool bold = false}) {
     return pw.Padding(
       padding: const pw.EdgeInsets.symmetric(vertical: 1),
       child: pw.Row(
@@ -1017,7 +1009,7 @@ class PdfService {
 
   /// Generates a PDF decision report from coach conversation highlights.
   ///
-  /// Export educatif — inclut le contexte financier de l'utilisateur,
+  /// Export educatif - inclut le contexte financier de l'utilisateur,
   /// les echanges Q&A pertinents, les sources juridiques, et les disclaimers.
   static Future<void> generateDecisionReportPdf({
     required String firstName,
@@ -1026,7 +1018,7 @@ class PdfService {
     required List<Map<String, String>> conversationHighlights,
     required List<String> legalSources,
   }) async {
-    final pdf = pw.Document();
+    final pdf = pw.Document(theme: await _mintPdfTheme());
 
     pdf.addPage(
       pw.MultiPage(
@@ -1035,13 +1027,13 @@ class PdfService {
         header: (pw.Context context) => pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text('MINT — MENTORAT FINANCIER',
+            pw.Text('MINT - MENTORAT FINANCIER',
                 style: pw.TextStyle(
                     fontSize: 8,
                     color: PdfColors.grey700,
                     fontWeight: pw.FontWeight.bold)),
             pw.Text(
-              'RAPPORT DÉCISIONNEL — CONFIDENTIEL',
+              'RAPPORT DÉCISIONNEL - CONFIDENTIEL',
               style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
             ),
           ],
@@ -1077,7 +1069,7 @@ class PdfService {
           ));
           children.add(pw.SizedBox(height: 8));
           children.add(pw.Text(
-            'Coach MINT — Conversation éducative',
+            'Coach MINT - Conversation éducative',
             style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
           ));
           children.add(pw.SizedBox(height: 20));
@@ -1101,7 +1093,7 @@ class PdfService {
                             fontWeight: pw.FontWeight.bold,
                             color: PdfColors.blue900)),
                     pw.SizedBox(height: 4),
-                    pw.Text('$firstName — Canton $canton',
+                    pw.Text('$firstName - Canton $canton',
                         style: const pw.TextStyle(fontSize: 10)),
                   ],
                 ),
@@ -1168,7 +1160,8 @@ class PdfService {
                     ),
                     pw.SizedBox(height: 6),
                     pw.Text(highlight['answer'] ?? '',
-                        style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey800)),
+                        style: const pw.TextStyle(
+                            fontSize: 9, color: PdfColors.grey800)),
                   ],
                 ),
               ));
@@ -1192,7 +1185,7 @@ class PdfService {
                 child: pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text('• ', style: const pw.TextStyle(fontSize: 9)),
+                    pw.Text('- ', style: const pw.TextStyle(fontSize: 9)),
                     pw.Expanded(
                       child: pw.Text(source,
                           style: const pw.TextStyle(
@@ -1216,7 +1209,7 @@ class PdfService {
               border: pw.Border.all(color: PdfColors.amber200, width: 0.5),
             ),
             child: pw.Text(
-              'Outil éducatif — ne constitue pas un conseil financier au sens de la LSFin. '
+              'Outil éducatif - ne constitue pas un conseil financier au sens de la LSFin. '
               'Les estimations sont basées sur des hypothèses simplifiées et des données déclaratives. '
               'Consulte un·e spécialiste certifié·e pour toute décision financière importante.',
               style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
@@ -1230,6 +1223,22 @@ class PdfService {
 
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save(),
+    );
+  }
+
+  static Future<pw.ThemeData> _mintPdfTheme() {
+    return _pdfThemeFuture ??= _loadMintPdfTheme();
+  }
+
+  static Future<pw.ThemeData> _loadMintPdfTheme() async {
+    final regular = await rootBundle.load('assets/fonts/Lato-Regular.ttf');
+    final bold = await rootBundle.load('assets/fonts/Lato-Bold.ttf');
+
+    return pw.ThemeData.withFont(
+      base: pw.Font.ttf(regular),
+      bold: pw.Font.ttf(bold),
+      italic: pw.Font.ttf(regular),
+      boldItalic: pw.Font.ttf(bold),
     );
   }
 }

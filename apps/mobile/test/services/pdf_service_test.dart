@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:flutter/rendering.dart' show Rect;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/models/financial_report.dart';
@@ -5,6 +8,9 @@ import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/recommendation.dart';
 import 'package:mint_mobile/models/goal_template.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
+import 'package:printing/src/interface.dart';
 
 /// PdfService is entirely I/O-bound (uses the `pdf` and `printing` packages
 /// to generate and display/share PDFs). There are no pure functions,
@@ -38,6 +44,26 @@ void main() {
     });
   });
 
+  group('PdfService PDF generation', () {
+    late _CaptureSharePdfPrintingPlatform printingPlatform;
+
+    setUp(() {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      printingPlatform = _CaptureSharePdfPrintingPlatform();
+      PrintingPlatform.instance = printingPlatform;
+    });
+
+    test('generateFinancialReportPdf shares a concrete PDF document', () async {
+      await PdfService.generateFinancialReportPdf(_sampleFinancialReport());
+
+      expect(printingPlatform.sharePdfCalls, 1);
+      expect(printingPlatform.filename, 'mint_report_v2.pdf');
+      expect(printingPlatform.bytes, isNotNull);
+      expect(printingPlatform.bytes!.length, greaterThan(1024));
+      expect(printingPlatform.bytes!.take(5), [37, 80, 68, 70, 45]); // %PDF-
+    });
+  });
+
   // ──────────────────────────────────────────────────────────
   // SessionReport — input model for generateSessionReportPdf
   // ──────────────────────────────────────────────────────────
@@ -65,8 +91,7 @@ void main() {
             ConflictOfInterest(
               partner: 'VIAC',
               type: 'affiliation',
-              disclosure:
-                  'Commission de recommandation si ouverture de compte',
+              disclosure: 'Commission de recommandation si ouverture de compte',
             ),
           ],
         ),
@@ -316,24 +341,17 @@ void main() {
 
     test('ActionPriority enum has 4 levels', () {
       expect(ActionPriority.values, hasLength(4));
-      expect(ActionPriority.values,
-          contains(ActionPriority.critical));
-      expect(ActionPriority.values,
-          contains(ActionPriority.high));
-      expect(ActionPriority.values,
-          contains(ActionPriority.medium));
-      expect(ActionPriority.values,
-          contains(ActionPriority.low));
+      expect(ActionPriority.values, contains(ActionPriority.critical));
+      expect(ActionPriority.values, contains(ActionPriority.high));
+      expect(ActionPriority.values, contains(ActionPriority.medium));
+      expect(ActionPriority.values, contains(ActionPriority.low));
     });
 
     test('ActionCategory enum has 8 categories', () {
       expect(ActionCategory.values, hasLength(8));
-      expect(ActionCategory.values,
-          contains(ActionCategory.pillar3a));
-      expect(ActionCategory.values,
-          contains(ActionCategory.lpp));
-      expect(ActionCategory.values,
-          contains(ActionCategory.tax));
+      expect(ActionCategory.values, contains(ActionCategory.pillar3a));
+      expect(ActionCategory.values, contains(ActionCategory.lpp));
+      expect(ActionCategory.values, contains(ActionCategory.tax));
     });
   });
 
@@ -432,15 +450,129 @@ void main() {
   // Coverage note
   // ──────────────────────────────────────────────────────────
   //
-  // PdfService.generateSessionReportPdf and generateFinancialReportPdf
-  // are fully I/O-bound (they create a pw.Document, add pages, and call
-  // Printing.layoutPdf / Printing.sharePdf). These methods require a
-  // platform environment and cannot be unit-tested without a full Flutter
-  // widget test harness or platform mocking.
+  // PdfService.generateSessionReportPdf is I/O-bound (it creates a
+  // pw.Document and calls Printing.layoutPdf), so the tests above validate
+  // its input contract. generateFinancialReportPdf is covered with a mocked
+  // PrintingPlatform to prove PDF bytes are generated and passed to sharePdf.
   //
   // The tests above validate:
   // - The PdfService class structure
   // - The input model contracts (SessionReport, FinancialReport)
   // - JSON deserialization of the primary input model
   // - Computed properties used by the PDF template (precisionScore threshold)
+}
+
+FinancialReport _sampleFinancialReport() {
+  const dummyCircle = CircleScore(
+    circleName: 'Test',
+    circleNumber: 1,
+    percentage: 72.0,
+    level: ScoreLevel.good,
+    items: [],
+    recommendations: [],
+  );
+
+  return FinancialReport(
+    profile: const UserProfile(
+      firstName: 'Marc',
+      birthYear: 1990,
+      canton: 'GE',
+      civilStatus: 'single',
+      childrenCount: 0,
+      employmentStatus: 'employee',
+      monthlyNetIncome: 6500.0,
+    ),
+    healthScore: const FinancialHealthScore(
+      circle1Protection: dummyCircle,
+      circle2Prevoyance: dummyCircle,
+      circle3Croissance: dummyCircle,
+      circle4Optimisation: dummyCircle,
+      overallScore: 72.0,
+      topPriorities: ['Ouvrir un 3a', 'Fonds urgence'],
+    ),
+    taxSimulation: const TaxSimulation(
+      taxableIncome: 78000.0,
+      deductions: {'3a': 7258.0, 'frais_professionnels': 3200.0},
+      cantonalTax: 12500.0,
+      federalTax: 3200.0,
+      totalTax: 15700.0,
+      effectiveRate: 0.201,
+    ),
+    priorityActions: [
+      const ActionItem(
+        title: 'Ouvrir un 3a',
+        description: 'Maximise ta deduction fiscale',
+        priority: ActionPriority.high,
+        potentialGainChf: 2200.0,
+        category: ActionCategory.pillar3a,
+        steps: ['Comparer les offres', 'Ouvrir un compte', 'Verser'],
+      ),
+    ],
+    personalizedRoadmap: const Roadmap(phases: [
+      RoadmapPhase(
+        title: 'Immediat',
+        timeframe: '0-1 mois',
+        actions: [],
+      ),
+    ]),
+    generatedAt: DateTime(2025, 6, 15),
+  );
+}
+
+class _CaptureSharePdfPrintingPlatform extends PrintingPlatform {
+  int sharePdfCalls = 0;
+  Uint8List? bytes;
+  String? filename;
+
+  @override
+  Future<PrintingInfo> info() async => PrintingInfo.unavailable;
+
+  @override
+  Future<bool> layoutPdf(
+    Printer? printer,
+    LayoutCallback onLayout,
+    String name,
+    PdfPageFormat format,
+    bool dynamicLayout,
+    bool usePrinterSettings,
+    OutputType outputType,
+    bool forceCustomPrintPaper,
+  ) async =>
+      true;
+
+  @override
+  Future<List<Printer>> listPrinters() async => [];
+
+  @override
+  Future<Printer?> pickPrinter(Rect bounds) async => null;
+
+  @override
+  Future<bool> sharePdf(
+    Uint8List bytes,
+    String filename,
+    Rect bounds,
+    String? subject,
+    String? body,
+    List<String>? emails,
+  ) async {
+    sharePdfCalls += 1;
+    this.bytes = bytes;
+    this.filename = filename;
+    return true;
+  }
+
+  @override
+  Future<Uint8List> convertHtml(
+    String html,
+    String? baseUrl,
+    PdfPageFormat format,
+  ) async =>
+      Uint8List(0);
+
+  @override
+  Stream<PdfRaster> raster(
+    Uint8List document,
+    List<int>? pages,
+    double dpi,
+  ) async* {}
 }
