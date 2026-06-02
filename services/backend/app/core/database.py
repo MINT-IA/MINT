@@ -10,6 +10,8 @@ compat). The `get_backfill_engine()` helper returns a throttled engine
 must NOT compete with serving traffic on the main pool.
 """
 
+from __future__ import annotations
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from app.core.config import settings
