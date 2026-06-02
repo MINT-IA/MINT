@@ -339,8 +339,6 @@ REGISTERED INTENT TAGS (route_to_screen only):
   - real_return_3a
   - rent_vs_buy
   - rente_vs_capital_arbitrage
-  - report_overview
-  - report_v2
   - retirement_choice
   - retirement_overview
   - retirement_projection
