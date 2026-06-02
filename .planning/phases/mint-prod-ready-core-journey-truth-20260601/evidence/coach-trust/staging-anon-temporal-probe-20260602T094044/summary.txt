@@ -1,0 +1,6 @@
+Probe: POST https://mint-staging.up.railway.app/api/v1/anonymous/chat
+Date: 2026-06-02 09:40 Europe/Zurich
+Session: a3af7373-21ac-4b99-a838-0808fecff59d
+Payload: {"message":"Combien je peux mettre sur mon 3a cette année ?","language":"fr","intent":"Je veux comprendre mon 3a"}
+Result: HTTP 200, but response still says "7'258 CHF en 2025" and "janvier ou décembre 2025" for a 2026 "cette année" question.
+Verdict: CJT-021 remains a release blocker on staging; local backend tests are green, but staging has not cut over to the temporal-gate fix or still routes anon discovery through stale prompt/copy.
