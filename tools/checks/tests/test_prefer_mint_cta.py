@@ -78,6 +78,18 @@ class PreferMintCtaTest(LintTestCase):
         )
         self.assertEqual(rc, 0)
 
+    def test_formatter_next_line_ignore_marker(self):
+        self.write(
+            "apps/mobile/lib/baz.dart",
+            "ElevatedButton(\n  // lint-ignore: prefer_mint_cta\n  onPressed: () {},\n);\n",
+        )
+        baseline = self.baseline(LINT)
+        rc = run_lint_main(
+            LINT,
+            ["--scope-root", str(self.lib), "--baseline", str(baseline)],
+        )
+        self.assertEqual(rc, 0)
+
     def test_baseline_grandfathers_existing(self):
         fixture = self.write(
             "apps/mobile/lib/grandfathered.dart",

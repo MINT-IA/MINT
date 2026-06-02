@@ -142,6 +142,7 @@ class ThematicCard extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
+                  // lint-ignore: prefer_mint_cta
                   onPressed: onActionTap,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: statusColor,

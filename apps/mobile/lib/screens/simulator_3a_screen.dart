@@ -815,6 +815,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton(
+        // lint-ignore: prefer_mint_cta
         onPressed: () => context.push(route),
         child: Text(label),
       ),

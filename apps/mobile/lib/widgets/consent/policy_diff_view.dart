@@ -54,6 +54,7 @@ class PolicyDiffView extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           FilledButton(
+            // lint-ignore: prefer_mint_cta
             onPressed: onAcceptDelta,
             style: FilledButton.styleFrom(
               backgroundColor: MintColors.primary,

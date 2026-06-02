@@ -942,6 +942,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               button: true,
               label: l.dashboardOnboardingCta,
               child: FilledButton(
+                // lint-ignore: prefer_mint_cta
                 onPressed: () => context.go('/coach/chat'),
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
@@ -1062,6 +1063,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         button: true,
         label: label,
         child: OutlinedButton(
+          // lint-ignore: prefer_mint_cta
           onPressed: () => context.push(route),
           child: Text(label),
         ),

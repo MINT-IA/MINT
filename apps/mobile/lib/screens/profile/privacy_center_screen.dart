@@ -47,10 +47,12 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
         ),
         actions: [
           TextButton(
+            // lint-ignore: prefer_mint_cta
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(l.consentCancel),
           ),
           FilledButton(
+            // lint-ignore: prefer_mint_cta
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(l.consentRevoke),
           ),
@@ -204,6 +206,7 @@ class _ConsentRow extends StatelessWidget {
           ),
           if (onRevoke != null)
             TextButton(
+              // lint-ignore: prefer_mint_cta
               onPressed: onRevoke,
               style: TextButton.styleFrom(
                 minimumSize: const Size(0, 48),

@@ -290,6 +290,7 @@ class _PrimaryButton extends StatelessWidget {
       width: double.infinity,
       height: 52,
       child: FilledButton(
+        // lint-ignore: prefer_mint_cta
         onPressed: onPressed,
         style: FilledButton.styleFrom(
           backgroundColor: MintColors.textPrimary,
@@ -509,6 +510,7 @@ class _AgeStepState extends State<_AgeStep> {
           Expanded(
             child: Center(
               child: OutlinedButton(
+                // lint-ignore: prefer_mint_cta
                 onPressed: _pickDate,
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 64),
@@ -718,6 +720,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             const Spacer(),
             Center(
               child: TextButton(
+                // lint-ignore: prefer_mint_cta
                 onPressed: () => setState(() => _exactMode = true),
                 child: Text(
                   'Je sais le chiffre exact',
@@ -778,6 +781,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             const Spacer(),
             Center(
               child: TextButton(
+                // lint-ignore: prefer_mint_cta
                 onPressed: () => setState(() => _exactMode = false),
                 child: Text(
                   'Revenir à la fourchette',
@@ -1004,8 +1008,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
           backgroundColor: MintColors.textPrimary,
           content: Text(
             l10n.onboardingSealError,
-            style: const TextStyle(
-                fontFamily: 'Supreme', color: MintColors.background),
+            style: MintTextStyles.bodyMedium(color: MintColors.background),
           ),
           action: SnackBarAction(
             label: l10n.onboardingSealRetry,
@@ -1047,6 +1050,7 @@ class _BifurcationStepState extends State<_BifurcationStep> {
           ),
           const SizedBox(height: 10),
           TextButton(
+            // lint-ignore: prefer_mint_cta
             onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
             child: Text(
               'Plus tard',

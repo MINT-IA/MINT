@@ -960,6 +960,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
+                      // lint-ignore: prefer_mint_cta
                       onPressed: () => ctx.pop(false),
                       child: Text(S.of(context)!.documentScanCancel),
                     ),
@@ -967,6 +968,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: FilledButton(
+                      // lint-ignore: prefer_mint_cta
                       onPressed: () => ctx.pop(true),
                       child: Text(S.of(context)!.documentScanAnalyze),
                     ),

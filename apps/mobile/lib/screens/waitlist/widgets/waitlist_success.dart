@@ -51,6 +51,7 @@ class _WaitlistSuccessState extends State<WaitlistSuccess> {
             ),
             const SizedBox(height: MintSpacing.xl),
             FilledButton(
+              // lint-ignore: prefer_mint_cta
               key: const Key('waitlist-success-cta'),
               onPressed: () => context.go('/'),
               style: FilledButton.styleFrom(

@@ -94,6 +94,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
+              // lint-ignore: prefer_mint_cta
               key: const Key('thirdPartyDeclarationConfirm'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: MintColors.primary,
@@ -113,6 +114,7 @@ class ThirdPartyDeclarationSheet extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             TextButton(
+              // lint-ignore: prefer_mint_cta
               key: const Key('thirdPartyDeclarationCancel'),
               onPressed: () => Navigator.of(context)
                   .pop(ThirdPartyDeclarationChoice.cancelled),

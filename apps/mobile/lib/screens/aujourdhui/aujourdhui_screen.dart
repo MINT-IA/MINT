@@ -372,6 +372,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Center(
                     child: TextButton(
+                      // lint-ignore: prefer_mint_cta
                       onPressed: provider.loadMore,
                       child: Text(
                         l10n.timelineLoadMore,

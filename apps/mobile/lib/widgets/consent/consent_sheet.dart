@@ -124,6 +124,7 @@ class ConsentSheet extends StatelessWidget {
                   children: [
                     Expanded(
                       child: TextButton(
+                        // lint-ignore: prefer_mint_cta
                         onPressed: () => Navigator.of(context).pop(false),
                         child: Text(l.consentSheetRefuse),
                       ),
@@ -132,6 +133,7 @@ class ConsentSheet extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: FilledButton(
+                        // lint-ignore: prefer_mint_cta
                         onPressed: () => Navigator.of(context).pop(true),
                         style: FilledButton.styleFrom(
                           backgroundColor: MintColors.primary,

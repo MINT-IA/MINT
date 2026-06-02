@@ -1962,7 +1962,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             label:
                 '${v.label}: ${_formatDelta(lowDelta)} / ${_formatDelta(highDelta)}',
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: barFraction,
                 minHeight: 6,
