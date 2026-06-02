@@ -5,6 +5,7 @@ Usage:
   ./tools/mint-routes health [--json] [--no-color] [--batch-size=N] [--owner=X]
   ./tools/mint-routes redirects [--json] [--no-color] [--days=30]
   ./tools/mint-routes reconcile
+  ./tools/mint-routes check
   ./tools/mint-routes purge-cache
   ./tools/mint-routes --verify-token
   ./tools/mint-routes --help

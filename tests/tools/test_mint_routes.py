@@ -50,13 +50,25 @@ def test_help_exits_zero_and_lists_subcommands():
         r.returncode, r.stderr.decode()
     )
     out = r.stdout.decode()
-    for sub in ["health", "redirects", "reconcile", "purge-cache", "--verify-token"]:
+    for sub in [
+        "health",
+        "redirects",
+        "reconcile",
+        "check",
+        "purge-cache",
+        "--verify-token",
+    ]:
         assert sub in out, "{} missing from --help output".format(sub)
 
 
 def test_exit_codes_bad_args_returns_2():
     r = _run(["--nonsense-flag"])
     assert r.returncode == 2
+
+
+def test_check_alias_runs_local_route_parity():
+    r = _run(["check"], env_extra={"MINT_ROUTES_DRY_RUN": "1"})
+    assert r.returncode == 0, r.stderr.decode()[:400]
 
 
 def test_no_color_flag_suppresses_ansi():

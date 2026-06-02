@@ -78,6 +78,10 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Run tools/checks/route_registry_parity.py + show diff.",
     )
     sub.add_parser(
+        "check",
+        help="Alias for reconcile; kept for AGENTS.md preflight.",
+    )
+    sub.add_parser(
         "purge-cache",
         help="Delete .cache/route-health.json immediately (D-09 §3).",
     )
@@ -105,6 +109,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     if cmd == "redirects":
         return _cmd_redirects(args)
     if cmd == "reconcile":
+        return _cmd_reconcile(args)
+    if cmd == "check":
         return _cmd_reconcile(args)
     if cmd == "purge-cache":
         return _cmd_purge_cache(args)
