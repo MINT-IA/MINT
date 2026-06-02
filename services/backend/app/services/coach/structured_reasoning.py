@@ -456,13 +456,14 @@ def _detect_3a_not_maxed(profile: dict, today: Optional[datetime.date] = None) -
 
     remaining = ceiling - annual_3a_contribution
     confidence = 0.60
+    fiscal_year = today.year
 
     return ReasoningOutput(
         fact_tag="3a_not_maxed",
             domain="fiscalite",
         fact_label=(
             f"Pilier 3a non maximisé : {annual_3a_contribution:,.0f} CHF versés "
-            f"sur {ceiling:,.0f} CHF (plafond 2025/2026)"
+            f"sur {ceiling:,.0f} CHF (plafond {fiscal_year})"
         ),
         confidence=confidence,
         suggested_action=(
@@ -480,6 +481,7 @@ def _detect_3a_not_maxed(profile: dict, today: Optional[datetime.date] = None) -
             "deja_verse_CHF": round(annual_3a_contribution, 0),
             "restant_CHF": round(remaining, 0),
             "economie_fiscale_potentielle_CHF": round(tax_saving_potential, 0),
+            "annee_fiscale": fiscal_year,
         },
         sources=[
             "OPP3 art. 7 (plafond 3a : 7'258 CHF/an pour les salariés affiliés LPP)",
