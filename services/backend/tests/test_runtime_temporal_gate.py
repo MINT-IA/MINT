@@ -7,7 +7,11 @@ wrong temporal anchor for "cette annee".
 """
 from __future__ import annotations
 
-from app.services.coach.runtime_temporal_gate import _FALLBACK_FR, gate
+from app.services.coach.runtime_temporal_gate import (
+    _FALLBACK_FR,
+    fallback_for_language,
+    gate,
+)
 
 
 def test_gate_blocks_past_month_year_for_current_year_question():
@@ -51,6 +55,32 @@ def test_gate_does_not_block_historical_rule_without_month_anchor():
 
     assert passed is True
     assert output == narrator
+
+
+def test_gate_blocks_past_year_ceiling_anchor_for_current_year_question():
+    user_msg = "Combien je peux mettre sur mon 3a cette annee ?"
+    narrator = "Tu peux verser jusqu'a 7'258 CHF en 2025 selon l'OPP3 art. 7."
+
+    passed, output = gate(narrator, user_message=user_msg, current_year=2026)
+
+    assert passed is False
+    assert output == _FALLBACK_FR
+
+
+def test_gate_blocks_german_current_year_3a_question_with_localized_fallback():
+    user_msg = "Wie viel kann ich dieses Jahr in die Säule 3a einzahlen?"
+    narrator = "Du kannst 7'258 CHF im Jahr 2025 in die Säule 3a einzahlen."
+    fallback = fallback_for_language("de")
+
+    passed, output = gate(
+        narrator,
+        user_message=user_msg,
+        current_year=2026,
+        fallback_text=fallback,
+    )
+
+    assert passed is False
+    assert output == fallback
 
 
 def test_gate_blocks_market_timing_for_current_3a_ceiling_question():
