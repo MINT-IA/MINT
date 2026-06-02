@@ -63,6 +63,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
     };
   }
 
+  void _leaveReport(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/mon-argent');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (wizardAnswers.isEmpty && !_hasReportFallback(context)) {
@@ -76,7 +84,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new),
-            onPressed: () => context.go('/coach/chat'),
+            onPressed: () => _leaveReport(context),
           ),
         ),
         body: MintEmptyState(
@@ -105,7 +113,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () => context.go('/coach/chat'),
+          onPressed: () => _leaveReport(context),
         ),
         actions: [
           IconButton(
