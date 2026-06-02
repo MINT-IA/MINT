@@ -51,11 +51,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, List, Optional
+from uuid import uuid4
 
 
 # Decimal tolerance for numeric comparison ; values closer than this are
@@ -171,8 +173,8 @@ def _diff_recursive(
                 f"{path}: list length diff (left={len(left)}, right={len(right)})"
             )
             return
-        for i, (l, r) in enumerate(zip(left, right)):
-            _diff_recursive(l, r, f"{path}[{i}]", reasons)
+        for i, (left_item, right_item) in enumerate(zip(left, right)):
+            _diff_recursive(left_item, right_item, f"{path}[{i}]", reasons)
         return
 
     # 6. Fallback : canonical-JSON byte comparison (catches strings, bools,
@@ -268,6 +270,150 @@ def _run_pair(left_path: Path, right_path: Path) -> int:
     return 0 if result.is_equal else 1
 
 
+def _ensure_backend_import_path() -> None:
+    """Make services/backend importable when this tool runs from repo root."""
+    repo_root = Path(__file__).resolve().parents[2]
+    backend_root = repo_root / "services" / "backend"
+    for path in (str(repo_root), str(backend_root)):
+        if path not in sys.path:
+            sys.path.insert(0, path)
+
+
+def _resolve_audit_db_url() -> Optional[str]:
+    """Resolve the DB URL used by --audit-all-users."""
+    return (
+        os.environ.get("STAGING_DATABASE_URL", "").strip()
+        or os.environ.get("DATABASE_URL", "").strip()
+        or None
+    )
+
+
+def _legacy_payload(session, user_id: str) -> dict:
+    """Build the legacy SnapshotModel payload for one user."""
+    from app.models.snapshot import SnapshotModel
+
+    snapshot = (
+        session.query(SnapshotModel)
+        .filter(SnapshotModel.user_id == user_id)
+        .order_by(SnapshotModel.created_at.desc())
+        .first()
+    )
+    if snapshot is None:
+        return {}
+    payload = {}
+    if snapshot.gross_income is not None:
+        payload["monthly_gross_income"] = snapshot.gross_income
+    return payload
+
+
+def _fact_current_payload(session, user_id: str) -> dict:
+    """Build the fact_current payload for one user by decrypting each fact."""
+    from app.models.fact_current import FactCurrent
+    from app.services.encryption.encrypted_value_helper import decrypt_value
+
+    rows = (
+        session.query(FactCurrent)
+        .filter(FactCurrent.user_id == user_id)
+        .order_by(FactCurrent.field_key.asc())
+        .all()
+    )
+    return {
+        row.field_key: decrypt_value(session, user_id, row.value_enc)
+        for row in rows
+    }
+
+
+def _persist_audit_result(
+    session,
+    *,
+    persist_to: str,
+    user_id: str,
+    audit_run_id: str,
+    result: ParityDiffResult,
+) -> None:
+    """Persist one _phase02_parity_audit row."""
+    from app.models.phase02_parity_audit import Phase02ParityAudit
+    from app.services.audit.hmac_pepper import hmac_user_id
+
+    if persist_to != Phase02ParityAudit.__tablename__:
+        raise ValueError(
+            f"unsupported --persist-to table {persist_to!r}; expected "
+            f"{Phase02ParityAudit.__tablename__!r}"
+        )
+
+    session.add(
+        Phase02ParityAudit(
+            user_id_hash=hmac_user_id(user_id) or "",
+            diff_detected=not result.is_equal,
+            diff_details={"reasons": result.reasons} if result.reasons else {},
+            audit_run_id=audit_run_id,
+        )
+    )
+
+
+def _run_audit_all_users(*, persist_to: Optional[str]) -> int:
+    """Audit all users from DB-local legacy SnapshotModel vs fact_current."""
+    _ensure_backend_import_path()
+
+    db_url = _resolve_audit_db_url()
+    if not db_url:
+        print(
+            "ERROR: --audit-all-users requires STAGING_DATABASE_URL or "
+            "DATABASE_URL. Refusing to run without an explicit database target."
+        )
+        return 2
+
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+
+    from app.models.user import User
+
+    engine = create_engine(db_url, pool_pre_ping=True)
+    Session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+    audit_run_id = str(uuid4())
+    users_audited = 0
+    users_with_diff = 0
+    persisted_rows = 0
+
+    session = Session()
+    try:
+        user_ids = [row[0] for row in session.query(User.id).order_by(User.id).all()]
+        for user_id in user_ids:
+            users_audited += 1
+            result = diff_payloads(
+                _legacy_payload(session, user_id),
+                _fact_current_payload(session, user_id),
+            )
+            if not result.is_equal:
+                users_with_diff += 1
+            if persist_to:
+                _persist_audit_result(
+                    session,
+                    persist_to=persist_to,
+                    user_id=user_id,
+                    audit_run_id=audit_run_id,
+                    result=result,
+                )
+                persisted_rows += 1
+        if persist_to:
+            session.commit()
+    except Exception as exc:  # noqa: BLE001 - CLI must surface clear blocker
+        session.rollback()
+        print(f"ERROR: audit-all-users failed: {exc}")
+        return 2
+    finally:
+        session.close()
+        engine.dispose()
+
+    print(
+        f"AUDIT_RUN_ID={audit_run_id} "
+        f"USERS_AUDITED={users_audited} "
+        f"USERS_WITH_DIFF={users_with_diff} "
+        f"PERSISTED_ROWS={persisted_rows}"
+    )
+    return 0 if users_with_diff == 0 else 1
+
+
 def main(argv: Optional[list] = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
@@ -292,10 +438,10 @@ def main(argv: Optional[list] = None) -> int:
         "--audit-all-users",
         action="store_true",
         help=(
-            "PR-3a checkpoint precondition (stub). Iterates 100%% of staging "
-            "users, runs diff_payloads on each, persists to "
-            "_phase02_parity_audit. Requires STAGING_BASE_URL + "
-            "STAGING_DATABASE_URL env vars."
+            "PR-3a checkpoint precondition. Iterates 100%% of users in "
+            "STAGING_DATABASE_URL/DATABASE_URL, compares latest SnapshotModel "
+            "payload against fact_current, and optionally persists to "
+            "_phase02_parity_audit."
         ),
     )
     parser.add_argument(
@@ -311,18 +457,7 @@ def main(argv: Optional[list] = None) -> int:
     if args.pair:
         return _run_pair(args.pair[0], args.pair[1])
     if args.audit_all_users:
-        # Surface a clear blocker until the staging-runtime wiring lands.
-        # The Task 2a checkpoint preamble (Claude steps 5-8) is where this
-        # gets exercised against Railway staging ; until then, refuse
-        # silently-running and produce no false zero-diff signal.
-        print(
-            "ERROR: --audit-all-users requires STAGING_BASE_URL + "
-            "STAGING_DATABASE_URL env vars and PR-3a backfill deployed to "
-            "Railway staging. This is the Task 2a checkpoint preamble "
-            "(Claude steps 5-8). Stub-blocked here to prevent false "
-            "zero-diff signal."
-        )
-        return 2
+        return _run_audit_all_users(persist_to=args.persist_to)
     parser.print_help()
     return 0
 

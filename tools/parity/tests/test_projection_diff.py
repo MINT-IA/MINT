@@ -11,8 +11,7 @@ import subprocess
 import sys
 from decimal import Decimal
 from pathlib import Path
-
-import pytest
+from uuid import uuid4
 
 # Make tools/parity importable without an editable install.
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -21,6 +20,7 @@ sys.path.insert(0, str(_REPO_ROOT))
 from tools.parity.projection_diff import (  # noqa: E402
     DECIMAL_TOLERANCE,
     diff_payloads,
+    main,
 )
 
 
@@ -168,8 +168,10 @@ def test_cli_pair_diff_exits_one(tmp_path):
     assert "DIFF" in result.stdout
 
 
-def test_cli_audit_all_users_stub_exits_two_with_message():
-    """Stub-blocking exit prevents false zero-diff signal pre-staging-wire."""
+def test_cli_audit_all_users_without_db_url_exits_two(monkeypatch):
+    """Missing DB target refuses to run instead of producing a false zero."""
+    monkeypatch.delenv("STAGING_DATABASE_URL", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
     result = subprocess.run(
         [sys.executable, str(_SCRIPT), "--audit-all-users"],
         capture_output=True,
@@ -180,4 +182,90 @@ def test_cli_audit_all_users_stub_exits_two_with_message():
     assert result.returncode == 2, (
         f"expected stub exit 2, got {result.returncode}\n{result.stdout}"
     )
-    assert "STAGING_BASE_URL" in result.stdout
+    assert "STAGING_DATABASE_URL" in result.stdout
+
+
+def _seed_audit_db(tmp_path, *, fact_value: float):
+    """Create a minimal audit DB with one user, one snapshot, one fact_current."""
+    import os
+    import sys
+    from datetime import datetime, timezone
+
+    os.environ["TESTING"] = "1"
+    backend_root = _REPO_ROOT / "services" / "backend"
+    if str(backend_root) not in sys.path:
+        sys.path.insert(0, str(backend_root))
+
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import Session
+
+    import app.models  # noqa: F401 - register all models on Base.metadata
+    from app.core.database import Base
+    from app.models.fact_current import FactCurrent
+    from app.models.phase02_parity_audit import Phase02ParityAudit  # noqa: F401
+    from app.models.snapshot import SnapshotModel
+    from app.models.user import User
+    from app.services.encryption.encrypted_value_helper import encrypt_value
+
+    db_file = tmp_path / f"audit-{uuid4().hex}.sqlite"
+    db_url = f"sqlite:///{db_file}"
+    engine = create_engine(db_url)
+    Base.metadata.create_all(engine)
+
+    user_id = "u-audit-1"
+    with Session(engine) as session:
+        session.add(
+            User(
+                id=user_id,
+                email="audit@example.test",
+                hashed_password="x",
+            )
+        )
+        session.add(
+            SnapshotModel(
+                id="snap-1",
+                user_id=user_id,
+                created_at=datetime(2026, 6, 2, tzinfo=timezone.utc),
+                trigger="profile_update",
+                gross_income=8500.0,
+            )
+        )
+        session.flush()
+        session.add(
+            FactCurrent(
+                user_id=user_id,
+                field_key="monthly_gross_income",
+                value_enc=encrypt_value(session, user_id, fact_value),
+                valid_from=datetime(2026, 6, 2, tzinfo=timezone.utc),
+                latest_event_id="evt-audit-1",
+            )
+        )
+        session.commit()
+    engine.dispose()
+    return db_url
+
+
+def test_cli_audit_all_users_equal_persists_zero_diff(tmp_path, monkeypatch, capsys):
+    db_url = _seed_audit_db(tmp_path, fact_value=8500.0)
+    monkeypatch.setenv("STAGING_DATABASE_URL", db_url)
+
+    exit_code = main(["--audit-all-users", "--persist-to", "_phase02_parity_audit"])
+    out = capsys.readouterr().out
+
+    assert exit_code == 0
+    assert "USERS_AUDITED=1" in out
+    assert "USERS_WITH_DIFF=0" in out
+    assert "PERSISTED_ROWS=1" in out
+
+
+def test_cli_audit_all_users_diff_exits_one(tmp_path, monkeypatch, capsys):
+    db_url = _seed_audit_db(tmp_path, fact_value=9000.0)
+    monkeypatch.setenv("STAGING_DATABASE_URL", db_url)
+
+    exit_code = main(["--audit-all-users", "--persist-to", "_phase02_parity_audit"])
+    out = capsys.readouterr().out
+
+    assert exit_code == 1
+    assert "USERS_AUDITED=1" in out
+    assert "USERS_WITH_DIFF=1" in out
+    assert "PERSISTED_ROWS=1" in out
