@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 16e - iOS 26.2 - 9C9E9AAE-C3CF-49B8-B06D-625004880A9B" tests="1" failures="0" time="32.0">
+    <testcase id="flow_hardgate_expat_us" name="flow_hardgate_expat_us" classname="flow_hardgate_expat_us" time="32.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="phase-01.5, hard-gate, fatca, expat-us, gate-g1, codex-c3, codex-c7, codex-c8"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>
