@@ -177,7 +177,67 @@ pytest tests/integration/test_backfill_idempotent.py -q
 ## Interpretation
 
 The staging DB schema, audit path, backfill no-op idempotence, flags, and Phase
-02 metrics are now proven against the actual `MINT.DATABASE_URL` target. CJT-013
-still remains a release blocker until prod/read-cutover decisions are handled:
-prod probe, PR-3b/PR-4/PR-5 or explicit deferral, SnapshotModel decommission
-decision, and final Phase 02 deploy report.
+02 metrics are now proven against the actual `MINT.DATABASE_URL` target.
+
+## Production Read-Only Probe
+
+Production exists and responds to `/api/v1/health`:
+
+```text
+GET https://mint-production-3a41.up.railway.app/api/v1/health
+{"status":"ok"}
+```
+
+Railway production service summary:
+
+```text
+MINT status=SUCCESS running=1 url=https://mint-production-3a41.up.railway.app
+Postgres status=SUCCESS running=1
+```
+
+Production deployment metadata:
+
+```text
+latest successful MINT deployment = 62dd3fc1-8d9f-4f4b-90cb-2a02ac143b7e
+createdAt = 2026-03-30T17:48:06.999Z
+commitHash = fe8fcd2497bd14aee2977c0756a0226ef813c211
+commitMessage = Merge pull request #112 from MINT-IA/staging
+branch = main
+```
+
+Later production MINT deployments from 2026-04-21 are `FAILED`, so production
+must not be assumed to include the current staging Phase 02 code.
+
+Production variables, masked:
+
+```text
+DATABASE_URL_TARGET=Postgres
+FF_FACT_EVENT_DUAL_WRITE=unset
+FF_FACT_CURRENT_READ=unset
+ENVIRONMENT=production
+```
+
+Production DB read-only probe via the `Postgres` service `DATABASE_PUBLIC_URL`:
+
+```text
+TARGET=production/Postgres
+ALEMBIC_VERSION=29_05_magic_link_tokens
+TABLE users exists=True count=2
+TABLE snapshots exists=True count=0
+TABLE fact_event exists=False count=None
+TABLE fact_current exists=False count=None
+TABLE dek_envelope exists=False count=None
+TABLE _phase02_parity_audit exists=False count=None
+TABLE _phase02_parity_audit_continuous exists=False count=None
+TABLE waitlist_entries exists=False count=None
+```
+
+## Final Interpretation For CJT-013
+
+Staging Phase 02 is proven against the real runtime DB. Production Phase 02 is
+not deployed: the app is old, prod DB is at `29_05_magic_link_tokens`, and Phase
+02 tables are absent. CJT-013 remains a release blocker until production
+migration/deploy/cutover is explicitly planned and executed, or explicitly
+deferred with a release decision. The low production data volume (`users=2`,
+`snapshots=0`) suggests the eventual migration can be controlled, but it is not
+closed by staging evidence.
