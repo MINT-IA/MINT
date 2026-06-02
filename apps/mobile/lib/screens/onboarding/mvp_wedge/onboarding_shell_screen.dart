@@ -281,6 +281,7 @@ class _PrimaryButton extends StatelessWidget {
     required this.onPressed,
     required this.label,
   });
+
   final VoidCallback? onPressed;
   final String label;
 
@@ -354,30 +355,38 @@ class _IntentsStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.read<OnboardingProvider>();
-    const items = <(OnboardingIntent, String, String, String)>[
+    const items = <(OnboardingIntent, String, String, String, Key, String)>[
       (
         OnboardingIntent.retraite,
         'RETRAITE',
         'Ce que je toucherai, vraiment.',
         'Ma retraite',
+        ValueKey('onboarding-intent-retraite'),
+        'onboarding-intent-retraite',
       ),
       (
         OnboardingIntent.achat,
         'ACHAT',
         'Ce que je peux viser.',
         'Acheter un lieu',
+        ValueKey('onboarding-intent-achat'),
+        'onboarding-intent-achat',
       ),
       (
         OnboardingIntent.impots,
         'IMPOTS',
         'Ce que je paie de trop.',
         'Mes impôts',
+        ValueKey('onboarding-intent-impots'),
+        'onboarding-intent-impots',
       ),
       (
         OnboardingIntent.explorer,
         'EXPLORER',
         'Je regarde d\u2019abord.',
         'Je regarde',
+        ValueKey('onboarding-intent-explorer'),
+        'onboarding-intent-explorer',
       ),
     ];
 
@@ -388,8 +397,10 @@ class _IntentsStep extends StatelessWidget {
         itemCount: items.length,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, i) {
-          final (intent, eyebrow, phrase, human) = items[i];
+          final (intent, eyebrow, phrase, human, key, identifier) = items[i];
           return _IntentCard(
+            key: key,
+            semanticsIdentifier: identifier,
             eyebrow: eyebrow,
             phrase: phrase,
             onTap: () {
@@ -405,48 +416,60 @@ class _IntentsStep extends StatelessWidget {
 
 class _IntentCard extends StatelessWidget {
   const _IntentCard({
+    Key? key,
+    required this.semanticsIdentifier,
     required this.eyebrow,
     required this.phrase,
     required this.onTap,
-  });
+  })  : cardKey = key,
+        super(key: null);
+
+  final Key? cardKey;
+  final String semanticsIdentifier;
   final String eyebrow;
   final String phrase;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Semantics(
+      key: cardKey,
+      identifier: semanticsIdentifier,
+      button: true,
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-        decoration: BoxDecoration(
-          color: MintColors.craie,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: MintColors.textPrimary.withValues(alpha: 0.08),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          decoration: BoxDecoration(
+            color: MintColors.craie,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: MintColors.textPrimary.withValues(alpha: 0.08),
+            ),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              eyebrow,
-              style: MintTextStyles.labelSmall(
-                color: MintColors.corailDiscret,
-              ).copyWith(
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                eyebrow,
+                style: MintTextStyles.labelSmall(
+                  color: MintColors.corailDiscret,
+                ).copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
+                ),
               ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              phrase,
-              style: MintTextStyles.titleMedium(
-                color: MintColors.textPrimary,
-              ).copyWith(fontWeight: FontWeight.w500),
-            ),
-          ],
+              const SizedBox(height: 6),
+              Text(
+                phrase,
+                style: MintTextStyles.titleMedium(
+                  color: MintColors.textPrimary,
+                ).copyWith(fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -599,25 +622,38 @@ class _CantonStep extends StatelessWidget {
         itemCount: _cantons.length,
         itemBuilder: (context, i) {
           final (code, name) = _cantons[i];
-          return InkWell(
+          final identifier = 'onboarding-canton-${code.toLowerCase()}';
+          final key = code == 'VD'
+              ? const ValueKey('onboarding-canton-vd')
+              : ValueKey(identifier);
+          return Semantics(
+            key: key,
+            identifier: identifier,
+            button: true,
             onTap: () {
               provider.setCanton(code, name);
               provider.advance();
             },
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: MintColors.textPrimary.withValues(alpha: 0.18),
+            child: InkWell(
+              onTap: () {
+                provider.setCanton(code, name);
+                provider.advance();
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: MintColors.textPrimary.withValues(alpha: 0.18),
+                  ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                code,
-                style: MintTextStyles.labelLarge(
-                  color: MintColors.textPrimary,
-                ).copyWith(fontWeight: FontWeight.w600),
+                alignment: Alignment.center,
+                child: Text(
+                  code,
+                  style: MintTextStyles.labelLarge(
+                    color: MintColors.textPrimary,
+                  ).copyWith(fontWeight: FontWeight.w600),
+                ),
               ),
             ),
           );
@@ -735,6 +771,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             ),
             const SizedBox(height: 16),
             _PrimaryButton(
+              key: const ValueKey('onboarding-revenue-range-continue'),
               label: 'Continuer',
               onPressed: () {
                 provider.setNetMonthlyRange(range.low, range.high);
@@ -793,6 +830,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             ),
             const SizedBox(height: 16),
             _PrimaryButton(
+              key: const ValueKey('onboarding-revenue-exact-continue'),
               label: 'Continuer',
               onPressed: _exactValue == null
                   ? null
@@ -888,6 +926,7 @@ class _InsightStep extends StatelessWidget {
           ),
           const Spacer(),
           _PrimaryButton(
+            key: const ValueKey('onboarding-insight-view'),
             label: 'Voir',
             onPressed: () => provider.advance(),
           ),
@@ -949,6 +988,7 @@ class _SceneStep extends StatelessWidget {
           Expanded(child: SingleChildScrollView(child: scene)),
           const SizedBox(height: 16),
           _PrimaryButton(
+            key: const ValueKey('onboarding-scene-continue'),
             label: 'Continuer',
             onPressed: () => context.read<OnboardingProvider>().advance(),
           ),
@@ -1045,12 +1085,13 @@ class _BifurcationStepState extends State<_BifurcationStep> {
         children: [
           const Spacer(),
           _PrimaryButton(
+            key: const ValueKey('onboarding-bifurcation-creuser'),
             label: _sealing ? 'On garde\u2026' : 'Creuser',
             onPressed: _sealing ? null : () => _sealAndGo(deeper: true),
           ),
           const SizedBox(height: 10),
-          TextButton(
-            // lint-ignore: prefer_mint_cta
+          TextButton( // lint-ignore: prefer_mint_cta
+            key: const ValueKey('onboarding-bifurcation-plus-tard'),
             onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
             child: Text(
               'Plus tard',

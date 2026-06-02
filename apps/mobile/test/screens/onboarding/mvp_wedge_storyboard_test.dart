@@ -139,6 +139,13 @@ Future<void> _commonEntry(
   // T2 → T2.5 (tap intent card)
   // Sub-phase 01.5 W02-T03 inserted a us-tax-person gate between
   // intents and age (Security §4 nLPD art. 6 pre-financial-data).
+  expect(
+      find.byKey(const ValueKey('onboarding-intent-retraite')), findsOneWidget);
+  expect(find.byKey(const ValueKey('onboarding-intent-achat')), findsOneWidget);
+  expect(
+      find.byKey(const ValueKey('onboarding-intent-impots')), findsOneWidget);
+  expect(
+      find.byKey(const ValueKey('onboarding-intent-explorer')), findsOneWidget);
   await tester.tap(find.text(intentLabel));
   await tester.pumpAndSettle();
   expect(
@@ -179,11 +186,16 @@ Future<void> _commonData(WidgetTester tester) async {
   expect(find.text('Où tu vis ?'), findsOneWidget);
 
   // T4 canton → T5 : tap VD
+  expect(find.byKey(const ValueKey('onboarding-canton-vd')), findsOneWidget);
   await tester.tap(find.text('VD'));
   await tester.pumpAndSettle();
   expect(find.text('Combien te tombe net par mois ?'), findsOneWidget);
 
   // T5 revenue fourchette par défaut (7000–7500) → T6
+  expect(
+    find.byKey(const ValueKey('onboarding-revenue-range-continue')),
+    findsOneWidget,
+  );
   await tester.tap(find.text('Continuer'));
   await tester.pumpAndSettle();
 }
@@ -248,6 +260,8 @@ void main() {
     // T6 insight screen for retraite intent.
     expect(find.textContaining('Avant de te montrer'), findsOneWidget);
     expect(find.text('UN CONSTAT'), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('onboarding-insight-view')), findsOneWidget);
   });
 
   testWidgets('Intent impots: full flow T1→T9 flushes profile once',
@@ -263,6 +277,8 @@ void main() {
     expect(find.text('SCENE · TON LEVIER DIRECT'), findsOneWidget);
 
     // T7 scene → T8 bifurcation via Continuer
+    expect(find.byKey(const ValueKey('onboarding-scene-continue')),
+        findsOneWidget);
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
     expect(
@@ -273,6 +289,10 @@ void main() {
     // T8 bifurcation: tap "Plus tard" → flush + navigate to /home.
     // (2026-04-24: T9 magic-link email scene killed, bifurcation is now
     // terminal. Creuser → /coach/chat, Plus tard → /home.)
+    expect(
+      find.byKey(const ValueKey('onboarding-bifurcation-plus-tard')),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Plus tard'));
     await tester.pumpAndSettle();
 
@@ -504,8 +524,14 @@ void main() {
     // T6 → T7 → T8 : user picks "Creuser" instead of "Plus tard".
     await tester.tap(find.text('Voir'));
     await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('onboarding-scene-continue')),
+        findsOneWidget);
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('onboarding-bifurcation-creuser')),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Creuser'));
     await tester.pumpAndSettle();
 

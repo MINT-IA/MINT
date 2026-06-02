@@ -47,7 +47,7 @@ tags:
       text: ".*Ce que je toucherai.*"
     timeout: 5000
 - tapOn:
-    point: "50%,24%"
+    id: "onboarding-intent-retraite"
 - extendedWaitUntil:
     visible:
       text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
@@ -97,7 +97,7 @@ tags:
       text: "Où tu vis ?"
     timeout: 5000
 - tapOn:
-    point: "17%,20%"
+    id: "onboarding-canton-vd"
 - extendedWaitUntil:
     visible:
       text: "Combien te tombe net par mois ?"

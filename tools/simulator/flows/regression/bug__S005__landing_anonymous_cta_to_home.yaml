@@ -157,18 +157,15 @@ tags:
     when:
       visible: "Où tu vis ?"
     commands:
-      # The VD chip is a text-only grid cell; Maestro iOS does not expose
-      # it as a reliable tappable node, so this uses the same anchored point
-      # as the salvage01 onboarding proof after asserting the prompt.
       - tapOn:
-          point: "17%,20%"
+          id: "onboarding-canton-vd"
       - waitForAnimationToEnd
 - runFlow:
     when:
       visible: "Combien te tombe net par mois ?"
     commands:
-      # The revenue screen exposes multiple "Continuer" nodes including an
-      # offstage exact-mode control. Tap the visible fixed bottom CTA.
+      # CJT-018: the visible CTA's iOS AX frame is currently invalid, so
+      # keep the coordinate fallback until the product-side frame bug is fixed.
       - tapOn:
           point: "50%,74%"
       - waitForAnimationToEnd
@@ -176,6 +173,8 @@ tags:
     when:
       visible: "Avant de te montrer…"
     commands:
+      # CJT-018: Maestro/idb expose onboarding-insight-view near y=196 while
+      # the rendered CTA is lower on screen; coordinate fallback preserves S005.
       - tapOn:
           point: "50%,71%"
       - waitForAnimationToEnd
@@ -191,9 +190,7 @@ tags:
       visible: "Plus tard"
     commands:
       # Terminal anonymous path: Plus tard flushes the dossier and routes
-      # to /home. Text taps on this terminal TextButton can resolve to the
-      # child label without firing onPressed, so tap the visible CTA point.
-      # This preserves the no-deeplink S005 contract.
+      # to /home. Keep the visible CTA coordinate while CJT-018 is open.
       - tapOn:
           point: "50%,70%"
       - waitForAnimationToEnd

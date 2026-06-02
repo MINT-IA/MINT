@@ -92,14 +92,13 @@ tags:
     text: "Ouvrir"
 - takeScreenshot: "01.1-hero-01-onboarding-opened"
 
-# 02 — choose a supported Swiss-native intent. The retirement card is a
-# bare InkWell, so tap by point after anchoring on its visible copy.
+# 02 — choose a supported Swiss-native intent.
 - extendedWaitUntil:
     visible:
       text: ".*Ce que je toucherai.*"
     timeout: 5000
 - tapOn:
-    point: "50%,24%"
+    id: "onboarding-intent-retraite"
 
 # 03 — FATCA / nationality / date-of-birth / canton gates. These are
 # product gates, not test ceremony: the Coach route must only be reached
@@ -131,12 +130,6 @@ tags:
       text: "Choisir ma date"
     timeout: 5000
 - tapOn: "Choisir ma date"
-- runFlow:
-    when:
-      visible: "Choisir ma date"
-    commands:
-      - tapOn:
-          point: "50%,50%"
 - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
@@ -164,7 +157,7 @@ tags:
       text: "Où tu vis ?"
     timeout: 5000
 - tapOn:
-    point: "17%,20%"
+    id: "onboarding-canton-vd"
 
 # 04 — keep the default salary band, advance through the insight scene,
 # and take the explicit "Creuser" path that flushes the dossier to Coach.
