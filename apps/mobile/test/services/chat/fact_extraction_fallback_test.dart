@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -231,6 +232,39 @@ void main() {
       expect(p.profile!.conjoint!.birthYear, 1982);
       expect(p.profile!.conjoint!.salaireBrutMensuel, isNull);
       expect(p.profile!.conjoint!.prevoyance!.anneesContribuees, 18);
+    });
+
+    test('householdType single clears stale spouse facts from budget truth',
+        () async {
+      installSecureStore();
+      final p = CoachProfileProvider();
+      await p.mergeAnswers({
+        'q_date_of_birth': '1981-06-15',
+        'q_canton': 'VD',
+        'q_gross_salary_annual': 120000,
+        'q_employment_status': 'salarie',
+        'q_household_type': 'couple',
+        'q_partner_net_income_chf': 5000,
+        'q_partner_birth_year': 1982,
+        'q_partner_employment_status': 'salarie',
+        'q_spouse_avs_contribution_years': 18,
+      });
+      final householdNetBefore =
+          BudgetInputs.monthlyNetFromCoachProfile(p.profile!);
+
+      expect(p.profile!.conjoint, isNotNull);
+      expect(await p.applySaveFact('householdType', 'single'), isTrue);
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded['q_household_type'], 'single');
+      expect(loaded.containsKey('q_civil_status'), isFalse);
+      expect(loaded.keys.any((key) => key.startsWith('q_partner_')), isFalse);
+      expect(loaded.keys.any((key) => key.startsWith('q_spouse_')), isFalse);
+      expect(p.profile!.conjoint, isNull);
+      expect(
+        BudgetInputs.monthlyNetFromCoachProfile(p.profile!),
+        lessThan(householdNetBefore),
+      );
     });
 
     test('remote profile merge uses safe save_fact mappings', () async {

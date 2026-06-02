@@ -651,6 +651,9 @@ class CoachProfileProvider extends ChangeNotifier {
           merged[entry.key] = entry.value;
         }
       }
+      if (_isSingleHouseholdType(partial['q_household_type'])) {
+        _removePartnerAnswers(merged);
+      }
       final persisted = await _saveAnswersReturningPersisted(merged);
       _lastAnswers = persisted;
       _profile =
@@ -710,6 +713,17 @@ class CoachProfileProvider extends ChangeNotifier {
     if (value == null) return true;
     if (value is String) return value.trim().isEmpty;
     return false;
+  }
+
+  static bool _isSingleHouseholdType(dynamic value) {
+    return value is String && value.trim().toLowerCase() == 'single';
+  }
+
+  static void _removePartnerAnswers(Map<String, dynamic> answers) {
+    answers.remove('_household_data');
+    answers.removeWhere(
+      (key, _) => key.startsWith('q_partner_') || key.startsWith('q_spouse_'),
+    );
   }
 
   Future<Map<String, dynamic>> _saveAnswersReturningPersisted(
