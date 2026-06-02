@@ -1,0 +1,15 @@
+appId: ch.mint.app
+---
+- extendedWaitUntil:
+    visible:
+      text: "OK"
+    timeout: 5000
+- takeScreenshot: "date-picker-select-before"
+- tapOn:
+    text: ".*15.*juillet.*1992.*"
+- tapOn: "OK"
+- extendedWaitUntil:
+    visible:
+      text: "15.07.1992"
+    timeout: 5000
+- takeScreenshot: "date-picker-select-after"

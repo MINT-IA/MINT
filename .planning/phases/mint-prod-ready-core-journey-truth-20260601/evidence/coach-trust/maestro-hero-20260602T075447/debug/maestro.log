@@ -1,0 +1,335 @@
+07:54:50.034 [ INFO] maestro.cli.report.TestDebugReporter.logSystemInfo: Debug output path: /Users/julienbattaglia/Desktop/MINT.nosync/.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-trust/maestro-hero-20260602T075447/debug
+07:54:50.035 [ INFO] MAESTRO.logSystemInfo: ---- System Info ----
+07:54:50.035 [ INFO] MAESTRO.logSystemInfo: Maestro Version: 2.5.1
+07:54:50.036 [ INFO] MAESTRO.logSystemInfo: CI: Undefined
+07:54:50.036 [ INFO] MAESTRO.logSystemInfo: OS Name: Mac OS X
+07:54:50.036 [ INFO] MAESTRO.logSystemInfo: OS Version: 26.5
+07:54:50.036 [ INFO] MAESTRO.logSystemInfo: Architecture: aarch64
+07:54:50.037 [ INFO] MAESTRO.logSystemInfo: Java Version: 21
+07:54:50.104 [ INFO] MAESTRO.logSystemInfo: Xcode Version: 26.2
+07:54:50.349 [DEBUG] io.micrometer.common.util.internal.logging.InternalLoggerFactory.newDefaultFactory: Using SLF4J as the default logging framework
+07:54:50.412 [ INFO] MAESTRO.logSystemInfo: Flutter Version: 3.41.6
+07:54:50.681 [ INFO] MAESTRO.logSystemInfo: Flutter Channel: stable
+07:54:50.681 [ INFO] MAESTRO.logSystemInfo: ---------------------
+07:54:51.819 [ INFO] maestro.cli.command.TestCommand.runShardSuite: [shard 1] Selected device B03E429D-0422-4357-B754-536637D979F9 using port 7001 with execution plan ExecutionPlan(flowsToRun=[/Users/julienbattaglia/Desktop/MINT.nosync/tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml], sequence=FlowSequence(flows=[], continueOnFailure=true), workspaceConfig=WorkspaceConfig(flows=null, includeTags=null, excludeTags=null, executionOrder=null, baselineBranch=null, notifications=null, disableRetries=false, platform=PlatformConfiguration(android=AndroidConfiguration(disableAnimations=false), ios=IOSConfiguration(disableAnimations=false, snapshotKeyHonorModalViews=null)), testOutputDir=null))
+07:54:52.268 [TRACE] ios.xctest.XCTestIOSDevice.open: Opening a connection
+07:54:52.268 [TRACE] xcuitest.XCTestDriverClient.restartXCTestRunner: Restarting XCTest Runner (uninstalling, installing and starting)
+07:54:52.269 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:54:52.270 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:54:52.270 [TRACE] xcuitest.XCTestDriverClient.restartXCTestRunner: XCTest Runner uninstalled, will install and start it
+07:54:52.270 [ INFO] xcuitest.installer.LocalXCTestInstaller.start$lambda$3: start()
+07:54:52.270 [ INFO] xcuitest.installer.LocalXCTestInstaller.start$lambda$3: [Start] Install XCUITest runner on B03E429D-0422-4357-B754-536637D979F9
+07:54:52.270 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:54:52.270 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:54:52.271 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Start] Writing build products
+07:54:52.296 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Done] Writing build products
+07:54:52.297 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Start] Writing maestro-driver-iosUITests-Runner app
+07:54:52.397 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Done] Writing maestro-driver-iosUITests-Runner app
+07:54:52.397 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Start] Writing maestro-driver-ios app
+07:54:52.401 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Done] Writing maestro-driver-ios app
+07:54:52.402 [ INFO] xcuitest.installer.LocalXCTestInstaller.startXCTestRunner: Installing driver with xcodebuild
+07:54:52.403 [ INFO] xcuitest.installer.LocalXCTestInstaller.startXCTestRunner: [Start] Running XcUITest with `xcodebuild test-without-building` with 7001 and config: IOSDriverConfig(prebuiltRunner=false, sourceDirectory=driver-iPhoneSimulator, context=CLI, snapshotKeyHonorModalViews=null)
+07:54:52.403 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcodebuild, test-without-building, -xctestrun, /var/folders/nx/wj0h9jwn6h391ntbhf6h2gm40000gn/T/B03E429D-0422-4357-B754-536637D979F95586063565932174731/maestro-driver-ios-config.xctestrun, -destination, id=B03E429D-0422-4357-B754-536637D979F9, -derivedDataPath, /var/folders/nx/wj0h9jwn6h391ntbhf6h2gm40000gn/T/maestro_xctestrunner_xcodebuild_output7041503723922384236] with {TEST_RUNNER_PORT=7001}
+07:54:52.407 [ INFO] xcuitest.installer.LocalXCTestInstaller.startXCTestRunner: [Done] Running XcUITest with `xcodebuild test-without-building`
+07:54:52.407 [ INFO] xcuitest.installer.LocalXCTestInstaller.start$lambda$3: [Done] Install XCUITest runner on B03E429D-0422-4357-B754-536637D979F9
+07:54:52.407 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:54:52.408 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:54:52.918 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:54:52.919 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:54:53.425 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:54:53.425 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:54:53.936 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:54:53.936 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:54:54.437 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:54:54.437 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:54:54.948 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:54:54.948 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:54:55.459 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:54:55.460 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:7001
+07:54:55.970 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:54:55.982 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Done] Perform XCUITest driver status check on B03E429D-0422-4357-B754-536637D979F9
+07:54:56.014 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow:  Running flow flow_hero_marge_fiscale_3a
+07:54:56.019 [ INFO] maestro.Maestro.cachedDeviceInfo_delegate$lambda$0: Getting device info
+07:54:56.054 [ INFO] maestro.Maestro.cachedDeviceInfo_delegate$lambda$0: Got device info: DeviceInfo(platform=IOS, widthPixels=1206, heightPixels=2622, widthGrid=402, heightGrid=874)
+07:54:56.083 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Define variables RUNNING
+07:54:56.084 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Define variables COMPLETED
+07:54:56.084 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Apply configuration RUNNING
+07:54:56.084 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Apply configuration COMPLETED
+07:54:56.084 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Launch app "ch.mint.app" with clear state RUNNING
+07:54:56.085 [ INFO] maestro.Maestro.clearAppState$lambda$5: Clearing app state ch.mint.app
+07:54:56.085 [ INFO] util.LocalSimulatorUtils.clearAppState: Clearing app ch.mint.app state
+07:54:56.085 [ INFO] util.LocalSimulatorUtils.terminate: [Start] Terminating app ch.mint.app
+07:54:56.085 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcrun, simctl, terminate, B03E429D-0422-4357-B754-536637D979F9, ch.mint.app] with {}
+07:54:56.204 [ INFO] util.LocalSimulatorUtils.terminate: [Done] Terminating app ch.mint.app
+07:54:56.574 [ INFO] util.LocalSimulatorUtils.reinstallApp: Copying app binary from /Users/julienbattaglia/Library/Developer/CoreSimulator/Devices/B03E429D-0422-4357-B754-536637D979F9/data/Containers/Bundle/Application/069E3E9C-916D-4059-A8BE-B8EBC1A75D4E/ch.mint.app-1780379556151.app to /var/folders/nx/wj0h9jwn6h391ntbhf6h2gm40000gn/T/6204512294089478462/ch.mint.app-1780379696573.app
+07:54:56.680 [ INFO] util.LocalSimulatorUtils.reinstallApp: Reinstalling and launching ch.mint.app
+07:54:56.680 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcrun, simctl, uninstall, B03E429D-0422-4357-B754-536637D979F9, ch.mint.app] with {}
+07:54:56.804 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcrun, simctl, install, B03E429D-0422-4357-B754-536637D979F9, /var/folders/nx/wj0h9jwn6h391ntbhf6h2gm40000gn/T/6204512294089478462/ch.mint.app-1780379696573.app] with {}
+07:54:57.116 [ INFO] util.LocalSimulatorUtils.reinstallApp: App ch.mint.app reinstalled and launched
+07:54:57.117 [ INFO] device.SimctlIOSDevice.setPermissions: [Start] Setting permissions all=allow through applesimutils
+07:54:57.118 [ INFO] util.LocalSimulatorUtils.setAppleSimutilsPermissions: [Start] Setting permissions via pinned applesimutils
+07:54:57.118 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [/Users/julienbattaglia/.maestro/deps/applesimutils, --byId, B03E429D-0422-4357-B754-536637D979F9, --bundle, ch.mint.app, --setPermissions, calendar=YES,camera=YES,contacts=YES,faceid=YES,homekit=YES,medialibrary=YES,microphone=YES,motion=YES,photos=YES,reminders=YES,siri=YES,speech=YES,userTracking=YES] with {}
+07:54:57.292 [ INFO] util.LocalSimulatorUtils.setAppleSimutilsPermissions: [Done] Setting permissions pinned applesimutils
+07:54:57.292 [ INFO] device.SimctlIOSDevice.setPermissions: [Done] Setting permissions through applesimutils
+07:54:57.292 [ INFO] device.SimctlIOSDevice.setPermissions: [Start] Setting Permissions all=allow through simctl
+07:54:57.292 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcrun, simctl, privacy, B03E429D-0422-4357-B754-536637D979F9, grant, location-always, ch.mint.app] with {}
+07:54:57.383 [ INFO] device.SimctlIOSDevice.setPermissions: [Done] Setting Permissions all=allow through simctl
+07:54:57.393 [ INFO] maestro.Maestro.launchApp$lambda$2: Launching app ch.mint.app
+07:54:57.393 [ INFO] maestro.Maestro.launchApp$lambda$2: Stopping ch.mint.app app during launch
+07:54:57.398 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcrun, simctl, launch, B03E429D-0422-4357-B754-536637D979F9, ch.mint.app] with {}
+07:54:57.576 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Launch app "ch.mint.app" with clear state COMPLETED
+07:54:57.577 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Run flow when "Je comprends, on y va" is visible RUNNING
+07:54:59.634 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on "Je comprends, on y va" RUNNING
+07:54:59.748 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Je comprends, on y va, title=, value=, text=, hintText=, resource-id=, bounds=[24,767][378,816], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=24, y=767, width=354, height=49))
+07:54:59.750 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:54:59.875 [ INFO] maestro.Maestro.tap-HgV9Ck0: Refreshed element
+07:54:59.877 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 791) using hierarchy based logic for wait
+07:54:59.880 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:54:59.880 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:00.458 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:00.705 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:00.707 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on "Je comprends, on y va" COMPLETED
+07:55:00.707 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Wait for animation to end RUNNING
+07:55:00.711 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$51: Waiting for animation to end with timeout 15000
+07:55:00.712 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:00.712 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:00.800 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:00.800 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:01.042 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Wait for animation to end COMPLETED
+07:55:01.042 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Run flow when "Je comprends, on y va" is visible COMPLETED
+07:55:01.042 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Open mintapp:///onb RUNNING
+07:55:01.043 [ INFO] maestro.Maestro.openLink: Opening link mintapp:///onb for app: ch.mint.app with autoVerify config as false
+07:55:01.044 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcrun, simctl, openurl, B03E429D-0422-4357-B754-536637D979F9, mintapp:///onb] with {}
+07:55:01.157 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:01.853 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Open mintapp:///onb COMPLETED
+07:55:01.854 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "Il est temps que tu comprennes." is visible RUNNING
+07:55:01.943 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "Il est temps que tu comprennes." is visible COMPLETED
+07:55:01.944 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on "Ouvrir" RUNNING
+07:55:02.134 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Ouvrir, title=, value=, text=, hintText=, resource-id=, bounds=[24,748][378,800], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=24, y=748, width=354, height=52))
+07:55:02.135 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:02.248 [ INFO] maestro.Maestro.tap-HgV9Ck0: Refreshed element
+07:55:02.249 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 774) using hierarchy based logic for wait
+07:55:02.249 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:02.250 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:02.673 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:02.802 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:02.803 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on "Ouvrir" COMPLETED
+07:55:02.804 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Take screenshot 01.1-hero-01-onboarding-opened RUNNING
+07:55:02.806 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:55:02.807 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:02.866 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Take screenshot 01.1-hero-01-onboarding-opened COMPLETED
+07:55:02.867 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that ".*Ce que je toucherai.*" is visible RUNNING
+07:55:02.953 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that ".*Ce que je toucherai.*" is visible COMPLETED
+07:55:02.954 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on point (50%,24%) RUNNING
+07:55:02.960 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 209) using hierarchy based logic for wait
+07:55:03.036 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:03.036 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:03.464 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:03.704 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:03.705 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on point (50%,24%) COMPLETED
+07:55:03.706 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "Es-tu citoyen ou résident fiscal aux États-Unis ?" is visible RUNNING
+07:55:03.786 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "Es-tu citoyen ou résident fiscal aux États-Unis ?" is visible COMPLETED
+07:55:03.787 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on "Non" RUNNING
+07:55:03.865 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Non, title=, value=, text=, hintText=, resource-id=, bounds=[24,661][378,709], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=24, y=661, width=354, height=48))
+07:55:03.866 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:03.978 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 685) using hierarchy based logic for wait
+07:55:03.979 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:03.979 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:04.404 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:04.560 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:04.561 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on "Non" COMPLETED
+07:55:04.561 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Run flow when "Quelle est ta nationalité ?" is visible RUNNING
+07:55:04.646 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on "Suisse" RUNNING
+07:55:04.726 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Suisse, title=, value=, text=, hintText=, resource-id=, bounds=[24,541][378,589], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=24, y=541, width=354, height=48))
+07:55:04.728 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:04.842 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 565) using hierarchy based logic for wait
+07:55:04.843 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:04.843 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:05.366 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:05.511 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:05.511 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on "Suisse" COMPLETED
+07:55:05.512 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Run flow when "Quelle est ta nationalité ?" is visible COMPLETED
+07:55:05.512 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Run flow when "Quel âge tu as ?" is visible RUNNING
+07:55:12.630 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandSkipped: null
+07:55:12.632 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$13: Run flow when "Quel âge tu as ?" is visible SKIPPED
+07:55:12.632 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "Choisir ma date" is visible RUNNING
+07:55:12.705 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "Choisir ma date" is visible COMPLETED
+07:55:12.706 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on "Choisir ma date" RUNNING
+07:55:12.778 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Choisir ma date, title=, value=, text=, hintText=, resource-id=, bounds=[24,409][378,473], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=24, y=409, width=354, height=64))
+07:55:12.779 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:12.903 [ INFO] maestro.Maestro.tap-HgV9Ck0: Refreshed element
+07:55:12.904 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 441) using hierarchy based logic for wait
+07:55:12.905 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:12.905 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:13.328 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:13.449 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:13.450 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on "Choisir ma date" COMPLETED
+07:55:13.450 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Run flow when "Choisir ma date" is visible RUNNING
+07:55:20.674 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandSkipped: null
+07:55:20.675 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$13: Run flow when "Choisir ma date" is visible SKIPPED
+07:55:20.675 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Wait for animation to end RUNNING
+07:55:20.676 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$51: Waiting for animation to end with timeout 15000
+07:55:20.676 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:20.676 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:20.772 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:20.772 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:20.993 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Wait for animation to end COMPLETED
+07:55:20.993 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "OK" is visible RUNNING
+07:55:21.092 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "OK" is visible COMPLETED
+07:55:21.092 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Take screenshot 01.1-hero-dob-picker-open RUNNING
+07:55:21.092 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:55:21.092 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:21.153 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Take screenshot 01.1-hero-dob-picker-open COMPLETED
+07:55:21.153 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on ".*15.*juillet.*1992.*" RUNNING
+07:55:21.242 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=15, mercredi 15 juillet 1992, title=, value=, text=, hintText=, resource-id=, bounds=[129,483][177,531], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=129, y=483, width=48, height=48))
+07:55:21.243 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:21.358 [ INFO] maestro.Maestro.tap-HgV9Ck0: Refreshed element
+07:55:21.359 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (153, 507) using hierarchy based logic for wait
+07:55:21.359 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:21.360 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:21.795 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:22.163 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:22.164 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on ".*15.*juillet.*1992.*" COMPLETED
+07:55:22.164 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Take screenshot 01.1-hero-dob-day-15-selected RUNNING
+07:55:22.165 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:55:22.166 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:22.225 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Take screenshot 01.1-hero-dob-day-15-selected COMPLETED
+07:55:22.225 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on "OK" RUNNING
+07:55:22.313 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=OK, title=, value=, text=, hintText=, resource-id=, bounds=[309,685][373,733], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=309, y=685, width=64, height=48))
+07:55:22.314 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:22.433 [ INFO] maestro.Maestro.tap-HgV9Ck0: Refreshed element
+07:55:22.434 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (341, 709) using hierarchy based logic for wait
+07:55:22.434 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:22.434 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:22.969 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:23.095 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:23.096 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on "OK" COMPLETED
+07:55:23.096 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "15.07.1992" is visible RUNNING
+07:55:23.172 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "15.07.1992" is visible COMPLETED
+07:55:23.172 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on "Continuer" RUNNING
+07:55:23.245 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Continuer, title=, value=, text=, hintText=, resource-id=, bounds=[24,681][378,733], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=24, y=681, width=354, height=52))
+07:55:23.246 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:23.358 [ INFO] maestro.Maestro.tap-HgV9Ck0: Refreshed element
+07:55:23.359 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 707) using hierarchy based logic for wait
+07:55:23.359 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:23.360 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:23.786 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:24.027 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:24.028 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on "Continuer" COMPLETED
+07:55:24.028 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Run flow when "Quelle est ta nationalité ?" is visible RUNNING
+07:55:31.129 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandSkipped: null
+07:55:31.129 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$13: Run flow when "Quelle est ta nationalité ?" is visible SKIPPED
+07:55:31.129 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "Où tu vis ?" is visible RUNNING
+07:55:31.210 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "Où tu vis ?" is visible COMPLETED
+07:55:31.210 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on point (17%,20%) RUNNING
+07:55:31.215 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (68, 174) using hierarchy based logic for wait
+07:55:31.293 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:31.293 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:31.725 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:31.977 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:31.977 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on point (17%,20%) COMPLETED
+07:55:31.978 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "Combien te tombe net par mois ?" is visible RUNNING
+07:55:32.055 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "Combien te tombe net par mois ?" is visible COMPLETED
+07:55:32.055 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on point (50%,74%) RUNNING
+07:55:32.061 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 646) using hierarchy based logic for wait
+07:55:32.135 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:32.135 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:32.559 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:32.808 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:32.808 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on point (50%,74%) COMPLETED
+07:55:32.808 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Take screenshot 01.1-hero-02-onboarding-income RUNNING
+07:55:32.809 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:55:32.810 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:32.868 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Take screenshot 01.1-hero-02-onboarding-income COMPLETED
+07:55:32.868 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "Avant de te montrer…" is visible RUNNING
+07:55:32.948 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "Avant de te montrer…" is visible COMPLETED
+07:55:32.949 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on point (50%,71%) RUNNING
+07:55:32.954 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 620) using hierarchy based logic for wait
+07:55:33.027 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:33.027 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:33.458 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:33.607 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:33.607 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on point (50%,71%) COMPLETED
+07:55:33.607 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "Continuer" is visible RUNNING
+07:55:33.687 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "Continuer" is visible COMPLETED
+07:55:33.687 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on point (50%,70%) RUNNING
+07:55:33.693 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 611) using hierarchy based logic for wait
+07:55:33.780 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:33.780 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:34.206 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:34.346 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:34.347 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on point (50%,70%) COMPLETED
+07:55:34.347 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Run flow when "Continuer" is visible RUNNING
+07:55:41.484 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandSkipped: null
+07:55:41.485 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$13: Run flow when "Continuer" is visible SKIPPED
+07:55:41.485 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "Creuser" is visible RUNNING
+07:55:41.669 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "Creuser" is visible COMPLETED
+07:55:41.670 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on point (50%,63%) RUNNING
+07:55:41.675 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 550) using hierarchy based logic for wait
+07:55:41.747 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:41.747 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:42.183 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:42.647 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:42.647 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on point (50%,63%) COMPLETED
+07:55:42.647 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Take screenshot 01.1-hero-03-coach-route RUNNING
+07:55:42.648 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:55:42.649 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:42.708 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Take screenshot 01.1-hero-03-coach-route COMPLETED
+07:55:42.709 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that ".*(Dis-moi|Tape ton message|Pose|Demande|Écris).*" is visible RUNNING
+07:55:42.793 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that ".*(Dis-moi|Tape ton message|Pose|Demande|Écris).*" is visible COMPLETED
+07:55:42.794 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "Encore en chantier pour ton profil" is not visible RUNNING
+07:55:43.409 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "Encore en chantier pour ton profil" is not visible COMPLETED
+07:55:43.410 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Take screenshot 01.1-hero-04-coach-composer RUNNING
+07:55:43.411 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:55:43.411 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:43.470 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Take screenshot 01.1-hero-04-coach-composer COMPLETED
+07:55:43.470 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Tap on ".*(Dis-moi|Tape ton message|Pose|Demande|Écris).*" RUNNING
+07:55:43.549 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Dis-moi., title=, value=, text=, hintText=, resource-id=coach_input_field, bounds=[60,704][342,752], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=60, y=704, width=282, height=48))
+07:55:43.550 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:43.664 [ INFO] maestro.Maestro.tap-HgV9Ck0: Refreshed element
+07:55:43.665 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 728) using hierarchy based logic for wait
+07:55:43.666 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:43.666 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:44.088 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:44.319 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:55:44.320 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Tap on ".*(Dis-moi|Tape ton message|Pose|Demande|Écris).*" COMPLETED
+07:55:44.320 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Input text Combien je peux mettre sur mon 3a cette annee ? RUNNING
+07:55:44.324 [ INFO] maestro.Maestro.inputText: Inputting text: Combien je peux mettre sur mon 3a cette annee ?
+07:55:46.786 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:46.929 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Input text Combien je peux mettre sur mon 3a cette annee ? COMPLETED
+07:55:46.929 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Press Enter key RUNNING
+07:55:46.930 [ INFO] maestro.Maestro.pressKey: Pressing key ENTER
+07:55:47.146 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+07:55:50.388 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Press Enter key COMPLETED
+07:55:50.389 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Take screenshot 01.1-hero-05-after-send RUNNING
+07:55:50.391 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:55:50.391 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:50.449 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Take screenshot 01.1-hero-05-after-send COMPLETED
+07:55:50.450 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "Encore en chantier pour ton profil" is not visible RUNNING
+07:55:51.084 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that "Encore en chantier pour ton profil" is not visible COMPLETED
+07:55:51.085 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that ".*(3a|pilier).*" is visible RUNNING
+07:55:51.176 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that ".*(3a|pilier).*" is visible COMPLETED
+07:55:51.176 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that ".*(OPP3|art\.?\s*7|art\.?\s*38|LIFD).*" is visible RUNNING
+07:55:55.967 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that ".*(OPP3|art\.?\s*7|art\.?\s*38|LIFD).*" is visible COMPLETED
+07:55:55.967 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Wait for animation to end within 5000 ms RUNNING
+07:55:55.968 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$51: Waiting for animation to end with timeout 5000
+07:55:55.968 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:55.968 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:56.058 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:56.058 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:57.597 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:57.597 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:57.724 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:55:57.724 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:57.930 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Wait for animation to end within 5000 ms COMPLETED
+07:55:57.930 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Take screenshot 01.1-hero-06-coach-response RUNNING
+07:55:57.930 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:55:57.930 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:55:58.005 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Take screenshot 01.1-hero-06-coach-response COMPLETED
+07:55:58.005 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that ".*7['\s ]?258.*" is visible RUNNING
+07:55:58.086 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$7: Assert that ".*7['\s ]?258.*" is visible COMPLETED
+07:55:58.086 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$5: Assert that "(OPP3|art\.?\s*7|art\.?\s*38|LIFD)" is visible RUNNING
+07:56:15.144 [ERROR] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandFailed: Assertion is false: "(OPP3|art\.?\s*7|art\.?\s*38|LIFD)" is visible
+07:56:15.146 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow$lambda$17$lambda$9: Assert that "(OPP3|art\.?\s*7|art\.?\s*38|LIFD)" is visible FAILED
+07:56:15.149 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:56:15.150 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
