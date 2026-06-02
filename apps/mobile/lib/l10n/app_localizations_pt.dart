@@ -23576,4 +23576,13 @@ class SPt extends S {
   @override
   String get mentorFabProfileSubtitle =>
       'Dados completos, projeções mais sólidas';
+
+  @override
+  String get reportStatusSerein => 'Sereno';
+
+  @override
+  String get reportStatusARenforcer => 'A reforçar';
+
+  @override
+  String get reportStatusAlerte => 'Alerta';
 }

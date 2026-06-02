@@ -23628,4 +23628,13 @@ class SIt extends S {
 
   @override
   String get mentorFabProfileSubtitle => 'Dati completi, proiezioni più solide';
+
+  @override
+  String get reportStatusSerein => 'Sereno';
+
+  @override
+  String get reportStatusARenforcer => 'Da rafforzare';
+
+  @override
+  String get reportStatusAlerte => 'Allerta';
 }

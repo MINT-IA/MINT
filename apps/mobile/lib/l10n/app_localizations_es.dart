@@ -23567,4 +23567,13 @@ class SEs extends S {
   @override
   String get mentorFabProfileSubtitle =>
       'Datos completos, proyecciones más sólidas';
+
+  @override
+  String get reportStatusSerein => 'Sereno';
+
+  @override
+  String get reportStatusARenforcer => 'A reforzar';
+
+  @override
+  String get reportStatusAlerte => 'Alerta';
 }

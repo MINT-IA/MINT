@@ -23564,4 +23564,13 @@ class SFr extends S {
   @override
   String get mentorFabProfileSubtitle =>
       'Données complètes, projections plus solides';
+
+  @override
+  String get reportStatusSerein => 'Serein';
+
+  @override
+  String get reportStatusARenforcer => 'À renforcer';
+
+  @override
+  String get reportStatusAlerte => 'Alerte';
 }

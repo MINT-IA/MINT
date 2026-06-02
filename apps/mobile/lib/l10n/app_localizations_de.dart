@@ -23624,4 +23624,13 @@ class SDe extends S {
   @override
   String get mentorFabProfileSubtitle =>
       'Vollständigere Daten, stärkere Projektionen';
+
+  @override
+  String get reportStatusSerein => 'Stabil';
+
+  @override
+  String get reportStatusARenforcer => 'Zu stärken';
+
+  @override
+  String get reportStatusAlerte => 'Warnung';
 }

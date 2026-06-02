@@ -41240,6 +41240,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Données complètes, projections plus solides'**
   String get mentorFabProfileSubtitle;
+
+  /// No description provided for @reportStatusSerein.
+  ///
+  /// In fr, this message translates to:
+  /// **'Serein'**
+  String get reportStatusSerein;
+
+  /// No description provided for @reportStatusARenforcer.
+  ///
+  /// In fr, this message translates to:
+  /// **'À renforcer'**
+  String get reportStatusARenforcer;
+
+  /// No description provided for @reportStatusAlerte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alerte'**
+  String get reportStatusAlerte;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

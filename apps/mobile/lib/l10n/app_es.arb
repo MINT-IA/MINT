@@ -11302,5 +11302,8 @@
   "mentorFabSimulateTitle": "Simular un escenario",
   "mentorFabSimulateSubtitle": "3a, recompra LPP, hipoteca...",
   "mentorFabProfileTitle": "Afinar mi perfil",
-  "mentorFabProfileSubtitle": "Datos completos, proyecciones más sólidas"
+  "mentorFabProfileSubtitle": "Datos completos, proyecciones más sólidas",
+  "reportStatusSerein": "Sereno",
+  "reportStatusARenforcer": "A reforzar",
+  "reportStatusAlerte": "Alerta"
 }

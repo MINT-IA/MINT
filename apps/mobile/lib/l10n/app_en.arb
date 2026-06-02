@@ -11319,5 +11319,8 @@
   "mentorFabSimulateTitle": "Simulate a scenario",
   "mentorFabSimulateSubtitle": "3a, LPP buyback, mortgage...",
   "mentorFabProfileTitle": "Refine my profile",
-  "mentorFabProfileSubtitle": "Complete data, stronger projections"
+  "mentorFabProfileSubtitle": "Complete data, stronger projections",
+  "reportStatusSerein": "Calm",
+  "reportStatusARenforcer": "To strengthen",
+  "reportStatusAlerte": "Alert"
 }

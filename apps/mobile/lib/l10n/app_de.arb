@@ -11299,5 +11299,8 @@
   "mentorFabSimulateTitle": "Szenario simulieren",
   "mentorFabSimulateSubtitle": "3a, BVG-Einkauf, Hypothek...",
   "mentorFabProfileTitle": "Profil verfeinern",
-  "mentorFabProfileSubtitle": "Vollständigere Daten, stärkere Projektionen"
+  "mentorFabProfileSubtitle": "Vollständigere Daten, stärkere Projektionen",
+  "reportStatusSerein": "Stabil",
+  "reportStatusARenforcer": "Zu stärken",
+  "reportStatusAlerte": "Warnung"
 }

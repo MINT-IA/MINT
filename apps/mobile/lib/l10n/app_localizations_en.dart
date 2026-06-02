@@ -23450,4 +23450,13 @@ class SEn extends S {
 
   @override
   String get mentorFabProfileSubtitle => 'Complete data, stronger projections';
+
+  @override
+  String get reportStatusSerein => 'Calm';
+
+  @override
+  String get reportStatusARenforcer => 'To strengthen';
+
+  @override
+  String get reportStatusAlerte => 'Alert';
 }
