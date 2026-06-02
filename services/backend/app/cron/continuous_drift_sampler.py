@@ -205,6 +205,7 @@ def run_sample_pass(
 
         if diff_count > 0:
             samples_dirty += 1
+            _increment_drift_counter(diff_count)
 
     summary = {
         "sampler_run_id": sampler_run_id,
@@ -214,6 +215,18 @@ def run_sample_pass(
     }
     logger.info("sampler_run summary=%s", summary)
     return summary
+
+
+def _increment_drift_counter(diff_count: int) -> None:
+    """Increment soak drift telemetry without making Prometheus mandatory."""
+    try:
+        from app.observability.counters import mint_snapshot_fact_current_drift_total
+
+        mint_snapshot_fact_current_drift_total.labels(
+            field_key="projection_payload",
+        ).inc(diff_count)
+    except (ImportError, AttributeError):
+        return None
 
 
 def main(argv: Optional[list] = None) -> int:

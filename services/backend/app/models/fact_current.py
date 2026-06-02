@@ -67,6 +67,7 @@ class FactCurrent(Base):
     value_enc = Column(JSONType, nullable=False)
     confidence = Column(JSONType, nullable=True)
     valid_from = Column(DateTime, nullable=False)
+    latest_event_id = Column(String(36), nullable=True)
     updated_at = Column(
         DateTime,
         nullable=False,

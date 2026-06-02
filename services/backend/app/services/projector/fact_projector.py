@@ -52,6 +52,7 @@ from typing import Any, Dict, Optional
 from uuid import uuid4
 
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.fact_event import FactEvent
@@ -76,17 +77,34 @@ class FactEventInput:
     confidence: Optional[Dict[str, Any]] = None  # D-29 EnhancedConfidence shape, nullable
 
 
-def project_event(session: Session, event: FactEventInput) -> str:
+def project_event(
+    session: Session,
+    event: FactEventInput,
+    *,
+    event_id: Optional[str] = None,
+) -> str:
     """Project a single event into (fact_event, fact_current) atomically.
 
-    Returns the generated event_id (UUID4 string).
+    Returns the generated event_id (UUID4 string), or the caller-provided
+    idempotency key.
 
-    Raises whatever the underlying session raises. The transaction is
-    rolled back automatically by `with session.begin()` on any exception ;
-    after rollback NEITHER fact_event NOR fact_current has been mutated.
+    A repeated (user_id, event_id) is treated as an exact replay and skipped
+    before any write. Other integrity errors still surface normally.
     """
-    event_id = str(uuid4())
+    event_id = event_id or str(uuid4())
     now = datetime.now(timezone.utc)
+
+    existing = (
+        session.query(FactEvent)
+        .filter(
+            FactEvent.event_id == event_id,
+            FactEvent.user_id == event.user_id,
+        )
+        .first()
+    )
+    if existing is not None:
+        _increment_idempotency_skip_counter()
+        return event_id
 
     # D-19 : single atomic transaction. session.begin() commits on
     # successful exit and rolls back on exception. If the session is
@@ -97,89 +115,137 @@ def project_event(session: Session, event: FactEventInput) -> str:
     else:
         ctx = session.begin()
 
-    with ctx:
-        # ── 1. Append-only INSERT into fact_event ─────────────────────────
-        fe = FactEvent(
-            event_id=event_id,
-            user_id=event.user_id,
-            field_key=event.field_key,
-            value_enc=event.value_enc,
-            confidence=event.confidence,
-            valid_from=event.valid_from,
-            recorded_at=now,
-            source=event.source,
-            event_version=1,
-        )
-        session.add(fe)
-        session.flush()  # surface DB constraint failures inside the txn
+    try:
+        with ctx:
+            # ── 1. Append-only INSERT into fact_event ─────────────────────
+            fe = FactEvent(
+                event_id=event_id,
+                user_id=event.user_id,
+                field_key=event.field_key,
+                value_enc=event.value_enc,
+                confidence=event.confidence,
+                valid_from=event.valid_from,
+                recorded_at=now,
+                source=event.source,
+                event_version=1,
+            )
+            session.add(fe)
+            session.flush()  # surface DB constraint failures inside the txn
+            _increment_fact_event_insert_counter(event.source)
 
-        # ── 2. UPSERT fact_current via raw SQL (portable Postgres+SQLite) ─
-        # SQLAlchemy ORM has no portable .merge() that emits ON CONFLICT
-        # DO UPDATE with a WHERE-guard, so we drop to text() for the
-        # idempotent UPSERT. The WHERE guard makes this last-writer-wins
-        # by valid_from (older events arriving late don't clobber).
-        session.execute(
-            text(
-                """
-                INSERT INTO fact_current
-                    (user_id, field_key, value_enc, confidence, valid_from, updated_at)
-                VALUES
-                    (:user_id, :field_key, :value_enc, :confidence, :valid_from, :updated_at)
-                ON CONFLICT (user_id, field_key) DO UPDATE
-                    SET value_enc  = excluded.value_enc,
-                        confidence = excluded.confidence,
-                        valid_from = excluded.valid_from,
-                        updated_at = excluded.updated_at
-                    WHERE excluded.valid_from > fact_current.valid_from
-                """
-            ),
-            {
-                "user_id": event.user_id,
-                "field_key": event.field_key,
-                # SQLAlchemy's bind layer JSON-serialises dicts into the
-                # JSONType column on both Postgres (JSONB) and SQLite (TEXT).
-                # We pass the dict directly to keep symmetry with the ORM
-                # insert above.
-                "value_enc": _json_bind(event.value_enc),
-                "confidence": _json_bind(event.confidence),
-                "valid_from": event.valid_from,
-                "updated_at": now,
-            },
-        )
-
-        # ── 3. QA sec FLAG-1 (2026-05-19) — post-write divergence assertion ─
-        # Defense-in-depth against ContextVar leak bugs that could swap
-        # event.user_id between the INSERT into fact_event and the UPSERT
-        # into fact_current. Without this guard, a wrong-user_id corruption
-        # would silently land cross-user data until the drift sampler caught
-        # it (continuous_drift_sampler runs hourly, deferred to Plan 02-04
-        # full integration). The cost is one extra SELECT per project_event
-        # call ; the benefit is mechanical proof that the UPSERT actually
-        # targeted the same (user_id, field_key) tuple we just inserted into
-        # fact_event. Failure raises inside the `with ctx:` block so the
-        # SAVEPOINT (or outer transaction) rolls back automatically — neither
-        # fact_event NOR fact_current is mutated on assertion failure.
-        verified_row = session.execute(
-            text(
-                """
-                SELECT 1 FROM fact_current
-                 WHERE user_id = :user_id
-                   AND field_key = :field_key
-                """
-            ),
-            {"user_id": event.user_id, "field_key": event.field_key},
-        ).first()
-        if verified_row is None:
-            raise RuntimeError(
-                f"Phase 02 sec FLAG-1 post-write assertion failed : "
-                f"project_event for user_id={event.user_id!r} "
-                f"field_key={event.field_key!r} valid_from={event.valid_from!r} "
-                f"did not produce a matching fact_current row. Possible "
-                f"ContextVar user_id swap, schema invariant violation, or "
-                f"UPSERT silent failure. Rolling back transaction."
+            # ── 2. UPSERT fact_current via raw SQL (portable Postgres+SQLite) ─
+            # SQLAlchemy ORM has no portable .merge() that emits ON CONFLICT
+            # DO UPDATE with a WHERE-guard, so we drop to text() for the
+            # idempotent UPSERT. The WHERE guard makes this last-writer-wins
+            # by valid_from (older events arriving late don't clobber).
+            session.execute(
+                text(_fact_current_upsert_sql(session.get_bind().dialect.name)),
+                {
+                    "user_id": event.user_id,
+                    "field_key": event.field_key,
+                    # SQLAlchemy's bind layer JSON-serialises dicts into the
+                    # JSONType column on both Postgres (JSONB) and SQLite (TEXT).
+                    # We pass the dict directly to keep symmetry with the ORM
+                    # insert above.
+                    "value_enc": _json_bind(event.value_enc),
+                    "confidence": _json_bind(event.confidence),
+                    "valid_from": event.valid_from,
+                    "latest_event_id": event_id,
+                    "updated_at": now,
+                },
             )
 
+            # ── 3. QA sec FLAG-1 (2026-05-19) — post-write divergence assertion ─
+            # Defense-in-depth against ContextVar leak bugs that could swap
+            # event.user_id between the INSERT into fact_event and the UPSERT
+            # into fact_current. Without this guard, a wrong-user_id corruption
+            # would silently land cross-user data until the drift sampler caught
+            # it (continuous_drift_sampler runs hourly, deferred to Plan 02-04
+            # full integration). The cost is one extra SELECT per project_event
+            # call ; the benefit is mechanical proof that the UPSERT actually
+            # targeted the same (user_id, field_key) tuple we just inserted into
+            # fact_event. Failure raises inside the `with ctx:` block so the
+            # SAVEPOINT (or outer transaction) rolls back automatically — neither
+            # fact_event NOR fact_current is mutated on assertion failure.
+            verified_row = session.execute(
+                text(
+                    """
+                    SELECT 1 FROM fact_current
+                     WHERE user_id = :user_id
+                       AND field_key = :field_key
+                    """
+                ),
+                {"user_id": event.user_id, "field_key": event.field_key},
+            ).first()
+            if verified_row is None:
+                raise RuntimeError(
+                    f"Phase 02 sec FLAG-1 post-write assertion failed : "
+                    f"project_event for user_id={event.user_id!r} "
+                    f"field_key={event.field_key!r} valid_from={event.valid_from!r} "
+                    f"did not produce a matching fact_current row. Possible "
+                    f"ContextVar user_id swap, schema invariant violation, or "
+                    f"UPSERT silent failure. Rolling back transaction."
+                )
+    except IntegrityError:
+        if _fact_event_exists(session, user_id=event.user_id, event_id=event_id):
+            _increment_idempotency_skip_counter()
+            return event_id
+        raise
+
     return event_id
+
+
+def _increment_idempotency_skip_counter() -> None:
+    """Increment D-27 replay-skip telemetry without making metrics mandatory."""
+    try:
+        from app.observability.counters import mint_projector_idempotency_skip_total
+
+        mint_projector_idempotency_skip_total.inc()
+    except (ImportError, AttributeError):
+        return None
+
+
+def _increment_fact_event_insert_counter(source: str) -> None:
+    """Increment fact_event INSERT telemetry without making metrics mandatory."""
+    try:
+        from app.observability.counters import mint_fact_event_insert_total
+
+        mint_fact_event_insert_total.labels(source_type=source).inc()
+    except (ImportError, AttributeError):
+        return None
+
+
+def _fact_event_exists(session: Session, *, user_id: str, event_id: str) -> bool:
+    """Return True when a replay key is already materialised in fact_event."""
+    return (
+        session.query(FactEvent)
+        .filter(FactEvent.event_id == event_id, FactEvent.user_id == user_id)
+        .first()
+        is not None
+    )
+
+
+def _fact_current_upsert_sql(dialect_name: str) -> str:
+    """Return dialect-specific raw SQL for the fact_current UPSERT."""
+    value_expr = ":value_enc"
+    confidence_expr = ":confidence"
+    if dialect_name == "postgresql":
+        value_expr = "CAST(:value_enc AS jsonb)"
+        confidence_expr = "CAST(:confidence AS jsonb)"
+
+    return f"""
+        INSERT INTO fact_current
+            (user_id, field_key, value_enc, confidence, valid_from, latest_event_id, updated_at)
+        VALUES
+            (:user_id, :field_key, {value_expr}, {confidence_expr}, :valid_from, :latest_event_id, :updated_at)
+        ON CONFLICT (user_id, field_key) DO UPDATE
+            SET value_enc  = excluded.value_enc,
+                confidence = excluded.confidence,
+                valid_from = excluded.valid_from,
+                latest_event_id = excluded.latest_event_id,
+                updated_at = excluded.updated_at
+            WHERE excluded.valid_from > fact_current.valid_from
+    """
 
 
 def _json_bind(value: Optional[Dict[str, Any]]) -> Optional[str]:

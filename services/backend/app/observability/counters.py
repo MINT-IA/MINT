@@ -8,7 +8,7 @@ All counters use `prometheus_client` (already present in pyproject). If the
 library is unavailable (test envs without it), no-op stubs are exported so
 imports never fail in CI.
 
-Counters declared (6 base D-33 + 2 iter-2 = 8 total):
+Counters declared (6 base D-33 + 2 iter-2 + 1 cutover = 9 total):
     mint_fact_current_read_latency_ms     Histogram (labels: fact_type)
     mint_fact_event_insert_total          Counter   (labels: source_type)
     mint_dek_envelope_status_total        Counter   (labels: status)
@@ -17,6 +17,7 @@ Counters declared (6 base D-33 + 2 iter-2 = 8 total):
     mint_constants_version_mismatch_total Counter
     mint_kms_backend_failure_total        Counter   (labels: backend, reason) [iter-2 A4]
     mint_dek_cache_size_total             Gauge                                [iter-2 A5]
+    mint_snapshot_fact_current_drift_total Counter  (labels: field_key)
 """
 from __future__ import annotations
 
@@ -78,14 +79,21 @@ mint_anonymous_session_link_total = Counter(
 
 mint_projector_idempotency_skip_total = Counter(
     "mint_projector_idempotency_skip_total",
-    "Times the projector skipped an upsert due to sequence-number monotonicity "
-    "(event.event_id <= existing.latest_event_id) — D-27 idempotency proof.",
+    "Times the projector skipped a replayed fact_event idempotency key "
+    "(same user_id + event_id) — D-27 exact-equality proof.",
 )
 
 mint_constants_version_mismatch_total = Counter(
     "mint_constants_version_mismatch_total",
     "Times a snapshot read found a stale constants_version_hash and invalidated "
     "cache — D-17 cache-key extension proof.",
+)
+
+mint_snapshot_fact_current_drift_total = Counter(
+    "mint_snapshot_fact_current_drift_total",
+    "Projection drift events detected between legacy SnapshotModel path and "
+    "fact_current path during Phase 02 soak.",
+    labelnames=("field_key",),
 )
 
 
@@ -113,6 +121,7 @@ __all__ = [
     "mint_anonymous_session_link_total",
     "mint_projector_idempotency_skip_total",
     "mint_constants_version_mismatch_total",
+    "mint_snapshot_fact_current_drift_total",
     "mint_kms_backend_failure_total",
     "mint_dek_cache_size_total",
 ]

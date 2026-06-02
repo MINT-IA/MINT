@@ -126,7 +126,7 @@ def test_run_sample_pass_dry_run_with_in_memory_users(tmp_path, monkeypatch):
     assert len(summary["sampler_run_id"]) == 36  # UUID
 
 
-def test_run_sample_pass_detects_drift(tmp_path):
+def test_run_sample_pass_detects_drift(tmp_path, monkeypatch):
     """Sampler reports diff_count > 0 when legacy ≠ new."""
     from sqlalchemy import create_engine, text
 
@@ -143,6 +143,12 @@ def test_run_sample_pass_detects_drift(tmp_path):
     sys.path.insert(0, str(_REPO_ROOT / "services" / "backend"))
 
     from app.cron.continuous_drift_sampler import run_sample_pass
+    drift_counter_calls: list[int] = []
+
+    monkeypatch.setattr(
+        "app.cron.continuous_drift_sampler._increment_drift_counter",
+        drift_counter_calls.append,
+    )
 
     class _FakeResponse:
         def __init__(self, payload):
@@ -178,3 +184,4 @@ def test_run_sample_pass_detects_drift(tmp_path):
         )
     assert summary["samples_attempted"] == 1
     assert summary["samples_dirty"] == 1
+    assert drift_counter_calls == [1]

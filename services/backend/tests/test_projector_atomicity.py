@@ -17,12 +17,14 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
-from sqlalchemy.exc import IntegrityError
-
 from app.models.fact_current import FactCurrent
 from app.models.fact_event import FactEvent
 from app.models.user import User
-from app.services.projector.fact_projector import FactEventInput, project_event
+from app.services.projector.fact_projector import (
+    FactEventInput,
+    _fact_current_upsert_sql,
+    project_event,
+)
 from tests.conftest import TestingSessionLocal
 
 
@@ -77,21 +79,24 @@ def test_happy_path_inserts_both_tables(db, user):
     assert fc_count == 1
 
 
-def test_rollback_on_fact_event_failure_leaves_both_tables_empty(
-    db, user, monkeypatch,
-):
-    """Simulate a mid-write failure on the fact_event INSERT.
+def test_replayed_event_id_skips_without_duplicate_rows(db, user, monkeypatch):
+    """A repeated (user_id, event_id) is an idempotent replay, not a crash."""
+    class _CounterSpy:
+        def __init__(self):
+            self.count = 0
 
-    The session.flush() call inside project_event surfaces DB errors before
-    the fact_current UPSERT. After the exception, neither table should have
-    more rows than the baseline — the `with session.begin()` block rolled
-    back the failed write.
+        def inc(self):
+            self.count += 1
 
-    We force the failure by monkeypatching uuid4 inside the projector module
-    so a second call produces the SAME event_id as the first ; the PK
-    collision triggers IntegrityError on flush(), which the `with
-    session.begin()` block MUST roll back.
-    """
+    counter = _CounterSpy()
+    import app.services.projector.fact_projector as fp_module
+
+    monkeypatch.setattr(
+        fp_module,
+        "_increment_idempotency_skip_counter",
+        counter.inc,
+    )
+
     inp1 = FactEventInput(
         user_id=user.id,
         field_key="monthly_gross_income",
@@ -99,25 +104,14 @@ def test_rollback_on_fact_event_failure_leaves_both_tables_empty(
         valid_from=datetime(2026, 1, 1, tzinfo=timezone.utc),
         source="test",
     )
-    project_event(db, inp1)
+    stable_event_id = "evt-stable-replay-001"
+    first_event_id = project_event(db, inp1, event_id=stable_event_id)
+    assert first_event_id == stable_event_id
 
     fe_after_first = db.query(FactEvent).filter(FactEvent.user_id == user.id).count()
     fc_after_first = db.query(FactCurrent).filter(FactCurrent.user_id == user.id).count()
     assert fe_after_first == 1
     assert fc_after_first == 1
-
-    import app.services.projector.fact_projector as fp_module
-    existing_event_id = db.query(FactEvent.event_id).filter(
-        FactEvent.user_id == user.id
-    ).scalar()
-
-    def _stub_uuid4():
-        class _Stub:
-            def __str__(self):
-                return existing_event_id
-        return _Stub()
-
-    monkeypatch.setattr(fp_module, "uuid4", _stub_uuid4)
 
     inp2 = FactEventInput(
         user_id=user.id,
@@ -126,13 +120,9 @@ def test_rollback_on_fact_event_failure_leaves_both_tables_empty(
         valid_from=datetime(2026, 2, 1, tzinfo=timezone.utc),
         source="test",
     )
-    with pytest.raises(IntegrityError):
-        project_event(db, inp2)
-
-    # After the rollback, sessions can be in a tainted state until the
-    # outer transaction is rolled back. Issue an explicit rollback so the
-    # subsequent assertion-queries can run cleanly.
-    db.rollback()
+    replay_event_id = project_event(db, inp2, event_id=stable_event_id)
+    assert replay_event_id == stable_event_id
+    assert counter.count == 1
 
     fe_after_fail = db.query(FactEvent).filter(FactEvent.user_id == user.id).count()
     fc_after_fail = db.query(FactCurrent).filter(FactCurrent.user_id == user.id).count()
@@ -167,7 +157,7 @@ def test_upsert_idempotent_lastwriterwins_by_valid_from(db, user):
     )
 
     project_event(db, inp_old)
-    project_event(db, inp_new)
+    new_event_id = project_event(db, inp_new)
 
     cur = (
         db.query(FactCurrent)
@@ -178,6 +168,7 @@ def test_upsert_idempotent_lastwriterwins_by_valid_from(db, user):
         .one()
     )
     assert cur.value_enc["ct"] == "NEW"
+    assert cur.latest_event_id == new_event_id
 
     inp_oldest = FactEventInput(
         user_id=user.id,
@@ -202,9 +193,21 @@ def test_upsert_idempotent_lastwriterwins_by_valid_from(db, user):
         f"fact_current was clobbered by an older event — guarded-WHERE UPSERT broken. "
         f"Got ct={cur_after.value_enc['ct']!r}, expected 'NEW'."
     )
+    assert cur_after.latest_event_id == new_event_id
 
     fe_count = db.query(FactEvent).filter(FactEvent.user_id == user.id).count()
     assert fe_count == 3, (
         f"fact_event lost an event — append-only invariant VIOLATED. "
         f"Expected 3 rows, got {fe_count}."
     )
+
+
+def test_fact_current_upsert_sql_casts_jsonb_on_postgres_only():
+    """Raw text binds must cast JSON strings to JSONB on real Postgres."""
+    pg_sql = _fact_current_upsert_sql("postgresql")
+    sqlite_sql = _fact_current_upsert_sql("sqlite")
+
+    assert "CAST(:value_enc AS jsonb)" in pg_sql
+    assert "CAST(:confidence AS jsonb)" in pg_sql
+    assert "CAST(:value_enc AS jsonb)" not in sqlite_sql
+    assert "CAST(:confidence AS jsonb)" not in sqlite_sql
