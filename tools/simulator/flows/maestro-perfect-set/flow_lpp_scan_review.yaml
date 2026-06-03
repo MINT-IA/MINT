@@ -12,8 +12,7 @@
 #   - Field detection : avoirLpp / avoirLppTotal / avoirLppObligatoire
 #     surface in the review with confidence badges.
 #   - Confirm button persists to BiographyProvider + CoachProfileProvider
-#     (signal : after confirm, drawer header reflects the change — but
-#     that assertion is OUT OF SCOPE here, see Limitation note).
+#     and routes to DocumentImpactScreen once persistence has completed.
 #
 # ─── ARCHETYPE SCOPE ───────────────────────────────────────────────────
 # Archetype-agnostic. The « example » button (`_onUseExamplePressed`,
@@ -57,9 +56,7 @@
 #     ├── 02-lpp-type-selected.png
 #     ├── 03-example-tapped.png       (right after OCR processing starts)
 #     ├── 04-extraction-review.png    (review screen rendered)
-#     └── 05-confirmed.png            (post-confirm, route either home or
-#                                      back to scan ; we just assert
-#                                      review screen unmounted)
+#     └── 05-impact-screen.png        (post-confirm impact screen)
 
 appId: ch.mint.app
 tags:
@@ -129,26 +126,38 @@ tags:
     timeout: 4000
 - takeScreenshot: "04-extraction-review"
 
-# 05 — tap the confirm button. Its label is rendered by `_buildConfirmButton`
-# at extraction_review_screen.dart. The current visible text is
-# "Confirmer et enrichir mon profil".
-- scrollUntilVisible:
-    element:
-      text: ".*Confirmer.*"
-    direction: DOWN
-    timeout: 8000
+# 05 — tap the confirm button. The LPP fixture renders 14 fields, so the
+# CTA is below the first viewport. Use bounded explicit swipes because
+# `scrollUntilVisible: ".*Confirmer.*"` can false-match the intro copy
+# ("avant de confirmer") and stop before the actual button.
+- repeat:
+    times: 4
+    commands:
+      - swipe:
+          direction: UP
+          duration: 250
+- extendedWaitUntil:
+    visible:
+      text: "Confirmer et enrichir mon profil"
+    timeout: 4000
 - tapOn:
-    text: ".*Confirmer.*"
-- takeScreenshot: "05-confirmed"
+    text: "Confirmer et enrichir mon profil"
+- extendedWaitUntil:
+    visible:
+      text: "Ton profil est plus précis"
+    timeout: 12000
+- extendedWaitUntil:
+    visible:
+      text: ".*points de confiance.*"
+    timeout: 8000
+- assertNotVisible:
+    text: "VÉRIFICATION"
+- takeScreenshot: "05-impact-screen"
 
 # ─── KNOWN LIMITATIONS ─────────────────────────────────────────────────
-# 1. Post-confirm assertion (avoirLpp shown in /profile/bilan or drawer)
-#    is INTENTIONALLY omitted. After Confirm, the screen pops back —
-#    asserting profile state requires a fresh navigation to /profile/bilan
-#    AND the post-confirm provider rebroadcast to settle. This belongs
-#    in a DIFFERENT flow (flow_lpp_post_save_profile.yaml, deferred).
-#    Right now we only validate « scan + review render + confirm tap
-#    succeeds » which is the high-value gate.
+# 1. This flow proves scan + review render + confirm + impact screen.
+#    Durable reload into Data Spine / CoachContextPacket is covered by
+#    `test/providers/coach_profile_provider_lpp_extraction_test.dart`.
 #
 # 2. Debug-only build dependency : if a release build is shipped to a
 #    Maestro Cloud agent, this flow must be skipped or replaced with a
