@@ -108,6 +108,17 @@ was reverted afterward and a fresh current-build S005 rerun passed. Durable
 report:
 `evidence/maestro-ci/cjt-018-t5-slider-ax-bisect-20260603.md`.
 
+## CJT-018 Addendum — 2026-06-03 Revenue Dossier Rejection
+
+A fourth temporary runtime probe repeated seeded T5→T6 while keeping the revenue
+value/confidence mutation but skipping the `Revenu net mensuel` row in
+`DossierStrip`. T6 still exposed `onboarding-insight-view` in the bad upper
+geometry class (`x=8,y=206.8,w=118,h=17.3`), and the captured AX tree confirmed
+the revenue dossier row was absent. This rejects "dossier revenue row growth" as
+sufficient root cause. The probe code was reverted afterward and a fresh
+current-build S005 rerun passed. Durable report:
+`evidence/maestro-ci/cjt-018-revenue-dossier-bisect-20260603.md`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:
