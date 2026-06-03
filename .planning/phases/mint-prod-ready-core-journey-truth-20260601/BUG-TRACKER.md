@@ -40,6 +40,15 @@ date: 2026-06-01
 | CJT-022 | P1 | QA evidence | Backend snapshots | Full backend pytest was not green because legacy narrator byte-identity snapshots drifted from the live prompt around `report_overview` / `report_v2` route entries. | verified | no | Backend/QA | Root decision: route removal is intentional from `99f2c4505` (`report_overview` / `report_v2` no longer routeable from Coach; `preferFromChat=false`). Refreshed the five narrator legacy snapshots from the documented `_load.py` procedure. Proof: `pytest -q tests/test_citation_gate/test_byte_identity_flag_off.py tests/test_coach_chat_bundles.py` passed (`23 passed`); full `cd services/backend && pytest -q` passed (`7621 passed, 66 skipped, 4 xfailed, 1 warning`). |
 | CJT-023 | P0 | Money trust | Maestro/seed contract | `flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml` mixed an in-memory `MINT_E2E_ARCHETYPE` seed with a restart/persistence proof. On the 2026-06-02 rerun, Budget setup saved only housing + LAMal to persisted answers, so `/budget` reopened with `netIncome: 0.0` and rendered the empty state instead of the expected seeded read model. A second runtime run then exposed that Coach's precomputed opener preferred `gapWarning`/`/retraite` over current budget room when both existed. | verified | no | QA + Flutter | Closed by converting the flow to a production-writer path (`/onb` → `/budget/setup` → restart → Budget → Mon Argent → Rapport → Coach), adding a budget setup regression that preserves persisted seed income, and fixing `DataDrivenOpenerService` so positive trusted budget room wins over retirement gap warning. Proof: `flutter test test/screens/budget_setup_screen_test.dart test/providers/budget/budget_provider_test.dart test/screens/budget_screen_smoke_test.dart test/services/coach/data_driven_opener_service_test.dart test/services/coach/precomputed_insights_service_test.dart` passed (`73 tests`); Maestro `flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml` passed on iPhone 17 Pro simulator in 1m36 with artifacts at `.planning/_walker/money-trust-prod-runtime-20260602T141811/`. Original failing evidence remains in `.planning/_walker/manual-money-trust-20260602T114840/DIAGNOSIS.md` and `.planning/_walker/money-trust-prod-runtime-20260602T120530/`. |
 
+## CJT-018 Addendum — 2026-06-03 Evening
+
+Four additional runtime probes were rejected while trying to replace the S005 T6
+coordinate fallback with `tapOn.id: onboarding-insight-view`: active-step
+semantics isolation, deferred revenue advance, constrained button semantics,
+and a T6 explicit-child semantics boundary. All stayed on T6; MCP tapped the id
+at `x=67,y=205`. Production code was reverted after the probes. Evidence:
+`evidence/maestro-ci/cjt-018-20260603-evening-negative-probes.md`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:
