@@ -92,7 +92,7 @@ tags:
 # falls through to LandingScreen at '/'. Both states prove the
 # SCHEME REGISTRATION (S003+F006 contract) — only the GoRouter path
 # resolution is contingent on the cold-launch deep-link bridge.
-- takeScreenshot: /tmp/96_s003_mintapp_opens_app
+- takeScreenshot: "96-s003-mintapp-opens-app"
 
 # ─── S003+F006 RESOLUTION CONTRACT ────────────────────────────────────
 # Acceptance : steps 3 + 4 (the 2 S003/F006 assertions) both pass.

@@ -57,7 +57,7 @@ tags:
     text: ".*Aujourd'hui.*"
 
 # ── Step 3 — Final state screenshot for HUMAN-UAT evidence ────────────
-- takeScreenshot: /tmp/97_s002_aujourdhui_after_fragment
+- takeScreenshot: "97-s002-aujourdhui-after-fragment"
 
 # ─── S002 RESOLUTION CONTRACT ─────────────────────────────────────────
 # Acceptance : the fragment runs end-to-end (its 6 internal assertions

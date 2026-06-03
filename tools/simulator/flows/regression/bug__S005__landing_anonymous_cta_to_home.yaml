@@ -216,7 +216,7 @@ tags:
     id: "mint_card_action_bar"
 
 # ── Step 7 — Optional capture for HUMAN-UAT evidence ──────────────────
-- takeScreenshot: /tmp/96_s005_aujourdhui_landed
+- takeScreenshot: "96-s005-aujourdhui-landed"
 
 # ─── S005 RESOLUTION CONTRACT ─────────────────────────────────────────
 # Acceptance : steps 4 + 6 (the 2 S005 assertions) both pass.

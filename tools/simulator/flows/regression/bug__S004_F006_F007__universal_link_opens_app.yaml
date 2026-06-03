@@ -102,7 +102,7 @@ tags:
     timeout: 10000
 
 # ── Step 5 — Optional capture for HUMAN-UAT evidence ──────────────────
-- takeScreenshot: /tmp/96_s004_universal_link_opens_app
+- takeScreenshot: "96-s004-universal-link-opens-app"
 
 # ─── S004+F006+F007 RELEASE CONTRACT ──────────────────────────────────
 # Simulator steps 3 + 4 are diagnostic only. Passing them does NOT close
