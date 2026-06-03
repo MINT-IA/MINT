@@ -1,0 +1,227 @@
+# tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml
+#
+# ─── PURPOSE ───────────────────────────────────────────────────────────
+# Phase 97 W7 iteration cycle #4 (D-36 step 2 REPRO + step 6 LOCK) —
+# regression flow that gates the S005 fix.
+#
+# S005 bug : LandingScreen has NO public CTA to /home for anonymous
+# users. AuthProvider defaults isLocalMode=true (auth_provider.dart:90
+# + checkAuth() line 142-145 seeds it true on fresh prefs), and the
+# app.dart:417 gate ALLOWS anonymous /home access via
+# (isLoggedIn || isLocalMode). But the cold-launch lands at `/`
+# (LandingScreen, initialLocation per app.dart:214) and the screen
+# exposes only two CTAs : « Parle à Mint » → /start → /anonymous/chat,
+# and « J'ai déjà un compte » → /auth/login. No public path to /home.
+#
+# Reachability path tested :
+#   cold launch with clean state
+#   → bêta modal dismissed (optional, warm-start tolerant)
+#   → LandingScreen visible (hero « Voir clair, décider seul. »)
+#   → tap « Continuer sans compte » CTA (S005 ASSERTION : link exists)
+#   → context.go('/home') → AujourdhuiScreen renders
+#   → assertVisible « Aujourd'hui » (3-tab nav header)
+#
+# This is the canonical S005 reachability proof. Once it lands GREEN,
+# the bug__F001_S001_combined__chat_via_cap_du_jour.yaml flow becomes
+# RUNNABLE end-to-end because the cold-launch precondition is closed.
+#
+# ─── MAESTRO 2.5.1 SYNTAX ──────────────────────────────────────────────
+# Per https://docs.maestro.dev/api-reference/commands.
+#
+# ─── PRE-CONDITION ─────────────────────────────────────────────────────
+# - App installed on booted iPhone 17 Pro sim, bundle id ch.mint.app
+# - clearState:true wipes SharedPreferences so AuthProvider.checkAuth()
+#   takes the « no auth_local_mode key yet » path → seeds true → gate
+#   passes once the link is tapped.
+
+appId: ch.mint.app
+tags:
+  - phase-97
+  - phase-97-w7
+  - bug-s005
+  - regression
+  - navigation
+  - feature:navigation
+  - archetype:all
+---
+
+# ── Step 1 — Cold launch with clean state ─────────────────────────────
+- launchApp:
+    clearState: true
+
+# ── Step 2 — Dismiss bêta modal if present (cold-launch precondition) ─
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# ── Step 3 — LandingScreen visible (cold-launch lands here) ───────────
+# Pre-fix : LandingScreen renders, only 2 CTAs (« Parle à Mint » +
+# « J'ai déjà un compte »). The wordmark MINT confirms we're on the
+# landing surface ; the « Parle à Mint » primary CTA is the most
+# reliable text anchor (single-line, mid-screen) even when the hero
+# wraps across lines.
+- extendedWaitUntil:
+    visible:
+      text: "Parle à Mint"
+    timeout: 10000
+
+# ── Step 3-bis — Wait for the auxiliary-link FadeTransition to settle ──
+# Both « J'ai déjà un compte » and « Continuer sans compte » share the
+# _ctaOpacity (2500-2800ms interval, landing_screen.dart:58-62). The
+# « Parle à Mint » button uses the same controller — once it's visible
+# the FadeTransition is well past 2.8s. waitForAnimationToEnd belt-and-
+# suspenders the assertion against FadeTransition opacity ambiguity.
+- waitForAnimationToEnd
+
+# ── Step 4 — S005 ASSERTION 1/2 : « Continuer sans compte » link visible
+# Pre-fix : the link does not exist on LandingScreen — Maestro
+# accessibilityText hierarchy has no node containing the substring.
+# Post-fix : the link renders below « J'ai déjà un compte » with
+# accessibilityText="Continuer sans compte\nContinuer sans compte" (the
+# Semantics(label:) and the Text child both contribute, separated by \n
+# — Flutter iOS bridge concatenation). Maestro's exact text matcher
+# fails on the doubled form ; the regex matcher pattern
+# `.*Continuer sans compte.*` matches reliably.
+- extendedWaitUntil:
+    visible:
+      text: ".*Continuer sans compte.*"
+    timeout: 5000
+- assertVisible:
+    text: ".*Continuer sans compte.*"
+
+# ── Step 5 — Tap the link → /home (Aujourd'hui) ───────────────────────
+- tapOn:
+    text: ".*Continuer sans compte.*"
+- waitForAnimationToEnd
+
+# Current onboarding builds route the anonymous CTA through the public
+# MVP wedge before the shell. Keep this regression focused on the real
+# CTA path: complete the public storyboard and let the app route itself
+# to /home. Do not deep-link here, otherwise this flow can pass while
+# the anonymous CTA path is broken.
+- runFlow:
+    when:
+      visible: ".*Ouvrir.*"
+    commands:
+      - tapOn:
+          text: ".*Ouvrir.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*Je regarde d’abord.*"
+    commands:
+      - tapOn:
+          text: ".*Je regarde d’abord.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*États-Unis.*"
+    commands:
+      - tapOn:
+          text: ".*Non.*"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Quelle est ta nationalité ?"
+    commands:
+      - tapOn:
+          text: "Suisse"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Quelle est ta date de naissance ?"
+    commands:
+      - extendedWaitUntil:
+          visible:
+            text: "Choisir ma date"
+          timeout: 5000
+      - tapOn: "Choisir ma date"
+      - extendedWaitUntil:
+          visible:
+            text: "OK"
+          timeout: 5000
+      - tapOn:
+          text: ".*15.*juillet.*1992.*"
+      - tapOn: "OK"
+      - extendedWaitUntil:
+          visible:
+            text: "15.07.1992"
+          timeout: 5000
+      - tapOn:
+          text: "Continuer"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Où tu vis ?"
+    commands:
+      - tapOn:
+          id: "onboarding-canton-vd"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Combien te tombe net par mois ?"
+    commands:
+      # CJT-018: the visible CTA's iOS AX frame is currently invalid, so
+      # keep the coordinate fallback until the product-side frame bug is fixed.
+      - tapOn:
+          point: "50%,74%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Avant de te montrer…"
+    commands:
+      # CJT-018 candidate: label-level Semantics(identifier) should let Maestro
+      # tap the existing FilledButton activation owner by native id.
+      - tapOn:
+          id: "onboarding-insight-view"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continuer"
+    commands:
+      - tapOn:
+          point: "50%,70%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Plus tard"
+    commands:
+      # Terminal anonymous path: Plus tard flushes the dossier and routes
+      # to /home. Keep the visible CTA coordinate while CJT-018 is open.
+      - tapOn:
+          point: "50%,70%"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 6000
+
+# ── Step 6 — S005 ASSERTION 2/2 : « Aujourd'hui » visible ─────────────
+# Post-fix : context.go('/home') routes through the app.dart:417 gate
+# (isLoggedIn || isLocalMode) — isLocalMode defaults true → AujourdhuiScreen
+# renders → 3-tab nav header carries « Aujourd'hui » text. Same regex-
+# wrap as step 4 because the BottomNavigationBar tab carries
+# accessibilityText="Aujourd'hui\nOnglet 1 sur 4" (Flutter iOS bridge
+# concatenation of Semantics label + system-emitted tab-index hint). Then assert
+# the home-specific Cap du jour surface and action bar so the flow cannot pass
+# on a shell/tab-label-only false green.
+- extendedWaitUntil:
+    visible:
+      text: ".*Aujourd'hui.*"
+    timeout: 10000
+- assertVisible:
+    id: "card_cap_du_jour"
+- assertVisible:
+    id: "mint_card_action_bar"
+
+# ── Step 7 — Optional capture for HUMAN-UAT evidence ──────────────────
+- takeScreenshot: "96-s005-aujourdhui-landed"
+
+# ─── S005 RESOLUTION CONTRACT ─────────────────────────────────────────
+# Acceptance : steps 4 + 6 (the 2 S005 assertions) both pass.
+# Per CLAUDE.md §9.6, the run output IS the deterministic citation.
+#
+# This flow LIVES in CI : any future PR that removes the « Continuer
+# sans compte » link OR breaks the /home route for anonymous local-mode
+# users fails this flow = PR blocked.
