@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="1" time="41.0">
+    <testcase id="cjt018_strict_switcher_s005_id" name="cjt018_strict_switcher_s005_id" classname="cjt018_strict_switcher_s005_id" time="41.0" status="ERROR">
+      <properties>
+        <property name="tags" value="phase-97, phase-97-w7, bug-s005, regression, navigation, feature:navigation, archetype:all"/>
+      </properties>
+      <failure>Assertion is false: ".*Aujourd'hui.*" is visible</failure>
+    </testcase>
+  </testsuite>
+</testsuites>
