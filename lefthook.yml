@@ -36,6 +36,11 @@ pre-commit:
       run: python3 tools/checks/wiki_lint.py
       glob: ".planning/**/*.md"
       tags: [wiki, planning]
+    cjt-context-guard:
+      # CJT-OPS-00 — active production-readiness routing must point to the
+      # Core Journey Truth matrix + bug tracker, not stale GSD state.
+      run: python3 tools/checks/cjt_context_guard.py
+      tags: [wiki, planning, cjt]
     # ── Phase mint-data-architecture-v1-02 W0 Plan 02-01 HARD lints (D-20, D-24, iter-2 B4) ──
     alembic-boolean-default-lint:
       # D-20 — Refuses sa.Boolean + non-Boolean server_default combos

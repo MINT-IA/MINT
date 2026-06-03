@@ -1,51 +1,68 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.8
-milestone_name: L'Oracle & La Boucle — SHIPPED 2026-04-25
+milestone: core-journey-truth
+milestone_name: Core Journey Truth / Prod Ready
 status: executing
-stopped_at: Completed 01.1-02-PLAN.md (Wave 2 hero-flow YAML + dry-run trace GREEN, commit 016afb09). Plan 01.1-03 unblocked (Wave 3, autonomous=false, Julien G2 next).
-last_updated: "2026-05-22T15:41:15.786Z"
-last_activity: 2026-05-22 -- Phase 01.5 execution started
+stopped_at: CJT-OPS-00 context guard created; next execution wave is CJT-018 Maestro AX/locator debt unless release-gate access is explicitly prioritized.
+last_updated: "2026-06-03T20:40:13+02:00"
+last_activity: 2026-06-03 -- Core Journey Truth matrix is active operating map
 progress:
-  total_phases: 15
-  completed_phases: 6
-  total_plans: 80
-  completed_plans: 56
-  percent: 70
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 27
+  completed_plans: 4
+  percent: 15
 ---
 
-# GSD State: MINT v2.9 — Chat-as-Verb Pivot
+# GSD State: MINT Core Journey Truth / Prod Ready
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-19) + .planning/MILESTONE-CHAT-AS-VERB-2026-05-09.md (active milestone, 7 phases).
+Active operating map:
+`.planning/phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md`
+and `.planning/phases/mint-prod-ready-core-journey-truth-20260601/BUG-TRACKER.md`.
 
-**Core value:** MINT is 70% structured wiki + simulators, 30% narration. The pivot kills the chat-tab as destination, makes cards the home, turns chat into a verb invocable from card-actions ("explique / simule / rassure-moi") with 3-turn cap, citation gate on every emitted number, and DAG invalidation on stale projections.
+The older GSD receipts below are retained as history. They are not the current
+router for production-readiness work.
 
-**North-star metric:** Turns/user/week DOWN, DAU UP, quarter over quarter.
+**Core value:** one narrow supported beta story with one user truth, coherent
+navigation, reduced duplicate surfaces, current/cited Coach claims, and
+Maestro-proofed journeys.
 
-**Current focus:** Phase 01.5 — archetype-hard-gate-fatca
+**Current focus:** Core Journey Truth — close or explicitly defer the open
+gates before expanding scope.
 
-## Strategic Frame (per MILESTONE-CHAT-AS-VERB-2026-05-09)
+## Strategic Frame
 
-- **Doctrine:** the wiki is the asset ; chat is a precision tool, not a destination ; every number carries a citation chip ; narrator LLM is mathematically incapable of emitting an un-cited number.
-- **Source:** 4-expert panel synthesis 2026-05-09 (Cleo strategist + Karpathy architect + adversarial agent + UI auditor) + code base audit 2026-05-09 (52 fields wiki, 17 simulators, coach text-first) + PO directive « MINT n'est pas un chat. Wiki + simulations + minimum chat livraison. »
-- **5-gate exit contract per phase:** G1 Maestro flow / G2 device by Julien / G3 dev CI green / G4 regression suite / G5 LSFin+accent+ARB lint.
-- **Critical path:** ~14 days with parallel UI track (90-92-93) and architecture track (91-94-95-96).
+- **Doctrine:** matrix first, tracker second, code third. A capability is not
+  considered proven because a route, widget, or unit test exists.
+- **Source:** `.planning/phases/mint-prod-ready-core-journey-truth-20260601/`.
+- **Proof contract:** fresh command output, Maestro/runtime evidence when the
+  row is a human journey, and deterministic citation in the tracker.
+- **Anti-drift check:** `python3 tools/checks/cjt_context_guard.py`.
 
 ## Current Position
 
-Phase: 01.5 (archetype-hard-gate-fatca) — EXECUTING
-Plan: 1 of 11
-Status: Executing Phase 01.5
-Last activity: 2026-05-22 -- Phase 01.5 execution started
+Phase: `mint-prod-ready-core-journey-truth-20260601` — EXECUTING
+Plan: CJT-OPS-00 context guard and next-proof routing
+Status: Executing Core Journey Truth / Prod Ready
+Last activity: 2026-06-03 -- Journey Truth Matrix v0 committed and context
+guard added
 
-**Parked / orthogonal:**
+**Known open gates:**
 
-- Phase 02-deploy Task 2a CHECKPOINT — Julien-gated staging-zero-drift, unblocks operational cutover (PR-3b/PR-4/PR-5 + Plan 02-04). Independent of Phase 01 audit work.
-- Phase 02 substrate ◆ CODE-SHIPPED ON DEV (4 PRs #653 #657 #656 #655 squash-merged 2026-05-19 ; staging Postgres at p122 head per HANDOFF-2026-05-20 pgvector activation).
+- CJT-013 — backend production Phase 02 fact-current cutover.
+- CJT-015 — TestFlight / Universal Links / signed real-device proof.
+- CJT-018 — onboarding Maestro AX/locator debt.
 
-**Milestone field synced 2026-05-21** — frontmatter now reflects active milestone v2.11 Data Architecture v1 (ADR `2026-05-17-data-architecture-event-log-vs-bitemporal.md`). Previous v2.8 « L'Oracle & La Boucle SHIPPED 2026-04-25 » is past-milestone closed.
+**Next execution bias:** CJT-018 first, because stable Maestro selectors make
+the account, document, Coach-widget, and action-loop proof waves cheaper and
+less ambiguous.
+
+## Historical Receipts
+
+The sections below pre-date the Core Journey Truth convergence phase. They stay
+available for provenance, but they are no longer the active routing state.
 
 ## Phase 01.1 Planning Receipt (walkthrough-first-grounding, 2026-05-21)
 
