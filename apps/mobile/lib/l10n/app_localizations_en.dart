@@ -23208,6 +23208,32 @@ class SEn extends S {
   }
 
   @override
+  String onboardingAdjustDecreaseStep(String step) {
+    return 'Decrease by $step';
+  }
+
+  @override
+  String onboardingAdjustIncreaseStep(String step) {
+    return 'Increase by $step';
+  }
+
+  @override
+  String onboardingAdjustCurrentValue(String value) {
+    return 'Current value: $value';
+  }
+
+  @override
+  String onboardingAdjustYearLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count years',
+      one: '1 year',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get coachOnboardingFirstUserMessage =>
       'Hi, I just created my account. Where do I start?';
 

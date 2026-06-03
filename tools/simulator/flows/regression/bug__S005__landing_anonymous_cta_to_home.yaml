@@ -171,30 +171,24 @@ tags:
     when:
       visible: "Avant de te montrer…"
     commands:
-      # CJT-018: Maestro/idb expose onboarding-insight-view near y=196 while
-      # the rendered CTA is lower on screen; coordinate fallback preserves S005.
       - tapOn:
-          point: "50%,71%"
+          id: "onboarding-insight-view"
       - waitForAnimationToEnd
 - runFlow:
     when:
       visible: "Continuer"
     commands:
-      # CJT-018: the T7 scene CTA currently exposes resource-id
-      # onboarding-scene-continue with a stale upper AX frame after the full
-      # onboarding history. Coordinate fallback preserves this S005 proof.
       - tapOn:
-          point: "50%,70%"
+          id: "onboarding-scene-continue"
       - waitForAnimationToEnd
 - runFlow:
     when:
       visible: "Plus tard"
     commands:
       # Terminal anonymous path: Plus tard flushes the dossier and routes
-      # to /home. CJT-018: the T8 CTA ids expose stale upper AX frames after
-      # the full onboarding history, so this remains a coordinate fallback.
+      # to /home.
       - tapOn:
-          point: "50%,70%"
+          id: "onboarding-bifurcation-plus-tard"
       - waitForAnimationToEnd
 - waitForAnimationToEnd:
     timeout: 6000

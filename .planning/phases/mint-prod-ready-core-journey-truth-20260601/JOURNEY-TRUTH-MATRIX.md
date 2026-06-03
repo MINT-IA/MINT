@@ -40,7 +40,7 @@ Current supported beta proof should stay narrow:
 | 3 | Anonymous visitor reaches register intent | PARTIAL | `flow_landing_to_register.yaml` and historical sweep evidence. | Prove full create-account, email verification, restart, and data continuity. |
 | 4 | User creates/logs into an account and local data survives | PARTIAL | Auth routes/tests exist; architecture path uses `AuthProvider`, `wizard_answers_v2`, optional `/api/v1/sync/claim-local-data`. | Run register/login -> restart -> `/profiles/me` hydration with cloud sync on/off. |
 | 5 | User can recover/delete/control account data | UNPROVEN | Login/recovery routes exist; privacy routes exist. No current end-to-end proof found. | Add account lifecycle and privacy-control proof before beta support load grows. |
-| 6 | Supported user completes simple onboarding into Coach/Home | PARTIAL | Salvage01 pass and CJT-020/CJT-023 evidence for hero/onboarding writer path. | Fix CJT-018 locator debt; rerun without coordinate fallback/debug seed. |
+| 6 | Supported user completes simple onboarding into Coach/Home | LIVE-PROVEN | CJT-018 closure: S005, salvage01 retraite→Coach, and hero 3a flow passed on current simulator build without T6/T7/T8 coordinate fallbacks. | Keep as regression gate; next product risk is CJT-024 budget restart/deep-link. |
 | 7 | Date of birth/profile facts are persisted as facts, not just display age | PARTIAL | Provider/model tests and CJT-004 profile cleanup proof; DOB is stored in wizard/profile path. | Cross-device authenticated round trip: local write -> backend mirror -> fresh login hydration. |
 | 8 | Budget situation entry feeds one money truth | LIVE-PROVEN | CJT-003/CJT-023; `evidence/money-trust/maestro-money-trust-20260602T084449/result.xml`. | Keep as release regression after any budget/profile/report change. |
 | 9 | Mon Argent shows the same money state after restart | LIVE-PROVEN | Money Trust chain and Bilan storytelling reruns include Budget -> Mon Argent continuity. | Keep same flow as spine gate. |
@@ -60,7 +60,7 @@ Current supported beta proof should stay narrow:
 | 23 | Design chart is respected across primary screens | PARTIAL | Core Budget/Report/Coach paths use tokens; Flutter audit found hardcoded plan/action strings and some direct copy tests. | Visual audit crawl for primary screens, ARB/i18n hardcoded-string pass, accessibility smoke. |
 | 24 | Privacy, consent, logs, and data controls are coherent | UNPROVEN | Privacy routes exist; secure-storage bug CJT-019 was handled locally. | Threat/privacy pass: PII logs, document consent, delete/export, nLPD surface, secure storage on sim/device. |
 | 25 | Backend production fact substrate is current | OPEN | CJT-013: staging Phase 02 proof exists; production lacks Phase 02 tables/cutover evidence. | Execute or explicitly defer production runbook; capture prod head, flags, backfill parity, metrics. |
-| 26 | Runtime automation is stable enough to catch regressions | OPEN | CJT-014/CJT-016 local regression sweep green; CJT-018 onboarding AX/id failure remains open. | Close CJT-018 or isolate robust simulator strategy; rerun S005/perfect-set without coordinate fallbacks. |
+| 26 | Runtime automation is stable enough to catch regressions | PARTIAL | CJT-014/CJT-016 local regression sweep green; CJT-018 onboarding AX/id debt is verified on current build. The same wider run opened CJT-024 on Money Trust budget restart/deep-link. | Fix CJT-024, then rerun money-trust and local regression sweep. |
 | 27 | Observability/release feedback loop catches beta regressions | UNPROVEN | Roadmapped in Phase 35; no current closure evidence found. | Sentry/crash/activation/drop-off loop before broader beta. |
 
 ## What Was Missing From The User List
@@ -97,4 +97,3 @@ operational and trust boundaries:
 - QA audit: converted CJT evidence into live/staging/unit/open proof levels.
 - Flutter/UI audit: separated route/code presence from user-journey proof and
   flagged simulator/design/i18n hardening.
-

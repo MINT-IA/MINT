@@ -23376,6 +23376,32 @@ class SDe extends S {
   }
 
   @override
+  String onboardingAdjustDecreaseStep(String step) {
+    return 'Um $step verringern';
+  }
+
+  @override
+  String onboardingAdjustIncreaseStep(String step) {
+    return 'Um $step erhöhen';
+  }
+
+  @override
+  String onboardingAdjustCurrentValue(String value) {
+    return 'Aktueller Wert: $value';
+  }
+
+  @override
+  String onboardingAdjustYearLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Jahre',
+      one: '1 Jahr',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get coachOnboardingFirstUserMessage =>
       'Hi, ich habe gerade ein Konto erstellt. Wo fange ich an?';
 

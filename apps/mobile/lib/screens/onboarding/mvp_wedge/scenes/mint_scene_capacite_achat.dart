@@ -12,6 +12,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/discrete_adjust_control.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -57,11 +59,13 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     final r = _computePriceRange();
     final chargeMensuelleMax =
         IncomeConverter.netMonthlyToGrossAnnual(widget.netMonthly) *
             _kChargeMaxPct /
             12;
+    final currentApportLabel = 'CHF ${_fmt(_apport)}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,19 +117,28 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
                 ),
               ),
               const SizedBox(height: 4),
-              Slider(
-                value: _apport,
-                min: 20000,
-                max: 500000,
-                divisions: 48,
-                label: 'CHF ${_fmt(_apport)}',
-                activeColor: MintColors.textPrimary,
-                inactiveColor: MintColors.textSecondary.withValues(alpha: 0.25),
-                onChanged: (v) {
-                  setState(() => _apport = (v / 10000).round() * 10000);
+              OnboardingDiscreteAdjustControl(
+                decrementIdentifier: 'onboarding-scene-apport-decrease',
+                incrementIdentifier: 'onboarding-scene-apport-increase',
+                decrementLabel:
+                    l10n.onboardingAdjustDecreaseStep('CHF 10\u2019000'),
+                incrementLabel:
+                    l10n.onboardingAdjustIncreaseStep('CHF 10\u2019000'),
+                currentValueLabel:
+                    l10n.onboardingAdjustCurrentValue(currentApportLabel),
+                visualValue: currentApportLabel,
+                canDecrement: _apport > 20000,
+                canIncrement: _apport < 500000,
+                onDecrement: () {
+                  setState(() => _apport -= 10000);
+                  HapticFeedback.selectionClick();
+                },
+                onIncrement: () {
+                  setState(() => _apport += 10000);
                   HapticFeedback.selectionClick();
                 },
               ),
+              const SizedBox(height: 12),
               Text(
                 'Charge mensuelle max\u00a0: environ CHF ${_fmt(chargeMensuelleMax)} '
                 '(intérêts + amortissement + charges).',

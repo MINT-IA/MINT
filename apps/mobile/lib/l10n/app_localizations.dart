@@ -40809,6 +40809,30 @@ abstract class S {
   /// **'Fourchette actuelle : {low} à {high} CHF'**
   String onboardingRevenueCurrentRange(String low, String high);
 
+  /// MVP wedge scene control — accessibility label for a generic decrement button.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diminuer de {step}'**
+  String onboardingAdjustDecreaseStep(String step);
+
+  /// MVP wedge scene control — accessibility label for a generic increment button.
+  ///
+  /// In fr, this message translates to:
+  /// **'Augmenter de {step}'**
+  String onboardingAdjustIncreaseStep(String step);
+
+  /// MVP wedge scene control — accessibility label for a generic current value.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur actuelle : {value}'**
+  String onboardingAdjustCurrentValue(String value);
+
+  /// MVP wedge scene control — localized year count used inside accessibility labels.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 an} other{{count} ans}}'**
+  String onboardingAdjustYearLabel(int count);
+
   /// No description provided for @coachOnboardingFirstUserMessage.
   ///
   /// In fr, this message translates to:

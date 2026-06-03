@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/onboarding_intent.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/discrete_adjust_control.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/dossier_strip.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_3a_levier.dart';
@@ -750,55 +751,20 @@ class _RevenueStepState extends State<_RevenueStep> {
               ).copyWith(fontStyle: FontStyle.italic),
             ),
             const SizedBox(height: 24),
-            Container(
-              height: 60,
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: MintColors.craie,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: MintColors.textPrimary.withValues(alpha: 0.08),
-                ),
+            OnboardingDiscreteAdjustControl(
+              decrementIdentifier: 'onboarding-revenue-decrease',
+              incrementIdentifier: 'onboarding-revenue-increase',
+              decrementLabel: l10n.onboardingRevenueDecreaseStep(stepLabel),
+              incrementLabel: l10n.onboardingRevenueIncreaseStep(stepLabel),
+              currentValueLabel: l10n.onboardingRevenueCurrentRange(
+                _fmt(range.low),
+                _fmt(range.high),
               ),
-              child: Row(
-                children: [
-                  _RevenueAdjustButton(
-                    key: const ValueKey('onboarding-revenue-decrease'),
-                    semanticsIdentifier: 'onboarding-revenue-decrease',
-                    semanticsLabel:
-                        l10n.onboardingRevenueDecreaseStep(stepLabel),
-                    visualLabel: '-',
-                    enabled: _value > _kMinNet,
-                    onPressed: () => _shiftValue(-_kStep),
-                  ),
-                  Expanded(
-                    child: Semantics(
-                      label: l10n.onboardingRevenueCurrentRange(
-                        _fmt(range.low),
-                        _fmt(range.high),
-                      ),
-                      child: ExcludeSemantics(
-                        child: Text(
-                          _fmt(_value.toDouble()),
-                          textAlign: TextAlign.center,
-                          style: MintTextStyles.titleLarge(
-                            color: MintColors.textPrimary,
-                          ).copyWith(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                  ),
-                  _RevenueAdjustButton(
-                    key: const ValueKey('onboarding-revenue-increase'),
-                    semanticsIdentifier: 'onboarding-revenue-increase',
-                    semanticsLabel:
-                        l10n.onboardingRevenueIncreaseStep(stepLabel),
-                    visualLabel: '+',
-                    enabled: _value < _kMaxNet,
-                    onPressed: () => _shiftValue(_kStep),
-                  ),
-                ],
-              ),
+              visualValue: _fmt(_value.toDouble()),
+              canDecrement: _value > _kMinNet,
+              canIncrement: _value < _kMaxNet,
+              onDecrement: () => _shiftValue(-_kStep),
+              onIncrement: () => _shiftValue(_kStep),
             ),
             const SizedBox(height: 12),
             Row(
@@ -994,6 +960,7 @@ class _InsightStep extends StatelessWidget {
           const Spacer(),
           _PrimaryButton(
             key: const ValueKey('onboarding-insight-view'),
+            semanticsIdentifier: 'onboarding-insight-view',
             label: 'Voir',
             onPressed: () => provider.advance(),
           ),
@@ -1056,6 +1023,7 @@ class _SceneStep extends StatelessWidget {
           const SizedBox(height: 16),
           _PrimaryButton(
             key: const ValueKey('onboarding-scene-continue'),
+            semanticsIdentifier: 'onboarding-scene-continue',
             label: 'Continuer',
             onPressed: () => context.read<OnboardingProvider>().advance(),
           ),
@@ -1153,76 +1121,31 @@ class _BifurcationStepState extends State<_BifurcationStep> {
           const Spacer(),
           _PrimaryButton(
             key: const ValueKey('onboarding-bifurcation-creuser'),
+            semanticsIdentifier: 'onboarding-bifurcation-creuser',
             label: _sealing ? 'On garde\u2026' : 'Creuser',
             onPressed: _sealing ? null : () => _sealAndGo(deeper: true),
           ),
           const SizedBox(height: 10),
-          TextButton(
-            // lint-ignore: prefer_mint_cta
+          Semantics(
             key: const ValueKey('onboarding-bifurcation-plus-tard'),
-            onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
-            child: Text(
-              'Plus tard',
-              style: MintTextStyles.labelLarge(
-                color: MintColors.textSecondary,
+            identifier: 'onboarding-bifurcation-plus-tard',
+            label: 'Plus tard',
+            button: true,
+            onTap: _sealing ? null : () => _sealAndGo(deeper: false),
+            child: ExcludeSemantics(
+              child: TextButton(
+                // lint-ignore: prefer_mint_cta
+                onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
+                child: Text(
+                  'Plus tard',
+                  style: MintTextStyles.labelLarge(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _RevenueAdjustButton extends StatelessWidget {
-  const _RevenueAdjustButton({
-    super.key,
-    required this.semanticsIdentifier,
-    required this.semanticsLabel,
-    required this.visualLabel,
-    required this.enabled,
-    required this.onPressed,
-  });
-
-  final String semanticsIdentifier;
-  final String semanticsLabel;
-  final String visualLabel;
-  final bool enabled;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      identifier: semanticsIdentifier,
-      label: semanticsLabel,
-      button: true,
-      enabled: enabled,
-      onTap: enabled ? onPressed : null,
-      child: ExcludeSemantics(
-        child: SizedBox(
-          width: 52,
-          height: 52,
-          child: TextButton(
-            // lint-ignore: prefer_mint_cta
-            onPressed: enabled ? onPressed : null,
-            style: TextButton.styleFrom(
-              foregroundColor: MintColors.textPrimary,
-              disabledForegroundColor:
-                  MintColors.textSecondary.withValues(alpha: 0.35),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(
-              visualLabel,
-              style: MintTextStyles.titleLarge(
-                color: enabled
-                    ? MintColors.textPrimary
-                    : MintColors.textSecondary.withValues(alpha: 0.35),
-              ).copyWith(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ),
       ),
     );
   }

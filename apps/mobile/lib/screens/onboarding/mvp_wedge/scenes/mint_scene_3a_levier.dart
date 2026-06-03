@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/discrete_adjust_control.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -47,6 +49,11 @@ const Map<String, double> _kTauxMarginalMoyen = {
   'TG': 0.26,
   'TI': 0.30,
 };
+
+const double _kVersementStep = 250;
+
+double get _versementMaxDiscrete =>
+    (pilier3aPlafondAvecLpp / _kVersementStep).floor() * _kVersementStep;
 
 class MintScene3aLevier extends StatefulWidget {
   const MintScene3aLevier({
@@ -93,7 +100,10 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     final r = _computeSavingsRange();
+    final versementMax = _versementMaxDiscrete;
+    final currentVersementLabel = formatChfWithPrefix(_versement);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,19 +151,34 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
                 ),
               ),
               const SizedBox(height: 4),
-              Slider(
-                value: _versement,
-                min: 0,
-                max: pilier3aPlafondAvecLpp,
-                divisions: (pilier3aPlafondAvecLpp / 250).round(),
-                label: 'CHF ${formatChf(_versement)}',
-                activeColor: MintColors.textPrimary,
-                inactiveColor: MintColors.textSecondary.withValues(alpha: 0.25),
-                onChanged: (v) {
-                  setState(() => _versement = (v / 250).round() * 250.0);
+              OnboardingDiscreteAdjustControl(
+                decrementIdentifier: 'onboarding-scene-3a-decrease',
+                incrementIdentifier: 'onboarding-scene-3a-increase',
+                decrementLabel: l10n.onboardingAdjustDecreaseStep(
+                  formatChfWithPrefix(_kVersementStep),
+                ),
+                incrementLabel: l10n.onboardingAdjustIncreaseStep(
+                  formatChfWithPrefix(_kVersementStep),
+                ),
+                currentValueLabel:
+                    l10n.onboardingAdjustCurrentValue(currentVersementLabel),
+                visualValue: currentVersementLabel,
+                canDecrement: _versement > 0,
+                canIncrement: _versement < versementMax,
+                onDecrement: () {
+                  setState(() => _versement = (_versement - _kVersementStep)
+                      .clamp(0, versementMax)
+                      .toDouble());
+                  HapticFeedback.selectionClick();
+                },
+                onIncrement: () {
+                  setState(() => _versement = (_versement + _kVersementStep)
+                      .clamp(0, versementMax)
+                      .toDouble());
                   HapticFeedback.selectionClick();
                 },
               ),
+              const SizedBox(height: 12),
               Text(
                 'Marge maximale salarié\u202fLPP\u00a0: '
                 '${formatChfWithPrefix(pilier3aPlafondAvecLpp)} '

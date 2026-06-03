@@ -107,40 +107,36 @@ appId: ch.mint.app
     timeout: 5000
 - tapOn:
     text: "Choisir ma date"
+- extendedWaitUntil:
+    visible:
+      text: "OK"
+    timeout: 5000
 - tapOn:
-    point: "48%,44%"
-- tapOn:
-    point: "85%,82%"
+    text: ".*15.*juillet.*1992.*"
+- tapOn: "OK"
+- extendedWaitUntil:
+    visible:
+      text: "15.07.1992"
+    timeout: 5000
 - tapOn:
     text: "Continuer"
 
 # ─── T4 canton:VD ───────────────────────────────────────────────────────
-# Canton chips are bare InkWell + Text(code) in a 3-col GridView (same
-# not-tappable-Semantics issue as the intent cards). VD is index 0 →
-# top-left cell of the grid, just under the "Où tu vis ?" prompt. Tap by
-# relative point; assert the prompt first to anchor the screen.
 - extendedWaitUntil:
     visible:
       text: "Où tu vis ?"
     timeout: 5000
 - tapOn:
-    point: "17%,20%"
+    id: "onboarding-canton-vd"
 
 # ─── T5 revenue (default fourchette) ────────────────────────────────────
-# The revenue step has TWO _PrimaryButton("Continuer") in the widget tree —
-# one for fourchette mode, one for exact mode (only one is visually rendered,
-# but both surface in the a11y hierarchy: the trace shows 3 "Continuer"
-# matches). `tapOn: text:"Continuer"` resolves to the first match, which can
-# be the offstage exact-mode button (disabled when _exactValue == null), so
-# the tap is a no-op and the screen never advances. Tap the visible bottom
-# CTA by relative point instead (fixed-position button above the dossier
-# strip). Keep default fourchette (7'000–7'500 CHF); no slider interaction.
+# Keep default fourchette (7'000–7'500 CHF); no adjustment interaction.
 - extendedWaitUntil:
     visible:
       text: "Combien te tombe net par mois ?"
     timeout: 5000
 - tapOn:
-    point: "50%,74%"
+    id: "onboarding-revenue-range-continue"
 
 # ─── T6 insight ─────────────────────────────────────────────────────────
 # Give the revenue→insight transition a generous window: the revenue
@@ -150,10 +146,8 @@ appId: ch.mint.app
     visible:
       text: "Avant de te montrer…"
     timeout: 12000
-# "Voir" is the fixed bottom CTA. Tap by relative point (consistent with the
-# revenue CTA) — text-tap proved unreliable here in Maestro 2.5.1.
 - tapOn:
-    point: "50%,71%"
+    id: "onboarding-insight-view"
 
 # ─── T7 scene (MintSceneRenteTrouee — renders the user's REAL currentAge) ─
 # The scene receives provider.ageYears, which is derived from q_birth_year
@@ -163,28 +157,24 @@ appId: ch.mint.app
       text: "Continuer"
     timeout: 8000
 - tapOn:
-    point: "50%,70%"
+    id: "onboarding-scene-continue"
 - runFlow:
     when:
       visible:
         text: "Continuer"
     commands:
       - tapOn:
-          point: "50%,70%"
+          id: "onboarding-scene-continue"
 
 # ─── T8 bifurcation:Creuser → /coach/chat ───────────────────────────────
-# "Creuser" is the bottom primary CTA (with "Plus tard" below it). Tap by
-# relative point — text-tap on these full-width MVP-wedge CTAs is unreliable
-# in Maestro 2.5.1 (the FilledButton label node intermittently fails to
-# resolve as the tappable). This is the terminal step: Creuser flushes the
-# dossier to CoachProfile and routes to /coach/chat (onboarding_shell_screen
-# .dart:1049).
+# This terminal step flushes the dossier to CoachProfile and routes to
+# /coach/chat.
 - extendedWaitUntil:
     visible:
       text: "Creuser"
     timeout: 5000
 - tapOn:
-    point: "50%,63%"
+    id: "onboarding-bifurcation-creuser"
 
 # ─── SC-3: lands on /coach/chat, NOT /waitlist ──────────────────────────
 - extendedWaitUntil:

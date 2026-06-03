@@ -1,0 +1,85 @@
+appId: ch.mint.app
+---
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///onb"
+- extendedWaitUntil:
+    visible:
+      text: "Il est temps que tu comprennes."
+    timeout: 10000
+- tapOn:
+    text: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      text: ".*Ce que je toucherai.*"
+    timeout: 5000
+- tapOn:
+    point: "50%,24%"
+- extendedWaitUntil:
+    visible:
+      text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
+    timeout: 5000
+- tapOn:
+    text: "Non"
+- extendedWaitUntil:
+    visible:
+      text: "Quelle est ta nationalité ?"
+    timeout: 5000
+- tapOn:
+    text: "Suisse"
+- extendedWaitUntil:
+    visible:
+      text: "Quelle est ta date de naissance ?"
+    timeout: 5000
+- tapOn:
+    text: "Choisir ma date"
+- extendedWaitUntil:
+    visible:
+      text: "OK"
+    timeout: 5000
+- tapOn:
+    text: ".*15.*juillet.*1992.*"
+- tapOn:
+    text: "OK"
+- extendedWaitUntil:
+    visible:
+      text: "15.07.1992"
+    timeout: 5000
+- tapOn:
+    text: "Continuer"
+- extendedWaitUntil:
+    visible:
+      text: "Où tu vis ?"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-canton-vd"
+- extendedWaitUntil:
+    visible:
+      text: "Combien te tombe net par mois ?"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-revenue-range-continue"
+- extendedWaitUntil:
+    visible:
+      text: "Avant de te montrer…"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-insight-view"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-scene-continue"
+    timeout: 10000
+- tapOn:
+    id: "onboarding-scene-continue"
+- extendedWaitUntil:
+    visible:
+      id: "onboarding-bifurcation-plus-tard"
+    timeout: 10000
+- tapOn:
+    id: "onboarding-bifurcation-plus-tard"
+- extendedWaitUntil:
+    visible:
+      text: ".*Aujourd'hui.*"
+    timeout: 10000
+- assertVisible:
+    text: ".*Aujourd'hui.*"

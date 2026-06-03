@@ -23328,6 +23328,32 @@ class SPt extends S {
   }
 
   @override
+  String onboardingAdjustDecreaseStep(String step) {
+    return 'Diminuir em $step';
+  }
+
+  @override
+  String onboardingAdjustIncreaseStep(String step) {
+    return 'Aumentar em $step';
+  }
+
+  @override
+  String onboardingAdjustCurrentValue(String value) {
+    return 'Valor atual: $value';
+  }
+
+  @override
+  String onboardingAdjustYearLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count anos',
+      one: '1 ano',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get coachOnboardingFirstUserMessage =>
       'Olá, acabei de criar a minha conta. Por onde começo?';
 

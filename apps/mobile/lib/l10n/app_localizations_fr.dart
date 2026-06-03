@@ -23318,6 +23318,32 @@ class SFr extends S {
   }
 
   @override
+  String onboardingAdjustDecreaseStep(String step) {
+    return 'Diminuer de $step';
+  }
+
+  @override
+  String onboardingAdjustIncreaseStep(String step) {
+    return 'Augmenter de $step';
+  }
+
+  @override
+  String onboardingAdjustCurrentValue(String value) {
+    return 'Valeur actuelle : $value';
+  }
+
+  @override
+  String onboardingAdjustYearLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ans',
+      one: '1 an',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get coachOnboardingFirstUserMessage =>
       'Salut, je viens de créer mon compte. Par où je commence ?';
 

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="0" time="60.0">
+    <testcase id="flow_hero_marge_fiscale_3a" name="flow_hero_marge_fiscale_3a" classname="flow_hero_marge_fiscale_3a" time="60.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="phase-01.1, hero-flow, marge-fiscale-3a, opp3-art-7, lifd-art-38, audit-grounding, gate-g1"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

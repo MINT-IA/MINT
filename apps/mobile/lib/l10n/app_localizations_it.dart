@@ -23381,6 +23381,32 @@ class SIt extends S {
   }
 
   @override
+  String onboardingAdjustDecreaseStep(String step) {
+    return 'Riduci di $step';
+  }
+
+  @override
+  String onboardingAdjustIncreaseStep(String step) {
+    return 'Aumenta di $step';
+  }
+
+  @override
+  String onboardingAdjustCurrentValue(String value) {
+    return 'Valore attuale: $value';
+  }
+
+  @override
+  String onboardingAdjustYearLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count anni',
+      one: '1 anno',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get coachOnboardingFirstUserMessage =>
       'Ciao, ho appena creato il mio account. Da dove comincio?';
 

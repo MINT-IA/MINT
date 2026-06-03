@@ -18,6 +18,9 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_3a_levier.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_capacite_achat.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/scenes/mint_scene_rente_trouee.dart';
 
 class _FakeCoachProfileProvider extends CoachProfileProvider {
   final List<Map<String, dynamic>> mergedCalls = [];
@@ -218,7 +221,7 @@ void main() {
     expect(find.text('TON DOSSIER'), findsNothing);
   });
 
-  testWidgets('primary CTAs expose stable non-T6 semantics identifiers',
+  testWidgets('primary CTAs expose stable semantics identifiers',
       (tester) async {
     final semantics = tester.ensureSemantics();
     final fake = _FakeCoachProfileProvider();
@@ -238,16 +241,18 @@ void main() {
       await tester.tap(find.text('Continuer'));
       await tester.pumpAndSettle();
 
-      // T6-T8 remain excluded from this contract while CJT-018 verifies
-      // runtime iOS AX frames after the revenue Slider removal.
+      _expectSemanticsIdentifier(tester, 'onboarding-insight-view');
       await tester.tap(find.text('Voir'));
       await tester.pumpAndSettle();
+      _expectSemanticsIdentifier(tester, 'onboarding-scene-continue');
       expect(
         find.byKey(const ValueKey('onboarding-scene-continue')),
         findsOneWidget,
       );
       await tester.tap(find.text('Continuer'));
       await tester.pumpAndSettle();
+      _expectSemanticsIdentifier(tester, 'onboarding-bifurcation-creuser');
+      _expectSemanticsIdentifier(tester, 'onboarding-bifurcation-plus-tard');
       expect(
         find.byKey(const ValueKey('onboarding-bifurcation-creuser')),
         findsOneWidget,
@@ -300,6 +305,50 @@ void main() {
     final merged = fake.mergedCalls.single;
     expect(merged['q_net_income_range_low'], 8000);
     expect(merged['q_net_income_range_high'], 8500);
+  });
+
+  testWidgets('CJT-018: routed scenes use discrete controls, not Slider',
+      (tester) async {
+    final cases = <({
+      Widget scene,
+      String decrementId,
+      String incrementId,
+    })>[
+      (
+        scene: const MintSceneRenteTrouee(
+          currentAge: 34,
+          netMonthly: 7250,
+          isRange: true,
+        ),
+        decrementId: 'onboarding-scene-life-decrease',
+        incrementId: 'onboarding-scene-life-increase',
+      ),
+      (
+        scene: const MintSceneCapaciteAchat(
+          netMonthly: 7250,
+          isRange: true,
+        ),
+        decrementId: 'onboarding-scene-apport-decrease',
+        incrementId: 'onboarding-scene-apport-increase',
+      ),
+      (
+        scene: const MintScene3aLevier(
+          netMonthly: 7250,
+          cantonCode: 'VD',
+          isRange: true,
+        ),
+        decrementId: 'onboarding-scene-3a-decrease',
+        incrementId: 'onboarding-scene-3a-increase',
+      ),
+    ];
+
+    for (final c in cases) {
+      await _pumpStandaloneScene(tester, c.scene);
+
+      expect(find.byType(Slider), findsNothing);
+      expect(find.byKey(ValueKey(c.decrementId)), findsOneWidget);
+      expect(find.byKey(ValueKey(c.incrementId)), findsOneWidget);
+    }
   });
 
   testWidgets('US tax person answer routes to waitlist before age/canton',
@@ -632,4 +681,23 @@ void _expectSemanticsIdentifier(WidgetTester tester, String identifier) {
     tester.getSemantics(find.byKey(ValueKey(identifier))).identifier,
     identifier,
   );
+}
+
+Future<void> _pumpStandaloneScene(WidgetTester tester, Widget scene) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      localizationsDelegates: S.localizationsDelegates,
+      supportedLocales: S.supportedLocales,
+      locale: const Locale('fr'),
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: scene,
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
 }

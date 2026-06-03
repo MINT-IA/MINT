@@ -23320,6 +23320,32 @@ class SEs extends S {
   }
 
   @override
+  String onboardingAdjustDecreaseStep(String step) {
+    return 'Reducir en $step';
+  }
+
+  @override
+  String onboardingAdjustIncreaseStep(String step) {
+    return 'Aumentar en $step';
+  }
+
+  @override
+  String onboardingAdjustCurrentValue(String value) {
+    return 'Valor actual: $value';
+  }
+
+  @override
+  String onboardingAdjustYearLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count años',
+      one: '1 año',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get coachOnboardingFirstUserMessage =>
       'Hola, acabo de crear mi cuenta. ¿Por dónde empiezo?';
 

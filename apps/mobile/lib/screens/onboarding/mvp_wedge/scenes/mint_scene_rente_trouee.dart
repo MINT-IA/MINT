@@ -2,8 +2,8 @@
 ///
 /// Au tour 7 de l'onboarding MVP wedge. Appelle `AvsCalculator` +
 /// une estimation LPP proportionnelle au revenu brut dérivé. Affiche
-/// un **intervalle** CHF X – Y / mois, pas un point. Slider sur l'âge
-/// d'espérance de vie pour ressentir l'effet longévité.
+/// un **intervalle** CHF X – Y / mois, pas un point. Contrôle discret sur
+/// l'âge d'espérance de vie pour ressentir l'effet longévité.
 ///
 /// Panel final 2026-04-22 — eyebrow « SCENE · ta retraite projetée »,
 /// chiffre héros intervalle, phrase de recul Fraunces 17pt.
@@ -12,6 +12,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/discrete_adjust_control.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -72,8 +74,12 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     final r = _computeRenteRange();
     final cumulTotal = ((r.low + r.high) / 2) * 12 * (_ageEsperance - 65);
+    final currentAgeLabel = l10n.onboardingAdjustYearLabel(
+      _ageEsperance.toInt(),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,19 +131,30 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
                 ),
               ),
               const SizedBox(height: 4),
-              Slider(
-                value: _ageEsperance,
-                min: 70,
-                max: 100,
-                divisions: 30,
-                label: '${_ageEsperance.toInt()} ans',
-                activeColor: MintColors.textPrimary,
-                inactiveColor: MintColors.textSecondary.withValues(alpha: 0.25),
-                onChanged: (v) {
-                  setState(() => _ageEsperance = v);
+              OnboardingDiscreteAdjustControl(
+                decrementIdentifier: 'onboarding-scene-life-decrease',
+                incrementIdentifier: 'onboarding-scene-life-increase',
+                decrementLabel: l10n.onboardingAdjustDecreaseStep(
+                  l10n.onboardingAdjustYearLabel(1),
+                ),
+                incrementLabel: l10n.onboardingAdjustIncreaseStep(
+                  l10n.onboardingAdjustYearLabel(1),
+                ),
+                currentValueLabel:
+                    l10n.onboardingAdjustCurrentValue(currentAgeLabel),
+                visualValue: currentAgeLabel,
+                canDecrement: _ageEsperance > 70,
+                canIncrement: _ageEsperance < 100,
+                onDecrement: () {
+                  setState(() => _ageEsperance -= 1);
+                  HapticFeedback.selectionClick();
+                },
+                onIncrement: () {
+                  setState(() => _ageEsperance += 1);
                   HapticFeedback.selectionClick();
                 },
               ),
+              const SizedBox(height: 12),
               Text(
                 'Cumulé entre 65 et ${_ageEsperance.toInt()} ans\u00a0: '
                 'environ CHF ${_fmt(cumulTotal)}.',

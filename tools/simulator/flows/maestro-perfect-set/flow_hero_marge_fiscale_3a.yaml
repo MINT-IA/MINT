@@ -173,31 +173,26 @@ tags:
       text: "Avant de te montrer…"
     timeout: 12000
 - tapOn:
-    point: "50%,71%"
+    id: "onboarding-insight-view"
 - extendedWaitUntil:
     visible:
       text: "Continuer"
     timeout: 8000
-# CJT-018: onboarding-scene-continue exposes a stale upper AX frame after
-# the full onboarding history; keep coordinate fallback until the runtime
-# semantics frame is fixed.
 - tapOn:
-    point: "50%,70%"
+    id: "onboarding-scene-continue"
 - runFlow:
     when:
       visible:
         text: "Continuer"
     commands:
       - tapOn:
-          point: "50%,70%"
+          id: "onboarding-scene-continue"
 - extendedWaitUntil:
     visible:
       text: "Creuser"
     timeout: 5000
-# CJT-018: T8 CTA ids expose stale upper AX frames after the full onboarding
-# history; keep coordinate fallback until the runtime semantics frame is fixed.
 - tapOn:
-    point: "50%,63%"
+    id: "onboarding-bifurcation-creuser"
 - takeScreenshot: "01.1-hero-03-coach-route"
 
 # 05 — verify Coach composer on the supported path.

@@ -12417,6 +12417,42 @@
       }
     }
   },
+  "onboardingAdjustDecreaseStep": "Diminuer de {step}",
+  "@onboardingAdjustDecreaseStep": {
+    "description": "MVP wedge scene control — accessibility label for a generic decrement button.",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingAdjustIncreaseStep": "Augmenter de {step}",
+  "@onboardingAdjustIncreaseStep": {
+    "description": "MVP wedge scene control — accessibility label for a generic increment button.",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingAdjustCurrentValue": "Valeur actuelle : {value}",
+  "@onboardingAdjustCurrentValue": {
+    "description": "MVP wedge scene control — accessibility label for a generic current value.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingAdjustYearLabel": "{count, plural, =1{1 an} other{{count} ans}}",
+  "@onboardingAdjustYearLabel": {
+    "description": "MVP wedge scene control — localized year count used inside accessibility labels.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "coachOnboardingFirstUserMessage": "Salut, je viens de créer mon compte. Par où je commence ?",
   "@coachOnboardingFirstUserMessage": {
     "x-mint-meta": {
