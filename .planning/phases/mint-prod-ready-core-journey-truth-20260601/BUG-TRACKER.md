@@ -83,6 +83,19 @@ fix and was reverted after evidence capture; a fresh current-build S005 rerun
 passed afterward. Durable report:
 `evidence/maestro-ci/cjt-018-t5-history-bisect-20260603.md`.
 
+## CJT-018 Addendum — 2026-06-03 Direct T6 Control
+
+A second temporary runtime probe started the real `OnboardingShellScreen`
+directly at T6 insight with intent, nationality, DOB, canton, and revenue
+pre-seeded, then exposed the same temporary `onboarding-insight-view`
+identifier. Direct T6 exposed correct lower geometry (`x=24,y=589.5,w=354,h=52`);
+MCP tapped `x=201,y=616`, and the app advanced to T7. This rejects "T6 layout
+plus identifier alone" as the root hypothesis. Combined with the T5→T6 bisect,
+the remaining root slice is the real T5 revenue mutation/advance into T6.
+The probe code was reverted afterward and a fresh current-build S005 rerun
+passed. Durable report:
+`evidence/maestro-ci/cjt-018-direct-t6-id-bisect-20260603.md`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:

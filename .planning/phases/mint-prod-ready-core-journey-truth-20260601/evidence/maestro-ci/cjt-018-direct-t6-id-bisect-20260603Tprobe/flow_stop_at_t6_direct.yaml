@@ -1,0 +1,18 @@
+appId: ch.mint.app
+tags:
+  - cjt-018
+  - probe
+  - onboarding
+---
+
+- launchApp:
+    clearState: true
+
+- openLink: "mintapp:///onb"
+
+- extendedWaitUntil:
+    visible:
+      text: "Avant de te montrer…"
+    timeout: 10000
+
+- takeScreenshot: "01-direct-insight-before-id-tap"
