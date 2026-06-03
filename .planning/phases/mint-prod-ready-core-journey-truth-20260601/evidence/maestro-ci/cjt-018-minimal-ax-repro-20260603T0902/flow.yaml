@@ -1,0 +1,14 @@
+appId: ch.mint.debug.cjt018AxRepro2
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      text: "Avant de te montrer.*"
+    timeout: 5000
+- tapOn:
+    id: "repro-inline-button"
+- assertVisible: "TON DOSSIER · taps=1"
+- tapOn:
+    id: "repro-shell-slot-button"
+- assertVisible: "TON DOSSIER · taps=2"
