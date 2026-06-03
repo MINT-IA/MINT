@@ -23361,6 +23361,21 @@ class SDe extends S {
   String get onboardingSealRetry => 'Erneut versuchen';
 
   @override
+  String onboardingRevenueDecreaseStep(String step) {
+    return 'Um $step CHF verringern';
+  }
+
+  @override
+  String onboardingRevenueIncreaseStep(String step) {
+    return 'Um $step CHF erhöhen';
+  }
+
+  @override
+  String onboardingRevenueCurrentRange(String low, String high) {
+    return 'Aktuelle Spanne: $low bis $high CHF';
+  }
+
+  @override
   String get coachOnboardingFirstUserMessage =>
       'Hi, ich habe gerade ein Konto erstellt. Wo fange ich an?';
 

@@ -700,7 +700,7 @@ class _RevenueStep extends StatefulWidget {
 }
 
 class _RevenueStepState extends State<_RevenueStep> {
-  int _value = 7000; // slider handle position en CHF net mensuel
+  int _value = 7000; // fourchette basse en CHF net mensuel
   bool _exactMode = false;
   final _exactController = TextEditingController();
   double? _exactValue;
@@ -716,10 +716,19 @@ class _RevenueStepState extends State<_RevenueStep> {
         high: (v + _kStep).toDouble(),
       );
 
+  void _shiftValue(int delta) {
+    final next = (_value + delta).clamp(_kMinNet, _kMaxNet).toInt();
+    if (next == _value) return;
+    setState(() => _value = next);
+    HapticFeedback.selectionClick();
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.read<OnboardingProvider>();
+    final l10n = S.of(context)!;
     final range = _rangeFor(_value);
+    final stepLabel = _fmt(_kStep.toDouble());
 
     return _StepScaffold(
       prompt: 'Combien te tombe net par mois ?',
@@ -741,19 +750,57 @@ class _RevenueStepState extends State<_RevenueStep> {
               ).copyWith(fontStyle: FontStyle.italic),
             ),
             const SizedBox(height: 24),
-            Slider(
-              value: _value.toDouble(),
-              min: _kMinNet.toDouble(),
-              max: _kMaxNet.toDouble(),
-              divisions: (_kMaxNet - _kMinNet) ~/ _kStep,
-              label: '${_fmt(range.low)} – ${_fmt(range.high)}',
-              activeColor: MintColors.textPrimary,
-              inactiveColor: MintColors.textSecondary.withValues(alpha: 0.25),
-              onChanged: (v) {
-                setState(() => _value = (v / _kStep).round() * _kStep);
-                HapticFeedback.selectionClick();
-              },
+            Container(
+              height: 60,
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: MintColors.craie,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: MintColors.textPrimary.withValues(alpha: 0.08),
+                ),
+              ),
+              child: Row(
+                children: [
+                  _RevenueAdjustButton(
+                    key: const ValueKey('onboarding-revenue-decrease'),
+                    semanticsIdentifier: 'onboarding-revenue-decrease',
+                    semanticsLabel:
+                        l10n.onboardingRevenueDecreaseStep(stepLabel),
+                    visualLabel: '-',
+                    enabled: _value > _kMinNet,
+                    onPressed: () => _shiftValue(-_kStep),
+                  ),
+                  Expanded(
+                    child: Semantics(
+                      label: l10n.onboardingRevenueCurrentRange(
+                        _fmt(range.low),
+                        _fmt(range.high),
+                      ),
+                      child: ExcludeSemantics(
+                        child: Text(
+                          _fmt(_value.toDouble()),
+                          textAlign: TextAlign.center,
+                          style: MintTextStyles.titleLarge(
+                            color: MintColors.textPrimary,
+                          ).copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ),
+                  _RevenueAdjustButton(
+                    key: const ValueKey('onboarding-revenue-increase'),
+                    semanticsIdentifier: 'onboarding-revenue-increase',
+                    semanticsLabel:
+                        l10n.onboardingRevenueIncreaseStep(stepLabel),
+                    visualLabel: '+',
+                    enabled: _value < _kMaxNet,
+                    onPressed: () => _shiftValue(_kStep),
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1110,7 +1157,8 @@ class _BifurcationStepState extends State<_BifurcationStep> {
             onPressed: _sealing ? null : () => _sealAndGo(deeper: true),
           ),
           const SizedBox(height: 10),
-          TextButton( // lint-ignore: prefer_mint_cta
+          TextButton(
+            // lint-ignore: prefer_mint_cta
             key: const ValueKey('onboarding-bifurcation-plus-tard'),
             onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
             child: Text(
@@ -1121,6 +1169,60 @@ class _BifurcationStepState extends State<_BifurcationStep> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _RevenueAdjustButton extends StatelessWidget {
+  const _RevenueAdjustButton({
+    super.key,
+    required this.semanticsIdentifier,
+    required this.semanticsLabel,
+    required this.visualLabel,
+    required this.enabled,
+    required this.onPressed,
+  });
+
+  final String semanticsIdentifier;
+  final String semanticsLabel;
+  final String visualLabel;
+  final bool enabled;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      identifier: semanticsIdentifier,
+      label: semanticsLabel,
+      button: true,
+      enabled: enabled,
+      onTap: enabled ? onPressed : null,
+      child: ExcludeSemantics(
+        child: SizedBox(
+          width: 52,
+          height: 52,
+          child: TextButton(
+            // lint-ignore: prefer_mint_cta
+            onPressed: enabled ? onPressed : null,
+            style: TextButton.styleFrom(
+              foregroundColor: MintColors.textPrimary,
+              disabledForegroundColor:
+                  MintColors.textSecondary.withValues(alpha: 0.35),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              visualLabel,
+              style: MintTextStyles.titleLarge(
+                color: enabled
+                    ? MintColors.textPrimary
+                    : MintColors.textSecondary.withValues(alpha: 0.35),
+              ).copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
       ),
     );
   }

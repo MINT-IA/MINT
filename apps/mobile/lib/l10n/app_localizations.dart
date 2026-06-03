@@ -40791,6 +40791,24 @@ abstract class S {
   /// **'Réessayer'**
   String get onboardingSealRetry;
 
+  /// MVP wedge T5 — accessibility label for the revenue range decrement button.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diminuer de {step} CHF'**
+  String onboardingRevenueDecreaseStep(String step);
+
+  /// MVP wedge T5 — accessibility label for the revenue range increment button.
+  ///
+  /// In fr, this message translates to:
+  /// **'Augmenter de {step} CHF'**
+  String onboardingRevenueIncreaseStep(String step);
+
+  /// MVP wedge T5 — accessibility value for the selected net monthly revenue range.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fourchette actuelle : {low} à {high} CHF'**
+  String onboardingRevenueCurrentRange(String low, String high);
+
   /// No description provided for @coachOnboardingFirstUserMessage.
   ///
   /// In fr, this message translates to:

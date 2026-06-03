@@ -238,8 +238,8 @@ void main() {
       await tester.tap(find.text('Continuer'));
       await tester.pumpAndSettle();
 
-      // T6-T8 remain excluded from this contract while CJT-018 investigates
-      // stale full-history AX frames on the lower onboarding CTAs.
+      // T6-T8 remain excluded from this contract while CJT-018 verifies
+      // runtime iOS AX frames after the revenue Slider removal.
       await tester.tap(find.text('Voir'));
       await tester.pumpAndSettle();
       expect(
@@ -259,6 +259,47 @@ void main() {
     } finally {
       semantics.dispose();
     }
+  });
+
+  testWidgets('CJT-018: revenue range uses discrete controls, not Slider',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake);
+    await _commonEntry(tester, intentLabel: 'Ce que je paie de trop.');
+
+    await _selectExplicitDateOfBirth(tester);
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('VD'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Combien te tombe net par mois ?'), findsOneWidget);
+    expect(find.byType(Slider), findsNothing);
+    expect(find.byKey(const ValueKey('onboarding-revenue-decrease')),
+        findsOneWidget);
+    expect(find.byKey(const ValueKey('onboarding-revenue-increase')),
+        findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('onboarding-revenue-increase')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('onboarding-revenue-increase')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('onboarding-revenue-range-continue')),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Plus tard'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('home-landed'), findsOneWidget);
+    final merged = fake.mergedCalls.single;
+    expect(merged['q_net_income_range_low'], 8000);
+    expect(merged['q_net_income_range_high'], 8500);
   });
 
   testWidgets('US tax person answer routes to waitlist before age/canton',

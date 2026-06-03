@@ -23305,6 +23305,21 @@ class SEs extends S {
   String get onboardingSealRetry => 'Reintentar';
 
   @override
+  String onboardingRevenueDecreaseStep(String step) {
+    return 'Reducir en $step CHF';
+  }
+
+  @override
+  String onboardingRevenueIncreaseStep(String step) {
+    return 'Aumentar en $step CHF';
+  }
+
+  @override
+  String onboardingRevenueCurrentRange(String low, String high) {
+    return 'Rango actual: $low a $high CHF';
+  }
+
+  @override
   String get coachOnboardingFirstUserMessage =>
       'Hola, acabo de crear mi cuenta. ¿Por dónde empiezo?';
 

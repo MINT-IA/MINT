@@ -12387,6 +12387,36 @@
   "@onboardingSealRetry": {
     "description": "MVP wedge T9 — SnackBar action label to retry sealing the dossier."
   },
+  "onboardingRevenueDecreaseStep": "Diminuer de {step} CHF",
+  "@onboardingRevenueDecreaseStep": {
+    "description": "MVP wedge T5 — accessibility label for the revenue range decrement button.",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingRevenueIncreaseStep": "Augmenter de {step} CHF",
+  "@onboardingRevenueIncreaseStep": {
+    "description": "MVP wedge T5 — accessibility label for the revenue range increment button.",
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingRevenueCurrentRange": "Fourchette actuelle : {low} à {high} CHF",
+  "@onboardingRevenueCurrentRange": {
+    "description": "MVP wedge T5 — accessibility value for the selected net monthly revenue range.",
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
   "coachOnboardingFirstUserMessage": "Salut, je viens de créer mon compte. Par où je commence ?",
   "@coachOnboardingFirstUserMessage": {
     "x-mint-meta": {

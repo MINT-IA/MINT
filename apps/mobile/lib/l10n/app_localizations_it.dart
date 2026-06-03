@@ -23366,6 +23366,21 @@ class SIt extends S {
   String get onboardingSealRetry => 'Riprova';
 
   @override
+  String onboardingRevenueDecreaseStep(String step) {
+    return 'Riduci di $step CHF';
+  }
+
+  @override
+  String onboardingRevenueIncreaseStep(String step) {
+    return 'Aumenta di $step CHF';
+  }
+
+  @override
+  String onboardingRevenueCurrentRange(String low, String high) {
+    return 'Intervallo attuale: da $low a $high CHF';
+  }
+
+  @override
   String get coachOnboardingFirstUserMessage =>
       'Ciao, ho appena creato il mio account. Da dove comincio?';
 

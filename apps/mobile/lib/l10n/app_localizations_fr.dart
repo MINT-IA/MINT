@@ -23303,6 +23303,21 @@ class SFr extends S {
   String get onboardingSealRetry => 'Réessayer';
 
   @override
+  String onboardingRevenueDecreaseStep(String step) {
+    return 'Diminuer de $step CHF';
+  }
+
+  @override
+  String onboardingRevenueIncreaseStep(String step) {
+    return 'Augmenter de $step CHF';
+  }
+
+  @override
+  String onboardingRevenueCurrentRange(String low, String high) {
+    return 'Fourchette actuelle : $low à $high CHF';
+  }
+
+  @override
   String get coachOnboardingFirstUserMessage =>
       'Salut, je viens de créer mon compte. Par où je commence ?';
 

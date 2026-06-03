@@ -191,6 +191,28 @@ that slider. Probe code was reverted; current-build S005 passed afterward
 Durable report:
 `evidence/maestro-ci/cjt-018-simple-revenue-slider-20260603.md`.
 
+## CJT-018 Addendum — 2026-06-03 Slider Removal Production Patch
+
+The production `_RevenueStep` now removes the Flutter `Slider` and uses a
+discrete non-Slider revenue control with the same default, step size, range
+write, and exact-entry behavior. The patch adds localized ARB accessibility
+labels for decrement, increment, and current range; it does not add new visible
+copy. Mechanical proof passed: `flutter gen-l10n`, ARB parity (`6856` keys per
+locale), accent/banned-term scans on the new French strings, targeted Flutter
+analyze, targeted CJT-018 widget test, non-T6 semantics contract test, and the
+full onboarding storyboard file (`14` tests passed). Fresh iOS simulator build
+with `--dart-define=MINT_DISABLE_BETA_MODAL=true` installed on iPhone 17 Pro
+`B03E429D-0422-4357-B754-536637D979F9`; S005 passed with the existing
+coordinate fallbacks (`1/1 Flow Passed in 27s`, JUnit `failures=0`).
+
+CJT-018 remains open after this wave because T6/T7/T8 coordinate fallbacks have
+not yet been replaced. Next wave: add explicit lower CTA semantic identifiers
+and prove their iOS runtime frames with `idb ui describe-all` plus Maestro
+`id:` taps before updating S005/perfect-set flows. Durable report:
+`evidence/maestro-ci/cjt-018-slider-removal-production-patch-20260603.md`;
+runtime folder:
+`evidence/maestro-ci/cjt-018-slider-removal-s005-20260603T231451/`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:

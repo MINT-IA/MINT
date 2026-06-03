@@ -23313,6 +23313,21 @@ class SPt extends S {
   String get onboardingSealRetry => 'Tentar novamente';
 
   @override
+  String onboardingRevenueDecreaseStep(String step) {
+    return 'Diminuir em $step CHF';
+  }
+
+  @override
+  String onboardingRevenueIncreaseStep(String step) {
+    return 'Aumentar em $step CHF';
+  }
+
+  @override
+  String onboardingRevenueCurrentRange(String low, String high) {
+    return 'Intervalo atual: $low a $high CHF';
+  }
+
+  @override
   String get coachOnboardingFirstUserMessage =>
       'Olá, acabei de criar a minha conta. Por onde começo?';
 
