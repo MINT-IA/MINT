@@ -147,6 +147,21 @@ code was reverted; current-build S005 passed afterward
 Durable report:
 `evidence/maestro-ci/cjt-018-skip-revenue-mutation-20260603.md`.
 
+## CJT-018 Addendum — 2026-06-03 Empty Interstitial Rejection
+
+A seventh temporary runtime probe inserted a one-frame
+`ExcludeSemantics(child: SizedBox.shrink())` interstitial between seeded T5 and
+T6, while still skipping revenue mutation and exposing the temporary T6 id. The
+flow still failed before T7 `Continuer`; `idb ui describe-all` exposed
+`onboarding-insight-view` at `{{8,206.8},{118,17.3}}`. This rejects a simple
+semantics-empty cache invalidation frame as sufficient mitigation. The remaining
+class is Flutter/iOS transform retention tied to leaving the real
+`_RevenueStep` subtree. Probe code was reverted; current-build S005 passed
+afterward
+(`evidence/maestro-ci/cjt-018-post-empty-interstitial-s005-current-build-20260603T223901/result.xml`).
+Durable report:
+`evidence/maestro-ci/cjt-018-empty-interstitial-20260603.md`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:
