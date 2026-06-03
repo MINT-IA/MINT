@@ -1,0 +1,100 @@
+# Journey Truth Matrix v0
+
+Date: 2026-06-03
+
+Purpose: replace broad "does MINT work?" claims with capability-level proof. A
+row is only "live-proven" when current evidence shows the user path running in
+the app or on the target backend. Code presence, unit tests, and historical
+flows are useful, but they are not the same proof.
+
+## Status Legend
+
+| Status | Meaning |
+|---|---|
+| LIVE-PROVEN | Recent Maestro/device/backend runtime evidence exists for the named scope. |
+| PARTIAL | Implemented and covered by tests, debug fixture, staging probe, or narrower runtime path. |
+| UNPROVEN | Route/code/tests may exist, but no current user-journey proof was found. |
+| OPEN | Known bug, release gate, or blocked proof remains open. |
+| OUT-OF-BETA | Deliberately outside the current supported beta scope. |
+
+## Operating Scope
+
+Current supported beta proof should stay narrow:
+
+- French Swiss supported archetypes first: `swiss_native` and
+  `swiss_native_couple`.
+- Unsupported users must be gated to waitlist/exit without unsupported
+  guidance.
+- The canonical money spine is
+  `wizard_answers_v2 -> CoachProfile -> BudgetSnapshot/DataSpineSnapshot ->
+  Rapport/Bilan -> CoachContextPacket`.
+- Backend Phase 02 `fact_event/fact_current` is release-critical only after the
+  production cutover is completed or explicitly deferred.
+
+## Capability Matrix
+
+| # | Capability / human question | Current status | Evidence found | Gap / next proof |
+|---:|---|---|---|---|
+| 1 | Install/open beta app, then reach the intended first screen | OPEN | CJT-015 keeps signed TestFlight/Universal Links as an open release gate. | Fix certificate/TestFlight access and prove signed build + real-device HTTPS link. |
+| 2 | Unsupported archetype is gated cleanly | LIVE-PROVEN | CJT-012 and `evidence/archetype-gate/maestro-hardgate-expat-us-20260602T090035/result.xml`. | Keep as regression gate; add waitlist consent/error proof if beta expands. |
+| 3 | Anonymous visitor reaches register intent | PARTIAL | `flow_landing_to_register.yaml` and historical sweep evidence. | Prove full create-account, email verification, restart, and data continuity. |
+| 4 | User creates/logs into an account and local data survives | PARTIAL | Auth routes/tests exist; architecture path uses `AuthProvider`, `wizard_answers_v2`, optional `/api/v1/sync/claim-local-data`. | Run register/login -> restart -> `/profiles/me` hydration with cloud sync on/off. |
+| 5 | User can recover/delete/control account data | UNPROVEN | Login/recovery routes exist; privacy routes exist. No current end-to-end proof found. | Add account lifecycle and privacy-control proof before beta support load grows. |
+| 6 | Supported user completes simple onboarding into Coach/Home | PARTIAL | Salvage01 pass and CJT-020/CJT-023 evidence for hero/onboarding writer path. | Fix CJT-018 locator debt; rerun without coordinate fallback/debug seed. |
+| 7 | Date of birth/profile facts are persisted as facts, not just display age | PARTIAL | Provider/model tests and CJT-004 profile cleanup proof; DOB is stored in wizard/profile path. | Cross-device authenticated round trip: local write -> backend mirror -> fresh login hydration. |
+| 8 | Budget situation entry feeds one money truth | LIVE-PROVEN | CJT-003/CJT-023; `evidence/money-trust/maestro-money-trust-20260602T084449/result.xml`. | Keep as release regression after any budget/profile/report change. |
+| 9 | Mon Argent shows the same money state after restart | LIVE-PROVEN | Money Trust chain and Bilan storytelling reruns include Budget -> Mon Argent continuity. | Keep same flow as spine gate. |
+| 10 | Rapport/Bilan consumes the same state and avoids duplicate budget surfaces | LIVE-PROVEN | CJT-002/CJT-010; Bilan naming proof; `evidence/storytelling/cjt-010-*`. | Keep empty and populated `/rapport` flows as regression gates. |
+| 11 | PDF export produces a real report artifact | PARTIAL | CJT-017 service proof for concrete PDF export. | Add live share/export path and content QA rubric. |
+| 12 | Document scan updates profile/Data Spine/Coach context | PARTIAL | CJT-008 LPP debug fixture Maestro path plus provider/DataSpine/Coach packet proof. | Prove release camera/PDF/OCR or OCR-paste path with restart and Data Spine assertions. |
+| 13 | User can correct/profile-provenance facts after scan/onboarding | PARTIAL | Profile provider tests and profile/privacy screens exist. | Run human correction journey: view fact/source -> edit -> restart -> Coach uses corrected value. |
+| 14 | Coach gives a cited/current answer for 3a scope | PARTIAL | CJT-011 live 3a citation proof; CJT-021 staging temporal fallback probe. | Rerun staged app/backend Maestro after temporal fix; extend golden eval set. |
+| 15 | Coach saves facts and makes profile/budget/document data live | PARTIAL | `save_fact` contracts, Dart fallback, profile tests, money trust Coach step. | Prove anonymous and authenticated fact capture -> persisted profile -> restart -> Coach context. |
+| 16 | Coach can open the right screens/widgets from conversation | PARTIAL | Route resolver and widget tests exist; CJT-009 route contract only. | Live Coach-to-widget journey with stable ids and post-widget state persistence. |
+| 17 | Simulators/widgets meet design-system and source rules | UNPROVEN | Many simulator routes and tests exist; no full DS/runtime audit for top simulators. | Audit top 5 shipped simulators: <=3 visible inputs, editable assumptions, source/disclaimer, i18n. |
+| 18 | User has clear actions and can complete one | PARTIAL | Micro-action, plan reality, check-in, commitment tests exist. | Live Home/Coach action completion flow; prove completion changes next state. |
+| 19 | User creates a plan and MINT helps follow it | PARTIAL | `FinancialPlanService`, `PlanTrackingService`, check-in services have tests. | Integrated proof: generate plan -> restart -> profile change -> stale detection -> check-in/commitment. |
+| 20 | Coach/history lets a user return to prior context | PARTIAL | `/coach/history` route exists; Coach shell tests exist. | Live history/resume proof with persisted context. |
+| 21 | Daily return screen answers "what needs attention now?" | UNPROVEN | Product role is defined in review synthesis; action cards exist. | Maestro daily-return flow from cold start with attention/action state. |
+| 22 | Navigation is human-logical, no duplicate or triple-role screens | PARTIAL | REVIEW-SYNTHESIS defines screen roles; screenshot concern on "Ton Plan Mint" remains product/design debt. | Screen inventory: owner, job, upstream/downstream, duplicate-content decision for each primary screen. |
+| 23 | Design chart is respected across primary screens | PARTIAL | Core Budget/Report/Coach paths use tokens; Flutter audit found hardcoded plan/action strings and some direct copy tests. | Visual audit crawl for primary screens, ARB/i18n hardcoded-string pass, accessibility smoke. |
+| 24 | Privacy, consent, logs, and data controls are coherent | UNPROVEN | Privacy routes exist; secure-storage bug CJT-019 was handled locally. | Threat/privacy pass: PII logs, document consent, delete/export, nLPD surface, secure storage on sim/device. |
+| 25 | Backend production fact substrate is current | OPEN | CJT-013: staging Phase 02 proof exists; production lacks Phase 02 tables/cutover evidence. | Execute or explicitly defer production runbook; capture prod head, flags, backfill parity, metrics. |
+| 26 | Runtime automation is stable enough to catch regressions | OPEN | CJT-014/CJT-016 local regression sweep green; CJT-018 onboarding AX/id failure remains open. | Close CJT-018 or isolate robust simulator strategy; rerun S005/perfect-set without coordinate fallbacks. |
+| 27 | Observability/release feedback loop catches beta regressions | UNPROVEN | Roadmapped in Phase 35; no current closure evidence found. | Sentry/crash/activation/drop-off loop before broader beta. |
+
+## What Was Missing From The User List
+
+The user's list covers the main product promises. The missing rows are mostly
+operational and trust boundaries:
+
+- Install/TestFlight/Universal Link access.
+- Unsupported-user eligibility and waitlist exit.
+- Anonymous-to-account data claim and restart continuity.
+- Profile provenance, correction, and privacy controls.
+- Empty/error/offline/refusal states.
+- Daily return loop on Aujourd'hui.
+- Analytics/crash feedback loop.
+- Backend production fact-current cutover.
+
+## Priority Waves
+
+1. Access and truth gates: CJT-015, CJT-013, CJT-018.
+2. Human journey proof: account create/login continuity, release OCR scan,
+   Coach fact capture, action completion.
+3. Product/navigation cleanup: screen role inventory, duplicate content
+   decisions, daily return loop proof.
+4. Design/i18n/accessibility hardening: top screens and top simulators.
+5. Operational beta loop: privacy/control surface, crash/analytics evidence,
+   regression schedule.
+
+## Expert Inputs Integrated
+
+- Product audit: added lifecycle rows for install/open, eligibility, waitlist,
+  provenance/correction, daily return loop, support/observability.
+- Architecture audit: classified local money spine as strongest proof, backend
+  production fact-current as the main open architecture boundary.
+- QA audit: converted CJT evidence into live/staging/unit/open proof levels.
+- Flutter/UI audit: separated route/code presence from user-journey proof and
+  flagged simulator/design/i18n hardening.
+
