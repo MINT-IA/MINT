@@ -1,0 +1,27 @@
+appId: ch.mint.app
+tags:
+  - cjt-018
+  - probe
+  - onboarding
+---
+
+- launchApp:
+    clearState: true
+
+- openLink: "mintapp:///onb"
+
+- extendedWaitUntil:
+    visible:
+      text: "Combien te tombe net par mois ?"
+    timeout: 10000
+
+- tapOn:
+    point: "50%,74%"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Avant de te montrer…"
+    timeout: 10000
+
+- takeScreenshot: "01-simple-revenue-t6-before-id"

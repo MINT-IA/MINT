@@ -178,6 +178,19 @@ reverted; current-build S005 passed afterward
 Durable report:
 `evidence/maestro-ci/cjt-018-simple-revenue-step-20260603.md`.
 
+## CJT-018 Addendum — 2026-06-03 Slider Trigger Isolation
+
+A ninth temporary runtime probe added only a Flutter `Slider` back to the
+known-good minimal T5 revenue baseline. T6 immediately returned to the bad
+upper/scaled frame: `onboarding-insight-view` exposed
+`{{8,206.8},{118,17.3}}` instead of the simple-baseline lower frame
+`{{24,620.5},{354,52}}`. This narrows CJT-018 from the full `_RevenueStep` to
+the outgoing slider subtree or a Flutter/iOS transform side effect caused by
+that slider. Probe code was reverted; current-build S005 passed afterward
+(`evidence/maestro-ci/cjt-018-post-slider-trigger-s005-current-build-20260603T230034/result.xml`).
+Durable report:
+`evidence/maestro-ci/cjt-018-simple-revenue-slider-20260603.md`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:
