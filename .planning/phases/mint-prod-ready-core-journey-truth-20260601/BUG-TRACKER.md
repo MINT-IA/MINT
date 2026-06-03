@@ -119,6 +119,16 @@ sufficient root cause. The probe code was reverted afterward and a fresh
 current-build S005 rerun passed. Durable report:
 `evidence/maestro-ci/cjt-018-revenue-dossier-bisect-20260603.md`.
 
+## CJT-018 Addendum — 2026-06-03 Batched Revenue Rejection
+
+A fifth temporary runtime probe batched revenue mutation and step advance so
+`setNetMonthlyRange()` did not notify listeners before `advance()`. T6 still
+exposed `onboarding-insight-view` at the same bad upper geometry
+(`x=8,y=196.5,w=118,h=17.3`). This rejects "two successive provider
+notifications" as sufficient root cause. The probe code was reverted afterward
+and a fresh current-build S005 rerun passed. Durable report:
+`evidence/maestro-ci/cjt-018-batched-revenue-advance-20260603.md`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:
