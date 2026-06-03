@@ -51,4 +51,24 @@ Do not close CJT-018 from widget semantics tests or locator audit.
 
 The attempted production-code and Maestro-flow edits were reverted. Active S005/perfect-set flows must keep the documented coordinate fallbacks until a layout-level fix is runtime-proven.
 
+## Follow-up Variant Rejected
+
+After the first negative reprobe, a stricter `_PrimaryButton` wrapper was tried with `Semantics(container: true, identifier:, label:, button:, enabled:, onTap:)` around the full `SizedBox` and `ExcludeSemantics` around the visual `FilledButton`.
+
+Static proof stayed green:
+
+- `cd apps/mobile && flutter analyze lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart` -> passed.
+- `cd apps/mobile && flutter build ios --simulator --debug --dart-define=MINT_DISABLE_BETA_MODAL=true` -> built after stopping the running app and removing the stale simulator bundle.
+
+Runtime proof stayed red:
+
+- Evidence: `.planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/cjt-018-container-semantics-probe-20260603T083422/`
+- JUnit: `tests=1`, `failures=1`
+- Exit code: `1`
+- Failure: `Assertion is false: ".*Aujourd'hui.*" is visible`
+- `snapshot_ui` still showed `onboarding-insight-view` on `Avant de te montrer...`.
+- MCP still tapped the target at `x=67,y=205` and the app did not advance.
+
+This rejects both the non-container and container Semantics-wrapper variants. The next credible fix must change layout geometry, not only Semantics metadata.
+
 Next credible slice: change the onboarding layout so bottom CTAs live in a stable bottom slot outside the `AnimatedSwitcher` step subtree / `Expanded` content, then re-run this exact S005 proof and capture a fresh `snapshot_ui` where `onboarding-insight-view` taps the visible lower button.
