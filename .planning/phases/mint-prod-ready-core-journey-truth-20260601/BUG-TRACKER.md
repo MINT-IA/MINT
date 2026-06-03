@@ -129,6 +129,24 @@ notifications" as sufficient root cause. The probe code was reverted afterward
 and a fresh current-build S005 rerun passed. Durable report:
 `evidence/maestro-ci/cjt-018-batched-revenue-advance-20260603.md`.
 
+## CJT-018 Addendum — 2026-06-03 Skip-Revenue Matrix
+
+A sixth temporary runtime matrix seeded the real onboarding shell at T5 and
+advanced to T6 without writing revenue data. The bad T6 AX geometry persisted:
+`onboarding-insight-view` exposed `{{8,206.8},{118,17.3}}` and the id tap did
+not advance. Repeating the same probe with T5 tapped by visible coordinates also
+failed with the same frame, rejecting "T5 id activation poisons T6" as the root.
+A native-owner semantics variant made the id disappear but left the visible
+`Voir` button at the same bad frame. A unique inline T6 widget still exposed the
+same bad `onboarding-insight-view` frame. This rejects revenue mutation, T5 id
+activation, artificial `Semantics(onTap)` owner as the sole cause, and shared
+`_PrimaryButton` identity as root hypotheses. The remaining slice is the real
+`_RevenueStep` lifecycle / Flutter-iOS AX transform retention after T5. Probe
+code was reverted; current-build S005 passed afterward
+(`evidence/maestro-ci/cjt-018-post-skip-revenue-s005-current-build-20260603T223058/result.xml`).
+Durable report:
+`evidence/maestro-ci/cjt-018-skip-revenue-mutation-20260603.md`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:
