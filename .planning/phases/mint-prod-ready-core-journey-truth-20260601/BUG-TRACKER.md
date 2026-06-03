@@ -96,6 +96,18 @@ The probe code was reverted afterward and a fresh current-build S005 rerun
 passed. Durable report:
 `evidence/maestro-ci/cjt-018-direct-t6-id-bisect-20260603.md`.
 
+## CJT-018 Addendum — 2026-06-03 T5 Slider AX Rejection
+
+A third temporary runtime probe repeated the seeded T5→T6 path with the T5
+revenue `Slider` excluded from semantics. T6 still exposed
+`onboarding-insight-view` at the same bad upper geometry
+(`x=8,y=196.5,w=118,h=17.3`). This rejects "T5 slider semantics alone" as the
+root hypothesis. The remaining root slice is still the T5 revenue
+mutation/advance boundary, but not specifically the slider node. The probe code
+was reverted afterward and a fresh current-build S005 rerun passed. Durable
+report:
+`evidence/maestro-ci/cjt-018-t5-slider-ax-bisect-20260603.md`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:

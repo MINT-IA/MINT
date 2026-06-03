@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="0" time="27.0">
+    <testcase id="bug__S005__landing_anonymous_cta_to_home" name="bug__S005__landing_anonymous_cta_to_home" classname="bug__S005__landing_anonymous_cta_to_home" time="27.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="phase-97, phase-97-w7, bug-s005, regression, navigation, feature:navigation, archetype:all"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>
