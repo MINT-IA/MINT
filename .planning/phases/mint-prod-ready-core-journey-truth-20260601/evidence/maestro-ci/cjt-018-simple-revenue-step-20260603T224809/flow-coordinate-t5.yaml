@@ -1,0 +1,40 @@
+appId: ch.mint.app
+tags:
+  - cjt-018
+  - probe
+  - onboarding
+---
+
+- launchApp:
+    clearState: true
+
+- openLink: "mintapp:///onb"
+
+- extendedWaitUntil:
+    visible:
+      text: "Combien te tombe net par mois ?"
+    timeout: 10000
+
+- takeScreenshot: "01-revenue-seeded-coordinate-entry"
+
+- tapOn:
+    point: "50%,74%"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Avant de te montrer…"
+    timeout: 10000
+
+- takeScreenshot: "02-insight-before-id-tap-coordinate-t5"
+
+- tapOn:
+    id: "onboarding-insight-view"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Continuer"
+    timeout: 10000
+
+- takeScreenshot: "03-scene-after-coordinate-t5-t6-id"

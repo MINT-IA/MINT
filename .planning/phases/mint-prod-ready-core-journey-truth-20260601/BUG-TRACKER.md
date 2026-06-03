@@ -162,6 +162,22 @@ afterward
 Durable report:
 `evidence/maestro-ci/cjt-018-empty-interstitial-20260603.md`.
 
+## CJT-018 Addendum — 2026-06-03 Simple Revenue Step Isolation
+
+An eighth temporary runtime probe replaced the real `_RevenueStep` with a
+minimal seeded T5 step carrying the same prompt and lower CTA id, then exposed
+the temporary T6 `onboarding-insight-view` id. With this minimal T5, T6 exposed
+the lower visible frame `{{24,620.5},{354,52}}`, and the T6 id tap advanced past
+T6. The follow-up screen rendered `Il manque une donnée.` because this probe did
+not write net monthly income, which is expected for the simplified control. This
+confirms CJT-018 is triggered by something inside the real `_RevenueStep`
+subtree/lifecycle rather than the onboarding shell, seeded T5 history, T5
+coordinate activation, T6 layout, T6 id, or dossier strip alone. Probe code was
+reverted; current-build S005 passed afterward
+(`evidence/maestro-ci/cjt-018-post-simple-revenue-s005-current-build-20260603T225257/result.xml`).
+Durable report:
+`evidence/maestro-ci/cjt-018-simple-revenue-step-20260603.md`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:
