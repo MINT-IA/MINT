@@ -1,0 +1,14 @@
+appId: ch.mint.debug.cjt018MintShapeRepro
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      text: "Avant de te montrer.*"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-insight-view"
+- extendedWaitUntil:
+    visible:
+      text: ".*Aujourd'hui.*"
+    timeout: 5000
