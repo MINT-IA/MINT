@@ -68,6 +68,21 @@ real `OnboardingShellScreen` lower-CTA AX frame retention rather than swapping
 more locators. Durable report:
 `evidence/maestro-ci/cjt-018-non-t6-id-narrowing-20260603.md`.
 
+## CJT-018 Addendum — 2026-06-03 T5→T6 Bisect
+
+A temporary runtime probe started the real `OnboardingShellScreen` directly at
+T5 revenue with intent, nationality, DOB, and canton pre-seeded, then exposed a
+temporary T6 `onboarding-insight-view` identifier. T5 control geometry was
+correct (`onboarding-revenue-range-continue` at `x=24,y=620.5,w=354,h=52`).
+After tapping the T5 revenue CTA, T6 exposed `onboarding-insight-view` at the
+same bad upper geometry class (`x=8,y=196.5,w=118,h=17.3`), and MCP tapped
+`x=67,y=205` without advancing. This rejects "T1-T4 history required" as the
+root hypothesis and narrows the issue to the real T5→T6 transition plus
+identified lower CTA geometry. The probe code was not intended as a production
+fix and was reverted after evidence capture; a fresh current-build S005 rerun
+passed afterward. Durable report:
+`evidence/maestro-ci/cjt-018-t5-history-bisect-20260603.md`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:
