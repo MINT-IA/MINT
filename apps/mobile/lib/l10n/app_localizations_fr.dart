@@ -11246,9 +11246,6 @@ class SFr extends S {
   String get coverageCriticalGapPlural => 'lacunes critiques';
 
   @override
-  String get reportTonPlanMint => 'Ton Plan Mint';
-
-  @override
   String get reportCommencer => 'Commencer';
 
   @override
@@ -19496,6 +19493,9 @@ class SFr extends S {
 
   @override
   String get reportTitleBilanFlash => 'Ton Bilan Flash';
+
+  @override
+  String get reportPdfExportTitle => 'Ton Bilan Flash - Export financier';
 
   @override
   String get retirementIncomeLabelPatrimoine => 'Patrimoine libre';

@@ -11271,9 +11271,6 @@ class SDe extends S {
   String get coverageCriticalGapPlural => 'kritische Lücken';
 
   @override
-  String get reportTonPlanMint => 'Dein Mint-Plan';
-
-  @override
   String get reportCommencer => 'Loslegen';
 
   @override
@@ -19547,6 +19544,9 @@ class SDe extends S {
 
   @override
   String get reportTitleBilanFlash => 'Deine Finanzübersicht';
+
+  @override
+  String get reportPdfExportTitle => 'Deine Finanzübersicht - Finanzexport';
 
   @override
   String get retirementIncomeLabelPatrimoine => 'Freies Vermögen';

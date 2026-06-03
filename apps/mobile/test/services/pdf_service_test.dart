@@ -54,7 +54,10 @@ void main() {
     });
 
     test('generateFinancialReportPdf shares a concrete PDF document', () async {
-      await PdfService.generateFinancialReportPdf(_sampleFinancialReport());
+      await PdfService.generateFinancialReportPdf(
+        _sampleFinancialReport(),
+        title: 'Ton Bilan Flash - Export financier',
+      );
 
       expect(printingPlatform.sharePdfCalls, 1);
       expect(printingPlatform.filename, 'mint_report_v2.pdf');

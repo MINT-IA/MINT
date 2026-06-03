@@ -376,7 +376,10 @@ class PdfService {
         onLayout: (PdfPageFormat format) async => pdf.save());
   }
 
-  static Future<void> generateFinancialReportPdf(FinancialReport report) async {
+  static Future<void> generateFinancialReportPdf(
+    FinancialReport report, {
+    required String title,
+  }) async {
     final pdf = pw.Document(theme: await _mintPdfTheme());
     final generatedDate = report.generatedAt.toLocal().toString().split('.')[0];
 
@@ -433,7 +436,7 @@ class PdfService {
           // ═══════════════════════════════════════════════════════
           children.add(pw.SizedBox(height: 10));
           children.add(pw.Text(
-            'Ton Plan Mint - Rapport Financier',
+            title,
             style: pw.TextStyle(
                 fontSize: 22,
                 fontWeight: pw.FontWeight.bold,

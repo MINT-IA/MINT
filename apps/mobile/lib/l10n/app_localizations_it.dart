@@ -11265,9 +11265,6 @@ class SIt extends S {
   String get coverageCriticalGapPlural => 'lacune critiche';
 
   @override
-  String get reportTonPlanMint => 'Il tuo Piano Mint';
-
-  @override
   String get reportCommencer => 'Iniziare';
 
   @override
@@ -19555,6 +19552,10 @@ class SIt extends S {
 
   @override
   String get reportTitleBilanFlash => 'Il tuo Bilancio Flash';
+
+  @override
+  String get reportPdfExportTitle =>
+      'Il tuo Bilancio Flash - Esportazione finanziaria';
 
   @override
   String get retirementIncomeLabelPatrimoine => 'Patrimonio libero';

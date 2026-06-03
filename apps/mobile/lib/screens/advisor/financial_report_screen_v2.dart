@@ -56,7 +56,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       return Scaffold(
         backgroundColor: MintColors.surface,
         appBar: AppBar(
-          title: Text(S.of(context)!.reportTonPlanMint,
+          title: Text(S.of(context)!.reportTitleBilanFlash,
               style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
           backgroundColor: MintColors.white,
           foregroundColor: MintColors.textPrimary,
@@ -96,7 +96,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.share),
             onPressed: () {
-              PdfService.generateFinancialReportPdf(report);
+              PdfService.generateFinancialReportPdf(
+                report,
+                title: S.of(context)!.reportPdfExportTitle,
+              );
             },
           ),
         ],

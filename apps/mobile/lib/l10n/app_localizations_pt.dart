@@ -11237,9 +11237,6 @@ class SPt extends S {
   String get coverageCriticalGapPlural => 'lacunas críticas';
 
   @override
-  String get reportTonPlanMint => 'O teu Plano Mint';
-
-  @override
   String get reportCommencer => 'Começar';
 
   @override
@@ -19505,6 +19502,10 @@ class SPt extends S {
 
   @override
   String get reportTitleBilanFlash => 'O seu Balanço Flash';
+
+  @override
+  String get reportPdfExportTitle =>
+      'O seu Balanço Flash - Exportação financeira';
 
   @override
   String get retirementIncomeLabelPatrimoine => 'Património livre';

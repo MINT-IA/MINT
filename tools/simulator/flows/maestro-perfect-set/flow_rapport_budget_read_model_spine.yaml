@@ -1,10 +1,10 @@
 # tools/simulator/flows/maestro-perfect-set/flow_rapport_budget_read_model_spine.yaml
 #
 # PURPOSE
-# Runtime proof that Rapport (/rapport) reads the same persisted budget
-# read-model as Budget/Mon Argent after a user edits fixed monthly charges.
-# This catches the drift class where the report recomputes from stale answers
-# and shows absurd captured values such as 19'272'200 or 420'420.
+# Runtime proof that the direct Rapport (/rapport) fallback does not resurrect
+# the legacy "Plan Mint" wording or duplicate the Budget/Mon Argent dashboard
+# after a user edits fixed monthly charges. The complete money-trust flow covers
+# the populated Budget -> Mon Argent -> Rapport path.
 #
 # PRE-CONDITION
 # - App ch.mint.app installed on a booted iPhone simulator.
@@ -73,15 +73,22 @@ tags:
 
 - openLink: "mintapp:///rapport"
 - extendedWaitUntil:
-    visible: "Ton Plan Mint"
+    visible: "Ton Bilan Flash"
     timeout: 12000
-- assertVisible: "Ton Budget"
-- assertVisible:
+- assertVisible: "Compléter mon profil"
+- assertNotVisible: "Ton Plan Mint"
+- assertNotVisible: "Commencer"
+- assertNotVisible: "Ton Budget"
+- assertNotVisible: "Logement"
+- assertNotVisible: "Primes LAMal"
+- assertNotVisible:
     text: ".*2'200.*"
-- assertVisible:
+- assertNotVisible:
     text: ".*420.*"
 - assertNotVisible: "19'272'200"
 - assertNotVisible: "420'420"
+- assertNotVisible: "NaN"
+- assertNotVisible: "Infinity"
 - assertNotVisible: "A RenderFlex overflowed"
 - assertNotVisible: "Exception caught"
 - assertNotVisible: "NoSuchMethodError"

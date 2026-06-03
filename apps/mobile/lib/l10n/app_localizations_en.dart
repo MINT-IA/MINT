@@ -11187,9 +11187,6 @@ class SEn extends S {
   String get coverageCriticalGapPlural => 'critical gaps';
 
   @override
-  String get reportTonPlanMint => 'Your Mint Plan';
-
-  @override
   String get reportCommencer => 'Get started';
 
   @override
@@ -19409,6 +19406,10 @@ class SEn extends S {
 
   @override
   String get reportTitleBilanFlash => 'Your Financial Snapshot';
+
+  @override
+  String get reportPdfExportTitle =>
+      'Your Financial Snapshot - Financial export';
 
   @override
   String get retirementIncomeLabelPatrimoine => 'Free assets';

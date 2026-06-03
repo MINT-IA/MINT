@@ -19897,12 +19897,6 @@ abstract class S {
   /// **'lacunes critiques'**
   String get coverageCriticalGapPlural;
 
-  /// No description provided for @reportTonPlanMint.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ton Plan Mint'**
-  String get reportTonPlanMint;
-
   /// No description provided for @reportCommencer.
   ///
   /// In fr, this message translates to:
@@ -34236,6 +34230,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ton Bilan Flash'**
   String get reportTitleBilanFlash;
+
+  /// No description provided for @reportPdfExportTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton Bilan Flash - Export financier'**
+  String get reportPdfExportTitle;
 
   /// No description provided for @retirementIncomeLabelPatrimoine.
   ///

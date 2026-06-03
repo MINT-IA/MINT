@@ -11243,9 +11243,6 @@ class SEs extends S {
   String get coverageCriticalGapPlural => 'lagunas críticas';
 
   @override
-  String get reportTonPlanMint => 'Tu Plan Mint';
-
-  @override
   String get reportCommencer => 'Comenzar';
 
   @override
@@ -19505,6 +19502,10 @@ class SEs extends S {
 
   @override
   String get reportTitleBilanFlash => 'Tu Resumen Financiero';
+
+  @override
+  String get reportPdfExportTitle =>
+      'Tu Resumen Financiero - Exportación financiera';
 
   @override
   String get retirementIncomeLabelPatrimoine => 'Patrimonio libre';
