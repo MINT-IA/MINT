@@ -103,7 +103,7 @@ tags:
       text: "Combien te tombe net par mois ?"
     timeout: 5000
 - tapOn:
-    point: "50%,74%"
+    id: "onboarding-revenue-range-continue"
 - extendedWaitUntil:
     visible:
       text: "Avant de te montrer…"
@@ -114,6 +114,9 @@ tags:
     visible:
       text: "Continuer"
     timeout: 8000
+# CJT-018: onboarding-scene-continue exposes a stale upper AX frame after
+# the full onboarding history; keep coordinate fallback until the runtime
+# semantics frame is fixed.
 - tapOn:
     point: "50%,70%"
 - runFlow:
@@ -127,6 +130,8 @@ tags:
     visible:
       text: "Creuser"
     timeout: 5000
+# CJT-018: T8 CTA ids expose stale upper AX frames after the full onboarding
+# history; keep coordinate fallback until the runtime semantics frame is fixed.
 - tapOn:
     point: "50%,63%"
 - extendedWaitUntil:

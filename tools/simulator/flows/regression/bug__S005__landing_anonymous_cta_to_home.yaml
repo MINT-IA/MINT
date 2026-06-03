@@ -164,10 +164,8 @@ tags:
     when:
       visible: "Combien te tombe net par mois ?"
     commands:
-      # CJT-018: the visible CTA's iOS AX frame is currently invalid, so
-      # keep the coordinate fallback until the product-side frame bug is fixed.
       - tapOn:
-          point: "50%,74%"
+          id: "onboarding-revenue-range-continue"
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -182,6 +180,9 @@ tags:
     when:
       visible: "Continuer"
     commands:
+      # CJT-018: the T7 scene CTA currently exposes resource-id
+      # onboarding-scene-continue with a stale upper AX frame after the full
+      # onboarding history. Coordinate fallback preserves this S005 proof.
       - tapOn:
           point: "50%,70%"
       - waitForAnimationToEnd
@@ -190,7 +191,8 @@ tags:
       visible: "Plus tard"
     commands:
       # Terminal anonymous path: Plus tard flushes the dossier and routes
-      # to /home. Keep the visible CTA coordinate while CJT-018 is open.
+      # to /home. CJT-018: the T8 CTA ids expose stale upper AX frames after
+      # the full onboarding history, so this remains a coordinate fallback.
       - tapOn:
           point: "50%,70%"
       - waitForAnimationToEnd

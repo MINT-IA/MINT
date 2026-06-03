@@ -218,6 +218,49 @@ void main() {
     expect(find.text('TON DOSSIER'), findsNothing);
   });
 
+  testWidgets('primary CTAs expose stable non-T6 semantics identifiers',
+      (tester) async {
+    final semantics = tester.ensureSemantics();
+    final fake = _FakeCoachProfileProvider();
+    try {
+      await _pumpShell(tester, fake);
+
+      _expectSemanticsIdentifier(tester, 'onboarding-entry-open');
+      await _commonEntry(tester, intentLabel: 'Ce que je paie de trop.');
+      await _selectExplicitDateOfBirth(tester);
+      _expectSemanticsIdentifier(tester, 'onboarding-dob-continue');
+      await tester.tap(find.text('Continuer'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('VD'));
+      await tester.pumpAndSettle();
+      _expectSemanticsIdentifier(tester, 'onboarding-revenue-range-continue');
+      await tester.tap(find.text('Continuer'));
+      await tester.pumpAndSettle();
+
+      // T6-T8 remain excluded from this contract while CJT-018 investigates
+      // stale full-history AX frames on the lower onboarding CTAs.
+      await tester.tap(find.text('Voir'));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('onboarding-scene-continue')),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Continuer'));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('onboarding-bifurcation-creuser')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('onboarding-bifurcation-plus-tard')),
+        findsOneWidget,
+      );
+    } finally {
+      semantics.dispose();
+    }
+  });
+
   testWidgets('US tax person answer routes to waitlist before age/canton',
       (tester) async {
     final fake = _FakeCoachProfileProvider();
@@ -541,4 +584,11 @@ void main() {
     final merged = fake.mergedCalls.single;
     expect(merged['q_wants_deeper'], isTrue);
   });
+}
+
+void _expectSemanticsIdentifier(WidgetTester tester, String identifier) {
+  expect(
+    tester.getSemantics(find.byKey(ValueKey(identifier))).identifier,
+    identifier,
+  );
 }

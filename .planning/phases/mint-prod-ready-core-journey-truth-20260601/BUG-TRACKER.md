@@ -49,6 +49,25 @@ and a T6 explicit-child semantics boundary. All stayed on T6; MCP tapped the id
 at `x=67,y=205`. Production code was reverted after the probes. Evidence:
 `evidence/maestro-ci/cjt-018-20260603-evening-negative-probes.md`.
 
+## CJT-018 Addendum — 2026-06-03 Night
+
+Narrowed the locator debt instead of forcing a broad id replacement. Upper
+onboarding CTAs now expose tested semantics identifiers for entry, DOB, and
+revenue. Runtime hierarchy proved `onboarding-revenue-range-continue` has a
+correct lower frame (`[24,620][378,672]`) and S005 now uses that id. Runtime
+hierarchy also proved the T7 scene and T8 bifurcation CTA ids expose stale
+upper frames after the full onboarding history, so those ids were not kept in
+production code and the Maestro flows retain documented coordinate fallbacks
+for T6/T7/T8. Verification: targeted onboarding semantics test passed, three
+Maestro flow syntax checks passed, `python3 tools/checks/maestro_locator_audit.py`
+passed (`35 flows`, `349 locators`), XcodeBuildMCP `build_run_sim` passed on
+iPhone 17 Pro simulator `B03E429D-0422-4357-B754-536637D979F9`, and S005
+passed on the current build (`evidence/maestro-ci/cjt-018-s005-current-build-20260603T212309/`).
+CJT-018 remains open for the root stale-frame bug; next work should isolate the
+real `OnboardingShellScreen` lower-CTA AX frame retention rather than swapping
+more locators. Durable report:
+`evidence/maestro-ci/cjt-018-non-t6-id-narrowing-20260603.md`.
+
 ## Rules For Closing A Bug
 
 A bug can be marked `verified` only when the row has:

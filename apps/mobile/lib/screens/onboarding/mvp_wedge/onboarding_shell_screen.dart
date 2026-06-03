@@ -277,17 +277,23 @@ class _StepScaffold extends StatelessWidget {
 
 class _PrimaryButton extends StatelessWidget {
   const _PrimaryButton({
-    super.key,
+    Key? key,
     required this.onPressed,
     required this.label,
-  });
+    this.semanticsIdentifier,
+  })  : buttonKey = key,
+        super(key: null);
 
+  final Key? buttonKey;
   final VoidCallback? onPressed;
   final String label;
+  final String? semanticsIdentifier;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    final identifier = semanticsIdentifier;
+    final button = SizedBox(
+      key: identifier == null ? buttonKey : null,
       width: double.infinity,
       height: 52,
       child: FilledButton(
@@ -307,6 +313,15 @@ class _PrimaryButton extends StatelessWidget {
               .copyWith(fontWeight: FontWeight.w600),
         ),
       ),
+    );
+    if (identifier == null) return button;
+    return Semantics(
+      key: buttonKey,
+      identifier: identifier,
+      label: label,
+      button: true,
+      onTap: onPressed,
+      child: ExcludeSemantics(child: button),
     );
   }
 }
@@ -335,6 +350,7 @@ class _EntryStep extends StatelessWidget {
           const Spacer(),
           _PrimaryButton(
             key: const ValueKey('onboarding-entry-open'),
+            semanticsIdentifier: 'onboarding-entry-open',
             label: 'Ouvrir',
             onPressed: () => provider.advance(),
           ),
@@ -557,6 +573,8 @@ class _AgeStepState extends State<_AgeStep> {
             ),
           ),
           _PrimaryButton(
+            key: const ValueKey('onboarding-dob-continue'),
+            semanticsIdentifier: 'onboarding-dob-continue',
             label: 'Continuer',
             onPressed: _dateOfBirth == null
                 ? null
@@ -772,6 +790,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             const SizedBox(height: 16),
             _PrimaryButton(
               key: const ValueKey('onboarding-revenue-range-continue'),
+              semanticsIdentifier: 'onboarding-revenue-range-continue',
               label: 'Continuer',
               onPressed: () {
                 provider.setNetMonthlyRange(range.low, range.high);
@@ -831,6 +850,7 @@ class _RevenueStepState extends State<_RevenueStep> {
             const SizedBox(height: 16),
             _PrimaryButton(
               key: const ValueKey('onboarding-revenue-exact-continue'),
+              semanticsIdentifier: 'onboarding-revenue-exact-continue',
               label: 'Continuer',
               onPressed: _exactValue == null
                   ? null
