@@ -38,6 +38,11 @@ Tracked debt from that audit:
   against reintroducing `Plan Mint`.
 - `D-20260604-06` P2: direct staging push is operational debt for later release
   promotion.
+- `D-20260604-07` P2: failed/stale local Row 22 Maestro artifact folders were
+  cluttering `git status` and risked being mistaken for release evidence.
+  Handled 2026-06-04 by documenting the quarantine in
+  `evidence/devex/failed-maestro-artifact-quarantine-20260604.md` and excluding
+  those exact local paths via `.git/info/exclude` without deleting files.
 
 ## Open / Recently Closed
 
