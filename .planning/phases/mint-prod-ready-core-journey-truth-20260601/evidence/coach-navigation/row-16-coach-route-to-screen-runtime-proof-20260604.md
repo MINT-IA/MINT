@@ -1,0 +1,38 @@
+# Row 16 — Coach Route-To-Screen Runtime Proof — 2026-06-04
+
+## Scope
+
+Proves the local supported simulator path:
+
+`CoachChatScreen -> CoachLlmService.chat -> route_to_screen tool call -> WidgetRenderer -> RouteSuggestionCard -> user tap -> /rente-vs-capital`
+
+Does not close post-widget `ScreenReturn` persistence back into Coach, live LLM route quality, or authenticated backend/cloud continuity.
+
+## What Changed
+
+- Added debug-only `E2eCoachRouteFixture`.
+- Fixture activates only with `kDebugMode` and `MINT_E2E_COACH_ROUTE_FIXTURE=retirement_choice`.
+- `main.dart` uses the fixture orchestrator when present, otherwise `CoachOrchestrator.generateChat`.
+- Added runtime locators for `coach_route_suggestion_card` and `rente_vs_capital_screen`.
+- Added `flow_row16_coach_route_to_screen_runtime.yaml`.
+
+## Evidence
+
+- Folder: `evidence/maestro-ci/row-16-coach-route-to-screen-runtime-20260604T234705/`
+- Device: iPhone 17 Pro, iOS 26.2, `B03E429D-0422-4357-B754-536637D979F9`
+- JUnit: `tests=1`, `failures=0`
+- Watchdog: `0`
+- Duration: `25s`
+- Screenshots: `01-row16-coach-route-suggestion.png`, `02-row16-rente-vs-capital-target.png`
+
+## Verification
+
+- `flutter test test/services/coach/e2e_coach_route_fixture_test.dart test/widgets/coach/route_suggestion_card_test.dart`
+- `flutter test test/screens/coach/coach_chat_test.dart --plain-name "renders structured route_to_screen response as a resolved action card"`
+- `flutter test test/widgets/coach/widget_renderer_test.dart --plain-name "tap navigates to resolved route and passes prefill under extra.prefill"`
+- `flutter analyze`
+- `python3 tools/checks/maestro_locator_audit.py`
+
+## Decision
+
+Row 16 remains `PARTIAL`: runtime route-to-screen is proven; `ScreenReturn` state persistence back into Coach remains open.

@@ -147,9 +147,14 @@ class RouteSuggestionCard extends StatelessWidget {
             const SizedBox(height: MintSpacing.sm),
           ],
           if (contextMessage.isNotEmpty) ...[
-            Text(
-              contextMessage,
-              style: MintTextStyles.bodyMedium(),
+            Semantics(
+              key: const Key('coach_route_suggestion_card'),
+              identifier: 'coach_route_suggestion_card',
+              container: true,
+              child: Text(
+                contextMessage,
+                style: MintTextStyles.bodyMedium(),
+              ),
             ),
             const SizedBox(height: MintSpacing.sm),
           ],

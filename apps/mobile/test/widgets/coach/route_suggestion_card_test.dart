@@ -89,7 +89,8 @@ void main() {
       await _pumpCard(
         tester,
         const RouteSuggestionCard(
-          contextMessage: 'Voici le simulateur rente vs capital pour ton profil.',
+          contextMessage:
+              'Voici le simulateur rente vs capital pour ton profil.',
           route: '/rente-vs-capital',
         ),
       );
@@ -110,6 +111,24 @@ void main() {
       );
       // The CTA label is 'Ouvrir' in French (from routeSuggestionCta key)
       expect(find.text('Ouvrir'), findsOneWidget);
+    });
+
+    testWidgets('exposes stable Maestro card identifier', (tester) async {
+      await _pumpCard(
+        tester,
+        const RouteSuggestionCard(
+          contextMessage: 'Ouvre le simulateur.',
+          route: '/rente-vs-capital',
+        ),
+      );
+
+      Finder byIdentifier(String identifier) => find.byWidgetPredicate(
+            (widget) =>
+                widget is Semantics &&
+                widget.properties.identifier == identifier,
+          );
+
+      expect(byIdentifier('coach_route_suggestion_card'), findsOneWidget);
     });
 
     testWidgets('shows partial warning banner when isPartial is true',
@@ -159,8 +178,7 @@ void main() {
           ),
           GoRoute(
             path: '/rente-vs-capital',
-            builder: (context, state) =>
-                const Scaffold(body: Text('Target')),
+            builder: (context, state) => const Scaffold(body: Text('Target')),
           ),
         ],
       );
@@ -225,7 +243,8 @@ void main() {
     });
 
     testWidgets('context_message is displayed as body text', (tester) async {
-      const message = 'Ce simulateur te permettra de comparer les deux options.';
+      const message =
+          'Ce simulateur te permettra de comparer les deux options.';
       await _pumpCard(
         tester,
         const RouteSuggestionCard(
@@ -243,8 +262,8 @@ void main() {
 
   group('RouteSuggestionNavLock (Phase 54-02 T-05)', () {
     test('first acquire returns true', () {
-      expect(RouteSuggestionNavLock.tryAcquire(now: DateTime(2026, 5, 4)),
-          isTrue);
+      expect(
+          RouteSuggestionNavLock.tryAcquire(now: DateTime(2026, 5, 4)), isTrue);
     });
 
     test('second acquire within 500ms window returns false', () {

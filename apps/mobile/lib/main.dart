@@ -7,6 +7,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
+import 'package:mint_mobile/services/coach/e2e_coach_route_fixture.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/error_boundary.dart';
 import 'package:mint_mobile/services/frame_timing_capture.dart';
@@ -134,7 +135,9 @@ Future<void> main() async {
 
   // FIX-P1-7: Register orchestrator chat function to break circular dependency
   // (coach_llm_service ↔ coach_orchestrator). Must happen before first chat.
-  CoachLlmService.registerOrchestrator(CoachOrchestrator.generateChat);
+  CoachLlmService.registerOrchestrator(
+    E2eCoachRouteFixture.orchestratorOrNull() ?? CoachOrchestrator.generateChat,
+  );
 
   // Sentry error tracking — DSN injected via dart-define in CI/production
   // flutter run --dart-define=SENTRY_DSN=https://xxx@sentry.io/xxx

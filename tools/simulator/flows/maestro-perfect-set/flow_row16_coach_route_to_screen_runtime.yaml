@@ -1,0 +1,69 @@
+# Row 16: Coach conversation -> route_to_screen -> tap -> /rente-vs-capital.
+# Build first with:
+#   MINT_DISABLE_BETA_MODAL=true
+#   MINT_E2E_ARCHETYPE=julien_swiss
+#   MINT_E2E_COACH_ROUTE_FIXTURE=retirement_choice
+
+appId: ch.mint.app
+tags:
+  - row-16
+  - coach-route-to-screen
+  - route-to-screen
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///coach/chat"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 12000
+- extendedWaitUntil:
+    visible:
+      id: "coach_input_field"
+    timeout: 8000
+
+- tapOn:
+    id: "coach_input_field"
+- inputText: "Rente ou capital ?"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: "coach_user_message_0"
+    timeout: 12000
+- extendedWaitUntil:
+    visible:
+      id: "coach_route_suggestion_card"
+    timeout: 12000
+- assertVisible: "Ouvrir"
+- takeScreenshot: "01-row16-coach-route-suggestion"
+
+- tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "rente_vs_capital_screen"
+    timeout: 12000
+- assertNotVisible: "Page introuvable"
+- assertNotVisible: "NoSuchMethodError"
+- takeScreenshot: "02-row16-rente-vs-capital-target"

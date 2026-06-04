@@ -607,9 +607,13 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                         backgroundColor: MintColors.white,
                         foregroundColor: MintColors.textPrimary,
                         surfaceTintColor: MintColors.white,
-                        title: Text(
-                          S.of(context)!.renteVsCapitalAppBarTitle,
-                          style: MintTextStyles.headlineMedium(),
+                        title: Semantics(
+                          key: const Key('rente_vs_capital_screen'),
+                          identifier: 'rente_vs_capital_screen',
+                          child: Text(
+                            S.of(context)!.renteVsCapitalAppBarTitle,
+                            style: MintTextStyles.headlineMedium(),
+                          ),
                         ),
                       ),
 
