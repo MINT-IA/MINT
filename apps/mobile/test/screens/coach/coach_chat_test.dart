@@ -16,6 +16,7 @@ import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
 import 'package:mint_mobile/services/coach/conversation_memory_service.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -116,6 +117,7 @@ void main() {
     CoachProfileProvider? profileProviderOverride,
     BudgetProvider? budgetProviderOverride,
     CoachContextInjectorBuilder? contextBuilder,
+    String? conversationId,
   }) {
     final profileProvider = profileProviderOverride ??
         (withProfile ? buildProfileProvider() : CoachProfileProvider());
@@ -141,7 +143,10 @@ void main() {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: CoachChatScreen(contextBuilder: contextBuilder),
+        home: CoachChatScreen(
+          contextBuilder: contextBuilder,
+          conversationId: conversationId,
+        ),
       ),
     );
   }
@@ -636,6 +641,35 @@ void main() {
         card.contextMessage,
         'Compare la rente et le capital avec tes donnees.',
       );
+    });
+
+    testWidgets('resumes persisted conversation by conversationId',
+        (tester) async {
+      usePhoneViewport(tester);
+      await ConversationStore().saveConversation('conv-resume-row20', [
+        ChatMessage(
+          role: 'user',
+          content: 'On parlait de mon rachat LPP',
+          timestamp: DateTime(2026, 6, 4, 9),
+        ),
+        ChatMessage(
+          role: 'assistant',
+          content: 'Oui, je garde ce contexte.',
+          timestamp: DateTime(2026, 6, 4, 9, 1),
+        ),
+      ]);
+
+      await tester.pumpWidget(
+        buildTestWidget(
+          withProfile: true,
+          conversationId: 'conv-resume-row20',
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.text('On parlait de mon rachat LPP'), findsOneWidget);
+      expect(find.text('Oui, je garde ce contexte.'), findsOneWidget);
+      expect(find.text("Salut. Moi c'est Mint."), findsNothing);
     });
 
     testWidgets('sends message when pressing send button', (tester) async {
