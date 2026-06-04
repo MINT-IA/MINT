@@ -693,11 +693,6 @@
       "preferFromChat": true
     },
     {
-      "intent": "simulator_rente_capital",
-      "route": "/simulator/rente-capital",
-      "preferFromChat": true
-    },
-    {
       "intent": "succession_patrimoine",
       "route": "/succession",
       "preferFromChat": true

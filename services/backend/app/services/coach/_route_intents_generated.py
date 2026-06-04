@@ -114,7 +114,6 @@ GENERATED_ROUTE_TO_SCREEN_INTENT_TAGS: frozenset[str] = frozenset({
     'simulator_3a',
     'simulator_3a_v2',
     'simulator_disability_gap',
-    'simulator_rente_capital',
     'succession_patrimoine',
     'succession_planning',
     'tax_optimization_3a',

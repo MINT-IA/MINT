@@ -1782,17 +1782,6 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: true,
   );
 
-  static const ScreenEntry _simulatorRenteCapital = ScreenEntry(
-    route: '/simulator/rente-capital',
-    intentTag: 'simulator_rente_capital',
-    behavior: ScreenBehavior.decisionCanvas,
-    requiredFields: ['age', 'canton'],
-    optionalFields: ['avoirLpp'],
-    fallbackRoute: '/coach/chat?topic=retraite',
-    preferFromChat: true,
-    prefillFromProfile: true,
-  );
-
   // ─── NOT_CHAT_ROUTABLE — tabs / settings (LLM knows by intent, won't navigate) ─
   static const ScreenEntry _coachAgir = ScreenEntry(
     route: '/coach/agir',
@@ -2000,7 +1989,6 @@ class MintScreenRegistry extends ScreenRegistry {
     _retirementProjection,
     _simulator3a,
     _simulatorDisabilityGap,
-    _simulatorRenteCapital,
     // NOT_CHAT_ROUTABLE (LLM knows by intent, RoutePlanner won't surface)
     _coachAgir,
     _coachDashboard,

@@ -109,7 +109,6 @@ const Set<String> kGeneratedValidRoutes = <String>{
   '/simulator/disability-gap',
   '/simulator/job-comparison',
   '/simulator/leasing',
-  '/simulator/rente-capital',
   '/succession',
   '/timeline',
   '/unemployment',

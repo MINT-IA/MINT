@@ -48,11 +48,13 @@ void main() {
       }
     });
 
-    test('total entry count covers all registered surfaces (= 143)', () {
+    test('total entry count covers all registered surfaces (= 142)', () {
       // 07-06: dropped _coachWeeklyRecap (route /weekly-recap deleted in 07-04)
       // 53-01: +33 entries from registry parity fill (26 ROUTABLE + 7
       // NOT_CHAT_ROUTABLE) — see SCREEN-REGISTRY-COVERAGE.md.
-      expect(MintScreenRegistry.entries.length, equals(143));
+      // Row 17/22: legacy redirect aliases such as /simulator/rente-capital
+      // stay in GoRouter/route metadata, not in the Coach primary surface map.
+      expect(MintScreenRegistry.entries.length, equals(142));
     });
 
     test('all routes are unique (no duplicate routes)', () {
@@ -261,6 +263,17 @@ void main() {
       final entry = MintScreenRegistry.findByRouteStatic('/rente-vs-capital');
       expect(entry, isNotNull);
       expect(entry!.intentTag, equals('retirement_choice'));
+    });
+
+    test('legacy simulator alias is not a Coach-routable primary surface', () {
+      final entry =
+          MintScreenRegistry.findByRouteStatic('/simulator/rente-capital');
+
+      expect(entry, isNull);
+      expect(
+        MintScreenRegistry.entries.map((e) => e.intentTag),
+        isNot(contains('simulator_rente_capital')),
+      );
     });
 
     test('/divorce → life_event_divorce', () {
