@@ -86,6 +86,20 @@ void main() {
       final entry = MintScreenRegistry.findByIntentStatic('budget_overview');
       expect(entry, isNotNull);
       expect(entry!.route, equals('/budget'));
+      expect(entry.behavior, equals(ScreenBehavior.decisionCanvas));
+      expect(entry.preferFromChat, isTrue);
+      expect(entry.requiredFields, contains('netIncome'));
+      expect(entry.fallbackRoute, equals('/onboarding/quick'));
+    });
+
+    test('budget_overview fallback target is registered', () {
+      final entry = MintScreenRegistry.findByIntentStatic('budget_overview')!;
+      final fallback = MintScreenRegistry.findByRouteStatic(
+        entry.fallbackRoute!,
+      );
+
+      expect(fallback, isNotNull);
+      expect(fallback!.intentTag, equals('onboarding_quick'));
     });
 
     test('disability_gap → /invalidite', () {
@@ -154,8 +168,7 @@ void main() {
     });
 
     test('portfolio_overview → /portfolio, decisionCanvas', () {
-      final entry =
-          MintScreenRegistry.findByIntentStatic('portfolio_overview');
+      final entry = MintScreenRegistry.findByIntentStatic('portfolio_overview');
       expect(entry, isNotNull);
       expect(entry!.route, equals('/portfolio'));
       expect(entry.behavior, equals(ScreenBehavior.decisionCanvas));
@@ -182,7 +195,9 @@ void main() {
       expect(entry!.preferFromChat, isFalse);
     });
 
-    test('financial_summary → /profile/bilan, captureUtility, preferFromChat true', () {
+    test(
+        'financial_summary → /profile/bilan, captureUtility, preferFromChat true',
+        () {
       final entry = MintScreenRegistry.findByIntentStatic('financial_summary');
       expect(entry, isNotNull);
       expect(entry!.route, equals('/profile/bilan'));
@@ -191,7 +206,8 @@ void main() {
       expect(entry.prefillFromProfile, isTrue);
     });
 
-    test('financial_report is explicit synthesis recap, not decision canvas', () {
+    test('financial_report is explicit synthesis recap, not decision canvas',
+        () {
       final entry = MintScreenRegistry.findByIntentStatic('financial_report');
       expect(entry, isNotNull);
       expect(entry!.route, equals('/rapport'));
@@ -215,7 +231,9 @@ void main() {
       expect(reportV2.prefillFromProfile, isFalse);
     });
 
-    test('confidence_dashboard → /confidence, directAnswer, preferFromChat true', () {
+    test(
+        'confidence_dashboard → /confidence, directAnswer, preferFromChat true',
+        () {
       final entry =
           MintScreenRegistry.findByIntentStatic('confidence_dashboard');
       expect(entry, isNotNull);
@@ -320,6 +338,17 @@ void main() {
           isNot(contains('financial_summary')));
     });
 
+    test('budget overview is a decision canvas, not an inline answer', () {
+      final directAnswers =
+          MintScreenRegistry.findByBehavior(ScreenBehavior.directAnswer);
+      final canvases =
+          MintScreenRegistry.findByBehavior(ScreenBehavior.decisionCanvas);
+
+      expect(canvases.map((e) => e.intentTag), contains('budget_overview'));
+      expect(directAnswers.map((e) => e.intentTag),
+          isNot(contains('budget_overview')));
+    });
+
     test('all entries in decisionCanvas have B behavior', () {
       final results =
           MintScreenRegistry.findByBehavior(ScreenBehavior.decisionCanvas);
@@ -398,13 +427,15 @@ void main() {
     test('key B surfaces are routable from chat', () {
       final routable = MintScreenRegistry.chatRoutable();
       final tags = routable.map((e) => e.intentTag).toSet();
-      expect(tags, containsAll([
-        'retirement_choice',
-        'simulator_3a',
-        'housing_purchase',
-        'disability_gap',
-        'withdrawal_sequencing',
-      ]));
+      expect(
+          tags,
+          containsAll([
+            'retirement_choice',
+            'simulator_3a',
+            'housing_purchase',
+            'disability_gap',
+            'withdrawal_sequencing',
+          ]));
     });
 
     test('all C surfaces are routable from chat', () {

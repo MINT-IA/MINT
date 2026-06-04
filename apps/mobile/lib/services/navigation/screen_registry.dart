@@ -359,7 +359,7 @@ class MintScreenRegistry extends ScreenRegistry {
   static const ScreenEntry _budgetOverview = ScreenEntry(
     route: '/budget',
     intentTag: 'budget_overview',
-    behavior: ScreenBehavior.directAnswer,
+    behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['netIncome'],
     optionalFields: ['depenses'],
     fallbackRoute: '/onboarding/quick',

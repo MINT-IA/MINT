@@ -185,14 +185,16 @@ void main() {
 
   group('RoutePlanner — unknown intent', () {
     test('unknown intent tag → conversationOnly', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('completely_unknown_intent');
       expect(decision.action, RouteAction.conversationOnly);
       expect(decision.route, isNull);
     });
 
     test('empty intent tag → conversationOnly', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('');
       expect(decision.action, RouteAction.conversationOnly);
     });
@@ -200,26 +202,30 @@ void main() {
 
   group('RoutePlanner — low confidence', () {
     test('confidence < 0.5 → conversationOnly regardless of intent', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('retirement_choice', confidence: 0.3);
       expect(decision.action, RouteAction.conversationOnly);
     });
 
     test('confidence == 0.0 → conversationOnly', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('budget_overview', confidence: 0.0);
       expect(decision.action, RouteAction.conversationOnly);
     });
 
     test('confidence exactly at threshold (0.5) proceeds to routing', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('budget_overview', confidence: 0.5);
       // Julien has salary set, so budget should open
       expect(decision.action, isNot(RouteAction.conversationOnly));
     });
 
     test('confidence > 0.5 proceeds to routing', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('retirement_choice', confidence: 0.9);
       expect(
         decision.action,
@@ -230,7 +236,8 @@ void main() {
 
   group('RoutePlanner — directAnswer behavior', () {
     test('directAnswer surface → conversationOnly (never navigates)', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('score_query', confidence: 0.9);
       expect(decision.action, RouteAction.conversationOnly);
     });
@@ -238,7 +245,8 @@ void main() {
 
   group('RoutePlanner — preferFromChat = false', () {
     test('document_scan not routable from chat → conversationOnly', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('document_scan', confidence: 0.95);
       expect(decision.action, RouteAction.conversationOnly);
     });
@@ -246,47 +254,65 @@ void main() {
 
   group('RoutePlanner — known intent + ready profile → openScreen', () {
     test('retirement_choice with full profile → openScreen', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('retirement_choice', confidence: 0.9);
       expect(decision.action, RouteAction.openScreen);
       expect(decision.route, '/rente-vs-capital');
     });
 
     test('openScreen decision sets correct route', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('retirement_choice', confidence: 0.85);
       expect(decision.route, '/rente-vs-capital');
     });
 
     test('openScreen provides prefill data from profile', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('retirement_choice', confidence: 0.9);
       expect(decision.prefill, isNotNull);
     });
 
     test('tax_optimization_3a with canton + age → openScreen', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('tax_optimization_3a', confidence: 0.8);
       expect(decision.action, RouteAction.openScreen);
       expect(decision.route, '/3a-deep/staggered-withdrawal');
     });
 
     test('life_event_birth (no required fields) → openScreen', () {
-      final planner = RoutePlanner(registry: registry, profile: _minimalProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _minimalProfile());
       final decision = planner.plan('life_event_birth', confidence: 0.9);
       expect(decision.action, RouteAction.openScreen);
       expect(decision.route, '/naissance');
     });
 
-    test('budget_overview with salary set → openScreen', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+    test('budget_overview with income set → openScreen', () {
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('budget_overview', confidence: 0.9);
       expect(decision.action, RouteAction.openScreen);
       expect(decision.route, '/budget');
     });
 
+    test('production budget_overview opens the budget screen', () {
+      final planner = RoutePlanner(
+        registry: const MintScreenRegistry(),
+        profile: _julienProfile(),
+      );
+      final decision = planner.plan('budget_overview', confidence: 0.9);
+
+      expect(decision.action, RouteAction.openScreen);
+      expect(decision.route, '/budget');
+    });
+
     test('financial_report stays in conversation from chat', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('financial_report', confidence: 0.9);
       expect(decision.action, RouteAction.conversationOnly);
       expect(decision.route, isNull);
@@ -294,7 +320,8 @@ void main() {
     });
 
     test('disability_gap with salary + employmentStatus → openScreen', () {
-      final planner = RoutePlanner(registry: registry, profile: _julienProfile());
+      final planner =
+          RoutePlanner(registry: registry, profile: _julienProfile());
       final decision = planner.plan('disability_gap', confidence: 0.8);
       expect(decision.action, RouteAction.openScreen);
       expect(decision.route, '/invalidite');
@@ -312,7 +339,8 @@ void main() {
       expect(decision.missingFields, contains('rachatMaximum'));
     });
 
-    test('retirement_choice without LPP data → openScreen (salary+age present)', () {
+    test('retirement_choice without LPP data → openScreen (salary+age present)',
+        () {
       // salary + age present; avoirLpp is optional → ready
       final profile = _partialProfile();
       final planner = RoutePlanner(registry: registry, profile: profile);
@@ -336,7 +364,7 @@ void main() {
       expect(decision.missingFields, contains('salaireBrut'));
     });
 
-    test('budget_overview without salary → redirects to fallbackRoute', () {
+    test('budget_overview without income → redirects to fallbackRoute', () {
       final profile = _minimalProfile();
       final planner = RoutePlanner(registry: registry, profile: profile);
       final decision = planner.plan('budget_overview', confidence: 0.9);
@@ -345,6 +373,19 @@ void main() {
       expect(decision.action, RouteAction.openWithWarning);
       expect(decision.route, '/onboarding/quick-start');
       expect(decision.missingFields, isNotEmpty);
+    });
+
+    test('production budget_overview without income uses production fallback',
+        () {
+      final planner = RoutePlanner(
+        registry: const MintScreenRegistry(),
+        profile: _minimalProfile(),
+      );
+      final decision = planner.plan('budget_overview', confidence: 0.9);
+
+      expect(decision.action, RouteAction.openWithWarning);
+      expect(decision.route, '/onboarding/quick');
+      expect(decision.missingFields, contains('netIncome'));
     });
 
     test('askFirst decision has no route', () {

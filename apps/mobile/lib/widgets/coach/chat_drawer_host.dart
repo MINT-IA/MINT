@@ -110,7 +110,6 @@ class ChatDrawerHost extends StatelessWidget {
       '/retraite': () => _lazyScreen('retirement_dashboard'),
       '/rente-vs-capital': () => _lazyScreen('retirement_dashboard'),
       '/fiscal': () => _lazyScreen('fiscal_comparator'),
-      '/budget': () => _lazyScreen('budget_container'),
       '/hypotheque': () => _lazyScreen('affordability'),
       '/confidence': () => _lazyScreen('score_reveal'),
     };

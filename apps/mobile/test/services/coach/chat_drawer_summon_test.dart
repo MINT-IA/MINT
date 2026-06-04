@@ -28,11 +28,9 @@ void main() {
           (widget as Container).key, const ValueKey('drawer_retirement_dashboard'));
     });
 
-    test('resolves /budget to a widget', () {
+    test('does not resolve /budget to a drawer placeholder', () {
       final widget = ChatDrawerHost.resolveDrawerWidget('/budget');
-      expect(widget, isNotNull);
-      expect(
-          (widget as Container).key, const ValueKey('drawer_budget_container'));
+      expect(widget, isNull);
     });
 
     test('returns null for unknown route', () {
