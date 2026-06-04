@@ -182,12 +182,13 @@ void main() {
       expect(entry!.preferFromChat, isFalse);
     });
 
-    test('financial_summary → /profile/bilan, decisionCanvas, preferFromChat true', () {
+    test('financial_summary → /profile/bilan, captureUtility, preferFromChat true', () {
       final entry = MintScreenRegistry.findByIntentStatic('financial_summary');
       expect(entry, isNotNull);
       expect(entry!.route, equals('/profile/bilan'));
-      expect(entry.behavior, equals(ScreenBehavior.decisionCanvas));
+      expect(entry.behavior, equals(ScreenBehavior.captureUtility));
       expect(entry.preferFromChat, isTrue);
+      expect(entry.prefillFromProfile, isTrue);
     });
 
     test('financial_report is explicit synthesis recap, not decision canvas', () {
@@ -306,6 +307,17 @@ void main() {
       expect(recap.map((e) => e.intentTag), contains('financial_report'));
       expect(canvases.map((e) => e.intentTag),
           isNot(contains('financial_report')));
+    });
+
+    test('profile dossier is capture utility, not a decision canvas', () {
+      final capture =
+          MintScreenRegistry.findByBehavior(ScreenBehavior.captureUtility);
+      final canvases =
+          MintScreenRegistry.findByBehavior(ScreenBehavior.decisionCanvas);
+
+      expect(capture.map((e) => e.intentTag), contains('financial_summary'));
+      expect(canvases.map((e) => e.intentTag),
+          isNot(contains('financial_summary')));
     });
 
     test('all entries in decisionCanvas have B behavior', () {

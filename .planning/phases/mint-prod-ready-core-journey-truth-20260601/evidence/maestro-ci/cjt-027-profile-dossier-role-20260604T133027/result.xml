@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="0" time="33.0">
+    <testcase id="flow_drawer_navigation_smoke" name="flow_drawer_navigation_smoke" classname="flow_drawer_navigation_smoke" time="33.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="drawer, navigation, smoke, regression-guard, anon"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1406,14 +1406,14 @@ class MintScreenRegistry extends ScreenRegistry {
 
   // ── Surface deduplication (S52) ──────────────────────────────
 
-  /// Financial Summary — canonical view of the user's balance sheet.
+  /// Financial Summary — profile dossier facts and provenance.
   ///
-  /// Behavior B: opens /profile/bilan as a decision canvas. Preferred from
-  /// chat so the Coach can surface a full patrimoine overview on request.
+  /// Behavior D: opens /profile/bilan as a profile/dossier surface. Preferred
+  /// from chat so the Coach can surface known facts and correction paths.
   static const ScreenEntry _financialSummary = ScreenEntry(
     route: '/profile/bilan',
     intentTag: 'financial_summary',
-    behavior: ScreenBehavior.decisionCanvas,
+    behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
     optionalFields: ['salaireBrut', 'age', 'canton'],
     preferFromChat: true,
