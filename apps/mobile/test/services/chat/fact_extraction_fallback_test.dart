@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
+import 'package:mint_mobile/services/data_spine/coach_context_packet_service.dart';
+import 'package:mint_mobile/services/data_spine/data_spine_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -312,6 +314,38 @@ void main() {
       expect(loaded['q_total_debt_balance_chf'], 9000);
       expect(p.profile, isNotNull);
       expect(p.profile!.dettes.totalDettes, 9000);
+    });
+
+    test('save_fact income survives reload and feeds coach context packet',
+        () async {
+      installSecureStore();
+      final writer = CoachProfileProvider();
+
+      expect(await writer.applySaveFact('incomeNetMonthly', 7600), isTrue);
+      expect(await writer.applySaveFact('totalDebt', 9000), isTrue);
+
+      final persisted = await ReportPersistenceService.loadAnswers();
+      expect(persisted['q_net_income_period_chf'], 7600);
+      expect(persisted['q_pay_frequency'], 'monthly');
+      expect(persisted['q_total_debt_balance_chf'], 9000);
+
+      final reloaded = CoachProfileProvider();
+      await reloaded.loadFromWizard();
+
+      expect(reloaded.profile, isNotNull);
+      expect(reloaded.profile!.explicitMonthlyNetIncome, 7600);
+      expect(reloaded.profile!.dettes.totalDettes, 9000);
+
+      final spine = DataSpineService.fromProfile(
+        reloaded.profile!,
+        now: DateTime.utc(2026, 6, 4),
+      );
+      final packet = CoachContextPacketService.fromSpine(spine);
+      final facts = {for (final fact in packet.facts) fact.id: fact.value};
+
+      expect(facts['budget.monthly_net'], 7600);
+      expect(facts['situation.total_debt'], 9000);
+      expect(packet.toSafeMap().toString(), isNot(contains('wizard_answers')));
     });
 
     test('missing-only merge preserves fresher local truth', () async {

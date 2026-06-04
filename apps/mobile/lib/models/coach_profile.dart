@@ -3251,6 +3251,7 @@ class CoachProfile {
           ProfileDataSource.userInput;
     }
     if (answers.containsKey('q_has_consumer_debt') ||
+        answers.containsKey('q_total_debt_balance_chf') ||
         answers.containsKey('q_debt_payments_period_chf') ||
         answers.containsKey('_coach_dettes_credit') ||
         answers.containsKey('_coach_dettes_leasing') ||
