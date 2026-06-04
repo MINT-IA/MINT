@@ -253,4 +253,147 @@ void main() {
       expect(restored.stepOutputs, isNull);
     });
   });
+
+  group('ScreenCompletionTracker — replayLatestReturn', () {
+    test('latestReturn reads latest non-sequence return after cutoff',
+        () async {
+      final prefs = await SharedPreferences.getInstance();
+      await ScreenCompletionTracker.markCompletedWithReturn(
+        'rente_vs_capital',
+        const ScreenReturn.completed(
+          route: '/rente-vs-capital',
+          updatedFields: {'retirementMode': 'estimate'},
+        ),
+        prefs: prefs,
+        now: DateTime(2026, 6, 5, 10),
+      );
+
+      final latest = await ScreenCompletionTracker.latestReturn(
+        after: DateTime(2026, 6, 5, 9, 59),
+        prefs: prefs,
+      );
+
+      expect(latest, isNotNull);
+      expect(latest!.route, '/rente-vs-capital');
+      expect(latest.updatedFields?['retirementMode'], 'estimate');
+    });
+
+    test('consumeLatestReturn clears only the latest replay slot', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await ScreenCompletionTracker.markCompletedWithReturn(
+        'rente_vs_capital',
+        const ScreenReturn.completed(route: '/rente-vs-capital'),
+        prefs: prefs,
+        now: DateTime(2026, 6, 5, 10),
+      );
+
+      final consumed = await ScreenCompletionTracker.consumeLatestReturn(
+        after: DateTime(2026, 6, 5, 9, 59),
+        prefs: prefs,
+      );
+      final consumedAgain = await ScreenCompletionTracker.consumeLatestReturn(
+        after: DateTime(2026, 6, 5, 9, 59),
+        prefs: prefs,
+      );
+      final perScreen = await ScreenCompletionTracker.lastReturn(
+        'rente_vs_capital',
+        prefs: prefs,
+      );
+
+      expect(consumed, isNotNull);
+      expect(consumed!.route, '/rente-vs-capital');
+      expect(consumedAgain, isNull);
+      expect(perScreen, isNotNull);
+      expect(perScreen!.route, '/rente-vs-capital');
+    });
+
+    test('replays latest non-sequence return for matching recent route',
+        () async {
+      final prefs = await SharedPreferences.getInstance();
+      await ScreenCompletionTracker.markCompletedWithReturn(
+        'budget',
+        const ScreenReturn.completed(
+          route: '/budget',
+          updatedFields: {'budgetMode': 'monthly'},
+        ),
+        prefs: prefs,
+        now: DateTime(2026, 6, 5, 10),
+      );
+
+      final events = <ScreenReturn>[];
+      final sub = ScreenCompletionTracker.stream.listen(events.add);
+
+      final replayed = await ScreenCompletionTracker.replayLatestReturn(
+        route: '/budget',
+        after: DateTime(2026, 6, 5, 9, 59),
+        prefs: prefs,
+      );
+      await Future<void>.delayed(Duration.zero);
+      await sub.cancel();
+
+      expect(replayed, isTrue);
+      expect(events, hasLength(1));
+      expect(events.single.route, '/budget');
+      expect(events.single.updatedFields?['budgetMode'], 'monthly');
+    });
+
+    test('does not replay a stale return', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await ScreenCompletionTracker.markCompletedWithReturn(
+        'budget',
+        const ScreenReturn.completed(route: '/budget'),
+        prefs: prefs,
+        now: DateTime(2026, 6, 5, 10),
+      );
+
+      final replayed = await ScreenCompletionTracker.replayLatestReturn(
+        route: '/budget',
+        after: DateTime(2026, 6, 5, 10, 1),
+        prefs: prefs,
+      );
+
+      expect(replayed, isFalse);
+    });
+
+    test('does not replay a return for another route', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await ScreenCompletionTracker.markCompletedWithReturn(
+        'budget',
+        const ScreenReturn.completed(route: '/budget'),
+        prefs: prefs,
+        now: DateTime(2026, 6, 5, 10),
+      );
+
+      final replayed = await ScreenCompletionTracker.replayLatestReturn(
+        route: '/rente-vs-capital',
+        after: DateTime(2026, 6, 5, 9, 59),
+        prefs: prefs,
+      );
+
+      expect(replayed, isFalse);
+    });
+
+    test('does not replay sequence-owned returns', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await ScreenCompletionTracker.markCompletedWithReturn(
+        'affordability',
+        const ScreenReturn.completed(
+          route: '/hypotheque',
+          runId: 'housing_123',
+          stepId: 'housing_01_affordability',
+          eventId: 'evt_housing_123',
+        ),
+        prefs: prefs,
+        now: DateTime(2026, 6, 5, 10),
+      );
+
+      final replayed = await ScreenCompletionTracker.replayLatestReturn(
+        route: '/hypotheque',
+        after: DateTime(2026, 6, 5, 9, 59),
+        prefs: prefs,
+      );
+
+      expect(replayed, isFalse);
+    });
+  });
 }

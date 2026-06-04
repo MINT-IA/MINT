@@ -15,6 +15,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/services/sequence/sequence_chat_handler.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -163,7 +164,7 @@ class RouteSuggestionCard extends StatelessWidget {
             // dart format off
             child: FilledButton(
               // lint-ignore: prefer_mint_cta
-              onPressed: () {
+              onPressed: () async {
                 // Phase 54-02 T-05 — single 500 ms debounce across all
                 // RouteSuggestionCard taps + LLM-emitted route_to_screen
                 // dispatch. Drop the duplicate without side-effects so
@@ -179,7 +180,13 @@ class RouteSuggestionCard extends StatelessWidget {
                 if (intentTag != null && intentTag!.isNotEmpty) {
                   unawaited(SequenceChatHandler.startSequence(intentTag!));
                 }
-                context.push(route, extra: _routeExtra());
+                final pushedAt = DateTime.now();
+                await context.push(route, extra: _routeExtra());
+                await Future<void>.delayed(const Duration(milliseconds: 16));
+                await ScreenCompletionTracker.replayLatestReturn(
+                  route: route,
+                  after: pushedAt,
+                );
               },
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,

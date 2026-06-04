@@ -222,6 +222,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Extra context from CoachEntryPayload, injected into the system prompt.
   /// One-shot: cleared after first use.
   String? _entryPayloadContext;
+  late final DateTime _screenReturnHydrationCutoff;
 
   /// ARB chip key from onboarding intent selection (e.g. 'intentChip3a').
   /// Set in _loadOnboardingPayload. Consumed once in _addInitialGreeting.
@@ -238,6 +239,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   @override
   void initState() {
     super.initState();
+    _screenReturnHydrationCutoff = DateTime.now();
     // Bug fix: use provided conversationId when resuming, else generate unique ID.
     _conversationId = widget.conversationId ??
         '${DateTime.now().millisecondsSinceEpoch}_${DateTime.now().microsecond}';
@@ -515,16 +517,26 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         debugPrint('[coach_chat] sequence dispatch fallback: $e');
       }
 
-      // Inject the screen return as context for the next coach response.
-      final fields = screenReturn.updatedFields;
-      final fieldSummary = fields != null && fields.isNotEmpty
-          ? fields.entries.map((e) => '${e.key}: ${e.value}').join(', ')
-          : '';
-      final contextLine = "L'utilisateur vient de terminer une simulation "
-          "(${screenReturn.route}, r\u00e9sultat\u00a0: ${screenReturn.outcome.name})"
-          "${fieldSummary.isNotEmpty ? '. Donn\u00e9es mises \u00e0 jour\u00a0: $fieldSummary' : ''}.";
-      _entryPayloadContext = contextLine;
+      _entryPayloadContext = _screenReturnContextLine(screenReturn);
     });
+  }
+
+  Future<void> _hydrateLatestScreenReturnForNextRequest() async {
+    final screenReturn = await ScreenCompletionTracker.consumeLatestReturn(
+      after: _screenReturnHydrationCutoff,
+    );
+    if (screenReturn == null) return;
+    _entryPayloadContext = _screenReturnContextLine(screenReturn);
+  }
+
+  String _screenReturnContextLine(ScreenReturn screenReturn) {
+    final fields = screenReturn.updatedFields;
+    final fieldSummary = fields != null && fields.isNotEmpty
+        ? fields.entries.map((e) => '${e.key}: ${e.value}').join(', ')
+        : '';
+    return "L'utilisateur vient de terminer une simulation "
+        "(${screenReturn.route}, r\u00e9sultat\u00a0: ${screenReturn.outcome.name})"
+        "${fieldSummary.isNotEmpty ? '. Donn\u00e9es mises \u00e0 jour\u00a0: $fieldSummary' : ''}.";
   }
 
   // Phase 53-02 \u2014 inject the sequence's next-step prompt as a coach
@@ -1110,6 +1122,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // Mounted gate after the await above (use_build_context_synchronously) —
     // if the widget unmounted during the 2s timeout, abort before any
     // further `context.read` / `context.go`.
+    if (!mounted) return;
+
+    await _hydrateLatestScreenReturnForNextRequest();
     if (!mounted) return;
 
     // Wire Spec V2: append entry payload context if present (one-shot).

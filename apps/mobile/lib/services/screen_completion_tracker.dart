@@ -24,6 +24,7 @@ import 'package:mint_mobile/models/screen_return.dart';
 
 /// Storage key prefix for all screen completion entries.
 const _kPrefix = 'screen_return_';
+const _kLatestReturnKey = 'screen_return_latest';
 
 /// ScreenCompletionTracker — centralized tracker for screen-level outcomes.
 ///
@@ -167,37 +168,95 @@ class ScreenCompletionTracker {
       final raw = p.getString('$_kPrefix$screenId');
       if (raw == null) return null;
       final map = jsonDecode(raw) as Map<String, dynamic>;
-      final outcome = _outcomeFromString(map['outcome'] as String?);
-      if (outcome == null) return null;
-      final route = map['route'] as String? ?? '';
-      final confidenceDelta = (map['confidenceDelta'] as num?)?.toDouble();
-      final nextCap = map['nextCapSuggestion'] as String?;
-      final updatedFieldsRaw = map['updatedFields'];
-      Map<String, dynamic>? updatedFields;
-      if (updatedFieldsRaw is Map) {
-        updatedFields = Map<String, dynamic>.from(updatedFieldsRaw);
-      }
-      // Rehydrate stepOutputs if present.
-      final stepOutputsRaw = map['stepOutputs'];
-      Map<String, dynamic>? stepOutputs;
-      if (stepOutputsRaw is Map) {
-        stepOutputs = Map<String, dynamic>.from(stepOutputsRaw);
-      }
-
-      return ScreenReturn(
-        route: route,
-        outcome: outcome,
-        updatedFields: updatedFields,
-        confidenceDelta: confidenceDelta,
-        nextCapSuggestion: nextCap,
-        stepOutputs: stepOutputs,
-        runId: map['runId'] as String?,
-        stepId: map['stepId'] as String?,
-        eventId: map['eventId'] as String?,
-      );
+      return _returnFromMap(map);
     } catch (_) {
       return null;
     }
+  }
+
+  /// Replay the latest full [ScreenReturn] if it matches the route and recency.
+  ///
+  /// Used after a coach-originated navigation returns to the chat. Some router
+  /// stacks unmount or pause the previous route, so the realtime broadcast can
+  /// be missed even though the screen persisted the return. This method bridges
+  /// that gap without replaying stale or sequence-owned events.
+  static Future<bool> replayLatestReturn({
+    required String route,
+    DateTime? after,
+    SharedPreferences? prefs,
+  }) async {
+    try {
+      final p = prefs ?? await SharedPreferences.getInstance();
+      final raw = p.getString(_kLatestReturnKey);
+      if (raw == null) return false;
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      if (map['route'] != route) return false;
+
+      if (after != null) {
+        final timestamp = map['timestamp'] as String?;
+        if (timestamp == null) return false;
+        final parsed = DateTime.tryParse(timestamp);
+        if (parsed == null || parsed.isBefore(after)) return false;
+      }
+
+      final screenReturn = _returnFromMap(map);
+      if (screenReturn == null || screenReturn.hasSequenceId) return false;
+      if (_controller.isClosed) return false;
+      _controller.add(screenReturn);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Return the latest persisted full [ScreenReturn], optionally bounded by
+  /// time and excluding sequence-owned events.
+  static Future<ScreenReturn?> latestReturn({
+    DateTime? after,
+    bool nonSequenceOnly = true,
+    SharedPreferences? prefs,
+  }) async {
+    try {
+      final p = prefs ?? await SharedPreferences.getInstance();
+      final raw = p.getString(_kLatestReturnKey);
+      if (raw == null) return null;
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+
+      if (after != null) {
+        final timestamp = map['timestamp'] as String?;
+        if (timestamp == null) return null;
+        final parsed = DateTime.tryParse(timestamp);
+        if (parsed == null || parsed.isBefore(after)) return null;
+      }
+
+      final screenReturn = _returnFromMap(map);
+      if (screenReturn == null) return null;
+      if (nonSequenceOnly && screenReturn.hasSequenceId) return null;
+      return screenReturn;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Return and clear the latest persisted full [ScreenReturn].
+  ///
+  /// This is for one-shot context hydration into Coach. Per-screen history
+  /// remains stored under its normal `screen_return_<screenId>` key.
+  static Future<ScreenReturn?> consumeLatestReturn({
+    DateTime? after,
+    bool nonSequenceOnly = true,
+    SharedPreferences? prefs,
+  }) async {
+    final p = prefs ?? await SharedPreferences.getInstance();
+    final screenReturn = await latestReturn(
+      after: after,
+      nonSequenceOnly: nonSequenceOnly,
+      prefs: p,
+    );
+    if (screenReturn != null) {
+      await p.remove(_kLatestReturnKey);
+    }
+    return screenReturn;
   }
 
   static Future<void> _write(
@@ -231,29 +290,64 @@ class ScreenCompletionTracker {
     try {
       final timestamp = (now ?? DateTime.now()).toIso8601String();
       final p = prefs ?? await SharedPreferences.getInstance();
-      await p.setString(
-        '$_kPrefix$screenId',
-        jsonEncode({
-          'outcome': _outcomeToString(screenReturn.outcome),
-          'timestamp': timestamp,
-          'screenId': screenId,
-          'route': screenReturn.route,
-          if (screenReturn.updatedFields != null)
-            'updatedFields': screenReturn.updatedFields,
-          if (screenReturn.confidenceDelta != null)
-            'confidenceDelta': screenReturn.confidenceDelta,
-          if (screenReturn.nextCapSuggestion != null)
-            'nextCapSuggestion': screenReturn.nextCapSuggestion,
-          if (screenReturn.stepOutputs != null)
-            'stepOutputs': screenReturn.stepOutputs,
-          if (screenReturn.runId != null) 'runId': screenReturn.runId,
-          if (screenReturn.stepId != null) 'stepId': screenReturn.stepId,
-          if (screenReturn.eventId != null) 'eventId': screenReturn.eventId,
-        }),
+      final encoded = jsonEncode(
+        _mapForReturn(screenId, screenReturn, timestamp),
       );
+      await p.setString('$_kPrefix$screenId', encoded);
+      await p.setString(_kLatestReturnKey, encoded);
     } catch (_) {
       // Non-critical — silently ignore storage failures.
     }
+  }
+
+  static Map<String, dynamic> _mapForReturn(
+    String screenId,
+    ScreenReturn screenReturn,
+    String timestamp,
+  ) =>
+      {
+        'outcome': _outcomeToString(screenReturn.outcome),
+        'timestamp': timestamp,
+        'screenId': screenId,
+        'route': screenReturn.route,
+        if (screenReturn.updatedFields != null)
+          'updatedFields': screenReturn.updatedFields,
+        if (screenReturn.confidenceDelta != null)
+          'confidenceDelta': screenReturn.confidenceDelta,
+        if (screenReturn.nextCapSuggestion != null)
+          'nextCapSuggestion': screenReturn.nextCapSuggestion,
+        if (screenReturn.stepOutputs != null)
+          'stepOutputs': screenReturn.stepOutputs,
+        if (screenReturn.runId != null) 'runId': screenReturn.runId,
+        if (screenReturn.stepId != null) 'stepId': screenReturn.stepId,
+        if (screenReturn.eventId != null) 'eventId': screenReturn.eventId,
+      };
+
+  static ScreenReturn? _returnFromMap(Map<String, dynamic> map) {
+    final outcome = _outcomeFromString(map['outcome'] as String?);
+    if (outcome == null) return null;
+    final updatedFieldsRaw = map['updatedFields'];
+    Map<String, dynamic>? updatedFields;
+    if (updatedFieldsRaw is Map) {
+      updatedFields = Map<String, dynamic>.from(updatedFieldsRaw);
+    }
+    final stepOutputsRaw = map['stepOutputs'];
+    Map<String, dynamic>? stepOutputs;
+    if (stepOutputsRaw is Map) {
+      stepOutputs = Map<String, dynamic>.from(stepOutputsRaw);
+    }
+
+    return ScreenReturn(
+      route: map['route'] as String? ?? '',
+      outcome: outcome,
+      updatedFields: updatedFields,
+      confidenceDelta: (map['confidenceDelta'] as num?)?.toDouble(),
+      nextCapSuggestion: map['nextCapSuggestion'] as String?,
+      stepOutputs: stepOutputs,
+      runId: map['runId'] as String?,
+      stepId: map['stepId'] as String?,
+      eventId: map['eventId'] as String?,
+    );
   }
 
   static String _outcomeToString(ScreenOutcome outcome) {

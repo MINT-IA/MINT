@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
@@ -727,6 +728,164 @@ void main() {
         capturedMemoryBlock,
         contains("L'utilisateur vient de terminer une simulation"),
       );
+      expect(capturedMemoryBlock, contains('/rente-vs-capital'));
+      expect(capturedMemoryBlock, contains('retirementMode: estimate'));
+    });
+
+    testWidgets(
+        'carries context from route suggestion tap through simulator return into next coach request',
+        (tester) async {
+      usePhoneViewport(tester);
+      RouteSuggestionNavLock.resetForTest();
+      final previousHardGate = FeatureFlags.enableCoachHardGate;
+      FeatureFlags.enableCoachHardGate = false;
+      String? capturedMemoryBlock;
+      addTearDown(() {
+        FeatureFlags.enableCoachHardGate = previousHardGate;
+        CoachLlmService.registerOrchestrator(CoachOrchestrator.generateChat);
+      });
+
+      CoachLlmService.registerOrchestrator(({
+        required userMessage,
+        required history,
+        required ctx,
+        byokConfig,
+        memoryBlock,
+        language = 'fr',
+        cashLevel = 3,
+        isLoggedIn = false,
+      }) async {
+        if (userMessage == 'Rente ou capital ?') {
+          return const CoachResponse(
+            message: 'Ouvre le bon outil pour comparer.',
+            disclaimer: 'Outil educatif.',
+            toolCalls: [
+              RagToolCall(
+                name: 'route_to_screen',
+                input: {
+                  'intent': 'retirement_choice',
+                  'confidence': 0.9,
+                  'context_message':
+                      'Compare la rente et le capital avec tes donnees.',
+                },
+              ),
+            ],
+          );
+        }
+
+        capturedMemoryBlock = memoryBlock;
+        return const CoachResponse(
+          message: 'Je tiens compte de la simulation.',
+          disclaimer: 'Outil educatif.',
+        );
+      });
+
+      final profileProvider = buildProfileProvider();
+      final mintState = buildMintStateForTest(profileProvider.profile!);
+      late final GoRouter router;
+      router = GoRouter(
+        initialLocation: '/coach',
+        routes: [
+          GoRoute(
+            path: '/coach',
+            builder: (context, state) => CoachChatScreen(
+              contextBuilder: ({
+                profile,
+                prefs,
+                now,
+                mintState,
+              }) async {
+                return const EnrichedContext(
+                  memoryBlock: 'TEST CONTEXT',
+                  conversationMemory: ConversationMemory.empty,
+                  activeGoalsCount: 0,
+                );
+              },
+            ),
+          ),
+          GoRoute(
+            path: '/rente-vs-capital',
+            builder: (context, state) => Scaffold(
+              body: Center(
+                child: TextButton(
+                  key: const Key('fake_rente_vs_capital_complete'),
+                  onPressed: () async {
+                    await ScreenCompletionTracker.markCompletedWithReturn(
+                      'rente_vs_capital',
+                      const ScreenReturn.completed(
+                        route: '/rente-vs-capital',
+                        updatedFields: {'retirementMode': 'estimate'},
+                        confidenceDelta: 0.02,
+                      ),
+                    );
+                    if (context.canPop()) context.pop();
+                  },
+                  child: const Text('Terminer la simulation'),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: profileProvider),
+            ChangeNotifierProvider(create: (_) => ByokProvider()),
+            ChangeNotifierProvider.value(
+              value: MintStateProvider()..injectStateForTest(mintState),
+            ),
+            ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ],
+          child: MaterialApp.router(
+            routerConfig: router,
+            locale: const Locale('fr'),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+          ),
+        ),
+      );
+      await pumpUntilGreeting(tester);
+
+      await tester.enterText(find.byType(TextField), 'Rente ou capital ?');
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byType(RouteSuggestionCard), findsOneWidget);
+      final routeCard = tester.widget<RouteSuggestionCard>(
+        find.byType(RouteSuggestionCard),
+      );
+      expect(routeCard.route, '/rente-vs-capital');
+      final routeButton = find.descendant(
+        of: find.byType(RouteSuggestionCard),
+        matching: find.byType(FilledButton),
+      );
+      await tester.ensureVisible(routeButton);
+      await tester.tap(routeButton);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.byKey(const Key('fake_rente_vs_capital_complete')),
+          findsOneWidget);
+      await tester.tap(find.byKey(const Key('fake_rente_vs_capital_complete')));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      await tester.enterText(find.byType(TextField), 'Et maintenant ?');
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(capturedMemoryBlock, isNotNull);
+      expect(capturedMemoryBlock, contains('TEST CONTEXT'));
       expect(capturedMemoryBlock, contains('/rente-vs-capital'));
       expect(capturedMemoryBlock, contains('retirementMode: estimate'));
     });
