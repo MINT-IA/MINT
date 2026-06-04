@@ -6023,10 +6023,10 @@ class SDe extends S {
   String get renteVsCapitalRenteLabel => 'Rente';
 
   @override
-  String get renteVsCapitalCapitalLabel => 'Capital';
+  String get renteVsCapitalCapitalLabel => 'Kapital';
 
   @override
-  String get renteVsCapitalMixteLabel => 'Mixte';
+  String get renteVsCapitalMixteLabel => 'Gemischt';
 
   @override
   String get renteVsCapitalAge => 'Dein Alter';
@@ -6056,7 +6056,7 @@ class SDe extends S {
   String get renteVsCapitalTcSurob => 'Überoblig. Umwandlungssatz (%)';
 
   @override
-  String get renteVsCapitalCanton => 'Canton';
+  String get renteVsCapitalCanton => 'Kanton';
 
   @override
   String get renteVsCapitalMarried => 'Verheiratet';
@@ -6070,11 +6070,11 @@ class SDe extends S {
   }
 
   @override
-  String get renteVsCapitalPerMonth => '/mois';
+  String get renteVsCapitalPerMonth => '/Monat';
 
   @override
   String renteVsCapitalAvsAmount(String amount) {
-    return '~$amount/mois';
+    return '~$amount/Monat';
   }
 
   @override
@@ -6093,7 +6093,7 @@ class SDe extends S {
       'Kapital (grün): Was nach deinen Bezügen übrig bleibt. Rente (blau): Total erhalten seit Beginn. Der Schnittpunkt = das Alter, ab dem die Rente mehr eingebracht hat.';
 
   @override
-  String get renteVsCapitalChartAxisLabel => 'Âge';
+  String get renteVsCapitalChartAxisLabel => 'Alter';
 
   @override
   String renteVsCapitalBeyondHorizon(int age) {
@@ -6102,11 +6102,11 @@ class SDe extends S {
 
   @override
   String renteVsCapitalDeltaAtAge(int age) {
-    return 'À $age ans : ';
+    return 'Mit $age Jahren: ';
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'd\'avance';
+  String get renteVsCapitalDeltaAdvance => 'Vorsprung';
 
   @override
   String get renteVsCapitalEducationalTitle => 'Was sich konkret ändert';
@@ -6121,7 +6121,7 @@ class SDe extends S {
   String get renteVsCapitalFiscalRightSubtitle => 'Nur einmal besteuert';
 
   @override
-  String get renteVsCapitalFiscalOver30years => 'sur 30 ans';
+  String get renteVsCapitalFiscalOver30years => 'über 30 Jahre';
 
   @override
   String get renteVsCapitalFiscalAtRetrait => 'beim Bezug (DBG Art. 38)';
@@ -6140,10 +6140,10 @@ class SDe extends S {
   String get renteVsCapitalInflationTitle => 'Inflation';
 
   @override
-  String get renteVsCapitalInflationToday => 'Aujourd\'hui';
+  String get renteVsCapitalInflationToday => 'Heute';
 
   @override
-  String get renteVsCapitalInflationIn20Years => 'Dans 20 ans';
+  String get renteVsCapitalInflationIn20Years => 'In 20 Jahren';
 
   @override
   String get renteVsCapitalInflationPurchasingPower => 'Kaufkraft';
@@ -6154,7 +6154,7 @@ class SDe extends S {
   }
 
   @override
-  String get renteVsCapitalTransmissionTitle => 'Transmission';
+  String get renteVsCapitalTransmissionTitle => 'Vererbung';
 
   @override
   String get renteVsCapitalTransmissionLeftMarried =>
@@ -6169,7 +6169,7 @@ class SDe extends S {
   }
 
   @override
-  String get renteVsCapitalTransmissionLeftValueSingle => 'Rien';
+  String get renteVsCapitalTransmissionLeftValueSingle => 'Nichts';
 
   @override
   String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 19';
@@ -6226,7 +6226,7 @@ class SDe extends S {
   String get renteVsCapitalHypothesesTitle => 'Annahmen dieser Simulation';
 
   @override
-  String get renteVsCapitalWarning => 'Avertissement';
+  String get renteVsCapitalWarning => 'Hinweis';
 
   @override
   String renteVsCapitalSources(String sources) {

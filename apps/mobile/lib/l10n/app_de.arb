@@ -2868,8 +2868,8 @@
   "dataBlockDefaultCta": "Ergänzen",
   "renteVsCapitalAppBarTitle": "Rente oder Kapital: deine Entscheidung",
   "renteVsCapitalRenteLabel": "Rente",
-  "renteVsCapitalCapitalLabel": "Capital",
-  "renteVsCapitalMixteLabel": "Mixte",
+  "renteVsCapitalCapitalLabel": "Kapital",
+  "renteVsCapitalMixteLabel": "Gemischt",
   "renteVsCapitalAge": "Dein Alter",
   "renteVsCapitalSalary": "Dein jährliches Bruttoeinkommen (CHF)",
   "renteVsCapitalLppTotal": "Dein aktuelles BVG-Guthaben (CHF)",
@@ -2878,7 +2878,7 @@
   "renteVsCapitalRenteProposed": "Vorgeschlagene Jahresrente (Vorsorgeausweis)",
   "renteVsCapitalTcOblig": "Oblig. Umwandlungssatz (%)",
   "renteVsCapitalTcSurob": "Überoblig. Umwandlungssatz (%)",
-  "renteVsCapitalCanton": "Canton",
+  "renteVsCapitalCanton": "Kanton",
   "renteVsCapitalMarried": "Verheiratet",
   "renteVsCapitalRetirementAge": "Geplante Pensionierung mit",
   "renteVsCapitalAgeYears": "{age} Jahre",
@@ -2889,8 +2889,8 @@
       }
     }
   },
-  "renteVsCapitalPerMonth": "/mois",
-  "renteVsCapitalAvsAmount": "~{amount}/mois",
+  "renteVsCapitalPerMonth": "/Monat",
+  "renteVsCapitalAvsAmount": "~{amount}/Monat",
   "@renteVsCapitalAvsAmount": {
     "placeholders": {
       "amount": {
@@ -2902,7 +2902,7 @@
   "renteVsCapitalLifeExpectancyRef": "Schweizer Lebenserwartung: Männer 84 Jahre · Frauen 87 Jahre",
   "renteVsCapitalChartTitle": "Restkapital vs kumulierte Renteneinnahmen",
   "renteVsCapitalChartSubtitle": "Kapital (grün): Was nach deinen Bezügen übrig bleibt. Rente (blau): Total erhalten seit Beginn. Der Schnittpunkt = das Alter, ab dem die Rente mehr eingebracht hat.",
-  "renteVsCapitalChartAxisLabel": "Âge",
+  "renteVsCapitalChartAxisLabel": "Alter",
   "renteVsCapitalBeyondHorizon": "Mit {age} Jahren: Jenseits des Simulationshorizonts.",
   "@renteVsCapitalBeyondHorizon": {
     "placeholders": {
@@ -2911,7 +2911,7 @@
       }
     }
   },
-  "renteVsCapitalDeltaAtAge": "À {age} ans : ",
+  "renteVsCapitalDeltaAtAge": "Mit {age} Jahren: ",
   "@renteVsCapitalDeltaAtAge": {
     "placeholders": {
       "age": {
@@ -2919,12 +2919,12 @@
       }
     }
   },
-  "renteVsCapitalDeltaAdvance": "d'avance",
+  "renteVsCapitalDeltaAdvance": "Vorsprung",
   "renteVsCapitalEducationalTitle": "Was sich konkret ändert",
   "renteVsCapitalFiscalTitle": "Besteuerung",
   "renteVsCapitalFiscalLeftSubtitle": "Jährlich besteuert",
   "renteVsCapitalFiscalRightSubtitle": "Nur einmal besteuert",
-  "renteVsCapitalFiscalOver30years": "sur 30 ans",
+  "renteVsCapitalFiscalOver30years": "über 30 Jahre",
   "renteVsCapitalFiscalAtRetrait": "beim Bezug (DBG Art. 38)",
   "renteVsCapitalFiscalCapitalSaves": "Über 30 Jahre verändert das Kapitalszenario die geschätzte Steuer um etwa {amount}.",
   "@renteVsCapitalFiscalCapitalSaves": {
@@ -2943,8 +2943,8 @@
     }
   },
   "renteVsCapitalInflationTitle": "Inflation",
-  "renteVsCapitalInflationToday": "Aujourd'hui",
-  "renteVsCapitalInflationIn20Years": "Dans 20 ans",
+  "renteVsCapitalInflationToday": "Heute",
+  "renteVsCapitalInflationIn20Years": "In 20 Jahren",
   "renteVsCapitalInflationPurchasingPower": "Kaufkraft",
   "renteVsCapitalInflationBottomText": "Deine BVG-Rente ist nicht indexiert. Sie kauft in 20 Jahren {percent} % weniger.",
   "@renteVsCapitalInflationBottomText": {
@@ -2954,7 +2954,7 @@
       }
     }
   },
-  "renteVsCapitalTransmissionTitle": "Transmission",
+  "renteVsCapitalTransmissionTitle": "Vererbung",
   "renteVsCapitalTransmissionLeftMarried": "Dein·e Ehepartner·in erhält",
   "renteVsCapitalTransmissionLeftSingle": "Bei deinem Tod",
   "renteVsCapitalTransmissionLeftValueMarried": "60 % = {amount}/Monat",
@@ -2965,7 +2965,7 @@
       }
     }
   },
-  "renteVsCapitalTransmissionLeftValueSingle": "Rien",
+  "renteVsCapitalTransmissionLeftValueSingle": "Nichts",
   "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 19",
   "renteVsCapitalTransmissionLeftDetailSingle": "für deine Erben",
   "renteVsCapitalTransmissionRightSubtitle": "Deine Erben erhalten",
@@ -2982,7 +2982,7 @@
   "renteVsCapitalImpactTitle": "Was verändert das Ergebnis am meisten?",
   "renteVsCapitalImpactSubtitle": "Die einflussreichsten Parameter auf den Unterschied zwischen deinen Optionen.",
   "renteVsCapitalHypothesesTitle": "Annahmen dieser Simulation",
-  "renteVsCapitalWarning": "Avertissement",
+  "renteVsCapitalWarning": "Hinweis",
   "renteVsCapitalSources": "Quellen: {sources}",
   "@renteVsCapitalSources": {
     "placeholders": {

@@ -5972,16 +5972,16 @@ class SEn extends S {
   String get renteVsCapitalAppBarTitle => 'Pension or capital: your decision';
 
   @override
-  String get renteVsCapitalRenteLabel => 'Rente';
+  String get renteVsCapitalRenteLabel => 'Annuity';
 
   @override
   String get renteVsCapitalCapitalLabel => 'Capital';
 
   @override
-  String get renteVsCapitalMixteLabel => 'Mixte';
+  String get renteVsCapitalMixteLabel => 'Mixed';
 
   @override
-  String get renteVsCapitalAge => 'Ton âge';
+  String get renteVsCapitalAge => 'Your age';
 
   @override
   String get renteVsCapitalSalary => 'Your gross annual income (CHF)';
@@ -6017,15 +6017,15 @@ class SEn extends S {
 
   @override
   String renteVsCapitalAgeYears(int age) {
-    return '$age ans';
+    return '$age years';
   }
 
   @override
-  String get renteVsCapitalPerMonth => '/mois';
+  String get renteVsCapitalPerMonth => '/month';
 
   @override
   String renteVsCapitalAvsAmount(String amount) {
-    return '~$amount/mois';
+    return '~$amount/month';
   }
 
   @override
@@ -6044,7 +6044,7 @@ class SEn extends S {
       'Capital (green): what remains after your withdrawals. Annuity (blue): total received since the start. The crossing point = the age at which the annuity has paid more.';
 
   @override
-  String get renteVsCapitalChartAxisLabel => 'Âge';
+  String get renteVsCapitalChartAxisLabel => 'Age';
 
   @override
   String renteVsCapitalBeyondHorizon(int age) {
@@ -6053,11 +6053,11 @@ class SEn extends S {
 
   @override
   String renteVsCapitalDeltaAtAge(int age) {
-    return 'À $age ans : ';
+    return 'At age $age: ';
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'd\'avance';
+  String get renteVsCapitalDeltaAdvance => 'ahead';
 
   @override
   String get renteVsCapitalEducationalTitle => 'What it actually changes';
@@ -6072,7 +6072,7 @@ class SEn extends S {
   String get renteVsCapitalFiscalRightSubtitle => 'Taxed only once';
 
   @override
-  String get renteVsCapitalFiscalOver30years => 'sur 30 ans';
+  String get renteVsCapitalFiscalOver30years => 'over 30 years';
 
   @override
   String get renteVsCapitalFiscalAtRetrait => 'at withdrawal (LIFD art. 38)';
@@ -6091,10 +6091,10 @@ class SEn extends S {
   String get renteVsCapitalInflationTitle => 'Inflation';
 
   @override
-  String get renteVsCapitalInflationToday => 'Aujourd\'hui';
+  String get renteVsCapitalInflationToday => 'Today';
 
   @override
-  String get renteVsCapitalInflationIn20Years => 'Dans 20 ans';
+  String get renteVsCapitalInflationIn20Years => 'In 20 years';
 
   @override
   String get renteVsCapitalInflationPurchasingPower => 'purchasing power';
@@ -6105,13 +6105,13 @@ class SEn extends S {
   }
 
   @override
-  String get renteVsCapitalTransmissionTitle => 'Transmission';
+  String get renteVsCapitalTransmissionTitle => 'Inheritance';
 
   @override
   String get renteVsCapitalTransmissionLeftMarried => 'Your spouse receives';
 
   @override
-  String get renteVsCapitalTransmissionLeftSingle => 'À ton décès';
+  String get renteVsCapitalTransmissionLeftSingle => 'At your death';
 
   @override
   String renteVsCapitalTransmissionLeftValueMarried(String amount) {
@@ -6119,7 +6119,7 @@ class SEn extends S {
   }
 
   @override
-  String get renteVsCapitalTransmissionLeftValueSingle => 'Rien';
+  String get renteVsCapitalTransmissionLeftValueSingle => 'Nothing';
 
   @override
   String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 19';
@@ -6175,7 +6175,7 @@ class SEn extends S {
   String get renteVsCapitalHypothesesTitle => 'Assumptions for this simulation';
 
   @override
-  String get renteVsCapitalWarning => 'Avertissement';
+  String get renteVsCapitalWarning => 'Warning';
 
   @override
   String renteVsCapitalSources(String sources) {

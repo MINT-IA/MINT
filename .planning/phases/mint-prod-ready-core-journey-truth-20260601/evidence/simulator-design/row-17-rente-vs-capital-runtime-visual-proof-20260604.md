@@ -11,8 +11,10 @@ first decision surface:
 - secondary controls stay folded behind `Paramètres avancés`;
 - the advanced controls remain reachable when the user explicitly opens them.
 
-This does **not** close Row 17. Source/disclaimer review, broader simulator
-i18n/accessibility review, and the full top-simulator visual audit remain open.
+This does **not** close Row 17. A later local slice now covers the engine
+source/disclaimer contract and core Row 17 i18n labels (see 2026-06-05 addendum
+below), but runtime disclaimer-card reachability, accessibility review, and the
+full top-simulator visual audit remain open.
 
 ## Runtime Evidence
 
@@ -69,6 +71,37 @@ That test asserts:
   opening `Paramètres avancés`;
 - the same advanced controls are visible after opening the section.
 
+## 2026-06-05 Addendum — i18n + Source Contract
+
+Follow-up evidence:
+
+`evidence/simulator-design/row-17-rente-vs-capital-i18n-source-contract-20260605.md`
+
+Additional deterministic proof now covers:
+
+- `ArbitrageEngine.compareRenteVsCapital()` returns an LSFin educational
+  disclaimer and legal sources including `LPP art. 14` and `LIFD art. 38`;
+- `renteVsCapitalWarning` is localized in FR/EN/DE/ES/IT/PT;
+- core non-French Row 17 labels no longer leak French fragments for age,
+  monthly unit, chart axis, age delta, inflation, transmission/inheritance, and
+  single-person survivor wording.
+
+Proof commands:
+
+```bash
+cd apps/mobile
+flutter gen-l10n
+flutter test test/screens/arbitrage_screens_smoke_test.dart
+flutter analyze test/screens/arbitrage_screens_smoke_test.dart \
+  lib/l10n/app_localizations_en.dart \
+  lib/l10n/app_localizations_de.dart \
+  lib/l10n/app_localizations_es.dart \
+  lib/l10n/app_localizations_it.dart \
+  lib/l10n/app_localizations_pt.dart
+```
+
+MCP ARB parity passed with `6871` keys in each of the 6 locales.
+
 ## Runtime Guidance Quality Review
 
 - `mechanical proof`: JUnit green, watchdog `0`, four screenshots cover hero, primary inputs, folded and expanded advanced controls.
@@ -76,8 +109,8 @@ That test asserts:
 - `guidance quality`: the screen matches the retirement-choice job and keeps secondary assumptions out of the first decision surface.
 - `non-absurd`: no legacy alias, no route mismatch, no overloaded first viewport.
 - `inclusive`: uses income-inclusive `revenu brut annuel` wording instead of salary-only copy.
-- `financial trust`: calculation remains simulator-style with assumptions; full source/disclaimer audit is still outside this proof.
-- `remaining qualitative gaps`: source/disclaimer, accessibility, i18n, and broader top-simulator audit remain open.
+- `financial trust`: calculation remains simulator-style with assumptions; engine result source/disclaimer contract is now locally covered, but runtime disclaimer-card reachability still needs proof.
+- `remaining qualitative gaps`: runtime disclaimer-card proof, accessibility, chart semantics, dynamic type, and broader top-simulator audit remain open.
 
 ## Scope Limit
 
@@ -85,8 +118,8 @@ Row 17 remains `PARTIAL`. This proof covers the canonical route's runtime visual
 contract for first inputs and advanced-control folding only. Remaining closure
 work:
 
-- source/disclaimer audit for `/rente-vs-capital`;
-- accessibility and i18n review across the top simulator set;
+- runtime scroll proof that the disclaimer card is reachable and legible on `/rente-vs-capital`;
+- accessibility and broader i18n review across the top simulator set;
 - visual audit for the rest of the shipped simulator surfaces;
 - explicit release decision for any documented simulator exception.
 

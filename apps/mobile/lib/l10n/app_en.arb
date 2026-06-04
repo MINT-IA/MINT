@@ -2867,10 +2867,10 @@
   "dataBlockDefaultDesc": "Complete this section to improve the accuracy of your projections.",
   "dataBlockDefaultCta": "Complete",
   "renteVsCapitalAppBarTitle": "Pension or capital: your decision",
-  "renteVsCapitalRenteLabel": "Rente",
+  "renteVsCapitalRenteLabel": "Annuity",
   "renteVsCapitalCapitalLabel": "Capital",
-  "renteVsCapitalMixteLabel": "Mixte",
-  "renteVsCapitalAge": "Ton âge",
+  "renteVsCapitalMixteLabel": "Mixed",
+  "renteVsCapitalAge": "Your age",
   "renteVsCapitalSalary": "Your gross annual income (CHF)",
   "renteVsCapitalLppTotal": "Your current LPP assets (CHF)",
   "renteVsCapitalLppOblig": "Mandatory LPP assets (LPP certificate)",
@@ -2881,7 +2881,7 @@
   "renteVsCapitalCanton": "Canton",
   "renteVsCapitalMarried": "Married",
   "renteVsCapitalRetirementAge": "Planned retirement at",
-  "renteVsCapitalAgeYears": "{age} ans",
+  "renteVsCapitalAgeYears": "{age} years",
   "@renteVsCapitalAgeYears": {
     "placeholders": {
       "age": {
@@ -2889,8 +2889,8 @@
       }
     }
   },
-  "renteVsCapitalPerMonth": "/mois",
-  "renteVsCapitalAvsAmount": "~{amount}/mois",
+  "renteVsCapitalPerMonth": "/month",
+  "renteVsCapitalAvsAmount": "~{amount}/month",
   "@renteVsCapitalAvsAmount": {
     "placeholders": {
       "amount": {
@@ -2902,7 +2902,7 @@
   "renteVsCapitalLifeExpectancyRef": "Swiss life expectancy: men 84 years · women 87 years",
   "renteVsCapitalChartTitle": "Remaining capital vs cumulative annuity income",
   "renteVsCapitalChartSubtitle": "Capital (green): what remains after your withdrawals. Annuity (blue): total received since the start. The crossing point = the age at which the annuity has paid more.",
-  "renteVsCapitalChartAxisLabel": "Âge",
+  "renteVsCapitalChartAxisLabel": "Age",
   "renteVsCapitalBeyondHorizon": "At age {age}: beyond the simulation horizon.",
   "@renteVsCapitalBeyondHorizon": {
     "placeholders": {
@@ -2911,7 +2911,7 @@
       }
     }
   },
-  "renteVsCapitalDeltaAtAge": "À {age} ans : ",
+  "renteVsCapitalDeltaAtAge": "At age {age}: ",
   "@renteVsCapitalDeltaAtAge": {
     "placeholders": {
       "age": {
@@ -2919,12 +2919,12 @@
       }
     }
   },
-  "renteVsCapitalDeltaAdvance": "d'avance",
+  "renteVsCapitalDeltaAdvance": "ahead",
   "renteVsCapitalEducationalTitle": "What it actually changes",
   "renteVsCapitalFiscalTitle": "Taxation",
   "renteVsCapitalFiscalLeftSubtitle": "Taxed every year",
   "renteVsCapitalFiscalRightSubtitle": "Taxed only once",
-  "renteVsCapitalFiscalOver30years": "sur 30 ans",
+  "renteVsCapitalFiscalOver30years": "over 30 years",
   "renteVsCapitalFiscalAtRetrait": "at withdrawal (LIFD art. 38)",
   "renteVsCapitalFiscalCapitalSaves": "Over 30 years, the capital scenario changes estimated tax by about {amount}.",
   "@renteVsCapitalFiscalCapitalSaves": {
@@ -2943,8 +2943,8 @@
     }
   },
   "renteVsCapitalInflationTitle": "Inflation",
-  "renteVsCapitalInflationToday": "Aujourd'hui",
-  "renteVsCapitalInflationIn20Years": "Dans 20 ans",
+  "renteVsCapitalInflationToday": "Today",
+  "renteVsCapitalInflationIn20Years": "In 20 years",
   "renteVsCapitalInflationPurchasingPower": "purchasing power",
   "renteVsCapitalInflationBottomText": "Your LPP annuity is not indexed. It buys {percent}% less in 20 years.",
   "@renteVsCapitalInflationBottomText": {
@@ -2954,9 +2954,9 @@
       }
     }
   },
-  "renteVsCapitalTransmissionTitle": "Transmission",
+  "renteVsCapitalTransmissionTitle": "Inheritance",
   "renteVsCapitalTransmissionLeftMarried": "Your spouse receives",
-  "renteVsCapitalTransmissionLeftSingle": "À ton décès",
+  "renteVsCapitalTransmissionLeftSingle": "At your death",
   "renteVsCapitalTransmissionLeftValueMarried": "60% = {amount}/month",
   "@renteVsCapitalTransmissionLeftValueMarried": {
     "placeholders": {
@@ -2965,7 +2965,7 @@
       }
     }
   },
-  "renteVsCapitalTransmissionLeftValueSingle": "Rien",
+  "renteVsCapitalTransmissionLeftValueSingle": "Nothing",
   "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 19",
   "renteVsCapitalTransmissionLeftDetailSingle": "for your heirs",
   "renteVsCapitalTransmissionRightSubtitle": "Your heirs receive",
@@ -2982,7 +2982,7 @@
   "renteVsCapitalImpactTitle": "What changes the result the most?",
   "renteVsCapitalImpactSubtitle": "The most influential parameters on the gap between your options.",
   "renteVsCapitalHypothesesTitle": "Assumptions for this simulation",
-  "renteVsCapitalWarning": "Avertissement",
+  "renteVsCapitalWarning": "Warning",
   "renteVsCapitalSources": "Sources: {sources}",
   "@renteVsCapitalSources": {
     "placeholders": {

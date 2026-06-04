@@ -2867,10 +2867,10 @@
   "dataBlockDefaultDesc": "Completa questa sezione per migliorare la precisione delle tue proiezioni.",
   "dataBlockDefaultCta": "Completare",
   "renteVsCapitalAppBarTitle": "Rendita o capitale: la tua decisione",
-  "renteVsCapitalRenteLabel": "Rente",
-  "renteVsCapitalCapitalLabel": "Capital",
-  "renteVsCapitalMixteLabel": "Mixte",
-  "renteVsCapitalAge": "Ton âge",
+  "renteVsCapitalRenteLabel": "Rendita",
+  "renteVsCapitalCapitalLabel": "Capitale",
+  "renteVsCapitalMixteLabel": "Misto",
+  "renteVsCapitalAge": "La tua età",
   "renteVsCapitalSalary": "Il tuo reddito lordo annuale (CHF)",
   "renteVsCapitalLppTotal": "Il tuo avere LPP attuale (CHF)",
   "renteVsCapitalLppOblig": "Avere LPP obbligatorio (certificato LPP)",
@@ -2878,10 +2878,10 @@
   "renteVsCapitalRenteProposed": "Rendita annuale proposta (certificato LPP)",
   "renteVsCapitalTcOblig": "Tasso conv. obbl. (%)",
   "renteVsCapitalTcSurob": "Tasso conv. sovraobblig. (%)",
-  "renteVsCapitalCanton": "Canton",
+  "renteVsCapitalCanton": "Cantone",
   "renteVsCapitalMarried": "Sposato/a",
   "renteVsCapitalRetirementAge": "Pensionamento previsto a",
-  "renteVsCapitalAgeYears": "{age} ans",
+  "renteVsCapitalAgeYears": "{age} anni",
   "@renteVsCapitalAgeYears": {
     "placeholders": {
       "age": {
@@ -2889,8 +2889,8 @@
       }
     }
   },
-  "renteVsCapitalPerMonth": "/mois",
-  "renteVsCapitalAvsAmount": "~{amount}/mois",
+  "renteVsCapitalPerMonth": "/mese",
+  "renteVsCapitalAvsAmount": "~{amount}/mese",
   "@renteVsCapitalAvsAmount": {
     "placeholders": {
       "amount": {
@@ -2902,7 +2902,7 @@
   "renteVsCapitalLifeExpectancyRef": "Aspettativa di vita svizzera: uomini 84 anni · donne 87 anni",
   "renteVsCapitalChartTitle": "Capitale residuo vs entrate cumulate della rendita",
   "renteVsCapitalChartSubtitle": "Capitale (verde): ciò che resta dopo i tuoi prelievi. Rendita (blu): totale ricevuto dall'inizio. L'incrocio = l'età in cui la rendita ha reso di più.",
-  "renteVsCapitalChartAxisLabel": "Âge",
+  "renteVsCapitalChartAxisLabel": "Età",
   "renteVsCapitalBeyondHorizon": "A {age} anni: oltre l'orizzonte di simulazione.",
   "@renteVsCapitalBeyondHorizon": {
     "placeholders": {
@@ -2911,7 +2911,7 @@
       }
     }
   },
-  "renteVsCapitalDeltaAtAge": "À {age} ans : ",
+  "renteVsCapitalDeltaAtAge": "A {age} anni: ",
   "@renteVsCapitalDeltaAtAge": {
     "placeholders": {
       "age": {
@@ -2919,12 +2919,12 @@
       }
     }
   },
-  "renteVsCapitalDeltaAdvance": "d'avance",
+  "renteVsCapitalDeltaAdvance": "di vantaggio",
   "renteVsCapitalEducationalTitle": "Cosa cambia concretamente",
-  "renteVsCapitalFiscalTitle": "Fiscalité",
+  "renteVsCapitalFiscalTitle": "Fiscalità",
   "renteVsCapitalFiscalLeftSubtitle": "Tassata ogni anno",
   "renteVsCapitalFiscalRightSubtitle": "Tassato una sola volta",
-  "renteVsCapitalFiscalOver30years": "sur 30 ans",
+  "renteVsCapitalFiscalOver30years": "su 30 anni",
   "renteVsCapitalFiscalAtRetrait": "al prelievo (LIFD art. 38)",
   "renteVsCapitalFiscalCapitalSaves": "In 30 anni, lo scenario capitale modifica l'imposta stimata di circa {amount}.",
   "@renteVsCapitalFiscalCapitalSaves": {
@@ -2942,9 +2942,9 @@
       }
     }
   },
-  "renteVsCapitalInflationTitle": "Inflation",
-  "renteVsCapitalInflationToday": "Aujourd'hui",
-  "renteVsCapitalInflationIn20Years": "Dans 20 ans",
+  "renteVsCapitalInflationTitle": "Inflazione",
+  "renteVsCapitalInflationToday": "Oggi",
+  "renteVsCapitalInflationIn20Years": "Tra 20 anni",
   "renteVsCapitalInflationPurchasingPower": "potere d'acquisto",
   "renteVsCapitalInflationBottomText": "La tua rendita LPP non è indicizzata. Compra il {percent} % in meno tra 20 anni.",
   "@renteVsCapitalInflationBottomText": {
@@ -2954,9 +2954,9 @@
       }
     }
   },
-  "renteVsCapitalTransmissionTitle": "Transmission",
+  "renteVsCapitalTransmissionTitle": "Trasmissione",
   "renteVsCapitalTransmissionLeftMarried": "Il tuo coniuge riceve",
-  "renteVsCapitalTransmissionLeftSingle": "À ton décès",
+  "renteVsCapitalTransmissionLeftSingle": "Alla tua morte",
   "renteVsCapitalTransmissionLeftValueMarried": "60% = {amount}/mese",
   "@renteVsCapitalTransmissionLeftValueMarried": {
     "placeholders": {
@@ -2965,7 +2965,7 @@
       }
     }
   },
-  "renteVsCapitalTransmissionLeftValueSingle": "Rien",
+  "renteVsCapitalTransmissionLeftValueSingle": "Nulla",
   "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 19",
   "renteVsCapitalTransmissionLeftDetailSingle": "per i tuoi eredi",
   "renteVsCapitalTransmissionRightSubtitle": "I tuoi eredi ricevono",
@@ -2977,12 +2977,12 @@
   "renteVsCapitalAffinerSubtitle": "Per chi vuole approfondire.",
   "renteVsCapitalHypRendement": "Cosa rende il tuo capitale all'anno",
   "renteVsCapitalHypSwr": "Quanto prelevi ogni anno",
-  "renteVsCapitalHypInflation": "Inflation",
+  "renteVsCapitalHypInflation": "Inflazione",
   "renteVsCapitalTornadoToggle": "Visualizzare il diagramma di sensibilità",
   "renteVsCapitalImpactTitle": "Cosa cambia di più il risultato?",
   "renteVsCapitalImpactSubtitle": "I parametri più influenti sul divario tra le tue opzioni.",
   "renteVsCapitalHypothesesTitle": "Ipotesi di questa simulazione",
-  "renteVsCapitalWarning": "Avertissement",
+  "renteVsCapitalWarning": "Avvertenza",
   "renteVsCapitalSources": "Fonti: {sources}",
   "@renteVsCapitalSources": {
     "placeholders": {

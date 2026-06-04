@@ -6005,16 +6005,16 @@ class SPt extends S {
   String get renteVsCapitalAppBarTitle => 'Pensão ou capital: a tua decisão';
 
   @override
-  String get renteVsCapitalRenteLabel => 'Rente';
+  String get renteVsCapitalRenteLabel => 'Renda';
 
   @override
   String get renteVsCapitalCapitalLabel => 'Capital';
 
   @override
-  String get renteVsCapitalMixteLabel => 'Mixte';
+  String get renteVsCapitalMixteLabel => 'Misto';
 
   @override
-  String get renteVsCapitalAge => 'Ton âge';
+  String get renteVsCapitalAge => 'A tua idade';
 
   @override
   String get renteVsCapitalSalary => 'O teu rendimento bruto anual (CHF)';
@@ -6041,7 +6041,7 @@ class SPt extends S {
   String get renteVsCapitalTcSurob => 'Taxa conv. supraobrig. (%)';
 
   @override
-  String get renteVsCapitalCanton => 'Canton';
+  String get renteVsCapitalCanton => 'Cantão';
 
   @override
   String get renteVsCapitalMarried => 'Casado/a';
@@ -6051,15 +6051,15 @@ class SPt extends S {
 
   @override
   String renteVsCapitalAgeYears(int age) {
-    return '$age ans';
+    return '$age anos';
   }
 
   @override
-  String get renteVsCapitalPerMonth => '/mois';
+  String get renteVsCapitalPerMonth => '/mês';
 
   @override
   String renteVsCapitalAvsAmount(String amount) {
-    return '~$amount/mois';
+    return '~$amount/mês';
   }
 
   @override
@@ -6078,7 +6078,7 @@ class SPt extends S {
       'Capital (verde): o que resta após os teus levantamentos. Renda (azul): total recebido desde o início. O cruzamento = a idade em que a renda rendeu mais.';
 
   @override
-  String get renteVsCapitalChartAxisLabel => 'Âge';
+  String get renteVsCapitalChartAxisLabel => 'Idade';
 
   @override
   String renteVsCapitalBeyondHorizon(int age) {
@@ -6087,11 +6087,11 @@ class SPt extends S {
 
   @override
   String renteVsCapitalDeltaAtAge(int age) {
-    return 'À $age ans : ';
+    return 'Aos $age anos: ';
   }
 
   @override
-  String get renteVsCapitalDeltaAdvance => 'd\'avance';
+  String get renteVsCapitalDeltaAdvance => 'de vantagem';
 
   @override
   String get renteVsCapitalEducationalTitle => 'O que muda concretamente';
@@ -6106,7 +6106,7 @@ class SPt extends S {
   String get renteVsCapitalFiscalRightSubtitle => 'Tributado uma única vez';
 
   @override
-  String get renteVsCapitalFiscalOver30years => 'sur 30 ans';
+  String get renteVsCapitalFiscalOver30years => 'em 30 anos';
 
   @override
   String get renteVsCapitalFiscalAtRetrait => 'no levantamento (LIFD art. 38)';
@@ -6122,13 +6122,13 @@ class SPt extends S {
   }
 
   @override
-  String get renteVsCapitalInflationTitle => 'Inflation';
+  String get renteVsCapitalInflationTitle => 'Inflação';
 
   @override
-  String get renteVsCapitalInflationToday => 'Aujourd\'hui';
+  String get renteVsCapitalInflationToday => 'Hoje';
 
   @override
-  String get renteVsCapitalInflationIn20Years => 'Dans 20 ans';
+  String get renteVsCapitalInflationIn20Years => 'Dentro de 20 anos';
 
   @override
   String get renteVsCapitalInflationPurchasingPower => 'poder de compra';
@@ -6139,13 +6139,13 @@ class SPt extends S {
   }
 
   @override
-  String get renteVsCapitalTransmissionTitle => 'Transmission';
+  String get renteVsCapitalTransmissionTitle => 'Transmissão';
 
   @override
   String get renteVsCapitalTransmissionLeftMarried => 'O teu cônjuge recebe';
 
   @override
-  String get renteVsCapitalTransmissionLeftSingle => 'À ton décès';
+  String get renteVsCapitalTransmissionLeftSingle => 'No teu falecimento';
 
   @override
   String renteVsCapitalTransmissionLeftValueMarried(String amount) {
@@ -6153,7 +6153,7 @@ class SPt extends S {
   }
 
   @override
-  String get renteVsCapitalTransmissionLeftValueSingle => 'Rien';
+  String get renteVsCapitalTransmissionLeftValueSingle => 'Nada';
 
   @override
   String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 19';
@@ -6193,7 +6193,7 @@ class SPt extends S {
   String get renteVsCapitalHypSwr => 'Quanto levantas a cada ano';
 
   @override
-  String get renteVsCapitalHypInflation => 'Inflation';
+  String get renteVsCapitalHypInflation => 'Inflação';
 
   @override
   String get renteVsCapitalTornadoToggle => 'Ver o diagrama de sensibilidade';
@@ -6209,7 +6209,7 @@ class SPt extends S {
   String get renteVsCapitalHypothesesTitle => 'Hipóteses desta simulação';
 
   @override
-  String get renteVsCapitalWarning => 'Avertissement';
+  String get renteVsCapitalWarning => 'Aviso';
 
   @override
   String renteVsCapitalSources(String sources) {

@@ -20,6 +20,7 @@ import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/location_vs_propriete_screen.dart';
+import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 
 // ---------------------------------------------------------------------------
 //  Shared helper — wraps a screen with Provider + French i18n
@@ -95,7 +96,8 @@ void main() {
       expect(find.textContaining('capital'), findsWidgets);
     });
 
-    testWidgets('displays input mode toggle (Estimer / Certificat)', (tester) async {
+    testWidgets('displays input mode toggle (Estimer / Certificat)',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // i18n: renteVsCapitalEstimateMode = "Estimer pour moi"
@@ -137,7 +139,8 @@ void main() {
       expect(find.textContaining('ge'), findsWidgets);
     });
 
-    testWidgets('keeps first decision inputs neutral and advanced fields folded',
+    testWidgets(
+        'keeps first decision inputs neutral and advanced fields folded',
         (tester) async {
       tester.view.physicalSize = const Size(800, 1200);
       addTearDown(tester.view.resetPhysicalSize);
@@ -173,6 +176,126 @@ void main() {
       expect(find.textContaining('Retrait EPL'), findsOneWidget);
       expect(find.text('Canton'), findsOneWidget);
       expect(find.text('Marié·e'), findsOneWidget);
+    });
+
+    test('engine result includes warning disclaimer and legal sources', () {
+      final result = ArbitrageEngine.compareRenteVsCapital(
+        capitalLppTotal: 350000,
+        capitalObligatoire: 245000,
+        capitalSurobligatoire: 105000,
+        renteAnnuelleProposee: 16660,
+        canton: 'VD',
+      );
+
+      expect(result.disclaimer, contains('Outil educatif'));
+      expect(result.disclaimer, contains('LSFin'));
+      expect(result.sources.any((s) => s.contains('LPP art. 14')), isTrue);
+      expect(result.sources.any((s) => s.contains('LIFD art. 38')), isTrue);
+    });
+
+    test('warning label is localized in the 6 supported locales', () async {
+      final labels = <String, String>{};
+      for (final locale in S.supportedLocales) {
+        final l10n = await S.delegate.load(locale);
+        labels[locale.languageCode] = l10n.renteVsCapitalWarning;
+      }
+
+      expect(labels['fr'], 'Avertissement');
+      expect(labels['en'], 'Warning');
+      expect(labels['de'], 'Hinweis');
+      expect(labels['es'], 'Advertencia');
+      expect(labels['it'], 'Avvertenza');
+      expect(labels['pt'], 'Aviso');
+    });
+
+    test('core Row 17 labels are localized outside French', () async {
+      final expected = <String, List<String>>{
+        'en': [
+          'Your age',
+          '65 years',
+          '/month',
+          'Age',
+          'At age 65: ',
+          'Today',
+          'In 20 years',
+          'Inheritance',
+          'At your death',
+          'Nothing',
+          'Inflation',
+        ],
+        'de': [
+          'Dein Alter',
+          '65 Jahre',
+          '/Monat',
+          'Alter',
+          'Mit 65 Jahren: ',
+          'Heute',
+          'In 20 Jahren',
+          'Vererbung',
+          'Bei deinem Tod',
+          'Nichts',
+          'Inflation',
+        ],
+        'es': [
+          'Tu edad',
+          '65 años',
+          '/mes',
+          'Edad',
+          'A los 65 años: ',
+          'Hoy',
+          'En 20 años',
+          'Transmisión',
+          'Al fallecer',
+          'Nada',
+          'Inflación',
+        ],
+        'it': [
+          'La tua età',
+          '65 anni',
+          '/mese',
+          'Età',
+          'A 65 anni: ',
+          'Oggi',
+          'Tra 20 anni',
+          'Trasmissione',
+          'Alla tua morte',
+          'Nulla',
+          'Inflazione',
+        ],
+        'pt': [
+          'A tua idade',
+          '65 anos',
+          '/mês',
+          'Idade',
+          'Aos 65 anos: ',
+          'Hoje',
+          'Dentro de 20 anos',
+          'Transmissão',
+          'No teu falecimento',
+          'Nada',
+          'Inflação',
+        ],
+      };
+
+      for (final locale
+          in S.supportedLocales.where((l) => l.languageCode != 'fr')) {
+        final l10n = await S.delegate.load(locale);
+        final actual = [
+          l10n.renteVsCapitalAge,
+          l10n.renteVsCapitalAgeYears(65),
+          l10n.renteVsCapitalPerMonth,
+          l10n.renteVsCapitalChartAxisLabel,
+          l10n.renteVsCapitalDeltaAtAge(65),
+          l10n.renteVsCapitalInflationToday,
+          l10n.renteVsCapitalInflationIn20Years,
+          l10n.renteVsCapitalTransmissionTitle,
+          l10n.renteVsCapitalTransmissionLeftSingle,
+          l10n.renteVsCapitalTransmissionLeftValueSingle,
+          l10n.renteVsCapitalHypInflation,
+        ];
+
+        expect(actual, expected[locale.languageCode]);
+      }
     });
   });
 
@@ -218,7 +341,8 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pump();
       // i18n: allocAnnuelleTrajectoires = "Trajectoires comparées"
-      expect(find.textContaining('rajectoire', skipOffstage: false), findsWidgets);
+      expect(
+          find.textContaining('rajectoire', skipOffstage: false), findsWidgets);
     });
   });
 
@@ -235,7 +359,8 @@ void main() {
       expect(find.byType(Scaffold), findsOneWidget);
     });
 
-    testWidgets('displays empty-profile state without crash (no profile)', (tester) async {
+    testWidgets('displays empty-profile state without crash (no profile)',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // No profile set: shows i18n: arbitrageBilanEmptyProfile
@@ -308,13 +433,15 @@ void main() {
       expect(find.textContaining('omparer'), findsWidgets);
     });
 
-    testWidgets('displays hypothesis section with return slider', (tester) async {
+    testWidgets('displays hypothesis section with return slider',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // i18n: locationHypotheses = "Hypothèses utilisées" — below the fold
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
       await tester.pump();
-      expect(find.textContaining('ypothèse', skipOffstage: false), findsWidgets);
+      expect(
+          find.textContaining('ypothèse', skipOffstage: false), findsWidgets);
     });
   });
 }
