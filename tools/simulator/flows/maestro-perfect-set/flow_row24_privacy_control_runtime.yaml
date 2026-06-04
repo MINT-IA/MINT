@@ -1,0 +1,59 @@
+# tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml
+#
+# PURPOSE
+# Row 24 runtime proof for privacy/data controls:
+# a seeded supported Swiss profile can reach /profile/privacy-control and see
+# the "Ce que MINT sait de toi" surface with stored profile data, not an empty
+# placeholder. This complements widget/backend privacy tests; it does not close
+# legal sign-off, production log sampling, or account delete/export E2E.
+#
+# PRE-CONDITION
+# - Debug app ch.mint.app installed on a booted iPhone simulator.
+# - Recommended build:
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+
+appId: ch.mint.app
+tags:
+  - row-24
+  - privacy-controls
+  - runtime
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+- openLink: "mintapp:///profile/privacy-control"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Ce que MINT sait de toi"
+    timeout: 12000
+- assertVisible:
+    text: ".*données.*à jour.*"
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnee"
+- takeScreenshot: "row24-privacy-control-runtime"

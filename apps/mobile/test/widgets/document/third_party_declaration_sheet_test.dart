@@ -11,6 +11,7 @@
 //      and makes no POST.
 //   7. Multi-subject body uses the pluralised copy.
 //   8. Invite stub logs intent analytics event.
+//   9. Flow analytics payloads stay non-PII: subject_count only, no names/docHash.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -189,6 +190,56 @@ void main() {
       expect(captured.first['body']['subjectName'], 'Lauren Martin');
       expect(captured.first['body']['docHash'], 'a' * 64);
       expect(captured.first['body']['subjectRole'], 'declared_other');
+    });
+
+    testWidgets('analytics payloads expose subject_count only', (tester) async {
+      final analyticsEvents = <MapEntry<String, Map<String, dynamic>>>[];
+      final flow = ThirdPartyFlow(
+        analytics: (event, props) =>
+            analyticsEvents.add(MapEntry(event, Map<String, dynamic>.from(props))),
+        postOverride: (endpoint, body) async => {'receiptId': 'r1'},
+      );
+
+      GrantOutcome? outcome;
+      await tester.pumpWidget(_wrap(Builder(builder: (ctx) {
+        return ElevatedButton(
+          onPressed: () async {
+            outcome = await flow.handleGate(
+              ctx,
+              ThirdPartyGate428(
+                subjectNames: const ['Lauren Martin', 'Marc Dupont'],
+                docHash: 'a' * 64,
+                declarationEndpoint: '/consents/grant-nominative',
+              ),
+            );
+          },
+          child: const Text('open'),
+        );
+      })));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('thirdPartyInviteCta')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('thirdPartyDeclarationConfirm')));
+      await tester.pumpAndSettle();
+
+      expect(outcome, GrantOutcome.granted);
+      expect(
+        analyticsEvents.map((event) => event.key),
+        containsAll([
+          'third_party_invite_intent',
+          'third_party_declaration_granted',
+        ]),
+      );
+      for (final event in analyticsEvents) {
+        expect(event.value, hasLength(1));
+        expect(event.value, containsPair('subject_count', 2));
+        expect(event.value['subject_count'], 2);
+        expect(event.value.values, isNot(contains('Lauren Martin')));
+        expect(event.value.values, isNot(contains('Marc Dupont')));
+        expect(event.value.values, isNot(contains('a' * 64)));
+        expect(event.value.values, isNot(contains('b' * 64)));
+      }
     });
 
     testWidgets('cancel makes no POST and returns cancelled', (tester) async {
