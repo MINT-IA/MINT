@@ -136,6 +136,44 @@ void main() {
       // i18n: renteVsCapitalAge = "Ton âge"
       expect(find.textContaining('ge'), findsWidgets);
     });
+
+    testWidgets('keeps first decision inputs neutral and advanced fields folded',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+
+      await tester.scrollUntilVisible(
+        find.text('Ton revenu brut annuel (CHF)'),
+        160,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pump();
+      expect(find.text('Ton revenu brut annuel (CHF)'), findsOneWidget);
+      expect(find.text('Ton salaire brut annuel (CHF)'), findsNothing);
+      await tester.scrollUntilVisible(
+        find.text('Paramètres avancés'),
+        160,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pump();
+      expect(find.text('Paramètres avancés'), findsOneWidget);
+      expect(find.textContaining('Rachat LPP annuel'), findsNothing);
+      expect(find.textContaining('Retrait EPL'), findsNothing);
+      expect(find.text('Canton'), findsNothing);
+      expect(find.text('Marié·e'), findsNothing);
+
+      await tester.ensureVisible(find.text('Paramètres avancés'));
+      await tester.tap(find.text('Paramètres avancés'));
+      await tester.pump(const Duration(milliseconds: 350));
+
+      expect(find.textContaining('Rachat LPP annuel'), findsOneWidget);
+      expect(find.textContaining('Retrait EPL'), findsOneWidget);
+      expect(find.text('Canton'), findsOneWidget);
+      expect(find.text('Marié·e'), findsOneWidget);
+    });
   });
 
   // ═══════════════════════════════════════════════════════════

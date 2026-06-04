@@ -910,12 +910,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
               label: S.of(context)!.renteVsCapitalLppTotal,
               fieldName: 'lpp_total',
             ),
-            const SizedBox(height: MintSpacing.sm),
-            // Rachat LPP
-            _buildRachatSection(),
-            const SizedBox(height: MintSpacing.sm),
-            // EPL
-            _buildEplSection(),
             // Auto-computed readout
             if (_result != null && _result!.isProjected) ...[
               const SizedBox(height: MintSpacing.sm),
@@ -1027,69 +1021,93 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           ],
 
           const SizedBox(height: MintSpacing.md),
-          // Canton + Married
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(S.of(context)!.renteVsCapitalCanton,
-                        style: _labelStyle),
-                    const SizedBox(height: MintSpacing.xs),
-                    MintSurface(
-                      tone: MintSurfaceTone.porcelaine,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: MintSpacing.sm),
-                      radius: 12,
-                      child: DropdownButton<String>(
-                        value: _canton,
-                        isExpanded: true,
-                        underline: const SizedBox.shrink(),
-                        items: sortedCantonCodes.map((code) {
-                          final name = cantonFullNames[code] ?? code;
-                          return DropdownMenuItem(
-                            value: code,
-                            child: Text('$code - $name',
-                                style: MintTextStyles.bodyMedium()),
-                          );
-                        }).toList(),
-                        onChanged: (v) {
-                          if (v != null) {
-                            _canton = v;
-                            _userRecalculate();
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: MintSpacing.md),
-              Column(
+          _buildAdvancedInputSection(
+            includeRachatAndEpl: _inputMode == _InputMode.estimate,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdvancedInputSection({required bool includeRachatAndEpl}) {
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: const EdgeInsets.only(bottom: MintSpacing.sm),
+      title: Text(
+        S.of(context)!.renteVsCapitalAdvancedParameters,
+        style:
+            MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      children: [
+        if (includeRachatAndEpl) ...[
+          _buildRachatSection(),
+          const SizedBox(height: MintSpacing.sm),
+          _buildEplSection(),
+          const SizedBox(height: MintSpacing.sm),
+        ],
+        Row(
+          children: [
+            Expanded(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(S.of(context)!.renteVsCapitalMarried,
+                  Text(S.of(context)!.renteVsCapitalCanton,
                       style: _labelStyle),
                   const SizedBox(height: MintSpacing.xs),
-                  Semantics(
-                    label: S.of(context)!.renteVsCapitalMarried,
-                    toggled: _isMarried,
-                    child: Switch(
-                      value: _isMarried,
-                      activeTrackColor: MintColors.primary,
+                  MintSurface(
+                    tone: MintSurfaceTone.porcelaine,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: MintSpacing.sm),
+                    radius: 12,
+                    child: DropdownButton<String>(
+                      value: _canton,
+                      isExpanded: true,
+                      underline: const SizedBox.shrink(),
+                      items: sortedCantonCodes.map((code) {
+                        final name = cantonFullNames[code] ?? code;
+                        return DropdownMenuItem(
+                          value: code,
+                          child: Text('$code - $name',
+                              style: MintTextStyles.bodyMedium()),
+                        );
+                      }).toList(),
                       onChanged: (v) {
-                        _isMarried = v;
-                        _userRecalculate();
+                        if (v != null) {
+                          _canton = v;
+                          _userRecalculate();
+                        }
                       },
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-        ],
-      ),
+            ),
+            const SizedBox(width: MintSpacing.md),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(S.of(context)!.renteVsCapitalMarried,
+                    style: _labelStyle),
+                const SizedBox(height: MintSpacing.xs),
+                Semantics(
+                  label: S.of(context)!.renteVsCapitalMarried,
+                  toggled: _isMarried,
+                  child: Switch(
+                    value: _isMarried,
+                    activeTrackColor: MintColors.primary,
+                    onChanged: (v) {
+                      _isMarried = v;
+                      _userRecalculate();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
     );
   }
 

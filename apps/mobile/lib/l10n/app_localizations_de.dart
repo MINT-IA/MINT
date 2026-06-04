@@ -6032,7 +6032,7 @@ class SDe extends S {
   String get renteVsCapitalAge => 'Dein Alter';
 
   @override
-  String get renteVsCapitalSalary => 'Dein jährlicher Bruttolohn (CHF)';
+  String get renteVsCapitalSalary => 'Dein jährliches Bruttoeinkommen (CHF)';
 
   @override
   String get renteVsCapitalLppTotal => 'Dein aktuelles BVG-Guthaben (CHF)';
@@ -12930,6 +12930,9 @@ class SDe extends S {
 
   @override
   String get renteVsCapitalAdvancedDisclosure => 'Ich habe meinen BVG-Ausweis';
+
+  @override
+  String get renteVsCapitalAdvancedParameters => 'Erweiterte Parameter';
 
   @override
   String get renteVsCapitalPerMonthForLife => '/Monat, lebenslang';
@@ -21166,7 +21169,7 @@ class SDe extends S {
 
   @override
   String get renteVsCapitalProjectionSource =>
-      'Projektion basierend auf deinem Alter, Lohn und aktuellem BVG';
+      'Projektion basierend auf deinem Alter, Einkommen und aktuellem BVG';
 
   @override
   String get renteVsCapitalRenteExplanation =>

@@ -6020,7 +6020,7 @@ class SEs extends S {
   String get renteVsCapitalAge => 'Ton âge';
 
   @override
-  String get renteVsCapitalSalary => 'Tu salario bruto anual (CHF)';
+  String get renteVsCapitalSalary => 'Tu ingreso bruto anual (CHF)';
 
   @override
   String get renteVsCapitalLppTotal => 'Tu capital LPP actual (CHF)';
@@ -12898,6 +12898,9 @@ class SEs extends S {
 
   @override
   String get renteVsCapitalAdvancedDisclosure => 'Tengo mi certificado LPP';
+
+  @override
+  String get renteVsCapitalAdvancedParameters => 'Parámetros avanzados';
 
   @override
   String get renteVsCapitalPerMonthForLife => '/mes, de por vida';
@@ -21118,7 +21121,7 @@ class SEs extends S {
 
   @override
   String get renteVsCapitalProjectionSource =>
-      'Proyección basada en tu edad, salario y LPP actual';
+      'Proyección basada en tu edad, ingresos y LPP actual';
 
   @override
   String get renteVsCapitalRenteExplanation =>

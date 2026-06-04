@@ -10857,7 +10857,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalSalary.
   ///
   /// In fr, this message translates to:
-  /// **'Ton salaire brut annuel (CHF)'**
+  /// **'Ton revenu brut annuel (CHF)'**
   String get renteVsCapitalSalary;
 
   /// No description provided for @renteVsCapitalLppTotal.
@@ -22818,6 +22818,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'J’ai mon certificat LPP'**
   String get renteVsCapitalAdvancedDisclosure;
+
+  /// No description provided for @renteVsCapitalAdvancedParameters.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres avancés'**
+  String get renteVsCapitalAdvancedParameters;
 
   /// No description provided for @renteVsCapitalPerMonthForLife.
   ///
@@ -37056,7 +37062,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalProjectionSource.
   ///
   /// In fr, this message translates to:
-  /// **'Projection basée sur ton âge, salaire et LPP actuel'**
+  /// **'Projection basée sur ton âge, revenu et LPP actuel'**
   String get renteVsCapitalProjectionSource;
 
   /// No description provided for @renteVsCapitalRenteExplanation.
