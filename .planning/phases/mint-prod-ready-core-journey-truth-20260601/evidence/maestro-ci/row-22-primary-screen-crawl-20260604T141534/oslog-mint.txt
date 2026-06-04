@@ -1,0 +1,49 @@
+Timestamp               Ty Process[PID:TID]
+2026-06-04 14:12:49.146 Df launchd_sim[73266:44bb3cc] [user/501/UIKitApplication:ch.mint.app[a48a][rb-legacy] [12185]:] exited with exit reason (namespace: 10 code: 0xfbfbfbfb) - OS_REASON_SPRINGBOARD | <RBSTerminateContext| domain:10 code:0xFBFBFBFB explanation:Termination requested by simulator host
+
+ProcessVisibility: Foreground
+ProcessState: Running reportType:None maxTerminationResistance:Interactive>, ran for 94901ms
+2026-06-04 14:12:49.146 Df launchd_sim[73266:44bb3cc] [user/501/UIKitApplication:ch.mint.app[a48a][rb-legacy] [12185]:] service state: exited
+2026-06-04 14:12:49.146 Df launchd_sim[73266:44bb3cc] [user/501/UIKitApplication:ch.mint.app[a48a][rb-legacy] [12185]:] internal event: EXITED, code = 0
+2026-06-04 14:12:49.146 Df launchd_sim[73266:44bb3cc] [user/501/UIKitApplication:ch.mint.app[a48a][rb-legacy] [12185]:] job state = exited
+2026-06-04 14:12:49.146 Df launchd_sim[73266:44bb3cc] [user/501/UIKitApplication:ch.mint.app[a48a][rb-legacy] [12185]:] service state: not running
+2026-06-04 14:12:49.147 Df launchd_sim[73266:44bc5cb] [user/501/UIKitApplication:ch.mint.app[a48a][rb-legacy]:] removing job: caller = runningboardd
+2026-06-04 14:12:49.147 Df launchd_sim[73266:44bc5cb] [user/501/UIKitApplication:ch.mint.app[a48a][rb-legacy]:] internal event: PETRIFIED, code = 0
+2026-06-04 14:12:49.147 Df launchd_sim[73266:44bc5cb] [user/501/UIKitApplication:ch.mint.app[a48a][rb-legacy]:] job state = removed
+2026-06-04 14:12:50.519 E  launchd_sim[73266:44bc5cb] [UIKitApplication:ch.mint.app[0d87][rb-legacy]:] Unknown key for plist importer (key: _ResourceCoalition type: string)
+2026-06-04 14:12:50.519 Df launchd_sim[73266:44bc5cb] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy]:] internal event: WILL_SPAWN, code = 0
+2026-06-04 14:12:50.519 Df launchd_sim[73266:44bc5cb] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy]:] service state: spawn scheduled
+2026-06-04 14:12:50.519 Df launchd_sim[73266:44bc5cb] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy]:] service state: spawning
+2026-06-04 14:12:50.519 Df launchd_sim[73266:44bc5cb] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy]:] launching: launch job demand
+2026-06-04 14:12:50.519 Df launchd_sim[73266:44bc5cb] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] xpcproxy_sim spawned with pid 23816
+2026-06-04 14:12:50.519 Df launchd_sim[73266:44bc5cb] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] internal event: SPAWNED, code = 0
+2026-06-04 14:12:50.519 Df launchd_sim[73266:44bc5cb] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] service state: xpcproxy
+2026-06-04 14:12:50.519 Df launchd_sim[73266:44bc5cb] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] internal event: SOURCE_ATTACH, code = 0
+2026-06-04 14:12:50.610 Df launchd_sim[73266:44bb3cc] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] service state: running
+2026-06-04 14:12:50.610 Df launchd_sim[73266:44bb3cc] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] internal event: INIT, code = 0
+2026-06-04 14:12:50.610 Df launchd_sim[73266:44bb3cc] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] job state = running
+2026-06-04 14:12:50.610 Df launchd_sim[73266:44bb3cc] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] Successfully spawned Runner[23816] because launch job demand
+2026-06-04 14:15:41.354 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] exited with exit reason (namespace: 10 code: 0xfbfbfbfb) - OS_REASON_SPRINGBOARD | <RBSTerminateContext| domain:10 code:0xFBFBFBFB explanation:Termination requested by simulator host
+
+ProcessVisibility: Foreground
+ProcessState: Running reportType:None maxTerminationResistance:Interactive>, ran for 170817ms
+2026-06-04 14:15:41.354 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] service state: exited
+2026-06-04 14:15:41.354 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] internal event: EXITED, code = 0
+2026-06-04 14:15:41.354 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] job state = exited
+2026-06-04 14:15:41.354 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy] [23816]:] service state: not running
+2026-06-04 14:15:41.355 Df launchd_sim[73266:44c7cce] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy]:] removing job: caller = runningboardd
+2026-06-04 14:15:41.355 Df launchd_sim[73266:44c7cce] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy]:] internal event: PETRIFIED, code = 0
+2026-06-04 14:15:41.355 Df launchd_sim[73266:44c7cce] [user/501/UIKitApplication:ch.mint.app[0d87][rb-legacy]:] job state = removed
+2026-06-04 14:15:42.697 E  launchd_sim[73266:44caaaa] [UIKitApplication:ch.mint.app[e515][rb-legacy]:] Unknown key for plist importer (key: _ResourceCoalition type: string)
+2026-06-04 14:15:42.698 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy]:] internal event: WILL_SPAWN, code = 0
+2026-06-04 14:15:42.698 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy]:] service state: spawn scheduled
+2026-06-04 14:15:42.698 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy]:] service state: spawning
+2026-06-04 14:15:42.698 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy]:] launching: launch job demand
+2026-06-04 14:15:42.698 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy] [44463]:] xpcproxy_sim spawned with pid 44463
+2026-06-04 14:15:42.698 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy] [44463]:] internal event: SPAWNED, code = 0
+2026-06-04 14:15:42.698 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy] [44463]:] service state: xpcproxy
+2026-06-04 14:15:42.698 Df launchd_sim[73266:44caaaa] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy] [44463]:] internal event: SOURCE_ATTACH, code = 0
+2026-06-04 14:15:42.783 Df launchd_sim[73266:44ca8ab] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy] [44463]:] service state: running
+2026-06-04 14:15:42.783 Df launchd_sim[73266:44ca8ab] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy] [44463]:] internal event: INIT, code = 0
+2026-06-04 14:15:42.783 Df launchd_sim[73266:44ca8ab] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy] [44463]:] job state = running
+2026-06-04 14:15:42.783 Df launchd_sim[73266:44ca8ab] [user/501/UIKitApplication:ch.mint.app[e515][rb-legacy] [44463]:] Successfully spawned Runner[44463] because launch job demand

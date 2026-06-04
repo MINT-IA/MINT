@@ -1,0 +1,189 @@
+# tools/simulator/flows/maestro-perfect-set/flow_row22_primary_screen_visual_crawl.yaml
+#
+# PURPOSE
+# Evidence-only visual crawl for Journey Truth Matrix Row 22:
+# primary navigation surfaces have distinct human jobs and no obvious
+# duplicate/triple-role first-viewport regression.
+#
+# This flow complements, but does not replace, the stronger populated Money
+# Trust chain. It captures all eight primary surfaces in one run:
+#   /home, /mon-argent, /budget, /coach/chat, /rapport, /profile/bilan,
+#   /scan, /explore.
+#
+# PRE-CONDITION
+# - Debug app ch.mint.app installed on a booted iPhone simulator.
+# - Recommended build:
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+# - This is a visual role crawl, not onboarding persistence evidence. The
+#   deterministic E2E profile seed gives /profile/bilan material dossier facts.
+# - The flow uses /budget/setup later to create a minimal direct budget input so
+#   /budget renders the detailed cashflow surface, not only the empty-state CTA.
+
+appId: ch.mint.app
+tags:
+  - row-22
+  - primary-screen-crawl
+  - navigation
+  - maestro-proof
+---
+
+# 01 — Start from a clean app state and deep-link into shell surfaces.
+#
+# Use the same direct bootstrap shape as flow_drawer_navigation_smoke.yaml.
+# Row 22 is a screen-role crawl, not an onboarding acceptance test.
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# 02 — Aujourd'hui is daily attention and next action.
+- openLink: "mintapp:///home"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 8000
+- takeScreenshot: "01-row22-home-primary"
+
+# 03 — Profile / Dossier is facts, provenance, correction.
+- openLink: "mintapp:///profile/bilan"
+- extendedWaitUntil:
+    visible:
+      text: "MON PROFIL"
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      id: "profile_dossier_facts_summary"
+    timeout: 12000
+- assertVisible:
+    id: "profile_dossier_provenance_summary"
+- assertVisible:
+    id: "profile_dossier_correction_action"
+- assertNotVisible:
+    text: "À la retraite, il te manquera"
+- assertNotVisible:
+    text: "Ton Bilan Flash"
+- takeScreenshot: "02-row22-profile-bilan-primary"
+
+# 04 — Create a minimal budget state so Money/Budget surfaces render detail.
+- openLink: "mintapp:///budget/setup"
+- extendedWaitUntil:
+    visible:
+      id: "budget_setup_screen"
+    timeout: 12000
+- tapOn:
+    id: "budget_housing_field"
+- eraseText: 20
+- inputText: "2200"
+- tapOn:
+    id: "budget_lamal_field"
+- eraseText: 20
+- inputText: "420"
+- tapOn:
+    text: "Charges fixes"
+- extendedWaitUntil:
+    visible:
+      id: "budget_setup_live_total"
+    timeout: 5000
+- tapOn:
+    id: "budget_setup_save_button"
+- waitForAnimationToEnd:
+    timeout: 6000
+
+# 05 — Mon Argent owns current financial state summary.
+- openLink: "mintapp:///mon-argent?section=month"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_screen"
+    timeout: 12000
+- assertVisible:
+    id: "mon_argent_budget_summary"
+- assertNotVisible:
+    text: "SCANNER UN DOCUMENT"
+- takeScreenshot: "03-row22-mon-argent-primary"
+
+# 06 — Budget owns cashflow configuration/detail.
+- openLink: "mintapp:///budget"
+- extendedWaitUntil:
+    visible:
+      id: "budget_screen"
+    timeout: 12000
+- assertVisible:
+    id: "budget_hero_formula"
+- assertNotVisible: "Ton Bilan Flash"
+- takeScreenshot: "04-row22-budget-primary"
+
+# 07 — Coach is conversation and routing.
+- openLink: "mintapp:///coach/chat"
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 12000
+- assertVisible:
+    id: "coach_input_field"
+- assertVisible:
+    id: "coach_send_button"
+- assertNotVisible:
+    text: "SCANNER UN DOCUMENT"
+- takeScreenshot: "05-row22-coach-chat-primary"
+
+# 08 — Rapport / Bilan is synthesis/export, not the Budget dashboard.
+- openLink: "mintapp:///rapport"
+- extendedWaitUntil:
+    visible:
+      text: "Ton Bilan Flash"
+    timeout: 12000
+- assertNotVisible: "Ton Budget"
+- assertNotVisible: "Primes LAMal"
+- assertNotVisible: "constants_version"
+- takeScreenshot: "06-row22-rapport-primary"
+
+# 10 — Scan is document ingestion, not a profile display.
+- openLink: "mintapp:///scan"
+- extendedWaitUntil:
+    visible:
+      text: "SCANNER UN DOCUMENT"
+    timeout: 8000
+- assertNotVisible:
+    text: "MON PROFIL"
+- takeScreenshot: "07-row22-scan-primary"
+
+# 11 — Explorer is the secondary calculators / education entrypoint.
+- openLink: "mintapp:///explore"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "Explorer"
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: "ouvrir-profil-drawer"
+    timeout: 5000
+- takeScreenshot: "08-row22-explore-primary"

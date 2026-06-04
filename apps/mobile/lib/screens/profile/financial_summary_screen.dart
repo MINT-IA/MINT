@@ -43,15 +43,18 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          _buildAppBar(context),
-          if (profile == null || !profile.hasMaterialData)
-            _buildEmptyState(context)
-          else
-            _buildContent(context, profile),
-        ],
-      ))),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: CustomScrollView(
+                slivers: [
+                  _buildAppBar(context),
+                  if (profile == null || !profile.hasMaterialData)
+                    _buildEmptyState(context)
+                  else
+                    _buildContent(context, profile),
+                ],
+              ))),
     );
   }
 
@@ -118,12 +121,10 @@ class FinancialSummaryScreen extends StatelessWidget {
         : null;
 
     // ── Hero Gap data ──
-    final currentMonthlyNet = breakdown != null
-        ? breakdown.disposableIncome / 12
-        : 0.0;
+    final currentMonthlyNet =
+        breakdown != null ? breakdown.disposableIncome / 12 : 0.0;
     final renteAvs = prev.renteAVSEstimeeMensuelle ?? 0;
-    final renteLpp =
-        (prev.avoirLppTotal ?? 0) * prev.tauxConversion / 12;
+    final renteLpp = (prev.avoirLppTotal ?? 0) * prev.tauxConversion / 12;
     final projectedMonthly = renteAvs + renteLpp;
 
     // ── Confidence ──
@@ -162,148 +163,147 @@ class FinancialSummaryScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── HERO GAP CARD ──
-            MintEntrance(child: HeroGapCard(
-              currentMonthlyNet: currentMonthlyNet,
-              projectedMonthlyRetirement: projectedMonthly,
-              confidencePercent: confidence,
-              missingFieldsCount: missingCount > 0 ? missingCount : null,
-              confidenceBoostPercent:
-                  missingCount > 0 ? (missingCount * 10).clamp(5, 30) : null,
-              onScanTap: missingCount > 0
-                  ? () => context.push('/scan')
-                  : null,
-            )),
-            const SizedBox(height: 20),
+            _buildDossierSummary(context, profile),
+            const SizedBox(height: 12),
 
             // ── TIROIR 1: Ce que tu as ──
-            MintEntrance(delay: const Duration(milliseconds: 100), child: FinancialDrawer(
-              title: s.drawerCeQueTuAs,
-              subtitle: s.drawerCeQueTuAsSubtitle,
-              heroValue: formatChfCompact(patrimoineNet),
-              icon: Icons.savings_outlined,
-              accentColor: MintColors.success,
-              onEdit: () => _showEditSheet(
-                context,
-                title: s.financialSummaryModifierPatrimoine,
-                fields: [
-                  _EditField(
-                    label: s.financialSummaryEditEpargneLiquide,
-                    initialValue:
-                        pat.epargneLiquide > 0 ? pat.epargneLiquide : null,
-                    key: 'epargneLiquide',
+            MintEntrance(
+                delay: const Duration(milliseconds: 100),
+                child: FinancialDrawer(
+                  title: s.drawerCeQueTuAs,
+                  subtitle: s.drawerCeQueTuAsSubtitle,
+                  heroValue: formatChfCompact(patrimoineNet),
+                  icon: Icons.savings_outlined,
+                  accentColor: MintColors.success,
+                  initiallyExpanded: true,
+                  onEdit: () => _showEditSheet(
+                    context,
+                    title: s.financialSummaryModifierPatrimoine,
+                    fields: [
+                      _EditField(
+                        label: s.financialSummaryEditEpargneLiquide,
+                        initialValue:
+                            pat.epargneLiquide > 0 ? pat.epargneLiquide : null,
+                        key: 'epargneLiquide',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditInvestissements,
+                        initialValue: pat.investissements > 0
+                            ? pat.investissements
+                            : null,
+                        key: 'investissements',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditAvoirLpp,
+                        initialValue: prev.avoirLppTotal,
+                        key: 'avoirLppTotal',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditNombre3a,
+                        initialValue:
+                            prev.nombre3a > 0 ? prev.nombre3a.toDouble() : null,
+                        key: 'nombre3a',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditTotal3a,
+                        initialValue: prev.totalEpargne3a > 0
+                            ? prev.totalEpargne3a
+                            : null,
+                        key: 'totalEpargne3a',
+                      ),
+                    ],
                   ),
-                  _EditField(
-                    label: s.financialSummaryEditInvestissements,
-                    initialValue:
-                        pat.investissements > 0 ? pat.investissements : null,
-                    key: 'investissements',
-                  ),
-                  _EditField(
-                    label: s.financialSummaryEditAvoirLpp,
-                    initialValue: prev.avoirLppTotal,
-                    key: 'avoirLppTotal',
-                  ),
-                  _EditField(
-                    label: s.financialSummaryEditNombre3a,
-                    initialValue:
-                        prev.nombre3a > 0 ? prev.nombre3a.toDouble() : null,
-                    key: 'nombre3a',
-                  ),
-                  _EditField(
-                    label: s.financialSummaryEditTotal3a,
-                    initialValue:
-                        prev.totalEpargne3a > 0 ? prev.totalEpargne3a : null,
-                    key: 'totalEpargne3a',
-                  ),
-                ],
-              ),
-              content: PatrimoineDrawerContent(profile: profile),
-            )),
+                  content: PatrimoineDrawerContent(profile: profile),
+                )),
             const SizedBox(height: 12),
 
             // ── TIROIR 2: Ce que tu dois ──
-            MintEntrance(delay: const Duration(milliseconds: 200), child: FinancialDrawer(
-              title: s.drawerCeQueTuDois,
-              subtitle: s.drawerCeQueTuDoisSubtitle,
-              heroValue: det.hasDette
-                  ? formatChfCompact(det.totalDettes)
-                  : '\u2014',
-              icon: Icons.credit_card_outlined,
-              accentColor:
-                  det.hasDette ? MintColors.error : MintColors.textMuted,
-              onEdit: () => _showEditSheet(
-                context,
-                title: s.financialSummaryModifierDettes,
-                fields: [
-                  _EditField(
-                    label: s.financialSummaryEditHypotheque,
-                    initialValue: det.hypotheque,
-                    key: 'hypotheque',
+            MintEntrance(
+                delay: const Duration(milliseconds: 200),
+                child: FinancialDrawer(
+                  title: s.drawerCeQueTuDois,
+                  subtitle: s.drawerCeQueTuDoisSubtitle,
+                  heroValue: det.hasDette
+                      ? formatChfCompact(det.totalDettes)
+                      : '\u2014',
+                  icon: Icons.credit_card_outlined,
+                  accentColor:
+                      det.hasDette ? MintColors.error : MintColors.textMuted,
+                  onEdit: () => _showEditSheet(
+                    context,
+                    title: s.financialSummaryModifierDettes,
+                    fields: [
+                      _EditField(
+                        label: s.financialSummaryEditHypotheque,
+                        initialValue: det.hypotheque,
+                        key: 'hypotheque',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditCreditConsommation,
+                        initialValue: det.creditConsommation,
+                        key: 'creditConsommation',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditLeasing,
+                        initialValue: det.leasing,
+                        key: 'leasing',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditAutresDettes,
+                        initialValue: det.autresDettes,
+                        key: 'autresDettes',
+                      ),
+                    ],
                   ),
-                  _EditField(
-                    label: s.financialSummaryEditCreditConsommation,
-                    initialValue: det.creditConsommation,
-                    key: 'creditConsommation',
-                  ),
-                  _EditField(
-                    label: s.financialSummaryEditLeasing,
-                    initialValue: det.leasing,
-                    key: 'leasing',
-                  ),
-                  _EditField(
-                    label: s.financialSummaryEditAutresDettes,
-                    initialValue: det.autresDettes,
-                    key: 'autresDettes',
-                  ),
-                ],
-              ),
-              content: DettesDrawerContent(profile: profile),
-            )),
+                  content: DettesDrawerContent(profile: profile),
+                )),
             const SizedBox(height: 12),
 
             // ── TIROIR 3: Ce que tu auras ──
-            MintEntrance(delay: const Duration(milliseconds: 300), child: FinancialDrawer(
-              title: s.drawerCeQueTuAuras,
-              subtitle: s.drawerCeQueTuAurasSubtitle,
-              heroValue: projectedMonthly > 0
-                  ? formatChfCompact(projectedMonthly)
-                  : '\u2014',
-              heroSuffix: s.heroGapPerMonth,
-              icon: Icons.trending_up,
-              accentColor: MintColors.info,
-              onEdit: () => _showEditSheet(
-                context,
-                title: s.financialSummaryModifierPrevoyance,
-                fields: [
-                  _EditField(
-                    label: s.financialSummaryEditAvoirLpp,
-                    initialValue: prev.avoirLppTotal,
-                    key: 'avoirLppTotal',
+            MintEntrance(
+                delay: const Duration(milliseconds: 300),
+                child: FinancialDrawer(
+                  title: s.drawerCeQueTuAuras,
+                  subtitle: s.drawerCeQueTuAurasSubtitle,
+                  heroValue: projectedMonthly > 0
+                      ? formatChfCompact(projectedMonthly)
+                      : '\u2014',
+                  heroSuffix: s.heroGapPerMonth,
+                  icon: Icons.trending_up,
+                  accentColor: MintColors.info,
+                  onEdit: () => _showEditSheet(
+                    context,
+                    title: s.financialSummaryModifierPrevoyance,
+                    fields: [
+                      _EditField(
+                        label: s.financialSummaryEditAvoirLpp,
+                        initialValue: prev.avoirLppTotal,
+                        key: 'avoirLppTotal',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditNombre3a,
+                        initialValue:
+                            prev.nombre3a > 0 ? prev.nombre3a.toDouble() : null,
+                        key: 'nombre3a',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditTotal3a,
+                        initialValue: prev.totalEpargne3a > 0
+                            ? prev.totalEpargne3a
+                            : null,
+                        key: 'totalEpargne3a',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditRachatLpp,
+                        initialValue: profile.totalLppBuybackMensuel > 0
+                            ? profile.totalLppBuybackMensuel
+                            : null,
+                        key: 'rachatLppMensuel',
+                      ),
+                    ],
                   ),
-                  _EditField(
-                    label: s.financialSummaryEditNombre3a,
-                    initialValue:
-                        prev.nombre3a > 0 ? prev.nombre3a.toDouble() : null,
-                    key: 'nombre3a',
-                  ),
-                  _EditField(
-                    label: s.financialSummaryEditTotal3a,
-                    initialValue:
-                        prev.totalEpargne3a > 0 ? prev.totalEpargne3a : null,
-                    key: 'totalEpargne3a',
-                  ),
-                  _EditField(
-                    label: s.financialSummaryEditRachatLpp,
-                    initialValue: profile.totalLppBuybackMensuel > 0
-                        ? profile.totalLppBuybackMensuel
-                        : null,
-                    key: 'rachatLppMensuel',
-                  ),
-                ],
-              ),
-              content: FuturDrawerContent(profile: profile),
-            )),
+                  content: FuturDrawerContent(profile: profile),
+                )),
             const SizedBox(height: 20),
 
             // ── ENRICHMENT CTA ──
@@ -314,8 +314,26 @@ class FinancialSummaryScreen extends StatelessWidget {
               ),
             if (missingCount > 0) const SizedBox(height: 16),
 
+            // ── PROJECTION RETRAITE — secondary synthesis after dossier facts ──
+            MintEntrance(
+                delay: const Duration(milliseconds: 350),
+                child: HeroGapCard(
+                  currentMonthlyNet: currentMonthlyNet,
+                  projectedMonthlyRetirement: projectedMonthly,
+                  confidencePercent: confidence,
+                  missingFieldsCount: missingCount > 0 ? missingCount : null,
+                  confidenceBoostPercent: missingCount > 0
+                      ? (missingCount * 10).clamp(5, 30)
+                      : null,
+                  onScanTap:
+                      missingCount > 0 ? () => context.push('/scan') : null,
+                )),
+            const SizedBox(height: 20),
+
             // ── DISCLAIMER ──
-            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(context)),
+            MintEntrance(
+                delay: const Duration(milliseconds: 400),
+                child: _buildDisclaimer(context)),
             const SizedBox(height: 24),
 
             // ── PHASE 52 SYNC STATUS ROW ──
@@ -359,6 +377,297 @@ class FinancialSummaryScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildDossierSummary(BuildContext context, CoachProfile profile) {
+    final s = S.of(context)!;
+    final sourceCounts = _dossierSourceCounts(profile);
+    final declared = (sourceCounts[ProfileDataSource.userInput] ?? 0) +
+        (sourceCounts[ProfileDataSource.crossValidated] ?? 0);
+    final certified = (sourceCounts[ProfileDataSource.certificate] ?? 0) +
+        (sourceCounts[ProfileDataSource.openBanking] ?? 0);
+    final estimated = sourceCounts[ProfileDataSource.estimated] ?? 0;
+    final totalFacts = sourceCounts.values.fold<int>(0, (sum, n) => sum + n);
+
+    return MintEntrance(
+      child: MintSurface(
+        tone: MintSurfaceTone.blanc,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(
+              identifier: 'profile_dossier_facts_summary',
+              container: true,
+              child: Container(
+                key: const ValueKey('profile_dossier_facts_summary'),
+                width: double.infinity,
+                color: MintColors.transparent,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.folder_shared_outlined,
+                      color: MintColors.textPrimary,
+                      size: 22,
+                    ),
+                    const SizedBox(width: MintSpacing.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            s.financialSummaryDossierTitle,
+                            style: MintTextStyles.titleMedium(
+                              color: MintColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            s.financialSummaryDossierSubtitle,
+                            style: MintTextStyles.bodySmall(
+                              color: MintColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: MintColors.appleSurface,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        '$totalFacts ${s.financialSummaryDossierFactCountLabel}',
+                        style: MintTextStyles.labelMedium(
+                          color: MintColors.textPrimary,
+                        ).copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            Semantics(
+              identifier: 'profile_dossier_provenance_summary',
+              container: true,
+              child: Container(
+                key: const ValueKey('profile_dossier_provenance_summary'),
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: MintColors.appleSurface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      s.financialSummaryDossierSourcesTitle,
+                      style: MintTextStyles.labelMedium(
+                        color: MintColors.textSecondary,
+                      ).copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    _sourcePill(
+                      label: s.sourceBadgeDeclared,
+                      count: declared,
+                      color: MintColors.success,
+                    ),
+                    _sourcePill(
+                      label: s.sourceBadgeEstimated,
+                      count: estimated,
+                      color: MintColors.warning,
+                    ),
+                    _sourcePill(
+                      label: s.sourceBadgeCertified,
+                      count: certified,
+                      color: MintColors.info,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Semantics(
+                identifier: 'profile_dossier_correction_action',
+                button: true,
+                child: TextButton.icon(
+                  key: const ValueKey('profile_dossier_correction_action'),
+                  onPressed: () => _showEditSheet(
+                    context,
+                    title: s.financialSummaryDossierCorrectionSheetTitle,
+                    fields: [
+                      _EditField(
+                        label: s.financialSummaryEditRevenusMensuels,
+                        initialValue: profile.salaireBrutMensuel > 0
+                            ? profile.salaireBrutMensuel
+                            : null,
+                        key: 'salaireBrutMensuel',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditLoyerMensuel,
+                        initialValue: profile.depenses.loyer > 0
+                            ? profile.depenses.loyer
+                            : null,
+                        key: 'loyer',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditLamalMensuelle,
+                        initialValue: profile.depenses.assuranceMaladie > 0
+                            ? profile.depenses.assuranceMaladie
+                            : null,
+                        key: 'assuranceMaladie',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditEpargneLiquide,
+                        initialValue: profile.patrimoine.epargneLiquide > 0
+                            ? profile.patrimoine.epargneLiquide
+                            : null,
+                        key: 'epargneLiquide',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditInvestissements,
+                        initialValue: profile.patrimoine.investissements > 0
+                            ? profile.patrimoine.investissements
+                            : null,
+                        key: 'investissements',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditAvoirLpp,
+                        initialValue: profile.prevoyance.avoirLppTotal,
+                        key: 'avoirLppTotal',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditTotal3a,
+                        initialValue: profile.prevoyance.totalEpargne3a > 0
+                            ? profile.prevoyance.totalEpargne3a
+                            : null,
+                        key: 'totalEpargne3a',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditHypotheque,
+                        initialValue: profile.dettes.hypotheque,
+                        key: 'hypotheque',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditCreditConsommation,
+                        initialValue: profile.dettes.creditConsommation,
+                        key: 'creditConsommation',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditLeasing,
+                        initialValue: profile.dettes.leasing,
+                        key: 'leasing',
+                      ),
+                      _EditField(
+                        label: s.financialSummaryEditAutresDettes,
+                        initialValue: profile.dettes.autresDettes,
+                        key: 'autresDettes',
+                      ),
+                    ],
+                  ),
+                  icon: const Icon(Icons.edit_outlined, size: 16),
+                  label: Text(s.financialSummaryDossierCorrectionCta),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sourcePill({
+    required String label,
+    required int count,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        '$label $count',
+        style: MintTextStyles.labelSmall(color: color)
+            .copyWith(fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+
+  Map<ProfileDataSource, int> _dossierSourceCounts(CoachProfile profile) {
+    ProfileDataSource sourceFor(String key) {
+      return profile.dataSources[key] ??
+          (profile.userProvidedFields.contains(key)
+              ? ProfileDataSource.userInput
+              : ProfileDataSource.estimated);
+    }
+
+    ProfileDataSource sourceForAny(List<String> keys) {
+      final sources = keys
+          .map((key) => profile.dataSources[key])
+          .whereType<ProfileDataSource>()
+          .toSet();
+      if (sources.contains(ProfileDataSource.openBanking)) {
+        return ProfileDataSource.openBanking;
+      }
+      if (sources.contains(ProfileDataSource.certificate)) {
+        return ProfileDataSource.certificate;
+      }
+      if (sources.contains(ProfileDataSource.crossValidated)) {
+        return ProfileDataSource.crossValidated;
+      }
+      if (sources.contains(ProfileDataSource.userInput)) {
+        return ProfileDataSource.userInput;
+      }
+      return ProfileDataSource.estimated;
+    }
+
+    final fields = <ProfileDataSource>[];
+    if (profile.revenuBrutAnnuel > 0) {
+      fields.add(sourceFor('salaireBrutMensuel'));
+    }
+    if (profile.depenses.loyer > 0) {
+      fields.add(sourceFor('depenses.loyer'));
+    }
+    if (profile.depenses.assuranceMaladie > 0) {
+      fields.add(sourceFor('depenses.assuranceMaladie'));
+    }
+    if (profile.patrimoine.epargneLiquide > 0) {
+      fields.add(sourceFor('patrimoine.epargneLiquide'));
+    }
+    if (profile.patrimoine.investissements > 0) {
+      fields.add(sourceFor('patrimoine.investissements'));
+    }
+    if ((profile.prevoyance.avoirLppTotal ?? 0) > 0) {
+      fields.add(sourceFor('prevoyance.avoirLppTotal'));
+    }
+    if (profile.prevoyance.totalEpargne3a > 0) {
+      fields.add(sourceFor('prevoyance.totalEpargne3a'));
+    }
+    if (profile.dettes.totalDettes > 0) {
+      fields.add(sourceForAny(const [
+        'dettes.totalDettes',
+        'dettes.hypotheque',
+        'dettes.creditConsommation',
+        'dettes.leasing',
+        'dettes.autresDettes',
+      ]));
+    }
+
+    final counts = <ProfileDataSource, int>{};
+    for (final source in fields) {
+      counts[source] = (counts[source] ?? 0) + 1;
+    }
+    return counts;
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -508,74 +817,76 @@ class FinancialSummaryScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
-        return Padding(
-          padding: EdgeInsets.fromLTRB(
-            24,
-            24,
-            24,
-            24 + MediaQuery.of(ctx).viewInsets.bottom,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                title,
-                style: MintTextStyles.headlineMedium(),
-              ),
-              const SizedBox(height: 20),
-              for (final f in fields) ...[
+        return SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              24,
+              24,
+              24,
+              24 + MediaQuery.of(ctx).viewInsets.bottom,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                 Text(
-                  f.label,
-                  style: MintTextStyles.bodySmall(),
+                  title,
+                  style: MintTextStyles.headlineMedium(),
                 ),
-                const SizedBox(height: 6),
-                TextField(
-                  controller: controllers[f.key],
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                  decoration: InputDecoration(
-                    hintText: '0',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
+                const SizedBox(height: 20),
+                for (final f in fields) ...[
+                  Text(
+                    f.label,
+                    style: MintTextStyles.bodySmall(),
+                  ),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: controllers[f.key],
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                    decoration: InputDecoration(
+                      hintText: '0',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                ],
+                const SizedBox(height: 8),
+                FilledButton(
+                  // Fix 2026-05-22 (data-race): the previous code fired
+                  // _applyEdits() unawaited, then immediately popped the
+                  // sheet. updateInline()'s ReportPersistenceService.saveAnswers
+                  // write would be cancelled if the user backgrounded the app
+                  // before SharedPreferences flushed — silent data loss.
+                  // Now await the write before popping; UX gets a 50ms-200ms
+                  // pause but persistence is guaranteed.
+                  onPressed: () async {
+                    await _applyEdits(context, controllers);
+                    if (context.mounted) ctx.pop();
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    foregroundColor: MintColors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: Text(
+                    S.of(context)!.financialSummaryEnregistrer,
+                    style: MintTextStyles.titleMedium(color: MintColors.white),
+                  ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
               ],
-              const SizedBox(height: 8),
-              FilledButton(
-                // Fix 2026-05-22 (data-race): the previous code fired
-                // _applyEdits() unawaited, then immediately popped the
-                // sheet. updateInline()'s ReportPersistenceService.saveAnswers
-                // write would be cancelled if the user backgrounded the app
-                // before SharedPreferences flushed — silent data loss.
-                // Now await the write before popping; UX gets a 50ms-200ms
-                // pause but persistence is guaranteed.
-                onPressed: () async {
-                  await _applyEdits(context, controllers);
-                  if (context.mounted) ctx.pop();
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                  foregroundColor: MintColors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                child: Text(
-                  S.of(context)!.financialSummaryEnregistrer,
-                  style: MintTextStyles.titleMedium(color: MintColors.white),
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
+            ),
           ),
         );
       },
@@ -600,13 +911,16 @@ class FinancialSummaryScreen extends StatelessWidget {
     }
 
     await context.read<CoachProfileProvider>().updateInline(
+          salaireBrutMensuel: parseVal('salaireBrutMensuel'),
           // Tiroir 1 — Patrimoine
           epargneLiquide: parseVal('epargneLiquide'),
           investissements: parseVal('investissements'),
           avoirLppTotal: parseVal('avoirLppTotal'),
           nombre3a: parseVal('nombre3a')?.toInt(),
           totalEpargne3a: parseVal('totalEpargne3a'),
-          // Tiroir 2 — Dettes
+          // Tiroir 2 — Budget et dettes
+          loyer: parseVal('loyer'),
+          assuranceMaladie: parseVal('assuranceMaladie'),
           hypotheque: parseVal('hypotheque'),
           creditConsommation: parseVal('creditConsommation'),
           leasing: parseVal('leasing'),

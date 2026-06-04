@@ -1,0 +1,173 @@
+# tools/simulator/flows/maestro-perfect-set/flow_row22_profile_dossier_production_profile.yaml
+#
+# PURPOSE
+# Row 22 follow-up proof for Profile/Dossier without an E2E archetype seed:
+# production onboarding writes a supported Swiss-native profile, the app
+# restarts, and /profile/bilan first-viewport-leads with facts, provenance, and
+# correction before any retirement projection is visible.
+#
+# PRE-CONDITION
+# - Debug app ch.mint.app installed on a booted iPhone simulator.
+# - Recommended build:
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+# - Do not build this proof with MINT_E2E_ARCHETYPE. This flow is specifically
+#   the non-seeded profile persistence pair for the seeded visual crawl.
+
+appId: ch.mint.app
+tags:
+  - row-22
+  - profile-dossier
+  - production-onboarding
+  - persistence
+  - maestro-proof
+---
+
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+
+# Build the profile through the production onboarding writer, not a debug seed.
+- openLink: "mintapp:///onb"
+- extendedWaitUntil:
+    visible:
+      text: "Il est temps que tu comprennes."
+    timeout: 10000
+- tapOn:
+    text: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      text: ".*Ce que je toucherai.*"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-intent-retraite"
+- extendedWaitUntil:
+    visible:
+      text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
+    timeout: 5000
+- tapOn:
+    text: "Non"
+- runFlow:
+    when:
+      visible: "Quelle est ta nationalité ?"
+    commands:
+      - tapOn:
+          text: "Suisse"
+- runFlow:
+    when:
+      visible: "Quel âge tu as ?"
+    commands:
+      - tapOn:
+          text: "Continuer"
+- extendedWaitUntil:
+    visible:
+      text: "Choisir ma date"
+    timeout: 5000
+- tapOn: "Choisir ma date"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "OK"
+    timeout: 5000
+- tapOn:
+    text: ".*15.*juillet.*1992.*"
+- tapOn: "OK"
+- extendedWaitUntil:
+    visible:
+      text: "15.07.1992"
+    timeout: 5000
+- tapOn:
+    text: "Continuer"
+- runFlow:
+    when:
+      visible: "Quelle est ta nationalité ?"
+    commands:
+      - tapOn:
+          text: "Suisse"
+- extendedWaitUntil:
+    visible:
+      text: "Où tu vis ?"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-canton-vd"
+- extendedWaitUntil:
+    visible:
+      text: "Combien te tombe net par mois ?"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-revenue-range-continue"
+- extendedWaitUntil:
+    visible:
+      text: "Avant de te montrer…"
+    timeout: 12000
+- tapOn:
+    id: "onboarding-insight-view"
+- extendedWaitUntil:
+    visible:
+      text: "Continuer"
+    timeout: 8000
+- tapOn:
+    id: "onboarding-scene-continue"
+- runFlow:
+    when:
+      visible:
+        text: "Continuer"
+    commands:
+      - tapOn:
+          id: "onboarding-scene-continue"
+- extendedWaitUntil:
+    visible:
+      text: "Creuser"
+    timeout: 5000
+- tapOn:
+    id: "onboarding-bifurcation-creuser"
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 15000
+- assertVisible:
+    id: "coach_input_field"
+
+# Restart proves the profile was persisted, not just held in memory.
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 6000
+
+- openLink: "mintapp:///profile/bilan"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "MON PROFIL"
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      id: "profile_dossier_facts_summary"
+    timeout: 12000
+- assertVisible:
+    id: "profile_dossier_provenance_summary"
+- assertVisible:
+    id: "profile_dossier_correction_action"
+- assertNotVisible:
+    text: "Aucun profil renseigné"
+- assertNotVisible:
+    text: "À la retraite, il te manquera"
+- assertNotVisible:
+    text: "Ton Bilan Flash"
+- takeScreenshot: "row22-production-profile-dossier-first-viewport"

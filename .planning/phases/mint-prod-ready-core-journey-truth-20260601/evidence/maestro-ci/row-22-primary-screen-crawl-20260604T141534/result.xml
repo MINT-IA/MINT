@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="0" time="84.0">
+    <testcase id="flow_row22_primary_screen_visual_crawl" name="flow_row22_primary_screen_visual_crawl" classname="flow_row22_primary_screen_visual_crawl" time="84.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="row-22, primary-screen-crawl, navigation, maestro-proof"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>
