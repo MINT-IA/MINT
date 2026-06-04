@@ -68,7 +68,7 @@
 #     test/widgets/aujourdhui/cap_du_jour_banner_test.dart
 #   → 5/5 passed (Key(card_cap_du_jour), MintCardActionBar descendant,
 #                 Key(mint_card_action_bar), 3 verb labels,
-#                 « Simule » → /explorer?simulate=cap_du_jour)
+#                 « Simule » → /explore?simulate=cap_du_jour)
 #
 # ─── MAESTRO 2.5.1 SYNTAX ──────────────────────────────────────────────
 # Per https://docs.maestro.dev/api-reference/commands.

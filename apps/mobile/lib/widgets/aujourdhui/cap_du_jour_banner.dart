@@ -74,7 +74,7 @@ class CapDuJourBanner extends StatelessWidget {
                 sourceCard: _buildCardContext(context, cap),
                 intent: 'explain',
               ),
-              onSimulate: () => context.push('/explorer?simulate=$_kCardId'),
+              onSimulate: () => context.push('/explore?simulate=$_kCardId'),
               onReassure: () => MintChatOverlay.show(
                 context,
                 sourceCard: _buildCardContext(context, cap),

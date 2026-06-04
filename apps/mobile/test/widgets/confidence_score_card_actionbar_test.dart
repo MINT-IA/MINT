@@ -153,7 +153,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // W3-T1 : the test surface verifies the chip fires onSimulate ;
-      // parent screen wiring to context.push('/explorer?simulate=
+      // parent screen wiring to context.push('/explore?simulate=
       // confidence_score') is verified at the screen-level integration
       // test (W3 follow-on), kept out of this unit test per RESEARCH §E.2.
       expect(recorder.taps, 1);

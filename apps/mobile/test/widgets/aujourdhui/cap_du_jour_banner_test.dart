@@ -7,7 +7,7 @@
 ///   2. `MintCardActionBar` is a descendant of `CapDuJourBanner`
 ///   3. The 3 verb labels (« Explique-moi » / « Simule » / « Rassure-moi »)
 ///      render
-///   4. Tapping « Simule » triggers `context.push('/explorer?simulate=
+///   4. Tapping « Simule » triggers `context.push('/explore?simulate=
 ///      cap_du_jour')` (zero LLM call per CONTEXT D-06)
 ///
 /// Per CONTEXT D-37, this is the DETERMINISTIC gate for the S001 fix
@@ -65,9 +65,9 @@ Widget _harness({required _SimulateRecorder recorder}) {
         builder: (_, __) => const Scaffold(body: CapDuJourBanner()),
       ),
       GoRoute(
-        path: '/explorer',
+        path: '/explore',
         builder: (_, state) {
-          recorder.lastSimulatePath = '/explorer?${state.uri.query}';
+          recorder.lastSimulatePath = '/explore?${state.uri.query}';
           return const Scaffold(body: SizedBox.shrink());
         },
       ),
@@ -168,7 +168,7 @@ void main() {
     });
 
     testWidgets(
-        'tapping « Simule » navigates to /explorer?simulate=cap_du_jour',
+        'tapping « Simule » navigates to /explore?simulate=cap_du_jour',
         (tester) async {
       final recorder = _SimulateRecorder();
       await tester.pumpWidget(_harness(recorder: recorder));
@@ -179,7 +179,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(recorder.lastSimulatePath, isNotNull);
-      expect(recorder.lastSimulatePath, contains('simulate=cap_du_jour'));
+      expect(recorder.lastSimulatePath, '/explore?simulate=cap_du_jour');
     });
   });
 }

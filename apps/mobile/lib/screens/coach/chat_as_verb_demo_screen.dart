@@ -5,7 +5,7 @@
 // screen is the W1 wiring contract demonstration: each card maintains
 // a `_actionBarExpanded` bool toggled by the card's tap gesture,
 // MintCardActionBar reveals 3 verbs, « Simule » deep-links to
-// /explorer?simulate=<card_id> (zero LLM), « Explique-moi » +
+// /explore?simulate=<card_id> (zero LLM), « Explique-moi » +
 // « Rassure-moi » open MintChatOverlay with the card's
 // SerializedCardContext.
 //
@@ -145,7 +145,7 @@ class _DemoCardWithActionsState extends State<_DemoCardWithActions> {
               intent: 'explain',
             ),
             onSimulate: () => context.push(
-              '/explorer?simulate=${widget.cardId}',
+              '/explore?simulate=${widget.cardId}',
             ),
             onReassure: () => MintChatOverlay.show(
               context,

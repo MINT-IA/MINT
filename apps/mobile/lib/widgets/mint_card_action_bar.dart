@@ -84,6 +84,7 @@ class MintCardActionBar extends StatelessWidget {
                     child: _VerbChip(
                       label: l.verbExplique,
                       icon: Icons.lightbulb_outline,
+                      semanticsIdentifier: 'mint_card_action_explain',
                       semanticsLabel:
                           'Explique-moi — ouvre le coach sur cette carte',
                       onTap: onExplain,
@@ -94,6 +95,7 @@ class MintCardActionBar extends StatelessWidget {
                     child: _VerbChip(
                       label: l.verbSimule,
                       icon: Icons.tune_outlined,
+                      semanticsIdentifier: 'mint_card_action_simulate',
                       semanticsLabel:
                           'Simule — ouvre le simulateur pour cette carte',
                       onTap: onSimulate,
@@ -104,6 +106,7 @@ class MintCardActionBar extends StatelessWidget {
                     child: _VerbChip(
                       label: l.verbRassure,
                       icon: Icons.shield_outlined,
+                      semanticsIdentifier: 'mint_card_action_reassure',
                       semanticsLabel:
                           "Rassure-moi — ouvre le coach pour réduire l'inquiétude",
                       onTap: onReassure,
@@ -122,12 +125,14 @@ class MintCardActionBar extends StatelessWidget {
 class _VerbChip extends StatelessWidget {
   final String label;
   final IconData icon;
+  final String semanticsIdentifier;
   final String semanticsLabel;
   final VoidCallback onTap;
 
   const _VerbChip({
     required this.label,
     required this.icon,
+    required this.semanticsIdentifier,
     required this.semanticsLabel,
     required this.onTap,
   });
@@ -135,6 +140,7 @@ class _VerbChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
+      identifier: semanticsIdentifier,
       button: true,
       label: semanticsLabel,
       child: InkWell(

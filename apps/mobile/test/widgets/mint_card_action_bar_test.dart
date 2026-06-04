@@ -60,6 +60,27 @@ void main() {
       expect(find.text('Rassure-moi'), findsOneWidget);
     });
 
+    testWidgets('verb chips expose stable Semantics identifiers',
+        (tester) async {
+      await tester.pumpWidget(_harness(
+        expanded: true,
+        onExplain: () {},
+        onSimulate: () {},
+        onReassure: () {},
+      ));
+      await tester.pumpAndSettle();
+
+      Finder byIdentifier(String identifier) => find.byWidgetPredicate(
+            (widget) =>
+                widget is Semantics &&
+                widget.properties.identifier == identifier,
+          );
+
+      expect(byIdentifier('mint_card_action_explain'), findsOneWidget);
+      expect(byIdentifier('mint_card_action_simulate'), findsOneWidget);
+      expect(byIdentifier('mint_card_action_reassure'), findsOneWidget);
+    });
+
     testWidgets('expanded=false collapses to zero height', (tester) async {
       await tester.pumpWidget(_harness(
         expanded: false,

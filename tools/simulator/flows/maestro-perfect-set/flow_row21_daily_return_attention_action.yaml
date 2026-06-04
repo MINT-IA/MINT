@@ -1,0 +1,80 @@
+# tools/simulator/flows/maestro-perfect-set/flow_row21_daily_return_attention_action.yaml
+#
+# PURPOSE
+# Evidence-only runtime proof for Journey Truth Matrix Row 21:
+# the daily return screen answers "what needs attention now?" with a visible
+# Cap du jour surface and direct next-action verbs.
+#
+# PRE-CONDITION
+# - Debug app ch.mint.app installed on a booted iPhone simulator.
+# - Recommended build:
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+# - This flow intentionally avoids the legacy chat-as-verb staging/LLM path.
+#   Row 21 only needs the daily attention/action surface here; live LLM turn
+#   caps remain separate Coach evidence.
+
+appId: ch.mint.app
+tags:
+  - row-21
+  - daily-return
+  - attention-action
+  - maestro-proof
+---
+
+# 01 — Start from clean state, then deep-link to the daily screen.
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///home"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# 02 — Aujourd'hui renders with the daily attention card and action verbs.
+- extendedWaitUntil:
+    visible:
+      text: ".*Aujourd'hui.*"
+    timeout: 10000
+- assertVisible:
+    id: "card_cap_du_jour"
+- assertVisible:
+    id: "mint_card_action_bar"
+- assertVisible:
+    id: "mint_card_action_explain"
+- assertVisible:
+    id: "mint_card_action_simulate"
+- assertVisible:
+    id: "mint_card_action_reassure"
+- takeScreenshot: "01-row21-aujourdhui-cap-action"
+
+# 03 — A direct action works without opening the chat overlay.
+- tapOn:
+    id: "mint_card_action_simulate"
+- waitForAnimationToEnd:
+    timeout: 6000
+- assertNotVisible:
+    id: "mint_chat_overlay"
+- extendedWaitUntil:
+    visible:
+      text: ".*Explorer.*"
+    timeout: 10000
+- takeScreenshot: "02-row21-simule-explorer"

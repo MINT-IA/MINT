@@ -8,7 +8,7 @@
 //
 // Routing contract (D-06):
 //   « Explique-moi » → MintChatOverlay open with intent='explain'
-//   « Simule »      → context.push('/explorer?simulate=<card_id>') (no LLM)
+//   « Simule »      → context.push('/explore?simulate=<card_id>') (no LLM)
 //   « Rassure-moi » → MintChatOverlay open with intent='reassure'
 
 import 'package:flutter/material.dart';
@@ -51,7 +51,7 @@ class _CardHostState extends State<_CardHost> {
       expanded: _expanded,
       onExplain: () => widget.record.lastIntent = 'explain',
       onSimulate: () => widget.record.lastSimulateDeepLink =
-          '/explorer?simulate=${_fixture.cardId}',
+          '/explore?simulate=${_fixture.cardId}',
       onReassure: () => widget.record.lastIntent = 'reassure',
     );
   }
@@ -100,7 +100,7 @@ void main() {
     });
 
     testWidgets(
-      '« Simule » dispatches /explorer?simulate=<card_id> '
+      '« Simule » dispatches /explore?simulate=<card_id> '
       '(zero LLM call per D-06)',
       (tester) async {
         final record = _DispatchRecord();
@@ -112,7 +112,7 @@ void main() {
 
         expect(
           record.lastSimulateDeepLink,
-          '/explorer?simulate=mon_3a_2026',
+          '/explore?simulate=mon_3a_2026',
         );
         // Critical: Simule must NEVER dispatch an overlay intent — it's
         // the LLM-free path.
