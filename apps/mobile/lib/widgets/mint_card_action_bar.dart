@@ -73,11 +73,10 @@ class MintCardActionBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                 horizontal: MintSpacing.md,
               ),
-              // F008 (2026-05-12) — 3 chips share the available width via
-              // Expanded(flex: 1) so the row fits any iPhone width
-              // (overflow surfaced at 35px on iPhone 17 Pro pre-fix).
-              // Inner chip row keeps MainAxisSize.min on the icon+label
-              // cluster + centers it within the Expanded slot.
+              // F008/F009 — 3 chips share the available width via
+              // Expanded(flex: 1). The inner icon+label cluster can scale
+              // down slightly instead of truncating primary action labels on
+              // iPhone-width Home screenshots.
               child: Row(
                 children: [
                   Expanded(
@@ -163,23 +162,24 @@ class _VerbChip extends StatelessWidget {
               border: Border.all(color: MintColors.border),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 16, color: MintColors.textMuted),
-                const SizedBox(width: MintSpacing.xs),
-                Flexible(
-                  child: Text(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 16, color: MintColors.textMuted),
+                  const SizedBox(width: MintSpacing.xs),
+                  Text(
                     label,
                     style: MintTextStyles.labelLarge(
                       color: MintColors.textSecondary,
                     ),
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    overflow: TextOverflow.visible,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

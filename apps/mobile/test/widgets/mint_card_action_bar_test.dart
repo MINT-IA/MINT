@@ -176,6 +176,33 @@ void main() {
       },
     );
 
+    testWidgets('verb labels are scale-down, not ellipsis-truncated on mobile',
+        (tester) async {
+      tester.view.physicalSize = const Size(393.0 * 3.0, 200.0 * 3.0);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(_harness(
+        expanded: true,
+        onExplain: () {},
+        onSimulate: () {},
+        onReassure: () {},
+      ));
+      await tester.pumpAndSettle();
+
+      final chipFittedBoxes = find.descendant(
+        of: find.byType(MintCardActionBar),
+        matching: find.byType(FittedBox),
+      );
+      expect(chipFittedBoxes, findsNWidgets(3));
+
+      for (final label in ['Explique-moi', 'Simule', 'Rassure-moi']) {
+        final text = tester.widget<Text>(find.text(label));
+        expect(text.overflow, TextOverflow.visible);
+      }
+    });
+
     testWidgets('each _VerbChip has minHeight/minWidth >= 44 (Apple HIG)',
         (tester) async {
       await tester.pumpWidget(_harness(
