@@ -43,6 +43,29 @@ python3 -m pytest tools/checks/tests/test_cjt_context_guard.py -q
 git diff --check
 ```
 
+## Session Handoff Checklist
+
+Every CJT handoff or resumed session must explicitly state:
+
+- `MEMORY.md` read or Engram context restored.
+- `CLAUDE.md` read.
+- `AGENTS.md` read.
+- `JOURNEY-TRUTH-MATRIX.md` read.
+- `BUG-TRACKER.md` read.
+- `open gates named`: at minimum `CJT-013` and `CJT-015`.
+- `newest commit audited` against the active matrix before new work starts.
+
+## No-New-Debt Commit Review
+
+Every CJT commit review should include:
+
+- `introduced`: new debt created by this lot, or `none`.
+- `revealed`: old debt surfaced by this lot, or `none`.
+- `accepted`: debt intentionally left open, with owner.
+- `removed`: debt eliminated by this lot.
+- `owner`: person/team or subsystem owning each non-removed item.
+- `next proof`: command, runtime flow, or external gate needed next.
+
 ## Drift Rules
 
 - Do not run `$gsd-next` blindly while `.planning/STATE.md` and

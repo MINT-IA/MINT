@@ -63,6 +63,29 @@ def _write_valid_fixture(root: Path) -> None:
         ),
         encoding="utf-8",
     )
+    (phase_dir / "CJT-OPS-00-CONTEXT-GUARD.md").write_text(
+        "\n".join(
+            [
+                "# CJT-OPS-00",
+                "## Session Handoff Checklist",
+                "- MEMORY.md read",
+                "- CLAUDE.md read",
+                "- AGENTS.md read",
+                "- JOURNEY-TRUTH-MATRIX.md read",
+                "- BUG-TRACKER.md read",
+                "- open gates named",
+                "- newest commit audited",
+                "## No-New-Debt Commit Review",
+                "- introduced",
+                "- revealed",
+                "- accepted",
+                "- removed",
+                "- owner",
+                "- next proof",
+            ]
+        ),
+        encoding="utf-8",
+    )
 
 
 def test_guard_passes_for_coherent_cjt_context(tmp_path: Path) -> None:
@@ -130,3 +153,41 @@ def test_guard_fails_when_cjt015_uses_stale_domain(tmp_path: Path) -> None:
 
     assert proc.returncode == 1
     assert "mint-ai.ch" in proc.stderr
+
+
+def test_guard_fails_without_session_handoff_checklist(tmp_path: Path) -> None:
+    _write_valid_fixture(tmp_path)
+    (tmp_path / PHASE_DIR / "CJT-OPS-00-CONTEXT-GUARD.md").write_text(
+        "# CJT-OPS-00\nNo checklist here.",
+        encoding="utf-8",
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 1
+    assert "Session Handoff Checklist" in proc.stderr
+
+
+def test_guard_fails_without_no_new_debt_commit_review(tmp_path: Path) -> None:
+    _write_valid_fixture(tmp_path)
+    (tmp_path / PHASE_DIR / "CJT-OPS-00-CONTEXT-GUARD.md").write_text(
+        "\n".join(
+            [
+                "# CJT-OPS-00",
+                "## Session Handoff Checklist",
+                "- MEMORY.md read",
+                "- CLAUDE.md read",
+                "- AGENTS.md read",
+                "- JOURNEY-TRUTH-MATRIX.md read",
+                "- BUG-TRACKER.md read",
+                "- open gates named",
+                "- newest commit audited",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 1
+    assert "No-New-Debt Commit Review" in proc.stderr

@@ -15,9 +15,29 @@ PHASE_SLUG = "mint-prod-ready-core-journey-truth-20260601"
 PHASE_DIR = Path(".planning/phases") / PHASE_SLUG
 MATRIX = PHASE_DIR / "JOURNEY-TRUTH-MATRIX.md"
 BUG_TRACKER = PHASE_DIR / "BUG-TRACKER.md"
+OPS_GUARD = PHASE_DIR / "CJT-OPS-00-CONTEXT-GUARD.md"
 OPEN_GATES = ("CJT-013", "CJT-015")
 UNIVERSAL_LINK_GATE = "CJT-015"
 UNIVERSAL_LINK_PRODUCT_DOMAIN = "mint-ai.ch"
+SESSION_HANDOFF_REQUIRED = (
+    "Session Handoff Checklist",
+    "MEMORY.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "JOURNEY-TRUTH-MATRIX.md",
+    "BUG-TRACKER.md",
+    "open gates named",
+    "newest commit audited",
+)
+NO_NEW_DEBT_REQUIRED = (
+    "No-New-Debt Commit Review",
+    "introduced",
+    "revealed",
+    "accepted",
+    "removed",
+    "owner",
+    "next proof",
+)
 
 
 def _read(path: Path) -> str:
@@ -56,8 +76,9 @@ def check(root: Path) -> list[str]:
     roadmap = root / ".planning/ROADMAP.md"
     matrix = root / MATRIX
     bug_tracker = root / BUG_TRACKER
+    ops_guard = root / OPS_GUARD
 
-    for path in (state, roadmap, matrix, bug_tracker):
+    for path in (state, roadmap, matrix, bug_tracker, ops_guard):
         if not path.exists():
             errors.append(f"missing required CJT context file: {path.relative_to(root)}")
 
@@ -68,6 +89,7 @@ def check(root: Path) -> list[str]:
     roadmap_text = _read(roadmap)
     matrix_text = _read(matrix)
     bug_text = _read(bug_tracker)
+    ops_text = _read(ops_guard)
 
     state_missing = _contains_all(
         state_text,
@@ -125,6 +147,20 @@ def check(root: Path) -> list[str]:
         errors.append(
             f"{UNIVERSAL_LINK_GATE} active context must reference product "
             f"Universal Link domain {UNIVERSAL_LINK_PRODUCT_DOMAIN}"
+        )
+
+    handoff_missing = _contains_all(ops_text, SESSION_HANDOFF_REQUIRED)
+    if handoff_missing:
+        errors.append(
+            f"{OPS_GUARD} Session Handoff Checklist is incomplete: "
+            + ", ".join(handoff_missing)
+        )
+
+    debt_missing = _contains_all(ops_text, NO_NEW_DEBT_REQUIRED)
+    if debt_missing:
+        errors.append(
+            f"{OPS_GUARD} No-New-Debt Commit Review is incomplete: "
+            + ", ".join(debt_missing)
         )
 
     return errors
