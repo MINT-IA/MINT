@@ -23453,6 +23453,9 @@ class SEs extends S {
   String get aujourdhuiResumeConversation => 'Reanudar la conversación';
 
   @override
+  String get aujourdhuiCompleteCommitment => 'Marcar como completado';
+
+  @override
   String coachSequenceNextStepLabel(String label) {
     return 'Siguiente paso: $label.';
   }

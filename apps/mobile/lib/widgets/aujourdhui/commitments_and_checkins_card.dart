@@ -134,17 +134,21 @@ class _CommitmentsAndCheckinsCardState
     S l10n,
   ) {
     final shown = commitments.take(widget.maxItemsPerSection).toList();
-    return shown
-        .map(
-          (c) => _ItemRow(
-            icon: Icons.bookmark_border_rounded,
-            text: _summarizeCommitment(c),
-            relativeTime: _relativeTime(c['createdAt']?.toString()),
-            onTap: () => _resumeConversation(context),
-            semanticLabel: l10n.aujourdhuiResumeConversation,
-          ),
-        )
-        .toList(growable: false);
+    return shown.map(
+      (c) {
+        final id = c['id']?.toString();
+        return _ItemRow(
+          icon: Icons.bookmark_border_rounded,
+          text: _summarizeCommitment(c),
+          relativeTime: _relativeTime(c['createdAt']?.toString()),
+          onTap: () => _resumeConversation(context),
+          semanticLabel: l10n.aujourdhuiResumeConversation,
+          onComplete:
+              id == null || id.isEmpty ? null : () => _completeCommitment(id),
+          completeSemanticLabel: l10n.aujourdhuiCompleteCommitment,
+        );
+      },
+    ).toList(growable: false);
   }
 
   List<Widget> _buildCheckInRows(
@@ -224,6 +228,18 @@ class _CommitmentsAndCheckinsCardState
   void _resumeConversation(BuildContext context) {
     context.push('/coach/chat');
   }
+
+  Future<void> _completeCommitment(String id) async {
+    try {
+      await _service.updateStatus(id, 'completed');
+      if (!mounted) return;
+      setState(() {
+        _commitmentsFuture = _loadCommitments();
+      });
+    } catch (_) {
+      // Keep the row visible when completion cannot be persisted.
+    }
+  }
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -250,6 +266,8 @@ class _ItemRow extends StatelessWidget {
     required this.relativeTime,
     required this.onTap,
     required this.semanticLabel,
+    this.onComplete,
+    this.completeSemanticLabel,
   });
 
   final IconData icon;
@@ -257,6 +275,8 @@ class _ItemRow extends StatelessWidget {
   final String relativeTime;
   final VoidCallback onTap;
   final String semanticLabel;
+  final VoidCallback? onComplete;
+  final String? completeSemanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -289,6 +309,15 @@ class _ItemRow extends StatelessWidget {
                   style: MintTextStyles.labelSmall(
                     color: MintColors.textMutedAaa,
                   ).copyWith(fontWeight: FontWeight.w400),
+                ),
+              ],
+              if (onComplete != null && completeSemanticLabel != null) ...[
+                const SizedBox(width: 4),
+                IconButton(
+                  tooltip: completeSemanticLabel,
+                  icon: const Icon(Icons.check_rounded),
+                  color: MintColors.primary,
+                  onPressed: onComplete,
                 ),
               ],
             ],

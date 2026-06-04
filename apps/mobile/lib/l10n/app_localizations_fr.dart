@@ -23453,6 +23453,9 @@ class SFr extends S {
   String get aujourdhuiResumeConversation => 'Reprendre la conversation';
 
   @override
+  String get aujourdhuiCompleteCommitment => 'Marquer comme terminé';
+
+  @override
   String coachSequenceNextStepLabel(String label) {
     return 'Étape suivante : $label.';
   }

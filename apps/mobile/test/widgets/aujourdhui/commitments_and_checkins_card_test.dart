@@ -23,10 +23,26 @@ import 'package:mint_mobile/widgets/aujourdhui/commitments_and_checkins_card.dar
 class _FakeCommitmentService implements CommitmentService {
   _FakeCommitmentService(this._items);
   final List<Map<String, dynamic>> _items;
+  final List<(String, String)> updates = [];
 
   @override
-  Future<List<Map<String, dynamic>>> getCommitments({String? status}) async =>
-      _items;
+  Future<List<Map<String, dynamic>>> getCommitments({String? status}) async {
+    if (status == null) return _items;
+    return _items
+        .where((item) => (item['status'] ?? 'active').toString() == status)
+        .toList(growable: false);
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateStatus(
+    String commitmentId,
+    String status,
+  ) async {
+    updates.add((commitmentId, status));
+    final item = _items.firstWhere((entry) => entry['id'] == commitmentId);
+    item['status'] = status;
+    return item;
+  }
 
   @override
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -91,8 +107,10 @@ void main() {
   testWidgets('renders both sections when both data sources non-empty',
       (tester) async {
     final provider = _FakeCoachProfileProvider(_profileWithCheckIns(2));
-    final service = _FakeCommitmentService(const [
+    final service = _FakeCommitmentService([
       {
+        'id': 'commit-row18-1',
+        'status': 'active',
         'whenText': 'Lundi à 9h',
         'ifThenText': 'je verse 100 CHF sur le 3a',
         'createdAt': '2026-04-30T08:00:00Z',
@@ -109,6 +127,38 @@ void main() {
     expect(find.textContaining('engagements'), findsOneWidget);
     expect(find.textContaining('check-ins'), findsOneWidget);
     expect(find.textContaining('Lundi à 9h'), findsOneWidget);
+  });
+
+  testWidgets('complete commitment updates status and refreshes local state',
+      (tester) async {
+    final provider = _FakeCoachProfileProvider(_profileWithCheckIns(1));
+    final service = _FakeCommitmentService([
+      {
+        'id': 'commit-row18-complete',
+        'status': 'active',
+        'whenText': 'Vendredi à 8h',
+        'ifThenText': 'je fais mon versement',
+        'createdAt': '2026-04-30T08:00:00Z',
+      },
+    ]);
+
+    await tester.pumpWidget(
+      _harness(
+        provider: provider,
+        child: CommitmentsAndCheckinsCard(commitmentService: service),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Vendredi à 8h'), findsOneWidget);
+    expect(find.textContaining('check-ins'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Marquer comme terminé'));
+    await tester.pumpAndSettle();
+
+    expect(service.updates, [('commit-row18-complete', 'completed')]);
+    expect(find.textContaining('Vendredi à 8h'), findsNothing);
+    expect(find.textContaining('check-ins'), findsOneWidget);
   });
 
   testWidgets('shows only check-ins section when commitments empty',

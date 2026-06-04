@@ -23514,6 +23514,9 @@ class SIt extends S {
   String get aujourdhuiResumeConversation => 'Riprendi la conversazione';
 
   @override
+  String get aujourdhuiCompleteCommitment => 'Segna come completato';
+
+  @override
   String coachSequenceNextStepLabel(String label) {
     return 'Prossimo passo: $label.';
   }

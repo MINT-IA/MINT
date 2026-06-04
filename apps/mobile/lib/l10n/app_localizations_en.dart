@@ -23342,6 +23342,9 @@ class SEn extends S {
   String get aujourdhuiResumeConversation => 'Resume conversation';
 
   @override
+  String get aujourdhuiCompleteCommitment => 'Mark as completed';
+
+  @override
   String coachSequenceNextStepLabel(String label) {
     return 'Next step: $label.';
   }

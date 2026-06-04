@@ -11232,6 +11232,7 @@
   "aujourdhuiCommitmentsTitle": "Deine letzten Verpflichtungen",
   "aujourdhuiCheckInsTitle": "Deine letzten Check-ins",
   "aujourdhuiResumeConversation": "Gespräch fortsetzen",
+  "aujourdhuiCompleteCommitment": "Als erledigt markieren",
   "coachSequenceNextStepLabel": "Nächster Schritt: {label}.",
   "@coachSequenceNextStepLabel": {
     "placeholders": {"label": {"type": "String"}},

@@ -41019,6 +41019,12 @@ abstract class S {
   /// **'Reprendre la conversation'**
   String get aujourdhuiResumeConversation;
 
+  /// No description provided for @aujourdhuiCompleteCommitment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer comme terminé'**
+  String get aujourdhuiCompleteCommitment;
+
   /// No description provided for @coachSequenceNextStepLabel.
   ///
   /// In fr, this message translates to:

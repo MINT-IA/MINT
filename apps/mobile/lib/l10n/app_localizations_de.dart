@@ -23511,6 +23511,9 @@ class SDe extends S {
   String get aujourdhuiResumeConversation => 'Gespräch fortsetzen';
 
   @override
+  String get aujourdhuiCompleteCommitment => 'Als erledigt markieren';
+
+  @override
   String coachSequenceNextStepLabel(String label) {
     return 'Nächster Schritt: $label.';
   }
