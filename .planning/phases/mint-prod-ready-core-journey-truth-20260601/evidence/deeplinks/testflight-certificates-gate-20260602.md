@@ -49,5 +49,5 @@ navigation regression:
   `Julienbatt/mint-certificates`.
 - Rerun TestFlight workflow successfully.
 - Continue the existing CJT-015 release proof chain: signed archive, direct
-  `mint.ch` AASA, associated domains entitlement, and real-device Universal
+  `mint-ai.ch` AASA, associated domains entitlement, and real-device Universal
   Link evidence or explicit release deferral.

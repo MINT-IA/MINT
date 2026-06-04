@@ -46,14 +46,19 @@ def _write_valid_fixture(root: Path) -> None:
         encoding="utf-8",
     )
     (phase_dir / "JOURNEY-TRUTH-MATRIX.md").write_text(
-        "LIVE-PROVEN PARTIAL UNPROVEN OPEN CJT-013 CJT-015",
+        "\n".join(
+            [
+                "LIVE-PROVEN PARTIAL UNPROVEN OPEN CJT-013 CJT-015",
+                "| 1 | Install | PARTIAL | CJT-015 mint-ai.ch | open |",
+            ]
+        ),
         encoding="utf-8",
     )
     (phase_dir / "BUG-TRACKER.md").write_text(
         "\n".join(
             [
                 "| CJT-013 | P0 | x | y | z | open | yes | a | b |",
-                "| CJT-015 | P0 | x | y | z | open | yes | a | b |",
+                "| CJT-015 | P0 | x | y | z | open | yes | a | mint-ai.ch |",
             ]
         ),
         encoding="utf-8",
@@ -98,3 +103,30 @@ def test_guard_fails_when_known_gate_is_not_open(tmp_path: Path) -> None:
 
     assert proc.returncode == 1
     assert "CJT-013" in proc.stderr
+
+
+def test_guard_fails_when_cjt015_uses_stale_domain(tmp_path: Path) -> None:
+    _write_valid_fixture(tmp_path)
+    (tmp_path / PHASE_DIR / "JOURNEY-TRUTH-MATRIX.md").write_text(
+        "\n".join(
+            [
+                "LIVE-PROVEN PARTIAL UNPROVEN OPEN CJT-013 CJT-015",
+                "| 1 | Install | PARTIAL | CJT-015 mint.ch | open |",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / PHASE_DIR / "BUG-TRACKER.md").write_text(
+        "\n".join(
+            [
+                "| CJT-013 | P0 | x | y | z | open | yes | a | b |",
+                "| CJT-015 | P0 | x | y | z | open | yes | a | mint.ch |",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 1
+    assert "mint-ai.ch" in proc.stderr

@@ -4,7 +4,7 @@
 # Phase 97 W7 iteration cycle #6 (D-36 step 2 REPRO + step 6 LOCK) —
 # regression flow that gates the S004 + F007 + F006 Universal Link fix.
 #
-# S004 bug : Universal Links not configured — `https://mint.ch/...`
+# S004 bug : Universal Links not configured — `https://mint-ai.ch/...`
 # opens Safari instead of MINT.
 # F007 bug : com.apple.developer.associated-domains entitlement absent.
 # F006 bug : FlutterDeepLinkingEnabled flag absent from Info.plist.
@@ -34,6 +34,8 @@
 #     did not include that capability and TestFlight archive failed.
 #     Re-adding it requires Apple Developer portal + fastlane match profile
 #     refresh in an isolated [ios-release] PR before any signed build claim.
+#   - Product domain mint-ai.ch must resolve publicly and serve the MINT AASA
+#     directly before a production Universal Link claim is true.
 #
 # On the iOS Simulator, signed entitlements are NOT enforced — so
 # the entitlements presence is necessary but not sufficient. The sim

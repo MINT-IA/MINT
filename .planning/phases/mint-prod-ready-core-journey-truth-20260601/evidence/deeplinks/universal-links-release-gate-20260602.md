@@ -6,8 +6,12 @@ CJT-015 remains open and release-blocking.
 
 The custom `mintapp://` scheme is configured, and the staging backend serves a
 valid AASA payload. Production Universal Links are not release-ready because the
-signed iOS entitlement chain is intentionally absent and the public `mint.ch`
-AASA URL does not serve MINT's AASA directly.
+signed iOS entitlement chain is intentionally absent and the product domain
+`mint-ai.ch` did not resolve from the 2026-06-04 release-check environment.
+
+2026-06-04 correction: this historical gate originally checked `mint.ch`.
+Julien clarified the product domain is `mint-ai.ch`; the `mint.ch` redirect
+evidence below is stale context, not the current release decision.
 
 ## Mobile Configuration Proof
 
@@ -61,7 +65,7 @@ paths=/home,/aujourd-hui,/anonymous/chat,/coach/chat,/explorer/*
 
 ## Production Host Proof
 
-Production user-facing host proof:
+Historical production host proof, superseded by the `mint-ai.ch` correction:
 
 ```text
 GET https://mint.ch/.well-known/apple-app-site-association
@@ -78,8 +82,8 @@ content-type=application/json
 applinks.details=[]
 ```
 
-This is not a valid production Universal Link setup for MINT. A release claim
-that `https://mint.ch/...` opens MINT on device would be false.
+This was not a valid production Universal Link setup for MINT, but it is no
+longer the product-domain proof. Current closure must use `mint-ai.ch`.
 
 ## Closure Requirements
 
@@ -93,8 +97,8 @@ Close CJT-015 only after all of these are true:
 4. `tools/checks/ios_release_capability_drift.py` allowlist is updated in the
    same PR.
 5. TestFlight archive succeeds with the entitlement present.
-6. `mint.ch/.well-known/apple-app-site-association` serves MINT's AASA directly,
-   without redirecting to another domain and without `details: []`.
+6. `mint-ai.ch/.well-known/apple-app-site-association` serves MINT's AASA
+   directly, without redirecting to another domain and without `details: []`.
 7. A real iOS device opens a signed TestFlight build from an HTTPS MINT link and
    lands inside the expected GoRouter path.
 8. Durable screenshot/JUnit/log evidence is stored under this evidence tree.

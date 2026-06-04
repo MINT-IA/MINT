@@ -16,6 +16,8 @@ PHASE_DIR = Path(".planning/phases") / PHASE_SLUG
 MATRIX = PHASE_DIR / "JOURNEY-TRUTH-MATRIX.md"
 BUG_TRACKER = PHASE_DIR / "BUG-TRACKER.md"
 OPEN_GATES = ("CJT-013", "CJT-015")
+UNIVERSAL_LINK_GATE = "CJT-015"
+UNIVERSAL_LINK_PRODUCT_DOMAIN = "mint-ai.ch"
 
 
 def _read(path: Path) -> str:
@@ -31,6 +33,20 @@ def _bug_tracker_has_open_gate(text: str, gate: str) -> bool:
         if gate in line and "| open |" in line:
             return True
     return False
+
+
+def _active_cjt015_lines(matrix_text: str, bug_text: str) -> list[str]:
+    matrix_lines = [
+        line
+        for line in matrix_text.splitlines()
+        if line.strip().startswith("| 1 |") and UNIVERSAL_LINK_GATE in line
+    ]
+    bug_lines = [
+        line
+        for line in bug_text.splitlines()
+        if line.strip().startswith(f"| {UNIVERSAL_LINK_GATE} |")
+    ]
+    return matrix_lines + bug_lines
 
 
 def check(root: Path) -> list[str]:
@@ -99,6 +115,16 @@ def check(root: Path) -> list[str]:
         errors.append(
             f"{BUG_TRACKER} no longer exposes known open gates: "
             + ", ".join(open_missing)
+        )
+
+    cjt015_lines = _active_cjt015_lines(matrix_text, bug_text)
+    stale_domain_lines = [
+        line for line in cjt015_lines if UNIVERSAL_LINK_PRODUCT_DOMAIN not in line
+    ]
+    if stale_domain_lines:
+        errors.append(
+            f"{UNIVERSAL_LINK_GATE} active context must reference product "
+            f"Universal Link domain {UNIVERSAL_LINK_PRODUCT_DOMAIN}"
         )
 
     return errors
