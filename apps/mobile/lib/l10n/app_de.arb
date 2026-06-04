@@ -681,19 +681,19 @@
   },
   "budgetEmptyTitle": "Dein Budget",
   "budgetEmptyBody": "Schliesse deine Diagnose ab, um deinen Monatsplan mit echten Einnahmen und Ausgaben freizuschalten.",
-  "budgetSetupTitle": "Charges fixes",
+  "budgetSetupTitle": "Fixkosten",
   "@budgetSetupTitle": {
     "description": "Budget setup label."
   },
-  "budgetSetupSubtitle": "Ce qui part chaque mois, quoi qu'il arrive.",
+  "budgetSetupSubtitle": "Was jeden Monat abgeht, egal was passiert.",
   "@budgetSetupSubtitle": {
     "description": "Budget setup label."
   },
-  "budgetSetupHousing": "Loyer ou hypothèque",
+  "budgetSetupHousing": "Miete oder Hypothek",
   "@budgetSetupHousing": {
     "description": "Budget setup label."
   },
-  "budgetSetupLamal": "Assurance maladie",
+  "budgetSetupLamal": "Krankenversicherung",
   "@budgetSetupLamal": {
     "description": "Budget setup label."
   },
@@ -701,47 +701,47 @@
   "@budgetSetupTransport": {
     "description": "Budget setup label."
   },
-  "budgetSetupTelecom": "Télécom",
+  "budgetSetupTelecom": "Telekom",
   "@budgetSetupTelecom": {
     "description": "Budget setup label."
   },
-  "budgetSetupElectricity": "Électricité",
+  "budgetSetupElectricity": "Strom",
   "@budgetSetupElectricity": {
     "description": "Budget setup label."
   },
-  "budgetSetupMedical": "Frais médicaux",
+  "budgetSetupMedical": "Medizinische Kosten",
   "@budgetSetupMedical": {
     "description": "Budget setup label."
   },
-  "budgetSetupOther": "Autres",
+  "budgetSetupOther": "Sonstiges",
   "@budgetSetupOther": {
     "description": "Budget setup label."
   },
-  "budgetSetupAddOthers": "Ajouter d'autres postes",
+  "budgetSetupAddOthers": "Weitere Posten hinzufügen",
   "@budgetSetupAddOthers": {
     "description": "Budget setup label."
   },
-  "budgetSetupSave": "Enregistrer",
+  "budgetSetupSave": "Speichern",
   "@budgetSetupSave": {
     "description": "Budget setup label."
   },
-  "budgetSetupChatFallback": "J'en parle plutôt au coach",
+  "budgetSetupChatFallback": "Ich spreche lieber mit dem Coach",
   "@budgetSetupChatFallback": {
     "description": "Budget setup label."
   },
-  "budgetSetupFieldPlaceholder": "CHF / mois",
+  "budgetSetupFieldPlaceholder": "CHF / Monat",
   "@budgetSetupFieldPlaceholder": {
     "description": "Budget setup label."
   },
-  "budgetSetupRequired": "Requis",
+  "budgetSetupRequired": "Erforderlich",
   "@budgetSetupRequired": {
     "description": "Budget setup label."
   },
-  "budgetSetupAmountTooHigh": "Montant mensuel trop élevé. Vérifie que la nouvelle valeur remplace l'ancienne.",
+  "budgetSetupAmountTooHigh": "Monatsbetrag zu hoch. Prüfe, ob der neue Wert den alten ersetzt.",
   "@budgetSetupAmountTooHigh": {
     "description": "Budget setup validation shown when a monthly amount is outside the accepted capture range."
   },
-  "budgetSetupTotalFixed": "Total fixe : {amount} CHF / mois",
+  "budgetSetupTotalFixed": "Fixkosten total: {amount} CHF / Monat",
   "@budgetSetupTotalFixed": {
     "description": "Budget setup label.",
     "placeholders": {
@@ -759,15 +759,15 @@
       }
     }
   },
-  "budgetCardEmptyTitle": "Tes charges fixes, au clair.",
+  "budgetCardEmptyTitle": "Deine Fixkosten, klar erfasst.",
   "@budgetCardEmptyTitle": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyBody": "Sept postes, deux minutes. Ensuite on calcule ce qu'il te reste vraiment.",
+  "budgetCardEmptyBody": "Sieben Posten, zwei Minuten. Danach berechnen wir, was wirklich übrig bleibt.",
   "@budgetCardEmptyBody": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyAction": "Poser mes charges",
+  "budgetCardEmptyAction": "Meine Kosten erfassen",
   "@budgetCardEmptyAction": {
     "description": "Budget setup label."
   },
@@ -2091,6 +2091,15 @@
   "futurDisclaimer": "Bildungsorientierte Projektion — keine Beratung (FIDLEG). SWR 4% = 4%-Regel, Ergebnisse nicht garantiert. AHV/BVG-Renten geschätzt gemäss AHVG Art. 21-40, BVG Art. 14-16.",
   "futurExplorerDetails": "Details erkunden",
   "financialSummaryTitle": "MEIN PROFIL",
+  "financialSummaryDossierTitle": "Prüfbares Dossier",
+  "financialSummaryDossierSubtitle": "Deine Fakten, ihre Quellen und deine Korrekturen vor jeder Projektion.",
+  "financialSummaryDossierFactCountLabel": "verfolgte Fakten",
+  "financialSummaryDossierSourcesTitle": "Quellen",
+  "financialSummaryDossierCorrectionCta": "Korrigieren",
+  "financialSummaryDossierCorrectionSheetTitle": "Dossier-Fakten korrigieren",
+  "financialSummaryEditRevenusMensuels": "Bruttoeinnahmen pro Monat (CHF)",
+  "financialSummaryEditLoyerMensuel": "Monatsmiete (CHF)",
+  "financialSummaryEditLamalMensuelle": "Monatliche LAMal-Prämie (CHF)",
   "financialSummaryNoProfile": "Kein Profil erfasst",
   "financialSummaryStartDiagnostic": "Diagnose starten",
   "financialSummaryRestartDiagnostic": "Diagnose neu starten",
@@ -7621,8 +7630,8 @@
   "benchmarkTaxLevelAverage": "vergleichbar",
   "benchmarkTaxLevelBelow": "niedriger",
   "benchmarkTitle": "Ähnliche Profile in deinem Kanton",
-  "budgetEmptyCta": "Mein Gehalt hinzufügen",
-  "budgetEmptySubtitle": "Gib dein Gehalt ein, um dein personalisiertes Budget zu erstellen",
+  "budgetEmptyCta": "Meine Einkünfte hinzufügen",
+  "budgetEmptySubtitle": "Gib deine Einkünfte ein, um dein personalisiertes Budget zu erstellen",
   "budgetEnvelopeFieldFuture": "Sparen (CHF/Monat)",
   "budgetEnvelopeFieldHint": "Betrag in CHF",
   "budgetEnvelopeFieldVariables": "Variable Ausgaben (CHF/Monat)",
@@ -9637,7 +9646,7 @@
   "visibilityHintAddEpargne": "Gib deine Ersparnisse und Anlagen an",
   "visibilityHintAddFamille": "Gib deine Familiensituation an",
   "visibilityHintAddLpp": "Füge dein BVG-Zertifikat hinzu",
-  "visibilityHintAddSalaire": "Füge dein Gehalt hinzu, um zu starten",
+  "visibilityHintAddSalaire": "Füge deine Einnahmen hinzu, um zu starten",
   "visibilityHintAddStatutPro": "Vervollständige deinen Berufsstatus",
   "visibilityHintCommandeAvs": "Bestelle deinen AHV-Auszug",
   "visibilityHintFiscaliteComplete": "Deine Steuerdaten sind vollständig",

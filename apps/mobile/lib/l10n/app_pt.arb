@@ -681,67 +681,67 @@
   },
   "budgetEmptyTitle": "O teu orçamento",
   "budgetEmptyBody": "Completa o teu diagnóstico para desbloquear o teu plano mensal com os teus rendimentos e despesas reais.",
-  "budgetSetupTitle": "Charges fixes",
+  "budgetSetupTitle": "Encargos fixos",
   "@budgetSetupTitle": {
     "description": "Budget setup label."
   },
-  "budgetSetupSubtitle": "Ce qui part chaque mois, quoi qu'il arrive.",
+  "budgetSetupSubtitle": "O que sai todos os meses, aconteça o que acontecer.",
   "@budgetSetupSubtitle": {
     "description": "Budget setup label."
   },
-  "budgetSetupHousing": "Loyer ou hypothèque",
+  "budgetSetupHousing": "Renda ou hipoteca",
   "@budgetSetupHousing": {
     "description": "Budget setup label."
   },
-  "budgetSetupLamal": "Assurance maladie",
+  "budgetSetupLamal": "Seguro de saúde",
   "@budgetSetupLamal": {
     "description": "Budget setup label."
   },
-  "budgetSetupTransport": "Transport",
+  "budgetSetupTransport": "Transporte",
   "@budgetSetupTransport": {
     "description": "Budget setup label."
   },
-  "budgetSetupTelecom": "Télécom",
+  "budgetSetupTelecom": "Telecomunicações",
   "@budgetSetupTelecom": {
     "description": "Budget setup label."
   },
-  "budgetSetupElectricity": "Électricité",
+  "budgetSetupElectricity": "Eletricidade",
   "@budgetSetupElectricity": {
     "description": "Budget setup label."
   },
-  "budgetSetupMedical": "Frais médicaux",
+  "budgetSetupMedical": "Despesas médicas",
   "@budgetSetupMedical": {
     "description": "Budget setup label."
   },
-  "budgetSetupOther": "Autres",
+  "budgetSetupOther": "Outros",
   "@budgetSetupOther": {
     "description": "Budget setup label."
   },
-  "budgetSetupAddOthers": "Ajouter d'autres postes",
+  "budgetSetupAddOthers": "Adicionar outras rubricas",
   "@budgetSetupAddOthers": {
     "description": "Budget setup label."
   },
-  "budgetSetupSave": "Enregistrer",
+  "budgetSetupSave": "Guardar",
   "@budgetSetupSave": {
     "description": "Budget setup label."
   },
-  "budgetSetupChatFallback": "J'en parle plutôt au coach",
+  "budgetSetupChatFallback": "Prefiro falar com o coach",
   "@budgetSetupChatFallback": {
     "description": "Budget setup label."
   },
-  "budgetSetupFieldPlaceholder": "CHF / mois",
+  "budgetSetupFieldPlaceholder": "CHF / mês",
   "@budgetSetupFieldPlaceholder": {
     "description": "Budget setup label."
   },
-  "budgetSetupRequired": "Requis",
+  "budgetSetupRequired": "Obrigatório",
   "@budgetSetupRequired": {
     "description": "Budget setup label."
   },
-  "budgetSetupAmountTooHigh": "Montant mensuel trop élevé. Vérifie que la nouvelle valeur remplace l'ancienne.",
+  "budgetSetupAmountTooHigh": "Montante mensal demasiado alto. Verifica se o novo valor substitui o antigo.",
   "@budgetSetupAmountTooHigh": {
     "description": "Budget setup validation shown when a monthly amount is outside the accepted capture range."
   },
-  "budgetSetupTotalFixed": "Total fixe : {amount} CHF / mois",
+  "budgetSetupTotalFixed": "Total fixo: {amount} CHF / mês",
   "@budgetSetupTotalFixed": {
     "description": "Budget setup label.",
     "placeholders": {
@@ -759,15 +759,15 @@
       }
     }
   },
-  "budgetCardEmptyTitle": "Tes charges fixes, au clair.",
+  "budgetCardEmptyTitle": "Os teus encargos fixos, claros.",
   "@budgetCardEmptyTitle": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyBody": "Sept postes, deux minutes. Ensuite on calcule ce qu'il te reste vraiment.",
+  "budgetCardEmptyBody": "Sete rubricas, dois minutos. Depois calculamos o que realmente sobra.",
   "@budgetCardEmptyBody": {
     "description": "Budget setup label."
   },
-  "budgetCardEmptyAction": "Poser mes charges",
+  "budgetCardEmptyAction": "Definir os meus encargos",
   "@budgetCardEmptyAction": {
     "description": "Budget setup label."
   },
@@ -2091,6 +2091,15 @@
   "futurDisclaimer": "Projeção educativa — não constitui aconselhamento (LSFin). SWR 4% = regra dos 4%, resultados não assegurados. Pensões AVS/LPP estimadas segundo LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorar detalhes",
   "financialSummaryTitle": "O MEU PERFIL",
+  "financialSummaryDossierTitle": "Dossiê verificável",
+  "financialSummaryDossierSubtitle": "Os teus dados, as suas fontes e as tuas correções antes de qualquer projeção.",
+  "financialSummaryDossierFactCountLabel": "dados acompanhados",
+  "financialSummaryDossierSourcesTitle": "Fontes",
+  "financialSummaryDossierCorrectionCta": "Corrigir",
+  "financialSummaryDossierCorrectionSheetTitle": "Corrigir os dados do dossier",
+  "financialSummaryEditRevenusMensuels": "Rendimentos brutos mensais (CHF)",
+  "financialSummaryEditLoyerMensuel": "Renda mensal (CHF)",
+  "financialSummaryEditLamalMensuelle": "Prémio LAMal mensal (CHF)",
   "financialSummaryNoProfile": "Nenhum perfil registado",
   "financialSummaryStartDiagnostic": "Iniciar o diagnóstico",
   "financialSummaryRestartDiagnostic": "Reiniciar o diagnóstico",
@@ -7621,8 +7630,8 @@
   "benchmarkTaxLevelAverage": "comparável",
   "benchmarkTaxLevelBelow": "inferior",
   "benchmarkTitle": "Perfis semelhantes no teu cantão",
-  "budgetEmptyCta": "Adicionar o meu salário",
-  "budgetEmptySubtitle": "Introduz o teu salário para criar o teu orçamento personalizado",
+  "budgetEmptyCta": "Adicionar os meus rendimentos",
+  "budgetEmptySubtitle": "Introduz os teus rendimentos para criar o teu orçamento personalizado",
   "budgetEnvelopeFieldFuture": "Poupança futura (CHF/mês)",
   "budgetEnvelopeFieldHint": "Montante em CHF",
   "budgetEnvelopeFieldVariables": "Despesas variáveis (CHF/mês)",
@@ -9637,7 +9646,7 @@
   "visibilityHintAddEpargne": "Indica as tuas poupanças e investimentos",
   "visibilityHintAddFamille": "Indica a tua situação familiar",
   "visibilityHintAddLpp": "Adiciona o teu certificado LPP",
-  "visibilityHintAddSalaire": "Adiciona o teu salário para começar",
+  "visibilityHintAddSalaire": "Adiciona os teus rendimentos para começar",
   "visibilityHintAddStatutPro": "Completa o teu estado profissional",
   "visibilityHintCommandeAvs": "Solicita o teu extrato AVS",
   "visibilityHintFiscaliteComplete": "Os teus dados fiscais estão completos",

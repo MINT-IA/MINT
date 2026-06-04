@@ -8206,6 +8206,60 @@ abstract class S {
   /// **'MON PROFIL'**
   String get financialSummaryTitle;
 
+  /// No description provided for @financialSummaryDossierTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier vérifiable'**
+  String get financialSummaryDossierTitle;
+
+  /// No description provided for @financialSummaryDossierSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes faits, leurs sources et tes corrections avant toute projection.'**
+  String get financialSummaryDossierSubtitle;
+
+  /// No description provided for @financialSummaryDossierFactCountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'faits suivis'**
+  String get financialSummaryDossierFactCountLabel;
+
+  /// No description provided for @financialSummaryDossierSourcesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sources'**
+  String get financialSummaryDossierSourcesTitle;
+
+  /// No description provided for @financialSummaryDossierCorrectionCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger'**
+  String get financialSummaryDossierCorrectionCta;
+
+  /// No description provided for @financialSummaryDossierCorrectionSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger les faits du dossier'**
+  String get financialSummaryDossierCorrectionSheetTitle;
+
+  /// No description provided for @financialSummaryEditRevenusMensuels.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenus bruts mensuels (CHF)'**
+  String get financialSummaryEditRevenusMensuels;
+
+  /// No description provided for @financialSummaryEditLoyerMensuel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loyer mensuel (CHF)'**
+  String get financialSummaryEditLoyerMensuel;
+
+  /// No description provided for @financialSummaryEditLamalMensuelle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prime LAMal mensuelle (CHF)'**
+  String get financialSummaryEditLamalMensuelle;
+
   /// No description provided for @financialSummaryNoProfile.
   ///
   /// In fr, this message translates to:
@@ -24410,13 +24464,13 @@ abstract class S {
   /// No description provided for @budgetEmptyCta.
   ///
   /// In fr, this message translates to:
-  /// **'Ajouter mon salaire'**
+  /// **'Ajouter mes revenus'**
   String get budgetEmptyCta;
 
   /// No description provided for @budgetEmptySubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Renseigne ton salaire pour créer ton budget personnalisé'**
+  /// **'Renseigne tes revenus pour créer ton budget personnalisé'**
   String get budgetEmptySubtitle;
 
   /// No description provided for @budgetEnvelopeFieldFuture.
@@ -36330,7 +36384,7 @@ abstract class S {
   /// No description provided for @visibilityHintAddSalaire.
   ///
   /// In fr, this message translates to:
-  /// **'Ajoute ton salaire pour commencer'**
+  /// **'Ajoute tes revenus pour commencer'**
   String get visibilityHintAddSalaire;
 
   /// No description provided for @visibilityHintAddStatutPro.
@@ -41043,7 +41097,7 @@ abstract class S {
   /// **'Explique-moi'**
   String get verbExplique;
 
-  /// Phase 96 D-05 + D-06 — MintCardActionBar verb 2/3. Tap deep-links to Explorer (context.push('/explorer?simulate=<card_id>')); zero LLM call.
+  /// Phase 96 D-05 + D-06 — MintCardActionBar verb 2/3. Tap deep-links to Explorer (context.push('/explore?simulate=<card_id>')); zero LLM call.
   ///
   /// In fr, this message translates to:
   /// **'Simule'**

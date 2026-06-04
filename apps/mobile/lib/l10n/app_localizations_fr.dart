@@ -4512,6 +4512,37 @@ class SFr extends S {
   String get financialSummaryTitle => 'MON PROFIL';
 
   @override
+  String get financialSummaryDossierTitle => 'Dossier vérifiable';
+
+  @override
+  String get financialSummaryDossierSubtitle =>
+      'Tes faits, leurs sources et tes corrections avant toute projection.';
+
+  @override
+  String get financialSummaryDossierFactCountLabel => 'faits suivis';
+
+  @override
+  String get financialSummaryDossierSourcesTitle => 'Sources';
+
+  @override
+  String get financialSummaryDossierCorrectionCta => 'Corriger';
+
+  @override
+  String get financialSummaryDossierCorrectionSheetTitle =>
+      'Corriger les faits du dossier';
+
+  @override
+  String get financialSummaryEditRevenusMensuels =>
+      'Revenus bruts mensuels (CHF)';
+
+  @override
+  String get financialSummaryEditLoyerMensuel => 'Loyer mensuel (CHF)';
+
+  @override
+  String get financialSummaryEditLamalMensuelle =>
+      'Prime LAMal mensuelle (CHF)';
+
+  @override
   String get financialSummaryNoProfile => 'Aucun profil renseigné';
 
   @override
@@ -13799,11 +13830,11 @@ class SFr extends S {
   String get benchmarkTitle => 'Profils similaires dans ton canton';
 
   @override
-  String get budgetEmptyCta => 'Ajouter mon salaire';
+  String get budgetEmptyCta => 'Ajouter mes revenus';
 
   @override
   String get budgetEmptySubtitle =>
-      'Renseigne ton salaire pour créer ton budget personnalisé';
+      'Renseigne tes revenus pour créer ton budget personnalisé';
 
   @override
   String get budgetEnvelopeFieldFuture => 'Épargne future (CHF/mois)';
@@ -20690,7 +20721,7 @@ class SFr extends S {
   String get visibilityHintAddLpp => 'Ajoute ton certificat LPP';
 
   @override
-  String get visibilityHintAddSalaire => 'Ajoute ton salaire pour commencer';
+  String get visibilityHintAddSalaire => 'Ajoute tes revenus pour commencer';
 
   @override
   String get visibilityHintAddStatutPro => 'Complète ton statut professionnel';

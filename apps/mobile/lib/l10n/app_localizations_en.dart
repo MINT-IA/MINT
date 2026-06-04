@@ -4487,6 +4487,37 @@ class SEn extends S {
   String get financialSummaryTitle => 'MY PROFILE';
 
   @override
+  String get financialSummaryDossierTitle => 'Verifiable dossier';
+
+  @override
+  String get financialSummaryDossierSubtitle =>
+      'Your facts, their sources, and your corrections before any projection.';
+
+  @override
+  String get financialSummaryDossierFactCountLabel => 'tracked facts';
+
+  @override
+  String get financialSummaryDossierSourcesTitle => 'Sources';
+
+  @override
+  String get financialSummaryDossierCorrectionCta => 'Correct';
+
+  @override
+  String get financialSummaryDossierCorrectionSheetTitle =>
+      'Edit dossier facts';
+
+  @override
+  String get financialSummaryEditRevenusMensuels =>
+      'Gross monthly income (CHF)';
+
+  @override
+  String get financialSummaryEditLoyerMensuel => 'Monthly rent (CHF)';
+
+  @override
+  String get financialSummaryEditLamalMensuelle =>
+      'Monthly LAMal premium (CHF)';
+
+  @override
   String get financialSummaryNoProfile => 'No profile entered';
 
   @override
@@ -13731,11 +13762,11 @@ class SEn extends S {
   String get benchmarkTitle => 'Similar profiles in your canton';
 
   @override
-  String get budgetEmptyCta => 'Add my salary';
+  String get budgetEmptyCta => 'Add my income';
 
   @override
   String get budgetEmptySubtitle =>
-      'Enter your salary to create your personalized budget';
+      'Enter your income to create your personalized budget';
 
   @override
   String get budgetEnvelopeFieldFuture => 'Future savings (CHF/month)';
@@ -20595,7 +20626,7 @@ class SEn extends S {
   String get visibilityHintAddLpp => 'Add your LPP certificate';
 
   @override
-  String get visibilityHintAddSalaire => 'Add your salary to get started';
+  String get visibilityHintAddSalaire => 'Add your income to get started';
 
   @override
   String get visibilityHintAddStatutPro => 'Complete your professional status';

@@ -81,6 +81,43 @@ void main() {
     expect(find.byType(TextField), findsWidgets);
   });
 
+  testWidgets('BudgetScreen empty state uses income-inclusive copy',
+      (WidgetTester tester) async {
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 0,
+      housingCost: 0,
+      debtPayments: 0,
+      style: BudgetStyle.envelopes3,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: ChangeNotifierProvider(
+          create: (_) => BudgetProvider(),
+          child: const BudgetScreen(inputs: inputs),
+        ),
+      ),
+    );
+
+    await tester.pump();
+
+    expect(find.text('Ajouter mes revenus'), findsOneWidget);
+    expect(
+      find.text('Renseigne tes revenus pour créer ton budget personnalisé'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('salaire'), findsNothing);
+  });
+
   testWidgets('BudgetScreen Stop Rule triggers warning',
       (WidgetTester tester) async {
     const inputs = BudgetInputs(

@@ -1619,55 +1619,55 @@ class SIt extends S {
       'Completa la tua diagnosi per sbloccare il tuo piano mensile con i tuoi veri redditi e spese.';
 
   @override
-  String get budgetSetupTitle => 'Charges fixes';
+  String get budgetSetupTitle => 'Spese fisse';
 
   @override
   String get budgetSetupSubtitle =>
-      'Ce qui part chaque mois, quoi qu\'il arrive.';
+      'Quello che esce ogni mese, qualunque cosa succeda.';
 
   @override
-  String get budgetSetupHousing => 'Loyer ou hypothèque';
+  String get budgetSetupHousing => 'Affitto o ipoteca';
 
   @override
-  String get budgetSetupLamal => 'Assurance maladie';
+  String get budgetSetupLamal => 'Assicurazione malattia';
 
   @override
-  String get budgetSetupTransport => 'Transport';
+  String get budgetSetupTransport => 'Trasporto';
 
   @override
-  String get budgetSetupTelecom => 'Télécom';
+  String get budgetSetupTelecom => 'Telecom';
 
   @override
-  String get budgetSetupElectricity => 'Électricité';
+  String get budgetSetupElectricity => 'Elettricità';
 
   @override
-  String get budgetSetupMedical => 'Frais médicaux';
+  String get budgetSetupMedical => 'Spese mediche';
 
   @override
-  String get budgetSetupOther => 'Autres';
+  String get budgetSetupOther => 'Altro';
 
   @override
-  String get budgetSetupAddOthers => 'Ajouter d\'autres postes';
+  String get budgetSetupAddOthers => 'Aggiungere altre voci';
 
   @override
-  String get budgetSetupSave => 'Enregistrer';
+  String get budgetSetupSave => 'Salvare';
 
   @override
-  String get budgetSetupChatFallback => 'J\'en parle plutôt au coach';
+  String get budgetSetupChatFallback => 'Preferisco parlarne con il coach';
 
   @override
-  String get budgetSetupFieldPlaceholder => 'CHF / mois';
+  String get budgetSetupFieldPlaceholder => 'CHF / mese';
 
   @override
-  String get budgetSetupRequired => 'Requis';
+  String get budgetSetupRequired => 'Obbligatorio';
 
   @override
   String get budgetSetupAmountTooHigh =>
-      'Montant mensuel trop élevé. Vérifie que la nouvelle valeur remplace l\'ancienne.';
+      'Importo mensile troppo alto. Verifica che il nuovo valore sostituisca quello vecchio.';
 
   @override
   String budgetSetupTotalFixed(String amount) {
-    return 'Total fixe : $amount CHF / mois';
+    return 'Totale fisso: $amount CHF / mese';
   }
 
   @override
@@ -1676,14 +1676,14 @@ class SIt extends S {
   }
 
   @override
-  String get budgetCardEmptyTitle => 'Tes charges fixes, au clair.';
+  String get budgetCardEmptyTitle => 'Le tue spese fisse, in chiaro.';
 
   @override
   String get budgetCardEmptyBody =>
-      'Sept postes, deux minutes. Ensuite on calcule ce qu\'il te reste vraiment.';
+      'Sette voci, due minuti. Poi calcoliamo quanto ti resta davvero.';
 
   @override
-  String get budgetCardEmptyAction => 'Poser mes charges';
+  String get budgetCardEmptyAction => 'Impostare le mie spese';
 
   @override
   String get budgetEmptyAction => 'Fare la mia diagnosi';
@@ -4515,6 +4515,36 @@ class SIt extends S {
 
   @override
   String get financialSummaryTitle => 'IL MIO PROFILO';
+
+  @override
+  String get financialSummaryDossierTitle => 'Dossier verificabile';
+
+  @override
+  String get financialSummaryDossierSubtitle =>
+      'I tuoi dati, le loro fonti e le tue correzioni prima di ogni proiezione.';
+
+  @override
+  String get financialSummaryDossierFactCountLabel => 'dati seguiti';
+
+  @override
+  String get financialSummaryDossierSourcesTitle => 'Fonti';
+
+  @override
+  String get financialSummaryDossierCorrectionCta => 'Correggere';
+
+  @override
+  String get financialSummaryDossierCorrectionSheetTitle =>
+      'Correggi i dati del dossier';
+
+  @override
+  String get financialSummaryEditRevenusMensuels =>
+      'Entrate lorde mensili (CHF)';
+
+  @override
+  String get financialSummaryEditLoyerMensuel => 'Affitto mensile (CHF)';
+
+  @override
+  String get financialSummaryEditLamalMensuelle => 'Premio LAMal mensile (CHF)';
 
   @override
   String get financialSummaryNoProfile => 'Nessun profilo inserito';
@@ -13830,11 +13860,11 @@ class SIt extends S {
   String get benchmarkTitle => 'Profili simili nel tuo cantone';
 
   @override
-  String get budgetEmptyCta => 'Aggiungere il mio stipendio';
+  String get budgetEmptyCta => 'Aggiungere i miei redditi';
 
   @override
   String get budgetEmptySubtitle =>
-      'Inserisci il tuo stipendio per creare il tuo budget personalizzato';
+      'Inserisci i tuoi redditi per creare il tuo budget personalizzato';
 
   @override
   String get budgetEnvelopeFieldFuture => 'Risparmio futuro (CHF/mese)';
@@ -20752,8 +20782,7 @@ class SIt extends S {
   String get visibilityHintAddLpp => 'Aggiungi il tuo certificato LPP';
 
   @override
-  String get visibilityHintAddSalaire =>
-      'Aggiungi il tuo stipendio per iniziare';
+  String get visibilityHintAddSalaire => 'Aggiungi le tue entrate per iniziare';
 
   @override
   String get visibilityHintAddStatutPro =>
