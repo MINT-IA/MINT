@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="0" time="100.0">
+    <testcase id="flow_money_trust_chain_budget_mon_argent_rapport_coach" name="flow_money_trust_chain_budget_mon_argent_rapport_coach" classname="flow_money_trust_chain_budget_mon_argent_rapport_coach" time="100.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="money-trust-chain, budget, mon-argent, rapport, coach, maestro-proof"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

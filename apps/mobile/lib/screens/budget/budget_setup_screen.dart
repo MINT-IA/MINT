@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
@@ -192,6 +193,47 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     return false;
   }
 
+  BudgetInputs _directInputsFromProfile(
+    CoachProfile profile, {
+    required double housing,
+    required double lamal,
+    double? transport,
+    double? telecom,
+    double? electricity,
+    double? medical,
+    double? other,
+  }) {
+    final base = BudgetInputs.fromCoachProfile(profile);
+    final otherFixedCosts = [
+      transport,
+      telecom,
+      electricity,
+      medical,
+      other,
+    ].fold<double>(0, (sum, value) => sum + (value ?? 0));
+    final monthlyCharges = housing + lamal + otherFixedCosts;
+    final emergencyFundMonths = monthlyCharges > 0
+        ? profile.patrimoine.epargneLiquide / monthlyCharges
+        : base.emergencyFundMonths;
+
+    return BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: base.netIncome,
+      housingCost: housing,
+      debtPayments: base.debtPayments,
+      taxProvision: base.taxProvision,
+      healthInsurance: lamal,
+      otherFixedCosts: otherFixedCosts,
+      isTaxEstimated: base.isTaxEstimated,
+      isHealthEstimated: false,
+      isHousingMissing: false,
+      isHealthMissing: false,
+      isOtherFixedMissing: otherFixedCosts <= 0,
+      style: base.style,
+      emergencyFundMonths: emergencyFundMonths,
+    );
+  }
+
   Future<void> _save() async {
     final housing = _parseAmount(_housing.text);
     final lamal = _parseAmount(_lamal.text);
@@ -222,6 +264,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     }
     setState(() => _saving = true);
     final provider = context.read<CoachProfileProvider>();
+    final profileBeforeSave = provider.profile;
     final answers = <String, dynamic>{
       'q_housing_cost_period_chf': housing,
       'q_pay_frequency': 'monthly',
@@ -244,6 +287,19 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     final updated = provider.profile;
     if (updated != null) {
       await context.read<BudgetProvider>().refreshFromProfile(updated);
+    } else if (profileBeforeSave != null) {
+      await context.read<BudgetProvider>().setInputs(
+            _directInputsFromProfile(
+              profileBeforeSave,
+              housing: housing,
+              lamal: lamal,
+              transport: transport,
+              telecom: telecom,
+              electricity: electricity,
+              medical: medical,
+              other: other,
+            ),
+          );
     }
     if (!mounted) return;
     setState(() => _saving = false);

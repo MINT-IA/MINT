@@ -6,6 +6,9 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/data/budget/budget_local_store.dart';
+import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
@@ -110,6 +113,7 @@ void main() {
     bool withProfile = false,
     MintUserState? mintState,
     CoachProfileProvider? profileProviderOverride,
+    BudgetProvider? budgetProviderOverride,
   }) {
     final profileProvider = profileProviderOverride ??
         (withProfile ? buildProfileProvider() : CoachProfileProvider());
@@ -120,6 +124,8 @@ void main() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: profileProvider),
+        if (budgetProviderOverride != null)
+          ChangeNotifierProvider.value(value: budgetProviderOverride),
         ChangeNotifierProvider(create: (_) => ByokProvider()),
         ChangeNotifierProvider.value(value: stateProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
@@ -257,6 +263,68 @@ void main() {
 
       expect(find.text(formatPlainChf(expectedMonthlyFree)), findsOneWidget);
       expect(find.text("12'000"), findsNothing);
+    });
+
+    testWidgets(
+        'silent opener primary number uses direct budget inputs when profile is unavailable',
+        (tester) async {
+      usePhoneViewport(tester);
+      final budgetProvider = BudgetProvider();
+      await budgetProvider.setInputs(const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 7250,
+        housingCost: 2200,
+        debtPayments: 0,
+        taxProvision: 1086.13625,
+        healthInsurance: 420,
+        otherFixedCosts: 0,
+        isTaxEstimated: true,
+        isHealthEstimated: false,
+        isHousingMissing: false,
+        isHealthMissing: false,
+      ));
+      final expectedAvailable = budgetProvider.plan!.available;
+
+      await tester.pumpWidget(
+        buildTestWidget(
+          profileProviderOverride: CoachProfileProvider(),
+          budgetProviderOverride: budgetProvider,
+        ),
+      );
+      await pumpUntilGreeting(tester);
+
+      expect(find.text(formatPlainChf(expectedAvailable)), findsOneWidget);
+    });
+
+    testWidgets(
+        'silent opener hydrates stored direct budget inputs when provider starts empty',
+        (tester) async {
+      usePhoneViewport(tester);
+      await BudgetLocalStore().saveInputs(const BudgetInputs(
+        payFrequency: PayFrequency.monthly,
+        netIncome: 7250,
+        housingCost: 2200,
+        debtPayments: 0,
+        taxProvision: 1086.13625,
+        healthInsurance: 420,
+        otherFixedCosts: 0,
+        isTaxEstimated: true,
+        isHealthEstimated: false,
+        isHousingMissing: false,
+        isHealthMissing: false,
+      ));
+      final budgetProvider = BudgetProvider();
+
+      await tester.pumpWidget(
+        buildTestWidget(
+          profileProviderOverride: CoachProfileProvider(),
+          budgetProviderOverride: budgetProvider,
+        ),
+      );
+      await pumpUntilGreeting(tester);
+
+      expect(budgetProvider.source, BudgetDataSource.storage);
+      expect(find.text("3'544"), findsOneWidget);
     });
 
     testWidgets('first-contact opener does not show question label',

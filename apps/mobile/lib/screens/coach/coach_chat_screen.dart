@@ -14,6 +14,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -183,6 +184,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   static const Duration _streamTimeout = Duration(seconds: 45);
 
   bool _profileInitialized = false;
+  bool _budgetHydrationScheduled = false;
 
   bool _isResumingConversation = false;
 
@@ -349,6 +351,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (wasConfigured != _isByokConfigured && mounted) {
       setState(() {});
     }
+    _scheduleBudgetHydrationForSilentOpener();
 
     if (!_profileInitialized) {
       _profileInitialized = true;
@@ -441,6 +444,30 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           });
         }
       }
+    }
+  }
+
+  void _scheduleBudgetHydrationForSilentOpener() {
+    if (_budgetHydrationScheduled) return;
+    _budgetHydrationScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _hydrateBudgetForSilentOpener();
+    });
+  }
+
+  Future<void> _hydrateBudgetForSilentOpener() async {
+    if (!mounted) return;
+    final budgetProvider = _readBudgetProviderIfAvailable();
+    if (budgetProvider == null || budgetProvider.hasFreshInputs) return;
+    final restored = await budgetProvider.loadFromStorage();
+    if (restored && mounted) setState(() {});
+  }
+
+  BudgetProvider? _readBudgetProviderIfAvailable() {
+    try {
+      return context.read<BudgetProvider>();
+    } on ProviderNotFoundException {
+      return null;
     }
   }
 
@@ -798,9 +825,23 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Compute the key financial number to display in the silent opener.
   /// Returns (formattedNumber, headline) or null if no data available.
   ({String number, String headline})? _computeKeyNumber() {
+    final s = S.of(context)!;
+    final budgetProvider = _watchBudgetProviderIfAvailable();
+    final budgetPlan = budgetProvider?.plan;
+    final canUseStoredBudget = budgetProvider?.source == BudgetDataSource.storage &&
+        (_profile == null || !_profile!.hasMaterialData);
+    if (budgetProvider != null &&
+        (budgetProvider.hasFreshInputs || canUseStoredBudget) &&
+        budgetPlan != null &&
+        budgetPlan.available.isFinite) {
+      return (
+        number: _formatChf(budgetPlan.available),
+        headline: s.pulseLabelMonthlyFree,
+      );
+    }
+
     if (_profile == null) return null;
     if (!_profile!.hasMaterialData) return null;
-    final s = S.of(context)!;
 
     if (BudgetInputs.hasTrustedCharges(_profile!)) {
       final monthlyFree =
@@ -885,6 +926,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     return null;
+  }
+
+  BudgetProvider? _watchBudgetProviderIfAvailable() {
+    try {
+      return context.watch<BudgetProvider>();
+    } on ProviderNotFoundException {
+      return null;
+    }
   }
 
   /// Format a CHF amount for display (e.g. "1'234'567").
@@ -2254,10 +2303,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       return const SizedBox.shrink();
     }
 
-    final silentOpenerCards = ResponseCardService.generateForSilentOpener(
-      _profile!,
-      l: s,
-    );
+    final silentOpenerCards = _profile == null
+        ? const <ResponseCard>[]
+        : ResponseCardService.generateForSilentOpener(
+            _profile!,
+            l: s,
+          );
 
     return Center(
       child: Padding(

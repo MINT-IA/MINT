@@ -375,6 +375,61 @@ void main() {
     expect(budgetProvider.plan!.available, greaterThan(0));
   });
 
+  testWidgets(
+      'secure-store failure keeps budget as direct inputs without plain wizard answers',
+      (tester) async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (MethodCall call) async {
+        if (call.method == 'write') {
+          throw PlatformException(
+            code: '-34018',
+            message: 'errSecMissingEntitlement',
+          );
+        }
+        return null;
+      },
+    );
+    final coachProvider = CoachProfileProvider()
+      ..updateFromAnswers({
+        'q_birth_year': 1988,
+        'q_canton': 'VD',
+        'q_net_income_period_chf': 6000.0,
+        'q_pay_frequency': 'monthly',
+      });
+    final budgetProvider = BudgetProvider();
+
+    await tester.pumpWidget(_wrapWithProviders(
+      child: const BudgetSetupScreen(),
+      coachProvider: coachProvider,
+      budgetProvider: budgetProvider,
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetHousingField')), '2200');
+    await tester.enterText(
+        find.byKey(const ValueKey('budgetLamalField')), '420');
+    await tester.ensureVisible(find.text('Enregistrer'));
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers, isEmpty);
+    expect(budgetProvider.source, BudgetDataSource.directInput);
+    expect(budgetProvider.inputs, isNotNull);
+    expect(budgetProvider.inputs!.netIncome, greaterThan(0));
+    expect(budgetProvider.inputs!.housingCost, 2200);
+    expect(budgetProvider.inputs!.healthInsurance, 420);
+
+    final reloadedBudgetProvider = BudgetProvider();
+    final restored = await reloadedBudgetProvider.loadFromStorage();
+    expect(restored, isTrue);
+    expect(reloadedBudgetProvider.inputs!.housingCost, 2200);
+    expect(reloadedBudgetProvider.inputs!.healthInsurance, 420);
+  });
+
   testWidgets('rejects appended implausible monthly amounts', (tester) async {
     await tester.pumpWidget(_wrap(const BudgetSetupScreen()));
     await tester.pumpAndSettle();
