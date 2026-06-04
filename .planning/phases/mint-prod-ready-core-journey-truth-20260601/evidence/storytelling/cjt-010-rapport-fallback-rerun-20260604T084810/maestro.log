@@ -1,0 +1,21 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module (file:/Users/julienbattaglia/.maestro/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+
+Waiting for flows to complete...
+[Passed] flow_rapport_budget_read_model_spine (38s)
+
+1/1 Flow Passed in 38s
+
+ve-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+
+Waiting for flows to complete...
+[Passed] flow_rapport_budget_read_model_spine (38s)
+
+1/1 Flow Passed in 38s
+
+[watchdog] EXIT — maestro returned 0

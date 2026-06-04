@@ -40,7 +40,7 @@ Current supported beta proof should stay narrow:
 | 3 | Anonymous visitor reaches register intent | PARTIAL | `flow_landing_to_register.yaml` and historical sweep evidence. | Prove full create-account, email verification, restart, and data continuity. |
 | 4 | User creates/logs into an account and local data survives | PARTIAL | Auth routes/tests exist; architecture path uses `AuthProvider`, `wizard_answers_v2`, optional `/api/v1/sync/claim-local-data`. | Run register/login -> restart -> `/profiles/me` hydration with cloud sync on/off. |
 | 5 | User can recover/delete/control account data | UNPROVEN | Login/recovery routes exist; privacy routes exist. No current end-to-end proof found. | Add account lifecycle and privacy-control proof before beta support load grows. |
-| 6 | Supported user completes simple onboarding into Coach/Home | PARTIAL | S005, salvage01 retraite→Coach, and hero 3a flow passed on current simulator builds, but CJT-018 remains open for the root stale-frame/locator gate. | Keep as regression gate; close CJT-018 root proof before treating onboarding automation as stable. |
+| 6 | Supported user completes simple onboarding into Coach/Home | LIVE-PROVEN | S005, salvage01 retraite→Coach, and hero 3a flow passed on current simulator builds; CJT-018 current AX frame audit proves valid lower frames for T6/T7/T8 ids. | Keep S005 and affected perfect-set flows as regression gates. |
 | 7 | Date of birth/profile facts are persisted as facts, not just display age | PARTIAL | Provider/model tests and CJT-004 profile cleanup proof; DOB is stored in wizard/profile path. | Cross-device authenticated round trip: local write -> backend mirror -> fresh login hydration. |
 | 8 | Budget situation entry feeds one money truth | LIVE-PROVEN | CJT-003/CJT-023 plus CJT-024 restart fallback proof; latest green run `evidence/maestro-ci/cjt-024-money-trust-fix3-20260604T083121/result.xml`. | Keep as release regression after any budget/profile/report/coach-opener change. |
 | 9 | Mon Argent shows the same money state after restart | LIVE-PROVEN | Money Trust chain and Bilan storytelling reruns include Budget -> Mon Argent continuity. | Keep same flow as spine gate. |
@@ -60,7 +60,7 @@ Current supported beta proof should stay narrow:
 | 23 | Design chart is respected across primary screens | PARTIAL | Core Budget/Report/Coach paths use tokens; Flutter audit found hardcoded plan/action strings and some direct copy tests. | Visual audit crawl for primary screens, ARB/i18n hardcoded-string pass, accessibility smoke. |
 | 24 | Privacy, consent, logs, and data controls are coherent | UNPROVEN | Privacy routes exist; secure-storage bug CJT-019 was handled locally. | Threat/privacy pass: PII logs, document consent, delete/export, nLPD surface, secure storage on sim/device. |
 | 25 | Backend production fact substrate is current | OPEN | CJT-013: staging Phase 02 proof exists; production lacks Phase 02 tables/cutover evidence. | Execute or explicitly defer production runbook; capture prod head, flags, backfill parity, metrics. |
-| 26 | Runtime automation is stable enough to catch regressions | PARTIAL | CJT-014/CJT-016 local regression sweep green; CJT-024 Money Trust restart/deep-link is now green with durable Maestro evidence; CJT-018 remains the active automation debt. | Rerun money-trust and local regression sweep, then continue CJT-018 root stale-frame proof. |
+| 26 | Runtime automation is stable enough to catch regressions | PARTIAL | CJT-014/CJT-016 local regression sweep green; CJT-024 Money Trust restart/deep-link rerun is green; CJT-018 current AX frame audit closes the active onboarding locator debt. | Keep regression sweeps scheduled; do not use simulator proof to close CJT-015 signed-device access. |
 | 27 | Observability/release feedback loop catches beta regressions | UNPROVEN | Roadmapped in Phase 35; no current closure evidence found. | Sentry/crash/activation/drop-off loop before broader beta. |
 
 ## What Was Missing From The User List
@@ -79,7 +79,7 @@ operational and trust boundaries:
 
 ## Priority Waves
 
-1. Access and truth gates: CJT-015, CJT-013, CJT-018.
+1. Access and truth gates: CJT-015, CJT-013.
 2. Human journey proof: account create/login continuity, release OCR scan,
    Coach fact capture, action completion.
 3. Product/navigation cleanup: screen role inventory, duplicate content

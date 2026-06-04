@@ -46,7 +46,7 @@ def _write_valid_fixture(root: Path) -> None:
         encoding="utf-8",
     )
     (phase_dir / "JOURNEY-TRUTH-MATRIX.md").write_text(
-        "LIVE-PROVEN PARTIAL UNPROVEN OPEN CJT-013 CJT-015 CJT-018",
+        "LIVE-PROVEN PARTIAL UNPROVEN OPEN CJT-013 CJT-015",
         encoding="utf-8",
     )
     (phase_dir / "BUG-TRACKER.md").write_text(
@@ -54,7 +54,6 @@ def _write_valid_fixture(root: Path) -> None:
             [
                 "| CJT-013 | P0 | x | y | z | open | yes | a | b |",
                 "| CJT-015 | P0 | x | y | z | open | yes | a | b |",
-                "| CJT-018 | P1 | x | y | z | open | no | a | b |",
             ]
         ),
         encoding="utf-8",
@@ -90,7 +89,6 @@ def test_guard_fails_when_known_gate_is_not_open(tmp_path: Path) -> None:
             [
                 "| CJT-013 | P0 | x | y | z | verified | no | a | b |",
                 "| CJT-015 | P0 | x | y | z | open | yes | a | b |",
-                "| CJT-018 | P1 | x | y | z | open | no | a | b |",
             ]
         ),
         encoding="utf-8",

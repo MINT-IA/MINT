@@ -3,7 +3,7 @@
 
 This is intentionally narrow. It does not validate all GSD state. It checks
 that the files agents actually read first still point to the active CJT phase,
-its Journey Truth Matrix, and its three known open gates.
+its Journey Truth Matrix, and its known open release gates.
 """
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ PHASE_SLUG = "mint-prod-ready-core-journey-truth-20260601"
 PHASE_DIR = Path(".planning/phases") / PHASE_SLUG
 MATRIX = PHASE_DIR / "JOURNEY-TRUTH-MATRIX.md"
 BUG_TRACKER = PHASE_DIR / "BUG-TRACKER.md"
-OPEN_GATES = ("CJT-013", "CJT-015", "CJT-018")
+OPEN_GATES = ("CJT-013", "CJT-015")
 
 
 def _read(path: Path) -> str:

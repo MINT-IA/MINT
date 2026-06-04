@@ -26,14 +26,14 @@ production-readiness work lives in the Core Journey Truth phase.
 |---|---|---|
 | CJT-013 | Backend production Phase 02 cutover | Staging proof is not production proof. |
 | CJT-015 | TestFlight / Universal Links | Beta access cannot be inferred from simulator proof. |
-| CJT-018 | Onboarding AX / Maestro locators | Fragile selectors weaken every later live journey proof. |
+
+Recently closed: CJT-018 onboarding AX / Maestro locators. The 2026-06-04
+current AX frame audit proved valid lower frames for the active T6/T7/T8 ids.
 
 ## Next Execution Bias
 
-Execute CJT-018 first unless a release/access constraint explicitly moves
-CJT-015 or CJT-013 ahead of it. Stable Maestro automation makes the later
-account, OCR, Coach-widget, action-loop, and design/navigation waves cheaper to
-interpret.
+Execute CJT-015 first when signed/TestFlight access is available. Otherwise use
+the matrix to choose between CJT-013 and the next human-journey proof wave.
 
 ## Verification Commands
 
@@ -50,7 +50,7 @@ git diff --check
 - Do not mark a Journey Truth Matrix row as live-proven without a fresh runtime
   or backend proof artifact.
 - Do not close CJT-013 from staging-only evidence.
-- Do not close CJT-018 while affected flows still require coordinate fallbacks
-  for the known onboarding CTA path.
+- Do not reopen CJT-018 without fresh runtime evidence showing the affected
+  flows require coordinate fallbacks again.
 - When new evidence changes a row, update the matrix, bug tracker, and Engram
   in the same work wave.

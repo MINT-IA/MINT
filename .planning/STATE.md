@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: core-journey-truth
 milestone_name: Core Journey Truth / Prod Ready
 status: executing
-stopped_at: CJT-OPS-00 context guard created; next execution wave is CJT-018 Maestro AX/locator debt unless release-gate access is explicitly prioritized.
-last_updated: "2026-06-03T20:40:13+02:00"
-last_activity: 2026-06-03 -- Core Journey Truth matrix is active operating map
+stopped_at: CJT-024 and CJT-018 runtime proof refreshed; next execution wave is release-gate CJT-015 or backend cutover CJT-013 unless product journey proof is prioritized.
+last_updated: "2026-06-04T08:55:00+02:00"
+last_activity: 2026-06-04 -- CJT-024 closed, CJT-018 current AX frame audit green
 progress:
   total_phases: 1
   completed_phases: 0
@@ -53,11 +53,10 @@ guard added
 
 - CJT-013 — backend production Phase 02 fact-current cutover.
 - CJT-015 — TestFlight / Universal Links / signed real-device proof.
-- CJT-018 — onboarding Maestro AX/locator debt.
+- CJT-018 is no longer an open gate after the 2026-06-04 current AX frame audit.
 
-**Next execution bias:** CJT-018 first, because stable Maestro selectors make
-the account, document, Coach-widget, and action-loop proof waves cheaper and
-less ambiguous.
+**Next execution bias:** CJT-015 if signed/TestFlight access is available;
+otherwise CJT-013 or the next human-journey proof wave from the matrix.
 
 ## Historical Receipts
 
