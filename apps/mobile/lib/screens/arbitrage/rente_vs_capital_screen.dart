@@ -1998,17 +1998,25 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${v.lowLabel} : ${_formatDelta(lowDelta)}',
-                style: MintTextStyles.labelSmall(
-                  color: lowDelta < 0 ? MintColors.danger : MintColors.success,
+              Expanded(
+                child: Text(
+                  '${v.lowLabel} : ${_formatDelta(lowDelta)}',
+                  style: MintTextStyles.labelSmall(
+                    color:
+                        lowDelta < 0 ? MintColors.danger : MintColors.success,
+                  ),
                 ),
               ),
-              Text(
-                '${v.highLabel} : ${_formatDelta(highDelta)}',
-                style: MintTextStyles.labelSmall(
-                  color:
-                      highDelta >= 0 ? MintColors.success : MintColors.danger,
+              const SizedBox(width: MintSpacing.sm),
+              Expanded(
+                child: Text(
+                  '${v.highLabel} : ${_formatDelta(highDelta)}',
+                  textAlign: TextAlign.end,
+                  style: MintTextStyles.labelSmall(
+                    color: highDelta >= 0
+                        ? MintColors.success
+                        : MintColors.danger,
+                  ),
                 ),
               ),
             ],
@@ -2068,41 +2076,50 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
   Widget _buildDisclaimerCard() {
     if (_result == null) return const SizedBox.shrink();
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
-      padding: const EdgeInsets.all(MintSpacing.md),
-      radius: 16,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.info_outline_rounded,
-                  size: 16, color: MintColors.textMuted),
-              const SizedBox(width: MintSpacing.sm),
-              Text(
-                S.of(context)!.renteVsCapitalWarning,
-                style: MintTextStyles.labelMedium(color: MintColors.textMuted)
-                    .copyWith(
-                  fontWeight: FontWeight.w600,
+    final sources =
+        S.of(context)!.renteVsCapitalSources(_result!.sources.join(' | '));
+    return Semantics(
+      key: const Key('rente_vs_capital_disclaimer_card'),
+      identifier: 'rente_vs_capital_disclaimer_card',
+      container: true,
+      label:
+          '${S.of(context)!.renteVsCapitalWarning}. ${_result!.disclaimer}. $sources',
+      child: MintSurface(
+        tone: MintSurfaceTone.blanc,
+        padding: const EdgeInsets.all(MintSpacing.md),
+        radius: 16,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.info_outline_rounded,
+                    size: 16, color: MintColors.textMuted),
+                const SizedBox(width: MintSpacing.sm),
+                Text(
+                  S.of(context)!.renteVsCapitalWarning,
+                  style: MintTextStyles.labelMedium(color: MintColors.textMuted)
+                      .copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            _result!.disclaimer,
-            style:
-                MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(
-              height: 1.4,
+              ],
             ),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            S.of(context)!.renteVsCapitalSources(_result!.sources.join(' | ')),
-            style: MintTextStyles.micro(),
-          ),
-        ],
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              _result!.disclaimer,
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+                  .copyWith(
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              sources,
+              style: MintTextStyles.micro(),
+            ),
+          ],
+        ),
       ),
     );
   }

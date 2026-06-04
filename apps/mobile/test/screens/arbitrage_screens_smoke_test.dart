@@ -193,6 +193,35 @@ void main() {
       expect(result.sources.any((s) => s.contains('LIFD art. 38')), isTrue);
     });
 
+    testWidgets('renders reachable semantic disclaimer and legal sources',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(buildScreen());
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.runAsync(() async {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pumpAndSettle();
+
+      final disclaimerCard =
+          find.byKey(const Key('rente_vs_capital_disclaimer_card'));
+      await tester.scrollUntilVisible(
+        disclaimerCard,
+        500,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pump();
+
+      expect(disclaimerCard, findsOneWidget);
+      final semantics = tester.getSemantics(disclaimerCard);
+      expect(semantics.identifier, 'rente_vs_capital_disclaimer_card');
+      expect(semantics.label, contains('LSFin'));
+      expect(semantics.label, contains('LPP art. 14'));
+      expect(semantics.label, contains('LIFD art. 38'));
+    });
+
     test('warning label is localized in the 6 supported locales', () async {
       final labels = <String, String>{};
       for (final locale in S.supportedLocales) {

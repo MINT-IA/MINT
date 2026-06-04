@@ -62,10 +62,12 @@ Corrected locales:
 
 ## Remaining Gaps
 
-- The widget test does not prove that the lower disclaimer card is reachable by
-  runtime scroll. The screen computes through a static async API/fallback path,
-  so the stable local proof currently belongs at the engine contract and i18n
-  layer.
+- 2026-06-05 addendum: the widget-level lower disclaimer-card reachability and
+  semantic identifier gap is now covered by CJT-044 at
+  `row-17-rente-vs-capital-semantic-disclaimer-contract-20260605.md`. Runtime
+  Maestro screenshot proof remains open.
+- CJT-042 did not prove that the lower disclaimer card was reachable by
+  widget/runtime scroll; CJT-044 now covers widget reachability only.
 - Text-field labels and advanced controls still need explicit semantic proof.
 - Charts need accessible summaries, not only generic chart labels.
 - Dynamic type and tap-target checks for `/rente-vs-capital` are still open.
