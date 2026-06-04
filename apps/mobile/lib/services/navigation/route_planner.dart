@@ -52,7 +52,7 @@ enum RouteAction {
 
   /// No screen is appropriate. The Coach handles the intent inline.
   /// This is the safe fallback for unknown intents, low confidence,
-  /// and type-E (conversation-only) surfaces.
+  /// and conversation-pure surfaces.
   conversationOnly,
 }
 
@@ -167,7 +167,7 @@ class RouteDecision {
 /// 1. If [confidence] < [confidenceThreshold] → [RouteAction.conversationOnly]
 /// 2. Look up [intentTag] in [registry] → not found → [RouteAction.conversationOnly]
 /// 3. If [entry.behavior] is [ScreenBehavior.directAnswer] or
-///    [ScreenBehavior.conversationOnly] → [RouteAction.conversationOnly]
+///    [ScreenBehavior.conversationPure] → [RouteAction.conversationOnly]
 /// 4. If [entry.preferFromChat] == false → [RouteAction.conversationOnly]
 /// 5. Evaluate [ReadinessGate] → [ReadinessLevel.ready] / partial / blocked
 /// 6. Return matching [RouteDecision]

@@ -61,7 +61,7 @@ Le LLM ne doit jamais retourner un `context.push('/route')` brut. Il retourne un
 
 ---
 
-## 3. Les 5 comportements de surface
+## 3. Les 6 comportements de surface
 
 Chaque surface MINT appartient à exactement UN comportement d'orchestration :
 
@@ -89,7 +89,13 @@ Il manque de la donnée ou un document pour avancer.
 - Déclenchement : readiness gate échoue pour une surface B ou C
 - Exemples : "Je n'ai pas mon certificat LPP", "Mes données sont incomplètes"
 
-### E — Conversation pure (pas de surface)
+### E — Synthesis / Recap (preuve ou export)
+Il faut ouvrir une surface de synthèse qui consomme les vérités existantes.
+- Bilan/Rapport, preuve générée, export, prochaines décisions prioritaires
+- Pas de recalcul P0 indépendant, pas de duplication de tableau de bord
+- Exemple : "Montre-moi mon bilan"
+
+### F — Conversation pure (pas de surface)
 La question n'appelle pas de surface financière.
 - Explication conceptuelle, clarification, question hors périmètre
 - Le coach répond en texte, éventuellement avec un fait éducatif
@@ -105,7 +111,7 @@ La question n'appelle pas de surface financière.
 class ScreenEntry {
   final String route;
   final String intentTag;         // tag sémantique pour le matching LLM
-  final ScreenBehavior behavior;  // A/B/C/D/E
+  final ScreenBehavior behavior;  // A/B/C/D/E/F
   final List<String> requiredFields;  // champs CoachProfile nécessaires
   final List<String> optionalFields;  // champs qui améliorent l'expérience
   final String? fallbackRoute;    // si readiness échoue, où rediriger

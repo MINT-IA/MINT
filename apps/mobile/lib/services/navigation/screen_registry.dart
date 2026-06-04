@@ -5,7 +5,7 @@
 /// Every surface that the Coach may route to (preferFromChat == true) MUST be
 /// registered here with:
 ///  - an intent tag (snake_case, unique)
-///  - a behavior (A/B/C/D/E)
+///  - a behavior (A/B/C/D/E/F)
 ///  - the minimum CoachProfile fields required to open the screen usefully
 ///
 /// Pure data — no Flutter/widget imports. Safe to use in tests and services.
@@ -36,7 +36,10 @@ enum ScreenBehavior {
   /// D — Capture / Utility: data entry, document scan, profile completion.
   captureUtility,
 
-  /// E — Conversation pure: no dedicated surface. Coach responds in text.
+  /// E — Synthesis / Recap: proof, recap, or export surface.
+  synthesisRecap,
+
+  /// F — Conversation pure: no dedicated surface. Coach responds in text.
   conversationPure,
 }
 
@@ -57,7 +60,7 @@ class ScreenEntry {
   /// Example: 'retirement_choice', 'life_event_divorce', 'budget_overview'.
   final String intentTag;
 
-  /// Orchestration behavior class (A–E).
+  /// Orchestration behavior class (A-F).
   final ScreenBehavior behavior;
 
   /// CoachProfile field paths that MUST be present for this screen to open.
@@ -792,7 +795,7 @@ class MintScreenRegistry extends ScreenRegistry {
   static const ScreenEntry _financialReport = ScreenEntry(
     route: '/rapport',
     intentTag: 'financial_report',
-    behavior: ScreenBehavior.decisionCanvas,
+    behavior: ScreenBehavior.synthesisRecap,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['civilStatus', 'avoirLpp', 'epargne3a'],
     preferFromChat: false,

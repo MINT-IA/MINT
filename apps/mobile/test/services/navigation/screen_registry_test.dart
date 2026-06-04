@@ -190,11 +190,11 @@ void main() {
       expect(entry.preferFromChat, isTrue);
     });
 
-    test('financial_report is kept as explicit recap, not chat-routable', () {
+    test('financial_report is explicit synthesis recap, not decision canvas', () {
       final entry = MintScreenRegistry.findByIntentStatic('financial_report');
       expect(entry, isNotNull);
       expect(entry!.route, equals('/rapport'));
-      expect(entry.behavior, equals(ScreenBehavior.decisionCanvas));
+      expect(entry.behavior, equals(ScreenBehavior.synthesisRecap));
       expect(entry.preferFromChat, isFalse);
       expect(entry.prefillFromProfile, isFalse);
     });
@@ -294,6 +294,18 @@ void main() {
       final results =
           MintScreenRegistry.findByBehavior(ScreenBehavior.conversationPure);
       expect(results, isNotEmpty);
+    });
+
+    test('synthesisRecap contains /rapport and stays out of decision canvases',
+        () {
+      final recap =
+          MintScreenRegistry.findByBehavior(ScreenBehavior.synthesisRecap);
+      final canvases =
+          MintScreenRegistry.findByBehavior(ScreenBehavior.decisionCanvas);
+
+      expect(recap.map((e) => e.intentTag), contains('financial_report'));
+      expect(canvases.map((e) => e.intentTag),
+          isNot(contains('financial_report')));
     });
 
     test('all entries in decisionCanvas have B behavior', () {

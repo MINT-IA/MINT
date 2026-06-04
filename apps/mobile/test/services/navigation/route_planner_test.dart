@@ -94,7 +94,7 @@ InMemoryScreenRegistry _testRegistry() {
     ScreenEntry(
       route: '/rapport',
       intentTag: 'financial_report',
-      behavior: ScreenBehavior.decisionCanvas,
+      behavior: ScreenBehavior.synthesisRecap,
       requiredFields: ['salaireBrut', 'age', 'canton'],
       optionalFields: ['civilStatus', 'avoirLpp', 'epargne3a'],
       preferFromChat: false,

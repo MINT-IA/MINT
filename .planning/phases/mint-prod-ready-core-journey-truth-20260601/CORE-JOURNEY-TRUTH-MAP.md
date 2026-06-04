@@ -19,8 +19,8 @@ date: 2026-06-01
 |---|---|---|---|---|---|---|---|
 | Profile truth | "MINT remembers my situation correctly." | Coach, Profile/Dossier, backend profile, sync | Backend profile + mobile hydrated CoachProfile/MintState | save_fact/profile/sync drift can corrupt or lose coupled fields | P0 | in_progress | Commits `e3e632dba`, `901f06a73`; further map needed |
 | Money trust | "My money numbers are consistent." | Budget, Mon Argent, Rapport, Coach | BudgetSnapshot/DataSpine/BudgetProvider path must converge | Multiple budget read models and fallbacks | P0 | in_progress | Maestro money trust flow; commits `8e1aaecb5`, `2448d9724` |
-| Rapport synthesis | "Show me what matters and what to do next." | Coach -> Rapport, direct `/rapport`, legacy aliases | Persisted report answers + canonical money/profile truth | Screen role still mixed: Plan/Rapport/Bilan; design reads like mini-dashboard | P0 | in_progress | Commit `99f2c4505`; redesign still open |
-| Human navigation | "I always know where I am and why." | Shell, Coach route planner, route registry, deep links | ScreenRegistry + GoRouter + route_metadata | Legacy aliases, fallback routes, back behavior, orphaned entrypoints | P0 | open | `./tools/mint-routes reconcile`; more route audit needed |
+| Rapport synthesis | "Show me what matters and what to do next." | Direct `/rapport`, legacy aliases `/report` and `/report/v2` redirect | Persisted report answers + canonical money/profile truth | Active UI is Bilan synthesis/export; risk now moves to keeping this role explicit in registry, tests, and runtime flows | P0 | verified | CJT-002/CJT-010 plus CJT-026 `ScreenBehavior.synthesisRecap`; direct `/rapport` runtime proof `evidence/maestro-ci/cjt-026-rapport-synthesis-recap-20260604T131746/`; Money Trust recheck `evidence/maestro-ci/cjt-026-money-trust-synthesis-recap-20260604T131846/` |
+| Human navigation | "I always know where I am and why." | Shell, Coach route planner, route registry, deep links | ScreenRegistry + GoRouter + route_metadata | Legacy aliases, fallback routes, back behavior, orphaned entrypoints | P0 | open | `./tools/mint-routes check`; more route audit needed |
 | Coach trust | "When Coach gives a number, it is current and cited." | Coach, backend tools, citation gate, regulatory constants | Backend tools + current Swiss constants + citation gate | Stale constants, generic errors, or uncited numbers destroy trust | P0 | open | Need cited 3a/tax answer flow or clean refusal |
 | Beta archetype gate | "MINT only advises where it is competent." | Onboarding, profile, Coach, route planner | Supported archetype/life-event contract | Unsupported users can receive unsupported guidance if not gated | P0 | open | Need supported-scope matrix |
 | Phase 02 substrate | "Persistent facts are deployable, auditable, and cut over." | Backend migrations, fact_event/fact_current, projections | Event log + current fact projection | Local code can pass while staging/prod cutover is unsafe | P0 | open | Need alembic/backfill/projection-diff evidence |
@@ -51,7 +51,7 @@ date: 2026-06-01
 | Unit/widget tests | Yes | Must cover contract and absence of duplicates |
 | `flutter analyze` | Yes | Run after Flutter edits |
 | Backend tests | When backend touched | `ruff`/`pytest` per subsystem |
-| Route parity | When routes/screen registry touched | `./tools/mint-routes reconcile`; `check` command is stale |
+| Route parity | When routes/screen registry touched | `./tools/mint-routes check` |
 | Maestro | Yes for journey-visible P0 | Prefer existing flows before adding new |
 | Screenshot | Yes for design/storytelling changes | Direct simulator screenshot if flow already green |
 | i18n parity | Any copy change | 6 ARB files, no hardcoded text |
@@ -66,7 +66,7 @@ date: 2026-06-01
 | Mon Argent | Current financial state | Reads canonical money snapshot |
 | Budget | Cashflow configuration/detail | Owns editable fixed-charge and envelope workflow |
 | Coach | Conversation, explanation, routing | Numbers are cited/current or refused cleanly |
-| Rapport / Synthese | Generated proof, synthesis, top decisions | Consumer only; no independent P0 recalculation |
+| Rapport / Bilan | Generated proof, synthesis, top decisions | Consumer only; `ScreenBehavior.synthesisRecap`; no independent P0 recalculation |
 | Profile / Dossier | Facts, provenance, correction | Shows what MINT knows and lets user correct it |
 | Scan | Trusted document ingestion | No silent profile mutation without review |
 | Explorer | Secondary calculators/education | Not a global dashboard |
