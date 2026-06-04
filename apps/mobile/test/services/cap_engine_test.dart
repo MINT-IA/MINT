@@ -331,6 +331,44 @@ void main() {
     });
   });
 
+  group('CapEngine — acknowledged action rotation', () {
+    test('recently served cap can rotate without completedActions', () {
+      final profile = profile0(
+        salaireBrutMensuel: 6000,
+        dettes: dettes(25000),
+        depenses: const DepensesProfile(
+          loyer: 2400,
+          assuranceMaladie: 500,
+          autresDepensesFixes: 1800,
+        ),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 50000,
+          rachatMaximum: 100000,
+        ),
+      );
+
+      final first = CapEngine.compute(
+        profile: profile,
+        now: DateTime(2026, 11, 1),
+        l: _l,
+      );
+      expect(first.id, 'debt_correct');
+
+      final rotated = CapEngine.compute(
+        profile: profile,
+        now: DateTime(2026, 11, 1),
+        l: _l,
+        memory: CapMemory(
+          lastCapServed: first.id,
+          lastCapDate: DateTime(2026, 11, 1),
+        ),
+      );
+
+      expect(rotated.id, isNot(first.id));
+      expect(rotated.id, isNot('debt_correct'));
+    });
+  });
+
   group('CapEngine — LPP buyback', () {
     test('rachat > 5k produces optimize cap', () {
       final profile = profile0(

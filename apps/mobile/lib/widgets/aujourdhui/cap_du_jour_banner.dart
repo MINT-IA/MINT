@@ -26,6 +26,7 @@ import 'package:mint_mobile/models/coach_profile.dart'
 import 'package:mint_mobile/models/serialized_card_context.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/mint_card_action_bar.dart';
@@ -74,7 +75,11 @@ class CapDuJourBanner extends StatelessWidget {
                 sourceCard: _buildCardContext(context, cap),
                 intent: 'explain',
               ),
-              onSimulate: () => context.push('/explore?simulate=$_kCardId'),
+              onSimulate: () async {
+                await _recordCapAcknowledgement(context, cap);
+                if (!context.mounted) return;
+                context.push('/explore?simulate=$_kCardId');
+              },
               onReassure: () => MintChatOverlay.show(
                 context,
                 sourceCard: _buildCardContext(context, cap),
@@ -109,6 +114,21 @@ class CapDuJourBanner extends StatelessWidget {
       archetype: profile?.archetype.backendName,
     );
   }
+}
+
+Future<void> _recordCapAcknowledgement(
+  BuildContext context,
+  CapDecision? cap,
+) async {
+  if (cap == null) return;
+
+  final memory = await CapMemoryStore.load();
+  await CapMemoryStore.markServed(memory, cap.id);
+
+  if (!context.mounted) return;
+  final profile = context.read<CoachProfileProvider>().profile;
+  if (profile == null) return;
+  await context.read<MintStateProvider>().forceRecompute(profile);
 }
 
 class _CapBannerCard extends StatelessWidget {
@@ -181,7 +201,10 @@ class _CapBannerCard extends StatelessWidget {
     );
   }
 
-  void _onTap(BuildContext context, CapDecision cap) {
+  Future<void> _onTap(BuildContext context, CapDecision cap) async {
+    await _recordCapAcknowledgement(context, cap);
+    if (!context.mounted) return;
+
     switch (cap.ctaMode) {
       case CtaMode.route:
         final route = cap.ctaRoute;

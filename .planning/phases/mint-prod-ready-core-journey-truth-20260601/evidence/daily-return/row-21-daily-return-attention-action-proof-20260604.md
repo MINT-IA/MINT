@@ -94,3 +94,33 @@ Keep Row 21 at `PARTIAL` until there is a proof that:
 - the completed action is persisted,
 - returning to `Aujourd'hui` shows the next correct priority instead of the
   same attention card.
+
+## Addendum — 2026-06-05 deterministic acknowledgement/rotation proof
+
+CJT-043 closes the local acknowledgement gap deterministically without claiming
+true financial completion:
+
+- tapping the visible `Simule` action now records the current cap via
+  `CapMemoryStore.markServed(...)`,
+- the stored memory includes `lastCapServed` and `lastCapDate`,
+- `completedActions` remains empty so sequences and lightning-menu completion
+  semantics are not polluted,
+- `MintStateProvider.forceRecompute(profile)` is called after persistence,
+- `CapEngine` uses the existing recency modifier to reduce the just-served cap's
+  score and can rotate attention when another candidate outranks it.
+
+Proof:
+
+```bash
+cd apps/mobile
+flutter test \
+  test/widgets/aujourdhui/cap_du_jour_banner_test.dart \
+  test/services/cap_engine_test.dart
+```
+
+Result: `73` tests passed. Evidence:
+`evidence/daily-return/row-21-cap-acknowledgement-rotation-contract-20260605.md`.
+
+Row 21 still stays `PARTIAL`: the remaining proof is runtime-visible return to
+`Aujourd'hui` with the next correct priority shown on-screen, plus true
+target-flow completion proof before writing `completedActions`.
