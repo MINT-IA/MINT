@@ -11,6 +11,7 @@ import 'package:mint_mobile/data/budget/budget_local_store.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
@@ -23,6 +24,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
@@ -652,6 +654,81 @@ void main() {
         card.contextMessage,
         'Compare la rente et le capital avec tes donnees.',
       );
+    });
+
+    testWidgets(
+        'injects ScreenReturn context into the next coach request after a simulator return',
+        (tester) async {
+      usePhoneViewport(tester);
+      final previousHardGate = FeatureFlags.enableCoachHardGate;
+      FeatureFlags.enableCoachHardGate = false;
+      String? capturedMemoryBlock;
+      addTearDown(() {
+        FeatureFlags.enableCoachHardGate = previousHardGate;
+        CoachLlmService.registerOrchestrator(CoachOrchestrator.generateChat);
+      });
+
+      CoachLlmService.registerOrchestrator(({
+        required userMessage,
+        required history,
+        required ctx,
+        byokConfig,
+        memoryBlock,
+        language = 'fr',
+        cashLevel = 3,
+        isLoggedIn = false,
+      }) async {
+        capturedMemoryBlock = memoryBlock;
+        return const CoachResponse(
+          message: 'Je tiens compte de la simulation.',
+          disclaimer: 'Outil educatif.',
+        );
+      });
+
+      await tester.pumpWidget(
+        buildTestWidget(
+          withProfile: true,
+          mintState: buildMintStateForTest(buildProfileProvider().profile!),
+          contextBuilder: ({
+            profile,
+            prefs,
+            now,
+            mintState,
+          }) async {
+            return const EnrichedContext(
+              memoryBlock: 'TEST CONTEXT',
+              conversationMemory: ConversationMemory.empty,
+              activeGoalsCount: 0,
+            );
+          },
+        ),
+      );
+      await pumpUntilGreeting(tester);
+
+      await ScreenCompletionTracker.markCompletedWithReturn(
+        'rente_vs_capital',
+        const ScreenReturn.completed(
+          route: '/rente-vs-capital',
+          updatedFields: {'retirementMode': 'estimate'},
+          confidenceDelta: 0.02,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+
+      await tester.enterText(find.byType(TextField), 'Et maintenant ?');
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(capturedMemoryBlock, isNotNull);
+      expect(capturedMemoryBlock, contains('TEST CONTEXT'));
+      expect(
+        capturedMemoryBlock,
+        contains("L'utilisateur vient de terminer une simulation"),
+      );
+      expect(capturedMemoryBlock, contains('/rente-vs-capital'));
+      expect(capturedMemoryBlock, contains('retirementMode: estimate'));
     });
 
     testWidgets('resumes persisted conversation by conversationId',
