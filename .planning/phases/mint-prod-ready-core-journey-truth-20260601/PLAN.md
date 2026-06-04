@@ -15,10 +15,33 @@ Slow is fast here. The mission fails if we fix random bugs while preserving an i
 2. Which source of truth is canonical?
 3. Which duplicate or contradiction is removed?
 4. Which test or Maestro flow proves it?
+5. Which roadmap/matrix row moves because of this work?
+6. Which debt was introduced, revealed, accepted, or removed?
 
 The plan is intentionally narrower than "fix all of MINT". First target one beta-quality story:
 
 French Swiss supported archetype -> facts captured and persisted -> money truth stable across Budget/Mon Argent/Rapport/Coach -> Coach answer is cited/current -> Rapport is synthesis/proof/next action, not a third dashboard.
+
+## Quality Governance Gates
+
+These gates are part of the plan, not a side process:
+
+1. **Anti-drift gate** — before editing, name the active roadmap, matrix,
+   bug tracker, open release gates, and newest commit being audited. Run
+   `python3 tools/checks/cjt_context_guard.py` when touching CJT state.
+2. **Quality ratchet gate** — every wave must move at least one matrix row,
+   bug status, proof level, or debt count in the right direction. A passing
+   test without a matrix or tracker update is not enough for wave closure.
+3. **No-new-untracked-debt gate** — every commit review must list debt delta:
+   `introduced`, `revealed`, `accepted`, `removed`, or `none`. Any accepted
+   debt needs an ID, severity, evidence, owner/scope, and next proof.
+4. **Two-layer review gate** — code or journey changes need local mechanical
+   checks plus at least one independent review layer: specialist subagent,
+   Claude CLI review when available, or explicit manual diff audit captured in
+   `.planning/`.
+5. **Runtime-proof gate** — user-journey status can only advance to
+   `LIVE-PROVEN` with fresh Maestro/device/backend runtime evidence for that
+   exact scope.
 
 ## Wave 0 — Mission Control And Inventory
 

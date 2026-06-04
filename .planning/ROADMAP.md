@@ -16,6 +16,17 @@
 - 📋 **v2.11 Data Architecture v1 — Trust & Compliance Foundation** — initiated 2026-05-17 — see [decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md](decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md). Phase **mint-data-architecture-v1-01-calc-engine-canonical** opens the milestone — resolves the upstream calc-engine ownership conflict (mobile-canonical vs backend-canonical) that gates the event-log + projection migration (deferred Phase 02) and the coach-extractor guardrails (deferred Phase 03). Phases 02 + 03 will be declared in ROADMAP only after this phase's outcome is locked.
 - 🚧 **Active GSD: Core Journey Truth / Prod Ready** — opened 2026-06-01 on branch `qa/salvage-profile-truth-20260601` — convergence phase, not feature phase. Goal: one narrow beta-quality story with one user truth, coherent navigation, reduced duplicate surfaces, current/cited Coach claims, and Maestro-proofed journeys. Source of truth: [`phases/mint-prod-ready-core-journey-truth-20260601/CONTEXT.md`](phases/mint-prod-ready-core-journey-truth-20260601/CONTEXT.md), [`PLAN.md`](phases/mint-prod-ready-core-journey-truth-20260601/PLAN.md), [`CORE-JOURNEY-TRUTH-MAP.md`](phases/mint-prod-ready-core-journey-truth-20260601/CORE-JOURNEY-TRUTH-MAP.md), [`JOURNEY-TRUTH-MATRIX.md`](phases/mint-prod-ready-core-journey-truth-20260601/JOURNEY-TRUTH-MATRIX.md), [`BUG-TRACKER.md`](phases/mint-prod-ready-core-journey-truth-20260601/BUG-TRACKER.md). Anti-drift guard: `python3 tools/checks/cjt_context_guard.py`.
 
+  **Quality governance goals added 2026-06-04.** This GSD now has three
+  explicit operating gates in addition to product journey proof:
+  1. **No drift** — every session starts from the active CJT roadmap, matrix,
+     bug tracker, and context guard; no chat-only priority list may outrank
+     those files.
+  2. **Quality ratchet** — each wave must either close a tracked row, improve a
+     proof level, or reduce documented debt; progress is measured in the
+     matrix, not in narrative confidence.
+  3. **No new untracked debt** — every commit records a debt delta. Accepted
+     debt must have an ID, owner/scope, severity, evidence, and next proof.
+
 ### Phase: mint-calc-engine-v1
 **Goal**: Make MINT's ~57 already-shipped Swiss financial calculators (LLM-)discoverable, real-profile-grounded, architecturally findable, and DAG-reactive. Build the lucidité engine (L1 chiffrer / L2 comparer / L3 éclairer / L4 invariants) on top of the existing calc surface. Does NOT add new calculators in v1 — the surface already exists (per [decisions/2026-05-16-calc-engine-matrix.md](decisions/2026-05-16-calc-engine-matrix.md), 57 ✅ + 4 ⚠️ + 3 ❌ truly absent).
 **Status**: ◆ code-shipped on dev 2026-05-17, pending operational gates — 20/20 plans landed across 4 waves on `dev` (109 commits, backend suite **7264 passed** zero regression). Phase is Stage 1 of 4 per CLAUDE.md §9.5 — cannot claim ✅ SHIPPED without **G2 Julien device sign-off** + 7 deferred operational gates (staging env-flip · Railway cron activation · Railway metrics scraping · endpoint metric fanout · Flutter 45-field drift fix incl. dead-COUP-04 · FR description tone review · S12-API consolidation). See [`phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md`](phases/mint-calc-engine-v1/mint-calc-engine-v1-SUMMARY.md) + [`phases/mint-calc-engine-v1/mint-calc-engine-v1-VERIFICATION-REPORT.html`](phases/mint-calc-engine-v1/mint-calc-engine-v1-VERIFICATION-REPORT.html).

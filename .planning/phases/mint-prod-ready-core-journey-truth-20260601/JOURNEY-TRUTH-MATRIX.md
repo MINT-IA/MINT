@@ -62,6 +62,9 @@ Current supported beta proof should stay narrow:
 | 25 | Backend production fact substrate is current | OPEN | CJT-013: staging Phase 02 proof exists; production lacks Phase 02 tables/cutover evidence. | Execute or explicitly defer production runbook; capture prod head, flags, backfill parity, metrics. |
 | 26 | Runtime automation is stable enough to catch regressions | PARTIAL | CJT-014/CJT-016 local regression sweep green; CJT-024 Money Trust restart/deep-link rerun is green; CJT-018 current AX frame audit closes the active onboarding locator debt. | Keep regression sweeps scheduled; do not use simulator proof to close CJT-015 signed-device access. |
 | 27 | Observability/release feedback loop catches beta regressions | UNPROVEN | Roadmapped in Phase 35; no current closure evidence found. | Sentry/crash/activation/drop-off loop before broader beta. |
+| 28 | Agents do not drift away from the active GSD | PARTIAL | `tools/checks/cjt_context_guard.py` exists and is wired in pre-commit; latest post-push audit `evidence/devex/post-push-commit-audit-20260604.md` reconciles recent commits against the active CJT map. | Add a per-session checklist to every CJT handoff: roadmap/matrix/bug tracker read, open gates named, newest commit audited. |
+| 29 | Quality improves monotonically instead of moving bugs around | PARTIAL | `BUG-TRACKER.md` has severity/status/evidence columns and post-push debt IDs `D-20260604-01` through `D-20260604-06`. | Require every wave to state which matrix row improved, which bug closed, and which proof command changed the status. |
+| 30 | New debt is either avoided or explicitly tracked | PARTIAL | Post-push audit tracked legacy widget debt, doc drift, evidence hygiene, and staging bypass as debt instead of hiding them in chat. | Add a no-new-debt section to each commit review: introduced / revealed / accepted / removed, with owner and next proof. |
 
 ## What Was Missing From The User List
 
@@ -87,6 +90,8 @@ operational and trust boundaries:
 4. Design/i18n/accessibility hardening: top screens and top simulators.
 5. Operational beta loop: privacy/control surface, crash/analytics evidence,
    regression schedule.
+6. Quality governance loop: anti-drift guard, quality-ratchet proof, and
+   no-new-debt accounting after every commit.
 
 ## Expert Inputs Integrated
 
