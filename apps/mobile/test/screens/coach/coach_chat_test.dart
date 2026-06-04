@@ -77,6 +77,11 @@ void main() {
     );
   }
 
+  Finder bySemanticsIdentifier(String identifier) => find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics && widget.properties.identifier == identifier,
+      );
+
   MintUserState buildMintStateForTest(CoachProfile profile) {
     final now = DateTime(2026, 5, 26, 10);
     return MintUserState(
@@ -421,6 +426,12 @@ void main() {
         );
         expect(
           tester
+              .getSemantics(find.byKey(const Key('coach_history_button')))
+              .identifier,
+          'coach_history_button',
+        );
+        expect(
+          tester
               .getSemantics(find.byKey(const Key('coach_input_field')))
               .identifier,
           'coach_input_field',
@@ -668,8 +679,86 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
 
       expect(find.text('On parlait de mon rachat LPP'), findsOneWidget);
+      expect(bySemanticsIdentifier('coach_user_message_0'), findsOneWidget);
       expect(find.text('Oui, je garde ce contexte.'), findsOneWidget);
       expect(find.text("Salut. Moi c'est Mint."), findsNothing);
+    });
+
+    testWidgets('sends resumed conversation history with the next message',
+        (tester) async {
+      usePhoneViewport(tester);
+      final previousHardGate = FeatureFlags.enableCoachHardGate;
+      FeatureFlags.enableCoachHardGate = false;
+      List<ChatMessage>? capturedHistory;
+      addTearDown(() {
+        FeatureFlags.enableCoachHardGate = previousHardGate;
+        CoachLlmService.registerOrchestrator(CoachOrchestrator.generateChat);
+      });
+
+      CoachLlmService.registerOrchestrator(({
+        required userMessage,
+        required history,
+        required ctx,
+        byokConfig,
+        memoryBlock,
+        language = 'fr',
+        cashLevel = 3,
+        isLoggedIn = false,
+      }) async {
+        capturedHistory = List<ChatMessage>.from(history);
+        return const CoachResponse(
+          message: 'Je continue avec le contexte.',
+          disclaimer: 'Outil educatif.',
+        );
+      });
+
+      await ConversationStore().saveConversation('conv-resume-row20', [
+        ChatMessage(
+          role: 'user',
+          content: 'On parlait de mon rachat LPP',
+          timestamp: DateTime(2026, 6, 4, 9),
+        ),
+        ChatMessage(
+          role: 'assistant',
+          content: 'Oui, je garde ce contexte.',
+          timestamp: DateTime(2026, 6, 4, 9, 1),
+        ),
+      ]);
+
+      await tester.pumpWidget(
+        buildTestWidget(
+          withProfile: true,
+          conversationId: 'conv-resume-row20',
+          contextBuilder: ({
+            profile,
+            prefs,
+            now,
+            mintState,
+          }) async {
+            return const EnrichedContext(
+              memoryBlock: 'TEST CONTEXT',
+              conversationMemory: ConversationMemory.empty,
+              activeGoalsCount: 0,
+            );
+          },
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      await tester.enterText(find.byType(TextField), 'Et maintenant ?');
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(capturedHistory, isNotNull);
+      expect(bySemanticsIdentifier('coach_user_message_1'), findsOneWidget);
+      expect(capturedHistory!.map((message) => message.content), [
+        'On parlait de mon rachat LPP',
+        'Oui, je garde ce contexte.',
+        'Et maintenant ?',
+      ]);
+      expect(find.text('Je continue avec le contexte.'), findsOneWidget);
     });
 
     testWidgets('sends message when pressing send button', (tester) async {

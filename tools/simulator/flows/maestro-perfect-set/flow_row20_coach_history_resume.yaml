@@ -1,0 +1,138 @@
+# tools/simulator/flows/maestro-perfect-set/flow_row20_coach_history_resume.yaml
+#
+# PURPOSE
+# Runtime proof for Journey Truth Matrix Row 20:
+# Coach history lets a user return to prior context after app restart.
+#
+# This flow deliberately avoids asserting a live LLM answer. The deterministic
+# Flutter test `CoachChatScreen sends resumed conversation history with the next
+# message` proves the resumed `_messages` list is sent as `history` on follow-up.
+# This runtime flow proves the product shell: create conversation -> save via
+# history navigation -> restart with persisted state -> history -> resume ->
+# send follow-up.
+#
+# PRE-CONDITION
+# - Debug app ch.mint.app installed on a booted iPhone simulator.
+# - Recommended build:
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss
+# - The supported Swiss seed is required because anonymous/empty profiles can
+#   correctly hit the unsupported-profile hard gate before chat persistence.
+
+appId: ch.mint.app
+tags:
+  - row-20
+  - coach-history
+  - restart
+  - maestro-proof
+---
+
+# 01 - Fresh launch, then deep-link directly to Coach chat.
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///coach/chat"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 12000
+- extendedWaitUntil:
+    visible:
+      id: "coach_input_field"
+    timeout: 8000
+
+# 02 - Create a local conversation. We only require the user bubble; the LLM
+# response may still be loading and is not part of this proof.
+- tapOn:
+    id: "coach_input_field"
+- inputText: "On parlait de mon rachat LPP"
+- pressKey: Enter
+- waitForAnimationToEnd:
+    timeout: 6000
+- extendedWaitUntil:
+    visible:
+      text: ".*rachat LPP.*"
+    timeout: 12000
+- takeScreenshot: "01-row20-created-conversation"
+
+# 03 - Use the real history button, which auto-saves before navigating.
+- tapOn:
+    id: "coach_history_button"
+- extendedWaitUntil:
+    visible:
+      id: "coach_history_screen"
+    timeout: 12000
+- extendedWaitUntil:
+    visible:
+      id: "coach_history_conversation_0"
+    timeout: 8000
+- takeScreenshot: "02-row20-history-before-restart"
+
+# 04 - Restart without clearing state, then open history again.
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 6000
+- openLink: "mintapp:///coach/history"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "coach_history_screen"
+    timeout: 12000
+- extendedWaitUntil:
+    visible:
+      id: "coach_history_conversation_0"
+    timeout: 8000
+- takeScreenshot: "03-row20-history-after-restart"
+
+# 05 - Resume and send a follow-up. The Flutter test asserts this follow-up is
+# dispatched with the old conversation history; this runtime proof asserts the
+# user can continue the resumed conversation surface after restart.
+- tapOn:
+    id: "coach_history_conversation_0"
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 12000
+- assertVisible:
+    id: "coach_user_message_0"
+- tapOn:
+    id: "coach_input_field"
+- inputText: "Et maintenant ?"
+- pressKey: Enter
+- extendedWaitUntil:
+    visible:
+      id: "coach_user_message_1"
+    timeout: 12000
+- takeScreenshot: "04-row20-resumed-follow-up"

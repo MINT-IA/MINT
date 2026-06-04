@@ -74,4 +74,62 @@ void main() {
 
     expect(find.text('chat:conv-row20-history'), findsOneWidget);
   });
+
+  testWidgets('exposes stable Maestro semantics identifiers', (tester) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      await seedConversation();
+
+      final router = GoRouter(
+        initialLocation: '/coach/history',
+        routes: [
+          GoRoute(
+            path: '/coach/history',
+            builder: (context, state) => const ConversationHistoryScreen(),
+          ),
+          GoRoute(
+            path: '/coach/chat',
+            builder: (context, state) => const Scaffold(),
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        MaterialApp.router(
+          routerConfig: router,
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester
+            .getSemantics(find.byKey(const Key('coach_history_screen')))
+            .identifier,
+        'coach_history_screen',
+      );
+      expect(
+        tester
+            .getSemantics(find.byKey(const Key('coach_history_conversation_0')))
+            .identifier,
+        'coach_history_conversation_0',
+      );
+      expect(
+        tester
+            .getSemantics(
+                find.byKey(const Key('coach_history_new_conversation')))
+            .identifier,
+        'coach_history_new_conversation',
+      );
+    } finally {
+      semantics.dispose();
+    }
+  });
 }

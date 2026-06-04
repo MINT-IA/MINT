@@ -828,8 +828,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     final s = S.of(context)!;
     final budgetProvider = _watchBudgetProviderIfAvailable();
     final budgetPlan = budgetProvider?.plan;
-    final canUseStoredBudget = budgetProvider?.source == BudgetDataSource.storage &&
-        (_profile == null || !_profile!.hasMaterialData);
+    final canUseStoredBudget =
+        budgetProvider?.source == BudgetDataSource.storage &&
+            (_profile == null || !_profile!.hasMaterialData);
     if (budgetProvider != null &&
         (budgetProvider.hasFreshInputs || canUseStoredBudget) &&
         budgetPlan != null &&
@@ -2464,7 +2465,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           if (msg.isSystem) {
             child = SystemMessageBubble(message: msg);
           } else if (msg.isUser) {
+            final userOrdinal =
+                _messages.take(index + 1).where((m) => m.isUser).length - 1;
+            final userIdentifier = 'coach_user_message_$userOrdinal';
             child = Semantics(
+              key: userOrdinal == 0
+                  ? const Key('coach_user_message_0')
+                  : userOrdinal == 1
+                      ? const Key('coach_user_message_1')
+                      : Key(userIdentifier),
+              identifier: userIdentifier,
+              container: true,
               label: S.of(context)!.coachUserMessage,
               child: UserMessageBubble(message: msg),
             );

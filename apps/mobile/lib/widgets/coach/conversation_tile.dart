@@ -28,8 +28,9 @@ class ConversationTile extends StatelessWidget {
     final l10n = S.of(context)!;
     return Dismissible(
       key: ValueKey(conversation.id),
-      direction:
-          onDelete != null ? DismissDirection.endToStart : DismissDirection.none,
+      direction: onDelete != null
+          ? DismissDirection.endToStart
+          : DismissDirection.none,
       onDismissed: (_) => onDelete?.call(),
       background: Container(
         alignment: Alignment.centerRight,
@@ -71,94 +72,101 @@ class ConversationTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: MintColors.card,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: MintColors.lightBorder),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Row 1: Title + date ──
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      conversation.title,
-                      style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+            decoration: BoxDecoration(
+              color: MintColors.card,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: MintColors.lightBorder),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Row 1: Title + date ──
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        conversation.title,
+                        style: MintTextStyles.labelLarge(
+                                color: MintColors.textPrimary)
+                            .copyWith(fontWeight: FontWeight.w600),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
+                    const SizedBox(width: 8),
+                    Text(
+                      _formatRelativeDate(context, conversation.lastMessageAt),
+                      style: MintTextStyles.labelMedium(
+                          color: MintColors.textMuted),
+                    ),
+                  ],
+                ),
+
+                // ── Row 2: Preview ──
+                if (conversation.lastMessagePreview != null) ...[
+                  const SizedBox(height: 4),
                   Text(
-                    _formatRelativeDate(context, conversation.lastMessageAt),
-                    style: MintTextStyles.labelMedium(color: MintColors.textMuted),
+                    conversation.lastMessagePreview!,
+                    style: MintTextStyles.bodySmall(
+                            color: MintColors.textSecondary)
+                        .copyWith(height: 1.3),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
-              ),
 
-              // ── Row 2: Preview ──
-              if (conversation.lastMessagePreview != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  conversation.lastMessagePreview!,
-                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.3),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                // ── Row 3: Tags + message count ──
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    // Tags
+                    if (conversation.tags.isNotEmpty)
+                      Expanded(
+                        child: Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: conversation.tags
+                              .take(3) // Show max 3 tags
+                              .map((tag) => _TagChip(label: tag))
+                              .toList(),
+                        ),
+                      )
+                    else
+                      const Spacer(),
+
+                    // Message count
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: MintColors.surface,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.chat_bubble_outline,
+                            size: 12,
+                            color: MintColors.textMuted,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${conversation.messageCount}',
+                            style: MintTextStyles.labelSmall(
+                                    color: MintColors.textMuted)
+                                .copyWith(fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
-
-              // ── Row 3: Tags + message count ──
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  // Tags
-                  if (conversation.tags.isNotEmpty)
-                    Expanded(
-                      child: Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        children: conversation.tags
-                            .take(3) // Show max 3 tags
-                            .map((tag) => _TagChip(label: tag))
-                            .toList(),
-                      ),
-                    )
-                  else
-                    const Spacer(),
-
-                  // Message count
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: MintColors.surface,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.chat_bubble_outline,
-                          size: 12,
-                          color: MintColors.textMuted,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${conversation.messageCount}',
-                          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -231,7 +239,8 @@ class _TagChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: MintTextStyles.micro(color: _tagColor(label)).copyWith(fontWeight: FontWeight.w500),
+        style: MintTextStyles.micro(color: _tagColor(label))
+            .copyWith(fontWeight: FontWeight.w500),
       ),
     );
   }

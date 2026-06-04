@@ -77,79 +77,112 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
 
-    return Scaffold(
-      backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          // ── App Bar ──
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: MintColors.white,
-            surfaceTintColor: MintColors.white,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            title: Text(
-              l10n.conversationHistoryTitle,
-              style: MintTextStyles.titleMedium(),
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-              onPressed: () => safePop(context),
-            ),
-          ),
-
-          // ── Body ──
-          if (_isLoading)
-            const SliverFillRemaining(
-              child: MintLoadingSkeleton(),
-            )
-          else if (_error != null)
-            SliverFillRemaining(
-              child: _ErrorState(
-                message: _error!,
-                onRetry: _loadConversations,
-              ),
-            )
-          else if (_conversations == null || _conversations!.isEmpty)
-            SliverFillRemaining(
-              child: _EmptyState(onNewConversation: _startNewConversation),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(MintSpacing.md, MintSpacing.md, MintSpacing.md, 100),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final conversation = _conversations![index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: ConversationTile(
-                        conversation: conversation,
-                        onTap: () => _openConversation(conversation.id),
-                        onDelete: () => _deleteConversation(conversation.id),
+    return Semantics(
+      key: const Key('coach_history_screen'),
+      identifier: 'coach_history_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
+        backgroundColor: MintColors.background,
+        body: Center(
+            child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: CustomScrollView(
+                  slivers: [
+                    // ── App Bar ──
+                    SliverAppBar(
+                      pinned: true,
+                      backgroundColor: MintColors.white,
+                      surfaceTintColor: MintColors.white,
+                      elevation: 0,
+                      scrolledUnderElevation: 0,
+                      title: Text(
+                        l10n.conversationHistoryTitle,
+                        style: MintTextStyles.titleMedium(),
                       ),
-                    );
-                  },
-                  childCount: _conversations!.length,
-                ),
-              ),
-            ),
-        ],
-      ))),
+                      leading: IconButton(
+                        icon: const Icon(Icons.arrow_back,
+                            color: MintColors.textPrimary),
+                        onPressed: () => safePop(context),
+                      ),
+                    ),
 
-      // ── FAB: New conversation ──
-      floatingActionButton: (!_isLoading && _error == null)
-          ? FloatingActionButton.extended(
-              onPressed: _startNewConversation,
-              backgroundColor: MintColors.primary,
-              foregroundColor: MintColors.white,
-              icon: const Icon(Icons.add),
-              label: Text(
-                l10n.conversationNew,
-                style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
-              ),
-            )
-          : null,
+                    // ── Body ──
+                    if (_isLoading)
+                      const SliverFillRemaining(
+                        child: MintLoadingSkeleton(),
+                      )
+                    else if (_error != null)
+                      SliverFillRemaining(
+                        child: _ErrorState(
+                          message: _error!,
+                          onRetry: _loadConversations,
+                        ),
+                      )
+                    else if (_conversations == null || _conversations!.isEmpty)
+                      SliverFillRemaining(
+                        child: _EmptyState(
+                            onNewConversation: _startNewConversation),
+                      )
+                    else
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(MintSpacing.md,
+                            MintSpacing.md, MintSpacing.md, 100),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final conversation = _conversations![index];
+                              final indexIdentifier =
+                                  'coach_history_conversation_$index';
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Semantics(
+                                  key: index == 0
+                                      ? const Key(
+                                          'coach_history_conversation_0')
+                                      : Key(indexIdentifier),
+                                  identifier: indexIdentifier,
+                                  button: true,
+                                  onTap: () =>
+                                      _openConversation(conversation.id),
+                                  child: ConversationTile(
+                                    conversation: conversation,
+                                    onTap: () =>
+                                        _openConversation(conversation.id),
+                                    onDelete: () =>
+                                        _deleteConversation(conversation.id),
+                                  ),
+                                ),
+                              );
+                            },
+                            childCount: _conversations!.length,
+                          ),
+                        ),
+                      ),
+                  ],
+                ))),
+
+        // ── FAB: New conversation ──
+        floatingActionButton: (!_isLoading && _error == null)
+            ? Semantics(
+                key: const Key('coach_history_new_conversation'),
+                identifier: 'coach_history_new_conversation',
+                button: true,
+                label: l10n.conversationNew,
+                child: FloatingActionButton.extended(
+                  onPressed: _startNewConversation,
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: MintColors.white,
+                  icon: const Icon(Icons.add),
+                  label: Text(
+                    l10n.conversationNew,
+                    style: MintTextStyles.bodyMedium()
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              )
+            : null,
+      ),
     );
   }
 }
@@ -172,44 +205,55 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            MintEntrance(child: Icon(
+            MintEntrance(
+                child: Icon(
               Icons.chat_outlined,
               size: 64,
               color: MintColors.textMuted.withValues(alpha: 0.5),
             )),
             const SizedBox(height: MintSpacing.md),
-            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
-              l10n.conversationEmptyTitle,
-              style: MintTextStyles.titleMedium(),
-              textAlign: TextAlign.center,
-            )),
+            MintEntrance(
+                delay: const Duration(milliseconds: 100),
+                child: Text(
+                  l10n.conversationEmptyTitle,
+                  style: MintTextStyles.titleMedium(),
+                  textAlign: TextAlign.center,
+                )),
             const SizedBox(height: MintSpacing.sm),
-            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
-              l10n.conversationEmptySubtitle,
-              style: MintTextStyles.bodyMedium(),
-              textAlign: TextAlign.center,
-            )),
+            MintEntrance(
+                delay: const Duration(milliseconds: 200),
+                child: Text(
+                  l10n.conversationEmptySubtitle,
+                  style: MintTextStyles.bodyMedium(),
+                  textAlign: TextAlign.center,
+                )),
             const SizedBox(height: MintSpacing.lg),
-            MintEntrance(delay: const Duration(milliseconds: 300), child: Semantics(
-              button: true,
-              label: l10n.conversationStartFirst,
-              child: FilledButton.icon(
-                onPressed: onNewConversation,
-                icon: const Icon(Icons.add),
-                label: Text(
-                  l10n.conversationStartFirst,
-                style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: MintColors.primary,
-                foregroundColor: MintColors.white,
-                padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            )),
+            MintEntrance(
+                delay: const Duration(milliseconds: 300),
+                child: Semantics(
+                  key: const Key('coach_history_new_conversation'),
+                  identifier: 'coach_history_new_conversation',
+                  button: true,
+                  label: l10n.conversationStartFirst,
+                  child: FilledButton.icon(
+                    onPressed: onNewConversation,
+                    icon: const Icon(Icons.add),
+                    label: Text(
+                      l10n.conversationStartFirst,
+                      style: MintTextStyles.bodyMedium()
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: MintColors.primary,
+                      foregroundColor: MintColors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: MintSpacing.lg, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                )),
           ],
         ),
       ),
@@ -261,7 +305,8 @@ class _ErrorState extends StatelessWidget {
               icon: const Icon(Icons.refresh),
               label: Text(
                 l10n.conversationRetry,
-                style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
+                style: MintTextStyles.bodyMedium()
+                    .copyWith(fontWeight: FontWeight.w500),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: MintColors.primary,

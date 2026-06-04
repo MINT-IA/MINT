@@ -71,11 +71,17 @@ class CoachAppBar extends StatelessWidget {
                 // noise; give the icon cluster room to breathe instead.
                 const Spacer(),
               ],
-              IconButton(
-                icon: const Icon(Icons.history_rounded,
-                    color: MintColors.textMuted, size: 20),
-                tooltip: s.coachTooltipHistory,
-                onPressed: onHistory,
+              Semantics(
+                key: const Key('coach_history_button'),
+                identifier: 'coach_history_button',
+                button: true,
+                label: s.coachTooltipHistory,
+                child: IconButton(
+                  icon: const Icon(Icons.history_rounded,
+                      color: MintColors.textMuted, size: 20),
+                  tooltip: s.coachTooltipHistory,
+                  onPressed: onHistory,
+                ),
               ),
               if (hasUserMessages)
                 IconButton(
