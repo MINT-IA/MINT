@@ -99,6 +99,21 @@ class RouteSuggestionCard extends StatelessWidget {
     this.intentTag,
   });
 
+  Map<String, dynamic>? _routeExtra() {
+    final data = prefill;
+    if (data == null || data.isEmpty) return null;
+
+    // Simulator and sequence screens read GoRouterState.extra as an envelope:
+    // {runId?, stepId?, prefill?}. Older route_to_screen payloads only carry
+    // the prefill map itself, so wrap those maps before pushing.
+    if (data['prefill'] is Map<String, dynamic> ||
+        data.containsKey('runId') ||
+        data.containsKey('stepId')) {
+      return data;
+    }
+    return <String, dynamic>{'prefill': data};
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -140,7 +155,9 @@ class RouteSuggestionCard extends StatelessWidget {
           ],
           SizedBox(
             width: double.infinity,
+            // dart format off
             child: FilledButton(
+              // lint-ignore: prefer_mint_cta
               onPressed: () {
                 // Phase 54-02 T-05 — single 500 ms debounce across all
                 // RouteSuggestionCard taps + LLM-emitted route_to_screen
@@ -157,16 +174,17 @@ class RouteSuggestionCard extends StatelessWidget {
                 if (intentTag != null && intentTag!.isNotEmpty) {
                   unawaited(SequenceChatHandler.startSequence(intentTag!));
                 }
-                context.push(route, extra: prefill);
+                context.push(route, extra: _routeExtra());
               },
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
               ),
               child: Text(
                 s?.routeSuggestionCta ?? 'Voir',
-                style: MintTextStyles.bodyMedium(color: Colors.white),
+                style: MintTextStyles.bodyMedium(color: MintColors.white),
               ),
             ),
+            // dart format on
           ),
         ],
       ),

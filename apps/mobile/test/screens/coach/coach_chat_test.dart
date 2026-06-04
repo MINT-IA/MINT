@@ -21,6 +21,7 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
+import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
@@ -114,6 +115,7 @@ void main() {
     MintUserState? mintState,
     CoachProfileProvider? profileProviderOverride,
     BudgetProvider? budgetProviderOverride,
+    CoachContextInjectorBuilder? contextBuilder,
   }) {
     final profileProvider = profileProviderOverride ??
         (withProfile ? buildProfileProvider() : CoachProfileProvider());
@@ -130,16 +132,16 @@ void main() {
         ChangeNotifierProvider.value(value: stateProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
-      child: const MaterialApp(
-        locale: Locale('fr'),
-        localizationsDelegates: [
+      child: MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: CoachChatScreen(),
+        home: CoachChatScreen(contextBuilder: contextBuilder),
       ),
     );
   }
@@ -549,13 +551,91 @@ void main() {
       await tester.enterText(find.byType(TextField), 'Analyse mon budget');
       await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
       await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(seconds: 3));
+      await tester.pump(const Duration(milliseconds: 500));
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(capturedMintState, same(mintState));
       expect(capturedMemoryBlock, isNotNull);
       expect(capturedMemoryBlock, contains('BUDGET VIVANT'));
       expect(capturedMemoryBlock, contains("CHF\u00a02'468/mois"));
+    });
+
+    testWidgets(
+        'renders structured route_to_screen response as a resolved action card',
+        (tester) async {
+      usePhoneViewport(tester);
+      final previousHardGate = FeatureFlags.enableCoachHardGate;
+      FeatureFlags.enableCoachHardGate = false;
+      addTearDown(() {
+        FeatureFlags.enableCoachHardGate = previousHardGate;
+        CoachLlmService.registerOrchestrator(CoachOrchestrator.generateChat);
+      });
+
+      CoachLlmService.registerOrchestrator(({
+        required userMessage,
+        required history,
+        required ctx,
+        byokConfig,
+        memoryBlock,
+        language = 'fr',
+        cashLevel = 3,
+        isLoggedIn = false,
+      }) async {
+        return const CoachResponse(
+          message: 'Ouvre le bon outil pour comparer.',
+          disclaimer: 'Outil educatif.',
+          toolCalls: [
+            RagToolCall(
+              name: 'route_to_screen',
+              input: {
+                'intent': 'retirement_choice',
+                'confidence': 0.9,
+                'context_message':
+                    'Compare la rente et le capital avec tes donnees.',
+              },
+            ),
+          ],
+        );
+      });
+
+      await tester.pumpWidget(
+        buildTestWidget(
+          withProfile: true,
+          mintState: buildMintStateForTest(buildProfileProvider().profile!),
+          contextBuilder: ({
+            profile,
+            prefs,
+            now,
+            mintState,
+          }) async {
+            return const EnrichedContext(
+              memoryBlock: 'TEST CONTEXT',
+              conversationMemory: ConversationMemory.empty,
+              activeGoalsCount: 0,
+            );
+          },
+        ),
+      );
+      await pumpUntilGreeting(tester);
+
+      await tester.enterText(find.byType(TextField), 'Rente ou capital ?');
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Rente ou capital ?'), findsOneWidget);
+      expect(find.text('Ouvre le bon outil pour comparer.'), findsOneWidget);
+      expect(find.byType(RouteSuggestionCard), findsOneWidget);
+
+      final card = tester.widget<RouteSuggestionCard>(
+        find.byType(RouteSuggestionCard),
+      );
+      expect(card.route, '/rente-vs-capital');
+      expect(
+        card.contextMessage,
+        'Compare la rente et le capital avec tes donnees.',
+      );
     });
 
     testWidgets('sends message when pressing send button', (tester) async {

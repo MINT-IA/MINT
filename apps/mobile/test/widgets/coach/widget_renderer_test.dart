@@ -123,6 +123,10 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
+  setUp(() {
+    RouteSuggestionNavLock.resetForTest();
+  });
+
   group('WidgetRenderer.build — ask_user_input identity capture', () {
     testWidgets('legacy age field renders date-of-birth picker',
         (tester) async {
@@ -310,6 +314,66 @@ void main() {
         find.byType(RouteSuggestionCard),
       );
       expect(card.contextMessage, 'Message de contexte');
+    });
+
+    testWidgets(
+        'tap navigates to resolved route and passes prefill under extra.prefill',
+        (tester) async {
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) {
+              final rendered = WidgetRenderer.build(
+                context,
+                const RagToolCall(
+                  name: 'route_to_screen',
+                  input: {
+                    'intent': 'retirement_choice',
+                    'context_message': 'Ouvre la comparaison rente-capital.',
+                    'prefill': {'avoirLpp': 70377},
+                  },
+                ),
+              );
+              return Scaffold(body: rendered ?? const SizedBox());
+            },
+          ),
+          GoRoute(
+            path: '/rente-vs-capital',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>?;
+              final prefill = extra?['prefill'] as Map<String, dynamic>?;
+              return Scaffold(
+                body: Text('Target avoirLpp=${prefill?['avoirLpp']}'),
+              );
+            },
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<CoachProfileProvider>.value(
+          value: _TestCoachProfileProvider(),
+          child: MaterialApp.router(
+            routerConfig: router,
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('fr')],
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(RouteSuggestionCard), findsOneWidget);
+
+      await tester.tap(find.byType(FilledButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Target avoirLpp=70377'), findsOneWidget);
     });
 
     testWidgets('empty route string returns SizedBox.shrink()', (tester) async {
