@@ -80,6 +80,16 @@ Prior visual role review:
   Existing dynamic-type tests help, but runtime accessibility proof for Coach
   and Rapport remains a separate gate.
 
+## Runtime Guidance Quality Review
+
+- `mechanical proof`: Row 22 runtime screenshots and supplemental manual Home screenshot were reviewed; widget tests guard the Home chip fix.
+- `user-visible outcome`: primary screens present clear first-viewport jobs for Home, Mon Argent, Budget, Coach, Rapport, Profile/Dossier, Scan, and Explorer.
+- `guidance quality`: role clarity is improved; reviewed screens no longer show obvious duplicate-role layouts or broken primary CTAs.
+- `non-absurd`: Home chip truncation was found and fixed instead of treating the crawl as sufficient.
+- `inclusive`: reviewed Budget/Rente copy avoids salary-only first-surface framing.
+- `financial trust`: visual audit does not certify financial advice, source quality, focus order, or screen-reader semantics.
+- `remaining qualitative gaps`: Coach/Rapport runtime focus, screen-reader proof, broader visual crawl, and Row 18/21 next-state behavior remain open.
+
 ## Decision
 
 Keep Row 23 at `PARTIAL`.

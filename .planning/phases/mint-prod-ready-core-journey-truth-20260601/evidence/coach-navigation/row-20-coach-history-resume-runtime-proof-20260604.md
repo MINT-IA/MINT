@@ -102,6 +102,16 @@ Observed:
 - Broader Coach suite: `1158` passed, `5` skipped.
 - Locator audit: `40` flows scanned, `1` skipped, `444` locators, all resolve.
 
+## Runtime Guidance Quality Review
+
+- `mechanical proof`: JUnit green, watchdog `0`, screenshots cover created conversation, history before/after restart, and resumed follow-up.
+- `user-visible outcome`: user can return to a previous Coach exchange after restart and continue typing in the same conversation.
+- `guidance quality`: coherent for Row 20 local continuity; the flow proves context presence, not answer quality.
+- `non-absurd`: no fresh first-contact opener replaces the resumed conversation, and the previous message remains visible.
+- `inclusive`: supported Swiss debug archetype is explicit; unsupported-user gating is not bypassed silently.
+- `financial trust`: runtime avoids judging live financial advice; deterministic test verifies history transport into the orchestrator.
+- `remaining qualitative gaps`: cloud sync, production backend conversation persistence, and live LLM semantic quality after resume remain open.
+
 ## Scope Limits
 
 This closes Row 20 for supported local runtime continuity. It does not prove:

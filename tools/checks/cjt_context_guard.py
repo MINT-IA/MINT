@@ -38,6 +38,27 @@ NO_NEW_DEBT_REQUIRED = (
     "owner",
     "next proof",
 )
+RUNTIME_GUIDANCE_REQUIRED = (
+    "Runtime Guidance Quality Review",
+    "mechanical proof",
+    "user-visible outcome",
+    "guidance quality",
+    "non-absurd",
+    "inclusive",
+    "financial trust",
+    "remaining qualitative gaps",
+)
+RUNTIME_GUIDANCE_REPORTS = (
+    PHASE_DIR
+    / "evidence/coach-navigation/row-16-coach-route-to-screen-runtime-proof-20260604.md",
+    PHASE_DIR
+    / "evidence/simulator-design/row-17-rente-vs-capital-runtime-visual-proof-20260604.md",
+    PHASE_DIR
+    / "evidence/coach-navigation/row-20-coach-history-resume-runtime-proof-20260604.md",
+    PHASE_DIR
+    / "evidence/daily-return/row-21-daily-return-attention-action-proof-20260604.md",
+    PHASE_DIR / "evidence/rapport-design/row-23-primary-screen-visual-audit-20260604.md",
+)
 
 
 def _read(path: Path) -> str:
@@ -162,6 +183,28 @@ def check(root: Path) -> list[str]:
             f"{OPS_GUARD} No-New-Debt Commit Review is incomplete: "
             + ", ".join(debt_missing)
         )
+
+    guidance_missing = _contains_all(ops_text, RUNTIME_GUIDANCE_REQUIRED)
+    if guidance_missing:
+        errors.append(
+            f"{OPS_GUARD} Runtime Guidance Quality Review is incomplete: "
+            + ", ".join(guidance_missing)
+        )
+
+    for report in RUNTIME_GUIDANCE_REPORTS:
+        report_path = root / report
+        if not report_path.exists():
+            errors.append(
+                "missing runtime guidance quality report: "
+                f"{report_path.relative_to(root)}"
+            )
+            continue
+        report_missing = _contains_all(_read(report_path), RUNTIME_GUIDANCE_REQUIRED)
+        if report_missing:
+            errors.append(
+                f"{report} Runtime Guidance Quality Review is incomplete: "
+                + ", ".join(report_missing)
+            )
 
     return errors
 

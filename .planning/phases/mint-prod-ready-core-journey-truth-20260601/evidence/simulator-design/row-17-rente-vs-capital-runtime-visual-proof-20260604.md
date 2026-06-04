@@ -69,6 +69,16 @@ That test asserts:
   opening `Paramètres avancés`;
 - the same advanced controls are visible after opening the section.
 
+## Runtime Guidance Quality Review
+
+- `mechanical proof`: JUnit green, watchdog `0`, four screenshots cover hero, primary inputs, folded and expanded advanced controls.
+- `user-visible outcome`: user reaches canonical `Rente ou capital : ta décision` and sees the main estimate inputs before optional advanced assumptions.
+- `guidance quality`: the screen matches the retirement-choice job and keeps secondary assumptions out of the first decision surface.
+- `non-absurd`: no legacy alias, no route mismatch, no overloaded first viewport.
+- `inclusive`: uses income-inclusive `revenu brut annuel` wording instead of salary-only copy.
+- `financial trust`: calculation remains simulator-style with assumptions; full source/disclaimer audit is still outside this proof.
+- `remaining qualitative gaps`: source/disclaimer, accessibility, i18n, and broader top-simulator audit remain open.
+
 ## Scope Limit
 
 Row 17 remains `PARTIAL`. This proof covers the canonical route's runtime visual

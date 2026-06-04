@@ -66,6 +66,18 @@ Every CJT commit review should include:
 - `owner`: person/team or subsystem owning each non-removed item.
 - `next proof`: command, runtime flow, or external gate needed next.
 
+## Runtime Guidance Quality Review
+
+Every CJT runtime proof or Maestro flow closure should include:
+
+- `mechanical proof`: JUnit/watchdog/screenshot/command evidence.
+- `user-visible outcome`: what the user actually sees and can do.
+- `guidance quality`: why the flow guidance is coherent for the row.
+- `non-absurd`: no nonsensical detours, dead-end CTAs, or route mismatches.
+- `inclusive`: no unjustified archetype, salary-only, gender, or status assumption.
+- `financial trust`: no unsupported promise, stale date, hidden source, or misleading number.
+- `remaining qualitative gaps`: live LLM, ScreenReturn, accessibility, source/disclaimer, or external gate still unproven.
+
 ## Drift Rules
 
 - Do not run `$gsd-next` blindly while `.planning/STATE.md` and

@@ -76,6 +76,16 @@ flutter test \
 
 Result: `27/27` tests passed.
 
+## Runtime Guidance Quality Review
+
+- `mechanical proof`: JUnit green, watchdog `0`, screenshots cover the daily card and successful `Simule` navigation to Explorer.
+- `user-visible outcome`: user sees a current attention card and can choose explain/simulate/reassure verbs.
+- `guidance quality`: coherent for first attention/action surface; it fixes the previous broken route to a real exploration surface.
+- `non-absurd`: `Simule` no longer sends the user to `Page introuvable`.
+- `inclusive`: the proof does not introduce salary-only or unsupported-archetype assumptions.
+- `financial trust`: it proves action routing only; it does not claim completion, advice quality, or priority correctness after action.
+- `remaining qualitative gaps`: completion/acknowledgement, persistence, and next-priority behavior remain open.
+
 ## Remaining gap
 
 Keep Row 21 at `PARTIAL` until there is a proof that:

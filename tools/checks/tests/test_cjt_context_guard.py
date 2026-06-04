@@ -8,6 +8,29 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = REPO_ROOT / "tools" / "checks" / "cjt_context_guard.py"
 PHASE = "mint-prod-ready-core-journey-truth-20260601"
 PHASE_DIR = Path(".planning/phases") / PHASE
+RUNTIME_REPORTS = (
+    PHASE_DIR
+    / "evidence/coach-navigation/row-16-coach-route-to-screen-runtime-proof-20260604.md",
+    PHASE_DIR
+    / "evidence/simulator-design/row-17-rente-vs-capital-runtime-visual-proof-20260604.md",
+    PHASE_DIR
+    / "evidence/coach-navigation/row-20-coach-history-resume-runtime-proof-20260604.md",
+    PHASE_DIR
+    / "evidence/daily-return/row-21-daily-return-attention-action-proof-20260604.md",
+    PHASE_DIR / "evidence/rapport-design/row-23-primary-screen-visual-audit-20260604.md",
+)
+VALID_GUIDANCE_REVIEW = "\n".join(
+    [
+        "## Runtime Guidance Quality Review",
+        "- mechanical proof",
+        "- user-visible outcome",
+        "- guidance quality",
+        "- non-absurd",
+        "- inclusive",
+        "- financial trust",
+        "- remaining qualitative gaps",
+    ]
+)
 
 
 def _run(root: Path) -> subprocess.CompletedProcess[str]:
@@ -82,10 +105,25 @@ def _write_valid_fixture(root: Path) -> None:
                 "- removed",
                 "- owner",
                 "- next proof",
+                "## Runtime Guidance Quality Review",
+                "- mechanical proof",
+                "- user-visible outcome",
+                "- guidance quality",
+                "- non-absurd",
+                "- inclusive",
+                "- financial trust",
+                "- remaining qualitative gaps",
             ]
         ),
         encoding="utf-8",
     )
+    for report in RUNTIME_REPORTS:
+        report_path = root / report
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(
+            f"# Runtime report\n\n{VALID_GUIDANCE_REVIEW}\n",
+            encoding="utf-8",
+        )
 
 
 def test_guard_passes_for_coherent_cjt_context(tmp_path: Path) -> None:
@@ -191,3 +229,38 @@ def test_guard_fails_without_no_new_debt_commit_review(tmp_path: Path) -> None:
 
     assert proc.returncode == 1
     assert "No-New-Debt Commit Review" in proc.stderr
+
+
+def test_guard_fails_without_runtime_guidance_quality_review(
+    tmp_path: Path,
+) -> None:
+    _write_valid_fixture(tmp_path)
+    text = (tmp_path / PHASE_DIR / "CJT-OPS-00-CONTEXT-GUARD.md").read_text(
+        encoding="utf-8",
+    )
+    text = text.split("## Runtime Guidance Quality Review", maxsplit=1)[0]
+    (tmp_path / PHASE_DIR / "CJT-OPS-00-CONTEXT-GUARD.md").write_text(
+        text,
+        encoding="utf-8",
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 1
+    assert "Runtime Guidance Quality Review" in proc.stderr
+
+
+def test_guard_fails_when_runtime_report_lacks_guidance_review(
+    tmp_path: Path,
+) -> None:
+    _write_valid_fixture(tmp_path)
+    (tmp_path / RUNTIME_REPORTS[0]).write_text(
+        "# Runtime report\n\nJUnit green only.",
+        encoding="utf-8",
+    )
+
+    proc = _run(tmp_path)
+
+    assert proc.returncode == 1
+    assert "row-16-coach-route-to-screen-runtime-proof" in proc.stderr
+    assert "Runtime Guidance Quality Review" in proc.stderr

@@ -25,6 +25,16 @@ Does not close post-widget `ScreenReturn` persistence back into Coach, live LLM 
 - Duration: `25s`
 - Screenshots: `01-row16-coach-route-suggestion.png`, `02-row16-rente-vs-capital-target.png`
 
+## Runtime Guidance Quality Review
+
+- `mechanical proof`: JUnit green, watchdog `0`, suggestion and target screenshots captured.
+- `user-visible outcome`: user asks `Rente ou capital ?`, sees a concise Coach bridge plus `Ouvrir`, then lands on canonical `Rente ou capital : ta décision`.
+- `guidance quality`: coherent for Row 16 route-to-screen proof; the suggested screen matches `retirement_choice` and does not detour to a duplicate alias.
+- `non-absurd`: no `Page introuvable`, no unrelated route, no dead-end CTA.
+- `inclusive`: target screen uses `revenu brut annuel`, not salary-only wording.
+- `financial trust`: fixture avoids live advice claims; screen remains simulator/decision support, not a personalized recommendation.
+- `remaining qualitative gaps`: live LLM route selection quality and post-widget `ScreenReturn` persistence back into Coach remain unproven.
+
 ## Verification
 
 - `flutter test test/services/coach/e2e_coach_route_fixture_test.dart test/widgets/coach/route_suggestion_card_test.dart`
