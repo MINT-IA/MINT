@@ -12,6 +12,27 @@ date: 2026-06-01
 - P1: confusing or risky but not blocking the primary journey.
 - P2: polish or follow-up once core trust is stable.
 
+## Post-push Drift Audit — 2026-06-04
+
+Latest pushed commits audited: `84a33b736`, `74cb97d36`, `22b420cf5`,
+and `59bff3e48`. Durable report:
+`evidence/devex/post-push-commit-audit-20260604.md`.
+
+Tracked debt from that audit:
+
+- `D-20260604-01` P1: `ReportPreviewWidget` appears non-production-wired; do
+  not treat its widget test as active journey proof.
+- `D-20260604-02` P2: if `ReportPreviewWidget` is revived, it needs a full
+  i18n/design-system pass.
+- `D-20260604-03` P2: `budget_inputs_v1` fallback needed source-of-truth
+  documentation; handled in `docs/data-flow.md`.
+- `D-20260604-04` P3: three generated CJT-024 `maestro.log` files have blank
+  EOF whitespace in the pushed commit.
+- `D-20260604-05` P2: legacy `Plan Mint` wording remains in
+  `age_band_policy.dart` for wider copy inventory.
+- `D-20260604-06` P2: direct staging push is operational debt for later release
+  promotion.
+
 ## Open / Recently Closed
 
 | ID | Severity | Journey | Area | Finding | Status | Release blocker | Owner | Evidence / Next proof |

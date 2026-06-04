@@ -31,10 +31,12 @@ flowchart LR
     W5 --> PROV
 
     PROV -- mergeAnswers --> SP[(SharedPreferences<br/>wizard_answers_v2)]
+    W3 -. degraded direct-input fallback .-> BUDGET[(SharedPreferences<br/>budget_inputs_v1)]
     PROV -- syncToBackend --> BE[(Backend Postgres<br/>ProfileModel.data)]
     SP --> LOAD[loadFromWizard → fromWizardAnswers]
     LOAD --> PROFILE[CoachProfile in memory]
     PROFILE --> CALCS[12 calculators]
+    BUDGET -. only when no material profile supersedes it .-> UI
     CALCS --> UI[Mon argent / Aujourd'hui / Explorer]
 ```
 
@@ -51,14 +53,24 @@ flowchart LR
    `mergeAnswers` / `updateProfile` / `updateFrom*Extraction`.
 4. New data capture paths **must** write into `wizard_answers_v2` via one
    of the existing setters, or add a new key listed below.
+5. `budget_inputs_v1` is a degraded local read model, not a competing
+   profile source. It may preserve a user's direct budget entry when secure
+   `wizard_answers_v2` persistence fails, but readers may use it only when no
+   material `CoachProfile` can supersede it. Any later successful profile
+   hydration wins.
 
 ---
 
 ## The 6 writers — who mutates `wizard_answers_v2`
 
-Every writer persists via `ReportPersistenceService.saveAnswers(answers)`
-which encrypts sensitive keys via `SecureWizardStore` (Keychain) and
-mirrors to SharedPreferences. **This is the only legal write path.**
+Every canonical profile writer persists via
+`ReportPersistenceService.saveAnswers(answers)` which encrypts sensitive keys
+via `SecureWizardStore` (Keychain) and mirrors to SharedPreferences. **This is
+the only legal write path for `wizard_answers_v2`.** The budget form has one
+documented degradation path: if that canonical write leaves no material profile
+after reload, it may save direct `BudgetInputs` to `budget_inputs_v1` so the
+budget UI and Coach opener can preserve the user's typed budget until the
+canonical profile path is available again.
 
 | # | Writer | Entry points | Keys written | Lifecycle trigger |
 |---|---|---|---|---|
@@ -317,6 +329,10 @@ restored direct budget inputs.
 `budget_inputs_v1` fallback data. Direct-input budgets, such as bank-import
 previews that are not yet written into `wizard_answers_v2`, remain stored as
 fallback data but must not mask a current Data Spine budget.
+
+`CoachChatScreen` follows the same precedence for its silent opener. It may
+hydrate `budget_inputs_v1` on cold open only when the current profile is
+missing or identity-only; a material `CoachProfile` always takes precedence.
 
 Chat fallback (« J'en parle plutôt au coach ») remains available on the
 setup screen, respecting `feedback_chat_is_everything` (chat *can* do it,
