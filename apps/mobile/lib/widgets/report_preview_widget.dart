@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/clarity_state.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -17,6 +18,7 @@ class ReportPreviewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Column(
       children: [
         Expanded(
@@ -33,7 +35,7 @@ class ReportPreviewWidget extends StatelessWidget {
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
-                        'Aperçu de ton Plan Mint',
+                        s.reportTitleBilanFlash,
                         style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 24),
                       ),
                     ),
