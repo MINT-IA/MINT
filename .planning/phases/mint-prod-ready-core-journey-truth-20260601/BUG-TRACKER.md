@@ -20,10 +20,13 @@ and `59bff3e48`. Durable report:
 
 Tracked debt from that audit:
 
-- `D-20260604-01` P1: `ReportPreviewWidget` appears non-production-wired; do
-  not treat its widget test as active journey proof.
-- `D-20260604-02` P2: if `ReportPreviewWidget` is revived, it needs a full
-  i18n/design-system pass.
+- `D-20260604-01` P1: `ReportPreviewWidget` appeared non-production-wired;
+  removed 2026-06-04 instead of reviving a facade. Runtime recheck:
+  `flow_money_trust_chain_budget_mon_argent_rapport_coach` passed on iPhone
+  17 Pro iOS 26.2 (`tests=1`, `failures=0`), evidence
+  `evidence/maestro-ci/report-preview-dead-widget-removal-money-trust-20260604T120413/`.
+- `D-20260604-02` P2: `ReportPreviewWidget` i18n/design-system debt removed
+  with the dead widget.
 - `D-20260604-03` P2: `budget_inputs_v1` fallback needed source-of-truth
   documentation; handled in `docs/data-flow.md`.
 - `D-20260604-04` P3: three generated CJT-024 `maestro.log` files have blank

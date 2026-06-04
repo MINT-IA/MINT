@@ -137,8 +137,6 @@ lib/widgets/profile/conjoint_invitation_card.dart:226: OutlinedButton(
 lib/widgets/pulse/action_success_sheet.dart:233: FilledButton(
 lib/widgets/recommendation_card.dart:145: OutlinedButton(
 lib/widgets/report/thematic_card.dart:133: OutlinedButton(
-lib/widgets/report_preview_widget.dart:269: FilledButton(
-lib/widgets/report_preview_widget.dart:294: OutlinedButton(
 lib/widgets/voice/ton_chooser_sheet.dart:125: FilledButton(
 lib/widgets/voice/ton_chooser_sheet.dart:96: TextButton(
 lib/widgets/wizard_question_widget.dart:203: TextButton(
