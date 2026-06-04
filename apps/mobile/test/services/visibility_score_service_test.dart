@@ -56,6 +56,15 @@ void main() {
       expect(result.narrative, isNotEmpty);
     });
 
+    test('empty liquidite hint asks for income, not salary', () {
+      final result = VisibilityScoreService.compute(_makeProfile());
+      final liquidite =
+          result.axes.firstWhere((axis) => axis.id == 'liquidite');
+
+      expect(liquidite.hint.toLowerCase(), contains('revenus'));
+      expect(liquidite.hint.toLowerCase(), isNot(contains('salaire')));
+    });
+
     test('returns exactly 4 axes', () {
       final profile = _makeProfile(salaire: 8000, canton: 'VD');
       final result = VisibilityScoreService.compute(profile);

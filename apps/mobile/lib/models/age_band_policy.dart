@@ -362,7 +362,7 @@ class LifeEvent {
       ],
       timelineItems: [
         'Recalcul impôts',
-        'Mise à jour Plan Mint (nouveau canton)',
+        'Mise à jour du bilan Mint (nouveau canton)',
       ],
     ),
     

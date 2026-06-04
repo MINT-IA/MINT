@@ -2140,6 +2140,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final drawerWidget = ChatDrawerHost.resolveDrawerWidget(route);
       if (drawerWidget != null) {
         showChatDrawer(context: context, child: drawerWidget);
+      } else {
+        context.push(route);
       }
     } else {
       _sendMessage(action);
@@ -2329,7 +2331,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                   fontWeight: FontWeight.w700,
                   color: MintColors.primary,
                   height: 1.1,
-                  letterSpacing: -1,
                 ),
               ),
             ),

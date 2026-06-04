@@ -335,7 +335,7 @@ class VisibilityScoreService {
       maxScore: maxScore,
       status: status,
       hint: revenu == 0
-          ? (l?.visibilityHintAddSalaire ?? 'Ajoute ton salaire pour commencer')
+          ? (l?.visibilityHintAddSalaire ?? 'Ajoute tes revenus pour commencer')
           : patrimoine == 0
               ? (l?.visibilityHintAddEpargne ?? 'Renseigne ton épargne et investissements')
               : (l?.visibilityHintLiquiditeComplete ?? 'Tes données de liquidité sont complètes'),

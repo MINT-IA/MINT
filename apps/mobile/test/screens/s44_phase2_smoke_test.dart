@@ -32,7 +32,6 @@ Widget _wrap(Widget child) {
   );
 }
 
-
 // ═════════════════════════════════════════════════════════════
 //  1. AgeBandPolicy — boundary tests
 // ═════════════════════════════════════════════════════════════
@@ -86,6 +85,18 @@ void main() {
     test('age below minimum (0) → falls back to first policy', () {
       // forAge uses firstWhere with orElse: () => all.first
       expect(AgeBandPolicy.forAge(0).band, AgeBand.youngProfessional);
+    });
+
+    test('life-event timeline labels avoid legacy Plan Mint wording', () {
+      final labels = LifeEvent.all.values.expand(
+        (event) => [
+          event.label,
+          event.description,
+          ...event.timelineItems,
+        ],
+      );
+
+      expect(labels, isNot(contains(contains('Plan Mint'))));
     });
   });
 

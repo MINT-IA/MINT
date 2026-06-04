@@ -59,6 +59,38 @@ bool _isFalsePositive(String matchedString) {
   return false;
 }
 
+List<String> _hardcodedFrenchTextLiteralsIn(String filePath) {
+  final file = File(filePath);
+  if (!file.existsSync()) {
+    return ['File not found: $filePath'];
+  }
+
+  final content = file.readAsStringSync();
+  final lines = content.split('\n');
+  final hardcodedMatches = <String>[];
+
+  for (var i = 0; i < lines.length; i++) {
+    final line = lines[i];
+
+    // Skip comments and imports
+    if (line.trimLeft().startsWith('//') ||
+        line.trimLeft().startsWith('import ') ||
+        line.trimLeft().startsWith('///')) {
+      continue;
+    }
+
+    final matches = _hardcodedFrenchPattern.allMatches(line);
+    for (final match in matches) {
+      final captured = match.group(1) ?? '';
+      if (!_isFalsePositive(captured)) {
+        hardcodedMatches.add('  Line ${i + 1}: "$captured"');
+      }
+    }
+  }
+
+  return hardcodedMatches;
+}
+
 /// ARB file paths (6 languages).
 const _arbFiles = {
   'fr': 'lib/l10n/app_fr.arb',
@@ -73,9 +105,7 @@ const _arbFiles = {
 ///
 /// Excludes keys starting with @ (metadata) and @@locale.
 List<String> _extractKeys(Map<String, dynamic> arb) {
-  return arb.keys
-      .where((k) => !k.startsWith('@') && k != '@@locale')
-      .toList()
+  return arb.keys.where((k) => !k.startsWith('@') && k != '@@locale').toList()
     ..sort();
 }
 
@@ -111,6 +141,75 @@ const _phase1to5KeyPrefixes = [
   'quickStart',
 ];
 
+const _budgetSetupCriticalKeys = [
+  'budgetSetupTitle',
+  'budgetSetupSubtitle',
+  'budgetSetupHousing',
+  'budgetSetupLamal',
+  'budgetSetupTransport',
+  'budgetSetupTelecom',
+  'budgetSetupElectricity',
+  'budgetSetupMedical',
+  'budgetSetupOther',
+  'budgetSetupAddOthers',
+  'budgetSetupSave',
+  'budgetSetupChatFallback',
+  'budgetSetupFieldPlaceholder',
+  'budgetSetupRequired',
+  'budgetSetupAmountTooHigh',
+  'budgetSetupTotalFixed',
+  'budgetCardEmptyTitle',
+  'budgetCardEmptyBody',
+  'budgetCardEmptyAction',
+];
+
+const _primaryScreenFiles = [
+  'lib/screens/budget/budget_container_screen.dart',
+  'lib/screens/budget/budget_screen.dart',
+  'lib/screens/budget/budget_setup_screen.dart',
+  'lib/screens/coach/coach_chat_screen.dart',
+  'lib/screens/profile/financial_summary_screen.dart',
+  'lib/screens/advisor/financial_report_screen_v2.dart',
+  'lib/screens/document_scan/document_scan_screen.dart',
+  'lib/screens/explore/explorer_screen.dart',
+  'lib/screens/mon_argent/mon_argent_screen.dart',
+];
+
+const _primaryScreenKeyPrefixes = [
+  'budget',
+  'coach',
+  'financialSummary',
+  'report',
+  'documentScan',
+  'docScan',
+  'explore',
+  'monArgent',
+];
+
+final _budgetSetupFrenchResidue = RegExp(
+  [
+    'Charges fixes',
+    'Ce qui part',
+    'Loyer ou hypothèque',
+    'Assurance maladie',
+    'Télécom',
+    'Électricité',
+    'Frais médicaux',
+    'Autres',
+    'Ajouter d',
+    'Enregistrer',
+    'J.en parle',
+    'CHF / mois',
+    'Requis',
+    'Montant mensuel',
+    'Total fixe',
+    'Tes charges',
+    'Sept postes',
+    'Poser mes charges',
+  ].join('|'),
+  caseSensitive: false,
+);
+
 void main() {
   late Map<String, Map<String, dynamic>> arbMaps;
   late Map<String, List<String>> arbKeys;
@@ -124,8 +223,7 @@ void main() {
       if (!file.existsSync()) {
         fail('ARB file not found: ${entry.value}');
       }
-      final json =
-          jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+      final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
       arbMaps[entry.key] = json;
       arbKeys[entry.key] = _extractKeys(json);
     }
@@ -138,41 +236,17 @@ void main() {
   group('Hardcoded string detection in Phase 1-5 files', () {
     for (final filePath in _phase1to5Files) {
       test('$filePath has zero hardcoded French text literals', () {
-        final file = File(filePath);
-        if (!file.existsSync()) {
+        if (!File(filePath).existsSync()) {
           // File does not exist (may not have been created in this phase)
-          // Skip gracefully -- this is not a failure
+          // Skip gracefully -- this is not a failure for the historical group.
           return;
         }
-
-        final content = file.readAsStringSync();
-        final lines = content.split('\n');
-        final hardcodedMatches = <String>[];
-
-        for (var i = 0; i < lines.length; i++) {
-          final line = lines[i];
-
-          // Skip comments and imports
-          if (line.trimLeft().startsWith('//') ||
-              line.trimLeft().startsWith('import ') ||
-              line.trimLeft().startsWith('///')) {
-            continue;
-          }
-
-          final matches = _hardcodedFrenchPattern.allMatches(line);
-          for (final match in matches) {
-            final captured = match.group(1) ?? '';
-            if (!_isFalsePositive(captured)) {
-              hardcodedMatches.add('  Line ${i + 1}: "$captured"');
-            }
-          }
-        }
+        final hardcodedMatches = _hardcodedFrenchTextLiteralsIn(filePath);
 
         expect(
           hardcodedMatches,
           isEmpty,
-          reason:
-              'Found ${hardcodedMatches.length} hardcoded French string(s) '
+          reason: 'Found ${hardcodedMatches.length} hardcoded French string(s) '
               'in $filePath:\n${hardcodedMatches.join('\n')}',
         );
       });
@@ -201,8 +275,7 @@ void main() {
       expect(
         deCount,
         frCount,
-        reason:
-            'DE has $deCount keys but FR has $frCount keys. '
+        reason: 'DE has $deCount keys but FR has $frCount keys. '
             'Missing: ${frCount - deCount} keys.',
       );
     });
@@ -213,8 +286,7 @@ void main() {
       expect(
         enCount,
         frCount,
-        reason:
-            'EN has $enCount keys but FR has $frCount keys. '
+        reason: 'EN has $enCount keys but FR has $frCount keys. '
             'Missing: ${frCount - enCount} keys.',
       );
     });
@@ -225,8 +297,7 @@ void main() {
       expect(
         esCount,
         frCount,
-        reason:
-            'ES has $esCount keys but FR has $frCount keys. '
+        reason: 'ES has $esCount keys but FR has $frCount keys. '
             'Missing: ${frCount - esCount} keys.',
       );
     });
@@ -237,8 +308,7 @@ void main() {
       expect(
         itCount,
         frCount,
-        reason:
-            'IT has $itCount keys but FR has $frCount keys. '
+        reason: 'IT has $itCount keys but FR has $frCount keys. '
             'Missing: ${frCount - itCount} keys.',
       );
     });
@@ -249,8 +319,7 @@ void main() {
       expect(
         ptCount,
         frCount,
-        reason:
-            'PT has $ptCount keys but FR has $frCount keys. '
+        reason: 'PT has $ptCount keys but FR has $frCount keys. '
             'Missing: ${frCount - ptCount} keys.',
       );
     });
@@ -263,16 +332,79 @@ void main() {
         final langKeySet = arbKeys[lang]!.toSet();
         final missingInLang = frKeySet.difference(langKeySet);
         if (missingInLang.isNotEmpty) {
-          missingReport
-              .add('$lang missing ${missingInLang.length}: ${missingInLang.take(10).join(', ')}');
+          missingReport.add(
+              '$lang missing ${missingInLang.length}: ${missingInLang.take(10).join(', ')}');
         }
       }
 
       expect(
         missingReport,
         isEmpty,
+        reason: 'Some languages are missing keys:\n${missingReport.join('\n')}',
+      );
+    });
+  });
+
+  group('Budget setup i18n quality gates', () {
+    test('non-FR budget setup copy has no French fallback residue', () {
+      final failures = <String>[];
+
+      for (final lang in ['de', 'es', 'it', 'pt']) {
+        for (final key in _budgetSetupCriticalKeys) {
+          final value = arbMaps[lang]?[key] as String?;
+          if (value == null) {
+            failures.add('$lang:$key missing');
+            continue;
+          }
+          if (_budgetSetupFrenchResidue.hasMatch(value)) {
+            failures.add('$lang:$key = "$value"');
+          }
+        }
+      }
+
+      expect(
+        failures,
+        isEmpty,
         reason:
-            'Some languages are missing keys:\n${missingReport.join('\n')}',
+            'Budget setup/card copy must not ship French fallback strings in '
+            'non-French locales:\n${failures.join('\n')}',
+      );
+    });
+  });
+
+  group('Row 23 primary-screen i18n coverage', () {
+    for (final filePath in _primaryScreenFiles) {
+      test('$filePath has zero hardcoded French text literals', () {
+        final hardcodedMatches = _hardcodedFrenchTextLiteralsIn(filePath);
+
+        expect(
+          hardcodedMatches,
+          isEmpty,
+          reason: 'Found ${hardcodedMatches.length} hardcoded French string(s) '
+              'in $filePath:\n${hardcodedMatches.join('\n')}',
+        );
+      });
+    }
+
+    test('primary screen key prefixes exist in all 6 locales', () {
+      final failures = <String>[];
+
+      for (final prefix in _primaryScreenKeyPrefixes) {
+        for (final lang in _arbFiles.keys) {
+          final keys = arbKeys[lang]!
+              .where((key) => key.startsWith(prefix))
+              .toList(growable: false);
+          if (keys.isEmpty) {
+            failures.add('$lang has no "$prefix*" keys');
+          }
+        }
+      }
+
+      expect(
+        failures,
+        isEmpty,
+        reason: 'Primary screen ARB families must exist in every locale:\n'
+            '${failures.join('\n')}',
       );
     });
   });
@@ -298,8 +430,7 @@ void main() {
       }
 
       // At least the anticipation and premierEclairage keys should exist
-      final hasAnticipation =
-          frKeySet.any((k) => k.startsWith('anticipation'));
+      final hasAnticipation = frKeySet.any((k) => k.startsWith('anticipation'));
       final hasPremierEclairage =
           frKeySet.any((k) => k.startsWith('premierEclairage'));
 
@@ -315,7 +446,8 @@ void main() {
       );
     });
 
-    test('anticipation keys exist in all 6 languages with non-empty values', () {
+    test('anticipation keys exist in all 6 languages with non-empty values',
+        () {
       final frKeySet = arbKeys['fr']!.toSet();
       final anticipationKeys =
           frKeySet.where((k) => k.startsWith('anticipation')).toList();
@@ -345,7 +477,8 @@ void main() {
       }
     });
 
-    test('premierEclairage keys exist in all 6 languages with non-empty values', () {
+    test('premierEclairage keys exist in all 6 languages with non-empty values',
+        () {
       final frKeySet = arbKeys['fr']!.toSet();
       final keys =
           frKeySet.where((k) => k.startsWith('premierEclairage')).toList();
@@ -385,9 +518,7 @@ void main() {
 
           if (isFinancial) {
             final value = arb[key];
-            if (value == null ||
-                value is! String ||
-                value.trim().isEmpty) {
+            if (value == null || value is! String || value.trim().isEmpty) {
               emptyFinancialKeys.add(key);
             }
           }
@@ -396,8 +527,7 @@ void main() {
         expect(
           emptyFinancialKeys,
           isEmpty,
-          reason:
-              '$lang has ${emptyFinancialKeys.length} financial keys with '
+          reason: '$lang has ${emptyFinancialKeys.length} financial keys with '
               'empty/short values: ${emptyFinancialKeys.take(10).join(', ')}',
         );
       });
