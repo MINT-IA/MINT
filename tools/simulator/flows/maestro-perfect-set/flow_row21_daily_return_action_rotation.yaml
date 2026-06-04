@@ -1,0 +1,85 @@
+# tools/simulator/flows/maestro-perfect-set/flow_row21_daily_return_action_rotation.yaml
+#
+# PURPOSE
+# Evidence-only runtime proof for Journey Truth Matrix Row 21:
+# a visible Cap du jour action is acknowledged, then returning to
+# Aujourd'hui surfaces the next useful priority instead of the same pressure.
+#
+# PRE-CONDITION
+# - Debug app ch.mint.app installed on a booted iPhone simulator.
+# - Recommended build:
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+
+appId: ch.mint.app
+tags:
+  - row-21
+  - daily-return
+  - action-rotation
+  - maestro-proof
+---
+
+# 01 — Start from clean state, then deep-link to the daily screen.
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 6000
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///home"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# 02 — First daily cap is visible with direct actions.
+- extendedWaitUntil:
+    visible:
+      text: ".*Aujourd'hui.*"
+    timeout: 10000
+- assertVisible:
+    id: "card_cap_du_jour"
+- assertVisible:
+    id: "cap_du_jour_rc_pillar_3a_2026"
+- assertVisible:
+    id: "mint_card_action_simulate"
+
+# 03 — Simule routes to Explorer and records the cap as served.
+- tapOn:
+    id: "mint_card_action_simulate"
+- waitForAnimationToEnd:
+    timeout: 6000
+- assertNotVisible:
+    id: "mint_chat_overlay"
+- extendedWaitUntil:
+    visible:
+      text: ".*Explorer.*"
+    timeout: 10000
+
+# 04 — Returning to Aujourd'hui surfaces the next priority, not the same 3a card.
+- tapOn:
+    id: "nav_tab_aujourdhui"
+- waitForAnimationToEnd:
+    timeout: 6000
+- assertVisible:
+    id: "card_cap_du_jour"
+- assertNotVisible:
+    id: "cap_du_jour_rc_pillar_3a_2026"
+- assertVisible:
+    id: "cap_du_jour_rc_tax_optimization"
+- assertVisible:
+    id: "mint_card_action_simulate"

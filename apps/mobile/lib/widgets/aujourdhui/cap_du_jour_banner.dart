@@ -126,18 +126,33 @@ Future<void> _recordCapAcknowledgement(
   await CapMemoryStore.markServed(memory, cap.id);
 
   if (!context.mounted) return;
-  final profile = context.read<CoachProfileProvider>().profile;
+  final mintStateProvider = context.read<MintStateProvider>();
+  final profile = context.read<CoachProfileProvider>().profile ??
+      mintStateProvider.state?.profile;
   if (profile == null) return;
-  await context.read<MintStateProvider>().forceRecompute(profile);
+  await mintStateProvider.forceRecompute(profile);
 }
 
 class _CapBannerCard extends StatelessWidget {
   const _CapBannerCard({required this.cap});
   final CapDecision cap;
 
+  static Key _capSemanticsKey(String capId) {
+    switch (capId) {
+      case 'rc_pillar_3a_2026':
+        return const Key('cap_du_jour_rc_pillar_3a_2026');
+      case 'rc_tax_optimization':
+        return const Key('cap_du_jour_rc_tax_optimization');
+      default:
+        return Key('cap_du_jour_$capId');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
+      key: _capSemanticsKey(cap.id),
+      identifier: 'cap_du_jour_${cap.id}',
       container: true,
       label: 'Cap du jour : ${cap.headline}',
       button: cap.ctaMode == CtaMode.route || cap.ctaMode == CtaMode.capture,

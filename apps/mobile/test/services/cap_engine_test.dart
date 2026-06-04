@@ -332,6 +332,62 @@ void main() {
   });
 
   group('CapEngine — acknowledged action rotation', () {
+    test('recently served 3a cap does not remain the visible next action', () {
+      final profile = profile0(
+        birthYear: 1990,
+        salaireBrutMensuel: 9500,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 250000,
+          totalEpargne3a: 12000,
+          rachatMaximum: 20000,
+        ),
+      );
+      final now = DateTime(2026, 12, 5, 10);
+
+      final first = CapEngine.compute(profile: profile, now: now, l: _l);
+      expect(first.id, 'pillar_3a');
+
+      final next = CapEngine.compute(
+        profile: profile,
+        now: now,
+        l: _l,
+        memory: CapMemory(
+          lastCapServed: first.id,
+          lastCapDate: now.subtract(const Duration(minutes: 3)),
+        ),
+      );
+
+      expect(next.id, isNot('pillar_3a'));
+      expect(next.id, isNot(first.id));
+    });
+
+    test('recently served response-card fallback can rotate', () {
+      final profile = profile0(
+        birthYear: 1990,
+        salaireBrutMensuel: 9500,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 250000,
+          totalEpargne3a: 12000,
+        ),
+      );
+      final now = DateTime(2026, 6, 5, 10);
+
+      final first = CapEngine.compute(profile: profile, now: now, l: _l);
+      expect(first.id, startsWith('rc_'));
+
+      final next = CapEngine.compute(
+        profile: profile,
+        now: now,
+        l: _l,
+        memory: CapMemory(
+          lastCapServed: first.id,
+          lastCapDate: now.subtract(const Duration(minutes: 3)),
+        ),
+      );
+
+      expect(next.id, isNot(first.id));
+    });
+
     test('recently served cap can rotate without completedActions', () {
       final profile = profile0(
         salaireBrutMensuel: 6000,

@@ -114,6 +114,7 @@ MintUserState _state({
 Widget _harness({
   required _SimulateRecorder recorder,
   CoachProfile? profile,
+  bool coachProfileAvailable = true,
   _FakeMintStateProvider? mintStateProvider,
 }) {
   final resolvedProfile = profile ?? _profile();
@@ -144,7 +145,9 @@ Widget _harness({
             mintStateProvider ?? _FakeMintStateProvider(null),
       ),
       ChangeNotifierProvider<CoachProfileProvider>(
-        create: (_) => _FakeCoachProfileProvider(resolvedProfile),
+        create: (_) => _FakeCoachProfileProvider(
+          coachProfileAvailable ? resolvedProfile : null,
+        ),
       ),
     ],
     child: MaterialApp.router(
@@ -185,6 +188,23 @@ void main() {
         find.byKey(const Key('card_cap_du_jour')),
       );
       expect(semantics.identifier, 'card_cap_du_jour');
+    });
+
+    testWidgets('visible cap exposes a stable per-cap Semantics identifier',
+        (tester) async {
+      final recorder = _SimulateRecorder();
+      final profile = _profile();
+      await tester.pumpWidget(_harness(
+        recorder: recorder,
+        profile: profile,
+        mintStateProvider: _FakeMintStateProvider(_state(profile: profile)),
+      ));
+      await tester.pumpAndSettle();
+
+      final semantics = tester.getSemantics(
+        find.byKey(const Key('cap_du_jour_pillar_3a')),
+      );
+      expect(semantics.identifier, 'cap_du_jour_pillar_3a');
     });
 
     testWidgets('MintCardActionBar is a descendant of CapDuJourBanner',
@@ -270,6 +290,31 @@ void main() {
       expect(memory.completedActions, isEmpty);
       expect(memory.lastCompletedCapHeadline, isNull);
       expect(memory.lastCompletedCapCtaLabel, isNull);
+      expect(mintStateProvider.forceRecomputeCalls, 1);
+    });
+
+    testWidgets(
+        'tapping « Simule » recomputes from MintState profile when profile provider is not ready',
+        (tester) async {
+      final recorder = _SimulateRecorder();
+      final profile = _profile();
+      final mintStateProvider = _FakeMintStateProvider(
+        _state(profile: profile),
+      );
+      await tester.pumpWidget(_harness(
+        recorder: recorder,
+        profile: profile,
+        coachProfileAvailable: false,
+        mintStateProvider: mintStateProvider,
+      ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Simule'));
+      await tester.pumpAndSettle();
+
+      final memory = await CapMemoryStore.load();
+      expect(memory.lastCapServed, 'pillar_3a');
+      expect(memory.completedActions, isEmpty);
       expect(mintStateProvider.forceRecomputeCalls, 1);
     });
   });

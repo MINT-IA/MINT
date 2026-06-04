@@ -442,11 +442,10 @@ class CapEngine {
     // ── 12. Fallback: best ResponseCard → Cap ──
     if (candidates.isEmpty) {
       final cards =
-          ResponseCardService.generateForPulse(profile, l: l, limit: 1);
-      if (cards.isNotEmpty) {
-        final card = cards.first;
-        candidates.add(_fromResponseCard(card, confidence.score, memory, now));
-      }
+          ResponseCardService.generateForPulse(profile, l: l, limit: 5);
+      candidates.addAll(cards.map(
+        (card) => _fromResponseCard(card, confidence.score, memory, now),
+      ));
     }
 
     // ── 13. Ultimate fallback: enrichment ──

@@ -66,6 +66,17 @@ class MintShell extends StatelessWidget {
     return branchIndex > _coachBranchIndex ? branchIndex - 1 : branchIndex;
   }
 
+  static Widget _tabIcon({
+    required String identifier,
+    required IconData icon,
+    Color? color,
+  }) {
+    return Semantics(
+      identifier: identifier,
+      child: Icon(icon, color: color),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,27 +88,52 @@ class MintShell extends StatelessWidget {
           final showChatTab = FeatureFlags.chatTabVisible;
           final destinations = <NavigationDestination>[
             NavigationDestination(
-              icon: const Icon(Icons.today_outlined),
-              selectedIcon: const Icon(Icons.today, color: MintColors.success),
+              icon: _tabIcon(
+                identifier: 'nav_tab_aujourdhui',
+                icon: Icons.today_outlined,
+              ),
+              selectedIcon: _tabIcon(
+                identifier: 'nav_tab_aujourdhui',
+                icon: Icons.today,
+                color: MintColors.success,
+              ),
               label: l.tabAujourdhui,
             ),
             NavigationDestination(
-              icon: const Icon(Icons.savings_outlined),
-              selectedIcon:
-                  const Icon(Icons.savings, color: MintColors.success),
+              icon: _tabIcon(
+                identifier: 'nav_tab_mon_argent',
+                icon: Icons.savings_outlined,
+              ),
+              selectedIcon: _tabIcon(
+                identifier: 'nav_tab_mon_argent',
+                icon: Icons.savings,
+                color: MintColors.success,
+              ),
               label: l.tabMonArgent,
             ),
             if (showChatTab)
               NavigationDestination(
-                icon: const Icon(Icons.chat_bubble_outline),
-                selectedIcon:
-                    const Icon(Icons.chat_bubble, color: MintColors.success),
+                icon: _tabIcon(
+                  identifier: 'nav_tab_coach',
+                  icon: Icons.chat_bubble_outline,
+                ),
+                selectedIcon: _tabIcon(
+                  identifier: 'nav_tab_coach',
+                  icon: Icons.chat_bubble,
+                  color: MintColors.success,
+                ),
                 label: l.tabCoach,
               ),
             NavigationDestination(
-              icon: const Icon(Icons.explore_outlined),
-              selectedIcon:
-                  const Icon(Icons.explore, color: MintColors.success),
+              icon: _tabIcon(
+                identifier: 'nav_tab_explorer',
+                icon: Icons.explore_outlined,
+              ),
+              selectedIcon: _tabIcon(
+                identifier: 'nav_tab_explorer',
+                icon: Icons.explore,
+                color: MintColors.success,
+              ),
               label: l.tabExplorer,
             ),
           ];
