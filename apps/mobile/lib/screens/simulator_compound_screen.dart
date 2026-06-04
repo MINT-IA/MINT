@@ -165,19 +165,6 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
         ),
         const SizedBox(height: MintSpacing.md),
         MintPremiumSlider(
-          label: S.of(context)!.compoundTauxRendement,
-          value: _annualRate,
-          min: 0,
-          max: 12,
-          divisions: 24,
-          formatValue: (v) => '${v.toStringAsFixed(1)}%',
-          onChanged: (v) {
-            _annualRate = v;
-            _calculate();
-          },
-        ),
-        const SizedBox(height: MintSpacing.md),
-        MintPremiumSlider(
           label: S.of(context)!.compoundHorizonTemps,
           value: _years.toDouble(),
           min: 1,
@@ -189,7 +176,54 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             _calculate();
           },
         ),
+        const SizedBox(height: MintSpacing.md),
+        _buildReturnAssumption(),
       ],
+    );
+  }
+
+  Widget _buildReturnAssumption() {
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      padding: EdgeInsets.zero,
+      radius: 16,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(
+            horizontal: MintSpacing.md,
+            vertical: MintSpacing.xs,
+          ),
+          childrenPadding: const EdgeInsets.fromLTRB(
+            MintSpacing.md,
+            0,
+            MintSpacing.md,
+            MintSpacing.md,
+          ),
+          title: Text(
+            S.of(context)!.compoundTauxRendement,
+            style: MintTextStyles.titleMedium(),
+          ),
+          subtitle: Text(
+            '${_annualRate.toStringAsFixed(1)}%',
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+          ),
+          children: [
+            MintPremiumSlider(
+              label: S.of(context)!.compoundTauxRendement,
+              value: _annualRate,
+              min: 0,
+              max: 12,
+              divisions: 24,
+              formatValue: (v) => '${v.toStringAsFixed(1)}%',
+              onChanged: (v) {
+                _annualRate = v;
+                _calculate();
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -231,12 +265,12 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
             children: [
               Expanded(
                 flex: (100 - gainPercentage).toInt(),
-                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.border, borderRadius: BorderRadius.circular(3))),
+                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.border, borderRadius: BorderRadius.circular(4))),
               ),
               const SizedBox(width: 4),
               Expanded(
                 flex: gainPercentage.toInt(),
-                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.success, borderRadius: BorderRadius.circular(3))),
+                child: Container(height: 6, decoration: BoxDecoration(color: MintColors.success, borderRadius: BorderRadius.circular(4))),
               ),
             ],
           ),

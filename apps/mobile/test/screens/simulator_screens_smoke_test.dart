@@ -306,9 +306,21 @@ void main() {
       expect(find.textContaining('assurance de résultat'), findsOneWidget);
     });
 
-    testWidgets('has four Slider widgets for inputs', (tester) async {
+    testWidgets('keeps the primary simulator surface to three visible inputs',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
+
+      expect(find.byType(Slider), findsNWidgets(3));
+
+      await tester.scrollUntilVisible(
+        find.textContaining('Rendement').first,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.textContaining('Rendement').first);
+      await tester.pumpAndSettle();
+
       expect(find.byType(Slider), findsNWidgets(4));
     });
   });
