@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="0" time="19.0">
+    <testcase id="flow_row17_rente_vs_capital_runtime_visual" name="flow_row17_rente_vs_capital_runtime_visual" classname="flow_row17_rente_vs_capital_runtime_visual" time="19.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="row-17, rente-vs-capital, simulator-design, runtime-visual"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

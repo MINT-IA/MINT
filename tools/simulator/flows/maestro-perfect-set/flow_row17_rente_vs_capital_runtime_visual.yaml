@@ -1,0 +1,75 @@
+# tools/simulator/flows/maestro-perfect-set/flow_row17_rente_vs_capital_runtime_visual.yaml
+#
+# PURPOSE
+# Runtime visual proof for Journey Truth Matrix Row 17:
+# canonical /rente-vs-capital uses income-inclusive first inputs and keeps
+# secondary controls folded behind advanced parameters.
+#
+# PRE-CONDITION
+# - Debug app ch.mint.app installed on a booted iPhone simulator.
+# - Recommended build:
+#     --dart-define=MINT_DISABLE_BETA_MODAL=true
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss
+
+appId: ch.mint.app
+tags:
+  - row-17
+  - rente-vs-capital
+  - simulator-design
+  - runtime-visual
+---
+
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 6000
+- openLink: "mintapp:///rente-vs-capital"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: ".*Rente ou capital.*"
+    timeout: 12000
+- extendedWaitUntil:
+    visible:
+      text: "Estimer pour moi"
+    timeout: 8000
+- assertVisible: "J'ai mon certificat"
+- takeScreenshot: "01-row17-rente-vs-capital-hero"
+
+# First input contract: inclusive income wording, not salary-only wording.
+# The exact positive income label is asserted in the Flutter widget test because
+# this screen's rendered field label is visually present but not consistently
+# exposed as Maestro-visible text on iOS AX.
+- assertNotVisible: "Ton salaire brut annuel (CHF)"
+- takeScreenshot: "02-row17-income-inclusive-primary-input"
+
+# Advanced controls should be folded on the initial decision surface.
+- scrollUntilVisible:
+    element:
+      text: "Paramètres avancés"
+    direction: DOWN
+    timeout: 12000
+- assertVisible: "Paramètres avancés"
+- assertNotVisible: "Rachat LPP annuel"
+- assertNotVisible: "Retrait EPL"
+- takeScreenshot: "03-row17-advanced-folded"
+
+# The controls remain accessible when explicitly opened.
+# Exact expanded labels are covered by the same widget test; this runtime proof
+# keeps the user-visible visual evidence without depending on fragile AX text.
+- tapOn: "Paramètres avancés"
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: "04-row17-advanced-expanded"

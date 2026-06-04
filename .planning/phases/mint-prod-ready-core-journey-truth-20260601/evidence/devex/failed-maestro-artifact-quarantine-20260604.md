@@ -23,6 +23,10 @@ It also cites the later successful Row 20 Coach history run:
 
 - `row-20-coach-history-resume-20260604T224120/`
 
+It also cites the later successful Row 17 Rente vs Capital runtime visual run:
+
+- `row-17-rente-vs-capital-runtime-20260604T225941/`
+
 The local folders below predate or sit outside those proofs and should stay out
 of committed evidence unless a future forensic report explicitly cites them.
 
@@ -40,6 +44,11 @@ of committed evidence unless a future forensic report explicitly cites them.
 | `evidence/maestro-ci/row-20-coach-history-resume-20260604T222909/` | failed scratch | Intermediate Row 20 runtime attempt; superseded by the stable user-message semantics run. |
 | `evidence/maestro-ci/row-20-coach-history-resume-20260604T223156/` | failed scratch | Final pre-fix Row 20 attempt; visible product state was close, but JUnit still failed. |
 | `evidence/maestro-ci/row-20-coach-history-resume-debug-20260604T222141/` | debug scratch | Diagnostic run showing anonymous/empty-profile hard gate; learning is preserved in the Row 20 proof report. |
+| `evidence/maestro-ci/row-17-rente-vs-capital-runtime-20260604T225134/` | failed scratch | Early Row 17 runtime attempt; Maestro could not reliably match the visually present income label as text. |
+| `evidence/maestro-ci/row-17-rente-vs-capital-runtime-20260604T225328/` | failed scratch | Early Row 17 runtime attempt; positive income-label AX text assertion was visually true but Maestro-red. |
+| `evidence/maestro-ci/row-17-rente-vs-capital-runtime-20260604T225459/` | failed scratch | Intermediate Row 17 attempt; advanced label assertion used the incomplete field label. |
+| `evidence/maestro-ci/row-17-rente-vs-capital-runtime-20260604T225641/` | failed scratch | Intermediate Row 17 attempt; advanced field label was visually present but not exposed reliably to Maestro. |
+| `evidence/maestro-ci/row-17-rente-vs-capital-runtime-20260604T225809/` | failed scratch | Final pre-proof Row 17 attempt; advanced Canton text was visually present but not exposed reliably to Maestro. |
 
 ## Local Exclude
 
@@ -55,4 +64,4 @@ Run:
 git status --short --untracked-files=all
 ```
 
-Expected: no untracked Row 20/22 failed/stale artifact folders appear.
+Expected: no untracked Row 17/20/22 failed/stale artifact folders appear.
