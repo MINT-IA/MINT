@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MINT - Screen &amp; Advice Quality Review - 2026-06-05</title>
+  <style>
+    :root {
+      --ink: #17181c;
+      --muted: #62646c;
+      --line: #e6e1d9;
+      --paper: #f8f6f1;
+      --card: #ffffff;
+      --green: #0e7f3e;
+      --green-soft: #e4f0e7;
+      --amber: #b45c12;
+      --amber-soft: #f7eadf;
+      --blue: #0b6fd3;
+      --blue-soft: #e7f1fb;
+      --red: #a73434;
+      --red-soft: #f6e5e3;
+      --shadow: 0 18px 50px rgba(23, 24, 28, .08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.5;
+    }
+
+    a {
+      color: var(--green);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    header {
+      padding: 48px 24px 28px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 24px 64px;
+    }
+
+    .hero {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 900px;
+      font-size: 42px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 42px 0 16px;
+      font-size: 25px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    .subhead {
+      max-width: 900px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 22px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 28px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .pill.good {
+      border-color: #b7d8bf;
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .pill.warn {
+      border-color: #ecc59d;
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .metric {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .metric .value {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 34px;
+      font-weight: 850;
+      line-height: 1;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .note {
+      padding: 16px 18px;
+      border: 1px solid #c7dcbc;
+      border-radius: 8px;
+      background: #f0f7ee;
+      color: #24432b;
+    }
+
+    .warning {
+      padding: 16px 18px;
+      border: 1px solid #efc5b7;
+      border-radius: 8px;
+      background: var(--red-soft);
+      color: #582323;
+    }
+
+    .rubric {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .rubric th,
+    .rubric td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .rubric th {
+      background: #f0eee8;
+      font-size: 13px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .rubric tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .screen-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .screen-card {
+      display: grid;
+      grid-template-columns: 178px minmax(0, 1fr);
+      gap: 18px;
+      min-height: 430px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .shot {
+      width: 100%;
+      max-height: 385px;
+      object-fit: cover;
+      object-position: top;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f5f5f5;
+    }
+
+    .screen-title {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .route {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+    }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr) 36px;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .bar {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #ece8df;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--green);
+    }
+
+    .bar.mid span {
+      background: var(--amber);
+    }
+
+    .bar.low span {
+      background: var(--red);
+    }
+
+    .mini-section {
+      margin-top: 14px;
+    }
+
+    .mini-section strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 13px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    li {
+      margin: 4px 0;
+    }
+
+    .priority-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .priority {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--card);
+    }
+
+    .priority .tag {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .evidence-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    footer {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px 46px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .summary-grid,
+      .priority-grid,
+      .screen-grid,
+      .evidence-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 34px 18px 24px;
+      }
+
+      main {
+        padding: 22px 18px 48px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .screen-card {
+        grid-template-columns: 1fr;
+      }
+
+      .shot {
+        max-height: 520px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <p class="eyebrow">Journey Truth Matrix - couche qualité</p>
+      <h1>MINT Screen &amp; Advice Quality Review</h1>
+      <p class="subhead">
+        Revue transversale des écrans primaires: simplicité, compréhension, logique de parcours,
+        qualité du conseil suisse, qualité des calculs et usage des vraies données utilisateur.
+      </p>
+      <div class="meta">
+        <span class="pill good">Date: 2026-06-05</span>
+        <span class="pill">Branche: qa/runtime-navigation-spine-20260602</span>
+        <span class="pill warn">Row 17 / 21 / 22 / 23 restent PARTIAL</span>
+        <span class="pill">Base: preuves Maestro + audit UX + audit conseil suisse</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="summary-grid">
+        <div class="metric">
+          <span class="value">7.4</span>
+          <span class="label">Score moyen actuel / 10</span>
+        </div>
+        <div class="metric">
+          <span class="value">9</span>
+          <span class="label">Ecrans primaires revus</span>
+        </div>
+        <div class="metric">
+          <span class="value">2</span>
+          <span class="label">Ecrans sous 7: Coach, Explorer</span>
+        </div>
+        <div class="metric">
+          <span class="value">4</span>
+          <span class="label">Leviers majeurs avant prod-ready</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Verdict Court</h2>
+      <div class="note">
+        MINT a maintenant une ossature d'ecrans credible: les roles ne se marchent plus dessus, les surfaces
+        Budget / Rapport / Profile / Rente-capital portent une vraie logique de donnees, et les preuves runtime
+        montrent que les routes critiques s'affichent. Le principal frein n'est plus "est-ce que l'ecran existe ?",
+        mais "est-ce que l'utilisateur comprend pourquoi agir maintenant, avec quelle donnee, quelle hypothese,
+        quelle limite, et quel effet apres action ?".
+      </div>
+      <p class="warning" style="margin-top:14px;">
+        Cette note n'est pas une certification juridique. Elle sert de grille de pilotage produit inspiree par les
+        exigences suisses de transparence, diligence, documentation, information comprehensible et protection client.
+        Le statut legal exact de MINT doit rester traite separement par conseil juridique.
+      </p>
+    </section>
+
+    <section>
+      <h2>Rubrique de Notation</h2>
+      <table class="rubric">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Poids</th>
+            <th>Question de revue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Clarte du message</td>
+            <td>15%</td>
+            <td>Le premier viewport dit-il clairement a quoi sert l'ecran et ce que l'utilisateur doit comprendre ?</td>
+          </tr>
+          <tr>
+            <td>Simplicite / charge cognitive</td>
+            <td>15%</td>
+            <td>L'ecran est-il suffisamment dense pour etre utile sans devenir lourd ou ambigu ?</td>
+          </tr>
+          <tr>
+            <td>Guidance et prochaine action</td>
+            <td>15%</td>
+            <td>L'utilisateur sait-il quelle action faire, pourquoi, et ce qui se passe apres ?</td>
+          </tr>
+          <tr>
+            <td>Verite des donnees utilisateur</td>
+            <td>20%</td>
+            <td>Les montants viennent-ils du profil, scan, budget ou fallback avec provenance et fraicheur visibles ?</td>
+          </tr>
+          <tr>
+            <td>Calculs, hypotheses et sources</td>
+            <td>20%</td>
+            <td>Les calculs financiers suisses exposent-ils methode, constantes, limites, canton, fiscalite et sensibilite ?</td>
+          </tr>
+          <tr>
+            <td>Conformite, prudence, accessibilite</td>
+            <td>15%</td>
+            <td>L'ecran evite-t-il la promesse abusive, rend-il les limites accessibles, et reste-t-il utilisable au runtime ?</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Scores par Ecran</h2>
+      <div class="screen-grid">
+        <article class="screen-card">
+          <a href="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/01-row22-home-primary.png">
+            <img class="shot" src="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/01-row22-home-primary.png" alt="Capture Aujourd'hui">
+          </a>
+          <div>
+            <div class="screen-title">
+              <h3>Aujourd'hui</h3>
+              <span class="route">/home</span>
+            </div>
+            <div class="score-row"><span>Global</span><div class="bar mid"><span style="width:68%"></span></div><span>6.8</span></div>
+            <div class="score-row"><span>UX</span><div class="bar mid"><span style="width:65%"></span></div><span>6.5</span></div>
+            <div class="score-row"><span>Conseil</span><div class="bar mid"><span style="width:70%"></span></div><span>7.0</span></div>
+            <div class="mini-section">
+              <strong>Ce qui marche</strong>
+              <ul>
+                <li>Action du jour visible, simple, sans surcharge.</li>
+                <li>Rotation runtime prouvee apres action: le meme cap ne reste pas colle.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques UX pour 10</strong>
+              <ul>
+                <li>Le grand vide doit devenir progression, contexte ou etat apres action.</li>
+                <li>Clarifier la priorite entre CTA principal et les trois verbes.</li>
+                <li>Montrer explicitement ce qui change apres "Simule".</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques conseil suisse pour 10</strong>
+              <ul>
+                <li>Afficher pourquoi ce cap est prioritaire: faits, fraicheur, hypotheses.</li>
+                <li>Ajouter source/limite courte sur les cartes a impact financier.</li>
+                <li>Prouver le vrai flux cible, pas seulement l'accuse de reception.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <a href="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/03-row22-mon-argent-primary.png">
+            <img class="shot" src="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/03-row22-mon-argent-primary.png" alt="Capture Mon argent">
+          </a>
+          <div>
+            <div class="screen-title">
+              <h3>Mon argent</h3>
+              <span class="route">/mon-argent</span>
+            </div>
+            <div class="score-row"><span>Global</span><div class="bar"><span style="width:78%"></span></div><span>7.8</span></div>
+            <div class="score-row"><span>UX</span><div class="bar"><span style="width:80%"></span></div><span>8.0</span></div>
+            <div class="score-row"><span>Conseil</span><div class="bar"><span style="width:75%"></span></div><span>7.5</span></div>
+            <div class="mini-section">
+              <strong>Ce qui marche</strong>
+              <ul>
+                <li>Surface calme, lisible, bonne synthese mensuelle.</li>
+                <li>Montants cohérents avec le budget et la money spine.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques UX pour 10</strong>
+              <ul>
+                <li>Rendre le bouton "+" explicite.</li>
+                <li>Hiérarchiser les filtres pour eviter l'impression de menu plat.</li>
+                <li>Transformer "Enrichis ton dossier" en action plus concrete.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques conseil suisse pour 10</strong>
+              <ul>
+                <li>Afficher provenance et fraicheur par montant.</li>
+                <li>Signaler quand <code>budget_inputs_v1</code> ou un fallback est utilise.</li>
+                <li>Relier chaque anomalie a une action precise, pas seulement au Coach.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <a href="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/04-row22-budget-primary.png">
+            <img class="shot" src="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/04-row22-budget-primary.png" alt="Capture Budget">
+          </a>
+          <div>
+            <div class="screen-title">
+              <h3>Budget mensuel</h3>
+              <span class="route">/budget</span>
+            </div>
+            <div class="score-row"><span>Global</span><div class="bar"><span style="width:78%"></span></div><span>7.8</span></div>
+            <div class="score-row"><span>UX</span><div class="bar"><span style="width:75%"></span></div><span>7.5</span></div>
+            <div class="score-row"><span>Conseil</span><div class="bar"><span style="width:80%"></span></div><span>8.0</span></div>
+            <div class="mini-section">
+              <strong>Ce qui marche</strong>
+              <ul>
+                <li>Le bug "Ajouter mon salaire" est corrige par une formulation revenu inclusive.</li>
+                <li>Formule, avertissement, detail et donut rendent l'ecran utile.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques UX pour 10</strong>
+              <ul>
+                <li>Expliquer l'ecart visible entre formule CHF 3'667 et donut CHF 3'416.</li>
+                <li>Clarifier "Variables 100%" et "Futur 0%".</li>
+                <li>Reduire l'empilement vertical du premier viewport.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques conseil suisse pour 10</strong>
+              <ul>
+                <li>Marquer 50/30/20 comme repere, pas regle universelle.</li>
+                <li>Montrer source de chaque champ, canton, impots, LAMal, epargne.</li>
+                <li>Modeler revenus irreguliers, independants, rentes, allocations et fortune.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <a href="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/05-row22-coach-chat-primary.png">
+            <img class="shot" src="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/05-row22-coach-chat-primary.png" alt="Capture Coach">
+          </a>
+          <div>
+            <div class="screen-title">
+              <h3>Coach</h3>
+              <span class="route">/coach/chat</span>
+            </div>
+            <div class="score-row"><span>Global</span><div class="bar mid"><span style="width:68%"></span></div><span>6.8</span></div>
+            <div class="score-row"><span>UX</span><div class="bar mid"><span style="width:65%"></span></div><span>6.5</span></div>
+            <div class="score-row"><span>Conseil</span><div class="bar mid"><span style="width:70%"></span></div><span>7.0</span></div>
+            <div class="mini-section">
+              <strong>Ce qui marche</strong>
+              <ul>
+                <li>Minimal, focalise sur un chiffre central.</li>
+                <li>History, ScreenReturn et routage ecran ont des preuves locales fortes.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques UX pour 10</strong>
+              <ul>
+                <li>Ajouter source/confiance et contexte du chiffre affiche.</li>
+                <li>Proposer deux ou trois relances utiles au lieu d'un champ presque muet.</li>
+                <li>Clarifier le composer grise et les icones historique/menu.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques conseil suisse pour 10</strong>
+              <ul>
+                <li>Prouver en runtime: texte utilisateur -> fait sauve -> restart -> Coach reutilise le fait.</li>
+                <li>Afficher fraicheur des chiffres cites et consentement/sync.</li>
+                <li>Ajouter des evals de qualite semantique live, pas seulement des fixtures.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <a href="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/06-row22-rapport-primary.png">
+            <img class="shot" src="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/06-row22-rapport-primary.png" alt="Capture Rapport">
+          </a>
+          <div>
+            <div class="screen-title">
+              <h3>Rapport</h3>
+              <span class="route">/rapport</span>
+            </div>
+            <div class="score-row"><span>Global</span><div class="bar"><span style="width:75%"></span></div><span>7.5</span></div>
+            <div class="score-row"><span>UX</span><div class="bar mid"><span style="width:70%"></span></div><span>7.0</span></div>
+            <div class="score-row"><span>Conseil</span><div class="bar"><span style="width:80%"></span></div><span>8.0</span></div>
+            <div class="mini-section">
+              <strong>Ce qui marche</strong>
+              <ul>
+                <li>Rôle clair de synthese, differencie du dashboard.</li>
+                <li>Conflits, limitations et nature du service sont visibles.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques UX pour 10</strong>
+              <ul>
+                <li>Relier "stabilise ta situation" a une raison chiffree.</li>
+                <li>Remplacer "Commencer" par une action concrete.</li>
+                <li>Mettre une partie conformite sous repli pour alleger le premier viewport.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques conseil suisse pour 10</strong>
+              <ul>
+                <li>Remonter confiance/provenance dans le hero.</li>
+                <li>Ajouter QA du contenu PDF/export.</li>
+                <li>Verifier les hypotheses statiques, notamment AVS 2026 et 13e rente.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <a href="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/02-row22-profile-bilan-primary.png">
+            <img class="shot" src="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/02-row22-profile-bilan-primary.png" alt="Capture Profile bilan">
+          </a>
+          <div>
+            <div class="screen-title">
+              <h3>Dossier verifiable</h3>
+              <span class="route">/profile/bilan</span>
+            </div>
+            <div class="score-row"><span>Global</span><div class="bar"><span style="width:78%"></span></div><span>7.8</span></div>
+            <div class="score-row"><span>UX</span><div class="bar"><span style="width:75%"></span></div><span>7.5</span></div>
+            <div class="score-row"><span>Conseil</span><div class="bar"><span style="width:80%"></span></div><span>8.0</span></div>
+            <div class="mini-section">
+              <strong>Ce qui marche</strong>
+              <ul>
+                <li>Bon recentrage: faits, sources, corrections avant projection.</li>
+                <li>Badges declare / estime / certifie rendent la provenance presente.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques UX pour 10</strong>
+              <ul>
+                <li>Rendre les badges auto-explicatifs.</li>
+                <li>Permettre la correction ligne par ligne.</li>
+                <li>Signaler les faits prioritaires a verifier.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques conseil suisse pour 10</strong>
+              <ul>
+                <li>Afficher le detail AVS/LPP et limites pres des chiffres.</li>
+                <li>Prouver correction -> restart -> autres ecrans / Coach reutilisent la correction.</li>
+                <li>Afficher conflit de sources et fraicheur par fait.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <a href="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/07-row22-scan-primary.png">
+            <img class="shot" src="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/07-row22-scan-primary.png" alt="Capture Scan">
+          </a>
+          <div>
+            <div class="screen-title">
+              <h3>Scan document</h3>
+              <span class="route">/scan</span>
+            </div>
+            <div class="score-row"><span>Global</span><div class="bar"><span style="width:75%"></span></div><span>7.5</span></div>
+            <div class="score-row"><span>UX</span><div class="bar"><span style="width:80%"></span></div><span>8.0</span></div>
+            <div class="score-row"><span>Conseil</span><div class="bar mid"><span style="width:70%"></span></div><span>7.0</span></div>
+            <div class="mini-section">
+              <strong>Ce qui marche</strong>
+              <ul>
+                <li>Promesse claire: extraire puis verifier chaque valeur.</li>
+                <li>Impact de confiance visible par type de document.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques UX pour 10</strong>
+              <ul>
+                <li>Hierarchiser camera, galerie, OCR et exemple test.</li>
+                <li>Expliquer pourquoi "Coller le texte OCR" parait desactive.</li>
+                <li>Ajouter une micro-note confidentialite avant capture.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques conseil suisse pour 10</strong>
+              <ul>
+                <li>Prouver camera / PDF / OCR release, pas seulement fixture LPP debug.</li>
+                <li>Exposer valeur extraite vs valeur confirmee.</li>
+                <li>Montrer l'effet exact de chaque extraction sur profil et Data Spine.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <a href="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/08-row22-explore-primary.png">
+            <img class="shot" src="../maestro-ci/row-22-profile-dossier-seeded-crawl-20260604T151030/08-row22-explore-primary.png" alt="Capture Explorer">
+          </a>
+          <div>
+            <div class="screen-title">
+              <h3>Explorer</h3>
+              <span class="route">/explore</span>
+            </div>
+            <div class="score-row"><span>Global</span><div class="bar mid"><span style="width:65%"></span></div><span>6.5</span></div>
+            <div class="score-row"><span>UX</span><div class="bar mid"><span style="width:70%"></span></div><span>7.0</span></div>
+            <div class="score-row"><span>Conseil</span><div class="bar low"><span style="width:60%"></span></div><span>6.0</span></div>
+            <div class="mini-section">
+              <strong>Ce qui marche</strong>
+              <ul>
+                <li>Grille stable, simple, categories lisibles.</li>
+                <li>Bon hub general pour decouvrir les domaines MINT.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques UX pour 10</strong>
+              <ul>
+                <li>Ajouter une promesse courte par categorie.</li>
+                <li>Corriger la tuile partiellement coupee en bas.</li>
+                <li>Signaler les parcours recommandes ou deja utiles pour le profil.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques conseil suisse pour 10</strong>
+              <ul>
+                <li>Ajouter un etat "pour toi maintenant" base sur le profil.</li>
+                <li>Afficher niveau de maturite, source ou confiance par outil.</li>
+                <li>Eviter que le hub serve de sortie generique apres action sans contexte.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <a href="../maestro-ci/row-17-rente-vs-capital-runtime-20260604T225941/screenshots/01-row17-rente-vs-capital-hero.png">
+            <img class="shot" src="../maestro-ci/row-17-rente-vs-capital-runtime-20260604T225941/screenshots/01-row17-rente-vs-capital-hero.png" alt="Capture Rente ou capital">
+          </a>
+          <div>
+            <div class="screen-title">
+              <h3>Rente ou capital</h3>
+              <span class="route">/rente-vs-capital</span>
+            </div>
+            <div class="score-row"><span>Global</span><div class="bar"><span style="width:78%"></span></div><span>7.8</span></div>
+            <div class="score-row"><span>UX</span><div class="bar mid"><span style="width:70%"></span></div><span>7.0</span></div>
+            <div class="score-row"><span>Conseil</span><div class="bar"><span style="width:85%"></span></div><span>8.5</span></div>
+            <div class="mini-section">
+              <strong>Ce qui marche</strong>
+              <ul>
+                <li>Excellent niveau de sources: LPP/LIFD et disclaimer runtime accessibles.</li>
+                <li>Inputs primaires limites; parametres avances replies.</li>
+                <li>Wording revenu inclusif, pas salary-only.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques UX pour 10</strong>
+              <ul>
+                <li>Transformer le bloc bleu en aide plus actionnable.</li>
+                <li>Ameliorer lisibilite quand les avances sont ouverts.</li>
+                <li>Ajouter resume graphique et prochain choix clair.</li>
+              </ul>
+            </div>
+            <div class="mini-section">
+              <strong>Manques conseil suisse pour 10</strong>
+              <ul>
+                <li>Prouver accessibilite chart et dynamic type.</li>
+                <li>Clarifier API vs fallback local.</li>
+                <li>Expliquer divergence possible avec la caisse reelle et son reglement LPP.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Ce qu'un Expert Suisse Exigerait pour 10/10</h2>
+      <table class="rubric">
+        <thead>
+          <tr>
+            <th>Exigence</th>
+            <th>Etat MINT</th>
+            <th>Delta prioritaire</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Profil financier complet</td>
+            <td>Profil, budget, scan et dossier existent; provenance commence a etre visible.</td>
+            <td>Afficher fraicheur, source, confiance et conflit par montant sur les ecrans chiffrés.</td>
+          </tr>
+          <tr>
+            <td>Situation suisse contextualisee</td>
+            <td>LPP, AVS, 3a, fiscalite et canton sont presents selon les surfaces.</td>
+            <td>Rendre visibles canton, statut d'activite, menage, revenus mixtes et fiscalite dans chaque calcul impactant.</td>
+          </tr>
+          <tr>
+            <td>Hypotheses comprehensibles</td>
+            <td>Rapport et Rente-capital montrent deja limites et sources.</td>
+            <td>Remonter les hypotheses clefs dans les heroes, avec sensibilite et effet sur le resultat.</td>
+          </tr>
+          <tr>
+            <td>Documentation et prudence</td>
+            <td>Le rapport affiche nature du service, limitations, conflits d'interets.</td>
+            <td>Ajouter export/record de conseil, QA PDF, et disclaimers courts sur toutes cartes a impact financier.</td>
+          </tr>
+          <tr>
+            <td>Boucle reelle apres action</td>
+            <td>Plusieurs routes et retours sont prouves; Row 21 prouve rotation apres tap.</td>
+            <td>Prouver fait utilisateur -> persistance -> restart -> recalcul -> Coach/Rapport reutilisent la correction.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Backlog Priorise pour Monter la Qualite</h2>
+      <div class="priority-grid">
+        <div class="priority">
+          <span class="tag">P0</span>
+          <h3>Provenance visible partout</h3>
+          <p>Chaque montant majeur doit dire d'ou il vient: profil, scan, budget, API, constante, fallback, date et confiance.</p>
+        </div>
+        <div class="priority">
+          <span class="tag">P0</span>
+          <h3>Boucle fait utilisateur complete</h3>
+          <p>Prouver en runtime qu'une correction ou reponse utilisateur survit au restart et modifie Budget, Coach et Rapport.</p>
+        </div>
+        <div class="priority">
+          <span class="tag">P1</span>
+          <h3>Coach semantic quality gate</h3>
+          <p>Ajouter evals live/golden: question utilisateur, donnees exactes, reponse prudente, route pertinente, sources et limites.</p>
+        </div>
+        <div class="priority">
+          <span class="tag">P1</span>
+          <h3>Budget revenus inclusifs</h3>
+          <p>Modeler salaire, independant, mixte, rente, allocation, fortune et transition sans hypothese employee-only.</p>
+        </div>
+        <div class="priority">
+          <span class="tag">P1</span>
+          <h3>Accessibilite des resultats</h3>
+          <p>Ajouter resumes textuels pour charts/donuts, preuves dynamic type, focus order, et annonces screen reader.</p>
+        </div>
+        <div class="priority">
+          <span class="tag">P2</span>
+          <h3>Explorer personnalise</h3>
+          <p>Transformer le hub generique en catalogue priorise: "utile pour toi maintenant", maturite, sources, prochain pas.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Constantes et Cadre de Revue</h2>
+      <p>
+        La revue conseil s'appuie sur les constantes locales MINT Phase 30.7: plafond 3a 2026 avec LPP CHF 7'258,
+        taux de conversion LPP obligatoire 6.8%, rente AVS annuelle maximale locale CHF 30'240 et facteur 13e rente
+        actif des 2026. Les ecarts mentionnes ci-dessus ne disent pas que les calculs sont faux; ils disent que
+        l'utilisateur doit voir la source, la date, le fallback et la limite du calcul quand le chiffre pilote une action.
+      </p>
+      <p>
+        Cote cadre suisse, la FINMA decrit la LSFin comme visant la protection client et des services financiers
+        fournis de facon fidele, diligente et transparente. Pour MINT, cela devient une exigence produit: information
+        comprehensible, hypothese visible, documentation, absence de promesse abusive et distinction claire entre
+        education, simulation et conseil personnalise.
+      </p>
+    </section>
+
+    <section>
+      <h2>Preuves Consultees</h2>
+      <div class="evidence-list">
+        <a href="../coach-navigation/row-22-primary-screen-visual-crawl-review-20260604.md">Row 22 primary-screen visual crawl review</a>
+        <a href="../coach-navigation/row-22-primary-screen-inventory-20260604.md">Row 22 primary-screen inventory</a>
+        <a href="../rapport-design/row-23-primary-screen-visual-audit-20260604.md">Row 23 primary-screen visual audit</a>
+        <a href="../rapport-design/row-23-primary-screen-dynamic-type-20260604.md">Row 23 dynamic type evidence</a>
+        <a href="../daily-return/row-21-daily-return-action-rotation-runtime-proof-20260605.md">Row 21 daily return action rotation proof</a>
+        <a href="../simulator-design/row-17-rente-vs-capital-runtime-visual-proof-20260604.md">Row 17 rente vs capital runtime visual proof</a>
+        <a href="../simulator-design/row-17-rente-vs-capital-disclaimer-runtime-proof-20260605.md">Row 17 disclaimer runtime proof</a>
+        <a href="../../JOURNEY-TRUTH-MATRIX.md">Journey Truth Matrix</a>
+        <a href="https://www.finma.ch/fr/documentation/bases-legales/lois-et-ordonnances/finanzdienstleistungen/">FINMA - Services financiers / LSFin</a>
+        <a href="https://www.fedlex.admin.ch/eli/cc/2019/758/fr">Fedlex - Loi federale sur les services financiers</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Produit par revue locale Codex + agents UX/conseil suisse, lecture des preuves Maestro et constantes MINT.
+    Ce fichier sert de base d'amelioration produit; il ne ferme pas les rows PARTIAL.
+  </footer>
+</body>
+</html>
