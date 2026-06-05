@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MINT - Flow Guidance Quality Review - 2026-06-05</title>
+  <style>
+    :root {
+      --ink: #17181c;
+      --muted: #646870;
+      --line: #e5e0d8;
+      --paper: #f8f6f1;
+      --card: #fff;
+      --green: #0e7f3e;
+      --green-soft: #e5f1e8;
+      --blue: #0b6fd3;
+      --blue-soft: #e7f1fb;
+      --amber: #b45c12;
+      --amber-soft: #f8eadb;
+      --red: #a73434;
+      --red-soft: #f7e4e1;
+      --shadow: 0 18px 50px rgba(23, 24, 28, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.5;
+    }
+
+    a {
+      color: var(--green);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    header {
+      padding: 48px 24px 30px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero,
+    main,
+    footer {
+      max-width: 1220px;
+      margin: 0 auto;
+    }
+
+    main {
+      padding: 28px 24px 64px;
+    }
+
+    footer {
+      padding: 0 24px 46px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 850;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 940px;
+      font-size: 42px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 42px 0 16px;
+      font-size: 25px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 19px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .94em;
+    }
+
+    .subhead {
+      max-width: 940px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 22px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .pill.good {
+      border-color: #b7d8bf;
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .pill.warn {
+      border-color: #ecc59d;
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .metric,
+    .panel,
+    .priority {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      padding: 18px;
+    }
+
+    .metric .value {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 34px;
+      font-weight: 850;
+      line-height: 1;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .note {
+      padding: 16px 18px;
+      border: 1px solid #c7dcbc;
+      border-radius: 8px;
+      background: #f0f7ee;
+      color: #24432b;
+    }
+
+    .warning {
+      padding: 16px 18px;
+      border: 1px solid #efc5b7;
+      border-radius: 8px;
+      background: var(--red-soft);
+      color: #582323;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0eee8;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .score {
+      display: inline-flex;
+      justify-content: center;
+      min-width: 46px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--green);
+      font-weight: 850;
+    }
+
+    .score.mid { background: var(--amber); }
+    .score.low { background: var(--red); }
+
+    .status {
+      display: inline-block;
+      margin-bottom: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .status.clean {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .status.gap {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .status.risk {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .flow-table td:nth-child(1) {
+      width: 250px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .flow-table td:nth-child(2) {
+      width: 72px;
+    }
+
+    .flow-table td:nth-child(3) {
+      width: 150px;
+    }
+
+    .two-col,
+    .priority-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .priority-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .priority {
+      padding: 16px;
+    }
+
+    .priority .tag {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    li {
+      margin: 4px 0;
+    }
+
+    @media (max-width: 980px) {
+      .summary-grid,
+      .two-col,
+      .priority-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header { padding: 34px 18px 24px; }
+      main { padding: 22px 18px 48px; }
+      h1 { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <p class="eyebrow">Journey Truth Matrix - couche flow</p>
+      <h1>MINT Flow Guidance Quality Review</h1>
+      <p class="subhead">
+        Complement au document de notes des ecrans: ici on note les parcours Maestro et leur
+        qualite de guidance, pas seulement la presence d'un ecran ou la reussite d'un locator.
+      </p>
+      <div class="meta">
+        <span class="pill good">Date: 2026-06-05</span>
+        <span class="pill">34 fichiers dans maestro-perfect-set</span>
+        <span class="pill">115 fichiers screen Flutter</span>
+        <span class="pill">142 ScreenEntry / 106 chat-routable</span>
+        <span class="pill good">check-syntax + locator audit OK</span>
+        <span class="pill warn">Guidance, pas conseil financier</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="summary-grid">
+        <div class="metric">
+          <span class="value">6.9</span>
+          <span class="label">Score moyen guidance / 10</span>
+        </div>
+        <div class="metric">
+          <span class="value">31</span>
+          <span class="label">Flows actifs notes</span>
+        </div>
+        <div class="metric">
+          <span class="value">44</span>
+          <span class="label">Flows audites par locator guard</span>
+        </div>
+        <div class="metric">
+          <span class="value">0</span>
+          <span class="label">Rows fermees par ce document</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Position</h2>
+      <div class="note">
+        Oui: ce document est necessaire. Le document des ecrans note la qualite de la surface visible.
+        Celui-ci note la qualite du parcours: est-ce que l'utilisateur recoit une guidance logique,
+        prudente, fondee sur ses donnees, avec les limites et sources necessaires pour decider sans
+        que MINT se presente comme un conseiller financier.
+      </div>
+      <p class="warning" style="margin-top:14px;">
+        Un flow Maestro vert ne vaut pas 10/10. Il prouve qu'un chemin peut etre execute. Il ne prouve
+        pas automatiquement que le contenu est exact, que le langage est FINMA-safe, que les hypotheses
+        sont visibles, ou que les donnees reelles de l'utilisateur sont reutilisees apres restart.
+      </p>
+    </section>
+
+    <section>
+      <h2>Hygiene de Tracking</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Artifact</th>
+            <th>Role</th>
+            <th>Ne doit pas faire</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="../../JOURNEY-TRUTH-MATRIX.md">JOURNEY-TRUTH-MATRIX.md</a></td>
+            <td>Statut officiel des rows CJT: UNPROVEN, PARTIAL, LIVE-PROVEN.</td>
+            <td>Ne pas devenir un journal detaille de tous les screenshots et avis UX.</td>
+          </tr>
+          <tr>
+            <td><a href="mint-screen-advice-quality-review-20260605.html">Screen quality review</a></td>
+            <td>Note les surfaces primaires: comprehension, densite, message, donnees visibles.</td>
+            <td>Ne pas pretendre qu'un ecran vu prouve un parcours complet.</td>
+          </tr>
+          <tr>
+            <td>Flow guidance quality review</td>
+            <td>Note les parcours: sequence, guidance, donnees, limites, completion, restart.</td>
+            <td>Ne pas remplacer les JUnit, screenshots, logs Maestro ou tests Flutter.</td>
+          </tr>
+          <tr>
+            <td>BUG-TRACKER.md</td>
+            <td>Suit les bugs actionnables et leur fermeture par preuve.</td>
+            <td>Ne pas absorber les scores; transformer seulement les gaps P0/P1 en bugs.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Rubrique Flow 10 Points</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Critere</th>
+            <th>Points</th>
+            <th>Preuve attendue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mecanique runtime</td>
+            <td>1.0</td>
+            <td>JUnit vert, watchdog 0, screenshots ou log conserves dans <code>evidence/maestro-ci</code>.</td>
+          </tr>
+          <tr>
+            <td>But humain clair</td>
+            <td>1.0</td>
+            <td>Le flow resout un probleme utilisateur concret et non une navigation artificielle.</td>
+          </tr>
+          <tr>
+            <td>Guidance non-conseil</td>
+            <td>1.25</td>
+            <td>Langage education/simulation/guidance; pas d'injonction, pas de promesse, pas de certitude abusive.</td>
+          </tr>
+          <tr>
+            <td>Donnees utilisateur reelles</td>
+            <td>1.25</td>
+            <td>Le parcours consomme profil, budget, scan ou correction utilisateur plutot qu'un chiffre decoratif.</td>
+          </tr>
+          <tr>
+            <td>Provenance et fraicheur</td>
+            <td>1.0</td>
+            <td>Les montants indiquent source, date, confiance, fallback ou conflit si pertinent.</td>
+          </tr>
+          <tr>
+            <td>Calculs, hypotheses, sources</td>
+            <td>1.25</td>
+            <td>Constantes suisses, canton/statut, hypothese et limite visibles quand un chiffre influence une action.</td>
+          </tr>
+          <tr>
+            <td>Decision et prochaine action</td>
+            <td>1.0</td>
+            <td>L'utilisateur sait pourquoi continuer et ce qui changera apres l'action.</td>
+          </tr>
+          <tr>
+            <td>Completion, persistance, restart</td>
+            <td>1.0</td>
+            <td>Le flow prouve fait -> sauvegarde -> restart -> reutilisation ou non-regression.</td>
+          </tr>
+          <tr>
+            <td>Inclusion des situations suisses</td>
+            <td>0.75</td>
+            <td>Pas de biais salarie/retraite-first; couvre independant, mixte, rente, famille, logement, dette, fortune.</td>
+          </tr>
+          <tr>
+            <td>Accessibilite et lisibilite</td>
+            <td>0.5</td>
+            <td>Locators stables, focus/semantics si critique, pas de texte tronque, screenshots inspectables.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Scores par Flow</h2>
+      <table class="flow-table">
+        <thead>
+          <tr>
+            <th>Flow</th>
+            <th>Score</th>
+            <th>Statut preuve</th>
+            <th>Verdict guidance</th>
+            <th>Manques pour 10</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>flow_row17_rente_vs_capital_disclaimer_runtime</td>
+            <td><span class="score">8.8</span></td>
+            <td><span class="status clean">runtime vert</span></td>
+            <td>Excellent flow de prudence: disclaimer LSFin, LPP/LIFD et limite educative visibles.</td>
+            <td>Ajouter chart summary, dynamic type runtime et explication de divergence caisse reelle.</td>
+          </tr>
+          <tr>
+            <td>flow_row17_rente_vs_capital_runtime_visual</td>
+            <td><span class="score">8.2</span></td>
+            <td><span class="status clean">runtime vert</span></td>
+            <td>Bonne guidance de simulation: inputs limites, revenus inclusifs, avances replies.</td>
+            <td>Relier plus explicitement le resultat a sources, risques et action suivante.</td>
+          </tr>
+          <tr>
+            <td>flow_row22_profile_dossier_production_profile</td>
+            <td><span class="score">8.0</span></td>
+            <td><span class="status clean">runtime vert</span></td>
+            <td>Bon flow dossier: profil reel, restart et first viewport centre sur faits/provenance.</td>
+            <td>Prouver correction par ligne -> restart -> Budget/Coach/Rapport reutilisent le fait.</td>
+          </tr>
+          <tr>
+            <td>flow_money_trust_chain_budget_mon_argent_rapport_coach</td>
+            <td><span class="score">7.7</span></td>
+            <td><span class="status clean">runtime vert recent</span></td>
+            <td>Flow central de money spine: Budget, Mon Argent, Rapport et Coach convergent.</td>
+            <td>Afficher source/fraicheur par montant et coherence exacte des ecarts formule/donut.</td>
+          </tr>
+          <tr>
+            <td>flow_row20_coach_history_resume</td>
+            <td><span class="score">7.6</span></td>
+            <td><span class="status clean">runtime vert</span></td>
+            <td>Bonne preuve de continuite locale conversationnelle apres restart.</td>
+            <td>Ajouter qualite semantique de la reponse reprise, cloud sync et citations.</td>
+          </tr>
+          <tr>
+            <td>flow_row21_daily_return_action_rotation</td>
+            <td><span class="score">7.4</span></td>
+            <td><span class="status clean">runtime vert</span></td>
+            <td>Bonne preuve que la surface quotidienne ne reste pas bloquee sur le meme cap.</td>
+            <td>Prouver vraie completion cible, multi-jours et pourquoi le cap suivant est prioritaire.</td>
+          </tr>
+          <tr>
+            <td>flow_rapport_budget_read_model_spine</td>
+            <td><span class="score">7.4</span></td>
+            <td><span class="status clean">runtime vert</span></td>
+            <td>Rapport connecte au budget, bon axe de synthese plutot que dashboard bis.</td>
+            <td>Hero avec confiance/provenance; QA export/PDF; hypotheses 2026 visibles.</td>
+          </tr>
+          <tr>
+            <td>flow_data_spine_visible_coach_packet</td>
+            <td><span class="score">7.3</span></td>
+            <td><span class="status gap">preuve locale</span></td>
+            <td>Important pour verifier que le Coach voit les donnees, pas seulement le texte chat.</td>
+            <td>Faire un runtime full: saisie utilisateur -> packet -> reponse -> restart.</td>
+          </tr>
+          <tr>
+            <td>flow_row16_coach_route_to_screen_runtime</td>
+            <td><span class="score">7.2</span></td>
+            <td><span class="status clean">runtime vert</span></td>
+            <td>Le Coach ouvre le bon simulateur dans une fixture controlee.</td>
+            <td>Prouver selection live backend/LLM, justification de route et retour utilisateur.</td>
+          </tr>
+          <tr>
+            <td>flow_lpp_scan_review</td>
+            <td><span class="score">7.2</span></td>
+            <td><span class="status gap">debug-only</span></td>
+            <td>Bon flow de verification LPP: extraction, review, confirmation, impact.</td>
+            <td>Remplacer preuve debug par camera/PDF/OCR release + consentement Vision/OCR.</td>
+          </tr>
+          <tr>
+            <td>flow_row24_privacy_control_runtime</td>
+            <td><span class="score">7.1</span></td>
+            <td><span class="status clean">runtime vert</span></td>
+            <td>Bonne base privacy: controles visibles dans l'app.</td>
+            <td>Prouver effacement/export/account lifecycle et effet sur logs/sync.</td>
+          </tr>
+          <tr>
+            <td>flow_3a_calculator</td>
+            <td><span class="score mid">7.0</span></td>
+            <td><span class="status gap">a rerun</span></td>
+            <td>Flow utile pour simulation 3a et compliance de base.</td>
+            <td>Rerun actuel; source 2026 visible; pas de framing economie fiscale garantie.</td>
+          </tr>
+          <tr>
+            <td>flow_narrator_refuses_uncited_numbers</td>
+            <td><span class="score mid">7.0</span></td>
+            <td><span class="status gap">semantic guard</span></td>
+            <td>Important pour FINMA-safe: refuse les chiffres non cites.</td>
+            <td>Etendre a reponses live, citations exactes, et messages utilisateur complexes.</td>
+          </tr>
+          <tr>
+            <td>flow_hardgate_expat_us</td>
+            <td><span class="score mid">6.9</span></td>
+            <td><span class="status gap">a rerun</span></td>
+            <td>Bon controle de risque US/expat si la sortie explique bien le perimetre.</td>
+            <td>Verifier wording non discriminant, UCA opt-in, waitlist, et alternatives educatives.</td>
+          </tr>
+          <tr>
+            <td>flow_fatca_3a_gate</td>
+            <td><span class="score mid">6.8</span></td>
+            <td><span class="status gap">a rerun</span></td>
+            <td>Flow critique de boundary: evite de guider un cas FATCA comme cas standard.</td>
+            <td>Ajouter explication claire du pourquoi, sources, et prochaine action non-commerciale.</td>
+          </tr>
+          <tr>
+            <td>flow_row21_daily_return_attention_action</td>
+            <td><span class="score mid">6.8</span></td>
+            <td><span class="status clean">runtime vert</span></td>
+            <td>Prouve l'attention et l'action visible du jour.</td>
+            <td>Manque effet apres action et logique de priorisation visible a l'utilisateur.</td>
+          </tr>
+          <tr>
+            <td>flow_hero_marge_fiscale_3a</td>
+            <td><span class="score mid">6.8</span></td>
+            <td><span class="status gap">ancien runtime</span></td>
+            <td>Bon flow fiscal si le chiffre est contextualise.</td>
+            <td>Eviter 3a/retraite-first; exposer source, canton, plafond et limite non-garantie.</td>
+          </tr>
+          <tr>
+            <td>flow_card_action_intent_bar</td>
+            <td><span class="score mid">6.7</span></td>
+            <td><span class="status gap">a rerun</span></td>
+            <td>Bon flow d'intention, mais surtout UI/action-bar.</td>
+            <td>Lier chaque verbe a une guidance concrete, pas juste a une route.</td>
+          </tr>
+          <tr>
+            <td>flow_extractor_captures_age_canton</td>
+            <td><span class="score mid">6.7</span></td>
+            <td><span class="status gap">LLM path</span></td>
+            <td>Important pour capture des faits depuis chat.</td>
+            <td>Remplacer phrase salariee par revenus inclusifs; prouver persistence et corrections.</td>
+          </tr>
+          <tr>
+            <td>coach_tool_search_round_trip</td>
+            <td><span class="score mid">6.6</span></td>
+            <td><span class="status gap">LLM/tool path</span></td>
+            <td>Bon sweep multi-sujets, mais difficile a certifier qualitativement sans evals.</td>
+            <td>Ajouter golden scoring par question: sources, limites, route, non-conseil.</td>
+          </tr>
+          <tr>
+            <td>flow_drawer_navigation_smoke</td>
+            <td><span class="score mid">6.6</span></td>
+            <td><span class="status gap">navigation</span></td>
+            <td>Utile pour routing; faible qualite guidance par nature.</td>
+            <td>Ne pas sur-noter: ajouter role/raison de chaque destination si utilise en UAT.</td>
+          </tr>
+          <tr>
+            <td>flow_b15_concrete_facts_chips</td>
+            <td><span class="score mid">6.5</span></td>
+            <td><span class="status gap">LLM path</span></td>
+            <td>Meilleur que B14: faits concrets extraits en chips.</td>
+            <td>Prouver que les facts alimentent calculs, pas seulement l'UI chip.</td>
+          </tr>
+          <tr>
+            <td>wave_1b_citation_chip_smoke</td>
+            <td><span class="score mid">6.4</span></td>
+            <td><span class="status gap">citation smoke</span></td>
+            <td>Bon controle source/citation minimal.</td>
+            <td>Evaluer pertinence des citations et absence de citations decoratives.</td>
+          </tr>
+          <tr>
+            <td>flow_empty_state_cascade</td>
+            <td><span class="score mid">6.2</span></td>
+            <td><span class="status gap">a rerun</span></td>
+            <td>Utile pour premier contact, mais depend fortement de contenu Coach.</td>
+            <td>Verifier message non absurde, scope clair, prochaine action, pas de promesse.</td>
+          </tr>
+          <tr>
+            <td>flow_money_trust_chain_3a_contributing</td>
+            <td><span class="score mid">6.2</span></td>
+            <td><span class="status gap">a rerun</span></td>
+            <td>Potentiellement fort, mais demande proof actuel de contribution reelle.</td>
+            <td>Sources 3a 2026, statut LPP, plafond, montant deja verse, avertissement non-garanti.</td>
+          </tr>
+          <tr>
+            <td>flow_mon_argent_budget_setup_spine</td>
+            <td><span class="score mid">6.1</span></td>
+            <td><span class="status gap">a rerun</span></td>
+            <td>Important pour Row 8, mais doit prouver la source de chaque input budget.</td>
+            <td>Revenus inclusifs, irregularite, LAMal/impots, reconciliation avec Mon Argent.</td>
+          </tr>
+          <tr>
+            <td>coach_tools_server_side_smoke</td>
+            <td><span class="score mid">6.0</span></td>
+            <td><span class="status gap">syntax fixed</span></td>
+            <td>Utile techniquement; faible validation de guidance utilisateur.</td>
+            <td>Associer chaque tool-call a une reponse finie, prudente et comprehensible.</td>
+          </tr>
+          <tr>
+            <td>flow_g2_julien_walkthrough</td>
+            <td><span class="score low">5.8</span></td>
+            <td><span class="status risk">contenu a revoir</span></td>
+            <td>Ancien parcours utile, mais phrase "80k de salaire" et question vague fragilisent l'inclusivite.</td>
+            <td>Remplacer par revenus/situation; ajouter eval de reponse, sources, limites, route utile.</td>
+          </tr>
+          <tr>
+            <td>flow_b14_debt_intent_no_mortgage</td>
+            <td><span class="score low">5.8</span></td>
+            <td><span class="status risk">trop vague</span></td>
+            <td>Intent dette utile, mais "j'ai des dettes" est trop faible pour guidance de qualite.</td>
+            <td>Ajouter montant, taux, horizon, priorite; vérifier absence de conseil juridique/credit abusif.</td>
+          </tr>
+          <tr>
+            <td>flow_landing_to_register</td>
+            <td><span class="score low">5.5</span></td>
+            <td><span class="status gap">auth gate</span></td>
+            <td>Bon flow mecanique d'inscription, pas encore une guidance financiere.</td>
+            <td>Tester submit, verify-email, restart, claim local data, et message de valeur clair.</td>
+          </tr>
+          <tr>
+            <td>flow_row22_primary_screen_visual_crawl</td>
+            <td><span class="score low">5.5</span></td>
+            <td><span class="status clean">screen crawl</span></td>
+            <td>Excellent comme couverture visuelle, faible comme preuve de flow utilisateur.</td>
+            <td>Completer par journeys actionnables; ne pas utiliser comme preuve guidance seule.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Flows presents mais non-notes comme guidance principale</h2>
+      <div class="panel">
+        <p>
+          Les fichiers suivants existent dans le set mais servent surtout de fragments, smoke technique,
+          ou couverture trop proche d'un flow deja note: <code>_fragment_cold_launch_to_aujourdhui</code>,
+          <code>sc4_assert_value_convergence.js</code>, et les flows techniques dont le role principal
+          est locator/syntax/server smoke. Ils restent utiles, mais ne doivent pas gonfler artificiellement
+          le score produit.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Plan pour tester un maximum sans perdre la qualite</h2>
+      <div class="priority-grid">
+        <div class="priority">
+          <span class="tag">Wave A</span>
+          <h3>Flows deja productifs</h3>
+          <p>Rerun Row 16/17/20/21/22/24 et Money Trust. Objectif: confirmer watchdog 0 et screenshots propres.</p>
+        </div>
+        <div class="priority">
+          <span class="tag">Wave B</span>
+          <h3>Data spine</h3>
+          <p>Budget setup, LPP scan, Rapport, Mon Argent, 3a contribution. Objectif: source/fraicheur par montant.</p>
+        </div>
+        <div class="priority">
+          <span class="tag">Wave C</span>
+          <h3>Guidance Coach</h3>
+          <p>Coach tool search, B14/B15, extractor, narrator refusal. Objectif: evals semantiques et non-conseil.</p>
+        </div>
+        <div class="priority">
+          <span class="tag">Wave D</span>
+          <h3>Boundary / FINMA-safe</h3>
+          <p>FATCA, expat US, waitlist, auth, privacy. Objectif: perimetre, refus, transparence, prochaine action.</p>
+        </div>
+        <div class="priority">
+          <span class="tag">Wave E</span>
+          <h3>Accessibilite</h3>
+          <p>Dynamic type, focus, charts, VoiceOver-equivalent snapshots pour les flows chiffrés.</p>
+        </div>
+        <div class="priority">
+          <span class="tag">Wave F</span>
+          <h3>104+ surfaces</h3>
+          <p>Ne pas faire 104 flows plats. Generer une couverture par famille: primaire, simulateur, capture, auth, privacy, education.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>FINMA-safe Guidance Contract</h2>
+      <div class="two-col">
+        <div class="panel">
+          <h3>Chaque flow doit prouver</h3>
+          <ul>
+            <li>La nature educative/simulation/guidance est claire quand il y a impact financier.</li>
+            <li>Les risques, hypotheses, sources et conflits d'interets ne sont pas caches apres l'action.</li>
+            <li>Les chiffres ne sont pas presentes comme certains, optimaux ou garantis.</li>
+            <li>La prochaine action reste proportionnee: verifier, comparer, completer, simuler, consulter un specialiste si necessaire.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Chaque flow doit eviter</h3>
+          <ul>
+            <li>Le mot produit "conseil" pour decrire MINT.</li>
+            <li>Les injonctions du type "tu dois" sur une decision financiere.</li>
+            <li>Les shortcuts salarie-only, retraite-first, ou 3a-first hors contexte utilisateur.</li>
+            <li>Les citations purement decoratives qui ne justifient pas le chiffre ou la limite.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Preuves et Sources</h2>
+      <table>
+        <tbody>
+          <tr>
+            <td><a href="mint-screen-advice-quality-review-20260605.html">Screen quality review</a></td>
+            <td>Document complementaire: notes des ecrans et manques UX/guidance.</td>
+          </tr>
+          <tr>
+            <td><code>maestro check-syntax</code> / <code>maestro_locator_audit</code></td>
+            <td>Le set <code>maestro-perfect-set</code> passe en syntaxe apres correction de <code>coach_tools_server_side_smoke.yaml</code>; locator audit vert sur 44 flows et 474 locators.</td>
+          </tr>
+          <tr>
+            <td><a href="../devex/row-28-29-runtime-guidance-quality-guard-20260605.md">Runtime guidance guard</a></td>
+            <td>Contrat deja ajoute pour ne pas confondre JUnit vert et guidance de qualite.</td>
+          </tr>
+          <tr>
+            <td><a href="../coach-navigation/row-20-coach-history-resume-runtime-proof-20260604.md">Row 20 Coach history runtime proof</a></td>
+            <td>Continuite locale conversationnelle; semantic quality live encore separee.</td>
+          </tr>
+          <tr>
+            <td><a href="../daily-return/row-21-daily-return-action-rotation-runtime-proof-20260605.md">Row 21 action rotation proof</a></td>
+            <td>Rotation runtime apres action, mais vraie completion cible encore ouverte.</td>
+          </tr>
+          <tr>
+            <td><a href="../simulator-design/row-17-rente-vs-capital-disclaimer-runtime-proof-20260605.md">Row 17 disclaimer runtime proof</a></td>
+            <td>Exemple actuel le plus fort de guidance prudente et sourcee.</td>
+          </tr>
+          <tr>
+            <td><a href="https://www.finma.ch/fr/documentation/bases-legales/lois-et-ordonnances/finanzdienstleistungen/">FINMA - Services financiers / LSFin</a></td>
+            <td>Base officielle: protection client, fourniture fidele, diligente et transparente.</td>
+          </tr>
+          <tr>
+            <td><a href="https://www.finma.ch/fr/news/2024/11/20241121-mm-rs-verhaltenspflichten-fidleg/">FINMA - Regles de comportement LSFin</a></td>
+            <td>Les clients doivent etre informes pour prendre leurs decisions en connaissance de cause.</td>
+          </tr>
+          <tr>
+            <td><a href="https://www.fedlex.admin.ch/eli/cc/2019/758/fr">Fedlex - LSFin</a></td>
+            <td>Texte legal officiel pour cadrage; ce document n'est pas un avis juridique.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    Produit par revue locale Codex, preuves Maestro existantes, audit locator, et cadre FINMA/LSFin public.
+    Ce document complete la revue des ecrans; il ne ferme aucune row CJT sans preuve runtime et correction produit.
+  </footer>
+</body>
+</html>

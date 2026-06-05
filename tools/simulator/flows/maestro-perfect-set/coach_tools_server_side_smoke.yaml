@@ -48,8 +48,8 @@ appId: ch.mint.app
 ---
 - launchApp:
     clearState: false
-- assertVisible:
-    text: "Mon argent|Aujourd'hui|Mon coach"
+- extendedWaitUntil:
+    visible: "Mon argent|Aujourd'hui|Mon coach"
     timeout: 15000
 
 # ─── 1. get_budget_status (WAVE1A-01) ─────────────────────────────────────
@@ -59,8 +59,8 @@ appId: ch.mint.app
     text: "(?i)Budget|Mes finances"
 - tapOn:
     text: "(?i)Explique"
-- assertVisible:
-    text: "(?i)Budget actuel|Revenu net|Marge libre"
+- extendedWaitUntil:
+    visible: "(?i)Budget actuel|Revenu net|Marge libre"
     timeout: 20000
 - back
 
@@ -69,8 +69,8 @@ appId: ch.mint.app
     text: "(?i)Retraite|LPP|Projection"
 - tapOn:
     text: "(?i)Explique"
-- assertVisible:
-    text: "(?i)Projection retraite|Capital LPP|Rente AVS"
+- extendedWaitUntil:
+    visible: "(?i)Projection retraite|Capital LPP|Rente AVS"
     timeout: 20000
 - back
 
@@ -79,8 +79,8 @@ appId: ch.mint.app
     text: "(?i)Inter-piliers|Optimisation|Cross.?pillar"
 - tapOn:
     text: "(?i)Explique"
-- assertVisible:
-    text: "(?i)Analyse inter-piliers|3a|LPP"
+- extendedWaitUntil:
+    visible: "(?i)Analyse inter-piliers|3a|LPP"
     timeout: 20000
 - back
 
@@ -97,8 +97,8 @@ appId: ch.mint.app
           text: "(?i)Couple|Conjoint|Mariage"
       - tapOn:
           text: "(?i)Explique"
-      - assertVisible:
-          text: "(?i)Rachat LPP|Pilier 3a|Cap AVS|Pénalité"
+      - extendedWaitUntil:
+          visible: "(?i)Rachat LPP|Pilier 3a|Cap AVS|Pénalité"
           timeout: 20000
       - back
 
@@ -114,8 +114,8 @@ appId: ch.mint.app
 - tapOn:
     id: "chat_send_button"
     optional: true
-- assertVisible:
-    text: "(?i)3a|Pilier|Retiens|Souviens"
+- extendedWaitUntil:
+    visible: "(?i)3a|Pilier|Retiens|Souviens"
     timeout: 25000
 
 # ─── 6. get_cap_status with CHF garde (WAVE1A-04) ─────────────────────────
@@ -128,6 +128,6 @@ appId: ch.mint.app
     text: "(?i)Cap|Action du jour|Aujourd'hui"
 - tapOn:
     text: "(?i)Explique"
-- assertVisible:
-    text: "(?i)Cap du jour|Action|\\[montant indisponible\\]"
+- extendedWaitUntil:
+    visible: "(?i)Cap du jour|Action|\\[montant indisponible\\]"
     timeout: 20000
