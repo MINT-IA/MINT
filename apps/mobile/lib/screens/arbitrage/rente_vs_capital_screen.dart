@@ -2082,6 +2082,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       key: const Key('rente_vs_capital_disclaimer_card'),
       identifier: 'rente_vs_capital_disclaimer_card',
       container: true,
+      focusable: true,
       label:
           '${S.of(context)!.renteVsCapitalWarning}. ${_result!.disclaimer}. $sources',
       child: MintSurface(

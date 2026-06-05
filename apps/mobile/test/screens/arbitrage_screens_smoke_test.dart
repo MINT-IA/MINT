@@ -7,6 +7,8 @@
 //  key French content visible on first pump.
 // ────────────────────────────────────────────────────────────
 
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -217,6 +219,7 @@ void main() {
       expect(disclaimerCard, findsOneWidget);
       final semantics = tester.getSemantics(disclaimerCard);
       expect(semantics.identifier, 'rente_vs_capital_disclaimer_card');
+      expect(semantics.flagsCollection.isFocused, isNot(Tristate.none));
       expect(semantics.label, contains('LSFin'));
       expect(semantics.label, contains('LPP art. 14'));
       expect(semantics.label, contains('LIFD art. 38'));
