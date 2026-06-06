@@ -1,0 +1,5 @@
+schemaVersion: 1
+sessionDefaults:
+  simulatorName: iPhone 16e
+  simulatorPlatform: iOS Simulator
+  bundleId: ch.mint.app
