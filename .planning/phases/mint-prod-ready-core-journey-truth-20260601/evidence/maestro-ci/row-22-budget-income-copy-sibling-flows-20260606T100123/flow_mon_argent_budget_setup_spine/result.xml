@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="0" time="44.0">
+    <testcase id="flow_mon_argent_budget_setup_spine" name="flow_mon_argent_budget_setup_spine" classname="flow_mon_argent_budget_setup_spine" time="44.0" status="SUCCESS">
+      <properties>
+        <property name="tags" value="mon-argent, budget, data-spine, maestro-proof, phase-plan-vivant"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

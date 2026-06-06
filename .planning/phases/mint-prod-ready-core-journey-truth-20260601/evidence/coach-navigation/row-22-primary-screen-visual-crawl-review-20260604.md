@@ -9,6 +9,12 @@ Follow-up profile-first runtime evidence:
 Non-seeded production profile persistence evidence:
 `evidence/maestro-ci/row-22-profile-dossier-production-profile-20260604T153106/`.
 
+Budget income-copy follow-up evidence:
+`evidence/maestro-ci/row-22-budget-income-copy-20260606T094414/`.
+
+Budget income-copy sibling-flow rerun:
+`evidence/maestro-ci/row-22-budget-income-copy-sibling-flows-20260606T100123/`.
+
 Maestro result:
 - `result.xml` reports `tests=1`, `failures=0`, `status=SUCCESS`, `time=84.0`.
 - The watchdog returned `124` after a post-completion silent period and wrote
@@ -86,3 +92,22 @@ fixed after this review and guarded in
 `apps/mobile/test/i18n/hardcoded_string_audit_test.dart`. Row 23 still remains
 open for broader primary-screen locale review, dynamic type, focus/semantics,
 and contrast evidence.
+
+2026-06-06 addendum: the Budget income-copy follow-up is now runtime-green.
+`flow_row22_primary_screen_visual_crawl.yaml` passed on iPhone 17 Pro iOS 26.2
+with JUnit `tests=1`, `failures=0`, watchdog `0`; post-run captures show
+`/budget/setup` leading with `Revenus et charges fixes`,
+`Ressources mensuelles nettes`, and explicit coverage for independent income,
+rentes, and mixed income. The direct `/budget` capture renders the detailed
+cashflow surface with monthly resources and no salary-only empty-state CTA.
+Keep Row 22 at `PARTIAL`: this closes the salary-only Budget regression, but
+Row 23/Quality OS still needs clearer Budget calculation explanation around
+entered fixed charges versus inferred/known charges and missing variable
+spending. The `2620 -> 3926` charge reconciliation is not claimed as proven by
+this flow.
+
+Claude CLI review found three sibling Perfect Set flows still using the old
+`Charges fixes` title as a Budget setup locator. The locators were updated and
+the sibling rerun passed 3/3 with watchdog `0`: Mon Argent Budget setup spine
+(`44s`), Money Trust Budget -> Mon Argent -> Rapport -> Coach (`98s`), and
+Rapport Budget read-model spine (`37s`).

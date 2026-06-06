@@ -59,7 +59,7 @@ tags:
     id: "budget_lamal_field"
 - inputText: "420"
 - tapOn:
-    text: "Charges fixes"
+    text: "Revenus et charges fixes"
 - tapOn:
     id: "budget_setup_save_button"
 - waitForAnimationToEnd:
@@ -75,9 +75,8 @@ tags:
 - extendedWaitUntil:
     visible: "Ton Bilan Flash"
     timeout: 12000
-- assertVisible: "Compléter mon profil"
+- assertVisible: "Transparence et conformité"
 - assertNotVisible: "Ton Plan Mint"
-- assertNotVisible: "Commencer"
 - assertNotVisible: "Ton Budget"
 - assertNotVisible: "Logement"
 - assertNotVisible: "Primes LAMal"

@@ -100,7 +100,7 @@ tags:
 - eraseText: 20
 - inputText: "420"
 - tapOn:
-    text: "Charges fixes"
+    text: "Revenus et charges fixes"
 - extendedWaitUntil:
     visible:
       id: "budget_setup_live_total"
