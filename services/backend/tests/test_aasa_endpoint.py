@@ -78,6 +78,22 @@ def test_aasa_paths_exclude_debug_routes():
     assert all(not path.startswith("/debug") for path in paths)
 
 
+def test_aasa_paths_match_release_routes():
+    """Production AASA paths must point at live app routes, not stale slugs."""
+    response = client.get("/.well-known/apple-app-site-association")
+    paths = response.json()["applinks"]["details"][0]["paths"]
+
+    assert paths == [
+        "/home",
+        "/anonymous/chat",
+        "/coach/chat",
+        "/explore",
+        "/explore/*",
+    ]
+    assert "/aujourd-hui" not in paths
+    assert "/explorer/*" not in paths
+
+
 def test_aasa_payload_is_valid_json():
     """Belt-and-suspenders : response.json() never raises ; the bytes
     are syntactically valid JSON (no trailing commas, no comments)."""

@@ -384,10 +384,10 @@ _AASA_PAYLOAD = {
                 "appID": "7F5UDGYS5H.ch.mint.app",
                 "paths": [
                     "/home",
-                    "/aujourd-hui",
                     "/anonymous/chat",
                     "/coach/chat",
-                    "/explorer/*",
+                    "/explore",
+                    "/explore/*",
                 ],
             }
         ],
