@@ -11926,7 +11926,8 @@ class SDe extends S {
   String get reportSoaHyp2 => 'Obligatorischer BVG-Umwandlungssatz: 6,8 %';
 
   @override
-  String get reportSoaHyp3 => 'Säule-3a-Limit (Angestellte): CHF 7’258/Jahr';
+  String get reportSoaHyp3 =>
+      'Säule-3a-Limite je nach LPP-Anschluss und Einkommensstatus';
 
   @override
   String get reportSoaHyp4 => 'Maximale AHV-Rente: CHF 30’240/Jahr';

@@ -5713,7 +5713,7 @@
   "reportSoaHypotheses": "Hipóteses de trabalho",
   "reportSoaHyp1": "Rendimentos declarados estáveis no período",
   "reportSoaHyp2": "Taxa de conversão LPP obrigatória: 6,8 %",
-  "reportSoaHyp3": "Limite 3a assalariado: CHF 7’258/ano",
+  "reportSoaHyp3": "Limite 3a conforme afiliação LPP e situação de rendimentos",
   "reportSoaHyp4": "Pensão AVS máxima: CHF 30’240/ano",
   "reportSoaConflicts": "Conflitos de interesse",
   "reportSoaNoConflict": "Nenhum conflito de interesse identificado para este relatório.",

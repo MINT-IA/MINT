@@ -11841,7 +11841,8 @@ class SEn extends S {
   String get reportSoaHyp2 => 'Mandatory LPP conversion rate: 6.8%';
 
   @override
-  String get reportSoaHyp3 => 'Pillar 3a cap (employed): CHF 7’258/year';
+  String get reportSoaHyp3 =>
+      'Pillar 3a cap depends on LPP affiliation and income status';
 
   @override
   String get reportSoaHyp4 => 'Maximum AVS pension: CHF 30’240/year';

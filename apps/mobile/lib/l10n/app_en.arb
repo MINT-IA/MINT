@@ -5718,7 +5718,7 @@
   "reportSoaHypotheses": "Working assumptions",
   "reportSoaHyp1": "Declared income stable over the period",
   "reportSoaHyp2": "Mandatory LPP conversion rate: 6.8%",
-  "reportSoaHyp3": "Pillar 3a cap (employed): CHF 7’258/year",
+  "reportSoaHyp3": "Pillar 3a cap depends on LPP affiliation and income status",
   "reportSoaHyp4": "Maximum AVS pension: CHF 30’240/year",
   "reportSoaConflicts": "Conflicts of interest",
   "reportSoaNoConflict": "No conflict of interest identified for this report.",

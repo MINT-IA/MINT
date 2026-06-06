@@ -21040,7 +21040,7 @@ abstract class S {
   /// No description provided for @reportSoaHyp3.
   ///
   /// In fr, this message translates to:
-  /// **'Plafond 3a salarié : 7’258 CHF/an'**
+  /// **'Plafond 3a selon affiliation LPP et statut de revenu'**
   String get reportSoaHyp3;
 
   /// No description provided for @reportSoaHyp4.

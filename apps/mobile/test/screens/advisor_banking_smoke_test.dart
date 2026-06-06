@@ -197,6 +197,29 @@ void main() {
       expect(find.textContaining('pillar3a_max'), findsNothing);
     });
 
+    testWidgets('keeps report assumptions income-status neutral',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_employment_status'] = 'independant';
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(
+        find.text('Plafond 3a selon affiliation LPP et statut de revenu'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Plafond 3a salarié'), findsNothing);
+    });
+
     testWidgets('keeps duplicated money sections out of rapport',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);

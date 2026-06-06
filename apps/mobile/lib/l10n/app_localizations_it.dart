@@ -11921,7 +11921,8 @@ class SIt extends S {
   String get reportSoaHyp2 => 'Tasso di conversione LPP obbligatorio: 6,8 %';
 
   @override
-  String get reportSoaHyp3 => 'Limite 3a dipendente: CHF 7’258/anno';
+  String get reportSoaHyp3 =>
+      'Limite 3a secondo affiliazione LPP e situazione reddituale';
 
   @override
   String get reportSoaHyp4 => 'Rendita AVS massima: CHF 30’240/anno';

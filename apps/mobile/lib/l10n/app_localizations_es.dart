@@ -11899,7 +11899,8 @@ class SEs extends S {
   String get reportSoaHyp2 => 'Tasa de conversión LPP obligatoria: 6,8 %';
 
   @override
-  String get reportSoaHyp3 => 'Límite 3a asalariado: CHF 7’258/año';
+  String get reportSoaHyp3 =>
+      'Límite 3a según afiliación LPP y situación de ingresos';
 
   @override
   String get reportSoaHyp4 => 'Renta AVS máxima: CHF 30’240/año';

@@ -11901,7 +11901,8 @@ class SFr extends S {
   String get reportSoaHyp2 => 'Taux de conversion LPP obligatoire : 6.8 %';
 
   @override
-  String get reportSoaHyp3 => 'Plafond 3a salarié : 7’258 CHF/an';
+  String get reportSoaHyp3 =>
+      'Plafond 3a selon affiliation LPP et statut de revenu';
 
   @override
   String get reportSoaHyp4 => 'Rente AVS maximale : 30’240 CHF/an';

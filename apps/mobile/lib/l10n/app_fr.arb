@@ -6095,7 +6095,7 @@
   "reportSoaHypotheses": "Hypothèses de travail",
   "reportSoaHyp1": "Revenus déclarés stables sur la période",
   "reportSoaHyp2": "Taux de conversion LPP obligatoire : 6.8 %",
-  "reportSoaHyp3": "Plafond 3a salarié : 7’258 CHF/an",
+  "reportSoaHyp3": "Plafond 3a selon affiliation LPP et statut de revenu",
   "reportSoaHyp4": "Rente AVS maximale : 30’240 CHF/an",
   "reportSoaConflicts": "Conflits d'intérêts",
   "reportSoaNoConflict": "Aucun conflit d'intérêt identifié pour ce rapport.",

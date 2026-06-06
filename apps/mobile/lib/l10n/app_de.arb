@@ -5718,7 +5718,7 @@
   "reportSoaHypotheses": "Arbeitsannahmen",
   "reportSoaHyp1": "Erklärtes Einkommen im Zeitraum stabil",
   "reportSoaHyp2": "Obligatorischer BVG-Umwandlungssatz: 6,8 %",
-  "reportSoaHyp3": "Säule-3a-Limit (Angestellte): CHF 7’258/Jahr",
+  "reportSoaHyp3": "Säule-3a-Limite je nach LPP-Anschluss und Einkommensstatus",
   "reportSoaHyp4": "Maximale AHV-Rente: CHF 30’240/Jahr",
   "reportSoaConflicts": "Interessenkonflikte",
   "reportSoaNoConflict": "Kein Interessenkonflikt für diesen Bericht festgestellt.",
