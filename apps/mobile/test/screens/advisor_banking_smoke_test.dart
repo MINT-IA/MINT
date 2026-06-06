@@ -1,6 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
+import 'package:printing/src/interface.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -157,6 +162,35 @@ void main() {
       } finally {
         semantics.dispose();
       }
+    });
+
+    testWidgets('export action shares a concrete PDF document', (tester) async {
+      final previousPrintingPlatform = PrintingPlatform.instance;
+      final printingPlatform = _CaptureSharePdfPrintingPlatform();
+      PrintingPlatform.instance = printingPlatform;
+      addTearDown(() => PrintingPlatform.instance = previousPrintingPlatform);
+
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: testAnswersV2),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      await tester.tap(find.bySemanticsLabel('Exporter le bilan en PDF'));
+      for (var i = 0; i < 30 && printingPlatform.sharePdfCalls == 0; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+
+      expect(printingPlatform.sharePdfCalls, 1);
+      expect(printingPlatform.filename, 'mint_report_v2.pdf');
+      expect(printingPlatform.bytes, isNotNull);
+      expect(printingPlatform.bytes!.length, greaterThan(1024));
+      expect(printingPlatform.bytes!.take(5), [37, 80, 68, 70, 45]); // %PDF-
     });
 
     testWidgets('displays synthesis header', (tester) async {
@@ -1143,4 +1177,62 @@ void main() {
       expect(find.text('Soldes'), findsWidgets);
     });
   });
+}
+
+class _CaptureSharePdfPrintingPlatform extends PrintingPlatform {
+  int sharePdfCalls = 0;
+  Uint8List? bytes;
+  String? filename;
+
+  @override
+  Future<PrintingInfo> info() async => PrintingInfo.unavailable;
+
+  @override
+  Future<bool> layoutPdf(
+    Printer? printer,
+    LayoutCallback onLayout,
+    String name,
+    PdfPageFormat format,
+    bool dynamicLayout,
+    bool usePrinterSettings,
+    OutputType outputType,
+    bool forceCustomPrintPaper,
+  ) async =>
+      true;
+
+  @override
+  Future<List<Printer>> listPrinters() async => [];
+
+  @override
+  Future<Printer?> pickPrinter(Rect bounds) async => null;
+
+  @override
+  Future<bool> sharePdf(
+    Uint8List bytes,
+    String filename,
+    Rect bounds,
+    String? subject,
+    String? body,
+    List<String>? emails,
+  ) async {
+    sharePdfCalls += 1;
+    this.bytes = bytes;
+    this.filename = filename;
+    return true;
+  }
+
+  @override
+  Future<Uint8List> convertHtml(
+    String html,
+    String? baseUrl,
+    PdfPageFormat format,
+  ) async =>
+      Uint8List(0);
+
+  @override
+  Stream<PdfRaster> raster(
+    Uint8List document,
+    List<int>? pages,
+    double dpi,
+  ) async* {}
 }
