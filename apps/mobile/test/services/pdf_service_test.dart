@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/rendering.dart' show Rect;
@@ -65,6 +66,30 @@ void main() {
       expect(printingPlatform.bytes!.length, greaterThan(1024));
       expect(printingPlatform.bytes!.take(5), [37, 80, 68, 70, 45]); // %PDF-
     });
+
+    test('financial report PDF labels stay in guidance mode', () {
+      final source = File('lib/services/pdf_service.dart').readAsStringSync();
+
+      expect(source, contains('Pistes à examiner'));
+      expect(source, contains('Pistes de réflexion'));
+      expect(source, contains('Impact indicatif'));
+      expect(source, contains('Simulation de rachat LPP'));
+      expect(source, contains('Écart fiscal estimé sur le scénario'));
+      expect(source, contains('Échelonnement illustratif'));
+      expect(source, contains('Cadre éducatif et limites'));
+
+      expect(source, isNot(contains('Top 3 - Actions Prioritaires')));
+      expect(source, isNot(contains('Plan annuel recommandé')));
+      expect(source, isNot(contains('Économie fiscale totale estimée')));
+      expect(source, isNot(contains('(économie :')));
+      expect(source, isNot(contains("'+\${formatChfWithPrefix")));
+      expect(source, isNot(contains("Plan d'Action Mentor")));
+      expect(source, isNot(contains('Action suivante :')));
+      expect(source, isNot(contains('Pourquoi :')));
+      expect(source, isNot(contains('Statement of Advice')));
+      expect(source, isNot(contains('Stratégie Rachat LPP')));
+      expect(source, isNot(contains('Économie fiscale')));
+    });
   });
 
   // ──────────────────────────────────────────────────────────
@@ -123,13 +148,13 @@ void main() {
         topActions: [
           TopAction(
             effortTag: 'facile',
-            label: 'Ouvrir un 3e pilier chez VIAC',
-            why: 'Frais 3x moins eleves qu\'en banque',
+            label: 'Analyser le 3e pilier',
+            why: 'Les frais et le profil de risque changent le resultat attendu',
             ifThen:
-                'Si tu places 7258 CHF/an a 5% net, tu auras 30% de plus a 65 ans',
+                'Si tu verses 7258 CHF/an, compare plusieurs hypotheses de rendement',
             nextAction: const NextAction(
               type: NextActionType.partnerHandoff,
-              label: 'Ouvrir un compte VIAC',
+              label: 'Comparer les options 3a',
               partnerId: 'viac',
             ),
           ),
@@ -265,7 +290,7 @@ void main() {
           circle3Croissance: dummyCircle,
           circle4Optimisation: dummyCircle,
           overallScore: 72.0,
-          topPriorities: ['Ouvrir un 3a', 'Fonds urgence'],
+          topPriorities: ['Analyser le 3a', 'Fonds urgence'],
         ),
         taxSimulation: const TaxSimulation(
           taxableIncome: 78000.0,
@@ -277,12 +302,12 @@ void main() {
         ),
         priorityActions: [
           const ActionItem(
-            title: 'Ouvrir un 3a',
-            description: 'Maximise ta deduction fiscale',
+            title: 'Analyser le 3a',
+            description: 'Estime l impact fiscal selon ta situation',
             priority: ActionPriority.high,
             potentialGainChf: 2200.0,
             category: ActionCategory.pillar3a,
-            steps: ['Comparer les offres', 'Ouvrir un compte', 'Verser'],
+            steps: ['Comparer les options', 'Verifier les frais', 'Estimer le montant'],
           ),
         ],
         personalizedRoadmap: const Roadmap(phases: [
@@ -491,7 +516,7 @@ FinancialReport _sampleFinancialReport() {
       circle3Croissance: dummyCircle,
       circle4Optimisation: dummyCircle,
       overallScore: 72.0,
-      topPriorities: ['Ouvrir un 3a', 'Fonds urgence'],
+      topPriorities: ['Analyser le 3a', 'Fonds urgence'],
     ),
     taxSimulation: const TaxSimulation(
       taxableIncome: 78000.0,
@@ -503,12 +528,12 @@ FinancialReport _sampleFinancialReport() {
     ),
     priorityActions: [
       const ActionItem(
-        title: 'Ouvrir un 3a',
-        description: 'Maximise ta deduction fiscale',
+        title: 'Analyser le 3a',
+        description: 'Estime l impact fiscal selon ta situation',
         priority: ActionPriority.high,
         potentialGainChf: 2200.0,
         category: ActionCategory.pillar3a,
-        steps: ['Comparer les offres', 'Ouvrir un compte', 'Verser'],
+        steps: ['Comparer les options', 'Verifier les frais', 'Estimer le montant'],
       ),
     ],
     personalizedRoadmap: const Roadmap(phases: [

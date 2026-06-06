@@ -192,7 +192,7 @@ class PdfService {
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Plan d\'Action Mentor (Top 3)'.toUpperCase(),
+              pw.Text('Pistes de réflexion'.toUpperCase(),
                   style: pw.TextStyle(
                       fontSize: 12,
                       fontWeight: pw.FontWeight.bold,
@@ -222,10 +222,10 @@ class PdfService {
                           fontWeight: pw.FontWeight.bold,
                           color: PdfColors.blue900)),
                   pw.SizedBox(height: 4),
-                  pw.Text('Pourquoi : ${a.why}',
+                  pw.Text('Contexte : ${a.why}',
                       style: const pw.TextStyle(fontSize: 9)),
                   pw.SizedBox(height: 4),
-                  pw.Text('Action suivante : ${a.nextAction.label}',
+                  pw.Text('Piste suivante à examiner : ${a.nextAction.label}',
                       style: pw.TextStyle(
                           fontSize: 9, fontWeight: pw.FontWeight.bold)),
                 ],
@@ -238,7 +238,7 @@ class PdfService {
           children.add(pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Statement of Advice (Conformité)'.toUpperCase(),
+              pw.Text('Cadre éducatif et limites'.toUpperCase(),
                   style: pw.TextStyle(
                       fontSize: 12,
                       fontWeight: pw.FontWeight.bold,
@@ -538,10 +538,10 @@ class PdfService {
           ));
 
           // ═══════════════════════════════════════════════════════
-          // 3. TOP 3 ACTIONS PRIORITAIRES
+          // 3. PISTES A EXAMINER
           // ═══════════════════════════════════════════════════════
           children.add(pw.SizedBox(height: 30));
-          children.add(_pdfSectionTitle('Top 3 - Actions Prioritaires'));
+          children.add(_pdfSectionTitle('Pistes à examiner'));
           children.add(pw.SizedBox(height: 10));
 
           for (int i = 0; i < report.priorityActions.length; i++) {
@@ -584,7 +584,7 @@ class PdfService {
                                 pw.BorderRadius.all(pw.Radius.circular(4)),
                           ),
                           child: pw.Text(
-                            '+${formatChfWithPrefix(action.potentialGainChf!)}',
+                            'Impact indicatif : ${formatChfWithPrefix(action.potentialGainChf!)}',
                             style: pw.TextStyle(
                                 fontSize: 8,
                                 fontWeight: pw.FontWeight.bold,
@@ -594,7 +594,7 @@ class PdfService {
                     ],
                   ),
                   pw.SizedBox(height: 4),
-                  pw.Text('Pourquoi : ${action.description}',
+                  pw.Text('Contexte : ${action.description}',
                       style: const pw.TextStyle(fontSize: 9)),
                   if (action.steps.isNotEmpty) ...[
                     pw.SizedBox(height: 4),
@@ -669,7 +669,7 @@ class PdfService {
                   pw.Divider(thickness: 0.5, color: PdfColors.green200),
                   pw.SizedBox(height: 4),
                   pw.Text(
-                    'Avec rachat LPP : ${formatChfPreciseWithPrefix(tax.taxWithLppBuyback!)} (économie : ${formatChfPreciseWithPrefix(tax.taxSavingsFromBuyback!)})',
+                    'Scénario avec rachat LPP : ${formatChfPreciseWithPrefix(tax.taxWithLppBuyback!)} (écart fiscal estimé : ${formatChfPreciseWithPrefix(tax.taxSavingsFromBuyback!)})',
                     style: pw.TextStyle(
                         fontSize: 9,
                         fontWeight: pw.FontWeight.bold,
@@ -760,7 +760,7 @@ class PdfService {
           if (report.lppBuybackStrategy != null) {
             final lpp = report.lppBuybackStrategy!;
             children.add(pw.SizedBox(height: 25));
-            children.add(_pdfSectionTitle('Stratégie Rachat LPP'));
+            children.add(_pdfSectionTitle('Simulation de rachat LPP'));
             children.add(pw.SizedBox(height: 10));
 
             children.add(pw.Container(
@@ -775,11 +775,11 @@ class PdfService {
                 children: [
                   _pdfKeyValue('Montant rachetable total',
                       formatChfWithPrefix(lpp.totalBuybackAvailable)),
-                  _pdfKeyValue('Économie fiscale totale estimée',
+                  _pdfKeyValue('Écart fiscal estimé sur le scénario',
                       formatChfWithPrefix(lpp.totalTaxSavings),
                       bold: true),
                   pw.SizedBox(height: 8),
-                  pw.Text('Plan annuel recommandé',
+                  pw.Text('Échelonnement illustratif',
                       style: pw.TextStyle(
                           fontSize: 8,
                           fontWeight: pw.FontWeight.bold,
@@ -806,7 +806,7 @@ class PdfService {
                                     fontWeight: pw.FontWeight.bold))),
                         pw.Expanded(
                             flex: 3,
-                            child: pw.Text('Économie fiscale',
+                            child: pw.Text('Écart fiscal estimé',
                                 style: pw.TextStyle(
                                     fontSize: 8,
                                     fontWeight: pw.FontWeight.bold))),
@@ -855,10 +855,10 @@ class PdfService {
           }
 
           // ═══════════════════════════════════════════════════════
-          // 7. CONFORMITÉ (Statement of Advice)
+          // 7. CADRE EDUCATIF ET LIMITES
           // ═══════════════════════════════════════════════════════
           children.add(pw.SizedBox(height: 25));
-          children.add(_pdfSectionTitle('Conformité - Statement of Advice'));
+          children.add(_pdfSectionTitle('Cadre éducatif et limites'));
           children.add(pw.SizedBox(height: 10));
 
           children.add(pw.Container(
