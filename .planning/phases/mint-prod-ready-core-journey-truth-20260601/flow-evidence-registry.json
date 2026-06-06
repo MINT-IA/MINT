@@ -1,6 +1,6 @@
 {
   "version": "2026-06-06",
-  "status": "schema_seed",
+  "status": "active",
   "purpose": "Machine-readable registry for per-flow evidence quality. It complements the Journey Truth Matrix and BUG-TRACKER; it does not replace them.",
   "rules": {
     "matrix_and_bug_tracker_remain_operational_truth": true,
@@ -97,5 +97,100 @@
     "flutter_scope": "Permutations such as locales, dynamic type, semantics, persistence, and data transformations.",
     "future_check": "tools/checks/mint_quality_os_check.py already validates registry shape, required fields, evidence artifact existence, derived caps, rubric coverage, review dates, and score <= effective cap. Next: validate stale evidence and row/bug references against parsed trackers."
   },
-  "entries": []
+  "entries": [
+    {
+      "flow_id": "flow_row22_budget_income_copy_runtime",
+      "matrix_rows": [
+        22,
+        23,
+        29
+      ],
+      "bug_ids": [
+        "CJT-047"
+      ],
+      "persona": "julien_swiss_seeded",
+      "surface_family": "money_spine",
+      "tier": "T1",
+      "status_claim": "PARTIAL",
+      "score": 6.0,
+      "score_cap": 6.0,
+      "cap_reasons": [
+        "Proves the Budget income-copy runtime regression and inclusive first viewport, not full Row 22/23 closure.",
+        "Manual screenshots supplement the passed Maestro run because Maestro takeScreenshot did not write PNGs for the successful run.",
+        "No complete persona-flow expert reference artifact yet.",
+        "The 09:44 runtime evidence predates the later CJT-047 copy clarification for the fixed-charge total explanation.",
+        "Row 23 accessibility, dynamic type, focus order, and broader content scoring remain open."
+      ],
+      "automation": {
+        "maestro_flow": "tools/simulator/flows/maestro-perfect-set/flow_row22_primary_screen_visual_crawl.yaml",
+        "junit": ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-22-budget-income-copy-20260606T094414/result.xml",
+        "watchdog_exit": 0
+      },
+      "evidence_artifacts": [
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-22-budget-income-copy-20260606T094414/README.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-22-budget-income-copy-20260606T094414/budget-setup-direct-after-passed-flow-manual.png",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-22-budget-income-copy-20260606T094414/budget-direct-after-passed-flow-manual.png",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/maestro-ci/row-22-budget-income-copy-20260606T094414/explore-after-passed-flow-manual.png",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/coach-navigation/row-22-primary-screen-visual-crawl-review-20260604.md",
+        ".planning/phases/mint-prod-ready-core-journey-truth-20260601/evidence/rapport-design/row-23-budget-calculation-explanation-20260606.md"
+      ],
+      "contract_tests": [
+        {
+          "command": "cd apps/mobile && flutter test test/screens/budget_setup_screen_test.dart test/screens/budget_screen_smoke_test.dart test/domain/budget/budget_service_test.dart test/domain/budget/present_budget_builder_test.dart",
+          "result": "pass",
+          "scope": "Budget setup copy, budget screen smoke, budget domain, and presenter contracts for the later CJT-047 fixed-charge explanation clarification; evidence report says 124 tests passed. This is mechanical proof, not fresh runtime screenshot proof."
+        },
+        {
+          "command": "cd apps/mobile && flutter test test/services/navigation/screen_registry_test.dart test/services/navigation/route_planner_test.dart",
+          "result": "pass",
+          "scope": "Navigation registry and planner contracts; evidence report says 107 tests passed."
+        },
+        {
+          "command": "python3 tools/checks/arb_parity.py && ./tools/mint-routes check && python3 tools/checks/cjt_context_guard.py && python3 tools/checks/maestro_locator_audit.py",
+          "result": "pass",
+          "scope": "ARB parity, routes, CJT context, and Maestro locator consistency."
+        }
+      ],
+      "semantic_evals": [
+        {
+          "type": "runtime_copy_review",
+          "result": "pass_with_gaps",
+          "scope": "README and Row 22 review confirm /budget/setup uses income-inclusive wording: revenus indépendants, rentes, revenus mixtes, and Ressources mensuelles nettes."
+        },
+        {
+          "type": "claude_cli_review",
+          "result": "no_blockers",
+          "scope": "CJT-047 evidence report records Claude CLI final review as NO BLOCKERS for the later Budget calculation explanation fix; this does not upgrade the 09:44 runtime screenshots to proof of the later copy."
+        }
+      ],
+      "user_visible_outcome": "Budget setup no longer presents a salary-only empty state or employee-only income assumption in the captured runtime proof; /budget/setup leads with inclusive monthly resources language and /budget renders the cashflow surface without the old salary-only CTA.",
+      "guidance_boundary_evidence": [
+        "The flow validates neutral data-entry and cashflow guidance, not product advice or provider ranking.",
+        "Remaining explanation debt is tracked separately: entered fixed charges versus profile-derived/estimated charges still needs broader Row 23 proof."
+      ],
+      "rubric": {
+        "runtime_mechanics": 8.0,
+        "human_goal": 6.0,
+        "guidance_boundary": 7.0,
+        "user_data_grounding": 6.0,
+        "provenance_freshness": 5.0,
+        "restart_or_continuity": 4.0,
+        "next_step_quality": 5.0,
+        "ux_a11y_i18n": 5.0,
+        "automation_reliability": 7.0,
+        "debt_hygiene": 8.0
+      },
+      "remaining_gaps": [
+        "No full persona-flow benchmark expert reference artifact for this scenario yet.",
+        "No fresh runtime screenshot proof after the later CJT-047 fixed-charge explanation copy clarification.",
+        "No Budget relaunch/data-provenance proof showing the same values survive restart.",
+        "No same-number proof across Budget, Mon Argent, Rapport, and Coach.",
+        "No complete dynamic type, focus-order, or VoiceOver proof for the whole Budget/Mon Argent/Coach/Rapport chain.",
+        "Manual screenshots supplement the successful Maestro run because Maestro screenshot export did not write PNGs in this artifact folder.",
+        "Row 22 remains PARTIAL pending broader clean primary-screen release proof.",
+        "Row 23 remains PARTIAL pending broader primary-screen content/accessibility scoring."
+      ],
+      "last_reviewed": "2026-06-06"
+    }
+  ]
 }
