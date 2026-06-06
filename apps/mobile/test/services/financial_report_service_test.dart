@@ -328,6 +328,48 @@ void main() {
         }
       }
     });
+
+    test('independent no-LPP 3a copy avoids provider and product commands', () {
+      const locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
+      const keys = [
+        'reportActionTitle3aIndependentNoLpp',
+        'reportActionDesc3aIndependentNoLpp',
+        'reportActionStep3aIndependentNoLpp1',
+        'reportActionStep3aIndependentNoLpp2',
+        'reportActionStep3aIndependentNoLpp3',
+        'reportActionStep3aIndependentNoLpp4',
+      ];
+      const bannedFragments = [
+        'ouvre',
+        'open ',
+        'öffne',
+        'abre ',
+        'apri ',
+        'fintech',
+        'ubs',
+        'raiffeisen',
+        'swiss life',
+        '60% actions',
+        '60 % actions',
+        'maximize',
+        'maximiser',
+        'maximieren',
+        'maximizar',
+        'massimizzare',
+        'maximizar',
+      ];
+
+      for (final locale in locales) {
+        final json = arb(locale);
+        final values =
+            keys.map((key) => (json[key] as String).toLowerCase()).join(' ');
+
+        for (final fragment in bannedFragments) {
+          expect(values, isNot(contains(fragment)),
+              reason: '$locale:$fragment');
+        }
+      }
+    });
   });
 
   // ── Helper: minimal answers for a valid report ──────────────────────
@@ -446,6 +488,101 @@ void main() {
       ]) {
         expect(joined, isNot(contains(fragment)), reason: fragment);
       }
+    });
+
+    test('3a priority action gives independent no-LPP verification guidance',
+        () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_3a_annual_contribution'] = 0.0
+        ..['q_employment_status'] = 'independant'
+        ..['q_has_pension_fund'] = 'no';
+
+      final report = service.generateReport(answers);
+      final action = report.priorityActions.firstWhere(
+        (action) => action.category == ActionCategory.pillar3a,
+      );
+      final joined = [
+        action.title,
+        action.description,
+        ...action.steps,
+      ].join(' ').toLowerCase();
+
+      expect(joined, contains('avs'));
+      expect(joined, contains('revenu imposable'));
+      expect(joined, contains('liquidité'));
+      expect(joined, contains('couverture'));
+      expect(joined, contains('volatilité'));
+      expect(joined, contains('sans lpp'));
+      for (final fragment in [
+        'ouvre',
+        'crée',
+        'choisis stratégie',
+        'fintech',
+        'ubs',
+        'raiffeisen',
+        'swiss life',
+      ]) {
+        expect(joined, isNot(contains(fragment)), reason: fragment);
+      }
+    });
+
+    test('3a priority action is not independent-specific for other statuses',
+        () {
+      for (final status in ['student', 'unemployed', 'retired']) {
+        final answers = minimalAnswers()
+          ..['q_emergency_fund'] = 'yes_6months'
+          ..['q_has_consumer_debt'] = 'no'
+          ..['q_3a_accounts_count'] = 0
+          ..['q_3a_annual_contribution'] = 0.0
+          ..['q_employment_status'] = status
+          ..['q_has_pension_fund'] = 'no';
+
+        final report = service.generateReport(answers);
+        final action = report.priorityActions.firstWhere(
+          (action) => action.category == ActionCategory.pillar3a,
+        );
+        final joined = [
+          action.title,
+          action.description,
+          ...action.steps,
+        ].join(' ').toLowerCase();
+
+        expect(joined, isNot(contains('indépendant')), reason: status);
+        expect(joined, isNot(contains('independant')), reason: status);
+        expect(joined, isNot(contains('sans lpp')), reason: status);
+        expect(joined, isNot(contains('absence d’affiliation lpp')),
+            reason: status);
+      }
+    });
+
+    test('3a priority action respects declared LPP for independent profiles',
+        () {
+      final answers = minimalAnswers()
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_3a_annual_contribution'] = 0.0
+        ..['q_employment_status'] = 'self_employed'
+        ..['q_has_pension_fund'] = 'yes';
+
+      final report = service.generateReport(answers);
+      final action = report.priorityActions.firstWhere(
+        (action) => action.category == ActionCategory.pillar3a,
+      );
+      final joined = [
+        action.title,
+        action.description,
+        ...action.steps,
+      ].join(' ').toLowerCase();
+
+      expect(report.simulationAssumptions!['pillar3a_lpp_status'],
+          equals('with_lpp'));
+      expect(joined, isNot(contains('sans lpp')));
+      expect(joined, isNot(contains('absence d’affiliation lpp')));
+      expect(joined, isNot(contains('statut avs d’indépendant')));
     });
   });
 
@@ -808,8 +945,8 @@ void main() {
       final expectedMax = (6000.0 * 12 * pilier3aTauxRevenuSansLpp)
           .clamp(0.0, pilier3aPlafondSansLpp);
 
-      expect(report.pillar3aAnalysis!.maxContribution,
-          closeTo(expectedMax, 1.0));
+      expect(
+          report.pillar3aAnalysis!.maxContribution, closeTo(expectedMax, 1.0));
     });
 
     test('caps high-income self-employed 3a room at without-LPP maximum', () {
@@ -841,8 +978,8 @@ void main() {
       final report = service.generateReport(answers);
 
       expect(report.profile.isSalaried, isTrue);
-      expect(report.pillar3aAnalysis!.maxContribution,
-          closeTo(expectedMax, 1.0));
+      expect(
+          report.pillar3aAnalysis!.maxContribution, closeTo(expectedMax, 1.0));
       expect(report.simulationAssumptions!['pillar3a_lpp_status'],
           equals('without_lpp'));
       expect(report.simulationAssumptions!['pillar3a_max_applicable'],

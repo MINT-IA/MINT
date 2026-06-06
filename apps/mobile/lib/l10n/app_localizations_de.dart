@@ -19516,6 +19516,10 @@ class SDe extends S {
       'Abzugsfähiger Spielraum und geschätzte Steuerwirkung anhand deines Einkommens, Kantons und LPP-Status.';
 
   @override
+  String get reportActionDesc3aIndependentNoLpp =>
+      'MINT schätzt deinen 3a-Spielraum mit dem deklarierten Einkommen und der Annahme ohne LPP. Bevor du mehr einzahlst, prüfe deinen selbständigen AVS/AHV-Status, das steuerbare Nettoeinkommen, Unfall-/Erwerbsausfalldeckung und die nötige Liquidität bei schwankendem Einkommen. Nächster Check: freiwillige LPP-Option, 3a und Liquiditätsreserve mit einer qualifizierten Fachperson vergleichen.';
+
+  @override
   String get reportActionDesc3aSecond =>
       'Staffelung beim Bezug und Diversifikation anhand deiner bestehenden Konten prüfen.';
 
@@ -19535,6 +19539,10 @@ class SDe extends S {
   String get reportActionTitle3aFirst => '3a-Relevanz prüfen';
 
   @override
+  String get reportActionTitle3aIndependentNoLpp =>
+      'Selbständigenstatus klären, bevor ich 3a erhöhe';
+
+  @override
   String get reportActionTitle3aSecond => 'Ein 2. 3a prüfen';
 
   @override
@@ -19545,6 +19553,22 @@ class SDe extends S {
 
   @override
   String get reportActionTitleUrgence => 'Bilde deinen Notfallfonds';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp1 =>
+      '1. Selbständigen AVS/AHV-Status und fehlende LPP-Anbindung bestätigen';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp2 =>
+      '2. Steuerbares Einkommen für den 3a-Spielraum prüfen';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp3 =>
+      '3. Restliquidität gegen Einkommensvolatilität testen';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp4 =>
+      '4. Risikodeckungen vor einer Entscheidung prüfen';
 
   @override
   String get reportDisclaimerBase1 =>

@@ -19473,6 +19473,10 @@ class SEs extends S {
       'Margen deducible e impacto fiscal estimado según tus ingresos, cantón y situación LPP.';
 
   @override
+  String get reportActionDesc3aIndependentNoLpp =>
+      'MINT estima tu margen 3a con los ingresos declarados y la hipótesis sin LPP. Antes de aportar más, verifica tu estatus AVS de independiente, el ingreso neto imponible, la cobertura de accidente/pérdida de ingresos y la liquidez necesaria si tus ingresos varían. Siguiente comprobación: comparar la opción LPP facultativa, el 3a y la tesorería con un especialista cualificado.';
+
+  @override
   String get reportActionDesc3aSecond =>
       'Escalonamiento al retirar y diversificación a revisar según tus cuentas existentes.';
 
@@ -19492,6 +19496,10 @@ class SEs extends S {
   String get reportActionTitle3aFirst => 'Evaluar el interés de un 3a';
 
   @override
+  String get reportActionTitle3aIndependentNoLpp =>
+      'Aclarar mi estatus independiente antes de aumentar el 3a';
+
+  @override
   String get reportActionTitle3aSecond => 'Evaluar un 2.º 3a';
 
   @override
@@ -19502,6 +19510,22 @@ class SEs extends S {
 
   @override
   String get reportActionTitleUrgence => 'Crea tu fondo de emergencia';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp1 =>
+      '1. Confirma tu estatus AVS de independiente y la ausencia de afiliación LPP';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp2 =>
+      '2. Verifica el ingreso imponible usado para el margen 3a';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp3 =>
+      '3. Prueba la liquidez restante frente a la volatilidad de ingresos';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp4 =>
+      '4. Revisa las coberturas de riesgo antes de decidir';
 
   @override
   String get reportDisclaimerBase1 =>

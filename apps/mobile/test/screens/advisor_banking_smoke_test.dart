@@ -332,6 +332,53 @@ void main() {
       expect(find.textContaining('7’258'), findsNothing);
     });
 
+    testWidgets('surfaces independent no-LPP guidance before generic 3a CTA',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final answers = Map<String, dynamic>.from(testAnswersV2)
+        ..['q_employment_status'] = 'independant'
+        ..['q_has_pension_fund'] = 'no'
+        ..['q_emergency_fund'] = 'yes_6months'
+        ..['q_has_consumer_debt'] = 'no'
+        ..['q_3a_accounts_count'] = 0
+        ..['q_3a_annual_contribution'] = 0.0
+        ..['q_lpp_buyback_available'] = 0.0
+        ..['q_avs_lacunes_status'] = 'no_gaps';
+
+      await tester.pumpWidget(
+        buildWithProfileProvider(
+          FinancialReportScreenV2(wizardAnswers: answers),
+        ),
+      );
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      expect(
+        find.text('Clarifier mon statut indépendant avant d’augmenter le 3a'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('statut AVS d’indépendant'), findsOneWidget);
+      expect(find.textContaining('revenu net imposable'), findsOneWidget);
+      expect(find.textContaining('couverture accident'), findsOneWidget);
+      expect(find.textContaining('liquidité nécessaire'), findsOneWidget);
+      expect(find.textContaining('revenus varient'), findsOneWidget);
+      for (final fragment in [
+        'Plafond 3a salarié',
+        '7’258',
+        'ouvrir',
+        'Ouvre',
+        'fintech',
+        'UBS',
+        'Raiffeisen',
+        'Swiss Life',
+        '60% actions',
+      ]) {
+        expect(find.textContaining(fragment), findsNothing, reason: fragment);
+      }
+    });
+
     testWidgets('keeps duplicated money sections out of rapport',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 1920);

@@ -34177,6 +34177,12 @@ abstract class S {
   /// **'Marge déductible et impact fiscal estimés selon ton revenu, ton canton et ton statut LPP.'**
   String get reportActionDesc3aFirst;
 
+  /// No description provided for @reportActionDesc3aIndependentNoLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT estime ta marge 3a avec les revenus déclarés et l’hypothèse sans LPP. Avant de verser davantage, vérifie ton statut AVS d’indépendant, ton revenu net imposable, ta couverture accident/perte de gain et la liquidité nécessaire si tes revenus varient. Piste suivante : comparer l’option LPP facultative, le 3a et la trésorerie avec un spécialiste qualifié.'**
+  String get reportActionDesc3aIndependentNoLpp;
+
   /// No description provided for @reportActionDesc3aSecond.
   ///
   /// In fr, this message translates to:
@@ -34207,6 +34213,12 @@ abstract class S {
   /// **'Évaluer l’intérêt d’un 3a'**
   String get reportActionTitle3aFirst;
 
+  /// No description provided for @reportActionTitle3aIndependentNoLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clarifier mon statut indépendant avant d’augmenter le 3a'**
+  String get reportActionTitle3aIndependentNoLpp;
+
   /// No description provided for @reportActionTitle3aSecond.
   ///
   /// In fr, this message translates to:
@@ -34230,6 +34242,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Constitue ton fonds d’urgence'**
   String get reportActionTitleUrgence;
+
+  /// No description provided for @reportActionStep3aIndependentNoLpp1.
+  ///
+  /// In fr, this message translates to:
+  /// **'1. Confirme ton statut AVS indépendant et ton absence d’affiliation LPP'**
+  String get reportActionStep3aIndependentNoLpp1;
+
+  /// No description provided for @reportActionStep3aIndependentNoLpp2.
+  ///
+  /// In fr, this message translates to:
+  /// **'2. Vérifie le revenu imposable utilisé pour la marge 3a'**
+  String get reportActionStep3aIndependentNoLpp2;
+
+  /// No description provided for @reportActionStep3aIndependentNoLpp3.
+  ///
+  /// In fr, this message translates to:
+  /// **'3. Teste la liquidité restante avec la volatilité de tes revenus'**
+  String get reportActionStep3aIndependentNoLpp3;
+
+  /// No description provided for @reportActionStep3aIndependentNoLpp4.
+  ///
+  /// In fr, this message translates to:
+  /// **'4. Passe en revue les couvertures risque avant de décider'**
+  String get reportActionStep3aIndependentNoLpp4;
 
   /// No description provided for @reportDisclaimerBase1.
   ///

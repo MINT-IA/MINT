@@ -72,6 +72,7 @@ class UserProfile {
   final int childrenCount;
   final String employmentStatus;
   final double monthlyNetIncome;
+  final bool? hasPensionFund;
 
   /// Gender: 'M', 'F', or null (AVS21 reference age — LAVS art. 21 al. 1).
   /// When null, AvsCalculator defaults to male reference age (65).
@@ -106,6 +107,7 @@ class UserProfile {
     required this.childrenCount,
     required this.employmentStatus,
     required this.monthlyNetIncome,
+    this.hasPensionFund,
     this.gender,
     this.spouseGender,
     this.avsGapYears,
@@ -146,6 +148,15 @@ class UserProfile {
         status == 'salarie' ||
         status == 'salarié';
   }
+
+  bool get isIndependent {
+    final status = employmentStatus.trim().toLowerCase().replaceAll('-', '_');
+    return status == 'self_employed' ||
+        status == 'independent' ||
+        status == 'independant' ||
+        status == 'indépendant';
+  }
+
   double get annualIncome => monthlyNetIncome * 12;
 
   /// Années théoriques de cotisation AVS (depuis 21 ans, max 44)

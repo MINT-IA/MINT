@@ -85,7 +85,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
       );
     }
     final reportService = FinancialReportService();
-    final report = reportService.generateReport(wizardAnswers);
+    final report =
+        reportService.generateReport(wizardAnswers, l: S.of(context));
     Future<void> exportReportPdf() async {
       try {
         await PdfService.generateFinancialReportPdf(

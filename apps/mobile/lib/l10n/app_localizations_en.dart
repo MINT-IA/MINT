@@ -19378,6 +19378,10 @@ class SEn extends S {
       'Deductible room and estimated tax impact based on your income, canton, and LPP status.';
 
   @override
+  String get reportActionDesc3aIndependentNoLpp =>
+      'MINT estimates your 3a room with the declared income and the no-LPP assumption. Before contributing more, check your self-employed AVS/OASI status, net taxable income, accident/loss-of-income cover, and the liquidity you need if income varies. Next check: compare optional LPP affiliation, 3a, and cash reserves with a qualified specialist.';
+
+  @override
   String get reportActionDesc3aSecond =>
       'Withdrawal staggering and diversification to review based on your existing accounts.';
 
@@ -19397,6 +19401,10 @@ class SEn extends S {
   String get reportActionTitle3aFirst => 'Assess 3a relevance';
 
   @override
+  String get reportActionTitle3aIndependentNoLpp =>
+      'Clarify my self-employed status before increasing 3a';
+
+  @override
   String get reportActionTitle3aSecond => 'Assess a second 3a';
 
   @override
@@ -19407,6 +19415,22 @@ class SEn extends S {
 
   @override
   String get reportActionTitleUrgence => 'Build your emergency fund';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp1 =>
+      '1. Confirm your self-employed AVS/OASI status and absence of LPP affiliation';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp2 =>
+      '2. Check the taxable income used for the 3a room';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp3 =>
+      '3. Test remaining liquidity against income volatility';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp4 =>
+      '4. Review risk cover before deciding';
 
   @override
   String get reportDisclaimerBase1 =>

@@ -19473,6 +19473,10 @@ class SPt extends S {
       'Margem dedutível e impacto fiscal estimado segundo o teu rendimento, cantão e estatuto LPP.';
 
   @override
+  String get reportActionDesc3aIndependentNoLpp =>
+      'A MINT estima a tua margem 3a com os rendimentos declarados e a hipótese sem LPP. Antes de contribuir mais, verifica o teu estatuto AVS de independente, o rendimento líquido tributável, a cobertura de acidente/perda de rendimento e a liquidez necessária se os rendimentos variarem. Próxima verificação: comparar a opção LPP facultativa, o 3a e a tesouraria com um especialista qualificado.';
+
+  @override
   String get reportActionDesc3aSecond =>
       'Escalonamento no levantamento e diversificação a avaliar segundo as tuas contas existentes.';
 
@@ -19492,6 +19496,10 @@ class SPt extends S {
   String get reportActionTitle3aFirst => 'Avaliar o interesse de um 3a';
 
   @override
+  String get reportActionTitle3aIndependentNoLpp =>
+      'Clarificar o meu estatuto independente antes de aumentar o 3a';
+
+  @override
   String get reportActionTitle3aSecond => 'Avaliar um 2.º 3a';
 
   @override
@@ -19502,6 +19510,22 @@ class SPt extends S {
 
   @override
   String get reportActionTitleUrgence => 'Constitui o teu fundo de emergência';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp1 =>
+      '1. Confirma o estatuto AVS de independente e a ausência de afiliação LPP';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp2 =>
+      '2. Verifica o rendimento tributável usado para a margem 3a';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp3 =>
+      '3. Testa a liquidez restante face à volatilidade dos rendimentos';
+
+  @override
+  String get reportActionStep3aIndependentNoLpp4 =>
+      '4. Revê as coberturas de risco antes de decidir';
 
   @override
   String get reportDisclaimerBase1 =>
