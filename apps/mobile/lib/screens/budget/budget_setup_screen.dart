@@ -443,6 +443,16 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: MintSpacing.xs),
+                  Semantics(
+                    key: const Key('budget_setup_live_total_hint'),
+                    identifier: 'budget_setup_live_total_hint',
+                    child: Text(
+                      s.budgetSetupTotalFixedHint,
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textMuted),
+                    ),
+                  ),
                 ],
                 const SizedBox(height: MintSpacing.lg),
                 Semantics(

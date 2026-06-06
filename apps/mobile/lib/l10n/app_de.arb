@@ -745,7 +745,7 @@
   "@budgetSetupAmountTooHigh": {
     "description": "Budget setup validation shown when a monthly amount is outside the accepted capture range."
   },
-  "budgetSetupTotalFixed": "Fixkosten total: {amount} CHF / Monat",
+  "budgetSetupTotalFixed": "Hier erfasste Posten: {amount} CHF / Monat",
   "@budgetSetupTotalFixed": {
     "description": "Budget setup label.",
     "placeholders": {
@@ -753,6 +753,10 @@
         "type": "String"
       }
     }
+  },
+  "budgetSetupTotalFixedHint": "Das finale Budget kann auch geschätzte Steuern, bekannte Schulden und bereits vorhandene Profildaten einbeziehen.",
+  "@budgetSetupTotalFixedHint": {
+    "description": "Budget setup hint explaining why the final budget fixed charges can differ from the live form total."
   },
   "budgetSetupResteAfterCharges": "Dir bleiben {amount} CHF nach deinen Ausgaben.",
   "@budgetSetupResteAfterCharges": {
@@ -3910,9 +3914,9 @@
   "santeHubToolAssuranceInvalidite": "Invaliditätsversicherung",
   "santeHubToolInvaliditeIndependant": "Invalidität Selbständige",
   "budgetErrorRetry": "Die Berechnung hat nicht geklappt. Nochmal versuchen?",
-  "budgetPremierEclairageCaption": "Was nach allen Fixkosten übrig bleibt",
+  "budgetPremierEclairageCaption": "Was nach Fixkosten, geschätzten Steuern, bekannten Schulden und geplanter Ersparnis übrig bleibt",
   "budgetMethodTitle": "Dieses Budget verstehen",
-  "budgetMethodBody": "Dieses Budget trennt deine Fixkosten (Miete, Krankenkasse, Steuern) von deinem verfügbaren Einkommen. Die 50/30/20-Regel schlägt vor: 50 % für Bedürfnisse, 30 % für Wünsche, 20 % für Sparen. Ein Richtwert, keine Pflicht.",
+  "budgetMethodBody": "Dieses Budget startet mit deinen monatlichen Ressourcen, zieht Wohnen, KVG, geschätzte Steuern, bekannte Schulden, weitere Fixkosten und geplante Ersparnis ab und zeigt dann, was zum Leben bleibt. Die Umschläge sind ein anpassbarer Orientierungspunkt, keine Regel.",
   "budgetMethodSource": "Quelle: 50/30/20-Methode (Elizabeth Warren, 2005)",
   "budgetDisclaimerNote": "Lehrreiche Schätzung. Keine Finanzberatung (FIDLEG Art. 3).",
   "premierEclairageIfYouAct": "Wenn du handelst",

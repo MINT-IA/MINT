@@ -745,7 +745,7 @@
   "@budgetSetupAmountTooHigh": {
     "description": "Budget setup validation shown when a monthly amount is outside the accepted capture range."
   },
-  "budgetSetupTotalFixed": "Total fijo: {amount} CHF / mes",
+  "budgetSetupTotalFixed": "Partidas introducidas aquí: {amount} CHF / mes",
   "@budgetSetupTotalFixed": {
     "description": "Budget setup label.",
     "placeholders": {
@@ -753,6 +753,10 @@
         "type": "String"
       }
     }
+  },
+  "budgetSetupTotalFixedHint": "El presupuesto final también puede incluir impuestos estimados, deudas conocidas y datos ya presentes en tu perfil.",
+  "@budgetSetupTotalFixedHint": {
+    "description": "Budget setup hint explaining why the final budget fixed charges can differ from the live form total."
   },
   "budgetSetupResteAfterCharges": "Te quedan {amount} CHF después de tus gastos.",
   "@budgetSetupResteAfterCharges": {
@@ -3910,9 +3914,9 @@
   "santeHubToolAssuranceInvalidite": "Seguro de invalidez",
   "santeHubToolInvaliditeIndependant": "Invalidez autónomo",
   "budgetErrorRetry": "El cálculo ha fallado. ¿Reintentar?",
-  "budgetPremierEclairageCaption": "Lo que queda después de todos tus gastos fijos",
+  "budgetPremierEclairageCaption": "Lo que queda tras gastos fijos, impuestos estimados, deudas conocidas y ahorro planificado",
   "budgetMethodTitle": "Entender este presupuesto",
-  "budgetMethodBody": "Este presupuesto separa tus gastos fijos (alquiler, seguro médico, impuestos) de tu ingreso disponible. La regla 50/30/20 sugiere: 50 % para necesidades, 30 % para deseos, 20 % para ahorro. Es una guía, no una obligación.",
+  "budgetMethodBody": "Este presupuesto parte de tus recursos mensuales, resta vivienda, seguro médico, impuestos estimados, deudas conocidas, otros gastos fijos y ahorro planificado, y muestra lo que queda para vivir. Los sobres son una referencia ajustable, no una regla.",
   "budgetMethodSource": "Fuente: método 50/30/20 (Elizabeth Warren, 2005)",
   "budgetDisclaimerNote": "Estimación educativa. No constituye asesoramiento financiero (LSFin art. 3).",
   "premierEclairageIfYouAct": "Si actúas",

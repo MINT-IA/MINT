@@ -1666,8 +1666,12 @@ class SPt extends S {
 
   @override
   String budgetSetupTotalFixed(String amount) {
-    return 'Total fixo: $amount CHF / mês';
+    return 'Itens inseridos aqui: $amount CHF / mês';
   }
+
+  @override
+  String get budgetSetupTotalFixedHint =>
+      'O orçamento final também pode incluir impostos estimados, dívidas conhecidas e dados já presentes no teu perfil.';
 
   @override
   String budgetSetupResteAfterCharges(String amount) {
@@ -8444,14 +8448,14 @@ class SPt extends S {
 
   @override
   String get budgetPremierEclairageCaption =>
-      'O que sobra depois de todas as despesas fixas';
+      'O que sobra após encargos fixos, impostos estimados, dívidas conhecidas e poupança planeada';
 
   @override
   String get budgetMethodTitle => 'Compreender este orçamento';
 
   @override
   String get budgetMethodBody =>
-      'Este orçamento separa as despesas fixas (renda, seguro de saúde, impostos) do rendimento disponível. A regra 50/30/20 sugere: 50 % para necessidades, 30 % para desejos, 20 % para poupança. É uma referência, não uma obrigação.';
+      'Este orçamento parte dos teus recursos mensais, subtrai habitação, seguro de saúde, impostos estimados, dívidas conhecidas, outros encargos fixos e poupança planeada, e mostra o que sobra para viver. Os envelopes são uma referência ajustável, não uma regra.';
 
   @override
   String get budgetMethodSource =>

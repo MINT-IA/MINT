@@ -1663,8 +1663,12 @@ class SEn extends S {
 
   @override
   String budgetSetupTotalFixed(String amount) {
-    return 'Fixed total: $amount CHF / month';
+    return 'Items entered here: $amount CHF / month';
   }
+
+  @override
+  String get budgetSetupTotalFixedHint =>
+      'The final budget may also include estimated taxes, known debts and data already present in your profile.';
 
   @override
   String budgetSetupResteAfterCharges(String amount) {
@@ -8402,14 +8406,14 @@ class SEn extends S {
 
   @override
   String get budgetPremierEclairageCaption =>
-      'What\'s left after all your fixed charges';
+      'What remains after fixed charges, estimated taxes, known debts and planned savings';
 
   @override
   String get budgetMethodTitle => 'Understanding this budget';
 
   @override
   String get budgetMethodBody =>
-      'This budget separates your fixed charges (rent, health insurance, taxes) from your disposable income. The 50/30/20 rule suggests: 50% for needs, 30% for wants, 20% for savings. It\'s a guide, not an obligation.';
+      'This budget starts from your monthly resources, subtracts housing, health insurance, estimated taxes, known debts, other fixed charges and planned savings, then shows what remains to live on. The envelopes are an adjustable reference point, not a rule.';
 
   @override
   String get budgetMethodSource =>

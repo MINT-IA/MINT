@@ -745,7 +745,7 @@
   "@budgetSetupAmountTooHigh": {
     "description": "Budget setup validation shown when a monthly amount is outside the accepted capture range."
   },
-  "budgetSetupTotalFixed": "Total fixe : {amount} CHF / mois",
+  "budgetSetupTotalFixed": "Postes saisis ici : {amount} CHF / mois",
   "@budgetSetupTotalFixed": {
     "description": "Budget setup label.",
     "placeholders": {
@@ -753,6 +753,10 @@
         "type": "String"
       }
     }
+  },
+  "budgetSetupTotalFixedHint": "Le budget final peut aussi intégrer les impôts estimés, dettes connues et données déjà présentes dans ton profil.",
+  "@budgetSetupTotalFixedHint": {
+    "description": "Budget setup hint explaining why the final budget fixed charges can differ from the live form total."
   },
   "budgetSetupResteAfterCharges": "Il te reste {amount} CHF après tes charges.",
   "@budgetSetupResteAfterCharges": {
@@ -4278,9 +4282,9 @@
   "santeHubToolAssuranceInvalidite": "Assurance invalidité",
   "santeHubToolInvaliditeIndependant": "Invalidité indépendant",
   "budgetErrorRetry": "Le calcul a buté. Réessaie ?",
-  "budgetPremierEclairageCaption": "Soit ce qu'il te reste après toutes tes charges fixes",
+  "budgetPremierEclairageCaption": "Ce qu'il te reste après charges fixes, impôts estimés, dettes connues et épargne planifiée",
   "budgetMethodTitle": "Comprendre ce budget",
-  "budgetMethodBody": "Ce budget sépare tes charges fixes (loyer, LAMal, impôts) de ton reste à vivre. La règle 50/30/20 suggère : 50 % pour les besoins, 30 % pour les envies, 20 % pour l'épargne. C'est un repère, pas une obligation.",
+  "budgetMethodBody": "Ce budget part de tes ressources mensuelles, soustrait logement, LAMal, impôts estimés, dettes connues, autres charges fixes et épargne planifiée, puis montre ce qu'il reste pour vivre. Les enveloppes sont un repère ajustable, pas une règle.",
   "budgetMethodSource": "Source : méthode 50/30/20 (Elizabeth Warren, 2005)",
   "budgetDisclaimerNote": "Estimation éducative. Ne constitue pas un conseil financier (LSFin art. 3).",
   "premierEclairageIfYouAct": "Si tu agis",

@@ -447,6 +447,12 @@ void main() {
       find.text("CHF\u00a05'379 − CHF\u00a03'140 = CHF\u00a02'239"),
       findsOneWidget,
     );
+    expect(
+      find.textContaining(
+        'impôts estimés, dettes connues et épargne planifiée',
+      ),
+      findsOneWidget,
+    );
     expect(find.textContaining("− CHF\u00a00"), findsNothing);
     expect(find.byKey(const Key('budget_debt_disclosure')), findsNothing);
   });

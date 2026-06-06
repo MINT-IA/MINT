@@ -1672,8 +1672,12 @@ class SFr extends S {
 
   @override
   String budgetSetupTotalFixed(String amount) {
-    return 'Total fixe : $amount CHF / mois';
+    return 'Postes saisis ici : $amount CHF / mois';
   }
+
+  @override
+  String get budgetSetupTotalFixedHint =>
+      'Le budget final peut aussi intégrer les impôts estimés, dettes connues et données déjà présentes dans ton profil.';
 
   @override
   String budgetSetupResteAfterCharges(String amount) {
@@ -8450,14 +8454,14 @@ class SFr extends S {
 
   @override
   String get budgetPremierEclairageCaption =>
-      'Soit ce qu\'il te reste après toutes tes charges fixes';
+      'Ce qu\'il te reste après charges fixes, impôts estimés, dettes connues et épargne planifiée';
 
   @override
   String get budgetMethodTitle => 'Comprendre ce budget';
 
   @override
   String get budgetMethodBody =>
-      'Ce budget sépare tes charges fixes (loyer, LAMal, impôts) de ton reste à vivre. La règle 50/30/20 suggère : 50 % pour les besoins, 30 % pour les envies, 20 % pour l\'épargne. C\'est un repère, pas une obligation.';
+      'Ce budget part de tes ressources mensuelles, soustrait logement, LAMal, impôts estimés, dettes connues, autres charges fixes et épargne planifiée, puis montre ce qu\'il reste pour vivre. Les enveloppes sont un repère ajustable, pas une règle.';
 
   @override
   String get budgetMethodSource =>

@@ -3120,8 +3120,14 @@ abstract class S {
   /// Budget setup label.
   ///
   /// In fr, this message translates to:
-  /// **'Total fixe : {amount} CHF / mois'**
+  /// **'Postes saisis ici : {amount} CHF / mois'**
   String budgetSetupTotalFixed(String amount);
+
+  /// Budget setup hint explaining why the final budget fixed charges can differ from the live form total.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le budget final peut aussi intégrer les impôts estimés, dettes connues et données déjà présentes dans ton profil.'**
+  String get budgetSetupTotalFixedHint;
 
   /// Budget setup label.
   ///
@@ -14950,7 +14956,7 @@ abstract class S {
   /// No description provided for @budgetPremierEclairageCaption.
   ///
   /// In fr, this message translates to:
-  /// **'Soit ce qu\'il te reste après toutes tes charges fixes'**
+  /// **'Ce qu\'il te reste après charges fixes, impôts estimés, dettes connues et épargne planifiée'**
   String get budgetPremierEclairageCaption;
 
   /// No description provided for @budgetMethodTitle.
@@ -14962,7 +14968,7 @@ abstract class S {
   /// No description provided for @budgetMethodBody.
   ///
   /// In fr, this message translates to:
-  /// **'Ce budget sépare tes charges fixes (loyer, LAMal, impôts) de ton reste à vivre. La règle 50/30/20 suggère : 50 % pour les besoins, 30 % pour les envies, 20 % pour l\'épargne. C\'est un repère, pas une obligation.'**
+  /// **'Ce budget part de tes ressources mensuelles, soustrait logement, LAMal, impôts estimés, dettes connues, autres charges fixes et épargne planifiée, puis montre ce qu\'il reste pour vivre. Les enveloppes sont un repère ajustable, pas une règle.'**
   String get budgetMethodBody;
 
   /// No description provided for @budgetMethodSource.

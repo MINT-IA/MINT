@@ -745,7 +745,7 @@
   "@budgetSetupAmountTooHigh": {
     "description": "Budget setup validation shown when a monthly amount is outside the accepted capture range."
   },
-  "budgetSetupTotalFixed": "Fixed total: {amount} CHF / month",
+  "budgetSetupTotalFixed": "Items entered here: {amount} CHF / month",
   "@budgetSetupTotalFixed": {
     "description": "Budget setup label.",
     "placeholders": {
@@ -753,6 +753,10 @@
         "type": "String"
       }
     }
+  },
+  "budgetSetupTotalFixedHint": "The final budget may also include estimated taxes, known debts and data already present in your profile.",
+  "@budgetSetupTotalFixedHint": {
+    "description": "Budget setup hint explaining why the final budget fixed charges can differ from the live form total."
   },
   "budgetSetupResteAfterCharges": "You have {amount} CHF left after charges.",
   "@budgetSetupResteAfterCharges": {
@@ -3910,9 +3914,9 @@
   "santeHubToolAssuranceInvalidite": "Disability insurance",
   "santeHubToolInvaliditeIndependant": "Self-employed disability",
   "budgetErrorRetry": "Something went wrong. Try again?",
-  "budgetPremierEclairageCaption": "What's left after all your fixed charges",
+  "budgetPremierEclairageCaption": "What remains after fixed charges, estimated taxes, known debts and planned savings",
   "budgetMethodTitle": "Understanding this budget",
-  "budgetMethodBody": "This budget separates your fixed charges (rent, health insurance, taxes) from your disposable income. The 50/30/20 rule suggests: 50% for needs, 30% for wants, 20% for savings. It's a guide, not an obligation.",
+  "budgetMethodBody": "This budget starts from your monthly resources, subtracts housing, health insurance, estimated taxes, known debts, other fixed charges and planned savings, then shows what remains to live on. The envelopes are an adjustable reference point, not a rule.",
   "budgetMethodSource": "Source: 50/30/20 method (Elizabeth Warren, 2005)",
   "budgetDisclaimerNote": "Educational estimate. Not financial advice (FinSA art. 3).",
   "premierEclairageIfYouAct": "If you act",

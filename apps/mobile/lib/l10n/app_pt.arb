@@ -745,7 +745,7 @@
   "@budgetSetupAmountTooHigh": {
     "description": "Budget setup validation shown when a monthly amount is outside the accepted capture range."
   },
-  "budgetSetupTotalFixed": "Total fixo: {amount} CHF / mês",
+  "budgetSetupTotalFixed": "Itens inseridos aqui: {amount} CHF / mês",
   "@budgetSetupTotalFixed": {
     "description": "Budget setup label.",
     "placeholders": {
@@ -753,6 +753,10 @@
         "type": "String"
       }
     }
+  },
+  "budgetSetupTotalFixedHint": "O orçamento final também pode incluir impostos estimados, dívidas conhecidas e dados já presentes no teu perfil.",
+  "@budgetSetupTotalFixedHint": {
+    "description": "Budget setup hint explaining why the final budget fixed charges can differ from the live form total."
   },
   "budgetSetupResteAfterCharges": "Sobram {amount} CHF depois das tuas despesas.",
   "@budgetSetupResteAfterCharges": {
@@ -3910,9 +3914,9 @@
   "santeHubToolAssuranceInvalidite": "Seguro de invalidez",
   "santeHubToolInvaliditeIndependant": "Invalidez independente",
   "budgetErrorRetry": "O cálculo falhou. Tentar de novo?",
-  "budgetPremierEclairageCaption": "O que sobra depois de todas as despesas fixas",
+  "budgetPremierEclairageCaption": "O que sobra após encargos fixos, impostos estimados, dívidas conhecidas e poupança planeada",
   "budgetMethodTitle": "Compreender este orçamento",
-  "budgetMethodBody": "Este orçamento separa as despesas fixas (renda, seguro de saúde, impostos) do rendimento disponível. A regra 50/30/20 sugere: 50 % para necessidades, 30 % para desejos, 20 % para poupança. É uma referência, não uma obrigação.",
+  "budgetMethodBody": "Este orçamento parte dos teus recursos mensais, subtrai habitação, seguro de saúde, impostos estimados, dívidas conhecidas, outros encargos fixos e poupança planeada, e mostra o que sobra para viver. Os envelopes são uma referência ajustável, não uma regra.",
   "budgetMethodSource": "Fonte: método 50/30/20 (Elizabeth Warren, 2005)",
   "budgetDisclaimerNote": "Estimativa educativa. Não constitui aconselhamento financeiro (LSFin art. 3).",
   "premierEclairageIfYouAct": "Se agires",

@@ -539,6 +539,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
+      find.text('Postes saisis ici : 2620 CHF / mois'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('impôts estimés, dettes connues'),
+      findsOneWidget,
+    );
+    expect(find.text('Total fixe : 2620 CHF / mois'), findsNothing);
+    expect(
       tester
           .getSemantics(find.byKey(const Key('budget_setup_live_total')))
           .identifier,

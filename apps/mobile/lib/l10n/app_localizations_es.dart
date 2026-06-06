@@ -1668,8 +1668,12 @@ class SEs extends S {
 
   @override
   String budgetSetupTotalFixed(String amount) {
-    return 'Total fijo: $amount CHF / mes';
+    return 'Partidas introducidas aquí: $amount CHF / mes';
   }
+
+  @override
+  String get budgetSetupTotalFixedHint =>
+      'El presupuesto final también puede incluir impuestos estimados, deudas conocidas y datos ya presentes en tu perfil.';
 
   @override
   String budgetSetupResteAfterCharges(String amount) {
@@ -8448,14 +8452,14 @@ class SEs extends S {
 
   @override
   String get budgetPremierEclairageCaption =>
-      'Lo que queda después de todos tus gastos fijos';
+      'Lo que queda tras gastos fijos, impuestos estimados, deudas conocidas y ahorro planificado';
 
   @override
   String get budgetMethodTitle => 'Entender este presupuesto';
 
   @override
   String get budgetMethodBody =>
-      'Este presupuesto separa tus gastos fijos (alquiler, seguro médico, impuestos) de tu ingreso disponible. La regla 50/30/20 sugiere: 50 % para necesidades, 30 % para deseos, 20 % para ahorro. Es una guía, no una obligación.';
+      'Este presupuesto parte de tus recursos mensuales, resta vivienda, seguro médico, impuestos estimados, deudas conocidas, otros gastos fijos y ahorro planificado, y muestra lo que queda para vivir. Los sobres son una referencia ajustable, no una regla.';
 
   @override
   String get budgetMethodSource =>

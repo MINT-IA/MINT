@@ -1677,8 +1677,12 @@ class SDe extends S {
 
   @override
   String budgetSetupTotalFixed(String amount) {
-    return 'Fixkosten total: $amount CHF / Monat';
+    return 'Hier erfasste Posten: $amount CHF / Monat';
   }
+
+  @override
+  String get budgetSetupTotalFixedHint =>
+      'Das finale Budget kann auch geschätzte Steuern, bekannte Schulden und bereits vorhandene Profildaten einbeziehen.';
 
   @override
   String budgetSetupResteAfterCharges(String amount) {
@@ -8473,14 +8477,14 @@ class SDe extends S {
 
   @override
   String get budgetPremierEclairageCaption =>
-      'Was nach allen Fixkosten übrig bleibt';
+      'Was nach Fixkosten, geschätzten Steuern, bekannten Schulden und geplanter Ersparnis übrig bleibt';
 
   @override
   String get budgetMethodTitle => 'Dieses Budget verstehen';
 
   @override
   String get budgetMethodBody =>
-      'Dieses Budget trennt deine Fixkosten (Miete, Krankenkasse, Steuern) von deinem verfügbaren Einkommen. Die 50/30/20-Regel schlägt vor: 50 % für Bedürfnisse, 30 % für Wünsche, 20 % für Sparen. Ein Richtwert, keine Pflicht.';
+      'Dieses Budget startet mit deinen monatlichen Ressourcen, zieht Wohnen, KVG, geschätzte Steuern, bekannte Schulden, weitere Fixkosten und geplante Ersparnis ab und zeigt dann, was zum Leben bleibt. Die Umschläge sind ein anpassbarer Orientierungspunkt, keine Regel.';
 
   @override
   String get budgetMethodSource =>

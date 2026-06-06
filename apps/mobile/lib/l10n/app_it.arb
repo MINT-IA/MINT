@@ -745,7 +745,7 @@
   "@budgetSetupAmountTooHigh": {
     "description": "Budget setup validation shown when a monthly amount is outside the accepted capture range."
   },
-  "budgetSetupTotalFixed": "Totale fisso: {amount} CHF / mese",
+  "budgetSetupTotalFixed": "Voci inserite qui: {amount} CHF / mese",
   "@budgetSetupTotalFixed": {
     "description": "Budget setup label.",
     "placeholders": {
@@ -753,6 +753,10 @@
         "type": "String"
       }
     }
+  },
+  "budgetSetupTotalFixedHint": "Il budget finale può includere anche imposte stimate, debiti noti e dati già presenti nel tuo profilo.",
+  "@budgetSetupTotalFixedHint": {
+    "description": "Budget setup hint explaining why the final budget fixed charges can differ from the live form total."
   },
   "budgetSetupResteAfterCharges": "Ti restano {amount} CHF dopo le tue spese.",
   "@budgetSetupResteAfterCharges": {
@@ -3910,9 +3914,9 @@
   "santeHubToolAssuranceInvalidite": "Assicurazione invalidità",
   "santeHubToolInvaliditeIndependant": "Invalidità indipendente",
   "budgetErrorRetry": "Il calcolo non è riuscito. Riprovare?",
-  "budgetPremierEclairageCaption": "Quello che resta dopo tutte le spese fisse",
+  "budgetPremierEclairageCaption": "Quanto resta dopo spese fisse, imposte stimate, debiti noti e risparmio pianificato",
   "budgetMethodTitle": "Capire questo budget",
-  "budgetMethodBody": "Questo budget separa le spese fisse (affitto, cassa malati, imposte) dal reddito disponibile. La regola 50/30/20 suggerisce: 50 % per i bisogni, 30 % per i desideri, 20 % per il risparmio. È un riferimento, non un obbligo.",
+  "budgetMethodBody": "Questo budget parte dalle tue risorse mensili, sottrae abitazione, assicurazione malattia, imposte stimate, debiti noti, altre spese fisse e risparmio pianificato, poi mostra quanto resta per vivere. Le buste sono un riferimento regolabile, non una regola.",
   "budgetMethodSource": "Fonte: metodo 50/30/20 (Elizabeth Warren, 2005)",
   "budgetDisclaimerNote": "Stima educativa. Non costituisce consulenza finanziaria (LSFin art. 3).",
   "premierEclairageIfYouAct": "Se agisci",

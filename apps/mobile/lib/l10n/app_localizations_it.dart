@@ -1671,8 +1671,12 @@ class SIt extends S {
 
   @override
   String budgetSetupTotalFixed(String amount) {
-    return 'Totale fisso: $amount CHF / mese';
+    return 'Voci inserite qui: $amount CHF / mese';
   }
+
+  @override
+  String get budgetSetupTotalFixedHint =>
+      'Il budget finale può includere anche imposte stimate, debiti noti e dati già presenti nel tuo profilo.';
 
   @override
   String budgetSetupResteAfterCharges(String amount) {
@@ -8465,14 +8469,14 @@ class SIt extends S {
 
   @override
   String get budgetPremierEclairageCaption =>
-      'Quello che resta dopo tutte le spese fisse';
+      'Quanto resta dopo spese fisse, imposte stimate, debiti noti e risparmio pianificato';
 
   @override
   String get budgetMethodTitle => 'Capire questo budget';
 
   @override
   String get budgetMethodBody =>
-      'Questo budget separa le spese fisse (affitto, cassa malati, imposte) dal reddito disponibile. La regola 50/30/20 suggerisce: 50 % per i bisogni, 30 % per i desideri, 20 % per il risparmio. È un riferimento, non un obbligo.';
+      'Questo budget parte dalle tue risorse mensili, sottrae abitazione, assicurazione malattia, imposte stimate, debiti noti, altre spese fisse e risparmio pianificato, poi mostra quanto resta per vivere. Le buste sono un riferimento regolabile, non una regola.';
 
   @override
   String get budgetMethodSource =>
