@@ -492,10 +492,13 @@ class FinancialReportScreenV2 extends StatelessWidget {
             children: [
               Icon(icon, size: 14, color: MintColors.textSecondary),
               const SizedBox(width: 6),
-              Text(
-                title,
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
-                    .copyWith(fontWeight: FontWeight.w600),
+              Flexible(
+                child: Text(
+                  title,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                      .copyWith(fontWeight: FontWeight.w600),
+                  softWrap: true,
+                ),
               ),
             ],
           ),

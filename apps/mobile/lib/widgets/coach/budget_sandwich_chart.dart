@@ -167,13 +167,17 @@ class BudgetSandwichChart extends StatelessWidget {
             children: [
               Icon(icon, size: 16, color: color),
               const SizedBox(width: 6),
-              Text(
-                label,
-                style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
+              Expanded(
+                child: Text(
+                  label,
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
+                  softWrap: true,
+                ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Text(
                 formatChfWithPrefix(total),
+                textAlign: TextAlign.right,
                 style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
             ],

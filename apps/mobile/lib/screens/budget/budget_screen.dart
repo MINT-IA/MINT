@@ -805,9 +805,12 @@ class _BudgetScreenState extends State<BudgetScreen>
             children: [
               const Icon(Icons.info_outline, size: 18, color: MintColors.info),
               const SizedBox(width: MintSpacing.sm),
-              Text(
-                l.budgetMethodTitle,
-                style: MintTextStyles.titleMedium(color: MintColors.info),
+              Flexible(
+                child: Text(
+                  l.budgetMethodTitle,
+                  style: MintTextStyles.titleMedium(color: MintColors.info),
+                  softWrap: true,
+                ),
               ),
             ],
           ),

@@ -9,11 +9,13 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
 import 'package:mint_mobile/screens/budget/budget_screen.dart';
 import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/explore/explorer_screen.dart';
 import 'package:mint_mobile/screens/mon_argent/mon_argent_screen.dart';
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -64,6 +66,7 @@ Future<List<FlutterErrorDetails>> _pumpAndCollectOverflows(
     await tester.pumpWidget(widget);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 150));
+    await tester.pump(const Duration(milliseconds: 1600));
   } finally {
     FlutterError.onError = oldHandler;
   }
@@ -91,6 +94,62 @@ void main() {
                 debtPayments: 0,
               ),
             ),
+          ),
+        ),
+      );
+
+      expect(errors, isEmpty, reason: _formatOverflowReason(errors));
+    });
+
+    testWidgets('Budget populated independent/no-LPP state does not overflow',
+        (tester) async {
+      final seed =
+          CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+      final profile = CoachProfile.fromWizardAnswers(
+        seed.toWizardAnswers(now: DateTime(2026, 6, 6)),
+      );
+
+      final errors = await _pumpAndCollectOverflows(
+        tester,
+        _localizedHarness(
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => BudgetProvider()),
+              ChangeNotifierProvider<CoachProfileProvider>.value(
+                value: _FakeCoachProfileProvider(profile),
+              ),
+              ChangeNotifierProvider(create: (_) => MintStateProvider()),
+            ],
+            child: const BudgetScreen(
+              inputs: BudgetInputs(
+                payFrequency: PayFrequency.monthly,
+                netIncome: 7200,
+                housingCost: 1872,
+                debtPayments: 0,
+                taxProvision: 1350,
+                healthInsurance: 420,
+                otherFixedCosts: 480,
+                isTaxEstimated: true,
+                style: BudgetStyle.envelopes3,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(errors, isEmpty, reason: _formatOverflowReason(errors));
+    });
+
+    testWidgets('Rapport populated independent/no-LPP state does not overflow',
+        (tester) async {
+      final seed =
+          CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+
+      final errors = await _pumpAndCollectOverflows(
+        tester,
+        _localizedHarness(
+          FinancialReportScreenV2(
+            wizardAnswers: seed.toWizardAnswers(now: DateTime(2026, 6, 6)),
           ),
         ),
       );

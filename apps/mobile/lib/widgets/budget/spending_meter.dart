@@ -143,19 +143,24 @@ class _SpendingMeterState extends State<SpendingMeter>
                     ),
                   ),
                   // Center content
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        l.spendingMeterDisponible,
-                        style: MintTextStyles.labelMedium(color: MintColors.textMuted),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _formatAmount(displayAmount),
-                        style: MintTextStyles.displayMedium(color: MintColors.textPrimary).copyWith(fontSize: 24),
-                      ),
-                    ],
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          l.spendingMeterDisponible,
+                          textAlign: TextAlign.center,
+                          style: MintTextStyles.labelMedium(color: MintColors.textMuted),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _formatAmount(displayAmount),
+                          textAlign: TextAlign.center,
+                          style: MintTextStyles.displaySmall(color: MintColors.textPrimary),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               );
@@ -165,14 +170,15 @@ class _SpendingMeterState extends State<SpendingMeter>
         const SizedBox(height: 16),
 
         // ── Legend row ────────────────────────────────────
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 24,
+          runSpacing: 8,
           children: [
             _buildLegendItem(
               color: MintColors.success,
               label: l.spendingMeterVariablesLegend(_variablesPercent),
             ),
-            const SizedBox(width: 24),
             _buildLegendItem(
               color: MintColors.info,
               label: l.spendingMeterFuturLegend(_futurePercent),
