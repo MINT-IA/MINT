@@ -19,11 +19,14 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
 import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
+
+import '../semantics_test_helpers.dart';
 
 void main() {
   setUp(() {
@@ -596,6 +599,117 @@ void main() {
           .identifier,
       'budget_formula_proof',
     );
+  });
+
+  testWidgets('BudgetScreen independent no-LPP semantics traverse cashflow',
+      (tester) async {
+    final seed =
+        CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+    final profile = CoachProfile.fromWizardAnswers(
+      seed.toWizardAnswers(now: DateTime(2026, 6, 6)),
+    );
+    final profileProvider = CoachProfileProvider()..updateProfile(profile);
+
+    const inputs = BudgetInputs(
+      payFrequency: PayFrequency.monthly,
+      netIncome: 7200,
+      housingCost: 1872,
+      debtPayments: 0,
+      taxProvision: 1350,
+      healthInsurance: 420,
+      otherFixedCosts: 480,
+      isTaxEstimated: true,
+      style: BudgetStyle.envelopes3,
+    );
+
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => BudgetProvider()),
+            ChangeNotifierProvider<CoachProfileProvider>.value(
+              value: profileProvider,
+            ),
+            ChangeNotifierProvider(create: (_) => MintStateProvider()),
+          ],
+          child: const MaterialApp(
+            locale: Locale('fr'),
+            localizationsDelegates: [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: S.supportedLocales,
+            home: BudgetScreen(inputs: inputs),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(seconds: 2));
+      await openCalculationDetail(tester);
+      await tester.ensureVisible(find.byKey(const Key('budget_formula_proof')));
+
+      final quality = tester
+          .getSemantics(find.byKey(const Key('budget_data_quality_banner')));
+      final hero =
+          tester.getSemantics(find.byKey(const Key('budget_hero_summary')));
+      final toggle = tester.getSemantics(
+        find.byKey(const Key('budget_calculation_detail_toggle')),
+      );
+      final flowMap =
+          tester.getSemantics(find.byKey(const Key('budget_flow_map')));
+      final formula =
+          tester.getSemantics(find.byKey(const Key('budget_formula_proof')));
+
+      expect(quality.identifier, 'budget_data_quality_banner');
+      expect(quality.flagsCollection.isButton, isTrue);
+      expect(
+        quality.getSemanticsData().hasAction(SemanticsAction.tap),
+        isTrue,
+      );
+
+      expect(hero.identifier, 'budget_hero_summary');
+      expect(hero.label, contains('Disponible ce mois'));
+      expect(hero.label, contains('CHF'));
+      expect(hero.label, contains('charges fixes'));
+
+      expect(toggle.identifier, 'budget_calculation_detail_toggle');
+      expect(toggle.flagsCollection.isButton, isTrue);
+      expect(toggle.getSemanticsData().flagsCollection.isExpanded,
+          Tristate.isTrue);
+      expect(toggle.getSemanticsData().label, 'Détail du calcul');
+      expect(toggle.childrenCountInTraversalOrder, 0);
+
+      expect(flowMap.identifier, 'budget_flow_map');
+      expect(flowMap.label, contains('Revenu net'));
+      expect(flowMap.label, contains('Charges'));
+      expect(flowMap.label, contains('Futur'));
+      expect(flowMap.label, contains('Disponible'));
+      expect(flowMap.label, isNot(contains('Salaire net')));
+      expect(flowMap.label, isNot(contains('Budget retraite')));
+
+      expect(formula.identifier, 'budget_formula_proof');
+      expect(formula.label, contains('Revenu net'));
+      expect(formula.label, contains('Disponible'));
+
+      expectIdentifierSubsequence(
+        semanticIdentifiersInTraversalOrder(tester),
+        [
+          'budget_screen',
+          'budget_data_quality_banner',
+          'budget_hero_summary',
+          'budget_calculation_detail_toggle',
+          'budget_flow_map',
+          'budget_formula_proof',
+        ],
+      );
+    } finally {
+      semantics.dispose();
+    }
   });
 
   testWidgets('BudgetContainerScreen restores saved inputs on direct open',

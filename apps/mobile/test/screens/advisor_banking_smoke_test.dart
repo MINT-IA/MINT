@@ -23,6 +23,9 @@ import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
+
+import '../semantics_test_helpers.dart';
 
 /// Helper to wrap a widget with ProfileProvider.
 Widget buildWithProfileProvider(
@@ -200,6 +203,73 @@ void main() {
         expect(disclaimer.label, contains('Mention légale'));
         expect(disclaimer.label, contains('ne constitue pas'));
         expect(find.bySemanticsLabel('\u2022'), findsNothing);
+      } finally {
+        semantics.dispose();
+      }
+    });
+
+    testWidgets('independent no-LPP report exposes logical focus traversal',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 1920);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+      final semantics = tester.ensureSemantics();
+      try {
+        final seed =
+            CoachProfileSeeds.registry['independent_no_lpp_income_reality']!;
+
+        await tester.pumpWidget(
+          buildWithProfileProvider(
+            FinancialReportScreenV2(
+              wizardAnswers: seed.toWizardAnswers(now: DateTime(2026, 6, 6)),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        final synthesis = tester
+            .getSemantics(find.byKey(const Key('report_synthesis_summary')));
+        final compliance = tester
+            .getSemantics(find.byKey(const Key('report_compliance_summary')));
+        final disclaimer = tester
+            .getSemantics(find.byKey(const Key('report_disclaimer_summary')));
+
+        expect(synthesis.identifier, 'report_synthesis_summary');
+        expect(synthesis.label, contains('Bilan Flash'));
+        expect(
+          synthesis.label,
+          contains('Clarifier mon statut indépendant avant d’augmenter le 3a'),
+        );
+        expect(synthesis.label, contains('statut AVS d’indépendant'));
+        expect(synthesis.label, contains('revenu net imposable'));
+        expect(synthesis.label, isNot(contains('ouvrir')));
+        expect(synthesis.label, isNot(contains('fintech')));
+        final primaryCta = find.ancestor(
+          of: find.text('Commencer'),
+          matching: find.byType(FilledButton),
+        );
+        expect(primaryCta, findsOneWidget);
+        expect(
+          tester
+              .getSemantics(primaryCta)
+              .getSemanticsData()
+              .hasAction(SemanticsAction.tap),
+          isTrue,
+        );
+
+        expect(compliance.identifier, 'report_compliance_summary');
+        expect(compliance.label, contains('Transparence'));
+        expect(disclaimer.identifier, 'report_disclaimer_summary');
+        expect(disclaimer.label, contains('Mention légale'));
+
+        expectIdentifierSubsequence(
+          semanticIdentifiersInTraversalOrder(tester),
+          [
+            'report_synthesis_summary',
+            'report_compliance_summary',
+            'report_disclaimer_summary',
+          ],
+        );
       } finally {
         semantics.dispose();
       }
